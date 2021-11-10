@@ -1,0 +1,2 @@
+ignores: ["lint-*", "prettier-*", "eslint-*", "babel-*", "solhint-*", "@commitlint/*", "conventional-changelog-cli"]
+skip-missing: true
