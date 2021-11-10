@@ -1,0 +1,71 @@
+{
+  "name": "kleros-v2",
+  "version": "0.1.0",
+  "description": "Kleros version 2",
+  "main": "index.js",
+  "repository": "git@github.com:kleros/kleros-v2.git",
+  "author": "Kleros",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "archon",
+    "bots",
+    "contracts",
+    "dynamic-script",
+    "evidence-display",
+    "subgraph",
+    "web"
+  ],
+  "packageManager": "yarn@3.1.0",
+  "volta": {
+    "node": "16.13.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^14.1.0",
+    "@commitlint/config-conventional": "^14.1.0",
+    "conventional-changelog-cli": "^2.1.1",
+    "depcheck": "^1.4.2",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-import-resolver-parcel": "^1.10.5",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.4.1",
+    "eslint-plugin-promise": "^5.1.1",
+    "husky": "^7.0.0",
+    "lint-staged": "^11.0.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.4.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.15",
+    "solhint": "^3.3.6",
+    "solhint-plugin-prettier": "^0.0.5"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
+    "rules": {
+      "body-leading-blank": [
+        2,
+        "always"
+      ],
+      "footer-leading-blank": [
+        2,
+        "always"
+      ]
+    }
+  },
+  "scripts": {
+    "depcheck": "depcheck .",
+    "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 && prettier --write CHANGELOG.md",
+    "lint": "run-p -s lint:*",
+    "lint:js": "eslint .",
+    "lint:sol": "solhint 'contracts/**/*.sol'",
+    "fix": "run-p -s fix:*",
+    "fix:js": "eslint --fix '**/*.js'",
+    "fix:sol": "prettier --write 'contracts/**/*.sol'",
+    "prepare": "husky install",
+    "postinstall": "husky install"
+  }
+}
