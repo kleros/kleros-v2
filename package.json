@@ -8,11 +8,11 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "archon",
     "bots",
     "contracts",
     "dynamic-script",
     "evidence-display",
+    "klerosjs",
     "subgraph",
     "web"
   ],
