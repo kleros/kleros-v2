@@ -18,13 +18,13 @@
 
 ## Toolchain:
 
-- Node 16
-- Yarn 3 without [PlugnPlay](https://yarnpkg.com/getting-started/migration/#switching-to-plugnplay)
 - Solidity 0.8
 - Hardhat
 - Ethers
 - Waffle
 - Typescript
+- Node 16
+- Yarn 3 without [PlugnPlay](https://yarnpkg.com/getting-started/migration/#switching-to-plugnplay)
 
 ## Contributing
 
@@ -36,7 +36,7 @@
   - on MacOS via [brew](https://brew.sh/): `brew install node`
   - on Windows via [Chocolatey](https://chocolatey.org/): `choco install nvs`
 - Install Yarn v1.22: `npm install -g yarn`
-- Upgrade Yarn to v3: `yarn set version berry`
+- [Upgrade](https://yarnpkg.com/getting-started/install#updating-to-the-latest-versions) Yarn to v3: `yarn set version berry`
 
 ### Optional Steps
 
@@ -70,6 +70,6 @@ Each directory at the root of this repository contains code for each individual 
 - **`dynamic-script/`**: allows fetching the dynamic content for the arbitration, as described by [ERC-1497: Evidence Standard](https://github.com/ethereum/EIPs/issues/1497).
 - **`evidence-display/`**: display interface that should be used to render the evidence for arbitrators, as described by [ERC-1497: Evidence Standard](https://github.com/ethereum/EIPs/issues/1497).
 
-## Deployed Addresses
+## Deployment
 
 See [contracts/README.md](contracts/README.md#deployed-addresses).
