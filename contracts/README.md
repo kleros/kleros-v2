@@ -85,10 +85,10 @@ If you miss that, you can always go to the `deployments/<network>` directory and
 
 This must be done for each network separately.
 
-For `Kovan` or `Mainnet` you can use the `etherscan-verify` command from `hardhat`:
+For `Mainnet` you can use the `etherscan-verify` command from `hardhat`:
 
 ```bash
-yarn hardhat --network <kovan|mainnet> etherscan-verify
+yarn hardhat --network mainnet etherscan-verify
 ```
 
-For `Sokol` and `xDAI` the process currently must be done manually through [Blockscout](https://blockscout.com/).
+For `Arbitrum` the process currently must be done manually through [Arbiscan](https://arbiscan.io/verifyContract).

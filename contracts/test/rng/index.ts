@@ -24,9 +24,9 @@ describe("IncrementalNG", function () {
     expect(await incrementalNG.callStatic.getRN(689376)).to.equal(0);
     await incrementalNG.getRN(29543);
     expect(await incrementalNG.callStatic.getRN(5894382)).to.equal(1);
-    await incrementalNG.getRN(BigNumber.from(2).pow(255));
-    expect(await incrementalNG.callStatic.getRN(3465)).to.equal(2);
     await incrementalNG.getRN(0);
+    expect(await incrementalNG.callStatic.getRN(3465)).to.equal(2);
+    await incrementalNG.getRN(BigNumber.from(2).pow(255));
     expect(await incrementalNG.callStatic.getRN(0)).to.equal(3);
   });
 });
