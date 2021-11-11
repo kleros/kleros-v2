@@ -15,7 +15,7 @@ Smart contracts for Kleros v2
 
 ## Contributing
 
-### Install Dependencies
+### Install the Dependencies
 
 ```bash
 yarn install

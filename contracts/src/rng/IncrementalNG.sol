@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 /**
  * @title Incremental Number Generator
  * @author JayBuidl <jb@kleros.io>
@@ -14,7 +16,9 @@ contract IncrementalNG is RNG {
      * @dev Contribute to the reward of a random number. All the ETH will be lost forever.
      * @param _block Block the random number is linked to.
      */
-    function contribute(uint256 _block) public payable override {}
+    function contribute(uint256 _block) public payable override {
+        /* NOP */
+    }
 
     /**
      * @dev Get the "random number", which is predictable.

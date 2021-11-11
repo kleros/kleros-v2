@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 /**
  * @title Constant Number Generator
  * @author Clément Lesaege - <clement@lesaege.com>
