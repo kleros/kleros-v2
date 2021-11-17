@@ -1,5 +1,7 @@
-## 0.1.0 (2021-11-11)
+## 0.1.0 (2021-11-17)
 
+- chore: added GitHub code scanning ([4a70475](https://github.com/kleros/kleros-v2/commit/4a70475))
+- chore: added the hardhat config for layer 2 networks, added hardhat-deploy and mocha ([a12ea0e](https://github.com/kleros/kleros-v2/commit/a12ea0e))
 - test: added a test for IncrementalNG ([65a996b](https://github.com/kleros/kleros-v2/commit/65a996b))
 - docs: initial commit ([23356e7](https://github.com/kleros/kleros-v2/commit/23356e7))
 - docs: license file added ([cb62d2c](https://github.com/kleros/kleros-v2/commit/cb62d2c))
