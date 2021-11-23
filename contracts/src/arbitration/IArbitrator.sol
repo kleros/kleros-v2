@@ -56,7 +56,7 @@ interface IArbitrator {
      * @param _extraData Can be used to give additional info on the dispute to be created.
      * @return cost Required cost of arbitration.
      */
-    function arbitrationCost(bytes memory _extraData) external view returns (uint256 cost);
+    function arbitrationCost(bytes calldata _extraData) external view returns (uint256 cost);
 
     /**
      * @dev Return the funded amount and funding goal for one (or the subset) of choices.
@@ -66,7 +66,7 @@ interface IArbitrator {
      * @return funded The amount funded so far for this subset in wei.
      * @return goal The amount to fully fund this subset in wei.
      */
-    function fundingStatus(uint256 _disputeID, uint256[] memory _choices)
+    function fundingStatus(uint256 _disputeID, uint256[] calldata _choices)
         external
         view
         returns (uint256 funded, uint256 goal);

@@ -317,7 +317,7 @@ contract CentralizedArbitrator is IArbitrator {
      *  @return fee The required amount.
      */
     function arbitrationCost(
-        bytes memory /*_extraData*/
+        bytes calldata /*_extraData*/
     ) public view override returns (uint256 fee) {
         return arbitrationFee;
     }
@@ -328,7 +328,7 @@ contract CentralizedArbitrator is IArbitrator {
      *  @return funded The amount funded so far for this subset in wei.
      *  @return goal The amount to fully fund this subset in wei.
      */
-    function fundingStatus(uint256 _disputeID, uint256[] memory _choices)
+    function fundingStatus(uint256 _disputeID, uint256[] calldata _choices)
         external
         view
         override

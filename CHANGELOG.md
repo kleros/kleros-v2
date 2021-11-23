@@ -1,5 +1,6 @@
 ## 0.1.0 (2021-11-23)
 
+- fix(IArbitrator): replaced appealCost with fundingStatus ([f189dd9](https://github.com/kleros/kleros-v2/commit/f189dd9))
 - feat: modern toolchain setup and simple RNG smart contracts ([17f6a76](https://github.com/kleros/kleros-v2/commit/17f6a76))
 - feat(Arbitration): standard update ([ed930de](https://github.com/kleros/kleros-v2/commit/ed930de))
 - chore: added GitHub code scanning ([4a70475](https://github.com/kleros/kleros-v2/commit/4a70475))
