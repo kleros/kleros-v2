@@ -14,12 +14,10 @@ contract CentralizedArbitrator is IArbitrator {
     /* Constants */
 
     // The required fee stake that a party must pay depends on who won the previous round and is proportional to the appeal cost such that the fee stake for a round is stake multiplier * appeal cost for that round.
-    uint256 public constant WINNER_STAKE_MULTIPLIER = 10000; // Multiplier of the arbitration cost that the winner has to pay as fee stake for a round in basis points. Default is 1x of appeal fee.
-    uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the arbitration cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
+    uint256 public constant WINNER_STAKE_MULTIPLIER = 10000; // Multiplier of the appeal cost that the winner has to pay as fee stake for a round in basis points. Default is 1x of appeal fee.
+    uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the appeal cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
     uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
     uint256 public constant MULTIPLIER_DIVISOR = 10000;
-
-    uint256 constant NOT_PAYABLE_VALUE = 2**256 - 1; // High value to make sure that the appeal is too expensive.
 
     /* Structs */
 
@@ -46,8 +44,8 @@ contract CentralizedArbitrator is IArbitrator {
     address public owner = msg.sender; // Owner of the contract.
     uint256 public appealDuration; // The duration of the appeal period.
 
-    uint256 private arbitrationFee; // The cost to create a dispute.
-    uint256 private appealFee; // The cost to fund one of the choices.
+    uint256 private arbitrationFee; // The cost to create a dispute. Made private because of the arbitrationCost() getter.
+    uint256 public appealFee; // The cost to fund one of the choices, not counting the additional fee stake amount.
 
     DisputeStruct[] public disputes; // Stores the dispute info. disputes[disputeID].
     mapping(uint256 => Round[]) public disputeIDtoRoundArray; // Maps dispute IDs to Round array that contains the info about crowdfunding.
@@ -101,7 +99,7 @@ contract CentralizedArbitrator is IArbitrator {
     /** @dev Constructor.
      *  @param _arbitrationFee Amount to be paid for arbitration.
      *  @param _appealDuration Duration of the appeal period.
-     *  @param _appealFee Amount to be paid to fund one of the appeal choices.
+     *  @param _appealFee Amount to be paid to fund one of the appeal choices, not counting the additional fee stake amount.
      */
     constructor(
         uint256 _arbitrationFee,
@@ -204,8 +202,7 @@ contract CentralizedArbitrator is IArbitrator {
         Round storage lastRound = rounds[lastRoundIndex];
         require(!lastRound.hasPaid[contributedChoice], "Appeal fee is already paid.");
 
-        uint256 localAppealCost = appealCost(_disputeID, dispute.arbitratorExtraData);
-        uint256 totalCost = localAppealCost + (localAppealCost * multiplier) / MULTIPLIER_DIVISOR;
+        uint256 totalCost = appealFee + (appealFee * multiplier) / MULTIPLIER_DIVISOR;
 
         // Take up to the amount necessary to fund the current round at the current costs.
         uint256 contribution;
@@ -228,7 +225,7 @@ contract CentralizedArbitrator is IArbitrator {
         if (lastRound.fundedChoices.length > 1) {
             // At least two sides are fully funded.
             rounds.push();
-            lastRound.feeRewards = lastRound.feeRewards - localAppealCost;
+            lastRound.feeRewards = lastRound.feeRewards - appealFee;
 
             dispute.status = DisputeStatus.Waiting;
             dispute.appealPeriodStart = 0;
@@ -325,20 +322,39 @@ contract CentralizedArbitrator is IArbitrator {
         return arbitrationFee;
     }
 
-    /** @dev Cost of the appeal.
-     *  @param _disputeID ID of the dispute to appeal.
-     *  @return fee The amount to pay. Returns the unpayable value if the appeal is not possible.
+    /** @dev Return the funded amount and funding goal for one (or the subset) of choices.
+     *  @param _disputeID The ID of the dispute to appeal.
+     *  @param _choices The one (or the subset) of choices to check the funding status of.
+     *  @return funded The amount funded so far for this subset in wei.
+     *  @return goal The amount to fully fund this subset in wei.
      */
-    function appealCost(
-        uint256 _disputeID,
-        bytes memory /*_extraData */
-    ) public view override returns (uint256 fee) {
+    function fundingStatus(uint256 _disputeID, uint256[] memory _choices)
+        external
+        view
+        override
+        returns (uint256 funded, uint256 goal)
+    {
+        require(_choices.length == 1, "Can only fund 1 ruling.");
+        uint256 contributedChoice = _choices[0];
+
         DisputeStruct storage dispute = disputes[_disputeID];
-        if (dispute.status == DisputeStatus.Appealable) {
-            return appealFee;
+        require(contributedChoice <= dispute.choices, "There is no such ruling to fund.");
+        require(dispute.status == DisputeStatus.Appealable, "Dispute not appealable.");
+
+        uint256 multiplier;
+        uint256 winner = currentRuling(_disputeID);
+        if (winner == contributedChoice) {
+            multiplier = WINNER_STAKE_MULTIPLIER;
         } else {
-            return NOT_PAYABLE_VALUE;
+            multiplier = LOSER_STAKE_MULTIPLIER;
         }
+
+        goal = appealFee + (appealFee * multiplier) / MULTIPLIER_DIVISOR;
+
+        Round[] storage rounds = disputeIDtoRoundArray[_disputeID];
+        Round storage lastRound = rounds[rounds.length - 1];
+
+        return (lastRound.paidFees[contributedChoice], goal);
     }
 
     /** @dev Compute the start and end of the dispute's appeal period, if possible. If the dispute is not appealble return (0, 0).
