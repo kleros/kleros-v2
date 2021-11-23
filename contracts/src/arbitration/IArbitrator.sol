@@ -7,11 +7,11 @@ import "./IArbitrable.sol";
 /**
  * @title Arbitrator
  * Arbitrator interface for CourtV2.
- * This interface for the most part follows the ERC-792 standard but also allows the appeal crowdfunding on arbitrator's side.
+ * This interface follows the ERC-792 standard but also allows the appeal crowdfunding on arbitrator's side.
  * When developing arbitrator contracts we need to:
  * - Define the functions for dispute creation (createDispute). Don't forget to store the arbitrated contract and the disputeID (which should be unique, may nbDisputes).
  * - Define the function for appeal crowdfunding (fundAppeal) in order to appeal the ruling.
- * - Define the functions for cost display (arbitrationCost and appealCost).
+ * - Define the functions for cost display (arbitrationCost and fundingStatus).
  * - Allow giving rulings. For this a function must call arbitrable.rule(disputeID, ruling).
  */
 interface IArbitrator {
@@ -59,12 +59,17 @@ interface IArbitrator {
     function arbitrationCost(bytes memory _extraData) external view returns (uint256 cost);
 
     /**
-     * @dev Compute the cost of an appeal.
-     * @param _disputeID ID of the dispute to be appealed.
-     * @param _extraData Can be used to give additional info of the dispute.
-     * @return cost Required appeal cost.
+     * @dev Return the funded amount and funding goal for one (or the subset) of choices.
+     * Note that the status info may not be available if the dispute is not currently appealable.
+     * @param _disputeID The ID of the dispute to appeal.
+     * @param _choices The one (or the subset) of choices to check the funding status of.
+     * @return funded The amount funded so far for this subset in wei.
+     * @return goal The amount to fully fund this subset in wei.
      */
-    function appealCost(uint256 _disputeID, bytes memory _extraData) external view returns (uint256 cost);
+    function fundingStatus(uint256 _disputeID, uint256[] memory _choices)
+        external
+        view
+        returns (uint256 funded, uint256 goal);
 
     /**
      * @dev Compute the start and end of the dispute's appeal period, if possible. If appeal is impossible: should return (0, 0).
@@ -76,7 +81,6 @@ interface IArbitrator {
 
     /**
      * @dev Make a contribution to fund one (or the subset) of possible choices in order to appeal the ruling.
-     * Note that the desired appeal system will be defined by the selected Dispute Kit.
      * @param _disputeID The ID of the dispute to appeal.
      * @param _choices The choices to contribute to.
      */
