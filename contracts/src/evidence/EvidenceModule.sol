@@ -149,7 +149,6 @@ contract EvidenceModule is IArbitrable, IEvidence {
         ArbitratorData storage arbitratorData = arbitratorDataList[arbitratorDataList.length - 1];
         arbitratorDataList.push(
             ArbitratorData({
-                arbitrator: _arbitrator,
                 metaEvidenceUpdates: arbitratorData.metaEvidenceUpdates,
                 arbitratorExtraData: _arbitratorExtraData
             })
@@ -157,6 +156,7 @@ contract EvidenceModule is IArbitrable, IEvidence {
     }
 
     function submitEvidence(uint256 _disputeID, string calldata _evidence) external payable {
+        // TODO: should _disputeID existence and validity be checked?
         bytes32 evidenceID = keccak256(abi.encodePacked(_disputeID, _evidence));
         EvidenceData storage evidenceData = evidences[evidenceID];
         require(evidenceData.submitter == address(0x0), "Evidence already submitted.");
