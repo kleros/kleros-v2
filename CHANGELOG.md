@@ -1,5 +1,6 @@
-## 0.1.0 (2021-11-23)
+## 0.1.0 (2021-11-25)
 
+- fix(Arbitrator): memory to calldata ([4770b1f](https://github.com/kleros/kleros-v2/commit/4770b1f))
 - fix(IArbitrator): replaced appealCost with fundingStatus ([f189dd9](https://github.com/kleros/kleros-v2/commit/f189dd9))
 - feat: modern toolchain setup and simple RNG smart contracts ([17f6a76](https://github.com/kleros/kleros-v2/commit/17f6a76))
 - feat(Arbitration): standard update ([ed930de](https://github.com/kleros/kleros-v2/commit/ed930de))

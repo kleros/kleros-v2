@@ -5,10 +5,10 @@ pragma solidity ^0.8;
 import "./IArbitrator.sol";
 
 /** @title Centralized Arbitrator
- *  @dev This is a centralized arbitrator deciding alone on the result of disputes. It allows to appeal the rulings by crowdfunding a desired choice.
+ *  @dev This is a centralized arbitrator deciding alone on the result of disputes. It illustrates how the appeals can be handled on the arbitrator level.
+ *  In this particular contract the rulings can be appealed by crowdfunding a desired choice.
  *  Note that normally the arbitrator should use a Dispute Kit contract which will define the algorithm for appeals/withdrawals.
  *  However to avoid complexity the code of the Dispute Kit is inlined within this contract.
- *  Also note that to avoid complexity funding the subset of choices is not possible in this contract.
  */
 contract CentralizedArbitrator is IArbitrator {
     /* Constants */
@@ -51,6 +51,20 @@ contract CentralizedArbitrator is IArbitrator {
     mapping(uint256 => Round[]) public disputeIDtoRoundArray; // Maps dispute IDs to Round array that contains the info about crowdfunding.
 
     /* Events */
+
+    /**
+     * @dev To be emitted when a dispute can be appealed.
+     * @param _disputeID ID of the dispute.
+     * @param _arbitrable The contract which created the dispute.
+     */
+    event AppealPossible(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
+
+    /**
+     * @dev To be emitted when the current ruling is appealed.
+     * @param _disputeID ID of the dispute.
+     * @param _arbitrable The contract which created the dispute.
+     */
+    event AppealDecision(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
 
     /** @dev Raised when a contribution is made, inside fundAppeal function.
      *  @param _disputeID ID of the dispute.
@@ -168,16 +182,12 @@ contract CentralizedArbitrator is IArbitrator {
     /** @dev TRUSTED. Manages contributions, and appeals a dispute if at least two choices are fully funded. This function allows the appeals to be crowdfunded.
      *  Note that the surplus deposit will be reimbursed.
      *  @param _disputeID Index of the dispute to appeal.
-     *  @param _choices Subset of choices that can be funded. Note that this contract only allows to fund one choice at a time.
+     *  @param _choice A choice that receives funding.
      */
-    function fundAppeal(uint256 _disputeID, uint256[] calldata _choices) external payable override {
-        require(_choices.length == 1, "Can only fund 1 ruling.");
-
+    function fundAppeal(uint256 _disputeID, uint256 _choice) external payable {
         DisputeStruct storage dispute = disputes[_disputeID];
         require(dispute.status == DisputeStatus.Appealable, "Dispute not appealable.");
-
-        uint256 contributedChoice = _choices[0];
-        require(contributedChoice <= dispute.choices, "There is no such ruling to fund.");
+        require(_choice <= dispute.choices, "There is no such ruling to fund.");
 
         (uint256 appealPeriodStart, uint256 appealPeriodEnd) = appealPeriod(_disputeID);
         require(block.timestamp >= appealPeriodStart && block.timestamp < appealPeriodEnd, "Appeal period is over.");
@@ -185,7 +195,7 @@ contract CentralizedArbitrator is IArbitrator {
         uint256 multiplier;
         {
             uint256 winner = currentRuling(_disputeID);
-            if (winner == contributedChoice) {
+            if (winner == _choice) {
                 multiplier = WINNER_STAKE_MULTIPLIER;
             } else {
                 require(
@@ -200,26 +210,26 @@ contract CentralizedArbitrator is IArbitrator {
         Round[] storage rounds = disputeIDtoRoundArray[_disputeID];
         uint256 lastRoundIndex = rounds.length - 1;
         Round storage lastRound = rounds[lastRoundIndex];
-        require(!lastRound.hasPaid[contributedChoice], "Appeal fee is already paid.");
+        require(!lastRound.hasPaid[_choice], "Appeal fee is already paid.");
 
         uint256 totalCost = appealFee + (appealFee * multiplier) / MULTIPLIER_DIVISOR;
 
         // Take up to the amount necessary to fund the current round at the current costs.
         uint256 contribution;
-        if (totalCost > lastRound.paidFees[contributedChoice]) {
-            contribution = totalCost - lastRound.paidFees[contributedChoice] > msg.value // Overflows and underflows will be managed on the compiler level.
+        if (totalCost > lastRound.paidFees[_choice]) {
+            contribution = totalCost - lastRound.paidFees[_choice] > msg.value // Overflows and underflows will be managed on the compiler level.
                 ? msg.value
-                : totalCost - lastRound.paidFees[contributedChoice];
-            emit Contribution(_disputeID, lastRoundIndex, contributedChoice, msg.sender, contribution);
+                : totalCost - lastRound.paidFees[_choice];
+            emit Contribution(_disputeID, lastRoundIndex, _choice, msg.sender, contribution);
         }
 
-        lastRound.contributions[msg.sender][contributedChoice] += contribution;
-        lastRound.paidFees[contributedChoice] += contribution;
-        if (lastRound.paidFees[contributedChoice] >= totalCost) {
-            lastRound.feeRewards += lastRound.paidFees[contributedChoice];
-            lastRound.fundedChoices.push(contributedChoice);
-            lastRound.hasPaid[contributedChoice] = true;
-            emit ChoiceFunded(_disputeID, lastRoundIndex, contributedChoice);
+        lastRound.contributions[msg.sender][_choice] += contribution;
+        lastRound.paidFees[_choice] += contribution;
+        if (lastRound.paidFees[_choice] >= totalCost) {
+            lastRound.feeRewards += lastRound.paidFees[_choice];
+            lastRound.fundedChoices.push(_choice);
+            lastRound.hasPaid[_choice] = true;
+            emit ChoiceFunded(_disputeID, lastRoundIndex, _choice);
         }
 
         if (lastRound.fundedChoices.length > 1) {
@@ -322,28 +332,20 @@ contract CentralizedArbitrator is IArbitrator {
         return arbitrationFee;
     }
 
-    /** @dev Return the funded amount and funding goal for one (or the subset) of choices.
+    /** @dev Return the funded amount and funding goal for one of the choices.
      *  @param _disputeID The ID of the dispute to appeal.
-     *  @param _choices The one (or the subset) of choices to check the funding status of.
-     *  @return funded The amount funded so far for this subset in wei.
-     *  @return goal The amount to fully fund this subset in wei.
+     *  @param _choice The choice to check the funding status of.
+     *  @return funded The amount funded so far for this choice in wei.
+     *  @return goal The amount to fully fund this choice in wei.
      */
-    function fundingStatus(uint256 _disputeID, uint256[] calldata _choices)
-        external
-        view
-        override
-        returns (uint256 funded, uint256 goal)
-    {
-        require(_choices.length == 1, "Can only fund 1 ruling.");
-        uint256 contributedChoice = _choices[0];
-
+    function fundingStatus(uint256 _disputeID, uint256 _choice) external view returns (uint256 funded, uint256 goal) {
         DisputeStruct storage dispute = disputes[_disputeID];
-        require(contributedChoice <= dispute.choices, "There is no such ruling to fund.");
+        require(_choice <= dispute.choices, "There is no such ruling to fund.");
         require(dispute.status == DisputeStatus.Appealable, "Dispute not appealable.");
 
         uint256 multiplier;
         uint256 winner = currentRuling(_disputeID);
-        if (winner == contributedChoice) {
+        if (winner == _choice) {
             multiplier = WINNER_STAKE_MULTIPLIER;
         } else {
             multiplier = LOSER_STAKE_MULTIPLIER;
@@ -354,7 +356,7 @@ contract CentralizedArbitrator is IArbitrator {
         Round[] storage rounds = disputeIDtoRoundArray[_disputeID];
         Round storage lastRound = rounds[rounds.length - 1];
 
-        return (lastRound.paidFees[contributedChoice], goal);
+        return (lastRound.paidFees[_choice], goal);
     }
 
     /** @dev Compute the start and end of the dispute's appeal period, if possible. If the dispute is not appealble return (0, 0).
@@ -362,7 +364,7 @@ contract CentralizedArbitrator is IArbitrator {
      *  @return start The start of the period.
      *  @return end The end of the period.
      */
-    function appealPeriod(uint256 _disputeID) public view override returns (uint256 start, uint256 end) {
+    function appealPeriod(uint256 _disputeID) public view returns (uint256 start, uint256 end) {
         DisputeStruct storage dispute = disputes[_disputeID];
         if (dispute.status == DisputeStatus.Appealable) {
             start = dispute.appealPeriodStart;
