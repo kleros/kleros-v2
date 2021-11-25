@@ -7,11 +7,10 @@ import "./IArbitrable.sol";
 /**
  * @title Arbitrator
  * Arbitrator interface for CourtV2.
- * This interface follows the ERC-792 standard but also allows the appeal crowdfunding on arbitrator's side.
+ * Unlike the ERC-792 this standard doesn't have anything related to appeals, so each arbitrator can implement an appeal system that suits it the most.
  * When developing arbitrator contracts we need to:
  * - Define the functions for dispute creation (createDispute). Don't forget to store the arbitrated contract and the disputeID (which should be unique, may nbDisputes).
- * - Define the function for appeal crowdfunding (fundAppeal) in order to appeal the ruling.
- * - Define the functions for cost display (arbitrationCost and fundingStatus).
+ * - Define the functions for cost display (arbitrationCost).
  * - Allow giving rulings. For this a function must call arbitrable.rule(disputeID, ruling).
  */
 interface IArbitrator {
@@ -29,20 +28,6 @@ interface IArbitrator {
     event DisputeCreation(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
 
     /**
-     * @dev To be emitted when a dispute can be appealed.
-     * @param _disputeID ID of the dispute.
-     * @param _arbitrable The contract which created the dispute.
-     */
-    event AppealPossible(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
-
-    /**
-     * @dev To be emitted when the current ruling is appealed.
-     * @param _disputeID ID of the dispute.
-     * @param _arbitrable The contract which created the dispute.
-     */
-    event AppealDecision(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
-
-    /**
      * @dev Create a dispute. Must be called by the arbitrable contract.
      * Must pay at least arbitrationCost(_extraData).
      * @param _choices Amount of choices the arbitrator can make in this dispute.
@@ -57,34 +42,6 @@ interface IArbitrator {
      * @return cost Required cost of arbitration.
      */
     function arbitrationCost(bytes calldata _extraData) external view returns (uint256 cost);
-
-    /**
-     * @dev Return the funded amount and funding goal for one (or the subset) of choices.
-     * Note that the status info may not be available if the dispute is not currently appealable.
-     * @param _disputeID The ID of the dispute to appeal.
-     * @param _choices The one (or the subset) of choices to check the funding status of.
-     * @return funded The amount funded so far for this subset in wei.
-     * @return goal The amount to fully fund this subset in wei.
-     */
-    function fundingStatus(uint256 _disputeID, uint256[] calldata _choices)
-        external
-        view
-        returns (uint256 funded, uint256 goal);
-
-    /**
-     * @dev Compute the start and end of the dispute's appeal period, if possible. If appeal is impossible: should return (0, 0).
-     * @param _disputeID ID of the dispute.
-     * @return start The start of the period.
-     * @return end The end of the period.
-     */
-    function appealPeriod(uint256 _disputeID) external view returns (uint256 start, uint256 end);
-
-    /**
-     * @dev Make a contribution to fund one (or the subset) of possible choices in order to appeal the ruling.
-     * @param _disputeID The ID of the dispute to appeal.
-     * @param _choices The choices to contribute to.
-     */
-    function fundAppeal(uint256 _disputeID, uint256[] calldata _choices) external payable;
 
     /**
      * @dev Return the status of a dispute.
