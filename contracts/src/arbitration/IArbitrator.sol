@@ -10,7 +10,7 @@ import "./IArbitrable.sol";
  * Unlike the ERC-792 this standard doesn't have anything related to appeals, so each arbitrator can implement an appeal system that suits it the most.
  * When developing arbitrator contracts we need to:
  * - Define the functions for dispute creation (createDispute). Don't forget to store the arbitrated contract and the disputeID (which should be unique, may nbDisputes).
- * - Define the functions for cost display (cost).
+ * - Define the functions for cost display (arbitrationCost).
  * - Allow giving rulings. For this a function must call arbitrable.rule(disputeID, ruling).
  */
 interface IArbitrator {
@@ -23,7 +23,7 @@ interface IArbitrator {
 
     /**
      * @dev Create a dispute. Must be called by the arbitrable contract.
-     * Must pay at least cost(_extraData).
+     * Must pay at least arbitrationCost(_extraData).
      * @param _choices Amount of choices the arbitrator can make in this dispute.
      * @param _extraData Can be used to give additional info on the dispute to be created.
      * @return disputeID ID of the dispute created.
@@ -35,5 +35,5 @@ interface IArbitrator {
      * @param _extraData Can be used to give additional info on the dispute to be created.
      * @return cost Required cost of arbitration.
      */
-    function cost(bytes calldata _extraData) external view returns (uint256 cost);
+    function arbitrationCost(bytes calldata _extraData) external view returns (uint256 cost);
 }

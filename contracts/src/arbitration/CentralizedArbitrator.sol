@@ -50,7 +50,7 @@ contract CentralizedArbitrator is IArbitrator {
     address public owner = msg.sender; // Owner of the contract.
     uint256 public appealDuration; // The duration of the appeal period.
 
-    uint256 private arbitrationFee; // The cost to create a dispute. Made private because of the cost() getter.
+    uint256 private arbitrationFee; // The cost to create a dispute. Made private because of the arbitrationCost() getter.
     uint256 public appealFee; // The cost to fund one of the choices, not counting the additional fee stake amount.
 
     DisputeStruct[] public disputes; // Stores the dispute info. disputes[disputeID].
@@ -155,7 +155,7 @@ contract CentralizedArbitrator is IArbitrator {
     }
 
     /** @dev Create a dispute. Must be called by the arbitrable contract.
-     *  Must be paid at least cost().
+     *  Must be paid at least arbitrationCost().
      *  @param _choices Amount of choices the arbitrator can make in this dispute.
      *  @param _extraData Can be used to give additional info on the dispute to be created.
      *  @return disputeID ID of the dispute created.
@@ -166,8 +166,8 @@ contract CentralizedArbitrator is IArbitrator {
         override
         returns (uint256 disputeID)
     {
-        uint256 arbitrationCost = cost(_extraData);
-        require(msg.value >= arbitrationCost, "Not enough ETH to cover arbitration costs.");
+        uint256 localArbitrationCost = arbitrationCost(_extraData);
+        require(msg.value >= localArbitrationCost, "Not enough ETH to cover arbitration costs.");
         disputeID = disputes.length;
         disputes.push(
             DisputeStruct({
@@ -329,7 +329,7 @@ contract CentralizedArbitrator is IArbitrator {
     /** @dev Cost of arbitration.
      *  @return fee The required amount.
      */
-    function cost(
+    function arbitrationCost(
         bytes calldata /*_extraData*/
     ) public view override returns (uint256 fee) {
         return arbitrationFee;
