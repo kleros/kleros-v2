@@ -2,6 +2,7 @@
 
 - fix(Arbitrator): memory to calldata ([4770b1f](https://github.com/kleros/kleros-v2/commit/4770b1f))
 - fix(IArbitrator): appeals removed from the standard ([02c20ce](https://github.com/kleros/kleros-v2/commit/02c20ce))
+- fix(IArbitrator): interface simplification ([e81fb8b](https://github.com/kleros/kleros-v2/commit/e81fb8b))
 - fix(IArbitrator): replaced appealCost with fundingStatus ([f189dd9](https://github.com/kleros/kleros-v2/commit/f189dd9))
 - feat: modern toolchain setup and simple RNG smart contracts ([17f6a76](https://github.com/kleros/kleros-v2/commit/17f6a76))
 - feat(Arbitration): standard update ([ed930de](https://github.com/kleros/kleros-v2/commit/ed930de))
