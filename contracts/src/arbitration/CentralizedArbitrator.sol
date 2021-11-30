@@ -5,10 +5,8 @@ pragma solidity ^0.8;
 import "./IArbitrator.sol";
 
 /** @title Centralized Arbitrator
- *  @dev This is a centralized arbitrator deciding alone on the result of disputes. It illustrates how the appeals can be handled on the arbitrator level.
- *  In this particular contract the rulings can be appealed by crowdfunding a desired choice.
- *  Note that normally the arbitrator should use a Dispute Kit contract which will define the algorithm for appeals/withdrawals.
- *  However to avoid complexity the code of the Dispute Kit is inlined within this contract.
+ *  @dev This is a centralized arbitrator deciding alone on the result of disputes. It illustrates how IArbitrator interface can be implemented.
+ *  Note that this contract supports appeals. The ruling given by the arbitrator can be appealed by crowdfunding a desired choice.
  */
 contract CentralizedArbitrator is IArbitrator {
     /* Constants */
@@ -18,6 +16,14 @@ contract CentralizedArbitrator is IArbitrator {
     uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the appeal cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
     uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
     uint256 public constant MULTIPLIER_DIVISOR = 10000;
+
+    /* Enums */
+
+    enum DisputeStatus {
+        Waiting, // The dispute is waiting for the ruling or not created.
+        Appealable, // The dispute can be appealed.
+        Solved // The dispute is resolved.
+    }
 
     /* Structs */
 
@@ -44,7 +50,7 @@ contract CentralizedArbitrator is IArbitrator {
     address public owner = msg.sender; // Owner of the contract.
     uint256 public appealDuration; // The duration of the appeal period.
 
-    uint256 private arbitrationFee; // The cost to create a dispute. Made private because of the arbitrationCost() getter.
+    uint256 private arbitrationFee; // The cost to create a dispute. Made private because of the cost() getter.
     uint256 public appealFee; // The cost to fund one of the choices, not counting the additional fee stake amount.
 
     DisputeStruct[] public disputes; // Stores the dispute info. disputes[disputeID].
@@ -149,7 +155,7 @@ contract CentralizedArbitrator is IArbitrator {
     }
 
     /** @dev Create a dispute. Must be called by the arbitrable contract.
-     *  Must be paid at least arbitrationCost().
+     *  Must be paid at least cost().
      *  @param _choices Amount of choices the arbitrator can make in this dispute.
      *  @param _extraData Can be used to give additional info on the dispute to be created.
      *  @return disputeID ID of the dispute created.
@@ -160,8 +166,8 @@ contract CentralizedArbitrator is IArbitrator {
         override
         returns (uint256 disputeID)
     {
-        uint256 localArbitrationCost = arbitrationCost(_extraData);
-        require(msg.value >= localArbitrationCost, "Not enough ETH to cover arbitration costs.");
+        uint256 arbitrationCost = cost(_extraData);
+        require(msg.value >= arbitrationCost, "Not enough ETH to cover arbitration costs.");
         disputeID = disputes.length;
         disputes.push(
             DisputeStruct({
@@ -193,18 +199,15 @@ contract CentralizedArbitrator is IArbitrator {
         require(block.timestamp >= appealPeriodStart && block.timestamp < appealPeriodEnd, "Appeal period is over.");
 
         uint256 multiplier;
-        {
-            uint256 winner = currentRuling(_disputeID);
-            if (winner == _choice) {
-                multiplier = WINNER_STAKE_MULTIPLIER;
-            } else {
-                require(
-                    block.timestamp - appealPeriodStart <
-                        ((appealPeriodEnd - appealPeriodStart) * LOSER_APPEAL_PERIOD_MULTIPLIER) / MULTIPLIER_DIVISOR,
-                    "Appeal period is over for loser"
-                );
-                multiplier = LOSER_STAKE_MULTIPLIER;
-            }
+        if (dispute.ruling == _choice) {
+            multiplier = WINNER_STAKE_MULTIPLIER;
+        } else {
+            require(
+                block.timestamp - appealPeriodStart <
+                    ((appealPeriodEnd - appealPeriodStart) * LOSER_APPEAL_PERIOD_MULTIPLIER) / MULTIPLIER_DIVISOR,
+                "Appeal period is over for loser"
+            );
+            multiplier = LOSER_STAKE_MULTIPLIER;
         }
 
         Round[] storage rounds = disputeIDtoRoundArray[_disputeID];
@@ -248,7 +251,7 @@ contract CentralizedArbitrator is IArbitrator {
     /** @dev Give a ruling to a dispute. Once it's given the dispute can be appealed, and after the appeal period has passed this function should be called again to finalize the ruling.
      *  Accounts for the situation where the winner loses a case due to paying less appeal fees than expected.
      *  @param _disputeID ID of the dispute to rule.
-     *  @param _ruling Ruling given by the arbitrator. Note that 0 means "Not able/wanting to make a decision".
+     *  @param _ruling Ruling given by the arbitrator. Note that 0 means that arbitrator chose "Refused to rule".
      */
     function giveRuling(uint256 _disputeID, uint256 _ruling) external onlyOwner {
         DisputeStruct storage dispute = disputes[_disputeID];
@@ -326,7 +329,7 @@ contract CentralizedArbitrator is IArbitrator {
     /** @dev Cost of arbitration.
      *  @return fee The required amount.
      */
-    function arbitrationCost(
+    function cost(
         bytes calldata /*_extraData*/
     ) public view override returns (uint256 fee) {
         return arbitrationFee;
@@ -343,15 +346,11 @@ contract CentralizedArbitrator is IArbitrator {
         require(_choice <= dispute.choices, "There is no such ruling to fund.");
         require(dispute.status == DisputeStatus.Appealable, "Dispute not appealable.");
 
-        uint256 multiplier;
-        uint256 winner = currentRuling(_disputeID);
-        if (winner == _choice) {
-            multiplier = WINNER_STAKE_MULTIPLIER;
+        if (dispute.ruling == _choice) {
+            goal = appealFee + (appealFee * WINNER_STAKE_MULTIPLIER) / MULTIPLIER_DIVISOR;
         } else {
-            multiplier = LOSER_STAKE_MULTIPLIER;
+            goal = appealFee + (appealFee * LOSER_STAKE_MULTIPLIER) / MULTIPLIER_DIVISOR;
         }
-
-        goal = appealFee + (appealFee * multiplier) / MULTIPLIER_DIVISOR;
 
         Round[] storage rounds = disputeIDtoRoundArray[_disputeID];
         Round storage lastRound = rounds[rounds.length - 1];
@@ -371,21 +370,5 @@ contract CentralizedArbitrator is IArbitrator {
             end = start + appealDuration;
         }
         return (start, end);
-    }
-
-    /** @dev Return the status of a dispute.
-     *  @param _disputeID ID of the dispute.
-     *  @return status The status of the dispute.
-     */
-    function disputeStatus(uint256 _disputeID) public view override returns (DisputeStatus status) {
-        return disputes[_disputeID].status;
-    }
-
-    /** @dev Return the ruling of a dispute.
-     *  @param _disputeID ID of the dispute.
-     *  @return ruling The ruling which would or has been given.
-     */
-    function currentRuling(uint256 _disputeID) public view override returns (uint256 ruling) {
-        return disputes[_disputeID].ruling;
     }
 }
