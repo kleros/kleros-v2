@@ -2,6 +2,9 @@
 cache
 artifacts
 
+## Hardhat typechain bindings/types
+typechain
+
 # Hardhat deploy files
 deployments/localhost
 deployments/hardhat
