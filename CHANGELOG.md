@@ -1,5 +1,6 @@
 ## 0.1.0 (2021-12-04)
 
+- feat: add arbitrum L1 bridge and dependencies ([283e748](https://github.com/kleros/kleros-v2/commit/283e748))
 - fix(Arbitrator): memory to calldata ([4770b1f](https://github.com/kleros/kleros-v2/commit/4770b1f))
 - fix(IArbitrator): appeals removed from the standard ([02c20ce](https://github.com/kleros/kleros-v2/commit/02c20ce))
 - fix(IArbitrator): change name to arbitration cost ([0ba4f29](https://github.com/kleros/kleros-v2/commit/0ba4f29))
@@ -7,6 +8,11 @@
 - fix(IArbitrator): replaced appealCost with fundingStatus ([f189dd9](https://github.com/kleros/kleros-v2/commit/f189dd9))
 - feat: modern toolchain setup and simple RNG smart contracts ([17f6a76](https://github.com/kleros/kleros-v2/commit/17f6a76))
 - feat(Arbitration): standard update ([ed930de](https://github.com/kleros/kleros-v2/commit/ed930de))
+- fix(Arbitrator): memory to calldata ([4770b1f](https://github.com/kleros/kleros-v2/commit/4770b1f))
+- fix(IArbitrator): appeals removed from the standard ([02c20ce](https://github.com/kleros/kleros-v2/commit/02c20ce))
+- fix(IArbitrator): change name to arbitration cost ([0ba4f29](https://github.com/kleros/kleros-v2/commit/0ba4f29))
+- fix(IArbitrator): interface simplification ([e81fb8b](https://github.com/kleros/kleros-v2/commit/e81fb8b))
+- fix(IArbitrator): replaced appealCost with fundingStatus ([f189dd9](https://github.com/kleros/kleros-v2/commit/f189dd9))
 - chore: added GitHub code scanning ([4a70475](https://github.com/kleros/kleros-v2/commit/4a70475))
 - chore: added the hardhat config for layer 2 networks, added hardhat-deploy and mocha ([a12ea0e](https://github.com/kleros/kleros-v2/commit/a12ea0e))
 - test: added a test for IncrementalNG ([65a996b](https://github.com/kleros/kleros-v2/commit/65a996b))
