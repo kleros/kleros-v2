@@ -40,6 +40,7 @@ contract L1Bridge {
         uint256 _maxGas,
         uint256 _gasPriceBid
     ) external payable returns (uint256) {
+        // Perhaps Inbox#sendContractTransaction can be used here instead.
         uint256 ticketID = inbox.createRetryableTicket{value: msg.value}(
             l2Target,
             0,
