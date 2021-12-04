@@ -1,7 +1,8 @@
-## 0.1.0 (2021-11-30)
+## 0.1.0 (2021-12-04)
 
 - fix(Arbitrator): memory to calldata ([4770b1f](https://github.com/kleros/kleros-v2/commit/4770b1f))
 - fix(IArbitrator): appeals removed from the standard ([02c20ce](https://github.com/kleros/kleros-v2/commit/02c20ce))
+- fix(IArbitrator): change name to arbitration cost ([0ba4f29](https://github.com/kleros/kleros-v2/commit/0ba4f29))
 - fix(IArbitrator): interface simplification ([e81fb8b](https://github.com/kleros/kleros-v2/commit/e81fb8b))
 - fix(IArbitrator): replaced appealCost with fundingStatus ([f189dd9](https://github.com/kleros/kleros-v2/commit/f189dd9))
 - feat: modern toolchain setup and simple RNG smart contracts ([17f6a76](https://github.com/kleros/kleros-v2/commit/17f6a76))
