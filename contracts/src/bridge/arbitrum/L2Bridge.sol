@@ -1,4 +1,5 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.0;
 
 import "./interfaces/IArbSys.sol";
@@ -9,7 +10,7 @@ contract L2Bridge {
 
     event L2ToL1TxCreated(uint256 indexed withdrawalId);
 
-    constructor(address _l1Target) public {
+    constructor(address _l1Target) {
         l1Target = _l1Target;
     }
 
