@@ -1,7 +1,8 @@
 ## 0.1.0 (2021-12-07)
 
-- fix: unused code ([26b5dc3](https://github.com/kleros/kleros-v2/commit/26b5dc3))
 - refactor: add evidence contracts ([09a34f3](https://github.com/kleros/kleros-v2/commit/09a34f3))
+- refactor: remove foreign evidence interface ([ff8c50c](https://github.com/kleros/kleros-v2/commit/ff8c50c))
+- fix: unused code ([26b5dc3](https://github.com/kleros/kleros-v2/commit/26b5dc3))
 - chore: added GitHub code scanning ([4a70475](https://github.com/kleros/kleros-v2/commit/4a70475))
 - chore: added the hardhat config for layer 2 networks, added hardhat-deploy and mocha ([a12ea0e](https://github.com/kleros/kleros-v2/commit/a12ea0e))
 - test: added a test for IncrementalNG ([65a996b](https://github.com/kleros/kleros-v2/commit/65a996b))
