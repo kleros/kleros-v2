@@ -12,7 +12,6 @@ pragma solidity ^0.8;
 import "@kleros/erc-792/contracts/IArbitrable.sol";
 import "@kleros/erc-792/contracts/erc-1497/IEvidence.sol";
 import "@kleros/erc-792/contracts/IArbitrator.sol";
-import "./IForeignEvidence.sol";
 import "@kleros/ethereum-libraries/contracts/CappedMath.sol";
 
 contract EvidenceModule is IArbitrable, IEvidence {
@@ -32,20 +31,20 @@ contract EvidenceModule is IArbitrable, IEvidence {
     /* Structs */
 
     struct EvidenceData {
-        address payable submitter; // Address that challenged the request.
-        bool disputed; // The ID of the dispute. An evidence submission can only be disputed once.
-        Party ruling;
-        uint256 disputeID; //
-        Moderation[] moderations;
+        address payable submitter; // Address that submitted the evidence.
+        bool disputed; // Whether the evidence submission has been disputed.
+        Party ruling; // Final status of the evidence. If not disputed, can be changed by opening another round of moderation.
+        uint256 disputeID; // The ID of the dispute. An evidence submission can only be disputed once.
+        Moderation[] moderations; // Stores the data of each moderation event. An evidence submission can be moderated many times.
     }
 
     struct Moderation {
         uint256[3] paidFees; // Tracks the fees paid by each side in this moderation.
         uint256 feeRewards; // Sum of reimbursable fees and stake rewards available to the parties that made contributions to the side that ultimately wins a dispute.
         mapping(address => uint256[3]) contributions; // Maps contributors to their contributions for each side.
-        bool closed;
-        Party currentWinner;
-        uint256 bondDeadline;
+        bool closed; // Moderation happens over a bounded period of time after which it is considered closed. If so, a new moderation round should be opened.
+        Party currentWinner; // The current winner of this moderation round.
+        uint256 bondDeadline; // The deadline until which the loser party can stake to overturn the current status.
         uint256 arbitratorDataID; // The index of the relevant arbitratorData struct.
     }
 
@@ -56,15 +55,15 @@ contract EvidenceModule is IArbitrable, IEvidence {
 
     /* Storage */
 
-    mapping(bytes32 => EvidenceData) evidences;
+    mapping(bytes32 => EvidenceData) evidences; // Maps the evidence ID to its data. evidences[evidenceID].
     mapping(uint256 => bytes32) public disputeIDtoEvidenceID; // One-to-one relationship between the dispute and the evidence.
     ArbitratorData[] public arbitratorDataList; // Stores the arbitrator data of the contract. Updated each time the data is changed.
 
-    IArbitrator public immutable arbitrator;
-    address public governor;
-    uint256 public bondTimeout;
-    uint256 public totalCostMultiplier; //
-    uint256 public initialDepositMultiplier;
+    IArbitrator public immutable arbitrator; // The trusted arbitrator to resolve potential disputes. If it needs to be changed, a new contract can be deployed.
+    address public governor; // The address that can make governance changes to the parameters of the contract.
+    uint256 public bondTimeout; // The time in seconds during which the last moderation status can be challenged.
+    uint256 public totalCostMultiplier; // Multiplier of arbitration fees that must be ultimately paid as fee stake. In basis points.
+    uint256 public initialDepositMultiplier; // Multiplier of arbitration fees that must be paid as initial stake for submitting evidence. In basis points.
 
     /* Modifiers */
 
@@ -81,18 +80,30 @@ contract EvidenceModule is IArbitrable, IEvidence {
      */
     event ModerationStatusChanged(uint256 indexed _evidenceID, Party _currentWinner);
 
+    /** @dev Constructor.
+     *  @param _arbitrator The trusted arbitrator to resolve potential disputes.
+     *  @param _governor The trusted governor of the contract.
+     *  @param _totalCostMultiplier Multiplier of arbitration fees that must be ultimately paid as fee stake. In basis points.
+     *  @param _initialDepositMultiplier Multiplier of arbitration fees that must be paid as initial stake for submitting evidence. In basis points.
+     *  @param _bondTimeout The time in seconds during which the last moderation status can be challenged.
+     *  @param _arbitratorExtraData Extra data for the trusted arbitrator contract.
+     *  @param _metaEvidence The URI of the meta evidence object for evidence submissions requests.
+     */
     constructor(
         IArbitrator _arbitrator,
         address _governor,
+        uint256 _totalCostMultiplier,
+        uint256 _initialDepositMultiplier,
+        uint256 _bondTimeout,
         bytes memory _arbitratorExtraData,
         string memory _metaEvidence
     ) {
         arbitrator = _arbitrator;
         governor = _governor;
 
-        totalCostMultiplier = 15000;
-        initialDepositMultiplier = 62; // 1/16
-        bondTimeout = 24 hours;
+        totalCostMultiplier = _totalCostMultiplier; // For example 15000, which would provide a 100% reward to the dispute winner.
+        initialDepositMultiplier = _initialDepositMultiplier; // For example 63, which equals 1/16.
+        bondTimeout = _bondTimeout; // For example 24 hs.
 
         ArbitratorData storage arbitratorData = arbitratorDataList.push();
         arbitratorData.arbitratorExtraData = _arbitratorExtraData;
@@ -120,7 +131,8 @@ contract EvidenceModule is IArbitrable, IEvidence {
         totalCostMultiplier = _totalCostMultiplier;
     }
 
-    /** @dev Change the proportion of arbitration fees that must be paid as fee stake by the winner of the previous round.
+    /** @dev Change the the time window within which evidence submissions and removals can be contested.
+     *  Ongoing moderations will start using the latest bondTimeout available after calling moderate() again.
      *  @param _bondTimeout Multiplier of arbitration fees that must be paid as fee stake. In basis points.
      */
     function changeBondTimeout(uint256 _bondTimeout) external onlyGovernor {
@@ -155,9 +167,13 @@ contract EvidenceModule is IArbitrable, IEvidence {
         );
     }
 
-    function submitEvidence(uint256 _disputeID, string calldata _evidence) external payable {
-        // TODO: should _disputeID existence and validity be checked?
-        bytes32 evidenceID = keccak256(abi.encodePacked(_disputeID, _evidence));
+    /** @dev Submits evidence.
+     *  @param _evidenceGroupID Unique identifier of the evidence group the evidence belongs to. It's the submitter responsability to submit the right evidence group ID.
+     *  @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'.
+     */
+    function submitEvidence(uint256 _evidenceGroupID, string calldata _evidence) external payable {
+        // Optimization opportunity: map evidenceID to an incremental index that can be safely assumed to be less than a small uint.
+        bytes32 evidenceID = keccak256(abi.encodePacked(_evidenceGroupID, _evidence));
         EvidenceData storage evidenceData = evidences[evidenceID];
         require(evidenceData.submitter == address(0x0), "Evidence already submitted.");
         evidenceData.submitter = msg.sender;
@@ -176,13 +192,18 @@ contract EvidenceModule is IArbitrable, IEvidence {
         moderation.currentWinner = Party.Submitter;
         moderation.arbitratorDataID = arbitratorDataList.length - 1;
 
-        // TODO: use ForeignEvidence event
-        emit Evidence(arbitrator, uint256(evidenceID), msg.sender, evidence);
+        // When evidence is submitted for a foreign arbitrable, the arbitrator field of Evidence is ignored.
+        emit Evidence(arbitrator, _evidenceGroupID, msg.sender, evidence);
     }
 
+    /** @dev Moderates an evidence submission. Requires the contester to at least double the accumulated stake of the oposing party.
+     *  Optimization opportunity: use `bytes calldata args` and compress _evidenceID and _side (only for optimistic rollups).
+     *  @param _evidenceID Unique identifier of the evidence submission.
+     *  @param _side The side to contribute to.
+     */
     function moderate(bytes32 _evidenceID, Party _side) external payable {
         EvidenceData storage evidenceData = evidences[_evidenceID];
-        require(evidenceData.submitter == address(0x0), "Evidence does not exist.");
+        require(evidenceData.submitter != address(0x0), "Evidence does not exist.");
         require(!evidenceData.disputed, "Evidence already disputed.");
         require(_side != Party.None, "Invalid side.");
 
@@ -235,8 +256,11 @@ contract EvidenceModule is IArbitrable, IEvidence {
         emit ModerationStatusChanged(_evidenceID, moderation.currentWinner);
     }
 
+    /** @dev Resolves a moderation event once the timeout has passed.
+     *  @param _evidenceID Unique identifier of the evidence submission.
+     */
     function resolveModerationMarket(bytes32 _evidenceID) external {
-        // Moderation maket resolutions are not final.
+        // Moderation market resolutions are not final.
         // Evidence can be reported/accepted again in the future.
         // Only an arbitrator's ruling after a dispute is final.
         EvidenceData storage evidenceData = evidences[_evidenceID];
@@ -296,6 +320,7 @@ contract EvidenceModule is IArbitrable, IEvidence {
 
     /** @dev Withdraws contributions of moderations. Reimburses contributions if the appeal was not fully funded.
      *  If the appeal was fully funded, sends the fee stake rewards and reimbursements proportional to the contributions made to the winner of a dispute.
+     *  Optimization opportunity: use `bytes calldata args` and compress _evidenceID and _moderationID (only for optimistic rollups).
      *  @param _beneficiary The address that made contributions.
      *  @param _evidenceID The ID of the associated evidence submission.
      *  @param _moderationID The ID of the moderatino occurence.
@@ -311,7 +336,7 @@ contract EvidenceModule is IArbitrable, IEvidence {
 
         uint256[3] storage contributionTo = moderation.contributions[_beneficiary];
 
-        if (evidenceData.disputed && evidenceData.ruling == Party.None) {
+        if (evidenceData.ruling == Party.None) {
             // Reimburse unspent fees proportionally if there is no winner and loser.
             uint256 totalFeesPaid = moderation.paidFees[uint256(Party.Submitter)] +
                 moderation.paidFees[uint256(Party.Moderator)];
@@ -369,7 +394,7 @@ contract EvidenceModule is IArbitrable, IEvidence {
 
     /** @dev Gets the contributions made by a party for a given moderation.
      *  @param _evidenceID The ID of the evidence submission.
-     *  @param _moderationID The ID of the moderatino occurence.
+     *  @param _moderationID The ID of the moderation occurence.
      *  @param _contributor The address of the contributor.
      *  @return contributions The contributions.
      */
@@ -385,7 +410,7 @@ contract EvidenceModule is IArbitrable, IEvidence {
 
     /** @dev Gets the information of a moderation event.
      *  @param _evidenceID The ID of the evidence submission.
-     *  @param _moderationID The ID of the moderatino occurence.
+     *  @param _moderationID The ID of the moderation occurence.
      *  @return paidFees currentWinner feeRewards The moderation information.
      */
     function getModerationInfo(bytes32 _evidenceID, uint256 _moderationID)
