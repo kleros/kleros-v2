@@ -2,6 +2,7 @@
 
 - chore: added GitHub code scanning ([4a70475](https://github.com/kleros/kleros-v2/commit/4a70475))
 - chore: added the hardhat config for layer 2 networks, added hardhat-deploy and mocha ([a12ea0e](https://github.com/kleros/kleros-v2/commit/a12ea0e))
+- chore: gitignore typechain ([b50f777](https://github.com/kleros/kleros-v2/commit/b50f777))
 - chore(typechain): clean generated files ([775ddd0](https://github.com/kleros/kleros-v2/commit/775ddd0))
 - fix: according to evidence standard + comments ([5c95828](https://github.com/kleros/kleros-v2/commit/5c95828))
 - fix: unused code ([26b5dc3](https://github.com/kleros/kleros-v2/commit/26b5dc3))
