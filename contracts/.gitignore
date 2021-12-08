@@ -1,6 +1,7 @@
 # Hardhat files
 cache
 artifacts
+typechain
 
 # Hardhat deploy files
 deployments/localhost

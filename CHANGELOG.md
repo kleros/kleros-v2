@@ -1,5 +1,8 @@
 ## 0.1.0 (2021-12-08)
 
+- chore: added GitHub code scanning ([4a70475](https://github.com/kleros/kleros-v2/commit/4a70475))
+- chore: added the hardhat config for layer 2 networks, added hardhat-deploy and mocha ([a12ea0e](https://github.com/kleros/kleros-v2/commit/a12ea0e))
+- chore(typechain): clean generated files ([775ddd0](https://github.com/kleros/kleros-v2/commit/775ddd0))
 - fix: according to evidence standard + comments ([5c95828](https://github.com/kleros/kleros-v2/commit/5c95828))
 - fix: unused code ([26b5dc3](https://github.com/kleros/kleros-v2/commit/26b5dc3))
 - fix(Arbitrator): memory to calldata ([4770b1f](https://github.com/kleros/kleros-v2/commit/4770b1f))
@@ -14,8 +17,6 @@
 - refactor(sdk): rename ([3241d10](https://github.com/kleros/kleros-v2/commit/3241d10))
 - feat: modern toolchain setup and simple RNG smart contracts ([17f6a76](https://github.com/kleros/kleros-v2/commit/17f6a76))
 - feat(Arbitration): standard update ([ed930de](https://github.com/kleros/kleros-v2/commit/ed930de))
-- chore: added GitHub code scanning ([4a70475](https://github.com/kleros/kleros-v2/commit/4a70475))
-- chore: added the hardhat config for layer 2 networks, added hardhat-deploy and mocha ([a12ea0e](https://github.com/kleros/kleros-v2/commit/a12ea0e))
 - test: added a test for IncrementalNG ([65a996b](https://github.com/kleros/kleros-v2/commit/65a996b))
 - docs: initial commit ([23356e7](https://github.com/kleros/kleros-v2/commit/23356e7))
 - docs: license file added ([cb62d2c](https://github.com/kleros/kleros-v2/commit/cb62d2c))
