@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 /**
  *  @authors: [@fnanni-0]
  *  @reviewers: []
@@ -9,10 +11,11 @@
 
 pragma solidity ^0.8;
 
-import "@kleros/erc-792/contracts/IArbitrable.sol";
-import "@kleros/erc-792/contracts/erc-1497/IEvidence.sol";
-import "@kleros/erc-792/contracts/IArbitrator.sol";
-import "@kleros/ethereum-libraries/contracts/CappedMath.sol";
+// TODO: standard interfaces should be placed in a separated repo (?)
+import "../arbitration/IArbitrable.sol";
+import "../arbitration/IArbitrator.sol";
+import "./IEvidence.sol";
+import "../libraries/CappedMath.sol";
 
 contract EvidenceModule is IArbitrable, IEvidence {
     using CappedMath for uint256;
@@ -78,7 +81,7 @@ contract EvidenceModule is IArbitrable, IEvidence {
      *  @param _evidenceID The ID of the evidence being moderated.
      *  @param _currentWinner The party who is currently winning.
      */
-    event ModerationStatusChanged(uint256 indexed _evidenceID, Party _currentWinner);
+    event ModerationStatusChanged(bytes32 indexed _evidenceID, Party _currentWinner);
 
     /** @dev Constructor.
      *  @param _arbitrator The trusted arbitrator to resolve potential disputes.
@@ -176,7 +179,7 @@ contract EvidenceModule is IArbitrable, IEvidence {
         bytes32 evidenceID = keccak256(abi.encodePacked(_evidenceGroupID, _evidence));
         EvidenceData storage evidenceData = evidences[evidenceID];
         require(evidenceData.submitter == address(0x0), "Evidence already submitted.");
-        evidenceData.submitter = msg.sender;
+        evidenceData.submitter = payable(msg.sender);
 
         ArbitratorData storage arbitratorData = arbitratorDataList[arbitratorDataList.length - 1];
 
@@ -186,14 +189,14 @@ contract EvidenceModule is IArbitrable, IEvidence {
 
         Moderation storage moderation = evidenceData.moderations.push();
         // Overpaying is allowed.
-        contribute(moderation, Party.Submitter, msg.sender, msg.value, totalCost);
+        contribute(moderation, Party.Submitter, payable(msg.sender), msg.value, totalCost);
         require(moderation.paidFees[uint256(Party.Submitter)] >= depositRequired, "Insufficient funding.");
         moderation.bondDeadline = block.timestamp + bondTimeout;
         moderation.currentWinner = Party.Submitter;
         moderation.arbitratorDataID = arbitratorDataList.length - 1;
 
         // When evidence is submitted for a foreign arbitrable, the arbitrator field of Evidence is ignored.
-        emit Evidence(arbitrator, _evidenceGroupID, msg.sender, evidence);
+        emit Evidence(arbitrator, _evidenceGroupID, msg.sender, _evidence);
     }
 
     /** @dev Moderates an evidence submission. Requires the contester to at least double the accumulated stake of the oposing party.
@@ -233,7 +236,7 @@ contract EvidenceModule is IArbitrable, IEvidence {
         }
 
         // Overpaying is allowed.
-        contribute(moderation, _side, msg.sender, msg.value, totalCost);
+        contribute(moderation, _side, payable(msg.sender), msg.value, totalCost);
         require(moderation.paidFees[uint256(_side)] >= depositRequired, "Insufficient funding.");
 
         if (moderation.paidFees[uint256(_side)] >= totalCost && moderation.paidFees[opposition] >= totalCost) {
@@ -245,7 +248,7 @@ contract EvidenceModule is IArbitrable, IEvidence {
             );
             disputeIDtoEvidenceID[evidenceData.disputeID] = _evidenceID;
 
-            emit Dispute(arbitrator, evidenceData.disputeID, arbitratorData.metaEvidenceUpdates, _evidenceID);
+            emit Dispute(arbitrator, evidenceData.disputeID, arbitratorData.metaEvidenceUpdates, uint256(_evidenceID));
             evidenceData.disputed = true;
             moderation.bondDeadline = 0;
             moderation.currentWinner = Party.None;
@@ -327,7 +330,7 @@ contract EvidenceModule is IArbitrable, IEvidence {
      */
     function withdrawFeesAndRewards(
         address payable _beneficiary,
-        uint256 _evidenceID,
+        bytes32 _evidenceID,
         uint256 _moderationID
     ) external returns (uint256 reward) {
         EvidenceData storage evidenceData = evidences[_evidenceID];
@@ -376,7 +379,7 @@ contract EvidenceModule is IArbitrable, IEvidence {
         evidenceData.ruling = Party(_ruling);
         moderation.closed = true;
 
-        emit Ruling(arbitrator, _disputeID, ruling);
+        emit Ruling(arbitrator, _disputeID, _ruling);
     }
 
     // **************************** //
