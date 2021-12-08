@@ -42,8 +42,5 @@
     "ts-node": "^10.4.0",
     "typechain": "^5.2.0",
     "typescript": "^4.4.4"
-  },
-  "dependencies": {
-    "@kleros/erc-792": "^8.0.0"
   }
 }
