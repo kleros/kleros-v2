@@ -39,7 +39,7 @@ contract L1Bridge {
         uint256 _maxGas,
         uint256 _gasPriceBid
     ) external payable returns (uint256) {
-        (uint256 baseSubmissionCost, ) = arbRetryableTx.getSubmissionPrice(_calldata.length);
+        uint256 baseSubmissionCost = getSubmissionPrice(_calldata.length);
 
         uint256 ticketID = inbox.createRetryableTicket{value: msg.value}(
             l2Target,
@@ -54,5 +54,10 @@ contract L1Bridge {
 
         emit RetryableTicketCreated(ticketID);
         return ticketID;
+    }
+
+    function getSubmissionPrice(uint256 _calldatasize) public view returns (uint256) {
+        (uint256 submissionCost, ) = arbRetryableTx.getSubmissionPrice(_calldatasize);
+        return submissionCost;
     }
 }
