@@ -20,7 +20,7 @@ contract L2Bridge {
      * @param _calldata The L1 encoded message data.
      * @return Unique id to track the message request/transaction.
      */
-    function sendCrossDomainMessage(bytes memory _calldata) external payable returns (uint256) {
+    function sendCrossDomainMessage(bytes memory _calldata) external returns (uint256) {
         uint256 withdrawalId = arbsys.sendTxToL1(l1Target, _calldata);
 
         emit L2ToL1TxCreated(withdrawalId);
