@@ -1,5 +1,8 @@
 ## 0.1.0 (2021-12-13)
 
+- chore: .gitignore and removal of unnecessary yarn cache as we are using "zero installs" ([a6cfdd0](https://github.com/kleros/kleros-v2/commit/a6cfdd0))
+- chore: added GitHub code scanning ([4a70475](https://github.com/kleros/kleros-v2/commit/4a70475))
+- chore: added the hardhat config for layer 2 networks, added hardhat-deploy and mocha ([a12ea0e](https://github.com/kleros/kleros-v2/commit/a12ea0e))
 - refactor(bridge): use ArbRetryableTx#getSubmissionPrice ([61bc2f3](https://github.com/kleros/kleros-v2/commit/61bc2f3))
 - refactor(sdk): rename ([3241d10](https://github.com/kleros/kleros-v2/commit/3241d10))
 - feat: add arbitrum L1 bridge and dependencies ([b412772](https://github.com/kleros/kleros-v2/commit/b412772))
@@ -11,8 +14,6 @@
 - fix(IArbitrator): change name to arbitration cost ([0ba4f29](https://github.com/kleros/kleros-v2/commit/0ba4f29))
 - fix(IArbitrator): interface simplification ([e81fb8b](https://github.com/kleros/kleros-v2/commit/e81fb8b))
 - fix(IArbitrator): replaced appealCost with fundingStatus ([f189dd9](https://github.com/kleros/kleros-v2/commit/f189dd9))
-- chore: added GitHub code scanning ([4a70475](https://github.com/kleros/kleros-v2/commit/4a70475))
-- chore: added the hardhat config for layer 2 networks, added hardhat-deploy and mocha ([a12ea0e](https://github.com/kleros/kleros-v2/commit/a12ea0e))
 - test: added a test for IncrementalNG ([65a996b](https://github.com/kleros/kleros-v2/commit/65a996b))
 - docs: initial commit ([23356e7](https://github.com/kleros/kleros-v2/commit/23356e7))
 - docs: license file added ([cb62d2c](https://github.com/kleros/kleros-v2/commit/cb62d2c))
