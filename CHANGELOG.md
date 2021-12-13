@@ -1,6 +1,6 @@
-## 0.1.0 (2021-12-10)
+## 0.1.0 (2021-12-13)
 
-- refactor(bridge): use ArbRetryableTx#getSubmissionPrice ([0de6272](https://github.com/kleros/kleros-v2/commit/0de6272))
+- refactor(bridge): use ArbRetryableTx#getSubmissionPrice ([61bc2f3](https://github.com/kleros/kleros-v2/commit/61bc2f3))
 - refactor(sdk): rename ([3241d10](https://github.com/kleros/kleros-v2/commit/3241d10))
 - feat: add arbitrum L1 bridge and dependencies ([b412772](https://github.com/kleros/kleros-v2/commit/b412772))
 - feat: add arbitrum L2 bridge ([457b060](https://github.com/kleros/kleros-v2/commit/457b060))

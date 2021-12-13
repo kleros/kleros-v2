@@ -1,3 +1,8 @@
+#------------------------------------
+# FILE GENERATED AS FOLLOWS
+# curl -sL https://www.toptal.com/developers/gitignore/api/vim,node,visualstudiocode,yarn | sed 's|\(!.yarn/cache\)|#\1|' > .gitignore
+#------------------------------------
+
 # Created by https://www.toptal.com/developers/gitignore/api/vim,node,visualstudiocode,yarn
 # Edit at https://www.toptal.com/developers/gitignore?templates=vim,node,visualstudiocode,yarn
 
@@ -183,7 +188,7 @@ tags
 
 # if you are NOT using Zero-installs, then:
 # comment the following lines
-!.yarn/cache
+#!.yarn/cache
 
 # and uncomment the following lines
 # .pnp.*
