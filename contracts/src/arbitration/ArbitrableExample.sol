@@ -6,7 +6,7 @@ import "./IArbitrable.sol";
 
 /**
  *  @title ArbitrableExample
- *  An example of the arbitrable contract which connects to the arbitator that implements IArbitrator interface.
+ *  An example of an arbitrable contract which connects to the arbitator that implements the updated interface.
  */
 contract ArbitrableExample is IArbitrable {
     struct DisputeStruct {
