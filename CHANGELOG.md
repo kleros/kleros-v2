@@ -1,5 +1,7 @@
-## 0.1.0 (2021-12-08)
+## 0.1.0 (2021-12-13)
 
+- test: added a test for IncrementalNG ([65a996b](https://github.com/kleros/kleros-v2/commit/65a996b))
+- test(EvidenceModule): add test file ([9f00f98](https://github.com/kleros/kleros-v2/commit/9f00f98))
 - chore: added GitHub code scanning ([4a70475](https://github.com/kleros/kleros-v2/commit/4a70475))
 - chore: added the hardhat config for layer 2 networks, added hardhat-deploy and mocha ([a12ea0e](https://github.com/kleros/kleros-v2/commit/a12ea0e))
 - chore: gitignore typechain ([b50f777](https://github.com/kleros/kleros-v2/commit/b50f777))
@@ -18,7 +20,6 @@
 - refactor(sdk): rename ([3241d10](https://github.com/kleros/kleros-v2/commit/3241d10))
 - feat: modern toolchain setup and simple RNG smart contracts ([17f6a76](https://github.com/kleros/kleros-v2/commit/17f6a76))
 - feat(Arbitration): standard update ([ed930de](https://github.com/kleros/kleros-v2/commit/ed930de))
-- test: added a test for IncrementalNG ([65a996b](https://github.com/kleros/kleros-v2/commit/65a996b))
 - docs: initial commit ([23356e7](https://github.com/kleros/kleros-v2/commit/23356e7))
 - docs: license file added ([cb62d2c](https://github.com/kleros/kleros-v2/commit/cb62d2c))
 - docs: readme and spdx headers ([8a5b397](https://github.com/kleros/kleros-v2/commit/8a5b397))

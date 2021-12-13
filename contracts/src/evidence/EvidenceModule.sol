@@ -429,4 +429,11 @@ contract EvidenceModule is IArbitrable, IEvidence {
         Moderation storage moderation = evidenceData.moderations[_moderationID];
         return (moderation.paidFees, moderation.currentWinner, moderation.feeRewards);
     }
+
+    /** @dev Gets the last arbitrator data index, which is used for current new submissions.
+     *  @return The last arbitrator data index.
+     */
+    function getCurrentArbitratorIndex() external view returns (uint256) {
+        return arbitratorDataList.length - 1;
+    }
 }
