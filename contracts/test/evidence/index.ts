@@ -56,7 +56,7 @@ describe('Home Evidence contract', async () => {
       String(appealFee)
     )
 
-    const EvidenceModule = await ethers.getContractFactory('EvidenceModule')
+    const EvidenceModule = await ethers.getContractFactory('ModeratedEvidenceModule')
     evidenceModule = await EvidenceModule.deploy(
       arbitrator.address,
       deployer.address, // governor
