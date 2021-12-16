@@ -19,7 +19,7 @@ pragma solidity ^0.8;
 import "./IEvidence.sol";
 import "../arbitration/IArbitrator.sol";
 
-contract ModeratedEvidenceModule is IEvidence {
+contract EvidenceModule is IEvidence {
     IArbitrator private constant NULL_ARBITRATOR = IArbitrator(address(0x0));
 
     constructor() {}
