@@ -125,7 +125,7 @@ contract CentralizedArbitrator is IArbitrator {
         uint256 _arbitrationFee,
         uint256 _appealDuration,
         uint256 _appealFee
-    ) public {
+    ) {
         arbitrationFee = _arbitrationFee;
         appealDuration = _appealDuration;
         appealFee = _appealFee;
