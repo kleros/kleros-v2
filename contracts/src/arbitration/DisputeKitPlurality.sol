@@ -6,7 +6,7 @@ import "./IArbitrator.sol";
 import "../rng/RNG.sol";
 import "./mock/MockKlerosCore.sol";
 
-contract DisputeKitPlurality {
+contract DisputeKitPlurality is AbstractDisputeKit {
     // Core --> IN
     // createDispute
 
@@ -28,27 +28,86 @@ contract DisputeKitPlurality {
     // appeal crowdfunding
     // redistribution when ruling is final
 
+    // ************************ //
+    // *       STRUCTS        * //
+    // ************************ //
+    struct Vote {
+        address account; // The address of the juror.
+        bytes32 commit; // The commit of the juror. For courts with hidden votes.
+        uint choice; // The choice of the juror.
+        bool voted; // True if the vote has been cast or revealed, false otherwise.
+    }
+    struct VoteCounter {
+        // The choice with the most votes. Note that in the case of a tie, it is the choice that reached the tied number of votes first.
+        uint winningChoice;
+        mapping(uint => uint) counts; // The sum of votes for each choice in the form `counts[choice]`.
+        bool tied; // True if there is a tie, false otherwise.
+    }
+    struct Dispute {
+        //NOTE: arbitrated needed?? But it needs the chainId too, not just an address.
+        //IArbitrable arbitrated; // The address of the arbitrable contract.
+        bytes arbitratorExtraData; // Extra data for the arbitrator.
+        uint256 choices; // The number of choices the arbitrator can choose from.
+        uint256 appealPeriodStart; // Time when the appeal funding becomes possible.        
+        Vote[][] votes; // The votes in the form `votes[appeal][voteID]`. On each round, a new list is pushed and packed with as many empty votes as there are draws. We use `dispute.votes.length` to get the number of appeals plus 1 for the first round.
+        VoteCounter[] voteCounters; // The vote counters in the form `voteCounters[appeal]`.
+        uint[] tokensAtStakePerJurorForRound; // The amount of tokens at stake for each juror in the form `tokensAtStakePerJuror[appeal]`.
+        uint[] arbitrationFeeForRound; // Fee paid by the arbitrable for the arbitration for each round. Must be equal or higher than arbitration cost.
+        uint drawsInCurrentRound; // A counter of draws made in the current round.
+        uint commitsInCurrentRound; // A counter of commits made in the current round.
+        uint[] votesForRound; // A counter of votes made in each round in the form `votesInEachRound[appeal]`.
+        uint[] repartitionsForRound; // A counter of vote reward repartitions made in each round in the form `repartitionsInEachRound[appeal]`.
+        uint[] penaltiesForRound; // The amount of tokens collected from penalties in each round in the form `penaltiesInEachRound[appeal]`.
+        bool ruled; // True if the ruling has been executed, false otherwise.
+        uint256 ruling; // Ruling given by the arbitrator.
+    }
+
+    struct Round {
+        mapping(uint256 => uint256) paidFees; // Tracks the fees paid for each choice in this round.
+        mapping(uint256 => bool) hasPaid; // True if this choice was fully funded, false otherwise.
+        mapping(address => mapping(uint256 => uint256)) contributions; // Maps contributors to their contributions for each choice.
+        uint256 feeRewards; // Sum of reimbursable appeal fees available to the parties that made contributions to the ruling that ultimately wins a dispute.
+        uint256[] fundedChoices; // Stores the choices that are fully funded.
+    }
+
+    // ************************ //
+    // *       STORAGE        * //
+    // ************************ //
+
+    uint public constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
+
     // TODO: extract the necessary interfaces
     MockKlerosCore public immutable core;
 
     RNG public immutable rng;
+
+    Dispute[] public disputes; // Stores the dispute info. disputes[disputeID].
+    mapping(uint256 => Round[]) public disputeIDtoRounds; // Maps dispute IDs to Round array that contains the info about crowdfunding.
+
 
     constructor(MockKlerosCore _core, RNG _rng) {
         core = _core;
         rng = _rng;
     }
 
+    // ************************ //
+    // *      MODIFIERS       * //
+    // ************************ //
+
     /**
-     * Note: disputeID is maintained by Kleros Core, not the dispute kit
-     * Note: the dispute kit does not receive any payment, Kleros Core does
+     * Note: disputeID is maintained by KlerosCore, not the dispute kit
+     * Note: the dispute kit does not receive nor validate any payment, KlerosCore does
      * Note: Permissioned
      */
     function createDispute(
         uint256 _disputeID,
-        uint256 _minJuror,
+        uint256 _arbitrationFee,
+        uint256 _subcourtFeeForJuror,
+        uint256 _subcourtMinStake,
+        uint256 _subcourtAlpha,
         uint256 _choices,
         bytes calldata _extraData
-    ) external {
+    ) external override {
         require(msg.sender == address(core), "Not allowed: sender is not core");
 
         // -- dispute specific --
@@ -61,11 +120,28 @@ contract DisputeKitPlurality {
         // uint feeForJuror: paid per juror
         // uint jurorsForCourtJump: evaluated by the appeal logic
 
-        // PROBLEM: have an interface that works for  and "1 human 1 vote"
+        // NOTE: the interface should work also for "1 human 1 vote"
 
-        // votes = msg.value / subcourt.feeForJuror
-        // tokenAtStakePerJuror = (subcourt.minStake * subcourt.alpha) / ALPHA_DIVISOR
-        // ALPHA_DIVISOR = 10000
+
+        Dispute storage dispute = disputes.push();
+        dispute.arbitratorExtraData = _extraData;
+        dispute.choices = _choices;
+        dispute.appealPeriodStart = 0;
+
+        uint numberOfVotes = _arbitrationFee / _subcourtFeeForJuror;
+        Vote[] storage votes = dispute.votes.push(); // TODO: the array dimensions may be reversed, check!
+        while (votes.length < numberOfVotes)
+                votes.push();
+
+        dispute.voteCounters.push().tied = true;
+        dispute.tokensAtStakePerJurorForRound.push((_subcourtMinStake * _subcourtAlpha) / ALPHA_DIVISOR);
+        dispute.arbitrationFeeForRound.push(_arbitrationFee);
+        dispute.votesForRound.push(0);
+        dispute.repartitionsForRound.push(0);
+        dispute.penaltiesForRound.push(0);
+        dispute.ruling = 0;
+
+        disputeIDtoRounds[_disputeID].push();
     }
 
     /**
@@ -73,12 +149,12 @@ contract DisputeKitPlurality {
      *  @param _disputeID The ID of the dispute.
      *  @param _iterations The number of iterations to run.
      */
-    function drawJurors(uint256 _disputeID, uint256 _iterations) public {
+    function drawJurors(uint256 _disputeID, uint256 _iterations) external override {
         uint96 subcourtID = core.getDispute(_disputeID).subcourtID;
         bytes32 key = bytes32(bytes12(subcourtID)); // due to new conversion restrictions in v0.8
         (
-            uint256 k, /* stack */
-            ,
+            uint256 k, 
+            /* stack */ ,
             uint256[] memory nodes
         ) = core.getSortitionSumTree(key);
 
@@ -90,8 +166,8 @@ contract DisputeKitPlurality {
             uint256 treeIndex = draw(uint256(keccak256(abi.encodePacked(randomNumber, _disputeID, i))), k, nodes);
             bytes32 id = core.getSortitionSumTreeID(key, treeIndex);
             (
-                address drawnAddress, /* subcourtID */
-
+                address drawnAddress, 
+                /* subcourtID */
             ) = stakePathIDToAccountAndSubcourtID(id);
 
             // TODO: Save the vote.
@@ -103,6 +179,10 @@ contract DisputeKitPlurality {
             // if (i == dispute.votes[dispute.votes.length - 1].length - 1) break;
         }
     }
+
+    // ************************ //
+    // *        VIEWS         * //
+    // ************************ //
 
     function draw(
         uint256 _drawnNumber,
