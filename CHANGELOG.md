@@ -3,6 +3,7 @@
 - refactor: add arbitrator data index getter ([47a1623](https://github.com/kleros/kleros-v2/commit/47a1623))
 - refactor: add evidence contracts ([09a34f3](https://github.com/kleros/kleros-v2/commit/09a34f3))
 - refactor: add interfaces + capped math ([e25b21f](https://github.com/kleros/kleros-v2/commit/e25b21f))
+- refactor: add kleros v1 governor proxy ([429799c](https://github.com/kleros/kleros-v2/commit/429799c))
 - refactor: add simple evidence home contract ([1b82f62](https://github.com/kleros/kleros-v2/commit/1b82f62))
 - refactor: fix contract name ([6eb744a](https://github.com/kleros/kleros-v2/commit/6eb744a))
 - refactor: remove foreign evidence interface ([ff8c50c](https://github.com/kleros/kleros-v2/commit/ff8c50c))
