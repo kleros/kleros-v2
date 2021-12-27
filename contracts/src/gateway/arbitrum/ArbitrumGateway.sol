@@ -2,13 +2,13 @@
 
 pragma solidity ^0.8.0;
 
-import "../../arbitration/IArbitrable.sol";
 import "../../arbitration/IArbitrator.sol";
 import "../../bridge/arbitrum/L2Bridge.sol";
 
-import "./ForeignGateway.sol";
+import "../IHomeGateway.sol";
+import "../IForeignGateway.sol";
 
-contract HomeGateway is IArbitrable {
+contract ArbitrumGateway is IHomeGateway {
     // L2 bridge with the ForeignGateway as the l1target
     L2Bridge internal l2bridge;
     address public arbitrator;
@@ -21,7 +21,7 @@ contract HomeGateway is IArbitrable {
     function rule(uint256, uint256) external {
         require(msg.sender == arbitrator, "Only Arbitrator");
 
-        bytes4 methodSelector = ForeignGateway.relayRule.selector;
+        bytes4 methodSelector = IForeignGateway.relayRule.selector;
         bytes memory data = abi.encodeWithSelector(methodSelector, msg.data);
 
         l2bridge.sendCrossDomainMessage(data);
