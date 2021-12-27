@@ -4,7 +4,6 @@ import "./IKlerosLiquid.sol";
 import "./ITokenController.sol";
 import "../arbitration/IArbitrable.sol";
 import "../arbitration/IArbitrator.sol";
-import "../evidence/IEvidence.sol";
 
 /**
  * @title ERC20 interface
@@ -13,17 +12,19 @@ interface IPinakion {
     function balanceOf(address who) external view returns (uint256);
 }
 
-contract KlerosV1Governor is IArbitrable, IEvidence, ITokenController {
+contract KlerosV1Governor is IArbitrable, ITokenController {
+    uint256 private constant MAX_SUBCOURT_ID = 23;
+
     struct DisputeData {
         uint256 klerosLiquidDisputeID;
         uint256 ruling;
         bool ruled;
-        bool relayed;
+        bool rulingRelayed;
     }
 
+    IArbitrator public immutable foreignGateway;
+    IKlerosLiquid public immutable klerosLiquid;
     address public governor;
-    IArbitrator public foreignGateway;
-    IKlerosLiquid public klerosLiquid;
 
     mapping(uint256 => uint256) public klerosLiquidDisputeIDtoGatewayDisputeID;
     mapping(uint256 => DisputeData) public disputes; // disputes[gatewayDisputeID]
@@ -47,6 +48,17 @@ contract KlerosV1Governor is IArbitrable, IEvidence, ITokenController {
         klerosLiquid = _klerosLiquid;
         governor = _governor;
         foreignGateway = _foreignGateway;
+
+        // Set evidence periods of subcourts to infinity.
+        uint256[4] memory timesPerPeriod;
+        for (uint96 subcourtID = 0; subcourtID <= MAX_SUBCOURT_ID; subcourtID++) {
+            (, timesPerPeriod) = klerosLiquid.getSubcourt(subcourtID);
+
+            klerosLiquid.changeSubcourtTimesPerPeriod(
+                subcourtID,
+                [type(uint256).max, timesPerPeriod[1], timesPerPeriod[2], timesPerPeriod[3]]
+            );
+        }
     }
 
     /** @dev Lets the governor call anything on behalf of the contract.
@@ -63,35 +75,26 @@ contract KlerosV1Governor is IArbitrable, IEvidence, ITokenController {
         require(success, "Call execution failed.");
     }
 
-    function startMigration() external {
-        uint256[4] memory timesPerPeriod;
-        for (uint96 subcourtID = 0; subcourtID <= 23; subcourtID++) {
-            // Set evidence periods to infinity
-            (, timesPerPeriod) = klerosLiquid.getSubcourt(subcourtID);
-
-            klerosLiquid.changeSubcourtTimesPerPeriod(
-                subcourtID,
-                [type(uint256).max, timesPerPeriod[1], timesPerPeriod[2], timesPerPeriod[3]]
-            );
-        }
+    /** @dev Changes the `governor` storage variable.
+     *  @param _governor The new value for the `governor` storage variable.
+     */
+    function changeGovernor(address _governor) external onlyByGovernor {
+        governor = _governor;
     }
 
+    /** @dev Relays disputes from KlerosLiquid to Kleros v2. Only disputes in the evidence period of the initial round can be realyed.
+     *  @param _disputeID The ID of the dispute as defined in KlerosLiquid.
+     */
     function relayDispute(uint256 _disputeID) external {
         require(klerosLiquidDisputeIDtoGatewayDisputeID[_disputeID] == 0, "Dispute already relayed");
         IKlerosLiquid.Dispute memory KlerosLiquidDispute = klerosLiquid.disputes(_disputeID);
-        (
-            uint256[] memory votesLengths,
-            uint256[] memory tokensAtStakePerJuror,
-            uint256[] memory totalFeesForJurors,
-            ,
-            ,
-
-        ) = klerosLiquid.getDispute(_disputeID);
+        (uint256[] memory votesLengths, , uint256[] memory totalFeesForJurors, , , ) = klerosLiquid.getDispute(
+            _disputeID
+        );
 
         // Check that no juror was yet drawn. Add a function to finalize the juror drawing and move the dispute to vote.
-        require(votesLengths.length == 1, "Cannot relay. Evidence period cannot be locked.");
         require(KlerosLiquidDispute.period == IKlerosLiquid.Period.evidence, "Invalid dispute period.");
-        require(tokensAtStakePerJuror[0] == 0, "Jurors can get their PNK locked.");
+        require(votesLengths.length == 1, "Cannot relay appeals.");
 
         klerosLiquid.executeGovernorProposal(address(this), totalFeesForJurors[0], "");
 
@@ -123,17 +126,25 @@ contract KlerosV1Governor is IArbitrable, IEvidence, ITokenController {
         emit Ruling(foreignGateway, _disputeID, _ruling);
     }
 
+    /** @dev Triggers rule() from KlerosLiquid to the arbitrable contract which created the dispute.
+     *  @param _disputeID ID of the dispute in the arbitrator contract.
+     *  @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Refused to arbitrate".
+     */
     function executeRuling(uint256 _disputeID, uint256 _ruling) external {
         DisputeData storage dispute = disputes[_disputeID];
         IKlerosLiquid.Dispute memory klerosLiquidDispute = klerosLiquid.disputes(dispute.klerosLiquidDisputeID);
-        require(!dispute.relayed, "Ruling already sent.");
-        dispute.relayed = true;
+        require(dispute.ruled, "Dispute ongoing.");
+        require(!dispute.rulingRelayed, "Ruling already sent.");
+        dispute.rulingRelayed = true;
 
         bytes4 functionSelector = IArbitrable.rule.selector;
         bytes memory data = abi.encodeWithSelector(functionSelector, dispute.klerosLiquidDisputeID, _ruling);
         klerosLiquid.executeGovernorProposal(klerosLiquidDispute.arbitrated, 0, data);
     }
 
+    /** @dev Registers jurors' tokens which where locked due to relaying a given dispute. These tokens don't count as locked.
+     *  @param _disputeID The ID of the dispute as defined in KlerosLiquid.
+     */
     function notifyFrozenTokens(uint256 _disputeID) external {
         require(klerosLiquidDisputeIDtoGatewayDisputeID[_disputeID] != 0, "Dispute not relayed.");
         (uint256[] memory votesLengths, uint256[] memory tokensAtStakePerJuror, , , , ) = klerosLiquid.getDispute(
@@ -197,5 +208,6 @@ contract KlerosV1Governor is IArbitrable, IEvidence, ITokenController {
         allowed = true;
     }
 
+    /// @dev This contract should be able to receive arbitration fees from KlerosLiquid.
     receive() external payable {}
 }
