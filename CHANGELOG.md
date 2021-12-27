@@ -5,6 +5,7 @@
 - refactor: add interfaces + capped math ([e25b21f](https://github.com/kleros/kleros-v2/commit/e25b21f))
 - refactor: add kleros v1 governor proxy ([429799c](https://github.com/kleros/kleros-v2/commit/429799c))
 - refactor: add simple evidence home contract ([1b82f62](https://github.com/kleros/kleros-v2/commit/1b82f62))
+- refactor: clean contract ([d250cf0](https://github.com/kleros/kleros-v2/commit/d250cf0))
 - refactor: fix contract name ([6eb744a](https://github.com/kleros/kleros-v2/commit/6eb744a))
 - refactor: remove foreign evidence interface ([ff8c50c](https://github.com/kleros/kleros-v2/commit/ff8c50c))
 - refactor(bridge): use ArbRetryableTx#getSubmissionPrice ([61bc2f3](https://github.com/kleros/kleros-v2/commit/61bc2f3))
