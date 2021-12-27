@@ -3,12 +3,12 @@
 pragma solidity ^0.8.0;
 
 import "../../arbitration/IArbitrable.sol";
-import "../../arbitration/IArbitrator.sol";
 import "../../bridge/arbitrum/L1Bridge.sol";
 
-import "./HomeGateway.sol";
+import "../IHomeGateway.sol";
+import "../IForeignGateway.sol";
 
-contract ForeignGateway is IArbitrator {
+contract EthereumGateway is IForeignGateway {
     // L1 bridge with the HomeGateway as the l2target
     L1Bridge internal l1bridge;
 
@@ -25,7 +25,7 @@ contract ForeignGateway is IArbitrator {
     function createDispute(uint256 _choices, bytes calldata _extraData) external payable returns (uint256 disputeID) {
         require(msg.value >= arbitrationCost(_extraData), "Not paid enough for arbitration");
 
-        bytes4 methodSelector = HomeGateway.relayCreateDispute.selector;
+        bytes4 methodSelector = IHomeGateway.relayCreateDispute.selector;
         bytes memory data = abi.encodeWithSelector(methodSelector, msg.data);
 
         uint256 bridgeCost = l1bridge.getSubmissionPrice(data.length);
@@ -43,9 +43,9 @@ contract ForeignGateway is IArbitrator {
         // only the calldata.
         l1bridge.sendCrossDomainMessage{value: bridgeCost}(data, 0, 0);
 
-        disputeId = 0; // TODO: map to the actual disputeID we get from the V2 court
-        emit DisputeCreation(disputeId, IArbitrable(msg.sender));
-        return disputeId;
+        disputeID = 0; // TODO: map to the actual disputeID we get from the V2 court
+        emit DisputeCreation(disputeID, IArbitrable(msg.sender));
+        return disputeID;
     }
 
     function arbitrationCost(bytes calldata _extraData) public view returns (uint256 cost) {
