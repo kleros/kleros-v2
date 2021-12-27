@@ -23,6 +23,7 @@ interface IKlerosLiquid is IArbitrator {
         uint256 commitsInRound; // A counter of commits made in the current round.
         bool ruled; // True if the ruling has been executed, false otherwise.
     }
+
     struct Juror {
         uint256 stakedTokens; // The juror's total amount of tokens staked in subcourts.
         uint256 lockedTokens; // The juror's total amount of tokens locked in disputes.
@@ -35,20 +36,6 @@ interface IKlerosLiquid is IArbitrator {
     function disputes(uint256 _index) external view returns (Dispute memory);
 
     function jurors(address _account) external view returns (Juror memory);
-
-    function passPeriod(uint256 _disputeID) external;
-
-    function drawJurors(uint256 _disputeID, uint256 _iterations) external;
-
-    function execute(
-        uint256 _disputeID,
-        uint256 _appeal,
-        uint256 _iterations
-    ) external;
-
-    function changeSubcourtMinStake(uint96 _subcourtID, uint256 _minStake) external;
-
-    function changeSubcourtAlpha(uint96 _subcourtID, uint256 _alpha) external;
 
     function changeSubcourtTimesPerPeriod(uint96 _subcourtID, uint256[4] calldata _timesPerPeriod) external;
 

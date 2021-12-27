@@ -89,17 +89,16 @@ contract KlerosV1Governor is IArbitrable, IEvidence, ITokenController {
         ) = klerosLiquid.getDispute(_disputeID);
 
         // Check that no juror was yet drawn. Add a function to finalize the juror drawing and move the dispute to vote.
-        uint256 round = votesLengths.length - 1;
-        require(round == 0, "Cannot relay. Evidence period cannot be locked.");
+        require(votesLengths.length == 1, "Cannot relay. Evidence period cannot be locked.");
         require(KlerosLiquidDispute.period == IKlerosLiquid.Period.evidence, "Invalid dispute period.");
-        require(tokensAtStakePerJuror[round] == 0, "Jurors can get their PNK locked.");
+        require(tokensAtStakePerJuror[0] == 0, "Jurors can get their PNK locked.");
 
-        klerosLiquid.executeGovernorProposal(address(this), totalFeesForJurors[round], "");
+        klerosLiquid.executeGovernorProposal(address(this), totalFeesForJurors[0], "");
 
-        uint256 minJurors = votesLengths[round];
+        uint256 minJurors = votesLengths[0];
         bytes memory extraData = abi.encode(KlerosLiquidDispute.subcourtID, minJurors);
         uint256 arbitrationCost = foreignGateway.arbitrationCost(extraData);
-        require(totalFeesForJurors[round] >= arbitrationCost, "Fees not high enough."); // If this doesn't hold at some point, it could be a big issue.
+        require(totalFeesForJurors[0] >= arbitrationCost, "Fees not high enough."); // If this doesn't hold at some point, it could be a big issue.
         uint256 gatewayDisputeID = foreignGateway.createDispute(KlerosLiquidDispute.numberOfChoices, extraData);
         klerosLiquidDisputeIDtoGatewayDisputeID[_disputeID] = gatewayDisputeID;
 
@@ -196,43 +195,6 @@ contract KlerosV1Governor is IArbitrable, IEvidence, ITokenController {
         uint256 _amount
     ) external returns (bool allowed) {
         allowed = true;
-    }
-
-    function unstakeRandomJuror() external payable {
-        // This is dangerous during migration, because a juror could try to remove another one before a dispute is created. First set periods to infinity.
-
-        uint256 minJurors = 1;
-        uint256 subcourtID = 0; // General Court
-        bytes memory extraData = abi.encode(subcourtID, minJurors);
-
-        uint256 arbitrationCost = klerosLiquid.arbitrationCost(extraData);
-        require(msg.value >= arbitrationCost, "ETH not enough");
-
-        // Set minStake to zero (only possible with the General court)
-        klerosLiquid.changeSubcourtMinStake(uint96(subcourtID), 0);
-
-        uint256 numberOfChoices = 0;
-        uint256 disputeID = klerosLiquid.createDispute(numberOfChoices, extraData);
-
-        // Set minStake to infinity (only possible if the children's minStake are set to infinity)
-        klerosLiquid.changeSubcourtMinStake(uint96(subcourtID), type(uint256).max);
-        klerosLiquid.drawJurors(disputeID, minJurors); // Only one juror allowed. Will revert otherwise.
-        (address account, , , ) = klerosLiquid.getVote(disputeID, 0, 0);
-        require(account != address(this), "Cannot unstake itself.");
-
-        klerosLiquid.changeSubcourtTimesPerPeriod(uint96(subcourtID), [uint256(0), uint256(0), uint256(0), uint256(0)]);
-        klerosLiquid.passPeriod(disputeID); // Evidence -->  Vote
-        klerosLiquid.passPeriod(disputeID); // Vote     -->  Appeal
-        klerosLiquid.passPeriod(disputeID); // Appeal   -->  Execution
-        klerosLiquid.changeSubcourtTimesPerPeriod(
-            uint96(subcourtID),
-            [type(uint256).max, type(uint256).max, type(uint256).max, type(uint256).max]
-        );
-
-        klerosLiquid.execute(disputeID, 0, 1);
-        // There is no need to execute the ruling
-
-        payable(msg.sender).send(arbitrationCost);
     }
 
     receive() external payable {}
