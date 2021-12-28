@@ -5,7 +5,6 @@ pragma solidity ^0.8;
 import "./IArbitrator.sol";
 
 abstract contract AbstractDisputeKit {
-
     /**
      * Note: disputeID is maintained by Kleros Core, not the dispute kit
      * Note: the dispute kit does not receive any payment, Kleros Core does
@@ -27,5 +26,4 @@ abstract contract AbstractDisputeKit {
      *  @param _iterations The number of iterations to run.
      */
     function drawJurors(uint256 _disputeID, uint256 _iterations) external virtual;
-
 }

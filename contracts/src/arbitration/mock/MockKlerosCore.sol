@@ -33,19 +33,19 @@ contract MockKlerosCore {
 
     struct Court {
         uint96 parent; // The parent court.
-        uint[] children; // List of child courts.
+        uint256[] children; // List of child courts.
         bool hiddenVotes; // Whether to use commit and reveal or not.
-        uint minStake; // Minimum tokens needed to stake in the court.
-        uint alpha; // Basis point of tokens that are lost when incoherent.
-        uint feeForJuror; // Arbitration fee paid per juror.
+        uint256 minStake; // Minimum tokens needed to stake in the court.
+        uint256 alpha; // Basis point of tokens that are lost when incoherent.
+        uint256 feeForJuror; // Arbitration fee paid per juror.
         // The appeal after the one that reaches this number of jurors will go to the parent court if any, otherwise, no more appeals are possible.
-        uint jurorsForCourtJump;
-        uint[4] timesPerPeriod; // The time allotted to each dispute period in the form `timesPerPeriod[period]`.
+        uint256 jurorsForCourtJump;
+        uint256[4] timesPerPeriod; // The time allotted to each dispute period in the form `timesPerPeriod[period]`.
     }
 
-    event DisputeCreation(uint indexed _disputeID, IArbitrable indexed _arbitrable);
+    event DisputeCreation(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
 
-    uint public constant MIN_JURORS = 3; // The global default minimum number of jurors in a dispute.
+    uint256 public constant MIN_JURORS = 3; // The global default minimum number of jurors in a dispute.
 
     Dispute[] public disputes;
     Court[] public courts;
@@ -65,19 +65,20 @@ contract MockKlerosCore {
     }
 
     function createDispute(uint256 _choices, bytes calldata _extraData) external payable returns (uint256 disputeID) {
-        (uint96 subcourtID, uint minJurors) = extraDataToSubcourtIDAndMinJurors(_extraData);
+        (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDAndMinJurors(_extraData);
         disputeID = disputes.length;
 
         Court storage court = courts[0];
 
         disputeKit.createDispute(
-            disputeID, 
+            disputeID,
             msg.value,
             court.feeForJuror,
             court.minStake,
             court.alpha,
-             _choices, 
-             _extraData);
+            _choices,
+            _extraData
+        );
 
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
@@ -110,9 +111,14 @@ contract MockKlerosCore {
      *  @return subcourtID The subcourt ID.
      *  @return minJurors The minimum number of jurors required.
      */
-    function extraDataToSubcourtIDAndMinJurors(bytes memory _extraData) internal view returns (uint96 subcourtID, uint minJurors) {
+    function extraDataToSubcourtIDAndMinJurors(bytes memory _extraData)
+        internal
+        view
+        returns (uint96 subcourtID, uint256 minJurors)
+    {
         if (_extraData.length >= 64) {
-            assembly { // solium-disable-line security/no-inline-assembly
+            assembly {
+                // solium-disable-line security/no-inline-assembly
                 subcourtID := mload(add(_extraData, 0x20))
                 minJurors := mload(add(_extraData, 0x40))
             }
@@ -123,7 +129,6 @@ contract MockKlerosCore {
             minJurors = MIN_JURORS;
         }
     }
-
 
     // SORTITION TREE FACTORY
 
