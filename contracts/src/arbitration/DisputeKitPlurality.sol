@@ -84,7 +84,6 @@ contract DisputeKitPlurality is AbstractDisputeKit {
     Dispute[] public disputes; // Stores the dispute info. disputes[disputeID].
     mapping(uint256 => Round[]) public disputeIDtoRounds; // Maps dispute IDs to Round array that contains the info about crowdfunding.
 
-
     constructor(MockKlerosCore _core, RNG _rng) {
         core = _core;
         rng = _rng;
@@ -120,9 +119,6 @@ contract DisputeKitPlurality is AbstractDisputeKit {
         // uint feeForJuror: paid per juror
         // uint jurorsForCourtJump: evaluated by the appeal logic
 
-        // NOTE: the interface should work also for "1 human 1 vote"
-
-
         Dispute storage dispute = disputes.push();
         dispute.arbitratorExtraData = _extraData;
         dispute.choices = _choices;
@@ -141,7 +137,19 @@ contract DisputeKitPlurality is AbstractDisputeKit {
         dispute.penaltiesForRound.push(0);
         dispute.ruling = 0;
 
-        disputeIDtoRounds[_disputeID].push();
+        disputeIDtoRounds[_disputeID].push(); 
+    } 
+
+    function getVotes(uint _disputeID) public view returns(Vote[][] memory) {
+        return disputes[_disputeID].votes;
+    }
+
+    function getVotesLength(uint _disputeID) public view returns(uint, uint) {
+        return (disputes[_disputeID].votes.length, disputes[_disputeID].votes[0].length);
+    }
+
+    function getVoteCounter(uint _disputeID) public view returns(bool) {
+        return disputes[_disputeID].voteCounters[disputes[_disputeID].voteCounters.length - 1].tied;
     }
 
     /**
@@ -165,10 +173,7 @@ contract DisputeKitPlurality is AbstractDisputeKit {
         for (uint256 i = 0; i < _iterations; i++) {
             uint256 treeIndex = draw(uint256(keccak256(abi.encodePacked(randomNumber, _disputeID, i))), k, nodes);
             bytes32 id = core.getSortitionSumTreeID(key, treeIndex);
-            (
-                address drawnAddress, 
-                /* subcourtID */
-            ) = stakePathIDToAccountAndSubcourtID(id);
+            (address drawnAddress, /* subcourtID */) = stakePathIDToAccountAndSubcourtID(id);
 
             // TODO: Save the vote.
             // dispute.votes[dispute.votes.length - 1][i].account = drawnAddress;
