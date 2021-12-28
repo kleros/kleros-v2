@@ -13,7 +13,7 @@ function sleep(ms) {
 
 describe("DisputeKitPlurality", function () {
   // eslint-disable-next-line no-unused-vars
-  let deployer, claimant, supporter, challenger, innocentBystander; 
+  let deployer, claimant, supporter, challenger, innocentBystander;
   let core, disputeKit, arbitrable;
 
   before("Deploying", async () => {
@@ -21,12 +21,13 @@ describe("DisputeKitPlurality", function () {
     [core, disputeKit, arbitrable] = await deployContracts(deployer);
 
     // To wait for eth gas reporter to fetch data. Remove this line when the issue is fixed. https://github.com/cgewecke/hardhat-gas-reporter/issues/72
-    // await sleep(9000); 
+    // await sleep(9000);
   });
 
   it("Should create a dispute", async function () {
-    await expect(disputeKit.connect(deployer).createDispute(0, 0, 0, 0, 0, 0, "0x00"))
-      .to.be.revertedWith("Not allowed: sender is not core");
+    await expect(disputeKit.connect(deployer).createDispute(0, 0, 0, 0, 0, 0, "0x00")).to.be.revertedWith(
+      "Not allowed: sender is not core"
+    );
 
     await expect(core.connect(deployer).createDispute(2, "0x00", { value: 1000 }))
       .to.emit(core, "DisputeCreation")
@@ -38,7 +39,6 @@ describe("DisputeKitPlurality", function () {
     console.log(`voteCounter=${await disputeKit.getVoteCounter(0)}`);
   });
 });
-
 
 async function deployContracts(deployer) {
   const MockKlerosCoreFactory = await ethers.getContractFactory("MockKlerosCore", deployer);

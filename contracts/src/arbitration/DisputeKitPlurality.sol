@@ -34,13 +34,13 @@ contract DisputeKitPlurality is AbstractDisputeKit {
     struct Vote {
         address account; // The address of the juror.
         bytes32 commit; // The commit of the juror. For courts with hidden votes.
-        uint choice; // The choice of the juror.
+        uint256 choice; // The choice of the juror.
         bool voted; // True if the vote has been cast or revealed, false otherwise.
     }
     struct VoteCounter {
         // The choice with the most votes. Note that in the case of a tie, it is the choice that reached the tied number of votes first.
-        uint winningChoice;
-        mapping(uint => uint) counts; // The sum of votes for each choice in the form `counts[choice]`.
+        uint256 winningChoice;
+        mapping(uint256 => uint256) counts; // The sum of votes for each choice in the form `counts[choice]`.
         bool tied; // True if there is a tie, false otherwise.
     }
     struct Dispute {
@@ -48,16 +48,16 @@ contract DisputeKitPlurality is AbstractDisputeKit {
         //IArbitrable arbitrated; // The address of the arbitrable contract.
         bytes arbitratorExtraData; // Extra data for the arbitrator.
         uint256 choices; // The number of choices the arbitrator can choose from.
-        uint256 appealPeriodStart; // Time when the appeal funding becomes possible.        
+        uint256 appealPeriodStart; // Time when the appeal funding becomes possible.
         Vote[][] votes; // The votes in the form `votes[appeal][voteID]`. On each round, a new list is pushed and packed with as many empty votes as there are draws. We use `dispute.votes.length` to get the number of appeals plus 1 for the first round.
         VoteCounter[] voteCounters; // The vote counters in the form `voteCounters[appeal]`.
-        uint[] tokensAtStakePerJurorForRound; // The amount of tokens at stake for each juror in the form `tokensAtStakePerJuror[appeal]`.
-        uint[] arbitrationFeeForRound; // Fee paid by the arbitrable for the arbitration for each round. Must be equal or higher than arbitration cost.
-        uint drawsInCurrentRound; // A counter of draws made in the current round.
-        uint commitsInCurrentRound; // A counter of commits made in the current round.
-        uint[] votesForRound; // A counter of votes made in each round in the form `votesInEachRound[appeal]`.
-        uint[] repartitionsForRound; // A counter of vote reward repartitions made in each round in the form `repartitionsInEachRound[appeal]`.
-        uint[] penaltiesForRound; // The amount of tokens collected from penalties in each round in the form `penaltiesInEachRound[appeal]`.
+        uint256[] tokensAtStakePerJurorForRound; // The amount of tokens at stake for each juror in the form `tokensAtStakePerJuror[appeal]`.
+        uint256[] arbitrationFeeForRound; // Fee paid by the arbitrable for the arbitration for each round. Must be equal or higher than arbitration cost.
+        uint256 drawsInCurrentRound; // A counter of draws made in the current round.
+        uint256 commitsInCurrentRound; // A counter of commits made in the current round.
+        uint256[] votesForRound; // A counter of votes made in each round in the form `votesInEachRound[appeal]`.
+        uint256[] repartitionsForRound; // A counter of vote reward repartitions made in each round in the form `repartitionsInEachRound[appeal]`.
+        uint256[] penaltiesForRound; // The amount of tokens collected from penalties in each round in the form `penaltiesInEachRound[appeal]`.
         bool ruled; // True if the ruling has been executed, false otherwise.
         uint256 ruling; // Ruling given by the arbitrator.
     }
@@ -74,7 +74,7 @@ contract DisputeKitPlurality is AbstractDisputeKit {
     // *       STORAGE        * //
     // ************************ //
 
-    uint public constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
+    uint256 public constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
 
     // TODO: extract the necessary interfaces
     MockKlerosCore public immutable core;
@@ -124,10 +124,9 @@ contract DisputeKitPlurality is AbstractDisputeKit {
         dispute.choices = _choices;
         dispute.appealPeriodStart = 0;
 
-        uint numberOfVotes = _arbitrationFee / _subcourtFeeForJuror;
+        uint256 numberOfVotes = _arbitrationFee / _subcourtFeeForJuror;
         Vote[] storage votes = dispute.votes.push(); // TODO: the array dimensions may be reversed, check!
-        while (votes.length < numberOfVotes)
-                votes.push();
+        while (votes.length < numberOfVotes) votes.push();
 
         dispute.voteCounters.push().tied = true;
         dispute.tokensAtStakePerJurorForRound.push((_subcourtMinStake * _subcourtAlpha) / ALPHA_DIVISOR);
@@ -137,18 +136,18 @@ contract DisputeKitPlurality is AbstractDisputeKit {
         dispute.penaltiesForRound.push(0);
         dispute.ruling = 0;
 
-        disputeIDtoRounds[_disputeID].push(); 
-    } 
+        disputeIDtoRounds[_disputeID].push();
+    }
 
-    function getVotes(uint _disputeID) public view returns(Vote[][] memory) {
+    function getVotes(uint256 _disputeID) public view returns (Vote[][] memory) {
         return disputes[_disputeID].votes;
     }
 
-    function getVotesLength(uint _disputeID) public view returns(uint, uint) {
+    function getVotesLength(uint256 _disputeID) public view returns (uint256, uint256) {
         return (disputes[_disputeID].votes.length, disputes[_disputeID].votes[0].length);
     }
 
-    function getVoteCounter(uint _disputeID) public view returns(bool) {
+    function getVoteCounter(uint256 _disputeID) public view returns (bool) {
         return disputes[_disputeID].voteCounters[disputes[_disputeID].voteCounters.length - 1].tied;
     }
 
@@ -161,8 +160,9 @@ contract DisputeKitPlurality is AbstractDisputeKit {
         uint96 subcourtID = core.getDispute(_disputeID).subcourtID;
         bytes32 key = bytes32(bytes12(subcourtID)); // due to new conversion restrictions in v0.8
         (
-            uint256 k, 
-            /* stack */ ,
+            uint256 k,
+            ,
+            /* stack */
             uint256[] memory nodes
         ) = core.getSortitionSumTree(key);
 
@@ -173,7 +173,10 @@ contract DisputeKitPlurality is AbstractDisputeKit {
         for (uint256 i = 0; i < _iterations; i++) {
             uint256 treeIndex = draw(uint256(keccak256(abi.encodePacked(randomNumber, _disputeID, i))), k, nodes);
             bytes32 id = core.getSortitionSumTreeID(key, treeIndex);
-            (address drawnAddress, /* subcourtID */) = stakePathIDToAccountAndSubcourtID(id);
+            (
+                address drawnAddress, /* subcourtID */
+
+            ) = stakePathIDToAccountAndSubcourtID(id);
 
             // TODO: Save the vote.
             // dispute.votes[dispute.votes.length - 1][i].account = drawnAddress;
