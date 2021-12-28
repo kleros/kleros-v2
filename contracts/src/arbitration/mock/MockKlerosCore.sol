@@ -2,14 +2,12 @@
 
 pragma solidity ^0.8;
 
-import {SortitionSumTreeFactory} from "../../data-structures/SortitionSumTreeFactory.sol";
-// import "../DisputeKitPlurality.sol";
+// import {SortitionSumTreeFactory} from "../../data-structures/SortitionSumTreeFactory.sol";
 import "../IArbitrable.sol";
 import "../AbstractDisputeKit.sol";
 
 contract MockKlerosCore {
-    using SortitionSumTreeFactory for SortitionSumTreeFactory.SortitionSumTrees; // Use library functions for sortition sum trees.
-    SortitionSumTreeFactory.SortitionSumTrees internal sortitionSumTrees; // The sortition sum trees.
+    SortitionSumTrees internal sortitionSumTrees; // The sortition sum trees.
 
     struct Dispute {
         // Note that appeal `0` is equivalent to the first round of the dispute.
@@ -45,6 +43,8 @@ contract MockKlerosCore {
         uint[4] timesPerPeriod; // The time allotted to each dispute period in the form `timesPerPeriod[period]`.
     }
 
+    event DisputeCreation(uint indexed _disputeID, IArbitrable indexed _arbitrable);
+
     uint public constant MIN_JURORS = 3; // The global default minimum number of jurors in a dispute.
 
     Dispute[] public disputes;
@@ -53,7 +53,10 @@ contract MockKlerosCore {
     AbstractDisputeKit disputeKit;
 
     constructor() {
-        sortitionSumTrees.createTree(bytes32(0), 3);
+        createTree(sortitionSumTrees, bytes32(0), 3);
+        Court storage court = courts.push();
+        court.minStake = 100;
+        court.feeForJuror = 100;
     }
 
     // TODO: only owner
@@ -76,7 +79,7 @@ contract MockKlerosCore {
              _choices, 
              _extraData);
 
-        //emit DisputeCreation(disputeID, IArbitrable(msg.sender));
+        emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
 
     function getSortitionSumTree(bytes32 _key)
@@ -88,7 +91,7 @@ contract MockKlerosCore {
             uint256[] memory nodes
         )
     {
-        SortitionSumTreeFactory.SortitionSumTree storage tree = sortitionSumTrees.sortitionSumTrees[_key];
+        SortitionSumTree storage tree = sortitionSumTrees.sortitionSumTrees[_key];
         k = tree.K;
         stack = tree.stack;
         nodes = tree.nodes;
@@ -119,5 +122,36 @@ contract MockKlerosCore {
             subcourtID = 0;
             minJurors = MIN_JURORS;
         }
+    }
+
+
+    // SORTITION TREE FACTORY
+
+    struct SortitionSumTree {
+        uint256 K; // The maximum number of childs per node.
+        // We use this to keep track of vacant positions in the tree after removing a leaf. This is for keeping the tree as balanced as possible without spending gas on moving nodes around.
+        uint256[] stack;
+        uint256[] nodes;
+        // Two-way mapping of IDs to node indexes. Note that node index 0 is reserved for the root node, and means the ID does not have a node.
+        mapping(bytes32 => uint256) IDsToNodeIndexes;
+        mapping(uint256 => bytes32) nodeIndexesToIDs;
+    }
+
+    struct SortitionSumTrees {
+        mapping(bytes32 => SortitionSumTree) sortitionSumTrees;
+    }
+
+    function createTree(
+        SortitionSumTrees storage self,
+        bytes32 _key,
+        uint256 _K
+    ) private {
+        SortitionSumTree storage tree = self.sortitionSumTrees[_key];
+        require(tree.K == 0, "Tree already exists.");
+        require(_K > 1, "K must be greater than one.");
+        tree.K = _K;
+        // tree.stack.length = 0;
+        // tree.nodes.length = 0;
+        tree.nodes.push(0);
     }
 }

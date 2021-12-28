@@ -1,10 +1,11 @@
-## 0.1.0 (2021-12-18)
+## 0.1.0 (2021-12-28)
 
 - feat: add arbitrum L1 bridge and dependencies ([b412772](https://github.com/kleros/kleros-v2/commit/b412772))
 - feat: add arbitrum L2 bridge ([457b060](https://github.com/kleros/kleros-v2/commit/457b060))
 - feat: dispute kit in progress ([95b8ada](https://github.com/kleros/kleros-v2/commit/95b8ada))
 - feat: modern toolchain setup and simple RNG smart contracts ([17f6a76](https://github.com/kleros/kleros-v2/commit/17f6a76))
 - feat(Arbitration): standard update ([ed930de](https://github.com/kleros/kleros-v2/commit/ed930de))
+- feat(DisputeKitPlurality): dispute creation ([6a2490e](https://github.com/kleros/kleros-v2/commit/6a2490e))
 - feat(DisputeKitPlurality): split the responsibility of drawing jurors between Core and Dispute Kit ([f339e2b](https://github.com/kleros/kleros-v2/commit/f339e2b))
 - refactor: add arbitrator data index getter ([47a1623](https://github.com/kleros/kleros-v2/commit/47a1623))
 - refactor: add evidence contracts ([09a34f3](https://github.com/kleros/kleros-v2/commit/09a34f3))
