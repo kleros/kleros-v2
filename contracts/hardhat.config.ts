@@ -9,6 +9,7 @@ import "solidity-coverage";
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
 import "hardhat-watcher";
+import "hardhat-docgen";
 
 dotenv.config();
 
@@ -127,6 +128,11 @@ const config: HardhatUserConfig = {
       ],
       files: ["./test/**/*", "./src/**/*"],
     },
+  },
+  docgen: {
+    path: './docs',
+    clear: true,
+    runOnCompile: false,
   },
 };
 
