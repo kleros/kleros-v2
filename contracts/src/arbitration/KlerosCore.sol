@@ -17,7 +17,7 @@ import {SortitionSumTreeFactory} from "../data-structures/SortitionSumTreeFactor
 
 /**
  *  @title KlerosCore
- *  Core module contract for KlerosCourtV2.
+ *  Core arbitrator contract for Kleros v2.
  */
 contract KlerosCore is IArbitrator {
     using SortitionSumTreeFactory for SortitionSumTreeFactory.SortitionSumTrees; // Use library functions for sortition sum trees.
