@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./interfaces/IInbox.sol";
+import "./interfaces/IOutbox.sol";
 import "./interfaces/IArbRetryableTx.sol";
 
 contract L1Bridge {
@@ -59,5 +60,11 @@ contract L1Bridge {
     function getSubmissionPrice(uint256 _calldatasize) public view returns (uint256) {
         (uint256 submissionCost, ) = arbRetryableTx.getSubmissionPrice(_calldatasize);
         return submissionCost;
+    }
+
+    function onlyAuthorized(address _sender) external {
+        IOutbox outbox = IOutbox(inbox.bridge().activeOutbox());
+        address l2Sender = outbox.l2ToL1Sender();
+        require(l2Sender == l2Target, "Only L2 target");
     }
 }

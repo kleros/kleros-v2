@@ -17,6 +17,11 @@ contract EthereumGateway is IForeignGateway {
     // in the V2 court.
     uint256 internal internalArbitrationCost;
 
+    modifier onlyFromL2() {
+        l1bridge.onlyAuthorized(msg.sender);
+        _;
+    }
+
     constructor(uint256 _arbitrationCost, L1Bridge _l1bridge) {
         internalArbitrationCost = _arbitrationCost;
         l1bridge = _l1bridge;
@@ -66,7 +71,7 @@ contract EthereumGateway is IForeignGateway {
      *
      * @param _data The calldata to relay
      */
-    function relayRule(bytes memory _data) external {
+    function relayRule(bytes memory _data) external onlyFromL2 {
         address arbitrable = address(0); // see the TODO above about the disputeId
 
         // solhint-disable-next-line avoid-low-level-calls
