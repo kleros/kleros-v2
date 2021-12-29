@@ -10,8 +10,14 @@ import "../IForeignGateway.sol";
 
 contract ArbitrumGateway is IHomeGateway {
     // L2 bridge with the ForeignGateway as the l1target
+
     L2Bridge internal l2bridge;
     address public arbitrator;
+
+    modifier onlyFromL1() {
+        l2bridge.onlyAuthorized(msg.sender);
+        _;
+    }
 
     constructor(address _arbitrator, L2Bridge _l2bridge) {
         arbitrator = _arbitrator;
@@ -35,7 +41,7 @@ contract ArbitrumGateway is IHomeGateway {
      *          for it to maintain it's internal mapping.
      * @param _data The calldata to relay
      */
-    function relayCreateDispute(bytes memory _data) external {
+    function relayCreateDispute(bytes memory _data) external onlyFromL1 {
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, ) = arbitrator.call(_data);
         require(success, "Failed to call contract");

@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./interfaces/IArbSys.sol";
+import "./AddressAliasHelper.sol";
 
 contract L2Bridge {
     address public l1Target;
@@ -25,5 +26,9 @@ contract L2Bridge {
 
         emit L2ToL1TxCreated(withdrawalId);
         return withdrawalId;
+    }
+
+    function onlyAuthorized(address _sender) external {
+        require(_sender == AddressAliasHelper.applyL1ToL2Alias(l1Target), "Only L1 target");
     }
 }
