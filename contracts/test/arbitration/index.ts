@@ -7,7 +7,7 @@ const WINNER_STAKE_MULTIPLIER = 3000;
 const LOSER_STAKE_MULTIPLIER = 7000;
 const MULTIPLIER_DENOMINATOR = 10000;
 
-describe("DisputeKitPlurality", function () {
+describe("DisputeKitClassic", function () {
   // eslint-disable-next-line no-unused-vars
   let deployer, claimant, supporter, challenger, innocentBystander;
   let core, disputeKit, arbitrable;
@@ -35,28 +35,28 @@ describe("DisputeKitPlurality", function () {
 });
 
 async function deployContracts(deployer) {
-  const ConstantNGFactory = await ethers.getContractFactory("ConstantNG", deployer);
-  const rng = await ConstantNGFactory.deploy(42);
+  const constantNGFactory = await ethers.getContractFactory("ConstantNG", deployer);
+  const rng = await constantNGFactory.deploy(42);
   await rng.deployed();
 
-  const disputeKitFactory = await ethers.getContractFactory("DisputeKit", deployer);
+  const disputeKitFactory = await ethers.getContractFactory("DisputeKitClassic", deployer);
   const disputeKit = await disputeKitFactory.deploy(
     deployer.address, 
-    ethers.constants.AddressZero, 
+    ethers.constants.AddressZero, // KlerosCore is set later once it is deployed
     rng.address
   );
   await disputeKit.deployed();
 
-  const SortitionSumTreeLibraryFactory = await ethers.getContractFactory("SortitionSumTreeFactory", deployer);
-  const library = await SortitionSumTreeLibraryFactory.deploy();
+  const sortitionSumTreeLibraryFactory = await ethers.getContractFactory("SortitionSumTreeFactory", deployer);
+  const library = await sortitionSumTreeLibraryFactory.deploy();
 
-  const KlerosCoreFactory = await ethers.getContractFactory("KlerosCore", {
+  const klerosCoreFactory = await ethers.getContractFactory("KlerosCore", {
     signer: deployer,
     libraries: {
       SortitionSumTreeFactory: library.address,
     },
   });
-  const core = await KlerosCoreFactory.deploy(
+  const core = await klerosCoreFactory.deploy(
     deployer.address, 
     ethers.constants.AddressZero, // should be an ERC20
     ethers.constants.AddressZero, // should be a Juror Prosecution module
