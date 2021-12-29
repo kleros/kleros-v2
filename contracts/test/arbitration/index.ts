@@ -7,10 +7,6 @@ const WINNER_STAKE_MULTIPLIER = 3000;
 const LOSER_STAKE_MULTIPLIER = 7000;
 const MULTIPLIER_DENOMINATOR = 10000;
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 describe("DisputeKitPlurality", function () {
   // eslint-disable-next-line no-unused-vars
   let deployer, claimant, supporter, challenger, innocentBystander;
@@ -19,41 +15,62 @@ describe("DisputeKitPlurality", function () {
   before("Deploying", async () => {
     [deployer, claimant, supporter, challenger, innocentBystander] = await ethers.getSigners();
     [core, disputeKit, arbitrable] = await deployContracts(deployer);
-
-    // To wait for eth gas reporter to fetch data. Remove this line when the issue is fixed. https://github.com/cgewecke/hardhat-gas-reporter/issues/72
-    // await sleep(9000);
   });
 
   it("Should create a dispute", async function () {
-    await expect(disputeKit.connect(deployer).createDispute(0, 0, 0, 0, 0, 0, "0x00")).to.be.revertedWith(
-      "Not allowed: sender is not core"
+    await expect(disputeKit.connect(deployer).createDispute(0, 0, "0x00")).to.be.revertedWith(
+      "Access not allowed: KlerosCore only."
     );
 
     await expect(core.connect(deployer).createDispute(2, "0x00", { value: 1000 }))
       .to.emit(core, "DisputeCreation")
       .withArgs(0, deployer.address);
 
-    console.log(await disputeKit.disputes(0));
-    console.log(`votes=${await disputeKit.getVotes(0)}`);
-    console.log(`votes=${await disputeKit.getVotesLength(0)}`);
-    console.log(`voteCounter=${await disputeKit.getVoteCounter(0)}`);
+    await expect(BigNumber.from(Object.values(await disputeKit.disputes(0))[0])).to.equal(2);
+
+    console.log(`choice 0: ${await disputeKit.getRoundInfo(0, 0, 0)}`);
+    console.log(`choice 1: ${await disputeKit.getRoundInfo(0, 0, 1)}`);
+    console.log(`choice 2: ${await disputeKit.getRoundInfo(0, 0, 2)}`); 
   });
 });
 
 async function deployContracts(deployer) {
-  const MockKlerosCoreFactory = await ethers.getContractFactory("MockKlerosCore", deployer);
-  const core = await MockKlerosCoreFactory.deploy();
-  await core.deployed();
-
   const ConstantNGFactory = await ethers.getContractFactory("ConstantNG", deployer);
   const rng = await ConstantNGFactory.deploy(42);
   await rng.deployed();
 
-  const disputeKitFactory = await ethers.getContractFactory("DisputeKitPlurality", deployer);
-  const disputeKit = await disputeKitFactory.deploy(core.address, rng.address);
+  const disputeKitFactory = await ethers.getContractFactory("DisputeKit", deployer);
+  const disputeKit = await disputeKitFactory.deploy(
+    deployer.address, 
+    ethers.constants.AddressZero, 
+    rng.address
+  );
   await disputeKit.deployed();
 
-  await core.registerDisputeKit(disputeKit.address);
+  const SortitionSumTreeLibraryFactory = await ethers.getContractFactory("SortitionSumTreeFactory", deployer);
+  const library = await SortitionSumTreeLibraryFactory.deploy();
+
+  const KlerosCoreFactory = await ethers.getContractFactory("KlerosCore", {
+    signer: deployer,
+    libraries: {
+      SortitionSumTreeFactory: library.address,
+    },
+  });
+  const core = await KlerosCoreFactory.deploy(
+    deployer.address, 
+    ethers.constants.AddressZero, // should be an ERC20
+    ethers.constants.AddressZero, // should be a Juror Prosecution module
+    disputeKit.address,
+    false,
+    200,
+    10000,
+    100,
+    3,
+    [0, 0, 0, 0],
+    3);
+  await core.deployed();
+
+  await disputeKit.changeCore(core.address);
 
   const ArbitrableFactory = await ethers.getContractFactory("ArbitrableExample", deployer);
   const arbitrable = await ArbitrableFactory.deploy(core.address);

@@ -1,17 +1,22 @@
 // SPDX-License-Identifier: MIT
 
+/**
+ *  @authors: [@unknownunknown1, @jaybuidl]
+ *  @reviewers: []
+ *  @auditors: []
+ *  @bounties: []
+ *  @deployments: []
+ */
+
 pragma solidity ^0.8;
 
-import "../IArbitrator.sol";
 import "../KlerosCore.sol";
-
-//import "./ChainlinkRNG.sol";
+import "../../rng/RNG.sol";
 
 contract DisputeKit {
-    uint256 public constant WINNER_STAKE_MULTIPLIER = 10000; // Multiplier of the appeal cost that the winner has to pay as fee stake for a round in basis points. Default is 1x of appeal fee.
-    uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the appeal cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
-    uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
-    uint256 public constant MULTIPLIER_DIVISOR = 10000; // The divisor parameter for multipliers.
+    // ************************************* //
+    // *             Structs               * //
+    // ************************************* //
 
     struct Dispute {
         Round[] rounds; // Rounds of the dispute. 0 is the default round, and [1, ..n] are the appeal rounds.
@@ -39,11 +44,24 @@ contract DisputeKit {
         bool voted; // True if the vote has been cast.
     }
 
-    KlerosCore public immutable klerosCore;
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
+
+    uint256 public constant WINNER_STAKE_MULTIPLIER = 10000; // Multiplier of the appeal cost that the winner has to pay as fee stake for a round in basis points. Default is 1x of appeal fee.
+    uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the appeal cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
+    uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
+    uint256 public constant ONE_BASIS_POINT = 10000; // One basis point, for scaling.
+
+    address public governor; // The governor of the contract.
+    KlerosCore public core; // The Kleros Core arbitrator
+    RNG public rng; // The random number generator
     Dispute[] public disputes; // Array of the locally created disputes.
     mapping(uint256 => uint256) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
 
-    uint256 public constant RN = 5; // Mock random number for the drawing process, to temporarily replace the RNG module.
+    // ************************************* //
+    // *              Events               * //
+    // ************************************* //
 
     event Contribution(
         uint256 indexed _disputeID,
@@ -63,16 +81,82 @@ contract DisputeKit {
 
     event ChoiceFunded(uint256 indexed _disputeID, uint256 indexed _round, uint256 indexed _choice);
 
-    constructor(KlerosCore _klerosCore) public {
-        klerosCore = _klerosCore;
+    // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
+
+    modifier onlyByCore() {
+        require(address(core) == msg.sender, "Access not allowed: KlerosCore only.");
+        _;
     }
 
-    /** @dev Creates a local dispute and maps it to the dispute ID in the Core contract.
-     *  @param _disputeID The ID of the dispute in Kleros Core.
-     *  @param _numberOfChoices Number of choices of the disute
+    modifier onlyByGovernor() {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        _;
+    }
+
+    /** @dev Constructor.
+     *  @param _governor The governor's address.
+     *  @param _core The KlerosCore arbitrator.
+     *  @param _rng The random number generator.
      */
-    function createDispute(uint256 _disputeID, uint256 _numberOfChoices) external {
-        require(msg.sender == address(klerosCore), "Can only be called by Kleros Core.");
+    constructor(
+        address _governor,
+        KlerosCore _core,
+        RNG _rng
+    ) {
+        governor = _governor;
+        core = _core;
+        rng = _rng;
+    }
+
+    // ************************ //
+    // *      Governance      * //
+    // ************************ //
+
+    /** @dev Allows the governor to call anything on behalf of the contract.
+     *  @param _destination The destination of the call.
+     *  @param _amount The value sent with the call.
+     *  @param _data The data sent with the call.
+     */
+    function executeGovernorProposal(
+        address _destination,
+        uint256 _amount,
+        bytes memory _data
+    ) external onlyByGovernor {
+        (bool success, ) = _destination.call{value: _amount}(_data);
+        require(success, "Unsuccessful call");
+    }
+
+    /** @dev Changes the `governor` storage variable.
+     *  @param _governor The new value for the `governor` storage variable.
+     */
+    function changeGovernor(address payable _governor) external onlyByGovernor {
+        governor = _governor;
+    }
+
+    /** @dev Changes the `core` storage variable.
+     *  @param _core The new value for the `core` storage variable.
+     */
+    function changeCore(address payable _core) external onlyByGovernor {
+        core = KlerosCore(_core);
+    }
+
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
+
+    /** @dev Creates a local dispute and maps it to the dispute ID in the Core contract.
+     *  Note: Access restricted to Kleros Core only.
+     *  @param _disputeID The ID of the dispute in Kleros Core.
+     *  @param _numberOfChoices Number of choices of the dispute
+     *  @param _extraData Additional info about the dispute, for possible use in future dispute kits.
+     */
+    function createDispute(
+        uint256 _disputeID,
+        uint256 _numberOfChoices,
+        bytes calldata _extraData
+    ) external onlyByCore {
         uint256 localDisputeID = disputes.length;
         Dispute storage dispute = disputes.push();
         dispute.numberOfChoices = _numberOfChoices;
@@ -84,15 +168,15 @@ contract DisputeKit {
     }
 
     /** @dev Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
+     *  Note: Access restricted to Kleros Core only.
      *  @param _disputeID The ID of the dispute in Kleros Core.
      *  @return drawnAddress The drawn address.
      */
-    function draw(uint256 _disputeID) external returns (address drawnAddress) {
-        require(msg.sender == address(klerosCore), "Can only be called by Kleros Core.");
-        bytes32 key = bytes32(klerosCore.getSubcourtID(_disputeID)); // Get the ID of the tree.
+    function draw(uint256 _disputeID) external onlyByCore returns (address drawnAddress) {
+        bytes32 key = bytes32(core.getSubcourtID(_disputeID)); // Get the ID of the tree.
         uint256 drawnNumber = getRandomNumber();
 
-        (uint256 K, , uint256[] memory nodes) = klerosCore.getSortitionSumTree(key);
+        (uint256 K, , uint256[] memory nodes) = core.getSortitionSumTree(key);
         uint256 treeIndex = 0;
         uint256 currentDrawnNumber = drawnNumber % nodes[0];
 
@@ -117,17 +201,10 @@ contract DisputeKit {
                 }
             }
 
-        bytes32 ID = klerosCore.getSortitionSumTreeID(key, treeIndex);
+        bytes32 ID = core.getSortitionSumTreeID(key, treeIndex);
         drawnAddress = stakePathIDToAccount(ID);
 
         round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
-    }
-
-    /** @dev Mock RNG function.
-     */
-    function getRandomNumber() public view returns (uint256) {
-        // return RNG.getRN(rngRequestId);
-        return RN;
     }
 
     /** @dev Sets the caller's commit for the specified votes.
@@ -143,7 +220,7 @@ contract DisputeKit {
         bytes32 _commit
     ) external {
         require(
-            klerosCore.getCurrentPeriod(_disputeID) == KlerosCore.Period.commit,
+            core.getCurrentPeriod(_disputeID) == KlerosCore.Period.commit,
             "The dispute should be in Commit period."
         );
         require(_commit != bytes32(0), "Empty commit.");
@@ -157,7 +234,7 @@ contract DisputeKit {
         }
         round.totalCommitted += _voteIDs.length;
 
-        if (round.totalCommitted == round.votes.length) klerosCore.passPeriod(_disputeID);
+        if (round.totalCommitted == round.votes.length) core.passPeriod(_disputeID);
     }
 
     /** @dev Sets the caller's choices for the specified votes.
@@ -174,17 +251,14 @@ contract DisputeKit {
         uint256 _choice,
         uint256 _salt
     ) external {
-        require(
-            klerosCore.getCurrentPeriod(_disputeID) == KlerosCore.Period.vote,
-            "The dispute should be in Vote period."
-        );
-        require(_voteIDs.length > 0);
+        require(core.getCurrentPeriod(_disputeID) == KlerosCore.Period.vote, "The dispute should be in Vote period.");
+        require(_voteIDs.length > 0, "No voteID provided");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_disputeID]];
         require(_choice <= dispute.numberOfChoices, "Choice out of bounds");
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
-        bool hiddenVotes = klerosCore.areVotesHidden(klerosCore.getSubcourtID(_disputeID));
+        bool hiddenVotes = core.areVotesHidden(core.getSubcourtID(_disputeID));
 
         //  Save the votes.
         for (uint256 i = 0; i < _voteIDs.length; i++) {
@@ -216,7 +290,7 @@ contract DisputeKit {
         }
 
         // Automatically switch period when voting is finished.
-        if (round.totalVoted == round.votes.length) klerosCore.passPeriod(_disputeID);
+        if (round.totalVoted == round.votes.length) core.passPeriod(_disputeID);
     }
 
     /** @dev Manages contributions, and appeals a dispute if at least two choices are fully funded.
@@ -228,7 +302,7 @@ contract DisputeKit {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_disputeID]];
         require(_choice <= dispute.numberOfChoices, "There is no such ruling to fund.");
 
-        (uint256 appealPeriodStart, uint256 appealPeriodEnd) = klerosCore.appealPeriod(_disputeID);
+        (uint256 appealPeriodStart, uint256 appealPeriodEnd) = core.appealPeriod(_disputeID);
         require(block.timestamp >= appealPeriodStart && block.timestamp < appealPeriodEnd, "Appeal period is over.");
 
         uint256 multiplier;
@@ -237,7 +311,7 @@ contract DisputeKit {
         } else {
             require(
                 block.timestamp - appealPeriodStart <
-                    ((appealPeriodEnd - appealPeriodStart) * LOSER_APPEAL_PERIOD_MULTIPLIER) / MULTIPLIER_DIVISOR,
+                    ((appealPeriodEnd - appealPeriodStart) * LOSER_APPEAL_PERIOD_MULTIPLIER) / ONE_BASIS_POINT,
                 "Appeal period is over for loser"
             );
             multiplier = LOSER_STAKE_MULTIPLIER;
@@ -245,8 +319,8 @@ contract DisputeKit {
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         require(!round.hasPaid[_choice], "Appeal fee is already paid.");
-        uint256 appealCost = klerosCore.appealCost(_disputeID);
-        uint256 totalCost = appealCost + (appealCost * multiplier) / MULTIPLIER_DIVISOR;
+        uint256 appealCost = core.appealCost(_disputeID);
+        uint256 totalCost = appealCost + (appealCost * multiplier) / ONE_BASIS_POINT;
 
         // Take up to the amount necessary to fund the current round at the current costs.
         uint256 contribution;
@@ -272,7 +346,7 @@ contract DisputeKit {
 
             Round storage newRound = dispute.rounds.push();
             newRound.tied = true;
-            klerosCore.appeal{value: appealCost}(_disputeID);
+            core.appeal{value: appealCost}(_disputeID);
         }
 
         if (msg.value > contribution) payable(msg.sender).send(msg.value - contribution);
@@ -291,7 +365,7 @@ contract DisputeKit {
         uint256 _round,
         uint256 _choice
     ) external returns (uint256 amount) {
-        require(klerosCore.isRuled(_disputeID), "Dispute should be resolved.");
+        require(core.isRuled(_disputeID), "Dispute should be resolved.");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_disputeID]];
         Round storage round = dispute.rounds[_round];
@@ -322,7 +396,9 @@ contract DisputeKit {
         }
     }
 
-    /* Public views */
+    // ************************************* //
+    // *           Public Views            * //
+    // ************************************* //
 
     /** @dev Gets the current ruling of a specified dispute.
      *  @param _disputeID The ID of the dispute in Kleros Core.
@@ -351,7 +427,7 @@ contract DisputeKit {
         Vote storage vote = dispute.rounds[_round].votes[_voteID];
 
         if (vote.voted && (vote.choice == lastRound.winningChoice || lastRound.tied)) {
-            return 10000; // 1 in basis points.
+            return ONE_BASIS_POINT;
         } else {
             return 0;
         }
@@ -391,25 +467,6 @@ contract DisputeKit {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_disputeID]];
         Vote storage vote = dispute.rounds[_round].votes[_voteID];
         return vote.voted;
-    }
-
-    /** @dev Retrieves a juror's address from the stake path ID.
-     *  @param _stakePathID The stake path ID to unpack.
-     *  @return account The account.
-     */
-    function stakePathIDToAccount(bytes32 _stakePathID) internal pure returns (address account) {
-        assembly {
-            // solium-disable-line security/no-inline-assembly
-            let ptr := mload(0x40)
-            for {
-                let i := 0x00
-            } lt(i, 0x14) {
-                i := add(i, 0x01)
-            } {
-                mstore8(add(add(ptr, 0x0c), i), byte(i, _stakePathID))
-            }
-            account := mload(ptr)
-        }
     }
 
     function getRoundInfo(
@@ -457,5 +514,35 @@ contract DisputeKit {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_disputeID]];
         Vote storage vote = dispute.rounds[_round].votes[_voteID];
         return (vote.account, vote.commit, vote.choice, vote.voted);
+    }
+
+    // ************************************* //
+    // *        Internal/Private           * //
+    // ************************************* //
+
+    /** @dev RNG function
+     *  @return rn A random number.
+     */
+    function getRandomNumber() private returns (uint256) {
+        return rng.getUncorrelatedRN(block.number);
+    }
+
+    /** @dev Retrieves a juror's address from the stake path ID.
+     *  @param _stakePathID The stake path ID to unpack.
+     *  @return account The account.
+     */
+    function stakePathIDToAccount(bytes32 _stakePathID) private pure returns (address account) {
+        assembly {
+            // solium-disable-line security/no-inline-assembly
+            let ptr := mload(0x40)
+            for {
+                let i := 0x00
+            } lt(i, 0x14) {
+                i := add(i, 0x01)
+            } {
+                mstore8(add(add(ptr, 0x0c), i), byte(i, _stakePathID))
+            }
+            account := mload(ptr)
+        }
     }
 }

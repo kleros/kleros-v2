@@ -10,10 +10,10 @@
 
 pragma solidity ^0.8;
 
-import "./IArbitrator.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./IArbitrator.sol";
 import "./dispute-kits/DisputeKit.sol";
-import "../data-structures/SortitionSumTreeFactory.sol";
+import {SortitionSumTreeFactory} from "../data-structures/SortitionSumTreeFactory.sol";
 
 /**
  *  @title KlerosCore
@@ -109,7 +109,7 @@ contract KlerosCore is IArbitrator {
     /* Modifiers */
 
     modifier onlyByGovernor() {
-        require(governor == msg.sender);
+        require(governor == msg.sender, "Access not allowed: Governor only.");
         _;
     }
 
@@ -382,7 +382,7 @@ contract KlerosCore is IArbitrator {
         dispute.repartitionsInEachRound.push(0);
         dispute.penaltiesInEachRound.push(0);
 
-        disputeKit.createDispute(disputeID, _numberOfChoices);
+        disputeKit.createDispute(disputeID, _numberOfChoices, _extraData);
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
 
