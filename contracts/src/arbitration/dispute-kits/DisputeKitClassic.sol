@@ -17,10 +17,10 @@ import "../../rng/RNG.sol";
 /**
  *  @title DisputeKitClassic
  *  Dispute kit implementation of the Kleros v1 features including:
- *  - Drawing system: proportional to staked PNK,
- *  - Vote aggreation system: plurality,
- *  - Incentive system: equal split between coherent votes,
- *  - Appeal system: fund 2 choices only, vote on any choice.
+ *  - a drawing system: proportional to staked PNK,
+ *  - a vote aggreation system: plurality,
+ *  - an incentive system: equal split between coherent votes,
+ *  - an appeal system: fund 2 choices only, vote on any choice.
  */
 contract DisputeKitClassic is DisputeKit {
     // ************************************* //
@@ -361,7 +361,7 @@ contract DisputeKitClassic is DisputeKit {
         if (msg.value > contribution) payable(msg.sender).send(msg.value - contribution);
     }
 
-    /** @dev Allows to withdraw any reimbursable fees or rewards after the dispute gets resolved.
+    /** @dev Allows those contributors who attempted to fund an appeal round to withdraw any reimbursable fees or rewards after the dispute gets resolved.
      *  @param _disputeID Index of the dispute in Kleros Core contract.
      *  @param _beneficiary The address whose rewards to withdraw.
      *  @param _round The round the caller wants to withdraw from.
@@ -528,13 +528,13 @@ contract DisputeKitClassic is DisputeKit {
     }
 
     // ************************************* //
-    // *        Internal/Private           * //
+    // *            Internal               * //
     // ************************************* //
 
     /** @dev RNG function
      *  @return rn A random number.
      */
-    function getRandomNumber() private returns (uint256) {
+    function getRandomNumber() internal returns (uint256) {
         return rng.getUncorrelatedRN(block.number);
     }
 
@@ -542,7 +542,7 @@ contract DisputeKitClassic is DisputeKit {
      *  @param _stakePathID The stake path ID to unpack.
      *  @return account The account.
      */
-    function stakePathIDToAccount(bytes32 _stakePathID) private pure returns (address account) {
+    function stakePathIDToAccount(bytes32 _stakePathID) internal pure returns (address account) {
         assembly {
             // solium-disable-line security/no-inline-assembly
             let ptr := mload(0x40)
