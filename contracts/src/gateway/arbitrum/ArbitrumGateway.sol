@@ -12,23 +12,24 @@ contract ArbitrumGateway is IHomeGateway {
     // L2 bridge with the ForeignGateway as the l1target
 
     L2Bridge internal l2bridge;
-    address public arbitrator;
+    IArbitrator public arbitrator;
+    mapping(uint256 => bytes32) disputeIDtoHash;
 
     modifier onlyFromL1() {
         l2bridge.onlyAuthorized(msg.sender);
         _;
     }
 
-    constructor(address _arbitrator, L2Bridge _l2bridge) {
+    constructor(IArbitrator _arbitrator, L2Bridge _l2bridge) {
         arbitrator = _arbitrator;
         l2bridge = _l2bridge;
     }
 
-    function rule(uint256, uint256) external {
-        require(msg.sender == arbitrator, "Only Arbitrator");
+    function rule(uint256 _disputeID, uint256 _ruling) external {
+        require(msg.sender == address(arbitrator), "Only Arbitrator");
 
         bytes4 methodSelector = IForeignGateway.relayRule.selector;
-        bytes memory data = abi.encodeWithSelector(methodSelector, msg.data);
+        bytes memory data = abi.encodeWithSelector(methodSelector, disputeIDtoHash[_disputeID], _ruling);
 
         l2bridge.sendCrossDomainMessage(data);
     }
@@ -37,13 +38,13 @@ contract ArbitrumGateway is IHomeGateway {
      * Relay the createDispute call from the foreign gateway to the arbitrator.
      *
      * // TODO: Implement the evidence redirection from the Evidence v2 standard.
-     * // TODO: Return the actual disputeId from the court to the ForeignGateway
-     *          for it to maintain it's internal mapping.
-     * @param _data The calldata to relay
      */
-    function relayCreateDispute(bytes memory _data) external onlyFromL1 {
-        // solhint-disable-next-line avoid-low-level-calls
-        (bool success, ) = arbitrator.call(_data);
-        require(success, "Failed to call contract");
+    function relayCreateDispute(
+        bytes32 _disputeHash,
+        uint256 _choices,
+        bytes calldata _extraData
+    ) external onlyFromL1 {
+        uint256 disputeID = arbitrator.createDispute(_choices, _extraData);
+        disputeIDtoHash[disputeID] = _disputeHash;
     }
 }

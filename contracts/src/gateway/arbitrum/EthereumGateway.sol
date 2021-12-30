@@ -11,11 +11,19 @@ import "../IForeignGateway.sol";
 contract EthereumGateway is IForeignGateway {
     // L1 bridge with the HomeGateway as the l2target
     L1Bridge internal l1bridge;
+    uint256 localDisputeID;
+    uint256 chainID;
 
     // For now this is just a constant, but we'd probably need to
     // implement the same arbitrationCost calculation code we'll have
     // in the V2 court.
     uint256 internal internalArbitrationCost;
+
+    struct Dispute {
+        uint256 id;
+        address arbitrable;
+    }
+    mapping(bytes32 => Dispute) disputeHashtoDisputeData;
 
     modifier onlyFromL2() {
         l1bridge.onlyAuthorized(msg.sender);
@@ -25,13 +33,31 @@ contract EthereumGateway is IForeignGateway {
     constructor(uint256 _arbitrationCost, L1Bridge _l1bridge) {
         internalArbitrationCost = _arbitrationCost;
         l1bridge = _l1bridge;
+        uint256 id;
+        assembly {
+            id := chainid()
+        }
+        chainID = id;
     }
 
     function createDispute(uint256 _choices, bytes calldata _extraData) external payable returns (uint256 disputeID) {
         require(msg.value >= arbitrationCost(_extraData), "Not paid enough for arbitration");
 
+        disputeID = localDisputeID++;
+        bytes32 disputeHash = keccak256(
+            abi.encodePacked(
+                chainID,
+                blockhash(block.number - 1),
+                "createDispute",
+                disputeID,
+                arbitrationCost(_extraData),
+                _extraData
+            )
+        );
+        disputeHashtoDisputeData[disputeHash] = Dispute({id: disputeID, arbitrable: msg.sender});
+
         bytes4 methodSelector = IHomeGateway.relayCreateDispute.selector;
-        bytes memory data = abi.encodeWithSelector(methodSelector, msg.data);
+        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _choices, _extraData);
 
         uint256 bridgeCost = l1bridge.getSubmissionPrice(data.length);
         // We only pay for the submissionPrice gas cost
@@ -44,13 +70,11 @@ contract EthereumGateway is IForeignGateway {
         // For more details, see:
         // https://developer.offchainlabs.com/docs/l1_l2_messages#retryable-tickets-contract-api
         //
-        // We do NOT forward the arbitrationCost to the HomeGateway yet,
+        // We do NOT forward the arbitrationCost ETH funds to the HomeGateway yet,
         // only the calldata.
         l1bridge.sendCrossDomainMessage{value: bridgeCost}(data, 0, 0);
 
-        disputeID = 0; // TODO: map to the actual disputeID we get from the V2 court
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
-        return disputeID;
     }
 
     function arbitrationCost(bytes calldata _extraData) public view returns (uint256 cost) {
@@ -68,14 +92,11 @@ contract EthereumGateway is IForeignGateway {
 
     /**
      * Relay the rule call from the home gateway to the arbitrable.
-     *
-     * @param _data The calldata to relay
      */
-    function relayRule(bytes memory _data) external onlyFromL2 {
-        address arbitrable = address(0); // see the TODO above about the disputeId
+    function relayRule(bytes32 _disputeHash, uint256 _ruling) external onlyFromL2 {
+        Dispute memory dispute = disputeHashtoDisputeData[_disputeHash];
 
-        // solhint-disable-next-line avoid-low-level-calls
-        (bool success, ) = arbitrable.call(_data);
-        require(success, "Failed to call contract");
+        IArbitrable arbitrable = IArbitrable(dispute.arbitrable);
+        arbitrable.rule(dispute.id, _ruling);
     }
 }
