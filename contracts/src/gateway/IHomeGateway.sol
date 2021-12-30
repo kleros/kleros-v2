@@ -7,8 +7,10 @@ import "../arbitration/IArbitrable.sol";
 interface IHomeGateway is IArbitrable {
     /**
      * Relay the createDispute call from the foreign gateway to the arbitrator.
-     *
-     * @param _data The calldata to relay
      */
-    function relayCreateDispute(bytes memory _data) external;
+    function relayCreateDispute(
+        bytes32 _disputeHash,
+        uint256 _choices,
+        bytes calldata _extraData
+    ) external;
 }
