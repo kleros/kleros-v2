@@ -14,15 +14,23 @@ import "./DisputeKit.sol";
 import "../KlerosCore.sol";
 import "../../rng/RNG.sol";
 
+interface IProofOfHumanity {
+    /** @dev Return true if the submission is registered and not expired.
+     *  @param _submissionID The address of the submission.
+     *  @return Whether the submission is registered or not.
+     */
+    function isRegistered(address _submissionID) external view returns (bool);
+}
+
 /**
- *  @title DisputeKitClassic
- *  Dispute kit implementation of the Kleros v1 features including:
- *  - a drawing system: proportional to staked PNK,
+ *  @title DisputeKitSybilResistant
+ *  Dispute kit implementation adapted from DisputeKitClassic
+ *  - a drawing system: at most 1 vote per juror registered on Proof of Humanity,
  *  - a vote aggreation system: plurality,
  *  - an incentive system: equal split between coherent votes,
  *  - an appeal system: fund 2 choices only, vote on any choice.
  */
-contract DisputeKitClassic is DisputeKit {
+contract DisputeKitSybilResistant is DisputeKit {
     // ************************************* //
     // *             Structs               * //
     // ************************************* //
@@ -65,6 +73,7 @@ contract DisputeKitClassic is DisputeKit {
     address public governor; // The governor of the contract.
     KlerosCore public core; // The Kleros Core arbitrator
     RNG public rng; // The random number generator
+    IProofOfHumanity public poh; // The Proof of Humanity registry
     Dispute[] public disputes; // Array of the locally created disputes.
     mapping(uint256 => uint256) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
 
@@ -112,11 +121,13 @@ contract DisputeKitClassic is DisputeKit {
     constructor(
         address _governor,
         KlerosCore _core,
-        RNG _rng
+        RNG _rng,
+        IProofOfHumanity _poh
     ) {
         governor = _governor;
         core = _core;
         rng = _rng;
+        poh = _poh;
     }
 
     // ************************ //
@@ -147,8 +158,15 @@ contract DisputeKitClassic is DisputeKit {
     /** @dev Changes the `core` storage variable.
      *  @param _core The new value for the `core` storage variable.
      */
-    function changeCore(address payable _core) external onlyByGovernor {
+    function changeCore(address _core) external onlyByGovernor {
         core = KlerosCore(_core);
+    }
+
+    /** @dev Changes the `poh` storage variable.
+     *  @param _poh The new value for the `poh` storage variable.
+     */
+    function changePoh(address _poh) external onlyByGovernor {
+        poh = IProofOfHumanity(_poh);
     }
 
     // ************************************* //
@@ -214,6 +232,9 @@ contract DisputeKitClassic is DisputeKit {
 
         bytes32 ID = core.getSortitionSumTreeID(key, treeIndex);
         drawnAddress = stakePathIDToAccount(ID);
+
+        if (!proofOfHumanity(drawnAddress)) drawnAddress = address(0);
+        // TODO: deduplicate the list of all the drawn humans before moving to the next period !!
 
         round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
     }
@@ -532,6 +553,14 @@ contract DisputeKitClassic is DisputeKit {
     // ************************************* //
     // *            Internal               * //
     // ************************************* //
+
+    /** @dev Checks if an address belongs to the Proof of Humanity registry.
+     *  @param _address The address to check.
+     *  @return registered True if registered.
+     */
+    function proofOfHumanity(address _address) internal view returns (bool) {
+        return poh.isRegistered(_address);
+    }
 
     /** @dev RNG function
      *  @return rn A random number.
