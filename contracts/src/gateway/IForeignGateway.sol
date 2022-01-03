@@ -5,6 +5,10 @@ pragma solidity ^0.8.0;
 import "../arbitration/IArbitrator.sol";
 
 interface IForeignGateway is IArbitrator {
+    function chainID() external view returns (uint256);
+
+    function foreignDisputeHashToID(bytes32 _disputeHash) external view returns (uint256);
+
     /**
      * Relay the rule call from the home gateway to the arbitrable.
      */

@@ -8,31 +8,42 @@ import "../../bridge/arbitrum/L1Bridge.sol";
 import "../IHomeGateway.sol";
 import "../IForeignGateway.sol";
 
-contract EthereumGateway is IForeignGateway {
+import "../IForeignEvidence.sol";
+
+contract EthereumGateway is IForeignGateway, IForeignEvidence {
     // L1 bridge with the HomeGateway as the l2target
     L1Bridge internal l1bridge;
-    uint256 localDisputeID;
-    uint256 chainID;
+    uint256 internal localDisputeID;
 
     // For now this is just a constant, but we'd probably need to
     // implement the same arbitrationCost calculation code we'll have
     // in the V2 court.
     uint256 internal internalArbitrationCost;
 
-    struct Dispute {
+    struct DisputeData {
         uint256 id;
         address arbitrable;
     }
-    mapping(bytes32 => Dispute) disputeHashtoDisputeData;
+    mapping(uint256 => bytes32) public disputeIDtoHash;
+    mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
+
+    IHomeGateway public homeGateway;
+    uint256 public chainID;
 
     modifier onlyFromL2() {
         l1bridge.onlyAuthorized(msg.sender);
         _;
     }
 
-    constructor(uint256 _arbitrationCost, L1Bridge _l1bridge) {
+    constructor(
+        uint256 _arbitrationCost,
+        L1Bridge _l1bridge,
+        IHomeGateway _homeGateway
+    ) {
         internalArbitrationCost = _arbitrationCost;
         l1bridge = _l1bridge;
+        homeGateway = _homeGateway;
+
         uint256 id;
         assembly {
             id := chainid()
@@ -54,7 +65,8 @@ contract EthereumGateway is IForeignGateway {
                 _extraData
             )
         );
-        disputeHashtoDisputeData[disputeHash] = Dispute({id: disputeID, arbitrable: msg.sender});
+        disputeIDtoHash[disputeID] = disputeHash;
+        disputeHashtoDisputeData[disputeHash] = DisputeData({id: disputeID, arbitrable: msg.sender});
 
         bytes4 methodSelector = IHomeGateway.relayCreateDispute.selector;
         bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _choices, _extraData);
@@ -94,9 +106,28 @@ contract EthereumGateway is IForeignGateway {
      * Relay the rule call from the home gateway to the arbitrable.
      */
     function relayRule(bytes32 _disputeHash, uint256 _ruling) external onlyFromL2 {
-        Dispute memory dispute = disputeHashtoDisputeData[_disputeHash];
+        DisputeData memory dispute = disputeHashtoDisputeData[_disputeHash];
 
         IArbitrable arbitrable = IArbitrable(dispute.arbitrable);
         arbitrable.rule(dispute.id, _ruling);
+    }
+
+    function foreignDisputeHashToID(bytes32 _disputeHash) external view returns (uint256) {
+        return disputeHashtoDisputeData[_disputeHash].id;
+    }
+
+    function disputeID(uint256 _foreignDisputeID) external view returns (uint256) {
+        bytes32 disputeHash = disputeIDtoHash[_foreignDisputeID];
+        require(disputeHash != 0, "Dispute does not exist");
+
+        return homeGateway.homeDisputeHashToID(disputeHash);
+    }
+
+    function homeChainID(uint256 _disputeID) external view returns (uint256) {
+        return homeGateway.chainID();
+    }
+
+    function homeBridge(uint256 _disputeID) external view returns (address) {
+        return address(homeGateway);
     }
 }
