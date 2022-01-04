@@ -5,7 +5,9 @@ pragma solidity ^0.8.0;
 import "./interfaces/IArbSys.sol";
 import "./AddressAliasHelper.sol";
 
-contract L2Bridge {
+import "../IL2Bridge.sol";
+
+contract L2Bridge is IL2Bridge {
     address public l1Target;
     IArbSys constant arbsys = IArbSys(address(100));
 

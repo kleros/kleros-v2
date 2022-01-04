@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../../arbitration/IArbitrable.sol";
-import "../../bridge/arbitrum/L1Bridge.sol";
+import "../../bridge/IL1Bridge.sol";
 
 import "../IHomeGateway.sol";
 import "../IForeignGateway.sol";
@@ -12,7 +12,7 @@ import "../IForeignEvidence.sol";
 
 contract EthereumGateway is IForeignGateway, IForeignEvidence {
     // L1 bridge with the HomeGateway as the l2target
-    L1Bridge internal l1bridge;
+    IL1Bridge internal l1bridge;
     uint256 internal localDisputeID;
 
     // For now this is just a constant, but we'd probably need to
@@ -37,7 +37,7 @@ contract EthereumGateway is IForeignGateway, IForeignEvidence {
 
     constructor(
         uint256 _arbitrationCost,
-        L1Bridge _l1bridge,
+        IL1Bridge _l1bridge,
         IHomeGateway _homeGateway
     ) {
         internalArbitrationCost = _arbitrationCost;

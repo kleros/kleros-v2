@@ -6,7 +6,9 @@ import "./interfaces/IInbox.sol";
 import "./interfaces/IOutbox.sol";
 import "./interfaces/IArbRetryableTx.sol";
 
-contract L1Bridge {
+import "../IL1Bridge.sol";
+
+contract L1Bridge is IL1Bridge {
     address public l2Target;
     IInbox public inbox;
     IArbRetryableTx constant arbRetryableTx = IArbRetryableTx(address(110));
@@ -41,6 +43,7 @@ contract L1Bridge {
         uint256 _gasPriceBid
     ) external payable returns (uint256) {
         uint256 baseSubmissionCost = getSubmissionPrice(_calldata.length);
+        require(msg.value >= baseSubmissionCost);
 
         uint256 ticketID = inbox.createRetryableTicket{value: msg.value}(
             l2Target,
