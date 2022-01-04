@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../../arbitration/IArbitrator.sol";
-import "../../bridge/arbitrum/L2Bridge.sol";
+import "../../bridge/IL2Bridge.sol";
 
 import "../IHomeGateway.sol";
 import "../IForeignGateway.sol";
@@ -12,7 +12,7 @@ import "../IHomeEvidence.sol";
 
 contract ArbitrumGateway is IHomeGateway, IHomeEvidence {
     // L2 bridge with the ForeignGateway as the l1target
-    L2Bridge internal l2bridge;
+    IL2Bridge internal l2bridge;
 
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => uint256) public disputeHashtoID;
@@ -28,7 +28,7 @@ contract ArbitrumGateway is IHomeGateway, IHomeEvidence {
 
     constructor(
         IArbitrator _arbitrator,
-        L2Bridge _l2bridge,
+        IL2Bridge _l2bridge,
         IForeignGateway _foreignGateway
     ) {
         arbitrator = _arbitrator;
