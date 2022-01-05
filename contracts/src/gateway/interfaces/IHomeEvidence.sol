@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../evidence/IEvidence.sol";
+import "../../evidence/IEvidence.sol";
 
 interface IHomeEvidence is IEvidence {
     function homeToForeignDisputeID(uint256 _homeDisputeID) external view returns (uint256);

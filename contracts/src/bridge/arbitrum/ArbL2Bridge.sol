@@ -7,7 +7,7 @@ import "./AddressAliasHelper.sol";
 
 import "../IL2Bridge.sol";
 
-contract L2Bridge is IL2Bridge {
+contract ArbL2Bridge is IL2Bridge {
     address public l1Target;
     IArbSys constant arbsys = IArbSys(address(100));
 
@@ -30,7 +30,7 @@ contract L2Bridge is IL2Bridge {
         return withdrawalId;
     }
 
-    function onlyAuthorized(address _sender) external {
-        require(_sender == AddressAliasHelper.applyL1ToL2Alias(l1Target), "Only L1 target");
+    function onlyAuthorized() external {
+        require(msg.sender == AddressAliasHelper.applyL1ToL2Alias(l1Target), "Only L1 target");
     }
 }
