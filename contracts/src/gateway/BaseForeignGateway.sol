@@ -85,9 +85,9 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
         // as that is a factor for the bridging cost.
         // Calldata size of relayCreateDispute:
         // relayCreateDispute methodId +
-        //      (createDispute methodId + uint256 _choices + bytes _extraData)
-        //   4      +      4            +   32             + dynamic
-        uint256 calldatasize = 40 + _extraData.length;
+        //      (createDispute methodId + bytes32 disputeHash + uint256 _choices + bytes _extraData)
+        //   4      +      4            +   32                +   32             + dynamic
+        uint256 calldatasize = 82 + _extraData.length;
 
         uint256 bridgeCost = this.getSubmissionPrice(calldatasize);
         return bridgeCost + internalArbitrationCost;
