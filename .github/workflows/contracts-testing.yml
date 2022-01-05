@@ -35,17 +35,14 @@ jobs:
           ${{ runner.os }}-
           
     - name: Install
-      run: npm install
-      working-directory: contracts
+      run: yarn workspace @kleros/kleros-v2-contracts install
       
     - name: Compile
       run: |         
-        yarn clean
-        yarn compile
-      working-directory: contracts
+        yarn workspace @kleros/kleros-v2-contracts clean
+        yarn workspace @kleros/kleros-v2-contracts compile
       
     - name: Test
       run: |         
-        yarn test
-      working-directory: contracts
+        yarn workspace @kleros/kleros-v2-contracts test
 
