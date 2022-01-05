@@ -40,7 +40,7 @@ jobs:
              
     - name: Install contracts dependencies
       run: |
-        yarn install
+        npm install
       working-directory: contracts
       
     - name: Compile
