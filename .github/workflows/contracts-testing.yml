@@ -36,15 +36,18 @@ jobs:
           
     - name: Install parent dependencies
       run: |
+        echo "current dir: $PWD"
         yarn install
              
     - name: Install contracts dependencies
       run: |
+        echo "current dir: $PWD"
         npm install
       working-directory: contracts
       
     - name: Compile
       run: |
+        echo "current dir: $PWD"
         yarn build
       working-directory: contracts
       
