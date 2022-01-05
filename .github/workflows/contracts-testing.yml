@@ -45,7 +45,7 @@ jobs:
       
     - name: Compile
       run: |
-        yarn compile
+        yarn build
       working-directory: contracts
       
     - name: Test
