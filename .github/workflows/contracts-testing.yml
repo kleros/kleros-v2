@@ -1,0 +1,39 @@
+name: Unit testing
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - "*"
+      
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v2.5.1
+      with:
+        node-version: 16.x   
+        
+    - uses: actions/checkout@v2.4.0
+    
+    - name: Cache node modules
+      uses: actions/cache@v2.1.7
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: | 
+          ~/.npm
+          **/node_modules
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+          
+    - name: Install
+      run: npm install
+      working-directory: contracts
