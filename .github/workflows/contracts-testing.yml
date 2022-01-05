@@ -28,14 +28,16 @@ jobs:
         path: | 
           ~/.npm
           **/node_modules
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}
         restore-keys: |
           ${{ runner.os }}-build-${{ env.cache-name }}-
           ${{ runner.os }}-build-
           ${{ runner.os }}-
           
     - name: Install
-      run: yarn workspace @kleros/kleros-v2-contracts install
+      run: |
+        yarn install
+        yarn workspace @kleros/kleros-v2-contracts install
       
     - name: Compile
       run: |         
