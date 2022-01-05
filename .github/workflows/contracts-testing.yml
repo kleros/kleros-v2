@@ -49,9 +49,11 @@ jobs:
       run: |
         echo "current dir: $PWD"
         ls -d node_modules/hardhat
-        yarn workspace @kleros/kleros-v2-contracts build
+        npx hardhat compile
+      working-directory: contracts
       
     - name: Test
       run: |         
-        yarn workspace @kleros/kleros-v2-contracts test
+        npx hardhat test
+      working-directory: contracts
 
