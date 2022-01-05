@@ -6,7 +6,7 @@ import "./interfaces/IAMB.sol";
 
 import "../IL1Bridge.sol";
 
-contract L1Bridge is IL1Bridge {
+contract xDaiL1Bridge is IL1Bridge {
     address public l2Target;
     IAMB amb;
 
@@ -34,9 +34,9 @@ contract L1Bridge is IL1Bridge {
         return 0;
     }
 
-    function onlyAuthorized(address _sender) external {
-        require(_sender == address(amb), "Only AMB allowed");
-        //require(amb.messageSourceChainId() == homeChainId, "Only home chain allowed");
-        require(amb.messageSender() == l2Target, "Only home proxy allowed");
+    function onlyAuthorized() external {
+        require(msg.sender == address(amb), "Only AMB allowed");
+        // require(amb.messageSourceChainId() == foreignChainId, "Only foreign chain allowed");
+        require(amb.messageSender() == l2Target, "Only foreign gateway allowed");
     }
 }

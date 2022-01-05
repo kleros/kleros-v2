@@ -2,9 +2,10 @@
 
 pragma solidity ^0.8.0;
 
-import "../arbitration/IArbitrator.sol";
+import "../../arbitration/IArbitrator.sol";
+import "./IForeignEvidence.sol";
 
-interface IForeignGateway is IArbitrator {
+interface IForeignGateway is IArbitrator, IForeignEvidence {
     function chainID() external view returns (uint256);
 
     function foreignDisputeHashToID(bytes32 _disputeHash) external view returns (uint256);

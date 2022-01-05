@@ -8,7 +8,7 @@ import "./interfaces/IArbRetryableTx.sol";
 
 import "../IL1Bridge.sol";
 
-contract L1Bridge is IL1Bridge {
+contract ArbL1Bridge is IL1Bridge {
     address public l2Target;
     IInbox public inbox;
     IArbRetryableTx constant arbRetryableTx = IArbRetryableTx(address(110));
@@ -43,7 +43,7 @@ contract L1Bridge is IL1Bridge {
         uint256 _gasPriceBid
     ) external payable returns (uint256) {
         uint256 baseSubmissionCost = getSubmissionPrice(_calldata.length);
-        require(msg.value >= baseSubmissionCost);
+        require(msg.value >= baseSubmissionCost + (_maxGas * _gasPriceBid));
 
         uint256 ticketID = inbox.createRetryableTicket{value: msg.value}(
             l2Target,
@@ -65,7 +65,7 @@ contract L1Bridge is IL1Bridge {
         return submissionCost;
     }
 
-    function onlyAuthorized(address _sender) external {
+    function onlyAuthorized() external {
         IOutbox outbox = IOutbox(inbox.bridge().activeOutbox());
         address l2Sender = outbox.l2ToL1Sender();
         require(l2Sender == l2Target, "Only L2 target");

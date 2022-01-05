@@ -11,5 +11,5 @@ interface IL2Bridge {
      */
     function sendCrossDomainMessage(bytes memory _calldata) external returns (uint256);
 
-    function onlyAuthorized(address _sender) external;
+    function onlyAuthorized() external;
 }

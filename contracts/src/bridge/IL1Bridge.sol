@@ -28,5 +28,5 @@ interface IL1Bridge {
 
     function getSubmissionPrice(uint256 _calldatasize) external view returns (uint256);
 
-    function onlyAuthorized(address _sender) external;
+    function onlyAuthorized() external;
 }
