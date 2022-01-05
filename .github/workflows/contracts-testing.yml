@@ -37,3 +37,15 @@ jobs:
     - name: Install
       run: npm install
       working-directory: contracts
+      
+    - name: Compile
+      run: |         
+        yarn clean
+        yarn compile
+      working-directory: contracts
+      
+    - name: Test
+      run: |         
+        yarn test
+      working-directory: contracts
+
