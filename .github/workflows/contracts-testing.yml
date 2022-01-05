@@ -34,17 +34,22 @@ jobs:
           ${{ runner.os }}-build-
           ${{ runner.os }}-
           
-    - name: Install
+    - name: Install parent dependencies
       run: |
         yarn install
-        yarn workspace @kleros/kleros-v2-contracts install
+             
+    - name: Install contracts dependencies
+      run: |
+        yarn install
+      working-directory: contracts
       
     - name: Compile
-      run: |         
-        yarn workspace @kleros/kleros-v2-contracts clean
-        yarn workspace @kleros/kleros-v2-contracts compile
+      run: |
+        yarn compile
+      working-directory: contracts
       
     - name: Test
       run: |         
-        yarn workspace @kleros/kleros-v2-contracts test
+        yarn test
+      working-directory: contracts
 
