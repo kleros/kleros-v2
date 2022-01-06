@@ -1,6 +1,7 @@
 # Hardhat files
 cache
 artifacts
+coverage.json
 
 ## Hardhat typechain bindings/types
 typechain
