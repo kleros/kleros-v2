@@ -36,20 +36,24 @@ jobs:
           
     - name: Install parent dependencies
       run: |
+        echo "current dir: $PWD"
         yarn install
              
     - name: Install contracts dependencies
       run: |
-        yarn install
+        echo "current dir: $PWD"
+        npm install
       working-directory: contracts
       
     - name: Compile
       run: |
-        yarn build
+        echo "current dir: $PWD"
+        ls -d node_modules/hardhat
+        npx hardhat compile
       working-directory: contracts
       
     - name: Test
       run: |         
-        yarn test
+        npx hardhat test
       working-directory: contracts
 
