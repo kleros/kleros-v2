@@ -34,26 +34,27 @@ jobs:
           ${{ runner.os }}-build-
           ${{ runner.os }}-
           
-    - name: Install parent dependencies
-      run: |
-        echo "current dir: $PWD"
-        yarn install
+    #- name: Install parent dependencies
+    #  run: |
+    #    echo "current dir: $PWD"
+    #    yarn install
              
     - name: Install contracts dependencies
       run: |
-        echo "current dir: $PWD"
-        npm install
-      working-directory: contracts
+        yarn workspace @kleros/kleros-v2-contracts install
       
     - name: Compile
       run: |
-        echo "current dir: $PWD"
-        ls -d node_modules/hardhat
         npx hardhat compile
       working-directory: contracts
       
-    - name: Test
+    - name: Test with coverage
       run: |         
-        npx hardhat test
+        npx hardhat coverage --solcoverjs ./.solcover.js --temp artifacts --testfiles \"./test/**/*.ts\"
       working-directory: contracts
 
+    - name: Upload a build artifact
+      uses: actions/upload-artifact@v2.3.1
+      with:    
+        name: code-coverage-report    
+        path: contracts/coverage
