@@ -1,0 +1,60 @@
+name: Contracts Testing
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - "*"
+      
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v2.5.1
+      with:
+        node-version: 16.x   
+        
+    - uses: actions/checkout@v2.4.0
+    
+    - name: Cache node modules
+      uses: actions/cache@v2.1.7
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: | 
+          ~/.npm
+          **/node_modules
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+          
+    #- name: Install parent dependencies
+    #  run: |
+    #    echo "current dir: $PWD"
+    #    yarn install
+             
+    - name: Install contracts dependencies
+      run: |
+        yarn workspace @kleros/kleros-v2-contracts install
+      
+    - name: Compile
+      run: |
+        npx hardhat compile
+      working-directory: contracts
+      
+    - name: Test with coverage
+      run: |         
+        npx hardhat coverage --solcoverjs ./.solcover.js --temp artifacts --testfiles \"./test/**/*.ts\"
+      working-directory: contracts
+
+    - name: Upload a build artifact
+      uses: actions/upload-artifact@v2.3.1
+      with:    
+        name: code-coverage-report    
+        path: contracts/coverage
