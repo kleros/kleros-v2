@@ -1,4 +1,4 @@
-name: Unit testing
+name: Contracts Testing
 
 on:
   workflow_dispatch:
