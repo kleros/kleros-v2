@@ -1,4 +1,4 @@
-## 0.1.0 (2021-12-27)
+## 0.1.0 (2022-01-10)
 
 - refactor: add arbitrator data index getter ([47a1623](https://github.com/kleros/kleros-v2/commit/47a1623))
 - refactor: add evidence contracts ([09a34f3](https://github.com/kleros/kleros-v2/commit/09a34f3))
@@ -7,6 +7,7 @@
 - refactor: add simple evidence home contract ([1b82f62](https://github.com/kleros/kleros-v2/commit/1b82f62))
 - refactor: clean contract ([d250cf0](https://github.com/kleros/kleros-v2/commit/d250cf0))
 - refactor: fix contract name ([6eb744a](https://github.com/kleros/kleros-v2/commit/6eb744a))
+- refactor: fixes + docs ([b47f801](https://github.com/kleros/kleros-v2/commit/b47f801))
 - refactor: remove foreign evidence interface ([ff8c50c](https://github.com/kleros/kleros-v2/commit/ff8c50c))
 - refactor(bridge): use ArbRetryableTx#getSubmissionPrice ([61bc2f3](https://github.com/kleros/kleros-v2/commit/61bc2f3))
 - refactor(sdk): rename ([3241d10](https://github.com/kleros/kleros-v2/commit/3241d10))
