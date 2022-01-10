@@ -13,8 +13,6 @@ interface IPinakion {
 }
 
 contract KlerosV1Governor is IArbitrable, ITokenController {
-    uint256 private constant MAX_SUBCOURT_ID = 23;
-
     struct DisputeData {
         uint256 klerosLiquidDisputeID;
         bool ruled;
