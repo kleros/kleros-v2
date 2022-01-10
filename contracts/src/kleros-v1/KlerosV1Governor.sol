@@ -34,9 +34,10 @@ contract KlerosV1Governor is IArbitrable, ITokenController {
         _;
     }
 
-    /** @dev Constructor.
+    /** @dev Constructor. Before this contract is made the new governor of KlerosLiquid, the evidence period of all subcourts has to be set to uint(-1).
      *  @param _klerosLiquid The trusted arbitrator to resolve potential disputes.
      *  @param _governor The trusted governor of the contract.
+     *  @param _foreignGateway The trusted gateway that acts as an arbitrator, relaying disputes to v2.
      */
     constructor(
         IKlerosLiquid _klerosLiquid,
@@ -46,17 +47,6 @@ contract KlerosV1Governor is IArbitrable, ITokenController {
         klerosLiquid = _klerosLiquid;
         governor = _governor;
         foreignGateway = _foreignGateway;
-
-        // Set evidence periods of subcourts to infinity.
-        uint256[4] memory timesPerPeriod;
-        for (uint96 subcourtID = 0; subcourtID <= MAX_SUBCOURT_ID; subcourtID++) {
-            (, timesPerPeriod) = klerosLiquid.getSubcourt(subcourtID);
-
-            klerosLiquid.changeSubcourtTimesPerPeriod(
-                subcourtID,
-                [type(uint256).max, timesPerPeriod[1], timesPerPeriod[2], timesPerPeriod[3]]
-            );
-        }
     }
 
     /** @dev Lets the governor call anything on behalf of the contract.
@@ -102,6 +92,7 @@ contract KlerosV1Governor is IArbitrable, ITokenController {
         require(totalFeesForJurors[0] >= arbitrationCost, "Fees not high enough."); // If this doesn't hold at some point, it could be a big issue.
         uint256 gatewayDisputeID = foreignGateway.createDispute(KlerosLiquidDispute.numberOfChoices, extraData);
         klerosLiquidDisputeIDtoGatewayDisputeID[_disputeID] = gatewayDisputeID;
+        require(gatewayDisputeID != 0, "ID must be greater than 0.");
 
         DisputeData storage dispute = disputes[gatewayDisputeID];
         dispute.klerosLiquidDisputeID = _disputeID;
@@ -143,6 +134,7 @@ contract KlerosV1Governor is IArbitrable, ITokenController {
 
             for (uint256 voteID = 0; voteID < votesLengths[round]; voteID++) {
                 (address account, , , ) = klerosLiquid.getVote(_disputeID, round, voteID);
+                require(account != address(0x0), "Juror not drawn yet.");
                 frozenTokens[account] += tokensAtStakePerJuror[round];
             }
             isDisputeNotified[_disputeID][round] = true;
