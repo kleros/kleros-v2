@@ -17,9 +17,7 @@ contract KlerosV1Governor is IArbitrable, ITokenController {
 
     struct DisputeData {
         uint256 klerosLiquidDisputeID;
-        uint256 ruling;
         bool ruled;
-        bool rulingRelayed;
     }
 
     IArbitrator public immutable foreignGateway;
@@ -110,7 +108,7 @@ contract KlerosV1Governor is IArbitrable, ITokenController {
     }
 
     /** @dev Give a ruling for a dispute. Can only be called by the arbitrator. TRUSTED.
-     *  Account for the situation where the winner loses a case due to paying less appeal fees than expected.
+     *  Triggers rule() from KlerosLiquid to the arbitrable contract which created the dispute.
      *  @param _disputeID ID of the dispute in the arbitrator contract.
      *  @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Refused to arbitrate".
      */
@@ -121,21 +119,10 @@ contract KlerosV1Governor is IArbitrable, ITokenController {
         require(!dispute.ruled, "Dispute already ruled.");
 
         dispute.ruled = true;
-        dispute.ruling = _ruling;
 
         emit Ruling(foreignGateway, _disputeID, _ruling);
-    }
 
-    /** @dev Triggers rule() from KlerosLiquid to the arbitrable contract which created the dispute.
-     *  @param _disputeID ID of the dispute in the arbitrator contract.
-     *  @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Refused to arbitrate".
-     */
-    function executeRuling(uint256 _disputeID, uint256 _ruling) external {
-        DisputeData storage dispute = disputes[_disputeID];
         IKlerosLiquid.Dispute memory klerosLiquidDispute = klerosLiquid.disputes(dispute.klerosLiquidDisputeID);
-        require(dispute.ruled, "Dispute ongoing.");
-        require(!dispute.rulingRelayed, "Ruling already sent.");
-        dispute.rulingRelayed = true;
 
         bytes4 functionSelector = IArbitrable.rule.selector;
         bytes memory data = abi.encodeWithSelector(functionSelector, dispute.klerosLiquidDisputeID, _ruling);
