@@ -129,12 +129,16 @@ contract KlerosV1Governor is IArbitrable, ITokenController {
             _disputeID
         );
 
+        uint256 minStakingTime = klerosLiquid.minStakingTime();
+        IKlerosLiquid.Phase phase = klerosLiquid.phase();
+        bool isDrawingForbidden = phase == IKlerosLiquid.Phase.staking && minStakingTime == type(uint256).max;
+
         for (uint256 round = 0; round < votesLengths.length; round++) {
             if (isDisputeNotified[_disputeID][round]) continue;
 
             for (uint256 voteID = 0; voteID < votesLengths[round]; voteID++) {
                 (address account, , , ) = klerosLiquid.getVote(_disputeID, round, voteID);
-                require(account != address(0x0), "Juror not drawn yet.");
+                require(account != address(0x0) || isDrawingForbidden, "Juror not drawn yet.");
                 frozenTokens[account] += tokensAtStakePerJuror[round];
             }
             isDisputeNotified[_disputeID][round] = true;

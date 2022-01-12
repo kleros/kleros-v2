@@ -11,6 +11,12 @@ interface IKlerosLiquid is IArbitrator {
         execution // Tokens are redistributed and the ruling is executed.
     }
 
+    enum Phase {
+        staking, // Stake sum trees can be updated. Pass after `minStakingTime` passes and there is at least one dispute without jurors.
+        generating, // Waiting for a random number. Pass as soon as it is ready.
+        drawing // Jurors can be drawn. Pass after all disputes have jurors or `maxDrawingTime` passes.
+    }
+
     struct Dispute {
         // Note that appeal `0` is equivalent to the first round of the dispute.
         uint96 subcourtID; // The ID of the subcourt the dispute is in.
@@ -29,7 +35,11 @@ interface IKlerosLiquid is IArbitrator {
         uint256 lockedTokens; // The juror's total amount of tokens locked in disputes.
     }
 
+    function phase() external view returns (Phase);
+
     function lockInsolventTransfers() external view returns (bool);
+
+    function minStakingTime() external view returns (uint256);
 
     function pinakion() external view returns (address);
 
