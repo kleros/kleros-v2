@@ -78,7 +78,6 @@ contract KlerosV1Governor is IArbitrable, ITokenController {
             _disputeID
         );
 
-        // Check that no juror was yet drawn. Add a function to finalize the juror drawing and move the dispute to vote.
         require(KlerosLiquidDispute.period == IKlerosLiquid.Period.evidence, "Invalid dispute period.");
         require(votesLengths.length == 1, "Cannot relay appeals.");
 
@@ -88,7 +87,10 @@ contract KlerosV1Governor is IArbitrable, ITokenController {
         bytes memory extraData = abi.encode(KlerosLiquidDispute.subcourtID, minJurors);
         uint256 arbitrationCost = foreignGateway.arbitrationCost(extraData);
         require(totalFeesForJurors[0] >= arbitrationCost, "Fees not high enough."); // If this doesn't hold at some point, it could be a big issue.
-        uint256 gatewayDisputeID = foreignGateway.createDispute(KlerosLiquidDispute.numberOfChoices, extraData);
+        uint256 gatewayDisputeID = foreignGateway.createDispute{value: arbitrationCost}(
+            KlerosLiquidDispute.numberOfChoices,
+            extraData
+        );
         klerosLiquidDisputeIDtoGatewayDisputeID[_disputeID] = gatewayDisputeID;
         require(gatewayDisputeID != 0, "ID must be greater than 0.");
 
