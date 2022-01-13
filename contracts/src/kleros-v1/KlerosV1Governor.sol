@@ -139,7 +139,7 @@ contract KlerosV1Governor is IArbitrable, ITokenController {
             for (uint256 voteID = 0; voteID < votesLengths[round]; voteID++) {
                 (address account, , , ) = klerosLiquid.getVote(_disputeID, round, voteID);
                 require(account != address(0x0) || isDrawingForbidden, "Juror not drawn yet.");
-                frozenTokens[account] += tokensAtStakePerJuror[round];
+                if (account != address(0x0)) frozenTokens[account] += tokensAtStakePerJuror[round];
             }
             isDisputeNotified[_disputeID][round] = true;
         }
