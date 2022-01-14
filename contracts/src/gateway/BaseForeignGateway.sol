@@ -9,7 +9,9 @@ import "./interfaces/IHomeGateway.sol";
 import "./interfaces/IForeignGateway.sol";
 
 abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
-    uint256 internal localDisputeID;
+    // @dev Note the disputeID needs to start from one as
+    // the KlerosV1 proxy governor depends on this implementation.
+    uint256 internal localDisputeID = 1;
 
     // For now this is just a constant, but we'd probably need to
     // implement the same arbitrationCost calculation code we'll have
