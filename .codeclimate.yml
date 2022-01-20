@@ -1,0 +1,6 @@
+engines:
+  tslint:
+    enabled: true
+    checks:
+      quotemark:
+        enabled: false
