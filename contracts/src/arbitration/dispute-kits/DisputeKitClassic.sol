@@ -21,6 +21,8 @@ import "../../rng/RNG.sol";
  *  - a vote aggreation system: plurality,
  *  - an incentive system: equal split between coherent votes,
  *  - an appeal system: fund 2 choices only, vote on any choice.
+ *  TODO:
+ *  - phase management: Generating->Drawing->Resolving->Generating in coordination with KlerosCore to freeze staking.
  */
 contract DisputeKitClassic is DisputeKit {
     // ************************************* //
@@ -149,6 +151,14 @@ contract DisputeKitClassic is DisputeKit {
      */
     function changeCore(address payable _core) external onlyByGovernor {
         core = KlerosCore(_core);
+    }
+
+    /** @dev Changes the `_rng` storage variable.
+     *  @param _rng The new value for the `RNGenerator` storage variable.
+     */
+    function changeRandomNumberGenerator(RNG _rng) external onlyByGovernor {
+        rng = _rng;
+        // TODO: if current phase is generating, call rng.requestRN() for the next block
     }
 
     // ************************************* //
