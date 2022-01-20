@@ -12,7 +12,7 @@ pragma solidity ^0.8;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./IArbitrator.sol";
-import "./dispute-kits/DisputeKit.sol";
+import "./IDisputeKit.sol";
 import {SortitionSumTreeFactory} from "../data-structures/SortitionSumTreeFactory.sol";
 
 /**
@@ -49,7 +49,7 @@ contract KlerosCore is IArbitrator {
     struct Dispute {
         uint96 subcourtID; // The ID of the subcourt the dispute is in.
         IArbitrable arbitrated; // The arbitrable contract.
-        DisputeKit disputeKit; // ID of the dispute kit that this dispute was assigned to.
+        IDisputeKit disputeKit; // ID of the dispute kit that this dispute was assigned to.
         Period period; // The current period of the dispute.
         bool ruled; // True if the ruling has been executed, false otherwise.
         uint256 currentRound; // The index of the current appeal round. Note that 0 represents the default dispute round. Former votes.length - 1.
@@ -90,7 +90,7 @@ contract KlerosCore is IArbitrator {
     Court[] public courts; // The subcourts.
 
     //TODO: disputeKits forest.
-    DisputeKit[] public disputeKits; // All supported dispute kits.
+    IDisputeKit[] public disputeKits; // All supported dispute kits.
 
     Dispute[] public disputes; // The disputes.
     mapping(address => Juror) internal jurors; // The jurors.
@@ -138,7 +138,7 @@ contract KlerosCore is IArbitrator {
         address _governor,
         IERC20 _pinakion,
         address _jurorProsecutionModule,
-        DisputeKit _disputeKit,
+        IDisputeKit _disputeKit,
         bool _hiddenVotes,
         uint256 _minStake,
         uint256 _alpha,
@@ -211,7 +211,7 @@ contract KlerosCore is IArbitrator {
     /** @dev Add a new supported dispute kit module to the court.
      *  @param _disputeKitAddress The address of the dispute kit contract.
      */
-    function addNewDisputeKit(DisputeKit _disputeKitAddress) external onlyByGovernor {
+    function addNewDisputeKit(IDisputeKit _disputeKitAddress) external onlyByGovernor {
         // TODO: the dispute kit data structure. For now keep it a simple array.
         // Also note that in current state this function doesn't take into account that the added address is actually new.
         require(disputeKits.length <= 256); // Can't be more than 256 because the IDs are used in a bitfield.
@@ -375,7 +375,7 @@ contract KlerosCore is IArbitrator {
         dispute.subcourtID = subcourtID;
         dispute.arbitrated = IArbitrable(msg.sender);
 
-        DisputeKit disputeKit = disputeKits[disputeKitID];
+        IDisputeKit disputeKit = disputeKits[disputeKitID];
         dispute.disputeKit = disputeKit;
 
         dispute.lastPeriodChange = block.timestamp;
@@ -449,7 +449,7 @@ contract KlerosCore is IArbitrator {
     function draw(uint256 _disputeID, uint256 _iterations) external {
         Dispute storage dispute = disputes[_disputeID];
         require(dispute.period == Period.evidence, "Should be evidence period.");
-        DisputeKit disputeKit = dispute.disputeKit;
+        IDisputeKit disputeKit = dispute.disputeKit;
         uint256 startIndex = dispute.drawnJurors[dispute.currentRound].length;
         uint256 endIndex = startIndex + _iterations <= dispute.nbVotes ? startIndex + _iterations : dispute.nbVotes;
 
@@ -652,7 +652,7 @@ contract KlerosCore is IArbitrator {
      *  @return ruling The current ruling.
      */
     function currentRuling(uint256 _disputeID) public view returns (uint256 ruling) {
-        DisputeKit disputeKit = disputes[_disputeID].disputeKit;
+        IDisputeKit disputeKit = disputes[_disputeID].disputeKit;
         return disputeKit.currentRuling(_disputeID);
     }
 
