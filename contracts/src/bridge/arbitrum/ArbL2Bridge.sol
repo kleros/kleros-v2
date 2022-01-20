@@ -3,8 +3,11 @@
 pragma solidity ^0.8.0;
 
 import "./interfaces/IArbSys.sol";
+import "./AddressAliasHelper.sol";
 
-contract L2Bridge {
+import "../IL2Bridge.sol";
+
+contract ArbL2Bridge is IL2Bridge {
     address public l1Target;
     IArbSys constant arbsys = IArbSys(address(100));
 
@@ -20,10 +23,14 @@ contract L2Bridge {
      * @param _calldata The L1 encoded message data.
      * @return Unique id to track the message request/transaction.
      */
-    function sendCrossDomainMessage(bytes memory _calldata) external payable returns (uint256) {
+    function sendCrossDomainMessage(bytes memory _calldata) external returns (uint256) {
         uint256 withdrawalId = arbsys.sendTxToL1(l1Target, _calldata);
 
         emit L2ToL1TxCreated(withdrawalId);
         return withdrawalId;
+    }
+
+    function onlyAuthorized() external {
+        require(msg.sender == AddressAliasHelper.applyL1ToL2Alias(l1Target), "Only L1 target");
     }
 }
