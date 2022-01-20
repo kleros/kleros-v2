@@ -10,8 +10,8 @@
 
 pragma solidity ^0.8;
 
-import "./DisputeKit.sol";
-import "../KlerosCore.sol";
+import "./BaseDisputeKit.sol";
+
 import "../../rng/RNG.sol";
 
 interface IProofOfHumanity {
@@ -30,7 +30,7 @@ interface IProofOfHumanity {
  *  - an incentive system: equal split between coherent votes,
  *  - an appeal system: fund 2 choices only, vote on any choice.
  */
-contract DisputeKitSybilResistant is DisputeKit {
+contract DisputeKitSybilResistant is BaseDisputeKit {
     // ************************************* //
     // *             Structs               * //
     // ************************************* //
@@ -70,8 +70,6 @@ contract DisputeKitSybilResistant is DisputeKit {
     uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
     uint256 public constant ONE_BASIS_POINT = 10000; // One basis point, for scaling.
 
-    address public governor; // The governor of the contract.
-    KlerosCore public core; // The Kleros Core arbitrator
     RNG public rng; // The random number generator
     IProofOfHumanity public poh; // The Proof of Humanity registry
     Dispute[] public disputes; // Array of the locally created disputes.
@@ -99,20 +97,6 @@ contract DisputeKitSybilResistant is DisputeKit {
 
     event ChoiceFunded(uint256 indexed _disputeID, uint256 indexed _round, uint256 indexed _choice);
 
-    // ************************************* //
-    // *        Function Modifiers         * //
-    // ************************************* //
-
-    modifier onlyByCore() {
-        require(address(core) == msg.sender, "Access not allowed: KlerosCore only.");
-        _;
-    }
-
-    modifier onlyByGovernor() {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
-        _;
-    }
-
     /** @dev Constructor.
      *  @param _governor The governor's address.
      *  @param _core The KlerosCore arbitrator.
@@ -123,9 +107,7 @@ contract DisputeKitSybilResistant is DisputeKit {
         KlerosCore _core,
         RNG _rng,
         IProofOfHumanity _poh
-    ) {
-        governor = _governor;
-        core = _core;
+    ) BaseDisputeKit(_governor, _core) {
         rng = _rng;
         poh = _poh;
     }
@@ -133,20 +115,6 @@ contract DisputeKitSybilResistant is DisputeKit {
     // ************************ //
     // *      Governance      * //
     // ************************ //
-
-    /** @dev Allows the governor to call anything on behalf of the contract.
-     *  @param _destination The destination of the call.
-     *  @param _amount The value sent with the call.
-     *  @param _data The data sent with the call.
-     */
-    function executeGovernorProposal(
-        address _destination,
-        uint256 _amount,
-        bytes memory _data
-    ) external onlyByGovernor {
-        (bool success, ) = _destination.call{value: _amount}(_data);
-        require(success, "Unsuccessful call");
-    }
 
     /** @dev Changes the `governor` storage variable.
      *  @param _governor The new value for the `governor` storage variable.
@@ -250,7 +218,7 @@ contract DisputeKitSybilResistant is DisputeKit {
         uint256 _disputeID,
         uint256[] calldata _voteIDs,
         bytes32 _commit
-    ) external override {
+    ) external {
         require(
             core.getCurrentPeriod(_disputeID) == KlerosCore.Period.commit,
             "The dispute should be in Commit period."
@@ -282,7 +250,7 @@ contract DisputeKitSybilResistant is DisputeKit {
         uint256[] calldata _voteIDs,
         uint256 _choice,
         uint256 _salt
-    ) external override {
+    ) external {
         require(core.getCurrentPeriod(_disputeID) == KlerosCore.Period.vote, "The dispute should be in Vote period.");
         require(_voteIDs.length > 0, "No voteID provided");
 
@@ -330,7 +298,7 @@ contract DisputeKitSybilResistant is DisputeKit {
      *  @param _disputeID Index of the dispute in Kleros Core contract.
      *  @param _choice A choice that receives funding.
      */
-    function fundAppeal(uint256 _disputeID, uint256 _choice) external payable override {
+    function fundAppeal(uint256 _disputeID, uint256 _choice) external payable {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_disputeID]];
         require(_choice <= dispute.numberOfChoices, "There is no such ruling to fund.");
 
@@ -338,7 +306,7 @@ contract DisputeKitSybilResistant is DisputeKit {
         require(block.timestamp >= appealPeriodStart && block.timestamp < appealPeriodEnd, "Appeal period is over.");
 
         uint256 multiplier;
-        if (currentRuling(_disputeID) == _choice) {
+        if (this.currentRuling(_disputeID) == _choice) {
             multiplier = WINNER_STAKE_MULTIPLIER;
         } else {
             require(
@@ -396,12 +364,12 @@ contract DisputeKitSybilResistant is DisputeKit {
         address payable _beneficiary,
         uint256 _round,
         uint256 _choice
-    ) external override returns (uint256 amount) {
+    ) external returns (uint256 amount) {
         require(core.isRuled(_disputeID), "Dispute should be resolved.");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_disputeID]];
         Round storage round = dispute.rounds[_round];
-        uint256 finalRuling = currentRuling(_disputeID);
+        uint256 finalRuling = this.currentRuling(_disputeID);
 
         if (!round.hasPaid[_choice]) {
             // Allow to reimburse if funding was unsuccessful for this ruling option.
@@ -436,7 +404,7 @@ contract DisputeKitSybilResistant is DisputeKit {
      *  @param _disputeID The ID of the dispute in Kleros Core.
      *  @return ruling The current ruling.
      */
-    function currentRuling(uint256 _disputeID) public view override returns (uint256 ruling) {
+    function currentRuling(uint256 _disputeID) external view override returns (uint256 ruling) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_disputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         ruling = round.tied ? 0 : round.winningChoice;
