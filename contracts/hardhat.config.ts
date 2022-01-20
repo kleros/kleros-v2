@@ -6,8 +6,10 @@ import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
-import "hardhat-deploy"
-import "hardhat-deploy-ethers"
+import "hardhat-deploy";
+import "hardhat-deploy-ethers";
+import "hardhat-watcher";
+import "hardhat-docgen";
 
 dotenv.config();
 
@@ -43,6 +45,18 @@ const config: HardhatUserConfig = {
       saveDeployments: false,
       tags: ["test", "local"],
     },
+    mainnetFork: {
+      url: `http://127.0.0.1:8545`,
+      chainId: 1,
+      forking: {
+        url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      },
+      accounts: process.env.MAINNET_PRIVATE_KEY !== undefined ? [process.env.MAINNET_PRIVATE_KEY] : [],
+      live: false,
+      saveDeployments: false,
+      tags: ["test", "local"],
+    },
+
     // Home chain ---------------------------------------------------------------------------------
     arbitrumRinkeby: {
       chainId: 421611,
@@ -100,6 +114,25 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
+  },
+  watcher: {
+    compilation: {
+      tasks: ["compile"],
+      files: ["./contracts"],
+      verbose: true,
+    },
+    testArbitration: {
+      tasks: [
+        { command: "compile", params: { quiet: true } },
+        { command: "test", params: { noCompile: true, testFiles: ["./test/arbitration/index.ts"] } },
+      ],
+      files: ["./test/**/*", "./src/**/*"],
+    },
+  },
+  docgen: {
+    path: './docs',
+    clear: true,
+    runOnCompile: false,
   },
 };
 
