@@ -17,14 +17,15 @@ import "./interfaces/IHomeGateway.sol";
 import "./interfaces/IForeignGateway.sol";
 
 abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
+    // The global default minimum number of jurors in a dispute.
+    uint256 public constant MIN_JURORS = 3;
+
     // @dev Note the disputeID needs to start from one as
     // the KlerosV1 proxy governor depends on this implementation.
     uint256 internal localDisputeID = 1;
 
-    // For now this is just a constant, but we'd probably need to
-    // implement the same arbitrationCost calculation code we'll have
-    // in the V2 court.
-    uint256 internal internalArbitrationCost;
+    // feeForJuror by subcourtID
+    uint256[] internal feeForJuror;
 
     struct DisputeData {
         uint256 id;
@@ -38,15 +39,26 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
 
     IHomeGateway public homeGateway;
     uint256 public chainID;
+    address public governor;
 
     modifier onlyFromL2() {
         onlyAuthorized();
         _;
     }
 
-    constructor(uint256 _arbitrationCost, IHomeGateway _homeGateway) {
-        internalArbitrationCost = _arbitrationCost;
+    modifier onlyByGovernor() {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        _;
+    }
+
+    constructor(
+        address _governor,
+        IHomeGateway _homeGateway,
+        uint256[] memory _feeForJuror
+    ) {
+        governor = _governor;
         homeGateway = _homeGateway;
+        feeForJuror = _feeForJuror;
 
         uint256 id;
         assembly {
@@ -55,8 +67,19 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
         chainID = id;
     }
 
+    /** @dev Changes the `feeForJuror` property value of a specified subcourt.
+     *  @param _subcourtID The ID of the subcourt.
+     *  @param _feeForJuror The new value for the `feeForJuror` property value.
+     */
+    function changeSubcourtJurorFee(uint96 _subcourtID, uint256 _feeForJuror) external onlyByGovernor {
+        feeForJuror[_subcourtID] = _feeForJuror;
+    }
+
     function createDispute(uint256 _choices, bytes calldata _extraData) external payable returns (uint256 disputeID) {
         require(msg.value >= arbitrationCost(_extraData), "Not paid enough for arbitration");
+
+        (uint96 subcourtID, ) = extraDataToSubcourtIDMinJurors(_extraData);
+        uint256 nbVotes = msg.value / feeForJuror[subcourtID];
 
         disputeID = localDisputeID++;
         bytes32 disputeHash = keccak256(
@@ -71,6 +94,7 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
             )
         );
         disputeIDtoHash[disputeID] = disputeHash;
+
         disputeHashtoDisputeData[disputeHash] = DisputeData({
             id: disputeID,
             arbitrable: msg.sender,
@@ -80,7 +104,13 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
         });
 
         bytes4 methodSelector = IHomeGateway.relayCreateDispute.selector;
-        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _choices, _extraData);
+        bytes memory data = abi.encodeWithSelector(
+            methodSelector,
+            disputeHash,
+            _choices,
+            _extraData,
+            nbVotes * feeForJuror[subcourtID] // we calculate the min amount required for nbVotes
+        );
 
         // We only pay for the submissionPrice gas cost
         // which is minimum gas cost required for submitting a
@@ -100,16 +130,19 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
     }
 
     function arbitrationCost(bytes calldata _extraData) public view returns (uint256 cost) {
+        (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDMinJurors(_extraData);
+
         // Calculate the size of calldata that will be passed to the L2 bridge
         // as that is a factor for the bridging cost.
         // Calldata size of relayCreateDispute:
-        // relayCreateDispute methodId +
-        //      (createDispute methodId + bytes32 disputeHash + uint256 _choices + bytes _extraData)
-        //   4      +      4            +   32                +   32             + dynamic
-        uint256 calldatasize = 82 + _extraData.length;
+        // relayCreateDispute methodId + bytes32 disputeHash + uint256 _choices + bytes _extraData + uint256 _arbitrationCost)
+        //                  4          +   32                +   32             + dynamic          +  32
+        uint256 calldatasize = 100 + _extraData.length;
 
         uint256 bridgeCost = getSubmissionPrice(calldatasize);
-        return bridgeCost + internalArbitrationCost;
+        uint256 arbCost = feeForJuror[subcourtID] * minJurors;
+
+        return bridgeCost + arbCost;
     }
 
     /**
@@ -156,5 +189,25 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
 
     function homeBridge(uint256 _disputeID) external view returns (address) {
         return address(homeGateway);
+    }
+
+    function extraDataToSubcourtIDMinJurors(bytes memory _extraData)
+        internal
+        view
+        returns (uint96 subcourtID, uint256 minJurors)
+    {
+        // Note that here we ignore DisputeKitID
+        if (_extraData.length >= 64) {
+            assembly {
+                // solium-disable-line security/no-inline-assembly
+                subcourtID := mload(add(_extraData, 0x20))
+                minJurors := mload(add(_extraData, 0x40))
+            }
+            if (subcourtID >= feeForJuror.length) subcourtID = 0;
+            if (minJurors == 0) minJurors = MIN_JURORS;
+        } else {
+            subcourtID = 0;
+            minJurors = MIN_JURORS;
+        }
     }
 }

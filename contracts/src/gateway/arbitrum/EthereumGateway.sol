@@ -9,9 +9,10 @@ import "../BaseForeignGateway.sol";
 
 contract EthereumGateway is BaseForeignGateway, ArbL1Bridge {
     constructor(
-        uint256 _arbitrationCost,
+        address _governor,
         IHomeGateway _homeGateway,
+        uint256[] memory _feeForJuror,
         address _l2Target,
         address _inbox
-    ) BaseForeignGateway(_arbitrationCost, _homeGateway) ArbL1Bridge(_l2Target, _inbox) {}
+    ) BaseForeignGateway(_governor, _homeGateway, _feeForJuror) ArbL1Bridge(_l2Target, _inbox) {}
 }

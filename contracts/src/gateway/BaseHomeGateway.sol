@@ -27,7 +27,7 @@ abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
     struct RelayedData {
         uint256 choices;
         bytes extraData;
-        uint256 numOfJurors;
+        uint256 arbitrationCost;
         address forwarder;
     }
     mapping(bytes32 => RelayedData) public disputeHashtoRelayedData;
@@ -63,28 +63,33 @@ abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
     }
 
     /**
-     * Relay the createDispute call from the foreign gateway to the arbitrator.
+     * @dev Relay the createDispute call from the foreign gateway to the arbitrator.
+     *
+     * @param _disputeHash disputeHash
+     * @param _choices number of ruling choices
+     * @param _extraData extraData
+     * @param _arbitrationCost We get the actual arbitrationCost paid by the
+     *          arbitrable here in case they paid more than the min arbitrationCost
      */
     function relayCreateDispute(
         bytes32 _disputeHash,
         uint256 _choices,
         bytes calldata _extraData,
-        uint256 _numOfJurors
+        uint256 _arbitrationCost
     ) external onlyFromL1 {
         RelayedData storage relayedData = disputeHashtoRelayedData[_disputeHash];
         relayedData.choices = _choices;
         relayedData.extraData = _extraData;
-        relayedData.numOfJurors = _numOfJurors;
+        relayedData.arbitrationCost = _arbitrationCost;
     }
 
     function forwardCreateDispute(bytes32 _disputeHash) external payable {
         RelayedData storage relayedData = disputeHashtoRelayedData[_disputeHash];
+        require(relayedData.forwarder == address(0), "Dispute already forwarded");
 
-        // TODO: Account for numOfJurors instead of just minJurors
-        uint256 cost = arbitrator.arbitrationCost(relayedData.extraData);
-        require(msg.value >= cost, "Not enough arbitration cost paid");
+        require(msg.value >= relayedData.arbitrationCost, "Not enough arbitration cost paid");
 
-        uint256 disputeID = arbitrator.createDispute{value: cost}(relayedData.choices, relayedData.extraData);
+        uint256 disputeID = arbitrator.createDispute{value: msg.value}(relayedData.choices, relayedData.extraData);
         disputeIDtoHash[disputeID] = _disputeHash;
         disputeHashtoID[_disputeHash] = disputeID;
         relayedData.forwarder = msg.sender;
