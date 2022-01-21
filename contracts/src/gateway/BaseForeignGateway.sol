@@ -29,6 +29,9 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
     struct DisputeData {
         uint256 id;
         address arbitrable;
+        uint256 paid;
+        address forwarder;
+        bool ruled;
     }
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
@@ -68,7 +71,13 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
             )
         );
         disputeIDtoHash[disputeID] = disputeHash;
-        disputeHashtoDisputeData[disputeHash] = DisputeData({id: disputeID, arbitrable: msg.sender});
+        disputeHashtoDisputeData[disputeHash] = DisputeData({
+            id: disputeID,
+            arbitrable: msg.sender,
+            paid: msg.value,
+            forwarder: address(0),
+            ruled: false
+        });
 
         bytes4 methodSelector = IHomeGateway.relayCreateDispute.selector;
         bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _choices, _extraData);
@@ -106,11 +115,28 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
     /**
      * Relay the rule call from the home gateway to the arbitrable.
      */
-    function relayRule(bytes32 _disputeHash, uint256 _ruling) external onlyFromL2 {
-        DisputeData memory dispute = disputeHashtoDisputeData[_disputeHash];
+    function relayRule(
+        bytes32 _disputeHash,
+        uint256 _ruling,
+        address _forwarder
+    ) external onlyFromL2 {
+        DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
+
+        require(!dispute.ruled, "Cannot rule twice");
+        dispute.ruled = true;
+        dispute.forwarder = _forwarder;
 
         IArbitrable arbitrable = IArbitrable(dispute.arbitrable);
         arbitrable.rule(dispute.id, _ruling);
+    }
+
+    function withdrawFees(bytes32 _disputeHash) external {
+        DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
+        require(dispute.ruled, "Not ruled yet");
+
+        uint256 amount = dispute.paid;
+        dispute.paid = 0;
+        payable(dispute.forwarder).transfer(amount);
     }
 
     function foreignDisputeHashToID(bytes32 _disputeHash) external view returns (uint256) {

@@ -13,5 +13,11 @@ interface IForeignGateway is IArbitrator, IForeignEvidence {
     /**
      * Relay the rule call from the home gateway to the arbitrable.
      */
-    function relayRule(bytes32 _disputeHash, uint256 _ruling) external;
+    function relayRule(
+        bytes32 _disputeHash,
+        uint256 _ruling,
+        address _forwarder
+    ) external;
+
+    function withdrawFees(bytes32 _disputeHash) external;
 }

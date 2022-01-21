@@ -16,6 +16,9 @@ interface IHomeGateway is IArbitrable, IHomeEvidence {
     function relayCreateDispute(
         bytes32 _disputeHash,
         uint256 _choices,
-        bytes calldata _extraData
+        bytes calldata _extraData,
+        uint256 numOfJurors
     ) external;
+
+    function forwardCreateDispute(bytes32 _disputeHash) external payable;
 }
