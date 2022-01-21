@@ -1,5 +1,13 @@
 // SPDX-License-Identifier: MIT
 
+/**
+ *  @authors: [@shalzz]
+ *  @reviewers: []
+ *  @auditors: []
+ *  @bounties: []
+ *  @deployments: []
+ */
+
 pragma solidity ^0.8.0;
 
 import "../arbitration/IArbitrable.sol";
@@ -29,7 +37,7 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
     uint256 public chainID;
 
     modifier onlyFromL2() {
-        this.onlyAuthorized();
+        onlyAuthorized();
         _;
     }
 
@@ -65,7 +73,6 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
         bytes4 methodSelector = IHomeGateway.relayCreateDispute.selector;
         bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _choices, _extraData);
 
-        uint256 bridgeCost = this.getSubmissionPrice(data.length);
         // We only pay for the submissionPrice gas cost
         // which is minimum gas cost required for submitting a
         // arbitrum retryable ticket to the retry buffer for
@@ -78,7 +85,7 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
         //
         // We do NOT forward the arbitrationCost ETH funds to the HomeGateway yet,
         // only the calldata.
-        this.sendCrossDomainMessage{value: bridgeCost}(data, 0, 0);
+        sendCrossDomainMessage(data, 0, 0);
 
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
@@ -92,7 +99,7 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
         //   4      +      4            +   32                +   32             + dynamic
         uint256 calldatasize = 82 + _extraData.length;
 
-        uint256 bridgeCost = this.getSubmissionPrice(calldatasize);
+        uint256 bridgeCost = getSubmissionPrice(calldatasize);
         return bridgeCost + internalArbitrationCost;
     }
 

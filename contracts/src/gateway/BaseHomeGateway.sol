@@ -1,5 +1,13 @@
 // SPDX-License-Identifier: MIT
 
+/**
+ *  @authors: [@shalzz]
+ *  @reviewers: []
+ *  @auditors: []
+ *  @bounties: []
+ *  @deployments: []
+ */
+
 pragma solidity ^0.8.0;
 
 import "../arbitration/IArbitrator.sol";
@@ -17,7 +25,7 @@ abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
     uint256 public chainID;
 
     modifier onlyFromL1() {
-        this.onlyAuthorized();
+        onlyAuthorized();
         _;
     }
 
@@ -40,7 +48,7 @@ abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
         bytes4 methodSelector = IForeignGateway.relayRule.selector;
         bytes memory data = abi.encodeWithSelector(methodSelector, disputeIDtoHash[_disputeID], _ruling);
 
-        this.sendCrossDomainMessage(data);
+        sendCrossDomainMessage(data);
     }
 
     /**

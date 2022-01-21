@@ -1,5 +1,13 @@
 // SPDX-License-Identifier: MIT
 
+/**
+ *  @authors: [@shalzz]
+ *  @reviewers: []
+ *  @auditors: []
+ *  @bounties: []
+ *  @deployments: []
+ */
+
 pragma solidity ^0.8.0;
 
 import "./interfaces/IAMB.sol";
@@ -19,7 +27,7 @@ contract xDaiL1Bridge is IL1Bridge {
         bytes memory _calldata,
         uint256 _maxGas,
         uint256 _gasPriceBid
-    ) external payable returns (uint256) {
+    ) internal override returns (uint256) {
         bytes32 id = amb.requireToPassMessage(l2Target, _calldata, amb.maxGasPerTx());
         return uint256(id);
     }
@@ -30,11 +38,11 @@ contract xDaiL1Bridge is IL1Bridge {
      */
     function getSubmissionPrice(
         uint256 /* _calldatasize */
-    ) public view returns (uint256) {
+    ) internal view override returns (uint256) {
         return 0;
     }
 
-    function onlyAuthorized() external {
+    function onlyAuthorized() internal override {
         require(msg.sender == address(amb), "Only AMB allowed");
         // require(amb.messageSourceChainId() == foreignChainId, "Only foreign chain allowed");
         require(amb.messageSender() == l2Target, "Only foreign gateway allowed");
