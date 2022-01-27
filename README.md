@@ -58,6 +58,7 @@ $ . ~/.bashrc
 #### Install the dependencies
 
 ```bash
+$ npm install -g depcheck
 $ yarn install
 ```
 
