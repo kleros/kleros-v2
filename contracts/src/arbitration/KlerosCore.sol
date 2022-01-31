@@ -171,6 +171,20 @@ contract KlerosCore is IArbitrator {
     // *      Governance      * //
     // ************************ //
 
+    /** @dev Allows the governor to call anything on behalf of the contract.
+     *  @param _destination The destination of the call.
+     *  @param _amount The value sent with the call.
+     *  @param _data The data sent with the call.
+     */
+    function executeGovernorProposal(
+        address _destination,
+        uint256 _amount,
+        bytes memory _data
+    ) external onlyByGovernor {
+        (bool success, ) = _destination.call{value: _amount}(_data);
+        require(success, "Unsuccessful call");
+    }
+
     /** @dev Changes the `governor` storage variable.
      *  @param _governor The new value for the `governor` storage variable.
      */
