@@ -1,0 +1,43 @@
+{
+  "name": "web-template",
+  "source": "src/index.html",
+  "browserlist": "> 0.5%, last 2 versions, not dead",
+  "repository": "",
+  "author": "",
+  "license": "MIT",
+  "packageManager": "yarn@3.1.1",
+  "scripts": {
+    "clear": "rm -r .parcel-cache",
+    "clean": "rm dist/bundle.js",
+    "start": "parcel",
+    "build": "parcel build",
+    "check-style": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@babel/types": "^7.16.8",
+    "@parcel/transformer-svg-react": "^2.2.1",
+    "@types/react": "^17.0.38",
+    "@types/react-dom": "^17.0.11",
+    "@types/styled-components": "^5.1.21",
+    "@typescript-eslint/eslint-plugin": "^5.10.1",
+    "@typescript-eslint/parser": "^5.10.1",
+    "eslint": "^8.7.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-import-resolver-parcel": "^1.10.6",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.28.0",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "eslint-plugin-security": "^1.4.0",
+    "parcel": "^2.2.1",
+    "prettier": "^2.5.1",
+    "typescript": "^4.5.5"
+  },
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-is": "^17.0.2",
+    "styled-components": "^5.3.3"
+  }
+}
