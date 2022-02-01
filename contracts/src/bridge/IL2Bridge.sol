@@ -13,7 +13,7 @@ abstract contract IL2Bridge {
      * @param _calldata The L1 encoded message data.
      * @return Unique id to track the message request/transaction.
      */
-    function sendCrossDomainMessage(bytes memory _calldata) internal virtual returns (uint256);
+    function sendCrossDomainMessage(bytes memory _calldata) public payable virtual returns (uint256);
 
-    function onlyAuthorized() internal virtual;
+    function onlyAuthorized() public view virtual;
 }

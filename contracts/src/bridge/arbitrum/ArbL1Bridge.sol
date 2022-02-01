@@ -17,13 +17,19 @@ import "./interfaces/IArbRetryableTx.sol";
 import "../IL1Bridge.sol";
 
 contract ArbL1Bridge is IL1Bridge {
+    address public l1Gateway;
     address public l2Target;
     IInbox public inbox;
     IArbRetryableTx constant arbRetryableTx = IArbRetryableTx(address(110));
 
     event RetryableTicketCreated(uint256 indexed ticketId);
 
-    constructor(address _l2Target, address _inbox) {
+    constructor(
+        address _l1Gateway,
+        address _l2Target,
+        address _inbox
+    ) {
+        l1Gateway = _l1Gateway;
         l2Target = _l2Target;
         inbox = IInbox(_inbox);
     }
@@ -49,7 +55,8 @@ contract ArbL1Bridge is IL1Bridge {
         bytes memory _calldata,
         uint256 _maxGas,
         uint256 _gasPriceBid
-    ) internal override returns (uint256) {
+    ) public payable override returns (uint256) {
+        require(msg.sender == l1Gateway, "Only L1 gateway");
         uint256 baseSubmissionCost = getSubmissionPrice(_calldata.length);
         require(msg.value >= baseSubmissionCost + (_maxGas * _gasPriceBid));
 
@@ -68,12 +75,12 @@ contract ArbL1Bridge is IL1Bridge {
         return ticketID;
     }
 
-    function getSubmissionPrice(uint256 _calldatasize) internal view override returns (uint256) {
+    function getSubmissionPrice(uint256 _calldatasize) public view override returns (uint256) {
         (uint256 submissionCost, ) = arbRetryableTx.getSubmissionPrice(_calldatasize);
         return submissionCost;
     }
 
-    function onlyAuthorized() internal override {
+    function onlyAuthorized() public view override {
         IOutbox outbox = IOutbox(inbox.bridge().activeOutbox());
         address l2Sender = outbox.l2ToL1Sender();
         require(l2Sender == l2Target, "Only L2 target");

@@ -28,9 +28,9 @@ abstract contract IL1Bridge {
         bytes memory _calldata,
         uint256 _maxGas,
         uint256 _gasPriceBid
-    ) internal virtual returns (uint256);
+    ) public payable virtual returns (uint256);
 
-    function getSubmissionPrice(uint256 _calldatasize) internal view virtual returns (uint256);
+    function getSubmissionPrice(uint256 _calldatasize) public view virtual returns (uint256);
 
-    function onlyAuthorized() internal virtual;
+    function onlyAuthorized() public view virtual;
 }

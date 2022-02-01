@@ -16,10 +16,11 @@ import "../bridge/IL2Bridge.sol";
 import "./interfaces/IHomeGateway.sol";
 import "./interfaces/IForeignGateway.sol";
 
-abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
+abstract contract BaseHomeGateway is IHomeGateway {
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => uint256) public disputeHashtoID;
 
+    IL2Bridge public l2Bridge;
     IForeignGateway public foreignGateway;
     IArbitrator public arbitrator;
     uint256 public chainID;
@@ -33,11 +34,16 @@ abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
     mapping(bytes32 => RelayedData) public disputeHashtoRelayedData;
 
     modifier onlyFromL1() {
-        onlyAuthorized();
+        l2Bridge.onlyAuthorized();
         _;
     }
 
-    constructor(IArbitrator _arbitrator, IForeignGateway _foreignGateway) {
+    constructor(
+        IL2Bridge _l2Bridge,
+        IArbitrator _arbitrator,
+        IForeignGateway _foreignGateway
+    ) {
+        l2Bridge = _l2Bridge;
         arbitrator = _arbitrator;
         foreignGateway = _foreignGateway;
 
@@ -59,7 +65,7 @@ abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
         bytes4 methodSelector = IForeignGateway.relayRule.selector;
         bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.forwarder);
 
-        sendCrossDomainMessage(data);
+        l2Bridge.sendCrossDomainMessage(data);
     }
 
     /**

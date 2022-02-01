@@ -16,7 +16,7 @@ import "../bridge/IL1Bridge.sol";
 import "./interfaces/IHomeGateway.sol";
 import "./interfaces/IForeignGateway.sol";
 
-abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
+abstract contract BaseForeignGateway is IForeignGateway {
     // The global default minimum number of jurors in a dispute.
     uint256 public constant MIN_JURORS = 3;
 
@@ -37,12 +37,13 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
 
+    address public governor;
+    IL1Bridge public l1Bridge;
     IHomeGateway public homeGateway;
     uint256 public chainID;
-    address public governor;
 
     modifier onlyFromL2() {
-        onlyAuthorized();
+        l1Bridge.onlyAuthorized();
         _;
     }
 
@@ -53,10 +54,12 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
 
     constructor(
         address _governor,
+        IL1Bridge _l1Bridge,
         IHomeGateway _homeGateway,
         uint256[] memory _feeForJuror
     ) {
         governor = _governor;
+        l1Bridge = _l1Bridge;
         homeGateway = _homeGateway;
         feeForJuror = _feeForJuror;
 
@@ -124,7 +127,7 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
         //
         // We do NOT forward the arbitrationCost ETH funds to the HomeGateway yet,
         // only the calldata.
-        sendCrossDomainMessage(data, 0, 0);
+        l1Bridge.sendCrossDomainMessage(data, 0, 0);
 
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
@@ -139,7 +142,7 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
         //                  4          +   32                +   32             + dynamic          +  32
         uint256 calldatasize = 100 + _extraData.length;
 
-        uint256 bridgeCost = getSubmissionPrice(calldatasize);
+        uint256 bridgeCost = l1Bridge.getSubmissionPrice(calldatasize);
         uint256 arbCost = feeForJuror[subcourtID] * minJurors;
 
         return bridgeCost + arbCost;

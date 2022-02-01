@@ -15,20 +15,27 @@ import "./interfaces/IAMB.sol";
 import "../IL2Bridge.sol";
 
 contract xDaiL2Bridge is IL2Bridge {
+    address public l2Gateway;
     address public l1Target;
     IAMB amb;
 
-    constructor(address _l1Target, IAMB _amb) {
+    constructor(
+        address _l2Gateway,
+        address _l1Target,
+        IAMB _amb
+    ) {
+        l2Gateway = _l2Gateway;
         l1Target = _l1Target;
         amb = _amb;
     }
 
-    function sendCrossDomainMessage(bytes memory _calldata) internal override returns (uint256) {
+    function sendCrossDomainMessage(bytes memory _calldata) public payable override returns (uint256) {
+        require(msg.sender == l2Gateway, "Only L2 gateway");
         bytes32 id = amb.requireToPassMessage(l1Target, _calldata, amb.maxGasPerTx());
         return uint256(id);
     }
 
-    function onlyAuthorized() internal override {
+    function onlyAuthorized() public view override {
         require(msg.sender == address(amb), "Only AMB allowed");
         // require(amb.messageSourceChainId() == homeChainId, "Only home chain allowed");
         require(amb.messageSender() == l1Target, "Only home gateway allowed");
