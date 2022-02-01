@@ -13,9 +13,9 @@ pragma solidity ^0.8;
 import "./IArbitrator.sol";
 
 /**
- *  @title DisputeKit
- *  An abstraction of the Dispute Kits intended for interfacing with KlerosCore
- *  This is not intended for use by the front-end clients for voting or appeal funding to allow for implementation-specific differences in parameters.
+ *  @title IDisputeKit
+ *  An abstraction of the Dispute Kits intended for interfacing with KlerosCore.
+ *  It does not intend to abstract the interactions with the user (such as voting or appeal funding) to allow for implementation-specific parameters.
  */
 interface IDisputeKit {
     // ************************************* //
