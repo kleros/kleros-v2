@@ -89,6 +89,7 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
                 "createDispute",
                 disputeID,
                 arbitrationCost(_extraData),
+                _choices,
                 _extraData,
                 msg.sender
             )
