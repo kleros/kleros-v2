@@ -42,7 +42,7 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
     address public governor;
 
     modifier onlyFromL2() {
-        onlyAuthorized();
+        onlyCrossChainSender();
         _;
     }
 
@@ -104,7 +104,7 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
             ruled: false
         });
 
-        bytes4 methodSelector = IHomeGateway.relayCreateDispute.selector;
+        bytes4 methodSelector = IHomeGateway.handleIncomingDispute.selector;
         bytes memory data = abi.encodeWithSelector(
             methodSelector,
             disputeHash,
@@ -135,9 +135,9 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
 
         // Calculate the size of calldata that will be passed to the L2 bridge
         // as that is a factor for the bridging cost.
-        // Calldata size of relayCreateDispute:
-        // relayCreateDispute methodId + bytes32 disputeHash + uint256 _choices + bytes _extraData + uint256 _arbitrationCost)
-        //                  4          +   32                +   32             + dynamic          +  32
+        // Calldata size of handleIncomingDispute:
+        // methodId + bytes32 disputeHash + uint256 _choices + bytes _extraData + uint256 _arbitrationCost)
+        //    4     +   32                +   32             + dynamic          +  32
         uint256 calldatasize = 100 + _extraData.length;
 
         uint256 bridgeCost = getSubmissionPrice(calldatasize);

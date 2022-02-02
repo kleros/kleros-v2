@@ -42,7 +42,7 @@ contract xDaiL1Bridge is IL1Bridge {
         return 0;
     }
 
-    function onlyAuthorized() internal override {
+    function onlyCrossChainSender() internal override {
         require(msg.sender == address(amb), "Only AMB allowed");
         // require(amb.messageSourceChainId() == foreignChainId, "Only foreign chain allowed");
         require(amb.messageSender() == l2Target, "Only foreign gateway allowed");

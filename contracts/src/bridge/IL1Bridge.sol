@@ -32,5 +32,5 @@ abstract contract IL1Bridge {
 
     function getSubmissionPrice(uint256 _calldatasize) internal view virtual returns (uint256);
 
-    function onlyAuthorized() internal virtual;
+    function onlyCrossChainSender() internal virtual;
 }

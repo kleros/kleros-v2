@@ -28,7 +28,7 @@ contract xDaiL2Bridge is IL2Bridge {
         return uint256(id);
     }
 
-    function onlyAuthorized() internal override {
+    function onlyCrossChainSender() internal override {
         require(msg.sender == address(amb), "Only AMB allowed");
         // require(amb.messageSourceChainId() == homeChainId, "Only home chain allowed");
         require(amb.messageSender() == l1Target, "Only home gateway allowed");

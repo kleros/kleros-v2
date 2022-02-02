@@ -15,5 +15,5 @@ abstract contract IL2Bridge {
      */
     function sendCrossDomainMessage(bytes memory _calldata) internal virtual returns (uint256);
 
-    function onlyAuthorized() internal virtual;
+    function onlyCrossChainSender() internal virtual;
 }

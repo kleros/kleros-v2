@@ -73,7 +73,7 @@ contract ArbL1Bridge is IL1Bridge {
         return submissionCost;
     }
 
-    function onlyAuthorized() internal override {
+    function onlyCrossChainSender() internal override {
         IOutbox outbox = IOutbox(inbox.bridge().activeOutbox());
         address l2Sender = outbox.l2ToL1Sender();
         require(l2Sender == l2Target, "Only L2 target");

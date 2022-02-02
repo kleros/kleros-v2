@@ -33,7 +33,7 @@ abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
     mapping(bytes32 => RelayedData) public disputeHashtoRelayedData;
 
     modifier onlyFromL1() {
-        onlyAuthorized();
+        onlyCrossChainSender();
         _;
     }
 
@@ -63,7 +63,7 @@ abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
     }
 
     /**
-     * @dev Relay the createDispute call from the foreign gateway to the arbitrator.
+     * @dev Handle the cross-chain call from the foreign gateway.
      *
      * @param _disputeHash disputeHash
      * @param _choices number of ruling choices
@@ -71,7 +71,7 @@ abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
      * @param _arbitrationCost We get the actual arbitrationCost paid by the
      *          arbitrable here in case they paid more than the min arbitrationCost
      */
-    function relayCreateDispute(
+    function handleIncomingDispute(
         bytes32 _disputeHash,
         uint256 _choices,
         bytes calldata _extraData,
@@ -83,7 +83,7 @@ abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
         relayedData.arbitrationCost = _arbitrationCost;
     }
 
-    function forwardCreateDispute(bytes32 _disputeHash) external payable {
+    function relayCreateDispute(bytes32 _disputeHash) external payable {
         RelayedData storage relayedData = disputeHashtoRelayedData[_disputeHash];
         require(relayedData.forwarder == address(0), "Dispute already forwarded");
 

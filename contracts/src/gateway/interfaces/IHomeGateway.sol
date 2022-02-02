@@ -11,14 +11,14 @@ interface IHomeGateway is IArbitrable, IHomeEvidence {
     function homeDisputeHashToID(bytes32 _disputeHash) external view returns (uint256);
 
     /**
-     * Relay the createDispute call from the foreign gateway to the arbitrator.
+     * Handle the cross-chain call from the foreign gateway.
      */
-    function relayCreateDispute(
+    function handleIncomingDispute(
         bytes32 _disputeHash,
         uint256 _choices,
         bytes calldata _extraData,
         uint256 numOfJurors
     ) external;
 
-    function forwardCreateDispute(bytes32 _disputeHash) external payable;
+    function relayCreateDispute(bytes32 _disputeHash) external payable;
 }

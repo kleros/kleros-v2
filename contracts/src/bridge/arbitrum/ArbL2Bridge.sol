@@ -38,7 +38,7 @@ contract ArbL2Bridge is IL2Bridge {
         return withdrawalId;
     }
 
-    function onlyAuthorized() internal override {
+    function onlyCrossChainSender() internal override {
         require(msg.sender == AddressAliasHelper.applyL1ToL2Alias(l1Target), "Only L1 target");
     }
 }
