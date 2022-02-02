@@ -9,7 +9,7 @@ import "../../bridge/gnosis-chain/interfaces/IAMB.sol";
 import "../interfaces/IHomeGateway.sol";
 import "../BaseHomeGateway.sol";
 
-contract GnosisGateway is BaseHomeGateway, GnosisL2Bridge {
+contract GnosisToEthereumGateway is BaseHomeGateway, GnosisL2Bridge {
     constructor(
         IArbitrator _arbitrator,
         IForeignGateway _foreignGateway,

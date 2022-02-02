@@ -7,7 +7,7 @@ import "../../bridge/arbitrum/ArbL1Bridge.sol";
 import "../interfaces/IForeignGateway.sol";
 import "../BaseForeignGateway.sol";
 
-contract EthereumGateway is BaseForeignGateway, ArbL1Bridge {
+contract EthereumToArbitrumGateway is BaseForeignGateway, ArbL1Bridge {
     constructor(
         address _governor,
         IHomeGateway _homeGateway,
