@@ -14,7 +14,7 @@ import "./interfaces/IAMB.sol";
 
 import "../IL1Bridge.sol";
 
-contract xDaiL1Bridge is IL1Bridge {
+contract GnosisL1Bridge is IL1Bridge {
     address public l2Target;
     IAMB amb;
 
