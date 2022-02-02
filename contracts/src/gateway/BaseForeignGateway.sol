@@ -28,11 +28,11 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
     uint256[] internal feeForJuror;
 
     struct DisputeData {
-        uint256 id;
+        uint248 id;
+        bool ruled;
         address arbitrable;
         uint256 paid;
         address forwarder;
-        bool ruled;
     }
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
@@ -97,7 +97,7 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
         disputeIDtoHash[disputeID] = disputeHash;
 
         disputeHashtoDisputeData[disputeHash] = DisputeData({
-            id: disputeID,
+            id: uint248(disputeID),
             arbitrable: msg.sender,
             paid: msg.value,
             forwarder: address(0),

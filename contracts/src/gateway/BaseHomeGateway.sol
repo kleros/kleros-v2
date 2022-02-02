@@ -26,9 +26,9 @@ abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
 
     struct RelayedData {
         uint256 choices;
-        bytes extraData;
         uint256 arbitrationCost;
         address forwarder;
+        bytes extraData;
     }
     mapping(bytes32 => RelayedData) public disputeHashtoRelayedData;
 
