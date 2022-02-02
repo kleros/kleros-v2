@@ -140,7 +140,7 @@ abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
         //    4     +   32                +   32             + dynamic          +  32
         uint256 calldatasize = 100 + _extraData.length;
 
-        uint256 bridgeCost = getSubmissionPrice(calldatasize);
+        uint256 bridgeCost = bridgingCost(calldatasize);
         uint256 arbCost = feeForJuror[subcourtID] * minJurors;
 
         return bridgeCost + arbCost;

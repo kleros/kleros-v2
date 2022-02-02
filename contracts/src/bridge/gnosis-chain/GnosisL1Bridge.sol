@@ -36,7 +36,7 @@ contract GnosisL1Bridge is IL1Bridge {
      * @dev The xDai bridge gas cost doesn't depend on the calldata size
      *
      */
-    function getSubmissionPrice(
+    function bridgingCost(
         uint256 /* _calldatasize */
     ) internal view override returns (uint256) {
         return 0;

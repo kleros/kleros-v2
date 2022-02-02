@@ -30,7 +30,7 @@ abstract contract IL1Bridge {
         uint256 _gasPriceBid
     ) internal virtual returns (uint256);
 
-    function getSubmissionPrice(uint256 _calldatasize) internal view virtual returns (uint256);
+    function bridgingCost(uint256 _calldatasize) internal view virtual returns (uint256);
 
     function onlyCrossChainSender() internal virtual;
 }

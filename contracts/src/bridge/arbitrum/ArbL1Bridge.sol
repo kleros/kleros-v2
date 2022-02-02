@@ -50,7 +50,7 @@ contract ArbL1Bridge is IL1Bridge {
         uint256 _maxGas,
         uint256 _gasPriceBid
     ) internal override returns (uint256) {
-        uint256 baseSubmissionCost = getSubmissionPrice(_calldata.length);
+        uint256 baseSubmissionCost = bridgingCost(_calldata.length);
         require(msg.value >= baseSubmissionCost + (_maxGas * _gasPriceBid));
 
         uint256 ticketID = inbox.createRetryableTicket{value: msg.value}(
@@ -68,7 +68,7 @@ contract ArbL1Bridge is IL1Bridge {
         return ticketID;
     }
 
-    function getSubmissionPrice(uint256 _calldatasize) internal view override returns (uint256) {
+    function bridgingCost(uint256 _calldatasize) internal view override returns (uint256) {
         (uint256 submissionCost, ) = arbRetryableTx.getSubmissionPrice(_calldatasize);
         return submissionCost;
     }
