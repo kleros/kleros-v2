@@ -11,12 +11,12 @@
 pragma solidity ^0.8.0;
 
 import "../arbitration/IArbitrator.sol";
-import "../bridge/IL2Bridge.sol";
+import "../bridge/ISafeBridge.sol";
 
 import "./interfaces/IHomeGateway.sol";
 import "./interfaces/IForeignGateway.sol";
 
-abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
+abstract contract BaseHomeGateway is ISafeBridge, IHomeGateway {
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => uint256) public disputeHashtoID;
 
@@ -59,7 +59,7 @@ abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
         bytes4 methodSelector = IForeignGateway.relayRule.selector;
         bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.forwarder);
 
-        sendCrossDomainMessage(data);
+        sendCrossDomainMessage(data, 0, 0);
     }
 
     /**
