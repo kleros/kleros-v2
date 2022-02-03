@@ -1,5 +1,13 @@
 // SPDX-License-Identifier: MIT
 
+/**
+ *  @authors: [@shalzz]
+ *  @reviewers: []
+ *  @auditors: []
+ *  @bounties: []
+ *  @deployments: []
+ */
+
 pragma solidity ^0.8.0;
 
 import "./interfaces/IArbSys.sol";
@@ -23,14 +31,14 @@ contract ArbL2Bridge is IL2Bridge {
      * @param _calldata The L1 encoded message data.
      * @return Unique id to track the message request/transaction.
      */
-    function sendCrossDomainMessage(bytes memory _calldata) external returns (uint256) {
+    function sendCrossDomainMessage(bytes memory _calldata) internal override returns (uint256) {
         uint256 withdrawalId = arbsys.sendTxToL1(l1Target, _calldata);
 
         emit L2ToL1TxCreated(withdrawalId);
         return withdrawalId;
     }
 
-    function onlyAuthorized() external {
+    function onlyCrossChainSender() internal override {
         require(msg.sender == AddressAliasHelper.applyL1ToL2Alias(l1Target), "Only L1 target");
     }
 }

@@ -1,5 +1,13 @@
 // SPDX-License-Identifier: MIT
 
+/**
+ *  @authors: [@shalzz]
+ *  @reviewers: []
+ *  @auditors: []
+ *  @bounties: []
+ *  @deployments: []
+ */
+
 pragma solidity ^0.8.0;
 
 import "../arbitration/IArbitrator.sol";
@@ -16,8 +24,16 @@ abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
     IArbitrator public arbitrator;
     uint256 public chainID;
 
+    struct RelayedData {
+        uint256 choices;
+        uint256 arbitrationCost;
+        address forwarder;
+        bytes extraData;
+    }
+    mapping(bytes32 => RelayedData) public disputeHashtoRelayedData;
+
     modifier onlyFromL1() {
-        this.onlyAuthorized();
+        onlyCrossChainSender();
         _;
     }
 
@@ -37,23 +53,46 @@ abstract contract BaseHomeGateway is IL2Bridge, IHomeGateway {
     function rule(uint256 _disputeID, uint256 _ruling) external {
         require(msg.sender == address(arbitrator), "Only Arbitrator");
 
-        bytes4 methodSelector = IForeignGateway.relayRule.selector;
-        bytes memory data = abi.encodeWithSelector(methodSelector, disputeIDtoHash[_disputeID], _ruling);
+        bytes32 disputeHash = disputeIDtoHash[_disputeID];
+        RelayedData memory relayedData = disputeHashtoRelayedData[disputeHash];
 
-        this.sendCrossDomainMessage(data);
+        bytes4 methodSelector = IForeignGateway.relayRule.selector;
+        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.forwarder);
+
+        sendCrossDomainMessage(data);
     }
 
     /**
-     * Relay the createDispute call from the foreign gateway to the arbitrator.
+     * @dev Handle the cross-chain call from the foreign gateway.
+     *
+     * @param _disputeHash disputeHash
+     * @param _choices number of ruling choices
+     * @param _extraData extraData
+     * @param _arbitrationCost We get the actual arbitrationCost paid by the
+     *          arbitrable here in case they paid more than the min arbitrationCost
      */
-    function relayCreateDispute(
+    function handleIncomingDispute(
         bytes32 _disputeHash,
         uint256 _choices,
-        bytes calldata _extraData
+        bytes calldata _extraData,
+        uint256 _arbitrationCost
     ) external onlyFromL1 {
-        uint256 disputeID = arbitrator.createDispute(_choices, _extraData);
+        RelayedData storage relayedData = disputeHashtoRelayedData[_disputeHash];
+        relayedData.choices = _choices;
+        relayedData.extraData = _extraData;
+        relayedData.arbitrationCost = _arbitrationCost;
+    }
+
+    function relayCreateDispute(bytes32 _disputeHash) external payable {
+        RelayedData storage relayedData = disputeHashtoRelayedData[_disputeHash];
+        require(relayedData.forwarder == address(0), "Dispute already forwarded");
+
+        require(msg.value >= relayedData.arbitrationCost, "Not enough arbitration cost paid");
+
+        uint256 disputeID = arbitrator.createDispute{value: msg.value}(relayedData.choices, relayedData.extraData);
         disputeIDtoHash[disputeID] = _disputeHash;
         disputeHashtoID[_disputeHash] = disputeID;
+        relayedData.forwarder = msg.sender;
 
         emit Dispute(arbitrator, disputeID, 0, 0);
     }
