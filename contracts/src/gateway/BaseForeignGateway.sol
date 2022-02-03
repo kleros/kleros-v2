@@ -11,12 +11,12 @@
 pragma solidity ^0.8.0;
 
 import "../arbitration/IArbitrable.sol";
-import "../bridge/IL1Bridge.sol";
+import "../bridge/ISafeBridge.sol";
 
 import "./interfaces/IHomeGateway.sol";
 import "./interfaces/IForeignGateway.sol";
 
-abstract contract BaseForeignGateway is IL1Bridge, IForeignGateway {
+abstract contract BaseForeignGateway is ISafeBridge, IForeignGateway {
     // The global default minimum number of jurors in a dispute.
     uint256 public constant MIN_JURORS = 3;
 

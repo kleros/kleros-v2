@@ -14,17 +14,17 @@ import "./interfaces/IInbox.sol";
 import "./interfaces/IOutbox.sol";
 import "./interfaces/IArbRetryableTx.sol";
 
-import "../IL1Bridge.sol";
+import "../ISafeBridge.sol";
 
-contract ArbL1Bridge is IL1Bridge {
-    address public l2Target;
+contract ArbL1Bridge is ISafeBridge {
+    address public crossDomainTarget;
     IInbox public inbox;
     IArbRetryableTx constant arbRetryableTx = IArbRetryableTx(address(110));
 
     event RetryableTicketCreated(uint256 indexed ticketId);
 
-    constructor(address _l2Target, address _inbox) {
-        l2Target = _l2Target;
+    constructor(address _crossDomainTarget, address _inbox) {
+        crossDomainTarget = _crossDomainTarget;
         inbox = IInbox(_inbox);
     }
 
@@ -54,7 +54,7 @@ contract ArbL1Bridge is IL1Bridge {
         require(msg.value >= baseSubmissionCost + (_maxGas * _gasPriceBid));
 
         uint256 ticketID = inbox.createRetryableTicket{value: msg.value}(
-            l2Target,
+            crossDomainTarget,
             0,
             baseSubmissionCost,
             msg.sender,
@@ -76,6 +76,6 @@ contract ArbL1Bridge is IL1Bridge {
     function onlyCrossChainSender() internal override {
         IOutbox outbox = IOutbox(inbox.bridge().activeOutbox());
         address l2Sender = outbox.l2ToL1Sender();
-        require(l2Sender == l2Target, "Only L2 target");
+        require(l2Sender == crossDomainTarget, "Only L2 target");
     }
 }

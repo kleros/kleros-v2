@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
  * This is essentially an interface but defined as an abstract contract
  * to declare functions as internal instead of as external
  */
-abstract contract IL1Bridge {
+abstract contract ISafeBridge {
     /**
      * Sends an arbitrary message from one domain to another.
      *

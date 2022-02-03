@@ -12,25 +12,39 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/IAMB.sol";
 
-import "../IL2Bridge.sol";
+import "../ISafeBridge.sol";
 
-contract GnosisL2Bridge is IL2Bridge {
-    address public l1Target;
+contract GnosisL2Bridge is ISafeBridge {
+    address public crossDomainTarget;
     IAMB amb;
 
-    constructor(address _l1Target, IAMB _amb) {
-        l1Target = _l1Target;
+    constructor(address _crossDomainTarget, IAMB _amb) {
+        crossDomainTarget = _crossDomainTarget;
         amb = _amb;
     }
 
-    function sendCrossDomainMessage(bytes memory _calldata) internal override returns (uint256) {
-        bytes32 id = amb.requireToPassMessage(l1Target, _calldata, amb.maxGasPerTx());
+    function sendCrossDomainMessage(
+        bytes memory _calldata,
+        uint256, /* _maxGas */
+        uint256 /* _gasPriceBid */
+    ) internal override returns (uint256) {
+        bytes32 id = amb.requireToPassMessage(crossDomainTarget, _calldata, amb.maxGasPerTx());
         return uint256(id);
+    }
+
+    /**
+     * @dev The Gnosis Chain AMB bridge gas cost doesn't depend on the calldata size
+     *
+     */
+    function bridgingCost(
+        uint256 /* _calldatasize */
+    ) internal view override returns (uint256) {
+        return 0;
     }
 
     function onlyCrossChainSender() internal override {
         require(msg.sender == address(amb), "Only AMB allowed");
         // require(amb.messageSourceChainId() == homeChainId, "Only home chain allowed");
-        require(amb.messageSender() == l1Target, "Only home gateway allowed");
+        require(amb.messageSender() == crossDomainTarget, "Only home gateway allowed");
     }
 }
