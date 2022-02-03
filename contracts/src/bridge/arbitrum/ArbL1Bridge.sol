@@ -1,5 +1,13 @@
 // SPDX-License-Identifier: MIT
 
+/**
+ *  @authors: [@shalzz]
+ *  @reviewers: []
+ *  @auditors: []
+ *  @bounties: []
+ *  @deployments: []
+ */
+
 pragma solidity ^0.8.0;
 
 import "./interfaces/IInbox.sol";
@@ -41,8 +49,8 @@ contract ArbL1Bridge is IL1Bridge {
         bytes memory _calldata,
         uint256 _maxGas,
         uint256 _gasPriceBid
-    ) external payable returns (uint256) {
-        uint256 baseSubmissionCost = getSubmissionPrice(_calldata.length);
+    ) internal override returns (uint256) {
+        uint256 baseSubmissionCost = bridgingCost(_calldata.length);
         require(msg.value >= baseSubmissionCost + (_maxGas * _gasPriceBid));
 
         uint256 ticketID = inbox.createRetryableTicket{value: msg.value}(
@@ -60,12 +68,12 @@ contract ArbL1Bridge is IL1Bridge {
         return ticketID;
     }
 
-    function getSubmissionPrice(uint256 _calldatasize) public view returns (uint256) {
+    function bridgingCost(uint256 _calldatasize) internal view override returns (uint256) {
         (uint256 submissionCost, ) = arbRetryableTx.getSubmissionPrice(_calldatasize);
         return submissionCost;
     }
 
-    function onlyAuthorized() external {
+    function onlyCrossChainSender() internal override {
         IOutbox outbox = IOutbox(inbox.bridge().activeOutbox());
         address l2Sender = outbox.l2ToL1Sender();
         require(l2Sender == l2Target, "Only L2 target");

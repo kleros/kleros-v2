@@ -2,7 +2,11 @@
 
 pragma solidity ^0.8.0;
 
-interface IL1Bridge {
+/**
+ * This is essentially an interface but defined as an abstract contract
+ * to declare functions as internal instead of as external
+ */
+abstract contract IL1Bridge {
     /**
      * Sends an arbitrary message from one domain to another.
      *
@@ -24,9 +28,9 @@ interface IL1Bridge {
         bytes memory _calldata,
         uint256 _maxGas,
         uint256 _gasPriceBid
-    ) external payable returns (uint256);
+    ) internal virtual returns (uint256);
 
-    function getSubmissionPrice(uint256 _calldatasize) external view returns (uint256);
+    function bridgingCost(uint256 _calldatasize) internal view virtual returns (uint256);
 
-    function onlyAuthorized() external;
+    function onlyCrossChainSender() internal virtual;
 }
