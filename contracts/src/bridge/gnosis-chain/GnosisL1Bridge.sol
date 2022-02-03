@@ -12,14 +12,14 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/IAMB.sol";
 
-import "../IL1Bridge.sol";
+import "../ISafeBridge.sol";
 
-contract GnosisL1Bridge is IL1Bridge {
-    address public l2Target;
+contract GnosisL1Bridge is ISafeBridge {
+    address public crossDomainTarget;
     IAMB amb;
 
-    constructor(address _l2Target, IAMB _amb) {
-        l2Target = _l2Target;
+    constructor(address _crossDomainTarget, IAMB _amb) {
+        crossDomainTarget = _crossDomainTarget;
         amb = _amb;
     }
 
@@ -28,12 +28,12 @@ contract GnosisL1Bridge is IL1Bridge {
         uint256 _maxGas,
         uint256 _gasPriceBid
     ) internal override returns (uint256) {
-        bytes32 id = amb.requireToPassMessage(l2Target, _calldata, amb.maxGasPerTx());
+        bytes32 id = amb.requireToPassMessage(crossDomainTarget, _calldata, amb.maxGasPerTx());
         return uint256(id);
     }
 
     /**
-     * @dev The xDai bridge gas cost doesn't depend on the calldata size
+     * @dev The Gnosis Chain AMB bridge gas cost doesn't depend on the calldata size
      *
      */
     function bridgingCost(
@@ -45,6 +45,6 @@ contract GnosisL1Bridge is IL1Bridge {
     function onlyCrossChainSender() internal override {
         require(msg.sender == address(amb), "Only AMB allowed");
         // require(amb.messageSourceChainId() == foreignChainId, "Only foreign chain allowed");
-        require(amb.messageSender() == l2Target, "Only foreign gateway allowed");
+        require(amb.messageSender() == crossDomainTarget, "Only foreign gateway allowed");
     }
 }
