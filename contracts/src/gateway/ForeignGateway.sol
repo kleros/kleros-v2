@@ -35,14 +35,22 @@ contract ForeignGateway is IForeignGateway {
         bool ruled;
         address arbitrable;
         uint256 paid;
-        address forwarder;
+        address relayer;
     }
-    mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
 
     address public governor;
     IFastBridgeReceiver public fastbridge;
     address public homeGateway;
+
+    event DisputeHash(
+        bytes32 disputeHash,
+        bytes32 blockhash,
+        uint256 localDisputeID,
+        uint256 _choices,
+        bytes _extraData,
+        address arbitrable
+    );
 
     modifier onlyFromFastBridge() {
         require(address(fastbridge) == msg.sender, "Access not allowed: Fast Bridge only.");
@@ -95,33 +103,23 @@ contract ForeignGateway is IForeignGateway {
                 blockhash(block.number - 1),
                 "createDispute",
                 disputeID,
-                arbitrationCost(_extraData),
                 _choices,
                 _extraData,
                 msg.sender
+                // TODO: actual arbitration Cost
+                // nbVotes * feeForJuror[subcourtID] // we calculate the min amount required for nbVotes
             )
         );
-        disputeIDtoHash[disputeID] = disputeHash;
 
         disputeHashtoDisputeData[disputeHash] = DisputeData({
             id: uint248(disputeID),
             arbitrable: msg.sender,
             paid: msg.value,
-            forwarder: address(0),
+            relayer: address(0),
             ruled: false
         });
 
-        /*
-        bytes4 methodSelector = IHomeGateway.handleIncomingDispute.selector;
-        bytes memory data = abi.encodeWithSelector(
-            methodSelector,
-            disputeHash,
-            _choices,
-            _extraData,
-            nbVotes * feeForJuror[subcourtID] // we calculate the min amount required for nbVotes
-        );
-        */
-
+        emit DisputeHash(disputeHash, blockhash(block.number - 1), disputeID, _choices, _extraData, msg.sender);
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
 
@@ -137,7 +135,7 @@ contract ForeignGateway is IForeignGateway {
     function relayRule(
         bytes32 _disputeHash,
         uint256 _ruling,
-        address _forwarder
+        address _relayer
     ) external onlyFromFastBridge {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 
@@ -145,7 +143,7 @@ contract ForeignGateway is IForeignGateway {
         require(!dispute.ruled, "Cannot rule twice");
 
         dispute.ruled = true;
-        dispute.forwarder = _forwarder;
+        dispute.relayer = _relayer;
 
         IArbitrable arbitrable = IArbitrable(dispute.arbitrable);
         arbitrable.rule(dispute.id, _ruling);
@@ -158,7 +156,7 @@ contract ForeignGateway is IForeignGateway {
 
         uint256 amount = dispute.paid;
         dispute.paid = 0;
-        payable(dispute.forwarder).transfer(amount);
+        payable(dispute.relayer).transfer(amount);
     }
 
     function disputeHashToForeignID(bytes32 _disputeHash) external view returns (uint256) {
