@@ -13,17 +13,18 @@ pragma solidity ^0.8.0;
 import "../arbitration/IArbitrator.sol";
 import "../bridge/interfaces/IFastBridgeSender.sol";
 
-import "./interfaces/IHomeGateway.sol";
 import "./interfaces/IForeignGateway.sol";
+import "./interfaces/IHomeGateway.sol";
 
 contract HomeGateway is IHomeGateway {
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => uint256) public disputeHashtoID;
 
-    IFastBridgeSender public fastbridge;
-    IForeignGateway public foreignGateway;
     IArbitrator public arbitrator;
+    IFastBridgeSender public fastbridge;
+    address public foreignGateway;
     uint256 public chainID;
+    uint256 public foreignChainID;
 
     struct RelayedData {
         uint256 choices;
@@ -35,12 +36,14 @@ contract HomeGateway is IHomeGateway {
 
     constructor(
         IArbitrator _arbitrator,
-        IForeignGateway _foreignGateway,
-        IFastBridgeSender _fastbridge
+        IFastBridgeSender _fastbridge,
+        address _foreignGateway,
+        uint256 _foreignChainID
     ) {
         arbitrator = _arbitrator;
-        foreignGateway = _foreignGateway;
         fastbridge = _fastbridge;
+        foreignGateway = _foreignGateway;
+        foreignChainID = _foreignChainID;
 
         uint256 id;
         assembly {
@@ -96,25 +99,10 @@ contract HomeGateway is IHomeGateway {
         bytes4 methodSelector = IForeignGateway.relayRule.selector;
         bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.forwarder);
 
-        fastbridge.sendFast(address(foreignGateway), data);
+        fastbridge.sendFast(foreignGateway, data);
     }
 
-    function homeDisputeHashToID(bytes32 _disputeHash) external view returns (uint256) {
+    function disputeHashToHomeID(bytes32 _disputeHash) external view returns (uint256) {
         return disputeHashtoID[_disputeHash];
-    }
-
-    function homeToForeignDisputeID(uint256 _homeDisputeID) external view returns (uint256) {
-        bytes32 disputeHash = disputeIDtoHash[_homeDisputeID];
-        require(disputeHash != 0, "Dispute does not exist");
-
-        return foreignGateway.foreignDisputeHashToID(disputeHash);
-    }
-
-    function foreignChainID(uint256 _homeDisputeID) external view returns (uint256) {
-        return foreignGateway.chainID();
-    }
-
-    function foreignBridge(uint256 _homeDisputeID) external view returns (address) {
-        return address(foreignGateway);
     }
 }
