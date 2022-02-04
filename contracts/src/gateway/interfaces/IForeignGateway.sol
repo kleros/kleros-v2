@@ -3,12 +3,9 @@
 pragma solidity ^0.8.0;
 
 import "../../arbitration/IArbitrator.sol";
-import "./IForeignEvidence.sol";
 
-interface IForeignGateway is IArbitrator, IForeignEvidence {
+interface IForeignGateway is IArbitrator {
     function chainID() external view returns (uint256);
-
-    function foreignDisputeHashToID(bytes32 _disputeHash) external view returns (uint256);
 
     /**
      * Relay the rule call from the home gateway to the arbitrable.
@@ -20,4 +17,12 @@ interface IForeignGateway is IArbitrator, IForeignEvidence {
     ) external;
 
     function withdrawFees(bytes32 _disputeHash) external;
+
+    // For cross-chain Evidence standard
+
+    function disputeHashToForeignID(bytes32 _disputeHash) external view returns (uint256);
+
+    function homeChainID() external view returns (uint256);
+
+    function homeGateway() external view returns (address);
 }
