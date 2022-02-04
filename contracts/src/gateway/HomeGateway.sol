@@ -11,15 +11,16 @@
 pragma solidity ^0.8.0;
 
 import "../arbitration/IArbitrator.sol";
-import "../bridge/ISafeBridge.sol";
+import "../bridge/interfaces/IFastBridgeSender.sol";
 
 import "./interfaces/IHomeGateway.sol";
 import "./interfaces/IForeignGateway.sol";
 
-abstract contract BaseHomeGateway is ISafeBridge, IHomeGateway {
+contract HomeGateway is IHomeGateway {
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => uint256) public disputeHashtoID;
 
+    IFastBridgeSender public fastbridge;
     IForeignGateway public foreignGateway;
     IArbitrator public arbitrator;
     uint256 public chainID;
@@ -32,14 +33,14 @@ abstract contract BaseHomeGateway is ISafeBridge, IHomeGateway {
     }
     mapping(bytes32 => RelayedData) public disputeHashtoRelayedData;
 
-    modifier onlyFromL1() {
-        onlyCrossChainSender();
-        _;
-    }
-
-    constructor(IArbitrator _arbitrator, IForeignGateway _foreignGateway) {
+    constructor(
+        IArbitrator _arbitrator,
+        IForeignGateway _foreignGateway,
+        IFastBridgeSender _fastbridge
+    ) {
         arbitrator = _arbitrator;
         foreignGateway = _foreignGateway;
+        fastbridge = _fastbridge;
 
         uint256 id;
         assembly {
@@ -48,18 +49,6 @@ abstract contract BaseHomeGateway is ISafeBridge, IHomeGateway {
         chainID = id;
 
         emit MetaEvidence(0, "BRIDGE");
-    }
-
-    function rule(uint256 _disputeID, uint256 _ruling) external {
-        require(msg.sender == address(arbitrator), "Only Arbitrator");
-
-        bytes32 disputeHash = disputeIDtoHash[_disputeID];
-        RelayedData memory relayedData = disputeHashtoRelayedData[disputeHash];
-
-        bytes4 methodSelector = IForeignGateway.relayRule.selector;
-        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.forwarder);
-
-        sendCrossDomainMessage(data, 0, 0);
     }
 
     /**
@@ -76,7 +65,8 @@ abstract contract BaseHomeGateway is ISafeBridge, IHomeGateway {
         uint256 _choices,
         bytes calldata _extraData,
         uint256 _arbitrationCost
-    ) external onlyFromL1 {
+    ) external {
+        // TODO: recreate hash
         RelayedData storage relayedData = disputeHashtoRelayedData[_disputeHash];
         relayedData.choices = _choices;
         relayedData.extraData = _extraData;
@@ -95,6 +85,18 @@ abstract contract BaseHomeGateway is ISafeBridge, IHomeGateway {
         relayedData.forwarder = msg.sender;
 
         emit Dispute(arbitrator, disputeID, 0, 0);
+    }
+
+    function rule(uint256 _disputeID, uint256 _ruling) external {
+        require(msg.sender == address(arbitrator), "Only Arbitrator");
+
+        bytes32 disputeHash = disputeIDtoHash[_disputeID];
+        RelayedData memory relayedData = disputeHashtoRelayedData[disputeHash];
+
+        bytes4 methodSelector = IForeignGateway.relayRule.selector;
+        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.forwarder);
+
+        fastbridge.sendFast(address(foreignGateway), data);
     }
 
     function homeDisputeHashToID(bytes32 _disputeHash) external view returns (uint256) {

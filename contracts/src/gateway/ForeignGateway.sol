@@ -11,17 +11,19 @@
 pragma solidity ^0.8.0;
 
 import "../arbitration/IArbitrable.sol";
-import "../bridge/ISafeBridge.sol";
+import "../bridge/interfaces/IFastBridgeReceiver.sol";
 
 import "./interfaces/IHomeGateway.sol";
 import "./interfaces/IForeignGateway.sol";
 
-abstract contract BaseForeignGateway is ISafeBridge, IForeignGateway {
+contract ForeignGateway is IForeignGateway {
     // The global default minimum number of jurors in a dispute.
     uint256 public constant MIN_JURORS = 3;
 
     // @dev Note the disputeID needs to start from one as
     // the KlerosV1 proxy governor depends on this implementation.
+    // We now also depend on localDisputeID not being zero
+    // at any point.
     uint256 internal localDisputeID = 1;
 
     // feeForJuror by subcourtID
@@ -38,11 +40,12 @@ abstract contract BaseForeignGateway is ISafeBridge, IForeignGateway {
     mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
 
     IHomeGateway public homeGateway;
+    IFastBridgeReceiver public fastbridge;
     uint256 public chainID;
     address public governor;
 
-    modifier onlyFromL2() {
-        onlyCrossChainSender();
+    modifier onlyFromFastBridge() {
+        require(address(fastbridge) == msg.sender, "Access not allowed: Fast Bridge only.");
         _;
     }
 
@@ -54,10 +57,12 @@ abstract contract BaseForeignGateway is ISafeBridge, IForeignGateway {
     constructor(
         address _governor,
         IHomeGateway _homeGateway,
+        IFastBridgeReceiver _fastbridge,
         uint256[] memory _feeForJuror
     ) {
         governor = _governor;
         homeGateway = _homeGateway;
+        fastbridge = _fastbridge;
         feeForJuror = _feeForJuror;
 
         uint256 id;
@@ -104,6 +109,7 @@ abstract contract BaseForeignGateway is ISafeBridge, IForeignGateway {
             ruled: false
         });
 
+        /*
         bytes4 methodSelector = IHomeGateway.handleIncomingDispute.selector;
         bytes memory data = abi.encodeWithSelector(
             methodSelector,
@@ -112,20 +118,7 @@ abstract contract BaseForeignGateway is ISafeBridge, IForeignGateway {
             _extraData,
             nbVotes * feeForJuror[subcourtID] // we calculate the min amount required for nbVotes
         );
-
-        // We only pay for the submissionPrice gas cost
-        // which is minimum gas cost required for submitting a
-        // arbitrum retryable ticket to the retry buffer for
-        // bridge to L2.
-        // For immediate inclusion a user/bot needs to pay (GasPrice x MaxGas)
-        // with the associated ticketId that is emitted by this function
-        // after the ticket is successfully submitted.
-        // For more details, see:
-        // https://developer.offchainlabs.com/docs/l1_l2_messages#retryable-tickets-contract-api
-        //
-        // We do NOT forward the arbitrationCost ETH funds to the HomeGateway yet,
-        // only the calldata.
-        sendCrossDomainMessage(data, 0, 0);
+        */
 
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
@@ -133,17 +126,7 @@ abstract contract BaseForeignGateway is ISafeBridge, IForeignGateway {
     function arbitrationCost(bytes calldata _extraData) public view returns (uint256 cost) {
         (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDMinJurors(_extraData);
 
-        // Calculate the size of calldata that will be passed to the L2 bridge
-        // as that is a factor for the bridging cost.
-        // Calldata size of handleIncomingDispute:
-        // methodId + bytes32 disputeHash + uint256 _choices + bytes _extraData + uint256 _arbitrationCost)
-        //    4     +   32                +   32             + dynamic          +  32
-        uint256 calldatasize = 100 + _extraData.length;
-
-        uint256 bridgeCost = bridgingCost(calldatasize);
-        uint256 arbCost = feeForJuror[subcourtID] * minJurors;
-
-        return bridgeCost + arbCost;
+        cost = feeForJuror[subcourtID] * minJurors;
     }
 
     /**
@@ -153,10 +136,12 @@ abstract contract BaseForeignGateway is ISafeBridge, IForeignGateway {
         bytes32 _disputeHash,
         uint256 _ruling,
         address _forwarder
-    ) external onlyFromL2 {
+    ) external onlyFromFastBridge {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 
+        require(dispute.id != 0, "Dispute does not exist");
         require(!dispute.ruled, "Cannot rule twice");
+
         dispute.ruled = true;
         dispute.forwarder = _forwarder;
 
@@ -166,6 +151,7 @@ abstract contract BaseForeignGateway is ISafeBridge, IForeignGateway {
 
     function withdrawFees(bytes32 _disputeHash) external {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
+        require(dispute.id != 0, "Dispute does not exist");
         require(dispute.ruled, "Not ruled yet");
 
         uint256 amount = dispute.paid;
