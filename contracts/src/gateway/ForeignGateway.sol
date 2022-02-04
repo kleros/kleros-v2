@@ -13,7 +13,6 @@ pragma solidity ^0.8.0;
 import "../arbitration/IArbitrable.sol";
 import "../bridge/interfaces/IFastBridgeReceiver.sol";
 
-import "./interfaces/IHomeGateway.sol";
 import "./interfaces/IForeignGateway.sol";
 
 contract ForeignGateway is IForeignGateway {
@@ -28,6 +27,8 @@ contract ForeignGateway is IForeignGateway {
 
     // feeForJuror by subcourtID
     uint256[] internal feeForJuror;
+    uint256 public chainID;
+    uint256 public homeChainID;
 
     struct DisputeData {
         uint248 id;
@@ -39,10 +40,9 @@ contract ForeignGateway is IForeignGateway {
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
 
-    IHomeGateway public homeGateway;
-    IFastBridgeReceiver public fastbridge;
-    uint256 public chainID;
     address public governor;
+    IFastBridgeReceiver public fastbridge;
+    address public homeGateway;
 
     modifier onlyFromFastBridge() {
         require(address(fastbridge) == msg.sender, "Access not allowed: Fast Bridge only.");
@@ -56,14 +56,16 @@ contract ForeignGateway is IForeignGateway {
 
     constructor(
         address _governor,
-        IHomeGateway _homeGateway,
         IFastBridgeReceiver _fastbridge,
-        uint256[] memory _feeForJuror
+        uint256[] memory _feeForJuror,
+        address _homeGateway,
+        uint256 _homeChainID
     ) {
         governor = _governor;
-        homeGateway = _homeGateway;
         fastbridge = _fastbridge;
         feeForJuror = _feeForJuror;
+        homeGateway = _homeGateway;
+        homeChainID = _homeChainID;
 
         uint256 id;
         assembly {
@@ -159,23 +161,8 @@ contract ForeignGateway is IForeignGateway {
         payable(dispute.forwarder).transfer(amount);
     }
 
-    function foreignDisputeHashToID(bytes32 _disputeHash) external view returns (uint256) {
+    function disputeHashToForeignID(bytes32 _disputeHash) external view returns (uint256) {
         return disputeHashtoDisputeData[_disputeHash].id;
-    }
-
-    function disputeID(uint256 _foreignDisputeID) external view returns (uint256) {
-        bytes32 disputeHash = disputeIDtoHash[_foreignDisputeID];
-        require(disputeHash != 0, "Dispute does not exist");
-
-        return homeGateway.homeDisputeHashToID(disputeHash);
-    }
-
-    function homeChainID(uint256 _disputeID) external view returns (uint256) {
-        return homeGateway.chainID();
-    }
-
-    function homeBridge(uint256 _disputeID) external view returns (address) {
-        return address(homeGateway);
     }
 
     function extraDataToSubcourtIDMinJurors(bytes memory _extraData)
