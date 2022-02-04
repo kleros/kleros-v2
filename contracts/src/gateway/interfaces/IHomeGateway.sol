@@ -8,17 +8,13 @@ import "../../evidence/IEvidence.sol";
 interface IHomeGateway is IArbitrable, IEvidence {
     function chainID() external view returns (uint256);
 
-    /**
-     * Handle the cross-chain call from the foreign gateway.
-     */
-    function handleIncomingDispute(
-        bytes32 _disputeHash,
+    function relayCreateDispute(
+        bytes32 _foreignBlockHash,
+        uint256 _foreignDisputeID,
         uint256 _choices,
         bytes calldata _extraData,
-        uint256 numOfJurors
-    ) external;
-
-    function relayCreateDispute(bytes32 _disputeHash) external payable;
+        address _arbitrable
+    ) external payable;
 
     // For cross-chain Evidence standard
 
