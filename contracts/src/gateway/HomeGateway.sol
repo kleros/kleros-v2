@@ -27,10 +27,8 @@ contract HomeGateway is IHomeGateway {
     uint256 public foreignChainID;
 
     struct RelayedData {
-        uint256 choices;
         uint256 arbitrationCost;
-        address forwarder;
-        bytes extraData;
+        address relayer;
     }
     mapping(bytes32 => RelayedData) public disputeHashtoRelayedData;
 
@@ -55,37 +53,46 @@ contract HomeGateway is IHomeGateway {
     }
 
     /**
-     * @dev Handle the cross-chain call from the foreign gateway.
+     * @dev Provide the same parameters as on the foreignChain while creating a
+     *      dispute. Providing incorrect parameters will create a different hash
+     *      than on the foreignChain and will not affect the actual dispute/arbitrable's
+     *      ruling.
      *
-     * @param _disputeHash disputeHash
+     * @param _foreignBlockHash foreignBlockHash
+     * @param _foreignDisputeID foreignDisputeID
      * @param _choices number of ruling choices
      * @param _extraData extraData
-     * @param _arbitrationCost We get the actual arbitrationCost paid by the
-     *          arbitrable here in case they paid more than the min arbitrationCost
+     * @param _arbitrable arbitrable
      */
-    function handleIncomingDispute(
-        bytes32 _disputeHash,
+    function relayCreateDispute(
+        bytes32 _foreignBlockHash,
+        uint256 _foreignDisputeID,
         uint256 _choices,
         bytes calldata _extraData,
-        uint256 _arbitrationCost
-    ) external {
-        // TODO: recreate hash
-        RelayedData storage relayedData = disputeHashtoRelayedData[_disputeHash];
-        relayedData.choices = _choices;
-        relayedData.extraData = _extraData;
-        relayedData.arbitrationCost = _arbitrationCost;
-    }
+        address _arbitrable
+    ) external payable {
+        bytes32 disputeHash = keccak256(
+            abi.encodePacked(
+                foreignChainID,
+                _foreignBlockHash,
+                "createDispute",
+                _foreignDisputeID,
+                _choices,
+                _extraData,
+                _arbitrable
+            )
+        );
+        RelayedData storage relayedData = disputeHashtoRelayedData[disputeHash];
+        require(relayedData.relayer == address(0), "Dispute already relayed");
 
-    function relayCreateDispute(bytes32 _disputeHash) external payable {
-        RelayedData storage relayedData = disputeHashtoRelayedData[_disputeHash];
-        require(relayedData.forwarder == address(0), "Dispute already forwarded");
-
+        // TODO: will mostly be replaced by the actual arbitrationCost paid on the foreignChain.
+        relayedData.arbitrationCost = arbitrator.arbitrationCost(_extraData);
         require(msg.value >= relayedData.arbitrationCost, "Not enough arbitration cost paid");
 
-        uint256 disputeID = arbitrator.createDispute{value: msg.value}(relayedData.choices, relayedData.extraData);
-        disputeIDtoHash[disputeID] = _disputeHash;
-        disputeHashtoID[_disputeHash] = disputeID;
-        relayedData.forwarder = msg.sender;
+        uint256 disputeID = arbitrator.createDispute{value: msg.value}(_choices, _extraData);
+        disputeIDtoHash[disputeID] = disputeHash;
+        disputeHashtoID[disputeHash] = disputeID;
+        relayedData.relayer = msg.sender;
 
         emit Dispute(arbitrator, disputeID, 0, 0);
     }
@@ -97,7 +104,7 @@ contract HomeGateway is IHomeGateway {
         RelayedData memory relayedData = disputeHashtoRelayedData[disputeHash];
 
         bytes4 methodSelector = IForeignGateway.relayRule.selector;
-        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.forwarder);
+        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.relayer);
 
         fastbridge.sendFast(foreignGateway, data);
     }
