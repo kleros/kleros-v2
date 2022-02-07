@@ -14,7 +14,7 @@ import "./interfaces/ISafeBridge.sol";
 import "./interfaces/IFastBridgeSender.sol";
 import "./interfaces/IFastBridgeReceiver.sol";
 
-contract ArbFastBridgeSender is IFastBridgeSender {
+contract FastBridgeSender is IFastBridgeSender {
     ISafeBridge safebridge;
     IFastBridgeReceiver fastBridgeReceiver;
 

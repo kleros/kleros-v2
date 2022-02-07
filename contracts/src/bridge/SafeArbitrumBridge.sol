@@ -15,7 +15,7 @@ import "./interfaces/arbitrum/AddressAliasHelper.sol";
 
 import "./interfaces/ISafeBridge.sol";
 
-contract ArbL2Bridge is ISafeBridge {
+contract SafeArbitrumBridge is ISafeBridge {
     IArbSys constant arbsys = IArbSys(address(100));
 
     event L2ToL1TxCreated(uint256 indexed withdrawalId);
