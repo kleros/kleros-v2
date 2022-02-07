@@ -1,7 +1,6 @@
 import * as dotenv from "dotenv";
 
 import { HardhatUserConfig, task } from "hardhat/config";
-import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
@@ -101,19 +100,13 @@ const config: HardhatUserConfig = {
     },
   },
   namedAccounts: {
-    homeDeployer: {
-      default: 0,
-    },
-    foreignDeployer: {
+    deployer: {
       default: 0,
     },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: "USD",
-  },
-  etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
   },
   watcher: {
     compilation: {
