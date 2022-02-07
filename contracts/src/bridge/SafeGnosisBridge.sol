@@ -13,7 +13,7 @@ pragma solidity ^0.8.0;
 import "./interfaces/gnosis-chain/IAMB.sol";
 import "./interfaces/ISafeBridge.sol";
 
-contract GnosisL2Bridge is ISafeBridge {
+contract SafeGnosisBridge is ISafeBridge {
     IAMB amb;
 
     constructor(IAMB _amb) {
