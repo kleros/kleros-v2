@@ -75,11 +75,9 @@ contract ForeignGateway is IForeignGateway {
         homeGateway = _homeGateway;
         homeChainID = _homeChainID;
 
-        uint256 id;
         assembly {
-            id := chainid()
+            sstore(chainID.slot, chainid())
         }
-        chainID = id;
     }
 
     /** @dev Changes the `feeForJuror` property value of a specified subcourt.
