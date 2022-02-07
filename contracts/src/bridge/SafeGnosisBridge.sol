@@ -20,7 +20,12 @@ contract SafeGnosisBridge is ISafeBridge {
         amb = _amb;
     }
 
-    function sendCrossDomainMessage(address _receiver, bytes memory _calldata) external override returns (uint256) {
+    function sendCrossDomainMessage(address _receiver, bytes memory _calldata)
+        external
+        payable
+        override
+        returns (uint256)
+    {
         bytes32 id = amb.requireToPassMessage(_receiver, _calldata, amb.maxGasPerTx());
         return uint256(id);
     }

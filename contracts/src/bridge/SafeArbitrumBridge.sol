@@ -20,7 +20,12 @@ contract SafeArbitrumBridge is ISafeBridge {
 
     event L2ToL1TxCreated(uint256 indexed withdrawalId);
 
-    function sendCrossDomainMessage(address _receiver, bytes memory _calldata) external override returns (uint256) {
+    function sendCrossDomainMessage(address _receiver, bytes memory _calldata)
+        external
+        payable
+        override
+        returns (uint256)
+    {
         uint256 withdrawalId = arbsys.sendTxToL1(_receiver, _calldata);
 
         emit L2ToL1TxCreated(withdrawalId);
