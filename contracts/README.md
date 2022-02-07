@@ -88,7 +88,5 @@ This must be done for each network separately.
 For `Mainnet` you can use the `etherscan-verify` command from `hardhat`:
 
 ```bash
-yarn hardhat --network mainnet etherscan-verify
+yarn hardhat --network <arbitrumRinkeby|arbitrum|rinkeby|mainnet> etherscan-verify
 ```
-
-For `Arbitrum` the process currently must be done manually through [Arbiscan](https://arbiscan.io/verifyContract).

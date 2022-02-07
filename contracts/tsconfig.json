@@ -13,7 +13,8 @@
     "./src",
     "./scripts",
     "./test",
-    "./typechain"
+    "./typechain",
+    "./deploy"
   ],
   "files": [
     "./hardhat.config.ts"
