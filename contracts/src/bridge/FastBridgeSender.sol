@@ -15,8 +15,9 @@ import "./interfaces/IFastBridgeSender.sol";
 import "./interfaces/IFastBridgeReceiver.sol";
 
 contract FastBridgeSender is IFastBridgeSender {
-    ISafeBridge safebridge;
-    IFastBridgeReceiver fastBridgeReceiver;
+    ISafeBridge public safebridge;
+    IFastBridgeReceiver public fastBridgeReceiver;
+    address public fastSender;
 
     /**
      * The bridgers need to watch for these events and
@@ -24,22 +25,26 @@ contract FastBridgeSender is IFastBridgeSender {
      */
     event OutboxMessage(address target, bytes32 messageHash, bytes messagePreImage);
 
-    constructor(ISafeBridge _safebridge, IFastBridgeReceiver _fastBridgeReceiver) {
+    constructor(
+        ISafeBridge _safebridge,
+        IFastBridgeReceiver _fastBridgeReceiver,
+        address _fastSender
+    ) {
         safebridge = _safebridge;
         fastBridgeReceiver = _fastBridgeReceiver;
+        fastSender = _fastSender;
     }
 
     /**
      * Sends an arbitrary message from one domain to another
      * via the fast bridge mechanism
      *
-     * TODO: probably needs some access control either on the sender side
-     * or the receiver side
-     *
      * @param _receiver The L1 contract address who will receive the calldata
      * @param _calldata The receiving domain encoded message data.
      */
     function sendFast(address _receiver, bytes memory _calldata) external {
+        require(msg.sender == fastSender, "Access not allowed: Fast Sender only.");
+
         // Encode the receiver address with the function signature + arguments i.e calldata
         bytes memory encodedData = abi.encode(_receiver, _calldata);
 
