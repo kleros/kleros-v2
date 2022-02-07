@@ -43,11 +43,9 @@ contract HomeGateway is IHomeGateway {
         foreignGateway = _foreignGateway;
         foreignChainID = _foreignChainID;
 
-        uint256 id;
         assembly {
-            id := chainid()
+            sstore(chainID.slot, chainid())
         }
-        chainID = id;
 
         emit MetaEvidence(0, "BRIDGE");
     }
