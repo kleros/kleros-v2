@@ -53,30 +53,32 @@ contract HomeGateway is IHomeGateway {
     }
 
     /**
-     * @dev Provide the same parameters as on the foreignChain while creating a
+     * @dev Provide the same parameters as on the originalChain while creating a
      *      dispute. Providing incorrect parameters will create a different hash
-     *      than on the foreignChain and will not affect the actual dispute/arbitrable's
+     *      than on the originalChain and will not affect the actual dispute/arbitrable's
      *      ruling.
      *
-     * @param _foreignBlockHash foreignBlockHash
-     * @param _foreignDisputeID foreignDisputeID
+     * @param _originalChainID originalChainId
+     * @param _originalBlockHash originalBlockHash
+     * @param _originalDisputeID originalDisputeID
      * @param _choices number of ruling choices
      * @param _extraData extraData
      * @param _arbitrable arbitrable
      */
     function relayCreateDispute(
-        bytes32 _foreignBlockHash,
-        uint256 _foreignDisputeID,
+        uint256 _originalChainID,
+        bytes32 _originalBlockHash,
+        uint256 _originalDisputeID,
         uint256 _choices,
         bytes calldata _extraData,
         address _arbitrable
     ) external payable {
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
-                foreignChainID,
-                _foreignBlockHash,
+                _originalChainID,
+                _originalBlockHash,
                 "createDispute",
-                _foreignDisputeID,
+                _originalDisputeID,
                 _choices,
                 _extraData,
                 _arbitrable

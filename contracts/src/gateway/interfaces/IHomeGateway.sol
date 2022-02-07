@@ -9,8 +9,9 @@ interface IHomeGateway is IArbitrable, IEvidence {
     function chainID() external view returns (uint256);
 
     function relayCreateDispute(
-        bytes32 _foreignBlockHash,
-        uint256 _foreignDisputeID,
+        uint256 _originalChainID,
+        bytes32 _originalBlockHash,
+        uint256 _originalDisputeID,
         uint256 _choices,
         bytes calldata _extraData,
         address _arbitrable
