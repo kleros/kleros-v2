@@ -4,6 +4,8 @@ Smart contracts for Kleros v2
 
 ## Deployed Addresses
 
+Refresh the list of deployed contracts by running `scripts/generateDeploymentsMarkdown.sh`.
+
 ### Rinkeby
 
 - [FastBridgeReceiver](https://rinkeby.etherscan.io/address/0x300CbF0829762FeDc90287D08aeDf261EE6ED8eB)
