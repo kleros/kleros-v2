@@ -25,13 +25,13 @@ contract FastBridgeSender is IFastBridgeSender {
      */
     event OutgoingMessage(address target, bytes32 messageHash, bytes message);
 
-    constructor(
-        ISafeBridge _safebridge,
-        IFastBridgeReceiver _fastBridgeReceiver,
-        address _fastSender
-    ) {
+    constructor(ISafeBridge _safebridge, IFastBridgeReceiver _fastBridgeReceiver) {
         safebridge = _safebridge;
         fastBridgeReceiver = _fastBridgeReceiver;
+    }
+
+    function setFastSender(address _fastSender) external {
+        require(fastSender == address(0));
         fastSender = _fastSender;
     }
 

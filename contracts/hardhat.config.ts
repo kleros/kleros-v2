@@ -64,6 +64,9 @@ const config: HardhatUserConfig = {
       live: true,
       saveDeployments: true,
       tags: ["staging", "home", "layer2"],
+      companionNetworks: {
+        foreign: 'rinkeby',
+      },
     },
     arbitrum: {
       chainId: 42161,
@@ -72,6 +75,9 @@ const config: HardhatUserConfig = {
       live: true,
       saveDeployments: true,
       tags: ["production", "home", "layer2"],
+      companionNetworks: {
+        foreign: 'mainnet',
+      },
     },
     // Foreign chain ---------------------------------------------------------------------------------
     rinkeby: {
@@ -81,6 +87,9 @@ const config: HardhatUserConfig = {
       live: true,
       saveDeployments: true,
       tags: ["staging", "foreign", "layer1"],
+      companionNetworks: {
+        home: 'arbitrumRinkeby',
+      },
     },
     kovan: {
       chainId: 42,
@@ -97,6 +106,9 @@ const config: HardhatUserConfig = {
       live: true,
       saveDeployments: true,
       tags: ["production", "foreign", "layer1"],
+      companionNetworks: {
+        home: 'arbitrum',
+      },
     },
   },
   namedAccounts: {
