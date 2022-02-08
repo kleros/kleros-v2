@@ -1,0 +1,92 @@
+{
+  "address": "0x939EeC4b9BA7F94a7Df3C055FeFcEcbb7f3f89a4",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "withdrawalId",
+          "type": "uint256"
+        }
+      ],
+      "name": "L2ToL1TxCreated",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_receiver",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        }
+      ],
+      "name": "sendSafe",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xa6b452c51291a42d0cf352c450ba3b02b1fb901b8c38a253a174e345a7e3ce0b",
+  "receipt": {
+    "to": null,
+    "from": "0x3b434e0D2a6C7F53d5C556D7BAeE8942c351Cf1a",
+    "contractAddress": "0x939EeC4b9BA7F94a7Df3C055FeFcEcbb7f3f89a4",
+    "transactionIndex": 0,
+    "gasUsed": "2634655",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xd7907dfb3fa8685ddbd73fb213a2dde2e4f093b8c2e78690dc390f87741f3fc1",
+    "transactionHash": "0xa6b452c51291a42d0cf352c450ba3b02b1fb901b8c38a253a174e345a7e3ce0b",
+    "logs": [],
+    "blockNumber": 9345047,
+    "cumulativeGasUsed": "1069275",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "2d7d89c608be54caf93b812ba14cf56b",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.10+commit.fc410830\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"withdrawalId\",\"type\":\"uint256\"}],\"name\":\"L2ToL1TxCreated\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_receiver\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_calldata\",\"type\":\"bytes\"}],\"name\":\"sendSafe\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"sendSafe(address,bytes)\":{\"params\":{\"_calldata\":\"The L2 encoded message data.\",\"_receiver\":\"The L1 contract address who will receive the calldata\"},\"returns\":{\"_0\":\"Unique id to track the message request/transaction.\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"sendSafe(address,bytes)\":{\"notice\":\"Sends an arbitrary message from one domain to another.\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/bridge/SafeBridgeArbitrum.sol\":\"SafeBridgeArbitrum\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"src/bridge/SafeBridgeArbitrum.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\n/**\\n *  @authors: [@shalzz]\\n *  @reviewers: []\\n *  @auditors: []\\n *  @bounties: []\\n *  @deployments: []\\n */\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"./interfaces/arbitrum/IArbSys.sol\\\";\\nimport \\\"./interfaces/arbitrum/AddressAliasHelper.sol\\\";\\n\\nimport \\\"./interfaces/ISafeBridge.sol\\\";\\n\\ncontract SafeBridgeArbitrum is ISafeBridge {\\n    IArbSys constant arbsys = IArbSys(address(100));\\n\\n    event L2ToL1TxCreated(uint256 indexed withdrawalId);\\n\\n    function sendSafe(address _receiver, bytes memory _calldata) external payable override returns (uint256) {\\n        uint256 withdrawalId = arbsys.sendTxToL1(_receiver, _calldata);\\n\\n        emit L2ToL1TxCreated(withdrawalId);\\n        return withdrawalId;\\n    }\\n}\\n\",\"keccak256\":\"0x0079614dca40603a39d3f61fa9e31f0dbe267897b926774953c889a8c599e3fa\",\"license\":\"MIT\"},\"src/bridge/interfaces/ISafeBridge.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.0;\\n\\ninterface ISafeBridge {\\n    /**\\n     * Sends an arbitrary message from one domain to another.\\n     *\\n     * @param _receiver The L1 contract address who will receive the calldata\\n     * @param _calldata The L2 encoded message data.\\n     * @return Unique id to track the message request/transaction.\\n     */\\n    function sendSafe(address _receiver, bytes memory _calldata) external payable returns (uint256);\\n}\\n\",\"keccak256\":\"0x2e7ab23dc7721f51f3d115ea3a06c590869e8671ed824987756ab4bb224845d1\",\"license\":\"MIT\"},\"src/bridge/interfaces/arbitrum/AddressAliasHelper.sol\":{\"content\":\"// SPDX-License-Identifier: Apache-2.0\\n\\n/*\\n * Copyright 2019-2021, Offchain Labs, Inc.\\n *\\n * Licensed under the Apache License, Version 2.0 (the \\\"License\\\");\\n * you may not use this file except in compliance with the License.\\n * You may obtain a copy of the License at\\n *\\n *    http://www.apache.org/licenses/LICENSE-2.0\\n *\\n * Unless required by applicable law or agreed to in writing, software\\n * distributed under the License is distributed on an \\\"AS IS\\\" BASIS,\\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\\n * See the License for the specific language governing permissions and\\n * limitations under the License.\\n */\\n\\npragma solidity >=0.7.0;\\n\\nlibrary AddressAliasHelper {\\n    uint160 constant offset = uint160(0x1111000000000000000000000000000000001111);\\n\\n    /// @notice Utility function that converts the address in the L1 that submitted a tx to\\n    /// the inbox to the msg.sender viewed in the L2\\n    /// @param l1Address the address in the L1 that triggered the tx to L2\\n    /// @return l2Address L2 address as viewed in msg.sender\\n    function applyL1ToL2Alias(address l1Address) internal pure returns (address l2Address) {\\n        l2Address = address(uint160(l1Address) + offset);\\n    }\\n\\n    /// @notice Utility function that converts the msg.sender viewed in the L2 to the\\n    /// address in the L1 that submitted a tx to the inbox\\n    /// @param l2Address L2 address as viewed in msg.sender\\n    /// @return l1Address the address in the L1 that triggered the tx to L2\\n    function undoL1ToL2Alias(address l2Address) internal pure returns (address l1Address) {\\n        l1Address = address(uint160(l2Address) - offset);\\n    }\\n}\\n\",\"keccak256\":\"0xdd595bb9f30932cb16758f5f561b80a8fcfbf239e68319615c39441b2781a9cd\",\"license\":\"Apache-2.0\"},\"src/bridge/interfaces/arbitrum/IArbSys.sol\":{\"content\":\"pragma solidity >=0.7.0;\\n\\n/**\\n * @title Precompiled contract that exists in every Arbitrum chain at address(100), 0x0000000000000000000000000000000000000064. Exposes a variety of system-level functionality.\\n */\\ninterface IArbSys {\\n    /**\\n     * @notice Get internal version number identifying an ArbOS build\\n     * @return version number as int\\n     */\\n    function arbOSVersion() external pure returns (uint256);\\n\\n    /**\\n     * @notice Get Arbitrum block number (distinct from L1 block number; Arbitrum genesis block has block number 0)\\n     * @return block number as int\\n     */\\n    function arbBlockNumber() external view returns (uint256);\\n\\n    /**\\n     * @notice Send given amount of Eth to dest from sender.\\n     * This is a convenience function, which is equivalent to calling sendTxToL1 with empty calldataForL1.\\n     * @param destination recipient address on L1\\n     * @return unique identifier for this L2-to-L1 transaction.\\n     */\\n    function withdrawEth(address destination) external payable returns (uint256);\\n\\n    /**\\n     * @notice Send a transaction to L1\\n     * @param destination recipient address on L1\\n     * @param calldataForL1 (optional) calldata for L1 contract call\\n     * @return a unique identifier for this L2-to-L1 transaction.\\n     */\\n    function sendTxToL1(address destination, bytes calldata calldataForL1) external payable returns (uint256);\\n\\n    /**\\n     * @notice get the number of transactions issued by the given external account or the account sequence number of the given contract\\n     * @param account target account\\n     * @return the number of transactions issued by the given external account or the account sequence number of the given contract\\n     */\\n    function getTransactionCount(address account) external view returns (uint256);\\n\\n    /**\\n     * @notice get the value of target L2 storage slot\\n     * This function is only callable from address 0 to prevent contracts from being able to call it\\n     * @param account target account\\n     * @param index target index of storage slot\\n     * @return stotage value for the given account at the given index\\n     */\\n    function getStorageAt(address account, uint256 index) external view returns (uint256);\\n\\n    /**\\n     * @notice check if current call is coming from l1\\n     * @return true if the caller of this was called directly from L1\\n     */\\n    function isTopLevelCall() external view returns (bool);\\n\\n    event EthWithdrawal(address indexed destAddr, uint256 amount);\\n\\n    event L2ToL1Transaction(\\n        address caller,\\n        address indexed destination,\\n        uint256 indexed uniqueId,\\n        uint256 indexed batchNumber,\\n        uint256 indexInBatch,\\n        uint256 arbBlockNum,\\n        uint256 ethBlockNum,\\n        uint256 timestamp,\\n        uint256 callvalue,\\n        bytes data\\n    );\\n}\\n\",\"keccak256\":\"0xb4607d26251273b1f9307a845295fcb982d729eb5b40efeadefb21795fad9370\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610285806100206000396000f3fe60806040526004361061001e5760003560e01c8063be44ae1c14610023575b600080fd5b610036610031366004610101565b610048565b60405190815260200160405180910390f35b6040516349460b4d60e11b8152600090819060649063928c169a9061007390879087906004016101d1565b6020604051808303816000875af1158015610092573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906100b69190610236565b60405190915081907facd96f3817031b95eab52de9132d4a9dd13dac3d9dfcfe950ca9283c89b851a590600090a29392505050565b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561011457600080fd5b82356001600160a01b038116811461012b57600080fd5b9150602083013567ffffffffffffffff8082111561014857600080fd5b818501915085601f83011261015c57600080fd5b81358181111561016e5761016e6100eb565b604051601f8201601f19908116603f01168101908382118183101715610196576101966100eb565b816040528281528860208487010111156101af57600080fd5b8260208601602083013760006020848301015280955050505050509250929050565b60018060a01b038316815260006020604081840152835180604085015260005b8181101561020d578581018301518582016060015282016101f1565b8181111561021f576000606083870101525b50601f01601f191692909201606001949350505050565b60006020828403121561024857600080fd5b505191905056fea2646970667358221220691aeb3681b0b3a9b12bd40f31d52435b0fb90aeb41a724c79e99fdcc31d653c64736f6c634300080a0033",
+  "deployedBytecode": "0x60806040526004361061001e5760003560e01c8063be44ae1c14610023575b600080fd5b610036610031366004610101565b610048565b60405190815260200160405180910390f35b6040516349460b4d60e11b8152600090819060649063928c169a9061007390879087906004016101d1565b6020604051808303816000875af1158015610092573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906100b69190610236565b60405190915081907facd96f3817031b95eab52de9132d4a9dd13dac3d9dfcfe950ca9283c89b851a590600090a29392505050565b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561011457600080fd5b82356001600160a01b038116811461012b57600080fd5b9150602083013567ffffffffffffffff8082111561014857600080fd5b818501915085601f83011261015c57600080fd5b81358181111561016e5761016e6100eb565b604051601f8201601f19908116603f01168101908382118183101715610196576101966100eb565b816040528281528860208487010111156101af57600080fd5b8260208601602083013760006020848301015280955050505050509250929050565b60018060a01b038316815260006020604081840152835180604085015260005b8181101561020d578581018301518582016060015282016101f1565b8181111561021f576000606083870101525b50601f01601f191692909201606001949350505050565b60006020828403121561024857600080fd5b505191905056fea2646970667358221220691aeb3681b0b3a9b12bd40f31d52435b0fb90aeb41a724c79e99fdcc31d653c64736f6c634300080a0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "sendSafe(address,bytes)": {
+        "params": {
+          "_calldata": "The L2 encoded message data.",
+          "_receiver": "The L1 contract address who will receive the calldata"
+        },
+        "returns": {
+          "_0": "Unique id to track the message request/transaction."
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "sendSafe(address,bytes)": {
+        "notice": "Sends an arbitrary message from one domain to another."
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
