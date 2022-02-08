@@ -1,5 +1,5 @@
-import {HardhatRuntimeEnvironment} from 'hardhat/types';
-import {DeployFunction} from 'hardhat-deploy/types';
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { DeployFunction } from "hardhat-deploy/types";
 
 import getContractAddress from "../deploy-helpers/getContractAddress";
 
@@ -19,44 +19,39 @@ const paramsByChainId = {
   },
 };
 
-const deployHomeGateway: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {deployments, getNamedAccounts, getChainId} = hre;
-  const {deploy, execute} = deployments;
+const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+  const { deployments, getNamedAccounts, getChainId } = hre;
+  const { deploy, execute } = deployments;
   const { hexZeroPad } = hre.ethers.utils;
 
-  const {deployer } = await getNamedAccounts();
+  const { deployer } = await getNamedAccounts();
   const chainId = await getChainId();
 
   const { arbitrator, foreignChainId } = paramsByChainId[chainId];
 
-  const foreignGateway = await hre.companionNetworks['foreign'].deployments.get('ForeignGateway');
-  const fastBridgeReceiver = await hre.companionNetworks['foreign'].deployments.get('FastBridgeReceiver');
+  const foreignGateway = await hre.companionNetworks.foreign.deployments.get("ForeignGateway");
+  const fastBridgeReceiver = await hre.companionNetworks.foreign.deployments.get("FastBridgeReceiver");
 
   const foreignChainIdAsBytes32 = hexZeroPad(foreignChainId, 32);
 
-  let safeBridge = await deploy('SafeBridgeArbitrum', {
+  const safeBridge = await deploy("SafeBridgeArbitrum", {
     from: deployer,
     log: true,
   });
 
-  let fastBridgeSender = await deploy('FastBridgeSender', {
+  const fastBridgeSender = await deploy("FastBridgeSender", {
     from: deployer,
     args: [safeBridge.address, fastBridgeReceiver.address],
     log: true,
   });
 
-  let homeGateway = await deploy('HomeGateway', {
+  const homeGateway = await deploy("HomeGateway", {
     from: deployer,
     args: [arbitrator, fastBridgeSender.address, foreignGateway.address, foreignChainIdAsBytes32],
     log: true,
   });
 
-  await execute(
-    'FastBridgeSender',
-    {from: deployer, log: true},
-    'setFastSender',
-    homeGateway.address
-  );
+  await execute("FastBridgeSender", { from: deployer, log: true }, "setFastSender", homeGateway.address);
 };
 
 deployHomeGateway.tags = ["HomeChain"];
