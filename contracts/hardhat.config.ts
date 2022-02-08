@@ -65,7 +65,13 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ["staging", "home", "layer2"],
       companionNetworks: {
-        foreign: 'rinkeby',
+        foreign: "rinkeby",
+      },
+      verify: {
+        etherscan: {
+          apiKey: process.env.ARBISCAN_API_KEY,
+          apiUrl: "https://api-testnet.arbiscan.io/api",
+        },
       },
     },
     arbitrum: {
@@ -76,7 +82,13 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ["production", "home", "layer2"],
       companionNetworks: {
-        foreign: 'mainnet',
+        foreign: "mainnet",
+      },
+      verify: {
+        etherscan: {
+          apiKey: process.env.ARBISCAN_API_KEY,
+          apiUrl: "https://api.arbiscan.io/api",
+        },
       },
     },
     // Foreign chain ---------------------------------------------------------------------------------
@@ -88,7 +100,7 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ["staging", "foreign", "layer1"],
       companionNetworks: {
-        home: 'arbitrumRinkeby',
+        home: "arbitrumRinkeby",
       },
     },
     kovan: {
@@ -107,7 +119,7 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ["production", "foreign", "layer1"],
       companionNetworks: {
-        home: 'arbitrum',
+        home: "arbitrum",
       },
     },
   },

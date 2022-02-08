@@ -4,14 +4,16 @@ Smart contracts for Kleros v2
 
 ## Deployed Addresses
 
-### Contract 1
+### Rinkeby
 
-- Mainnet: ...
-- Testnet: ...
+- [FastBridgeReceiver](https://rinkeby.etherscan.io/address/0x300CbF0829762FeDc90287D08aeDf261EE6ED8eB)
+- [ForeignGateway](https://rinkeby.etherscan.io/address/0x8F1a2B8F9b04320375856580Fc6B1669Cb12a9EE)
 
-### Contract 2
+### Arbitrum Rinkeby
 
-...
+- [FastBridgeSender](https://testnet.arbiscan.io/address/0x395014fddc3b12F9a78ED8E57DA162Fd77E12bE3)
+- [HomeGateway](https://testnet.arbiscan.io/address/0x300CbF0829762FeDc90287D08aeDf261EE6ED8eB)
+- [SafeBridgeArbitrum](https://testnet.arbiscan.io/address/0x014A442480DbAD767b7615E55E271799889FA1a7)
 
 ## Contributing
 
@@ -59,19 +61,20 @@ cp .env.example .env
 
 The following env vars are required:
 
-- `PRIVATE_KEY`: the private key of the deployer account used for xDAI, Sokol and Kovan.
+- `PRIVATE_KEY`: the private key of the deployer account used for the testnets.
 - `MAINNET_PRIVATE_KEY`: the private key of the deployer account used for Mainnet.
 - `INFURA_API_KEY`: the API key for infura.
 
 The ones below are optional:
 
-- `ETHERSCAN_API_KEY`: used only if you wish to verify the source of the newly deployed contracts on Etherscan.
+- `ETHERSCAN_API_KEY`: to verify the source of the newly deployed contracts on **Etherscan**.
+- `ARBISCAN_API_KEY`: to verify the source of the newly deployed contracts on **Arbitrum**.
 
 #### 1. Update the Constructor Parameters (optional)
 
 If some of the constructor parameters (such as the Meta Evidence) needs to change, you need to update the files in the `deploy/` directory.
 
-#### 2. Deploy the Proxies
+#### 2. Deploy to Public Testnets
 
 ```bash
 yarn deploy:staging # to deploy to L1/L2 testnet
@@ -84,8 +87,6 @@ If you miss that, you can always go to the `deployments/<network>` directory and
 #### 3. Verify the Source Code for Contracts
 
 This must be done for each network separately.
-
-For `Mainnet` you can use the `etherscan-verify` command from `hardhat`:
 
 ```bash
 yarn hardhat --network <arbitrumRinkeby|arbitrum|rinkeby|mainnet> etherscan-verify
