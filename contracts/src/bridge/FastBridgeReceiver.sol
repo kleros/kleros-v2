@@ -27,7 +27,7 @@ contract FastBridgeReceiver is IFastBridgeReceiver {
     // messageHash => Claim
     mapping(bytes32 => Claim) public claims;
 
-    event ClaimMade(bytes32 messageHash, uint256 claimedAt);
+    event ClaimReceived(bytes32 messageHash, uint256 claimedAt);
 
     modifier onlyByGovernor() {
         require(governor == msg.sender, "Access not allowed: Governor only.");
@@ -55,7 +55,7 @@ contract FastBridgeReceiver is IFastBridgeReceiver {
             relayed: false
         });
 
-        emit ClaimMade(_messageHash, block.timestamp);
+        emit ClaimReceived(_messageHash, block.timestamp);
     }
 
     function verifyAndRelay(bytes32 _messageHash, bytes memory _encodedData) external {

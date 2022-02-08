@@ -10,5 +10,5 @@ interface ISafeBridge {
      * @param _calldata The L2 encoded message data.
      * @return Unique id to track the message request/transaction.
      */
-    function sendCrossDomainMessage(address _receiver, bytes memory _calldata) external payable returns (uint256);
+    function sendSafe(address _receiver, bytes memory _calldata) external payable returns (uint256);
 }

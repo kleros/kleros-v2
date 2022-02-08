@@ -43,7 +43,7 @@ contract ForeignGateway is IForeignGateway {
     IFastBridgeReceiver public fastbridge;
     address public homeGateway;
 
-    event DisputeHash(
+    event OutgoingDispute(
         bytes32 disputeHash,
         bytes32 blockhash,
         uint256 localDisputeID,
@@ -117,7 +117,7 @@ contract ForeignGateway is IForeignGateway {
             ruled: false
         });
 
-        emit DisputeHash(disputeHash, blockhash(block.number - 1), disputeID, _choices, _extraData, msg.sender);
+        emit OutgoingDispute(disputeHash, blockhash(block.number - 1), disputeID, _choices, _extraData, msg.sender);
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
 
