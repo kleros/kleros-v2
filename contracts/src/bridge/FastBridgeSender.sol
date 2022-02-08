@@ -23,7 +23,7 @@ contract FastBridgeSender is IFastBridgeSender {
      * The bridgers need to watch for these events and
      * relay the messageHash on the FastBridgeReceiver.
      */
-    event OutboxMessage(address target, bytes32 messageHash, bytes messagePreImage);
+    event OutgoingMessage(address target, bytes32 messageHash, bytes message);
 
     constructor(
         ISafeBridge _safebridge,
@@ -48,7 +48,7 @@ contract FastBridgeSender is IFastBridgeSender {
         // Encode the receiver address with the function signature + arguments i.e calldata
         bytes memory encodedData = abi.encode(_receiver, _calldata);
 
-        emit OutboxMessage(_receiver, keccak256(encodedData), encodedData);
+        emit OutgoingMessage(_receiver, keccak256(encodedData), encodedData);
     }
 
     /**
@@ -73,6 +73,6 @@ contract FastBridgeSender is IFastBridgeSender {
         // TODO: add access checks for this on the FastBridgeReceiver.
         // TODO: how much ETH should be provided for bridging? add an ISafeBridge.bridgingCost()
         bytes memory encodedData = abi.encode(_receiver, _calldata);
-        safebridge.sendCrossDomainMessage{value: msg.value}(address(fastBridgeReceiver), encodedData);
+        safebridge.sendSafe{value: msg.value}(address(fastBridgeReceiver), encodedData);
     }
 }
