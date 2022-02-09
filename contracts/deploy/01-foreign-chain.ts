@@ -5,7 +5,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 
 import getContractAddress from "../deploy-helpers/getContractAddress";
 
-const FOREIGN_CHAIN_IDS = [1, 4];
+const FOREIGN_CHAIN_IDS = [1, 4, 31337];  // Mainnet, Rinkeby, Hardhat
 const paramsByChainId = {
   1: {
     claimDeposit: parseEther("0.1"),
