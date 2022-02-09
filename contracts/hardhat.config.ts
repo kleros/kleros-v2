@@ -66,7 +66,6 @@ const config: HardhatUserConfig = {
       verify: {
         etherscan: {
           apiKey: process.env.ARBISCAN_API_KEY,
-          apiUrl: "https://api-testnet.arbiscan.io/api",
         },
       },
     },
@@ -83,7 +82,6 @@ const config: HardhatUserConfig = {
       verify: {
         etherscan: {
           apiKey: process.env.ARBISCAN_API_KEY,
-          apiUrl: "https://api.arbiscan.io/api",
         },
       },
     },
@@ -127,6 +125,11 @@ const config: HardhatUserConfig = {
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: "USD",
+  },
+  verify: {
+    etherscan: {
+      apiKey: process.env.ETHERSCAN_API_KEY_FIX,
+    },
   },
   watcher: {
     compilation: {
