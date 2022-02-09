@@ -55,6 +55,7 @@
       }
     }
   },
+  "root": true,
   "rules": {
     "max-len": [
       "warn",
