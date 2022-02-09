@@ -4,7 +4,7 @@ Smart contracts for Kleros v2
 
 ## Deployed Addresses
 
-Refresh the list of deployed contracts by running `scripts/generateDeploymentsMarkdown.sh`.
+Refresh the list of deployed contracts by running `./scripts/generateDeploymentsMarkdown.sh`.
 
 ### Rinkeby
 
@@ -13,9 +13,13 @@ Refresh the list of deployed contracts by running `scripts/generateDeploymentsMa
 
 ### Arbitrum Rinkeby
 
-- [FastBridgeSender](https://testnet.arbiscan.io/address/0x395014fddc3b12F9a78ED8E57DA162Fd77E12bE3)
-- [HomeGateway](https://testnet.arbiscan.io/address/0x300CbF0829762FeDc90287D08aeDf261EE6ED8eB)
-- [SafeBridgeArbitrum](https://testnet.arbiscan.io/address/0x014A442480DbAD767b7615E55E271799889FA1a7)
+- [ConstantNG](https://testnet.arbiscan.io/address/0x4401A368dea8D5761AEEFfd3c4a674086dea0666)
+- [DisputeKitClassic](https://testnet.arbiscan.io/address/0xD78DCddE2C5a2Bd4BB246Bc7dB6994b95f7c442C)
+- [FastBridgeSender](https://testnet.arbiscan.io/address/0x34E520dc1d2Db660113b64724e14CEdCD01Ee879)
+- [HomeGateway](https://testnet.arbiscan.io/address/0x40a78989317B953e427B3BD87C59eA003fcC2296)
+- [KlerosCore](https://testnet.arbiscan.io/address/0xf2a59723c5d625D646668E0B615B5764c3F81540)
+- [SafeBridgeArbitrum](https://testnet.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
+- [SortitionSumTreeFactory](https://testnet.arbiscan.io/address/0xf02733d9e5CbfE67B54F165b0277E1995106D526)
 
 ## Contributing
 

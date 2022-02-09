@@ -1028,7 +1028,7 @@ __metadata:
     ethers: ^5.5.1
     follow-redirects: ^1.14.7
     hardhat: ^2.6.8
-    hardhat-deploy: ^0.10.4
+    hardhat-deploy: ^0.10.5
     hardhat-deploy-ethers: ^0.3.0-beta.11
     hardhat-docgen: ^1.2.1
     hardhat-gas-reporter: ^1.0.4
@@ -8033,9 +8033,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat-deploy@npm:^0.10.4":
-  version: 0.10.4
-  resolution: "hardhat-deploy@npm:0.10.4"
+"hardhat-deploy@npm:^0.10.5":
+  version: 0.10.5
+  resolution: "hardhat-deploy@npm:0.10.5"
   dependencies:
     "@ethersproject/abi": ^5.4.0
     "@ethersproject/abstract-signer": ^5.4.1
@@ -8062,7 +8062,7 @@ __metadata:
   peerDependencies:
     "@ethersproject/hardware-wallets": ^5.0.14
     hardhat: ^2.6.8
-  checksum: d993d200e5bca75b85df983fad4526e3530d8e03648510ffd9cae30ae3ae97e34bcc1c03e0162024801f84b36d7a4bf43718548223abced1c8e76b1fd144edc4
+  checksum: e0e54d50f4632c7b47a716da50b55ce6c2938dfd825b22a8766fcee35ac1c393e0da652212283ad7a7380866e55f72bdf84bb8ef9ed5b5e776b8d33718d1d762
   languageName: node
   linkType: hard
 
