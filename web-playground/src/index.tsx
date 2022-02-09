@@ -1,15 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { ThemeProvider } from "styled-components";
-import { GlobalStyle } from "./styles/global-style";
-import { lightTheme } from "./styles/themes";
+import { DAppProvider } from "@usedapp/core";
+import App from "./app";
 
 const WebApp = () => (
   <React.StrictMode>
-    <ThemeProvider theme={lightTheme}>
-      <GlobalStyle />
-      <h1>Hello World</h1>
-    </ThemeProvider>
+    <DAppProvider config={{}}>
+      <App />
+    </DAppProvider>
   </React.StrictMode>
 );
 
