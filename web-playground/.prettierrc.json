@@ -1,0 +1,15 @@
+{
+  "htmlWhitespaceSensitivity": "css",
+  "printWidth": 80,
+  "trailingComma": "es5",
+  "overrides": [
+    {
+      "files": [
+        "*.json"
+      ],
+      "options": {
+        "parser": "json-stringify"
+      }
+    }
+  ]
+}
