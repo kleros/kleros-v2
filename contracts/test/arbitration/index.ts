@@ -30,7 +30,7 @@ describe("DisputeKitClassic", function () {
 
     console.log(`choice 0: ${await disputeKit.getRoundInfo(0, 0, 0)}`);
     console.log(`choice 1: ${await disputeKit.getRoundInfo(0, 0, 1)}`);
-    console.log(`choice 2: ${await disputeKit.getRoundInfo(0, 0, 2)}`); 
+    console.log(`choice 2: ${await disputeKit.getRoundInfo(0, 0, 2)}`);
   });
 });
 
@@ -67,7 +67,8 @@ async function deployContracts(deployer) {
     100,
     3,
     [0, 0, 0, 0],
-    3);
+    3
+  );
   await core.deployed();
 
   await disputeKit.changeCore(core.address);
