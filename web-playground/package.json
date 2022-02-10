@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@kleros/ui-components-library": "^0.1.2",
-    "@usedapp/core": "^0.10.1",
+    "@usedapp/core": "^0.11.0",
     "fsevents": "^2.3.2",
     "react": "^17.0.2",
     "react-blockies": "^1.4.1",

@@ -26,7 +26,8 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "removeComments": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "resolveJsonModule": true
   },
   "exclude": [
     "node_modules",

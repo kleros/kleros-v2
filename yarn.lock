@@ -3287,9 +3287,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@usedapp/core@npm:^0.10.1":
-  version: 0.10.1
-  resolution: "@usedapp/core@npm:0.10.1"
+"@usedapp/core@npm:^0.11.0":
+  version: 0.11.0
+  resolution: "@usedapp/core@npm:0.11.0"
   dependencies:
     "@metamask/detect-provider": ^1.2.0
     "@uniswap/token-lists": ^1.0.0-beta.27
@@ -3298,7 +3298,7 @@ __metadata:
     nanoid: 3.1.22
   peerDependencies:
     react: "*"
-  checksum: 5b74c09cb9197e9a30d70f71a703617e32e609e3934437abef4633ef0355ac6139784f7353ee954709dd36bdbbe194c34908ce80347d48b443dd5d04182971d1
+  checksum: 9ffc209e98fe04278b12ef1e69fe1a8247d639aa7159c491ad9ae58e7445edfbec957b8c73dea882c629ffc724106fd839ecfbea3688e0a75fc92dcf1bc99db6
   languageName: node
   linkType: hard
 
@@ -19145,7 +19145,7 @@ __metadata:
     "@types/styled-components": ^5.1.21
     "@typescript-eslint/eslint-plugin": ^5.10.1
     "@typescript-eslint/parser": ^5.10.1
-    "@usedapp/core": ^0.10.1
+    "@usedapp/core": ^0.11.0
     eslint: ^8.7.0
     eslint-config-prettier: ^8.3.0
     eslint-import-resolver-parcel: ^1.10.6
