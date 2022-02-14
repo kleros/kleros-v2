@@ -12,7 +12,7 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/IFastBridgeReceiver.sol";
 
-contract FastBridgeReceiver is IFastBridgeReceiver {
+abstract contract BaseFastBridgeReceiver is IFastBridgeReceiver {
     address public governor;
     uint256 public claimDeposit;
     uint256 public challengeDuration;
@@ -97,4 +97,6 @@ contract FastBridgeReceiver is IFastBridgeReceiver {
     function setChallengePeriodDuration(uint256 _challengeDuration) external onlyByGovernor {
         challengeDuration = _challengeDuration;
     }
+
+    function onlyCrossChainSender() external virtual;
 }
