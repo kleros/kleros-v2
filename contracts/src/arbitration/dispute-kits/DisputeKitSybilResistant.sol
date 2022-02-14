@@ -35,9 +35,16 @@ contract DisputeKitSybilResistant is BaseDisputeKit {
     // *             Structs               * //
     // ************************************* //
 
+    enum Phase {
+        resolving, // No disputes that need drawing.
+        generating, // Waiting for a random number. Pass as soon as it is ready.
+        drawing // Jurors can be drawn.
+    }
+
     struct Dispute {
         Round[] rounds; // Rounds of the dispute. 0 is the default round, and [1, ..n] are the appeal rounds.
         uint256 numberOfChoices; // The number of choices jurors have when voting. This does not include choice `0` which is reserved for "refuse to arbitrate".
+        uint256 nbVotes; // Maximal number of votes this dispute can get.
     }
 
     struct Round {
@@ -72,6 +79,12 @@ contract DisputeKitSybilResistant is BaseDisputeKit {
 
     RNG public rng; // The random number generator
     IProofOfHumanity public poh; // The Proof of Humanity registry
+
+    uint256 public RNBlock; // The block number when the random number was requested.
+    uint256 public RN; // The current random number.
+    Phase public phase; // Current phase of this dispute kit.
+    uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
+
     Dispute[] public disputes; // Array of the locally created disputes.
     mapping(uint256 => uint256) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
 
@@ -96,6 +109,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit {
     );
 
     event ChoiceFunded(uint256 indexed _disputeID, uint256 indexed _round, uint256 indexed _choice);
+    event NewPhaseDisputeKit(Phase _phase);
 
     /** @dev Constructor.
      *  @param _governor The governor's address.
@@ -146,20 +160,46 @@ contract DisputeKitSybilResistant is BaseDisputeKit {
      *  @param _disputeID The ID of the dispute in Kleros Core.
      *  @param _numberOfChoices Number of choices of the dispute
      *  @param _extraData Additional info about the dispute, for possible use in future dispute kits.
+     *  @param _nbVotes Number of votes.
      */
     function createDispute(
         uint256 _disputeID,
         uint256 _numberOfChoices,
-        bytes calldata _extraData
+        bytes calldata _extraData,
+        uint256 _nbVotes
     ) external override onlyByCore {
         uint256 localDisputeID = disputes.length;
         Dispute storage dispute = disputes.push();
         dispute.numberOfChoices = _numberOfChoices;
+        dispute.nbVotes = _nbVotes;
 
         Round storage round = dispute.rounds.push();
         round.tied = true;
 
         coreDisputeIDToLocal[_disputeID] = localDisputeID;
+        disputesWithoutJurors++;
+    }
+
+    /** @dev Passes the phase.
+     */
+    function passPhase() external {
+        require(core.allowSwitchPhase(), "Switching is not allowed");
+        if (phase == Phase.resolving) {
+            require(disputesWithoutJurors > 0, "There are no disputes that need jurors.");
+            require(block.number >= core.getFreezeBlock() + 20);
+            // TODO: RNG process is currently unfinished.
+            RNBlock = block.number;
+            rng.requestRN(block.number);
+            phase = Phase.generating;
+        } else if (phase == Phase.generating) {
+            RN = rng.getRN(RNBlock);
+            require(RN != 0, "Random number is not ready yet.");
+            phase = Phase.drawing;
+        } else if (phase == Phase.drawing) {
+            require(core.dKCanBeResolved(), "Max freezing time has not passed yet.");
+            phase = Phase.resolving;
+        }
+        emit NewPhaseDisputeKit(phase);
     }
 
     /** @dev Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
@@ -168,6 +208,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit {
      *  @return drawnAddress The drawn address.
      */
     function draw(uint256 _disputeID) external override onlyByCore returns (address drawnAddress) {
+        require(phase == Phase.drawing, "Should be in drawing phase");
         bytes32 key = bytes32(core.getSubcourtID(_disputeID)); // Get the ID of the tree.
         uint256 drawnNumber = getRandomNumber();
 
@@ -201,10 +242,17 @@ contract DisputeKitSybilResistant is BaseDisputeKit {
         bytes32 ID = core.getSortitionSumTreeID(key, treeIndex);
         drawnAddress = stakePathIDToAccount(ID);
 
-        if (!proofOfHumanity(drawnAddress)) drawnAddress = address(0);
-        // TODO: deduplicate the list of all the drawn humans before moving to the next period !!
-
-        round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
+        if (postDrawCheck(_disputeID, drawnAddress)) {
+            round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
+            if (round.votes.length == dispute.nbVotes) {
+                disputesWithoutJurors--;
+                // TODO: Refactor KlerosCore and DK to switch the phase in more centralized way.
+                // Note that as of now DisputeKit that has all disputes drawn is deleted from activeDisputeKits in KC, so its phase can't be switched there.
+                if (disputesWithoutJurors == 0) phase = Phase.resolving;
+            }
+        } else {
+            drawnAddress = address(0);
+        }
     }
 
     /** @dev Sets the caller's commit for the specified votes.
@@ -346,7 +394,9 @@ contract DisputeKitSybilResistant is BaseDisputeKit {
 
             Round storage newRound = dispute.rounds.push();
             newRound.tied = true;
+            disputesWithoutJurors++;
             core.appeal{value: appealCost}(_disputeID);
+            dispute.nbVotes = core.getNumberOfVotes(_disputeID);
         }
 
         if (msg.value > contribution) payable(msg.sender).send(msg.value - contribution);
@@ -518,9 +568,27 @@ contract DisputeKitSybilResistant is BaseDisputeKit {
         return (vote.account, vote.commit, vote.choice, vote.voted);
     }
 
+    function onCoreFreezingPhase() external onlyByCore {
+        phase = Phase.resolving;
+    }
+
+    function readyForStaking() external view returns (bool) {
+        return phase == Phase.resolving;
+    }
+
     // ************************************* //
     // *            Internal               * //
     // ************************************* //
+
+    function postDrawCheck(uint256 _disputeID, address _juror) internal view override returns (bool) {
+        uint256 subcourtID = core.getSubcourtID(_disputeID);
+        (uint256 stakedTokens, uint256 lockedTokens) = core.getJurorBalance(_juror, uint96(subcourtID));
+        if (stakedTokens < lockedTokens) {
+            return false;
+        } else {
+            return proofOfHumanity(_juror);
+        }
+    }
 
     /** @dev Checks if an address belongs to the Proof of Humanity registry.
      *  @param _address The address to check.
@@ -534,7 +602,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit {
      *  @return rn A random number.
      */
     function getRandomNumber() internal returns (uint256) {
-        return rng.getUncorrelatedRN(block.number);
+        return rng.getUncorrelatedRN(RNBlock);
     }
 
     /** @dev Retrieves a juror's address from the stake path ID.

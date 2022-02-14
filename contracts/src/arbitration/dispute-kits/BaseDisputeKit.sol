@@ -65,4 +65,10 @@ abstract contract BaseDisputeKit is IDisputeKit {
         (bool success, ) = _destination.call{value: _amount}(_data);
         require(success, "Unsuccessful call");
     }
+
+    /** @dev Checks that the chosen address satisfies certain conditions for being drawn.
+     *  @param _disputeID ID of the dispute in the core contract.
+     *  @param _juror Chosen address.
+     */
+    function postDrawCheck(uint256 _disputeID, address _juror) internal virtual returns (bool);
 }
