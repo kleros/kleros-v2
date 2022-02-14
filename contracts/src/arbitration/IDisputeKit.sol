@@ -27,11 +27,13 @@ interface IDisputeKit {
      *  @param _disputeID The ID of the dispute in Kleros Core.
      *  @param _numberOfChoices Number of choices of the dispute
      *  @param _extraData Additional info about the dispute, for possible use in future dispute kits.
+     *  @param _nbVotes Number of votes.
      */
     function createDispute(
         uint256 _disputeID,
         uint256 _numberOfChoices,
-        bytes calldata _extraData
+        bytes calldata _extraData,
+        uint256 _nbVotes
     ) external;
 
     /** @dev Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
@@ -111,4 +113,8 @@ interface IDisputeKit {
             uint256 choice,
             bool voted
         );
+
+    function readyForStaking() external view returns (bool);
+
+    function onCoreFreezingPhase() external;
 }
