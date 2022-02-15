@@ -22,7 +22,7 @@ const paramsByChainId = {
 const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId, config } = hre;
   const { deploy } = deployments;
-  const { providers, constants } = ethers;
+  const { providers } = ethers;
   const { hexZeroPad } = hre.ethers.utils;
 
   const { deployer } = await getNamedAccounts();

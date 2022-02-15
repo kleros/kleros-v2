@@ -16,8 +16,8 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [ConstantNG](https://testnet.arbiscan.io/address/0x4401A368dea8D5761AEEFfd3c4a674086dea0666)
 - [DisputeKitClassic](https://testnet.arbiscan.io/address/0xD78DCddE2C5a2Bd4BB246Bc7dB6994b95f7c442C)
 - [FastBridgeSender](https://testnet.arbiscan.io/address/0x34E520dc1d2Db660113b64724e14CEdCD01Ee879)
-- [HomeGateway](https://testnet.arbiscan.io/address/0x40a78989317B953e427B3BD87C59eA003fcC2296)
-- [KlerosCore](https://testnet.arbiscan.io/address/0xf2a59723c5d625D646668E0B615B5764c3F81540)
+- [HomeGateway](https://testnet.arbiscan.io/address/0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C)
+- [KlerosCore](https://testnet.arbiscan.io/address/0x5A407DcbD0F83ECbc1894C4B4f8Fc5b699D4822F)
 - [SafeBridgeArbitrum](https://testnet.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
 - [SortitionSumTreeFactory](https://testnet.arbiscan.io/address/0xf02733d9e5CbfE67B54F165b0277E1995106D526)
 
@@ -80,11 +80,34 @@ The ones below are optional:
 
 If some of the constructor parameters (such as the Meta Evidence) needs to change, you need to update the files in the `deploy/` directory.
 
+#### 2. Deploy to a Local Network
+
+The complete deployment is multi-chain, so a deployment to the local network can only simulate either the Home chain or the Foreign chain.
+Currently the scripts support only deploying the HomeChain contracts to the local network.
+
+**Shell 1: the node**
+
+```bash
+yarn hardhat node --tags nothing
+```
+
+**Shell 2: the deploy script**
+
+```bash
+yarn hardhat deploy --network localhost --tags HomeChain
+```
+
 #### 2. Deploy to Public Testnets
 
 ```bash
-yarn deploy:staging # to deploy to L1/L2 testnet
-# yarn deploy:production # to deploy to L1/L2 mainnet
+# To deploy on L2 only
+yarn hardhat deploy --network arbitrumRinkeby --tags HomeChain
+
+# To deploy on L1 only
+yarn hardhat deploy --network rinkeby --tags ForeignChain
+
+# To deploy both L1 and L2
+yarn deploy:staging
 ```
 
 The deployed addresses should be output to the screen after the deployment is complete.

@@ -1,16 +1,26 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
-const HOME_CHAIN_IDS = [42161, 421611, 31337]; // ArbOne, ArbRinkeby, Hardhat
+enum HomeChains {
+  ARBITRUM_ONE = 42161,
+  ARBITRUM_RINKEBY = 421611,
+  HARDHAT = 31337,
+}
+
+const pnkByChain = new Map<HomeChains, string>([
+  [HomeChains.ARBITRUM_ONE, "0x330bD769382cFc6d50175903434CCC8D206DCAE5"],
+  [HomeChains.ARBITRUM_RINKEBY, "0x364530164a2338cdba211f72c1438eb811b5c639"],
+]);
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  const { deployments, getNamedAccounts } = hre;
+  const { deployments, getNamedAccounts, getChainId } = hre;
   const { deploy, execute } = deployments;
   const { AddressZero } = hre.ethers.constants;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
-  console.log("deployer: %s", deployer);
+  const chainId = Number(await getChainId());
+  console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   const rng = await deploy("ConstantNG", {
     from: deployer,
@@ -29,21 +39,39 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  // TODO: deploy a PNK token if there isn't one already
+  if (chainId === HomeChains.HARDHAT) {
+    pnkByChain.set(
+      HomeChains.HARDHAT,
+      (
+        await deploy("PNK", {
+          from: deployer,
+          log: true,
+        })
+      ).address
+    );
+  }
+  const pnk = pnkByChain.get(Number(await getChainId())) ?? AddressZero;
 
   const klerosCore = await deploy("KlerosCore", {
     from: deployer,
     libraries: {
       SortitionSumTreeFactory: sortitionSumTreeLibrary.address,
     },
-    args: [deployer, AddressZero, AddressZero, disputeKit.address, false, 200, 10000, 100, 3, [0, 0, 0, 0], 3],
+    args: [deployer, pnk, AddressZero, disputeKit.address, false, 200, 10000, 100, 3, [0, 0, 0, 0], 3],
     log: true,
   });
 
-  await execute("DisputeKitClassic", { from: deployer, log: true }, "changeCore", klerosCore.address);
+  // execute DisputeKitClassic.changeCore() only if necessary
+  const currentCore = await hre.ethers.getContractAt("DisputeKitClassic", disputeKit.address).then((dk) => dk.core());
+  if (currentCore !== klerosCore.address) {
+    await execute("DisputeKitClassic", { from: deployer, log: true }, "changeCore", klerosCore.address);
+  }
 };
 
 deployArbitration.tags = ["HomeChain", "Arbitration"];
-deployArbitration.skip = async ({ getChainId }) => !HOME_CHAIN_IDS.includes(Number(await getChainId()));
+deployArbitration.skip = async ({ getChainId }) => {
+  const chainId = Number(await getChainId());
+  return !HomeChains[chainId];
+};
 
 export default deployArbitration;
