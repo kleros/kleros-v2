@@ -9,6 +9,7 @@ import "hardhat-deploy";
 import "hardhat-deploy-ethers";
 import "hardhat-watcher";
 import "hardhat-docgen";
+import "hardhat-contract-sizer";
 
 dotenv.config();
 

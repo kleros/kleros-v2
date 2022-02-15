@@ -41,7 +41,7 @@ async function deployContracts(deployer) {
 
   const disputeKitFactory = await ethers.getContractFactory("DisputeKitClassic", deployer);
   const disputeKit = await disputeKitFactory.deploy(
-    deployer.address, 
+    deployer.address,
     ethers.constants.AddressZero, // KlerosCore is set later once it is deployed
     rng.address
   );
@@ -57,7 +57,7 @@ async function deployContracts(deployer) {
     },
   });
   const core = await klerosCoreFactory.deploy(
-    deployer.address, 
+    deployer.address,
     ethers.constants.AddressZero, // should be an ERC20
     ethers.constants.AddressZero, // should be a Juror Prosecution module
     disputeKit.address,
