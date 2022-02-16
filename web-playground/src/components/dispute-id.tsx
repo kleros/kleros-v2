@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Field } from "@kleros/ui-components-library";
-import Title from "./title";
+import { DropdownSelect } from "@kleros/ui-components-library";
 
 const Wrapper = styled.div`
   height: auto;
@@ -10,30 +9,25 @@ const Wrapper = styled.div`
   align-items: center;
 `;
 
-const StyledField = styled(Field)`
-  width: 105px;
+const StyledDropdown = styled(DropdownSelect)`
+  width: 210px;
   input {
     padding: 0 16px;
   }
 `;
 
-const StyledTitle = styled(Title)`
-  width: 200px;
-`;
-
 interface IDisputeID {
-  callback: (value: string) => void;
+  items: { text: string; value: number }[];
+  callback: (value: number) => void;
 }
 
-const DisputeID: React.FC<IDisputeID> = ({ callback }) => {
+const DisputeID: React.FC<IDisputeID> = ({ items, callback }) => {
   return (
     <Wrapper>
-      <StyledTitle>Dispute ID:</StyledTitle>
-      <StyledField
-        placeholder="DisputeID"
-        onChange={(event) => {
-          callback(event.target.value);
-        }}
+      <StyledDropdown
+        simpleButton
+        placeholder={{ text: "DisputeID" }}
+        {...{ items, callback }}
       />
     </Wrapper>
   );

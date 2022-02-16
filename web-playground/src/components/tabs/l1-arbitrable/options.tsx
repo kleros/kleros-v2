@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Button, Field } from "@kleros/ui-components-library";
 import Title from "../../title";
 
 const Wrapper = styled.div`
@@ -11,64 +10,34 @@ const Wrapper = styled.div`
 const OptionsContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
-`;
-
-const ButtonsContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  gap: 32px;
 `;
 
 const StyledTitle = styled(Title)`
   width: 200px;
 `;
 
-const StyledField = styled(Field)`
-  width: 90px;
-  input {
-    padding: 0 16px;
-  }
+const StyledOption = styled.h1`
+  font-weight: 400;
+  white-space: pre;
 `;
 
 interface IOptions {
   options: string[];
-  setOptions: (options: string[]) => void;
 }
 
-const Options: React.FC<IOptions> = ({ options, setOptions }) => {
+const Options: React.FC<IOptions> = ({ options }) => {
   return (
     <Wrapper>
       <StyledTitle>Answers:</StyledTitle>
       <OptionsContainer>
-        {options.map((option, i) => (
-          <StyledField
-            value={option}
-            key={i}
-            placeholder="..."
-            onChange={(event) => {
-              const newOptions = [...options];
-              newOptions[i] = event.target.value;
-              setOptions(newOptions);
-            }}
-          />
+        {options.slice(0, -1).map((option, i) => (
+          <React.Fragment key={i}>
+            <StyledOption key={i}>{option}</StyledOption>
+            <StyledOption key={i + options.length}>|</StyledOption>
+          </React.Fragment>
         ))}
-        <ButtonsContainer>
-          <Button
-            small
-            variant="primary"
-            text="-"
-            onClick={() => setOptions(options.slice(0, -1))}
-            disabled={options.length <= 2}
-          />
-          <Button
-            small
-            variant="primary"
-            text="+"
-            onClick={() => setOptions([...options, ""])}
-            disabled={options.length > 4}
-          />
-        </ButtonsContainer>
+        <StyledOption>{options.at(-1)}</StyledOption>
       </OptionsContainer>
     </Wrapper>
   );

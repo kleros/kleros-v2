@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/global-style";
 import { lightTheme, darkTheme } from "./styles/themes";
+import SkeletonProvider from "components/skeleton-provider";
 import Header from "./components/header";
 import Main from "./components/main";
 
@@ -18,15 +19,17 @@ const App: React.FC = () => {
   const [theme, setTheme] = useState("dark");
   return (
     <ThemeProvider theme={theme === "dark" ? darkTheme : lightTheme}>
-      <GlobalStyle />
-      <Background>
-        <Header
-          toggleTheme={() =>
-            theme === "dark" ? setTheme("light") : setTheme("dark")
-          }
-        />
-        <Main />
-      </Background>
+      <SkeletonProvider>
+        <GlobalStyle />
+        <Background>
+          <Header
+            toggleTheme={() =>
+              theme === "dark" ? setTheme("light") : setTheme("dark")
+            }
+          />
+          <Main />
+        </Background>
+      </SkeletonProvider>
     </ThemeProvider>
   );
 };

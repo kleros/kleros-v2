@@ -16,7 +16,7 @@ export const useSwitchNetwork = () => {
           if (error.code === 4902 || error.code === -1) {
             await addNetwork(chain);
             await switchNetwork(chain);
-          } else {
+          } else if (error.code !== 1013) {
             console.error(error);
             throw error;
           }

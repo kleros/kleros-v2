@@ -42,7 +42,6 @@
     },
     "import/resolver": {
       "parcel": {
-        "rootDir": "src",
         "extensions": [
           ".js",
           ".jsx",
@@ -97,6 +96,9 @@
         "ts": "never",
         "tsx": "never"
       }
+    ],
+    "import/no-unresolved": [
+      "off"
     ]
   }
 }

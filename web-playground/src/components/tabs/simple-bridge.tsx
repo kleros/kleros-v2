@@ -1,7 +1,13 @@
 import React from "react";
 import styled from "styled-components";
+import { Rinkeby, ArbitrumRinkeby } from "@usedapp/core";
+import { Result } from "@ethersproject/abi";
 import { Button } from "@kleros/ui-components-library";
-import Table from "../table";
+import { Skeleton } from "components/skeleton-provider";
+import Table from "components/table";
+import { useFormatedOutgoingDisputeQuery } from "queries/useOutgoingDisputeQuery";
+import { useContractFunction } from "hooks/useContractFunction";
+import { useContractCall } from "hooks/useContractCall";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -28,23 +34,56 @@ const tableColumnsNames = [
   "Action",
 ];
 
-const tableRows = [
-  [
-    "3",
-    "789...890",
-    "3",
-    "0x00...000",
-    "0xDead...BeeF",
-    "0.01 ETH",
-    <Button key={0} small text="Relay" />,
-  ],
-];
-
 const SimpleBridge = () => {
+  const { call } =
+    useContractCall("ForeignGateway", "arbitrationCost", Rinkeby.chainId) || {};
+  const { sendWithSwitch, state } = useContractFunction(
+    "HomeGateway",
+    "relayCreateDispute",
+    { chainId: ArbitrumRinkeby.chainId }
+  );
+  const { data, rawData } = useFormatedOutgoingDisputeQuery();
+  const rows = rawData
+    ? data?.map((row: any[], i) => {
+        const newRow = row.slice(0, -2);
+        const txData = rawData[i];
+        newRow.push(
+          <Button
+            key={0}
+            small
+            text="Relay"
+            disabled={
+              !["None", "Exception", "Success", "Fail"].includes(state.status)
+            }
+            onClick={() =>
+              call(txData[4]).then((value: Result) => {
+                const arbitrationCost = value.toString();
+                sendWithSwitch(
+                  Rinkeby.chainId,
+                  txData[1],
+                  txData[2],
+                  txData[3],
+                  txData[4],
+                  txData[5],
+                  {
+                    value: arbitrationCost,
+                  }
+                );
+              })
+            }
+          />
+        );
+        return newRow;
+      })
+    : [];
   return (
     <Wrapper>
       <StyledTable
-        rows={tableRows}
+        rows={
+          rows
+            ? rows
+            : [Array(tableColumnsNames.length).fill([<Skeleton key={0} />])]
+        }
         columnNames={tableColumnsNames}
         title="Outgoing Dispute Creations"
       />

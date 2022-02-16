@@ -46,7 +46,7 @@ const Juror: React.FC = () => {
   return (
     <Wrapper>
       <StyledContent>
-        <DisputeID />
+        <DisputeID items={[]} />
         <Question question={"Who is right?"} />
         <Answers {...{ options }} callback={() => {}} />
         <StyledButton text="Cast Vote" />
