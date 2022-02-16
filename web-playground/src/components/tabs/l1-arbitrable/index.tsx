@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { Rinkeby } from "@usedapp/core";
 import { utils } from "ethers";
 import { Button } from "@kleros/ui-components-library";
-import Question from "./question";
+import Question from "components/question";
 import Options from "./options";
 import Jurors from "./jurors";
 import Subcourt from "./subcourt";
-import { useContractFunction } from "../../../hooks/useContractFunction";
-import { useContractCall } from "../../../hooks/useContractCall";
+import { useContractFunction } from "hooks/useContractFunction";
+import { useContractCall } from "hooks/useContractCall";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -18,7 +19,7 @@ const Wrapper = styled.div`
 `;
 
 const StyledContent = styled.div`
-  width: 50%;
+  width: auto;
   height: 100%;
   padding-top: 64px;
   display: flex;
@@ -38,19 +39,24 @@ const createExtraData = (jurors: number, subcourt: number) => {
 };
 
 const L1Arbitrable = () => {
-  const [options, setOptions] = useState<string[]>(["", ""]);
+  const options = ["Alice", "Bob", "Charlie"];
   const [jurors, setJurors] = useState(2);
   const [subcourt, setSubcourt] = useState(0);
-  const { send, state } = useContractFunction(
+  const { sendWithSwitch, state } = useContractFunction(
     "ForeignGateway",
-    "createDispute"
+    "createDispute",
+    {
+      chainId: Rinkeby.chainId,
+      transactionName: "l1-arbitrable-transaction",
+    }
   );
-  const { call } = useContractCall("ForeignGateway", "arbitrationCost") || {};
+  const { call } =
+    useContractCall("ForeignGateway", "arbitrationCost", Rinkeby.chainId) || {};
   return (
     <Wrapper>
       <StyledContent>
-        <Question />
-        <Options {...{ options, setOptions }} />
+        <Question question={"Who is right?"} />
+        <Options {...{ options }} />
         <Jurors
           defaultValue={jurors}
           callback={(value: number) => setJurors(value)}
@@ -61,13 +67,16 @@ const L1Arbitrable = () => {
         />
         <StyledButton
           text={"Create Dispute"}
+          disabled={
+            !["None", "Exception", "Success", "Fail"].includes(state.status)
+          }
           onClick={async () => {
             const extradata = createExtraData(jurors, subcourt);
             call(extradata).then(async (value: any[]) => {
               const arbitrationCost = value.toString();
-              send(options.length, extradata, {
+              sendWithSwitch(options.length, extradata, {
                 value: arbitrationCost,
-              }).catch((error) => console.error(error));
+              });
             });
           }}
         />

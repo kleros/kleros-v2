@@ -5,6 +5,12 @@
   "repository": "",
   "author": "",
   "license": "MIT",
+  "alias": {
+    "src": "./src",
+    "hooks": "./src/hooks",
+    "queries": "./src/hooks/queries",
+    "components": "./src/components"
+  },
   "packageManager": "yarn@3.1.1",
   "scripts": {
     "clear": "rm -r .parcel-cache",
@@ -30,18 +36,20 @@
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
     "eslint-plugin-security": "^1.4.0",
-    "parcel": "^2.2.1",
+    "parcel": "^2.3.1",
     "prettier": "^2.5.1",
     "typescript": "^4.5.5"
   },
   "dependencies": {
-    "@kleros/ui-components-library": "^0.1.2",
+    "@kleros/ui-components-library": "^0.1.3",
     "@usedapp/core": "^0.11.0",
     "fsevents": "^2.3.2",
     "react": "^17.0.2",
     "react-blockies": "^1.4.1",
     "react-dom": "^17.0.2",
     "react-is": "^17.0.2",
+    "react-loading-skeleton": "^3.0.3",
+    "react-query": "^3.34.15",
     "styled-components": "^5.3.3"
   }
 }

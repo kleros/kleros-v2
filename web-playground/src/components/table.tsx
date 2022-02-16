@@ -25,6 +25,7 @@ interface IStyledTable {
 const StyledTable = styled.div<IStyledTable>`
   width: 100%;
   height: auto;
+  padding-bottom: 1px;
   display: grid;
   grid-template-rows: repeat(${({ rows }) => rows}, 45px);
   grid-template-columns: repeat(${({ columns }) => columns}, auto);
@@ -45,6 +46,7 @@ const Cell = styled.div`
 
 const TopCell = styled(Cell)`
   position: sticky;
+  z-index: 2;
   top: 0;
 `;
 

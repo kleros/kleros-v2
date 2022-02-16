@@ -46,7 +46,7 @@ const Witness: React.FC = () => {
   return (
     <Wrapper>
       <StyledContent>
-        <DisputeID callback={() => {}} />
+        <DisputeID items={[]} callback={() => {}} />
         <Evidence />
         <Answers title="Supporting:" callback={() => {}} {...{ options }} />
         <StyledButton text="Submit Evidence" />

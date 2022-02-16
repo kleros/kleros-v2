@@ -1,14 +1,12 @@
-import { useEthers } from "@usedapp/core";
-import { getContract, ContractName } from "../utils/getContract";
+import { useConnectedContract, ContractName } from "./useConnectedContract";
 
 export const useContractCall = (
   contractName: ContractName,
-  methodName: string
+  methodName: string,
+  chainId?: number
 ) => {
-  const { library } = useEthers();
-  const contract = getContract(contractName);
-  if (library) {
-    const connectedContract = contract.connect(library);
+  const connectedContract = useConnectedContract(contractName, chainId);
+  if (connectedContract) {
     return { call: connectedContract[methodName] };
   }
   return undefined;

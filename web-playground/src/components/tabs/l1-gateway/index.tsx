@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import Table from "../table";
+import Table from "../../table";
+import { Skeleton } from "components/skeleton-provider";
+import { useFormatedOutgoingDisputeQuery } from "queries/useOutgoingDisputeQuery";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -13,7 +15,7 @@ const Wrapper = styled.div`
 `;
 
 const StyledTable = styled(Table)`
-  height: 45%;
+  height: 90%;
   width: 100%;
 `;
 
@@ -22,36 +24,24 @@ const table1ColumnsNames = [
   "Dispute Hash",
   "Choices",
   "extraData",
-  "Submission Price",
-  "Ticket ID",
-  "Status",
+  "Arbitrable",
+  "Fees Paid",
+  "Ruled",
+  "L2 Relayer",
 ];
-
-const table1Rows = [
-  ["3", "789...890", "3", "0x00...000", "0.01 ETH", "42", "SENT"],
-];
-
-const table2ColumnsNames = [
-  "Local Dispute ID",
-  "Dispute Hash",
-  "Ruling",
-  "Status",
-];
-
-const table2Rows = [["3", "789...890", "1", "RELAYED"]];
 
 const L1Gateway = () => {
+  const { data } = useFormatedOutgoingDisputeQuery();
   return (
     <Wrapper>
       <StyledTable
-        rows={table1Rows}
+        rows={
+          data
+            ? data
+            : [Array(table1ColumnsNames.length).fill([<Skeleton key={0} />])]
+        }
         columnNames={table1ColumnsNames}
         title="Outgoing Dispute Creations"
-      />
-      <StyledTable
-        rows={table2Rows}
-        columnNames={table2ColumnsNames}
-        title="Incoming Ruling"
       />
     </Wrapper>
   );

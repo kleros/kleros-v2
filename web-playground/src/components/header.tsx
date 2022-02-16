@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import { Button } from "@kleros/ui-components-library";
 import ConnectAccount from "./connect-account";
-import NetworkSwitch from "./network-switch";
 
 const StyledDiv = styled.div`
   position: absolute;
@@ -37,7 +36,6 @@ const Header: React.FC<IHeader> = ({ toggleTheme }) => {
     <StyledDiv>
       <StyledButton small text="Change theme" onClick={toggleTheme} />
       <StyledRightSide>
-        <NetworkSwitch />
         <ConnectAccount />
       </StyledRightSide>
     </StyledDiv>

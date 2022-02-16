@@ -1,8 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import Table from "../../table";
-import CurrentPhase from "./current-phase";
+import DisputesTable from "./disputes-table";
 import DisputeID from "./dispute-id";
+import { useKlerosCoreDisputesInfoQuery } from "queries/useKlerosCoreDisputesQuery";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -19,43 +20,25 @@ const StyledTable = styled(Table)`
   width: 100%;
 `;
 
-const table1ColumnsNames = [
-  "Local Dispute ID",
-  "Dispute Hash",
-  "Choices",
-  "extraData",
-  "Submission Price",
-  "Ticket ID",
-  "Status",
-];
-
-const table1Rows = [
-  ["3", "789...890", "3", "0x00...000", "0.01 ETH", "42", "SENT"],
-];
-
 const table2ColumnsNames = [
-  "Local Dispute ID",
-  "Dispute Hash",
-  "Ruling",
-  "Status",
+  "Address",
+  "Staked PNK",
+  "Locked PNK",
+  "Last performance",
 ];
 
 const table2Rows = [["3", "789...890", "1", "RELAYED"]];
 
 const KlerosCore: React.FC = () => {
+  const { data } = useKlerosCoreDisputesInfoQuery();
   return (
     <Wrapper>
-      <CurrentPhase />
-      <DisputeID />
-      <StyledTable
-        rows={table1Rows}
-        columnNames={table1ColumnsNames}
-        title="Outgoing Dispute Creations"
-      />
+      <DisputeID {...{ data }} />
+      <DisputesTable {...{ data }} />
       <StyledTable
         rows={table2Rows}
         columnNames={table2ColumnsNames}
-        title="Incoming Ruling"
+        title="Jurors"
       />
     </Wrapper>
   );
