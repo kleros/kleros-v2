@@ -1314,6 +1314,7 @@ __metadata:
     ethers: ^5.5.1
     follow-redirects: ^1.14.7
     hardhat: ^2.6.8
+    hardhat-contract-sizer: ^2.4.0
     hardhat-deploy: ^0.10.5
     hardhat-deploy-ethers: ^0.3.0-beta.11
     hardhat-docgen: ^1.2.1
@@ -5859,6 +5860,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cli-table3@npm:^0.6.0":
+  version: 0.6.1
+  resolution: "cli-table3@npm:0.6.1"
+  dependencies:
+    colors: 1.4.0
+    string-width: ^4.2.0
+  dependenciesMeta:
+    colors:
+      optional: true
+  checksum: 956e175f8eb019c26465b9f1e51121c08d8978e2aab04be7f8520ea8a4e67906fcbd8516dfb77e386ae3730ef0281aa21a65613dffbfa3d62969263252bd25a9
+  languageName: node
+  linkType: hard
+
 "cli-truncate@npm:2.1.0, cli-truncate@npm:^2.1.0":
   version: 2.1.0
   resolution: "cli-truncate@npm:2.1.0"
@@ -10194,6 +10208,18 @@ __metadata:
   version: 2.1.0
   resolution: "hard-rejection@npm:2.1.0"
   checksum: 7baaf80a0c7fff4ca79687b4060113f1529589852152fa935e6787a2bc96211e784ad4588fb3048136ff8ffc9dfcf3ae385314a5b24db32de20bea0d1597f9dc
+  languageName: node
+  linkType: hard
+
+"hardhat-contract-sizer@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "hardhat-contract-sizer@npm:2.4.0"
+  dependencies:
+    chalk: ^4.0.0
+    cli-table3: ^0.6.0
+  peerDependencies:
+    hardhat: ^2.0.0
+  checksum: 813111c3ae27264a1e50feecd0c2670421e9c77eb08ac474ab9b88b1c5cc7578cf3a7f0778f583d684e127084de9ca81be9412eeb02c593aa8acc7e6a42bde89
   languageName: node
   linkType: hard
 

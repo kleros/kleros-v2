@@ -3,6 +3,7 @@
   "mochaExplorer.files": "contracts/test/**/*.{j,t}s",
   "cSpell.words": [
     "arbitrum",
+    "IERC",
     "kleros"
   ]
 }
