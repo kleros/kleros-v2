@@ -8,11 +8,13 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 ### Rinkeby
 
+- [PNK](https://rinkeby.etherscan.io/token/0x14aba1fa8a31a8649e8098ad067b739cc5708f30)
 - [FastBridgeReceiver](https://rinkeby.etherscan.io/address/0x300CbF0829762FeDc90287D08aeDf261EE6ED8eB)
 - [ForeignGateway](https://rinkeby.etherscan.io/address/0x8F1a2B8F9b04320375856580Fc6B1669Cb12a9EE)
 
 ### Arbitrum Rinkeby
 
+- [PNK](https://testnet.arbiscan.io/token/0x364530164a2338cdba211f72c1438eb811b5c639)
 - [ConstantNG](https://testnet.arbiscan.io/address/0x4401A368dea8D5761AEEFfd3c4a674086dea0666)
 - [DisputeKitClassic](https://testnet.arbiscan.io/address/0xD78DCddE2C5a2Bd4BB246Bc7dB6994b95f7c442C)
 - [FastBridgeSender](https://testnet.arbiscan.io/address/0x34E520dc1d2Db660113b64724e14CEdCD01Ee879)

@@ -12,8 +12,12 @@ function generate() { #deploymentDir #explorerUrl
     done
 }
 
-echo Rinkeby
+echo "### Rinkeby"
+echo
+echo "- [PNK](https://rinkeby.etherscan.io/token/0x14aba1fa8a31a8649e8098ad067b739cc5708f30)"
 generate "$SCRIPT_DIR/../deployments/rinkeby" "https://rinkeby.etherscan.io/address/"
 echo
-echo Arbitrum Rinkeby
+echo "### Arbitrum Rinkeby"
+echo
+echo "- [PNK](https://testnet.arbiscan.io/token/0x364530164a2338cdba211f72c1438eb811b5c639)"
 generate "$SCRIPT_DIR/../deployments/arbitrumRinkeby" "https://testnet.arbiscan.io/address/"
