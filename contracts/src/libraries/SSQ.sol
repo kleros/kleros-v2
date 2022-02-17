@@ -17,18 +17,17 @@ library SimpleSquanch {
             result := 0x0
             let moreFlag := 0x0
             let i := 0x0
-            let input := _input
             for { } true { } {
-                switch lt(input, 0x80)
+                switch lt(_input, 0x80)
                 case true{
-                    result := add(result, add( moreFlag , shl(mul(8,i),input)))
+                    result := add(result, add( moreFlag , shl(mul(8,i),_input)))
                     break
                 }
                 default{
                     moreFlag := add(0x80, shl(0x8,moreFlag))
-                    result := add(result,shl(mul(8,i),and(input, 0x7F)))
+                    result := add(result,shl(mul(8,i),and(_input, 0x7F)))
                     i := add(i,0x1)
-                    input := shr(7,input)
+                    _input := shr(7,_input)
                     continue
                 }
                 break
@@ -40,15 +39,14 @@ library SimpleSquanch {
         assembly {
             result := 0x0
             let i := 0x0
-            let input := _input
             for { } true { } {
-                result := add(result,shl(mul(7,i),and(input, 0x7F)))
-                switch eq(and(input, 0x80),0)
+                result := add(result,shl(mul(7,i),and(_input, 0x7F)))
+                switch eq(and(_input, 0x80),0)
                 case true{
                     break
                 }
                 default{
-                    input := shr(8,input)
+                    _input := shr(8,_input)
                     i := add(i,0x1)
                     continue
                 }
