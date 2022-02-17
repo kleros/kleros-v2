@@ -715,6 +715,15 @@ contract KlerosCore is IArbitrator {
         locked = juror.lockedTokens[_subcourtID];
     }
 
+    /** @dev Gets the timesPerPeriod array for a given court.
+     *  @param _subcourtID The ID of the court to get the times from.
+     *  @return timesPerPeriod The timesPerPeriod array for the given court.
+     */
+    function getTimesPerPeriod(uint96 _subcourtID) external view returns (uint256[4] memory timesPerPeriod) {
+        Court storage court = courts[_subcourtID];
+        timesPerPeriod = court.timesPerPeriod;
+    }
+
     // ************************************* //
     // *   Public Views for Dispute Kits   * //
     // ************************************* //
