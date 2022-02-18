@@ -14,14 +14,14 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const safeBridge = await deploy("SafeBridgeArbitrum", {
     from: deployer,
     log: true,
-  });
+  }); // nonce
 
   const fastBridgeReceiver = await hre.companionNetworks.foreign.deployments.get("FastBridgeReceiver");
   const fastBridgeSender = await deploy("FastBridgeSender", {
     from: deployer,
     args: [safeBridge.address, fastBridgeReceiver.address],
     log: true,
-  });
+  }); // nonce+1
 
   const klerosCore = await deployments.get("KlerosCore");
   const foreignGateway = await hre.companionNetworks.foreign.deployments.get("ForeignGateway");
@@ -30,7 +30,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     from: deployer,
     args: [klerosCore.address, fastBridgeSender.address, foreignGateway.address, foreignChainId],
     log: true,
-  });
+  }); // nonce+2
 
   await execute("FastBridgeSender", { from: deployer, log: true }, "setFastSender", homeGateway.address);
 };
