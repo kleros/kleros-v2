@@ -74,7 +74,7 @@ async function deployContracts(deployer) {
   await disputeKit.changeCore(core.address);
 
   const ArbitrableFactory = await ethers.getContractFactory("ArbitrableExample", deployer);
-  const arbitrable = await ArbitrableFactory.deploy(core.address);
+  const arbitrable = await ArbitrableFactory.deploy(core.address, "uri://metaevidence.json");
   await arbitrable.deployed();
 
   return [core, disputeKit, arbitrable];
