@@ -18,10 +18,10 @@ pragma solidity ^0.8;
 // TODO: standard interfaces should be placed in a separated repo (?)
 import "../arbitration/IArbitrable.sol";
 import "../arbitration/IArbitrator.sol";
-import "./IEvidence.sol";
+import "./IMetaEvidence.sol";
 import "../libraries/CappedMath.sol";
 
-contract ModeratedEvidenceModule is IArbitrable, IEvidence {
+contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
     using CappedMath for uint256;
 
     uint256 public constant AMOUNT_OF_CHOICES = 2;
