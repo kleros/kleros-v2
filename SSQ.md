@@ -1,6 +1,6 @@
 # SimpleSquanch (SSQ)
 
-The squanchy alternative to SSQ inspired by the [Varint serializer of Protocol Buffer](https://developers.google.com/protocol-buffers/docs/encoding#varints) and @metachris's [minimalistic approach](https://github.com/metachris/binary-serializer#base-128-varints).
+The squanchy alternative to SSQ inspired by the [Varint serializer of Protocol Buffer](https://developers.google.com/protocol-buffers/docs/encoding#varints) and @metachris's [minimalistic approach](https://github.com/metachris/binary-serializer#base-128-varints). It is also an alternative to [Solidity's encodePacked()](https://docs.soliditylang.org/en/latest/abi-spec.html?highlight=encode#non-standard-packed-mode) which requires fixed-length fields and at most 1 variable-length field to decode without ambiguity.
 
 ## What is it?
 
@@ -31,6 +31,10 @@ In SSQ, the MSB flag has a different meaning:
   - In SSQ, the MSB flag means "there are more bytes after this one", assuming that they are processed from least to most significant (right to left).
   - In Protobuf and Metachris serializer, it is assumed that they are processed from the most to least significant (left to right) instead.
   - The rationale for SSQ is that it appeared to make an humble decoding implementation more straightforward.
+
+#### Differences with Solidity abi.encodePacked()
+- The only way to decode packed bytes is by knowing the fixed length of each field which is fine at one point in time, but over time the required length for a field may change. Dynamic fields lead to ambiguities.
+- SSQ is not affected by the above limitation, it supports dynamic fields of arbitrary length.
 
 #### Differences with ProtoBuf
 - SSQ lacks 98% of most of ProtoBuf's features: no (proto) schema, no nesting, no optional or repeating field, no string...
