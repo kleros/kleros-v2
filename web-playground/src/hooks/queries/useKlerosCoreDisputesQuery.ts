@@ -5,6 +5,11 @@ import { BigNumber } from "ethers";
 import { Result } from "@ethersproject/abi";
 import { useConnectedContract } from "hooks/useConnectedContract";
 
+export interface IKlerosCoreDisputeCreated {
+  disputeID: BigNumber;
+  arbitrable: string;
+}
+
 export const useKlerosCoreCreatedDisputesQuery = () => {
   const connectedContract = useConnectedContract(
     "KlerosCore",
@@ -13,13 +18,17 @@ export const useKlerosCoreCreatedDisputesQuery = () => {
   const queryClient = useQueryClient();
   const filter = connectedContract?.filters.DisputeCreation();
   const { isLoading, data } = useQuery(["KlerosCoreDisputes"], async () => {
-    const disputes: Result[] = [];
+    const disputes: IKlerosCoreDisputeCreated[] = [];
     if (connectedContract && filter) {
       await connectedContract
         .queryFilter(filter)
         .then(async (response: Result) => {
           for (const disputeEvent of response) {
-            disputes.push(disputeEvent.args);
+            const dispute = disputeEvent.args;
+            disputes.push({
+              disputeID: dispute[0],
+              arbitrable: dispute[1],
+            });
           }
         });
     }
@@ -28,9 +37,18 @@ export const useKlerosCoreCreatedDisputesQuery = () => {
   useEffect(() => {
     if (connectedContract && filter) {
       connectedContract.on(filter, async (...dispute: Result) => {
-        queryClient.setQueryData("outgoingDisputes", (oldData: string[]) => {
-          return [dispute, ...oldData];
-        });
+        queryClient.setQueryData(
+          "KlerosCoreDisputes",
+          (oldData: IKlerosCoreDisputeCreated[]) => {
+            return [
+              {
+                disputeID: dispute[0],
+                arbitrable: dispute[1],
+              },
+              ...oldData,
+            ];
+          }
+        );
       });
       return () => {
         connectedContract.removeAllListeners();
@@ -42,9 +60,8 @@ export const useKlerosCoreCreatedDisputesQuery = () => {
   return { isLoading, data, connectedContract };
 };
 
-export interface IDisputeInfo {
+export interface IKlerosCoreDisputeInfo extends IKlerosCoreDisputeCreated {
   arbitrated: string;
-  disputeID: BigNumber;
   disputeKit: string;
   drawnJurors: string[];
   lastPeriodChange: BigNumber;
@@ -75,18 +92,25 @@ export const useKlerosCoreDisputesInfoQuery = () => {
   const { isLoading, data } = useQuery(
     ["KlerosCoreDisputesInfo"],
     async () => {
-      const disputes: IDisputeInfo[] = [];
+      const disputes: IKlerosCoreDisputeInfo[] = [];
       if (rawData && klerosCoreContract)
-        for (const [disputeID] of rawData) {
-          const disputeInfo = await klerosCoreContract.disputes(disputeID);
-          const roundInfo = await klerosCoreContract.getRoundInfo(disputeID, 0);
+        for (const dispute of rawData) {
+          const disputeInfo = await klerosCoreContract.disputes(
+            dispute.disputeID
+          );
+          const roundInfo = await klerosCoreContract.getRoundInfo(
+            dispute.disputeID,
+            0
+          );
           disputes.push({
-            disputeID,
-            ruling: await klerosCoreContract.currentRuling(disputeID),
-            nbRounds: await klerosCoreContract.getNumberOfRounds(disputeID),
+            ruling: await klerosCoreContract.currentRuling(dispute.disputeID),
+            nbRounds: await klerosCoreContract.getNumberOfRounds(
+              dispute.disputeID
+            ),
             subcourtInfo: await klerosCoreContract.courts(
               disputeInfo.subcourtID
             ),
+            ...dispute,
             ...roundInfo,
             ...disputeInfo,
           });

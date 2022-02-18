@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { useForeignGatewayOutgoingDisputeDataQuery } from "queries/useForeignGatewayDisputeQuery";
-import OutgoingDisputeCreationsTable from "./outgoing-dispute-creations";
+import { useHomeGatewayDisputesRelayedQuery } from "queries/useHomeGatewayDisputesQuery";
+import DisputesTable from "./disputes";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -13,13 +13,13 @@ const Wrapper = styled.div`
   align-items: flex-start;
 `;
 
-const StyledTable = styled(OutgoingDisputeCreationsTable)`
+const StyledTable = styled(DisputesTable)`
   height: 90%;
   width: 100%;
 `;
 
-const L1Gateway = () => {
-  const { data } = useForeignGatewayOutgoingDisputeDataQuery();
+const L2Gateway = () => {
+  const { data } = useHomeGatewayDisputesRelayedQuery();
   return (
     <Wrapper>
       <StyledTable {...{ data }} />
@@ -27,4 +27,4 @@ const L1Gateway = () => {
   );
 };
 
-export default L1Gateway;
+export default L2Gateway;

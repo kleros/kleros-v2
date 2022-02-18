@@ -17,8 +17,8 @@ const StyledDropdown = styled(DropdownSelect)`
 `;
 
 interface IDisputeID {
-  items: { text: string; value: number }[];
-  callback: (value: number) => void;
+  items: { text: string; value: any }[];
+  callback: (value: any) => void;
 }
 
 const DisputeID: React.FC<IDisputeID> = ({ items, callback }) => {

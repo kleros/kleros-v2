@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { utils } from "ethers";
 import { Skeleton } from "components/skeleton-provider";
 import Table from "../../table";
-import { IDisputeInfo } from "queries/useKlerosCoreDisputesQuery";
+import { IKlerosCoreDisputeInfo } from "queries/useKlerosCoreDisputesQuery";
 
 const columnNames = [
   "Core Dispute ID",
@@ -19,22 +19,27 @@ const columnNames = [
 ];
 
 const DISPUTE_KITS = {
-  "0xD78DCddE2C5a2Bd4BB246Bc7dB6994b95f7c442C": "Plurality",
+  "0xed12799915180a257985631fbD2ead261eD838cf": "Plurality",
 };
 
 const SUBCOURTS = {
   "0": "General",
 };
 
-const PERIODS = {
+export const PERIODS = {
   0: "Evidence",
+  evidence: 0,
   1: "Commit",
+  commit: 1,
   2: "Vote",
+  vote: 2,
   3: "Appeal",
+  appeal: 3,
   4: "Execution",
+  execution: 4,
 };
 
-const formatData = (dispute: IDisputeInfo): React.ReactNode[] => {
+const formatData = (dispute: IKlerosCoreDisputeInfo): React.ReactNode[] => {
   return [
     dispute.disputeID.toString(),
     SUBCOURTS[dispute.subcourtID.toString()],
@@ -54,9 +59,11 @@ const StyledTable = styled(Table)`
   width: 100%;
 `;
 
-const DisputesTable: React.FC<{ data?: IDisputeInfo[] }> = ({ data }) => {
+const DisputesTable: React.FC<{ data?: IKlerosCoreDisputeInfo[] }> = ({
+  data,
+}) => {
   const rows = data
-    ? data.map((dispute: IDisputeInfo) => formatData(dispute))
+    ? data.map((dispute: IKlerosCoreDisputeInfo) => formatData(dispute))
     : [Array(columnNames.length).fill(<Skeleton />)];
   return (
     <StyledTable
