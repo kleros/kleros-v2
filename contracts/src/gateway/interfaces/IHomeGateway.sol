@@ -3,9 +3,9 @@
 pragma solidity ^0.8.0;
 
 import "../../arbitration/IArbitrable.sol";
-import "../../evidence/IEvidence.sol";
+import "../../evidence/IMetaEvidence.sol";
 
-interface IHomeGateway is IArbitrable, IEvidence {
+interface IHomeGateway is IArbitrable, IMetaEvidence {
     function chainID() external view returns (uint256);
 
     function relayCreateDispute(
