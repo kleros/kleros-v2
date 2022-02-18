@@ -2,9 +2,15 @@ import { useEffect } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { ArbitrumRinkeby } from "@usedapp/core";
 import { Result } from "@ethersproject/abi";
-import { utils, Contract } from "ethers";
+import { BigNumber } from "ethers";
 import { useConnectedContract } from "hooks/useConnectedContract";
-import { shortenString } from "src/utils/shortenString";
+
+export interface IHomeGatewayDispute {
+  arbitrator: string;
+  disputeID: BigNumber;
+  metaEvidenceID: BigNumber;
+  evidenceGroupID: BigNumber;
+}
 
 export const useHomeGatewayDisputesQuery = () => {
   const connectedContract = useConnectedContract(
@@ -14,15 +20,21 @@ export const useHomeGatewayDisputesQuery = () => {
   const queryClient = useQueryClient();
   const filter = connectedContract?.filters.Dispute();
   const { isError, isLoading, data } = useQuery(
-    ["homeGatewayDisputes"],
+    ["HomeGatewayDisputes"],
     async () => {
-      const disputes: string[][] = [];
+      const disputes: IHomeGatewayDispute[] = [];
       if (connectedContract && filter) {
         await connectedContract
           .queryFilter(filter)
           .then(async (response: Result) => {
             for (const event of response) {
-              disputes.push(event.args);
+              const dispute = event.args;
+              disputes.push({
+                arbitrator: dispute[0],
+                disputeID: dispute[1],
+                metaEvidenceID: dispute[2],
+                evidenceGroupID: dispute[3],
+              });
             }
           });
       }
@@ -31,10 +43,21 @@ export const useHomeGatewayDisputesQuery = () => {
   );
   useEffect(() => {
     if (connectedContract && filter) {
-      connectedContract.on(filter, async (...event: Result) => {
-        queryClient.setQueryData("outgoingMessages", (oldData: string[]) => {
-          return [event, ...oldData];
-        });
+      connectedContract.on(filter, async (...dispute: Result) => {
+        queryClient.setQueryData(
+          "HomeGatewayDisputes",
+          (oldData: IHomeGatewayDispute[]) => {
+            return [
+              {
+                arbitrator: dispute[0],
+                disputeID: dispute[1],
+                metaEvidenceID: dispute[2],
+                evidenceGroupID: dispute[3],
+              },
+              ...oldData,
+            ];
+          }
+        );
       });
       return () => {
         connectedContract.removeAllListeners();
@@ -46,34 +69,33 @@ export const useHomeGatewayDisputesQuery = () => {
   return { data, isLoading, isError, connectedContract };
 };
 
-const disputeToRow = async (dispute: Result, connectedContract: Contract) => {
-  const disputeHash = await connectedContract.disputeIDtoHash(
-    dispute[1].toString()
-  );
-  const relayedData = await connectedContract.disputeHashtoRelayedData(
-    disputeHash
-  );
-  const row = [
-    dispute[1].toString(),
-    shortenString(disputeHash.toString()),
-    shortenString(relayedData.relayer.toString()),
-    utils.formatEther(relayedData.arbitrationCost.toString()) + " ETH",
-  ];
-  return row;
-};
+export interface IHomeGatewayRelayedDispute extends IHomeGatewayDispute {
+  disputeHash: string;
+  arbitrationCost: BigNumber;
+  relayer: string;
+}
 
-export const useFormatedHomeGatewayDisputesQuery = () => {
+export const useHomeGatewayDisputesRelayedQuery = () => {
   const { data: rawData, connectedContract } = useHomeGatewayDisputesQuery();
   const { isLoading, data } = useQuery(
-    ["formatedHomeGatewayDisputes"],
+    ["HomeGatewayDisputesRelayed"],
     async () => {
-      const rows = [];
+      const data: IHomeGatewayRelayedDispute[] = [];
       if (rawData && connectedContract)
-        for (const disputeEvent of rawData) {
-          const row = await disputeToRow(disputeEvent, connectedContract);
-          rows.push(row);
+        for (const dispute of rawData) {
+          const disputeHash = await connectedContract.disputeIDtoHash(
+            dispute.disputeID
+          );
+          const relayedData = await connectedContract.disputeHashtoRelayedData(
+            disputeHash
+          );
+          data.push({
+            disputeHash,
+            ...dispute,
+            ...relayedData,
+          });
         }
-      return rows;
+      return data;
     },
     {
       enabled: Boolean(rawData),

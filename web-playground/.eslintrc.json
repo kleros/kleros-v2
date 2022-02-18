@@ -56,12 +56,6 @@
   },
   "root": true,
   "rules": {
-    "max-len": [
-      "warn",
-      {
-        "code": 80
-      }
-    ],
     "react/prop-types": 0,
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": [

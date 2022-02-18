@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
+import { useEthers, ArbitrumRinkeby } from "@usedapp/core";
 import { Button } from "@kleros/ui-components-library";
-import DisputeID from "../dispute-id";
-import Question from "../question";
-import Answers from "../answers";
+import DisputeID from "components/dispute-id";
+import Question from "components/question";
+import Answers from "components/answers";
+import {
+  useKlerosCoreDrawsQuery,
+  IKlerosCoreDraw,
+} from "queries/useKlerosCoreDrawsQuery";
+import { useContractFunction } from "hooks/useContractFunction";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -43,13 +49,44 @@ const options = [
 ];
 
 const Juror: React.FC = () => {
+  const { account } = useEthers();
+  const [draw, setDraw] = useState<IKlerosCoreDraw>();
+  const [answer, setAnswer] = useState<number>();
+  const { sendWithSwitch, state } = useContractFunction(
+    "KlerosCore",
+    "castVote",
+    {
+      chainId: ArbitrumRinkeby.chainId,
+    }
+  );
+  const { data } = useKlerosCoreDrawsQuery();
+  const filteredDisputeIDs = data
+    ?.filter((draw) => draw.address === account?.toString())
+    .map((draw) => ({
+      text: draw.disputeID.toString(),
+      value: draw,
+    }));
   return (
     <Wrapper>
       <StyledContent>
-        <DisputeID items={[]} />
+        <DisputeID
+          items={filteredDisputeIDs ?? []}
+          callback={(draw: IKlerosCoreDraw) => setDraw(draw)}
+        />
         <Question question={"Who is right?"} />
-        <Answers {...{ options }} callback={() => {}} />
-        <StyledButton text="Cast Vote" />
+        <Answers
+          {...{ options }}
+          callback={(value: number) => {
+            setAnswer(value);
+          }}
+        />
+        <StyledButton
+          text="Cast Vote"
+          disabled={![""].includes(state.status)}
+          onClick={() =>
+            sendWithSwitch(draw?.disputeID, draw?.voteID, answer, answer)
+          }
+        />
       </StyledContent>
     </Wrapper>
   );
