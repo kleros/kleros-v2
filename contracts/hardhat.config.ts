@@ -52,6 +52,20 @@ const config: HardhatUserConfig = {
       saveDeployments: false,
       tags: ["test", "local"],
     },
+    arbitrumRinkebyFork: {
+      url: "https://rinkeby.arbitrum.io/rpc",
+      chainId: 421611,
+      forking: {
+        url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      },
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      live: false,
+      saveDeployments: true,
+      tags: ["test", "local"],
+      companionNetworks: {
+        foreign: "rinkeby",
+      },
+    },
 
     // Home chain ---------------------------------------------------------------------------------
     arbitrumRinkeby: {

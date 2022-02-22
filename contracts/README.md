@@ -87,7 +87,6 @@ If some of the constructor parameters (such as the Meta Evidence) needs to chang
 #### 2. Deploy to a Local Network
 
 The complete deployment is multi-chain, so a deployment to the local network can only simulate either the Home chain or the Foreign chain.
-Currently the scripts support only deploying the HomeChain contracts to the local network.
 
 **Shell 1: the node**
 
@@ -101,7 +100,7 @@ yarn hardhat node --tags nothing
 yarn hardhat deploy --network localhost --tags HomeChain
 ```
 
-#### 2. Deploy to Public Testnets
+#### 3. Deploy to Public Testnets
 
 ```bash
 # To deploy on L2 only
@@ -117,7 +116,21 @@ yarn deploy:staging
 The deployed addresses should be output to the screen after the deployment is complete.
 If you miss that, you can always go to the `deployments/<network>` directory and look for the respective file.
 
-#### 3. Verify the Source Code for Contracts
+#### Running Test Fixtures
+
+**Shell 1: the node**
+
+```bash
+yarn hardhat node --tags Arbitration
+```
+
+**Shell 2: the test script**
+
+```bash
+yarn hardhat test --network localhost test/pre-alpha1/index.ts
+```
+
+#### 4. Verify the Source Code for Contracts
 
 This must be done for each network separately.
 

@@ -26,7 +26,9 @@ describe("DisputeKitClassic", function () {
       .to.emit(core, "DisputeCreation")
       .withArgs(0, deployer.address);
 
-    await expect(BigNumber.from(Object.values(await disputeKit.disputes(0))[0])).to.equal(2);
+    await disputeKit.disputes(0).then((disputes) => {
+      expect(BigNumber.from(Object.values(disputes)[0])).to.equal(2);
+    });
 
     console.log(`choice 0: ${await disputeKit.getRoundInfo(0, 0, 0)}`);
     console.log(`choice 1: ${await disputeKit.getRoundInfo(0, 0, 1)}`);
