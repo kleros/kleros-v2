@@ -41,17 +41,20 @@ export const useKlerosCoreDrawsQuery = () => {
   useEffect(() => {
     if (connectedContract && filter) {
       connectedContract.on(filter, async (...draw: Result) => {
-        queryClient.setQueryData("KlerosCoreDraws", (oldData: string[]) => {
-          return [
-            {
-              address: draw[0],
-              disputeID: draw[1],
-              appeal: draw[2],
-              voteID: draw[3],
-            },
-            ...oldData,
-          ];
-        });
+        queryClient.setQueryData(
+          "KlerosCoreDraws",
+          (oldData: IKlerosCoreDraw[]): IKlerosCoreDraw[] => {
+            return [
+              {
+                address: draw[0],
+                disputeID: draw[1],
+                appeal: draw[2],
+                voteID: draw[3],
+              },
+              ...oldData,
+            ];
+          }
+        );
       });
       return () => {
         connectedContract.removeAllListeners();

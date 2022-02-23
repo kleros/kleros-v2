@@ -38,12 +38,7 @@ const RulingsOnL2: React.FC = (props) => {
   const rows = data
     ? data.map((claim: IFastBridgeClaim) => formatData(claim))
     : [Array(columnNames.length).fill(<Skeleton />)];
-  return (
-    <Table
-      {...{ rows, columnNames, ...props }}
-      title="Outgoing Dispute Creations"
-    />
-  );
+  return <Table {...{ rows, columnNames, ...props }} title="Rulings on L2" />;
 };
 
 export default RulingsOnL2;

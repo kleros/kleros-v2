@@ -7,6 +7,7 @@ import { shortenString } from "src/utils/shortenString";
 import {
   useFastBridgeClaimsQuery,
   IFastBridgeClaim,
+  useFastBridgeChallengeDurationQuery,
 } from "queries/useFastBridgeQuery";
 import ActionButton from "./action-button";
 
@@ -26,7 +27,14 @@ const StyledTooltip = styled(Tooltip)`
   }
 `;
 
-const formatData = (claim: IFastBridgeClaim): React.ReactNode[] => [
+const RelayButton: React.FC = () => {
+  return (<></>);
+};
+
+const formatData = (
+  claim: IFastBridgeClaim,
+  challengeDuration: number
+): React.ReactNode[] => [
   <StyledTooltip
     small
     place="right"
@@ -35,20 +43,26 @@ const formatData = (claim: IFastBridgeClaim): React.ReactNode[] => [
   >
     {shortenString(claim.messageHash.toString())}
   </StyledTooltip>,
+  claim.claimedAt.toString(),
+  Math.max(
+    0,
+    challengeDuration -
+      (Math.floor(Date.now() / 1000) - claim.claimedAt.toNumber())
+  ),
   <ActionButton key={1} {...{ claim }} />,
 ];
 
-const RulingsOnL2: React.FC = (props) => {
+const RulingsOnL1: React.FC = (props) => {
   const { data } = useFastBridgeClaimsQuery();
+  const { data: challengeDuration } = useFastBridgeChallengeDurationQuery();
   const rows = data
-    ? data.map((claim: IFastBridgeClaim) => formatData(claim))
+    ? data.map((claim: IFastBridgeClaim) =>
+        formatData(claim, challengeDuration)
+      )
     : [Array(columnNames.length).fill(<Skeleton />)];
   return (
-    <Table
-      {...{ rows, columnNames, ...props }}
-      title="Outgoing Dispute Creations"
-    />
+    <Table {...{ rows, columnNames, ...props }} title="Rulings claimed on L1" />
   );
 };
 
-export default RulingsOnL2;
+export default RulingsOnL1;

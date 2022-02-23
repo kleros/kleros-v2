@@ -1,8 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { Button } from "@kleros/ui-components-library";
 import RulingsOnL2 from "./l2-rulings";
-import Table from "components/table";
+import RulingsOnL1 from "./l1-rulings";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -14,36 +13,21 @@ const Wrapper = styled.div`
   align-items: center;
 `;
 
-const StyledTable = styled(Table)`
-  height: 45%;
-  width: 100%;
-`;
-
 const StyledRulingsOnL2 = styled(RulingsOnL2)`
   height: 45%;
   width: 100%;
 `;
 
-const table2ColumnsNames = [
-  "Message Hash",
-  "Claim Block Time",
-  "Remaining Challenge Time",
-  "Action",
-];
-
-const table2Rows = [
-  ["2501c4...ac5", "# 285", "5 blocks", <Button key={0} small text="Relay" />],
-];
+const StyledRulingsOnL1 = styled(RulingsOnL1)`
+  height: 45%;
+  width: 100%;
+`;
 
 const FastBridge = () => {
   return (
     <Wrapper>
       <StyledRulingsOnL2 />
-      <StyledTable
-        rows={table2Rows}
-        columnNames={table2ColumnsNames}
-        title="Ruling: Claim event"
-      />
+      <StyledRulingsOnL1 />
     </Wrapper>
   );
 };
