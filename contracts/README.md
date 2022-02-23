@@ -121,7 +121,7 @@ If you miss that, you can always go to the `deployments/<network>` directory and
 **Shell 1: the node**
 
 ```bash
-yarn hardhat node --tags Arbitration
+yarn hardhat node --tags Arbitration,ForeignGateway,HomeGateway
 ```
 
 **Shell 2: the test script**

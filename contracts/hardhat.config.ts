@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
+import "@tenderly/hardhat-tenderly";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "hardhat-deploy";
@@ -38,7 +39,7 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ["test", "local"],
       companionNetworks: {
-        foreign: "rinkeby",
+        foreign: "localhost",
       },
     },
     mainnetFork: {
@@ -136,6 +137,9 @@ const config: HardhatUserConfig = {
     deployer: {
       default: 0,
     },
+    relayer: {
+      default: 1,
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
@@ -164,6 +168,10 @@ const config: HardhatUserConfig = {
     path: './docs',
     clear: true,
     runOnCompile: false,
+  },
+  tenderly: {
+    project: "kleros-v2-local",
+    username: process.env.TENDERLY_USERNAME !== undefined ? process.env.TENDERLY_USERNAME : "",
   },
 };
 

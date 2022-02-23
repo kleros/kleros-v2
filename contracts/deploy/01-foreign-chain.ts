@@ -24,7 +24,7 @@ const paramsByChainId = {
   31337: {
     claimDeposit: parseEther("0.1"),
     challengeDuration: 3600, // 1 hour
-    homeChainId: 421611,
+    homeChainId: 31337,
   },
 };
 
@@ -44,14 +44,23 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     4: config.networks.arbitrumRinkeby,
     31337: config.networks.localhost,
   };
-  const homeChainProvider = new providers.JsonRpcProvider(homeNetworks[chainId].url);
-  const nonce = await homeChainProvider.getTransactionCount(deployer);
+
+  // Hack to predict the deployment address on the home chain.
+  // TODO: use deterministic deployments
+  let nonce;
+  if (chainId === ForeignChains.HARDHAT) {
+    nonce = await ethers.provider.getTransactionCount(deployer);
+    nonce += 5; // HomeGateway deploy tx will be the 6th after this, same network for both home/foreign.
+  } else {
+    const homeChainProvider = new providers.JsonRpcProvider(homeNetworks[chainId].url);
+    nonce = await homeChainProvider.getTransactionCount(deployer);
+    nonce += 2; // HomeGateway deploy tx will the third tx after this on its home network, so we add two to the current nonce.
+  }
   const { claimDeposit, challengeDuration, homeChainId } = paramsByChainId[chainId];
   const homeChainIdAsBytes32 = hexZeroPad(homeChainId, 32);
 
-  // HomeGateway deploy tx will the third tx after this on it's network, so we add two to the current nonce.
-  const homeGatewayAddress = getContractAddress(deployer, nonce + 2);
-  console.log("calculated future HomeGateway address for nonce %d: %s", nonce + 2, homeGatewayAddress);
+  const homeGatewayAddress = getContractAddress(deployer, nonce);
+  console.log("calculated future HomeGateway address for nonce %d: %s", nonce, homeGatewayAddress);
 
   const fastBridgeReceiver = await deploy("FastBridgeReceiver", {
     from: deployer,
