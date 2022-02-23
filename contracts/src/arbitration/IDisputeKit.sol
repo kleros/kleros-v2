@@ -114,7 +114,7 @@ interface IDisputeKit {
             bool voted
         );
 
-    function readyForStaking() external view returns (bool);
+    function getDisputesWithoutJurors() external view returns (uint256);
 
     function onCoreFreezingPhase() external;
 }

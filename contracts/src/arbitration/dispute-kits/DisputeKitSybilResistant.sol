@@ -196,8 +196,8 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
             require(RN != 0, "Random number is not ready yet.");
             phase = Phase.drawing;
         } else if (phase == Phase.drawing) {
-            require(core.dKCanBeResolved(), "Max freezing time has not passed yet.");
-            phase = Phase.resolving;
+            // The phase will be switched to 'resolving' by KlerosCore.
+            revert("Already in the last phase");
         }
         emit NewPhaseDisputeKit(phase);
     }
@@ -246,9 +246,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
             round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
             if (round.votes.length == dispute.nbVotes) {
                 disputesWithoutJurors--;
-                // TODO: Refactor KlerosCore and DK to switch the phase in more centralized way.
-                // Note that as of now DisputeKit that has all disputes drawn is deleted from activeDisputeKits in KC, so its phase can't be switched there.
-                if (disputesWithoutJurors == 0) phase = Phase.resolving;
             }
         } else {
             drawnAddress = address(0);
@@ -578,10 +575,11 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
 
     function onCoreFreezingPhase() external onlyByCore {
         phase = Phase.resolving;
+        emit NewPhaseDisputeKit(phase);
     }
 
-    function readyForStaking() external view returns (bool) {
-        return phase == Phase.resolving;
+    function getDisputesWithoutJurors() external view returns (uint256) {
+        return disputesWithoutJurors;
     }
 
     // ************************************* //
@@ -590,8 +588,9 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
 
     function postDrawCheck(uint256 _disputeID, address _juror) internal view override returns (bool) {
         uint256 subcourtID = core.getSubcourtID(_disputeID);
+        (uint256 lockedAmountPerJuror, , , , ) = core.getRoundInfo(_disputeID, core.getNumberOfRounds(_disputeID) - 1);
         (uint256 stakedTokens, uint256 lockedTokens) = core.getJurorBalance(_juror, uint96(subcourtID));
-        if (stakedTokens < lockedTokens) {
+        if (stakedTokens < lockedTokens + lockedAmountPerJuror) {
             return false;
         } else {
             return proofOfHumanity(_juror);
