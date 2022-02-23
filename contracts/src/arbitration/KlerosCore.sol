@@ -124,7 +124,7 @@ contract KlerosCore is IArbitrator {
     mapping(IDisputeKit => ActiveDisputeKit) public activeKitInfo; // Contains the information about dispute kit which is necessary for switching phases.
 
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
-    uint256 public delayedStakeReadIndex = 1; // The index of the next `delayedStakes` item that should be processed. Starts at 1 because 0 index is skipped.
+    uint256 public delayedStakeReadIndex = 1; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
 
     // ************************************* //
     // *              Events               * //
@@ -482,39 +482,37 @@ contract KlerosCore is IArbitrator {
             lastPhaseChange = block.timestamp;
             emit NewPhase(phase);
         } else if (phase == Phase.freezing) {
-            if (nbDKReadyForPhaseSwitch < activeDisputeKits.length) {
-                // Wait for dispute kits to prepare for switch on their own, but prepare them manually if the timeout passed.
-                require(block.timestamp - lastPhaseChange >= maxFreezingTime, "Timeout has not passed yet");
-                uint256 startIndex = nbDKReadyForPhaseSwitch;
-                bool chkPrevIndex;
-                for (
-                    uint256 i = startIndex;
-                    i < activeDisputeKits.length && (_iterations == 0 || i < startIndex + _iterations);
-                    i++
-                ) {
-                    if (chkPrevIndex) {
-                        // Check the element that replaced the deleted one in the previous iteration.
-                        i--;
-                        chkPrevIndex = false;
-                    }
+            // Prepare dispute kits for switching.
+            require(block.timestamp - lastPhaseChange >= maxFreezingTime, "Timeout has not passed yet");
+            uint256 startIndex = nbDKReadyForPhaseSwitch;
+            bool chkPrevIndex;
+            for (
+                uint256 i = startIndex;
+                i < activeDisputeKits.length && (_iterations == 0 || i < startIndex + _iterations);
+                i++
+            ) {
+                if (chkPrevIndex) {
+                    // Check the element that replaced the deleted one in the previous iteration.
+                    i--;
+                    chkPrevIndex = false;
+                }
 
-                    IDisputeKit disputeKit = activeDisputeKits[i];
-                    disputeKit.onCoreFreezingPhase();
+                IDisputeKit disputeKit = activeDisputeKits[i];
+                disputeKit.onCoreFreezingPhase();
 
-                    // Remove dispute kit from activeDisputeKits if it finished drawing.
-                    if (disputeKit.getDisputesWithoutJurors() == 0) {
-                        ActiveDisputeKit storage activeDK = activeKitInfo[disputeKit];
-                        // Replace the deleted address with the last one and also replace its index.
-                        activeDisputeKits[activeDK.index] = activeDisputeKits[activeDisputeKits.length - 1];
-                        activeKitInfo[activeDisputeKits[activeDK.index]].index = activeDK.index;
-                        activeDisputeKits.pop();
-                        // We don't increment the DK counter here since we delete the element anyway.
-                        delete activeKitInfo[disputeKit];
+                // Remove dispute kit from activeDisputeKits if it finished drawing.
+                if (disputeKit.getDisputesWithoutJurors() == 0) {
+                    ActiveDisputeKit storage activeDK = activeKitInfo[disputeKit];
+                    // Replace the deleted address with the last one and also replace its index.
+                    activeDisputeKits[activeDK.index] = activeDisputeKits[activeDisputeKits.length - 1];
+                    activeKitInfo[activeDisputeKits[activeDK.index]].index = activeDK.index;
+                    activeDisputeKits.pop();
+                    // We don't increment the DK counter here since we delete the element anyway.
+                    delete activeKitInfo[disputeKit];
 
-                        chkPrevIndex = true;
-                    } else {
-                        nbDKReadyForPhaseSwitch++;
-                    }
+                    chkPrevIndex = true;
+                } else {
+                    nbDKReadyForPhaseSwitch++;
                 }
             }
 
