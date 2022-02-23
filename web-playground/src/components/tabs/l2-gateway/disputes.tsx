@@ -40,12 +40,7 @@ const OutgoingDisputeCreationsTable: React.FC<{
   const rows = data
     ? data.map((dispute: IHomeGatewayRelayedDispute) => formatData(dispute))
     : [Array(columnNames.length).fill(<Skeleton />)];
-  return (
-    <Table
-      {...{ rows, columnNames, ...props }}
-      title="Outgoing Dispute Creations"
-    />
-  );
+  return <Table {...{ rows, columnNames, ...props }} title="Disputes" />;
 };
 
 export default OutgoingDisputeCreationsTable;

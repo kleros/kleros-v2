@@ -2,8 +2,13 @@ import React from "react";
 import styled from "styled-components";
 import Table from "../../table";
 import DisputesTable from "./disputes-table";
+import JurorsTable from "./jurors-table";
 import DisputeID from "./dispute-id";
 import { useKlerosCoreDisputesInfoQuery } from "queries/useKlerosCoreDisputesQuery";
+import {
+  useKlerosCoreUniqueJurorsQuery,
+  useKlerosCoreTokenAndETHShiftQuery,
+} from "queries/useKlerosCoreJurorsQuery";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -31,15 +36,13 @@ const table2Rows = [["3", "789...890", "1", "RELAYED"]];
 
 const KlerosCore: React.FC = () => {
   const { data } = useKlerosCoreDisputesInfoQuery();
+  const jurors = useKlerosCoreUniqueJurorsQuery();
+  const { data: shifts } = useKlerosCoreTokenAndETHShiftQuery();
   return (
     <Wrapper>
       <DisputeID {...{ data }} />
       <DisputesTable {...{ data }} />
-      <StyledTable
-        rows={table2Rows}
-        columnNames={table2ColumnsNames}
-        title="Jurors"
-      />
+      <JurorsTable {...{ jurors, shifts }} />
     </Wrapper>
   );
 };

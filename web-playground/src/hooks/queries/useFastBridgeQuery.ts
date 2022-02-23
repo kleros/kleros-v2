@@ -113,3 +113,18 @@ export const useFastBridgeClaimsQuery = () => {
   }, [fastBridgeReceiver, refetch]);
   return { isLoading, data };
 };
+
+export const useFastBridgeChallengeDurationQuery = () => {
+  const fastBridgeReceiver = useConnectedContract(
+    "FastBridgeReceiver",
+    Rinkeby.chainId
+  );
+  const { isLoading, data } = useQuery(
+    ["FastBridgeChallengeDuration"],
+    async () => {
+      if (fastBridgeReceiver)
+        return await fastBridgeReceiver.challengeDuration();
+    }
+  );
+  return { isLoading, data };
+};

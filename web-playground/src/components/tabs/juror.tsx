@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useEthers, ArbitrumRinkeby } from "@usedapp/core";
+import { BigNumber } from "ethers";
 import { Button } from "@kleros/ui-components-library";
 import DisputeID from "components/dispute-id";
 import Question from "components/question";
 import Answers from "components/answers";
-import {
-  useKlerosCoreDrawsQuery,
-  IKlerosCoreDraw,
-} from "queries/useKlerosCoreDrawsQuery";
+import { useKlerosCoreDrawsQuery } from "queries/useKlerosCoreDrawsQuery";
 import { useContractFunction } from "hooks/useContractFunction";
 
 const Wrapper = styled.div`
@@ -48,9 +46,14 @@ const options = [
   },
 ];
 
+interface IJurorDispute {
+  text: string;
+  value: { disputeID: BigNumber; voteIDs: BigNumber[] };
+}
+
 const Juror: React.FC = () => {
   const { account } = useEthers();
-  const [draw, setDraw] = useState<IKlerosCoreDraw>();
+  const [draw, setDraw] = useState<IJurorDispute["value"]>();
   const [answer, setAnswer] = useState<number>();
   const { sendWithSwitch, state } = useContractFunction(
     "KlerosCore",
@@ -60,18 +63,27 @@ const Juror: React.FC = () => {
     }
   );
   const { data } = useKlerosCoreDrawsQuery();
-  const filteredDisputeIDs = data
-    ?.filter((draw) => draw.address === account?.toString())
-    .map((draw) => ({
-      text: draw.disputeID.toString(),
-      value: draw,
-    }));
+  const filteredDraws =
+    data?.filter((draw) => draw.address === account?.toString()) || [];
+  const jurorDisputes: IJurorDispute[] = [];
+  for (const draw of filteredDraws) {
+    const disputeIndex = jurorDisputes.findIndex(
+      (dispute: IJurorDispute) => dispute.text === draw.disputeID.toString()
+    );
+    if (disputeIndex > -1)
+      jurorDisputes[disputeIndex].value.voteIDs.push(draw.voteID);
+    else
+      jurorDisputes.push({
+        text: draw.disputeID.toString(),
+        value: { disputeID: draw.disputeID, voteIDs: [draw.voteID] },
+      });
+  }
   return (
     <Wrapper>
       <StyledContent>
         <DisputeID
-          items={filteredDisputeIDs ?? []}
-          callback={(draw: IKlerosCoreDraw) => setDraw(draw)}
+          items={jurorDisputes ?? []}
+          callback={(draw: IJurorDispute["value"]) => setDraw(draw)}
         />
         <Question question={"Who is right?"} />
         <Answers
@@ -84,7 +96,7 @@ const Juror: React.FC = () => {
           text="Cast Vote"
           disabled={![""].includes(state.status)}
           onClick={() =>
-            sendWithSwitch(draw?.disputeID, draw?.voteID, answer, answer)
+            sendWithSwitch(draw?.disputeID, draw?.voteIDs, answer, "")
           }
         />
       </StyledContent>

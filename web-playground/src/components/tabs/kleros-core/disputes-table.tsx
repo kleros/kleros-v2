@@ -47,7 +47,7 @@ const formatData = (dispute: IKlerosCoreDisputeInfo): React.ReactNode[] => {
     PERIODS[dispute.period],
     dispute.ruling.toString(),
     dispute.nbRounds.toNumber() - 1,
-    dispute.tokensAtStakePerJuror.toString() + " PNK",
+    utils.formatEther(dispute.tokensAtStakePerJuror) + " PNK",
     utils.formatEther(dispute.totalFeesForJurors) + " ETH",
     dispute.nbVotes.toString(),
     dispute.drawnJurors.length,

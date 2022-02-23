@@ -36,6 +36,7 @@ const RelayButton: React.FC<{ dispute: IForeignGatewayDisputeData }> = ({
         !["None", "Exception", "Success", "Fail"].includes(state.status)
       }
       onClick={() =>
+        call &&
         call(dispute.extraData).then((value: Result) => {
           const arbitrationCost = value.toString();
           sendWithSwitch(
