@@ -1,5 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
+import { BigNumber } from "ethers";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -50,13 +51,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     );
   }
   const pnk = pnkByChain.get(Number(await getChainId())) ?? AddressZero;
-
+  const minStake = BigNumber.from(10).pow(20).mul(2);
+  const alpha = 10000;
+  const feeForJuror = BigNumber.from(10).pow(17);
   const klerosCore = await deploy("KlerosCore", {
     from: deployer,
     libraries: {
       SortitionSumTreeFactory: sortitionSumTreeLibrary.address,
     },
-    args: [deployer, pnk, AddressZero, disputeKit.address, false, 200, 10000, 100, 3, [0, 0, 0, 0], 3],
+    args: [deployer, pnk, AddressZero, disputeKit.address, false, minStake, alpha, feeForJuror, 3, [0, 0, 0, 0], 3],
     log: true,
   });
 

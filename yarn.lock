@@ -1637,6 +1637,7 @@ __metadata:
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@0.3.0-beta.13"
     "@nomiclabs/hardhat-waffle": ^2.0.2
     "@openzeppelin/contracts": ^4.4.2
+    "@tenderly/hardhat-tenderly": ^1.0.13
     "@typechain/ethers-v5": ^9.0.0
     "@typechain/hardhat": ^4.0.0
     "@types/chai": ^4.3.0
@@ -2764,6 +2765,19 @@ __metadata:
   dependencies:
     defer-to-connect: ^1.0.1
   checksum: 4d9158061c5f397c57b4988cde33a163244e4f02df16364f103971957a32886beb104d6180902cbe8b38cb940e234d9f98a4e486200deca621923f62f50a06fe
+  languageName: node
+  linkType: hard
+
+"@tenderly/hardhat-tenderly@npm:^1.0.13":
+  version: 1.0.13
+  resolution: "@tenderly/hardhat-tenderly@npm:1.0.13"
+  dependencies:
+    axios: ^0.21.1
+    fs-extra: ^9.0.1
+    js-yaml: ^3.14.0
+  peerDependencies:
+    hardhat: ^2.0.3
+  checksum: c9afb61ef996dc7ac02dbd701d525530f0598a524835d21f69b8a591cdd62493071353d6b56d267c7b7fcfb9646c78542a33bb06e4ae0cc74737dcc6fe091e45
   languageName: node
   linkType: hard
 
@@ -9513,7 +9527,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fs-extra@npm:^9.1.0":
+"fs-extra@npm:^9.0.1, fs-extra@npm:^9.1.0":
   version: 9.1.0
   resolution: "fs-extra@npm:9.1.0"
   dependencies:
