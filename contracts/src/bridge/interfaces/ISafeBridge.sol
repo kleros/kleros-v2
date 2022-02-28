@@ -11,4 +11,6 @@ interface ISafeBridge {
      * @return Unique id to track the message request/transaction.
      */
     function sendSafe(address _receiver, bytes memory _calldata) external payable returns (uint256);
+
+    function bridgingCost() external view returns(uint256 amount);
 }

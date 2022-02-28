@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@shalzz]
+ *  @authors: [@shalzz, @hrishibhat]
  *  @reviewers: []
  *  @auditors: []
  *  @bounties: []
@@ -72,7 +72,9 @@ contract FastBridgeSender is IFastBridgeSender {
         // IFastBridgeReceiver function.
         // TODO: add access checks for this on the FastBridgeReceiver.
         // TODO: how much ETH should be provided for bridging? add an ISafeBridge.bridgingCost()
+
         bytes memory encodedData = abi.encode(_receiver, _calldata);
-        safebridge.sendSafe{value: msg.value}(address(fastBridgeReceiver), encodedData);
+        bytes memory encodedTxData = abi.encodeWithSelector(fastBridgeReceiver.relayRule.selector, encodedData);
+        safebridge.sendSafe{value: msg.value}(address(fastBridgeReceiver), encodedTxData);
     }
 }

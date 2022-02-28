@@ -7,6 +7,8 @@ interface IFastBridgeReceiver {
 
     function verifyAndRelay(bytes32 _messageHash, bytes memory _calldata) external;
 
+    function relayRule(bytes memory _calldata) external;
+
     function withdrawClaimDeposit(bytes32 _messageHash) external;
 
     function claimDeposit() external view returns (uint256 amount);
