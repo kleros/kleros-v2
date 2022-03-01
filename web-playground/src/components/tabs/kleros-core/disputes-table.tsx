@@ -65,12 +65,7 @@ const DisputesTable: React.FC<{ data?: IKlerosCoreDisputeInfo[] }> = ({
   const rows = data
     ? data.map((dispute: IKlerosCoreDisputeInfo) => formatData(dispute))
     : [Array(columnNames.length).fill(<Skeleton />)];
-  return (
-    <StyledTable
-      {...{ rows, columnNames }}
-      title="Outgoing Dispute Creations"
-    />
-  );
+  return <StyledTable {...{ rows, columnNames }} title="Disputes" />;
 };
 
 export default DisputesTable;

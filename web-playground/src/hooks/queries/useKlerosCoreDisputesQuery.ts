@@ -123,3 +123,33 @@ export const useKlerosCoreDisputesInfoQuery = () => {
   );
   return { isLoading, data, rawData };
 };
+
+type DisputeMapping = {
+  [key: string]: IKlerosCoreDisputeInfo;
+};
+
+export const useKlerosCoreDisputesMappingQuery = ():
+  | DisputeMapping
+  | undefined => {
+  const { data } = useKlerosCoreDisputesInfoQuery();
+  const disputes = {};
+  if (data)
+    for (const dispute of data)
+      disputes[dispute.disputeID.toString()] = dispute;
+  return data ? disputes : undefined;
+};
+
+export const useKlerosCoreTimesPerPeriodQuery = (subcourtID?: BigNumber) => {
+  const klerosCore = useConnectedContract(
+    "KlerosCore",
+    ArbitrumRinkeby.chainId
+  );
+  const { isLoading, data } = useQuery(
+    [`KlerosCoreTimesPerPeriodQuery${subcourtID?.toString()}`],
+    async () => {
+      if (klerosCore && subcourtID)
+        return await klerosCore.getTimesPerPeriod(subcourtID);
+    }
+  );
+  return { isLoading, data };
+};

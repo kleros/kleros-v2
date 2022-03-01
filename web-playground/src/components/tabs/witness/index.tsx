@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import { Button } from "@kleros/ui-components-library";
-import DisputeID from "../../dispute-id";
-import Answers from "../../answers";
+import DisputeSelector from "./dispute";
 import Evidence from "./evidence";
+import EvidencesTable from "./evidences-table";
+import SubmitEvidenceButton from "./submit-evidence";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -23,33 +23,20 @@ const StyledContent = styled.div`
   gap: 32px;
 `;
 
-const StyledButton = styled(Button)`
+const StyledButton = styled(SubmitEvidenceButton)`
   align-self: center;
 `;
 
-const options = [
-  {
-    label: "Alice",
-    value: 0,
-  },
-  {
-    label: "Bob",
-    value: 1,
-  },
-  {
-    label: "Charlie",
-    value: 2,
-  },
-];
-
 const Witness: React.FC = () => {
+  const [selectedDispute, setSelectedDispute] = useState<string>();
+  const [evidence, setEvidence] = useState<string>("");
   return (
     <Wrapper>
       <StyledContent>
-        <DisputeID items={[]} callback={() => {}} />
-        <Evidence />
-        <Answers title="Supporting:" callback={() => {}} {...{ options }} />
-        <StyledButton text="Submit Evidence" />
+        <DisputeSelector {...{ setSelectedDispute }} />
+        <Evidence {...{ setEvidence }} />
+        <EvidencesTable disputeID={selectedDispute} />
+        <StyledButton disputeID={selectedDispute} text={evidence} />
       </StyledContent>
     </Wrapper>
   );

@@ -8,6 +8,12 @@
       "src*": [
         "./src*"
       ],
+      "utils*": [
+        "./src/utils*"
+      ],
+      "svgs*": [
+        "./src/assets/svgs*"
+      ],
       "hooks*": [
         "./src/hooks*"
       ],

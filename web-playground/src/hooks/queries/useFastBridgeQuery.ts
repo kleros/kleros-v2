@@ -18,7 +18,7 @@ export const useFastBridgeOutgoingMessagesQuery = () => {
   );
   const queryClient = useQueryClient();
   const filter = connectedContract?.filters.OutgoingMessage();
-  const { isError, isLoading, data } = useQuery(
+  const { isError, isLoading, data, refetch } = useQuery(
     ["FastBridgeOutgoingMessages"],
     async () => {
       const outgoingMessages: IFastBridgeOutgoingMessage[] = [];
@@ -63,7 +63,7 @@ export const useFastBridgeOutgoingMessagesQuery = () => {
     return;
   }, [connectedContract, filter, queryClient]);
 
-  return { isError, isLoading, data, connectedContract };
+  return { isError, isLoading, data, connectedContract, refetch };
 };
 
 export interface IFastBridgeClaim extends IFastBridgeOutgoingMessage {
@@ -78,10 +78,12 @@ export const useFastBridgeClaimsQuery = () => {
     "FastBridgeReceiver",
     Rinkeby.chainId
   );
-  const { data: messages } = useFastBridgeOutgoingMessagesQuery();
+  const { data: messages, refetch: refetchMessages } =
+    useFastBridgeOutgoingMessagesQuery();
   const { isLoading, data, refetch } = useQuery(
     ["FastBridgeClaims"],
     async () => {
+      await refetchMessages();
       const claims: IFastBridgeClaim[] = [];
       if (messages && fastBridgeReceiver) {
         for (const message of messages) {

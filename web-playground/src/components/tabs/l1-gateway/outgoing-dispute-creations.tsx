@@ -52,12 +52,7 @@ const OutgoingDisputeCreationsTable: React.FC<{
   const rows = data
     ? data.map((dispute: IForeignGatewayDisputeData) => formatData(dispute))
     : [Array(columnNames.length).fill(<Skeleton />)];
-  return (
-    <Table
-      {...{ rows, columnNames, ...props }}
-      title="Outgoing Dispute Creations"
-    />
-  );
+  return <Table title="Disputes" {...{ rows, columnNames, ...props }} />;
 };
 
 export default OutgoingDisputeCreationsTable;

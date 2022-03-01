@@ -9,13 +9,16 @@ import Jurors from "./jurors";
 import Subcourt from "./subcourt";
 import { useContractFunction } from "hooks/useContractFunction";
 import { useContractCall } from "hooks/useContractCall";
+import ETHLogo from "svgs/ethereum-eth-logo.svg";
+import DisputesTable from "./disputes";
+import { useArbitrableExampleRuledDisputeQuery } from "queries/useArbitrableExampleQuery";
 
 const Wrapper = styled.div`
   width: 100%;
   height: 100%;
   padding: 64px;
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
 `;
 
 const StyledContent = styled.div`
@@ -33,9 +36,10 @@ const StyledButton = styled(Button)`
 `;
 
 const createExtraData = (jurors: number, subcourt: number) => {
+  const padding = utils.hexZeroPad(utils.hexValue(0), 32);
   const hexJurors = utils.hexZeroPad(utils.hexValue(jurors), 32);
   const hexSubcourt = utils.hexZeroPad(utils.hexValue(subcourt), 32);
-  return utils.hexConcat([hexJurors, hexSubcourt]);
+  return utils.hexConcat([padding, hexJurors, hexSubcourt]);
 };
 
 const L1Arbitrable = () => {
@@ -43,7 +47,7 @@ const L1Arbitrable = () => {
   const [jurors, setJurors] = useState(2);
   const [subcourt, setSubcourt] = useState(0);
   const { sendWithSwitch, state } = useContractFunction(
-    "ForeignGateway",
+    "ArbitrableExample",
     "createDispute",
     {
       chainId: Rinkeby.chainId,
@@ -52,6 +56,7 @@ const L1Arbitrable = () => {
   );
   const { call } =
     useContractCall("ForeignGateway", "arbitrationCost", Rinkeby.chainId) || {};
+  const { data, isLoading } = useArbitrableExampleRuledDisputeQuery();
   return (
     <Wrapper>
       <StyledContent>
@@ -67,19 +72,23 @@ const L1Arbitrable = () => {
         />
         <StyledButton
           text={"Create Dispute"}
+          icon={(className: string) => <ETHLogo {...{ className }} />}
           disabled={
-            !["None", "Exception", "Success", "Fail"].includes(state.status)
+            isLoading || !["None", "Exception", "Fail"].includes(state.status)
           }
           onClick={async () => {
             const extradata = createExtraData(jurors, subcourt);
-            call(extradata).then(async (value: any[]) => {
-              const arbitrationCost = value.toString();
-              sendWithSwitch(options.length, extradata, {
-                value: arbitrationCost,
+            call &&
+              data &&
+              call(extradata).then(async (value: any[]) => {
+                const arbitrationCost = value.toString();
+                sendWithSwitch(options.length, extradata, data.length, {
+                  value: arbitrationCost,
+                });
               });
-            });
           }}
         />
+        <DisputesTable {...{ data }} />
       </StyledContent>
     </Wrapper>
   );

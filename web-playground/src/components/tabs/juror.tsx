@@ -7,7 +7,10 @@ import DisputeID from "components/dispute-id";
 import Question from "components/question";
 import Answers from "components/answers";
 import { useKlerosCoreDrawsQuery } from "queries/useKlerosCoreDrawsQuery";
+import { useKlerosCoreDisputesMappingQuery } from "queries/useKlerosCoreDisputesQuery";
 import { useContractFunction } from "hooks/useContractFunction";
+import ArbitrumLogo from "svgs/arbitrum_opacity.svg";
+import { PERIODS } from "./kleros-core/disputes-table";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -34,56 +37,60 @@ const StyledButton = styled(Button)`
 const options = [
   {
     label: "Alice",
-    value: 0,
-  },
-  {
-    label: "Bob",
     value: 1,
   },
   {
-    label: "Charlie",
+    label: "Bob",
     value: 2,
+  },
+  {
+    label: "Charlie",
+    value: 3,
   },
 ];
 
-interface IJurorDispute {
-  text: string;
-  value: { disputeID: BigNumber; voteIDs: BigNumber[] };
-}
+type JurorDisputes = {
+  [disputeID: string]: { voteIDs: BigNumber[] };
+};
 
 const Juror: React.FC = () => {
   const { account } = useEthers();
-  const [draw, setDraw] = useState<IJurorDispute["value"]>();
+  const [dispute, setDispute] = useState<string>();
   const [answer, setAnswer] = useState<number>();
   const { sendWithSwitch, state } = useContractFunction(
-    "KlerosCore",
+    "DisputeKitClassic",
     "castVote",
     {
       chainId: ArbitrumRinkeby.chainId,
     }
   );
   const { data } = useKlerosCoreDrawsQuery();
+  const disputes = useKlerosCoreDisputesMappingQuery();
   const filteredDraws =
-    data?.filter((draw) => draw.address === account?.toString()) || [];
-  const jurorDisputes: IJurorDispute[] = [];
+    (disputes &&
+      data?.filter(
+        (draw) =>
+          disputes[draw.disputeID.toString()].period === PERIODS.vote &&
+          draw.address === account?.toString()
+      )) ||
+    [];
+  const jurorDisputes: JurorDisputes = {};
   for (const draw of filteredDraws) {
-    const disputeIndex = jurorDisputes.findIndex(
-      (dispute: IJurorDispute) => dispute.text === draw.disputeID.toString()
-    );
-    if (disputeIndex > -1)
-      jurorDisputes[disputeIndex].value.voteIDs.push(draw.voteID);
-    else
-      jurorDisputes.push({
-        text: draw.disputeID.toString(),
-        value: { disputeID: draw.disputeID, voteIDs: [draw.voteID] },
-      });
+    const disputeID = draw.disputeID.toString();
+    const dispute = jurorDisputes[disputeID];
+    if (!dispute) jurorDisputes[disputeID] = { voteIDs: [] };
+    jurorDisputes[disputeID].voteIDs.push(draw.voteID);
   }
+  const dropdownOptions = Object.keys(jurorDisputes).map((dispute) => ({
+    text: dispute,
+    value: dispute,
+  }));
   return (
     <Wrapper>
       <StyledContent>
         <DisputeID
-          items={jurorDisputes ?? []}
-          callback={(draw: IJurorDispute["value"]) => setDraw(draw)}
+          items={dropdownOptions ?? []}
+          callback={(disputeID: string) => setDispute(disputeID)}
         />
         <Question question={"Who is right?"} />
         <Answers
@@ -94,10 +101,19 @@ const Juror: React.FC = () => {
         />
         <StyledButton
           text="Cast Vote"
-          disabled={![""].includes(state.status)}
-          onClick={() =>
-            sendWithSwitch(draw?.disputeID, draw?.voteIDs, answer, "")
+          icon={(className: string) => <ArbitrumLogo {...{ className }} />}
+          disabled={
+            !dispute || !["None", "Exception", "Fail"].includes(state.status)
           }
+          onClick={() => {
+            if (dispute)
+              sendWithSwitch(
+                dispute,
+                jurorDisputes[dispute].voteIDs,
+                answer,
+                "0"
+              );
+          }}
         />
       </StyledContent>
     </Wrapper>

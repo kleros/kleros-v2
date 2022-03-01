@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import Table from "../../table";
 import DisputesTable from "./disputes-table";
 import JurorsTable from "./jurors-table";
 import DisputeID from "./dispute-id";
@@ -19,20 +18,6 @@ const Wrapper = styled.div`
   justify-content: space-between;
   align-items: flex-start;
 `;
-
-const StyledTable = styled(Table)`
-  height: 40%;
-  width: 100%;
-`;
-
-const table2ColumnsNames = [
-  "Address",
-  "Staked PNK",
-  "Locked PNK",
-  "Last performance",
-];
-
-const table2Rows = [["3", "789...890", "1", "RELAYED"]];
 
 const KlerosCore: React.FC = () => {
   const { data } = useKlerosCoreDisputesInfoQuery();

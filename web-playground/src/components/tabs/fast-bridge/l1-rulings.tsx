@@ -1,19 +1,21 @@
 import React from "react";
 import styled from "styled-components";
-import { Tooltip } from "@kleros/ui-components-library";
+import { Rinkeby } from "@usedapp/core";
+import { Tooltip, Button } from "@kleros/ui-components-library";
 import Table from "components/table";
 import { Skeleton } from "components/skeleton-provider";
 import { shortenString } from "src/utils/shortenString";
+import { useContractFunction } from "hooks/useContractFunction";
 import {
   useFastBridgeClaimsQuery,
   IFastBridgeClaim,
-  useFastBridgeChallengeDurationQuery,
 } from "queries/useFastBridgeQuery";
-import ActionButton from "./action-button";
+import { useTimeLeft } from "hooks/useTimeLeft";
+import ETHLogo from "svgs/ethereum-eth-logo.svg";
 
 const columnNames = [
   "Message Hash",
-  "Claim block time",
+  "Claim timestamp",
   "Remaining Challenge Time",
   "Action",
 ];
@@ -27,14 +29,37 @@ const StyledTooltip = styled(Tooltip)`
   }
 `;
 
-const RelayButton: React.FC = () => {
-  return (<></>);
+const RelayButton: React.FC<{
+  claim: IFastBridgeClaim;
+}> = ({ claim }) => {
+  const timeLeft = useTimeLeft(claim);
+  const { sendWithSwitch, state } = useContractFunction(
+    "FastBridgeReceiver",
+    "verifyAndRelay",
+    { chainId: Rinkeby.chainId }
+  );
+  return (
+    <Button
+      small
+      text="Relay"
+      icon={(className: string) => <ETHLogo {...{ className }} />}
+      disabled={
+        (timeLeft !== undefined ? timeLeft > 0 : true) ||
+        claim.relayed ||
+        claim.claimedAt.toNumber() == 0 ||
+        !["None", "Exception", "Fail"].includes(state.status)
+      }
+      onClick={() => sendWithSwitch(claim.messageHash, claim.message)}
+    />
+  );
 };
 
-const formatData = (
-  claim: IFastBridgeClaim,
-  challengeDuration: number
-): React.ReactNode[] => [
+const TimeLeft: React.FC<{ claim: IFastBridgeClaim }> = ({ claim }) => {
+  const timeLeft = useTimeLeft(claim);
+  return timeLeft !== undefined ? <p>{timeLeft}</p> : <Skeleton />;
+};
+
+const formatData = (claim: IFastBridgeClaim): React.ReactNode[] => [
   <StyledTooltip
     small
     place="right"
@@ -44,21 +69,14 @@ const formatData = (
     {shortenString(claim.messageHash.toString())}
   </StyledTooltip>,
   claim.claimedAt.toString(),
-  Math.max(
-    0,
-    challengeDuration -
-      (Math.floor(Date.now() / 1000) - claim.claimedAt.toNumber())
-  ),
-  <ActionButton key={1} {...{ claim }} />,
+  <TimeLeft key={0} {...{ claim }} />,
+  <RelayButton key={1} {...{ claim }} />,
 ];
 
 const RulingsOnL1: React.FC = (props) => {
   const { data } = useFastBridgeClaimsQuery();
-  const { data: challengeDuration } = useFastBridgeChallengeDurationQuery();
   const rows = data
-    ? data.map((claim: IFastBridgeClaim) =>
-        formatData(claim, challengeDuration)
-      )
+    ? data.map((claim: IFastBridgeClaim) => formatData(claim))
     : [Array(columnNames.length).fill(<Skeleton />)];
   return (
     <Table {...{ rows, columnNames, ...props }} title="Rulings claimed on L1" />

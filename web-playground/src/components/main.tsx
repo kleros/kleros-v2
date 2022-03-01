@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { Tabs, Card } from "@kleros/ui-components-library";
 import { tabItems, pages } from "./tabs";
+import Notifications from "components/notifications";
 
 const Wrapper = styled.div`
   width: 70vw;
@@ -24,6 +25,7 @@ const Main = () => {
   const Page = pages[current];
   return (
     <Wrapper>
+      <Notifications />
       <StyledTabs
         items={tabItems}
         callback={(value: number) => {
