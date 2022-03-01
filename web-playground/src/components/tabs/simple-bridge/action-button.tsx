@@ -5,22 +5,26 @@ import { Button } from "@kleros/ui-components-library";
 import { useContractFunction } from "hooks/useContractFunction";
 import { useContractCall } from "hooks/useContractCall";
 import { IForeignGatewayDisputeData } from "queries/useForeignGatewayDisputeQuery";
+import ArbitrumLogo from "svgs/arbitrum_opacity.svg";
+import ETHLogo from "svgs/ethereum-eth-logo.svg";
 
 const ActionButton: React.FC<{
   dispute: IForeignGatewayDisputeData;
-  relayedHashes: string[];
-}> = ({ dispute, relayedHashes }) => {
+  relayedHashes?: string[];
+  isLoading: boolean;
+}> = ({ dispute, relayedHashes, isLoading }) => {
   const isRelayed = relayedHashes?.includes(dispute.disputeHash);
   return isRelayed ? (
-    <ReimburseButton {...{ dispute }} />
+    <ReimburseButton {...{ dispute, isLoading }} />
   ) : (
-    <RelayButton {...{ dispute }} />
+    <RelayButton {...{ dispute, isLoading }} />
   );
 };
 
-const RelayButton: React.FC<{ dispute: IForeignGatewayDisputeData }> = ({
-  dispute,
-}) => {
+const RelayButton: React.FC<{
+  dispute: IForeignGatewayDisputeData;
+  isLoading: boolean;
+}> = ({ dispute, isLoading }) => {
   const { call } =
     useContractCall("ForeignGateway", "arbitrationCost", Rinkeby.chainId) || {};
   const { sendWithSwitch, state } = useContractFunction(
@@ -32,8 +36,9 @@ const RelayButton: React.FC<{ dispute: IForeignGatewayDisputeData }> = ({
     <Button
       small
       text="Relay"
+      icon={(className: string) => <ArbitrumLogo {...{ className }} />}
       disabled={
-        !["None", "Exception", "Success", "Fail"].includes(state.status)
+        isLoading || !["None", "Exception", "Fail"].includes(state.status)
       }
       onClick={() =>
         call &&
@@ -56,9 +61,10 @@ const RelayButton: React.FC<{ dispute: IForeignGatewayDisputeData }> = ({
   );
 };
 
-const ReimburseButton: React.FC<{ dispute: IForeignGatewayDisputeData }> = ({
-  dispute,
-}) => {
+const ReimburseButton: React.FC<{
+  dispute: IForeignGatewayDisputeData;
+  isLoading: boolean;
+}> = ({ dispute, isLoading }) => {
   const canReimburse = dispute.ruled && !dispute.paid.isZero();
   const { sendWithSwitch, state } = useContractFunction(
     "ForeignGateway",
@@ -69,9 +75,11 @@ const ReimburseButton: React.FC<{ dispute: IForeignGatewayDisputeData }> = ({
     <Button
       small
       text="Reimburse"
+      icon={(className: string) => <ETHLogo {...{ className }} />}
       disabled={
+        isLoading ||
         !canReimburse ||
-        !["None", "Exception", "Success", "Fail"].includes(state.status)
+        !["None", "Exception", "Fail"].includes(state.status)
       }
       onClick={() => {
         sendWithSwitch(dispute.disputeHash);

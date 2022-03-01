@@ -1,25 +1,22 @@
 import React from "react";
 import { Button } from "@kleros/ui-components-library";
-import { useCall, ArbitrumRinkeby } from "@usedapp/core";
-import { getContract } from "src/utils/getContract";
-import { IKlerosCoreDisputeInfo } from "queries/useKlerosCoreDisputesQuery";
+import { ArbitrumRinkeby } from "@usedapp/core";
+import {
+  IKlerosCoreDisputeInfo,
+  useKlerosCoreTimesPerPeriodQuery,
+} from "queries/useKlerosCoreDisputesQuery";
 import { useContractFunction } from "hooks/useContractFunction";
 import { PERIODS } from "./disputes-table";
+import ArbitrumLogo from "svgs/arbitrum_opacity.svg";
 
 const PassPeriodButton: React.FC<{ dispute?: IKlerosCoreDisputeInfo }> = ({
   dispute,
 }) => {
-  const klerosCore = getContract("KlerosCore");
-  const timesPerPeriod = useCall(
-    klerosCore &&
-      dispute && {
-        contract: klerosCore,
-        method: "getTimesPerPeriod",
-        args: [dispute.subcourtID],
-      }
-  )?.value;
+  const { data: timesPerPeriod } = useKlerosCoreTimesPerPeriodQuery(
+    dispute?.subcourtID
+  );
   let disabled = true;
-  if (dispute && timesPerPeriod) {
+  if (dispute && timesPerPeriod && dispute.period !== PERIODS.execution) {
     const timeSinceLastPeriodChange =
       Math.floor(Date.now() / 1000) - dispute.lastPeriodChange.toNumber();
     const currentPeriodDuration = timesPerPeriod[dispute.period];
@@ -42,9 +39,9 @@ const PassPeriodButton: React.FC<{ dispute?: IKlerosCoreDisputeInfo }> = ({
   return (
     <Button
       text="Pass period"
+      icon={(className: string) => <ArbitrumLogo {...{ className }} />}
       disabled={
-        !["None", "Exception", "Success", "Fail"].includes(state.status) ||
-        disabled
+        !["None", "Exception", "Fail"].includes(state.status) || disabled
       }
       onClick={() => dispute && sendWithSwitch(dispute.disputeID)}
     />

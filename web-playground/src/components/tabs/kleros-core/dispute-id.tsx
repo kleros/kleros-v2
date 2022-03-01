@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import DisputeField from "../../dispute-id";
+import DisputeField from "components/dispute-id";
 import { IKlerosCoreDisputeInfo } from "queries/useKlerosCoreDisputesQuery";
 import PassPeriodButton from "./pass-period";
 import DrawJurorsButton from "./draw-jurors";
@@ -20,20 +20,22 @@ const StyledButtonContainer = styled.div`
   gap: 32px;
 `;
 
-const DisputeID: React.FC<{ data: IKlerosCoreDisputeInfo[] }> = ({ data }) => {
+const DisputeID: React.FC<{ data?: IKlerosCoreDisputeInfo[] }> = ({ data }) => {
   const [selectedDispute, setSelectedDispute] =
     useState<IKlerosCoreDisputeInfo>();
   const items = data
-    ? data.map((disputeInfo, i) => ({
-        text: disputeInfo.disputeID.toString(),
-        value: i,
-      }))
+    ? data
+        .filter((disputeInfo) => !disputeInfo.ruled)
+        .map((disputeInfo, i) => ({
+          text: disputeInfo.disputeID.toString(),
+          value: i,
+        }))
     : [];
   return (
     <Wrapper>
       <DisputeField
         {...{ items }}
-        callback={(value) => setSelectedDispute(data[value])}
+        callback={(value) => data && setSelectedDispute(data[value])}
       />
       <StyledButtonContainer>
         <PassPeriodButton dispute={selectedDispute} />

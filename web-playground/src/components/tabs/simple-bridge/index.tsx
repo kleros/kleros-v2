@@ -20,12 +20,16 @@ const StyledTable = styled(DisputeCreationTable)`
 `;
 
 const SimpleBridge = () => {
-  const { data } = useForeignGatewayOutgoingDisputeDataQuery();
-  const { data: relayedDisputes } = useHomeGatewayDisputesRelayedQuery();
+  const { data, isLoading } = useForeignGatewayOutgoingDisputeDataQuery();
+  const { data: relayedDisputes, isLoading: hashesLoading } =
+    useHomeGatewayDisputesRelayedQuery();
   const relayedHashes = relayedDisputes?.map(({ disputeHash }) => disputeHash);
   return (
     <Wrapper>
-      <StyledTable {...{ data, relayedHashes }} />
+      <StyledTable
+        isLoading={isLoading || hashesLoading}
+        {...{ data, relayedHashes }}
+      />
     </Wrapper>
   );
 };

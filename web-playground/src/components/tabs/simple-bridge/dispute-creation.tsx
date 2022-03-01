@@ -29,6 +29,7 @@ const StyledTooltip = styled(Tooltip)`
 
 const formatData = (
   dispute: IForeignGatewayDisputeData,
+  isLoading: boolean,
   relayedHashes?: string[]
 ): React.ReactNode[] => [
   dispute.localDisputeID.toString(),
@@ -43,16 +44,17 @@ const formatData = (
     {shortenString(dispute.arbitrable)}
   </StyledTooltip>,
   utils.formatEther(dispute.paid) + " ETH",
-  <ActionButton key={6} {...{ dispute, relayedHashes }} />,
+  <ActionButton key={6} {...{ dispute, relayedHashes, isLoading }} />,
 ];
 
 const DisputeCreationTable: React.FC<{
+  isLoading: boolean;
   data?: IForeignGatewayDisputeData[];
   relayedHashes?: string[];
-}> = ({ data, relayedHashes, ...props }) => {
+}> = ({ data, relayedHashes, isLoading, ...props }) => {
   const rows = data
     ? data.map((dispute: IForeignGatewayDisputeData) =>
-        formatData(dispute, relayedHashes)
+        formatData(dispute, isLoading, relayedHashes)
       )
     : [Array(columnNames.length).fill(<Skeleton />)];
   return (

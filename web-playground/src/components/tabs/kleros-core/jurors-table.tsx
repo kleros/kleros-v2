@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { ArbitrumRinkeby } from "@usedapp/core";
-import { utils } from "ethers";
+import { utils, BigNumber } from "ethers";
 import { Result } from "@ethersproject/abi";
 import { Skeleton } from "components/skeleton-provider";
 import Table from "../../table";
@@ -16,7 +16,7 @@ const stakedPNKtemplate = (amount: string) =>
 const lockedPNKtemplate = (amount: string) =>
   `${amount} PNK in General sub-court.`;
 
-const lastPerformancetemplate = (tokenAmount: string, ethAmount: string) => {
+const lastPerformancetemplate = (tokenAmount?: string, ethAmount?: string) => {
   if (tokenAmount && ethAmount) return `${tokenAmount} PNK, ${ethAmount} ETH`;
   else return "No performance yet.";
 };
@@ -28,16 +28,38 @@ const formatData = async (
 ): Promise<React.ReactNode[]> => {
   if (shifts && call) {
     const jurorShifts = shifts.filter((shift) => shift.address === juror);
-    const lastShift = jurorShifts[-1];
+    const lastShift = jurorShifts.reduce(
+      (previousValue, currentValue) => {
+        if (currentValue.disputeID.eq(previousValue.disputeID))
+          return {
+            disputeID: previousValue.disputeID,
+            ethAmount: previousValue.ethAmount.add(currentValue.ethAmount),
+            tokenAmount: previousValue.tokenAmount.add(
+              currentValue.tokenAmount
+            ),
+          };
+        else if (currentValue.disputeID.gt(previousValue.disputeID))
+          return {
+            disputeID: currentValue.disputeID,
+            ethAmount: currentValue.ethAmount,
+            tokenAmount: currentValue.tokenAmount,
+          };
+        else return previousValue;
+      },
+      {
+        disputeID: BigNumber.from(0),
+        ethAmount: BigNumber.from(0),
+        tokenAmount: BigNumber.from(0),
+      }
+    );
     const stakedBalance = await call(juror, 0);
-    console.log(stakedBalance)
     return [
       juror,
       stakedPNKtemplate(utils.formatEther(stakedBalance?.at(0).toString())),
       lockedPNKtemplate(utils.formatEther(stakedBalance?.at(1).toString())),
       lastPerformancetemplate(
-        lastShift?.tokenAmount.toString(),
-        lastShift?.ethAmount.toString()
+        utils.formatEther(lastShift.tokenAmount.toString()),
+        utils.formatEther(lastShift.ethAmount.toString())
       ),
     ];
   }

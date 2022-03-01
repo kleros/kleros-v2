@@ -7,6 +7,8 @@
   "license": "MIT",
   "alias": {
     "src": "./src",
+    "utils": "./src/utils",
+    "svgs": "./src/assets/svgs",
     "hooks": "./src/hooks",
     "queries": "./src/hooks/queries",
     "components": "./src/components"
@@ -50,6 +52,7 @@
     "react-is": "^17.0.2",
     "react-loading-skeleton": "^3.0.3",
     "react-query": "^3.34.15",
+    "react-toastify": "^8.2.0",
     "styled-components": "^5.3.3"
   }
 }

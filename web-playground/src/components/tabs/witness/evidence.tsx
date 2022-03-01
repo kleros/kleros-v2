@@ -15,10 +15,17 @@ const StyledTitle = styled(Title)`
   margin-top: 0;
 `;
 
-const DisputeID = () => (
+const DisputeID: React.FC<{ setEvidence: (text: string) => void }> = ({
+  setEvidence,
+}) => (
   <Wrapper>
     <StyledTitle>Evidence:</StyledTitle>
-    <Textarea placeholder="Evidence explanation..." />
+    <Textarea
+      placeholder="Evidence explanation..."
+      onChange={({ target: { value } }) => {
+        setEvidence(value);
+      }}
+    />
   </Wrapper>
 );
 

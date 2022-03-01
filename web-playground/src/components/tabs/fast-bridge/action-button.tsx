@@ -4,13 +4,13 @@ import { Result } from "@ethersproject/abi";
 import { Button } from "@kleros/ui-components-library";
 import { useContractFunction } from "hooks/useContractFunction";
 import { useContractCall } from "hooks/useContractCall";
-import {
-  IFastBridgeClaim,
-  useFastBridgeChallengeDurationQuery,
-} from "queries/useFastBridgeQuery";
+import { useTimeLeft } from "hooks/useTimeLeft";
+import { IFastBridgeClaim } from "queries/useFastBridgeQuery";
+import ETHLogo from "svgs/ethereum-eth-logo.svg";
 
 const ActionButton: React.FC<{ claim: IFastBridgeClaim }> = ({ claim }) => {
-  const isClaimed = claim.bridger !== "0x0000000000000000000000000000000000000";
+  const isClaimed =
+    claim.bridger !== "0x0000000000000000000000000000000000000000";
   return isClaimed ? (
     <ReimburseButton {...{ claim }} />
   ) : (
@@ -31,9 +31,8 @@ const ClaimButton: React.FC<{ claim: IFastBridgeClaim }> = ({ claim }) => {
     <Button
       small
       text="Claim"
-      disabled={
-        !["None", "Exception", "Success", "Fail"].includes(state.status)
-      }
+      icon={(className: string) => <ETHLogo {...{ className }} />}
+      disabled={!["None", "Exception", "Fail"].includes(state.status)}
       onClick={() =>
         call &&
         call().then((value: Result) => {
@@ -46,11 +45,9 @@ const ClaimButton: React.FC<{ claim: IFastBridgeClaim }> = ({ claim }) => {
 };
 
 const ReimburseButton: React.FC<{ claim: IFastBridgeClaim }> = ({ claim }) => {
-  const { data: challengeDuration } = useFastBridgeChallengeDurationQuery();
+  const timeLeft = useTimeLeft(claim);
   const canReimburse =
-    challengeDuration &&
-    !claim.claimDeposit.isZero() &&
-    claim.claimedAt.toNumber() + challengeDuration.toNumber() < Date.now();
+    !claim.claimDeposit.isZero() && timeLeft !== undefined && timeLeft <= 0;
   const { sendWithSwitch, state } = useContractFunction(
     "FastBridgeReceiver",
     "withdrawClaimDeposit",
@@ -60,9 +57,9 @@ const ReimburseButton: React.FC<{ claim: IFastBridgeClaim }> = ({ claim }) => {
     <Button
       small
       text="Reimburse"
+      icon={(className: string) => <ETHLogo {...{ className }} />}
       disabled={
-        !canReimburse ||
-        !["None", "Exception", "Success", "Fail"].includes(state.status)
+        !canReimburse || !["None", "Exception", "Fail"].includes(state.status)
       }
       onClick={() => {
         sendWithSwitch(claim.messageHash);

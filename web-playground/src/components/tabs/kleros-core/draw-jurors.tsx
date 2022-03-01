@@ -4,6 +4,7 @@ import { Button } from "@kleros/ui-components-library";
 import { IKlerosCoreDisputeInfo } from "queries/useKlerosCoreDisputesQuery";
 import { useContractFunction } from "hooks/useContractFunction";
 import { PERIODS } from "./disputes-table";
+import ArbitrumLogo from "svgs/arbitrum_opacity.svg";
 
 const DrawJurorsButton: React.FC<{ dispute?: IKlerosCoreDisputeInfo }> = ({
   dispute,
@@ -14,8 +15,9 @@ const DrawJurorsButton: React.FC<{ dispute?: IKlerosCoreDisputeInfo }> = ({
   return (
     <Button
       text="Draw Jurors"
+      icon={(className: string) => <ArbitrumLogo {...{ className }} />}
       disabled={
-        !["None", "Exception", "Success", "Fail"].includes(state.status) ||
+        !["None", "Exception", "Fail"].includes(state.status) ||
         dispute?.period !== PERIODS.evidence ||
         dispute?.drawnJurors.length >= dispute?.nbVotes.toNumber()
       }
