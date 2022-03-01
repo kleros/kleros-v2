@@ -20,17 +20,7 @@ library SimpleSquanch {
             let _cursor := add(_result,0x3F)    // skip length and starting from right to left
             for { let i := 0} lt(i, lengthInput) { i:= add(i, 1)}{
 
-                let _encodedInputSlot := encode(calldataload(add(mul(0x20,i),0x44)))
-                if eq(_encodedInputSlot,0){
-                    mstore8(_cursor,0)
-                    switch mod(sub(_cursor,_result),0x20)
-                    case 0{
-                        _cursor := add(_cursor,0x3F)
-                    }
-                    default{
-                        _cursor := sub(_cursor,1)
-                    }
-                }
+                let _encodedInputSlot := encode(add(calldataload(add(mul(0x20,i),0x44)),1))
 
                 for {} gt(_encodedInputSlot, 0) { }{
 
@@ -91,7 +81,7 @@ library SimpleSquanch {
                     decoded := add(decoded,shl(mul(7,decodedIndex),and(encoded, 0x7F)))
                     switch and(encoded,0x80)
                     case 0{
-                        mstore(cursor,decoded)
+                        mstore(cursor,sub(decoded,1))
                         cursor := add(cursor,0x20)
                         decoded := 0
                         decodedIndex := 0
@@ -100,50 +90,9 @@ library SimpleSquanch {
                         decodedIndex := add(decodedIndex, 1)
                     }
                     encoded := shr(8,encoded)
-                }
-            }
-
-            mstore(_result,sub(div(sub(cursor,_result),0x20),0x01)) // store length
-            mstore(0x40, cursor) // Update/return the result array ofsset + length of the data (=i*32)
-            
-        }
-    }
-
-    function unsquanch(bytes32[] calldata _input, uint256 _resultLength) public pure returns (bytes32[] memory _result){
-
-        assembly {
-
-            _result := mload(0x40)
-            let cursor := add(_result,0x20)
-            let cursorEnd := add(cursor,mul(0x20,_resultLength))
-            let calldataCursor := 0x44
-            let encodedLength := calldataload(calldataCursor)
-
-            let encoded := 0
-            let decoded := 0
-
-            let decodedIndex := 0 
-            for { let i := 0} lt(i,encodedLength) {i := add(i,1)} { 
-                calldataCursor := add(calldataCursor,0x20)
-                encoded := calldataload(calldataCursor)
-
-                for { let j := 0 } lt(j,0x20) {j := add(j,1)} {
-                    decoded := add(decoded,shl(mul(7,decodedIndex),and(encoded, 0x7F)))
-                    switch and(encoded,0x80)
-                    case 0{
-                        mstore(cursor,decoded)
-                        cursor := add(cursor,0x20)
-                        decoded := 0
-                        decodedIndex := 0
-                        if eq(cursor,cursorEnd){
-                            j := 0x20
-                            i := encodedLength
-                        }
+                    if eq(encoded,0){   // EOF
+                        j := 0x20
                     }
-                    default{
-                        decodedIndex := add(decodedIndex, 1)
-                    }
-                    encoded := shr(8,encoded)
                 }
             }
 
@@ -167,7 +116,7 @@ library SimpleSquanch {
                 decoded := add(decoded,shl(mul(7,decodedIndex),and(encoded, 0x7F)))
                 switch and(encoded,0x80)
                 case 0{
-                    mstore(cursor,decoded)
+                    mstore(cursor,sub(decoded,1))
                     cursor := add(cursor,0x20)
                     decoded := 0
                     decodedIndex := 0
@@ -176,41 +125,9 @@ library SimpleSquanch {
                     decodedIndex := add(decodedIndex, 1)
                 }
                 encoded := shr(8,encoded)
-            }
-
-            mstore(_result,sub(div(sub(cursor,_result),0x20),0x01)) // store length
-            mstore(0x40, cursor) // Update/return the result array ofsset + length of the data (=i*32)
-            
-        }
-    }
-
-    function unsquanch(bytes32 _input, uint256 _resultLength) public pure returns (bytes32[] memory _result){
-
-        assembly {
-
-            _result := mload(0x40)
-            let cursor := add(_result,0x20)
-            let cursorEnd := add(cursor,mul(0x20,_resultLength))
-            let decoded := 0
-            let decodedIndex := 0 
-            let encoded := calldataload(0x04)
-
-            for { let j := 0 } lt(j,0x20) {j := add(j,1)} {
-                decoded := add(decoded,shl(mul(7,decodedIndex),and(encoded, 0x7F)))
-                switch and(encoded,0x80)
-                case 0{
-                    mstore(cursor,decoded)
-                    cursor := add(cursor,0x20)
-                    decoded := 0
-                    decodedIndex := 0
-                    if eq(cursor,cursorEnd){
-                            j := 0x20
-                        }
+                if eq(encoded,0){   // EOF
+                    j := 0x20
                 }
-                default{
-                    decodedIndex := add(decodedIndex, 1)
-                }
-                encoded := shr(8,encoded)
             }
 
             mstore(_result,sub(div(sub(cursor,_result),0x20),0x01)) // store length
