@@ -20,12 +20,12 @@ const Wrapper = styled.div`
 `;
 
 const KlerosCore: React.FC = () => {
-  const { data } = useKlerosCoreDisputesInfoQuery();
+  const { data, isLoading } = useKlerosCoreDisputesInfoQuery();
   const jurors = useKlerosCoreUniqueJurorsQuery();
   const { data: shifts } = useKlerosCoreTokenAndETHShiftQuery();
   return (
     <Wrapper>
-      <DisputeID {...{ data }} />
+      <DisputeID {...{ data, isLoading }} />
       <DisputesTable {...{ data }} />
       <JurorsTable {...{ jurors, shifts }} />
     </Wrapper>

@@ -11,7 +11,6 @@ const Notifications = () => {
   useEffect(() => {
     const notified = [];
     for (const { type, id } of notifications) {
-      console.log(type, id)
       const msg =
         type === "walletConnected"
           ? "Welcome, wallet connected!"
@@ -21,10 +20,11 @@ const Notifications = () => {
           ? "Oops... Transaction failed."
           : undefined;
       if (msg && !pastNotifications.includes(id)) {
-        toast(msg, {
+        toast.success(msg, {
+          theme: "colored",
           toastId: id,
           position: toast.POSITION.TOP_CENTER,
-          autoClose: 750,
+          autoClose: 1000,
           style: {
             background: theme.primaryBlue,
             color: theme.whiteBackground,

@@ -9,7 +9,6 @@ import Answers from "components/answers";
 import { useKlerosCoreDrawsQuery } from "queries/useKlerosCoreDrawsQuery";
 import { useKlerosCoreDisputesMappingQuery } from "queries/useKlerosCoreDisputesQuery";
 import { useContractFunction } from "hooks/useContractFunction";
-import ArbitrumLogo from "svgs/arbitrum_opacity.svg";
 import { PERIODS } from "./kleros-core/disputes-table";
 
 const Wrapper = styled.div`
@@ -20,6 +19,8 @@ const Wrapper = styled.div`
   justify-content: center;
 `;
 
+const StyledButton = styled(Button)``;
+
 const StyledContent = styled.div`
   width: 50%;
   height: 100%;
@@ -28,10 +29,9 @@ const StyledContent = styled.div`
   flex-direction: column;
   align-items: flex-start;
   gap: 32px;
-`;
-
-const StyledButton = styled(Button)`
-  align-self: center;
+  ${StyledButton} {
+    align-self: center;
+  }
 `;
 
 const options = [
@@ -57,7 +57,7 @@ const Juror: React.FC = () => {
   const { account } = useEthers();
   const [dispute, setDispute] = useState<string>();
   const [answer, setAnswer] = useState<number>();
-  const { sendWithSwitch, state } = useContractFunction(
+  const { sendWithSwitch, send, state } = useContractFunction(
     "DisputeKitClassic",
     "castVote",
     {
@@ -99,22 +99,17 @@ const Juror: React.FC = () => {
             setAnswer(value);
           }}
         />
-        <StyledButton
-          text="Cast Vote"
-          icon={(className: string) => <ArbitrumLogo {...{ className }} />}
-          disabled={
-            !dispute || !["None", "Exception", "Fail"].includes(state.status)
-          }
-          onClick={() => {
-            if (dispute)
-              sendWithSwitch(
-                dispute,
-                jurorDisputes[dispute].voteIDs,
-                answer,
-                "0"
-              );
-          }}
-        />
+        {sendWithSwitch({
+          className: StyledButton.styledComponentId,
+          text: "Cast Vote",
+          disabled:
+            !dispute ||
+            !answer ||
+            !["None", "Exception", "Fail"].includes(state.status),
+          onClick: () =>
+            dispute &&
+            send(dispute, jurorDisputes[dispute].voteIDs, answer, "0"),
+        })}
       </StyledContent>
     </Wrapper>
   );

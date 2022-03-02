@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Rinkeby } from "@usedapp/core";
-import { Tooltip, Button } from "@kleros/ui-components-library";
+import { Tooltip } from "@kleros/ui-components-library";
 import Table from "components/table";
 import { Skeleton } from "components/skeleton-provider";
 import { shortenString } from "src/utils/shortenString";
@@ -11,7 +11,6 @@ import {
   IFastBridgeClaim,
 } from "queries/useFastBridgeQuery";
 import { useTimeLeft } from "hooks/useTimeLeft";
-import ETHLogo from "svgs/ethereum-eth-logo.svg";
 
 const columnNames = [
   "Message Hash",
@@ -33,25 +32,21 @@ const RelayButton: React.FC<{
   claim: IFastBridgeClaim;
 }> = ({ claim }) => {
   const timeLeft = useTimeLeft(claim);
-  const { sendWithSwitch, state } = useContractFunction(
+  const { sendWithSwitch, send, state } = useContractFunction(
     "FastBridgeReceiver",
     "verifyAndRelay",
     { chainId: Rinkeby.chainId }
   );
-  return (
-    <Button
-      small
-      text="Relay"
-      icon={(className: string) => <ETHLogo {...{ className }} />}
-      disabled={
-        (timeLeft !== undefined ? timeLeft > 0 : true) ||
-        claim.relayed ||
-        claim.claimedAt.toNumber() == 0 ||
-        !["None", "Exception", "Fail"].includes(state.status)
-      }
-      onClick={() => sendWithSwitch(claim.messageHash, claim.message)}
-    />
-  );
+  return sendWithSwitch({
+    small: true,
+    text: "Relay",
+    disabled:
+      (timeLeft !== undefined ? timeLeft > 0 : true) ||
+      claim.relayed ||
+      claim.claimedAt.toNumber() == 0 ||
+      !["None", "Exception", "Fail"].includes(state.status),
+    onClick: () => send(claim.messageHash, claim.message),
+  });
 };
 
 const TimeLeft: React.FC<{ claim: IFastBridgeClaim }> = ({ claim }) => {
