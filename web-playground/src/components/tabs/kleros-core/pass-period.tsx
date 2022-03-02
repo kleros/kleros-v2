@@ -1,5 +1,4 @@
 import React from "react";
-import { Button } from "@kleros/ui-components-library";
 import { ArbitrumRinkeby } from "@usedapp/core";
 import {
   IKlerosCoreDisputeInfo,
@@ -7,11 +6,11 @@ import {
 } from "queries/useKlerosCoreDisputesQuery";
 import { useContractFunction } from "hooks/useContractFunction";
 import { PERIODS } from "./disputes-table";
-import ArbitrumLogo from "svgs/arbitrum_opacity.svg";
 
-const PassPeriodButton: React.FC<{ dispute?: IKlerosCoreDisputeInfo }> = ({
-  dispute,
-}) => {
+const PassPeriodButton: React.FC<{
+  dispute?: IKlerosCoreDisputeInfo;
+  isLoading?: boolean;
+}> = ({ dispute, isLoading }) => {
   const { data: timesPerPeriod } = useKlerosCoreTimesPerPeriodQuery(
     dispute?.subcourtID
   );
@@ -29,23 +28,21 @@ const PassPeriodButton: React.FC<{ dispute?: IKlerosCoreDisputeInfo }> = ({
       }
   }
 
-  const { sendWithSwitch, state } = useContractFunction(
+  const { sendWithSwitch, send, state } = useContractFunction(
     "KlerosCore",
     "passPeriod",
     {
       chainId: ArbitrumRinkeby.chainId,
     }
   );
-  return (
-    <Button
-      text="Pass period"
-      icon={(className: string) => <ArbitrumLogo {...{ className }} />}
-      disabled={
-        !["None", "Exception", "Fail"].includes(state.status) || disabled
-      }
-      onClick={() => dispute && sendWithSwitch(dispute.disputeID)}
-    />
-  );
+  return sendWithSwitch({
+    text: "Pass period",
+    disabled:
+      isLoading ||
+      disabled ||
+      !["None", "Exception", "Fail"].includes(state.status),
+    onClick: async () => dispute && send(dispute.disputeID),
+  });
 };
 
 export default PassPeriodButton;

@@ -1,35 +1,34 @@
 import React from "react";
 import { ArbitrumRinkeby } from "@usedapp/core";
-import { Button } from "@kleros/ui-components-library";
 import { IKlerosCoreDisputeInfo } from "queries/useKlerosCoreDisputesQuery";
 import { useContractFunction } from "hooks/useContractFunction";
 import { PERIODS } from "./disputes-table";
-import ArbitrumLogo from "svgs/arbitrum_opacity.svg";
 
-const DrawJurorsButton: React.FC<{ dispute?: IKlerosCoreDisputeInfo }> = ({
-  dispute,
-}) => {
-  const { sendWithSwitch, state } = useContractFunction("KlerosCore", "draw", {
-    chainId: ArbitrumRinkeby.chainId,
-  });
-  return (
-    <Button
-      text="Draw Jurors"
-      icon={(className: string) => <ArbitrumLogo {...{ className }} />}
-      disabled={
-        !["None", "Exception", "Fail"].includes(state.status) ||
-        dispute?.period !== PERIODS.evidence ||
-        dispute?.drawnJurors.length >= dispute?.nbVotes.toNumber()
-      }
-      onClick={() =>
-        dispute &&
-        sendWithSwitch(
-          dispute.disputeID,
-          dispute.nbVotes.toNumber() - dispute.drawnJurors.length
-        )
-      }
-    />
+const DrawJurorsButton: React.FC<{
+  dispute?: IKlerosCoreDisputeInfo;
+  isLoading?: boolean;
+}> = ({ dispute, isLoading }) => {
+  const { sendWithSwitch, send, state } = useContractFunction(
+    "KlerosCore",
+    "draw",
+    {
+      chainId: ArbitrumRinkeby.chainId,
+    }
   );
+  return sendWithSwitch({
+    text: "Draw Jurors",
+    disabled:
+      isLoading ||
+      !["None", "Exception", "Fail"].includes(state.status) ||
+      dispute?.period !== PERIODS.evidence ||
+      dispute?.drawnJurors.length >= dispute?.nbVotes.toNumber(),
+    onClick: () =>
+      dispute &&
+      send(
+        dispute.disputeID,
+        dispute.nbVotes.toNumber() - dispute.drawnJurors.length
+      ),
+  });
 };
 
 export default DrawJurorsButton;

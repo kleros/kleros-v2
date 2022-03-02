@@ -20,7 +20,10 @@ const StyledButtonContainer = styled.div`
   gap: 32px;
 `;
 
-const DisputeID: React.FC<{ data?: IKlerosCoreDisputeInfo[] }> = ({ data }) => {
+const DisputeID: React.FC<{
+  data?: IKlerosCoreDisputeInfo[];
+  isLoading?: boolean;
+}> = ({ data, isLoading }) => {
   const [selectedDispute, setSelectedDispute] =
     useState<IKlerosCoreDisputeInfo>();
   const items = data
@@ -38,9 +41,9 @@ const DisputeID: React.FC<{ data?: IKlerosCoreDisputeInfo[] }> = ({ data }) => {
         callback={(value) => data && setSelectedDispute(data[value])}
       />
       <StyledButtonContainer>
-        <PassPeriodButton dispute={selectedDispute} />
-        <DrawJurorsButton dispute={selectedDispute} />
-        <ExecuteButton dispute={selectedDispute} />
+        <PassPeriodButton {...{ isLoading }} dispute={selectedDispute} />
+        <DrawJurorsButton {...{ isLoading }} dispute={selectedDispute} />
+        <ExecuteButton {...{ isLoading }} dispute={selectedDispute} />
       </StyledButtonContainer>
     </Wrapper>
   );
