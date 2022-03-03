@@ -29,16 +29,16 @@ const DisputeID: React.FC<{
   const items = data
     ? data
         .filter((disputeInfo) => !disputeInfo.ruled)
-        .map((disputeInfo, i) => ({
+        .map((disputeInfo) => ({
           text: disputeInfo.disputeID.toString(),
-          value: i,
+          value: disputeInfo,
         }))
     : [];
   return (
     <Wrapper>
       <DisputeField
         {...{ items }}
-        callback={(value) => data && setSelectedDispute(data[value])}
+        callback={(value) => setSelectedDispute(value)}
       />
       <StyledButtonContainer>
         <PassPeriodButton {...{ isLoading }} dispute={selectedDispute} />
