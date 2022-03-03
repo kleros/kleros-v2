@@ -10,8 +10,17 @@
 
 pragma solidity ^0.8.0;
 
+/**
+ *  @title SimpleSquanch
+ *  @dev A library of functions to serialize data
+ */
 library SimpleSquanch {
 
+    /**
+     *  @dev Serializes data by encoding input+1 to reserve zero for an End Of File signal.
+     *  @param _input Input to be serialized.
+     *  @param _result Serialized 'Squanched' result.
+     */
     function squanch(bytes32[] calldata _input) public pure returns (bytes32[] memory _result){
 
         assembly {
@@ -27,6 +36,7 @@ library SimpleSquanch {
                     mstore8(_cursor,_encodedInputSlot)
                     _encodedInputSlot := shr(8,_encodedInputSlot)
 
+                    // shift cursor to next 32bytes
                     switch mod(sub(_cursor,_result),0x20)
                     case 0{
                         _cursor := add(_cursor,0x3F)
@@ -36,19 +46,25 @@ library SimpleSquanch {
                     }
                 }
             }
-
+            
             switch mod(sub(_cursor,_result),0x20)
             case 0x1F{
                 mstore(_result,sub(div(sub(_cursor,_result),0x20),1)) // store length
+                // align cursor to end on a multiple of 32 bytes
                 _cursor := sub(_cursor,0x1F)
                 mstore(0x40, _cursor)
             }
             default{
                 mstore(_result,div(sub(_cursor,_result),0x20)) // store length
+                // align cursor to end on a multiple of 32 bytes
                 _cursor := add(_cursor,sub(0x20, mod(sub(_cursor,_result),0x20)))
                 mstore(0x40, _cursor)
             }
-
+            /**
+            *  @dev Serializes data with SSQ.
+            *  @param _inputSlot Input 32 bytes to be serialized.
+            *  @param _resultSlot Serialized 'Squanched' result.
+            */
             function encode(_inputSlot) -> _resultSlot {
                 let i := 0
                 for { } gt(_inputSlot,0x7F) {i := add(i,1)} {
@@ -59,7 +75,11 @@ library SimpleSquanch {
             }
         }
     }
-
+    /**
+     *  @dev Deserializes data by decoding input and adding 1 to revert the squanch encoding.
+     *  @param _input Input to be deserialized.
+     *  @param _result Deserialized 'Unsquanched' result.
+     */
     function unsquanch(bytes32[] calldata _input) public pure returns (bytes32[] memory _result){
 
         assembly {
@@ -101,7 +121,11 @@ library SimpleSquanch {
             
         }
     }
-
+    /**
+     *  @dev Deserializes data by decoding input and adding 1 to revert the squanch encoding.
+     *  @param _input Input to be deserialized.
+     *  @param _result Deserialized 'Unsquanched' result.
+     */
     function unsquanch(bytes32 _input) public pure returns (bytes32[] memory _result){
 
         assembly {
@@ -135,7 +159,11 @@ library SimpleSquanch {
             
         }
     }
-
+    /**
+     *  @dev Serializes data by encoding input with SSQ.
+     *  @param _input Input to be serialized.
+     *  @param _result Serialized 'Squanched' result.
+     */
     function encode(bytes32 _input) public pure returns (bytes32  _result){
         assembly {
             let i := 0
@@ -146,7 +174,11 @@ library SimpleSquanch {
             _result := add(_result,shl(mul(8,i),and(_input, 0x7F)))
         }
     }   
-
+    /**
+     *  @dev Deserializes data by reversing SSQ
+     *  @param _input Input to be deserialized.
+     *  @param _result Deserialized 'Unsquanched' result.
+     */
     function decode(bytes32 _input) public pure returns (bytes32 _result){
         assembly {
             for { let i := 0x0 } gt(_input,0) {i := add(i,0x1)} {
