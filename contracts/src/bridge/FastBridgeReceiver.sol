@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@shalzz, @hrishibhat]
+ *  @authors: [@shalzz*, @hrishibhat]
  *  @reviewers: []
  *  @auditors: []
  *  @bounties: []
@@ -20,6 +20,7 @@ contract FastBridgeReceiver is IFastBridgeReceiver {
     address public fastBridgeSender;
     address public governor;
     uint256 public claimDeposit;
+    uint256 public challengeDeposit;
     uint256 public challengeDuration;
 
     struct Claim {
@@ -31,10 +32,9 @@ contract FastBridgeReceiver is IFastBridgeReceiver {
     }
 
     struct Challenge {
-        address challenge;
+        address challenger;
         uint256 challengedAt;        
         uint256 challengeDeposit;
-        bool challenged;
         bool honest;
     }    
 
@@ -89,22 +89,18 @@ contract FastBridgeReceiver is IFastBridgeReceiver {
         require(claim.relayed == false, "Message already relayed");
 
         Challenge storage challenge = challenges[_messageHash];
-        if(challenge.challenged == true){
-            if(keccak256(_encodedData) == _messageHash){
-                challenge.honest == false;
-                claim.honest == true;
-                // Decode the receiver address from the data encoded by the IFastBridgeSender
-                (address receiver, bytes memory data) = abi.decode(_encodedData, (address, bytes));
-                (bool success, ) = address(receiver).call(data);
-                require(success, "Failed to call contract");
+        require(challenge.challenger == address(0), "This claim is Challenged");
 
-                claim.relayed = true;    
-            }
-            else{
-                challenge.honest == true;
-                claim.honest == false;                
-            }
+        if(keccak256(_encodedData) == _messageHash){
+            claim.honest = true;
+            // Decode the receiver address from the data encoded by the IFastBridgeSender
+            (address receiver, bytes memory data) = abi.decode(_encodedData, (address, bytes));
+            (bool success, ) = address(receiver).call(data);
+            require(success, "Failed to call contract");
+
+            claim.relayed = true;    
         }
+        
     }
 
     function relayRule(bytes memory _encodedData) external {  
@@ -115,21 +111,26 @@ contract FastBridgeReceiver is IFastBridgeReceiver {
         address l2Sender = outbox.l2ToL1Sender();
         require(l2Sender == safebridge, "Can be relayed only by Safe Bridge");
 
+        bytes32 _messageHash = keccak256(_encodedData);
         Challenge storage challenge = challenges[_messageHash];
         Claim storage claim = claims[_messageHash];
+        require(claim.relayed != true, "Claim already relayed");
 
-        require(challenge.honest == true, "This claim is not challenged");
-
-        if(keccak256(_encodedData) == _messageHash){
-            challenge.honest == false;
-            claim.honest == true;
-            // Decode the receiver address from the data encoded by the IFastBridgeSender
-            (address receiver, bytes memory data) = abi.decode(_encodedData, (address, bytes));
-            (bool success, ) = address(receiver).call(data);
-            require(success, "Failed to call contract");
-
-            claim.relayed = true;    
+        if (claim.bridger != address(0) && challenge.challenger != address(0)) {
+            challenge.honest = false;
+            claim.honest = true;            
+        } else {
+            challenge.honest = true;
+            claim.honest = false;             
         }
+
+        // Decode the receiver address from the data encoded by the IFastBridgeSender
+        (address receiver, bytes memory data) = abi.decode(_encodedData, (address, bytes));
+        (bool success, ) = address(receiver).call(data);
+        require(success, "Failed to call contract");
+
+        claim.relayed = true;    
+        
     }
 
     function withdrawClaimDeposit(bytes32 _messageHash) external {
@@ -150,7 +151,7 @@ contract FastBridgeReceiver is IFastBridgeReceiver {
     }
 
     function challenge(bytes32 _messageHash) external payable {
-        Claim storage claim = claims[_messageHash];
+        Claim memory claim = claims[_messageHash];
         require(claim.bridger != address(0), "Claim does not exist");        
         require(block.timestamp - claim.claimedAt <  challengeDuration, "Challenge period over");
         require(msg.value >= challengeDeposit, "Not enough challenge deposit");
@@ -160,12 +161,10 @@ contract FastBridgeReceiver is IFastBridgeReceiver {
             challenger: msg.sender,
             challengedAt: block.timestamp,
             challengeDeposit: msg.value,
-            challenged: true,
             honest: false
         });
 
         emit ClaimChallenged(_messageHash, block.timestamp);
-    
     }
 
     function withdrawChallengeDeposit(bytes32 _messageHash) external {
@@ -187,7 +186,7 @@ contract FastBridgeReceiver is IFastBridgeReceiver {
         payable(challenge.challenger).send(amount);
     }
      //**** View Functions ****//
-    function challengePeriod(bytes messageHash) public view returns(uint start, uint end) {
+    function challengePeriod(bytes32 _messageHash) public view returns(uint start, uint end) {
         start = claims[_messageHash].claimedAt;
         end = start + challengeDuration;
         return (start, end);

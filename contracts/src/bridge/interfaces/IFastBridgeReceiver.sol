@@ -11,5 +11,5 @@ interface IFastBridgeReceiver {
 
     function withdrawClaimDeposit(bytes32 _messageHash) external;
 
-    function claimDeposit() external view returns (uint256 amount);
+    function viewClaimDeposit() external view returns (uint256 amount);
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@shalzz, @hrishibhat]
+ *  @authors: [@shalzz*, @hrishibhat]
  *  @reviewers: []
  *  @auditors: []
  *  @bounties: []
