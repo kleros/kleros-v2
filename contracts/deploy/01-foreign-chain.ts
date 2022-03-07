@@ -18,12 +18,12 @@ const paramsByChainId = {
   },
   4: {
     claimDeposit: parseEther("0.1"),
-    challengeDuration: 3600, // 1 hour
+    challengeDuration: 120, // 2 min
     homeChainId: 421611,
   },
   31337: {
     claimDeposit: parseEther("0.1"),
-    challengeDuration: 3600, // 1 hour
+    challengeDuration: 120, // 2 min
     homeChainId: 31337,
   },
 };
@@ -70,7 +70,13 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
 
   const foreignGateway = await deploy("ForeignGateway", {
     from: deployer,
-    args: [deployer, fastBridgeReceiver.address, ["1000", "10000"], homeGatewayAddress, homeChainIdAsBytes32],
+    args: [
+      deployer,
+      fastBridgeReceiver.address,
+      [ethers.BigNumber.from(10).pow(17)],
+      homeGatewayAddress,
+      homeChainIdAsBytes32,
+    ],
     log: true,
   });
 
