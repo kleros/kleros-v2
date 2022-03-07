@@ -6,6 +6,8 @@ coverage.json
 ## Hardhat typechain bindings/types
 typechain
 typechain/**
+typechain-types
+typechain-types/**
 
 # Hardhat deploy files
 deployments/localhost

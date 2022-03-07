@@ -22,9 +22,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const chainId = Number(await getChainId());
   console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
-  const rng = await deploy("ConstantNG", {
+  const rng = await deploy("IncrementalNG", {
     from: deployer,
-    args: [42],
     log: true,
   });
 

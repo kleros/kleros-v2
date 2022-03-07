@@ -20,6 +20,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [DisputeKitClassic](https://testnet.arbiscan.io/address/0xed12799915180a257985631fbD2ead261eD838cf)
 - [FastBridgeSender](https://testnet.arbiscan.io/address/0x0b9e03455Fed83f209Fa7ce596c93ba6aBAd1f46)
 - [HomeGateway](https://testnet.arbiscan.io/address/0x2Aa1f82d363f79c1E7a4CcF955Fb7E4306b9B260)
+- [IncrementalNG](https://testnet.arbiscan.io/address/0x95Ad12eF4B5baF332aa46d1EaE9922066Fd6fE4A)
 - [KlerosCore](https://testnet.arbiscan.io/address/0xd08452AEE7ab5bE3BF6733BA0d3F0CFdaf060Aa2)
 - [SafeBridgeArbitrum](https://testnet.arbiscan.io/address/0x1406bC99873d16Cde3491F809f1Af9442cb5A338)
 - [SortitionSumTreeFactory](https://testnet.arbiscan.io/address/0xf02733d9e5CbfE67B54F165b0277E1995106D526)
