@@ -49,6 +49,7 @@ describe("Demo pre-alpha1", function () {
   before("Setup", async () => {
     deployer = (await getNamedAccounts()).deployer;
     relayer = (await getNamedAccounts()).relayer;
+    console.log("deployer:%s", deployer);
     console.log("named accounts: %O", await getNamedAccounts());
 
     await deployments.fixture(["Arbitration", "ForeignGateway", "HomeGateway"], {
@@ -68,9 +69,7 @@ describe("Demo pre-alpha1", function () {
   });
 
   it("Demo", async () => {
-    console.log("deployer:%s", deployer);
-    console.log("address:%s", ng.address);
-    console.log("rn=%d", await ng.getRN(2));
+    ng.getRN(2).then((n) => expect(n).to.equal(42));
 
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
 
@@ -140,7 +139,11 @@ describe("Demo pre-alpha1", function () {
     const events2 = (await tx2.wait()).events;
     // console.log("event=%O", events2);
 
-    await core.draw(0, 1000);
+    const tx3 = await core.draw(0, 1000);
+    const events3 = (await tx3.wait()).events;
+    console.log("event=%O", events3[0].args);
+    console.log("event=%O", events3[1].args);
+    console.log("event=%O", events3[2].args);
 
     const roundInfo = await core.getRoundInfo(0, 0);
     expect(roundInfo.drawnJurors).deep.equal([deployer, deployer, deployer]);
