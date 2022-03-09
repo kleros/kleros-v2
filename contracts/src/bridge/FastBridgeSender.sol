@@ -86,7 +86,7 @@ contract FastBridgeSender is IFastBridgeSender {
 
 
         Dispute storage dispute = core.disputes[_disputeID];
-        require(dispute.ruled, "Ruling not requested for execution.");
+        //require(dispute.ruled, "Ruling not requested for execution.");
         
 
         bytes32 disputeHash = homeGateway.disputeIDtoHash[_disputeID];
@@ -94,7 +94,7 @@ contract FastBridgeSender is IFastBridgeSender {
         uint256 ruling = core.currentRuling(_disputeID);
         
         bytes4 methodSelector = IForeignGateway.relayRule.selector;
-        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, ruling, relayedData.relayer);
+        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, ruling, relayedData.relayer, dispute.ruled);
         
         bytes memory encodedData = abi.encode(foreignGateway, data);
         bytes memory encodedTxData = abi.encodeWithSelector(fastBridgeReceiver.relayRule.selector, encodedData);
