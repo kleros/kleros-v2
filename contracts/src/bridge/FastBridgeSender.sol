@@ -97,7 +97,7 @@ contract FastBridgeSender is IFastBridgeSender {
         bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, ruling, relayedData.relayer);
         
         bytes memory encodedData = abi.encode(foreignGateway, data);
-        bytes memory encodedTxData = abi.encodeWithSelector(fastBridgeReceiver.relayRule.selector, dispute.ruled, encodedData);
+        bytes memory encodedTxData = abi.encodeWithSelector(fastBridgeReceiver.relayRule.selector, dispute.ruled, disputeHash, encodedData);
         safebridge.sendSafe{value: msg.value}(address(fastBridgeReceiver), encodedTxData);
     }
 }
