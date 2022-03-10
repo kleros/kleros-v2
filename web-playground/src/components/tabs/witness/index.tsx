@@ -11,11 +11,12 @@ const Wrapper = styled.div`
   padding: 64px;
   display: flex;
   justify-content: center;
+  overflow: auto;
 `;
 
 const StyledContent = styled.div`
   width: 50%;
-  height: 100%;
+  height: fit-content;
   padding-top: 64px;
   display: flex;
   flex-direction: column;

@@ -67,6 +67,7 @@ const formatData = async (
 };
 
 const StyledTable = styled(Table)`
+  min-height: 200px;
   height: 40%;
   width: 100%;
 `;

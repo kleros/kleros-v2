@@ -17,6 +17,7 @@ const formatData = (
 
 const StyledTable = styled(Table)`
   height: 40%;
+  min-height: 200px;
   width: 100%;
 `;
 
