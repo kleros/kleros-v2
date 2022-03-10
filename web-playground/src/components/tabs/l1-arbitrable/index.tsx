@@ -18,14 +18,14 @@ const Wrapper = styled.div`
   padding: 64px;
   display: flex;
   justify-content: space-evenly;
+  overflow: auto;
 `;
 
 const StyledButton = styled(Button)``;
 
 const StyledContent = styled.div`
   width: auto;
-  height: 100%;
-  padding-top: 64px;
+  height: fit-content;
   display: flex;
   flex-direction: column;
   align-items: flex-start;

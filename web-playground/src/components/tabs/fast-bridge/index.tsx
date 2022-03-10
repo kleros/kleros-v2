@@ -7,18 +7,18 @@ const Wrapper = styled.div`
   width: 100%;
   height: 100%;
   padding: 64px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  align-items: center;
+  display: block;
+  overflow: auto;
 `;
 
 const StyledRulingsOnL2 = styled(RulingsOnL2)`
+  min-height: 250px;
   height: 45%;
   width: 100%;
 `;
 
 const StyledRulingsOnL1 = styled(RulingsOnL1)`
+  min-height: 250px;
   height: 45%;
   width: 100%;
 `;
