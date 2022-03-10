@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
 import { BigNumber } from "ethers";
 import {
-  ConstantNG,
+  IncrementalNG,
   PNK,
   KlerosCore,
   FastBridgeReceiver,
@@ -12,6 +12,9 @@ import {
   FastBridgeSender,
   HomeGateway,
 } from "../../typechain";
+import exp from "constants";
+
+/* eslint-disable no-unused-vars */
 
 describe("Demo pre-alpha1", function () {
   const ONE_TENTH_ETH = BigNumber.from(10).pow(17);
@@ -19,7 +22,6 @@ describe("Demo pre-alpha1", function () {
   const ONE_HUNDRED_PNK = BigNumber.from(10).pow(20);
   const ONE_THOUSAND_PNK = BigNumber.from(10).pow(21);
 
-  // eslint-disable-next-line no-unused-vars
   const enum Period {
     evidence,
     commit,
@@ -28,13 +30,8 @@ describe("Demo pre-alpha1", function () {
     execution,
   }
 
-  // eslint-disable-next-line no-unused-vars
-  let deployer,
-    relayer, 
-    supporter, 
-    challenger, 
-    innocentBystander;
-  // eslint-disable-next-line no-unused-vars
+  let deployer, relayer, bridger, challenger, innocentBystander;
+
   let ng,
     disputeKit,
     pnk,
@@ -56,7 +53,7 @@ describe("Demo pre-alpha1", function () {
       fallbackToGlobal: true,
       keepExistingDeployments: true,
     });
-    ng = <ConstantNG>await ethers.getContract("ConstantNG");
+    ng = <IncrementalNG>await ethers.getContract("IncrementalNG");
     disputeKit = <KlerosCore>await ethers.getContract("DisputeKitClassic");
     pnk = <PNK>await ethers.getContract("PNK");
     core = <KlerosCore>await ethers.getContract("KlerosCore");
@@ -68,9 +65,20 @@ describe("Demo pre-alpha1", function () {
     homeGateway = <HomeGateway>await ethers.getContract("HomeGateway");
   });
 
-  it("Demo", async () => {
-    ng.getRN(2).then((n) => expect(n).to.equal(42));
+  it("RNG", async () => {
+    const rnOld = await ng.number();
+    let tx = await ng.getRN(9876543210);
+    let trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
+    let [rn] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`);
+    expect(rn).to.equal(rnOld);
 
+    tx = await ng.getRN(9876543210);
+    trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
+    [rn] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`);
+    expect(rn).to.equal(rnOld.add(1));
+  });
+
+  it("Demo", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
 
     await pnk.approve(core.address, ONE_THOUSAND_PNK.mul(100));
