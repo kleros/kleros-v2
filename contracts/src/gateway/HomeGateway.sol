@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@shalzz]
+ *  @authors: [@shalzz*, @shotaronowhere]
  *  @reviewers: []
  *  @auditors: []
  *  @bounties: []
@@ -19,12 +19,13 @@ import "./interfaces/IHomeGateway.sol";
 contract HomeGateway is IHomeGateway {
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => uint256) public disputeHashtoID;
+    mapping(bytes32 => bool) public disputeHashtoRuled;
 
     IArbitrator public arbitrator;
     IFastBridgeSender public fastbridge;
-    address public foreignGateway;
-    uint256 public chainID;
-    uint256 public foreignChainID;
+    address public override foreignGateway;
+    uint256 public override chainID;
+    uint256 public override foreignChainID;
 
     struct RelayedData {
         uint256 arbitrationCost;
@@ -70,7 +71,7 @@ contract HomeGateway is IHomeGateway {
         uint256 _choices,
         bytes calldata _extraData,
         address _arbitrable
-    ) external payable {
+    ) external payable override{
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
                 _originalChainID,
@@ -97,19 +98,20 @@ contract HomeGateway is IHomeGateway {
         emit Dispute(arbitrator, disputeID, 0, 0);
     }
 
-    function rule(uint256 _disputeID, uint256 _ruling) external {
+    function rule(uint256 _disputeID, uint256 _ruling) external override{
         require(msg.sender == address(arbitrator), "Only Arbitrator");
 
         bytes32 disputeHash = disputeIDtoHash[_disputeID];
         RelayedData memory relayedData = disputeHashtoRelayedData[disputeHash];
 
+
         bytes4 methodSelector = IForeignGateway.relayRule.selector;
-        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.relayer);
+        bytes memory data = abi.encodeWithSelector( methodSelector, disputeHash, _ruling, relayedData.relayer);
 
         fastbridge.sendFast(foreignGateway, data);
     }
 
-    function disputeHashToHomeID(bytes32 _disputeHash) external view returns (uint256) {
+    function disputeHashToHomeID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoID[_disputeHash];
     }
 }
