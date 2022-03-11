@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@shalzz]
+ *  @authors: [@shalzz*, @shotaronowhere]
  *  @reviewers: []
  *  @auditors: []
  *  @bounties: []
@@ -27,8 +27,8 @@ contract ForeignGateway is IForeignGateway {
 
     // feeForJuror by subcourtID
     uint256[] internal feeForJuror;
-    uint256 public chainID;
-    uint256 public homeChainID;
+    uint256 public override chainID;
+    uint256 public override homeChainID;
 
     struct DisputeData {
         uint248 id;
@@ -41,7 +41,7 @@ contract ForeignGateway is IForeignGateway {
 
     address public governor;
     IFastBridgeReceiver public fastbridge;
-    address public homeGateway;
+    address public override homeGateway;
 
     event OutgoingDispute(
         bytes32 disputeHash,
@@ -88,7 +88,7 @@ contract ForeignGateway is IForeignGateway {
         feeForJuror[_subcourtID] = _feeForJuror;
     }
 
-    function createDispute(uint256 _choices, bytes calldata _extraData) external payable returns (uint256 disputeID) {
+    function createDispute(uint256 _choices, bytes calldata _extraData) external payable override returns (uint256 disputeID) {
         require(msg.value >= arbitrationCost(_extraData), "Not paid enough for arbitration");
 
         (uint96 subcourtID, ) = extraDataToSubcourtIDMinJurors(_extraData);
@@ -121,7 +121,7 @@ contract ForeignGateway is IForeignGateway {
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
 
-    function arbitrationCost(bytes calldata _extraData) public view returns (uint256 cost) {
+    function arbitrationCost(bytes calldata _extraData) public view override returns (uint256 cost) {
         (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDMinJurors(_extraData);
 
         cost = feeForJuror[subcourtID] * minJurors;
@@ -134,7 +134,7 @@ contract ForeignGateway is IForeignGateway {
         bytes32 _disputeHash,
         uint256 _ruling,
         address _relayer
-    ) external onlyFromFastBridge {
+    ) external override onlyFromFastBridge {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 
         require(dispute.id != 0, "Dispute does not exist");
@@ -147,7 +147,7 @@ contract ForeignGateway is IForeignGateway {
         arbitrable.rule(dispute.id, _ruling);
     }
 
-    function withdrawFees(bytes32 _disputeHash) external {
+    function withdrawFees(bytes32 _disputeHash) external override {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
         require(dispute.id != 0, "Dispute does not exist");
         require(dispute.ruled, "Not ruled yet");
@@ -157,7 +157,7 @@ contract ForeignGateway is IForeignGateway {
         payable(dispute.relayer).transfer(amount);
     }
 
-    function disputeHashToForeignID(bytes32 _disputeHash) external view returns (uint256) {
+    function disputeHashToForeignID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoDisputeData[_disputeHash].id;
     }
 
