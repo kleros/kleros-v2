@@ -181,7 +181,7 @@ contract FastBridgeReceiver is IFastBridgeReceiver {
         require(relayed[_fastMessageIndex] == false, "Message already relayed");        
         require(block.timestamp - claimsForIndex[claimsForIndex.length-1].claimedAt <  challengeDuration, "Challenge period over");
         require(msg.value >= challengeDeposit, "Not enough challenge deposit");
-        require(challenges[_fastMessageIndex][claimsForIndex.length-1].challenger == address(0), "Claim already challenged");
+        require(challenges[_fastMessageIndex].length < claimsForIndex.length, "Claim already challenged");
 
         challenges[_fastMessageIndex].push(Challenge({
             challenger: msg.sender,
@@ -227,7 +227,7 @@ contract FastBridgeReceiver is IFastBridgeReceiver {
     function setClaimDeposit(uint256 _claimDeposit) external onlyByGovernor {
         claimDeposit = _claimDeposit;
     }
-
+    //TODO
     function viewClaimDeposit() external override view returns (uint256 amount){
         return 0;
     }
