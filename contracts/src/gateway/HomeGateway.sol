@@ -19,7 +19,6 @@ import "./interfaces/IHomeGateway.sol";
 contract HomeGateway is IHomeGateway {
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => uint256) public disputeHashtoID;
-    mapping(bytes32 => bool) public disputeHashtoRuled;
 
     IArbitrator public arbitrator;
     IFastBridgeSender public fastbridge;
