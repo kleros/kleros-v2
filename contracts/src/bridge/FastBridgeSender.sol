@@ -75,9 +75,9 @@ contract FastBridgeSender is IFastBridgeSender {
         // IFastBridgeReceiver function.
         // TODO: add access checks for this on the FastBridgeReceiver.
         // TODO: how much ETH should be provided for bridging? add an ISafeBridge.bridgingCost()
+        require(_fastMessageIndex<fastMessageIndex, "Fast message does not exit.");
 
         bytes memory encodedData = abi.encode(_fastMessageIndex, fastMessages[_fastMessageIndex]);
-        bytes memory encodedTxData = abi.encodeWithSelector(fastBridgeReceiver.relayRule.selector, encodedData);
-        safebridge.sendSafe{value: msg.value}(address(fastBridgeReceiver), encodedTxData);
+        safebridge.sendSafe{value: msg.value}(address(fastBridgeReceiver), encodedData);
     }
 }
