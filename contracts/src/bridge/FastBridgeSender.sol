@@ -48,7 +48,7 @@ contract FastBridgeSender is IFastBridgeSender {
 
         // Encode the receiver address with the function signature + arguments i.e calldata
         bytes memory encodedData = abi.encode(_receiver, _calldata);
-        fastMessages[fastMessageIndex] = encodedData;
+        fastMessages[fastMessageIndex] = _calldata;
         fastMessageIndex += 1;
 
         emit OutgoingMessage(_receiver, keccak256(encodedData), fastMessageIndex-1, encodedData);
@@ -78,6 +78,7 @@ contract FastBridgeSender is IFastBridgeSender {
         require(_fastMessageIndex<fastMessageIndex, "Fast message does not exit.");
 
         bytes memory encodedData = abi.encode(_fastMessageIndex, fastMessages[_fastMessageIndex]);
-        safebridge.sendSafe{value: msg.value}(address(fastBridgeReceiver), encodedData);
+        bytes memory encodedTxData = abi.encodeWithSelector(fastBridgeReceiver.relayRule.selector, encodedData);
+        safebridge.sendSafe{value: msg.value}(address(fastBridgeReceiver), encodedTxData);
     }
 }
