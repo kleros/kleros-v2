@@ -51,6 +51,13 @@ interface IDisputeKit {
      */
     function currentRuling(uint256 _disputeID) external view returns (uint256 ruling);
 
+    /** @dev Returns the voting data from the most relevant round.
+     *  @param _disputeID The ID of the dispute in Kleros Core.
+     *  @return winningChoiece The winning choice of this round.
+     *  @return tied Whether it's a tie or not.
+     */
+    function getLastRoundResult(uint256 _disputeID) external view returns (uint256 winningChoiece, bool tied);
+
     /** @dev Gets the degree of coherence of a particular voter. This function is called by Kleros Core in order to determine the amount of the reward.
      *  @param _disputeID The ID of the dispute in Kleros Core.
      *  @param _round The ID of the round.
