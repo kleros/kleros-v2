@@ -513,7 +513,7 @@ contract KlerosCore is IArbitrator {
         // Create a new round beforehand because dispute kit relies on the latest index.
         Round storage extraRound = dispute.rounds.push();
 
-        if (isDisputeJumping(_disputeID)) {
+        if (dispute.nbVotes >= courts[dispute.subcourtID].jurorsForCourtJump) {
             // Jump to parent subcourt.
             // TODO: Handle court jump in the Forking court.
             dispute.subcourtID = courts[dispute.subcourtID].parent;
@@ -531,7 +531,11 @@ contract KlerosCore is IArbitrator {
                     break;
                 }
             }
-            disputeKits[disputeKitID].dkAddress.createDispute(_disputeID, _numberOfChoices, _extraData);
+
+            // Dispute kit was changed, so create a dispute in the new DK contract.
+            if (disputeKitID != round.disputeKitID) {
+                disputeKits[disputeKitID].dkAddress.createDispute(_disputeID, _numberOfChoices, _extraData);
+            }
         }
 
         dispute.period = Period.evidence;
@@ -824,9 +828,21 @@ contract KlerosCore is IArbitrator {
         return disputes[_disputeID].ruled;
     }
 
+    /** @dev Returns true if the dispute kit will be switched to a parent DK.
+     *  @param _disputeID The ID of the dispute.
+     *  @return Whether DK will be switched or not.
+     */
     function isDisputeJumping(uint256 _disputeID) public view returns (bool) {
         Dispute storage dispute = disputes[_disputeID];
-        return dispute.nbVotes >= courts[dispute.subcourtID].jurorsForCourtJump;
+
+        if (dispute.nbVotes < courts[dispute.subcourtID].jurorsForCourtJump) {
+            return false;
+        } else {
+            uint256 disputeKitID = dispute.rounds[dispute.rounds.length - 1].disputeKitID;
+            uint96 parentCourt = courts[dispute.subcourtID].parent;
+            // Parent court doesn't support current DK so it'll be switched.
+            return !courts[parentCourt].supportedDisputeKits[disputeKitID];
+        }
     }
 
     function getLastRoundResult(uint256 _disputeID) external view returns (uint256 winningChoice, bool tied) {
