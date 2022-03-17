@@ -11,7 +11,7 @@ import {
   SafeBridgeArbitrum,
   FastBridgeSender,
   HomeGateway,
-} from "../../typechain";
+} from "../../typechain-types";
 import exp from "constants";
 
 /* eslint-disable no-unused-vars */
