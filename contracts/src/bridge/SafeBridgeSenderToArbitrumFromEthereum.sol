@@ -16,7 +16,11 @@ import "./interfaces/arbitrum/IArbRetryableTx.sol";
 
 import "./interfaces/ISafeBridge.sol";
 
-contract SafeBridgeSenderOnEthereumToArbitrum is ISafeBridge {
+/**
+ * Safe Bridge Sender to Arbitrum from Ethereum
+ * Counterpart of `SafeBridgeReceiverOnArbitrumFromEthereum` if any
+ */
+contract SafeBridgeSenderToArbitrumFromEthereum is ISafeBridge {
     IArbRetryableTx public constant ARBITRUM_RETRYABLE_TX = IArbRetryableTx(address(110));
     address public immutable safeBridgeSender;
     IInbox public immutable inbox;
