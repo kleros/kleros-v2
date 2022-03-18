@@ -42,6 +42,9 @@
     "solhint": "^3.3.6",
     "solhint-plugin-prettier": "^0.0.5"
   },
+  "resolutions": {
+    "underscore@npm": "^1.13.2"
+  },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
