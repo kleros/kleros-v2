@@ -1,0 +1,41 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Kleroscore
+    network: arbitrum-rinkeby
+    source:
+      address: "0xd08452AEE7ab5bE3BF6733BA0d3F0CFdaf060Aa2"
+      abi: Kleroscore
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - AppealDecision
+        - AppealPossible
+        - DisputeCreation
+        - Draw
+        - NewPeriod
+        - StakeSet
+        - TokenAndETHShift
+      abis:
+        - name: Kleroscore
+          file: ./abis/Kleroscore.json
+      eventHandlers:
+        - event: AppealDecision(indexed uint256,indexed address)
+          handler: handleAppealDecision
+        - event: AppealPossible(indexed uint256,indexed address)
+          handler: handleAppealPossible
+        - event: DisputeCreation(indexed uint256,indexed address)
+          handler: handleDisputeCreation
+        - event: Draw(indexed address,indexed uint256,uint256,uint256)
+          handler: handleDraw
+        - event: NewPeriod(indexed uint256,uint8)
+          handler: handleNewPeriod
+        - event: StakeSet(indexed address,uint256,uint256,uint256)
+          handler: handleStakeSet
+        - event: TokenAndETHShift(indexed address,indexed uint256,int256,int256)
+          handler: handleTokenAndETHShift
+      file: ./src/mapping.ts
