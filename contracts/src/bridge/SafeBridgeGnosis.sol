@@ -14,7 +14,7 @@ import "./interfaces/gnosis-chain/IAMB.sol";
 import "./interfaces/ISafeBridge.sol";
 
 contract SafeBridgeGnosis is ISafeBridge {
-    IAMB amb;
+    IAMB public immutable amb;
 
     constructor(IAMB _amb) {
         amb = _amb;

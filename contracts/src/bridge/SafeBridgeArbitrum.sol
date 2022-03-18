@@ -16,12 +16,12 @@ import "./interfaces/arbitrum/AddressAliasHelper.sol";
 import "./interfaces/ISafeBridge.sol";
 
 contract SafeBridgeArbitrum is ISafeBridge {
-    IArbSys constant arbsys = IArbSys(address(100));
+    IArbSys public constant ARB_SYS = IArbSys(address(100));
 
     event L2ToL1TxCreated(uint256 indexed withdrawalId);
 
     function sendSafe(address _receiver, bytes memory _calldata) external payable override returns (uint256) {
-        uint256 withdrawalId = arbsys.sendTxToL1(_receiver, _calldata);
+        uint256 withdrawalId = ARB_SYS.sendTxToL1(_receiver, _calldata);
 
         emit L2ToL1TxCreated(withdrawalId);
         return withdrawalId;
