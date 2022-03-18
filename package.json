@@ -44,7 +44,8 @@
   },
   "resolutions": {
     "underscore@npm": "^1.13.2",
-    "lodash@npm": "^4.17.21"
+    "lodash@npm": "^4.17.21",
+    "node-fetch": "^2.6.7"
   },
   "commitlint": {
     "extends": [
