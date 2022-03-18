@@ -1,0 +1,6 @@
+type ExampleEntity @entity {
+  id: ID!
+  count: BigInt!
+  _disputeID: BigInt! # uint256
+  _arbitrable: Bytes! # address
+}
