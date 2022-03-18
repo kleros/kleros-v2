@@ -27,7 +27,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       : await hre.companionNetworks.foreign.deployments.get("FastBridgeReceiver");
   const fastBridgeSender = await deploy("FastBridgeSender", {
     from: deployer,
-    args: [safeBridge.address, fastBridgeReceiver.address],
+    args: [deployer, safeBridge.address, fastBridgeReceiver.address],
     log: true,
   }); // nonce+1
 

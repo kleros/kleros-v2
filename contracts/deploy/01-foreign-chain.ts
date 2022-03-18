@@ -57,6 +57,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     nonce += 2; // HomeGateway deploy tx will the third tx after this on its home network, so we add two to the current nonce.
   }
   const { claimDeposit, challengeDuration, homeChainId } = paramsByChainId[chainId];
+  const challengeDeposit = claimDeposit;
   const homeChainIdAsBytes32 = hexZeroPad(homeChainId, 32);
 
   const homeGatewayAddress = getContractAddress(deployer, nonce);
@@ -64,7 +65,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
 
   const fastBridgeReceiver = await deploy("FastBridgeReceiver", {
     from: deployer,
-    args: [deployer, claimDeposit, challengeDuration],
+    args: [deployer, claimDeposit, challengeDeposit, challengeDuration],
     log: true,
   });
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@shalzz]
+ *  @authors: [@jaybuidl, @shalzz, @hrishibhat, @shotaronowhere]
  *  @reviewers: []
  *  @auditors: []
  *  @bounties: []
@@ -15,25 +15,47 @@ import "./interfaces/IFastBridgeSender.sol";
 import "./interfaces/IFastBridgeReceiver.sol";
 
 contract FastBridgeSender is IFastBridgeSender {
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
+
+    address public governor;
     ISafeBridge public safebridge;
     IFastBridgeReceiver public fastBridgeReceiver;
     address public fastSender;
+
+    // ************************************* //
+    // *              Events               * //
+    // ************************************* //
 
     /**
      * The bridgers need to watch for these events and
      * relay the messageHash on the FastBridgeReceiver.
      */
-    event OutgoingMessage(address target, bytes32 messageHash, bytes message);
+    event OutgoingMessage(address indexed target, bytes32 indexed messageHash, bytes message);
 
-    constructor(ISafeBridge _safebridge, IFastBridgeReceiver _fastBridgeReceiver) {
+    // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
+
+    modifier onlyByGovernor() {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        _;
+    }
+
+    constructor(
+        address _governor,
+        ISafeBridge _safebridge,
+        IFastBridgeReceiver _fastBridgeReceiver
+    ) {
+        governor = _governor;
         safebridge = _safebridge;
         fastBridgeReceiver = _fastBridgeReceiver;
     }
 
-    function setFastSender(address _fastSender) external {
-        require(fastSender == address(0));
-        fastSender = _fastSender;
-    }
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
 
     /**
      * Sends an arbitrary message from one domain to another
@@ -42,7 +64,7 @@ contract FastBridgeSender is IFastBridgeSender {
      * @param _receiver The L1 contract address who will receive the calldata
      * @param _calldata The receiving domain encoded message data.
      */
-    function sendFast(address _receiver, bytes memory _calldata) external {
+    function sendFast(address _receiver, bytes memory _calldata) external override {
         require(msg.sender == fastSender, "Access not allowed: Fast Sender only.");
 
         // Encode the receiver address with the function signature + arguments i.e calldata
@@ -74,5 +96,14 @@ contract FastBridgeSender is IFastBridgeSender {
         // TODO: how much ETH should be provided for bridging? add an ISafeBridge.bridgingCost()
         bytes memory encodedData = abi.encode(_receiver, _calldata);
         safebridge.sendSafe{value: msg.value}(address(fastBridgeReceiver), encodedData);
+    }
+
+    // ************************ //
+    // *      Governance      * //
+    // ************************ //
+
+    function setFastSender(address _fastSender) external onlyByGovernor {
+        require(fastSender == address(0));
+        fastSender = _fastSender;
     }
 }
