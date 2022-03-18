@@ -14,7 +14,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   console.log("deployer: %s", deployer);
 
-  const safeBridge = await deploy("SafeBridgeArbitrum", {
+  const safeBridge = await deploy("SafeBridgeSenderToEthereum", {
     from: deployer,
     log: true,
   }); // nonce
@@ -23,9 +23,9 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // TODO: use deterministic deployments
   const fastBridgeReceiver =
     chainId === 31337
-      ? await deployments.get("FastBridgeReceiver")
-      : await hre.companionNetworks.foreign.deployments.get("FastBridgeReceiver");
-  const fastBridgeSender = await deploy("FastBridgeSender", {
+      ? await deployments.get("FastBridgeReceiverOnEthereum")
+      : await hre.companionNetworks.foreign.deployments.get("FastBridgeReceiverOnEthereum");
+  const fastBridgeSender = await deploy("FastBridgeSenderToEthereum", {
     from: deployer,
     args: [deployer, safeBridge.address, fastBridgeReceiver.address],
     log: true,
@@ -34,20 +34,20 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const klerosCore = await deployments.get("KlerosCore");
   const foreignGateway =
     chainId === 31337
-      ? await deployments.get("ForeignGateway")
-      : await hre.companionNetworks.foreign.deployments.get("ForeignGateway");
+      ? await deployments.get("ForeignGatewayOnEthereum")
+      : await hre.companionNetworks.foreign.deployments.get("ForeignGatewayOnEthereum");
   const foreignChainId = chainId === 31337 ? 31337 : Number(await hre.companionNetworks.foreign.getChainId());
-  const homeGateway = await deploy("HomeGateway", {
+  const homeGateway = await deploy("HomeGatewayToEthereum", {
     from: deployer,
     args: [klerosCore.address, fastBridgeSender.address, foreignGateway.address, foreignChainId],
     log: true,
   }); // nonce+2
 
   const fastSender = await hre.ethers
-    .getContractAt("FastBridgeSender", fastBridgeSender.address)
+    .getContractAt("FastBridgeSenderToEthereum", fastBridgeSender.address)
     .then((contract) => contract.fastSender());
   if (fastSender === ethers.constants.AddressZero) {
-    await execute("FastBridgeSender", { from: deployer, log: true }, "setFastSender", homeGateway.address);
+    await execute("FastBridgeSenderToEthereum", { from: deployer, log: true }, "setFastSender", homeGateway.address);
   }
 };
 

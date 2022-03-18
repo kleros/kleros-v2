@@ -13,7 +13,11 @@ pragma solidity ^0.8.0;
 import "./interfaces/gnosis-chain/IAMB.sol";
 import "./interfaces/ISafeBridge.sol";
 
-contract SafeBridgeGnosis is ISafeBridge {
+/**
+ * Safe Bridge Sender to Gnosis from Ethereum
+ * Counterpart of `SafeBridgeReceiverOnGnosis` if any
+ */
+contract SafeBridgeSenderToGnosis is ISafeBridge {
     IAMB public immutable amb;
 
     constructor(IAMB _amb) {

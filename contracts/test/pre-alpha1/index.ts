@@ -5,12 +5,12 @@ import {
   IncrementalNG,
   PNK,
   KlerosCore,
-  FastBridgeReceiver,
-  ForeignGateway,
+  FastBridgeReceiverOnEthereum,
+  ForeignGatewayOnEthereum,
   ArbitrableExample,
-  SafeBridgeArbitrum,
-  FastBridgeSender,
-  HomeGateway,
+  SafeBridgeSenderToEthereum,
+  FastBridgeSenderToEthereum,
+  HomeGatewayToEthereum,
 } from "../../typechain-types";
 import exp from "constants";
 
@@ -57,12 +57,12 @@ describe("Demo pre-alpha1", function () {
     disputeKit = <KlerosCore>await ethers.getContract("DisputeKitClassic");
     pnk = <PNK>await ethers.getContract("PNK");
     core = <KlerosCore>await ethers.getContract("KlerosCore");
-    fastBridgeReceiver = <FastBridgeReceiver>await ethers.getContract("FastBridgeReceiver");
-    foreignGateway = <ForeignGateway>await ethers.getContract("ForeignGateway");
+    fastBridgeReceiver = <FastBridgeReceiverOnEthereum>await ethers.getContract("FastBridgeReceiverOnEthereum");
+    foreignGateway = <ForeignGatewayOnEthereum>await ethers.getContract("ForeignGatewayOnEthereum");
     arbitrable = <ArbitrableExample>await ethers.getContract("ArbitrableExample");
-    safeBridgeArbitrum = <SafeBridgeArbitrum>await ethers.getContract("SafeBridgeArbitrum");
-    fastBridgeSender = <FastBridgeSender>await ethers.getContract("FastBridgeSender");
-    homeGateway = <HomeGateway>await ethers.getContract("HomeGateway");
+    safeBridgeArbitrum = <SafeBridgeSenderToEthereum>await ethers.getContract("SafeBridgeSenderToEthereum");
+    fastBridgeSender = <FastBridgeSenderToEthereum>await ethers.getContract("FastBridgeSenderToEthereum");
+    homeGateway = <HomeGatewayToEthereum>await ethers.getContract("HomeGatewayToEthereum");
   });
 
   it("RNG", async () => {

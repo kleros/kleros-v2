@@ -15,7 +15,11 @@ import "../bridge/interfaces/IFastBridgeReceiver.sol";
 
 import "./interfaces/IForeignGateway.sol";
 
-contract ForeignGateway is IForeignGateway {
+/**
+ * Foreign Gateway on Ethereum
+ * Counterpart of `HomeGatewayToEthereum`
+ */
+contract ForeignGatewayOnEthereum is IForeignGateway {
     // The global default minimum number of jurors in a dispute.
     uint256 public constant MIN_JURORS = 3;
 

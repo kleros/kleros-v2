@@ -15,7 +15,11 @@ import "./interfaces/arbitrum/AddressAliasHelper.sol";
 
 import "./interfaces/ISafeBridge.sol";
 
-contract SafeBridgeArbitrum is ISafeBridge {
+/**
+ * Safe Bridge Sender to Ethereum from Arbitrum
+ * Counterpart of `SafeBridgeReceiverOnEthereum` if any
+ */
+contract SafeBridgeSenderToEthereum is ISafeBridge {
     IArbSys public constant ARB_SYS = IArbSys(address(100));
 
     event L2ToL1TxCreated(uint256 indexed withdrawalId);

@@ -14,7 +14,11 @@ import "./interfaces/ISafeBridge.sol";
 import "./interfaces/IFastBridgeSender.sol";
 import "./interfaces/IFastBridgeReceiver.sol";
 
-contract FastBridgeSender is IFastBridgeSender {
+/**
+ * Fast Bridge Sender to Ethereum from Arbitrum
+ * Counterpart of `FastBridgeReceiverOnEthereum`
+ */
+contract FastBridgeSenderToEthereum is IFastBridgeSender {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -30,7 +34,7 @@ contract FastBridgeSender is IFastBridgeSender {
 
     /**
      * The bridgers need to watch for these events and
-     * relay the messageHash on the FastBridgeReceiver.
+     * relay the messageHash on the FastBridgeReceiverOnEthereum.
      */
     event OutgoingMessage(address indexed target, bytes32 indexed messageHash, bytes message);
 
@@ -86,13 +90,13 @@ contract FastBridgeSender is IFastBridgeSender {
      * @param _calldata The receiving domain encoded message data.
      */
     function sendSafe(address _receiver, bytes memory _calldata) external payable {
-        // The safe bridge sends the encoded data to the FastBridgeReceiver
-        // in order for the FastBridgeReceiver to resolve any potential
+        // The safe bridge sends the encoded data to the FastBridgeReceiverOnEthereum
+        // in order for the FastBridgeReceiverOnEthereum to resolve any potential
         // challenges and then forwards the message to the actual
         // intended recipient encoded in `data`
         // TODO: For this encodedData needs to be wrapped into an
         // IFastBridgeReceiver function.
-        // TODO: add access checks for this on the FastBridgeReceiver.
+        // TODO: add access checks for this on the FastBridgeReceiverOnEthereum.
         // TODO: how much ETH should be provided for bridging? add an ISafeBridge.bridgingCost()
         bytes memory encodedData = abi.encode(_receiver, _calldata);
         safebridge.sendSafe{value: msg.value}(address(fastBridgeReceiver), encodedData);

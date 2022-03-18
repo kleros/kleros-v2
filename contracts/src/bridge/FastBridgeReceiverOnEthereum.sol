@@ -14,7 +14,11 @@ import "./interfaces/IFastBridgeReceiver.sol";
 import "./interfaces/arbitrum/IInbox.sol";
 import "./interfaces/arbitrum/IOutbox.sol";
 
-contract FastBridgeReceiver is IFastBridgeReceiver {
+/**
+ * Fast Bridge Receiver on Ethereum from Arbitrum
+ * Counterpart of `FastBridgeSenderToEthereum`
+ */
+contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //

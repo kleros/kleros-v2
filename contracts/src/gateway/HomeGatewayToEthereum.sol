@@ -16,7 +16,11 @@ import "../bridge/interfaces/IFastBridgeSender.sol";
 import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
 
-contract HomeGateway is IHomeGateway {
+/**
+ * Home Gateway to Ethereum
+ * Counterpart of `ForeignGatewayOnEthereum`
+ */
+contract HomeGatewayToEthereum is IHomeGateway {
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => uint256) public disputeHashtoID;
 
