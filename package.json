@@ -43,7 +43,8 @@
     "solhint-plugin-prettier": "^0.0.5"
   },
   "resolutions": {
-    "underscore@npm": "^1.13.2"
+    "underscore@npm": "^1.13.2",
+    "lodash@npm": "^4.17.21"
   },
   "commitlint": {
     "extends": [
