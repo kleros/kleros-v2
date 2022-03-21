@@ -1,7 +1,6 @@
 import * as dotenv from "dotenv";
 
 import { HardhatUserConfig } from "hardhat/config";
-import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "@tenderly/hardhat-tenderly";
 import "hardhat-gas-reporter";

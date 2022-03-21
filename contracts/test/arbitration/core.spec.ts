@@ -1,7 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { AddressZero } from "@ethersproject/constants";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   ConstantNG,
   ConstantNG__factory,
@@ -15,6 +14,7 @@ import {
 import { expectGoverned, getSortitionSumTreeLibrary, randomInt } from "../shared";
 import type { BigNumberish } from "ethers";
 import { generateSubcourts, getDisputeExtraData } from "../shared/arbitration";
+import { SignerWithAddress } from "hardhat-deploy-ethers/signers";
 
 const JUROR_PROSECUTION_MODULE_ADDRESS = AddressZero;
 const HIDDEN_VOTES = false;

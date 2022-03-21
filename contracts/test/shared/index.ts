@@ -1,4 +1,4 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { SignerWithAddress } from "hardhat-deploy-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Contract } from "ethers";

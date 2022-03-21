@@ -1535,7 +1535,6 @@ __metadata:
   resolution: "@kleros/kleros-v2-contracts@workspace:contracts"
   dependencies:
     "@nomiclabs/hardhat-ethers": ^2.0.5
-    "@nomiclabs/hardhat-waffle": ^2.0.3
     "@openzeppelin/contracts": ^4.5.0
     "@tenderly/hardhat-tenderly": ^1.0.13
     "@typechain/ethers-v5": ^9.0.0
@@ -1640,21 +1639,6 @@ __metadata:
     ethers: ^5.0.0
     hardhat: ^2.0.0
   checksum: 07a5916f9fbb1efd24effc0d3949c70d1f45240d0bc4705653f1d378573c419c72d9a00f8db48b19c4aa27bd6c9dc0033aa40717cc9d77025a2cceeb59668463
-  languageName: node
-  linkType: hard
-
-"@nomiclabs/hardhat-waffle@npm:^2.0.3":
-  version: 2.0.3
-  resolution: "@nomiclabs/hardhat-waffle@npm:2.0.3"
-  dependencies:
-    "@types/sinon-chai": ^3.2.3
-    "@types/web3": 1.0.19
-  peerDependencies:
-    "@nomiclabs/hardhat-ethers": ^2.0.0
-    ethereum-waffle: ^3.2.0
-    ethers: ^5.0.0
-    hardhat: ^2.0.0
-  checksum: e68c9e13905caa54a10fa68d9ad7dc905c86469c879f91e999a1c4d039dd2f9fa43a8ed90ab975afb14a79cd6badeb60a7cf50dc6564660edd192614c55875ca
   languageName: node
   linkType: hard
 
@@ -2743,15 +2727,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/bn.js@npm:*, @types/bn.js@npm:^5.1.0":
-  version: 5.1.0
-  resolution: "@types/bn.js@npm:5.1.0"
-  dependencies:
-    "@types/node": "*"
-  checksum: 1dc1cbbd7a1e8bf3614752e9602f558762a901031f499f3055828b5e3e2bba16e5b88c27b3c4152ad795248fbe4086c731a5c4b0f29bb243f1875beeeabee59c
-  languageName: node
-  linkType: hard
-
 "@types/bn.js@npm:^4.11.3, @types/bn.js@npm:^4.11.5":
   version: 4.11.6
   resolution: "@types/bn.js@npm:4.11.6"
@@ -2761,7 +2736,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chai@npm:*, @types/chai@npm:^4.3.0":
+"@types/bn.js@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "@types/bn.js@npm:5.1.0"
+  dependencies:
+    "@types/node": "*"
+  checksum: 1dc1cbbd7a1e8bf3614752e9602f558762a901031f499f3055828b5e3e2bba16e5b88c27b3c4152ad795248fbe4086c731a5c4b0f29bb243f1875beeeabee59c
+  languageName: node
+  linkType: hard
+
+"@types/chai@npm:^4.3.0":
   version: 4.3.0
   resolution: "@types/chai@npm:4.3.0"
   checksum: 3e393e094263db65df28a0123dc13f342937c1bab6cd173eae913d593c5b9a16b555713a08c34863a1fbf079aa7222b96197c70380a5c130549d6b2f6845a989
@@ -3033,32 +3017,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sinon-chai@npm:^3.2.3":
-  version: 3.2.8
-  resolution: "@types/sinon-chai@npm:3.2.8"
-  dependencies:
-    "@types/chai": "*"
-    "@types/sinon": "*"
-  checksum: a0f7a8cef24904db25a695f3c3adcc03ae72bab89a954c9b6e23fe7e541228e67fe4119cec069e8b36c80e9af33102b626129ff538efade9391cc0f65f1d4933
-  languageName: node
-  linkType: hard
-
-"@types/sinon@npm:*":
-  version: 10.0.11
-  resolution: "@types/sinon@npm:10.0.11"
-  dependencies:
-    "@types/sinonjs__fake-timers": "*"
-  checksum: 196f3e26985dca5dfb593592e4b64463e536c047a9f43aa2b328b16024a3b0e3fb27b7a3f3972c6ef75749f55012737eb6c63a1c2e9782b7fe5cbbd25f75fd62
-  languageName: node
-  linkType: hard
-
-"@types/sinonjs__fake-timers@npm:*":
-  version: 8.1.1
-  resolution: "@types/sinonjs__fake-timers@npm:8.1.1"
-  checksum: ca09d54d47091d87020824a73f026300fa06b17cd9f2f9b9387f28b549364b141ef194ee28db762f6588de71d8febcd17f753163cb7ea116b8387c18e80ebd5c
-  languageName: node
-  linkType: hard
-
 "@types/styled-components@npm:^5.1.21":
   version: 5.1.24
   resolution: "@types/styled-components@npm:5.1.24"
@@ -3067,23 +3025,6 @@ __metadata:
     "@types/react": "*"
     csstype: ^3.0.2
   checksum: 158c69085ad899622f558426c623d3052f7b521ede01c0fd342280c93ef2ac462a39c4c3b2374e7c7e2630fcc64dfcfd8f4446c8d4809cbac9a7b962a73357c0
-  languageName: node
-  linkType: hard
-
-"@types/underscore@npm:*":
-  version: 1.11.4
-  resolution: "@types/underscore@npm:1.11.4"
-  checksum: db9f8486bc851b732259e51f42d62aad1ae2158be5724612dc125ece5f5d61c51447f9dea28284c2a0f79cb95e788d01cb5ce97709880019213e69fab0dd1696
-  languageName: node
-  linkType: hard
-
-"@types/web3@npm:1.0.19":
-  version: 1.0.19
-  resolution: "@types/web3@npm:1.0.19"
-  dependencies:
-    "@types/bn.js": "*"
-    "@types/underscore": "*"
-  checksum: 25a78e80052cca8abe5edf15c0ae92854d00d1bec15283486a2535ab673345b0be090e39cc9a86822be17ddd812fa76cbfd869be21bb944d2faaf2922e2a836a
   languageName: node
   linkType: hard
 

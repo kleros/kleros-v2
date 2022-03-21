@@ -7,7 +7,7 @@ import {
   ModeratedEvidenceModule,
   ModeratedEvidenceModule__factory,
 } from "../typechain-types";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { SignerWithAddress } from "hardhat-deploy-ethers/signers";
 import { expectEvent, expectGoverned, increaseTime } from "./shared";
 import { Zero, One } from "@ethersproject/constants";
 import { Party } from "./shared/enums/evidence";

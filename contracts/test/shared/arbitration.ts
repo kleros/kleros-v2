@@ -1,6 +1,6 @@
 import { randomInt } from ".";
 import type { BigNumberish } from "ethers";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { SignerWithAddress } from "hardhat-deploy-ethers/signers";
 import { DisputeKitClassic, KlerosCore } from "../../typechain-types";
 
 export interface SubcourtCreationParams {
