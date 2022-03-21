@@ -10,15 +10,14 @@
 
 pragma solidity ^0.8.0;
 
+import "./SafeBridgeReceiverOnEthereum.sol";
 import "./interfaces/IFastBridgeReceiver.sol";
-import "./interfaces/arbitrum/IInbox.sol";
-import "./interfaces/arbitrum/IOutbox.sol";
 
 /**
  * Fast Bridge Receiver on Ethereum from Arbitrum
  * Counterpart of `FastBridgeSenderToEthereum`
  */
-contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver {
+contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBridgeReceiver {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -34,7 +33,6 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver {
     // *             Storage               * //
     // ************************************* //
 
-    address public governor;
     uint256 public override claimDeposit;
     uint256 public override challengeDeposit;
     uint256 public override challengeDuration;
@@ -47,22 +45,14 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver {
     event ClaimReceived(bytes32 indexed messageHash, uint256 claimedAt);
     event ClaimChallenged(bytes32 indexed _messageHash, uint256 challengedAt);
 
-    // ************************************* //
-    // *        Function Modifiers         * //
-    // ************************************* //
-
-    modifier onlyByGovernor() {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
-        _;
-    }
-
     constructor(
         address _governor,
+        address _safeBridgeSender,
+        address _inbox,
         uint256 _claimDeposit,
         uint256 _challengeDeposit,
         uint256 _challengeDuration
-    ) {
-        governor = _governor;
+    ) SafeBridgeReceiverOnEthereum(_governor, _safeBridgeSender, _inbox) {
         claimDeposit = _claimDeposit;
         challengeDeposit = _challengeDeposit;
         challengeDuration = _challengeDuration;
@@ -108,6 +98,8 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver {
     }
 
     function verifyAndRelaySafe(bytes32 _messageHash, bytes memory _encodedData) external override {
+        require(isSentBySafeBridge(), "Access not allowed: SafeBridgeSender only.");
+
         // TODO
         revert("Not Implemented");
     }

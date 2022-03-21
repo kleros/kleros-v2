@@ -14,11 +14,6 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   console.log("deployer: %s", deployer);
 
-  const safeBridge = await deploy("SafeBridgeSenderToEthereum", {
-    from: deployer,
-    log: true,
-  }); // nonce
-
   // The object below is not available when launching the hardhat node.
   // TODO: use deterministic deployments
   const fastBridgeReceiver =
@@ -27,9 +22,9 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       : await hre.companionNetworks.foreign.deployments.get("FastBridgeReceiverOnEthereum");
   const fastBridgeSender = await deploy("FastBridgeSenderToEthereum", {
     from: deployer,
-    args: [deployer, safeBridge.address, fastBridgeReceiver.address],
+    args: [deployer, fastBridgeReceiver.address],
     log: true,
-  }); // nonce+1
+  }); // nonce+0
 
   const klerosCore = await deployments.get("KlerosCore");
   const foreignGateway =
@@ -41,7 +36,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     from: deployer,
     args: [klerosCore.address, fastBridgeSender.address, foreignGateway.address, foreignChainId],
     log: true,
-  }); // nonce+2
+  }); // nonce+1
 
   const fastSender = await hre.ethers
     .getContractAt("FastBridgeSenderToEthereum", fastBridgeSender.address)

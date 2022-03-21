@@ -50,11 +50,11 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   let nonce;
   if (chainId === ForeignChains.HARDHAT) {
     nonce = await ethers.provider.getTransactionCount(deployer);
-    nonce += 5; // HomeGatewayToEthereum deploy tx will be the 6th after this, same network for both home/foreign.
+    nonce += 4; // HomeGatewayToEthereum deploy tx will be the 6th after this, same network for both home/foreign.
   } else {
     const homeChainProvider = new providers.JsonRpcProvider(homeNetworks[chainId].url);
     nonce = await homeChainProvider.getTransactionCount(deployer);
-    nonce += 2; // HomeGatewayToEthereum deploy tx will the third tx after this on its home network, so we add two to the current nonce.
+    nonce += 1; // HomeGatewayToEthereum deploy tx will the third tx after this on its home network, so we add two to the current nonce.
   }
   const { claimDeposit, challengeDuration, homeChainId } = paramsByChainId[chainId];
   const challengeDeposit = claimDeposit;
@@ -65,7 +65,14 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
 
   const fastBridgeReceiver = await deploy("FastBridgeReceiverOnEthereum", {
     from: deployer,
-    args: [deployer, claimDeposit, challengeDeposit, challengeDuration],
+    args: [
+      deployer,
+      ethers.constants.AddressZero, // should be safeBridgeSender
+      ethers.constants.AddressZero, // should be Arbitrum Inbox
+      claimDeposit,
+      challengeDeposit,
+      challengeDuration,
+    ],
     log: true,
   });
 

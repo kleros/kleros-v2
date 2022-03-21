@@ -8,11 +8,9 @@ import {
   FastBridgeReceiverOnEthereum,
   ForeignGatewayOnEthereum,
   ArbitrableExample,
-  SafeBridgeSenderToEthereum,
   FastBridgeSenderToEthereum,
   HomeGatewayToEthereum,
 } from "../../typechain-types";
-import exp from "constants";
 
 /* eslint-disable no-unused-vars */
 
@@ -31,17 +29,7 @@ describe("Demo pre-alpha1", function () {
   }
 
   let deployer, relayer, bridger, challenger, innocentBystander;
-
-  let ng,
-    disputeKit,
-    pnk,
-    core,
-    fastBridgeReceiver,
-    foreignGateway,
-    arbitrable,
-    safeBridgeArbitrum,
-    fastBridgeSender,
-    homeGateway;
+  let ng, disputeKit, pnk, core, fastBridgeReceiver, foreignGateway, arbitrable, fastBridgeSender, homeGateway;
 
   before("Setup", async () => {
     deployer = (await getNamedAccounts()).deployer;
@@ -60,7 +48,6 @@ describe("Demo pre-alpha1", function () {
     fastBridgeReceiver = <FastBridgeReceiverOnEthereum>await ethers.getContract("FastBridgeReceiverOnEthereum");
     foreignGateway = <ForeignGatewayOnEthereum>await ethers.getContract("ForeignGatewayOnEthereum");
     arbitrable = <ArbitrableExample>await ethers.getContract("ArbitrableExample");
-    safeBridgeArbitrum = <SafeBridgeSenderToEthereum>await ethers.getContract("SafeBridgeSenderToEthereum");
     fastBridgeSender = <FastBridgeSenderToEthereum>await ethers.getContract("FastBridgeSenderToEthereum");
     homeGateway = <HomeGatewayToEthereum>await ethers.getContract("HomeGatewayToEthereum");
   });
