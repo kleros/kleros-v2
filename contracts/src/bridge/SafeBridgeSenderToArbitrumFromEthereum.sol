@@ -13,14 +13,13 @@ pragma solidity ^0.8.0;
 import "./interfaces/arbitrum/IInbox.sol";
 import "./interfaces/arbitrum/IOutbox.sol";
 import "./interfaces/arbitrum/IArbRetryableTx.sol";
-
-import "./interfaces/ISafeBridge.sol";
+import "./interfaces/ISafeBridgeSender.sol";
 
 /**
  * Safe Bridge Sender to Arbitrum from Ethereum
  * Counterpart of `SafeBridgeReceiverOnArbitrumFromEthereum` if any
  */
-contract SafeBridgeSenderToArbitrumFromEthereum is ISafeBridge {
+contract SafeBridgeSenderToArbitrumFromEthereum is ISafeBridgeSender {
     IArbRetryableTx public constant ARBITRUM_RETRYABLE_TX = IArbRetryableTx(address(110));
     address public immutable safeBridgeSender;
     IInbox public immutable inbox;
@@ -62,7 +61,7 @@ contract SafeBridgeSenderToArbitrumFromEthereum is ISafeBridge {
      * @param _calldata The encoded message data.
      * @return Unique id to track the message request/transaction.
      */
-    function sendSafe(address _receiver, bytes memory _calldata) external payable override returns (uint256) {
+    function _sendSafe(address _receiver, bytes memory _calldata) internal override returns (uint256) {
         require(msg.sender == safeBridgeSender, "Access not allowed: Safe Bridge Sender only.");
 
         uint256 baseSubmissionCost = bridgingCost(_calldata.length);

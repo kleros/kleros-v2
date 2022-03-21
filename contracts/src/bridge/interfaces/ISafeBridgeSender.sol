@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-interface ISafeBridge {
+abstract contract ISafeBridgeSender {
     /**
      * Sends an arbitrary message from one domain to another.
      *
@@ -10,5 +10,5 @@ interface ISafeBridge {
      * @param _calldata The L2 encoded message data.
      * @return Unique id to track the message request/transaction.
      */
-    function sendSafe(address _receiver, bytes memory _calldata) external payable returns (uint256);
+    function _sendSafe(address _receiver, bytes memory _calldata) internal virtual returns (uint256);
 }

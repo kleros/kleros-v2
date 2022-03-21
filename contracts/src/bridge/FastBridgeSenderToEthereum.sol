@@ -10,7 +10,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/ISafeBridge.sol";
+import "./SafeBridgeSenderToEthereum.sol";
 import "./interfaces/IFastBridgeSender.sol";
 import "./interfaces/IFastBridgeReceiver.sol";
 
@@ -18,13 +18,12 @@ import "./interfaces/IFastBridgeReceiver.sol";
  * Fast Bridge Sender to Ethereum from Arbitrum
  * Counterpart of `FastBridgeReceiverOnEthereum`
  */
-contract FastBridgeSenderToEthereum is IFastBridgeSender {
+contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSender {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
     address public governor;
-    ISafeBridge public safebridge;
     IFastBridgeReceiver public fastBridgeReceiver;
     address public fastSender;
 
@@ -47,13 +46,8 @@ contract FastBridgeSenderToEthereum is IFastBridgeSender {
         _;
     }
 
-    constructor(
-        address _governor,
-        ISafeBridge _safebridge,
-        IFastBridgeReceiver _fastBridgeReceiver
-    ) {
+    constructor(address _governor, IFastBridgeReceiver _fastBridgeReceiver) SafeBridgeSenderToEthereum() {
         governor = _governor;
-        safebridge = _safebridge;
         fastBridgeReceiver = _fastBridgeReceiver;
     }
 
@@ -72,9 +66,9 @@ contract FastBridgeSenderToEthereum is IFastBridgeSender {
         require(msg.sender == fastSender, "Access not allowed: Fast Sender only.");
 
         // Encode the receiver address with the function signature + arguments i.e calldata
-        bytes memory encodedData = abi.encode(_receiver, _calldata);
+        bytes memory messageData = abi.encode(_receiver, _calldata);
 
-        emit OutgoingMessage(_receiver, keccak256(encodedData), encodedData);
+        emit OutgoingMessage(_receiver, keccak256(messageData), messageData);
     }
 
     /**
@@ -89,17 +83,15 @@ contract FastBridgeSenderToEthereum is IFastBridgeSender {
      * @param _receiver The L1 contract address who will receive the calldata
      * @param _calldata The receiving domain encoded message data.
      */
-    function sendSafe(address _receiver, bytes memory _calldata) external payable {
-        // The safe bridge sends the encoded data to the FastBridgeReceiverOnEthereum
-        // in order for the FastBridgeReceiverOnEthereum to resolve any potential
-        // challenges and then forwards the message to the actual
-        // intended recipient encoded in `data`
-        // TODO: For this encodedData needs to be wrapped into an
-        // IFastBridgeReceiver function.
-        // TODO: add access checks for this on the FastBridgeReceiverOnEthereum.
-        // TODO: how much ETH should be provided for bridging? add an ISafeBridge.bridgingCost()
-        bytes memory encodedData = abi.encode(_receiver, _calldata);
-        safebridge.sendSafe{value: msg.value}(address(fastBridgeReceiver), encodedData);
+    function sendSafeFallback(address _receiver, bytes memory _calldata) external payable override {
+        bytes memory messageData = abi.encode(_receiver, _calldata);
+
+        // Safe Bridge message envelope
+        bytes4 methodSelector = IFastBridgeReceiver.verifyAndRelaySafe.selector;
+        bytes memory safeMessageData = abi.encodeWithSelector(methodSelector, keccak256(messageData), messageData);
+
+        // TODO: how much ETH should be provided for bridging? add an ISafeBridgeSender.bridgingCost() if needed
+        _sendSafe(address(fastBridgeReceiver), safeMessageData);
     }
 
     // ************************ //
