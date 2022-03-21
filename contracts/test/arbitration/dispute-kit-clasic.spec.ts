@@ -12,10 +12,11 @@ import {
   DisputeKitClassic__factory,
   KlerosCore,
   KlerosCore__factory,
+  PNK,
+  PNK__factory,
 } from "../../typechain-types";
 import { expectGoverned, getSortitionSumTreeLibrary } from "../shared";
 
-const PNK_ADDRESS = AddressZero;
 const JUROR_PROSECUTION_MODULE_ADDRESS = AddressZero;
 const HIDDEN_VOTES = false;
 const MIN_STAKE = 200;
@@ -26,19 +27,22 @@ const TIMES_PER_PERIOD = [0, 0, 0, 0] as [BigNumberish, BigNumberish, BigNumberi
 const SORTITION_SUM_TREE_K = 3;
 
 describe("DisputeKitClassic", function () {
-  let [deployer, maliciousActor, innocentBystander]: SignerWithAddress[] = [];
+  let [deployer, aspiringJuror, maliciousActor, innocentBystander]: SignerWithAddress[] = [];
 
   let rng: ConstantNG;
+  let pnk: PNK;
   let core: KlerosCore;
   let disputeKit: DisputeKitClassic;
   // let arbitrable: ArbitrableExample;
 
   before("Initialize wallets", async () => {
-    [deployer, maliciousActor, innocentBystander] = await ethers.getSigners();
+    [deployer, aspiringJuror, maliciousActor, innocentBystander] = await ethers.getSigners();
   });
 
   beforeEach("Deploy contracts", async () => {
     rng = await new ConstantNG__factory(deployer).deploy(42);
+    pnk = await new PNK__factory(deployer).deploy();
+    await pnk.connect(deployer).transfer(aspiringJuror.address, 1000);
 
     disputeKit = await new DisputeKitClassic__factory(deployer).deploy(
       deployer.address,
@@ -49,7 +53,7 @@ describe("DisputeKitClassic", function () {
     const sortitionSumTreeLibrary = await getSortitionSumTreeLibrary(deployer);
     core = await new KlerosCore__factory(sortitionSumTreeLibrary, deployer).deploy(
       deployer.address,
-      PNK_ADDRESS,
+      pnk.address,
       JUROR_PROSECUTION_MODULE_ADDRESS,
       disputeKit.address,
       HIDDEN_VOTES,
@@ -94,5 +98,16 @@ describe("DisputeKitClassic", function () {
       .withRealAndFakeGovernor(deployer, maliciousActor)
       .args(innocentBystander.address);
     expect(await disputeKit.rng()).to.equal(innocentBystander.address);
+  });
+
+  describe("Arbitration", () => {
+    // it("Should create disputes", async () => {
+    //   const dispute = { appeals: 0, numberOfJurors: 3, subcourtID: 1, voteRatios: [0, 1, 2] };
+    //   const extraData = `0x${dispute.subcourtID.toString(16).padStart(64, "0")}${dispute.numberOfJurors
+    //     .toString(16)
+    //     .padStart(64, "0")}`;
+    //   await core.createDispute(2, extraData, { value: await core.arbitrationCost(extraData) });
+    //   await core.setStake(dispute.subcourtID, subcourtMap[dispute.subcourtID].minStake);
+    // });
   });
 });

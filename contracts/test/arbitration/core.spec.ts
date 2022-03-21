@@ -1,6 +1,5 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { type BigNumberish } from "ethers";
 import { AddressZero } from "@ethersproject/constants";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
@@ -14,6 +13,8 @@ import {
   PNK__factory,
 } from "../../typechain-types";
 import { expectGoverned, getSortitionSumTreeLibrary, randomInt } from "../shared";
+import type { BigNumberish } from "ethers";
+import { generateSubcourts, getDisputeExtraData } from "../shared/arbitration";
 
 const JUROR_PROSECUTION_MODULE_ADDRESS = AddressZero;
 const HIDDEN_VOTES = false;
@@ -149,7 +150,7 @@ describe("KlerosCore", function () {
     });
 
     it("Should correctly create subcourts", async () => {
-      const subcourts = await generateSubcourts(deployer, core, disputeKit);
+      const subcourts = await generateSubcourts(deployer, core, disputeKit, MIN_STAKE);
 
       let randomCourtID = randomInt(0, subcourts.length);
       let randomCourt = await core.courts(randomCourtID + 1);
@@ -165,86 +166,40 @@ describe("KlerosCore", function () {
       expect(randomCourt.jurorsForCourtJump).to.equal(subcourts[randomCourtID].jurorsForCourtJump);
       expect(randomCourt.minStake).to.equal(subcourts[randomCourtID].minStake);
     });
+  });
 
-    it("Should set stake correctly", async () => {
-      await core.createSubcourt(0, true, 234, 56, 78, 5, [100, 200, 300, 400], 3, disputeKit.address);
+  it("Should set stake correctly", async () => {
+    await core.createSubcourt(0, true, 234, 56, 78, 5, [100, 200, 300, 400], 3, disputeKit.address);
 
-      expect(await pnk.balanceOf(aspiringJuror.address)).to.equal(0);
-      await pnk.connect(deployer).transfer(aspiringJuror.address, 1000);
-      expect(await pnk.balanceOf(aspiringJuror.address)).to.equal(1000);
-      await pnk.connect(aspiringJuror).increaseAllowance(core.address, 500);
+    expect(await pnk.balanceOf(aspiringJuror.address)).to.equal(0);
+    await pnk.connect(deployer).transfer(aspiringJuror.address, 1000);
+    expect(await pnk.balanceOf(aspiringJuror.address)).to.equal(1000);
+    await pnk.connect(aspiringJuror).approve(core.address, 500);
 
-      await expect(core.connect(aspiringJuror).setStake(0, MIN_STAKE - 1)).to.be.revertedWith("Staking failed");
-      await core.connect(aspiringJuror).setStake(0, MIN_STAKE);
-      expect(await pnk.balanceOf(aspiringJuror.address)).to.equal(1000 - MIN_STAKE);
-    });
+    await expect(core.connect(aspiringJuror).setStake(0, MIN_STAKE - 1)).to.be.revertedWith("Staking failed");
+
+    await core.connect(aspiringJuror).setStake(0, MIN_STAKE);
+    expect(await pnk.balanceOf(aspiringJuror.address)).to.equal(1000 - MIN_STAKE);
+
+    let jurorBalance = await core.getJurorBalance(aspiringJuror.address, 0);
+    expect(jurorBalance.staked).to.equal(MIN_STAKE);
+    expect(jurorBalance.locked).to.equal(0);
+
+    await core.connect(aspiringJuror).setStake(0, 0);
+    expect(await pnk.balanceOf(aspiringJuror.address)).to.equal(1000);
+
+    jurorBalance = await core.getJurorBalance(aspiringJuror.address, 0);
+    expect(jurorBalance.staked).to.equal(0);
+    expect(jurorBalance.locked).to.equal(0);
+  });
+
+  it("Should return correct arbitration cost", async () => {
+    expect(await core.arbitrationCost(getDisputeExtraData(0, 3, 0))).to.equal(FEE_FOR_JUROR * 3);
+    expect(await core.arbitrationCost(getDisputeExtraData(0, 24, 0))).to.equal(FEE_FOR_JUROR * 24);
+
+    const subcourtJurorFee = 78;
+    await core.createSubcourt(0, true, 234, 56, subcourtJurorFee, 5, [100, 200, 300, 400], 3, disputeKit.address);
+    expect(await core.arbitrationCost(getDisputeExtraData(1, 3, 0))).to.equal(subcourtJurorFee * 3);
+    expect(await core.arbitrationCost(getDisputeExtraData(1, 24, 0))).to.equal(subcourtJurorFee * 24);
   });
 });
-
-interface SubcourtCreationParams {
-  parent?: BigNumberish;
-  hiddenVotes: boolean;
-  minStake: BigNumberish;
-  alpha: BigNumberish;
-  feeForJuror: BigNumberish;
-  jurorsForCourtJump: BigNumberish;
-  timesPerPeriod: [BigNumberish, BigNumberish, BigNumberish, BigNumberish];
-  sortitionSumTreeK: BigNumberish;
-  supportedDisputeKit?: BigNumberish;
-  children?: SubcourtCreationParams[];
-}
-
-function createCourtsTree(prevMinStake: number = 100, depth: number = 0) {
-  const court = {
-    alpha: randomInt(1, 1000),
-    hiddenVotes: randomInt(0, 1) === 0,
-    feeForJuror: randomInt(1, 100),
-    jurorsForCourtJump: randomInt(3, 15),
-    minStake: Math.max(randomInt(1, 100), prevMinStake),
-    sortitionSumTreeK: randomInt(2, 5),
-    timesPerPeriod: [...new Array(4)].map(() => randomInt(1, 5)) as [
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish
-    ],
-    children: [] as SubcourtCreationParams[],
-  };
-
-  if (depth < randomInt(1, 5)) {
-    for (let i = 0; i < randomInt(1, 5); i++) {
-      court.children.push(createCourtsTree(court.minStake as number, depth + 1));
-    }
-  }
-
-  return court;
-}
-
-const generateSubcourts = async (deployer: SignerWithAddress, core: KlerosCore, disputeKit: DisputeKitClassic) => {
-  const subcourts: SubcourtCreationParams[] = [];
-  const createSubcourts = async (courts: SubcourtCreationParams[]) => {
-    const parentID = subcourts.length;
-    for (const court of courts) {
-      await core
-        .connect(deployer)
-        .createSubcourt(
-          parentID,
-          court.hiddenVotes,
-          court.minStake,
-          court.alpha,
-          court.feeForJuror,
-          court.jurorsForCourtJump,
-          court.timesPerPeriod,
-          court.sortitionSumTreeK,
-          disputeKit.address
-        );
-      const courtChildren = court.children;
-      delete court.children;
-      court.parent = parentID;
-      subcourts.push(court);
-      if (courtChildren) await createSubcourts(courtChildren);
-    }
-  };
-  await createSubcourts(createCourtsTree(MIN_STAKE).children!);
-  return subcourts;
-};
