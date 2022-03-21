@@ -9,14 +9,7 @@
     "sourceMap": true,
     "noImplicitAny": false
   },
-  "include": [
-    "./src",
-    "./scripts",
-    "./test",
-    "./typechain",
-    "./deploy"
-  ],
-  "files": [
-    "./hardhat.config.ts"
-  ]
+  "include": ["./src", "./scripts", "./test", "./typechain", "./typechain-types", "./deploy"],
+  "exclude": ["node_modules"],
+  "files": ["./hardhat.config.ts"]
 }

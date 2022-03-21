@@ -1,4 +1,8 @@
-import chaiModule from "chai";
+import chai from "chai";
+import { solidity } from "ethereum-waffle";
 import { chaiEthers } from "chai-ethers";
-chaiModule.use(chaiEthers);
-export = chaiModule;
+
+chai.use(solidity);
+chai.use(chaiEthers);
+
+export = chai;

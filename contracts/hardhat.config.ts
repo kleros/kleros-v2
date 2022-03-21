@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 
-import { HardhatUserConfig, task } from "hardhat/config";
+import { HardhatUserConfig } from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "@tenderly/hardhat-tenderly";
@@ -165,7 +165,7 @@ const config: HardhatUserConfig = {
     },
   },
   docgen: {
-    path: './docs',
+    path: "./docs",
     clear: true,
     runOnCompile: false,
   },

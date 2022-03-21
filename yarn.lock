@@ -1634,7 +1634,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-contracts@workspace:contracts"
   dependencies:
-    "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@0.3.0-beta.13"
+    "@nomiclabs/hardhat-ethers": ^2.0.5
     "@nomiclabs/hardhat-waffle": ^2.0.3
     "@openzeppelin/contracts": ^4.5.0
     "@tenderly/hardhat-tenderly": ^1.0.13
@@ -1734,13 +1734,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers@0.3.0-beta.13, hardhat-deploy-ethers@npm:^0.3.0-beta.13":
-  version: 0.3.0-beta.13
-  resolution: "hardhat-deploy-ethers@npm:0.3.0-beta.13"
+"@nomiclabs/hardhat-ethers@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "@nomiclabs/hardhat-ethers@npm:2.0.5"
   peerDependencies:
     ethers: ^5.0.0
     hardhat: ^2.0.0
-  checksum: 45206bf8d088cda08822ecf79d73e4027d8a4777cc23c3ef94568e316c45b8597130d72826fb2417edd32fe4b3dc54097161bef577663769b5c47b8262b983bb
+  checksum: 07a5916f9fbb1efd24effc0d3949c70d1f45240d0bc4705653f1d378573c419c72d9a00f8db48b19c4aa27bd6c9dc0033aa40717cc9d77025a2cceeb59668463
   languageName: node
   linkType: hard
 
@@ -10136,6 +10136,16 @@ __metadata:
   peerDependencies:
     hardhat: ^2.0.0
   checksum: d23e48cd77560f12b7240d7be5da2ba613094f480406197f127d22b69ddc37b5e0dbc648d3be75a6d75c954b3841f3624df53dbd1bce4bd043f28fdcc166c69c
+  languageName: node
+  linkType: hard
+
+"hardhat-deploy-ethers@npm:^0.3.0-beta.13":
+  version: 0.3.0-beta.13
+  resolution: "hardhat-deploy-ethers@npm:0.3.0-beta.13"
+  peerDependencies:
+    ethers: ^5.0.0
+    hardhat: ^2.0.0
+  checksum: 45206bf8d088cda08822ecf79d73e4027d8a4777cc23c3ef94568e316c45b8597130d72826fb2417edd32fe4b3dc54097161bef577663769b5c47b8262b983bb
   languageName: node
   linkType: hard
 

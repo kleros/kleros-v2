@@ -12,6 +12,14 @@ module.exports = {
     ecmaVersion: 12,
   },
   rules: {
-    "node/no-unsupported-features/es-syntax": ["error", { ignores: ["modules"] }],
+    // "node/no-unsupported-features/es-syntax": ["error", { ignores: ["modules"] }],
+    "node/no-unsupported-features/es-syntax": "off",
+    camelcase: "off",
+    "node/no-missing-import": "off",
+    "import/no-unresolved": "off",
+    "node/no-extraneous-import": "off",
+  },
+  settings: {
+    "import/resolver": { node: { extensions: [".ts"] } },
   },
 };
