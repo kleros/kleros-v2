@@ -3,11 +3,12 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: Kleroscore
+    name: KlerosCore
     network: arbitrum-rinkeby
     source:
       address: "0xd08452AEE7ab5bE3BF6733BA0d3F0CFdaf060Aa2"
-      abi: Kleroscore
+      abi: KlerosCore
+      startBlock: 9609833
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -21,13 +22,11 @@ dataSources:
         - StakeSet
         - TokenAndETHShift
       abis:
-        - name: Kleroscore
-          file: ./abis/Kleroscore.json
+        - name: KlerosCore
+          file: ./abis/KlerosCore.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
-        - event: AppealPossible(indexed uint256,indexed address)
-          handler: handleAppealPossible
         - event: DisputeCreation(indexed uint256,indexed address)
           handler: handleDisputeCreation
         - event: Draw(indexed address,indexed uint256,uint256,uint256)
