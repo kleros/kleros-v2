@@ -1,89 +1,139 @@
 import { BigInt } from "@graphprotocol/graph-ts"
 import {
-  Kleroscore,
+  KlerosCore,
   AppealDecision,
-  AppealPossible,
   DisputeCreation,
-  Draw,
+  Draw as DrawEvent,
   NewPeriod,
   StakeSet,
-  TokenAndETHShift
-} from "../generated/Kleroscore/Kleroscore"
-import { ExampleEntity } from "../generated/schema"
+  TokenAndETHShift as TokenAndETHShiftEvent
+} from "../generated/KlerosCore/KlerosCore"
+import {
+  Juror,
+  TokenAndETHShift,
+  JurorTokensPerSubcourt,
+  Round,
+  Draw,
+  Dispute,
+} from "../generated/schema"
 
-export function handleAppealDecision(event: AppealDecision): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
-
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
-
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
-  }
-
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  entity._disputeID = event.params._disputeID
-  entity._arbitrable = event.params._arbitrable
-
-  // Entities can be written to the store with `.save()`
-  entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.ALPHA_DIVISOR(...)
-  // - contract.MAX_STAKE_PATHS(...)
-  // - contract.MIN_JURORS(...)
-  // - contract.NON_PAYABLE_AMOUNT(...)
-  // - contract.appealCost(...)
-  // - contract.appealPeriod(...)
-  // - contract.arbitrationCost(...)
-  // - contract.areVotesHidden(...)
-  // - contract.courts(...)
-  // - contract.currentRuling(...)
-  // - contract.disputeKits(...)
-  // - contract.disputes(...)
-  // - contract.getCurrentPeriod(...)
-  // - contract.getJurorBalance(...)
-  // - contract.getNumberOfRounds(...)
-  // - contract.getRoundInfo(...)
-  // - contract.getSortitionSumTree(...)
-  // - contract.getSortitionSumTreeID(...)
-  // - contract.getSubcourtID(...)
-  // - contract.getTimesPerPeriod(...)
-  // - contract.governor(...)
-  // - contract.isRuled(...)
-  // - contract.jurorProsecutionModule(...)
-  // - contract.pinakion(...)
+function getPeriodName(index: number): string {
+  if (index === 0)
+    return "Evidence"
+  if (index === 1)
+    return "Commit"
+  if (index === 2)
+    return "Vote"
+  if (index === 3)
+    return "Appeal"
+  if (index === 4)
+    return "Execution"
+  return "None"
 }
 
-export function handleAppealPossible(event: AppealPossible): void {}
+export function handleAppealDecision(event: AppealDecision): void {
+  const disputeID = event.params._disputeID;
+  const dispute = Dispute.load(disputeID.toString());
+  if (dispute) {
+    const contract = KlerosCore.bind(event.address);
+    const newRoundIndex = dispute.currentRound + 1;
+    const round = new Round(
+      `${disputeID.toString()}-${newRoundIndex.toString()}`
+    );
+    const roundInfo = contract.getRoundInfo(
+      disputeID, BigInt.fromI64(newRoundIndex)
+    );
+    round.dispute = disputeID.toString();
+    round.tokensAtStakePerJuror = roundInfo.value0;
+    round.totalFeesForJurors = roundInfo.value1;
+    round.repartitions = roundInfo.value2;
+    round.penalties = roundInfo.value3;
+    dispute.currentRound = newRoundIndex;
+    round.save();
+    dispute.save();
+  }
+}
 
-export function handleDisputeCreation(event: DisputeCreation): void {}
+export function handleDisputeCreation(event: DisputeCreation): void {
+  const contract = KlerosCore.bind(event.address);
+  const disputeID = event.params._disputeID;
+  const dispute = new Dispute(disputeID.toString());
+  const disputeStorage = contract.disputes(disputeID);
+  const subcourtID = disputeStorage.value0.toString();
+  dispute.arbitrated = event.params._arbitrable;
+  dispute.subcourtID = subcourtID;
+  dispute.disputeKit = disputeStorage.value2;
+  dispute.period = "Evidence";
+  dispute.ruled = false;
+  dispute.lastPeriodChange = disputeStorage.value5;
+  dispute.nbVotes = disputeStorage.value6;
+  dispute.currentRound = 0;
+  const roundInfo = contract.getRoundInfo(disputeID, BigInt.fromString("0"));
+  const round = new Round(`${disputeID.toString()}-0`);
+  round.dispute = disputeID.toString();
+  round.tokensAtStakePerJuror = roundInfo.value0;
+  round.totalFeesForJurors = roundInfo.value1;
+  round.repartitions = roundInfo.value2;
+  round.penalties = roundInfo.value3;
+  dispute.save();
+  round.save();
+}
 
-export function handleDraw(event: Draw): void {}
+export function handleNewPeriod(event: NewPeriod): void {
+  const disputeID = event.params._disputeID;
+  const dispute = Dispute.load(disputeID.toString());
+  if (dispute) {
+    dispute.period = getPeriodName(event.params._period);
+    dispute.save();
+  }
+}
 
-export function handleNewPeriod(event: NewPeriod): void {}
+export function handleDraw(event: DrawEvent): void {
+  const disputeID = event.params._disputeID;
+  const currentRound = event.params._appeal;
+  const voteID = event.params._voteID;
+  const drawID = (
+    `${disputeID.toString()}-${currentRound.toString()}-${voteID.toString()}`
+  );
+  const drawnAddress = event.params._address;
+  const draw = new Draw(drawID);
+  draw.round = currentRound.toString();
+  draw.juror = drawnAddress.toHexString();
+  draw.voteID = voteID;
+  draw.save();
+}
 
-export function handleStakeSet(event: StakeSet): void {}
+export function handleStakeSet(event: StakeSet): void {
+  const jurorAddress = event.params._address.toHexString();
+  let juror = Juror.load(jurorAddress);
+  if (!juror) {
+    juror = new Juror(jurorAddress);
+  }
+  juror.save();
+  const subcourtID = event.params._subcourtID;
+  const amountStaked = event.params._newTotalStake;
+  const jurorTokensID = `${jurorAddress}-${subcourtID.toString()}`;
+  let jurorTokens = JurorTokensPerSubcourt.load(jurorTokensID);
+  if (!jurorTokens) {
+    jurorTokens = new JurorTokensPerSubcourt(jurorTokensID);
+    jurorTokens.juror = jurorAddress;
+    jurorTokens.subcourt = subcourtID.toString();
+    jurorTokens.locked = BigInt.fromI32(0);
+  }
+  jurorTokens.staked = amountStaked;
+  jurorTokens.save();
+}
 
-export function handleTokenAndETHShift(event: TokenAndETHShift): void {}
+export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
+  const jurorAddress = event.params._account.toHexString();
+  const disputeID = event.params._disputeID;
+  const shiftID = `${jurorAddress}-${disputeID.toString()}`
+  const tokenAmount = event.params._tokenAmount;
+  const ethAmount = event.params._ETHAmount;
+  const shift = new TokenAndETHShift(shiftID);
+  shift.juror = jurorAddress;
+  shift.dispute = disputeID.toString();
+  shift.tokenAmount = tokenAmount;
+  shift.ethAmount = ethAmount;
+  shift.save();
+}
