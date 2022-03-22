@@ -20,4 +20,6 @@ interface IFastBridgeReceiver {
     function challengeDeposit() external view returns (uint256 amount);
 
     function challengeDuration() external view returns (uint256 amount);
+
+    function safeBridgeTimeout() external view returns (uint256 amount);
 }

@@ -29,6 +29,13 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         bool relayed;
     }
 
+    struct Challenge {
+        address challenger;
+        uint256 challengedAt;
+        uint256 challengeDeposit;
+        bool relayed;
+    }    
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -36,7 +43,9 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     uint256 public override claimDeposit;
     uint256 public override challengeDeposit;
     uint256 public override challengeDuration;
+    uint256 public override safeBridgeTimeout;
     mapping(bytes32 => Claim) public claims; // The claims by message hash.
+    mapping(bytes32 => Challenge) public challenges; // The challenges by message hash.
 
     // ************************************* //
     // *              Events               * //
@@ -51,11 +60,13 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         address _inbox,
         uint256 _claimDeposit,
         uint256 _challengeDeposit,
-        uint256 _challengeDuration
+        uint256 _challengeDuration,
+        uint256 _safeBridgeTimeout
     ) SafeBridgeReceiverOnEthereum(_governor, _safeBridgeSender, _inbox) {
         claimDeposit = _claimDeposit;
         challengeDeposit = _challengeDeposit;
         challengeDuration = _challengeDuration;
+        safeBridgeTimeout - _safeBridgeTimeout;
     }
 
     // ************************************* //
@@ -77,8 +88,20 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     }
 
     function challenge(bytes32 _messageHash) external payable override {
-        // TODO
-        revert("Not Implemented");
+        Claim memory claim = claims[_messageHash];
+        require(claim.bridger != address(0), "Claim does not exist");        
+        require(block.timestamp - claim.claimedAt <  challengeDuration, "Challenge period over");
+        require(msg.value >= challengeDeposit, "Not enough challenge deposit");
+        require(challenges[_messageHash].challenger == address(0), "Claim already challenged");
+
+        challenges[_messageHash] = Challenge({
+            challenger: msg.sender,
+            challengedAt: block.timestamp,
+            challengeDeposit: msg.value,
+            relayed: false
+        });
+
+        emit ClaimChallenged(_messageHash, block.timestamp);
     }
 
     function verifyAndRelay(bytes32 _messageHash, bytes memory _encodedData) external override {
@@ -100,8 +123,17 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     function verifyAndRelaySafe(bytes32 _messageHash, bytes memory _encodedData) external override {
         require(isSentBySafeBridge(), "Access not allowed: SafeBridgeSender only.");
 
-        // TODO
-        revert("Not Implemented");
+        Challenge storage challenge = challenges[_messageHash];
+        Claim storage claim = claims[_messageHash];
+        require(claim.relayed != true, "Claim already relayed");
+        require(challenge.relayed != true, "Challenge already relayed");
+
+        // Decode the receiver address from the data encoded by the SafeBridgeSenderToEthereum
+        (address receiver, bytes memory data) = abi.decode(_encodedData, (address, bytes));
+        (bool success, ) = address(receiver).call(data);
+        require(success, "Failed to call contract");
+
+        challenge.relayed == true;
     }
 
     function withdrawClaimDeposit(bytes32 _messageHash) external override {
@@ -115,8 +147,13 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     }
 
     function withdrawChallengeDeposit(bytes32 _messageHash) external override {
-        // TODO
-        revert("Not Implemented");
+        Challenge storage challenge = challenges[_messageHash];
+        require(challenge.challenger != address(0), "Challenge does not exist");
+        require(challenge.relayed == true || block.timestamp > challenge.challengedAt + safeBridgeTimeout, "Challenge not relayed or timed out");
+
+        uint256 amount = challenge.challengeDeposit + claims[_messageHash].claimDeposit;
+        challenge.challengeDeposit = 0;
+        payable(challenge.challenger).send(amount);
     }
 
     // ************************************* //
@@ -146,5 +183,9 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
 
     function setChallengePeriodDuration(uint256 _challengeDuration) external onlyByGovernor {
         challengeDuration = _challengeDuration;
+    }
+
+    function setSafeBridgeTimeout(uint256 _safeBridgeTimeout) external onlyByGovernor {
+        safeBridgeTimeout = _safeBridgeTimeout;
     }
 }
