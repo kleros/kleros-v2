@@ -111,6 +111,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         require(claim.bridger != address(0), "Claim does not exist");
         require(claim.claimedAt + challengeDuration < block.timestamp, "Challenge period not over");
         require(claim.relayed == false, "Message already relayed");
+        require(challenges[_messageHash].challenger == address(0), "Claim is challenged");
 
         // Decode the receiver address from the data encoded by the IFastBridgeSender
         (address receiver, bytes memory data) = abi.decode(_encodedData, (address, bytes));
@@ -139,7 +140,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     function withdrawClaimDeposit(bytes32 _messageHash) external override {
         Claim storage claim = claims[_messageHash];
         require(claim.bridger != address(0), "Claim does not exist");
-        require(claim.claimedAt + challengeDuration < block.timestamp, "Challenge period not over");
+        require(claim.relayed == true, "Claim not relayed yet");
 
         uint256 amount = claim.claimDeposit;
         claim.claimDeposit = 0;
