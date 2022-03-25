@@ -74,4 +74,21 @@ type Dispute @entity {
   currentRound: Int!
   rounds: [Round!]! @derivedFrom(field: "dispute")
   shifts: [TokenAndETHShift!]! @derivedFrom(field: "dispute")
+  gatewayDispute: GatewayDispute! @derivedFrom(field: "homeDispute")
+}
+
+type GatewayDispute @entity {
+  id: ID!
+  homeDispute: Dispute!
+  arbitrator: Bytes!
+  disputeHash: Bytes!
+  arbitrationCost: BigInt!
+  relayer: Bytes!
+}
+
+type OutgoingMessage @entity {
+  id: ID! # Set to messageHash
+  target: Bytes!
+  messageHash: String!
+  message: String!
 }
