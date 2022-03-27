@@ -26,6 +26,7 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
     address public governor;
     IFastBridgeReceiver public fastBridgeReceiver;
     address public fastSender;
+    uint256 public currentTicketID = 1; // Zero means not set, start at 1.
 
     // ************************************* //
     // *              Events               * //
@@ -35,7 +36,7 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
      * The bridgers need to watch for these events and
      * relay the messageHash on the FastBridgeReceiverOnEthereum.
      */
-    event OutgoingMessage(address indexed target, bytes32 indexed messageHash, bytes message);
+    event OutgoingMessage(uint256 indexed ticketID, address indexed target, bytes32 indexed messageHash, bytes message);
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -61,14 +62,14 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
      *
      * @param _receiver The L1 contract address who will receive the calldata
      * @param _calldata The receiving domain encoded message data.
+     * @return ticketID The identifier to provide to sendSafeFallback()
      */
-    function sendFast(address _receiver, bytes memory _calldata) external override {
+    function sendFast(address _receiver, bytes memory _calldata) external override returns (uint256 ticketID) {
         require(msg.sender == fastSender, "Access not allowed: Fast Sender only.");
 
-        // Encode the receiver address with the function signature + arguments i.e calldata
-        bytes memory messageData = abi.encode(_receiver, _calldata);
-
-        emit OutgoingMessage(_receiver, keccak256(messageData), messageData);
+        ticketID = currentTicketID++;
+        (bytes32 messageHash, bytes memory messageData) = _encode(ticketID, _receiver, _calldata);
+        emit OutgoingMessage(ticketID, _receiver, messageHash, messageData);
     }
 
     /**
@@ -80,15 +81,20 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
      * It may require some ETH (or whichever native token) to pay for the bridging cost,
      * depending on the underlying safe bridge.
      *
+     * @param _ticketID The ticketID as provided by `sendFast()` if any.
      * @param _receiver The L1 contract address who will receive the calldata
      * @param _calldata The receiving domain encoded message data.
      */
-    function sendSafeFallback(address _receiver, bytes memory _calldata) external payable override {
-        bytes memory messageData = abi.encode(_receiver, _calldata);
+    function sendSafeFallback(
+        uint256 _ticketID,
+        address _receiver,
+        bytes memory _calldata
+    ) external payable override {
+        (bytes32 messageHash, bytes memory messageData) = _encode(_ticketID, _receiver, _calldata);
 
         // Safe Bridge message envelope
         bytes4 methodSelector = IFastBridgeReceiver.verifyAndRelaySafe.selector;
-        bytes memory safeMessageData = abi.encodeWithSelector(methodSelector, keccak256(messageData), messageData);
+        bytes memory safeMessageData = abi.encodeWithSelector(methodSelector, _ticketID, messageHash, messageData);
 
         // TODO: how much ETH should be provided for bridging? add an ISafeBridgeSender.bridgingCost() if needed
         _sendSafe(address(fastBridgeReceiver), safeMessageData);
@@ -98,8 +104,24 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
     // *      Governance      * //
     // ************************ //
 
-    function setFastSender(address _fastSender) external onlyByGovernor {
+    function changeFastSender(address _fastSender) external onlyByGovernor {
         require(fastSender == address(0));
         fastSender = _fastSender;
+    }
+
+    // ************************ //
+    // *       Internal       * //
+    // ************************ //
+
+    function _encode(
+        uint256 _ticketID,
+        address _receiver,
+        bytes memory _calldata
+    ) internal pure returns (bytes32 messageHash, bytes memory messageData) {
+        // Encode the receiver address with the function signature + arguments i.e calldata
+        messageData = abi.encode(_receiver, _calldata);
+
+        // Compute the hash over the message header (ticketID) and body (data).
+        messageHash = keccak256(abi.encode(_ticketID, messageData));
     }
 }

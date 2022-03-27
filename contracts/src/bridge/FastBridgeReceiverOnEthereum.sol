@@ -23,18 +23,24 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     // ************************************* //
 
     struct Claim {
+        bytes32 messageHash;
         address bridger;
         uint256 claimedAt;
         uint256 claimDeposit;
-        bool relayed;
+        bool verified;
     }
 
     struct Challenge {
         address challenger;
         uint256 challengedAt;
         uint256 challengeDeposit;
+    }
+
+    struct Ticket {
+        Claim claim;
+        Challenge challenge;
         bool relayed;
-    }    
+    }
 
     // ************************************* //
     // *             Storage               * //
@@ -43,16 +49,14 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     uint256 public override claimDeposit;
     uint256 public override challengeDeposit;
     uint256 public override challengeDuration;
-    uint256 public override safeBridgeTimeout;
-    mapping(bytes32 => Claim) public claims; // The claims by message hash.
-    mapping(bytes32 => Challenge) public challenges; // The challenges by message hash.
+    mapping(uint256 => Ticket) public tickets; // The tickets by ticketID.
 
     // ************************************* //
     // *              Events               * //
     // ************************************* //
 
-    event ClaimReceived(bytes32 indexed messageHash, uint256 claimedAt);
-    event ClaimChallenged(bytes32 indexed _messageHash, uint256 challengedAt);
+    event ClaimReceived(uint256 indexed _ticketID, bytes32 indexed messageHash, uint256 claimedAt);
+    event ClaimChallenged(uint256 indexed _ticketID, bytes32 indexed _messageHash, uint256 challengedAt);
 
     constructor(
         address _governor,
@@ -60,112 +64,120 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         address _inbox,
         uint256 _claimDeposit,
         uint256 _challengeDeposit,
-        uint256 _challengeDuration,
-        uint256 _safeBridgeTimeout
+        uint256 _challengeDuration
     ) SafeBridgeReceiverOnEthereum(_governor, _safeBridgeSender, _inbox) {
         claimDeposit = _claimDeposit;
         challengeDeposit = _challengeDeposit;
         challengeDuration = _challengeDuration;
-        safeBridgeTimeout - _safeBridgeTimeout;
     }
 
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
 
-    function claim(bytes32 _messageHash) external payable override {
+    function claim(uint256 _ticketID, bytes32 _messageHash) external payable override {
         require(msg.value >= claimDeposit, "Not enough claim deposit");
-        require(claims[_messageHash].bridger == address(0), "Claimed already made");
+        require(tickets[_ticketID].claim.bridger == address(0), "Claim already made");
 
-        claims[_messageHash] = Claim({
+        tickets[_ticketID].claim = Claim({
+            messageHash: _messageHash,
             bridger: msg.sender,
             claimedAt: block.timestamp,
             claimDeposit: msg.value,
-            relayed: false
+            verified: false
         });
 
-        emit ClaimReceived(_messageHash, block.timestamp);
+        emit ClaimReceived(_ticketID, _messageHash, block.timestamp);
     }
 
-    function challenge(bytes32 _messageHash) external payable override {
-        Claim memory claim = claims[_messageHash];
-        require(claim.bridger != address(0), "Claim does not exist");        
-        require(block.timestamp - claim.claimedAt <  challengeDuration, "Challenge period over");
+    function challenge(uint256 _ticketID) external payable override {
+        Ticket memory ticket = tickets[_ticketID];
+        require(ticket.claim.bridger != address(0), "Claim does not exist");
+        require(block.timestamp - ticket.claim.claimedAt < challengeDuration, "Challenge period over");
         require(msg.value >= challengeDeposit, "Not enough challenge deposit");
-        require(challenges[_messageHash].challenger == address(0), "Claim already challenged");
+        require(ticket.challenge.challenger == address(0), "Claim already challenged");
 
-        challenges[_messageHash] = Challenge({
+        ticket.challenge = Challenge({
             challenger: msg.sender,
             challengedAt: block.timestamp,
-            challengeDeposit: msg.value,
-            relayed: false
+            challengeDeposit: msg.value
         });
 
-        emit ClaimChallenged(_messageHash, block.timestamp);
+        emit ClaimChallenged(_ticketID, ticket.claim.messageHash, block.timestamp);
     }
 
-    function verifyAndRelay(bytes32 _messageHash, bytes memory _encodedData) external override {
-        require(keccak256(_encodedData) == _messageHash, "Invalid hash");
+    function verifyAndRelay(
+        uint256 _ticketID,
+        bytes32 _messageHash,
+        bytes memory _messageData
+    ) external override {
+        require(_verify(_messageHash, _ticketID, _messageData), "Invalid hash");
 
-        Claim storage claim = claims[_messageHash];
-        require(claim.bridger != address(0), "Claim does not exist");
-        require(claim.claimedAt + challengeDuration < block.timestamp, "Challenge period not over");
-        require(claim.relayed == false, "Message already relayed");
-        require(challenges[_messageHash].challenger == address(0), "Claim is challenged");
+        Ticket memory ticket = tickets[_ticketID];
+        require(ticket.claim.bridger != address(0), "Claim does not exist");
+        require(ticket.claim.claimedAt + challengeDuration < block.timestamp, "Challenge period not over");
+        require(ticket.challenge.challenger == address(0), "Claim is challenged");
+        require(ticket.relayed == false, "Message already relayed");
 
-        // Decode the receiver address from the data encoded by the IFastBridgeSender
-        (address receiver, bytes memory data) = abi.decode(_encodedData, (address, bytes));
-        (bool success, ) = address(receiver).call(data);
-        require(success, "Failed to call contract");
-
-        claim.relayed = true;
+        ticket.relayed = true;
+        require(_relay(_messageData), "Failed to call contract"); // Checks-Effects-Interaction
     }
 
-    function verifyAndRelaySafe(bytes32 _messageHash, bytes memory _encodedData) external override {
+    function verifyAndRelaySafe(
+        uint256 _ticketID,
+        bytes32 _messageHash,
+        bytes memory _messageData
+    ) external override {
         require(isSentBySafeBridge(), "Access not allowed: SafeBridgeSender only.");
+        require(_verify(_messageHash, _ticketID, _messageData), "Invalid hash");
 
-        Challenge storage challenge = challenges[_messageHash];
-        Claim storage claim = claims[_messageHash];
-        require(claim.relayed != true, "Claim already relayed");
-        require(challenge.relayed != true, "Challenge already relayed");
+        Ticket memory ticket = tickets[_ticketID];
+        require(ticket.relayed == false, "Message already relayed");
 
-        // Decode the receiver address from the data encoded by the SafeBridgeSenderToEthereum
-        (address receiver, bytes memory data) = abi.decode(_encodedData, (address, bytes));
-        (bool success, ) = address(receiver).call(data);
-        require(success, "Failed to call contract");
+        // Claim assessment if any
+        if (ticket.claim.bridger != address(0) && ticket.claim.messageHash == _messageHash) {
+            ticket.claim.verified = true;
+        }
 
-        challenge.relayed == true;
+        ticket.relayed = true;
+        require(_relay(_messageData), "Failed to call contract"); // Checks-Effects-Interaction
     }
 
-    function withdrawClaimDeposit(bytes32 _messageHash) external override {
-        Claim storage claim = claims[_messageHash];
-        require(claim.bridger != address(0), "Claim does not exist");
-        require(claim.relayed == true, "Claim not relayed yet");
+    function withdrawClaimDeposit(uint256 _ticketID) external override {
+        Ticket memory ticket = tickets[_ticketID];
+        require(ticket.relayed == true, "Message not relayed yet");
+        require(ticket.claim.bridger != address(0), "Claim does not exist");
+        require(ticket.claim.verified == true, "Claim not verified: deposit forfeited");
 
-        uint256 amount = claim.claimDeposit;
-        claim.claimDeposit = 0;
-        payable(claim.bridger).send(amount);
+        uint256 amount = ticket.claim.claimDeposit + ticket.challenge.challengeDeposit;
+        ticket.claim.claimDeposit = 0;
+        ticket.challenge.challengeDeposit = 0;
+        payable(ticket.claim.bridger).send(amount); // Use of send to prevent reverting fallback. User is responsibility for accepting ETH.
+        // Checks-Effects-Interaction
     }
 
-    function withdrawChallengeDeposit(bytes32 _messageHash) external override {
-        Challenge storage challenge = challenges[_messageHash];
-        require(challenge.challenger != address(0), "Challenge does not exist");
-        require(challenge.relayed == true || block.timestamp > challenge.challengedAt + safeBridgeTimeout, "Challenge not relayed or timed out");
+    function withdrawChallengeDeposit(uint256 _ticketID) external override {
+        Ticket memory ticket = tickets[_ticketID];
+        require(ticket.relayed == true, "Message not relayed");
+        require(ticket.challenge.challenger != address(0), "Challenge does not exist");
+        require(ticket.claim.verified == false, "Claim verified: deposit forfeited");
 
-        uint256 amount = challenge.challengeDeposit + claims[_messageHash].claimDeposit;
-        challenge.challengeDeposit = 0;
-        payable(challenge.challenger).send(amount);
+        uint256 amount = ticket.claim.claimDeposit + ticket.challenge.challengeDeposit;
+        ticket.claim.claimDeposit = 0;
+        ticket.challenge.challengeDeposit = 0;
+        payable(ticket.challenge.challenger).send(amount); // Use of send to prevent reverting fallback. User is responsibility for accepting ETH.
+        // Checks-Effects-Interaction
     }
 
     // ************************************* //
     // *           Public Views            * //
     // ************************************* //
 
-    function challengePeriod(bytes32 _messageHash) public view returns (uint256 start, uint256 end) {
-        Claim storage claim = claims[_messageHash];
-        require(claim.bridger != address(0), "Claim does not exist");
+    function challengePeriod(uint256 _ticketID) public view returns (uint256 start, uint256 end) {
+        Ticket memory ticket = tickets[_ticketID];
+        require(ticket.claim.bridger != address(0), "Claim does not exist");
 
-        start = claim.claimedAt;
+        start = ticket.claim.claimedAt;
         end = start + challengeDuration;
         return (start, end);
     }
@@ -174,19 +186,33 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     // *      Governance      * //
     // ************************ //
 
-    function setClaimDeposit(uint256 _claimDeposit) external onlyByGovernor {
+    function changeClaimDeposit(uint256 _claimDeposit) external onlyByGovernor {
         claimDeposit = _claimDeposit;
     }
 
-    function setChallengeDeposit(uint256 _challengeDeposit) external onlyByGovernor {
+    function changeChallengeDeposit(uint256 _challengeDeposit) external onlyByGovernor {
         challengeDeposit = _challengeDeposit;
     }
 
-    function setChallengePeriodDuration(uint256 _challengeDuration) external onlyByGovernor {
+    function changeChallengePeriodDuration(uint256 _challengeDuration) external onlyByGovernor {
         challengeDuration = _challengeDuration;
     }
 
-    function setSafeBridgeTimeout(uint256 _safeBridgeTimeout) external onlyByGovernor {
-        safeBridgeTimeout = _safeBridgeTimeout;
+    // ************************ //
+    // *       Internal       * //
+    // ************************ //
+
+    function _verify(
+        bytes32 _expectedHash,
+        uint256 _ticketID,
+        bytes memory _messageData
+    ) internal pure returns (bool) {
+        return _expectedHash == keccak256(abi.encode(_ticketID, _messageData));
+    }
+
+    function _relay(bytes memory _messageData) internal returns (bool success) {
+        // Decode the receiver address from the data encoded by the IFastBridgeSender
+        (address receiver, bytes memory data) = abi.decode(_messageData, (address, bytes));
+        (success, ) = address(receiver).call(data);
     }
 }
