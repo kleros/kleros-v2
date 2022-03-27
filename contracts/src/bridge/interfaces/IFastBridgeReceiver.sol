@@ -3,23 +3,29 @@
 pragma solidity ^0.8.0;
 
 interface IFastBridgeReceiver {
-    function claim(bytes32 _messageHash) external payable;
+    function claim(uint256 _ticketID, bytes32 _messageHash) external payable;
 
-    function challenge(bytes32 _messageHash) external payable;
+    function challenge(uint256 _ticketID) external payable;
 
-    function verifyAndRelay(bytes32 _messageHash, bytes memory _encodedData) external;
+    function verifyAndRelay(
+        uint256 _ticketID,
+        bytes32 _messageHash,
+        bytes memory _messageData
+    ) external;
 
-    function verifyAndRelaySafe(bytes32 _messageHash, bytes memory _encodedData) external;
+    function verifyAndRelaySafe(
+        uint256 _ticketID,
+        bytes32 _messageHash,
+        bytes memory _messageData
+    ) external;
 
-    function withdrawClaimDeposit(bytes32 _messageHash) external;
+    function withdrawClaimDeposit(uint256 _ticketID) external;
 
-    function withdrawChallengeDeposit(bytes32 _messageHash) external;
+    function withdrawChallengeDeposit(uint256 _ticketID) external;
 
     function claimDeposit() external view returns (uint256 amount);
 
     function challengeDeposit() external view returns (uint256 amount);
 
     function challengeDuration() external view returns (uint256 amount);
-
-    function safeBridgeTimeout() external view returns (uint256 amount);
 }

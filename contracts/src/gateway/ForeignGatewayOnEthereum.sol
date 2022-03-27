@@ -95,9 +95,6 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
     function createDispute(uint256 _choices, bytes calldata _extraData) external payable returns (uint256 disputeID) {
         require(msg.value >= arbitrationCost(_extraData), "Not paid enough for arbitration");
 
-        (uint96 subcourtID, ) = extraDataToSubcourtIDMinJurors(_extraData);
-        uint256 nbVotes = msg.value / feeForJuror[subcourtID];
-
         disputeID = localDisputeID++;
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
@@ -108,8 +105,6 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
                 _choices,
                 _extraData,
                 msg.sender
-                // TODO: actual arbitration Cost
-                // nbVotes * feeForJuror[subcourtID] // we calculate the min amount required for nbVotes
             )
         );
 

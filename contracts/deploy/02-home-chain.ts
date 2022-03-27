@@ -42,7 +42,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     .getContractAt("FastBridgeSenderToEthereum", fastBridgeSender.address)
     .then((contract) => contract.fastSender());
   if (fastSender === ethers.constants.AddressZero) {
-    await execute("FastBridgeSenderToEthereum", { from: deployer, log: true }, "setFastSender", homeGateway.address);
+    await execute("FastBridgeSenderToEthereum", { from: deployer, log: true }, "changeFastSender", homeGateway.address);
   }
 };
 
