@@ -91,7 +91,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     }
 
     function challenge(uint256 _ticketID) external payable override {
-        Ticket memory ticket = tickets[_ticketID];
+        Ticket storage ticket = tickets[_ticketID];
         require(ticket.claim.bridger != address(0), "Claim does not exist");
         require(block.timestamp - ticket.claim.claimedAt < challengeDuration, "Challenge period over");
         require(msg.value >= challengeDeposit, "Not enough challenge deposit");
@@ -113,7 +113,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     ) external override {
         require(_verify(_messageHash, _ticketID, _messageData), "Invalid hash");
 
-        Ticket memory ticket = tickets[_ticketID];
+        Ticket storage ticket = tickets[_ticketID];
         require(ticket.claim.bridger != address(0), "Claim does not exist");
         require(ticket.claim.claimedAt + challengeDuration < block.timestamp, "Challenge period not over");
         require(ticket.challenge.challenger == address(0), "Claim is challenged");
@@ -132,7 +132,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         require(isSentBySafeBridge(), "Access not allowed: SafeBridgeSender only.");
         require(_verify(_messageHash, _ticketID, _messageData), "Invalid hash");
 
-        Ticket memory ticket = tickets[_ticketID];
+        Ticket storage ticket = tickets[_ticketID];
         require(ticket.relayed == false, "Message already relayed");
 
         // Claim assessment if any
@@ -145,7 +145,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     }
 
     function withdrawClaimDeposit(uint256 _ticketID) external override {
-        Ticket memory ticket = tickets[_ticketID];
+        Ticket storage ticket = tickets[_ticketID];
         require(ticket.relayed == true, "Message not relayed yet");
         require(ticket.claim.bridger != address(0), "Claim does not exist");
         require(ticket.claim.verified == true, "Claim not verified: deposit forfeited");
@@ -158,7 +158,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     }
 
     function withdrawChallengeDeposit(uint256 _ticketID) external override {
-        Ticket memory ticket = tickets[_ticketID];
+        Ticket storage ticket = tickets[_ticketID];
         require(ticket.relayed == true, "Message not relayed");
         require(ticket.challenge.challenger != address(0), "Challenge does not exist");
         require(ticket.claim.verified == false, "Claim verified: deposit forfeited");
@@ -175,7 +175,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     // ************************************* //
 
     function challengePeriod(uint256 _ticketID) public view returns (uint256 start, uint256 end) {
-        Ticket memory ticket = tickets[_ticketID];
+        Ticket storage ticket = tickets[_ticketID];
         require(ticket.claim.bridger != address(0), "Claim does not exist");
 
         start = ticket.claim.claimedAt;
