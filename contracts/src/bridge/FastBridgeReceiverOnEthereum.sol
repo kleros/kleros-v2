@@ -119,6 +119,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         require(ticket.challenge.challenger == address(0), "Claim is challenged");
         require(ticket.relayed == false, "Message already relayed");
 
+        ticket.claim.verified = true;
         ticket.relayed = true;
         require(_relay(_messageData), "Failed to call contract"); // Checks-Effects-Interaction
     }
