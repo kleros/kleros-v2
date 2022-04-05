@@ -7,9 +7,17 @@ interface IFastBridgeReceiver {
 
     function challenge(uint256 _ticketID) external payable;
 
-    function verifyAndRelay(uint256 _ticketID, bytes memory _messageData) external;
+    function verifyAndRelay(
+        uint256 _ticketID,
+        uint256 blockNumber,
+        bytes calldata _messageData
+    ) external;
 
-    function verifyAndRelaySafe(uint256 _ticketID, bytes memory _messageData) external;
+    function verifyAndRelaySafe(
+        uint256 _ticketID,
+        uint256 blockNumber,
+        bytes calldata _messageData
+    ) external;
 
     function withdrawClaimDeposit(uint256 _ticketID) external;
 

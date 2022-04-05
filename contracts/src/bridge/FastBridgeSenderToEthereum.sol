@@ -25,6 +25,7 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
 
     struct Ticket {
         bytes32 messageHash;
+        uint256 blockNumber;
         bool sentSafe;
     }
 
@@ -46,7 +47,13 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
      * The bridgers need to watch for these events and
      * relay the messageHash on the FastBridgeReceiverOnEthereum.
      */
-    event OutgoingMessage(uint256 indexed ticketID, address indexed target, bytes32 indexed messageHash, bytes message);
+    event OutgoingMessage(
+        uint256 indexed ticketID,
+        uint256 blockNumber,
+        address target,
+        bytes32 indexed messageHash,
+        bytes message
+    );
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -80,9 +87,9 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
         ticketID = currentTicketID++;
 
         (bytes32 messageHash, bytes memory messageData) = _encode(ticketID, _receiver, _calldata);
-        emit OutgoingMessage(ticketID, _receiver, messageHash, messageData);
+        emit OutgoingMessage(ticketID, block.number, _receiver, messageHash, messageData);
 
-        tickets[ticketID] = Ticket({messageHash: messageHash, sentSafe: false});
+        tickets[ticketID] = Ticket({messageHash: messageHash, blockNumber: block.number, sentSafe: false});
     }
 
     /**
@@ -93,6 +100,8 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
      *
      * It may require some ETH (or whichever native token) to pay for the bridging cost,
      * depending on the underlying safe bridge.
+     *
+     * TODO: check if keeping _calldata in storage in sendFast() is cheaper than passing it again as a parameter here
      *
      * @param _ticketID The ticketID as provided by `sendFast()` if any.
      * @param _receiver The L1 contract address who will receive the calldata
@@ -112,7 +121,12 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
 
         // Safe Bridge message envelope
         bytes4 methodSelector = IFastBridgeReceiver.verifyAndRelaySafe.selector;
-        bytes memory safeMessageData = abi.encodeWithSelector(methodSelector, _ticketID, messageData);
+        bytes memory safeMessageData = abi.encodeWithSelector(
+            methodSelector,
+            _ticketID,
+            ticket.blockNumber,
+            messageData
+        );
 
         // TODO: how much ETH should be provided for bridging? add an ISafeBridgeSender.bridgingCost() if needed
         _sendSafe(address(fastBridgeReceiver), safeMessageData);
@@ -135,11 +149,11 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
         uint256 _ticketID,
         address _receiver,
         bytes memory _calldata
-    ) internal pure returns (bytes32 messageHash, bytes memory messageData) {
+    ) internal view returns (bytes32 messageHash, bytes memory messageData) {
         // Encode the receiver address with the function signature + arguments i.e calldata
         messageData = abi.encode(_receiver, _calldata);
 
-        // Compute the hash over the message header (ticketID) and body (data).
-        messageHash = keccak256(abi.encode(_ticketID, messageData));
+        // Compute the hash over the message header (ticketID, blockNumber) and body (data).
+        messageHash = keccak256(abi.encode(_ticketID, block.number, messageData));
     }
 }
