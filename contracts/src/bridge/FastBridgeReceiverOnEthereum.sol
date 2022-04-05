@@ -76,10 +76,12 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     // ************************************* //
 
     function claim(uint256 _ticketID, bytes32 _messageHash) external payable override {
+        Ticket storage ticket = tickets[_ticketID];
+        require(ticket.claim.bridger == address(0), "Claim already made");
+        require(ticket.relayed == false, "Claim already relayed"); // already relayed via verifyAndRelaySafe() without claim.
         require(msg.value >= claimDeposit, "Not enough claim deposit");
-        require(tickets[_ticketID].claim.bridger == address(0), "Claim already made");
 
-        tickets[_ticketID].claim = Claim({
+        ticket.claim = Claim({
             messageHash: _messageHash,
             bridger: msg.sender,
             claimedAt: block.timestamp,
@@ -94,8 +96,8 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         Ticket storage ticket = tickets[_ticketID];
         require(ticket.claim.bridger != address(0), "Claim does not exist");
         require(block.timestamp - ticket.claim.claimedAt < challengeDuration, "Challenge period over");
-        require(msg.value >= challengeDeposit, "Not enough challenge deposit");
         require(ticket.challenge.challenger == address(0), "Claim already challenged");
+        require(msg.value >= challengeDeposit, "Not enough challenge deposit");
 
         ticket.challenge = Challenge({
             challenger: msg.sender,
