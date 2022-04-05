@@ -106,15 +106,10 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         emit ClaimChallenged(_ticketID, ticket.claim.messageHash, block.timestamp);
     }
 
-    function verifyAndRelay(
-        uint256 _ticketID,
-        bytes32 _messageHash,
-        bytes memory _messageData
-    ) external override {
-        require(_verify(_messageHash, _ticketID, _messageData), "Invalid hash");
-
+    function verifyAndRelay(uint256 _ticketID, bytes memory _messageData) external override {
         Ticket storage ticket = tickets[_ticketID];
         require(ticket.claim.bridger != address(0), "Claim does not exist");
+        require(ticket.claim.messageHash == keccak256(abi.encode(_ticketID, _messageData)), "Invalid hash");
         require(ticket.claim.claimedAt + challengeDuration < block.timestamp, "Challenge period not over");
         require(ticket.challenge.challenger == address(0), "Claim is challenged");
         require(ticket.relayed == false, "Message already relayed");
@@ -124,19 +119,15 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         require(_relay(_messageData), "Failed to call contract"); // Checks-Effects-Interaction
     }
 
-    function verifyAndRelaySafe(
-        uint256 _ticketID,
-        bytes32 _messageHash,
-        bytes memory _messageData
-    ) external override {
+    function verifyAndRelaySafe(uint256 _ticketID, bytes memory _messageData) external override {
         require(isSentBySafeBridge(), "Access not allowed: SafeBridgeSender only.");
-        require(_verify(_messageHash, _ticketID, _messageData), "Invalid hash");
 
         Ticket storage ticket = tickets[_ticketID];
         require(ticket.relayed == false, "Message already relayed");
 
         // Claim assessment if any
-        if (ticket.claim.bridger != address(0) && ticket.claim.messageHash == _messageHash) {
+        bytes32 messageHash = keccak256(abi.encode(_ticketID, _messageData));
+        if (ticket.claim.bridger != address(0) && ticket.claim.messageHash == messageHash) {
             ticket.claim.verified = true;
         }
 
@@ -202,14 +193,6 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     // ************************ //
     // *       Internal       * //
     // ************************ //
-
-    function _verify(
-        bytes32 _expectedHash,
-        uint256 _ticketID,
-        bytes memory _messageData
-    ) internal pure returns (bool) {
-        return _expectedHash == keccak256(abi.encode(_ticketID, _messageData));
-    }
 
     function _relay(bytes memory _messageData) internal returns (bool success) {
         // Decode the receiver address from the data encoded by the IFastBridgeSender

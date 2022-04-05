@@ -20,6 +20,15 @@ import "./interfaces/IFastBridgeReceiver.sol";
  */
 contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSender {
     // ************************************* //
+    // *         Enums / Structs           * //
+    // ************************************* //
+
+    struct Ticket {
+        bytes32 messageHash;
+        bool sentSafe;
+    }
+
+    // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
@@ -27,6 +36,7 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
     IFastBridgeReceiver public fastBridgeReceiver;
     address public fastSender;
     uint256 public currentTicketID = 1; // Zero means not set, start at 1.
+    mapping(uint256 => Ticket) public tickets; // The tickets by ticketID.
 
     // ************************************* //
     // *              Events               * //
@@ -68,8 +78,11 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
         require(msg.sender == fastSender, "Access not allowed: Fast Sender only.");
 
         ticketID = currentTicketID++;
+
         (bytes32 messageHash, bytes memory messageData) = _encode(ticketID, _receiver, _calldata);
         emit OutgoingMessage(ticketID, _receiver, messageHash, messageData);
+
+        tickets[ticketID] = Ticket({messageHash: messageHash, sentSafe: false});
     }
 
     /**
@@ -90,11 +103,16 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
         address _receiver,
         bytes memory _calldata
     ) external payable override {
+        Ticket storage ticket = tickets[_ticketID];
+        require(ticket.messageHash != 0, "Ticket does not exist.");
+        require(ticket.sentSafe == false, "Ticket already sent safely.");
+
         (bytes32 messageHash, bytes memory messageData) = _encode(_ticketID, _receiver, _calldata);
+        require(ticket.messageHash == messageHash, "Invalid message for ticketID.");
 
         // Safe Bridge message envelope
         bytes4 methodSelector = IFastBridgeReceiver.verifyAndRelaySafe.selector;
-        bytes memory safeMessageData = abi.encodeWithSelector(methodSelector, _ticketID, messageHash, messageData);
+        bytes memory safeMessageData = abi.encodeWithSelector(methodSelector, _ticketID, messageData);
 
         // TODO: how much ETH should be provided for bridging? add an ISafeBridgeSender.bridgingCost() if needed
         _sendSafe(address(fastBridgeReceiver), safeMessageData);

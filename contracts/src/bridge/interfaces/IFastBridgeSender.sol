@@ -16,6 +16,7 @@ interface IFastBridgeSender {
      * Sends an arbitrary message from one domain to another
      * via the fast bridge mechanism
      *
+     * @param _ticketID The identifier to provide to sendSafeFallback()
      * @param _receiver The L1 contract address who will receive the calldata
      * @param _calldata The receiving domain encoded message data.
      */
