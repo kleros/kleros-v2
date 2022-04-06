@@ -1687,6 +1687,34 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@kleros/kleros-v2-web@workspace:web":
+  version: 0.0.0-use.local
+  resolution: "@kleros/kleros-v2-web@workspace:web"
+  dependencies:
+    "@parcel/transformer-svg-react": ^2.2.1
+    "@types/react": ^17.0.38
+    "@types/react-dom": ^17.0.11
+    "@types/styled-components": ^5.1.21
+    "@typescript-eslint/eslint-plugin": ^5.10.1
+    "@typescript-eslint/parser": ^5.10.1
+    eslint: ^8.7.0
+    eslint-config-prettier: ^8.3.0
+    eslint-import-resolver-parcel: ^1.10.6
+    eslint-plugin-import: ^2.25.4
+    eslint-plugin-prettier: ^4.0.0
+    eslint-plugin-react: ^7.28.0
+    eslint-plugin-react-hooks: ^4.3.0
+    eslint-plugin-security: ^1.4.0
+    parcel: ^2.4.1
+    prettier: ^2.5.1
+    react: ^18.0.0
+    react-dom: ^18.0.0
+    react-is: ^18.0.0
+    styled-components: ^5.3.5
+    typescript: ^4.5.5
+  languageName: unknown
+  linkType: soft
+
 "@kleros/ui-components-library@npm:^0.1.3":
   version: 0.1.3
   resolution: "@kleros/ui-components-library@npm:0.1.3"
@@ -7449,34 +7477,6 @@ __metadata:
   checksum: 4be63e7117955fd88333d7460e4c466a90f556df6ef34efd59034d2463484e339666c41f02b523d574a797ec61f4a91918c5b89a316db2ea2f834e0d2d09465b
   languageName: node
   linkType: hard
-
-"court@workspace:web":
-  version: 0.0.0-use.local
-  resolution: "court@workspace:web"
-  dependencies:
-    "@parcel/transformer-svg-react": ^2.2.1
-    "@types/react": ^17.0.38
-    "@types/react-dom": ^17.0.11
-    "@types/styled-components": ^5.1.21
-    "@typescript-eslint/eslint-plugin": ^5.10.1
-    "@typescript-eslint/parser": ^5.10.1
-    eslint: ^8.7.0
-    eslint-config-prettier: ^8.3.0
-    eslint-import-resolver-parcel: ^1.10.6
-    eslint-plugin-import: ^2.25.4
-    eslint-plugin-prettier: ^4.0.0
-    eslint-plugin-react: ^7.28.0
-    eslint-plugin-react-hooks: ^4.3.0
-    eslint-plugin-security: ^1.4.0
-    parcel: ^2.4.1
-    prettier: ^2.5.1
-    react: ^18.0.0
-    react-dom: ^18.0.0
-    react-is: ^18.0.0
-    styled-components: ^5.3.5
-    typescript: ^4.5.5
-  languageName: unknown
-  linkType: soft
 
 "crc-32@npm:^1.2.0":
   version: 1.2.1
