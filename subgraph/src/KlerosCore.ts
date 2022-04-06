@@ -17,7 +17,7 @@ import {
   Dispute,
 } from "../generated/schema";
 
-function getPeriodName(index: number): string {
+function getPeriodName(index: i32): string {
   const periodArray = ["Evidence", "Commit", "Vote", "Appeal", "Execution"];
   return periodArray.at(index) || "None";
 }
