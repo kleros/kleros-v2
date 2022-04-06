@@ -1,5 +1,5 @@
 {
-  "name": "court",
+  "name": "@kleros/kleros-v2-web",
   "source": "src/index.html",
   "browserlist": "> 0.5%, last 2 versions, not dead",
   "repository": "",
