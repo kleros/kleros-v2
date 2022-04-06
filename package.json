@@ -42,6 +42,12 @@
     "solhint": "^3.3.6",
     "solhint-plugin-prettier": "^0.0.5"
   },
+  "resolutions": {
+    "underscore@npm": "^1.13.2",
+    "lodash@npm": "^4.17.21",
+    "node-fetch": "^2.6.7",
+    "nanoid": "^3.3.1"
+  },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
