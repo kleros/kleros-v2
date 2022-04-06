@@ -18,18 +18,8 @@ import {
 } from "../generated/schema";
 
 function getPeriodName(index: number): string {
-  if (index === 0)
-    return "Evidence";
-  else if (index === 1)
-    return "Commit";
-  else if (index === 2)
-    return "Vote";
-  else if (index === 3)
-    return "Appeal";
-  else if (index === 4)
-    return "Execution";
-  else
-    return "None";
+  const periodArray = ["Evidence", "Commit", "Vote", "Appeal", "Execution"];
+  return periodArray.at(index) || "None";
 }
 
 export function handleAppealDecision(event: AppealDecision): void {
