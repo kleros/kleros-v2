@@ -1,4 +1,4 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { BigInt } from "@graphprotocol/graph-ts";
 import {
   KlerosCore,
   AppealDecision,
@@ -7,7 +7,7 @@ import {
   NewPeriod,
   StakeSet,
   TokenAndETHShift as TokenAndETHShiftEvent
-} from "../generated/KlerosCore/KlerosCore"
+} from "../generated/KlerosCore/KlerosCore";
 import {
   Juror,
   TokenAndETHShift,
@@ -15,20 +15,21 @@ import {
   Round,
   Draw,
   Dispute,
-} from "../generated/schema"
+} from "../generated/schema";
 
 function getPeriodName(index: number): string {
   if (index === 0)
-    return "Evidence"
-  if (index === 1)
-    return "Commit"
-  if (index === 2)
-    return "Vote"
-  if (index === 3)
-    return "Appeal"
-  if (index === 4)
-    return "Execution"
-  return "None"
+    return "Evidence";
+  else if (index === 1)
+    return "Commit";
+  else if (index === 2)
+    return "Vote";
+  else if (index === 3)
+    return "Appeal";
+  else if (index === 4)
+    return "Execution";
+  else
+    return "None";
 }
 
 export function handleAppealDecision(event: AppealDecision): void {
@@ -127,7 +128,7 @@ export function handleStakeSet(event: StakeSet): void {
 export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   const jurorAddress = event.params._account.toHexString();
   const disputeID = event.params._disputeID;
-  const shiftID = `${jurorAddress}-${disputeID.toString()}`
+  const shiftID = `${jurorAddress}-${disputeID.toString()}`;
   const tokenAmount = event.params._tokenAmount;
   const ethAmount = event.params._ETHAmount;
   const shift = new TokenAndETHShift(shiftID);
