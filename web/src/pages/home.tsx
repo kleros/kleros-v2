@@ -7,8 +7,6 @@ const Container = styled.div`
   background-color: ${({ theme }) => theme.lightBackground};
 `;
 
-const Home: React.FC = () => (
-  <Container></Container>
-);
+const Home: React.FC = () => <Container>Hello world!</Container>;
 
 export default Home;
