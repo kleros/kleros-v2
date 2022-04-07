@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import Header from "./header";
 import Footer from "./footer";
-import Routes from "src/routes";
+import { Outlet } from "react-router-dom";
 
 const Container = styled.div`
   height: 100vh;
@@ -12,7 +12,7 @@ const Container = styled.div`
 const Layout: React.FC = () => (
   <Container>
     <Header />
-    <Routes />
+    <Outlet />
     <Footer />
   </Container>
 );
