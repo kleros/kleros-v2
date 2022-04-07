@@ -58,6 +58,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   }
   const { claimDeposit, challengeDuration, homeChainId } = paramsByChainId[chainId];
   const challengeDeposit = claimDeposit;
+  const bridgeAlpha = 5000;
   const homeChainIdAsBytes32 = hexZeroPad(homeChainId, 32);
 
   const homeGatewayAddress = getContractAddress(deployer, nonce);
@@ -72,6 +73,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
       claimDeposit,
       challengeDeposit,
       challengeDuration,
+      bridgeAlpha,
     ],
     log: true,
   });

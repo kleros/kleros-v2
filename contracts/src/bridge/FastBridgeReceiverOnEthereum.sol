@@ -46,9 +46,11 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     // *             Storage               * //
     // ************************************* //
 
+    uint256 public constant ONE_BASIS_POINT = 1e4; // One basis point, for scaling.
     uint256 public override claimDeposit;
     uint256 public override challengeDeposit;
     uint256 public override challengeDuration;
+    uint256 public override alpha; // Basis point of claim or challenge deposit that are lost when dishonest.
     mapping(uint256 => Ticket) public tickets; // The tickets by ticketID.
 
     // ************************************* //
@@ -64,11 +66,13 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         address _inbox,
         uint256 _claimDeposit,
         uint256 _challengeDeposit,
-        uint256 _challengeDuration
+        uint256 _challengeDuration,
+        uint256 _alpha
     ) SafeBridgeReceiverOnEthereum(_governor, _safeBridgeSender, _inbox) {
         claimDeposit = _claimDeposit;
         challengeDeposit = _challengeDeposit;
         challengeDuration = _challengeDuration;
+        alpha = _alpha;
     }
 
     // ************************************* //
@@ -154,7 +158,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         require(ticket.claim.bridger != address(0), "Claim does not exist");
         require(ticket.claim.verified == true, "Claim not verified: deposit forfeited");
 
-        uint256 amount = ticket.claim.claimDeposit + ticket.challenge.challengeDeposit;
+        uint256 amount = ticket.claim.claimDeposit + (ticket.challenge.challengeDeposit * alpha) / ONE_BASIS_POINT;
         ticket.claim.claimDeposit = 0;
         ticket.challenge.challengeDeposit = 0;
         payable(ticket.claim.bridger).send(amount); // Use of send to prevent reverting fallback. User is responsibility for accepting ETH.
@@ -167,7 +171,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         require(ticket.challenge.challenger != address(0), "Challenge does not exist");
         require(ticket.claim.verified == false, "Claim verified: deposit forfeited");
 
-        uint256 amount = ticket.claim.claimDeposit + ticket.challenge.challengeDeposit;
+        uint256 amount = ticket.challenge.challengeDeposit + (ticket.claim.claimDeposit * alpha) / ONE_BASIS_POINT;
         ticket.claim.claimDeposit = 0;
         ticket.challenge.challengeDeposit = 0;
         payable(ticket.challenge.challenger).send(amount); // Use of send to prevent reverting fallback. User is responsibility for accepting ETH.
@@ -201,6 +205,10 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
 
     function changeChallengePeriodDuration(uint256 _challengeDuration) external onlyByGovernor {
         challengeDuration = _challengeDuration;
+    }
+
+    function changeAlpha(uint256 _alpha) external onlyByGovernor {
+        alpha = _alpha;
     }
 
     // ************************ //
