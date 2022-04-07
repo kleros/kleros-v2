@@ -20,9 +20,21 @@ import "./interfaces/ISafeBridgeSender.sol";
  * Counterpart of `SafeBridgeReceiverOnEthereum`
  */
 contract SafeBridgeSenderToEthereum is ISafeBridgeSender {
-    IArbSys public constant ARB_SYS = IArbSys(address(100));
+    // ************************************* //
+    // *              Events               * //
+    // ************************************* //
 
     event L2ToL1TxCreated(uint256 indexed withdrawalId);
+
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
+
+    IArbSys public constant ARB_SYS = IArbSys(address(100));
+
+    // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
 
     function _sendSafe(address _receiver, bytes memory _calldata) internal override returns (uint256) {
         uint256 withdrawalId = ARB_SYS.sendTxToL1(_receiver, _calldata);

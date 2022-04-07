@@ -33,27 +33,11 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
     // *             Storage               * //
     // ************************************* //
 
-    address public governor;
-    IFastBridgeReceiver public fastBridgeReceiver;
-    address public fastSender;
+    address public governor; // The governor of the contract.
+    IFastBridgeReceiver public fastBridgeReceiver; // The address of the Fast Bridge on Ethereum.
+    address public fastBridgeSender; // The address of the Fast Bridge sender on Arbitrum, generally the Home Gateway.
     uint256 public currentTicketID = 1; // Zero means not set, start at 1.
     mapping(uint256 => Ticket) public tickets; // The tickets by ticketID.
-
-    // ************************************* //
-    // *              Events               * //
-    // ************************************* //
-
-    /**
-     * The bridgers need to watch for these events and
-     * relay the messageHash on the FastBridgeReceiverOnEthereum.
-     */
-    event OutgoingMessage(
-        uint256 indexed ticketID,
-        uint256 blockNumber,
-        address target,
-        bytes32 indexed messageHash,
-        bytes message
-    );
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -64,9 +48,20 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
         _;
     }
 
-    constructor(address _governor, IFastBridgeReceiver _fastBridgeReceiver) SafeBridgeSenderToEthereum() {
+    /**
+     * @dev Constructor.
+     * @param _governor The governor's address.
+     * @param _fastBridgeReceiver The address of the Fast Bridge on Ethereum.
+     * @param _fastBridgeSender The address of the Fast Bridge sender on Arbitrum, generally the Home Gateway.
+     */
+    constructor(
+        address _governor,
+        IFastBridgeReceiver _fastBridgeReceiver,
+        address _fastBridgeSender
+    ) SafeBridgeSenderToEthereum() {
         governor = _governor;
         fastBridgeReceiver = _fastBridgeReceiver;
+        fastBridgeSender = _fastBridgeSender;
     }
 
     // ************************************* //
@@ -74,15 +69,14 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
     // ************************************* //
 
     /**
-     * Sends an arbitrary message from one domain to another
-     * via the fast bridge mechanism
-     *
-     * @param _receiver The L1 contract address who will receive the calldata
+     * Note: Access restricted to the `fastSender`, generally the Gateway.
+     * @dev Sends an arbitrary message to Ethereum using the Fast Bridge.
+     * @param _receiver The address of the contract on Ethereum which receives the calldata.
      * @param _calldata The receiving domain encoded message data.
-     * @return ticketID The identifier to provide to sendSafeFallback()
+     * @return ticketID The identifier to provide to sendSafeFallback().
      */
     function sendFast(address _receiver, bytes memory _calldata) external override returns (uint256 ticketID) {
-        require(msg.sender == fastSender, "Access not allowed: Fast Sender only.");
+        require(msg.sender == fastBridgeSender, "Access not allowed: Fast Sender only.");
 
         ticketID = currentTicketID++;
 
@@ -93,18 +87,9 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
     }
 
     /**
-     * Sends an arbitrary message from one domain to another
-     * via the safe bridge mechanism, which relies on the chain's native bridge.
-     *
-     * It is unnecessary during normal operations but essential only in case of challenge.
-     *
-     * It may require some ETH (or whichever native token) to pay for the bridging cost,
-     * depending on the underlying safe bridge.
-     *
-     * TODO: check if keeping _calldata in storage in sendFast() is cheaper than passing it again as a parameter here
-     *
-     * @param _ticketID The ticketID as provided by `sendFast()` if any.
-     * @param _receiver The L1 contract address who will receive the calldata
+     * @dev Sends an arbitrary message to Ethereum using the Safe Bridge, which relies on Arbitrum's canonical bridge. It is unnecessary during normal operations but essential only in case of challenge.
+     * @param _ticketID The ticketID as returned by `sendFast()`.
+     * @param _receiver The address of the contract on Ethereum which receives the calldata.
      * @param _calldata The receiving domain encoded message data.
      */
     function sendSafeFallback(
@@ -112,6 +97,7 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
         address _receiver,
         bytes memory _calldata
     ) external payable override {
+        // TODO: check if keeping _calldata in storage in sendFast() is cheaper than passing it again as a parameter here
         Ticket storage ticket = tickets[_ticketID];
         require(ticket.messageHash != 0, "Ticket does not exist.");
         require(ticket.sentSafe == false, "Ticket already sent safely.");
@@ -136,9 +122,8 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
     // *      Governance      * //
     // ************************ //
 
-    function changeFastSender(address _fastSender) external onlyByGovernor {
-        require(fastSender == address(0));
-        fastSender = _fastSender;
+    function changeFastSender(address _fastBridgeSender) external onlyByGovernor {
+        fastBridgeSender = _fastBridgeSender;
     }
 
     // ************************ //
