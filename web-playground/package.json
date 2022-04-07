@@ -1,5 +1,5 @@
 {
-  "name": "web-template",
+  "name": "@kleros/kleros-v2-web-playground",
   "source": "src/index.html",
   "browserlists": "> 0.5%, last 2 versions, not dead",
   "repository": "",
@@ -43,6 +43,7 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
+    "@kleros/kleros-v2-contracts": "workspace:^",
     "@kleros/ui-components-library": "^0.1.3",
     "@usedapp/core": "^0.11.0",
     "react": "^17.0.2",
