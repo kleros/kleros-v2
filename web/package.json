@@ -1,7 +1,7 @@
 {
   "name": "court",
   "source": "src/index.html",
-  "browserlist": "> 0.5%, last 2 versions, not dead",
+  "browserslist": "> 0.5%, last 2 versions, not dead",
   "repository": "",
   "author": "",
   "license": "MIT",
