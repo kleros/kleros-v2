@@ -47,19 +47,22 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     // ************************************* //
 
     uint256 public constant ONE_BASIS_POINT = 1e4; // One basis point, for scaling.
-    uint256 public override claimDeposit;
-    uint256 public override challengeDeposit;
-    uint256 public override challengeDuration;
+    uint256 public override claimDeposit; // The deposit required to submit a claim.
+    uint256 public override challengeDeposit; // The deposit required to submit a challenge.
+    uint256 public override challengeDuration; // The duration of the period allowing to challenge a claim.
     uint256 public override alpha; // Basis point of claim or challenge deposit that are lost when dishonest.
     mapping(uint256 => Ticket) public tickets; // The tickets by ticketID.
 
-    // ************************************* //
-    // *              Events               * //
-    // ************************************* //
-
-    event ClaimReceived(uint256 indexed _ticketID, bytes32 indexed messageHash, uint256 claimedAt);
-    event ClaimChallenged(uint256 indexed _ticketID, bytes32 indexed _messageHash, uint256 challengedAt);
-
+    /**
+     * @dev Constructor.
+     * @param _governor The governor's address.
+     * @param _safeBridgeSender The address of the Safe Bridge sender on Arbitrum.
+     * @param _inbox The address of the Arbitrum Inbox contract.
+     * @param _claimDeposit The deposit amount to submit a claim in wei.
+     * @param _challengeDeposit The deposit amount to submit a challenge in wei.
+     * @param _challengeDuration The duration of the period allowing to challenge a claim.
+     * @param _alpha Basis point of claim or challenge deposit that are lost when dishonest.
+     */
     constructor(
         address _governor,
         address _safeBridgeSender,
@@ -79,6 +82,11 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     // *         State Modifiers           * //
     // ************************************* //
 
+    /**
+     * @dev Submit a claim about the `messageHash` for a particular Fast Bridge `ticketID` and submit a deposit. The `messageHash` should match the one on the sending side otherwise the sender will lose his deposit.
+     * @param _ticketID The ticket identifier referring to a message going through the bridge.
+     * @param _messageHash The hash claimed for the ticket.
+     */
     function claim(uint256 _ticketID, bytes32 _messageHash) external payable override {
         Ticket storage ticket = tickets[_ticketID];
         require(ticket.claim.bridger == address(0), "Claim already made");
@@ -96,6 +104,10 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         emit ClaimReceived(_ticketID, _messageHash, block.timestamp);
     }
 
+    /**
+     * @dev Submit a challenge for a particular Fast Bridge `ticketID` and submit a deposit. The `messageHash` in the claim already made for this `ticketID` should be different from the one on the sending side, otherwise the sender will lose his deposit.
+     * @param _ticketID The ticket identifier referring to a message going through the bridge.
+     */
     function challenge(uint256 _ticketID) external payable override {
         Ticket storage ticket = tickets[_ticketID];
         require(ticket.claim.bridger != address(0), "Claim does not exist");
@@ -109,18 +121,24 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
             challengeDeposit: msg.value
         });
 
-        emit ClaimChallenged(_ticketID, ticket.claim.messageHash, block.timestamp);
+        emit ClaimChallenged(_ticketID, block.timestamp);
     }
 
+    /**
+     * @dev Relay the message for this `ticketID` if the challenge period has passed and the claim is unchallenged. The hash computed over `messageData` and the other parameters must match the hash provided by the claim.
+     * @param _ticketID The ticket identifier referring to a message going through the bridge.
+     * @param _blockNumber The block number on the cross-domain chain when the message with this ticketID has been sent.
+     * @param _messageData The data on the cross-domain chain for the message sent with this ticketID.
+     */
     function verifyAndRelay(
         uint256 _ticketID,
-        uint256 blockNumber,
+        uint256 _blockNumber,
         bytes calldata _messageData
     ) external override {
         Ticket storage ticket = tickets[_ticketID];
         require(ticket.claim.bridger != address(0), "Claim does not exist");
         require(
-            ticket.claim.messageHash == keccak256(abi.encode(_ticketID, blockNumber, _messageData)),
+            ticket.claim.messageHash == keccak256(abi.encode(_ticketID, _blockNumber, _messageData)),
             "Invalid hash"
         );
         require(ticket.claim.claimedAt + challengeDuration < block.timestamp, "Challenge period not over");
@@ -132,9 +150,16 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         require(_relay(_messageData), "Failed to call contract"); // Checks-Effects-Interaction
     }
 
+    /**
+     * Note: Access restricted to the Safe Bridge.
+     * @dev Relay the message for this `ticketID` as provided by the Safe Bridge. Resolve a challenged claim for this `ticketID` if any.
+     * @param _ticketID The ticket identifier referring to a message going through the bridge.
+     * @param _blockNumber The block number on the cross-domain chain when the message with this ticketID has been sent.
+     * @param _messageData The data on the cross-domain chain for the message sent with this ticketID.
+     */
     function verifyAndRelaySafe(
         uint256 _ticketID,
-        uint256 blockNumber,
+        uint256 _blockNumber,
         bytes calldata _messageData
     ) external override {
         require(isSentBySafeBridge(), "Access not allowed: SafeBridgeSender only.");
@@ -143,7 +168,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         require(ticket.relayed == false, "Message already relayed");
 
         // Claim assessment if any
-        bytes32 messageHash = keccak256(abi.encode(_ticketID, blockNumber, _messageData));
+        bytes32 messageHash = keccak256(abi.encode(_ticketID, _blockNumber, _messageData));
         if (ticket.claim.bridger != address(0) && ticket.claim.messageHash == messageHash) {
             ticket.claim.verified = true;
         }
@@ -152,6 +177,10 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         require(_relay(_messageData), "Failed to call contract"); // Checks-Effects-Interaction
     }
 
+    /**
+     * @dev Sends the deposit back to the Bridger if his claim is not successfully challenged. Includes a portion of the Challenger's deposit if unsuccessfully challenged.
+     * @param _ticketID The ticket identifier referring to a message going through the bridge.
+     */
     function withdrawClaimDeposit(uint256 _ticketID) external override {
         Ticket storage ticket = tickets[_ticketID];
         require(ticket.relayed == true, "Message not relayed yet");
@@ -165,6 +194,10 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         // Checks-Effects-Interaction
     }
 
+    /**
+     * @dev Sends the deposit back to the Challenger if his challenge is successful. Includes a portion of the Bridger's deposit.
+     * @param _ticketID The ticket identifier referring to a message going through the bridge.
+     */
     function withdrawChallengeDeposit(uint256 _ticketID) external override {
         Ticket storage ticket = tickets[_ticketID];
         require(ticket.relayed == true, "Message not relayed");
@@ -182,7 +215,12 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     // *           Public Views            * //
     // ************************************* //
 
-    function challengePeriod(uint256 _ticketID) public view returns (uint256 start, uint256 end) {
+    /**
+     * @dev Returns the `start` and `end` time of challenge period for this `ticketID`.
+     * @return start The start time of the challenge period.
+     * @return end The end time of the challenge period.
+     */
+    function challengePeriod(uint256 _ticketID) external view override returns (uint256 start, uint256 end) {
         Ticket storage ticket = tickets[_ticketID];
         require(ticket.claim.bridger != address(0), "Claim does not exist");
 

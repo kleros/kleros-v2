@@ -23,9 +23,9 @@ contract SafeBridgeReceiverOnEthereum is ISafeBridgeReceiver {
     // *             Storage               * //
     // ************************************* //
 
-    address public governor;
-    address public safeBridgeSender;
-    IInbox public inbox;
+    address public governor; // The governor of the contract.
+    address public safeBridgeSender; // The address of the Safe Bridge sender on Arbitrum.
+    IInbox public inbox; // The address of the Arbitrum Inbox contract.
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -36,6 +36,12 @@ contract SafeBridgeReceiverOnEthereum is ISafeBridgeReceiver {
         _;
     }
 
+    /**
+     * @dev Constructor.
+     * @param _governor The governor's address.
+     * @param _safeBridgeSender The address of the Safe Bridge sender on Arbitrum.
+     * @param _inbox The address of the Arbitrum Inbox contract.
+     */
     constructor(
         address _governor,
         address _safeBridgeSender,
