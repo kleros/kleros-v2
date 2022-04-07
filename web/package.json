@@ -5,6 +5,12 @@
   "repository": "",
   "author": "",
   "license": "MIT",
+  "alias": {
+    "src": "./src",
+    "svgs": "./src/assets/svgs",
+    "hooks": "./src/hooks",
+    "components": "./src/components"
+  },
   "packageManager": "yarn@3.1.1",
   "scripts": {
     "clear": "rm -r .parcel-cache",
