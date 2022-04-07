@@ -1,7 +1,24 @@
 {
   "compilerOptions": {
-    "experimentalDecorators": true,
     "baseUrl": ".",
+    "paths": {
+      "~*": [
+        "./*"
+      ],
+      "src*": [
+        "./src*"
+      ],
+      "svgs*": [
+        "./src/assets/svgs*"
+      ],
+      "hooks*": [
+        "./src/hooks*"
+      ],
+      "components*": [
+        "./src/components*"
+      ]
+    },
+    "experimentalDecorators": true,
     "outDir": "build/dist",
     "module": "esnext",
     "target": "es2017",
