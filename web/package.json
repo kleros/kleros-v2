@@ -35,6 +35,7 @@
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
     "eslint-plugin-security": "^1.4.0",
+    "lru-cache": "^7.8.0",
     "parcel": "^2.4.1",
     "prettier": "^2.5.1",
     "typescript": "^4.5.5"
