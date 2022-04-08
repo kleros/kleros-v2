@@ -18,8 +18,45 @@ export const GlobalStyle = createGlobalStyle`
     outline: none;
   }
 
+  h1 {
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  h2 {
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  h3 {
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  p {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  s {
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 18px;
+  }
+
+  label {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+  }
+
   hr {
     opacity: 1;
+    border: 1px solid ${({ theme }) => theme.stroke};
   }
 
   svg, img {
