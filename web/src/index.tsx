@@ -4,7 +4,7 @@ import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/global-style";
 import { lightTheme } from "./styles/themes";
 import App from "./app";
-import { BrowserRouter as Router } from "react-router-dom";
+import { HashRouter as Router } from "react-router-dom";
 
 const container = document.getElementById("app");
 const root = createRoot(container!);
