@@ -8,14 +8,26 @@
       "src*": [
         "./src*"
       ],
-      "svgs*": [
-        "./src/assets/svgs*"
+      "assets*": [
+        "./src/assets*"
+      ],
+      "components*": [
+        "./src/components*"
+      ],
+      "consts*": [
+        "./src/consts*"
       ],
       "hooks*": [
         "./src/hooks*"
       ],
-      "components*": [
-        "./src/components*"
+      "pages": [
+        "./src/pages*"
+      ],
+      "styles": [
+        "./src/styles*"
+      ],
+      "svgs*": [
+        "./src/assets/svgs*"
       ]
     },
     "experimentalDecorators": true,
