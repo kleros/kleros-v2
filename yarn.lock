@@ -1737,7 +1737,7 @@ __metadata:
   resolution: "@kleros/kleros-v2-web@workspace:web"
   dependencies:
     "@kleros/kleros-v2-contracts": "workspace:^"
-    "@kleros/ui-components-library": ^0.1.3
+    "@kleros/ui-components-library": ^0.1.5
     "@parcel/transformer-svg-react": ^2.2.1
     "@types/react": ^17.0.38
     "@types/react-dom": ^17.0.11
@@ -1777,6 +1777,24 @@ __metadata:
     simplebar-react: ^2.3.6
     styled-components: ^5.3.3
   checksum: 8a46239f3c0e6e38d0a19b8c64484f27223a5424579737f090a70982b1dab0e76972313d9a2e942119fc43b6a91b4a56b10107ffa94941814d9d615b4e46ea93
+  languageName: node
+  linkType: hard
+
+"@kleros/ui-components-library@npm:^0.1.5":
+  version: 0.1.5
+  resolution: "@kleros/ui-components-library@npm:0.1.5"
+  dependencies:
+    "@datepicker-react/hooks": ^2.8.4
+    "@swc/helpers": ^0.3.2
+    rc-slider: ^9.7.5
+    react: ^18.0.0
+    react-dom: ^18.0.0
+    react-is: ^18.0.0
+    simplebar: ^5.3.6
+    simplebar-react: ^2.3.6
+  peerDependencies:
+    styled-components: ^5.3.3
+  checksum: efc74789760b7823aafd4c7c2341feca01eda1a2093839ae6455f8a724606974e202e8714de06f3432759321b0e509432d3d80170eb04dd198c04da24e1f7b42
   languageName: node
   linkType: hard
 
