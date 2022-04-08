@@ -1752,6 +1752,7 @@ __metadata:
     eslint-plugin-react: ^7.28.0
     eslint-plugin-react-hooks: ^4.3.0
     eslint-plugin-security: ^1.4.0
+    lru-cache: ^7.8.0
     parcel: ^2.4.1
     prettier: ^2.5.1
     react: ^18.0.0
@@ -13544,6 +13545,13 @@ __metadata:
   version: 7.7.1
   resolution: "lru-cache@npm:7.7.1"
   checksum: f362c5a2cfa8ad6fe557ec43dc1b7a9695cce84a5652a43ff813609f782f5da576631e7dfad41878bf19a7a69438f38375178635ee80de269aa314280ca2f59e
+  languageName: node
+  linkType: hard
+
+"lru-cache@npm:^7.8.0":
+  version: 7.8.0
+  resolution: "lru-cache@npm:7.8.0"
+  checksum: 7cc046276b668e7b59c10f7f25049d89315cd22fb5205c0eb476583ba29b8542955189452dc8655a771e1a91f6056ddcb29daf4ac35197f77b3ce9a0041d54c9
   languageName: node
   linkType: hard
 
