@@ -3,5 +3,5 @@
 [build.environment]
 NETLIFY_USE_YARN = "true"
 YARN_ENABLE_GLOBAL_CACHE = "true"
-YARN_CACHE_FOLDER = "/opt/buildhome/node_modules"
+YARN_CACHE_FOLDER = "/opt/buildhome/.yarn_cache"
 YARN_VERSION = "3.1.1"
