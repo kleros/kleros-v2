@@ -15,7 +15,7 @@
     "styles": "./src/styles",
     "svgs": "./src/assets/svgs"
   },
-  "packageManager": "yarn@3.1.1",
+  "packageManager": "yarn@3.2.0",
   "scripts": {
     "clear": "rm -r .parcel-cache",
     "clean": "rm dist/bundle.js",
