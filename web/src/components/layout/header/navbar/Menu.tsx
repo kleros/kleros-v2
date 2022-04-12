@@ -12,6 +12,7 @@ const Container = styled.div``;
 
 const ButtonContainer = styled.div`
   min-height: 32px;
+
   display: flex;
   align-items: center;
 `;
