@@ -109,9 +109,4 @@ interface IFastBridgeReceiver {
      * @return amount The duration of the period allowing to challenge a claim.
      */
     function challengeDuration() external view returns (uint256 amount);
-
-    /**
-     * @return amount Basis point of claim or challenge deposit that are lost when dishonest.
-     */
-    function alpha() external view returns (uint256 amount);
 }

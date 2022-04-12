@@ -45,6 +45,8 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
 
     address public governor;
     IFastBridgeReceiver public fastbridge;
+    IFastBridgeReceiver public depreciatedFastbridge;
+    uint256 fastbridgeExpiration;
     address public homeGateway;
 
     event OutgoingDispute(
@@ -57,7 +59,10 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
     );
 
     modifier onlyFromFastBridge() {
-        require(address(fastbridge) == msg.sender, "Access not allowed: Fast Bridge only.");
+        require(
+            address(fastbridge) == msg.sender ||
+            ( (block.timestamp < fastbridgeExpiration) && address(depreciatedFastbridge) == msg.sender)
+            , "Access not allowed: Fast Bridge only.");
         _;
     }
 
@@ -82,6 +87,16 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
         assembly {
             sstore(chainID.slot, chainid())
         }
+    }
+
+    /** @dev Changes the fastBridge, useful to increase the claim deposit.
+     *  @param _fastbridge The address of the new fastBridge.
+     */
+    function changeFastbridge(IFastBridgeReceiver _fastbridge) external onlyByGovernor {
+        // grace period to relay remaining messages in the relay / bridging process
+        fastbridgeExpiration = block.timestamp + _fastbridge.challengeDuration() + 1209600; // 2 weeks
+        depreciatedFastbridge = fastbridge;
+        fastbridge = _fastbridge;
     }
 
     /** @dev Changes the `feeForJuror` property value of a specified subcourt.
@@ -130,10 +145,12 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
      * Relay the rule call from the home gateway to the arbitrable.
      */
     function relayRule(
+        address _messageOrigin,
         bytes32 _disputeHash,
         uint256 _ruling,
         address _relayer
-    ) external onlyFromFastBridge {
+    ) external onlyFromFastBridge(){
+        require(_messageOrigin == homeGateway, "Only the homegateway is allowed.");
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 
         require(dispute.id != 0, "Dispute does not exist");

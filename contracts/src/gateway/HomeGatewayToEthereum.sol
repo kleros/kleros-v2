@@ -24,6 +24,7 @@ contract HomeGatewayToEthereum is IHomeGateway {
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => uint256) public disputeHashtoID;
 
+    address public governor;
     IArbitrator public arbitrator;
     IFastBridgeSender public fastbridge;
     address public foreignGateway;
@@ -37,11 +38,13 @@ contract HomeGatewayToEthereum is IHomeGateway {
     mapping(bytes32 => RelayedData) public disputeHashtoRelayedData;
 
     constructor(
+        address _governor,
         IArbitrator _arbitrator,
         IFastBridgeSender _fastbridge,
         address _foreignGateway,
         uint256 _foreignChainID
     ) {
+        governor = _governor;
         arbitrator = _arbitrator;
         fastbridge = _fastbridge;
         foreignGateway = _foreignGateway;
@@ -111,6 +114,14 @@ contract HomeGatewayToEthereum is IHomeGateway {
         bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.relayer);
 
         fastbridge.sendFast(foreignGateway, data);
+    }
+
+    /** @dev Changes the fastBridge, useful to increase the claim deposit.
+     *  @param _fastbridge The address of the new fastBridge.
+     */
+    function changeFastbridge(IFastBridgeSender _fastbridge) external {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        fastbridge = _fastbridge;
     }
 
     function disputeHashToHomeID(bytes32 _disputeHash) external view returns (uint256) {

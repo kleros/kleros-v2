@@ -11,6 +11,7 @@ interface IFastBridgeSender {
      * @dev The Fast Bridge participants need to watch for these events and relay the messageHash on the FastBridgeReceiverOnEthereum.
      * @param ticketID The ticket identifier referring to a message going through the bridge.
      * @param blockNumber The block number when the message with this ticketID has been created.
+     * @param messageSender The address of the cross-domain receiver of the message, generally the Foreign Gateway.
      * @param target The address of the cross-domain receiver of the message, generally the Foreign Gateway.
      * @param messageHash The hash uniquely identifying this message.
      * @param message The message data.
@@ -18,6 +19,7 @@ interface IFastBridgeSender {
     event OutgoingMessage(
         uint256 indexed ticketID,
         uint256 blockNumber,
+        address messageSender,
         address target,
         bytes32 indexed messageHash,
         bytes message
@@ -39,11 +41,15 @@ interface IFastBridgeSender {
     /**
      * @dev Sends an arbitrary message across domain using the Safe Bridge, which relies on the chain's canonical bridge. It is unnecessary during normal operations but essential only in case of challenge.
      * @param _ticketID The ticketID as returned by `sendFast()`.
+     * @param _fastBridgeReceiver The address of the fast bridge receiver deployment.
+     * @param _fastMsgSender The msg.sender which called sendFast()
      * @param _receiver The cross-domain contract address which receives the calldata.
      * @param _calldata The receiving domain encoded message data.
      */
     function sendSafeFallback(
         uint256 _ticketID,
+        address _fastBridgeReceiver,
+        address _fastMsgSender,
         address _receiver,
         bytes memory _calldata
     ) external payable;

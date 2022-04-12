@@ -46,36 +46,26 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     // *             Storage               * //
     // ************************************* //
 
-    uint256 public constant ONE_BASIS_POINT = 1e4; // One basis point, for scaling.
     uint256 public override claimDeposit; // The deposit required to submit a claim.
     uint256 public override challengeDeposit; // The deposit required to submit a challenge.
     uint256 public override challengeDuration; // The duration of the period allowing to challenge a claim.
-    uint256 public override alpha; // Basis point of claim or challenge deposit that are lost when dishonest.
     mapping(uint256 => Ticket) public tickets; // The tickets by ticketID.
-
     /**
      * @dev Constructor.
-     * @param _governor The governor's address.
-     * @param _safeBridgeSender The address of the Safe Bridge sender on Arbitrum.
      * @param _inbox The address of the Arbitrum Inbox contract.
      * @param _claimDeposit The deposit amount to submit a claim in wei.
      * @param _challengeDeposit The deposit amount to submit a challenge in wei.
      * @param _challengeDuration The duration of the period allowing to challenge a claim.
-     * @param _alpha Basis point of claim or challenge deposit that are lost when dishonest.
      */
     constructor(
-        address _governor,
-        address _safeBridgeSender,
         address _inbox,
         uint256 _claimDeposit,
         uint256 _challengeDeposit,
-        uint256 _challengeDuration,
-        uint256 _alpha
-    ) SafeBridgeReceiverOnEthereum(_governor, _safeBridgeSender, _inbox) {
+        uint256 _challengeDuration
+    ) SafeBridgeReceiverOnEthereum(_inbox) {
         claimDeposit = _claimDeposit;
         challengeDeposit = _challengeDeposit;
         challengeDuration = _challengeDuration;
-        alpha = _alpha;
     }
 
     // ************************************* //
@@ -127,18 +117,18 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     /**
      * @dev Relay the message for this `ticketID` if the challenge period has passed and the claim is unchallenged. The hash computed over `messageData` and the other parameters must match the hash provided by the claim.
      * @param _ticketID The ticket identifier referring to a message going through the bridge.
-     * @param _blockNumber The block number on the cross-domain chain when the message with this ticketID has been sent.
+     * @param _blocknumber The block number on the cross-domain chain when the message with this ticketID has been sent.
      * @param _messageData The data on the cross-domain chain for the message sent with this ticketID.
      */
     function verifyAndRelay(
         uint256 _ticketID,
-        uint256 _blockNumber,
+        uint256 _blocknumber,
         bytes calldata _messageData
     ) external override {
         Ticket storage ticket = tickets[_ticketID];
         require(ticket.claim.bridger != address(0), "Claim does not exist");
         require(
-            ticket.claim.messageHash == keccak256(abi.encode(_ticketID, _blockNumber, _messageData)),
+            ticket.claim.messageHash == keccak256(abi.encode(_ticketID, _blocknumber, _messageData)),
             "Invalid hash"
         );
         require(ticket.claim.claimedAt + challengeDuration < block.timestamp, "Challenge period not over");
@@ -154,12 +144,12 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
      * Note: Access restricted to the Safe Bridge.
      * @dev Relay the message for this `ticketID` as provided by the Safe Bridge. Resolve a challenged claim for this `ticketID` if any.
      * @param _ticketID The ticket identifier referring to a message going through the bridge.
-     * @param _blockNumber The block number on the cross-domain chain when the message with this ticketID has been sent.
+     * @param _blocknumber The block number on the cross-domain chain when the message with this ticketID has been sent.
      * @param _messageData The data on the cross-domain chain for the message sent with this ticketID.
      */
     function verifyAndRelaySafe(
         uint256 _ticketID,
-        uint256 _blockNumber,
+        uint256 _blocknumber,
         bytes calldata _messageData
     ) external override {
         require(isSentBySafeBridge(), "Access not allowed: SafeBridgeSender only.");
@@ -168,7 +158,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         require(ticket.relayed == false, "Message already relayed");
 
         // Claim assessment if any
-        bytes32 messageHash = keccak256(abi.encode(_ticketID, _blockNumber, _messageData));
+        bytes32 messageHash = keccak256(abi.encode(_ticketID, _blocknumber, _messageData));
         if (ticket.claim.bridger != address(0) && ticket.claim.messageHash == messageHash) {
             ticket.claim.verified = true;
         }
@@ -187,7 +177,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         require(ticket.claim.bridger != address(0), "Claim does not exist");
         require(ticket.claim.verified == true, "Claim not verified: deposit forfeited");
 
-        uint256 amount = ticket.claim.claimDeposit + (ticket.challenge.challengeDeposit * alpha) / ONE_BASIS_POINT;
+        uint256 amount = ticket.claim.claimDeposit + ticket.challenge.challengeDeposit / 2;
         ticket.claim.claimDeposit = 0;
         ticket.challenge.challengeDeposit = 0;
         payable(ticket.claim.bridger).send(amount); // Use of send to prevent reverting fallback. User is responsibility for accepting ETH.
@@ -204,7 +194,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         require(ticket.challenge.challenger != address(0), "Challenge does not exist");
         require(ticket.claim.verified == false, "Claim verified: deposit forfeited");
 
-        uint256 amount = ticket.challenge.challengeDeposit + (ticket.claim.claimDeposit * alpha) / ONE_BASIS_POINT;
+        uint256 amount = ticket.challenge.challengeDeposit + ticket.claim.claimDeposit / 2;
         ticket.claim.claimDeposit = 0;
         ticket.challenge.challengeDeposit = 0;
         payable(ticket.challenge.challenger).send(amount); // Use of send to prevent reverting fallback. User is responsibility for accepting ETH.
@@ -227,26 +217,6 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         start = ticket.claim.claimedAt;
         end = start + challengeDuration;
         return (start, end);
-    }
-
-    // ************************ //
-    // *      Governance      * //
-    // ************************ //
-
-    function changeClaimDeposit(uint256 _claimDeposit) external onlyByGovernor {
-        claimDeposit = _claimDeposit;
-    }
-
-    function changeChallengeDeposit(uint256 _challengeDeposit) external onlyByGovernor {
-        challengeDeposit = _challengeDeposit;
-    }
-
-    function changeChallengePeriodDuration(uint256 _challengeDuration) external onlyByGovernor {
-        challengeDuration = _challengeDuration;
-    }
-
-    function changeAlpha(uint256 _alpha) external onlyByGovernor {
-        alpha = _alpha;
     }
 
     // ************************ //
