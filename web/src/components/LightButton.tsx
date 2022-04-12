@@ -24,6 +24,7 @@ interface ILightButton {
   icon?: (className: string) => React.ReactNode;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
+  className?: string;
 }
 
 const LightButton: React.FC<ILightButton> = ({
@@ -31,11 +32,12 @@ const LightButton: React.FC<ILightButton> = ({
   icon,
   onClick,
   disabled,
+  className,
 }) => (
   <StyledButton
     variant="primary"
     small
-    {...{ text, icon, onClick, disabled }}
+    {...{ text, icon, onClick, disabled, className }}
   />
 );
 
