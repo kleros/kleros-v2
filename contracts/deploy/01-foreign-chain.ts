@@ -50,25 +50,35 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   let nonce;
   if (chainId === ForeignChains.HARDHAT) {
     nonce = await ethers.provider.getTransactionCount(deployer);
-    nonce += 5; // HomeGateway deploy tx will be the 6th after this, same network for both home/foreign.
+    nonce += 4; // HomeGatewayToEthereum deploy tx will be the 6th after this, same network for both home/foreign.
   } else {
     const homeChainProvider = new providers.JsonRpcProvider(homeNetworks[chainId].url);
     nonce = await homeChainProvider.getTransactionCount(deployer);
-    nonce += 2; // HomeGateway deploy tx will the third tx after this on its home network, so we add two to the current nonce.
+    nonce += 1; // HomeGatewayToEthereum deploy tx will the third tx after this on its home network, so we add two to the current nonce.
   }
   const { claimDeposit, challengeDuration, homeChainId } = paramsByChainId[chainId];
+  const challengeDeposit = claimDeposit;
+  const bridgeAlpha = 5000;
   const homeChainIdAsBytes32 = hexZeroPad(homeChainId, 32);
 
   const homeGatewayAddress = getContractAddress(deployer, nonce);
-  console.log("calculated future HomeGateway address for nonce %d: %s", nonce, homeGatewayAddress);
+  console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
-  const fastBridgeReceiver = await deploy("FastBridgeReceiver", {
+  const fastBridgeReceiver = await deploy("FastBridgeReceiverOnEthereum", {
     from: deployer,
-    args: [deployer, claimDeposit, challengeDuration],
+    args: [
+      deployer,
+      ethers.constants.AddressZero, // should be safeBridgeSender
+      ethers.constants.AddressZero, // should be Arbitrum Inbox
+      claimDeposit,
+      challengeDeposit,
+      challengeDuration,
+      bridgeAlpha,
+    ],
     log: true,
   });
 
-  const foreignGateway = await deploy("ForeignGateway", {
+  const foreignGateway = await deploy("ForeignGatewayOnEthereum", {
     from: deployer,
     args: [
       deployer,
