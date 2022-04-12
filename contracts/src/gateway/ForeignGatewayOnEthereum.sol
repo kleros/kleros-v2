@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@shalzz]
+ *  @authors: [@shalzz, @jaybuidl]
  *  @reviewers: []
  *  @auditors: []
  *  @bounties: []
@@ -15,7 +15,11 @@ import "../bridge/interfaces/IFastBridgeReceiver.sol";
 
 import "./interfaces/IForeignGateway.sol";
 
-contract ForeignGateway is IForeignGateway {
+/**
+ * Foreign Gateway on Ethereum
+ * Counterpart of `HomeGatewayToEthereum`
+ */
+contract ForeignGatewayOnEthereum is IForeignGateway {
     // The global default minimum number of jurors in a dispute.
     uint256 public constant MIN_JURORS = 3;
 
@@ -91,9 +95,6 @@ contract ForeignGateway is IForeignGateway {
     function createDispute(uint256 _choices, bytes calldata _extraData) external payable returns (uint256 disputeID) {
         require(msg.value >= arbitrationCost(_extraData), "Not paid enough for arbitration");
 
-        (uint96 subcourtID, ) = extraDataToSubcourtIDMinJurors(_extraData);
-        uint256 nbVotes = msg.value / feeForJuror[subcourtID];
-
         disputeID = localDisputeID++;
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
@@ -104,8 +105,6 @@ contract ForeignGateway is IForeignGateway {
                 _choices,
                 _extraData,
                 msg.sender
-                // TODO: actual arbitration Cost
-                // nbVotes * feeForJuror[subcourtID] // we calculate the min amount required for nbVotes
             )
         );
 
