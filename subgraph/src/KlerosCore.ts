@@ -15,6 +15,11 @@ import {
   Round,
   Draw,
   Dispute,
+  PNKStakedDataPoint,
+  PNKRedistributedDataPoint,
+  ETHPaidDataPoint,
+  ActiveJurorsDataPoint,
+  CasesDataPoint,
 } from "../generated/schema";
 
 function getPeriodName(index: i32): string {
@@ -92,6 +97,20 @@ export function handleDraw(event: DrawEvent): void {
   draw.juror = drawnAddress.toHexString();
   draw.voteID = voteID;
   draw.save();
+  const dispute = Dispute.load(disputeID.toString());
+  if (dispute) {
+    const jurorTokens = JurorTokensPerSubcourt.load(
+      `${drawnAddress.toHexString()}-${dispute.subcourtID.toString()}`
+    );
+    if (jurorTokens) {
+      const contract = KlerosCore.bind(event.address);
+      const jurorBalance = contract.getJurorBalance(
+        drawnAddress, BigInt.fromString(dispute.subcourtID)
+      );
+      jurorTokens.locked = jurorBalance.value1;
+      jurorTokens.save();
+    }
+  }
 }
 
 export function handleStakeSet(event: StakeSet): void {
@@ -99,20 +118,24 @@ export function handleStakeSet(event: StakeSet): void {
   let juror = Juror.load(jurorAddress);
   if (!juror) {
     juror = new Juror(jurorAddress);
+    updateActiveJurors(BigInt.fromI32(1), event.block.timestamp);
   }
   juror.save();
   const subcourtID = event.params._subcourtID;
   const amountStaked = event.params._newTotalStake;
   const jurorTokensID = `${jurorAddress}-${subcourtID.toString()}`;
   let jurorTokens = JurorTokensPerSubcourt.load(jurorTokensID);
+  let previousStake: BigInt;
   if (!jurorTokens) {
     jurorTokens = new JurorTokensPerSubcourt(jurorTokensID);
     jurorTokens.juror = jurorAddress;
     jurorTokens.subcourt = subcourtID.toString();
     jurorTokens.locked = BigInt.fromI32(0);
-  }
+    previousStake = BigInt.fromI32(0);
+  } else previousStake = jurorTokens.staked;
   jurorTokens.staked = amountStaked;
   jurorTokens.save();
+  updateTotalPNKStaked(getDelta(previousStake, amountStaked), event.block.timestamp);
 }
 
 export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
@@ -122,9 +145,127 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   const tokenAmount = event.params._tokenAmount;
   const ethAmount = event.params._ETHAmount;
   const shift = new TokenAndETHShift(shiftID);
+  if (tokenAmount.gt(BigInt.fromI32(0))) {
+    updatePNKRedistributed(tokenAmount, event.block.timestamp);
+  }
+  updateETHPaid(ethAmount, event.block.timestamp);
   shift.juror = jurorAddress;
   shift.dispute = disputeID.toString();
   shift.tokenAmount = tokenAmount;
   shift.ethAmount = ethAmount;
   shift.save();
+}
+
+function getDelta(previousValue: BigInt, newValue: BigInt): BigInt {
+  return (newValue.minus(previousValue));
+}
+
+function updateTotalPNKStaked(delta: BigInt, timestamp: BigInt): void {
+  let counter = PNKStakedDataPoint.load("0");
+  if (!counter) {
+    counter = new PNKStakedDataPoint("0");
+    counter.length = 0;
+    counter.value = BigInt.fromI32(0);
+    counter.timestamp = BigInt.fromI32(0);
+    counter.save();
+  }
+  const newLength = counter.length + 1;
+  const newValue = counter.value.plus(delta);
+  const newDataPoint = new PNKStakedDataPoint(newLength.toString());
+  newDataPoint.value = newValue;
+  newDataPoint.timestamp = timestamp;
+  newDataPoint.length = newLength;
+  newDataPoint.save();
+  counter.value = newValue;
+  counter.timestamp = timestamp;
+  counter.length = newLength;
+  counter.save();
+}
+
+function updatePNKRedistributed(delta: BigInt, timestamp: BigInt): void {
+  let counter = PNKRedistributedDataPoint.load("0");
+  if (!counter) {
+    counter = new PNKRedistributedDataPoint("0");
+    counter.length = 0;
+    counter.value = BigInt.fromI32(0);
+    counter.timestamp = BigInt.fromI32(0);
+    counter.save();
+  }
+  const newLength = counter.length + 1;
+  const newValue = counter.value.plus(delta);
+  const newDataPoint = new PNKRedistributedDataPoint(newLength.toString());
+  newDataPoint.value = newValue;
+  newDataPoint.timestamp = timestamp;
+  newDataPoint.length = newLength;
+  newDataPoint.save();
+  counter.value = newValue;
+  counter.timestamp = timestamp;
+  counter.length = newLength;
+  counter.save();
+}
+
+function updateETHPaid(delta: BigInt, timestamp: BigInt): void {
+  let counter = ETHPaidDataPoint.load("0");
+  if (!counter) {
+    counter = new ETHPaidDataPoint("0");
+    counter.length = 0;
+    counter.value = BigInt.fromI32(0);
+    counter.timestamp = BigInt.fromI32(0);
+    counter.save();
+  }
+  const newLength = counter.length + 1;
+  const newValue = counter.value.plus(delta);
+  const newDataPoint = new ETHPaidDataPoint(newLength.toString());
+  newDataPoint.value = newValue;
+  newDataPoint.timestamp = timestamp;
+  newDataPoint.length = newLength;
+  newDataPoint.save();
+  counter.value = newValue;
+  counter.timestamp = timestamp;
+  counter.length = newLength;
+  counter.save();
+}
+
+function updateActiveJurors(delta: BigInt, timestamp: BigInt): void {
+  let counter = ActiveJurorsDataPoint.load("0");
+  if (!counter) {
+    counter = new ActiveJurorsDataPoint("0");
+    counter.length = 0;
+    counter.value = BigInt.fromI32(0);
+    counter.timestamp = BigInt.fromI32(0);
+    counter.save();
+  }
+  const newLength = counter.length + 1;
+  const newValue = counter.value.plus(delta);
+  const newDataPoint = new ActiveJurorsDataPoint(newLength.toString());
+  newDataPoint.value = newValue;
+  newDataPoint.timestamp = timestamp;
+  newDataPoint.length = newLength;
+  newDataPoint.save();
+  counter.value = newValue;
+  counter.timestamp = timestamp;
+  counter.length = newLength;
+  counter.save();
+}
+
+function updateCases(delta: BigInt, timestamp: BigInt): void {
+  let counter = CasesDataPoint.load("0");
+  if (!counter) {
+    counter = new CasesDataPoint("0");
+    counter.length = 0;
+    counter.value = BigInt.fromI32(0);
+    counter.timestamp = BigInt.fromI32(0);
+    counter.save();
+  }
+  const newLength = counter.length + 1;
+  const newValue = counter.value.plus(delta);
+  const newDataPoint = new CasesDataPoint(newLength.toString());
+  newDataPoint.value = newValue;
+  newDataPoint.timestamp = timestamp;
+  newDataPoint.length = newLength;
+  newDataPoint.save();
+  counter.value = newValue;
+  counter.timestamp = timestamp;
+  counter.length = newLength;
+  counter.save();
 }
