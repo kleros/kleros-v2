@@ -1,4 +1,4 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, store, Entity, Value } from "@graphprotocol/graph-ts";
 import {
   KlerosCore,
   AppealDecision,
@@ -15,11 +15,6 @@ import {
   Round,
   Draw,
   Dispute,
-  PNKStakedDataPoint,
-  PNKRedistributedDataPoint,
-  ETHPaidDataPoint,
-  ActiveJurorsDataPoint,
-  CasesDataPoint,
 } from "../generated/schema";
 
 function getPeriodName(index: i32): string {
@@ -135,7 +130,9 @@ export function handleStakeSet(event: StakeSet): void {
   } else previousStake = jurorTokens.staked;
   jurorTokens.staked = amountStaked;
   jurorTokens.save();
-  updateTotalPNKStaked(getDelta(previousStake, amountStaked), event.block.timestamp);
+  updateTotalPNKStaked(
+    getDelta(previousStake, amountStaked), event.block.timestamp
+  );
 }
 
 export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
@@ -160,112 +157,39 @@ function getDelta(previousValue: BigInt, newValue: BigInt): BigInt {
   return (newValue.minus(previousValue));
 }
 
-function updateTotalPNKStaked(delta: BigInt, timestamp: BigInt): void {
-  let counter = PNKStakedDataPoint.load("0");
+function updateDataPoint(delta: BigInt, timestamp: BigInt, entityName: string): void {
+  let counter = store.get(entityName, "0");
   if (!counter) {
-    counter = new PNKStakedDataPoint("0");
-    counter.length = 0;
-    counter.value = BigInt.fromI32(0);
-    counter.timestamp = BigInt.fromI32(0);
-    counter.save();
+    counter = new Entity();
+    counter.set("length", Value.fromI32(0));
+    counter.set("value", Value.fromBigInt(BigInt.fromI32(0)));
   }
-  const newLength = counter.length + 1;
-  const newValue = counter.value.plus(delta);
-  const newDataPoint = new PNKStakedDataPoint(newLength.toString());
-  newDataPoint.value = newValue;
-  newDataPoint.timestamp = timestamp;
-  newDataPoint.length = newLength;
-  newDataPoint.save();
-  counter.value = newValue;
-  counter.timestamp = timestamp;
-  counter.length = newLength;
-  counter.save();
+  const newLength = counter.get("length")!.toI32() + 1;
+  const newValue = counter.get("value")!.toBigInt().plus(delta);
+  const newDataPoint = new Entity();
+  newDataPoint.set("length", Value.fromI32(newLength));
+  newDataPoint.set("value", Value.fromBigInt(newValue));
+  newDataPoint.set("timestamp", Value.fromBigInt(timestamp));
+  store.set(entityName, newLength.toString(), newDataPoint);
+  store.set(entityName, "0", newDataPoint);
+}
+
+function updateTotalPNKStaked(delta: BigInt, timestamp: BigInt): void {
+  updateDataPoint(delta, timestamp, "PNKStakedDataPoint");
 }
 
 function updatePNKRedistributed(delta: BigInt, timestamp: BigInt): void {
-  let counter = PNKRedistributedDataPoint.load("0");
-  if (!counter) {
-    counter = new PNKRedistributedDataPoint("0");
-    counter.length = 0;
-    counter.value = BigInt.fromI32(0);
-    counter.timestamp = BigInt.fromI32(0);
-    counter.save();
-  }
-  const newLength = counter.length + 1;
-  const newValue = counter.value.plus(delta);
-  const newDataPoint = new PNKRedistributedDataPoint(newLength.toString());
-  newDataPoint.value = newValue;
-  newDataPoint.timestamp = timestamp;
-  newDataPoint.length = newLength;
-  newDataPoint.save();
-  counter.value = newValue;
-  counter.timestamp = timestamp;
-  counter.length = newLength;
-  counter.save();
+  updateDataPoint(delta, timestamp, "PNKRedistributedDataPoint");
 }
 
 function updateETHPaid(delta: BigInt, timestamp: BigInt): void {
-  let counter = ETHPaidDataPoint.load("0");
-  if (!counter) {
-    counter = new ETHPaidDataPoint("0");
-    counter.length = 0;
-    counter.value = BigInt.fromI32(0);
-    counter.timestamp = BigInt.fromI32(0);
-    counter.save();
-  }
-  const newLength = counter.length + 1;
-  const newValue = counter.value.plus(delta);
-  const newDataPoint = new ETHPaidDataPoint(newLength.toString());
-  newDataPoint.value = newValue;
-  newDataPoint.timestamp = timestamp;
-  newDataPoint.length = newLength;
-  newDataPoint.save();
-  counter.value = newValue;
-  counter.timestamp = timestamp;
-  counter.length = newLength;
-  counter.save();
+  updateDataPoint(delta, timestamp, "ETHPaidDataPoint");
 }
 
 function updateActiveJurors(delta: BigInt, timestamp: BigInt): void {
-  let counter = ActiveJurorsDataPoint.load("0");
-  if (!counter) {
-    counter = new ActiveJurorsDataPoint("0");
-    counter.length = 0;
-    counter.value = BigInt.fromI32(0);
-    counter.timestamp = BigInt.fromI32(0);
-    counter.save();
-  }
-  const newLength = counter.length + 1;
-  const newValue = counter.value.plus(delta);
-  const newDataPoint = new ActiveJurorsDataPoint(newLength.toString());
-  newDataPoint.value = newValue;
-  newDataPoint.timestamp = timestamp;
-  newDataPoint.length = newLength;
-  newDataPoint.save();
-  counter.value = newValue;
-  counter.timestamp = timestamp;
-  counter.length = newLength;
-  counter.save();
+  updateDataPoint(delta, timestamp, "ActiveJurorsDataPoint");
 }
 
 function updateCases(delta: BigInt, timestamp: BigInt): void {
-  let counter = CasesDataPoint.load("0");
-  if (!counter) {
-    counter = new CasesDataPoint("0");
-    counter.length = 0;
-    counter.value = BigInt.fromI32(0);
-    counter.timestamp = BigInt.fromI32(0);
-    counter.save();
-  }
-  const newLength = counter.length + 1;
-  const newValue = counter.value.plus(delta);
-  const newDataPoint = new CasesDataPoint(newLength.toString());
-  newDataPoint.value = newValue;
-  newDataPoint.timestamp = timestamp;
-  newDataPoint.length = newLength;
-  newDataPoint.save();
-  counter.value = newValue;
-  counter.timestamp = timestamp;
-  counter.length = newLength;
-  counter.save();
+  updateDataPoint(delta, timestamp, "CasesDataPoint");
 }
