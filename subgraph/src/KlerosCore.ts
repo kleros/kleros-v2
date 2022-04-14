@@ -1,4 +1,10 @@
-import { BigInt, store, Entity, Value } from "@graphprotocol/graph-ts";
+import {
+  Address,
+  BigInt,
+  Entity,
+  Value,
+  store,
+} from "@graphprotocol/graph-ts";
 import {
   KlerosCore,
   AppealDecision,
@@ -94,18 +100,22 @@ export function handleDraw(event: DrawEvent): void {
   draw.save();
   const dispute = Dispute.load(disputeID.toString());
   if (dispute) {
-    const jurorTokens = JurorTokensPerSubcourt.load(
-      `${drawnAddress.toHexString()}-${dispute.subcourtID.toString()}`
+    updateJurorBalance(
+      drawnAddress.toHexString(), dispute.subcourtID.toString(), event
     );
-    if (jurorTokens) {
-      const contract = KlerosCore.bind(event.address);
-      const jurorBalance = contract.getJurorBalance(
-        drawnAddress, BigInt.fromString(dispute.subcourtID)
-      );
-      jurorTokens.locked = jurorBalance.value1;
-      jurorTokens.save();
-    }
   }
+}
+
+function updateJurorBalance(
+  address: string, subcourt: string, event: DrawEvent
+): void {
+  const jurorTokens = new JurorTokensPerSubcourt(`${address}-${subcourt}`);
+  const contract = KlerosCore.bind(event.address);
+  const jurorBalance = contract.getJurorBalance(
+    Address.fromString(address), BigInt.fromString(subcourt)
+  );
+  jurorTokens.locked = jurorBalance.value1;
+  jurorTokens.save();
 }
 
 export function handleStakeSet(event: StakeSet): void {
