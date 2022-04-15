@@ -13,6 +13,7 @@ pragma solidity ^0.8;
 import "./BaseDisputeKit.sol";
 import "../../rng/RNG.sol";
 import "../../evidence/IEvidence.sol";
+import {SSQ} from "../../libraries/SSQ.sol";
 
 /**
  *  @title DisputeKitClassic
@@ -25,6 +26,7 @@ import "../../evidence/IEvidence.sol";
  *  - phase management: Generating->Drawing->Resolving->Generating in coordination with KlerosCore to freeze staking.
  */
 contract DisputeKitClassic is BaseDisputeKit, IEvidence {
+    using SSQ for bytes32; // Use library functions for deserialization to reduce L1 calldata costs on Optimistic Rollups.
     // ************************************* //
     // *             Structs               * //
     // ************************************* //
@@ -202,14 +204,14 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
      *  @param _commit The commit.
      */
     function castCommit(
-        bytes32 _args, bytes32 commit
+        bytes32 _args, bytes32 _commit
     ) external {
         uint256[] memory voteIDs;
         uint256 disputeID;
         ( disputeID, _args )= _args.unsquanchUint256();
         (voteIDs, _args) = _args.unsquanchUint256Array();
 
-        _castCommit(disputeID, voteIDs, commit);
+        _castCommit(disputeID, voteIDs, _commit);
     }
 
     /** @dev Sets the caller's commit for the specified votes.
@@ -221,7 +223,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
      */
     function castCommit(
         uint256 _disputeID,
-        uint256[] calldata _voteIDs,
+        uint256[] memory _voteIDs,
         bytes32 _commit
     ) external {
         _castCommit(_disputeID, _voteIDs, _commit);
@@ -236,7 +238,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
      */
     function _castCommit(
         uint256 _disputeID,
-        uint256[] calldata _voteIDs,
+        uint256[] memory _voteIDs,
         bytes32 _commit
     ) internal {
         require(
@@ -260,7 +262,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     /** @dev Sets the caller's choices by passing serialzed arguments to reduce L1 calldata gas costs on optimistic rollups.
      *  `O(n)` where
      *  `n` is the number of votes.
-     *  @param _args
+     *  @param _args The SSQ serialized args.
      *  @param _salt The salt for the commit if the votes were hidden.
      */
     function castVote(
@@ -284,9 +286,9 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
      *  @param _choice The choice.
      *  @param _salt The salt for the commit if the votes were hidden.
      */
-    function _castVote(
+    function castVote(
         uint256 _disputeID,
-        uint256[] calldata _voteIDs,
+        uint256[] memory _voteIDs,
         uint256 _choice,
         uint256 _salt
     ) external {
@@ -302,7 +304,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
      */
     function _castVote(
         uint256 _disputeID,
-        uint256[] calldata _voteIDs,
+        uint256[] memory _voteIDs,
         uint256 _choice,
         uint256 _salt
     ) internal {
@@ -374,7 +376,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
      *  @param _disputeID Index of the dispute in Kleros Core contract.
      *  @param _choice A choice that receives funding.
      */
-    function _fundAppeal(uint256 _disputeID, uint256 _choice) internal payable {
+    function _fundAppeal(uint256 _disputeID, uint256 _choice) internal {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_disputeID]];
         require(_choice <= dispute.numberOfChoices, "There is no such ruling to fund.");
 
@@ -432,7 +434,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
      *  @param _args The SSQ serialized arguments.
      *  @return amount The withdrawn amount.
      */
-    function withdrawFeesAndRewards(bytes32 _args) external payable {
+    function withdrawFeesAndRewards(bytes32 _args) external returns(uint256 amount) {
         uint256 disputeID;
         uint256 beneficiary;
         uint256 round;
