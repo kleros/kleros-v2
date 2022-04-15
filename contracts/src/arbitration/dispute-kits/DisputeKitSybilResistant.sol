@@ -254,8 +254,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
             round.votes[_voteIDs[i]].commit = _commit;
         }
         round.totalCommitted += _voteIDs.length;
-
-        if (round.totalCommitted == round.votes.length) core.passPeriod(_disputeID);
     }
 
     /** @dev Sets the caller's choices for the specified votes.
@@ -309,9 +307,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
                 round.tied = false;
             }
         }
-
-        // Automatically switch period when voting is finished.
-        if (round.totalVoted == round.votes.length) core.passPeriod(_disputeID);
     }
 
     /** @dev Manages contributions, and appeals a dispute if at least two choices are fully funded.
@@ -366,7 +361,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
             round.feeRewards = round.feeRewards - appealCost;
 
             // Don't create a new round in case of a jump, and remove local dispute from the flow.
-            if (core.isDisputeJumping(_disputeID)) {
+            if (core.isDisputeKitJumping(_disputeID)) {
                 dispute.jumped = true;
             } else {
                 // Don't subtract 1 from length since both round arrays haven't been updated yet.
@@ -493,6 +488,26 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         } else {
             return currentRound.counts[winningChoice];
         }
+    }
+
+    /** @dev Returns true if all of the jurors have cast their commits for the last round.
+     *  @param _disputeID The ID of the dispute in Kleros Core.
+     *  @return Whether all of the jurors have cast their commits for the last round.
+     */
+    function areCommitsAllCast(uint256 _disputeID) external view override returns (bool) {
+        Dispute storage dispute = disputes[coreDisputeIDToLocal[_disputeID]];
+        Round storage round = dispute.rounds[dispute.rounds.length - 1];
+        return round.totalCommitted == round.votes.length;
+    }
+
+    /** @dev Returns true if all of the jurors have cast their votes for the last round.
+     *  @param _disputeID The ID of the dispute in Kleros Core.
+     *  @return Whether all of the jurors have cast their votes for the last round.
+     */
+    function areVotesAllCast(uint256 _disputeID) external view override returns (bool) {
+        Dispute storage dispute = disputes[coreDisputeIDToLocal[_disputeID]];
+        Round storage round = dispute.rounds[dispute.rounds.length - 1];
+        return round.totalVoted == round.votes.length;
     }
 
     /** @dev Returns true if the specified voter was active in this round.
