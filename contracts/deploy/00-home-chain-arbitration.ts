@@ -39,6 +39,11 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
+  const ssqLibrary = await deploy("SSQ", {
+    from: deployer,
+    log: true,
+  });
+
   if (chainId === HomeChains.HARDHAT) {
     pnkByChain.set(
       HomeChains.HARDHAT,
@@ -58,6 +63,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     from: deployer,
     libraries: {
       SortitionSumTreeFactory: sortitionSumTreeLibrary.address,
+      SSQ: ssqLibrary.address
     },
     args: [deployer, pnk, AddressZero, disputeKit.address, false, minStake, alpha, feeForJuror, 3, [0, 0, 0, 0], 3],
     log: true,
