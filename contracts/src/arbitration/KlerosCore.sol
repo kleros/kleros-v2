@@ -13,6 +13,7 @@ pragma solidity ^0.8;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./IArbitrator.sol";
 import "./IDisputeKit.sol";
+import {SSQ} from "../libraries/SSQ.sol";
 import {SortitionSumTreeFactory} from "../data-structures/SortitionSumTreeFactory.sol";
 
 /**
@@ -20,6 +21,7 @@ import {SortitionSumTreeFactory} from "../data-structures/SortitionSumTreeFactor
  *  Core arbitrator contract for Kleros v2.
  */
 contract KlerosCore is IArbitrator {
+    using SimpleSquanch for bytes32; // Use library functions for deserialization to reduce L1 calldata costs on Optimistic Rollups.
     using SortitionSumTreeFactory for SortitionSumTreeFactory.SortitionSumTrees; // Use library functions for sortition sum trees.
 
     // ************************************* //
@@ -341,6 +343,16 @@ contract KlerosCore is IArbitrator {
     // *         State Modifiers           * //
     // ************************************* //
 
+    /** @dev Sets the caller's stake in a subcourt by passing serialized args to reduce L1 calldata gas costs on optimistic rollups.
+     *  @param _agrs The SSQ serialized arguments.
+     */
+    function setStake(bytes32 _args) external{
+        uint256 subcourtID;
+        uint256 stake;
+        (tmp, _args) = _args.unsquanchUint256();
+        (stake, _args) = _args.unsquanchUint256();
+        require(setStakeForAccount(msg.sender, uint96(subcourtID), stake, 0), "Staking failed");
+    }
     /** @dev Sets the caller's stake in a subcourt.
      *  @param _subcourtID The ID of the subcourt.
      *  @param _stake The new stake.
@@ -349,14 +361,44 @@ contract KlerosCore is IArbitrator {
         require(setStakeForAccount(msg.sender, _subcourtID, _stake, 0), "Staking failed");
     }
 
+    /** @dev Creates a dispute by calling _creatDispute() with serialized args to reduce L1 calldata costs with optimistic rollups.
+     *  @param _args The SSQ serialized arguments passed to _createDispute(...)
+     *  @return disputeID The ID of the created dispute.
+     */
+    function createDispute(bytes32 _args)
+        external
+        payable
+        returns (uint256 disputeID)
+    {
+        uint numberOfChoices;
+        bytes memory extraData;
+        (numberOfChoices, _args) = _args.unsquanchUint256();
+        (extraData, _args) = _args.unsquanchBytesLeftPadded();
+        return _createDispute(numberOfChoices, extraData);
+    }
+
     /** @dev Creates a dispute. Must be called by the arbitrable contract.
      *  @param _numberOfChoices Number of choices for the jurors to choose from.
      *  @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's subcourt (first 32 bytes),
      *  the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
      *  @return disputeID The ID of the created dispute.
      */
-    function createDispute(uint256 _numberOfChoices, bytes memory _extraData)
+    function createDispute(uint256 _numberOfChoices, bytes calldata _extraData)
         external
+        payable
+        returns (uint256 disputeID)
+    {
+        return _createDispute(_numberOfChoices, _extraData);
+    }
+
+    /** @dev Creates a dispute. Must be called by the arbitrable contract.
+     *  @param _numberOfChoices Number of choices for the jurors to choose from.
+     *  @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's subcourt (first 32 bytes),
+     *  the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
+     *  @return disputeID The ID of the created dispute.
+     */
+    function _createDispute(uint256 _numberOfChoices, bytes memory _extraData)
+        internal
         payable
         override
         returns (uint256 disputeID)

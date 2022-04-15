@@ -195,6 +195,22 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
 
         round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
     }
+    /** @dev Sets the caller's commit by passing serialized arguments
+     *  `O(n)` where
+     *  `n` is the number of votes.
+     *  @param _args The SSQ serialized arguments
+     *  @param _commit The commit.
+     */
+    function castCommit(
+        bytes32 _args, bytes32 commit
+    ) external {
+        uint256[] memory voteIDs;
+        uint256 disputeID;
+        ( disputeID, _args )= _args.unsquanchUint256();
+        (voteIDs, _args) = _args.unsquanchUint256Array();
+
+        _castCommit(disputeID, voteIDs, commit);
+    }
 
     /** @dev Sets the caller's commit for the specified votes.
      *  `O(n)` where
@@ -208,6 +224,21 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         uint256[] calldata _voteIDs,
         bytes32 _commit
     ) external {
+        _castCommit(_disputeID, _voteIDs, _commit);
+    }
+
+    /** @dev Sets the caller's commit for the specified votes.
+     *  `O(n)` where
+     *  `n` is the number of votes.
+     *  @param _disputeID The ID of the dispute.
+     *  @param _voteIDs The IDs of the votes.
+     *  @param _commit The commit.
+     */
+    function _castCommit(
+        uint256 _disputeID,
+        uint256[] calldata _voteIDs,
+        bytes32 _commit
+    ) internal {
         require(
             core.getCurrentPeriod(_disputeID) == KlerosCore.Period.commit,
             "The dispute should be in Commit period."
@@ -226,6 +257,25 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         if (round.totalCommitted == round.votes.length) core.passPeriod(_disputeID);
     }
 
+    /** @dev Sets the caller's choices by passing serialzed arguments to reduce L1 calldata gas costs on optimistic rollups.
+     *  `O(n)` where
+     *  `n` is the number of votes.
+     *  @param _args
+     *  @param _salt The salt for the commit if the votes were hidden.
+     */
+    function castVote(
+        bytes32 _args, uint256 _salt
+    ) external {
+        uint256[] memory voteIDs;
+        uint256 disputeID;
+        uint256 choice;
+        ( disputeID, _args )= _args.unsquanchUint256();
+        ( voteIDs, _args ) = _args.unsquanchUint256Array();
+        ( choice, _args )= _args.unsquanchUint256();
+
+        _castVote(disputeID, voteIDs, choice, _salt);
+    }
+
     /** @dev Sets the caller's choices for the specified votes.
      *  `O(n)` where
      *  `n` is the number of votes.
@@ -234,12 +284,28 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
      *  @param _choice The choice.
      *  @param _salt The salt for the commit if the votes were hidden.
      */
-    function castVote(
+    function _castVote(
         uint256 _disputeID,
         uint256[] calldata _voteIDs,
         uint256 _choice,
         uint256 _salt
     ) external {
+        _castVote(_disputeID, _voteIDs, _choice, _salt);
+    }
+    /** @dev Sets the caller's choices for the specified votes.
+     *  `O(n)` where
+     *  `n` is the number of votes.
+     *  @param _disputeID The ID of the dispute.
+     *  @param _voteIDs The IDs of the votes.
+     *  @param _choice The choice.
+     *  @param _salt The salt for the commit if the votes were hidden.
+     */
+    function _castVote(
+        uint256 _disputeID,
+        uint256[] calldata _voteIDs,
+        uint256 _choice,
+        uint256 _salt
+    ) internal {
         require(core.getCurrentPeriod(_disputeID) == KlerosCore.Period.vote, "The dispute should be in Vote period.");
         require(_voteIDs.length > 0, "No voteID provided");
 
@@ -282,12 +348,33 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         if (round.totalVoted == round.votes.length) core.passPeriod(_disputeID);
     }
 
+    /** @dev Manages contributions and appeals by passing SSQ serialized args to reduce L1 calldata gas cost on optimistic rollups.
+     *  Note that the surplus deposit will be reimbursed.
+     *  @param _args The SSQ serialized arguments.
+     */    
+    function fundAppeal(bytes32 _args) external payable {
+        uint256 disputeID;
+        uint256 choice;
+        ( disputeID, _args )= _args.unsquanchUint256();
+        ( choice, _args )= _args.unsquanchUint256();
+
+        _fundAppeal(disputeID, choice);
+    }
+
     /** @dev Manages contributions, and appeals a dispute if at least two choices are fully funded.
      *  Note that the surplus deposit will be reimbursed.
      *  @param _disputeID Index of the dispute in Kleros Core contract.
      *  @param _choice A choice that receives funding.
      */
     function fundAppeal(uint256 _disputeID, uint256 _choice) external payable {
+        _fundAppeal(_disputeID, _choice);
+    }
+    /** @dev Manages contributions, and appeals a dispute if at least two choices are fully funded.
+     *  Note that the surplus deposit will be reimbursed.
+     *  @param _disputeID Index of the dispute in Kleros Core contract.
+     *  @param _choice A choice that receives funding.
+     */
+    function _fundAppeal(uint256 _disputeID, uint256 _choice) internal payable {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_disputeID]];
         require(_choice <= dispute.numberOfChoices, "There is no such ruling to fund.");
 
@@ -341,6 +428,23 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         if (msg.value > contribution) payable(msg.sender).send(msg.value - contribution);
     }
 
+    /** @dev Withdraw any reimbursable fees or rewards by passing serialized args to reduce L1 calldata gas costs on optimistic rollups
+     *  @param _args The SSQ serialized arguments.
+     *  @return amount The withdrawn amount.
+     */
+    function withdrawFeesAndRewards(bytes32 _args) external payable {
+        uint256 disputeID;
+        uint256 beneficiary;
+        uint256 round;
+        uint256 choice;
+        ( disputeID, _args )= _args.unsquanchUint256();
+        ( beneficiary, _args )= _args.unsquanchUint256();
+        ( round, _args )= _args.unsquanchUint256();
+        ( choice, _args )= _args.unsquanchUint256();
+
+        return _withdrawFeesAndRewards(disputeID, payable(address(uint160(beneficiary))), round, choice);
+    }
+
     /** @dev Allows those contributors who attempted to fund an appeal round to withdraw any reimbursable fees or rewards after the dispute gets resolved.
      *  @param _disputeID Index of the dispute in Kleros Core contract.
      *  @param _beneficiary The address whose rewards to withdraw.
@@ -354,6 +458,21 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         uint256 _round,
         uint256 _choice
     ) external returns (uint256 amount) {
+        return _withdrawFeesAndRewards(_disputeID, _beneficiary, _round, _choice);
+    }
+    /** @dev Allows those contributors who attempted to fund an appeal round to withdraw any reimbursable fees or rewards after the dispute gets resolved.
+     *  @param _disputeID Index of the dispute in Kleros Core contract.
+     *  @param _beneficiary The address whose rewards to withdraw.
+     *  @param _round The round the caller wants to withdraw from.
+     *  @param _choice The ruling option that the caller wants to withdraw from.
+     *  @return amount The withdrawn amount.
+     */
+    function _withdrawFeesAndRewards(
+        uint256 _disputeID,
+        address payable _beneficiary,
+        uint256 _round,
+        uint256 _choice
+    ) internal returns (uint256 amount) {
         require(core.isRuled(_disputeID), "Dispute should be resolved.");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_disputeID]];
