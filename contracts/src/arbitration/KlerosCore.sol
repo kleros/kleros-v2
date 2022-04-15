@@ -21,7 +21,7 @@ import {SortitionSumTreeFactory} from "../data-structures/SortitionSumTreeFactor
  *  Core arbitrator contract for Kleros v2.
  */
 contract KlerosCore is IArbitrator {
-    using SimpleSquanch for bytes32; // Use library functions for deserialization to reduce L1 calldata costs on Optimistic Rollups.
+    using SSQ for bytes32; // Use library functions for deserialization to reduce L1 calldata costs on Optimistic Rollups.
     using SortitionSumTreeFactory for SortitionSumTreeFactory.SortitionSumTrees; // Use library functions for sortition sum trees.
 
     // ************************************* //
@@ -344,12 +344,12 @@ contract KlerosCore is IArbitrator {
     // ************************************* //
 
     /** @dev Sets the caller's stake in a subcourt by passing serialized args to reduce L1 calldata gas costs on optimistic rollups.
-     *  @param _agrs The SSQ serialized arguments.
+     *  @param _args The SSQ serialized arguments.
      */
     function setStake(bytes32 _args) external{
         uint256 subcourtID;
         uint256 stake;
-        (tmp, _args) = _args.unsquanchUint256();
+        (subcourtID, _args) = _args.unsquanchUint256();
         (stake, _args) = _args.unsquanchUint256();
         require(setStakeForAccount(msg.sender, uint96(subcourtID), stake, 0), "Staking failed");
     }
@@ -385,9 +385,11 @@ contract KlerosCore is IArbitrator {
      */
     function createDispute(uint256 _numberOfChoices, bytes calldata _extraData)
         external
+        override
         payable
         returns (uint256 disputeID)
     {
+        require(msg.value >= arbitrationCost(_extraData), "Not enough ETH to cover arbitration cost.");
         return _createDispute(_numberOfChoices, _extraData);
     }
 
@@ -399,11 +401,8 @@ contract KlerosCore is IArbitrator {
      */
     function _createDispute(uint256 _numberOfChoices, bytes memory _extraData)
         internal
-        payable
-        override
         returns (uint256 disputeID)
     {
-        require(msg.value >= arbitrationCost(_extraData), "Not enough ETH to cover arbitration cost.");
         (uint96 subcourtID, , uint8 disputeKitID) = extraDataToSubcourtIDMinJurorsDisputeKit(_extraData);
 
         uint256 bitToCheck = 1 << disputeKitID; // Get the bit that corresponds with dispute kit's ID.

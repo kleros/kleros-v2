@@ -84,7 +84,7 @@ library SSQ {
      *  @param decodedBytes Left zero padded bytes array containing decoded values.
      *  @param remainder The remaining encoded byte32.
      */
-    function unsquanchBytesLeftPadded(bytes32 encoded) public returns (bytes memory decodedBytes, bytes32 remainder){
+    function unsquanchBytesLeftPadded(bytes32 encoded) public pure returns (bytes memory decodedBytes, bytes32 remainder){
 
         assembly {
 
@@ -129,7 +129,7 @@ library SSQ {
      *  @param decodedUint256 Decoded uint256
      *  @param remainder The remaining encoded byte32.
      */
-    function unsquanchUint256(bytes32 encoded) public returns (uint256 decodedUint256, bytes32 remainder){
+    function unsquanchUint256(bytes32 encoded) public pure returns (uint256 decodedUint256, bytes32 remainder){
         assembly {
             let decodedIndex := 0 
             for { let j := 0 } lt(j,0x20) {j := add(j,1)} {
@@ -148,7 +148,7 @@ library SSQ {
      *  @param decodedUint256Array Left zero padded bytes array containing decoded values.
      *  @param remainder The remaining encoded byte32.
      */
-    function unsquanchUint256Array(bytes32 encoded) public returns (uint256[] memory decodedUint256Array, bytes32 remainder){
+    function unsquanchUint256Array(bytes32 encoded) public pure returns (uint256[] memory decodedUint256Array, bytes32 remainder){
 
         assembly {
 
@@ -191,7 +191,7 @@ library SSQ {
      *  @param _input Input to be serialized.
      *  @param _result Serialized 'Squanched' result.
      */
-    function encode(bytes32 _input) public returns (bytes32  _result){
+    function encode(bytes32 _input) public pure returns (bytes32  _result){
         assembly {
             let i := 0
             for { } gt(_input,0x7F) {i := add(i,1)} {
@@ -206,7 +206,7 @@ library SSQ {
      *  @param _input Input to be deserialized.
      *  @param _result Deserialized 'Unsquanched' result.
      */
-    function decode(bytes32 _input) public returns (bytes32 _result){
+    function decode(bytes32 _input) public pure returns (bytes32 _result){
         assembly {
             for { let i := 0x0 } gt(_input,0) {i := add(i,0x1)} {
                 _result := add(_result,shl(mul(7,i),and(_input, 0x7F)))
