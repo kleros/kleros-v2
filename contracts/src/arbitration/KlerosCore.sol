@@ -81,6 +81,7 @@ contract KlerosCore is IArbitrator {
     // ************************************* //
 
     uint256 public constant FORKING_COURT = 0; // Index of the default court.
+    uint256 public constant NULL_DISPUTE_KIT = 0; // Null pattern to indicate a top-level DK which has no parent.
     uint256 public constant DISPUTE_KIT_CLASSIC_INDEX = 1; // Index of the default DK. 0 index is skipped.
     uint256 public constant MAX_STAKE_PATHS = 4; // The maximum number of stake paths a juror can have.
     uint256 public constant MIN_JURORS = 3; // The global default minimum number of jurors in a dispute.
@@ -164,8 +165,8 @@ contract KlerosCore is IArbitrator {
         pinakion = _pinakion;
         jurorProsecutionModule = _jurorProsecutionModule;
 
-        // Create an empty element so 0 index is not used.
-        disputeKitNodes.push();
+        disputeKitNodes.push(); // NULL_DISPUTE_KIT: an empty element at index 0 to indicate when a node has no parent.
+        disputeKitNodes.push(DisputeKitNode({parent: 0, disputeKit: _disputeKit}));
 
         // Create the Forking court.
         Court storage court = courts.push();
@@ -177,10 +178,8 @@ contract KlerosCore is IArbitrator {
         court.feeForJuror = _feeForJuror;
         court.jurorsForCourtJump = _jurorsForCourtJump;
         court.timesPerPeriod = _timesPerPeriod;
-
-        disputeKitNodes.push(DisputeKitNode({parent: 0, disputeKit: _disputeKit}));
-
         court.supportedDisputeKits[DISPUTE_KIT_CLASSIC_INDEX] = true;
+
         sortitionSumTrees.createTree(bytes32(0), _sortitionSumTreeK);
     }
 
@@ -232,7 +231,7 @@ contract KlerosCore is IArbitrator {
         require(_parent < disputeKitNodes.length, "Parent doesn't exist");
 
         // Create new tree, which root should be supported by Forking court.
-        if (_parent == 0) {
+        if (_parent == NULL_DISPUTE_KIT) {
             courts[FORKING_COURT].supportedDisputeKits[disputeKitNodes.length] = true;
         }
         disputeKitNodes.push(DisputeKitNode({parent: _parent, disputeKit: _disputeKitAddress}));
@@ -249,7 +248,7 @@ contract KlerosCore is IArbitrator {
         require(_newParent != _disputeKitID, "Invalid Parent");
 
         // Create new tree, which root should be supported by Forking court.
-        if (_newParent == 0) {
+        if (_newParent == NULL_DISPUTE_KIT) {
             courts[FORKING_COURT].supportedDisputeKits[_disputeKitID] = true;
         }
         disputeKitNodes[_disputeKitID].parent = _newParent;
@@ -372,7 +371,7 @@ contract KlerosCore is IArbitrator {
                 subcourt.supportedDisputeKits[_disputeKitIDs[i]] = true;
             } else {
                 require(
-                    !(_subcourtID == FORKING_COURT && disputeKitNodes[_disputeKitIDs[i]].parent == 0),
+                    !(_subcourtID == FORKING_COURT && disputeKitNodes[_disputeKitIDs[i]].parent == NULL_DISPUTE_KIT),
                     "Can't remove root DK support from the forking court"
                 );
                 subcourt.supportedDisputeKits[_disputeKitIDs[i]] = false;
@@ -977,9 +976,15 @@ contract KlerosCore is IArbitrator {
                 minJurors := mload(add(_extraData, 0x40))
                 disputeKitID := mload(add(_extraData, 0x60))
             }
-            if (subcourtID >= courts.length) subcourtID = uint96(FORKING_COURT);
-            if (minJurors == 0) minJurors = MIN_JURORS;
-            if (disputeKitID == 0 || disputeKitID >= disputeKitNodes.length) disputeKitID = DISPUTE_KIT_CLASSIC_INDEX; // 0 index is not used.
+            if (subcourtID >= courts.length) {
+                subcourtID = uint96(FORKING_COURT);
+            }
+            if (minJurors == 0) {
+                minJurors = MIN_JURORS;
+            }
+            if (disputeKitID == NULL_DISPUTE_KIT || disputeKitID >= disputeKitNodes.length) {
+                disputeKitID = DISPUTE_KIT_CLASSIC_INDEX; // 0 index is not used.
+            }
         } else {
             subcourtID = uint96(FORKING_COURT);
             minJurors = MIN_JURORS;
