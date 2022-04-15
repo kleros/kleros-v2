@@ -77,6 +77,18 @@ interface IDisputeKit {
      */
     function getCoherentCount(uint256 _disputeID, uint256 _round) external view returns (uint256);
 
+    /** @dev Returns true if all of the jurors have cast their commits for the last round.
+     *  @param _disputeID The ID of the dispute in Kleros Core.
+     *  @return Whether all of the jurors have cast their commits for the last round.
+     */
+    function areCommitsAllCast(uint256 _disputeID) external view returns (bool);
+
+    /** @dev Returns true if all of the jurors have cast their votes for the last round.
+     *  @param _disputeID The ID of the dispute in Kleros Core.
+     *  @return Whether all of the jurors have cast their votes for the last round.
+     */
+    function areVotesAllCast(uint256 _disputeID) external view returns (bool);
+
     /** @dev Returns true if the specified voter was active in this round.
      *  @param _disputeID The ID of the dispute in Kleros Core.
      *  @param _round The ID of the round.
