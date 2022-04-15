@@ -27,19 +27,22 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     from: deployer,
     log: true,
   });
+  
+  const SSQLibrary = await deploy("SSQ", {
+    from: deployer,
+    log: true,
+  });
 
   const disputeKit = await deploy("DisputeKitClassic", {
     from: deployer,
+    libraries: {
+      SSQ: SSQLibrary.address
+    },
     args: [deployer, AddressZero, rng.address],
     log: true,
   });
 
   const sortitionSumTreeLibrary = await deploy("SortitionSumTreeFactory", {
-    from: deployer,
-    log: true,
-  });
-
-  const ssqLibrary = await deploy("SSQ", {
     from: deployer,
     log: true,
   });
@@ -63,7 +66,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     from: deployer,
     libraries: {
       SortitionSumTreeFactory: sortitionSumTreeLibrary.address,
-      SSQ: ssqLibrary.address
+      SSQ: SSQLibrary.address
     },
     args: [deployer, pnk, AddressZero, disputeKit.address, false, minStake, alpha, feeForJuror, 3, [0, 0, 0, 0], 3],
     log: true,
