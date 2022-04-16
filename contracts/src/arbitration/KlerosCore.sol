@@ -272,6 +272,8 @@ contract KlerosCore is IArbitrator {
             courts[FORKING_COURT].supportedDisputeKits[_disputeKitID] = true;
         }
         disputeKitNodes[_disputeKitID].parent = _newParent;
+
+        // FIXME: update the children and depth
     }
 
     /** @dev Creates a subcourt under a specified parent court.
@@ -572,7 +574,7 @@ contract KlerosCore is IArbitrator {
             for (uint256 i = 0; i < SEARCH_ITERATIONS; i++) {
                 if (courts[newSubcourtID].supportedDisputeKits[newDisputeKitID]) {
                     break;
-                } else if (disputeKitNodes[newDisputeKitID].parent != 0) {
+                } else if (disputeKitNodes[newDisputeKitID].parent != NULL_DISPUTE_KIT) {
                     newDisputeKitID = disputeKitNodes[newDisputeKitID].parent;
                 } else {
                     // DK's parent has 0 index, that means we reached the root DK (0 depth level).
