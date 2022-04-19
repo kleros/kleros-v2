@@ -1,5 +1,7 @@
 import React from "react";
 import styled from "styled-components";
+import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
+import LightButton from "components/LightButton";
 import Explore from "./Explore";
 import ConnectButton from "components/ConnectButton";
 import Menu from "./Menu";
@@ -30,7 +32,10 @@ const Container = styled.div<{ isOpen: boolean }>`
 
 const NavBar: React.FC<{ isOpen: boolean }> = ({ isOpen }) => (
   <Container {...{ isOpen }}>
-    <p>Kleros solutions</p>
+    <LightButton
+      text="Kleros Solutions"
+      icon={(className) => <KlerosSolutionsIcon {...{ className }} />}
+    />
     <hr />
     <Explore />
     <hr />
