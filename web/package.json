@@ -1,5 +1,6 @@
 {
   "name": "@kleros/kleros-v2-web",
+  "version": "0.1.0",
   "source": "src/index.html",
   "browserslist": "> 0.5%, last 2 versions, not dead, not ios_saf < 13",
   "repository": "",

@@ -1,5 +1,6 @@
 {
   "name": "@kleros/kleros-v2-web-playground",
+  "version": "0.1.0",
   "source": "src/index.html",
   "browserlists": "> 0.5%, last 2 versions, not dead",
   "repository": "",
