@@ -1,7 +1,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import StyledComponentsProvider from "components/StyledComponentsProvider";
-import Layout from "components/layout";
+import StyledComponentsProvider from "context/StyledComponentsProvider";
+import Layout from "layout/index";
 import Home from "./pages/home";
 
 const App: React.FC = () => (
