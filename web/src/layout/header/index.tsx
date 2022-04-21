@@ -1,9 +1,10 @@
 import React, { useState, useRef } from "react";
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 import HamburgerIcon from "svgs/header/hamburger.svg";
+import KlerosCourtLogo from "svgs/header/kleros-court.svg";
 import { useFocusOutside } from "hooks/useFocusOutside";
 import LightButton from "components/LightButton";
-import KlerosCourt from "./KlerosCourt";
 import NavBar from "./navbar";
 
 const Container = styled.div`
@@ -17,6 +18,10 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  .kleros-court-link {
+    min-height: 48px;
+  }
 `;
 
 const StyledLightButton = styled(LightButton)`
@@ -30,7 +35,9 @@ const Header: React.FC = () => {
   useFocusOutside(containerRef, () => setIsOpen(false));
   return (
     <Container>
-      <KlerosCourt />
+      <Link className="kleros-court-link" to={"/"}>
+        <KlerosCourtLogo />
+      </Link>
       <div ref={containerRef}>
         <NavBar {...{ isOpen }} />
         <StyledLightButton
