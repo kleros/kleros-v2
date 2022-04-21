@@ -1702,13 +1702,14 @@ __metadata:
   resolution: "@kleros/kleros-v2-web@workspace:web"
   dependencies:
     "@kleros/kleros-v2-contracts": "workspace:^"
-    "@kleros/ui-components-library": ^0.1.3
+    "@kleros/ui-components-library": ^0.1.5
     "@parcel/transformer-svg-react": ^2.2.1
     "@types/react": ^17.0.38
     "@types/react-dom": ^17.0.11
     "@types/styled-components": ^5.1.21
     "@typescript-eslint/eslint-plugin": ^5.10.1
     "@typescript-eslint/parser": ^5.10.1
+    core-js: ^3.21.1
     eslint: ^8.7.0
     eslint-config-prettier: ^8.3.0
     eslint-import-resolver-parcel: ^1.10.6
@@ -1729,7 +1730,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kleros/ui-components-library@npm:^0.1.3":
+"@kleros/ui-components-library@npm:^0.1.3, @kleros/ui-components-library@npm:^0.1.5":
   version: 0.1.5
   resolution: "@kleros/ui-components-library@npm:0.1.5"
   dependencies:
@@ -6707,7 +6708,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.0.1":
+"core-js@npm:^3.0.1, core-js@npm:^3.21.1":
   version: 3.21.1
   resolution: "core-js@npm:3.21.1"
   checksum: d68eddd831340ad5b24ac29c72fda022a43b17f194c4278b6b875a843283d316502cb4abd07f28631d6ebc4387f66aa06e2b1b3c8fd7e08096a751b5c63f6889

@@ -14,16 +14,22 @@
       "components*": [
         "./src/components*"
       ],
+      "context*": [
+        "./src/context*"
+      ],
+      "layout*": [
+        "./src/layout*"
+      ],
       "consts*": [
         "./src/consts*"
       ],
       "hooks*": [
         "./src/hooks*"
       ],
-      "pages": [
+      "pages*": [
         "./src/pages*"
       ],
-      "styles": [
+      "styles*": [
         "./src/styles*"
       ],
       "svgs*": [
