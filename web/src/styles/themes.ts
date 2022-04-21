@@ -23,7 +23,7 @@ export const lightTheme = {
   warning: "#FF9900",
   warningLight: "#FFF9F0",
   error: "#F60C36",
-  errorLight: "#FEFF0F3",
+  errorLight: "#FEF0F3",
   tint: "#D14EFF",
   tintMedium: "#401D6C",
   tintPurple: "#F4F0FA",

@@ -57,7 +57,7 @@ export const GlobalStyle = createGlobalStyle`
     font-weight: 400;
     font-size: 14px;
     line-height: 18px;
-    color: ${({ theme }) => theme.primaryText};
+    color: ${({ theme }) => theme.secondaryText};
   }
 
   hr {
