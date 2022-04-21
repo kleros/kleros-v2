@@ -16,34 +16,34 @@ export const socialmedia = {
   },
   github: {
     icon: <GithubLogo />,
-    url: "",
+    url: "https://github.com/kleros",
   },
   snapshot: {
     icon: <SnapshotLogo />,
-    url: "",
+    url: "https://snapshot.org/#/kleros.eth",
   },
   discord: {
     icon: <DiscordLogo />,
-    url: "",
+    url: "https://discord.com/invite/MhXQGCyHd9",
   },
   twitter: {
     icon: <TwitterLogo />,
-    url: "",
+    url: "https://twitter.com/kleros_io",
   },
   reddit: {
     icon: <RedditLogo />,
-    url: "",
+    url: "https://www.reddit.com/r/Kleros/",
   },
   telegram: {
     icon: <TelegramLogo />,
-    url: "",
+    url: "https://t.me/kleros",
   },
   ghost: {
     icon: <GhostBlogLogo />,
-    url: "",
+    url: "https://blog.kleros.io/",
   },
   linkedin: {
     icon: <LinkedinLogo />,
-    url: "",
+    url: "https://www.linkedin.com/company/kleros/",
   },
 };
