@@ -80,7 +80,7 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
 
         ticketID = currentTicketID++;
 
-        (bytes32 messageHash, bytes memory messageData) = _encode(ticketID, _receiver, _calldata);
+        (bytes32 messageHash, bytes memory messageData) = _encode(ticketID, block.number, _receiver, _calldata);
         emit OutgoingMessage(ticketID, block.number, _receiver, messageHash, messageData);
 
         tickets[ticketID] = Ticket({messageHash: messageHash, blockNumber: block.number, sentSafe: false});
@@ -102,7 +102,7 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
         require(ticket.messageHash != 0, "Ticket does not exist.");
         require(ticket.sentSafe == false, "Ticket already sent safely.");
 
-        (bytes32 messageHash, bytes memory messageData) = _encode(_ticketID, _receiver, _calldata);
+        (bytes32 messageHash, bytes memory messageData) = _encode(_ticketID, ticket.blockNumber, _receiver, _calldata);
         require(ticket.messageHash == messageHash, "Invalid message for ticketID.");
 
         // Safe Bridge message envelope
@@ -132,13 +132,14 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
 
     function _encode(
         uint256 _ticketID,
+        uint256 _blockNumber,
         address _receiver,
         bytes memory _calldata
-    ) internal view returns (bytes32 messageHash, bytes memory messageData) {
+    ) internal pure returns (bytes32 messageHash, bytes memory messageData) {
         // Encode the receiver address with the function signature + arguments i.e calldata
         messageData = abi.encode(_receiver, _calldata);
 
         // Compute the hash over the message header (ticketID, blockNumber) and body (data).
-        messageHash = keccak256(abi.encode(_ticketID, block.number, messageData));
+        messageHash = keccak256(abi.encode(_ticketID, _blockNumber, messageData));
     }
 }
