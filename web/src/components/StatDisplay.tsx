@@ -23,6 +23,8 @@ const SVGContainer = styled.div<{ iconColor: string; backgroundColor: string }>`
 
   svg {
     fill: ${({ iconColor }) => iconColor};
+    max-height: 22px;
+    max-width: 22px;
   }
 `;
 
@@ -36,7 +38,7 @@ interface IStatDisplay {
   title: string;
   text: string;
   subtext: string;
-  icon: JSX.Element;
+  icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
   color: "red" | "orange" | "green" | "blue" | "purple";
 }
 
@@ -44,7 +46,7 @@ const StatDisplay: React.FC<IStatDisplay> = ({
   title,
   text,
   subtext,
-  icon,
+  icon: Icon,
   color,
   ...props
 }) => {
@@ -58,7 +60,7 @@ const StatDisplay: React.FC<IStatDisplay> = ({
   };
   return (
     <Container {...props}>
-      <SVGContainer {...{ ...COLORS[color] }}>{icon}</SVGContainer>
+      <SVGContainer {...{ ...COLORS[color] }}>{<Icon />}</SVGContainer>
       <TextContainer>
         <label>{title}</label>
         <h1>{text}</h1>

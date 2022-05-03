@@ -19,6 +19,7 @@ const FieldContainer = styled.div`
   svg {
     fill: ${({ theme }) => theme.secondaryPurple};
     margin-right: 8px;
+    width: 15px;
   }
 `;
 
