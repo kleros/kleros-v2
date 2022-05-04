@@ -174,8 +174,8 @@ function updateDataPoint(delta: BigInt, timestamp: BigInt, entityName: string): 
     counter = new Entity();
     counter.set("value", Value.fromBigInt(BigInt.fromI32(0)));
   }
-  let dayID = timestamp.toI32() / 86400
-  let dayStartTimestamp = dayID * 86400
+  const dayID = timestamp.toI32() / 86400;
+  const dayStartTimestamp = dayID * 86400;
   const newValue = counter.get("value")!.toBigInt().plus(delta);
   const newDataPoint = new Entity();
   newDataPoint.set("value", Value.fromBigInt(newValue));
