@@ -74,6 +74,7 @@ export function handleDisputeCreation(event: DisputeCreation): void {
   round.penalties = roundInfo.value3;
   dispute.save();
   round.save();
+  updateCases(BigInt.fromI32(1), event.block.timestamp);
 }
 
 export function handleNewPeriod(event: NewPeriod): void {
@@ -171,16 +172,14 @@ function updateDataPoint(delta: BigInt, timestamp: BigInt, entityName: string): 
   let counter = store.get(entityName, "0");
   if (!counter) {
     counter = new Entity();
-    counter.set("length", Value.fromI32(0));
     counter.set("value", Value.fromBigInt(BigInt.fromI32(0)));
   }
-  const newLength = counter.get("length")!.toI32() + 1;
+  let dayID = timestamp.toI32() / 86400
+  let dayStartTimestamp = dayID * 86400
   const newValue = counter.get("value")!.toBigInt().plus(delta);
   const newDataPoint = new Entity();
-  newDataPoint.set("length", Value.fromI32(newLength));
   newDataPoint.set("value", Value.fromBigInt(newValue));
-  newDataPoint.set("timestamp", Value.fromBigInt(timestamp));
-  store.set(entityName, newLength.toString(), newDataPoint);
+  store.set(entityName, dayStartTimestamp.toString(), newDataPoint);
   store.set(entityName, "0", newDataPoint);
 }
 

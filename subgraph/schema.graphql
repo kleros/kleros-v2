@@ -94,36 +94,26 @@ type OutgoingMessage @entity {
 }
 
 type PNKStakedDataPoint @entity {
-  id: ID! # Incrementally set, id 0 reserved for counter
-  timestamp: BigInt!
+  id: ID! # Will be the timestamp except for the counter which will be 0
   value: BigInt!
-  length: Int! # For the counter, to store number of datapoints
 }
 
 type ETHPaidDataPoint @entity {
-  id: ID! # Incrementally set, id 0 reserved for counter
-  timestamp: BigInt!
+  id: ID! # Will be the timestamp except for the counter which will be 0
   value: BigInt!
-  length: Int! # For the counter, to store number of datapoints
 }
 
 type PNKRedistributedDataPoint @entity {
-  id: ID! # Incrementally set, id 0 reserved for counter
-  timestamp: BigInt!
+  id: ID! # Will be the timestamp except for the counter which will be 0
   value: BigInt!
-  length: Int! # For the counter, to store number of datapoints
 }
 
 type ActiveJurorsDataPoint @entity {
-  id: ID! # Incrementally set, id 0 reserved for counter
-  timestamp: BigInt!
+  id: ID! # Will be the timestamp except for the counter which will be 0
   value: BigInt!
-  length: Int! # For the counter, to store number of datapoints
 }
 
 type CasesDataPoint @entity {
-  id: ID! # Incrementally set, id 0 reserved for counter
-  timestamp: BigInt!
+  id: ID! # Will be the timestamp except for the counter which will be 0
   value: BigInt!
-  length: Int! # For the counter, to store number of datapoints
 }
