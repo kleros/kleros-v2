@@ -1572,9 +1572,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-cli@npm:^0.29.0":
-  version: 0.29.0
-  resolution: "@graphprotocol/graph-cli@npm:0.29.0"
+"@graphprotocol/graph-cli@npm:^0.29.1":
+  version: 0.29.1
+  resolution: "@graphprotocol/graph-cli@npm:0.29.1"
   dependencies:
     assemblyscript: 0.19.10
     binary-install-raw: 0.0.13
@@ -1603,7 +1603,7 @@ __metadata:
     yaml: 1.9.2
   bin:
     graph: bin/graph
-  checksum: 743b0c667fcbc80f216f208b4b05a94ac22355c5eba6b66371d4c61637e52958d727bef032549fdbe9946e3f8fc03f4a0fe0f6df2b3e5fd129618abfc131ef71
+  checksum: 1a93a210f65e6bfab0fc6c8d7a75dfc56c6443f058a0e65fac9c9478dafe1574f371c225ac7acd163885e28a0607db9c81d0dabbd40e4249d05730b4e71768b6
   languageName: node
   linkType: hard
 
@@ -1728,7 +1728,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-subgraph@workspace:subgraph"
   dependencies:
-    "@graphprotocol/graph-cli": ^0.29.0
+    "@graphprotocol/graph-cli": ^0.29.1
     "@graphprotocol/graph-ts": ^0.26.0
   languageName: unknown
   linkType: soft
