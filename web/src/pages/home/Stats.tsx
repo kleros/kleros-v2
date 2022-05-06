@@ -22,20 +22,21 @@ const StyledCard = styled(Card)`
 `;
 
 const Stats = () => {
+  const { result } = useDataPointQuery();
   const {
-    pnkstaked: stakedPNK,
-    ethpaid: paidETH,
-    pnkredistributed: redistributedPNK,
-    activeJurors,
-    cases,
-  } = useDataPointQuery();
+    pnkstakedDataPoint: stakedPNK,
+    ethpaidDataPoint: paidETH,
+    pnkredistributedDataPoint: redistributedPNK,
+    activeJurorsDataPoint: activeJurors,
+    casesDataPoint: cases,
+  } = result;
   return (
     <StyledCard>
       <StatDisplay
         title="PNK staked"
         text={
           stakedPNK
-            ? utils.commify(utils.formatUnits(stakedPNK, 18))
+            ? utils.commify(utils.formatUnits(stakedPNK.value, 18))
             : "Fetching..."
         }
         subtext="$ 3,000,000"
@@ -45,7 +46,9 @@ const Stats = () => {
       <StatDisplay
         title="ETH Paid to jurors"
         text={
-          paidETH ? utils.commify(utils.formatEther(paidETH)) : "Fetching..."
+          paidETH
+            ? utils.commify(utils.formatEther(paidETH.value))
+            : "Fetching..."
         }
         subtext="$ 3,000,000"
         color="blue"
@@ -55,7 +58,7 @@ const Stats = () => {
         title="PNK redistributed"
         text={
           redistributedPNK
-            ? utils.commify(utils.formatUnits(redistributedPNK, 18))
+            ? utils.commify(utils.formatUnits(redistributedPNK.value, 18))
             : "Fetching..."
         }
         subtext="$ 3,000,000"
@@ -64,14 +67,14 @@ const Stats = () => {
       />
       <StatDisplay
         title="Active jurors"
-        text={activeJurors ? activeJurors : "Fetching..."}
+        text={activeJurors ? activeJurors.value : "Fetching..."}
         subtext="$ 3,000,000"
         color="green"
         icon={JurorIcon}
       />
       <StatDisplay
         title="Cases"
-        text={cases ? cases : "Fetching..."}
+        text={cases ? cases.value : "Fetching..."}
         subtext="$ 3,000,000"
         color="orange"
         icon={BalanceIcon}
