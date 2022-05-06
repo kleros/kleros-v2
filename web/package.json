@@ -26,7 +26,8 @@
     "start": "parcel",
     "build": "parcel build",
     "check-style": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "generate": "graphql-codegen"
   },
   "devDependencies": {
     "@parcel/transformer-svg-react": "^2.5.0",
@@ -49,13 +50,20 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
+    "@graphql-codegen/cli": "^2.6.2",
+    "@graphql-codegen/typescript": "^2.4.9",
+    "@graphql-codegen/typescript-operations": "^2.3.6",
     "@kleros/kleros-v2-contracts": "workspace:^",
     "@kleros/ui-components-library": "^0.1.5",
+    "chart.js": "^3.7.1",
+    "chartjs-adapter-moment": "^1.0.0",
     "core-js": "^3.21.1",
     "ethers": "^5.6.5",
     "graphql": "^16.4.0",
     "graphql-request": "^4.2.0",
+    "moment": "^2.29.3",
     "react": "^18.0.0",
+    "react-chartjs-2": "^4.1.0",
     "react-dom": "^18.0.0",
     "react-is": "^18.0.0",
     "react-router-dom": "6",
