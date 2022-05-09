@@ -21,7 +21,7 @@ const StyledButton = styled(Button)`
 
 interface ILightButton {
   text: string;
-  icon?: (className: string) => React.ReactNode;
+  Icon?: React.FC<React.SVGAttributes<SVGElement>>;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
   className?: string;
@@ -29,7 +29,7 @@ interface ILightButton {
 
 const LightButton: React.FC<ILightButton> = ({
   text,
-  icon,
+  Icon,
   onClick,
   disabled,
   className,
@@ -37,7 +37,7 @@ const LightButton: React.FC<ILightButton> = ({
   <StyledButton
     variant="primary"
     small
-    {...{ text, icon, onClick, disabled, className }}
+    {...{ text, Icon, onClick, disabled, className }}
   />
 );
 
