@@ -2702,7 +2702,7 @@ __metadata:
     "@graphql-codegen/typescript": ^2.4.9
     "@graphql-codegen/typescript-operations": ^2.3.6
     "@kleros/kleros-v2-contracts": "workspace:^"
-    "@kleros/ui-components-library": ^0.1.5
+    "@kleros/ui-components-library": ^1.0.0
     "@parcel/transformer-svg-react": ^2.5.0
     "@types/react": ^17.0.38
     "@types/react-dom": ^17.0.11
@@ -2738,7 +2738,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kleros/ui-components-library@npm:^0.1.3, @kleros/ui-components-library@npm:^0.1.5":
+"@kleros/ui-components-library@npm:^0.1.3":
   version: 0.1.5
   resolution: "@kleros/ui-components-library@npm:0.1.5"
   dependencies:
@@ -2753,6 +2753,24 @@ __metadata:
   peerDependencies:
     styled-components: ^5.3.3
   checksum: efc74789760b7823aafd4c7c2341feca01eda1a2093839ae6455f8a724606974e202e8714de06f3432759321b0e509432d3d80170eb04dd198c04da24e1f7b42
+  languageName: node
+  linkType: hard
+
+"@kleros/ui-components-library@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@kleros/ui-components-library@npm:1.0.0"
+  dependencies:
+    "@datepicker-react/hooks": ^2.8.4
+    "@swc/helpers": ^0.3.2
+    rc-slider: ^9.7.5
+    react: ^18.0.0
+    react-dom: ^18.0.0
+    react-is: ^18.0.0
+    simplebar: ^5.3.6
+    simplebar-react: ^2.3.6
+  peerDependencies:
+    styled-components: ^5.3.3
+  checksum: 5069862a4e47b0e8f47b45ed8c43c4d1300fc7faaa154a92c5aecaf0886df1627fa6b5983254f044d8bbc76a9deee8df466c7662a86aaced61b48c44b5823a23
   languageName: node
   linkType: hard
 

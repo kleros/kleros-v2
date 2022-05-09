@@ -43,7 +43,7 @@ const Header: React.FC = () => {
         <NavBar {...{ isOpen }} />
         <StyledLightButton
           text=""
-          icon={(className: string) => <HamburgerIcon {...{ className }} />}
+          Icon={HamburgerIcon}
           onClick={toggleIsOpen}
         />
       </div>
