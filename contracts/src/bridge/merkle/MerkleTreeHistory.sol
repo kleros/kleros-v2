@@ -35,8 +35,8 @@ contract MerkleTreeHistory {
     /** @dev Append data into merkle tree.
      *  `O(log(n))` where
      *  `n` is the number of leaves.
-     *  Note: Although each insertion is O(log_2(n)),
-     *  Total complexity of n insertions is O(n).
+     *  Note: Although each insertion is O(log(n)),
+     *  Complexity of n insertions is O(n).
      *  @param data The data to insert in the merkle tree.
      */
     function append(bytes memory data) public {
