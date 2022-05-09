@@ -1,7 +1,8 @@
 import { randomInt } from ".";
-import type { BigNumberish } from "ethers";
 import { SignerWithAddress } from "hardhat-deploy-ethers/signers";
 import { DisputeKitClassic, KlerosCore } from "../../typechain-types";
+import { Zero, Two } from "@ethersproject/constants";
+import type { BigNumberish } from "ethers";
 
 export interface SubcourtCreationParams {
   parent?: BigNumberish;
@@ -80,3 +81,6 @@ const packInt = (n: number) => n.toString(16).padStart(64, "0");
 
 export const getDisputeExtraData = (subcourtID: number, numberOfJurors: number, disputeKitID: number) =>
   `0x${packInt(subcourtID)}${packInt(numberOfJurors)}${packInt(disputeKitID)}`;
+
+export const bitfieldDisputeKits = (...disputeKitsIDs: number[]) =>
+  disputeKitsIDs.reduce((supportedDisputeKits, dk) => supportedDisputeKits.xor(Two.pow(dk)), Zero);

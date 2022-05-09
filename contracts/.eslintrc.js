@@ -14,6 +14,7 @@ module.exports = {
   rules: {
     // "node/no-unsupported-features/es-syntax": ["error", { ignores: ["modules"] }],
     "node/no-unsupported-features/es-syntax": "off",
+    "node/no-unsupported-features/node-builtins": "off",
     camelcase: "off",
     "node/no-missing-import": "off",
     "import/no-unresolved": "off",

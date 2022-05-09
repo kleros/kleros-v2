@@ -3,32 +3,42 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Contract } from "ethers";
 import type { ContractReceipt } from "ethers";
+import { keccak256, randomBytes } from "ethers/lib/utils";
+
+export const checkContract = <C extends Contract, F extends keyof C["callStatic"]>(
+  contract: C,
+  method: F,
+  ...args: Parameters<C[F]>
+) => ({
+  async for(argsToCheck: Partial<Awaited<ReturnType<C[F]>>>) {
+    const entity = await contract[method](...args);
+    for (const arg in argsToCheck) {
+      if (Array.isArray(entity[arg]))
+        expect(entity[arg], `Calling '${method}' returned incorrect '${arg}' parameter`).to.eql(argsToCheck[arg]);
+      else expect(entity[arg], `Calling '${method}' returned incorrect '${arg}' parameter`).to.equal(argsToCheck[arg]);
+    }
+  },
+});
 
 export const expectEvent = (contractReceipt: ContractReceipt, idx: number = -1) => ({
   named: (eventName: string) => ({
     with(argsToCheck: Record<string, any>) {
-      try {
-        if (!Array.isArray(contractReceipt.events)) throw new Error();
+      if (!Array.isArray(contractReceipt.events)) expect.fail(`No events emitted`);
 
-        let event;
-        if (idx >= 0) event = contractReceipt.events[idx].event;
-        else {
-          for (let i = 0; i < contractReceipt.events.length; i++) {
-            event = contractReceipt.events[i];
-            if (event.event === eventName) break;
-          }
+      let event;
+      if (idx >= 0) event = contractReceipt.events[idx].event;
+      else {
+        for (let i = 0; i < contractReceipt.events.length; i++) {
+          event = contractReceipt.events[i];
+          if (event.event === eventName) break;
         }
+      }
 
-        if (!event || event.event !== eventName) throw new Error();
+      if (!event || event.event !== eventName) expect.fail(`The event '${eventName}' does not exist`);
 
-        for (const arg in argsToCheck) {
-          if (!event.args[arg]) throw new Error(arg);
-          expect(event.args[arg], `The event '${eventName}' has wrong '${arg}'`).to.equal(argsToCheck[arg]);
-        }
-      } catch (err: any) {
-        if (err.message) expect.fail(`The event '${eventName}' does not have argument '${err.message}'`);
-        if (idx === -1) expect.fail(`The event '${eventName}' does not exist`);
-        expect.fail(`The event '${eventName}' does not exist on index ${idx}`);
+      for (const arg in argsToCheck) {
+        if (!event.args[arg]) expect.fail(`The event '${eventName}' does not exist on index ${idx}`);
+        expect(event.args[arg], `The event '${eventName}' has wrong '${arg}'`).to.equal(argsToCheck[arg]);
       }
     },
   }),
@@ -59,3 +69,8 @@ export const getSortitionSumTreeLibrary = async (deployer: SignerWithAddress) =>
 };
 
 export const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min) + min);
+
+export const generateCommitFromVote = (choice: number) => {
+  const salt = randomBytes(32);
+  return [keccak256([choice, ...salt]), salt];
+};

@@ -12,9 +12,9 @@ import {
   PNK__factory,
 } from "../../typechain-types";
 import { expectGoverned, getSortitionSumTreeLibrary, randomInt } from "../shared";
-import type { BigNumberish } from "ethers";
-import { generateSubcourts, getDisputeExtraData } from "../shared/arbitration";
+import { bitfieldDisputeKits, generateSubcourts, getDisputeExtraData } from "../shared/arbitration";
 import { SignerWithAddress } from "hardhat-deploy-ethers/signers";
+import type { BigNumberish } from "ethers";
 
 const JUROR_PROSECUTION_MODULE_ADDRESS = AddressZero;
 const HIDDEN_VOTES = false;
@@ -166,6 +166,78 @@ describe("KlerosCore", function () {
       expect(randomCourt.jurorsForCourtJump).to.equal(subcourts[randomCourtID].jurorsForCourtJump);
       expect(randomCourt.minStake).to.equal(subcourts[randomCourtID].minStake);
     });
+
+    // TODO should not set court stake higher than parent and smaller than children
+
+    it("Should not allow creating subcourts with parents that have a higher minimum stake", async () => {
+      await expect(
+        core
+          .connect(deployer)
+          .createSubcourt(
+            0,
+            HIDDEN_VOTES,
+            MIN_STAKE - 1,
+            ALPHA,
+            FEE_FOR_JUROR,
+            JURORS_FOR_COURT_JUMP,
+            TIMES_PER_PERIOD,
+            SORTITION_SUM_TREE_K,
+            disputeKit.address
+          )
+      ).to.be.revertedWith("A subcourt cannot be a child of a subcourt with a higher minimum stake.");
+    });
+
+    it("Should add/remove disputekits from subcourt", async () => {
+      const otherDisputeKit = await new DisputeKitClassic__factory(deployer).deploy(
+        deployer.address,
+        core.address,
+        rng.address
+      );
+      await core.addNewDisputeKit(otherDisputeKit.address, 21);
+      await core.addNewDisputeKit(innocentBystander.address, 57);
+      await core
+        .connect(deployer)
+        .createSubcourt(
+          0,
+          HIDDEN_VOTES,
+          MIN_STAKE,
+          ALPHA,
+          FEE_FOR_JUROR,
+          JURORS_FOR_COURT_JUMP,
+          TIMES_PER_PERIOD,
+          SORTITION_SUM_TREE_K,
+          0
+        );
+
+      await core.connect(deployer).setDisputeKits(0, [0], false);
+      expect((await core.courts(0)).supportedDisputeKits).to.equal(bitfieldDisputeKits());
+
+      expect((await core.courts(1)).supportedDisputeKits).to.equal(bitfieldDisputeKits());
+      await core.connect(deployer).setDisputeKits(1, [0], true);
+      expect((await core.courts(1)).supportedDisputeKits).to.equal(bitfieldDisputeKits(0));
+
+      await core.connect(deployer).setDisputeKits(1, [21, 57], true);
+
+      expect((await core.courts(1)).supportedDisputeKits).to.equal(bitfieldDisputeKits(0, 21, 57));
+      await expect(core.connect(deployer).setDisputeKits(1, [57], true)).to.be.revertedWith(
+        "Dispute kit already supported"
+      );
+
+      await core.connect(deployer).setDisputeKits(1, [0], false);
+      expect((await core.courts(1)).supportedDisputeKits).to.equal(bitfieldDisputeKits(21, 57));
+      await expect(core.connect(deployer).setDisputeKits(1, [0, 57], true)).to.be.revertedWith(
+        "Dispute kit already supported"
+      );
+      await expect(core.connect(deployer).setDisputeKits(1, [0], false)).to.be.revertedWith(
+        "Dispute kit is not supported"
+      );
+
+      await core.connect(deployer).setDisputeKits(1, [21], false);
+      await expect(core.connect(deployer).setDisputeKits(1, [21, 57], false)).to.be.revertedWith(
+        "Dispute kit is not supported"
+      );
+      expect((await core.courts(1)).supportedDisputeKits).to.equal(bitfieldDisputeKits(57));
+    });
   });
 
   it("Should set stake correctly", async () => {
@@ -178,14 +250,18 @@ describe("KlerosCore", function () {
 
     await expect(core.connect(aspiringJuror).setStake(0, MIN_STAKE - 1)).to.be.revertedWith("Staking failed");
 
-    await core.connect(aspiringJuror).setStake(0, MIN_STAKE);
+    await expect(core.connect(aspiringJuror).setStake(0, MIN_STAKE))
+      .to.emit(core, "StakeSet")
+      .withArgs(aspiringJuror.address, 0, MIN_STAKE, MIN_STAKE);
     expect(await pnk.balanceOf(aspiringJuror.address)).to.equal(1000 - MIN_STAKE);
 
     let jurorBalance = await core.getJurorBalance(aspiringJuror.address, 0);
     expect(jurorBalance.staked).to.equal(MIN_STAKE);
     expect(jurorBalance.locked).to.equal(0);
 
-    await core.connect(aspiringJuror).setStake(0, 0);
+    await expect(core.connect(aspiringJuror).setStake(0, 0))
+      .to.emit(core, "StakeSet")
+      .withArgs(aspiringJuror.address, 0, 0, 0);
     expect(await pnk.balanceOf(aspiringJuror.address)).to.equal(1000);
 
     jurorBalance = await core.getJurorBalance(aspiringJuror.address, 0);
