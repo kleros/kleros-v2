@@ -40,7 +40,7 @@ contract MerkleTreeHistory {
      *  @param data The data to insert in the merkle tree.
      */
     function append(bytes memory data) public {
-        bytes32 leaf = sha256(data);
+        bytes32 leaf = keccak256(data);
         count += 1;
         uint256 size = count;
         uint256 hashBitField = (size ^ (size - 1)) & size;
