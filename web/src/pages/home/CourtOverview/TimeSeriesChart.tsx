@@ -1,6 +1,5 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
-import { utils } from "ethers";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,11 +10,11 @@ import {
   Tooltip,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { useChartQuery } from "queries/useChartQuery";
 import "chartjs-adapter-moment";
 
-const Container = styled.div`
+const LineContainer = styled.div`
   height: 220px;
+  margin-top: 16px;
 `;
 
 ChartJS.register(
@@ -27,18 +26,11 @@ ChartJS.register(
   Tooltip
 );
 
-const Chart: React.FC = () => {
-  const { result } = useChartQuery();
-  const pnkstakedDataPoints = result?.pnkstakedDataPoints;
-  const processedData = pnkstakedDataPoints?.reduce((data, { id, value }) => {
-    return [
-      ...data,
-      {
-        x: parseInt(id) * 1000,
-        y: parseInt(utils.formatUnits(value, 18)),
-      },
-    ];
-  }, []);
+interface ITimeSeriesChart {
+  data: { x: number; y: number }[];
+}
+
+const TimeSeriesChart: React.FC<ITimeSeriesChart> = ({ data }) => {
   const theme = useTheme();
   const options = {
     responsive: true,
@@ -74,8 +66,8 @@ const Chart: React.FC = () => {
   };
 
   return (
-    <Container>
-      {processedData ? (
+    <LineContainer>
+      {
         // eslint-disable-next-line
         // @ts-ignore
         <Line
@@ -83,7 +75,7 @@ const Chart: React.FC = () => {
             data: {
               datasets: [
                 {
-                  data: processedData,
+                  data,
                   borderColor: theme.primaryBlue,
                   stepped: true,
                   cubicInterpolationMode: "monotone",
@@ -93,11 +85,9 @@ const Chart: React.FC = () => {
             options,
           }}
         />
-      ) : (
-        "Fetching..."
-      )}
-    </Container>
+      }
+    </LineContainer>
   );
 };
 
-export default Chart;
+export default TimeSeriesChart;
