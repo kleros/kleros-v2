@@ -31,7 +31,7 @@ export class MerkleTree {
    * @return node The `sha3` (A.K.A. `keccak256`) hash of `first, ...params` as a 32-byte hex string.
    */
   public static makeLeafNode(data: string): string {
-    const result = ethers.utils.sha256(data);
+    const result = ethers.utils.keccak256(data);
 
     if (!result) {
       throw new Error("Leaf node must not be empty");
