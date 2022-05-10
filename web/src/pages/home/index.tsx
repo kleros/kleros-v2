@@ -5,7 +5,7 @@ import Chart from "./Chart";
 import DisputeCard from "components/DisputeCard";
 
 const Container = styled.div`
-  width: 100vw;
+  width: 100%;
   height: auto;
   background-color: ${({ theme }) => theme.lightBackground};
   padding: 32px;
