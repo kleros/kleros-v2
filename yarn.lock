@@ -2702,7 +2702,7 @@ __metadata:
     "@graphql-codegen/typescript": ^2.4.9
     "@graphql-codegen/typescript-operations": ^2.3.6
     "@kleros/kleros-v2-contracts": "workspace:^"
-    "@kleros/ui-components-library": ^1.0.0
+    "@kleros/ui-components-library": ^1.1.0
     "@parcel/transformer-svg-react": ^2.5.0
     "@types/react": ^17.0.38
     "@types/react-dom": ^17.0.11
@@ -2756,9 +2756,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kleros/ui-components-library@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@kleros/ui-components-library@npm:1.0.0"
+"@kleros/ui-components-library@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@kleros/ui-components-library@npm:1.1.0"
   dependencies:
     "@datepicker-react/hooks": ^2.8.4
     "@swc/helpers": ^0.3.2
@@ -2770,7 +2770,7 @@ __metadata:
     simplebar-react: ^2.3.6
   peerDependencies:
     styled-components: ^5.3.3
-  checksum: 5069862a4e47b0e8f47b45ed8c43c4d1300fc7faaa154a92c5aecaf0886df1627fa6b5983254f044d8bbc76a9deee8df466c7662a86aaced61b48c44b5823a23
+  checksum: 998583b3c06c4bcd5240bc3e547140370557f1efa2afaa5916951ce9e317d436318843036fd552b35df5dbc3920762a1ed0322743f5a9d48cd084856aa9f2e11
   languageName: node
   linkType: hard
 
