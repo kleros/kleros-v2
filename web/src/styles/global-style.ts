@@ -19,6 +19,7 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   h1 {
+    margin: 0 0 16px 0;
     font-weight: 600;
     font-size: 24px;
     line-height: 32px;
@@ -26,6 +27,7 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   h2 {
+    margin: 0 0 16px 0;
     font-weight: 400;
     font-size: 24px;
     line-height: 32px;
@@ -33,6 +35,7 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   h3 {
+    margin: 0 0 16px 0;
     font-weight: 600;
     font-size: 16px;
     line-height: 24px;
