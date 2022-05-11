@@ -48,7 +48,7 @@ contract MerkleProof {
      */
     function calculateRoot(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
         uint256 proofLength = proof.length;
-        require(proofLength <= 32, "Invalid Proof");
+        require(proofLength <= 64, "Invalid Proof");
         bytes32 h = leaf;
         for (uint256 i = 0; i < proofLength; i++) {
             bytes32 proofElement = proof[i];
