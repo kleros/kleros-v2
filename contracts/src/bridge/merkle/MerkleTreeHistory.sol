@@ -21,8 +21,8 @@ contract MerkleTreeHistory {
     // ***************************** //
 
     // merkle tree representation
-    // supports 2^32-1 messages.
-    bytes32[32] public branch;
+    // supports 2^64 messages.
+    bytes32[64] public branch;
     uint256 public count;
 
     // block number => merkle root history
@@ -45,7 +45,7 @@ contract MerkleTreeHistory {
         uint256 size = count;
         uint256 hashBitField = (size ^ (size - 1)) & size;
 
-        for (uint256 height = 0; height < 32; height++) {
+        for (uint256 height = 0; height < 64; height++) {
             if ((hashBitField & 1) == 1) {
                 branch[height] = leaf;
                 return;
