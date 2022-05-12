@@ -40,7 +40,10 @@ contract MerkleTreeHistory {
      *  @param data The data to insert in the merkle tree.
      */
     function append(bytes memory data) public {
-        bytes32 leaf = keccak256(data);
+        // Differentiate leaves from interior nodes with different
+        // hash functions to prevent 2nd order pre-image attack.
+        // https://flawed.net.nz/2018/02/21/attacking-merkle-trees-with-a-second-preimage-attack/
+        bytes32 leaf = sha256(data);
         count += 1;
         uint256 size = count;
         uint256 hashBitField = (size ^ (size - 1)) & size;
@@ -98,8 +101,8 @@ contract MerkleTreeHistory {
         uint256 height = 0;
         bool isFirstHash = true;
         while (size > 0) {
-            // avoid redundant calculation
             if ((size & 1) == 1) {
+                // avoid redundant calculation
                 if (isFirstHash) {
                     node = branch[height];
                     isFirstHash = false;
