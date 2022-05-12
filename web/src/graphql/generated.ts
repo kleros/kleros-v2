@@ -1633,12 +1633,9 @@ export enum _SubgraphErrorPolicy_ {
   Deny = 'deny'
 }
 
-export type ChartQueryVariables = Exact<{ [key: string]: never; }>;
+export type HomePageQueryVariables = Exact<{
+  timeframe?: InputMaybe<Scalars['ID']>;
+}>;
 
 
-export type ChartQuery = { __typename?: 'Query', pnkstakedDataPoints: Array<{ __typename?: 'PNKStakedDataPoint', id: string, value: any }>, ethpaidDataPoints: Array<{ __typename?: 'ETHPaidDataPoint', id: string, value: any }>, pnkredistributedDataPoints: Array<{ __typename?: 'PNKRedistributedDataPoint', id: string, value: any }>, activeJurorsDataPoints: Array<{ __typename?: 'ActiveJurorsDataPoint', id: string, value: any }>, casesDataPoints: Array<{ __typename?: 'CasesDataPoint', id: string, value: any }> };
-
-export type CountersQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type CountersQuery = { __typename?: 'Query', pnkstakedDataPoint?: { __typename?: 'PNKStakedDataPoint', value: any } | null, ethpaidDataPoint?: { __typename?: 'ETHPaidDataPoint', value: any } | null, pnkredistributedDataPoint?: { __typename?: 'PNKRedistributedDataPoint', value: any } | null, activeJurorsDataPoint?: { __typename?: 'ActiveJurorsDataPoint', value: any } | null, casesDataPoint?: { __typename?: 'CasesDataPoint', value: any } | null };
+export type HomePageQuery = { __typename?: 'Query', disputes: Array<{ __typename?: 'Dispute', id: string }>, pnkstakedDataPoints: Array<{ __typename?: 'PNKStakedDataPoint', id: string, value: any }>, ethpaidDataPoints: Array<{ __typename?: 'ETHPaidDataPoint', id: string, value: any }>, pnkredistributedDataPoints: Array<{ __typename?: 'PNKRedistributedDataPoint', id: string, value: any }>, activeJurorsDataPoints: Array<{ __typename?: 'ActiveJurorsDataPoint', id: string, value: any }>, casesDataPoints: Array<{ __typename?: 'CasesDataPoint', id: string, value: any }> };

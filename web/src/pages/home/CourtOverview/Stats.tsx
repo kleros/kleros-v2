@@ -8,7 +8,7 @@ import EthereumIcon from "svgs/icons/ethereum.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import JurorIcon from "svgs/icons/user.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
-import { useDataPointQuery } from "hooks/queries/useDataPointQuery";
+import { useHomePageContext } from "hooks/useHomePageContext";
 
 const StyledCard = styled(Card)`
   width: auto;
@@ -22,21 +22,21 @@ const StyledCard = styled(Card)`
 `;
 
 const Stats = () => {
-  const { result } = useDataPointQuery();
+  const { data } = useHomePageContext();
   const {
-    pnkstakedDataPoint: stakedPNK,
-    ethpaidDataPoint: paidETH,
-    pnkredistributedDataPoint: redistributedPNK,
-    activeJurorsDataPoint: activeJurors,
-    casesDataPoint: cases,
-  } = result;
+    pnkstakedDataPoints: stakedPNK = undefined,
+    ethpaidDataPoints: paidETH = undefined,
+    pnkredistributedDataPoints: redistributedPNK = undefined,
+    activeJurorsDataPoints: activeJurors = undefined,
+    casesDataPoints: cases = undefined,
+  } = data ? data : {};
   return (
     <StyledCard>
       <StatDisplay
         title="PNK staked"
         text={
           stakedPNK
-            ? utils.commify(utils.formatUnits(stakedPNK.value, 18))
+            ? utils.commify(utils.formatUnits(stakedPNK.at(-1)?.value, 18))
             : "Fetching..."
         }
         subtext="$ 3,000,000"
@@ -47,7 +47,7 @@ const Stats = () => {
         title="ETH Paid to jurors"
         text={
           paidETH
-            ? utils.commify(utils.formatEther(paidETH.value))
+            ? utils.commify(utils.formatEther(paidETH.at(-1)?.value))
             : "Fetching..."
         }
         subtext="$ 3,000,000"
@@ -58,7 +58,7 @@ const Stats = () => {
         title="PNK redistributed"
         text={
           redistributedPNK
-            ? utils.commify(utils.formatUnits(redistributedPNK.value, 18))
+            ? utils.commify(utils.formatUnits(redistributedPNK.at(-1)?.value, 18))
             : "Fetching..."
         }
         subtext="$ 3,000,000"
@@ -67,14 +67,14 @@ const Stats = () => {
       />
       <StatDisplay
         title="Active jurors"
-        text={activeJurors ? activeJurors.value : "Fetching..."}
+        text={activeJurors ? activeJurors.at(-1)?.value : "Fetching..."}
         subtext="$ 3,000,000"
         color="green"
         icon={JurorIcon}
       />
       <StatDisplay
         title="Cases"
-        text={cases ? cases.value : "Fetching..."}
+        text={cases ? cases.at(-1)?.value : "Fetching..."}
         subtext="$ 3,000,000"
         color="orange"
         icon={BalanceIcon}
