@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import TimeSeriesChart from "./TimeSeriesChart";
 import { DropdownSelect } from "@kleros/ui-components-library";
 import { utils } from "ethers";
-import { useChartQuery } from "queries/useChartQuery";
+import { useHomePageContext } from "hooks/useHomePageContext";
 
 const Container = styled.div`
   margin-bottom: 32px;
@@ -17,23 +17,36 @@ const StyledDropdown = styled(DropdownSelect)`
 `;
 
 const CHART_OPTIONS = [
-  { text: "Staked PNK", value: 0 },
-  { text: "Cases", value: 1 },
+  { text: "Staked PNK", value: "pnkstakedDataPoints" },
+  { text: "Cases", value: "casesDataPoints" },
   { text: "Cases per court", value: 2 },
 ];
 
+interface IChartData {
+  x: number;
+  y: number;
+}
+
 const Chart: React.FC = () => {
-  const { result } = useChartQuery();
-  const pnkstakedDataPoints = result?.pnkstakedDataPoints;
-  const processedData = pnkstakedDataPoints?.reduce((data, { id, value }) => {
-    return [
-      ...data,
-      {
-        x: parseInt(id) * 1000,
-        y: parseInt(utils.formatUnits(value, 18)),
-      },
-    ];
-  }, []);
+  const [chartOption, setChartOption] = useState("pnkstakedDataPoints");
+  const { data } = useHomePageContext();
+  const chartData = data?.[chartOption];
+  const processedData = chartData?.reduce(
+    (data: IChartData[], { id, value }: { id: string; value: string }) => {
+      return [
+        ...data,
+        {
+          x: parseInt(id) * 1000,
+          y: parseInt(
+            chartOption === "pnkstakedDataPoints"
+              ? utils.formatUnits(value, 18)
+              : value
+          ),
+        },
+      ];
+    },
+    []
+  );
 
   return (
     <Container>
@@ -41,10 +54,10 @@ const Chart: React.FC = () => {
         smallButton
         simpleButton
         alignRight
-        defaultValue={0}
+        defaultValue={"pnkstakedDataPoints"}
         items={CHART_OPTIONS}
-        callback={() => {
-          // hey
+        callback={(newValue: string) => {
+          setChartOption(newValue);
         }}
       />
       {processedData ? <TimeSeriesChart data={processedData} /> : "Fetching..."}

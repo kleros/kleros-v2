@@ -6,10 +6,12 @@ import { Routes, Route } from "react-router-dom";
 import Layout from "layout/index";
 import Home from "./pages/home";
 
-const fetcherBuilder = (url: string) => (query: string) => {
-  console.log("fetch");
-  return request(url, query);
-};
+const fetcherBuilder =
+  (url: string) =>
+  ({ query, variables }: { query: string; variables?: any }) => {
+    console.log("fetch");
+    return request(url, query, variables);
+  };
 
 const App: React.FC = () => {
   return (
