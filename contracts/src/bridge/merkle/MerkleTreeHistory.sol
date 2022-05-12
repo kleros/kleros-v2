@@ -44,31 +44,30 @@ contract MerkleTreeHistory {
         // hash functions to prevent 2nd order pre-image attack.
         // https://flawed.net.nz/2018/02/21/attacking-merkle-trees-with-a-second-preimage-attack/
         bytes32 leaf = sha256(data);
-        count += 1;
-        uint256 size = count;
+        uint256 size = count + 1;
+        count = size;
         uint256 hashBitField = (size ^ (size - 1)) & size;
-
-        for (uint256 height = 0; height < 64; height++) {
-            if ((hashBitField & 1) == 1) {
-                branch[height] = leaf;
-                return;
-            }
+        uint256 height;
+        while ((hashBitField & 1) == 0) {
             bytes32 node = branch[height];
-            // effecient hash
             if (node > leaf)
                 assembly {
+                    // effecient hash
                     mstore(0x00, leaf)
                     mstore(0x20, node)
                     leaf := keccak256(0x00, 0x40)
                 }
             else
                 assembly {
+                    // effecient hash
                     mstore(0x00, node)
                     mstore(0x20, leaf)
                     leaf := keccak256(0x00, 0x40)
                 }
             hashBitField /= 2;
+            height = height + 1;
         }
+        branch[height] = leaf;
     }
 
     /** @dev Saves the merkle root state in history and resets.
