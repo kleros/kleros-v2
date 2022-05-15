@@ -27,9 +27,9 @@ contract HomeGatewayToEthereum is IHomeGateway {
     address public governor;
     IArbitrator public arbitrator;
     IFastBridgeSender public fastbridge;
-    address public foreignGateway;
-    uint256 public chainID;
-    uint256 public foreignChainID;
+    address public override foreignGateway;
+    uint256 public override chainID;
+    uint256 public override foreignChainID;
 
     struct RelayedData {
         uint256 arbitrationCost;
@@ -77,7 +77,7 @@ contract HomeGatewayToEthereum is IHomeGateway {
         uint256 _choices,
         bytes calldata _extraData,
         address _arbitrable
-    ) external payable {
+    ) external payable override {
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
                 _originalChainID,
@@ -104,7 +104,7 @@ contract HomeGatewayToEthereum is IHomeGateway {
         emit Dispute(arbitrator, disputeID, 0, 0);
     }
 
-    function rule(uint256 _disputeID, uint256 _ruling) external {
+    function rule(uint256 _disputeID, uint256 _ruling) external override {
         require(msg.sender == address(arbitrator), "Only Arbitrator");
 
         bytes32 disputeHash = disputeIDtoHash[_disputeID];
@@ -124,7 +124,7 @@ contract HomeGatewayToEthereum is IHomeGateway {
         fastbridge = _fastbridge;
     }
 
-    function disputeHashToHomeID(bytes32 _disputeHash) external view returns (uint256) {
+    function disputeHashToHomeID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoID[_disputeHash];
     }
 }

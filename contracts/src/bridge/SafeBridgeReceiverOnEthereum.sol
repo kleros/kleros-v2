@@ -23,24 +23,22 @@ contract SafeBridgeReceiverOnEthereum is ISafeBridgeReceiver {
     // *             Storage               * //
     // ************************************* //
 
+    // will be set as immutable in production deployment for gas optimization
     address public safeBridgeSender; // The address of the Safe Bridge sender on Arbitrum.
-    IInbox public inbox; // The address of the Arbitrum Inbox contract.
+    IInbox public immutable inbox; // The address of the Arbitrum Inbox contract.
 
     /**
      * @dev Constructor.
-     * @param _safeBridgeSender The address of the Safe Bridge sender on Arbitrum.
      * @param _inbox The address of the Arbitrum Inbox contract.
      */
-    constructor(
-        address _inbox
-    ) {
+    constructor(address _inbox) {
         inbox = IInbox(_inbox);
     }
 
     function setSafeBridgeSender(address _safeBridgeSender) external {
-        if (safeBridgeSender == address(0) )
-            safeBridgeSender = _safeBridgeSender;
+        if (safeBridgeSender == address(0)) safeBridgeSender = _safeBridgeSender;
     }
+
     // ************************************* //
     // *              Views                * //
     // ************************************* //
