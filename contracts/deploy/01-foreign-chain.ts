@@ -64,12 +64,21 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const homeGatewayAddress = getContractAddress(deployer, nonce);
   console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
+  nonce -= 1;
+
+  const fastBridgeSenderAddress = getContractAddress(deployer, nonce);
+  console.log("calculated future FastSender for nonce %d: %s", nonce, fastBridgeSenderAddress);
+  
+  nonce += 5;
+  const inboxAddress = getContractAddress(deployer, nonce);
+  console.log("calculated future inboxAddress for nonce %d: %s", nonce, inboxAddress);
+
   const fastBridgeReceiver = await deploy("FastBridgeReceiverOnEthereum", {
     from: deployer,
     args: [
       deployer,
-      ethers.constants.AddressZero, // should be safeBridgeSender
-      ethers.constants.AddressZero, // should be Arbitrum Inbox
+      fastBridgeSenderAddress, // should be safeBridgeSender
+      inboxAddress, // should be Arbitrum Inbox
       claimDeposit,
       challengeDeposit,
       challengeDuration,
