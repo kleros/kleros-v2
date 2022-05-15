@@ -12,18 +12,18 @@ enum ForeignChains {
 }
 const paramsByChainId = {
   1: {
-    claimDeposit: parseEther("0.1"),
-    challengeDuration: 86400, // 1 day
-    homeChainId: 42161,
+    deposit: parseEther("0.1"),
+    epochPeriod: 86400, // 1 day
+    homeChainId: 42161, // arbitrum
   },
   4: {
-    claimDeposit: parseEther("0.1"),
-    challengeDuration: 120, // 2 min
+    deposit: parseEther("0.1"),
+    epochPeriod: 120, // 2 min
     homeChainId: 421611,
   },
   31337: {
-    claimDeposit: parseEther("0.1"),
-    challengeDuration: 120, // 2 min
+    deposit: parseEther("0.1"),
+    epochPeriod: 120, // 2 min
     homeChainId: 31337,
   },
 };
@@ -56,10 +56,10 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     nonce = await homeChainProvider.getTransactionCount(deployer);
     nonce += 1; // HomeGatewayToEthereum deploy tx will the third tx after this on its home network, so we add two to the current nonce.
   }
-  const { claimDeposit, challengeDuration, homeChainId } = paramsByChainId[chainId];
-  const challengeDeposit = claimDeposit;
+  const { deposit, challengeDuration, homeChainId } = paramsByChainId[chainId];
   const bridgeAlpha = 5000;
   const homeChainIdAsBytes32 = hexZeroPad(homeChainId, 32);
+  const chainIdAsBytes32 = hexZeroPad("0x"+chainId.toString(16), 32);
 
   const homeGatewayAddress = getContractAddress(deployer, nonce);
   console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
@@ -67,13 +67,9 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const fastBridgeReceiver = await deploy("FastBridgeReceiverOnEthereum", {
     from: deployer,
     args: [
-      deployer,
-      ethers.constants.AddressZero, // should be safeBridgeSender
       ethers.constants.AddressZero, // should be Arbitrum Inbox
-      claimDeposit,
-      challengeDeposit,
+      deposit,
       challengeDuration,
-      bridgeAlpha,
     ],
     log: true,
   });
@@ -86,6 +82,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
       [ethers.BigNumber.from(10).pow(17)],
       homeGatewayAddress,
       homeChainIdAsBytes32,
+      chainIdAsBytes32
     ],
     log: true,
   });
