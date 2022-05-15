@@ -159,7 +159,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         bytes calldata _message,
         uint256 _nonce
     ) external override {
-        bytes32 batchMerkleRoot = 0x9ca2d28b3bdce533cdff8ca9baeba8665df6e1096ecfa1850402b5e880ddf239; //fastInbox[_epoch];
+        bytes32 batchMerkleRoot = fastInbox[_epoch];
         require(batchMerkleRoot != bytes32(0), "Invalid epoch.");
 
         uint256 index = _nonce / 256;
