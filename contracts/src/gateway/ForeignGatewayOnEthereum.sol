@@ -31,8 +31,8 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
 
     // feeForJuror by subcourtID
     uint256[] internal feeForJuror;
-    uint256 public chainID;
-    uint256 public homeChainID;
+    uint256 public immutable chainID;
+    uint256 public immutable homeChainID;
 
     struct DisputeData {
         uint248 id;
@@ -61,8 +61,9 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
     modifier onlyFromFastBridge() {
         require(
             address(fastbridge) == msg.sender ||
-            ( (block.timestamp < fastbridgeExpiration) && address(depreciatedFastbridge) == msg.sender)
-            , "Access not allowed: Fast Bridge only.");
+                ((block.timestamp < fastbridgeExpiration) && address(depreciatedFastbridge) == msg.sender),
+            "Access not allowed: Fast Bridge only."
+        );
         _;
     }
 
@@ -76,17 +77,15 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
         IFastBridgeReceiver _fastbridge,
         uint256[] memory _feeForJuror,
         address _homeGateway,
-        uint256 _homeChainID
+        uint256 _homeChainID,
+        uint256 _chainID
     ) {
         governor = _governor;
         fastbridge = _fastbridge;
         feeForJuror = _feeForJuror;
         homeGateway = _homeGateway;
         homeChainID = _homeChainID;
-
-        assembly {
-            sstore(chainID.slot, chainid())
-        }
+        chainID = _chainID;
     }
 
     /** @dev Changes the fastBridge, useful to increase the claim deposit.
@@ -94,7 +93,7 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
      */
     function changeFastbridge(IFastBridgeReceiver _fastbridge) external onlyByGovernor {
         // grace period to relay remaining messages in the relay / bridging process
-        fastbridgeExpiration = block.timestamp + _fastbridge.challengeDuration() + 1209600; // 2 weeks
+        fastbridgeExpiration = block.timestamp + _fastbridge.epochPeriod() + 1209600; // 2 weeks
         depreciatedFastbridge = fastbridge;
         fastbridge = _fastbridge;
     }
@@ -105,6 +104,13 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
      */
     function changeSubcourtJurorFee(uint96 _subcourtID, uint256 _feeForJuror) external onlyByGovernor {
         feeForJuror[_subcourtID] = _feeForJuror;
+    }
+
+    /** @dev Creates the `feeForJuror` property value for a new subcourt.
+     *  @param _feeForJuror The new value for the `feeForJuror` property value.
+     */
+    function createSubcourtJurorFee(uint256 _feeForJuror) external onlyByGovernor {
+        feeForJuror.push(_feeForJuror);
     }
 
     function createDispute(uint256 _choices, bytes calldata _extraData) external payable returns (uint256 disputeID) {
@@ -149,7 +155,7 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
         bytes32 _disputeHash,
         uint256 _ruling,
         address _relayer
-    ) external onlyFromFastBridge(){
+    ) external onlyFromFastBridge {
         require(_messageOrigin == homeGateway, "Only the homegateway is allowed.");
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 

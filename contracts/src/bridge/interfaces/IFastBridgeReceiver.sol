@@ -87,4 +87,9 @@ interface IFastBridgeReceiver {
      * @return end The end time of the challenge period.
      */
     function challengePeriod() external view returns (uint256 start, uint256 end);
+
+    /**
+     * @dev Returns the epoch period.
+     */
+    function epochPeriod() external view returns (uint256 epoch);
 }
