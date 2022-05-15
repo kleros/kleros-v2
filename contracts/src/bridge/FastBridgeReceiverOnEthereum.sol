@@ -70,7 +70,6 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
      * @dev Submit a claim about the `_batchMerkleRoot` for the last completed epoch from the Fast Bridge  and submit a deposit. The `_batchMerkleRoot` should match the one on the sending side otherwise the sender will lose his deposit.
      * @param _batchMerkleRoot The batch merkle root claimed for the last completed epoch.
      */
-    //0x11afd631e338f093f1b49382d72a0ae9e4688ef0c78b11141a4145e045b7daa4
     function claim(bytes32 _batchMerkleRoot) external payable override {
         require(msg.value >= deposit, "Insufficient claim deposit.");
         require(_batchMerkleRoot != bytes32(0), "Invalid claim.");
