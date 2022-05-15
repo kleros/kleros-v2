@@ -59,7 +59,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const { deposit, epochPeriod, homeChainId } = paramsByChainId[chainId];
   const bridgeAlpha = 5000;
   const homeChainIdAsBytes32 = hexZeroPad(homeChainId, 32);
-  const chainIdAsBytes32 = hexZeroPad("0x"+chainId.toString(16), 32);
+  const chainIdAsBytes32 = hexZeroPad("0x" + chainId.toString(16), 32);
 
   const homeGatewayAddress = getContractAddress(deployer, nonce);
   console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
