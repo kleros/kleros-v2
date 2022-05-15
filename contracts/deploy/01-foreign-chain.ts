@@ -56,7 +56,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     nonce = await homeChainProvider.getTransactionCount(deployer);
     nonce += 1; // HomeGatewayToEthereum deploy tx will the third tx after this on its home network, so we add two to the current nonce.
   }
-  const { deposit, challengeDuration, homeChainId } = paramsByChainId[chainId];
+  const { deposit, epochPeriod, homeChainId } = paramsByChainId[chainId];
   const bridgeAlpha = 5000;
   const homeChainIdAsBytes32 = hexZeroPad(homeChainId, 32);
   const chainIdAsBytes32 = hexZeroPad("0x"+chainId.toString(16), 32);
@@ -69,7 +69,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     args: [
       ethers.constants.AddressZero, // should be Arbitrum Inbox
       deposit,
-      challengeDuration,
+      epochPeriod,
     ],
     log: true,
   });
