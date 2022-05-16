@@ -39,7 +39,7 @@ contract MerkleProof {
         bytes memory data,
         bytes32 merkleRoot
     ) public pure returns (bool) {
-        return validateProof(proof, keccak256(data), merkleRoot);
+        return validateProof(proof, sha256(data), merkleRoot);
     }
 
     /** @dev Calculates merkle root from proof.
