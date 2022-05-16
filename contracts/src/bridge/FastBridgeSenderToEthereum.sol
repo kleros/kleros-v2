@@ -53,8 +53,8 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
         uint256 _genesis
     ) SafeBridgeSenderToEthereum() {
         fastBridgeReceiver = _fastBridgeReceiver;
-        genesis = _genesis;
         epochPeriod = _epochPeriod;
+        genesis = _genesis;
     }
 
     // ************************************* //

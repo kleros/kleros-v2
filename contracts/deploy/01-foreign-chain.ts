@@ -2,7 +2,7 @@ import { parseEther } from "ethers/lib/utils";
 
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-
+import { ethers } from "hardhat";
 import getContractAddress from "../deploy-helpers/getContractAddress";
 
 enum ForeignChains {
@@ -15,16 +15,22 @@ const paramsByChainId = {
     deposit: parseEther("0.1"),
     epochPeriod: 86400, // 1 day
     homeChainId: 42161, // arbitrum
+    arbInbox: "0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f", // https://developer.offchainlabs.com/docs/useful_addresses
+    genesis: 1652709415 // sample genesis time
   },
   4: {
     deposit: parseEther("0.1"),
     epochPeriod: 120, // 2 min
-    homeChainId: 421611,
+    homeChainId: 421611, // arbitrum testnet
+    arbInbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e", //https://developer.offchainlabs.com/docs/useful_addresses
+    genesis: 1652709415 // sample genesis time
   },
   31337: {
     deposit: parseEther("0.1"),
     epochPeriod: 120, // 2 min
     homeChainId: 31337,
+    arbInbox: ethers.constants.AddressZero,
+    genesis: 1652709415 // sample genesis time
   },
 };
 
@@ -56,20 +62,25 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     nonce = await homeChainProvider.getTransactionCount(deployer);
     nonce += 1; // HomeGatewayToEthereum deploy tx will the third tx after this on its home network, so we add two to the current nonce.
   }
-  const { deposit, epochPeriod, homeChainId } = paramsByChainId[chainId];
+  const { deposit, epochPeriod, homeChainId, arbInbox, genesis } = paramsByChainId[chainId];
   const bridgeAlpha = 5000;
   const homeChainIdAsBytes32 = hexZeroPad(homeChainId, 32);
   const chainIdAsBytes32 = hexZeroPad("0x" + chainId.toString(16), 32);
 
   const homeGatewayAddress = getContractAddress(deployer, nonce);
   console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
+  nonce -= 1;
+  const fastBridgeSenderAddress = getContractAddress(deployer, nonce);
+  console.log("calculated future fastBridgeSender address for nonce %d: %s", nonce, fastBridgeSenderAddress);
 
   const fastBridgeReceiver = await deploy("FastBridgeReceiverOnEthereum", {
     from: deployer,
     args: [
-      ethers.constants.AddressZero, // should be Arbitrum Inbox
+      arbInbox, // should be Arbitrum Inbox
       deposit,
       epochPeriod,
+      fastBridgeSenderAddress,
+      genesis // sample genesis time
     ],
     log: true,
   });

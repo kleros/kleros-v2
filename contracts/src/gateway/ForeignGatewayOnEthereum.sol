@@ -46,8 +46,8 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
     address public governor;
     IFastBridgeReceiver public fastbridge;
     IFastBridgeReceiver public depreciatedFastbridge;
-    uint256 fastbridgeExpiration;
-    address public homeGateway;
+    uint256 public fastbridgeExpiration;
+    address public immutable homeGateway;
 
     event OutgoingDispute(
         bytes32 disputeHash,
@@ -90,10 +90,11 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
 
     /** @dev Changes the fastBridge, useful to increase the claim deposit.
      *  @param _fastbridge The address of the new fastBridge.
+     *  @param _gracePeriod The duration to accept messages from the deprecated bridge (if at all).
      */
-    function changeFastbridge(IFastBridgeReceiver _fastbridge) external onlyByGovernor {
+    function changeFastbridge(IFastBridgeReceiver _fastbridge, uint256 _gracePeriod) external onlyByGovernor {
         // grace period to relay remaining messages in the relay / bridging process
-        fastbridgeExpiration = block.timestamp + _fastbridge.epochPeriod() + 1209600; // 2 weeks
+        fastbridgeExpiration = block.timestamp + _fastbridge.epochPeriod() + _gracePeriod; // 2 weeks
         depreciatedFastbridge = fastbridge;
         fastbridge = _fastbridge;
     }

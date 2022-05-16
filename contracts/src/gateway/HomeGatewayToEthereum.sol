@@ -25,11 +25,11 @@ contract HomeGatewayToEthereum is IHomeGateway {
     mapping(bytes32 => uint256) public disputeHashtoID;
 
     address public governor;
-    IArbitrator public arbitrator;
+    IArbitrator public immutable arbitrator;
     IFastBridgeSender public fastbridge;
     address public override foreignGateway;
-    uint256 public override chainID;
-    uint256 public override foreignChainID;
+    uint256 public immutable override chainID;
+    uint256 public immutable override foreignChainID;
 
     struct RelayedData {
         uint256 arbitrationCost;
@@ -42,17 +42,15 @@ contract HomeGatewayToEthereum is IHomeGateway {
         IArbitrator _arbitrator,
         IFastBridgeSender _fastbridge,
         address _foreignGateway,
-        uint256 _foreignChainID
+        uint256 _foreignChainID,
+        uint256 _chainID
     ) {
         governor = _governor;
         arbitrator = _arbitrator;
         fastbridge = _fastbridge;
         foreignGateway = _foreignGateway;
         foreignChainID = _foreignChainID;
-
-        assembly {
-            sstore(chainID.slot, chainid())
-        }
+        chainID = _chainID;
 
         emit MetaEvidence(0, "BRIDGE");
     }

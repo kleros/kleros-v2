@@ -55,11 +55,13 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     constructor(
         address _inbox,
         uint256 _deposit,
-        uint256 _epochPeriod
-    ) SafeBridgeReceiverOnEthereum(_inbox) {
+        uint256 _epochPeriod,
+        address _safeBridgeSender,
+        uint256 _genesis
+    ) SafeBridgeReceiverOnEthereum(_inbox, _safeBridgeSender) {
         deposit = _deposit;
         epochPeriod = _epochPeriod;
-        genesis = block.timestamp;
+        genesis = _genesis;
     }
 
     // ************************************* //

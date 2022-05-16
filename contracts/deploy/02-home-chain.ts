@@ -20,9 +20,10 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     chainId === 31337
       ? await deployments.get("FastBridgeReceiverOnEthereum")
       : await hre.companionNetworks.foreign.deployments.get("FastBridgeReceiverOnEthereum");
+  //const genesisSynchronization = fastBridgeReceiver.
   const fastBridgeSender = await deploy("FastBridgeSenderToEthereum", {
     from: deployer,
-    args: [deployer, fastBridgeReceiver.address, ethers.constants.AddressZero],
+    args: [fastBridgeReceiver.address, 120, 1652709415],
     log: true,
   }); // nonce+0
 
@@ -39,7 +40,9 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       klerosCore.address, 
       fastBridgeSender.address, 
       foreignGateway.address, 
-      foreignChainId],
+      foreignChainId,
+      chainId
+    ],
     log: true,
   }); // nonce+1
 
@@ -49,6 +52,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   if (safeBridgeSender === ethers.constants.AddressZero) {
     await execute("FastBridgeReceiverOnEthereum", { from: deployer, log: true }, "setSafeBridgeSender", fastBridgeSender.address);
   }
+
 };
 
 deployHomeGateway.tags = ["HomeChain", "HomeGateway"];
