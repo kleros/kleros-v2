@@ -61,7 +61,7 @@ describe("Merkle", function () {
     });
   it("Should correctly verify all nodes in the tree", async () => {
     for (var message of data)  {
-      const leaf = ethers.utils.keccak256(message);
+      const leaf = ethers.utils.sha256(message);
       proof = mt.getHexProof(leaf);
       const validation = await merkleProof.validateProof(proof, message,rootOnChain);
       expect(validation).equal(true);
