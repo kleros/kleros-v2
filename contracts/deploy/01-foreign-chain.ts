@@ -22,7 +22,7 @@ const paramsByChainId = {
     deposit: parseEther("0.1"),
     epochPeriod: 120, // 2 min
     homeChainId: 421611, // arbitrum testnet
-    arbInbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e", //https://developer.offchainlabs.com/docs/useful_addresses
+    arbInbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e", // https://developer.offchainlabs.com/docs/useful_addresses
     genesis: 1652709415 // sample genesis time
   },
   31337: {
@@ -35,7 +35,7 @@ const paramsByChainId = {
 };
 
 const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  const { ethers, deployments, getNamedAccounts, getChainId, config } = hre;
+  const { deployments, getNamedAccounts, getChainId, config } = hre;
   const { deploy } = deployments;
   const { providers } = ethers;
   const { hexZeroPad } = hre.ethers.utils;
@@ -68,9 +68,9 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
 
   const homeGatewayAddress = getContractAddress(deployer, nonce);
   console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
-  const homeGatewayCentralizedArbitratorAddress = getContractAddress(deployer, nonce+1);
+  const homeGatewayCentralizedArbitratorAddress = getContractAddress(deployer, nonce + 1);
   console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
-  const fastBridgeSenderAddress = getContractAddress(deployer, nonce-1);
+  const fastBridgeSenderAddress = getContractAddress(deployer, nonce - 1);
   console.log("calculated future fastBridgeSender address for nonce %d: %s", nonce, fastBridgeSenderAddress);
 
   const fastBridgeReceiver = await deploy("FastBridgeReceiverOnEthereum", {
