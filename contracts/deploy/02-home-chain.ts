@@ -16,7 +16,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   console.log("deployer: %s", deployer);
 
   // ----------------------------------------------------------------------------------------------
-  const hardhatDeployer = async (deployer: string) => {
+  const hardhatDeployer = async () => {
     const fastBridgeReceiver = await deployments.get("FastBridgeReceiverOnEthereum");
 
     const fastBridgeSender = await deploy("FastBridgeSenderToEthereumMock", {
@@ -71,7 +71,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   };
 
   // ----------------------------------------------------------------------------------------------
-  const liveDeployer = async (deployer: string) => {
+  const liveDeployer = async () => {
     const fastBridgeReceiver = await hre.companionNetworks.foreign.deployments.get("FastBridgeReceiverOnEthereum");
 
     const fastBridgeSender = await deploy("FastBridgeSenderToEthereum", {
@@ -105,9 +105,9 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   // ----------------------------------------------------------------------------------------------
   if (chainId === 31337) {
-    await hardhatDeployer(deployer);
+    await hardhatDeployer();
   } else {
-    await liveDeployer(deployer);
+    await liveDeployer();
   }
 };
 
