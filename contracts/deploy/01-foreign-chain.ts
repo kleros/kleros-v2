@@ -84,34 +84,27 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     ],
     log: true,
   });
+  let foreignGateway = await deployForeignGateways(
+    "ForeignGatewayOnEthereum",
+    deploy,
+    deployer,
+    fastBridgeReceiver.address,
+    [ethers.BigNumber.from(10).pow(17)],
+    homeGatewayAddress,
+    homeChainIdAsBytes32,
+    chainIdAsBytes32
+  )
 
-  const foreignGateway = await deploy("ForeignGatewayOnEthereum", {
-    from: deployer,
-    contract: "ForeignGatewayOnEthereum",
-    args: [
-      deployer,
-      fastBridgeReceiver.address,
-      [ethers.BigNumber.from(10).pow(17)],
-      homeGatewayAddress,
-      homeChainIdAsBytes32,
-      chainIdAsBytes32
-    ],
-    log: true,
-  });
-
-  const foreignGatewayCentralizedArbitrator = await deploy("ForeignGatewayOnEthereumCentralizedArbitrator", {
-    from: deployer,
-    contract: "ForeignGatewayOnEthereum",
-    args: [
-      deployer,
-      fastBridgeReceiver.address,
-      [ethers.BigNumber.from(10).pow(17)],
-      homeGatewayCentralizedArbitratorAddress,
-      homeChainIdAsBytes32,
-      chainIdAsBytes32
-    ],
-    log: true,
-  });
+  const foreignGatewayCentralizedArbitrator = await deployForeignGateways(
+    "ForeignGatewayOnEthereumCentralizedArbitrator",
+    deploy,
+    deployer,
+    fastBridgeReceiver.address,
+    [ethers.BigNumber.from(10).pow(17)],
+    homeGatewayCentralizedArbitratorAddress,
+    homeChainIdAsBytes32,
+    chainIdAsBytes32
+  )
 
   const metaEvidenceUri =
     "https://raw.githubusercontent.com/kleros/kleros-v2/master/contracts/deployments/rinkeby/MetaEvidence_ArbitrableExample.json";
@@ -128,6 +121,32 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     log: true,
   });
 };
+
+async function deployForeignGateways(
+  name,
+  deploy,
+  deployer,
+  fastBridgeReceiverAddress,
+  feeForJuror,
+  homeGatewayAddress,
+  homeChainIdAsBytes32,
+  chainIdAsBytes32
+){
+  let foreignGateway = await deploy(name, {
+    from: deployer,
+    contract: "ForeignGatewayOnEthereum",
+    args: [
+      deployer,
+      fastBridgeReceiverAddress,
+      feeForJuror,
+      homeGatewayAddress,
+      homeChainIdAsBytes32,
+      chainIdAsBytes32
+    ],
+    log: true,
+  });
+  return foreignGateway;
+}
 
 deployForeignGateway.tags = ["ForeignChain", "ForeignGateway"];
 deployForeignGateway.skip = async ({ getChainId }) => {
