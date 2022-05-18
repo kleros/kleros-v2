@@ -20,14 +20,18 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     chainId === 31337
       ? await deployments.get("FastBridgeReceiverOnEthereum")
       : await hre.companionNetworks.foreign.deployments.get("FastBridgeReceiverOnEthereum");
-  //const genesisSynchronization = fastBridgeReceiver.
+
+  const genesisSynchronization = 1652709415; // sample genesis time
+  const epochPeriod = 120;
+
   const fastBridgeSender = await deploy("FastBridgeSenderToEthereum", {
     from: deployer,
-    args: [fastBridgeReceiver.address, 120, 1652709415],
+    args: [fastBridgeReceiver.address, epochPeriod, genesisSynchronization],
     log: true,
   }); // nonce+0
 
   const klerosCore = await deployments.get("KlerosCore");
+  const centralizedArbitrator = await deployments.get("CentralizedArbitrator");
   const foreignGateway =
     chainId === 31337
       ? await deployments.get("ForeignGatewayOnEthereum")
@@ -35,6 +39,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const foreignChainId = chainId === 31337 ? 31337 : Number(await hre.companionNetworks.foreign.getChainId());
   const homeGateway = await deploy("HomeGatewayToEthereum", {
     from: deployer,
+    contract: "HomeGatewayToEthereum",
     args: [
       deployer,
       klerosCore.address, 
@@ -46,6 +51,21 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   }); // nonce+1
 
+  const homeGatewayCentralizedArbitrator = await deploy("HomeGatewayToEthereumCentralizedArbitrator", {
+    from: deployer,
+    contract: "HomeGatewayToEthereum",
+    args: [
+      deployer,
+      centralizedArbitrator.address, 
+      fastBridgeSender.address, 
+      foreignGateway.address, 
+      foreignChainId,
+      chainId
+    ],
+    log: true,
+  }); // nonce+1
+
+  // comment out and call manually if gas calculation errors
   const safeBridgeSender = await hre.ethers
     .getContractAt("FastBridgeReceiverOnEthereum", fastBridgeReceiver.address)
     .then((contract) => contract.safeBridgeSender());

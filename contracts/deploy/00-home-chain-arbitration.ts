@@ -50,6 +50,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       ).address
     );
   }
+  const centralizedArbitrator = await deploy("CentralizedArbitrator", {
+    from: deployer,
+    args: [0, 0, 0],
+    log: true,
+  });
+  
   const pnk = pnkByChain.get(Number(await getChainId())) ?? AddressZero;
   const minStake = BigNumber.from(10).pow(20).mul(2);
   const alpha = 10000;

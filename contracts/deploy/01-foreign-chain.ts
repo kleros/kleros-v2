@@ -63,14 +63,14 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     nonce += 1; // HomeGatewayToEthereum deploy tx will the third tx after this on its home network, so we add two to the current nonce.
   }
   const { deposit, epochPeriod, homeChainId, arbInbox, genesis } = paramsByChainId[chainId];
-  const bridgeAlpha = 5000;
   const homeChainIdAsBytes32 = hexZeroPad(homeChainId, 32);
   const chainIdAsBytes32 = hexZeroPad("0x" + chainId.toString(16), 32);
 
   const homeGatewayAddress = getContractAddress(deployer, nonce);
   console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
-  nonce -= 1;
-  const fastBridgeSenderAddress = getContractAddress(deployer, nonce);
+  const homeGatewayCentralizedArbitratorAddress = getContractAddress(deployer, nonce+1);
+  console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
+  const fastBridgeSenderAddress = getContractAddress(deployer, nonce-1);
   console.log("calculated future fastBridgeSender address for nonce %d: %s", nonce, fastBridgeSenderAddress);
 
   const fastBridgeReceiver = await deploy("FastBridgeReceiverOnEthereum", {
@@ -80,13 +80,14 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
       deposit,
       epochPeriod,
       fastBridgeSenderAddress,
-      genesis // sample genesis time
+      genesis
     ],
     log: true,
   });
 
   const foreignGateway = await deploy("ForeignGatewayOnEthereum", {
     from: deployer,
+    contract: "ForeignGatewayOnEthereum",
     args: [
       deployer,
       fastBridgeReceiver.address,
@@ -98,10 +99,31 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     log: true,
   });
 
+  const foreignGatewayCentralizedArbitrator = await deploy("ForeignGatewayOnEthereumCentralizedArbitrator", {
+    from: deployer,
+    contract: "ForeignGatewayOnEthereum",
+    args: [
+      deployer,
+      fastBridgeReceiver.address,
+      [ethers.BigNumber.from(10).pow(17)],
+      homeGatewayCentralizedArbitratorAddress,
+      homeChainIdAsBytes32,
+      chainIdAsBytes32
+    ],
+    log: true,
+  });
+
   const metaEvidenceUri =
     "https://raw.githubusercontent.com/kleros/kleros-v2/master/contracts/deployments/rinkeby/MetaEvidence_ArbitrableExample.json";
   const arbitrable = await deploy("ArbitrableExample", {
     from: deployer,
+    args: [foreignGateway.address, metaEvidenceUri],
+    log: true,
+  });
+
+  const arbitrableCentralizedArbitrator = await deploy("ArbitrableExampleCentralizedArbitrator", {
+    from: deployer,
+    contract: "ArbitrableExample",
     args: [foreignGateway.address, metaEvidenceUri],
     log: true,
   });
