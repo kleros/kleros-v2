@@ -39,7 +39,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
 
     uint256 public immutable deposit; // The deposit required to submit a claim or challenge
     uint256 public immutable genesis; // Marks the beginning of the first epoch.
-    uint256 public immutable epochPeriod; // Epochs mark the period between potential batches of messages.
+    uint256 public immutable override epochPeriod; // Epochs mark the period between potential batches of messages.
 
     mapping(uint256 => bytes32) public fastInbox; // epoch => validated batch merkle root(optimistically, or challenged and verified with the safe bridge)
     mapping(uint256 => Claim) public claims; // epoch => claim
