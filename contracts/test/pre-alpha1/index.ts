@@ -5,14 +5,12 @@ import {
   IncrementalNG,
   PNK,
   KlerosCore,
-  FastBridgeReceiver,
-  ForeignGateway,
+  FastBridgeReceiverOnEthereum,
+  ForeignGatewayOnEthereum,
   ArbitrableExample,
-  SafeBridgeArbitrum,
-  FastBridgeSender,
-  HomeGateway,
+  FastBridgeSenderToEthereum,
+  HomeGatewayToEthereum,
 } from "../../typechain-types";
-import exp from "constants";
 
 /* eslint-disable no-unused-vars */
 
@@ -31,17 +29,7 @@ describe("Demo pre-alpha1", function () {
   }
 
   let deployer, relayer, bridger, challenger, innocentBystander;
-
-  let ng,
-    disputeKit,
-    pnk,
-    core,
-    fastBridgeReceiver,
-    foreignGateway,
-    arbitrable,
-    safeBridgeArbitrum,
-    fastBridgeSender,
-    homeGateway;
+  let ng, disputeKit, pnk, core, fastBridgeReceiver, foreignGateway, arbitrable, fastBridgeSender, homeGateway;
 
   before("Setup", async () => {
     deployer = (await getNamedAccounts()).deployer;
@@ -57,12 +45,11 @@ describe("Demo pre-alpha1", function () {
     disputeKit = <KlerosCore>await ethers.getContract("DisputeKitClassic");
     pnk = <PNK>await ethers.getContract("PNK");
     core = <KlerosCore>await ethers.getContract("KlerosCore");
-    fastBridgeReceiver = <FastBridgeReceiver>await ethers.getContract("FastBridgeReceiver");
-    foreignGateway = <ForeignGateway>await ethers.getContract("ForeignGateway");
+    fastBridgeReceiver = <FastBridgeReceiverOnEthereum>await ethers.getContract("FastBridgeReceiverOnEthereum");
+    foreignGateway = <ForeignGatewayOnEthereum>await ethers.getContract("ForeignGatewayOnEthereum");
     arbitrable = <ArbitrableExample>await ethers.getContract("ArbitrableExample");
-    safeBridgeArbitrum = <SafeBridgeArbitrum>await ethers.getContract("SafeBridgeArbitrum");
-    fastBridgeSender = <FastBridgeSender>await ethers.getContract("FastBridgeSender");
-    homeGateway = <HomeGateway>await ethers.getContract("HomeGateway");
+    fastBridgeSender = <FastBridgeSenderToEthereum>await ethers.getContract("FastBridgeSenderToEthereum");
+    homeGateway = <HomeGatewayToEthereum>await ethers.getContract("HomeGatewayToEthereum");
   });
 
   it("RNG", async () => {
@@ -147,7 +134,23 @@ describe("Demo pre-alpha1", function () {
     const events2 = (await tx2.wait()).events;
     // console.log("event=%O", events2);
 
+    await network.provider.send("evm_increaseTime", [130]); // Wait for minStakingTime
+    await network.provider.send("evm_mine");
+
+    console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
+
+    await core.passPhase(1000); // Staking -> Freezing
+    console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
+
+    await mineNBlocks(20); // Wait for 20 blocks finality
+    await disputeKit.passPhase(); // Resolving -> Generating
+    console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
+
+    await disputeKit.passPhase(); // Generating -> Drawing
+    console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
+
     const tx3 = await core.draw(0, 1000);
+    console.log("draw successful");
     const events3 = (await tx3.wait()).events;
     console.log("event=%O", events3[0].args);
     console.log("event=%O", events3[1].args);
@@ -162,6 +165,12 @@ describe("Demo pre-alpha1", function () {
     await core.passPeriod(0);
     expect((await core.disputes(0)).period).to.equal(Period.vote);
   });
+
+  async function mineNBlocks(n) {
+    for (let index = 0; index < n; index++) {
+      await network.provider.send("evm_mine");
+    }
+  }
 });
 
 const logJurorBalance = function (result) {

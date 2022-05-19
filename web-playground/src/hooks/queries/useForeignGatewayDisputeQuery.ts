@@ -15,7 +15,7 @@ export interface IForeignGatewayDispute {
 
 export const useForeignGatewayOutgoingDisputeQuery = () => {
   const connectedContract = useConnectedContract(
-    "ForeignGateway",
+    "ForeignGatewayOnEthereum",
     Rinkeby.chainId
   );
   const queryClient = useQueryClient();
