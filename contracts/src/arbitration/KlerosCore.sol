@@ -257,25 +257,6 @@ contract KlerosCore is IArbitrator {
         disputeKitNodes[_parent].children.push(disputeKitID);
     }
 
-    /** @dev Changes the parent of an existing dispute kit.
-     *  @param _disputeKitID The ID of dispute kit.
-     *  @param _newParent The ID of the new parent dispute kit. It is left empty when root DK is created.
-     *  Note that the root DK must be supported by the forking court.
-     */
-    function changeDisputeKitParent(uint256 _disputeKitID, uint256 _newParent) external onlyByGovernor {
-        require(_disputeKitID < disputeKitNodes.length, "DisputeKitID doesn't exist");
-        require(_newParent < disputeKitNodes.length, "NewParent doesn't exist");
-        require(_newParent != _disputeKitID, "Invalid Parent");
-
-        // Create new tree, which root should be supported by Forking court.
-        if (_newParent == NULL_DISPUTE_KIT) {
-            courts[FORKING_COURT].supportedDisputeKits[_disputeKitID] = true;
-        }
-        disputeKitNodes[_disputeKitID].parent = _newParent;
-
-        // FIXME: update the children and depth
-    }
-
     /** @dev Creates a subcourt under a specified parent court.
      *  @param _parent The `parent` property value of the subcourt.
      *  @param _hiddenVotes The `hiddenVotes` property value of the subcourt.
