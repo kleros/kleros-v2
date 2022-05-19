@@ -39,7 +39,6 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         bool jumped; // True if dispute jumped to a parent dispute kit and won't be handled by this DK anymore.
         mapping(uint256 => uint256) coreRoundIDToLocal; // Maps id of the round in the core contract to the index of the round of related local dispute.
         bytes extraData; // Extradata for the dispute.
-        uint256 nbVotes; // Maximal number of votes this dispute can get.
     }
 
     struct Round {
@@ -54,6 +53,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         mapping(address => mapping(uint256 => uint256)) contributions; // Maps contributors to their contributions for each choice.
         uint256 feeRewards; // Sum of reimbursable appeal fees available to the parties that made contributions to the ruling that ultimately wins a dispute.
         uint256[] fundedChoices; // Stores the choices that are fully funded.
+        uint256 nbVotes; // Maximal number of votes this dispute can get.
     }
 
     struct Vote {
@@ -172,12 +172,12 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         Dispute storage dispute = disputes.push();
         dispute.numberOfChoices = _numberOfChoices;
         dispute.extraData = _extraData;
-        dispute.nbVotes = _nbVotes;
 
         // New round in the Core should be created before the dispute creation in DK.
         dispute.coreRoundIDToLocal[core.getNumberOfRounds(_coreDisputeID) - 1] = dispute.rounds.length;
 
         Round storage round = dispute.rounds.push();
+        round.nbVotes = _nbVotes;
         round.tied = true;
 
         coreDisputeIDToLocal[_coreDisputeID] = localDisputeID;
@@ -254,7 +254,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
 
         if (postDrawCheck(_coreDisputeID, drawnAddress)) {
             round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
-            if (round.votes.length == dispute.nbVotes) {
+            if (round.votes.length == round.nbVotes) {
                 disputesWithoutJurors--;
             }
         } else {
@@ -397,19 +397,19 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
             // At least two sides are fully funded.
             round.feeRewards = round.feeRewards - appealCost;
 
-            // Don't create a new round in case of a jump, and remove local dispute from the flow.
             if (core.isDisputeKitJumping(_coreDisputeID)) {
+                // Don't create a new round in case of a jump, and remove local dispute from the flow.
                 dispute.jumped = true;
             } else {
                 // Don't subtract 1 from length since both round arrays haven't been updated yet.
                 dispute.coreRoundIDToLocal[core.getNumberOfRounds(_coreDisputeID)] = dispute.rounds.length;
 
                 Round storage newRound = dispute.rounds.push();
+                newRound.nbVotes = core.getNumberOfVotes(_coreDisputeID);
                 newRound.tied = true;
                 disputesWithoutJurors++;
             }
             core.appeal{value: appealCost}(_coreDisputeID, dispute.numberOfChoices, dispute.extraData);
-            dispute.nbVotes = core.getNumberOfVotes(_coreDisputeID);
         }
 
         if (msg.value > contribution) payable(msg.sender).send(msg.value - contribution);
