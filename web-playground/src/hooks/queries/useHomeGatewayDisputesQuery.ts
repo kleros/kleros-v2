@@ -14,7 +14,7 @@ export interface IHomeGatewayDispute {
 
 export const useHomeGatewayDisputesQuery = () => {
   const connectedContract = useConnectedContract(
-    "HomeGateway",
+    "HomeGatewayToEthereum",
     ArbitrumRinkeby.chainId
   );
   const queryClient = useQueryClient();

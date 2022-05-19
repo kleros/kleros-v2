@@ -13,7 +13,7 @@ export interface IFastBridgeOutgoingMessage {
 
 export const useFastBridgeOutgoingMessagesQuery = () => {
   const connectedContract = useConnectedContract(
-    "FastBridgeSender",
+    "FastBridgeSenderToEthereum",
     ArbitrumRinkeby.chainId
   );
   const queryClient = useQueryClient();
@@ -75,7 +75,7 @@ export interface IFastBridgeClaim extends IFastBridgeOutgoingMessage {
 
 export const useFastBridgeClaimsQuery = () => {
   const fastBridgeReceiver = useConnectedContract(
-    "FastBridgeReceiver",
+    "FastBridgeReceiverOnEthereum",
     Rinkeby.chainId
   );
   const { data: messages, refetch: refetchMessages } =
@@ -118,7 +118,7 @@ export const useFastBridgeClaimsQuery = () => {
 
 export const useFastBridgeChallengeDurationQuery = () => {
   const fastBridgeReceiver = useConnectedContract(
-    "FastBridgeReceiver",
+    "FastBridgeReceiverOnEthereum",
     Rinkeby.chainId
   );
   const { isLoading, data } = useQuery(
