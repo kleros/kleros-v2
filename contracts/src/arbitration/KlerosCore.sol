@@ -122,7 +122,10 @@ contract KlerosCore is IArbitrator {
     SortitionSumTreeFactory.SortitionSumTrees internal sortitionSumTrees; // The sortition sum trees.
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Freezing phase, to update them when the phase is switched to Staking.
     IDisputeKit[] public activeDisputeKits; // Addresses of dispute kits that currently have disputes that need drawing.
+
+    // TODO: change activeKitInfo key to disputeKitID?
     mapping(IDisputeKit => ActiveDisputeKit) public activeKitInfo; // Contains the information about dispute kit which is necessary for switching phases.
+
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
     uint256 public delayedStakeReadIndex = 1; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
 
@@ -702,7 +705,7 @@ contract KlerosCore is IArbitrator {
                 extraRound.nbVotes
             );
 
-            ActiveDisputeKit storage activeDK = activeKitInfo[disputeKitNodes[newDisputeKitID].disputeKit]; // TODO: change activeKitInfo key to disputeKitID?
+            ActiveDisputeKit storage activeDK = activeKitInfo[disputeKitNodes[newDisputeKitID].disputeKit];
             if (!activeDK.added) {
                 activeDK.index = activeDisputeKits.length;
                 activeDisputeKits.push(disputeKitNodes[newDisputeKitID].disputeKit);
