@@ -10,7 +10,6 @@ import {
   ArbitrableExample,
   FastBridgeSenderToEthereum,
   HomeGatewayToEthereum,
-  ArbSysMock,
   InboxMock,
 } from "../../typechain-types";
 import { OutgoingMessage } from "http";
@@ -32,7 +31,7 @@ describe("Demo pre-alpha1", function () {
   }
 
   let deployer, relayer, bridger, challenger, innocentBystander;
-  let ng, disputeKit, pnk, core, fastBridgeReceiver, foreignGateway, arbitrable, fastBridgeSender, homeGateway, arbsys, inbox;
+  let ng, disputeKit, pnk, core, fastBridgeReceiver, foreignGateway, arbitrable, fastBridgeSender, homeGateway, inbox;
 
   before("Setup", async () => {
     deployer = (await getNamedAccounts()).deployer;
@@ -44,7 +43,7 @@ describe("Demo pre-alpha1", function () {
 
     await deployments.fixture(["Arbitration", "ForeignGateway", "HomeGateway"], {
       fallbackToGlobal: true,
-      keepExistingDeployments: true,
+      keepExistingDeployments: false,
     });
     ng = <IncrementalNG>await ethers.getContract("IncrementalNG");
     disputeKit = <KlerosCore>await ethers.getContract("DisputeKitClassic");
@@ -55,7 +54,6 @@ describe("Demo pre-alpha1", function () {
     arbitrable = <ArbitrableExample>await ethers.getContract("ArbitrableExample");
     fastBridgeSender = <FastBridgeSenderToEthereum>await ethers.getContract("FastBridgeSenderToEthereumMock");
     homeGateway = <HomeGatewayToEthereum>await ethers.getContract("HomeGatewayToEthereum");
-    arbsys = <ArbSysMock>await ethers.getContract("ArbSysMock");
     inbox = <InboxMock>await ethers.getContract("InboxMock");
   });
 
@@ -223,7 +221,10 @@ describe("Demo pre-alpha1", function () {
     expect(tx).to.emit(foreignGateway, "OutgoingDispute"); //.withArgs(disputeId, deployer.address);
     console.log(`disputeId: ${disputeId}`);
 
-    const events = await foreignGateway.queryFilter(OutgoingMessage);
+    const eventOutgoingDispute = foreignGateway.filters.OutgoingDispute();
+    const events = await foreignGateway.queryFilter(eventOutgoingDispute, "latest");
+    const eventDisputeCreation = foreignGateway.filters.DisputeCreation();
+    const events2 = await foreignGateway.queryFilter(eventDisputeCreation, "latest");
 
 
     const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
@@ -232,12 +233,24 @@ describe("Demo pre-alpha1", function () {
       [31337, lastBlock.hash, ethers.utils.toUtf8Bytes("createDispute"), disputeId, 2, "0x00", arbitrable.address]
     );
 
+    expect(events[0].event).to.equal("OutgoingDispute");
+    expect(events[0].args.disputeHash).to.equal(disputeHash);
+    expect(events[0].args.blockhash).to.equal(lastBlock.hash);
+    expect(events[0].args.localDisputeID).to.equal(disputeId);
+    expect(events[0].args._choices).to.equal(2);
+    expect(events[0].args._extraData).to.equal("0x00");
+    expect(events[0].args.arbitrable).to.equal(arbitrable.address);
+
+    expect(events2[0].event).to.equal("DisputeCreation");
+    expect(events2[0].args._arbitrable).to.equal(arbitrable.address);
+    expect(events2[0].args._disputeID).to.equal(disputeId);
     // Relayer tx
     const tx2 = await homeGateway
       .connect(await ethers.getSigner(relayer))
       .relayCreateDispute(31337, lastBlock.hash, disputeId, 2, "0x00", arbitrable.address, {
         value: arbitrationCost,
       });
+      
     expect(tx2).to.emit(homeGateway, "Dispute");
 
     const tx3 = await core.draw(1, 1000);
@@ -310,7 +323,6 @@ describe("Demo pre-alpha1", function () {
     await expect(
       fastBridgeReceiver.connect(bridger).verifyAndRelay(ticketID, blockNumber, messageData)
     ).to.be.revertedWith("Claim is challenged");
-    await fastBridgeSender.set_arb(arbsys.address);
 
     const data = await ethers.utils.defaultAbiCoder.decode(["address", "bytes"], messageData);
     const tx7 = await fastBridgeSender
@@ -457,7 +469,6 @@ describe("Demo pre-alpha1", function () {
     await expect(
       fastBridgeReceiver.connect(bridger).verifyAndRelay(ticketID, blockNumber, fakeData)
     ).to.be.revertedWith("Claim is challenged");
-    await fastBridgeSender.set_arb(arbsys.address);
 
     let data = await ethers.utils.defaultAbiCoder.decode(["address", "bytes"], fakeData);
 

@@ -17,7 +17,7 @@ import "../FastBridgeSenderToEthereum.sol";
  * Counterpart of `FastBridgeReceiverOnEthereum`
  */
 contract FastBridgeSenderToEthereumMock is FastBridgeSenderToEthereum {
-    IArbSys public ARB_SYS_MOCK;
+    IArbSys public arbsys;
 
     // ************************************* //
     // *         Enums / Structs           * //
@@ -57,12 +57,10 @@ contract FastBridgeSenderToEthereumMock is FastBridgeSenderToEthereum {
     constructor(
         address _governor,
         IFastBridgeReceiver _fastBridgeReceiver,
-        address _fastBridgeSender
-    ) FastBridgeSenderToEthereum(_governor, _fastBridgeReceiver, _fastBridgeSender) {}
-
-    function set_arb(address _arbsys) external {
-        // arbsys = IArbSys(address(_arbsys));
-        ARB_SYS_MOCK = IArbSys(address(_arbsys));
+        address _fastBridgeSender,
+        address _arbsys
+    ) FastBridgeSenderToEthereum(_governor, _fastBridgeReceiver, _fastBridgeSender) {
+        arbsys = IArbSys(address(_arbsys));
     }
 
     // ************************************* //
@@ -102,7 +100,7 @@ contract FastBridgeSenderToEthereumMock is FastBridgeSenderToEthereum {
     // *       Internal       * //
     // ************************ //
     function _sendSafeMock(address _receiver, bytes memory _calldata) internal returns (uint256) {
-        uint256 withdrawalId = ARB_SYS_MOCK.sendTxToL1(_receiver, _calldata);
+        uint256 withdrawalId = arbsys.sendTxToL1(_receiver, _calldata);
         emit L2ToL1TxCreated(withdrawalId);
         return withdrawalId;
     }

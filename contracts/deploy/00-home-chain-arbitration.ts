@@ -39,8 +39,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  await deploy("ArbSysMock", { from: deployer, log: true });
-
   if (chainId === HomeChains.HARDHAT) {
     pnkByChain.set(
       HomeChains.HARDHAT,
