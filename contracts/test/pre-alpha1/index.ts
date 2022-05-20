@@ -153,16 +153,14 @@ describe("Demo pre-alpha1", function () {
     expect(await core.phase()).to.equal(Phase.staking);
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.resolving);
     expect(await disputeKit.disputesWithoutJurors()).to.equal(1);
-    expect(await disputeKit.readyForStakingPhase()).to.equal(true); // TODO: rename this function to isResolving(), it's misleading currently
-
+    expect(await disputeKit.isResolving()).to.equal(true);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
     let disputeKitsWithFreezingNeeded = await core.getDisputeKitsWithFreezingNeeded();
     expect(disputeKitsWithFreezingNeeded).to.be.deep.equal([BigNumber.from("1")]);
-    let disputeKitsReadyForStaking = await core.getDisputeKitsReadyForStaking();
-    expect(disputeKitsReadyForStaking).to.be.empty;
-    console.log("disputeKitsReadyForStaking: %O", disputeKitsReadyForStaking);
-    await core.passPhase(disputeKitsWithFreezingNeeded, disputeKitsReadyForStaking); // Staking -> Freezing
+    let disputeKitIDsResolving = await core.getDisputeKitsResolving();
+    expect(disputeKitIDsResolving).to.be.deep.equal([BigNumber.from("1")]);
+    await core.passPhase(); // Staking -> Freezing
     expect(await core.phase()).to.equal(Phase.freezing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
@@ -196,13 +194,13 @@ describe("Demo pre-alpha1", function () {
     await disputeKit.passPhase(); // Drawing -> Resolving
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.resolving);
     expect(await disputeKit.disputesWithoutJurors()).to.equal(0);
-    expect(await disputeKit.readyForStakingPhase()).to.equal(true);
+    expect(await disputeKit.isResolving()).to.equal(true);
 
     disputeKitsWithFreezingNeeded = await core.getDisputeKitsWithFreezingNeeded();
     expect(disputeKitsWithFreezingNeeded).to.be.empty;
-    disputeKitsReadyForStaking = await core.getDisputeKitsReadyForStaking();
-    expect(disputeKitsReadyForStaking).to.be.deep.equal([BigNumber.from("1")]);
-    await core.passPhase(disputeKitsWithFreezingNeeded, disputeKitsReadyForStaking); // Freezing -> Staking
+    disputeKitIDsResolving = await core.getDisputeKitsResolving();
+    expect(disputeKitIDsResolving).to.be.deep.equal([BigNumber.from("1")]);
+    await core.passPhase(); // Freezing -> Staking
     expect(await core.phase()).to.equal(Phase.staking);
 
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
