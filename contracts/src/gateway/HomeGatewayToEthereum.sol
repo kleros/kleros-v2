@@ -42,15 +42,18 @@ contract HomeGatewayToEthereum is IHomeGateway {
         IArbitrator _arbitrator,
         IFastBridgeSender _fastbridge,
         address _foreignGateway,
-        uint256 _foreignChainID,
-        uint256 _chainID
+        uint256 _foreignChainID
     ) {
         governor = _governor;
         arbitrator = _arbitrator;
         fastbridge = _fastbridge;
         foreignGateway = _foreignGateway;
         foreignChainID = _foreignChainID;
-        chainID = _chainID;
+        uint256 id;
+        assembly {
+            id := chainid()
+        }
+        chainID = id;
 
         emit MetaEvidence(0, "BRIDGE");
     }

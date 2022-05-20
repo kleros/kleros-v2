@@ -77,14 +77,17 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
         IFastBridgeReceiver _fastbridge,
         uint256[] memory _feeForJuror,
         address _homeGateway,
-        uint256 _homeChainID,
         uint256 _chainID
     ) {
         governor = _governor;
         fastbridge = _fastbridge;
         feeForJuror = _feeForJuror;
         homeGateway = _homeGateway;
-        homeChainID = _homeChainID;
+        uint256 id;
+        assembly {
+            id := chainid()
+        }
+        homeChainID = id;
         chainID = _chainID;
     }
 

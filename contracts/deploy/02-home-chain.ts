@@ -45,8 +45,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       klerosCore.address, 
       fastBridgeSender.address, 
       foreignGateway.address, 
-      foreignChainId,
-      chainId
+      foreignChainId
     ],
     log: true,
   }); // nonce+1
@@ -59,8 +58,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       centralizedArbitrator.address, 
       fastBridgeSender.address, 
       foreignGateway.address, 
-      foreignChainId,
-      chainId
+      foreignChainId
     ],
     log: true,
   }); // nonce+1

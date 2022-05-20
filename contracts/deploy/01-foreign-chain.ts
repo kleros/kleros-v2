@@ -91,7 +91,6 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     fastBridgeReceiver.address,
     [ethers.BigNumber.from(10).pow(17)],
     homeGatewayAddress,
-    homeChainIdAsBytes32,
     chainIdAsBytes32
   )
 
@@ -102,7 +101,6 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     fastBridgeReceiver.address,
     [ethers.BigNumber.from(10).pow(17)],
     homeGatewayCentralizedArbitratorAddress,
-    homeChainIdAsBytes32,
     chainIdAsBytes32
   )
 
@@ -129,7 +127,6 @@ async function deployForeignGateways(
   fastBridgeReceiverAddress,
   feeForJuror,
   homeGatewayAddress,
-  homeChainIdAsBytes32,
   chainIdAsBytes32
 ){
   let foreignGateway = await deploy(name, {
@@ -140,7 +137,6 @@ async function deployForeignGateways(
       fastBridgeReceiverAddress,
       feeForJuror,
       homeGatewayAddress,
-      homeChainIdAsBytes32,
       chainIdAsBytes32
     ],
     log: true,
