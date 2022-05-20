@@ -18,10 +18,11 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // ----------------------------------------------------------------------------------------------
   const hardhatDeployer = async () => {
     const fastBridgeReceiver = await deployments.get("FastBridgeReceiverOnEthereum");
-
+    const arbSysMock = await deploy("ArbSysMock", { from: deployer, log: true });
+    
     const fastBridgeSender = await deploy("FastBridgeSenderToEthereumMock", {
       from: deployer,
-      args: [deployer, fastBridgeReceiver.address, ethers.constants.AddressZero],
+      args: [deployer, fastBridgeReceiver.address, ethers.constants.AddressZero, arbSysMock.address],
       log: true,
     }); // nonce+0
 
