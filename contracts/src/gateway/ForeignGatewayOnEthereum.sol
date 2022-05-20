@@ -31,8 +31,8 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
 
     // feeForJuror by subcourtID
     uint256[] internal feeForJuror;
-    uint256 public immutable chainID;
-    uint256 public immutable homeChainID;
+    uint256 public immutable override chainID;
+    uint256 public immutable override homeChainID;
 
     struct DisputeData {
         uint248 id;
@@ -47,7 +47,7 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
     IFastBridgeReceiver public fastbridge;
     IFastBridgeReceiver public depreciatedFastbridge;
     uint256 public fastbridgeExpiration;
-    address public immutable homeGateway;
+    address public immutable override homeGateway;
 
     event OutgoingDispute(
         bytes32 disputeHash,
@@ -77,7 +77,7 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
         IFastBridgeReceiver _fastbridge,
         uint256[] memory _feeForJuror,
         address _homeGateway,
-        uint256 _chainID
+        uint256 _homeChainID
     ) {
         governor = _governor;
         fastbridge = _fastbridge;
@@ -87,8 +87,8 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
         assembly {
             id := chainid()
         }
-        homeChainID = id;
-        chainID = _chainID;
+        chainID = id;
+        homeChainID = _homeChainID;
     }
 
     /** @dev Changes the fastBridge, useful to increase the claim deposit.
@@ -117,7 +117,12 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
         feeForJuror.push(_feeForJuror);
     }
 
-    function createDispute(uint256 _choices, bytes calldata _extraData) external payable returns (uint256 disputeID) {
+    function createDispute(uint256 _choices, bytes calldata _extraData)
+        external
+        payable
+        override
+        returns (uint256 disputeID)
+    {
         require(msg.value >= arbitrationCost(_extraData), "Not paid enough for arbitration");
 
         disputeID = localDisputeID++;
@@ -145,7 +150,7 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
 
-    function arbitrationCost(bytes calldata _extraData) public view returns (uint256 cost) {
+    function arbitrationCost(bytes calldata _extraData) public view override returns (uint256 cost) {
         (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDMinJurors(_extraData);
 
         cost = feeForJuror[subcourtID] * minJurors;
@@ -159,7 +164,7 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
         bytes32 _disputeHash,
         uint256 _ruling,
         address _relayer
-    ) external onlyFromFastBridge {
+    ) external override onlyFromFastBridge {
         require(_messageOrigin == homeGateway, "Only the homegateway is allowed.");
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 
@@ -173,7 +178,7 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
         arbitrable.rule(dispute.id, _ruling);
     }
 
-    function withdrawFees(bytes32 _disputeHash) external {
+    function withdrawFees(bytes32 _disputeHash) external override {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
         require(dispute.id != 0, "Dispute does not exist");
         require(dispute.ruled, "Not ruled yet");
@@ -183,7 +188,7 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
         payable(dispute.relayer).transfer(amount);
     }
 
-    function disputeHashToForeignID(bytes32 _disputeHash) external view returns (uint256) {
+    function disputeHashToForeignID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoDisputeData[_disputeHash].id;
     }
 
