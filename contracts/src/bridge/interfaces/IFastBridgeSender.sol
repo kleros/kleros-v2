@@ -24,9 +24,14 @@ interface IFastBridgeSender {
      * Message is sent with the message sender address as the first argument.
      * @dev Sends an arbitrary message across domain using the Fast Bridge.
      * @param _receiver The cross-domain contract address which receives the calldata.
+     * @param _functionSelector The function selector to call.
      * @param _calldata The receiving domain encoded message data.
      */
-    function sendFast(address _receiver, bytes memory _calldata) external;
+    function sendFast(
+        address _receiver,
+        bytes4 _functionSelector,
+        bytes memory _calldata
+    ) external;
 
     /**
      * @dev Sends a markle root representing an arbitrary batch of messages across domain using the Safe Bridge, which relies on the chain's canonical bridge. It is unnecessary during normal operations but essential only in case of challenge.

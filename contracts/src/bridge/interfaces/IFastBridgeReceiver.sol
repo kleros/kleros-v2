@@ -44,13 +44,13 @@ interface IFastBridgeReceiver {
     function challenge() external payable;
 
     /**
-     * @dev Verifies merkle proof for the given message and associated nonce for the epoch and relays the message.
+     * @dev Verifies merkle proof for the given message and associated nonce for the most recent possible epoch and relays the message.
      * @param _epoch The epoch in which the message was batched by the bridge.
      * @param _proof The merkle proof to prove the membership of the message and nonce in the merkle tree for the epoch.
      * @param _message The data on the cross-domain chain for the message.
      * @param _nonce The nonce (index in the merkle tree) to avoid replay.
      */
-    function verifyProofAndRelayMessage(
+    function verifyAndRelayMessage(
         uint256 _epoch,
         bytes32[] calldata _proof,
         bytes calldata _message,

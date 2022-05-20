@@ -12,12 +12,13 @@ pragma solidity ^0.8.0;
 
 import "./SafeBridgeReceiverOnEthereum.sol";
 import "./interfaces/IFastBridgeReceiver.sol";
+import "./merkle/MerkleProof.sol";
 
 /**
  * Fast Bridge Receiver on Ethereum from Arbitrum
  * Counterpart of `FastBridgeSenderToEthereum`
  */
-contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBridgeReceiver {
+contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBridgeReceiver, MerkleProof {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -109,8 +110,10 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
      */
     function verify(uint256 _epoch) public {
         uint256 epochCount = (block.timestamp - genesis) / epochPeriod;
-        require(_epoch + 1 < epochCount, "Challenge period for epoch has not elapsed.");
+
+        require(epochCount > _epoch + 1, "Challenge period for epoch has not elapsed.");
         require(fastInbox[_epoch] == bytes32(0), "Epoch already verified.");
+
         Claim storage claim = claims[_epoch];
         require(claim.bridger != address(0), "Invalid epoch, no claim to verify.");
 
@@ -132,21 +135,12 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
 
         fastInbox[_epoch] = _batchMerkleRoot;
 
-        Claim storage claim = claims[_epoch];
-        Challenge storage challenge = challenges[_epoch];
-
-        if (_batchMerkleRoot == bytes32(0)) {
-            // in case of bridge sender lack of liveliness during epoch
-            // and dishonest claim on bridge receiver for the same epoch.
-            challenge.honest = true;
-        } else if (_batchMerkleRoot == claim.batchMerkleRoot) {
-            claim.honest = true;
+        if (_batchMerkleRoot != claims[_epoch].batchMerkleRoot) {
+            challenges[_epoch].honest = true;
         } else {
-            challenge.honest = true;
+            claims[_epoch].honest = true;
         }
     }
-
-    bytes32 lastReplay;
 
     /**
      * @dev Verifies merkle proof for the given message and associated nonce for the epoch and relays the message.
@@ -155,7 +149,7 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
      * @param _message The data on the cross-domain chain for the message.
      * @param _nonce The nonce (index in the merkle tree) to avoid replay.
      */
-    function verifyProofAndRelayMessage(
+    function verifyAndRelayMessage(
         uint256 _epoch,
         bytes32[] calldata _proof,
         bytes calldata _message,
@@ -168,14 +162,13 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
         uint256 offset = _nonce - index * 256;
 
         bytes32 replay = relayed[_epoch][index];
-        lastReplay = replay;
         require(((replay >> offset) & bytes32(uint256(1))) == 0, "Message already relayed");
         relayed[_epoch][index] = replay | bytes32(1 << offset);
 
         // Claim assessment if any
         bytes32 messageHash = sha256(abi.encodePacked(_message, _nonce));
 
-        require(_validateProof(_proof, messageHash, batchMerkleRoot) == true, "Invalid proof.");
+        require(validateProof(_proof, messageHash, batchMerkleRoot) == true, "Invalid proof.");
         require(_relay(_message), "Failed to call contract"); // Checks-Effects-Interaction
     }
 
@@ -247,53 +240,9 @@ contract FastBridgeReceiverOnEthereum is SafeBridgeReceiverOnEthereum, IFastBrid
     // *       Internal       * //
     // ************************ //
 
-    function _relay(bytes calldata _messageData) public returns (bool success) {
+    function _relay(bytes calldata _messageData) internal returns (bool success) {
         // Decode the receiver address from the data encoded by the IFastBridgeSender
         (address receiver, bytes memory data) = abi.decode(_messageData, (address, bytes));
         (success, ) = address(receiver).call(data);
-    }
-
-    // ******************************* //
-    // *       Merkle Proof          * //
-    // ******************************* //
-
-    /** @dev Validates membership of leaf in merkle tree with merkle proof.
-     *  @param proof The merkle proof.
-     *  @param leaf The leaf to validate membership in merkle tree.
-     *  @param merkleRoot The root of the merkle tree.
-     */
-    function _validateProof(
-        bytes32[] memory proof,
-        bytes32 leaf,
-        bytes32 merkleRoot
-    ) internal pure returns (bool) {
-        return (merkleRoot == _calculateRoot(proof, leaf));
-    }
-
-    /** @dev Calculates merkle root from proof.
-     *  @param proof The merkle proof.
-     *  @param leaf The leaf to validate membership in merkle tree..
-     */
-    function _calculateRoot(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
-        uint256 proofLength = proof.length;
-        require(proofLength <= 32, "Invalid Proof");
-        bytes32 h = leaf;
-        for (uint256 i = 0; i < proofLength; i++) {
-            bytes32 proofElement = proof[i];
-            // effecient hash
-            if (proofElement > h)
-                assembly {
-                    mstore(0x00, h)
-                    mstore(0x20, proofElement)
-                    h := keccak256(0x00, 0x40)
-                }
-            else
-                assembly {
-                    mstore(0x00, proofElement)
-                    mstore(0x20, h)
-                    h := keccak256(0x00, 0x40)
-                }
-        }
-        return h;
     }
 }
