@@ -10,9 +10,11 @@ import {
   ArbitrableExample,
   FastBridgeSenderToEthereum,
   HomeGatewayToEthereum,
+  DisputeKitClassic,
 } from "../../typechain-types";
 
 /* eslint-disable no-unused-vars */
+/* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
 
 describe("Demo pre-alpha1", function () {
   const ONE_TENTH_ETH = BigNumber.from(10).pow(17);
@@ -21,11 +23,22 @@ describe("Demo pre-alpha1", function () {
   const ONE_THOUSAND_PNK = BigNumber.from(10).pow(21);
 
   const enum Period {
-    evidence,
-    commit,
-    vote,
-    appeal,
-    execution,
+    evidence, // Evidence can be submitted. This is also when drawing has to take place.
+    commit, // Jurors commit a hashed vote. This is skipped for courts without hidden votes.
+    vote, // Jurors reveal/cast their vote depending on whether the court has hidden votes or not.
+    appeal, // The dispute can be appealed.
+    execution, // Tokens are redistributed and the ruling is executed.
+  }
+
+  const enum Phase {
+    staking, // Stake can be updated during this phase.
+    freezing, // Phase during which the dispute kits can undergo the drawing process. Staking is not allowed during this phase.
+  }
+
+  const enum DisputeKitPhase {
+    resolving, // No disputes that need drawing.
+    generating, // Waiting for a random number. Pass as soon as it is ready.
+    drawing, // Jurors can be drawn.
   }
 
   let deployer, relayer, bridger, challenger, innocentBystander;
@@ -42,7 +55,7 @@ describe("Demo pre-alpha1", function () {
       keepExistingDeployments: true,
     });
     ng = <IncrementalNG>await ethers.getContract("IncrementalNG");
-    disputeKit = <KlerosCore>await ethers.getContract("DisputeKitClassic");
+    disputeKit = <DisputeKitClassic>await ethers.getContract("DisputeKitClassic");
     pnk = <PNK>await ethers.getContract("PNK");
     core = <KlerosCore>await ethers.getContract("KlerosCore");
     fastBridgeReceiver = <FastBridgeReceiverOnEthereum>await ethers.getContract("FastBridgeReceiverOnEthereum");
@@ -137,16 +150,29 @@ describe("Demo pre-alpha1", function () {
     await network.provider.send("evm_increaseTime", [130]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
 
+    expect(await core.phase()).to.equal(Phase.staking);
+    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.resolving);
+    expect(await disputeKit.disputesWithoutJurors()).to.equal(1);
+    expect(await disputeKit.readyForStakingPhase()).to.equal(true); // TODO: rename this function to isResolving(), it's misleading currently
+
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
-    await core.passPhase(1000); // Staking -> Freezing
+    let disputeKitsWithFreezingNeeded = await core.getDisputeKitsWithFreezingNeeded();
+    expect(disputeKitsWithFreezingNeeded).to.be.deep.equal([BigNumber.from("1")]);
+    let disputeKitsReadyForStaking = await core.getDisputeKitsReadyForStaking();
+    expect(disputeKitsReadyForStaking).to.be.empty;
+    console.log("disputeKitsReadyForStaking: %O", disputeKitsReadyForStaking);
+    await core.passPhase(disputeKitsWithFreezingNeeded, disputeKitsReadyForStaking); // Staking -> Freezing
+    expect(await core.phase()).to.equal(Phase.freezing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
     await mineNBlocks(20); // Wait for 20 blocks finality
     await disputeKit.passPhase(); // Resolving -> Generating
+    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
     await disputeKit.passPhase(); // Generating -> Drawing
+    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.drawing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
     const tx3 = await core.draw(0, 1000);
@@ -164,6 +190,22 @@ describe("Demo pre-alpha1", function () {
     expect((await core.disputes(0)).period).to.equal(Period.evidence);
     await core.passPeriod(0);
     expect((await core.disputes(0)).period).to.equal(Period.vote);
+
+    console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
+
+    await disputeKit.passPhase(); // Drawing -> Resolving
+    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.resolving);
+    expect(await disputeKit.disputesWithoutJurors()).to.equal(0);
+    expect(await disputeKit.readyForStakingPhase()).to.equal(true);
+
+    disputeKitsWithFreezingNeeded = await core.getDisputeKitsWithFreezingNeeded();
+    expect(disputeKitsWithFreezingNeeded).to.be.empty;
+    disputeKitsReadyForStaking = await core.getDisputeKitsReadyForStaking();
+    expect(disputeKitsReadyForStaking).to.be.deep.equal([BigNumber.from("1")]);
+    await core.passPhase(disputeKitsWithFreezingNeeded, disputeKitsReadyForStaking); // Freezing -> Staking
+    expect(await core.phase()).to.equal(Phase.staking);
+
+    console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
   });
 
   async function mineNBlocks(n) {

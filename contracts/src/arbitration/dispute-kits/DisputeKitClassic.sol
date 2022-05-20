@@ -187,22 +187,31 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     /** @dev Passes the phase.
      */
     function passPhase() external {
-        require(core.allowSwitchPhase(), "Switching is not allowed");
-        if (phase == Phase.resolving) {
-            require(disputesWithoutJurors > 0, "There are no disputes that need jurors.");
-            require(block.number >= core.getFreezeBlock() + 20, "Too soon: L1 finality required");
-            // TODO: RNG process is currently unfinished.
-            RNBlock = block.number;
-            rng.requestRN(block.number);
-            phase = Phase.generating;
-        } else if (phase == Phase.generating) {
-            RN = rng.getRN(RNBlock);
-            require(RN != 0, "Random number is not ready yet.");
-            phase = Phase.drawing;
-        } else if (phase == Phase.drawing) {
-            // The phase will be switched to 'resolving' by KlerosCore.
-            revert("Already in the last phase");
+        if (core.phase() == KlerosCore.Phase.staking) {
+            require(phase != Phase.resolving, "Already in Resolving phase");
+            phase = Phase.resolving;
+        } else if (core.phase() == KlerosCore.Phase.freezing) {
+            if (phase == Phase.resolving) {
+                require(disputesWithoutJurors > 0, "All the disputes have jurors");
+                require(block.number >= core.getFreezeBlock() + 20, "Too soon: L1 finality required");
+                // TODO: RNG process is currently unfinished.
+                RNBlock = block.number;
+                rng.requestRN(block.number);
+                phase = Phase.generating;
+            } else if (phase == Phase.generating) {
+                RN = rng.getRN(RNBlock);
+                require(RN != 0, "Random number is not ready yet");
+                phase = Phase.drawing;
+            } else if (phase == Phase.drawing) {
+                require(disputesWithoutJurors == 0 || core.isFreezingPhaseFinished(), "Not ready for Resolving phase");
+                phase = Phase.resolving;
+            }
         }
+        emit NewPhaseDisputeKit(phase);
+    }
+
+    function onCoreFreezingPhase() external onlyByCore {
+        phase = Phase.resolving; // Lockstep the local phase with Core by resetting it to Resolving.
         emit NewPhaseDisputeKit(phase);
     }
 
@@ -619,13 +628,8 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         return (vote.account, vote.commit, vote.choice, vote.voted);
     }
 
-    function onCoreFreezingPhase() external onlyByCore {
-        phase = Phase.resolving;
-        emit NewPhaseDisputeKit(phase);
-    }
-
-    function getDisputesWithoutJurors() external view returns (uint256) {
-        return disputesWithoutJurors;
+    function readyForStakingPhase() external view returns (bool) {
+        return phase == Phase.resolving;
     }
 
     // ************************************* //

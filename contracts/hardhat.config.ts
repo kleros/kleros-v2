@@ -31,6 +31,7 @@ const config: HardhatUserConfig = {
     hardhat: {
       live: false,
       saveDeployments: true,
+      allowUnlimitedContractSize: true,
       tags: ["test", "local"],
     },
     localhost: {
