@@ -132,7 +132,17 @@ interface IDisputeKit {
             bool voted
         );
 
-    function getDisputesWithoutJurors() external view returns (uint256);
+    /** @dev Returns the number of disputes without jurors in the dispute kit.
+     *  @return The number of disputes without jurors in the dispute kit.
+     */
+    function disputesWithoutJurors() external view returns (uint256);
 
+    /** @dev Returns true if the dispute kit is ready to Resolve, regardless of the number of disputes without jurors.
+     *  @return Whether the dispute kit is ready to resolve.
+     */
+    function readyForStakingPhase() external view returns (bool);
+
+    /** @dev Hook function called when Kleros Core is in Freezing phase.
+     */
     function onCoreFreezingPhase() external;
 }

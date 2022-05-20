@@ -79,11 +79,7 @@ contract KlerosCore is IArbitrator {
     struct DisputeKitNode {
         uint256 parent; // Index of the parent dispute kit. If it's 0 then this DK is a root.
         IDisputeKit disputeKit; // The dispute kit implementation.
-    }
-
-    struct ActiveDisputeKit {
-        bool added; // Whether dispute kit has already been added to the array.
-        uint256 index; // Maps array's index with dispute kit's address.
+        bool freezingNeeded; // The signal to KlerosCore that moving to Freezing phase is needed, typically to draw jurors.
     }
 
     struct DelayedStake {
@@ -110,10 +106,11 @@ contract KlerosCore is IArbitrator {
     // TODO: interactions with jurorProsecutionModule.
     address public jurorProsecutionModule; // The module for juror's prosecution.
     Phase public phase; // The current phase.
+    uint256[] public disputesKitsToDraw; // The disputeKitIDs that need drawing.
+    uint256 public disputeKitsInResolvingPhase; // Number of dispute kits that are prepared for switching from Freezing to Staking phase.
     uint256 public minStakingTime; // The time after which the phase can be switched to Freezing if there are open disputes.
     uint256 public maxFreezingTime; // The time after which the phase can be switched back to Staking.
     uint256 public lastPhaseChange; // The last time the phase was changed.
-    uint256 public nbDKReadyForPhaseSwitch; // Number of dispute kits that are prepaired for switching from Freezing to Staking phase.
     uint256 public freezeBlock; // Number of the block when Core was frozen.
     Court[] public courts; // The subcourts.
     DisputeKitNode[] public disputeKitNodes; // The list of DisputeKitNode, indexed by DisputeKitID.
@@ -121,10 +118,6 @@ contract KlerosCore is IArbitrator {
     mapping(address => Juror) internal jurors; // The jurors.
     SortitionSumTreeFactory.SortitionSumTrees internal sortitionSumTrees; // The sortition sum trees.
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Freezing phase, to update them when the phase is switched to Staking.
-    IDisputeKit[] public activeDisputeKits; // Addresses of dispute kits that currently have disputes that need drawing.
-
-    // TODO: change activeKitInfo key to disputeKitID?
-    mapping(IDisputeKit => ActiveDisputeKit) public activeKitInfo; // Contains the information about dispute kit which is necessary for switching phases.
 
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
     uint256 public delayedStakeReadIndex = 1; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
@@ -194,7 +187,7 @@ contract KlerosCore is IArbitrator {
         jurorProsecutionModule = _jurorProsecutionModule;
 
         disputeKitNodes.push(); // NULL_DISPUTE_KIT: an empty element at index 0 to indicate when a node has no parent.
-        disputeKitNodes.push(DisputeKitNode({parent: 0, disputeKit: _disputeKit}));
+        disputeKitNodes.push(DisputeKitNode({parent: 0, disputeKit: _disputeKit, freezingNeeded: false}));
 
         minStakingTime = _phaseTimeouts[0];
         maxFreezingTime = _phaseTimeouts[1];
@@ -280,7 +273,7 @@ contract KlerosCore is IArbitrator {
         if (_parent == NULL_DISPUTE_KIT) {
             courts[FORKING_COURT].supportedDisputeKits[disputeKitNodes.length] = true;
         }
-        disputeKitNodes.push(DisputeKitNode({parent: _parent, disputeKit: _disputeKitAddress}));
+        disputeKitNodes.push(DisputeKitNode({parent: _parent, disputeKit: _disputeKitAddress, freezingNeeded: false}));
     }
 
     /** @dev Changes the parent of an existing dispute kit.
@@ -490,74 +483,72 @@ contract KlerosCore is IArbitrator {
         round.tokensAtStakePerJuror = (court.minStake * court.alpha) / ALPHA_DIVISOR;
         round.totalFeesForJurors = msg.value;
 
+        disputeKitNodes[disputeKitID].freezingNeeded = true;
         disputeKit.createDispute(disputeID, _numberOfChoices, _extraData, round.nbVotes);
-
-        ActiveDisputeKit storage activeDK = activeKitInfo[disputeKit];
-        if (!activeDK.added) {
-            activeDK.index = activeDisputeKits.length;
-            activeDisputeKits.push(disputeKit);
-            activeDK.added = true;
-        }
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
 
     /** @dev Switches the phases between Staking and Freezing, also prepares the dispute kits for a switch.
-     *  @param _iterations Number of active dispute kits to go through.
-     *  If set to 0 or a value larger than the number of active dispute kits iterates until the last element.
-     *  @notice `_iterations` parameter is only required for switch from Freezing to Staking and can be left empty otherwise.
+     *  @param _disputeKitIDsWithFreezingNeeded The list of dispute kit IDs which require entering the Freezing phase.
+     *  @param _disputeKitIDsReadyForStaking The list of dispute kit IDs which are ready to enter the Staking phase.
      */
-    function passPhase(uint256 _iterations) external {
+    function passPhase(
+        uint256[] calldata _disputeKitIDsWithFreezingNeeded,
+        uint256[] calldata _disputeKitIDsReadyForStaking
+    ) external {
         if (phase == Phase.staking) {
             require(
                 block.timestamp - lastPhaseChange >= minStakingTime,
                 "The minimal staking time has not passed yet."
             );
-            require(activeDisputeKits.length > 0, "There are no disputes that need jurors.");
+            require(_disputeKitIDsWithFreezingNeeded.length > 0, "There are no disputes that need jurors.");
 
             phase = Phase.freezing;
             freezeBlock = block.number;
             lastPhaseChange = block.timestamp;
             emit NewPhase(phase);
+
+            // TODO: call a hook onCoreStakingPhase() for future proofing and consistency?
         } else if (phase == Phase.freezing) {
-            // Prepare dispute kits for switching.
-            require(block.timestamp - lastPhaseChange >= maxFreezingTime, "Timeout has not passed yet");
-            uint256 startIndex = nbDKReadyForPhaseSwitch;
-            bool chkPrevIndex;
-            for (
-                uint256 i = startIndex;
-                i < activeDisputeKits.length && (_iterations == 0 || i < startIndex + _iterations);
-                i++
-            ) {
-                if (chkPrevIndex) {
-                    // Check the element that replaced the deleted one in the previous iteration.
-                    i--;
-                    chkPrevIndex = false;
+            // Call the dispute kits hook where needed.
+            for (uint256 i = 0; i < _disputeKitIDsWithFreezingNeeded.length; i++) {
+                require(
+                    _disputeKitIDsWithFreezingNeeded[i] != NULL_DISPUTE_KIT &&
+                        _disputeKitIDsWithFreezingNeeded[i] < disputeKitNodes.length,
+                    "Invalid dispute kit ID (FreezingNeeded)"
+                );
+                DisputeKitNode storage disputeKitNode = disputeKitNodes[_disputeKitIDsWithFreezingNeeded[i]];
+                if (!disputeKitNode.freezingNeeded) {
+                    continue;
                 }
-
-                IDisputeKit disputeKit = activeDisputeKits[i];
-                disputeKit.onCoreFreezingPhase();
-
-                // Remove dispute kit from activeDisputeKits if it finished drawing.
-                if (disputeKit.getDisputesWithoutJurors() == 0) {
-                    ActiveDisputeKit storage activeDK = activeKitInfo[disputeKit];
-                    // Replace the deleted address with the last one and also replace its index.
-                    activeDisputeKits[activeDK.index] = activeDisputeKits[activeDisputeKits.length - 1];
-                    activeKitInfo[activeDisputeKits[activeDK.index]].index = activeDK.index;
-                    activeDisputeKits.pop();
-                    // We don't increment the DK counter here since we delete the element anyway.
-                    delete activeKitInfo[disputeKit];
-
-                    chkPrevIndex = true;
-                } else {
-                    nbDKReadyForPhaseSwitch++;
-                }
+                disputeKitNode.disputeKit.onCoreFreezingPhase();
+                disputeKitNode.freezingNeeded = false;
             }
 
-            if (nbDKReadyForPhaseSwitch == activeDisputeKits.length) {
+            if (block.timestamp - lastPhaseChange >= maxFreezingTime) {
+                // Enough time spent in Freezing already
+
+                // TODO: Force all the DKs back to their Ready for Staking phase
+
                 phase = Phase.staking;
                 lastPhaseChange = block.timestamp;
-
-                nbDKReadyForPhaseSwitch = 0;
+                emit NewPhase(phase);
+            } else {
+                // Check if all the DKs are ready for Staking phase
+                uint256 numberOfDisputeKitsNotReady = disputeKitNodes.length - 1; // Minus 1 to account for NULL_DISPUTE_KIT.
+                for (uint256 i = 0; i < _disputeKitIDsReadyForStaking.length; i++) {
+                    require(
+                        _disputeKitIDsReadyForStaking[i] != NULL_DISPUTE_KIT &&
+                            _disputeKitIDsReadyForStaking[i] < disputeKitNodes.length,
+                        "Invalid dispute kit ID (ReadyForStaking)"
+                    );
+                    if (disputeKitNodes[_disputeKitIDsReadyForStaking[i]].disputeKit.readyForStakingPhase()) {
+                        numberOfDisputeKitsNotReady--;
+                    }
+                }
+                require(numberOfDisputeKitsNotReady == 0, "Some dispute kits are not ready");
+                phase = Phase.staking;
+                lastPhaseChange = block.timestamp;
                 emit NewPhase(phase);
             }
         }
@@ -691,26 +682,20 @@ contract KlerosCore is IArbitrator {
         dispute.period = Period.evidence;
         dispute.lastPeriodChange = block.timestamp;
         extraRound.nbVotes = msg.value / court.feeForJuror; // As many votes that can be afforded by the provided funds.
-        extraRound.disputeKitID = newDisputeKitID;
         extraRound.tokensAtStakePerJuror = (court.minStake * court.alpha) / ALPHA_DIVISOR;
         extraRound.totalFeesForJurors = msg.value;
+        extraRound.disputeKitID = newDisputeKitID;
+        disputeKitNodes[extraRound.disputeKitID].freezingNeeded = true; // To draw jurors for the new round.
 
         // Dispute kit was changed, so create a dispute in the new DK contract.
-        if (newDisputeKitID != round.disputeKitID) {
-            emit DisputeKitJump(_disputeID, dispute.rounds.length - 1, round.disputeKitID, newDisputeKitID);
-            disputeKitNodes[newDisputeKitID].disputeKit.createDispute(
+        if (extraRound.disputeKitID != round.disputeKitID) {
+            emit DisputeKitJump(_disputeID, dispute.rounds.length - 1, round.disputeKitID, extraRound.disputeKitID);
+            disputeKitNodes[extraRound.disputeKitID].disputeKit.createDispute(
                 _disputeID,
                 _numberOfChoices,
                 _extraData,
                 extraRound.nbVotes
             );
-
-            ActiveDisputeKit storage activeDK = activeKitInfo[disputeKitNodes[newDisputeKitID].disputeKit];
-            if (!activeDK.added) {
-                activeDK.index = activeDisputeKits.length;
-                activeDisputeKits.push(disputeKitNodes[newDisputeKitID].disputeKit);
-                activeDK.added = true;
-            }
         }
 
         emit AppealDecision(_disputeID, dispute.arbitrated);
@@ -1002,12 +987,8 @@ contract KlerosCore is IArbitrator {
         return freezeBlock;
     }
 
-    /** @dev Returns true if Dispute Kits are allowed to change their phases.
-     *  The purpose of this function is to make sure that every dispute kit is in the same phase before Core contract switches its phase to Staking.
-     *  @return Whether dispute kits are allowed to switch phases or not.
-     */
-    function allowSwitchPhase() external view returns (bool) {
-        return phase == Phase.freezing && nbDKReadyForPhaseSwitch == 0;
+    function isFreezingPhaseFinished() external view returns (bool) {
+        return block.timestamp - lastPhaseChange >= maxFreezingTime;
     }
 
     /** @dev Returns true if the dispute kit will be switched to a parent DK.
@@ -1031,6 +1012,49 @@ contract KlerosCore is IArbitrator {
         Dispute storage dispute = disputes[_disputeID];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         (winningChoice, tied) = disputeKitNodes[round.disputeKitID].disputeKit.getLastRoundResult(_disputeID);
+    }
+
+    function getDisputesWithoutJurors() external view returns (uint256 disputesWithoutJurors) {
+        for (uint256 i = 0; i < disputeKitNodes.length; i++) {
+            disputesWithoutJurors += disputeKitNodes[i].disputeKit.disputesWithoutJurors();
+        }
+    }
+
+    function getDisputeKitsWithFreezingNeeded() external view returns (uint256[] memory) {
+        // Hack to resize a memory array, not possible with Solidity.
+        uint256[] memory disputeKitsIDs = new uint256[](disputeKitNodes.length);
+        uint256 usage;
+        for (uint256 i = 0; i < disputeKitNodes.length; i++) {
+            if (i != NULL_DISPUTE_KIT && disputeKitNodes[i].disputeKit.disputesWithoutJurors() > 0) {
+                // if (disputeKitNodes[i].freezingNeeded) {
+                disputeKitsIDs[usage++] = i;
+            }
+        }
+        uint256 excessLength = disputeKitsIDs.length - usage;
+        assembly {
+            mstore(disputeKitsIDs, sub(mload(disputeKitsIDs), excessLength))
+        }
+        return disputeKitsIDs;
+    }
+
+    function getDisputeKitsReadyForStaking() external view returns (uint256[] memory) {
+        // Hack to resize a memory array, not possible with Solidity.
+        uint256[] memory disputeKitsIDs = new uint256[](disputeKitNodes.length);
+        uint256 usage;
+        for (uint256 i = 0; i < disputeKitNodes.length; i++) {
+            if (
+                i != NULL_DISPUTE_KIT &&
+                disputeKitNodes[i].disputeKit.readyForStakingPhase() &&
+                disputeKitNodes[i].disputeKit.disputesWithoutJurors() == 0
+            ) {
+                disputeKitsIDs[usage++] = i;
+            }
+        }
+        uint256 excessLength = disputeKitsIDs.length - usage;
+        assembly {
+            mstore(disputeKitsIDs, sub(mload(disputeKitsIDs), excessLength))
+        }
+        return disputeKitsIDs;
     }
 
     // ************************************* //
