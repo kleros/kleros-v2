@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@jaybuidl, @shalzz]
+ *  @authors: [@shotaronowhere]
  *  @reviewers: []
  *  @auditors: []
  *  @bounties: []
@@ -10,29 +10,28 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/ISafeBridgeReceiver.sol";
-import "./interfaces/arbitrum/IInbox.sol";
-import "./interfaces/arbitrum/IOutbox.sol";
+import "../interfaces/ISafeBridgeReceiver.sol";
+import "../interfaces/gnosis-chain/IAMB.sol";
 
 /**
- * Safe Bridge Receiver on Ethereum from Arbitrum
- * Counterpart of `SafeBridgeSenderToEthereum`
+ * Safe Bridge Receiver on Gnosis from Arbitrum
+ * Counterpart of `SafeBridgeSenderToGnosis`
  */
-contract SafeBridgeReceiverOnEthereum is ISafeBridgeReceiver {
+contract SafeBridgeReceiverOnGnosis is ISafeBridgeReceiver {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
     // will be set as immutable in production deployment for gas optimization
     address public immutable safeBridgeSender; // The address of the Safe Bridge sender on Arbitrum.
-    IInbox public immutable inbox; // The address of the Arbitrum Inbox contract.
+    IAMB public immutable amb; // The address of the AMB contract.
 
     /**
      * @dev Constructor.
-     * @param _inbox The address of the Arbitrum Inbox contract.
+     * @param _amb The address of the AMB contract.
      */
-    constructor(address _inbox, address _safeBridgeSender) {
-        inbox = IInbox(_inbox);
+    constructor(IAMB _amb, address _safeBridgeSender) {
+        amb = _amb;
         safeBridgeSender = _safeBridgeSender;
     }
 
@@ -41,7 +40,6 @@ contract SafeBridgeReceiverOnEthereum is ISafeBridgeReceiver {
     // ************************************* //
 
     function isSentBySafeBridge() internal view override returns (bool) {
-        IOutbox outbox = IOutbox(inbox.bridge().activeOutbox());
-        return outbox.l2ToL1Sender() == safeBridgeSender;
+        return amb.messageSender() == safeBridgeSender;
     }
 }

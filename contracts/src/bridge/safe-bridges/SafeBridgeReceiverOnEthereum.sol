@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@shotaronowhere]
+ *  @authors: [@jaybuidl, @shalzz]
  *  @reviewers: []
  *  @auditors: []
  *  @bounties: []
@@ -10,28 +10,28 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/ISafeBridgeReceiver.sol";
-import "./interfaces/gnosis-chain/IAMB.sol";
+import "../interfaces/ISafeBridgeReceiver.sol";
+import "../interfaces/arbitrum/IInbox.sol";
+import "../interfaces/arbitrum/IOutbox.sol";
 
 /**
- * Safe Bridge Receiver on Gnosis from Arbitrum
- * Counterpart of `SafeBridgeSenderToGnosis`
+ * Safe Bridge Receiver on Ethereum from Arbitrum
+ * Counterpart of `SafeBridgeSenderToEthereum`
  */
-contract SafeBridgeReceiverOnGnosis is ISafeBridgeReceiver {
+contract SafeBridgeReceiverOnEthereum is ISafeBridgeReceiver {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
-    // will be set as immutable in production deployment for gas optimization
     address public immutable safeBridgeSender; // The address of the Safe Bridge sender on Arbitrum.
-    IAMB public immutable amb; // The address of the AMB contract.
+    IInbox public immutable inbox; // The address of the Arbitrum Inbox contract.
 
     /**
      * @dev Constructor.
-     * @param _amb The address of the AMB contract.
+     * @param _inbox The address of the Arbitrum Inbox contract.
      */
-    constructor(IAMB _amb, address _safeBridgeSender) {
-        amb = _amb;
+    constructor(address _inbox, address _safeBridgeSender) {
+        inbox = IInbox(_inbox);
         safeBridgeSender = _safeBridgeSender;
     }
 
@@ -40,6 +40,7 @@ contract SafeBridgeReceiverOnGnosis is ISafeBridgeReceiver {
     // ************************************* //
 
     function isSentBySafeBridge() internal view override returns (bool) {
-        return amb.messageSender() == safeBridgeSender;
+        IOutbox outbox = IOutbox(inbox.bridge().activeOutbox());
+        return outbox.l2ToL1Sender() == safeBridgeSender;
     }
 }

@@ -10,10 +10,10 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/arbitrum/IInbox.sol";
-import "./interfaces/arbitrum/IOutbox.sol";
-import "./interfaces/arbitrum/IArbRetryableTx.sol";
-import "./interfaces/ISafeBridgeSender.sol";
+import "../interfaces/arbitrum/IInbox.sol";
+import "../interfaces/arbitrum/IOutbox.sol";
+import "../interfaces/arbitrum/IArbRetryableTx.sol";
+import "../interfaces/ISafeBridgeSender.sol";
 
 /**
  * Safe Bridge Sender to Arbitrum from Ethereum

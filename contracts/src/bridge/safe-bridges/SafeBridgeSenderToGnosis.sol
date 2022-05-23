@@ -10,8 +10,8 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/gnosis-chain/IAMB.sol";
-import "./interfaces/ISafeBridgeSender.sol";
+import "../interfaces/gnosis-chain/IAMB.sol";
+import "../interfaces/ISafeBridgeSender.sol";
 
 /**
  * Safe Bridge Sender to Gnosis from Ethereum
