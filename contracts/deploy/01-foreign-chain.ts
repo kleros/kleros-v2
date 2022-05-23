@@ -99,6 +99,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
       homeGatewayAddress,
       homeChainIdAsBytes32,
     ],
+    gasLimit: 4000000,
     log: true,
   });
 
