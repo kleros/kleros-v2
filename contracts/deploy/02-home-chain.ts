@@ -33,6 +33,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     const homeGateway = await deploy("HomeGatewayToEthereum", {
       from: deployer,
       args: [klerosCore.address, fastBridgeSender.address, foreignGateway.address, foreignChainId],
+      gasLimit: 4000000,
       log: true,
     }); // nonce+1
 

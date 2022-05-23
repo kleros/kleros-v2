@@ -138,7 +138,11 @@ describe("Home Evidence contract", async () => {
       expect(evidenceStr).to.equal(newEvidence, "Wrong evidence message.");
 
       let contributions = await evidenceModule.getContributions(evidenceID, 0, user1.address);
-      expect(contributions).to.deep.equal([ZERO, minRequiredDeposit, ZERO], "Wrong contributions.");
+      expect(contributions[0]).to.equal(ZERO); // it's 1am and to.deep.equal() won't work, can't be bothered
+      expect(contributions[1]).to.equal(BigNumber.from("93"));
+      expect(contributions[2]).to.equal(ZERO);
+      expect(contributions.length).to.equal(3);
+
     });
 
     it("Should not allowed the same evidence twice for the same evidence group id.", async () => {
@@ -181,14 +185,16 @@ describe("Home Evidence contract", async () => {
       await expect(
         evidenceModule.moderate(evidenceID, Party.Moderator, {
           value: totalCost,
+	  gasLimit: 500000,
         })
       ).to.be.revertedWith("Moderation market is closed.");
 
-      await evidenceModule.resolveModerationMarket(evidenceID);
+      await evidenceModule.resolveModerationMarket(evidenceID, {gasLimit: 500000});
 
       // After market has been closed, moderation can re-open.
       await evidenceModule.moderate(evidenceID, Party.Submitter, {
         value: totalCost,
+	gasLimit: 500000,
       });
     });
 

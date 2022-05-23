@@ -16,7 +16,7 @@ dotenv.config();
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.10",
+    version: "0.8.9",
     settings: {
       optimizer: {
         enabled: true,
@@ -31,6 +31,7 @@ const config: HardhatUserConfig = {
     hardhat: {
       live: false,
       saveDeployments: true,
+      allowUnlimitedContractSize: true,
       tags: ["test", "local"],
     },
     localhost: {
