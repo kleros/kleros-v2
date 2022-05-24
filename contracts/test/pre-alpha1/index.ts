@@ -156,10 +156,8 @@ describe("Demo pre-alpha1", function () {
     expect(await disputeKit.isResolving()).to.equal(true);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
-    let disputeKitsWithFreezingNeeded = await core.getDisputeKitsWithFreezingNeeded();
-    expect(disputeKitsWithFreezingNeeded).to.be.deep.equal([BigNumber.from("1")]);
-    let disputeKitIDsResolving = await core.getDisputeKitsResolving();
-    expect(disputeKitIDsResolving).to.be.deep.equal([BigNumber.from("1")]);
+    let disputesKitIDsThatNeedFreezing = await core.getDisputesKitIDsThatNeedFreezing();
+    expect(disputesKitIDsThatNeedFreezing).to.be.deep.equal([BigNumber.from("1")]);
     await core.passPhase(); // Staking -> Freezing
     expect(await core.phase()).to.equal(Phase.freezing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
@@ -196,10 +194,8 @@ describe("Demo pre-alpha1", function () {
     expect(await disputeKit.disputesWithoutJurors()).to.equal(0);
     expect(await disputeKit.isResolving()).to.equal(true);
 
-    disputeKitsWithFreezingNeeded = await core.getDisputeKitsWithFreezingNeeded();
-    expect(disputeKitsWithFreezingNeeded).to.be.empty;
-    disputeKitIDsResolving = await core.getDisputeKitsResolving();
-    expect(disputeKitIDsResolving).to.be.deep.equal([BigNumber.from("1")]);
+    disputesKitIDsThatNeedFreezing = await core.getDisputesKitIDsThatNeedFreezing();
+    expect(disputesKitIDsThatNeedFreezing).to.be.deep.equal([BigNumber.from("1")]);
     await core.passPhase(); // Freezing -> Staking
     expect(await core.phase()).to.equal(Phase.staking);
 
