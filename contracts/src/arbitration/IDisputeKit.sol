@@ -141,13 +141,4 @@ interface IDisputeKit {
      *  @return Whether the dispute kit is ready to resolve, regardless of the number of disputes without jurors.
      */
     function isResolving() external view returns (bool);
-
-    /** @dev Hook function called when Kleros Core is in Freezing phase.
-     */
-    function onCoreFreezingPhase() external;
-
-    /** @dev Returns whether the Freezing phase hook has already been executed for this phase.
-     *  @return Whether the Freezing phase hook has already been executed for this phase.
-     */
-    function onCoreFreezingPhaseExecuted() external view returns (bool);
 }
