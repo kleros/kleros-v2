@@ -19,12 +19,10 @@ import "../merkle/MerkleTree.sol";
  * Fast Bridge Sender Base
  * Counterpart of `FastBridgeReceiverBase`
  */
-abstract contract FastBridgeSenderBase is IFastBridgeSender, MerkleTree, ISafeBridgeSender {
+abstract contract FastBridgeSenderBase is MerkleTree, IFastBridgeSender, ISafeBridgeSender {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
-
-    IFastBridgeReceiver public immutable fastBridgeReceiver; // The address of the Fast Bridge on Gnosis Chain.
 
     uint256 public immutable genesis; // Marks the beginning of the genesis epoch (epoch 0).
     uint256 public immutable epochPeriod; // Epochs mark the period between potential batches of messages.
@@ -42,16 +40,10 @@ abstract contract FastBridgeSenderBase is IFastBridgeSender, MerkleTree, ISafeBr
 
     /**
      * @dev Constructor.
-     * @param _fastBridgeReceiver The address of the Fast Bridge on Ethereum.
      * @param _epochPeriod The duration between epochs.
      * @param _genesis The genesis time to synchronize epochs with the FastBridgeReceiverOnGnosis.
      */
-    constructor(
-        IFastBridgeReceiver _fastBridgeReceiver,
-        uint256 _epochPeriod,
-        uint256 _genesis
-    ) {
-        fastBridgeReceiver = _fastBridgeReceiver;
+    constructor(uint256 _epochPeriod, uint256 _genesis) {
         epochPeriod = _epochPeriod;
         genesis = _genesis;
     }
@@ -91,19 +83,5 @@ abstract contract FastBridgeSenderBase is IFastBridgeSender, MerkleTree, ISafeBr
         fastOutbox[epochFinalized] = batchMerkleRoot;
 
         emit SendBatch(epochFinalized, batchMerkleRoot);
-    }
-
-    /**
-     * @dev Sends an arbitrary message to Ethereum using the Safe Bridge, which relies on Arbitrum's canonical bridge. It is unnecessary during normal operations but essential only in case of challenge.
-     * @param _epoch The blocknumber of the batch
-     */
-    function sendSafeFallback(uint256 _epoch) external payable override {
-        bytes32 batchMerkleRoot = fastOutbox[_epoch];
-
-        // Safe Bridge message envelope
-        bytes4 methodSelector = IFastBridgeReceiver.verifySafe.selector;
-        bytes memory safeMessageData = abi.encodeWithSelector(methodSelector, _epoch, batchMerkleRoot);
-        // TODO: how much ETH should be provided for bridging? add an ISafeBridgeSender.bridgingCost() if needed
-        _sendSafe(address(fastBridgeReceiver), safeMessageData);
     }
 }

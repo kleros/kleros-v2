@@ -12,7 +12,6 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/ISafeBridgeReceiver.sol";
 import "./interfaces/FastBridgeReceiverBase.sol";
-import "./interfaces/gnosis-chain/IAMB.sol";
 import "./interfaces/arbitrum/IInbox.sol";
 import "./interfaces/arbitrum/IOutbox.sol";
 
@@ -26,42 +25,25 @@ contract FastBridgeReceiverOnEthereum is ISafeBridgeReceiver, FastBridgeReceiver
     // ************************************* //
 
     address public immutable safeBridgeSender; // The address of the Safe Bridge sender on Arbitrum.
-    address public immutable fastBridgeReceiverOnGC; // The address of the Fast Bridge Receiver on Gnosis Chain.
     IInbox public immutable inbox; // The address of the Arbitrum Inbox contract.
-    IAMB public immutable amb; // The address of the AMB contract on Ethereum.
 
     /**
      * @dev Constructor.
      * @param _deposit The deposit amount to submit a claim in wei.
      * @param _epochPeriod The duration of the period allowing to challenge a claim.
+     * @param _genesis The genesis time to synchronize epochs.
+     * @param _inbox The address of the inbox contract on Ethereum.
+     * @param _safeBridgeSender The safe bridge sender on Ethereum.
      */
     constructor(
         uint256 _deposit,
         uint256 _epochPeriod,
         uint256 _genesis,
         address _inbox,
-        address _safeBridgeSender,
-        IAMB _amb,
-        address _fastBridgeReceiverOnGC
+        address _safeBridgeSender
     ) FastBridgeReceiverBase(_deposit, _epochPeriod, _genesis) {
         inbox = IInbox(_inbox);
         safeBridgeSender = _safeBridgeSender;
-        amb = _amb;
-        fastBridgeReceiverOnGC = _fastBridgeReceiverOnGC;
-    }
-
-    /**
-     * Note: Access restricted to the Safe Bridge.
-     * @dev Relays safe epoch merkle root state to Gnosis Chain to resolve challenges.
-     * @param _epoch The epoch to verify.
-     * @param _batchMerkleRoot The true batch merkle root for the epoch.
-     */
-    function verifySafeGnosisRelay(uint256 _epoch, bytes32 _batchMerkleRoot) external {
-        require(isSentBySafeBridge(), "Access not allowed: SafeBridgeSender only.");
-
-        bytes4 methodSelector = IFastBridgeReceiver.verifySafe.selector;
-        bytes memory safeMessageData = abi.encodeWithSelector(methodSelector, _epoch, _batchMerkleRoot);
-        amb.requireToPassMessage(fastBridgeReceiverOnGC, safeMessageData, amb.maxGasPerTx());
     }
 
     // ************************************* //

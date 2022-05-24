@@ -11,7 +11,6 @@
 pragma solidity ^0.8.0;
 
 import "../interfaces/arbitrum/IArbSys.sol";
-import "../interfaces/arbitrum/AddressAliasHelper.sol";
 import "../interfaces/ISafeBridgeSender.sol";
 
 /**
