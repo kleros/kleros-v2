@@ -79,6 +79,7 @@ contract KlerosCore is IArbitrator {
     struct DisputeKitNode {
         uint256 parent; // Index of the parent dispute kit. If it's 0 then this DK is a root.
         IDisputeKit disputeKit; // The dispute kit implementation.
+        bool needsFreezing; // The dispute kit needs freezing.
     }
 
     struct DelayedStake {
@@ -111,6 +112,7 @@ contract KlerosCore is IArbitrator {
     uint256 public freezeBlock; // Number of the block when Core was frozen.
     Court[] public courts; // The subcourts.
     DisputeKitNode[] public disputeKitNodes; // The list of DisputeKitNode, indexed by DisputeKitID.
+    uint256[] public disputesKitIDsThatNeedFreezing; // The disputeKitIDs that need switching to Freezing phase.
     Dispute[] public disputes; // The disputes.
     mapping(address => Juror) internal jurors; // The jurors.
     SortitionSumTreeFactory.SortitionSumTrees internal sortitionSumTrees; // The sortition sum trees.
@@ -184,7 +186,7 @@ contract KlerosCore is IArbitrator {
         jurorProsecutionModule = _jurorProsecutionModule;
 
         disputeKitNodes.push(); // NULL_DISPUTE_KIT: an empty element at index 0 to indicate when a node has no parent.
-        disputeKitNodes.push(DisputeKitNode({parent: 0, disputeKit: _disputeKit}));
+        disputeKitNodes.push(DisputeKitNode({parent: 0, disputeKit: _disputeKit, needsFreezing: false}));
 
         minStakingTime = _phaseTimeouts[0];
         maxFreezingTime = _phaseTimeouts[1];
@@ -270,7 +272,7 @@ contract KlerosCore is IArbitrator {
         if (_parent == NULL_DISPUTE_KIT) {
             courts[FORKING_COURT].supportedDisputeKits[disputeKitNodes.length] = true;
         }
-        disputeKitNodes.push(DisputeKitNode({parent: _parent, disputeKit: _disputeKitAddress}));
+        disputeKitNodes.push(DisputeKitNode({parent: _parent, disputeKit: _disputeKitAddress, needsFreezing: false}));
     }
 
     /** @dev Changes the parent of an existing dispute kit.
@@ -480,6 +482,12 @@ contract KlerosCore is IArbitrator {
         round.tokensAtStakePerJuror = (court.minStake * court.alpha) / ALPHA_DIVISOR;
         round.totalFeesForJurors = msg.value;
 
+        if (!disputeKitNodes[disputeKitID].needsFreezing) {
+            // Ensures uniqueness in the disputesKitIDsThatNeedFreezing array.
+            disputeKitNodes[disputeKitID].needsFreezing = true;
+            disputesKitIDsThatNeedFreezing.push(disputeKitID);
+        }
+
         disputeKit.createDispute(disputeID, _numberOfChoices, _extraData, round.nbVotes);
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
@@ -489,9 +497,7 @@ contract KlerosCore is IArbitrator {
     function passPhase() external {
         if (phase == Phase.staking) {
             require(block.timestamp - lastPhaseChange >= minStakingTime, "The minimal staking time has not passed yet");
-
-            uint256[] memory disputeKitsWithFreezingNeeded = this.getDisputeKitsWithFreezingNeeded();
-            require(disputeKitsWithFreezingNeeded.length > 0, "There are no dispute kit which need freezing");
+            require(disputesKitIDsThatNeedFreezing.length > 0, "There are no dispute kit which need freezing");
 
             phase = Phase.freezing;
             freezeBlock = block.number;
@@ -499,24 +505,24 @@ contract KlerosCore is IArbitrator {
             emit NewPhase(phase);
         } else if (phase == Phase.freezing) {
             if (block.timestamp - lastPhaseChange >= maxFreezingTime) {
-                // Enough time spent in Freezing already
-
-                // TODO: Force all the DKs back to their Ready for Staking phase
-
+                // Enough time spent in Freezing already.
                 phase = Phase.staking;
                 lastPhaseChange = block.timestamp;
                 emit NewPhase(phase);
-                // TODO: call a hook onCoreStakingPhase() for future proofing and consistency?
             } else {
-                // Check if all the DKs are ready for Staking phase
-                uint256[] memory disputeKitIDsResolving = this.getDisputeKitsResolving();
-                uint256 numberOfDisputeKitsNotReady = disputeKitNodes.length - 1; // Minus 1 to account for NULL_DISPUTE_KIT.
-                for (uint256 i = 0; i < disputeKitIDsResolving.length; i++) {
-                    if (disputeKitNodes[disputeKitIDsResolving[i]].disputeKit.isResolving()) {
-                        numberOfDisputeKitsNotReady--;
+                // Check if all the DKs which needed the Freezing phase are ready for Staking phase.
+                for (uint256 i = 0; i < disputesKitIDsThatNeedFreezing.length; i++) {
+                    require(
+                        disputeKitNodes[disputesKitIDsThatNeedFreezing[i]].disputeKit.isResolving(),
+                        "A dispute kit has not passed to Resolving phase"
+                    );
+
+                    if (disputeKitNodes[disputesKitIDsThatNeedFreezing[i]].disputeKit.disputesWithoutJurors() == 0) {
+                        // The dispute kit had time to finish drawing jurors for all its disputes.
+                        disputeKitNodes[disputesKitIDsThatNeedFreezing[i]].needsFreezing = false;
+                        delete disputesKitIDsThatNeedFreezing[i];
                     }
                 }
-                require(numberOfDisputeKitsNotReady == 0, "Some dispute kits are not ready");
                 phase = Phase.staking;
                 lastPhaseChange = block.timestamp;
                 emit NewPhase(phase);
@@ -655,6 +661,12 @@ contract KlerosCore is IArbitrator {
         extraRound.tokensAtStakePerJuror = (court.minStake * court.alpha) / ALPHA_DIVISOR;
         extraRound.totalFeesForJurors = msg.value;
         extraRound.disputeKitID = newDisputeKitID;
+
+        if (!disputeKitNodes[newDisputeKitID].needsFreezing) {
+            // Ensures uniqueness in the disputesKitIDsThatNeedFreezing array.
+            disputeKitNodes[newDisputeKitID].needsFreezing = true;
+            disputesKitIDsThatNeedFreezing.push(newDisputeKitID);
+        }
 
         // Dispute kit was changed, so create a dispute in the new DK contract.
         if (extraRound.disputeKitID != round.disputeKitID) {
@@ -983,40 +995,12 @@ contract KlerosCore is IArbitrator {
         (winningChoice, tied) = disputeKitNodes[round.disputeKitID].disputeKit.getLastRoundResult(_disputeID);
     }
 
-    function getDisputeKitsWithFreezingNeeded() external view returns (uint256[] memory) {
-        // Hack to resize a memory array, not possible with Solidity.
-        uint256[] memory disputeKitsIDs = new uint256[](disputeKitNodes.length);
-        uint256 usage;
-        for (uint256 i = 1; i < disputeKitNodes.length; i++) {
-            if (disputeKitNodes[i].disputeKit.disputesWithoutJurors() > 0) {
-                disputeKitsIDs[usage++] = i;
-            }
-        }
-        uint256 excessLength = disputeKitsIDs.length - usage;
-        assembly {
-            mstore(disputeKitsIDs, sub(mload(disputeKitsIDs), excessLength))
-        }
-        return disputeKitsIDs;
-    }
-
-    function getDisputeKitsResolving() external view returns (uint256[] memory) {
-        // Hack to resize a memory array, not possible with Solidity.
-        uint256[] memory disputeKitsIDs = new uint256[](disputeKitNodes.length);
-        uint256 usage;
-        for (uint256 i = 1; i < disputeKitNodes.length; i++) {
-            if (disputeKitNodes[i].disputeKit.isResolving()) {
-                disputeKitsIDs[usage++] = i;
-            }
-        }
-        uint256 excessLength = disputeKitsIDs.length - usage;
-        assembly {
-            mstore(disputeKitsIDs, sub(mload(disputeKitsIDs), excessLength))
-        }
-        return disputeKitsIDs;
-    }
-
     function getDisputeKitNodesLength() external view returns (uint256) {
         return disputeKitNodes.length;
+    }
+
+    function getDisputesKitIDsThatNeedFreezing() external view returns (uint256[] memory) {
+        return disputesKitIDsThatNeedFreezing;
     }
 
     // ************************************* //
