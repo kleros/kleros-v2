@@ -88,7 +88,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
     Dispute[] public disputes; // Array of the locally created disputes.
     mapping(uint256 => uint256) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
-    bool public onCoreFreezingPhaseExecuted = true; // Whether the Freezing phase hook has already been executed for this phase.
 
     // ************************************* //
     // *              Events               * //
@@ -201,7 +200,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
 
         coreDisputeIDToLocal[_coreDisputeID] = localDisputeID;
         disputesWithoutJurors++;
-        onCoreFreezingPhaseExecuted = false;
     }
 
     /** @dev Passes the phase.
@@ -209,7 +207,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     function passPhase() external {
         if (core.phase() == KlerosCore.Phase.staking) {
             require(phase != Phase.resolving, "Already in Resolving phase");
-            phase = Phase.resolving; // safety net, it should never happen.
+            phase = Phase.resolving; // Safety net.
         } else if (core.phase() == KlerosCore.Phase.freezing) {
             if (phase == Phase.resolving) {
                 require(disputesWithoutJurors > 0, "All the disputes have jurors");
@@ -228,15 +226,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
             }
         }
         emit NewPhaseDisputeKit(phase);
-    }
-
-    function onCoreFreezingPhase() external override onlyByCore {
-        if (phase != Phase.resolving) {
-            // Safety net: lockstep the Dispute Kit phase with Core by resetting it to Resolving.
-            phase = Phase.resolving;
-            onCoreFreezingPhaseExecuted = true;
-            emit NewPhaseDisputeKit(phase);
-        }
     }
 
     /** @dev Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
@@ -444,7 +433,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
                 newRound.nbVotes = core.getNumberOfVotes(_coreDisputeID);
                 newRound.tied = true;
                 disputesWithoutJurors++;
-                onCoreFreezingPhaseExecuted = false;
             }
             core.appeal{value: appealCost}(_coreDisputeID, dispute.numberOfChoices, dispute.extraData);
         }

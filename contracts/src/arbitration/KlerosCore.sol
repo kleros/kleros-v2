@@ -105,8 +105,6 @@ contract KlerosCore is IArbitrator {
     // TODO: interactions with jurorProsecutionModule.
     address public jurorProsecutionModule; // The module for juror's prosecution.
     Phase public phase; // The current phase.
-    uint256[] public disputesKitsToDraw; // The disputeKitIDs that need drawing.
-    uint256 public disputeKitsInResolvingPhase; // Number of dispute kits that are prepared for switching from Freezing to Staking phase.
     uint256 public minStakingTime; // The time after which the phase can be switched to Freezing if there are open disputes.
     uint256 public maxFreezingTime; // The time after which the phase can be switched back to Staking.
     uint256 public lastPhaseChange; // The last time the phase was changed.
@@ -499,19 +497,6 @@ contract KlerosCore is IArbitrator {
             freezeBlock = block.number;
             lastPhaseChange = block.timestamp;
             emit NewPhase(phase);
-
-            // Call the dispute kits hook where needed.
-            for (uint256 i = 0; i < disputeKitsWithFreezingNeeded.length; i++) {
-                require(
-                    disputeKitsWithFreezingNeeded[i] != NULL_DISPUTE_KIT &&
-                        disputeKitsWithFreezingNeeded[i] < disputeKitNodes.length,
-                    "Invalid dispute kit ID (FreezingNeeded)"
-                );
-                DisputeKitNode storage disputeKitNode = disputeKitNodes[disputeKitsWithFreezingNeeded[i]];
-                if (!disputeKitNode.disputeKit.onCoreFreezingPhaseExecuted()) {
-                    disputeKitNode.disputeKit.onCoreFreezingPhase();
-                }
-            }
         } else if (phase == Phase.freezing) {
             if (block.timestamp - lastPhaseChange >= maxFreezingTime) {
                 // Enough time spent in Freezing already
@@ -527,11 +512,6 @@ contract KlerosCore is IArbitrator {
                 uint256[] memory disputeKitIDsResolving = this.getDisputeKitsResolving();
                 uint256 numberOfDisputeKitsNotReady = disputeKitNodes.length - 1; // Minus 1 to account for NULL_DISPUTE_KIT.
                 for (uint256 i = 0; i < disputeKitIDsResolving.length; i++) {
-                    require(
-                        disputeKitIDsResolving[i] != NULL_DISPUTE_KIT &&
-                            disputeKitIDsResolving[i] < disputeKitNodes.length,
-                        "Invalid dispute kit ID (ReadyForStaking)"
-                    );
                     if (disputeKitNodes[disputeKitIDsResolving[i]].disputeKit.isResolving()) {
                         numberOfDisputeKitsNotReady--;
                     }
@@ -540,7 +520,6 @@ contract KlerosCore is IArbitrator {
                 phase = Phase.staking;
                 lastPhaseChange = block.timestamp;
                 emit NewPhase(phase);
-                // TODO: call a hook onCoreStakingPhase() for future proofing and consistency?
             }
         }
     }
@@ -1008,8 +987,8 @@ contract KlerosCore is IArbitrator {
         // Hack to resize a memory array, not possible with Solidity.
         uint256[] memory disputeKitsIDs = new uint256[](disputeKitNodes.length);
         uint256 usage;
-        for (uint256 i = 0; i < disputeKitNodes.length; i++) {
-            if (i != NULL_DISPUTE_KIT && disputeKitNodes[i].disputeKit.disputesWithoutJurors() > 0) {
+        for (uint256 i = 1; i < disputeKitNodes.length; i++) {
+            if (disputeKitNodes[i].disputeKit.disputesWithoutJurors() > 0) {
                 disputeKitsIDs[usage++] = i;
             }
         }
@@ -1024,8 +1003,8 @@ contract KlerosCore is IArbitrator {
         // Hack to resize a memory array, not possible with Solidity.
         uint256[] memory disputeKitsIDs = new uint256[](disputeKitNodes.length);
         uint256 usage;
-        for (uint256 i = 0; i < disputeKitNodes.length; i++) {
-            if (i != NULL_DISPUTE_KIT && disputeKitNodes[i].disputeKit.isResolving()) {
+        for (uint256 i = 1; i < disputeKitNodes.length; i++) {
+            if (disputeKitNodes[i].disputeKit.isResolving()) {
                 disputeKitsIDs[usage++] = i;
             }
         }
