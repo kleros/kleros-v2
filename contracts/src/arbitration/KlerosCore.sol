@@ -525,29 +525,27 @@ contract KlerosCore is IArbitrator {
             lastPhaseChange = block.timestamp;
             emit NewPhase(phase);
         } else if (phase == Phase.freezing) {
-            if (block.timestamp - lastPhaseChange >= maxFreezingTime) {
-                // Enough time spent in Freezing already.
-                phase = Phase.staking;
-                lastPhaseChange = block.timestamp;
-                emit NewPhase(phase);
-            } else {
-                // Check if all the DKs which needed the Freezing phase are ready for Staking phase.
-                for (uint256 i = 0; i < disputesKitIDsThatNeedFreezing.length; i++) {
-                    require(
-                        disputeKitNodes[disputesKitIDsThatNeedFreezing[i]].disputeKit.isResolving(),
-                        "A dispute kit has not passed to Resolving phase"
-                    );
+            bool freezingPhaseFinished = block.timestamp - lastPhaseChange >= maxFreezingTime;
+            for (uint256 i = disputesKitIDsThatNeedFreezing.length - 1; i >= 0; --i) {
+                IDisputeKit disputeKit = disputeKitNodes[disputesKitIDsThatNeedFreezing[i]].disputeKit;
+                if (freezingPhaseFinished && !disputeKit.isResolving()) {
+                    // Force the dispute kit to be ready for Staking phase.
+                    disputeKit.passPhase(); // Warning: don't call if already in Resolving phase, because it reverts.
+                    require(disputeKit.isResolving(), "A dispute kit has not passed to Resolving phase");
+                } else {
+                    // Check if the dispute kit is ready for Staking phase.
+                    require(disputeKit.isResolving(), "A dispute kit has not passed to Resolving phase");
 
-                    if (disputeKitNodes[disputesKitIDsThatNeedFreezing[i]].disputeKit.disputesWithoutJurors() == 0) {
+                    if (disputeKit.disputesWithoutJurors() == 0) {
                         // The dispute kit had time to finish drawing jurors for all its disputes.
                         disputeKitNodes[disputesKitIDsThatNeedFreezing[i]].needsFreezing = false;
-                        delete disputesKitIDsThatNeedFreezing[i];
+                        disputesKitIDsThatNeedFreezing.pop();
                     }
                 }
-                phase = Phase.staking;
-                lastPhaseChange = block.timestamp;
-                emit NewPhase(phase);
             }
+            phase = Phase.staking;
+            lastPhaseChange = block.timestamp;
+            emit NewPhase(phase);
         }
     }
 
