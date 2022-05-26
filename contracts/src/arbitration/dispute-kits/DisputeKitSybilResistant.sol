@@ -203,6 +203,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     }
 
     /** @dev Passes the phase.
+     * Note: Invariant: do not emit a `NewPhaseDisputeKit` event if the phase is unchanged.
      */
     function passPhase() external override {
         if (core.phase() == KlerosCore.Phase.staking || core.isFreezingPhaseFinished()) {

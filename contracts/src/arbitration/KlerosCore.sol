@@ -514,6 +514,7 @@ contract KlerosCore is IArbitrator {
     }
 
     /** @dev Switches the phases between Staking and Freezing, also signal the switch to the dispute kits.
+     * Note: Invariant: do not emit a `NewPhase` event if the phase is unchanged.
      */
     function passPhase() external {
         if (phase == Phase.staking) {
