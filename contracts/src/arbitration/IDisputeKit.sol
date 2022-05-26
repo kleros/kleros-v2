@@ -35,6 +35,10 @@ interface IDisputeKit {
         uint256 _nbVotes
     ) external;
 
+    /** @dev Passes the phase.
+     */
+    function passPhase() external;
+
     /** @dev Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
      *  Note: Access restricted to Kleros Core only.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.

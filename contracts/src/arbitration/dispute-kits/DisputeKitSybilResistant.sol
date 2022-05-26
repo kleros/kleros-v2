@@ -204,8 +204,8 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
 
     /** @dev Passes the phase.
      */
-    function passPhase() external {
-        if (core.phase() == KlerosCore.Phase.staking) {
+    function passPhase() external override {
+        if (core.phase() == KlerosCore.Phase.staking || core.isFreezingPhaseFinished()) {
             require(phase != Phase.resolving, "Already in Resolving phase");
             phase = Phase.resolving; // Safety net.
         } else if (core.phase() == KlerosCore.Phase.freezing) {
