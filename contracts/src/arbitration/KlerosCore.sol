@@ -26,6 +26,11 @@ contract KlerosCore is IArbitrator {
     // *         Enums / Structs           * //
     // ************************************* //
 
+    enum Phase {
+        staking, // Stake can be updated during this phase.
+        freezing // Phase during which the dispute kits can undergo the drawing process. Staking is not allowed during this phase.
+    }
+
     enum Period {
         evidence, // Evidence can be submitted. This is also when drawing has to take place.
         commit, // Jurors commit a hashed vote. This is skipped for courts without hidden votes.
@@ -75,7 +80,15 @@ contract KlerosCore is IArbitrator {
         uint256 parent; // Index of the parent dispute kit. If it's 0 then this DK is a root.
         uint256[] children; // List of child dispute kits.
         IDisputeKit disputeKit; // The dispute kit implementation.
+        bool needsFreezing; // The dispute kit needs freezing.
         uint256 depthLevel; // How far this DK is from the root. 0 for root DK.
+    }
+
+    struct DelayedStake {
+        address account; // The address of the juror.
+        uint96 subcourtID; // The ID of the subcourt.
+        uint256 stake; // The new stake.
+        uint256 penalty; // Penalty value, in case the stake was set during execution.
     }
 
     // ************************************* //
@@ -95,16 +108,27 @@ contract KlerosCore is IArbitrator {
     IERC20 public pinakion; // The Pinakion token contract.
     // TODO: interactions with jurorProsecutionModule.
     address public jurorProsecutionModule; // The module for juror's prosecution.
+    Phase public phase; // The current phase.
+    uint256 public minStakingTime; // The time after which the phase can be switched to Freezing if there are open disputes.
+    uint256 public maxFreezingTime; // The time after which the phase can be switched back to Staking.
+    uint256 public lastPhaseChange; // The last time the phase was changed.
+    uint256 public freezeBlock; // Number of the block when Core was frozen.
     Court[] public courts; // The subcourts.
     DisputeKitNode[] public disputeKitNodes; // The list of DisputeKitNode, indexed by DisputeKitID.
+    uint256[] public disputesKitIDsThatNeedFreezing; // The disputeKitIDs that need switching to Freezing phase.
     Dispute[] public disputes; // The disputes.
     mapping(address => Juror) internal jurors; // The jurors.
     SortitionSumTreeFactory.SortitionSumTrees internal sortitionSumTrees; // The sortition sum trees.
+    mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Freezing phase, to update them when the phase is switched to Staking.
+
+    uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
+    uint256 public delayedStakeReadIndex = 1; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
 
     // ************************************* //
     // *              Events               * //
     // ************************************* //
 
+    event NewPhase(Phase _phase);
     event StakeSet(address indexed _address, uint256 _subcourtID, uint256 _amount, uint256 _newTotalStake);
     event NewPeriod(uint256 indexed _disputeID, Period _period);
     event AppealPossible(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
@@ -143,11 +167,9 @@ contract KlerosCore is IArbitrator {
      *  @param _pinakion The address of the token contract.
      *  @param _jurorProsecutionModule The address of the juror prosecution module.
      *  @param _disputeKit The address of the default dispute kit.
+     *  @param _phaseTimeouts minStakingTime and maxFreezingTime respectively
      *  @param _hiddenVotes The `hiddenVotes` property value of the forking court.
-     *  @param _minStake The `minStake` property value of the forking court.
-     *  @param _alpha The `alpha` property value of the forking court.
-     *  @param _feeForJuror The `feeForJuror` property value of the forking court.
-     *  @param _jurorsForCourtJump The `jurorsForCourtJump` property value of the forking court.
+     *  @param _courtParameters Numeric parameters of Forking court (minStake, alpha, feeForJuror and jurorsForCourtJump respectively).
      *  @param _timesPerPeriod The `timesPerPeriod` property value of the forking court.
      *  @param _sortitionSumTreeK The number of children per node of the forking court's sortition sum tree.
      */
@@ -156,11 +178,9 @@ contract KlerosCore is IArbitrator {
         IERC20 _pinakion,
         address _jurorProsecutionModule,
         IDisputeKit _disputeKit,
+        uint256[2] memory _phaseTimeouts,
         bool _hiddenVotes,
-        uint256 _minStake,
-        uint256 _alpha,
-        uint256 _feeForJuror,
-        uint256 _jurorsForCourtJump,
+        uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
         uint256 _sortitionSumTreeK
     ) {
@@ -170,18 +190,28 @@ contract KlerosCore is IArbitrator {
 
         disputeKitNodes.push(); // NULL_DISPUTE_KIT: an empty element at index 0 to indicate when a node has no parent.
         disputeKitNodes.push(
-            DisputeKitNode({parent: 0, children: new uint256[](0), disputeKit: _disputeKit, depthLevel: 0})
+            DisputeKitNode({
+                parent: 0,
+                children: new uint256[](0),
+                disputeKit: _disputeKit,
+                needsFreezing: false,
+                depthLevel: 0
+            })
         );
+
+        minStakingTime = _phaseTimeouts[0];
+        maxFreezingTime = _phaseTimeouts[1];
+        lastPhaseChange = block.timestamp;
 
         // Create the Forking court.
         Court storage court = courts.push();
         court.parent = 0;
         court.children = new uint256[](0);
         court.hiddenVotes = _hiddenVotes;
-        court.minStake = _minStake;
-        court.alpha = _alpha;
-        court.feeForJuror = _feeForJuror;
-        court.jurorsForCourtJump = _jurorsForCourtJump;
+        court.minStake = _courtParameters[0];
+        court.alpha = _courtParameters[1];
+        court.feeForJuror = _courtParameters[2];
+        court.jurorsForCourtJump = _courtParameters[3];
         court.timesPerPeriod = _timesPerPeriod;
         court.supportedDisputeKits[DISPUTE_KIT_CLASSIC_INDEX] = true;
 
@@ -227,6 +257,20 @@ contract KlerosCore is IArbitrator {
         jurorProsecutionModule = _jurorProsecutionModule;
     }
 
+    /** @dev Changes the `minStakingTime` storage variable.
+     *  @param _minStakingTime The new value for the `minStakingTime` storage variable.
+     */
+    function changeMinStakingTime(uint256 _minStakingTime) external onlyByGovernor {
+        minStakingTime = _minStakingTime;
+    }
+
+    /** @dev Changes the `maxFreezingTime` storage variable.
+     *  @param _maxFreezingTime The new value for the `maxFreezingTime` storage variable.
+     */
+    function changeMaxFreezingTime(uint256 _maxFreezingTime) external onlyByGovernor {
+        maxFreezingTime = _maxFreezingTime;
+    }
+
     /** @dev Add a new supported dispute kit module to the court.
      *  @param _disputeKitAddress The address of the dispute kit contract.
      *  @param _parent The ID of the parent dispute kit. It is left empty when root DK is created.
@@ -245,12 +289,12 @@ contract KlerosCore is IArbitrator {
             // It should be always possible to reach the root from the leaf with the defined number of search iterations.
             require(depthLevel < SEARCH_ITERATIONS, "Depth level is at max");
         }
-
         disputeKitNodes.push(
             DisputeKitNode({
                 parent: _parent,
                 children: new uint256[](0),
                 disputeKit: _disputeKitAddress,
+                needsFreezing: false,
                 depthLevel: depthLevel
             })
         );
@@ -406,6 +450,25 @@ contract KlerosCore is IArbitrator {
         require(setStakeForAccount(msg.sender, _subcourtID, _stake, 0), "Staking failed");
     }
 
+    /** @dev Executes the next delayed stakes.
+     *  @param _iterations The number of delayed stakes to execute.
+     */
+    function executeDelayedStakes(uint256 _iterations) external {
+        require(phase == Phase.staking, "Should be in Staking phase.");
+
+        uint256 actualIterations = (delayedStakeReadIndex + _iterations) - 1 > delayedStakeWriteIndex
+            ? (delayedStakeWriteIndex - delayedStakeReadIndex) + 1
+            : _iterations;
+        uint256 newDelayedStakeReadIndex = delayedStakeReadIndex + actualIterations;
+
+        for (uint256 i = delayedStakeReadIndex; i < newDelayedStakeReadIndex; i++) {
+            DelayedStake storage delayedStake = delayedStakes[i];
+            setStakeForAccount(delayedStake.account, delayedStake.subcourtID, delayedStake.stake, delayedStake.penalty);
+            delete delayedStakes[i];
+        }
+        delayedStakeReadIndex = newDelayedStakeReadIndex;
+    }
+
     /** @dev Creates a dispute. Must be called by the arbitrable contract.
      *  @param _numberOfChoices Number of choices for the jurors to choose from.
      *  @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's subcourt (first 32 bytes),
@@ -440,8 +503,55 @@ contract KlerosCore is IArbitrator {
         round.tokensAtStakePerJuror = (court.minStake * court.alpha) / ALPHA_DIVISOR;
         round.totalFeesForJurors = msg.value;
 
-        disputeKit.createDispute(disputeID, _numberOfChoices, _extraData);
+        if (!disputeKitNodes[disputeKitID].needsFreezing) {
+            // Ensures uniqueness in the disputesKitIDsThatNeedFreezing array.
+            disputeKitNodes[disputeKitID].needsFreezing = true;
+            disputesKitIDsThatNeedFreezing.push(disputeKitID);
+        }
+
+        disputeKit.createDispute(disputeID, _numberOfChoices, _extraData, round.nbVotes);
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
+    }
+
+    /** @dev Switches the phases between Staking and Freezing, also signal the switch to the dispute kits.
+     */
+    function passPhase() external {
+        if (phase == Phase.staking) {
+            require(block.timestamp - lastPhaseChange >= minStakingTime, "The minimal staking time has not passed yet");
+            require(disputesKitIDsThatNeedFreezing.length > 0, "There are no dispute kit which need freezing");
+            phase = Phase.freezing;
+            freezeBlock = block.number;
+        } else {
+            // phase == Phase.freezing
+            bool timeout = this.freezingPhaseTimeout();
+            for (int256 i = int256(disputesKitIDsThatNeedFreezing.length) - 1; i >= 0; --i) {
+                uint256 disputeKitID = disputesKitIDsThatNeedFreezing[uint256(i)];
+                IDisputeKit disputeKit = disputeKitNodes[disputesKitIDsThatNeedFreezing[uint256(i)]].disputeKit;
+                if (timeout && !disputeKit.isResolving()) {
+                    // Force the dispute kit to be ready for Staking phase.
+                    disputeKit.passPhase(); // Should not be called if already in Resolving phase, because it reverts.
+                    require(disputeKit.isResolving(), "A dispute kit has not passed to Resolving phase");
+                } else {
+                    // Check if the dispute kit is ready for Staking phase.
+                    require(disputeKit.isResolving(), "A dispute kit has not passed to Resolving phase");
+                    if (disputeKit.disputesWithoutJurors() == 0) {
+                        // The dispute kit had time to finish drawing jurors for all its disputes.
+                        disputeKitNodes[disputeKitID].needsFreezing = false;
+                        if (i < int256(disputesKitIDsThatNeedFreezing.length) - 1) {
+                            // This is not the last element so copy the last element to the current one, then pop.
+                            disputesKitIDsThatNeedFreezing[uint256(i)] = disputesKitIDsThatNeedFreezing[
+                                disputesKitIDsThatNeedFreezing.length - 1
+                            ];
+                        }
+                        disputesKitIDsThatNeedFreezing.pop();
+                    }
+                }
+            }
+            phase = Phase.staking;
+        }
+        // Should not be reached if the phase is unchanged.
+        lastPhaseChange = block.timestamp;
+        emit NewPhase(phase);
     }
 
     /** @dev Passes the period of a specified dispute.
@@ -495,6 +605,8 @@ contract KlerosCore is IArbitrator {
      *  @param _iterations The number of iterations to run.
      */
     function draw(uint256 _disputeID, uint256 _iterations) external {
+        require(phase == Phase.freezing, "Wrong phase.");
+
         Dispute storage dispute = disputes[_disputeID];
         uint256 currentRound = dispute.rounds.length - 1;
         Round storage round = dispute.rounds[currentRound];
@@ -509,11 +621,6 @@ contract KlerosCore is IArbitrator {
             if (drawnAddress != address(0)) {
                 // In case no one has staked at the court yet.
                 jurors[drawnAddress].lockedTokens[dispute.subcourtID] += round.tokensAtStakePerJuror;
-                require(
-                    jurors[drawnAddress].stakedTokens[dispute.subcourtID] >=
-                        jurors[drawnAddress].lockedTokens[dispute.subcourtID],
-                    "Locked amount shouldn't exceed staked amount."
-                );
                 round.drawnJurors.push(drawnAddress);
                 emit Draw(drawnAddress, _disputeID, currentRound, i);
             }
@@ -573,12 +680,6 @@ contract KlerosCore is IArbitrator {
             if (newSubcourtID != dispute.subcourtID) {
                 emit CourtJump(_disputeID, dispute.rounds.length - 1, dispute.subcourtID, newSubcourtID);
             }
-
-            // Dispute kit was changed, so create a dispute in the new DK contract.
-            if (newDisputeKitID != round.disputeKitID) {
-                emit DisputeKitJump(_disputeID, dispute.rounds.length - 1, round.disputeKitID, newDisputeKitID);
-                disputeKitNodes[newDisputeKitID].disputeKit.createDispute(_disputeID, _numberOfChoices, _extraData);
-            }
         }
 
         dispute.subcourtID = newSubcourtID;
@@ -587,9 +688,26 @@ contract KlerosCore is IArbitrator {
 
         Court storage court = courts[newSubcourtID];
         extraRound.nbVotes = msg.value / court.feeForJuror; // As many votes that can be afforded by the provided funds.
-        extraRound.disputeKitID = newDisputeKitID;
         extraRound.tokensAtStakePerJuror = (court.minStake * court.alpha) / ALPHA_DIVISOR;
         extraRound.totalFeesForJurors = msg.value;
+        extraRound.disputeKitID = newDisputeKitID;
+
+        if (!disputeKitNodes[newDisputeKitID].needsFreezing) {
+            // Ensures uniqueness in the disputesKitIDsThatNeedFreezing array.
+            disputeKitNodes[newDisputeKitID].needsFreezing = true;
+            disputesKitIDsThatNeedFreezing.push(newDisputeKitID);
+        }
+
+        // Dispute kit was changed, so create a dispute in the new DK contract.
+        if (extraRound.disputeKitID != round.disputeKitID) {
+            emit DisputeKitJump(_disputeID, dispute.rounds.length - 1, round.disputeKitID, extraRound.disputeKitID);
+            disputeKitNodes[extraRound.disputeKitID].disputeKit.createDispute(
+                _disputeID,
+                _numberOfChoices,
+                _extraData,
+                extraRound.nbVotes
+            );
+        }
 
         emit AppealDecision(_disputeID, dispute.arbitrated);
         emit NewPeriod(_disputeID, Period.evidence);
@@ -858,6 +976,7 @@ contract KlerosCore is IArbitrator {
         nodes = tree.nodes;
     }
 
+    // TODO: some getters can be merged into a single function
     function getSortitionSumTreeID(bytes32 _key, uint256 _nodeIndex) external view returns (bytes32 ID) {
         ID = sortitionSumTrees.sortitionSumTrees[_key].nodeIndexesToIDs[_nodeIndex];
     }
@@ -876,6 +995,19 @@ contract KlerosCore is IArbitrator {
 
     function isRuled(uint256 _disputeID) external view returns (bool) {
         return disputes[_disputeID].ruled;
+    }
+
+    function getNumberOfVotes(uint256 _disputeID) external view returns (uint256) {
+        Dispute storage dispute = disputes[_disputeID];
+        return dispute.rounds[dispute.rounds.length - 1].nbVotes;
+    }
+
+    function getFreezeBlock() external view returns (uint256) {
+        return freezeBlock;
+    }
+
+    function freezingPhaseTimeout() external view returns (bool) {
+        return phase == Phase.freezing && block.timestamp - lastPhaseChange >= maxFreezingTime;
     }
 
     /** @dev Returns true if the dispute kit will be switched to a parent DK.
@@ -901,6 +1033,14 @@ contract KlerosCore is IArbitrator {
         (winningChoice, tied) = disputeKitNodes[round.disputeKitID].disputeKit.getLastRoundResult(_disputeID);
     }
 
+    function getDisputeKitNodesLength() external view returns (uint256) {
+        return disputeKitNodes.length;
+    }
+
+    function getDisputesKitIDsThatNeedFreezing() external view returns (uint256[] memory) {
+        return disputesKitIDsThatNeedFreezing;
+    }
+
     // ************************************* //
     // *            Internal               * //
     // ************************************* //
@@ -923,6 +1063,9 @@ contract KlerosCore is IArbitrator {
         uint256 _stake,
         uint256 _penalty
     ) internal returns (bool succeeded) {
+        // Input and transfer checks
+        if (_subcourtID > courts.length) return false;
+
         Juror storage juror = jurors[_account];
         bytes32 stakePathID = accountAndSubcourtIDToStakePathID(_account, _subcourtID);
         uint256 currentStake = sortitionSumTrees.stakeOf(bytes32(uint256(_subcourtID)), stakePathID);
@@ -930,8 +1073,43 @@ contract KlerosCore is IArbitrator {
         if (_stake != 0) {
             // Check against locked tokens in case the min stake was lowered.
             if (_stake < courts[_subcourtID].minStake || _stake < juror.lockedTokens[_subcourtID]) return false;
+            if (currentStake == 0 && juror.subcourtIDs.length >= MAX_STAKE_PATHS) return false;
+        }
+
+        // Delayed action logic.
+        if (phase != Phase.staking) {
+            delayedStakes[++delayedStakeWriteIndex] = DelayedStake({
+                account: _account,
+                subcourtID: _subcourtID,
+                stake: _stake,
+                penalty: _penalty
+            });
+            return true;
+        }
+
+        uint256 transferredAmount;
+        if (_stake >= currentStake) {
+            transferredAmount = _stake - currentStake;
+            if (transferredAmount > 0) {
+                // TODO: handle transfer reverts.
+                if (!pinakion.transferFrom(_account, address(this), transferredAmount)) return false;
+            }
+        } else if (_stake == 0) {
+            // Keep locked tokens in the contract and release them after dispute is executed.
+            transferredAmount = currentStake - juror.lockedTokens[_subcourtID] - _penalty;
+            if (transferredAmount > 0) {
+                if (!pinakion.transfer(_account, transferredAmount)) return false;
+            }
+        } else {
+            transferredAmount = currentStake - _stake - _penalty;
+            if (transferredAmount > 0) {
+                if (!pinakion.transfer(_account, transferredAmount)) return false;
+            }
+        }
+
+        // State update
+        if (_stake != 0) {
             if (currentStake == 0) {
-                if (juror.subcourtIDs.length >= MAX_STAKE_PATHS) return false;
                 juror.subcourtIDs.push(_subcourtID);
             }
         } else {
@@ -958,25 +1136,6 @@ contract KlerosCore is IArbitrator {
         }
 
         emit StakeSet(_account, _subcourtID, _stake, newTotalStake);
-
-        uint256 transferredAmount;
-        if (_stake >= currentStake) {
-            transferredAmount = _stake - currentStake;
-            if (transferredAmount > 0) {
-                if (!pinakion.transferFrom(_account, address(this), transferredAmount)) return false;
-            }
-        } else if (_stake == 0) {
-            // Keep locked tokens in the contract and release them after dispute is executed.
-            transferredAmount = currentStake - juror.lockedTokens[_subcourtID] - _penalty;
-            if (transferredAmount > 0) {
-                if (!pinakion.transfer(_account, transferredAmount)) return false;
-            }
-        } else {
-            transferredAmount = currentStake - _stake - _penalty;
-            if (transferredAmount > 0) {
-                if (!pinakion.transfer(_account, transferredAmount)) return false;
-            }
-        }
 
         return true;
     }
