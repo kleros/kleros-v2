@@ -523,11 +523,11 @@ contract KlerosCore is IArbitrator {
             freezeBlock = block.number;
         } else {
             // phase == Phase.freezing
-            bool freezingPhaseFinished = this.freezingPhaseTimeout();
+            bool timeout = this.freezingPhaseTimeout();
             for (int256 i = int256(disputesKitIDsThatNeedFreezing.length) - 1; i >= 0; --i) {
                 uint256 disputeKitID = disputesKitIDsThatNeedFreezing[uint256(i)];
                 IDisputeKit disputeKit = disputeKitNodes[disputesKitIDsThatNeedFreezing[uint256(i)]].disputeKit;
-                if (freezingPhaseFinished && !disputeKit.isResolving()) {
+                if (timeout && !disputeKit.isResolving()) {
                     // Force the dispute kit to be ready for Staking phase.
                     disputeKit.passPhase(); // Should not be called if already in Resolving phase, because it reverts.
                     require(disputeKit.isResolving(), "A dispute kit has not passed to Resolving phase");
