@@ -21,6 +21,7 @@ async function main() {
 
   const rng = await deploy("IncrementalNG", {
     from: deployer,
+    args: [6485021504514574],
     log: true,
     skipIfAlreadyDeployed: false, // BUG: this parameter does nothing
   });
