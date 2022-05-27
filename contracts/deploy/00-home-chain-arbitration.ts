@@ -25,6 +25,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const rng = await deploy("IncrementalNG", {
     from: deployer,
+    args: [67193503189],
     log: true,
   });
 

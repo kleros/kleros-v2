@@ -45,7 +45,7 @@ describe("Demo pre-alpha1", function () {
   let deployer, relayer, bridger, challenger, innocentBystander;
   let ng, disputeKit, pnk, core, fastBridgeReceiver, foreignGateway, arbitrable, fastBridgeSender, homeGateway, inbox;
 
-  before("Setup", async () => {
+  beforeEach("Setup", async () => {
     deployer = (await getNamedAccounts()).deployer;
     relayer = (await getNamedAccounts()).relayer;
 
@@ -217,10 +217,7 @@ describe("Demo pre-alpha1", function () {
     const tx8 = await fastBridgeReceiver.withdrawClaimDeposit(ticketID);
   });
 
-  it.skip("Demo - Honest Claim - Challenged - Bridger Paid, Challenger deposit forfeited", async () => {
-
-    // TODO: FIX ME !
-
+  it("Demo - Honest Claim - Challenged - Bridger Paid, Challenger deposit forfeited", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
     const [bridger, challenger] = await ethers.getSigners();
 
@@ -322,14 +319,14 @@ describe("Demo pre-alpha1", function () {
     console.log("draw successful");
     const events3 = (await tx3.wait()).events;
 
-    const roundInfo = await core.getRoundInfo(1, 0);
+    const roundInfo = await core.getRoundInfo(0, 0);
     expect(roundInfo.drawnJurors).deep.equal([deployer, deployer, deployer]);
     expect(roundInfo.tokensAtStakePerJuror).to.equal(ONE_HUNDRED_PNK.mul(2));
     expect(roundInfo.totalFeesForJurors).to.equal(arbitrationCost);
 
-    expect((await core.disputes(1)).period).to.equal(Period.evidence);
-    await core.passPeriod(1);
-    expect((await core.disputes(1)).period).to.equal(Period.vote);
+    expect((await core.disputes(0)).period).to.equal(Period.evidence);
+    await core.passPeriod(0);
+    expect((await core.disputes(0)).period).to.equal(Period.vote);
 
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
@@ -345,22 +342,22 @@ describe("Demo pre-alpha1", function () {
 
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
-    await disputeKit.connect(await ethers.getSigner(deployer)).castVote(1, [0, 1, 2], 0, 0);
-    await core.passPeriod(1);
-    await core.passPeriod(1);
-    expect((await core.disputes(1)).period).to.equal(Period.execution);
-    await core.execute(1, 0, 1000);
+    await disputeKit.connect(await ethers.getSigner(deployer)).castVote(0, [0, 1, 2], 0, 0);
+    await core.passPeriod(0);
+    await core.passPeriod(0);
+    expect((await core.disputes(0)).period).to.equal(Period.execution);
+    await core.execute(0, 0, 1000);
     const ticket1 = await fastBridgeSender.currentTicketID();
-    expect(ticket1).to.equal(2);
+    expect(ticket1).to.equal(1);
 
-    const tx4 = await core.executeRuling(1);
+    const tx4 = await core.executeRuling(0);
 
     expect(tx4).to.emit(fastBridgeSender, "OutgoingMessage");
 
     console.log("Executed ruling");
 
     const ticket2 = await fastBridgeSender.currentTicketID();
-    expect(ticket2).to.equal(3);
+    expect(ticket2).to.equal(2);
     const eventFilter = fastBridgeSender.filters.OutgoingMessage();
     const event5 = await fastBridgeSender.queryFilter(eventFilter, "latest");
     const event6 = await ethers.provider.getLogs(eventFilter);
@@ -379,7 +376,7 @@ describe("Demo pre-alpha1", function () {
     expect(messageHash).to.equal(expectedHash);
 
     const currentID = await fastBridgeSender.currentTicketID();
-    expect(currentID).to.equal(3);
+    expect(currentID).to.equal(2);
 
     // bridger tx starts
     const tx5 = await fastBridgeReceiver.connect(bridger).claim(ticketID, messageHash, { value: ONE_TENTH_ETH });
@@ -416,10 +413,7 @@ describe("Demo pre-alpha1", function () {
     );
   });
 
-  it.skip("Demo - Dishonest Claim - Challenged - Bridger deposit forfeited, Challenger paid", async () => {
-
-    // TODO: FIX ME !
-
+  it("Demo - Dishonest Claim - Challenged - Bridger deposit forfeited, Challenger paid", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
     const [bridger, challenger] = await ethers.getSigners();
 
@@ -519,7 +513,7 @@ describe("Demo pre-alpha1", function () {
     expect((await core.disputes(coreId)).period).to.equal(Period.execution);
     await core.execute(coreId, 0, 1000);
     const ticket1 = await fastBridgeSender.currentTicketID();
-    expect(ticket1).to.equal(3);
+    expect(ticket1).to.equal(1);
 
     const tx4 = await core.executeRuling(coreId);
 
@@ -528,7 +522,7 @@ describe("Demo pre-alpha1", function () {
     console.log("Executed ruling");
 
     const ticket2 = await fastBridgeSender.currentTicketID();
-    expect(ticket2).to.equal(4);
+    expect(ticket2).to.equal(2);
     const eventFilter = fastBridgeSender.filters.OutgoingMessage();
     const event5 = await fastBridgeSender.queryFilter(eventFilter, "latest");
     const event6 = await ethers.provider.getLogs(eventFilter);
@@ -547,7 +541,7 @@ describe("Demo pre-alpha1", function () {
     expect(messageHash).to.equal(expectedHash);
 
     const currentID = await fastBridgeSender.currentTicketID();
-    expect(currentID).to.equal(4);
+    expect(currentID).to.equal(2);
 
     // bridger tx starts - bridger creates fakeData & fakeHash for dishonest ruling
     const fakeData = "0x0000000000000000000000009a9f2ccfde556a7e9ff0848998aa4a0cfd8863ae000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000643496987923bd6a8aa2bdce6c5b15551665079e7acfb1b4d2149ac7e2f72260417d541b7f000000000000000000000000000000000000000000000000000000000000000100000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c800000000000000000000000000000000000000000000000000000000";
