@@ -31,8 +31,13 @@ interface IDisputeKit {
     function createDispute(
         uint256 _coreDisputeID,
         uint256 _numberOfChoices,
-        bytes calldata _extraData
+        bytes calldata _extraData,
+        uint256 _nbVotes
     ) external;
+
+    /** @dev Passes the phase.
+     */
+    function passPhase() external;
 
     /** @dev Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
      *  Note: Access restricted to Kleros Core only.
@@ -130,4 +135,14 @@ interface IDisputeKit {
             uint256 choice,
             bool voted
         );
+
+    /** @dev Returns the number of disputes without jurors in the dispute kit.
+     *  @return The number of disputes without jurors in the dispute kit.
+     */
+    function disputesWithoutJurors() external view returns (uint256);
+
+    /** @dev Returns true if the dispute kit is ready to Resolve, regardless of the number of disputes without jurors.
+     *  @return Whether the dispute kit is ready to resolve, regardless of the number of disputes without jurors.
+     */
+    function isResolving() external view returns (bool);
 }
