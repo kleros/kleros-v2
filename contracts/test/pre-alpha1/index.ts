@@ -54,7 +54,7 @@ describe("Demo pre-alpha1", function () {
 
     await deployments.fixture(["Arbitration", "ForeignGateway", "HomeGateway"], {
       fallbackToGlobal: true,
-      keepExistingDeployments: true,
+      keepExistingDeployments: false,
     });
     ng = <IncrementalNG>await ethers.getContract("IncrementalNG");
     disputeKit = <DisputeKitClassic>await ethers.getContract("DisputeKitClassic");
