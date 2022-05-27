@@ -514,40 +514,44 @@ contract KlerosCore is IArbitrator {
     }
 
     /** @dev Switches the phases between Staking and Freezing, also signal the switch to the dispute kits.
-     * Note: Invariant: do not emit a `NewPhase` event if the phase is unchanged.
      */
     function passPhase() external {
         if (phase == Phase.staking) {
             require(block.timestamp - lastPhaseChange >= minStakingTime, "The minimal staking time has not passed yet");
             require(disputesKitIDsThatNeedFreezing.length > 0, "There are no dispute kit which need freezing");
-
             phase = Phase.freezing;
             freezeBlock = block.number;
-            lastPhaseChange = block.timestamp;
-            emit NewPhase(phase);
-        } else if (phase == Phase.freezing) {
-            bool freezingPhaseFinished = block.timestamp - lastPhaseChange >= maxFreezingTime;
-            for (uint256 i = disputesKitIDsThatNeedFreezing.length - 1; i >= 0; --i) {
-                IDisputeKit disputeKit = disputeKitNodes[disputesKitIDsThatNeedFreezing[i]].disputeKit;
+        } else {
+            // phase == Phase.freezing
+            bool freezingPhaseFinished = this.freezingPhaseTimeout();
+            for (int256 i = int256(disputesKitIDsThatNeedFreezing.length) - 1; i >= 0; --i) {
+                uint256 disputeKitID = disputesKitIDsThatNeedFreezing[uint256(i)];
+                IDisputeKit disputeKit = disputeKitNodes[disputesKitIDsThatNeedFreezing[uint256(i)]].disputeKit;
                 if (freezingPhaseFinished && !disputeKit.isResolving()) {
                     // Force the dispute kit to be ready for Staking phase.
-                    disputeKit.passPhase(); // Warning: don't call if already in Resolving phase, because it reverts.
+                    disputeKit.passPhase(); // Should not be called if already in Resolving phase, because it reverts.
                     require(disputeKit.isResolving(), "A dispute kit has not passed to Resolving phase");
                 } else {
                     // Check if the dispute kit is ready for Staking phase.
                     require(disputeKit.isResolving(), "A dispute kit has not passed to Resolving phase");
-
                     if (disputeKit.disputesWithoutJurors() == 0) {
                         // The dispute kit had time to finish drawing jurors for all its disputes.
-                        disputeKitNodes[disputesKitIDsThatNeedFreezing[i]].needsFreezing = false;
+                        disputeKitNodes[disputeKitID].needsFreezing = false;
+                        if (i < int256(disputesKitIDsThatNeedFreezing.length) - 1) {
+                            // This is not the last element so copy the last element to the current one, then pop.
+                            disputesKitIDsThatNeedFreezing[uint256(i)] = disputesKitIDsThatNeedFreezing[
+                                disputesKitIDsThatNeedFreezing.length - 1
+                            ];
+                        }
                         disputesKitIDsThatNeedFreezing.pop();
                     }
                 }
             }
             phase = Phase.staking;
-            lastPhaseChange = block.timestamp;
-            emit NewPhase(phase);
         }
+        // Should not be reached if the phase is unchanged.
+        lastPhaseChange = block.timestamp;
+        emit NewPhase(phase);
     }
 
     /** @dev Passes the period of a specified dispute.
@@ -1002,8 +1006,8 @@ contract KlerosCore is IArbitrator {
         return freezeBlock;
     }
 
-    function isFreezingPhaseFinished() external view returns (bool) {
-        return block.timestamp - lastPhaseChange >= maxFreezingTime;
+    function freezingPhaseTimeout() external view returns (bool) {
+        return phase == Phase.freezing && block.timestamp - lastPhaseChange >= maxFreezingTime;
     }
 
     /** @dev Returns true if the dispute kit will be switched to a parent DK.
