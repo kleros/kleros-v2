@@ -203,10 +203,9 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     }
 
     /** @dev Passes the phase.
-     * Note: Invariant: do not emit a `NewPhaseDisputeKit` event if the phase is unchanged.
      */
     function passPhase() external override {
-        if (core.phase() == KlerosCore.Phase.staking || core.isFreezingPhaseFinished()) {
+        if (core.phase() == KlerosCore.Phase.staking || core.freezingPhaseTimeout()) {
             require(phase != Phase.resolving, "Already in Resolving phase");
             phase = Phase.resolving; // Safety net.
         } else if (core.phase() == KlerosCore.Phase.freezing) {
@@ -222,10 +221,11 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
                 require(RN != 0, "Random number is not ready yet");
                 phase = Phase.drawing;
             } else if (phase == Phase.drawing) {
-                require(disputesWithoutJurors == 0 || core.isFreezingPhaseFinished(), "Not ready for Resolving phase");
+                require(disputesWithoutJurors == 0, "Not ready for Resolving phase");
                 phase = Phase.resolving;
             }
         }
+        // Should not be reached if the phase is unchanged.
         emit NewPhaseDisputeKit(phase);
     }
 
