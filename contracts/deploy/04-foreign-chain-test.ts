@@ -100,7 +100,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     log: true,
   });
 };
-deployForeignGateway.tags = ["Test", "ForeignChain"];
+deployForeignGateway.tags = ["BridgeTest"];
 deployForeignGateway.skip = async ({ getChainId }) => {
   const chainId = Number(await getChainId());
   return !ForeignChains[chainId];

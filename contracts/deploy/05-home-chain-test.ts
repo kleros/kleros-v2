@@ -59,7 +59,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   }); // nonce+1
 };
 
-deployHomeGateway.tags = ["HomeChain", "Test"];
+deployHomeGateway.tags = ["BridgeTest"];
 deployHomeGateway.skip = async ({ getChainId }) => (HOME_CHAIN_ID != Number(await getChainId()));
 
 export default deployHomeGateway;
