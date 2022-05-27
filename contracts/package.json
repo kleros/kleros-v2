@@ -14,7 +14,8 @@
     "build": "hardhat compile",
     "clean": "hardhat clean",
     "deploy": "hardhat deploy",
-    "deploy:staging": "run-s \"deploy --network rinkeby {@}\" \"deploy --network arbitrumRinkeby {@}\" --",
+    "deploy:staging": "run-s \"deploy --network rinkeby --tags ForeignChain {@}\" \"deploy --network arbitrumRinkeby --tags HomeChain {@}\" --",
+    "deploy:staging-bridge-only": "run-s \"deploy --network rinkeby --tags BridgeTest{@}\" \"deploy --network arbitrumRinkeby --tags BridgeTest {@}\" --",
     "test": "hardhat test",
     "watch": "hardhat watch",
     "docgen": "hardhat docgen"
