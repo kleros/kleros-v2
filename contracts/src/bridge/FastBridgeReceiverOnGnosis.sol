@@ -10,20 +10,18 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/ISafeBridgeReceiver.sol";
+import "./FastBridgeReceiverBase.sol";
 import "./interfaces/gnosis-chain/IAMB.sol";
-import "./interfaces/FastBridgeReceiverBase.sol";
 
 /**
  * Fast Bridge Receiver on Ethereum from Arbitrum
  * Counterpart of `FastBridgeSenderToGnosis`
  */
-contract FastBridgeReceiverOnGnosis is ISafeBridgeReceiver, FastBridgeReceiverBase {
+contract FastBridgeReceiverOnGnosis is FastBridgeReceiverBase {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
-    address public immutable safeBridgeRouter; // The address of the Safe Bridge Router on Ethereum.
     IAMB public immutable amb; // The address of the AMB contract on GC.
 
     /**
@@ -32,17 +30,16 @@ contract FastBridgeReceiverOnGnosis is ISafeBridgeReceiver, FastBridgeReceiverBa
      * @param _epochPeriod The duration of the period allowing to challenge a claim.
      * @param _genesis The genesis time to synchronize epochs.
      * @param _amb The the AMB contract on Gnosis Chain.
-     * @param _safeBridgeRouter The safe bridge relayer on Ethereum.
+     * @param _safeRouter The address of the Safe Bridge Router on Ethereum.
      */
     constructor(
         uint256 _deposit,
         uint256 _epochPeriod,
         uint256 _genesis,
         address _amb,
-        address _safeBridgeRouter
-    ) FastBridgeReceiverBase(_deposit, _epochPeriod, _genesis) {
+        address _safeRouter
+    ) FastBridgeReceiverBase(_deposit, _epochPeriod, _genesis, _safeRouter) {
         amb = IAMB(_amb);
-        safeBridgeRouter = _safeBridgeRouter;
     }
 
     // ************************************* //
@@ -50,6 +47,6 @@ contract FastBridgeReceiverOnGnosis is ISafeBridgeReceiver, FastBridgeReceiverBa
     // ************************************* //
 
     function isSentBySafeBridge() internal view override returns (bool) {
-        return (msg.sender == address(amb)) && (amb.messageSender() == safeBridgeRouter);
+        return (msg.sender == address(amb)) && (amb.messageSender() == safeRouter);
     }
 }

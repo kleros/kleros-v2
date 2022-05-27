@@ -10,14 +10,14 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/FastBridgeSenderBase.sol";
+import "./FastBridgeSenderBase.sol";
 import "./interfaces/arbitrum/IArbSys.sol";
 
 /**
  * Fast Bridge Sender to Ethereum from Arbitrum
  * Counterpart of `FastBridgeReceiverOnEthereum`
  */
-contract FastBridgeSenderToEthereum is FastBridgeSenderBase {
+contract FastBridgeSender is FastBridgeSenderBase {
     // ************************************* //
     // *              Events               * //
     // ************************************* //
@@ -29,21 +29,18 @@ contract FastBridgeSenderToEthereum is FastBridgeSenderBase {
     // ************************************* //
 
     IArbSys public constant ARB_SYS = IArbSys(address(100));
-    IFastBridgeReceiver public immutable fastBridgeReceiver;
 
     /**
      * @dev Constructor.
-     * @param _fastBridgeReceiver The address of the Fast Bridge on Ethereum.
      * @param _epochPeriod The immutable period between epochs.
      * @param _genesis The immutable genesis state variable from the FastBridgeSeneder.
+     * @param _safeRouter The address of the Safe Router on Ethereum.
      */
     constructor(
         uint256 _epochPeriod,
         uint256 _genesis,
-        IFastBridgeReceiver _fastBridgeReceiver
-    ) FastBridgeSenderBase(_epochPeriod, _genesis) {
-        fastBridgeReceiver = _fastBridgeReceiver;
-    }
+        address _safeRouter
+    ) FastBridgeSenderBase(_epochPeriod, _genesis, _safeRouter) {}
 
     /**
      * @dev Sends the merkle root state for _epoch to Ethereum using the Safe Bridge, which relies on Arbitrum's canonical bridge. It is unnecessary during normal operations but essential only in case of challenge.
@@ -53,16 +50,16 @@ contract FastBridgeSenderToEthereum is FastBridgeSenderBase {
         bytes32 batchMerkleRoot = fastOutbox[_epoch];
 
         // Safe Bridge message envelope
-        bytes4 methodSelector = IFastBridgeReceiver.verifySafe.selector;
+        bytes4 methodSelector = ISafeBridgeReceiver.verifySafe.selector;
         bytes memory safeMessageData = abi.encodeWithSelector(methodSelector, _epoch, batchMerkleRoot);
 
-        _sendSafe(address(fastBridgeReceiver), safeMessageData);
+        _sendSafe(safeRouter, safeMessageData);
     }
 
-    function _sendSafe(address _receiver, bytes memory _calldata) internal override returns (uint256) {
+    function _sendSafe(address _receiver, bytes memory _calldata) internal override returns (bytes32) {
         uint256 txID = ARB_SYS.sendTxToL1(_receiver, _calldata);
 
         emit L2ToL1TxCreated(txID);
-        return txID;
+        return bytes32(txID);
     }
 }

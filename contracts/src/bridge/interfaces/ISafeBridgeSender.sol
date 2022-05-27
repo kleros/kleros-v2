@@ -10,5 +10,5 @@ abstract contract ISafeBridgeSender {
      * @param _calldata The home chain encoded message data.
      * @return Unique id to track the message request/transaction.
      */
-    function _sendSafe(address _receiver, bytes memory _calldata) internal virtual returns (uint256);
+    function _sendSafe(address _receiver, bytes memory _calldata) internal virtual returns (bytes32);
 }

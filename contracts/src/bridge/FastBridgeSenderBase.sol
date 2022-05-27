@@ -10,23 +10,24 @@
 
 pragma solidity ^0.8.0;
 
-import "./IFastBridgeSender.sol";
-import "./ISafeBridgeSender.sol";
-import "./IFastBridgeReceiver.sol";
-import "../merkle/MerkleTree.sol";
+import "./merkle/MerkleTree.sol";
+import "./interfaces/IFastBridgeSender.sol";
+import "./interfaces/ISafeBridgeSender.sol";
+import "./interfaces/ISafeBridgeReceiver.sol";
 
 /**
  * Fast Bridge Sender Base
- * Counterpart of `FastBridgeReceiverBase`
+ * Counterpart of `FastReceiverBase`
  */
 abstract contract FastBridgeSenderBase is MerkleTree, IFastBridgeSender, ISafeBridgeSender {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
-    uint256 public immutable genesis; // Marks the beginning of the genesis epoch (epoch 0).
+    uint256 public immutable genesis; // Marks the beginning of epoch 0.
     uint256 public immutable epochPeriod; // Epochs mark the period between potential batches of messages.
     mapping(uint256 => bytes32) public fastOutbox; // epoch count => merkle root of batched messages
+    address public immutable safeRouter;
 
     // ************************************* //
     // *              Events               * //
@@ -34,18 +35,24 @@ abstract contract FastBridgeSenderBase is MerkleTree, IFastBridgeSender, ISafeBr
 
     /**
      * The bridgers need to watch for these events and relay the
-     * batchMerkleRoot on the FastBridgeReceiverOnEthereum.
+     * batchMerkleRoot on the FastBridgeReceiver.
      */
-    event SendBatch(uint256 indexed epoch, bytes32 indexed batchMerkleRoot);
+    event SendEpoch(uint256 indexed epoch, bytes32 indexed epochMerkleRoot);
 
     /**
      * @dev Constructor.
      * @param _epochPeriod The duration between epochs.
-     * @param _genesis The genesis time to synchronize epochs with the FastBridgeReceiverOnGnosis.
+     * @param _genesis The genesis time to synchronize epochs with the FastBridgeReceiver.
+     * @param _safeRouter The the Safe Bridge Router on Ethereum to the foreign chain.
      */
-    constructor(uint256 _epochPeriod, uint256 _genesis) {
+    constructor(
+        uint256 _epochPeriod,
+        uint256 _genesis,
+        address _safeRouter
+    ) {
         epochPeriod = _epochPeriod;
         genesis = _genesis;
+        safeRouter = _safeRouter;
     }
 
     // ************************************* //
@@ -70,6 +77,18 @@ abstract contract FastBridgeSenderBase is MerkleTree, IFastBridgeSender, ISafeBr
     }
 
     /**
+     * @dev Sends an arbitrary message to Ethereum using the Fast Bridge.
+     * @param _receiver The address of the contract on Ethereum which receives the calldata.
+     * @param _functionSelector The function to call.
+     */
+    function sendFast(address _receiver, bytes4 _functionSelector) external override {
+        bytes memory _fastMessage = abi.encodeWithSelector(_functionSelector, msg.sender);
+        bytes32 fastMessageHash = sha256(abi.encode(_fastMessage, batchSize));
+        appendMessage(fastMessageHash); // add message to merkle tree
+        emit MessageReceived(_receiver, _fastMessage, batchSize);
+    }
+
+    /**
      * Sends a batch of arbitrary message from one domain to another
      * via the fast bridge mechanism.
      */
@@ -79,9 +98,9 @@ abstract contract FastBridgeSenderBase is MerkleTree, IFastBridgeSender, ISafeBr
         require(batchSize > 0, "No messages to send.");
 
         // set merkle root in outbox and reset merkle tree
-        bytes32 batchMerkleRoot = getMerkleRootAndReset();
-        fastOutbox[epochFinalized] = batchMerkleRoot;
+        bytes32 epochMerkleRoot = getMerkleRootAndReset();
+        fastOutbox[epochFinalized] = epochMerkleRoot;
 
-        emit SendBatch(epochFinalized, batchMerkleRoot);
+        emit SendEpoch(epochFinalized, epochMerkleRoot);
     }
 }

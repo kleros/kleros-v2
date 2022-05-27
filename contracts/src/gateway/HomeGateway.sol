@@ -17,10 +17,10 @@ import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
 
 /**
- * Home Gateway to Ethereum
- * Counterpart of `ForeignGatewayOnEthereum`
+ * Home Gateway
+ * Counterpart of `ForeignGateway`
  */
-contract HomeGatewayToEthereum is IHomeGateway {
+contract HomeGateway is IHomeGateway {
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => uint256) public disputeHashtoID;
 

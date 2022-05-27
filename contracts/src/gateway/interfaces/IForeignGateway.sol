@@ -11,7 +11,7 @@ interface IForeignGateway is IArbitrator {
      * Relay the rule call from the home gateway to the arbitrable.
      */
     function relayRule(
-        address _messageOrigin,
+        address _messageSender,
         bytes32 _disputeHash,
         uint256 _ruling,
         address _forwarder

@@ -10,7 +10,8 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/ISafeBridgeRouter.sol";
+import "./interfaces/ISafeBridgeReceiver.sol";
+import "./interfaces/ISafeBridgeSender.sol";
 import "./interfaces/gnosis-chain/IAMB.sol";
 import "./interfaces/arbitrum/IInbox.sol";
 import "./interfaces/arbitrum/IOutbox.sol";
@@ -18,7 +19,7 @@ import "./interfaces/arbitrum/IOutbox.sol";
 /**
  * Router on Ethereum from Arbitrum to Gnosis Chain.
  */
-contract SafeBridgeRouter is ISafeBridgeRouter {
+contract SafeBridgeRouter is ISafeBridgeReceiver, ISafeBridgeSender {
     // ************************************* //
     // *              Events               * //
     // ************************************* //
@@ -56,16 +57,22 @@ contract SafeBridgeRouter is ISafeBridgeRouter {
     /**
      * Routes an arbitrary message from one domain to another.
      * Note: Access restricted to the Safe Bridge.
-     * @param _calldata The home chain encoded message data including function selector.
-     * @return Unique id to track the message request/transaction.
+     * @param _epoch The epoch associated with the _batchmerkleRoot.
+     * @param _batchMerkleRoot The true batch merkle root for the epoch sent by the safe bridge.     * @return Unique id to track the message request/transaction.
      */
-    function safeRelay(bytes memory _calldata) external override returns (bytes32) {
+    function verifySafe(uint256 _epoch, bytes32 _batchMerkleRoot) external override onlyFromSafeBridge {
         require(isSentBySafeBridge(), "Access not allowed: SafeBridgeSender only.");
 
+        bytes4 methodSelector = ISafeBridgeReceiver.verifySafe.selector;
+        bytes memory safeMessageData = abi.encodeWithSelector(methodSelector, _epoch, _batchMerkleRoot);
+
         // replace maxGasPerTx with safe level for production deployment
-        bytes32 txID = amb.requireToPassMessage(fastBridgeReceiverOnGnosisChain, _calldata, amb.maxGasPerTx());
+        bytes32 txID = _sendSafe(fastBridgeReceiverOnGnosisChain, safeMessageData);
         emit safeRelayed(txID);
-        return txID;
+    }
+
+    function _sendSafe(address _receiver, bytes memory _calldata) internal override returns (bytes32) {
+        return amb.requireToPassMessage(_receiver, _calldata, amb.maxGasPerTx());
     }
 
     // ************************************* //

@@ -11,7 +11,6 @@ import "hardhat-deploy-ethers";
 import "hardhat-watcher";
 import "hardhat-docgen";
 import "hardhat-contract-sizer";
-
 dotenv.config();
 
 const config: HardhatUserConfig = {
@@ -102,6 +101,17 @@ const config: HardhatUserConfig = {
       },
     },
     // Foreign chain ---------------------------------------------------------------------------------
+    gnosischain: {
+      chainId: 100,
+      url: `http://rpc.gnosischain.com/`,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      live: true,
+      saveDeployments: true,
+      tags: ["staging", "foreign", "layer2"],
+      companionNetworks: {
+        home: "arbitrum",
+      },
+    },
     rinkeby: {
       chainId: 4,
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
@@ -160,6 +170,13 @@ const config: HardhatUserConfig = {
       tasks: [
         { command: "compile", params: { quiet: true } },
         { command: "test", params: { noCompile: true, testFiles: ["./test/arbitration/index.ts"] } },
+      ],
+      files: ["./test/**/*", "./src/**/*"],
+    },
+    testBridge: {
+      tasks: [
+        { command: "compile", params: { quiet: true } },
+        { command: "test", params: { noCompile: true, testFiles: ["./test/bridge/index.ts"] } },
       ],
       files: ["./test/**/*", "./src/**/*"],
     },

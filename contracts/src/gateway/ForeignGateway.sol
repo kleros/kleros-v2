@@ -16,10 +16,10 @@ import "../bridge/interfaces/IFastBridgeReceiver.sol";
 import "./interfaces/IForeignGateway.sol";
 
 /**
- * Foreign Gateway on Ethereum
- * Counterpart of `HomeGatewayToEthereum`
+ * Foreign Gateway
+ * Counterpart of `HomeGateway`
  */
-contract ForeignGatewayOnEthereum is IForeignGateway {
+contract ForeignGateway is IForeignGateway {
     // The global default minimum number of jurors in a dispute.
     uint256 public constant MIN_JURORS = 3;
 
@@ -160,12 +160,12 @@ contract ForeignGatewayOnEthereum is IForeignGateway {
      * Relay the rule call from the home gateway to the arbitrable.
      */
     function relayRule(
-        address _messageOrigin,
+        address _messageSender,
         bytes32 _disputeHash,
         uint256 _ruling,
         address _relayer
     ) external override onlyFromFastBridge {
-        require(_messageOrigin == homeGateway, "Only the homegateway is allowed.");
+        require(_messageSender == homeGateway, "Only the homegateway is allowed.");
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 
         require(dispute.id != 0, "Dispute does not exist");

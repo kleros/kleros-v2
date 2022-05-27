@@ -10,15 +10,15 @@
 
 pragma solidity ^0.8.0;
 
-import "./IFastBridgeReceiver.sol";
-import "./ISafeBridgeReceiver.sol";
-import "../merkle/MerkleProof.sol";
+import "./interfaces/IFastBridgeReceiver.sol";
+import "./interfaces/ISafeBridgeReceiver.sol";
+import "./merkle/MerkleProof.sol";
 
 /**
- * Fast Bridge Receiver Base
- * Counterpart of `FastBridgeSenderBase`
+ * Fast Receiver Base
+ * Counterpart of `FastSenderBase`
  */
-abstract contract FastBridgeReceiverBase is IFastBridgeReceiver, MerkleProof, ISafeBridgeReceiver {
+abstract contract FastBridgeReceiverBase is MerkleProof, IFastBridgeReceiver, ISafeBridgeReceiver {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -42,6 +42,8 @@ abstract contract FastBridgeReceiverBase is IFastBridgeReceiver, MerkleProof, IS
     uint256 public immutable genesis; // Marks the beginning of the first epoch.
     uint256 public immutable override epochPeriod; // Epochs mark the period between potential batches of messages.
 
+    address public immutable safeRouter; // The address of the Safe Router on the connecting chain.
+
     mapping(uint256 => bytes32) public fastInbox; // epoch => validated batch merkle root(optimistically, or challenged and verified with the safe bridge)
     mapping(uint256 => Claim) public claims; // epoch => claim
     mapping(uint256 => Challenge) public challenges; // epoch => challenge
@@ -51,15 +53,19 @@ abstract contract FastBridgeReceiverBase is IFastBridgeReceiver, MerkleProof, IS
      * @dev Constructor.
      * @param _deposit The deposit amount to submit a claim in wei.
      * @param _epochPeriod The duration of the period allowing to challenge a claim.
+     * @param _genesis The genesis time to synchronize epochs.
+     * @param _safeRouter The address of the Safe Router on Ethereum.
      */
     constructor(
         uint256 _deposit,
         uint256 _epochPeriod,
-        uint256 _genesis
+        uint256 _genesis,
+        address _safeRouter
     ) {
         deposit = _deposit;
         epochPeriod = _epochPeriod;
         genesis = _genesis;
+        safeRouter = _safeRouter;
     }
 
     // ************************************* //
@@ -157,15 +163,15 @@ abstract contract FastBridgeReceiverBase is IFastBridgeReceiver, MerkleProof, IS
      * @param _epoch The epoch to verify.
      * @param _batchMerkleRoot The true batch merkle root for the epoch.
      */
-    function verifySafe(uint256 _epoch, bytes32 _batchMerkleRoot) external override {
+    function verifySafe(uint256 _epoch, bytes32 _batchMerkleRoot) external override onlyFromSafeBridge {
         require(isSentBySafeBridge(), "Access not allowed: SafeBridgeSender only.");
 
         fastInbox[_epoch] = _batchMerkleRoot;
 
-        if (_batchMerkleRoot != claims[_epoch].batchMerkleRoot) {
-            challenges[_epoch].honest = true;
-        } else {
+        if (_batchMerkleRoot == claims[_epoch].batchMerkleRoot) {
             claims[_epoch].honest = true;
+        } else {
+            challenges[_epoch].honest = true;
         }
     }
 
