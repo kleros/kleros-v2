@@ -10,7 +10,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../interfaces/arbitrum/IArbSys.sol";
+import "../../interfaces/arbitrum/IArbSys.sol";
 
 contract ArbSysMock {
     function sendTxToL1(address destination, bytes calldata calldataForL1)

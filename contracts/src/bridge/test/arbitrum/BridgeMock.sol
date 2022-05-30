@@ -10,7 +10,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../interfaces/arbitrum/IInbox.sol";
+import "../../interfaces/arbitrum/IInbox.sol";
 
 contract BridgeMock is IBridge {
     address public outbox;
