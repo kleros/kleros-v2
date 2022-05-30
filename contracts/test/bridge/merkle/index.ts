@@ -30,17 +30,17 @@ import { MerkleTree } from "./MerkleTree";
 describe("Merkle", function () {
   describe("Sanity tests", async () => {
 
-    let merkleTreeHistory, merkleProof;
+    let merkleTreeExposed, merkleProofExposed;
     let data,nodes,mt;
     let rootOnChain,rootOffChain, proof;
 
     before("Deploying", async () => {
-      const merkleTreeHistoryFactory = await ethers.getContractFactory("MerkleTreeHistory");
-      const merkleProofFactory = await ethers.getContractFactory("MerkleProof");
-      merkleTreeHistory = await merkleTreeHistoryFactory.deploy();
-      merkleProof = await merkleProofFactory.deploy();
-      await merkleTreeHistory.deployed();
-      await merkleProof.deployed();
+      const merkleTreeExposedFactory = await ethers.getContractFactory("MerkleTreeExposed");
+      const merkleProofExposedFactory = await ethers.getContractFactory("MerkleProofExposed");
+      merkleTreeExposed = await merkleTreeExposedFactory.deploy();
+      merkleProofExposed = await merkleProofExposedFactory.deploy();
+      await merkleTreeExposed.deployed();
+      await merkleProofExposed.deployed();
     });
 
     it("Merkle Root verification", async function () {
@@ -51,19 +51,24 @@ describe("Merkle", function () {
       ];
       nodes = [];
       for (var message of data)  {
-        await merkleTreeHistory.append(message);
+        await merkleTreeExposed._appendMessage(message);
         nodes.push(MerkleTree.makeLeafNode(message));
       }
       mt = new MerkleTree(nodes);
       rootOffChain = mt.getHexRoot();
-      rootOnChain = await merkleTreeHistory.getMerkleRoot();
+      rootOnChain = await merkleTreeExposed._getMerkleRoot();
+      console.log("######");
+      console.log(rootOffChain);
+      console.log(rootOnChain);
+      console.log("########################");
+
       expect(rootOffChain == rootOnChain).equal(true);
     });
   it("Should correctly verify all nodes in the tree", async () => {
     for (var message of data)  {
       const leaf = ethers.utils.sha256(message);
       proof = mt.getHexProof(leaf);
-      const validation = await merkleProof.validateProof(proof, message,rootOnChain);
+      const validation = await merkleProofExposed._validateProof(proof, ethers.utils.sha256(message),rootOnChain);
       expect(validation).equal(true);
       expect(verify(proof, rootOffChain, leaf)).equal(true);
     }
