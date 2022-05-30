@@ -29,26 +29,13 @@ contract MerkleProof {
         return (merkleRoot == calculateRoot(proof, leaf));
     }
 
-    /** @dev Validates membership of leaf in merkle tree with merkle proof.
-     *  @param proof The merkle proof.
-     *  @param data The data to validate membership in merkle tree.
-     *  @param merkleRoot The root of the merkle tree.
-     */
-    function validateProof(
-        bytes32[] memory proof,
-        bytes memory data,
-        bytes32 merkleRoot
-    ) public pure returns (bool) {
-        return validateProof(proof, sha256(data), merkleRoot);
-    }
-
     /** @dev Calculates merkle root from proof.
      *  @param proof The merkle proof.
      *  @param leaf The leaf to validate membership in merkle tree..
      */
-    function calculateRoot(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
+    function calculateRoot(bytes32[] memory proof, bytes32 leaf) private pure returns (bytes32) {
         uint256 proofLength = proof.length;
-        require(proofLength <= 64, "Invalid Proof");
+        require(proofLength <= 32, "Invalid Proof");
         bytes32 h = leaf;
         for (uint256 i = 0; i < proofLength; i++) {
             bytes32 proofElement = proof[i];
