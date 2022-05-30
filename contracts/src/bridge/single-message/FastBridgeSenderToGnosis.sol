@@ -10,12 +10,12 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/IHomeGateway.sol";
+import "./interfaces/IFastBridgeSender.sol";
 
 /**
- * Home Gateway to Gnosis chain
- * Counterpart of `ForeignGatewayOnGnosis`
+ * Fast Bridge Sender to Gnosis from Arbitrum
+ * Counterpart of `FastBridgeReceiverOnGnosis`
  */
-abstract contract HomeGatewayToGnosis is IHomeGateway {
+abstract contract FastBridgeSenderToGnosis is IFastBridgeSender {
     // TODO in prealpha-3
 }

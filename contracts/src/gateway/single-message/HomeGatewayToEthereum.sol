@@ -10,17 +10,17 @@
 
 pragma solidity ^0.8.0;
 
-import "../arbitration/IArbitrator.sol";
-import "../bridge/interfaces/IFastBridgeSender.sol";
+import "../../arbitration/IArbitrator.sol";
+import "../../bridge/single-message/interfaces/IFastBridgeSender.sol";
 
-import "./interfaces/IForeignGateway.sol";
-import "./interfaces/IHomeGateway.sol";
+import "./interfaces/IForeignGatewaySingleMessage.sol";
+import "./interfaces/IHomeGatewaySingleMessage.sol";
 
 /**
  * Home Gateway to Ethereum
  * Counterpart of `ForeignGatewayOnEthereum`
  */
-contract HomeGatewayToEthereum is IHomeGateway {
+contract HomeGatewayToEthereum is IHomeGatewaySingleMessage {
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => uint256) public disputeHashtoID;
 
@@ -107,7 +107,7 @@ contract HomeGatewayToEthereum is IHomeGateway {
         bytes32 disputeHash = disputeIDtoHash[_disputeID];
         RelayedData memory relayedData = disputeHashtoRelayedData[disputeHash];
 
-        bytes4 methodSelector = IForeignGateway.relayRule.selector;
+        bytes4 methodSelector = IForeignGatewaySingleMessage.relayRule.selector;
         bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.relayer);
 
         fastbridge.sendFast(foreignGateway, data);
