@@ -17,7 +17,7 @@ interface IFastBridgeReceiver {
 
     /**
      * @dev The Fast Bridge participants watch for these events to decide if a challenge should be submitted.
-     * @param _epoch The epoch in for which the the claim was made.
+     * @param _epoch The epoch for which the the claim was made.
      * @param _batchMerkleRoot The timestamp of the claim creation.
      */
     event ClaimReceived(uint256 _epoch, bytes32 indexed _batchMerkleRoot);
@@ -52,7 +52,7 @@ interface IFastBridgeReceiver {
      * @param _message The data on the cross-domain chain for the message.
      * @param _nonce The nonce (index in the merkle tree) to avoid replay.
      */
-    function verifyAndRelayMessage(
+    function verifyAndRelay(
         uint256 _epoch,
         bytes32[] calldata _proof,
         bytes calldata _message,
