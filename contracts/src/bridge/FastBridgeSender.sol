@@ -33,9 +33,11 @@ contract FastBridgeSender is FastBridgeSenderBase {
     /**
      * @dev Constructor.
      * @param _epochPeriod The immutable period between epochs.
-     * @param _safeRouter The address of the Safe Router on Ethereum.
+     * @param _safeBridgeReceiver The address of the Safe Receiver on Ethereum.
      */
-    constructor(uint256 _epochPeriod, address _safeRouter) FastBridgeSenderBase(_epochPeriod, _safeRouter) {}
+    constructor(uint256 _epochPeriod, address _safeBridgeReceiver)
+        FastBridgeSenderBase(_epochPeriod, _safeBridgeReceiver)
+    {}
 
     /**
      * @dev Sends the merkle root state for _epoch to Ethereum using the Safe Bridge, which relies on Arbitrum's canonical bridge. It is unnecessary during normal operations but essential only in case of challenge.
@@ -48,7 +50,7 @@ contract FastBridgeSender is FastBridgeSenderBase {
         bytes4 methodSelector = ISafeBridgeReceiver.verifySafe.selector;
         bytes memory safeMessageData = abi.encodeWithSelector(methodSelector, _epoch, batchMerkleRoot);
 
-        _sendSafe(safeRouter, safeMessageData);
+        _sendSafe(safeBridgeReceiver, safeMessageData);
     }
 
     function _sendSafe(address _receiver, bytes memory _calldata) internal override returns (bytes32) {
