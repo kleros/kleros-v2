@@ -55,7 +55,7 @@ contract FastBridgeSenderMock is FastBridgeSenderBase {
         bytes4 methodSelector = ISafeBridgeReceiver.verifySafe.selector;
         bytes memory safeMessageData = abi.encodeWithSelector(methodSelector, _epoch, batchMerkleRoot);
 
-        _sendSafe(safeRouter, safeMessageData);
+        _sendSafe(safeBridgeReceiver, safeMessageData);
     }
 
     function _sendSafe(address _receiver, bytes memory _calldata) internal override returns (bytes32) {

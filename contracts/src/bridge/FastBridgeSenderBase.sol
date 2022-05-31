@@ -27,7 +27,7 @@ abstract contract FastBridgeSenderBase is MerkleTree, IFastBridgeSender, ISafeBr
     uint256 public immutable epochPeriod; // Epochs mark the period between potential batches of messages.
     uint256 public currentBatchID;
     mapping(uint256 => bytes32) public fastOutbox; // epoch count => merkle root of batched messages
-    address public immutable safeRouter;
+    address public immutable safeBridgeReceiver;
 
     // ************************************* //
     // *              Events               * //
@@ -42,11 +42,11 @@ abstract contract FastBridgeSenderBase is MerkleTree, IFastBridgeSender, ISafeBr
     /**
      * @dev Constructor.
      * @param _epochPeriod The duration between epochs.
-     * @param _safeRouter The the Safe Bridge Router on Ethereum to the foreign chain.
+     * @param _safeBridgeReceiver The the Safe Bridge Router on Ethereum to the foreign chain.
      */
-    constructor(uint256 _epochPeriod, address _safeRouter) {
+    constructor(uint256 _epochPeriod, address _safeBridgeReceiver) {
         epochPeriod = _epochPeriod;
-        safeRouter = _safeRouter;
+        safeBridgeReceiver = _safeBridgeReceiver;
         currentBatchID = block.timestamp / epochPeriod;
     }
 
