@@ -44,17 +44,10 @@ contract HomeGatewayMock is IHomeGatewayBase {
         chainID = id;
     }
 
-    function sendFastMessage() external {
-        bytes4 methodSelector = IForeignGatewayMock.receiveMessage.selector;
-        bytes memory data;
-
-        fastbridge.sendFast(foreignGateway, methodSelector, data);
-    }
-
     function sendFastMessage(uint256 _data) external {
         bytes4 methodSelector = IForeignGatewayMock.receiveMessage.selector;
-        bytes memory data = abi.encode(_data);
+        bytes memory data = abi.encodeWithSelector(methodSelector, _data);
 
-        fastbridge.sendFast(foreignGateway, methodSelector, data);
+        fastbridge.sendFast(foreignGateway, data);
     }
 }

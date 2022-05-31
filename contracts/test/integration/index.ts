@@ -181,40 +181,45 @@ describe("Demo pre-alpha1", function () {
     await core.passPeriod(0);
     expect((await core.disputes(0)).period).to.equal(Period.execution);
     await core.execute(0, 0, 1000);
-    const ticket1 = await fastBridgeSender.currentTicketID();
-    expect(ticket1).to.equal(1);
-
     const tx4 = await core.executeRuling(0);
-    expect(tx4).to.emit(fastBridgeSender, "OutgoingMessage");
 
-    const OutgoingMessage = fastBridgeSender.filters.OutgoingMessage();
-    const event5 = await fastBridgeSender.queryFilter(OutgoingMessage);
     console.log("Executed ruling");
 
-    const ticket2 = await fastBridgeSender.currentTicketID();
-    expect(ticket2).to.equal(2);
 
-    const ticketID = event5[0].args.ticketID;
-    const messageHash = event5[0].args.messageHash;
-    const blockNumber = event5[0].args.blockNumber;
-    const messageData = event5[0].args.message;
+    expect(tx4).to.emit(fastBridgeSender, "MessageReceived");
 
-    const bridgerBalance = await ethers.provider.getBalance(bridger.address);
+    const MessageReceived = fastBridgeSender.filters.MessageReceived();
+    const event5 = await fastBridgeSender.queryFilter(MessageReceived);
+
+
+    const nonce = event5[0].args.nonce;
+    const fastMessage = event5[0].args.fastMessage;    
+    const currentBatchID = event5[0].args.currentBatchID;
+
+    const tx4a = await fastBridgeSender.connect(bridger).sendBatch();
+    expect(tx4a).to.emit(fastBridgeSender, "SendBatch");
+
+    const SendBatch = fastBridgeSender.filters.SendBatch();
+    const event5a = await fastBridgeSender.queryFilter(SendBatch);
+    const batchID = event5a[0].args.batchID;
+    const batchMerkleRoot = event5a[0].args.batchMerkleRoot;
+
     // bridger tx starts - Honest Bridger 
-    const tx5 = await fastBridgeReceiver.connect(bridger).claim(ticketID, messageHash, { value: ONE_TENTH_ETH });
-    const blockNumBefore = await ethers.provider.getBlockNumber();
-    const blockBefore = await ethers.provider.getBlock(blockNumBefore);
-    const timestampBefore = blockBefore.timestamp;
-    expect(tx5).to.emit(fastBridgeReceiver, "ClaimReceived").withArgs(ticketID, messageHash, timestampBefore);
+    const tx5 = await fastBridgeReceiver.connect(bridger).claim(batchID, batchMerkleRoot, { value: ONE_TENTH_ETH });
 
-    // wait for challenge period to pass
-    await network.provider.send("evm_increaseTime", [300]);
+    expect(tx5).to.emit(fastBridgeReceiver, "ClaimReceived").withArgs(batchID, batchMerkleRoot);
+
+    // wait for challenge period (and epoch) to pass
+    await network.provider.send("evm_increaseTime", [86400]);
     await network.provider.send("evm_mine");
 
-    const tx7 = await fastBridgeReceiver.connect(bridger).verifyAndRelay(ticketID, blockNumber, messageData);
-    expect(tx7).to.emit(arbitrable, "Ruling");
+    const tx7a = await fastBridgeReceiver.connect(bridger).verify(batchID);
+    const tx7 = await fastBridgeReceiver.connect(await ethers.getSigner(relayer)).verifyAndRelay(batchID, [], fastMessage, nonce);
 
-    const tx8 = await fastBridgeReceiver.withdrawClaimDeposit(ticketID);
+    const tx8 = await fastBridgeReceiver.withdrawClaimDeposit(batchID);
+
+    expect(tx7).to.emit(arbitrable, "Ruling");
+    
   });
 
   it("Demo - Honest Claim - Challenged - Bridger Paid, Challenger deposit forfeited", async () => {
@@ -347,69 +352,60 @@ describe("Demo pre-alpha1", function () {
     await core.passPeriod(0);
     expect((await core.disputes(0)).period).to.equal(Period.execution);
     await core.execute(0, 0, 1000);
-    const ticket1 = await fastBridgeSender.currentTicketID();
-    expect(ticket1).to.equal(1);
 
     const tx4 = await core.executeRuling(0);
+    console.log("Executed ruling");
 
-    expect(tx4).to.emit(fastBridgeSender, "OutgoingMessage");
+    expect(tx4).to.emit(fastBridgeSender, "MessageReceived");
+
+    const MessageReceived = fastBridgeSender.filters.MessageReceived();
+    const event4 = await fastBridgeSender.queryFilter(MessageReceived);
+
+    const nonce = event4[0].args.nonce;
+    const fastMessage = event4[0].args.fastMessage;
+    const currentBatchID = event4[0].args.currentBatchID;
+
+
+  const tx4a = await fastBridgeSender.connect(bridger).sendBatch();
+  expect(tx4a).to.emit(fastBridgeSender, "SendBatch");
+
+  const SendBatch = fastBridgeSender.filters.SendBatch();
+  const event4a = await fastBridgeSender.queryFilter(SendBatch);
+  const batchID = event4a[0].args.batchID;
+  const batchMerkleRoot = event4a[0].args.batchMerkleRoot;
+
+  // bridger tx starts - Honest Bridger 
 
     console.log("Executed ruling");
 
-    const ticket2 = await fastBridgeSender.currentTicketID();
-    expect(ticket2).to.equal(2);
-    const eventFilter = fastBridgeSender.filters.OutgoingMessage();
-    const event5 = await fastBridgeSender.queryFilter(eventFilter, "latest");
-    const event6 = await ethers.provider.getLogs(eventFilter);
-
-    const ticketID = event5[0].args.ticketID.toNumber();
-    const messageHash = event5[0].args.messageHash;
-    const blockNumber = event5[0].args.blockNumber;
-    const messageData = event5[0].args.message;
-    console.log("TicketID: %d", ticketID);
-    console.log("Block: %d", blockNumber);
-    console.log("Message Data: %s", messageData);
-    console.log("Message Hash: %s", messageHash);
-    const expectedHash = utils.keccak256(
-      utils.defaultAbiCoder.encode(["uint256", "uint256", "bytes"], [ticketID, blockNumber, messageData])
-    );
-    expect(messageHash).to.equal(expectedHash);
-
-    const currentID = await fastBridgeSender.currentTicketID();
-    expect(currentID).to.equal(2);
-
     // bridger tx starts
-    const tx5 = await fastBridgeReceiver.connect(bridger).claim(ticketID, messageHash, { value: ONE_TENTH_ETH });
-    let blockNumBefore = await ethers.provider.getBlockNumber();
-    let blockBefore = await ethers.provider.getBlock(blockNumBefore);
-    let timestampBefore = blockBefore.timestamp;
-    expect(tx5).to.emit(fastBridgeReceiver, "ClaimReceived").withArgs(ticketID, messageHash, timestampBefore);
+    const tx5 = await fastBridgeReceiver.connect(bridger).claim(batchID, batchMerkleRoot, { value: ONE_TENTH_ETH });
+
+    expect(tx5).to.emit(fastBridgeReceiver, "ClaimReceived").withArgs(batchID, batchMerkleRoot);
 
     // Challenger tx starts
-    const tx6 = await fastBridgeReceiver.connect(challenger).challenge(ticketID, { value: ONE_TENTH_ETH });
-    blockNumBefore = await ethers.provider.getBlockNumber();
-    blockBefore = await ethers.provider.getBlock(blockNumBefore);
-    timestampBefore = blockBefore.timestamp;
-    console.log("Block: %d", blockNumBefore);
-    expect(tx6).to.emit(fastBridgeReceiver, "ClaimChallenged").withArgs(ticketID, timestampBefore);
+    const tx6 = await fastBridgeReceiver.connect(challenger).challenge(batchID, { value: ONE_TENTH_ETH });
+    expect(tx6).to.emit(fastBridgeReceiver, "ClaimChallenged").withArgs(batchID);
 
-    // wait for challenge period to pass
-    await network.provider.send("evm_increaseTime", [300]);
+    // wait for challenge period (and epoch) to pass
+    await network.provider.send("evm_increaseTime", [86400]);
     await network.provider.send("evm_mine");
 
     await expect(
-      fastBridgeReceiver.connect(bridger).verifyAndRelay(ticketID, blockNumber, messageData)
-    ).to.be.revertedWith("Claim is challenged");
+      fastBridgeReceiver.connect(await ethers.getSigner(relayer)).verifyAndRelay(batchID, [], fastMessage, nonce)
+    ).to.be.revertedWith("Invalid epoch.");
 
-    const data = await ethers.utils.defaultAbiCoder.decode(["address", "bytes"], messageData);
     const tx7 = await fastBridgeSender
       .connect(bridger)
-      .sendSafeFallbackMock(ticketID, foreignGateway.address, data[1], { gasLimit: 1000000 });
+      .sendSafeFallback(batchID, { gasLimit: 1000000 });
     expect(tx7).to.emit(fastBridgeSender, "L2ToL1TxCreated");
-    expect(tx7).to.emit(arbitrable, "Ruling");
 
-    await expect(fastBridgeReceiver.withdrawChallengeDeposit(ticketID)).to.be.revertedWith(
-      "Claim verified: deposit forfeited"
+    const tx8 = await fastBridgeReceiver.connect(await ethers.getSigner(relayer)).verifyAndRelay(batchID, [], fastMessage, nonce);
+
+    expect(tx8).to.emit(arbitrable, "Ruling");
+
+    await expect(fastBridgeReceiver.withdrawChallengeDeposit(batchID)).to.be.revertedWith(
+      "Challenge not verified."
     );
   });
 
@@ -512,85 +508,47 @@ describe("Demo pre-alpha1", function () {
     await core.passPeriod(coreId);
     expect((await core.disputes(coreId)).period).to.equal(Period.execution);
     await core.execute(coreId, 0, 1000);
-    const ticket1 = await fastBridgeSender.currentTicketID();
-    expect(ticket1).to.equal(1);
+
 
     const tx4 = await core.executeRuling(coreId);
 
-    expect(tx4).to.emit(fastBridgeSender, "OutgoingMessage");
-
     console.log("Executed ruling");
 
-    const ticket2 = await fastBridgeSender.currentTicketID();
-    expect(ticket2).to.equal(2);
-    const eventFilter = fastBridgeSender.filters.OutgoingMessage();
-    const event5 = await fastBridgeSender.queryFilter(eventFilter, "latest");
-    const event6 = await ethers.provider.getLogs(eventFilter);
+    expect(tx4).to.emit(fastBridgeSender, "MessageReceived");
 
-    const ticketID = event5[0].args.ticketID.toNumber();
-    const messageHash = event5[0].args.messageHash;
-    const blockNumber = event5[0].args.blockNumber;
-    const messageData = event5[0].args.message;
-    console.log("TicketID: %d", ticketID);
-    console.log("Block: %d", blockNumber);
-    console.log("Message Data: %s", messageData);
-    console.log("Message Hash: %s", messageHash);
-    const expectedHash = utils.keccak256(
-      utils.defaultAbiCoder.encode(["uint256", "uint256", "bytes"], [ticketID, blockNumber, messageData])
-    );
-    expect(messageHash).to.equal(expectedHash);
+    const MessageReceived = fastBridgeSender.filters.MessageReceived();
+    const event4 = await fastBridgeSender.queryFilter(MessageReceived);
 
-    const currentID = await fastBridgeSender.currentTicketID();
-    expect(currentID).to.equal(2);
+    const nonce = event4[0].args.nonce;
+    const fastMessage = event4[0].args.fastMessage;
+    const currentBatchID = event4[0].args.currentBatchID;
+
+    const tx4a = await fastBridgeSender.connect(bridger).sendBatch();
+    expect(tx4a).to.emit(fastBridgeSender, "SendBatch");
+
+    const SendBatch = fastBridgeSender.filters.SendBatch();
+    const event4a = await fastBridgeSender.queryFilter(SendBatch);
+    const batchID = event4a[0].args.batchID;
+    const batchMerkleRoot = event4a[0].args.batchMerkleRoot;
 
     // bridger tx starts - bridger creates fakeData & fakeHash for dishonest ruling
-    const fakeData = "0x0000000000000000000000009a9f2ccfde556a7e9ff0848998aa4a0cfd8863ae000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000643496987923bd6a8aa2bdce6c5b15551665079e7acfb1b4d2149ac7e2f72260417d541b7f000000000000000000000000000000000000000000000000000000000000000100000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c800000000000000000000000000000000000000000000000000000000";
-    const fakeHash = utils.keccak256(
-      utils.defaultAbiCoder.encode(["uint256", "uint256", "bytes"], [ticketID, blockNumber, fakeData])
-    );
 
-    const tx5 = await fastBridgeReceiver.connect(bridger).claim(ticketID, fakeHash, { value: ONE_TENTH_ETH });
-    let blockNumBefore = await ethers.provider.getBlockNumber();
-    let blockBefore = await ethers.provider.getBlock(blockNumBefore);
-    let timestampBefore = blockBefore.timestamp;
-    console.log("Block: %d", blockNumBefore);
-    expect(tx5).to.emit(fastBridgeReceiver, "ClaimReceived").withArgs(ticketID, fakeHash, timestampBefore);
-
+    const fakeData = "KlerosToTheMoon";
+    const fakeHash = utils.keccak256(utils.defaultAbiCoder.encode(["string"],[fakeData]));
+    const tx5 = await fastBridgeReceiver.connect(bridger).claim(batchID, fakeHash, { value: ONE_TENTH_ETH });
     // Challenger tx starts
-    const tx6 = await fastBridgeReceiver.connect(challenger).challenge(ticketID, { value: ONE_TENTH_ETH });
-    blockNumBefore = await ethers.provider.getBlockNumber();
-    blockBefore = await ethers.provider.getBlock(blockNumBefore);
-    timestampBefore = blockBefore.timestamp;
-    console.log("Block: %d", blockNumBefore);
-    expect(tx6).to.emit(fastBridgeReceiver, "ClaimChallenged").withArgs(ticketID, timestampBefore);
+    const tx6 = await fastBridgeReceiver.connect(challenger).challenge(batchID, { value: ONE_TENTH_ETH });
+    expect(tx6).to.emit(fastBridgeReceiver, "ClaimChallenged").withArgs(batchID);
 
-    // wait for challenge period to pass
-    await network.provider.send("evm_increaseTime", [300]);
-    await network.provider.send("evm_mine");
+    const tx7 = await fastBridgeSender
+    .connect(bridger)
+    .sendSafeFallback(batchID, { gasLimit: 1000000 });
+    expect(tx7).to.emit(fastBridgeSender, "L2ToL1TxCreated");
 
-    await expect(
-      fastBridgeReceiver.connect(bridger).verifyAndRelay(ticketID, blockNumber, fakeData)
-    ).to.be.revertedWith("Claim is challenged");
+    const tx8 = await fastBridgeReceiver.connect(await ethers.getSigner(relayer)).verifyAndRelay(batchID, [], fastMessage, nonce);
 
-    let data = await ethers.utils.defaultAbiCoder.decode(["address", "bytes"], fakeData);
-
-    await expect(
-      fastBridgeSender
-        .connect(bridger)
-        .sendSafeFallbackMock(ticketID, foreignGateway.address, data[1], { gasLimit: 1000000 })
-    ).to.be.revertedWith("Invalid message for ticketID.");
-
-    data = await ethers.utils.defaultAbiCoder.decode(["address", "bytes"], messageData);
-    const tx8 = await fastBridgeSender
-      .connect(bridger)
-      .sendSafeFallbackMock(ticketID, foreignGateway.address, data[1], { gasLimit: 1000000 });
-    expect(tx8).to.emit(fastBridgeSender, "L2ToL1TxCreated");
     expect(tx8).to.emit(arbitrable, "Ruling");
-
-    await expect(fastBridgeReceiver.withdrawClaimDeposit(ticketID)).to.be.revertedWith(
-      "Claim not verified: deposit forfeited"
-    );
-    await fastBridgeReceiver.withdrawChallengeDeposit(ticketID);
+    await fastBridgeReceiver.withdrawChallengeDeposit(batchID);
   });
 
   async function mineNBlocks(n) {

@@ -72,7 +72,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const fastBridgeSenderAddress = getContractAddress(deployer, nonce);
   console.log("calculated future FastSender for nonce %d: %s", nonce, fastBridgeSenderAddress);
 
-  nonce += 5;
+  nonce += 4;
 
   const inboxAddress = chainId === ForeignChains.HARDHAT ? getContractAddress(deployer, nonce) : arbitrumInbox;
   console.log("calculated future inboxAddress for nonce %d: %s", nonce, inboxAddress);

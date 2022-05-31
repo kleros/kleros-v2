@@ -77,7 +77,7 @@ abstract contract FastBridgeReceiverBase is MerkleProof, IFastBridgeReceiver, IS
 
     /**
      * @dev Submit a claim about the `_batchMerkleRoot` for the last completed epoch from the Fast Bridge  and submit a deposit. The `_batchMerkleRoot` should match the one on the sending side otherwise the sender will lose his deposit.
-     * @param _epoch The epoch of the claim to claim.
+     * @param _epoch The epoch in which the batch to claim.
      * @param _batchMerkleRoot The batch merkle root claimed for the last completed epoch.
      */
     function claim(uint256 _epoch, bytes32 _batchMerkleRoot) external payable override {
@@ -85,7 +85,7 @@ abstract contract FastBridgeReceiverBase is MerkleProof, IFastBridgeReceiver, IS
         require(_batchMerkleRoot != bytes32(0), "Invalid claim.");
 
         uint256 epoch = block.timestamp / epochPeriod;
-        // allow claim about previous epoch
+        // allow claim about current or previous epoch
         require(_epoch == epoch || _epoch == epoch + 1, "Invalid Claim");
 
         require(claims[_epoch].bridger == address(0), "Claim already made for most recent finalized epoch.");
@@ -122,8 +122,6 @@ abstract contract FastBridgeReceiverBase is MerkleProof, IFastBridgeReceiver, IS
      * @param _epoch The epoch of the optimistic claim.
      */
     function verify(uint256 _epoch) public {
-        require(fastInbox[_epoch] == bytes32(0), "Epoch already verified.");
-
         Claim storage claim = claims[_epoch];
         require(claim.bridger != address(0), "Invalid epoch, no claim to verify.");
         require(
@@ -145,7 +143,7 @@ abstract contract FastBridgeReceiverBase is MerkleProof, IFastBridgeReceiver, IS
      * @param _message The data on the cross-domain chain for the message.
      * @param _nonce The nonce (index in the merkle tree) to avoid replay.
      */
-    function verifyAndRelayMessage(
+    function verifyAndRelay(
         uint256 _epoch,
         bytes32[] calldata _proof,
         bytes calldata _message,
@@ -195,7 +193,7 @@ abstract contract FastBridgeReceiverBase is MerkleProof, IFastBridgeReceiver, IS
 
         require(claim.bridger != address(0), "Claim does not exist");
         require(claim.honest == true, "Claim not verified.");
-        require(claim.depositAndRewardWithdrawn == false, "Claim deposit already withdrawn.");
+        require(claim.depositAndRewardWithdrawn == false, "Claim deposit and any rewards already withdrawn.");
 
         uint256 amount = deposit;
         if (challenges[_epoch].challenger != address(0)) amount = amount + deposit / 2; // half burnt
@@ -213,9 +211,9 @@ abstract contract FastBridgeReceiverBase is MerkleProof, IFastBridgeReceiver, IS
     function withdrawChallengeDeposit(uint256 _epoch) external override {
         Challenge storage challenge = challenges[_epoch];
 
-        require(challenge.challenger != address(0), "Claim does not exist");
-        require(challenge.honest == true, "Claim not verified: deposit forfeited");
-        require(challenge.depositAndRewardWithdrawn == false, "Claim deposit already withdrawn.");
+        require(challenge.challenger != address(0), "Challenge does not exist");
+        require(challenge.honest == true, "Challenge not verified.");
+        require(challenge.depositAndRewardWithdrawn == false, "Challenge deposit and rewards already withdrawn.");
 
         uint256 amount = deposit + deposit / 2;
         challenge.depositAndRewardWithdrawn = true;
@@ -249,6 +247,6 @@ abstract contract FastBridgeReceiverBase is MerkleProof, IFastBridgeReceiver, IS
     function _relay(bytes calldata _messageData) internal returns (bool success) {
         // Decode the receiver address from the data encoded by the IFastBridgeSender
         (address receiver, bytes memory data) = abi.decode(_messageData, (address, bytes));
-        (success, ) = address(receiver).call(data);
+        (success, ) = receiver.call(data);
     }
 }

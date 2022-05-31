@@ -12,7 +12,6 @@ pragma solidity ^0.8.0;
 
 import "../arbitration/IArbitrator.sol";
 import "../bridge/interfaces/IFastBridgeSender.sol";
-
 import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
 
@@ -112,9 +111,9 @@ contract HomeGateway is IHomeGateway {
         RelayedData memory relayedData = disputeHashtoRelayedData[disputeHash];
 
         bytes4 methodSelector = IForeignGateway.relayRule.selector;
-        bytes memory data = abi.encode(disputeHash, _ruling, relayedData.relayer);
+        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.relayer);
 
-        fastbridge.sendFast(foreignGateway, methodSelector, data);
+        fastbridge.sendFast(foreignGateway, data);
     }
 
     /** @dev Changes the fastBridge, useful to increase the claim deposit.
