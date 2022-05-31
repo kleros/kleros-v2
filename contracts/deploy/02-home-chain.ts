@@ -22,12 +22,12 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     const arbSysMock = await deploy("ArbSysMock", { from: deployer, log: true });
     let fastBridgeSender;
 
-      fastBridgeSender = await deploy("FastBridgeSenderToEthereumMock", {
-        from: deployer,
-        contract: "FastBridgeSenderMock",
-        args: [epochPeriod, fastBridgeReceiver.address, arbSysMock.address],
-        log: true,
-      }); // nonce+0
+    fastBridgeSender = await deploy("FastBridgeSenderToEthereumMock", {
+      from: deployer,
+      contract: "FastBridgeSenderMock",
+      args: [epochPeriod, fastBridgeReceiver.address, arbSysMock.address],
+      log: true,
+    }); // nonce+0
 
     const klerosCore = await deployments.get("KlerosCore");
     const foreignGateway = await deployments.get("ForeignGatewayOnEthereum");
@@ -41,23 +41,23 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       log: true,
     }); // nonce+1
 
-      const outbox = await deploy("OutboxMock", {
-        from: deployer,
-        args: [fastBridgeSender.address],
-        log: true,
-      });
+    const outbox = await deploy("OutboxMock", {
+      from: deployer,
+      args: [fastBridgeSender.address],
+      log: true,
+    });
 
-      const bridge = await deploy("BridgeMock", {
-        from: deployer,
-        args: [outbox.address],
-        log: true,
-      });
+    const bridge = await deploy("BridgeMock", {
+      from: deployer,
+      args: [outbox.address],
+      log: true,
+    });
 
-      await deploy("InboxMock", {
-        from: deployer,
-        args: [bridge.address],
-        log: true,
-      });
+    await deploy("InboxMock", {
+      from: deployer,
+      args: [bridge.address],
+      log: true,
+    });
   };
 
   // ----------------------------------------------------------------------------------------------
