@@ -10,7 +10,6 @@
 
 pragma solidity ^0.8.0;
 
-import "./merkle/MerkleTree.sol";
 import "./interfaces/IFastBridgeSender.sol";
 import "./interfaces/ISafeBridgeSender.sol";
 import "./interfaces/ISafeBridgeReceiver.sol";
@@ -66,7 +65,7 @@ abstract contract FastBridgeSenderBase is IFastBridgeSender, ISafeBridgeSender {
     function sendFast(address _receiver, bytes memory _calldata) external override {
         (bytes32 fastMessageHash, bytes memory fastMessage) = _encode(_receiver, _calldata);
 
-        emit MessageReceived(currentBatchID, batchSize, fastMessage, fastMessageHash);
+        emit MessageReceived(fastMessage, fastMessageHash);
 
         appendMessage(fastMessageHash); // add message to merkle tree
     }
