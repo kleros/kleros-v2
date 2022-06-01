@@ -10,7 +10,7 @@ export const NETWORKS = {
       "wss://rinkeby.infura.io/ws/v3/${INFURA_API_KEY}",
     ],
     faucets: [
-      "http://fauceth.komputing.org?chain=4&address=${ADDRESS}",
+      "https://fauceth.komputing.org?chain=4&address=${ADDRESS}",
       "https://faucet.rinkeby.io",
     ],
     nativeCurrency: {
@@ -46,7 +46,7 @@ export const NETWORKS = {
       decimals: 18,
     },
     rpc: ["https://rinkeby.arbitrum.io/rpc", "wss://rinkeby.arbitrum.io/ws"],
-    faucets: ["http://fauceth.komputing.org?chain=421611&address=${ADDRESS}"],
+    faucets: ["https://fauceth.komputing.org?chain=421611&address=${ADDRESS}"],
     infoURL: "https://arbitrum.io",
     explorers: [
       {
