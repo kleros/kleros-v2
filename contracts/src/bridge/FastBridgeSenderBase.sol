@@ -19,7 +19,7 @@ import "./interfaces/ISafeBridgeReceiver.sol";
  * Fast Bridge Sender Base
  * Counterpart of `FastReceiverBase`
  */
-abstract contract FastBridgeSenderBase is MerkleTree, IFastBridgeSender, ISafeBridgeSender {
+abstract contract FastBridgeSenderBase is IFastBridgeSender, ISafeBridgeSender {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -29,6 +29,10 @@ abstract contract FastBridgeSenderBase is MerkleTree, IFastBridgeSender, ISafeBr
     mapping(uint256 => bytes32) public fastOutbox; // epoch count => merkle root of batched messages
     address public immutable safeBridgeReceiver;
 
+    // merkle tree representation of a batch of messages
+    // supports 2^64 messages.
+    bytes32[64] public batch;
+    uint256 public batchSize;
     // ************************************* //
     // *              Events               * //
     // ************************************* //
@@ -37,7 +41,7 @@ abstract contract FastBridgeSenderBase is MerkleTree, IFastBridgeSender, ISafeBr
      * The bridgers need to watch for these events and relay the
      * batchMerkleRoot on the FastBridgeReceiver.
      */
-    event SendBatch(uint256 indexed batchID, uint256 indexed epoch, bytes32 indexed batchMerkleRoot);
+    event SendBatch(uint256 indexed batchID, uint256 epoch, bytes32 batchMerkleRoot);
 
     /**
      * @dev Constructor.
@@ -62,7 +66,7 @@ abstract contract FastBridgeSenderBase is MerkleTree, IFastBridgeSender, ISafeBr
     function sendFast(address _receiver, bytes memory _calldata) external override {
         (bytes32 fastMessageHash, bytes memory fastMessage) = _encode(_receiver, _calldata);
 
-        emit MessageReceived(currentBatchID, fastMessage, batchSize);
+        emit MessageReceived(currentBatchID, batchSize, fastMessage, fastMessageHash);
 
         appendMessage(fastMessageHash); // add message to merkle tree
     }
@@ -131,5 +135,93 @@ abstract contract FastBridgeSenderBase is MerkleTree, IFastBridgeSender, ISafeBr
         }
         // Compute the hash over the message header (batchSize as nonce) and body (fastMessage).
         fastMessageHash = sha256(abi.encode(fastMessage, batchSize));
+    }
+
+    // ********************************* //
+    // *         Merkle Tree           * //
+    // ********************************* //
+
+    /** @dev Append data into merkle tree.
+     *  `O(log(n))` where
+     *  `n` is the number of leaves.
+     *  Note: Although each insertion is O(log(n)),
+     *  Complexity of n insertions is O(n).
+     *  @param leaf The leaf (already hashed) to insert in the merkle tree.
+     */
+    function appendMessage(bytes32 leaf) internal {
+        // Differentiate leaves from interior nodes with different
+        // hash functions to prevent 2nd order pre-image attack.
+        // https://flawed.net.nz/2018/02/21/attacking-merkle-trees-with-a-second-preimage-attack/
+        uint256 size = batchSize + 1;
+        batchSize = size;
+        uint256 hashBitField = (size ^ (size - 1)) & size;
+        uint256 height;
+        while ((hashBitField & 1) == 0) {
+            bytes32 node = batch[height];
+            if (node > leaf)
+                assembly {
+                    // effecient hash
+                    mstore(0x00, leaf)
+                    mstore(0x20, node)
+                    leaf := keccak256(0x00, 0x40)
+                }
+            else
+                assembly {
+                    // effecient hash
+                    mstore(0x00, node)
+                    mstore(0x20, leaf)
+                    leaf := keccak256(0x00, 0x40)
+                }
+            hashBitField /= 2;
+            height = height + 1;
+        }
+        batch[height] = leaf;
+    }
+
+    /** @dev Saves the merkle root state in history and resets.
+     *  `O(log(n))` where
+     *  `n` is the number of leaves.
+     */
+    function getMerkleRootAndReset() internal returns (bytes32 batchMerkleRoot) {
+        batchMerkleRoot = getMerkleRoot();
+        batchSize = 0;
+    }
+
+    /** @dev Gets the current merkle root.
+     *  `O(log(n))` where
+     *  `n` is the number of leaves.
+     */
+    function getMerkleRoot() internal view returns (bytes32) {
+        bytes32 node;
+        uint256 size = batchSize;
+        uint256 height = 0;
+        bool isFirstHash = true;
+        while (size > 0) {
+            if ((size & 1) == 1) {
+                // avoid redundant calculation
+                if (isFirstHash) {
+                    node = batch[height];
+                    isFirstHash = false;
+                } else {
+                    bytes32 hash = batch[height];
+                    // effecient hash
+                    if (hash > node)
+                        assembly {
+                            mstore(0x00, node)
+                            mstore(0x20, hash)
+                            node := keccak256(0x00, 0x40)
+                        }
+                    else
+                        assembly {
+                            mstore(0x00, hash)
+                            mstore(0x20, node)
+                            node := keccak256(0x00, 0x40)
+                        }
+                }
+            }
+            size /= 2;
+            height++;
+        }
+        return node;
     }
 }
