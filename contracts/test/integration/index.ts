@@ -192,9 +192,8 @@ describe("Demo pre-alpha1", function () {
     const event5 = await fastBridgeSender.queryFilter(MessageReceived);
 
 
-    const nonce = event5[0].args.nonce;
+    const nonce = await fastBridgeSender.batchSize() - 1 ;
     const fastMessage = event5[0].args.fastMessage;    
-    const currentBatchID = event5[0].args.currentBatchID;
 
     const tx4a = await fastBridgeSender.connect(bridger).sendBatch();
     expect(tx4a).to.emit(fastBridgeSender, "SendBatch");
@@ -219,7 +218,6 @@ describe("Demo pre-alpha1", function () {
     const tx8 = await fastBridgeReceiver.withdrawClaimDeposit(batchID);
 
     expect(tx7).to.emit(arbitrable, "Ruling");
-    
   });
 
   it("Demo - Honest Claim - Challenged - Bridger Paid, Challenger deposit forfeited", async () => {
@@ -361,9 +359,8 @@ describe("Demo pre-alpha1", function () {
     const MessageReceived = fastBridgeSender.filters.MessageReceived();
     const event4 = await fastBridgeSender.queryFilter(MessageReceived);
 
-    const nonce = event4[0].args.nonce;
+    const nonce = await fastBridgeSender.batchSize() - 1 ;
     const fastMessage = event4[0].args.fastMessage;
-    const currentBatchID = event4[0].args.currentBatchID;
 
 
   const tx4a = await fastBridgeSender.connect(bridger).sendBatch();
@@ -519,9 +516,8 @@ describe("Demo pre-alpha1", function () {
     const MessageReceived = fastBridgeSender.filters.MessageReceived();
     const event4 = await fastBridgeSender.queryFilter(MessageReceived);
 
-    const nonce = event4[0].args.nonce;
+    const nonce = await fastBridgeSender.batchSize() - 1 ;
     const fastMessage = event4[0].args.fastMessage;
-    const currentBatchID = event4[0].args.currentBatchID;
 
     const tx4a = await fastBridgeSender.connect(bridger).sendBatch();
     expect(tx4a).to.emit(fastBridgeSender, "SendBatch");

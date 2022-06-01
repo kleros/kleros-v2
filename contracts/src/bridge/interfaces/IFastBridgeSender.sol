@@ -9,11 +9,10 @@ interface IFastBridgeSender {
 
     /**
      * @dev The Fast Bridge participants need to watch for these events and relay the messageHash on the FastBridgeReceiverOnEthereum.
-     * @param currentBatchID Unique ID for each batch is the epoch of the last sent batch.
      * @param fastMessage The fast message data.
-     * @param nonce The message nonce.
+     * @param fastMessage The hash of the fast message data encoded with the nonce.
      */
-    event MessageReceived(uint256 currentBatchID, bytes fastMessage, uint256 nonce);
+    event MessageReceived(bytes fastMessage, bytes32 fastMessageHash);
 
     // ************************************* //
     // *        Function Modifiers         * //
