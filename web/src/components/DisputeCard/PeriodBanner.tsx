@@ -54,15 +54,20 @@ const Container = styled.div<Omit<IPeriodBanner, "id">>`
   }};
 `;
 
+const getPeriodLabel = (period: Periods) => {
+  switch (period) {
+    case Periods.appeal:
+      return "Crowdfunding Appeal";
+    case Periods.execution:
+      return "Closed";
+    default:
+      return "In Progress";
+  }
+};
+
 const PeriodBanner: React.FC<IPeriodBanner> = ({ id, period }) => (
   <Container {...{ period }}>
-    <label className="front-color dot">
-      {period === Periods.appeal
-        ? "Crowdfunding Appeal"
-        : period === Periods.execution
-        ? "Closed"
-        : "In Progress"}
-    </label>
+    <label className="front-color dot">{getPeriodLabel(period)}</label>
     <label className="front-color">#{id}</label>
   </Container>
 );
