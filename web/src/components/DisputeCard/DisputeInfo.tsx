@@ -43,11 +43,22 @@ const Container = styled.div`
   gap: 8px;
 `;
 
+const getPeriodPhrase = (period: Periods) => {
+  switch (period) {
+    case Periods.appeal:
+      return "Appeal Deadline";
+    case Periods.execution:
+      return "Final Decision";
+    default:
+      return "Voting Deadline";
+  }
+};
+
 export interface IDisputeInfo {
   court: string;
   category: string;
   rewards: string;
-  period: number;
+  period: Periods;
   date: number;
 }
 
@@ -64,13 +75,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
     <Field icon={PileCoinsIcon} name="Juror Rewards" value={rewards} />
     <Field
       icon={CalendarIcon}
-      name={
-        period === Periods.appeal
-          ? "Appeal Deadline"
-          : period === Periods.execution
-          ? "Final Decision"
-          : "Voting Deadline"
-      }
+      name={getPeriodPhrase(period)}
       value={new Date(date * 1000).toLocaleString()}
     />
   </Container>

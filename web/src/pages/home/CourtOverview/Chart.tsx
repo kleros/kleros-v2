@@ -32,9 +32,9 @@ const Chart: React.FC = () => {
   const { data } = useHomePageContext();
   const chartData = data?.[chartOption];
   const processedData = chartData?.reduce(
-    (data: IChartData[], { id, value }: { id: string; value: string }) => {
+    (accData: IChartData[], { id, value }: { id: string; value: string }) => {
       return [
-        ...data,
+        ...accData,
         {
           x: parseInt(id) * 1000,
           y: parseInt(
