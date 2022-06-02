@@ -25,6 +25,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const rng = await deploy("IncrementalNG", {
     from: deployer,
+    args: [67193503189],
     log: true,
   });
 
@@ -59,7 +60,17 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     libraries: {
       SortitionSumTreeFactory: sortitionSumTreeLibrary.address,
     },
-    args: [deployer, pnk, AddressZero, disputeKit.address, false, minStake, alpha, feeForJuror, 3, [0, 0, 0, 0], 3],
+    args: [
+      deployer,
+      pnk,
+      AddressZero,
+      disputeKit.address,
+      [120, 120], // minStakingTime, maxFreezingTime
+      false,
+      [minStake, alpha, feeForJuror, 3], // minStake, alpha, feeForJuror, jurorsForCourtJump
+      [0, 0, 0, 0], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
+      3,
+    ],
     log: true,
   });
 
