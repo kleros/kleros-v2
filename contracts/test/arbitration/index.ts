@@ -18,7 +18,7 @@ describe("DisputeKitClassic", function () {
   });
 
   it("Should create a dispute", async function () {
-    await expect(disputeKit.connect(deployer).createDispute(0, 0, "0x00")).to.be.revertedWith(
+    await expect(disputeKit.connect(deployer).createDispute(0, 0, 3, "0x00")).to.be.revertedWith(
       "Access not allowed: KlerosCore only."
     );
 
@@ -63,11 +63,9 @@ async function deployContracts(deployer) {
     ethers.constants.AddressZero, // should be an ERC20
     ethers.constants.AddressZero, // should be a Juror Prosecution module
     disputeKit.address,
+    [120, 120], // minStakingTime, maxFreezingTime
     false,
-    200,
-    10000,
-    100,
-    3,
+    [200, 10000, 100, 3],
     [0, 0, 0, 0],
     3
   );
