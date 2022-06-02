@@ -63,6 +63,13 @@ export const GlobalStyle = createGlobalStyle`
     color: ${({ theme }) => theme.secondaryText};
   }
 
+  a {
+    font-weight: 400;
+    font-size: 14px;
+    text-decoration: none;
+    color: ${({ theme }) => theme.primaryBlue};
+  }
+
   hr {
     opacity: 1;
     border: 1px solid ${({ theme }) => theme.stroke};

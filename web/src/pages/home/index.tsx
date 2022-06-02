@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import CourtOverview from "./CourtOverview";
 import LatestCases from "./LatestCases";
+import Community from "./Community";
 import { HomePageProvider } from "hooks/useHomePageContext";
 
 const Container = styled.div`
@@ -19,6 +20,7 @@ const Home: React.FC = () => {
       <Container>
         <CourtOverview />
         <LatestCases />
+        <Community />
       </Container>
     </HomePageProvider>
   );
