@@ -23,7 +23,7 @@ dataSources:
         - TokenAndETHShift
       abis:
         - name: KlerosCore
-          file: ./abis/KlerosCore.json
+          file: ../contracts/deployments/arbitrumRinkeby/KlerosCore.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -53,7 +53,7 @@ dataSources:
         - Dispute
       abis:
         - name: HomeGateway
-          file: ./abis/HomeGateway.json
+          file: ../contracts/deployments/arbitrumRinkeby/HomeGateway.json
       eventHandlers:
         - event: Dispute(indexed address,indexed uint256,uint256,uint256)
           handler: handleDisputeEvent
@@ -73,7 +73,7 @@ dataSources:
         - OutgoingMessage
       abis:
         - name: FastBridgeSender
-          file: ./abis/FastBridgeSender.json
+          file: ../contracts/deployments/arbitrumRinkeby/FastBridgeSender.json
       eventHandlers:
         - event: OutgoingMessage(address,bytes32,bytes)
           handler: handleOutgoingMessage
