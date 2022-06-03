@@ -9,8 +9,9 @@ import NavBar from "./navbar";
 
 const Container = styled.div`
   position: sticky;
+  z-index: 9999;
   top: 0;
-  width: 100vw;
+  width: 100%;
   height: 64px;
   background-color: ${({ theme }) => theme.primaryPurple};
 
@@ -42,7 +43,7 @@ const Header: React.FC = () => {
         <NavBar {...{ isOpen }} />
         <StyledLightButton
           text=""
-          icon={(className: string) => <HamburgerIcon {...{ className }} />}
+          Icon={HamburgerIcon}
           onClick={toggleIsOpen}
         />
       </div>
