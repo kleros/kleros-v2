@@ -12,6 +12,10 @@ import "./RNG.sol";
 contract IncrementalNG is RNG {
     uint256 public number;
 
+    constructor(uint256 _start) {
+        number = _start;
+    }
+
     /**
      * @dev Contribute to the reward of a random number. All the ETH will be lost forever.
      * @param _block Block the random number is linked to.

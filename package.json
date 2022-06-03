@@ -14,12 +14,11 @@
     "evidence-display",
     "klerosjs",
     "subgraph",
-    "web",
-    "web-playground"
+    "web"
   ],
   "packageManager": "yarn@3.1.1",
   "volta": {
-    "node": "16.13.0"
+    "node": "16.15.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^14.1.0",
@@ -45,8 +44,10 @@
   "resolutions": {
     "underscore@npm": "^1.13.2",
     "lodash@npm": "^4.17.21",
+    "minimist@npm": "^1.2.6",
     "node-fetch": "^2.6.7",
-    "nanoid": "^3.3.1"
+    "nanoid": "^3.3.1",
+    "async@npm": "^2.6.4"
   },
   "commitlint": {
     "extends": [

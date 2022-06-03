@@ -9,6 +9,12 @@
 </p>
 
 <p align="center">
+  <a href="https://sonarcloud.io/summary/new_code?id=kleros_kleros-v2"><img src="https://sonarcloud.io/api/project_badges/measure?project=kleros_kleros-v2&metric=security_rating" alt="Security Rating"></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=kleros_kleros-v2"><img src="https://sonarcloud.io/api/project_badges/measure?project=kleros_kleros-v2&metric=alert_status" alt="Quality Gate Status"></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=kleros_kleros-v2"><img src="https://sonarcloud.io/api/project_badges/measure?project=kleros_kleros-v2&metric=bugs" alt="Bugs"></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=kleros_kleros-v2"><img src="https://sonarcloud.io/api/project_badges/measure?project=kleros_kleros-v2&metric=reliability_rating" alt="Reliability Rating"></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=kleros_kleros-v2"><img src="https://sonarcloud.io/api/project_badges/measure?project=kleros_kleros-v2&metric=sqale_rating" alt="Maintainability Rating"></a>
+  </br>
   <a href="https://github.com/kleros/kleros-v2/actions/workflows/contracts-testing.yml"><img src="https://github.com/kleros/kleros-v2/actions/workflows/contracts-testing.yml/badge.svg?branch=master" alt="Unit testing"></a>
   <a href="https://conventionalcommits.org"><img src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg" alt="Conventional Commits"></a>
   <a href="http://commitizen.github.io/cz-cli/"><img src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg" alt="Commitizen Friendly"></a>
