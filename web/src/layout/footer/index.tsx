@@ -5,7 +5,7 @@ import { socialmedia } from "consts/socialmedia";
 
 const Container = styled.div`
   height: 80px;
-  width: 100vw;
+  width: 100%;
   background-color: ${({ theme }) => theme.primaryPurple};
   display: flex;
   flex-direction: column;

@@ -26,6 +26,9 @@
       "hooks*": [
         "./src/hooks*"
       ],
+      "queries*": [
+        "./src/hooks/queries*"
+      ],
       "pages*": [
         "./src/pages*"
       ],

@@ -32,10 +32,7 @@ const Container = styled.div<{ isOpen: boolean }>`
 
 const NavBar: React.FC<{ isOpen: boolean }> = ({ isOpen }) => (
   <Container {...{ isOpen }}>
-    <LightButton
-      text="Kleros Solutions"
-      icon={(className) => <KlerosSolutionsIcon {...{ className }} />}
-    />
+    <LightButton text="Kleros Solutions" Icon={KlerosSolutionsIcon} />
     <hr />
     <Explore />
     <hr />

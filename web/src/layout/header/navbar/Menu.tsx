@@ -21,24 +21,21 @@ const Explore: React.FC = () => {
   const [theme, toggleTheme] = useToggleTheme();
   const isLightTheme = theme === "light";
   const buttons = [
-    { text: "Notifications", icon: NotificationsIcon },
-    { text: "Settings", icon: SettingsIcon },
-    { text: "Help", icon: HelpIcon },
+    { text: "Notifications", Icon: NotificationsIcon },
+    { text: "Settings", Icon: SettingsIcon },
+    { text: "Help", Icon: HelpIcon },
     {
       text: `${isLightTheme ? "Dark" : "Light"} Mode`,
-      icon: isLightTheme ? DarkModeIcon : LightModeIcon,
+      Icon: isLightTheme ? DarkModeIcon : LightModeIcon,
       onClick: () => toggleTheme(),
     },
   ];
 
   return (
     <Container>
-      {buttons.map(({ text, icon: Icon, onClick }) => (
+      {buttons.map(({ text, Icon, onClick }) => (
         <ButtonContainer key={text}>
-          <LightButton
-            {...{ text, onClick }}
-            icon={(className: string) => <Icon {...{ className }} />}
-          />
+          <LightButton {...{ text, onClick, Icon }} />
         </ButtonContainer>
       ))}
     </Container>

@@ -25,7 +25,7 @@ export const lightTheme = {
   error: "#F60C36",
   errorLight: "#FEF0F3",
   tint: "#D14EFF",
-  tintMedium: "#401D6C",
+  tintMedium: "#FCF4FF",
   tintPurple: "#F4F0FA",
 
   transitionSpeed: "0.25s",
