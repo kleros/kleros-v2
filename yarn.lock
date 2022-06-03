@@ -508,33 +508,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethereumjs/tx@npm:^3.2.1, @ethereumjs/tx@npm:^3.5.1":
-  version: 3.5.1
-  resolution: "@ethereumjs/tx@npm:3.5.1"
+"@ethereumjs/tx@npm:^3.2.1, @ethereumjs/tx@npm:^3.5.1, @ethereumjs/tx@npm:^3.5.2":
+  version: 3.5.2
+  resolution: "@ethereumjs/tx@npm:3.5.2"
   dependencies:
-    "@ethereumjs/common": ^2.6.3
-    ethereumjs-util: ^7.1.4
-  checksum: ed17780314592eca96f7aed392707b55af713964a9ac8e5a1ba5b1a0d7cd90ced80d3793bc24e2ce7a5b4852cefae31af8731c5cf54cece48ada16c5dcb2713b
+    "@ethereumjs/common": ^2.6.4
+    ethereumjs-util: ^7.1.5
+  checksum: a34a7228a623b40300484d15875b9f31f0a612cfeab64a845f6866cf0bfe439519e9455ac6396149f29bc527cf0ee277ace082ae013a1075dcbf7193220a0146
   languageName: node
   linkType: hard
 
 "@ethereumjs/vm@npm:^5.9.0":
-  version: 5.9.0
-  resolution: "@ethereumjs/vm@npm:5.9.0"
+  version: 5.9.1
+  resolution: "@ethereumjs/vm@npm:5.9.1"
   dependencies:
     "@ethereumjs/block": ^3.6.2
     "@ethereumjs/blockchain": ^5.5.2
     "@ethereumjs/common": ^2.6.4
-    "@ethereumjs/tx": ^3.5.1
+    "@ethereumjs/tx": ^3.5.2
     async-eventemitter: ^0.2.4
     core-js-pure: ^3.0.1
     debug: ^4.3.3
-    ethereumjs-util: ^7.1.4
+    ethereumjs-util: ^7.1.5
     functional-red-black-tree: ^1.0.1
     mcl-wasm: ^0.7.1
     merkle-patricia-tree: ^4.2.4
     rustbn.js: ~0.2.0
-  checksum: f707a1ca924b31db93cbec06a0782882092cd479ccf7359d9a8c9e9a0a00ef10efde873187ffa8728243122a8ad066c1f6f544b0c6ce10f3055a6ddcf765fc8c
+  checksum: a978e23cc0c557cb58984f17a0108206e3d3fdf3f5903501db54d4d8d087acd7688a60c7f02987622d2296fd064ce7516608e37eb14bdf3fa12aac0e3228414a
   languageName: node
   linkType: hard
 
@@ -1780,9 +1780,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 17.0.38
-  resolution: "@types/node@npm:17.0.38"
-  checksum: 9db1c39d603850ced665ab60b8f8ebce674ff9d762dfff0f776d520e71e4d73fdcd4c7f69213b804d878cf3e726911b09cae4ee66e35ae2724538de9f4838681
+  version: 17.0.39
+  resolution: "@types/node@npm:17.0.39"
+  checksum: 1258561d0af920e52a64cdebb58534ba6cf82fd58697d12a55a11a3747b211f98d316a05fb59cd5b453af5305682dade835ec27666d7fe557156080ea645efb8
   languageName: node
   linkType: hard
 
@@ -4871,9 +4871,9 @@ __metadata:
   linkType: hard
 
 "colorette@npm:^2.0.16":
-  version: 2.0.16
-  resolution: "colorette@npm:2.0.16"
-  checksum: cd55596a3a2d1071c1a28eee7fd8a5387593ff1bd10a3e8d0a6221499311fe34a9f2b9272d77c391e0e003dcdc8934fb2f8d106e7ef1f7516f8060c901d41a27
+  version: 2.0.17
+  resolution: "colorette@npm:2.0.17"
+  checksum: 693a56d816846e0e213f92c8061b65eb5025030b28a113f90c539fe34c860abc41132c03599af26bcbc213170a31bac1bf2d4c535ccad5ac7b5cb3248f9d98a8
   languageName: node
   linkType: hard
 
@@ -6152,9 +6152,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.118":
-  version: 1.4.144
-  resolution: "electron-to-chromium@npm:1.4.144"
-  checksum: a321bfc92485d37a16c1db84647dc9c376b47ff53136a32102d8599086118f5805ab3713f86f85936b627544b653d7d8c3f1acf9638c5bf0c3f8e6ae1ab4c395
+  version: 1.4.145
+  resolution: "electron-to-chromium@npm:1.4.145"
+  checksum: ad29ff259a95abfb30635befbd451ca3a1334118a949cc0e5125d06ece58c85733285dd329552a85c4dcf0f658a965f9ffd87b06d9b4bd8c309b0694f74198a8
   languageName: node
   linkType: hard
 
@@ -7310,16 +7310,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethereumjs-util@npm:^7.0.10, ethereumjs-util@npm:^7.0.2, ethereumjs-util@npm:^7.1.0, ethereumjs-util@npm:^7.1.1, ethereumjs-util@npm:^7.1.4":
-  version: 7.1.4
-  resolution: "ethereumjs-util@npm:7.1.4"
+"ethereumjs-util@npm:^7.0.10, ethereumjs-util@npm:^7.0.2, ethereumjs-util@npm:^7.1.0, ethereumjs-util@npm:^7.1.1, ethereumjs-util@npm:^7.1.4, ethereumjs-util@npm:^7.1.5":
+  version: 7.1.5
+  resolution: "ethereumjs-util@npm:7.1.5"
   dependencies:
     "@types/bn.js": ^5.1.0
     bn.js: ^5.1.2
     create-hash: ^1.1.2
     ethereum-cryptography: ^0.1.3
     rlp: ^2.2.4
-  checksum: ccfd9208bfe9205af124a9138c5a90db46cd2fcacf4b80f17f67915381c03253aa2fb90ead9e0b53d9a6fcfeed4310e5dfa8dc516ca2846d16baf81d605cd8c2
+  checksum: 27a3c79d6e06b2df34b80d478ce465b371c8458b58f5afc14d91c8564c13363ad336e6e83f57eb0bd719fde94d10ee5697ceef78b5aa932087150c5287b286d1
   languageName: node
   linkType: hard
 
@@ -8761,7 +8761,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 872685026db07ad1687056a78388f17c6a9bcd22bbf9d99d1e2b21e2d196c6e99a128bcff48063b3f0cf692a4365142fae9dd06cf8c532bc557a45f8ac853308
+  checksum: 0d41f2b054031b35c03e437462b69650c3ad48b13f0b9e0f3ae9871bb5dddbd757819db8447cdce6e1f08bd44d572b15d383a876a2c5ad994ebb00ca17a89104
   languageName: node
   linkType: hard
 
