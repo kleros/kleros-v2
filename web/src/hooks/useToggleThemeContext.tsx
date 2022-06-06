@@ -1,9 +1,14 @@
 import React, { createContext, useContext } from "react";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const Context = createContext<[string, () => void]>(["light", () => {}]);
+const Context = createContext<[string, () => void]>([
+  "light",
+  () => {
+    // default empty-function
+  },
+]);
 
 export const ToggleThemeProvider: React.FC<{
+  children: React.ReactNode;
   theme: string;
   toggleTheme: () => void;
 }> = ({ theme, toggleTheme, children }) => {
@@ -13,6 +18,5 @@ export const ToggleThemeProvider: React.FC<{
 };
 
 export const useToggleTheme: () => [string, () => void] = () => {
-  const toggleTheme = useContext(Context);
-  return toggleTheme;
+  return useContext(Context);
 };
