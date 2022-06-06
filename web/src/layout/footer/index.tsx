@@ -24,6 +24,13 @@ const Container = styled.div`
 
     a {
       display: inline-block;
+      svg {
+        height: 16px;
+        width: 16px;
+        max-heigth: 16px;
+        max-width: 16px;
+        fill: white;
+      }
     }
   }
 `;

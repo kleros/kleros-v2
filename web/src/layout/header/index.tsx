@@ -27,6 +27,10 @@ const Container = styled.div`
 
 const StyledLightButton = styled(LightButton)`
   padding-right: 0;
+
+  .button-svg {
+    fill: white;
+  }
 `;
 
 const Header: React.FC = () => {
