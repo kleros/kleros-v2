@@ -17,7 +17,7 @@ const ButtonContainer = styled.div`
   align-items: center;
 `;
 
-const Explore: React.FC = () => {
+const Menu: React.FC = () => {
   const [theme, toggleTheme] = useToggleTheme();
   const isLightTheme = theme === "light";
   const buttons = [
@@ -42,4 +42,4 @@ const Explore: React.FC = () => {
   );
 };
 
-export default Explore;
+export default Menu;
