@@ -5,7 +5,9 @@ import { ToggleThemeProvider } from "hooks/useToggleThemeContext";
 import { GlobalStyle } from "styles/global-style";
 import { lightTheme, darkTheme } from "styles/themes";
 
-const StyledComponentsProvider: React.FC = ({ children }) => {
+const StyledComponentsProvider: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
   const [theme, setTheme] = useLocalStorage<string>("theme", "light");
   const toggleTheme = () => {
     if (theme === "light") setTheme("dark");
