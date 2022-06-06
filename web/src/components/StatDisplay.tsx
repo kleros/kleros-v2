@@ -34,7 +34,7 @@ const TextContainer = styled.div`
   }
 `;
 
-interface IStatDisplay {
+export interface IStatDisplay {
   title: string;
   text: string;
   subtext: string;
