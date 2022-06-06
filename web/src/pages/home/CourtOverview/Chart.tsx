@@ -22,6 +22,21 @@ const CHART_OPTIONS = [
   { text: "Cases per court", value: 2 },
 ];
 
+const ChartOptionsDropdown: React.FC<{
+  setChartOption: (newValue: string) => void;
+}> = ({ setChartOption }) => (
+  <StyledDropdown
+    smallButton
+    simpleButton
+    alignRight
+    defaultValue={"pnkstakedDataPoints"}
+    items={CHART_OPTIONS}
+    callback={(newValue: string) => {
+      setChartOption(newValue);
+    }}
+  />
+);
+
 interface IChartData {
   x: number;
   y: number;
@@ -36,8 +51,8 @@ const Chart: React.FC = () => {
       return [
         ...accData,
         {
-          x: parseInt(id) * 1000,
-          y: parseInt(
+          x: Number(id) * 1000,
+          y: Number(
             chartOption === "pnkstakedDataPoints"
               ? utils.formatUnits(value, 18)
               : value
@@ -50,16 +65,7 @@ const Chart: React.FC = () => {
 
   return (
     <Container>
-      <StyledDropdown
-        smallButton
-        simpleButton
-        alignRight
-        defaultValue={"pnkstakedDataPoints"}
-        items={CHART_OPTIONS}
-        callback={(newValue: string) => {
-          setChartOption(newValue);
-        }}
-      />
+      <ChartOptionsDropdown {...{ setChartOption }} />
       {processedData ? <TimeSeriesChart data={processedData} /> : "Fetching..."}
     </Container>
   );
