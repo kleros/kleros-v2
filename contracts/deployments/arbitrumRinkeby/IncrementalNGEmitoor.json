@@ -1,0 +1,190 @@
+{
+  "address": "0x83F393F2aE68FA6A6701D7c65CBbFf3225f3fDf9",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_start",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_number",
+          "type": "uint256"
+        }
+      ],
+      "name": "Number",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_block",
+          "type": "uint256"
+        }
+      ],
+      "name": "contribute",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_block",
+          "type": "uint256"
+        }
+      ],
+      "name": "getRN",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "RN",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_block",
+          "type": "uint256"
+        }
+      ],
+      "name": "getUncorrelatedRN",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "RN",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "number",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_block",
+          "type": "uint256"
+        }
+      ],
+      "name": "requestRN",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x9acad8a3efba068e1bd799913b7f2af907416e6a5ccebbba9637739764e8ff7d",
+  "receipt": {
+    "to": null,
+    "from": "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3",
+    "contractAddress": "0x83F393F2aE68FA6A6701D7c65CBbFf3225f3fDf9",
+    "transactionIndex": 0,
+    "gasUsed": "2063992",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xfc728818e878ef9d5cf3855da1a29ea6e4f927ecfd383fa5339df0e6edabe633",
+    "transactionHash": "0x9acad8a3efba068e1bd799913b7f2af907416e6a5ccebbba9637739764e8ff7d",
+    "logs": [],
+    "blockNumber": 12554863,
+    "cumulativeGasUsed": "763112",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    42
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "616289cb330588ad7bb3701a8ab48290",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.9+commit.e5eed63a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_start\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_number\",\"type\":\"uint256\"}],\"name\":\"Number\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_block\",\"type\":\"uint256\"}],\"name\":\"contribute\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_block\",\"type\":\"uint256\"}],\"name\":\"getRN\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"RN\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_block\",\"type\":\"uint256\"}],\"name\":\"getUncorrelatedRN\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"RN\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"number\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_block\",\"type\":\"uint256\"}],\"name\":\"requestRN\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"contribute(uint256)\":{\"details\":\"Contribute to the reward of a random number. All the ETH will be lost forever.\",\"params\":{\"_block\":\"Block the random number is linked to.\"}},\"getRN(uint256)\":{\"details\":\"Get the \\\"random number\\\", which is predictable.\",\"params\":{\"_block\":\"Block the random number is linked to.\"},\"returns\":{\"RN\":\"Random Number. If the number is not ready or has not been required 0 instead.\"}},\"getUncorrelatedRN(uint256)\":{\"details\":\"Get a uncorrelated random number. Act like getRN but give a different number for each sender.      This is to prevent users from getting correlated numbers.\",\"params\":{\"_block\":\"Block the random number is linked to.\"},\"returns\":{\"RN\":\"Random Number. If the number is not ready or has not been required 0 instead.\"}},\"requestRN(uint256)\":{\"details\":\"Request a random number.\",\"params\":{\"_block\":\"Block linked to the request.\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/rng/IncrementalNGEmitoor.sol\":\"IncrementalNGEmitoor\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"src/rng/IncrementalNGEmitoor.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\n/**\\n * @title Incremental Number Generator\\n * @author JayBuidl <jb@kleros.io>\\n * @dev A Random Number Generator which returns a number incremented by 1 each time. Useful as a fallback method.\\n */\\n\\npragma solidity ^0.8;\\nimport \\\"./RNG.sol\\\";\\n\\ncontract IncrementalNGEmitoor is RNG {\\n    uint256 public number;\\n\\n    event Number(uint256 indexed _number);\\n\\n    constructor(uint256 _start) {\\n        number = _start;\\n    }\\n\\n    /**\\n     * @dev Contribute to the reward of a random number. All the ETH will be lost forever.\\n     * @param _block Block the random number is linked to.\\n     */\\n    function contribute(uint256 _block) public payable override {\\n        /* NOP */\\n    }\\n\\n    /**\\n     * @dev Get the \\\"random number\\\", which is predictable.\\n     * @param _block Block the random number is linked to.\\n     * @return RN Random Number. If the number is not ready or has not been required 0 instead.\\n     */\\n    function getRN(uint256 _block) public override returns (uint256 RN) {\\n        unchecked {\\n            emit Number(++number);\\n            return number;\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x78bf93c62de169958e0edc4a444da854112e42f26bc9b8137e35d32851b9a06a\",\"license\":\"MIT\"},\"src/rng/RNG.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\n/**\\n * @authors: [@clesaege]\\n * @reviewers: [@remedcu]\\n * @auditors: []\\n * @bounties: []\\n * @deployments: []\\n */\\n\\npragma solidity ^0.8;\\n\\n/**\\n * @title Random Number Generator Standard\\n * @author Cl\\u00e9ment Lesaege - <clement@lesaege.com>\\n * @dev This is an abstract contract\\n */\\nabstract contract RNG {\\n    /**\\n     * @dev Contribute to the reward of a random number.\\n     * @param _block Block the random number is linked to.\\n     */\\n    function contribute(uint256 _block) public payable virtual;\\n\\n    /**\\n     * @dev Request a random number.\\n     * @param _block Block linked to the request.\\n     */\\n    function requestRN(uint256 _block) public payable {\\n        contribute(_block);\\n    }\\n\\n    /**\\n     * @dev Get the random number.\\n     * @param _block Block the random number is linked to.\\n     * @return RN Random Number. If the number is not ready or has not been required 0 instead.\\n     */\\n    function getRN(uint256 _block) public virtual returns (uint256 RN);\\n\\n    /**\\n     * @dev Get a uncorrelated random number. Act like getRN but give a different number for each sender.\\n     *      This is to prevent users from getting correlated numbers.\\n     * @param _block Block the random number is linked to.\\n     * @return RN Random Number. If the number is not ready or has not been required 0 instead.\\n     */\\n    function getUncorrelatedRN(uint256 _block) public returns (uint256 RN) {\\n        uint256 baseRN = getRN(_block);\\n        if (baseRN == 0) return 0;\\n        else return uint256(keccak256(abi.encode(msg.sender, baseRN)));\\n    }\\n}\\n\",\"keccak256\":\"0x854bcb147fe44383cba7a5fdbcb69b3c0a9a71435c80eb73c172222da472a855\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5060405161021338038061021383398101604081905261002f91610037565b600055610050565b60006020828403121561004957600080fd5b5051919050565b6101b48061005f6000396000f3fe60806040526004361061004a5760003560e01c80631c73601e1461004f5780637b9c34e0146100815780638381f58a14610096578063c1cbbca7146100ac578063ca4742f1146100bd575b600080fd5b34801561005b57600080fd5b5061006f61006a366004610165565b6100dd565b60405190815260200160405180910390f35b61009461008f366004610165565b6100ba565b005b3480156100a257600080fd5b5061006f60005481565b6100946100ba366004610165565b50565b3480156100c957600080fd5b5061006f6100d8366004610165565b61012b565b6000806100e98361012b565b9050806100f95750600092915050565b6040805133602082015290810182905260600160408051601f1981840301815291905280516020909101209392505050565b600080546001018082556040517f6bae605e24bc4cb18abe39d95b9d7fcffa36cf0725b4773ff0f2bc41d4f23cf0908390a2505060005490565b60006020828403121561017757600080fd5b503591905056fea26469706673582212200afc49947375b412de9e130b1295d54eacb4b09fd8d58be5ba50d33716455cc564736f6c63430008090033",
+  "deployedBytecode": "0x60806040526004361061004a5760003560e01c80631c73601e1461004f5780637b9c34e0146100815780638381f58a14610096578063c1cbbca7146100ac578063ca4742f1146100bd575b600080fd5b34801561005b57600080fd5b5061006f61006a366004610165565b6100dd565b60405190815260200160405180910390f35b61009461008f366004610165565b6100ba565b005b3480156100a257600080fd5b5061006f60005481565b6100946100ba366004610165565b50565b3480156100c957600080fd5b5061006f6100d8366004610165565b61012b565b6000806100e98361012b565b9050806100f95750600092915050565b6040805133602082015290810182905260600160408051601f1981840301815291905280516020909101209392505050565b600080546001018082556040517f6bae605e24bc4cb18abe39d95b9d7fcffa36cf0725b4773ff0f2bc41d4f23cf0908390a2505060005490565b60006020828403121561017757600080fd5b503591905056fea26469706673582212200afc49947375b412de9e130b1295d54eacb4b09fd8d58be5ba50d33716455cc564736f6c63430008090033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "contribute(uint256)": {
+        "details": "Contribute to the reward of a random number. All the ETH will be lost forever.",
+        "params": {
+          "_block": "Block the random number is linked to."
+        }
+      },
+      "getRN(uint256)": {
+        "details": "Get the \"random number\", which is predictable.",
+        "params": {
+          "_block": "Block the random number is linked to."
+        },
+        "returns": {
+          "RN": "Random Number. If the number is not ready or has not been required 0 instead."
+        }
+      },
+      "getUncorrelatedRN(uint256)": {
+        "details": "Get a uncorrelated random number. Act like getRN but give a different number for each sender.      This is to prevent users from getting correlated numbers.",
+        "params": {
+          "_block": "Block the random number is linked to."
+        },
+        "returns": {
+          "RN": "Random Number. If the number is not ready or has not been required 0 instead."
+        }
+      },
+      "requestRN(uint256)": {
+        "details": "Request a random number.",
+        "params": {
+          "_block": "Block linked to the request."
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 16310,
+        "contract": "src/rng/IncrementalNGEmitoor.sol:IncrementalNGEmitoor",
+        "label": "number",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_uint256"
+      }
+    ],
+    "types": {
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
