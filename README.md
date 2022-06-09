@@ -9,6 +9,8 @@
 </p>
 
 <p align="center">
+  <a href="https://app.netlify.com/sites/kleros-v2/deploys"><img src="https://api.netlify.com/api/v1/badges/86d94ae8-f655-46a4-a859-d68696173f3a/deploy-status" alt="Netlify Build Status"></a>
+  </br>
   <a href="https://sonarcloud.io/summary/new_code?id=kleros_kleros-v2"><img src="https://sonarcloud.io/api/project_badges/measure?project=kleros_kleros-v2&metric=security_rating" alt="Security Rating"></a>
   <a href="https://sonarcloud.io/summary/new_code?id=kleros_kleros-v2"><img src="https://sonarcloud.io/api/project_badges/measure?project=kleros_kleros-v2&metric=alert_status" alt="Quality Gate Status"></a>
   <a href="https://sonarcloud.io/summary/new_code?id=kleros_kleros-v2"><img src="https://sonarcloud.io/api/project_badges/measure?project=kleros_kleros-v2&metric=bugs" alt="Bugs"></a>
