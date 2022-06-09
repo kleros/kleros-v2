@@ -1,0 +1,7 @@
+schema: https://api.thegraph.com/subgraphs/name/alcercu/kleros-core
+documents: './src/hooks/queries/*.ts'
+generates:
+  src/graphql/generated.ts:
+    plugins:
+      - typescript
+      - typescript-operations
