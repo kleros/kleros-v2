@@ -14,6 +14,13 @@ interface IFastBridgeSender {
      */
     event MessageReceived(bytes fastMessage, bytes32 fastMessageHash);
 
+    /**
+     * @dev The event is emitted when messages are sent through the canonical bridge.
+     * @param epoch The epoch of the batch requested to send.
+     * @param canonicalBridgeMessageID The unique identifier of the safe message returned by the canonical bridge.
+     */
+    event SentSafe(uint256 indexed epoch, bytes32 canonicalBridgeMessageID);
+
     // ************************************* //
     // *        Function Modifiers         * //
     // ************************************* //
