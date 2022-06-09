@@ -1,5 +1,11 @@
+# Exclude everything by default from the package
 **/*
-!/src/**
-!/artifacts/@kleros/**
-!/artifacts/src/**
-!/deployments/*/*.json
+
+# Include this
+!/artifacts/**
+!/typechain-types/**
+!/deployments/**
+
+# Except this
+/deployments/localhost/
+**/.DS_Store
