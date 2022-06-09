@@ -191,8 +191,6 @@ describe("Demo pre-alpha1", function () {
     const MessageReceived = fastBridgeSender.filters.MessageReceived();
     const event5 = await fastBridgeSender.queryFilter(MessageReceived);
 
-
-    const nonce = await fastBridgeSender.batchSize() - 1 ;
     const fastMessage = event5[0].args.fastMessage;    
 
     const tx4a = await fastBridgeSender.connect(bridger).sendBatch();
@@ -202,19 +200,16 @@ describe("Demo pre-alpha1", function () {
     const event5a = await fastBridgeSender.queryFilter(SendBatch);
     const batchID = event5a[0].args.batchID;
     const batchMerkleRoot = event5a[0].args.batchMerkleRoot;
-
     // bridger tx starts - Honest Bridger 
     const tx5 = await fastBridgeReceiver.connect(bridger).claim(batchID, batchMerkleRoot, { value: ONE_TENTH_ETH });
 
     expect(tx5).to.emit(fastBridgeReceiver, "ClaimReceived").withArgs(batchID, batchMerkleRoot);
-
     // wait for challenge period (and epoch) to pass
     await network.provider.send("evm_increaseTime", [86400]);
     await network.provider.send("evm_mine");
 
     const tx7a = await fastBridgeReceiver.connect(bridger).verify(batchID);
-    const tx7 = await fastBridgeReceiver.connect(await ethers.getSigner(relayer)).verifyAndRelay(batchID, [], fastMessage, nonce);
-
+    const tx7 = await fastBridgeReceiver.connect(await ethers.getSigner(relayer)).verifyAndRelay(batchID, [], fastMessage);
     const tx8 = await fastBridgeReceiver.withdrawClaimDeposit(batchID);
 
     expect(tx7).to.emit(arbitrable, "Ruling");
@@ -358,8 +353,6 @@ describe("Demo pre-alpha1", function () {
 
     const MessageReceived = fastBridgeSender.filters.MessageReceived();
     const event4 = await fastBridgeSender.queryFilter(MessageReceived);
-
-    const nonce = await fastBridgeSender.batchSize() - 1 ;
     const fastMessage = event4[0].args.fastMessage;
 
 
@@ -389,7 +382,7 @@ describe("Demo pre-alpha1", function () {
     await network.provider.send("evm_mine");
 
     await expect(
-      fastBridgeReceiver.connect(await ethers.getSigner(relayer)).verifyAndRelay(batchID, [], fastMessage, nonce)
+      fastBridgeReceiver.connect(await ethers.getSigner(relayer)).verifyAndRelay(batchID, [], fastMessage)
     ).to.be.revertedWith("Invalid epoch.");
 
     const tx7 = await fastBridgeSender
@@ -397,7 +390,7 @@ describe("Demo pre-alpha1", function () {
       .sendSafeFallback(batchID, { gasLimit: 1000000 });
     expect(tx7).to.emit(fastBridgeSender, "L2ToL1TxCreated");
 
-    const tx8 = await fastBridgeReceiver.connect(await ethers.getSigner(relayer)).verifyAndRelay(batchID, [], fastMessage, nonce);
+    const tx8 = await fastBridgeReceiver.connect(await ethers.getSigner(relayer)).verifyAndRelay(batchID, [], fastMessage);
 
     expect(tx8).to.emit(arbitrable, "Ruling");
 
@@ -515,8 +508,6 @@ describe("Demo pre-alpha1", function () {
 
     const MessageReceived = fastBridgeSender.filters.MessageReceived();
     const event4 = await fastBridgeSender.queryFilter(MessageReceived);
-
-    const nonce = await fastBridgeSender.batchSize() - 1 ;
     const fastMessage = event4[0].args.fastMessage;
 
     const tx4a = await fastBridgeSender.connect(bridger).sendBatch();
@@ -541,7 +532,7 @@ describe("Demo pre-alpha1", function () {
     .sendSafeFallback(batchID, { gasLimit: 1000000 });
     expect(tx7).to.emit(fastBridgeSender, "L2ToL1TxCreated");
 
-    const tx8 = await fastBridgeReceiver.connect(await ethers.getSigner(relayer)).verifyAndRelay(batchID, [], fastMessage, nonce);
+    const tx8 = await fastBridgeReceiver.connect(await ethers.getSigner(relayer)).verifyAndRelay(batchID, [], fastMessage);
 
     expect(tx8).to.emit(arbitrable, "Ruling");
     await fastBridgeReceiver.withdrawChallengeDeposit(batchID);

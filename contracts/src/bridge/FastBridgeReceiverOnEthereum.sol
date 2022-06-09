@@ -171,29 +171,20 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
      * @param _epoch The epoch in which the message was batched by the bridge.
      * @param _proof The merkle proof to prove the membership of the message and nonce in the merkle tree for the epoch.
      * @param _message The data on the cross-domain chain for the message.
-     * @param _nonce The nonce (index in the merkle tree) to avoid replay.
      */
     function verifyAndRelay(
         uint256 _epoch,
         bytes32[] calldata _proof,
-        bytes calldata _message,
-        uint256 _nonce
+        bytes calldata _message
     ) external override {
         bytes32 batchMerkleRoot = fastInbox[_epoch];
         require(batchMerkleRoot != bytes32(0), "Invalid epoch.");
 
-        uint256 index = _nonce / 256;
-        uint256 offset = _nonce - index * 256;
-
-        bytes32 replay = relayed[_epoch][index];
-        require(((replay >> offset) & bytes32(uint256(1))) == 0, "Message already relayed");
-        relayed[_epoch][index] = replay | bytes32(1 << offset);
-
         // Claim assessment if any
-        bytes32 messageHash = sha256(abi.encode(_message, _nonce));
+        bytes32 messageHash = sha256(_message);
 
         require(validateProof(_proof, messageHash, batchMerkleRoot) == true, "Invalid proof.");
-        require(_relay(_message), "Failed to call contract"); // Checks-Effects-Interaction
+        require(_checkReplayAndRelay(_epoch, _message), "Failed to call contract"); // Checks-Effects-Interaction
     }
 
     /**
@@ -318,9 +309,17 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
     // *       Internal       * //
     // ************************ //
 
-    function _relay(bytes calldata _messageData) internal returns (bool success) {
+    function _checkReplayAndRelay(uint256 _epoch, bytes calldata _messageData) internal returns (bool success) {
         // Decode the receiver address from the data encoded by the IFastBridgeSender
-        (address receiver, bytes memory data) = abi.decode(_messageData, (address, bytes));
+        (uint256 nonce, address receiver, bytes memory data) = abi.decode(_messageData, (uint256, address, bytes));
+
+        uint256 index = nonce / 256;
+        uint256 offset = nonce - index * 256;
+
+        bytes32 replay = relayed[_epoch][index];
+        require(((replay >> offset) & bytes32(uint256(1))) == 0, "Message already relayed");
+        relayed[_epoch][index] = replay | bytes32(1 << offset);
+
         (success, ) = receiver.call(data);
     }
 }
