@@ -30,7 +30,8 @@ import { MerkleTree } from "./MerkleTree";
 describe("Merkle", function () {
   describe("Sanity tests", async () => {
 
-    let merkleTreeExposed, merkleProofExposed;
+    let merkleTreeExposed;
+    let merkleProofExposed;
     let data,nodes,mt;
     let rootOnChain,rootOffChain, proof;
 
@@ -64,14 +65,14 @@ describe("Merkle", function () {
 
       expect(rootOffChain == rootOnChain).equal(true);
     });
-  it("Should correctly verify all nodes in the tree", async () => {
-    for (var message of data)  {
-      const leaf = ethers.utils.sha256(message);
-      proof = mt.getHexProof(leaf);
-      const validation = await merkleProofExposed._validateProof(proof, ethers.utils.sha256(message),rootOnChain);
-      expect(validation).equal(true);
-      expect(verify(proof, rootOffChain, leaf)).equal(true);
-    }
+    it("Should correctly verify all nodes in the tree", async () => {
+      for (var message of data)  {
+        const leaf = ethers.utils.sha256(message);
+        proof = mt.getHexProof(leaf);
+        const validation = await merkleProofExposed._validateProof(proof, ethers.utils.sha256(message),rootOnChain);
+        expect(validation).equal(true);
+        expect(verify(proof, rootOffChain, leaf)).equal(true);
+      }
     });
   });
 });

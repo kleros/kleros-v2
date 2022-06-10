@@ -355,16 +355,15 @@ describe("Demo pre-alpha1", function () {
     const event4 = await fastBridgeSender.queryFilter(MessageReceived);
     const fastMessage = event4[0].args.fastMessage;
 
+    const tx4a = await fastBridgeSender.connect(bridger).sendBatch();
+    expect(tx4a).to.emit(fastBridgeSender, "SendBatch");
 
-  const tx4a = await fastBridgeSender.connect(bridger).sendBatch();
-  expect(tx4a).to.emit(fastBridgeSender, "SendBatch");
+    const SendBatch = fastBridgeSender.filters.SendBatch();
+    const event4a = await fastBridgeSender.queryFilter(SendBatch);
+    const batchID = event4a[0].args.batchID;
+    const batchMerkleRoot = event4a[0].args.batchMerkleRoot;
 
-  const SendBatch = fastBridgeSender.filters.SendBatch();
-  const event4a = await fastBridgeSender.queryFilter(SendBatch);
-  const batchID = event4a[0].args.batchID;
-  const batchMerkleRoot = event4a[0].args.batchMerkleRoot;
-
-  // bridger tx starts - Honest Bridger 
+    // bridger tx starts - Honest Bridger 
 
     console.log("Executed ruling");
 
@@ -521,7 +520,7 @@ describe("Demo pre-alpha1", function () {
     // bridger tx starts - bridger creates fakeData & fakeHash for dishonest ruling
 
     const fakeData = "KlerosToTheMoon";
-    const fakeHash = utils.keccak256(utils.defaultAbiCoder.encode(["string"],[fakeData]));
+    const fakeHash = utils.keccak256(utils.defaultAbiCoder.encode(["string"], [fakeData]));
     const tx5 = await fastBridgeReceiver.connect(bridger).claim(batchID, fakeHash, { value: ONE_TENTH_ETH });
     // Challenger tx starts
     const tx6 = await fastBridgeReceiver.connect(challenger).challenge(batchID, { value: ONE_TENTH_ETH });
