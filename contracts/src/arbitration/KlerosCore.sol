@@ -961,6 +961,18 @@ contract KlerosCore is IArbitrator {
     // *   Public Views for Dispute Kits   * //
     // ************************************* //
 
+    function getSortitionSumTreeK(bytes32 _key) public view returns (uint256) {
+        return sortitionSumTrees.sortitionSumTrees[_key].K;
+    }
+
+    function getSortitionSumTreeNode(bytes32 _key, uint256 _index) public view returns (uint256) {
+        return sortitionSumTrees.sortitionSumTrees[_key].nodes[_index];
+    }
+
+    function getSortitionSumTreeNodesLength(bytes32 _key) public view returns (uint256) {
+        return sortitionSumTrees.sortitionSumTrees[_key].nodes.length;
+    }
+
     function getSortitionSumTree(bytes32 _key)
         public
         view
