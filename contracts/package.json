@@ -1,8 +1,8 @@
 {
   "name": "@kleros/kleros-v2-contracts",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Smart contracts for Kleros version 2",
-  "main": "index.js",
+  "main": "typechain-types/index.ts",
   "repository": "git@github.com:kleros/kleros-v2.git",
   "author": "Kleros",
   "license": "MIT",
@@ -17,13 +17,14 @@
     "deploy:staging": "run-s \"deploy --network rinkeby {@}\" \"deploy --network arbitrumRinkeby {@}\" --",
     "test": "hardhat test",
     "watch": "hardhat watch",
-    "docgen": "hardhat docgen"
+    "docgen": "hardhat docgen",
+    "publish": "yarn npm publish --access public --tag $(cat package.json | jq .version)"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@0.3.0-beta.13",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "@openzeppelin/contracts": "^4.6.0",
-    "@tenderly/hardhat-tenderly": "^1.0.13",
+    "@tenderly/hardhat-tenderly": "^1.0.15",
     "@typechain/ethers-v5": "^10.0.0",
     "@typechain/hardhat": "^6.0.0",
     "@types/chai": "^4.3.1",

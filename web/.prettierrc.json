@@ -1,0 +1,14 @@
+{
+  "printWidth": 80,
+  "endOfLine": "lf",
+  "overrides": [
+    {
+      "files": [
+        "*.json"
+      ],
+      "options": {
+        "parser": "json-stringify"
+      }
+    }
+  ]
+}
