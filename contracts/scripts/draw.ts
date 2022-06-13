@@ -62,13 +62,13 @@ describe("Draw Benchmark", function () {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
     const [bridger] = await ethers.getSigners();
 
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 16; i++) {
       let wallet = ethers.Wallet.createRandom()
       wallet =  wallet.connect(ethers.provider);
-      await bridger.sendTransaction({to: wallet.address, value: ethers.utils.parseEther("110")});
-      await pnk.transfer(wallet.address, ONE_THOUSAND_PNK)
-      await pnk.connect(wallet).approve(core.address, ONE_THOUSAND_PNK);
-      await core.connect(wallet).setStake(0, ONE_THOUSAND_PNK);
+      await bridger.sendTransaction({to: wallet.address, value: ethers.utils.parseEther("1")});
+      //await pnk.transfer(wallet.address, ONE_THOUSAND_PNK)
+      //await pnk.connect(wallet).approve(core.address, ONE_THOUSAND_PNK);
+      //await core.connect(wallet).setStake(0, ONE_THOUSAND_PNK);
     }
 
     
