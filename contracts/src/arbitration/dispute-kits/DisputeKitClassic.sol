@@ -224,16 +224,17 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         returns (address drawnAddress)
     {
         require(phase == Phase.drawing, "Should be in drawing phase");
+
+        Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
+        Round storage round = dispute.rounds[dispute.rounds.length - 1];
+
         bytes32 key = bytes32(core.getSubcourtID(_coreDisputeID)); // Get the ID of the tree.
-        uint256 drawnNumber = getRandomNumber();
+        uint256 drawnNumber = uint256(keccak256(abi.encode(getRandomNumber(), _coreDisputeID, round.votes.length)));
 
         uint256 K = core.getSortitionSumTreeK(key);
         uint256 nodesLength = core.getSortitionSumTreeNodesLength(key);
         uint256 treeIndex = 0;
         uint256 currentDrawnNumber = drawnNumber % core.getSortitionSumTreeNode(key, 0);
-
-        Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
-        Round storage round = dispute.rounds[dispute.rounds.length - 1];
 
         // TODO: Handle the situation when no one has staked yet.
 
