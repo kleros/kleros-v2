@@ -7,7 +7,7 @@ const WINNER_STAKE_MULTIPLIER = 3000;
 const LOSER_STAKE_MULTIPLIER = 7000;
 const MULTIPLIER_DENOMINATOR = 10000;
 
-describe("DisputeKitClassic", function () {
+describe("DisputeKitClassic", async () => {
   // eslint-disable-next-line no-unused-vars
   let deployer, claimant, supporter, challenger, innocentBystander;
   let core, disputeKit, arbitrable;
@@ -17,7 +17,7 @@ describe("DisputeKitClassic", function () {
     [core, disputeKit, arbitrable] = await deployContracts(deployer);
   });
 
-  it("Should create a dispute", async function () {
+  it("Should create a dispute", async () => {
     await expect(disputeKit.connect(deployer).createDispute(0, 0, 3, "0x00")).to.be.revertedWith(
       "Access not allowed: KlerosCore only."
     );
