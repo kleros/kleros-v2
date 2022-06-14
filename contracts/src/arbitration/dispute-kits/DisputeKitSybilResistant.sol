@@ -302,7 +302,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
      *  `n` is the number of votes.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core.
      *  @param _voteIDs The IDs of the votes.
-     *  @param _commit The commit.
+     *  @param _commit The commit. Note that justification string is a part of the commit.
      */
     function castCommit(
         uint256 _coreDisputeID,
@@ -357,7 +357,8 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         for (uint256 i = 0; i < _voteIDs.length; i++) {
             require(round.votes[_voteIDs[i]].account == msg.sender, "The caller has to own the vote.");
             require(
-                !hiddenVotes || round.votes[_voteIDs[i]].commit == keccak256(abi.encodePacked(_choice, _salt)),
+                !hiddenVotes ||
+                    round.votes[_voteIDs[i]].commit == keccak256(abi.encodePacked(_choice, _justification, _salt)),
                 "The commit must match the choice in subcourts with hidden votes."
             );
             require(!round.votes[_voteIDs[i]].voted, "Vote already cast.");
