@@ -113,7 +113,7 @@ describe("Demo pre-alpha1", function () {
       expect(result.staked).to.equal(ONE_THOUSAND_PNK.mul(4));
       expect(result.locked).to.equal(0);
       logJurorBalance(result);
-    }); 
+    });
     const tx = await arbitrable.createDispute(2, "0x00", 0, { value: arbitrationCost });
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
     const [disputeId] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`);
@@ -141,7 +141,6 @@ describe("Demo pre-alpha1", function () {
 
     await network.provider.send("evm_increaseTime", [130]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
-  
     expect(await core.phase()).to.equal(Phase.staking);
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.resolving);
     expect(await disputeKit.disputesWithoutJurors()).to.equal(1);
@@ -183,7 +182,6 @@ describe("Demo pre-alpha1", function () {
     await core.execute(0, 0, 1000);
     const ticket1 = await fastBridgeSender.currentTicketID();
     expect(ticket1).to.equal(1);
- 
     const tx4 = await core.executeRuling(0);
     expect(tx4).to.emit(fastBridgeSender, "OutgoingMessage");
 
