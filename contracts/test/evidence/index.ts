@@ -58,8 +58,8 @@ describe("Home Evidence contract", async () => {
     );
   });
 
-  describe("Governance", function () {
-    it("Should change parameters correctly", async function () {
+  describe("Governance", async () => {
+    it("Should change parameters correctly", async () => {
       const newGovernor = await user2.getAddress();
       await evidenceModule.changeGovernor(newGovernor);
       expect(await evidenceModule.governor()).to.equal(newGovernor);
@@ -95,7 +95,7 @@ describe("Home Evidence contract", async () => {
       expect(newArbitratorData.arbitratorExtraData).to.equal(newArbitratorExtraData, "Wrong extraData");
     });
 
-    it("Should revert if the caller is not the governor", async function () {
+    it("Should revert if the caller is not the governor", async () => {
       await expect(evidenceModule.connect(user2).changeGovernor(await user2.getAddress())).to.be.revertedWith(
         "The caller must be the governor"
       );
