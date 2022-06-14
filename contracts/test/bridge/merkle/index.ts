@@ -27,7 +27,7 @@ import { MerkleTree } from "./MerkleTree";
   );
 }
 
-describe("Merkle", function () {
+describe("Merkle", async () => {
   describe("Sanity tests", async () => {
 
     let merkleTreeHistory, merkleProof;
@@ -43,7 +43,7 @@ describe("Merkle", function () {
       await merkleProof.deployed();
     });
 
-    it("Merkle Root verification", async function () {
+    it("Merkle Root verification", async () => {
       data = [ 
         "0x00",
         "0x01",
