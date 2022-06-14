@@ -221,7 +221,9 @@ contract KlerosCore is IArbitrator {
         court.timesPerPeriod = _timesPerPeriod;
         court.supportedDisputeKits[DISPUTE_KIT_CLASSIC_INDEX] = true;
 
-        sortitionSumTrees.createTree(bytes32(0), _sortitionSumTreeK);
+        // TODO: fill the properties for Forking court.
+        sortitionSumTrees.createTree(bytes32(FORKING_COURT), _sortitionSumTreeK);
+        sortitionSumTrees.createTree(bytes32(GENERAL_COURT), _sortitionSumTreeK);
     }
 
     // ************************ //
