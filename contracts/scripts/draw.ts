@@ -13,7 +13,7 @@ import {
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
 
 //describe.only("Draw Benchmark", function () { // To run benchmark in isolation.
-describe("Draw Benchmark", function () {
+describe("Draw Benchmark", async () => {
     const ONE_TENTH_ETH = BigNumber.from(10).pow(17);
   const ONE_THOUSAND_PNK = BigNumber.from(10).pow(21);
 
@@ -50,11 +50,11 @@ describe("Draw Benchmark", function () {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    disputeKit = <DisputeKitClassic>await ethers.getContract("DisputeKitClassic");
-    pnk = <PNK>await ethers.getContract("PNK");
-    core = <KlerosCore>await ethers.getContract("KlerosCore");
-    homeGateway = <HomeGatewayToEthereum>await ethers.getContract("HomeGatewayToEthereum");
-    arbitrable = <ArbitrableExample>await ethers.getContract("ArbitrableExample");
+    disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
+    pnk = (await ethers.getContract("PNK")) as PNK;
+    core = (await ethers.getContract("KlerosCore")) as KlerosCore;
+    homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
+    arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
   });
 
 
@@ -102,6 +102,6 @@ describe("Draw Benchmark", function () {
   }
 });
 
-const logJurorBalance = function (result) {
+const logJurorBalance = async (result) => {
   console.log("staked=%s, locked=%s", ethers.utils.formatUnits(result.staked), ethers.utils.formatUnits(result.locked));
 };
