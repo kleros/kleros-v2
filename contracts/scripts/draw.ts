@@ -7,7 +7,7 @@ import {
   ArbitrableExample,
   HomeGatewayToEthereum,
   DisputeKitClassic,
-} from "../../typechain-types";
+} from "../typechain-types";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
@@ -35,8 +35,13 @@ describe("Draw Benchmark", async () => {
     drawing, // Jurors can be drawn.
   }
 
-  let deployer, relayer;
-  let disputeKit, pnk, core, arbitrable, homeGateway;
+  let deployer;
+  let relayer;
+  let disputeKit;
+  let pnk;
+  let core;
+  let arbitrable;
+  let homeGateway;
 
   beforeEach("Setup", async () => {
     deployer = (await getNamedAccounts()).deployer;
@@ -62,10 +67,10 @@ describe("Draw Benchmark", async () => {
     const [bridger] = await ethers.getSigners();
 
     for (let i = 0; i < 16; i++) {
-      let wallet = ethers.Wallet.createRandom()
+      let wallet = ethers.Wallet.createRandom();
       wallet =  wallet.connect(ethers.provider);
       await bridger.sendTransaction({to: wallet.address, value: ethers.utils.parseEther("1")});
-      await pnk.transfer(wallet.address, ONE_THOUSAND_PNK)
+      await pnk.transfer(wallet.address, ONE_THOUSAND_PNK);
       await pnk.connect(wallet).approve(core.address, ONE_THOUSAND_PNK);
       await core.connect(wallet).setStake(0, ONE_THOUSAND_PNK);
     }
@@ -87,16 +92,12 @@ describe("Draw Benchmark", async () => {
     await network.provider.send("evm_increaseTime", [130]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
     await core.passPhase(); // Staking -> Freezing
-    await mineNBlocks(20); // Wait for 20 blocks finality
+    for (let index = 0; index < 20; index++) { // Wait for 20 blocks finality
+      await network.provider.send("evm_mine");
+    }
     await disputeKit.passPhase(); // Resolving -> Generating
     await disputeKit.passPhase(); // Generating -> Drawing
 
     const tx3 = await core.draw(0, 1000);
   });
-
-  async function mineNBlocks(n) {
-    for (let index = 0; index < n; index++) {
-      await network.provider.send("evm_mine");
-    }
-  }
 });
