@@ -469,6 +469,55 @@ contract KlerosCore is IArbitrator {
         delayedStakeReadIndex = newDelayedStakeReadIndex;
     }
 
+    /** @dev Allows an active dispute kit contract to manually unstake the ineligible juror. The main purpose of this function is to remove
+     *  jurors that might obstruct the drawing process.
+     *  @param _disputeID The ID of the dispute.
+     *  @param _account The address of the juror.
+     *  @return True if unstaking was successful.
+     */
+    function unstakeByDisputeKitOnly(uint256 _disputeID, address _account) external returns (bool) {
+        Dispute storage dispute = disputes[_disputeID];
+        Round storage round = dispute.rounds[dispute.rounds.length - 1];
+        uint96 subcourtID = dispute.subcourtID;
+
+        require(msg.sender == address(disputeKitNodes[round.disputeKitID].disputeKit), "Can only be called by DK");
+        require(dispute.period == Period.evidence, "The dispute should be in Evidence period.");
+
+        Juror storage juror = jurors[_account];
+        bytes32 stakePathID = accountAndSubcourtIDToStakePathID(_account, subcourtID);
+        uint256 currentStake = sortitionSumTrees.stakeOf(bytes32(uint256(subcourtID)), stakePathID);
+
+        uint256 transferredAmount;
+        transferredAmount = currentStake - juror.lockedTokens[subcourtID];
+        if (transferredAmount > 0) {
+            if (!pinakion.transfer(_account, transferredAmount)) return false;
+        }
+
+        for (uint256 i = 0; i < juror.subcourtIDs.length; i++) {
+            if (juror.subcourtIDs[i] == subcourtID) {
+                juror.subcourtIDs[i] = juror.subcourtIDs[juror.subcourtIDs.length - 1];
+                juror.subcourtIDs.pop();
+                break;
+            }
+        }
+
+        // Update juror's records.
+        juror.stakedTokens[subcourtID] = 0;
+
+        // Update subcourt parents.
+        bool finished = false;
+        uint256 currentSubcourtID = subcourtID;
+        while (!finished) {
+            sortitionSumTrees.set(bytes32(currentSubcourtID), 0, stakePathID);
+            if (currentSubcourtID == FORKING_COURT) finished = true;
+            else currentSubcourtID = courts[currentSubcourtID].parent;
+        }
+
+        emit StakeSet(_account, subcourtID, 0, 0);
+
+        return true;
+    }
+
     /** @dev Creates a dispute. Must be called by the arbitrable contract.
      *  @param _numberOfChoices Number of choices for the jurors to choose from.
      *  @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's subcourt (first 32 bytes),
