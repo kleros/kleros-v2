@@ -230,16 +230,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         emit NewPhaseDisputeKit(phase);
     }
 
-    /** @dev Allows to unstake the juror that obstructs drawing process.
-     *  @param _coreDisputeID The ID of the dispute in Kleros Core which drawing process is obstructed.
-     *  @param _juror The address of the juror to unstake.
-     */
-    function unstakeJuror(uint256 _coreDisputeID, address _juror) external {
-        require(phase == Phase.drawing, "Should be in drawing phase");
-        require(!postDrawCheck(_coreDisputeID, _juror), "The juror is eligible to drawing");
-        core.unstakeByDK(_coreDisputeID, _juror);
-    }
-
     /** @dev Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
      *  Note: Access restricted to Kleros Core only.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core.
