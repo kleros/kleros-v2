@@ -12,9 +12,8 @@ import {
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
 
-//describe.only("Draw Benchmark", function () { // To run benchmark in isolation.
 describe("Draw Benchmark", async () => {
-    const ONE_TENTH_ETH = BigNumber.from(10).pow(17);
+  const ONE_TENTH_ETH = BigNumber.from(10).pow(17);
   const ONE_THOUSAND_PNK = BigNumber.from(10).pow(21);
 
   const enum Period {
@@ -37,7 +36,7 @@ describe("Draw Benchmark", async () => {
   }
 
   let deployer, relayer;
-  let ng, disputeKit, pnk, core, arbitrable, homeGateway;
+  let disputeKit, pnk, core, arbitrable, homeGateway;
 
   beforeEach("Setup", async () => {
     deployer = (await getNamedAccounts()).deployer;
@@ -66,9 +65,9 @@ describe("Draw Benchmark", async () => {
       let wallet = ethers.Wallet.createRandom()
       wallet =  wallet.connect(ethers.provider);
       await bridger.sendTransaction({to: wallet.address, value: ethers.utils.parseEther("1")});
-      //await pnk.transfer(wallet.address, ONE_THOUSAND_PNK)
-      //await pnk.connect(wallet).approve(core.address, ONE_THOUSAND_PNK);
-      //await core.connect(wallet).setStake(0, ONE_THOUSAND_PNK);
+      await pnk.transfer(wallet.address, ONE_THOUSAND_PNK)
+      await pnk.connect(wallet).approve(core.address, ONE_THOUSAND_PNK);
+      await core.connect(wallet).setStake(0, ONE_THOUSAND_PNK);
     }
 
     
@@ -101,7 +100,3 @@ describe("Draw Benchmark", async () => {
     }
   }
 });
-
-const logJurorBalance = async (result) => {
-  console.log("staked=%s, locked=%s", ethers.utils.formatUnits(result.staked), ethers.utils.formatUnits(result.locked));
-};
