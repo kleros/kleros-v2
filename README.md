@@ -70,6 +70,13 @@ $ npm install -g depcheck
 $ yarn install
 ```
 
+#### Setup husky
+
+```bash
+$ yarn prepare
+husky - Git hooks installed
+```
+
 ## Repo Structure
 
 Each directory at the root of this repository contains code for each individual part that enables this integration:
