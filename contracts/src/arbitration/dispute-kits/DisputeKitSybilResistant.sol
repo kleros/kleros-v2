@@ -62,6 +62,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         uint256 feeRewards; // Sum of reimbursable appeal fees available to the parties that made contributions to the ruling that ultimately wins a dispute.
         uint256[] fundedChoices; // Stores the choices that are fully funded.
         uint256 nbVotes; // Maximal number of votes this dispute can get.
+        mapping(address => bool) alreadyDrawn; // Set to 'true' if the address has already been drawn, so it can't be drawn more than once.
     }
 
     struct Vote {
@@ -94,22 +95,22 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     // ************************************* //
 
     event Contribution(
-        uint256 indexed _disputeID,
-        uint256 indexed _round,
+        uint256 indexed _coreDisputeID,
+        uint256 indexed _coreRoundID,
         uint256 _choice,
         address indexed _contributor,
         uint256 _amount
     );
 
     event Withdrawal(
-        uint256 indexed _disputeID,
-        uint256 indexed _round,
+        uint256 indexed _coreDisputeID,
+        uint256 indexed _coreRoundID,
         uint256 _choice,
         address indexed _contributor,
         uint256 _amount
     );
 
-    event ChoiceFunded(uint256 indexed _disputeID, uint256 indexed _round, uint256 indexed _choice);
+    event ChoiceFunded(uint256 indexed _coreDisputeID, uint256 indexed _coreRoundID, uint256 indexed _choice);
     event NewPhaseDisputeKit(Phase _phase);
 
     // ************************************* //
@@ -275,11 +276,9 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         bytes32 ID = core.getSortitionSumTreeID(key, treeIndex);
         drawnAddress = stakePathIDToAccount(ID);
 
-        // TODO: deduplicate the list of all the drawn humans before moving to the next period !!
-        if (!proofOfHumanity(drawnAddress)) drawnAddress = address(0);
-
-        if (postDrawCheck(_coreDisputeID, drawnAddress)) {
+        if (postDrawCheck(_coreDisputeID, drawnAddress) && !round.alreadyDrawn[drawnAddress]) {
             round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
+            round.alreadyDrawn[drawnAddress] = true;
             if (round.votes.length == round.nbVotes) {
                 disputesWithoutJurors--;
             }
@@ -293,7 +292,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
      *  `n` is the number of votes.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core.
      *  @param _voteIDs The IDs of the votes.
-     *  @param _commit The commit.
+     *  @param _commit The commit. Note that justification string is a part of the commit.
      */
     function castCommit(
         uint256 _coreDisputeID,
@@ -323,12 +322,14 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
      *  @param _voteIDs The IDs of the votes.
      *  @param _choice The choice.
      *  @param _salt The salt for the commit if the votes were hidden.
+     *  @param _justification Justification of the choice.
      */
     function castVote(
         uint256 _coreDisputeID,
         uint256[] calldata _voteIDs,
         uint256 _choice,
-        uint256 _salt
+        uint256 _salt,
+        string calldata _justification
     ) external notJumped(_coreDisputeID) {
         require(
             core.getCurrentPeriod(_coreDisputeID) == KlerosCore.Period.vote,
@@ -346,7 +347,8 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         for (uint256 i = 0; i < _voteIDs.length; i++) {
             require(round.votes[_voteIDs[i]].account == msg.sender, "The caller has to own the vote.");
             require(
-                !hiddenVotes || round.votes[_voteIDs[i]].commit == keccak256(abi.encodePacked(_choice, _salt)),
+                !hiddenVotes ||
+                    round.votes[_voteIDs[i]].commit == keccak256(abi.encodePacked(_choice, _justification, _salt)),
                 "The commit must match the choice in subcourts with hidden votes."
             );
             require(!round.votes[_voteIDs[i]].voted, "Vote already cast.");
@@ -370,6 +372,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
                 round.tied = false;
             }
         }
+        emit Justification(_coreDisputeID, msg.sender, _choice, _justification);
     }
 
     /** @dev Manages contributions, and appeals a dispute if at least two choices are fully funded.
@@ -397,6 +400,8 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         }
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
+        uint256 coreRoundID = core.getNumberOfRounds(_coreDisputeID) - 1;
+
         require(!round.hasPaid[_choice], "Appeal fee is already paid.");
         uint256 appealCost = core.appealCost(_coreDisputeID);
         uint256 totalCost = appealCost + (appealCost * multiplier) / ONE_BASIS_POINT;
@@ -407,7 +412,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
             contribution = totalCost - round.paidFees[_choice] > msg.value // Overflows and underflows will be managed on the compiler level.
                 ? msg.value
                 : totalCost - round.paidFees[_choice];
-            emit Contribution(_coreDisputeID, dispute.rounds.length - 1, _choice, msg.sender, contribution);
+            emit Contribution(_coreDisputeID, coreRoundID, _choice, msg.sender, contribution);
         }
 
         round.contributions[msg.sender][_choice] += contribution;
@@ -416,7 +421,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
             round.feeRewards += round.paidFees[_choice];
             round.fundedChoices.push(_choice);
             round.hasPaid[_choice] = true;
-            emit ChoiceFunded(_coreDisputeID, dispute.rounds.length - 1, _choice);
+            emit ChoiceFunded(_coreDisputeID, coreRoundID, _choice);
         }
 
         if (round.fundedChoices.length > 1) {
@@ -428,7 +433,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
                 dispute.jumped = true;
             } else {
                 // Don't subtract 1 from length since both round arrays haven't been updated yet.
-                dispute.coreRoundIDToLocal[core.getNumberOfRounds(_coreDisputeID)] = dispute.rounds.length;
+                dispute.coreRoundIDToLocal[coreRoundID + 1] = dispute.rounds.length;
 
                 Round storage newRound = dispute.rounds.push();
                 newRound.nbVotes = core.getNumberOfVotes(_coreDisputeID);
@@ -444,20 +449,20 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     /** @dev Allows those contributors who attempted to fund an appeal round to withdraw any reimbursable fees or rewards after the dispute gets resolved.
      *  @param _coreDisputeID Index of the dispute in Kleros Core contract.
      *  @param _beneficiary The address whose rewards to withdraw.
-     *  @param _round The round the caller wants to withdraw from.
+     *  @param _coreRoundID The round in the Kleros Core contract the caller wants to withdraw from.
      *  @param _choice The ruling option that the caller wants to withdraw from.
      *  @return amount The withdrawn amount.
      */
     function withdrawFeesAndRewards(
         uint256 _coreDisputeID,
         address payable _beneficiary,
-        uint256 _round,
+        uint256 _coreRoundID,
         uint256 _choice
     ) external returns (uint256 amount) {
         require(core.isRuled(_coreDisputeID), "Dispute should be resolved.");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
-        Round storage round = dispute.rounds[_round];
+        Round storage round = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]];
         uint256 finalRuling = core.currentRuling(_coreDisputeID);
 
         if (!round.hasPaid[_choice]) {
@@ -481,7 +486,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
 
         if (amount != 0) {
             _beneficiary.send(amount); // Deliberate use of send to prevent reverting fallback. It's the user's responsibility to accept ETH.
-            emit Withdrawal(_coreDisputeID, _round, _choice, _beneficiary, amount);
+            emit Withdrawal(_coreDisputeID, _coreRoundID, _choice, _beneficiary, amount);
         }
     }
 
@@ -511,7 +516,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         external
         view
         override
-        returns (uint256 winningChoiece, bool tied)
+        returns (uint256 winningChoice, bool tied)
     {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage lastRound = dispute.rounds[dispute.rounds.length - 1];
@@ -653,6 +658,11 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     // *            Internal               * //
     // ************************************* //
 
+    /** @dev Checks that the chosen address satisfies certain conditions for being drawn.
+     *  @param _coreDisputeID ID of the dispute in the core contract.
+     *  @param _juror Chosen address.
+     *  @return Whether the address can be drawn or not.
+     */
     function postDrawCheck(uint256 _coreDisputeID, address _juror) internal view override returns (bool) {
         uint256 subcourtID = core.getSubcourtID(_coreDisputeID);
         (uint256 lockedAmountPerJuror, , , , , ) = core.getRoundInfo(
@@ -660,7 +670,11 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
             core.getNumberOfRounds(_coreDisputeID) - 1
         );
         (uint256 stakedTokens, uint256 lockedTokens) = core.getJurorBalance(_juror, uint96(subcourtID));
-        return stakedTokens >= lockedTokens + lockedAmountPerJuror;
+        if (stakedTokens < lockedTokens + lockedAmountPerJuror) {
+            return false;
+        } else {
+            return proofOfHumanity(_juror);
+        }
     }
 
     /** @dev Checks if an address belongs to the Proof of Humanity registry.
