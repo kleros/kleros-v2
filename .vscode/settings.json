@@ -1,9 +1,12 @@
 {
   "solidity.compileUsingRemoteVersion": "v0.8.10+commit.fc410830",
-  "mochaExplorer.files": "contracts/test/**/*.{j,t}s",
   "cSpell.words": [
     "arbitrum",
     "IERC",
-    "kleros"
-  ]
+    "kleros",
+    "typechain"
+  ],
+  "prettier.configPath": ".prettierrc.json",
+  "eslint.alwaysShowStatus": true,
+  "eslint.packageManager": "yarn"
 }
