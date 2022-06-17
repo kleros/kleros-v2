@@ -36,10 +36,8 @@
     "eslint-utils": "^3.0.0",
     "husky": "^7.0.0",
     "lint-staged": "^11.0.0",
-    "npm-run-all": "^4.1.5",
     "prettier": "^2.4.1",
     "prettier-plugin-solidity": "^1.0.0-beta.15",
-    "solhint": "^3.3.6",
     "solhint-plugin-prettier": "^0.0.5"
   },
   "resolutions": {
@@ -69,13 +67,6 @@
   "scripts": {
     "depcheck": "depcheck .",
     "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 && prettier --write CHANGELOG.md",
-    "lint": "run-p -s lint:*",
-    "lint:js": "eslint .",
-    "lint:sol": "solhint 'contracts/**/*.sol'",
-    "fix": "run-p -s fix:*",
-    "fix:js": "eslint --fix '**/*.js'",
-    "fix:sol": "prettier --write 'contracts/**/*.sol'",
-    "prepare": "husky install",
     "postinstall": "husky install"
   }
 }
