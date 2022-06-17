@@ -1,13 +1,6 @@
-import { expect } from "chai";
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
 import { BigNumber } from "ethers";
-import {
-  PNK,
-  KlerosCore,
-  ArbitrableExample,
-  HomeGatewayToEthereum,
-  DisputeKitClassic,
-} from "../typechain-types";
+import { PNK, KlerosCore, ArbitrableExample, HomeGatewayToEthereum, DisputeKitClassic } from "../../typechain-types";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
@@ -61,21 +54,19 @@ describe("Draw Benchmark", async () => {
     arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
   });
 
-
   it("Draw Benchmark", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
     const [bridger] = await ethers.getSigners();
 
     for (let i = 0; i < 16; i++) {
       let wallet = ethers.Wallet.createRandom();
-      wallet =  wallet.connect(ethers.provider);
-      await bridger.sendTransaction({to: wallet.address, value: ethers.utils.parseEther("1")});
+      wallet = wallet.connect(ethers.provider);
+      await bridger.sendTransaction({ to: wallet.address, value: ethers.utils.parseEther("1") });
       await pnk.transfer(wallet.address, ONE_THOUSAND_PNK);
       await pnk.connect(wallet).approve(core.address, ONE_THOUSAND_PNK);
       await core.connect(wallet).setStake(0, ONE_THOUSAND_PNK);
     }
 
-    
     // create a dispute
     const tx = await arbitrable.createDispute(2, "0x00", 0, { value: arbitrationCost });
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
@@ -92,8 +83,8 @@ describe("Draw Benchmark", async () => {
     await network.provider.send("evm_increaseTime", [130]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
     await core.passPhase(); // Staking -> Freezing
-    for (let index = 0; index < 20; index++) { // Wait for 20 blocks finality
-      await network.provider.send("evm_mine");
+    for (let index = 0; index < 20; index++) {
+      await network.provider.send("evm_mine"); // Wait for 20 blocks finality
     }
     await disputeKit.passPhase(); // Resolving -> Generating
     await disputeKit.passPhase(); // Generating -> Drawing
