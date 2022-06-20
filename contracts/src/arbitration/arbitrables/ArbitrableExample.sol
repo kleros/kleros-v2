@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8;
 
-import "./IArbitrable.sol";
-import "../evidence/IMetaEvidence.sol";
+import "../IArbitrable.sol";
+import "../../evidence/IMetaEvidence.sol";
 
 /**
  *  @title ArbitrableExample
