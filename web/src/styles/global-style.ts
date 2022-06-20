@@ -49,7 +49,7 @@ export const GlobalStyle = createGlobalStyle`
     color: ${({ theme }) => theme.primaryText};
   }
 
-  s {
+  small {
     font-weight: 600;
     font-size: 14px;
     line-height: 18px;
