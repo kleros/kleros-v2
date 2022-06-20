@@ -12,18 +12,19 @@ const Container = styled.div`
   padding: 32px;
 `;
 
-const Home: React.FC = () => {
+const getOneYearAgoTimestamp: () => number = () => {
   const currentTime = new Date().getTime() / 1000;
-  const oneYearAgo = currentTime - 31556926; // One year in seconds
-  return (
-    <HomePageProvider timeframe={oneYearAgo}>
-      <Container>
-        <CourtOverview />
-        <LatestCases />
-        <Community />
-      </Container>
-    </HomePageProvider>
-  );
+  return currentTime - 31556926; // One year in seconds
 };
+
+const Home: React.FC = () => (
+  <HomePageProvider timeframe={getOneYearAgoTimestamp()}>
+    <Container>
+      <CourtOverview />
+      <LatestCases />
+      <Community />
+    </Container>
+  </HomePageProvider>
+);
 
 export default Home;
