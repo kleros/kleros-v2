@@ -67,7 +67,7 @@ contract DisputeResolver is IArbitrable, IMetaEvidence {
         emit Dispute(arbitrator, disputeID, localDisputeID, localDisputeID);
     }
 
-    /** @dev To be called by the arbitrator of the dispute, to declare winning ruling.
+    /** @dev To be called by the arbitrator of the dispute, to declare the winning ruling.
      *  @param _externalDisputeID ID of the dispute in arbitrator contract.
      *  @param _ruling The ruling choice of the arbitration.
      */
