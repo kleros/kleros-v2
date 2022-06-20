@@ -36,17 +36,6 @@ contract DisputeResolver is IArbitrable, IMetaEvidence {
         arbitrator = _arbitrator;
     }
 
-    /** @dev Allows to submit evidence for a given dispute.
-     *  @param _localDisputeID Index of the dispute in disputes array.
-     *  @param _evidenceURI Link to evidence.
-     */
-    function submitEvidence(uint256 _localDisputeID, string calldata _evidenceURI) external {
-        DisputeStruct storage dispute = disputes[_localDisputeID];
-        require(!dispute.isRuled, "Cannot submit evidence to a resolved dispute.");
-
-        emit Evidence(arbitrator, _localDisputeID, msg.sender, _evidenceURI);
-    }
-
     /** @dev TRUSTED. Calls createDispute function of the specified arbitrator to create a dispute.
         Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
      *  @param _arbitratorExtraData Extra data for the arbitrator of the dispute.
