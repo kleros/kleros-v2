@@ -224,24 +224,26 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         returns (address drawnAddress)
     {
         require(phase == Phase.drawing, "Should be in drawing phase");
-        bytes32 key = bytes32(core.getSubcourtID(_coreDisputeID)); // Get the ID of the tree.
-        uint256 drawnNumber = getRandomNumber();
-
-        (uint256 K, , uint256[] memory nodes) = core.getSortitionSumTree(key);
-        uint256 treeIndex = 0;
-        uint256 currentDrawnNumber = drawnNumber % nodes[0];
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
 
+        bytes32 key = bytes32(core.getSubcourtID(_coreDisputeID)); // Get the ID of the tree.
+        uint256 drawnNumber = getRandomNumber();
+
+        uint256 K = core.getSortitionSumTreeK(key);
+        uint256 nodesLength = core.getSortitionSumTreeNodesLength(key);
+        uint256 treeIndex = 0;
+        uint256 currentDrawnNumber = drawnNumber % core.getSortitionSumTreeNode(key, 0);
+
         // TODO: Handle the situation when no one has staked yet.
 
         // While it still has children
-        while ((K * treeIndex) + 1 < nodes.length) {
+        while ((K * treeIndex) + 1 < nodesLength) {
             for (uint256 i = 1; i <= K; i++) {
                 // Loop over children.
                 uint256 nodeIndex = (K * treeIndex) + i;
-                uint256 nodeValue = nodes[nodeIndex];
+                uint256 nodeValue = core.getSortitionSumTreeNode(key, nodeIndex);
 
                 if (currentDrawnNumber >= nodeValue) {
                     // Go to the next child.
