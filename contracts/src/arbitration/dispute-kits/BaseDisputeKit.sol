@@ -67,8 +67,9 @@ abstract contract BaseDisputeKit is IDisputeKit {
     }
 
     /** @dev Checks that the chosen address satisfies certain conditions for being drawn.
-     *  @param _disputeID ID of the dispute in the core contract.
+     *  @param _coreDisputeID ID of the dispute in the core contract.
      *  @param _juror Chosen address.
+     *  @return Whether the address can be drawn or not.
      */
-    function postDrawCheck(uint256 _disputeID, address _juror) internal virtual returns (bool);
+    function postDrawCheck(uint256 _coreDisputeID, address _juror) internal virtual returns (bool);
 }

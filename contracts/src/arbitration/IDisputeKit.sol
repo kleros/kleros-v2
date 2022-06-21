@@ -18,6 +18,24 @@ import "./IArbitrator.sol";
  *  It does not intend to abstract the interactions with the user (such as voting or appeal funding) to allow for implementation-specific parameters.
  */
 interface IDisputeKit {
+    // ************************************ //
+    // *             Events               * //
+    // ************************************ //
+
+    /**
+     * @dev Emitted when casting a vote to provide the justification of juror's choice.
+     * @param _coreDisputeID ID of the dispute in the core contract.
+     * @param _juror Address of the juror.
+     * @param _choice The choice juror voted for.
+     * @param _justification Justification of the choice.
+     */
+    event Justification(
+        uint256 indexed _coreDisputeID,
+        address indexed _juror,
+        uint256 indexed _choice,
+        string _justification
+    );
+
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
@@ -58,10 +76,10 @@ interface IDisputeKit {
 
     /** @dev Returns the voting data from the most relevant round.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
-     *  @return winningChoiece The winning choice of this round.
+     *  @return winningChoice The winning choice of this round.
      *  @return tied Whether it's a tie or not.
      */
-    function getLastRoundResult(uint256 _coreDisputeID) external view returns (uint256 winningChoiece, bool tied);
+    function getLastRoundResult(uint256 _coreDisputeID) external view returns (uint256 winningChoice, bool tied);
 
     /** @dev Gets the degree of coherence of a particular voter. This function is called by Kleros Core in order to determine the amount of the reward.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.

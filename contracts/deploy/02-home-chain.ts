@@ -20,9 +20,8 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const hardhatDeployer = async () => {
     const fastBridgeReceiver = await deployments.get("FastBridgeReceiverOnEthereum");
     const arbSysMock = await deploy("ArbSysMock", { from: deployer, log: true });
-    let fastBridgeSender;
 
-    fastBridgeSender = await deploy("FastBridgeSenderToEthereumMock", {
+    const fastBridgeSender = await deploy("FastBridgeSenderToEthereumMock", {
       from: deployer,
       contract: "FastBridgeSenderMock",
       args: [epochPeriod, fastBridgeReceiver.address, arbSysMock.address],
@@ -67,7 +66,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     const fastBridgeSender = await deploy("FastBridgeSenderToEthereum", {
       from: deployer,
       contract: "FastBridgeSender",
-      args: [epochPeriod, fastBridgeReceiver.address ],
+      args: [epochPeriod, fastBridgeReceiver.address],
       log: true,
     }); // nonce+0
 
@@ -77,12 +76,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     const homeGateway = await deploy("HomeGatewayToEthereum", {
       from: deployer,
       contract: "HomeGateway",
-      args: [
-        deployer,
-        klerosCore.address, 
-        fastBridgeSender.address, 
-        foreignGateway.address, 
-        foreignChainId],
+      args: [deployer, klerosCore.address, fastBridgeSender.address, foreignGateway.address, foreignChainId],
       log: true,
     }); // nonce+
   };

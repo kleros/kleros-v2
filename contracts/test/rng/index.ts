@@ -2,8 +2,8 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { BigNumber } from "ethers";
 
-describe("ConstantNG", function () {
-  it("Should return always the same number", async function () {
+describe("ConstantNG", async () => {
+  it("Should return always the same number", async () => {
     const ConstantRNG = await ethers.getContractFactory("ConstantNG");
     const constantRNG = await ConstantRNG.deploy(42);
     await constantRNG.deployed();
@@ -15,8 +15,8 @@ describe("ConstantNG", function () {
   });
 });
 
-describe("IncrementalNG", function () {
-  it("Should return a number incrementing each time", async function () {
+describe("IncrementalNG", async () => {
+  it("Should return a number incrementing each time", async () => {
     const IncrementalNG = await ethers.getContractFactory("IncrementalNG");
     const initialNg = 424242;
     const incrementalNG = await IncrementalNG.deploy(initialNg);

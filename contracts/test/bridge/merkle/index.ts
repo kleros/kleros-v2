@@ -14,26 +14,25 @@ import { MerkleTree } from "./MerkleTree";
  * @param leaf The leaf node.
  * @return valid Whether the proof is valid or not.
  */
- function verify(proof: string[], root: string, leaf: string) {
+function verify(proof: string[], root: string, leaf: string) {
   return (
     root ===
     proof.reduce(
       (computedHash: string, proofElement: string, currentIndex: number): string =>
-      Buffer.compare(toBuffer(computedHash), toBuffer(proofElement)) <= 0
-      ? (soliditySha3(computedHash, proofElement) as string)
-      : (soliditySha3(proofElement, computedHash) as string),
+        Buffer.compare(toBuffer(computedHash), toBuffer(proofElement)) <= 0
+          ? (soliditySha3(computedHash, proofElement) as string)
+          : (soliditySha3(proofElement, computedHash) as string),
       leaf
     )
   );
 }
 
-describe("Merkle", function () {
+describe("Merkle", async () => {
   describe("Sanity tests", async () => {
-
     let merkleTreeExposed;
     let merkleProofExposed;
-    let data,nodes,mt;
-    let rootOnChain,rootOffChain, proof;
+    let data, nodes, mt;
+    let rootOnChain, rootOffChain, proof;
 
     before("Deploying", async () => {
       const merkleTreeExposedFactory = await ethers.getContractFactory("MerkleTreeExposed");
@@ -44,14 +43,10 @@ describe("Merkle", function () {
       await merkleProofExposed.deployed();
     });
 
-    it("Merkle Root verification", async function () {
-      data = [ 
-        "0x00",
-        "0x01",
-        "0x03",
-      ];
+    it("Merkle Root verification", async () => {
+      data = ["0x00", "0x01", "0x03"];
       nodes = [];
-      for (var message of data)  {
+      for (var message of data) {
         await merkleTreeExposed._appendMessage(message);
         nodes.push(MerkleTree.makeLeafNode(message));
       }
@@ -66,10 +61,10 @@ describe("Merkle", function () {
       expect(rootOffChain == rootOnChain).equal(true);
     });
     it("Should correctly verify all nodes in the tree", async () => {
-      for (var message of data)  {
+      for (var message of data) {
         const leaf = ethers.utils.sha256(message);
         proof = mt.getHexProof(leaf);
-        const validation = await merkleProofExposed._validateProof(proof, ethers.utils.sha256(message),rootOnChain);
+        const validation = await merkleProofExposed._validateProof(proof, ethers.utils.sha256(message), rootOnChain);
         expect(validation).equal(true);
         expect(verify(proof, rootOffChain, leaf)).equal(true);
       }
