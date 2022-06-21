@@ -13,7 +13,7 @@
     "./src",
     "./scripts",
     "./test",
-    "./typechain",
+    "./typechain-types",
     "./deploy"
   ],
   "files": [
