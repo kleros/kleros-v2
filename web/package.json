@@ -36,7 +36,7 @@
     "@types/styled-components": "^5.1.21",
     "@typescript-eslint/eslint-plugin": "^5.27.0",
     "@typescript-eslint/parser": "^5.27.0",
-    "@typescript-eslint/utils": "^5.27.0",
+    "@typescript-eslint/utils": "^5.29.0",
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-import-resolver-parcel": "^1.10.6",
