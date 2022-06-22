@@ -31,15 +31,15 @@ jobs:
         key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}
         restore-keys: |
           ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-${{ env.cache-name }}-
-          
-    #- name: Install parent dependencies
-    #  run: |
-    #    echo "current dir: $PWD"
-    #    yarn install
-             
+
+    - name: Install Yarn 3
+      run: |
+        yarn set version 3.2.1
+
     - name: Install contracts dependencies
       run: |
-        yarn workspace @kleros/kleros-v2-contracts install
+        yarn --version
+        yarn workspace @kleros/kleros-v2-contracts install --no-immutable
       
     - name: Compile
       run: |

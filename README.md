@@ -67,14 +67,11 @@ $ . ~/.bashrc
 
 ```bash
 $ npm install -g depcheck
-$ yarn install
-```
 
-#### Setup husky
-
-```bash
+# sets up yarn version
 $ yarn prepare
-husky - Git hooks installed
+
+$ yarn install
 ```
 
 ## Repo Structure

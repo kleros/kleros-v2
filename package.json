@@ -16,7 +16,7 @@
     "subgraph",
     "web"
   ],
-  "packageManager": "yarn@3.2.0",
+  "packageManager": "yarn@3.2.1",
   "volta": {
     "node": "16.15.1"
   },
@@ -49,22 +49,8 @@
     "node-fetch": "^2.6.7",
     "underscore@npm": "^1.13.2"
   },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ],
-    "rules": {
-      "body-leading-blank": [
-        2,
-        "always"
-      ],
-      "footer-leading-blank": [
-        2,
-        "always"
-      ]
-    }
-  },
   "scripts": {
+    "prepare": "yarn set version 3.2.1",
     "depcheck": "depcheck .",
     "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 && prettier --write CHANGELOG.md",
     "postinstall": "husky install"
