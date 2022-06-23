@@ -41,13 +41,13 @@
     "solhint-plugin-prettier": "^0.0.5"
   },
   "resolutions": {
-    "underscore@npm": "^1.13.2",
+    "async@npm": "^2.6.4",
+    "ejs@npm": "^3.1.7",
     "lodash@npm": "^4.17.21",
     "minimist@npm": "^1.2.6",
-    "node-fetch": "^2.6.7",
     "nanoid": "^3.3.1",
-    "async@npm": "^2.6.4",
-    "ejs@npm": "^3.1.7"
+    "node-fetch": "^2.6.7",
+    "underscore@npm": "^1.13.2"
   },
   "commitlint": {
     "extends": [
