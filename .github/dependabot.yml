@@ -10,6 +10,7 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 10
     labels:
       - "Type: Security Patch"
       - "dependencies"
@@ -20,6 +21,7 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 10
     labels:
       - "Type: Security Patch"
       - "dependencies"
