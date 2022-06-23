@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@parcel/transformer-svg-react": "^2.6.2",
-    "@types/react": "^18.0.0",
+    "@types/react": "^18.0.14",
     "@types/react-dom": "^18.0.0",
     "@types/styled-components": "^5.1.21",
     "@typescript-eslint/eslint-plugin": "^5.29.0",
@@ -64,7 +64,7 @@
     "graphql": "^16.4.0",
     "graphql-request": "^4.2.0",
     "moment": "^2.29.3",
-    "react": "^18.0.0",
+    "react": "^18.2.0",
     "react-chartjs-2": "^4.1.0",
     "react-dom": "^18.0.0",
     "react-is": "^18.0.0",
