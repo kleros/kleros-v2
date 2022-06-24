@@ -137,7 +137,7 @@ contract KlerosCore is IArbitrator {
     event AppealDecision(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
     event Draw(address indexed _address, uint256 indexed _disputeID, uint256 _roundID, uint256 _voteID);
     event SubcourtCreation(
-        uint96 indexed _subcourtID,
+        uint256 indexed _subcourtID,
         uint96 indexed _parent,
         bool _hiddenVotes,
         uint256 _minStake,
