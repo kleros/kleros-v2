@@ -136,6 +136,22 @@ contract KlerosCore is IArbitrator {
     event AppealPossible(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
     event AppealDecision(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
     event Draw(address indexed _address, uint256 indexed _disputeID, uint256 _roundID, uint256 _voteID);
+    event SubcourtCreation(
+        uint256 indexed _subcourtID,
+        uint96 indexed _parent,
+        bool _hiddenVotes,
+        uint256 _minStake,
+        uint256 _alpha,
+        uint256 _feeForJuror,
+        uint256 _jurorsForCourtJump,
+        uint256[4] _timesPerPeriod,
+        uint256 _sortitionSumTreeK,
+        uint256[] _supportedDisputeKits
+    );
+    event SubcourtModification(uint96 indexed _subcourtID, string _param);
+    event DisputeKitCreation(IDisputeKit indexed _disputeKitAddress, uint256 indexed _parent);
+    event DisputeKitEnable(uint96 indexed _subcourtID, uint256 indexed _disputeKitID);
+    event DisputeKitDisable(uint96 indexed _subcourtID, uint256 indexed _disputeKitID);
     event CourtJump(
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
@@ -361,6 +377,18 @@ contract KlerosCore is IArbitrator {
         sortitionSumTrees.createTree(bytes32(subcourtID), _sortitionSumTreeK);
         // Update the parent.
         courts[_parent].children.push(subcourtID);
+        emit SubcourtCreation(
+            subcourtID,
+            _parent,
+            _hiddenVotes,
+            _minStake,
+            _alpha,
+            _feeForJuror,
+            _jurorsForCourtJump,
+            _timesPerPeriod,
+            _sortitionSumTreeK,
+            _supportedDisputeKits
+        );
     }
 
     /** @dev Changes the `minStake` property value of a specified subcourt. Don't set to a value lower than its parent's `minStake` property value.
@@ -377,6 +405,7 @@ contract KlerosCore is IArbitrator {
         }
 
         courts[_subcourtID].minStake = _minStake;
+        emit SubcourtModification(_subcourtID, "minStake");
     }
 
     /** @dev Changes the `alpha` property value of a specified subcourt.
@@ -385,6 +414,7 @@ contract KlerosCore is IArbitrator {
      */
     function changeSubcourtAlpha(uint96 _subcourtID, uint256 _alpha) external onlyByGovernor {
         courts[_subcourtID].alpha = _alpha;
+        emit SubcourtModification(_subcourtID, "alpha");
     }
 
     /** @dev Changes the `feeForJuror` property value of a specified subcourt.
@@ -393,6 +423,7 @@ contract KlerosCore is IArbitrator {
      */
     function changeSubcourtJurorFee(uint96 _subcourtID, uint256 _feeForJuror) external onlyByGovernor {
         courts[_subcourtID].feeForJuror = _feeForJuror;
+        emit SubcourtModification(_subcourtID, "feeForJuror");
     }
 
     /** @dev Changes the `jurorsForCourtJump` property value of a specified subcourt.
@@ -401,6 +432,7 @@ contract KlerosCore is IArbitrator {
      */
     function changeSubcourtJurorsForJump(uint96 _subcourtID, uint256 _jurorsForCourtJump) external onlyByGovernor {
         courts[_subcourtID].jurorsForCourtJump = _jurorsForCourtJump;
+        emit SubcourtModification(_subcourtID, "jurorsForCourtJump");
     }
 
     /** @dev Changes the `hiddenVotes` property value of a specified subcourt.
@@ -409,6 +441,7 @@ contract KlerosCore is IArbitrator {
      */
     function changeHiddenVotes(uint96 _subcourtID, bool _hiddenVotes) external onlyByGovernor {
         courts[_subcourtID].hiddenVotes = _hiddenVotes;
+        emit SubcourtModification(_subcourtID, "hiddenVotes");
     }
 
     /** @dev Changes the `timesPerPeriod` property value of a specified subcourt.
@@ -420,6 +453,7 @@ contract KlerosCore is IArbitrator {
         onlyByGovernor
     {
         courts[_subcourtID].timesPerPeriod = _timesPerPeriod;
+        emit SubcourtModification(_subcourtID, "timesPerPeriod");
     }
 
     /** @dev Adds/removes court's support for specified dispute kits..
@@ -437,12 +471,14 @@ contract KlerosCore is IArbitrator {
             if (_enable) {
                 require(_disputeKitIDs[i] > 0 && _disputeKitIDs[i] < disputeKitNodes.length, "Wrong DK index");
                 subcourt.supportedDisputeKits[_disputeKitIDs[i]] = true;
+                emit DisputeKitEnable(_subcourtID, _disputeKitIDs[i]);
             } else {
                 require(
                     !(_subcourtID == GENERAL_COURT && disputeKitNodes[_disputeKitIDs[i]].parent == NULL_DISPUTE_KIT),
                     "Can't remove root DK support from the general court"
                 );
                 subcourt.supportedDisputeKits[_disputeKitIDs[i]] = false;
+                emit DisputeKitDisable(_subcourtID, _disputeKitIDs[i]);
             }
         }
     }
