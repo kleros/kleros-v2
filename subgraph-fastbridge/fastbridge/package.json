@@ -1,0 +1,16 @@
+{
+  "name": "@kleros/kleros-v2-fastbridge",
+  "license": "MIT",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ fastbridge",
+    "create-local": "graph create --node http://localhost:8020/ fastbridge",
+    "remove-local": "graph remove --node http://localhost:8020/ fastbridge",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 fastbridge"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.30.3",
+    "@graphprotocol/graph-ts": "^0.27.0"
+  }
+}
