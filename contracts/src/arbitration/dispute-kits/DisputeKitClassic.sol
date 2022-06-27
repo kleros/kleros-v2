@@ -231,33 +231,9 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         bytes32 key = bytes32(core.getSubcourtID(_coreDisputeID)); // Get the ID of the tree.
         uint256 drawnNumber = getRandomNumber();
 
-        uint256 K = core.getSortitionSumTreeK(key);
-        uint256 nodesLength = core.getSortitionSumTreeNodesLength(key);
-        uint256 treeIndex = 0;
-        uint256 currentDrawnNumber = drawnNumber % core.getSortitionSumTreeNode(key, 0);
-
         // TODO: Handle the situation when no one has staked yet.
-
-        // While it still has children
-        while ((K * treeIndex) + 1 < nodesLength) {
-            for (uint256 i = 1; i <= K; i++) {
-                // Loop over children.
-                uint256 nodeIndex = (K * treeIndex) + i;
-                uint256 nodeValue = core.getSortitionSumTreeNode(key, nodeIndex);
-
-                if (currentDrawnNumber >= nodeValue) {
-                    // Go to the next child.
-                    currentDrawnNumber -= nodeValue;
-                } else {
-                    // Pick this child.
-                    treeIndex = nodeIndex;
-                    break;
-                }
-            }
-        }
-
-        bytes32 ID = core.getSortitionSumTreeID(key, treeIndex);
-        drawnAddress = stakePathIDToAccount(ID);
+        // TODO: Move post check to sortition module?
+        drawnAddress = core.drawAddressFromSortition(key, drawnNumber);
 
         if (postDrawCheck(_coreDisputeID, drawnAddress)) {
             round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
@@ -660,24 +636,5 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
      */
     function getRandomNumber() internal returns (uint256) {
         return rng.getUncorrelatedRN(block.number);
-    }
-
-    /** @dev Retrieves a juror's address from the stake path ID.
-     *  @param _stakePathID The stake path ID to unpack.
-     *  @return account The account.
-     */
-    function stakePathIDToAccount(bytes32 _stakePathID) internal pure returns (address account) {
-        assembly {
-            // solium-disable-line security/no-inline-assembly
-            let ptr := mload(0x40)
-            for {
-                let i := 0x00
-            } lt(i, 0x14) {
-                i := add(i, 0x01)
-            } {
-                mstore8(add(add(ptr, 0x0c), i), byte(i, _stakePathID))
-            }
-            account := mload(ptr)
-        }
     }
 }

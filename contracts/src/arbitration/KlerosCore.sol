@@ -13,7 +13,7 @@ pragma solidity ^0.8;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./IArbitrator.sol";
 import "./IDisputeKit.sol";
-import {SortitionSumTreeFactory} from "../data-structures/SortitionSumTreeFactory.sol";
+import "../data-structures/ISortitionModule.sol";
 
 /**
  *  @title KlerosCore
@@ -21,8 +21,6 @@ import {SortitionSumTreeFactory} from "../data-structures/SortitionSumTreeFactor
  *  Note that this contract trusts the token and the dispute kit contracts.
  */
 contract KlerosCore is IArbitrator {
-    using SortitionSumTreeFactory for SortitionSumTreeFactory.SortitionSumTrees; // Use library functions for sortition sum trees.
-
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -92,6 +90,8 @@ contract KlerosCore is IArbitrator {
         uint256 penalty; // Penalty value, in case the stake was set during execution.
     }
 
+    ISortitionModule public sortitionModule;
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -120,7 +120,6 @@ contract KlerosCore is IArbitrator {
     uint256[] public disputesKitIDsThatNeedFreezing; // The disputeKitIDs that need switching to Freezing phase.
     Dispute[] public disputes; // The disputes.
     mapping(address => Juror) internal jurors; // The jurors.
-    SortitionSumTreeFactory.SortitionSumTrees internal sortitionSumTrees; // The sortition sum trees.
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Freezing phase, to update them when the phase is switched to Staking.
 
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
@@ -174,6 +173,8 @@ contract KlerosCore is IArbitrator {
      *  @param _courtParameters Numeric parameters of General court (minStake, alpha, feeForJuror and jurorsForCourtJump respectively).
      *  @param _timesPerPeriod The `timesPerPeriod` property value of the general court.
      *  @param _sortitionSumTreeK The number of children per node of the general court's sortition sum tree.
+    // TODO: Replace K with bytes sortitionExtraData and rename createTree()
+     *  @param _sortitionModule The contract responsible for sortition of the jurors.
      */
     constructor(
         address _governor,
@@ -184,7 +185,8 @@ contract KlerosCore is IArbitrator {
         bool _hiddenVotes,
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
-        uint256 _sortitionSumTreeK
+        uint256 _sortitionSumTreeK,
+        ISortitionModule _sortitionModule
     ) {
         governor = _governor;
         pinakion = _pinakion;
@@ -221,9 +223,11 @@ contract KlerosCore is IArbitrator {
         court.timesPerPeriod = _timesPerPeriod;
         court.supportedDisputeKits[DISPUTE_KIT_CLASSIC_INDEX] = true;
 
+        sortitionModule = _sortitionModule;
+
         // TODO: fill the properties for Forking court.
-        sortitionSumTrees.createTree(bytes32(FORKING_COURT), _sortitionSumTreeK);
-        sortitionSumTrees.createTree(bytes32(GENERAL_COURT), _sortitionSumTreeK);
+        sortitionModule.createTree(bytes32(FORKING_COURT), _sortitionSumTreeK);
+        sortitionModule.createTree(bytes32(GENERAL_COURT), _sortitionSumTreeK);
     }
 
     // ************************ //
@@ -263,6 +267,13 @@ contract KlerosCore is IArbitrator {
      */
     function changeJurorProsecutionModule(address _jurorProsecutionModule) external onlyByGovernor {
         jurorProsecutionModule = _jurorProsecutionModule;
+    }
+
+    /** @dev Changes the `_sortitionModule` storage variable.
+     *  @param _sortitionModule The new value for the `sortitionModule` storage variable.
+     */
+    function changeSortitionModule(ISortitionModule _sortitionModule) external onlyByGovernor {
+        sortitionModule = _sortitionModule;
     }
 
     /** @dev Changes the `minStakingTime` storage variable.
@@ -358,7 +369,7 @@ contract KlerosCore is IArbitrator {
         court.jurorsForCourtJump = _jurorsForCourtJump;
         court.timesPerPeriod = _timesPerPeriod;
 
-        sortitionSumTrees.createTree(bytes32(subcourtID), _sortitionSumTreeK);
+        sortitionModule.createTree(bytes32(subcourtID), _sortitionSumTreeK);
         // Update the parent.
         courts[_parent].children.push(subcourtID);
     }
@@ -970,36 +981,10 @@ contract KlerosCore is IArbitrator {
     // *   Public Views for Dispute Kits   * //
     // ************************************* //
 
-    function getSortitionSumTreeK(bytes32 _key) public view returns (uint256) {
-        return sortitionSumTrees.sortitionSumTrees[_key].K;
-    }
-
-    function getSortitionSumTreeNode(bytes32 _key, uint256 _index) public view returns (uint256) {
-        return sortitionSumTrees.sortitionSumTrees[_key].nodes[_index];
-    }
-
-    function getSortitionSumTreeNodesLength(bytes32 _key) public view returns (uint256) {
-        return sortitionSumTrees.sortitionSumTrees[_key].nodes.length;
-    }
-
-    function getSortitionSumTree(bytes32 _key)
-        public
-        view
-        returns (
-            uint256 K,
-            uint256[] memory stack,
-            uint256[] memory nodes
-        )
-    {
-        SortitionSumTreeFactory.SortitionSumTree storage tree = sortitionSumTrees.sortitionSumTrees[_key];
-        K = tree.K;
-        stack = tree.stack;
-        nodes = tree.nodes;
-    }
-
     // TODO: some getters can be merged into a single function
-    function getSortitionSumTreeID(bytes32 _key, uint256 _nodeIndex) external view returns (bytes32 ID) {
-        ID = sortitionSumTrees.sortitionSumTrees[_key].nodeIndexesToIDs[_nodeIndex];
+
+    function drawAddressFromSortition(bytes32 _key, uint256 _drawnNumber) external view returns (address drawnAddress) {
+        drawnAddress = sortitionModule.draw(_key, _drawnNumber);
     }
 
     function getSubcourtID(uint256 _disputeID) external view returns (uint256 subcourtID) {
@@ -1088,7 +1073,7 @@ contract KlerosCore is IArbitrator {
 
         Juror storage juror = jurors[_account];
         bytes32 stakePathID = accountAndSubcourtIDToStakePathID(_account, _subcourtID);
-        uint256 currentStake = sortitionSumTrees.stakeOf(bytes32(uint256(_subcourtID)), stakePathID);
+        uint256 currentStake = sortitionModule.stakeOf(bytes32(uint256(_subcourtID)), stakePathID);
 
         if (_stake != 0) {
             // Check against locked tokens in case the min stake was lowered.
@@ -1152,7 +1137,7 @@ contract KlerosCore is IArbitrator {
         bool finished = false;
         uint256 currentSubcourtID = _subcourtID;
         while (!finished) {
-            sortitionSumTrees.set(bytes32(currentSubcourtID), _stake, stakePathID);
+            sortitionModule.set(bytes32(currentSubcourtID), _stake, stakePathID);
             if (currentSubcourtID == GENERAL_COURT) finished = true;
             else currentSubcourtID = courts[currentSubcourtID].parent;
         }
