@@ -39,7 +39,8 @@ jobs:
     - name: Install contracts dependencies
       run: |
         yarn --version
-        yarn workspace @kleros/kleros-v2-contracts install --no-immutable
+        YARN_CHECKSUM_BEHAVIOR=update yarn workspace @kleros/kleros-v2-contracts install --no-immutable
+        git diff yarn.lock
       
     - name: Compile
       run: |
