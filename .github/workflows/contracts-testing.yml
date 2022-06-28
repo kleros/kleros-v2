@@ -32,9 +32,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-${{ env.cache-name }}-
 
-    - name: Install Yarn 3
-      run: |
-        yarn set version 3.2.1
+    # - name: Install Yarn 3
+    #   run: |
+    #     yarn set version 3.2.1
 
     - name: Install contracts dependencies
       run: |
