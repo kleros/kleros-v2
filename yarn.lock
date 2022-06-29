@@ -2271,7 +2271,7 @@ __metadata:
     follow-redirects: ^1.15.0
     hardhat: ^2.9.9
     hardhat-contract-sizer: ^2.5.1
-    hardhat-deploy: ^0.11.10
+    hardhat-deploy: ^0.11.11
     hardhat-deploy-ethers: ^0.3.0-beta.13
     hardhat-docgen: ^1.3.0
     hardhat-gas-reporter: ^1.0.8
@@ -12186,6 +12186,27 @@ __metadata:
     qs: ^6.9.4
     zksync-web3: ^0.4.0
   checksum: 10506cafb4af7ed0784f9bf0586e6eabe6285783350ffc7cb50f3805e696fdac0c6004b2ed0489b96a41814a32e12081051f75d51f47063439b5e89430194108
+  languageName: node
+  linkType: hard
+
+"hardhat-deploy@npm:^0.11.11":
+  version: 0.11.11
+  resolution: "hardhat-deploy@npm:0.11.11"
+  dependencies:
+    "@types/qs": ^6.9.7
+    axios: ^0.21.1
+    chalk: ^4.1.2
+    chokidar: ^3.5.2
+    debug: ^4.3.2
+    enquirer: ^2.3.6
+    ethers: ^5.5.3
+    form-data: ^4.0.0
+    fs-extra: ^10.0.0
+    match-all: ^1.2.6
+    murmur-128: ^0.2.1
+    qs: ^6.9.4
+    zksync-web3: ^0.7.8
+  checksum: 08b7ccadbfa0dc9f52691f2f4892ec3e89f0773cf795a9c7f604d783fe85e0bd8886b0b2c8f013c26e5a0007f7cbcb096ff246ad26f48d6e70ad3bd7f79a984d
   languageName: node
   linkType: hard
 
@@ -23655,5 +23676,14 @@ __metadata:
   peerDependencies:
     ethers: ~5.5.0
   checksum: 76f2956ef09d2b3d6806b2990cf6aad4508f23ef8cdfc0089a64a16d178395dabc5fff30abad7997acb012567dc0565326af2a148ce40d45d747eed22439e812
+  languageName: node
+  linkType: hard
+
+"zksync-web3@npm:^0.7.8":
+  version: 0.7.8
+  resolution: "zksync-web3@npm:0.7.8"
+  peerDependencies:
+    ethers: ~5.5.0
+  checksum: d899c62afa48a65d5a873a26fb49cad06fe1042d929b85c207d2eae917b6d7137e2b09733c5a24bff692a37bc44f34e7683198b3cff6d128210bc3ef9deb1acb
   languageName: node
   linkType: hard
