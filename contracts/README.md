@@ -6,14 +6,27 @@ Smart contracts for Kleros v2
 
 Refresh the list of deployed contracts by running `./scripts/generateDeploymentsMarkdown.sh`.
 
-### Rinkeby
+### v2-prealpha-3
+
+#### Arbitrum Rinkeby
+
+- [PNK](https://testnet.arbiscan.io/token/0x364530164a2338cdba211f72c1438eb811b5c639)
+- [DisputeKitClassic](https://testnet.arbiscan.io/address/0x6b9268082415b5499175849E46AaE4EDf819916F)
+- [DisputeResolver](https://testnet.arbiscan.io/address/0x9cE885713c7459d571593e2793cd2b258B018995)
+- [IncrementalNG](https://testnet.arbiscan.io/address/0x078dAd05373d19d7fd6829735b765F12242a4300)
+- [KlerosCore](https://testnet.arbiscan.io/address/0x140Cae40BD7eEF075e15c30CF84d1EAa0F4932b8)
+- [SortitionSumTreeFactory](https://testnet.arbiscan.io/address/0x48ce286978C74c288eA6Bc9a536BcC899DF8D177)
+
+### v2-prealpha-1
+
+#### Rinkeby
 
 - [PNK](https://rinkeby.etherscan.io/token/0x14aba1fa8a31a8649e8098ad067b739cc5708f30)
 - [ArbitrableExample](https://rinkeby.etherscan.io/address/0xf2a59723c5d625D646668E0B615B5764c3F81540)
 - [FastBridgeReceiver](https://rinkeby.etherscan.io/address/0xD78DCddE2C5a2Bd4BB246Bc7dB6994b95f7c442C)
 - [ForeignGateway](https://rinkeby.etherscan.io/address/0xf02733d9e5CbfE67B54F165b0277E1995106D526)
 
-### Arbitrum Rinkeby
+#### Arbitrum Rinkeby
 
 - [PNK](https://testnet.arbiscan.io/token/0x364530164a2338cdba211f72c1438eb811b5c639)
 - [ConstantNG](https://testnet.arbiscan.io/address/0x4401A368dea8D5761AEEFfd3c4a674086dea0666)
@@ -103,14 +116,9 @@ yarn hardhat deploy --network localhost --tags HomeChain
 #### 3. Deploy to Public Testnets
 
 ```bash
-# To deploy on L2 only
-yarn hardhat deploy --network arbitrumRinkeby --tags HomeChain
-
-# To deploy on L1 only
+yarn hardhat deploy --network arbitrumRinkeby --tags Arbitration
 yarn hardhat deploy --network rinkeby --tags ForeignChain
-
-# To deploy both L1 and L2
-yarn deploy:staging
+yarn hardhat deploy --network arbitrumRinkeby --tags HomeChain
 ```
 
 The deployed addresses should be output to the screen after the deployment is complete.
