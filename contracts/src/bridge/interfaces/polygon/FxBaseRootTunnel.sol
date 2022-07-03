@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {RLPReader} from "../../libraries/polygon/RLPReader.sol";
-import {MerklePatriciaProof} from "../../libraries/polygon/MerklePatriciaProof.sol";
-import {Merkle} from "../../libraries/polygon/Merkle.sol";
-import "../../libraries/polygon/ExitPayloadReader.sol";
-import "../interfaces/polygon/IFxStateSender.sol";
-import "../interfaces/polygon/ICheckpointManager.sol";
+import {RLPReader} from "../../../libraries/polygon/RLPReader.sol";
+import {MerklePatriciaProof} from "../../../libraries/polygon/MerklePatriciaProof.sol";
+import {Merkle} from "../../../libraries/polygon/Merkle.sol";
+import "../../../libraries/polygon/ExitPayloadReader.sol";
+import "./IFxStateSender.sol";
+import "./ICheckpointManager.sol";
 
 
 abstract contract FxBaseRootTunnel {
