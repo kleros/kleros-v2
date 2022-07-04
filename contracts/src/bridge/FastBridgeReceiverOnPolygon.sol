@@ -85,7 +85,6 @@ contract FastBridgeReceiverOnPolygon is FxBaseChildTunnel, IFastBridgeReceiver, 
     uint256 public immutable deposit; // The deposit required to submit a claim or challenge
     uint256 public immutable override epochPeriod; // Epochs mark the period between potential batches of messages.
     uint256 public immutable override challengePeriod; // Epochs mark the period between potential batches of messages.
-    address public immutable safeBridgeSender; // The address of the Safe Bridge Sender on the connecting chain.
 
     mapping(uint256 => bytes32) public fastInbox; // epoch => validated batch merkle root(optimistically, or challenged and verified with the safe bridge)
     mapping(uint256 => Claim) public claims; // epoch => claim
@@ -178,20 +177,13 @@ contract FastBridgeReceiverOnPolygon is FxBaseChildTunnel, IFastBridgeReceiver, 
         require(_checkReplayAndRelay(_epoch, _message), "Failed to call contract"); // Checks-Effects-Interaction
     }
 
-    /**
-     * Note: This is an internal function in the fxStateChildTunnel that is called by fxChild along with osur data.
-     * @dev Resolves any challenge of the optimistic claim for '_epoch'.
-     * @param stateId 
-     * @param sender The fxRootTunnel or SafeBridgeRouterForPolygon in this case
-     * @param data The data sent by  batch merkle root for the epoch.
-     */
+    // Note: This is an internal function in the fxStateChildTunnel that is called by fxChild along with osur data.
 
     function _processMessageFromRoot(
         uint256 stateId,
         address sender,
         bytes memory data
     ) internal override validateSender(sender) {
-
         (uint256 _epoch, bytes32 _batchMerkleRoot) = abi.decode(data, (uint256, bytes32));
 
         fastInbox[_epoch] = _batchMerkleRoot;
@@ -201,6 +193,10 @@ contract FastBridgeReceiverOnPolygon is FxBaseChildTunnel, IFastBridgeReceiver, 
         } else {
             challenges[_epoch].honest = true;
         }
+    }
+
+    function verifySafe(uint256 _epoch, bytes32 _batchMerkleRoot) external override onlyFromSafeBridge {
+        return;
     }
 
     /**
