@@ -42,7 +42,7 @@ contract SafeBridgeRouter is ISafeBridgeReceiver, ISafeBridgeSender, FxBaseRootT
      */
 
     constructor(
-        address _inbox,
+        IInbox _inbox,
         address _checkpointManager,
         address _fxRoot,
         address _safeBridgeSender,
@@ -57,7 +57,7 @@ contract SafeBridgeRouter is ISafeBridgeReceiver, ISafeBridgeSender, FxBaseRootT
      * Routes an arbitrary message from one domain to another.
      * Note: Access restricted to the Safe Bridge.
      * @param _epoch The epoch associated with the _batchmerkleRoot.
-     * @param _batchMerkleRoot The true batch merkle root for the epoch sent by the safe bridge.     * @return Unique id to track the message request/transaction.
+     * @param _batchMerkleRoot The true batchP merkle root for the epoch sent by the safe bridge.     * @return Unique id to track the message request/transaction.
      */
     function verifySafe(uint256 _epoch, bytes32 _batchMerkleRoot) external override onlyFromSafeBridge {
         // Note: fxRoot sends message directly to fxchild hence no need for encodeWithSelector
@@ -68,9 +68,17 @@ contract SafeBridgeRouter is ISafeBridgeReceiver, ISafeBridgeSender, FxBaseRootT
         // TODO: Consider an event emit here
     }
 
-    function _sendSafe(bytes memory _calldata) internal override {
+    function _sendSafe(bytes memory _calldata) internal {
         _sendMessageToChild(_calldata);
     }
+
+    function _processMessageFromChild(bytes memory message) internal override {
+    }
+
+    function _sendSafe(address _receiver, bytes memory _calldata) internal override returns (bytes32){
+
+    }
+
 
     // ************************************* //
     // *              Views                * //
