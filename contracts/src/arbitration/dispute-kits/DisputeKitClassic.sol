@@ -187,13 +187,14 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     /** @dev Passes the phase.
      */
     function passPhase() external override {
-        if (core.phase() == KlerosCore.Phase.staking || core.freezingPhaseTimeout()) {
+        ISortitionModule sortitionModule = core.sortitionModule();
+        if (sortitionModule.phase() == ISortitionModule.Phase.staking || sortitionModule.freezingPhaseTimeout()) {
             require(phase != Phase.resolving, "Already in Resolving phase");
             phase = Phase.resolving; // Safety net.
-        } else if (core.phase() == KlerosCore.Phase.freezing) {
+        } else if (sortitionModule.phase() == ISortitionModule.Phase.freezing) {
             if (phase == Phase.resolving) {
                 require(disputesWithoutJurors > 0, "All the disputes have jurors");
-                require(block.number >= core.getFreezeBlock() + 20, "Too soon: L1 finality required");
+                require(block.number >= sortitionModule.getFreezeBlock() + 20, "Too soon: L1 finality required");
                 // TODO: RNG process is currently unfinished.
                 RNBlock = block.number;
                 rng.requestRN(block.number);
@@ -627,7 +628,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
             _coreDisputeID,
             core.getNumberOfRounds(_coreDisputeID) - 1
         );
-        (uint256 stakedTokens, uint256 lockedTokens) = core.getJurorBalance(_juror, uint96(subcourtID));
+        (uint256 stakedTokens, uint256 lockedTokens, ) = core.getJurorBalance(_juror, uint96(subcourtID));
         return stakedTokens >= lockedTokens + lockedAmountPerJuror;
     }
 

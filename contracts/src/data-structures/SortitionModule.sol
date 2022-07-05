@@ -12,6 +12,7 @@ pragma solidity ^0.8;
 
 import "../arbitration/KlerosCore.sol";
 import "./ISortitionModule.sol";
+import "../arbitration/IDisputeKit.sol";
 
 /**
  *  @title SortitionModule
@@ -30,9 +31,33 @@ contract SortitionModule is ISortitionModule {
         mapping(uint256 => bytes32) nodeIndexesToIDs;
     }
 
+    struct DelayedStake {
+        address account; // The address of the juror.
+        uint96 subcourtID; // The ID of the subcourt.
+        uint256 stake; // The new stake.
+        uint256 penalty; // Penalty value, in case the stake was set during execution.
+    }
+
+    uint256 public constant MAX_STAKE_PATHS = 4; // The maximum number of stake paths a juror can have.
+
     KlerosCore public core;
+    Phase public phase; // The current phase.
+
+    uint256 public minStakingTime; // The time after which the phase can be switched to Freezing if there are open disputes.
+    uint256 public maxFreezingTime; // The time after which the phase can be switched back to Staking.
+    uint256 public lastPhaseChange; // The last time the phase was changed.
+    uint256 public freezeBlock; // Number of the block when Core was frozen.
+
+    IDisputeKit[] public disputesKitsThatNeedFreezing; // The disputeKits that need switching to Freezing phase.
+
+    uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
+    uint256 public delayedStakeReadIndex = 1; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
 
     mapping(bytes32 => SortitionSumTree) sortitionSumTrees;
+    mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Freezing phase, to update them when the phase is switched to Staking.
+    mapping(IDisputeKit => bool) public needsFreezing;
+
+    event NewPhase(Phase _phase);
 
     modifier onlyByCore() {
         require(address(core) == msg.sender, "Access not allowed: KlerosCore only.");
@@ -41,12 +66,151 @@ contract SortitionModule is ISortitionModule {
 
     /** @dev Constructor.
      *  @param _core The KlerosCore.
+     *  @param _minStakingTime Minimal time to stake
+     *  @param _maxFreezingTime Time after which the freezing phase can be switched
      */
-    constructor(KlerosCore _core) {
+    constructor(
+        KlerosCore _core,
+        uint256 _minStakingTime,
+        uint256 _maxFreezingTime
+    ) {
         core = _core;
+        minStakingTime = _minStakingTime;
+        maxFreezingTime = _maxFreezingTime;
+        lastPhaseChange = block.timestamp;
     }
 
     /* Public */
+
+    /** @dev Changes the `minStakingTime` storage variable.
+     *  @param _minStakingTime The new value for the `minStakingTime` storage variable.
+     */
+    function changeMinStakingTime(uint256 _minStakingTime) external onlyByCore {
+        minStakingTime = _minStakingTime;
+    }
+
+    /** @dev Changes the `maxFreezingTime` storage variable.
+     *  @param _maxFreezingTime The new value for the `maxFreezingTime` storage variable.
+     */
+    function changeMaxFreezingTime(uint256 _maxFreezingTime) external onlyByCore {
+        maxFreezingTime = _maxFreezingTime;
+    }
+
+    /** @dev Executes the next delayed stakes.
+     *  @param _iterations The number of delayed stakes to execute.
+     */
+    function executeDelayedStakes(uint256 _iterations) external {
+        require(phase == Phase.staking, "Should be in Staking phase.");
+
+        uint256 actualIterations = (delayedStakeReadIndex + _iterations) - 1 > delayedStakeWriteIndex
+            ? (delayedStakeWriteIndex - delayedStakeReadIndex) + 1
+            : _iterations;
+        uint256 newDelayedStakeReadIndex = delayedStakeReadIndex + actualIterations;
+
+        for (uint256 i = delayedStakeReadIndex; i < newDelayedStakeReadIndex; i++) {
+            DelayedStake storage delayedStake = delayedStakes[i];
+            core.setStakeBySortitionModule(
+                delayedStake.account,
+                delayedStake.subcourtID,
+                delayedStake.stake,
+                delayedStake.penalty
+            );
+            delete delayedStakes[i];
+        }
+        delayedStakeReadIndex = newDelayedStakeReadIndex;
+    }
+
+    function createDisputeHook(uint256 _disputeID, uint256 _roundID) external override onlyByCore {
+        (, , , , , uint256 disputeKitID) = core.getRoundInfo(_disputeID, _roundID);
+        IDisputeKit disputeKit = core.getDisputeKit(disputeKitID);
+        // Ensures uniqueness in the disputesKitsThatNeedFreezing array.
+        if (!needsFreezing[disputeKit]) {
+            needsFreezing[disputeKit] = true;
+            disputesKitsThatNeedFreezing.push(disputeKit);
+        }
+    }
+
+    /** @dev Switches the phases between Staking and Freezing, also signal the switch to the dispute kits.
+     */
+    function passPhase() external {
+        if (phase == Phase.staking) {
+            require(block.timestamp - lastPhaseChange >= minStakingTime, "The minimal staking time has not passed yet");
+            require(disputesKitsThatNeedFreezing.length > 0, "There are no dispute kit which need freezing");
+            phase = Phase.freezing;
+            freezeBlock = block.number;
+        } else {
+            // phase == Phase.freezing
+            bool timeout = this.freezingPhaseTimeout();
+            for (int256 i = int256(disputesKitsThatNeedFreezing.length) - 1; i >= 0; --i) {
+                IDisputeKit disputeKit = disputesKitsThatNeedFreezing[uint256(i)];
+                if (timeout && !disputeKit.isResolving()) {
+                    // Force the dispute kit to be ready for Staking phase.
+                    disputeKit.passPhase(); // Should not be called if already in Resolving phase, because it reverts.
+                    require(disputeKit.isResolving(), "A dispute kit has not passed to Resolving phase");
+                } else {
+                    // Check if the dispute kit is ready for Staking phase.
+                    require(disputeKit.isResolving(), "A dispute kit has not passed to Resolving phase");
+                    if (disputeKit.disputesWithoutJurors() == 0) {
+                        // The dispute kit had time to finish drawing jurors for all its disputes.
+                        needsFreezing[disputeKit] = false;
+                        if (i < int256(disputesKitsThatNeedFreezing.length) - 1) {
+                            // This is not the last element so copy the last element to the current one, then pop.
+                            disputesKitsThatNeedFreezing[uint256(i)] = disputesKitsThatNeedFreezing[
+                                disputesKitsThatNeedFreezing.length - 1
+                            ];
+                        }
+                        disputesKitsThatNeedFreezing.pop();
+                    }
+                }
+            }
+            phase = Phase.staking;
+        }
+        // Should not be reached if the phase is unchanged.
+        lastPhaseChange = block.timestamp;
+        emit NewPhase(phase);
+    }
+
+    function preDrawHook(
+        uint256 /*_disputeID*/
+    ) external view onlyByCore {
+        require(phase == Phase.freezing, "Wrong phase.");
+    }
+
+    function preStakeHook(
+        address _account,
+        uint96 _subcourtID,
+        uint256 _stake,
+        uint256 _penalty
+    )
+        external
+        override
+        onlyByCore
+        returns (
+            bool success,
+            uint256 currentStake,
+            bytes32 stakePathID
+        )
+    {
+        currentStake = stakeOf(bytes32(uint256(_subcourtID)), stakePathID);
+        stakePathID = accountAndSubcourtIDToStakePathID(_account, _subcourtID);
+
+        (, , uint256 nbSubcourts) = core.getJurorBalance(_account, _subcourtID);
+        if (currentStake == 0 && nbSubcourts >= MAX_STAKE_PATHS) {
+            success = false;
+        } else {
+            if (phase != Phase.staking) {
+                delayedStakes[++delayedStakeWriteIndex] = DelayedStake({
+                    account: _account,
+                    subcourtID: _subcourtID,
+                    stake: _stake,
+                    penalty: _penalty
+                });
+                success = false;
+            } else {
+                success = true;
+            }
+        }
+    }
 
     /**
      *  @dev Create a sortition sum tree at the specified key.
@@ -239,12 +403,31 @@ contract SortitionModule is ISortitionModule {
      *  @param _ID The ID of the value.
      *  @return value The associated value.
      */
-    function stakeOf(bytes32 _key, bytes32 _ID) external view override onlyByCore returns (uint256 value) {
+    function stakeOf(bytes32 _key, bytes32 _ID) public view returns (uint256 value) {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
         uint256 treeIndex = tree.IDsToNodeIndexes[_ID];
 
         if (treeIndex == 0) value = 0;
         else value = tree.nodes[treeIndex];
+    }
+
+    /** @dev Returns true if dispute kit can switch phase to Resolving.
+     *  @return True if DK can be resolved.
+     */
+    function isPhaseStaking() external view returns (bool) {
+        return phase == Phase.staking || freezingPhaseTimeout();
+    }
+
+    function getDisputesKitsThatNeedFreezing() external view returns (IDisputeKit[] memory) {
+        return disputesKitsThatNeedFreezing;
+    }
+
+    function getFreezeBlock() external view returns (uint256) {
+        return freezeBlock;
+    }
+
+    function freezingPhaseTimeout() public view returns (bool) {
+        return phase == Phase.freezing && block.timestamp - lastPhaseChange >= maxFreezingTime;
     }
 
     /* Private */
@@ -292,6 +475,37 @@ contract SortitionModule is ISortitionModule {
                 mstore8(add(add(ptr, 0x0c), i), byte(i, _stakePathID))
             }
             account := mload(ptr)
+        }
+    }
+
+    /** @dev Packs an account and a subcourt ID into a stake path ID.
+     *  @param _account The address of the juror to pack.
+     *  @param _subcourtID The subcourt ID to pack.
+     *  @return stakePathID The stake path ID.
+     */
+    function accountAndSubcourtIDToStakePathID(address _account, uint96 _subcourtID)
+        internal
+        pure
+        returns (bytes32 stakePathID)
+    {
+        assembly {
+            // solium-disable-line security/no-inline-assembly
+            let ptr := mload(0x40)
+            for {
+                let i := 0x00
+            } lt(i, 0x14) {
+                i := add(i, 0x01)
+            } {
+                mstore8(add(ptr, i), byte(add(0x0c, i), _account))
+            }
+            for {
+                let i := 0x14
+            } lt(i, 0x20) {
+                i := add(i, 0x01)
+            } {
+                mstore8(add(ptr, i), byte(i, _subcourtID))
+            }
+            stakePathID := mload(ptr)
         }
     }
 }
