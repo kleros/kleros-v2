@@ -181,20 +181,8 @@ contract SortitionModule is ISortitionModule {
         uint96 _subcourtID,
         uint256 _stake,
         uint256 _penalty
-    )
-        external
-        override
-        onlyByCore
-        returns (
-            bool success,
-            uint256 currentStake,
-            bytes32 stakePathID
-        )
-    {
-        currentStake = stakeOf(bytes32(uint256(_subcourtID)), stakePathID);
-        stakePathID = accountAndSubcourtIDToStakePathID(_account, _subcourtID);
-
-        (, , uint256 nbSubcourts) = core.getJurorBalance(_account, _subcourtID);
+    ) external override onlyByCore returns (bool success) {
+        (uint256 currentStake, , uint256 nbSubcourts) = core.getJurorBalance(_account, _subcourtID);
         if (currentStake == 0 && nbSubcourts >= MAX_STAKE_PATHS) {
             success = false;
         } else {
@@ -398,19 +386,6 @@ contract SortitionModule is ISortitionModule {
         drawnAddress = stakePathIDToAccount(tree.nodeIndexesToIDs[treeIndex]);
     }
 
-    /** @dev Gets a specified ID's associated value.
-     *  @param _key The key of the tree.
-     *  @param _ID The ID of the value.
-     *  @return value The associated value.
-     */
-    function stakeOf(bytes32 _key, bytes32 _ID) public view returns (uint256 value) {
-        SortitionSumTree storage tree = sortitionSumTrees[_key];
-        uint256 treeIndex = tree.IDsToNodeIndexes[_ID];
-
-        if (treeIndex == 0) value = 0;
-        else value = tree.nodes[treeIndex];
-    }
-
     /** @dev Returns true if dispute kit can switch phase to Resolving.
      *  @return True if DK can be resolved.
      */
@@ -475,37 +450,6 @@ contract SortitionModule is ISortitionModule {
                 mstore8(add(add(ptr, 0x0c), i), byte(i, _stakePathID))
             }
             account := mload(ptr)
-        }
-    }
-
-    /** @dev Packs an account and a subcourt ID into a stake path ID.
-     *  @param _account The address of the juror to pack.
-     *  @param _subcourtID The subcourt ID to pack.
-     *  @return stakePathID The stake path ID.
-     */
-    function accountAndSubcourtIDToStakePathID(address _account, uint96 _subcourtID)
-        internal
-        pure
-        returns (bytes32 stakePathID)
-    {
-        assembly {
-            // solium-disable-line security/no-inline-assembly
-            let ptr := mload(0x40)
-            for {
-                let i := 0x00
-            } lt(i, 0x14) {
-                i := add(i, 0x01)
-            } {
-                mstore8(add(ptr, i), byte(add(0x0c, i), _account))
-            }
-            for {
-                let i := 0x14
-            } lt(i, 0x20) {
-                i := add(i, 0x01)
-            } {
-                mstore8(add(ptr, i), byte(i, _subcourtID))
-            }
-            stakePathID := mload(ptr)
         }
     }
 }

@@ -25,13 +25,7 @@ interface ISortitionModule {
         uint96 _subcourtID,
         uint256 _stake,
         uint256 _penalty
-    )
-        external
-        returns (
-            bool,
-            uint256,
-            bytes32
-        );
+    ) external returns (bool);
 
     function phase() external view returns (Phase);
 
