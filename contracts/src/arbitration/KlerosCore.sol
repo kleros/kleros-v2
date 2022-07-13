@@ -1088,7 +1088,7 @@ contract KlerosCore is IArbitrator {
                     sortitionModules[i].set(bytes32(currentSubcourtID), _stake, stakePathID);
                 }
             }
-            juror.stakedTokens[uint96(currentSubcourtID)] = _stake;
+            juror.stakedTokens[uint96(currentSubcourtID)] += _stake;
             if (currentSubcourtID == GENERAL_COURT) finished = true;
             else currentSubcourtID = courts[currentSubcourtID].parent;
         }
