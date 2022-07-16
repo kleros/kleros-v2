@@ -10,7 +10,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../interfaces/arbitrum/IOutbox.sol";
+import "../../canonical/arbitrum/IOutbox.sol";
 
 contract OutboxMock is IOutbox {
     address public safeBridgeSender;

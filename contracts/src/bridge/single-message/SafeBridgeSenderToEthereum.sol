@@ -10,8 +10,8 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/arbitrum/IArbSys.sol";
-import "./interfaces/arbitrum/AddressAliasHelper.sol";
+import "../canonical/arbitrum/IArbSys.sol";
+import "../canonical/arbitrum/AddressAliasHelper.sol";
 
 import "./interfaces/ISafeBridgeSender.sol";
 

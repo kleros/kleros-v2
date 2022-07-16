@@ -12,33 +12,25 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/IFastBridgeReceiver.sol";
 import "./interfaces/ISafeBridgeReceiver.sol";
-import "./canonical/arbitrum/IInbox.sol";
-import "./canonical/arbitrum/IOutbox.sol";
+import "./canonical/polygon/FxBaseChildTunnel.sol";
 
 /**
- * Fast Receiver On Ethereum
+ * Fast Receiver On Polygon
  * Counterpart of `FastSenderFromArbitrum`
  */
-contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceiver {
+contract FastBridgeReceiverOnPolygon is FxBaseChildTunnel, IFastBridgeReceiver, ISafeBridgeReceiver {
     // **************************************** //
     // *                                      * //
-    // *     Ethereum Receiver Specific       * //
+    // *     Polygon Receiver Specific        * //
     // *                                      * //
     // **************************************** //
-
-    // ************************************* //
-    // *             Storage               * //
-    // ************************************* //
-
-    IInbox public immutable inbox; // The address of the Arbitrum Inbox contract.
 
     // ************************************* //
     // *              Views                * //
     // ************************************* //
 
     function isSentBySafeBridge() internal view override returns (bool) {
-        IOutbox outbox = IOutbox(inbox.bridge().activeOutbox());
-        return outbox.l2ToL1Sender() == safeBridgeSender;
+        return (msg.sender == fxChild);
     }
 
     /**
@@ -46,21 +38,21 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
      * @param _deposit The deposit amount to submit a claim in wei.
      * @param _epochPeriod The duration of each epoch.
      * @param _challengePeriod The duration of the period allowing to challenge a claim.
-     * @param _safeBridgeSender The address of the Safe Bridge Sender on the connecting chain.
-     * @param _inbox Ethereum receiver specific: The address of the inbox contract on Ethereum.
+     * @param _safeBridgeSender The address of the Safe Bridge Sender on the connecting chain. fxRootTunnel contract in ethereum
+     * @param _fxChild The the fxChild contract on Polygon Chain.
      */
     constructor(
         uint256 _deposit,
         uint256 _epochPeriod,
         uint256 _challengePeriod,
-        address _safeBridgeSender,
-        address _inbox // Ethereum receiver specific
-    ) {
+        address _safeBridgeSender, // Polygon receiver specific
+        address _fxChild // Polygon receiver specific
+    ) FxBaseChildTunnel(_fxChild) {
         deposit = _deposit;
         epochPeriod = _epochPeriod;
         challengePeriod = _challengePeriod;
         safeBridgeSender = _safeBridgeSender;
-        inbox = IInbox(_inbox); // Ethereum receiver specific
+        setFxRootTunnel(_safeBridgeSender);
     }
 
     // ************************************** //
@@ -175,23 +167,8 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
      * @param _batchMerkleRoot The true batch merkle root for the epoch.
      */
     function verifySafeBatch(uint256 _epoch, bytes32 _batchMerkleRoot) external override onlyFromSafeBridge {
-        require(isSentBySafeBridge(), "Access not allowed: SafeBridgeSender only.");
-
-        fastInbox[_epoch] = _batchMerkleRoot;
-
-        // Corner cases:
-        // a) No claim submitted,
-        // b) Receiving the root of an empty batch,
-        // c) Batch root is zero.
-        if (claims[_epoch].bridger != address(0)) {
-            if (_batchMerkleRoot == claims[_epoch].batchMerkleRoot) {
-                claims[_epoch].honest = true;
-            } else {
-                claims[_epoch].honest = false;
-                challenges[_epoch].honest = true;
-            }
-        }
-        emit BatchSafeVerified(_epoch, claims[_epoch].honest, challenges[_epoch].honest);
+        // TODO
+        revert("Not implemented");
     }
 
     /**
@@ -214,6 +191,30 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
     }
 
     /**
+     * @dev Handles incoming messages from Ethereum via the canonical Polygon bridge.
+     * @param _stateId The epoch in which the message was batched by the bridge.
+     * @param _sender The merkle proof to prove the membership of the message and nonce in the merkle tree for the epoch.
+     * @param _data The data on the cross-domain chain for the message.
+     */
+    function _processMessageFromRoot(
+        uint256 _stateId,
+        address _sender,
+        bytes memory _data
+    ) internal override validateSender(_sender) {
+        // TODO
+        revert("Not implemented");
+        // (uint256 _epoch, bytes32 _batchMerkleRoot) = abi.decode(data, (uint256, bytes32));
+
+        // fastInbox[_epoch] = _batchMerkleRoot;
+
+        // if (_batchMerkleRoot == claims[_epoch].batchMerkleRoot) {
+        //     claims[_epoch].honest = true;
+        // } else {
+        //     challenges[_epoch].honest = true;
+        // }
+    }
+
+    /**
      * @dev Sends the deposit back to the Bridger if their claim is not successfully challenged. Includes a portion of the Challenger's deposit if unsuccessfully challenged.
      * @param _epoch The epoch associated with the claim deposit to withraw.
      */
@@ -221,7 +222,7 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
         Claim storage claim = claims[_epoch];
 
         require(claim.bridger != address(0), "Claim does not exist");
-        require(claim.honest == true, "Claim failed.");
+        require(claim.honest == true, "Claim not verified.");
         require(claim.depositAndRewardWithdrawn == false, "Claim deposit and any rewards already withdrawn.");
 
         uint256 amount = deposit;
@@ -244,7 +245,7 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
         Challenge storage challenge = challenges[_epoch];
 
         require(challenge.challenger != address(0), "Challenge does not exist");
-        require(challenge.honest == true, "Challenge failed.");
+        require(challenge.honest == true, "Challenge not verified.");
         require(challenge.depositAndRewardWithdrawn == false, "Challenge deposit and rewards already withdrawn.");
 
         uint256 amount = deposit;

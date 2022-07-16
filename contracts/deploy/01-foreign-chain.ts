@@ -12,20 +12,23 @@ enum ForeignChains {
 }
 const paramsByChainId = {
   1: {
-    claimDeposit: parseEther("0.1"),
-    challengeDuration: 86400, // 1 day
+    deposit: parseEther("0.1"),
+    epochPeriod: 86400, // 24 hours
+    challengePeriod: 14400, // 4 hours
     homeChainId: 42161,
     arbitrumInbox: "0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f",
   },
   4: {
-    claimDeposit: parseEther("0.1"),
-    challengeDuration: 120, // 2 min
+    deposit: parseEther("0.1"),
+    epochPeriod: 86400, // 24 hours
+    challengePeriod: 14400, // 4 hours
     homeChainId: 421611,
     arbitrumInbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
   },
   31337: {
-    claimDeposit: parseEther("0.1"),
-    challengeDuration: 120, // 2 min
+    deposit: parseEther("0.1"),
+    epochPeriod: 86400, // 24 hours
+    challengePeriod: 14400, // 4 hours
     homeChainId: 31337,
     arbitrumInbox: "0x00",
   },
@@ -59,9 +62,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     nonce = await homeChainProvider.getTransactionCount(deployer);
     nonce += 1; // HomeGatewayToEthereum deploy tx will the third tx after this on its home network, so we add two to the current nonce.
   }
-  const { claimDeposit, challengeDuration, homeChainId, arbitrumInbox } = paramsByChainId[chainId];
-  const challengeDeposit = claimDeposit;
-  const bridgeAlpha = 5000;
+  const { deposit, epochPeriod, challengePeriod, homeChainId, arbitrumInbox } = paramsByChainId[chainId];
   const homeChainIdAsBytes32 = hexZeroPad(homeChainId, 32);
 
   const homeGatewayAddress = getContractAddress(deployer, nonce);
@@ -71,7 +72,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const fastBridgeSenderAddress = getContractAddress(deployer, nonce);
   console.log("calculated future FastSender for nonce %d: %s", nonce, fastBridgeSenderAddress);
 
-  nonce += 5;
+  nonce += 4;
 
   const inboxAddress = chainId === ForeignChains.HARDHAT ? getContractAddress(deployer, nonce) : arbitrumInbox;
   console.log("calculated future inboxAddress for nonce %d: %s", nonce, inboxAddress);
@@ -79,19 +80,18 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const fastBridgeReceiver = await deploy("FastBridgeReceiverOnEthereum", {
     from: deployer,
     args: [
-      deployer,
+      deposit,
+      epochPeriod,
+      challengePeriod,
       fastBridgeSenderAddress,
-      inboxAddress,
-      claimDeposit,
-      challengeDeposit,
-      challengeDuration,
-      bridgeAlpha,
+      inboxAddress
     ],
     log: true,
   });
 
   const foreignGateway = await deploy("ForeignGatewayOnEthereum", {
     from: deployer,
+    contract: "ForeignGateway",
     args: [
       deployer,
       fastBridgeReceiver.address,

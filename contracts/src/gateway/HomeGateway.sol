@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@shalzz, @jaybuidl]
+ *  @authors: [@jaybuidl, @shotaronowhere, @shalzz]
  *  @reviewers: []
  *  @auditors: []
  *  @bounties: []
@@ -12,23 +12,23 @@ pragma solidity ^0.8.0;
 
 import "../arbitration/IArbitrator.sol";
 import "../bridge/interfaces/IFastBridgeSender.sol";
-
 import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
 
 /**
- * Home Gateway to Ethereum
- * Counterpart of `ForeignGatewayOnEthereum`
+ * Home Gateway
+ * Counterpart of `ForeignGateway`
  */
-contract HomeGatewayToEthereum is IHomeGateway {
+contract HomeGateway is IHomeGateway {
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => uint256) public disputeHashtoID;
 
-    IArbitrator public arbitrator;
+    address public governor;
+    IArbitrator public immutable arbitrator;
     IFastBridgeSender public fastbridge;
-    address public foreignGateway;
-    uint256 public chainID;
-    uint256 public foreignChainID;
+    address public override foreignGateway;
+    uint256 public immutable override chainID;
+    uint256 public immutable override foreignChainID;
 
     struct RelayedData {
         uint256 arbitrationCost;
@@ -37,19 +37,22 @@ contract HomeGatewayToEthereum is IHomeGateway {
     mapping(bytes32 => RelayedData) public disputeHashtoRelayedData;
 
     constructor(
+        address _governor,
         IArbitrator _arbitrator,
         IFastBridgeSender _fastbridge,
         address _foreignGateway,
         uint256 _foreignChainID
     ) {
+        governor = _governor;
         arbitrator = _arbitrator;
         fastbridge = _fastbridge;
         foreignGateway = _foreignGateway;
         foreignChainID = _foreignChainID;
-
+        uint256 id;
         assembly {
-            sstore(chainID.slot, chainid())
+            id := chainid()
         }
+        chainID = id;
 
         emit MetaEvidence(0, "BRIDGE");
     }
@@ -74,7 +77,7 @@ contract HomeGatewayToEthereum is IHomeGateway {
         uint256 _choices,
         bytes calldata _extraData,
         address _arbitrable
-    ) external payable {
+    ) external payable override {
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
                 _originalChainID,
@@ -101,7 +104,7 @@ contract HomeGatewayToEthereum is IHomeGateway {
         emit Dispute(arbitrator, disputeID, 0, 0);
     }
 
-    function rule(uint256 _disputeID, uint256 _ruling) external {
+    function rule(uint256 _disputeID, uint256 _ruling) external override {
         require(msg.sender == address(arbitrator), "Only Arbitrator");
 
         bytes32 disputeHash = disputeIDtoHash[_disputeID];
@@ -113,7 +116,15 @@ contract HomeGatewayToEthereum is IHomeGateway {
         fastbridge.sendFast(foreignGateway, data);
     }
 
-    function disputeHashToHomeID(bytes32 _disputeHash) external view returns (uint256) {
+    /** @dev Changes the fastBridge, useful to increase the claim deposit.
+     *  @param _fastbridge The address of the new fastBridge.
+     */
+    function changeFastbridge(IFastBridgeSender _fastbridge) external {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        fastbridge = _fastbridge;
+    }
+
+    function disputeHashToHomeID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoID[_disputeHash];
     }
 }

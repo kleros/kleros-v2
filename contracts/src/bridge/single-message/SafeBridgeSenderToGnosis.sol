@@ -10,7 +10,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/gnosis-chain/IAMB.sol";
+import "../canonical/gnosis-chain/IAMB.sol";
 import "./interfaces/ISafeBridgeSender.sol";
 
 /**

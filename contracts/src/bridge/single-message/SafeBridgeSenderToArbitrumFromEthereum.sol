@@ -10,9 +10,9 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/arbitrum/IInbox.sol";
-import "./interfaces/arbitrum/IOutbox.sol";
-import "./interfaces/arbitrum/IArbRetryableTx.sol";
+import "../canonical/arbitrum/IInbox.sol";
+import "../canonical/arbitrum/IOutbox.sol";
+import "../canonical/arbitrum/IArbRetryableTx.sol";
 import "./interfaces/ISafeBridgeSender.sol";
 
 /**
