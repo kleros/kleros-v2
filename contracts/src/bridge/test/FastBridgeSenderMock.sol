@@ -13,7 +13,7 @@ pragma solidity ^0.8.0;
 import "../interfaces/IFastBridgeSender.sol";
 import "../interfaces/ISafeBridgeSender.sol";
 import "../interfaces/ISafeBridgeReceiver.sol";
-import "../interfaces/arbitrum/IArbSys.sol"; // Arbiturm sender specific
+import "../canonical/arbitrum/IArbSys.sol"; // Arbiturm sender specific
 
 /**
  * Fast Bridge Sender

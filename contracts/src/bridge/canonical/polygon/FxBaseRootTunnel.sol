@@ -1,14 +1,35 @@
 // SPDX-License-Identifier: MIT
+// https://github.com/fx-portal/contracts/blob/main/contracts/tunnel/FxBaseRootTunnel.sol
 pragma solidity ^0.8.0;
 
-import {RLPReader} from "../../../libraries/polygon/RLPReader.sol";
-import {MerklePatriciaProof} from "../../../libraries/polygon/MerklePatriciaProof.sol";
-import {Merkle} from "../../../libraries/polygon/Merkle.sol";
-import "../../../libraries/polygon/ExitPayloadReader.sol";
-import "./IFxStateSender.sol";
-import "./ICheckpointManager.sol";
+import {RLPReader} from "./lib/RLPReader.sol";
+import {MerklePatriciaProof} from "./lib/MerklePatriciaProof.sol";
+import {Merkle} from "./lib/Merkle.sol";
+import "./lib/ExitPayloadReader.sol";
 
+interface IFxStateSender {
+    function sendMessageToChild(address _receiver, bytes calldata _data) external;
+}
 
+contract ICheckpointManager {
+    struct HeaderBlock {
+        bytes32 root;
+        uint256 start;
+        uint256 end;
+        uint256 createdAt;
+        address proposer;
+    }
+
+    /**
+     * @notice mapping of checkpoint header numbers to block details
+     * @dev These checkpoints are submited by plasma contracts
+     */
+    mapping(uint256 => HeaderBlock) public headerBlocks;
+}
+
+/**
+ * @dev Ethereum-side abstract contract of the bidirectional Polygon/Ethereum bridge
+ */
 abstract contract FxBaseRootTunnel {
     using RLPReader for RLPReader.RLPItem;
     using Merkle for bytes32;

@@ -12,9 +12,9 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/ISafeBridgeReceiver.sol";
 import "./interfaces/ISafeBridgeSender.sol";
-import "./interfaces/gnosis-chain/IAMB.sol";
-import "./interfaces/arbitrum/IInbox.sol";
-import "./interfaces/arbitrum/IOutbox.sol";
+import "./canonical/gnosis-chain/IAMB.sol";
+import "./canonical/arbitrum/IInbox.sol";
+import "./canonical/arbitrum/IOutbox.sol";
 
 /**
  * Router on Ethereum from Arbitrum to Gnosis Chain.

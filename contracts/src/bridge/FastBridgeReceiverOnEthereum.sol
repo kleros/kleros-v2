@@ -12,8 +12,8 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/IFastBridgeReceiver.sol";
 import "./interfaces/ISafeBridgeReceiver.sol";
-import "./interfaces/arbitrum/IInbox.sol"; // Ethereum Receiver Specific
-import "./interfaces/arbitrum/IOutbox.sol"; // Ethereum Receiver Specific
+import "./canonical/arbitrum/IInbox.sol"; // Ethereum Receiver Specific
+import "./canonical/arbitrum/IOutbox.sol"; // Ethereum Receiver Specific
 
 /**
  * Fast Receiver On Ethereum
