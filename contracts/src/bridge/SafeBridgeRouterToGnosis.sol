@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@shotaronowhere]
+ *  @authors: [@shotaronowhere, @jaybuidl]
  *  @reviewers: []
  *  @auditors: []
  *  @bounties: []
@@ -10,8 +10,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/ISafeBridgeReceiver.sol";
-import "./interfaces/ISafeBridgeSender.sol";
+import "./interfaces/ISafeBridgeRouter.sol";
 import "./canonical/gnosis-chain/IAMB.sol";
 import "./canonical/arbitrum/IInbox.sol";
 import "./canonical/arbitrum/IOutbox.sol";
@@ -19,13 +18,7 @@ import "./canonical/arbitrum/IOutbox.sol";
 /**
  * Router on Ethereum from Arbitrum to Gnosis Chain.
  */
-contract SafeBridgeRouter is ISafeBridgeReceiver, ISafeBridgeSender {
-    // ************************************* //
-    // *              Events               * //
-    // ************************************* //
-
-    event safeRelayed(bytes32 indexed txID);
-
+contract SafeBridgeRouter is ISafeBridgeRouter {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -38,7 +31,7 @@ contract SafeBridgeRouter is ISafeBridgeReceiver, ISafeBridgeSender {
     /**
      * @dev Constructor.
      * @param _inbox The address of the inbox contract on Ethereum.
-     * @param _amb The duration of the period allowing to challenge a claim.
+     * @param _amb The address of the AMB contract on Ethereum.
      * @param _safeBridgeSender The safe bridge sender on Arbitrum.
      * @param _fastBridgeReceiverOnGnosisChain The fast bridge receiver on Gnosis Chain.
      */
@@ -60,15 +53,15 @@ contract SafeBridgeRouter is ISafeBridgeReceiver, ISafeBridgeSender {
      * @param _epoch The epoch associated with the _batchmerkleRoot.
      * @param _batchMerkleRoot The true batch merkle root for the epoch sent by the safe bridge.     * @return Unique id to track the message request/transaction.
      */
-    function verifySafe(uint256 _epoch, bytes32 _batchMerkleRoot) external override onlyFromSafeBridge {
+    function verifySafeBatch(uint256 _epoch, bytes32 _batchMerkleRoot) external override onlyFromSafeBridge {
         require(isSentBySafeBridge(), "Access not allowed: SafeBridgeSender only.");
 
-        bytes4 methodSelector = ISafeBridgeReceiver.verifySafe.selector;
+        bytes4 methodSelector = ISafeBridgeReceiver.verifySafeBatch.selector;
         bytes memory safeMessageData = abi.encodeWithSelector(methodSelector, _epoch, _batchMerkleRoot);
 
         // replace maxGasPerTx with safe level for production deployment
-        bytes32 txID = _sendSafe(fastBridgeReceiverOnGnosisChain, safeMessageData);
-        emit safeRelayed(txID);
+        bytes32 ticketID = _sendSafe(fastBridgeReceiverOnGnosisChain, safeMessageData);
+        emit SafeRelayed(ticketID);
     }
 
     function _sendSafe(address _receiver, bytes memory _calldata) internal override returns (bytes32) {

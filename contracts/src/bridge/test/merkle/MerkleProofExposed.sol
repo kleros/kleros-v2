@@ -10,7 +10,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../MerkleProof.sol";
+import "../../merkle/MerkleProof.sol";
 
 /**
  *  @title MerkleProofExpose
@@ -23,11 +23,11 @@ contract MerkleProofExposed is MerkleProof {
      *  @param leaf The leaf to validate membership in merkle tree.
      *  @param merkleRoot The root of the merkle tree.
      */
-    function _validateProof(
+    function validateProof(
         bytes32[] memory proof,
         bytes32 leaf,
         bytes32 merkleRoot
     ) public pure returns (bool) {
-        return validateProof(proof, leaf, merkleRoot);
+        return _validateProof(proof, leaf, merkleRoot);
     }
 }

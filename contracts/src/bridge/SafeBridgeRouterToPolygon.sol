@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@shotaronowhere @hrishibhat]
+ *  @authors: [@shotaronowhere, @hrishibhat, @jaybuidl]
  *  @reviewers: []
  *  @auditors: []
  *  @bounties: []
@@ -10,8 +10,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./interfaces/ISafeBridgeReceiver.sol";
-import "./interfaces/ISafeBridgeSender.sol";
+import "./interfaces/ISafeBridgeRouter.sol";
 import "./canonical/polygon/FxBaseRootTunnel.sol";
 import "./canonical/arbitrum/IInbox.sol";
 import "./canonical/arbitrum/IOutbox.sol";
@@ -19,13 +18,7 @@ import "./canonical/arbitrum/IOutbox.sol";
 /**
  * Router on Ethereum from Arbitrum to Polygon Chain.
  */
-contract SafeBridgeRouter is ISafeBridgeReceiver, ISafeBridgeSender, FxBaseRootTunnel {
-    // ************************************* //
-    // *              Events               * //
-    // ************************************* //
-
-    event safeRelayed(bytes32 indexed txID);
-
+contract SafeBridgeRouterToPolygon is ISafeBridgeRouter, FxBaseRootTunnel {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -40,7 +33,6 @@ contract SafeBridgeRouter is ISafeBridgeReceiver, ISafeBridgeSender, FxBaseRootT
      * @param _safeBridgeSender The safe bridge sender on Arbitrum.
      * @param _fastBridgeReceiverOnPolygon The fast bridge receiver on Polygon Chain.
      */
-
     constructor(
         IInbox _inbox,
         address _checkpointManager,
@@ -59,7 +51,7 @@ contract SafeBridgeRouter is ISafeBridgeReceiver, ISafeBridgeSender, FxBaseRootT
      * @param _epoch The epoch associated with the _batchmerkleRoot.
      * @param _batchMerkleRoot The true batchP merkle root for the epoch sent by the safe bridge.     * @return Unique id to track the message request/transaction.
      */
-    function verifySafe(uint256 _epoch, bytes32 _batchMerkleRoot) external override onlyFromSafeBridge {
+    function verifySafeBatch(uint256 _epoch, bytes32 _batchMerkleRoot) external override onlyFromSafeBridge {
         // Note: fxRoot sends message directly to fxchild hence no need for encodeWithSelector
         bytes memory safeMessageData = abi.encode(_epoch, _batchMerkleRoot);
 
@@ -72,9 +64,15 @@ contract SafeBridgeRouter is ISafeBridgeReceiver, ISafeBridgeSender, FxBaseRootT
         _sendMessageToChild(_calldata);
     }
 
-    function _processMessageFromChild(bytes memory message) internal override {}
+    function _processMessageFromChild(bytes memory message) internal override {
+        // TODO
+        revert("Not implemented");
+    }
 
-    function _sendSafe(address _receiver, bytes memory _calldata) internal override returns (bytes32) {}
+    function _sendSafe(address _receiver, bytes memory _calldata) internal override returns (bytes32) {
+        // TODO
+        revert("Not implemented");
+    }
 
     // ************************************* //
     // *              Views                * //

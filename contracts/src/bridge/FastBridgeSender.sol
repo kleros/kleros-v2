@@ -13,11 +13,11 @@ pragma solidity ^0.8.0;
 import "./interfaces/IFastBridgeSender.sol";
 import "./interfaces/ISafeBridgeSender.sol";
 import "./interfaces/ISafeBridgeReceiver.sol";
-import "./canonical/arbitrum/IArbSys.sol"; // Arbiturm sender specific
+import "./canonical/arbitrum/IArbSys.sol"; // Arbitrum sender specific
 
 /**
  * Fast Bridge Sender
- * Counterpart of `FastReceiver`
+ * Counterpart of `FastBridgeReceiver`
  */
 contract FastBridgeSender is IFastBridgeSender, ISafeBridgeSender {
     // **************************************** //
@@ -41,17 +41,17 @@ contract FastBridgeSender is IFastBridgeSender, ISafeBridgeSender {
         bytes32 batchMerkleRoot = fastOutbox[_epoch];
 
         // Safe Bridge message envelope
-        bytes4 methodSelector = ISafeBridgeReceiver.verifySafe.selector;
+        bytes4 methodSelector = ISafeBridgeReceiver.verifySafeBatch.selector;
         bytes memory safeMessageData = abi.encodeWithSelector(methodSelector, _epoch, batchMerkleRoot);
 
-        bytes32 txID = _sendSafe(safeBridgeReceiver, safeMessageData);
-        emit SentSafe(_epoch, txID);
+        bytes32 ticketID = _sendSafe(safeBridgeReceiver, safeMessageData);
+        emit SentSafe(_epoch, ticketID);
     }
 
     function _sendSafe(address _receiver, bytes memory _calldata) internal override returns (bytes32) {
-        uint256 txID = ARB_SYS.sendTxToL1(_receiver, _calldata);
+        uint256 ticketID = ARB_SYS.sendTxToL1(_receiver, _calldata);
 
-        return bytes32(txID);
+        return bytes32(ticketID);
     }
 
     /**
@@ -86,15 +86,6 @@ contract FastBridgeSender is IFastBridgeSender, ISafeBridgeSender {
     // supports 2^64 messages.
     bytes32[64] public batch;
     uint256 public batchSize;
-    // ************************************* //
-    // *              Events               * //
-    // ************************************* //
-
-    /**
-     * The bridgers need to watch for these events and relay the
-     * batchMerkleRoot on the FastBridgeReceiver.
-     */
-    event SendBatch(uint256 indexed batchID, uint256 batchSize, uint256 epoch, bytes32 batchMerkleRoot);
 
     // ************************************* //
     // *         State Modifiers           * //
@@ -107,9 +98,7 @@ contract FastBridgeSender is IFastBridgeSender, ISafeBridgeSender {
      */
     function sendFast(address _receiver, bytes memory _calldata) external override {
         (bytes32 fastMessageHash, bytes memory fastMessage) = _encode(_receiver, _calldata);
-
         emit MessageReceived(fastMessage, fastMessageHash);
-
         appendMessage(fastMessageHash); // add message to merkle tree
     }
 
@@ -125,7 +114,7 @@ contract FastBridgeSender is IFastBridgeSender, ISafeBridgeSender {
         // set merkle root in outbox
         bytes32 batchMerkleRoot = getMerkleRoot();
         fastOutbox[epoch] = batchMerkleRoot;
-        emit SendBatch(currentBatchID, batchSize, epoch, batchMerkleRoot);
+        emit BatchOutgoing(currentBatchID, batchSize, epoch, batchMerkleRoot);
 
         // reset
         batchSize = 0;
@@ -186,11 +175,11 @@ contract FastBridgeSender is IFastBridgeSender, ISafeBridgeSender {
     // *         Merkle Tree           * //
     // ********************************* //
 
-    /** @dev Append data into merkle tree.
-     *  `O(log(n))` where
-     *  `n` is the number of leaves.
-     *  Note: Although each insertion is O(log(n)),
-     *  Complexity of n insertions is O(n).
+    /**
+     *  @dev Append data into merkle tree.
+     *  `O(log(n))` where `n` is the number of leaves.
+     *  Note: Although each insertion is O(log(n)), complexity of n insertions is O(n).
+     *  Note: Inlined from `merkle/MerkleTree.sol` for performance.
      *  @param leaf The leaf (already hashed) to insert in the merkle tree.
      */
     function appendMessage(bytes32 leaf) internal {
@@ -206,14 +195,14 @@ contract FastBridgeSender is IFastBridgeSender, ISafeBridgeSender {
                 bytes32 node = batch[height];
                 if (node > leaf)
                     assembly {
-                        // effecient hash
+                        // efficient hash
                         mstore(0x00, leaf)
                         mstore(0x20, node)
                         leaf := keccak256(0x00, 0x40)
                     }
                 else
                     assembly {
-                        // effecient hash
+                        // efficient hash
                         mstore(0x00, node)
                         mstore(0x20, leaf)
                         leaf := keccak256(0x00, 0x40)
@@ -225,9 +214,10 @@ contract FastBridgeSender is IFastBridgeSender, ISafeBridgeSender {
         }
     }
 
-    /** @dev Gets the current merkle root.
-     *  `O(log(n))` where
-     *  `n` is the number of leaves.
+    /**
+     * @dev Gets the current merkle root.
+     *  `O(log(n))` where `n` is the number of leaves.
+     *  Note: Inlined from `merkle/MerkleTree.sol` for performance.
      */
     function getMerkleRoot() internal view returns (bytes32) {
         unchecked {
@@ -243,7 +233,7 @@ contract FastBridgeSender is IFastBridgeSender, ISafeBridgeSender {
                         isFirstHash = false;
                     } else {
                         bytes32 hash = batch[height];
-                        // effecient hash
+                        // efficient hash
                         if (hash > node)
                             assembly {
                                 mstore(0x00, node)
