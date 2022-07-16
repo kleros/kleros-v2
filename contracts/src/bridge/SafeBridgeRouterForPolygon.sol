@@ -12,9 +12,9 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/ISafeBridgeReceiver.sol";
 import "./interfaces/ISafeBridgeSender.sol";
-import "./interfaces/polygon/FxBaseRootTunnel.sol";
-import "./interfaces/arbitrum/IInbox.sol";
-import "./interfaces/arbitrum/IOutbox.sol";
+import "./canonical/polygon/FxBaseRootTunnel.sol";
+import "./canonical/arbitrum/IInbox.sol";
+import "./canonical/arbitrum/IOutbox.sol";
 
 /**
  * Router on Ethereum from Arbitrum to Polygon Chain.
@@ -72,13 +72,9 @@ contract SafeBridgeRouter is ISafeBridgeReceiver, ISafeBridgeSender, FxBaseRootT
         _sendMessageToChild(_calldata);
     }
 
-    function _processMessageFromChild(bytes memory message) internal override {
-    }
+    function _processMessageFromChild(bytes memory message) internal override {}
 
-    function _sendSafe(address _receiver, bytes memory _calldata) internal override returns (bytes32){
-
-    }
-
+    function _sendSafe(address _receiver, bytes memory _calldata) internal override returns (bytes32) {}
 
     // ************************************* //
     // *              Views                * //

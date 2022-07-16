@@ -2,7 +2,7 @@
 // https://github.com/poanetwork/tokenbridge-contracts/blob/master/contracts/mocks/AMBMock.sol
 pragma solidity ^0.8.0;
 
-import "../../interfaces/gnosis-chain/IAMB.sol";
+import "../../canonical/gnosis-chain/IAMB.sol";
 import "../../../libraries/gnosis-chain/Bytes.sol";
 
 contract MockAMB is IAMB {

@@ -12,7 +12,7 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/IFastBridgeReceiver.sol";
 import "./interfaces/ISafeBridgeReceiver.sol";
-import "./interfaces/gnosis-chain/IAMB.sol"; // Gnosis Receiver Specific
+import "./canonical/gnosis-chain/IAMB.sol"; // Gnosis Receiver Specific
 
 /**
  * Fast Receiver On Gnosis
@@ -45,7 +45,7 @@ contract FastBridgeReceiverOnGnosis is IFastBridgeReceiver, ISafeBridgeReceiver 
      * @param _epochPeriod The duration of each epoch.
      * @param _challengePeriod The duration of the period allowing to challenge a claim.
      * @param _safeBridgeSender The address of the Safe Bridge Sender on the connecting chain.
-     * @param _amb The the AMB contract on Gnosis Chain.
+     * @param _amb The AMB contract on Gnosis Chain.
      */
     constructor(
         uint256 _deposit,

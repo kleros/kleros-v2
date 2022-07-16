@@ -1,9 +1,18 @@
 // SPDX-License-Identifier: MIT
+// https://github.com/fx-portal/contracts/blob/main/contracts/tunnel/FxBaseChildTunnel.sol
 pragma solidity ^0.8.0;
 
-import "./IFxMessageProcessor.sol";
+// IFxMessageProcessor represents interface to process message
+interface IFxMessageProcessor {
+    function processMessageFromRoot(
+        uint256 stateId,
+        address rootMessageSender,
+        bytes calldata data
+    ) external;
+}
+
 /**
- * @notice Mock child tunnel contract to receive and send message from L2
+ * @dev Polygon-side abstract contract of the bidirectional Polygon/Ethereum bridge
  */
 abstract contract FxBaseChildTunnel is IFxMessageProcessor {
     // MessageTunnel on L1 will get data from this event

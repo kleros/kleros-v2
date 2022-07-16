@@ -12,7 +12,7 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/IFastBridgeReceiver.sol";
 import "./interfaces/ISafeBridgeReceiver.sol";
-import "./interfaces/polygon/FxBaseChildTunnel.sol"; // Polygon Receiver Specific
+import "./canonical/polygon/FxBaseChildTunnel.sol"; // Polygon Receiver Specific
 
 /**
  * Fast Receiver On Polygon
@@ -177,26 +177,33 @@ contract FastBridgeReceiverOnPolygon is FxBaseChildTunnel, IFastBridgeReceiver, 
         require(_checkReplayAndRelay(_epoch, _message), "Failed to call contract"); // Checks-Effects-Interaction
     }
 
-    // Note: This is an internal function in the fxStateChildTunnel that is called by fxChild along with osur data.
-
+    /**
+     * @dev Handles incoming messages from Ethereum via the canonical Polygon bridge.
+     * @param _stateId The epoch in which the message was batched by the bridge.
+     * @param _sender The merkle proof to prove the membership of the message and nonce in the merkle tree for the epoch.
+     * @param _data The data on the cross-domain chain for the message.
+     */
     function _processMessageFromRoot(
-        uint256 stateId,
-        address sender,
-        bytes memory data
-    ) internal override validateSender(sender) {
-        (uint256 _epoch, bytes32 _batchMerkleRoot) = abi.decode(data, (uint256, bytes32));
+        uint256 _stateId,
+        address _sender,
+        bytes memory _data
+    ) internal override validateSender(_sender) {
+        // TODO
+        revert("Not implemented");
+        // (uint256 _epoch, bytes32 _batchMerkleRoot) = abi.decode(data, (uint256, bytes32));
 
-        fastInbox[_epoch] = _batchMerkleRoot;
+        // fastInbox[_epoch] = _batchMerkleRoot;
 
-        if (_batchMerkleRoot == claims[_epoch].batchMerkleRoot) {
-            claims[_epoch].honest = true;
-        } else {
-            challenges[_epoch].honest = true;
-        }
+        // if (_batchMerkleRoot == claims[_epoch].batchMerkleRoot) {
+        //     claims[_epoch].honest = true;
+        // } else {
+        //     challenges[_epoch].honest = true;
+        // }
     }
 
     function verifySafe(uint256 _epoch, bytes32 _batchMerkleRoot) external override onlyFromSafeBridge {
-        return;
+        // TODO
+        revert("Not implemented");
     }
 
     /**

@@ -10,7 +10,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../../interfaces/arbitrum/IInbox.sol";
+import "../../canonical/arbitrum/IInbox.sol";
 
 contract InboxMock is IInbox {
     IBridge public arbBridge;
