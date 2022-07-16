@@ -23,22 +23,45 @@ interface IFastBridgeReceiver {
     event ClaimReceived(uint256 indexed _epoch, bytes32 indexed _batchMerkleRoot);
 
     /**
-     * @dev The Fast Bridge participants watch for these events to call `sendSafeFallback()` on the sending side.
+     * @dev This event indicates that `sendSafeFallback()` should be called on the sending side.
      * @param _epoch The epoch associated with the challenged claim.
      */
     event ClaimChallenged(uint256 indexed _epoch);
 
     /**
-     * @dev The Fast Bridge participants watch for these events to know optimistic verification has succeeded. The messages are ready to be relayed.
+     * @dev This events indicates that optimistic verification has succeeded. The messages are ready to be relayed.
      * @param _epoch The epoch associated with the batch.
      */
     event BatchVerified(uint256 indexed _epoch);
 
     /**
-     * @dev The Fast Bridge users watch for these events to know that optimistic verification has failed. The Fast Bridge sender will fallback to the Safe Bridge.
+     * @dev This event indicates that the batch has been received via the Safe Bridge.
      * @param _epoch The epoch associated with the batch.
+     * @param _isBridgerHonest Whether the bridger made an honest claim.
+     * @param _isChallengerHonest Whether the bridger made an honest challenge.
      */
-    event BatchNotVerified(uint256 indexed _epoch);
+    event BatchSafeVerified(uint256 indexed _epoch, bool _isBridgerHonest, bool _isChallengerHonest);
+
+    /**
+     * @dev This event indicates that the claim deposit has been withdrawn.
+     * @param _epoch The epoch associated with the batch.
+     * @param _bridger The recipient of the claim deposit.
+     */
+    event ClaimDepositWithdrawn(uint256 indexed _epoch, address indexed _bridger);
+
+    /**
+     * @dev This event indicates that the challenge deposit has been withdrawn.
+     * @param _epoch The epoch associated with the batch.
+     * @param _challenger The recipient of the challenge deposit.
+     */
+    event ChallengeDepositWithdrawn(uint256 indexed _epoch, address indexed _challenger);
+
+    /**
+     * @dev This event indicates that a message has been relayed for the batch in this `_epoch`.
+     * @param _epoch The epoch associated with the batch.
+     * @param _nonce The nonce of the message that was relayed.
+     */
+    event MessageRelayed(uint256 indexed _epoch, uint256 indexed _nonce);
 
     // ************************************* //
     // *        Function Modifiers         * //
