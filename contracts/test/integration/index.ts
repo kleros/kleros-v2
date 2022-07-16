@@ -8,7 +8,7 @@ import {
   FastBridgeReceiverOnEthereum,
   ForeignGatewayOnEthereum,
   ArbitrableExample,
-  FastBridgeSenderToEthereum,
+  FastBridgeSenderToEthereumMock,
   HomeGatewayToEthereum,
   DisputeKitClassic,
   InboxMock,
@@ -17,7 +17,7 @@ import {
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
 
-describe("Demo pre-alpha1", async () => {
+describe("Integration tests", async () => {
   const ONE_TENTH_ETH = BigNumber.from(10).pow(17);
   const ONE_ETH = BigNumber.from(10).pow(18);
   const ONE_HUNDRED_PNK = BigNumber.from(10).pow(20);
@@ -42,12 +42,11 @@ describe("Demo pre-alpha1", async () => {
     drawing, // Jurors can be drawn.
   }
 
-  let deployer, relayer, bridger, challenger, innocentBystander;
+  let deployer;
   let ng, disputeKit, pnk, core, fastBridgeReceiver, foreignGateway, arbitrable, fastBridgeSender, homeGateway, inbox;
 
   beforeEach("Setup", async () => {
-    deployer = (await getNamedAccounts()).deployer;
-    relayer = (await getNamedAccounts()).relayer;
+    ({ deployer } = await getNamedAccounts());
 
     console.log("deployer:%s", deployer);
     console.log("named accounts: %O", await getNamedAccounts());
@@ -63,7 +62,7 @@ describe("Demo pre-alpha1", async () => {
     fastBridgeReceiver = (await ethers.getContract("FastBridgeReceiverOnEthereum")) as FastBridgeReceiverOnEthereum;
     foreignGateway = (await ethers.getContract("ForeignGatewayOnEthereum")) as ForeignGatewayOnEthereum;
     arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
-    fastBridgeSender = (await ethers.getContract("FastBridgeSenderToEthereumMock")) as FastBridgeSenderToEthereum;
+    fastBridgeSender = (await ethers.getContract("FastBridgeSenderToEthereumMock")) as FastBridgeSenderToEthereumMock;
     homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
     inbox = (await ethers.getContract("InboxMock")) as InboxMock;
   });
@@ -81,9 +80,9 @@ describe("Demo pre-alpha1", async () => {
     expect(rn).to.equal(rnOld.add(1));
   });
 
-  it("Demo - Honest Claim - No Challenge - Bridger paid", async () => {
+  it("Honest Claim - No Challenge - Bridger paid", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
-    const [bridger, challenger] = await ethers.getSigners();
+    const [bridger, challenger, relayer] = await ethers.getSigners();
 
     await pnk.approve(core.address, ONE_THOUSAND_PNK.mul(100));
 
@@ -132,7 +131,7 @@ describe("Demo pre-alpha1", async () => {
 
     // Relayer tx
     const tx2 = await homeGateway
-      .connect(await ethers.getSigner(relayer))
+      .connect(relayer)
       .relayCreateDispute(31337, lastBlock.hash, disputeId, 2, "0x00", arbitrable.address, {
         value: arbitrationCost,
       });
@@ -154,7 +153,7 @@ describe("Demo pre-alpha1", async () => {
     expect(await core.phase()).to.equal(Phase.freezing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
-    await mineNBlocks(20); // Wait for 20 blocks finality
+    await mineBlocks(20); // Wait for 20 blocks finality
     await disputeKit.passPhase(); // Resolving -> Generating
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
@@ -180,45 +179,50 @@ describe("Demo pre-alpha1", async () => {
     await core.passPeriod(0);
     await core.passPeriod(0);
     expect((await core.disputes(0)).period).to.equal(Period.execution);
-    await core.execute(0, 0, 1000);
+    expect(await core.execute(0, 0, 1000)).to.emit(core, "TokenAndETHShift");
+
     const tx4 = await core.executeRuling(0);
+    expect(tx4).to.emit(fastBridgeSender, "MessageReceived");
+    const MessageReceived = fastBridgeSender.filters.MessageReceived();
+    const event5 = await fastBridgeSender.queryFilter(MessageReceived);
+    const fastMessage = event5[0].args.fastMessage;
 
     console.log("Executed ruling");
 
-    expect(tx4).to.emit(fastBridgeSender, "MessageReceived");
-
-    const MessageReceived = fastBridgeSender.filters.MessageReceived();
-    const event5 = await fastBridgeSender.queryFilter(MessageReceived);
-
-    const fastMessage = event5[0].args.fastMessage;
-
+    // relayer tx - send batch
     const tx4a = await fastBridgeSender.connect(bridger).sendBatch();
     expect(tx4a).to.emit(fastBridgeSender, "BatchOutgoing");
+    // expect(tx4a).to.emit(fastBridgeSender, "SentSafe"); // does not work because FastBridgeSender is just a (bad) mock.
 
     const BatchOutgoing = fastBridgeSender.filters.BatchOutgoing();
     const event5a = await fastBridgeSender.queryFilter(BatchOutgoing);
     const batchID = event5a[0].args.batchID;
     const batchMerkleRoot = event5a[0].args.batchMerkleRoot;
+
     // bridger tx starts - Honest Bridger
     const tx5 = await fastBridgeReceiver.connect(bridger).claim(batchID, batchMerkleRoot, { value: ONE_TENTH_ETH });
-
     expect(tx5).to.emit(fastBridgeReceiver, "ClaimReceived").withArgs(batchID, batchMerkleRoot);
+
     // wait for challenge period (and epoch) to pass
     await network.provider.send("evm_increaseTime", [86400]);
     await network.provider.send("evm_mine");
 
     const tx7a = await fastBridgeReceiver.connect(bridger).verifyBatch(batchID);
-    const tx7 = await fastBridgeReceiver
-      .connect(await ethers.getSigner(relayer))
-      .verifyAndRelayMessage(batchID, [], fastMessage);
-    const tx8 = await fastBridgeReceiver.withdrawClaimDeposit(batchID);
+    expect(tx7a).to.emit(fastBridgeReceiver, "BatchVerified").withArgs(batchID);
 
+    const tx7 = await fastBridgeReceiver.connect(relayer).verifyAndRelayMessage(batchID, [], fastMessage);
+    expect(tx7).to.emit(fastBridgeReceiver, "MessageRelayed").withArgs(batchID, 0);
     expect(tx7).to.emit(arbitrable, "Ruling");
+
+    const tx8 = await fastBridgeReceiver.withdrawClaimDeposit(batchID);
+    expect(tx8).to.emit(fastBridgeReceiver, "ClaimDepositWithdrawn").withArgs(batchID, bridger.address);
+
+    expect(fastBridgeReceiver.withdrawChallengeDeposit(batchID)).to.be.revertedWith("Challenge does not exist");
   });
 
-  it("Demo - Honest Claim - Challenged - Bridger Paid, Challenger deposit forfeited", async () => {
+  it("Honest Claim - Dishonest Challenge - Bridger paid, Challenger deposit forfeited", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
-    const [bridger, challenger] = await ethers.getSigners();
+    const [bridger, challenger, relayer] = await ethers.getSigners();
 
     await pnk.approve(core.address, ONE_THOUSAND_PNK.mul(100));
 
@@ -283,7 +287,7 @@ describe("Demo pre-alpha1", async () => {
     expect(events2[0].args._disputeID).to.equal(disputeId);
     // Relayer tx
     const tx2 = await homeGateway
-      .connect(await ethers.getSigner(relayer))
+      .connect(relayer)
       .relayCreateDispute(31337, lastBlock.hash, disputeId, 2, "0x00", arbitrable.address, {
         value: arbitrationCost,
       });
@@ -305,7 +309,7 @@ describe("Demo pre-alpha1", async () => {
     expect(await core.phase()).to.equal(Phase.freezing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
-    await mineNBlocks(20); // Wait for 20 blocks finality
+    await mineBlocks(20); // Wait for 20 blocks finality
     await disputeKit.passPhase(); // Resolving -> Generating
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
@@ -364,13 +368,10 @@ describe("Demo pre-alpha1", async () => {
     const batchID = event4a[0].args.batchID;
     const batchMerkleRoot = event4a[0].args.batchMerkleRoot;
 
-    // bridger tx starts - Honest Bridger
-
     console.log("Executed ruling");
 
-    // bridger tx starts
+    // bridger tx starts - Honest Bridger
     const tx5 = await fastBridgeReceiver.connect(bridger).claim(batchID, batchMerkleRoot, { value: ONE_TENTH_ETH });
-
     expect(tx5).to.emit(fastBridgeReceiver, "ClaimReceived").withArgs(batchID, batchMerkleRoot);
 
     // Challenger tx starts
@@ -381,25 +382,33 @@ describe("Demo pre-alpha1", async () => {
     await network.provider.send("evm_increaseTime", [86400]);
     await network.provider.send("evm_mine");
 
-    await expect(
-      fastBridgeReceiver.connect(await ethers.getSigner(relayer)).verifyAndRelayMessage(batchID, [], fastMessage)
-    ).to.be.revertedWith("Invalid epoch.");
+    await expect(fastBridgeReceiver.connect(relayer).verifyBatch(batchID)).to.not.emit(
+      fastBridgeReceiver,
+      "BatchVerified"
+    );
 
     const tx7 = await fastBridgeSender.connect(bridger).sendSafeFallback(batchID, { gasLimit: 1000000 });
-    expect(tx7).to.emit(fastBridgeSender, "L2ToL1TxCreated");
+    expect(tx7).to.emit(fastBridgeSender, "L2ToL1TxCreated").withArgs(0);
+    // expect(tx7).to.emit(fastBridgeSender, "SentSafe"); // does not work because FastBridgeSender is just a (bad) mock.
 
-    const tx8 = await fastBridgeReceiver
-      .connect(await ethers.getSigner(relayer))
-      .verifyAndRelayMessage(batchID, [], fastMessage);
+    const tx8 = await fastBridgeReceiver.connect(bridger).verifySafeBatch(batchID, batchMerkleRoot);
+    expect(tx8).to.emit(fastBridgeReceiver, "BatchSafeVerified").withArgs(batchID, true, false);
 
-    expect(tx8).to.emit(arbitrable, "Ruling");
+    const tx9 = await fastBridgeReceiver.connect(relayer).verifyAndRelayMessage(batchID, [], fastMessage);
+    expect(tx9).to.emit(fastBridgeReceiver, "MessageRelayed").withArgs(batchID, 0);
+    expect(tx9).to.emit(arbitrable, "Ruling");
 
-    await expect(fastBridgeReceiver.withdrawChallengeDeposit(batchID)).to.be.revertedWith("Challenge not verified.");
+    const tx10 = await fastBridgeReceiver.connect(relayer).withdrawClaimDeposit(batchID);
+    expect(tx10).to.emit(fastBridgeReceiver, "ClaimDepositWithdrawn").withArgs(batchID, bridger.address);
+
+    await expect(fastBridgeReceiver.connect(relayer).withdrawChallengeDeposit(batchID)).to.be.revertedWith(
+      "Challenge failed."
+    );
   });
 
-  it("Demo - Dishonest Claim - Challenged - Bridger deposit forfeited, Challenger paid", async () => {
+  it("Dishonest Claim - Honest Challenge - Bridger deposit forfeited, Challenger paid", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
-    const [bridger, challenger] = await ethers.getSigners();
+    const [bridger, challenger, relayer] = await ethers.getSigners();
 
     await pnk.approve(core.address, ONE_THOUSAND_PNK.mul(100));
 
@@ -447,7 +456,7 @@ describe("Demo pre-alpha1", async () => {
 
     // Relayer tx
     const tx2 = await homeGateway
-      .connect(await ethers.getSigner(relayer))
+      .connect(relayer)
       .relayCreateDispute(31337, lastBlock.hash, disputeId, 2, "0x00", arbitrable.address, {
         value: arbitrationCost,
       });
@@ -468,7 +477,7 @@ describe("Demo pre-alpha1", async () => {
     expect(await core.phase()).to.equal(Phase.freezing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
-    await mineNBlocks(20); // Wait for 20 blocks finality
+    await mineBlocks(20); // Wait for 20 blocks finality
     await disputeKit.passPhase(); // Resolving -> Generating
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
@@ -519,22 +528,38 @@ describe("Demo pre-alpha1", async () => {
     const fakeData = "KlerosToTheMoon";
     const fakeHash = utils.keccak256(utils.defaultAbiCoder.encode(["string"], [fakeData]));
     const tx5 = await fastBridgeReceiver.connect(bridger).claim(batchID, fakeHash, { value: ONE_TENTH_ETH });
+
     // Challenger tx starts
     const tx6 = await fastBridgeReceiver.connect(challenger).challenge(batchID, { value: ONE_TENTH_ETH });
     expect(tx6).to.emit(fastBridgeReceiver, "ClaimChallenged").withArgs(batchID);
 
+    // wait for challenge period (and epoch) to pass
+    await network.provider.send("evm_increaseTime", [86400]);
+    await network.provider.send("evm_mine");
+
+    await expect(fastBridgeReceiver.connect(relayer).verifyBatch(batchID)).to.not.emit(
+      fastBridgeReceiver,
+      "BatchVerified"
+    );
+
     const tx7 = await fastBridgeSender.connect(bridger).sendSafeFallback(batchID, { gasLimit: 1000000 });
-    expect(tx7).to.emit(fastBridgeSender, "L2ToL1TxCreated");
+    expect(tx7).to.emit(fastBridgeSender, "L2ToL1TxCreated").withArgs(0);
+    // expect(tx7).to.emit(fastBridgeSender, "SentSafe"); // does not work because FastBridgeSender is just a (bad) mock.
 
-    const tx8 = await fastBridgeReceiver
-      .connect(await ethers.getSigner(relayer))
-      .verifyAndRelayMessage(batchID, [], fastMessage);
+    const tx8 = await fastBridgeReceiver.connect(bridger).verifySafeBatch(batchID, batchMerkleRoot);
+    expect(tx8).to.emit(fastBridgeReceiver, "BatchSafeVerified").withArgs(batchID, false, true);
 
-    expect(tx8).to.emit(arbitrable, "Ruling");
-    await fastBridgeReceiver.withdrawChallengeDeposit(batchID);
+    const tx9 = await fastBridgeReceiver.connect(relayer).verifyAndRelayMessage(batchID, [], fastMessage);
+    expect(tx9).to.emit(fastBridgeReceiver, "MessageRelayed").withArgs(batchID, 0);
+    expect(tx9).to.emit(arbitrable, "Ruling");
+
+    expect(fastBridgeReceiver.connect(relayer).withdrawClaimDeposit(batchID)).to.be.revertedWith("Claim failed.");
+
+    const tx10 = await fastBridgeReceiver.connect(relayer).withdrawChallengeDeposit(batchID);
+    expect(tx10).to.emit(fastBridgeReceiver, "ChallengeDepositWithdrawn").withArgs(batchID, challenger.address);
   });
 
-  async function mineNBlocks(n) {
+  async function mineBlocks(n) {
     for (let index = 0; index < n; index++) {
       await network.provider.send("evm_mine");
     }

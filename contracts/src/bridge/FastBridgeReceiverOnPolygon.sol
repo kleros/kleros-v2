@@ -156,9 +156,6 @@ contract FastBridgeReceiverOnPolygon is FxBaseChildTunnel, IFastBridgeReceiver, 
             claim.honest = true;
             fastInbox[_epoch] = claim.batchMerkleRoot;
             emit BatchVerified(_epoch);
-        } else {
-            // unhappy path
-            emit BatchNotVerified(_epoch);
         }
         claim.verificationAttempted = true;
     }
@@ -234,6 +231,7 @@ contract FastBridgeReceiverOnPolygon is FxBaseChildTunnel, IFastBridgeReceiver, 
         }
 
         claim.depositAndRewardWithdrawn = true;
+        emit ClaimDepositWithdrawn(_epoch, claim.bridger);
 
         payable(claim.bridger).send(amount); // Use of send to prevent reverting fallback. User is responsibility for accepting ETH.
         // Checks-Effects-Interaction
@@ -256,6 +254,7 @@ contract FastBridgeReceiverOnPolygon is FxBaseChildTunnel, IFastBridgeReceiver, 
         }
 
         challenge.depositAndRewardWithdrawn = true;
+        emit ChallengeDepositWithdrawn(_epoch, challenge.challenger);
 
         payable(challenge.challenger).send(amount); // Use of send to prevent reverting fallback. User is responsibility for accepting ETH.
         // Checks-Effects-Interaction
@@ -339,6 +338,7 @@ contract FastBridgeReceiverOnPolygon is FxBaseChildTunnel, IFastBridgeReceiver, 
         bytes32 replay = relayed[_epoch][index];
         require(((replay >> offset) & bytes32(uint256(1))) == 0, "Message already relayed");
         relayed[_epoch][index] = replay | bytes32(1 << offset);
+        emit MessageRelayed(_epoch, nonce);
 
         (success, ) = receiver.call(data);
         // Checks-Effects-Interaction

@@ -164,9 +164,6 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
             claim.honest = true;
             fastInbox[_epoch] = claim.batchMerkleRoot;
             emit BatchVerified(_epoch);
-        } else {
-            // unhappy path
-            emit BatchNotVerified(_epoch);
         }
         claim.verificationAttempted = true;
     }
@@ -194,6 +191,7 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
                 challenges[_epoch].honest = true;
             }
         }
+        emit BatchSafeVerified(_epoch, claims[_epoch].honest, challenges[_epoch].honest);
     }
 
     /**
@@ -223,7 +221,7 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
         Claim storage claim = claims[_epoch];
 
         require(claim.bridger != address(0), "Claim does not exist");
-        require(claim.honest == true, "Claim not verified.");
+        require(claim.honest == true, "Claim failed.");
         require(claim.depositAndRewardWithdrawn == false, "Claim deposit and any rewards already withdrawn.");
 
         uint256 amount = deposit;
@@ -232,6 +230,7 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
         }
 
         claim.depositAndRewardWithdrawn = true;
+        emit ClaimDepositWithdrawn(_epoch, claim.bridger);
 
         payable(claim.bridger).send(amount); // Use of send to prevent reverting fallback. User is responsibility for accepting ETH.
         // Checks-Effects-Interaction
@@ -245,7 +244,7 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
         Challenge storage challenge = challenges[_epoch];
 
         require(challenge.challenger != address(0), "Challenge does not exist");
-        require(challenge.honest == true, "Challenge not verified.");
+        require(challenge.honest == true, "Challenge failed.");
         require(challenge.depositAndRewardWithdrawn == false, "Challenge deposit and rewards already withdrawn.");
 
         uint256 amount = deposit;
@@ -254,6 +253,7 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
         }
 
         challenge.depositAndRewardWithdrawn = true;
+        emit ChallengeDepositWithdrawn(_epoch, challenge.challenger);
 
         payable(challenge.challenger).send(amount); // Use of send to prevent reverting fallback. User is responsibility for accepting ETH.
         // Checks-Effects-Interaction
@@ -337,6 +337,7 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
         bytes32 replay = relayed[_epoch][index];
         require(((replay >> offset) & bytes32(uint256(1))) == 0, "Message already relayed");
         relayed[_epoch][index] = replay | bytes32(1 << offset);
+        emit MessageRelayed(_epoch, nonce);
 
         (success, ) = receiver.call(data);
         // Checks-Effects-Interaction
