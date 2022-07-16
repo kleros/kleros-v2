@@ -1,5 +1,13 @@
 // SPDX-License-Identifier: MIT
 
+/**
+ *  @authors: [@jaybuidl, @shotaronowhere]
+ *  @reviewers: []
+ *  @auditors: []
+ *  @bounties: []
+ *  @deployments: []
+ */
+
 pragma solidity ^0.8.0;
 
 interface IFastBridgeSender {
@@ -21,13 +29,18 @@ interface IFastBridgeSender {
      */
     event SentSafe(uint256 indexed epoch, bytes32 canonicalBridgeMessageID);
 
+    /**
+     * The bridgers need to watch for these events and relay the
+     * batchMerkleRoot on the FastBridgeReceiver.
+     */
+    event BatchOutgoing(uint256 indexed batchID, uint256 batchSize, uint256 epoch, bytes32 batchMerkleRoot);
+
     // ************************************* //
     // *        Function Modifiers         * //
     // ************************************* //
 
     /**
-     * Note: Access must be restricted by the receiving contract.
-     * Message is sent with the message sender address as the first argument.
+     * Note: Access must be restricted by the receiving gateway by checking the sender argument.
      * @dev Sends an arbitrary message across domain using the Fast Bridge.
      * @param _receiver The cross-domain contract address which receives the calldata.
      * @param _calldata The receiving domain encoded message data.

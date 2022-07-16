@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@jaybuidl, @shalzz, @hrishibhat, @shotaronowhere]
+ *  @authors: [@jaybuidl, @shotaronowhere, @hrishibhat]
  *  @reviewers: []
  *  @auditors: []
  *  @bounties: []
@@ -20,13 +20,25 @@ interface IFastBridgeReceiver {
      * @param _epoch The epoch for which the the claim was made.
      * @param _batchMerkleRoot The timestamp of the claim creation.
      */
-    event ClaimReceived(uint256 _epoch, bytes32 indexed _batchMerkleRoot);
+    event ClaimReceived(uint256 indexed _epoch, bytes32 indexed _batchMerkleRoot);
 
     /**
      * @dev The Fast Bridge participants watch for these events to call `sendSafeFallback()` on the sending side.
      * @param _epoch The epoch associated with the challenged claim.
      */
-    event ClaimChallenged(uint256 _epoch);
+    event ClaimChallenged(uint256 indexed _epoch);
+
+    /**
+     * @dev The Fast Bridge participants watch for these events to know optimistic verification has succeeded. The messages are ready to be relayed.
+     * @param _epoch The epoch associated with the batch.
+     */
+    event BatchVerified(uint256 indexed _epoch);
+
+    /**
+     * @dev The Fast Bridge users watch for these events to know that optimistic verification has failed. The Fast Bridge sender will fallback to the Safe Bridge.
+     * @param _epoch The epoch associated with the batch.
+     */
+    event BatchNotVerified(uint256 indexed _epoch);
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -46,12 +58,18 @@ interface IFastBridgeReceiver {
     function challenge(uint256 _epoch) external payable;
 
     /**
+     * @dev Resolves the optimistic claim for '_epoch'.
+     * @param _epoch The epoch of the optimistic claim.
+     */
+    function verifyBatch(uint256 _epoch) external;
+
+    /**
      * @dev Verifies merkle proof for the given message and associated nonce for the most recent possible epoch and relays the message.
      * @param _epoch The epoch in which the message was batched by the bridge.
      * @param _proof The merkle proof to prove the membership of the message and nonce in the merkle tree for the epoch.
      * @param _message The data on the cross-domain chain for the message.
      */
-    function verifyAndRelay(
+    function verifyAndRelayMessage(
         uint256 _epoch,
         bytes32[] calldata _proof,
         bytes calldata _message

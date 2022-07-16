@@ -30,7 +30,7 @@ contract FastBridgeSenderMock is IFastBridgeSender, ISafeBridgeSender {
     // *              Events               * //
     // ************************************* //
 
-    event L2ToL1TxCreated(uint256 indexed txID);
+    event L2ToL1TxCreated(uint256 indexed ticketID);
 
     // ************************************* //
     // *             Storage               * //
@@ -47,17 +47,17 @@ contract FastBridgeSenderMock is IFastBridgeSender, ISafeBridgeSender {
         bytes32 batchMerkleRoot = fastOutbox[_epoch];
 
         // Safe Bridge message envelope
-        bytes4 methodSelector = ISafeBridgeReceiver.verifySafe.selector;
+        bytes4 methodSelector = ISafeBridgeReceiver.verifySafeBatch.selector;
         bytes memory safeMessageData = abi.encodeWithSelector(methodSelector, _epoch, batchMerkleRoot);
 
         _sendSafe(safeBridgeReceiver, safeMessageData);
     }
 
     function _sendSafe(address _receiver, bytes memory _calldata) internal override returns (bytes32) {
-        uint256 txID = arbsys.sendTxToL1(_receiver, _calldata);
+        uint256 ticketID = arbsys.sendTxToL1(_receiver, _calldata);
 
-        emit L2ToL1TxCreated(txID);
-        return bytes32(txID);
+        emit L2ToL1TxCreated(ticketID);
+        return bytes32(ticketID);
     }
 
     /**
@@ -96,15 +96,6 @@ contract FastBridgeSenderMock is IFastBridgeSender, ISafeBridgeSender {
     // supports 2^64 messages.
     bytes32[64] public batch;
     uint256 public batchSize;
-    // ************************************* //
-    // *              Events               * //
-    // ************************************* //
-
-    /**
-     * The bridgers need to watch for these events and relay the
-     * batchMerkleRoot on the FastBridgeReceiver.
-     */
-    event SendBatch(uint256 indexed batchID, uint256 batchSize, uint256 epoch, bytes32 batchMerkleRoot);
 
     // ************************************* //
     // *         State Modifiers           * //
@@ -135,7 +126,7 @@ contract FastBridgeSenderMock is IFastBridgeSender, ISafeBridgeSender {
         // set merkle root in outbox and reset merkle tree
         bytes32 batchMerkleRoot = getMerkleRoot();
         fastOutbox[epoch] = batchMerkleRoot;
-        emit SendBatch(currentBatchID, batchSize, epoch, batchMerkleRoot);
+        emit BatchOutgoing(currentBatchID, batchSize, epoch, batchMerkleRoot);
 
         // reset
         batchSize = 0;

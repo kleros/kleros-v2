@@ -36,7 +36,7 @@ contract MerkleTree {
      *  Complexity of n insertions is O(n).
      *  @param leaf The leaf (already hashed) to insert in the merkle tree.
      */
-    function appendMessage(bytes32 leaf) internal {
+    function _appendMessage(bytes32 leaf) internal {
         // Differentiate leaves from interior nodes with different
         // hash functions to prevent 2nd order pre-image attack.
         // https://flawed.net.nz/2018/02/21/attacking-merkle-trees-with-a-second-preimage-attack/
@@ -70,8 +70,8 @@ contract MerkleTree {
      *  `O(log(n))` where
      *  `n` is the number of leaves.
      */
-    function getMerkleRootAndReset() internal returns (bytes32 batchMerkleRoot) {
-        batchMerkleRoot = getMerkleRoot();
+    function _getMerkleRootAndReset() internal returns (bytes32 batchMerkleRoot) {
+        batchMerkleRoot = _getMerkleRoot();
         batchSize = 0;
     }
 
@@ -79,7 +79,7 @@ contract MerkleTree {
      *  `O(log(n))` where
      *  `n` is the number of leaves.
      */
-    function getMerkleRoot() internal view returns (bytes32) {
+    function _getMerkleRoot() internal view returns (bytes32) {
         bytes32 node;
         uint256 size = batchSize;
         uint256 height = 0;

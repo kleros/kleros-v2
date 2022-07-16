@@ -10,7 +10,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../MerkleTree.sol";
+import "../../merkle/MerkleTree.sol";
 
 /**
  *  @title MerkleTreeExposed
@@ -18,11 +18,11 @@ import "../MerkleTree.sol";
  *  @dev Exposes MerkleTree for testing
  */
 contract MerkleTreeExposed is MerkleTree {
-    function _appendMessage(bytes memory _leaf) public {
-        appendMessage(sha256(_leaf));
+    function appendMessage(bytes memory _leaf) public {
+        _appendMessage(sha256(_leaf));
     }
 
-    function _getMerkleRoot() public view returns (bytes32 merkleroot) {
-        merkleroot = getMerkleRoot();
+    function getMerkleRoot() public view returns (bytes32 merkleroot) {
+        merkleroot = _getMerkleRoot();
     }
 }

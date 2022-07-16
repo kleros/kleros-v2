@@ -1,5 +1,13 @@
 // SPDX-License-Identifier: MIT
 
+/**
+ *  @authors: [@jaybuidl, @shotaronowhere, @shalzz]
+ *  @reviewers: []
+ *  @auditors: []
+ *  @bounties: []
+ *  @deployments: []
+ */
+
 pragma solidity ^0.8.0;
 
 import "../../arbitration/IArbitrable.sol";

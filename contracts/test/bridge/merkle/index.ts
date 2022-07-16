@@ -1,6 +1,5 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { BigNumber } from "ethers";
 import { toBuffer } from "ethereumjs-util";
 import { soliditySha3 } from "web3-utils";
 import { MerkleTree } from "./MerkleTree";
@@ -46,27 +45,28 @@ describe("Merkle", async () => {
     it("Merkle Root verification", async () => {
       data = ["0x00", "0x01", "0x03"];
       nodes = [];
-      for (var message of data) {
-        await merkleTreeExposed._appendMessage(message);
+      for (const message of data) {
+        await merkleTreeExposed.appendMessage(message);
         nodes.push(MerkleTree.makeLeafNode(message));
       }
       mt = new MerkleTree(nodes);
       rootOffChain = mt.getHexRoot();
-      rootOnChain = await merkleTreeExposed._getMerkleRoot();
+      rootOnChain = await merkleTreeExposed.getMerkleRoot();
       console.log("######");
       console.log(rootOffChain);
       console.log(rootOnChain);
       console.log("########################");
 
-      expect(rootOffChain == rootOnChain).equal(true);
+      expect(rootOffChain).to.equal(rootOnChain);
     });
+
     it("Should correctly verify all nodes in the tree", async () => {
-      for (var message of data) {
+      for (const message of data) {
         const leaf = ethers.utils.sha256(message);
         proof = mt.getHexProof(leaf);
-        const validation = await merkleProofExposed._validateProof(proof, ethers.utils.sha256(message), rootOnChain);
-        expect(validation).equal(true);
-        expect(verify(proof, rootOffChain, leaf)).equal(true);
+        const validation = await merkleProofExposed.validateProof(proof, ethers.utils.sha256(message), rootOnChain);
+        expect(validation).to.equal(true);
+        expect(verify(proof, rootOffChain, leaf)).to.equal(true);
       }
     });
   });
