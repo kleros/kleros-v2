@@ -39,6 +39,7 @@ contract SortitionModule is ISortitionModule {
     }
 
     uint256 public constant MAX_STAKE_PATHS = 4; // The maximum number of stake paths a juror can have.
+    uint256 public constant DEFAULT_K = 3; // Default number of children per node.
 
     KlerosCore public core;
     Phase public phase; // The current phase.
@@ -170,21 +171,15 @@ contract SortitionModule is ISortitionModule {
         emit NewPhase(phase);
     }
 
-    function preDrawHook(
-        uint256 /*_disputeID*/
-    ) external view onlyByCore {
-        require(phase == Phase.freezing, "Wrong phase.");
-    }
-
     function preStakeHook(
         address _account,
         uint96 _subcourtID,
         uint256 _stake,
         uint256 _penalty
-    ) external override onlyByCore returns (bool success) {
+    ) external override onlyByCore returns (Result result) {
         (uint256 currentStake, , uint256 nbSubcourts) = core.getJurorBalance(_account, _subcourtID);
         if (currentStake == 0 && nbSubcourts >= MAX_STAKE_PATHS) {
-            success = false;
+            result = Result.False;
         } else {
             if (phase != Phase.staking) {
                 delayedStakes[++delayedStakeWriteIndex] = DelayedStake({
@@ -193,23 +188,23 @@ contract SortitionModule is ISortitionModule {
                     stake: _stake,
                     penalty: _penalty
                 });
-                success = false;
-            } else {
-                success = true;
+                result = Result.True;
             }
         }
+        return result;
     }
 
     /**
      *  @dev Create a sortition sum tree at the specified key.
      *  @param _key The key of the new tree.
-     *  @param _K The number of children each node in the tree should have.
+     *  @param _extraData Extra data that contains the number of children each node in the tree should have.
      */
-    function createTree(bytes32 _key, uint256 _K) external override onlyByCore {
+    function initialize(bytes32 _key, bytes memory _extraData) external override onlyByCore {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
+        uint256 K = extraDataToTreeK(_extraData);
         require(tree.K == 0, "Tree already exists.");
-        require(_K > 1, "K must be greater than one.");
-        tree.K = _K;
+        require(K > 1, "K must be greater than one.");
+        tree.K = K;
         tree.nodes.push(0);
     }
 
@@ -361,6 +356,7 @@ contract SortitionModule is ISortitionModule {
      *   and `n` is the maximum number of nodes ever appended.
      */
     function draw(bytes32 _key, uint256 _drawnNumber) public view override onlyByCore returns (address drawnAddress) {
+        require(phase == Phase.freezing, "Wrong phase.");
         SortitionSumTree storage tree = sortitionSumTrees[_key];
 
         uint256 treeIndex = 0;
@@ -450,6 +446,17 @@ contract SortitionModule is ISortitionModule {
                 mstore8(add(add(ptr, 0x0c), i), byte(i, _stakePathID))
             }
             account := mload(ptr)
+        }
+    }
+
+    function extraDataToTreeK(bytes memory _extraData) internal pure returns (uint256 K) {
+        if (_extraData.length >= 32) {
+            assembly {
+                // solium-disable-line security/no-inline-assembly
+                K := mload(add(_extraData, 0x20))
+            }
+        } else {
+            K = DEFAULT_K;
         }
     }
 }

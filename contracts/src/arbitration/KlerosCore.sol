@@ -34,9 +34,7 @@ contract KlerosCore is IArbitrator {
     }
 
     enum SortitionFlags {
-        Initialize, // Set to true if the court should be initialized in the module.
         CreateDisputeHook, // Set to true if the hook is needed after dispute creation.
-        PreDrawHook, // Set to true if the hook is needed before drawing.
         PreStakeHook, // Set to true if the module requires a hook before staking.
         StoreStakeValues // Set to true if staked values should be stored within the module.
     }
@@ -162,8 +160,7 @@ contract KlerosCore is IArbitrator {
      *  @param _hiddenVotes The `hiddenVotes` property value of the general court.
      *  @param _courtParameters Numeric parameters of General court (minStake, alpha, feeForJuror and jurorsForCourtJump respectively).
      *  @param _timesPerPeriod The `timesPerPeriod` property value of the general court.
-     *  @param _sortitionSumTreeK The number of children per node of the general court's sortition sum tree.
-    // TODO: Replace K with bytes sortitionExtraData and rename createTree()
+     *  @param _sortitionExtraData The extra data for sortition module.
      *  @param _sortitionModuleAddress The initial sortition module responsible for sortition of the jurors.
      *  @param _sortitionModuleFlags Flags for sortition module.
      */
@@ -175,7 +172,7 @@ contract KlerosCore is IArbitrator {
         bool _hiddenVotes,
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
-        uint256 _sortitionSumTreeK,
+        bytes memory _sortitionExtraData,
         ISortitionModule _sortitionModuleAddress,
         uint256 _sortitionModuleFlags
     ) {
@@ -209,14 +206,11 @@ contract KlerosCore is IArbitrator {
         sortitionModule.flags = _sortitionModuleFlags;
         sortitionModules.push(_sortitionModuleAddress);
 
-        uint256 sortitionFlag = 1 << uint256(SortitionFlags.Initialize);
-        if (sortitionFlag & _sortitionModuleFlags == sortitionFlag) {
-            _sortitionModuleAddress.createTree(bytes32(FORKING_COURT), _sortitionSumTreeK);
-            _sortitionModuleAddress.createTree(bytes32(GENERAL_COURT), _sortitionSumTreeK);
+        _sortitionModuleAddress.initialize(bytes32(FORKING_COURT), _sortitionExtraData);
+        _sortitionModuleAddress.initialize(bytes32(GENERAL_COURT), _sortitionExtraData);
 
-            sortitionModule.courtInitialized[bytes32(FORKING_COURT)] = true;
-            sortitionModule.courtInitialized[bytes32(GENERAL_COURT)] = true;
-        }
+        sortitionModule.courtInitialized[bytes32(FORKING_COURT)] = true;
+        sortitionModule.courtInitialized[bytes32(GENERAL_COURT)] = true;
     }
 
     // ************************ //
@@ -314,7 +308,7 @@ contract KlerosCore is IArbitrator {
      *  @param _feeForJuror The `feeForJuror` property value of the subcourt.
      *  @param _jurorsForCourtJump The `jurorsForCourtJump` property value of the subcourt.
      *  @param _timesPerPeriod The `timesPerPeriod` property value of the subcourt.
-     *  @param _sortitionSumTreeK The number of children per node of the subcourt's sortition sum tree.
+     *  @param _sortitionExtraData Extra data for sortition module.
      *  @param _supportedDisputeKits Indexes of dispute kits that this subcourt will support.
      */
     function createSubcourt(
@@ -325,7 +319,7 @@ contract KlerosCore is IArbitrator {
         uint256 _feeForJuror,
         uint256 _jurorsForCourtJump,
         uint256[4] memory _timesPerPeriod,
-        uint256 _sortitionSumTreeK,
+        bytes memory _sortitionExtraData,
         uint256[] memory _supportedDisputeKits
     ) external onlyByGovernor {
         require(
@@ -337,7 +331,6 @@ contract KlerosCore is IArbitrator {
 
         uint256 subcourtID = courts.length;
         Court storage court = courts.push();
-        uint256 sortitionFlag = 1 << uint256(SortitionFlags.Initialize);
 
         for (uint256 i = 0; i < _supportedDisputeKits.length; i++) {
             require(
@@ -350,11 +343,8 @@ contract KlerosCore is IArbitrator {
                 disputeKitNodes[_supportedDisputeKits[i]].disputeKit
             ];
             SortitionModuleStruct storage sortitionModule = sortitionModuleData[sortitionModuleAddress];
-            if (
-                !sortitionModule.courtInitialized[bytes32(subcourtID)] &&
-                sortitionFlag & sortitionModule.flags == sortitionFlag
-            ) {
-                sortitionModuleAddress.createTree(bytes32(subcourtID), _sortitionSumTreeK);
+            if (!sortitionModule.courtInitialized[bytes32(subcourtID)]) {
+                sortitionModuleAddress.initialize(bytes32(subcourtID), _sortitionExtraData);
                 sortitionModule.courtInitialized[bytes32(subcourtID)] = true;
             }
         }
@@ -583,12 +573,6 @@ contract KlerosCore is IArbitrator {
         require(dispute.period == Period.evidence, "Should be evidence period.");
 
         IDisputeKit disputeKit = disputeKitNodes[round.disputeKitID].disputeKit;
-
-        uint256 sortitionFlag = 1 << uint256(SortitionFlags.PreDrawHook);
-        ISortitionModule sortitionModuleAddress = disputeKitToSortition[disputeKit];
-        if (sortitionFlag & sortitionModuleData[sortitionModuleAddress].flags == sortitionFlag) {
-            sortitionModuleAddress.preDrawHook(_disputeID);
-        }
 
         uint256 startIndex = round.drawnJurors.length;
         uint256 endIndex = startIndex + _iterations <= round.nbVotes ? startIndex + _iterations : round.nbVotes;
@@ -1036,8 +1020,17 @@ contract KlerosCore is IArbitrator {
         uint256 sortitionFlag = 1 << uint256(SortitionFlags.PreStakeHook);
         for (uint256 i = 0; i < sortitionModules.length; i++) {
             if (sortitionFlag & sortitionModuleData[sortitionModules[i]].flags == sortitionFlag) {
-                bool success = sortitionModules[i].preStakeHook(_account, _subcourtID, _stake, _penalty);
-                if (!success) return false;
+                ISortitionModule.Result result = sortitionModules[i].preStakeHook(
+                    _account,
+                    _subcourtID,
+                    _stake,
+                    _penalty
+                );
+                if (result == ISortitionModule.Result.False) {
+                    return false;
+                } else if (result == ISortitionModule.Result.True) {
+                    return true;
+                }
             }
         }
 

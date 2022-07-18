@@ -6,7 +6,13 @@ interface ISortitionModule {
         freezing // Phase during which the dispute kits can undergo the drawing process. Staking is not allowed during this phase.
     }
 
-    function createTree(bytes32 _key, uint256 _K) external;
+    enum Result {
+        None,
+        True,
+        False
+    }
+
+    function initialize(bytes32 _key, bytes memory _extraData) external;
 
     function set(
         bytes32 _key,
@@ -18,14 +24,12 @@ interface ISortitionModule {
 
     function createDisputeHook(uint256 _disputeID, uint256 _roundID) external;
 
-    function preDrawHook(uint256 _disputeID) external;
-
     function preStakeHook(
         address _account,
         uint96 _subcourtID,
         uint256 _stake,
         uint256 _penalty
-    ) external returns (bool);
+    ) external returns (Result);
 
     function phase() external view returns (Phase);
 
