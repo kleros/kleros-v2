@@ -1011,6 +1011,8 @@ contract KlerosCore is IArbitrator {
         bytes32 stakePathID = accountAndSubcourtIDToStakePathID(_account, _subcourtID);
 
         uint256 currentStake = juror.stakedTokens[_subcourtID];
+        uint256 delta;
+        bool plusOrMinus; // True if the stake is increasing, false otherwise
 
         if (_stake != 0) {
             // Check against locked tokens in case the min stake was lowered.
@@ -1046,28 +1048,33 @@ contract KlerosCore is IArbitrator {
                     return false;
                 }
             }
-        } else if (_stake == 0) {
-            // Keep locked tokens in the contract and release them after dispute is executed.
-            transferredAmount = currentStake - juror.lockedTokens[_subcourtID] - _penalty;
-            if (transferredAmount > 0) {
-                if (safeTransfer(_account, transferredAmount)) {
-                    for (uint256 i = 0; i < juror.subcourtIDs.length; i++) {
-                        if (juror.subcourtIDs[i] == _subcourtID) {
-                            juror.subcourtIDs[i] = juror.subcourtIDs[juror.subcourtIDs.length - 1];
-                            juror.subcourtIDs.pop();
-                            break;
-                        }
-                    }
-                } else {
-                    return false;
-                }
-            }
+            plusOrMinus = true;
+            delta = _stake - currentStake;
         } else {
-            transferredAmount = currentStake - _stake - _penalty;
-            if (transferredAmount > 0) {
-                if (!safeTransfer(_account, transferredAmount)) {
-                    return false;
+            if (_stake == 0) {
+                // Keep locked tokens in the contract and release them after dispute is executed.
+                transferredAmount = currentStake - juror.lockedTokens[_subcourtID] - _penalty;
+                if (transferredAmount > 0) {
+                    if (safeTransfer(_account, transferredAmount)) {
+                        for (uint256 i = 0; i < juror.subcourtIDs.length; i++) {
+                            if (juror.subcourtIDs[i] == _subcourtID) {
+                                juror.subcourtIDs[i] = juror.subcourtIDs[juror.subcourtIDs.length - 1];
+                                juror.subcourtIDs.pop();
+                                break;
+                            }
+                        }
+                    } else {
+                        return false;
+                    }
                 }
+            } else {
+                transferredAmount = currentStake - _stake - _penalty;
+                if (transferredAmount > 0) {
+                    if (!safeTransfer(_account, transferredAmount)) {
+                        return false;
+                    }
+                }
+                delta = currentStake - _stake;
             }
         }
 
@@ -1081,7 +1088,9 @@ contract KlerosCore is IArbitrator {
                     sortitionModules[i].set(bytes32(currentSubcourtID), _stake, stakePathID);
                 }
             }
-            juror.stakedTokens[uint96(currentSubcourtID)] += _stake;
+            juror.stakedTokens[uint96(currentSubcourtID)] = plusOrMinus
+                ? juror.stakedTokens[uint96(currentSubcourtID)] + delta
+                : juror.stakedTokens[uint96(currentSubcourtID)] - delta;
             if (currentSubcourtID == GENERAL_COURT) finished = true;
             else currentSubcourtID = courts[currentSubcourtID].parent;
         }
