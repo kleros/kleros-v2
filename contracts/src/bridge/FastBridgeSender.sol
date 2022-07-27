@@ -57,7 +57,7 @@ contract FastBridgeSender is IFastBridgeSender, ISafeBridgeSender {
     /**
      * @dev Constructor.
      * @param _epochPeriod The duration between epochs.
-     * @param _safeBridgeReceiver The the Safe Bridge Router on Ethereum to the foreign chain.
+     * @param _safeBridgeReceiver The the Safe Bridge Router on Ethereum to the receiving chain.
      */
     constructor(uint256 _epochPeriod, address _safeBridgeReceiver) {
         epochPeriod = _epochPeriod;
@@ -103,8 +103,7 @@ contract FastBridgeSender is IFastBridgeSender, ISafeBridgeSender {
     }
 
     /**
-     * Sends a batch of arbitrary message from one domain to another
-     * via the fast bridge mechanism.
+     * Sends a batch of arbitrary message from one domain to another via the fast bridge mechanism.
      */
     function sendBatch() external override {
         uint256 epoch = block.timestamp / epochPeriod;

@@ -10,9 +10,9 @@
 
 pragma solidity ^0.8.0;
 
-import "./IForeignGatewayBase.sol";
+import "../../interfaces/IReceiverGateway.sol";
 
-interface IForeignGatewayMock is IForeignGatewayBase {
+interface IReceiverGatewayMock is IReceiverGateway {
     /**
      * Receive the message from the home gateway.
      */

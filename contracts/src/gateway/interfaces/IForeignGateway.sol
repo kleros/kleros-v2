@@ -11,9 +11,9 @@
 pragma solidity ^0.8.0;
 
 import "../../arbitration/IArbitrator.sol";
-import "./IForeignGatewayBase.sol";
+import "../../bridge/interfaces/IReceiverGateway.sol";
 
-interface IForeignGateway is IArbitrator, IForeignGatewayBase {
+interface IForeignGateway is IArbitrator, IReceiverGateway {
     /**
      * Relay the rule call from the home gateway to the arbitrable.
      */

@@ -18,19 +18,9 @@ import "./interfaces/IForeignGateway.sol";
  * Counterpart of `HomeGateway`
  */
 contract ForeignGateway is IForeignGateway {
-    // The global default minimum number of jurors in a dispute.
-    uint256 public constant MIN_JURORS = 3;
-
-    // @dev Note the disputeID needs to start from one as
-    // the KlerosV1 proxy governor depends on this implementation.
-    // We now also depend on localDisputeID not being zero
-    // at any point.
-    uint256 internal localDisputeID = 1;
-
-    // feeForJuror by subcourtID
-    uint256[] internal feeForJuror;
-    uint256 public immutable override chainID;
-    uint256 public immutable override homeChainID;
+    // ************************************* //
+    // *         Enums / Structs           * //
+    // ************************************* //
 
     struct DisputeData {
         uint248 id;
@@ -39,13 +29,10 @@ contract ForeignGateway is IForeignGateway {
         uint256 paid;
         address relayer;
     }
-    mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
 
-    address public governor;
-    IFastBridgeReceiver public fastbridge;
-    IFastBridgeReceiver public depreciatedFastbridge;
-    uint256 public fastbridgeExpiration;
-    address public immutable override homeGateway;
+    // ************************************* //
+    // *              Events               * //
+    // ************************************* //
 
     event OutgoingDispute(
         bytes32 disputeHash,
@@ -56,10 +43,29 @@ contract ForeignGateway is IForeignGateway {
         address arbitrable
     );
 
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
+
+    uint256 public constant MIN_JURORS = 3; // The global default minimum number of jurors in a dispute.
+    uint256 public immutable override senderChainID;
+    address public immutable override senderGateway;
+    uint256 internal localDisputeID = 1; // The disputeID must start from 1 as the KlerosV1 proxy governor depends on this implementation. We now also depend on localDisputeID not ever being zero.
+    uint256[] internal feeForJuror; // feeForJuror[subcourtID]
+    address public governor;
+    IFastBridgeReceiver public fastBridgeReceiver;
+    IFastBridgeReceiver public depreciatedFastbridge;
+    uint256 public depreciatedFastBridgeExpiration;
+    mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
+
+    // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
+
     modifier onlyFromFastBridge() {
         require(
-            address(fastbridge) == msg.sender ||
-                ((block.timestamp < fastbridgeExpiration) && address(depreciatedFastbridge) == msg.sender),
+            address(fastBridgeReceiver) == msg.sender ||
+                ((block.timestamp < depreciatedFastBridgeExpiration) && address(depreciatedFastbridge) == msg.sender),
             "Access not allowed: Fast Bridge only."
         );
         _;
@@ -72,48 +78,54 @@ contract ForeignGateway is IForeignGateway {
 
     constructor(
         address _governor,
-        IFastBridgeReceiver _fastbridge,
+        IFastBridgeReceiver _fastBridgeReceiver,
         uint256[] memory _feeForJuror,
-        address _homeGateway,
-        uint256 _homeChainID
+        address _senderGateway,
+        uint256 _senderChainID
     ) {
         governor = _governor;
-        fastbridge = _fastbridge;
+        fastBridgeReceiver = _fastBridgeReceiver;
         feeForJuror = _feeForJuror;
-        homeGateway = _homeGateway;
-        uint256 id;
-        assembly {
-            id := chainid()
-        }
-        chainID = id;
-        homeChainID = _homeChainID;
+        senderGateway = _senderGateway;
+        senderChainID = _senderChainID;
     }
 
-    /** @dev Changes the fastBridge, useful to increase the claim deposit.
-     *  @param _fastbridge The address of the new fastBridge.
-     *  @param _gracePeriod The duration to accept messages from the deprecated bridge (if at all).
+    // ************************************* //
+    // *           Governance              * //
+    // ************************************* //
+
+    /**
+     * @dev Changes the fastBridge, useful to increase the claim deposit.
+     * @param _fastBridgeReceiver The address of the new fastBridge.
+     * @param _gracePeriod The duration to accept messages from the deprecated bridge (if at all).
      */
-    function changeFastbridge(IFastBridgeReceiver _fastbridge, uint256 _gracePeriod) external onlyByGovernor {
+    function changeFastbridge(IFastBridgeReceiver _fastBridgeReceiver, uint256 _gracePeriod) external onlyByGovernor {
         // grace period to relay remaining messages in the relay / bridging process
-        fastbridgeExpiration = block.timestamp + _fastbridge.epochPeriod() + _gracePeriod; // 2 weeks
-        depreciatedFastbridge = fastbridge;
-        fastbridge = _fastbridge;
+        depreciatedFastBridgeExpiration = block.timestamp + _fastBridgeReceiver.epochPeriod() + _gracePeriod; // 2 weeks
+        depreciatedFastbridge = fastBridgeReceiver;
+        fastBridgeReceiver = _fastBridgeReceiver;
     }
 
-    /** @dev Changes the `feeForJuror` property value of a specified subcourt.
-     *  @param _subcourtID The ID of the subcourt.
-     *  @param _feeForJuror The new value for the `feeForJuror` property value.
+    /**
+     * @dev Changes the `feeForJuror` property value of a specified subcourt.
+     * @param _subcourtID The ID of the subcourt.
+     * @param _feeForJuror The new value for the `feeForJuror` property value.
      */
     function changeSubcourtJurorFee(uint96 _subcourtID, uint256 _feeForJuror) external onlyByGovernor {
         feeForJuror[_subcourtID] = _feeForJuror;
     }
 
-    /** @dev Creates the `feeForJuror` property value for a new subcourt.
-     *  @param _feeForJuror The new value for the `feeForJuror` property value.
+    /**
+     * @dev Creates the `feeForJuror` property value for a new subcourt.
+     * @param _feeForJuror The new value for the `feeForJuror` property value.
      */
     function createSubcourtJurorFee(uint256 _feeForJuror) external onlyByGovernor {
         feeForJuror.push(_feeForJuror);
     }
+
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
 
     function createDispute(uint256 _choices, bytes calldata _extraData)
         external
@@ -124,6 +136,10 @@ contract ForeignGateway is IForeignGateway {
         require(msg.value >= arbitrationCost(_extraData), "Not paid enough for arbitration");
 
         disputeID = localDisputeID++;
+        uint256 chainID;
+        assembly {
+            chainID := chainid()
+        }
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
                 chainID,
@@ -163,7 +179,7 @@ contract ForeignGateway is IForeignGateway {
         uint256 _ruling,
         address _relayer
     ) external override onlyFromFastBridge {
-        require(_messageSender == homeGateway, "Only the homegateway is allowed.");
+        require(_messageSender == senderGateway, "Only the homegateway is allowed.");
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 
         require(dispute.id != 0, "Dispute does not exist");
@@ -186,9 +202,17 @@ contract ForeignGateway is IForeignGateway {
         payable(dispute.relayer).transfer(amount);
     }
 
+    // ************************************* //
+    // *           Public Views            * //
+    // ************************************* //
+
     function disputeHashToForeignID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoDisputeData[_disputeHash].id;
     }
+
+    // ************************ //
+    // *       Internal       * //
+    // ************************ //
 
     function extraDataToSubcourtIDMinJurors(bytes memory _extraData)
         internal

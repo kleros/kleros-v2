@@ -63,7 +63,7 @@ contract FastBridgeSenderMock is IFastBridgeSender, ISafeBridgeSender {
     /**
      * @dev Constructor.
      * @param _epochPeriod The duration between epochs.
-     * @param _safeBridgeReceiver The the Safe Bridge Router on Ethereum to the foreign chain.
+     * @param _safeBridgeReceiver The the Safe Bridge Router on Ethereum to the receiving chain.
      * @param _arbsys The address of the mock ArbSys contract.
      */
     constructor(
