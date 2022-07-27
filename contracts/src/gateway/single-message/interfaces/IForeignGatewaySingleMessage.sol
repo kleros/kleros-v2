@@ -1,24 +1,16 @@
 // SPDX-License-Identifier: MIT
 
-/**
- *  @authors: [@jaybuidl, @shotaronowhere, @shalzz]
- *  @reviewers: []
- *  @auditors: []
- *  @bounties: []
- *  @deployments: []
- */
-
 pragma solidity ^0.8.0;
 
-import "../../arbitration/IArbitrator.sol";
-import "../../bridge/interfaces/IReceiverGateway.sol";
+import "../../../arbitration/IArbitrator.sol";
 
-interface IForeignGateway is IArbitrator, IReceiverGateway {
+interface IForeignGatewaySingleMessage is IArbitrator {
+    function chainID() external view returns (uint256);
+
     /**
      * Relay the rule call from the home gateway to the arbitrable.
      */
     function relayRule(
-        address _messageSender,
         bytes32 _disputeHash,
         uint256 _ruling,
         address _forwarder
@@ -27,5 +19,10 @@ interface IForeignGateway is IArbitrator, IReceiverGateway {
     function withdrawFees(bytes32 _disputeHash) external;
 
     // For cross-chain Evidence standard
+
     function disputeHashToForeignID(bytes32 _disputeHash) external view returns (uint256);
+
+    function homeChainID() external view returns (uint256);
+
+    function homeGateway() external view returns (address);
 }
