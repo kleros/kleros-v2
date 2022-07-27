@@ -20,49 +20,63 @@ import "./interfaces/IHomeGateway.sol";
  * Counterpart of `ForeignGateway`
  */
 contract HomeGateway is IHomeGateway {
-    mapping(uint256 => bytes32) public disputeIDtoHash;
-    mapping(bytes32 => uint256) public disputeHashtoID;
-
-    address public governor;
-    IArbitrator public immutable arbitrator;
-    IFastBridgeSender public fastbridge;
-    address public override foreignGateway;
-    uint256 public immutable override chainID;
-    uint256 public immutable override foreignChainID;
+    // ************************************* //
+    // *         Enums / Structs           * //
+    // ************************************* //
 
     struct RelayedData {
         uint256 arbitrationCost;
         address relayer;
     }
+
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
+
+    address public governor;
+    IArbitrator public immutable arbitrator;
+    IFastBridgeSender public fastBridgeSender;
+    address public override receiverGateway;
+    uint256 public immutable override receiverChainID;
+    mapping(uint256 => bytes32) public disputeIDtoHash;
+    mapping(bytes32 => uint256) public disputeHashtoID;
     mapping(bytes32 => RelayedData) public disputeHashtoRelayedData;
 
     constructor(
         address _governor,
         IArbitrator _arbitrator,
-        IFastBridgeSender _fastbridge,
-        address _foreignGateway,
-        uint256 _foreignChainID
+        IFastBridgeSender _fastBridgeSender,
+        address _receiverGateway,
+        uint256 _receiverChainID
     ) {
         governor = _governor;
         arbitrator = _arbitrator;
-        fastbridge = _fastbridge;
-        foreignGateway = _foreignGateway;
-        foreignChainID = _foreignChainID;
-        uint256 id;
-        assembly {
-            id := chainid()
-        }
-        chainID = id;
+        fastBridgeSender = _fastBridgeSender;
+        receiverGateway = _receiverGateway;
+        receiverChainID = _receiverChainID;
 
         emit MetaEvidence(0, "BRIDGE");
     }
 
+    // ************************************* //
+    // *           Governance              * //
+    // ************************************* //
+
     /**
-     * @dev Provide the same parameters as on the originalChain while creating a
-     *      dispute. Providing incorrect parameters will create a different hash
-     *      than on the originalChain and will not affect the actual dispute/arbitrable's
-     *      ruling.
-     *
+     * @dev Changes the fastBridge, useful to increase the claim deposit.
+     * @param _fastBridgeSender The address of the new fastBridge.
+     */
+    function changeFastbridge(IFastBridgeSender _fastBridgeSender) external {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        fastBridgeSender = _fastBridgeSender;
+    }
+
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
+
+    /**
+     * @dev Provide the same parameters as on the originalChain while creating a dispute. Providing incorrect parameters will create a different hash than on the originalChain and will not affect the actual dispute/arbitrable's ruling.
      * @param _originalChainID originalChainId
      * @param _originalBlockHash originalBlockHash
      * @param _originalDisputeID originalDisputeID
@@ -113,15 +127,7 @@ contract HomeGateway is IHomeGateway {
         bytes4 methodSelector = IForeignGateway.relayRule.selector;
         bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.relayer);
 
-        fastbridge.sendFast(foreignGateway, data);
-    }
-
-    /** @dev Changes the fastBridge, useful to increase the claim deposit.
-     *  @param _fastbridge The address of the new fastBridge.
-     */
-    function changeFastbridge(IFastBridgeSender _fastbridge) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
-        fastbridge = _fastbridge;
+        fastBridgeSender.sendFast(receiverGateway, data);
     }
 
     function disputeHashToHomeID(bytes32 _disputeHash) external view override returns (uint256) {

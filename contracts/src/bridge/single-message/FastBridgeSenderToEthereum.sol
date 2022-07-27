@@ -35,7 +35,7 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
 
     address public governor; // The governor of the contract.
     IFastBridgeReceiver public fastBridgeReceiver; // The address of the Fast Bridge on Ethereum.
-    address public fastBridgeSender; // The address of the Fast Bridge sender on Arbitrum, generally the Home Gateway.
+    address public fastBridgeSender; // The address of the Fast Bridge sender on Arbitrum, generally the Sender Gateway.
     uint256 public currentTicketID = 1; // Zero means not set, start at 1.
     mapping(uint256 => Ticket) public tickets; // The tickets by ticketID.
 
@@ -52,7 +52,7 @@ contract FastBridgeSenderToEthereum is SafeBridgeSenderToEthereum, IFastBridgeSe
      * @dev Constructor.
      * @param _governor The governor's address.
      * @param _fastBridgeReceiver The address of the Fast Bridge on Ethereum.
-     * @param _fastBridgeSender The address of the Fast Bridge sender on Arbitrum, generally the Home Gateway.
+     * @param _fastBridgeSender The address of the Fast Bridge sender on Arbitrum, generally the Sender Gateway.
      */
     constructor(
         address _governor,

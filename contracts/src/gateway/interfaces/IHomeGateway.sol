@@ -12,9 +12,9 @@ pragma solidity ^0.8.0;
 
 import "../../arbitration/IArbitrable.sol";
 import "../../evidence/IMetaEvidence.sol";
-import "./IHomeGatewayBase.sol";
+import "../../bridge/interfaces/ISenderGateway.sol";
 
-interface IHomeGateway is IArbitrable, IMetaEvidence, IHomeGatewayBase {
+interface IHomeGateway is IArbitrable, IMetaEvidence, ISenderGateway {
     function relayCreateDispute(
         uint256 _originalChainID,
         bytes32 _originalBlockHash,
