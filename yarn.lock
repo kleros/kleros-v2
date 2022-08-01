@@ -2505,7 +2505,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.31.0
     "@typescript-eslint/parser": ^5.31.0
     "@typescript-eslint/utils": ^5.29.0
-    chart.js: ^3.7.1
+    chart.js: ^3.8.2
     chartjs-adapter-moment: ^1.0.0
     core-js: ^3.21.1
     eslint: ^8.16.0
@@ -7408,10 +7408,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chart.js@npm:^3.7.1":
-  version: 3.8.0
-  resolution: "chart.js@npm:3.8.0"
-  checksum: 0360212bf5d534effc8475a1aa705ba7257a315af368b5e8eecf476f0bd57a6bb80ad740e870d552f2d11e134dd1497ccef02950d7e626c21a400ff00ecf59af
+"chart.js@npm:^3.8.2":
+  version: 3.8.2
+  resolution: "chart.js@npm:3.8.2"
+  checksum: a60fef3c98ed6890ce0e1e094900aa573aa1f5fa2edc7363f52efb6850730666ac479a193e86fba17dc340a1651d6b273fac7632c3e0c40c9ed5a70d09b118da
   languageName: node
   linkType: hard
 
