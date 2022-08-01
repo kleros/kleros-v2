@@ -142,7 +142,6 @@ describe("Home Evidence contract", async () => {
       expect(contributions[1]).to.equal(BigNumber.from("93"));
       expect(contributions[2]).to.equal(ZERO);
       expect(contributions.length).to.equal(3);
-
     });
 
     it("Should not allowed the same evidence twice for the same evidence group id.", async () => {
@@ -185,16 +184,16 @@ describe("Home Evidence contract", async () => {
       await expect(
         evidenceModule.moderate(evidenceID, Party.Moderator, {
           value: totalCost,
-	  gasLimit: 500000,
+          gasLimit: 500000,
         })
       ).to.be.revertedWith("Moderation market is closed.");
 
-      await evidenceModule.resolveModerationMarket(evidenceID, {gasLimit: 500000});
+      await evidenceModule.resolveModerationMarket(evidenceID, { gasLimit: 500000 });
 
       // After market has been closed, moderation can re-open.
       await evidenceModule.moderate(evidenceID, Party.Submitter, {
         value: totalCost,
-	gasLimit: 500000,
+        gasLimit: 500000,
       });
     });
 
