@@ -141,9 +141,15 @@ const config: HardhatUserConfig = {
     relayer: {
       default: 1,
     },
+    bridger: {
+      default: 2,
+    },
+    challenger: {
+      default: 3,
+    },
   },
   gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
+    enabled: process.env.REPORT_GAS !== undefined ? process.env.REPORT_GAS === "true" : false,
     currency: "USD",
   },
   verify: {
@@ -166,7 +172,7 @@ const config: HardhatUserConfig = {
     },
   },
   docgen: {
-    path: './docs',
+    path: "./docs",
     clear: true,
     runOnCompile: false,
   },
