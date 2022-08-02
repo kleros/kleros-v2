@@ -1,5 +1,5 @@
 {
-  "name": "@kleros/kleros-v2-fastbridge",
+  "name": "@kleros/kleros-v2-subgraph-fastbridge",
   "license": "MIT",
   "scripts": {
     "codegen": "graph codegen",
@@ -10,7 +10,7 @@
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 fastbridge"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "^0.30.3",
+    "@graphprotocol/graph-cli": "^0.33.0",
     "@graphprotocol/graph-ts": "^0.27.0"
   }
 }

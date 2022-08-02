@@ -2429,6 +2429,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@kleros/kleros-v2-subgraph-fastbridge@workspace:subgraph-fastbridge":
+  version: 0.0.0-use.local
+  resolution: "@kleros/kleros-v2-subgraph-fastbridge@workspace:subgraph-fastbridge"
+  dependencies:
+    "@graphprotocol/graph-cli": ^0.33.0
+    "@graphprotocol/graph-ts": ^0.27.0
+  languageName: unknown
+  linkType: soft
+
 "@kleros/kleros-v2-subgraph@workspace:subgraph":
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-subgraph@workspace:subgraph"
