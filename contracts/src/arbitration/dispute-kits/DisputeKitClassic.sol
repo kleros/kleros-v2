@@ -286,6 +286,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
             core.getCurrentPeriod(_coreDisputeID) == KlerosCore.Period.commit,
             "The dispute should be in Commit period."
         );
+        require(_commit != bytes32(0), "Empty commit.");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
