@@ -247,7 +247,7 @@ contract KlerosCore is IArbitrator {
             _courtParameters[3],
             _timesPerPeriod,
             _sortitionSumTreeK,
-            []
+            new uint256[](0)
         );
         emit DisputeKitEnable(1, DISPUTE_KIT_CLASSIC_INDEX);
 
