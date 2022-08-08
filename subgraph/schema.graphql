@@ -9,14 +9,14 @@ enum Period {
 type Court @entity {
   id: ID!
   hiddenVotes: Boolean!
+  parent: Court!
   children: [Court!]!
-  childrenIDs: [String!]!
   minStake: BigInt!
   alpha: BigInt!
   feeForJuror: BigInt!
   jurorsForCourtJump: BigInt!
   timesPerPeriod: [BigInt!]!
-  supportedDisputeKits: BigInt!
+  supportedDisputeKits: [DisputeKit!]!
   disputes: [Dispute!]! @derivedFrom(field: "subcourtID")
   stakedJurors: [JurorTokensPerSubcourt!]! @derivedFrom(field: "subcourt")
   tokens: [JurorTokensPerSubcourt!]! @derivedFrom(field: "subcourt")
@@ -48,15 +48,18 @@ type JurorTokensPerSubcourt @entity {
 type Round @entity {
   id: ID! # Set to `${dispute.id}-${currentRound}`
   dispute: Dispute!
+  disputeKitID: DisputeKit!
   tokensAtStakePerJuror: BigInt!
   totalFeesForJurors: BigInt!
+  nbVotes: BigInt!
   repartitions: BigInt!
   penalties: BigInt!
-  draws: [Draw!]! @derivedFrom(field: "round")
+  drawnJurors: [Draw!]! @derivedFrom(field: "round")
 }
 
 type Draw @entity {
   id: ID! # Set to `${dispute.id}-${currentRound}-${voteID}`
+  dispute: Dispute!
   round: Round!
   juror: Juror!
   voteID: BigInt!
@@ -66,15 +69,24 @@ type Dispute @entity {
   id: ID!
   subcourtID: Court!
   arbitrated: Bytes!
-  disputeKit: Bytes!
   period: Period!
   ruled: Boolean!
   lastPeriodChange: BigInt!
-  nbVotes: BigInt!
-  currentRound: Int!
   rounds: [Round!]! @derivedFrom(field: "dispute")
+  draws: [Draw!]! @derivedFrom(field: "dispute")
+  currentRound: Int!
   shifts: [TokenAndETHShift!]! @derivedFrom(field: "dispute")
   gatewayDispute: GatewayDispute! @derivedFrom(field: "homeDispute")
+}
+
+type DisputeKit @entity {
+  id: ID!
+  parent: DisputeKit!
+  children: [DisputeKit!]! @derivedFrom(field: "parent")
+  needsFreezing: Boolean!
+  depthLevel: BigInt!
+  rounds: [Round!]! @derivedFrom(field: "disputeKitID")
+  courts: [Court!]! @derivedFrom(field: "supportedDisputeKits")
 }
 
 type GatewayDispute @entity {
