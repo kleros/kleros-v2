@@ -1,4 +1,4 @@
-specVersion: 0.0.2
+specVersion: 0.0.4
 schema:
   file: ./schema.graphql
 dataSources:
@@ -6,12 +6,12 @@ dataSources:
     name: KlerosCore
     network: arbitrum-rinkeby
     source:
-      address: "0xd08452AEE7ab5bE3BF6733BA0d3F0CFdaf060Aa2"
+      address: "0x140Cae40BD7eEF075e15c30CF84d1EAa0F4932b8"
       abi: KlerosCore
       startBlock: 9609833
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - AppealDecision
@@ -47,7 +47,7 @@ dataSources:
       startBlock: 9609833
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - Dispute
@@ -67,7 +67,7 @@ dataSources:
       startBlock: 9609833
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - OutgoingMessage
