@@ -216,6 +216,7 @@ contract KlerosCore is IArbitrator {
                 depthLevel: 0
             })
         );
+        emit DisputeKitCreation(_disputeKit, 0);
 
         minStakingTime = _phaseTimeouts[0];
         maxFreezingTime = _phaseTimeouts[1];
@@ -223,7 +224,7 @@ contract KlerosCore is IArbitrator {
 
         // Create the Forking court.
         courts.push();
-        // TODO: fill the properties for Forking court.
+        // TODO: fill the properties for Forking court, emit SubcourtCreation.
 
         // Create the General court.
         Court storage court = courts.push();
@@ -236,6 +237,19 @@ contract KlerosCore is IArbitrator {
         court.jurorsForCourtJump = _courtParameters[3];
         court.timesPerPeriod = _timesPerPeriod;
         court.supportedDisputeKits[DISPUTE_KIT_CLASSIC_INDEX] = true;
+        emit SubcourtCreation(
+            1,
+            1,
+            _hiddenVotes,
+            _courtParameters[0],
+            _courtParameters[1],
+            _courtParameters[2],
+            _courtParameters[3],
+            _timesPerPeriod,
+            _sortitionSumTreeK,
+            []
+        );
+        emit DisputeKitEnable(1, DISPUTE_KIT_CLASSIC_INDEX);
 
         // TODO: fill the properties for Forking court.
         sortitionSumTrees.createTree(bytes32(FORKING_COURT), _sortitionSumTreeK);
