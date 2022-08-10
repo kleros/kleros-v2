@@ -341,6 +341,10 @@ contract KlerosCore is IArbitrator {
             })
         );
         disputeKitNodes[_parent].children.push(disputeKitID);
+        emit DisputeKitCreated(disputeKitID, _disputeKitAddress, _parent);
+        if (_parent == NULL_DISPUTE_KIT) {
+            emit DisputeKitEnabled(GENERAL_COURT, disputeKitID);
+        }
     }
 
     /** @dev Creates a subcourt under a specified parent court.
