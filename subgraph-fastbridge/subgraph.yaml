@@ -6,9 +6,9 @@ dataSources:
     name: FastBridgeSender
     network: arbitrum-rinkeby
     source:
-      address: "0x1077D69D660c08fB5a1996D4805D9e657f7BA39e"
+      address: "0x0b9e03455Fed83f209Fa7ce596c93ba6aBAd1f46"
       abi: FastBridgeSender
-      startBlock: 12545049 
+      startBlock: 9610369
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6

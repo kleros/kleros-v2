@@ -1,18 +1,16 @@
 {
-  "_format": "hh-sol-artifact-1",
-  "contractName": "FastBridgeSender",
-  "sourceName": "src/bridge/FastBridgeSender.sol",
+  "address": "0x0b9e03455Fed83f209Fa7ce596c93ba6aBAd1f46",
   "abi": [
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "_epochPeriod",
-          "type": "uint256"
+          "internalType": "contract ISafeBridge",
+          "name": "_safebridge",
+          "type": "address"
         },
         {
-          "internalType": "address",
-          "name": "_safeBridgeReceiver",
+          "internalType": "contract IFastBridgeReceiver",
+          "name": "_fastBridgeReceiver",
           "type": "address"
         }
       ],
@@ -24,76 +22,32 @@
       "inputs": [
         {
           "indexed": false,
+          "internalType": "address",
+          "name": "target",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "messageHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
           "internalType": "bytes",
-          "name": "fastMessage",
+          "name": "message",
           "type": "bytes"
-        },
-        {
-          "indexed": false,
-          "internalType": "bytes32",
-          "name": "fastMessageHash",
-          "type": "bytes32"
         }
       ],
-      "name": "MessageReceived",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "batchID",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "batchSize",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "epoch",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "bytes32",
-          "name": "batchMerkleRoot",
-          "type": "bytes32"
-        }
-      ],
-      "name": "SendBatch",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "epoch",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "bytes32",
-          "name": "canonicalBridgeMessageID",
-          "type": "bytes32"
-        }
-      ],
-      "name": "SentSafe",
+      "name": "OutgoingMessage",
       "type": "event"
     },
     {
       "inputs": [],
-      "name": "ARB_SYS",
+      "name": "fastBridgeReceiver",
       "outputs": [
         {
-          "internalType": "contract IArbSys",
+          "internalType": "contract IFastBridgeReceiver",
           "name": "",
           "type": "address"
         }
@@ -102,85 +56,8 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "batch",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [],
-      "name": "batchSize",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "currentBatchID",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "epochPeriod",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "fastOutbox",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "safeBridgeReceiver",
+      "name": "fastSender",
       "outputs": [
         {
           "internalType": "address",
@@ -193,9 +70,15 @@
     },
     {
       "inputs": [],
-      "name": "sendBatch",
-      "outputs": [],
-      "stateMutability": "nonpayable",
+      "name": "safebridge",
+      "outputs": [
+        {
+          "internalType": "contract ISafeBridge",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -219,17 +102,33 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "_epoch",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "_receiver",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
         }
       ],
-      "name": "sendSafeFallback",
+      "name": "sendSafe",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_fastSender",
+          "type": "address"
+        }
+      ],
+      "name": "setFastSender",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     }
-  ],
-  "linkReferences": {},
-  "deployedLinkReferences": {}
+  ]
 }
