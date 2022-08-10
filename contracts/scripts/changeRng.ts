@@ -4,6 +4,7 @@ const { deploy, execute } = deployments;
 enum HomeChains {
   ARBITRUM_ONE = 42161,
   ARBITRUM_RINKEBY = 421611,
+  ARBITRUM_GOERLI = 421613,
   HARDHAT = 31337,
 }
 
@@ -21,7 +22,7 @@ async function main() {
 
   const rng = await deploy("IncrementalNG", {
     from: deployer,
-    args: [6485021504514574],
+    args: [ethers.utils.keccak256(ethers.utils.toUtf8Bytes("Hello World!"))],
     log: true,
     skipIfAlreadyDeployed: false, // BUG: this parameter does nothing
   });
