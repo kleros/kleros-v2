@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers } from "hardhat";
 
-const HOME_CHAIN_IDS = [42161, 421611, 31337]; // ArbOne, ArbRinkeby, Hardhat
+const HOME_CHAIN_IDS = [42161, 421611, 421613, 31337]; // ArbOne, ArbRinkeby, ArbiGoerli, Hardhat
 const epochPeriod = 86400; // 24 hours
 
 // TODO: use deterministic deployments
