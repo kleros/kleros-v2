@@ -15,7 +15,7 @@
     "clean": "hardhat clean",
     "deploy": "hardhat deploy",
     "deploy:staging": "run-s \"deploy --network rinkeby {@}\" \"deploy --network arbitrumRinkeby {@}\" --",
-    "test": "hardhat test",
+    "test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test",
     "watch": "hardhat watch",
     "docgen": "hardhat docgen",
     "publish": "yarn npm publish --access public --tag $(cat package.json | jq .version)"
