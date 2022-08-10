@@ -7,7 +7,7 @@ import { expect } from "chai";
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
 
 // FIXME: This test fails on Github actions, cannot figure why, skipping for now.
-(process.env.GITHUB_ACTIONS ? describe.skip : describe)("Draw Benchmark", async () => {
+describe("Draw Benchmark", async () => {
   const ONE_TENTH_ETH = BigNumber.from(10).pow(17);
   const ONE_THOUSAND_PNK = BigNumber.from(10).pow(21);
 
@@ -71,7 +71,7 @@ import { expect } from "chai";
       expect(await pnk.balanceOf(wallet.address)).to.equal(ONE_THOUSAND_PNK.mul(10));
 
       await pnk.connect(wallet).approve(core.address, ONE_THOUSAND_PNK.mul(10), { gasLimit: 300000 });
-      await core.connect(wallet).setStake(0, ONE_THOUSAND_PNK.mul(10), { gasLimit: 5000000 }); // Github Action fails here, no idea why.
+      await core.connect(wallet).setStake(1, ONE_THOUSAND_PNK.mul(10), { gasLimit: 5000000 });
     }
 
     // Create a dispute

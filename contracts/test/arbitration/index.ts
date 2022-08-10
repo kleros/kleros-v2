@@ -17,6 +17,36 @@ describe("DisputeKitClassic", async () => {
     [core, disputeKit, arbitrable] = await deployContracts(deployer);
   });
 
+  it("Kleros Core initialization", async () => {
+    let events = await core.queryFilter(core.filters.DisputeKitCreated());
+    expect(events.length).to.equal(1);
+    expect(events[0].args._disputeKitAddress).to.equal(disputeKit.address);
+    expect(events[0].args._parent).to.equal(0);
+
+    events = await core.queryFilter(core.filters.SubcourtCreated());
+    expect(events.length).to.equal(1);
+    expect(events[0].args._subcourtID).to.equal(1);
+    expect(events[0].args._parent).to.equal(1);
+    expect(events[0].args._hiddenVotes).to.equal(false);
+    expect(events[0].args._minStake).to.equal(200);
+    expect(events[0].args._alpha).to.equal(10000);
+    expect(events[0].args._feeForJuror).to.equal(100);
+    expect(events[0].args._jurorsForCourtJump).to.equal(3);
+    expect(events[0].args._timesPerPeriod).to.deep.equal([
+      ethers.constants.Zero,
+      ethers.constants.Zero,
+      ethers.constants.Zero,
+      ethers.constants.Zero,
+    ]);
+    expect(events[0].args._sortitionSumTreeK).to.equal(3);
+    expect(events[0].args._supportedDisputeKits).to.deep.equal([]);
+
+    events = await core.queryFilter(core.filters.DisputeKitEnabled());
+    expect(events.length).to.equal(1);
+    expect(events[0].args._subcourtID).to.equal(1);
+    expect(events[0].args._disputeKitID).to.equal(1);
+  });
+
   it("Should create a dispute", async () => {
     await expect(disputeKit.connect(deployer).createDispute(0, 0, 3, "0x00")).to.be.revertedWith(
       "Access not allowed: KlerosCore only."
