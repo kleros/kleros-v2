@@ -20,13 +20,15 @@ describe("DisputeKitClassic", async () => {
   it("Kleros Core initialization", async () => {
     let events = await core.queryFilter(core.filters.DisputeKitCreated());
     expect(events.length).to.equal(1);
+    expect(events[0].args._disputeKitID).to.equal(1);
     expect(events[0].args._disputeKitAddress).to.equal(disputeKit.address);
     expect(events[0].args._parent).to.equal(0);
 
+    // Reminder: the Forking court will be added which will break these expectations.
     events = await core.queryFilter(core.filters.SubcourtCreated());
     expect(events.length).to.equal(1);
     expect(events[0].args._subcourtID).to.equal(1);
-    expect(events[0].args._parent).to.equal(1);
+    expect(events[0].args._parent).to.equal(0);
     expect(events[0].args._hiddenVotes).to.equal(false);
     expect(events[0].args._minStake).to.equal(200);
     expect(events[0].args._alpha).to.equal(10000);
@@ -45,6 +47,7 @@ describe("DisputeKitClassic", async () => {
     expect(events.length).to.equal(1);
     expect(events[0].args._subcourtID).to.equal(1);
     expect(events[0].args._disputeKitID).to.equal(1);
+    expect(events[0].args._enable).to.equal(true);
   });
 
   it("Should create a dispute", async () => {

@@ -96,10 +96,10 @@ contract KlerosCore is IArbitrator {
     // *             Storage               * //
     // ************************************* //
 
-    uint256 public constant FORKING_COURT = 0; // Index of the forking court.
-    uint256 public constant GENERAL_COURT = 1; // Index of the default (general) court.
+    uint96 public constant FORKING_COURT = 0; // Index of the forking court.
+    uint96 public constant GENERAL_COURT = 1; // Index of the default (general) court.
     uint256 public constant NULL_DISPUTE_KIT = 0; // Null pattern to indicate a top-level DK which has no parent.
-    uint256 public constant DISPUTE_KIT_CLASSIC_INDEX = 1; // Index of the default DK. 0 index is skipped.
+    uint256 public constant DISPUTE_KIT_CLASSIC = 1; // Index of the default DK. 0 index is skipped.
     uint256 public constant MAX_STAKE_PATHS = 4; // The maximum number of stake paths a juror can have.
     uint256 public constant MIN_JURORS = 3; // The global default minimum number of jurors in a dispute.
     uint256 public constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
@@ -154,8 +154,7 @@ contract KlerosCore is IArbitrator {
         IDisputeKit indexed _disputeKitAddress,
         uint256 indexed _parent
     );
-    event DisputeKitEnabled(uint96 indexed _subcourtID, uint256 indexed _disputeKitID);
-    event DisputeKitDisabled(uint96 indexed _subcourtID, uint256 indexed _disputeKitID);
+    event DisputeKitEnabled(uint96 indexed _subcourtID, uint256 indexed _disputeKitID, bool indexed _enable);
     event CourtJump(
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
@@ -209,8 +208,14 @@ contract KlerosCore is IArbitrator {
         governor = _governor;
         pinakion = _pinakion;
         jurorProsecutionModule = _jurorProsecutionModule;
+        minStakingTime = _phaseTimeouts[0];
+        maxFreezingTime = _phaseTimeouts[1];
+        lastPhaseChange = block.timestamp;
 
-        disputeKitNodes.push(); // NULL_DISPUTE_KIT: an empty element at index 0 to indicate when a node has no parent.
+        // NULL_DISPUTE_KIT: an empty element at index 0 to indicate when a node has no parent.
+        disputeKitNodes.push();
+
+        // DISPUTE_KIT_CLASSIC
         disputeKitNodes.push(
             DisputeKitNode({
                 parent: NULL_DISPUTE_KIT,
@@ -220,19 +225,16 @@ contract KlerosCore is IArbitrator {
                 depthLevel: 0
             })
         );
-        emit DisputeKitCreated(DISPUTE_KIT_CLASSIC_INDEX, _disputeKit, NULL_DISPUTE_KIT);
+        emit DisputeKitCreated(DISPUTE_KIT_CLASSIC, _disputeKit, NULL_DISPUTE_KIT);
 
-        minStakingTime = _phaseTimeouts[0];
-        maxFreezingTime = _phaseTimeouts[1];
-        lastPhaseChange = block.timestamp;
-
-        // Create the Forking court.
+        // FORKING_COURT
+        // TODO: Fill the properties for the Forking court, emit SubcourtCreated.
         courts.push();
-        // TODO: fill the properties for Forking court, emit SubcourtCreated.
+        sortitionSumTrees.createTree(bytes32(uint256(FORKING_COURT)), _sortitionSumTreeK);
 
-        // Create the General court.
+        // GENERAL_COURT
         Court storage court = courts.push();
-        court.parent = 1; // TODO: Should the parent for General court be 0 or 1? In the former case the Forking court will become the top court after jumping.
+        court.parent = FORKING_COURT;
         court.children = new uint256[](0);
         court.hiddenVotes = _hiddenVotes;
         court.minStake = _courtParameters[0];
@@ -240,7 +242,7 @@ contract KlerosCore is IArbitrator {
         court.feeForJuror = _courtParameters[2];
         court.jurorsForCourtJump = _courtParameters[3];
         court.timesPerPeriod = _timesPerPeriod;
-        court.supportedDisputeKits[DISPUTE_KIT_CLASSIC_INDEX] = true;
+        sortitionSumTrees.createTree(bytes32(uint256(GENERAL_COURT)), _sortitionSumTreeK);
         emit SubcourtCreated(
             1,
             court.parent,
@@ -253,11 +255,7 @@ contract KlerosCore is IArbitrator {
             _sortitionSumTreeK,
             new uint256[](0)
         );
-        emit DisputeKitEnabled(1, DISPUTE_KIT_CLASSIC_INDEX);
-
-        // TODO: fill the properties for Forking court.
-        sortitionSumTrees.createTree(bytes32(FORKING_COURT), _sortitionSumTreeK);
-        sortitionSumTrees.createTree(bytes32(GENERAL_COURT), _sortitionSumTreeK);
+        enableDisputeKit(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
     }
 
     // ************************ //
@@ -322,11 +320,7 @@ contract KlerosCore is IArbitrator {
         uint256 disputeKitID = disputeKitNodes.length;
         require(_parent < disputeKitID, "Parent doesn't exist");
         uint256 depthLevel;
-
-        // Create new tree, which root should be supported by General court.
-        if (_parent == NULL_DISPUTE_KIT) {
-            courts[GENERAL_COURT].supportedDisputeKits[disputeKitID] = true;
-        } else {
+        if (_parent != NULL_DISPUTE_KIT) {
             depthLevel = disputeKitNodes[_parent].depthLevel + 1;
             // It should be always possible to reach the root from the leaf with the defined number of search iterations.
             require(depthLevel < SEARCH_ITERATIONS, "Depth level is at max");
@@ -343,7 +337,8 @@ contract KlerosCore is IArbitrator {
         disputeKitNodes[_parent].children.push(disputeKitID);
         emit DisputeKitCreated(disputeKitID, _disputeKitAddress, _parent);
         if (_parent == NULL_DISPUTE_KIT) {
-            emit DisputeKitEnabled(uint96(GENERAL_COURT), disputeKitID);
+            // A new dispute kit tree root should always be supported by the General court.
+            enableDisputeKit(GENERAL_COURT, disputeKitID, true);
         }
     }
 
@@ -478,7 +473,7 @@ contract KlerosCore is IArbitrator {
         emit SubcourtModified(_subcourtID, "timesPerPeriod");
     }
 
-    /** @dev Adds/removes court's support for specified dispute kits..
+    /** @dev Adds/removes court's support for specified dispute kits.
      *  @param _subcourtID The ID of the subcourt.
      *  @param _disputeKitIDs The IDs of dispute kits which support should be added/removed.
      *  @param _enable Whether add or remove the dispute kits from the subcourt.
@@ -492,15 +487,13 @@ contract KlerosCore is IArbitrator {
         for (uint256 i = 0; i < _disputeKitIDs.length; i++) {
             if (_enable) {
                 require(_disputeKitIDs[i] > 0 && _disputeKitIDs[i] < disputeKitNodes.length, "Wrong DK index");
-                subcourt.supportedDisputeKits[_disputeKitIDs[i]] = true;
-                emit DisputeKitEnabled(_subcourtID, _disputeKitIDs[i]);
+                enableDisputeKit(_subcourtID, _disputeKitIDs[i], true);
             } else {
                 require(
                     !(_subcourtID == GENERAL_COURT && disputeKitNodes[_disputeKitIDs[i]].parent == NULL_DISPUTE_KIT),
                     "Can't remove root DK support from the general court"
                 );
-                subcourt.supportedDisputeKits[_disputeKitIDs[i]] = false;
-                emit DisputeKitDisabled(_subcourtID, _disputeKitIDs[i]);
+                enableDisputeKit(_subcourtID, _disputeKitIDs[i], false);
             }
         }
     }
@@ -741,7 +734,7 @@ contract KlerosCore is IArbitrator {
             // We didn't find a court that is compatible with DK from this tree, so we jump directly to the top court.
             // Note that this can only happen when disputeKitID is at its root, and each root DK is supported by the top court by default.
             if (!courts[newSubcourtID].supportedDisputeKits[newDisputeKitID]) {
-                newSubcourtID = uint96(GENERAL_COURT);
+                newSubcourtID = GENERAL_COURT;
             }
 
             if (newSubcourtID != dispute.subcourtID) {
@@ -1124,6 +1117,15 @@ contract KlerosCore is IArbitrator {
     // *            Internal               * //
     // ************************************* //
 
+    function enableDisputeKit(
+        uint96 _subcourtID,
+        uint256 _disputeKitID,
+        bool _enable
+    ) internal {
+        courts[_subcourtID].supportedDisputeKits[_disputeKitID] = _enable;
+        emit DisputeKitEnabled(_subcourtID, _disputeKitID, _enable);
+    }
+
     /** @dev Sets the specified juror's stake in a subcourt.
      *  `O(n + p * log_k(j))` where
      *  `n` is the number of subcourts the juror has staked in,
@@ -1245,18 +1247,18 @@ contract KlerosCore is IArbitrator {
                 disputeKitID := mload(add(_extraData, 0x60))
             }
             if (subcourtID == FORKING_COURT || subcourtID >= courts.length) {
-                subcourtID = uint96(GENERAL_COURT);
+                subcourtID = GENERAL_COURT;
             }
             if (minJurors == 0) {
                 minJurors = MIN_JURORS;
             }
             if (disputeKitID == NULL_DISPUTE_KIT || disputeKitID >= disputeKitNodes.length) {
-                disputeKitID = DISPUTE_KIT_CLASSIC_INDEX; // 0 index is not used.
+                disputeKitID = DISPUTE_KIT_CLASSIC; // 0 index is not used.
             }
         } else {
-            subcourtID = uint96(GENERAL_COURT);
+            subcourtID = GENERAL_COURT;
             minJurors = MIN_JURORS;
-            disputeKitID = DISPUTE_KIT_CLASSIC_INDEX;
+            disputeKitID = DISPUTE_KIT_CLASSIC;
         }
     }
 
