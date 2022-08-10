@@ -152,10 +152,12 @@ contract FastBridgeReceiverOnPolygon is FxBaseChildTunnel, IFastBridgeReceiver, 
         );
 
         if (challenges[_epoch].challenger == address(0)) {
-            // optimistic happy path
+            // Optimistic happy path
             claim.honest = true;
             fastInbox[_epoch] = claim.batchMerkleRoot;
-            emit BatchVerified(_epoch);
+            emit BatchVerified(_epoch, true);
+        } else {
+            emit BatchVerified(_epoch, false);
         }
         claim.verificationAttempted = true;
     }
@@ -222,7 +224,7 @@ contract FastBridgeReceiverOnPolygon is FxBaseChildTunnel, IFastBridgeReceiver, 
         Claim storage claim = claims[_epoch];
 
         require(claim.bridger != address(0), "Claim does not exist");
-        require(claim.honest == true, "Claim not verified.");
+        require(claim.honest == true, "Claim failed.");
         require(claim.depositAndRewardWithdrawn == false, "Claim deposit and any rewards already withdrawn.");
 
         uint256 amount = deposit;
@@ -245,7 +247,7 @@ contract FastBridgeReceiverOnPolygon is FxBaseChildTunnel, IFastBridgeReceiver, 
         Challenge storage challenge = challenges[_epoch];
 
         require(challenge.challenger != address(0), "Challenge does not exist");
-        require(challenge.honest == true, "Challenge not verified.");
+        require(challenge.honest == true, "Challenge failed.");
         require(challenge.depositAndRewardWithdrawn == false, "Challenge deposit and rewards already withdrawn.");
 
         uint256 amount = deposit;
