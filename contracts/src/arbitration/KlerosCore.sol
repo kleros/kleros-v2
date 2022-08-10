@@ -149,7 +149,11 @@ contract KlerosCore is IArbitrator {
         uint256[] _supportedDisputeKits
     );
     event SubcourtModified(uint96 indexed _subcourtID, string _param);
-    event DisputeKitCreated(IDisputeKit indexed _disputeKitAddress, uint256 indexed _parent);
+    event DisputeKitCreated(
+        uint256 indexed _disputeKitID,
+        IDisputeKit indexed _disputeKitAddress,
+        uint256 indexed _parent
+    );
     event DisputeKitEnabled(uint96 indexed _subcourtID, uint256 indexed _disputeKitID);
     event DisputeKitDisabled(uint96 indexed _subcourtID, uint256 indexed _disputeKitID);
     event CourtJump(
@@ -216,7 +220,7 @@ contract KlerosCore is IArbitrator {
                 depthLevel: 0
             })
         );
-        emit DisputeKitCreated(_disputeKit, 0);
+        emit DisputeKitCreated(DISPUTE_KIT_CLASSIC_INDEX, _disputeKit, NULL_DISPUTE_KIT);
 
         minStakingTime = _phaseTimeouts[0];
         maxFreezingTime = _phaseTimeouts[1];
