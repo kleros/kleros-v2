@@ -8,6 +8,7 @@ import getContractAddress from "../deploy-helpers/getContractAddress";
 enum ForeignChains {
   ETHEREUM_MAINNET = 1,
   ETHEREUM_RINKEBY = 4,
+  ETHEREUM_GOERLI = 5,
   HARDHAT = 31337,
 }
 const paramsByChainId = {
@@ -24,6 +25,13 @@ const paramsByChainId = {
     challengePeriod: 14400, // 4 hours
     homeChainId: 421611,
     arbitrumInbox: "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e",
+  },
+  5: {
+    deposit: parseEther("0.1"),
+    epochPeriod: 86400, // 24 hours
+    challengePeriod: 14400, // 4 hours
+    homeChainId: 421613,
+    arbitrumInbox: "0x6BEbC4925716945D46F0Ec336D5C2564F419682C",
   },
   31337: {
     deposit: parseEther("0.1"),
@@ -48,6 +56,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const homeNetworks = {
     1: config.networks.arbitrum,
     4: config.networks.arbitrumRinkeby,
+    5: config.networks.arbitrumGoerli,
     31337: config.networks.localhost,
   };
 
@@ -79,13 +88,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
 
   const fastBridgeReceiver = await deploy("FastBridgeReceiverOnEthereum", {
     from: deployer,
-    args: [
-      deposit,
-      epochPeriod,
-      challengePeriod,
-      fastBridgeSenderAddress,
-      inboxAddress
-    ],
+    args: [deposit, epochPeriod, challengePeriod, fastBridgeSenderAddress, inboxAddress],
     log: true,
   });
 
