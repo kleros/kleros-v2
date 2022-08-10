@@ -213,7 +213,7 @@ contract KlerosCore is IArbitrator {
         disputeKitNodes.push(); // NULL_DISPUTE_KIT: an empty element at index 0 to indicate when a node has no parent.
         disputeKitNodes.push(
             DisputeKitNode({
-                parent: 0,
+                parent: NULL_DISPUTE_KIT,
                 children: new uint256[](0),
                 disputeKit: _disputeKit,
                 needsFreezing: false,
