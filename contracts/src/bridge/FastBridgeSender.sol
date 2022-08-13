@@ -134,7 +134,7 @@ contract FastBridgeSender is IFastBridgeSender, ISafeBridgeSender {
         bytes32 receiver = bytes32(bytes20(_receiver));
         uint256 nonce = batchSize;
         // add sender and receiver with proper function selector formatting
-        // [length][receiver: 1 slot padded][offset][function selector: 4 bytes no padding][msg.sender: 1 slot padded][function arguments: 1 slot padded]
+        // [length][nonce][receiver: 1 slot padded][offset][function selector: 4 bytes no padding][msg.sender: 1 slot padded][function arguments: 1 slot padded]
         assembly {
             fastMessage := mload(0x40) // free memory pointer
             let lengthCalldata := mload(_calldata) // calldata length
