@@ -79,6 +79,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   if (currentCore !== klerosCore.address) {
     await execute("DisputeKitClassic", { from: deployer, log: true }, "changeCore", klerosCore.address);
   }
+
+  await deploy("DisputeResolver", {
+    from: deployer,
+    args: [klerosCore.address],
+    log: true,
+  });
 };
 
 deployArbitration.tags = ["HomeChain", "Arbitration"];

@@ -246,7 +246,8 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         }
     }
 
-    /** @dev Sets the caller's commit for the specified votes.
+    /** @dev Sets the caller's commit for the specified votes. It can be called multiple times during the
+     *  commit period, each call overrides the commits of the previous one.
      *  `O(n)` where
      *  `n` is the number of votes.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core.
@@ -268,7 +269,6 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         for (uint256 i = 0; i < _voteIDs.length; i++) {
             require(round.votes[_voteIDs[i]].account == msg.sender, "The caller has to own the vote.");
-            require(round.votes[_voteIDs[i]].commit == bytes32(0), "Already committed this vote.");
             round.votes[_voteIDs[i]].commit = _commit;
         }
         round.totalCommitted += _voteIDs.length;

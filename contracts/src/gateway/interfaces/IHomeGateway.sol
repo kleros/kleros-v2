@@ -1,13 +1,20 @@
 // SPDX-License-Identifier: MIT
 
+/**
+ *  @authors: [@jaybuidl, @shotaronowhere, @shalzz]
+ *  @reviewers: []
+ *  @auditors: []
+ *  @bounties: []
+ *  @deployments: []
+ */
+
 pragma solidity ^0.8.0;
 
 import "../../arbitration/IArbitrable.sol";
 import "../../evidence/IMetaEvidence.sol";
+import "../../bridge/interfaces/ISenderGateway.sol";
 
-interface IHomeGateway is IArbitrable, IMetaEvidence {
-    function chainID() external view returns (uint256);
-
+interface IHomeGateway is IArbitrable, IMetaEvidence, ISenderGateway {
     function relayCreateDispute(
         uint256 _originalChainID,
         bytes32 _originalBlockHash,
@@ -18,10 +25,5 @@ interface IHomeGateway is IArbitrable, IMetaEvidence {
     ) external payable;
 
     // For cross-chain Evidence standard
-
     function disputeHashToHomeID(bytes32 _disputeHash) external view returns (uint256);
-
-    function foreignChainID() external view returns (uint256);
-
-    function foreignGateway() external view returns (address);
 }
