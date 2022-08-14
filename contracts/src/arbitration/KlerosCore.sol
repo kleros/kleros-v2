@@ -212,7 +212,7 @@ contract KlerosCore is IArbitrator {
         // FORKING_COURT
         // TODO: Fill the properties for the Forking court, emit SubcourtCreated.
         courts.push();
-        _sortitionModuleAddress.initialize(bytes32(FORKING_COURT), _sortitionExtraData);
+        _sortitionModuleAddress.initialize(bytes32(uint256(FORKING_COURT)), _sortitionExtraData);
 
         // GENERAL_COURT
         Court storage court = courts.push();
@@ -229,10 +229,10 @@ contract KlerosCore is IArbitrator {
         sortitionModule.flags = _sortitionModuleFlags;
         sortitionModules.push(_sortitionModuleAddress);
 
-        _sortitionModuleAddress.initialize(bytes32(GENERAL_COURT), _sortitionExtraData);
+        _sortitionModuleAddress.initialize(bytes32(uint256(GENERAL_COURT)), _sortitionExtraData);
 
-        sortitionModule.courtInitialized[bytes32(FORKING_COURT)] = true;
-        sortitionModule.courtInitialized[bytes32(GENERAL_COURT)] = true;
+        sortitionModule.courtInitialized[bytes32(uint256(FORKING_COURT))] = true;
+        sortitionModule.courtInitialized[bytes32(uint256(GENERAL_COURT))] = true;
 
         emit SubcourtCreated(
             1,
