@@ -1136,8 +1136,8 @@ contract KlerosCore is IArbitrator {
                         return false;
                     }
                 }
-                delta = currentStake - _stake;
             }
+            delta = currentStake - _stake;
         }
 
         // Update juror's records in the current and in parent subcourts.
