@@ -31,8 +31,9 @@ interface IFastBridgeReceiver {
     /**
      * @dev This events indicates that optimistic verification has succeeded. The messages are ready to be relayed.
      * @param _epoch The epoch associated with the batch.
+     * @param _success The success of the optimistic verification.
      */
-    event BatchVerified(uint256 indexed _epoch);
+    event BatchVerified(uint256 indexed _epoch, bool _success);
 
     /**
      * @dev This event indicates that the batch has been received via the Safe Bridge.

@@ -160,10 +160,12 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
         );
 
         if (challenges[_epoch].challenger == address(0)) {
-            // optimistic happy path
+            // Optimistic happy path
             claim.honest = true;
             fastInbox[_epoch] = claim.batchMerkleRoot;
-            emit BatchVerified(_epoch);
+            emit BatchVerified(_epoch, true);
+        } else {
+            emit BatchVerified(_epoch, false);
         }
         claim.verificationAttempted = true;
     }

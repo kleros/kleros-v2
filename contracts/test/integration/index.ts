@@ -199,7 +199,11 @@ describe("Integration tests", async () => {
     const batchID = event5a[0].args.batchID;
     const batchMerkleRoot = event5a[0].args.batchMerkleRoot;
 
-    // bridger tx starts - Honest Bridger
+    expect(
+      fastBridgeReceiver.connect(bridger).claim(batchID, ethers.constants.HashZero, { value: ONE_TENTH_ETH })
+    ).to.be.revertedWith("Invalid claim.");
+
+    // Honest Bridger
     const tx5 = await fastBridgeReceiver.connect(bridger).claim(batchID, batchMerkleRoot, { value: ONE_TENTH_ETH });
     expect(tx5).to.emit(fastBridgeReceiver, "ClaimReceived").withArgs(batchID, batchMerkleRoot);
 
@@ -208,7 +212,7 @@ describe("Integration tests", async () => {
     await network.provider.send("evm_mine");
 
     const tx7a = await fastBridgeReceiver.connect(bridger).verifyBatch(batchID);
-    expect(tx7a).to.emit(fastBridgeReceiver, "BatchVerified").withArgs(batchID);
+    expect(tx7a).to.emit(fastBridgeReceiver, "BatchVerified").withArgs(batchID, true);
 
     const tx7 = await fastBridgeReceiver.connect(relayer).verifyAndRelayMessage(batchID, [], fastMessage);
     expect(tx7).to.emit(fastBridgeReceiver, "MessageRelayed").withArgs(batchID, 0);
@@ -382,10 +386,9 @@ describe("Integration tests", async () => {
     await network.provider.send("evm_increaseTime", [86400]);
     await network.provider.send("evm_mine");
 
-    await expect(fastBridgeReceiver.connect(relayer).verifyBatch(batchID)).to.not.emit(
-      fastBridgeReceiver,
-      "BatchVerified"
-    );
+    await expect(fastBridgeReceiver.connect(relayer).verifyBatch(batchID))
+      .to.emit(fastBridgeReceiver, "BatchVerified")
+      .withArgs(batchID, false);
 
     const tx7 = await fastBridgeSender.connect(bridger).sendSafeFallback(batchID, { gasLimit: 1000000 });
     expect(tx7).to.emit(fastBridgeSender, "L2ToL1TxCreated").withArgs(0);
@@ -537,10 +540,9 @@ describe("Integration tests", async () => {
     await network.provider.send("evm_increaseTime", [86400]);
     await network.provider.send("evm_mine");
 
-    await expect(fastBridgeReceiver.connect(relayer).verifyBatch(batchID)).to.not.emit(
-      fastBridgeReceiver,
-      "BatchVerified"
-    );
+    await expect(fastBridgeReceiver.connect(relayer).verifyBatch(batchID))
+      .to.emit(fastBridgeReceiver, "BatchVerified")
+      .withArgs(batchID, false);
 
     const tx7 = await fastBridgeSender.connect(bridger).sendSafeFallback(batchID, { gasLimit: 1000000 });
     expect(tx7).to.emit(fastBridgeSender, "L2ToL1TxCreated").withArgs(0);
