@@ -3,8 +3,11 @@ import {
   KlerosCore,
   AppealDecision,
   DisputeCreation,
-  SubcourtCreation,
-  SubcourtModification,
+  DisputeKitCreated,
+  DisputeKitEnabled,
+  DisputeKitDisabled,
+  SubcourtCreated,
+  SubcourtModified,
   Draw as DrawEvent,
   NewPeriod,
   StakeSet,
@@ -17,6 +20,7 @@ import {
   Round,
   Draw,
   Dispute,
+  DisputeKit,
   Court,
 } from "../generated/schema";
 
@@ -25,10 +29,10 @@ function getPeriodName(index: i32): string {
   return periodArray.at(index) || "None";
 }
 
-export function handleSubcourtCreation(event: SubcourtCreation): void {
+export function handleSubcourtCreation(event: SubcourtCreated): void {
   const subcourt = new Court(event.params._subcourtID.toString());
-  subcourt.children = [];
   subcourt.hiddenVotes = event.params._hiddenVotes;
+  subcourt.parent = event.params._parent.toString();
   subcourt.minStake = event.params._minStake;
   subcourt.alpha = event.params._alpha;
   subcourt.feeForJuror = event.params._feeForJuror;
@@ -39,32 +43,32 @@ export function handleSubcourtCreation(event: SubcourtCreation): void {
     supportedDisputeKits.push(event.params._supportedDisputeKits[i].toString());
   }
   subcourt.supportedDisputeKits = supportedDisputeKits;
-  subcourt.parent = event.params._parent.toString();
-  const parent = Court.load(event.params._parent.toString());
-  if (parent) {
-    parent.children = parent.children.concat([
-      event.params._subcourtID.toString(),
-    ]);
+  subcourt.save();
+}
+
+export function handleSubcourtModification(event: SubcourtModified): void {
+  const court = Court.load(event.params._subcourtID.toString());
+  if (court) {
+    const contract = KlerosCore.bind(event.address);
+    const courtContractState = contract.courts(event.params._subcourtID);
+    court.hiddenVotes = courtContractState.getHiddenVotes();
+    court.minStake = courtContractState.getMinStake();
+    court.alpha = courtContractState.getAlpha();
+    court.feeForJuror = courtContractState.getFeeForJuror();
+    court.jurorsForCourtJump = courtContractState.getJurorsForCourtJump();
+    court.timesPerPeriod = contract.getTimesPerPeriod(event.params._subcourtID);
+    court.save();
   }
 }
 
-export function handleSubcourtModification(event: SubcourtModification): void {
-  const contract = KlerosCore.bind(event.address);
-  const court = Court.load(event.params._subcourtID.toString());
-  if (court) {
-    court.hiddenVotes = contract
-      .courts(event.params._subcourtID)
-      .getHiddenVotes();
-    court.minStake = contract.courts(event.params._subcourtID).getMinStake();
-    court.alpha = contract.courts(event.params._subcourtID).getAlpha();
-    court.feeForJuror = contract
-      .courts(event.params._subcourtID)
-      .getFeeForJuror();
-    court.jurorsForCourtJump = contract
-      .courts(event.params._subcourtID)
-      .getJurorsForCourtJump();
-    court.timesPerPeriod = contract.getTimesPerPeriod(event.params._subcourtID);
-  }
+export function handleDisputeKitCreated(event: DisputeKitCreated): void {
+  const disputeKit = new DisputeKit(event.params._disputeKitID);
+}
+
+export function handleDisputeKitEnabled(event: DisputeKitEnabled): void {
+}
+
+export function handleDisputeKitDisabled(event: DisputeKitDisabled): void {
 }
 
 export function handleAppealDecision(event: AppealDecision): void {
