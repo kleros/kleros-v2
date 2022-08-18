@@ -16,7 +16,11 @@ const StyledPagination = styled(StandardPagination)`
   margin-right: auto;
 `;
 
-const CasesMatrix: React.FC = () => (
+export interface ICasesGrid {
+  casesPerPage: number;
+}
+
+const CasesGrid: React.FC<ICasesGrid> = ({ casesPerPage }) => (
   <Container>
     <DisputeCard
       title="Register Profile in Proof of Humanity"
@@ -49,4 +53,4 @@ const CasesMatrix: React.FC = () => (
   </Container>
 );
 
-export default CasesMatrix;
+export default CasesGrid;
