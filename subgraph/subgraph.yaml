@@ -14,13 +14,19 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - AppealDecision
-        - AppealPossible
-        - DisputeCreation
-        - Draw
-        - NewPeriod
-        - StakeSet
+        - Court
+        - Juror
         - TokenAndETHShift
+        - JurorTokensPerSubcourt
+        - Round
+        - Draw
+        - Dispute
+        - DisputeKit
+        - PNKStakedDataPoint
+        - ETHPaidDataPoint
+        - PNKRedistributedDataPoint
+        - ActiveJurorsDataPoint
+        - CasesDataPoint
       abis:
         - name: KlerosCore
           file: ../contracts/deployments/arbitrumRinkeby/KlerosCore.json
@@ -50,7 +56,7 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Dispute
+        - GatewayDispute
       abis:
         - name: HomeGateway
           file: ../contracts/deployments/arbitrumRinkeby/HomeGateway.json

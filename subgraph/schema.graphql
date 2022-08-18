@@ -10,7 +10,7 @@ type Court @entity {
   id: ID!
   hiddenVotes: Boolean!
   parent: Court!
-  children: [Court!]!
+  children: [Court!]! @derivedFrom(field: "parent")
   minStake: BigInt!
   alpha: BigInt!
   feeForJuror: BigInt!
