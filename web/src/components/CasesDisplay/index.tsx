@@ -9,9 +9,16 @@ const StyledHR = styled.hr`
   margin-bottom: 24px;
 `;
 
-const CasesDisplay: React.FC<ICasesGrid> = ({ casesPerPage }) => (
+interface ICasesDisplay extends ICasesGrid {
+  title?: string;
+}
+
+const CasesDisplay: React.FC<ICasesDisplay> = ({
+  casesPerPage,
+  title = "Cases",
+}) => (
   <>
-    <h1>Cases</h1>
+    <h1>{title}</h1>
     <Search />
     <StatsAndFilters />
     <StyledHR />
