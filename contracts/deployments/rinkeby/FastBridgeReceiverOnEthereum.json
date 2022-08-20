@@ -1,0 +1,780 @@
+{
+  "address": "0x545C731e84c0034d58e57E476A3b7C3929d070CC",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_deposit",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_epochPeriod",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_challengePeriod",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_safeBridgeSender",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_inbox",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_epoch",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "_isBridgerHonest",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "_isChallengerHonest",
+          "type": "bool"
+        }
+      ],
+      "name": "BatchSafeVerified",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_epoch",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "_success",
+          "type": "bool"
+        }
+      ],
+      "name": "BatchVerified",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_epoch",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_challenger",
+          "type": "address"
+        }
+      ],
+      "name": "ChallengeDepositWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_epoch",
+          "type": "uint256"
+        }
+      ],
+      "name": "ClaimChallenged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_epoch",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_bridger",
+          "type": "address"
+        }
+      ],
+      "name": "ClaimDepositWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_epoch",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "_batchMerkleRoot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ClaimReceived",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_epoch",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_nonce",
+          "type": "uint256"
+        }
+      ],
+      "name": "MessageRelayed",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_epoch",
+          "type": "uint256"
+        }
+      ],
+      "name": "challenge",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "challengePeriod",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "challenges",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "challenger",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "honest",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "depositAndRewardWithdrawn",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_epoch",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_batchMerkleRoot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "claim",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_epoch",
+          "type": "uint256"
+        }
+      ],
+      "name": "claimChallengePeriod",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "start",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "end",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "claims",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "batchMerkleRoot",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "bridger",
+          "type": "address"
+        },
+        {
+          "internalType": "uint32",
+          "name": "timestamp",
+          "type": "uint32"
+        },
+        {
+          "internalType": "bool",
+          "name": "honest",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "verificationAttempted",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "depositAndRewardWithdrawn",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "deposit",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "epochPeriod",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "fastInbox",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "inbox",
+      "outputs": [
+        {
+          "internalType": "contract IInbox",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "relayed",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "safeBridgeSender",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_epoch",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "_proof",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_message",
+          "type": "bytes"
+        }
+      ],
+      "name": "verifyAndRelayMessage",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_epoch",
+          "type": "uint256"
+        }
+      ],
+      "name": "verifyBatch",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_epoch",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_batchMerkleRoot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "verifySafeBatch",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_epoch",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawChallengeDeposit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_epoch",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawClaimDeposit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xfa30b922382ab2a66014d8506449f74457b822815745042fa0428fed3ce2440a",
+  "receipt": {
+    "to": null,
+    "from": "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3",
+    "contractAddress": "0x545C731e84c0034d58e57E476A3b7C3929d070CC",
+    "transactionIndex": 16,
+    "gasUsed": "1556362",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xfe887999f2319983bb6a3dd2c6f0e609879291830d7731de8d46f3279fd67b52",
+    "transactionHash": "0xfa30b922382ab2a66014d8506449f74457b822815745042fa0428fed3ce2440a",
+    "logs": [],
+    "blockNumber": 11233402,
+    "cumulativeGasUsed": "7417615",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "100000000000000000",
+    86400,
+    14400,
+    "0xf8A4a85e7153374A1b9BDA763a84252eC286843b",
+    "0x578BAde599406A8fE3d24Fd7f7211c0911F5B29e"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "344957ae5857246fac5b346f78fc8116",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.9+commit.e5eed63a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_deposit\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_epochPeriod\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_challengePeriod\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_safeBridgeSender\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_inbox\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_epoch\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"_isBridgerHonest\",\"type\":\"bool\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"_isChallengerHonest\",\"type\":\"bool\"}],\"name\":\"BatchSafeVerified\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_epoch\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"_success\",\"type\":\"bool\"}],\"name\":\"BatchVerified\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_epoch\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_challenger\",\"type\":\"address\"}],\"name\":\"ChallengeDepositWithdrawn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_epoch\",\"type\":\"uint256\"}],\"name\":\"ClaimChallenged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_epoch\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_bridger\",\"type\":\"address\"}],\"name\":\"ClaimDepositWithdrawn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_epoch\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"_batchMerkleRoot\",\"type\":\"bytes32\"}],\"name\":\"ClaimReceived\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_epoch\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_nonce\",\"type\":\"uint256\"}],\"name\":\"MessageRelayed\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_epoch\",\"type\":\"uint256\"}],\"name\":\"challenge\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"challengePeriod\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"challenges\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"challenger\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"honest\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"depositAndRewardWithdrawn\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_epoch\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"_batchMerkleRoot\",\"type\":\"bytes32\"}],\"name\":\"claim\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_epoch\",\"type\":\"uint256\"}],\"name\":\"claimChallengePeriod\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"start\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"end\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"claims\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"batchMerkleRoot\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"bridger\",\"type\":\"address\"},{\"internalType\":\"uint32\",\"name\":\"timestamp\",\"type\":\"uint32\"},{\"internalType\":\"bool\",\"name\":\"honest\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"verificationAttempted\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"depositAndRewardWithdrawn\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"deposit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"epochPeriod\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"fastInbox\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"inbox\",\"outputs\":[{\"internalType\":\"contract IInbox\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"relayed\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"safeBridgeSender\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_epoch\",\"type\":\"uint256\"},{\"internalType\":\"bytes32[]\",\"name\":\"_proof\",\"type\":\"bytes32[]\"},{\"internalType\":\"bytes\",\"name\":\"_message\",\"type\":\"bytes\"}],\"name\":\"verifyAndRelayMessage\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_epoch\",\"type\":\"uint256\"}],\"name\":\"verifyBatch\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_epoch\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"_batchMerkleRoot\",\"type\":\"bytes32\"}],\"name\":\"verifySafeBatch\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_epoch\",\"type\":\"uint256\"}],\"name\":\"withdrawChallengeDeposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_epoch\",\"type\":\"uint256\"}],\"name\":\"withdrawClaimDeposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"challenge(uint256)\":{\"details\":\"Submit a challenge for the claim of the current epoch's Fast Bridge batch merkleroot state and submit a deposit. The `batchMerkleRoot` in the claim already made for the last finalized epoch should be different from the one on the sending side, otherwise the sender will lose his deposit.\",\"params\":{\"_epoch\":\"The epoch of the claim to challenge.\"}},\"claim(uint256,bytes32)\":{\"details\":\"Submit a claim about the `_batchMerkleRoot` for the last completed epoch from the Fast Bridge  and submit a deposit. The `_batchMerkleRoot` should match the one on the sending side otherwise the sender will lose his deposit.\",\"params\":{\"_batchMerkleRoot\":\"The batch merkle root claimed for the last completed epoch.\",\"_epoch\":\"The epoch in which the batch to claim.\"}},\"claimChallengePeriod(uint256)\":{\"details\":\"Returns the `start` and `end` time of challenge period for this `epoch`.\",\"params\":{\"_epoch\":\"The epoch of the claim to request the challenge period.\"},\"returns\":{\"end\":\"The end time of the challenge period.\",\"start\":\"The start time of the challenge period.\"}},\"constructor\":{\"details\":\"Constructor.\",\"params\":{\"_challengePeriod\":\"The duration of the period allowing to challenge a claim.\",\"_deposit\":\"The deposit amount to submit a claim in wei.\",\"_epochPeriod\":\"The duration of each epoch.\",\"_inbox\":\"Ethereum receiver specific: The address of the inbox contract on Ethereum.\",\"_safeBridgeSender\":\"The address of the Safe Bridge Sender on the connecting chain.\"}},\"verifyAndRelayMessage(uint256,bytes32[],bytes)\":{\"details\":\"Verifies merkle proof for the given message and associated nonce for the epoch and relays the message.\",\"params\":{\"_epoch\":\"The epoch in which the message was batched by the bridge.\",\"_message\":\"The data on the cross-domain chain for the message.\",\"_proof\":\"The merkle proof to prove the membership of the message and nonce in the merkle tree for the epoch.\"}},\"verifyBatch(uint256)\":{\"details\":\"Resolves the optimistic claim for '_epoch'.\",\"params\":{\"_epoch\":\"The epoch of the optimistic claim.\"}},\"verifySafeBatch(uint256,bytes32)\":{\"details\":\"Resolves any challenge of the optimistic claim for '_epoch'.\",\"params\":{\"_batchMerkleRoot\":\"The true batch merkle root for the epoch.\",\"_epoch\":\"The epoch to verify.\"}},\"withdrawChallengeDeposit(uint256)\":{\"details\":\"Sends the deposit back to the Challenger if their challenge is successful. Includes a portion of the Bridger's deposit.\",\"params\":{\"_epoch\":\"The epoch associated with the challenge deposit to withraw.\"}},\"withdrawClaimDeposit(uint256)\":{\"details\":\"Sends the deposit back to the Bridger if their claim is not successfully challenged. Includes a portion of the Challenger's deposit if unsuccessfully challenged.\",\"params\":{\"_epoch\":\"The epoch associated with the claim deposit to withraw.\"}}},\"stateVariables\":{\"challengePeriod\":{\"details\":\"Returns the challenge period.\"},\"epochPeriod\":{\"details\":\"Returns the epoch period.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"verifySafeBatch(uint256,bytes32)\":{\"notice\":\"Note: Access restricted to the Safe Bridge.\"}},\"notice\":\"Fast Receiver On Ethereum Counterpart of `FastSenderFromArbitrum`\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/bridge/FastBridgeReceiverOnEthereum.sol\":\"FastBridgeReceiverOnEthereum\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"src/bridge/FastBridgeReceiverOnEthereum.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\n/**\\n *  @authors: [@jaybuidl, @shotaronowhere, @hrishibhat]\\n *  @reviewers: []\\n *  @auditors: []\\n *  @bounties: []\\n *  @deployments: []\\n */\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"./interfaces/IFastBridgeReceiver.sol\\\";\\nimport \\\"./interfaces/ISafeBridgeReceiver.sol\\\";\\nimport \\\"./canonical/arbitrum/IInbox.sol\\\";\\nimport \\\"./canonical/arbitrum/IOutbox.sol\\\";\\n\\n/**\\n * Fast Receiver On Ethereum\\n * Counterpart of `FastSenderFromArbitrum`\\n */\\ncontract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceiver {\\n    // **************************************** //\\n    // *                                      * //\\n    // *     Ethereum Receiver Specific       * //\\n    // *                                      * //\\n    // **************************************** //\\n\\n    // ************************************* //\\n    // *             Storage               * //\\n    // ************************************* //\\n\\n    IInbox public immutable inbox; // The address of the Arbitrum Inbox contract.\\n\\n    // ************************************* //\\n    // *              Views                * //\\n    // ************************************* //\\n\\n    function isSentBySafeBridge() internal view override returns (bool) {\\n        IOutbox outbox = IOutbox(inbox.bridge().activeOutbox());\\n        return outbox.l2ToL1Sender() == safeBridgeSender;\\n    }\\n\\n    /**\\n     * @dev Constructor.\\n     * @param _deposit The deposit amount to submit a claim in wei.\\n     * @param _epochPeriod The duration of each epoch.\\n     * @param _challengePeriod The duration of the period allowing to challenge a claim.\\n     * @param _safeBridgeSender The address of the Safe Bridge Sender on the connecting chain.\\n     * @param _inbox Ethereum receiver specific: The address of the inbox contract on Ethereum.\\n     */\\n    constructor(\\n        uint256 _deposit,\\n        uint256 _epochPeriod,\\n        uint256 _challengePeriod,\\n        address _safeBridgeSender,\\n        address _inbox // Ethereum receiver specific\\n    ) {\\n        deposit = _deposit;\\n        epochPeriod = _epochPeriod;\\n        challengePeriod = _challengePeriod;\\n        safeBridgeSender = _safeBridgeSender;\\n        inbox = IInbox(_inbox); // Ethereum receiver specific\\n    }\\n\\n    // ************************************** //\\n    // *                                    * //\\n    // *         General Receiver           * //\\n    // *                                    * //\\n    // ************************************** //\\n\\n    // ************************************* //\\n    // *         Enums / Structs           * //\\n    // ************************************* //\\n\\n    struct Claim {\\n        bytes32 batchMerkleRoot;\\n        address bridger;\\n        uint32 timestamp;\\n        bool honest;\\n        bool verificationAttempted;\\n        bool depositAndRewardWithdrawn;\\n    }\\n\\n    struct Challenge {\\n        address challenger;\\n        bool honest;\\n        bool depositAndRewardWithdrawn;\\n    }\\n\\n    // ************************************* //\\n    // *             Storage               * //\\n    // ************************************* //\\n\\n    uint256 public immutable deposit; // The deposit required to submit a claim or challenge\\n    uint256 public immutable override epochPeriod; // Epochs mark the period between potential batches of messages.\\n    uint256 public immutable override challengePeriod; // Epochs mark the period between potential batches of messages.\\n    address public immutable safeBridgeSender; // The address of the Safe Bridge Sender on the connecting chain.\\n\\n    mapping(uint256 => bytes32) public fastInbox; // epoch => validated batch merkle root(optimistically, or challenged and verified with the safe bridge)\\n    mapping(uint256 => Claim) public claims; // epoch => claim\\n    mapping(uint256 => Challenge) public challenges; // epoch => challenge\\n    mapping(uint256 => mapping(uint256 => bytes32)) public relayed; // epoch => packed replay bitmap\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Submit a claim about the `_batchMerkleRoot` for the last completed epoch from the Fast Bridge  and submit a deposit. The `_batchMerkleRoot` should match the one on the sending side otherwise the sender will lose his deposit.\\n     * @param _epoch The epoch in which the batch to claim.\\n     * @param _batchMerkleRoot The batch merkle root claimed for the last completed epoch.\\n     */\\n    function claim(uint256 _epoch, bytes32 _batchMerkleRoot) external payable override {\\n        require(msg.value >= deposit, \\\"Insufficient claim deposit.\\\");\\n        require(_batchMerkleRoot != bytes32(0), \\\"Invalid claim.\\\");\\n\\n        uint256 epochNow = block.timestamp / epochPeriod;\\n        // allow claim about current or previous epoch\\n        require(_epoch == epochNow || _epoch == epochNow + 1, \\\"Invalid Claim\\\");\\n        require(claims[_epoch].bridger == address(0), \\\"Claim already made for most recent finalized epoch.\\\");\\n\\n        claims[_epoch] = Claim({\\n            batchMerkleRoot: _batchMerkleRoot,\\n            bridger: msg.sender,\\n            timestamp: uint32(block.timestamp),\\n            honest: false,\\n            verificationAttempted: false,\\n            depositAndRewardWithdrawn: false\\n        });\\n        emit ClaimReceived(_epoch, _batchMerkleRoot);\\n    }\\n\\n    /**\\n     * @dev Submit a challenge for the claim of the current epoch's Fast Bridge batch merkleroot state and submit a deposit. The `batchMerkleRoot` in the claim already made for the last finalized epoch should be different from the one on the sending side, otherwise the sender will lose his deposit.\\n     * @param _epoch The epoch of the claim to challenge.\\n     */\\n    function challenge(uint256 _epoch) external payable override {\\n        require(msg.value >= deposit, \\\"Not enough claim deposit\\\");\\n\\n        // Can only challenge the only active claim, about the previous epoch\\n        require(claims[_epoch].bridger != address(0), \\\"No claim to challenge.\\\");\\n        require(block.timestamp < uint256(claims[_epoch].timestamp) + challengePeriod, \\\"Challenge period elapsed.\\\");\\n\\n        challenges[_epoch] = Challenge({challenger: msg.sender, honest: false, depositAndRewardWithdrawn: false});\\n        emit ClaimChallenged(_epoch);\\n    }\\n\\n    /**\\n     * @dev Resolves the optimistic claim for '_epoch'.\\n     * @param _epoch The epoch of the optimistic claim.\\n     */\\n    function verifyBatch(uint256 _epoch) external override {\\n        Claim storage claim = claims[_epoch];\\n        require(claim.bridger != address(0), \\\"Invalid epoch, no claim to verify.\\\");\\n        require(claim.verificationAttempted == false, \\\"Optimistic verification already attempted.\\\");\\n        require(\\n            block.timestamp > uint256(claims[_epoch].timestamp) + challengePeriod,\\n            \\\"Challenge period has not yet elapsed.\\\"\\n        );\\n\\n        if (challenges[_epoch].challenger == address(0)) {\\n            // Optimistic happy path\\n            claim.honest = true;\\n            fastInbox[_epoch] = claim.batchMerkleRoot;\\n            emit BatchVerified(_epoch, true);\\n        } else {\\n            emit BatchVerified(_epoch, false);\\n        }\\n        claim.verificationAttempted = true;\\n    }\\n\\n    /**\\n     * Note: Access restricted to the Safe Bridge.\\n     * @dev Resolves any challenge of the optimistic claim for '_epoch'.\\n     * @param _epoch The epoch to verify.\\n     * @param _batchMerkleRoot The true batch merkle root for the epoch.\\n     */\\n    function verifySafeBatch(uint256 _epoch, bytes32 _batchMerkleRoot) external override onlyFromSafeBridge {\\n        require(isSentBySafeBridge(), \\\"Access not allowed: SafeBridgeSender only.\\\");\\n\\n        fastInbox[_epoch] = _batchMerkleRoot;\\n\\n        // Corner cases:\\n        // a) No claim submitted,\\n        // b) Receiving the root of an empty batch,\\n        // c) Batch root is zero.\\n        if (claims[_epoch].bridger != address(0)) {\\n            if (_batchMerkleRoot == claims[_epoch].batchMerkleRoot) {\\n                claims[_epoch].honest = true;\\n            } else {\\n                claims[_epoch].honest = false;\\n                challenges[_epoch].honest = true;\\n            }\\n        }\\n        emit BatchSafeVerified(_epoch, claims[_epoch].honest, challenges[_epoch].honest);\\n    }\\n\\n    /**\\n     * @dev Verifies merkle proof for the given message and associated nonce for the epoch and relays the message.\\n     * @param _epoch The epoch in which the message was batched by the bridge.\\n     * @param _proof The merkle proof to prove the membership of the message and nonce in the merkle tree for the epoch.\\n     * @param _message The data on the cross-domain chain for the message.\\n     */\\n    function verifyAndRelayMessage(\\n        uint256 _epoch,\\n        bytes32[] calldata _proof,\\n        bytes calldata _message\\n    ) external override {\\n        bytes32 batchMerkleRoot = fastInbox[_epoch];\\n        require(batchMerkleRoot != bytes32(0), \\\"Invalid epoch.\\\");\\n\\n        // Claim assessment if any\\n        require(validateProof(_proof, sha256(_message), batchMerkleRoot) == true, \\\"Invalid proof.\\\");\\n        require(_checkReplayAndRelay(_epoch, _message), \\\"Failed to call contract\\\"); // Checks-Effects-Interaction\\n    }\\n\\n    /**\\n     * @dev Sends the deposit back to the Bridger if their claim is not successfully challenged. Includes a portion of the Challenger's deposit if unsuccessfully challenged.\\n     * @param _epoch The epoch associated with the claim deposit to withraw.\\n     */\\n    function withdrawClaimDeposit(uint256 _epoch) external override {\\n        Claim storage claim = claims[_epoch];\\n\\n        require(claim.bridger != address(0), \\\"Claim does not exist\\\");\\n        require(claim.honest == true, \\\"Claim failed.\\\");\\n        require(claim.depositAndRewardWithdrawn == false, \\\"Claim deposit and any rewards already withdrawn.\\\");\\n\\n        uint256 amount = deposit;\\n        if (challenges[_epoch].challenger != address(0) && challenges[_epoch].honest == false) {\\n            amount += deposit / 2; // half burnt\\n        }\\n\\n        claim.depositAndRewardWithdrawn = true;\\n        emit ClaimDepositWithdrawn(_epoch, claim.bridger);\\n\\n        payable(claim.bridger).send(amount); // Use of send to prevent reverting fallback. User is responsibility for accepting ETH.\\n        // Checks-Effects-Interaction\\n    }\\n\\n    /**\\n     * @dev Sends the deposit back to the Challenger if their challenge is successful. Includes a portion of the Bridger's deposit.\\n     * @param _epoch The epoch associated with the challenge deposit to withraw.\\n     */\\n    function withdrawChallengeDeposit(uint256 _epoch) external override {\\n        Challenge storage challenge = challenges[_epoch];\\n\\n        require(challenge.challenger != address(0), \\\"Challenge does not exist\\\");\\n        require(challenge.honest == true, \\\"Challenge failed.\\\");\\n        require(challenge.depositAndRewardWithdrawn == false, \\\"Challenge deposit and rewards already withdrawn.\\\");\\n\\n        uint256 amount = deposit;\\n        if (claims[_epoch].bridger != address(0) && claims[_epoch].honest == false) {\\n            amount += deposit / 2; // half burnt\\n        }\\n\\n        challenge.depositAndRewardWithdrawn = true;\\n        emit ChallengeDepositWithdrawn(_epoch, challenge.challenger);\\n\\n        payable(challenge.challenger).send(amount); // Use of send to prevent reverting fallback. User is responsibility for accepting ETH.\\n        // Checks-Effects-Interaction\\n    }\\n\\n    // ********************************** //\\n    // *         Merkle Proof           * //\\n    // ********************************** //\\n\\n    /**\\n     * @dev Validates membership of leaf in merkle tree with merkle proof.\\n     * Note: Inlined from `merkle/MerkleProof.sol` for performance.\\n     * @param proof The merkle proof.\\n     * @param leaf The leaf to validate membership in merkle tree.\\n     * @param merkleRoot The root of the merkle tree.\\n     */\\n    function validateProof(\\n        bytes32[] memory proof,\\n        bytes32 leaf,\\n        bytes32 merkleRoot\\n    ) internal pure returns (bool) {\\n        return (merkleRoot == calculateRoot(proof, leaf));\\n    }\\n\\n    /**\\n     * @dev Calculates merkle root from proof.\\n     * @param proof The merkle proof.\\n     * @param leaf The leaf to validate membership in merkle tree..\\n     */\\n    function calculateRoot(bytes32[] memory proof, bytes32 leaf) private pure returns (bytes32) {\\n        uint256 proofLength = proof.length;\\n        require(proofLength <= 32, \\\"Invalid Proof\\\");\\n        bytes32 h = leaf;\\n        for (uint256 i = 0; i < proofLength; i++) {\\n            bytes32 proofElement = proof[i];\\n            // effecient hash\\n            if (proofElement > h)\\n                assembly {\\n                    mstore(0x00, h)\\n                    mstore(0x20, proofElement)\\n                    h := keccak256(0x00, 0x40)\\n                }\\n            else\\n                assembly {\\n                    mstore(0x00, proofElement)\\n                    mstore(0x20, h)\\n                    h := keccak256(0x00, 0x40)\\n                }\\n        }\\n        return h;\\n    }\\n\\n    // ************************************* //\\n    // *           Public Views            * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Returns the `start` and `end` time of challenge period for this `epoch`.\\n     * @param _epoch The epoch of the claim to request the challenge period.\\n     * @return start The start time of the challenge period.\\n     * @return end The end time of the challenge period.\\n     */\\n    function claimChallengePeriod(uint256 _epoch) external view override returns (uint256 start, uint256 end) {\\n        // start begins latest after the claim deadline expiry\\n        // however can begin as soon as a claim is made\\n        // can only challenge the only active claim, about the previous epoch\\n        start = claims[_epoch].timestamp;\\n        end = start + challengePeriod;\\n    }\\n\\n    // ************************ //\\n    // *       Internal       * //\\n    // ************************ //\\n\\n    function _checkReplayAndRelay(uint256 _epoch, bytes calldata _messageData) internal returns (bool success) {\\n        // Decode the receiver address from the data encoded by the IFastBridgeSender\\n        (uint256 nonce, address receiver, bytes memory data) = abi.decode(_messageData, (uint256, address, bytes));\\n\\n        uint256 index = nonce / 256;\\n        uint256 offset = nonce % 256;\\n        bytes32 replay = relayed[_epoch][index];\\n        require(((replay >> offset) & bytes32(uint256(1))) == 0, \\\"Message already relayed\\\");\\n        relayed[_epoch][index] = replay | bytes32(1 << offset);\\n        emit MessageRelayed(_epoch, nonce);\\n\\n        (success, ) = receiver.call(data);\\n        // Checks-Effects-Interaction\\n    }\\n}\\n\",\"keccak256\":\"0x12268e97d61b51c8fb276998e202e987c5f2e0950f8e3a0ee27c1f90598a996b\",\"license\":\"MIT\"},\"src/bridge/canonical/arbitrum/IInbox.sol\":{\"content\":\"// SPDX-License-Identifier: Apache-2.0\\n\\n/*\\n * Copyright 2019-2021, Offchain Labs, Inc.\\n *\\n * Licensed under the Apache License, Version 2.0 (the \\\"License\\\");\\n * you may not use this file except in compliance with the License.\\n * You may obtain a copy of the License at\\n *\\n *    http://www.apache.org/licenses/LICENSE-2.0\\n *\\n * Unless required by applicable law or agreed to in writing, software\\n * distributed under the License is distributed on an \\\"AS IS\\\" BASIS,\\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\\n * See the License for the specific language governing permissions and\\n * limitations under the License.\\n */\\n\\npragma solidity >=0.7.0;\\n\\ninterface IInbox {\\n    function sendL2Message(bytes calldata messageData) external returns (uint256);\\n\\n    function sendUnsignedTransaction(\\n        uint256 maxGas,\\n        uint256 gasPriceBid,\\n        uint256 nonce,\\n        address destAddr,\\n        uint256 amount,\\n        bytes calldata data\\n    ) external returns (uint256);\\n\\n    function sendContractTransaction(\\n        uint256 maxGas,\\n        uint256 gasPriceBid,\\n        address destAddr,\\n        uint256 amount,\\n        bytes calldata data\\n    ) external returns (uint256);\\n\\n    function sendL1FundedUnsignedTransaction(\\n        uint256 maxGas,\\n        uint256 gasPriceBid,\\n        uint256 nonce,\\n        address destAddr,\\n        bytes calldata data\\n    ) external payable returns (uint256);\\n\\n    function sendL1FundedContractTransaction(\\n        uint256 maxGas,\\n        uint256 gasPriceBid,\\n        address destAddr,\\n        bytes calldata data\\n    ) external payable returns (uint256);\\n\\n    function createRetryableTicket(\\n        address destAddr,\\n        uint256 arbTxCallValue,\\n        uint256 maxSubmissionCost,\\n        address submissionRefundAddress,\\n        address valueRefundAddress,\\n        uint256 maxGas,\\n        uint256 gasPriceBid,\\n        bytes calldata data\\n    ) external payable returns (uint256);\\n\\n    function depositEth(uint256 maxSubmissionCost) external payable returns (uint256);\\n\\n    function bridge() external view returns (IBridge);\\n}\\n\\ninterface IBridge {\\n    event MessageDelivered(\\n        uint256 indexed messageIndex,\\n        bytes32 indexed beforeInboxAcc,\\n        address inbox,\\n        uint8 kind,\\n        address sender,\\n        bytes32 messageDataHash\\n    );\\n\\n    function deliverMessageToInbox(\\n        uint8 kind,\\n        address sender,\\n        bytes32 messageDataHash\\n    ) external payable returns (uint256);\\n\\n    function executeCall(\\n        address destAddr,\\n        uint256 amount,\\n        bytes calldata data\\n    ) external returns (bool success, bytes memory returnData);\\n\\n    // These are only callable by the admin\\n    function setInbox(address inbox, bool enabled) external;\\n\\n    function setOutbox(address inbox, bool enabled) external;\\n\\n    // View functions\\n\\n    function activeOutbox() external view returns (address);\\n\\n    function allowedInboxes(address inbox) external view returns (bool);\\n\\n    function allowedOutboxes(address outbox) external view returns (bool);\\n\\n    function inboxAccs(uint256 index) external view returns (bytes32);\\n\\n    function messageCount() external view returns (uint256);\\n}\\n\\ninterface IMessageProvider {\\n    event InboxMessageDelivered(uint256 indexed messageNum, bytes data);\\n\\n    event InboxMessageDeliveredFromOrigin(uint256 indexed messageNum);\\n}\\n\",\"keccak256\":\"0xb567e54805f44ea8405231284583880a38e8a22bfe619528a4f8ec7550f11d1b\",\"license\":\"Apache-2.0\"},\"src/bridge/canonical/arbitrum/IOutbox.sol\":{\"content\":\"// SPDX-License-Identifier: Apache-2.0\\n\\n/*\\n * Copyright 2021, Offchain Labs, Inc.\\n *\\n * Licensed under the Apache License, Version 2.0 (the \\\"License\\\");\\n * you may not use this file except in compliance with the License.\\n * You may obtain a copy of the License at\\n *\\n *    http://www.apache.org/licenses/LICENSE-2.0\\n *\\n * Unless required by applicable law or agreed to in writing, software\\n * distributed under the License is distributed on an \\\"AS IS\\\" BASIS,\\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\\n * See the License for the specific language governing permissions and\\n * limitations under the License.\\n */\\n\\npragma solidity >=0.7.0;\\n\\ninterface IOutbox {\\n    event OutboxEntryCreated(uint256 indexed batchNum, uint256 outboxIndex, bytes32 outputRoot, uint256 numInBatch);\\n\\n    function l2ToL1Sender() external view returns (address);\\n\\n    function l2ToL1Block() external view returns (uint256);\\n\\n    function l2ToL1EthBlock() external view returns (uint256);\\n\\n    function l2ToL1Timestamp() external view returns (uint256);\\n\\n    function processOutgoingMessages(bytes calldata sendsData, uint256[] calldata sendLengths) external;\\n}\\n\",\"keccak256\":\"0xdc4952b5238d6c6282595b2eab4058c86d2d232b99a2d67556c02d6c11eea94f\",\"license\":\"Apache-2.0\"},\"src/bridge/interfaces/IFastBridgeReceiver.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\n/**\\n *  @authors: [@jaybuidl, @shotaronowhere, @hrishibhat]\\n *  @reviewers: []\\n *  @auditors: []\\n *  @bounties: []\\n *  @deployments: []\\n */\\n\\npragma solidity ^0.8.0;\\n\\ninterface IFastBridgeReceiver {\\n    // ************************************* //\\n    // *              Events               * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev The Fast Bridge participants watch for these events to decide if a challenge should be submitted.\\n     * @param _epoch The epoch for which the the claim was made.\\n     * @param _batchMerkleRoot The timestamp of the claim creation.\\n     */\\n    event ClaimReceived(uint256 indexed _epoch, bytes32 indexed _batchMerkleRoot);\\n\\n    /**\\n     * @dev This event indicates that `sendSafeFallback()` should be called on the sending side.\\n     * @param _epoch The epoch associated with the challenged claim.\\n     */\\n    event ClaimChallenged(uint256 indexed _epoch);\\n\\n    /**\\n     * @dev This events indicates that optimistic verification has succeeded. The messages are ready to be relayed.\\n     * @param _epoch The epoch associated with the batch.\\n     * @param _success The success of the optimistic verification.\\n     */\\n    event BatchVerified(uint256 indexed _epoch, bool _success);\\n\\n    /**\\n     * @dev This event indicates that the batch has been received via the Safe Bridge.\\n     * @param _epoch The epoch associated with the batch.\\n     * @param _isBridgerHonest Whether the bridger made an honest claim.\\n     * @param _isChallengerHonest Whether the bridger made an honest challenge.\\n     */\\n    event BatchSafeVerified(uint256 indexed _epoch, bool _isBridgerHonest, bool _isChallengerHonest);\\n\\n    /**\\n     * @dev This event indicates that the claim deposit has been withdrawn.\\n     * @param _epoch The epoch associated with the batch.\\n     * @param _bridger The recipient of the claim deposit.\\n     */\\n    event ClaimDepositWithdrawn(uint256 indexed _epoch, address indexed _bridger);\\n\\n    /**\\n     * @dev This event indicates that the challenge deposit has been withdrawn.\\n     * @param _epoch The epoch associated with the batch.\\n     * @param _challenger The recipient of the challenge deposit.\\n     */\\n    event ChallengeDepositWithdrawn(uint256 indexed _epoch, address indexed _challenger);\\n\\n    /**\\n     * @dev This event indicates that a message has been relayed for the batch in this `_epoch`.\\n     * @param _epoch The epoch associated with the batch.\\n     * @param _nonce The nonce of the message that was relayed.\\n     */\\n    event MessageRelayed(uint256 indexed _epoch, uint256 indexed _nonce);\\n\\n    // ************************************* //\\n    // *        Function Modifiers         * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Submit a claim about the `_batchMerkleRoot` for the latests completed Fast bridge epoch and submit a deposit. The `_batchMerkleRoot` should match the one on the sending side otherwise the sender will lose his deposit.\\n     * @param _epoch The epoch of the claim to claim.\\n     * @param _batchMerkleRoot The hash claimed for the ticket.\\n     */\\n    function claim(uint256 _epoch, bytes32 _batchMerkleRoot) external payable;\\n\\n    /**\\n     * @dev Submit a challenge for the claim of the current epoch's Fast Bridge batch merkleroot state and submit a deposit. The `batchMerkleRoot` in the claim already made for the last finalized epoch should be different from the one on the sending side, otherwise the sender will lose his deposit.\\n     * @param _epoch The epoch of the claim to challenge.\\n     */\\n    function challenge(uint256 _epoch) external payable;\\n\\n    /**\\n     * @dev Resolves the optimistic claim for '_epoch'.\\n     * @param _epoch The epoch of the optimistic claim.\\n     */\\n    function verifyBatch(uint256 _epoch) external;\\n\\n    /**\\n     * @dev Verifies merkle proof for the given message and associated nonce for the most recent possible epoch and relays the message.\\n     * @param _epoch The epoch in which the message was batched by the bridge.\\n     * @param _proof The merkle proof to prove the membership of the message and nonce in the merkle tree for the epoch.\\n     * @param _message The data on the cross-domain chain for the message.\\n     */\\n    function verifyAndRelayMessage(\\n        uint256 _epoch,\\n        bytes32[] calldata _proof,\\n        bytes calldata _message\\n    ) external;\\n\\n    /**\\n     * @dev Sends the deposit back to the Bridger if their claim is not successfully challenged. Includes a portion of the Challenger's deposit if unsuccessfully challenged.\\n     * @param _epoch The epoch associated with the claim deposit to withraw.\\n     */\\n    function withdrawClaimDeposit(uint256 _epoch) external;\\n\\n    /**\\n     * @dev Sends the deposit back to the Challenger if his challenge is successful. Includes a portion of the Bridger's deposit.\\n     * @param _epoch The epoch associated with the challenge deposit to withraw.\\n     */\\n    function withdrawChallengeDeposit(uint256 _epoch) external;\\n\\n    // ************************************* //\\n    // *           Public Views            * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Returns the `start` and `end` time of challenge period for this `epoch`.\\n     * @param _epoch The epoch of the claim to request the challenge period.\\n     * @return start The start time of the challenge period.\\n     * @return end The end time of the challenge period.\\n     */\\n    function claimChallengePeriod(uint256 _epoch) external view returns (uint256 start, uint256 end);\\n\\n    /**\\n     * @dev Returns the epoch period.\\n     */\\n    function epochPeriod() external view returns (uint256 epochPeriod);\\n\\n    /**\\n     * @dev Returns the challenge period.\\n     */\\n    function challengePeriod() external view returns (uint256 challengePeriod);\\n}\\n\",\"keccak256\":\"0xff909a62e9a08540dafcd08c779a64917ed1e44be52d5a225ff9149ff95909e8\",\"license\":\"MIT\"},\"src/bridge/interfaces/ISafeBridgeReceiver.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\n/**\\n *  @authors: [@jaybuidl, @shotaronowhere]\\n *  @reviewers: []\\n *  @auditors: []\\n *  @bounties: []\\n *  @deployments: []\\n */\\n\\npragma solidity ^0.8.0;\\n\\nabstract contract ISafeBridgeReceiver {\\n    /**\\n     * Note: Access restricted to the Safe Bridge.\\n     * @dev Resolves any challenge of the optimistic claim for '_epoch'.\\n     * @param _epoch The epoch associated with the _batchmerkleRoot.\\n     * @param _batchMerkleRoot The true batch merkle root for the epoch sent by the safe bridge.\\n     */\\n    function verifySafeBatch(uint256 _epoch, bytes32 _batchMerkleRoot) external virtual;\\n\\n    function isSentBySafeBridge() internal view virtual returns (bool);\\n\\n    modifier onlyFromSafeBridge() {\\n        require(isSentBySafeBridge(), \\\"Safe Bridge only.\\\");\\n        _;\\n    }\\n}\\n\",\"keccak256\":\"0xc4bee04423c73bf37e7d975fccab05767ba0e738cc753d293438c2d1ace9f804\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x6101206040523480156200001257600080fd5b5060405162001c9838038062001c9883398101604081905262000035916200007a565b60a09490945260c09290925260e0526001600160a01b039081166101005216608052620000cf565b80516001600160a01b03811681146200007557600080fd5b919050565b600080600080600060a086880312156200009357600080fd5b855194506020860151935060408601519250620000b3606087016200005d565b9150620000c3608087016200005d565b90509295509295909350565b60805160a05160c05160e05161010051611b3062000168600039600081816103a101526114d80152600081816104410152818161078e01528181610ca2015261103501526000818161034d01526105710152600081816103ed015281816104b9015281816108f00152818161094901528181610bba015281816112cc015261132901526000818161049501526113d50152611b306000f3fe6080604052600436106100fe5760003560e01c8063b141770311610095578063d0e30db011610064578063d0e30db0146103db578063dfe3a3ae1461040f578063f3f480d91461042f578063f4cf751b14610463578063fb0e722b1461048357600080fd5b8063b141770314610303578063b5b7a1841461033b578063ba7f4d761461036f578063c2ef14871461038f57600080fd5b80635bfe5f1a116100d15780635bfe5f1a146101ad5780638f1d3776146101cd578063a888c2cd14610240578063ab82d9a0146102f057600080fd5b80632a9700a11461010357806331d1445714610143578063383b90f91461015857806350b81dbe1461018d575b600080fd5b34801561010f57600080fd5b5061013061011e3660046117ab565b60006020819052908152604090205481565b6040519081526020015b60405180910390f35b6101566101513660046117c4565b6104b7565b005b34801561016457600080fd5b506101786101733660046117ab565b610769565b6040805192835260208301919091520161013a565b34801561019957600080fd5b506101566101a83660046117ab565b6107ba565b3480156101b957600080fd5b506101566101c83660046117c4565b6109f8565b3480156101d957600080fd5b506102196101e83660046117ab565b6002602052600090815260409020546001600160a01b0381169060ff600160a01b8204811691600160a81b90041683565b604080516001600160a01b039094168452911515602084015215159082015260600161013a565b34801561024c57600080fd5b506102ac61025b3660046117ab565b600160208190526000918252604090912080549101546001600160a01b0381169063ffffffff600160a01b8204169060ff600160c01b8204811691600160c81b8104821691600160d01b9091041686565b604080519687526001600160a01b03909516602087015263ffffffff90931693850193909352151560608401529015156080830152151560a082015260c00161013a565b6101566102fe3660046117ab565b610bb8565b34801561030f57600080fd5b5061013061031e3660046117c4565b600360209081526000928352604080842090915290825290205481565b34801561034757600080fd5b506101307f000000000000000000000000000000000000000000000000000000000000000081565b34801561037b57600080fd5b5061015661038a36600461182f565b610dbb565b34801561039b57600080fd5b506103c37f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200161013a565b3480156103e757600080fd5b506101307f000000000000000000000000000000000000000000000000000000000000000081565b34801561041b57600080fd5b5061015661042a3660046117ab565b610f38565b34801561043b57600080fd5b506101307f000000000000000000000000000000000000000000000000000000000000000081565b34801561046f57600080fd5b5061015661047e3660046117ab565b61118f565b34801561048f57600080fd5b506103c37f000000000000000000000000000000000000000000000000000000000000000081565b7f000000000000000000000000000000000000000000000000000000000000000034101561052c5760405162461bcd60e51b815260206004820152601b60248201527f496e73756666696369656e7420636c61696d206465706f7369742e000000000060448201526064015b60405180910390fd5b8061056a5760405162461bcd60e51b815260206004820152600e60248201526d24b73b30b634b21031b630b4b69760911b6044820152606401610523565b60006105967f000000000000000000000000000000000000000000000000000000000000000042611906565b9050808314806105af57506105ac81600161191a565b83145b6105eb5760405162461bcd60e51b815260206004820152600d60248201526c496e76616c696420436c61696d60981b6044820152606401610523565b600083815260016020819052604090912001546001600160a01b0316156106705760405162461bcd60e51b815260206004820152603360248201527f436c61696d20616c7265616479206d61646520666f72206d6f73742072656365604482015272373a103334b730b634bd32b21032b837b1b41760691b6064820152608401610523565b6040805160c08101825283815233602080830191825263ffffffff4281168486019081526000606086018181526080870182815260a088018381528c845260019687905289842098518955965197909501805493519151955196511515600160d01b0260ff60d01b19971515600160c81b0260ff60c81b19971515600160c01b029790971661ffff60c01b1993909616600160a01b026001600160c01b03199095166001600160a01b0399909916989098179390931716929092179290921792909216929092179091559051839185917f7eb220572187462098b6d5192bbe907549f0614d7c3580735a7e5c357a6157999190a3505050565b600081815260016020819052604082200154600160a01b900463ffffffff16906107b37f00000000000000000000000000000000000000000000000000000000000000008361191a565b9050915091565b6000818152600160208190526040909120908101546001600160a01b031661081b5760405162461bcd60e51b815260206004820152601460248201527310db185a5b48191bd95cc81b9bdd08195e1a5cdd60621b6044820152606401610523565b600181810154600160c01b900460ff1615151461086a5760405162461bcd60e51b815260206004820152600d60248201526c21b630b4b6903330b4b632b21760991b6044820152606401610523565b6001810154600160d01b900460ff16156108df5760405162461bcd60e51b815260206004820152603060248201527f436c61696d206465706f73697420616e6420616e79207265776172647320616c60448201526f3932b0b23c903bb4ba34323930bbb71760811b6064820152608401610523565b6000828152600260205260409020547f0000000000000000000000000000000000000000000000000000000000000000906001600160a01b03161580159061093d5750600083815260026020526040902054600160a01b900460ff16155b1561097a5761096d60027f0000000000000000000000000000000000000000000000000000000000000000611906565b610977908261191a565b90505b60018201805460ff60d01b198116600160d01b179091556040516001600160a01b039091169084907f3d8490b2b1cee24079fde68fd6a415c1f12e9a76e8090ac027dad29b6660261990600090a360018201546040516001600160a01b039091169082156108fc029083906000818181858888f15050505050505050565b610a006113d0565b610a405760405162461bcd60e51b815260206004820152601160248201527029b0b33290213934b233b29037b7363c9760791b6044820152606401610523565b610a486113d0565b610aa75760405162461bcd60e51b815260206004820152602a60248201527f416363657373206e6f7420616c6c6f7765643a20536166654272696467655365604482015269373232b91037b7363c9760b11b6064820152608401610523565b60008281526020818152604080832084905560019182905290912001546001600160a01b031615610b4757600082815260016020526040902054811415610b1057600082815260016020819052604090912001805460ff60c01b1916600160c01b179055610b47565b6000828152600160208181526040808420909201805460ff60c01b19169055600290529020805460ff60a01b1916600160a01b1790555b6000828152600160208181526040808420909201546002825292829020548251600160c01b90940460ff90811615158552600160a01b9091041615159083015283917f7451cfa583de6b2abaad934288f349736a4883acb348844352a320a1e1d38080910160405180910390a25050565b7f0000000000000000000000000000000000000000000000000000000000000000341015610c285760405162461bcd60e51b815260206004820152601860248201527f4e6f7420656e6f75676820636c61696d206465706f73697400000000000000006044820152606401610523565b600081815260016020819052604090912001546001600160a01b0316610c895760405162461bcd60e51b815260206004820152601660248201527527379031b630b4b6903a379031b430b63632b733b29760511b6044820152606401610523565b60008181526001602081905260409091200154610cd4907f000000000000000000000000000000000000000000000000000000000000000090600160a01b900463ffffffff1661191a565b4210610d225760405162461bcd60e51b815260206004820152601960248201527f4368616c6c656e676520706572696f6420656c61707365642e000000000000006044820152606401610523565b6040805160608101825233815260006020808301828152838501838152868452600290925284832093518454915192511515600160a81b0260ff60a81b19931515600160a01b026001600160a81b03199093166001600160a01b039290921691909117919091179190911617909155905182917fe7230bb507d3a19678a0138ccb36eec02510dd27f11e37e2c9644d597dbc693891a250565b60008581526020819052604090205480610e085760405162461bcd60e51b815260206004820152600e60248201526d24b73b30b634b21032b837b1b41760911b6044820152606401610523565b610e978585808060200260200160405190810160405280939291908181526020018383602002808284376000920191909152505060405160029250610e51915087908790611932565b602060405180830381855afa158015610e6e573d6000803e3d6000fd5b5050506040513d601f19601f82011682018060405250810190610e919190611942565b83611581565b1515600114610ed95760405162461bcd60e51b815260206004820152600e60248201526d24b73b30b634b210383937b7b31760911b6044820152606401610523565b610ee4868484611597565b610f305760405162461bcd60e51b815260206004820152601760248201527f4661696c656420746f2063616c6c20636f6e74726163740000000000000000006044820152606401610523565b505050505050565b6000818152600160208190526040909120908101546001600160a01b0316610fad5760405162461bcd60e51b815260206004820152602260248201527f496e76616c69642065706f63682c206e6f20636c61696d20746f2076657269666044820152613c9760f11b6064820152608401610523565b6001810154600160c81b900460ff161561101c5760405162461bcd60e51b815260206004820152602a60248201527f4f7074696d697374696320766572696669636174696f6e20616c72656164792060448201526930ba3a32b6b83a32b21760b11b6064820152608401610523565b60008281526001602081905260409091200154611067907f000000000000000000000000000000000000000000000000000000000000000090600160a01b900463ffffffff1661191a565b42116110c35760405162461bcd60e51b815260206004820152602560248201527f4368616c6c656e676520706572696f6420686173206e6f742079657420656c616044820152643839b2b21760d91b6064820152608401610523565b6000828152600260205260409020546001600160a01b0316611141576001818101805460ff60c01b1916600160c01b179055815460008481526020818152604091829020929092555191825283917f8fa19318c4280299918d1220c80ba5db06b26b8947b75384ce2d74ba043c0265910160405180910390a2611178565b6040516000815282907f8fa19318c4280299918d1220c80ba5db06b26b8947b75384ce2d74ba043c02659060200160405180910390a25b600101805460ff60c81b1916600160c81b17905550565b600081815260026020526040902080546001600160a01b03166111f45760405162461bcd60e51b815260206004820152601860248201527f4368616c6c656e676520646f6573206e6f7420657869737400000000000000006044820152606401610523565b8054600160a01b900460ff1615156001146112455760405162461bcd60e51b815260206004820152601160248201527021b430b63632b733b2903330b4b632b21760791b6044820152606401610523565b8054600160a81b900460ff16156112b75760405162461bcd60e51b815260206004820152603060248201527f4368616c6c656e6765206465706f73697420616e64207265776172647320616c60448201526f3932b0b23c903bb4ba34323930bbb71760811b6064820152608401610523565b600082815260016020819052604090912001547f0000000000000000000000000000000000000000000000000000000000000000906001600160a01b03161580159061131d575060008381526001602081905260409091200154600160c01b900460ff16155b1561135a5761134d60027f0000000000000000000000000000000000000000000000000000000000000000611906565b611357908261191a565b90505b815460ff60a81b198116600160a81b1783556040516001600160a01b039091169084907f9e0ea87919796fe5ad8e4362a6a3ff07f6a73e0731b94f451d7184e4928f313b90600090a381546040516001600160a01b039091169082156108fc029083906000818181858888f15050505050505050565b6000807f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031663e78cea926040518163ffffffff1660e01b815260040160206040518083038186803b15801561142c57600080fd5b505afa158015611440573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906114649190611973565b6001600160a01b031663ab5d89436040518163ffffffff1660e01b815260040160206040518083038186803b15801561149c57600080fd5b505afa1580156114b0573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906114d49190611973565b90507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316816001600160a01b03166380648b026040518163ffffffff1660e01b815260040160206040518083038186803b15801561153957600080fd5b505afa15801561154d573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906115719190611973565b6001600160a01b03161491505090565b600061158d84846116f3565b9091149392505050565b60008080806115a8858701876119ad565b9194509250905060006115bd61010085611906565b905060006115cd61010086611a7a565b60008a815260036020908152604080832086845290915290205490915080821c6001161561163d5760405162461bcd60e51b815260206004820152601760248201527f4d65737361676520616c72656164792072656c617965640000000000000000006044820152606401610523565b60008a81526003602090815260408083208684529091528082206001851b841790555187918c917f7f2ae957b8ae493c532b836f8a7e17178d402b24829677739558336424ae335f9190a3846001600160a01b0316846040516116a09190611a8e565b6000604051808303816000865af19150503d80600081146116dd576040519150601f19603f3d011682016040523d82523d6000602084013e6116e2565b606091505b50909b9a5050505050505050505050565b815160009060208111156117395760405162461bcd60e51b815260206004820152600d60248201526c24b73b30b634b210283937b7b360991b6044820152606401610523565b8260005b828110156117a257600086828151811061175957611759611ac9565b602002602001015190508281111561177f5782600052806020526040600020925061178f565b8060005282602052604060002092505b508061179a81611adf565b91505061173d565b50949350505050565b6000602082840312156117bd57600080fd5b5035919050565b600080604083850312156117d757600080fd5b50508035926020909101359150565b60008083601f8401126117f857600080fd5b50813567ffffffffffffffff81111561181057600080fd5b60208301915083602082850101111561182857600080fd5b9250929050565b60008060008060006060868803121561184757600080fd5b85359450602086013567ffffffffffffffff8082111561186657600080fd5b818801915088601f83011261187a57600080fd5b81358181111561188957600080fd5b8960208260051b850101111561189e57600080fd5b6020830196508095505060408801359150808211156118bc57600080fd5b506118c9888289016117e6565b969995985093965092949392505050565b634e487b7160e01b600052601260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b600082611915576119156118da565b500490565b6000821982111561192d5761192d6118f0565b500190565b8183823760009101908152919050565b60006020828403121561195457600080fd5b5051919050565b6001600160a01b038116811461197057600080fd5b50565b60006020828403121561198557600080fd5b81516119908161195b565b9392505050565b634e487b7160e01b600052604160045260246000fd5b6000806000606084860312156119c257600080fd5b8335925060208401356119d48161195b565b9150604084013567ffffffffffffffff808211156119f157600080fd5b818601915086601f830112611a0557600080fd5b813581811115611a1757611a17611997565b604051601f8201601f19908116603f01168101908382118183101715611a3f57611a3f611997565b81604052828152896020848701011115611a5857600080fd5b8260208601602083013760006020848301015280955050505050509250925092565b600082611a8957611a896118da565b500690565b6000825160005b81811015611aaf5760208186018101518583015201611a95565b81811115611abe576000828501525b509190910192915050565b634e487b7160e01b600052603260045260246000fd5b6000600019821415611af357611af36118f0565b506001019056fea2646970667358221220a56590433e0dfda6714a96a98bf4689e981841c72d850ccac75cc788553712a864736f6c63430008090033",
+  "deployedBytecode": "0x6080604052600436106100fe5760003560e01c8063b141770311610095578063d0e30db011610064578063d0e30db0146103db578063dfe3a3ae1461040f578063f3f480d91461042f578063f4cf751b14610463578063fb0e722b1461048357600080fd5b8063b141770314610303578063b5b7a1841461033b578063ba7f4d761461036f578063c2ef14871461038f57600080fd5b80635bfe5f1a116100d15780635bfe5f1a146101ad5780638f1d3776146101cd578063a888c2cd14610240578063ab82d9a0146102f057600080fd5b80632a9700a11461010357806331d1445714610143578063383b90f91461015857806350b81dbe1461018d575b600080fd5b34801561010f57600080fd5b5061013061011e3660046117ab565b60006020819052908152604090205481565b6040519081526020015b60405180910390f35b6101566101513660046117c4565b6104b7565b005b34801561016457600080fd5b506101786101733660046117ab565b610769565b6040805192835260208301919091520161013a565b34801561019957600080fd5b506101566101a83660046117ab565b6107ba565b3480156101b957600080fd5b506101566101c83660046117c4565b6109f8565b3480156101d957600080fd5b506102196101e83660046117ab565b6002602052600090815260409020546001600160a01b0381169060ff600160a01b8204811691600160a81b90041683565b604080516001600160a01b039094168452911515602084015215159082015260600161013a565b34801561024c57600080fd5b506102ac61025b3660046117ab565b600160208190526000918252604090912080549101546001600160a01b0381169063ffffffff600160a01b8204169060ff600160c01b8204811691600160c81b8104821691600160d01b9091041686565b604080519687526001600160a01b03909516602087015263ffffffff90931693850193909352151560608401529015156080830152151560a082015260c00161013a565b6101566102fe3660046117ab565b610bb8565b34801561030f57600080fd5b5061013061031e3660046117c4565b600360209081526000928352604080842090915290825290205481565b34801561034757600080fd5b506101307f000000000000000000000000000000000000000000000000000000000000000081565b34801561037b57600080fd5b5061015661038a36600461182f565b610dbb565b34801561039b57600080fd5b506103c37f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200161013a565b3480156103e757600080fd5b506101307f000000000000000000000000000000000000000000000000000000000000000081565b34801561041b57600080fd5b5061015661042a3660046117ab565b610f38565b34801561043b57600080fd5b506101307f000000000000000000000000000000000000000000000000000000000000000081565b34801561046f57600080fd5b5061015661047e3660046117ab565b61118f565b34801561048f57600080fd5b506103c37f000000000000000000000000000000000000000000000000000000000000000081565b7f000000000000000000000000000000000000000000000000000000000000000034101561052c5760405162461bcd60e51b815260206004820152601b60248201527f496e73756666696369656e7420636c61696d206465706f7369742e000000000060448201526064015b60405180910390fd5b8061056a5760405162461bcd60e51b815260206004820152600e60248201526d24b73b30b634b21031b630b4b69760911b6044820152606401610523565b60006105967f000000000000000000000000000000000000000000000000000000000000000042611906565b9050808314806105af57506105ac81600161191a565b83145b6105eb5760405162461bcd60e51b815260206004820152600d60248201526c496e76616c696420436c61696d60981b6044820152606401610523565b600083815260016020819052604090912001546001600160a01b0316156106705760405162461bcd60e51b815260206004820152603360248201527f436c61696d20616c7265616479206d61646520666f72206d6f73742072656365604482015272373a103334b730b634bd32b21032b837b1b41760691b6064820152608401610523565b6040805160c08101825283815233602080830191825263ffffffff4281168486019081526000606086018181526080870182815260a088018381528c845260019687905289842098518955965197909501805493519151955196511515600160d01b0260ff60d01b19971515600160c81b0260ff60c81b19971515600160c01b029790971661ffff60c01b1993909616600160a01b026001600160c01b03199095166001600160a01b0399909916989098179390931716929092179290921792909216929092179091559051839185917f7eb220572187462098b6d5192bbe907549f0614d7c3580735a7e5c357a6157999190a3505050565b600081815260016020819052604082200154600160a01b900463ffffffff16906107b37f00000000000000000000000000000000000000000000000000000000000000008361191a565b9050915091565b6000818152600160208190526040909120908101546001600160a01b031661081b5760405162461bcd60e51b815260206004820152601460248201527310db185a5b48191bd95cc81b9bdd08195e1a5cdd60621b6044820152606401610523565b600181810154600160c01b900460ff1615151461086a5760405162461bcd60e51b815260206004820152600d60248201526c21b630b4b6903330b4b632b21760991b6044820152606401610523565b6001810154600160d01b900460ff16156108df5760405162461bcd60e51b815260206004820152603060248201527f436c61696d206465706f73697420616e6420616e79207265776172647320616c60448201526f3932b0b23c903bb4ba34323930bbb71760811b6064820152608401610523565b6000828152600260205260409020547f0000000000000000000000000000000000000000000000000000000000000000906001600160a01b03161580159061093d5750600083815260026020526040902054600160a01b900460ff16155b1561097a5761096d60027f0000000000000000000000000000000000000000000000000000000000000000611906565b610977908261191a565b90505b60018201805460ff60d01b198116600160d01b179091556040516001600160a01b039091169084907f3d8490b2b1cee24079fde68fd6a415c1f12e9a76e8090ac027dad29b6660261990600090a360018201546040516001600160a01b039091169082156108fc029083906000818181858888f15050505050505050565b610a006113d0565b610a405760405162461bcd60e51b815260206004820152601160248201527029b0b33290213934b233b29037b7363c9760791b6044820152606401610523565b610a486113d0565b610aa75760405162461bcd60e51b815260206004820152602a60248201527f416363657373206e6f7420616c6c6f7765643a20536166654272696467655365604482015269373232b91037b7363c9760b11b6064820152608401610523565b60008281526020818152604080832084905560019182905290912001546001600160a01b031615610b4757600082815260016020526040902054811415610b1057600082815260016020819052604090912001805460ff60c01b1916600160c01b179055610b47565b6000828152600160208181526040808420909201805460ff60c01b19169055600290529020805460ff60a01b1916600160a01b1790555b6000828152600160208181526040808420909201546002825292829020548251600160c01b90940460ff90811615158552600160a01b9091041615159083015283917f7451cfa583de6b2abaad934288f349736a4883acb348844352a320a1e1d38080910160405180910390a25050565b7f0000000000000000000000000000000000000000000000000000000000000000341015610c285760405162461bcd60e51b815260206004820152601860248201527f4e6f7420656e6f75676820636c61696d206465706f73697400000000000000006044820152606401610523565b600081815260016020819052604090912001546001600160a01b0316610c895760405162461bcd60e51b815260206004820152601660248201527527379031b630b4b6903a379031b430b63632b733b29760511b6044820152606401610523565b60008181526001602081905260409091200154610cd4907f000000000000000000000000000000000000000000000000000000000000000090600160a01b900463ffffffff1661191a565b4210610d225760405162461bcd60e51b815260206004820152601960248201527f4368616c6c656e676520706572696f6420656c61707365642e000000000000006044820152606401610523565b6040805160608101825233815260006020808301828152838501838152868452600290925284832093518454915192511515600160a81b0260ff60a81b19931515600160a01b026001600160a81b03199093166001600160a01b039290921691909117919091179190911617909155905182917fe7230bb507d3a19678a0138ccb36eec02510dd27f11e37e2c9644d597dbc693891a250565b60008581526020819052604090205480610e085760405162461bcd60e51b815260206004820152600e60248201526d24b73b30b634b21032b837b1b41760911b6044820152606401610523565b610e978585808060200260200160405190810160405280939291908181526020018383602002808284376000920191909152505060405160029250610e51915087908790611932565b602060405180830381855afa158015610e6e573d6000803e3d6000fd5b5050506040513d601f19601f82011682018060405250810190610e919190611942565b83611581565b1515600114610ed95760405162461bcd60e51b815260206004820152600e60248201526d24b73b30b634b210383937b7b31760911b6044820152606401610523565b610ee4868484611597565b610f305760405162461bcd60e51b815260206004820152601760248201527f4661696c656420746f2063616c6c20636f6e74726163740000000000000000006044820152606401610523565b505050505050565b6000818152600160208190526040909120908101546001600160a01b0316610fad5760405162461bcd60e51b815260206004820152602260248201527f496e76616c69642065706f63682c206e6f20636c61696d20746f2076657269666044820152613c9760f11b6064820152608401610523565b6001810154600160c81b900460ff161561101c5760405162461bcd60e51b815260206004820152602a60248201527f4f7074696d697374696320766572696669636174696f6e20616c72656164792060448201526930ba3a32b6b83a32b21760b11b6064820152608401610523565b60008281526001602081905260409091200154611067907f000000000000000000000000000000000000000000000000000000000000000090600160a01b900463ffffffff1661191a565b42116110c35760405162461bcd60e51b815260206004820152602560248201527f4368616c6c656e676520706572696f6420686173206e6f742079657420656c616044820152643839b2b21760d91b6064820152608401610523565b6000828152600260205260409020546001600160a01b0316611141576001818101805460ff60c01b1916600160c01b179055815460008481526020818152604091829020929092555191825283917f8fa19318c4280299918d1220c80ba5db06b26b8947b75384ce2d74ba043c0265910160405180910390a2611178565b6040516000815282907f8fa19318c4280299918d1220c80ba5db06b26b8947b75384ce2d74ba043c02659060200160405180910390a25b600101805460ff60c81b1916600160c81b17905550565b600081815260026020526040902080546001600160a01b03166111f45760405162461bcd60e51b815260206004820152601860248201527f4368616c6c656e676520646f6573206e6f7420657869737400000000000000006044820152606401610523565b8054600160a01b900460ff1615156001146112455760405162461bcd60e51b815260206004820152601160248201527021b430b63632b733b2903330b4b632b21760791b6044820152606401610523565b8054600160a81b900460ff16156112b75760405162461bcd60e51b815260206004820152603060248201527f4368616c6c656e6765206465706f73697420616e64207265776172647320616c60448201526f3932b0b23c903bb4ba34323930bbb71760811b6064820152608401610523565b600082815260016020819052604090912001547f0000000000000000000000000000000000000000000000000000000000000000906001600160a01b03161580159061131d575060008381526001602081905260409091200154600160c01b900460ff16155b1561135a5761134d60027f0000000000000000000000000000000000000000000000000000000000000000611906565b611357908261191a565b90505b815460ff60a81b198116600160a81b1783556040516001600160a01b039091169084907f9e0ea87919796fe5ad8e4362a6a3ff07f6a73e0731b94f451d7184e4928f313b90600090a381546040516001600160a01b039091169082156108fc029083906000818181858888f15050505050505050565b6000807f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031663e78cea926040518163ffffffff1660e01b815260040160206040518083038186803b15801561142c57600080fd5b505afa158015611440573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906114649190611973565b6001600160a01b031663ab5d89436040518163ffffffff1660e01b815260040160206040518083038186803b15801561149c57600080fd5b505afa1580156114b0573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906114d49190611973565b90507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316816001600160a01b03166380648b026040518163ffffffff1660e01b815260040160206040518083038186803b15801561153957600080fd5b505afa15801561154d573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906115719190611973565b6001600160a01b03161491505090565b600061158d84846116f3565b9091149392505050565b60008080806115a8858701876119ad565b9194509250905060006115bd61010085611906565b905060006115cd61010086611a7a565b60008a815260036020908152604080832086845290915290205490915080821c6001161561163d5760405162461bcd60e51b815260206004820152601760248201527f4d65737361676520616c72656164792072656c617965640000000000000000006044820152606401610523565b60008a81526003602090815260408083208684529091528082206001851b841790555187918c917f7f2ae957b8ae493c532b836f8a7e17178d402b24829677739558336424ae335f9190a3846001600160a01b0316846040516116a09190611a8e565b6000604051808303816000865af19150503d80600081146116dd576040519150601f19603f3d011682016040523d82523d6000602084013e6116e2565b606091505b50909b9a5050505050505050505050565b815160009060208111156117395760405162461bcd60e51b815260206004820152600d60248201526c24b73b30b634b210283937b7b360991b6044820152606401610523565b8260005b828110156117a257600086828151811061175957611759611ac9565b602002602001015190508281111561177f5782600052806020526040600020925061178f565b8060005282602052604060002092505b508061179a81611adf565b91505061173d565b50949350505050565b6000602082840312156117bd57600080fd5b5035919050565b600080604083850312156117d757600080fd5b50508035926020909101359150565b60008083601f8401126117f857600080fd5b50813567ffffffffffffffff81111561181057600080fd5b60208301915083602082850101111561182857600080fd5b9250929050565b60008060008060006060868803121561184757600080fd5b85359450602086013567ffffffffffffffff8082111561186657600080fd5b818801915088601f83011261187a57600080fd5b81358181111561188957600080fd5b8960208260051b850101111561189e57600080fd5b6020830196508095505060408801359150808211156118bc57600080fd5b506118c9888289016117e6565b969995985093965092949392505050565b634e487b7160e01b600052601260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b600082611915576119156118da565b500490565b6000821982111561192d5761192d6118f0565b500190565b8183823760009101908152919050565b60006020828403121561195457600080fd5b5051919050565b6001600160a01b038116811461197057600080fd5b50565b60006020828403121561198557600080fd5b81516119908161195b565b9392505050565b634e487b7160e01b600052604160045260246000fd5b6000806000606084860312156119c257600080fd5b8335925060208401356119d48161195b565b9150604084013567ffffffffffffffff808211156119f157600080fd5b818601915086601f830112611a0557600080fd5b813581811115611a1757611a17611997565b604051601f8201601f19908116603f01168101908382118183101715611a3f57611a3f611997565b81604052828152896020848701011115611a5857600080fd5b8260208601602083013760006020848301015280955050505050509250925092565b600082611a8957611a896118da565b500690565b6000825160005b81811015611aaf5760208186018101518583015201611a95565b81811115611abe576000828501525b509190910192915050565b634e487b7160e01b600052603260045260246000fd5b6000600019821415611af357611af36118f0565b506001019056fea2646970667358221220a56590433e0dfda6714a96a98bf4689e981841c72d850ccac75cc788553712a864736f6c63430008090033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "challenge(uint256)": {
+        "details": "Submit a challenge for the claim of the current epoch's Fast Bridge batch merkleroot state and submit a deposit. The `batchMerkleRoot` in the claim already made for the last finalized epoch should be different from the one on the sending side, otherwise the sender will lose his deposit.",
+        "params": {
+          "_epoch": "The epoch of the claim to challenge."
+        }
+      },
+      "claim(uint256,bytes32)": {
+        "details": "Submit a claim about the `_batchMerkleRoot` for the last completed epoch from the Fast Bridge  and submit a deposit. The `_batchMerkleRoot` should match the one on the sending side otherwise the sender will lose his deposit.",
+        "params": {
+          "_batchMerkleRoot": "The batch merkle root claimed for the last completed epoch.",
+          "_epoch": "The epoch in which the batch to claim."
+        }
+      },
+      "claimChallengePeriod(uint256)": {
+        "details": "Returns the `start` and `end` time of challenge period for this `epoch`.",
+        "params": {
+          "_epoch": "The epoch of the claim to request the challenge period."
+        },
+        "returns": {
+          "end": "The end time of the challenge period.",
+          "start": "The start time of the challenge period."
+        }
+      },
+      "constructor": {
+        "details": "Constructor.",
+        "params": {
+          "_challengePeriod": "The duration of the period allowing to challenge a claim.",
+          "_deposit": "The deposit amount to submit a claim in wei.",
+          "_epochPeriod": "The duration of each epoch.",
+          "_inbox": "Ethereum receiver specific: The address of the inbox contract on Ethereum.",
+          "_safeBridgeSender": "The address of the Safe Bridge Sender on the connecting chain."
+        }
+      },
+      "verifyAndRelayMessage(uint256,bytes32[],bytes)": {
+        "details": "Verifies merkle proof for the given message and associated nonce for the epoch and relays the message.",
+        "params": {
+          "_epoch": "The epoch in which the message was batched by the bridge.",
+          "_message": "The data on the cross-domain chain for the message.",
+          "_proof": "The merkle proof to prove the membership of the message and nonce in the merkle tree for the epoch."
+        }
+      },
+      "verifyBatch(uint256)": {
+        "details": "Resolves the optimistic claim for '_epoch'.",
+        "params": {
+          "_epoch": "The epoch of the optimistic claim."
+        }
+      },
+      "verifySafeBatch(uint256,bytes32)": {
+        "details": "Resolves any challenge of the optimistic claim for '_epoch'.",
+        "params": {
+          "_batchMerkleRoot": "The true batch merkle root for the epoch.",
+          "_epoch": "The epoch to verify."
+        }
+      },
+      "withdrawChallengeDeposit(uint256)": {
+        "details": "Sends the deposit back to the Challenger if their challenge is successful. Includes a portion of the Bridger's deposit.",
+        "params": {
+          "_epoch": "The epoch associated with the challenge deposit to withraw."
+        }
+      },
+      "withdrawClaimDeposit(uint256)": {
+        "details": "Sends the deposit back to the Bridger if their claim is not successfully challenged. Includes a portion of the Challenger's deposit if unsuccessfully challenged.",
+        "params": {
+          "_epoch": "The epoch associated with the claim deposit to withraw."
+        }
+      }
+    },
+    "stateVariables": {
+      "challengePeriod": {
+        "details": "Returns the challenge period."
+      },
+      "epochPeriod": {
+        "details": "Returns the epoch period."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "verifySafeBatch(uint256,bytes32)": {
+        "notice": "Note: Access restricted to the Safe Bridge."
+      }
+    },
+    "notice": "Fast Receiver On Ethereum Counterpart of `FastSenderFromArbitrum`",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 10588,
+        "contract": "src/bridge/FastBridgeReceiverOnEthereum.sol:FastBridgeReceiverOnEthereum",
+        "label": "fastInbox",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_uint256,t_bytes32)"
+      },
+      {
+        "astId": 10593,
+        "contract": "src/bridge/FastBridgeReceiverOnEthereum.sol:FastBridgeReceiverOnEthereum",
+        "label": "claims",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_uint256,t_struct(Claim)10567_storage)"
+      },
+      {
+        "astId": 10598,
+        "contract": "src/bridge/FastBridgeReceiverOnEthereum.sol:FastBridgeReceiverOnEthereum",
+        "label": "challenges",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_mapping(t_uint256,t_struct(Challenge)10574_storage)"
+      },
+      {
+        "astId": 10604,
+        "contract": "src/bridge/FastBridgeReceiverOnEthereum.sol:FastBridgeReceiverOnEthereum",
+        "label": "relayed",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_mapping(t_uint256,t_mapping(t_uint256,t_bytes32))"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_uint256,t_bytes32)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => bytes32)",
+        "numberOfBytes": "32",
+        "value": "t_bytes32"
+      },
+      "t_mapping(t_uint256,t_mapping(t_uint256,t_bytes32))": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => mapping(uint256 => bytes32))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_uint256,t_bytes32)"
+      },
+      "t_mapping(t_uint256,t_struct(Challenge)10574_storage)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => struct FastBridgeReceiverOnEthereum.Challenge)",
+        "numberOfBytes": "32",
+        "value": "t_struct(Challenge)10574_storage"
+      },
+      "t_mapping(t_uint256,t_struct(Claim)10567_storage)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => struct FastBridgeReceiverOnEthereum.Claim)",
+        "numberOfBytes": "32",
+        "value": "t_struct(Claim)10567_storage"
+      },
+      "t_struct(Challenge)10574_storage": {
+        "encoding": "inplace",
+        "label": "struct FastBridgeReceiverOnEthereum.Challenge",
+        "members": [
+          {
+            "astId": 10569,
+            "contract": "src/bridge/FastBridgeReceiverOnEthereum.sol:FastBridgeReceiverOnEthereum",
+            "label": "challenger",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address"
+          },
+          {
+            "astId": 10571,
+            "contract": "src/bridge/FastBridgeReceiverOnEthereum.sol:FastBridgeReceiverOnEthereum",
+            "label": "honest",
+            "offset": 20,
+            "slot": "0",
+            "type": "t_bool"
+          },
+          {
+            "astId": 10573,
+            "contract": "src/bridge/FastBridgeReceiverOnEthereum.sol:FastBridgeReceiverOnEthereum",
+            "label": "depositAndRewardWithdrawn",
+            "offset": 21,
+            "slot": "0",
+            "type": "t_bool"
+          }
+        ],
+        "numberOfBytes": "32"
+      },
+      "t_struct(Claim)10567_storage": {
+        "encoding": "inplace",
+        "label": "struct FastBridgeReceiverOnEthereum.Claim",
+        "members": [
+          {
+            "astId": 10556,
+            "contract": "src/bridge/FastBridgeReceiverOnEthereum.sol:FastBridgeReceiverOnEthereum",
+            "label": "batchMerkleRoot",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 10558,
+            "contract": "src/bridge/FastBridgeReceiverOnEthereum.sol:FastBridgeReceiverOnEthereum",
+            "label": "bridger",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address"
+          },
+          {
+            "astId": 10560,
+            "contract": "src/bridge/FastBridgeReceiverOnEthereum.sol:FastBridgeReceiverOnEthereum",
+            "label": "timestamp",
+            "offset": 20,
+            "slot": "1",
+            "type": "t_uint32"
+          },
+          {
+            "astId": 10562,
+            "contract": "src/bridge/FastBridgeReceiverOnEthereum.sol:FastBridgeReceiverOnEthereum",
+            "label": "honest",
+            "offset": 24,
+            "slot": "1",
+            "type": "t_bool"
+          },
+          {
+            "astId": 10564,
+            "contract": "src/bridge/FastBridgeReceiverOnEthereum.sol:FastBridgeReceiverOnEthereum",
+            "label": "verificationAttempted",
+            "offset": 25,
+            "slot": "1",
+            "type": "t_bool"
+          },
+          {
+            "astId": 10566,
+            "contract": "src/bridge/FastBridgeReceiverOnEthereum.sol:FastBridgeReceiverOnEthereum",
+            "label": "depositAndRewardWithdrawn",
+            "offset": 26,
+            "slot": "1",
+            "type": "t_bool"
+          }
+        ],
+        "numberOfBytes": "64"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint32": {
+        "encoding": "inplace",
+        "label": "uint32",
+        "numberOfBytes": "4"
+      }
+    }
+  }
+}
