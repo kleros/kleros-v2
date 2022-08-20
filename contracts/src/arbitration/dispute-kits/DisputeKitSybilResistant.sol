@@ -212,7 +212,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         } else if (core.phase() == KlerosCore.Phase.freezing) {
             if (phase == Phase.resolving) {
                 require(disputesWithoutJurors > 0, "All the disputes have jurors");
-                require(block.number >= core.getFreezeBlock() + 20, "Too soon: L1 finality required");
+                require(block.number >= core.freezeBlock() + 20, "Too soon: L1 finality required");
                 // TODO: RNG process is currently unfinished.
                 RNBlock = block.number;
                 rng.requestRN(block.number);
@@ -247,11 +247,11 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
 
-        bytes32 key = bytes32(core.getSubcourtID(_coreDisputeID)); // Get the ID of the tree.
+        (uint96 subcourtID, , , , ) = core.disputes(_coreDisputeID);
+        bytes32 key = bytes32(uint256(subcourtID)); // Get the ID of the tree.
         uint256 drawnNumber = getRandomNumber();
 
-        uint256 K = core.getSortitionSumTreeK(key);
-        uint256 nodesLength = core.getSortitionSumTreeNodesLength(key);
+        (uint256 K, uint256 nodesLength, ) = core.getSortitionSumTree(key, 0);
         uint256 treeIndex = 0;
         uint256 currentDrawnNumber = drawnNumber % core.getSortitionSumTreeNode(key, 0);
 
@@ -275,7 +275,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
             }
         }
 
-        bytes32 ID = core.getSortitionSumTreeID(key, treeIndex);
+        (, , bytes32 ID) = core.getSortitionSumTree(key, treeIndex);
         drawnAddress = stakePathIDToAccount(ID);
 
         if (postDrawCheck(_coreDisputeID, drawnAddress) && !round.alreadyDrawn[drawnAddress]) {
@@ -302,10 +302,8 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         uint256[] calldata _voteIDs,
         bytes32 _commit
     ) external notJumped(_coreDisputeID) {
-        require(
-            core.getCurrentPeriod(_coreDisputeID) == KlerosCore.Period.commit,
-            "The dispute should be in Commit period."
-        );
+        (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
+        require(period == KlerosCore.Period.commit, "The dispute should be in Commit period.");
         require(_commit != bytes32(0), "Empty commit.");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
@@ -333,17 +331,16 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         uint256 _salt,
         string calldata _justification
     ) external notJumped(_coreDisputeID) {
-        require(
-            core.getCurrentPeriod(_coreDisputeID) == KlerosCore.Period.vote,
-            "The dispute should be in Vote period."
-        );
+        (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
+        require(period == KlerosCore.Period.vote, "The dispute should be in Vote period.");
         require(_voteIDs.length > 0, "No voteID provided");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         require(_choice <= dispute.numberOfChoices, "Choice out of bounds");
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
-        bool hiddenVotes = core.areVotesHidden(core.getSubcourtID(_coreDisputeID));
+        (uint96 subcourtID, , , , ) = core.disputes(_coreDisputeID);
+        (, bool hiddenVotes, , , , ) = core.courts(subcourtID);
 
         //  Save the votes.
         for (uint256 i = 0; i < _voteIDs.length; i++) {
@@ -461,7 +458,8 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         uint256 _coreRoundID,
         uint256 _choice
     ) external returns (uint256 amount) {
-        require(core.isRuled(_coreDisputeID), "Dispute should be resolved.");
+        (, , , bool isRuled, ) = core.disputes(_coreDisputeID);
+        require(isRuled, "Dispute should be resolved.");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]];
@@ -666,12 +664,12 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
      *  @return Whether the address can be drawn or not.
      */
     function postDrawCheck(uint256 _coreDisputeID, address _juror) internal view override returns (bool) {
-        uint256 subcourtID = core.getSubcourtID(_coreDisputeID);
+        (uint96 subcourtID, , , , ) = core.disputes(_coreDisputeID);
         (uint256 lockedAmountPerJuror, , , , , ) = core.getRoundInfo(
             _coreDisputeID,
             core.getNumberOfRounds(_coreDisputeID) - 1
         );
-        (uint256 stakedTokens, uint256 lockedTokens) = core.getJurorBalance(_juror, uint96(subcourtID));
+        (uint256 stakedTokens, uint256 lockedTokens) = core.getJurorBalance(_juror, subcourtID);
         if (stakedTokens < lockedTokens + lockedAmountPerJuror) {
             return false;
         } else {
