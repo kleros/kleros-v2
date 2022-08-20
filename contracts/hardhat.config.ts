@@ -86,6 +86,22 @@ const config: HardhatUserConfig = {
         },
       },
     },
+    arbitrumGoerli: {
+      chainId: 421613,
+      url: "https://goerli-rollup.arbitrum.io/rpc",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      live: true,
+      saveDeployments: true,
+      tags: ["staging", "home", "layer2"],
+      companionNetworks: {
+        foreign: "goerli",
+      },
+      verify: {
+        etherscan: {
+          apiKey: process.env.ARBISCAN_API_KEY,
+        },
+      },
+    },
     arbitrum: {
       chainId: 42161,
       url: "https://arb1.arbitrum.io/rpc",
@@ -114,13 +130,16 @@ const config: HardhatUserConfig = {
         home: "arbitrumRinkeby",
       },
     },
-    kovan: {
-      chainId: 42,
-      url: `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`,
+    goerli: {
+      chainId: 5,
+      url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "foreign", "layer1"],
+      companionNetworks: {
+        home: "arbitrumGoerli",
+      },
     },
     mainnet: {
       chainId: 1,

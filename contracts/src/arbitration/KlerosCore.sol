@@ -179,7 +179,7 @@ contract KlerosCore is IArbitrator {
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+        require(governor == msg.sender, "Governor only");
         _;
     }
 
@@ -318,12 +318,12 @@ contract KlerosCore is IArbitrator {
      */
     function addNewDisputeKit(IDisputeKit _disputeKitAddress, uint256 _parent) external onlyByGovernor {
         uint256 disputeKitID = disputeKitNodes.length;
-        require(_parent < disputeKitID, "Parent doesn't exist");
+        require(_parent < disputeKitID, "!Parent");
         uint256 depthLevel;
         if (_parent != NULL_DISPUTE_KIT) {
             depthLevel = disputeKitNodes[_parent].depthLevel + 1;
             // It should be always possible to reach the root from the leaf with the defined number of search iterations.
-            require(depthLevel < SEARCH_ITERATIONS, "Depth level is at max");
+            require(depthLevel < SEARCH_ITERATIONS, "Depth level max");
         }
         disputeKitNodes.push(
             DisputeKitNode({
@@ -364,12 +364,9 @@ contract KlerosCore is IArbitrator {
         uint256 _sortitionSumTreeK,
         uint256[] memory _supportedDisputeKits
     ) external onlyByGovernor {
-        require(
-            courts[_parent].minStake <= _minStake,
-            "A subcourt cannot be a child of a subcourt with a higher minimum stake."
-        );
-        require(_supportedDisputeKits.length > 0, "Must support at least one DK");
-        require(_parent != FORKING_COURT, "Can't have Forking court as a parent");
+        require(courts[_parent].minStake <= _minStake, "MinStake lower than parent court");
+        require(_supportedDisputeKits.length > 0, "!Supported DK");
+        require(_parent != FORKING_COURT, "Invalid: Forking court as parent");
 
         uint256 subcourtID = courts.length;
         Court storage court = courts.push();
@@ -413,12 +410,12 @@ contract KlerosCore is IArbitrator {
      *  @param _minStake The new value for the `minStake` property value.
      */
     function changeSubcourtMinStake(uint96 _subcourtID, uint256 _minStake) external onlyByGovernor {
-        require(_subcourtID == GENERAL_COURT || courts[courts[_subcourtID].parent].minStake <= _minStake);
+        require(
+            _subcourtID == GENERAL_COURT || courts[courts[_subcourtID].parent].minStake <= _minStake,
+            "MinStake lower than parent court"
+        );
         for (uint256 i = 0; i < courts[_subcourtID].children.length; i++) {
-            require(
-                courts[courts[_subcourtID].children[i]].minStake >= _minStake,
-                "A subcourt cannot be the parent of a subcourt with a lower minimum stake."
-            );
+            require(courts[courts[_subcourtID].children[i]].minStake >= _minStake, "MinStake lower than parent court");
         }
 
         courts[_subcourtID].minStake = _minStake;
@@ -491,7 +488,7 @@ contract KlerosCore is IArbitrator {
             } else {
                 require(
                     !(_subcourtID == GENERAL_COURT && disputeKitNodes[_disputeKitIDs[i]].parent == NULL_DISPUTE_KIT),
-                    "Can't remove root DK support from the general court"
+                    "Can't disable Root DK in General"
                 );
                 enableDisputeKit(_subcourtID, _disputeKitIDs[i], false);
             }
@@ -514,7 +511,7 @@ contract KlerosCore is IArbitrator {
      *  @param _iterations The number of delayed stakes to execute.
      */
     function executeDelayedStakes(uint256 _iterations) external {
-        require(phase == Phase.staking, "Should be in Staking phase.");
+        require(phase == Phase.staking, "!Staking phase.");
 
         uint256 actualIterations = (delayedStakeReadIndex + _iterations) - 1 > delayedStakeWriteIndex
             ? (delayedStakeWriteIndex - delayedStakeReadIndex) + 1
@@ -541,13 +538,10 @@ contract KlerosCore is IArbitrator {
         override
         returns (uint256 disputeID)
     {
-        require(msg.value >= arbitrationCost(_extraData), "Not enough ETH to cover arbitration cost.");
-        (uint96 subcourtID, , uint256 disputeKitID) = extraDataToSubcourtIDMinJurorsDisputeKit(_extraData);
+        require(msg.value >= arbitrationCost(_extraData), "ETH too low for arbitration cost");
 
-        require(
-            courts[subcourtID].supportedDisputeKits[disputeKitID],
-            "The dispute kit is not supported by this subcourt"
-        );
+        (uint96 subcourtID, , uint256 disputeKitID) = extraDataToSubcourtIDMinJurorsDisputeKit(_extraData);
+        require(courts[subcourtID].supportedDisputeKits[disputeKitID], "DK unsupported by subcourt");
 
         disputeID = disputes.length;
         Dispute storage dispute = disputes.push();
@@ -577,8 +571,8 @@ contract KlerosCore is IArbitrator {
      */
     function passPhase() external {
         if (phase == Phase.staking) {
-            require(block.timestamp - lastPhaseChange >= minStakingTime, "The minimal staking time has not passed yet");
-            require(disputesKitIDsThatNeedFreezing.length > 0, "There are no dispute kit which need freezing");
+            require(block.timestamp - lastPhaseChange >= minStakingTime, "MinStakingTime not passed");
+            require(disputesKitIDsThatNeedFreezing.length > 0, "No DK needs freezing");
             phase = Phase.freezing;
             freezeBlock = block.number;
         } else {
@@ -590,10 +584,10 @@ contract KlerosCore is IArbitrator {
                 if (timeout && !disputeKit.isResolving()) {
                     // Force the dispute kit to be ready for Staking phase.
                     disputeKit.passPhase(); // Should not be called if already in Resolving phase, because it reverts.
-                    require(disputeKit.isResolving(), "A dispute kit has not passed to Resolving phase");
+                    require(disputeKit.isResolving(), "Some DK not in Resolving phase");
                 } else {
                     // Check if the dispute kit is ready for Staking phase.
-                    require(disputeKit.isResolving(), "A dispute kit has not passed to Resolving phase");
+                    require(disputeKit.isResolving(), "Some DK not in Resolving phase");
                     if (disputeKit.disputesWithoutJurors() == 0) {
                         // The dispute kit had time to finish drawing jurors for all its disputes.
                         disputeKitNodes[disputeKitID].needsFreezing = false;
@@ -627,33 +621,33 @@ contract KlerosCore is IArbitrator {
             require(
                 currentRound > 0 ||
                     block.timestamp - dispute.lastPeriodChange >= court.timesPerPeriod[uint256(dispute.period)],
-                "The evidence period time has not passed yet and it is not an appeal."
+                "Evidence not passed && !Appeal"
             );
-            require(round.drawnJurors.length == round.nbVotes, "The dispute has not finished drawing yet.");
+            require(round.drawnJurors.length == round.nbVotes, "Dispute still drawing");
             dispute.period = court.hiddenVotes ? Period.commit : Period.vote;
         } else if (dispute.period == Period.commit) {
             require(
                 block.timestamp - dispute.lastPeriodChange >= court.timesPerPeriod[uint256(dispute.period)] ||
                     disputeKitNodes[round.disputeKitID].disputeKit.areCommitsAllCast(_disputeID),
-                "The commit period time has not passed yet."
+                "Commit period not passed"
             );
             dispute.period = Period.vote;
         } else if (dispute.period == Period.vote) {
             require(
                 block.timestamp - dispute.lastPeriodChange >= court.timesPerPeriod[uint256(dispute.period)] ||
                     disputeKitNodes[round.disputeKitID].disputeKit.areVotesAllCast(_disputeID),
-                "The vote period time has not passed yet"
+                "Vote period not passed"
             );
             dispute.period = Period.appeal;
             emit AppealPossible(_disputeID, dispute.arbitrated);
         } else if (dispute.period == Period.appeal) {
             require(
                 block.timestamp - dispute.lastPeriodChange >= court.timesPerPeriod[uint256(dispute.period)],
-                "The appeal period time has not passed yet."
+                "Appeal period not passed"
             );
             dispute.period = Period.execution;
         } else if (dispute.period == Period.execution) {
-            revert("The dispute is already in the last period.");
+            revert("Dispute period is final");
         }
 
         dispute.lastPeriodChange = block.timestamp;
@@ -665,12 +659,12 @@ contract KlerosCore is IArbitrator {
      *  @param _iterations The number of iterations to run.
      */
     function draw(uint256 _disputeID, uint256 _iterations) external {
-        require(phase == Phase.freezing, "Wrong phase.");
+        require(phase == Phase.freezing, "Wrong phase");
 
         Dispute storage dispute = disputes[_disputeID];
         uint256 currentRound = dispute.rounds.length - 1;
         Round storage round = dispute.rounds[currentRound];
-        require(dispute.period == Period.evidence, "Should be evidence period.");
+        require(dispute.period == Period.evidence, "!Evidence period");
 
         IDisputeKit disputeKit = disputeKitNodes[round.disputeKitID].disputeKit;
         uint256 startIndex = round.drawnJurors.length;
@@ -698,16 +692,13 @@ contract KlerosCore is IArbitrator {
         uint256 _numberOfChoices,
         bytes memory _extraData
     ) external payable {
-        require(msg.value >= appealCost(_disputeID), "Not enough ETH to cover appeal cost.");
+        require(msg.value >= appealCost(_disputeID), "ETH too low for appeal cost");
 
         Dispute storage dispute = disputes[_disputeID];
-        require(dispute.period == Period.appeal, "Dispute is not appealable.");
+        require(dispute.period == Period.appeal, "Dispute not appealable");
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
-        require(
-            msg.sender == address(disputeKitNodes[round.disputeKitID].disputeKit),
-            "Access not allowed: Dispute Kit only."
-        );
+        require(msg.sender == address(disputeKitNodes[round.disputeKitID].disputeKit), "Dispute Kit only");
 
         uint96 newSubcourtID = dispute.subcourtID;
         uint256 newDisputeKitID = round.disputeKitID;
@@ -784,7 +775,7 @@ contract KlerosCore is IArbitrator {
         uint256 _iterations
     ) external {
         Dispute storage dispute = disputes[_disputeID];
-        require(dispute.period == Period.execution, "Should be execution period.");
+        require(dispute.period == Period.execution, "!Execution period");
 
         Round storage round = dispute.rounds[_round];
         IDisputeKit disputeKit = disputeKitNodes[round.disputeKitID].disputeKit;
@@ -886,8 +877,8 @@ contract KlerosCore is IArbitrator {
      */
     function executeRuling(uint256 _disputeID) external {
         Dispute storage dispute = disputes[_disputeID];
-        require(dispute.period == Period.execution, "Should be execution period.");
-        require(!dispute.ruled, "Ruling already executed.");
+        require(dispute.period == Period.execution, "!Execution period");
+        require(!dispute.ruled, "Ruling already executed");
 
         uint256 winningChoice = currentRuling(_disputeID);
         dispute.ruled = true;
@@ -969,8 +960,7 @@ contract KlerosCore is IArbitrator {
             uint256 disputeKitID
         )
     {
-        Dispute storage dispute = disputes[_disputeID];
-        Round storage round = dispute.rounds[_round];
+        Round storage round = disputes[_disputeID].rounds[_round];
         return (
             round.tokensAtStakePerJuror,
             round.totalFeesForJurors,
@@ -982,8 +972,7 @@ contract KlerosCore is IArbitrator {
     }
 
     function getNumberOfRounds(uint256 _disputeID) external view returns (uint256) {
-        Dispute storage dispute = disputes[_disputeID];
-        return dispute.rounds.length;
+        return disputes[_disputeID].rounds.length;
     }
 
     function getJurorBalance(address _juror, uint96 _subcourtID)
@@ -991,9 +980,8 @@ contract KlerosCore is IArbitrator {
         view
         returns (uint256 staked, uint256 locked)
     {
-        Juror storage juror = jurors[_juror];
-        staked = juror.stakedTokens[_subcourtID];
-        locked = juror.lockedTokens[_subcourtID];
+        staked = jurors[_juror].stakedTokens[_subcourtID];
+        locked = jurors[_juror].lockedTokens[_subcourtID];
     }
 
     function isSupported(uint96 _subcourtID, uint256 _disputeKitID) external view returns (bool) {
@@ -1021,61 +1009,28 @@ contract KlerosCore is IArbitrator {
     // *   Public Views for Dispute Kits   * //
     // ************************************* //
 
-    function getSortitionSumTreeK(bytes32 _key) public view returns (uint256) {
-        return sortitionSumTrees.sortitionSumTrees[_key].K;
-    }
-
-    function getSortitionSumTreeNode(bytes32 _key, uint256 _index) public view returns (uint256) {
+    function getSortitionSumTreeNode(bytes32 _key, uint256 _index) external view returns (uint256) {
         return sortitionSumTrees.sortitionSumTrees[_key].nodes[_index];
     }
 
-    function getSortitionSumTreeNodesLength(bytes32 _key) public view returns (uint256) {
-        return sortitionSumTrees.sortitionSumTrees[_key].nodes.length;
-    }
-
-    function getSortitionSumTree(bytes32 _key)
+    function getSortitionSumTree(bytes32 _key, uint256 _nodeIndex)
         public
         view
         returns (
             uint256 K,
-            uint256[] memory stack,
-            uint256[] memory nodes
+            uint256 length,
+            bytes32 ID
         )
     {
         SortitionSumTreeFactory.SortitionSumTree storage tree = sortitionSumTrees.sortitionSumTrees[_key];
         K = tree.K;
-        stack = tree.stack;
-        nodes = tree.nodes;
-    }
-
-    // TODO: some getters can be merged into a single function
-    function getSortitionSumTreeID(bytes32 _key, uint256 _nodeIndex) external view returns (bytes32 ID) {
-        ID = sortitionSumTrees.sortitionSumTrees[_key].nodeIndexesToIDs[_nodeIndex];
-    }
-
-    function getSubcourtID(uint256 _disputeID) external view returns (uint256 subcourtID) {
-        return disputes[_disputeID].subcourtID;
-    }
-
-    function getCurrentPeriod(uint256 _disputeID) external view returns (Period period) {
-        return disputes[_disputeID].period;
-    }
-
-    function areVotesHidden(uint256 _subcourtID) external view returns (bool hiddenVotes) {
-        return courts[_subcourtID].hiddenVotes;
-    }
-
-    function isRuled(uint256 _disputeID) external view returns (bool) {
-        return disputes[_disputeID].ruled;
+        length = tree.nodes.length;
+        ID = tree.nodeIndexesToIDs[_nodeIndex];
     }
 
     function getNumberOfVotes(uint256 _disputeID) external view returns (uint256) {
         Dispute storage dispute = disputes[_disputeID];
         return dispute.rounds[dispute.rounds.length - 1].nbVotes;
-    }
-
-    function getFreezeBlock() external view returns (uint256) {
-        return freezeBlock;
     }
 
     function freezingPhaseTimeout() external view returns (bool) {
@@ -1086,7 +1041,7 @@ contract KlerosCore is IArbitrator {
      *  @param _disputeID The ID of the dispute.
      *  @return Whether DK will be switched or not.
      */
-    function isDisputeKitJumping(uint256 _disputeID) public view returns (bool) {
+    function isDisputeKitJumping(uint256 _disputeID) external view returns (bool) {
         Dispute storage dispute = disputes[_disputeID];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         Court storage court = courts[dispute.subcourtID];
@@ -1103,10 +1058,6 @@ contract KlerosCore is IArbitrator {
         Dispute storage dispute = disputes[_disputeID];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         (winningChoice, tied) = disputeKitNodes[round.disputeKitID].disputeKit.getLastRoundResult(_disputeID);
-    }
-
-    function getDisputeKitNodesLength() external view returns (uint256) {
-        return disputeKitNodes.length;
     }
 
     function getDisputesKitIDsThatNeedFreezing() external view returns (uint256[] memory) {
