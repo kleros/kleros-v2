@@ -63,7 +63,7 @@ export function handleBatchOutgoing(event: BatchOutgoing): void {
   const batchSize = event.params.batchSize;
   const currentBatchID = event.params.batchID;
 
-  let batch = new Batch(currentBatchID.toString());
+  const batch = new Batch(currentBatchID.toString());
 
   batch.epochFinal = epochFinal;
   batch.batchSize = batchSize;
@@ -87,8 +87,8 @@ export function handleBatchOutgoing(event: BatchOutgoing): void {
 
   // PROOF
   for (let idx = 0; idx < layerZero.length; idx++) {
-    let proof: ByteArray[] = [];
-    let _proof = new Proof(currentBatchID.toString() + "," + idx.toString());
+    const proof: ByteArray[] = [];
+    const _proof = new Proof(currentBatchID.toString() + "," + idx.toString());
     let _idx = idx;
     for (let i = 0; i < layers.length; i++) {
       const pairIdx = idx % 2 === 0 ? idx + 1 : idx - 1;
@@ -109,7 +109,7 @@ export function handleBatchOutgoing(event: BatchOutgoing): void {
 }
 
 function Flatten(a: ByteArray[]): ByteArray {
-  let out = new ByteArray(32 * a.length);
+  const out = new ByteArray(32 * a.length);
   for (let i = 0; i < a.length; i++) out.set(a[i], i * 32);
   return out;
 }
@@ -118,7 +118,7 @@ function getNextLayer(elements: ByteArray[]): ByteArray[] {
   return elements.reduce((layer, el, idx, arr) => {
     if (idx % 2 === 0) {
       // Hash the current element with its pair element
-      if (idx == arr.length - 1) {
+      if (idx === arr.length - 1) {
         layer.push(el);
       } else {
         layer.push(crypto.keccak256(concatAndSortByteArrays(el, arr[idx + 1])));
@@ -130,13 +130,13 @@ function getNextLayer(elements: ByteArray[]): ByteArray[] {
 }
 
 function firstSlotReverse(a: ByteArray): ByteArray {
-  let out = new ByteArray(32);
+  const out = new ByteArray(32);
   for (let i = 0; i < 32; i++) out[i] = a[31 - i];
   return out;
 }
 
 function getAddress(input: ByteArray, offset: i32): ByteArray {
-  let out = new ByteArray(20);
+  const out = new ByteArray(20);
   for (let i = 0; i < 20; i++) out[i] = input[i + offset];
   return out;
 }
