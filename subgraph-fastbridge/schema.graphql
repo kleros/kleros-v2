@@ -32,4 +32,5 @@ type Batch @entity {
   batchSize: BigInt!
   merkleRoot: Bytes
   sentSafe: Boolean
+  canonicalBridgeMessageID: Bytes
 }

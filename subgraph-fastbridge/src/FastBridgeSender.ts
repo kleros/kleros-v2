@@ -3,7 +3,7 @@ import { Bytes, ByteArray, BigInt, crypto } from "@graphprotocol/graph-ts";
 import {
   FastBridgeSender,
   MessageReceived,
-  SendBatch,
+  BatchOutgoing,
   SentSafe,
 } from "../generated/FastBridgeSender/FastBridgeSender";
 import {
@@ -18,7 +18,8 @@ export function handleSentSafe(event: SentSafe): void {
   const batch = Batch.load(event.params.epoch.toString());
   if (batch) {
     batch.sentSafe = true;
-    event.params.canonicalBridgeMessageID;
+    batch.canonicalBridgeMessageID = event.params.canonicalBridgeMessageID;
+    batch.save();
   }
 }
 
@@ -53,7 +54,7 @@ export function handleMessageReceived(event: MessageReceived): void {
   fastMessage.save();
 }
 
-export function handleSendBatch(event: SendBatch): void {
+export function handleBatchOutgoing(event: BatchOutgoing): void {
   const layers: ByteArray[][] = [];
   const layerZero: ByteArray[] = [];
 

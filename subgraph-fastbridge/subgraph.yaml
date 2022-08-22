@@ -1,4 +1,6 @@
 specVersion: 0.0.4
+description: Fast Bridge Sender on Arbitrum Rinkeby.
+repository: https://github.com/kleros/kleros-v2/tree/master/subgraph-fastbridge
 schema:
   file: ./schema.graphql
 dataSources:
@@ -6,9 +8,9 @@ dataSources:
     name: FastBridgeSender
     network: arbitrum-rinkeby
     source:
-      address: "0x0b9e03455Fed83f209Fa7ce596c93ba6aBAd1f46"
+      address: "0xf8A4a85e7153374A1b9BDA763a84252eC286843b"
       abi: FastBridgeSender
-      startBlock: 9610369
+      startBlock: 14453120
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -27,6 +29,6 @@ dataSources:
           handler: handleSentSafe
         - event: MessageReceived(bytes,bytes32)
           handler: handleMessageReceived
-        - event: SendBatch(indexed uint256,uint256,uint256,bytes32)
-          handler: handleSendBatch
+        - event: BatchOutgoing(indexed uint256,uint256,uint256,bytes32)
+          handler: handleBatchOutgoing
       file: ./src/FastBridgeSender.ts

@@ -4,13 +4,16 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ fastbridge",
-    "create-local": "graph create --node http://localhost:8020/ fastbridge",
-    "remove-local": "graph remove --node http://localhost:8020/ fastbridge",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 fastbridge"
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ kleros/fastbridge-arbitrum-rinkeby",
+    "create-local": "graph create --node http://localhost:8020/ kleros/fastbridge-arbitrum-rinkeby",
+    "remove-local": "graph remove --node http://localhost:8020/ kleros/fastbridge-arbitrum-rinkeby",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 kleros/fastbridge-arbitrum-rinkeby"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "^0.33.0",
     "@graphprotocol/graph-ts": "^0.27.0"
+  },
+  "volta": {
+    "node": "16.17.0"
   }
 }
