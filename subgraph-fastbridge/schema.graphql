@@ -1,0 +1,36 @@
+type FastMessage @entity(immutable: true) {
+  id: ID!
+  batchID: BigInt!
+  nonce: BigInt!
+  message: Bytes!
+  receiver: Receiver!
+  sender: Sender!
+  hash: Bytes!
+}
+
+type Proof @entity(immutable: true) {
+  id: ID!
+  batchID: BigInt!
+  nonce: BigInt!
+  data: Bytes!
+  fastMessage: FastMessage!
+}
+
+type Receiver @entity(immutable: true) {
+  id: ID!
+  fastMessages: [FastMessage!]! @derivedFrom(field: "receiver")
+}
+
+type Sender @entity(immutable: true) {
+  id: ID!
+  fastMessages: [FastMessage!]! @derivedFrom(field: "sender")
+}
+
+type Batch @entity {
+  id: ID!
+  epochFinal: BigInt!
+  batchSize: BigInt!
+  merkleRoot: Bytes
+  sentSafe: Boolean
+  canonicalBridgeMessageID: Bytes
+}

@@ -8,7 +8,7 @@ import {
   FastBridgeReceiverOnEthereum,
   ForeignGatewayOnEthereum,
   ArbitrableExample,
-  FastBridgeSenderToEthereumMock,
+  FastBridgeSenderMock,
   HomeGatewayToEthereum,
   DisputeKitClassic,
   InboxMock,
@@ -62,7 +62,7 @@ describe("Integration tests", async () => {
     fastBridgeReceiver = (await ethers.getContract("FastBridgeReceiverOnEthereum")) as FastBridgeReceiverOnEthereum;
     foreignGateway = (await ethers.getContract("ForeignGatewayOnEthereum")) as ForeignGatewayOnEthereum;
     arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
-    fastBridgeSender = (await ethers.getContract("FastBridgeSenderToEthereumMock")) as FastBridgeSenderToEthereumMock;
+    fastBridgeSender = (await ethers.getContract("FastBridgeSenderMock")) as FastBridgeSenderMock;
     homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
     inbox = (await ethers.getContract("InboxMock")) as InboxMock;
   });

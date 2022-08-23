@@ -16,8 +16,8 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
         uint256 numberOfRulingOptions; // The number of choices the arbitrator can give.
     }
 
-    uint256 constant META_EVIDENCE_ID = 0;
-
+    uint256 META_EVIDENCE_ID = 0;
+    address public governor;
     IArbitrator public immutable arbitrator; // Arbitrator is set in constructor and never changed.
     mapping(uint256 => uint256) public externalIDtoLocalID; // Maps external (arbitrator side) dispute IDs to local dispute IDs.
     DisputeStruct[] public disputes; // Stores the disputes' info. disputes[disputeID].
@@ -27,8 +27,8 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
      *  @param _metaEvidence The URI of the meta evidence object for evidence submissions requests.
      */
     constructor(IArbitrator _arbitrator, string memory _metaEvidence) {
+        governor = msg.sender;
         arbitrator = _arbitrator;
-
         emit MetaEvidence(META_EVIDENCE_ID, _metaEvidence);
     }
 
@@ -71,5 +71,10 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
         dispute.ruling = _ruling;
 
         emit Ruling(IArbitrator(msg.sender), _externalDisputeID, dispute.ruling);
+    }
+
+    function changedMetaEvidence(string memory _metaEvidence) external {
+        require(msg.sender == governor, "Not authorized: governor only.");
+        emit MetaEvidence(++META_EVIDENCE_ID, _metaEvidence);
     }
 }
