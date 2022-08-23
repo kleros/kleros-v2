@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import JurorInfo from "./JurorInfo";
+import Courts from "./Courts";
 import CasesDisplay from "components/CasesDisplay";
 
 const Container = styled.div`
@@ -10,10 +11,15 @@ const Container = styled.div`
   padding: 32px;
 `;
 
+const StyledCasesDisplay = styled(CasesDisplay)`
+  margin-top: 64px;
+`;
+
 const Dashboard: React.FC = () => (
   <Container>
     <JurorInfo />
-    <CasesDisplay title="My Cases" casesPerPage={3} />
+    <Courts />
+    <StyledCasesDisplay title="My Cases" casesPerPage={3} />
   </Container>
 );
 

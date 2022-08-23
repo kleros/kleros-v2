@@ -11,19 +11,21 @@ const StyledHR = styled.hr`
 
 interface ICasesDisplay extends ICasesGrid {
   title?: string;
+  className?: string;
 }
 
 const CasesDisplay: React.FC<ICasesDisplay> = ({
   casesPerPage,
   title = "Cases",
+  className,
 }) => (
-  <>
+  <div {...{ className }}>
     <h1>{title}</h1>
     <Search />
     <StatsAndFilters />
     <StyledHR />
     <CasesGrid {...{ casesPerPage }} />
-  </>
+  </div>
 );
 
 export default CasesDisplay;
