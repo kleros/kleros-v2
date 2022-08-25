@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
 import { BigNumber, utils } from "ethers";
 import {
-  IncrementalNG,
+  BlockHashRNG,
   PNK,
   KlerosCore,
   FastBridgeReceiverOnEthereum,
@@ -43,7 +43,7 @@ describe("Integration tests", async () => {
   }
 
   let deployer;
-  let ng, disputeKit, pnk, core, fastBridgeReceiver, foreignGateway, arbitrable, fastBridgeSender, homeGateway, inbox;
+  let rng, disputeKit, pnk, core, fastBridgeReceiver, foreignGateway, arbitrable, fastBridgeSender, homeGateway, inbox;
 
   beforeEach("Setup", async () => {
     ({ deployer } = await getNamedAccounts());
@@ -55,7 +55,7 @@ describe("Integration tests", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    ng = (await ethers.getContract("BlockHashRNGFallback")) as IncrementalNG;
+    rng = (await ethers.getContract("BlockHashRNG")) as BlockHashRNG;
     disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
@@ -68,12 +68,12 @@ describe("Integration tests", async () => {
   });
 
   it("RNG", async () => {
-    let tx = await ng.getRN(9876543210);
+    let tx = await rng.receiveRandomness(9876543210);
     let trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
     let [rn] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`);
     expect(rn).to.equal(0); // requested a block number in the future, so return 0.
 
-    tx = await ng.getRN(5);
+    tx = await rng.receiveRandomness(5);
     trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
     [rn] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`);
     expect(rn).to.not.equal(0); // requested a block number in the past, so return non-zero.

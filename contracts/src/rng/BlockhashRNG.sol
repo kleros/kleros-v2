@@ -1,64 +1,50 @@
-/**
- *  @authors: [@clesaege]
- *  @reviewers: [@remedcu]
- *  @auditors: []
- *  @bounties: []
- *  @deployments: []
- */
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8;
 
 import "./RNG.sol";
 
 /**
- *  @title Random Number Generator usign blockhash
+ *  @title Random Number Generator using blockhash with fallback.
  *  @author Clément Lesaege - <clement@lesaege.com>
  *
- *  This contract implements the RNG standard and gives parties incentives to save the blockhash to avoid it to become unreachable after 256 blocks.
- *
- *  Simple Random Number Generator returning the blockhash.
- *  Allows saving the random number for use in the future.
- *  It allows the contract to still access the blockhash even after 256 blocks.
- *  The first party to call the save function gets the reward.
+ *  Random Number Generator returning the blockhash with a fallback behaviour.
+ *  In case no one called it within the 256 blocks, it returns the previous blockhash.
+ *  This contract must be used when returning 0 is a worse failure mode than returning another blockhash.
+ *  Allows saving the random number for use in the future. It allows the contract to still access the blockhash even after 256 blocks.
  */
 contract BlockHashRNG is RNG {
-    mapping(uint256 => uint256) public randomNumber; // randomNumber[block] is the random number for this block, 0 otherwise.
-    mapping(uint256 => uint256) public reward; // reward[block] is the amount to be paid to the party w.
+    mapping(uint256 => uint256) public randomNumbers; // randomNumbers[block] is the random number for this block, 0 otherwise.
 
-    /** @dev Contribute to the reward of a random number.
+    /**
+     *  @dev Request a random number.
      *  @param _block Block the random number is linked to.
      */
-    function contribute(uint256 _block) public payable override {
-        reward[_block] += msg.value;
+    function requestRandomness(uint256 _block) external override {
+        // nop
     }
 
-    /** @dev Return the random number. If it has not been saved and is still computable compute it.
+    /**
+     *  @dev Return the random number. If it has not been saved and is still computable compute it.
      *  @param _block Block the random number is linked to.
-     *  @return RN Random Number. If the number is not ready or has not been requested 0 instead.
+     *  @return randomNumber The random number or 0 if it is not ready or has not been requested.
      */
-    function getRN(uint256 _block) public override returns (uint256 RN) {
-        RN = randomNumber[_block];
-        if (RN == 0) {
-            saveRN(_block);
-            return randomNumber[_block];
-        } else {
-            return RN;
-        }
-    }
-
-    /** @dev Save the random number for this blockhash and give the reward to the caller.
-     *  @param _block Block the random number is linked to.
-     */
-    function saveRN(uint256 _block) public virtual {
-        if (blockhash(_block) != 0x0) {
-            randomNumber[_block] = uint256(blockhash(_block));
+    function receiveRandomness(uint256 _block) external override returns (uint256 randomNumber) {
+        randomNumber = randomNumbers[_block];
+        if (randomNumber != 0) {
+            return randomNumber;
         }
 
-        if (randomNumber[_block] != 0) {
-            // If the number is set.
-            uint256 rewardToSend = reward[_block];
-            reward[_block] = 0;
-            payable(msg.sender).send(rewardToSend); // Note that the use of send is on purpose as we don't want to block in case msg.sender has a fallback issue.
+        if (_block < block.number && randomNumbers[_block] == 0) {
+            // The random number is not already set and can be.
+            if (blockhash(_block) != 0x0) {
+                // Normal case.
+                randomNumbers[_block] = uint256(blockhash(_block));
+            } else {
+                // The contract was not called in time. Fallback to returning previous blockhash.
+                randomNumbers[_block] = uint256(blockhash(block.number - 1));
+            }
         }
+        randomNumber = randomNumbers[_block];
     }
 }

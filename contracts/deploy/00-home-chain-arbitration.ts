@@ -31,7 +31,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const rng = await deploy("BlockHashRNGFallback", {
+  const rng = await deploy("BlockHashRNG", {
     from: deployer,
     args: [],
     log: true,
