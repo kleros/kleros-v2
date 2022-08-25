@@ -117,7 +117,7 @@ contract FastBridgeReceiverOnEthereum is IFastBridgeReceiver, ISafeBridgeReceive
 
         uint256 epochNow = block.timestamp / epochPeriod;
         // allow claim about current or previous epoch
-        require(_epoch == epochNow || _epoch == epochNow + 1, "Invalid Claim");
+        require(_epoch == epochNow || _epoch == epochNow + 1, "Invalid epoch.");
         require(claims[_epoch].bridger == address(0), "Claim already made for most recent finalized epoch.");
 
         claims[_epoch] = Claim({
