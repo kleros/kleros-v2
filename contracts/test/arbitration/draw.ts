@@ -1,3 +1,4 @@
+import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
 import { BigNumber } from "ethers";
 import { PNK, KlerosCore, ArbitrableExample, HomeGatewayToEthereum, DisputeKitClassic } from "../../typechain-types";
@@ -87,16 +88,24 @@ describe("Draw Benchmark", async () => {
         value: arbitrationCost,
       });
 
-    await network.provider.send("evm_increaseTime", [130]); // Wait for minStakingTime
+    await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
     await core.passPhase(); // Staking -> Freezing
     for (let index = 0; index < 20; index++) {
       await network.provider.send("evm_mine"); // Wait for 20 blocks finality
     }
     await disputeKit.passPhase(); // Resolving -> Generating
+    for (let index = 0; index < 150; index++) {
+      await network.provider.send("evm_mine"); // RNG lookahead
+    }
     await disputeKit.passPhase(); // Generating -> Drawing
 
-    // Draw!
-    const tx3 = await core.draw(0, 1000, { gasLimit: 1000000 });
+    await expect(core.draw(0, 1000, { gasLimit: 1000000 }))
+      .to.emit(core, "Draw")
+      .withArgs(anyValue, 0, 0, 0)
+      .to.emit(core, "Draw")
+      .withArgs(anyValue, 0, 0, 1)
+      .to.emit(core, "Draw")
+      .withArgs(anyValue, 0, 0, 2);
   });
 });

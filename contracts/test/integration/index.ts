@@ -55,7 +55,7 @@ describe("Integration tests", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    ng = (await ethers.getContract("IncrementalNG")) as IncrementalNG;
+    ng = (await ethers.getContract("BlockHashRNGFallback")) as IncrementalNG;
     disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
@@ -68,16 +68,15 @@ describe("Integration tests", async () => {
   });
 
   it("RNG", async () => {
-    const rnOld = await ng.number();
     let tx = await ng.getRN(9876543210);
     let trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
     let [rn] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`);
-    expect(rn).to.equal(rnOld);
+    expect(rn).to.equal(0); // requested a block number in the future, so return 0.
 
-    tx = await ng.getRN(9876543210);
+    tx = await ng.getRN(5);
     trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
     [rn] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`);
-    expect(rn).to.equal(rnOld.add(1));
+    expect(rn).to.not.equal(0); // requested a block number in the past, so return non-zero.
   });
 
   it("Honest Claim - No Challenge - Bridger paid", async () => {
@@ -138,7 +137,7 @@ describe("Integration tests", async () => {
     expect(tx2).to.emit(homeGateway, "Dispute");
     const events2 = (await tx2.wait()).events;
 
-    await network.provider.send("evm_increaseTime", [130]); // Wait for minStakingTime
+    await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
 
     expect(await core.phase()).to.equal(Phase.staking);
@@ -158,6 +157,7 @@ describe("Integration tests", async () => {
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
+    await mineBlocks(150); // Wait for RNG lookahead
     await disputeKit.passPhase(); // Generating -> Drawing
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.drawing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
@@ -298,7 +298,7 @@ describe("Integration tests", async () => {
 
     expect(tx2).to.emit(homeGateway, "Dispute");
 
-    await network.provider.send("evm_increaseTime", [130]); // Wait for minStakingTime
+    await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
 
     expect(await core.phase()).to.equal(Phase.staking);
@@ -318,6 +318,7 @@ describe("Integration tests", async () => {
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
+    await mineBlocks(150); // Wait for RNG lookahead
     await disputeKit.passPhase(); // Generating -> Drawing
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.drawing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
@@ -465,7 +466,7 @@ describe("Integration tests", async () => {
       });
     expect(tx2).to.emit(homeGateway, "Dispute");
 
-    await network.provider.send("evm_increaseTime", [130]); // Wait for minStakingTime
+    await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
 
     expect(await core.phase()).to.equal(Phase.staking);
@@ -485,6 +486,7 @@ describe("Integration tests", async () => {
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
+    await mineBlocks(150); // Wait for RNG lookahead
     await disputeKit.passPhase(); // Generating -> Drawing
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.drawing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());

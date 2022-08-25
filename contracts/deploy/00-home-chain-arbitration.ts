@@ -25,9 +25,9 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const chainId = Number(await getChainId());
   console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
-  const rng = await deploy("IncrementalNG", {
+  const rng = await deploy("BlockHashRNGFallback", {
     from: deployer,
-    args: [67193503189],
+    args: [],
     log: true,
   });
 
@@ -67,7 +67,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       pnk,
       AddressZero,
       disputeKit.address,
-      [120, 120], // minStakingTime, maxFreezingTime
+      [1800, 1800], // minStakingTime, maxFreezingTime
       false,
       [minStake, alpha, feeForJuror, 3], // minStake, alpha, feeForJuror, jurorsForCourtJump
       [0, 0, 0, 0], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
