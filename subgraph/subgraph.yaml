@@ -6,7 +6,7 @@ dataSources:
     name: KlerosCore
     network: arbitrum-rinkeby
     source:
-      address: "0x140Cae40BD7eEF075e15c30CF84d1EAa0F4932b8"
+      address: "0x815d709EFCF5E69e2e9E2F8d3815d762496a2f0F"
       abi: KlerosCore
       startBlock: 9609833
     mapping:
@@ -39,6 +39,14 @@ dataSources:
           handler: handleDraw
         - event: NewPeriod(indexed uint256,uint8)
           handler: handleNewPeriod
+        - event: SubcourtCreated(indexed uint256,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256,uint256[])
+          handler: handleSubcourtCreated
+        - event: SubcourtModified(indexed uint96,string)
+          handler: handleSubcourtModified
+        - event: DisputeKitCreated(indexed uint256,indexed address,indexed uint256)
+          handler: handleDisputeKitCreated
+        - event: DisputeKitEnabled(indexed uint96,indexed uint256,indexed bool)
+          handler: handleDisputeKitEnabled
         - event: StakeSet(indexed address,uint256,uint256,uint256)
           handler: handleStakeSet
         - event: TokenAndETHShift(indexed address,indexed uint256,int256,int256)
@@ -48,7 +56,7 @@ dataSources:
     name: HomeGateway
     network: arbitrum-rinkeby
     source:
-      address: "0x2Aa1f82d363f79c1E7a4CcF955Fb7E4306b9B260"
+      address: "0x4e894c2B60214beC53B60D09F39544518296C07B"
       abi: HomeGateway
       startBlock: 9609833
     mapping:
@@ -59,7 +67,7 @@ dataSources:
         - GatewayDispute
       abis:
         - name: HomeGateway
-          file: ../contracts/deployments/arbitrumRinkeby/HomeGateway.json
+          file: ../contracts/deployments/arbitrumRinkeby/HomeGatewayToEthereum.json
       eventHandlers:
         - event: Dispute(indexed address,indexed uint256,uint256,uint256)
           handler: handleDisputeEvent
@@ -68,7 +76,7 @@ dataSources:
     name: FastBridgeSender
     network: arbitrum-rinkeby
     source:
-      address: "0x0b9e03455Fed83f209Fa7ce596c93ba6aBAd1f46"
+      address: "0xf8A4a85e7153374A1b9BDA763a84252eC286843b"
       abi: FastBridgeSender
       startBlock: 9609833
     mapping:
@@ -81,6 +89,6 @@ dataSources:
         - name: FastBridgeSender
           file: ../contracts/deployments/arbitrumRinkeby/FastBridgeSender.json
       eventHandlers:
-        - event: OutgoingMessage(address,bytes32,bytes)
-          handler: handleOutgoingMessage
+        - event: BatchOutgoing(indexed uint256,uint256,uint256,bytes32)
+          handler: handleBatchOutgoing
       file: ./src/FastBridgeSender.ts

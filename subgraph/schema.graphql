@@ -9,7 +9,7 @@ enum Period {
 type Court @entity {
   id: ID!
   hiddenVotes: Boolean!
-  parent: Court!
+  parent: Court
   children: [Court!]! @derivedFrom(field: "parent")
   minStake: BigInt!
   alpha: BigInt!
@@ -81,7 +81,8 @@ type Dispute @entity {
 
 type DisputeKit @entity {
   id: ID!
-  parent: DisputeKit!
+  address: Bytes
+  parent: DisputeKit
   children: [DisputeKit!]! @derivedFrom(field: "parent")
   needsFreezing: Boolean!
   depthLevel: BigInt!
@@ -98,11 +99,11 @@ type GatewayDispute @entity {
   relayer: Bytes!
 }
 
-type OutgoingMessage @entity {
+type OutgoingBatch @entity {
   id: ID! # Set to messageHash
-  target: Bytes!
-  messageHash: String!
-  message: String!
+  size: BigInt!
+  epoch: BigInt!
+  batchMerkleRoot: String!
 }
 
 type PNKStakedDataPoint @entity {
