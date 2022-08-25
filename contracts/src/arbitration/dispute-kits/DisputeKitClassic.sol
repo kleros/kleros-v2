@@ -71,10 +71,11 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the appeal cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
     uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
     uint256 public constant ONE_BASIS_POINT = 10000; // One basis point, for scaling.
+    uint256 public constant RNG_LOOKAHEAD = 132 + 20; // Minimum block distance between requesting and obtaining a random number. Post-merge EIP-4933 recommendation of 4 epochs + 4 slots = 132 blocks. Arbitrum sequencer finality = 20 blocks.
 
     RNG public rng; // The random number generator
-    uint256 public RNBlock; // The block number when the random number was requested.
-    uint256 public RN; // The current random number.
+    uint256 public rngRequestedBlock; // The block number requested to the random number.
+    uint256 public randomNumber; // The current random number.
     Phase public phase; // Current phase of this dispute kit.
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
     Dispute[] public disputes; // Array of the locally created disputes.
@@ -148,7 +149,10 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
      */
     function changeRandomNumberGenerator(RNG _rng) external onlyByGovernor {
         rng = _rng;
-        // TODO: if current phase is generating, call rng.requestRN() for the next block
+        if (phase == Phase.generating) {
+            rngRequestedBlock = block.number + RNG_LOOKAHEAD;
+            rng.requestRN(rngRequestedBlock); // payable, TODO: not consistent, fix this
+        }
     }
 
     // ************************************* //
@@ -193,14 +197,12 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         } else if (core.phase() == KlerosCore.Phase.freezing) {
             if (phase == Phase.resolving) {
                 require(disputesWithoutJurors > 0, "All the disputes have jurors");
-                require(block.number >= core.freezeBlock() + 20, "Too soon: L1 finality required");
-                // TODO: RNG process is currently unfinished.
-                RNBlock = block.number;
-                rng.requestRN(block.number);
+                rngRequestedBlock = core.freezeBlock() + RNG_LOOKAHEAD;
+                rng.requestRN(rngRequestedBlock); // payable, TODO: not consistent, fix this
                 phase = Phase.generating;
             } else if (phase == Phase.generating) {
-                RN = rng.getRN(RNBlock);
-                require(RN != 0, "Random number is not ready yet");
+                randomNumber = rng.getRN(rngRequestedBlock);
+                require(randomNumber != 0, "Random number is not ready yet");
                 phase = Phase.drawing;
             } else if (phase == Phase.drawing) {
                 require(disputesWithoutJurors == 0, "Not ready for Resolving phase");
@@ -230,11 +232,13 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
 
         (uint96 subcourtID, , , , ) = core.disputes(_coreDisputeID);
         bytes32 key = bytes32(uint256(subcourtID)); // Get the ID of the tree.
-        uint256 drawnNumber = getRandomNumber();
 
         (uint256 K, uint256 nodesLength, ) = core.getSortitionSumTree(key, 0);
         uint256 treeIndex = 0;
-        uint256 currentDrawnNumber = drawnNumber % core.getSortitionSumTreeNode(key, 0);
+        uint256 currentDrawnNumber = uint256(
+            keccak256(abi.encodePacked(randomNumber, _coreDisputeID, round.votes.length))
+        );
+        currentDrawnNumber %= core.getSortitionSumTreeNode(key, 0);
 
         // TODO: Handle the situation when no one has staked yet.
 
@@ -651,13 +655,6 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         );
         (uint256 stakedTokens, uint256 lockedTokens) = core.getJurorBalance(_juror, subcourtID);
         return stakedTokens >= lockedTokens + lockedAmountPerJuror;
-    }
-
-    /** @dev RNG function
-     *  @return rn A random number.
-     */
-    function getRandomNumber() internal returns (uint256) {
-        return rng.getUncorrelatedRN(block.number);
     }
 
     /** @dev Retrieves a juror's address from the stake path ID.
