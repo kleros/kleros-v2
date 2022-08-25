@@ -47,14 +47,16 @@ describe("Unstake juror", async () => {
 
     await core.createDispute(2, extraData, { value: arbitrationCost });
 
-    await network.provider.send("evm_increaseTime", [130]); // Wait for minStakingTime
+    await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
     await core.passPhase(); // Staking -> Freezing
-
     for (let index = 0; index < 20; index++) {
       await network.provider.send("evm_mine"); // Wait for 20 blocks finality
     }
     await disputeKit.passPhase(); // Resolving -> Generating
+    for (let index = 0; index < 150; index++) {
+      await network.provider.send("evm_mine"); // RNG lookahead
+    }
     await disputeKit.passPhase(); // Generating -> Drawing
 
     await core.draw(0, 5000);
