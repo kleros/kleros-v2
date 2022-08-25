@@ -25,7 +25,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const chainId = Number(await getChainId());
   console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
-  const rng = await deploy("BlockHashRNGFallback", {
+  const rng = await deploy("BlockHashRNG", {
     from: deployer,
     args: [],
     log: true,

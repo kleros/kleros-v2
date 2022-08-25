@@ -151,7 +151,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         rng = _rng;
         if (phase == Phase.generating) {
             rngRequestedBlock = block.number + RNG_LOOKAHEAD;
-            rng.requestRN(rngRequestedBlock); // payable, TODO: not consistent, fix this
+            rng.requestRandomness(rngRequestedBlock);
         }
     }
 
@@ -198,10 +198,10 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
             if (phase == Phase.resolving) {
                 require(disputesWithoutJurors > 0, "All the disputes have jurors");
                 rngRequestedBlock = core.freezeBlock() + RNG_LOOKAHEAD;
-                rng.requestRN(rngRequestedBlock); // payable, TODO: not consistent, fix this
+                rng.requestRandomness(rngRequestedBlock);
                 phase = Phase.generating;
             } else if (phase == Phase.generating) {
-                randomNumber = rng.getRN(rngRequestedBlock);
+                randomNumber = rng.receiveRandomness(rngRequestedBlock);
                 require(randomNumber != 0, "Random number is not ready yet");
                 phase = Phase.drawing;
             } else if (phase == Phase.drawing) {

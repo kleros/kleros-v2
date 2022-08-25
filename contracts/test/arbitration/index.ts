@@ -70,7 +70,7 @@ describe("DisputeKitClassic", async () => {
 });
 
 async function deployContracts(deployer) {
-  const rngFactory = await ethers.getContractFactory("BlockHashRNGFallback", deployer);
+  const rngFactory = await ethers.getContractFactory("BlockHashRNG", deployer);
   const rng = await rngFactory.deploy();
   await rng.deployed();
 
