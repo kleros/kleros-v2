@@ -71,7 +71,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the appeal cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
     uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
     uint256 public constant ONE_BASIS_POINT = 10000; // One basis point, for scaling.
-    uint256 public constant RNG_LOOKAHEAD = 132 + 20; // Minimum block distance between requesting and obtaining a random number. Post-merge EIP-4933 recommendation of 4 epochs + 4 slots = 132 blocks. Arbitrum sequencer finality = 20 blocks.
+    uint256 public constant RNG_LOOKAHEAD = 20; // Minimum block distance between requesting and obtaining a random number. Arbitrum sequencer finality = 20 blocks.
 
     RNG public rng; // The random number generator
     uint256 public rngRequestedBlock; // The block number requested to the random number.

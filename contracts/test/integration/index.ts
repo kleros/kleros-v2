@@ -157,7 +157,7 @@ describe("Integration tests", async () => {
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
-    await mineBlocks(150); // Wait for RNG lookahead
+    await mineBlocks(20); // Wait for RNG lookahead
     await disputeKit.passPhase(); // Generating -> Drawing
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.drawing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
@@ -318,7 +318,7 @@ describe("Integration tests", async () => {
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
-    await mineBlocks(150); // Wait for RNG lookahead
+    await mineBlocks(20); // Wait for RNG lookahead
     await disputeKit.passPhase(); // Generating -> Drawing
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.drawing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
@@ -486,7 +486,7 @@ describe("Integration tests", async () => {
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
-    await mineBlocks(150); // Wait for RNG lookahead
+    await mineBlocks(20); // Wait for RNG lookahead
     await disputeKit.passPhase(); // Generating -> Drawing
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.drawing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());

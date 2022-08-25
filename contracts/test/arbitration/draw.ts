@@ -95,7 +95,7 @@ describe("Draw Benchmark", async () => {
       await network.provider.send("evm_mine"); // Wait for 20 blocks finality
     }
     await disputeKit.passPhase(); // Resolving -> Generating
-    for (let index = 0; index < 150; index++) {
+    for (let index = 0; index < 20; index++) {
       await network.provider.send("evm_mine"); // RNG lookahead
     }
     await disputeKit.passPhase(); // Generating -> Drawing
