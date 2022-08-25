@@ -1,11 +1,17 @@
-import { Address, BigInt, Entity, Value, store } from "@graphprotocol/graph-ts";
+import {
+  Address,
+  BigInt,
+  Entity,
+  Value,
+  store,
+  BigDecimal,
+} from "@graphprotocol/graph-ts";
 import {
   KlerosCore,
   AppealDecision,
   DisputeCreation,
   DisputeKitCreated,
   DisputeKitEnabled,
-  DisputeKitDisabled,
   SubcourtCreated,
   SubcourtModified,
   Draw as DrawEvent,
@@ -29,7 +35,7 @@ function getPeriodName(index: i32): string {
   return periodArray.at(index) || "None";
 }
 
-export function handleSubcourtCreation(event: SubcourtCreated): void {
+export function handleSubcourtCreated(event: SubcourtCreated): void {
   const subcourt = new Court(event.params._subcourtID.toString());
   subcourt.hiddenVotes = event.params._hiddenVotes;
   subcourt.parent = event.params._parent.toString();
@@ -38,15 +44,14 @@ export function handleSubcourtCreation(event: SubcourtCreated): void {
   subcourt.feeForJuror = event.params._feeForJuror;
   subcourt.jurorsForCourtJump = event.params._jurorsForCourtJump;
   subcourt.timesPerPeriod = event.params._timesPerPeriod;
-  let supportedDisputeKits = [];
-  for (let i = 0; i < event.params._supportedDisputeKits.length; i++) {
-    supportedDisputeKits.push(event.params._supportedDisputeKits[i].toString());
-  }
-  subcourt.supportedDisputeKits = supportedDisputeKits;
+  subcourt.supportedDisputeKits =
+    event.params._supportedDisputeKits.map<string>((disputeKitID: BigInt) =>
+      disputeKitID.toString()
+    );
   subcourt.save();
 }
 
-export function handleSubcourtModification(event: SubcourtModified): void {
+export function handleSubcourtModified(event: SubcourtModified): void {
   const court = Court.load(event.params._subcourtID.toString());
   if (court) {
     const contract = KlerosCore.bind(event.address);
@@ -62,13 +67,38 @@ export function handleSubcourtModification(event: SubcourtModified): void {
 }
 
 export function handleDisputeKitCreated(event: DisputeKitCreated): void {
-  const disputeKit = new DisputeKit(event.params._disputeKitID);
+  const disputeKit = new DisputeKit(event.params._disputeKitID.toString());
+  disputeKit.parent = event.params._parent.toString();
+  disputeKit.address = event.params._disputeKitAddress;
+  disputeKit.needsFreezing = false;
+  const parent = DisputeKit.load(event.params._parent.toString());
+  disputeKit.depthLevel = parent
+    ? parent.depthLevel.plus(BigInt.fromI32(1))
+    : BigInt.fromI32(0);
+  disputeKit.save();
 }
 
 export function handleDisputeKitEnabled(event: DisputeKitEnabled): void {
+  const court = Court.load(event.params._subcourtID.toString());
+  if (court) {
+    const isEnable = event.params._enable;
+    const disputeKitID = event.params._disputeKitID.toString();
+    court.supportedDisputeKits = isEnable
+      ? court.supportedDisputeKits.concat([disputeKitID])
+      : filterSupportedDisputeKits(court.supportedDisputeKits, disputeKitID);
+    court.save();
+  }
 }
 
-export function handleDisputeKitDisabled(event: DisputeKitDisabled): void {
+function filterSupportedDisputeKits(
+  supportedDisputeKits: string[],
+  disputeKitID: string
+): string[] {
+  let result: string[] = [];
+  for (let i = 0; i < supportedDisputeKits.length; i++)
+    if (supportedDisputeKits[i] !== disputeKitID)
+      result = result.concat([supportedDisputeKits[i]]);
+  return result;
 }
 
 export function handleAppealDecision(event: AppealDecision): void {
