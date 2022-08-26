@@ -8,6 +8,13 @@ interface IContext {
   isValidating: boolean;
 }
 
+export type HomePageQueryDataPoints =
+  | HomePageQuery["pnkstakedDataPoints"]
+  | HomePageQuery["pnkredistributedDataPoints"]
+  | HomePageQuery["casesDataPoints"]
+  | HomePageQuery["ethpaidDataPoints"]
+  | HomePageQuery["activeJurorsDataPoints"];
+
 const Context = createContext<IContext>({
   data: undefined,
   error: null,
