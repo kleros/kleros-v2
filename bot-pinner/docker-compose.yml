@@ -1,0 +1,22 @@
+version: "3.4"
+services:
+  ipfs0:
+    container_name: ipfs0
+    image: ipfs/go-ipfs:latest
+    ports:
+#     - "4001:4001" # ipfs swarm - expose if needed/wanted
+        - "5001:5001" # ipfs api - expose if needed/wanted
+        - "8080:8080" # ipfs gateway - expose if needed/wanted
+    volumes:
+      - ./compose/ipfs0:/data/ipfs
+
+  poh_watcher:
+      network_mode:  host
+      container_name: add-poh-hashes
+      build: .
+      volumes:
+        - ./PoH/:/var/lib/data/
+      environment:
+          RPC: "INFURA/RPC"
+          INTERVAL: 600
+
