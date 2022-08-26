@@ -823,8 +823,9 @@ contract KlerosCore is IArbitrator {
 
                 // Unstake the juror if he lost due to inactivity.
                 if (!disputeKit.isVoteActive(_disputeID, _round, i)) {
-                    for (uint256 j = 0; j < jurors[account].subcourtIDs.length; j++) {
-                        setStakeForAccount(account, jurors[account].subcourtIDs[j], 0, 0);
+                    uint96[] memory subcourtIDs = getJurorSubcourtIDs(account);
+                    for (uint256 j = 0; j < subcourtIDs.length; j++) {
+                        setStakeForAccount(account, subcourtIDs[j], 0, 0);
                     }
                 }
                 emit TokenAndETHShift(account, _disputeID, -int256(penalty), 0);
@@ -1062,6 +1063,10 @@ contract KlerosCore is IArbitrator {
 
     function getDisputesKitIDsThatNeedFreezing() external view returns (uint256[] memory) {
         return disputesKitIDsThatNeedFreezing;
+    }
+
+    function getJurorSubcourtIDs(address _juror) public view returns (uint96[] memory) {
+        return jurors[_juror].subcourtIDs;
     }
 
     // ************************************* //
