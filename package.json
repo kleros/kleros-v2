@@ -4,7 +4,15 @@
   "description": "Kleros version 2",
   "main": "index.js",
   "repository": "git@github.com:kleros/kleros-v2.git",
-  "author": "Kleros",
+  "author": {
+    "name": "Kleros",
+    "email": "contact@kleros.io",
+    "url": "https://kleros.io"
+  },
+  "bugs": {
+    "url": "https://github.com/kleros/kleros-v2/issues",
+    "email": "contact@kleros.io"
+  },
   "license": "MIT",
   "private": true,
   "workspaces": [
