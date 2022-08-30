@@ -1,7 +1,7 @@
 version: "3.4"
 services:
-  ipfs0:
-    container_name: ipfs0
+  ipfs1:
+    container_name: ipfs1
     image: ipfs/go-ipfs:latest
     ports:
 #     - "4001:4001" # ipfs swarm - expose if needed/wanted
@@ -10,13 +10,17 @@ services:
     volumes:
       - ./compose/ipfs0:/data/ipfs
 
-  poh_watcher:
+  kleros-court-v2-evidence:
+      depends_on:
+        - ipfs1
       network_mode:  host
-      container_name: add-poh-hashes
+      container_name: court-v2-evidence
       build: .
       volumes:
-        - ./PoH/:/var/lib/data/
+        - ./court/:/var/lib/data/
+        - ./watchlist/:/var/lib/watchlist/
       environment:
-          RPC: "INFURA/RPC"
-          INTERVAL: 600
+          RPC: "https://rinkeby.arbitrum.io/rpc"
+          INTERVAL: 300
+          RETRY: 2
 
