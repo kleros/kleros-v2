@@ -17,6 +17,7 @@
   "private": true,
   "workspaces": [
     "bots",
+    "bot-pinner",
     "contracts",
     "dynamic-script",
     "evidence-display",

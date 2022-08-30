@@ -21,6 +21,7 @@ services:
         - ./watchlist/:/var/lib/watchlist/
       environment:
           RPC: "https://rinkeby.arbitrum.io/rpc"
+          IPFS: "http://localhost:5001/api/v0"
           INTERVAL: 300
           RETRY: 2
 
