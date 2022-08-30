@@ -12,6 +12,7 @@ motd()
 
 # Init
 RPC = os.environ.get("RPC", "http://localhost:8545")
+IPFS = os.environ.get("IPFS", "http://ipfs-cluster.dappnode:9094")
 INTERVAL = os.environ.get("INTERVAL", 600)  # Events are not constantly listened to, instead it checks per INTERVAL.
 RETRY = int(os.environ.get("RETRY", 0)) # Retry interval value
 attempted_retries = dict()
@@ -83,7 +84,7 @@ def check_hash(_hash):
 def add_hash(_hash):
     _hash = check_hash(_hash)
     try:
-        r = requests.post(f"http://localhost:5001/api/v0/pin/add/{_hash}", timeout=30)
+        r = requests.post(f"{IPFS}/pin/add/{_hash}", timeout=30)
         logger.info(f"Added {_hash}")
         if _hash in hashes_wanted: hashes_wanted.remove(_hash)
     except requests.exceptions.ReadTimeout:
