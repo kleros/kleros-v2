@@ -79,13 +79,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
 
   const fastBridgeReceiver = await deploy("FastBridgeReceiverOnEthereum", {
     from: deployer,
-    args: [
-      deposit,
-      epochPeriod,
-      challengePeriod,
-      fastBridgeSenderAddress,
-      inboxAddress
-    ],
+    args: [deposit, epochPeriod, challengePeriod, fastBridgeSenderAddress, inboxAddress],
     log: true,
   });
 

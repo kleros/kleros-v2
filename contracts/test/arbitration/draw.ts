@@ -1,6 +1,13 @@
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
 import { BigNumber } from "ethers";
-import { PNK, KlerosCore, ArbitrableExample, HomeGatewayToEthereum, DisputeKitClassic } from "../../typechain-types";
+import {
+  PNK,
+  KlerosCore,
+  ArbitrableExample,
+  HomeGatewayToEthereum,
+  DisputeKitClassic,
+  SortitionModule,
+} from "../../typechain-types";
 import { expect } from "chai";
 
 /* eslint-disable no-unused-vars */
@@ -37,6 +44,7 @@ describe("Draw Benchmark", async () => {
   let core;
   let arbitrable;
   let homeGateway;
+  let sortitionModule;
 
   beforeEach("Setup", async () => {
     deployer = (await getNamedAccounts()).deployer;
@@ -54,6 +62,7 @@ describe("Draw Benchmark", async () => {
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
     homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
     arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
+    sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
   });
 
   it("Draw Benchmark", async () => {
@@ -89,7 +98,7 @@ describe("Draw Benchmark", async () => {
 
     await network.provider.send("evm_increaseTime", [130]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
-    await core.passPhase(); // Staking -> Freezing
+    await sortitionModule.passPhase(); // Staking -> Freezing
     for (let index = 0; index < 20; index++) {
       await network.provider.send("evm_mine"); // Wait for 20 blocks finality
     }

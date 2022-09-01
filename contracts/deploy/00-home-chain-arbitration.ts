@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
+import getContractAddress from "../deploy-helpers/getContractAddress";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -14,9 +15,16 @@ const pnkByChain = new Map<HomeChains, string>([
 ]);
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  const { deployments, getNamedAccounts, getChainId } = hre;
+  const { ethers, deployments, getNamedAccounts, getChainId, config } = hre;
   const { deploy, execute } = deployments;
   const { AddressZero } = hre.ethers.constants;
+  const { providers } = ethers;
+
+  const homeNetworks = {
+    42161: config.networks.arbitrum,
+    421611: config.networks.arbitrumRinkeby,
+    31337: config.networks.localhost,
+  };
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -35,11 +43,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const sortitionSumTreeLibrary = await deploy("SortitionSumTreeFactory", {
-    from: deployer,
-    log: true,
-  });
-
   if (chainId === HomeChains.HARDHAT) {
     pnkByChain.set(
       HomeChains.HARDHAT,
@@ -51,25 +54,37 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       ).address
     );
   }
+
+  let nonce;
+  const homeChainProvider = new providers.JsonRpcProvider(homeNetworks[chainId].url);
+  nonce = await homeChainProvider.getTransactionCount(deployer);
+  nonce += 4;
+  const KlerosCoreAddress = getContractAddress(deployer, nonce);
+  console.log("calculated future KlerosCore address for nonce %d: %s", nonce, KlerosCoreAddress);
+
+  const sortitionModule = await deploy("SortitionModule", {
+    from: deployer,
+    args: [KlerosCoreAddress, 120, 120], // minStakingTime, maxFreezingTime
+    log: true,
+  });
+
   const pnk = pnkByChain.get(Number(await getChainId())) ?? AddressZero;
   const minStake = BigNumber.from(10).pow(20).mul(2);
   const alpha = 10000;
   const feeForJuror = BigNumber.from(10).pow(17);
   const klerosCore = await deploy("KlerosCore", {
     from: deployer,
-    libraries: {
-      SortitionSumTreeFactory: sortitionSumTreeLibrary.address,
-    },
     args: [
       deployer,
       pnk,
       AddressZero,
       disputeKit.address,
-      [120, 120], // minStakingTime, maxFreezingTime
       false,
       [minStake, alpha, feeForJuror, 3], // minStake, alpha, feeForJuror, jurorsForCourtJump
       [0, 0, 0, 0], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      3,
+      0xfa, // Extra data for sortition module will return the default value of K
+      sortitionModule.address,
+      7, // all 3 flags set to 'true'
     ],
     log: true,
   });
