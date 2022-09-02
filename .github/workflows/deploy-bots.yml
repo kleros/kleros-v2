@@ -24,11 +24,11 @@ jobs:
           aws-region: us-east-2
       
       # sam build 
-      - run: sam build --use-container
+      - run: sam build --use-container --beta-features
         working-directory: bots
 
       # Run Unit tests- Specify unit tests here 
 
       # sam deploy
-      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name kleros-v2-bots --s3-bucket kleros-v2-bots --capabilities CAPABILITY_IAM --region us-east-2
+      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name kleros-v2-bots --s3-bucket kleros-v2-bots --region us-east-2 --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
         working-directory: bots
