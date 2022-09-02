@@ -1,3 +1,4 @@
+name: "Bots Deployment to AWS"
 on: [workflow_dispatch]
 
 permissions:  # added using https://github.com/step-security/secure-workflows
@@ -6,6 +7,7 @@ permissions:  # added using https://github.com/step-security/secure-workflows
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    environment: Staging
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@c8454efe5d0bdefd25384362fe217428ca277d57

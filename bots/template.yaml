@@ -26,6 +26,9 @@ Resources:
       Runtime: nodejs16.x
       Architectures:
         - x86_64
+      Environment:
+        Variables:
+          NODE_OPTIONS: --enable-source-maps
       Policies:
         - AWSLambdaExecute
         - Version: '2012-10-17'
