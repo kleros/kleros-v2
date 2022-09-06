@@ -47,7 +47,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [PolicyRegistry](https://testnet.arbiscan.io/address/0x76262035D1b280cC0b08024177b837893bcAd3DA)
 - [SortitionSumTreeFactory](https://testnet.arbiscan.io/address/0x48ce286978C74c288eA6Bc9a536BcC899DF8D177)
 
-## Contributing
+## Getting Started
 
 ### Install the Dependencies
 
@@ -159,4 +159,34 @@ This must be done for each network separately.
 
 ```bash
 yarn hardhat --network <arbitrumGoerli|arbitrumRinkeby|arbitrum|goerli|rinkeby|mainnet> etherscan-verify
+```
+
+## Ad-hoc procedures
+
+### Populating the policy registry
+
+#### 1/ Export the registry data from V1
+
+```bash
+yarn hardhat run scripts/getPoliciesV1.ts  --network mainnet | tee policies.v1.json
+```
+
+#### 2/ Import the data to V2 - Local Network
+
+Shell 1:
+
+```bash
+yarn hardhat node --tags Arbitration
+```
+
+Shell 2:
+
+```bash
+yarn hardhat run scripts/populatePolicyRegistry.ts --network localhost
+```
+
+#### 3/ Import the data to V2 - Public Testnet
+
+```bash
+yarn hardhat run scripts/populatePolicyRegistry.ts --network arbitrumRinkeby
 ```
