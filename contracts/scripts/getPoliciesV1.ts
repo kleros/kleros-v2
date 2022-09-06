@@ -13,11 +13,11 @@ interface Policy {
 async function main() {
   const policyRegistryV1 = await ethers.getContractAt("PolicyRegistry", "0xCf1f07713d5193FaE5c1653C9f61953D048BECe4");
 
-  const fetchPolicy = function (url: string): Promise<Policy> {
+  const fetchPolicy = (url: string): Promise<Policy> => {
     return fetch(url).then((response) => response.json());
   };
 
-  const fetchPolicyUri = function (court: number): Promise<string> {
+  const fetchPolicyUri = (court: number): Promise<string> => {
     return policyRegistryV1.policies(court);
   };
 
