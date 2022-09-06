@@ -1,0 +1,208 @@
+{
+  "address": "0x76262035D1b280cC0b08024177b837893bcAd3DA",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_governor",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_subcourtID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "_policy",
+          "type": "string"
+        }
+      ],
+      "name": "PolicyUpdate",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_governor",
+          "type": "address"
+        }
+      ],
+      "name": "changeGovernor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "governor",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "policies",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_subcourtID",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "_policy",
+          "type": "string"
+        }
+      ],
+      "name": "setPolicy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x280923d35fba2db52658e25f3b17e4d934a0a0626b50cbd323542a48332b6fec",
+  "receipt": {
+    "to": null,
+    "from": "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3",
+    "contractAddress": "0x76262035D1b280cC0b08024177b837893bcAd3DA",
+    "transactionIndex": 1,
+    "gasUsed": "377115",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xcec7b86c2d5ce4e411669882a6f1822246b02401a4cdc10d5fcfc5d50d5fac95",
+    "transactionHash": "0x280923d35fba2db52658e25f3b17e4d934a0a0626b50cbd323542a48332b6fec",
+    "logs": [],
+    "blockNumber": 15211712,
+    "cumulativeGasUsed": "377115",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "c8bb8c3f437d0a05adb8cac05ba37521",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.9+commit.e5eed63a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_governor\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_subcourtID\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"_policy\",\"type\":\"string\"}],\"name\":\"PolicyUpdate\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_governor\",\"type\":\"address\"}],\"name\":\"changeGovernor\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"governor\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"policies\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_subcourtID\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"_policy\",\"type\":\"string\"}],\"name\":\"setPolicy\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Enrique Piqueras - <epiquerass@gmail.com>\",\"details\":\"A contract to maintain a policy for each subcourt.\",\"events\":{\"PolicyUpdate(uint256,string)\":{\"details\":\"Emitted when a policy is updated.\",\"params\":{\"_policy\":\"The URI of the policy JSON.\",\"_subcourtID\":\"The ID of the policy's subcourt.\"}}},\"kind\":\"dev\",\"methods\":{\"changeGovernor(address)\":{\"details\":\"Changes the `governor` storage variable.\",\"params\":{\"_governor\":\"The new value for the `governor` storage variable.\"}},\"constructor\":{\"details\":\"Constructs the `PolicyRegistry` contract.\",\"params\":{\"_governor\":\"The governor's address.\"}},\"setPolicy(uint256,string)\":{\"details\":\"Sets the policy for the specified subcourt.\",\"params\":{\"_policy\":\"The URI of the policy JSON.\",\"_subcourtID\":\"The ID of the specified subcourt.\"}}},\"title\":\"PolicyRegistry\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/arbitration/PolicyRegistry.sol\":\"PolicyRegistry\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"src/arbitration/PolicyRegistry.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8;\\n\\n/**\\n *  @title PolicyRegistry\\n *  @author Enrique Piqueras - <epiquerass@gmail.com>\\n *  @dev A contract to maintain a policy for each subcourt.\\n */\\ncontract PolicyRegistry {\\n    \\n    // ************************************* //\\n    // *              Events               * //\\n    // ************************************* //\\n\\n    /** \\n     *  @dev Emitted when a policy is updated.\\n     *  @param _subcourtID The ID of the policy's subcourt.\\n     *  @param _policy The URI of the policy JSON.\\n     */\\n    event PolicyUpdate(uint indexed _subcourtID, string _policy);\\n\\n    // ************************************* //\\n    // *             Storage               * //\\n    // ************************************* //\\n\\n    address public governor;\\n    mapping(uint => string) public policies;\\n\\n    // ************************************* //\\n    // *        Function Modifiers         * //\\n    // ************************************* //\\n\\n    /**\\n     *  @dev Requires that the sender is the governor.\\n     */ \\n    modifier onlyByGovernor() {\\n        require(governor == msg.sender, \\\"No allowed: governor only\\\"); \\n        _;\\n    }\\n\\n    // ************************************* //\\n    // *            Constructor            * //\\n    // ************************************* //\\n\\n    /** @dev Constructs the `PolicyRegistry` contract.\\n     *  @param _governor The governor's address.\\n     */\\n    constructor(address _governor) {\\n        governor = _governor;\\n    }\\n\\n    // ************************************* //\\n    // *            Governance             * //\\n    // ************************************* //\\n\\n    /**\\n     *  @dev Changes the `governor` storage variable.\\n     *  @param _governor The new value for the `governor` storage variable.\\n     */\\n    function changeGovernor(address _governor) external onlyByGovernor {\\n        governor = _governor;\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /**\\n     *  @dev Sets the policy for the specified subcourt.\\n     *  @param _subcourtID The ID of the specified subcourt.\\n     *  @param _policy The URI of the policy JSON.\\n     */\\n    function setPolicy(uint _subcourtID, string calldata _policy) external onlyByGovernor {\\n        policies[_subcourtID] = _policy;\\n        emit PolicyUpdate(_subcourtID, policies[_subcourtID]);\\n    }\\n}\",\"keccak256\":\"0x224176fa133ecf1ff7aed4d24b78f90510e097df35853c6af5d12316d24236e0\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506040516105fe3803806105fe83398101604081905261002f91610054565b600080546001600160a01b0319166001600160a01b0392909216919091179055610084565b60006020828403121561006657600080fd5b81516001600160a01b038116811461007d57600080fd5b9392505050565b61056b806100936000396000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c80630c340a2414610051578063d3e8948314610081578063e4c0aaf4146100a1578063f00adf5e146100b6575b600080fd5b600054610064906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b61009461008f366004610338565b6100c9565b6040516100789190610351565b6100b46100af3660046103a6565b610163565b005b6100b46100c43660046103d6565b6101e0565b600160205260009081526040902080546100e290610452565b80601f016020809104026020016040519081016040528092919081815260200182805461010e90610452565b801561015b5780601f106101305761010080835404028352916020019161015b565b820191906000526020600020905b81548152906001019060200180831161013e57829003601f168201915b505050505081565b6000546001600160a01b031633146101be5760405162461bcd60e51b81526020600482015260196024820152784e6f20616c6c6f7765643a20676f7665726e6f72206f6e6c7960381b60448201526064015b60405180910390fd5b600080546001600160a01b0319166001600160a01b0392909216919091179055565b6000546001600160a01b031633146102365760405162461bcd60e51b81526020600482015260196024820152784e6f20616c6c6f7765643a20676f7665726e6f72206f6e6c7960381b60448201526064016101b5565b600083815260016020526040902061024f90838361029f565b50827f6363e8b93c0bbb112f6247819a99f3c99f4a3e0f8e119a64e5ceb6edb9b3cc7b60016000868152602001908152602001600020604051610292919061048d565b60405180910390a2505050565b8280546102ab90610452565b90600052602060002090601f0160209004810192826102cd5760008555610313565b82601f106102e65782800160ff19823516178555610313565b82800160010185558215610313579182015b828111156103135782358255916020019190600101906102f8565b5061031f929150610323565b5090565b5b8082111561031f5760008155600101610324565b60006020828403121561034a57600080fd5b5035919050565b600060208083528351808285015260005b8181101561037e57858101830151858201604001528201610362565b81811115610390576000604083870101525b50601f01601f1916929092016040019392505050565b6000602082840312156103b857600080fd5b81356001600160a01b03811681146103cf57600080fd5b9392505050565b6000806000604084860312156103eb57600080fd5b83359250602084013567ffffffffffffffff8082111561040a57600080fd5b818601915086601f83011261041e57600080fd5b81358181111561042d57600080fd5b87602082850101111561043f57600080fd5b6020830194508093505050509250925092565b600181811c9082168061046657607f821691505b6020821081141561048757634e487b7160e01b600052602260045260246000fd5b50919050565b600060208083526000845481600182811c9150808316806104af57607f831692505b8583108114156104cd57634e487b7160e01b85526022600452602485fd5b8786018381526020018180156104ea57600181146104fb57610526565b60ff19861682528782019650610526565b60008b81526020902060005b8681101561052057815484820152908501908901610507565b83019750505b5094999850505050505050505056fea26469706673582212200c1103223f1ae8d623c1720f16b59b98b5d08187d8ac12e3332e184f6d0beead64736f6c63430008090033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061004c5760003560e01c80630c340a2414610051578063d3e8948314610081578063e4c0aaf4146100a1578063f00adf5e146100b6575b600080fd5b600054610064906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b61009461008f366004610338565b6100c9565b6040516100789190610351565b6100b46100af3660046103a6565b610163565b005b6100b46100c43660046103d6565b6101e0565b600160205260009081526040902080546100e290610452565b80601f016020809104026020016040519081016040528092919081815260200182805461010e90610452565b801561015b5780601f106101305761010080835404028352916020019161015b565b820191906000526020600020905b81548152906001019060200180831161013e57829003601f168201915b505050505081565b6000546001600160a01b031633146101be5760405162461bcd60e51b81526020600482015260196024820152784e6f20616c6c6f7765643a20676f7665726e6f72206f6e6c7960381b60448201526064015b60405180910390fd5b600080546001600160a01b0319166001600160a01b0392909216919091179055565b6000546001600160a01b031633146102365760405162461bcd60e51b81526020600482015260196024820152784e6f20616c6c6f7765643a20676f7665726e6f72206f6e6c7960381b60448201526064016101b5565b600083815260016020526040902061024f90838361029f565b50827f6363e8b93c0bbb112f6247819a99f3c99f4a3e0f8e119a64e5ceb6edb9b3cc7b60016000868152602001908152602001600020604051610292919061048d565b60405180910390a2505050565b8280546102ab90610452565b90600052602060002090601f0160209004810192826102cd5760008555610313565b82601f106102e65782800160ff19823516178555610313565b82800160010185558215610313579182015b828111156103135782358255916020019190600101906102f8565b5061031f929150610323565b5090565b5b8082111561031f5760008155600101610324565b60006020828403121561034a57600080fd5b5035919050565b600060208083528351808285015260005b8181101561037e57858101830151858201604001528201610362565b81811115610390576000604083870101525b50601f01601f1916929092016040019392505050565b6000602082840312156103b857600080fd5b81356001600160a01b03811681146103cf57600080fd5b9392505050565b6000806000604084860312156103eb57600080fd5b83359250602084013567ffffffffffffffff8082111561040a57600080fd5b818601915086601f83011261041e57600080fd5b81358181111561042d57600080fd5b87602082850101111561043f57600080fd5b6020830194508093505050509250925092565b600181811c9082168061046657607f821691505b6020821081141561048757634e487b7160e01b600052602260045260246000fd5b50919050565b600060208083526000845481600182811c9150808316806104af57607f831692505b8583108114156104cd57634e487b7160e01b85526022600452602485fd5b8786018381526020018180156104ea57600181146104fb57610526565b60ff19861682528782019650610526565b60008b81526020902060005b8681101561052057815484820152908501908901610507565b83019750505b5094999850505050505050505056fea26469706673582212200c1103223f1ae8d623c1720f16b59b98b5d08187d8ac12e3332e184f6d0beead64736f6c63430008090033",
+  "devdoc": {
+    "author": "Enrique Piqueras - <epiquerass@gmail.com>",
+    "details": "A contract to maintain a policy for each subcourt.",
+    "events": {
+      "PolicyUpdate(uint256,string)": {
+        "details": "Emitted when a policy is updated.",
+        "params": {
+          "_policy": "The URI of the policy JSON.",
+          "_subcourtID": "The ID of the policy's subcourt."
+        }
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "changeGovernor(address)": {
+        "details": "Changes the `governor` storage variable.",
+        "params": {
+          "_governor": "The new value for the `governor` storage variable."
+        }
+      },
+      "constructor": {
+        "details": "Constructs the `PolicyRegistry` contract.",
+        "params": {
+          "_governor": "The governor's address."
+        }
+      },
+      "setPolicy(uint256,string)": {
+        "details": "Sets the policy for the specified subcourt.",
+        "params": {
+          "_policy": "The URI of the policy JSON.",
+          "_subcourtID": "The ID of the specified subcourt."
+        }
+      }
+    },
+    "title": "PolicyRegistry",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 11,
+        "contract": "src/arbitration/PolicyRegistry.sol:PolicyRegistry",
+        "label": "governor",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 15,
+        "contract": "src/arbitration/PolicyRegistry.sol:PolicyRegistry",
+        "label": "policies",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_uint256,t_string_storage)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_uint256,t_string_storage)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => string)",
+        "numberOfBytes": "32",
+        "value": "t_string_storage"
+      },
+      "t_string_storage": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

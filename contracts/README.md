@@ -24,6 +24,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [HomeGatewayToEthereum](https://goerli-rollup-explorer.arbitrum.io/address/0xc7e3BF90299f6BD9FA7c3703837A9CAbB5743636)
 - [IncrementalNG](https://goerli-rollup-explorer.arbitrum.io/address/0x99c1f883f0f5de1737099F1BCB268d1f8D450f8b)
 - [KlerosCore](https://goerli-rollup-explorer.arbitrum.io/address/0x87142b7E9C7D026776499120D902AF8896C07894)
+- [PolicyRegistry](https://goerli-rollup-explorer.arbitrum.io/address/0xf637A0a4415CCFB97407846486b6be663d3C33ef)
 - [SortitionSumTreeFactory](https://goerli-rollup-explorer.arbitrum.io/address/0x26858D60FE92b50b34e236B46874e02724344275)
 
 #### Rinkeby - DEPRECATED
@@ -43,6 +44,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [IncrementalNG](https://testnet.arbiscan.io/address/0x078dAd05373d19d7fd6829735b765F12242a4300)
 - [KlerosCore](https://testnet.arbiscan.io/address/0x815d709EFCF5E69e2e9E2F8d3815d762496a2f0F)
 - [PNK](https://testnet.arbiscan.io/address/0x364530164a2338cdba211f72c1438eb811b5c639)
+- [PolicyRegistry](https://testnet.arbiscan.io/address/0x76262035D1b280cC0b08024177b837893bcAd3DA)
 - [SortitionSumTreeFactory](https://testnet.arbiscan.io/address/0x48ce286978C74c288eA6Bc9a536BcC899DF8D177)
 
 ## Contributing
