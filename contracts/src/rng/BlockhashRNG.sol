@@ -35,16 +35,16 @@ contract BlockHashRNG is RNG {
             return randomNumber;
         }
 
-        if (_block < block.number && randomNumbers[_block] == 0) {
+        if (_block < block.number) {
             // The random number is not already set and can be.
             if (blockhash(_block) != 0x0) {
                 // Normal case.
-                randomNumbers[_block] = uint256(blockhash(_block));
+                randomNumber = uint256(blockhash(_block));
             } else {
                 // The contract was not called in time. Fallback to returning previous blockhash.
-                randomNumbers[_block] = uint256(blockhash(block.number - 1));
+                randomNumber = uint256(blockhash(block.number - 1));
             }
         }
-        randomNumber = randomNumbers[_block];
+        randomNumbers[_block] = randomNumber;
     }
 }
