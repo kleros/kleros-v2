@@ -163,12 +163,13 @@ yarn hardhat --network <arbitrumGoerli|arbitrumRinkeby|arbitrum|goerli|rinkeby|m
 
 ## Ad-hoc procedures
 
-### Populating the policy registry
+### Populating the policy registry and courts
 
 #### 1/ Export the registry data from V1
 
 ```bash
 yarn hardhat run scripts/getPoliciesV1.ts  --network mainnet | tee policies.v1.json
+yarn hardhat run scripts/getCourtsV1.ts --network mainnet | tee courts.v1.json
 ```
 
 #### 2/ Import the data to V2 - Local Network
@@ -183,10 +184,12 @@ Shell 2:
 
 ```bash
 yarn hardhat run scripts/populatePolicyRegistry.ts --network localhost
+yarn hardhat run scripts/populateCourts.ts --network localhost
 ```
 
 #### 3/ Import the data to V2 - Public Testnet
 
 ```bash
 yarn hardhat run scripts/populatePolicyRegistry.ts --network arbitrumRinkeby
+yarn hardhat run scripts/populateCourts.ts --network arbitrumRinkeby
 ```

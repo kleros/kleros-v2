@@ -19,6 +19,18 @@ interface IKlerosLiquid is IArbitrator {
         drawing // Jurors can be drawn. Pass after all disputes have jurors or `maxDrawingTime` passes.
     }
 
+    struct Court {
+        uint96 parent; // The parent court.
+        uint256[] children; // List of child courts.
+        bool hiddenVotes; // Whether to use commit and reveal or not.
+        uint256 minStake; // Minimum tokens needed to stake in the court.
+        uint256 alpha; // Basis point of tokens that are lost when incoherent.
+        uint256 feeForJuror; // Arbitration fee paid per juror.
+        // The appeal after the one that reaches this number of jurors will go to the parent court if any, otherwise, no more appeals are possible.
+        uint256 jurorsForCourtJump;
+        uint256[4] timesPerPeriod; // The time allotted to each dispute period in the form `timesPerPeriod[period]`.
+    }
+
     struct Dispute {
         // Note that appeal `0` is equivalent to the first round of the dispute.
         uint96 subcourtID; // The ID of the subcourt the dispute is in.
@@ -36,6 +48,18 @@ interface IKlerosLiquid is IArbitrator {
         uint256 stakedTokens; // The juror's total amount of tokens staked in subcourts.
         uint256 lockedTokens; // The juror's total amount of tokens locked in disputes.
     }
+
+    function courts(uint256 _index)
+        external
+        view
+        returns (
+            uint96 parent,
+            bool hiddenVotes,
+            uint256 minStake,
+            uint256 alpha,
+            uint256 feeForJuror,
+            uint256 jurorsForCourtJump
+        );
 
     function phase() external view returns (Phase);
 
