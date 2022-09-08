@@ -453,7 +453,7 @@ contract KlerosCore is IArbitrator {
      *  @param _subcourtID The ID of the subcourt.
      *  @param _hiddenVotes The new value for the `hiddenVotes` property value.
      */
-    function changeHiddenVotes(uint96 _subcourtID, bool _hiddenVotes) external onlyByGovernor {
+    function changeSubcourtHiddenVotes(uint96 _subcourtID, bool _hiddenVotes) external onlyByGovernor {
         courts[_subcourtID].hiddenVotes = _hiddenVotes;
         emit SubcourtModified(_subcourtID, "hiddenVotes");
     }

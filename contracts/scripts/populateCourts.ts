@@ -1,7 +1,7 @@
 import { deployments, getNamedAccounts, getChainId, ethers } from "hardhat";
 import { KlerosCore } from "../typechain-types";
-import courtsV1 from "../courts.v1.json";
 import { BigNumber } from "ethers";
+import courtsV1 from "../courts.v1.json";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -10,7 +10,6 @@ enum HomeChains {
   HARDHAT = 31337,
 }
 
-const GENERAL_COURT = BigNumber.from(1);
 const DISPUTE_KIT_CLASSIC = BigNumber.from(1);
 
 async function main() {
@@ -38,14 +37,69 @@ async function main() {
   const core = (await ethers.getContractAt("KlerosCore", klerosCoreDeployment.address)) as KlerosCore;
 
   for (const court of courtsV2) {
-    // TODO: detect if the court already exist, if so, modify instead of create.
-    if (court.id.eq(GENERAL_COURT)) {
-      // General court, it already exist.
-      // TODO: compare the court parameters before attempting to modify it.
-      console.log("Skipping subcourt %d", court.id);
+    const subcourtPresent = await core.courts(court.id).catch(() => {});
+    if (subcourtPresent) {
+      console.log("Subcourt %d found: %O", court.id, subcourtPresent);
+
+      // Subcourt.parent and sortitionSumTreeK cannot be changed.
+
+      if (subcourtPresent.hiddenVotes !== court.hiddenVotes) {
+        console.log(
+          "Subcourt %d: changing hiddenVotes from %d to %d",
+          court.id,
+          subcourtPresent.hiddenVotes,
+          court.hiddenVotes
+        );
+        await core.changeSubcourtHiddenVotes(court.id, court.hiddenVotes);
+      }
+
+      if (!subcourtPresent.minStake.eq(court.minStake)) {
+        console.log("Subcourt %d: changing minStake from %d to %d", court.id, subcourtPresent.minStake, court.minStake);
+        await core.changeSubcourtMinStake(court.id, court.minStake);
+      }
+
+      if (!subcourtPresent.alpha.eq(court.alpha)) {
+        console.log("Subcourt %d: changing alpha from %d to %d", court.id, subcourtPresent.alpha, court.alpha);
+        await core.changeSubcourtAlpha(court.id, court.alpha);
+      }
+
+      if (!subcourtPresent.feeForJuror.eq(court.feeForJuror)) {
+        console.log(
+          "Subcourt %d: changing feeForJuror from %d to %d",
+          court.id,
+          subcourtPresent.feeForJuror,
+          court.feeForJuror
+        );
+        await core.changeSubcourtJurorFee(court.id, court.feeForJuror);
+      }
+
+      if (!subcourtPresent.jurorsForCourtJump.eq(court.jurorsForCourtJump)) {
+        console.log(
+          "Subcourt %d: changing jurorsForCourtJump from %d to %d",
+          court.id,
+          subcourtPresent.jurorsForCourtJump,
+          court.jurorsForCourtJump
+        );
+        await core.changeSubcourtJurorsForJump(court.id, court.jurorsForCourtJump);
+      }
+
+      const timesPerPeriodPresent = (await core.getTimesPerPeriod(court.id)).map((bn) => bn.toNumber());
+      if (!timesPerPeriodPresent.every((val, index) => val === court.timesPerPeriod[index])) {
+        console.log(
+          "Subcourt %d: changing timesPerPeriod from %O to %O",
+          court.id,
+          timesPerPeriodPresent,
+          court.timesPerPeriod
+        );
+        await core.changeSubcourtTimesPerPeriod(court.id, [
+          court.timesPerPeriod[0],
+          court.timesPerPeriod[1],
+          court.timesPerPeriod[2],
+          court.timesPerPeriod[3],
+        ]);
+      }
     } else {
-      // Other courts, create them.
-      console.log("Creating subcourt %d with %O", court.id, court);
+      console.log("Subcourt %d not found, creating it with", court.id, court);
       await core.createSubcourt(
         court.parent,
         court.hiddenVotes,
@@ -57,8 +111,6 @@ async function main() {
         5, // Not accessible on-chain, but has always been set to the same value so far.
         [DISPUTE_KIT_CLASSIC]
       );
-
-      // console.log("Created: %O", await core.courts(court.id));
     }
 
     await new Promise((resolve) => setTimeout(resolve, 100));
