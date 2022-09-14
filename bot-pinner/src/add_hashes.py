@@ -2,20 +2,22 @@ from web3 import Web3
 import requests
 import os
 import time
-from tooling import motd, create_logger, port_up
+from tooling import motd, create_logger
 import json
 import glob
 
 
-logger = create_logger()
-motd()
+
+
 
 # Init
 RPC = os.environ.get("RPC", "http://localhost:8545")
 IPFS = os.environ.get("IPFS", "http://ipfs-cluster.dappnode:9094")
 INTERVAL = os.environ.get("INTERVAL", 600)  # Events are not constantly listened to, instead it checks per INTERVAL.
-RETRY = int(os.environ.get("RETRY", 0)) # Retry interval value
+RETRY = int(os.environ.get("RETRY", 0))  # Retry interval value
 attempted_retries = dict()
+
+logger = create_logger(IPFS)
 
 # Contract / RPC
 w3 = Web3(Web3.HTTPProvider(RPC))
@@ -35,6 +37,7 @@ try:
         hashes_wanted = file.read().splitlines()
 except FileNotFoundError:
     pass
+
 
 def main():
     block_number = block
@@ -75,11 +78,13 @@ def retry_hashes():
             attempted_retries[_hash] += 1
         if RETRY == 0 or attempted_retries[_hash] < RETRY:
             add_hash(_hash)
-        elif attempted_retries[_hash] > int(RETRY + 10): 
+        elif attempted_retries[_hash] > int(RETRY + 10):
             attempted_retries[_hash] = int(RETRY - 2) # Reset the search
+
 
 def check_hash(_hash):
     return _hash.rsplit('/', 1)[0] # Recursive pin // i.e. strip _hash/something.json
+
 
 def add_hash(_hash):
     _hash = check_hash(_hash)
@@ -90,6 +95,7 @@ def add_hash(_hash):
     except requests.exceptions.ReadTimeout:
         logger.warning(f"Time-out: Couldn't find {_hash} on the IPFS network")
         if _hash not in hashes_wanted: hashes_wanted.append(_hash)
+
 
 def get_contracts():
     contracts = []
@@ -104,6 +110,7 @@ def get_contracts():
         except FileNotFoundError:
             pass
     return contracts
+
 
 if __name__ == '__main__':
     main()
