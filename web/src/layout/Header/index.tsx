@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import HamburgerIcon from "svgs/header/hamburger.svg";
@@ -26,12 +26,27 @@ const Container = styled.div`
 `;
 
 const StyledLightButton = styled(LightButton)`
-  padding-right: 0;
+  padding: 0;
 
   .button-svg {
+    margin-right: 0px;
     fill: white;
   }
+  .button-text {
+    display: none;
+  }
 `;
+
+const OpenContext = React.createContext({
+  isOpen: false,
+  toggleIsOpen: () => {
+    // Placeholder
+  },
+});
+
+export const useOpenContext = () => {
+  return useContext(OpenContext);
+};
 
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -40,17 +55,19 @@ const Header: React.FC = () => {
   useFocusOutside(containerRef, () => setIsOpen(false));
   return (
     <Container>
-      <Link className="kleros-court-link" to={"/"}>
-        <KlerosCourtLogo />
-      </Link>
-      <div ref={containerRef}>
-        <NavBar {...{ isOpen }} />
-        <StyledLightButton
-          text=""
-          Icon={HamburgerIcon}
-          onClick={toggleIsOpen}
-        />
-      </div>
+      <OpenContext.Provider value={{ isOpen, toggleIsOpen }}>
+        <Link className="kleros-court-link" to={"/"}>
+          <KlerosCourtLogo />
+        </Link>
+        <div ref={containerRef}>
+          <NavBar />
+          <StyledLightButton
+            text=""
+            Icon={HamburgerIcon}
+            onClick={toggleIsOpen}
+          />
+        </div>
+      </OpenContext.Provider>
     </Container>
   );
 };
