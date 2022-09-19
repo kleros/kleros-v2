@@ -187,7 +187,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     /** @dev Passes the phase.
      */
     function passPhase() external override {
-        ISortitionModule sortitionModule = core.disputeKitToSortition(IDisputeKit(this));
+        ISortitionModule sortitionModule = core.sortitionModule();
         if (sortitionModule.phase() == ISortitionModule.Phase.staking || sortitionModule.freezingPhaseTimeout()) {
             require(phase != Phase.resolving, "Already in Resolving phase");
             phase = Phase.resolving; // Safety net.
