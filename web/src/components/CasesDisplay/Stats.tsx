@@ -32,10 +32,10 @@ const fields = [
 const Stats: React.FC = () => (
   <div>
     {fields.map(({ label, value }, i) => (
-      <>
-        <Field key={i} {...{ label, value }} />
+      <React.Fragment key={i}>
+        <Field {...{ label, value }} />
         {i + 1 < fields.length ? <Separator /> : null}
-      </>
+      </React.Fragment>
     ))}
   </div>
 );
