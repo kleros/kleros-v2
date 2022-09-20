@@ -62,6 +62,7 @@
   "scripts": {
     "depcheck": "depcheck .",
     "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 && prettier --write CHANGELOG.md",
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "reinstall": "YARN_CHECKSUM_BEHAVIOR=update yarn install --no-immutable"
   }
 }
