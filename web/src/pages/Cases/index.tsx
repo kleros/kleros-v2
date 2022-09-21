@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+import { Routes, Route } from "react-router-dom";
 import CasesDisplay from "components/CasesDisplay";
+import CaseDetails from "./CaseDetails";
 
 const Container = styled.div`
   width: 100%;
@@ -12,7 +14,10 @@ const Container = styled.div`
 const Cases: React.FC = () => {
   return (
     <Container>
-      <CasesDisplay casesPerPage={3} />
+      <Routes>
+        <Route path="" element={<CasesDisplay casesPerPage={3} />} />
+        <Route path="/:id/*" element={<CaseDetails />} />
+      </Routes>
     </Container>
   );
 };
