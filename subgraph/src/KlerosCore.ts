@@ -1,11 +1,4 @@
-import {
-  Address,
-  BigInt,
-  Entity,
-  Value,
-  store,
-  BigDecimal,
-} from "@graphprotocol/graph-ts";
+import { Address, BigInt, Entity, Value, store } from "@graphprotocol/graph-ts";
 import {
   KlerosCore,
   AppealDecision,

@@ -53,6 +53,26 @@ dataSources:
           handler: handleTokenAndETHShift
       file: ./src/KlerosCore.ts
   - kind: ethereum
+    name: PolicyRegistry
+    network: arbitrum-rinkeby
+    source:
+      address: "0x76262035D1b280cC0b08024177b837893bcAd3DA"
+      abi: PolicyRegistry
+      startBlock: 14453123
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Court
+      abis:
+        - name: PolicyRegistry
+          file: ../contracts/deployments/arbitrumRinkeby/PolicyRegistry.json
+      eventHandlers:
+        - event: PolicyUpdate(indexed uint256,string)
+          handler: handlePolicyUpdate
+      file: ./src/PolicyRegistry.ts
+  - kind: ethereum
     name: HomeGateway
     network: arbitrum-rinkeby
     source:

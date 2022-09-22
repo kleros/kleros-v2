@@ -8,6 +8,7 @@ enum Period {
 
 type Court @entity {
   id: ID!
+  policy: String
   hiddenVotes: Boolean!
   parent: Court
   children: [Court!]! @derivedFrom(field: "parent")
