@@ -26,7 +26,7 @@ const addChain = async (
   provider: any,
   { chainId, chainName, nativeCurrency, rpcUrls, blockExplorerUrls }: Chain
 ) => {
-  return await provider.request({
+  return provider.request({
     method: "wallet_addEthereumChain",
     params: [
       {
@@ -44,7 +44,7 @@ const _switchChain = async (
   provider: any,
   chainId: keyof typeof SUPPORTED_CHAINS
 ) => {
-  return await provider.request({
+  return provider.request({
     method: "wallet_switchEthereumChain",
     params: [{ chainId: "0x" + chainId.toString(16) }],
   });
