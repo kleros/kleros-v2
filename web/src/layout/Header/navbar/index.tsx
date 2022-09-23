@@ -5,6 +5,7 @@ import LightButton from "components/LightButton";
 import Explore from "./Explore";
 import ConnectButton from "components/ConnectButton";
 import Menu from "./Menu";
+import { useOpenContext } from "../index";
 
 const Container = styled.div<{ isOpen: boolean }>`
   position: absolute;
@@ -30,16 +31,19 @@ const Container = styled.div<{ isOpen: boolean }>`
   }
 `;
 
-const NavBar: React.FC<{ isOpen: boolean }> = ({ isOpen }) => (
-  <Container {...{ isOpen }}>
-    <LightButton text="Kleros Solutions" Icon={KlerosSolutionsIcon} />
-    <hr />
-    <Explore />
-    <hr />
-    <ConnectButton />
-    <hr />
-    <Menu />
-  </Container>
-);
+const NavBar: React.FC = () => {
+  const { isOpen } = useOpenContext();
+  return (
+    <Container {...{ isOpen }}>
+      <LightButton text="Kleros Solutions" Icon={KlerosSolutionsIcon} />
+      <hr />
+      <Explore />
+      <hr />
+      <ConnectButton />
+      <hr />
+      <Menu />
+    </Container>
+  );
+};
 
 export default NavBar;
