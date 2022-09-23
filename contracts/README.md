@@ -27,14 +27,14 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [PolicyRegistry](https://goerli-rollup-explorer.arbitrum.io/address/0xf637A0a4415CCFB97407846486b6be663d3C33ef)
 - [SortitionSumTreeFactory](https://goerli-rollup-explorer.arbitrum.io/address/0x26858D60FE92b50b34e236B46874e02724344275)
 
-#### Rinkeby - DEPRECATED
+#### Rinkeby
 
 - [PNK](https://rinkeby.etherscan.io/token/0x14aba1fa8a31a8649e8098ad067b739cc5708f30)
 - [ArbitrableExample](https://rinkeby.etherscan.io/address/0xc0fcc96BFd78e36550FCaB434A9EE1210B57225b)
 - [FastBridgeReceiverOnEthereum](https://rinkeby.etherscan.io/address/0x545C731e84c0034d58e57E476A3b7C3929d070CC)
 - [ForeignGatewayOnEthereum](https://rinkeby.etherscan.io/address/0x8681CE0CA5706Cf4732d9060e8eC9f865F7d546a)
 
-#### Arbitrum Rinkeby (Classic) - DEPRECATED
+#### Arbitrum Rinkeby
 
 - [PNK](https://testnet.arbiscan.io/token/0x364530164a2338cdba211f72c1438eb811b5c639)
 - [DisputeKitClassic](https://testnet.arbiscan.io/address/0xA2c538AA05BBCc44c213441f6f3777223D2BF9e5)
