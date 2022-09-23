@@ -84,16 +84,14 @@ const Stats = () => {
   const { data } = useHomePageContext();
   return (
     <StyledCard>
-      {stats.map(({ title, getText, getSubtext, color, icon }, i) => {
-        return (
-          <StatDisplay
-            key={i}
-            {...{ title, color, icon }}
-            text={data ? getText(data) : "Fetching..."}
-            subtext={data ? getSubtext(data) : "Fetching..."}
-          />
-        );
-      })}
+      {stats.map(({ title, getText, getSubtext, color, icon }, i) => (
+        <StatDisplay
+          key={i}
+          {...{ title, color, icon }}
+          text={data ? getText(data) : "Fetching..."}
+          subtext={data ? getSubtext(data) : "Fetching..."}
+        />
+      ))}
     </StyledCard>
   );
 };
