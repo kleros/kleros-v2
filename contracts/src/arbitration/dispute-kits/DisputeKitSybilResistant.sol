@@ -84,7 +84,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     RNG public rng; // The random number generator
     IProofOfHumanity public poh; // The Proof of Humanity registry
     uint256 public RNBlock; // The block number when the random number was requested.
-    uint256 public RN; // The current random number.
     Phase public phase; // Current phase of this dispute kit.
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
     Dispute[] public disputes; // Array of the locally created disputes.
@@ -219,8 +218,9 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
                 rng.requestRN(block.number);
                 phase = Phase.generating;
             } else if (phase == Phase.generating) {
-                RN = rng.getRN(RNBlock);
+                uint256 RN = rng.getRN(RNBlock);
                 require(RN != 0, "Random number is not ready yet");
+                sortitionModule.notifyRandomNumber(RN);
                 phase = Phase.drawing;
             } else if (phase == Phase.drawing) {
                 require(disputesWithoutJurors == 0, "Not ready for Resolving phase");
@@ -248,12 +248,12 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
 
-        bytes32 key = bytes32(core.getSubcourtID(_coreDisputeID)); // Get the ID of the tree.
-        uint256 drawnNumber = getRandomNumber();
+        ISortitionModule sortitionModule = core.sortitionModule();
+        // Get the ID of the tree.
+        bytes32 key = bytes32(core.getSubcourtID(_coreDisputeID));
 
         // TODO: Handle the situation when no one has staked yet.
-        // TODO: Move post check to sortition module?
-        drawnAddress = core.drawAddressFromSortition(key, drawnNumber);
+        drawnAddress = sortitionModule.draw(key, _coreDisputeID, round.votes.length);
 
         if (postDrawCheck(_coreDisputeID, drawnAddress) && !round.alreadyDrawn[drawnAddress]) {
             round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));

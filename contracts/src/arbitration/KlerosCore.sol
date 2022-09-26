@@ -947,11 +947,6 @@ contract KlerosCore is IArbitrator {
 
     // TODO: some getters can be merged into a single function
 
-    function drawAddressFromSortition(bytes32 _key, uint256 _drawnNumber) external view returns (address drawnAddress) {
-        // TODO: Generalize draw function.
-        drawnAddress = sortitionModule.draw(_key, _drawnNumber);
-    }
-
     function getSubcourtID(uint256 _disputeID) external view returns (uint256 subcourtID) {
         return disputes[_disputeID].subcourtID;
     }
