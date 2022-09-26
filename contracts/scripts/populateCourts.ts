@@ -11,6 +11,7 @@ enum HomeChains {
 }
 
 const DISPUTE_KIT_CLASSIC = BigNumber.from(1);
+const TESTING_PARAMETERS = false;
 
 async function main() {
   // fallback to hardhat node signers on local network
@@ -29,6 +30,9 @@ async function main() {
     ...court,
     id: BigNumber.from(court.id).add(1),
     parent: BigNumber.from(court.parent).add(1),
+    minStake: TESTING_PARAMETERS ? BigNumber.from(court.minStake).div(100) : court.minStake,
+    feeForJuror: TESTING_PARAMETERS ? ethers.utils.parseEther("0.001") : court.feeForJuror,
+    timesPerPeriod: TESTING_PARAMETERS ? [120, 120, 120, 120] : court.timesPerPeriod,
   }));
 
   console.log("courtsV2 = %O", courtsV2);
