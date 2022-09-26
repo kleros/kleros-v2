@@ -2,7 +2,7 @@ import { BigInt } from "@graphprotocol/graph-ts";
 import { Evidence as EvidenceEvent } from "../generated/DisputeKitClassic/DisputeKitClassic";
 import { Evidence, EvidenceGroup } from "../generated/schema";
 
-export function handleDisputeEvent(event: EvidenceEvent): void {
+export function handleEvidenceEvent(event: EvidenceEvent): void {
   if (
     event.params._arbitrator.toString() ===
     "0x815d709EFCF5E69e2e9E2F8d3815d762496a2f0F"
