@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { useCasesQuery } from "queries/useCasesQuery";
 import DisputeCard from "components/DisputeCard";
 
 const Container = styled.div`
@@ -13,37 +14,14 @@ const Container = styled.div`
 `;
 
 const LatestCases: React.FC = () => {
+  const { data } = useCasesQuery(0);
   return (
     <Container>
       <h1>Latest Cases</h1>
       <div className="disputes-container">
-        <DisputeCard
-          title="Register Profile in Proof of Humanity"
-          id={600}
-          period={1}
-          court="Humanity"
-          category="Identity"
-          rewards="≥ 0.3 ETH"
-          date={1651244935}
-        />
-        <DisputeCard
-          title="Register Profile in Proof of Humanity"
-          id={600}
-          period={3}
-          court="Humanity"
-          category="Identity"
-          rewards="≥ 0.3 ETH"
-          date={1651244935}
-        />
-        <DisputeCard
-          title="Register Profile in Proof of Humanity"
-          id={600}
-          period={4}
-          court="Humanity"
-          category="Identity"
-          rewards="≥ 0.3 ETH"
-          date={1651244935}
-        />
+        {data?.disputes.map((dispute, i) => (
+          <DisputeCard key={i} {...dispute} />
+        ))}
       </div>
     </Container>
   );

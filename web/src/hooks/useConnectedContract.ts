@@ -12,14 +12,18 @@ export const useConnectedContract = (
   const { library } = useWeb3();
   const contract = getContract(contractName, contractAddress);
   if (library) {
-    const connectedContract = contract?.connect(library);
+    const connectedContract = contract?.connect(library.getSigner());
     return connectedContract;
-    // } else if (chainId && readOnlyUrls && readOnlyUrls[chainId]) {
-    //   const provider = new JsonRpcProvider(readOnlyUrls[chainId]);
-    //   const connectedContract = contract.connect(provider);
-    //   return connectedContract;
   } else {
-    console.error("No Web3 provider detected.");
-    return undefined;
+    try {
+      const provider = new JsonRpcProvider(
+        "https://arb-rinkeby.g.alchemy.com/v2/d3zEid5ibv4DysSGiJ3oLnD1uDGd0YtV"
+      );
+      const connectedContract = contract?.connect(provider);
+      return connectedContract;
+    } catch (error) {
+      console.error("No Web3 provider detected.");
+      return undefined;
+    }
   }
 };

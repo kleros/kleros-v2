@@ -635,6 +635,116 @@ export enum EthPaidDataPoint_OrderBy {
   Value = "value",
 }
 
+export type Evidence = {
+  __typename?: "Evidence";
+  evidence: Scalars["String"];
+  evidenceGroup: EvidenceGroup;
+  id: Scalars["ID"];
+};
+
+export type EvidenceGroup = {
+  __typename?: "EvidenceGroup";
+  evidences: Array<Evidence>;
+  id: Scalars["ID"];
+  lastEvidenceID: Scalars["BigInt"];
+};
+
+export type EvidenceGroupEvidencesArgs = {
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<Evidence_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  where?: InputMaybe<Evidence_Filter>;
+};
+
+export type EvidenceGroup_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  evidences_?: InputMaybe<Evidence_Filter>;
+  id?: InputMaybe<Scalars["ID"]>;
+  id_gt?: InputMaybe<Scalars["ID"]>;
+  id_gte?: InputMaybe<Scalars["ID"]>;
+  id_in?: InputMaybe<Array<Scalars["ID"]>>;
+  id_lt?: InputMaybe<Scalars["ID"]>;
+  id_lte?: InputMaybe<Scalars["ID"]>;
+  id_not?: InputMaybe<Scalars["ID"]>;
+  id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  lastEvidenceID?: InputMaybe<Scalars["BigInt"]>;
+  lastEvidenceID_gt?: InputMaybe<Scalars["BigInt"]>;
+  lastEvidenceID_gte?: InputMaybe<Scalars["BigInt"]>;
+  lastEvidenceID_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  lastEvidenceID_lt?: InputMaybe<Scalars["BigInt"]>;
+  lastEvidenceID_lte?: InputMaybe<Scalars["BigInt"]>;
+  lastEvidenceID_not?: InputMaybe<Scalars["BigInt"]>;
+  lastEvidenceID_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+};
+
+export enum EvidenceGroup_OrderBy {
+  Evidences = "evidences",
+  Id = "id",
+  LastEvidenceId = "lastEvidenceID",
+}
+
+export type Evidence_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  evidence?: InputMaybe<Scalars["String"]>;
+  evidenceGroup?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_?: InputMaybe<EvidenceGroup_Filter>;
+  evidenceGroup_contains?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_contains_nocase?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_ends_with?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_gt?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_gte?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_in?: InputMaybe<Array<Scalars["String"]>>;
+  evidenceGroup_lt?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_lte?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_not?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_not_contains?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_not_contains_nocase?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_not_ends_with?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_not_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_not_in?: InputMaybe<Array<Scalars["String"]>>;
+  evidenceGroup_not_starts_with?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_starts_with?: InputMaybe<Scalars["String"]>;
+  evidenceGroup_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  evidence_contains?: InputMaybe<Scalars["String"]>;
+  evidence_contains_nocase?: InputMaybe<Scalars["String"]>;
+  evidence_ends_with?: InputMaybe<Scalars["String"]>;
+  evidence_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  evidence_gt?: InputMaybe<Scalars["String"]>;
+  evidence_gte?: InputMaybe<Scalars["String"]>;
+  evidence_in?: InputMaybe<Array<Scalars["String"]>>;
+  evidence_lt?: InputMaybe<Scalars["String"]>;
+  evidence_lte?: InputMaybe<Scalars["String"]>;
+  evidence_not?: InputMaybe<Scalars["String"]>;
+  evidence_not_contains?: InputMaybe<Scalars["String"]>;
+  evidence_not_contains_nocase?: InputMaybe<Scalars["String"]>;
+  evidence_not_ends_with?: InputMaybe<Scalars["String"]>;
+  evidence_not_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  evidence_not_in?: InputMaybe<Array<Scalars["String"]>>;
+  evidence_not_starts_with?: InputMaybe<Scalars["String"]>;
+  evidence_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  evidence_starts_with?: InputMaybe<Scalars["String"]>;
+  evidence_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  id?: InputMaybe<Scalars["ID"]>;
+  id_gt?: InputMaybe<Scalars["ID"]>;
+  id_gte?: InputMaybe<Scalars["ID"]>;
+  id_in?: InputMaybe<Array<Scalars["ID"]>>;
+  id_lt?: InputMaybe<Scalars["ID"]>;
+  id_lte?: InputMaybe<Scalars["ID"]>;
+  id_not?: InputMaybe<Scalars["ID"]>;
+  id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+};
+
+export enum Evidence_OrderBy {
+  Evidence = "evidence",
+  EvidenceGroup = "evidenceGroup",
+  Id = "id",
+}
+
 export type GatewayDispute = {
   __typename?: "GatewayDispute";
   arbitrationCost: Scalars["BigInt"];
@@ -1017,6 +1127,10 @@ export type Query = {
   draws: Array<Draw>;
   ethpaidDataPoint?: Maybe<EthPaidDataPoint>;
   ethpaidDataPoints: Array<EthPaidDataPoint>;
+  evidence?: Maybe<Evidence>;
+  evidenceGroup?: Maybe<EvidenceGroup>;
+  evidenceGroups: Array<EvidenceGroup>;
+  evidences: Array<Evidence>;
   gatewayDispute?: Maybe<GatewayDispute>;
   gatewayDisputes: Array<GatewayDispute>;
   juror?: Maybe<Juror>;
@@ -1149,6 +1263,38 @@ export type QueryEthpaidDataPointsArgs = {
   skip?: InputMaybe<Scalars["Int"]>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<EthPaidDataPoint_Filter>;
+};
+
+export type QueryEvidenceArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars["ID"];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+export type QueryEvidenceGroupArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars["ID"];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+export type QueryEvidenceGroupsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<EvidenceGroup_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<EvidenceGroup_Filter>;
+};
+
+export type QueryEvidencesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<Evidence_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Evidence_Filter>;
 };
 
 export type QueryGatewayDisputeArgs = {
@@ -1426,6 +1572,10 @@ export type Subscription = {
   draws: Array<Draw>;
   ethpaidDataPoint?: Maybe<EthPaidDataPoint>;
   ethpaidDataPoints: Array<EthPaidDataPoint>;
+  evidence?: Maybe<Evidence>;
+  evidenceGroup?: Maybe<EvidenceGroup>;
+  evidenceGroups: Array<EvidenceGroup>;
+  evidences: Array<Evidence>;
   gatewayDispute?: Maybe<GatewayDispute>;
   gatewayDisputes: Array<GatewayDispute>;
   juror?: Maybe<Juror>;
@@ -1558,6 +1708,38 @@ export type SubscriptionEthpaidDataPointsArgs = {
   skip?: InputMaybe<Scalars["Int"]>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<EthPaidDataPoint_Filter>;
+};
+
+export type SubscriptionEvidenceArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars["ID"];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+export type SubscriptionEvidenceGroupArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars["ID"];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+export type SubscriptionEvidenceGroupsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<EvidenceGroup_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<EvidenceGroup_Filter>;
+};
+
+export type SubscriptionEvidencesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<Evidence_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Evidence_Filter>;
 };
 
 export type SubscriptionGatewayDisputeArgs = {
@@ -1850,6 +2032,25 @@ export type DisputeDetailsQuery = {
       timesPerPeriod: Array<any>;
     };
   } | null;
+};
+
+export type DrawQueryVariables = Exact<{
+  address?: InputMaybe<Scalars["String"]>;
+  disputeID?: InputMaybe<Scalars["String"]>;
+}>;
+
+export type DrawQuery = {
+  __typename?: "Query";
+  draws: Array<{ __typename?: "Draw"; voteID: any }>;
+};
+
+export type EvidencesQueryVariables = Exact<{
+  evidenceGroup?: InputMaybe<Scalars["String"]>;
+}>;
+
+export type EvidencesQuery = {
+  __typename?: "Query";
+  evidences: Array<{ __typename?: "Evidence"; id: string; evidence: string }>;
 };
 
 export type HomePageQueryVariables = Exact<{
