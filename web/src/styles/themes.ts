@@ -17,6 +17,7 @@ export const lightTheme = {
 
   defaultShadow: "#00000002",
   hoveredShadow: "#00000002",
+  whiteLowOpacity: "#FFFFFF0F",
 
   success: "#00C42B",
   successLight: "#F0FBF2",
@@ -50,6 +51,7 @@ export const darkTheme = {
 
   defaultShadow: "#00000000",
   hoveredShadow: "#42498f80",
+  whiteLowOpacity: "#FFFFFF0F",
 
   success: "#65DC7F",
   successLight: "#32355B",

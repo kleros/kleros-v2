@@ -1,0 +1,17 @@
+version: "3.5"
+services:
+  data-pinner.kleros.eth:
+    build:
+      context: .
+      dockerfile: Dockerfile-dappnode
+    image: "data-pinner.kleros.eth.kleros-data-pinner.public.dappnode.eth:0.1.0"
+    restart: unless-stopped
+    volumes:
+      - "data:/var/lib/data/"
+    environment:
+      RPC: "https://rinkeby.arbitrum.io/rpc"
+      IPFS: "http://ipfs-cluster.dappnode:9094"
+      INTERVAL: 60
+      RETRY: 2
+volumes:
+  data: {}

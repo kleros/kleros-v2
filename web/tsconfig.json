@@ -8,11 +8,17 @@
       "src*": [
         "./src*"
       ],
+      "utils*": [
+        "./src/utils*"
+      ],
       "assets*": [
         "./src/assets*"
       ],
       "components*": [
         "./src/components*"
+      ],
+      "connectors*": [
+        "./src/connectors*"
       ],
       "context*": [
         "./src/context*"

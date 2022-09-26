@@ -1,16 +1,10 @@
-import {
-  OutgoingMessage as OutgoingMessageEvent,
-} from "../generated/FastBridgeSender/FastBridgeSender";
-import {
-  OutgoingMessage
-} from "../generated/schema";
+import { BatchOutgoing as BatchOutgoingEvent } from "../generated/FastBridgeSender/FastBridgeSender";
+import { OutgoingBatch } from "../generated/schema";
 
-export function handleOutgoingMessage(event: OutgoingMessageEvent): void {
-  const outgoingMessage = new OutgoingMessage(
-    event.params.messageHash.toHexString()
-  );
-  outgoingMessage.target = event.params.target;
-  outgoingMessage.messageHash = event.params.messageHash.toHex();
-  outgoingMessage.message = event.params.message.toHex();
-  outgoingMessage.save();
+export function handleBatchOutgoing(event: BatchOutgoingEvent): void {
+  const outgoingBatch = new OutgoingBatch(event.params.batchID.toHexString());
+  outgoingBatch.size = event.params.batchSize;
+  outgoingBatch.epoch = event.params.epoch;
+  outgoingBatch.batchMerkleRoot = event.params.batchMerkleRoot.toHex();
+  outgoingBatch.save();
 }

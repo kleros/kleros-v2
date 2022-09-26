@@ -4,15 +4,20 @@ import {
   Entity,
   Value,
   store,
+  BigDecimal,
 } from "@graphprotocol/graph-ts";
 import {
   KlerosCore,
   AppealDecision,
   DisputeCreation,
+  DisputeKitCreated,
+  DisputeKitEnabled,
+  SubcourtCreated,
+  SubcourtModified,
   Draw as DrawEvent,
   NewPeriod,
   StakeSet,
-  TokenAndETHShift as TokenAndETHShiftEvent
+  TokenAndETHShift as TokenAndETHShiftEvent,
 } from "../generated/KlerosCore/KlerosCore";
 import {
   Juror,
@@ -21,11 +26,79 @@ import {
   Round,
   Draw,
   Dispute,
+  DisputeKit,
+  Court,
 } from "../generated/schema";
 
 function getPeriodName(index: i32): string {
   const periodArray = ["Evidence", "Commit", "Vote", "Appeal", "Execution"];
   return periodArray.at(index) || "None";
+}
+
+export function handleSubcourtCreated(event: SubcourtCreated): void {
+  const subcourt = new Court(event.params._subcourtID.toString());
+  subcourt.hiddenVotes = event.params._hiddenVotes;
+  subcourt.parent = event.params._parent.toString();
+  subcourt.minStake = event.params._minStake;
+  subcourt.alpha = event.params._alpha;
+  subcourt.feeForJuror = event.params._feeForJuror;
+  subcourt.jurorsForCourtJump = event.params._jurorsForCourtJump;
+  subcourt.timesPerPeriod = event.params._timesPerPeriod;
+  subcourt.supportedDisputeKits =
+    event.params._supportedDisputeKits.map<string>((disputeKitID: BigInt) =>
+      disputeKitID.toString()
+    );
+  subcourt.save();
+}
+
+export function handleSubcourtModified(event: SubcourtModified): void {
+  const court = Court.load(event.params._subcourtID.toString());
+  if (court) {
+    const contract = KlerosCore.bind(event.address);
+    const courtContractState = contract.courts(event.params._subcourtID);
+    court.hiddenVotes = courtContractState.getHiddenVotes();
+    court.minStake = courtContractState.getMinStake();
+    court.alpha = courtContractState.getAlpha();
+    court.feeForJuror = courtContractState.getFeeForJuror();
+    court.jurorsForCourtJump = courtContractState.getJurorsForCourtJump();
+    court.timesPerPeriod = contract.getTimesPerPeriod(event.params._subcourtID);
+    court.save();
+  }
+}
+
+export function handleDisputeKitCreated(event: DisputeKitCreated): void {
+  const disputeKit = new DisputeKit(event.params._disputeKitID.toString());
+  disputeKit.parent = event.params._parent.toString();
+  disputeKit.address = event.params._disputeKitAddress;
+  disputeKit.needsFreezing = false;
+  const parent = DisputeKit.load(event.params._parent.toString());
+  disputeKit.depthLevel = parent
+    ? parent.depthLevel.plus(BigInt.fromI32(1))
+    : BigInt.fromI32(0);
+  disputeKit.save();
+}
+
+export function handleDisputeKitEnabled(event: DisputeKitEnabled): void {
+  const court = Court.load(event.params._subcourtID.toString());
+  if (court) {
+    const isEnable = event.params._enable;
+    const disputeKitID = event.params._disputeKitID.toString();
+    court.supportedDisputeKits = isEnable
+      ? court.supportedDisputeKits.concat([disputeKitID])
+      : filterSupportedDisputeKits(court.supportedDisputeKits, disputeKitID);
+    court.save();
+  }
+}
+
+function filterSupportedDisputeKits(
+  supportedDisputeKits: string[],
+  disputeKitID: string
+): string[] {
+  let result: string[] = [];
+  for (let i = 0; i < supportedDisputeKits.length; i++)
+    if (supportedDisputeKits[i] !== disputeKitID)
+      result = result.concat([supportedDisputeKits[i]]);
+  return result;
 }
 
 export function handleAppealDecision(event: AppealDecision): void {
@@ -38,7 +111,8 @@ export function handleAppealDecision(event: AppealDecision): void {
       `${disputeID.toString()}-${newRoundIndex.toString()}`
     );
     const roundInfo = contract.getRoundInfo(
-      disputeID, BigInt.fromI64(newRoundIndex)
+      disputeID,
+      BigInt.fromI64(newRoundIndex)
     );
     round.dispute = disputeID.toString();
     round.tokensAtStakePerJuror = roundInfo.value0;
@@ -59,11 +133,9 @@ export function handleDisputeCreation(event: DisputeCreation): void {
   const subcourtID = disputeStorage.value0.toString();
   dispute.arbitrated = event.params._arbitrable;
   dispute.subcourtID = subcourtID;
-  dispute.disputeKit = disputeStorage.value2;
   dispute.period = "Evidence";
   dispute.ruled = false;
-  dispute.lastPeriodChange = disputeStorage.value5;
-  dispute.nbVotes = disputeStorage.value6;
+  dispute.lastPeriodChange = disputeStorage.value4;
   dispute.currentRound = 0;
   const roundInfo = contract.getRoundInfo(disputeID, BigInt.fromString("0"));
   const round = new Round(`${disputeID.toString()}-0`);
@@ -88,13 +160,12 @@ export function handleNewPeriod(event: NewPeriod): void {
 
 export function handleDraw(event: DrawEvent): void {
   const disputeID = event.params._disputeID;
-  const currentRound = event.params._appeal;
+  const currentRound = event.params._roundID;
   const voteID = event.params._voteID;
-  const drawID = (
-    `${disputeID.toString()}-${currentRound.toString()}-${voteID.toString()}`
-  );
+  const drawID = `${disputeID.toString()}-${currentRound.toString()}-${voteID.toString()}`;
   const drawnAddress = event.params._address;
   const draw = new Draw(drawID);
+  draw.dispute = disputeID.toString();
   draw.round = currentRound.toString();
   draw.juror = drawnAddress.toHexString();
   draw.voteID = voteID;
@@ -102,18 +173,23 @@ export function handleDraw(event: DrawEvent): void {
   const dispute = Dispute.load(disputeID.toString());
   if (dispute) {
     updateJurorBalance(
-      drawnAddress.toHexString(), dispute.subcourtID.toString(), event
+      drawnAddress.toHexString(),
+      dispute.subcourtID.toString(),
+      event
     );
   }
 }
 
 function updateJurorBalance(
-  address: string, subcourt: string, event: DrawEvent
+  address: string,
+  subcourt: string,
+  event: DrawEvent
 ): void {
   const jurorTokens = new JurorTokensPerSubcourt(`${address}-${subcourt}`);
   const contract = KlerosCore.bind(event.address);
   const jurorBalance = contract.getJurorBalance(
-    Address.fromString(address), BigInt.fromString(subcourt)
+    Address.fromString(address),
+    BigInt.fromString(subcourt)
   );
   jurorTokens.locked = jurorBalance.value1;
   jurorTokens.save();
@@ -142,7 +218,8 @@ export function handleStakeSet(event: StakeSet): void {
   jurorTokens.staked = amountStaked;
   jurorTokens.save();
   updateTotalPNKStaked(
-    getDelta(previousStake, amountStaked), event.block.timestamp
+    getDelta(previousStake, amountStaked),
+    event.block.timestamp
   );
 }
 
@@ -151,7 +228,7 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   const disputeID = event.params._disputeID;
   const shiftID = `${jurorAddress}-${disputeID.toString()}`;
   const tokenAmount = event.params._tokenAmount;
-  const ethAmount = event.params._ETHAmount;
+  const ethAmount = event.params._ethAmount;
   const shift = new TokenAndETHShift(shiftID);
   if (tokenAmount.gt(BigInt.fromI32(0))) {
     updatePNKRedistributed(tokenAmount, event.block.timestamp);
@@ -165,10 +242,14 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
 }
 
 function getDelta(previousValue: BigInt, newValue: BigInt): BigInt {
-  return (newValue.minus(previousValue));
+  return newValue.minus(previousValue);
 }
 
-function updateDataPoint(delta: BigInt, timestamp: BigInt, entityName: string): void {
+function updateDataPoint(
+  delta: BigInt,
+  timestamp: BigInt,
+  entityName: string
+): void {
   let counter = store.get(entityName, "0");
   if (!counter) {
     counter = new Entity();
