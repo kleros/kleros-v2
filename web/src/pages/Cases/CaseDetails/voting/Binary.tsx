@@ -1,12 +1,16 @@
 import React from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
+import { useWeb3 } from "hooks/useWeb3";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
+import { useDrawQuery } from "queries/useDrawQuery";
 import { Button, Textarea } from "@kleros/ui-components-library";
 
 const Binary: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
   const { id } = useParams();
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
+  const { account } = useWeb3();
+  const { data: draws } = useDrawQuery(account, id ? parseInt(id) : undefined);
   return (
     <Container>
       <MainContainer>

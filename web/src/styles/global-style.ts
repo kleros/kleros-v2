@@ -18,6 +18,10 @@ export const GlobalStyle = createGlobalStyle`
     outline: none;
   }
 
+  .ReactModal__Overlay {
+    background-color: #1b003fcc !important;
+  }
+
   h1 {
     margin: 0 0 16px 0;
     font-weight: 600;

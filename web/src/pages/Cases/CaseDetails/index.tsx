@@ -113,7 +113,10 @@ const CaseDetails: React.FC = () => {
             path="overview"
             element={<Overview arbitrable={dispute?.arbitrated} />}
           />
-          <Route path="evidence" element={<Evidence />} />
+          <Route
+            path="evidence"
+            element={<Evidence arbitrable={dispute?.arbitrated} />}
+          />
           <Route
             path="voting"
             element={<Binary arbitrable={dispute?.arbitrated} />}

@@ -11,8 +11,7 @@ export const useGetMetaEvidence = (
     : undefined;
   const arbitrable = useConnectedContract("IMetaEvidence", formattedAddress);
   return useSWRImmutable(
-    () =>
-      arbitrable ? `getDisputeInfo${disputeID}${arbitrableAddress}` : false,
+    () => (arbitrable ? `MetaEvidence{disputeID}${arbitrableAddress}` : false),
     async () => {
       if (arbitrable) {
         const disputeFilter = arbitrable.filters.Dispute(null, disputeID);
@@ -23,7 +22,7 @@ export const useGetMetaEvidence = (
         const metaEvidenceEvents = await arbitrable.queryFilter(
           metaEvidenceFilter
         );
-        console.log("getMetaEvidence");
+        console.log("getMetaEvidence", metaEvidenceEvents[0].args?._evidence);
         return fetch(
           `https://ipfs.kleros.io${metaEvidenceEvents[0].args?._evidence}`
         ).then((res) => res.json());
