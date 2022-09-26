@@ -1,12 +1,16 @@
 import React from "react";
 import styled from "styled-components";
+import { useParams } from "react-router-dom";
+import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { Button, Textarea } from "@kleros/ui-components-library";
 
-const Binary = () => {
+const Binary: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
+  const { id } = useParams();
+  const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
   return (
     <Container>
       <MainContainer>
-        <h1> How much such Alice receive? </h1>
+        <h1>{metaEvidence?.question}</h1>
         <StyledTextarea
           placeholder="Jusitfy your vote..."
           message={
@@ -16,8 +20,11 @@ const Binary = () => {
           variant="info"
         />
         <OptionsContainer>
-          <Button text="Pay 250 DAI" />
-          <Button text="Pay 50 DAI" />
+          {metaEvidence?.rulingOptions?.titles?.map(
+            (answer: string, i: number) => (
+              <Button key={i} text={answer} />
+            )
+          )}
         </OptionsContainer>
       </MainContainer>
       <RefuseToArbitrateContainer>

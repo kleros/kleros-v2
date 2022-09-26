@@ -1,7 +1,7 @@
 export enum Periods {
-  evidence,
-  commit,
-  vote,
-  appeal,
-  execution,
+  Evidence,
+  Commit,
+  Vote,
+  Appeal,
+  Execution,
 }

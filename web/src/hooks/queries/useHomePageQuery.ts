@@ -5,7 +5,7 @@ export type { HomePageQuery };
 
 const homePageQuery = gql`
   query HomePage($timeframe: ID) {
-    disputes(first: 5) {
+    disputes(first: 3) {
       id
     }
     pnkstakedDataPoints(where: { id_gt: $timeframe }) {
