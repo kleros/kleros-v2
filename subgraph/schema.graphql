@@ -46,6 +46,18 @@ type JurorTokensPerSubcourt @entity {
   locked: BigInt!
 }
 
+type EvidenceGroup @entity {
+  id: ID!
+  evidences: [Evidence!]! @derivedFrom(field: "evidenceGroup")
+  lastEvidenceID: BigInt!
+}
+
+type Evidence @entity {
+  id: ID! # Set to `${evidenceGroupID}-${id}`
+  evidence: String!
+  evidenceGroup: EvidenceGroup!
+}
+
 type Round @entity {
   id: ID! # Set to `${dispute.id}-${currentRound}`
   dispute: Dispute!
