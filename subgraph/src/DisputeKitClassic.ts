@@ -50,7 +50,7 @@ export function handleJustificationEvent(event: JustificationEvent): void {
         `${disputeID.toString()}-${currentRoundIndex.toString()}-${juror}`
       );
       vote.dispute = disputeID.toString();
-      vote.round = currentRoundIndex.toString();
+      vote.round = `${disputeID.toString()}-${currentRoundIndex.toString()}`;
       vote.juror = juror;
       vote.choice = event.params._choice;
       vote.justification = event.params._justification;
