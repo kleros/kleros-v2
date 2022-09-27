@@ -25,7 +25,7 @@ const Binary: React.FC<{ arbitrable: string; voteIDs: string[] }> = ({
         <StyledTextarea
           value={justification}
           onChange={(e) => setJustification(e.target.value)}
-          placeholder="Jusitfy your vote..."
+          placeholder="Justify your vote..."
           message={
             "A good justification contributes to case comprehension. " +
             "Low quality justifications can be challenged."
