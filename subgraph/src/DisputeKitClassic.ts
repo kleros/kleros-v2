@@ -14,5 +14,7 @@ export function handleEvidenceEvent(event: EvidenceEvent): void {
   const evidence = new Evidence(`${evidenceGroupID}-${evidenceID}`);
   evidence.evidence = event.params._evidence;
   evidence.evidenceGroup = evidenceGroupID.toString();
+  evidenceGroup.lastEvidenceID = evidenceID;
+  evidenceGroup.save();
   evidence.save();
 }
