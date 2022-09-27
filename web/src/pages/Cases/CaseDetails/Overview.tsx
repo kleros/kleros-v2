@@ -1,9 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
+import { utils } from "ethers";
+import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { useCourtPolicy } from "queries/useCourtPolicy";
+import { useIPFSQuery } from "hooks/useIPFSQuery";
 import PolicyIcon from "svgs/icons/policy.svg";
+import DisputeInfo from "components/DisputeCard/DisputeInfo";
 
 const Overview: React.FC<{ arbitrable: string; courtID: string }> = ({
   arbitrable,
@@ -11,8 +15,18 @@ const Overview: React.FC<{ arbitrable: string; courtID: string }> = ({
 }) => {
   const { id } = useParams();
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
-  const { data: courtPolicyEvent } = useCourtPolicy(parseInt(courtID));
-  const courtPolicy = courtPolicyEvent?.args._policy;
+  const { data: disputeDetails } = useDisputeDetailsQuery(
+    id ? parseInt(id) : undefined
+  );
+  const { data: courtPolicyPath } = useCourtPolicy(parseInt(courtID));
+  const { data: courtPolicy } = useIPFSQuery(courtPolicyPath?.args._policy);
+  const courtName = courtPolicy?.name;
+  const rewards = disputeDetails?.dispute?.subcourtID
+    ? `≥ ${utils.formatEther(
+        disputeDetails?.dispute?.subcourtID.feeForJuror
+      )} ETH`
+    : undefined;
+  const category = metaEvidence ? metaEvidence.category : undefined;
   return (
     <>
       <Container>
@@ -33,6 +47,7 @@ const Overview: React.FC<{ arbitrable: string; courtID: string }> = ({
           )}
         </VotingOptions>
         <hr />
+        <DisputeInfo court={courtName} {...{ rewards, category }} />
       </Container>
       <ShadeArea>
         <p>Make sure you understand the Policies</p>
@@ -49,7 +64,7 @@ const Overview: React.FC<{ arbitrable: string; courtID: string }> = ({
           )}
           {courtPolicy && (
             <StyledA
-              href={`https://ipfs.kleros.io${courtPolicy}`}
+              href={`https://ipfs.kleros.io${courtPolicyPath}`}
               target="_blank"
               rel="noreferrer"
             >
@@ -71,7 +86,7 @@ const Overview: React.FC<{ arbitrable: string; courtID: string }> = ({
 const Container = styled.div`
   width: 100%;
   height: auto;
-  padding: 8px 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -107,6 +122,9 @@ const ShadeArea = styled.div`
   width: 100%;
   padding: 16px;
   background-color: ${({ theme }) => theme.mediumBlue};
+  > p {
+    margin-top: 0;
+  }
 `;
 
 const StyledA = styled.a`

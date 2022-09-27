@@ -2242,6 +2242,7 @@ export type DisputeDetailsQuery = {
       id: string;
       timesPerPeriod: Array<any>;
       hiddenVotes: boolean;
+      feeForJuror: any;
     };
   } | null;
 };
