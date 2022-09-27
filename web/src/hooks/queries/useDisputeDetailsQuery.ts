@@ -9,6 +9,7 @@ const disputeDetailsQuery = gql`
       subcourtID {
         id
         timesPerPeriod
+        hiddenVotes
       }
       arbitrated
       period

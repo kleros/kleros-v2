@@ -2039,6 +2039,7 @@ export type DisputeDetailsQuery = {
       __typename?: "Court";
       id: string;
       timesPerPeriod: Array<any>;
+      hiddenVotes: boolean;
     };
   } | null;
 };
