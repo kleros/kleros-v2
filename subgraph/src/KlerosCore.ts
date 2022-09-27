@@ -107,11 +107,16 @@ export function handleAppealDecision(event: AppealDecision): void {
       disputeID,
       BigInt.fromI64(newRoundIndex)
     );
+    const subcourtID = dispute.subcourtID;
+    const subcourtStorage = contract.courts(BigInt.fromString(subcourtID));
     round.dispute = disputeID.toString();
     round.tokensAtStakePerJuror = roundInfo.value0;
     round.totalFeesForJurors = roundInfo.value1;
+    round.nbVotes = roundInfo.value1.div(subcourtStorage.getFeeForJuror());
+    round.totalVoted = BigInt.fromI32(0);
     round.repartitions = roundInfo.value2;
     round.penalties = roundInfo.value3;
+    round.disputeKitID = roundInfo.value5.toString();
     dispute.currentRound = newRoundIndex;
     round.save();
     dispute.save();
@@ -137,6 +142,7 @@ export function handleDisputeCreation(event: DisputeCreation): void {
   round.tokensAtStakePerJuror = roundInfo.value0;
   round.totalFeesForJurors = roundInfo.value1;
   round.nbVotes = roundInfo.value1.div(subcourtStorage.getFeeForJuror());
+  round.totalVoted = BigInt.fromI32(0);
   round.repartitions = roundInfo.value2;
   round.penalties = roundInfo.value3;
   round.disputeKitID = roundInfo.value5.toString();

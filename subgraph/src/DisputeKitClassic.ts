@@ -1,6 +1,16 @@
 import { BigInt } from "@graphprotocol/graph-ts";
-import { Evidence as EvidenceEvent } from "../generated/DisputeKitClassic/DisputeKitClassic";
-import { Evidence, EvidenceGroup } from "../generated/schema";
+import {
+  DisputeKitClassic,
+  Evidence as EvidenceEvent,
+  Justification as JustificationEvent,
+} from "../generated/DisputeKitClassic/DisputeKitClassic";
+import {
+  Dispute,
+  Round,
+  Evidence,
+  EvidenceGroup,
+  Vote,
+} from "../generated/schema";
 
 export function handleEvidenceEvent(event: EvidenceEvent): void {
   const evidenceGroupID = event.params._evidenceGroupID;
@@ -17,4 +27,34 @@ export function handleEvidenceEvent(event: EvidenceEvent): void {
   evidenceGroup.lastEvidenceID = evidenceID;
   evidenceGroup.save();
   evidence.save();
+}
+
+export function handleJustificationEvent(event: JustificationEvent): void {
+  const disputeID = event.params._coreDisputeID;
+  const dispute = Dispute.load(disputeID.toString());
+  if (dispute) {
+    const currentRoundIndex = dispute.currentRound;
+    const currentRound = Round.load(
+      `${disputeID.toString()}-${currentRoundIndex.toString()}`
+    );
+    if (currentRound) {
+      const contract = DisputeKitClassic.bind(event.address);
+      currentRound.totalVoted = contract.getRoundInfo(
+        disputeID,
+        BigInt.fromI32(dispute.currentRound),
+        BigInt.fromI32(0)
+      ).value2;
+      currentRound.save();
+      const juror = event.params._juror.toHexString();
+      const vote = new Vote(
+        `${disputeID.toString()}-${currentRoundIndex.toString()}-${juror}`
+      );
+      vote.dispute = disputeID.toString();
+      vote.round = currentRoundIndex.toString();
+      vote.juror = juror;
+      vote.choice = event.params._choice;
+      vote.justification = event.params._justification;
+      vote.save();
+    }
+  }
 }
