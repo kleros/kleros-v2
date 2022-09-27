@@ -640,6 +640,7 @@ export type Evidence = {
   evidence: Scalars["String"];
   evidenceGroup: EvidenceGroup;
   id: Scalars["ID"];
+  sender: Scalars["Bytes"];
 };
 
 export type EvidenceGroup = {
@@ -737,12 +738,19 @@ export type Evidence_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  sender?: InputMaybe<Scalars["Bytes"]>;
+  sender_contains?: InputMaybe<Scalars["Bytes"]>;
+  sender_in?: InputMaybe<Array<Scalars["Bytes"]>>;
+  sender_not?: InputMaybe<Scalars["Bytes"]>;
+  sender_not_contains?: InputMaybe<Scalars["Bytes"]>;
+  sender_not_in?: InputMaybe<Array<Scalars["Bytes"]>>;
 };
 
 export enum Evidence_OrderBy {
   Evidence = "evidence",
   EvidenceGroup = "evidenceGroup",
   Id = "id",
+  Sender = "sender",
 }
 
 export type GatewayDispute = {
@@ -2012,6 +2020,7 @@ export type CasesPageQuery = {
       timesPerPeriod: Array<any>;
     };
   }>;
+  casesDataPoint?: { __typename?: "CasesDataPoint"; value: any } | null;
 };
 
 export type DisputeDetailsQueryVariables = Exact<{
@@ -2050,7 +2059,12 @@ export type EvidencesQueryVariables = Exact<{
 
 export type EvidencesQuery = {
   __typename?: "Query";
-  evidences: Array<{ __typename?: "Evidence"; id: string; evidence: string }>;
+  evidences: Array<{
+    __typename?: "Evidence";
+    id: string;
+    evidence: string;
+    sender: any;
+  }>;
 };
 
 export type HomePageQueryVariables = Exact<{

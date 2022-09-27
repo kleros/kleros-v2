@@ -15,9 +15,12 @@ interface ICasesDisplay extends ICasesGrid {
 }
 
 const CasesDisplay: React.FC<ICasesDisplay> = ({
+  disputes,
+  currentPage,
+  setCurrentPage,
+  numberDisputes,
   casesPerPage,
   title = "Cases",
-  disputes,
   className,
 }) => (
   <div {...{ className }}>
@@ -25,7 +28,15 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
     <Search />
     <StatsAndFilters />
     <StyledHR />
-    <CasesGrid {...{ disputes, casesPerPage }} />
+    <CasesGrid
+      {...{
+        disputes,
+        currentPage,
+        setCurrentPage,
+        numberDisputes,
+        casesPerPage,
+      }}
+    />
   </div>
 );
 

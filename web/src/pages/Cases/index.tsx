@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Routes, Route } from "react-router-dom";
 import { useCasesQuery } from "queries/useCasesQuery";
@@ -13,14 +13,22 @@ const Container = styled.div`
 `;
 
 const Cases: React.FC = () => {
-  const { data } = useCasesQuery(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const casesPerPage = 3;
+  const { data } = useCasesQuery(casesPerPage * (currentPage - 1));
   return (
     <Container>
       <Routes>
         <Route
           path=""
           element={
-            data && <CasesDisplay disputes={data.disputes} casesPerPage={3} />
+            data && (
+              <CasesDisplay
+                disputes={data.disputes}
+                numberDisputes={data.casesDataPoint?.value}
+                {...{ currentPage, setCurrentPage, casesPerPage }}
+              />
+            )
           }
         />
         <Route path="/:id/*" element={<CaseDetails />} />

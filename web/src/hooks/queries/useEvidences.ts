@@ -5,9 +5,14 @@ export type { EvidencesQuery };
 
 const evidencesQuery = gql`
   query Evidences($evidenceGroup: String) {
-    evidences(where: { evidenceGroup: $evidenceGroup }) {
+    evidences(
+      where: { evidenceGroup: $evidenceGroup }
+      orderBy: id
+      orderDirection: asc
+    ) {
       id
       evidence
+      sender
     }
   }
 `;

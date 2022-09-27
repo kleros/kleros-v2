@@ -1,24 +1,28 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import Modal from "react-modal";
-import { BigNumber } from "ethers";
 import { Textarea, Button } from "@kleros/ui-components-library";
 import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
 import { useConnectedContract } from "hooks/useConnectedContract";
 
 const SubmitEvidenceModal: React.FC<{
   isOpen: boolean;
-  evidenceGroup: BigNumber;
+  evidenceGroup: string;
   close: () => void;
 }> = ({ isOpen, evidenceGroup, close }) => {
-  const [isSending, setIsSending] = useState(false);
   const disputeKit = useConnectedContract(
     "DisputeKitClassic"
   ) as DisputeKitClassic;
+  const [isSending, setIsSending] = useState(false);
+  const [message, setMessage] = useState("");
   return (
     <StyledModal {...{ isOpen }}>
       <h1>Submit New Evidence</h1>
-      <StyledTextArea placeholder="Your Arguments" />
+      <StyledTextArea
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Your Arguments"
+      />
       <ButtonArea>
         <Button
           variant="secondary"
@@ -33,8 +37,14 @@ const SubmitEvidenceModal: React.FC<{
           onClick={() => {
             setIsSending(true);
             disputeKit
-              .submitEvidence(evidenceGroup, "test")
-              .then(async (tx) => await tx.wait())
+              .submitEvidence(evidenceGroup, message)
+              .then(
+                async (tx) =>
+                  await tx.wait().then(() => {
+                    setMessage("");
+                    close();
+                  })
+              )
               .catch()
               .finally(() => setIsSending(false));
           }}

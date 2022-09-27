@@ -3,7 +3,7 @@ import { utils } from "ethers";
 import { useConnectedContract } from "hooks/useConnectedContract";
 
 export const useGetMetaEvidence = (
-  disputeID?: number,
+  disputeID?: string,
   arbitrableAddress?: string
 ) => {
   const formattedAddress = arbitrableAddress

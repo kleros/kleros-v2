@@ -75,6 +75,7 @@
     "react-dom": "^18.2.0",
     "react-error-boundary": "^3.1.4",
     "react-is": "^18.2.0",
+    "react-jazzicon": "^1.0.4",
     "react-loading-skeleton": "^3.1.0",
     "react-modal": "^3.15.1",
     "react-router-dom": "^6.4.0",

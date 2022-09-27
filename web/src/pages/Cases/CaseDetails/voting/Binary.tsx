@@ -1,21 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
+import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
+import { Button, Textarea } from "@kleros/ui-components-library";
 import { useWeb3 } from "hooks/useWeb3";
+import { useConnectedContract } from "hooks/useConnectedContract";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { useDrawQuery } from "queries/useDrawQuery";
-import { Button, Textarea } from "@kleros/ui-components-library";
 
 const Binary: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
   const { id } = useParams();
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
   const { account } = useWeb3();
   const { data: draws } = useDrawQuery(account, id ? parseInt(id) : undefined);
-  return (
+  console.log(draws);
+  const [justification, setJustification] = useState("");
+  const disputeKit = useConnectedContract(
+    "DisputeKitClassic"
+  ) as DisputeKitClassic;
+  return id ? (
     <Container>
       <MainContainer>
         <h1>{metaEvidence?.question}</h1>
         <StyledTextarea
+          value={justification}
+          onChange={(e) => setJustification(e.target.value)}
           placeholder="Jusitfy your vote..."
           message={
             "A good justification contributes to case comprehension. " +
@@ -26,7 +35,13 @@ const Binary: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
         <OptionsContainer>
           {metaEvidence?.rulingOptions?.titles?.map(
             (answer: string, i: number) => (
-              <Button key={i} text={answer} />
+              <Button
+                key={i}
+                text={answer}
+                onClick={() =>
+                  disputeKit.castVote(id, [1], i + 1, "", justification)
+                }
+              />
             )
           )}
         </OptionsContainer>
@@ -35,6 +50,8 @@ const Binary: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
         <Button variant="secondary" text="Refuse to Arbitrate" />
       </RefuseToArbitrateContainer>
     </Container>
+  ) : (
+    <></>
   );
 };
 

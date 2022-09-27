@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { useCasesQuery } from "queries/useCasesQuery";
 import JurorInfo from "./JurorInfo";
@@ -17,7 +17,9 @@ const StyledCasesDisplay = styled(CasesDisplay)`
 `;
 
 const Dashboard: React.FC = () => {
-  const { data } = useCasesQuery(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const casesPerPage = 3;
+  const { data } = useCasesQuery(casesPerPage * (currentPage - 1));
   return (
     <Container>
       <JurorInfo />
@@ -26,7 +28,8 @@ const Dashboard: React.FC = () => {
         <StyledCasesDisplay
           title="My Cases"
           disputes={data.disputes}
-          casesPerPage={3}
+          numberDisputes={data.casesDataPoint?.value}
+          {...{ currentPage, setCurrentPage, casesPerPage }}
         />
       )}
     </Container>

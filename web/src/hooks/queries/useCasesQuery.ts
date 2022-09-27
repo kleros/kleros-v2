@@ -5,7 +5,12 @@ export type { CasesPageQuery };
 
 const casesQuery = gql`
   query CasesPage($skip: Int) {
-    disputes(first: 3, skip: $skip) {
+    disputes(
+      first: 3
+      skip: $skip
+      orderBy: lastPeriodChange
+      orderDirection: desc
+    ) {
       id
       arbitrated
       subcourtID {
@@ -16,6 +21,9 @@ const casesQuery = gql`
       }
       period
       lastPeriodChange
+    }
+    casesDataPoint(id: "0") {
+      value
     }
   }
 `;
