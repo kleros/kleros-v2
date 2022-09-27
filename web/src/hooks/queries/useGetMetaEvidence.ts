@@ -22,7 +22,6 @@ export const useGetMetaEvidence = (
         const metaEvidenceEvents = await arbitrable.queryFilter(
           metaEvidenceFilter
         );
-        console.log("getMetaEvidence", metaEvidenceEvents[0].args?._evidence);
         return fetch(
           `https://ipfs.kleros.io${metaEvidenceEvents[0].args?._evidence}`
         ).then((res) => res.json());
