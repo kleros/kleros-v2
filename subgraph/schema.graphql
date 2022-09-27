@@ -28,6 +28,7 @@ type Juror @entity {
   tokens: [JurorTokensPerSubcourt!]! @derivedFrom(field: "juror")
   shifts: [TokenAndETHShift!]! @derivedFrom(field: "juror")
   draws: [Draw!]! @derivedFrom(field: "juror")
+  votes: [Vote!]! @derivedFrom(field: "juror")
 }
 
 type TokenAndETHShift @entity {
@@ -66,9 +67,20 @@ type Round @entity {
   tokensAtStakePerJuror: BigInt!
   totalFeesForJurors: BigInt!
   nbVotes: BigInt!
+  totalVoted: BigInt!
   repartitions: BigInt!
   penalties: BigInt!
   drawnJurors: [Draw!]! @derivedFrom(field: "round")
+  votes: [Vote!]! @derivedFrom(field: "round")
+}
+
+type Vote @entity {
+  id: ID! # Set to `${coreDisputeID}-${coreRoundID}-${jurorAddress}`
+  dispute: Dispute!
+  round: Round!
+  juror: Juror!
+  choice: BigInt
+  justification: String
 }
 
 type Draw @entity {
@@ -88,6 +100,7 @@ type Dispute @entity {
   lastPeriodChange: BigInt!
   rounds: [Round!]! @derivedFrom(field: "dispute")
   draws: [Draw!]! @derivedFrom(field: "dispute")
+  votes: [Vote!]! @derivedFrom(field: "dispute")
   currentRound: Int!
   shifts: [TokenAndETHShift!]! @derivedFrom(field: "dispute")
   gatewayDispute: GatewayDispute! @derivedFrom(field: "homeDispute")

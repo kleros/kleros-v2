@@ -92,6 +92,8 @@ dataSources:
       eventHandlers:
         - event: Evidence(indexed address,indexed uint256,indexed address,string)
           handler: handleEvidenceEvent
+        - event: Justification(indexed uint256,indexed address,indexed uint256,string)
+          handler: handleJustificationEvent
       file: ./src/DisputeKitClassic.ts
   - kind: ethereum
     name: HomeGateway
