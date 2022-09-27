@@ -14,11 +14,13 @@ const Evidence: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
   const { data } = useEvidences(evidenceGroup);
   return (
     <Container>
-      <SubmitEvidenceModal
-        isOpen={isModalOpen}
-        close={() => setIsModalOpen(false)}
-        {...{ evidenceGroup }}
-      />
+      {evidenceGroup && (
+        <SubmitEvidenceModal
+          isOpen={isModalOpen}
+          close={() => setIsModalOpen(false)}
+          {...{ evidenceGroup }}
+        />
+      )}
       <Searchbar />
       <StyledButton
         small
@@ -28,8 +30,8 @@ const Evidence: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
         onClick={() => setIsModalOpen(true)}
       />
       {data &&
-        data.evidences.map((evidence, i) => (
-          <EvidenceCard key={i} {...{ evidence: evidence.evidence }} />
+        data.evidences.map(({ evidence, sender }, i) => (
+          <EvidenceCard key={i} index={i + 1} {...{ evidence, sender }} />
         ))}
     </Container>
   );

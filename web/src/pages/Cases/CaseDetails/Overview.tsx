@@ -14,7 +14,7 @@ const Overview: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
         <p>{metaEvidence?.description}</p>
       </QuestionAndDescription>
       <VotingOptions>
-        <h3>Voting Options</h3>
+        {metaEvidence && <h3>Voting Options</h3>}
         {metaEvidence?.rulingOptions?.titles?.map(
           (answer: string, i: number) => (
             <span key={i}>

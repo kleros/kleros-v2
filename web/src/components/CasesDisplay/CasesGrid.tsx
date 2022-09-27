@@ -20,10 +20,19 @@ const StyledPagination = styled(StandardPagination)`
 
 export interface ICasesGrid {
   disputes: CasesPageQuery["disputes"];
+  currentPage: number;
+  setCurrentPage: (newPage: number) => void;
+  numberDisputes: number;
   casesPerPage: number;
 }
 
-const CasesGrid: React.FC<ICasesGrid> = ({ casesPerPage, disputes }) => {
+const CasesGrid: React.FC<ICasesGrid> = ({
+  disputes,
+  currentPage,
+  setCurrentPage,
+  numberDisputes,
+  casesPerPage,
+}) => {
   return (
     <>
       <Container>
@@ -31,7 +40,11 @@ const CasesGrid: React.FC<ICasesGrid> = ({ casesPerPage, disputes }) => {
           return <DisputeCard key={i} {...dispute} />;
         })}
       </Container>
-      <StyledPagination currentPage={1} numPages={1} callback={() => {}} />
+      <StyledPagination
+        {...{ currentPage }}
+        numPages={Math.ceil(numberDisputes / casesPerPage)}
+        callback={(page: number) => setCurrentPage(page)}
+      />
     </>
   );
 };
