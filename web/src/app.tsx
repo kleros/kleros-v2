@@ -14,7 +14,7 @@ import Dashboard from "./pages/Dashboard";
 const fetcherBuilder =
   (url: string) =>
   ({ query, variables }: { query: string; variables?: any }) => {
-    console.log("fetching subgraph", variables);
+    console.log("fetching subgraph");
     return request(url, query, variables);
   };
 
