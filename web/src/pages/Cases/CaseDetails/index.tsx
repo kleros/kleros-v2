@@ -89,6 +89,10 @@ const CaseDetails: React.FC = () => {
   const { data } = useDisputeDetailsQuery(id ? parseInt(id) : undefined);
   const dispute = data?.dispute;
   const currentPeriodIndex = dispute ? Periods[dispute.period] : 0;
+  const fixedPeriodIndex =
+    !dispute?.subcourtID.hiddenVotes && currentPeriodIndex > 0
+      ? currentPeriodIndex - 1
+      : currentPeriodIndex;
   return (
     <Container>
       <h1>Case #{id}</h1>
@@ -103,8 +107,8 @@ const CaseDetails: React.FC = () => {
       <TimeLineContainer>
         <StyledSteps
           horizontal
-          currentItemIndex={currentPeriodIndex}
-          items={getTimeline(dispute, currentPeriodIndex)}
+          currentItemIndex={fixedPeriodIndex}
+          items={getTimeline(dispute, fixedPeriodIndex)}
         />
       </TimeLineContainer>
       <StyledCard>
