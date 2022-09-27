@@ -10,6 +10,7 @@ const disputeDetailsQuery = gql`
         id
         timesPerPeriod
         hiddenVotes
+        feeForJuror
       }
       arbitrated
       period

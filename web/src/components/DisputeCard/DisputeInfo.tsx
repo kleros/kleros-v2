@@ -57,11 +57,11 @@ const getPeriodPhrase = (period: Periods) => {
 };
 
 export interface IDisputeInfo {
-  court: string;
+  court?: string;
   category?: string;
-  rewards: string;
-  period: Periods;
-  date: number;
+  rewards?: string;
+  period?: Periods;
+  date?: number;
 }
 
 const DisputeInfo: React.FC<IDisputeInfo> = ({
@@ -73,13 +73,17 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
 }) => (
   <Container>
     {category && <Field icon={BookmarkIcon} name="Category" value={category} />}
-    <Field icon={LawBalanceIcon} name="Court" value={court} />
-    <Field icon={PileCoinsIcon} name="Juror Rewards" value={rewards} />
-    <Field
-      icon={CalendarIcon}
-      name={getPeriodPhrase(period)}
-      value={new Date(date * 1000).toLocaleString()}
-    />
+    {court && <Field icon={LawBalanceIcon} name="Court" value={court} />}
+    {rewards && (
+      <Field icon={PileCoinsIcon} name="Juror Rewards" value={rewards} />
+    )}
+    {period && date && (
+      <Field
+        icon={CalendarIcon}
+        name={getPeriodPhrase(period)}
+        value={new Date(date * 1000).toLocaleString()}
+      />
+    )}
   </Container>
 );
 
