@@ -3,17 +3,17 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
 import { Button, Textarea } from "@kleros/ui-components-library";
-import { useWeb3 } from "hooks/useWeb3";
 import { useConnectedContract } from "hooks/useConnectedContract";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
-import { useDrawQuery } from "queries/useDrawQuery";
 
-const Binary: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
+const Binary: React.FC<{ arbitrable: string; voteIDs: string[] }> = ({
+  arbitrable,
+  voteIDs,
+}) => {
   const { id } = useParams();
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
-  const { account } = useWeb3();
-  const { data: draws } = useDrawQuery(account, id ? parseInt(id) : undefined);
-  console.log(draws);
+  const [chosenOption, setChosenOption] = useState(-1);
+  const [isSending, setIsSending] = useState(false);
   const [justification, setJustification] = useState("");
   const disputeKit = useConnectedContract(
     "DisputeKitClassic"
@@ -38,9 +38,19 @@ const Binary: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
               <Button
                 key={i}
                 text={answer}
-                onClick={() =>
-                  disputeKit.castVote(id, [1], i + 1, "", justification)
-                }
+                disabled={isSending}
+                isLoading={chosenOption === i}
+                onClick={async () => {
+                  setIsSending(true);
+                  setChosenOption(i);
+                  await disputeKit
+                    .castVote(id, voteIDs, i + 1, 0, justification)
+                    .then(async (tx) => await tx.wait())
+                    .finally(() => {
+                      setChosenOption(-1);
+                      setIsSending(false);
+                    });
+                }}
               />
             )
           )}
