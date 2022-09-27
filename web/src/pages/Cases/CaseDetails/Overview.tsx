@@ -39,7 +39,7 @@ const Overview: React.FC<{ arbitrable: string; courtID: string }> = ({
         <LinkContainer>
           {metaEvidence?.fileURI && (
             <StyledA
-              href={metaEvidence.fileURI}
+              href={`https://ipfs.kleros.io${metaEvidence.fileURI}`}
               target="_blank"
               rel="noreferrer"
             >
@@ -48,7 +48,11 @@ const Overview: React.FC<{ arbitrable: string; courtID: string }> = ({
             </StyledA>
           )}
           {courtPolicy && (
-            <StyledA href={courtPolicy} target="_blank" rel="noreferrer">
+            <StyledA
+              href={`https://ipfs.kleros.io${courtPolicy}`}
+              target="_blank"
+              rel="noreferrer"
+            >
               <PolicyIcon />
               Court Policy
             </StyledA>
