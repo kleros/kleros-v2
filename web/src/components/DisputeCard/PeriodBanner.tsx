@@ -9,9 +9,9 @@ export interface IPeriodBanner {
 
 const getPeriodColors = (period: Periods, theme: Theme): [string, string] => {
   switch (period) {
-    case Periods.appeal:
+    case Periods.Appeal:
       return [theme.tint, theme.tintMedium];
-    case Periods.execution:
+    case Periods.Execution:
       return [theme.secondaryPurple, theme.mediumPurple];
     default:
       return [theme.primaryBlue, theme.mediumBlue];
@@ -56,9 +56,9 @@ const Container = styled.div<Omit<IPeriodBanner, "id">>`
 
 const getPeriodLabel = (period: Periods) => {
   switch (period) {
-    case Periods.appeal:
+    case Periods.Appeal:
       return "Crowdfunding Appeal";
-    case Periods.execution:
+    case Periods.Execution:
       return "Closed";
     default:
       return "In Progress";

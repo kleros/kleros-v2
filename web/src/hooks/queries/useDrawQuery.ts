@@ -8,10 +8,13 @@ const drawQuery = gql`
     draws(where: { dispute: $disputeID, juror: $address }) {
       voteID
     }
+    votes(where: { dispute: $disputeID, juror: $address }) {
+      id
+    }
   }
 `;
 
-export const useDrawQuery = (address?: string | null, disputeID?: number) => {
+export const useDrawQuery = (address?: string | null, disputeID?: string) => {
   const { data, error, isValidating } = useSWR({
     query: drawQuery,
     variables: { address, disputeID },

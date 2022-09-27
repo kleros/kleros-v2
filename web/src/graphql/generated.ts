@@ -292,6 +292,7 @@ export type Dispute = {
   ruled: Scalars["Boolean"];
   shifts: Array<TokenAndEthShift>;
   subcourtID: Court;
+  votes: Array<Vote>;
 };
 
 export type DisputeDrawsArgs = {
@@ -316,6 +317,14 @@ export type DisputeShiftsArgs = {
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars["Int"]>;
   where?: InputMaybe<TokenAndEthShift_Filter>;
+};
+
+export type DisputeVotesArgs = {
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<Vote_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  where?: InputMaybe<Vote_Filter>;
 };
 
 export type DisputeKit = {
@@ -486,6 +495,7 @@ export type Dispute_Filter = {
   subcourtID_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
   subcourtID_starts_with?: InputMaybe<Scalars["String"]>;
   subcourtID_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  votes_?: InputMaybe<Vote_Filter>;
 };
 
 export enum Dispute_OrderBy {
@@ -500,6 +510,7 @@ export enum Dispute_OrderBy {
   Ruled = "ruled",
   Shifts = "shifts",
   SubcourtId = "subcourtID",
+  Votes = "votes",
 }
 
 export type Draw = {
@@ -838,6 +849,7 @@ export type Juror = {
   id: Scalars["ID"];
   shifts: Array<TokenAndEthShift>;
   tokens: Array<JurorTokensPerSubcourt>;
+  votes: Array<Vote>;
 };
 
 export type JurorDrawsArgs = {
@@ -862,6 +874,14 @@ export type JurorTokensArgs = {
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars["Int"]>;
   where?: InputMaybe<JurorTokensPerSubcourt_Filter>;
+};
+
+export type JurorVotesArgs = {
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<Vote_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  where?: InputMaybe<Vote_Filter>;
 };
 
 export type JurorTokensPerSubcourt = {
@@ -966,6 +986,7 @@ export type Juror_Filter = {
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
   shifts_?: InputMaybe<TokenAndEthShift_Filter>;
   tokens_?: InputMaybe<JurorTokensPerSubcourt_Filter>;
+  votes_?: InputMaybe<Vote_Filter>;
 };
 
 export enum Juror_OrderBy {
@@ -973,6 +994,7 @@ export enum Juror_OrderBy {
   Id = "id",
   Shifts = "shifts",
   Tokens = "tokens",
+  Votes = "votes",
 }
 
 /** Defines the order direction, either ascending or descending */
@@ -1155,6 +1177,8 @@ export type Query = {
   rounds: Array<Round>;
   tokenAndETHShift?: Maybe<TokenAndEthShift>;
   tokenAndETHShifts: Array<TokenAndEthShift>;
+  vote?: Maybe<Vote>;
+  votes: Array<Vote>;
 };
 
 export type Query_MetaArgs = {
@@ -1433,6 +1457,22 @@ export type QueryTokenAndEthShiftsArgs = {
   where?: InputMaybe<TokenAndEthShift_Filter>;
 };
 
+export type QueryVoteArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars["ID"];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+export type QueryVotesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<Vote_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Vote_Filter>;
+};
+
 export type Round = {
   __typename?: "Round";
   dispute: Dispute;
@@ -1444,6 +1484,8 @@ export type Round = {
   repartitions: Scalars["BigInt"];
   tokensAtStakePerJuror: Scalars["BigInt"];
   totalFeesForJurors: Scalars["BigInt"];
+  totalVoted: Scalars["BigInt"];
+  votes: Array<Vote>;
 };
 
 export type RoundDrawnJurorsArgs = {
@@ -1452,6 +1494,14 @@ export type RoundDrawnJurorsArgs = {
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars["Int"]>;
   where?: InputMaybe<Draw_Filter>;
+};
+
+export type RoundVotesArgs = {
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<Vote_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  where?: InputMaybe<Vote_Filter>;
 };
 
 export type Round_Filter = {
@@ -1548,6 +1598,15 @@ export type Round_Filter = {
   totalFeesForJurors_lte?: InputMaybe<Scalars["BigInt"]>;
   totalFeesForJurors_not?: InputMaybe<Scalars["BigInt"]>;
   totalFeesForJurors_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  totalVoted?: InputMaybe<Scalars["BigInt"]>;
+  totalVoted_gt?: InputMaybe<Scalars["BigInt"]>;
+  totalVoted_gte?: InputMaybe<Scalars["BigInt"]>;
+  totalVoted_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  totalVoted_lt?: InputMaybe<Scalars["BigInt"]>;
+  totalVoted_lte?: InputMaybe<Scalars["BigInt"]>;
+  totalVoted_not?: InputMaybe<Scalars["BigInt"]>;
+  totalVoted_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  votes_?: InputMaybe<Vote_Filter>;
 };
 
 export enum Round_OrderBy {
@@ -1560,6 +1619,8 @@ export enum Round_OrderBy {
   Repartitions = "repartitions",
   TokensAtStakePerJuror = "tokensAtStakePerJuror",
   TotalFeesForJurors = "totalFeesForJurors",
+  TotalVoted = "totalVoted",
+  Votes = "votes",
 }
 
 export type Subscription = {
@@ -1600,6 +1661,8 @@ export type Subscription = {
   rounds: Array<Round>;
   tokenAndETHShift?: Maybe<TokenAndEthShift>;
   tokenAndETHShifts: Array<TokenAndEthShift>;
+  vote?: Maybe<Vote>;
+  votes: Array<Vote>;
 };
 
 export type Subscription_MetaArgs = {
@@ -1878,6 +1941,22 @@ export type SubscriptionTokenAndEthShiftsArgs = {
   where?: InputMaybe<TokenAndEthShift_Filter>;
 };
 
+export type SubscriptionVoteArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars["ID"];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+export type SubscriptionVotesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<Vote_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Vote_Filter>;
+};
+
 export type TokenAndEthShift = {
   __typename?: "TokenAndETHShift";
   dispute: Dispute;
@@ -1966,6 +2045,129 @@ export enum TokenAndEthShift_OrderBy {
   TokenAmount = "tokenAmount",
 }
 
+export type Vote = {
+  __typename?: "Vote";
+  choice?: Maybe<Scalars["BigInt"]>;
+  dispute: Dispute;
+  id: Scalars["ID"];
+  juror: Juror;
+  justification?: Maybe<Scalars["String"]>;
+  round: Round;
+};
+
+export type Vote_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  choice?: InputMaybe<Scalars["BigInt"]>;
+  choice_gt?: InputMaybe<Scalars["BigInt"]>;
+  choice_gte?: InputMaybe<Scalars["BigInt"]>;
+  choice_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  choice_lt?: InputMaybe<Scalars["BigInt"]>;
+  choice_lte?: InputMaybe<Scalars["BigInt"]>;
+  choice_not?: InputMaybe<Scalars["BigInt"]>;
+  choice_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  dispute?: InputMaybe<Scalars["String"]>;
+  dispute_?: InputMaybe<Dispute_Filter>;
+  dispute_contains?: InputMaybe<Scalars["String"]>;
+  dispute_contains_nocase?: InputMaybe<Scalars["String"]>;
+  dispute_ends_with?: InputMaybe<Scalars["String"]>;
+  dispute_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  dispute_gt?: InputMaybe<Scalars["String"]>;
+  dispute_gte?: InputMaybe<Scalars["String"]>;
+  dispute_in?: InputMaybe<Array<Scalars["String"]>>;
+  dispute_lt?: InputMaybe<Scalars["String"]>;
+  dispute_lte?: InputMaybe<Scalars["String"]>;
+  dispute_not?: InputMaybe<Scalars["String"]>;
+  dispute_not_contains?: InputMaybe<Scalars["String"]>;
+  dispute_not_contains_nocase?: InputMaybe<Scalars["String"]>;
+  dispute_not_ends_with?: InputMaybe<Scalars["String"]>;
+  dispute_not_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  dispute_not_in?: InputMaybe<Array<Scalars["String"]>>;
+  dispute_not_starts_with?: InputMaybe<Scalars["String"]>;
+  dispute_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  dispute_starts_with?: InputMaybe<Scalars["String"]>;
+  dispute_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  id?: InputMaybe<Scalars["ID"]>;
+  id_gt?: InputMaybe<Scalars["ID"]>;
+  id_gte?: InputMaybe<Scalars["ID"]>;
+  id_in?: InputMaybe<Array<Scalars["ID"]>>;
+  id_lt?: InputMaybe<Scalars["ID"]>;
+  id_lte?: InputMaybe<Scalars["ID"]>;
+  id_not?: InputMaybe<Scalars["ID"]>;
+  id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  juror?: InputMaybe<Scalars["String"]>;
+  juror_?: InputMaybe<Juror_Filter>;
+  juror_contains?: InputMaybe<Scalars["String"]>;
+  juror_contains_nocase?: InputMaybe<Scalars["String"]>;
+  juror_ends_with?: InputMaybe<Scalars["String"]>;
+  juror_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  juror_gt?: InputMaybe<Scalars["String"]>;
+  juror_gte?: InputMaybe<Scalars["String"]>;
+  juror_in?: InputMaybe<Array<Scalars["String"]>>;
+  juror_lt?: InputMaybe<Scalars["String"]>;
+  juror_lte?: InputMaybe<Scalars["String"]>;
+  juror_not?: InputMaybe<Scalars["String"]>;
+  juror_not_contains?: InputMaybe<Scalars["String"]>;
+  juror_not_contains_nocase?: InputMaybe<Scalars["String"]>;
+  juror_not_ends_with?: InputMaybe<Scalars["String"]>;
+  juror_not_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  juror_not_in?: InputMaybe<Array<Scalars["String"]>>;
+  juror_not_starts_with?: InputMaybe<Scalars["String"]>;
+  juror_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  juror_starts_with?: InputMaybe<Scalars["String"]>;
+  juror_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  justification?: InputMaybe<Scalars["String"]>;
+  justification_contains?: InputMaybe<Scalars["String"]>;
+  justification_contains_nocase?: InputMaybe<Scalars["String"]>;
+  justification_ends_with?: InputMaybe<Scalars["String"]>;
+  justification_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  justification_gt?: InputMaybe<Scalars["String"]>;
+  justification_gte?: InputMaybe<Scalars["String"]>;
+  justification_in?: InputMaybe<Array<Scalars["String"]>>;
+  justification_lt?: InputMaybe<Scalars["String"]>;
+  justification_lte?: InputMaybe<Scalars["String"]>;
+  justification_not?: InputMaybe<Scalars["String"]>;
+  justification_not_contains?: InputMaybe<Scalars["String"]>;
+  justification_not_contains_nocase?: InputMaybe<Scalars["String"]>;
+  justification_not_ends_with?: InputMaybe<Scalars["String"]>;
+  justification_not_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  justification_not_in?: InputMaybe<Array<Scalars["String"]>>;
+  justification_not_starts_with?: InputMaybe<Scalars["String"]>;
+  justification_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  justification_starts_with?: InputMaybe<Scalars["String"]>;
+  justification_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  round?: InputMaybe<Scalars["String"]>;
+  round_?: InputMaybe<Round_Filter>;
+  round_contains?: InputMaybe<Scalars["String"]>;
+  round_contains_nocase?: InputMaybe<Scalars["String"]>;
+  round_ends_with?: InputMaybe<Scalars["String"]>;
+  round_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  round_gt?: InputMaybe<Scalars["String"]>;
+  round_gte?: InputMaybe<Scalars["String"]>;
+  round_in?: InputMaybe<Array<Scalars["String"]>>;
+  round_lt?: InputMaybe<Scalars["String"]>;
+  round_lte?: InputMaybe<Scalars["String"]>;
+  round_not?: InputMaybe<Scalars["String"]>;
+  round_not_contains?: InputMaybe<Scalars["String"]>;
+  round_not_contains_nocase?: InputMaybe<Scalars["String"]>;
+  round_not_ends_with?: InputMaybe<Scalars["String"]>;
+  round_not_ends_with_nocase?: InputMaybe<Scalars["String"]>;
+  round_not_in?: InputMaybe<Array<Scalars["String"]>>;
+  round_not_starts_with?: InputMaybe<Scalars["String"]>;
+  round_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  round_starts_with?: InputMaybe<Scalars["String"]>;
+  round_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+};
+
+export enum Vote_OrderBy {
+  Choice = "choice",
+  Dispute = "dispute",
+  Id = "id",
+  Juror = "juror",
+  Justification = "justification",
+  Round = "round",
+}
+
 export type _Block_ = {
   __typename?: "_Block_";
   /** The hash of the block */
@@ -2052,6 +2254,7 @@ export type DrawQueryVariables = Exact<{
 export type DrawQuery = {
   __typename?: "Query";
   draws: Array<{ __typename?: "Draw"; voteID: any }>;
+  votes: Array<{ __typename?: "Vote"; id: string }>;
 };
 
 export type EvidencesQueryVariables = Exact<{
@@ -2100,4 +2303,26 @@ export type HomePageQuery = {
     id: string;
     value: any;
   }>;
+};
+
+export type VotingHistoryQueryVariables = Exact<{
+  disputeID: Scalars["ID"];
+}>;
+
+export type VotingHistoryQuery = {
+  __typename?: "Query";
+  dispute?: {
+    __typename?: "Dispute";
+    rounds: Array<{
+      __typename?: "Round";
+      nbVotes: any;
+      totalVoted: any;
+      votes: Array<{
+        __typename?: "Vote";
+        choice?: any | null;
+        justification?: string | null;
+        juror: { __typename?: "Juror"; id: string };
+      }>;
+    }>;
+  } | null;
 };

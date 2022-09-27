@@ -25,7 +25,7 @@ import BalanceIcon from "assets/svgs/icons/law-balance.svg";
 import BullhornIcon from "assets/svgs/icons/bullhorn.svg";
 import Overview from "./Overview";
 import Evidence from "./Evidence";
-import { Binary } from "./voting";
+import Voting from "./Voting";
 
 const TABS = [
   {
@@ -77,7 +77,7 @@ const getTimeline = (
             ),
           ]
         : currentPeriodIndex > i
-        ? ["00d 00m"]
+        ? ["00d 00h"]
         : [secondsToDayHourMinute(dispute?.subcourtID.timesPerPeriod[i])],
   }));
 };
@@ -115,7 +115,12 @@ const CaseDetails: React.FC = () => {
         <Routes>
           <Route
             path="overview"
-            element={<Overview arbitrable={dispute?.arbitrated} />}
+            element={
+              <Overview
+                arbitrable={dispute?.arbitrated}
+                courtID={dispute?.subcourtID.id}
+              />
+            }
           />
           <Route
             path="evidence"
@@ -123,7 +128,7 @@ const CaseDetails: React.FC = () => {
           />
           <Route
             path="voting"
-            element={<Binary arbitrable={dispute?.arbitrated} />}
+            element={<Voting arbitrable={dispute?.arbitrated} />}
           />
           <Route path="*" element={<Navigate to="overview" />} />
         </Routes>
