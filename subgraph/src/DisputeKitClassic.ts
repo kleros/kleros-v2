@@ -8,12 +8,12 @@ export function handleEvidenceEvent(event: EvidenceEvent): void {
   if (!evidenceGroup) {
     evidenceGroup = new EvidenceGroup(evidenceGroupID.toString());
     evidenceGroup.lastEvidenceID = BigInt.fromI32(0);
-    evidenceGroup.save();
   }
   const evidenceID = evidenceGroup.lastEvidenceID.plus(BigInt.fromI32(1));
   const evidence = new Evidence(`${evidenceGroupID}-${evidenceID}`);
   evidence.evidence = event.params._evidence;
   evidence.evidenceGroup = evidenceGroupID.toString();
+  evidence.sender = event.params._party;
   evidenceGroup.lastEvidenceID = evidenceID;
   evidenceGroup.save();
   evidence.save();

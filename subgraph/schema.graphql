@@ -56,6 +56,7 @@ type Evidence @entity {
   id: ID! # Set to `${evidenceGroupID}-${id}`
   evidence: String!
   evidenceGroup: EvidenceGroup!
+  sender: Bytes!
 }
 
 type Round @entity {
