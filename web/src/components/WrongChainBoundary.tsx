@@ -11,6 +11,7 @@ const WrongChainRecovery: React.FC<{ resetErrorBoundary: () => void }> = ({
   return (
     <Container>
       <Button
+        isLoading={loading}
         disabled={loading}
         text="Switch to Arbitrum"
         onClick={() => {
