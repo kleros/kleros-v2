@@ -39,13 +39,13 @@ const Binary: React.FC<{ arbitrable: string; voteIDs: string[] }> = ({
                 key={i}
                 text={answer}
                 disabled={isSending}
-                isLoading={chosenOption === i}
+                isLoading={chosenOption === i + 1}
                 onClick={async () => {
                   setIsSending(true);
-                  setChosenOption(i);
+                  setChosenOption(i + 1);
                   await disputeKit
                     .castVote(id, voteIDs, i + 1, 0, justification)
-                    .then(async (tx) => await tx.wait())
+                    .then(async (tx) => await tx.wait(2))
                     .finally(() => {
                       setChosenOption(-1);
                       setIsSending(false);
@@ -57,7 +57,23 @@ const Binary: React.FC<{ arbitrable: string; voteIDs: string[] }> = ({
         </OptionsContainer>
       </MainContainer>
       <RefuseToArbitrateContainer>
-        <Button variant="secondary" text="Refuse to Arbitrate" />
+        <Button
+          variant="secondary"
+          text="Refuse to Arbitrate"
+          disabled={isSending}
+          isLoading={chosenOption === 0}
+          onClick={async () => {
+            setIsSending(true);
+            setChosenOption(0);
+            await disputeKit
+              .castVote(id, voteIDs, 0, 0, justification)
+              .then(async (tx) => await tx.wait(2))
+              .finally(() => {
+                setChosenOption(-1);
+                setIsSending(false);
+              });
+          }}
+        />
       </RefuseToArbitrateContainer>
     </Container>
   ) : (
