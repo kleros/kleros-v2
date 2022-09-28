@@ -199,7 +199,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         } else if (sortitionModule.phase() == ISortitionModule.Phase.freezing) {
             if (phase == Phase.resolving) {
                 require(disputesWithoutJurors > 0, "All the disputes have jurors");
-                rngRequestedBlock = core.freezeBlock() + RNG_LOOKAHEAD;
+                rngRequestedBlock = sortitionModule.getFreezeBlock() + RNG_LOOKAHEAD;
                 rng.requestRandomness(rngRequestedBlock);
                 phase = Phase.generating;
             } else if (phase == Phase.generating) {

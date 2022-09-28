@@ -1,6 +1,6 @@
 import { ethers, getNamedAccounts, network, deployments } from "hardhat";
 import { BigNumber } from "ethers";
-import { PNK, KlerosCore, DisputeKitClassic } from "../../typechain-types";
+import { PNK, KlerosCore, DisputeKitClassic, SortitionModule } from "../../typechain-types";
 import { expect } from "chai";
 
 /* eslint-disable no-unused-vars */
@@ -18,6 +18,7 @@ describe("Unstake juror", async () => {
   let disputeKit;
   let pnk;
   let core;
+  let sortitionModule;
 
   beforeEach("Setup", async () => {
     ({ deployer } = await getNamedAccounts());
@@ -32,6 +33,7 @@ describe("Unstake juror", async () => {
     disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
+    sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
   });
 
   it("Unstake inactive juror", async () => {
@@ -49,7 +51,7 @@ describe("Unstake juror", async () => {
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
-    await core.passPhase(); // Staking -> Freezing
+    await sortitionModule.passPhase(); // Staking -> Freezing
     for (let index = 0; index < 20; index++) {
       await network.provider.send("evm_mine"); // Wait for 20 blocks finality
     }
@@ -67,7 +69,7 @@ describe("Unstake juror", async () => {
     await core.passPeriod(0); // Voting -> Appeal
     await core.passPeriod(0); // Appeal -> Execution
 
-    await core.passPhase(); // Freezing -> Staking. Change so we don't deal with delayed stakes
+    await sortitionModule.passPhase(); // Freezing -> Staking. Change so we don't deal with delayed stakes
 
     expect(await core.getJurorSubcourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
 

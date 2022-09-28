@@ -1011,8 +1011,6 @@ contract KlerosCore is IArbitrator {
         bytes32 stakePathID = accountAndSubcourtIDToStakePathID(_account, _subcourtID);
 
         uint256 currentStake = juror.stakedTokens[_subcourtID];
-        uint256 delta;
-        bool plusOrMinus; // True if the stake is increasing, false otherwise
 
         if (_stake != 0) {
             // Check against locked tokens in case the min stake was lowered.
@@ -1040,8 +1038,6 @@ contract KlerosCore is IArbitrator {
                     return false;
                 }
             }
-            plusOrMinus = true;
-            delta = _stake - currentStake;
         } else {
             if (_stake == 0) {
                 // Keep locked tokens in the contract and release them after dispute is executed.
@@ -1067,18 +1063,16 @@ contract KlerosCore is IArbitrator {
                     }
                 }
             }
-            delta = currentStake - _stake;
         }
 
-        // Update juror's records in the current and in parent subcourts.
+        // Update juror's records.
+        juror.stakedTokens[_subcourtID] = _stake;
+
         bool finished = false;
         uint256 currentSubcourtID = _subcourtID;
         while (!finished) {
+            // Tokens are also implicitely staked in parent courts through sortition module to increase the chance of being drawn.
             sortitionModule.set(bytes32(currentSubcourtID), _stake, stakePathID);
-
-            juror.stakedTokens[uint96(currentSubcourtID)] = plusOrMinus
-                ? juror.stakedTokens[uint96(currentSubcourtID)] + delta
-                : juror.stakedTokens[uint96(currentSubcourtID)] - delta;
             if (currentSubcourtID == GENERAL_COURT) finished = true;
             else currentSubcourtID = courts[currentSubcourtID].parent;
         }

@@ -101,8 +101,7 @@ async function deployContracts(deployer) {
     [200, 10000, 100, 3],
     [0, 0, 0, 0],
     0xfa,
-    sortitionModule.address,
-    7
+    sortitionModule.address
   );
   await core.deployed();
 
