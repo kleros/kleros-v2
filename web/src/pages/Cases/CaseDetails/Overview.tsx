@@ -18,10 +18,11 @@ const Overview: React.FC<{ arbitrable: string; courtID?: string }> = ({
   const { data: disputeDetails } = useDisputeDetailsQuery(
     id ? parseInt(id) : undefined
   );
-  const { data: courtPolicyPath } = useCourtPolicy(
+  const { data: courtPolicyEvent } = useCourtPolicy(
     courtID ? parseInt(courtID) : undefined
   );
-  const { data: courtPolicy } = useIPFSQuery(courtPolicyPath?.args._policy);
+  const courtPolicyPath = courtPolicyEvent?.args._policy;
+  const { data: courtPolicy } = useIPFSQuery(courtPolicyPath);
   const courtName = courtPolicy?.name;
   const rewards = disputeDetails?.dispute?.subcourtID
     ? `≥ ${utils.formatEther(
