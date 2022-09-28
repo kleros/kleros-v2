@@ -63,12 +63,14 @@ const getTimeline = (
     "Evidence Period",
     "Voting Period",
     "Appeal Period",
-    "Execution Period",
+    "Executed",
   ];
   return titles.map((title, i) => ({
     title,
     subitems:
-      currentPeriodIndex === i
+      i === 3
+        ? []
+        : currentPeriodIndex === i
         ? [
             secondsToDayHourMinute(
               getTimeLeft(
@@ -78,7 +80,7 @@ const getTimeline = (
             ),
           ]
         : currentPeriodIndex > i
-        ? ["00d 00h"]
+        ? ["Done!"]
         : [secondsToDayHourMinute(dispute?.subcourtID.timesPerPeriod[i])],
   }));
 };
