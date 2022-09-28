@@ -77,7 +77,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
     {rewards && (
       <Field icon={PileCoinsIcon} name="Juror Rewards" value={rewards} />
     )}
-    {period && date && (
+    {typeof period !== "undefined" && date && (
       <Field
         icon={CalendarIcon}
         name={getPeriodPhrase(period)}
