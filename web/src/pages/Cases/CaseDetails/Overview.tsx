@@ -9,7 +9,7 @@ import { useIPFSQuery } from "hooks/useIPFSQuery";
 import PolicyIcon from "svgs/icons/policy.svg";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 
-const Overview: React.FC<{ arbitrable: string; courtID: string }> = ({
+const Overview: React.FC<{ arbitrable: string; courtID?: string }> = ({
   arbitrable,
   courtID,
 }) => {
@@ -18,7 +18,9 @@ const Overview: React.FC<{ arbitrable: string; courtID: string }> = ({
   const { data: disputeDetails } = useDisputeDetailsQuery(
     id ? parseInt(id) : undefined
   );
-  const { data: courtPolicyPath } = useCourtPolicy(parseInt(courtID));
+  const { data: courtPolicyPath } = useCourtPolicy(
+    courtID ? parseInt(courtID) : undefined
+  );
   const { data: courtPolicy } = useIPFSQuery(courtPolicyPath?.args._policy);
   const courtName = courtPolicy?.name;
   const rewards = disputeDetails?.dispute?.subcourtID
