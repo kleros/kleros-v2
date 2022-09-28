@@ -1,0 +1,27 @@
+version: "3.4"
+services:
+  ipfs1:
+    container_name: ipfs1
+    image: ipfs/go-ipfs:latest
+    ports:
+#     - "4001:4001" # ipfs swarm - expose if needed/wanted
+        - "5001:5001" # ipfs api - expose if needed/wanted
+        - "8080:8080" # ipfs gateway - expose if needed/wanted
+    volumes:
+      - ./compose/ipfs0:/data/ipfs
+
+  kleros-court-v2-evidence:
+      depends_on:
+        - ipfs1
+      network_mode:  host
+      container_name: court-v2-evidence
+      build: .
+      volumes:
+        - ./court/:/var/lib/data/
+        - ./watchlist/:/var/lib/watchlist/
+      environment:
+          RPC: "https://rinkeby.arbitrum.io/rpc"
+          IPFS: "http://localhost:5001/api/v0"
+          INTERVAL: 300
+          RETRY: 2
+

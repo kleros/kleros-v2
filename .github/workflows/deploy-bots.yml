@@ -1,0 +1,24 @@
+on: [workflow_dispatch]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - uses: aws-actions/setup-sam@v1
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.STAGING_AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.STAGING_AWS_SECRET_KEY }}
+          aws-region: us-east-2
+      
+      # sam build 
+      - run: sam build --use-container
+        working-directory: bots
+
+      # Run Unit tests- Specify unit tests here 
+
+      # sam deploy
+      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name kleros-v2-bots --s3-bucket kleros-v2-bots --capabilities CAPABILITY_IAM --region us-east-2
+        working-directory: bots

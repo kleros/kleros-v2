@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers } from "hardhat";
 
-const HOME_CHAIN_IDS = [42161, 421611, 31337]; // ArbOne, ArbRinkeby, Hardhat
+const HOME_CHAIN_IDS = [42161, 421611, 421613, 31337]; // ArbOne, ArbRinkeby, ArbiGoerli, Hardhat
 const epochPeriod = 86400; // 24 hours
 
 // TODO: use deterministic deployments
@@ -21,7 +21,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     const fastBridgeReceiver = await deployments.get("FastBridgeReceiverOnEthereum");
     const arbSysMock = await deploy("ArbSysMock", { from: deployer, log: true });
 
-    const fastBridgeSender = await deploy("FastBridgeSenderToEthereumMock", {
+    const fastBridgeSender = await deploy("FastBridgeSenderMock", {
       from: deployer,
       contract: "FastBridgeSenderMock",
       args: [epochPeriod, fastBridgeReceiver.address, arbSysMock.address],
@@ -63,7 +63,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const liveDeployer = async () => {
     const fastBridgeReceiver = await hre.companionNetworks.foreign.deployments.get("FastBridgeReceiverOnEthereum");
 
-    const fastBridgeSender = await deploy("FastBridgeSenderToEthereum", {
+    const fastBridgeSender = await deploy("FastBridgeSender", {
       from: deployer,
       contract: "FastBridgeSender",
       args: [epochPeriod, fastBridgeReceiver.address],

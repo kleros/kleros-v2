@@ -1,8 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import Search from "./Search";
-import StatsAndFilters from "./StatsAndFilters";
-import CasesMatrix from "./CasesMatrix";
+import CasesDisplay from "components/CasesDisplay";
 
 const Container = styled.div`
   width: 100%;
@@ -11,19 +9,12 @@ const Container = styled.div`
   padding: 32px;
 `;
 
-const StyledHR = styled.hr`
-  margin-top: 24px;
-  margin-bottom: 24px;
-`;
-
-const Cases: React.FC = () => (
-  <Container>
-    <h1>Cases</h1>
-    <Search />
-    <StatsAndFilters />
-    <StyledHR />
-    <CasesMatrix />
-  </Container>
-);
+const Cases: React.FC = () => {
+  return (
+    <Container>
+      <CasesDisplay casesPerPage={3} />
+    </Container>
+  );
+};
 
 export default Cases;

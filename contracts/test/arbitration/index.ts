@@ -10,12 +10,12 @@ const MULTIPLIER_DENOMINATOR = 10000;
 
 describe("DisputeKitClassic", async () => {
   // eslint-disable-next-line no-unused-vars
-  let deployer, claimant, supporter, challenger, innocentBystander;
-  let core, disputeKit, arbitrable, sortitionModule;
+  let deployer;
+  let core, disputeKit;
 
   before("Deploying", async () => {
-    [deployer, claimant, supporter, challenger, innocentBystander] = await ethers.getSigners();
-    [core, disputeKit, arbitrable, sortitionModule] = await deployContracts(deployer);
+    [deployer] = await ethers.getSigners();
+    [core, disputeKit] = await deployContracts(deployer);
   });
 
   it("Kleros Core initialization", async () => {
@@ -70,8 +70,8 @@ describe("DisputeKitClassic", async () => {
 });
 
 async function deployContracts(deployer) {
-  const constantNGFactory = await ethers.getContractFactory("ConstantNG", deployer);
-  const rng = await constantNGFactory.deploy(42);
+  const rngFactory = await ethers.getContractFactory("BlockHashRNG", deployer);
+  const rng = await rngFactory.deploy();
   await rng.deployed();
 
   const disputeKitFactory = await ethers.getContractFactory("DisputeKitClassic", deployer);
@@ -101,16 +101,11 @@ async function deployContracts(deployer) {
     [200, 10000, 100, 3],
     [0, 0, 0, 0],
     0xfa,
-    sortitionModule.address,
-    7
+    sortitionModule.address
   );
   await core.deployed();
 
   await disputeKit.changeCore(core.address);
 
-  const ArbitrableFactory = await ethers.getContractFactory("ArbitrableExample", deployer);
-  const arbitrable = await ArbitrableFactory.deploy(core.address, "uri://metaevidence.json");
-  await arbitrable.deployed();
-
-  return [core, disputeKit, arbitrable];
+  return [core, disputeKit];
 }

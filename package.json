@@ -4,16 +4,26 @@
   "description": "Kleros version 2",
   "main": "index.js",
   "repository": "git@github.com:kleros/kleros-v2.git",
-  "author": "Kleros",
+  "author": {
+    "name": "Kleros",
+    "email": "contact@kleros.io",
+    "url": "https://kleros.io"
+  },
+  "bugs": {
+    "url": "https://github.com/kleros/kleros-v2/issues",
+    "email": "contact@kleros.io"
+  },
   "license": "MIT",
   "private": true,
   "workspaces": [
     "bots",
+    "bot-pinner",
     "contracts",
     "dynamic-script",
     "evidence-display",
     "klerosjs",
     "subgraph",
+    "subgraph-fastbridge",
     "web"
   ],
   "packageManager": "yarn@3.1.1",
@@ -52,6 +62,7 @@
   "scripts": {
     "depcheck": "depcheck .",
     "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 && prettier --write CHANGELOG.md",
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "reinstall": "YARN_CHECKSUM_BEHAVIOR=update yarn install --no-immutable"
   }
 }

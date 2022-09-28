@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import { useOpenContext } from "../index";
 
 const Container = styled.div``;
 
@@ -21,17 +22,20 @@ const links = [
   { to: "/dashboard", text: "Dashboard" },
 ];
 
-const Explore: React.FC = () => (
-  <Container>
-    <h1>Explore</h1>
-    {links.map(({ to, text }) => (
-      <LinkContainer key={text}>
-        <Link {...{ to }} className="sm-link">
-          {text}
-        </Link>
-      </LinkContainer>
-    ))}
-  </Container>
-);
+const Explore: React.FC = () => {
+  const { toggleIsOpen } = useOpenContext();
+  return (
+    <Container>
+      <h1>Explore</h1>
+      {links.map(({ to, text }) => (
+        <LinkContainer key={text}>
+          <Link {...{ to }} onClick={toggleIsOpen} className="sm-link">
+            {text}
+          </Link>
+        </LinkContainer>
+      ))}
+    </Container>
+  );
+};
 
 export default Explore;

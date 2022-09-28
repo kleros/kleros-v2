@@ -20,7 +20,13 @@ interface ISortitionModule {
         bytes32 _ID
     ) external;
 
-    function draw(bytes32 _key, uint256 _drawnNumber) external view returns (address);
+    function notifyRandomNumber(uint256 _drawnNumber) external;
+
+    function draw(
+        bytes32 _subCourt,
+        uint256 _coreDisputeID,
+        uint256 _voteID
+    ) external view returns (address);
 
     function createDisputeHook(uint256 _disputeID, uint256 _roundID) external;
 

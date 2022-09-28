@@ -1,0 +1,27 @@
+{
+  "name": "kleros-data-pinner.public.dappnode.eth",
+  "version": "0.1.0",
+  "shortDescription": "IPFS data pinner for Kleros",
+  "description": "IPFS data pinner for Kleros",
+  "type": "service",
+  "author": "Kleros <contact@kleros.io> (https://github.com/kleros)",
+  "contributors": [
+    "JayBuidl <jb@kleros.io> (https://github.com/jaybuidl)",
+    "George <george@kleros.io> (https://github.com/geaxed)"
+  ],
+  "categories": [
+    "Storage",
+    "Developer tools"
+  ],
+  "links": {
+    "homepage": "https://kleros.io"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kleros/kleros-v2.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kleros/kleros-v2/issues"
+  }
+}

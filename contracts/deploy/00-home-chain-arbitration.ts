@@ -6,12 +6,14 @@ import getContractAddress from "../deploy-helpers/getContractAddress";
 enum HomeChains {
   ARBITRUM_ONE = 42161,
   ARBITRUM_RINKEBY = 421611,
+  ARBITRUM_GOERLI = 421613,
   HARDHAT = 31337,
 }
 
 const pnkByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x330bD769382cFc6d50175903434CCC8D206DCAE5"],
   [HomeChains.ARBITRUM_RINKEBY, "0x364530164a2338cdba211f72c1438eb811b5c639"],
+  [HomeChains.ARBITRUM_GOERLI, "0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610"],
 ]);
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -31,9 +33,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const chainId = Number(await getChainId());
   console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
-  const rng = await deploy("IncrementalNG", {
+  await deploy("PolicyRegistry", {
     from: deployer,
-    args: [67193503189],
+    args: [deployer],
+    log: true,
+  });
+
+  const rng = await deploy("BlockHashRNG", {
+    from: deployer,
+    args: [],
     log: true,
   });
 
@@ -43,6 +51,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
+  let nonce;
   if (chainId === HomeChains.HARDHAT) {
     pnkByChain.set(
       HomeChains.HARDHAT,
@@ -53,18 +62,21 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
         })
       ).address
     );
+    nonce = await ethers.provider.getTransactionCount(deployer);
+    nonce += 1;
+  } else {
+    const homeChainProvider = new providers.JsonRpcProvider(homeNetworks[chainId].url);
+    nonce = await homeChainProvider.getTransactionCount(deployer);
+    // TODO: Nonce hasn't been determined for this part of the condition.
+    nonce += 1;
   }
 
-  let nonce;
-  const homeChainProvider = new providers.JsonRpcProvider(homeNetworks[chainId].url);
-  nonce = await homeChainProvider.getTransactionCount(deployer);
-  nonce += 4;
   const KlerosCoreAddress = getContractAddress(deployer, nonce);
   console.log("calculated future KlerosCore address for nonce %d: %s", nonce, KlerosCoreAddress);
 
   const sortitionModule = await deploy("SortitionModule", {
     from: deployer,
-    args: [KlerosCoreAddress, 120, 120], // minStakingTime, maxFreezingTime
+    args: [KlerosCoreAddress, 1800, 1800], // minStakingTime, maxFreezingTime
     log: true,
   });
 
@@ -84,7 +96,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       [0, 0, 0, 0], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
       0xfa, // Extra data for sortition module will return the default value of K
       sortitionModule.address,
-      7, // all 3 flags set to 'true'
     ],
     log: true,
   });

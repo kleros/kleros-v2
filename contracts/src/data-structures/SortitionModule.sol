@@ -58,6 +58,8 @@ contract SortitionModule is ISortitionModule {
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Freezing phase, to update them when the phase is switched to Staking.
     mapping(IDisputeKit => bool) public needsFreezing;
 
+    mapping(address => uint256) public randomNumbers; // Random number for sortition per each dispute kit.
+
     event NewPhase(Phase _phase);
 
     modifier onlyByCore() {
@@ -209,6 +211,14 @@ contract SortitionModule is ISortitionModule {
     }
 
     /**
+     *  @dev Saves the random number to use it in sortition.
+     *  @param _randomNumber Random number returned by RNG contract.
+     */
+    function notifyRandomNumber(uint256 _randomNumber) public override {
+        randomNumbers[msg.sender] = _randomNumber;
+    }
+
+    /**
      *  @dev Set a value of a tree.
      *  @param _key The key of the tree.
      *  @param _value The new value.
@@ -349,18 +359,22 @@ contract SortitionModule is ISortitionModule {
     /**
      *  @dev Draw an ID from a tree using a number. Note that this function reverts if the sum of all values in the tree is 0.
      *  @param _key The key of the tree.
-     *  @param _drawnNumber The drawn number.
+     *  Note Core dispute ID and vote ID aren't used by this module.
      *  @return drawnAddress The drawn address.
      *  `O(k * log_k(n))` where
      *  `k` is the maximum number of childs per node in the tree,
      *   and `n` is the maximum number of nodes ever appended.
      */
-    function draw(bytes32 _key, uint256 _drawnNumber) public view override onlyByCore returns (address drawnAddress) {
+    function draw(
+        bytes32 _key,
+        uint256, /*_coreDisputeID*/
+        uint256 /*_voteID*/
+    ) public view override returns (address drawnAddress) {
         require(phase == Phase.freezing, "Wrong phase.");
         SortitionSumTree storage tree = sortitionSumTrees[_key];
 
         uint256 treeIndex = 0;
-        uint256 currentDrawnNumber = _drawnNumber % tree.nodes[0];
+        uint256 currentDrawnNumber = randomNumbers[msg.sender] % tree.nodes[0];
 
         // While it still has children
         while ((tree.K * treeIndex) + 1 < tree.nodes.length) {
