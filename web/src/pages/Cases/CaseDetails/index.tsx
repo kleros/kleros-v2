@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import {
   Routes,
   Route,
   useParams,
   useNavigate,
+  useLocation,
   Navigate,
 } from "react-router-dom";
 import {
@@ -84,7 +85,14 @@ const getTimeline = (
 
 const CaseDetails: React.FC = () => {
   const navigate = useNavigate();
-  const [currentTab, setCurrentTab] = useState(0);
+  const currentPathName = useLocation().pathname.split("/").at(-1);
+  const [currentTab, setCurrentTab] = useState(
+    TABS.findIndex(({ path }) => path === currentPathName)
+  );
+  useEffect(
+    () => setCurrentTab(TABS.findIndex(({ path }) => path === currentPathName)),
+    [currentPathName]
+  );
   const { id } = useParams();
   const { data } = useDisputeDetailsQuery(id ? parseInt(id) : undefined);
   const dispute = data?.dispute;
