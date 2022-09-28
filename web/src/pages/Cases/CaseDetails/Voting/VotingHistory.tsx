@@ -51,7 +51,11 @@ const VotingHistory: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
                 ),
                 body: (
                   <AccordionContent
-                    choice={metaEvidence.rulingOptions.titles[vote.choice - 1]}
+                    choice={
+                      vote.choice === 0
+                        ? "Refuse to arbitrate"
+                        : metaEvidence.rulingOptions.titles[vote.choice - 1]
+                    }
                     justification={vote.justification || ""}
                   />
                 ),
