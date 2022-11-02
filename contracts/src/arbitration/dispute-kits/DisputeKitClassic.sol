@@ -654,7 +654,8 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
             core.getNumberOfRounds(_coreDisputeID) - 1
         );
         (uint256 stakedTokens, uint256 lockedTokens) = core.getJurorBalance(_juror, subcourtID);
-        return stakedTokens >= lockedTokens + lockedAmountPerJuror;
+        (, , uint256 minStake, , , ) = core.courts(subcourtID);
+        return stakedTokens >= lockedTokens + lockedAmountPerJuror && stakedTokens >= minStake;
     }
 
     /** @dev Retrieves a juror's address from the stake path ID.
