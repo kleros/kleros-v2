@@ -675,8 +675,8 @@ contract KlerosCore is IArbitrator {
             if (drawnAddress != address(0)) {
                 // In case no one has staked at the court yet.
                 jurors[drawnAddress].lockedTokens[dispute.subcourtID] += round.tokensAtStakePerJuror;
+                emit Draw(drawnAddress, _disputeID, currentRound, round.drawnJurors.length);
                 round.drawnJurors.push(drawnAddress);
-                emit Draw(drawnAddress, _disputeID, currentRound, i);
             }
         }
     }
@@ -706,7 +706,7 @@ contract KlerosCore is IArbitrator {
         // Warning: the extra round must be created before calling disputeKit.createDispute()
         Round storage extraRound = dispute.rounds.push();
 
-        if (round.nbVotes >= courts[newDisputeKitID].jurorsForCourtJump) {
+        if (round.nbVotes >= courts[newSubcourtID].jurorsForCourtJump) {
             // Jump to parent subcourt.
             newSubcourtID = courts[newSubcourtID].parent;
 

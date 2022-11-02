@@ -674,7 +674,8 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
             core.getNumberOfRounds(_coreDisputeID) - 1
         );
         (uint256 stakedTokens, uint256 lockedTokens) = core.getJurorBalance(_juror, subcourtID);
-        if (stakedTokens < lockedTokens + lockedAmountPerJuror) {
+        (, , uint256 minStake, , , ) = core.courts(subcourtID);
+        if (stakedTokens < lockedTokens + lockedAmountPerJuror || stakedTokens < minStake) {
             return false;
         } else {
             return proofOfHumanity(_juror);
