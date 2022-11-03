@@ -901,9 +901,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dappnode/dappnodesdk@npm:^0.2.65":
-  version: 0.2.65
-  resolution: "@dappnode/dappnodesdk@npm:0.2.65"
+"@dappnode/dappnodesdk@npm:^0.2.68":
+  version: 0.2.68
+  resolution: "@dappnode/dappnodesdk@npm:0.2.68"
   dependencies:
     "@octokit/rest": ^18.0.12
     ajv: ^8.11.0
@@ -933,7 +933,7 @@ __metadata:
     yargs: ^13.2.4
   bin:
     dappnodesdk: dist/dappnodesdk.js
-  checksum: dd36707e846cdb65ce3a9ee0a71aaa774fdf8b0ebb12c53b76136c9b69f9d9097d39ccfe477afea4bfbf6ac18a2a7102649f2a10005dfbaa38f7d8e8d3955ef1
+  checksum: af0439cba2324edbe25046a0f2ec6cd7474ae8cfc2234b8f0bb57d4fabdf74760cfa9acabdda067fab4c98d958e02fcdcf66667e5e4e7a6ef724c79fb23efcae
   languageName: node
   linkType: hard
 
@@ -2179,7 +2179,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-bot-pinner@workspace:bot-pinner"
   dependencies:
-    "@dappnode/dappnodesdk": ^0.2.65
+    "@dappnode/dappnodesdk": ^0.2.68
   languageName: unknown
   linkType: soft
 
