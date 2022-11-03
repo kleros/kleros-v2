@@ -2193,7 +2193,7 @@ __metadata:
     "@openzeppelin/contracts": ^4.7.3
     "@tenderly/hardhat-tenderly": ^1.1.6
     "@typechain/ethers-v5": ^10.0.0
-    "@typechain/hardhat": ^6.1.2
+    "@typechain/hardhat": ^6.1.4
     "@types/chai": ^4.3.3
     "@types/mocha": ^10.0.0
     "@types/node": ^16
@@ -4160,19 +4160,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typechain/hardhat@npm:^6.1.2":
-  version: 6.1.3
-  resolution: "@typechain/hardhat@npm:6.1.3"
+"@typechain/hardhat@npm:^6.1.4":
+  version: 6.1.4
+  resolution: "@typechain/hardhat@npm:6.1.4"
   dependencies:
     fs-extra: ^9.1.0
   peerDependencies:
     "@ethersproject/abi": ^5.4.7
     "@ethersproject/providers": ^5.4.7
-    "@typechain/ethers-v5": ^10.1.0
+    "@typechain/ethers-v5": ^10.1.1
     ethers: ^5.4.7
     hardhat: ^2.9.9
-    typechain: ^8.1.0
-  checksum: e386fc755622e3ad8446ac267a43644481f2f982542055ab5678cb03e8f7cdbb67633ab3a0e9bc59d9c8187fd70738f2d1edda9830bbb466f52ff47142e7e216
+    typechain: ^8.1.1
+  checksum: 9477d59638da5e92983a188938bbb74b4c8f476887e6e91da99552ff260d996e7b78836b2a7fb3aede599061994119e2125d4fea2b1919a02c27c0a582525e92
   languageName: node
   linkType: hard
 
