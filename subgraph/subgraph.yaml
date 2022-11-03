@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: KlerosCore
-    network: arbitrum-rinkeby
+    network: arbitrum-goerli
     source:
-      address: "0x815d709EFCF5E69e2e9E2F8d3815d762496a2f0F"
+      address: "0xdfea19B51cDe76Aa659bB72401AC14FFCFe42Cde"
       abi: KlerosCore
-      startBlock: 14452893
+      startBlock: 997981
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -29,7 +29,7 @@ dataSources:
         - CasesDataPoint
       abis:
         - name: KlerosCore
-          file: ../contracts/deployments/arbitrumRinkeby/KlerosCore.json
+          file: ../contracts/deployments/arbitrumGoerli/KlerosCore.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -54,11 +54,11 @@ dataSources:
       file: ./src/KlerosCore.ts
   - kind: ethereum
     name: HomeGateway
-    network: arbitrum-rinkeby
+    network: arbitrum-goerli
     source:
-      address: "0x4e894c2B60214beC53B60D09F39544518296C07B"
+      address: "0xed12799915180a257985631fbD2ead261eD838cf"
       abi: HomeGateway
-      startBlock: 14453123
+      startBlock: 998359
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -67,18 +67,18 @@ dataSources:
         - GatewayDispute
       abis:
         - name: HomeGateway
-          file: ../contracts/deployments/arbitrumRinkeby/HomeGatewayToEthereum.json
+          file: ../contracts/deployments/arbitrumGoerli/HomeGatewayToEthereum.json
       eventHandlers:
         - event: Dispute(indexed address,indexed uint256,uint256,uint256)
           handler: handleDisputeEvent
       file: ./src/HomeGateway.ts
   - kind: ethereum
     name: FastBridgeSender
-    network: arbitrum-rinkeby
+    network: arbitrum-goerli
     source:
-      address: "0xf8A4a85e7153374A1b9BDA763a84252eC286843b"
+      address: "0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C"
       abi: FastBridgeSender
-      startBlock: 14453120
+      startBlock: 998358
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -87,7 +87,7 @@ dataSources:
         - OutgoingMessage
       abis:
         - name: FastBridgeSender
-          file: ../contracts/deployments/arbitrumRinkeby/FastBridgeSender.json
+          file: ../contracts/deployments/arbitrumGoerli/FastBridgeSender.json
       eventHandlers:
         - event: BatchOutgoing(indexed uint256,uint256,uint256,bytes32)
           handler: handleBatchOutgoing
