@@ -43,7 +43,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-import-resolver-parcel": "^1.10.6",
     "eslint-plugin-import": "^2.25.4",
-    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.31.8",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-security": "^1.4.0",
