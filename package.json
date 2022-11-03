@@ -41,7 +41,7 @@
     "eslint-import-resolver-parcel": "^1.10.5",
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^3.4.1",
+    "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^5.1.1",
     "eslint-utils": "^3.0.0",
     "husky": "^7.0.0",
