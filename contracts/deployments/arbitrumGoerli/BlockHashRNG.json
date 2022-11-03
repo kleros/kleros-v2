@@ -1,0 +1,132 @@
+{
+  "address": "0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "randomNumbers",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_block",
+          "type": "uint256"
+        }
+      ],
+      "name": "receiveRandomness",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "randomNumber",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_block",
+          "type": "uint256"
+        }
+      ],
+      "name": "requestRandomness",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x98cac033ed5f5456c83f947cc034be8327d4d01fed3195457a813504de25dac4",
+  "receipt": {
+    "to": null,
+    "from": "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3",
+    "contractAddress": "0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD",
+    "transactionIndex": 1,
+    "gasUsed": "2675614",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x53208fc5cea34cc2882d7652b5d67174ed098db9785eb7f4cb8c423b901ccc70",
+    "transactionHash": "0x98cac033ed5f5456c83f947cc034be8327d4d01fed3195457a813504de25dac4",
+    "logs": [],
+    "blockNumber": 997971,
+    "cumulativeGasUsed": "2675614",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 2,
+  "solcInputHash": "f57208d12ea18de1e79aa93372bf0e19",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.9+commit.e5eed63a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"randomNumbers\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_block\",\"type\":\"uint256\"}],\"name\":\"receiveRandomness\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"randomNumber\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_block\",\"type\":\"uint256\"}],\"name\":\"requestRandomness\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Cl\\u00e9ment Lesaege - <clement@lesaege.com>  Random Number Generator returning the blockhash with a fallback behaviour.  In case no one called it within the 256 blocks, it returns the previous blockhash.  This contract must be used when returning 0 is a worse failure mode than returning another blockhash.  Allows saving the random number for use in the future. It allows the contract to still access the blockhash even after 256 blocks.\",\"kind\":\"dev\",\"methods\":{\"receiveRandomness(uint256)\":{\"details\":\"Return the random number. If it has not been saved and is still computable compute it.\",\"params\":{\"_block\":\"Block the random number is linked to.\"},\"returns\":{\"randomNumber\":\"The random number or 0 if it is not ready or has not been requested.\"}},\"requestRandomness(uint256)\":{\"details\":\"Request a random number.\",\"params\":{\"_block\":\"Block the random number is linked to.\"}}},\"title\":\"Random Number Generator using blockhash with fallback.\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/rng/BlockhashRNG.sol\":\"BlockHashRNG\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"src/rng/BlockhashRNG.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8;\\n\\nimport \\\"./RNG.sol\\\";\\n\\n/**\\n *  @title Random Number Generator using blockhash with fallback.\\n *  @author Cl\\u00e9ment Lesaege - <clement@lesaege.com>\\n *\\n *  Random Number Generator returning the blockhash with a fallback behaviour.\\n *  In case no one called it within the 256 blocks, it returns the previous blockhash.\\n *  This contract must be used when returning 0 is a worse failure mode than returning another blockhash.\\n *  Allows saving the random number for use in the future. It allows the contract to still access the blockhash even after 256 blocks.\\n */\\ncontract BlockHashRNG is RNG {\\n    mapping(uint256 => uint256) public randomNumbers; // randomNumbers[block] is the random number for this block, 0 otherwise.\\n\\n    /**\\n     *  @dev Request a random number.\\n     *  @param _block Block the random number is linked to.\\n     */\\n    function requestRandomness(uint256 _block) external override {\\n        // nop\\n    }\\n\\n    /**\\n     *  @dev Return the random number. If it has not been saved and is still computable compute it.\\n     *  @param _block Block the random number is linked to.\\n     *  @return randomNumber The random number or 0 if it is not ready or has not been requested.\\n     */\\n    function receiveRandomness(uint256 _block) external override returns (uint256 randomNumber) {\\n        randomNumber = randomNumbers[_block];\\n        if (randomNumber != 0) {\\n            return randomNumber;\\n        }\\n\\n        if (_block < block.number) {\\n            // The random number is not already set and can be.\\n            if (blockhash(_block) != 0x0) {\\n                // Normal case.\\n                randomNumber = uint256(blockhash(_block));\\n            } else {\\n                // The contract was not called in time. Fallback to returning previous blockhash.\\n                randomNumber = uint256(blockhash(block.number - 1));\\n            }\\n        }\\n        randomNumbers[_block] = randomNumber;\\n    }\\n}\\n\",\"keccak256\":\"0xac506e26fb8aa64402c76276ca48de9e96851da84a58ba6b8f371c7fedb9a48e\",\"license\":\"MIT\"},\"src/rng/RNG.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8;\\n\\ninterface RNG {\\n    /**\\n     * @dev Request a random number.\\n     * @param _block Block linked to the request.\\n     */\\n    function requestRandomness(uint256 _block) external;\\n\\n    /**\\n     * @dev Receive the random number.\\n     * @param _block Block the random number is linked to.\\n     * @return randomNumber Random Number. If the number is not ready or has not been required 0 instead.\\n     */\\n    function receiveRandomness(uint256 _block) external returns (uint256 randomNumber);\\n}\\n\",\"keccak256\":\"0x0075973344648673365c5a895e4315101e6ce896208a71eb7767f5a61bbf0fe1\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610167806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c806313cf9054146100465780635257cd901461006b5780637363ae1f1461008b575b600080fd5b6100596100543660046100f3565b61009e565b60405190815260200160405180910390f35b6100596100793660046100f3565b60006020819052908152604090205481565b61009c6100993660046100f3565b50565b005b60008181526020819052604090205480156100b857919050565b438210156100de578140156100cf575080406100de565b6100da60014361010c565b4090505b60009182526020829052604090912081905590565b60006020828403121561010557600080fd5b5035919050565b60008282101561012c57634e487b7160e01b600052601160045260246000fd5b50039056fea2646970667358221220d043c4611058898c35a75d69b1519f5b71b9e6f289bcb5549c73086d98ebdd0164736f6c63430008090033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100415760003560e01c806313cf9054146100465780635257cd901461006b5780637363ae1f1461008b575b600080fd5b6100596100543660046100f3565b61009e565b60405190815260200160405180910390f35b6100596100793660046100f3565b60006020819052908152604090205481565b61009c6100993660046100f3565b50565b005b60008181526020819052604090205480156100b857919050565b438210156100de578140156100cf575080406100de565b6100da60014361010c565b4090505b60009182526020829052604090912081905590565b60006020828403121561010557600080fd5b5035919050565b60008282101561012c57634e487b7160e01b600052601160045260246000fd5b50039056fea2646970667358221220d043c4611058898c35a75d69b1519f5b71b9e6f289bcb5549c73086d98ebdd0164736f6c63430008090033",
+  "devdoc": {
+    "author": "Clément Lesaege - <clement@lesaege.com>  Random Number Generator returning the blockhash with a fallback behaviour.  In case no one called it within the 256 blocks, it returns the previous blockhash.  This contract must be used when returning 0 is a worse failure mode than returning another blockhash.  Allows saving the random number for use in the future. It allows the contract to still access the blockhash even after 256 blocks.",
+    "kind": "dev",
+    "methods": {
+      "receiveRandomness(uint256)": {
+        "details": "Return the random number. If it has not been saved and is still computable compute it.",
+        "params": {
+          "_block": "Block the random number is linked to."
+        },
+        "returns": {
+          "randomNumber": "The random number or 0 if it is not ready or has not been requested."
+        }
+      },
+      "requestRandomness(uint256)": {
+        "details": "Request a random number.",
+        "params": {
+          "_block": "Block the random number is linked to."
+        }
+      }
+    },
+    "title": "Random Number Generator using blockhash with fallback.",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 24734,
+        "contract": "src/rng/BlockhashRNG.sol:BlockHashRNG",
+        "label": "randomNumbers",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_uint256,t_uint256)"
+      }
+    ],
+    "types": {
+      "t_mapping(t_uint256,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
