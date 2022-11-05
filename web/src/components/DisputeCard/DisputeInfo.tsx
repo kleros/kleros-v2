@@ -45,9 +45,11 @@ const Container = styled.div`
 
 const getPeriodPhrase = (period: Periods) => {
   switch (period) {
-    case Periods.appeal:
+    case Periods.Evidence:
+      return "Voting Starts";
+    case Periods.Appeal:
       return "Appeal Deadline";
-    case Periods.execution:
+    case Periods.Execution:
       return "Final Decision";
     default:
       return "Voting Deadline";
@@ -55,11 +57,11 @@ const getPeriodPhrase = (period: Periods) => {
 };
 
 export interface IDisputeInfo {
-  court: string;
-  category: string;
-  rewards: string;
-  period: Periods;
-  date: number;
+  court?: string;
+  category?: string;
+  rewards?: string;
+  period?: Periods;
+  date?: number;
 }
 
 const DisputeInfo: React.FC<IDisputeInfo> = ({
@@ -70,14 +72,18 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
   date,
 }) => (
   <Container>
-    <Field icon={LawBalanceIcon} name="Court" value={court} />
-    <Field icon={BookmarkIcon} name="Category" value={category} />
-    <Field icon={PileCoinsIcon} name="Juror Rewards" value={rewards} />
-    <Field
-      icon={CalendarIcon}
-      name={getPeriodPhrase(period)}
-      value={new Date(date * 1000).toLocaleString()}
-    />
+    {category && <Field icon={BookmarkIcon} name="Category" value={category} />}
+    {court && <Field icon={LawBalanceIcon} name="Court" value={court} />}
+    {rewards && (
+      <Field icon={PileCoinsIcon} name="Juror Rewards" value={rewards} />
+    )}
+    {typeof period !== "undefined" && date && (
+      <Field
+        icon={CalendarIcon}
+        name={getPeriodPhrase(period)}
+        value={new Date(date * 1000).toLocaleString()}
+      />
+    )}
   </Container>
 );
 

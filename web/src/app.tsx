@@ -2,6 +2,7 @@ import React from "react";
 import { SWRConfig } from "swr";
 import { request } from "graphql-request";
 import { Routes, Route } from "react-router-dom";
+import "react-loading-skeleton/dist/skeleton.css";
 import Web3Provider from "context/Web3Provider";
 import StyledComponentsProvider from "context/StyledComponentsProvider";
 import WrongChainBoundary from "components/WrongChainBoundary";
@@ -13,7 +14,7 @@ import Dashboard from "./pages/Dashboard";
 const fetcherBuilder =
   (url: string) =>
   ({ query, variables }: { query: string; variables?: any }) => {
-    console.log("fetch");
+    console.log("fetching subgraph");
     return request(url, query, variables);
   };
 
@@ -32,7 +33,7 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<Layout />}>
                 <Route index element={<Home />} />
-                <Route path="cases" element={<Cases />} />
+                <Route path="cases/*" element={<Cases />} />
                 <Route path="courts" element={<h1>Courts</h1>} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route

@@ -598,9 +598,7 @@ contract KlerosCore is IArbitrator {
             if (drawnAddress != address(0)) {
                 // In case no one has staked at the court yet.
                 jurors[drawnAddress].lockedTokens[dispute.subcourtID] += round.tokensAtStakePerJuror;
-
                 emit Draw(drawnAddress, _disputeID, currentRound, round.drawnJurors.length);
-
                 round.drawnJurors.push(drawnAddress);
             }
         }

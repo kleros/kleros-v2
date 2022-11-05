@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { StandardPagination } from "@kleros/ui-components-library";
+import { CasesPageQuery } from "queries/useCasesQuery";
 import DisputeCard from "components/DisputeCard";
 
 const Container = styled.div`
@@ -18,42 +19,34 @@ const StyledPagination = styled(StandardPagination)`
 `;
 
 export interface ICasesGrid {
+  disputes: CasesPageQuery["disputes"];
+  currentPage: number;
+  setCurrentPage: (newPage: number) => void;
+  numberDisputes: number;
   casesPerPage: number;
 }
 
-const CasesGrid: React.FC<ICasesGrid> = ({ casesPerPage }) => (
-  <>
-    <Container>
-      <DisputeCard
-        title="Register Profile in Proof of Humanity"
-        id={600}
-        period={1}
-        court="Humanity"
-        category="Identity"
-        rewards="≥ 0.3 ETH"
-        date={1651244935}
+const CasesGrid: React.FC<ICasesGrid> = ({
+  disputes,
+  currentPage,
+  setCurrentPage,
+  numberDisputes,
+  casesPerPage,
+}) => {
+  return (
+    <>
+      <Container>
+        {disputes.map((dispute, i) => {
+          return <DisputeCard key={i} {...dispute} />;
+        })}
+      </Container>
+      <StyledPagination
+        {...{ currentPage }}
+        numPages={Math.ceil(numberDisputes / casesPerPage)}
+        callback={(page: number) => setCurrentPage(page)}
       />
-      <DisputeCard
-        title="Register Profile in Proof of Humanity"
-        id={600}
-        period={3}
-        court="Humanity"
-        category="Identity"
-        rewards="≥ 0.3 ETH"
-        date={1651244935}
-      />
-      <DisputeCard
-        title="Register Profile in Proof of Humanity"
-        id={600}
-        period={4}
-        court="Humanity"
-        category="Identity"
-        rewards="≥ 0.3 ETH"
-        date={1651244935}
-      />
-    </Container>
-    <StyledPagination currentPage={1} numPages={1} callback={() => {}} />
-  </>
-);
+    </>
+  );
+};
 
 export default CasesGrid;
