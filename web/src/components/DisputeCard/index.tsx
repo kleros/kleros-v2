@@ -1,8 +1,16 @@
 import React from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
+import { utils } from "ethers";
+import Skeleton from "react-loading-skeleton";
 import { Card } from "@kleros/ui-components-library";
-import PeriodBanner, { IPeriodBanner } from "./PeriodBanner";
-import DisputeInfo, { IDisputeInfo } from "./DisputeInfo";
+import { Periods } from "consts/periods";
+import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
+import { useCourtPolicy } from "queries/useCourtPolicy";
+import { useIPFSQuery } from "hooks/useIPFSQuery";
+import { CasesPageQuery } from "queries/useCasesQuery";
+import PeriodBanner from "./PeriodBanner";
+import DisputeInfo from "./DisputeInfo";
 
 const StyledCard = styled(Card)`
   max-width: 380px;
@@ -22,26 +30,52 @@ const Container = styled.div`
   }
 `;
 
-interface IDisputeCard extends IPeriodBanner, Omit<IDisputeInfo, "period"> {
-  title: string;
-}
+const getTimeLeft = (
+  lastPeriodChange: string,
+  currentPeriodIndex: number,
+  timesPerPeriod: string[]
+) => {
+  const durationCurrentPeriod = parseInt(timesPerPeriod[currentPeriodIndex]);
+  return parseInt(lastPeriodChange) + durationCurrentPeriod;
+};
 
-const DisputeCard: React.FC<IDisputeCard> = ({
+const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
   id,
+  arbitrated,
   period,
-  title,
-  court,
-  category,
-  rewards,
-  date,
-}) => (
-  <StyledCard>
-    <PeriodBanner {...{ id, period }} />
-    <Container>
-      <h3>{title}</h3>
-      <DisputeInfo {...{ court, category, rewards, period, date }} />
-    </Container>
-  </StyledCard>
-);
+  lastPeriodChange,
+  subcourtID,
+}) => {
+  const currentPeriodIndex = Periods[period];
+  const rewards = `≥ ${utils.formatEther(subcourtID.feeForJuror)} ETH`;
+  const date =
+    currentPeriodIndex === 4
+      ? lastPeriodChange
+      : getTimeLeft(
+          lastPeriodChange,
+          currentPeriodIndex,
+          subcourtID.timesPerPeriod
+        );
+  const { data: metaEvidence } = useGetMetaEvidence(id, arbitrated);
+  const title = metaEvidence ? metaEvidence.title : <Skeleton />;
+  const { data: courtPolicyPath } = useCourtPolicy(parseInt(subcourtID.id));
+  const { data: courtPolicy } = useIPFSQuery(courtPolicyPath?.args._policy);
+  const courtName = courtPolicy?.name;
+  const category = metaEvidence ? metaEvidence.category : undefined;
+  const navigate = useNavigate();
+  return (
+    <StyledCard hover onClick={() => navigate(`/cases/${id.toString()}`)}>
+      <PeriodBanner id={parseInt(id)} period={currentPeriodIndex} />
+      <Container>
+        <h3>{title}</h3>
+        <DisputeInfo
+          court={courtName}
+          period={currentPeriodIndex}
+          {...{ category, rewards, date }}
+        />
+      </Container>
+    </StyledCard>
+  );
+};
 
 export default DisputeCard;

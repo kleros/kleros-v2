@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
+import { useCasesQuery } from "queries/useCasesQuery";
 import JurorInfo from "./JurorInfo";
 import Courts from "./Courts";
 import CasesDisplay from "components/CasesDisplay";
@@ -15,12 +16,24 @@ const StyledCasesDisplay = styled(CasesDisplay)`
   margin-top: 64px;
 `;
 
-const Dashboard: React.FC = () => (
-  <Container>
-    <JurorInfo />
-    <Courts />
-    <StyledCasesDisplay title="My Cases" casesPerPage={3} />
-  </Container>
-);
+const Dashboard: React.FC = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const casesPerPage = 3;
+  const { data } = useCasesQuery(casesPerPage * (currentPage - 1));
+  return (
+    <Container>
+      <JurorInfo />
+      <Courts />
+      {data && (
+        <StyledCasesDisplay
+          title="My Cases"
+          disputes={data.disputes}
+          numberDisputes={data.casesDataPoint?.value}
+          {...{ currentPage, setCurrentPage, casesPerPage }}
+        />
+      )}
+    </Container>
+  );
+};
 
 export default Dashboard;
