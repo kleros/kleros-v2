@@ -596,10 +596,13 @@ contract KlerosCore is IArbitrator {
         for (uint256 i = startIndex; i < endIndex; i++) {
             address drawnAddress = disputeKit.draw(_disputeID);
             if (drawnAddress != address(0)) {
-                // In case no one has staked at the court yet.
                 jurors[drawnAddress].lockedTokens[dispute.subcourtID] += round.tokensAtStakePerJuror;
                 emit Draw(drawnAddress, _disputeID, currentRound, round.drawnJurors.length);
                 round.drawnJurors.push(drawnAddress);
+
+                if (round.drawnJurors.length == round.nbVotes) {
+                    sortitionModule.postDrawHook(_disputeID, currentRound);
+                }
             }
         }
     }
@@ -1066,15 +1069,7 @@ contract KlerosCore is IArbitrator {
         // Update juror's records.
         juror.stakedTokens[_subcourtID] = _stake;
 
-        bool finished = false;
-        uint256 currentSubcourtID = _subcourtID;
-        while (!finished) {
-            // Tokens are also implicitely staked in parent courts through sortition module to increase the chance of being drawn.
-            sortitionModule.set(bytes32(currentSubcourtID), _stake, stakePathID);
-            if (currentSubcourtID == GENERAL_COURT) finished = true;
-            else currentSubcourtID = courts[currentSubcourtID].parent;
-        }
-
+        sortitionModule.set(_subcourtID, _stake, stakePathID);
         emit StakeSet(_account, _subcourtID, _stake);
         return true;
     }

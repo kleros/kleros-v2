@@ -13,6 +13,7 @@ pragma solidity ^0.8;
 import "../arbitration/KlerosCore.sol";
 import "./ISortitionModule.sol";
 import "../arbitration/IDisputeKit.sol";
+import "../rng/RNG.sol";
 
 /**
  *  @title SortitionModule
@@ -40,25 +41,26 @@ contract SortitionModule is ISortitionModule {
 
     uint256 public constant MAX_STAKE_PATHS = 4; // The maximum number of stake paths a juror can have.
     uint256 public constant DEFAULT_K = 6; // Default number of children per node.
+    uint256 public constant RNG_LOOKAHEAD = 20; // Minimum block distance between requesting and obtaining a random number. Arbitrum sequencer finality = 20 blocks.
 
     KlerosCore public core;
     Phase public phase; // The current phase.
 
-    uint256 public minStakingTime; // The time after which the phase can be switched to Freezing if there are open disputes.
-    uint256 public maxFreezingTime; // The time after which the phase can be switched back to Staking.
+    uint256 public minStakingTime; // The time after which the phase can be switched to Drawing if there are open disputes.
+    uint256 public maxDrawingTime; // The time after which the phase can be switched back to Staking.
     uint256 public lastPhaseChange; // The last time the phase was changed.
-    uint256 public freezeBlock; // Number of the block when Core was frozen.
+    uint256 public randomNumberRequestBlock; // Number of the block when RNG request was made.
 
-    IDisputeKit[] public disputesKitsThatNeedFreezing; // The disputeKits that need switching to Freezing phase.
+    uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
+
+    RNG public rng; // The random number generator.
+    uint256 public randomNumber; // Random number returned by RNG.
 
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
     uint256 public delayedStakeReadIndex = 1; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
 
     mapping(bytes32 => SortitionSumTree) sortitionSumTrees;
-    mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Freezing phase, to update them when the phase is switched to Staking.
-    mapping(IDisputeKit => bool) public needsFreezing;
-
-    mapping(address => uint256) public randomNumbers; // Random number for sortition per each dispute kit.
+    mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Drawing phase, to update them when the phase is switched to Staking.
 
     event NewPhase(Phase _phase);
 
@@ -70,17 +72,20 @@ contract SortitionModule is ISortitionModule {
     /** @dev Constructor.
      *  @param _core The KlerosCore.
      *  @param _minStakingTime Minimal time to stake
-     *  @param _maxFreezingTime Time after which the freezing phase can be switched
+     *  @param _maxDrawingTime Time after which the drawing phase can be switched
+     *  @param _rng The random number generator.
      */
     constructor(
         KlerosCore _core,
         uint256 _minStakingTime,
-        uint256 _maxFreezingTime
+        uint256 _maxDrawingTime,
+        RNG _rng
     ) {
         core = _core;
         minStakingTime = _minStakingTime;
-        maxFreezingTime = _maxFreezingTime;
+        maxDrawingTime = _maxDrawingTime;
         lastPhaseChange = block.timestamp;
+        rng = _rng;
     }
 
     /* Public */
@@ -92,11 +97,22 @@ contract SortitionModule is ISortitionModule {
         minStakingTime = _minStakingTime;
     }
 
-    /** @dev Changes the `maxFreezingTime` storage variable.
-     *  @param _maxFreezingTime The new value for the `maxFreezingTime` storage variable.
+    /** @dev Changes the `maxDrawingTime` storage variable.
+     *  @param _maxDrawingTime The new value for the `maxDrawingTime` storage variable.
      */
-    function changeMaxFreezingTime(uint256 _maxFreezingTime) external onlyByCore {
-        maxFreezingTime = _maxFreezingTime;
+    function changeMaxDrawingTime(uint256 _maxDrawingTime) external onlyByCore {
+        maxDrawingTime = _maxDrawingTime;
+    }
+
+    /** @dev Changes the `_rng` storage variable.
+     *  @param _rng The new value for the `RNGenerator` storage variable.
+     */
+    function changeRandomNumberGenerator(RNG _rng) external onlyByCore {
+        rng = _rng;
+        if (phase == Phase.generating) {
+            rng.requestRandomness(block.number + RNG_LOOKAHEAD);
+            randomNumberRequestBlock = block.number;
+        }
     }
 
     /** @dev Executes the next delayed stakes.
@@ -124,51 +140,38 @@ contract SortitionModule is ISortitionModule {
     }
 
     function createDisputeHook(uint256 _disputeID, uint256 _roundID) external override onlyByCore {
-        (, , , , , uint256 disputeKitID) = core.getRoundInfo(_disputeID, _roundID);
-        IDisputeKit disputeKit = core.getDisputeKit(disputeKitID);
-        // Ensures uniqueness in the disputesKitsThatNeedFreezing array.
-        if (!needsFreezing[disputeKit]) {
-            needsFreezing[disputeKit] = true;
-            disputesKitsThatNeedFreezing.push(disputeKit);
-        }
+        disputesWithoutJurors++;
     }
 
-    /** @dev Switches the phases between Staking and Freezing, also signal the switch to the dispute kits.
-     */
+    function postDrawHook(
+        uint256, /*_disputeID*/
+        uint256 /*_roundID*/
+    ) external override onlyByCore {
+        disputesWithoutJurors--;
+    }
+
     function passPhase() external {
         if (phase == Phase.staking) {
-            require(block.timestamp - lastPhaseChange >= minStakingTime, "The minimal staking time has not passed yet");
-            require(disputesKitsThatNeedFreezing.length > 0, "There are no dispute kit which need freezing");
-            phase = Phase.freezing;
-            freezeBlock = block.number;
-        } else {
-            // phase == Phase.freezing
-            bool timeout = this.freezingPhaseTimeout();
-            for (int256 i = int256(disputesKitsThatNeedFreezing.length) - 1; i >= 0; --i) {
-                IDisputeKit disputeKit = disputesKitsThatNeedFreezing[uint256(i)];
-                if (timeout && !disputeKit.isResolving()) {
-                    // Force the dispute kit to be ready for Staking phase.
-                    disputeKit.passPhase(); // Should not be called if already in Resolving phase, because it reverts.
-                    require(disputeKit.isResolving(), "A dispute kit has not passed to Resolving phase");
-                } else {
-                    // Check if the dispute kit is ready for Staking phase.
-                    require(disputeKit.isResolving(), "A dispute kit has not passed to Resolving phase");
-                    if (disputeKit.disputesWithoutJurors() == 0) {
-                        // The dispute kit had time to finish drawing jurors for all its disputes.
-                        needsFreezing[disputeKit] = false;
-                        if (i < int256(disputesKitsThatNeedFreezing.length) - 1) {
-                            // This is not the last element so copy the last element to the current one, then pop.
-                            disputesKitsThatNeedFreezing[uint256(i)] = disputesKitsThatNeedFreezing[
-                                disputesKitsThatNeedFreezing.length - 1
-                            ];
-                        }
-                        disputesKitsThatNeedFreezing.pop();
-                    }
-                }
-            }
+            require(
+                block.timestamp - lastPhaseChange >= minStakingTime,
+                "The minimum staking time has not passed yet."
+            );
+            require(disputesWithoutJurors > 0, "There are no disputes that need jurors.");
+            rng.requestRandomness(block.number + RNG_LOOKAHEAD);
+            randomNumberRequestBlock = block.number;
+            phase = Phase.generating;
+        } else if (phase == Phase.generating) {
+            randomNumber = rng.receiveRandomness(randomNumberRequestBlock + RNG_LOOKAHEAD);
+            require(randomNumber != 0, "Random number is not ready yet");
+            phase = Phase.drawing;
+        } else if (phase == Phase.drawing) {
+            require(
+                disputesWithoutJurors == 0 || block.timestamp - lastPhaseChange >= maxDrawingTime,
+                "There are still disputes without jurors and the maximum drawing time has not passed yet."
+            );
             phase = Phase.staking;
         }
-        // Should not be reached if the phase is unchanged.
+
         lastPhaseChange = block.timestamp;
         emit NewPhase(phase);
     }
@@ -211,16 +214,14 @@ contract SortitionModule is ISortitionModule {
     }
 
     /**
-     *  @dev Saves the random number to use it in sortition.
+     *  @dev Saves the random number to use it in sortition. Not used by this contract because the storing of the number is inlined in passPhase().
      *  @param _randomNumber Random number returned by RNG contract.
      */
-    function notifyRandomNumber(uint256 _randomNumber) public override {
-        randomNumbers[msg.sender] = _randomNumber;
-    }
+    function notifyRandomNumber(uint256 _randomNumber) public override {}
 
     /**
-     *  @dev Set a value of a tree.
-     *  @param _key The key of the tree.
+     *  @dev Sets the value for a particular subcourt and its parent courts.
+     *  @param _subcourtID ID of the subcourt.
      *  @param _value The new value.
      *  @param _ID The ID of the value.
      *  `O(log_k(n))` where
@@ -228,77 +229,19 @@ contract SortitionModule is ISortitionModule {
      *   and `n` is the maximum number of nodes ever appended.
      */
     function set(
-        bytes32 _key,
+        uint256 _subcourtID,
         uint256 _value,
         bytes32 _ID
     ) external override onlyByCore {
-        SortitionSumTree storage tree = sortitionSumTrees[_key];
-        uint256 treeIndex = tree.IDsToNodeIndexes[_ID];
-
-        if (treeIndex == 0) {
-            // No existing node.
-            if (_value != 0) {
-                // Non zero value.
-                // Append.
-                // Add node.
-                if (tree.stack.length == 0) {
-                    // No vacant spots.
-                    // Get the index and append the value.
-                    treeIndex = tree.nodes.length;
-                    tree.nodes.push(_value);
-
-                    // Potentially append a new node and make the parent a sum node.
-                    if (treeIndex != 1 && (treeIndex - 1) % tree.K == 0) {
-                        // Is first child.
-                        uint256 parentIndex = treeIndex / tree.K;
-                        bytes32 parentID = tree.nodeIndexesToIDs[parentIndex];
-                        uint256 newIndex = treeIndex + 1;
-                        tree.nodes.push(tree.nodes[parentIndex]);
-                        delete tree.nodeIndexesToIDs[parentIndex];
-                        tree.IDsToNodeIndexes[parentID] = newIndex;
-                        tree.nodeIndexesToIDs[newIndex] = parentID;
-                    }
-                } else {
-                    // Some vacant spot.
-                    // Pop the stack and append the value.
-                    treeIndex = tree.stack[tree.stack.length - 1];
-                    tree.stack.pop();
-                    tree.nodes[treeIndex] = _value;
-                }
-
-                // Add label.
-                tree.IDsToNodeIndexes[_ID] = treeIndex;
-                tree.nodeIndexesToIDs[treeIndex] = _ID;
-
-                updateParents(_key, treeIndex, true, _value);
-            }
-        } else {
-            // Existing node.
-            if (_value == 0) {
-                // Zero value.
-                // Remove.
-                // Remember value and set to 0.
-                uint256 value = tree.nodes[treeIndex];
-                tree.nodes[treeIndex] = 0;
-
-                // Push to stack.
-                tree.stack.push(treeIndex);
-
-                // Clear label.
-                delete tree.IDsToNodeIndexes[_ID];
-                delete tree.nodeIndexesToIDs[treeIndex];
-
-                updateParents(_key, treeIndex, false, value);
-            } else if (_value != tree.nodes[treeIndex]) {
-                // New, non zero value.
-                // Set.
-                bool plusOrMinus = tree.nodes[treeIndex] <= _value;
-                uint256 plusOrMinusValue = plusOrMinus
-                    ? _value - tree.nodes[treeIndex]
-                    : tree.nodes[treeIndex] - _value;
-                tree.nodes[treeIndex] = _value;
-
-                updateParents(_key, treeIndex, plusOrMinus, plusOrMinusValue);
+        bool finished = false;
+        uint256 currentSubcourtID = _subcourtID;
+        while (!finished) {
+            // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
+            _set(bytes32(currentSubcourtID), _value, _ID);
+            if (currentSubcourtID == core.GENERAL_COURT()) {
+                finished = true;
+            } else {
+                (currentSubcourtID, , , , , ) = core.courts(currentSubcourtID);
             }
         }
     }
@@ -371,13 +314,12 @@ contract SortitionModule is ISortitionModule {
         uint256 _coreDisputeID,
         uint256 _voteID
     ) public view override returns (address drawnAddress) {
-        require(phase == Phase.freezing, "Wrong phase.");
+        require(phase == Phase.drawing, "Wrong phase.");
         SortitionSumTree storage tree = sortitionSumTrees[_key];
 
         uint256 treeIndex = 0;
-        uint256 currentDrawnNumber = uint256(
-            keccak256(abi.encodePacked(randomNumbers[msg.sender], _coreDisputeID, _voteID))
-        ) % tree.nodes[0];
+        uint256 currentDrawnNumber = uint256(keccak256(abi.encodePacked(randomNumber, _coreDisputeID, _voteID))) %
+            tree.nodes[0];
 
         // While it still has children
         while ((tree.K * treeIndex) + 1 < tree.nodes.length) {
@@ -397,25 +339,6 @@ contract SortitionModule is ISortitionModule {
             }
         }
         drawnAddress = stakePathIDToAccount(tree.nodeIndexesToIDs[treeIndex]);
-    }
-
-    /** @dev Returns true if dispute kit can switch phase to Resolving.
-     *  @return True if DK can be resolved.
-     */
-    function isPhaseStaking() external view returns (bool) {
-        return phase == Phase.staking || freezingPhaseTimeout();
-    }
-
-    function getDisputesKitsThatNeedFreezing() external view returns (IDisputeKit[] memory) {
-        return disputesKitsThatNeedFreezing;
-    }
-
-    function getFreezeBlock() external view returns (uint256) {
-        return freezeBlock;
-    }
-
-    function freezingPhaseTimeout() public view returns (bool) {
-        return phase == Phase.freezing && block.timestamp - lastPhaseChange >= maxFreezingTime;
     }
 
     /* Private */
@@ -474,6 +397,91 @@ contract SortitionModule is ISortitionModule {
             }
         } else {
             K = DEFAULT_K;
+        }
+    }
+
+    /**
+     *  @dev Set a value of a tree.
+     *  @param _key The key of the tree.
+     *  @param _value The new value.
+     *  @param _ID The ID of the value.
+     *  `O(log_k(n))` where
+     *  `k` is the maximum number of children per node in the tree,
+     *   and `n` is the maximum number of nodes ever appended.
+     */
+    function _set(
+        bytes32 _key,
+        uint256 _value,
+        bytes32 _ID
+    ) internal {
+        SortitionSumTree storage tree = sortitionSumTrees[_key];
+        uint256 treeIndex = tree.IDsToNodeIndexes[_ID];
+
+        if (treeIndex == 0) {
+            // No existing node.
+            if (_value != 0) {
+                // Non zero value.
+                // Append.
+                // Add node.
+                if (tree.stack.length == 0) {
+                    // No vacant spots.
+                    // Get the index and append the value.
+                    treeIndex = tree.nodes.length;
+                    tree.nodes.push(_value);
+
+                    // Potentially append a new node and make the parent a sum node.
+                    if (treeIndex != 1 && (treeIndex - 1) % tree.K == 0) {
+                        // Is first child.
+                        uint256 parentIndex = treeIndex / tree.K;
+                        bytes32 parentID = tree.nodeIndexesToIDs[parentIndex];
+                        uint256 newIndex = treeIndex + 1;
+                        tree.nodes.push(tree.nodes[parentIndex]);
+                        delete tree.nodeIndexesToIDs[parentIndex];
+                        tree.IDsToNodeIndexes[parentID] = newIndex;
+                        tree.nodeIndexesToIDs[newIndex] = parentID;
+                    }
+                } else {
+                    // Some vacant spot.
+                    // Pop the stack and append the value.
+                    treeIndex = tree.stack[tree.stack.length - 1];
+                    tree.stack.pop();
+                    tree.nodes[treeIndex] = _value;
+                }
+
+                // Add label.
+                tree.IDsToNodeIndexes[_ID] = treeIndex;
+                tree.nodeIndexesToIDs[treeIndex] = _ID;
+
+                updateParents(_key, treeIndex, true, _value);
+            }
+        } else {
+            // Existing node.
+            if (_value == 0) {
+                // Zero value.
+                // Remove.
+                // Remember value and set to 0.
+                uint256 value = tree.nodes[treeIndex];
+                tree.nodes[treeIndex] = 0;
+
+                // Push to stack.
+                tree.stack.push(treeIndex);
+
+                // Clear label.
+                delete tree.IDsToNodeIndexes[_ID];
+                delete tree.nodeIndexesToIDs[treeIndex];
+
+                updateParents(_key, treeIndex, false, value);
+            } else if (_value != tree.nodes[treeIndex]) {
+                // New, non zero value.
+                // Set.
+                bool plusOrMinus = tree.nodes[treeIndex] <= _value;
+                uint256 plusOrMinusValue = plusOrMinus
+                    ? _value - tree.nodes[treeIndex]
+                    : tree.nodes[treeIndex] - _value;
+                tree.nodes[treeIndex] = _value;
+
+                updateParents(_key, treeIndex, plusOrMinus, plusOrMinusValue);
+            }
         }
     }
 }
