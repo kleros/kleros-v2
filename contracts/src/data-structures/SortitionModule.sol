@@ -22,7 +22,7 @@ contract SortitionModule is ISortitionModule {
     /* Structs */
 
     struct SortitionSumTree {
-        uint256 K; // The maximum number of childs per node.
+        uint256 K; // The maximum number of children per node.
         // We use this to keep track of vacant positions in the tree after removing a leaf. This is for keeping the tree as balanced as possible without spending gas on moving nodes around.
         uint256[] stack;
         uint256[] nodes;
@@ -39,7 +39,7 @@ contract SortitionModule is ISortitionModule {
     }
 
     uint256 public constant MAX_STAKE_PATHS = 4; // The maximum number of stake paths a juror can have.
-    uint256 public constant DEFAULT_K = 3; // Default number of children per node.
+    uint256 public constant DEFAULT_K = 6; // Default number of children per node.
 
     KlerosCore public core;
     Phase public phase; // The current phase.
@@ -224,7 +224,7 @@ contract SortitionModule is ISortitionModule {
      *  @param _value The new value.
      *  @param _ID The ID of the value.
      *  `O(log_k(n))` where
-     *  `k` is the maximum number of childs per node in the tree,
+     *  `k` is the maximum number of children per node in the tree,
      *   and `n` is the maximum number of nodes ever appended.
      */
     function set(
@@ -359,22 +359,25 @@ contract SortitionModule is ISortitionModule {
     /**
      *  @dev Draw an ID from a tree using a number. Note that this function reverts if the sum of all values in the tree is 0.
      *  @param _key The key of the tree.
-     *  Note Core dispute ID and vote ID aren't used by this module.
+     *  @param _coreDisputeID Index of the dispute in Kleros Core.
+     *  @param _voteID ID of the voter.
      *  @return drawnAddress The drawn address.
      *  `O(k * log_k(n))` where
-     *  `k` is the maximum number of childs per node in the tree,
+     *  `k` is the maximum number of children per node in the tree,
      *   and `n` is the maximum number of nodes ever appended.
      */
     function draw(
         bytes32 _key,
-        uint256, /*_coreDisputeID*/
-        uint256 /*_voteID*/
+        uint256 _coreDisputeID,
+        uint256 _voteID
     ) public view override returns (address drawnAddress) {
         require(phase == Phase.freezing, "Wrong phase.");
         SortitionSumTree storage tree = sortitionSumTrees[_key];
 
         uint256 treeIndex = 0;
-        uint256 currentDrawnNumber = randomNumbers[msg.sender] % tree.nodes[0];
+        uint256 currentDrawnNumber = uint256(
+            keccak256(abi.encodePacked(randomNumbers[msg.sender], _coreDisputeID, _voteID))
+        ) % tree.nodes[0];
 
         // While it still has children
         while ((tree.K * treeIndex) + 1 < tree.nodes.length) {
@@ -424,7 +427,7 @@ contract SortitionModule is ISortitionModule {
      *  @param _plusOrMinus Whether to add (true) or substract (false).
      *  @param _value The value to add or substract.
      *  `O(log_k(n))` where
-     *  `k` is the maximum number of childs per node in the tree,
+     *  `k` is the maximum number of children per node in the tree,
      *   and `n` is the maximum number of nodes ever appended.
      */
     function updateParents(
