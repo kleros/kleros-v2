@@ -324,7 +324,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         (uint96 subcourtID, , , , ) = core.disputes(_coreDisputeID);
-        (, bool hiddenVotes, , , , ) = core.courts(subcourtID);
+        (, bool hiddenVotes, , , , , ) = core.courts(subcourtID);
 
         //  Save the votes.
         for (uint256 i = 0; i < _voteIDs.length; i++) {
@@ -654,7 +654,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
             core.getNumberOfRounds(_coreDisputeID) - 1
         );
         (uint256 stakedTokens, uint256 lockedTokens) = core.getJurorBalance(_juror, subcourtID);
-        (, , uint256 minStake, , , ) = core.courts(subcourtID);
+        (, , uint256 minStake, , , , ) = core.courts(subcourtID);
         return stakedTokens >= lockedTokens + lockedAmountPerJuror && stakedTokens >= minStake;
     }
 

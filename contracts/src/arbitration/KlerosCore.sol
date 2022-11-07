@@ -50,6 +50,7 @@ contract KlerosCore is IArbitrator {
         uint256 jurorsForCourtJump; // The appeal after the one that reaches this number of jurors will go to the parent court if any.
         uint256[4] timesPerPeriod; // The time allotted to each dispute period in the form `timesPerPeriod[period]`.
         mapping(uint256 => bool) supportedDisputeKits; // True if DK with this ID is supported by the court.
+        bool disabled; // True if the court is disabled. Note that if it is disabled then disputes must be created and their execution will unstake the jurors of this court.
     }
 
     struct Dispute {
@@ -173,6 +174,8 @@ contract KlerosCore is IArbitrator {
         int256 _tokenAmount,
         int256 _ethAmount
     );
+    event CourtEnable(uint96 indexed _subcourtID);
+    event CourtDisable(uint96 indexed _subcourtID);
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -495,6 +498,21 @@ contract KlerosCore is IArbitrator {
         }
     }
 
+    /** @dev Disables or enables back a particular subcourt.
+     *  @param _subcourtID The ID of the subcourt.
+     *  @param _disable True to disable a subcourt, false to enable it back.
+     */
+    function disableSubcourt(uint96 _subcourtID, bool _disable) external onlyByGovernor {
+        // TODO: sanity checks
+        // We might simply check a particular court parameter that ensures that the court can't be arbitrated.
+        courts[_subcourtID].disabled = _disable;
+        if (_disable) {
+            emit CourtDisable(_subcourtID);
+        } else {
+            emit CourtEnable(_subcourtID);
+        }
+    }
+
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
@@ -806,12 +824,19 @@ contract KlerosCore is IArbitrator {
                     degreeOfCoherence = ALPHA_DIVISOR;
                 }
 
+                account = round.drawnJurors[i];
+
                 // Fully coherent jurors won't be penalized.
                 uint256 penalty = (round.tokensAtStakePerJuror * (ALPHA_DIVISOR - degreeOfCoherence)) / ALPHA_DIVISOR;
                 penaltiesInRoundCache += penalty;
 
-                account = round.drawnJurors[i];
                 jurors[account].lockedTokens[dispute.subcourtID] -= penalty; // Release this part of locked tokens.
+
+                // We only check if the court is disabled during penalty because in this case coherent count must be 0 anyway thus there will be no rewards destribution.
+                if (courts[dispute.subcourtID].disabled) {
+                    setStakeForAccount(account, dispute.subcourtID, 0, 0);
+                    continue;
+                }
 
                 // Can only update the stake if it is able to cover the minStake and penalty, otherwise unstake from the court.
                 if (jurors[account].stakedTokens[dispute.subcourtID] >= courts[dispute.subcourtID].minStake + penalty) {
