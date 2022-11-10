@@ -72,6 +72,7 @@ type Round @entity {
   penalties: BigInt!
   drawnJurors: [Draw!]! @derivedFrom(field: "round")
   votes: [Vote!]! @derivedFrom(field: "round")
+  currentDecision: BigInt
 }
 
 type Vote @entity {
