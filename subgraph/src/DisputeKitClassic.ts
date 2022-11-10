@@ -44,6 +44,7 @@ export function handleJustificationEvent(event: JustificationEvent): void {
         BigInt.fromI32(dispute.currentRound),
         BigInt.fromI32(0)
       ).value2;
+      currentRound.currentDecision = contract.currentRuling(disputeID);
       currentRound.save();
       const juror = event.params._juror.toHexString();
       const vote = new Vote(
