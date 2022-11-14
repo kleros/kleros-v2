@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
-import "@tenderly/hardhat-tenderly";
+import "hardhat-deploy-tenderly";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "hardhat-deploy";
@@ -20,7 +20,7 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200,
+        runs: 100,
       },
     },
   },
@@ -121,7 +121,7 @@ const config: HardhatUserConfig = {
     // Foreign chain ---------------------------------------------------------------------------------
     rinkeby: {
       chainId: 4,
-      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      url: `https://rpc.ankr.com/eth_rinkeby`,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
@@ -196,7 +196,7 @@ const config: HardhatUserConfig = {
     runOnCompile: false,
   },
   tenderly: {
-    project: "kleros-v2-local",
+    project: process.env.TENDERLY_PROJECT !== undefined ? process.env.TENDERLY_PROJECT : "kleros-v2",
     username: process.env.TENDERLY_USERNAME !== undefined ? process.env.TENDERLY_USERNAME : "",
   },
 };

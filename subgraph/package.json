@@ -4,7 +4,7 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ KlerosCore",
+    "deploy": "graph deploy --product hosted-service kleros/kleros-v2-core-arbitrum-goerli",
     "create-local": "graph create --node http://localhost:8020/ KlerosCore",
     "remove-local": "graph remove --node http://localhost:8020/ KlerosCore",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 KlerosCore"
@@ -12,5 +12,9 @@
   "dependencies": {
     "@graphprotocol/graph-cli": "^0.34.0",
     "@graphprotocol/graph-ts": "^0.28.1"
+  },
+  "volta": {
+    "node": "16.18.1",
+    "yarn": "3.1.1"
   }
 }
