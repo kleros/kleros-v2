@@ -14,6 +14,6 @@ function update() #file #dataSourceIndex
     yq -i  ".dataSources[$dataSourceIndex].source.startBlock=$blockNumber" $SCRIPT_DIR/../subgraph.yaml
 }
 
-update "$SCRIPT_DIR/../../contracts/deployments/arbitrumRinkeby/KlerosCore.json" 0
-update "$SCRIPT_DIR/../../contracts/deployments/arbitrumRinkeby/HomeGatewayToEthereum.json" 1
-update "$SCRIPT_DIR/../../contracts/deployments/arbitrumRinkeby/FastBridgeSender.json" 2
+update "$SCRIPT_DIR/../../contracts/deployments/arbitrumGoerli/KlerosCore.json" 0
+update "$SCRIPT_DIR/../../contracts/deployments/arbitrumGoerli/HomeGatewayToEthereum.json" 1
+update "$SCRIPT_DIR/../../contracts/deployments/arbitrumGoerli/FastBridgeSender.json" 2

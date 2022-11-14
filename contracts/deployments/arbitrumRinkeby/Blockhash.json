@@ -1,0 +1,73 @@
+{
+  "address": "0xe22b595b3e5fF130EcF7056Ef6A4ac351AeA8a58",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_blockNumber",
+          "type": "uint256"
+        }
+      ],
+      "name": "blockHash",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "blockNumber",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x2061164d89b23cad0d018202026356fb9297975f16301db9c34d50ded95cbdbf",
+  "receipt": {
+    "to": null,
+    "from": "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3",
+    "contractAddress": "0xe22b595b3e5fF130EcF7056Ef6A4ac351AeA8a58",
+    "transactionIndex": 1,
+    "gasUsed": "89723",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x7f5eb41e3d1dbc54d696aeb07012239ebd4e530f36c0400498f54e4a18bb0a9e",
+    "transactionHash": "0x2061164d89b23cad0d018202026356fb9297975f16301db9c34d50ded95cbdbf",
+    "logs": [],
+    "blockNumber": 14759774,
+    "cumulativeGasUsed": "89723",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 3,
+  "solcInputHash": "58467acb37cb6244b0fc4a8975b32b13",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.9+commit.e5eed63a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_blockNumber\",\"type\":\"uint256\"}],\"name\":\"blockHash\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"blockNumber\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/rng/Blockhash.sol\":\"Blockhash\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"src/rng/Blockhash.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8;\\n\\n\\ncontract Blockhash {\\n    function blockHash(uint256 _blockNumber) external view returns (bytes32) {\\n        return blockhash(_blockNumber);\\n    }\\n\\n    function blockNumber() external view returns (uint256) {\\n        return block.number;\\n    }\\n}\\n\",\"keccak256\":\"0xc61c785d04f19df1cc38bebea7b17e12be9468d76266a50e5c5a3b55de5f1041\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b5060a88061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060325760003560e01c806357e871e714603757806385df51fd14604b575b600080fd5b435b60405190815260200160405180910390f35b60396056366004605a565b4090565b600060208284031215606b57600080fd5b503591905056fea2646970667358221220a152dec2619957a1fa1d1c3feade116d510b488d7cd8acbef8c7b253f238128364736f6c63430008090033",
+  "deployedBytecode": "0x6080604052348015600f57600080fd5b506004361060325760003560e01c806357e871e714603757806385df51fd14604b575b600080fd5b435b60405190815260200160405180910390f35b60396056366004605a565b4090565b600060208284031215606b57600080fd5b503591905056fea2646970667358221220a152dec2619957a1fa1d1c3feade116d510b488d7cd8acbef8c7b253f238128364736f6c63430008090033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
