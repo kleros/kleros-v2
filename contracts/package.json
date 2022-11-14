@@ -11,7 +11,8 @@
     "node": ">=16.0.0"
   },
   "volta": {
-    "node": "16.13.0"
+    "node": "16.18.1",
+    "yarn": "3.1.1"
   },
   "scripts": {
     "build": "hardhat compile",
