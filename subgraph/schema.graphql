@@ -158,3 +158,14 @@ type CasesDataPoint @entity {
   id: ID! # Will be the timestamp except for the counter which will be 0
   value: BigInt!
 }
+
+type Counter @entity {
+  id: ID! # Always 0
+  stakedPNK: BigInt!
+  redistributedPNK: BigInt!
+  paidETH: BigInt!
+  activeJurors: BigInt!
+  cases: BigInt!
+  casesVoting: BigInt!
+  casesRuled: BigInt!
+}

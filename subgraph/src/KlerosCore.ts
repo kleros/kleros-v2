@@ -1,4 +1,4 @@
-import { Address, BigInt, Entity, Value, store } from "@graphprotocol/graph-ts";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
 import {
   KlerosCore,
   AppealDecision,
@@ -22,6 +22,16 @@ import {
   DisputeKit,
   Court,
 } from "../generated/schema";
+import {
+  updateCases,
+  updateActiveJurors,
+  updatePaidETH,
+  updateStakedPNK,
+  updateCasesRuled,
+  updateCasesVoting,
+  updateRedistributedPNK,
+  getDelta,
+} from "./datapoint";
 
 function getPeriodName(index: i32): string {
   const periodArray = ["Evidence", "Commit", "Vote", "Appeal", "Execution"];
@@ -219,10 +229,7 @@ export function handleStakeSet(event: StakeSet): void {
   } else previousStake = jurorTokens.staked;
   jurorTokens.staked = amountStaked;
   jurorTokens.save();
-  updateTotalPNKStaked(
-    getDelta(previousStake, amountStaked),
-    event.block.timestamp
-  );
+  updateStakedPNK(getDelta(previousStake, amountStaked), event.block.timestamp);
 }
 
 export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
@@ -233,55 +240,12 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   const ethAmount = event.params._ethAmount;
   const shift = new TokenAndETHShift(shiftID);
   if (tokenAmount.gt(BigInt.fromI32(0))) {
-    updatePNKRedistributed(tokenAmount, event.block.timestamp);
+    updateRedistributedPNK(tokenAmount, event.block.timestamp);
   }
-  updateETHPaid(ethAmount, event.block.timestamp);
+  updatePaidETH(ethAmount, event.block.timestamp);
   shift.juror = jurorAddress;
   shift.dispute = disputeID.toString();
   shift.tokenAmount = tokenAmount;
   shift.ethAmount = ethAmount;
   shift.save();
-}
-
-function getDelta(previousValue: BigInt, newValue: BigInt): BigInt {
-  return newValue.minus(previousValue);
-}
-
-function updateDataPoint(
-  delta: BigInt,
-  timestamp: BigInt,
-  entityName: string
-): void {
-  let counter = store.get(entityName, "0");
-  if (!counter) {
-    counter = new Entity();
-    counter.set("value", Value.fromBigInt(BigInt.fromI32(0)));
-  }
-  const dayID = timestamp.toI32() / 86400;
-  const dayStartTimestamp = dayID * 86400;
-  const newValue = counter.get("value")!.toBigInt().plus(delta);
-  const newDataPoint = new Entity();
-  newDataPoint.set("value", Value.fromBigInt(newValue));
-  store.set(entityName, dayStartTimestamp.toString(), newDataPoint);
-  store.set(entityName, "0", newDataPoint);
-}
-
-function updateTotalPNKStaked(delta: BigInt, timestamp: BigInt): void {
-  updateDataPoint(delta, timestamp, "PNKStakedDataPoint");
-}
-
-function updatePNKRedistributed(delta: BigInt, timestamp: BigInt): void {
-  updateDataPoint(delta, timestamp, "PNKRedistributedDataPoint");
-}
-
-function updateETHPaid(delta: BigInt, timestamp: BigInt): void {
-  updateDataPoint(delta, timestamp, "ETHPaidDataPoint");
-}
-
-function updateActiveJurors(delta: BigInt, timestamp: BigInt): void {
-  updateDataPoint(delta, timestamp, "ActiveJurorsDataPoint");
-}
-
-function updateCases(delta: BigInt, timestamp: BigInt): void {
-  updateDataPoint(delta, timestamp, "CasesDataPoint");
 }
