@@ -21,9 +21,8 @@
     "contracts",
     "dynamic-script",
     "evidence-display",
-    "klerosjs",
+    "klerosts",
     "subgraph",
-    "subgraph-fastbridge",
     "web"
   ],
   "packageManager": "yarn@3.1.1",
