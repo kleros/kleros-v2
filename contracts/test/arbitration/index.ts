@@ -77,8 +77,7 @@ async function deployContracts(deployer) {
   const disputeKitFactory = await ethers.getContractFactory("DisputeKitClassic", deployer);
   const disputeKit = await disputeKitFactory.deploy(
     deployer.address,
-    ethers.constants.AddressZero, // KlerosCore is set later once it is deployed
-    rng.address
+    ethers.constants.AddressZero // KlerosCore is set later once it is deployed
   );
   await disputeKit.deployed();
   let nonce;
@@ -87,7 +86,7 @@ async function deployContracts(deployer) {
   const KlerosCoreAddress = getContractAddress(deployer.address, nonce);
 
   const sortitionModuleFactory = await ethers.getContractFactory("SortitionModule", deployer);
-  const sortitionModule = await sortitionModuleFactory.deploy(KlerosCoreAddress, 120, 120); // minStakingTime, maxFreezingTime
+  const sortitionModule = await sortitionModuleFactory.deploy(KlerosCoreAddress, 120, 120, rng.address); // minStakingTime, maxFreezingTime
 
   const klerosCoreFactory = await ethers.getContractFactory("KlerosCore", {
     signer: deployer,

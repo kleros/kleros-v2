@@ -33,12 +33,7 @@ describe("Integration tests", async () => {
   }
 
   const enum Phase {
-    staking, // Stake can be updated during this phase.
-    freezing, // Phase during which the dispute kits can undergo the drawing process. Staking is not allowed during this phase.
-  }
-
-  const enum DisputeKitPhase {
-    resolving, // No disputes that need drawing.
+    staking, // No disputes that need drawing.
     generating, // Waiting for a random number. Pass as soon as it is ready.
     drawing, // Jurors can be drawn.
   }
@@ -153,26 +148,18 @@ describe("Integration tests", async () => {
     await network.provider.send("evm_mine");
 
     expect(await sortitionModule.phase()).to.equal(Phase.staking);
-    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.resolving);
-    expect(await disputeKit.disputesWithoutJurors()).to.equal(1);
-    expect(await disputeKit.isResolving()).to.equal(true);
-    console.log("KC phase: %d, DK phase: ", await sortitionModule.phase(), await disputeKit.phase());
+    expect(await sortitionModule.disputesWithoutJurors()).to.equal(1);
+    console.log("KC phase: %d", await sortitionModule.phase());
 
-    const disputesKitsThatNeedFreezing = await sortitionModule.getDisputesKitsThatNeedFreezing();
-    expect(disputesKitsThatNeedFreezing).to.be.deep.equal([disputeKit.address]);
-    await sortitionModule.passPhase(); // Staking -> Freezing
-    expect(await sortitionModule.phase()).to.equal(Phase.freezing);
-    console.log("KC phase: %d, DK phase: ", await sortitionModule.phase(), await disputeKit.phase());
-
+    await sortitionModule.passPhase(); // Staking -> Generating
     await mineBlocks(20); // Wait for 20 blocks finality
-    await disputeKit.passPhase(); // Resolving -> Generating
-    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
-    console.log("KC phase: %d, DK phase: ", await sortitionModule.phase(), await disputeKit.phase());
+    expect(await sortitionModule.phase()).to.equal(Phase.generating);
+    console.log("KC phase: %d", await sortitionModule.phase());
 
     await mineBlocks(20); // Wait for RNG lookahead
-    await disputeKit.passPhase(); // Generating -> Drawing
-    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.drawing);
-    console.log("KC phase: %d, DK phase: ", await sortitionModule.phase(), await disputeKit.phase());
+    await sortitionModule.passPhase(); // Generating -> Drawing
+    expect(await sortitionModule.phase()).to.equal(Phase.drawing);
+    console.log("KC phase: %d", await sortitionModule.phase());
 
     const tx3 = await core.draw(0, 1000);
     console.log("draw successful");
@@ -242,7 +229,7 @@ describe("Integration tests", async () => {
 
     await pnk.approve(core.address, ONE_THOUSAND_PNK.mul(100));
 
-    console.log("KC phase: %d, DK phase: ", await sortitionModule.phase(), await disputeKit.phase());
+    console.log("KC phase: %d", await sortitionModule.phase());
 
     await core.setStake(1, ONE_THOUSAND_PNK);
     await core.getJurorBalance(deployer, 1).then((result) => {
@@ -314,26 +301,17 @@ describe("Integration tests", async () => {
     await network.provider.send("evm_mine");
 
     expect(await sortitionModule.phase()).to.equal(Phase.staking);
-    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.resolving);
-    expect(await disputeKit.disputesWithoutJurors()).to.equal(1);
-    expect(await disputeKit.isResolving()).to.equal(true);
-    console.log("KC phase: %d, DK phase: ", await sortitionModule.phase(), await disputeKit.phase());
+    expect(await sortitionModule.disputesWithoutJurors()).to.equal(1);
+    console.log("KC phase: %d", await sortitionModule.phase());
 
-    let disputesKitsThatNeedFreezing = await sortitionModule.getDisputesKitsThatNeedFreezing();
-    expect(disputesKitsThatNeedFreezing).to.be.deep.equal([disputeKit.address]);
-    await sortitionModule.passPhase(); // Staking -> Freezing
-    expect(await sortitionModule.phase()).to.equal(Phase.freezing);
-    console.log("KC phase: %d, DK phase: ", await sortitionModule.phase(), await disputeKit.phase());
-
-    await mineBlocks(20); // Wait for 20 blocks finality
-    await disputeKit.passPhase(); // Resolving -> Generating
-    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
-    console.log("KC phase: %d, DK phase: ", await sortitionModule.phase(), await disputeKit.phase());
+    await sortitionModule.passPhase(); // Staking -> Generating
+    expect(await sortitionModule.phase()).to.equal(Phase.generating);
+    console.log("KC phase: %d", await sortitionModule.phase());
 
     await mineBlocks(20); // Wait for RNG lookahead
-    await disputeKit.passPhase(); // Generating -> Drawing
-    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.drawing);
-    console.log("KC phase: %d, DK phase: ", await sortitionModule.phase(), await disputeKit.phase());
+    await sortitionModule.passPhase(); // Generating -> Drawing
+    expect(await sortitionModule.phase()).to.equal(Phase.drawing);
+    console.log("KC phase: %d", await sortitionModule.phase());
 
     const tx3 = await core.draw(0, 1000);
     console.log("draw successful");
@@ -348,19 +326,14 @@ describe("Integration tests", async () => {
     await core.passPeriod(0);
     expect((await core.disputes(0)).period).to.equal(Period.vote);
 
-    console.log("KC phase: %d, DK phase: ", await sortitionModule.phase(), await disputeKit.phase());
+    console.log("KC phase: %d", await sortitionModule.phase());
 
-    await disputeKit.passPhase(); // Drawing -> Resolving
-    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.resolving);
-    expect(await disputeKit.disputesWithoutJurors()).to.equal(0);
-    expect(await disputeKit.isResolving()).to.equal(true);
+    expect(await sortitionModule.disputesWithoutJurors()).to.equal(0);
 
-    disputesKitsThatNeedFreezing = await sortitionModule.getDisputesKitsThatNeedFreezing();
-    expect(disputesKitsThatNeedFreezing).to.be.deep.equal([disputeKit.address]);
-    await sortitionModule.passPhase(); // Freezing -> Staking
+    await sortitionModule.passPhase(); // Drawing -> Staking
     expect(await sortitionModule.phase()).to.equal(Phase.staking);
 
-    console.log("KC phase: %d, DK phase: ", await sortitionModule.phase(), await disputeKit.phase());
+    console.log("KC phase: %d", await sortitionModule.phase());
 
     await disputeKit.connect(await ethers.getSigner(deployer)).castVote(0, [0, 1, 2], 0, 0, "");
     await core.passPeriod(0);
@@ -482,26 +455,17 @@ describe("Integration tests", async () => {
     await network.provider.send("evm_mine");
 
     expect(await sortitionModule.phase()).to.equal(Phase.staking);
-    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.resolving);
-    expect(await disputeKit.disputesWithoutJurors()).to.equal(1);
-    expect(await disputeKit.isResolving()).to.equal(true);
-    console.log("KC phase: %d, DK phase: ", await sortitionModule.phase(), await disputeKit.phase());
+    expect(await sortitionModule.disputesWithoutJurors()).to.equal(1);
+    console.log("KC phase: %d", await sortitionModule.phase());
 
-    const disputesKitsThatNeedFreezing = await sortitionModule.getDisputesKitsThatNeedFreezing();
-    expect(disputesKitsThatNeedFreezing).to.be.deep.equal([disputeKit.address]);
-    await sortitionModule.passPhase(); // Staking -> Freezing
-    expect(await sortitionModule.phase()).to.equal(Phase.freezing);
-    console.log("KC phase: %d, DK phase: ", await sortitionModule.phase(), await disputeKit.phase());
-
-    await mineBlocks(20); // Wait for 20 blocks finality
-    await disputeKit.passPhase(); // Resolving -> Generating
-    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
-    console.log("KC phase: %d, DK phase: ", await sortitionModule.phase(), await disputeKit.phase());
+    await sortitionModule.passPhase(); // Staking -> Generating
+    expect(await sortitionModule.phase()).to.equal(Phase.generating);
+    console.log("KC phase: %d", await sortitionModule.phase());
 
     await mineBlocks(20); // Wait for RNG lookahead
-    await disputeKit.passPhase(); // Generating -> Drawing
-    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.drawing);
-    console.log("KC phase: %d, DK phase: ", await sortitionModule.phase(), await disputeKit.phase());
+    await sortitionModule.passPhase(); // Generating -> Drawing
+    expect(await sortitionModule.phase()).to.equal(Phase.drawing);
+    console.log("KC phase: %d", await sortitionModule.phase());
 
     const tx3 = await core.draw(0, 1000);
     console.log("draw successful");

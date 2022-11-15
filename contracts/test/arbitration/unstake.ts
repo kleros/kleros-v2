@@ -51,25 +51,19 @@ describe("Unstake juror", async () => {
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
-    await sortitionModule.passPhase(); // Staking -> Freezing
-    for (let index = 0; index < 20; index++) {
-      await network.provider.send("evm_mine"); // Wait for 20 blocks finality
-    }
-    await disputeKit.passPhase(); // Resolving -> Generating
+    await sortitionModule.passPhase(); // Staking -> Generating
     for (let index = 0; index < 20; index++) {
       await network.provider.send("evm_mine"); // RNG lookahead
     }
-    await disputeKit.passPhase(); // Generating -> Drawing
+    await sortitionModule.passPhase(); // Generating -> Drawing
 
     await core.draw(0, 5000);
 
-    await disputeKit.passPhase(); // Drawing -> Resolving
+    await sortitionModule.passPhase(); // Drawing -> Staking
 
     await core.passPeriod(0); // Evidence -> Voting
     await core.passPeriod(0); // Voting -> Appeal
     await core.passPeriod(0); // Appeal -> Execution
-
-    await sortitionModule.passPhase(); // Freezing -> Staking. Change so we don't deal with delayed stakes
 
     expect(await core.getJurorSubcourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
 

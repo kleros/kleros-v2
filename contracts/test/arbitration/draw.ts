@@ -99,15 +99,11 @@ describe("Draw Benchmark", async () => {
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
-    await sortitionModule.passPhase(); // Staking -> Freezing
-    for (let index = 0; index < 20; index++) {
-      await network.provider.send("evm_mine"); // Wait for 20 blocks finality
-    }
-    await disputeKit.passPhase(); // Resolving -> Generating
+    await sortitionModule.passPhase(); // Staking -> Generating
     for (let index = 0; index < 20; index++) {
       await network.provider.send("evm_mine"); // RNG lookahead
     }
-    await disputeKit.passPhase(); // Generating -> Drawing
+    await sortitionModule.passPhase(); // Generating -> Drawing
 
     await expect(core.draw(0, 1000, { gasLimit: 1000000 }))
       .to.emit(core, "Draw")

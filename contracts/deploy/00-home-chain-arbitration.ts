@@ -47,7 +47,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const disputeKit = await deploy("DisputeKitClassic", {
     from: deployer,
-    args: [deployer, AddressZero, rng.address],
+    args: [deployer, AddressZero],
     log: true,
   });
 
@@ -76,7 +76,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const sortitionModule = await deploy("SortitionModule", {
     from: deployer,
-    args: [KlerosCoreAddress, 1800, 1800], // minStakingTime, maxFreezingTime
+    args: [KlerosCoreAddress, 1800, 1800, rng.address], // minStakingTime, maxFreezingTime
     log: true,
   });
 
