@@ -9,19 +9,27 @@ on:
     branches:
       - "*"
       
+permissions:  # added using https://github.com/step-security/secure-workflows
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+    - name: Harden Runner
+      uses: step-security/harden-runner@ebacdc22ef6c2cfb85ee5ded8f2e640f4c776dd5
+      with:
+        egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+
     - name: Setup Node.js environment
-      uses: actions/setup-node@v3.5.1
+      uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516
       with:
         node-version: 16.x   
         
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
     
     - name: Cache node modules
-      uses: actions/cache@v3.0.11
+      uses: actions/cache@9b0c1fce7a93df8e3bb8926b0d6e9d89e92f20a7
       env:
         cache-name: cache-node-modules
       with:
@@ -52,7 +60,7 @@ jobs:
       working-directory: contracts
 
     - name: Upload a build artifact
-      uses: actions/upload-artifact@v3.1.1
+      uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
       with:    
         name: code-coverage-report    
         path: contracts/coverage
