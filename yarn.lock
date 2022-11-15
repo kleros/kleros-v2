@@ -2272,7 +2272,7 @@ __metadata:
     "@types/react-modal": ^3.13.1
     "@types/styled-components": ^5.1.26
     "@typescript-eslint/eslint-plugin": ^5.43.0
-    "@typescript-eslint/parser": ^5.41.0
+    "@typescript-eslint/parser": ^5.43.0
     "@typescript-eslint/utils": ^5.43.0
     "@web3-react/core": ^6.1.9
     "@web3-react/injected-connector": ^6.0.7
@@ -4720,6 +4720,23 @@ __metadata:
     typescript:
       optional: true
   checksum: ae005b603218d540dd1c3fd1f84d7f956bfca8b15d2c42115b9fc44437cb73e8284fda62153612a20809449d563edbde968d245b6c9d27b482ad0ebc2a95947f
+  languageName: node
+  linkType: hard
+
+"@typescript-eslint/parser@npm:^5.43.0":
+  version: 5.43.0
+  resolution: "@typescript-eslint/parser@npm:5.43.0"
+  dependencies:
+    "@typescript-eslint/scope-manager": 5.43.0
+    "@typescript-eslint/types": 5.43.0
+    "@typescript-eslint/typescript-estree": 5.43.0
+    debug: ^4.3.4
+  peerDependencies:
+    eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: a28e0ef2807f1c3381c6dc1d9ddfd83ea8db657d3f808511adf13023b469ed64fc09619e05d7f68746b05ea68770a0882883c77ce908682965ba266f95e168c9
   languageName: node
   linkType: hard
 
