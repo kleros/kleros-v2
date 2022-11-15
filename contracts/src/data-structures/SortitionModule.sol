@@ -246,6 +246,17 @@ contract SortitionModule is ISortitionModule {
         }
     }
 
+    /**
+     *  @dev Unstakes the inactive juror from all courts.
+     *  @param _account The juror to unstake.
+     */
+    function setJurorInactive(address _account) external override onlyByCore {
+        uint96[] memory subcourtIDs = core.getJurorSubcourtIDs(_account);
+        for (uint256 j = 0; j < subcourtIDs.length; j++) {
+            core.setStakeBySortitionModule(_account, subcourtIDs[j], 0, 0);
+        }
+    }
+
     /* Public Views */
 
     /**

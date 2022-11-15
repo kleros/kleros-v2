@@ -742,10 +742,7 @@ contract KlerosCore is IArbitrator {
 
                 // Unstake the juror if he lost due to inactivity.
                 if (!disputeKit.isVoteActive(_disputeID, _round, i)) {
-                    uint96[] memory subcourtIDs = getJurorSubcourtIDs(account);
-                    for (uint256 j = 0; j < subcourtIDs.length; j++) {
-                        setStakeForAccount(account, subcourtIDs[j], 0, 0);
-                    }
+                    sortitionModule.setJurorInactive(account);
                 }
                 emit TokenAndETHShift(account, _disputeID, -int256(penalty), 0);
 

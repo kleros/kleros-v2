@@ -21,6 +21,8 @@ interface ISortitionModule {
         bytes32 _ID
     ) external;
 
+    function setJurorInactive(address _account) external;
+
     function notifyRandomNumber(uint256 _drawnNumber) external;
 
     function draw(
