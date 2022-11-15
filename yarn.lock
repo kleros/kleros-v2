@@ -3927,12 +3927,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@solidity-parser/parser@npm:^0.14.0, @solidity-parser/parser@npm:^0.14.1, @solidity-parser/parser@npm:^0.14.3":
+"@solidity-parser/parser@npm:^0.14.0, @solidity-parser/parser@npm:^0.14.1":
   version: 0.14.3
   resolution: "@solidity-parser/parser@npm:0.14.3"
   dependencies:
     antlr4ts: ^0.5.0-alpha.4
   checksum: 9a27eb961c22a3b8732bd9782ce3b7912e67b2e2183acada552116dd0bbe637c33265177ab3db9610063da48aa57299d67afdeb0616450b631a0e3da865c4e88
+  languageName: node
+  linkType: hard
+
+"@solidity-parser/parser@npm:^0.14.5":
+  version: 0.14.5
+  resolution: "@solidity-parser/parser@npm:0.14.5"
+  dependencies:
+    antlr4ts: ^0.5.0-alpha.4
+  checksum: 9e85a0d4f8a05a11db6022444b70b2f353e2358467b1cce44cdda703ae1e3c7337e1b8cbc2eec8e14a8f34f9c60b42f325e5fe9b3c934cc980e35091e292d7ee
   languageName: node
   linkType: hard
 
@@ -15087,7 +15096,7 @@ __metadata:
     husky: ^8.0.2
     lint-staged: ^11.0.0
     prettier: ^2.4.1
-    prettier-plugin-solidity: ^1.0.0-beta.15
+    prettier-plugin-solidity: ^1.0.0-rc.1
     solhint-plugin-prettier: ^0.0.5
   languageName: unknown
   linkType: soft
@@ -18698,11 +18707,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-solidity@npm:^1.0.0-beta.15":
-  version: 1.0.0-dev.23
-  resolution: "prettier-plugin-solidity@npm:1.0.0-dev.23"
+"prettier-plugin-solidity@npm:^1.0.0-rc.1":
+  version: 1.0.0-rc.1
+  resolution: "prettier-plugin-solidity@npm:1.0.0-rc.1"
   dependencies:
-    "@solidity-parser/parser": ^0.14.3
+    "@solidity-parser/parser": ^0.14.5
     emoji-regex: ^10.1.0
     escape-string-regexp: ^4.0.0
     semver: ^7.3.7
@@ -18710,7 +18719,7 @@ __metadata:
     string-width: ^4.2.3
   peerDependencies:
     prettier: ^2.3.0
-  checksum: bf068bcd763b2c2be48859abca5f2aee9543c38e875039470c8c0a850de4218292c7ec46fb63ef6866f51e8c87e80f8de015446ebd9f407712b26a9e30c41050
+  checksum: 8f8edc921b3d89048c688dcb3e6fef2bedcb94de622d5777e83de329d80caf76fc453b9c747bf91d2ad961d8577b10703bd8db259653bd6479c3cd1095973745
   languageName: node
   linkType: hard
 
