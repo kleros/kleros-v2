@@ -1548,6 +1548,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@float-capital/float-subgraph-uncrashable@npm:^0.0.0-alpha.4":
+  version: 0.0.0-dev
+  resolution: "@float-capital/float-subgraph-uncrashable@npm:0.0.0-dev"
+  dependencies:
+    graphql: ^16.6.0
+    graphql-import-node: ^0.0.5
+    js-yaml: ^4.1.0
+    rescript: ^9.1.4
+  checksum: 4f68b2d41b2c9dd18a174588e9d1db5862b680c423144d697351527658e8dd49477b42aa061ecc2adba28107e4ed53b97afaf10a75288186aca4070835b94b56
+  languageName: node
+  linkType: hard
+
 "@gar/promisify@npm:^1.1.3":
   version: 1.1.3
   resolution: "@gar/promisify@npm:1.1.3"
@@ -1555,10 +1567,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-cli@npm:^0.34.0":
-  version: 0.34.0
-  resolution: "@graphprotocol/graph-cli@npm:0.34.0"
+"@graphprotocol/graph-cli@npm:^0.36.0":
+  version: 0.36.0
+  resolution: "@graphprotocol/graph-cli@npm:0.36.0"
   dependencies:
+    "@float-capital/float-subgraph-uncrashable": ^0.0.0-alpha.4
     assemblyscript: 0.19.10
     binary-install-raw: 0.0.13
     chalk: 3.0.0
@@ -1586,7 +1599,7 @@ __metadata:
     yaml: 1.9.2
   bin:
     graph: bin/graph
-  checksum: 3d2e4dd05ae7acee55f0ba058e7eb64ccb145cffdf7a6798ae2221f20882d0371edb4c669fff0e7176448406e114c1374d10ea1aa4e487e28c576f710b075a4c
+  checksum: ba59e6bbfcb96710ccd349f510f34bcfdb7714ca81bb721ea6cc0de132d67d52d3c8b933d32046287e04e7c360758417e181765cba1b5de9340efe058d825f06
   languageName: node
   linkType: hard
 
@@ -2309,7 +2322,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-subgraph-fastbridge@workspace:subgraph-fastbridge"
   dependencies:
-    "@graphprotocol/graph-cli": ^0.34.0
+    "@graphprotocol/graph-cli": ^0.36.0
     "@graphprotocol/graph-ts": ^0.28.1
   languageName: unknown
   linkType: soft
@@ -2318,7 +2331,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-subgraph@workspace:subgraph"
   dependencies:
-    "@graphprotocol/graph-cli": ^0.34.0
+    "@graphprotocol/graph-cli": ^0.36.0
     "@graphprotocol/graph-ts": ^0.28.1
   languageName: unknown
   linkType: soft
@@ -12726,6 +12739,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"graphql-import-node@npm:^0.0.5":
+  version: 0.0.5
+  resolution: "graphql-import-node@npm:0.0.5"
+  peerDependencies:
+    graphql: "*"
+  checksum: a9af565f3422e9e732dcf97077deff3f94b9af0d7e8001bb65a3cac607a462664f902b3603ead1626b294928c4b6302cb6aa2d49254444d465ce87c629fb842d
+  languageName: node
+  linkType: hard
+
 "graphql-request@npm:^5.0.0":
   version: 5.0.0
   resolution: "graphql-request@npm:5.0.0"
@@ -12767,7 +12789,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:^16.4.0":
+"graphql@npm:^16.4.0, graphql@npm:^16.6.0":
   version: 16.6.0
   resolution: "graphql@npm:16.6.0"
   checksum: bf1d9e3c1938ce3c1a81e909bd3ead1ae4707c577f91cff1ca2eca474bfbc7873d5d7b942e1e9777ff5a8304421dba57a4b76d7a29eb19de8711cb70e3c2415e
@@ -19924,6 +19946,18 @@ __metadata:
   version: 2.0.1
   resolution: "require-package-name@npm:2.0.1"
   checksum: 00f4e9e467ebe2bbced2b4198a165de11c83b5ee9f4c20b05a8782659b92bcb544dbd50be9a3eed746d05ecd875453e258c079eb3a79604b50a27cf8ab0798b5
+  languageName: node
+  linkType: hard
+
+"rescript@npm:^9.1.4":
+  version: 9.1.4
+  resolution: "rescript@npm:9.1.4"
+  bin:
+    bsc: bsc
+    bsrefmt: bsrefmt
+    bstracing: lib/bstracing
+    rescript: rescript
+  checksum: 3c503580f968b4d4409830093c57f85b5590f7372250345427b3a7c1f5ccb08009e1edd89b4a3dcbb3ee95ee4dcad9c337ece4d1f8fdaa10e22ed04b8a7495c0
   languageName: node
   linkType: hard
 
