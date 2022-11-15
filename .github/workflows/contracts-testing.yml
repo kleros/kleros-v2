@@ -19,7 +19,16 @@ jobs:
     - name: Harden Runner
       uses: step-security/harden-runner@ebacdc22ef6c2cfb85ee5ded8f2e640f4c776dd5
       with:
-        egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+        disable-sudo: true
+        egress-policy: block
+        allowed-endpoints: >
+          binaries.soliditylang.org:443
+          classic.yarnpkg.com:443
+          github.com:443
+          nightly.yarnpkg.com:443
+          nodejs.org:443
+          objects.githubusercontent.com:443
+          registry.yarnpkg.com:443
 
     - name: Setup Node.js environment
       uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516
