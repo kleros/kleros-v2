@@ -1,13 +1,21 @@
 on: [workflow_dispatch]
 
+permissions:  # added using https://github.com/step-security/secure-workflows
+  contents: read
+
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-      - uses: aws-actions/setup-sam@v2
-      - uses: aws-actions/configure-aws-credentials@v1
+      - name: Harden Runner
+        uses: step-security/harden-runner@ebacdc22ef6c2cfb85ee5ded8f2e640f4c776dd5
+        with:
+          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+      - uses: actions/setup-python@13ae5bb136fac2878aff31522b9efb785519f984
+      - uses: aws-actions/setup-sam@8dbd164261576216897020cd750587e50e4d2136
+      - uses: aws-actions/configure-aws-credentials@67fbcbb121271f7775d2e7715933280b06314838
         with:
           aws-access-key-id: ${{ secrets.STAGING_AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.STAGING_AWS_SECRET_KEY }}
