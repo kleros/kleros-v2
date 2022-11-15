@@ -11,7 +11,6 @@
 pragma solidity ^0.8;
 
 import "./BaseDisputeKit.sol";
-import "../../rng/RNG.sol";
 import "../../evidence/IEvidence.sol";
 
 interface IProofOfHumanity {
@@ -34,12 +33,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     // ************************************* //
     // *             Structs               * //
     // ************************************* //
-
-    enum Phase {
-        resolving, // No disputes that need drawing.
-        generating, // Waiting for a random number. Pass as soon as it is ready.
-        drawing // Jurors can be drawn.
-    }
 
     struct Dispute {
         Round[] rounds; // Rounds of the dispute. 0 is the default round, and [1, ..n] are the appeal rounds.
@@ -80,14 +73,9 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the appeal cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
     uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
     uint256 public constant ONE_BASIS_POINT = 10000; // One basis point, for scaling.
-    uint256 public constant RNG_LOOKAHEAD = 20; // Minimum block distance between requesting and obtaining a random number. Arbitrum sequencer finality = 20 blocks.
 
-    RNG public rng; // The random number generator
     IProofOfHumanity public poh; // The Proof of Humanity registry
-    uint256 public rngRequestedBlock; // The block number requested to the random number.
 
-    Phase public phase; // Current phase of this dispute kit.
-    uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
     Dispute[] public disputes; // Array of the locally created disputes.
     mapping(uint256 => uint256) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
 
@@ -112,7 +100,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     );
 
     event ChoiceFunded(uint256 indexed _coreDisputeID, uint256 indexed _coreRoundID, uint256 indexed _choice);
-    event NewPhaseDisputeKit(Phase _phase);
 
     // ************************************* //
     // *              Modifiers            * //
@@ -126,15 +113,13 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     /** @dev Constructor.
      *  @param _governor The governor's address.
      *  @param _core The KlerosCore arbitrator.
-     *  @param _rng The random number generator.
+     *  @param _poh ProofOfHumanity contract.
      */
     constructor(
         address _governor,
         KlerosCore _core,
-        RNG _rng,
         IProofOfHumanity _poh
     ) BaseDisputeKit(_governor, _core) {
-        rng = _rng;
         poh = _poh;
     }
 
@@ -154,17 +139,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
      */
     function changeCore(address _core) external onlyByGovernor {
         core = KlerosCore(_core);
-    }
-
-    /** @dev Changes the `_rng` storage variable.
-     *  @param _rng The new value for the `RNGenerator` storage variable.
-     */
-    function changeRandomNumberGenerator(RNG _rng) external onlyByGovernor {
-        rng = _rng;
-        if (phase == Phase.generating) {
-            rngRequestedBlock = block.number + RNG_LOOKAHEAD;
-            rng.requestRandomness(rngRequestedBlock);
-        }
     }
 
     /** @dev Changes the `poh` storage variable.
@@ -204,34 +178,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         round.tied = true;
 
         coreDisputeIDToLocal[_coreDisputeID] = localDisputeID;
-        disputesWithoutJurors++;
-    }
-
-    /** @dev Passes the phase.
-     */
-    function passPhase() external override {
-        ISortitionModule sortitionModule = core.sortitionModule();
-        if (sortitionModule.phase() == ISortitionModule.Phase.staking || sortitionModule.freezingPhaseTimeout()) {
-            require(phase != Phase.resolving, "Already in Resolving phase");
-            phase = Phase.resolving; // Safety net.
-        } else if (sortitionModule.phase() == ISortitionModule.Phase.freezing) {
-            if (phase == Phase.resolving) {
-                require(disputesWithoutJurors > 0, "All the disputes have jurors");
-                rngRequestedBlock = sortitionModule.getFreezeBlock() + RNG_LOOKAHEAD;
-                rng.requestRandomness(rngRequestedBlock);
-                phase = Phase.generating;
-            } else if (phase == Phase.generating) {
-                uint256 randomNumber = rng.receiveRandomness(rngRequestedBlock);
-                require(randomNumber != 0, "Random number is not ready yet");
-                sortitionModule.notifyRandomNumber(randomNumber);
-                phase = Phase.drawing;
-            } else if (phase == Phase.drawing) {
-                require(disputesWithoutJurors == 0, "Not ready for Resolving phase");
-                phase = Phase.resolving;
-            }
-        }
-        // Should not be reached if the phase is unchanged.
-        emit NewPhaseDisputeKit(phase);
     }
 
     /** @dev Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
@@ -246,8 +192,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         notJumped(_coreDisputeID)
         returns (address drawnAddress)
     {
-        require(phase == Phase.drawing, "Should be in drawing phase");
-
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
 
@@ -261,9 +205,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         if (postDrawCheck(_coreDisputeID, drawnAddress) && !round.alreadyDrawn[drawnAddress]) {
             round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
             round.alreadyDrawn[drawnAddress] = true;
-            if (round.votes.length == round.nbVotes) {
-                disputesWithoutJurors--;
-            }
         } else {
             drawnAddress = address(0);
         }
@@ -417,7 +358,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
                 Round storage newRound = dispute.rounds.push();
                 newRound.nbVotes = core.getNumberOfVotes(_coreDisputeID);
                 newRound.tied = true;
-                disputesWithoutJurors++;
             }
             core.appeal{value: appealCost}(_coreDisputeID, dispute.numberOfChoices, dispute.extraData);
         }
@@ -628,10 +568,6 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Vote storage vote = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]].votes[_voteID];
         return (vote.account, vote.commit, vote.choice, vote.voted);
-    }
-
-    function isResolving() external view override returns (bool) {
-        return phase == Phase.resolving;
     }
 
     // ************************************* //
