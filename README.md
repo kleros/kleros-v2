@@ -12,6 +12,7 @@
   <a href="https://app.netlify.com/sites/kleros-v2/deploys"><img src="https://api.netlify.com/api/v1/badges/86d94ae8-f655-46a4-a859-d68696173f3a/deploy-status" alt="Netlify Build Status"></a>
   <a href="https://www.gitpoap.io/gh/kleros/kleros-v2"><img src="https://public-api.gitpoap.io/v1/repo/kleros/kleros-v2/badge" alt="GitPoap badge"></a>
   </br>
+  <a href="https://api.securityscorecards.dev/projects/github.com/kleros/kleros-v2"><img src="https://api.securityscorecards.dev/projects/github.com/kleros/kleros-v2/badge" alt="OpenSSF Scorecard"></a>
   <a href="https://sonarcloud.io/summary/new_code?id=kleros_kleros-v2"><img src="https://sonarcloud.io/api/project_badges/measure?project=kleros_kleros-v2&metric=security_rating" alt="Security Rating"></a>
   <a href="https://sonarcloud.io/summary/new_code?id=kleros_kleros-v2"><img src="https://sonarcloud.io/api/project_badges/measure?project=kleros_kleros-v2&metric=alert_status" alt="Quality Gate Status"></a>
   <a href="https://sonarcloud.io/summary/new_code?id=kleros_kleros-v2"><img src="https://sonarcloud.io/api/project_badges/measure?project=kleros_kleros-v2&metric=bugs" alt="Bugs"></a>
