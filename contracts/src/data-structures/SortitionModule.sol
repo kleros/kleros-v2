@@ -248,12 +248,17 @@ contract SortitionModule is ISortitionModule {
 
     /**
      *  @dev Unstakes the inactive juror from all courts.
+     *  `O(n * (p * log_k(j)) )` where
+     *  `n` is the number of subcourts the juror has staked in,
+     *  `p` is the depth of the subcourt tree,
+     *  `k` is the minimum number of children per node of one of these subcourts' sortition sum tree,
+     *  and `j` is the maximum number of jurors that ever staked in one of these subcourts simultaneously.
      *  @param _account The juror to unstake.
      */
     function setJurorInactive(address _account) external override onlyByCore {
         uint96[] memory subcourtIDs = core.getJurorSubcourtIDs(_account);
-        for (uint256 j = 0; j < subcourtIDs.length; j++) {
-            core.setStakeBySortitionModule(_account, subcourtIDs[j], 0, 0);
+        for (uint256 j = subcourtIDs.length; j > 0; j--) {
+            core.setStakeBySortitionModule(_account, subcourtIDs[j - 1], 0, 0);
         }
     }
 
