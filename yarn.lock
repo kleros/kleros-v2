@@ -1577,12 +1577,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-ts@npm:^0.28.1":
-  version: 0.28.1
-  resolution: "@graphprotocol/graph-ts@npm:0.28.1"
+"@graphprotocol/graph-ts@npm:^0.29.0":
+  version: 0.29.0
+  resolution: "@graphprotocol/graph-ts@npm:0.29.0"
   dependencies:
     assemblyscript: 0.19.10
-  checksum: f8e7aa9a770bf9e6953b771d7e4a84ec997d692cffc24c4f9ca227f317c1181452c9939de05df23b774b4abfecc7dc1e2e31f5e75b3376070e5f38cbb7885927
+  checksum: a7728dba1743acfd86ced09b4ef4d7a920ef3216af59a6b220dd8991753dec091f59b67316f8966c9b12190ffbb674a501b5b971693884558b57422deb3ec905
   languageName: node
   linkType: hard
 
@@ -2244,7 +2244,7 @@ __metadata:
   resolution: "@kleros/kleros-v2-subgraph-fastbridge@workspace:subgraph-fastbridge"
   dependencies:
     "@graphprotocol/graph-cli": ^0.36.0
-    "@graphprotocol/graph-ts": ^0.28.1
+    "@graphprotocol/graph-ts": ^0.29.0
   languageName: unknown
   linkType: soft
 
@@ -2253,7 +2253,7 @@ __metadata:
   resolution: "@kleros/kleros-v2-subgraph@workspace:subgraph"
   dependencies:
     "@graphprotocol/graph-cli": ^0.36.0
-    "@graphprotocol/graph-ts": ^0.28.1
+    "@graphprotocol/graph-ts": ^0.29.0
   languageName: unknown
   linkType: soft
 
