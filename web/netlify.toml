@@ -1,3 +1,6 @@
+#[build]
+#command = "yarn workspace @kleros/kleros-v2-contracts install && yarn workspace @kleros/kleros-v2-web install && yarn workspace @kleros/kleros-v2-contracts build && yarn workspace @kleros/kleros-v2-web build"
+
 ## Yarn 3 cache does not work out of the box as of Jan 2022. Context:
 ## https://github.com/netlify/build/issues/1535#issuecomment-1021947989
 [build.environment]
@@ -8,9 +11,9 @@ NETLIFY_YARN_WORKSPACES = "true"
 ## Yarn 3 cache does not work out of the box as of Jan 2022. Context:
 ## https://github.com/netlify/build/issues/1535#issuecomment-1021947989
 NODE_VERSION = "16"
-YARN_VERSION = "3.1.1"
-YARN_CACHE_FOLDER = "/opt/buildhome/.yarn_cache"
-NPM_FLAGS = "--version"
+#YARN_VERSION = "3.1.1"
+#YARN_CACHE_FOLDER = "/opt/buildhome/.yarn_cache"
+#NPM_FLAGS = "--version"
 
-[[plugins]]
-package = "/netlify-yarn-berry-plugin"
+#[[plugins]]
+#package = "/netlify-yarn-berry-plugin"
