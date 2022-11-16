@@ -10588,7 +10588,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eth-sig-util@npm:3.0.0":
+"eth-sig-util@npm:3.0.0, eth-sig-util@npm:^1.4.2":
   version: 3.0.0
   resolution: "eth-sig-util@npm:3.0.0"
   dependencies:
@@ -10599,16 +10599,6 @@ __metadata:
     tweetnacl: ^1.0.0
     tweetnacl-util: ^0.15.0
   checksum: fbe44efb7909737b070e1e1d8c7096da3bdbd1356de242fc3458849e042e39c83a4e2dd1cbce0dc21ff3e5eca1843981751428bc160dcf3a6fcca2f1e8161be4
-  languageName: node
-  linkType: hard
-
-"eth-sig-util@npm:^1.4.2":
-  version: 1.4.2
-  resolution: "eth-sig-util@npm:1.4.2"
-  dependencies:
-    ethereumjs-abi: "git+https://github.com/ethereumjs/ethereumjs-abi.git"
-    ethereumjs-util: ^5.1.1
-  checksum: 578f5c571c1bb0a86dc1bd4a5b56b8073b37823496d7afa74d772cf91ae6860f91bafcbee931be39a3d13f0c195df9f026a27fce350605ad5d15901a5a4ea94a
   languageName: node
   linkType: hard
 
@@ -10712,16 +10702,6 @@ __metadata:
   bin:
     waffle: bin/waffle
   checksum: 5a181b52f66f1b3c89ed1b68ef44cbd9acd4d743262de9edbe1fd57b0925576dd62c3436b1e65434d5ac03ab16da0df283972cd9aae726de0b8b9cdd7876b917
-  languageName: node
-  linkType: hard
-
-"ethereumjs-abi@git+https://github.com/ethereumjs/ethereumjs-abi.git":
-  version: 0.6.8
-  resolution: "ethereumjs-abi@https://github.com/ethereumjs/ethereumjs-abi.git#commit=ee3994657fa7a427238e6ba92a84d0b529bbcde0"
-  dependencies:
-    bn.js: ^4.11.8
-    ethereumjs-util: ^6.0.0
-  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
   languageName: node
   linkType: hard
 
