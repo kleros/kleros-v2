@@ -1,0 +1,26 @@
+{
+  "name": "yarn-berry-netlify-plugin",
+  "version": "1.0.0",
+  "description": "Netlify plugin fixing issues with yarn berry",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/piecyk/yarn-berry-netlify-plugin.git"
+  },
+  "keywords": [
+    "netlify",
+    "plugin",
+    "yarn",
+    "berry"
+  ],
+  "author": "Damian Pieczynski <piecyk@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/piecyk/yarn-berry-netlify-plugin/issues"
+  },
+  "homepage": "https://github.com/piecyk/yarn-berry-netlify-plugin",
+  "engines": {
+    "node": ">=16",
+    "yarn": ">=2"
+  }
+}
