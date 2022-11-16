@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@graphprotocol/graph-ts": "^0.29.0",
-    "@kleros/graph-cli": "v0.35.1"
+    "@kleros/graph-cli": "v0.35.2"
   },
   "volta": {
     "node": "16.17.0"
