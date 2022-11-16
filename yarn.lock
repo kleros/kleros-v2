@@ -1522,18 +1522,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@float-capital/float-subgraph-uncrashable@npm:^0.0.0-alpha.4":
-  version: 0.0.0-dev
-  resolution: "@float-capital/float-subgraph-uncrashable@npm:0.0.0-dev"
-  dependencies:
-    graphql: ^16.6.0
-    graphql-import-node: ^0.0.5
-    js-yaml: ^4.1.0
-    rescript: ^9.1.4
-  checksum: 4f68b2d41b2c9dd18a174588e9d1db5862b680c423144d697351527658e8dd49477b42aa061ecc2adba28107e4ed53b97afaf10a75288186aca4070835b94b56
-  languageName: node
-  linkType: hard
-
 "@gar/promisify@npm:^1.1.3":
   version: 1.1.3
   resolution: "@gar/promisify@npm:1.1.3"
@@ -1541,48 +1529,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-cli@npm:^0.36.0":
-  version: 0.36.0
-  resolution: "@graphprotocol/graph-cli@npm:0.36.0"
-  dependencies:
-    "@float-capital/float-subgraph-uncrashable": ^0.0.0-alpha.4
-    assemblyscript: 0.19.10
-    binary-install-raw: 0.0.13
-    chalk: 3.0.0
-    chokidar: 3.5.1
-    debug: 4.3.1
-    docker-compose: 0.23.4
-    dockerode: 2.5.8
-    fs-extra: 9.0.0
-    glob: 7.1.6
-    gluegun: "git+https://github.com/edgeandnode/gluegun.git#v4.3.1-pin-colors-dep"
-    graphql: 15.5.0
-    immutable: 3.8.2
-    ipfs-http-client: 34.0.0
-    jayson: 3.6.6
-    js-yaml: 3.13.1
-    node-fetch: 2.6.0
-    pkginfo: 0.4.1
-    prettier: 1.19.1
-    request: 2.88.2
-    semver: 7.3.5
-    sync-request: 6.1.0
-    tmp-promise: 3.0.2
-    web3-eth-abi: 1.7.0
-    which: 2.0.2
-    yaml: 1.9.2
-  bin:
-    graph: bin/graph
-  checksum: ba59e6bbfcb96710ccd349f510f34bcfdb7714ca81bb721ea6cc0de132d67d52d3c8b933d32046287e04e7c360758417e181765cba1b5de9340efe058d825f06
-  languageName: node
-  linkType: hard
-
-"@graphprotocol/graph-ts@npm:^0.28.1":
-  version: 0.28.1
-  resolution: "@graphprotocol/graph-ts@npm:0.28.1"
+"@graphprotocol/graph-ts@npm:^0.29.0":
+  version: 0.29.0
+  resolution: "@graphprotocol/graph-ts@npm:0.29.0"
   dependencies:
     assemblyscript: 0.19.10
-  checksum: f8e7aa9a770bf9e6953b771d7e4a84ec997d692cffc24c4f9ca227f317c1181452c9939de05df23b774b4abfecc7dc1e2e31f5e75b3376070e5f38cbb7885927
+  checksum: a7728dba1743acfd86ced09b4ef4d7a920ef3216af59a6b220dd8991753dec091f59b67316f8966c9b12190ffbb674a501b5b971693884558b57422deb3ec905
   languageName: node
   linkType: hard
 
@@ -2188,6 +2140,41 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kleros/graph-cli@npm:v0.35.1":
+  version: 0.35.1
+  resolution: "@kleros/graph-cli@npm:0.35.1"
+  dependencies:
+    assemblyscript: 0.19.10
+    binary-install-raw: 0.0.13
+    chalk: 3.0.0
+    chokidar: 3.5.1
+    debug: 4.3.1
+    docker-compose: 0.23.4
+    dockerode: 2.5.8
+    fs-extra: 9.0.0
+    glob: 7.1.6
+    gluegun: 4.7.1
+    graphql: 15.5.0
+    immutable: 3.8.2
+    ipfs-http-client: 34.0.0
+    jayson: 3.6.6
+    js-yaml: 3.13.1
+    node-fetch: 2.6.0
+    pkginfo: 0.4.1
+    prettier: 1.19.1
+    request: 2.88.2
+    semver: 7.3.5
+    sync-request: 6.1.0
+    tmp-promise: 3.0.2
+    web3-eth-abi: 1.7.0
+    which: 2.0.2
+    yaml: 1.9.2
+  bin:
+    graph: bin/graph
+  checksum: 081f83fe7cda418cc81fa30ec712d17fb9818bda8b86ae19fd69a15fe92266fc0d6703148ccfb4531949ac29e1ec552d9101bf4f7ba5e3c597192dbc484ddc49
+  languageName: node
+  linkType: hard
+
 "@kleros/kleros-v2-bot-pinner@workspace:bot-pinner":
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-bot-pinner@workspace:bot-pinner"
@@ -2243,8 +2230,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-subgraph-fastbridge@workspace:subgraph-fastbridge"
   dependencies:
-    "@graphprotocol/graph-cli": ^0.36.0
-    "@graphprotocol/graph-ts": ^0.28.1
+    "@graphprotocol/graph-ts": ^0.29.0
+    "@kleros/graph-cli": v0.35.1
   languageName: unknown
   linkType: soft
 
@@ -2252,8 +2239,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-subgraph@workspace:subgraph"
   dependencies:
-    "@graphprotocol/graph-cli": ^0.36.0
-    "@graphprotocol/graph-ts": ^0.28.1
+    "@graphprotocol/graph-ts": ^0.29.0
+    "@kleros/graph-cli": v0.35.1
   languageName: unknown
   linkType: soft
 
@@ -5622,13 +5609,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apisauce@npm:^1.0.1":
-  version: 1.1.5
-  resolution: "apisauce@npm:1.1.5"
+"apisauce@npm:^2.1.5":
+  version: 2.1.6
+  resolution: "apisauce@npm:2.1.6"
   dependencies:
-    axios: ^0.21.2
-    ramda: ^0.25.0
-  checksum: 4bac8117b484616c82e102d238580f835ffabee15da4527e845d091c12618f3b85293fb96c2357a119efede4ac1695d1ec78cc2ae5e3774f1522e1e1b1852365
+    axios: ^0.21.4
+  checksum: 3db1447f03ecfa0d8fb9be0991bd4732a8eb4a5c96282c964c0b5f9d215dc1bca1e0fec7f5187080286368c1028deb0de8fb69cd7bccb92441b327aa1028598a
   languageName: node
   linkType: hard
 
@@ -6040,7 +6026,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^0.21.1, axios@npm:^0.21.2":
+"axios@npm:^0.21.1, axios@npm:^0.21.4":
   version: 0.21.4
   resolution: "axios@npm:0.21.4"
   dependencies:
@@ -8156,14 +8142,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colors@npm:1.3.3":
-  version: 1.3.3
-  resolution: "colors@npm:1.3.3"
-  checksum: c57f0aa2b71a836435fb0cd8ac4b9f4025ff5411cb027ffcbaa2274347fd00ed52b9d66904f46be73086c27ac31bad9500da675250c95182568454b392f87ee5
-  languageName: node
-  linkType: hard
-
-"colors@npm:1.4.0, colors@npm:^1.1.2":
+"colors@npm:1.4.0, colors@npm:^1.1.2, colors@npm:^1.3.3":
   version: 1.4.0
   resolution: "colors@npm:1.4.0"
   checksum: 98aa2c2418ad87dedf25d781be69dc5fc5908e279d9d30c34d8b702e586a0474605b3a189511482b9d5ed0d20c867515d22749537f7bc546256c6014f3ebdcec
@@ -12473,14 +12452,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"gluegun@git+https://github.com/edgeandnode/gluegun.git#v4.3.1-pin-colors-dep":
-  version: 4.3.1
-  resolution: "gluegun@https://github.com/edgeandnode/gluegun.git#commit=b34b9003d7bf556836da41b57ef36eb21570620a"
+"gluegun@npm:4.7.1":
+  version: 4.7.1
+  resolution: "gluegun@npm:4.7.1"
   dependencies:
-    apisauce: ^1.0.1
+    apisauce: ^2.1.5
     app-module-path: ^2.2.0
     cli-table3: ~0.5.0
-    colors: 1.3.3
+    colors: ^1.3.3
     cosmiconfig: 6.0.0
     cross-spawn: ^7.0.0
     ejs: ^2.6.1
@@ -12504,13 +12483,12 @@ __metadata:
     lodash.upperfirst: ^4.3.1
     ora: ^4.0.0
     pluralize: ^8.0.0
-    ramdasauce: ^2.1.0
     semver: ^7.0.0
     which: ^2.0.0
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 7a45a5a606a1e651c891467a693552b5237f8e90410f9c9daad4621ff0693d1c92b69aa35fc30eccf7c3b92ee724f15fc297e054086cfb312717ef01f48d2290
+  checksum: 1e67278ba7208025b5fcc54824427afc2de44223f03fba1eb6318763e72d0b384b55e01fb83fade693a2ce52656d958de15d011e7608f93955aef67372ae5e13
   languageName: node
   linkType: hard
 
@@ -12612,15 +12590,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql-import-node@npm:^0.0.5":
-  version: 0.0.5
-  resolution: "graphql-import-node@npm:0.0.5"
-  peerDependencies:
-    graphql: "*"
-  checksum: a9af565f3422e9e732dcf97077deff3f94b9af0d7e8001bb65a3cac607a462664f902b3603ead1626b294928c4b6302cb6aa2d49254444d465ce87c629fb842d
-  languageName: node
-  linkType: hard
-
 "graphql-request@npm:^5.0.0":
   version: 5.0.0
   resolution: "graphql-request@npm:5.0.0"
@@ -12662,7 +12631,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:^16.4.0, graphql@npm:^16.6.0":
+"graphql@npm:^16.4.0":
   version: 16.6.0
   resolution: "graphql@npm:16.6.0"
   checksum: bf1d9e3c1938ce3c1a81e909bd3ead1ae4707c577f91cff1ca2eca474bfbc7873d5d7b942e1e9777ff5a8304421dba57a4b76d7a29eb19de8711cb70e3c2415e
@@ -19071,29 +19040,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ramda@npm:^0.24.1":
-  version: 0.24.1
-  resolution: "ramda@npm:0.24.1"
-  checksum: c2dc048f5a0f61872eec7925f76cdf8e7b7cf7a4f457e274d915d8bf86bd108938795d92061d56eae315a4818ea65276a87c9db336356191aaf879647afd8c82
-  languageName: node
-  linkType: hard
-
-"ramda@npm:^0.25.0":
-  version: 0.25.0
-  resolution: "ramda@npm:0.25.0"
-  checksum: 008abbcc69aefd89a2a4a0c9f4cf9f8da2ec490a0e1e261b4c88de8540ef0c383d469bfdf71b758b559377c71bfa8efea164fdb1779169359a86b46f7cb23cb1
-  languageName: node
-  linkType: hard
-
-"ramdasauce@npm:^2.1.0":
-  version: 2.1.3
-  resolution: "ramdasauce@npm:2.1.3"
-  dependencies:
-    ramda: ^0.24.1
-  checksum: e4b7be3b7dd9f0b986a99ec5946a980e26be550644957980c05d518e158512175bf0027b12d300d87dfb600ad8c548888c551e1836dd0a2c42735dda7dccca1a
-  languageName: node
-  linkType: hard
-
 "randombytes@npm:^2.0.0, randombytes@npm:^2.0.1, randombytes@npm:^2.0.5, randombytes@npm:^2.0.6, randombytes@npm:^2.1.0":
   version: 2.1.0
   resolution: "randombytes@npm:2.1.0"
@@ -19826,18 +19772,6 @@ __metadata:
   version: 2.0.1
   resolution: "require-package-name@npm:2.0.1"
   checksum: 00f4e9e467ebe2bbced2b4198a165de11c83b5ee9f4c20b05a8782659b92bcb544dbd50be9a3eed746d05ecd875453e258c079eb3a79604b50a27cf8ab0798b5
-  languageName: node
-  linkType: hard
-
-"rescript@npm:^9.1.4":
-  version: 9.1.4
-  resolution: "rescript@npm:9.1.4"
-  bin:
-    bsc: bsc
-    bsrefmt: bsrefmt
-    bstracing: lib/bstracing
-    rescript: rescript
-  checksum: 3c503580f968b4d4409830093c57f85b5590f7372250345427b3a7c1f5ccb08009e1edd89b4a3dcbb3ee95ee4dcad9c337ece4d1f8fdaa10e22ed04b8a7495c0
   languageName: node
   linkType: hard
 
