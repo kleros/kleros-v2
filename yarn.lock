@@ -2255,7 +2255,7 @@ __metadata:
     "@kleros/ui-components-library": ^1.8.1
     "@parcel/transformer-svg-react": ^2.7.0
     "@types/react": ^18.0.24
-    "@types/react-dom": ^18.0.6
+    "@types/react-dom": ^18.0.9
     "@types/react-modal": ^3.13.1
     "@types/styled-components": ^5.1.26
     "@typescript-eslint/eslint-plugin": ^5.43.0
@@ -4517,12 +4517,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^18.0.6":
-  version: 18.0.6
-  resolution: "@types/react-dom@npm:18.0.6"
+"@types/react-dom@npm:^18.0.9":
+  version: 18.0.9
+  resolution: "@types/react-dom@npm:18.0.9"
   dependencies:
     "@types/react": "*"
-  checksum: db571047af1a567631758700b9f7d143e566df939cfe5fbf7535347cc0c726a1cdbb5e3f8566d076e54cf708b6c1166689de194a9ba09ee35efc9e1d45911685
+  checksum: e744e3feba25fc43733289d4df4d9c0e59fcca7f34e8c89d75f81a339accb2bd70236d69382d47d2c0ad06a1529b2e56aa6171fe175854d60e07156ddceedfcb
   languageName: node
   linkType: hard
 
