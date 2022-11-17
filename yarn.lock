@@ -10139,12 +10139,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-promise@npm:^5.1.1":
-  version: 5.2.0
-  resolution: "eslint-plugin-promise@npm:5.2.0"
+"eslint-plugin-promise@npm:^6.1.1":
+  version: 6.1.1
+  resolution: "eslint-plugin-promise@npm:6.1.1"
   peerDependencies:
-    eslint: ^7.0.0
-  checksum: 5d6b2d28408c5afde6386942862427af3d83c9a130eb2555bb54b26a1761914e2c7326aca1be26dd3fee6405e65a2ee9432a4526147e5962545060ea0ef64058
+    eslint: ^7.0.0 || ^8.0.0
+  checksum: 46b9a4f79dae5539987922afc27cc17cbccdecf4f0ba19c0ccbf911b0e31853e9f39d9959eefb9637461b52772afa1a482f1f87ff16c1ba38bdb6fcf21897e9a
   languageName: node
   linkType: hard
 
@@ -14990,7 +14990,7 @@ __metadata:
     eslint-plugin-import: ^2.25.3
     eslint-plugin-node: ^11.1.0
     eslint-plugin-prettier: ^4.2.1
-    eslint-plugin-promise: ^5.1.1
+    eslint-plugin-promise: ^6.1.1
     eslint-utils: ^3.0.0
     husky: ^8.0.2
     lint-staged: ^11.0.0
