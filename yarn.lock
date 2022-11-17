@@ -2207,7 +2207,7 @@ __metadata:
     follow-redirects: ^1.15.0
     hardhat: ^2.11.2
     hardhat-contract-sizer: ^2.6.1
-    hardhat-deploy: ^0.11.18
+    hardhat-deploy: ^0.11.20
     hardhat-deploy-ethers: ^0.3.0-beta.13
     hardhat-deploy-tenderly: ^0.2.0
     hardhat-docgen: ^1.3.0
@@ -12676,9 +12676,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat-deploy@npm:^0.11.18":
-  version: 0.11.19
-  resolution: "hardhat-deploy@npm:0.11.19"
+"hardhat-deploy@npm:^0.11.20":
+  version: 0.11.20
+  resolution: "hardhat-deploy@npm:0.11.20"
   dependencies:
     "@types/qs": ^6.9.7
     axios: ^0.21.1
@@ -12693,7 +12693,7 @@ __metadata:
     murmur-128: ^0.2.1
     qs: ^6.9.4
     zksync-web3: ^0.8.1
-  checksum: fa46784501542443795ee3e86e5a61413707729d72ccfb2becdcc6245460d68a89990463a10d8dae74076e1be5a6e03f0d1850560119b815a4b925dcbed1b8c5
+  checksum: 855a19aa19ffd36101725e2d10886943d8fa2ba60ae5f319d7683cb1576532b1cff815c5f8fef0543c77c459353e28b56ebbdffd7f1abaffd16793fe3cf0ef48
   languageName: node
   linkType: hard
 
