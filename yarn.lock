@@ -2315,7 +2315,7 @@ __metadata:
     "@graphql-codegen/typescript": ^2.8.1
     "@graphql-codegen/typescript-operations": ^2.5.6
     "@kleros/kleros-v2-contracts": "workspace:^"
-    "@kleros/ui-components-library": ^1.8.1
+    "@kleros/ui-components-library": ^1.9.0
     "@parcel/transformer-svg-react": ^2.7.0
     "@types/react": ^18.0.24
     "@types/react-dom": ^18.0.6
@@ -2361,7 +2361,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kleros/ui-components-library@npm:^1.8.1":
+"@kleros/ui-components-library@npm:^1.9.0":
   version: 1.9.0
   resolution: "@kleros/ui-components-library@npm:1.9.0"
   dependencies:
