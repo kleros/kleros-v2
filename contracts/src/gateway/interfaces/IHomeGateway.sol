@@ -12,7 +12,7 @@ pragma solidity ^0.8.0;
 
 import "../../arbitration/IArbitrable.sol";
 import "../../evidence/IMetaEvidence.sol";
-import "../../bridge/interfaces/ISenderGateway.sol";
+import "@kleros/vea-contracts/interfaces/ISenderGateway.sol";
 
 interface IHomeGateway is IArbitrable, IMetaEvidence, ISenderGateway {
     function relayCreateDispute(

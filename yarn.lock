@@ -2256,6 +2256,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-contracts@workspace:contracts"
   dependencies:
+    "@kleros/vea-contracts": dev
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.4
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@0.3.0-beta.13"
     "@nomiclabs/hardhat-waffle": ^2.0.3
@@ -2377,6 +2378,15 @@ __metadata:
     react-is: ^18.0.0
     styled-components: ^5.3.3
   checksum: 62cd5508e31c00c3bc2e5a0b54fe235f68f60afa348ebbc2fa515736671a4c08fd18f3671f7adaf8ff1e238c3b55c20330f703b864982f6d5cd036f356479c9b
+  languageName: node
+  linkType: hard
+
+"@kleros/vea-contracts@npm:dev":
+  version: 0.1.3
+  resolution: "@kleros/vea-contracts@npm:0.1.3"
+  dependencies:
+    "@openzeppelin/contracts": ^4.8.0
+  checksum: 3ab8e03ed81b14c868850fc213681070bbd10931bb31a845a01d6636d3ec080c4533e48a848c405b1d59dbac0d8f5647f84212ca5e23099fe3744fa9ee1484c2
   languageName: node
   linkType: hard
 
@@ -3013,6 +3023,13 @@ __metadata:
   linkType: hard
 
 "@openzeppelin/contracts@npm:^4.7.3":
+  version: 4.8.0
+  resolution: "@openzeppelin/contracts@npm:4.8.0"
+  checksum: dfab51a7f91735cfb1e94dd5074736b0dac0207e4ebf26eb46b32defd3b67adce5a36b248daa7b841c21be74863c1e37cf92ed194a9c36d3f8c5326d1a24242a
+  languageName: node
+  linkType: hard
+
+"@openzeppelin/contracts@npm:^4.8.0":
   version: 4.8.0
   resolution: "@openzeppelin/contracts@npm:4.8.0"
   checksum: dfab51a7f91735cfb1e94dd5074736b0dac0207e4ebf26eb46b32defd3b67adce5a36b248daa7b841c21be74863c1e37cf92ed194a9c36d3f8c5326d1a24242a

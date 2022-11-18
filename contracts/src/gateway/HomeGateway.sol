@@ -11,7 +11,7 @@
 pragma solidity ^0.8.0;
 
 import "../arbitration/IArbitrator.sol";
-import "../bridge/interfaces/IFastBridgeSender.sol";
+import "@kleros/vea-contracts/interfaces/IFastBridgeSender.sol";
 import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
 
