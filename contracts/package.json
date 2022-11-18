@@ -62,5 +62,8 @@
     "ts-node": "^10.8.0",
     "typechain": "^8.1.1",
     "typescript": "^4.6.4"
+  },
+  "dependencies": {
+    "@kleros/vea-contracts": "dev"
   }
 }
