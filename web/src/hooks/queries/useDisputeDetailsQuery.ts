@@ -20,9 +20,9 @@ const disputeDetailsQuery = gql`
   }
 `;
 
-export const useDisputeDetailsQuery = (id?: number) => {
+export const useDisputeDetailsQuery = (id?: string | number) => {
   const { data, error, isValidating } = useSWR({
-    query: disputeDetailsQuery,
+    query: () => (typeof id !== "undefined" ? disputeDetailsQuery : false),
     variables: { disputeID: id?.toString() },
   });
   const result = data ? (data as DisputeDetailsQuery) : undefined;
