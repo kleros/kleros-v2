@@ -17,7 +17,7 @@ export const useConnectedContract = (
   } else {
     try {
       const provider = new JsonRpcProvider(
-        "https://arb-rinkeby.g.alchemy.com/v2/d3zEid5ibv4DysSGiJ3oLnD1uDGd0YtV"
+        "https://arb-goerli.g.alchemy.com/v2/HAAmSjN1RzxG1LNsGh9Je72bYVPsyFfQ"
       );
       const connectedContract = contract?.connect(provider);
       return connectedContract;

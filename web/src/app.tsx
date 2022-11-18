@@ -24,7 +24,7 @@ const App: React.FC = () => {
       <SWRConfig
         value={{
           fetcher: fetcherBuilder(
-            "https://api.thegraph.com/subgraphs/name/alcercu/kleros-core"
+            "https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli"
           ),
         }}
       >
