@@ -44,23 +44,29 @@ const getTimeline = (
     "Appeal Period",
     "Executed",
   ];
+  const getSubitems = (index: number): string[] => {
+    if (index < currentItemIndex) {
+      return ["Done!"];
+    } else if (index === currentItemIndex) {
+      return [
+        secondsToDayHourMinute(
+          getTimeLeft(
+            parseInt(dispute?.lastPeriodChange, 10),
+            parseInt(dispute?.subcourtID.timesPerPeriod[index], 10)
+          )
+        ),
+      ];
+    } else if (index === 3) {
+      return [];
+    } else {
+      return [
+        secondsToDayHourMinute(dispute?.subcourtID.timesPerPeriod[index]),
+      ];
+    }
+  };
   return titles.map((title, i) => ({
     title,
-    subitems:
-      i === 3
-        ? []
-        : currentItemIndex === i
-        ? [
-            secondsToDayHourMinute(
-              getTimeLeft(
-                parseInt(dispute?.lastPeriodChange),
-                parseInt(dispute?.subcourtID.timesPerPeriod[i])
-              )
-            ),
-          ]
-        : currentItemIndex > i
-        ? ["Done!"]
-        : [secondsToDayHourMinute(dispute?.subcourtID.timesPerPeriod[i])],
+    subitems: getSubitems(i),
   }));
 };
 
