@@ -30,12 +30,12 @@
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@0.3.0-beta.13",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "@openzeppelin/contracts": "^4.7.3",
-    "@typechain/ethers-v5": "^10.0.0",
+    "@typechain/ethers-v5": "^10.1.1",
     "@typechain/hardhat": "^6.1.4",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",
     "@types/node": "^16",
-    "@typescript-eslint/eslint-plugin": "^5.41.0",
+    "@typescript-eslint/eslint-plugin": "^5.43.0",
     "@typescript-eslint/parser": "^5.41.0",
     "chai": "^4.3.6",
     "chai-ethers": "^0.0.1",
@@ -60,7 +60,7 @@
     "solhint": "^3.3.7",
     "solidity-coverage": "^0.8.2",
     "ts-node": "^10.8.0",
-    "typechain": "^8.0.0",
+    "typechain": "^8.1.1",
     "typescript": "^4.6.4"
   }
 }
