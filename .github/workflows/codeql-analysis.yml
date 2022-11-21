@@ -46,6 +46,7 @@ jobs:
         disable-sudo: true
         egress-policy: block
         allowed-endpoints: >
+          uploads.github.com:443
           api.github.com:443
           github.com:443
 
