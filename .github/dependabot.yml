@@ -12,7 +12,6 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 10
     labels:
-      - "Type: Security Patch"
       - "dependencies"
     assignees:
       - jaybuidl
@@ -23,7 +22,6 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 10
     labels:
-      - "Type: Security Patch"
       - "dependencies"
     assignees:
       - jaybuidl
@@ -33,7 +31,6 @@ updates:
     schedule:
       interval: "daily"
     labels:
-      - "Type: Security Patch"
       - "dependencies"
     assignees:
       - jaybuidl
