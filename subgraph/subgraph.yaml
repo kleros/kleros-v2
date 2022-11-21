@@ -53,6 +53,49 @@ dataSources:
           handler: handleTokenAndETHShift
       file: ./src/KlerosCore.ts
   - kind: ethereum
+    name: PolicyRegistry
+    network: arbitrum-goerli
+    source:
+      address: "0x76262035D1b280cC0b08024177b837893bcAd3DA"
+      abi: PolicyRegistry
+      startBlock: 133630
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Court
+      abis:
+        - name: PolicyRegistry
+          file: ../contracts/deployments/arbitrumGoerli/PolicyRegistry.json
+      eventHandlers:
+        - event: PolicyUpdate(indexed uint256,string)
+          handler: handlePolicyUpdate
+      file: ./src/PolicyRegistry.ts
+  - kind: ethereum
+    name: DisputeKitClassic
+    network: arbitrum-goerli
+    source:
+      address: "0xA2c538AA05BBCc44c213441f6f3777223D2BF9e5"
+      abi: DisputeKitClassic
+      startBlock: 133630
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - EvidenceGroup
+        - Evidence
+      abis:
+        - name: DisputeKitClassic
+          file: ../contracts/deployments/arbitrumGoerli/DisputeKitClassic.json
+      eventHandlers:
+        - event: Evidence(indexed address,indexed uint256,indexed address,string)
+          handler: handleEvidenceEvent
+        - event: Justification(indexed uint256,indexed address,indexed uint256,string)
+          handler: handleJustificationEvent
+      file: ./src/DisputeKitClassic.ts
+  - kind: ethereum
     name: HomeGateway
     network: arbitrum-goerli
     source:

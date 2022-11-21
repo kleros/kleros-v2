@@ -165,11 +165,10 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
      *  @param _arbitrator The new trusted arbitrator.
      *  @param _arbitratorExtraData The extra data used by the new arbitrator.
      */
-    function changeArbitrator(IArbitrator _arbitrator, bytes memory _arbitratorExtraData)
-        external
-        onlyByGovernor
-        duringSubmissionPeriod
-    {
+    function changeArbitrator(
+        IArbitrator _arbitrator,
+        bytes memory _arbitratorExtraData
+    ) external onlyByGovernor duringSubmissionPeriod {
         arbitrator = _arbitrator;
         arbitratorExtraData = _arbitratorExtraData;
     }
@@ -334,11 +333,7 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
      *  @param _cursor Index of the transaction from which to start executing.
      *  @param _count Number of transactions to execute. Executes until the end if set to "0" or number higher than number of transactions in the list.
      */
-    function executeTransactionList(
-        uint256 _listID,
-        uint256 _cursor,
-        uint256 _count
-    ) external {
+    function executeTransactionList(uint256 _listID, uint256 _cursor, uint256 _count) external {
         Submission storage submission = submissions[_listID];
         require(submission.approved, "Should be approved");
         require(block.timestamp - submission.approvalTime <= executionTimeout, "Time to execute has passed");
@@ -376,16 +371,10 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
      *  @return executed Whether the transaction was executed or not.
      
      */
-    function getTransactionInfo(uint256 _listID, uint256 _transactionIndex)
-        external
-        view
-        returns (
-            address target,
-            uint256 value,
-            bytes memory data,
-            bool executed
-        )
-    {
+    function getTransactionInfo(
+        uint256 _listID,
+        uint256 _transactionIndex
+    ) external view returns (address target, uint256 value, bytes memory data, bool executed) {
         Submission storage submission = submissions[_listID];
         Transaction storage transaction = submission.txs[_transactionIndex];
         return (transaction.target, transaction.value, transaction.data, transaction.executed);
