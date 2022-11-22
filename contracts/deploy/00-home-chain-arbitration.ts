@@ -4,14 +4,12 @@ import { BigNumber } from "ethers";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
-  ARBITRUM_RINKEBY = 421611,
   ARBITRUM_GOERLI = 421613,
   HARDHAT = 31337,
 }
 
 const pnkByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x330bD769382cFc6d50175903434CCC8D206DCAE5"],
-  [HomeChains.ARBITRUM_RINKEBY, "0x364530164a2338cdba211f72c1438eb811b5c639"],
   [HomeChains.ARBITRUM_GOERLI, "0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610"],
 ]);
 
