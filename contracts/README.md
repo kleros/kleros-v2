@@ -113,27 +113,22 @@ The complete deployment is multi-chain, so a deployment to the local network can
 **Shell 1: the node**
 
 ```bash
-yarn hardhat node --tags nothing
+yarn node --tags nothing
 ```
 
 **Shell 2: the deploy script**
 
 ```bash
-yarn hardhat deploy --network localhost --tags HomeChain
+yarn deploy --network localhost --tags <Arbitration|VeaMock>
 ```
 
 #### 3. Deploy to Public Testnets
 
 ```bash
 # Goerli
-yarn hardhat deploy --network arbitrumGoerli --tags Arbitration
-yarn hardhat deploy --network goerli --tags ForeignChain
-yarn hardhat deploy --network arbitrumGoerli --tags HomeChain
-
-# Rinkeby
-yarn hardhat deploy --network arbitrumRinkeby --tags Arbitration
-yarn hardhat deploy --network rinkeby --tags ForeignChain
-yarn hardhat deploy --network arbitrumRinkeby --tags HomeChain
+yarn deploy --network arbitrumGoerli --tags Arbitration
+yarn deploy --network goerli --tags ForeignGateway
+yarn deploy --network arbitrumGoerli --tags HomeGateway
 ```
 
 The deployed addresses should be output to the screen after the deployment is complete.
@@ -144,13 +139,13 @@ If you miss that, you can always go to the `deployments/<network>` directory and
 **Shell 1: the node**
 
 ```bash
-yarn hardhat node --tags Arbitration,ForeignGateway,HomeGateway
+yarn node --tags Arbitration,VeaMock
 ```
 
-**Shell 2: the test script**
+**Shell 2: the test scripts**
 
 ```bash
-yarn hardhat test --network localhost test/pre-alpha1/index.ts
+yarn test --network localhost
 ```
 
 #### 4. Verify the Source Code for Contracts
@@ -158,7 +153,7 @@ yarn hardhat test --network localhost test/pre-alpha1/index.ts
 This must be done for each network separately.
 
 ```bash
-yarn hardhat --network <arbitrumGoerli|arbitrumRinkeby|arbitrum|goerli|rinkeby|mainnet> etherscan-verify
+yarn --network <arbitrumGoerli|arbitrumRinkeby|arbitrum|goerli|rinkeby|mainnet> etherscan-verify
 ```
 
 ## Ad-hoc procedures
@@ -177,7 +172,7 @@ yarn hardhat run scripts/getCourtsV1.ts --network mainnet | tee courts.v1.json
 Shell 1:
 
 ```bash
-yarn hardhat node --tags Arbitration
+yarn node --tags Arbitration
 ```
 
 Shell 2:

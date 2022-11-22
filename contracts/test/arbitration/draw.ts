@@ -46,7 +46,7 @@ describe("Draw Benchmark", async () => {
     console.log("deployer:%s", deployer);
     console.log("named accounts: %O", await getNamedAccounts());
 
-    await deployments.fixture(["Arbitration", "ForeignGateway", "HomeGateway"], {
+    await deployments.fixture(["Arbitration", "VeaMock"], {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
