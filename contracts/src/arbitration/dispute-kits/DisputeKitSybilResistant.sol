@@ -128,12 +128,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
      *  @param _core The KlerosCore arbitrator.
      *  @param _rng The random number generator.
      */
-    constructor(
-        address _governor,
-        KlerosCore _core,
-        RNG _rng,
-        IProofOfHumanity _poh
-    ) BaseDisputeKit(_governor, _core) {
+    constructor(address _governor, KlerosCore _core, RNG _rng, IProofOfHumanity _poh) BaseDisputeKit(_governor, _core) {
         rng = _rng;
         poh = _poh;
     }
@@ -237,13 +232,9 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
      *  @param _coreDisputeID The ID of the dispute in Kleros Core.
      *  @return drawnAddress The drawn address.
      */
-    function draw(uint256 _coreDisputeID)
-        external
-        override
-        onlyByCore
-        notJumped(_coreDisputeID)
-        returns (address drawnAddress)
-    {
+    function draw(
+        uint256 _coreDisputeID
+    ) external override onlyByCore notJumped(_coreDisputeID) returns (address drawnAddress) {
         require(phase == Phase.drawing, "Should be in drawing phase");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
@@ -506,6 +497,12 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     // *           Public Views            * //
     // ************************************* //
 
+    function getFundedChoices(uint256 _coreDisputeID) public view returns (uint256[] memory fundedChoices) {
+        Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
+        Round storage lastRound = dispute.rounds[dispute.rounds.length - 1];
+        return lastRound.fundedChoices;
+    }
+
     /** @dev Gets the current ruling of a specified dispute.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core.
      *  @return ruling The current ruling.
@@ -514,14 +511,19 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         ruling = round.tied ? 0 : round.winningChoice;
+        (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
+        // Override the final ruling if only one side funded the appeals.
+        if (period == KlerosCore.Period.execution) {
+            uint256[] memory fundedChoices = getFundedChoices(_coreDisputeID);
+            if (fundedChoices.length == 1) {
+                ruling = fundedChoices[0];
+            }
+        }
     }
 
-    function getLastRoundResult(uint256 _coreDisputeID)
-        external
-        view
-        override
-        returns (uint256 winningChoice, bool tied)
-    {
+    function getLastRoundResult(
+        uint256 _coreDisputeID
+    ) external view override returns (uint256 winningChoice, bool tied) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage lastRound = dispute.rounds[dispute.rounds.length - 1];
         return (lastRound.winningChoice, lastRound.tied);
@@ -638,17 +640,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
         uint256 _voteID
-    )
-        external
-        view
-        override
-        returns (
-            address account,
-            bytes32 commit,
-            uint256 choice,
-            bool voted
-        )
-    {
+    ) external view override returns (address account, bytes32 commit, uint256 choice, bool voted) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Vote storage vote = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]].votes[_voteID];
         return (vote.account, vote.commit, vote.choice, vote.voted);
