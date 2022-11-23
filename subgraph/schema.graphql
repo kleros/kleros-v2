@@ -19,13 +19,19 @@ type Court @entity {
   timesPerPeriod: [BigInt!]!
   supportedDisputeKits: [DisputeKit!]!
   disputes: [Dispute!]! @derivedFrom(field: "subcourtID")
+  numberDisputes: BigInt!
   stakedJurors: [JurorTokensPerSubcourt!]! @derivedFrom(field: "subcourt")
+  numberStakedJurors: BigInt!
   tokens: [JurorTokensPerSubcourt!]! @derivedFrom(field: "subcourt")
+  stake: BigInt!
+  paidETH: BigInt!
+  paidPNK: BigInt!
 }
 
 type Juror @entity {
   id: ID! # Set to address
   tokens: [JurorTokensPerSubcourt!]! @derivedFrom(field: "juror")
+  totalStake: BigInt!
   shifts: [TokenAndETHShift!]! @derivedFrom(field: "juror")
   draws: [Draw!]! @derivedFrom(field: "juror")
   votes: [Vote!]! @derivedFrom(field: "juror")
@@ -134,33 +140,8 @@ type OutgoingBatch @entity {
   batchMerkleRoot: String!
 }
 
-type PNKStakedDataPoint @entity {
-  id: ID! # Will be the timestamp except for the counter which will be 0
-  value: BigInt!
-}
-
-type ETHPaidDataPoint @entity {
-  id: ID! # Will be the timestamp except for the counter which will be 0
-  value: BigInt!
-}
-
-type PNKRedistributedDataPoint @entity {
-  id: ID! # Will be the timestamp except for the counter which will be 0
-  value: BigInt!
-}
-
-type ActiveJurorsDataPoint @entity {
-  id: ID! # Will be the timestamp except for the counter which will be 0
-  value: BigInt!
-}
-
-type CasesDataPoint @entity {
-  id: ID! # Will be the timestamp except for the counter which will be 0
-  value: BigInt!
-}
-
 type Counter @entity {
-  id: ID! # Always 0
+  id: ID! # Will be the timestamp except for the counter which will be 0
   stakedPNK: BigInt!
   redistributedPNK: BigInt!
   paidETH: BigInt!
