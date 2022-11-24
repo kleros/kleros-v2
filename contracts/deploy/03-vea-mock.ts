@@ -44,9 +44,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   }); // nonce+1
 
-  // TODO: change me
-  const metaEvidenceUri =
-    "https://raw.githubusercontent.com/kleros/kleros-v2/master/contracts/deployments/rinkeby/MetaEvidence_ArbitrableExample.json";
+  const metaEvidenceUri = `https://raw.githubusercontent.com/kleros/kleros-v2/master/contracts/deployments/goerli/MetaEvidence_ArbitrableExample.json`;
 
   await deploy("ArbitrableExample", {
     from: deployer,

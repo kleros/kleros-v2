@@ -1,0 +1,27 @@
+{
+  "type": "single-select",
+  "titles": [
+    "Alice",
+    "Bob",
+    "Charlie"
+  ],
+  "descriptions": [
+    "Alice is right.",
+    "Bob is right.",
+    "Charlie is right"
+  ],
+  "arbitratorChainID": 421613,
+  "arbitrableChainID": 5,
+  "arbitrableInterfaceURI": "https://my-awesomme.dapp.io/item/1234",
+  "dynamicScriptRequiredParams": [
+    "arbitrableChainID",
+    "arbitrableContractAddress"
+  ],
+  "evidenceDisplayInterfaceRequiredParams": [
+    "disputeID",
+    "arbitrableContractAddress",
+    "arbitratorContractAddress",
+    "arbitratorChainID"
+  ],
+  "_v": "1.0.0"
+}
