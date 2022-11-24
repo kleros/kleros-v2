@@ -46,7 +46,7 @@
     "eslint-utils": "^3.0.0",
     "husky": "^8.0.2",
     "lint-staged": "^11.0.0",
-    "prettier": "^2.4.1",
+    "prettier": "^2.8.0",
     "prettier-plugin-solidity": "^1.0.0-rc.1",
     "solhint-plugin-prettier": "^0.0.5"
   },
