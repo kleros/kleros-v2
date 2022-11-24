@@ -2383,11 +2383,11 @@ __metadata:
   linkType: hard
 
 "@kleros/vea-contracts@npm:dev":
-  version: 0.1.3
-  resolution: "@kleros/vea-contracts@npm:0.1.3"
+  version: 0.1.9
+  resolution: "@kleros/vea-contracts@npm:0.1.9"
   dependencies:
     "@openzeppelin/contracts": ^4.8.0
-  checksum: 3ab8e03ed81b14c868850fc213681070bbd10931bb31a845a01d6636d3ec080c4533e48a848c405b1d59dbac0d8f5647f84212ca5e23099fe3744fa9ee1484c2
+  checksum: 191014204d21e832d55b9f50cffc07657a4e5d7e907fbe134b4b11f6ad53b92bff959b80d41c388e088d2c01c60c470bd7b115fd7a612c20fbd770fbdf31f90c
   languageName: node
   linkType: hard
 

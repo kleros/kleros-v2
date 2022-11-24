@@ -110,7 +110,7 @@ describe("Integration tests", async () => {
     });
     const tx = await arbitrable.createDispute(2, "0x00", 0, { value: arbitrationCost });
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
-    const [disputeId] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`);
+    const [disputeId] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`); // get returned value from createDispute()
     console.log("Dispute Created");
     expect(tx).to.emit(foreignGateway, "DisputeCreation");
     expect(tx).to.emit(foreignGateway, "OutgoingDispute");
@@ -179,7 +179,7 @@ describe("Integration tests", async () => {
 
     const tx4 = await core.executeRuling(0);
     console.log("Ruling executed on KlerosCore");
-    expect(tx4).to.emit(arbitrable, "Ruling");
+    expect(tx4).to.emit(arbitrable, "Ruling").withArgs(foreignGateway.address, 1, 0);
   });
 
   async function mineBlocks(n) {

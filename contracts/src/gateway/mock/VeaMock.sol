@@ -7,6 +7,7 @@ import "@kleros/vea-contracts/interfaces/IFastBridgeReceiver.sol";
 
 contract VeaMock is IFastBridgeSender, IFastBridgeReceiver {
     /* solhint-disable */
+
     // ************************************* //
     // *        Function Modifiers         * //
     // ************************************* //
@@ -18,7 +19,17 @@ contract VeaMock is IFastBridgeSender, IFastBridgeReceiver {
      * @param _calldata The receiving domain encoded message data.
      */
     function sendFast(address _receiver, bytes memory _calldata) external {
-        _receiver.call(_calldata);
+        // Dirty workaround: Solidity does not support array slices for memory arrays and the sender interface cannot be changed.
+        (bytes4 selector, bytes memory payload) = this.decode(_calldata);
+
+        bytes32 sender = bytes32(uint256(uint160(msg.sender)));
+        bytes memory data = abi.encodePacked(selector, sender, payload);
+        (bool success, bytes memory res) = _receiver.call(data);
+        require(success, "Call failure");
+    }
+
+    function decode(bytes calldata data) external pure returns (bytes4, bytes memory) {
+        return (bytes4(data[:4]), data[4:]);
     }
 
     /**
