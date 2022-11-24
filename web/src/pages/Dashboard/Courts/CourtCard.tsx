@@ -22,7 +22,7 @@ const StyledBreadcrumb = styled(Breadcrumb)`
 `;
 
 const tooltipMsg =
-  "When a juror is selected to arbitrate a case part of his stake (PNK) is " +
+  "When a juror is selected to arbitrate a case, part of their stake (PNK) is " +
   "locked until the case is resolved. Jurors whose vote is coherent with the " +
   "final jury decision have their locked stake released. Jurors whose vote " +
   "is not coherent with the final jury decision, lose their locked stake. " +
