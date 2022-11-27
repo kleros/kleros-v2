@@ -1040,9 +1040,9 @@ contract KlerosCore is IArbitrator {
                 transferredAmount = currentStake - juror.lockedTokens[_subcourtID] - _penalty;
                 if (transferredAmount > 0) {
                     if (safeTransfer(_account, transferredAmount)) {
-                        for (uint256 i = 0; i < juror.subcourtIDs.length; i++) {
-                            if (juror.subcourtIDs[i] == _subcourtID) {
-                                juror.subcourtIDs[i] = juror.subcourtIDs[juror.subcourtIDs.length - 1];
+                        for (uint256 i = juror.subcourtIDs.length; i > 0; i--) {
+                            if (juror.subcourtIDs[i - 1] == _subcourtID) {
+                                juror.subcourtIDs[i - 1] = juror.subcourtIDs[juror.subcourtIDs.length - 1];
                                 juror.subcourtIDs.pop();
                                 break;
                             }
