@@ -382,7 +382,8 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         require(block.timestamp >= appealPeriodStart && block.timestamp < appealPeriodEnd, "Appeal period is over.");
 
         uint256 multiplier;
-        if (this.currentRuling(_coreDisputeID) == _choice) {
+        (uint256 ruling, , ) = this.currentRuling(_coreDisputeID);
+        if (ruling == _choice) {
             multiplier = WINNER_STAKE_MULTIPLIER;
         } else {
             require(
@@ -458,7 +459,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]];
-        uint256 finalRuling = core.currentRuling(_coreDisputeID);
+        (uint256 finalRuling, , ) = core.currentRuling(_coreDisputeID);
 
         if (!round.hasPaid[_choice]) {
             // Allow to reimburse if funding was unsuccessful for this ruling option.
@@ -506,27 +507,26 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     /** @dev Gets the current ruling of a specified dispute.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core.
      *  @return ruling The current ruling.
+     *  @return tied Whether it's a tie or not.
+     *  @return overridden Whether the ruling was overridden by appeal funding or not.
      */
-    function currentRuling(uint256 _coreDisputeID) external view override returns (uint256 ruling) {
+    function currentRuling(
+        uint256 _coreDisputeID
+    ) external view override returns (uint256 ruling, bool tied, bool overridden) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
-        ruling = round.tied ? 0 : round.winningChoice;
+        tied = round.tied;
+        ruling = tied ? 0 : round.winningChoice;
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         // Override the final ruling if only one side funded the appeals.
         if (period == KlerosCore.Period.execution) {
             uint256[] memory fundedChoices = getFundedChoices(_coreDisputeID);
             if (fundedChoices.length == 1) {
                 ruling = fundedChoices[0];
+                tied = false;
+                overridden = true;
             }
         }
-    }
-
-    function getLastRoundResult(
-        uint256 _coreDisputeID
-    ) external view override returns (uint256 winningChoice, bool tied) {
-        Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
-        Round storage lastRound = dispute.rounds[dispute.rounds.length - 1];
-        return (lastRound.winningChoice, lastRound.tied);
     }
 
     /** @dev Gets the degree of coherence of a particular voter. This function is called by Kleros Core in order to determine the amount of the reward.
@@ -543,7 +543,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         // In this contract this degree can be either 0 or 1, but in other dispute kits this value can be something in between.
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Vote storage vote = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]].votes[_voteID];
-        (uint256 winningChoice, bool tied) = core.getLastRoundResult(_coreDisputeID);
+        (uint256 winningChoice, bool tied, ) = core.currentRuling(_coreDisputeID);
 
         if (vote.voted && (vote.choice == winningChoice || tied)) {
             return ONE_BASIS_POINT;
@@ -560,7 +560,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     function getCoherentCount(uint256 _coreDisputeID, uint256 _coreRoundID) external view override returns (uint256) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage currentRound = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]];
-        (uint256 winningChoice, bool tied) = core.getLastRoundResult(_coreDisputeID);
+        (uint256 winningChoice, bool tied, ) = core.currentRuling(_coreDisputeID);
 
         if (currentRound.totalVoted == 0 || (!tied && currentRound.counts[winningChoice] == 0)) {
             return 0;

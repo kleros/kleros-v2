@@ -71,15 +71,10 @@ interface IDisputeKit {
     /** @dev Gets the current ruling of a specified dispute.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
      *  @return ruling The current ruling.
-     */
-    function currentRuling(uint256 _coreDisputeID) external view returns (uint256 ruling);
-
-    /** @dev Returns the voting data from the most relevant round.
-     *  @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
-     *  @return winningChoice The winning choice of this round.
      *  @return tied Whether it's a tie or not.
+     *  @return overridden Whether the ruling was overridden by appeal funding or not.
      */
-    function getLastRoundResult(uint256 _coreDisputeID) external view returns (uint256 winningChoice, bool tied);
+    function currentRuling(uint256 _coreDisputeID) external view returns (uint256 ruling, bool tied, bool overridden);
 
     /** @dev Gets the degree of coherence of a particular voter. This function is called by Kleros Core in order to determine the amount of the reward.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
@@ -118,11 +113,7 @@ interface IDisputeKit {
      *  @param _voteID The ID of the voter.
      *  @return Whether the voter was active or not.
      */
-    function isVoteActive(
-        uint256 _coreDisputeID,
-        uint256 _coreRoundID,
-        uint256 _voteID
-    ) external view returns (bool);
+    function isVoteActive(uint256 _coreDisputeID, uint256 _coreRoundID, uint256 _voteID) external view returns (bool);
 
     function getRoundInfo(
         uint256 _coreDisputeID,
@@ -144,15 +135,7 @@ interface IDisputeKit {
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
         uint256 _voteID
-    )
-        external
-        view
-        returns (
-            address account,
-            bytes32 commit,
-            uint256 choice,
-            bool voted
-        );
+    ) external view returns (address account, bytes32 commit, uint256 choice, bool voted);
 
     /** @dev Returns the number of disputes without jurors in the dispute kit.
      *  @return The number of disputes without jurors in the dispute kit.
