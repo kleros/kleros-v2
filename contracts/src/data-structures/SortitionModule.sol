@@ -223,21 +223,22 @@ contract SortitionModule is ISortitionModule {
      *  @dev Sets the value for a particular subcourt and its parent courts.
      *  @param _subcourtID ID of the subcourt.
      *  @param _value The new value.
-     *  @param _ID The ID of the value.
+     *  @param _account Address of the juror.
      *  `O(log_k(n))` where
      *  `k` is the maximum number of children per node in the tree,
      *   and `n` is the maximum number of nodes ever appended.
      */
     function set(
-        uint256 _subcourtID,
+        uint96 _subcourtID,
         uint256 _value,
-        bytes32 _ID
+        address _account
     ) external override onlyByCore {
+        bytes32 stakePathID = accountAndSubcourtIDToStakePathID(_account, _subcourtID);
         bool finished = false;
-        uint256 currentSubcourtID = _subcourtID;
+        uint96 currentSubcourtID = _subcourtID;
         while (!finished) {
             // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
-            _set(bytes32(currentSubcourtID), _value, _ID);
+            _set(bytes32(uint256(currentSubcourtID)), _value, stakePathID);
             if (currentSubcourtID == core.GENERAL_COURT()) {
                 finished = true;
             } else {
@@ -493,6 +494,37 @@ contract SortitionModule is ISortitionModule {
 
                 updateParents(_key, treeIndex, plusOrMinus, plusOrMinusValue);
             }
+        }
+    }
+
+    /** @dev Packs an account and a subcourt ID into a stake path ID.
+     *  @param _account The address of the juror to pack.
+     *  @param _subcourtID The subcourt ID to pack.
+     *  @return stakePathID The stake path ID.
+     */
+    function accountAndSubcourtIDToStakePathID(address _account, uint96 _subcourtID)
+        internal
+        pure
+        returns (bytes32 stakePathID)
+    {
+        assembly {
+            // solium-disable-line security/no-inline-assembly
+            let ptr := mload(0x40)
+            for {
+                let i := 0x00
+            } lt(i, 0x14) {
+                i := add(i, 0x01)
+            } {
+                mstore8(add(ptr, i), byte(add(0x0c, i), _account))
+            }
+            for {
+                let i := 0x14
+            } lt(i, 0x20) {
+                i := add(i, 0x01)
+            } {
+                mstore8(add(ptr, i), byte(i, _subcourtID))
+            }
+            stakePathID := mload(ptr)
         }
     }
 }

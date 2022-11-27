@@ -16,9 +16,9 @@ interface ISortitionModule {
     function initialize(bytes32 _key, bytes memory _extraData) external;
 
     function set(
-        uint256 _subcourtID,
+        uint96 _subcourtID,
         uint256 _value,
-        bytes32 _ID
+        address _account
     ) external;
 
     function setJurorInactive(address _account) external;

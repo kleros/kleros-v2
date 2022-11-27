@@ -1006,8 +1006,6 @@ contract KlerosCore is IArbitrator {
         if (_subcourtID == FORKING_COURT || _subcourtID > courts.length) return false;
 
         Juror storage juror = jurors[_account];
-        bytes32 stakePathID = accountAndSubcourtIDToStakePathID(_account, _subcourtID);
-
         uint256 currentStake = juror.stakedTokens[_subcourtID];
 
         if (_stake != 0) {
@@ -1066,7 +1064,7 @@ contract KlerosCore is IArbitrator {
         // Update juror's records.
         juror.stakedTokens[_subcourtID] = _stake;
 
-        sortitionModule.set(_subcourtID, _stake, stakePathID);
+        sortitionModule.set(_subcourtID, _stake, _account);
         emit StakeSet(_account, _subcourtID, _stake);
         return true;
     }
@@ -1108,37 +1106,6 @@ contract KlerosCore is IArbitrator {
             subcourtID = GENERAL_COURT;
             minJurors = MIN_JURORS;
             disputeKitID = DISPUTE_KIT_CLASSIC;
-        }
-    }
-
-    /** @dev Packs an account and a subcourt ID into a stake path ID.
-     *  @param _account The address of the juror to pack.
-     *  @param _subcourtID The subcourt ID to pack.
-     *  @return stakePathID The stake path ID.
-     */
-    function accountAndSubcourtIDToStakePathID(address _account, uint96 _subcourtID)
-        internal
-        pure
-        returns (bytes32 stakePathID)
-    {
-        assembly {
-            // solium-disable-line security/no-inline-assembly
-            let ptr := mload(0x40)
-            for {
-                let i := 0x00
-            } lt(i, 0x14) {
-                i := add(i, 0x01)
-            } {
-                mstore8(add(ptr, i), byte(add(0x0c, i), _account))
-            }
-            for {
-                let i := 0x14
-            } lt(i, 0x20) {
-                i := add(i, 0x01)
-            } {
-                mstore8(add(ptr, i), byte(i, _subcourtID))
-            }
-            stakePathID := mload(ptr)
         }
     }
 
