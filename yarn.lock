@@ -369,6 +369,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/plugin-syntax-import-assertions@npm:7.20.0":
+  version: 7.20.0
+  resolution: "@babel/plugin-syntax-import-assertions@npm:7.20.0"
+  dependencies:
+    "@babel/helper-plugin-utils": ^7.19.0
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: 6a86220e0aae40164cd3ffaf80e7c076a1be02a8f3480455dddbae05fda8140f429290027604df7a11b3f3f124866e8a6d69dbfa1dda61ee7377b920ad144d5b
+  languageName: node
+  linkType: hard
+
 "@babel/plugin-syntax-jsx@npm:^7.0.0, @babel/plugin-syntax-jsx@npm:^7.18.6":
   version: 7.18.6
   resolution: "@babel/plugin-syntax-jsx@npm:7.18.6"
@@ -1521,9 +1532,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-codegen/cli@npm:^2.13.11":
-  version: 2.13.12
-  resolution: "@graphql-codegen/cli@npm:2.13.12"
+"@graphql-codegen/cli@npm:^2.14.1":
+  version: 2.14.1
+  resolution: "@graphql-codegen/cli@npm:2.14.1"
   dependencies:
     "@babel/generator": ^7.18.13
     "@babel/template": ^7.18.10
@@ -1531,9 +1542,9 @@ __metadata:
     "@graphql-codegen/core": 2.6.6
     "@graphql-codegen/plugin-helpers": ^2.7.2
     "@graphql-tools/apollo-engine-loader": ^7.3.6
-    "@graphql-tools/code-file-loader": ^7.3.1
-    "@graphql-tools/git-loader": ^7.2.1
-    "@graphql-tools/github-loader": ^7.3.6
+    "@graphql-tools/code-file-loader": ^7.3.13
+    "@graphql-tools/git-loader": ^7.2.13
+    "@graphql-tools/github-loader": ^7.3.20
     "@graphql-tools/graphql-file-loader": ^7.5.0
     "@graphql-tools/json-file-loader": ^7.4.1
     "@graphql-tools/load": 7.8.0
@@ -1554,7 +1565,6 @@ __metadata:
     json-to-pretty-yaml: ^1.2.2
     listr2: ^4.0.5
     log-symbols: ^4.0.0
-    mkdirp: ^1.0.4
     shell-quote: ^1.7.3
     string-env-interpolation: ^1.0.1
     ts-log: ^2.2.3
@@ -1568,7 +1578,7 @@ __metadata:
     graphql-code-generator: cjs/bin.js
     graphql-codegen: cjs/bin.js
     graphql-codegen-esm: esm/bin.js
-  checksum: 367d4687e1d4bf44f0a7f3cb4e71656774f006512883a51ceae905495b2e76819e6b49dfe63e3effe59abb990a4c17bb985878a4592bf2ff959dc822723c1370
+  checksum: 65b18da39d55f656274ff0cc24ba5d402d1956bd569704fe5c2005280ee1833682513b611d507ce8e35f27004bff14fa0c6862b5c326f68ca6382924f1105058
   languageName: node
   linkType: hard
 
@@ -1693,18 +1703,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/code-file-loader@npm:^7.3.1":
-  version: 7.3.12
-  resolution: "@graphql-tools/code-file-loader@npm:7.3.12"
+"@graphql-tools/code-file-loader@npm:^7.3.13":
+  version: 7.3.13
+  resolution: "@graphql-tools/code-file-loader@npm:7.3.13"
   dependencies:
-    "@graphql-tools/graphql-tag-pluck": 7.3.12
+    "@graphql-tools/graphql-tag-pluck": 7.4.0
     "@graphql-tools/utils": 9.1.1
     globby: ^11.0.3
     tslib: ^2.4.0
     unixify: ^1.0.0
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: f17b86ee92fbfb2ac42d1995fda591aaf3fda0968c7eff15bfb75aafe811aa3356b9ace1134b796d99e2603bd6b9e52d6b6b7a021b10fa4d1c8ab813f03bdbcd
+  checksum: 18eeea4d3a89c15cf74d89630b647b6951487072f70a1b193d39c47b03533d3fe89f3e8f232b604db21b597768802b4884446b9820bf1febbdf1c094924be279
   languageName: node
   linkType: hard
 
@@ -1790,11 +1800,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/git-loader@npm:^7.2.1":
-  version: 7.2.12
-  resolution: "@graphql-tools/git-loader@npm:7.2.12"
+"@graphql-tools/git-loader@npm:^7.2.13":
+  version: 7.2.13
+  resolution: "@graphql-tools/git-loader@npm:7.2.13"
   dependencies:
-    "@graphql-tools/graphql-tag-pluck": 7.3.12
+    "@graphql-tools/graphql-tag-pluck": 7.4.0
     "@graphql-tools/utils": 9.1.1
     is-glob: 4.0.3
     micromatch: ^4.0.4
@@ -1802,22 +1812,22 @@ __metadata:
     unixify: ^1.0.0
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: 249600f83fe4b287322b7fe963d0434ae8bb73e2fda1aa4a1f92698f4d22c137bc138ff447a739f79c9a6d89c3ff8a5fabb5f95ce7326c095605e971585c00b9
+  checksum: 4690d473bb05d91765ee54fbfd0cb3859bda8cef776feced26e477b6aef22c582923ff18bdc963adcb649d8fa975344371001af60867d1e2cfd5624917cf6e91
   languageName: node
   linkType: hard
 
-"@graphql-tools/github-loader@npm:^7.3.6":
-  version: 7.3.19
-  resolution: "@graphql-tools/github-loader@npm:7.3.19"
+"@graphql-tools/github-loader@npm:^7.3.20":
+  version: 7.3.20
+  resolution: "@graphql-tools/github-loader@npm:7.3.20"
   dependencies:
     "@ardatan/sync-fetch": 0.0.1
-    "@graphql-tools/graphql-tag-pluck": 7.3.12
+    "@graphql-tools/graphql-tag-pluck": 7.4.0
     "@graphql-tools/utils": 9.1.1
     "@whatwg-node/fetch": ^0.5.0
     tslib: ^2.4.0
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: 7fb0ee3f491d57c8c7cbb30c0a92117ba84f31d57d4708020405a68c2c9f0a511c1300492c9b80ce5048aace954af4e9ddf20830bb05f0ae3b187eb15009f66d
+  checksum: 96292e59f8b394fb1e69fae91b3fdf037962e8feadd15da7461043c9559450fc35c2438b669727b14a6d509f784f0c5401477f3f90f693a93fc8c59c246d0c77
   languageName: node
   linkType: hard
 
@@ -1836,18 +1846,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/graphql-tag-pluck@npm:7.3.12":
-  version: 7.3.12
-  resolution: "@graphql-tools/graphql-tag-pluck@npm:7.3.12"
+"@graphql-tools/graphql-tag-pluck@npm:7.4.0":
+  version: 7.4.0
+  resolution: "@graphql-tools/graphql-tag-pluck@npm:7.4.0"
   dependencies:
     "@babel/parser": ^7.16.8
+    "@babel/plugin-syntax-import-assertions": 7.20.0
     "@babel/traverse": ^7.16.8
     "@babel/types": ^7.16.8
     "@graphql-tools/utils": 9.1.1
     tslib: ^2.4.0
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-  checksum: 7143ef6f21a7182e3250a89bc9aa6a6f529a9fed2e23848acc533e4733f7aaeb8f4a285a97740dfa90b09bb8448ccac21311393f5c0c9096001882ba16462d73
+  checksum: 670888e691707d430066a84ddcc9a34f64c6146e3f1406ab9fbdf74d5805fcbac8d32462cd387c411fbb81a5fc6bfb4d4d14e0568c5b887c72df8ebb7ef66c1b
   languageName: node
   linkType: hard
 
@@ -2310,7 +2321,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-web@workspace:web"
   dependencies:
-    "@graphql-codegen/cli": ^2.13.11
+    "@graphql-codegen/cli": ^2.14.1
     "@graphql-codegen/typescript": ^2.8.1
     "@graphql-codegen/typescript-operations": ^2.5.6
     "@kleros/kleros-v2-contracts": "workspace:^"
