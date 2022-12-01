@@ -22,8 +22,8 @@ const casesQuery = gql`
       period
       lastPeriodChange
     }
-    casesDataPoint(id: "0") {
-      value
+    counter(id: "0") {
+      cases
     }
   }
 `;

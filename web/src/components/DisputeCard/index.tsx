@@ -58,8 +58,7 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
         );
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrated);
   const title = metaEvidence ? metaEvidence.title : <Skeleton />;
-  const { data: courtPolicyPath } = useCourtPolicy(parseInt(subcourtID.id));
-  const { data: courtPolicy } = useIPFSQuery(courtPolicyPath?.args._policy);
+  const { data: courtPolicy } = useCourtPolicy(subcourtID.id);
   const courtName = courtPolicy?.name;
   const category = metaEvidence ? metaEvidence.category : undefined;
   const navigate = useNavigate();

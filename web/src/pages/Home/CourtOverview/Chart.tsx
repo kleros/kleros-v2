@@ -17,8 +17,8 @@ const StyledDropdown = styled(DropdownSelect)`
 `;
 
 const CHART_OPTIONS = [
-  { text: "Staked PNK", value: "pnkstakedDataPoints" },
-  { text: "Cases", value: "casesDataPoints" },
+  { text: "Staked PNK", value: "stakedPNK" },
+  { text: "Cases", value: "cases" },
   { text: "Cases per court", value: 2 },
 ];
 
@@ -29,7 +29,7 @@ const ChartOptionsDropdown: React.FC<{
     smallButton
     simpleButton
     alignRight
-    defaultValue={"pnkstakedDataPoints"}
+    defaultValue={"stakedPNK"}
     items={CHART_OPTIONS}
     callback={(newValue: string) => {
       setChartOption(newValue);
@@ -43,9 +43,10 @@ interface IChartData {
 }
 
 const Chart: React.FC = () => {
-  const [chartOption, setChartOption] = useState("pnkstakedDataPoints");
+  const [chartOption, setChartOption] = useState("stakedPNK");
   const { data } = useHomePageContext();
-  const chartData = data?.[chartOption];
+  const chartData = data?.counters[chartOption];
+  console.log(chartData);
   const processedData = chartData?.reduce(
     (accData: IChartData[], { id, value }: { id: string; value: string }) => {
       return [
@@ -53,9 +54,7 @@ const Chart: React.FC = () => {
         {
           x: Number(id) * 1000,
           y: Number(
-            chartOption === "pnkstakedDataPoints"
-              ? utils.formatUnits(value, 18)
-              : value
+            chartOption === "stakedPNK" ? utils.formatUnits(value, 18) : value
           ),
         },
       ];
