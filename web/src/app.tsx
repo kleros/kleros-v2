@@ -10,6 +10,7 @@ import Layout from "layout/index";
 import Home from "./pages/Home";
 import Cases from "./pages/Cases";
 import Dashboard from "./pages/Dashboard";
+import Courts from "./pages/Courts";
 
 const fetcherBuilder =
   (url: string) =>
@@ -24,7 +25,7 @@ const App: React.FC = () => {
       <SWRConfig
         value={{
           fetcher: fetcherBuilder(
-            "https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli"
+            "https://api.thegraph.com/subgraphs/name/alcercu/kleroscoretest"
           ),
         }}
       >
@@ -34,7 +35,7 @@ const App: React.FC = () => {
               <Route path="/" element={<Layout />}>
                 <Route index element={<Home />} />
                 <Route path="cases/*" element={<Cases />} />
-                <Route path="courts" element={<h1>Courts</h1>} />
+                <Route path="courts/*" element={<Courts />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route
                   path="*"
