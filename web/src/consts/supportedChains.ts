@@ -1,8 +1,8 @@
 export const SUPPORTED_CHAINS = {
-  421611: {
-    chainName: "Arbitrum Rinkeby",
+  421613: {
+    chainName: "Arbitrum Goerli",
     nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
-    rpcUrls: ["https://rinkeby.arbitrum.io/rpc"],
+    rpcUrls: ["https://goerli-rollup.arbitrum.io/rpc"],
     blockExplorerUrls: ["https://testnet.arbiscan.io/"],
   },
 };

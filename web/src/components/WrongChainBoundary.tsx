@@ -16,7 +16,7 @@ const WrongChainRecovery: React.FC<{ resetErrorBoundary: () => void }> = ({
         text="Switch to Arbitrum"
         onClick={() => {
           setLoading(true);
-          switchChain(421611)
+          switchChain(421613)
             .then(resetErrorBoundary)
             .finally(() => setLoading(false));
         }}
