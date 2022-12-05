@@ -25,7 +25,7 @@ const Cases: React.FC = () => {
             data && (
               <CasesDisplay
                 disputes={data.disputes}
-                numberDisputes={data.casesDataPoint?.value}
+                numberDisputes={data.cases}
                 {...{ currentPage, setCurrentPage, casesPerPage }}
               />
             )

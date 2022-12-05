@@ -14,7 +14,7 @@ import Dashboard from "./pages/Dashboard";
 const fetcherBuilder =
   (url: string) =>
   ({ query, variables }: { query: string; variables?: any }) => {
-    console.log("fetching subgraph");
+    console.log("fetching subgraph", query, variables);
     return request(url, query, variables);
   };
 
@@ -24,7 +24,7 @@ const App: React.FC = () => {
       <SWRConfig
         value={{
           fetcher: fetcherBuilder(
-            "https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli"
+            "https://api.thegraph.com/subgraphs/name/alcercu/kleroscoretest"
           ),
         }}
       >
