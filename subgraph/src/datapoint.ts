@@ -1,4 +1,5 @@
-import { BigInt, Entity, Value, store } from "@graphprotocol/graph-ts";
+import { BigInt, Value } from "@graphprotocol/graph-ts";
+import { Counter } from "../generated/schema";
 import { ZERO } from "./utils";
 
 export function getDelta(previousValue: BigInt, newValue: BigInt): BigInt {
@@ -22,28 +23,26 @@ function updateDataPoint(
 ): void {
   const dayID = timestamp.toI32() / 86400;
   const dayStartTimestamp = dayID * 86400;
-  const newDataPoint = new Entity();
-  const counter = store.get("Counter", "0");
+  const newDataPoint = new Counter(dayStartTimestamp.toString());
+  let counter = Counter.load("0");
   if (!counter) {
+    counter = new Counter("0");
     for (let i = 0; i < VARIABLES.length; i++) {
-      if (VARIABLES[i] !== variable) {
-        newDataPoint.set(VARIABLES[i], Value.fromBigInt(ZERO));
-      } else {
-        newDataPoint.set(variable, Value.fromBigInt(delta));
-      }
+      counter.set(VARIABLES[i], Value.fromBigInt(ZERO));
     }
   } else {
     for (let i = 0; i < VARIABLES.length; i++) {
       if (VARIABLES[i] !== variable) {
-        newDataPoint.set(variable, counter.get(VARIABLES[i])!);
+        newDataPoint.set(VARIABLES[i], counter.get(VARIABLES[i])!);
       } else {
         const newValue = counter.get(variable)!.toBigInt().plus(delta);
         newDataPoint.set(variable, Value.fromBigInt(newValue));
+        counter.set(variable, Value.fromBigInt(newValue));
       }
     }
   }
-  store.set("Counter", dayStartTimestamp.toString(), newDataPoint);
-  store.set("Counter", "0", newDataPoint);
+  counter.save();
+  newDataPoint.save();
 }
 
 export function updateStakedPNK(delta: BigInt, timestamp: BigInt): void {
