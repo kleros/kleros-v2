@@ -1,4 +1,4 @@
-schema: https://api.thegraph.com/subgraphs/name/alcercu/kleros-core
+schema: https://api.thegraph.com/subgraphs/name/alcercu/kleroscoretest
 documents: './src/hooks/queries/*.ts'
 generates:
   src/graphql/generated.ts:
