@@ -20,19 +20,30 @@ function updateDataPoint(
   timestamp: BigInt,
   variable: string
 ): void {
-  let counter = store.get("Counter", "0");
-  if (!counter) {
-    counter = new Entity();
-    for (let i = 0; i < VARIABLES.length; i++) {
-      counter.set(VARIABLES[i], Value.fromBigInt(ZERO));
-    }
-  }
   const dayID = timestamp.toI32() / 86400;
   const dayStartTimestamp = dayID * 86400;
-  const newValue = counter.get(variable)!.toBigInt().plus(delta);
-  counter.set(variable, Value.fromBigInt(newValue));
-  store.set("Counter", dayStartTimestamp.toString(), counter);
-  store.set("Counter", "0", counter);
+  const newDataPoint = new Entity();
+  const counter = store.get("Counter", "0");
+  if (!counter) {
+    for (let i = 0; i < VARIABLES.length; i++) {
+      if (VARIABLES[i] !== variable) {
+        newDataPoint.set(VARIABLES[i], Value.fromBigInt(ZERO));
+      } else {
+        newDataPoint.set(variable, Value.fromBigInt(delta));
+      }
+    }
+  } else {
+    for (let i = 0; i < VARIABLES.length; i++) {
+      if (VARIABLES[i] !== variable) {
+        newDataPoint.set(variable, counter.get(VARIABLES[i])!);
+      } else {
+        const newValue = counter.get(variable)!.toBigInt().plus(delta);
+        newDataPoint.set(variable, Value.fromBigInt(newValue));
+      }
+    }
+  }
+  store.set("Counter", dayStartTimestamp.toString(), newDataPoint);
+  store.set("Counter", "0", newDataPoint);
 }
 
 export function updateStakedPNK(delta: BigInt, timestamp: BigInt): void {
