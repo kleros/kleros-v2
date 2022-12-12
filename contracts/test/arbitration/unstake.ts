@@ -1,6 +1,6 @@
 import { ethers, getNamedAccounts, network, deployments } from "hardhat";
 import { BigNumber } from "ethers";
-import { PNK, KlerosCore, DisputeKitClassic } from "../../typechain-types";
+import { PNK, KlerosCore, DisputeKitClassic, RandomizerRNG, RandomizerMock } from "../../typechain-types";
 import { expect } from "chai";
 
 /* eslint-disable no-unused-vars */
@@ -18,6 +18,8 @@ describe("Unstake juror", async () => {
   let disputeKit;
   let pnk;
   let core;
+  let rng;
+  let randomizer;
 
   beforeEach("Setup", async () => {
     ({ deployer } = await getNamedAccounts());
@@ -32,6 +34,8 @@ describe("Unstake juror", async () => {
     disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
+    rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
+    randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
   });
 
   it("Unstake inactive juror", async () => {
@@ -55,8 +59,9 @@ describe("Unstake juror", async () => {
     }
     await disputeKit.passPhase(); // Resolving -> Generating
     for (let index = 0; index < 20; index++) {
-      await network.provider.send("evm_mine"); // RNG lookahead
+      await network.provider.send("evm_mine"); // RNG lookahead, TODO: remove this for RandomizerRNG
     }
+    await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
     await disputeKit.passPhase(); // Generating -> Drawing
 
     await core.draw(0, 5000);
