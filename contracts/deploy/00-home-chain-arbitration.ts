@@ -13,6 +13,11 @@ const pnkByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_GOERLI, "0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610"],
 ]);
 
+const randomizerByChain = new Map<HomeChains, string>([
+  [HomeChains.ARBITRUM_ONE, "0x00"],
+  [HomeChains.ARBITRUM_GOERLI, "0xE1B6CcAc0BB0355C01A049e78909231Bfa13620B"],
+]);
+
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts, getChainId } = hre;
   const { deploy, execute } = deployments;
@@ -23,15 +28,44 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const chainId = Number(await getChainId());
   console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
+  if (chainId === HomeChains.HARDHAT) {
+    pnkByChain.set(
+      HomeChains.HARDHAT,
+      (
+        await deploy("PNK", {
+          from: deployer,
+          log: true,
+        })
+      ).address
+    );
+    randomizerByChain.set(
+      HomeChains.HARDHAT,
+      (
+        await deploy("RandomizerMock", {
+          from: deployer,
+          args: [],
+          log: true,
+        })
+      ).address
+    );
+  }
+
   await deploy("PolicyRegistry", {
     from: deployer,
     args: [deployer],
     log: true,
   });
 
-  const rng = await deploy("BlockHashRNG", {
+  await deploy("BlockHashRNG", {
     from: deployer,
     args: [],
+    log: true,
+  });
+
+  const randomizer = randomizerByChain.get(Number(await getChainId())) ?? AddressZero;
+  const rng = await deploy("RandomizerRNG", {
+    from: deployer,
+    args: [randomizer],
     log: true,
   });
 
@@ -46,17 +80,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  if (chainId === HomeChains.HARDHAT) {
-    pnkByChain.set(
-      HomeChains.HARDHAT,
-      (
-        await deploy("PNK", {
-          from: deployer,
-          log: true,
-        })
-      ).address
-    );
-  }
   const pnk = pnkByChain.get(Number(await getChainId())) ?? AddressZero;
   const minStake = BigNumber.from(10).pow(20).mul(2);
   const alpha = 10000;
