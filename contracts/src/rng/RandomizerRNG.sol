@@ -11,18 +11,31 @@ import "./IRandomizer.sol";
  */
 contract RandomizerRNG is RNG {
     uint256 public constant CALLBACK_GAS_LIMIT = 50000;
-    // TODO: should the owner be KlerosLiquid by default?
-    address public owner = msg.sender; // The address that can withdraw funds.
+    address public governor; // The address that can withdraw funds.
 
     IRandomizer public randomizer; // Randomizer address.
     mapping(uint128 => uint256) public randomNumbers; // randomNumbers[requestID] is the random number for this request id, 0 otherwise.
     mapping(address => uint128) public requesterToID; // Maps the requester to his latest request ID.
 
+    modifier onlyByGovernor() {
+        require(governor == msg.sender, "Governor only");
+        _;
+    }
+
     /** @dev Constructor.
      *  @param _randomizer Randomizer contract.
+     *  @param _governor Governor of the contract.
      */
-    constructor(IRandomizer _randomizer) {
+    constructor(IRandomizer _randomizer, address _governor) {
         randomizer = _randomizer;
+        governor = _governor;
+    }
+
+    /** @dev Changes the governor of the contract.
+     *  @param _governor The new governor.
+     */
+    function changeGovernor(address _governor) external onlyByGovernor {
+        governor = _governor;
     }
 
     /**
@@ -52,11 +65,10 @@ contract RandomizerRNG is RNG {
     }
 
     /**
-     *  @dev Allows the owner to withdraw randomizer funds.
+     *  @dev Allows the governor to withdraw randomizer funds.
      *  @param _amount Amount to withdraw in wei.
      */
-    function randomizerWithdraw(uint256 _amount) external {
-        require(msg.sender == owner, "Only owner allowed");
+    function randomizerWithdraw(uint256 _amount) external onlyByGovernor {
         randomizer.clientWithdrawTo(msg.sender, _amount);
     }
 }

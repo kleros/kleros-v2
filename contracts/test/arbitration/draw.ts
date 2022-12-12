@@ -103,12 +103,14 @@ describe("Draw Benchmark", async () => {
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
     await core.passPhase(); // Staking -> Freezing
-    for (let index = 0; index < 20; index++) {
-      await network.provider.send("evm_mine"); // Wait for 20 blocks finality
+
+    const lookahead = await disputeKit.rngLookahead();
+    for (let index = 0; index < lookahead; index++) {
+      await network.provider.send("evm_mine");
     }
     await disputeKit.passPhase(); // Resolving -> Generating
-    for (let index = 0; index < 20; index++) {
-      await network.provider.send("evm_mine"); // RNG lookahead, TODO: remove this for RandomizerRNG
+    for (let index = 0; index < lookahead; index++) {
+      await network.provider.send("evm_mine");
     }
     await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
     await disputeKit.passPhase(); // Generating -> Drawing

@@ -22,6 +22,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const { deployments, getNamedAccounts, getChainId } = hre;
   const { deploy, execute } = deployments;
   const { AddressZero } = hre.ethers.constants;
+  const RNG_LOOKAHEAD = 20;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -65,13 +66,13 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const randomizer = randomizerByChain.get(Number(await getChainId())) ?? AddressZero;
   const rng = await deploy("RandomizerRNG", {
     from: deployer,
-    args: [randomizer],
+    args: [randomizer, deployer],
     log: true,
   });
 
   const disputeKit = await deploy("DisputeKitClassic", {
     from: deployer,
-    args: [deployer, AddressZero, rng.address],
+    args: [deployer, AddressZero, rng.address, RNG_LOOKAHEAD],
     log: true,
   });
 
