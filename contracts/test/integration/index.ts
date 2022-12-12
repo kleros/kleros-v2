@@ -138,12 +138,12 @@ describe("Integration tests", async () => {
     expect(await core.phase()).to.equal(Phase.freezing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
-    await mineBlocks(20); // Wait for 20 blocks finality
+    await mineBlocks(await disputeKit.rngLookahead());
     await disputeKit.passPhase(); // Resolving -> Generating
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
-    await mineBlocks(20); // Wait for RNG lookahead, TODO: remove this for RandomizerRNG
+    await mineBlocks(await disputeKit.rngLookahead());
     await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
     await disputeKit.passPhase(); // Generating -> Drawing
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.drawing);

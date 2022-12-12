@@ -71,10 +71,10 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the appeal cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
     uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
     uint256 public constant ONE_BASIS_POINT = 10000; // One basis point, for scaling.
-    uint256 public constant RNG_LOOKAHEAD = 20; // Minimum block distance between requesting and obtaining a random number. Arbitrum sequencer finality = 20 blocks.
 
     RNG public rng; // The random number generator
     uint256 public rngRequestedBlock; // The block number requested to the random number.
+    uint256 public rngLookahead; // Minimum block distance between requesting and obtaining a random number.
     uint256 public randomNumber; // The current random number.
     Phase public phase; // Current phase of this dispute kit.
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
@@ -117,9 +117,11 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
      *  @param _governor The governor's address.
      *  @param _core The KlerosCore arbitrator.
      *  @param _rng The random number generator.
+     *  @param _rngLookahead Lookahead value for rng.
      */
-    constructor(address _governor, KlerosCore _core, RNG _rng) BaseDisputeKit(_governor, _core) {
+    constructor(address _governor, KlerosCore _core, RNG _rng, uint256 _rngLookahead) BaseDisputeKit(_governor, _core) {
         rng = _rng;
+        rngLookahead = _rngLookahead;
     }
 
     // ************************ //
@@ -142,11 +144,13 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
 
     /** @dev Changes the `_rng` storage variable.
      *  @param _rng The new value for the `RNGenerator` storage variable.
+     *  @param _rngLookahead The new value for the `rngLookahead` storage variable.
      */
-    function changeRandomNumberGenerator(RNG _rng) external onlyByGovernor {
+    function changeRandomNumberGenerator(RNG _rng, uint256 _rngLookahead) external onlyByGovernor {
         rng = _rng;
+        rngLookahead = _rngLookahead;
         if (phase == Phase.generating) {
-            rngRequestedBlock = block.number + RNG_LOOKAHEAD;
+            rngRequestedBlock = block.number + rngLookahead;
             rng.requestRandomness(rngRequestedBlock);
         }
     }
@@ -193,7 +197,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         } else if (core.phase() == KlerosCore.Phase.freezing) {
             if (phase == Phase.resolving) {
                 require(disputesWithoutJurors > 0, "All the disputes have jurors");
-                rngRequestedBlock = core.freezeBlock() + RNG_LOOKAHEAD;
+                rngRequestedBlock = core.freezeBlock() + rngLookahead;
                 rng.requestRandomness(rngRequestedBlock);
                 phase = Phase.generating;
             } else if (phase == Phase.generating) {
