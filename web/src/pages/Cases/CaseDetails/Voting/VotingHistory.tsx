@@ -68,9 +68,7 @@ const VotingHistory: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
   );
 };
 
-const Container = styled.div`
-  padding: 16px;
-`;
+const Container = styled.div``;
 
 const StyledTabs = styled(Tabs)`
   width: 100%;

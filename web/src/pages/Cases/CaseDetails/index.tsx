@@ -9,12 +9,14 @@ import Timeline from "./Timeline";
 import Overview from "./Overview";
 import Evidence from "./Evidence";
 import Voting from "./Voting";
+import Appeal from "./Appeal";
 
 const CaseDetails: React.FC = () => {
   const { id } = useParams();
   const { data } = useDisputeDetailsQuery(id);
   const dispute = data?.dispute;
   const currentPeriodIndex = dispute ? Periods[dispute.period] : 0;
+  const arbitrable = dispute?.arbitrated;
   return (
     <Container>
       <h1>Case #{id}</h1>
@@ -25,20 +27,12 @@ const CaseDetails: React.FC = () => {
           <Route
             path="overview"
             element={
-              <Overview
-                arbitrable={dispute?.arbitrated}
-                courtID={dispute?.subcourtID.id}
-              />
+              <Overview courtID={dispute?.subcourtID.id} {...{ arbitrable }} />
             }
           />
-          <Route
-            path="evidence"
-            element={<Evidence arbitrable={dispute?.arbitrated} />}
-          />
-          <Route
-            path="voting"
-            element={<Voting arbitrable={dispute?.arbitrated} />}
-          />
+          <Route path="evidence" element={<Evidence {...{ arbitrable }} />} />
+          <Route path="voting" element={<Voting {...{ arbitrable }} />} />
+          <Route path="appeal" element={<Appeal {...{ arbitrable }} />} />
           <Route path="*" element={<Navigate to="overview" />} />
         </Routes>
       </StyledCard>
@@ -53,6 +47,7 @@ const StyledCard = styled(Card)`
   width: 100%;
   height: auto;
   min-height: 100px;
+  padding: 16px;
 `;
 
 export default CaseDetails;

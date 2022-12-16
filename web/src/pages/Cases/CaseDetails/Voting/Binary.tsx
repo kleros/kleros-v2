@@ -89,7 +89,6 @@ const Container = styled.div`
 const MainContainer = styled.div`
   width: 100%;
   height: auto;
-  padding: 24px;
 `;
 
 const StyledTextarea = styled(Textarea)`

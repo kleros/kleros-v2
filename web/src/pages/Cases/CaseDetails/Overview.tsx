@@ -89,7 +89,6 @@ const Overview: React.FC<{ arbitrable: string; courtID?: string }> = ({
 const Container = styled.div`
   width: 100%;
   height: auto;
-  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
