@@ -41,61 +41,61 @@ async function main() {
   const core = (await ethers.getContractAt("KlerosCore", klerosCoreDeployment.address)) as KlerosCore;
 
   for (const court of courtsV2) {
-    const subcourtPresent = await core.courts(court.id).catch(() => {});
-    if (subcourtPresent) {
-      console.log("Subcourt %d found: %O", court.id, subcourtPresent);
+    const courtPresent = await core.courts(court.id).catch(() => {});
+    if (courtPresent) {
+      console.log("Court %d found: %O", court.id, courtPresent);
 
-      // Subcourt.parent and sortitionSumTreeK cannot be changed.
+      // Court.parent and sortitionSumTreeK cannot be changed.
 
-      if (subcourtPresent.hiddenVotes !== court.hiddenVotes) {
+      if (courtPresent.hiddenVotes !== court.hiddenVotes) {
         console.log(
-          "Subcourt %d: changing hiddenVotes from %d to %d",
+          "Court %d: changing hiddenVotes from %d to %d",
           court.id,
-          subcourtPresent.hiddenVotes,
+          courtPresent.hiddenVotes,
           court.hiddenVotes
         );
-        await core.changeSubcourtHiddenVotes(court.id, court.hiddenVotes);
+        await core.changeCourtHiddenVotes(court.id, court.hiddenVotes);
       }
 
-      if (!subcourtPresent.minStake.eq(court.minStake)) {
-        console.log("Subcourt %d: changing minStake from %d to %d", court.id, subcourtPresent.minStake, court.minStake);
-        await core.changeSubcourtMinStake(court.id, court.minStake);
+      if (!courtPresent.minStake.eq(court.minStake)) {
+        console.log("Court %d: changing minStake from %d to %d", court.id, courtPresent.minStake, court.minStake);
+        await core.changeCourtMinStake(court.id, court.minStake);
       }
 
-      if (!subcourtPresent.alpha.eq(court.alpha)) {
-        console.log("Subcourt %d: changing alpha from %d to %d", court.id, subcourtPresent.alpha, court.alpha);
-        await core.changeSubcourtAlpha(court.id, court.alpha);
+      if (!courtPresent.alpha.eq(court.alpha)) {
+        console.log("Court %d: changing alpha from %d to %d", court.id, courtPresent.alpha, court.alpha);
+        await core.changeCourtAlpha(court.id, court.alpha);
       }
 
-      if (!subcourtPresent.feeForJuror.eq(court.feeForJuror)) {
+      if (!courtPresent.feeForJuror.eq(court.feeForJuror)) {
         console.log(
-          "Subcourt %d: changing feeForJuror from %d to %d",
+          "Court %d: changing feeForJuror from %d to %d",
           court.id,
-          subcourtPresent.feeForJuror,
+          courtPresent.feeForJuror,
           court.feeForJuror
         );
-        await core.changeSubcourtJurorFee(court.id, court.feeForJuror);
+        await core.changeCourtJurorFee(court.id, court.feeForJuror);
       }
 
-      if (!subcourtPresent.jurorsForCourtJump.eq(court.jurorsForCourtJump)) {
+      if (!courtPresent.jurorsForCourtJump.eq(court.jurorsForCourtJump)) {
         console.log(
-          "Subcourt %d: changing jurorsForCourtJump from %d to %d",
+          "Court %d: changing jurorsForCourtJump from %d to %d",
           court.id,
-          subcourtPresent.jurorsForCourtJump,
+          courtPresent.jurorsForCourtJump,
           court.jurorsForCourtJump
         );
-        await core.changeSubcourtJurorsForJump(court.id, court.jurorsForCourtJump);
+        await core.changeCourtJurorsForJump(court.id, court.jurorsForCourtJump);
       }
 
       const timesPerPeriodPresent = (await core.getTimesPerPeriod(court.id)).map((bn) => bn.toNumber());
       if (!timesPerPeriodPresent.every((val, index) => val === court.timesPerPeriod[index])) {
         console.log(
-          "Subcourt %d: changing timesPerPeriod from %O to %O",
+          "Court %d: changing timesPerPeriod from %O to %O",
           court.id,
           timesPerPeriodPresent,
           court.timesPerPeriod
         );
-        await core.changeSubcourtTimesPerPeriod(court.id, [
+        await core.changeCourtTimesPerPeriod(court.id, [
           court.timesPerPeriod[0],
           court.timesPerPeriod[1],
           court.timesPerPeriod[2],
@@ -103,8 +103,8 @@ async function main() {
         ]);
       }
     } else {
-      console.log("Subcourt %d not found, creating it with", court.id, court);
-      await core.createSubcourt(
+      console.log("Court %d not found, creating it with", court.id, court);
+      await core.createCourt(
         court.parent,
         court.hiddenVotes,
         court.minStake,

@@ -27,9 +27,9 @@ describe("DisputeKitClassic", async () => {
     expect(events[0].args._parent).to.equal(0);
 
     // Reminder: the Forking court will be added which will break these expectations.
-    events = await core.queryFilter(core.filters.SubcourtCreated());
+    events = await core.queryFilter(core.filters.CourtCreated());
     expect(events.length).to.equal(1);
-    expect(events[0].args._subcourtID).to.equal(1);
+    expect(events[0].args._courtID).to.equal(1);
     expect(events[0].args._parent).to.equal(0);
     expect(events[0].args._hiddenVotes).to.equal(false);
     expect(events[0].args._minStake).to.equal(200);
@@ -47,7 +47,7 @@ describe("DisputeKitClassic", async () => {
 
     events = await core.queryFilter(core.filters.DisputeKitEnabled());
     expect(events.length).to.equal(1);
-    expect(events[0].args._subcourtID).to.equal(1);
+    expect(events[0].args._courtID).to.equal(1);
     expect(events[0].args._disputeKitID).to.equal(1);
     expect(events[0].args._enable).to.equal(true);
   });

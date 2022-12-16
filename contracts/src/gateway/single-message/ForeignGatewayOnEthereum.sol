@@ -29,7 +29,7 @@ contract ForeignGatewayOnEthereum is IForeignGatewaySingleMessage {
     // at any point.
     uint256 internal localDisputeID = 1;
 
-    // feeForJuror by subcourtID
+    // feeForJuror by courtID
     uint256[] internal feeForJuror;
     uint256 public chainID;
     uint256 public homeChainID;
@@ -84,12 +84,12 @@ contract ForeignGatewayOnEthereum is IForeignGatewaySingleMessage {
         }
     }
 
-    /** @dev Changes the `feeForJuror` property value of a specified subcourt.
-     *  @param _subcourtID The ID of the subcourt.
+    /** @dev Changes the `feeForJuror` property value of a specified court.
+     *  @param _courtID The ID of the court.
      *  @param _feeForJuror The new value for the `feeForJuror` property value.
      */
-    function changeSubcourtJurorFee(uint96 _subcourtID, uint256 _feeForJuror) external onlyByGovernor {
-        feeForJuror[_subcourtID] = _feeForJuror;
+    function changeCourtJurorFee(uint96 _courtID, uint256 _feeForJuror) external onlyByGovernor {
+        feeForJuror[_courtID] = _feeForJuror;
     }
 
     function createDispute(uint256 _choices, bytes calldata _extraData) external payable returns (uint256 disputeID) {
@@ -121,19 +121,15 @@ contract ForeignGatewayOnEthereum is IForeignGatewaySingleMessage {
     }
 
     function arbitrationCost(bytes calldata _extraData) public view returns (uint256 cost) {
-        (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDMinJurors(_extraData);
+        (uint96 courtID, uint256 minJurors) = extraDataToCourtIDMinJurors(_extraData);
 
-        cost = feeForJuror[subcourtID] * minJurors;
+        cost = feeForJuror[courtID] * minJurors;
     }
 
     /**
      * Relay the rule call from the home gateway to the arbitrable.
      */
-    function relayRule(
-        bytes32 _disputeHash,
-        uint256 _ruling,
-        address _relayer
-    ) external onlyFromFastBridge {
+    function relayRule(bytes32 _disputeHash, uint256 _ruling, address _relayer) external onlyFromFastBridge {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 
         require(dispute.id != 0, "Dispute does not exist");
@@ -160,22 +156,20 @@ contract ForeignGatewayOnEthereum is IForeignGatewaySingleMessage {
         return disputeHashtoDisputeData[_disputeHash].id;
     }
 
-    function extraDataToSubcourtIDMinJurors(bytes memory _extraData)
-        internal
-        view
-        returns (uint96 subcourtID, uint256 minJurors)
-    {
+    function extraDataToCourtIDMinJurors(
+        bytes memory _extraData
+    ) internal view returns (uint96 courtID, uint256 minJurors) {
         // Note that here we ignore DisputeKitID
         if (_extraData.length >= 64) {
             assembly {
                 // solium-disable-line security/no-inline-assembly
-                subcourtID := mload(add(_extraData, 0x20))
+                courtID := mload(add(_extraData, 0x20))
                 minJurors := mload(add(_extraData, 0x40))
             }
-            if (subcourtID >= feeForJuror.length) subcourtID = 0;
+            if (courtID >= feeForJuror.length) courtID = 0;
             if (minJurors == 0) minJurors = MIN_JURORS;
         } else {
-            subcourtID = 0;
+            courtID = 0;
             minJurors = MIN_JURORS;
         }
     }
