@@ -8,6 +8,7 @@ enum Period {
 
 type Court @entity {
   id: ID!
+  policy: String
   hiddenVotes: Boolean!
   parent: Court
   children: [Court!]! @derivedFrom(field: "parent")
@@ -18,15 +19,22 @@ type Court @entity {
   timesPerPeriod: [BigInt!]!
   supportedDisputeKits: [DisputeKit!]!
   disputes: [Dispute!]! @derivedFrom(field: "subcourtID")
+  numberDisputes: BigInt!
   stakedJurors: [JurorTokensPerSubcourt!]! @derivedFrom(field: "subcourt")
+  numberStakedJurors: BigInt!
   tokens: [JurorTokensPerSubcourt!]! @derivedFrom(field: "subcourt")
+  stake: BigInt!
+  paidETH: BigInt!
+  paidPNK: BigInt!
 }
 
 type Juror @entity {
   id: ID! # Set to address
   tokens: [JurorTokensPerSubcourt!]! @derivedFrom(field: "juror")
+  totalStake: BigInt!
   shifts: [TokenAndETHShift!]! @derivedFrom(field: "juror")
   draws: [Draw!]! @derivedFrom(field: "juror")
+  votes: [Vote!]! @derivedFrom(field: "juror")
 }
 
 type TokenAndETHShift @entity {
@@ -45,6 +53,19 @@ type JurorTokensPerSubcourt @entity {
   locked: BigInt!
 }
 
+type EvidenceGroup @entity {
+  id: ID!
+  evidences: [Evidence!]! @derivedFrom(field: "evidenceGroup")
+  lastEvidenceID: BigInt!
+}
+
+type Evidence @entity {
+  id: ID! # Set to `${evidenceGroupID}-${id}`
+  evidence: String!
+  evidenceGroup: EvidenceGroup!
+  sender: Bytes!
+}
+
 type Round @entity {
   id: ID! # Set to `${dispute.id}-${currentRound}`
   dispute: Dispute!
@@ -52,9 +73,21 @@ type Round @entity {
   tokensAtStakePerJuror: BigInt!
   totalFeesForJurors: BigInt!
   nbVotes: BigInt!
+  totalVoted: BigInt!
   repartitions: BigInt!
   penalties: BigInt!
   drawnJurors: [Draw!]! @derivedFrom(field: "round")
+  votes: [Vote!]! @derivedFrom(field: "round")
+  currentDecision: BigInt
+}
+
+type Vote @entity {
+  id: ID! # Set to `${coreDisputeID}-${coreRoundID}-${jurorAddress}`
+  dispute: Dispute!
+  round: Round!
+  juror: Juror!
+  choice: BigInt
+  justification: String
 }
 
 type Draw @entity {
@@ -74,6 +107,7 @@ type Dispute @entity {
   lastPeriodChange: BigInt!
   rounds: [Round!]! @derivedFrom(field: "dispute")
   draws: [Draw!]! @derivedFrom(field: "dispute")
+  votes: [Vote!]! @derivedFrom(field: "dispute")
   currentRound: Int!
   shifts: [TokenAndETHShift!]! @derivedFrom(field: "dispute")
   gatewayDispute: GatewayDispute! @derivedFrom(field: "homeDispute")
@@ -106,27 +140,13 @@ type OutgoingBatch @entity {
   batchMerkleRoot: String!
 }
 
-type PNKStakedDataPoint @entity {
+type Counter @entity {
   id: ID! # Will be the timestamp except for the counter which will be 0
-  value: BigInt!
-}
-
-type ETHPaidDataPoint @entity {
-  id: ID! # Will be the timestamp except for the counter which will be 0
-  value: BigInt!
-}
-
-type PNKRedistributedDataPoint @entity {
-  id: ID! # Will be the timestamp except for the counter which will be 0
-  value: BigInt!
-}
-
-type ActiveJurorsDataPoint @entity {
-  id: ID! # Will be the timestamp except for the counter which will be 0
-  value: BigInt!
-}
-
-type CasesDataPoint @entity {
-  id: ID! # Will be the timestamp except for the counter which will be 0
-  value: BigInt!
+  stakedPNK: BigInt!
+  redistributedPNK: BigInt!
+  paidETH: BigInt!
+  activeJurors: BigInt!
+  cases: BigInt!
+  casesVoting: BigInt!
+  casesRuled: BigInt!
 }

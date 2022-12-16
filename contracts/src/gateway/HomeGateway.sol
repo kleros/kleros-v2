@@ -11,7 +11,7 @@
 pragma solidity ^0.8.0;
 
 import "../arbitration/IArbitrator.sol";
-import "../bridge/interfaces/IFastBridgeSender.sol";
+import "@kleros/vea-contracts/interfaces/IFastBridgeSender.sol";
 import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
 
@@ -76,28 +76,28 @@ contract HomeGateway is IHomeGateway {
     // ************************************* //
 
     /**
-     * @dev Provide the same parameters as on the originalChain while creating a dispute. Providing incorrect parameters will create a different hash than on the originalChain and will not affect the actual dispute/arbitrable's ruling.
-     * @param _originalChainID originalChainId
-     * @param _originalBlockHash originalBlockHash
-     * @param _originalDisputeID originalDisputeID
+     * @dev Provide the same parameters as on the foreignChain while creating a dispute. Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
+     * @param _foreignChainID foreignChainId
+     * @param _foreignBlockHash foreignBlockHash
+     * @param _foreignDisputeID foreignDisputeID
      * @param _choices number of ruling choices
      * @param _extraData extraData
      * @param _arbitrable arbitrable
      */
     function relayCreateDispute(
-        uint256 _originalChainID,
-        bytes32 _originalBlockHash,
-        uint256 _originalDisputeID,
+        uint256 _foreignChainID,
+        bytes32 _foreignBlockHash,
+        uint256 _foreignDisputeID,
         uint256 _choices,
         bytes calldata _extraData,
         address _arbitrable
     ) external payable override {
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
-                _originalChainID,
-                _originalBlockHash,
+                _foreignChainID,
+                _foreignBlockHash,
                 "createDispute",
-                _originalDisputeID,
+                _foreignDisputeID,
                 _choices,
                 _extraData,
                 _arbitrable
@@ -118,6 +118,12 @@ contract HomeGateway is IHomeGateway {
         emit Dispute(arbitrator, disputeID, 0, 0);
     }
 
+    /**
+     * @dev Give a ruling for a dispute. Must be called by the arbitrator.
+     *      The purpose of this function is to ensure that the address calling it has the right to rule on the contract.
+     * @param _disputeID ID of the dispute in the Arbitrator contract.
+     * @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Not able/wanting to make a decision".
+     */
     function rule(uint256 _disputeID, uint256 _ruling) external override {
         require(msg.sender == address(arbitrator), "Only Arbitrator");
 
@@ -130,6 +136,10 @@ contract HomeGateway is IHomeGateway {
         fastBridgeSender.sendFast(receiverGateway, data);
     }
 
+    /**
+     * @dev Looks up the local home disputeID for a disputeHash. For cross-chain Evidence standard.
+     * @param _disputeHash dispute hash
+     */
     function disputeHashToHomeID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoID[_disputeHash];
     }

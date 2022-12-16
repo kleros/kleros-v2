@@ -7,6 +7,8 @@ const WINNER_STAKE_MULTIPLIER = 3000;
 const LOSER_STAKE_MULTIPLIER = 7000;
 const MULTIPLIER_DENOMINATOR = 10000;
 
+const RNG_LOOKAHEAD = 20;
+
 describe("DisputeKitClassic", async () => {
   // eslint-disable-next-line no-unused-vars
   let deployer;
@@ -78,7 +80,8 @@ async function deployContracts(deployer) {
   const disputeKit = await disputeKitFactory.deploy(
     deployer.address,
     ethers.constants.AddressZero, // KlerosCore is set later once it is deployed
-    rng.address
+    rng.address,
+    RNG_LOOKAHEAD
   );
   await disputeKit.deployed();
 

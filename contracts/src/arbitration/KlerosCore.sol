@@ -104,7 +104,7 @@ contract KlerosCore is IArbitrator {
     uint256 public constant MAX_STAKE_PATHS = 4; // The maximum number of stake paths a juror can have.
     uint256 public constant MIN_JURORS = 3; // The global default minimum number of jurors in a dispute.
     uint256 public constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
-    uint256 public constant NON_PAYABLE_AMOUNT = (2**256 - 2) / 2; // An amount higher than the supply of ETH.
+    uint256 public constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
     uint256 public constant SEARCH_ITERATIONS = 10; // Number of iterations to search for suitable parent court before jumping to the top court.
 
     address public governor; // The governor of the contract.
@@ -465,10 +465,10 @@ contract KlerosCore is IArbitrator {
      *  @param _subcourtID The ID of the subcourt.
      *  @param _timesPerPeriod The new value for the `timesPerPeriod` property value.
      */
-    function changeSubcourtTimesPerPeriod(uint96 _subcourtID, uint256[4] memory _timesPerPeriod)
-        external
-        onlyByGovernor
-    {
+    function changeSubcourtTimesPerPeriod(
+        uint96 _subcourtID,
+        uint256[4] memory _timesPerPeriod
+    ) external onlyByGovernor {
         courts[_subcourtID].timesPerPeriod = _timesPerPeriod;
         emit SubcourtModified(_subcourtID, "timesPerPeriod");
     }
@@ -550,12 +550,10 @@ contract KlerosCore is IArbitrator {
      *  the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
      *  @return disputeID The ID of the created dispute.
      */
-    function createDispute(uint256 _numberOfChoices, bytes memory _extraData)
-        external
-        payable
-        override
-        returns (uint256 disputeID)
-    {
+    function createDispute(
+        uint256 _numberOfChoices,
+        bytes memory _extraData
+    ) external payable override returns (uint256 disputeID) {
         require(msg.value >= arbitrationCost(_extraData), "ETH too low for arbitration cost");
 
         (uint96 subcourtID, , uint256 disputeKitID) = extraDataToSubcourtIDMinJurorsDisputeKit(_extraData);
@@ -705,11 +703,7 @@ contract KlerosCore is IArbitrator {
      *  @param _numberOfChoices Number of choices for the dispute. Can be required during court jump.
      *  @param _extraData Extradata for the dispute. Can be required during court jump.
      */
-    function appeal(
-        uint256 _disputeID,
-        uint256 _numberOfChoices,
-        bytes memory _extraData
-    ) external payable {
+    function appeal(uint256 _disputeID, uint256 _numberOfChoices, bytes memory _extraData) external payable {
         require(msg.value >= appealCost(_disputeID), "ETH too low for appeal cost");
 
         Dispute storage dispute = disputes[_disputeID];
@@ -787,11 +781,7 @@ contract KlerosCore is IArbitrator {
      *  @param _round The appeal round.
      *  @param _iterations The number of iterations to run.
      */
-    function execute(
-        uint256 _disputeID,
-        uint256 _round,
-        uint256 _iterations
-    ) external {
+    function execute(uint256 _disputeID, uint256 _round, uint256 _iterations) external {
         Dispute storage dispute = disputes[_disputeID];
         require(dispute.period == Period.execution, "!Execution period");
 
@@ -906,7 +896,7 @@ contract KlerosCore is IArbitrator {
         require(dispute.period == Period.execution, "!Execution period");
         require(!dispute.ruled, "Ruling already executed");
 
-        uint256 winningChoice = currentRuling(_disputeID);
+        (uint256 winningChoice, , ) = currentRuling(_disputeID);
         dispute.ruled = true;
         dispute.arbitrated.rule(_disputeID, winningChoice);
     }
@@ -966,15 +956,20 @@ contract KlerosCore is IArbitrator {
     /** @dev Gets the current ruling of a specified dispute.
      *  @param _disputeID The ID of the dispute.
      *  @return ruling The current ruling.
+     *  @return tied Whether it's a tie or not.
+     *  @return overridden Whether the ruling was overridden by appeal funding or not.
      */
-    function currentRuling(uint256 _disputeID) public view returns (uint256 ruling) {
+    function currentRuling(uint256 _disputeID) public view returns (uint256 ruling, bool tied, bool overridden) {
         Dispute storage dispute = disputes[_disputeID];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         IDisputeKit disputeKit = disputeKitNodes[round.disputeKitID].disputeKit;
-        return disputeKit.currentRuling(_disputeID);
+        (ruling, tied, overridden) = disputeKit.currentRuling(_disputeID);
     }
 
-    function getRoundInfo(uint256 _disputeID, uint256 _round)
+    function getRoundInfo(
+        uint256 _disputeID,
+        uint256 _round
+    )
         external
         view
         returns (
@@ -1001,11 +996,10 @@ contract KlerosCore is IArbitrator {
         return disputes[_disputeID].rounds.length;
     }
 
-    function getJurorBalance(address _juror, uint96 _subcourtID)
-        external
-        view
-        returns (uint256 staked, uint256 locked)
-    {
+    function getJurorBalance(
+        address _juror,
+        uint96 _subcourtID
+    ) external view returns (uint256 staked, uint256 locked) {
         staked = jurors[_juror].stakedTokens[_subcourtID];
         locked = jurors[_juror].lockedTokens[_subcourtID];
     }
@@ -1039,15 +1033,10 @@ contract KlerosCore is IArbitrator {
         return sortitionSumTrees.sortitionSumTrees[_key].nodes[_index];
     }
 
-    function getSortitionSumTree(bytes32 _key, uint256 _nodeIndex)
-        public
-        view
-        returns (
-            uint256 K,
-            uint256 length,
-            bytes32 ID
-        )
-    {
+    function getSortitionSumTree(
+        bytes32 _key,
+        uint256 _nodeIndex
+    ) public view returns (uint256 K, uint256 length, bytes32 ID) {
         SortitionSumTreeFactory.SortitionSumTree storage tree = sortitionSumTrees.sortitionSumTrees[_key];
         K = tree.K;
         length = tree.nodes.length;
@@ -1080,12 +1069,6 @@ contract KlerosCore is IArbitrator {
         return !courts[court.parent].supportedDisputeKits[round.disputeKitID];
     }
 
-    function getLastRoundResult(uint256 _disputeID) external view returns (uint256 winningChoice, bool tied) {
-        Dispute storage dispute = disputes[_disputeID];
-        Round storage round = dispute.rounds[dispute.rounds.length - 1];
-        (winningChoice, tied) = disputeKitNodes[round.disputeKitID].disputeKit.getLastRoundResult(_disputeID);
-    }
-
     function getDisputesKitIDsThatNeedFreezing() external view returns (uint256[] memory) {
         return disputesKitIDsThatNeedFreezing;
     }
@@ -1098,11 +1081,7 @@ contract KlerosCore is IArbitrator {
     // *            Internal               * //
     // ************************************* //
 
-    function enableDisputeKit(
-        uint96 _subcourtID,
-        uint256 _disputeKitID,
-        bool _enable
-    ) internal {
+    function enableDisputeKit(uint96 _subcourtID, uint256 _disputeKitID, bool _enable) internal {
         courts[_subcourtID].supportedDisputeKits[_disputeKitID] = _enable;
         emit DisputeKitEnabled(_subcourtID, _disputeKitID, _enable);
     }
@@ -1210,15 +1189,9 @@ contract KlerosCore is IArbitrator {
      *  @return minJurors The minimum number of jurors required.
      *  @return disputeKitID The ID of the dispute kit.
      */
-    function extraDataToSubcourtIDMinJurorsDisputeKit(bytes memory _extraData)
-        internal
-        view
-        returns (
-            uint96 subcourtID,
-            uint256 minJurors,
-            uint256 disputeKitID
-        )
-    {
+    function extraDataToSubcourtIDMinJurorsDisputeKit(
+        bytes memory _extraData
+    ) internal view returns (uint96 subcourtID, uint256 minJurors, uint256 disputeKitID) {
         // Note that if the extradata doesn't contain 32 bytes for the dispute kit ID it'll return the default 0 index.
         if (_extraData.length >= 64) {
             assembly {
@@ -1248,11 +1221,10 @@ contract KlerosCore is IArbitrator {
      *  @param _subcourtID The subcourt ID to pack.
      *  @return stakePathID The stake path ID.
      */
-    function accountAndSubcourtIDToStakePathID(address _account, uint96 _subcourtID)
-        internal
-        pure
-        returns (bytes32 stakePathID)
-    {
+    function accountAndSubcourtIDToStakePathID(
+        address _account,
+        uint96 _subcourtID
+    ) internal pure returns (bytes32 stakePathID) {
         assembly {
             // solium-disable-line security/no-inline-assembly
             let ptr := mload(0x40)
@@ -1292,11 +1264,7 @@ contract KlerosCore is IArbitrator {
      *  @param _value Amount transferred.
      *  @return Whether transfer succeeded or not.
      */
-    function safeTransferFrom(
-        address _from,
-        address _to,
-        uint256 _value
-    ) internal returns (bool) {
+    function safeTransferFrom(address _from, address _to, uint256 _value) internal returns (bool) {
         (bool success, bytes memory data) = address(pinakion).call(
             abi.encodeWithSelector(IERC20.transferFrom.selector, _from, _to, _value)
         );

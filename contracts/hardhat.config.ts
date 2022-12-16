@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
-import "@tenderly/hardhat-tenderly";
+import "hardhat-deploy-tenderly";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "hardhat-deploy";
@@ -11,6 +11,7 @@ import "hardhat-deploy-ethers";
 import "hardhat-watcher";
 import "hardhat-docgen";
 import "hardhat-contract-sizer";
+import "hardhat-tracer";
 
 dotenv.config();
 
@@ -20,7 +21,7 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200,
+        runs: 100,
       },
     },
   },
@@ -70,22 +71,6 @@ const config: HardhatUserConfig = {
     },
 
     // Home chain ---------------------------------------------------------------------------------
-    arbitrumRinkeby: {
-      chainId: 421611,
-      url: "https://rinkeby.arbitrum.io/rpc",
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-      live: true,
-      saveDeployments: true,
-      tags: ["staging", "home", "layer2"],
-      companionNetworks: {
-        foreign: "rinkeby",
-      },
-      verify: {
-        etherscan: {
-          apiKey: process.env.ARBISCAN_API_KEY,
-        },
-      },
-    },
     arbitrumGoerli: {
       chainId: 421613,
       url: "https://goerli-rollup.arbitrum.io/rpc",
@@ -119,17 +104,6 @@ const config: HardhatUserConfig = {
       },
     },
     // Foreign chain ---------------------------------------------------------------------------------
-    rinkeby: {
-      chainId: 4,
-      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-      live: true,
-      saveDeployments: true,
-      tags: ["staging", "foreign", "layer1"],
-      companionNetworks: {
-        home: "arbitrumRinkeby",
-      },
-    },
     goerli: {
       chainId: 5,
       url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
@@ -196,8 +170,17 @@ const config: HardhatUserConfig = {
     runOnCompile: false,
   },
   tenderly: {
-    project: "kleros-v2-local",
+    project: process.env.TENDERLY_PROJECT !== undefined ? process.env.TENDERLY_PROJECT : "kleros-v2",
     username: process.env.TENDERLY_USERNAME !== undefined ? process.env.TENDERLY_USERNAME : "",
+  },
+  external: {
+    // https://github.com/wighawag/hardhat-deploy#importing-deployment-from-other-projects-with-truffle-support
+    contracts: [
+      {
+        artifacts: "node_modules/@kleros/vea-contracts/deployments",
+        deploy: "node_modules/@kleros/vea-contracts/deploy",
+      },
+    ],
   },
 };
 

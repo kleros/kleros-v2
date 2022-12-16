@@ -1,7 +1,15 @@
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
 import { BigNumber } from "ethers";
-import { PNK, KlerosCore, ArbitrableExample, HomeGatewayToEthereum, DisputeKitClassic } from "../../typechain-types";
+import {
+  PNK,
+  KlerosCore,
+  ArbitrableExample,
+  HomeGatewayToEthereum,
+  DisputeKitClassic,
+  RandomizerRNG,
+  RandomizerMock,
+} from "../../typechain-types";
 import { expect } from "chai";
 
 /* eslint-disable no-unused-vars */
@@ -38,6 +46,8 @@ describe("Draw Benchmark", async () => {
   let core;
   let arbitrable;
   let homeGateway;
+  let rng;
+  let randomizer;
 
   beforeEach("Setup", async () => {
     deployer = (await getNamedAccounts()).deployer;
@@ -46,7 +56,7 @@ describe("Draw Benchmark", async () => {
     console.log("deployer:%s", deployer);
     console.log("named accounts: %O", await getNamedAccounts());
 
-    await deployments.fixture(["Arbitration", "ForeignGateway", "HomeGateway"], {
+    await deployments.fixture(["Arbitration", "VeaMock"], {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
@@ -55,6 +65,8 @@ describe("Draw Benchmark", async () => {
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
     homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
     arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
+    rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
+    randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
   });
 
   it("Draw Benchmark", async () => {
@@ -91,13 +103,16 @@ describe("Draw Benchmark", async () => {
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
     await core.passPhase(); // Staking -> Freezing
-    for (let index = 0; index < 20; index++) {
-      await network.provider.send("evm_mine"); // Wait for 20 blocks finality
+
+    const lookahead = await disputeKit.rngLookahead();
+    for (let index = 0; index < lookahead; index++) {
+      await network.provider.send("evm_mine");
     }
     await disputeKit.passPhase(); // Resolving -> Generating
-    for (let index = 0; index < 20; index++) {
-      await network.provider.send("evm_mine"); // RNG lookahead
+    for (let index = 0; index < lookahead; index++) {
+      await network.provider.send("evm_mine");
     }
+    await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
     await disputeKit.passPhase(); // Generating -> Drawing
 
     await expect(core.draw(0, 1000, { gasLimit: 1000000 }))
