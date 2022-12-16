@@ -53,7 +53,7 @@ contract KlerosCore is IArbitrator {
     }
 
     struct Dispute {
-        uint96 subcourtID; // The ID of the subcourt the dispute is in.
+        uint96 courtID; // The ID of the court the dispute is in.
         IArbitrable arbitrated; // The arbitrable contract.
         Period period; // The current period of the dispute.
         bool ruled; // True if the ruling has been executed, false otherwise.
@@ -72,9 +72,9 @@ contract KlerosCore is IArbitrator {
     }
 
     struct Juror {
-        uint96[] subcourtIDs; // The IDs of subcourts where the juror's stake path ends. A stake path is a path from the general court to a court the juror directly staked in using `_setStake`.
-        mapping(uint96 => uint256) stakedTokens; // The number of tokens the juror has staked in the subcourt in the form `stakedTokens[subcourtID]`.
-        mapping(uint96 => uint256) lockedTokens; // The number of tokens the juror has locked in the subcourt in the form `lockedTokens[subcourtID]`.
+        uint96[] courtIDs; // The IDs of courts where the juror's stake path ends. A stake path is a path from the general court to a court the juror directly staked in using `_setStake`.
+        mapping(uint96 => uint256) stakedTokens; // The number of tokens the juror has staked in the court in the form `stakedTokens[courtID]`.
+        mapping(uint96 => uint256) lockedTokens; // The number of tokens the juror has locked in the court in the form `lockedTokens[courtID]`.
     }
 
     struct DisputeKitNode {
@@ -87,7 +87,7 @@ contract KlerosCore is IArbitrator {
 
     struct DelayedStake {
         address account; // The address of the juror.
-        uint96 subcourtID; // The ID of the subcourt.
+        uint96 courtID; // The ID of the court.
         uint256 stake; // The new stake.
         uint256 penalty; // Penalty value, in case the stake was set during execution.
     }
@@ -115,7 +115,7 @@ contract KlerosCore is IArbitrator {
     uint256 public maxFreezingTime; // The time after which the phase can be switched back to Staking.
     uint256 public lastPhaseChange; // The last time the phase was changed.
     uint256 public freezeBlock; // Number of the block when Core was frozen.
-    Court[] public courts; // The subcourts.
+    Court[] public courts; // The courts.
     DisputeKitNode[] public disputeKitNodes; // The list of DisputeKitNode, indexed by DisputeKitID.
     uint256[] public disputesKitIDsThatNeedFreezing; // The disputeKitIDs that need switching to Freezing phase.
     Dispute[] public disputes; // The disputes.
@@ -132,12 +132,12 @@ contract KlerosCore is IArbitrator {
 
     event NewPhase(Phase _phase);
     event NewPeriod(uint256 indexed _disputeID, Period _period);
-    event StakeSet(address indexed _address, uint256 _subcourtID, uint256 _amount, uint256 _newTotalStake);
+    event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount, uint256 _newTotalStake);
     event AppealPossible(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
     event AppealDecision(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
     event Draw(address indexed _address, uint256 indexed _disputeID, uint256 _roundID, uint256 _voteID);
-    event SubcourtCreated(
-        uint256 indexed _subcourtID,
+    event CourtCreated(
+        uint256 indexed _courtID,
         uint96 indexed _parent,
         bool _hiddenVotes,
         uint256 _minStake,
@@ -148,18 +148,18 @@ contract KlerosCore is IArbitrator {
         uint256 _sortitionSumTreeK,
         uint256[] _supportedDisputeKits
     );
-    event SubcourtModified(uint96 indexed _subcourtID, string _param);
+    event CourtModified(uint96 indexed _courtID, string _param);
     event DisputeKitCreated(
         uint256 indexed _disputeKitID,
         IDisputeKit indexed _disputeKitAddress,
         uint256 indexed _parent
     );
-    event DisputeKitEnabled(uint96 indexed _subcourtID, uint256 indexed _disputeKitID, bool indexed _enable);
+    event DisputeKitEnabled(uint96 indexed _courtID, uint256 indexed _disputeKitID, bool indexed _enable);
     event CourtJump(
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
-        uint96 indexed _fromSubcourtID,
-        uint96 _toSubcourtID
+        uint96 indexed _fromCourtID,
+        uint96 _toCourtID
     );
     event DisputeKitJump(
         uint256 indexed _disputeID,
@@ -228,7 +228,7 @@ contract KlerosCore is IArbitrator {
         emit DisputeKitCreated(DISPUTE_KIT_CLASSIC, _disputeKit, NULL_DISPUTE_KIT);
 
         // FORKING_COURT
-        // TODO: Fill the properties for the Forking court, emit SubcourtCreated.
+        // TODO: Fill the properties for the Forking court, emit CourtCreated.
         courts.push();
         sortitionSumTrees.createTree(bytes32(uint256(FORKING_COURT)), _sortitionSumTreeK);
 
@@ -243,7 +243,7 @@ contract KlerosCore is IArbitrator {
         court.jurorsForCourtJump = _courtParameters[3];
         court.timesPerPeriod = _timesPerPeriod;
         sortitionSumTrees.createTree(bytes32(uint256(GENERAL_COURT)), _sortitionSumTreeK);
-        emit SubcourtCreated(
+        emit CourtCreated(
             1,
             court.parent,
             _hiddenVotes,
@@ -342,18 +342,18 @@ contract KlerosCore is IArbitrator {
         }
     }
 
-    /** @dev Creates a subcourt under a specified parent court.
-     *  @param _parent The `parent` property value of the subcourt.
-     *  @param _hiddenVotes The `hiddenVotes` property value of the subcourt.
-     *  @param _minStake The `minStake` property value of the subcourt.
-     *  @param _alpha The `alpha` property value of the subcourt.
-     *  @param _feeForJuror The `feeForJuror` property value of the subcourt.
-     *  @param _jurorsForCourtJump The `jurorsForCourtJump` property value of the subcourt.
-     *  @param _timesPerPeriod The `timesPerPeriod` property value of the subcourt.
-     *  @param _sortitionSumTreeK The number of children per node of the subcourt's sortition sum tree.
-     *  @param _supportedDisputeKits Indexes of dispute kits that this subcourt will support.
+    /** @dev Creates a court under a specified parent court.
+     *  @param _parent The `parent` property value of the court.
+     *  @param _hiddenVotes The `hiddenVotes` property value of the court.
+     *  @param _minStake The `minStake` property value of the court.
+     *  @param _alpha The `alpha` property value of the court.
+     *  @param _feeForJuror The `feeForJuror` property value of the court.
+     *  @param _jurorsForCourtJump The `jurorsForCourtJump` property value of the court.
+     *  @param _timesPerPeriod The `timesPerPeriod` property value of the court.
+     *  @param _sortitionSumTreeK The number of children per node of the court's sortition sum tree.
+     *  @param _supportedDisputeKits Indexes of dispute kits that this court will support.
      */
-    function createSubcourt(
+    function createCourt(
         uint96 _parent,
         bool _hiddenVotes,
         uint256 _minStake,
@@ -368,7 +368,7 @@ contract KlerosCore is IArbitrator {
         require(_supportedDisputeKits.length > 0, "!Supported DK");
         require(_parent != FORKING_COURT, "Invalid: Forking court as parent");
 
-        uint256 subcourtID = courts.length;
+        uint256 courtID = courts.length;
         Court storage court = courts.push();
 
         for (uint256 i = 0; i < _supportedDisputeKits.length; i++) {
@@ -388,11 +388,11 @@ contract KlerosCore is IArbitrator {
         court.jurorsForCourtJump = _jurorsForCourtJump;
         court.timesPerPeriod = _timesPerPeriod;
 
-        sortitionSumTrees.createTree(bytes32(subcourtID), _sortitionSumTreeK);
+        sortitionSumTrees.createTree(bytes32(courtID), _sortitionSumTreeK);
         // Update the parent.
-        courts[_parent].children.push(subcourtID);
-        emit SubcourtCreated(
-            subcourtID,
+        courts[_parent].children.push(courtID);
+        emit CourtCreated(
+            courtID,
             _parent,
             _hiddenVotes,
             _minStake,
@@ -405,92 +405,85 @@ contract KlerosCore is IArbitrator {
         );
     }
 
-    /** @dev Changes the `minStake` property value of a specified subcourt. Don't set to a value lower than its parent's `minStake` property value.
-     *  @param _subcourtID The ID of the subcourt.
+    /** @dev Changes the `minStake` property value of a specified court. Don't set to a value lower than its parent's `minStake` property value.
+     *  @param _courtID The ID of the court.
      *  @param _minStake The new value for the `minStake` property value.
      */
-    function changeSubcourtMinStake(uint96 _subcourtID, uint256 _minStake) external onlyByGovernor {
+    function changeCourtMinStake(uint96 _courtID, uint256 _minStake) external onlyByGovernor {
         require(
-            _subcourtID == GENERAL_COURT || courts[courts[_subcourtID].parent].minStake <= _minStake,
+            _courtID == GENERAL_COURT || courts[courts[_courtID].parent].minStake <= _minStake,
             "MinStake lower than parent court"
         );
-        for (uint256 i = 0; i < courts[_subcourtID].children.length; i++) {
-            require(courts[courts[_subcourtID].children[i]].minStake >= _minStake, "MinStake lower than parent court");
+        for (uint256 i = 0; i < courts[_courtID].children.length; i++) {
+            require(courts[courts[_courtID].children[i]].minStake >= _minStake, "MinStake lower than parent court");
         }
 
-        courts[_subcourtID].minStake = _minStake;
-        emit SubcourtModified(_subcourtID, "minStake");
+        courts[_courtID].minStake = _minStake;
+        emit CourtModified(_courtID, "minStake");
     }
 
-    /** @dev Changes the `alpha` property value of a specified subcourt.
-     *  @param _subcourtID The ID of the subcourt.
+    /** @dev Changes the `alpha` property value of a specified court.
+     *  @param _courtID The ID of the court.
      *  @param _alpha The new value for the `alpha` property value.
      */
-    function changeSubcourtAlpha(uint96 _subcourtID, uint256 _alpha) external onlyByGovernor {
-        courts[_subcourtID].alpha = _alpha;
-        emit SubcourtModified(_subcourtID, "alpha");
+    function changeCourtAlpha(uint96 _courtID, uint256 _alpha) external onlyByGovernor {
+        courts[_courtID].alpha = _alpha;
+        emit CourtModified(_courtID, "alpha");
     }
 
-    /** @dev Changes the `feeForJuror` property value of a specified subcourt.
-     *  @param _subcourtID The ID of the subcourt.
+    /** @dev Changes the `feeForJuror` property value of a specified court.
+     *  @param _courtID The ID of the court.
      *  @param _feeForJuror The new value for the `feeForJuror` property value.
      */
-    function changeSubcourtJurorFee(uint96 _subcourtID, uint256 _feeForJuror) external onlyByGovernor {
-        courts[_subcourtID].feeForJuror = _feeForJuror;
-        emit SubcourtModified(_subcourtID, "feeForJuror");
+    function changeCourtJurorFee(uint96 _courtID, uint256 _feeForJuror) external onlyByGovernor {
+        courts[_courtID].feeForJuror = _feeForJuror;
+        emit CourtModified(_courtID, "feeForJuror");
     }
 
-    /** @dev Changes the `jurorsForCourtJump` property value of a specified subcourt.
-     *  @param _subcourtID The ID of the subcourt.
+    /** @dev Changes the `jurorsForCourtJump` property value of a specified court.
+     *  @param _courtID The ID of the court.
      *  @param _jurorsForCourtJump The new value for the `jurorsForCourtJump` property value.
      */
-    function changeSubcourtJurorsForJump(uint96 _subcourtID, uint256 _jurorsForCourtJump) external onlyByGovernor {
-        courts[_subcourtID].jurorsForCourtJump = _jurorsForCourtJump;
-        emit SubcourtModified(_subcourtID, "jurorsForCourtJump");
+    function changeCourtJurorsForJump(uint96 _courtID, uint256 _jurorsForCourtJump) external onlyByGovernor {
+        courts[_courtID].jurorsForCourtJump = _jurorsForCourtJump;
+        emit CourtModified(_courtID, "jurorsForCourtJump");
     }
 
-    /** @dev Changes the `hiddenVotes` property value of a specified subcourt.
-     *  @param _subcourtID The ID of the subcourt.
+    /** @dev Changes the `hiddenVotes` property value of a specified court.
+     *  @param _courtID The ID of the court.
      *  @param _hiddenVotes The new value for the `hiddenVotes` property value.
      */
-    function changeSubcourtHiddenVotes(uint96 _subcourtID, bool _hiddenVotes) external onlyByGovernor {
-        courts[_subcourtID].hiddenVotes = _hiddenVotes;
-        emit SubcourtModified(_subcourtID, "hiddenVotes");
+    function changeCourtHiddenVotes(uint96 _courtID, bool _hiddenVotes) external onlyByGovernor {
+        courts[_courtID].hiddenVotes = _hiddenVotes;
+        emit CourtModified(_courtID, "hiddenVotes");
     }
 
-    /** @dev Changes the `timesPerPeriod` property value of a specified subcourt.
-     *  @param _subcourtID The ID of the subcourt.
+    /** @dev Changes the `timesPerPeriod` property value of a specified court.
+     *  @param _courtID The ID of the court.
      *  @param _timesPerPeriod The new value for the `timesPerPeriod` property value.
      */
-    function changeSubcourtTimesPerPeriod(
-        uint96 _subcourtID,
-        uint256[4] memory _timesPerPeriod
-    ) external onlyByGovernor {
-        courts[_subcourtID].timesPerPeriod = _timesPerPeriod;
-        emit SubcourtModified(_subcourtID, "timesPerPeriod");
+    function changeCourtTimesPerPeriod(uint96 _courtID, uint256[4] memory _timesPerPeriod) external onlyByGovernor {
+        courts[_courtID].timesPerPeriod = _timesPerPeriod;
+        emit CourtModified(_courtID, "timesPerPeriod");
     }
 
     /** @dev Adds/removes court's support for specified dispute kits.
-     *  @param _subcourtID The ID of the subcourt.
+     *  @param _courtID The ID of the court.
      *  @param _disputeKitIDs The IDs of dispute kits which support should be added/removed.
-     *  @param _enable Whether add or remove the dispute kits from the subcourt.
+     *  @param _enable Whether add or remove the dispute kits from the court.
      */
-    function enableDisputeKits(
-        uint96 _subcourtID,
-        uint256[] memory _disputeKitIDs,
-        bool _enable
-    ) external onlyByGovernor {
-        Court storage subcourt = courts[_subcourtID];
+    function enableDisputeKits(uint96 _courtID, uint256[] memory _disputeKitIDs, bool _enable) external onlyByGovernor {
+        Court storage court = courts[_courtID];
         for (uint256 i = 0; i < _disputeKitIDs.length; i++) {
             if (_enable) {
                 require(_disputeKitIDs[i] > 0 && _disputeKitIDs[i] < disputeKitNodes.length, "Wrong DK index");
-                enableDisputeKit(_subcourtID, _disputeKitIDs[i], true);
+                enableDisputeKit(_courtID, _disputeKitIDs[i], true);
             } else {
                 require(
-                    !(_subcourtID == GENERAL_COURT && disputeKitNodes[_disputeKitIDs[i]].parent == NULL_DISPUTE_KIT),
+                    !(_courtID == GENERAL_COURT && disputeKitNodes[_disputeKitIDs[i]].parent == NULL_DISPUTE_KIT),
                     "Can't disable Root DK in General"
                 );
-                enableDisputeKit(_subcourtID, _disputeKitIDs[i], false);
+                enableDisputeKit(_courtID, _disputeKitIDs[i], false);
             }
         }
     }
@@ -499,12 +492,12 @@ contract KlerosCore is IArbitrator {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /** @dev Sets the caller's stake in a subcourt.
-     *  @param _subcourtID The ID of the subcourt.
+    /** @dev Sets the caller's stake in a court.
+     *  @param _courtID The ID of the court.
      *  @param _stake The new stake.
      */
-    function setStake(uint96 _subcourtID, uint256 _stake) external {
-        require(setStakeForAccount(msg.sender, _subcourtID, _stake, 0), "Staking failed");
+    function setStake(uint96 _courtID, uint256 _stake) external {
+        require(setStakeForAccount(msg.sender, _courtID, _stake, 0), "Staking failed");
     }
 
     /** @dev Executes the next delayed stakes.
@@ -520,7 +513,7 @@ contract KlerosCore is IArbitrator {
 
         for (uint256 i = delayedStakeReadIndex; i < newDelayedStakeReadIndex; i++) {
             DelayedStake storage delayedStake = delayedStakes[i];
-            setStakeForAccount(delayedStake.account, delayedStake.subcourtID, delayedStake.stake, delayedStake.penalty);
+            setStakeForAccount(delayedStake.account, delayedStake.courtID, delayedStake.stake, delayedStake.penalty);
             delete delayedStakes[i];
         }
         delayedStakeReadIndex = newDelayedStakeReadIndex;
@@ -528,7 +521,7 @@ contract KlerosCore is IArbitrator {
 
     /** @dev Creates a dispute. Must be called by the arbitrable contract.
      *  @param _numberOfChoices Number of choices for the jurors to choose from.
-     *  @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's subcourt (first 32 bytes),
+     *  @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes),
      *  the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
      *  @return disputeID The ID of the created dispute.
      */
@@ -538,17 +531,17 @@ contract KlerosCore is IArbitrator {
     ) external payable override returns (uint256 disputeID) {
         require(msg.value >= arbitrationCost(_extraData), "ETH too low for arbitration cost");
 
-        (uint96 subcourtID, , uint256 disputeKitID) = extraDataToSubcourtIDMinJurorsDisputeKit(_extraData);
-        require(courts[subcourtID].supportedDisputeKits[disputeKitID], "DK unsupported by subcourt");
+        (uint96 courtID, , uint256 disputeKitID) = extraDataToCourtIDMinJurorsDisputeKit(_extraData);
+        require(courts[courtID].supportedDisputeKits[disputeKitID], "DK unsupported by court");
 
         disputeID = disputes.length;
         Dispute storage dispute = disputes.push();
-        dispute.subcourtID = subcourtID;
+        dispute.courtID = courtID;
         dispute.arbitrated = IArbitrable(msg.sender);
         dispute.lastPeriodChange = block.timestamp;
 
         IDisputeKit disputeKit = disputeKitNodes[disputeKitID].disputeKit;
-        Court storage court = courts[dispute.subcourtID];
+        Court storage court = courts[dispute.courtID];
         Round storage round = dispute.rounds.push();
         round.nbVotes = msg.value / court.feeForJuror;
         round.disputeKitID = disputeKitID;
@@ -611,7 +604,7 @@ contract KlerosCore is IArbitrator {
      */
     function passPeriod(uint256 _disputeID) external {
         Dispute storage dispute = disputes[_disputeID];
-        Court storage court = courts[dispute.subcourtID];
+        Court storage court = courts[dispute.courtID];
 
         uint256 currentRound = dispute.rounds.length - 1;
         Round storage round = dispute.rounds[currentRound];
@@ -672,7 +665,7 @@ contract KlerosCore is IArbitrator {
             address drawnAddress = disputeKit.draw(_disputeID);
             if (drawnAddress != address(0)) {
                 // In case no one has staked at the court yet.
-                jurors[drawnAddress].lockedTokens[dispute.subcourtID] += round.tokensAtStakePerJuror;
+                jurors[drawnAddress].lockedTokens[dispute.courtID] += round.tokensAtStakePerJuror;
                 emit Draw(drawnAddress, _disputeID, currentRound, round.drawnJurors.length);
                 round.drawnJurors.push(drawnAddress);
             }
@@ -694,18 +687,18 @@ contract KlerosCore is IArbitrator {
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         require(msg.sender == address(disputeKitNodes[round.disputeKitID].disputeKit), "Dispute Kit only");
 
-        uint96 newSubcourtID = dispute.subcourtID;
+        uint96 newCourtID = dispute.courtID;
         uint256 newDisputeKitID = round.disputeKitID;
 
         // Warning: the extra round must be created before calling disputeKit.createDispute()
         Round storage extraRound = dispute.rounds.push();
 
-        if (round.nbVotes >= courts[newSubcourtID].jurorsForCourtJump) {
-            // Jump to parent subcourt.
-            newSubcourtID = courts[newSubcourtID].parent;
+        if (round.nbVotes >= courts[newCourtID].jurorsForCourtJump) {
+            // Jump to parent court.
+            newCourtID = courts[newCourtID].parent;
 
             for (uint256 i = 0; i < SEARCH_ITERATIONS; i++) {
-                if (courts[newSubcourtID].supportedDisputeKits[newDisputeKitID]) {
+                if (courts[newCourtID].supportedDisputeKits[newDisputeKitID]) {
                     break;
                 } else if (disputeKitNodes[newDisputeKitID].parent != NULL_DISPUTE_KIT) {
                     newDisputeKitID = disputeKitNodes[newDisputeKitID].parent;
@@ -713,25 +706,25 @@ contract KlerosCore is IArbitrator {
                     // DK's parent has 0 index, that means we reached the root DK (0 depth level).
                     // Jump to the next parent court if the current court doesn't support any DK from this tree.
                     // Note that we don't reset newDisputeKitID in this case as, a precaution.
-                    newSubcourtID = courts[newSubcourtID].parent;
+                    newCourtID = courts[newCourtID].parent;
                 }
             }
             // We didn't find a court that is compatible with DK from this tree, so we jump directly to the top court.
             // Note that this can only happen when disputeKitID is at its root, and each root DK is supported by the top court by default.
-            if (!courts[newSubcourtID].supportedDisputeKits[newDisputeKitID]) {
-                newSubcourtID = GENERAL_COURT;
+            if (!courts[newCourtID].supportedDisputeKits[newDisputeKitID]) {
+                newCourtID = GENERAL_COURT;
             }
 
-            if (newSubcourtID != dispute.subcourtID) {
-                emit CourtJump(_disputeID, dispute.rounds.length - 1, dispute.subcourtID, newSubcourtID);
+            if (newCourtID != dispute.courtID) {
+                emit CourtJump(_disputeID, dispute.rounds.length - 1, dispute.courtID, newCourtID);
             }
         }
 
-        dispute.subcourtID = newSubcourtID;
+        dispute.courtID = newCourtID;
         dispute.period = Period.evidence;
         dispute.lastPeriodChange = block.timestamp;
 
-        Court storage court = courts[newSubcourtID];
+        Court storage court = courts[newCourtID];
         extraRound.nbVotes = msg.value / court.feeForJuror; // As many votes that can be afforded by the provided funds.
         extraRound.tokensAtStakePerJuror = (court.minStake * court.alpha) / ALPHA_DIVISOR;
         extraRound.totalFeesForJurors = msg.value;
@@ -801,21 +794,21 @@ contract KlerosCore is IArbitrator {
                 penaltiesInRoundCache += penalty;
 
                 account = round.drawnJurors[i];
-                jurors[account].lockedTokens[dispute.subcourtID] -= penalty; // Release this part of locked tokens.
+                jurors[account].lockedTokens[dispute.courtID] -= penalty; // Release this part of locked tokens.
 
                 // Can only update the stake if it is able to cover the minStake and penalty, otherwise unstake from the court.
-                if (jurors[account].stakedTokens[dispute.subcourtID] >= courts[dispute.subcourtID].minStake + penalty) {
-                    uint256 newStake = jurors[account].stakedTokens[dispute.subcourtID] - penalty;
-                    setStakeForAccount(account, dispute.subcourtID, newStake, penalty);
-                } else if (jurors[account].stakedTokens[dispute.subcourtID] != 0) {
-                    setStakeForAccount(account, dispute.subcourtID, 0, penalty);
+                if (jurors[account].stakedTokens[dispute.courtID] >= courts[dispute.courtID].minStake + penalty) {
+                    uint256 newStake = jurors[account].stakedTokens[dispute.courtID] - penalty;
+                    setStakeForAccount(account, dispute.courtID, newStake, penalty);
+                } else if (jurors[account].stakedTokens[dispute.courtID] != 0) {
+                    setStakeForAccount(account, dispute.courtID, 0, penalty);
                 }
 
                 // Unstake the juror if he lost due to inactivity.
                 if (!disputeKit.isVoteActive(_disputeID, _round, i)) {
-                    uint96[] memory subcourtIDs = getJurorSubcourtIDs(account);
-                    for (uint256 j = 0; j < subcourtIDs.length; j++) {
-                        setStakeForAccount(account, subcourtIDs[j], 0, 0);
+                    uint96[] memory courtIDs = getJurorCourtIDs(account);
+                    for (uint256 j = 0; j < courtIDs.length; j++) {
+                        setStakeForAccount(account, courtIDs[j], 0, 0);
                     }
                 }
                 emit TokenAndETHShift(account, _disputeID, -int256(penalty), 0);
@@ -839,12 +832,12 @@ contract KlerosCore is IArbitrator {
                 account = round.drawnJurors[i % numberOfVotesInRound];
 
                 // Release the rest of the tokens of the juror for this round.
-                jurors[account].lockedTokens[dispute.subcourtID] -=
+                jurors[account].lockedTokens[dispute.courtID] -=
                     (round.tokensAtStakePerJuror * degreeOfCoherence) /
                     ALPHA_DIVISOR;
 
                 // Give back the locked tokens in case the juror fully unstaked earlier.
-                if (jurors[account].stakedTokens[dispute.subcourtID] == 0) {
+                if (jurors[account].stakedTokens[dispute.courtID] == 0) {
                     uint256 tokenLocked = (round.tokensAtStakePerJuror * degreeOfCoherence) / ALPHA_DIVISOR;
                     safeTransfer(account, tokenLocked);
                 }
@@ -880,14 +873,14 @@ contract KlerosCore is IArbitrator {
     // *           Public Views            * //
     // ************************************* //
 
-    /** @dev Gets the cost of arbitration in a specified subcourt.
-     *  @param _extraData Additional info about the dispute. We use it to pass the ID of the subcourt to create the dispute in (first 32 bytes)
+    /** @dev Gets the cost of arbitration in a specified court.
+     *  @param _extraData Additional info about the dispute. We use it to pass the ID of the court to create the dispute in (first 32 bytes)
      *  and the minimum number of jurors required (next 32 bytes).
      *  @return cost The arbitration cost.
      */
     function arbitrationCost(bytes memory _extraData) public view override returns (uint256 cost) {
-        (uint96 subcourtID, uint256 minJurors, ) = extraDataToSubcourtIDMinJurorsDisputeKit(_extraData);
-        cost = courts[subcourtID].feeForJuror * minJurors;
+        (uint96 courtID, uint256 minJurors, ) = extraDataToCourtIDMinJurorsDisputeKit(_extraData);
+        cost = courts[courtID].feeForJuror * minJurors;
     }
 
     /** @dev Gets the cost of appealing a specified dispute.
@@ -897,17 +890,17 @@ contract KlerosCore is IArbitrator {
     function appealCost(uint256 _disputeID) public view returns (uint256 cost) {
         Dispute storage dispute = disputes[_disputeID];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
-        Court storage court = courts[dispute.subcourtID];
+        Court storage court = courts[dispute.courtID];
         if (round.nbVotes >= court.jurorsForCourtJump) {
-            // Jump to parent subcourt.
-            if (dispute.subcourtID == GENERAL_COURT) {
+            // Jump to parent court.
+            if (dispute.courtID == GENERAL_COURT) {
                 // TODO: Handle the forking when appealed in General court.
-                cost = NON_PAYABLE_AMOUNT; // Get the cost of the parent subcourt.
+                cost = NON_PAYABLE_AMOUNT; // Get the cost of the parent court.
             } else {
                 cost = courts[court.parent].feeForJuror * ((round.nbVotes * 2) + 1);
             }
         } else {
-            // Stay in current subcourt.
+            // Stay in current court.
             cost = court.feeForJuror * ((round.nbVotes * 2) + 1);
         }
     }
@@ -921,7 +914,7 @@ contract KlerosCore is IArbitrator {
         Dispute storage dispute = disputes[_disputeID];
         if (dispute.period == Period.appeal) {
             start = dispute.lastPeriodChange;
-            end = dispute.lastPeriodChange + courts[dispute.subcourtID].timesPerPeriod[uint256(Period.appeal)];
+            end = dispute.lastPeriodChange + courts[dispute.courtID].timesPerPeriod[uint256(Period.appeal)];
         } else {
             start = 0;
             end = 0;
@@ -971,16 +964,13 @@ contract KlerosCore is IArbitrator {
         return disputes[_disputeID].rounds.length;
     }
 
-    function getJurorBalance(
-        address _juror,
-        uint96 _subcourtID
-    ) external view returns (uint256 staked, uint256 locked) {
-        staked = jurors[_juror].stakedTokens[_subcourtID];
-        locked = jurors[_juror].lockedTokens[_subcourtID];
+    function getJurorBalance(address _juror, uint96 _courtID) external view returns (uint256 staked, uint256 locked) {
+        staked = jurors[_juror].stakedTokens[_courtID];
+        locked = jurors[_juror].lockedTokens[_courtID];
     }
 
-    function isSupported(uint96 _subcourtID, uint256 _disputeKitID) external view returns (bool) {
-        return courts[_subcourtID].supportedDisputeKits[_disputeKitID];
+    function isSupported(uint96 _courtID, uint256 _disputeKitID) external view returns (bool) {
+        return courts[_courtID].supportedDisputeKits[_disputeKitID];
     }
 
     /** @dev Gets non-primitive properties of a specified dispute kit node.
@@ -992,11 +982,11 @@ contract KlerosCore is IArbitrator {
     }
 
     /** @dev Gets the timesPerPeriod array for a given court.
-     *  @param _subcourtID The ID of the court to get the times from.
+     *  @param _courtID The ID of the court to get the times from.
      *  @return timesPerPeriod The timesPerPeriod array for the given court.
      */
-    function getTimesPerPeriod(uint96 _subcourtID) external view returns (uint256[4] memory timesPerPeriod) {
-        Court storage court = courts[_subcourtID];
+    function getTimesPerPeriod(uint96 _courtID) external view returns (uint256[4] memory timesPerPeriod) {
+        Court storage court = courts[_courtID];
         timesPerPeriod = court.timesPerPeriod;
     }
 
@@ -1034,7 +1024,7 @@ contract KlerosCore is IArbitrator {
     function isDisputeKitJumping(uint256 _disputeID) external view returns (bool) {
         Dispute storage dispute = disputes[_disputeID];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
-        Court storage court = courts[dispute.subcourtID];
+        Court storage court = courts[dispute.courtID];
 
         if (round.nbVotes < court.jurorsForCourtJump) {
             return false;
@@ -1048,54 +1038,54 @@ contract KlerosCore is IArbitrator {
         return disputesKitIDsThatNeedFreezing;
     }
 
-    function getJurorSubcourtIDs(address _juror) public view returns (uint96[] memory) {
-        return jurors[_juror].subcourtIDs;
+    function getJurorCourtIDs(address _juror) public view returns (uint96[] memory) {
+        return jurors[_juror].courtIDs;
     }
 
     // ************************************* //
     // *            Internal               * //
     // ************************************* //
 
-    function enableDisputeKit(uint96 _subcourtID, uint256 _disputeKitID, bool _enable) internal {
-        courts[_subcourtID].supportedDisputeKits[_disputeKitID] = _enable;
-        emit DisputeKitEnabled(_subcourtID, _disputeKitID, _enable);
+    function enableDisputeKit(uint96 _courtID, uint256 _disputeKitID, bool _enable) internal {
+        courts[_courtID].supportedDisputeKits[_disputeKitID] = _enable;
+        emit DisputeKitEnabled(_courtID, _disputeKitID, _enable);
     }
 
-    /** @dev Sets the specified juror's stake in a subcourt.
+    /** @dev Sets the specified juror's stake in a court.
      *  `O(n + p * log_k(j))` where
-     *  `n` is the number of subcourts the juror has staked in,
-     *  `p` is the depth of the subcourt tree,
-     *  `k` is the minimum number of children per node of one of these subcourts' sortition sum tree,
-     *  and `j` is the maximum number of jurors that ever staked in one of these subcourts simultaneously.
+     *  `n` is the number of courts the juror has staked in,
+     *  `p` is the depth of the court tree,
+     *  `k` is the minimum number of children per node of one of these courts' sortition sum tree,
+     *  and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
      *  @param _account The address of the juror.
-     *  @param _subcourtID The ID of the subcourt.
+     *  @param _courtID The ID of the court.
      *  @param _stake The new stake.
      *  @param _penalty Penalized amount won't be transferred back to juror when the stake is lowered.
      *  @return succeeded True if the call succeeded, false otherwise.
      */
     function setStakeForAccount(
         address _account,
-        uint96 _subcourtID,
+        uint96 _courtID,
         uint256 _stake,
         uint256 _penalty
     ) internal returns (bool succeeded) {
-        if (_subcourtID == FORKING_COURT || _subcourtID > courts.length) return false;
+        if (_courtID == FORKING_COURT || _courtID > courts.length) return false;
 
         Juror storage juror = jurors[_account];
-        bytes32 stakePathID = accountAndSubcourtIDToStakePathID(_account, _subcourtID);
-        uint256 currentStake = sortitionSumTrees.stakeOf(bytes32(uint256(_subcourtID)), stakePathID);
+        bytes32 stakePathID = accountAndCourtIDToStakePathID(_account, _courtID);
+        uint256 currentStake = sortitionSumTrees.stakeOf(bytes32(uint256(_courtID)), stakePathID);
 
         if (_stake != 0) {
             // Check against locked tokens in case the min stake was lowered.
-            if (_stake < courts[_subcourtID].minStake || _stake < juror.lockedTokens[_subcourtID]) return false;
-            if (currentStake == 0 && juror.subcourtIDs.length >= MAX_STAKE_PATHS) return false;
+            if (_stake < courts[_courtID].minStake || _stake < juror.lockedTokens[_courtID]) return false;
+            if (currentStake == 0 && juror.courtIDs.length >= MAX_STAKE_PATHS) return false;
         }
 
         // Delayed action logic.
         if (phase != Phase.staking) {
             delayedStakes[++delayedStakeWriteIndex] = DelayedStake({
                 account: _account,
-                subcourtID: _subcourtID,
+                courtID: _courtID,
                 stake: _stake,
                 penalty: _penalty
             });
@@ -1108,7 +1098,7 @@ contract KlerosCore is IArbitrator {
             if (transferredAmount > 0) {
                 if (safeTransferFrom(_account, address(this), transferredAmount)) {
                     if (currentStake == 0) {
-                        juror.subcourtIDs.push(_subcourtID);
+                        juror.courtIDs.push(_courtID);
                     }
                 } else {
                     return false;
@@ -1116,13 +1106,13 @@ contract KlerosCore is IArbitrator {
             }
         } else if (_stake == 0) {
             // Keep locked tokens in the contract and release them after dispute is executed.
-            transferredAmount = currentStake - juror.lockedTokens[_subcourtID] - _penalty;
+            transferredAmount = currentStake - juror.lockedTokens[_courtID] - _penalty;
             if (transferredAmount > 0) {
                 if (safeTransfer(_account, transferredAmount)) {
-                    for (uint256 i = 0; i < juror.subcourtIDs.length; i++) {
-                        if (juror.subcourtIDs[i] == _subcourtID) {
-                            juror.subcourtIDs[i] = juror.subcourtIDs[juror.subcourtIDs.length - 1];
-                            juror.subcourtIDs.pop();
+                    for (uint256 i = 0; i < juror.courtIDs.length; i++) {
+                        if (juror.courtIDs[i] == _courtID) {
+                            juror.courtIDs[i] = juror.courtIDs[juror.courtIDs.length - 1];
+                            juror.courtIDs.pop();
                             break;
                         }
                     }
@@ -1140,43 +1130,43 @@ contract KlerosCore is IArbitrator {
         }
 
         // Update juror's records.
-        uint256 newTotalStake = juror.stakedTokens[_subcourtID] - currentStake + _stake;
-        juror.stakedTokens[_subcourtID] = newTotalStake;
+        uint256 newTotalStake = juror.stakedTokens[_courtID] - currentStake + _stake;
+        juror.stakedTokens[_courtID] = newTotalStake;
 
-        // Update subcourt parents.
+        // Update court parents.
         bool finished = false;
-        uint256 currentSubcourtID = _subcourtID;
+        uint256 currentCourtID = _courtID;
         while (!finished) {
-            sortitionSumTrees.set(bytes32(currentSubcourtID), _stake, stakePathID);
-            if (currentSubcourtID == GENERAL_COURT) finished = true;
-            else currentSubcourtID = courts[currentSubcourtID].parent;
+            sortitionSumTrees.set(bytes32(currentCourtID), _stake, stakePathID);
+            if (currentCourtID == GENERAL_COURT) finished = true;
+            else currentCourtID = courts[currentCourtID].parent;
         }
 
-        emit StakeSet(_account, _subcourtID, _stake, newTotalStake);
+        emit StakeSet(_account, _courtID, _stake, newTotalStake);
 
         return true;
     }
 
-    /** @dev Gets a subcourt ID, the minimum number of jurors and an ID of a dispute kit from a specified extra data bytes array.
+    /** @dev Gets a court ID, the minimum number of jurors and an ID of a dispute kit from a specified extra data bytes array.
      *  Note that if extradata contains an incorrect value then this value will be switched to default.
-     *  @param _extraData The extra data bytes array. The first 32 bytes are the subcourt ID, the next are the minimum number of jurors and the last are the dispute kit ID.
-     *  @return subcourtID The subcourt ID.
+     *  @param _extraData The extra data bytes array. The first 32 bytes are the court ID, the next are the minimum number of jurors and the last are the dispute kit ID.
+     *  @return courtID The court ID.
      *  @return minJurors The minimum number of jurors required.
      *  @return disputeKitID The ID of the dispute kit.
      */
-    function extraDataToSubcourtIDMinJurorsDisputeKit(
+    function extraDataToCourtIDMinJurorsDisputeKit(
         bytes memory _extraData
-    ) internal view returns (uint96 subcourtID, uint256 minJurors, uint256 disputeKitID) {
+    ) internal view returns (uint96 courtID, uint256 minJurors, uint256 disputeKitID) {
         // Note that if the extradata doesn't contain 32 bytes for the dispute kit ID it'll return the default 0 index.
         if (_extraData.length >= 64) {
             assembly {
                 // solium-disable-line security/no-inline-assembly
-                subcourtID := mload(add(_extraData, 0x20))
+                courtID := mload(add(_extraData, 0x20))
                 minJurors := mload(add(_extraData, 0x40))
                 disputeKitID := mload(add(_extraData, 0x60))
             }
-            if (subcourtID == FORKING_COURT || subcourtID >= courts.length) {
-                subcourtID = GENERAL_COURT;
+            if (courtID == FORKING_COURT || courtID >= courts.length) {
+                courtID = GENERAL_COURT;
             }
             if (minJurors == 0) {
                 minJurors = MIN_JURORS;
@@ -1185,20 +1175,20 @@ contract KlerosCore is IArbitrator {
                 disputeKitID = DISPUTE_KIT_CLASSIC; // 0 index is not used.
             }
         } else {
-            subcourtID = GENERAL_COURT;
+            courtID = GENERAL_COURT;
             minJurors = MIN_JURORS;
             disputeKitID = DISPUTE_KIT_CLASSIC;
         }
     }
 
-    /** @dev Packs an account and a subcourt ID into a stake path ID.
+    /** @dev Packs an account and a court ID into a stake path ID.
      *  @param _account The address of the juror to pack.
-     *  @param _subcourtID The subcourt ID to pack.
+     *  @param _courtID The court ID to pack.
      *  @return stakePathID The stake path ID.
      */
-    function accountAndSubcourtIDToStakePathID(
+    function accountAndCourtIDToStakePathID(
         address _account,
-        uint96 _subcourtID
+        uint96 _courtID
     ) internal pure returns (bytes32 stakePathID) {
         assembly {
             // solium-disable-line security/no-inline-assembly
@@ -1215,7 +1205,7 @@ contract KlerosCore is IArbitrator {
             } lt(i, 0x20) {
                 i := add(i, 0x01)
             } {
-                mstore8(add(ptr, i), byte(i, _subcourtID))
+                mstore8(add(ptr, i), byte(i, _courtID))
             }
             stakePathID := mload(ptr)
         }
