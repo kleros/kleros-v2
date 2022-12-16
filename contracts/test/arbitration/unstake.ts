@@ -41,13 +41,13 @@ describe("Unstake juror", async () => {
   it("Unstake inactive juror", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
 
-    await core.createSubcourt(1, false, ONE_THOUSAND_PNK, 1000, ONE_TENTH_ETH, 3, [0, 0, 0, 0], 3, [1]); // Parent - general court, Classic dispute kit
+    await core.createCourt(1, false, ONE_THOUSAND_PNK, 1000, ONE_TENTH_ETH, 3, [0, 0, 0, 0], 3, [1]); // Parent - general court, Classic dispute kit
 
     await pnk.approve(core.address, ONE_THOUSAND_PNK.mul(4));
     await core.setStake(1, ONE_THOUSAND_PNK.mul(2));
     await core.setStake(2, ONE_THOUSAND_PNK.mul(2));
 
-    expect(await core.getJurorSubcourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
+    expect(await core.getJurorCourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
 
     await core.createDispute(2, extraData, { value: arbitrationCost });
 
@@ -76,10 +76,10 @@ describe("Unstake juror", async () => {
 
     await core.passPhase(); // Freezing -> Staking. Change so we don't deal with delayed stakes
 
-    expect(await core.getJurorSubcourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
+    expect(await core.getJurorCourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
 
     await core.execute(0, 0, 1); // 1 iteration should unstake from both courts
 
-    expect(await core.getJurorSubcourtIDs(deployer)).to.be.deep.equal([]);
+    expect(await core.getJurorCourtIDs(deployer)).to.be.deep.equal([]);
   });
 });

@@ -251,8 +251,8 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
 
-        (uint96 subcourtID, , , , ) = core.disputes(_coreDisputeID);
-        bytes32 key = bytes32(uint256(subcourtID)); // Get the ID of the tree.
+        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
+        bytes32 key = bytes32(uint256(courtID)); // Get the ID of the tree.
 
         (uint256 K, uint256 nodesLength, ) = core.getSortitionSumTree(key, 0);
         uint256 treeIndex = 0;
@@ -345,8 +345,8 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         require(_choice <= dispute.numberOfChoices, "Choice out of bounds");
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
-        (uint96 subcourtID, , , , ) = core.disputes(_coreDisputeID);
-        (, bool hiddenVotes, , , , ) = core.courts(subcourtID);
+        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
+        (, bool hiddenVotes, , , , ) = core.courts(courtID);
 
         //  Save the votes.
         for (uint256 i = 0; i < _voteIDs.length; i++) {
@@ -354,7 +354,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
             require(
                 !hiddenVotes ||
                     round.votes[_voteIDs[i]].commit == keccak256(abi.encodePacked(_choice, _justification, _salt)),
-                "The commit must match the choice in subcourts with hidden votes."
+                "The commit must match the choice in courts with hidden votes."
             );
             require(!round.votes[_voteIDs[i]].voted, "Vote already cast.");
             round.votes[_voteIDs[i]].choice = _choice;
@@ -671,13 +671,13 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
      *  @return Whether the address can be drawn or not.
      */
     function postDrawCheck(uint256 _coreDisputeID, address _juror) internal view override returns (bool) {
-        (uint96 subcourtID, , , , ) = core.disputes(_coreDisputeID);
+        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
         (uint256 lockedAmountPerJuror, , , , , ) = core.getRoundInfo(
             _coreDisputeID,
             core.getNumberOfRounds(_coreDisputeID) - 1
         );
-        (uint256 stakedTokens, uint256 lockedTokens) = core.getJurorBalance(_juror, subcourtID);
-        (, , uint256 minStake, , , ) = core.courts(subcourtID);
+        (uint256 stakedTokens, uint256 lockedTokens) = core.getJurorBalance(_juror, courtID);
+        (, , uint256 minStake, , , ) = core.courts(courtID);
         if (stakedTokens < lockedTokens + lockedAmountPerJuror || stakedTokens < minStake) {
             return false;
         } else {
