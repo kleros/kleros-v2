@@ -43,7 +43,7 @@ contract ForeignGateway is IForeignGateway {
         address arbitrable
     );
 
-    event ArbitrationCostModified(uint96 indexed _subcourtID, uint256 _feeForJuror);
+    event ArbitrationCostModified(uint96 indexed _courtID, uint256 _feeForJuror);
 
     // ************************************* //
     // *             Storage               * //
@@ -53,7 +53,7 @@ contract ForeignGateway is IForeignGateway {
     uint256 public immutable override senderChainID;
     address public immutable override senderGateway;
     uint256 internal localDisputeID = 1; // The disputeID must start from 1 as the KlerosV1 proxy governor depends on this implementation. We now also depend on localDisputeID not ever being zero.
-    mapping(uint96 => uint256) public feeForJuror; // feeForJuror[subcourtID], it mirrors the value on KlerosCore.
+    mapping(uint96 => uint256) public feeForJuror; // feeForJuror[courtID], it mirrors the value on KlerosCore.
     address public governor;
     IFastBridgeReceiver public fastBridgeReceiver;
     IFastBridgeReceiver public depreciatedFastbridge;
@@ -107,13 +107,13 @@ contract ForeignGateway is IForeignGateway {
     }
 
     /**
-     * @dev Changes the `feeForJuror` property value of a specified subcourt.
-     * @param _subcourtID The ID of the subcourt.
+     * @dev Changes the `feeForJuror` property value of a specified court.
+     * @param _courtID The ID of the court.
      * @param _feeForJuror The new value for the `feeForJuror` property value.
      */
-    function changeSubcourtJurorFee(uint96 _subcourtID, uint256 _feeForJuror) external onlyByGovernor {
-        feeForJuror[_subcourtID] = _feeForJuror;
-        emit ArbitrationCostModified(_subcourtID, _feeForJuror);
+    function changeSubcourtJurorFee(uint96 _courtID, uint256 _feeForJuror) external onlyByGovernor {
+        feeForJuror[_courtID] = _feeForJuror;
+        emit ArbitrationCostModified(_courtID, _feeForJuror);
     }
 
     // ************************************* //
@@ -156,8 +156,8 @@ contract ForeignGateway is IForeignGateway {
     }
 
     function arbitrationCost(bytes calldata _extraData) public view override returns (uint256 cost) {
-        (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDMinJurors(_extraData);
-        cost = feeForJuror[subcourtID] * minJurors;
+        (uint96 courtID, uint256 minJurors) = extraDataToSubcourtIDMinJurors(_extraData);
+        cost = feeForJuror[courtID] * minJurors;
     }
 
     /**
@@ -206,18 +206,18 @@ contract ForeignGateway is IForeignGateway {
 
     function extraDataToSubcourtIDMinJurors(
         bytes memory _extraData
-    ) internal view returns (uint96 subcourtID, uint256 minJurors) {
+    ) internal view returns (uint96 courtID, uint256 minJurors) {
         // Note that here we ignore DisputeKitID
         if (_extraData.length >= 64) {
             assembly {
                 // solium-disable-line security/no-inline-assembly
-                subcourtID := mload(add(_extraData, 0x20))
+                courtID := mload(add(_extraData, 0x20))
                 minJurors := mload(add(_extraData, 0x40))
             }
-            if (feeForJuror[subcourtID] == 0) subcourtID = 0;
+            if (feeForJuror[courtID] == 0) courtID = 0;
             if (minJurors == 0) minJurors = MIN_JURORS;
         } else {
-            subcourtID = 0;
+            courtID = 0;
             minJurors = MIN_JURORS;
         }
     }
