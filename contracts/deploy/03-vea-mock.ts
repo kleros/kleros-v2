@@ -9,7 +9,7 @@ const HARDHAT_NETWORK = 31337;
 
 const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts } = hre;
-  const { deploy } = deployments;
+  const { deploy, execute } = deployments;
   const { hexZeroPad, hexlify } = ethers.utils;
 
   // fallback to hardhat node signers on local network
@@ -31,7 +31,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const foreignGateway = await deploy("ForeignGatewayOnEthereum", {
     from: deployer,
     contract: "ForeignGateway",
-    args: [deployer, vea.address, [ethers.BigNumber.from(10).pow(17)], homeGatewayAddress, homeChainIdAsBytes32],
+    args: [deployer, vea.address, homeGatewayAddress, homeChainIdAsBytes32],
     gasLimit: 4000000,
     log: true,
   }); // nonce+0
@@ -43,6 +43,14 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     gasLimit: 4000000,
     log: true,
   }); // nonce+1
+
+  await execute(
+    "ForeignGatewayOnEthereum",
+    { from: deployer, log: true },
+    "changeSubcourtJurorFee",
+    0,
+    ethers.BigNumber.from(10).pow(17)
+  );
 
   const metaEvidenceUri = `https://raw.githubusercontent.com/kleros/kleros-v2/master/contracts/deployments/goerli/MetaEvidence_ArbitrableExample.json`;
 
