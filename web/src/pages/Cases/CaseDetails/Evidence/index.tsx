@@ -41,7 +41,6 @@ const Evidence: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
 
 const Container = styled.div`
   width: 100%;
-  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
