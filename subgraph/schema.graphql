@@ -18,11 +18,11 @@ type Court @entity {
   jurorsForCourtJump: BigInt!
   timesPerPeriod: [BigInt!]!
   supportedDisputeKits: [DisputeKit!]!
-  disputes: [Dispute!]! @derivedFrom(field: "subcourtID")
+  disputes: [Dispute!]! @derivedFrom(field: "courtID")
   numberDisputes: BigInt!
-  stakedJurors: [JurorTokensPerSubcourt!]! @derivedFrom(field: "subcourt")
+  stakedJurors: [JurorTokensPerCourt!]! @derivedFrom(field: "court")
   numberStakedJurors: BigInt!
-  tokens: [JurorTokensPerSubcourt!]! @derivedFrom(field: "subcourt")
+  tokens: [JurorTokensPerCourt!]! @derivedFrom(field: "court")
   stake: BigInt!
   paidETH: BigInt!
   paidPNK: BigInt!
@@ -30,7 +30,7 @@ type Court @entity {
 
 type Juror @entity {
   id: ID! # Set to address
-  tokens: [JurorTokensPerSubcourt!]! @derivedFrom(field: "juror")
+  tokens: [JurorTokensPerCourt!]! @derivedFrom(field: "juror")
   totalStake: BigInt!
   shifts: [TokenAndETHShift!]! @derivedFrom(field: "juror")
   draws: [Draw!]! @derivedFrom(field: "juror")
@@ -45,10 +45,10 @@ type TokenAndETHShift @entity {
   ethAmount: BigInt!
 }
 
-type JurorTokensPerSubcourt @entity {
+type JurorTokensPerCourt @entity {
   id: ID! # Set to `${juror.id}-${court.id}`
   juror: Juror!
-  subcourt: Court!
+  court: Court!
   staked: BigInt!
   locked: BigInt!
 }
@@ -100,7 +100,7 @@ type Draw @entity {
 
 type Dispute @entity {
   id: ID!
-  subcourtID: Court!
+  courtID: Court!
   arbitrated: Bytes!
   period: Period!
   ruled: Boolean!
