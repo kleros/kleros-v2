@@ -111,7 +111,7 @@ contract ForeignGateway is IForeignGateway {
      * @param _courtID The ID of the court.
      * @param _feeForJuror The new value for the `feeForJuror` property value.
      */
-    function changeSubcourtJurorFee(uint96 _courtID, uint256 _feeForJuror) external onlyByGovernor {
+    function changeCourtJurorFee(uint96 _courtID, uint256 _feeForJuror) external onlyByGovernor {
         feeForJuror[_courtID] = _feeForJuror;
         emit ArbitrationCostModified(_courtID, _feeForJuror);
     }
@@ -156,7 +156,7 @@ contract ForeignGateway is IForeignGateway {
     }
 
     function arbitrationCost(bytes calldata _extraData) public view override returns (uint256 cost) {
-        (uint96 courtID, uint256 minJurors) = extraDataToSubcourtIDMinJurors(_extraData);
+        (uint96 courtID, uint256 minJurors) = extraDataToCourtIDMinJurors(_extraData);
         cost = feeForJuror[courtID] * minJurors;
     }
 
@@ -204,7 +204,7 @@ contract ForeignGateway is IForeignGateway {
     // *       Internal       * //
     // ************************ //
 
-    function extraDataToSubcourtIDMinJurors(
+    function extraDataToCourtIDMinJurors(
         bytes memory _extraData
     ) internal view returns (uint96 courtID, uint256 minJurors) {
         // Note that here we ignore DisputeKitID
