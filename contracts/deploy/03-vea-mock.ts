@@ -47,7 +47,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await execute(
     "ForeignGatewayOnEthereum",
     { from: deployer, log: true },
-    "changeSubcourtJurorFee",
+    "changeCourtJurorFee",
     0,
     ethers.BigNumber.from(10).pow(17)
   );
