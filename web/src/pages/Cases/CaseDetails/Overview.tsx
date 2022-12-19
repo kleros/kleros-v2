@@ -24,10 +24,8 @@ const Overview: React.FC<{ arbitrable: string; courtID?: string }> = ({
   const courtPolicyPath = courtPolicyEvent?.args._policy;
   const { data: courtPolicy } = useIPFSQuery(courtPolicyPath);
   const courtName = courtPolicy?.name;
-  const rewards = disputeDetails?.dispute?.subcourtID
-    ? `≥ ${utils.formatEther(
-        disputeDetails?.dispute?.subcourtID.feeForJuror
-      )} ETH`
+  const rewards = disputeDetails?.dispute?.courtID
+    ? `≥ ${utils.formatEther(disputeDetails?.dispute?.courtID.feeForJuror)} ETH`
     : undefined;
   const category = metaEvidence ? metaEvidence.category : undefined;
   return (
