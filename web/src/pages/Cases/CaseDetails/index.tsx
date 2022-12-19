@@ -27,7 +27,7 @@ const CaseDetails: React.FC = () => {
             element={
               <Overview
                 arbitrable={dispute?.arbitrated}
-                courtID={dispute?.subcourtID.id}
+                courtID={dispute?.courtID.id}
               />
             }
           />

@@ -13,7 +13,7 @@ const casesQuery = gql`
     ) {
       id
       arbitrated
-      subcourtID {
+      courtID {
         id
         policy
         feeForJuror
