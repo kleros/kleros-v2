@@ -43,6 +43,8 @@ contract ForeignGateway is IForeignGateway {
         address arbitrable
     );
 
+    event ArbitrationCostModified(uint96 indexed _courtID, uint256 _feeForJuror);
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -51,7 +53,7 @@ contract ForeignGateway is IForeignGateway {
     uint256 public immutable override senderChainID;
     address public immutable override senderGateway;
     uint256 internal localDisputeID = 1; // The disputeID must start from 1 as the KlerosV1 proxy governor depends on this implementation. We now also depend on localDisputeID not ever being zero.
-    uint256[] internal feeForJuror; // feeForJuror[courtID]
+    mapping(uint96 => uint256) public feeForJuror; // feeForJuror[courtID], it mirrors the value on KlerosCore.
     address public governor;
     IFastBridgeReceiver public fastBridgeReceiver;
     IFastBridgeReceiver public depreciatedFastbridge;
@@ -79,13 +81,11 @@ contract ForeignGateway is IForeignGateway {
     constructor(
         address _governor,
         IFastBridgeReceiver _fastBridgeReceiver,
-        uint256[] memory _feeForJuror,
         address _senderGateway,
         uint256 _senderChainID
     ) {
         governor = _governor;
         fastBridgeReceiver = _fastBridgeReceiver;
-        feeForJuror = _feeForJuror;
         senderGateway = _senderGateway;
         senderChainID = _senderChainID;
     }
@@ -111,16 +111,9 @@ contract ForeignGateway is IForeignGateway {
      * @param _courtID The ID of the court.
      * @param _feeForJuror The new value for the `feeForJuror` property value.
      */
-    function changeCourtJurorFee(uint96 _courtID, uint256 _feeForJuror) external onlyByGovernor {
+    function changeSubcourtJurorFee(uint96 _courtID, uint256 _feeForJuror) external onlyByGovernor {
         feeForJuror[_courtID] = _feeForJuror;
-    }
-
-    /**
-     * @dev Creates the `feeForJuror` property value for a new court.
-     * @param _feeForJuror The new value for the `feeForJuror` property value.
-     */
-    function createCourtJurorFee(uint256 _feeForJuror) external onlyByGovernor {
-        feeForJuror.push(_feeForJuror);
+        emit ArbitrationCostModified(_courtID, _feeForJuror);
     }
 
     // ************************************* //
@@ -163,8 +156,7 @@ contract ForeignGateway is IForeignGateway {
     }
 
     function arbitrationCost(bytes calldata _extraData) public view override returns (uint256 cost) {
-        (uint96 courtID, uint256 minJurors) = extraDataToCourtIDMinJurors(_extraData);
-
+        (uint96 courtID, uint256 minJurors) = extraDataToSubcourtIDMinJurors(_extraData);
         cost = feeForJuror[courtID] * minJurors;
     }
 
@@ -212,7 +204,7 @@ contract ForeignGateway is IForeignGateway {
     // *       Internal       * //
     // ************************ //
 
-    function extraDataToCourtIDMinJurors(
+    function extraDataToSubcourtIDMinJurors(
         bytes memory _extraData
     ) internal view returns (uint96 courtID, uint256 minJurors) {
         // Note that here we ignore DisputeKitID
@@ -222,7 +214,7 @@ contract ForeignGateway is IForeignGateway {
                 courtID := mload(add(_extraData, 0x20))
                 minJurors := mload(add(_extraData, 0x40))
             }
-            if (courtID >= feeForJuror.length) courtID = 0;
+            if (feeForJuror[courtID] == 0) courtID = 0;
             if (minJurors == 0) minJurors = MIN_JURORS;
         } else {
             courtID = 0;
