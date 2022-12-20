@@ -57,9 +57,9 @@ describe("DisputeKitClassic", async () => {
       "Access not allowed: KlerosCore only."
     );
 
-    await expect(core.connect(deployer).createDispute(2, "0x00", { value: 1000 }))
-      .to.emit(core, "DisputeCreation")
-      .withArgs(0, deployer.address);
+    const tx = await core.connect(deployer).createDispute(2, "0x00", { value: 1000 });
+    expect(tx).to.emit(core, "DisputeCreation").withArgs(0, deployer.address);
+    expect(tx).to.emit(disputeKit, "DisputeCreation").withArgs(0, 2, "0x00");
 
     await disputeKit.disputes(0).then((disputes) => {
       expect(BigNumber.from(Object.values(disputes)[0])).to.equal(2);
