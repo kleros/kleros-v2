@@ -95,6 +95,10 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     // *              Events               * //
     // ************************************* //
 
+    event DisputeCreation(uint256 indexed _coreDisputeID, uint256 _numberOfChoices, bytes _extraData);
+
+    event CommitCast(uint256 indexed _coreDisputeID, uint256[] _voteIDs, bytes32 _commit);
+
     event Contribution(
         uint256 indexed _coreDisputeID,
         uint256 indexed _coreRoundID,
@@ -211,6 +215,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
 
         coreDisputeIDToLocal[_coreDisputeID] = localDisputeID;
         disputesWithoutJurors++;
+        emit DisputeCreation(_coreDisputeID, _numberOfChoices, _extraData);
     }
 
     /** @dev Passes the phase.
@@ -319,6 +324,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
             round.votes[_voteIDs[i]].commit = _commit;
         }
         round.totalCommitted += _voteIDs.length;
+        emit CommitCast(_coreDisputeID, _voteIDs, _commit);
     }
 
     /** @dev Sets the caller's choices for the specified votes.
