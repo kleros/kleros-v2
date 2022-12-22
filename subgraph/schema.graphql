@@ -1,16 +1,15 @@
 enum Period {
-  Evidence
-  Commit
-  Vote
-  Appeal
-  Execution
+  evidence
+  commit
+  vote
+  appeal
+  execution
 }
 
 type Court @entity {
   id: ID!
-  policy: String
-  hiddenVotes: Boolean!
   parent: Court
+  hiddenVotes: Boolean!
   children: [Court!]! @derivedFrom(field: "parent")
   minStake: BigInt!
   alpha: BigInt!
@@ -18,14 +17,84 @@ type Court @entity {
   jurorsForCourtJump: BigInt!
   timesPerPeriod: [BigInt!]!
   supportedDisputeKits: [DisputeKit!]!
-  disputes: [Dispute!]! @derivedFrom(field: "courtID")
+  disputes: [Dispute!]! @derivedFrom(field: "court")
   numberDisputes: BigInt!
   stakedJurors: [JurorTokensPerCourt!]! @derivedFrom(field: "court")
   numberStakedJurors: BigInt!
-  tokens: [JurorTokensPerCourt!]! @derivedFrom(field: "court")
   stake: BigInt!
   paidETH: BigInt!
   paidPNK: BigInt!
+  policy: String
+}
+
+type Dispute @entity {
+  id: ID!
+  court: Court!
+  arbitrated: Bytes!
+  period: Period!
+  ruled: Boolean!
+  lastPeriodChange: BigInt!
+  rounds: [Round!]! @derivedFrom(field: "dispute")
+  currentRound: Round!
+  currentRoundIndex: BigInt!
+  shifts: [TokenAndETHShift!]! @derivedFrom(field: "dispute")
+  disputeKitDispute: DisputeKitDispute @derivedFrom(field: "coreDispute")
+}
+
+type Round @entity {
+  id: ID! # Set to `${dispute.id}-${dispute.rounds.length}`
+  disputeKit: DisputeKit!
+  tokensAtStakePerJuror: BigInt!
+  totalFeesForJurors: BigInt!
+  nbVotes: BigInt!
+  repartitions: BigInt!
+  penalties: BigInt!
+  drawnJurors: [Draw!]! @derivedFrom(field: "round")
+  dispute: Dispute!
+}
+
+interface DisputeKitRound {
+  id: ID! # Set to `${disputeKit.id}-{dispute.id}-{dispute.rounds.length}`
+}
+
+type ClassicRound implements DisputeKitRound @entity {
+  id: ID! # Set to `${disputeKit.id}-{dispute.id}-{dispute.rounds.length}`
+  votes: [ClassicVote!]!
+  winningChoice: BigInt!
+  counts: [BigInt!]!
+  tied: Boolean!
+  totalVoted: BigInt!
+  totalCommited: BigInt!
+  paidFees: [BigInt!]!
+  contributions: [Contribution!]! @derivedFrom(field: "round")
+  feeRewards: BigInt!
+  nbVotes: BigInt!
+}
+
+type Contribution @entity {
+  id: ID! # Set to `${dispute.id}-${round.id}-${contributor}-${choice}`
+  contributor: Bytes!
+  amount: BigInt!
+  choice: BigInt!
+  round: ClassicRound!
+}
+
+type ClassicVote @entity {
+  id: ID!
+}
+
+interface DisputeKitDispute {
+  id: ID! # Set to ${disputeKit.id}-{disputeKit.disputes.length}
+  coreDispute: Dispute!
+}
+
+type ClassicDispute implements DisputeKitDispute @entity {
+  id: ID! # Set to ${disputeKit.id}-{disputeKit.disputes.length}
+  coreDispute: Dispute!
+
+  numberOfChoices: BigInt!
+  jumped: Boolean!
+  extraData: Bytes!
 }
 
 type Juror @entity {
@@ -66,21 +135,6 @@ type Evidence @entity {
   sender: Bytes!
 }
 
-type Round @entity {
-  id: ID! # Set to `${dispute.id}-${currentRound}`
-  dispute: Dispute!
-  disputeKitID: DisputeKit!
-  tokensAtStakePerJuror: BigInt!
-  totalFeesForJurors: BigInt!
-  nbVotes: BigInt!
-  totalVoted: BigInt!
-  repartitions: BigInt!
-  penalties: BigInt!
-  drawnJurors: [Draw!]! @derivedFrom(field: "round")
-  votes: [Vote!]! @derivedFrom(field: "round")
-  currentDecision: BigInt
-}
-
 type Vote @entity {
   id: ID! # Set to `${coreDisputeID}-${coreRoundID}-${jurorAddress}`
   dispute: Dispute!
@@ -98,21 +152,6 @@ type Draw @entity {
   voteID: BigInt!
 }
 
-type Dispute @entity {
-  id: ID!
-  courtID: Court!
-  arbitrated: Bytes!
-  period: Period!
-  ruled: Boolean!
-  lastPeriodChange: BigInt!
-  rounds: [Round!]! @derivedFrom(field: "dispute")
-  draws: [Draw!]! @derivedFrom(field: "dispute")
-  votes: [Vote!]! @derivedFrom(field: "dispute")
-  currentRound: Int!
-  shifts: [TokenAndETHShift!]! @derivedFrom(field: "dispute")
-  gatewayDispute: GatewayDispute! @derivedFrom(field: "homeDispute")
-}
-
 type DisputeKit @entity {
   id: ID!
   address: Bytes
@@ -120,7 +159,7 @@ type DisputeKit @entity {
   children: [DisputeKit!]! @derivedFrom(field: "parent")
   needsFreezing: Boolean!
   depthLevel: BigInt!
-  rounds: [Round!]! @derivedFrom(field: "disputeKitID")
+  rounds: [Round!]! @derivedFrom(field: "disputeKit")
   courts: [Court!]! @derivedFrom(field: "supportedDisputeKits")
 }
 
