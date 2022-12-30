@@ -1,31 +1,15 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, log } from "@graphprotocol/graph-ts";
 import { CourtCreated } from "../../generated/KlerosCore/KlerosCore";
 import { Court } from "../../generated/schema";
 import { ZERO } from "../utils";
 
-export function ensureCourt(id: string): Court {
-  let court = Court.load(id);
+export function loadCourtWithLog(id: string): Court | null {
+  const court = Court.load(id);
 
-  if (court) {
-    return court;
+  if (!court) {
+    log.error("Court not found with id: {}", [id]);
+    return null;
   }
-  // Should never reach here
-  court = new Court(id);
-
-  court.hiddenVotes = false;
-  court.parent = "1";
-  court.minStake = ZERO;
-  court.alpha = ZERO;
-  court.feeForJuror = ZERO;
-  court.jurorsForCourtJump = ZERO;
-  court.timesPerPeriod = [ZERO, ZERO, ZERO, ZERO];
-  court.supportedDisputeKits = [];
-  court.numberDisputes = ZERO;
-  court.numberStakedJurors = ZERO;
-  court.stake = ZERO;
-  court.paidETH = ZERO;
-  court.paidPNK = ZERO;
-  court.save();
 
   return court;
 }
@@ -51,6 +35,7 @@ export function createCourtFromEvent(event: CourtCreated): void {
 }
 
 export function getFeeForJuror(id: string): BigInt {
-  const court = ensureCourt(id);
+  const court = loadCourtWithLog(id);
+  if (!court) return ZERO;
   return court.feeForJuror;
 }

@@ -1,18 +1,18 @@
-import { Juror } from "../../generated/schema";
+import { User } from "../../generated/schema";
 
-export function ensureJuror(id: string): Juror {
-  let juror = Juror.load(id);
+export function ensureUser(id: string): User {
+  let user = User.load(id);
 
-  if (juror) {
-    return juror;
+  if (user) {
+    return user;
   }
 
-  return createJurorFromAddress(id);
+  return createUserFromAddress(id);
 }
 
-export function createJurorFromAddress(id: string): Juror {
-  const juror = new Juror(id);
-  juror.save();
+export function createUserFromAddress(id: string): User {
+  const user = new User(id);
+  user.save();
 
-  return juror;
+  return user;
 }
