@@ -1,4 +1,4 @@
-import { Bytes } from "@graphprotocol/graph-ts";
+import { log } from "@graphprotocol/graph-ts";
 import {
   KlerosCore,
   DisputeCreation,
@@ -6,23 +6,13 @@ import {
 import { Dispute } from "../../generated/schema";
 import { ZERO } from "../utils";
 
-export function ensureDispute(id: string): Dispute {
-  let dispute = Dispute.load(id);
+export function loadDisputeWithLog(id: string): Dispute | null {
+  const dispute = Dispute.load(id);
 
-  if (dispute) {
-    return dispute;
+  if (!dispute) {
+    log.error("Dispute not found with id: {}", [id]);
+    return null;
   }
-  // Should never reach here
-  dispute = new Dispute(id);
-  dispute.court = "1";
-  dispute.arbitrated = Bytes.fromHexString("0x0");
-  dispute.period = "evidence";
-  dispute.ruled = false;
-  dispute.lastPeriodChange = ZERO;
-  dispute.currentRoundIndex = ZERO;
-  const roundID = `${id}-${ZERO.toString()}`;
-  dispute.currentRound = roundID;
-  dispute.save();
 
   return dispute;
 }
@@ -33,7 +23,7 @@ export function createDisputeFromEvent(event: DisputeCreation): void {
   const disputeContractState = contract.disputes(disputeID);
   const dispute = new Dispute(disputeID.toString());
   dispute.court = disputeContractState.value0.toString();
-  dispute.arbitrated = event.params._arbitrable;
+  dispute.arbitrated = event.params._arbitrable.toHexString();
   dispute.period = "evidence";
   dispute.ruled = false;
   dispute.lastPeriodChange = event.block.timestamp;
