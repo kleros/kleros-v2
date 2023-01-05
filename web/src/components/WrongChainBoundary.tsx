@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { ErrorBoundary } from "react-error-boundary";
 import { Button } from "@kleros/ui-components-library";
 import { switchChain } from "utils/switchChain";
+import { DEFAULT_CHAIN, SUPPORTED_CHAINS } from "consts/supportedChains";
 
 const WrongChainRecovery: React.FC<{ resetErrorBoundary: () => void }> = ({
   resetErrorBoundary,
@@ -13,10 +14,10 @@ const WrongChainRecovery: React.FC<{ resetErrorBoundary: () => void }> = ({
       <Button
         isLoading={loading}
         disabled={loading}
-        text="Switch to Arbitrum"
+        text={`Switch to ${SUPPORTED_CHAINS[DEFAULT_CHAIN].chainName}`}
         onClick={() => {
           setLoading(true);
-          switchChain(421611)
+          switchChain(DEFAULT_CHAIN)
             .then(resetErrorBoundary)
             .finally(() => setLoading(false));
         }}
