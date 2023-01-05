@@ -94,7 +94,7 @@ The complete deployment is multi-chain, so a deployment to the local network can
 **Shell 1: the node**
 
 ```bash
-yarn node --tags nothing
+yarn hardhat node --tags nothing
 ```
 
 **Shell 2: the deploy script**
@@ -120,7 +120,7 @@ If you miss that, you can always go to the `deployments/<network>` directory and
 **Shell 1: the node**
 
 ```bash
-yarn node --tags Arbitration,VeaMock
+yarn hardhat node --tags Arbitration,VeaMock
 ```
 
 **Shell 2: the test scripts**
@@ -153,7 +153,7 @@ yarn hardhat run scripts/getCourtsV1.ts --network mainnet | tee courts.v1.json
 Shell 1:
 
 ```bash
-yarn node --tags Arbitration
+yarn hardhat node --tags Arbitration
 ```
 
 Shell 2:
