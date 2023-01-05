@@ -15,5 +15,5 @@ function update() #file #dataSourceIndex
 }
 
 update "$SCRIPT_DIR/../../contracts/deployments/arbitrumGoerli/KlerosCore.json" 0
-update "$SCRIPT_DIR/../../contracts/deployments/arbitrumGoerli/HomeGatewayToEthereum.json" 1
-update "$SCRIPT_DIR/../../contracts/deployments/arbitrumGoerli/FastBridgeSender.json" 2
+update "$SCRIPT_DIR/../../contracts/deployments/arbitrumGoerli/PolicyRegistry.json" 1
+update "$SCRIPT_DIR/../../contracts/deployments/arbitrumGoerli/DisputeKitClassic.json" 2
