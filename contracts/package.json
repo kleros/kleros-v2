@@ -12,7 +12,7 @@
   },
   "volta": {
     "node": "16.18.1",
-    "yarn": "3.1.1"
+    "yarn": "3.3.1"
   },
   "scripts": {
     "build": "hardhat compile",
