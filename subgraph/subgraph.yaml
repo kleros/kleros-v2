@@ -6,9 +6,9 @@ dataSources:
     name: KlerosCore
     network: arbitrum-goerli
     source:
-      address: "0x9Bcb0D261D5B446c0474d0846563C712F8B7bE5E"
+      address: "0x4d7858e73a8842b5e6422D08a3349924dD062AbB"
       abi: KlerosCore
-      startBlock: 997981
+      startBlock: 4027978
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -56,9 +56,9 @@ dataSources:
     name: PolicyRegistry
     network: arbitrum-goerli
     source:
-      address: "0xaE25ed5eDad0bD932D3Af2e36631849497512068"
+      address: "0xAF0F49Fe110b48bd512F00d51D141F023c9a9106"
       abi: PolicyRegistry
-      startBlock: 133630
+      startBlock: 4027973
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -69,16 +69,16 @@ dataSources:
         - name: PolicyRegistry
           file: ../contracts/deployments/arbitrumGoerli/PolicyRegistry.json
       eventHandlers:
-        - event: PolicyUpdate(indexed uint256,string)
+        - event: PolicyUpdate(indexed uint256,string,string)
           handler: handlePolicyUpdate
       file: ./src/PolicyRegistry.ts
   - kind: ethereum
     name: DisputeKitClassic
     network: arbitrum-goerli
     source:
-      address: "0x61C72C3258C3D4D05bebD045E7FB0d57695CF43e"
+      address: "0xde31F2245d164620d08f5b0f8D43dCe8B9708373"
       abi: DisputeKitClassic
-      startBlock: 133630
+      startBlock: 4027976
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6

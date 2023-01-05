@@ -14,43 +14,19 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [ArbitrableExample](https://goerli.etherscan.io/address/0xd78dcdde2c5a2bd4bb246bc7db6994b95f7c442c)
 - [FastBridgeReceiverOnEthereum](https://goerli.etherscan.io/address/0x8F53f533531a40BdaA832254e282ed1b21D83F71)
 - [ForeignGatewayOnEthereum](https://goerli.etherscan.io/address/0x4401a368dea8d5761aeeffd3c4a674086dea0666)
-- [MetaEvidence_ArbitrableExample](https://goerli.etherscan.io/address/null)
 
 #### Arbitrum Goerli
 
-- [PNK](https://goerli-rollup-explorer.arbitrum.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610/token-transfers)
-- [BlockHashRNG](https://goerli-rollup-explorer.arbitrum.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
-- [DisputeKitClassic](https://goerli-rollup-explorer.arbitrum.io/address/0x61C72C3258C3D4D05bebD045E7FB0d57695CF43e)
-- [DisputeResolver](https://goerli-rollup-explorer.arbitrum.io/address/0x1BE4fFbF7c2AE7F46054c1f3e98153170D5E5FBb)
-- [FastBridgeSender](https://goerli-rollup-explorer.arbitrum.io/address/0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C)
-- [HomeGatewayToEthereum](https://goerli-rollup-explorer.arbitrum.io/address/0xed12799915180a257985631fbD2ead261eD838cf)
-- [KlerosCore](https://goerli-rollup-explorer.arbitrum.io/address/0x9Bcb0D261D5B446c0474d0846563C712F8B7bE5E)
-- [PNK](https://goerli-rollup-explorer.arbitrum.io/address/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610)
-- [PolicyRegistry](https://goerli-rollup-explorer.arbitrum.io/address/0xaE25ed5eDad0bD932D3Af2e36631849497512068)
-- [RandomizerRNG](https://goerli-rollup-explorer.arbitrum.io/address/0x6E723A6d054a247A95292447Cc7ce780664d7d9a)
-- [SortitionSumTreeFactory](https://goerli-rollup-explorer.arbitrum.io/address/0x40a78989317B953e427B3BD87C59eA003fcC2296)
-
-#### Rinkeby - DEPRECATED
-
-- [PNK](https://rinkeby.etherscan.io/token/0x14aba1fa8a31a8649e8098ad067b739cc5708f30)
-- [ArbitrableExample](https://rinkeby.etherscan.io/address/0xc0fcc96BFd78e36550FCaB434A9EE1210B57225b)
-- [FastBridgeReceiverOnEthereum](https://rinkeby.etherscan.io/address/0x545C731e84c0034d58e57E476A3b7C3929d070CC)
-- [ForeignGatewayOnEthereum](https://rinkeby.etherscan.io/address/0x8681CE0CA5706Cf4732d9060e8eC9f865F7d546a)
-- [MetaEvidence_ArbitrableExample](https://rinkeby.etherscan.io/address/null)
-
-#### Arbitrum Rinkeby - DEPRECATED
-
-- [PNK](https://testnet.arbiscan.io/token/0x364530164a2338cdba211f72c1438eb811b5c639)
-- [Blockhash](https://testnet.arbiscan.io/address/0xe22b595b3e5fF130EcF7056Ef6A4ac351AeA8a58)
-- [DisputeKitClassic](https://testnet.arbiscan.io/address/0xA2c538AA05BBCc44c213441f6f3777223D2BF9e5)
-- [DisputeResolver](https://testnet.arbiscan.io/address/0x67e8191F61466c57A17542A52F9f39f336A242fD)
-- [FastBridgeSender](https://testnet.arbiscan.io/address/0xf8A4a85e7153374A1b9BDA763a84252eC286843b)
-- [HomeGatewayToEthereum](https://testnet.arbiscan.io/address/0x4e894c2B60214beC53B60D09F39544518296C07B)
-- [IncrementalNG](https://testnet.arbiscan.io/address/0x078dAd05373d19d7fd6829735b765F12242a4300)
-- [KlerosCore](https://testnet.arbiscan.io/address/0x815d709EFCF5E69e2e9E2F8d3815d762496a2f0F)
-- [PNK](https://testnet.arbiscan.io/address/0x364530164a2338cdba211f72c1438eb811b5c639)
-- [PolicyRegistry](https://testnet.arbiscan.io/address/0x76262035D1b280cC0b08024177b837893bcAd3DA)
-- [SortitionSumTreeFactory](https://testnet.arbiscan.io/address/0x48ce286978C74c288eA6Bc9a536BcC899DF8D177)
+- [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610/token-transfers)
+- [BlockHashRNG](https://goerli.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
+- [DisputeKitClassic](https://goerli.arbiscan.io/address/0xde31F2245d164620d08f5b0f8D43dCe8B9708373)
+- [DisputeResolver](https://goerli.arbiscan.io/address/0xa1f52474CFa1ee78758a4bBa35DE547133Bda62f)
+- [FastBridgeSender](https://goerli.arbiscan.io/address/0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C)
+- [HomeGatewayToEthereum](https://goerli.arbiscan.io/address/0xed12799915180a257985631fbD2ead261eD838cf)
+- [KlerosCore](https://goerli.arbiscan.io/address/0x4d7858e73a8842b5e6422D08a3349924dD062AbB)
+- [PolicyRegistry](https://goerli.arbiscan.io/address/0xAF0F49Fe110b48bd512F00d51D141F023c9a9106)
+- [RandomizerRNG](https://goerli.arbiscan.io/address/0xb82D1eAD813C3a2E729F288276cc402343423Bad)
+- [SortitionSumTreeFactory](https://goerli.arbiscan.io/address/0x40a78989317B953e427B3BD87C59eA003fcC2296)
 
 ## Getting Started
 
@@ -118,7 +94,7 @@ The complete deployment is multi-chain, so a deployment to the local network can
 **Shell 1: the node**
 
 ```bash
-yarn node --tags nothing
+yarn hardhat node --tags nothing
 ```
 
 **Shell 2: the deploy script**
@@ -144,7 +120,7 @@ If you miss that, you can always go to the `deployments/<network>` directory and
 **Shell 1: the node**
 
 ```bash
-yarn node --tags Arbitration,VeaMock
+yarn hardhat node --tags Arbitration,VeaMock
 ```
 
 **Shell 2: the test scripts**
@@ -158,7 +134,7 @@ yarn test --network localhost
 This must be done for each network separately.
 
 ```bash
-yarn --network <arbitrumGoerli|arbitrumRinkeby|arbitrum|goerli|rinkeby|mainnet> etherscan-verify
+yarn etherscan-verify --network <arbitrumGoerli|arbitrumRinkeby|arbitrum|goerli|rinkeby|mainnet>
 ```
 
 ## Ad-hoc procedures
@@ -177,7 +153,7 @@ yarn hardhat run scripts/getCourtsV1.ts --network mainnet | tee courts.v1.json
 Shell 1:
 
 ```bash
-yarn node --tags Arbitration
+yarn hardhat node --tags Arbitration
 ```
 
 Shell 2:

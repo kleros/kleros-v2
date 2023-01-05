@@ -12,14 +12,13 @@
   },
   "volta": {
     "node": "16.18.1",
-    "yarn": "3.1.1"
+    "yarn": "3.3.1"
   },
   "scripts": {
     "build": "hardhat compile",
     "clean": "hardhat clean",
     "check": "solhint src/**/*.sol",
     "test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test",
-    "node": "hardhat node",
     "deploy": "hardhat deploy",
     "deploy:staging": "run-s \"deploy --network rinkeby {@}\" \"deploy --network arbitrumRinkeby {@}\" --",
     "etherscan-verify": "hardhat etherscan-verify",

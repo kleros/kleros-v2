@@ -91,6 +91,8 @@ type JurorTokensPerCourt @entity {
 
 type Court @entity {
   id: ID!
+  policy: String
+  name: String
   parent: Court
   hiddenVotes: Boolean!
   children: [Court!]! @derivedFrom(field: "parent")
@@ -107,7 +109,6 @@ type Court @entity {
   stake: BigInt!
   paidETH: BigInt!
   paidPNK: BigInt!
-  policy: String
 }
 
 type Dispute @entity {
