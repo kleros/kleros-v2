@@ -19,7 +19,6 @@
     "clean": "hardhat clean",
     "check": "solhint src/**/*.sol",
     "test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test",
-    "node": "hardhat node",
     "deploy": "hardhat deploy",
     "deploy:staging": "run-s \"deploy --network rinkeby {@}\" \"deploy --network arbitrumRinkeby {@}\" --",
     "etherscan-verify": "hardhat etherscan-verify",
