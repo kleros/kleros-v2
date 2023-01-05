@@ -93,7 +93,6 @@ type Court @entity {
   id: ID!
   policy: String
   name: String
-  hiddenVotes: Boolean!
   parent: Court
   hiddenVotes: Boolean!
   children: [Court!]! @derivedFrom(field: "parent")
@@ -110,7 +109,6 @@ type Court @entity {
   stake: BigInt!
   paidETH: BigInt!
   paidPNK: BigInt!
-  policy: String
 }
 
 type Dispute @entity {
