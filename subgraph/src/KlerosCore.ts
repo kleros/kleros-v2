@@ -40,6 +40,7 @@ import {
 } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
 import { createTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
+import { updateArbitrableCases } from "./entities/Arbitrable";
 
 function getPeriodName(index: i32): string {
   const periodArray = ["evidence", "commit", "vote", "appeal", "execution"];
@@ -91,6 +92,8 @@ export function handleDisputeCreation(event: DisputeCreation): void {
   createDisputeFromEvent(event);
   const roundInfo = contract.getRoundInfo(disputeID, ZERO);
   createRoundFromRoundInfo(disputeID, ZERO, court.feeForJuror, roundInfo);
+  const arbitrable = event.params._arbitrable.toHexString();
+  updateArbitrableCases(arbitrable, ONE);
   updateCases(ONE, event.block.timestamp);
 }
 
