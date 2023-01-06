@@ -1,6 +1,6 @@
 import { ethers, getNamedAccounts, network, deployments } from "hardhat";
 import { BigNumber } from "ethers";
-import { PNK, KlerosCore, DisputeKitClassic } from "../../typechain-types";
+import { PNK, KlerosCore, DisputeKitClassic, RandomizerRNG, RandomizerMock } from "../../typechain-types";
 import { expect } from "chai";
 
 /* eslint-disable no-unused-vars */
@@ -18,6 +18,8 @@ describe("Unstake juror", async () => {
   let disputeKit;
   let pnk;
   let core;
+  let rng;
+  let randomizer;
 
   beforeEach("Setup", async () => {
     ({ deployer } = await getNamedAccounts());
@@ -32,31 +34,36 @@ describe("Unstake juror", async () => {
     disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
+    rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
+    randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
   });
 
   it("Unstake inactive juror", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
 
-    await core.createSubcourt(1, false, ONE_THOUSAND_PNK, 1000, ONE_TENTH_ETH, 3, [0, 0, 0, 0], 3, [1]); // Parent - general court, Classic dispute kit
+    await core.createCourt(1, false, ONE_THOUSAND_PNK, 1000, ONE_TENTH_ETH, 3, [0, 0, 0, 0], 3, [1]); // Parent - general court, Classic dispute kit
 
     await pnk.approve(core.address, ONE_THOUSAND_PNK.mul(4));
     await core.setStake(1, ONE_THOUSAND_PNK.mul(2));
     await core.setStake(2, ONE_THOUSAND_PNK.mul(2));
 
-    expect(await core.getJurorSubcourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
+    expect(await core.getJurorCourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
 
     await core.createDispute(2, extraData, { value: arbitrationCost });
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
+
+    const lookahead = await disputeKit.rngLookahead();
     await core.passPhase(); // Staking -> Freezing
-    for (let index = 0; index < 20; index++) {
-      await network.provider.send("evm_mine"); // Wait for 20 blocks finality
+    for (let index = 0; index < lookahead; index++) {
+      await network.provider.send("evm_mine");
     }
     await disputeKit.passPhase(); // Resolving -> Generating
-    for (let index = 0; index < 20; index++) {
-      await network.provider.send("evm_mine"); // RNG lookahead
+    for (let index = 0; index < lookahead; index++) {
+      await network.provider.send("evm_mine");
     }
+    await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
     await disputeKit.passPhase(); // Generating -> Drawing
 
     await core.draw(0, 5000);
@@ -69,10 +76,10 @@ describe("Unstake juror", async () => {
 
     await core.passPhase(); // Freezing -> Staking. Change so we don't deal with delayed stakes
 
-    expect(await core.getJurorSubcourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
+    expect(await core.getJurorCourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
 
     await core.execute(0, 0, 1); // 1 iteration should unstake from both courts
 
-    expect(await core.getJurorSubcourtIDs(deployer)).to.be.deep.equal([]);
+    expect(await core.getJurorCourtIDs(deployer)).to.be.deep.equal([]);
   });
 });

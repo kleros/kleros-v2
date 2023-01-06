@@ -17,7 +17,7 @@ dataSources:
         - Court
         - Juror
         - TokenAndETHShift
-        - JurorTokensPerSubcourt
+        - JurorTokensPerCourt
         - Round
         - Draw
         - Dispute
@@ -39,10 +39,10 @@ dataSources:
           handler: handleDraw
         - event: NewPeriod(indexed uint256,uint8)
           handler: handleNewPeriod
-        - event: SubcourtCreated(indexed uint256,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256,uint256[])
-          handler: handleSubcourtCreated
-        - event: SubcourtModified(indexed uint96,string)
-          handler: handleSubcourtModified
+        - event: CourtCreated(indexed uint256,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256,uint256[])
+          handler: handleCourtCreated
+        - event: CourtModified(indexed uint96,string)
+          handler: handleCourtModified
         - event: DisputeKitCreated(indexed uint256,indexed address,indexed uint256)
           handler: handleDisputeKitCreated
         - event: DisputeKitEnabled(indexed uint96,indexed uint256,indexed bool)

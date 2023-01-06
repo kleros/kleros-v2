@@ -1,8 +1,7 @@
 import { expect } from "chai";
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
-import { BigNumber, utils } from "ethers";
+import { BigNumber } from "ethers";
 import {
-  BlockHashRNG,
   PNK,
   KlerosCore,
   ForeignGatewayOnEthereum,
@@ -10,6 +9,8 @@ import {
   HomeGatewayToEthereum,
   VeaMock,
   DisputeKitClassic,
+  RandomizerRNG,
+  RandomizerMock,
 } from "../../typechain-types";
 
 /* eslint-disable no-unused-vars */
@@ -41,7 +42,7 @@ describe("Integration tests", async () => {
   }
 
   let deployer;
-  let rng, disputeKit, pnk, core, vea, foreignGateway, arbitrable, homeGateway;
+  let rng, randomizer, disputeKit, pnk, core, vea, foreignGateway, arbitrable, homeGateway;
 
   beforeEach("Setup", async () => {
     ({ deployer } = await getNamedAccounts());
@@ -53,7 +54,8 @@ describe("Integration tests", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    rng = (await ethers.getContract("BlockHashRNG")) as BlockHashRNG;
+    rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
+    randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
     disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
@@ -61,18 +63,6 @@ describe("Integration tests", async () => {
     foreignGateway = (await ethers.getContract("ForeignGatewayOnEthereum")) as ForeignGatewayOnEthereum;
     arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
     homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
-  });
-
-  it("RNG", async () => {
-    let tx = await rng.receiveRandomness(9876543210);
-    let trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
-    let [rn] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`);
-    expect(rn).to.equal(0); // requested a block number in the future, so return 0.
-
-    tx = await rng.receiveRandomness(5);
-    trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
-    [rn] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`);
-    expect(rn).to.not.equal(0); // requested a block number in the past, so return non-zero.
   });
 
   it("Honest Claim - No Challenge - Bridger paid", async () => {
@@ -148,12 +138,13 @@ describe("Integration tests", async () => {
     expect(await core.phase()).to.equal(Phase.freezing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
-    await mineBlocks(20); // Wait for 20 blocks finality
+    await mineBlocks(await disputeKit.rngLookahead());
     await disputeKit.passPhase(); // Resolving -> Generating
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
 
-    await mineBlocks(20); // Wait for RNG lookahead
+    await mineBlocks(await disputeKit.rngLookahead());
+    await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
     await disputeKit.passPhase(); // Generating -> Drawing
     expect(await disputeKit.phase()).to.equal(DisputeKitPhase.drawing);
     console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());

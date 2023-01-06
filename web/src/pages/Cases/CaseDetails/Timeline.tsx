@@ -52,16 +52,14 @@ const getTimeline = (
         secondsToDayHourMinute(
           getTimeLeft(
             parseInt(dispute?.lastPeriodChange, 10),
-            parseInt(dispute?.subcourtID.timesPerPeriod[index], 10)
+            parseInt(dispute?.courtID.timesPerPeriod[index], 10)
           )
         ),
       ];
     } else if (index === 3) {
       return [];
     } else {
-      return [
-        secondsToDayHourMinute(dispute?.subcourtID.timesPerPeriod[index]),
-      ];
+      return [secondsToDayHourMinute(dispute?.courtID.timesPerPeriod[index])];
     }
   };
   return titles.map((title, i) => ({
