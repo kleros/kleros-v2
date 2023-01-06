@@ -45,8 +45,8 @@ const config: HardhatUserConfig = {
       },
     },
     mainnetFork: {
-      url: `http://127.0.0.1:8545`,
       chainId: 1,
+      url: `http://127.0.0.1:8545`,
       forking: {
         url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       },
@@ -54,19 +54,22 @@ const config: HardhatUserConfig = {
       live: false,
       saveDeployments: false,
       tags: ["test", "local"],
+      companionNetworks: {
+        home: "arbitrum",
+      },
     },
-    arbitrumRinkebyFork: {
-      url: "https://rinkeby.arbitrum.io/rpc",
-      chainId: 421611,
+    arbitrumGoerliFork: {
+      chainId: 421613,
+      url: `http://127.0.0.1:8545`,
       forking: {
-        url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+        url: `https://goerli-rollup.arbitrum.io/rpc`,
       },
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: false,
       saveDeployments: true,
       tags: ["test", "local"],
       companionNetworks: {
-        foreign: "rinkeby",
+        foreign: "goerli",
       },
     },
 

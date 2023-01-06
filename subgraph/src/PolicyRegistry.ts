@@ -6,6 +6,7 @@ export function handlePolicyUpdate(event: PolicyUpdate): void {
   const court = Court.load(courtID);
   if (court) {
     court.policy = event.params._policy;
+    court.name = event.params._courtName;
     court.save();
   }
 }
