@@ -1,15 +1,10 @@
-import { BigInt, log } from "@graphprotocol/graph-ts";
+import { BigInt } from "@graphprotocol/graph-ts";
 import { Contribution } from "../../generated/DisputeKitClassic/DisputeKitClassic";
 import { ClassicRound } from "../../generated/schema";
-import { ZERO } from "../utils";
+import { loadWithLogs, ZERO } from "../utils";
 
-export function loadClassicRoundWithLog(id: string): ClassicRound | null {
-  const classicRound = ClassicRound.load(id);
-  if (!classicRound) {
-    log.error("ClassicRound not found with id: {}", [id]);
-    return null;
-  }
-  return classicRound;
+export function loadClassicRoundWithLogs(id: string): ClassicRound | null {
+  return loadWithLogs("ClassicRound", id) as ClassicRound;
 }
 
 export function createClassicRound(
@@ -38,7 +33,7 @@ export function updateChoiceFundingFromContributionEvent(
   const coreRoundIndex = event.params._coreRoundID.toString();
   const roundID = `${disputeKitID}-${coreDisputeID}-${coreRoundIndex}`;
 
-  const classicRound = loadClassicRoundWithLog(roundID);
+  const classicRound = loadClassicRoundWithLogs(roundID);
   if (!classicRound) return;
 
   const choice = event.params._choice;
