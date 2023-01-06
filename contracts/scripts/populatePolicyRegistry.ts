@@ -32,7 +32,7 @@ async function main() {
 
   for await (const policy of policiesV2) {
     console.log("Populating policy for %s Court (%d): %s", policy.name, policy.court, policy.uri);
-    await policyRegistry.setPolicy(policy.court, policy.uri);
+    await policyRegistry.setPolicy(policy.court, policy.name, policy.uri);
   }
 }
 

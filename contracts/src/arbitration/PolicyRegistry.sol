@@ -14,9 +14,10 @@ contract PolicyRegistry {
     /**
      *  @dev Emitted when a policy is updated.
      *  @param _courtID The ID of the policy's court.
+     *  @param _courtName The name of the policy's court.
      *  @param _policy The URI of the policy JSON.
      */
-    event PolicyUpdate(uint256 indexed _courtID, string _policy);
+    event PolicyUpdate(uint256 indexed _courtID, string _courtName, string _policy);
 
     // ************************************* //
     // *             Storage               * //
@@ -67,10 +68,11 @@ contract PolicyRegistry {
     /**
      *  @dev Sets the policy for the specified court.
      *  @param _courtID The ID of the specified court.
+     *  @param _courtName The name of the specified court.
      *  @param _policy The URI of the policy JSON.
      */
-    function setPolicy(uint256 _courtID, string calldata _policy) external onlyByGovernor {
+    function setPolicy(uint256 _courtID, string calldata _courtName, string calldata _policy) external onlyByGovernor {
         policies[_courtID] = _policy;
-        emit PolicyUpdate(_courtID, policies[_courtID]);
+        emit PolicyUpdate(_courtID, _courtName, policies[_courtID]);
     }
 }

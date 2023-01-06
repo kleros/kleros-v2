@@ -14,7 +14,7 @@
   },
   "volta": {
     "node": "16.18.1",
-    "yarn": "3.1.1"
+    "yarn": "3.3.1"
   },
   "devDependencies": {
     "@kleros/graph-cli": "^0.35.4"

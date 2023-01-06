@@ -6,9 +6,9 @@ dataSources:
     name: KlerosCore
     network: arbitrum-goerli
     source:
-      address: "0xdfea19B51cDe76Aa659bB72401AC14FFCFe42Cde"
+      address: "0x4d7858e73a8842b5e6422D08a3349924dD062AbB"
       abi: KlerosCore
-      startBlock: 997981
+      startBlock: 4027978
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -56,9 +56,9 @@ dataSources:
     name: PolicyRegistry
     network: arbitrum-goerli
     source:
-      address: "0x76262035D1b280cC0b08024177b837893bcAd3DA"
+      address: "0xAF0F49Fe110b48bd512F00d51D141F023c9a9106"
       abi: PolicyRegistry
-      startBlock: 133630
+      startBlock: 4027973
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -69,16 +69,16 @@ dataSources:
         - name: PolicyRegistry
           file: ../contracts/deployments/arbitrumGoerli/PolicyRegistry.json
       eventHandlers:
-        - event: PolicyUpdate(indexed uint256,string)
+        - event: PolicyUpdate(indexed uint256,string,string)
           handler: handlePolicyUpdate
       file: ./src/PolicyRegistry.ts
   - kind: ethereum
     name: DisputeKitClassic
     network: arbitrum-goerli
     source:
-      address: "0xA2c538AA05BBCc44c213441f6f3777223D2BF9e5"
+      address: "0xde31F2245d164620d08f5b0f8D43dCe8B9708373"
       abi: DisputeKitClassic
-      startBlock: 133630
+      startBlock: 4027976
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -90,48 +90,16 @@ dataSources:
         - name: DisputeKitClassic
           file: ../contracts/deployments/arbitrumGoerli/DisputeKitClassic.json
       eventHandlers:
+        - event: DisputeCreation(indexed uint256,uint256,bytes)
+          handler: handleDisputeCreation
+        - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleContributionEvent
+        # - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+        #   handler: handleWithdrawal
+        - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleChoiceFunded
         - event: Evidence(indexed address,indexed uint256,indexed address,string)
           handler: handleEvidenceEvent
         - event: Justification(indexed uint256,indexed address,indexed uint256,string)
           handler: handleJustificationEvent
       file: ./src/DisputeKitClassic.ts
-  - kind: ethereum
-    name: HomeGateway
-    network: arbitrum-goerli
-    source:
-      address: "0xed12799915180a257985631fbD2ead261eD838cf"
-      abi: HomeGateway
-      startBlock: 998359
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.6
-      language: wasm/assemblyscript
-      entities:
-        - GatewayDispute
-      abis:
-        - name: HomeGateway
-          file: ../contracts/deployments/arbitrumGoerli/HomeGatewayToEthereum.json
-      eventHandlers:
-        - event: Dispute(indexed address,indexed uint256,uint256,uint256)
-          handler: handleDisputeEvent
-      file: ./src/HomeGateway.ts
-  - kind: ethereum
-    name: FastBridgeSender
-    network: arbitrum-goerli
-    source:
-      address: "0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C"
-      abi: FastBridgeSender
-      startBlock: 998358
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.6
-      language: wasm/assemblyscript
-      entities:
-        - OutgoingMessage
-      abis:
-        - name: FastBridgeSender
-          file: ../contracts/deployments/arbitrumGoerli/FastBridgeSender.json
-      eventHandlers:
-        - event: BatchOutgoing(indexed uint256,uint256,uint256,bytes32)
-          handler: handleBatchOutgoing
-      file: ./src/FastBridgeSender.ts
