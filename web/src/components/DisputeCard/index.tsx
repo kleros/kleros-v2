@@ -44,21 +44,21 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
   arbitrated,
   period,
   lastPeriodChange,
-  subcourtID,
+  courtID,
 }) => {
   const currentPeriodIndex = Periods[period];
-  const rewards = `≥ ${utils.formatEther(subcourtID.feeForJuror)} ETH`;
+  const rewards = `≥ ${utils.formatEther(courtID.feeForJuror)} ETH`;
   const date =
     currentPeriodIndex === 4
       ? lastPeriodChange
       : getTimeLeft(
           lastPeriodChange,
           currentPeriodIndex,
-          subcourtID.timesPerPeriod
+          courtID.timesPerPeriod
         );
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrated);
   const title = metaEvidence ? metaEvidence.title : <Skeleton />;
-  const { data: courtPolicyPath } = useCourtPolicy(parseInt(subcourtID.id));
+  const { data: courtPolicyPath } = useCourtPolicy(parseInt(courtID.id));
   const { data: courtPolicy } = useIPFSQuery(courtPolicyPath?.args._policy);
   const courtName = courtPolicy?.name;
   const category = metaEvidence ? metaEvidence.category : undefined;

@@ -14,17 +14,20 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [ArbitrableExample](https://goerli.etherscan.io/address/0xd78dcdde2c5a2bd4bb246bc7db6994b95f7c442c)
 - [FastBridgeReceiverOnEthereum](https://goerli.etherscan.io/address/0x8F53f533531a40BdaA832254e282ed1b21D83F71)
 - [ForeignGatewayOnEthereum](https://goerli.etherscan.io/address/0x4401a368dea8d5761aeeffd3c4a674086dea0666)
+- [MetaEvidence_ArbitrableExample](https://goerli.etherscan.io/address/null)
 
 #### Arbitrum Goerli
 
 - [PNK](https://goerli-rollup-explorer.arbitrum.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610/token-transfers)
 - [BlockHashRNG](https://goerli-rollup-explorer.arbitrum.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
-- [DisputeKitClassic](https://goerli-rollup-explorer.arbitrum.io/address/0x34E520dc1d2Db660113b64724e14CEdCD01Ee879)
-- [DisputeResolver](https://goerli-rollup-explorer.arbitrum.io/address/0x99392099F988E889Cc9BD55f632C674C3aeEF7F2)
+- [DisputeKitClassic](https://goerli-rollup-explorer.arbitrum.io/address/0x61C72C3258C3D4D05bebD045E7FB0d57695CF43e)
+- [DisputeResolver](https://goerli-rollup-explorer.arbitrum.io/address/0x1BE4fFbF7c2AE7F46054c1f3e98153170D5E5FBb)
 - [FastBridgeSender](https://goerli-rollup-explorer.arbitrum.io/address/0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C)
 - [HomeGatewayToEthereum](https://goerli-rollup-explorer.arbitrum.io/address/0xed12799915180a257985631fbD2ead261eD838cf)
-- [KlerosCore](https://goerli-rollup-explorer.arbitrum.io/address/0xdfea19B51cDe76Aa659bB72401AC14FFCFe42Cde)
-- [PolicyRegistry](https://goerli-rollup-explorer.arbitrum.io/address/0xd4A4C63bA98c4445E6bb54206d49c8C6c8Bf8871)
+- [KlerosCore](https://goerli-rollup-explorer.arbitrum.io/address/0x9Bcb0D261D5B446c0474d0846563C712F8B7bE5E)
+- [PNK](https://goerli-rollup-explorer.arbitrum.io/address/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610)
+- [PolicyRegistry](https://goerli-rollup-explorer.arbitrum.io/address/0xaE25ed5eDad0bD932D3Af2e36631849497512068)
+- [RandomizerRNG](https://goerli-rollup-explorer.arbitrum.io/address/0x6E723A6d054a247A95292447Cc7ce780664d7d9a)
 - [SortitionSumTreeFactory](https://goerli-rollup-explorer.arbitrum.io/address/0x40a78989317B953e427B3BD87C59eA003fcC2296)
 
 #### Rinkeby - DEPRECATED
@@ -33,6 +36,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [ArbitrableExample](https://rinkeby.etherscan.io/address/0xc0fcc96BFd78e36550FCaB434A9EE1210B57225b)
 - [FastBridgeReceiverOnEthereum](https://rinkeby.etherscan.io/address/0x545C731e84c0034d58e57E476A3b7C3929d070CC)
 - [ForeignGatewayOnEthereum](https://rinkeby.etherscan.io/address/0x8681CE0CA5706Cf4732d9060e8eC9f865F7d546a)
+- [MetaEvidence_ArbitrableExample](https://rinkeby.etherscan.io/address/null)
 
 #### Arbitrum Rinkeby - DEPRECATED
 
@@ -44,6 +48,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [HomeGatewayToEthereum](https://testnet.arbiscan.io/address/0x4e894c2B60214beC53B60D09F39544518296C07B)
 - [IncrementalNG](https://testnet.arbiscan.io/address/0x078dAd05373d19d7fd6829735b765F12242a4300)
 - [KlerosCore](https://testnet.arbiscan.io/address/0x815d709EFCF5E69e2e9E2F8d3815d762496a2f0F)
+- [PNK](https://testnet.arbiscan.io/address/0x364530164a2338cdba211f72c1438eb811b5c639)
 - [PolicyRegistry](https://testnet.arbiscan.io/address/0x76262035D1b280cC0b08024177b837893bcAd3DA)
 - [SortitionSumTreeFactory](https://testnet.arbiscan.io/address/0x48ce286978C74c288eA6Bc9a536BcC899DF8D177)
 

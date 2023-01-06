@@ -10,7 +10,7 @@ enum ForeignChains {
 
 const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId, config } = hre;
-  const { deploy } = deployments;
+  const { deploy, execute } = deployments;
   const { hexZeroPad, hexlify } = ethers.utils;
 
   // fallback to hardhat node signers on local network
@@ -38,16 +38,18 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const foreignGateway = await deploy("ForeignGatewayOnEthereum", {
     from: deployer,
     contract: "ForeignGateway",
-    args: [
-      deployer,
-      veaReceiver.address,
-      [ethers.BigNumber.from(10).pow(17)],
-      homeGatewayAddress,
-      homeChainIdAsBytes32,
-    ],
+    args: [deployer, veaReceiver.address, homeGatewayAddress, homeChainIdAsBytes32],
     gasLimit: 4000000,
     log: true,
   });
+
+  await execute(
+    "ForeignGatewayOnEthereum",
+    { from: deployer, log: true },
+    "changeCourtJurorFee",
+    0,
+    ethers.BigNumber.from(10).pow(17)
+  );
 
   const metaEvidenceUri = `https://raw.githubusercontent.com/kleros/kleros-v2/master/contracts/deployments/${hre.network.name}/MetaEvidence_ArbitrableExample.json`;
 

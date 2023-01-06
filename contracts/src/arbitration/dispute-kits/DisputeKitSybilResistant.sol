@@ -80,11 +80,11 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the appeal cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
     uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
     uint256 public constant ONE_BASIS_POINT = 10000; // One basis point, for scaling.
-    uint256 public constant RNG_LOOKAHEAD = 20; // Minimum block distance between requesting and obtaining a random number. Arbitrum sequencer finality = 20 blocks.
 
     RNG public rng; // The random number generator
     IProofOfHumanity public poh; // The Proof of Humanity registry
     uint256 public rngRequestedBlock; // The block number requested to the random number.
+    uint256 public rngLookahead; // Minimum block distance between requesting and obtaining a random number.
     uint256 public randomNumber; // The current random number.
     Phase public phase; // Current phase of this dispute kit.
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
@@ -94,6 +94,10 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     // ************************************* //
     // *              Events               * //
     // ************************************* //
+
+    event DisputeCreation(uint256 indexed _coreDisputeID, uint256 _numberOfChoices, bytes _extraData);
+
+    event CommitCast(uint256 indexed _coreDisputeID, uint256[] _voteIDs, bytes32 _commit);
 
     event Contribution(
         uint256 indexed _coreDisputeID,
@@ -127,9 +131,18 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
      *  @param _governor The governor's address.
      *  @param _core The KlerosCore arbitrator.
      *  @param _rng The random number generator.
+     *  @param _rngLookahead Lookahead value for rng.
+     *  @param _poh ProofOfHumanity contract.
      */
-    constructor(address _governor, KlerosCore _core, RNG _rng, IProofOfHumanity _poh) BaseDisputeKit(_governor, _core) {
+    constructor(
+        address _governor,
+        KlerosCore _core,
+        RNG _rng,
+        uint256 _rngLookahead,
+        IProofOfHumanity _poh
+    ) BaseDisputeKit(_governor, _core) {
         rng = _rng;
+        rngLookahead = _rngLookahead;
         poh = _poh;
     }
 
@@ -153,11 +166,13 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
 
     /** @dev Changes the `_rng` storage variable.
      *  @param _rng The new value for the `RNGenerator` storage variable.
+     *  @param _rngLookahead The new value for the `rngLookahead` storage variable.
      */
-    function changeRandomNumberGenerator(RNG _rng) external onlyByGovernor {
+    function changeRandomNumberGenerator(RNG _rng, uint256 _rngLookahead) external onlyByGovernor {
         rng = _rng;
+        rngLookahead = _rngLookahead;
         if (phase == Phase.generating) {
-            rngRequestedBlock = block.number + RNG_LOOKAHEAD;
+            rngRequestedBlock = block.number + rngLookahead;
             rng.requestRandomness(rngRequestedBlock);
         }
     }
@@ -200,6 +215,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
 
         coreDisputeIDToLocal[_coreDisputeID] = localDisputeID;
         disputesWithoutJurors++;
+        emit DisputeCreation(_coreDisputeID, _numberOfChoices, _extraData);
     }
 
     /** @dev Passes the phase.
@@ -211,7 +227,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         } else if (core.phase() == KlerosCore.Phase.freezing) {
             if (phase == Phase.resolving) {
                 require(disputesWithoutJurors > 0, "All the disputes have jurors");
-                rngRequestedBlock = core.freezeBlock() + RNG_LOOKAHEAD;
+                rngRequestedBlock = core.freezeBlock() + rngLookahead;
                 rng.requestRandomness(rngRequestedBlock);
                 phase = Phase.generating;
             } else if (phase == Phase.generating) {
@@ -240,8 +256,8 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
 
-        (uint96 subcourtID, , , , ) = core.disputes(_coreDisputeID);
-        bytes32 key = bytes32(uint256(subcourtID)); // Get the ID of the tree.
+        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
+        bytes32 key = bytes32(uint256(courtID)); // Get the ID of the tree.
 
         (uint256 K, uint256 nodesLength, ) = core.getSortitionSumTree(key, 0);
         uint256 treeIndex = 0;
@@ -308,6 +324,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
             round.votes[_voteIDs[i]].commit = _commit;
         }
         round.totalCommitted += _voteIDs.length;
+        emit CommitCast(_coreDisputeID, _voteIDs, _commit);
     }
 
     /** @dev Sets the caller's choices for the specified votes.
@@ -334,8 +351,8 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         require(_choice <= dispute.numberOfChoices, "Choice out of bounds");
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
-        (uint96 subcourtID, , , , ) = core.disputes(_coreDisputeID);
-        (, bool hiddenVotes, , , , ) = core.courts(subcourtID);
+        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
+        (, bool hiddenVotes, , , , ) = core.courts(courtID);
 
         //  Save the votes.
         for (uint256 i = 0; i < _voteIDs.length; i++) {
@@ -343,7 +360,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
             require(
                 !hiddenVotes ||
                     round.votes[_voteIDs[i]].commit == keccak256(abi.encodePacked(_choice, _justification, _salt)),
-                "The commit must match the choice in subcourts with hidden votes."
+                "The commit must match the choice in courts with hidden votes."
             );
             require(!round.votes[_voteIDs[i]].voted, "Vote already cast.");
             round.votes[_voteIDs[i]].choice = _choice;
@@ -660,13 +677,13 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
      *  @return Whether the address can be drawn or not.
      */
     function postDrawCheck(uint256 _coreDisputeID, address _juror) internal view override returns (bool) {
-        (uint96 subcourtID, , , , ) = core.disputes(_coreDisputeID);
+        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
         (uint256 lockedAmountPerJuror, , , , , ) = core.getRoundInfo(
             _coreDisputeID,
             core.getNumberOfRounds(_coreDisputeID) - 1
         );
-        (uint256 stakedTokens, uint256 lockedTokens) = core.getJurorBalance(_juror, subcourtID);
-        (, , uint256 minStake, , , ) = core.courts(subcourtID);
+        (uint256 stakedTokens, uint256 lockedTokens) = core.getJurorBalance(_juror, courtID);
+        (, , uint256 minStake, , , ) = core.courts(courtID);
         if (stakedTokens < lockedTokens + lockedAmountPerJuror || stakedTokens < minStake) {
             return false;
         } else {
