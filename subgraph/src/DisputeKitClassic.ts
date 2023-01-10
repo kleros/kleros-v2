@@ -13,22 +13,22 @@ import { ClassicEvidence } from "../generated/schema";
 import { ensureClassicContributionFromEvent } from "./entities/ClassicContribution";
 import {
   createClassicDisputeFromEvent,
-  loadClassicDisputeWithLog,
+  loadClassicDisputeWithLogs,
 } from "./entities/ClassicDispute";
 import { ensureClassicEvidenceGroup } from "./entities/ClassicEvidenceGroup";
 import {
   createClassicRound,
-  loadClassicRoundWithLog,
+  loadClassicRoundWithLogs,
   updateChoiceFundingFromContributionEvent,
 } from "./entities/ClassicRound";
 import { createClassicVote } from "./entities/ClassicVote";
-import { loadDisputeWithLog } from "./entities/Dispute";
+import { loadDisputeWithLogs } from "./entities/Dispute";
 import { ONE } from "./utils";
 
 export const DISPUTEKIT_ID = "1";
 
 export function handleDisputeCreation(event: DisputeCreation): void {
-  const dispute = loadDisputeWithLog(event.params._coreDisputeID.toString());
+  const dispute = loadDisputeWithLogs(event.params._coreDisputeID.toString());
   if (!dispute) return;
   createClassicDisputeFromEvent(event);
   createClassicRound(dispute.id, dispute.currentRoundIndex);
@@ -52,7 +52,7 @@ export function handleEvidenceEvent(event: EvidenceEvent): void {
 export function handleJustificationEvent(event: JustificationEvent): void {
   const coreDisputeID = event.params._coreDisputeID.toString();
   const classicDisputeID = `${DISPUTEKIT_ID}-${coreDisputeID}`;
-  const classicDispute = loadClassicDisputeWithLog(classicDisputeID);
+  const classicDispute = loadClassicDisputeWithLogs(classicDisputeID);
   if (!classicDispute) return;
   const currentLocalRoundID = `${
     classicDispute.id
@@ -70,7 +70,7 @@ export function handleChoiceFunded(event: ChoiceFunded): void {
   const coreRoundIndex = event.params._coreRoundID.toString();
   const roundID = `${DISPUTEKIT_ID}-${coreDisputeID}-${coreRoundIndex}`;
 
-  const localRound = loadClassicRoundWithLog(roundID);
+  const localRound = loadClassicRoundWithLogs(roundID);
   if (!localRound) return;
 
   const currentFeeRewards = localRound.feeRewards;
@@ -85,7 +85,7 @@ export function handleChoiceFunded(event: ChoiceFunded): void {
     const appealCost = klerosCore.appealCost(BigInt.fromString(coreDisputeID));
     localRound.feeRewards = localRound.feeRewards.minus(appealCost);
 
-    const localDispute = loadClassicDisputeWithLog(
+    const localDispute = loadClassicDisputeWithLogs(
       `${DISPUTEKIT_ID}-${coreDisputeID}`
     );
     if (!localDispute) return;
