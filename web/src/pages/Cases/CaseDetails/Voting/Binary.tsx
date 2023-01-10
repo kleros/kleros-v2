@@ -6,7 +6,7 @@ import { Button, Textarea } from "@kleros/ui-components-library";
 import { useConnectedContract } from "hooks/useConnectedContract";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 
-const Binary: React.FC<{ arbitrable: string; voteIDs: string[] }> = ({
+const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({
   arbitrable,
   voteIDs,
 }) => {

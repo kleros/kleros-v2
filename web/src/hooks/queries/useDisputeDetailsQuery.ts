@@ -6,13 +6,15 @@ export type { DisputeDetailsQuery };
 const disputeDetailsQuery = gql`
   query DisputeDetails($disputeID: ID!) {
     dispute(id: $disputeID) {
-      courtID {
+      court {
         id
         timesPerPeriod
         hiddenVotes
         feeForJuror
       }
-      arbitrated
+      arbitrated {
+        id
+      }
       period
       ruled
       lastPeriodChange

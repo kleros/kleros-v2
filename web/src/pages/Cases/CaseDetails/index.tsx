@@ -16,7 +16,7 @@ const CaseDetails: React.FC = () => {
   const { data } = useDisputeDetailsQuery(id);
   const dispute = data?.dispute;
   const currentPeriodIndex = dispute ? Periods[dispute.period] : 0;
-  const arbitrable = dispute?.arbitrated;
+  const arbitrable = dispute?.arbitrated.id;
   return (
     <Container>
       <h1>Case #{id}</h1>
@@ -27,12 +27,12 @@ const CaseDetails: React.FC = () => {
           <Route
             path="overview"
             element={
-              <Overview courtID={dispute?.subcourtID.id} {...{ arbitrable }} />
+              <Overview courtID={dispute?.court.id} {...{ arbitrable }} />
             }
           />
           <Route path="evidence" element={<Evidence {...{ arbitrable }} />} />
           <Route path="voting" element={<Voting {...{ arbitrable }} />} />
-          <Route path="appeal" element={<Appeal {...{ arbitrable }} />} />
+          <Route path="appeal" element={<Appeal />} />
           <Route path="*" element={<Navigate to="overview" />} />
         </Routes>
       </StyledCard>

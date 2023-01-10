@@ -28,8 +28,8 @@ const currentPeriodToCurrentItem = (
   currentPeriodIndex: number,
   ruled?: boolean
 ): number => {
-  if (currentPeriodIndex <= Periods.Commit) return currentPeriodIndex;
-  else if (currentPeriodIndex < Periods.Execution)
+  if (currentPeriodIndex <= Periods.commit) return currentPeriodIndex;
+  else if (currentPeriodIndex < Periods.execution)
     return currentPeriodIndex - 1;
   else return ruled ? currentPeriodIndex : currentPeriodIndex - 1;
 };
@@ -52,14 +52,14 @@ const getTimeline = (
         secondsToDayHourMinute(
           getTimeLeft(
             parseInt(dispute?.lastPeriodChange, 10),
-            parseInt(dispute?.courtID.timesPerPeriod[index], 10)
+            parseInt(dispute?.court.timesPerPeriod[index], 10)
           )
         ),
       ];
     } else if (index === 3) {
       return [];
     } else {
-      return [secondsToDayHourMinute(dispute?.courtID.timesPerPeriod[index])];
+      return [secondsToDayHourMinute(dispute?.court.timesPerPeriod[index])];
     }
   };
   return titles.map((title, i) => ({
