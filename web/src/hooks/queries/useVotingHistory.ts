@@ -9,15 +9,34 @@ const votingHistoryQuery = gql`
       rounds {
         nbVotes
       }
+      disputeKitDispute {
+        localRounds {
+          ... on ClassicRound {
+            totalVoted
+            votes {
+              id
+              choice
+              justification
+              juror {
+                id
+              }
+            }
+          }
+        }
+      }
     }
   }
 `;
 
 export const useVotingHistory = (disputeID?: string) => {
-  const { data, error, isValidating } = useSWR({
-    query: votingHistoryQuery,
-    variables: { disputeID },
-  });
+  const { data, error, isValidating } = useSWR(() =>
+    typeof disputeID !== "undefined"
+      ? {
+          query: votingHistoryQuery,
+          variables: { disputeID },
+        }
+      : false
+  );
   const result = data ? (data as VotingHistoryQuery) : undefined;
   return { data: result, error, isValidating };
 };

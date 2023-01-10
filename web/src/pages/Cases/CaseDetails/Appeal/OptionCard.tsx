@@ -49,6 +49,7 @@ const OptionCard: React.FC<IOptionCard> = ({
 };
 
 const StyledCard = styled(Card)`
+  width: 100%;
   padding: 24px;
   &:hover {
     cursor: pointer;
