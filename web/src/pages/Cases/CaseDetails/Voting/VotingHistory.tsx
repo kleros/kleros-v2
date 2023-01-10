@@ -8,7 +8,7 @@ import { useVotingHistory } from "queries/useVotingHistory";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { shortenAddress } from "utils/shortenAddress";
 
-const VotingHistory: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
+const VotingHistory: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
   const [currentTab, setCurrentTab] = useState(0);

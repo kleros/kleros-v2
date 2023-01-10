@@ -8,14 +8,6 @@ const votingHistoryQuery = gql`
     dispute(id: $disputeID) {
       rounds {
         nbVotes
-        totalVoted
-        votes {
-          juror {
-            id
-          }
-          choice
-          justification
-        }
       }
     }
   }

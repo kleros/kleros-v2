@@ -8,7 +8,7 @@ import { useEvidences } from "queries/useEvidences";
 import SubmitEvidenceModal from "./SubmitEvidenceModal";
 import EvidenceCard from "components/EvidenceCard";
 
-const Evidence: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
+const Evidence: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { id } = useParams();
   const { data: evidenceGroup } = useEvidenceGroup(id, arbitrable);
@@ -33,7 +33,12 @@ const Evidence: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
       />
       {data &&
         data.evidences.map(({ evidence, sender }, i) => (
-          <EvidenceCard key={i} index={i + 1} {...{ evidence, sender }} />
+          <EvidenceCard
+            key={i}
+            index={i + 1}
+            sender={sender?.id}
+            {...{ evidence }}
+          />
         ))}
     </Container>
   );

@@ -5,11 +5,11 @@ import { useDrawQuery } from "queries/useDrawQuery";
 import Binary from "./Binary";
 import VotingHistory from "./VotingHistory";
 
-const Voting: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
+const Voting: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
   const { account } = useWeb3();
   const { id } = useParams();
   const { data } = useDrawQuery(account?.toLowerCase(), id);
-  return data && data.draws?.length > 0 && data.votes?.length === 0 ? (
+  return data && data.draws?.length > 0 ? (
     <Binary
       {...{ arbitrable }}
       voteIDs={data.draws.map((draw) => draw.voteID)}
