@@ -28,7 +28,7 @@ const Dashboard: React.FC = () => {
         <StyledCasesDisplay
           title="My Cases"
           disputes={data.disputes}
-          numberDisputes={data.casesDataPoint?.value}
+          numberDisputes={data.counter?.cases}
           {...{ currentPage, setCurrentPage, casesPerPage }}
         />
       )}
