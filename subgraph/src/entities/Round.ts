@@ -1,11 +1,6 @@
 import { BigInt } from "@graphprotocol/graph-ts";
 import { KlerosCore__getRoundInfoResult } from "../../generated/KlerosCore/KlerosCore";
 import { Round } from "../../generated/schema";
-import { loadWithLogs } from "../utils";
-
-export function loadRoundWithLogs(id: string): Round | null {
-  return loadWithLogs("Round", id) as Round;
-}
 
 export function createRoundFromRoundInfo(
   disputeID: BigInt,
