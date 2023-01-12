@@ -3,11 +3,7 @@ import {
   DisputeCreation,
 } from "../../generated/KlerosCore/KlerosCore";
 import { Dispute } from "../../generated/schema";
-import { loadWithLogs, ZERO } from "../utils";
-
-export function loadDisputeWithLogs(id: string): Dispute | null {
-  return loadWithLogs("Dispute", id) as Dispute;
-}
+import { ZERO } from "../utils";
 
 export function createDisputeFromEvent(event: DisputeCreation): void {
   const contract = KlerosCore.bind(event.address);
