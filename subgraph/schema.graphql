@@ -67,7 +67,7 @@ type User @entity {
   evidences: [Evidence!]! @derivedFrom(field: "sender")
 }
 
-type Arbitrated @entity {
+type Arbitrable @entity {
   id: ID! # address
   disputes: [Dispute!]! @derivedFrom(field: "arbitrated")
   totalDisputes: BigInt!
@@ -114,7 +114,7 @@ type Court @entity {
 type Dispute @entity {
   id: ID!
   court: Court!
-  arbitrated: Arbitrated!
+  arbitrated: Arbitrable!
   period: Period!
   ruled: Boolean!
   lastPeriodChange: BigInt!

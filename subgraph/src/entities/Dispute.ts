@@ -1,21 +1,9 @@
-import { log } from "@graphprotocol/graph-ts";
 import {
   KlerosCore,
   DisputeCreation,
 } from "../../generated/KlerosCore/KlerosCore";
 import { Dispute } from "../../generated/schema";
 import { ZERO } from "../utils";
-
-export function loadDisputeWithLog(id: string): Dispute | null {
-  const dispute = Dispute.load(id);
-
-  if (!dispute) {
-    log.error("Dispute not found with id: {}", [id]);
-    return null;
-  }
-
-  return dispute;
-}
 
 export function createDisputeFromEvent(event: DisputeCreation): void {
   const contract = KlerosCore.bind(event.address);
