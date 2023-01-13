@@ -1,18 +1,16 @@
 import { BigInt } from "@graphprotocol/graph-ts";
 import { Contribution } from "../../generated/DisputeKitClassic/DisputeKitClassic";
 import { ClassicRound } from "../../generated/schema";
-import { loadWithLogs, ZERO } from "../utils";
-
-export function loadClassicRoundWithLogs(id: string): ClassicRound | null {
-  return loadWithLogs("ClassicRound", id) as ClassicRound;
-}
+import { ZERO } from "../utils";
 
 export function createClassicRound(
   disputeID: string,
   roundIndex: BigInt
 ): void {
-  const id = `1-${disputeID}-${roundIndex.toString()}`;
+  const localDisputeID = `1-${disputeID}`;
+  const id = `${localDisputeID}-${roundIndex.toString()}`;
   const classicRound = new ClassicRound(id);
+  classicRound.localDispute = localDisputeID;
   classicRound.votes = [];
   classicRound.winningChoice = ZERO;
   classicRound.counts = [];
@@ -33,7 +31,7 @@ export function updateChoiceFundingFromContributionEvent(
   const coreRoundIndex = event.params._coreRoundID.toString();
   const roundID = `${disputeKitID}-${coreDisputeID}-${coreRoundIndex}`;
 
-  const classicRound = loadClassicRoundWithLogs(roundID);
+  const classicRound = ClassicRound.load(roundID);
   if (!classicRound) return;
 
   const choice = event.params._choice;
