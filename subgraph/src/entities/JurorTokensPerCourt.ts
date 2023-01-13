@@ -1,10 +1,9 @@
 import { BigInt, Address } from "@graphprotocol/graph-ts";
 import { KlerosCore } from "../../generated/KlerosCore/KlerosCore";
-import { JurorTokensPerCourt } from "../../generated/schema";
+import { Court, JurorTokensPerCourt } from "../../generated/schema";
 import { updateActiveJurors, getDelta } from "../datapoint";
 import { ensureUser } from "./Juror";
 import { ZERO } from "../utils";
-import { loadCourtWithLog } from "./Court";
 
 export function ensureJurorTokensPerCourt(
   jurorAddress: string,
@@ -50,7 +49,7 @@ export function updateJurorStake(
   timestamp: BigInt
 ): void {
   const juror = ensureUser(jurorAddress);
-  const court = loadCourtWithLog(courtID);
+  const court = Court.load(courtID);
   if (!court) return;
   const jurorTokens = ensureJurorTokensPerCourt(jurorAddress, courtID);
   const jurorBalance = contract.getJurorBalance(
