@@ -1,11 +1,7 @@
 import { BigInt } from "@graphprotocol/graph-ts";
 import { CourtCreated } from "../../generated/KlerosCore/KlerosCore";
 import { Court } from "../../generated/schema";
-import { loadWithLogs, ZERO } from "../utils";
-
-export function loadCourtWithLogs(id: string): Court | null {
-  return loadWithLogs("Court", id) as Court;
-}
+import { ZERO } from "../utils";
 
 export function createCourtFromEvent(event: CourtCreated): void {
   const court = new Court(event.params._courtID.toString());
@@ -28,7 +24,7 @@ export function createCourtFromEvent(event: CourtCreated): void {
 }
 
 export function getFeeForJuror(id: string): BigInt {
-  const court = loadCourtWithLogs(id);
+  const court = Court.load(id);
   if (!court) return ZERO;
   return court.feeForJuror;
 }

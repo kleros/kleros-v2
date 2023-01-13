@@ -12,19 +12,12 @@ import {
   TokenAndETHShift as TokenAndETHShiftEvent,
 } from "../generated/KlerosCore/KlerosCore";
 import { ZERO, ONE } from "./utils";
-import {
-  createCourtFromEvent,
-  getFeeForJuror,
-  loadCourtWithLogs,
-} from "./entities/Court";
+import { createCourtFromEvent, getFeeForJuror } from "./entities/Court";
 import {
   createDisputeKitFromEvent,
   filterSupportedDisputeKits,
 } from "./entities/DisputeKit";
-import {
-  createDisputeFromEvent,
-  loadDisputeWithLogs,
-} from "./entities/Dispute";
+import { createDisputeFromEvent } from "./entities/Dispute";
 import { createRoundFromRoundInfo } from "./entities/Round";
 import {
   updateCases,
@@ -41,6 +34,7 @@ import {
 import { createDrawFromEvent } from "./entities/Draw";
 import { createTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
+import { Court, Dispute } from "../generated/schema";
 
 function getPeriodName(index: i32): string {
   const periodArray = ["evidence", "commit", "vote", "appeal", "execution"];
@@ -54,7 +48,7 @@ export function handleCourtCreated(event: CourtCreated): void {
 export function handleCourtModified(event: CourtModified): void {
   const contract = KlerosCore.bind(event.address);
   const courtContractState = contract.courts(event.params._courtID);
-  const court = loadCourtWithLogs(event.params._courtID.toString());
+  const court = Court.load(event.params._courtID.toString());
   if (!court) return;
   court.hiddenVotes = courtContractState.value1;
   court.minStake = courtContractState.value2;
@@ -70,7 +64,7 @@ export function handleDisputeKitCreated(event: DisputeKitCreated): void {
 }
 
 export function handleDisputeKitEnabled(event: DisputeKitEnabled): void {
-  const court = loadCourtWithLogs(event.params._courtID.toString());
+  const court = Court.load(event.params._courtID.toString());
   if (!court) return;
   const isEnable = event.params._enable;
   const disputeKitID = event.params._disputeKitID.toString();
@@ -85,7 +79,7 @@ export function handleDisputeCreation(event: DisputeCreation): void {
   const disputeID = event.params._disputeID;
   const disputeStorage = contract.disputes(disputeID);
   const courtID = disputeStorage.value0.toString();
-  const court = loadCourtWithLogs(courtID);
+  const court = Court.load(courtID);
   if (!court) return;
   court.numberDisputes = court.numberDisputes.plus(ONE);
   court.save();
@@ -99,7 +93,7 @@ export function handleDisputeCreation(event: DisputeCreation): void {
 
 export function handleNewPeriod(event: NewPeriod): void {
   const disputeID = event.params._disputeID.toString();
-  const dispute = loadDisputeWithLogs(disputeID);
+  const dispute = Dispute.load(disputeID);
   if (!dispute) return;
   dispute.period = getPeriodName(event.params._period);
   dispute.lastPeriodChange = event.block.timestamp;
@@ -109,7 +103,7 @@ export function handleNewPeriod(event: NewPeriod): void {
 export function handleAppealDecision(event: AppealDecision): void {
   const contract = KlerosCore.bind(event.address);
   const disputeID = event.params._disputeID;
-  const dispute = loadDisputeWithLogs(disputeID.toString());
+  const dispute = Dispute.load(disputeID.toString());
   if (!dispute) return;
   const newRoundIndex = dispute.currentRoundIndex.plus(ONE);
   const roundID = `${disputeID}-${newRoundIndex.toString()}`;
@@ -124,7 +118,7 @@ export function handleAppealDecision(event: AppealDecision): void {
 export function handleDraw(event: DrawEvent): void {
   createDrawFromEvent(event);
   const disputeID = event.params._disputeID.toString();
-  const dispute = loadDisputeWithLogs(disputeID);
+  const dispute = Dispute.load(disputeID);
   if (!dispute) return;
   const contract = KlerosCore.bind(event.address);
   updateJurorStake(
@@ -164,9 +158,9 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
     updateRedistributedPNK(tokenAmount, event.block.timestamp);
   }
   updatePaidETH(ethAmount, event.block.timestamp);
-  const dispute = loadDisputeWithLogs(disputeID);
+  const dispute = Dispute.load(disputeID);
   if (!dispute) return;
-  const court = loadCourtWithLogs(dispute.court);
+  const court = Court.load(dispute.court);
   if (!court) return;
   updateJurorStake(
     jurorAddress,
