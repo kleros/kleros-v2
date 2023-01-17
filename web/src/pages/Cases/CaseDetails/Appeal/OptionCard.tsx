@@ -5,7 +5,7 @@ import { Card, Radio, LinearProgress } from "@kleros/ui-components-library";
 import Gavel from "svgs/icons/gavel.svg";
 import { BigNumber, utils } from "ethers";
 
-interface IOptionCard {
+interface IOptionCard extends React.HTMLAttributes<HTMLDivElement> {
   text: string;
   funding: BigNumber;
   required: BigNumber;
@@ -23,7 +23,7 @@ const OptionCard: React.FC<IOptionCard> = ({
 }) => {
   const [ref, { width }] = useMeasure();
   return (
-    <StyledCard ref={ref} {...props}>
+    <StyledCard ref={ref} hover {...props}>
       <TopContainer>
         <div>
           <small className="block">{text}</small>
