@@ -3,18 +3,31 @@ import styled from "styled-components";
 import { Box } from "@kleros/ui-components-library";
 import { secondsToDayHourMinute, getTimeLeft } from "utils/date";
 
-const StageExplainer: React.FC = () => {
-  // const timeLeft = secondsToDayHourMinute(
-  //   getTimeLeft(
-  //     parseInt(dispute?.lastPeriodChange, 10),
-  //     parseInt(dispute?.courtID.timesPerPeriod[index], 10)
-  //   )
-  // );
+interface IStageExplainer {
+  lastPeriodChange: string;
+  appealPeriodDuration: string;
+  loserTimeMultiplier: string;
+}
+
+const StageExplainer: React.FC<IStageExplainer> = ({
+  lastPeriodChange,
+  appealPeriodDuration,
+  loserTimeMultiplier,
+}) => {
+  const timeLeft = secondsToDayHourMinute(
+    getTimeLeft(
+      parseInt(lastPeriodChange, 10),
+      parseInt(loserTimeMultiplier, 10) * parseInt(appealPeriodDuration, 10)
+    )
+  );
   return (
     <StyledBox>
       <StageIndicator />
       <div>
-        <small>One of the losing options must be fully funded.</small>
+        <small>
+          In this stage, at least one of the losing options must be fully funded
+          to proceed.
+        </small>
         <small>
           If no option is fully funded in time, the jury decision is maintained.
         </small>

@@ -9,11 +9,17 @@ import {
 } from "queries/useClassicAppealQuery";
 import { useAppealCost } from "queries/useAppealCost";
 import { useDisputeKitClassicMultipliers } from "queries/useDisputeKitClassicMultipliers";
+import StageExplainer from "./StageExplainer";
 import OptionCard from "../OptionCard";
 
 const ONE_BASIS_POINT = BigNumber.from("1000");
 
-const Options: React.FC = () => {
+interface IOptions {
+  selectedOption: undefined | number;
+  setSelectedOption: (arg0: number) => void;
+}
+
+const Options: React.FC<IOptions> = ({ selectedOption, setSelectedOption }) => {
   const { id } = useParams();
   const { data } = useClassicAppealQuery(id);
   const paidFees = getPaidFees(data?.dispute);
@@ -24,6 +30,7 @@ const Options: React.FC = () => {
   const { data: multipliers } = useDisputeKitClassicMultipliers();
   return (
     <Container>
+      <StageExplainer />
       <label> Which option do you want to fund? </label>
       <OptionsContainer>
         {typeof paidFees !== "undefined" &&
@@ -33,11 +40,12 @@ const Options: React.FC = () => {
               <OptionCard
                 key={answer}
                 text={answer}
+                selected={i === selectedOption}
                 winner={(i + 1).toString() === winningChoice}
                 funding={
                   paidFees[i + 1]
-                    ? paidFees[i + 1]
-                    : BigNumber.from("30000000000000000")
+                    ? BigNumber.from(paidFees[i + 1])
+                    : BigNumber.from(0)
                 }
                 required={
                   (i + 1).toString() === winningChoice
@@ -48,6 +56,7 @@ const Options: React.FC = () => {
                         .mul(appealCost)
                         .div(ONE_BASIS_POINT)
                 }
+                onClick={() => setSelectedOption(i)}
               />
             )
           )}
