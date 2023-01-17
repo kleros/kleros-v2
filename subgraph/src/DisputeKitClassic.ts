@@ -29,7 +29,8 @@ export const DISPUTEKIT_ID = "1";
 export function handleDisputeCreation(event: DisputeCreation): void {
   const disputeID = event.params._coreDisputeID.toString();
   createClassicDisputeFromEvent(event);
-  createClassicRound(disputeID, ZERO);
+  const numberOfChoices = event.params._numberOfChoices;
+  createClassicRound(disputeID, numberOfChoices, ZERO);
 }
 
 export function handleEvidenceEvent(event: EvidenceEvent): void {
@@ -88,7 +89,8 @@ export function handleChoiceFunded(event: ChoiceFunded): void {
     );
     if (!localDispute) return;
     const newRoundIndex = localDispute.currentLocalRoundIndex.plus(ONE);
-    createClassicRound(coreDisputeID, newRoundIndex);
+    const numberOfChoices = localDispute.numberOfChoices;
+    createClassicRound(coreDisputeID, numberOfChoices, newRoundIndex);
   }
 
   localRound.save();

@@ -1,23 +1,25 @@
 import { BigInt } from "@graphprotocol/graph-ts";
 import { Contribution } from "../../generated/DisputeKitClassic/DisputeKitClassic";
 import { ClassicRound } from "../../generated/schema";
-import { ZERO } from "../utils";
+import { ONE, ZERO } from "../utils";
 
 export function createClassicRound(
   disputeID: string,
+  numberOfChoices: BigInt,
   roundIndex: BigInt
 ): void {
+  const choicesLength = numberOfChoices.plus(ONE);
   const localDisputeID = `1-${disputeID}`;
   const id = `${localDisputeID}-${roundIndex.toString()}`;
   const classicRound = new ClassicRound(id);
   classicRound.localDispute = localDisputeID;
   classicRound.votes = [];
   classicRound.winningChoice = ZERO;
-  classicRound.counts = [];
+  classicRound.counts = new Array<BigInt>(choicesLength.toI32()).fill(ZERO);
   classicRound.tied = true;
   classicRound.totalVoted = ZERO;
   classicRound.totalCommited = ZERO;
-  classicRound.paidFees = [];
+  classicRound.paidFees = new Array<BigInt>(choicesLength.toI32()).fill(ZERO);
   classicRound.feeRewards = ZERO;
   classicRound.fundedChoices = [];
   classicRound.save();
