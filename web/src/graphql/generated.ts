@@ -21,14 +21,14 @@ export type Scalars = {
   Bytes: any;
 };
 
-export type Arbitrated = {
-  __typename?: "Arbitrated";
+export type Arbitrable = {
+  __typename?: "Arbitrable";
   disputes: Array<Dispute>;
   id: Scalars["ID"];
   totalDisputes: Scalars["BigInt"];
 };
 
-export type ArbitratedDisputesArgs = {
+export type ArbitrableDisputesArgs = {
   first?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<Dispute_OrderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
@@ -36,7 +36,7 @@ export type ArbitratedDisputesArgs = {
   where?: InputMaybe<Dispute_Filter>;
 };
 
-export type Arbitrated_Filter = {
+export type Arbitrable_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   disputes_?: InputMaybe<Dispute_Filter>;
@@ -58,7 +58,7 @@ export type Arbitrated_Filter = {
   totalDisputes_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
 };
 
-export enum Arbitrated_OrderBy {
+export enum Arbitrable_OrderBy {
   Disputes = "disputes",
   Id = "id",
   TotalDisputes = "totalDisputes",
@@ -244,7 +244,11 @@ export type ClassicDispute_Filter = {
   currentLocalRoundIndex_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
   extraData?: InputMaybe<Scalars["Bytes"]>;
   extraData_contains?: InputMaybe<Scalars["Bytes"]>;
+  extraData_gt?: InputMaybe<Scalars["Bytes"]>;
+  extraData_gte?: InputMaybe<Scalars["Bytes"]>;
   extraData_in?: InputMaybe<Array<Scalars["Bytes"]>>;
+  extraData_lt?: InputMaybe<Scalars["Bytes"]>;
+  extraData_lte?: InputMaybe<Scalars["Bytes"]>;
   extraData_not?: InputMaybe<Scalars["Bytes"]>;
   extraData_not_contains?: InputMaybe<Scalars["Bytes"]>;
   extraData_not_in?: InputMaybe<Array<Scalars["Bytes"]>>;
@@ -1086,7 +1090,7 @@ export enum Court_OrderBy {
 
 export type Dispute = {
   __typename?: "Dispute";
-  arbitrated: Arbitrated;
+  arbitrated: Arbitrable;
   court: Court;
   currentRound: Round;
   currentRoundIndex: Scalars["BigInt"];
@@ -1265,7 +1269,11 @@ export type DisputeKit_Filter = {
   _change_block?: InputMaybe<BlockChangedFilter>;
   address?: InputMaybe<Scalars["Bytes"]>;
   address_contains?: InputMaybe<Scalars["Bytes"]>;
+  address_gt?: InputMaybe<Scalars["Bytes"]>;
+  address_gte?: InputMaybe<Scalars["Bytes"]>;
   address_in?: InputMaybe<Array<Scalars["Bytes"]>>;
+  address_lt?: InputMaybe<Scalars["Bytes"]>;
+  address_lte?: InputMaybe<Scalars["Bytes"]>;
   address_not?: InputMaybe<Scalars["Bytes"]>;
   address_not_contains?: InputMaybe<Scalars["Bytes"]>;
   address_not_in?: InputMaybe<Array<Scalars["Bytes"]>>;
@@ -1330,7 +1338,7 @@ export type Dispute_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   arbitrated?: InputMaybe<Scalars["String"]>;
-  arbitrated_?: InputMaybe<Arbitrated_Filter>;
+  arbitrated_?: InputMaybe<Arbitrable_Filter>;
   arbitrated_contains?: InputMaybe<Scalars["String"]>;
   arbitrated_contains_nocase?: InputMaybe<Scalars["String"]>;
   arbitrated_ends_with?: InputMaybe<Scalars["String"]>;
@@ -1698,13 +1706,21 @@ export type GatewayDispute_Filter = {
   arbitrationCost_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
   arbitrator?: InputMaybe<Scalars["Bytes"]>;
   arbitrator_contains?: InputMaybe<Scalars["Bytes"]>;
+  arbitrator_gt?: InputMaybe<Scalars["Bytes"]>;
+  arbitrator_gte?: InputMaybe<Scalars["Bytes"]>;
   arbitrator_in?: InputMaybe<Array<Scalars["Bytes"]>>;
+  arbitrator_lt?: InputMaybe<Scalars["Bytes"]>;
+  arbitrator_lte?: InputMaybe<Scalars["Bytes"]>;
   arbitrator_not?: InputMaybe<Scalars["Bytes"]>;
   arbitrator_not_contains?: InputMaybe<Scalars["Bytes"]>;
   arbitrator_not_in?: InputMaybe<Array<Scalars["Bytes"]>>;
   disputeHash?: InputMaybe<Scalars["Bytes"]>;
   disputeHash_contains?: InputMaybe<Scalars["Bytes"]>;
+  disputeHash_gt?: InputMaybe<Scalars["Bytes"]>;
+  disputeHash_gte?: InputMaybe<Scalars["Bytes"]>;
   disputeHash_in?: InputMaybe<Array<Scalars["Bytes"]>>;
+  disputeHash_lt?: InputMaybe<Scalars["Bytes"]>;
+  disputeHash_lte?: InputMaybe<Scalars["Bytes"]>;
   disputeHash_not?: InputMaybe<Scalars["Bytes"]>;
   disputeHash_not_contains?: InputMaybe<Scalars["Bytes"]>;
   disputeHash_not_in?: InputMaybe<Array<Scalars["Bytes"]>>;
@@ -1739,7 +1755,11 @@ export type GatewayDispute_Filter = {
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
   relayer?: InputMaybe<Scalars["Bytes"]>;
   relayer_contains?: InputMaybe<Scalars["Bytes"]>;
+  relayer_gt?: InputMaybe<Scalars["Bytes"]>;
+  relayer_gte?: InputMaybe<Scalars["Bytes"]>;
   relayer_in?: InputMaybe<Array<Scalars["Bytes"]>>;
+  relayer_lt?: InputMaybe<Scalars["Bytes"]>;
+  relayer_lte?: InputMaybe<Scalars["Bytes"]>;
   relayer_not?: InputMaybe<Scalars["Bytes"]>;
   relayer_not_contains?: InputMaybe<Scalars["Bytes"]>;
   relayer_not_in?: InputMaybe<Array<Scalars["Bytes"]>>;
@@ -1924,8 +1944,8 @@ export type Query = {
   __typename?: "Query";
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
-  arbitrated?: Maybe<Arbitrated>;
-  arbitrateds: Array<Arbitrated>;
+  arbitrable?: Maybe<Arbitrable>;
+  arbitrables: Array<Arbitrable>;
   classicContribution?: Maybe<ClassicContribution>;
   classicContributions: Array<ClassicContribution>;
   classicDispute?: Maybe<ClassicDispute>;
@@ -1978,20 +1998,20 @@ export type Query_MetaArgs = {
   block?: InputMaybe<Block_Height>;
 };
 
-export type QueryArbitratedArgs = {
+export type QueryArbitrableArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars["ID"];
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
-export type QueryArbitratedsArgs = {
+export type QueryArbitrablesArgs = {
   block?: InputMaybe<Block_Height>;
   first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<Arbitrated_OrderBy>;
+  orderBy?: InputMaybe<Arbitrable_OrderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars["Int"]>;
   subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Arbitrated_Filter>;
+  where?: InputMaybe<Arbitrable_Filter>;
 };
 
 export type QueryClassicContributionArgs = {
@@ -2495,8 +2515,8 @@ export type Subscription = {
   __typename?: "Subscription";
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
-  arbitrated?: Maybe<Arbitrated>;
-  arbitrateds: Array<Arbitrated>;
+  arbitrable?: Maybe<Arbitrable>;
+  arbitrables: Array<Arbitrable>;
   classicContribution?: Maybe<ClassicContribution>;
   classicContributions: Array<ClassicContribution>;
   classicDispute?: Maybe<ClassicDispute>;
@@ -2549,20 +2569,20 @@ export type Subscription_MetaArgs = {
   block?: InputMaybe<Block_Height>;
 };
 
-export type SubscriptionArbitratedArgs = {
+export type SubscriptionArbitrableArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars["ID"];
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
-export type SubscriptionArbitratedsArgs = {
+export type SubscriptionArbitrablesArgs = {
   block?: InputMaybe<Block_Height>;
   first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<Arbitrated_OrderBy>;
+  orderBy?: InputMaybe<Arbitrable_OrderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars["Int"]>;
   subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<Arbitrated_Filter>;
+  where?: InputMaybe<Arbitrable_Filter>;
 };
 
 export type SubscriptionClassicContributionArgs = {
@@ -3254,7 +3274,7 @@ export type CasesPageQuery = {
     id: string;
     period: Period;
     lastPeriodChange: any;
-    arbitrated: { __typename?: "Arbitrated"; id: string };
+    arbitrated: { __typename?: "Arbitrable"; id: string };
     court: {
       __typename?: "Court";
       id: string;
@@ -3264,6 +3284,31 @@ export type CasesPageQuery = {
     };
   }>;
   counter?: { __typename?: "Counter"; cases: any } | null;
+};
+
+export type ClassicAppealQueryVariables = Exact<{
+  disputeID: Scalars["ID"];
+}>;
+
+export type ClassicAppealQuery = {
+  __typename?: "Query";
+  dispute?: {
+    __typename?: "Dispute";
+    lastPeriodChange: any;
+    court: { __typename?: "Court"; id: string; timesPerPeriod: Array<any> };
+    arbitrated: { __typename?: "Arbitrable"; id: string };
+    disputeKitDispute?: {
+      __typename?: "ClassicDispute";
+      id: string;
+      currentLocalRoundIndex: any;
+      localRounds: Array<{
+        __typename?: "ClassicRound";
+        winningChoice: any;
+        paidFees: Array<any>;
+        fundedChoices: Array<any>;
+      }>;
+    } | null;
+  } | null;
 };
 
 export type CourtPolicyUriQueryVariables = Exact<{
@@ -3293,7 +3338,7 @@ export type DisputeDetailsQuery = {
       hiddenVotes: boolean;
       feeForJuror: any;
     };
-    arbitrated: { __typename?: "Arbitrated"; id: string };
+    arbitrated: { __typename?: "Arbitrable"; id: string };
   } | null;
 };
 
