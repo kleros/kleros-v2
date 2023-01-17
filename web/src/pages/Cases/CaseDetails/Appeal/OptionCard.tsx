@@ -3,11 +3,12 @@ import styled from "styled-components";
 import { useMeasure } from "react-use";
 import { Card, Radio, LinearProgress } from "@kleros/ui-components-library";
 import Gavel from "svgs/icons/gavel.svg";
+import { BigNumber, utils } from "ethers";
 
 interface IOptionCard {
   text: string;
-  funding: string;
-  required: string;
+  funding: BigNumber;
+  required: BigNumber;
   winner?: boolean;
   selected?: boolean;
 }
@@ -35,13 +36,16 @@ const OptionCard: React.FC<IOptionCard> = ({
       </TopContainer>
       <LabelContainer>
         <label>
-          {funding === required
+          {funding.gte(required)
             ? "Fully funded!"
-            : `${funding} out of ${required} required`}
+            : utils.formatEther(funding) +
+              " out of " +
+              utils.formatEther(required) +
+              "ETH required"}
         </label>
       </LabelContainer>
       <LinearProgress
-        progress={(parseInt(funding) / parseInt(required)) * 100}
+        progress={funding.mul(100).div(required).toNumber()}
         width={width}
       />
     </StyledCard>

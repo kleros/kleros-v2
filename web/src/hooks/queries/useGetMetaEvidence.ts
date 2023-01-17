@@ -11,7 +11,7 @@ export const useGetMetaEvidence = (
     : undefined;
   const arbitrable = useConnectedContract("IMetaEvidence", formattedAddress);
   return useSWRImmutable(
-    () => (arbitrable ? `MetaEvidence{disputeID}${arbitrableAddress}` : false),
+    () => (arbitrable ? `MetaEvidence${disputeID}${arbitrableAddress}` : false),
     async () => {
       if (arbitrable) {
         const disputeFilter = arbitrable.filters.Dispute(null, disputeID);
