@@ -7,7 +7,6 @@ export type { ContractName };
 export const useConnectedContract = (
   contractName: ContractName,
   contractAddress?: string
-  // chainId?: number
 ) => {
   const { library } = useWeb3();
   const contract = getContract(contractName, contractAddress);

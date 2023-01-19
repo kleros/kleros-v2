@@ -6,13 +6,15 @@ export type { DisputeDetailsQuery };
 const disputeDetailsQuery = gql`
   query DisputeDetails($disputeID: ID!) {
     dispute(id: $disputeID) {
-      courtID {
+      court {
         id
         timesPerPeriod
         hiddenVotes
         feeForJuror
       }
-      arbitrated
+      arbitrated {
+        id
+      }
       period
       ruled
       lastPeriodChange
@@ -21,10 +23,14 @@ const disputeDetailsQuery = gql`
 `;
 
 export const useDisputeDetailsQuery = (id?: string | number) => {
-  const { data, error, isValidating } = useSWR({
-    query: () => (typeof id !== "undefined" ? disputeDetailsQuery : false),
-    variables: { disputeID: id?.toString() },
-  });
+  const { data, error, isValidating } = useSWR(() =>
+    typeof id !== "undefined"
+      ? {
+          query: disputeDetailsQuery,
+          variables: { disputeID: id?.toString() },
+        }
+      : false
+  );
   const result = data ? (data as DisputeDetailsQuery) : undefined;
   return { data: result, error, isValidating };
 };

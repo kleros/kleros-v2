@@ -8,13 +8,20 @@ const votingHistoryQuery = gql`
     dispute(id: $disputeID) {
       rounds {
         nbVotes
-        totalVoted
-        votes {
-          juror {
-            id
+      }
+      disputeKitDispute {
+        localRounds {
+          ... on ClassicRound {
+            totalVoted
+            votes {
+              id
+              choice
+              justification
+              juror {
+                id
+              }
+            }
           }
-          choice
-          justification
         }
       }
     }
@@ -22,10 +29,14 @@ const votingHistoryQuery = gql`
 `;
 
 export const useVotingHistory = (disputeID?: string) => {
-  const { data, error, isValidating } = useSWR({
-    query: votingHistoryQuery,
-    variables: { disputeID },
-  });
+  const { data, error, isValidating } = useSWR(() =>
+    typeof disputeID !== "undefined"
+      ? {
+          query: votingHistoryQuery,
+          variables: { disputeID },
+        }
+      : false
+  );
   const result = data ? (data as VotingHistoryQuery) : undefined;
   return { data: result, error, isValidating };
 };

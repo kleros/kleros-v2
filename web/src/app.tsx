@@ -15,7 +15,7 @@ import Courts from "./pages/Courts";
 const fetcherBuilder =
   (url: string) =>
   ({ query, variables }: { query: string; variables?: any }) => {
-    console.log("fetching subgraph");
+    console.log("fetching subgraph", query, variables);
     return request(url, query, variables);
   };
 

@@ -8,9 +8,6 @@ const drawQuery = gql`
     draws(where: { dispute: $disputeID, juror: $address }) {
       voteID
     }
-    votes(where: { dispute: $disputeID, juror: $address }) {
-      id
-    }
   }
 `;
 

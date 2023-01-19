@@ -25,13 +25,15 @@ const StyledCard = styled(Card)`
   flex-wrap: wrap;
 `;
 
-const getLastOrZero = (src: HomePageQueryDataPoints) =>
-  src?.length > 0 ? src.at(-1)?.value : BigNumber.from(0).toString();
+const getLastOrZero = (
+  src: HomePageQuery["counters"],
+  stat: HomePageQueryDataPoints
+) => (src.length > 0 ? src.at(-1)?.[stat] : BigNumber.from(0).toString());
 
 interface IStat {
   title: string;
-  getText: (counters: HomePageQuery["counters"]) => string;
-  getSubtext: (counters: HomePageQuery["counters"]) => string;
+  getText: (data: HomePageQuery["counters"]) => string;
+  getSubtext: (data: HomePageQuery["counters"]) => string;
   color: IStatDisplay["color"];
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
@@ -39,38 +41,42 @@ interface IStat {
 const stats: IStat[] = [
   {
     title: "PNK staked",
-    getText: ({ stakedPNK }) =>
-      utils.commify(utils.formatUnits(getLastOrZero(stakedPNK), 18)),
+    getText: (counters) =>
+      utils.commify(
+        utils.formatUnits(getLastOrZero(counters, "stakedPNK"), 18)
+      ),
     getSubtext: () => "$ 3 000 000",
     color: "purple",
     icon: PNKIcon,
   },
   {
     title: "ETH Paid to jurors",
-    getText: ({ paidETH }) =>
-      utils.commify(utils.formatEther(getLastOrZero(paidETH))),
+    getText: (counters) =>
+      utils.commify(utils.formatEther(getLastOrZero(counters, "paidETH"))),
     getSubtext: () => "$ 3,000,000",
     color: "blue",
     icon: EthereumIcon,
   },
   {
     title: "PNK redistributed",
-    getText: ({ redistributedPNK }) =>
-      utils.commify(utils.formatUnits(getLastOrZero(redistributedPNK), 18)),
+    getText: (counters) =>
+      utils.commify(
+        utils.formatUnits(getLastOrZero(counters, "redistributedPNK"), 18)
+      ),
     getSubtext: () => "$ 3,000,000",
     color: "purple",
     icon: PNKRedistributedIcon,
   },
   {
     title: "Active jurors",
-    getText: ({ activeJurors }) => getLastOrZero(activeJurors),
+    getText: (counters) => getLastOrZero(counters, "activeJurors"),
     getSubtext: () => "$ 3,000,000",
     color: "green",
     icon: JurorIcon,
   },
   {
     title: "Cases",
-    getText: ({ cases }) => getLastOrZero(cases),
+    getText: (counters) => getLastOrZero(counters, "cases"),
     getSubtext: () => "$ 3,000,000",
     color: "orange",
     icon: BalanceIcon,
@@ -85,8 +91,8 @@ const Stats = () => {
         <StatDisplay
           key={i}
           {...{ title, color, icon }}
-          text={data ? getText(data.counters) : "Fetching..."}
-          subtext={data ? getSubtext(data.counters) : "Fetching..."}
+          text={data ? getText(data["counters"]) : "Fetching..."}
+          subtext={data ? getSubtext(data["counters"]) : "Fetching..."}
         />
       ))}
     </StyledCard>

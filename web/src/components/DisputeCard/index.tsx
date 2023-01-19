@@ -30,7 +30,7 @@ const Container = styled.div`
   }
 `;
 
-const getTimeLeft = (
+const getPeriodEndTimestamp = (
   lastPeriodChange: string,
   currentPeriodIndex: number,
   timesPerPeriod: string[]
@@ -44,21 +44,21 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
   arbitrated,
   period,
   lastPeriodChange,
-  courtID,
+  court,
 }) => {
   const currentPeriodIndex = Periods[period];
-  const rewards = `≥ ${utils.formatEther(courtID.feeForJuror)} ETH`;
+  const rewards = `≥ ${utils.formatEther(court.feeForJuror)} ETH`;
   const date =
     currentPeriodIndex === 4
       ? lastPeriodChange
-      : getTimeLeft(
+      : getPeriodEndTimestamp(
           lastPeriodChange,
           currentPeriodIndex,
-          courtID.timesPerPeriod
+          court.timesPerPeriod
         );
-  const { data: metaEvidence } = useGetMetaEvidence(id, arbitrated);
+  const { data: metaEvidence } = useGetMetaEvidence(id, arbitrated.id);
   const title = metaEvidence ? metaEvidence.title : <Skeleton />;
-  const { data: courtPolicy } = useCourtPolicy(subcourtID.id);
+  const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
   const category = metaEvidence ? metaEvidence.category : undefined;
   const navigate = useNavigate();

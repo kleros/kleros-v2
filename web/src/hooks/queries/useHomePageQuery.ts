@@ -9,13 +9,12 @@ const homePageQuery = gql`
       id
     }
     counters(where: { id_gt: $timeframe }) {
+      id
       stakedPNK
-      redistributedPNK
       paidETH
+      redistributedPNK
       activeJurors
       cases
-      casesVoting
-      casesRuled
     }
   }
 `;

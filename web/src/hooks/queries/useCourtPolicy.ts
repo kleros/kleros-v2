@@ -1,7 +1,7 @@
-import { usePolicyRegistryEvent } from "queries/usePolicyRegistryEvent";
-import { useIPFSQuery } from "hooks/useIPFSQuery";
+import { useCourtPolicyURI } from "queries/useCourtPolicyURI";
+import { useIPFSQuery } from "../useIPFSQuery";
 
-export const useCourtPolicy = (courtID?: string | number) => {
-  const { data: courtPolicyPath } = usePolicyRegistryEvent(courtID);
-  return useIPFSQuery(courtPolicyPath?.args._policy);
+export const useCourtPolicy = (courtID?: string) => {
+  const { data: policyURI } = useCourtPolicyURI(courtID);
+  return useIPFSQuery(policyURI);
 };

@@ -45,22 +45,20 @@ interface IChartData {
 const Chart: React.FC = () => {
   const [chartOption, setChartOption] = useState("stakedPNK");
   const { data } = useHomePageContext();
-  const chartData = data?.counters[chartOption];
-  console.log(chartData);
-  const processedData = chartData?.reduce(
-    (accData: IChartData[], { id, value }: { id: string; value: string }) => {
-      return [
-        ...accData,
-        {
-          x: Number(id) * 1000,
-          y: Number(
-            chartOption === "stakedPNK" ? utils.formatUnits(value, 18) : value
-          ),
-        },
-      ];
-    },
-    []
-  );
+  const chartData = data?.counters;
+  const processedData = chartData?.reduce((accData: IChartData[], counter) => {
+    return [
+      ...accData,
+      {
+        x: Number(counter.id) * 1000,
+        y: Number(
+          chartOption === "stakedPNK"
+            ? utils.formatUnits(counter[chartOption], 18)
+            : counter[chartOption]
+        ),
+      },
+    ];
+  }, []);
 
   return (
     <Container>

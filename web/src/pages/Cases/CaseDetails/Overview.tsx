@@ -5,27 +5,23 @@ import { utils } from "ethers";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { useCourtPolicy } from "queries/useCourtPolicy";
-import { useIPFSQuery } from "hooks/useIPFSQuery";
+import { useCourtPolicyURI } from "queries/useCourtPolicyURI";
 import PolicyIcon from "svgs/icons/policy.svg";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 
-const Overview: React.FC<{ arbitrable: string; courtID?: string }> = ({
+const Overview: React.FC<{ arbitrable?: string; courtID?: string }> = ({
   arbitrable,
   courtID,
 }) => {
   const { id } = useParams();
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
-  const { data: disputeDetails } = useDisputeDetailsQuery(
-    id ? parseInt(id) : undefined
-  );
-  const { data: courtPolicyEvent } = useCourtPolicy(
-    courtID ? parseInt(courtID) : undefined
-  );
-  const courtPolicyPath = courtPolicyEvent?.args._policy;
-  const { data: courtPolicy } = useIPFSQuery(courtPolicyPath);
+  const { data: disputeDetails } = useDisputeDetailsQuery(id);
+  const { data: courtPolicyURI } = useCourtPolicyURI(courtID);
+  const { data: courtPolicy } = useCourtPolicy(courtID);
   const courtName = courtPolicy?.name;
-  const rewards = disputeDetails?.dispute?.courtID
-    ? `≥ ${utils.formatEther(disputeDetails?.dispute?.courtID.feeForJuror)} ETH`
+  const court = disputeDetails?.dispute?.court;
+  const rewards = court
+    ? `≥ ${utils.formatEther(court.feeForJuror)} ETH`
     : undefined;
   const category = metaEvidence ? metaEvidence.category : undefined;
   return (
@@ -65,7 +61,7 @@ const Overview: React.FC<{ arbitrable: string; courtID?: string }> = ({
           )}
           {courtPolicy && (
             <StyledA
-              href={`https://ipfs.kleros.io${courtPolicyPath}`}
+              href={`https://ipfs.kleros.io${courtPolicyURI}`}
               target="_blank"
               rel="noreferrer"
             >
@@ -79,15 +75,9 @@ const Overview: React.FC<{ arbitrable: string; courtID?: string }> = ({
   );
 };
 
-// {metaEvidence?.aliases &&
-// Object.keys(metaEvidence.aliases).length !== 0 ? (
-//   <hr />
-// ) : null}
-
 const Container = styled.div`
   width: 100%;
   height: auto;
-  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -142,12 +132,5 @@ const LinkContainer = styled.div`
   display: flex;
   justify-content: space-between;
 `;
-
-// const StyledIFrame = styled.iframe`
-//   width: 1px;
-//   min-width: 100%;
-//   height: 360px;
-//   border: none;
-// `;
 
 export default Overview;
