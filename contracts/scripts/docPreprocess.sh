@@ -11,5 +11,4 @@ done
 
 echo "Use 'git restore src/' to revert the changes"
 
-forge doc --serve
 
