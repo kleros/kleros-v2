@@ -20,6 +20,8 @@ export const useCourtPolicyURI = (id?: string | number) => {
         }
       : false
   );
-  const result = data ? (data as CourtPolicyUriQuery) : undefined;
+  const result = data
+    ? (data.court.policy as CourtPolicyUriQuery.court.policy)
+    : undefined;
   return { data: result, error, isValidating };
 };

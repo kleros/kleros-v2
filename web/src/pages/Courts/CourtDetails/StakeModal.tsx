@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import Modal from "react-modal";
-import { utils } from "ethers";
+import { utils, BigNumber } from "ethers";
 import { Field, Button } from "@kleros/ui-components-library";
 import { KlerosCore } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/KlerosCore";
 import { useWeb3 } from "hooks/useWeb3";
@@ -20,7 +20,6 @@ const StakeModal: React.FC<{ isOpen: boolean; close: () => void }> = ({
   const [amount, setAmount] = useState("");
   const { account } = useWeb3();
   const { data: balance } = usePNKBalance(account);
-  console.log(balance);
   const { data: allowance } = usePNKAllowance(account);
   return (
     <StyledModal {...{ isOpen }}>
@@ -29,15 +28,7 @@ const StakeModal: React.FC<{ isOpen: boolean; close: () => void }> = ({
         type="number"
         value={amount}
         onChange={(e) => {
-          const newValue = e.target.value;
-          console.log(
-            "newValue",
-            newValue,
-            newValue.match(/^\d+(\.\d*){0,1}$/)
-          );
-          if (newValue.match(/^[\d]+([.]\d*)?$/)) {
-            setAmount(newValue);
-          }
+          setAmount(e.target.value);
         }}
         placeholder="Amount to stake"
       />
@@ -49,9 +40,14 @@ const StakeModal: React.FC<{ isOpen: boolean; close: () => void }> = ({
           onClick={close}
         />
         <Button
-          text="Stake"
+          text={"Stake"}
           isLoading={isSending}
-          disabled={isSending}
+          disabled={
+            isSending ||
+            allowance !== "" ||
+            !balance ||
+            utils.parseUnits(amount, 18).gt(balance)
+          }
           onClick={() => {
             if (typeof id !== "undefined" && amount !== "") {
               setIsSending(true);
