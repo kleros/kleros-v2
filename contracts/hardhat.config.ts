@@ -1,5 +1,4 @@
 import * as dotenv from "dotenv";
-import fs from "fs";
 
 import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
@@ -13,17 +12,8 @@ import "hardhat-watcher";
 import "hardhat-docgen";
 import "hardhat-contract-sizer";
 import "hardhat-tracer";
-import "hardhat-preprocessor";
 
 dotenv.config();
-
-function getRemappings() {
-  return fs
-    .readFileSync("remappings.txt", "utf8")
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => line.trim().split("="));
-}
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -195,21 +185,6 @@ const config: HardhatUserConfig = {
         deploy: "node_modules/@kleros/vea-contracts/deploy",
       },
     ],
-  },
-  // This fully resolves paths for imports in the ./lib directory for Hardhat
-  preprocess: {
-    eachLine: (hre) => ({
-      transform: (line: string) => {
-        if (line.match(/^\s*import /i)) {
-          getRemappings().forEach(([find, replace]) => {
-            if (line.match(find)) {
-              line = line.replace(find, replace);
-            }
-          });
-        }
-        return line;
-      },
-    }),
   },
 };
 
