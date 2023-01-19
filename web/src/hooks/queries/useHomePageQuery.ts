@@ -8,25 +8,14 @@ const homePageQuery = gql`
     disputes(first: 3) {
       id
     }
-    pnkstakedDataPoints(where: { id_gt: $timeframe }) {
-      id
-      value
-    }
-    ethpaidDataPoints(where: { id_gt: $timeframe }) {
-      id
-      value
-    }
-    pnkredistributedDataPoints(where: { id_gt: $timeframe }) {
-      id
-      value
-    }
-    activeJurorsDataPoints(where: { id_gt: $timeframe }) {
-      id
-      value
-    }
-    casesDataPoints(where: { id_gt: $timeframe }) {
-      id
-      value
+    counters(where: { id_gt: $timeframe }) {
+      stakedPNK
+      redistributedPNK
+      paidETH
+      activeJurors
+      cases
+      casesVoting
+      casesRuled
     }
   }
 `;

@@ -7,7 +7,7 @@ import DisputeKitClassic from "@kleros/kleros-v2-contracts/deployments/arbitrumG
 import IArbitrable from "@kleros/kleros-v2-contracts/artifacts/src/arbitration/IArbitrable.sol/IArbitrable.json";
 import IMetaEvidence from "@kleros/kleros-v2-contracts/artifacts/src/evidence/IMetaEvidence.sol/IMetaEvidence.json";
 
-const CONTRACTS = {
+export const CONTRACTS = {
   KlerosCore: KlerosCore,
   PNK: PNK,
   PolicyRegistry: PolicyRegistry,
