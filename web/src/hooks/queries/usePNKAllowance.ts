@@ -8,10 +8,11 @@ export const usePNKAllowance = (user?: string | null) => {
   return useSWR(
     () => (pnkContract && user ? `PNKBalance${user}` : false),
     async () => {
+      console.log("allowance query");
       if (pnkContract && user) {
         return await pnkContract.allowance(user, CONTRACTS["PNK"].address);
       } else {
-        return false;
+        return undefined;
       }
     }
   );

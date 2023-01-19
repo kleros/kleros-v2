@@ -11,7 +11,7 @@ export const usePNKBalance = (user?: string | null) => {
       if (pnkContract && user) {
         return await pnkContract.balanceOf(user);
       } else {
-        return false;
+        return undefined;
       }
     }
   );
