@@ -30,7 +30,7 @@ const Container = styled.div`
   }
 `;
 
-const getTimeLeft = (
+const getPeriodEndTimestamp = (
   lastPeriodChange: string,
   currentPeriodIndex: number,
   timesPerPeriod: string[]
@@ -51,7 +51,11 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
   const date =
     currentPeriodIndex === 4
       ? lastPeriodChange
-      : getTimeLeft(lastPeriodChange, currentPeriodIndex, court.timesPerPeriod);
+      : getPeriodEndTimestamp(
+          lastPeriodChange,
+          currentPeriodIndex,
+          court.timesPerPeriod
+        );
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrated.id);
   const title = metaEvidence ? metaEvidence.title : <Skeleton />;
   const { data: courtPolicyPath } = useCourtPolicy(court.id);
