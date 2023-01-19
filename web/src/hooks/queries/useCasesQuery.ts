@@ -12,8 +12,10 @@ const casesQuery = gql`
       orderDirection: desc
     ) {
       id
-      arbitrated
-      courtID {
+      arbitrated {
+        id
+      }
+      court {
         id
         policy
         feeForJuror

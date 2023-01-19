@@ -45,11 +45,11 @@ const Container = styled.div`
 
 const getPeriodPhrase = (period: Periods) => {
   switch (period) {
-    case Periods.Evidence:
+    case Periods.evidence:
       return "Voting Starts";
-    case Periods.Appeal:
+    case Periods.appeal:
       return "Appeal Deadline";
-    case Periods.Execution:
+    case Periods.execution:
       return "Final Decision";
     default:
       return "Voting Deadline";
