@@ -11,6 +11,7 @@ import { useAppealCost } from "queries/useAppealCost";
 import { useDisputeKitClassicMultipliers } from "queries/useDisputeKitClassicMultipliers";
 import StageExplainer from "./StageExplainer";
 import OptionCard from "../OptionCard";
+import { Periods } from "consts/periods";
 
 const ONE_BASIS_POINT = BigNumber.from("1000");
 
@@ -22,15 +23,20 @@ interface IOptions {
 const Options: React.FC<IOptions> = ({ selectedOption, setSelectedOption }) => {
   const { id } = useParams();
   const { data } = useClassicAppealQuery(id);
+  const dispute = data?.dispute;
   const paidFees = getPaidFees(data?.dispute);
   const winningChoice = getWinningChoice(data?.dispute);
   const { data: appealCost } = useAppealCost(id);
   const arbitrable = data?.dispute?.arbitrated.id;
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
   const { data: multipliers } = useDisputeKitClassicMultipliers();
-  return (
+  return dispute && multipliers ? (
     <Container>
-      <StageExplainer />
+      <StageExplainer
+        lastPeriodChange={dispute.lastPeriodChange}
+        appealPeriodDuration={dispute.court.timesPerPeriod[Periods.appeal]}
+        loserTimeMultiplier={multipliers.loser_appeal_period_multiplier.toString()}
+      />
       <label> Which option do you want to fund? </label>
       <OptionsContainer>
         {typeof paidFees !== "undefined" &&
@@ -49,10 +55,10 @@ const Options: React.FC<IOptions> = ({ selectedOption, setSelectedOption }) => {
                 }
                 required={
                   (i + 1).toString() === winningChoice
-                    ? multipliers?.winner_stake_multiplier
+                    ? multipliers.winner_stake_multiplier
                         .mul(appealCost)
                         .div(ONE_BASIS_POINT)
-                    : multipliers?.loser_stake_multiplier
+                    : multipliers.loser_stake_multiplier
                         .mul(appealCost)
                         .div(ONE_BASIS_POINT)
                 }
@@ -62,6 +68,8 @@ const Options: React.FC<IOptions> = ({ selectedOption, setSelectedOption }) => {
           )}
       </OptionsContainer>
     </Container>
+  ) : (
+    <></>
   );
 };
 

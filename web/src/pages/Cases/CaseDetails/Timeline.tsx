@@ -51,8 +51,8 @@ const getTimeline = (
       return [
         secondsToDayHourMinute(
           getTimeLeft(
-            parseInt(dispute?.lastPeriodChange, 10),
-            parseInt(dispute?.court.timesPerPeriod[index], 10)
+            parseInt(dispute?.lastPeriodChange, 10) +
+              parseInt(dispute?.court.timesPerPeriod[index], 10)
           )
         ),
       ];

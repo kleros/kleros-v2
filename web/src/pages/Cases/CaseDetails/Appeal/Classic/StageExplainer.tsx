@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { Box } from "@kleros/ui-components-library";
-import { secondsToDayHourMinute, getTimeLeft } from "utils/date";
+import { useCountdown } from "hooks/useCountdown";
+import { secondsToDayHourMinute } from "utils/date";
+import HourglassIcon from "svgs/icons/hourglass.svg";
 
 interface IStageExplainer {
   lastPeriodChange: string;
@@ -14,26 +16,42 @@ const StageExplainer: React.FC<IStageExplainer> = ({
   appealPeriodDuration,
   loserTimeMultiplier,
 }) => {
-  const timeLeft = secondsToDayHourMinute(
-    getTimeLeft(
-      parseInt(lastPeriodChange, 10),
-      parseInt(loserTimeMultiplier, 10) * parseInt(appealPeriodDuration, 10)
-    )
+  const deadline = useMemo(
+    () =>
+      getDeadline(lastPeriodChange, appealPeriodDuration, loserTimeMultiplier),
+    [lastPeriodChange, appealPeriodDuration, loserTimeMultiplier]
   );
+  const timeLeft = useCountdown(deadline);
   return (
     <StyledBox>
-      <StageIndicator />
+      <CountdownLabel>
+        <HourglassIcon />
+        {secondsToDayHourMinute(timeLeft)}
+      </CountdownLabel>
       <div>
-        <small>
-          In this stage, at least one of the losing options must be fully funded
-          to proceed.
-        </small>
-        <small>
-          If no option is fully funded in time, the jury decision is maintained.
-        </small>
+        <label>
+          Losing options can only be funded <small>before</small> the deadline.
+        </label>
+        <label>
+          If no losing option is <small>fully funded</small> in time, the jury
+          decision is maintained.
+        </label>
       </div>
     </StyledBox>
   );
+};
+
+const getDeadline = (
+  lastPeriodChange: string,
+  appealPeriodDuration: string,
+  loserTimeMultiplier: string
+): number => {
+  const parsedLastPeriodChange = parseInt(lastPeriodChange, 10);
+  const parsedAppealPeriodDuration = parseInt(appealPeriodDuration, 10);
+  const parsedLoserTimeMultiplier = parseInt(loserTimeMultiplier, 10);
+  const loserAppealPeriodDuration =
+    parsedAppealPeriodDuration * parsedLoserTimeMultiplier;
+  return loserAppealPeriodDuration + parsedLastPeriodChange;
 };
 
 const StyledBox = styled(Box)`
@@ -41,37 +59,23 @@ const StyledBox = styled(Box)`
   margin: 24px 0;
   height: auto;
   width: 100%;
-  padding: 16px 0;
-  padding-right: 24px;
-  display: flex;
-  align-items: center;
-  small {
+  padding: 16px 24px;
+  & > div > label {
     display: block;
   }
 `;
 
-const StageIndicator: React.FC = () => (
-  <IndicatorContainer>
-    <h2>Stage</h2>
-    <h1>1</h1>
-  </IndicatorContainer>
-);
-
-const IndicatorContainer = styled.div`
-  flex-shrink: 0;
-  border-right: 1px solid ${({ theme }) => theme.secondaryPurple};
-  margin-right: 24px;
-  height: 70px;
-  width: 100px;
-  > h2 {
-    color: ${({ theme }) => theme.secondaryPurple};
-    margin-bottom: 8px;
-    text-align: center;
-  }
-  > h1 {
-    color: ${({ theme }) => theme.secondaryPurple};
-    margin: 0px;
-    text-align: center;
+const CountdownLabel = styled.label`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid ${({ theme }) => theme.secondaryPurple};
+  color: ${({ theme }) => theme.primaryText};
+  & > svg {
+    width: 14px;
+    fill: ${({ theme }) => theme.secondaryPurple};
   }
 `;
 
