@@ -32,7 +32,8 @@
     "generate": "graphql-codegen"
   },
   "devDependencies": {
-    "@parcel/transformer-svg-react": "^2.8.0",
+    "@parcel/transformer-svg-react": "~2.7.0",
+    "@parcel/watcher": "~2.0.0",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
     "@types/styled-components": "^5.1.26",
@@ -69,7 +70,7 @@
     "graphql": "^16.4.0",
     "graphql-request": "^5.0.0",
     "moment": "^2.29.4",
-    "parcel": "^2.8.3",
+    "parcel": "~2.7.0",
     "react": "^18.2.0",
     "react-chartjs-2": "^4.3.1",
     "react-dom": "^18.2.0",
