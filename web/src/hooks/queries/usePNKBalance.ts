@@ -7,9 +7,9 @@ export const usePNKBalance = (user?: string | null) => {
   return useSWR(
     () => (pnkContract && user ? `PNKBalance${user}` : false),
     async () => {
-      console.log("balance query");
       if (pnkContract && user) {
-        return await pnkContract.balanceOf(user);
+        const balance = await pnkContract.balanceOf(user);
+        return balance;
       } else {
         return undefined;
       }
