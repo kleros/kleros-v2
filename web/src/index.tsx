@@ -4,8 +4,8 @@ import App from "./app";
 import Modal from "react-modal";
 import { HashRouter as Router } from "react-router-dom";
 
-Modal.setAppElement("#app");
 const container = document.getElementById("app");
+Modal.setAppElement(container!);
 const root = createRoot(container!);
 root.render(
   <React.StrictMode>
