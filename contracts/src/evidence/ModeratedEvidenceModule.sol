@@ -81,6 +81,20 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
 
     /* Events */
 
+    /**
+     * @dev To be raised when evidence is submitted. Should point to the resource (evidences are not to be stored on chain due to gas considerations).
+     * @param _arbitrator The arbitrator of the contract.
+     * @param _evidenceGroupID Unique identifier of the evidence group the evidence belongs to.
+     * @param _party The address of the party submiting the evidence. Note that 0x0 refers to evidence not submitted by any party.
+     * @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'
+     */
+    event Evidence(
+        IArbitrator indexed _arbitrator,
+        uint256 indexed _evidenceGroupID,
+        address indexed _party,
+        string _evidence
+    );
+
     /** @dev Indicate that a party has to pay a fee or would otherwise be considered as losing.
      *  @param _evidenceID The ID of the evidence being moderated.
      *  @param _currentWinner The party who is currently winning.
@@ -314,11 +328,10 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
      *  @return taken The amount of ETH taken.
      *  @return remainder The amount of ETH left from the contribution.
      */
-    function calculateContribution(uint256 _available, uint256 _requiredAmount)
-        internal
-        pure
-        returns (uint256 taken, uint256 remainder)
-    {
+    function calculateContribution(
+        uint256 _available,
+        uint256 _requiredAmount
+    ) internal pure returns (uint256 taken, uint256 remainder) {
         if (_requiredAmount > _available) return (_available, 0); // Take whatever is available, return 0 as leftover ETH.
 
         remainder = _available - _requiredAmount;
@@ -420,15 +433,10 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
      *  @param _moderationID The ID of the moderation occurence.
      *  @return paidFees currentWinner feeRewards The moderation information.
      */
-    function getModerationInfo(bytes32 _evidenceID, uint256 _moderationID)
-        external
-        view
-        returns (
-            uint256[3] memory paidFees,
-            Party currentWinner,
-            uint256 feeRewards
-        )
-    {
+    function getModerationInfo(
+        bytes32 _evidenceID,
+        uint256 _moderationID
+    ) external view returns (uint256[3] memory paidFees, Party currentWinner, uint256 feeRewards) {
         EvidenceData storage evidenceData = evidences[_evidenceID];
         Moderation storage moderation = evidenceData.moderations[_moderationID];
         return (moderation.paidFees, moderation.currentWinner, moderation.feeRewards);
