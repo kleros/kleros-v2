@@ -3,12 +3,11 @@
 pragma solidity ^0.8.0;
 
 import "../arbitration/IArbitrator.sol";
-import "./IEvidence.sol";
 
-/** @title IEvidence
- *  ERC-1497: Evidence Standard
+/** @title IMetaEvidence
+ *  ERC-1497: Evidence Standard excluding evidence emission as it will be handled by the arbitrator.
  */
-interface IMetaEvidence is IEvidence {
+interface IMetaEvidence {
     /**
      * @dev To be emitted when meta-evidence is submitted.
      * @param _metaEvidenceID Unique identifier of meta-evidence.
