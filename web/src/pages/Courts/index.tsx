@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useCourtTree } from "queries/useCourtTree";
+import TopSearch from "./TopSearch";
 import CourtDetails from "./CourtDetails";
 
 const Container = styled.div`
@@ -12,9 +12,9 @@ const Container = styled.div`
 `;
 
 const Courts: React.FC = () => {
-  const tree = useCourtTree();
   return (
     <Container>
+      <TopSearch />
       <Routes>
         <Route path="/:id/*" element={<CourtDetails />} />
         <Route path="*" element={<Navigate to="1" />} />

@@ -6,7 +6,28 @@ export type { CourtTreeQuery };
 const courtTreeQuery = gql`
   query CourtTree {
     court(id: "1") {
+      name
       id
+      children(orderBy: name) {
+        name
+        id
+        children {
+          name
+          id
+          children {
+            name
+            id
+            children {
+              name
+              id
+              children {
+                name
+                id
+              }
+            }
+          }
+        }
+      }
     }
   }
 `;

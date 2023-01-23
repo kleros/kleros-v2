@@ -7,7 +7,6 @@ import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { useCourtPolicy } from "queries/useCourtPolicy";
-import { useIPFSQuery } from "hooks/useIPFSQuery";
 import { CasesPageQuery } from "queries/useCasesQuery";
 import PeriodBanner from "./PeriodBanner";
 import DisputeInfo from "./DisputeInfo";

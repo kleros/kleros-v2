@@ -1683,97 +1683,6 @@ export enum Evidence_OrderBy {
   Sender = "sender",
 }
 
-export type GatewayDispute = {
-  __typename?: "GatewayDispute";
-  arbitrationCost: Scalars["BigInt"];
-  arbitrator: Scalars["Bytes"];
-  disputeHash: Scalars["Bytes"];
-  homeDispute: Dispute;
-  id: Scalars["ID"];
-  relayer: Scalars["Bytes"];
-};
-
-export type GatewayDispute_Filter = {
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  arbitrationCost?: InputMaybe<Scalars["BigInt"]>;
-  arbitrationCost_gt?: InputMaybe<Scalars["BigInt"]>;
-  arbitrationCost_gte?: InputMaybe<Scalars["BigInt"]>;
-  arbitrationCost_in?: InputMaybe<Array<Scalars["BigInt"]>>;
-  arbitrationCost_lt?: InputMaybe<Scalars["BigInt"]>;
-  arbitrationCost_lte?: InputMaybe<Scalars["BigInt"]>;
-  arbitrationCost_not?: InputMaybe<Scalars["BigInt"]>;
-  arbitrationCost_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
-  arbitrator?: InputMaybe<Scalars["Bytes"]>;
-  arbitrator_contains?: InputMaybe<Scalars["Bytes"]>;
-  arbitrator_gt?: InputMaybe<Scalars["Bytes"]>;
-  arbitrator_gte?: InputMaybe<Scalars["Bytes"]>;
-  arbitrator_in?: InputMaybe<Array<Scalars["Bytes"]>>;
-  arbitrator_lt?: InputMaybe<Scalars["Bytes"]>;
-  arbitrator_lte?: InputMaybe<Scalars["Bytes"]>;
-  arbitrator_not?: InputMaybe<Scalars["Bytes"]>;
-  arbitrator_not_contains?: InputMaybe<Scalars["Bytes"]>;
-  arbitrator_not_in?: InputMaybe<Array<Scalars["Bytes"]>>;
-  disputeHash?: InputMaybe<Scalars["Bytes"]>;
-  disputeHash_contains?: InputMaybe<Scalars["Bytes"]>;
-  disputeHash_gt?: InputMaybe<Scalars["Bytes"]>;
-  disputeHash_gte?: InputMaybe<Scalars["Bytes"]>;
-  disputeHash_in?: InputMaybe<Array<Scalars["Bytes"]>>;
-  disputeHash_lt?: InputMaybe<Scalars["Bytes"]>;
-  disputeHash_lte?: InputMaybe<Scalars["Bytes"]>;
-  disputeHash_not?: InputMaybe<Scalars["Bytes"]>;
-  disputeHash_not_contains?: InputMaybe<Scalars["Bytes"]>;
-  disputeHash_not_in?: InputMaybe<Array<Scalars["Bytes"]>>;
-  homeDispute?: InputMaybe<Scalars["String"]>;
-  homeDispute_?: InputMaybe<Dispute_Filter>;
-  homeDispute_contains?: InputMaybe<Scalars["String"]>;
-  homeDispute_contains_nocase?: InputMaybe<Scalars["String"]>;
-  homeDispute_ends_with?: InputMaybe<Scalars["String"]>;
-  homeDispute_ends_with_nocase?: InputMaybe<Scalars["String"]>;
-  homeDispute_gt?: InputMaybe<Scalars["String"]>;
-  homeDispute_gte?: InputMaybe<Scalars["String"]>;
-  homeDispute_in?: InputMaybe<Array<Scalars["String"]>>;
-  homeDispute_lt?: InputMaybe<Scalars["String"]>;
-  homeDispute_lte?: InputMaybe<Scalars["String"]>;
-  homeDispute_not?: InputMaybe<Scalars["String"]>;
-  homeDispute_not_contains?: InputMaybe<Scalars["String"]>;
-  homeDispute_not_contains_nocase?: InputMaybe<Scalars["String"]>;
-  homeDispute_not_ends_with?: InputMaybe<Scalars["String"]>;
-  homeDispute_not_ends_with_nocase?: InputMaybe<Scalars["String"]>;
-  homeDispute_not_in?: InputMaybe<Array<Scalars["String"]>>;
-  homeDispute_not_starts_with?: InputMaybe<Scalars["String"]>;
-  homeDispute_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
-  homeDispute_starts_with?: InputMaybe<Scalars["String"]>;
-  homeDispute_starts_with_nocase?: InputMaybe<Scalars["String"]>;
-  id?: InputMaybe<Scalars["ID"]>;
-  id_gt?: InputMaybe<Scalars["ID"]>;
-  id_gte?: InputMaybe<Scalars["ID"]>;
-  id_in?: InputMaybe<Array<Scalars["ID"]>>;
-  id_lt?: InputMaybe<Scalars["ID"]>;
-  id_lte?: InputMaybe<Scalars["ID"]>;
-  id_not?: InputMaybe<Scalars["ID"]>;
-  id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
-  relayer?: InputMaybe<Scalars["Bytes"]>;
-  relayer_contains?: InputMaybe<Scalars["Bytes"]>;
-  relayer_gt?: InputMaybe<Scalars["Bytes"]>;
-  relayer_gte?: InputMaybe<Scalars["Bytes"]>;
-  relayer_in?: InputMaybe<Array<Scalars["Bytes"]>>;
-  relayer_lt?: InputMaybe<Scalars["Bytes"]>;
-  relayer_lte?: InputMaybe<Scalars["Bytes"]>;
-  relayer_not?: InputMaybe<Scalars["Bytes"]>;
-  relayer_not_contains?: InputMaybe<Scalars["Bytes"]>;
-  relayer_not_in?: InputMaybe<Array<Scalars["Bytes"]>>;
-};
-
-export enum GatewayDispute_OrderBy {
-  ArbitrationCost = "arbitrationCost",
-  Arbitrator = "arbitrator",
-  DisputeHash = "disputeHash",
-  HomeDispute = "homeDispute",
-  Id = "id",
-  Relayer = "relayer",
-}
-
 export type JurorTokensPerCourt = {
   __typename?: "JurorTokensPerCourt";
   court: Court;
@@ -1868,70 +1777,6 @@ export enum OrderDirection {
   Desc = "desc",
 }
 
-export type OutgoingBatch = {
-  __typename?: "OutgoingBatch";
-  batchMerkleRoot: Scalars["String"];
-  epoch: Scalars["BigInt"];
-  id: Scalars["ID"];
-  size: Scalars["BigInt"];
-};
-
-export type OutgoingBatch_Filter = {
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  batchMerkleRoot?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_contains?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_contains_nocase?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_ends_with?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_ends_with_nocase?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_gt?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_gte?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_in?: InputMaybe<Array<Scalars["String"]>>;
-  batchMerkleRoot_lt?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_lte?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_not?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_not_contains?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_not_contains_nocase?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_not_ends_with?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_not_ends_with_nocase?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_not_in?: InputMaybe<Array<Scalars["String"]>>;
-  batchMerkleRoot_not_starts_with?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_starts_with?: InputMaybe<Scalars["String"]>;
-  batchMerkleRoot_starts_with_nocase?: InputMaybe<Scalars["String"]>;
-  epoch?: InputMaybe<Scalars["BigInt"]>;
-  epoch_gt?: InputMaybe<Scalars["BigInt"]>;
-  epoch_gte?: InputMaybe<Scalars["BigInt"]>;
-  epoch_in?: InputMaybe<Array<Scalars["BigInt"]>>;
-  epoch_lt?: InputMaybe<Scalars["BigInt"]>;
-  epoch_lte?: InputMaybe<Scalars["BigInt"]>;
-  epoch_not?: InputMaybe<Scalars["BigInt"]>;
-  epoch_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
-  id?: InputMaybe<Scalars["ID"]>;
-  id_gt?: InputMaybe<Scalars["ID"]>;
-  id_gte?: InputMaybe<Scalars["ID"]>;
-  id_in?: InputMaybe<Array<Scalars["ID"]>>;
-  id_lt?: InputMaybe<Scalars["ID"]>;
-  id_lte?: InputMaybe<Scalars["ID"]>;
-  id_not?: InputMaybe<Scalars["ID"]>;
-  id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
-  size?: InputMaybe<Scalars["BigInt"]>;
-  size_gt?: InputMaybe<Scalars["BigInt"]>;
-  size_gte?: InputMaybe<Scalars["BigInt"]>;
-  size_in?: InputMaybe<Array<Scalars["BigInt"]>>;
-  size_lt?: InputMaybe<Scalars["BigInt"]>;
-  size_lte?: InputMaybe<Scalars["BigInt"]>;
-  size_not?: InputMaybe<Scalars["BigInt"]>;
-  size_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
-};
-
-export enum OutgoingBatch_OrderBy {
-  BatchMerkleRoot = "batchMerkleRoot",
-  Epoch = "epoch",
-  Id = "id",
-  Size = "size",
-}
-
 export enum Period {
   Appeal = "appeal",
   Commit = "commit",
@@ -1978,12 +1823,8 @@ export type Query = {
   evidenceGroup?: Maybe<EvidenceGroup>;
   evidenceGroups: Array<EvidenceGroup>;
   evidences: Array<Evidence>;
-  gatewayDispute?: Maybe<GatewayDispute>;
-  gatewayDisputes: Array<GatewayDispute>;
   jurorTokensPerCourt?: Maybe<JurorTokensPerCourt>;
   jurorTokensPerCourts: Array<JurorTokensPerCourt>;
-  outgoingBatch?: Maybe<OutgoingBatch>;
-  outgoingBatches: Array<OutgoingBatch>;
   round?: Maybe<Round>;
   rounds: Array<Round>;
   tokenAndETHShift?: Maybe<TokenAndEthShift>;
@@ -2270,22 +2111,6 @@ export type QueryEvidencesArgs = {
   where?: InputMaybe<Evidence_Filter>;
 };
 
-export type QueryGatewayDisputeArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type QueryGatewayDisputesArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<GatewayDispute_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<GatewayDispute_Filter>;
-};
-
 export type QueryJurorTokensPerCourtArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars["ID"];
@@ -2300,22 +2125,6 @@ export type QueryJurorTokensPerCourtsArgs = {
   skip?: InputMaybe<Scalars["Int"]>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<JurorTokensPerCourt_Filter>;
-};
-
-export type QueryOutgoingBatchArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type QueryOutgoingBatchesArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<OutgoingBatch_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<OutgoingBatch_Filter>;
 };
 
 export type QueryRoundArgs = {
@@ -2549,12 +2358,8 @@ export type Subscription = {
   evidenceGroup?: Maybe<EvidenceGroup>;
   evidenceGroups: Array<EvidenceGroup>;
   evidences: Array<Evidence>;
-  gatewayDispute?: Maybe<GatewayDispute>;
-  gatewayDisputes: Array<GatewayDispute>;
   jurorTokensPerCourt?: Maybe<JurorTokensPerCourt>;
   jurorTokensPerCourts: Array<JurorTokensPerCourt>;
-  outgoingBatch?: Maybe<OutgoingBatch>;
-  outgoingBatches: Array<OutgoingBatch>;
   round?: Maybe<Round>;
   rounds: Array<Round>;
   tokenAndETHShift?: Maybe<TokenAndEthShift>;
@@ -2841,22 +2646,6 @@ export type SubscriptionEvidencesArgs = {
   where?: InputMaybe<Evidence_Filter>;
 };
 
-export type SubscriptionGatewayDisputeArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionGatewayDisputesArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<GatewayDispute_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<GatewayDispute_Filter>;
-};
-
 export type SubscriptionJurorTokensPerCourtArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars["ID"];
@@ -2871,22 +2660,6 @@ export type SubscriptionJurorTokensPerCourtsArgs = {
   skip?: InputMaybe<Scalars["Int"]>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<JurorTokensPerCourt_Filter>;
-};
-
-export type SubscriptionOutgoingBatchArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars["ID"];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-export type SubscriptionOutgoingBatchesArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<OutgoingBatch_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars["Int"]>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<OutgoingBatch_Filter>;
 };
 
 export type SubscriptionRoundArgs = {
@@ -3343,7 +3116,31 @@ export type CourtTreeQueryVariables = Exact<{ [key: string]: never }>;
 
 export type CourtTreeQuery = {
   __typename?: "Query";
-  court?: { __typename?: "Court"; id: string } | null;
+  court?: {
+    __typename?: "Court";
+    name?: string | null;
+    id: string;
+    children: Array<{
+      __typename?: "Court";
+      name?: string | null;
+      id: string;
+      children: Array<{
+        __typename?: "Court";
+        name?: string | null;
+        id: string;
+        children: Array<{
+          __typename?: "Court";
+          name?: string | null;
+          id: string;
+          children: Array<{
+            __typename?: "Court";
+            name?: string | null;
+            id: string;
+          }>;
+        }>;
+      }>;
+    }>;
+  } | null;
 };
 
 export type DisputeDetailsQueryVariables = Exact<{
