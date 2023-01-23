@@ -2,7 +2,7 @@ import { BigInt, Address } from "@graphprotocol/graph-ts";
 import { KlerosCore } from "../../generated/KlerosCore/KlerosCore";
 import { Court, JurorTokensPerCourt } from "../../generated/schema";
 import { updateActiveJurors, getDelta } from "../datapoint";
-import { ensureUser } from "./Juror";
+import { ensureUser } from "./User";
 import { ZERO } from "../utils";
 
 export function ensureJurorTokensPerCourt(

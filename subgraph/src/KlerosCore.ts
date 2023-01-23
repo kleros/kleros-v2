@@ -26,7 +26,7 @@ import {
   updateRedistributedPNK,
   getDelta,
 } from "./datapoint";
-import { ensureUser } from "./entities/Juror";
+import { ensureUser } from "./entities/User";
 import {
   ensureJurorTokensPerCourt,
   updateJurorStake,
