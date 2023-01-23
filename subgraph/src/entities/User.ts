@@ -2,7 +2,7 @@ import { User } from "../../generated/schema";
 import { ZERO } from "../utils";
 
 export function ensureUser(id: string): User {
-  let user = User.load(id);
+  const user = User.load(id);
 
   if (user) {
     return user;
