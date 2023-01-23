@@ -20,19 +20,28 @@ function updateDataPoint(
   timestamp: BigInt,
   variable: string
 ): void {
-  let counter = store.get("Counter", "0");
-  if (!counter) {
-    counter = new Entity();
-    for (let i = 0; i < VARIABLES.length; i++) {
-      counter.set(VARIABLES[i], Value.fromBigInt(ZERO));
+  const newCounter = new Entity();
+  const counter = store.get("Counter", "0");
+  for (let i = 0; i < VARIABLES.length; i++) {
+    const targetVar = VARIABLES[i];
+    if (targetVar === variable) {
+      newCounter.set(
+        targetVar,
+        !counter
+          ? Value.fromBigInt(delta)
+          : Value.fromBigInt(counter.get(targetVar)!.toBigInt().plus(delta))
+      );
+    } else {
+      newCounter.set(
+        targetVar,
+        !counter ? Value.fromBigInt(ZERO) : counter.get(VARIABLES[i])!
+      );
     }
   }
   const dayID = timestamp.toI32() / 86400;
   const dayStartTimestamp = dayID * 86400;
-  const newValue = counter.get(variable)!.toBigInt().plus(delta);
-  counter.set(variable, Value.fromBigInt(newValue));
-  store.set("Counter", dayStartTimestamp.toString(), counter);
-  store.set("Counter", "0", counter);
+  store.set("Counter", dayStartTimestamp.toString(), newCounter);
+  store.set("Counter", "0", newCounter);
 }
 
 export function updateStakedPNK(delta: BigInt, timestamp: BigInt): void {
