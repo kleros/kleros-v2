@@ -892,9 +892,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dappnode/dappnodesdk@npm:^0.2.68":
-  version: 0.2.68
-  resolution: "@dappnode/dappnodesdk@npm:0.2.68"
+"@dappnode/dappnodesdk@npm:^0.2.69":
+  version: 0.2.69
+  resolution: "@dappnode/dappnodesdk@npm:0.2.69"
   dependencies:
     "@octokit/rest": ^18.0.12
     ajv: ^8.11.0
@@ -903,7 +903,7 @@ __metadata:
     chalk: ^2.4.2
     cli-progress: ^3.8.2
     dotenv: ^8.2.0
-    ethers: ^5.0.3
+    ethers: ^5.7.2
     figlet: ^1.2.3
     form-data: ^3.0.0
     got: ^10.5.5
@@ -924,7 +924,7 @@ __metadata:
     yargs: ^13.2.4
   bin:
     dappnodesdk: dist/dappnodesdk.js
-  checksum: af0439cba2324edbe25046a0f2ec6cd7474ae8cfc2234b8f0bb57d4fabdf74760cfa9acabdda067fab4c98d958e02fcdcf66667e5e4e7a6ef724c79fb23efcae
+  checksum: 912a680268b3b9138b6cc51b98423514acb141aa202d54e5cf4f70e3faf40f2ee31d55e691e1e36faf45535574a1526877377222c0bf89ea03977d5cada1361f
   languageName: node
   linkType: hard
 
@@ -2248,7 +2248,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-bot-pinner@workspace:bot-pinner"
   dependencies:
-    "@dappnode/dappnodesdk": ^0.2.68
+    "@dappnode/dappnodesdk": ^0.2.69
   languageName: unknown
   linkType: soft
 
@@ -10994,7 +10994,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^5.0.0, ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.0.3, ethers@npm:^5.5.2, ethers@npm:^5.5.3, ethers@npm:^5.6.1, ethers@npm:^5.6.7, ethers@npm:^5.7.0":
+"ethers@npm:^5.0.0, ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.5.2, ethers@npm:^5.5.3, ethers@npm:^5.6.1, ethers@npm:^5.6.7, ethers@npm:^5.7.0, ethers@npm:^5.7.2":
   version: 5.7.2
   resolution: "ethers@npm:5.7.2"
   dependencies:
