@@ -61,7 +61,7 @@ export function updateJurorStake(
   jurorTokens.staked = jurorBalance.value0;
   jurorTokens.locked = jurorBalance.value1;
   jurorTokens.save();
-  const stakeDelta = getDelta(jurorTokens.staked, previousStake);
+  const stakeDelta = getDelta(previousStake, jurorTokens.staked);
   juror.totalStake = juror.totalStake.plus(stakeDelta);
   court.stake = court.stake.plus(stakeDelta);
   let activeJurorsDelta: BigInt;
