@@ -1,4 +1,5 @@
 import { User } from "../../generated/schema";
+import { ZERO } from "../utils";
 
 export function ensureUser(id: string): User {
   let user = User.load(id);
@@ -12,6 +13,7 @@ export function ensureUser(id: string): User {
 
 export function createUserFromAddress(id: string): User {
   const user = new User(id);
+  user.totalStake = ZERO;
   user.save();
 
   return user;
