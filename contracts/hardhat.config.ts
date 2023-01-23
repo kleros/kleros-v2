@@ -27,6 +27,7 @@ const config: HardhatUserConfig = {
   },
   paths: {
     sources: "./src",
+    cache: "./cache_hardhat",
   },
   networks: {
     hardhat: {

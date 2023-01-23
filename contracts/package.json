@@ -25,6 +25,8 @@
     "size": "hardhat size-contracts --no-compile",
     "watch": "hardhat watch",
     "docgen": "hardhat docgen",
+    "docserve": "scripts/docPreprocess.sh && forge doc --serve",
+    "docbuild": "scripts/docPreprocess.sh && forge doc --build --out dist",
     "publish": "yarn npm publish --access public --tag $(cat package.json | jq .version)"
   },
   "devDependencies": {
