@@ -1,5 +1,6 @@
 # Hardhat files
 cache
+cache_hardhat
 artifacts
 coverage.json
 
