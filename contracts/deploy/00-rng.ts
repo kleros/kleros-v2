@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
+import { DisputeKitClassic, RandomizerRNG } from "../typechain-types";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -51,18 +52,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     );
   }
 
-  await deploy("PolicyRegistry", {
-    from: deployer,
-    args: [deployer],
-    log: true,
-  });
-
-  await deploy("BlockHashRNG", {
-    from: deployer,
-    args: [],
-    log: true,
-  });
-
   const randomizer = randomizerByChain.get(Number(await getChainId())) ?? AddressZero;
   const rng = await deploy("RandomizerRNG", {
     from: deployer,
@@ -70,54 +59,11 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const disputeKit = await deploy("DisputeKitClassic", {
-    from: deployer,
-    args: [deployer, AddressZero, rng.address, RNG_LOOKAHEAD],
-    log: true,
-  });
-
-  const sortitionSumTreeLibrary = await deploy("SortitionSumTreeFactory", {
-    from: deployer,
-    log: true,
-  });
-
-  const pnk = pnkByChain.get(Number(await getChainId())) ?? AddressZero;
-  const minStake = BigNumber.from(10).pow(20).mul(2);
-  const alpha = 10000;
-  const feeForJuror = BigNumber.from(10).pow(17);
-  const klerosCore = await deploy("KlerosCore", {
-    from: deployer,
-    libraries: {
-      SortitionSumTreeFactory: sortitionSumTreeLibrary.address,
-    },
-    args: [
-      deployer,
-      pnk,
-      AddressZero,
-      disputeKit.address,
-      [1800, 1800], // minStakingTime, maxFreezingTime
-      false,
-      [minStake, alpha, feeForJuror, 3], // minStake, alpha, feeForJuror, jurorsForCourtJump
-      [0, 0, 0, 0], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      3,
-    ],
-    log: true,
-  });
-
-  // execute DisputeKitClassic.changeCore() only if necessary
-  const currentCore = await hre.ethers.getContractAt("DisputeKitClassic", disputeKit.address).then((dk) => dk.core());
-  if (currentCore !== klerosCore.address) {
-    await execute("DisputeKitClassic", { from: deployer, log: true }, "changeCore", klerosCore.address);
-  }
-
-  await deploy("DisputeResolver", {
-    from: deployer,
-    args: [klerosCore.address],
-    log: true,
-  });
+  const disputeKit = (await hre.ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
+  await disputeKit.changeRandomNumberGenerator(rng.address, RNG_LOOKAHEAD);
 };
 
-deployArbitration.tags = ["HomeChain", "Arbitration"];
+deployArbitration.tags = ["HomeChain", "RNG"];
 deployArbitration.skip = async ({ getChainId }) => {
   const chainId = Number(await getChainId());
   return !HomeChains[chainId];

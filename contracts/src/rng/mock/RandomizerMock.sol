@@ -15,7 +15,7 @@ contract RandomizerMock is IRandomizer {
         revert("Not Implemented");
     }
 
-    function relay(RandomizerRNG _rng, uint128 _id, bytes32 _value) external {
+    function relay(RandomizerRNG _rng, uint256 _id, bytes32 _value) external {
         _rng.randomizerCallback(_id, _value);
     }
 }
