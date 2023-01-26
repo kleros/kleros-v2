@@ -116,6 +116,7 @@ const VotingOptions = styled(QuestionAndDescription)`
 const ShadeArea = styled.div`
   width: 100%;
   padding: 16px;
+  margin-top: 16px;
   background-color: ${({ theme }) => theme.mediumBlue};
   > p {
     margin-top: 0;
