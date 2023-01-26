@@ -1,13 +1,14 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import Modal from "react-modal";
-import { utils, BigNumber } from "ethers";
+import { BigNumber } from "ethers";
 import { Field, Button } from "@kleros/ui-components-library";
 import { PNK } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/mock/PNK";
 import { KlerosCore } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/KlerosCore";
 import { useWeb3 } from "hooks/useWeb3";
 import { useConnectedContract } from "hooks/useConnectedContract";
+import { useParsedAmount } from "hooks/useParsedAmount";
 import { usePNKBalance } from "queries/usePNKBalance";
 import { usePNKAllowance } from "queries/usePNKAllowance";
 
@@ -17,10 +18,7 @@ const StakeModal: React.FC<{ isOpen: boolean; close: () => void }> = ({
 }) => {
   const [isSending, setIsSending] = useState(false);
   const [amount, setAmount] = useState("");
-  const parsedAmount = useMemo(
-    () => (amount === "" ? BigNumber.from(0) : utils.parseUnits(amount, 18)),
-    [amount]
-  );
+  const parsedAmount = useParsedAmount(amount);
   const { account } = useWeb3();
   const { data: allowance } = usePNKAllowance(account);
   return (
