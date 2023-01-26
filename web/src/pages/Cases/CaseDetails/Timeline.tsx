@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Periods } from "consts/periods";
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { Box, Steps } from "@kleros/ui-components-library";
+import { useCountdown } from "hooks/useCountdown";
 import { secondsToDayHourMinute, getTimeLeft } from "utils/date";
 
 const Timeline: React.FC<{
@@ -13,12 +14,12 @@ const Timeline: React.FC<{
     currentPeriodIndex,
     dispute?.ruled
   );
+  const items = useTimeline(dispute, currentItemIndex, currentItemIndex);
   return (
     <TimeLineContainer>
       <StyledSteps
         horizontal
-        {...{ currentItemIndex }}
-        items={getTimeline(dispute, currentItemIndex)}
+        {...{ items, currentItemIndex, currentPeriodIndex }}
       />
     </TimeLineContainer>
   );
@@ -34,9 +35,10 @@ const currentPeriodToCurrentItem = (
   else return ruled ? currentPeriodIndex : currentPeriodIndex - 1;
 };
 
-const getTimeline = (
+const useTimeline = (
   dispute: DisputeDetailsQuery["dispute"],
-  currentItemIndex: number
+  currentItemIndex: number,
+  currentPeriodIndex: number
 ) => {
   const titles = [
     "Evidence Period",
@@ -44,20 +46,21 @@ const getTimeline = (
     "Appeal Period",
     "Executed",
   ];
+  const parsedLastPeriodChange = parseInt(dispute?.lastPeriodChange, 10);
+  const parsedTimeCurrentPeriod =
+    dispute && dispute?.court.timesPerPeriod.length > currentPeriodIndex
+      ? parseInt(dispute?.court.timesPerPeriod[currentPeriodIndex])
+      : 0;
+  const countdown = useCountdown(
+    parsedLastPeriodChange + parsedTimeCurrentPeriod
+  );
   const getSubitems = (index: number): string[] => {
     if (index < currentItemIndex) {
       return ["Done!"];
-    } else if (index === currentItemIndex) {
-      return [
-        secondsToDayHourMinute(
-          getTimeLeft(
-            parseInt(dispute?.lastPeriodChange, 10) +
-              parseInt(dispute?.court.timesPerPeriod[index], 10)
-          )
-        ),
-      ];
     } else if (index === 3) {
-      return [];
+      return currentItemIndex === 3 ? ["Pending"] : [];
+    } else if (index === currentItemIndex) {
+      return [secondsToDayHourMinute(countdown)];
     } else {
       return [secondsToDayHourMinute(dispute?.court.timesPerPeriod[index])];
     }
