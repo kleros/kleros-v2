@@ -6,7 +6,7 @@ import CourtDetails from "./CourtDetails";
 
 const Container = styled.div`
   width: 100%;
-  height: auto;
+  min-height: calc(100vh - 144px);
   background-color: ${({ theme }) => theme.lightBackground};
   padding: 32px;
 `;
