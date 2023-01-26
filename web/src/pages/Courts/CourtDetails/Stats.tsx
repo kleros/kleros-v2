@@ -14,12 +14,12 @@ import MinStake from "svgs/icons/min-stake.svg";
 const StyledCard = styled.div`
   width: auto;
   height: fit-content;
-  padding: 16px;
+  padding: 16px 32px;
   display: flex;
+  flex-direction: column;
   gap: 32px;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  flex-wrap: wrap;
 `;
 
 interface IStat {
@@ -75,14 +75,14 @@ const stats: IStat[] = [
   },
   {
     title: "ETH paid to Jurors",
-    getText: (data) => data?.paidETH,
+    getText: (data) => utils.commify(utils.formatEther(data?.paidETH)),
     getSubtext: () => "$ 3,000,000",
     color: "orange",
     icon: BalanceIcon,
   },
   {
     title: "PNK redistributed",
-    getText: (data) => data?.paidPNK,
+    getText: (data) => utils.commify(utils.formatUnits(data?.paidPNK, 18)),
     getSubtext: () => "$ 3,000,000",
     color: "orange",
     icon: BalanceIcon,
