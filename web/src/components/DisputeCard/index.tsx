@@ -67,6 +67,7 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
       <Container>
         <h3>{title}</h3>
         <DisputeInfo
+          courtId={court?.id}
           court={courtName}
           period={currentPeriodIndex}
           {...{ category, rewards, date }}

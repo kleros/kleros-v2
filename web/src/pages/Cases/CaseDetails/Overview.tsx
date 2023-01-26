@@ -44,7 +44,11 @@ const Overview: React.FC<{ arbitrable?: string; courtID?: string }> = ({
           )}
         </VotingOptions>
         <hr />
-        <DisputeInfo court={courtName} {...{ rewards, category }} />
+        <DisputeInfo
+          courtId={court?.id}
+          court={courtName}
+          {...{ rewards, category }}
+        />
       </Container>
       <ShadeArea>
         <p>Make sure you understand the Policies</p>
