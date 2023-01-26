@@ -15,7 +15,7 @@ const Classic: React.FC = () => {
         The jury decision is appealed when two options are fully funded.
       </label>
       <Options {...{ selectedOption, setSelectedOption }} />
-      <Fund />
+      <Fund {...{ selectedOption }} />
     </>
   );
 };
