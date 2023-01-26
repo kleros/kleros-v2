@@ -1,14 +1,62 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
+import { useParams } from "react-router-dom";
 import { Field, Button } from "@kleros/ui-components-library";
+import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
+import { useConnectedContract } from "hooks/useConnectedContract";
+import { useParsedAmount } from "hooks/useParsedAmount";
+import { useETHBalance } from "hooks/queries/useETHBalance";
 
-const Fund: React.FC = () => {
+interface IFund {
+  selectedOption?: number;
+}
+
+const Fund: React.FC<IFund> = ({ selectedOption }) => {
+  const { id } = useParams();
+  const { data: balance } = useETHBalance();
+  const [amount, setAmount] = useState("");
+  const parsedAmount = useParsedAmount(amount);
+  console.log("parsedAmount: ", parsedAmount);
+  console.log("balance: ", balance);
+  const [isSending, setIsSending] = useState(false);
+  const disputeKitClassic = useConnectedContract(
+    "DisputeKitClassic"
+  ) as DisputeKitClassic;
   return (
     <div>
       <label>How much ETH do you want to contribute?</label>
       <div>
-        <StyledField type="number" />
-        <StyledButton disabled text="Fund" />
+        <StyledField
+          type="number"
+          value={amount}
+          onChange={(e) => {
+            setAmount(e.target.value);
+          }}
+          placeholder="Amount to fund"
+        />
+        <StyledButton
+          disabled={isSending || !balance || parsedAmount.gt(balance)}
+          text="Fund"
+          onClick={() => {
+            if (
+              typeof selectedOption !== "undefined" &&
+              typeof id !== "undefined"
+            ) {
+              setIsSending(true);
+              disputeKitClassic
+                .fundAppeal(id, selectedOption, { value: parsedAmount })
+                .then(
+                  async (tx) =>
+                    await tx.wait().then(() => {
+                      setAmount("");
+                      close();
+                    })
+                )
+                .catch()
+                .finally(() => setIsSending(false));
+            }
+          }}
+        />
       </div>
     </div>
   );
