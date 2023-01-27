@@ -4,6 +4,7 @@ import Modal from "react-modal";
 import { Textarea, Button } from "@kleros/ui-components-library";
 import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
 import { useConnectedContract } from "hooks/useConnectedContract";
+import fetch from "node-fetch";
 
 const SubmitEvidenceModal: React.FC<{
   isOpen: boolean;
@@ -34,24 +35,42 @@ const SubmitEvidenceModal: React.FC<{
           text="Submit"
           isLoading={isSending}
           disabled={isSending}
-          onClick={() => {
+          onClick={async () => {
             setIsSending(true);
-            disputeKit
-              .submitEvidence(evidenceGroup, message)
-              .then(
-                async (tx) =>
-                  await tx.wait().then(() => {
-                    setMessage("");
-                    close();
-                  })
-              )
-              .catch()
-              .finally(() => setIsSending(false));
+            const formData = constructEvidence(message);
+            const response = await fetch("/.netlify/functions/uploadToIPFS", {
+              method: "POST",
+              body: formData,
+            });
+            console.log(response);
+            setIsSending(false);
+            // disputeKit
+            //   .submitEvidence(evidenceGroup, message)
+            //   .then(
+            //     async (tx) =>
+            //       await tx.wait().then(() => {
+            //         setMessage("");
+            //         close();
+            //       })
+            //   )
+            //   .catch()
+            //   .finally(() => setIsSending(false));
           }}
         />
       </ButtonArea>
     </StyledModal>
   );
+};
+
+const constructEvidence = (msg: string) => {
+  const formData = new FormData();
+  const file = new File(
+    [JSON.stringify({ name: "test", description: msg })],
+    "evidence.json",
+    { type: "text/plain" }
+  );
+  formData.append("data", file, file.name);
+  return formData;
 };
 
 const StyledModal = styled(Modal)`
