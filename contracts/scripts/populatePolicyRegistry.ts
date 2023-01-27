@@ -1,6 +1,6 @@
 import { deployments, getNamedAccounts, getChainId, ethers } from "hardhat";
 import { PolicyRegistry } from "../typechain-types";
-import policiesV1 from "../policies.v1.json";
+import policiesV1 from "../policies.v1.mainnet.json";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
