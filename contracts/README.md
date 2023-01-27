@@ -144,11 +144,18 @@ yarn etherscan-verify --network <arbitrumGoerli|arbitrumRinkeby|arbitrum|goerli|
 #### 1/ Export the registry data from V1
 
 ```bash
-yarn hardhat run scripts/getPoliciesV1.ts  --network mainnet | tee policies.v1.json
-yarn hardhat run scripts/getCourtsV1.ts --network mainnet | tee courts.v1.json
+for network in mainnet gnosischain
+do
+  yarn hardhat run scripts/getPoliciesV1.ts  --network $network | tee config/policies.v1.$network.json
+  yarn hardhat run scripts/getCourtsV1.ts --network $network | tee config/courts.v1.$network.json
+done
 ```
 
 #### 2/ Import the data to V2 - Local Network
+
+:warning: This script populates only from `*.mainnet.json`, but not from `*.gnosischain.json` at this time.
+
+:warning: It is possible to switch to testnet-friendly court parameters by setting the variable `TESTING_PARAMETERS` to true inside [scripts/populateCourts.ts](scripts/populateCourts.ts).
 
 Shell 1:
 
