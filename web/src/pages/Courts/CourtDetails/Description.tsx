@@ -17,16 +17,19 @@ const TABS = [
     text: "Purpose",
     value: 0,
     path: "purpose",
+    isVisible: (policy: any) => !!policy?.description,
   },
   {
     text: "Skills",
     value: 1,
     path: "skills",
+    isVisible: (policy: any) => !!policy?.requiredSkills,
   },
   {
     text: "Policy",
     value: 2,
     path: "policy",
+    isVisible: (policy: any) => !!policy?.summary,
   },
 ];
 
@@ -43,12 +46,7 @@ const Description: React.FC = () => {
     [currentPathName]
   );
 
-  const filteredTabs = TABS.filter((tab) => {
-    if (tab.path === "skills" && !policy?.requiredSkills) {
-      return false;
-    }
-    return true;
-  });
+  const filteredTabs = TABS.filter(({ isVisible }) => isVisible(policy));
 
   return (
     <Container>
