@@ -130,6 +130,14 @@ const config: HardhatUserConfig = {
         home: "arbitrum",
       },
     },
+    gnosischain: {
+      chainId: 100,
+      url: `https://xdai-rpc.gateway.pokt.network`,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      live: true,
+      saveDeployments: true,
+      tags: ["production", "foreign", "layer1"],
+    },
   },
   namedAccounts: {
     deployer: {

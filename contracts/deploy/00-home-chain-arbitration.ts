@@ -81,7 +81,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const pnk = pnkByChain.get(Number(await getChainId())) ?? AddressZero;
+  const pnk = pnkByChain.get(chainId) ?? AddressZero;
   const minStake = BigNumber.from(10).pow(20).mul(2);
   const alpha = 10000;
   const feeForJuror = BigNumber.from(10).pow(17);
