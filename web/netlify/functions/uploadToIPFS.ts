@@ -14,6 +14,7 @@ export const handler: Handler = async (event, context) => {
       method: "POST",
       headers: {
         Authorization: `Bearer ${ESTUARI_API_KEY}`,
+        ...newHeaders,
       },
       body: event.body,
     });
