@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 import { Box } from "@kleros/ui-components-library";
 import { useCountdown } from "hooks/useCountdown";
+import { ONE_BASIS_POINT } from "consts/index";
 import { secondsToDayHourMinute } from "utils/date";
 import HourglassIcon from "svgs/icons/hourglass.svg";
 
@@ -26,7 +27,7 @@ const StageExplainer: React.FC<IStageExplainer> = ({
     <StyledBox>
       <CountdownLabel>
         <HourglassIcon />
-        {secondsToDayHourMinute(timeLeft)}
+        {typeof timeLeft !== "undefined" && secondsToDayHourMinute(timeLeft)}
       </CountdownLabel>
       <div>
         <label>
@@ -50,7 +51,8 @@ const getDeadline = (
   const parsedAppealPeriodDuration = parseInt(appealPeriodDuration, 10);
   const parsedLoserTimeMultiplier = parseInt(loserTimeMultiplier, 10);
   const loserAppealPeriodDuration =
-    parsedAppealPeriodDuration * parsedLoserTimeMultiplier;
+    (parsedAppealPeriodDuration * parsedLoserTimeMultiplier) /
+    ONE_BASIS_POINT.toNumber();
   return loserAppealPeriodDuration + parsedLastPeriodChange;
 };
 
