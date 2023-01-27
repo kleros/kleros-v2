@@ -169,6 +169,6 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
     event.block.timestamp
   );
   court.paidETH = court.paidETH.plus(ethAmount);
-  court.paidPNK = court.paidETH.plus(tokenAmount);
+  court.paidPNK = court.paidPNK.plus(tokenAmount);
   court.save();
 }
