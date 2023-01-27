@@ -156,22 +156,6 @@ type DisputeKit @entity {
   courts: [Court!]! @derivedFrom(field: "supportedDisputeKits")
 }
 
-type GatewayDispute @entity {
-  id: ID!
-  homeDispute: Dispute!
-  arbitrator: Bytes!
-  disputeHash: Bytes!
-  arbitrationCost: BigInt!
-  relayer: Bytes!
-}
-
-type OutgoingBatch @entity {
-  id: ID! # messageHash
-  size: BigInt!
-  epoch: BigInt!
-  batchMerkleRoot: String!
-}
-
 type Counter @entity {
   id: ID! # Will be the timestamp except for the counter which will be 0
   stakedPNK: BigInt!
