@@ -430,7 +430,7 @@ export type ClassicRound = DisputeKitRound & {
   tied: Scalars["Boolean"];
   totalCommited: Scalars["BigInt"];
   totalVoted: Scalars["BigInt"];
-  votes: Array<ClassicVote>;
+  votes: Array<Vote>;
   winningChoice: Scalars["BigInt"];
 };
 
@@ -444,10 +444,10 @@ export type ClassicRoundContributionsArgs = {
 
 export type ClassicRoundVotesArgs = {
   first?: InputMaybe<Scalars["Int"]>;
-  orderBy?: InputMaybe<ClassicVote_OrderBy>;
+  orderBy?: InputMaybe<Vote_OrderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   skip?: InputMaybe<Scalars["Int"]>;
-  where?: InputMaybe<ClassicVote_Filter>;
+  where?: InputMaybe<Vote_Filter>;
 };
 
 export type ClassicRound_Filter = {
@@ -529,13 +529,7 @@ export type ClassicRound_Filter = {
   totalVoted_lte?: InputMaybe<Scalars["BigInt"]>;
   totalVoted_not?: InputMaybe<Scalars["BigInt"]>;
   totalVoted_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
-  votes?: InputMaybe<Array<Scalars["String"]>>;
-  votes_?: InputMaybe<ClassicVote_Filter>;
-  votes_contains?: InputMaybe<Array<Scalars["String"]>>;
-  votes_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
-  votes_not?: InputMaybe<Array<Scalars["String"]>>;
-  votes_not_contains?: InputMaybe<Array<Scalars["String"]>>;
-  votes_not_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
+  votes_?: InputMaybe<Vote_Filter>;
   winningChoice?: InputMaybe<Scalars["BigInt"]>;
   winningChoice_gt?: InputMaybe<Scalars["BigInt"]>;
   winningChoice_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -1223,6 +1217,15 @@ export enum DisputeKitDispute_OrderBy {
 export type DisputeKitRound = {
   id: Scalars["ID"];
   localDispute: DisputeKitDispute;
+  votes: Array<Vote>;
+};
+
+export type DisputeKitRoundVotesArgs = {
+  first?: InputMaybe<Scalars["Int"]>;
+  orderBy?: InputMaybe<Vote_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]>;
+  where?: InputMaybe<Vote_Filter>;
 };
 
 export type DisputeKitRound_Filter = {
@@ -1257,11 +1260,13 @@ export type DisputeKitRound_Filter = {
   localDispute_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
   localDispute_starts_with?: InputMaybe<Scalars["String"]>;
   localDispute_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  votes_?: InputMaybe<Vote_Filter>;
 };
 
 export enum DisputeKitRound_OrderBy {
   Id = "id",
   LocalDispute = "localDispute",
+  Votes = "votes",
 }
 
 export type DisputeKit_Filter = {
@@ -3136,6 +3141,11 @@ export type CourtTreeQuery = {
             __typename?: "Court";
             name?: string | null;
             id: string;
+            children: Array<{
+              __typename?: "Court";
+              name?: string | null;
+              id: string;
+            }>;
           }>;
         }>;
       }>;
@@ -3215,6 +3225,7 @@ export type VotingHistoryQuery = {
   __typename?: "Query";
   dispute?: {
     __typename?: "Dispute";
+    id: string;
     rounds: Array<{ __typename?: "Round"; nbVotes: any }>;
     disputeKitDispute?: {
       __typename?: "ClassicDispute";
@@ -3223,9 +3234,9 @@ export type VotingHistoryQuery = {
         totalVoted: any;
         votes: Array<{
           __typename?: "ClassicVote";
-          id: string;
           choice: any;
           justification: string;
+          id: string;
           juror: { __typename?: "User"; id: string };
         }>;
       }>;
