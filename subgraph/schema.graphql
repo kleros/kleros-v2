@@ -24,6 +24,7 @@ interface DisputeKitDispute {
 interface DisputeKitRound {
   id: ID!
   localDispute: DisputeKitDispute!
+  votes: [Vote!]! @derivedFrom(field: "localRound")
 }
 
 interface Vote {
@@ -185,8 +186,8 @@ type ClassicDispute implements DisputeKitDispute @entity {
 type ClassicRound implements DisputeKitRound @entity {
   id: ID! # disputeKit.id-coreDispute-dispute.rounds.length
   localDispute: DisputeKitDispute!
+  votes: [Vote!]! @derivedFrom(field: "localRound")
 
-  votes: [ClassicVote!]!
   winningChoice: BigInt!
   counts: [BigInt!]!
   tied: Boolean!
