@@ -13,7 +13,6 @@ export function createClassicRound(
   const id = `${localDisputeID}-${roundIndex.toString()}`;
   const classicRound = new ClassicRound(id);
   classicRound.localDispute = localDisputeID;
-  classicRound.votes = [];
   classicRound.winningChoice = ZERO;
   classicRound.counts = new Array<BigInt>(choicesLength.toI32()).fill(ZERO);
   classicRound.tied = true;
@@ -42,6 +41,7 @@ export function updateCounts(id: string, choice: BigInt): void {
       round.tied = false;
     }
   }
+  round.totalVoted = round.totalVoted.plus(ONE);
   round.save();
 }
 
