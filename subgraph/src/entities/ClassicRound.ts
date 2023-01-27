@@ -25,6 +25,26 @@ export function createClassicRound(
   classicRound.save();
 }
 
+export function updateCounts(id: string, choice: BigInt): void {
+  const round = ClassicRound.load(id);
+  if (!round) return;
+  const choiceNum = choice.toI32();
+  const updatedCount = round.counts[choiceNum].plus(ONE);
+  round.counts[choiceNum] = updatedCount;
+  const currentWinningCount = round.counts[round.winningChoice.toI32()];
+  if (choice.equals(round.winningChoice)) {
+    if (round.tied) round.tied = false;
+  } else {
+    if (updatedCount.equals(currentWinningCount)) {
+      if (!round.tied) round.tied = true;
+    } else if (updatedCount.gt(currentWinningCount)) {
+      round.winningChoice = choice;
+      round.tied = false;
+    }
+  }
+  round.save();
+}
+
 export function updateChoiceFundingFromContributionEvent(
   event: Contribution
 ): void {

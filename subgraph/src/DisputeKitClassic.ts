@@ -20,6 +20,7 @@ import { ensureClassicEvidenceGroup } from "./entities/ClassicEvidenceGroup";
 import {
   createClassicRound,
   updateChoiceFundingFromContributionEvent,
+  updateCounts,
 } from "./entities/ClassicRound";
 import { createClassicVote } from "./entities/ClassicVote";
 import { ONE, ZERO } from "./utils";
@@ -53,9 +54,9 @@ export function handleJustificationEvent(event: JustificationEvent): void {
   const classicDisputeID = `${DISPUTEKIT_ID}-${coreDisputeID}`;
   const classicDispute = ClassicDispute.load(classicDisputeID);
   if (!classicDispute) return;
-  const currentLocalRoundID = `${
-    classicDispute.id
-  }-${classicDispute.currentLocalRoundIndex.toString()}`;
+  const currentLocalRoundID =
+    classicDispute.id + "-" + classicDispute.currentLocalRoundIndex.toString();
+  updateCounts(currentLocalRoundID, event.params._choice);
   createClassicVote(currentLocalRoundID, event);
 }
 
