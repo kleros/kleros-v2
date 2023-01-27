@@ -866,6 +866,7 @@ contract KlerosCore is IArbitrator {
 
         (uint256 winningChoice, , ) = currentRuling(_disputeID);
         dispute.ruled = true;
+        emit Ruling(dispute.arbitrated, _disputeID, winningChoice);
         dispute.arbitrated.rule(_disputeID, winningChoice);
     }
 

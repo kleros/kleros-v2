@@ -22,6 +22,14 @@ interface IArbitrator {
     event DisputeCreation(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
 
     /**
+     * @dev To be raised when a ruling is given.
+     * @param _arbitrable The arbitrable receiving the ruling.
+     * @param _disputeID ID of the dispute in the Arbitrator contract.
+     * @param _ruling The ruling which was given.
+     */
+    event Ruling(IArbitrable indexed _arbitrable, uint256 indexed _disputeID, uint256 _ruling);
+
+    /**
      * @dev Create a dispute. Must be called by the arbitrable contract.
      * Must pay at least arbitrationCost(_extraData).
      * @param _choices Amount of choices the arbitrator can make in this dispute.
