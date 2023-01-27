@@ -36,7 +36,7 @@ const Fund: React.FC<IFund> = ({ selectedOption }) => {
         />
         <StyledButton
           disabled={isSending || !balance || parsedAmount.gt(balance)}
-          text="Fund"
+          text={typeof balance === "undefined" ? "Connect to Fund" : "Fund"}
           onClick={() => {
             if (
               typeof selectedOption !== "undefined" &&

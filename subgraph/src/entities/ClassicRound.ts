@@ -1,26 +1,48 @@
 import { BigInt } from "@graphprotocol/graph-ts";
 import { Contribution } from "../../generated/DisputeKitClassic/DisputeKitClassic";
 import { ClassicRound } from "../../generated/schema";
-import { ZERO } from "../utils";
+import { ONE, ZERO } from "../utils";
 
 export function createClassicRound(
   disputeID: string,
+  numberOfChoices: BigInt,
   roundIndex: BigInt
 ): void {
+  const choicesLength = numberOfChoices.plus(ONE);
   const localDisputeID = `1-${disputeID}`;
   const id = `${localDisputeID}-${roundIndex.toString()}`;
   const classicRound = new ClassicRound(id);
   classicRound.localDispute = localDisputeID;
   classicRound.votes = [];
   classicRound.winningChoice = ZERO;
-  classicRound.counts = [];
+  classicRound.counts = new Array<BigInt>(choicesLength.toI32()).fill(ZERO);
   classicRound.tied = true;
   classicRound.totalVoted = ZERO;
   classicRound.totalCommited = ZERO;
-  classicRound.paidFees = [];
+  classicRound.paidFees = new Array<BigInt>(choicesLength.toI32()).fill(ZERO);
   classicRound.feeRewards = ZERO;
   classicRound.fundedChoices = [];
   classicRound.save();
+}
+
+export function updateCounts(id: string, choice: BigInt): void {
+  const round = ClassicRound.load(id);
+  if (!round) return;
+  const choiceNum = choice.toI32();
+  const updatedCount = round.counts[choiceNum].plus(ONE);
+  round.counts[choiceNum] = updatedCount;
+  const currentWinningCount = round.counts[round.winningChoice.toI32()];
+  if (choice.equals(round.winningChoice)) {
+    if (round.tied) round.tied = false;
+  } else {
+    if (updatedCount.equals(currentWinningCount)) {
+      if (!round.tied) round.tied = true;
+    } else if (updatedCount.gt(currentWinningCount)) {
+      round.winningChoice = choice;
+      round.tied = false;
+    }
+  }
+  round.save();
 }
 
 export function updateChoiceFundingFromContributionEvent(

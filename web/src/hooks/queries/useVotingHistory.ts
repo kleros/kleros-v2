@@ -6,6 +6,7 @@ export type { VotingHistoryQuery };
 const votingHistoryQuery = gql`
   query VotingHistory($disputeID: ID!) {
     dispute(id: $disputeID) {
+      id
       rounds {
         nbVotes
       }
@@ -15,10 +16,12 @@ const votingHistoryQuery = gql`
             totalVoted
             votes {
               id
-              choice
-              justification
               juror {
                 id
+              }
+              ... on ClassicVote {
+                choice
+                justification
               }
             }
           }

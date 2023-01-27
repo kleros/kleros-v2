@@ -26,7 +26,7 @@ import {
   updateRedistributedPNK,
   getDelta,
 } from "./datapoint";
-import { ensureUser } from "./entities/Juror";
+import { ensureUser } from "./entities/User";
 import {
   ensureJurorTokensPerCourt,
   updateJurorStake,
@@ -169,6 +169,6 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
     event.block.timestamp
   );
   court.paidETH = court.paidETH.plus(ethAmount);
-  court.paidPNK = court.paidETH.plus(tokenAmount);
+  court.paidPNK = court.paidPNK.plus(tokenAmount);
   court.save();
 }
