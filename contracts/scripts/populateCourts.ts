@@ -1,7 +1,7 @@
 import { deployments, getNamedAccounts, getChainId, ethers } from "hardhat";
 import { KlerosCore } from "../typechain-types";
 import { BigNumber } from "ethers";
-import courtsV1 from "../courts.v1.json";
+import courtsV1 from "../courts.v1.mainnet.json";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
