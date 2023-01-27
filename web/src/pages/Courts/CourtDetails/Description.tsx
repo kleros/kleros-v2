@@ -42,11 +42,19 @@ const Description: React.FC = () => {
     () => setCurrentTab(TABS.findIndex(({ path }) => path === currentPathName)),
     [currentPathName]
   );
+
+  const filteredTabs = TABS.filter((tab) => {
+    if (tab.path === "skills" && !policy?.requiredSkills) {
+      return false;
+    }
+    return true;
+  });
+
   return (
     <Container>
       <StyledTabs
         currentValue={currentTab}
-        items={TABS}
+        items={filteredTabs}
         callback={(n: number) => {
           setCurrentTab(n);
           navigate(TABS[n].path);
@@ -54,7 +62,7 @@ const Description: React.FC = () => {
       />
       <Routes>
         <Route path="purpose" element={formatMarkdown(policy?.description)} />
-        <Route path="skills" element={<p></p>} />
+        <Route path="skills" element={<p>{policy?.requiredSkills}</p>} />
         <Route path="policy" element={formatMarkdown(policy?.summary)} />
         <Route path="*" element={<Navigate to="purpose" />} />
       </Routes>
