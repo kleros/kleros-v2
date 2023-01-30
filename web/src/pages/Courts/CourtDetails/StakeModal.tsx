@@ -8,6 +8,7 @@ import { PNK } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration
 import { KlerosCore } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/KlerosCore";
 import { useWeb3 } from "hooks/useWeb3";
 import { useConnectedContract } from "hooks/useConnectedContract";
+import { wrapWithToast } from "utils/wrapWithToast";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { usePNKBalance } from "queries/usePNKBalance";
 import { usePNKAllowance } from "queries/usePNKAllowance";
@@ -80,16 +81,12 @@ const AllowanceButton: React.FC<IAllowanceButton> = ({
       }
       onClick={() => {
         setIsSending(true);
-        pnk
-          .increaseAllowance(klerosCore.address, parsedAmount.sub(allowance!))
-          .then(
-            async (tx) =>
-              await tx.wait().then(() => {
-                console.log("nice!");
-              })
+        wrapWithToast(
+          pnk.increaseAllowance(
+            klerosCore.address,
+            parsedAmount.sub(allowance!)
           )
-          .catch()
-          .finally(() => setIsSending(false));
+        ).finally(() => setIsSending(false));
       }}
     />
   );
@@ -117,16 +114,11 @@ const StakeButton: React.FC<IStakeButton> = ({
       onClick={() => {
         if (typeof id !== "undefined") {
           setIsSending(true);
-          klerosCore
-            .setStake(id, parsedAmount)
-            .then(
-              async (tx) =>
-                await tx.wait().then(() => {
-                  setAmount("");
-                  close();
-                })
-            )
-            .catch()
+          wrapWithToast(klerosCore.setStake(id, parsedAmount))
+            .then(() => {
+              setAmount("");
+              close();
+            })
             .finally(() => setIsSending(false));
         }
       }}

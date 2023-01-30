@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { Field, Button } from "@kleros/ui-components-library";
 import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
 import { useConnectedContract } from "hooks/useConnectedContract";
+import { wrapWithToast } from "utils/wrapWithToast";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { useETHBalance } from "hooks/queries/useETHBalance";
 
@@ -16,8 +17,6 @@ const Fund: React.FC<IFund> = ({ selectedOption }) => {
   const { data: balance } = useETHBalance();
   const [amount, setAmount] = useState("");
   const parsedAmount = useParsedAmount(amount);
-  console.log("parsedAmount: ", parsedAmount);
-  console.log("balance: ", balance);
   const [isSending, setIsSending] = useState(false);
   const disputeKitClassic = useConnectedContract(
     "DisputeKitClassic"
@@ -43,16 +42,15 @@ const Fund: React.FC<IFund> = ({ selectedOption }) => {
               typeof id !== "undefined"
             ) {
               setIsSending(true);
-              disputeKitClassic
-                .fundAppeal(id, selectedOption, { value: parsedAmount })
-                .then(
-                  async (tx) =>
-                    await tx.wait().then(() => {
-                      setAmount("");
-                      close();
-                    })
-                )
-                .catch()
+              wrapWithToast(
+                disputeKitClassic.fundAppeal(id, selectedOption, {
+                  value: parsedAmount,
+                })
+              )
+                .then(() => {
+                  setAmount("");
+                  close();
+                })
                 .finally(() => setIsSending(false));
             }
           }}
