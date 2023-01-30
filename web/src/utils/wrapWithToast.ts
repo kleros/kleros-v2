@@ -1,7 +1,7 @@
 import { toast, ToastPosition, Theme } from "react-toastify";
 import { ContractTransaction } from "ethers";
 
-const OPTIONS = {
+export const OPTIONS = {
   position: "top-center" as ToastPosition,
   autoClose: 5000,
   hideProgressBar: false,
