@@ -2,7 +2,7 @@ import { toast, ToastContentProps } from "react-toastify";
 import { OPTIONS } from "utils/wrapWithToast";
 import { FetchError } from "node-fetch";
 
-interface renderError extends ToastContentProps {
+interface RenderError extends ToastContentProps {
   data: FetchError;
 }
 
@@ -22,7 +22,7 @@ export function uploadFormDataToIPFS(formData: FormData) {
       pending: "Uploading evidence to IPFS...",
       success: "Uploaded successfully!",
       error: {
-        render({ data }: renderError) {
+        render({ data }: RenderError) {
           return `Upload failed: ${data.message}`;
         },
       },
