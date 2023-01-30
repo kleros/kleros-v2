@@ -3,8 +3,9 @@ import styled from "styled-components";
 import Modal from "react-modal";
 import { Textarea, Button } from "@kleros/ui-components-library";
 import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
+import { wrapWithToast } from "utils/wrapWithToast";
 import { useConnectedContract } from "hooks/useConnectedContract";
-import fetch from "node-fetch";
+import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 
 const SubmitEvidenceModal: React.FC<{
   isOpen: boolean;
@@ -38,21 +39,17 @@ const SubmitEvidenceModal: React.FC<{
           onClick={() => {
             setIsSending(true);
             const formData = constructEvidence(message);
-            fetch("/.netlify/functions/uploadToIPFS", {
-              method: "POST",
-              body: formData,
-            })
+            uploadFormDataToIPFS(formData)
               .then(async (res) => {
                 const response = await res.json();
                 if (res.status === 200) {
                   const cid = "/ipfs/" + response["cid"];
-                  await disputeKit.submitEvidence(evidenceGroup, cid).then(
-                    async (tx) =>
-                      await tx.wait().then(() => {
-                        setMessage("");
-                        close();
-                      })
-                  );
+                  await wrapWithToast(
+                    disputeKit.submitEvidence(evidenceGroup, cid)
+                  ).then(() => {
+                    setMessage("");
+                    close();
+                  });
                 }
               })
               .catch()

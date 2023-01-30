@@ -11,9 +11,8 @@ import { useAppealCost } from "queries/useAppealCost";
 import { useDisputeKitClassicMultipliers } from "queries/useDisputeKitClassicMultipliers";
 import StageExplainer from "./StageExplainer";
 import OptionCard from "../OptionCard";
+import { ONE_BASIS_POINT } from "consts/index";
 import { Periods } from "consts/periods";
-
-const ONE_BASIS_POINT = BigNumber.from("1000");
 
 interface IOptions {
   selectedOption: undefined | number;
@@ -39,14 +38,32 @@ const Options: React.FC<IOptions> = ({ selectedOption, setSelectedOption }) => {
       />
       <label> Which option do you want to fund? </label>
       <OptionsContainer>
+        <OptionCard
+          key={"RefuseToArbitrate"}
+          text={"Refuse to arbitrate"}
+          selected={0 === selectedOption}
+          winner={"0" === winningChoice}
+          funding={paidFees ? BigNumber.from(paidFees[0]) : BigNumber.from(0)}
+          required={
+            "0" === winningChoice
+              ? multipliers.winner_stake_multiplier
+                  .mul(appealCost)
+                  .div(ONE_BASIS_POINT)
+              : multipliers.loser_stake_multiplier
+                  .mul(appealCost)
+                  .div(ONE_BASIS_POINT)
+          }
+          onClick={() => setSelectedOption(0)}
+        />
         {typeof paidFees !== "undefined" &&
           typeof multipliers !== "undefined" &&
+          typeof appealCost !== "undefined" &&
           metaEvidence?.rulingOptions?.titles?.map(
             (answer: string, i: number) => (
               <OptionCard
                 key={answer}
                 text={answer}
-                selected={i === selectedOption}
+                selected={i + 1 === selectedOption}
                 winner={(i + 1).toString() === winningChoice}
                 funding={
                   paidFees[i + 1]
@@ -62,7 +79,7 @@ const Options: React.FC<IOptions> = ({ selectedOption, setSelectedOption }) => {
                         .mul(appealCost)
                         .div(ONE_BASIS_POINT)
                 }
-                onClick={() => setSelectedOption(i)}
+                onClick={() => setSelectedOption(i + 1)}
               />
             )
           )}

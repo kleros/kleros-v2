@@ -12,6 +12,8 @@ import Cases from "./pages/Cases";
 import Dashboard from "./pages/Dashboard";
 import Courts from "./pages/Courts";
 
+import "react-toastify/dist/ReactToastify.css";
+
 const fetcherBuilder =
   (url: string) =>
   ({ query, variables }: { query: string; variables?: any }) => {
