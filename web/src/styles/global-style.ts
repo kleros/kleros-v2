@@ -1,6 +1,13 @@
 import { createGlobalStyle } from "styled-components";
 
 export const GlobalStyle = createGlobalStyle`
+  :root {
+    --toastify-color-info: ${({ theme }) => theme.primaryBlue};
+    --toastify-color-success: ${({ theme }) => theme.success};
+    --toastify-color-warning: ${({ theme }) => theme.warning};
+    --toastify-color-error: ${({ theme }) => theme.error};
+  }
+
   body {
     font-family: "Open Sans", sans-serif;
     margin: 0px;

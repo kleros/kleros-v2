@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Modal from "react-modal";
 import { Textarea, Button } from "@kleros/ui-components-library";
 import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
+import { wrapWithToast } from "utils/wrapWithToast";
 import { useConnectedContract } from "hooks/useConnectedContract";
 
 const SubmitEvidenceModal: React.FC<{
@@ -36,16 +37,11 @@ const SubmitEvidenceModal: React.FC<{
           disabled={isSending}
           onClick={() => {
             setIsSending(true);
-            disputeKit
-              .submitEvidence(evidenceGroup, message)
-              .then(
-                async (tx) =>
-                  await tx.wait().then(() => {
-                    setMessage("");
-                    close();
-                  })
-              )
-              .catch()
+            wrapWithToast(disputeKit.submitEvidence(evidenceGroup, message))
+              .then(() => {
+                setMessage("");
+                close();
+              })
               .finally(() => setIsSending(false));
           }}
         />
