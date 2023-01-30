@@ -2328,6 +2328,7 @@ __metadata:
     chart.js: ^3.9.1
     chartjs-adapter-moment: ^1.0.0
     core-js: ^3.21.1
+    dotenv: ^16.0.3
     eslint: ^8.27.0
     eslint-config-prettier: ^8.3.0
     eslint-import-resolver-parcel: ^1.10.6
