@@ -38,23 +38,25 @@ const SubmitEvidenceModal: React.FC<{
           onClick={async () => {
             setIsSending(true);
             const formData = constructEvidence(message);
-            const response = await fetch("/.netlify/functions/uploadToIPFS", {
+            fetch("/.netlify/functions/uploadToIPFS", {
               method: "POST",
               body: formData,
-            });
-            console.log(response);
-            setIsSending(false);
-            // disputeKit
-            //   .submitEvidence(evidenceGroup, message)
-            //   .then(
-            //     async (tx) =>
-            //       await tx.wait().then(() => {
-            //         setMessage("");
-            //         close();
-            //       })
-            //   )
-            //   .catch()
-            //   .finally(() => setIsSending(false));
+            })
+              .then(async (res) => {
+                const response = await res.json();
+                if (res.status === 200) {
+                  const cid = "/ipfs/" + response["cid"];
+                  await disputeKit.submitEvidence(evidenceGroup, cid).then(
+                    async (tx) =>
+                      await tx.wait().then(() => {
+                        setMessage("");
+                        close();
+                      })
+                  );
+                }
+              })
+              .catch()
+              .finally(() => setIsSending(false));
           }}
         />
       </ButtonArea>
