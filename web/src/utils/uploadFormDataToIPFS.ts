@@ -6,7 +6,7 @@ interface RenderError extends ToastContentProps {
   data: FetchError;
 }
 
-export function uploadFormDataToIPFS(formData: FormData) {
+export function uploadFormDataToIPFS(formData: FormData): Promise<Response> {
   return toast.promise(
     new Promise((resolve, reject) =>
       fetch("/.netlify/functions/uploadToIPFS", {
