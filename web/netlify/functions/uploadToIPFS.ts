@@ -6,6 +6,7 @@ const ESTUARI_API_KEY = "";
 const ESTUARI_URL = "https://api.estuary.tech/content/add";
 
 export const handler: Handler = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
   if (event.body) {
     const newHeaders = event.headers;
     delete newHeaders.host;
@@ -16,7 +17,7 @@ export const handler: Handler = async (event, context) => {
         Authorization: `Bearer ${ESTUARI_API_KEY}`,
         ...newHeaders,
       },
-      body: event.body,
+      body: Buffer.from(event.body, "base64"),
     });
 
     console.log(JSON.stringify(await response.json()));
