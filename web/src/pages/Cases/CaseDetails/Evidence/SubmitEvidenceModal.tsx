@@ -35,7 +35,7 @@ const SubmitEvidenceModal: React.FC<{
           text="Submit"
           isLoading={isSending}
           disabled={isSending}
-          onClick={async () => {
+          onClick={() => {
             setIsSending(true);
             const formData = constructEvidence(message);
             fetch("/.netlify/functions/uploadToIPFS", {
