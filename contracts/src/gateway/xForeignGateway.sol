@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@jaybuidl, @shotaronowhere, @shalzz]
+ *  @authors: [@jaybuidl, @shotaronowhere, @shalzz, @unknownunknown1]
  *  @reviewers: []
  *  @auditors: []
  *  @bounties: []
@@ -12,12 +12,13 @@ pragma solidity ^0.8.0;
 
 import "../arbitration/IArbitrable.sol";
 import "./interfaces/IForeignGateway.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * Foreign Gateway
  * Counterpart of `HomeGateway`
  */
-contract ForeignGateway is IForeignGateway {
+contract xForeignGateway is IForeignGateway {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -52,6 +53,7 @@ contract ForeignGateway is IForeignGateway {
     uint256 public constant MIN_JURORS = 3; // The global default minimum number of jurors in a dispute.
     uint256 public immutable override senderChainID;
     address public immutable override senderGateway;
+    IERC20 public immutable weth; // WETH token on xDai.
     uint256 internal localDisputeID = 1; // The disputeID must start from 1 as the KlerosV1 proxy governor depends on this implementation. We now also depend on localDisputeID not ever being zero.
     mapping(uint96 => uint256) public feeForJuror; // feeForJuror[courtID], it mirrors the value on KlerosCore.
     address public governor;
@@ -82,12 +84,14 @@ contract ForeignGateway is IForeignGateway {
         address _governor,
         IFastBridgeReceiver _fastBridgeReceiver,
         address _senderGateway,
-        uint256 _senderChainID
+        uint256 _senderChainID,
+        IERC20 _weth
     ) {
         governor = _governor;
         fastBridgeReceiver = _fastBridgeReceiver;
         senderGateway = _senderGateway;
         senderChainID = _senderChainID;
+        weth = _weth;
     }
 
     // ************************************* //
@@ -124,7 +128,16 @@ contract ForeignGateway is IForeignGateway {
         uint256 _choices,
         bytes calldata _extraData
     ) external payable override returns (uint256 disputeID) {
-        require(msg.value >= arbitrationCost(_extraData), "Not paid enough for arbitration");
+        // TODO
+    }
+
+    function createDisputeERC20(
+        uint256 _choices,
+        bytes calldata _extraData,
+        uint256 _amount
+    ) external override returns (uint256 disputeID) {
+        // This check is duplicated in xKlerosLiquid and transferred is done there as well.
+        require(_amount >= arbitrationCost(_extraData), "Not paid enough for arbitration");
 
         disputeID = localDisputeID++;
         uint256 chainID;
@@ -146,21 +159,13 @@ contract ForeignGateway is IForeignGateway {
         disputeHashtoDisputeData[disputeHash] = DisputeData({
             id: uint248(disputeID),
             arbitrable: msg.sender,
-            paid: msg.value,
+            paid: _amount,
             relayer: address(0),
             ruled: false
         });
 
         emit OutgoingDispute(disputeHash, blockhash(block.number - 1), disputeID, _choices, _extraData, msg.sender);
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
-    }
-
-    function createDisputeERC20(
-        uint256 /*_choices*/,
-        bytes calldata /*_extraData*/,
-        uint256 /*_amount*/
-    ) external override returns (uint256 /*disputeID*/) {
-        revert("Not supported yet");
     }
 
     function arbitrationCost(bytes calldata _extraData) public view override returns (uint256 cost) {
@@ -190,6 +195,7 @@ contract ForeignGateway is IForeignGateway {
         arbitrable.rule(dispute.id, _ruling);
     }
 
+    // TODO: separate regular withdrawal from ERC20
     function withdrawFees(bytes32 _disputeHash) external override {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
         require(dispute.id != 0, "Dispute does not exist");
@@ -197,7 +203,7 @@ contract ForeignGateway is IForeignGateway {
 
         uint256 amount = dispute.paid;
         dispute.paid = 0;
-        payable(dispute.relayer).transfer(amount);
+        weth.transfer(dispute.relayer, amount);
     }
 
     // ************************************* //
