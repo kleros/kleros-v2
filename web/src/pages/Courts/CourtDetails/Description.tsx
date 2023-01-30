@@ -69,7 +69,15 @@ const Description: React.FC = () => {
 };
 
 const formatMarkdown = (markdown?: string) =>
-  markdown ? <ReactMarkdown>{markdown}</ReactMarkdown> : <p>Loading...</p>;
+  markdown ? (
+    <ReactMarkdown>
+      {typeof markdown === "string"
+        ? markdown.replace(/\n/g, "  \n")
+        : markdown}
+    </ReactMarkdown>
+  ) : (
+    <p>Loading...</p>
+  );
 
 const Container = styled.div`
   width: 100%;
