@@ -64,7 +64,7 @@ const SubmitEvidenceModal: React.FC<{
 const constructEvidence = (msg: string) => {
   const formData = new FormData();
   const file = new File(
-    [JSON.stringify({ name: "test", description: msg })],
+    [JSON.stringify({ name: "Evidence", description: msg })],
     "evidence.json",
     { type: "text/plain" }
   );
