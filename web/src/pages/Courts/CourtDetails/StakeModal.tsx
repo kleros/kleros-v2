@@ -23,7 +23,7 @@ const StakeModal: React.FC<{ isOpen: boolean; close: () => void }> = ({
   const { data: allowance } = usePNKAllowance(account);
   return (
     <StyledModal {...{ isOpen }}>
-      <h1>Submit New Evidence</h1>
+      <h1>Stake PNK</h1>
       <Field
         type="number"
         value={amount}
