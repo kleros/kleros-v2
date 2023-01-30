@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 import { Card } from "@kleros/ui-components-library";
 import AttachmentIcon from "svgs/icons/attachment.svg";
-import { useIPFSQuery } from "hooks/useIPFSQuery";
+import { useIPFSQuery } from "hooks/useIPFSCloudflare";
 import { shortenAddress } from "utils/shortenAddress";
 
 interface IEvidenceCard {
@@ -32,7 +32,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
         <p>{shortenAddress(sender)}</p>
         {data && (
           <StyledA
-            href={`https://ipfs.kleros.io${data.fileURI}`}
+            href={`https://cloudflare-ipfs.com${data.fileURI}`}
             target="_blank"
             rel="noreferrer"
           >

@@ -5,7 +5,7 @@ export const useIPFSQuery = (ipfsPath?: string) => {
     () => (ipfsPath !== undefined ? ipfsPath : false),
     async () => {
       if (ipfsPath) {
-        return fetch(`https://ipfs.kleros.io${ipfsPath}`).then((res) =>
+        return fetch(`https://cloudflare-ipfs.com${ipfsPath}`).then((res) =>
           res.json()
         );
       } else throw Error;
