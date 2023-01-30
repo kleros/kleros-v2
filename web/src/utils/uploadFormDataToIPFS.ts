@@ -8,16 +8,22 @@ interface renderError extends ToastContentProps {
 
 export function uploadFormDataToIPFS(formData: FormData) {
   return toast.promise(
-    fetch("/.netlify/functions/uploadToIPFS", {
-      method: "POST",
-      body: formData,
-    }),
+    new Promise((resolve, reject) =>
+      fetch("/.netlify/functions/uploadToIPFS", {
+        method: "POST",
+        body: formData,
+      }).then(async (response) =>
+        response.status === 200
+          ? resolve(response)
+          : reject({ message: (await response.json()).error.reason })
+      )
+    ),
     {
       pending: "Uploading evidence to IPFS...",
-      success: "Uploaded to IPFS!",
+      success: "Uploaded successfully!",
       error: {
         render({ data }: renderError) {
-          return `Upload failed ${data.message}`;
+          return `Upload failed: ${data.message}`;
         },
       },
     },
