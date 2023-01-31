@@ -2,19 +2,16 @@
 
 pragma solidity ^0.8;
 
-import "./IKlerosLiquid.sol";
-import "./ITokenController.sol";
-import "../arbitration/IArbitrable.sol";
-import "../arbitration/IArbitrator.sol";
+import "../interfaces/IKlerosLiquid.sol";
+import "../interfaces/ITokenController.sol";
+import "../../arbitration/IArbitrable.sol";
+import "../../arbitration/IArbitrator.sol";
 
-/**
- * @title ERC20 interface
- */
 interface IPinakion {
     function balanceOf(address who) external view returns (uint256);
 }
 
-contract KlerosV1Governor is IArbitrable, ITokenController {
+contract KlerosLiquidToV2Governor is IArbitrable, ITokenController {
     struct DisputeData {
         uint256 klerosLiquidDisputeID;
         bool ruled;
@@ -39,11 +36,7 @@ contract KlerosV1Governor is IArbitrable, ITokenController {
      *  @param _governor The trusted governor of the contract.
      *  @param _foreignGateway The trusted gateway that acts as an arbitrator, relaying disputes to v2.
      */
-    constructor(
-        IKlerosLiquid _klerosLiquid,
-        address _governor,
-        IArbitrator _foreignGateway
-    ) {
+    constructor(IKlerosLiquid _klerosLiquid, address _governor, IArbitrator _foreignGateway) {
         klerosLiquid = _klerosLiquid;
         governor = _governor;
         foreignGateway = _foreignGateway;
@@ -161,11 +154,7 @@ contract KlerosV1Governor is IArbitrable, ITokenController {
      *  @param _amount The amount of the transfer.
      *  @return allowed Whether the operation should be allowed or not.
      */
-    function onTransfer(
-        address _from,
-        address _to,
-        uint256 _amount
-    ) external returns (bool allowed) {
+    function onTransfer(address _from, address _to, uint256 _amount) external returns (bool allowed) {
         if (klerosLiquid.lockInsolventTransfers()) {
             // Never block penalties or rewards.
             IPinakion pinakion = IPinakion(klerosLiquid.pinakion());
@@ -185,11 +174,7 @@ contract KlerosV1Governor is IArbitrable, ITokenController {
      *  @param _amount The amount in the `approve()` call.
      *  @return allowed Whether the operation should be allowed or not.
      */
-    function onApprove(
-        address _owner,
-        address _spender,
-        uint256 _amount
-    ) external returns (bool allowed) {
+    function onApprove(address _owner, address _spender, uint256 _amount) external returns (bool allowed) {
         allowed = true;
     }
 
