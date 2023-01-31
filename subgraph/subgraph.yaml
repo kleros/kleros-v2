@@ -48,6 +48,8 @@ dataSources:
           handler: handleStakeSet
         - event: TokenAndETHShift(indexed address,indexed uint256,int256,int256)
           handler: handleTokenAndETHShift
+        - event: Ruling(indexed address,uint256,uint256)
+          handler: handleRuling
       file: ./src/KlerosCore.ts
   - kind: ethereum
     name: PolicyRegistry
