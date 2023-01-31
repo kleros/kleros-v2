@@ -2253,7 +2253,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-contracts@workspace:contracts"
   dependencies:
-    "@kleros/vea-contracts": dev
+    "@kleros/vea-contracts": ^0.1.10
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.4
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@0.3.0-beta.13"
     "@nomiclabs/hardhat-waffle": ^2.0.3
@@ -2385,12 +2385,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kleros/vea-contracts@npm:dev":
-  version: 0.1.9
-  resolution: "@kleros/vea-contracts@npm:0.1.9"
+"@kleros/vea-contracts@npm:^0.1.10":
+  version: 0.1.10
+  resolution: "@kleros/vea-contracts@npm:0.1.10"
   dependencies:
     "@openzeppelin/contracts": ^4.8.0
-  checksum: 191014204d21e832d55b9f50cffc07657a4e5d7e907fbe134b4b11f6ad53b92bff959b80d41c388e088d2c01c60c470bd7b115fd7a612c20fbd770fbdf31f90c
+  checksum: d2972d2a9e3870817dc72c6ad8142a658ce556d6c9dc8f2ab6657d3a570f2954e6cc797466adf5e13f8f81a69e436887ff5e6f48e1fc6755b1373b584e9b6b01
   languageName: node
   linkType: hard
 
