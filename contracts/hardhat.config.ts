@@ -130,6 +130,17 @@ const config: HardhatUserConfig = {
         home: "arbitrum",
       },
     },
+    chiado: {
+      chainId: 10200,
+      url: "https://rpc.chiadochain.net",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      live: true,
+      saveDeployments: true,
+      tags: ["staging", "foreign", "layer1"],
+      companionNetworks: {
+        home: "arbitrumGoerli",
+      },
+    },
     gnosischain: {
       chainId: 100,
       url: `https://xdai-rpc.gateway.pokt.network`,
