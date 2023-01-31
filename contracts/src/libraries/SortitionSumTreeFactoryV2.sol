@@ -11,10 +11,10 @@
 pragma solidity ^0.8;
 
 /**
- *  @title SortitionSumTreeFactory
+ *  @title SortitionSumTreeFactoryV2
  *  @dev A factory of trees that keeps track of staked values for sortition. This is the updated version for 0.8 compiler.
  */
-library SortitionSumTreeFactory {
+library SortitionSumTreeFactoryV2 {
     /* Structs */
 
     struct SortitionSumTree {
@@ -40,11 +40,7 @@ library SortitionSumTreeFactory {
      *  @param _key The key of the new tree.
      *  @param _K The number of children each node in the tree should have.
      */
-    function createTree(
-        SortitionSumTrees storage self,
-        bytes32 _key,
-        uint256 _K
-    ) external {
+    function createTree(SortitionSumTrees storage self, bytes32 _key, uint256 _K) external {
         SortitionSumTree storage tree = self.sortitionSumTrees[_key];
         require(tree.K == 0, "Tree already exists.");
         require(_K > 1, "K must be greater than one.");
@@ -61,12 +57,7 @@ library SortitionSumTreeFactory {
      *  `k` is the maximum number of childs per node in the tree,
      *   and `n` is the maximum number of nodes ever appended.
      */
-    function set(
-        SortitionSumTrees storage self,
-        bytes32 _key,
-        uint256 _value,
-        bytes32 _ID
-    ) external {
+    function set(SortitionSumTrees storage self, bytes32 _key, uint256 _value, bytes32 _ID) external {
         SortitionSumTree storage tree = self.sortitionSumTrees[_key];
         uint256 treeIndex = tree.IDsToNodeIndexes[_ID];
 
@@ -156,15 +147,7 @@ library SortitionSumTreeFactory {
         bytes32 _key,
         uint256 _cursor,
         uint256 _count
-    )
-        external
-        view
-        returns (
-            uint256 startIndex,
-            uint256[] memory values,
-            bool hasMore
-        )
-    {
+    ) external view returns (uint256 startIndex, uint256[] memory values, bool hasMore) {
         SortitionSumTree storage tree = self.sortitionSumTrees[_key];
 
         // Find the start index.
@@ -197,11 +180,7 @@ library SortitionSumTreeFactory {
      *  @param _ID The ID of the value.
      *  @return value The associated value.
      */
-    function stakeOf(
-        SortitionSumTrees storage self,
-        bytes32 _key,
-        bytes32 _ID
-    ) external view returns (uint256 value) {
+    function stakeOf(SortitionSumTrees storage self, bytes32 _key, bytes32 _ID) external view returns (uint256 value) {
         SortitionSumTree storage tree = self.sortitionSumTrees[_key];
         uint256 treeIndex = tree.IDsToNodeIndexes[_ID];
 

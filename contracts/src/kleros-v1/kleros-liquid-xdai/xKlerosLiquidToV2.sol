@@ -4,13 +4,13 @@ pragma solidity ^0.8;
 
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IArbitrator, IArbitrable} from "../arbitration/IArbitrator.sol";
-import {TokenController} from "./TokenController.sol";
+import {IArbitrator, IArbitrable} from "../../arbitration/IArbitrator.sol";
+import {ITokenController} from "../interfaces/ITokenController.sol";
 import {WrappedPinakion} from "./WrappedPinakion.sol";
 import {IRandomAuRa} from "./interfaces/IRandomAuRa.sol";
 
-import {SortitionSumTreeFactory} from "./libraries/SortitionSumTreeFactory.sol";
-import "../gateway/interfaces/IForeignGateway.sol";
+import {SortitionSumTreeFactory} from "../../libraries/SortitionSumTreeFactory.sol";
+import "../../gateway/interfaces/IForeignGateway.sol";
 
 /**
  *  @title xKlerosLiquid
@@ -18,7 +18,7 @@ import "../gateway/interfaces/IForeignGateway.sol";
  *  for xDai chain. Notice that variables referring to ETH values in this contract, will hold the native token values of the chain on which xKlerosLiquid is deployed.
  *  When this contract gets deployed on xDai chain, ETH variables will hold xDai values.
  */
-contract xKlerosLiquid is Initializable, TokenController, IArbitrator {
+contract xKlerosLiquidToV2 is Initializable, ITokenController, IArbitrator {
     /* Enums */
 
     // General

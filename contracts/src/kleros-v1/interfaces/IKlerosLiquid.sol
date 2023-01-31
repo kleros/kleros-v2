@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8;
 
-import "../arbitration/IArbitrator.sol";
+import "./IArbitratorV1.sol";
 
-interface IKlerosLiquid is IArbitrator {
+interface IKlerosLiquid is IArbitratorV1 {
     enum Period {
         evidence, // Evidence can be submitted. This is also when drawing has to take place.
         commit, // Jurors commit a hashed vote. This is skipped for courts without hidden votes.
@@ -49,7 +49,9 @@ interface IKlerosLiquid is IArbitrator {
         uint256 lockedTokens; // The juror's total amount of tokens locked in disputes.
     }
 
-    function courts(uint256 _index)
+    function courts(
+        uint256 _index
+    )
         external
         view
         returns (
@@ -75,28 +77,18 @@ interface IKlerosLiquid is IArbitrator {
 
     function changeSubcourtTimesPerPeriod(uint96 _subcourtID, uint256[4] calldata _timesPerPeriod) external;
 
-    function executeGovernorProposal(
-        address _destination,
-        uint256 _amount,
-        bytes calldata _data
-    ) external;
+    function executeGovernorProposal(address _destination, uint256 _amount, bytes calldata _data) external;
 
     // Getters
     function getVote(
         uint256 _disputeID,
         uint256 _appeal,
         uint256 _voteID
-    )
-        external
-        view
-        returns (
-            address account,
-            bytes32 commit,
-            uint256 choice,
-            bool voted
-        );
+    ) external view returns (address account, bytes32 commit, uint256 choice, bool voted);
 
-    function getDispute(uint256 _disputeID)
+    function getDispute(
+        uint256 _disputeID
+    )
         external
         view
         returns (
@@ -108,8 +100,7 @@ interface IKlerosLiquid is IArbitrator {
             uint256[] memory penaltiesInEachRound
         );
 
-    function getSubcourt(uint96 _subcourtID)
-        external
-        view
-        returns (uint256[] memory children, uint256[4] memory timesPerPeriod);
+    function getSubcourt(
+        uint96 _subcourtID
+    ) external view returns (uint256[] memory children, uint256[4] memory timesPerPeriod);
 }
