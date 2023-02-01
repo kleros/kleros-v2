@@ -40,6 +40,10 @@ mainnet)
   url="https://api.etherscan.io"
   apiKey="$ETHERSCAN_API_KEY"
   ;;
+goerli)
+  url="https://api-goerli.etherscan.io"
+  apiKey="$ETHERSCAN_API_KEY"
+  ;;
 *)
   echo "error: unknown network $network"
   exit 1
