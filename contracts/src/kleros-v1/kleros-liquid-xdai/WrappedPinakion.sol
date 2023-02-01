@@ -3,7 +3,7 @@
 pragma solidity ^0.8;
 
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "../../libraries/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../interfaces/ITokenController.sol";
 import "./interfaces/ITokenBridge.sol";
 import "./interfaces/IERC677.sol";
