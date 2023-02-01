@@ -21,8 +21,6 @@ interface IForeignGateway is IArbitrator, IReceiverGateway {
 
     function withdrawFees(bytes32 _disputeHash) external;
 
-    // TODO: add withdrawal for ERC20?
-
     // For cross-chain Evidence standard
     function disputeHashToForeignID(bytes32 _disputeHash) external view returns (uint256);
 

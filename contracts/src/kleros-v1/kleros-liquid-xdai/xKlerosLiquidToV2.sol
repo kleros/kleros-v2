@@ -829,7 +829,6 @@ contract xKlerosLiquidToV2 is Initializable, ITokenController, IArbitrator {
     ) public payable override returns (uint256 disputeID) {
         require(msg.value == 0, "Fees should be paid in WETH");
         uint256 fee = foreignGateway.arbitrationCost(_extraData);
-        // TODO: give possibility to overpay. Use createDisputeERC20 function?
         require(weth.transferFrom(msg.sender, address(this), fee), "Not enough WETH for arbitration");
 
         (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDAndMinJurors(_extraData);
@@ -842,7 +841,7 @@ contract xKlerosLiquidToV2 is Initializable, ITokenController, IArbitrator {
         dispute.lastPeriodChange = block.timestamp;
         // As many votes that can be afforded by the provided funds.
 
-        uint256 nbVotes = msg.value / courts[dispute.subcourtID].feeForJuror;
+        uint256 nbVotes = fee / courts[dispute.subcourtID].feeForJuror;
 
         uint256 newLastRoundID = disputeNbRounds[disputeID];
         disputeNbVotesInRound[disputeID][newLastRoundID] = nbVotes;
@@ -853,7 +852,7 @@ contract xKlerosLiquidToV2 is Initializable, ITokenController, IArbitrator {
         dispute.tokensAtStakePerJuror.push(
             (courts[dispute.subcourtID].minStake * courts[dispute.subcourtID].alpha) / ALPHA_DIVISOR
         );
-        dispute.totalFeesForJurors.push(msg.value);
+        dispute.totalFeesForJurors.push(fee);
         dispute.votesInEachRound.push(0);
         dispute.repartitionsInEachRound.push(0);
         dispute.penaltiesInEachRound.push(0);
