@@ -180,8 +180,7 @@ contract xKlerosLiquidToV2 is Initializable, ITokenController, IArbitrator {
     IForeignGateway public foreignGateway; // Foreign gateway contract.
     IERC20 public weth; // WETH token address.
 
-    mapping(uint256 => uint256) public disputeNbRounds; // Number of rounds of the dispute.
-    mapping(uint256 => mapping(uint256 => uint256)) public disputeNbVotesInRound; // Number of votes in the round. [disputeID][RoundID]
+    mapping(uint256 => uint256) public disputesRuling;
 
     /* Modifiers */
 
@@ -242,26 +241,29 @@ contract xKlerosLiquidToV2 is Initializable, ITokenController, IArbitrator {
         RNGenerator = _RNGenerator;
         minStakingTime = _minStakingTime;
         maxDrawingTime = _maxDrawingTime;
+        phase = Phase.staking;
         lastPhaseChange = block.timestamp;
         lockInsolventTransfers = true;
-        nextDelayedSetStake = 1;
+        if (nextDelayedSetStake == 0) nextDelayedSetStake = 1;
         foreignGateway = _foreignGateway;
         weth = _weth;
 
         // Create the general court.
-        courts.push(
-            Court({
-                parent: 0,
-                children: new uint256[](0),
-                hiddenVotes: _hiddenVotes,
-                minStake: _courtParameters[0],
-                alpha: _courtParameters[1],
-                feeForJuror: _courtParameters[2],
-                jurorsForCourtJump: _courtParameters[3],
-                timesPerPeriod: _timesPerPeriod
-            })
-        );
-        sortitionSumTrees.createTree(bytes32(0), _sortitionSumTreeK);
+        if (courts.length == 0) {
+            courts.push(
+                Court({
+                    parent: 0,
+                    children: new uint256[](0),
+                    hiddenVotes: _hiddenVotes,
+                    minStake: _courtParameters[0],
+                    alpha: _courtParameters[1],
+                    feeForJuror: _courtParameters[2],
+                    jurorsForCourtJump: _courtParameters[3],
+                    timesPerPeriod: _timesPerPeriod
+                })
+            );
+            sortitionSumTrees.createTree(bytes32(0), _sortitionSumTreeK);
+        }
     }
 
     /* External */
@@ -462,9 +464,12 @@ contract xKlerosLiquidToV2 is Initializable, ITokenController, IArbitrator {
         Dispute storage dispute = disputes[_disputeID];
         require(!dispute.ruled, "Ruling already executed.");
         dispute.ruled = true;
+        disputesRuling[_disputeID] = _ruling;
 
         // Send the relayed ruling to the arbitrable while fully bypassing the dispute flow.
         dispute.arbitrated.rule(_disputeID, _ruling);
+
+        emit Ruling(dispute.arbitrated, _disputeID, _ruling);
     }
 
     /* Public */
@@ -479,35 +484,12 @@ contract xKlerosLiquidToV2 is Initializable, ITokenController, IArbitrator {
         bytes memory _extraData
     ) public payable override returns (uint256 disputeID) {
         require(msg.value == 0, "Fees should be paid in WETH");
-        uint256 fee = foreignGateway.arbitrationCost(_extraData);
+        uint256 fee = arbitrationCost(_extraData);
         require(weth.transferFrom(msg.sender, address(this), fee), "Not enough WETH for arbitration");
 
-        (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDAndMinJurors(_extraData);
         disputeID = totalDisputes++;
         Dispute storage dispute = disputes[disputeID];
-        dispute.subcourtID = subcourtID;
         dispute.arbitrated = IArbitrable(msg.sender);
-        dispute.numberOfChoices = _numberOfChoices;
-        dispute.period = Period.evidence;
-        dispute.lastPeriodChange = block.timestamp;
-        // As many votes that can be afforded by the provided funds.
-
-        uint256 nbVotes = fee / courts[dispute.subcourtID].feeForJuror;
-
-        uint256 newLastRoundID = disputeNbRounds[disputeID];
-        disputeNbVotesInRound[disputeID][newLastRoundID] = nbVotes;
-        disputeNbRounds[disputeID]++;
-
-        VoteCounter storage voteCounter = dispute.voteCounters.push();
-        voteCounter.tied = true;
-        dispute.tokensAtStakePerJuror.push(
-            (courts[dispute.subcourtID].minStake * courts[dispute.subcourtID].alpha) / ALPHA_DIVISOR
-        );
-        dispute.totalFeesForJurors.push(fee);
-        dispute.votesInEachRound.push(0);
-        dispute.repartitionsInEachRound.push(0);
-        dispute.penaltiesInEachRound.push(0);
-        disputesWithoutJurors++;
 
         require(weth.transfer(address(foreignGateway), fee), "Fee transfer to gateway failed");
         foreignGateway.createDisputeERC20(_numberOfChoices, _extraData, fee);
@@ -555,8 +537,7 @@ contract xKlerosLiquidToV2 is Initializable, ITokenController, IArbitrator {
      *  @return cost The cost.
      */
     function arbitrationCost(bytes memory _extraData) public view override returns (uint256 cost) {
-        (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDAndMinJurors(_extraData);
-        cost = courts[subcourtID].feeForJuror * minJurors;
+        cost = foreignGateway.arbitrationCost(_extraData);
     }
 
     /** @dev Gets the current ruling of a specified dispute.
@@ -565,9 +546,13 @@ contract xKlerosLiquidToV2 is Initializable, ITokenController, IArbitrator {
      */
     function currentRuling(uint256 _disputeID) public view returns (uint256 ruling) {
         Dispute storage dispute = disputes[_disputeID];
-        ruling = dispute.voteCounters[dispute.voteCounters.length - 1].tied
-            ? 0
-            : dispute.voteCounters[dispute.voteCounters.length - 1].winningChoice;
+        if (dispute.voteCounters.length == 0) {
+            ruling = disputesRuling[_disputeID];
+        } else {
+            ruling = dispute.voteCounters[dispute.voteCounters.length - 1].tied
+                ? 0
+                : dispute.voteCounters[dispute.voteCounters.length - 1].winningChoice;
+        }
     }
 
     /* Internal */
@@ -585,16 +570,6 @@ contract xKlerosLiquidToV2 is Initializable, ITokenController, IArbitrator {
      */
     function _setStake(address _account, uint96 _subcourtID, uint128 _stake) internal returns (bool succeeded) {
         if (!(_subcourtID < courts.length)) return false;
-
-        // Delayed action logic.
-        if (phase != Phase.staking) {
-            delayedSetStakes[++lastDelayedSetStake] = DelayedSetStake({
-                account: _account,
-                subcourtID: _subcourtID,
-                stake: _stake
-            });
-            return true;
-        }
 
         if (!(_stake == 0 || courts[_subcourtID].minStake <= _stake)) return false; // The juror's stake cannot be lower than the minimum stake for the subcourt.
         Juror storage juror = jurors[_account];
@@ -763,15 +738,8 @@ contract xKlerosLiquidToV2 is Initializable, ITokenController, IArbitrator {
         )
     {
         Dispute storage dispute = disputes[_disputeID];
-        votesLengths = new uint256[](disputeNbRounds[_disputeID]);
-        // Use votes array to get info of old disputes.
-        if (disputeNbRounds[_disputeID] != 0) {
-            for (uint256 i = 0; i < disputeNbRounds[_disputeID]; i++)
-                votesLengths[i] = disputeNbVotesInRound[_disputeID][i];
-        } else {
-            votesLengths = new uint256[](dispute.votes.length);
-            for (uint256 i = 0; i < dispute.votes.length; i++) votesLengths[i] = dispute.votes[i].length;
-        }
+        votesLengths = new uint256[](dispute.votes.length);
+        for (uint256 i = 0; i < dispute.votes.length; i++) votesLengths[i] = dispute.votes[i].length;
         tokensAtStakePerJuror = dispute.tokensAtStakePerJuror;
         totalFeesForJurors = dispute.totalFeesForJurors;
         votesInEachRound = dispute.votesInEachRound;
