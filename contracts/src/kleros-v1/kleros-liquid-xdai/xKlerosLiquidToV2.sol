@@ -13,7 +13,7 @@ import {SortitionSumTreeFactory} from "../../libraries/SortitionSumTreeFactory.s
 import "../../gateway/interfaces/IForeignGateway.sol";
 
 /**
- *  @title xKlerosLiquid
+ *  @title xKlerosLiquidToV2
  *  @dev This contract is an adaption of Mainnet's KlerosLiquid (https://github.com/kleros/kleros/blob/69cfbfb2128c29f1625b3a99a3183540772fda08/contracts/kleros/KlerosLiquid.sol)
  *  for xDai chain. Notice that variables referring to ETH values in this contract, will hold the native token values of the chain on which xKlerosLiquid is deployed.
  *  When this contract gets deployed on xDai chain, ETH variables will hold xDai values.
