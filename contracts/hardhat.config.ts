@@ -140,6 +140,11 @@ const config: HardhatUserConfig = {
       companionNetworks: {
         home: "arbitrumGoerli",
       },
+      verify: {
+        etherscan: {
+          apiKey: process.env.GNOSISSCAN_API_KEY,
+        },
+      },
     },
     gnosischain: {
       chainId: 100,
@@ -148,6 +153,11 @@ const config: HardhatUserConfig = {
       live: true,
       saveDeployments: true,
       tags: ["production", "foreign", "layer1"],
+      verify: {
+        etherscan: {
+          apiKey: process.env.GNOSISSCAN_API_KEY,
+        },
+      },
     },
   },
   namedAccounts: {
