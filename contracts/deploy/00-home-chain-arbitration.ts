@@ -57,12 +57,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  await deploy("BlockHashRNG", {
-    from: deployer,
-    args: [],
-    log: true,
-  });
-
   const randomizer = randomizerByChain.get(Number(await getChainId())) ?? AddressZero;
   const rng = await deploy("RandomizerRNG", {
     from: deployer,
