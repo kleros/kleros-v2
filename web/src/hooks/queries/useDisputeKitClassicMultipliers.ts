@@ -1,4 +1,5 @@
 import useSWRImmutable from "swr/immutable";
+import { BigNumber } from "ethers";
 import { useConnectedContract } from "hooks/useConnectedContract";
 
 export const useDisputeKitClassicMultipliers = () => {
@@ -21,3 +22,9 @@ export const useDisputeKitClassicMultipliers = () => {
     }
   );
 };
+
+export interface IDisputeKitClassicMultipliers {
+  winner_stake_multiplier: BigNumber;
+  loser_stake_multiplier: BigNumber;
+  loser_appeal_period_multiplier: BigNumber;
+}
