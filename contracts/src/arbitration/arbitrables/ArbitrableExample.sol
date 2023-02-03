@@ -73,7 +73,7 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
         emit Ruling(IArbitrator(msg.sender), _externalDisputeID, dispute.ruling);
     }
 
-    function changedMetaEvidence(string memory _metaEvidence) external {
+    function changeMetaEvidence(string memory _metaEvidence) external {
         require(msg.sender == governor, "Not authorized: governor only.");
         emit MetaEvidence(++META_EVIDENCE_ID, _metaEvidence);
     }

@@ -1,4 +1,4 @@
-import { parseEther } from "ethers/lib/utils";
+import { parseUnits } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import getContractAddress from "../deploy-helpers/getContractAddress";
@@ -13,6 +13,8 @@ const wethByChain = new Map<ForeignChains, string>([
   [ForeignChains.GNOSIS_MAINNET, "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1"],
 ]);
 
+const ONE_GWEI = parseUnits("1", "gwei");
+
 const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId, config } = hre;
   const { deploy, execute } = deployments;
@@ -21,7 +23,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log("deploying to chainId %s with deployer %s", chainId, deployer);
+  console.log("Deploying to chainId %s with deployer %s", chainId, deployer);
 
   const homeNetworks = {
     GNOSIS_MAINNET: config.networks.arbitrum,
@@ -32,14 +34,12 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   // Hack to predict the deployment address on the home chain.
   // TODO: use deterministic deployments
   const homeChainProvider = new ethers.providers.JsonRpcProvider(homeNetworks[ForeignChains[chainId]].url);
-  let nonce = await homeChainProvider.getTransactionCount(deployer);
+  const nonce = await homeChainProvider.getTransactionCount(deployer);
   const homeGatewayAddress = getContractAddress(deployer, nonce); // HomeGateway deploy tx will be the next tx home network
-  console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
+  console.log("Calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
   const veaReceiver = await deployments.get("FastBridgeReceiverOnGnosis");
-  console.log("using FastBridgeReceiverOnGnosis at %s", veaReceiver.address);
-
-  const ONE_GWEI = ethers.utils.parseUnits("1", "gwei");
+  console.log("Using FastBridgeReceiverOnGnosis at %s", veaReceiver.address);
 
   if (!wethByChain.get(chainId)) {
     const weth = await deploy("WETH", {
@@ -75,13 +75,13 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   });
 
   // TODO: disable the gateway until fully initialized with the correct fees OR allow disputeCreators to add funds again if necessary.
-  // await execute(
-  //   "ForeignGatewayOnGnosis",
-  //   { from: deployer, log: true },
-  //   "changeCourtJurorFee",
-  //   0,
-  //   ethers.utils.parseEther("0.00001")
-  // );
+  await execute(
+    "ForeignGatewayOnGnosis",
+    { from: deployer, log: true },
+    "changeCourtJurorFee",
+    0,
+    ethers.utils.parseEther("0.00001")
+  );
 };
 
 deployForeignGateway.tags = ["ForeignGatewayOnGnosis"];

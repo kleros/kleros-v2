@@ -28,7 +28,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
+  console.log("Deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   if (chainId === HomeChains.HARDHAT) {
     pnkByChain.set(
