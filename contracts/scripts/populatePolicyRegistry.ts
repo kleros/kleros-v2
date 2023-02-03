@@ -24,7 +24,12 @@ async function main() {
     console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
   }
 
-  const policiesV1 = FROM_GNOSIS ? policiesV1GnosisChain : policiesV1Mainnet;
+  const policiesV1 = FROM_GNOSIS
+    ? policiesV1GnosisChain.map((policy) => ({
+        ...policy,
+        name: policy.name.replace("xDai ", ""),
+      }))
+    : policiesV1Mainnet;
 
   // WARNING: skip the Forking court at id 0, so the v1 courts are shifted by 1
   const policiesV2 = policiesV1.map((policy) => ({ ...policy, court: policy.court + 1 }));
