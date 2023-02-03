@@ -1,8 +1,10 @@
+// SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8;
 
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "./libraries/SafeMath.sol";
-import "./TokenController.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "../interfaces/ITokenController.sol";
 import "./interfaces/ITokenBridge.sol";
 import "./interfaces/IERC677.sol";
 
@@ -158,7 +160,7 @@ contract WrappedPinakion is Initializable {
     function transfer(address _recipient, uint256 _amount) public returns (bool) {
         if (isContract(controller)) {
             require(
-                TokenController(controller).onTransfer(msg.sender, _recipient, _amount),
+                ITokenController(controller).onTransfer(msg.sender, _recipient, _amount),
                 "Token controller rejects transfer."
             );
         }
@@ -179,7 +181,7 @@ contract WrappedPinakion is Initializable {
     function transferFrom(address _sender, address _recipient, uint256 _amount) public returns (bool) {
         if (isContract(controller)) {
             require(
-                TokenController(controller).onTransfer(_sender, _recipient, _amount),
+                ITokenController(controller).onTransfer(_sender, _recipient, _amount),
                 "Token controller rejects transfer."
             );
         }
@@ -209,7 +211,7 @@ contract WrappedPinakion is Initializable {
         // Alerts the token controller of the approve function call
         if (isContract(controller)) {
             require(
-                TokenController(controller).onApprove(msg.sender, _spender, _amount),
+                ITokenController(controller).onApprove(msg.sender, _spender, _amount),
                 "Token controller does not approve."
             );
         }
@@ -230,7 +232,7 @@ contract WrappedPinakion is Initializable {
         // Alerts the token controller of the approve function call
         if (isContract(controller)) {
             require(
-                TokenController(controller).onApprove(msg.sender, _spender, newAllowance),
+                ITokenController(controller).onApprove(msg.sender, _spender, newAllowance),
                 "Token controller does not approve."
             );
         }
@@ -251,7 +253,7 @@ contract WrappedPinakion is Initializable {
         // Alerts the token controller of the approve function call
         if (isContract(controller)) {
             require(
-                TokenController(controller).onApprove(msg.sender, _spender, newAllowance),
+                ITokenController(controller).onApprove(msg.sender, _spender, newAllowance),
                 "Token controller does not approve."
             );
         }
@@ -283,7 +285,7 @@ contract WrappedPinakion is Initializable {
     function _burn(uint256 _amount) internal {
         if (isContract(controller)) {
             require(
-                TokenController(controller).onTransfer(msg.sender, address(0x0), _amount),
+                ITokenController(controller).onTransfer(msg.sender, address(0x0), _amount),
                 "Token controller rejects transfer."
             );
         }

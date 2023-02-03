@@ -19,14 +19,14 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 - [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610/token-transfers)
 - [BlockHashRNG](https://goerli.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
-- [DisputeKitClassic](https://goerli.arbiscan.io/address/0xde31F2245d164620d08f5b0f8D43dCe8B9708373)
-- [DisputeResolver](https://goerli.arbiscan.io/address/0xa1f52474CFa1ee78758a4bBa35DE547133Bda62f)
+- [DisputeKitClassic](https://goerli.arbiscan.io/address/0x86734488ABF0E1AD40bc4DE4F820e808f39Bea09)
+- [DisputeResolver](https://goerli.arbiscan.io/address/0xDe3eCeB73C453E56F5661ad029a41341CF592b9A)
 - [FastBridgeSender](https://goerli.arbiscan.io/address/0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C)
 - [HomeGatewayToEthereum](https://goerli.arbiscan.io/address/0xed12799915180a257985631fbD2ead261eD838cf)
-- [KlerosCore](https://goerli.arbiscan.io/address/0x4d7858e73a8842b5e6422D08a3349924dD062AbB)
-- [PolicyRegistry](https://goerli.arbiscan.io/address/0xAF0F49Fe110b48bd512F00d51D141F023c9a9106)
-- [RandomizerRNG](https://goerli.arbiscan.io/address/0xb82D1eAD813C3a2E729F288276cc402343423Bad)
-- [SortitionSumTreeFactory](https://goerli.arbiscan.io/address/0x40a78989317B953e427B3BD87C59eA003fcC2296)
+- [KlerosCore](https://goerli.arbiscan.io/address/0x3eED6aaCa43f4Bb98C591e4A0d2C4a124efF9C24)
+- [PolicyRegistry](https://goerli.arbiscan.io/address/0xC5655728387Ce5E2aAA22138114E5777370aBDae)
+- [RandomizerRNG](https://goerli.arbiscan.io/address/0xa2d1A3CDF0becEdb724e5A34De7022B6FF5e4787)
+- [SortitionSumTreeFactoryV2](https://goerli.arbiscan.io/address/0x678E676fd0048da8c35d5B03fabB53a7beBf73A6)
 
 ## Getting Started
 

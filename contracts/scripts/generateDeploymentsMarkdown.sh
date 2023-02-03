@@ -10,6 +10,7 @@ function generate() { #deploymentDir #explorerUrl
         address=$(cat $f | jq -r .address)
         echo "- [$contractName]($explorerUrl$address)"
     done
+}
 
 echo "#### Goerli"
 echo

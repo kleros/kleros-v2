@@ -4,13 +4,13 @@ pragma solidity ^0.8;
 
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IArbitrator, IArbitrable} from "../arbitration/IArbitrator.sol";
-import {TokenController} from "./TokenController.sol";
+import {IArbitrator, IArbitrable} from "../../arbitration/IArbitrator.sol";
+import {ITokenController} from "../interfaces/ITokenController.sol";
 import {WrappedPinakion} from "./WrappedPinakion.sol";
 import {IRandomAuRa} from "./interfaces/IRandomAuRa.sol";
 
-import {SortitionSumTreeFactory} from "./libraries/SortitionSumTreeFactory.sol";
-import "../gateway/interfaces/IForeignGateway.sol";
+import {SortitionSumTreeFactory} from "../../libraries/SortitionSumTreeFactory.sol";
+import "../../gateway/interfaces/IForeignGateway.sol";
 
 /**
  *  @title xKlerosLiquid
@@ -18,7 +18,7 @@ import "../gateway/interfaces/IForeignGateway.sol";
  *  for xDai chain. Notice that variables referring to ETH values in this contract, will hold the native token values of the chain on which xKlerosLiquid is deployed.
  *  When this contract gets deployed on xDai chain, ETH variables will hold xDai values.
  */
-contract xKlerosLiquid is Initializable, TokenController, IArbitrator {
+contract xKlerosLiquidToV2 is Initializable, ITokenController, IArbitrator {
     /* Enums */
 
     // General
@@ -180,9 +180,7 @@ contract xKlerosLiquid is Initializable, TokenController, IArbitrator {
     IForeignGateway public foreignGateway; // Foreign gateway contract.
     IERC20 public weth; // WETH token address.
 
-    mapping(uint256 => uint256) public disputeNbRounds; // Number of rounds of the dispute.
-    mapping(uint256 => mapping(uint256 => uint256)) public disputeNbVotesInRound; // Number of votes in the round. [disputeID][RoundID]
-    mapping(uint256 => mapping(uint256 => mapping(uint256 => Vote))) public disputeVotes; // Votes in the dispute's round. [disputeID][RoundID][VoteID]
+    mapping(uint256 => uint256) public disputesRuling;
 
     /* Modifiers */
 
@@ -243,26 +241,29 @@ contract xKlerosLiquid is Initializable, TokenController, IArbitrator {
         RNGenerator = _RNGenerator;
         minStakingTime = _minStakingTime;
         maxDrawingTime = _maxDrawingTime;
+        phase = Phase.staking;
         lastPhaseChange = block.timestamp;
         lockInsolventTransfers = true;
-        nextDelayedSetStake = 1;
+        if (nextDelayedSetStake == 0) nextDelayedSetStake = 1;
         foreignGateway = _foreignGateway;
         weth = _weth;
 
         // Create the general court.
-        courts.push(
-            Court({
-                parent: 0,
-                children: new uint256[](0),
-                hiddenVotes: _hiddenVotes,
-                minStake: _courtParameters[0],
-                alpha: _courtParameters[1],
-                feeForJuror: _courtParameters[2],
-                jurorsForCourtJump: _courtParameters[3],
-                timesPerPeriod: _timesPerPeriod
-            })
-        );
-        sortitionSumTrees.createTree(bytes32(0), _sortitionSumTreeK);
+        if (courts.length == 0) {
+            courts.push(
+                Court({
+                    parent: 0,
+                    children: new uint256[](0),
+                    hiddenVotes: _hiddenVotes,
+                    minStake: _courtParameters[0],
+                    alpha: _courtParameters[1],
+                    feeForJuror: _courtParameters[2],
+                    jurorsForCourtJump: _courtParameters[3],
+                    timesPerPeriod: _timesPerPeriod
+                })
+            );
+            sortitionSumTrees.createTree(bytes32(0), _sortitionSumTreeK);
+        }
     }
 
     /* External */
@@ -426,83 +427,6 @@ contract xKlerosLiquid is Initializable, TokenController, IArbitrator {
         courts[_subcourtID].timesPerPeriod = _timesPerPeriod;
     }
 
-    /** @dev Passes the phase. TRUSTED */
-    function passPhase() external {
-        if (phase == Phase.staking) {
-            require(
-                block.timestamp - lastPhaseChange >= minStakingTime,
-                "The minimum staking time has not passed yet."
-            );
-            require(disputesWithoutJurors > 0, "There are no disputes that need jurors.");
-            /** collectRoundLength is added so that the last validator to reveal cannot know
-             *  during the staking phase which random seed is going to be used in the drawing phase.
-             */
-            RNBlock = RNGenerator.nextCommitPhaseStartBlock() + RNGenerator.collectRoundLength();
-            phase = Phase.generating;
-        } else if (phase == Phase.generating) {
-            require(block.number >= RNBlock && RNGenerator.isCommitPhase(), "Random number is not ready yet."); // It's not secure to use the current seed during reveals.
-            RN = uint256(keccak256(abi.encodePacked(address(this), RNGenerator.currentSeed()))); // currentSeed() cannot be predicted during staking phase.
-            phase = Phase.drawing;
-        } else if (phase == Phase.drawing) {
-            require(
-                disputesWithoutJurors == 0 || block.timestamp - lastPhaseChange >= maxDrawingTime,
-                "There are still disputes without jurors and the maximum drawing time has not passed yet."
-            );
-            phase = Phase.staking;
-        }
-
-        lastPhaseChange = block.timestamp;
-        emit NewPhase(phase);
-    }
-
-    /** @dev Passes the period of a specified dispute.
-     *  @param _disputeID The ID of the dispute.
-     */
-    function passPeriod(uint256 _disputeID) external {
-        require(_disputeID < totalDisputes, "Dispute ID does not exist.");
-        Dispute storage dispute = disputes[_disputeID];
-        uint256 lastRoundID = disputeNbRounds[_disputeID] - 1;
-        uint256 nbVotes = disputeNbVotesInRound[_disputeID][lastRoundID];
-        if (dispute.period == Period.evidence) {
-            require(
-                lastRoundID > 0 ||
-                    block.timestamp - dispute.lastPeriodChange >=
-                    courts[dispute.subcourtID].timesPerPeriod[uint256(dispute.period)],
-                "The evidence period time has not passed yet and it is not an appeal."
-            );
-            require(dispute.drawsInRound == nbVotes, "The dispute has not finished drawing yet.");
-            dispute.period = courts[dispute.subcourtID].hiddenVotes ? Period.commit : Period.vote;
-        } else if (dispute.period == Period.commit) {
-            require(
-                block.timestamp - dispute.lastPeriodChange >=
-                    courts[dispute.subcourtID].timesPerPeriod[uint256(dispute.period)] ||
-                    dispute.commitsInRound == nbVotes,
-                "The commit period time has not passed yet and not every juror has committed yet."
-            );
-            dispute.period = Period.vote;
-        } else if (dispute.period == Period.vote) {
-            require(
-                block.timestamp - dispute.lastPeriodChange >=
-                    courts[dispute.subcourtID].timesPerPeriod[uint256(dispute.period)] ||
-                    dispute.votesInEachRound[lastRoundID] == nbVotes,
-                "The vote period time has not passed yet and not every juror has voted yet."
-            );
-            dispute.period = Period.appeal;
-        } else if (dispute.period == Period.appeal) {
-            require(
-                block.timestamp - dispute.lastPeriodChange >=
-                    courts[dispute.subcourtID].timesPerPeriod[uint256(dispute.period)],
-                "The appeal period time has not passed yet."
-            );
-            dispute.period = Period.execution;
-        } else if (dispute.period == Period.execution) {
-            revert("The dispute is already in the last period.");
-        }
-
-        dispute.lastPeriodChange = block.timestamp;
-        emit NewPeriod(_disputeID, dispute.period);
-    }
-
     /** @dev Sets the caller's stake in a subcourt.
      *  @param _subcourtID The ID of the subcourt.
      *  @param _stake The new stake.
@@ -529,277 +453,6 @@ contract xKlerosLiquid is Initializable, TokenController, IArbitrator {
         nextDelayedSetStake = newNextDelayedSetStake;
     }
 
-    /** @dev Draws jurors for a dispute. Can be called in parts.
-     *  `O(n * k * log_k(j))` where
-     *  `n` is the number of iterations to run,
-     *  `k` is the number of children per node of the dispute's court's sortition sum tree,
-     *  and `j` is the maximum number of jurors that ever staked in it simultaneously.
-     *  @param _disputeID The ID of the dispute.
-     *  @param _iterations The number of iterations to run.
-     */
-    function drawJurors(
-        uint256 _disputeID,
-        uint256 _iterations
-    ) external onlyDuringPhase(Phase.drawing) onlyDuringPeriod(_disputeID, Period.evidence) {
-        require(_disputeID < totalDisputes, "Dispute ID does not exist.");
-        Dispute storage dispute = disputes[_disputeID];
-        uint256 endIndex = dispute.drawsInRound + _iterations;
-        require(endIndex >= dispute.drawsInRound);
-
-        // Avoid going out of range.
-        if (endIndex > disputeNbVotesInRound[_disputeID][disputeNbRounds[_disputeID] - 1])
-            endIndex = disputeNbVotesInRound[_disputeID][disputeNbRounds[_disputeID] - 1];
-        for (uint256 i = dispute.drawsInRound; i < endIndex; i++) {
-            // Draw from sortition tree.
-            (address drawnAddress, uint256 subcourtID) = stakePathIDToAccountAndSubcourtID(
-                sortitionSumTrees.draw(
-                    bytes32(uint256(dispute.subcourtID)),
-                    uint256(keccak256(abi.encodePacked(RN, _disputeID, i)))
-                )
-            );
-
-            // Save the vote.
-            disputeVotes[_disputeID][disputeNbRounds[_disputeID] - 1][i].account = drawnAddress;
-            jurors[drawnAddress].lockedTokens += dispute.tokensAtStakePerJuror[
-                dispute.tokensAtStakePerJuror.length - 1
-            ];
-            emit Draw(drawnAddress, _disputeID, disputeNbRounds[_disputeID] - 1, i);
-
-            // If dispute is fully drawn.
-            if (i == disputeNbVotesInRound[_disputeID][disputeNbRounds[_disputeID] - 1] - 1) disputesWithoutJurors--;
-        }
-        dispute.drawsInRound = endIndex;
-    }
-
-    /** @dev Sets the caller's commit for the specified votes.
-     *  `O(n)` where
-     *  `n` is the number of votes.
-     *  @param _disputeID The ID of the dispute.
-     *  @param _voteIDs The IDs of the votes.
-     *  @param _commit The commit.
-     */
-    function castCommit(
-        uint256 _disputeID,
-        uint256[] memory _voteIDs,
-        bytes32 _commit
-    ) external onlyDuringPeriod(_disputeID, Period.commit) {
-        Dispute storage dispute = disputes[_disputeID];
-        require(_commit != bytes32(0));
-        uint256 lastRoundID = disputeNbRounds[_disputeID] - 1;
-        for (uint256 i = 0; i < _voteIDs.length; i++) {
-            Vote storage vote = disputeVotes[_disputeID][lastRoundID][_voteIDs[i]];
-            require(vote.account == msg.sender, "The caller has to own the vote.");
-            require(vote.commit == bytes32(0), "Already committed this vote.");
-            vote.commit = _commit;
-        }
-        dispute.commitsInRound += _voteIDs.length;
-    }
-
-    /** @dev Sets the caller's choices for the specified votes.
-     *  `O(n)` where
-     *  `n` is the number of votes.
-     *  @param _disputeID The ID of the dispute.
-     *  @param _voteIDs The IDs of the votes.
-     *  @param _choice The choice.
-     *  @param _salt The salt for the commit if the votes were hidden.
-     */
-    function castVote(
-        uint256 _disputeID,
-        uint256[] memory _voteIDs,
-        uint256 _choice,
-        uint256 _salt
-    ) external onlyDuringPeriod(_disputeID, Period.vote) {
-        Dispute storage dispute = disputes[_disputeID];
-        require(_voteIDs.length > 0);
-        require(
-            _choice <= dispute.numberOfChoices,
-            "The choice has to be less than or equal to the number of choices for the dispute."
-        );
-        uint256 lastRoundID = disputeNbRounds[_disputeID] - 1;
-
-        // Save the votes.
-        for (uint256 i = 0; i < _voteIDs.length; i++) {
-            Vote storage vote = disputeVotes[_disputeID][lastRoundID][_voteIDs[i]];
-            require(vote.account == msg.sender, "The caller has to own the vote.");
-            require(
-                !courts[dispute.subcourtID].hiddenVotes || vote.commit == keccak256(abi.encodePacked(_choice, _salt)),
-                "The commit must match the choice in subcourts with hidden votes."
-            );
-            require(!vote.voted, "Vote already cast.");
-            vote.choice = _choice;
-            vote.voted = true;
-        }
-        dispute.votesInEachRound[lastRoundID] += _voteIDs.length;
-
-        // Update winning choice.
-        VoteCounter storage voteCounter = dispute.voteCounters[dispute.voteCounters.length - 1];
-        voteCounter.counts[_choice] += _voteIDs.length;
-        if (_choice == voteCounter.winningChoice) {
-            // Voted for the winning choice.
-            if (voteCounter.tied) voteCounter.tied = false; // Potentially broke tie.
-        } else {
-            // Voted for another choice.
-            if (voteCounter.counts[_choice] == voteCounter.counts[voteCounter.winningChoice]) {
-                // Tie.
-                if (!voteCounter.tied) voteCounter.tied = true;
-            } else if (voteCounter.counts[_choice] > voteCounter.counts[voteCounter.winningChoice]) {
-                // New winner.
-                voteCounter.winningChoice = _choice;
-                voteCounter.tied = false;
-            }
-        }
-    }
-
-    /** @dev Computes the token and ETH rewards for a specified appeal in a specified dispute.
-     *  @param _disputeID The ID of the dispute.
-     *  @param _appeal The appeal.
-     *  @return tokenReward The token reward.
-     *  @return ETHReward The ETH reward.
-     */
-    function computeTokenAndETHRewards(
-        uint256 _disputeID,
-        uint256 _appeal
-    ) private view returns (uint256 tokenReward, uint256 ETHReward) {
-        Dispute storage dispute = disputes[_disputeID];
-
-        // Distribute penalties and arbitration fees.
-        if (dispute.voteCounters[dispute.voteCounters.length - 1].tied) {
-            // Distribute penalties and fees evenly between active jurors.
-            uint256 activeCount = dispute.votesInEachRound[_appeal];
-            if (activeCount > 0) {
-                tokenReward = dispute.penaltiesInEachRound[_appeal] / activeCount;
-                ETHReward = dispute.totalFeesForJurors[_appeal] / activeCount;
-            } else {
-                tokenReward = 0;
-                ETHReward = 0;
-            }
-        } else {
-            // Distribute penalties and fees evenly between coherent jurors.
-            uint256 winningChoice = dispute.voteCounters[dispute.voteCounters.length - 1].winningChoice;
-            uint256 coherentCount = dispute.voteCounters[_appeal].counts[winningChoice];
-            tokenReward = dispute.penaltiesInEachRound[_appeal] / coherentCount;
-            ETHReward = dispute.totalFeesForJurors[_appeal] / coherentCount;
-        }
-    }
-
-    /** @dev Repartitions tokens and ETH for a specified appeal in a specified dispute. Can be called in parts.
-     *  `O(i + u * n * (n + p * log_k(j)))` where
-     *  `i` is the number of iterations to run,
-     *  `u` is the number of jurors that need to be unstaked,
-     *  `n` is the maximum number of subcourts one of these jurors has staked in,
-     *  `p` is the depth of the subcourt tree,
-     *  `k` is the minimum number of children per node of one of these subcourts' sortition sum tree,
-     *  and `j` is the maximum number of jurors that ever staked in one of these subcourts simultaneously.
-     *  @param _disputeID The ID of the dispute.
-     *  @param _appeal The appeal.
-     *  @param _iterations The number of iterations to run.
-     */
-    function execute(
-        uint256 _disputeID,
-        uint256 _appeal,
-        uint256 _iterations
-    ) external onlyDuringPeriod(_disputeID, Period.execution) {
-        lockInsolventTransfers = false;
-        Dispute storage dispute = disputes[_disputeID];
-        uint256 end = dispute.repartitionsInEachRound[_appeal] + _iterations;
-        require(end >= dispute.repartitionsInEachRound[_appeal]);
-        uint256 penaltiesInRoundCache = dispute.penaltiesInEachRound[_appeal]; // For saving gas.
-        (uint256 tokenReward, uint256 ETHReward) = (0, 0);
-
-        uint256 nbVotes = disputeNbVotesInRound[_disputeID][_appeal];
-
-        // Avoid going out of range.
-        if (
-            !dispute.voteCounters[dispute.voteCounters.length - 1].tied &&
-            dispute.voteCounters[_appeal].counts[dispute.voteCounters[dispute.voteCounters.length - 1].winningChoice] ==
-            0
-        ) {
-            // We loop over the votes once as there are no rewards because it is not a tie and no one in this round is coherent with the final outcome.
-            if (end > nbVotes) end = nbVotes;
-        } else {
-            // We loop over the votes twice, first to collect penalties, and second to distribute them as rewards along with arbitration fees.
-            (tokenReward, ETHReward) = dispute.repartitionsInEachRound[_appeal] >= nbVotes
-                ? computeTokenAndETHRewards(_disputeID, _appeal)
-                : (0, 0); // Compute rewards if rewarding.
-            if (end > nbVotes * 2) end = nbVotes * 2;
-        }
-        for (uint256 i = dispute.repartitionsInEachRound[_appeal]; i < end; i++) {
-            Vote storage vote = disputeVotes[_disputeID][_appeal][i % nbVotes];
-            if (
-                vote.voted &&
-                (vote.choice == dispute.voteCounters[dispute.voteCounters.length - 1].winningChoice ||
-                    dispute.voteCounters[dispute.voteCounters.length - 1].tied)
-            ) {
-                // Juror was active, and voted coherently or it was a tie.
-                if (i >= nbVotes) {
-                    // Only execute in the second half of the iterations.
-
-                    // Reward.
-                    pinakion.transfer(vote.account, tokenReward);
-                    // Intentional use to avoid blocking.
-                    payable(vote.account).send(ETHReward); // solium-disable-line security/no-send
-                    emit TokenAndETHShift(vote.account, _disputeID, int(tokenReward), int(ETHReward));
-                    jurors[vote.account].lockedTokens -= dispute.tokensAtStakePerJuror[_appeal];
-                }
-            } else {
-                // Juror was inactive, or voted incoherently and it was not a tie.
-                if (i < nbVotes) {
-                    // Only execute in the first half of the iterations.
-
-                    // Penalize.
-                    uint256 penalty = dispute.tokensAtStakePerJuror[_appeal] > pinakion.balanceOf(vote.account)
-                        ? pinakion.balanceOf(vote.account)
-                        : dispute.tokensAtStakePerJuror[_appeal];
-                    pinakion.transferFrom(vote.account, address(this), penalty);
-                    emit TokenAndETHShift(vote.account, _disputeID, -int(penalty), 0);
-                    penaltiesInRoundCache += penalty;
-                    jurors[vote.account].lockedTokens -= dispute.tokensAtStakePerJuror[_appeal];
-
-                    // Unstake juror if his penalty made balance less than his total stake or if he lost due to inactivity.
-                    if (pinakion.balanceOf(vote.account) < jurors[vote.account].stakedTokens || !vote.voted)
-                        for (uint256 j = 0; j < jurors[vote.account].subcourtIDs.length; j++)
-                            _setStake(vote.account, jurors[vote.account].subcourtIDs[j], 0);
-                }
-            }
-            if (i == nbVotes - 1) {
-                // Send fees and tokens to the governor if no one was coherent.
-                if (
-                    dispute.votesInEachRound[_appeal] == 0 ||
-                    (!dispute.voteCounters[dispute.voteCounters.length - 1].tied &&
-                        dispute.voteCounters[_appeal].counts[
-                            dispute.voteCounters[dispute.voteCounters.length - 1].winningChoice
-                        ] ==
-                        0)
-                ) {
-                    // Intentional use to avoid blocking.
-                    payable(governor).send(dispute.totalFeesForJurors[_appeal]); // solium-disable-line security/no-send
-                    pinakion.transfer(governor, penaltiesInRoundCache);
-                } else if (i + 1 < end) {
-                    // Compute rewards because we are going into rewarding.
-                    dispute.penaltiesInEachRound[_appeal] = penaltiesInRoundCache;
-                    (tokenReward, ETHReward) = computeTokenAndETHRewards(_disputeID, _appeal);
-                }
-            }
-        }
-        if (dispute.penaltiesInEachRound[_appeal] != penaltiesInRoundCache)
-            dispute.penaltiesInEachRound[_appeal] = penaltiesInRoundCache;
-        dispute.repartitionsInEachRound[_appeal] = end;
-        lockInsolventTransfers = true;
-    }
-
-    /** @dev Executes a specified dispute's ruling. UNTRUSTED.
-     *  @param _disputeID The ID of the dispute.
-     */
-    function executeRuling(uint256 _disputeID) external onlyDuringPeriod(_disputeID, Period.execution) {
-        Dispute storage dispute = disputes[_disputeID];
-        require(!dispute.ruled, "Ruling already executed.");
-        dispute.ruled = true;
-        uint256 winningChoice = dispute.voteCounters[dispute.voteCounters.length - 1].tied
-            ? 0
-            : dispute.voteCounters[dispute.voteCounters.length - 1].winningChoice;
-        dispute.arbitrated.rule(_disputeID, winningChoice);
-    }
-
     /** @dev Receive the ruling from foreign gateway which technically is an arbitrator of this contract.
      *  @param _disputeID ID of the dispute.
      *  @param _ruling Ruling given by V2 court and relayed by foreign gateway.
@@ -811,9 +464,12 @@ contract xKlerosLiquid is Initializable, TokenController, IArbitrator {
         Dispute storage dispute = disputes[_disputeID];
         require(!dispute.ruled, "Ruling already executed.");
         dispute.ruled = true;
+        disputesRuling[_disputeID] = _ruling;
 
         // Send the relayed ruling to the arbitrable while fully bypassing the dispute flow.
         dispute.arbitrated.rule(_disputeID, _ruling);
+
+        emit Ruling(dispute.arbitrated, _disputeID, _ruling);
     }
 
     /* Public */
@@ -828,81 +484,17 @@ contract xKlerosLiquid is Initializable, TokenController, IArbitrator {
         bytes memory _extraData
     ) public payable override returns (uint256 disputeID) {
         require(msg.value == 0, "Fees should be paid in WETH");
-        uint256 fee = foreignGateway.arbitrationCost(_extraData);
-        // TODO: give possibility to overpay. Use createDisputeERC20 function?
+        uint256 fee = arbitrationCost(_extraData);
         require(weth.transferFrom(msg.sender, address(this), fee), "Not enough WETH for arbitration");
 
-        (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDAndMinJurors(_extraData);
         disputeID = totalDisputes++;
         Dispute storage dispute = disputes[disputeID];
-        dispute.subcourtID = subcourtID;
         dispute.arbitrated = IArbitrable(msg.sender);
-        dispute.numberOfChoices = _numberOfChoices;
-        dispute.period = Period.evidence;
-        dispute.lastPeriodChange = block.timestamp;
-        // As many votes that can be afforded by the provided funds.
-
-        uint256 nbVotes = msg.value / courts[dispute.subcourtID].feeForJuror;
-
-        uint256 newLastRoundID = disputeNbRounds[disputeID];
-        disputeNbVotesInRound[disputeID][newLastRoundID] = nbVotes;
-        disputeNbRounds[disputeID]++;
-
-        VoteCounter storage voteCounter = dispute.voteCounters.push();
-        voteCounter.tied = true;
-        dispute.tokensAtStakePerJuror.push(
-            (courts[dispute.subcourtID].minStake * courts[dispute.subcourtID].alpha) / ALPHA_DIVISOR
-        );
-        dispute.totalFeesForJurors.push(msg.value);
-        dispute.votesInEachRound.push(0);
-        dispute.repartitionsInEachRound.push(0);
-        dispute.penaltiesInEachRound.push(0);
-        disputesWithoutJurors++;
 
         require(weth.transfer(address(foreignGateway), fee), "Fee transfer to gateway failed");
         foreignGateway.createDisputeERC20(_numberOfChoices, _extraData, fee);
 
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
-    }
-
-    /** @dev Appeals the ruling of a specified dispute.
-     *  @param _disputeID The ID of the dispute.
-     *  @param _extraData Additional info about the appeal. Not used by this contract.
-     */
-    function appeal(
-        uint256 _disputeID,
-        bytes memory _extraData
-    ) public payable onlyDuringPeriod(_disputeID, Period.appeal) {
-        Dispute storage dispute = disputes[_disputeID];
-        require(msg.sender == address(dispute.arbitrated), "Can only be called by the arbitrable contract.");
-        uint256 lastRoundID = disputeNbRounds[_disputeID] - 1;
-        uint256 nbVotes = disputeNbVotesInRound[_disputeID][lastRoundID];
-        if (nbVotes >= courts[dispute.subcourtID].jurorsForCourtJump)
-            // Jump to parent subcourt.
-            dispute.subcourtID = courts[dispute.subcourtID].parent;
-        dispute.period = Period.evidence;
-        dispute.lastPeriodChange = block.timestamp;
-        // As many votes that can be afforded by the provided funds.
-        uint256 newNbVotes = msg.value / courts[dispute.subcourtID].feeForJuror;
-
-        uint256 newLastRoundID = disputeNbRounds[_disputeID];
-        disputeNbVotesInRound[_disputeID][newLastRoundID] = newNbVotes;
-        disputeNbRounds[_disputeID]++;
-
-        VoteCounter storage voteCounter = dispute.voteCounters.push();
-        voteCounter.tied = true;
-        dispute.tokensAtStakePerJuror.push(
-            (courts[dispute.subcourtID].minStake * courts[dispute.subcourtID].alpha) / ALPHA_DIVISOR
-        );
-        dispute.totalFeesForJurors.push(msg.value);
-        dispute.drawsInRound = 0;
-        dispute.commitsInRound = 0;
-        dispute.votesInEachRound.push(0);
-        dispute.repartitionsInEachRound.push(0);
-        dispute.penaltiesInEachRound.push(0);
-        disputesWithoutJurors++;
-
-        emit NewPeriod(_disputeID, Period.evidence);
     }
 
     /** @dev DEPRECATED. Called when `_owner` sends ETH to the Wrapped Token contract.
@@ -945,44 +537,7 @@ contract xKlerosLiquid is Initializable, TokenController, IArbitrator {
      *  @return cost The cost.
      */
     function arbitrationCost(bytes memory _extraData) public view override returns (uint256 cost) {
-        (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDAndMinJurors(_extraData);
-        cost = courts[subcourtID].feeForJuror * minJurors;
-    }
-
-    /** @dev Gets the cost of appealing a specified dispute.
-     *  @param _disputeID The ID of the dispute.
-     *  @param _extraData Additional info about the appeal. Not used by this contract.
-     *  @return cost The cost.
-     */
-    function appealCost(uint256 _disputeID, bytes memory _extraData) public view returns (uint256 cost) {
-        Dispute storage dispute = disputes[_disputeID];
-        uint256 lastRoundID = disputeNbRounds[_disputeID] - 1;
-        uint256 lastNumberOfJurors = disputeNbVotesInRound[_disputeID][lastRoundID];
-        if (lastNumberOfJurors >= courts[dispute.subcourtID].jurorsForCourtJump) {
-            // Jump to parent subcourt.
-            if (dispute.subcourtID == 0)
-                // Already in the general court.
-                cost = NON_PAYABLE_AMOUNT; // Get the cost of the parent subcourt.
-            else cost = courts[courts[dispute.subcourtID].parent].feeForJuror * ((lastNumberOfJurors * 2) + 1);
-        }
-        // Stay in current subcourt.
-        else cost = courts[dispute.subcourtID].feeForJuror * ((lastNumberOfJurors * 2) + 1);
-    }
-
-    /** @dev Gets the start and end of a specified dispute's current appeal period.
-     *  @param _disputeID The ID of the dispute.
-     *  @return start The start of the appeal period.
-     *  @return end The end of the appeal period.
-     */
-    function appealPeriod(uint256 _disputeID) public view returns (uint256 start, uint256 end) {
-        Dispute storage dispute = disputes[_disputeID];
-        if (dispute.period == Period.appeal) {
-            start = dispute.lastPeriodChange;
-            end = dispute.lastPeriodChange + courts[dispute.subcourtID].timesPerPeriod[uint256(Period.appeal)];
-        } else {
-            start = 0;
-            end = 0;
-        }
+        cost = foreignGateway.arbitrationCost(_extraData);
     }
 
     /** @dev Gets the current ruling of a specified dispute.
@@ -991,9 +546,13 @@ contract xKlerosLiquid is Initializable, TokenController, IArbitrator {
      */
     function currentRuling(uint256 _disputeID) public view returns (uint256 ruling) {
         Dispute storage dispute = disputes[_disputeID];
-        ruling = dispute.voteCounters[dispute.voteCounters.length - 1].tied
-            ? 0
-            : dispute.voteCounters[dispute.voteCounters.length - 1].winningChoice;
+        if (dispute.voteCounters.length == 0) {
+            ruling = disputesRuling[_disputeID];
+        } else {
+            ruling = dispute.voteCounters[dispute.voteCounters.length - 1].tied
+                ? 0
+                : dispute.voteCounters[dispute.voteCounters.length - 1].winningChoice;
+        }
     }
 
     /* Internal */
@@ -1011,16 +570,6 @@ contract xKlerosLiquid is Initializable, TokenController, IArbitrator {
      */
     function _setStake(address _account, uint96 _subcourtID, uint128 _stake) internal returns (bool succeeded) {
         if (!(_subcourtID < courts.length)) return false;
-
-        // Delayed action logic.
-        if (phase != Phase.staking) {
-            delayedSetStakes[++lastDelayedSetStake] = DelayedSetStake({
-                account: _account,
-                subcourtID: _subcourtID,
-                stake: _stake
-            });
-            return true;
-        }
 
         if (!(_stake == 0 || courts[_subcourtID].minStake <= _stake)) return false; // The juror's stake cannot be lower than the minimum stake for the subcourt.
         Juror storage juror = jurors[_account];
@@ -1105,29 +654,6 @@ contract xKlerosLiquid is Initializable, TokenController, IArbitrator {
         }
     }
 
-    /** @dev Unpacks a stake path ID into an account and a subcourt ID.
-     *  @param _stakePathID The stake path ID to unpack.
-     *  @return account The account.
-     *  @return subcourtID The subcourt ID.
-     */
-    function stakePathIDToAccountAndSubcourtID(
-        bytes32 _stakePathID
-    ) internal pure returns (address account, uint96 subcourtID) {
-        assembly {
-            // solium-disable-line security/no-inline-assembly
-            let ptr := mload(0x40)
-            for {
-                let i := 0x00
-            } lt(i, 0x14) {
-                i := add(i, 0x01)
-            } {
-                mstore8(add(add(ptr, 0x0c), i), byte(i, _stakePathID))
-            }
-            account := mload(ptr)
-            subcourtID := _stakePathID
-        }
-    }
-
     /* Interface Views */
 
     /** @dev Gets a specified subcourt's non primitive properties.
@@ -1157,7 +683,7 @@ contract xKlerosLiquid is Initializable, TokenController, IArbitrator {
         uint256 _appeal,
         uint256 _voteID
     ) external view returns (address account, bytes32 commit, uint256 choice, bool voted) {
-        Vote storage vote = disputeVotes[_disputeID][_appeal][_voteID];
+        Vote storage vote = disputes[_disputeID].votes[_appeal][_voteID];
         account = vote.account;
         commit = vote.commit;
         choice = vote.choice;
@@ -1212,9 +738,8 @@ contract xKlerosLiquid is Initializable, TokenController, IArbitrator {
         )
     {
         Dispute storage dispute = disputes[_disputeID];
-        votesLengths = new uint256[](disputeNbRounds[_disputeID]);
-        for (uint256 i = 0; i < disputeNbRounds[_disputeID]; i++)
-            votesLengths[i] = disputeNbVotesInRound[_disputeID][i];
+        votesLengths = new uint256[](dispute.votes.length);
+        for (uint256 i = 0; i < dispute.votes.length; i++) votesLengths[i] = dispute.votes[i].length;
         tokensAtStakePerJuror = dispute.tokensAtStakePerJuror;
         totalFeesForJurors = dispute.totalFeesForJurors;
         votesInEachRound = dispute.votesInEachRound;

@@ -125,10 +125,10 @@ contract xForeignGateway is IForeignGateway {
     // ************************************* //
 
     function createDispute(
-        uint256 _choices,
-        bytes calldata _extraData
+        uint256 /*_choices*/,
+        bytes calldata /*_extraData*/
     ) external payable override returns (uint256 disputeID) {
-        // TODO
+        revert("Fees should be paid in WETH");
     }
 
     function createDisputeERC20(
@@ -195,7 +195,6 @@ contract xForeignGateway is IForeignGateway {
         arbitrable.rule(dispute.id, _ruling);
     }
 
-    // TODO: separate regular withdrawal from ERC20
     function withdrawFees(bytes32 _disputeHash) external override {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
         require(dispute.id != 0, "Dispute does not exist");

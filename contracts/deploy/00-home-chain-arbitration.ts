@@ -57,12 +57,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  await deploy("BlockHashRNG", {
-    from: deployer,
-    args: [],
-    log: true,
-  });
-
   const randomizer = randomizerByChain.get(Number(await getChainId())) ?? AddressZero;
   const rng = await deploy("RandomizerRNG", {
     from: deployer,
@@ -76,7 +70,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const sortitionSumTreeLibrary = await deploy("SortitionSumTreeFactory", {
+  const sortitionSumTreeLibrary = await deploy("SortitionSumTreeFactoryV2", {
     from: deployer,
     log: true,
   });
@@ -88,7 +82,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const klerosCore = await deploy("KlerosCore", {
     from: deployer,
     libraries: {
-      SortitionSumTreeFactory: sortitionSumTreeLibrary.address,
+      SortitionSumTreeFactoryV2: sortitionSumTreeLibrary.address,
     },
     args: [
       deployer,

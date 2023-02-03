@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-// Use @kleros/ethereum-libraries once upgraded.
-
 pragma solidity ^0.8.0;
 
 /**
