@@ -83,7 +83,8 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ["staging", "home", "layer2"],
       companionNetworks: {
-        foreign: "goerli",
+        foreignChiado: "chiado",
+        foreignGoerli: "goerli",
       },
       verify: {
         etherscan: {
@@ -142,7 +143,7 @@ const config: HardhatUserConfig = {
       },
       verify: {
         etherscan: {
-          apiKey: process.env.GNOSISSCAN_API_KEY,
+          apiUrl: "https://blockscout.com/gnosis/chiado",
         },
       },
     },
@@ -208,12 +209,14 @@ const config: HardhatUserConfig = {
   },
   external: {
     // https://github.com/wighawag/hardhat-deploy#importing-deployment-from-other-projects-with-truffle-support
-    contracts: [
-      {
-        artifacts: "node_modules/@kleros/vea-contracts/deployments",
-        deploy: "node_modules/@kleros/vea-contracts/deploy",
-      },
-    ],
+    deployments: {
+      arbitrumGoerli: ["node_modules/@kleros/vea-contracts/deployments/arbitrumGoerli"],
+      arbitrum: ["node_modules/@kleros/vea-contracts/deployments/arbitrum"],
+      chiado: ["node_modules/@kleros/vea-contracts/deployments/chiado"],
+      gnosischain: ["node_modules/@kleros/vea-contracts/deployments/gnosischain"],
+      goerli: ["node_modules/@kleros/vea-contracts/deployments/goerli"],
+      mainnet: ["node_modules/@kleros/vea-contracts/deployments/mainnet"],
+    },
   },
 };
 

@@ -63,7 +63,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await disputeKit.changeRandomNumberGenerator(rng.address, RNG_LOOKAHEAD);
 };
 
-deployArbitration.tags = ["HomeChain", "RNG"];
+deployArbitration.tags = ["RNG"];
 deployArbitration.skip = async ({ getChainId }) => {
   const chainId = Number(await getChainId());
   return !HomeChains[chainId];

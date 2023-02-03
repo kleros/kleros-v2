@@ -19,13 +19,14 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   console.log("deploying to chainId %s with deployer %s", chainId, deployer);
 
   const homeNetworks = {
-    1: config.networks.arbitrum,
-    5: config.networks.arbitrumGoerli,
+    ETHEREUM_MAINNET: config.networks.arbitrum,
+    ETHEREUM_GOERLI: config.networks.arbitrumGoerli,
+    HARDHAT: config.networks.localhost,
   };
 
   // Hack to predict the deployment address on the home chain.
   // TODO: use deterministic deployments
-  const homeChainProvider = new ethers.providers.JsonRpcProvider(homeNetworks[chainId].url);
+  const homeChainProvider = new ethers.providers.JsonRpcProvider(homeNetworks[ForeignChains[chainId]].url);
   let nonce = await homeChainProvider.getTransactionCount(deployer);
   nonce += 2; // HomeGatewayToEthereum deploy tx will the third tx after this on its home network, so we add two to the current nonce.
   const homeChainId = (await homeChainProvider.getNetwork()).chainId;
@@ -60,7 +61,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   });
 };
 
-deployForeignGateway.tags = ["ForeignChain", "ForeignGateway"];
+deployForeignGateway.tags = ["ForeignGatewayOnEthereum"];
 deployForeignGateway.skip = async ({ getChainId }) => {
   const chainId = Number(await getChainId());
   return !ForeignChains[chainId];
