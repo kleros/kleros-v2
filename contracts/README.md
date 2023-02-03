@@ -8,6 +8,13 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 ### v2-prealpha-3
 
+#### Chiado
+
+- [ForeignGatewayOnGnosis](https://blockscout.com/gnosis/chiado/address/0x8F1a2B8F9b04320375856580Fc6B1669Cb12a9EE)
+- [TokenBridge](https://blockscout.com/gnosis/chiado/address/0xbb3c86f9918C3C1d83668fA84e79E876d147fFf2)
+- [WETH](https://blockscout.com/gnosis/chiado/address/0x014A442480DbAD767b7615E55E271799889FA1a7)
+- [WETHFaucet](https://blockscout.com/gnosis/chiado/address/0x395014fddc3b12F9a78ED8E57DA162Fd77E12bE3)
+
 #### Goerli
 
 - [PNK](https://goerli.etherscan.io/token/0xA3B02bA6E10F55fb177637917B1b472da0110CcC)
@@ -23,6 +30,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [DisputeResolver](https://goerli.arbiscan.io/address/0xDe3eCeB73C453E56F5661ad029a41341CF592b9A)
 - [FastBridgeSender](https://goerli.arbiscan.io/address/0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C)
 - [HomeGatewayToEthereum](https://goerli.arbiscan.io/address/0xed12799915180a257985631fbD2ead261eD838cf)
+- [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0x12613A66F1E5A2086374e103F66BF0eddA5d1478)
 - [KlerosCore](https://goerli.arbiscan.io/address/0x3eED6aaCa43f4Bb98C591e4A0d2C4a124efF9C24)
 - [PolicyRegistry](https://goerli.arbiscan.io/address/0xC5655728387Ce5E2aAA22138114E5777370aBDae)
 - [RandomizerRNG](https://goerli.arbiscan.io/address/0xa2d1A3CDF0becEdb724e5A34De7022B6FF5e4787)
