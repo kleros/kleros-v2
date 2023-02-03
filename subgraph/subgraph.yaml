@@ -8,7 +8,7 @@ dataSources:
     source:
       address: "0x3eED6aaCa43f4Bb98C591e4A0d2C4a124efF9C24"
       abi: KlerosCore
-      startBlock: 4027978
+      startBlock: 6456845
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -57,7 +57,7 @@ dataSources:
     source:
       address: "0xC5655728387Ce5E2aAA22138114E5777370aBDae"
       abi: PolicyRegistry
-      startBlock: 4027973
+      startBlock: 6456907
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -77,7 +77,7 @@ dataSources:
     source:
       address: "0x86734488ABF0E1AD40bc4DE4F820e808f39Bea09"
       abi: DisputeKitClassic
-      startBlock: 4027976
+      startBlock: 6456825
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
