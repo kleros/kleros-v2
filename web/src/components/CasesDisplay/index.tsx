@@ -28,15 +28,19 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
     <Search />
     <StatsAndFilters />
     <StyledHR />
-    <CasesGrid
-      {...{
-        disputes,
-        currentPage,
-        setCurrentPage,
-        numberDisputes,
-        casesPerPage,
-      }}
-    />
+    {disputes.length > 0 ? (
+      <CasesGrid
+        {...{
+          disputes,
+          currentPage,
+          setCurrentPage,
+          numberDisputes,
+          casesPerPage,
+        }}
+      />
+    ) : (
+      <h1>wow no cases</h1>
+    )}
   </div>
 );
 

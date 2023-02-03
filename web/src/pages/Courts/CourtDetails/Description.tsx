@@ -58,12 +58,14 @@ const Description: React.FC = () => {
           navigate(TABS[n].path);
         }}
       />
-      <Routes>
-        <Route path="purpose" element={formatMarkdown(policy?.description)} />
-        <Route path="skills" element={<p>{policy?.requiredSkills}</p>} />
-        <Route path="policy" element={formatMarkdown(policy?.summary)} />
-        <Route path="*" element={<Navigate to="purpose" />} />
-      </Routes>
+      <TextContainer>
+        <Routes>
+          <Route path="purpose" element={formatMarkdown(policy?.description)} />
+          <Route path="skills" element={<p>{policy?.requiredSkills}</p>} />
+          <Route path="policy" element={formatMarkdown(policy?.summary)} />
+          <Route path="*" element={<Navigate to="purpose" />} />
+        </Routes>
+      </TextContainer>
     </Container>
   );
 };
@@ -80,6 +82,10 @@ const formatMarkdown = (markdown?: string) =>
   );
 
 const Container = styled.div`
+  width: 100%;
+`;
+
+const TextContainer = styled.div`
   width: 100%;
   padding: 0 12px;
 `;
