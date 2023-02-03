@@ -6,7 +6,7 @@ dataSources:
     name: KlerosCore
     network: arbitrum-goerli
     source:
-      address: "0x4d7858e73a8842b5e6422D08a3349924dD062AbB"
+      address: "0x3eED6aaCa43f4Bb98C591e4A0d2C4a124efF9C24"
       abi: KlerosCore
       startBlock: 4027978
     mapping:
@@ -55,7 +55,7 @@ dataSources:
     name: PolicyRegistry
     network: arbitrum-goerli
     source:
-      address: "0xAF0F49Fe110b48bd512F00d51D141F023c9a9106"
+      address: "0xC5655728387Ce5E2aAA22138114E5777370aBDae"
       abi: PolicyRegistry
       startBlock: 4027973
     mapping:
@@ -75,7 +75,7 @@ dataSources:
     name: DisputeKitClassic
     network: arbitrum-goerli
     source:
-      address: "0xde31F2245d164620d08f5b0f8D43dCe8B9708373"
+      address: "0x86734488ABF0E1AD40bc4DE4F820e808f39Bea09"
       abi: DisputeKitClassic
       startBlock: 4027976
     mapping:
