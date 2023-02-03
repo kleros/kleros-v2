@@ -16,7 +16,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log("deploying to chainId %s with deployer %s", chainId, deployer);
+  console.log("Deploying to chainId %s with deployer %s", chainId, deployer);
 
   const veaSender = await deployments.get("FastBridgeSenderToEthereum");
   const klerosCore = await deployments.get("KlerosCore");

@@ -14,7 +14,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
-  console.log("deploying to chainId %s with deployer %s", HARDHAT_NETWORK, deployer);
+  console.log("Deploying to chainId %s with deployer %s", HARDHAT_NETWORK, deployer);
 
   const klerosCore = await deployments.get("KlerosCore");
 
@@ -25,7 +25,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const nonce = await ethers.provider.getTransactionCount(deployer);
   const homeGatewayAddress = getContractAddress(deployer, nonce + 1);
-  console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
+  console.log("Calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
   const homeChainIdAsBytes32 = hexZeroPad(hexlify(HARDHAT_NETWORK), 32);
   const foreignGateway = await deploy("ForeignGatewayOnEthereum", {
