@@ -35,7 +35,7 @@ export function handleDisputeCreation(event: DisputeCreation): void {
 }
 
 export function handleEvidenceEvent(event: EvidenceEvent): void {
-  const evidenceGroupID = event.params._evidenceGroupID.toHexString();
+  const evidenceGroupID = event.params._evidenceGroupID.toString();
   const evidenceGroup = ensureClassicEvidenceGroup(evidenceGroupID);
   const evidenceIndex = evidenceGroup.nextEvidenceIndex;
   evidenceGroup.nextEvidenceIndex = evidenceGroup.nextEvidenceIndex.plus(ONE);
