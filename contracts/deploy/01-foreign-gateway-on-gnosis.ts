@@ -24,26 +24,29 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   console.log("deploying to chainId %s with deployer %s", chainId, deployer);
 
   const homeNetworks = {
-    1: config.networks.arbitrum,
-    5: config.networks.arbitrumGoerli,
+    GNOSIS_MAINNET: config.networks.arbitrum,
+    GNOSIS_CHIADO: config.networks.arbitrumGoerli,
+    HARDHAT: config.networks.localhost,
   };
 
   // Hack to predict the deployment address on the home chain.
   // TODO: use deterministic deployments
-  const homeChainProvider = new ethers.providers.JsonRpcProvider(homeNetworks[chainId].url);
+  const homeChainProvider = new ethers.providers.JsonRpcProvider(homeNetworks[ForeignChains[chainId]].url);
   let nonce = await homeChainProvider.getTransactionCount(deployer);
-  nonce += 2; // HomeGatewayToEthereum deploy tx will the third tx after this on its home network, so we add two to the current nonce.
-  const homeChainId = (await homeChainProvider.getNetwork()).chainId;
-  const homeChainIdAsBytes32 = hexZeroPad(hexlify(homeChainId), 32);
-  const homeGatewayAddress = getContractAddress(deployer, nonce);
+  const homeGatewayAddress = getContractAddress(deployer, nonce); // HomeGateway deploy tx will be the next tx home network
   console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
   const veaReceiver = await deployments.get("FastBridgeReceiverOnGnosis");
+  console.log("using FastBridgeReceiverOnGnosis at %s", veaReceiver.address);
+
+  const ONE_GWEI = ethers.utils.parseUnits("1", "gwei");
 
   if (!wethByChain.get(chainId)) {
     const weth = await deploy("WETH", {
       from: deployer,
       log: true,
+      maxFeePerGas: ONE_GWEI,
+      maxPriorityFeePerGas: ONE_GWEI,
     });
 
     wethByChain.set(ForeignChains[ForeignChains[chainId]], weth.address);
@@ -51,29 +54,37 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     await deploy("WETHFaucet", {
       from: deployer,
       contract: "Faucet",
-      args: [weth],
+      args: [weth.address],
       log: true,
+      maxFeePerGas: ONE_GWEI,
+      maxPriorityFeePerGas: ONE_GWEI,
     });
   }
 
-  const foreignGateway = await deploy("xForeignGateway", {
+  const wethAddress = wethByChain.get(ForeignChains[ForeignChains[chainId]]);
+  const homeChainId = (await homeChainProvider.getNetwork()).chainId;
+  const homeChainIdAsBytes32 = hexZeroPad(hexlify(homeChainId), 32);
+
+  await deploy("ForeignGatewayOnGnosis", {
     from: deployer,
-    contract: "xForeignGateway",
-    args: [deployer, veaReceiver.address, homeGatewayAddress, homeChainIdAsBytes32, wethByChain[chainId]],
-    gasLimit: 4000000,
+    contract: "ForeignGatewayOnGnosis",
+    args: [deployer, veaReceiver.address, homeGatewayAddress, homeChainIdAsBytes32, wethAddress],
     log: true,
+    maxFeePerGas: ONE_GWEI,
+    maxPriorityFeePerGas: ONE_GWEI,
   });
 
-  await execute(
-    "xForeignGateway",
-    { from: deployer, log: true },
-    "changeCourtJurorFee",
-    0,
-    ethers.utils.parseEther("0.00001") // TODO: fix this from xKlerosLiquid xDAI -> ETH amount
-  );
+  // TODO: disable the gateway until fully initialized with the correct fees OR allow disputeCreators to add funds again if necessary.
+  // await execute(
+  //   "ForeignGatewayOnGnosis",
+  //   { from: deployer, log: true },
+  //   "changeCourtJurorFee",
+  //   0,
+  //   ethers.utils.parseEther("0.00001")
+  // );
 };
 
-deployForeignGateway.tags = ["ForeignChain", "ForeignGatewayOnGnosis"];
+deployForeignGateway.tags = ["ForeignGatewayOnGnosis"];
 deployForeignGateway.skip = async ({ getChainId }) => {
   const chainId = Number(await getChainId());
   return !ForeignChains[chainId];

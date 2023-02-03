@@ -82,6 +82,7 @@ The ones below are optional:
 
 - `ETHERSCAN_API_KEY`: to verify the source of the newly deployed contracts on **Etherscan**.
 - `ARBISCAN_API_KEY`: to verify the source of the newly deployed contracts on **Arbitrum**.
+- `GNOSISSCAN_API_KEY`: to verify the source of the newly deployed contracts on **Gnosis chain**.
 
 #### 1. Update the Constructor Parameters (optional)
 
@@ -100,20 +101,25 @@ yarn hardhat node --tags nothing
 **Shell 2: the deploy script**
 
 ```bash
-yarn deploy --network localhost --tags <Arbitration|VeaMock>
+yarn deploy --network localhost --tags <Arbitration|VeaMock|ForeignGatewayOnEthereum|HomeGateway>
 ```
 
 #### 3. Deploy to Public Testnets
 
 ```bash
+# ArbitrumGoerli to Chiado
+yarn deploy --network arbitrumGoerli --tags Arbitration
+yarn deploy --network chiado --tags ForeignGatewayOnGnosis
+yarn deploy --network chiado --tags KlerosLiquidOnGnosis
+yarn deploy --network arbitrumGoerli --tags HomeGatewayToGnosis
+
 # Goerli
 yarn deploy --network arbitrumGoerli --tags Arbitration
-yarn deploy --network goerli --tags ForeignGateway
-yarn deploy --network arbitrumGoerli --tags HomeGateway
+yarn deploy --network goerli --tags ForeignGatewayOnEthereum
+yarn deploy --network arbitrumGoerli --tags HomeGatewayToEthereum
 ```
 
-The deployed addresses should be output to the screen after the deployment is complete.
-If you miss that, you can always go to the `deployments/<network>` directory and look for the respective file.
+The deployed addresses should be displayed to the screen after the deployment is complete. If you missed them, you can always go to the `deployments/<network>` directory and look for the respective file.
 
 #### Running Test Fixtures
 
@@ -134,7 +140,7 @@ yarn test --network localhost
 This must be done for each network separately.
 
 ```bash
-yarn etherscan-verify --network <arbitrumGoerli|arbitrumRinkeby|arbitrum|goerli|rinkeby|mainnet>
+yarn etherscan-verify --network <arbitrumGoerli|arbitrum|chiado|gnosischain|goerli|mainnet>
 ```
 
 ## Ad-hoc procedures
@@ -153,7 +159,7 @@ done
 
 #### 2/ Import the data to V2 - Local Network
 
-:warning: This script populates only from `*.mainnet.json`, but not from `*.gnosischain.json` at this time.
+:warning: By default this script populates from `*.mainnet.json`. To populate from `*.gnosischain.json`, set the variable `USE_GNOSIS` to true inside [scripts/populateCourts.ts](scripts/populateCourts.ts).
 
 :warning: It is possible to switch to testnet-friendly court parameters by setting the variable `TESTING_PARAMETERS` to true inside [scripts/populateCourts.ts](scripts/populateCourts.ts).
 
@@ -175,6 +181,20 @@ yarn hardhat run scripts/populateCourts.ts --network localhost
 ```bash
 yarn hardhat run scripts/populatePolicyRegistry.ts --network arbitrumGoerli
 yarn hardhat run scripts/populateCourts.ts --network arbitrumGoerli
+```
+
+### Generate deployment artifacts for existing contracts
+
+#### Usage
+
+```bash
+scripts/generateDeploymentArtifact.sh <network> <address>
+```
+
+#### Example: WETH on Gnosis chain
+
+```bash
+scripts/generateDeploymentArtifact.sh gnosischain 0xf8d1677c8a0c961938bf2f9adc3f3cfda759a9d9 > deployments/gnosischain/WETH.json
 ```
 
 ### Push the contracts to a Tenderly project

@@ -61,7 +61,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   });
 };
 
-deployHomeGateway.tags = ["HomeChain", "VeaMock"];
+deployHomeGateway.tags = ["VeaMock"];
 deployHomeGateway.skip = async ({ getChainId }) => HARDHAT_NETWORK !== Number(await getChainId());
 
 export default deployHomeGateway;

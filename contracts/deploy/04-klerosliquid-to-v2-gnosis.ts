@@ -25,7 +25,7 @@ const tokenBridgeByChain = new Map<ForeignChains, string>([
   [ForeignChains.GNOSIS_CHIADO, "0xbb3c86f9918C3C1d83668fA84e79E876d147fFf2"],
 ]);
 
-const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId, config } = hre;
   const { deploy, execute } = deployments;
   const { hexZeroPad, hexlify } = ethers.utils;
@@ -78,13 +78,13 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     tokenBridge
   );
 
-  const xKlerosLiquidToV2 = await deploy("xKlerosLiquidToV2", {
+  const xKlerosLiquidV2 = await deploy("xKlerosLiquidV2", {
     from: deployer,
     log: true,
   });
 
   await execute(
-    "xKlerosLiquidToV2",
+    "xKlerosLiquidV2",
     { from: deployer, log: true },
     "initialize",
     deployer,
@@ -106,10 +106,10 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   });
 };
 
-deployForeignGateway.tags = ["ForeignChain", "KlerosLiquidOnGnosis"];
-deployForeignGateway.skip = async ({ getChainId }) => {
+deployKlerosLiquid.tags = ["KlerosLiquidOnGnosis"];
+deployKlerosLiquid.skip = async ({ getChainId }) => {
   const chainId = Number(await getChainId());
   return !ForeignChains[chainId];
 };
 
-export default deployForeignGateway;
+export default deployKlerosLiquid;
