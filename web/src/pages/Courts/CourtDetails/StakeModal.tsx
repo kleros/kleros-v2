@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import Modal from "react-modal";
 import { BigNumber } from "ethers";
 import { Field, Button } from "@kleros/ui-components-library";
-import { PNK } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/mock/PNK";
+import { PNK } from "@kleros/kleros-v2-contracts/typechain-types/src/token/PNK";
 import { KlerosCore } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/KlerosCore";
 import { useWeb3 } from "hooks/useWeb3";
 import { useConnectedContract } from "hooks/useConnectedContract";
