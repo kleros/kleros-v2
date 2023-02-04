@@ -91,6 +91,7 @@ const LabelArea = styled.div`
 
 const StyledLabel = styled.label`
   color: ${({ theme }) => theme.primaryBlue};
+  cursor: pointer;
 `;
 
 const InputArea = styled(LabelArea)``;
