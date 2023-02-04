@@ -27,7 +27,7 @@ const CourtDetails: React.FC = () => {
       <StyledCard>
         <h1>{policy ? policy.name : "Loading..."}</h1>
         {items && <StyledBreadcrumb items={items} />}
-        <hr className="cumber" />
+        <hr />
         <Stats />
         <hr />
         <StakePanel courtName={policy?.name} />
