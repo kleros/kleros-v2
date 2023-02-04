@@ -33,10 +33,10 @@ const StakePanel: React.FC<{ courtName: string }> = ({
           onClick={() => handleClick(ActionType.withdraw)}
         />
       </TagArea>
-      <div>
+      <TextArea>
         <strong>{`${isStaking ? "Stake" : "Withdraw"} PNK`}</strong>{" "}
         {`${isStaking ? "to join the" : "from"}`} {courtName} court
-      </div>
+      </TextArea>
       <StakeArea>
         <InputDisplay {...{ action, isSending, setIsSending }} />
         <JurorBalanceDisplay />
@@ -62,4 +62,8 @@ const TagArea = styled.div`
 
 const StakeArea = styled(TagArea)`
   flex-direction: column;
+`;
+
+const TextArea = styled.div`
+  color: ${({ theme }) => theme.primaryText};
 `;
