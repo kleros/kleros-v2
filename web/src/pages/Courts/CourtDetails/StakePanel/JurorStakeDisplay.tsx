@@ -17,26 +17,29 @@ const JurorBalanceDisplay = () => {
   const { account } = useWeb3();
   const { data: jurorBalance } = useJurorBalance(account, id);
 
+  const data = [
+    {
+      icon: LawBalanceIcon,
+      name: "My Stake",
+      value: `${format(jurorBalance?.staked)} PNK`,
+    },
+    {
+      icon: LawBalanceIcon,
+      name: "Locked Stake",
+      value: `${format(jurorBalance?.locked)} PNK`,
+    },
+    {
+      icon: LawBalanceIcon,
+      name: "Juror odds",
+      value: "7.80%",
+    },
+  ];
+
   return (
     <Container>
-      <Field
-        icon={LawBalanceIcon}
-        name="My Stake"
-        value={`${format(jurorBalance?.staked)} PNK`}
-        width="fit-content"
-      />
-      <Field
-        icon={LawBalanceIcon}
-        name="Locked Stake"
-        value={`${format(jurorBalance?.locked)} PNK`}
-        width="fit-content"
-      />
-      <Field
-        icon={LawBalanceIcon}
-        name="Juror odds"
-        value="7.80%"
-        width="fit-content"
-      />
+      {data.map(({ icon, name, value }) => (
+        <Field key={name} {...{ icon, name, value, width: "fit-content" }} />
+      ))}
     </Container>
   );
 };
