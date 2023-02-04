@@ -1,17 +1,17 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { BigNumber, utils } from "ethers";
+import { BigNumber } from "ethers";
 import { Button } from "@kleros/ui-components-library";
 
 import { KlerosCore } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/KlerosCore";
 import { PNK } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/mock/PNK";
 
-import { usePNKAllowance } from "hooks/queries/usePNKAllowance";
-import { usePNKBalance } from "hooks/queries/usePNKBalance";
 import { useWeb3 } from "hooks/useWeb3";
 import { useConnectedContract } from "hooks/useConnectedContract";
+import { usePNKAllowance } from "queries/usePNKAllowance";
+import { usePNKBalance } from "queries/usePNKBalance";
+import { useJurorBalance } from "queries/useJurorBalance";
 import { wrapWithToast } from "utils/wrapWithToast";
-import { useJurorBalance } from "~src/hooks/useJurorBalance";
 
 export enum ActionType {
   allowance = "allowance",
@@ -38,8 +38,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const { account } = useWeb3();
   const { data: allowance, mutate } = usePNKAllowance(account);
   const { data: balance } = usePNKBalance(account);
-  const { staked } = useJurorBalance(account, id);
-  const parsedCurrentStake = utils.parseEther(staked);
+  const { data: jurorBalance } = useJurorBalance(account, id);
   const klerosCore = useConnectedContract("KlerosCore") as KlerosCore;
   const pnk = useConnectedContract("PNK") as PNK;
 
@@ -70,13 +69,14 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const handleWithdraw = () => {
     if (typeof id !== "undefined") {
       setIsSending(true);
-      const withdrawAmount = parsedCurrentStake.sub(parsedAmount);
-      wrapWithToast(klerosCore.setStake(id, withdrawAmount))
-        .then(() => {
-          setAmount("");
-          close();
-        })
-        .finally(() => setIsSending(false));
+      const withdrawAmount = jurorBalance?.staked.sub(parsedAmount);
+      withdrawAmount &&
+        wrapWithToast(klerosCore.setStake(id, withdrawAmount))
+          .then(() => {
+            setAmount("");
+            close();
+          })
+          .finally(() => setIsSending(false));
     }
   };
 

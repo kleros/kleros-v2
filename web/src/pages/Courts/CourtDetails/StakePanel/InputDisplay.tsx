@@ -7,8 +7,8 @@ import { Button, Field } from "@kleros/ui-components-library";
 import { useWeb3 } from "hooks/useWeb3";
 import { useConnect } from "hooks/useConnect";
 import { useParsedAmount } from "hooks/useParsedAmount";
-import { usePNKBalance } from "hooks/queries/usePNKBalance";
-import { useJurorBalance } from "hooks/useJurorBalance";
+import { usePNKBalance } from "queries/usePNKBalance";
+import { useJurorBalance } from "queries/useJurorBalance";
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
 
 interface IInputDisplay {
@@ -29,7 +29,8 @@ const InputDisplay: React.FC<IInputDisplay> = ({
   const { account } = useWeb3();
   const { data: balance } = usePNKBalance(account);
   const parsedBalance = utils.formatEther(balance || 0);
-  const { staked } = useJurorBalance(account, id);
+  const { data: jurorBalance } = useJurorBalance(account, id);
+  const parsedStake = utils.formatEther(jurorBalance?.staked || 0);
   const { activate, connecting } = useConnect();
   const isStaking = action === ActionType.stake;
 
@@ -39,7 +40,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
         <label>{`Available ${parsedBalance} PNK`}</label>
         <StyledLabel
           onClick={() => {
-            const amount = isStaking ? parsedBalance : staked;
+            const amount = isStaking ? parsedBalance : parsedStake;
             setAmount(amount);
           }}
         >
