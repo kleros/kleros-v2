@@ -87,7 +87,7 @@ const Container = styled.div`
 
 const TextContainer = styled.div`
   width: 100%;
-  padding: 0 12px;
+  padding: 12px 0;
 `;
 
 const StyledTabs = styled(Tabs)`
