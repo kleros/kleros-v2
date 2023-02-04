@@ -51,7 +51,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
       pnk.increaseAllowance(klerosCore.address, parsedAmount.sub(allowance!))
     ).finally(() => {
       setIsSending(false);
-      mutate();
+      mutate(undefined, true);
     });
   };
 
