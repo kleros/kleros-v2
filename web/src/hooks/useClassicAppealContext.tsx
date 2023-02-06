@@ -75,16 +75,28 @@ export const ClassicAppealProvider: React.FC<{
   return (
     <LoserSideCountdownContext.Provider value={loserSideCountdown}>
       <SelectedOptionContext.Provider
-        value={{ selectedOption, setSelectedOption }}
+        value={useMemo(
+          () => ({ selectedOption, setSelectedOption }),
+          [selectedOption, setSelectedOption]
+        )}
       >
         <FundingContext.Provider
-          value={{
-            winningChoice,
-            paidFees,
-            loserRequiredFunding,
-            winnerRequiredFunding,
-            fundedChoices,
-          }}
+          value={useMemo(
+            () => ({
+              winningChoice,
+              paidFees,
+              loserRequiredFunding,
+              winnerRequiredFunding,
+              fundedChoices,
+            }),
+            [
+              winningChoice,
+              paidFees,
+              loserRequiredFunding,
+              winnerRequiredFunding,
+              fundedChoices,
+            ]
+          )}
         >
           <OptionsContext.Provider value={options}>
             {children}
