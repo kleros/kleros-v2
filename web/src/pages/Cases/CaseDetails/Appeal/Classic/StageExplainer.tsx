@@ -1,60 +1,31 @@
-import React, { useMemo } from "react";
+import React from "react";
 import styled from "styled-components";
 import { Box } from "@kleros/ui-components-library";
-import { useCountdown } from "hooks/useCountdown";
-import { ONE_BASIS_POINT } from "consts/index";
 import { secondsToDayHourMinute } from "utils/date";
 import HourglassIcon from "svgs/icons/hourglass.svg";
 
 interface IStageExplainer {
-  lastPeriodChange: string;
-  appealPeriodDuration: string;
-  loserTimeMultiplier: string;
+  loserSideCountdown: number | undefined;
 }
 
-const StageExplainer: React.FC<IStageExplainer> = ({
-  lastPeriodChange,
-  appealPeriodDuration,
-  loserTimeMultiplier,
-}) => {
-  const deadline = useMemo(
-    () =>
-      getDeadline(lastPeriodChange, appealPeriodDuration, loserTimeMultiplier),
-    [lastPeriodChange, appealPeriodDuration, loserTimeMultiplier]
-  );
-  const timeLeft = useCountdown(deadline);
-  return (
-    <StyledBox>
-      <CountdownLabel>
-        <HourglassIcon />
-        {typeof timeLeft !== "undefined" && secondsToDayHourMinute(timeLeft)}
-      </CountdownLabel>
-      <div>
-        <label>
-          Losing options can only be funded <small>before</small> the deadline.
-        </label>
-        <label>
-          If no losing option is <small>fully funded</small> in time, the jury
-          decision is maintained.
-        </label>
-      </div>
-    </StyledBox>
-  );
-};
-
-const getDeadline = (
-  lastPeriodChange: string,
-  appealPeriodDuration: string,
-  loserTimeMultiplier: string
-): number => {
-  const parsedLastPeriodChange = parseInt(lastPeriodChange, 10);
-  const parsedAppealPeriodDuration = parseInt(appealPeriodDuration, 10);
-  const parsedLoserTimeMultiplier = parseInt(loserTimeMultiplier, 10);
-  const loserAppealPeriodDuration =
-    (parsedAppealPeriodDuration * parsedLoserTimeMultiplier) /
-    ONE_BASIS_POINT.toNumber();
-  return loserAppealPeriodDuration + parsedLastPeriodChange;
-};
+const StageExplainer: React.FC<IStageExplainer> = ({ loserSideCountdown }) => (
+  <StyledBox>
+    <CountdownLabel>
+      <HourglassIcon />
+      {typeof loserSideCountdown !== "undefined" &&
+        secondsToDayHourMinute(loserSideCountdown)}
+    </CountdownLabel>
+    <div>
+      <label>
+        Losing options can only be funded <small>before</small> the deadline.
+      </label>
+      <label>
+        If no losing option is <small>fully funded</small> in time, the jury
+        decision is maintained.
+      </label>
+    </div>
+  </StyledBox>
+);
 
 const StyledBox = styled(Box)`
   border-radius: 3px;

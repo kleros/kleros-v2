@@ -11,6 +11,7 @@ interface IOptionCard extends React.HTMLAttributes<HTMLDivElement> {
   required: BigNumber;
   winner?: boolean;
   selected?: boolean;
+  canBeSelected?: boolean;
 }
 
 const OptionCard: React.FC<IOptionCard> = ({
@@ -19,6 +20,7 @@ const OptionCard: React.FC<IOptionCard> = ({
   required,
   winner,
   selected,
+  canBeSelected = true,
   ...props
 }) => {
   const [ref, { width }] = useMeasure();
@@ -32,7 +34,7 @@ const OptionCard: React.FC<IOptionCard> = ({
             Jury decision - {winner ? "Winner" : "Loser"}
           </WinnerLabel>
         </div>
-        <StyledRadio label="" checked={selected} />
+        {canBeSelected && <StyledRadio label="" checked={selected} />}
       </TopContainer>
       <LabelContainer>
         <label>

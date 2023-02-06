@@ -32,7 +32,10 @@ const CaseDetails: React.FC = () => {
           />
           <Route path="evidence" element={<Evidence {...{ arbitrable }} />} />
           <Route path="voting" element={<Voting {...{ arbitrable }} />} />
-          <Route path="appeal" element={<Appeal />} />
+          <Route
+            path="appeal"
+            element={<Appeal {...{ currentPeriodIndex }} />}
+          />
           <Route path="*" element={<Navigate to="overview" />} />
         </Routes>
       </StyledCard>
