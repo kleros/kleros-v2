@@ -7,7 +7,9 @@ import { useJurorBalance } from "queries/useJurorBalance";
 import { useWeb3 } from "hooks/useWeb3";
 
 import Field from "components/Field";
-import LawBalanceIcon from "svgs/icons/pnk.svg";
+import PNKIcon from "svgs/icons/pnk.svg";
+import LockerIcon from "svgs/icons/locker.svg";
+import DiceIcon from "svgs/icons/dice.svg";
 
 const format = (value: BigNumber | undefined) =>
   value !== undefined ? utils.formatEther(value) : "0";
@@ -19,17 +21,17 @@ const JurorBalanceDisplay = () => {
 
   const data = [
     {
-      icon: LawBalanceIcon,
+      icon: PNKIcon,
       name: "My Stake",
       value: `${format(jurorBalance?.staked)} PNK`,
     },
     {
-      icon: LawBalanceIcon,
+      icon: LockerIcon,
       name: "Locked Stake",
       value: `${format(jurorBalance?.locked)} PNK`,
     },
     {
-      icon: LawBalanceIcon,
+      icon: DiceIcon,
       name: "Juror odds",
       value: "7.80%",
     },
@@ -38,7 +40,7 @@ const JurorBalanceDisplay = () => {
   return (
     <Container>
       {data.map(({ icon, name, value }) => (
-        <Field key={name} {...{ icon, name, value, width: "fit-content" }} />
+        <Field key={name} {...{ icon, name, value }} />
       ))}
     </Container>
   );
@@ -48,6 +50,8 @@ export default JurorBalanceDisplay;
 
 const Container = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  margin-top: 24px;
+  gap: 8px;
+  margin-top: 12px;
 `;

@@ -48,7 +48,7 @@ const StakePanel: React.FC<{ courtName: string }> = ({
 export default StakePanel;
 
 const Container = styled.div`
-  width: 50%;
+  width: 100%;
   margin-top: 32px;
   display: flex;
   flex-direction: column;

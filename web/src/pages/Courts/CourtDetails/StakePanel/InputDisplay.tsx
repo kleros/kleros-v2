@@ -94,4 +94,9 @@ const StyledLabel = styled.label`
   cursor: pointer;
 `;
 
-const InputArea = styled(LabelArea)``;
+const InputArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+`;

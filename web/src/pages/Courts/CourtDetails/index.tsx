@@ -45,7 +45,7 @@ const StyledCard = styled(Card)`
   margin-top: 16px;
   width: 100%;
   height: auto;
-  padding: 32px;
+  padding: 16px;
   min-height: 100px;
 `;
 
