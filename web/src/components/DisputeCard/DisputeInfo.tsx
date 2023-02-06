@@ -1,55 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 import { Periods } from "consts/periods";
 import LawBalanceIcon from "svgs/icons/law-balance.svg";
 import BookmarkIcon from "svgs/icons/bookmark.svg";
 import PileCoinsIcon from "svgs/icons/pile-coins.svg";
 import CalendarIcon from "svgs/icons/calendar.svg";
-
-const FieldContainer = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  .value {
-    flex-grow: 1;
-    text-align: end;
-    color: ${({ theme }) => theme.primaryText};
-  }
-  svg {
-    fill: ${({ theme }) => theme.secondaryPurple};
-    margin-right: 8px;
-    width: 15px;
-  }
-  .link {
-    color: ${({ theme }) => theme.primaryBlue};
-    :hover {
-      cursor: pointer;
-    }
-  }
-`;
-
-interface IField {
-  icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
-  name: string;
-  value: string;
-  link?: string;
-}
-
-const Field: React.FC<IField> = ({ icon: Icon, name, value, link }) => (
-  <FieldContainer>
-    {<Icon />}
-    <label>{name}:</label>
-    {link ? (
-      <Link className="link value" to={link}>
-        {value}
-      </Link>
-    ) : (
-      <label className="value">{value}</label>
-    )}
-  </FieldContainer>
-);
+import Field from "../Field";
 
 const Container = styled.div`
   display: flex;

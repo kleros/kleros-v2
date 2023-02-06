@@ -14,12 +14,11 @@ import MinStake from "svgs/icons/min-stake.svg";
 const StyledCard = styled.div`
   width: auto;
   height: fit-content;
-  padding: 16px 32px;
-  display: flex;
-  flex-direction: column;
+  margin: 48px 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   gap: 32px;
-  align-items: flex-start;
-  justify-content: space-between;
 `;
 
 interface IStat {

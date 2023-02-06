@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 import { Card } from "@kleros/ui-components-library";
 import AttachmentIcon from "svgs/icons/attachment.svg";
-import { useIPFSQuery } from "hooks/useIPFSCloudflare";
+import { useIPFSQuery } from "hooks/useIPFSQuery";
 import { shortenAddress } from "utils/shortenAddress";
 
 interface IEvidenceCard {

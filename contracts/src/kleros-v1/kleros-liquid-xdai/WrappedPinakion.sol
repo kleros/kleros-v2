@@ -79,7 +79,6 @@ contract WrappedPinakion is Initializable {
         decimals = 18;
         xPinakion = _xPinakion;
         tokenBridge = _tokenBridge;
-
         controller = msg.sender;
     }
 

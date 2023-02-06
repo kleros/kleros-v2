@@ -10,6 +10,7 @@ import {
   NewPeriod,
   StakeSet,
   TokenAndETHShift as TokenAndETHShiftEvent,
+  Ruling,
 } from "../generated/KlerosCore/KlerosCore";
 import { ZERO, ONE } from "./utils";
 import { createCourtFromEvent, getFeeForJuror } from "./entities/Court";
@@ -24,6 +25,8 @@ import {
   updatePaidETH,
   updateStakedPNK,
   updateRedistributedPNK,
+  updateCasesRuled,
+  updateCasesVoting,
   getDelta,
 } from "./datapoint";
 import { ensureUser } from "./entities/User";
@@ -35,6 +38,7 @@ import { createDrawFromEvent } from "./entities/Draw";
 import { createTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
 import { Court, Dispute } from "../generated/schema";
+import { BigInt } from "@graphprotocol/graph-ts";
 
 function getPeriodName(index: i32): string {
   const periodArray = ["evidence", "commit", "vote", "appeal", "execution"];
@@ -95,9 +99,23 @@ export function handleNewPeriod(event: NewPeriod): void {
   const disputeID = event.params._disputeID.toString();
   const dispute = Dispute.load(disputeID);
   if (!dispute) return;
-  dispute.period = getPeriodName(event.params._period);
+  const newPeriod = getPeriodName(event.params._period);
+  if (dispute.period === "vote") {
+    updateCasesVoting(BigInt.fromI32(-1), event.block.timestamp);
+  } else if (newPeriod === "vote") {
+    updateCasesVoting(ONE, event.block.timestamp);
+  }
+  dispute.period = newPeriod;
   dispute.lastPeriodChange = event.block.timestamp;
   dispute.save();
+}
+
+export function handleRuling(event: Ruling): void {
+  const disputeID = event.params._disputeID.toString();
+  const dispute = Dispute.load(disputeID);
+  if (!dispute) return;
+  dispute.ruled = true;
+  updateCasesRuled(ONE, event.block.timestamp);
 }
 
 export function handleAppealDecision(event: AppealDecision): void {

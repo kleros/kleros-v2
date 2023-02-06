@@ -18,7 +18,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * Foreign Gateway
  * Counterpart of `HomeGateway`
  */
-contract xForeignGateway is IForeignGateway {
+contract ForeignGatewayOnGnosis is IForeignGateway {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
