@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { BigNumber } from "ethers";
 import OptionCard from "../../OptionCard";
@@ -14,6 +14,10 @@ const StageOne: React.FC = () => {
     useFundingContext();
   const options = useOptionsContext();
   const { selectedOption, setSelectedOption } = useSelectedOptionContext();
+  useEffect(() => {
+    if (notUndefined(winningChoice))
+      setSelectedOption(parseInt(winningChoice!));
+  });
   return (
     <Container>
       {notUndefined([winningChoice, fundedChoices, paidFees]) &&
@@ -21,8 +25,7 @@ const StageOne: React.FC = () => {
       !fundedChoices?.includes(winningChoice!) ? (
         <>
           <label>
-            Loser deadline has finalized, you can only fund the previous round
-            winner.
+            Loser deadline has finalized, you can only fund the current winner.
           </label>
           <OptionsContainer>
             <OptionCard
@@ -35,6 +38,7 @@ const StageOne: React.FC = () => {
                   : BigNumber.from(0)
               }
               required={winnerRequiredFunding!}
+              canBeSelected={false}
               onClick={() => setSelectedOption(parseInt(winningChoice!, 10))}
             />
           </OptionsContainer>
