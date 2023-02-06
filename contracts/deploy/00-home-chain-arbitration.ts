@@ -27,7 +27,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
+  console.log("Deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   if (chainId === HomeChains.HARDHAT) {
     pnkByChain.set(
@@ -79,6 +79,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const minStake = BigNumber.from(10).pow(20).mul(2);
   const alpha = 10000;
   const feeForJuror = BigNumber.from(10).pow(17);
+  const sortitionSumTreeK = 3;
   const klerosCore = await deploy("KlerosCore", {
     from: deployer,
     libraries: {
@@ -93,7 +94,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       false,
       [minStake, alpha, feeForJuror, 3], // minStake, alpha, feeForJuror, jurorsForCourtJump
       [0, 0, 0, 0], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      3,
+      sortitionSumTreeK,
     ],
     log: true,
   });
@@ -111,7 +112,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   });
 };
 
-deployArbitration.tags = ["HomeChain", "Arbitration"];
+deployArbitration.tags = ["Arbitration"];
 deployArbitration.skip = async ({ getChainId }) => {
   const chainId = Number(await getChainId());
   return !HomeChains[chainId];
