@@ -55,7 +55,7 @@ const Overview: React.FC<{ arbitrable?: string; courtID?: string }> = ({
         <LinkContainer>
           {metaEvidence?.fileURI && (
             <StyledA
-              href={`https://ipfs.kleros.io${metaEvidence.fileURI}`}
+              href={`https://cloudflare-ipfs.com${metaEvidence.fileURI}`}
               target="_blank"
               rel="noreferrer"
             >
@@ -65,7 +65,7 @@ const Overview: React.FC<{ arbitrable?: string; courtID?: string }> = ({
           )}
           {courtPolicy && (
             <StyledA
-              href={`https://ipfs.kleros.io${courtPolicyURI}`}
+              href={`https://cloudflare-ipfs.com${courtPolicyURI}`}
               target="_blank"
               rel="noreferrer"
             >
