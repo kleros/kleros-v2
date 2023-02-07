@@ -88,7 +88,7 @@ const getDeadline = (
     );
     return parsedLastPeriodChange + parsedTimeCurrentPeriod;
   }
-  return undefined;
+  return 0;
 };
 
 const TimeLineContainer = styled(Box)`
