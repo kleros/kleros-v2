@@ -14,7 +14,7 @@ const StakePanel: React.FC<{ courtName: string }> = ({
   const [action, setAction] = useState<ActionType>(ActionType.stake);
 
   const handleClick = (action: ActionType) => {
-    setIsActive((prev) => !prev);
+    setIsActive(action === ActionType.stake);
     setAction(action);
   };
 

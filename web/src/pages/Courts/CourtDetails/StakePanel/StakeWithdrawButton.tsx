@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { BigNumber } from "ethers";
 import { Button } from "@kleros/ui-components-library";
@@ -12,6 +12,7 @@ import { usePNKAllowance } from "queries/usePNKAllowance";
 import { usePNKBalance } from "queries/usePNKBalance";
 import { useJurorBalance } from "queries/useJurorBalance";
 import { wrapWithToast } from "utils/wrapWithToast";
+import { notUndefined } from "utils/index";
 
 export enum ActionType {
   allowance = "allowance",
@@ -45,10 +46,18 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const isStaking = action === ActionType.stake;
   const isAllowance = isStaking && allowance && allowance.lt(parsedAmount);
 
+  const targetStake = useMemo(() => {
+    if (action === ActionType.stake || action === ActionType.allowance) {
+      return jurorBalance?.staked.add(parsedAmount);
+    } else {
+      return jurorBalance?.staked.sub(parsedAmount);
+    }
+  }, [action, jurorBalance, parsedAmount]);
+
   const handleAllowance = () => {
     setIsSending(true);
     wrapWithToast(
-      pnk.increaseAllowance(klerosCore.address, parsedAmount.sub(allowance!))
+      pnk.increaseAllowance(klerosCore.address, targetStake!.sub(allowance!))
     ).finally(() => {
       setIsSending(false);
       mutate(undefined, true);
@@ -58,7 +67,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const handleStake = () => {
     if (typeof id !== "undefined") {
       setIsSending(true);
-      wrapWithToast(klerosCore.setStake(id, parsedAmount))
+      wrapWithToast(klerosCore.setStake(id, targetStake!))
         .then(() => {
           setAmount("");
         })
@@ -69,46 +78,45 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const handleWithdraw = () => {
     if (typeof id !== "undefined") {
       setIsSending(true);
-      const withdrawAmount = jurorBalance?.staked.sub(parsedAmount);
-      withdrawAmount &&
-        wrapWithToast(klerosCore.setStake(id, withdrawAmount))
-          .then(() => {
-            setAmount("");
-            close();
-          })
-          .finally(() => setIsSending(false));
+      wrapWithToast(klerosCore.setStake(id, targetStake!))
+        .then(() => {
+          setAmount("");
+          close();
+        })
+        .finally(() => setIsSending(false));
     }
   };
 
   const buttonProps = {
     [ActionType.allowance]: {
       text: "Allow PNK",
-      disabled:
-        !balance ||
-        isSending ||
-        parsedAmount.eq(BigNumber.from(0)) ||
-        parsedAmount.gt(balance),
+      checkDisabled: () => !balance || targetStake!.gt(balance),
       onClick: handleAllowance,
     },
     [ActionType.stake]: {
       text: "Stake",
-      disabled: isSending || parsedAmount.eq(BigNumber.from(0)),
+      checkDisabled: () => false,
       onClick: handleStake,
     },
     [ActionType.withdraw]: {
       text: "Withdraw",
-      disabled: isSending || parsedAmount.eq(BigNumber.from(0)),
+      checkDisabled: () => false,
       onClick: handleWithdraw,
     },
   };
 
-  const { text, disabled, onClick } =
+  const { text, checkDisabled, onClick } =
     buttonProps[isAllowance ? ActionType.allowance : action];
   return (
     <Button
       text={text}
       isLoading={isSending}
-      disabled={disabled}
+      disabled={
+        isSending ||
+        parsedAmount.eq(BigNumber.from(0)) ||
+        !notUndefined(targetStake) ||
+        checkDisabled()
+      }
       onClick={onClick}
     />
   );
