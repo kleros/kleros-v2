@@ -23,7 +23,7 @@ export const useGetMetaEvidence = (
           metaEvidenceFilter
         );
         return fetch(
-          `https://ipfs.kleros.io${metaEvidenceEvents[0].args?._evidence}`
+          `https://cloudflare-ipfs.com${metaEvidenceEvents[0].args?._evidence}`
         ).then((res) => res.json());
       } else throw Error;
     }
