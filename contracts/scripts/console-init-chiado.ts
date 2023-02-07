@@ -20,12 +20,16 @@ const createDispute = async () => {
   const choices = 2;
   const extraData =
     "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003";
+  const metaEvidenceID = 2;
+  const evidenceID = ethers.BigNumber.from(ethers.utils.randomBytes(32));
   const feeForJuror = await gateway.arbitrationCost(extraData);
   var tx;
   try {
     tx = await (await weth.increaseAllowance(arbitrable.address, feeForJuror, options)).wait();
     console.log("txID increateAllowance: %s", tx?.transactionHash);
-    tx = await (await arbitrable.createDispute(choices, extraData, 0, feeForJuror, options)).wait();
+    tx = await (
+      await arbitrable.createDispute(choices, extraData, metaEvidenceID, evidenceID, feeForJuror, options)
+    ).wait();
     console.log("txID createDispute: %s", tx?.transactionHash);
   } catch (e) {
     if (typeof e === "string") {
@@ -35,9 +39,13 @@ const createDispute = async () => {
     }
   } finally {
     if (tx) {
-      const filter = gateway.filters.DisputeCreation();
-      const logs = await gateway.queryFilter(filter, tx.blockNumber, tx.blockNumber);
+      var filter = gateway.filters.DisputeCreation();
+      var logs = await gateway.queryFilter(filter, tx.blockNumber, tx.blockNumber);
       console.log("Gateway DisputeID: %s", logs[0]?.args?._disputeID);
+
+      filter = gateway.filters.OutgoingDispute();
+      logs = await gateway.queryFilter(filter, tx.blockNumber, tx.blockNumber);
+      console.log("Outgoing Dispute: %O", logs[0]?.args);
     }
   }
 };

@@ -16,6 +16,44 @@ console.log("core phase: %s", await core.phase());
 console.log("disputekit phase: %s", await disputeKit.phase());
 console.log("freezingPhase timeout? %s", await core.freezingPhaseTimeout());
 
+const relayCreateDispute = async (blockHash, foreignDisputeID) => {
+  // const blockHash = "0xda3c4d74eeb199345b771748a930a069b172dac9f4b50697f40803581eb13990";
+  // const foreignDisputeID = 6;
+  const extraData =
+    "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003";
+  const fee = await core.arbitrationCost(extraData);
+  var tx;
+  try {
+    tx = await (
+      await gateway.relayCreateDispute(
+        10200,
+        blockHash,
+        foreignDisputeID,
+        2,
+        extraData,
+        "0x34E520dc1d2Db660113b64724e14CEdCD01Ee879",
+        {
+          value: fee,
+          ...options,
+        }
+      )
+    ).wait();
+    console.log("txID: %s", tx?.transactionHash);
+  } catch (e) {
+    if (typeof e === "string") {
+      console.log("Error: %s", e);
+    } else if (e instanceof Error) {
+      console.log("%O", e);
+    }
+  } finally {
+    if (tx) {
+      const filter = core.filters.DisputeCreation();
+      const logs = await core.queryFilter(filter, tx.blockNumber, tx.blockNumber);
+      console.log("DisputeID: %s", logs[0]?.args?._disputeID);
+    }
+  }
+};
+
 const createDisputeOnResolver = async () => {
   const choices = 2;
   const nbOfJurors = 3;
@@ -127,8 +165,10 @@ const isRngReady = async () => {
   const n = await rng.randomNumbers(requesterID);
   if (n.eq(0)) {
     console.log("rng is NOT ready.");
+    return false;
   } else {
     console.log("rng is ready: %s", n.toString());
+    return true;
   }
 };
 
@@ -158,3 +198,16 @@ const executeRuling = async () => {
     console.log("Ruling: %d, Tied? %s, Overridden? %s", ruling.ruling, ruling.tied, ruling.overridden);
   }
 };
+
+const toVoting = async () => {
+  console.log("Running for disputeID %d", disputeID);
+  var ready = await passPhaseCore().then(passPhaseDk).then(passPhaseDk).then(isRngReady);
+  while (!ready) {
+    console.log("Waiting for RNG to be ready...", disputeID);
+    ready = await isRngReady();
+  }
+  console.log("RNG is ready, drawing jurors.", disputeID);
+  await drawJurors().then(passPhaseDk).then(passPhaseCore).then(passPeriod);
+};
+
+console.log("disputeID not set!");
