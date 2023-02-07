@@ -7,12 +7,20 @@ import { useConnectedContract } from "hooks/useConnectedContract";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { useETHBalance } from "hooks/queries/useETHBalance";
+import {
+  useLoserSideCountdownContext,
+  useSelectedOptionContext,
+  useFundingContext,
+} from "hooks/useClassicAppealContext";
+import { notUndefined } from "utils/index";
 
-interface IFund {
-  selectedOption?: number;
-}
-
-const Fund: React.FC<IFund> = ({ selectedOption }) => {
+const Fund: React.FC = () => {
+  const loserSideCountdown = useLoserSideCountdownContext();
+  const { fundedChoices, winningChoice } = useFundingContext();
+  const needFund =
+    notUndefined([loserSideCountdown, fundedChoices]) &&
+    (loserSideCountdown! > 0 ||
+      (fundedChoices!.length > 0 && !fundedChoices?.includes(winningChoice!)));
   const { id } = useParams();
   const { data: balance } = useETHBalance();
   const [amount, setAmount] = useState("");
@@ -21,7 +29,8 @@ const Fund: React.FC<IFund> = ({ selectedOption }) => {
   const disputeKitClassic = useConnectedContract(
     "DisputeKitClassic"
   ) as DisputeKitClassic;
-  return (
+  const { selectedOption } = useSelectedOptionContext();
+  return needFund ? (
     <div>
       <label>How much ETH do you want to contribute?</label>
       <div>
@@ -57,6 +66,8 @@ const Fund: React.FC<IFund> = ({ selectedOption }) => {
         />
       </div>
     </div>
+  ) : (
+    <></>
   );
 };
 
