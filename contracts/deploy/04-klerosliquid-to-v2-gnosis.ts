@@ -102,14 +102,31 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
   );
 
   // const xKlerosLiquidV2 = await deployments.get("xKlerosLiquidV2");
-  const metaEvidenceUri = "/ipfs/bafkreifc3eq5avyk3fgyvor67f3f6nk5rbmsmhszsi7o7o6fggfip54sea"; // PoH registration
   await deploy("ArbitrableExample", {
     from: deployer,
-    args: [xKlerosLiquidV2.address, metaEvidenceUri, weth.address],
+    args: [
+      xKlerosLiquidV2.address,
+      0,
+      "/ipfs/bafkreifteme6tusnjwyzajk75fyvzdmtyycxctf7yhfijb6rfigz3n4lvq", // PoH registration
+      weth.address,
+    ],
     log: true,
     maxFeePerGas: ONE_GWEI,
     maxPriorityFeePerGas: ONE_GWEI,
   });
+
+  await execute(
+    "ArbitrableExample",
+    {
+      from: deployer,
+      log: true,
+      maxFeePerGas: ONE_GWEI,
+      maxPriorityFeePerGas: ONE_GWEI,
+    },
+    "changeMetaEvidence",
+    1,
+    "/ipfs/bafkreibiuxwejijwg4pxco7fqszawcwmpt26itbdxeqgh7cvpeuwtmlhoa" // PoH clearing
+  );
 };
 
 // TODO: mock deployment on the hardhat network

@@ -20,25 +20,26 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
     address public immutable governor;
     IArbitrator public arbitrator; // Arbitrator is set in constructor and never changed.
     ERC20 public immutable weth; // The WETH token.
-    uint256 public metaEvidenceID;
     mapping(uint256 => uint256) public externalIDtoLocalID; // Maps external (arbitrator side) dispute IDs to local dispute IDs.
     DisputeStruct[] public disputes; // Stores the disputes' info. disputes[disputeID].
 
     /** @dev Constructor
      *  @param _arbitrator The arbitrator to rule on created disputes.
+     *  @param _metaEvidenceID Unique identifier of meta-evidence.
      *  @param _metaEvidence The URI of the meta evidence object for evidence submissions requests.
      */
-    constructor(IArbitrator _arbitrator, string memory _metaEvidence, ERC20 _weth) {
+    constructor(IArbitrator _arbitrator, uint256 _metaEvidenceID, string memory _metaEvidence, ERC20 _weth) {
         governor = msg.sender;
         arbitrator = _arbitrator;
         weth = _weth;
-        emit MetaEvidence(metaEvidenceID, _metaEvidence);
+        emit MetaEvidence(_metaEvidenceID, _metaEvidence);
     }
 
     /** @dev TRUSTED. Calls createDispute function of the specified arbitrator to create a dispute.
         Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
      *  @param _numberOfRulingOptions Number of ruling options. Must be greater than 1, otherwise there is nothing to choose from.
      *  @param _arbitratorExtraData Extra data for the arbitrator.
+     *  @param _metaEvidenceID Unique identifier of meta-evidence.
      *  @param _evidenceGroupID Unique identifier of the evidence group that is linked to this dispute.
      *  @param _feeInWeth Amount of fees in WETH for the arbitrator.
      *  @return disputeID Dispute id (on arbitrator side) of the dispute created.
@@ -46,6 +47,7 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
     function createDispute(
         uint256 _numberOfRulingOptions,
         bytes calldata _arbitratorExtraData,
+        uint256 _metaEvidenceID,
         uint256 _evidenceGroupID,
         uint256 _feeInWeth
     ) external payable returns (uint256 disputeID) {
@@ -59,7 +61,7 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
         disputeID = arbitrator.createDispute(_numberOfRulingOptions, _arbitratorExtraData);
         externalIDtoLocalID[disputeID] = localDisputeID;
 
-        emit Dispute(arbitrator, disputeID, metaEvidenceID, _evidenceGroupID);
+        emit Dispute(arbitrator, disputeID, _metaEvidenceID, _evidenceGroupID);
     }
 
     /** @dev To be called by the arbitrator of the dispute, to declare the winning ruling.
@@ -79,9 +81,9 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
         emit Ruling(IArbitrator(msg.sender), _externalDisputeID, dispute.ruling);
     }
 
-    function changeMetaEvidence(string memory _metaEvidence) external {
+    function changeMetaEvidence(uint256 _metaEvidenceID, string memory _metaEvidence) external {
         require(msg.sender == governor, "Not authorized: governor only.");
-        emit MetaEvidence(++metaEvidenceID, _metaEvidence);
+        emit MetaEvidence(_metaEvidenceID, _metaEvidence);
     }
 
     function changeArbitrator(IArbitrator _arbitrator) external {
