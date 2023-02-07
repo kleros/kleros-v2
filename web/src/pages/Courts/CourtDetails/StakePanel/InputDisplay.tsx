@@ -55,6 +55,12 @@ const InputDisplay: React.FC<IInputDisplay> = ({
             setAmount(e.target.value);
           }}
           placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
+          message={
+            isStaking
+              ? "You need two transactions, one to increase allowance, the other to stake."
+              : undefined
+          }
+          variant="info"
         />
         {account ? (
           <StakeWithdrawButton
@@ -82,6 +88,7 @@ export default InputDisplay;
 
 const StyledField = styled(Field)`
   width: 100%;
+  height: fit-content;
 `;
 
 const LabelArea = styled.div`
