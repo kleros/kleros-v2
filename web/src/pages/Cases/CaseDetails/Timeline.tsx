@@ -55,7 +55,7 @@ const useTimeline = (
   const getSubitems = (index: number): string[] => {
     if (typeof countdown !== "undefined" && dispute) {
       if (index < currentItemIndex) {
-        return ["Done!"];
+        return [];
       } else if (index === 3) {
         return currentItemIndex === 3 ? ["Pending"] : [];
       } else if (index === currentItemIndex) {
