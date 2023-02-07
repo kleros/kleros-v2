@@ -11,7 +11,7 @@ export const useGetMetaEvidence = (
   //   : undefined;
   const arbitrable = useConnectedContract(
     "IMetaEvidence",
-    "0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C",
+    "0xc0fcc96BFd78e36550FCaB434A9EE1210B57225b",
     10200
   );
   return useSWRImmutable(
