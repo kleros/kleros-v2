@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { utils } from "ethers";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
@@ -32,6 +32,13 @@ const Overview: React.FC<{ arbitrable?: string; courtID?: string }> = ({
           <h3>{metaEvidence?.question}</h3>
           <p>{metaEvidence?.description}</p>
         </QuestionAndDescription>
+        <a
+          href="https://app.proofofhumanity.id/profile/0x00de4b13153673bcae2616b67bf822500d325fc3"
+          target="_blank"
+          rel="noreferrer"
+        >
+          View profile on Proof of Humanity
+        </a>
         <VotingOptions>
           {metaEvidence && <h3>Voting Options</h3>}
           {metaEvidence?.rulingOptions?.titles?.map(

@@ -1,5 +1,5 @@
 import { injected } from "connectors/injected";
-import { SUPPORTED_CHAINS } from "consts/supportedChains";
+import { SUPPORTED_CHAINS } from "consts/chains";
 
 const NOT_ADDED_CHAIN_CODE = 4902;
 

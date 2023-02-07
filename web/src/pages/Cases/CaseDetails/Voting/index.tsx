@@ -9,7 +9,6 @@ const Voting: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
   const { account } = useWeb3();
   const { id } = useParams();
   const { data } = useDrawQuery(account?.toLowerCase(), id);
-  console.log(data?.draws.length);
   return data && data.draws?.length > 0 ? (
     <Binary
       {...{ arbitrable }}

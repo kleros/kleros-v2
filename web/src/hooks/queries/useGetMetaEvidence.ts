@@ -1,15 +1,19 @@
 import useSWRImmutable from "swr/immutable";
-import { utils } from "ethers";
+// import { utils } from "ethers";
 import { useConnectedContract } from "hooks/useConnectedContract";
 
 export const useGetMetaEvidence = (
   disputeID?: string,
   arbitrableAddress?: string
 ) => {
-  const formattedAddress = arbitrableAddress
-    ? utils.getAddress(arbitrableAddress)
-    : undefined;
-  const arbitrable = useConnectedContract("IMetaEvidence", formattedAddress);
+  // const formattedAddress = arbitrableAddress
+  //   ? utils.getAddress(arbitrableAddress)
+  //   : undefined;
+  const arbitrable = useConnectedContract(
+    "IMetaEvidence",
+    "0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C",
+    10200
+  );
   return useSWRImmutable(
     () => (arbitrable ? `MetaEvidence${disputeID}${arbitrableAddress}` : false),
     async () => {

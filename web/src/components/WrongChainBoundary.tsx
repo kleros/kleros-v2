@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { ErrorBoundary } from "react-error-boundary";
 import { Button } from "@kleros/ui-components-library";
 import { switchChain } from "utils/switchChain";
-import { DEFAULT_CHAIN, SUPPORTED_CHAINS } from "consts/supportedChains";
+import { DEFAULT_CHAIN, SUPPORTED_CHAINS } from "consts/chains";
 
 const WrongChainRecovery: React.FC<{ resetErrorBoundary: () => void }> = ({
   resetErrorBoundary,
