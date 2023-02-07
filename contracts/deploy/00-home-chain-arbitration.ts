@@ -15,7 +15,7 @@ const pnkByChain = new Map<HomeChains, string>([
 
 const randomizerByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x00"],
-  [HomeChains.ARBITRUM_GOERLI, "0x57F7a8aA8291A04B325F3f0d2c4d03353d3Ef25f"],
+  [HomeChains.ARBITRUM_GOERLI, "0xF25c6Ad3694dA9D3C97F4D316b0B31F96cEb39d5"],
 ]);
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {

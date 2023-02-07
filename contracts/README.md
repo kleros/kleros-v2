@@ -10,7 +10,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 #### Chiado
 
-- [ArbitrableExample](https://blockscout.com/gnosis/chiado/address/0x823D972BAcBa033BFca208738847cC7135573316)
+- [ArbitrableExample](https://blockscout.com/gnosis/chiado/address/0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C)
 - [ForeignGatewayOnGnosis](https://blockscout.com/gnosis/chiado/address/0x87142b7E9C7D026776499120D902AF8896C07894)
 - [SortitionSumTreeFactory](https://blockscout.com/gnosis/chiado/address/0xc7e3BF90299f6BD9FA7c3703837A9CAbB5743636)
 - [TokenBridge](https://blockscout.com/gnosis/chiado/address/0xbb3c86f9918C3C1d83668fA84e79E876d147fFf2)
@@ -18,7 +18,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [WETHFaucet](https://blockscout.com/gnosis/chiado/address/0x395014fddc3b12F9a78ED8E57DA162Fd77E12bE3)
 - [WPNKFaucet](https://blockscout.com/gnosis/chiado/address/0xcFc0b84419583ff7b32fD5139B789cE858517d4C)
 - [WrappedPinakion](https://blockscout.com/gnosis/chiado/address/0x04Fb43F2Ce076867b5ba38750Ecb2cc6BDe78D61)
-- [xKlerosLiquidV2](https://blockscout.com/gnosis/chiado/address/0xf637A0a4415CCFB97407846486b6be663d3C33ef)
+- [xKlerosLiquidV2](https://blockscout.com/gnosis/chiado/address/0x34E520dc1d2Db660113b64724e14CEdCD01Ee879)
 
 #### Goerli
 

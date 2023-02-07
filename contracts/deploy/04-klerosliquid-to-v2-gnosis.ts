@@ -69,7 +69,7 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
     maxPriorityFeePerGas: ONE_GWEI,
   });
 
-  await deploy("xKlerosLiquidV2", {
+  const xKlerosLiquidV2 = await deploy("xKlerosLiquidV2", {
     from: deployer,
     log: true,
     libraries: {
@@ -101,10 +101,11 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
     weth.address
   );
 
+  // const xKlerosLiquidV2 = await deployments.get("xKlerosLiquidV2");
   const metaEvidenceUri = "INIT ME";
   await deploy("ArbitrableExample", {
     from: deployer,
-    args: [foreignGateway.address, metaEvidenceUri],
+    args: [xKlerosLiquidV2.address, metaEvidenceUri, weth.address],
     log: true,
     maxFeePerGas: ONE_GWEI,
     maxPriorityFeePerGas: ONE_GWEI,

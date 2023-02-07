@@ -491,8 +491,12 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
         Dispute storage dispute = disputes[disputeID];
         dispute.arbitrated = IArbitrable(msg.sender);
 
+        // The V2 subcourtID is off by one
+        (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDAndMinJurors(_extraData);
+        bytes memory extraDataV2 = abi.encode(uint256(subcourtID + 1), minJurors);
+
         require(weth.transfer(address(foreignGateway), fee), "Fee transfer to gateway failed");
-        foreignGateway.createDisputeERC20(_numberOfChoices, _extraData, fee);
+        foreignGateway.createDisputeERC20(_numberOfChoices, extraDataV2, fee);
 
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }

@@ -13,5 +13,31 @@ options = {
   maxPriorityFeePerGas: ethers.utils.parseUnits("1", "gwei"),
 };
 
-// dispute creation for 3 choices, 3 jurors
-// await (await arbitrable.createDispute(3, "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003", 0, options)).wait()
+// await weth.transfer(wethFaucet.address, ethers.utils.parseEther("100000"))
+// await wethFaucet.request(options)
+
+const createDispute = async () => {
+  const choices = 2;
+  const extraData =
+    "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003";
+  const feeForJuror = await gateway.arbitrationCost(extraData);
+  var tx;
+  try {
+    tx = await (await weth.increaseAllowance(arbitrable.address, feeForJuror, options)).wait();
+    console.log("txID increateAllowance: %s", tx?.transactionHash);
+    tx = await (await arbitrable.createDispute(choices, extraData, 0, feeForJuror, options)).wait();
+    console.log("txID createDispute: %s", tx?.transactionHash);
+  } catch (e) {
+    if (typeof e === "string") {
+      console.log("Error: %s", e);
+    } else if (e instanceof Error) {
+      console.log("%O", e);
+    }
+  } finally {
+    if (tx) {
+      const filter = gateway.filters.DisputeCreation();
+      const logs = await gateway.queryFilter(filter, tx.blockNumber, tx.blockNumber);
+      console.log("Gateway DisputeID: %s", logs[0]?.args?._disputeID);
+    }
+  }
+};
