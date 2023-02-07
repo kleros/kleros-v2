@@ -24,7 +24,7 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
   console.log("Deploying to chainId %s with deployer %s", chainId, deployer);
 
   if (!wrappedPNKByChain.get(chainId)) {
-    const wPnk = await deploy("WrappedPinakion", {
+    const wPnk = await deploy("WrappedPinakionV2", {
       from: deployer,
       log: true,
       maxFeePerGas: ONE_GWEI,
@@ -102,7 +102,7 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
   );
 
   // const xKlerosLiquidV2 = await deployments.get("xKlerosLiquidV2");
-  const metaEvidenceUri = "INIT ME";
+  const metaEvidenceUri = "/ipfs/bafkreifc3eq5avyk3fgyvor67f3f6nk5rbmsmhszsi7o7o6fggfip54sea"; // PoH registration
   await deploy("ArbitrableExample", {
     from: deployer,
     args: [xKlerosLiquidV2.address, metaEvidenceUri, weth.address],
@@ -128,13 +128,13 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
 //   // const xPnk = await deployments.get("WPNK");
 //   const xPnk = xPinakionByChain[chainId];
 //   const tokenBridge = tokenBridgeByChain[chainId];
-//   const wPnk = await deploy("WrappedPinakion", {
+//   const wPnk = await deploy("WrappedPinakionV2", {
 //     from: deployer,
 //     log: true,
 //   });
 
 //   await execute(
-//     "WrappedPinakion",
+//     "WrappedPinakionV2",
 //     { from: deployer, log: true },
 //     "initialize",
 //     "Staking PNK on xDai",

@@ -2,7 +2,7 @@ import { Handler } from "@netlify/functions";
 import fetch from "node-fetch";
 
 const ESTUARI_API_KEY = process.env["ESTUARY_API_KEY"];
-const ESTUARI_URL = "https://api.estuary.tech/content/add";
+const ESTUARI_URL = process.env["ESTUARY_GATEWAY"];
 
 export const handler: Handler = async (event, context) => {
   context.callbackWaitsForEmptyEventLoop = false;
