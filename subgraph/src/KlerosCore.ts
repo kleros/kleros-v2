@@ -115,6 +115,7 @@ export function handleRuling(event: Ruling): void {
   const dispute = Dispute.load(disputeID);
   if (!dispute) return;
   dispute.ruled = true;
+  dispute.save();
   updateCasesRuled(ONE, event.block.timestamp);
 }
 
