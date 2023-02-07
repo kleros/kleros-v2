@@ -29,7 +29,15 @@ export function updateCounts(id: string, choice: BigInt): void {
   if (!round) return;
   const choiceNum = choice.toI32();
   const updatedCount = round.counts[choiceNum].plus(ONE);
-  round.counts[choiceNum] = updatedCount;
+  let newCounts: BigInt[] = [];
+  for (let i = 0; i < round.counts.length; i++) {
+    if (BigInt.fromI32(i).equals(choice)) {
+      newCounts.push(round.counts[i].plus(ONE));
+    } else {
+      newCounts.push(round.counts[i]);
+    }
+  }
+  round.counts = newCounts;
   const currentWinningCount = round.counts[round.winningChoice.toI32()];
   if (choice.equals(round.winningChoice)) {
     if (round.tied) round.tied = false;
@@ -59,6 +67,14 @@ export function updateChoiceFundingFromContributionEvent(
   const choice = event.params._choice;
   const amount = event.params._amount;
   const currentPaidFees = classicRound.paidFees[choice.toI32()];
-  classicRound.paidFees[choice.toI32()] = currentPaidFees.plus(amount);
+  let newPaidFees: BigInt[] = [];
+  for (let i = 0; i < classicRound.paidFees.length; i++) {
+    if (BigInt.fromI32(i).equals(choice)) {
+      newPaidFees.push(currentPaidFees.plus(amount));
+    } else {
+      newPaidFees.push(classicRound.paidFees[i]);
+    }
+  }
+  classicRound.paidFees = newPaidFees;
   classicRound.save();
 }
