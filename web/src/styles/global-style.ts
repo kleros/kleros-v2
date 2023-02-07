@@ -90,4 +90,10 @@ export const GlobalStyle = createGlobalStyle`
     display: inline-block;
     vertical-align: middle;
   }
+
+  ul {
+    li {
+      color: ${({ theme }) => theme.primaryText};
+    }
+  }
 `;
