@@ -47,7 +47,7 @@ const stats: IStat[] = [
   {
     title: "Active Jurors",
     getText: (data) => data?.numberStakedJurors,
-    getSubtext: () => "$ 3,000,000",
+    getSubtext: () => "",
     color: "purple",
     icon: PNKRedistributedIcon,
   },
@@ -61,14 +61,14 @@ const stats: IStat[] = [
   {
     title: "Cases",
     getText: (data) => data?.numberDisputes,
-    getSubtext: () => "$ 3,000,000",
+    getSubtext: () => "",
     color: "orange",
     icon: BalanceIcon,
   },
   {
     title: "In Progress",
     getText: (data) => data?.numberDisputes,
-    getSubtext: () => "$ 3,000,000",
+    getSubtext: () => "",
     color: "orange",
     icon: BalanceIcon,
   },
