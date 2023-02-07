@@ -102,7 +102,7 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
   );
 
   // const xKlerosLiquidV2 = await deployments.get("xKlerosLiquidV2");
-  const metaEvidenceUri = "INIT ME";
+  const metaEvidenceUri = "/ipfs/bafkreifc3eq5avyk3fgyvor67f3f6nk5rbmsmhszsi7o7o6fggfip54sea"; // PoH registration
   await deploy("ArbitrableExample", {
     from: deployer,
     args: [xKlerosLiquidV2.address, metaEvidenceUri, weth.address],
