@@ -70,14 +70,14 @@ const stats: IStat[] = [
   {
     title: "Active jurors",
     getText: (counters) => getLastOrZero(counters, "activeJurors"),
-    getSubtext: () => "$ 3,000,000",
+    getSubtext: () => "",
     color: "green",
     icon: JurorIcon,
   },
   {
     title: "Cases",
     getText: (counters) => getLastOrZero(counters, "cases"),
-    getSubtext: () => "$ 3,000,000",
+    getSubtext: () => "",
     color: "orange",
     icon: BalanceIcon,
   },
