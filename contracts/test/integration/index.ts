@@ -5,7 +5,7 @@ import {
   PNK,
   KlerosCore,
   ForeignGatewayOnEthereum,
-  ArbitrableExample,
+  ArbitrableExampleEthFee,
   HomeGatewayToEthereum,
   VeaMock,
   DisputeKitClassic,
@@ -61,7 +61,7 @@ describe("Integration tests", async () => {
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
     vea = (await ethers.getContract("VeaMock")) as VeaMock;
     foreignGateway = (await ethers.getContract("ForeignGatewayOnEthereum")) as ForeignGatewayOnEthereum;
-    arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
+    arbitrable = (await ethers.getContract("ArbitrableExampleEthFee")) as ArbitrableExampleEthFee;
     homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
   });
 

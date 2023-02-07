@@ -54,7 +54,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const metaEvidenceUri = `https://raw.githubusercontent.com/kleros/kleros-v2/master/contracts/deployments/goerli/MetaEvidence_ArbitrableExample.json`;
 
-  await deploy("ArbitrableExample", {
+  await deploy("ArbitrableExampleEthFee", {
     from: deployer,
     args: [foreignGateway.address, metaEvidenceUri],
     log: true,

@@ -4,7 +4,7 @@ import { BigNumber } from "ethers";
 import {
   PNK,
   KlerosCore,
-  ArbitrableExample,
+  ArbitrableExampleEthFee,
   HomeGatewayToEthereum,
   DisputeKitClassic,
   RandomizerRNG,
@@ -64,7 +64,7 @@ describe("Draw Benchmark", async () => {
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
     homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
-    arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
+    arbitrable = (await ethers.getContract("ArbitrableExampleEthFee")) as ArbitrableExampleEthFee;
     rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
     randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
   });
