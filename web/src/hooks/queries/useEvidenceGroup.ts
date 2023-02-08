@@ -26,7 +26,7 @@ export const useEvidenceGroup = (
       if (arbitrable) {
         const disputeFilter = arbitrable.filters.Dispute(
           null,
-          parseInt(disputeID!) - 7
+          parseInt(disputeID!) + 1
         );
         const disputeEvents = await arbitrable.queryFilter(disputeFilter);
         return disputeEvents[0].args?._evidenceGroupID.toString();

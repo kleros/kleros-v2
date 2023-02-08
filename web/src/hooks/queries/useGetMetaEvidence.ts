@@ -20,7 +20,7 @@ export const useGetMetaEvidence = (
       if (arbitrable) {
         const disputeFilter = arbitrable.filters.Dispute(
           null,
-          parseInt(disputeID) - 7
+          parseInt(disputeID) + 1
         );
         const disputeEvents = await arbitrable.queryFilter(disputeFilter);
         const metaEvidenceFilter = arbitrable.filters.MetaEvidence(
