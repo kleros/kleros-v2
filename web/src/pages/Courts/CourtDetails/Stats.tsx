@@ -33,14 +33,20 @@ const stats: IStat[] = [
   {
     title: "Min Stake",
     getText: (data) => utils.commify(utils.formatUnits(data?.minStake, 18)),
-    getSubtext: () => "$ 3 000 000",
+    getSubtext: (data) =>
+      (parseInt(utils.formatUnits(data?.minStake, 18)) * 0.029)
+        .toFixed(2)
+        .toString() + "$",
     color: "purple",
     icon: MinStake,
   },
   {
     title: "Vote Stake",
     getText: (data) => utils.commify(utils.formatUnits(data?.minStake, 18)),
-    getSubtext: () => "$ 3,000,000",
+    getSubtext: (data) =>
+      (parseInt(utils.formatUnits(data?.minStake, 18)) * 0.029)
+        .toFixed(2)
+        .toString() + "$",
     color: "blue",
     icon: EthereumIcon,
   },
@@ -54,7 +60,10 @@ const stats: IStat[] = [
   {
     title: "PNK Staked",
     getText: (data) => utils.commify(utils.formatUnits(data?.stake, 18)),
-    getSubtext: () => "$ 3,000,000",
+    getSubtext: (data) =>
+      (parseInt(utils.formatUnits(data?.stake, 18)) * 0.029)
+        .toFixed(2)
+        .toString() + "$",
     color: "green",
     icon: JurorIcon,
   },
@@ -75,14 +84,20 @@ const stats: IStat[] = [
   {
     title: "ETH paid to Jurors",
     getText: (data) => utils.commify(utils.formatEther(data?.paidETH)),
-    getSubtext: () => "$ 3,000,000",
+    getSubtext: (data) =>
+      (parseInt(utils.formatUnits(data?.paidETH, 18)) * 1600)
+        .toFixed(2)
+        .toString() + "$",
     color: "orange",
     icon: BalanceIcon,
   },
   {
     title: "PNK redistributed",
     getText: (data) => utils.commify(utils.formatUnits(data?.paidPNK, 18)),
-    getSubtext: () => "$ 3,000,000",
+    getSubtext: (data) =>
+      (parseInt(utils.formatUnits(data?.paidPNK, 18)) * 0.029)
+        .toFixed(2)
+        .toString() + "$",
     color: "orange",
     icon: BalanceIcon,
   },

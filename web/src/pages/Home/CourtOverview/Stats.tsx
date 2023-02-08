@@ -44,7 +44,13 @@ const stats: IStat[] = [
       utils.commify(
         utils.formatUnits(getLastOrZero(counters, "stakedPNK"), 18)
       ),
-    getSubtext: () => "$ 3 000 000",
+    getSubtext: (counters) =>
+      (
+        parseInt(utils.formatUnits(getLastOrZero(counters, "stakedPNK"))) *
+        0.029
+      )
+        .toFixed(2)
+        .toString() + "$",
     color: "purple",
     icon: PNKIcon,
   },
@@ -52,7 +58,10 @@ const stats: IStat[] = [
     title: "ETH Paid to jurors",
     getText: (counters) =>
       utils.commify(utils.formatEther(getLastOrZero(counters, "paidETH"))),
-    getSubtext: () => "$ 3,000,000",
+    getSubtext: (counters) =>
+      (parseInt(utils.formatUnits(getLastOrZero(counters, "paidETH"))) * 1650)
+        .toFixed(2)
+        .toString() + "$",
     color: "blue",
     icon: EthereumIcon,
   },
@@ -62,7 +71,14 @@ const stats: IStat[] = [
       utils.commify(
         utils.formatUnits(getLastOrZero(counters, "redistributedPNK"), 18)
       ),
-    getSubtext: () => "$ 3,000,000",
+    getSubtext: (counters) =>
+      (
+        parseInt(
+          utils.formatUnits(getLastOrZero(counters, "redistributedPNK"))
+        ) * 0.029
+      )
+        .toFixed(2)
+        .toString() + "$",
     color: "purple",
     icon: PNKRedistributedIcon,
   },
