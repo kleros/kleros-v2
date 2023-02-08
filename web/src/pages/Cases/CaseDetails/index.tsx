@@ -31,7 +31,10 @@ const CaseDetails: React.FC = () => {
             }
           />
           <Route path="evidence" element={<Evidence {...{ arbitrable }} />} />
-          <Route path="voting" element={<Voting {...{ arbitrable }} />} />
+          <Route
+            path="voting"
+            element={<Voting {...{ arbitrable, currentPeriodIndex }} />}
+          />
           <Route
             path="appeal"
             element={<Appeal {...{ currentPeriodIndex }} />}
