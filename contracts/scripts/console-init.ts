@@ -39,6 +39,11 @@ const relayCreateDispute = async (blockHash, foreignDisputeID) => {
       )
     ).wait();
     console.log("txID: %s", tx?.transactionHash);
+
+    disputeID = (
+      await core.queryFilter(core.filters.DisputeCreation(), tx.blockNumber, tx.blockNumber)
+    )[0].args._disputeID.toNumber();
+    console.log("Using disputeID %d from now", disputeID);
   } catch (e) {
     if (typeof e === "string") {
       console.log("Error: %s", e);
@@ -196,18 +201,57 @@ const executeRuling = async () => {
 
     const ruling = await core.currentRuling(disputeID);
     console.log("Ruling: %d, Tied? %s, Overridden? %s", ruling.ruling, ruling.tied, ruling.overridden);
+
+    var filter = sender.filters.MessageReceived();
+    var logs = await sender.queryFilter(filter, tx?.blockNumber, tx?.blockNumber);
+    console.log("MessageReceived: %O", logs[0]?.args);
   }
 };
 
 const toVoting = async () => {
   console.log("Running for disputeID %d", disputeID);
-  var ready = await passPhaseCore().then(passPhaseDk).then(passPhaseDk).then(isRngReady);
+  var ready;
+  try {
+    ready = await passPhaseCore().then(passPhaseDk).then(passPhaseDk).then(isRngReady);
+  } catch (e) {
+    ready = false;
+  }
   while (!ready) {
     console.log("Waiting for RNG to be ready...", disputeID);
+    await new Promise((r) => setTimeout(r, 10000));
     ready = await isRngReady();
   }
   console.log("RNG is ready, drawing jurors.", disputeID);
   await drawJurors().then(passPhaseDk).then(passPhaseCore).then(passPeriod);
+};
+
+const epochPeriod = await sender.epochPeriod();
+
+const epochID = async () => {
+  return Math.floor((await ethers.provider.getBlock("latest")).timestamp / epochPeriod);
+};
+
+const anyBatchToSend = async () => {
+  return await sender.batchSize();
+};
+
+const sendBatch = async () => {
+  const before = await disputeKit.phase();
+  var tx;
+  try {
+    tx = await (await sender.sendBatch(options)).wait();
+    console.log("txID: %s", tx?.transactionHash);
+  } catch (e) {
+    if (typeof e === "string") {
+      console.log("Error: %s", e);
+    } else if (e instanceof Error) {
+      console.log("%O", e);
+    }
+  } finally {
+    const filter = sender.filters.BatchOutgoing();
+    const logs = await sender.queryFilter(filter, tx.blockNumber, tx.blockNumber);
+    console.log("BatchOutgoing: %O", logs[0]?.args);
+  }
 };
 
 console.log("disputeID not set!");
