@@ -18,7 +18,10 @@ export const useGetMetaEvidence = (
     () => (arbitrable ? `MetaEvidence${disputeID}${arbitrableAddress}` : false),
     async () => {
       if (arbitrable) {
-        const disputeFilter = arbitrable.filters.Dispute(null, disputeID);
+        const disputeFilter = arbitrable.filters.Dispute(
+          null,
+          parseInt(disputeID) + 1
+        );
         const disputeEvents = await arbitrable.queryFilter(disputeFilter);
         const metaEvidenceFilter = arbitrable.filters.MetaEvidence(
           disputeEvents[0].args?._metaEvidenceID
