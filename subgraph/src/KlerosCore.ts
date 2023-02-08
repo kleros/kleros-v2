@@ -152,8 +152,6 @@ export function handleStakeSet(event: StakeSet): void {
   const jurorAddress = event.params._address.toHexString();
   ensureUser(jurorAddress);
   const courtID = event.params._courtID;
-  let jurorTokens = ensureJurorTokensPerCourt(jurorAddress, courtID.toString());
-  const previousStake = jurorTokens.staked;
 
   updateJurorStake(
     jurorAddress,
@@ -161,10 +159,6 @@ export function handleStakeSet(event: StakeSet): void {
     KlerosCore.bind(event.address),
     event.block.timestamp
   );
-
-  const amountStaked = event.params._newTotalStake;
-
-  updateStakedPNK(getDelta(previousStake, amountStaked), event.block.timestamp);
 }
 
 export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {

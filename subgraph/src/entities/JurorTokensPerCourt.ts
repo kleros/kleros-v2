@@ -1,7 +1,7 @@
 import { BigInt, Address } from "@graphprotocol/graph-ts";
 import { KlerosCore } from "../../generated/KlerosCore/KlerosCore";
 import { Court, JurorTokensPerCourt } from "../../generated/schema";
-import { updateActiveJurors, getDelta } from "../datapoint";
+import { updateActiveJurors, getDelta, updateStakedPNK } from "../datapoint";
 import { ensureUser } from "./User";
 import { ZERO } from "../utils";
 
@@ -64,6 +64,7 @@ export function updateJurorStake(
   const stakeDelta = getDelta(previousStake, jurorTokens.staked);
   juror.totalStake = juror.totalStake.plus(stakeDelta);
   court.stake = court.stake.plus(stakeDelta);
+  updateStakedPNK(stakeDelta, timestamp);
   let activeJurorsDelta: BigInt;
   let numberStakedJurorsDelta: BigInt;
   if (previousTotalStake.equals(ZERO)) {
