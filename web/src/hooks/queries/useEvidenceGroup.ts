@@ -19,7 +19,10 @@ export const useEvidenceGroup = (
       arbitrable ? `EvidenceGroup${disputeID}${arbitrableAddress}` : false,
     async () => {
       if (arbitrable) {
-        const disputeFilter = arbitrable.filters.Dispute(null, disputeID);
+        const disputeFilter = arbitrable.filters.Dispute(
+          null,
+          parseInt(disputeID!) + 1
+        );
         const disputeEvents = await arbitrable.queryFilter(disputeFilter);
         return disputeEvents[0].args?._evidenceGroupID.toString();
       } else throw Error;
