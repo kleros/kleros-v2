@@ -139,7 +139,9 @@ const getLoserRequiredFunding = (
   loser_stake_multiplier: BigNumber
 ): BigNumber =>
   notUndefined([appealCost, loser_stake_multiplier])
-    ? loser_stake_multiplier.mul(appealCost).div(ONE_BASIS_POINT)
+    ? appealCost.add(
+        loser_stake_multiplier.mul(appealCost).div(ONE_BASIS_POINT)
+      )
     : BigNumber.from(0);
 
 const getWinnerRequiredFunding = (
@@ -147,7 +149,9 @@ const getWinnerRequiredFunding = (
   winner_stake_multiplier: BigNumber
 ): BigNumber =>
   notUndefined([appealCost, winner_stake_multiplier])
-    ? winner_stake_multiplier.mul(appealCost).div(ONE_BASIS_POINT)
+    ? appealCost.add(
+        winner_stake_multiplier.mul(appealCost).div(ONE_BASIS_POINT)
+      )
     : BigNumber.from(0);
 
 const getDeadline = (
