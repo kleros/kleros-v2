@@ -1,0 +1,27 @@
+name: Sentry Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      
+permissions:  # added using https://github.com/step-security/secure-workflows
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: Master
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Create Sentry release
+      uses: getsentry/action-release@v1.2.1
+      env:
+        SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+        SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+      with:
+        environment: production
+        sourcemaps: ./web/dist
