@@ -63,9 +63,25 @@ type User @entity {
   totalStake: BigInt!
   shifts: [TokenAndETHShift!]! @derivedFrom(field: "juror")
   draws: [Draw!]! @derivedFrom(field: "juror")
+  activeDisputes: BigInt!
+  disputes: [Dispute!]!
+  resolvedDisputes: [Dispute!]!
+  totalDisputes: BigInt!
+  totalCoherent: BigInt!
   votes: [Vote!]! @derivedFrom(field: "juror")
   contributions: [Contribution!]! @derivedFrom(field: "contributor")
   evidences: [Evidence!]! @derivedFrom(field: "sender")
+  penalties: [Penalty!]! @derivedFrom(field: "juror")
+}
+
+type Penalty @entity {
+  id: ID! # dispute.id-roundIndex-user.id
+  dispute: Dispute!
+  round: Round!
+  juror: User!
+  amount: BigInt!
+  numberDraws: BigInt!
+  degreeOfCoherency: BigInt!
 }
 
 type Arbitrable @entity {
