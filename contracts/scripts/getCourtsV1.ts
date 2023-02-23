@@ -1,6 +1,6 @@
-import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
 import { IKlerosLiquid } from "../typechain-types";
+import hre = require("hardhat");
 
 interface Court {
   id: number;
@@ -13,14 +13,36 @@ interface Court {
   timesPerPeriod: number[];
 }
 
+interface Config {
+  courtAddress: string;
+  maxCourts: number;
+}
+
+const configByChain = new Map<number, Config>([
+  [
+    1, // mainnet
+    {
+      courtAddress: "0x988b3A538b618C7A603e1c11Ab82Cd16dbE28069",
+      maxCourts: 24,
+    },
+  ],
+  [
+    100, // gnosis
+    {
+      courtAddress: "0x9C1dA9A04925bDfDedf0f6421bC7EEa8305F9002",
+      maxCourts: 15,
+    },
+  ],
+]);
+
 async function main() {
-  const courtsV1 = (await ethers.getContractAt(
-    "IKlerosLiquid",
-    "0x988b3A538b618C7A603e1c11Ab82Cd16dbE28069"
-  )) as IKlerosLiquid;
+  const chainId = Number(await hre.getChainId());
+  const courtAddress = configByChain.get(chainId)?.courtAddress ?? hre.ethers.constants.AddressZero;
+  const courtsV1 = (await ethers.getContractAt("IKlerosLiquid", courtAddress)) as IKlerosLiquid;
 
   const courts: Court[] = [];
-  for (let courtId = 0; courtId < 24; ++courtId) {
+  const maxCourts = configByChain.get(chainId)?.maxCourts ?? 0;
+  for (let courtId = 0; courtId < maxCourts; ++courtId) {
     const court: Court = await courtsV1.courts(courtId).then(
       (result) =>
         ({

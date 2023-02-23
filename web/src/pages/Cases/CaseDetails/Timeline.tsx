@@ -3,7 +3,8 @@ import styled from "styled-components";
 import { Periods } from "consts/periods";
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { Box, Steps } from "@kleros/ui-components-library";
-import { secondsToDayHourMinute, getTimeLeft } from "utils/date";
+import { useCountdown } from "hooks/useCountdown";
+import { secondsToDayHourMinute } from "utils/date";
 
 const Timeline: React.FC<{
   dispute: DisputeDetailsQuery["dispute"];
@@ -13,12 +14,12 @@ const Timeline: React.FC<{
     currentPeriodIndex,
     dispute?.ruled
   );
+  const items = useTimeline(dispute, currentItemIndex, currentItemIndex);
   return (
     <TimeLineContainer>
       <StyledSteps
         horizontal
-        {...{ currentItemIndex }}
-        items={getTimeline(dispute, currentItemIndex)}
+        {...{ items, currentItemIndex, currentPeriodIndex }}
       />
     </TimeLineContainer>
   );
@@ -28,15 +29,16 @@ const currentPeriodToCurrentItem = (
   currentPeriodIndex: number,
   ruled?: boolean
 ): number => {
-  if (currentPeriodIndex <= Periods.Commit) return currentPeriodIndex;
-  else if (currentPeriodIndex < Periods.Execution)
+  if (currentPeriodIndex <= Periods.commit) return currentPeriodIndex;
+  else if (currentPeriodIndex < Periods.execution)
     return currentPeriodIndex - 1;
-  else return ruled ? currentPeriodIndex : currentPeriodIndex - 1;
+  else return ruled ? 5 : currentPeriodIndex - 1;
 };
 
-const getTimeline = (
+const useTimeline = (
   dispute: DisputeDetailsQuery["dispute"],
-  currentItemIndex: number
+  currentItemIndex: number,
+  currentPeriodIndex: number
 ) => {
   const titles = [
     "Evidence Period",
@@ -44,28 +46,49 @@ const getTimeline = (
     "Appeal Period",
     "Executed",
   ];
+  const deadlineCurrentPeriod = getDeadline(
+    currentPeriodIndex,
+    dispute?.lastPeriodChange,
+    dispute?.court.timesPerPeriod
+  );
+  const countdown = useCountdown(deadlineCurrentPeriod);
   const getSubitems = (index: number): string[] => {
-    if (index < currentItemIndex) {
-      return ["Done!"];
-    } else if (index === currentItemIndex) {
-      return [
-        secondsToDayHourMinute(
-          getTimeLeft(
-            parseInt(dispute?.lastPeriodChange, 10),
-            parseInt(dispute?.courtID.timesPerPeriod[index], 10)
-          )
-        ),
-      ];
-    } else if (index === 3) {
-      return [];
-    } else {
-      return [secondsToDayHourMinute(dispute?.courtID.timesPerPeriod[index])];
+    if (typeof countdown !== "undefined" && dispute) {
+      if (index < currentItemIndex) {
+        return [];
+      } else if (index === 3) {
+        return currentItemIndex === 3 ? ["Pending"] : [];
+      } else if (index === currentItemIndex) {
+        return [secondsToDayHourMinute(countdown)];
+      } else {
+        return [secondsToDayHourMinute(dispute?.court.timesPerPeriod[index])];
+      }
     }
+    return ["Loading..."];
   };
   return titles.map((title, i) => ({
     title,
     subitems: getSubitems(i),
   }));
+};
+
+const getDeadline = (
+  currentPeriodIndex: number,
+  lastPeriodChange?: string,
+  timesPerPeriod?: string[]
+): number | undefined => {
+  if (
+    lastPeriodChange &&
+    timesPerPeriod &&
+    currentPeriodIndex < timesPerPeriod.length
+  ) {
+    const parsedLastPeriodChange = parseInt(lastPeriodChange, 10);
+    const parsedTimeCurrentPeriod = parseInt(
+      timesPerPeriod[currentPeriodIndex]
+    );
+    return parsedLastPeriodChange + parsedTimeCurrentPeriod;
+  }
+  return 0;
 };
 
 const TimeLineContainer = styled(Box)`

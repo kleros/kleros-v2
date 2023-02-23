@@ -8,12 +8,7 @@ interface IContext {
   isValidating: boolean;
 }
 
-export type HomePageQueryDataPoints =
-  | HomePageQuery["pnkstakedDataPoints"]
-  | HomePageQuery["pnkredistributedDataPoints"]
-  | HomePageQuery["casesDataPoints"]
-  | HomePageQuery["ethpaidDataPoints"]
-  | HomePageQuery["activeJurorsDataPoints"];
+export type HomePageQueryDataPoints = keyof HomePageQuery["counters"][number];
 
 const Context = createContext<IContext>({
   data: undefined,

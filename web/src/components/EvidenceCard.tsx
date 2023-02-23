@@ -30,9 +30,9 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
       <BottomShade>
         <Jazzicon diameter={24} seed={jsNumberForAddress(sender)} />
         <p>{shortenAddress(sender)}</p>
-        {data && (
+        {data && typeof data.fileURI !== "undefined" && (
           <StyledA
-            href={`https://ipfs.kleros.io${data.fileURI}`}
+            href={`https://cloudflare-ipfs.com${data.fileURI}`}
             target="_blank"
             rel="noreferrer"
           >

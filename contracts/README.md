@@ -8,6 +8,18 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 ### v2-prealpha-3
 
+#### Chiado
+
+- [ArbitrableExample](https://blockscout.com/gnosis/chiado/address/0xc0fcc96BFd78e36550FCaB434A9EE1210B57225b)
+- [ForeignGatewayOnGnosis](https://blockscout.com/gnosis/chiado/address/0x87142b7E9C7D026776499120D902AF8896C07894)
+- [SortitionSumTreeFactory](https://blockscout.com/gnosis/chiado/address/0xc7e3BF90299f6BD9FA7c3703837A9CAbB5743636)
+- [TokenBridge](https://blockscout.com/gnosis/chiado/address/0xbb3c86f9918C3C1d83668fA84e79E876d147fFf2)
+- [WETH](https://blockscout.com/gnosis/chiado/address/0x014A442480DbAD767b7615E55E271799889FA1a7)
+- [WETHFaucet](https://blockscout.com/gnosis/chiado/address/0x395014fddc3b12F9a78ED8E57DA162Fd77E12bE3)
+- [WPNKFaucet](https://blockscout.com/gnosis/chiado/address/0x5898aeE045A25B276369914c3448B72a41758B2c)
+- [WrappedPinakionV2](https://blockscout.com/gnosis/chiado/address/0xD75E27A56AaF9eE7F8d9A472a8C2EF2f65a764dd)
+- [xKlerosLiquidV2](https://blockscout.com/gnosis/chiado/address/0x34E520dc1d2Db660113b64724e14CEdCD01Ee879)
+
 #### Goerli
 
 - [PNK](https://goerli.etherscan.io/token/0xA3B02bA6E10F55fb177637917B1b472da0110CcC)
@@ -19,14 +31,15 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 - [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610/token-transfers)
 - [BlockHashRNG](https://goerli.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
-- [DisputeKitClassic](https://goerli.arbiscan.io/address/0xde31F2245d164620d08f5b0f8D43dCe8B9708373)
-- [DisputeResolver](https://goerli.arbiscan.io/address/0xa1f52474CFa1ee78758a4bBa35DE547133Bda62f)
+- [DisputeKitClassic](https://goerli.arbiscan.io/address/0x86734488ABF0E1AD40bc4DE4F820e808f39Bea09)
+- [DisputeResolver](https://goerli.arbiscan.io/address/0xDe3eCeB73C453E56F5661ad029a41341CF592b9A)
 - [FastBridgeSender](https://goerli.arbiscan.io/address/0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C)
 - [HomeGatewayToEthereum](https://goerli.arbiscan.io/address/0xed12799915180a257985631fbD2ead261eD838cf)
-- [KlerosCore](https://goerli.arbiscan.io/address/0x4d7858e73a8842b5e6422D08a3349924dD062AbB)
-- [PolicyRegistry](https://goerli.arbiscan.io/address/0xAF0F49Fe110b48bd512F00d51D141F023c9a9106)
-- [RandomizerRNG](https://goerli.arbiscan.io/address/0xb82D1eAD813C3a2E729F288276cc402343423Bad)
-- [SortitionSumTreeFactory](https://goerli.arbiscan.io/address/0x40a78989317B953e427B3BD87C59eA003fcC2296)
+- [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0x12613A66F1E5A2086374e103F66BF0eddA5d1478)
+- [KlerosCore](https://goerli.arbiscan.io/address/0x3eED6aaCa43f4Bb98C591e4A0d2C4a124efF9C24)
+- [PolicyRegistry](https://goerli.arbiscan.io/address/0xC5655728387Ce5E2aAA22138114E5777370aBDae)
+- [RandomizerRNG](https://goerli.arbiscan.io/address/0xa2d1A3CDF0becEdb724e5A34De7022B6FF5e4787)
+- [SortitionSumTreeFactoryV2](https://goerli.arbiscan.io/address/0x678E676fd0048da8c35d5B03fabB53a7beBf73A6)
 
 ## Getting Started
 
@@ -82,6 +95,7 @@ The ones below are optional:
 
 - `ETHERSCAN_API_KEY`: to verify the source of the newly deployed contracts on **Etherscan**.
 - `ARBISCAN_API_KEY`: to verify the source of the newly deployed contracts on **Arbitrum**.
+- `GNOSISSCAN_API_KEY`: to verify the source of the newly deployed contracts on **Gnosis chain**.
 
 #### 1. Update the Constructor Parameters (optional)
 
@@ -100,20 +114,25 @@ yarn hardhat node --tags nothing
 **Shell 2: the deploy script**
 
 ```bash
-yarn deploy --network localhost --tags <Arbitration|VeaMock>
+yarn deploy --network localhost --tags <Arbitration|VeaMock|ForeignGatewayOnEthereum|HomeGateway>
 ```
 
 #### 3. Deploy to Public Testnets
 
 ```bash
+# ArbitrumGoerli to Chiado
+yarn deploy --network arbitrumGoerli --tags Arbitration
+yarn deploy --network chiado --tags ForeignGatewayOnGnosis
+yarn deploy --network chiado --tags KlerosLiquidOnGnosis
+yarn deploy --network arbitrumGoerli --tags HomeGatewayToGnosis
+
 # Goerli
 yarn deploy --network arbitrumGoerli --tags Arbitration
-yarn deploy --network goerli --tags ForeignGateway
-yarn deploy --network arbitrumGoerli --tags HomeGateway
+yarn deploy --network goerli --tags ForeignGatewayOnEthereum
+yarn deploy --network arbitrumGoerli --tags HomeGatewayToEthereum
 ```
 
-The deployed addresses should be output to the screen after the deployment is complete.
-If you miss that, you can always go to the `deployments/<network>` directory and look for the respective file.
+The deployed addresses should be displayed to the screen after the deployment is complete. If you missed them, you can always go to the `deployments/<network>` directory and look for the respective file.
 
 #### Running Test Fixtures
 
@@ -134,7 +153,7 @@ yarn test --network localhost
 This must be done for each network separately.
 
 ```bash
-yarn etherscan-verify --network <arbitrumGoerli|arbitrumRinkeby|arbitrum|goerli|rinkeby|mainnet>
+yarn etherscan-verify --network <arbitrumGoerli|arbitrum|chiado|gnosischain|goerli|mainnet>
 ```
 
 ## Ad-hoc procedures
@@ -144,11 +163,18 @@ yarn etherscan-verify --network <arbitrumGoerli|arbitrumRinkeby|arbitrum|goerli|
 #### 1/ Export the registry data from V1
 
 ```bash
-yarn hardhat run scripts/getPoliciesV1.ts  --network mainnet | tee policies.v1.json
-yarn hardhat run scripts/getCourtsV1.ts --network mainnet | tee courts.v1.json
+for network in mainnet gnosischain
+do
+  yarn hardhat run scripts/getPoliciesV1.ts  --network $network | tee config/policies.v1.$network.json
+  yarn hardhat run scripts/getCourtsV1.ts --network $network | tee config/courts.v1.$network.json
+done
 ```
 
 #### 2/ Import the data to V2 - Local Network
+
+:warning: By default this script populates from `*.mainnet.json`. To populate from `*.gnosischain.json`, set the variable `USE_GNOSIS` to true inside [scripts/populateCourts.ts](scripts/populateCourts.ts).
+
+:warning: It is possible to switch to testnet-friendly court parameters by setting the variable `TESTING_PARAMETERS` to true inside [scripts/populateCourts.ts](scripts/populateCourts.ts).
 
 Shell 1:
 
@@ -168,6 +194,20 @@ yarn hardhat run scripts/populateCourts.ts --network localhost
 ```bash
 yarn hardhat run scripts/populatePolicyRegistry.ts --network arbitrumGoerli
 yarn hardhat run scripts/populateCourts.ts --network arbitrumGoerli
+```
+
+### Generate deployment artifacts for existing contracts
+
+#### Usage
+
+```bash
+scripts/generateDeploymentArtifact.sh <network> <address>
+```
+
+#### Example: WETH on Gnosis chain
+
+```bash
+scripts/generateDeploymentArtifact.sh gnosischain 0xf8d1677c8a0c961938bf2f9adc3f3cfda759a9d9 > deployments/gnosischain/WETH.json
 ```
 
 ### Push the contracts to a Tenderly project

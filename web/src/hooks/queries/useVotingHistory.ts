@@ -6,15 +6,25 @@ export type { VotingHistoryQuery };
 const votingHistoryQuery = gql`
   query VotingHistory($disputeID: ID!) {
     dispute(id: $disputeID) {
+      id
       rounds {
         nbVotes
-        totalVoted
-        votes {
-          juror {
-            id
+      }
+      disputeKitDispute {
+        localRounds {
+          ... on ClassicRound {
+            totalVoted
+            votes {
+              id
+              juror {
+                id
+              }
+              ... on ClassicVote {
+                choice
+                justification
+              }
+            }
           }
-          choice
-          justification
         }
       }
     }
@@ -22,10 +32,14 @@ const votingHistoryQuery = gql`
 `;
 
 export const useVotingHistory = (disputeID?: string) => {
-  const { data, error, isValidating } = useSWR({
-    query: votingHistoryQuery,
-    variables: { disputeID },
-  });
+  const { data, error, isValidating } = useSWR(() =>
+    typeof disputeID !== "undefined"
+      ? {
+          query: votingHistoryQuery,
+          variables: { disputeID },
+        }
+      : false
+  );
   const result = data ? (data as VotingHistoryQuery) : undefined;
   return { data: result, error, isValidating };
 };

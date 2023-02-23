@@ -15,7 +15,7 @@ const pnkByChain = new Map<HomeChains, string>([
 
 const randomizerByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x00"],
-  [HomeChains.ARBITRUM_GOERLI, "0xE1B6CcAc0BB0355C01A049e78909231Bfa13620B"],
+  [HomeChains.ARBITRUM_GOERLI, "0xF25c6Ad3694dA9D3C97F4D316b0B31F96cEb39d5"],
 ]);
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -27,7 +27,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
+  console.log("Deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   if (chainId === HomeChains.HARDHAT) {
     pnkByChain.set(
@@ -57,12 +57,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  await deploy("BlockHashRNG", {
-    from: deployer,
-    args: [],
-    log: true,
-  });
-
   const randomizer = randomizerByChain.get(Number(await getChainId())) ?? AddressZero;
   const rng = await deploy("RandomizerRNG", {
     from: deployer,
@@ -76,19 +70,20 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const sortitionSumTreeLibrary = await deploy("SortitionSumTreeFactory", {
+  const sortitionSumTreeLibrary = await deploy("SortitionSumTreeFactoryV2", {
     from: deployer,
     log: true,
   });
 
-  const pnk = pnkByChain.get(Number(await getChainId())) ?? AddressZero;
+  const pnk = pnkByChain.get(chainId) ?? AddressZero;
   const minStake = BigNumber.from(10).pow(20).mul(2);
   const alpha = 10000;
   const feeForJuror = BigNumber.from(10).pow(17);
+  const sortitionSumTreeK = 3;
   const klerosCore = await deploy("KlerosCore", {
     from: deployer,
     libraries: {
-      SortitionSumTreeFactory: sortitionSumTreeLibrary.address,
+      SortitionSumTreeFactoryV2: sortitionSumTreeLibrary.address,
     },
     args: [
       deployer,
@@ -99,7 +94,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       false,
       [minStake, alpha, feeForJuror, 3], // minStake, alpha, feeForJuror, jurorsForCourtJump
       [0, 0, 0, 0], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      3,
+      sortitionSumTreeK,
     ],
     log: true,
   });
@@ -117,7 +112,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   });
 };
 
-deployArbitration.tags = ["HomeChain", "Arbitration"];
+deployArbitration.tags = ["Arbitration"];
 deployArbitration.skip = async ({ getChainId }) => {
   const chainId = Number(await getChainId());
   return !HomeChains[chainId];

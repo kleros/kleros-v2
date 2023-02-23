@@ -8,16 +8,17 @@ import { useVotingHistory } from "queries/useVotingHistory";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { shortenAddress } from "utils/shortenAddress";
 
-const VotingHistory: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
+const VotingHistory: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
   const [currentTab, setCurrentTab] = useState(0);
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
   const rounds = votingHistory?.dispute?.rounds;
+  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
   return (
     <Container>
       <h1>Voting History</h1>
-      {rounds && metaEvidence && (
+      {rounds && localRounds && metaEvidence && (
         <>
           <p>{metaEvidence.question}</p>
           <StyledTabs
@@ -31,17 +32,17 @@ const VotingHistory: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
           <StyledBox>
             <BalanceIcon />
             <p>
-              {rounds.at(currentTab)?.totalVoted ===
+              {localRounds.at(currentTab)?.totalVoted ===
               rounds.at(currentTab)?.nbVotes
                 ? "All jurors voted"
-                : `${rounds.at(currentTab)?.totalVoted} jurors voted out of ${
-                    rounds.at(currentTab)?.nbVotes
-                  }`}
+                : localRounds.at(currentTab)?.totalVoted +
+                  " jurors voted out of " +
+                  rounds.at(currentTab)?.nbVotes}
             </p>
           </StyledBox>
           <StyledAccordion
             items={
-              rounds.at(currentTab)?.votes.map((vote) => ({
+              localRounds.at(currentTab)?.votes.map((vote) => ({
                 title: shortenAddress(vote.juror.id),
                 Icon: () => (
                   <Jazzicon
@@ -68,9 +69,7 @@ const VotingHistory: React.FC<{ arbitrable: string }> = ({ arbitrable }) => {
   );
 };
 
-const Container = styled.div`
-  padding: 16px;
-`;
+const Container = styled.div``;
 
 const StyledTabs = styled(Tabs)`
   width: 100%;

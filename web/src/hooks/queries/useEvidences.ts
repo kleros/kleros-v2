@@ -12,7 +12,9 @@ const evidencesQuery = gql`
     ) {
       id
       evidence
-      sender
+      sender {
+        id
+      }
     }
   }
 `;

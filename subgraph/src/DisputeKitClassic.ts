@@ -20,6 +20,7 @@ import { ensureClassicEvidenceGroup } from "./entities/ClassicEvidenceGroup";
 import {
   createClassicRound,
   updateChoiceFundingFromContributionEvent,
+  updateCounts,
 } from "./entities/ClassicRound";
 import { createClassicVote } from "./entities/ClassicVote";
 import { ONE, ZERO } from "./utils";
@@ -29,11 +30,12 @@ export const DISPUTEKIT_ID = "1";
 export function handleDisputeCreation(event: DisputeCreation): void {
   const disputeID = event.params._coreDisputeID.toString();
   createClassicDisputeFromEvent(event);
-  createClassicRound(disputeID, ZERO);
+  const numberOfChoices = event.params._numberOfChoices;
+  createClassicRound(disputeID, numberOfChoices, ZERO);
 }
 
 export function handleEvidenceEvent(event: EvidenceEvent): void {
-  const evidenceGroupID = event.params._evidenceGroupID.toHexString();
+  const evidenceGroupID = event.params._evidenceGroupID.toString();
   const evidenceGroup = ensureClassicEvidenceGroup(evidenceGroupID);
   const evidenceIndex = evidenceGroup.nextEvidenceIndex;
   evidenceGroup.nextEvidenceIndex = evidenceGroup.nextEvidenceIndex.plus(ONE);
@@ -52,9 +54,9 @@ export function handleJustificationEvent(event: JustificationEvent): void {
   const classicDisputeID = `${DISPUTEKIT_ID}-${coreDisputeID}`;
   const classicDispute = ClassicDispute.load(classicDisputeID);
   if (!classicDispute) return;
-  const currentLocalRoundID = `${
-    classicDispute.id
-  }-${classicDispute.currentLocalRoundIndex.toString()}`;
+  const currentLocalRoundID =
+    classicDispute.id + "-" + classicDispute.currentLocalRoundIndex.toString();
+  updateCounts(currentLocalRoundID, event.params._choice);
   createClassicVote(currentLocalRoundID, event);
 }
 
@@ -88,7 +90,8 @@ export function handleChoiceFunded(event: ChoiceFunded): void {
     );
     if (!localDispute) return;
     const newRoundIndex = localDispute.currentLocalRoundIndex.plus(ONE);
-    createClassicRound(coreDisputeID, newRoundIndex);
+    const numberOfChoices = localDispute.numberOfChoices;
+    createClassicRound(coreDisputeID, numberOfChoices, newRoundIndex);
   }
 
   localRound.save();

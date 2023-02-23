@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8;
 
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../IArbitrable.sol";
 import "../../evidence/IMetaEvidence.sol";
 
@@ -16,44 +17,51 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
         uint256 numberOfRulingOptions; // The number of choices the arbitrator can give.
     }
 
-    uint256 META_EVIDENCE_ID = 0;
-    address public governor;
-    IArbitrator public immutable arbitrator; // Arbitrator is set in constructor and never changed.
+    address public immutable governor;
+    IArbitrator public arbitrator; // Arbitrator is set in constructor and never changed.
+    ERC20 public immutable weth; // The WETH token.
     mapping(uint256 => uint256) public externalIDtoLocalID; // Maps external (arbitrator side) dispute IDs to local dispute IDs.
     DisputeStruct[] public disputes; // Stores the disputes' info. disputes[disputeID].
 
     /** @dev Constructor
      *  @param _arbitrator The arbitrator to rule on created disputes.
+     *  @param _metaEvidenceID Unique identifier of meta-evidence.
      *  @param _metaEvidence The URI of the meta evidence object for evidence submissions requests.
      */
-    constructor(IArbitrator _arbitrator, string memory _metaEvidence) {
+    constructor(IArbitrator _arbitrator, uint256 _metaEvidenceID, string memory _metaEvidence, ERC20 _weth) {
         governor = msg.sender;
         arbitrator = _arbitrator;
-        emit MetaEvidence(META_EVIDENCE_ID, _metaEvidence);
+        weth = _weth;
+        emit MetaEvidence(_metaEvidenceID, _metaEvidence);
     }
 
     /** @dev TRUSTED. Calls createDispute function of the specified arbitrator to create a dispute.
         Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
      *  @param _numberOfRulingOptions Number of ruling options. Must be greater than 1, otherwise there is nothing to choose from.
      *  @param _arbitratorExtraData Extra data for the arbitrator.
+     *  @param _metaEvidenceID Unique identifier of meta-evidence.
      *  @param _evidenceGroupID Unique identifier of the evidence group that is linked to this dispute.
+     *  @param _feeInWeth Amount of fees in WETH for the arbitrator.
      *  @return disputeID Dispute id (on arbitrator side) of the dispute created.
      */
     function createDispute(
         uint256 _numberOfRulingOptions,
         bytes calldata _arbitratorExtraData,
-        uint256 _evidenceGroupID
+        uint256 _metaEvidenceID,
+        uint256 _evidenceGroupID,
+        uint256 _feeInWeth
     ) external payable returns (uint256 disputeID) {
         require(_numberOfRulingOptions > 1, "Incorrect number of choices");
 
         uint256 localDisputeID = disputes.length;
         disputes.push(DisputeStruct({isRuled: false, ruling: 0, numberOfRulingOptions: _numberOfRulingOptions}));
 
-        disputeID = arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
-
+        require(weth.transferFrom(msg.sender, address(this), _feeInWeth), "Not enough WETH for arbitration");
+        weth.increaseAllowance(address(arbitrator), _feeInWeth);
+        disputeID = arbitrator.createDispute(_numberOfRulingOptions, _arbitratorExtraData);
         externalIDtoLocalID[disputeID] = localDisputeID;
 
-        emit Dispute(arbitrator, disputeID, META_EVIDENCE_ID, _evidenceGroupID);
+        emit Dispute(arbitrator, disputeID, _metaEvidenceID, _evidenceGroupID);
     }
 
     /** @dev To be called by the arbitrator of the dispute, to declare the winning ruling.
@@ -73,8 +81,13 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
         emit Ruling(IArbitrator(msg.sender), _externalDisputeID, dispute.ruling);
     }
 
-    function changedMetaEvidence(string memory _metaEvidence) external {
+    function changeMetaEvidence(uint256 _metaEvidenceID, string memory _metaEvidence) external {
         require(msg.sender == governor, "Not authorized: governor only.");
-        emit MetaEvidence(++META_EVIDENCE_ID, _metaEvidence);
+        emit MetaEvidence(_metaEvidenceID, _metaEvidence);
+    }
+
+    function changeArbitrator(IArbitrator _arbitrator) external {
+        require(msg.sender == governor, "Not authorized: governor only.");
+        arbitrator = _arbitrator;
     }
 }

@@ -155,6 +155,14 @@ contract ForeignGateway is IForeignGateway {
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
 
+    function createDisputeERC20(
+        uint256 /*_choices*/,
+        bytes calldata /*_extraData*/,
+        uint256 /*_amount*/
+    ) external override returns (uint256 /*disputeID*/) {
+        revert("Not supported yet");
+    }
+
     function arbitrationCost(bytes calldata _extraData) public view override returns (uint256 cost) {
         (uint96 courtID, uint256 minJurors) = extraDataToCourtIDMinJurors(_extraData);
         cost = feeForJuror[courtID] * minJurors;

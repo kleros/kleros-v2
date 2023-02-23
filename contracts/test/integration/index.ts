@@ -5,7 +5,7 @@ import {
   PNK,
   KlerosCore,
   ForeignGatewayOnEthereum,
-  ArbitrableExample,
+  ArbitrableExampleEthFee,
   HomeGatewayToEthereum,
   VeaMock,
   DisputeKitClassic,
@@ -61,11 +61,11 @@ describe("Integration tests", async () => {
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
     vea = (await ethers.getContract("VeaMock")) as VeaMock;
     foreignGateway = (await ethers.getContract("ForeignGatewayOnEthereum")) as ForeignGatewayOnEthereum;
-    arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
+    arbitrable = (await ethers.getContract("ArbitrableExampleEthFee")) as ArbitrableExampleEthFee;
     homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
   });
 
-  it("Honest Claim - No Challenge - Bridger paid", async () => {
+  it("Resolves a dispute on the home chain with no appeal", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
     const [bridger, challenger, relayer] = await ethers.getSigners();
 
@@ -170,7 +170,8 @@ describe("Integration tests", async () => {
 
     const tx4 = await core.executeRuling(0);
     console.log("Ruling executed on KlerosCore");
-    expect(tx4).to.emit(arbitrable, "Ruling").withArgs(foreignGateway.address, 1, 0);
+    expect(tx4).to.emit(core, "Ruling").withArgs(homeGateway.address, 0, 0);
+    expect(tx4).to.emit(arbitrable, "Ruling").withArgs(foreignGateway.address, 1, 0); // The ForeignGateway starts counting disputeID from 1.
   });
 
   async function mineBlocks(n) {

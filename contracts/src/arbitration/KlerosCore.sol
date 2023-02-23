@@ -13,7 +13,7 @@ pragma solidity ^0.8;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./IArbitrator.sol";
 import "./IDisputeKit.sol";
-import {SortitionSumTreeFactory} from "../data-structures/SortitionSumTreeFactory.sol";
+import {SortitionSumTreeFactoryV2} from "../libraries/SortitionSumTreeFactoryV2.sol";
 
 /**
  *  @title KlerosCore
@@ -21,7 +21,7 @@ import {SortitionSumTreeFactory} from "../data-structures/SortitionSumTreeFactor
  *  Note that this contract trusts the token and the dispute kit contracts.
  */
 contract KlerosCore is IArbitrator {
-    using SortitionSumTreeFactory for SortitionSumTreeFactory.SortitionSumTrees; // Use library functions for sortition sum trees.
+    using SortitionSumTreeFactoryV2 for SortitionSumTreeFactoryV2.SortitionSumTrees; // Use library functions for sortition sum trees.
 
     // ************************************* //
     // *         Enums / Structs           * //
@@ -120,7 +120,7 @@ contract KlerosCore is IArbitrator {
     uint256[] public disputesKitIDsThatNeedFreezing; // The disputeKitIDs that need switching to Freezing phase.
     Dispute[] public disputes; // The disputes.
     mapping(address => Juror) internal jurors; // The jurors.
-    SortitionSumTreeFactory.SortitionSumTrees internal sortitionSumTrees; // The sortition sum trees.
+    SortitionSumTreeFactoryV2.SortitionSumTrees internal sortitionSumTrees; // The sortition sum trees.
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Freezing phase, to update them when the phase is switched to Staking.
 
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
@@ -866,6 +866,7 @@ contract KlerosCore is IArbitrator {
 
         (uint256 winningChoice, , ) = currentRuling(_disputeID);
         dispute.ruled = true;
+        emit Ruling(dispute.arbitrated, _disputeID, winningChoice);
         dispute.arbitrated.rule(_disputeID, winningChoice);
     }
 
@@ -1002,7 +1003,7 @@ contract KlerosCore is IArbitrator {
         bytes32 _key,
         uint256 _nodeIndex
     ) public view returns (uint256 K, uint256 length, bytes32 ID) {
-        SortitionSumTreeFactory.SortitionSumTree storage tree = sortitionSumTrees.sortitionSumTrees[_key];
+        SortitionSumTreeFactoryV2.SortitionSumTree storage tree = sortitionSumTrees.sortitionSumTrees[_key];
         K = tree.K;
         length = tree.nodes.length;
         ID = tree.nodeIndexesToIDs[_nodeIndex];

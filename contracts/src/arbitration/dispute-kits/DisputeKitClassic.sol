@@ -482,7 +482,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
      *  @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'.
      */
     function submitEvidence(uint256 _evidenceGroupID, string calldata _evidence) external {
-        emit Evidence(core, _evidenceGroupID, msg.sender, _evidence);
+        emit Evidence(_evidenceGroupID, msg.sender, _evidence);
     }
 
     // ************************************* //
