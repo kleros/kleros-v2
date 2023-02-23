@@ -27,7 +27,7 @@ jobs:
       run: yarn workspace @kleros/kleros-v2-web install
 
     - name: Build and deploy subgraph
-      run: yarn @kleros/kleros-v2-web build
+      run: yarn workspace @kleros/kleros-v2-web build
 
     - name: Set version
       id: set-version
