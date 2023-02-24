@@ -5,13 +5,13 @@ import { ONE, ZERO } from "../utils";
 export function updatePenalty(event: TokenAndETHShift): void {
   const disputeID = event.params._disputeID.toString();
   const roundIndex = event.params._roundID.toString();
-  const roundID = `${disputeID}-{roundIndex}`;
+  const roundID = `${disputeID}-${roundIndex}`;
   const jurorAddress = event.params._account;
   const penaltyID = `${roundID}-${jurorAddress}`;
   const penalty = Penalty.load(penaltyID);
   if (penalty) {
-    penalty.amount = penalty.amount + event.params._tokenAmount;
-    const totalCoherency = penalty.degreeOfCoherency.mul(penalty.numberDraws);
+    penalty.amount = penalty.amount.plus(event.params._tokenAmount);
+    const totalCoherency = penalty.degreeOfCoherency.times(penalty.numberDraws);
     penalty.numberDraws = penalty.numberDraws.plus(ONE);
     penalty.degreeOfCoherency = totalCoherency
       .plus(penalty.degreeOfCoherency)
@@ -24,8 +24,8 @@ export function updatePenalty(event: TokenAndETHShift): void {
 export function createPenalty(event: TokenAndETHShift): void {
   const disputeID = event.params._disputeID.toString();
   const roundIndex = event.params._roundID.toString();
-  const roundID = `${disputeID}-{roundIndex}`;
-  const jurorAddress = event.params._account;
+  const roundID = `${disputeID}-${roundIndex}`;
+  const jurorAddress = event.params._account.toHexString();
   const penaltyID = `${roundID}-${jurorAddress}`;
   const penalty = new Penalty(penaltyID);
   penalty.dispute = disputeID;
