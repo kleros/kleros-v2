@@ -1,4 +1,4 @@
-import { BigInt, Address, log } from "@graphprotocol/graph-ts";
+import { BigInt, Address } from "@graphprotocol/graph-ts";
 import { KlerosCore } from "../../generated/KlerosCore/KlerosCore";
 import { Court, JurorTokensPerCourt } from "../../generated/schema";
 import { updateActiveJurors, getDelta, updateStakedPNK } from "../datapoint";
