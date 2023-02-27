@@ -80,7 +80,7 @@
     "react-error-boundary": "^3.1.4",
     "react-is": "^18.2.0",
     "react-jazzicon": "^1.0.4",
-    "react-loading-skeleton": "^3.1.0",
+    "react-loading-skeleton": "^3.1.1",
     "react-markdown": "^8.0.3",
     "react-modal": "^3.16.1",
     "react-router-dom": "^6.4.2",
