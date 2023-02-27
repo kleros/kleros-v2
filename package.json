@@ -35,7 +35,7 @@
     "@commitlint/config-conventional": "^17.2.0",
     "conventional-changelog-cli": "^2.1.1",
     "depcheck": "^1.4.2",
-    "eslint": "^8.27.0",
+    "eslint": "^8.35.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-import-resolver-parcel": "^1.10.5",
