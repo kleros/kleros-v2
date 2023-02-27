@@ -3690,7 +3690,7 @@ __metadata:
     ethereumjs-util: ^7.1.4
     ethers: ^5.6.7
     follow-redirects: ^1.15.0
-    hardhat: ^2.11.2
+    hardhat: ^2.12.7
     hardhat-contract-sizer: ^2.6.1
     hardhat-deploy: ^0.11.18
     hardhat-deploy-ethers: ^0.3.0-beta.13
@@ -16732,9 +16732,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat@npm:^2.11.2":
-  version: 2.12.6
-  resolution: "hardhat@npm:2.12.6"
+"hardhat@npm:^2.12.7":
+  version: 2.12.7
+  resolution: "hardhat@npm:2.12.7"
   dependencies:
     "@ethersproject/abi": ^5.1.2
     "@metamask/eth-sig-util": ^4.0.0
@@ -16796,7 +16796,7 @@ __metadata:
       optional: true
   bin:
     hardhat: internal/cli/cli.js
-  checksum: c97c5ed2336541e8b0a3034dc5c94319cffbf93fa1b6385091858f8eefb392129c6109cbaca0837fd4dff4d627b3e3ccb931706257a5d0bee71fc7f7fe90a536
+  checksum: d1f86c09f3db1cc67a448214ebf67a15fc980304ad892ca90792bba679c887a23d8bc2006daf301f4106d638230229dc1ddbc5ba363b1c6aa6b361064f0d7aec
   languageName: node
   linkType: hard
 
