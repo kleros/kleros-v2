@@ -34,7 +34,7 @@ contract HomeGateway is IHomeGateway {
     // ************************************* //
 
     address public governor;
-    IArbitrator public immutable arbitrator;
+    IArbitrator public arbitrator;
     IFastBridgeSender public fastBridgeSender;
     address public override receiverGateway;
     uint256 public immutable override receiverChainID;
@@ -63,12 +63,39 @@ contract HomeGateway is IHomeGateway {
     // ************************************* //
 
     /**
+     * @dev Changes the governor.
+     * @param _governor The address of the new governor.
+     */
+    function changeGovernor(address _governor) external {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        governor = _governor;
+    }
+
+    /**
+     * @dev Changes the arbitrator.
+     * @param _arbitrator The address of the new arbitrator.
+     */
+    function changeArbitrator(IArbitrator _arbitrator) external {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        arbitrator = _arbitrator;
+    }
+
+    /**
      * @dev Changes the fastBridge, useful to increase the claim deposit.
      * @param _fastBridgeSender The address of the new fastBridge.
      */
     function changeFastbridge(IFastBridgeSender _fastBridgeSender) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
         fastBridgeSender = _fastBridgeSender;
+    }
+
+    /**
+     * @dev Changes the receiver gateway.
+     * @param _receiverGateway The address of the new receiver gateway.
+     */
+    function changeReceiverGateway(address _receiverGateway) external {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        receiverGateway = _receiverGateway;
     }
 
     // ************************************* //

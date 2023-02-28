@@ -51,13 +51,13 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
     // ************************************* //
 
     uint256 public constant MIN_JURORS = 3; // The global default minimum number of jurors in a dispute.
-    uint256 public immutable override senderChainID;
-    address public immutable override senderGateway;
     IERC20 public immutable weth; // WETH token on xDai.
     uint256 internal localDisputeID = 1; // The disputeID must start from 1 as the KlerosV1 proxy governor depends on this implementation. We now also depend on localDisputeID not ever being zero.
     mapping(uint96 => uint256) public feeForJuror; // feeForJuror[courtID], it mirrors the value on KlerosCore.
     address public governor;
     IFastBridgeReceiver public fastBridgeReceiver;
+    uint256 public immutable override senderChainID;
+    address public override senderGateway;
     IFastBridgeReceiver public depreciatedFastbridge;
     uint256 public depreciatedFastBridgeExpiration;
     mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
@@ -99,6 +99,15 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
     // ************************************* //
 
     /**
+     * @dev Changes the governor.
+     * @param _governor The address of the new governor.
+     */
+    function changeGovernor(address _governor) external {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        governor = _governor;
+    }
+
+    /**
      * @dev Changes the fastBridge, useful to increase the claim deposit.
      * @param _fastBridgeReceiver The address of the new fastBridge.
      * @param _gracePeriod The duration to accept messages from the deprecated bridge (if at all).
@@ -108,6 +117,15 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
         depreciatedFastBridgeExpiration = block.timestamp + _fastBridgeReceiver.epochPeriod() + _gracePeriod; // 2 weeks
         depreciatedFastbridge = fastBridgeReceiver;
         fastBridgeReceiver = _fastBridgeReceiver;
+    }
+
+    /**
+     * @dev Changes the sender gateway.
+     * @param _senderGateway The address of the new sender gateway.
+     */
+    function changeReceiverGateway(address _senderGateway) external {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        senderGateway = _senderGateway;
     }
 
     /**
