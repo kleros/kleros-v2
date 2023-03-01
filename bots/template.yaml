@@ -1,0 +1,47 @@
+Transform: AWS::Serverless-2016-10-31
+Description: Incrementoor Bot
+Parameters:
+  prefix:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: 'prefix'
+  environment:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: 'environment'
+
+Resources:
+  IncrementorHandler:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2021"
+        Sourcemap: true
+        EntryPoints: 
+          - src/functions/IncrementorHandler/lambda.ts
+    Properties:
+      Handler: IncrementorHandler/lambda.handler
+      CodeUri: .
+      Timeout: 60
+      Runtime: nodejs16.x
+      Architectures:
+        - x86_64
+      Policies:
+        - AWSLambdaExecute
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - events:Put*
+              Resource: '*'
+      Events:
+        IncrementorSQS:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt IncrementorSQS.Arn
+            BatchSize: 5
+
+  IncrementorSQS:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 43200
