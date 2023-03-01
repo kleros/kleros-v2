@@ -43,6 +43,7 @@ import { createTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
 import { Court, Dispute } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
+import { updatePenalty } from "./entities/Penalty";
 
 function getPeriodName(index: i32): string {
   const periodArray = ["evidence", "commit", "vote", "appeal", "execution"];
@@ -191,4 +192,5 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   court.paidETH = court.paidETH.plus(ethAmount);
   court.paidPNK = court.paidPNK.plus(tokenAmount);
   court.save();
+  updatePenalty(event);
 }

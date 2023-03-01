@@ -1,6 +1,6 @@
 import { TokenAndETHShift } from "../../generated/KlerosCore/KlerosCore";
 import { Penalty } from "../../generated/schema";
-import { ONE, ZERO } from "../utils";
+import { ONE } from "../utils";
 
 export function updatePenalty(event: TokenAndETHShift): void {
   const disputeID = event.params._disputeID.toString();
@@ -17,8 +17,9 @@ export function updatePenalty(event: TokenAndETHShift): void {
       .plus(penalty.degreeOfCoherency)
       .div(penalty.numberDraws);
     penalty.save();
+  } else {
+    createPenalty(event);
   }
-  createPenalty(event);
 }
 
 export function createPenalty(event: TokenAndETHShift): void {
@@ -31,7 +32,7 @@ export function createPenalty(event: TokenAndETHShift): void {
   penalty.dispute = disputeID;
   penalty.round = roundID;
   penalty.juror = jurorAddress;
-  penalty.numberDraws = ZERO;
+  penalty.numberDraws = ONE;
   penalty.amount = event.params._tokenAmount;
   penalty.degreeOfCoherency = event.params._degreeOfCoherency;
   penalty.save();
