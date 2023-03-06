@@ -13,6 +13,7 @@ pragma solidity ^0.8.0;
 import "../arbitration/IArbitrable.sol";
 import "./interfaces/IForeignGateway.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../fee-swapper/IFeeSwapper.sol";
 
 /**
  * Foreign Gateway
@@ -59,6 +60,7 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
     address public governor;
     IFastBridgeReceiver public fastBridgeReceiver;
     IFastBridgeReceiver public depreciatedFastbridge;
+    IFeeSwapper public feeSwapper;
     uint256 public depreciatedFastBridgeExpiration;
     mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
 
@@ -85,13 +87,15 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
         IFastBridgeReceiver _fastBridgeReceiver,
         address _senderGateway,
         uint256 _senderChainID,
-        IERC20 _weth
+        IERC20 _weth,
+        IFeeSwapper _feeSwapper
     ) {
         governor = _governor;
         fastBridgeReceiver = _fastBridgeReceiver;
         senderGateway = _senderGateway;
         senderChainID = _senderChainID;
         weth = _weth;
+        feeSwapper = _feeSwapper;
     }
 
     // ************************************* //
@@ -120,15 +124,54 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
         emit ArbitrationCostModified(_courtID, _feeForJuror);
     }
 
+    /**
+     * @dev Changes the feeSwapper address.
+     * @param _feeSwapper New fee swapper address.
+     */
+    function changeFeeSwapper(IFeeSwapper _feeSwapper) external onlyByGovernor {
+        feeSwapper = _feeSwapper;
+    }
+
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
 
     function createDispute(
-        uint256 /*_choices*/,
-        bytes calldata /*_extraData*/
+        uint256 _choices,
+        bytes calldata _extraData
     ) external payable override returns (uint256 disputeID) {
-        revert("Fees should be paid in WETH");
+        disputeID = localDisputeID++;
+
+        uint256 requestID = feeSwapper.requestSwap{value: msg.value}(disputeID, _extraData);
+        // Arbitration cost is checked during swap.
+        (uint256 returnAmount, ) = feeSwapper.swapToWETH(requestID);
+
+        uint256 chainID;
+        assembly {
+            chainID := chainid()
+        }
+        bytes32 disputeHash = keccak256(
+            abi.encodePacked(
+                chainID,
+                blockhash(block.number - 1),
+                "createDispute",
+                disputeID,
+                _choices,
+                _extraData,
+                msg.sender
+            )
+        );
+
+        disputeHashtoDisputeData[disputeHash] = DisputeData({
+            id: uint248(disputeID),
+            arbitrable: msg.sender,
+            paid: returnAmount,
+            relayer: address(0),
+            ruled: false
+        });
+
+        emit OutgoingDispute(disputeHash, blockhash(block.number - 1), disputeID, _choices, _extraData, msg.sender);
+        emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
 
     function createDisputeERC20(

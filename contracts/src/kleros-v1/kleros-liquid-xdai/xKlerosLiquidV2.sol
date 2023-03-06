@@ -12,6 +12,8 @@ import {IRandomAuRa} from "./interfaces/IRandomAuRa.sol";
 import {SortitionSumTreeFactory} from "../../libraries/SortitionSumTreeFactory.sol";
 import "../../gateway/interfaces/IForeignGateway.sol";
 
+import "../../fee-swapper/IFeeSwapper.sol";
+
 /**
  *  @title xKlerosLiquidV2
  *  @dev This contract is an adaption of Mainnet's KlerosLiquid (https://github.com/kleros/kleros/blob/69cfbfb2128c29f1625b3a99a3183540772fda08/contracts/kleros/KlerosLiquid.sol)
@@ -182,6 +184,8 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
 
     mapping(uint256 => uint256) public disputesRuling;
 
+    IFeeSwapper public feeSwapper;
+
     /* Modifiers */
 
     /** @dev Requires a specific phase.
@@ -221,6 +225,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
      *  @param _sortitionSumTreeK The number of children per node of the general court's sortition sum tree.
      *  @param _foreignGateway Foreign gateway on xDai.
      *  @param _weth Weth contract.
+     *  @param _feeSwapper Fee swapper contarct
      */
     function initialize(
         address _governor,
@@ -233,7 +238,8 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
         uint256[4] memory _timesPerPeriod,
         uint256 _sortitionSumTreeK,
         IForeignGateway _foreignGateway,
-        IERC20 _weth
+        IERC20 _weth,
+        IFeeSwapper _feeSwapper
     ) public initializer {
         // Initialize contract.
         governor = _governor;
@@ -247,6 +253,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
         if (nextDelayedSetStake == 0) nextDelayedSetStake = 1;
         foreignGateway = _foreignGateway;
         weth = _weth;
+        feeSwapper = _feeSwapper;
 
         // Create the general court.
         if (courts.length == 0) {
@@ -332,6 +339,13 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
      */
     function changeWethAddress(IERC20 _weth) external onlyByGovernor {
         weth = _weth;
+    }
+
+    /** @dev Changes the `feeSwapper` storage variable.
+     *  @param _feeSwapper The new value for the `feeSwapper` storage variable.
+     */
+    function changeFeeSwapper(IFeeSwapper _feeSwapper) external onlyByGovernor {
+        feeSwapper = _feeSwapper;
     }
 
     /** @dev Creates a subcourt under a specified parent court.
@@ -483,20 +497,20 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
         uint256 _numberOfChoices,
         bytes memory _extraData
     ) public payable override returns (uint256 disputeID) {
-        require(msg.value == 0, "Fees should be paid in WETH");
-        uint256 fee = arbitrationCost(_extraData);
-        require(weth.transferFrom(msg.sender, address(this), fee), "Not enough WETH for arbitration");
-
-        disputeID = totalDisputes++;
-        Dispute storage dispute = disputes[disputeID];
-        dispute.arbitrated = IArbitrable(msg.sender);
-
         // The V2 subcourtID is off by one
         (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDAndMinJurors(_extraData);
         bytes memory extraDataV2 = abi.encode(uint256(subcourtID + 1), minJurors);
 
-        require(weth.transfer(address(foreignGateway), fee), "Fee transfer to gateway failed");
-        foreignGateway.createDisputeERC20(_numberOfChoices, extraDataV2, fee);
+        disputeID = totalDisputes++;
+
+        uint256 requestID = feeSwapper.requestSwap{value: msg.value}(disputeID, extraDataV2);
+        // Arbitration cost is checked during swap.
+        (, uint256 arbitrationFee) = feeSwapper.swapToWETH(requestID);
+
+        Dispute storage dispute = disputes[disputeID];
+        dispute.arbitrated = IArbitrable(msg.sender);
+
+        foreignGateway.createDisputeERC20(_numberOfChoices, extraDataV2, arbitrationFee);
 
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
