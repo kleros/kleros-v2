@@ -74,8 +74,12 @@ $ npm install -g depcheck
 $ yarn prepare
 
 $ yarn install
+```
 
-# compiles kleros contracts: first you need to go to the kleros-v2/contracts folder, and then compile them
+#### Compile the contracts
+
+```bash
+# first you need to go to the kleros-v2/contracts folder, and then compile them
 $ cd kleros-v2/contracts
 $ yarn build
 ```
