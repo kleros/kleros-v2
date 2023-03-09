@@ -76,22 +76,6 @@ $ yarn prepare
 $ yarn install
 ```
 
-#### Compile the contracts
-
-```bash
-# first you need to go to the kleros-v2/contracts folder, and then compile them
-$ cd kleros-v2/contracts
-$ yarn build
-```
-
-#### Start the frontend
-
-```bash
-# first you need to be in the kleros-v2/web folder, and then start it
-$ cd kleros-v2/web
-$ yarn start
-```
-
 ## Repo Structure
 
 Each directory at the root of this repository contains code for each individual part that enables this integration:
