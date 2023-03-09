@@ -1,59 +1,92 @@
-const AWS = require("aws-sdk");
-const { v4: uuidv4 } = require("uuid");
-const id = uuidv4();
-const currentDate = new Date();
-const formattedDate = `${currentDate.getFullYear()}/${(
-  currentDate.getMonth() + 1
-)
-  .toString()
-  .padStart(2, "0")}/${currentDate.getDate().toString().padStart(2, "0")}`;
-const S3_PATH = formattedDate + "/" + id + "/";
-const amqp = require("amqplib");
+import { Handler } from "@netlify/functions";
+import AWS from "aws-sdk";
+import { v4 as uuidv4 } from "uuid";
+import amqp from "amqplib";
+
+const envVariables = {
+  accessKey: process.env.FILEBASE_ACCESS_KEY,
+  secretKey: process.env.FILEBASE_SECRET_KEY,
+  bucketName: process.env.FILEBASE_BUCKET_NAME,
+  rabbitMQURL: process.env.RABBITMQ_URL,
+};
 
 const s3 = new AWS.S3({
   endpoint: "https://s3.filebase.com",
   region: "us-east-1",
   signatureVersion: "v4",
-  accessKeyId: process.env.FILEBASE_ACCESS_KEY,
-  secretAccessKey: process.env.FILEBASE_SECRET_KEY,
+  accessKeyId: envVariables.accessKey,
+  secretAccessKey: envVariables.secretKey,
 });
 
-export const handler = async function (event: any, context: any) {
-  if (event.body) {
-    const params = {
-      Bucket: process.env.FILEBASE_BUCKET_NAME,
-      Key: S3_PATH + event.headers["file-name"],
-      ContentType: "text/plain",
-      Body: event["body"],
-    };
-    const request = await s3.upload(params).promise();
-    const head_params = {
-      Bucket: process.env.FILEBASE_BUCKET_NAME,
-      Key: request.key,
-    };
-    const head = await s3.headObject(head_params).promise();
-    await rabbitMQUpload(head.Metadata.cid);
+export const handler: Handler = async function (event) {
+  if (!validEnvVariables()) {
     return {
-      statusCode: 200,
-      body: JSON.stringify({ message: head.Metadata.cid }),
+      statusCode: 500,
+      body: JSON.stringify({ message: "Env variables missing" }),
     };
   }
+  if (!event.body || typeof event.headers["file-name"] === "undefined") {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: "Invalid body format" }),
+    };
+  }
+
+  const s3Key = await uploadToS3(event.headers["file-name"]!, event.body).then(
+    (result) => result.Key
+  );
+  const cid = await getCID(s3Key);
+  await rabbitMQUpload(cid);
+
   return {
-    statusCode: 500,
-    body: JSON.stringify({ message: "Invalid body format" }),
+    statusCode: 200,
+    body: JSON.stringify({ message: cid }),
   };
 };
 
+const validEnvVariables = (): boolean => {
+  return Object.values(envVariables).reduce(
+    (acc, current) => acc && typeof current !== "undefined",
+    true
+  );
+};
+
+const uploadToS3 = (fileName: string, body: string) => {
+  const params: AWS.S3.PutObjectRequest = {
+    Bucket: envVariables.bucketName!,
+    Key: generateS3Path() + fileName,
+    ContentType: "text/plain",
+    Body: body,
+  };
+  return s3.upload(params).promise();
+};
+
+const getCID = async (key: string) => {
+  const headParams: AWS.S3.HeadObjectRequest = {
+    Bucket: envVariables.bucketName!,
+    Key: key,
+  };
+  const head = await s3.headObject(headParams).promise();
+
+  return head.Metadata?.cid;
+};
+
+const generateS3Path = (): string => {
+  const currentDate = new Date();
+  const formattedDate = currentDate
+    .toISOString()
+    .slice(0, 10)
+    .replace(/-/g, "/");
+  const id = uuidv4();
+  return `${formattedDate}/${id}/`;
+};
+
 const rabbitMQUpload = async (cid: any) => {
-  // Connect to RabbitMQ
-  const conn = await amqp.connect(process.env.RABBITMQ_URL);
+  const conn = await amqp.connect(envVariables.rabbitMQURL!);
   const channel = await conn.createChannel();
   const exchange = "filebase";
   await channel.assertExchange(exchange, "fanout", { durable: true });
-  // Publish the IPFS CID to the exchange
   channel.publish(exchange, "", Buffer.from(cid));
-  console.log(`Sent IPFS CID ${cid} to exchange ${exchange}`);
-  // Close the connection and return success
   await channel.close();
   await conn.close();
 };
