@@ -1,5 +1,3 @@
-# @kleros/kleros-v2-web
-
 ## Contributing
 
 ### Pre-Requisites
