@@ -3749,6 +3749,7 @@ __metadata:
     "@sentry/react": ^7.37.2
     "@sentry/tracing": ^7.37.2
     "@types/amqplib": ^0.10.1
+    "@types/busboy": ^1.5.0
     "@types/react": ^18.0.25
     "@types/react-dom": ^18.0.9
     "@types/react-modal": ^3.13.1
@@ -3761,6 +3762,7 @@ __metadata:
     "@web3-react/injected-connector": ^6.0.7
     "@web3-react/types": ^6.0.7
     amqplib: ^0.10.3
+    busboy: ^1.6.0
     chart.js: ^3.9.1
     chartjs-adapter-moment: ^1.0.0
     core-js: ^3.21.1
@@ -6174,6 +6176,15 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: bfcadb042a41b124c4e3de4925e3be6d35b78f93f27c4535d5ff86980dc0f8bc407ed99b9b54528952dc62834d5a779392f7a12c2947dd19330eb05a6bcae15a
+  languageName: node
+  linkType: hard
+
+"@types/busboy@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "@types/busboy@npm:1.5.0"
+  dependencies:
+    "@types/node": "*"
+  checksum: ffa7bf25c0395f6927526b7d97e70cd2df789e4ca0d231e41855fb08542fa236891ce457d83cc50cac6e5cef6be092ab80597070dcf1413f736462690a23e987
   languageName: node
   linkType: hard
 

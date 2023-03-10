@@ -1,7 +1,8 @@
-import { Handler } from "@netlify/functions";
+import { Handler, HandlerEvent } from "@netlify/functions";
 import AWS from "aws-sdk";
 import { v4 as uuidv4 } from "uuid";
 import amqp from "amqplib";
+import busboy from "busboy";
 
 const envVariables = {
   accessKey: process.env.FILEBASE_ACCESS_KEY,
@@ -25,16 +26,15 @@ export const handler: Handler = async function (event) {
       body: JSON.stringify({ message: "Env variables missing" }),
     };
   }
-  if (!event.body || typeof event.headers["file-name"] === "undefined") {
+  if (!event.body) {
     return {
       statusCode: 500,
       body: JSON.stringify({ message: "Invalid body format" }),
     };
   }
 
-  const s3Key = await uploadToS3(event.headers["file-name"]!, event.body).then(
-    (result) => result.Key
-  );
+  const file = parseMultiPartData(event.body, event.headers);
+  const s3Key = await uploadToS3(file["name"], file["parts"]);
   const cid = await getCID(s3Key);
   await rabbitMQUpload(cid);
 
@@ -44,6 +44,34 @@ export const handler: Handler = async function (event) {
   };
 };
 
+interface IFile {
+  name: string;
+  parts: Buffer[];
+}
+
+const parseMultiPartData = (
+  body: string,
+  headers: HandlerEvent["headers"]
+): IFile => {
+  const file: IFile = {
+    name: "",
+    parts: [],
+  };
+
+  const bb = busboy({ headers });
+
+  bb.on("file", (_, filestream, metadata) => {
+    file.name = metadata.filename;
+    filestream.on("data", (data) => {
+      file.parts.push(data);
+    });
+  });
+
+  bb.write(Buffer.from(body, "base64").toString("utf8"));
+
+  return file;
+};
+
 const validEnvVariables = (): boolean => {
   return Object.values(envVariables).reduce(
     (acc, current) => acc && typeof current !== "undefined",
@@ -51,14 +79,45 @@ const validEnvVariables = (): boolean => {
   );
 };
 
-const uploadToS3 = (fileName: string, body: string) => {
-  const params: AWS.S3.PutObjectRequest = {
+interface IUploadedPart {
+  ETag: string;
+  PartNumber: number;
+}
+
+const uploadToS3 = async (name: string, parts: Buffer[]) => {
+  const multipartInfo: AWS.S3.CreateMultipartUploadRequest = {
     Bucket: envVariables.bucketName!,
-    Key: generateS3Path() + fileName,
-    ContentType: "text/plain",
-    Body: body,
+    Key: generateS3Path() + name,
   };
-  return s3.upload(params).promise();
+  const uploadID = await s3
+    .createMultipartUpload(multipartInfo)
+    .promise()
+    .then((result) => result.UploadId);
+  const uploadedParts: IUploadedPart[] = [];
+  for (const [i, part] of parts.entries()) {
+    const partNumber = i + 1;
+    const partInfo: AWS.S3.UploadPartRequest = {
+      ...multipartInfo,
+      UploadId: uploadID!,
+      Body: part,
+      PartNumber: partNumber,
+    };
+    const test = await s3.uploadPart(partInfo).promise();
+    uploadedParts.push({
+      ETag: test.ETag!,
+      PartNumber: partNumber,
+    });
+  }
+  const completeMultipartUploadParams: AWS.S3.CompleteMultipartUploadRequest = {
+    ...multipartInfo,
+    MultipartUpload: {
+      Parts: uploadedParts,
+    },
+    UploadId: uploadID!,
+  };
+  await s3.completeMultipartUpload(completeMultipartUploadParams).promise();
+
+  return multipartInfo.Key;
 };
 
 const getCID = async (key: string) => {
