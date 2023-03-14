@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
-import disputeResolverJson from "../../../deployments//arbitrumGoerli/DisputeResolver.json";
-import klerosCoreJson from "../../../deployments//arbitrumGoerli/KlerosCore.json";
-import pnkJson from "../../../deployments//arbitrumGoerli/PNK.json";
+import disputeResolverJson from "../../../deployments/arbitrumGoerli/DisputeResolver.json";
+import klerosCoreJson from "../../../deployments/arbitrumGoerli/KlerosCore.json";
+import pnkJson from "../../../deployments/arbitrumGoerli/PNK.json";
 import disputeKitClassicJson from "../../../deployments/arbitrumGoerli/DisputeKitClassic.json";
 import randomizerRngJson from "../../../deployments/arbitrumGoerli/RandomizerRNG.json";
 import { arbGoerliProvider } from "./providers";
