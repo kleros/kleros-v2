@@ -1,15 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { firstWallet, secondWallet, thirdWallet, fourthWallet, fifthWallet } from "./utils/wallets";
-import {
-  approve,
-  setStake,
-  createDisputeOnResolver,
-  passPeriod,
-  passPhaseDisputeKitClassic,
-  passPhaseKlerosCore,
-  toEvidencePeriod,
-  courts,
-} from "./scripts";
+import { approve, setStake, createDisputeOnResolver, passPeriod, passPhase, toEvidencePeriod, courts } from "./scripts";
+import { disputeKitClassic, klerosCore } from "./utils/contractsObject";
 
 const executeDisputeWorkflow = async () => {
   // approve KlerosCore to use your PNK tokens on 5 different wallets
@@ -45,8 +37,8 @@ const executeDisputeWorkflow = async () => {
   await passPeriod(firstWallet, disputeID);
 
   // return DK and Core phases to "resolving" and "staking", respectively
-  await passPhaseDisputeKitClassic(firstWallet);
-  await passPhaseKlerosCore(firstWallet);
+  await passPhase(disputeKitClassic, firstWallet);
+  await passPhase(klerosCore, firstWallet);
 };
 
 // executes script

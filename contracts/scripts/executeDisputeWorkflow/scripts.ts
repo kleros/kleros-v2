@@ -36,10 +36,9 @@ export const createDisputeOnResolver = async (wallet: Wallet) => {
   const choices = 2;
   const nbOfJurors = 3n;
   const feeForJuror = 100000000000000000n;
-  let tx;
   let disputeID;
   try {
-    tx = await disputeResolver
+    const tx = await disputeResolver
       .connect(wallet)
       .createDispute(
         "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003",
@@ -66,12 +65,11 @@ export const createDisputeOnResolver = async (wallet: Wallet) => {
   return disputeID;
 };
 
-export const passPhaseKlerosCore = async (wallet: Wallet) => {
-  const before = await klerosCore.phase();
-  let tx;
+export const passPhase = async (coreOrDKContract: any, wallet: Wallet) => {
+  const before = await coreOrDKContract.phase();
   try {
-    tx = await (await klerosCore.connect(wallet).passPhase(options)).wait();
-    console.log("passPhaseKlerosCore txID: %s", tx?.transactionHash);
+    const tx = await (await coreOrDKContract.connect(wallet).passPhase(options)).wait();
+    console.log("passPhase txID: %s", tx?.transactionHash);
   } catch (e) {
     if (typeof e === "string") {
       console.log("Error: %s", e);
@@ -79,26 +77,8 @@ export const passPhaseKlerosCore = async (wallet: Wallet) => {
       console.log("%O", e);
     }
   } finally {
-    const after = await klerosCore.phase();
-    console.log("KlerosCore Phase: %d -> %d", before, after);
-  }
-};
-
-export const passPhaseDisputeKitClassic = async (wallet: Wallet) => {
-  const before = await disputeKitClassic.phase();
-  let tx;
-  try {
-    tx = await (await disputeKitClassic.connect(wallet).passPhase(options)).wait();
-    console.log("passPhaseDK txID: %s", tx?.transactionHash);
-  } catch (e) {
-    if (typeof e === "string") {
-      console.log("Error: %s", e);
-    } else if (e instanceof Error) {
-      console.log("%O", e);
-    }
-  } finally {
-    const after = await disputeKitClassic.phase();
-    console.log("DisputeKitClassic Phase: %d -> %d", before, after);
+    const after = await coreOrDKContract.phase();
+    console.log("phase: %d -> %d", before, after);
   }
 };
 
@@ -127,8 +107,8 @@ export const toEvidencePeriod = async (wallet: Wallet, disputeID: number) => {
   console.log("Running for disputeID %d", disputeID);
   let ready: boolean;
   try {
-    await passPhaseKlerosCore(wallet);
-    await passPhaseDisputeKitClassic(wallet);
+    await passPhase(klerosCore, wallet);
+    await passPhase(disputeKitClassic, wallet);
     ready = await isRngReady(wallet);
   } catch (e) {
     ready = false;
@@ -139,16 +119,15 @@ export const toEvidencePeriod = async (wallet: Wallet, disputeID: number) => {
     ready = await isRngReady(wallet);
   }
   console.log("RNG is ready, pass another DK phase & draw jurors.", disputeID);
-  await passPhaseDisputeKitClassic(wallet);
+  await passPhase(disputeKitClassic, wallet);
   await draw(wallet, disputeID);
 };
 
 export const draw = async (wallet: Wallet, disputeID: number) => {
   let info = await klerosCore.getRoundInfo(disputeID, 0);
   console.log("Drawn jurors before: %O", info.drawnJurors);
-  let tx;
   try {
-    tx = await (await klerosCore.connect(wallet).draw(disputeID, 10, options)).wait();
+    const tx = await (await klerosCore.connect(wallet).draw(disputeID, 10, options)).wait();
     console.log("draw txID: %s", tx?.transactionHash);
   } catch (e) {
     if (typeof e === "string") {
@@ -164,9 +143,8 @@ export const draw = async (wallet: Wallet, disputeID: number) => {
 
 export const passPeriod = async (wallet: Wallet, disputeID: number) => {
   const before = (await klerosCore.disputes(disputeID)).period;
-  let tx;
   try {
-    tx = await (await klerosCore.connect(wallet).passPeriod(disputeID, options)).wait();
+    const tx = await (await klerosCore.connect(wallet).passPeriod(disputeID, options)).wait();
     console.log("passPeriod (on KlerosCore) txID: %s", tx?.transactionHash);
   } catch (e) {
     if (typeof e === "string") {
