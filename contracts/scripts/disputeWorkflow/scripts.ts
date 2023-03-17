@@ -6,6 +6,14 @@ import dotenv from "dotenv";
 dotenv.config();
 const options = { gasLimit: 10000000, gasPrice: 5000000000 };
 
+const handleError = (e: any) => {
+  if (typeof e === "string") {
+    console.log("Error: %s", e);
+  } else if (e instanceof Error) {
+    console.log("%O", e);
+  }
+};
+
 // this function returns information about a court
 export const courts = async (courtId: number) => {
   // parameter is courtId
@@ -21,7 +29,8 @@ second parameter is amount of PNK you want to approve (in wei) */
   const approvePNKFunctionArgs = [process.env.KLEROS_CORE_CONTRACT_ADDRESS, "200000000000000000000"];
   const resultApproveTx = await pnk.connect(wallet).approve(...approvePNKFunctionArgs, options);
   await resultApproveTx.wait();
-  console.log(`approve wallet ${wallet.address}, txID: %s`, resultApproveTx?.transactionHash);
+  console.log(resultApproveTx);
+  console.log(`approve wallet ${wallet.address}, txID: %s`, resultApproveTx?.hash);
 };
 
 export const setStake = async (wallet: Wallet) => {
@@ -30,7 +39,7 @@ export const setStake = async (wallet: Wallet) => {
 
   const resultSetStakeTx = await klerosCore.connect(wallet).setStake(...setStakeFunctionArgs, options);
   await resultSetStakeTx.wait();
-  console.log(`setStake wallet ${wallet.address}, txID: %s`, resultSetStakeTx?.transactionHash);
+  console.log(`setStake wallet ${wallet.address}, txID: %s`, resultSetStakeTx?.hash);
 };
 
 export const createDisputeOnArbitrable = async (wallet: Wallet, nbOfChoices: number) => {
@@ -51,17 +60,13 @@ export const createDisputeOnArbitrable = async (wallet: Wallet, nbOfChoices: num
         }
       );
     await tx.wait();
-    console.log("createDisputeOnArbitrable txID: %s", tx?.transactionHash);
+    console.log("createDisputeOnArbitrable txID: %s", tx?.hash);
     const filter = klerosCore.filters.DisputeCreation();
     const logs = await klerosCore.queryFilter(filter, tx.blockNumber, tx.blockNumber);
     disputeID = logs[logs.length - 1]?.args?._disputeID;
     console.log("DisputeID: %s", disputeID);
   } catch (e) {
-    if (typeof e === "string") {
-      console.log("Error: %s", e);
-    } else if (e instanceof Error) {
-      console.log("%O", e);
-    }
+    handleError(e);
   }
   return disputeID;
 };
@@ -70,13 +75,9 @@ export const passPhase = async (coreOrDKContract: any, wallet: Wallet) => {
   const before = await coreOrDKContract.phase();
   try {
     const tx = await (await coreOrDKContract.connect(wallet).passPhase(options)).wait();
-    console.log("passPhase txID: %s", tx?.transactionHash);
+    console.log("passPhase txID: %s", tx?.hash);
   } catch (e) {
-    if (typeof e === "string") {
-      console.log("Error: %s", e);
-    } else if (e instanceof Error) {
-      console.log("%O", e);
-    }
+    handleError(e);
   } finally {
     const after = await coreOrDKContract.phase();
     console.log("phase: %d -> %d", before, after);
@@ -89,7 +90,7 @@ export const setRandomizer = async (wallet: Wallet) => {
 
   const resultSetRandomizerTx = await randomizerRng.connect(wallet).setRandomizer(...setRandomizerFunctionArgs);
   await resultSetRandomizerTx.wait();
-  console.log("setRandomizer txID: %s", resultSetRandomizerTx?.transactionHash);
+  console.log("setRandomizer txID: %s", resultSetRandomizerTx?.hash);
 };
 
 const isRngReady = async (wallet: Wallet) => {
@@ -123,13 +124,9 @@ export const draw = async (wallet: Wallet, disputeID: number) => {
   console.log("Drawn jurors before: %O", info.drawnJurors);
   try {
     const tx = await (await klerosCore.connect(wallet).draw(disputeID, 10, options)).wait();
-    console.log("draw txID: %s", tx?.transactionHash);
+    console.log("draw txID: %s", tx?.hash);
   } catch (e) {
-    if (typeof e === "string") {
-      console.log("Error: %s", e);
-    } else if (e instanceof Error) {
-      console.log("%O", e);
-    }
+    handleError(e);
   } finally {
     info = await klerosCore.getRoundInfo(disputeID, 0);
     console.log("Drawn jurors after: %O", info.drawnJurors);
@@ -140,13 +137,9 @@ export const passPeriod = async (wallet: Wallet, disputeID: number) => {
   const before = (await klerosCore.disputes(disputeID)).period;
   try {
     const tx = await (await klerosCore.connect(wallet).passPeriod(disputeID, options)).wait();
-    console.log("passPeriod (on KlerosCore) txID: %s", tx?.transactionHash);
+    console.log("passPeriod (on KlerosCore) txID: %s", tx?.hash);
   } catch (e) {
-    if (typeof e === "string") {
-      console.log("Error: %s", e);
-    } else if (e instanceof Error) {
-      console.log("%O", e);
-    }
+    handleError(e);
   } finally {
     const after = (await klerosCore.disputes(disputeID)).period;
     console.log("Period for dispute %s: %d -> %d", disputeID, before, after);
@@ -160,37 +153,30 @@ export const castVote = async (wallet: Wallet, disputeID: number) => {
 
   const resultCastVoteTx = await disputeKitClassic.connect(wallet).castVote(...castVoteFunctionArgs);
   await resultCastVoteTx.wait();
-  console.log("juror casted a vote on txID: %s", resultCastVoteTx?.transactionHash);
+  console.log("juror casted a vote on txID: %s", resultCastVoteTx?.hash);
 };
 
 export const fundAppeal = async (wallet: Wallet, disputeID: number, choice: number) => {
   const fundAppealFunctionArgs = [disputeID, choice];
   try {
     const fundAppealTx = await (await disputeKitClassic.connect(wallet).fundAppeal(fundAppealFunctionArgs)).wait(); // redistribute
-    console.log("fundAppeal (DisputeKit) txID: %s", fundAppealTx?.transactionHash);
+    console.log("fundAppeal (DisputeKit) txID: %s", fundAppealTx?.hash);
   } catch (e) {
-    if (typeof e === "string") {
-      console.log("Error: %s", e);
-    } else if (e instanceof Error) {
-      console.log("%O", e);
-    }
+    handleError(e);
   }
 };
 
 export const executeRuling = async (wallet: Wallet, disputeID: number) => {
+  const connectedKlerosCore = klerosCore.connect(wallet);
   let executeRulingTx;
   try {
-    const executeTx = await (await klerosCore.connect(wallet).execute(disputeID, 0, 10)).wait(); // redistribute
-    console.log("txID execute: %s", executeTx?.transactionHash);
+    const executeTx = await (await connectedKlerosCore.execute(disputeID, 0, 10)).wait(); // redistribute
+    console.log("txID execute: %s", executeTx?.hash);
 
-    executeRulingTx = await (await klerosCore.connect(wallet).executeRuling(disputeID)).wait(); // rule
-    console.log("txID executeRuling: %s", executeRulingTx?.transactionHash);
+    executeRulingTx = await (await connectedKlerosCore.executeRuling(disputeID)).wait(); // rule
+    console.log("txID executeRuling: %s", executeRulingTx?.hash);
   } catch (e) {
-    if (typeof e === "string") {
-      console.log("Error: %s", e);
-    } else if (e instanceof Error) {
-      console.log("%O", e);
-    }
+    handleError(e);
   } finally {
     const dispute = await klerosCore.disputes(disputeID);
     console.log("Ruled? %s", dispute.ruled);
