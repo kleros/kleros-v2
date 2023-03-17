@@ -23,28 +23,31 @@ export const courts = async (courtId: number) => {
 };
 
 /* this function grants permission to KlerosCore to use your PNK tokens */
-export const approve = async (wallet: Wallet) => {
+export const approve = async (wallet: Wallet, pnkAmount: string) => {
   /* first parameter is KlerosCore contract address
 second parameter is amount of PNK you want to approve (in wei) */
-  const approvePNKFunctionArgs = [process.env.KLEROS_CORE_CONTRACT_ADDRESS, "200000000000000000000"];
+  const approvePNKFunctionArgs = [process.env.KLEROS_CORE_CONTRACT_ADDRESS, pnkAmount];
   const resultApproveTx = await pnk.connect(wallet).approve(...approvePNKFunctionArgs, options);
   await resultApproveTx.wait();
   console.log(resultApproveTx);
   console.log(`approve wallet ${wallet.address}, txID: %s`, resultApproveTx?.hash);
 };
 
-export const setStake = async (wallet: Wallet) => {
+export const setStake = async (wallet: Wallet, pnkAmount: string) => {
   // first parameter is courtId, second is desired PNK to stake (in wei)
-  const setStakeFunctionArgs = [1, "200000000000000000000"];
+  const setStakeFunctionArgs = [1, pnkAmount];
 
   const resultSetStakeTx = await klerosCore.connect(wallet).setStake(...setStakeFunctionArgs, options);
   await resultSetStakeTx.wait();
   console.log(`setStake wallet ${wallet.address}, txID: %s`, resultSetStakeTx?.hash);
 };
 
-export const createDisputeOnArbitrable = async (wallet: Wallet, nbOfChoices: number) => {
-  const nbOfJurors = 3n;
-  const feeForJuror = 100000000000000000n;
+export const createDisputeOnArbitrable = async (
+  wallet: Wallet,
+  nbOfChoices: number,
+  nbOfJurors: bigint,
+  feeForJuror: bigint
+) => {
   const evidenceGroupID = ethers.BigNumber.from(ethers.utils.randomBytes(32));
   let disputeID;
   try {
