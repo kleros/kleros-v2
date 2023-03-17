@@ -1,9 +1,11 @@
+/* eslint-disable node/no-unpublished-import */
 import { ethers } from "ethers";
 import disputeResolverJson from "../../../deployments/arbitrumGoerli/DisputeResolver.json";
 import klerosCoreJson from "../../../deployments/arbitrumGoerli/KlerosCore.json";
 import pnkJson from "../../../deployments/arbitrumGoerli/PNK.json";
 import disputeKitClassicJson from "../../../deployments/arbitrumGoerli/DisputeKitClassic.json";
 import randomizerRngJson from "../../../deployments/arbitrumGoerli/RandomizerRNG.json";
+import arbitrableEthFeeJson from "../../../deployments/arbitrumGoerli/ArbitrableEthFee.json";
 import { arbGoerliProvider } from "./providers";
 import dotenv from "dotenv";
 dotenv.config();
@@ -35,5 +37,11 @@ export const disputeKitClassic = new ethers.Contract(
 export const randomizerRng = new ethers.Contract(
   process.env.RANDOMIZER_RNG_CONTRACT_ADDRESS as string,
   randomizerRngJson.abi,
+  arbGoerliProvider
+) as any;
+
+export const arbitrable = new ethers.Contract(
+  process.env.ARBITRABLE_CONTRACT_ADDRESS as string,
+  arbitrableEthFeeJson.abi,
   arbGoerliProvider
 ) as any;

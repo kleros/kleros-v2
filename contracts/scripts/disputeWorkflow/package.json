@@ -1,0 +1,32 @@
+{
+  "scripts": {
+    "build": "rm -rf ./dist && tsc -p ./ --outDir ./dist",
+    "stakeFiveJurors": "node dist/scripts/disputeWorkflow/executeScripts.js \"stakeFiveJurors\"",
+    "createDispute": "node dist/scripts/disputeWorkflow/executeScripts.js \"createDispute\"",
+    "disputeToGenerating": "node dist/scripts/disputeWorkflow/executeScripts.js \"disputeToGenerating\"",
+    "waitingForRng": "node dist/scripts/disputeWorkflow/executeScripts.js \"waitingForRng\"",
+    "passDKPhaseAndDraw": "node dist/scripts/disputeWorkflow/executeScripts.js \"passDKPhaseAndDraw\"",
+    "passDisputePeriod": "node dist/scripts/disputeWorkflow/executeScripts.js \"passDisputePeriod\"",
+    "vote": "node dist/scripts/disputeWorkflow/executeScripts.js \"vote\"",
+    "appeal": "node dist/scripts/disputeWorkflow/executeScripts.js \"appeal\"",
+    "execRuling": "node dist/scripts/disputeWorkflow/executeScripts.js \"execRuling\"",
+    "returnPhases": "node dist/scripts/disputeWorkflow/executeScripts.js \"returnPhases\""
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "volta": {
+    "node": "16.18.1",
+    "yarn": "3.3.1"
+  },
+  "devDependencies": {
+    "@openzeppelin/contracts": "^4.7.3",
+    "@typechain/ethers-v5": "^10.1.1",
+    "@types/node": "^16",
+    "@typescript-eslint/eslint-plugin": "^5.53.0",
+    "@typescript-eslint/parser": "^5.53.0",
+    "dotenv": "^16.0.3",
+    "ethers": "^5.6.7",
+    "typescript": "^4.6.4"
+  }
+}
