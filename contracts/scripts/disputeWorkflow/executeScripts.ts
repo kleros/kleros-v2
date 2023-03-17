@@ -21,24 +21,29 @@ let disputeID;
 
 const functions = {
   stakeFiveJurors: async () => {
-    // approve KlerosCore to use your PNK tokens on 5 different wallets
-    await approve(firstWallet);
-    await approve(secondWallet);
-    await approve(thirdWallet);
-    await approve(fourthWallet);
-    await approve(fifthWallet);
+    // approve KlerosCore to use your PNK tokens on 5 different wallets, first parameter is the wallet you want to approve
+    // and second parameter is the pnkAmount you want to approve (in wei), modify according to the court's needs.
+    await approve(firstWallet, "200000000000000000000");
+    await approve(secondWallet, "200000000000000000000");
+    await approve(thirdWallet, "200000000000000000000");
+    await approve(fourthWallet, "200000000000000000000");
+    await approve(fifthWallet, "200000000000000000000");
 
-    // stake PNK with 5 different wallets
-    await setStake(firstWallet);
-    await setStake(secondWallet);
-    await setStake(thirdWallet);
-    await setStake(fourthWallet);
-    await setStake(fifthWallet);
+    // stake PNK with 5 different wallets, parameters are the same as before but the pnkAmount is to stake instead of approve
+    await setStake(firstWallet, "200000000000000000000");
+    await setStake(secondWallet, "200000000000000000000");
+    await setStake(thirdWallet, "200000000000000000000");
+    await setStake(fourthWallet, "200000000000000000000");
+    await setStake(fifthWallet, "200000000000000000000");
   },
 
-  // create a new dispute (you need some ETH on the calling wallet). second parameter is the number of choices for jurors.
+  // create a new dispute (you need some ETH on the calling wallet). second parameter is the number of choices for jurors
+  // third parameter is number of jurors (bigint) and fourth parameter is feeForJuror (bigint)
+
+  // WARNING: if you want to change nbOfJurors/feeForJuror its NOT ENOUGH if you change them here, you have to go to
+  // the function `createDisputeOnArbitrable` and change them on the "_arbitratorExtraData" calldata too
   createDispute: async () => {
-    disputeID = Number(await createDisputeOnArbitrable(firstWallet, 2));
+    disputeID = Number(await createDisputeOnArbitrable(firstWallet, 2, 3n, 100000000000000000n));
   },
 
   disputeToGenerating: async () => {
