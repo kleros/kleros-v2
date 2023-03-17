@@ -1,3 +1,4 @@
+/* eslint-disable node/no-unpublished-import */
 import { ethers } from "ethers";
 import { arbGoerliProvider } from "./providers";
 import dotenv from "dotenv";
