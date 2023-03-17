@@ -36,6 +36,7 @@ export const handler: Handler = async function (event) {
   const file = parseMultiPartData(event.body, event.headers);
   const s3Key = await uploadToS3(file["name"], file["parts"]);
   const cid = await getCID(s3Key);
+  console.log(cid);
   await rabbitMQUpload(cid);
 
   return {
@@ -67,7 +68,7 @@ const parseMultiPartData = (
     });
   });
 
-  bb.write(Buffer.from(body, "base64").toString("utf8"));
+  bb.write(Buffer.from(body, "base64"));
 
   return file;
 };
