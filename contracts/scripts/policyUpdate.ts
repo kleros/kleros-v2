@@ -37,13 +37,10 @@ async function main(filePath: string) {
   } else {
     console.log("deploying to %s with deployer %s", HomeChains[chainId], governor);
   }
-
-  //--------uncomment once configuration is set in deployments------
-  // const policyRegistryDeployment = await deployments.get("PolicyRegistry");
+  const policyRegistryDeployment = await deployments.get("PolicyRegistry");
   const policyRegistry = (await ethers.getContractAt(
     "PolicyRegistry",
-    "0xAF0F49Fe110b48bd512F00d51D141F023c9a9106" // arbitrumgoerli contract address
-    // policyRegistryDeployment.address
+    policyRegistryDeployment.address
   )) as PolicyRegistry;
   for (const courtObject of courtsV1) {
     var courtV2 = courtObject.court + 1;
