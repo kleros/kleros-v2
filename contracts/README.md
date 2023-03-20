@@ -30,6 +30,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 #### Arbitrum Goerli
 
 - [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610/token-transfers)
+- [ArbitrableExampleEthFee](https://goerli.arbiscan.io/address/0x1fF31be1924f55804350ADe4945f3B3a6a2e15d2)
 - [BlockHashRNG](https://goerli.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
 - [DisputeKitClassic](https://goerli.arbiscan.io/address/0x0b24767Ae86Da2F5B442B2A524d3D9809CD0B5B2)
 - [DisputeResolver](https://goerli.arbiscan.io/address/0x311eB7f0fcA3037DF4F02f2F3470d295228F474D)
