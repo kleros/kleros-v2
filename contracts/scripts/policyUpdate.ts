@@ -1,14 +1,8 @@
 import { deployments, getNamedAccounts, getChainId, ethers } from "hardhat";
 import { PolicyRegistry } from "../typechain-types";
 import fs from "fs";
-const AWS = require("aws-sdk");
-const { v4: uuidv4 } = require("uuid");
-const id = uuidv4();
-const currentDate = new Date();
-const formattedDate = `${currentDate.getFullYear()}/${(currentDate.getMonth() + 1)
-  .toString()
-  .padStart(2, "0")}/${currentDate.getDate().toString().padStart(2, "0")}`;
-const S3_PATH = formattedDate + "/" + id + "/";
+import AWS from "aws-sdk";
+import { v4 as uuidv4 } from "uuid";
 
 const s3 = new AWS.S3({
   endpoint: "https://s3.filebase.com",
@@ -30,15 +24,7 @@ async function main(filePath: string) {
       console.log("File read failed:", err);
       return;
     }
-    const json = JSON.parse(jsonString);
-    courtsV1 = json.map((courtDetails) => ({
-      ...courtDetails,
-      name: courtDetails.name,
-      description: courtDetails.description,
-      summary: courtDetails.summary,
-      court: courtDetails.court,
-      uri: courtDetails.uri,
-    }));
+    courtsV1 = JSON.parse(jsonString);
   });
 
   // fallback to hardhat node signers on local network
@@ -63,16 +49,15 @@ async function main(filePath: string) {
     var courtV2 = courtObject.court + 1;
     var filename = courtObject.name.replace(" ", "-").concat(".json");
     const data = { name: courtObject.name, description: courtObject.description, summary: courtObject.summary };
-    let response = await uploadFormDataToIPFS(data, filename);
+    let response = await uploadDataToIPFS(data, filename);
     console.log(response);
 
     if (response && response.statusCode === 200) {
       try {
         console.log(courtV2, courtObject.name);
         const data = await JSON.parse(response.body);
-        const cid = "/ipfs/" + data.message.Metadata.cid;
-        console.log(cid, "cid");
-        await policyRegistry.connect(governor).setPolicy(courtV2, courtObject.name, cid);
+        const ipfsPath = "/ipfs/" + data.message.Metadata.cid;
+        await policyRegistry.connect(governor).setPolicy(courtV2, courtObject.name, ipfsPath);
       } catch (error) {
         console.log(error);
       }
@@ -80,11 +65,11 @@ async function main(filePath: string) {
   }
 }
 
-const uploadFormDataToIPFS = async (data, filename) => {
+const uploadDataToIPFS = async (data, filename) => {
   try {
     const params = {
       Bucket: process.env.FILEBASE_BUCKET_NAME,
-      Key: S3_PATH + filename,
+      Key: generateS3Path() + filename,
       ContentType: "application/json",
       Body: Buffer.from(JSON.stringify(data)),
     };
@@ -108,6 +93,12 @@ const uploadFormDataToIPFS = async (data, filename) => {
       body: JSON.stringify({ message: error }),
     };
   }
+};
+const generateS3Path = (): string => {
+  const currentDate = new Date();
+  const formattedDate = currentDate.toISOString().slice(0, 10).replace(/-/g, "/");
+  const id = uuidv4();
+  return `${formattedDate}/${id}/`;
 };
 main("./config/policies.v1.mainnet.json")
   .then(() => process.exit(0))
