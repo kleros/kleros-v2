@@ -43,17 +43,17 @@ async function main(filePath: string) {
     policyRegistryDeployment.address
   )) as PolicyRegistry;
   for (const courtObject of courtsV1) {
-    var courtV2 = courtObject.court + 1;
-    var filename = courtObject.name.replace(" ", "-").concat(".json");
+    const courtV2 = courtObject.court + 1;
+    const filename = courtObject.name.replace(" ", "-").concat(".json");
     const data = { name: courtObject.name, description: courtObject.description, summary: courtObject.summary };
-    let response = await uploadDataToIPFS(data, filename);
+    const response = await uploadDataToIPFS(data, filename);
     console.log(response);
 
     if (response && response.statusCode === 200) {
       try {
         console.log(courtV2, courtObject.name);
-        const data = await JSON.parse(response.body);
-        const ipfsPath = "/ipfs/" + data.message.Metadata.cid;
+        const responseData = await JSON.parse(response.body);
+        const ipfsPath = "/ipfs/" + responseData.message.Metadata.cid;
         await policyRegistry.connect(governor).setPolicy(courtV2, courtObject.name, ipfsPath);
       } catch (error) {
         console.log(error);
