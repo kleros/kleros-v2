@@ -79,7 +79,7 @@ $ npx hardhat pass-period --walletindex 0 --disputeid 0 --network arbitrumGoerli
 #### Cast Vote
 
 ```bash
-# a juror votes. this has to match exactly the commit you did previously, and you must include the salt, which for testing purposes we will always use "123" as the salt
+# a juror votes. IN CASE THERE WAS NO COMMIT PERIOD; PUT SALT AS 0 (ex: --salt 0). In case there was a commit period, the commit and vote parameters have to match, and you must include the salt, which for testing purposes we will always use "123" as the salt.
 $ npx hardhat cast-vote --walletindex 1 --disputeid 0 --voteids 0 --choice 1 --justification because --salt 123 --network arbitrumGoerli
 ```
 
