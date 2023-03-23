@@ -1,4 +1,3 @@
-/* eslint-disable node/no-unpublished-import */
 /* eslint-disable promise/param-names */
 import { utils } from "ethers";
 import { hexlify } from "ethers/lib/utils";
