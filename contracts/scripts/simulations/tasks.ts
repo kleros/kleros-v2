@@ -252,7 +252,7 @@ task("cast-commit", "Casts a commit for a drawn juror")
   .addParam("disputeid", "The ID of the dispute to vote on")
   .addParam("voteids", "The ID of the votes where you are drawn to and you want to vote on (ex: 0,1) or (ex: 1)")
   .addParam("choice", "The ID of the choice you will vote")
-  .addOptionalParam("justification", "The justification of making that choice, not mandatory")
+  .addParam("justification", "The justification of making that choice, not mandatory")
   .setAction(async (taskArgs, hre) => {
     const { disputeKitClassic } = await getContracts(hre);
     const { disputeid, walletindex, choice, voteids, network } = taskArgs;
@@ -279,17 +279,14 @@ task("cast-vote", "Casts a vote for a drawn juror")
   .addParam("disputeid", "The ID of the dispute to vote on")
   .addParam("voteids", "The ID of the votes where you are drawn to and you want to vote on (ex: 0,1) or (ex: 1)")
   .addParam("choice", "The ID of the choice you will vote")
-  .addOptionalParam("justification", "if there was a commit phase this must match the justification too")
-  .addOptionalParam("salt", "the salt used for the commit if there was a commit period")
+  .addParam("justification", "if there was a commit phase this must match the justification too")
+  .addParam("salt", "the salt used for the commit if there was a commit period")
   .setAction(async (taskArgs, hre) => {
     const { disputeKitClassic } = await getContracts(hre);
     const { disputeid, walletindex, choice, network, voteids } = taskArgs;
     const { wallet } = await getWalletAndProvider(hre, walletindex, network);
     const voteIdsParam = [voteids];
 
-    if (!taskArgs?.justification) {
-      taskArgs.justification = "because";
-    }
     const castVoteFunctionArgs = [disputeid, voteIdsParam, choice, taskArgs.salt, taskArgs.justification];
     const tx = await disputeKitClassic.connect(wallet).castVote(...castVoteFunctionArgs);
     await tx.wait();
