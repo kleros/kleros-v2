@@ -9,7 +9,7 @@
 
 ## Scripts start here
 
-The scripts are supposed to be executed in order. Note that if you get some gas related errors when executing any script, you can go to the file `tasks.ts` and modify the variable `options` to have more GasPrice/GasLimit. Then save the file and you're good to go.
+The scripts are supposed to be executed in order. Note that if you get some gas related errors when executing any script, you can go to the file `contracts/scripts/simulations/utils.ts` and modify the variable `options` to have more GasPrice/GasLimit. Then save the file and you're good to go.
 
 You pass the values you want as parameters on the scripts. I'll give you some parameters as example that work too.
 
