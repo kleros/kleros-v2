@@ -1,5 +1,5 @@
-import { useWeb3 } from "hooks/useWeb3";
 import { JsonRpcProvider } from "@ethersproject/providers";
+import { useSigner } from "wagmi";
 import { getContract, ContractName } from "utils/getContract";
 import { QUERY_CHAINS } from "consts/chains";
 
@@ -10,10 +10,10 @@ export const useConnectedContract = (
   contractAddress?: string,
   chain?: number
 ) => {
-  const { library } = useWeb3();
   const contract = getContract(contractName, contractAddress);
-  if (library && !chain) {
-    const connectedContract = contract?.connect(library.getSigner());
+  const { data: signer } = useSigner();
+  if (signer && !chain) {
+    const connectedContract = contract?.connect(signer);
     return connectedContract;
   } else {
     try {

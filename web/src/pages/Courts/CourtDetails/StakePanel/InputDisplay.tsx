@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { utils } from "ethers";
+import { useAccount } from "wagmi";
 import { Button, Field } from "@kleros/ui-components-library";
 
-import { useWeb3 } from "hooks/useWeb3";
-import { useConnect } from "hooks/useConnect";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { usePNKBalance } from "queries/usePNKBalance";
 import { useJurorBalance } from "queries/useJurorBalance";
@@ -26,12 +25,11 @@ const InputDisplay: React.FC<IInputDisplay> = ({
   const parsedAmount = useParsedAmount(amount);
 
   const { id } = useParams();
-  const { account } = useWeb3();
-  const { data: balance } = usePNKBalance(account);
+  const { address } = useAccount();
+  const { data: balance } = usePNKBalance(address);
   const parsedBalance = utils.formatEther(balance || 0);
-  const { data: jurorBalance } = useJurorBalance(account, id);
+  const { data: jurorBalance } = useJurorBalance(address, id);
   const parsedStake = utils.formatEther(jurorBalance?.staked || 0);
-  const { activate, connecting } = useConnect();
   const isStaking = action === ActionType.stake;
 
   return (
@@ -62,7 +60,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
           }
           variant="info"
         />
-        {account ? (
+        {address ? (
           <StakeWithdrawButton
             {...{
               parsedAmount,
@@ -73,16 +71,14 @@ const InputDisplay: React.FC<IInputDisplay> = ({
             }}
           />
         ) : (
-          <Button
-            text="Connect to Stake"
-            onClick={activate}
-            disabled={connecting}
-          />
+          <Button text="Connect to Stake" />
         )}
       </InputArea>
     </>
   );
 };
+// onClick={activate}
+// disabled={connecting}
 
 export default InputDisplay;
 

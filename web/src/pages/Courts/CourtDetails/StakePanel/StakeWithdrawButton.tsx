@@ -2,13 +2,17 @@ import React, { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { BigNumber } from "ethers";
 import { Button } from "@kleros/ui-components-library";
+import { useAccount } from "wagmi";
 
-import { KlerosCore } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/KlerosCore";
-import { PNK } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/mock/PNK";
+import {
+  useKlerosCore,
+  useKlerosCoreSetStake,
+  usePrepareKlerosCoreSetStake,
+  usePnkAllowance,
+  usePnkIncreaseAllowance,
+  usePreparePnkIncreaseAllowance,
+} from "hooks/contracts/generated";
 
-import { useWeb3 } from "hooks/useWeb3";
-import { useConnectedContract } from "hooks/useConnectedContract";
-import { usePNKAllowance } from "queries/usePNKAllowance";
 import { usePNKBalance } from "queries/usePNKBalance";
 import { useJurorBalance } from "queries/useJurorBalance";
 import { wrapWithToast } from "utils/wrapWithToast";
@@ -36,12 +40,15 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   setIsSending,
 }) => {
   const { id } = useParams();
-  const { account } = useWeb3();
-  const { data: allowance, mutate } = usePNKAllowance(account);
-  const { data: balance } = usePNKBalance(account);
-  const { data: jurorBalance } = useJurorBalance(account, id);
-  const klerosCore = useConnectedContract("KlerosCore") as KlerosCore;
-  const pnk = useConnectedContract("PNK") as PNK;
+  const { address } = useAccount();
+  const { data: balance } = usePNKBalance(address);
+  const { data: jurorBalance } = useJurorBalance(address, id);
+  const { data: allowance } = usePnkAllowance({
+    enabled: notUndefined(address),
+    args: [address!],
+    watch: true,
+    cacheOnBlock: true,
+  });
 
   const isStaking = action === ActionType.stake;
   const isAllowance = isStaking && allowance && allowance.lt(parsedAmount);
@@ -54,34 +61,34 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     }
   }, [action, jurorBalance, parsedAmount]);
 
+  const klerosCore = useKlerosCore();
+  const { config: increaseAllowanceConfig } = usePreparePnkIncreaseAllowance({
+    enabled: notUndefined([klerosCore, targetStake, allowance]),
+    args: [klerosCore!.address, targetStake!.sub(allowance!)],
+  });
+  const { writeAsync: increaseAllowance } = usePnkIncreaseAllowance(
+    increaseAllowanceConfig
+  );
   const handleAllowance = () => {
-    setIsSending(true);
-    wrapWithToast(
-      pnk.increaseAllowance(klerosCore.address, targetStake!.sub(allowance!))
-    ).finally(() => {
-      setIsSending(false);
-      mutate(undefined, true);
-    });
-  };
-
-  const handleStake = () => {
-    if (typeof id !== "undefined") {
+    if (notUndefined(increaseAllowance)) {
       setIsSending(true);
-      wrapWithToast(klerosCore.setStake(id, targetStake!))
-        .then(() => {
-          setAmount("");
-        })
-        .finally(() => setIsSending(false));
+      wrapWithToast(increaseAllowance!()).finally(() => {
+        setIsSending(false);
+      });
     }
   };
 
-  const handleWithdraw = () => {
-    if (typeof id !== "undefined") {
+  const { config: setStakeConfig } = usePrepareKlerosCoreSetStake({
+    enabled: notUndefined(targetStake),
+    args: [targetStake!, targetStake!],
+  });
+  const { writeAsync: setStake } = useKlerosCoreSetStake(setStakeConfig);
+  const handleStake = () => {
+    if (typeof setStake !== "undefined") {
       setIsSending(true);
-      wrapWithToast(klerosCore.setStake(id, targetStake!))
+      wrapWithToast(setStake())
         .then(() => {
           setAmount("");
-          close();
         })
         .finally(() => setIsSending(false));
     }
@@ -101,7 +108,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     [ActionType.withdraw]: {
       text: "Withdraw",
       checkDisabled: () => false,
-      onClick: handleWithdraw,
+      onClick: handleStake,
     },
   };
 

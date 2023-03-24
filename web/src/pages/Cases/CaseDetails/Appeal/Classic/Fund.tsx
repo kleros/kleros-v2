@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
+import { useAccount, useBalance } from "wagmi";
 import { Field, Button } from "@kleros/ui-components-library";
 import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
 import { useConnectedContract } from "hooks/useConnectedContract";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { useParsedAmount } from "hooks/useParsedAmount";
-import { useETHBalance } from "hooks/queries/useETHBalance";
 import {
   useLoserSideCountdownContext,
   useSelectedOptionContext,
@@ -22,7 +22,12 @@ const Fund: React.FC = () => {
     (loserSideCountdown! > 0 ||
       (fundedChoices!.length > 0 && !fundedChoices?.includes(winningChoice!)));
   const { id } = useParams();
-  const { data: balance } = useETHBalance();
+  const { address, isDisconnected } = useAccount();
+  const { data: balance } = useBalance({
+    address,
+    watch: true,
+    cacheTime: 12_000,
+  });
   const [amount, setAmount] = useState("");
   const parsedAmount = useParsedAmount(amount);
   const [isSending, setIsSending] = useState(false);
@@ -43,7 +48,12 @@ const Fund: React.FC = () => {
           placeholder="Amount to fund"
         />
         <StyledButton
-          disabled={isSending || !balance || parsedAmount.gt(balance)}
+          disabled={
+            isDisconnected ||
+            isSending ||
+            !balance ||
+            parsedAmount.gt(balance.value)
+          }
           text={typeof balance === "undefined" ? "Connect to Fund" : "Fund"}
           onClick={() => {
             if (

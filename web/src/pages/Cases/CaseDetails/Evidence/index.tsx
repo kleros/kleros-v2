@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { useWeb3 } from "hooks/useWeb3";
+import { useAccount } from "wagmi";
 import { Button, Searchbar } from "@kleros/ui-components-library";
 import { useEvidenceGroup } from "queries/useEvidenceGroup";
 import { useEvidences } from "queries/useEvidences";
@@ -13,7 +13,7 @@ const Evidence: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
   const { id } = useParams();
   const { data: evidenceGroup } = useEvidenceGroup(id, arbitrable);
   const { data } = useEvidences(evidenceGroup);
-  const { account } = useWeb3();
+  const { address } = useAccount();
   return (
     <Container>
       {evidenceGroup && (
@@ -27,7 +27,7 @@ const Evidence: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
       <StyledButton
         small
         text="Submit Evidence"
-        disabled={typeof account === "undefined" || isModalOpen}
+        disabled={typeof address === "undefined" || isModalOpen}
         isLoading={isModalOpen}
         onClick={() => setIsModalOpen(true)}
       />

@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { BigNumber, utils } from "ethers";
 
 import { useJurorBalance } from "queries/useJurorBalance";
-import { useWeb3 } from "hooks/useWeb3";
+import { useAccount } from "wagmi";
 
 import Field from "components/Field";
 import PNKIcon from "svgs/icons/pnk.svg";
@@ -16,8 +16,8 @@ const format = (value: BigNumber | undefined) =>
 
 const JurorBalanceDisplay = () => {
   const { id } = useParams();
-  const { account } = useWeb3();
-  const { data: jurorBalance } = useJurorBalance(account, id);
+  const { address } = useAccount();
+  const { data: jurorBalance } = useJurorBalance(address, id);
 
   const data = [
     {

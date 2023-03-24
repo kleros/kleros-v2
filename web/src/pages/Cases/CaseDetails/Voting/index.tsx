@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { useWeb3 } from "hooks/useWeb3";
+import { useAccount } from "wagmi";
 import { useDrawQuery } from "queries/useDrawQuery";
 import Binary from "./Binary";
 import VotingHistory from "./VotingHistory";
@@ -10,9 +10,9 @@ const Voting: React.FC<{
   arbitrable?: string;
   currentPeriodIndex?: number;
 }> = ({ arbitrable, currentPeriodIndex }) => {
-  const { account } = useWeb3();
+  const { address } = useAccount();
   const { id } = useParams();
-  const { data } = useDrawQuery(account?.toLowerCase(), id);
+  const { data } = useDrawQuery(address?.toLowerCase(), id);
   return data &&
     currentPeriodIndex === Periods.vote &&
     data.draws?.length > 0 ? (

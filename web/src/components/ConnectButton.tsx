@@ -1,18 +1,18 @@
 import React from "react";
 import styled from "styled-components";
+import { useAccount, useNetwork } from "wagmi";
+import { arbitrumGoerli } from "wagmi/chains";
+import { useWeb3Modal } from "@web3modal/react";
 import { shortenAddress } from "utils/shortenAddress";
 import { Button } from "@kleros/ui-components-library";
-import { useWeb3 } from "hooks/useWeb3";
-import { useConnect } from "hooks/useConnect";
-import { SUPPORTED_CHAINS } from "consts/chains";
 
 const AccountDisplay: React.FC = () => {
-  const { account, chainId } = useWeb3();
-  const chainName = chainId ? SUPPORTED_CHAINS[chainId].chainName : undefined;
-  const shortAddress = account ? shortenAddress(account) : undefined;
+  const { address } = useAccount();
+  const { chain } = useNetwork();
+  const shortAddress = address ? shortenAddress(address) : undefined;
   return (
     <StyledContainer>
-      <small>{chainName}</small>
+      <small>{chain?.name}</small>
       <label>{shortAddress}</label>
     </StyledContainer>
   );
@@ -40,12 +40,18 @@ const StyledContainer = styled.div`
 `;
 
 const ConnectButton: React.FC = () => {
-  const { active } = useWeb3();
-  const { activate, connecting } = useConnect();
-  return active ? (
+  const { isConnected } = useAccount();
+  const { open, setDefaultChain, isOpen } = useWeb3Modal();
+  setDefaultChain(arbitrumGoerli);
+  return isConnected ? (
     <AccountDisplay />
   ) : (
-    <Button disabled={connecting} small text={"Connect"} onClick={activate} />
+    <Button
+      disabled={isOpen}
+      small
+      text={"Connect"}
+      onClick={async () => await open({ route: "ConnectWallet" })}
+    />
   );
 };
 
