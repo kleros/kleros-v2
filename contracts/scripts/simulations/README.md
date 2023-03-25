@@ -13,6 +13,16 @@ The scripts are supposed to be executed in order. Note that if you get some gas 
 
 You pass the values you want as parameters on the scripts. I'll give you some parameters as example that work too.
 
+#### If you want to run these scripts in hardhat localhost, first you need to do this
+
+```bash
+# Open 2 terminals, on the first one, run this:
+$ yarn hardhat node --tags Arbitration
+# and on the second one, deploy the Arbitrable:
+$ yarn deploy --network localhost --tags HomeArbitrable
+# all set, from now on, run the scripts on the second console
+```
+
 #### Fund with PNK
 
 ```bash
@@ -27,11 +37,18 @@ $ npx hardhat fund-with-PNK --walletindex 0 --pnkamountforeach 200 --network arb
 $ npx hardhat stake-five-jurors --walletindexes 0,1,2,3,4 --pnkamounts 200,200,200,200,200 --network arbitrumGoerli
 ```
 
+#### (optional) Create Court
+
+```bash
+# create a new court. Note that the config for creating this court is hardcoded in the task "create-court" in the file "contracts/scripts/simulations/tasks.ts". If you want a specific configuration for the court, you can go there and change the variables.
+$ npx hardhat create-court --walletindex 0 --network localhost
+```
+
 #### Create Dispute
 
 ```bash
 # create a new dispute (you need some ETH on the calling wallet)
-$ npx hardhat create-dispute --walletindex 0 --nbofchoices 2 --nbofjurors 3n --feeforjuror 100000000000000000n --network arbitrumGoerli
+$ npx hardhat create-dispute --walletindex 0 --courtid 1 --nbofchoices 2 --nbofjurors 3n --feeforjuror 100000000000000000n --network arbitrumGoerli
 ```
 
 #### Dispute to Generating
@@ -53,6 +70,13 @@ $ npx hardhat wait-for-rng --network arbitrumGoerli
 ```bash
 # once the number is generated, you can run this function and DK will go to the phase 'drawing', it will also draw the jurors for the dispute
 $ npx hardhat pass-dk-phase-and-draw --walletindex 0 --disputeid 0 --network arbitrumGoerli
+```
+
+#### (if you created multiple disputes you can use Draw individually)
+
+```bash
+# draw jurors for a dispute
+$ npx hardhat draw --walletindex 0 --disputeid 5 --network arbitrumGoerli
 ```
 
 #### Dispute period to Commit

@@ -6,6 +6,7 @@ export const getContracts = async (hre) => {
   const pnk = await hre.ethers.getContract("PNK");
   const randomizerRng = await hre.ethers.getContract("RandomizerRNG");
   const arbitrable = await hre.ethers.getContract("ArbitrableExampleEthFee");
+  const randomizerMock = await hre.ethers.getContract("RandomizerMock");
 
   return {
     klerosCore,
@@ -13,6 +14,7 @@ export const getContracts = async (hre) => {
     pnk,
     randomizerRng,
     arbitrable,
+    randomizerMock,
   };
 };
 
@@ -24,23 +26,27 @@ export const handleError = (e: any) => {
   }
 };
 
-export const getWalletAndProvider = async (hre: any, walletIndex: number, network: string) => {
-  const provider = hre.ethers.providers.getNetwork(network);
+export const getWallet = async (hre: any, walletIndex: number) => {
   const signers = await hre.ethers.getSigners();
   const wallet = signers[walletIndex];
-  return { wallet, provider };
+  return { wallet };
 };
 
-export const isRngReady = async (provider: any, hre) => {
+export const isRngReady = async (wallet, hre) => {
   const { randomizerRng, disputeKitClassic } = await getContracts(hre);
-  const connectedRandomizerRng = randomizerRng.connect(provider);
-  const requesterID = await connectedRandomizerRng.requesterToID(disputeKitClassic.address);
-  const n = await connectedRandomizerRng.randomNumbers(requesterID);
+  const requesterID = await randomizerRng.connect(wallet).requesterToID(disputeKitClassic.address);
+  const n = await randomizerRng.connect(wallet).randomNumbers(requesterID);
   if (Number(n) === 0) {
     console.log("rng is NOT ready.");
     return false;
   } else {
     console.log("rng is ready: %s", n.toString());
     return true;
+  }
+};
+
+export const mineBlocks = async (n, network) => {
+  for (let index = 0; index < n; index++) {
+    await network.provider.send("evm_mine", []);
   }
 };
