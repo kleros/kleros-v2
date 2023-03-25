@@ -2,17 +2,17 @@
 import { utils } from "ethers";
 import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
-import { getContracts, getWalletAndProvider, handleError, options, isRngReady } from "./utils";
+import { getContracts, getWallet, handleError, options, isRngReady, mineBlocks } from "./utils";
 
 task("approve", "Grants permission to KlerosCore to use your PNK tokens")
   .addParam("walletindex", "Index of the wallet to call this function from and approve it")
   .addParam("pnkamount", "(in normal values, not wei!) Amount of PNK tokens to approve for transfer")
   .setAction(async (taskArgs, hre) => {
     const { klerosCore, pnk } = await getContracts(hre);
-    const { walletindex, pnkamount, network } = taskArgs;
+    const { walletindex, pnkamount } = taskArgs;
 
     // Get the list of wallets and the network information from the hardhat config file
-    const { wallet } = await getWalletAndProvider(hre, walletindex, network);
+    const { wallet } = await getWallet(hre, walletindex);
 
     // Approve PNK tokens for transfer to KlerosCore
     try {
@@ -31,9 +31,9 @@ task("set-stake", "Stakes PNK tokens to participate in the Kleros dispute resolu
   .addParam("pnkamount", "(in normal values, not wei!) Amount of PNK tokens to stake")
   .setAction(async (taskArgs, hre) => {
     const { klerosCore } = await getContracts(hre);
-    const { walletindex, pnkamount, network } = taskArgs;
+    const { walletindex, pnkamount } = taskArgs;
 
-    const { wallet } = await getWalletAndProvider(hre, walletindex, network);
+    const { wallet } = await getWallet(hre, walletindex);
 
     // Stakes PNK tokens in Court 1
     try {
@@ -46,17 +46,69 @@ task("set-stake", "Stakes PNK tokens to participate in the Kleros dispute resolu
     }
   });
 
+task("create-court", "callable by Governor only. Create a new Court")
+  .addParam("walletindex", "Index of the wallet to use for creating the Court")
+  .setAction(async (taskArgs, hre) => {
+    const { klerosCore } = await getContracts(hre);
+    const { walletindex } = taskArgs;
+
+    const { wallet } = await getWallet(hre, walletindex);
+
+    const parent = 1;
+    const minStake = hre.ethers.BigNumber.from(10).pow(20).mul(2);
+    const alpha = 10000;
+    const feeForJuror = hre.ethers.BigNumber.from(10).pow(17);
+    const jurorsForCourtJump = 3;
+    const hiddenVotes = false;
+    const timesPerPeriod = [300, 300, 300, 300];
+    const sortitionSumTreeK = 3;
+    const supportedDisputeKits = [1]; // IDs of supported dispute kits
+    let courtID;
+    try {
+      const tx = await (
+        await klerosCore
+          .connect(wallet)
+          .createCourt(
+            parent,
+            hiddenVotes,
+            minStake,
+            alpha,
+            feeForJuror,
+            jurorsForCourtJump,
+            timesPerPeriod,
+            sortitionSumTreeK,
+            supportedDisputeKits
+          )
+      ).wait();
+      console.log("createCourt txID: %s", tx?.transactionHash);
+      // Get the court ID from the KlerosCore contract event logs
+      const filter = klerosCore.filters.CourtCreated();
+      const logs = await klerosCore.queryFilter(filter, tx.blockNumber, tx.blockNumber);
+      const courtCreatedLog = logs[logs.length - 1];
+      courtID = courtCreatedLog.args._courtID;
+      console.log(
+        `Created Court ${courtID} with these supportedDisputeKits: ${courtCreatedLog.args._supportedDisputeKits}`
+      );
+      const newCourt = await klerosCore.courts(courtID);
+      console.log(`Details of this new court: ${newCourt}`);
+    } catch (e) {
+      handleError(e);
+    }
+    return courtID;
+  });
+
 task("create-dispute", "Creates a dispute on an arbitrable contract")
   .addParam("walletindex", "Index of the wallet to use for creating the dispute")
+  .addParam("courtid", "ID of the court to create the dispute in")
   .addParam("nbofchoices", "Number of choices for the dispute")
   .addParam("nbofjurors", "Number of jurors for the dispute (in BigInt) (ex: 3n)")
   .addParam("feeforjuror", "Fee for each juror in wei (in BigInt) (ex: 100000n)")
   .setAction(async (taskArgs, hre) => {
     const { arbitrable, klerosCore } = await getContracts(hre);
-    const { walletindex, nbofchoices, nbofjurors, feeforjuror, network } = taskArgs;
+    const { walletindex, courtid, nbofchoices, nbofjurors, feeforjuror } = taskArgs;
     const { ethers } = hre;
 
-    const { wallet } = await getWalletAndProvider(hre, walletindex, network);
+    const { wallet } = await getWallet(hre, walletindex);
 
     // Create a random evidence group ID
     const evidenceGroupID = ethers.BigNumber.from(ethers.utils.randomBytes(32));
@@ -64,23 +116,22 @@ task("create-dispute", "Creates a dispute on an arbitrable contract")
     let disputeID;
 
     const isLocalhost = () => {
-      if (network === network?.localhost) return utils.parseUnits("1");
+      if (hre.network.name === "localhost") return utils.parseUnits("1");
       else return nbofjurors * feeforjuror;
     };
 
+    // Construct the arbitratorExtraData parameter
+    const courtIdBytes = ethers.utils.defaultAbiCoder.encode(["uint256"], [courtid]);
+    const minJurorsBytes = ethers.utils.defaultAbiCoder.encode(["uint256"], [3]); // default value for minimum jurors
+
+    const arbitratorExtraData = ethers.utils.hexConcat([courtIdBytes, minJurorsBytes]);
+
     try {
       // Create a dispute on the arbitrable contract
-      const tx = await arbitrable
-        .connect(wallet)
-        .createDispute(
-          nbofchoices,
-          "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003",
-          evidenceGroupID,
-          {
-            value: isLocalhost(),
-            ...options,
-          }
-        );
+      const tx = await arbitrable.connect(wallet).createDispute(nbofchoices, arbitratorExtraData, evidenceGroupID, {
+        value: isLocalhost(),
+        ...options,
+      });
       await tx.wait();
       console.log("createDisputeOnArbitrable txID: %s", tx?.hash);
 
@@ -88,7 +139,7 @@ task("create-dispute", "Creates a dispute on an arbitrable contract")
       const filter = klerosCore.filters.DisputeCreation();
       const logs = await klerosCore.queryFilter(filter, tx.blockNumber, tx.blockNumber);
       disputeID = logs[logs.length - 1]?.args?._disputeID;
-      console.log("DisputeID: %s", disputeID);
+      console.log("Created DisputeID: %s on CourtID %s", disputeID, courtid);
     } catch (e) {
       handleError(e);
     }
@@ -100,9 +151,9 @@ task("pass-phase-core", "Pass the phase of the KlerosCore contract")
   .addParam("walletindex", "Index of the wallet to use for passing the phase")
   .setAction(async (taskArgs, hre) => {
     const { klerosCore } = await getContracts(hre);
-    const { walletindex, network } = taskArgs;
+    const { walletindex } = taskArgs;
 
-    const { wallet } = await getWalletAndProvider(hre, walletindex, network);
+    const { wallet } = await getWallet(hre, walletindex);
 
     const before = await klerosCore.phase();
     try {
@@ -120,9 +171,9 @@ task("pass-phase-dk", "Pass the phase of the DisputeKitClassic contract")
   .addParam("walletindex", "Index of the wallet to use for passing the phase")
   .setAction(async (taskArgs, hre) => {
     const { disputeKitClassic } = await getContracts(hre);
-    const { walletindex, network } = taskArgs;
+    const { walletindex } = taskArgs;
 
-    const { wallet } = await getWalletAndProvider(hre, walletindex, network);
+    const { wallet } = await getWallet(hre, walletindex);
 
     const before = await disputeKitClassic.phase();
     try {
@@ -137,14 +188,12 @@ task("pass-phase-dk", "Pass the phase of the DisputeKitClassic contract")
   });
 
 task("wait-for-rng", "Waits for the RNG to be ready").setAction(async (taskArgs, hre) => {
-  const { network } = taskArgs;
-
   const walletIndex = 0;
-  const { wallet, provider } = await getWalletAndProvider(hre, walletIndex, network);
+  const { wallet } = await getWallet(hre, walletIndex);
 
   let ready: boolean;
   try {
-    ready = await isRngReady(provider, hre);
+    ready = await isRngReady(wallet, hre);
   } catch (e) {
     ready = false;
   }
@@ -160,8 +209,8 @@ task("draw", "Draws jurors for a dispute on Kleros")
   .addParam("disputeid", "The ID of the dispute to draw jurors for")
   .setAction(async (taskArgs, hre) => {
     const { klerosCore } = await getContracts(hre);
-    const { disputeid, walletindex, network } = taskArgs;
-    const { wallet } = await getWalletAndProvider(hre, walletindex, network);
+    const { disputeid, walletindex } = taskArgs;
+    const { wallet } = await getWallet(hre, walletindex);
 
     let info = await klerosCore.getRoundInfo(disputeid, 0);
     console.log("Drawn jurors before: %O", info.drawnJurors);
@@ -181,8 +230,8 @@ task("pass-period", "Passes the period of a dispute on Kleros Core")
   .addParam("disputeid", "The ID of the dispute")
   .setAction(async (taskArgs, hre) => {
     const { klerosCore } = await getContracts(hre);
-    const { disputeid, walletindex, network } = taskArgs;
-    const { wallet } = await getWalletAndProvider(hre, walletindex, network);
+    const { disputeid, walletindex } = taskArgs;
+    const { wallet } = await getWallet(hre, walletindex);
 
     const before = (await klerosCore.disputes(disputeid)).period;
 
@@ -205,8 +254,8 @@ task("cast-commit", "Casts a commit for a drawn juror")
   .addParam("justification", "The justification of making that choice, not mandatory")
   .setAction(async (taskArgs, hre) => {
     const { disputeKitClassic } = await getContracts(hre);
-    const { disputeid, walletindex, choice, voteids, network } = taskArgs;
-    const { wallet } = await getWalletAndProvider(hre, walletindex, network);
+    const { disputeid, walletindex, choice, voteids } = taskArgs;
+    const { wallet } = await getWallet(hre, walletindex);
 
     const salt = 123;
     console.log("salt used on juror %s is: %s", walletindex, salt);
@@ -233,8 +282,8 @@ task("cast-vote", "Casts a vote for a drawn juror")
   .addParam("salt", "the salt used for the commit if there was a commit period")
   .setAction(async (taskArgs, hre) => {
     const { disputeKitClassic } = await getContracts(hre);
-    const { disputeid, walletindex, choice, network, voteids } = taskArgs;
-    const { wallet } = await getWalletAndProvider(hre, walletindex, network);
+    const { disputeid, walletindex, choice, voteids } = taskArgs;
+    const { wallet } = await getWallet(hre, walletindex);
     const voteIdsParam = [voteids];
 
     const castVoteFunctionArgs = [disputeid, voteIdsParam, choice, taskArgs.salt, taskArgs.justification];
@@ -250,12 +299,16 @@ task("fund-appeal", "Funds an appeal on a dispute")
   .addParam("choice", "The choice being funded (0 or 1)")
   .setAction(async (taskArgs, hre) => {
     const { disputeKitClassic } = await getContracts(hre);
-    const { disputeid, walletindex, network, choice } = taskArgs;
-    const { wallet } = await getWalletAndProvider(hre, walletindex, network);
+    const { disputeid, walletindex, choice } = taskArgs;
+    const { wallet } = await getWallet(hre, walletindex);
 
-    const fundAppealFunctionArgs = [disputeid, choice, { value: utils.parseUnits("0.5") }];
+    const fundAppealFunctionArgs = [disputeid, choice, { value: utils.parseUnits("0.3") }];
 
     try {
+      if (hre.network?.name === "localhost") {
+        const numberOfBlocksToMine = 30;
+        await mineBlocks(numberOfBlocksToMine, hre.network);
+      }
       const fundAppealTx = await (await disputeKitClassic.connect(wallet).fundAppeal(...fundAppealFunctionArgs)).wait();
       console.log("fundAppeal (DisputeKit) txID: %s", fundAppealTx?.transactionHash);
     } catch (e) {
@@ -268,9 +321,9 @@ task("execute-ruling", "Executes the ruling for a dispute on KlerosCore")
   .addParam("disputeid", "The ID of the dispute to execute ruling")
   .setAction(async (taskArgs, hre) => {
     const { klerosCore } = await getContracts(hre);
-    const { disputeid, walletindex, network } = taskArgs;
+    const { disputeid, walletindex } = taskArgs;
 
-    const { wallet } = await getWalletAndProvider(hre, walletindex, network);
+    const { wallet } = await getWallet(hre, walletindex);
     const connectedKlerosCore = klerosCore.connect(wallet);
     let executeRulingTx;
     try {
@@ -298,9 +351,9 @@ task("withdraw-fees-and-rewards", "Withdraws fees and rewards for people who app
   .addParam("choice", "the choice you want to withdraw from")
   .setAction(async (taskArgs, hre) => {
     const { disputeKitClassic } = await getContracts(hre);
-    const { disputeid, walletindex, network, beneficiary, roundid, choice } = taskArgs;
+    const { disputeid, walletindex, beneficiary, roundid, choice } = taskArgs;
 
-    const { wallet } = await getWalletAndProvider(hre, walletindex, network);
+    const { wallet } = await getWallet(hre, walletindex);
     try {
       const withdrawTx = await (
         await disputeKitClassic.connect(wallet).withdrawFeesAndRewards(disputeid, beneficiary, roundid, choice)
@@ -333,9 +386,17 @@ task("stake-five-jurors", "Approve and stake 5 different wallets on the court 1"
 
 task("dispute-to-generating", "Pass Core and DK 1 phase each, core to 'freezing' and DK to 'generating")
   .addParam("walletindex", "Index of the wallet to use for calling this task")
-  .setAction(async (taskArgs, hre) => {
-    await hre.run("pass-phase-core", { walletindex: taskArgs.walletindex });
-    await hre.run("pass-phase-dk", { walletindex: taskArgs.walletindex });
+  .setAction(async (taskArgs, hre: any) => {
+    const { walletindex } = taskArgs;
+    await hre.run("pass-phase-core", { walletindex: walletindex });
+    await hre.run("pass-phase-dk", { walletindex: walletindex });
+    if (hre.network?.name === "localhost") {
+      const { disputeKitClassic, randomizerMock, randomizerRng } = await getContracts(hre);
+      const { wallet } = await getWallet(hre, walletindex);
+      const numberOfBlocksToMine = await disputeKitClassic.connect(wallet).rngLookahead();
+      await mineBlocks(numberOfBlocksToMine, hre.network);
+      await randomizerMock.connect(wallet).relay(randomizerRng.address, 0, utils.randomBytes(32));
+    }
   });
 
 task("pass-dk-phase-and-draw", "DK passes to the phase 'drawing', and then you draw the jurors")
@@ -358,13 +419,13 @@ task("fund-with-PNK", "It funds with PNK from one wallet to the other 4 wallets"
   .addParam("pnkamountforeach", "Amount you will send to each wallet")
   .setAction(async (taskArgs, hre) => {
     const { pnk } = await getContracts(hre);
-    const { walletindex, network, pnkamountforeach } = taskArgs;
-    const { wallet } = await getWalletAndProvider(hre, walletindex, network);
+    const { walletindex, pnkamountforeach } = taskArgs;
+    const { wallet } = await getWallet(hre, walletindex);
     const amount = utils.parseUnits(pnkamountforeach.toString(), "18");
-    const firstWallet = await (await getWalletAndProvider(hre, 1, network)).wallet;
-    const secondWallet = await (await getWalletAndProvider(hre, 2, network)).wallet;
-    const thirdWallet = await (await getWalletAndProvider(hre, 3, network)).wallet;
-    const fourthWallet = await (await getWalletAndProvider(hre, 4, network)).wallet;
+    const firstWallet = await (await getWallet(hre, 1)).wallet;
+    const secondWallet = await (await getWallet(hre, 2)).wallet;
+    const thirdWallet = await (await getWallet(hre, 3)).wallet;
+    const fourthWallet = await (await getWallet(hre, 4)).wallet;
     const firstTx = await pnk.connect(wallet).transfer(firstWallet.address, amount);
     console.log("funded wallet %s with %s: %s", firstWallet.address, amount, firstTx?.hash);
     const secondTx = await pnk.connect(wallet).transfer(secondWallet.address, amount);
@@ -383,8 +444,8 @@ task(
   .setAction(async (taskArgs, hre) => {
     const { randomizerRng } = await getContracts(hre);
     const randomizerMock = await hre.ethers.getContract("RandomizerMock");
-    const { walletindex, network } = taskArgs;
-    const { wallet } = await getWalletAndProvider(hre, walletindex, network);
+    const { walletindex } = taskArgs;
+    const { wallet } = await getWallet(hre, walletindex);
     const tx = await randomizerRng.connect(wallet).setRandomizer(randomizerMock.address);
     await tx.wait();
     console.log("setRandomizer txHash %s", tx);
