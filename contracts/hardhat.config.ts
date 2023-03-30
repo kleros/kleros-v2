@@ -1,8 +1,6 @@
 /* eslint-disable node/no-missing-require */
 import * as dotenv from "dotenv";
-
 import { HardhatUserConfig } from "hardhat/config";
-
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-deploy-tenderly";
