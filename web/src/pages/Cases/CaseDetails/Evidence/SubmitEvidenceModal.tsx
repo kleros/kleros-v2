@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { BigNumber } from "ethers";
+import { useSigner } from "wagmi";
+import { toast } from "react-toastify";
 import Modal from "react-modal";
 import { Textarea, Button } from "@kleros/ui-components-library";
-import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
-import { wrapWithToast } from "utils/wrapWithToast";
-import { useConnectedContract } from "hooks/useConnectedContract";
+import { useDisputeKitClassic } from "hooks/contracts/generated";
+import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 
 const SubmitEvidenceModal: React.FC<{
@@ -12,9 +14,10 @@ const SubmitEvidenceModal: React.FC<{
   evidenceGroup: string;
   close: () => void;
 }> = ({ isOpen, evidenceGroup, close }) => {
-  const disputeKit = useConnectedContract(
-    "DisputeKitClassic"
-  ) as DisputeKitClassic;
+  const { data: signer } = useSigner();
+  const disputeKit = useDisputeKitClassic({
+    signerOrProvider: signer,
+  });
   const [isSending, setIsSending] = useState(false);
   const [message, setMessage] = useState("");
   return (
@@ -37,23 +40,29 @@ const SubmitEvidenceModal: React.FC<{
           isLoading={isSending}
           disabled={isSending}
           onClick={() => {
-            setIsSending(true);
-            const formData = constructEvidence(message);
-            uploadFormDataToIPFS(formData)
-              .then(async (res) => {
-                const response = await res.json();
-                if (res.status === 200) {
-                  const cid = "/ipfs/" + response["cid"];
-                  await wrapWithToast(
-                    disputeKit.submitEvidence(evidenceGroup, cid)
-                  ).then(() => {
-                    setMessage("");
-                    close();
-                  });
-                }
-              })
-              .catch()
-              .finally(() => setIsSending(false));
+            if (disputeKit) {
+              setIsSending(true);
+              const formData = constructEvidence(message);
+              toast.info("Uploading to IPFS", toastOptions);
+              uploadFormDataToIPFS(formData)
+                .then(async (res) => {
+                  const response = await res.json();
+                  if (res.status === 200) {
+                    const cid = "/ipfs/" + response["cid"];
+                    await wrapWithToast(
+                      disputeKit.submitEvidence(
+                        BigNumber.from(evidenceGroup),
+                        cid
+                      )
+                    ).then(() => {
+                      setMessage("");
+                      close();
+                    });
+                  }
+                })
+                .catch()
+                .finally(() => setIsSending(false));
+            }
           }}
         />
       </ButtonArea>

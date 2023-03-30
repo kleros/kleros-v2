@@ -2,9 +2,12 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useAccount, useBalance } from "wagmi";
+import { useDebounce } from "react-use";
 import { Field, Button } from "@kleros/ui-components-library";
-import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
-import { useConnectedContract } from "hooks/useConnectedContract";
+import {
+  usePrepareDisputeKitClassicFundAppeal,
+  useDisputeKitClassicFundAppeal,
+} from "hooks/contracts/generated";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import {
@@ -13,6 +16,7 @@ import {
   useFundingContext,
 } from "hooks/useClassicAppealContext";
 import { notUndefined } from "utils/index";
+import { BigNumber } from "ethers";
 
 const Fund: React.FC = () => {
   const loserSideCountdown = useLoserSideCountdownContext();
@@ -26,15 +30,22 @@ const Fund: React.FC = () => {
   const { data: balance } = useBalance({
     address,
     watch: true,
-    cacheTime: 12_000,
   });
   const [amount, setAmount] = useState("");
-  const parsedAmount = useParsedAmount(amount);
+  const [debouncedAmount, setDebouncedAmount] = useState("");
+  useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
+  const parsedAmount = useParsedAmount(debouncedAmount);
   const [isSending, setIsSending] = useState(false);
-  const disputeKitClassic = useConnectedContract(
-    "DisputeKitClassic"
-  ) as DisputeKitClassic;
   const { selectedOption } = useSelectedOptionContext();
+  const { config: fundAppealConfig } = usePrepareDisputeKitClassicFundAppeal({
+    enabled: notUndefined([id, selectedOption]),
+    args: [BigNumber.from(id), BigNumber.from(selectedOption)],
+    overrides: {
+      value: parsedAmount,
+    },
+  });
+  const { writeAsync: fundAppeal } =
+    useDisputeKitClassicFundAppeal(fundAppealConfig);
   return needFund ? (
     <div>
       <label>How much ETH do you want to contribute?</label>
@@ -54,18 +65,11 @@ const Fund: React.FC = () => {
             !balance ||
             parsedAmount.gt(balance.value)
           }
-          text={typeof balance === "undefined" ? "Connect to Fund" : "Fund"}
+          text={isDisconnected ? "Connect to Fund" : "Fund"}
           onClick={() => {
-            if (
-              typeof selectedOption !== "undefined" &&
-              typeof id !== "undefined"
-            ) {
+            if (fundAppeal) {
               setIsSending(true);
-              wrapWithToast(
-                disputeKitClassic.fundAppeal(id, selectedOption, {
-                  value: parsedAmount,
-                })
-              )
+              wrapWithToast(fundAppeal!())
                 .then(() => {
                   setAmount("");
                   close();

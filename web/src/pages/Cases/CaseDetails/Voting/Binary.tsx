@@ -1,24 +1,31 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
 import { Button, Textarea } from "@kleros/ui-components-library";
-import { useConnectedContract } from "hooks/useConnectedContract";
+import { useDisputeKitClassic } from "hooks/contracts/generated";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { wrapWithToast } from "utils/wrapWithToast";
+import { useSigner } from "wagmi";
+import { BigNumber } from "ethers";
 
 const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({
   arbitrable,
   voteIDs,
 }) => {
   const { id } = useParams();
+  const parsedDisputeID = BigNumber.from(id);
+  const parsedVoteIDs = useMemo(
+    () => voteIDs.map((voteID) => BigNumber.from(voteID)),
+    [voteIDs]
+  );
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
   const [chosenOption, setChosenOption] = useState(-1);
   const [isSending, setIsSending] = useState(false);
   const [justification, setJustification] = useState("");
-  const disputeKit = useConnectedContract(
-    "DisputeKitClassic"
-  ) as DisputeKitClassic;
+  const { data: signer } = useSigner();
+  const disputeKit = useDisputeKitClassic({
+    signerOrProvider: signer,
+  });
   return id ? (
     <Container>
       <MainContainer>
@@ -42,14 +49,22 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({
                 disabled={isSending}
                 isLoading={chosenOption === i + 1}
                 onClick={() => {
-                  setIsSending(true);
-                  setChosenOption(i + 1);
-                  wrapWithToast(
-                    disputeKit.castVote(id, voteIDs, i + 1, 0, justification)
-                  ).finally(() => {
-                    setChosenOption(-1);
-                    setIsSending(false);
-                  });
+                  if (disputeKit) {
+                    setIsSending(true);
+                    setChosenOption(i + 1);
+                    wrapWithToast(
+                      disputeKit!.castVote(
+                        parsedDisputeID,
+                        parsedVoteIDs,
+                        BigNumber.from(i + 1),
+                        BigNumber.from(0),
+                        justification
+                      )
+                    ).finally(() => {
+                      setChosenOption(-1);
+                      setIsSending(false);
+                    });
+                  }
                 }}
               />
             )
@@ -63,14 +78,22 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({
           disabled={isSending}
           isLoading={chosenOption === 0}
           onClick={() => {
-            setIsSending(true);
-            setChosenOption(0);
-            wrapWithToast(
-              disputeKit.castVote(id, voteIDs, 0, 0, justification)
-            ).finally(() => {
-              setChosenOption(-1);
-              setIsSending(false);
-            });
+            if (disputeKit) {
+              setIsSending(true);
+              setChosenOption(0);
+              wrapWithToast(
+                disputeKit.castVote(
+                  parsedDisputeID,
+                  parsedVoteIDs,
+                  BigNumber.from(0),
+                  BigNumber.from(0),
+                  justification
+                )
+              ).finally(() => {
+                setChosenOption(-1);
+                setIsSending(false);
+              });
+            }
           }}
         />
       </RefuseToArbitrateContainer>

@@ -14,8 +14,8 @@ export const OPTIONS = {
 export async function wrapWithToast(tx: Promise<any>) {
   toast.info("Transaction initiated", OPTIONS);
   await tx
-    .then((tx) => {
-      tx.wait(2);
+    .then(async (tx) => {
+      await tx.wait(2);
       toast.success("Transaction mined!", OPTIONS);
     })
     .catch((error) => {
