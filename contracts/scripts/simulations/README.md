@@ -7,11 +7,7 @@
 $ cd kleros-v2/contracts/
 ```
 
-## Scripts start here
-
-The scripts are supposed to be executed in order. Note that if you get some gas related errors when executing any script, you can go to the file `contracts/scripts/simulations/utils.ts` and modify the variable `options` to have more GasPrice/GasLimit. Then save the file and you're good to go.
-
-#### If you want to run these scripts in hardhat localhost, first you need to do this
+#### To run the scripts in hardhat's localhost network, first you need to do this
 
 ```bash
 # Open 2 terminals, on the first one, run this:
@@ -21,18 +17,31 @@ $ yarn deploy --network localhost --tags HomeArbitrable
 # all set, from now on, run the scripts on the second console
 ```
 
-#### Fund with PNK
+## Scripts start here
+
+Note that if you get some gas related errors when executing any script, you can go to the file `contracts/scripts/simulations/utils.ts` and modify the variable `options` to have more GasPrice/GasLimit. Then save the file and you're good to go.
+
+#### Simulate All
+
+```bash
+# This script simulates all at once.
+$ yarn hardhat simulate:all --network localhost
+```
+
+#### Individual scripts
+
+#### Split PNK
 
 ```bash
 # This script quickly sends PNK from one wallet to other 4 wallets (the ones declared on the "hardhat.config.ts" as private keys, private key 1 matches walletindex 0, and so on). ENSURE that the five wallets from `.env` are correctly funded with ETH and PNK. Otherwise you will get a lot of nasty errors. In this example, you will need 800 PNK to perform this transaction, because will send 200 PNK to each wallet, watch out.
-$ yarn hardhat simulate:fund-with-pnk --walletindex 0 --pnkperwallet 200 --network arbitrumGoerli
+$ yarn hardhat simulate:split-pnk --walletindex 0 --pnkperwallet 200 --network arbitrumGoerli
 ```
 
 #### Stake PNK
 
 ```bash
-# approve KlerosCore to use your PNK tokens on 5 different wallets, and then stake them on the court "1"
-$ yarn hardhat simulate:stake-five-jurors --walletindexes 0,1,2,3,4 --pnkamounts 200,200,200,200,200 --network arbitrumGoerli
+# approve KlerosCore to use your PNK tokens on 5 different wallets, then stake them on the court "1" (specify courtid in parameter)
+$ yarn hardhat simulate:stake-five-jurors --walletindexes 0,1,2,3,4 --pnkamounts 200,200,200,200,200 --courtid 1 --network arbitrumGoerli
 ```
 
 #### (optional) Create Court
@@ -49,25 +58,25 @@ $ yarn hardhat simulate:create-court --walletindex 0 --network localhost
 $ yarn hardhat simulate:create-dispute --walletindex 0 --courtid 1 --nbofchoices 2 --nbofjurors 3n --feeforjuror 100000000000000000n --network arbitrumGoerli
 ```
 
-#### Dispute to Generating
+#### To Freezing and Generating phase
 
 ```bash
 # pass Core and DK 1 phase each, core to 'freezing' and DK to 'generating'
-$ yarn hardhat simulate:dispute-to-generating --walletindex 0 --network arbitrumGoerli
+$ yarn hardhat simulate:to-freezing-and-generating-phase --walletindex 0 --network arbitrumGoerli
 ```
 
 #### Waits for Rng
 
 ```bash
-# waits for the random number to be generated and lets you know, we cannot continue until this is done
+# waits for the random number to be generated and lets you know, we can not continue until this is done
 $ yarn hardhat simulate:wait-for-rng --network arbitrumGoerli
 ```
 
-#### Pass DK Phase and Draw
+#### Pass DK phase, draw, unfreeze
 
 ```bash
-# once the number is generated, you can run this function and DK will go to the phase 'drawing', it will also draw the jurors for the dispute
-$ yarn hardhat simulate:pass-dk-phase-and-draw --walletindex 0 --disputeid 0 --network arbitrumGoerli
+# once the number is generated, this function will move DK to the phase 'drawing', it also draws the jurors for the dispute, then returns the DK and Core phases to 'resolving' and 'staking', respectively
+$ yarn hardhat simulate:pass-phase-draw-unfreeze --walletindex 0 --disputeid 0 --network arbitrumGoerli
 ```
 
 #### (if you created multiple disputes you can use Draw individually)
@@ -75,6 +84,13 @@ $ yarn hardhat simulate:pass-dk-phase-and-draw --walletindex 0 --disputeid 0 --n
 ```bash
 # draw jurors for a dispute
 $ yarn hardhat simulate:draw --walletindex 0 --disputeid 5 --network arbitrumGoerli
+```
+
+#### Submit Evidence
+
+```bash
+# submits evidence
+$ yarn hardhat simulate:submit-evidence --walletindex 0 --evidencegroupid 35485348662853211036000747072835336201257659261269148469720238392298048238137 --network arbitrumGoerli
 ```
 
 #### Dispute period to Commit
@@ -87,8 +103,8 @@ $ yarn hardhat simulate:pass-period --walletindex 0 --disputeid 0 --network arbi
 #### Cast Commit
 
 ```bash
-# a juror commits its vote. Modify walletindex to match the drawn juror, who will be calling this function. The index is the same order as the accounts listed on the file "hardhat.config.ts" (ex: firstWallet matches walletindex 0, and so on)
-$ yarn hardhat simulate:cast-commit --walletindex 1 --disputeid 0 --voteids 0 --choice 1 --justification because --network arbitrumGoerli
+# a juror commits its vote
+$ yarn hardhat simulate:cast-commit --walletindex 1 --disputeid 0 --choice 1 --justification because --network arbitrumGoerli
 ```
 
 #### Dispute period to Vote
@@ -101,8 +117,8 @@ $ yarn hardhat simulate:pass-period --walletindex 0 --disputeid 0 --network arbi
 #### Cast Vote
 
 ```bash
-# a juror votes. IN CASE THERE WAS NO COMMIT PERIOD; PUT SALT AS 0 (ex: --salt 0). In case there was a commit period, the commit and vote parameters have to match, and you must include the salt, which for testing purposes we will always use "123" as the salt.
-$ yarn hardhat simulate:cast-vote --walletindex 1 --disputeid 0 --voteids 0 --choice 1 --justification because --salt 123 --network arbitrumGoerli
+# a juror votes. In case there wasn't a commit period, omit the --salt parameter. In case there was a commit period, the commit and vote parameters have to match, and you must include the salt which for testing purposes we will use "123"
+$ yarn hardhat simulate:cast-vote --walletindex 1 --disputeid 0 --choice 1 --justification because --salt 123 --network arbitrumGoerli
 ```
 
 #### Dispute period to Appeal
@@ -115,8 +131,8 @@ $ yarn hardhat simulate:pass-period --walletindex 0 --disputeid 0 --network arbi
 #### Fund Appeal
 
 ```bash
-# you appeal a choice. by default you will always appeal with 0.5 ETH so make sure you have funds, you will receive the difference automatically by the Core contract. You can modify this quantity in the "tasks.ts" file if you want.
-$ yarn hardhat simulate:fund-appeal --walletindex 0 --disputeid 0 --choice 1 --network arbitrumGoerli
+# appeal a choice
+$ yarn hardhat simulate:fund-appeal --walletindex 0 --disputeid 0 --appealchoice 1 --network arbitrumGoerli
 ```
 
 #### Dispute period to Execution
@@ -138,11 +154,4 @@ $ yarn hardhat simulate:execute-ruling --walletindex 0 --disputeid 0 --network a
 ```bash
 # withdraws fees and rewards for the people that won appeals. modify parameters accordingly.
 $ yarn hardhat simulate:withdraw-fees-and-rewards --beneficiary 0x1cC9304B31F05d27470ccD855b05310543b70f17 --roundId 0 --choice 1 --walletindex 0 --disputeid 0 --network arbitrumGoerli
-```
-
-#### Return Phases
-
-```bash
-# returns DK and Core phases to "resolving" and "staking", respectively
-$ yarn hardhat simulate:return-phases --walletindex 0 --network arbitrumGoerli
 ```

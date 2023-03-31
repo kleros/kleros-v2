@@ -72,6 +72,54 @@ export const isNetworkLocal = (hre: any): boolean => {
   return hre.network.tags?.local === true;
 };
 
+export const getArbitrationFees = (hre, nbofjurors: bigint, feeforjuror: bigint) => {
+  if (isNetworkLocal(hre)) {
+    return hre.ethers.utils.parseUnits("1");
+  } else {
+    return nbofjurors * feeforjuror;
+  }
+};
+
+export const getSalt = (taskArgs) => {
+  if (!taskArgs?.salt || taskArgs.salt === "0") return "0";
+  else return taskArgs.salt;
+};
+
+export const getLatestRoundId = async (hre, disputeid: string) => {
+  const { core } = await getContracts(hre);
+  return Number(await core.getNumberOfRounds(disputeid)) - 1;
+};
+
+export const getRoundId = async (taskArgs, hre, disputeid: string) => {
+  if (!taskArgs?.roundid) return getLatestRoundId(hre, disputeid);
+  else return taskArgs.roundid;
+};
+
+export const getDrawnJurors = async (hre, disputeid, roundid) => {
+  const { core } = await getContracts(hre);
+  return (await core.getRoundInfo(disputeid, roundid)).drawnJurors;
+};
+
+export const findVoteIdInDrawnJurors = (walletAddress: string, drawnJurors: string[]) => {
+  return drawnJurors.findIndex((address) => address.toLowerCase() === walletAddress.toLowerCase());
+};
+
+export const findFirstDrawnJurorWalletIndex = async (hre, drawnJurors) => {
+  // "i" represents the walletIndex, and the "5" is the length of the walletIndex array (in this case we have 5 accounts)
+  for (let i = 0; i < 5; i++) {
+    const { wallet } = await getWallet(hre, i);
+    const voteId = findVoteIdInDrawnJurors(wallet.address, drawnJurors);
+    if (voteId !== -1) {
+      return i;
+    }
+  }
+};
+
+export const getAppealCost = async (hre, disputeId) => {
+  const { core } = await getContracts(hre);
+  return await core.appealCost(disputeId);
+};
+
 export const waitFor = async (seconds: number, hre) => {
   if (isNetworkLocal(hre)) {
     await hre.network.provider.send("evm_increaseTime", [seconds]);
@@ -93,7 +141,7 @@ export const latest = async (network): Promise<number> => {
 
 export const waitForPeriod = async (disputeId: number, period: Period, hre) => {
   const { core } = await getContracts(hre);
-  const { lastPeriodChange, courtID } = await core.disputes(0);
+  const { lastPeriodChange, courtID } = await core.disputes(disputeId);
   const periodDuration = (await core.getTimesPerPeriod(courtID))[period];
   const now = await latest(hre.network);
   const remainingDuration = lastPeriodChange.add(periodDuration).sub(now).toNumber();
