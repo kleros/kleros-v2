@@ -12,6 +12,14 @@ import {
   isNetworkLocal,
   waitFor,
   waitForPeriod,
+  getArbitrationFees,
+  getSalt,
+  getRoundId,
+  getDrawnJurors,
+  getLatestRoundId,
+  findVoteIdInDrawnJurors,
+  findFirstDrawnJurorWalletIndex,
+  getAppealCost,
 } from "./utils";
 
 task("simulate:approve", "Grants permission to KlerosCore to use your PNK tokens")
@@ -26,7 +34,7 @@ task("simulate:approve", "Grants permission to KlerosCore to use your PNK tokens
 
     // Approve PNK tokens for transfer to KlerosCore
     try {
-      const approvePNKFunctionArgs = [core.address, utils.parseEther(pnkamount.toString())];
+      const approvePNKFunctionArgs: [string, BigNumber] = [core.address, utils.parseEther(pnkamount.toString())];
       const resultApproveTx = await pnk.connect(wallet).approve(...approvePNKFunctionArgs, options);
       await resultApproveTx.wait();
       console.log(`Approved ${pnkamount} PNK tokens for transfer to KlerosCore from wallet ${wallet.address}`);
@@ -39,15 +47,16 @@ task("simulate:approve", "Grants permission to KlerosCore to use your PNK tokens
 task("simulate:set-stake", "Stakes PNK tokens to participate in the Kleros dispute resolution")
   .addParam("walletindex", "Index of the wallet to call this function from and stake it")
   .addParam("pnkamount", "(in normal values, not wei!) Amount of PNK tokens to stake")
+  .addParam("courtid", "the ID of the court you want to stake on (General Court ID = 1")
   .setAction(async (taskArgs, hre) => {
     const { core } = await getContracts(hre);
-    const { walletindex, pnkamount } = taskArgs;
+    const { walletindex, pnkamount, courtid } = taskArgs;
 
     const { wallet } = await getWallet(hre, walletindex);
 
-    // Stakes PNK tokens in Court 1
+    // Stakes PNK tokens in the Court you specified as parameter of this task
     try {
-      const setStakeFunctionArgs = [1, utils.parseEther(pnkamount.toString())];
+      const setStakeFunctionArgs: [string, BigNumber] = [courtid, utils.parseEther(pnkamount.toString())];
       const resultSetStakeTx = await core.connect(wallet).setStake(...setStakeFunctionArgs, options);
       await resultSetStakeTx.wait();
       console.log(`setStake wallet ${wallet.address}, txID: %s`, resultSetStakeTx?.hash);
@@ -70,7 +79,7 @@ task("simulate:create-court", "callable by Governor only. Create a new Court")
     const feeForJuror = BigNumber.from(10).pow(17);
     const jurorsForCourtJump = 3;
     const hiddenVotes = false;
-    const timesPerPeriod = [300, 300, 300, 300];
+    const timesPerPeriod = [300, 300, 300, 300] as any;
     const sortitionSumTreeK = 3;
     const supportedDisputeKits = [1]; // IDs of supported dispute kits
     let courtID;
@@ -121,17 +130,9 @@ task("simulate:create-dispute", "Creates a dispute on an arbitrable contract")
     const { wallet } = await getWallet(hre, walletindex);
 
     // Create a random evidence group ID
-    const evidenceGroupID = ethers.BigNumber.from(ethers.utils.randomBytes(32));
+    const evidenceGroupID = ethers.BigNumber.from(ethers.utils.randomBytes(32)).toString();
 
     let disputeID;
-
-    const isLocalhost = () => {
-      if (isNetworkLocal(hre)) {
-        return utils.parseUnits("1");
-      } else {
-        return nbofjurors * feeforjuror;
-      }
-    };
 
     // Construct the arbitratorExtraData parameter
     const courtIdBytes = ethers.utils.defaultAbiCoder.encode(["uint256"], [courtid]);
@@ -142,7 +143,7 @@ task("simulate:create-dispute", "Creates a dispute on an arbitrable contract")
     try {
       // Create a dispute on the arbitrable contract
       const tx = await arbitrable.connect(wallet).createDispute(nbofchoices, arbitratorExtraData, evidenceGroupID, {
-        value: isLocalhost(),
+        value: getArbitrationFees(hre, nbofjurors, feeforjuror),
         ...options,
       });
       await tx.wait();
@@ -152,12 +153,15 @@ task("simulate:create-dispute", "Creates a dispute on an arbitrable contract")
       const filter = core.filters.DisputeCreation();
       const logs = await core.queryFilter(filter, tx.blockNumber, tx.blockNumber);
       disputeID = logs[logs.length - 1]?.args?._disputeID;
-      console.log("Created DisputeID: %s on CourtID %s", disputeID, courtid);
+      console.log("Created Dispute %s on Court %s with evidenceGroupID %s", disputeID, courtid, evidenceGroupID);
     } catch (e) {
       handleError(e);
     }
-
-    return disputeID;
+    const dispute = {
+      id: disputeID,
+      evidenceGroupID: evidenceGroupID,
+    };
+    return dispute;
   });
 
 task("simulate:pass-phase-core", "Pass the phase of the KlerosCore contract")
@@ -229,7 +233,7 @@ task("simulate:draw", "Draws jurors for a dispute on Kleros")
     console.log("Drawn jurors before: %O", info.drawnJurors);
     try {
       const tx = await (await core.connect(wallet).draw(disputeid, 10, options)).wait();
-      console.log("draw txID: %s", tx?.hash);
+      console.log("draw txID: %s", tx?.transactionHash);
     } catch (e) {
       handleError(e);
     } finally {
@@ -262,24 +266,25 @@ task("simulate:pass-period", "Passes the period of a dispute on Kleros Core")
 task("simulate:cast-commit", "Casts a commit for a drawn juror")
   .addParam("walletindex", "Index of the wallet to use for casting the commit")
   .addParam("disputeid", "The ID of the dispute to vote on")
-  .addParam("voteids", "The ID of the votes where you are drawn to and you want to vote on (ex: 0,1) or (ex: 1)")
   .addParam("choice", "The ID of the choice you will vote")
   .addParam("justification", "The justification of making that choice, not mandatory")
   .setAction(async (taskArgs, hre) => {
     const { disputeKitClassic } = await getContracts(hre);
-    const { disputeid, walletindex, choice, voteids } = taskArgs;
+    const { disputeid, walletindex, choice } = taskArgs;
     const { wallet } = await getWallet(hre, walletindex);
 
-    const salt = 123;
+    const salt = "123";
     console.log("salt used on juror %s is: %s", walletindex, salt);
     const generateCommit = (choice: number, justification: string) => {
-      const hash = utils.solidityKeccak256(["uint256", "string", "uint256"], [choice, justification, salt]);
+      const hash = utils.solidityKeccak256(["string", "string", "string"], [choice, justification, salt]);
       return utils.hexlify(hash);
     };
     const commitHash = generateCommit(choice, taskArgs.justification);
-    const voteIdsParam = [voteids];
+    const drawnJurors = await getDrawnJurors(hre, disputeid, getRoundId(taskArgs, hre, disputeid));
+    const voteid = findVoteIdInDrawnJurors(wallet.address, drawnJurors);
+    const voteIdsParam = [voteid.toString()];
 
-    const castCommitFunctionArgs = [disputeid, voteIdsParam, commitHash];
+    const castCommitFunctionArgs: [string, string[], string] = [disputeid, voteIdsParam, commitHash];
     const tx = await disputeKitClassic.connect(wallet).castCommit(...castCommitFunctionArgs);
     await tx.wait();
 
@@ -289,17 +294,24 @@ task("simulate:cast-commit", "Casts a commit for a drawn juror")
 task("simulate:cast-vote", "Casts a vote for a drawn juror")
   .addParam("walletindex", "Index of the wallet to use for casting the vote")
   .addParam("disputeid", "The ID of the dispute to vote on")
-  .addParam("voteids", "The ID of the votes where you are drawn to and you want to vote on (ex: 0,1) or (ex: 1)")
   .addParam("choice", "The ID of the choice you will vote")
   .addParam("justification", "if there was a commit phase this must match the justification too")
-  .addParam("salt", "the salt used for the commit if there was a commit period")
+  .addOptionalParam("salt", "the salt used for the commit ONLY IF there was a commit period")
   .setAction(async (taskArgs, hre) => {
     const { disputeKitClassic } = await getContracts(hre);
-    const { disputeid, walletindex, choice, voteids } = taskArgs;
+    const { disputeid, walletindex, choice } = taskArgs;
     const { wallet } = await getWallet(hre, walletindex);
-    const voteIdsParam = [voteids];
+    const drawnJurors = await getDrawnJurors(hre, disputeid, getRoundId(taskArgs, hre, disputeid));
+    const voteid = findVoteIdInDrawnJurors(wallet.address, drawnJurors);
+    const voteIdsParam = [voteid.toString()];
 
-    const castVoteFunctionArgs = [disputeid, voteIdsParam, choice, taskArgs.salt, taskArgs.justification];
+    const castVoteFunctionArgs: [string, string[], string, string, string] = [
+      disputeid,
+      voteIdsParam,
+      choice,
+      getSalt(taskArgs),
+      taskArgs.justification,
+    ];
     const tx = await disputeKitClassic.connect(wallet).castVote(...castVoteFunctionArgs);
     await tx.wait();
 
@@ -309,13 +321,17 @@ task("simulate:cast-vote", "Casts a vote for a drawn juror")
 task("simulate:fund-appeal", "Funds an appeal on a dispute")
   .addParam("walletindex", "Index of the wallet to use for funding the appeal")
   .addParam("disputeid", "The ID of the dispute to fund an appeal for")
-  .addParam("choice", "The choice being funded (0 or 1)")
+  .addParam("appealchoice", "The choice being funded (0 or 1)")
   .setAction(async (taskArgs, hre) => {
     const { disputeKitClassic } = await getContracts(hre);
-    const { disputeid, walletindex, choice } = taskArgs;
+    const { disputeid, walletindex, appealchoice } = taskArgs;
     const { wallet } = await getWallet(hre, walletindex);
 
-    const fundAppealFunctionArgs = [disputeid, choice, { value: utils.parseUnits("0.3") }];
+    const fundAppealFunctionArgs: [number, number, { value: BigNumber }] = [
+      disputeid,
+      appealchoice,
+      { value: await getAppealCost(hre, disputeid) },
+    ];
 
     try {
       if (hre.network?.name === "localhost") {
@@ -360,16 +376,19 @@ task("simulate:withdraw-fees-and-rewards", "Withdraws fees and rewards for peopl
   .addParam("walletindex", "Index of the wallet to use for executing the ruling")
   .addParam("disputeid", "The ID of the dispute to execute ruling")
   .addParam("beneficiary", "The address of the person who won the appeal")
-  .addParam("roundid", "the round ID the appeal took place")
+  .addOptionalParam("roundid", "the round ID the appeal took place")
   .addParam("choice", "the choice you want to withdraw from")
   .setAction(async (taskArgs, hre) => {
     const { disputeKitClassic } = await getContracts(hre);
-    const { disputeid, walletindex, beneficiary, roundid, choice } = taskArgs;
+    const { disputeid, walletindex, beneficiary, choice } = taskArgs;
 
     const { wallet } = await getWallet(hre, walletindex);
+
     try {
       const withdrawTx = await (
-        await disputeKitClassic.connect(wallet).withdrawFeesAndRewards(disputeid, beneficiary, roundid, choice)
+        await disputeKitClassic
+          .connect(wallet)
+          .withdrawFeesAndRewards(disputeid, beneficiary, getRoundId(taskArgs, hre, disputeid), choice)
       ).wait(); // redistribute
       console.log("txID withdrawFeesAndRewards: %s", withdrawTx?.transactionHash);
     } catch (e) {
@@ -380,9 +399,11 @@ task("simulate:withdraw-fees-and-rewards", "Withdraws fees and rewards for peopl
 task("simulate:stake-five-jurors", "Approve and stake 5 different wallets on the court 1")
   .addParam("walletindexes", "An array of wallet indexes that you want to stake (ex: 0,1,2,3,4)")
   .addParam("pnkamounts", "An array of pnkamounts to stake (in normal values, not wei!) (ex: 200,300,200,100,200)")
+  .addParam("courtid", "the ID of the court you want to stake on (General Court ID = 1")
   .setAction(async (taskArgs, hre) => {
     const walletIndexes = taskArgs.walletindexes.split(",").map((index) => index.toString());
     const pnkAmounts = taskArgs.pnkamounts.split(",").map((amount) => amount.toString());
+    const { courtid } = taskArgs;
 
     await hre.run("simulate:approve", { walletindex: walletIndexes[0], pnkamount: pnkAmounts[0] });
     await hre.run("simulate:approve", { walletindex: walletIndexes[1], pnkamount: pnkAmounts[1] });
@@ -390,14 +411,17 @@ task("simulate:stake-five-jurors", "Approve and stake 5 different wallets on the
     await hre.run("simulate:approve", { walletindex: walletIndexes[3], pnkamount: pnkAmounts[3] });
     await hre.run("simulate:approve", { walletindex: walletIndexes[4], pnkamount: pnkAmounts[4] });
 
-    await hre.run("simulate:set-stake", { walletindex: walletIndexes[0], pnkamount: pnkAmounts[0] });
-    await hre.run("simulate:set-stake", { walletindex: walletIndexes[1], pnkamount: pnkAmounts[1] });
-    await hre.run("simulate:set-stake", { walletindex: walletIndexes[2], pnkamount: pnkAmounts[2] });
-    await hre.run("simulate:set-stake", { walletindex: walletIndexes[3], pnkamount: pnkAmounts[3] });
-    await hre.run("simulate:set-stake", { walletindex: walletIndexes[4], pnkamount: pnkAmounts[4] });
+    await hre.run("simulate:set-stake", { walletindex: walletIndexes[0], pnkamount: pnkAmounts[0], courtid: courtid });
+    await hre.run("simulate:set-stake", { walletindex: walletIndexes[1], pnkamount: pnkAmounts[1], courtid: courtid });
+    await hre.run("simulate:set-stake", { walletindex: walletIndexes[2], pnkamount: pnkAmounts[2], courtid: courtid });
+    await hre.run("simulate:set-stake", { walletindex: walletIndexes[3], pnkamount: pnkAmounts[3], courtid: courtid });
+    await hre.run("simulate:set-stake", { walletindex: walletIndexes[4], pnkamount: pnkAmounts[4], courtid: courtid });
   });
 
-task("simulate:dispute-to-generating", "Pass phase for Core and DK, core to 'freezing' and DK to 'generating")
+task(
+  "simulate:to-freezing-and-generating-phase",
+  "Pass phase for Core and DK, core to 'freezing' and DK to 'generating"
+)
   .addParam("walletindex", "Index of the wallet to use for calling this task")
   .setAction(async (taskArgs, hre: any) => {
     const { walletindex } = taskArgs;
@@ -406,14 +430,14 @@ task("simulate:dispute-to-generating", "Pass phase for Core and DK, core to 'fre
     if (isNetworkLocal(hre)) {
       const { disputeKitClassic, randomizerMock, randomizerRng } = await getContracts(hre);
       const { wallet } = await getWallet(hre, walletindex);
-      const numberOfBlocksToMine = await disputeKitClassic.connect(wallet).rngLookahead();
+      const numberOfBlocksToMine = Number(await disputeKitClassic.connect(wallet).rngLookahead());
       await mineBlocks(numberOfBlocksToMine, hre.network);
       await randomizerMock.connect(wallet).relay(randomizerRng.address, 0, utils.randomBytes(32));
     }
   });
 
 task(
-  "simulate:pass-dk-phase-and-draw",
+  "simulate:pass-phase-draw-unfreeze",
   "Passes DK phase to 'drawing', draws the jurors, then passes DK and Core phases."
 )
   .addParam("walletindex", "Index of the wallet to use for calling this task")
@@ -425,7 +449,7 @@ task(
     await hre.run("simulate:pass-phase-core", { walletindex: taskArgs.walletindex });
   });
 
-task("simulate:fund-with-pnk", "It funds with PNK from one wallet to the other 4 wallets")
+task("simulate:split-pnk", "one wallet funds with PNK the other 4 wallets")
   .addParam("walletindex", "Index of the wallet to use for calling this task")
   .addParam("pnkperwallet", "PNK amount sent to each wallet")
   .setAction(async (taskArgs, hre) => {
@@ -447,37 +471,40 @@ task("simulate:fund-with-pnk", "It funds with PNK from one wallet to the other 4
     console.log("funded wallet %s with %s: %s", fourthWallet.address, amount, fourthTx?.hash);
   });
 
-task(
-  "simulate:set-randomizer",
-  "Only works in localhost network because it fetches RandomizerMock contract. This function sets the RandomizerMock to the RandomizerRNG contract"
-)
-  .addParam("walletindex", "Must be the governor. Index of the wallet to use for calling this task")
+task("simulate:submit-evidence", "Submits evidence to a dispute")
+  .addParam("walletindex", "Index of the wallet to use for submitting evidence")
+  .addParam("evidencegroupid", "The evidenceGroupID, which is linked to the dispute")
   .setAction(async (taskArgs, hre) => {
-    const { randomizerRng } = await getContracts(hre);
-    const randomizerMock = await hre.ethers.getContract("RandomizerMock");
-    const { walletindex } = taskArgs;
+    const { disputeKitClassic } = await getContracts(hre);
+    const { walletindex, evidencegroupid } = taskArgs;
+
     const { wallet } = await getWallet(hre, walletindex);
-    const tx = await randomizerRng.connect(wallet).setRandomizer(randomizerMock.address);
-    await tx.wait();
-    console.log("setRandomizer txHash %s", tx);
+    const evidence = "/ipfs/QmaNEknCUEKDy74sDNLFXo8Vc3PqX7QC1ZyvUx4n7V6q1L/evidence.json";
+    try {
+      const tx = await (await disputeKitClassic.connect(wallet).submitEvidence(evidencegroupid, evidence)).wait();
+      console.log("txID submitEvidence: %s", tx?.transactionHash);
+    } catch (e) {
+      handleError(e);
+    }
   });
 
 task("simulate:all", "Simulates arbitration activity to troubleshoot the subgraph and frontend").setAction(
   async (taskArgs, hre) => {
     const { core } = await getContracts(hre);
     const operator = 0;
-    const disputeId = 0;
     const stake = 1000;
-    const courtId = 1;
+    const courtId = "1";
+    const appealChoice = "1";
 
-    await hre.run("simulate:fund-with-pnk", { walletindex: operator.toString(), pnkperwallet: stake.toString() });
+    await hre.run("simulate:split-pnk", { walletindex: operator.toString(), pnkperwallet: stake.toString() });
 
     await hre.run("simulate:stake-five-jurors", {
       walletindexes: "0,1,2,3,4",
       pnkamounts: `${stake},${stake},${stake},${stake},${stake}`,
+      courtid: courtId,
     });
 
-    await hre.run("simulate:create-dispute", {
+    const dispute = await hre.run("simulate:create-dispute", {
       walletindex: operator.toString(),
       courtid: courtId.toString(),
       nbofchoices: "2",
@@ -491,7 +518,7 @@ task("simulate:all", "Simulates arbitration activity to troubleshoot the subgrap
 
     // Phase Core: Staking -> Freezing
     // Phase DK: Resolving -> Generating
-    await hre.run("simulate:dispute-to-generating", { walletindex: operator.toString() });
+    await hre.run("simulate:to-freezing-and-generating-phase", { walletindex: operator.toString() });
 
     // Wait for RNG
     await hre.run("simulate:wait-for-rng");
@@ -500,40 +527,51 @@ task("simulate:all", "Simulates arbitration activity to troubleshoot the subgrap
     // Draws
     // Phase DK: Drawing -> Resolving
     // Phase Core: Freezing -> Staking
-    await hre.run("simulate:pass-dk-phase-and-draw", {
+    await hre.run("simulate:pass-phase-draw-unfreeze", {
       walletindex: operator.toString(),
-      disputeid: disputeId.toString(),
+      disputeid: dispute.id.toString(),
     });
 
-    // TODO: submit evidence
+    // Submit evidence
+    await hre.run("simulate:submit-evidence", {
+      walletindex: operator.toString(),
+      evidencegroupid: dispute.evidenceGroupID,
+    });
 
     // Period: Evidence -> Vote
-    await waitForPeriod(disputeId, Period.Evidence, hre);
-    await hre.run("simulate:pass-period", { walletindex: operator.toString(), disputeid: disputeId.toString() });
+    await waitForPeriod(dispute.id, Period.Evidence, hre);
+    await hre.run("simulate:pass-period", { walletindex: operator.toString(), disputeid: dispute.id.toString() });
+
+    // calculate the first wallet that has been drawn as juror, then give it as input to the walletindex parameter
+    // in cast-vote task
+    const drawnJurors = await getDrawnJurors(hre, dispute.id, getLatestRoundId(hre, dispute.id));
+    const firstDrawnJurorWalletIndex = (await findFirstDrawnJurorWalletIndex(hre, drawnJurors)) as number;
 
     // Vote
-    // TODO: fix me, juror address for voteid and getWallet(walletindex) likely do not match.
     await hre.run("simulate:cast-vote", {
-      walletindex: operator.toString(),
-      disputeid: disputeId.toString(),
-      voteids: "0",
+      walletindex: firstDrawnJurorWalletIndex.toString(),
+      disputeid: dispute.id.toString(),
       choice: "1",
       justification: "because",
-      salt: "0",
     });
 
     // Period: Vote -> Appeal
-    await waitForPeriod(disputeId, Period.Vote, hre);
-    await hre.run("simulate:pass-period", { walletindex: operator.toString(), disputeid: disputeId.toString() });
+    await waitForPeriod(dispute.id, Period.Vote, hre);
+    await hre.run("simulate:pass-period", { walletindex: operator.toString(), disputeid: dispute.id.toString() });
 
-    // TODO: appeal here or in a different simulation scenario?
+    // Fund Appeal
+    await hre.run("simulate:fund-appeal", {
+      walletindex: operator.toString(),
+      disputeid: dispute.id.toString(),
+      appealchoice: appealChoice,
+    });
 
     // Period: Appeal -> Execution
-    await waitForPeriod(disputeId, Period.Appeal, hre);
-    await hre.run("simulate:pass-period", { walletindex: operator.toString(), disputeid: disputeId.toString() });
+    await waitForPeriod(dispute.id, Period.Appeal, hre);
+    await hre.run("simulate:pass-period", { walletindex: operator.toString(), disputeid: dispute.id.toString() });
 
     // Execution
-    await hre.run("simulate:execute-ruling", { walletindex: operator.toString(), disputeid: disputeId.toString() });
+    await hre.run("simulate:execute-ruling", { walletindex: operator.toString(), disputeid: dispute.id.toString() });
   }
 );
 
