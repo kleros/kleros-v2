@@ -1,9 +1,10 @@
 import useSWR from "swr";
-import { PNK } from "@kleros/kleros-v2-contracts/typechain-types/src/token/PNK";
-import { useConnectedContract } from "hooks/useConnectedContract";
+import { useProvider } from "wagmi";
+import { usePnk } from "hooks/contracts/generated";
 
-export const usePNKBalance = (user?: string | null) => {
-  const pnkContract = useConnectedContract("PNK") as PNK;
+export const usePNKBalance = (user?: `0x${string}` | null) => {
+  const provider = useProvider();
+  const pnkContract = usePnk({ signerOrProvider: provider });
   return useSWR(
     () => (pnkContract && user ? `PNKBalance${user}` : false),
     async () => {

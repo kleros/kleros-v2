@@ -1,6 +1,8 @@
 import useSWRImmutable from "swr/immutable";
 // import { utils } from "ethers";
-import { useConnectedContract } from "hooks/useConnectedContract";
+import { BigNumber } from "ethers";
+import { useProvider } from "wagmi";
+import { useIMetaEvidence } from "hooks/contracts/generated";
 
 export const useGetMetaEvidence = (
   disputeID?: string,
@@ -9,22 +11,25 @@ export const useGetMetaEvidence = (
   // const formattedAddress = arbitrableAddress
   //   ? utils.getAddress(arbitrableAddress)
   //   : undefined;
-  const arbitrable = useConnectedContract(
-    "IMetaEvidence",
-    "0xc0fcc96BFd78e36550FCaB434A9EE1210B57225b",
-    10200
-  );
+  const provider = useProvider({ chainId: 10_200 });
+  const arbitrable = useIMetaEvidence({
+    address: "0xc0fcc96BFd78e36550FCaB434A9EE1210B57225b",
+    signerOrProvider: provider,
+  });
   return useSWRImmutable(
     () => (arbitrable ? `MetaEvidence${disputeID}${arbitrableAddress}` : false),
     async () => {
-      if (arbitrable) {
+      if (arbitrable && typeof disputeID !== "undefined") {
         const disputeFilter = arbitrable.filters.Dispute(
           null,
-          parseInt(disputeID) + 1
+          BigNumber.from(parseInt(disputeID) + 1),
+          null,
+          null
         );
         const disputeEvents = await arbitrable.queryFilter(disputeFilter);
         const metaEvidenceFilter = arbitrable.filters.MetaEvidence(
-          disputeEvents[0].args?._metaEvidenceID
+          disputeEvents[0].args?._metaEvidenceID,
+          null
         );
         const metaEvidenceEvents = await arbitrable.queryFilter(
           metaEvidenceFilter

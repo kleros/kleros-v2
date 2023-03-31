@@ -1,7 +1,8 @@
 import useSWRImmutable from "swr/immutable";
 // import { utils } from "ethers";
-// import { IMetaEvidence } from "@kleros/kleros-v2-contracts/typechain-types/src/evidence/IMetaEvidence";
-import { useConnectedContract } from "hooks/useConnectedContract";
+import { BigNumber } from "ethers";
+import { useProvider } from "wagmi";
+import { useIMetaEvidence } from "hooks/contracts/generated";
 
 export const useEvidenceGroup = (
   disputeID?: string,
@@ -10,15 +11,11 @@ export const useEvidenceGroup = (
   // const formattedAddress = arbitrableAddress
   //   ? utils.getAddress(arbitrableAddress)
   //   : undefined;
-  const arbitrable = useConnectedContract(
-    "IMetaEvidence",
-    "0xc0fcc96BFd78e36550FCaB434A9EE1210B57225b",
-    10200
-  );
-  // const arbitrable = useConnectedContract(
-  //   "IMetaEvidence",
-  //   formattedAddress
-  // ) as IMetaEvidence;
+  const provider = useProvider({ chainId: 10_200 });
+  const arbitrable = useIMetaEvidence({
+    address: "0xc0fcc96BFd78e36550FCaB434A9EE1210B57225b",
+    signerOrProvider: provider,
+  });
   return useSWRImmutable(
     () =>
       arbitrable ? `EvidenceGroup${disputeID}${arbitrableAddress}` : false,
@@ -26,7 +23,9 @@ export const useEvidenceGroup = (
       if (arbitrable) {
         const disputeFilter = arbitrable.filters.Dispute(
           null,
-          parseInt(disputeID!) + 1
+          BigNumber.from(parseInt(disputeID!) + 1),
+          null,
+          null
         );
         const disputeEvents = await arbitrable.queryFilter(disputeFilter);
         return disputeEvents[0].args?._evidenceGroupID.toString();

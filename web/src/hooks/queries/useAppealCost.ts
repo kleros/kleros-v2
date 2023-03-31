@@ -1,13 +1,16 @@
 import useSWRImmutable from "swr/immutable";
-import { useConnectedContract } from "hooks/useConnectedContract";
+import { BigNumber } from "ethers";
+import { useProvider } from "wagmi";
+import { useKlerosCore } from "hooks/contracts/generated";
 
 export const useAppealCost = (disputeID?: string) => {
-  const KlerosCore = useConnectedContract("KlerosCore");
+  const provider = useProvider();
+  const klerosCore = useKlerosCore({ signerOrProvider: provider });
   return useSWRImmutable(
-    () => (KlerosCore ? `AppealCost${disputeID}` : false),
+    () => (klerosCore && disputeID ? `AppealCost${disputeID}` : false),
     async () => {
-      if (!KlerosCore) return;
-      return KlerosCore.appealCost(disputeID);
+      if (!klerosCore || typeof disputeID === "undefined") return;
+      return await klerosCore.appealCost(BigNumber.from(disputeID));
     }
   );
 };

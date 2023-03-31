@@ -6,9 +6,9 @@ import {
 } from "@web3modal/ethereum";
 import { Web3Modal } from "@web3modal/react";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { arbitrumGoerli } from "wagmi/chains";
+import { arbitrumGoerli, gnosisChiado } from "wagmi/chains";
 
-const chains = [arbitrumGoerli];
+const chains = [arbitrumGoerli, gnosisChiado];
 const projectId = "6efaa26765fa742153baf9281e218217";
 
 const { provider } = configureChains(chains, [w3mProvider({ projectId })]);
