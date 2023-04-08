@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source $SCRIPT_DIR/../.env
 
 if [[ $# < 2 ]]
 then
-  echo "usage: $(basename $0) <network> <address>"
+  echo "usage: $(basename $0) network address"
   exit 1
 fi
 

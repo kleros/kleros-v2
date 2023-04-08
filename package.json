@@ -21,7 +21,7 @@
     "contracts",
     "dynamic-script",
     "evidence-display",
-    "klerosts",
+    "kleros-ts",
     "subgraph",
     "web"
   ],
@@ -34,7 +34,6 @@
     "@commitlint/cli": "^17.2.0",
     "@commitlint/config-conventional": "^17.2.0",
     "conventional-changelog-cli": "^2.1.1",
-    "depcheck": "^1.4.2",
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-standard": "^16.0.3",
@@ -65,9 +64,10 @@
     "eth-sig-util@npm:^1.4.2": "3.0.0"
   },
   "scripts": {
-    "depcheck": "depcheck .",
+    "check-prerequisites": "scripts/check-prerequisites.sh",
+    "local-stack": "scripts/tmux-local-stack.sh",
     "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 && prettier --write CHANGELOG.md",
-    "postinstall": "husky install",
+    "postinstall": "yarn check-prerequisites; husky install",
     "reinstall": "YARN_CHECKSUM_BEHAVIOR=update yarn install --no-immutable"
   }
 }
