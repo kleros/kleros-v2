@@ -21,11 +21,12 @@
     "styles": "./src/styles",
     "svgs": "./src/assets/svgs"
   },
-  "packageManager": "yarn@3.2.0",
+  "packageManager": "yarn@3.3.1",
   "scripts": {
     "clear": "rm -r .parcel-cache",
     "clean": "rm dist/bundle.js",
     "start": "parcel",
+    "start-local": "REACT_APP_SUBGRAPH_ENDPOINT=http://localhost:8000/subgraphs/name/kleros/kleros-v2-core-local parcel",
     "build": "parcel build",
     "check-style": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "check-types": "tsc --noEmit",
