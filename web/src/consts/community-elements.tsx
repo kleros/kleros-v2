@@ -98,7 +98,7 @@ export const secondSection: IElement[] = [
     urls: [
       {
         node: <StyledDiscordIcon />,
-        link: "https://discord.com/invite/cAvWk8B23f",
+        link: "https://discord.gg/MhXQGCyHd9",
       },
       {
         node: <StyledTelegramIcon />,
@@ -106,7 +106,7 @@ export const secondSection: IElement[] = [
       },
       {
         node: <StyledSlackIcon />,
-        link: "https://slack.kleros.io/",
+        link: "https://kleros.slack.com/join/signup",
       },
     ],
   },
