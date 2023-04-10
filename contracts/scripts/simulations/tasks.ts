@@ -334,12 +334,12 @@ task("simulate:fund-appeal", "Funds an appeal on a dispute")
     ];
 
     try {
-      if (hre.network?.name === "localhost") {
-        const numberOfBlocksToMine = 30;
+      if (isNetworkLocal(hre)) {
+        const numberOfBlocksToMine = 5;
         await mineBlocks(numberOfBlocksToMine, hre.network);
       }
       const fundAppealTx = await (await disputeKitClassic.connect(wallet).fundAppeal(...fundAppealFunctionArgs)).wait();
-      console.log("fundAppeal (DisputeKit) txID: %s", fundAppealTx?.transactionHash);
+      console.log("fundAppeal (in DisputeKitClassic) txID: %s", fundAppealTx?.transactionHash);
     } catch (e) {
       handleError(e);
     }
