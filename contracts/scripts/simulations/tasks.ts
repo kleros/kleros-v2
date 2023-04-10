@@ -542,8 +542,7 @@ task("simulate:all", "Simulates arbitration activity to troubleshoot the subgrap
     await waitForPeriod(dispute.id, Period.Evidence, hre);
     await hre.run("simulate:pass-period", { walletindex: operator.toString(), disputeid: dispute.id.toString() });
 
-    // calculate the first wallet that has been drawn as juror, then give it as input to the walletindex parameter
-    // in cast-vote task
+    // Find the first drawn juror and the corresponding wallet index
     const drawnJurors = await getDrawnJurors(hre, dispute.id, getLatestRoundId(hre, dispute.id));
     const firstDrawnJurorWalletIndex = (await findFirstDrawnJurorWalletIndex(hre, drawnJurors)) as number;
 
