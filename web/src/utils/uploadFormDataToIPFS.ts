@@ -15,7 +15,7 @@ export function uploadFormDataToIPFS(formData: FormData): Promise<Response> {
       }).then(async (response) =>
         response.status === 200
           ? resolve(response)
-          : reject({ message: (await response.json()).error.reason })
+          : reject({ message: (await response.json()).message })
       )
     ),
     {

@@ -43,7 +43,7 @@ const SubmitEvidenceModal: React.FC<{
               .then(async (res) => {
                 const response = await res.json();
                 if (res.status === 200) {
-                  const cid = "/ipfs/" + response["cid"];
+                  const cid = "/ipfs/" + response["message"];
                   await wrapWithToast(
                     disputeKit.submitEvidence(evidenceGroup, cid)
                   ).then(() => {
