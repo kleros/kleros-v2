@@ -57,7 +57,7 @@
   "dependencies": {
     "@graphql-codegen/cli": "^3.2.1",
     "@graphql-codegen/typescript": "^2.8.1",
-    "@graphql-codegen/typescript-operations": "^2.5.6",
+    "@graphql-codegen/typescript-operations": "^3.0.3",
     "@kleros/kleros-v2-contracts": "workspace:^",
     "@kleros/ui-components-library": "^1.9.2",
     "@sentry/react": "^7.37.2",
