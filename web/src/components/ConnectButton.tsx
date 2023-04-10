@@ -2,18 +2,23 @@ import React from "react";
 import styled from "styled-components";
 import { shortenAddress } from "utils/shortenAddress";
 import { Button } from "@kleros/ui-components-library";
-import { useWeb3 } from "hooks/useWeb3";
-import { useConnect } from "hooks/useConnect";
-import { SUPPORTED_CHAINS } from "consts/chains";
+
+import { useAccount, useConnect, useNetwork, useEnsAvatar } from "wagmi";
+import { arbitrumGoerli } from "wagmi/chains";
+import { useErrorHandler } from "react-error-boundary";
 
 const AccountDisplay: React.FC = () => {
-  const { account, chainId } = useWeb3();
-  const chainName = chainId ? SUPPORTED_CHAINS[chainId].chainName : undefined;
-  const shortAddress = account ? shortenAddress(account) : undefined;
+  const { chain } = useNetwork();
+  const { address } = useAccount();
+  const { data } = useEnsAvatar({ address });
+
+  const shortAddress = address ? shortenAddress(address) : undefined;
+  const addressOrAvatar = data ? data : shortAddress;
+
   return (
     <StyledContainer>
-      <small>{chainName}</small>
-      <label>{shortAddress}</label>
+      <small>{chain?.name}</small>
+      <label>{addressOrAvatar}</label>
     </StyledContainer>
   );
 };
@@ -40,12 +45,38 @@ const StyledContainer = styled.div`
 `;
 
 const ConnectButton: React.FC = () => {
-  const { active } = useWeb3();
-  const { activate, connecting } = useConnect();
-  return active ? (
+  const { isConnected } = useAccount();
+
+  const { chain } = useNetwork();
+
+  const handleError = useErrorHandler();
+
+  const { connect, connectors } = useConnect();
+
+  try {
+    if (isConnected) {
+      if (chain?.id !== arbitrumGoerli.id) {
+        throw new Error("chain not configure");
+      }
+    }
+  } catch (e) {
+    handleError(e);
+  }
+
+  return isConnected ? (
     <AccountDisplay />
   ) : (
-    <Button disabled={connecting} small text={"Connect"} onClick={activate} />
+    <>
+      {connectors.map((connector) => (
+        <Button
+          small
+          text={"Connect"}
+          disabled={!connector.ready}
+          key={connector.id}
+          onClick={() => connect({ connector })}
+        />
+      ))}
+    </>
   );
 };
 

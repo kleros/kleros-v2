@@ -1,25 +1,34 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { ErrorBoundary } from "react-error-boundary";
 import { Button } from "@kleros/ui-components-library";
-import { switchChain } from "utils/switchChain";
+
 import { DEFAULT_CHAIN, SUPPORTED_CHAINS } from "consts/chains";
 
-const WrongChainRecovery: React.FC<{ resetErrorBoundary: () => void }> = ({
-  resetErrorBoundary,
-}) => {
-  const [loading, setLoading] = useState(false);
+import { useSwitchNetwork, useNetwork } from "wagmi";
+import { arbitrumGoerli } from "wagmi/chains";
+
+const WrongChainRecovery: React.FC<{
+  resetErrorBoundary: () => void;
+}> = ({ resetErrorBoundary }) => {
+  const { switchNetwork } = useSwitchNetwork({
+    throwForSwitchChainNotSupported: true,
+  });
+  const { chain } = useNetwork();
+
+  useEffect(() => {
+    if (chain?.id === arbitrumGoerli.id) {
+      resetErrorBoundary();
+    }
+  }, [chain?.id, resetErrorBoundary]);
+
   return (
     <Container>
       <Button
-        isLoading={loading}
-        disabled={loading}
+        disabled={!switchNetwork}
         text={`Switch to ${SUPPORTED_CHAINS[DEFAULT_CHAIN].chainName}`}
         onClick={() => {
-          setLoading(true);
-          switchChain(DEFAULT_CHAIN)
-            .then(resetErrorBoundary)
-            .finally(() => setLoading(false));
+          switchNetwork?.(arbitrumGoerli.id);
         }}
       />
     </Container>
