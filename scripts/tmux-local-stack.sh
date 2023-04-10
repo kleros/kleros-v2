@@ -17,16 +17,20 @@ if [ $? != 0 ]; then
   tmux split-window -v
   
   tmux select-pane -t 1 -T "HARDHAT RPC"
-  tmux send-keys -t 1 'yarn workspace @kleros/kleros-v2-contracts start-local'
+  tmux send-keys -t 1 'cd contracts' Enter
+  tmux send-keys -t 1 'yarn start-local'
 
   tmux select-pane -t 2 -T "GRAPH NODE"
-  tmux send-keys -t 2 'yarn workspace @kleros/kleros-v2-subgraph  start-local-indexer'
+  tmux send-keys -t 2 'cd subgraph' Enter
+  tmux send-keys -t 2 'yarn start-local-indexer'
 
   tmux select-pane -t 3 -T "SUBGRAPH DEPLOY"
-  tmux send-keys -t 3 'yarn workspace @kleros/kleros-v2-subgraph rebuild-deploy-local'
+  tmux send-keys -t 3 'cd subgraph' Enter
+  tmux send-keys -t 3 'yarn rebuild-deploy-local'
 
   tmux select-pane -t 4 -T "WEB"
-  tmux send-keys -t 4 'yarn workspace @kleros/kleros-v2-web start-local'
+  tmux send-keys -t 4 'cd web' Enter
+  tmux send-keys -t 4 'yarn start-local'
 fi
 
 tmux attach-session -t $session
