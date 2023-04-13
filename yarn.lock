@@ -3770,7 +3770,7 @@ __metadata:
     react-error-boundary: ^3.1.4
     react-is: ^18.2.0
     react-jazzicon: ^1.0.4
-    react-loading-skeleton: ^3.1.0
+    react-loading-skeleton: ^3.2.0
     react-markdown: ^8.0.3
     react-modal: ^3.16.1
     react-router-dom: ^6.4.2
@@ -25664,12 +25664,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-loading-skeleton@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "react-loading-skeleton@npm:3.1.0"
+"react-loading-skeleton@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "react-loading-skeleton@npm:3.2.0"
   peerDependencies:
     react: ">=16.8.0"
-  checksum: 53d257c88e442e979fb9148ae826fc998a5a54c08a01e894395cf1ebb1e1c83e426f9c4884800e5564ba3308cf33e32d3abc75e07589ae0b48e4a2ed544fda2a
+  checksum: 0da0d6747191696aee37aa202bb09af72316f7ddb6b5e7c7d82beaa7f06a6e931814f0f0d8e4536524985cb9c26f15ec95420e0463d8e9a3698dfdade20eb4ee
   languageName: node
   linkType: hard
 
