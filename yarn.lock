@@ -3706,7 +3706,7 @@ __metadata:
     ethers: ^5.6.7
     follow-redirects: ^1.15.0
     hardhat: ^2.11.2
-    hardhat-contract-sizer: ^2.6.1
+    hardhat-contract-sizer: ^2.8.0
     hardhat-deploy: ^0.11.26
     hardhat-deploy-ethers: ^0.3.0-beta.13
     hardhat-deploy-tenderly: ^0.2.0
@@ -16809,15 +16809,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat-contract-sizer@npm:^2.6.1":
-  version: 2.7.0
-  resolution: "hardhat-contract-sizer@npm:2.7.0"
+"hardhat-contract-sizer@npm:^2.8.0":
+  version: 2.8.0
+  resolution: "hardhat-contract-sizer@npm:2.8.0"
   dependencies:
     chalk: ^4.0.0
     cli-table3: ^0.6.0
+    strip-ansi: ^6.0.0
   peerDependencies:
     hardhat: ^2.0.0
-  checksum: 1dbd3e833b6729ffa565046f6e146556f13d20b7290faf60c3152911d393c45c806b30b7d276920e2c8a043150ac801be4a9e4e37089578a364699ed2e880d61
+  checksum: 6f1f4aca16a8ceeb9b3ce8ec89075c2fb292a3c82941ae826a9d503e077fda58e1d62b5c561252385c320a978d65399a2e829cec7c643250eaca163546831cbb
   languageName: node
   linkType: hard
 
