@@ -12,13 +12,7 @@
   "extends": [
     ":preserveSemverRanges",
     "group:all",
-    "schedule:weekly",
+    "schedule:daily",
     ":maintainLockFilesDisabled"
-  ],
-  "lockFileMaintenance": {
-    "extends": [
-      "group:all"
-    ],
-    "commitMessageAction": "Update"
-  }
+  ]
 }
