@@ -2650,15 +2650,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-codegen/cli@npm:^3.2.1":
-  version: 3.2.1
-  resolution: "@graphql-codegen/cli@npm:3.2.1"
+"@graphql-codegen/cli@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "@graphql-codegen/cli@npm:3.3.0"
   dependencies:
     "@babel/generator": ^7.18.13
     "@babel/template": ^7.18.10
     "@babel/types": ^7.18.13
     "@graphql-codegen/core": ^3.1.0
-    "@graphql-codegen/plugin-helpers": ^4.1.0
+    "@graphql-codegen/plugin-helpers": ^4.2.0
     "@graphql-tools/apollo-engine-loader": ^7.3.6
     "@graphql-tools/code-file-loader": ^7.3.17
     "@graphql-tools/git-loader": ^7.2.13
@@ -2673,12 +2673,12 @@ __metadata:
     "@whatwg-node/fetch": ^0.8.0
     chalk: ^4.1.0
     cosmiconfig: ^7.0.0
-    cosmiconfig-typescript-loader: ^4.3.0
     debounce: ^1.2.0
     detect-indent: ^6.0.0
-    graphql-config: ^4.4.0
+    graphql-config: ^4.5.0
     inquirer: ^8.0.0
     is-glob: ^4.0.1
+    jiti: ^1.17.1
     json-to-pretty-yaml: ^1.2.2
     listr2: ^4.0.5
     log-symbols: ^4.0.0
@@ -2686,7 +2686,6 @@ __metadata:
     shell-quote: ^1.7.3
     string-env-interpolation: ^1.0.1
     ts-log: ^2.2.3
-    ts-node: ^10.9.1
     tslib: ^2.4.0
     yaml: ^1.10.0
     yargs: ^17.0.0
@@ -2697,7 +2696,7 @@ __metadata:
     graphql-code-generator: cjs/bin.js
     graphql-codegen: cjs/bin.js
     graphql-codegen-esm: esm/bin.js
-  checksum: b62e2a3cee866cb006163946272f25ba9cc59bb2d45b7b3df5d1b220096e79183929456a440e5c4980d6a5664d6b14d7870d7f1760eb250b9211f4743d2afad3
+  checksum: 7c3ae7ba62cfb5576e6c1fc78f81a2c59d399415b9ef2ba55818af00aff2337a047a61b1cedb6e89e73dac30d9a00e57045ff6052245934bc4c5cf35c9762250
   languageName: node
   linkType: hard
 
@@ -2744,6 +2743,22 @@ __metadata:
   peerDependencies:
     graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: a4d89909d7a62bd7a93041b6073b1d46e912b42f7af1d15c44f7ed595ab1185b6c257cccf8272e0ae36ba22724578449d0e21524e8dbc21fb375da0620687868
+  languageName: node
+  linkType: hard
+
+"@graphql-codegen/plugin-helpers@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "@graphql-codegen/plugin-helpers@npm:4.2.0"
+  dependencies:
+    "@graphql-tools/utils": ^9.0.0
+    change-case-all: 1.0.15
+    common-tags: 1.8.2
+    import-from: 4.0.0
+    lodash: ~4.17.0
+    tslib: ~2.5.0
+  peerDependencies:
+    graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: 5d26adc132026916db061d23b06fc2c329f372f19ecf56e39bd2b30082bff642f2030cd6dc0bad8d2d3ab781c1e145384e040310a479b83d85ec804b2983646d
   languageName: node
   linkType: hard
 
@@ -3725,7 +3740,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-web@workspace:web"
   dependencies:
-    "@graphql-codegen/cli": ^3.2.1
+    "@graphql-codegen/cli": ^3.3.0
     "@graphql-codegen/typescript": ^2.8.1
     "@graphql-codegen/typescript-operations": ^2.5.6
     "@kleros/kleros-v2-contracts": "workspace:^"
@@ -11662,7 +11677,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cosmiconfig-typescript-loader@npm:^4.0.0, cosmiconfig-typescript-loader@npm:^4.3.0":
+"cosmiconfig-typescript-loader@npm:^4.0.0":
   version: 4.3.0
   resolution: "cosmiconfig-typescript-loader@npm:4.3.0"
   peerDependencies:
@@ -16499,9 +16514,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql-config@npm:^4.4.0":
-  version: 4.4.1
-  resolution: "graphql-config@npm:4.4.1"
+"graphql-config@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "graphql-config@npm:4.5.0"
   dependencies:
     "@graphql-tools/graphql-file-loader": ^7.3.7
     "@graphql-tools/json-file-loader": ^7.3.7
@@ -16510,19 +16525,17 @@ __metadata:
     "@graphql-tools/url-loader": ^7.9.7
     "@graphql-tools/utils": ^9.0.0
     cosmiconfig: 8.0.0
-    minimatch: 4.2.1
+    jiti: 1.17.1
+    minimatch: 4.2.3
     string-env-interpolation: 1.0.1
     tslib: ^2.4.0
   peerDependencies:
     cosmiconfig-toml-loader: ^1.0.0
-    cosmiconfig-typescript-loader: ^4.0.0
     graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   peerDependenciesMeta:
     cosmiconfig-toml-loader:
       optional: true
-    cosmiconfig-typescript-loader:
-      optional: true
-  checksum: 42b9876a59619230d0e6511c80f5cde17de20fe5fa98fe2df8164a1b8590bb280aedb7dbb3707d2b4a5f86ad621d33600ac157e6402346f934d52fc76309c6f3
+  checksum: 8ab1a3ce3534598ddac2df213b6af2eecd9ebcca2268d39cc3e87a6e55749483389a6df222e9e0acd638dd2479378a5c8e8d90f980e6a54e700c4c4ae3522123
   languageName: node
   linkType: hard
 
@@ -19422,6 +19435,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jiti@npm:1.17.1":
+  version: 1.17.1
+  resolution: "jiti@npm:1.17.1"
+  bin:
+    jiti: bin/jiti.js
+  checksum: 56c6d8488e7e9cc6ee66a0f0d5e18db6669cb12b2e93364f393442289a9bc75a8e8c796249f59015e01c3ebdf9478e2ca8b76c30e29072c678ee00d39de757c7
+  languageName: node
+  linkType: hard
+
+"jiti@npm:^1.17.1":
+  version: 1.18.2
+  resolution: "jiti@npm:1.18.2"
+  bin:
+    jiti: bin/jiti.js
+  checksum: 46c41cd82d01c6efdee3fc0ae9b3e86ed37457192d6366f19157d863d64961b07982ab04e9d5879576a1af99cc4d132b0b73b336094f86a5ce9fb1029ec2d29f
+  languageName: node
+  linkType: hard
+
 "js-cookie@npm:^2.2.1":
   version: 2.2.1
   resolution: "js-cookie@npm:2.2.1"
@@ -21833,12 +21864,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:4.2.1":
-  version: 4.2.1
-  resolution: "minimatch@npm:4.2.1"
+"minimatch@npm:4.2.3":
+  version: 4.2.3
+  resolution: "minimatch@npm:4.2.3"
   dependencies:
     brace-expansion: ^1.1.7
-  checksum: 2b1514e3d0f29a549912f0db7ae7b82c5cab4a8f2dd0369f1c6451a325b3f12b2cf473c95873b6157bb8df183d6cf6db82ff03614b6adaaf1d7e055beccdfd01
+  checksum: 3392388e3ef7de7ae9a3a48d48a27a323934452f4af81b925dfbe85ce2dc07da855e3dbcc69229888be4e5118f6c0b79847d30f3e7c0e0017b25e423c11c0409
   languageName: node
   linkType: hard
 
@@ -29560,7 +29591,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-node@npm:^10.8.0, ts-node@npm:^10.8.1, ts-node@npm:^10.9.1":
+"ts-node@npm:^10.8.0, ts-node@npm:^10.8.1":
   version: 10.9.1
   resolution: "ts-node@npm:10.9.1"
   dependencies:
