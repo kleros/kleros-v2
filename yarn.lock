@@ -2021,9 +2021,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dappnode/dappnodesdk@npm:^0.2.71":
-  version: 0.2.71
-  resolution: "@dappnode/dappnodesdk@npm:0.2.71"
+"@dappnode/dappnodesdk@npm:^0.2.83":
+  version: 0.2.83
+  resolution: "@dappnode/dappnodesdk@npm:0.2.83"
   dependencies:
     "@octokit/rest": ^18.0.12
     ajv: ^8.11.0
@@ -2040,7 +2040,7 @@ __metadata:
     inquirer: ^6.2.1
     js-yaml: ^3.12.1
     listr: ^0.14.3
-    lodash: ^4.17.20
+    lodash-es: ^4.17.21
     mime-types: ^2.1.24
     moment: ^2.27.0
     prettier: ^2.1.2
@@ -2053,7 +2053,7 @@ __metadata:
     yargs: ^13.2.4
   bin:
     dappnodesdk: dist/dappnodesdk.js
-  checksum: 2ee8d6f3f00ad11eabd720081134371d4fd8a3e9da31c5caed3f869f43175195de7f6d798fedca687f814c5ef3791d69ab5d4308cfb5214683620093bdaa880e
+  checksum: 6b0738cc6f0b6e54b479c46e3bfa407082672dd1c3de0f6b4f9b9b1de7d6bd61d401b274e1452fcde82c2b80a4ab6aa6ce4e529f8daca7bf8f4b39bc78ba8107
   languageName: node
   linkType: hard
 
@@ -3678,7 +3678,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-bot-pinner@workspace:bot-pinner"
   dependencies:
-    "@dappnode/dappnodesdk": ^0.2.71
+    "@dappnode/dappnodesdk": ^0.2.83
   languageName: unknown
   linkType: soft
 
@@ -20695,6 +20695,13 @@ __metadata:
   dependencies:
     p-locate: ^5.0.0
   checksum: 72eb661788a0368c099a184c59d2fee760b3831c9c1c33955e8a19ae4a21b4116e53fa736dc086cdeb9fce9f7cc508f2f92d2d3aae516f133e16a2bb59a39f5a
+  languageName: node
+  linkType: hard
+
+"lodash-es@npm:^4.17.21":
+  version: 4.17.21
+  resolution: "lodash-es@npm:4.17.21"
+  checksum: 05cbffad6e2adbb331a4e16fbd826e7faee403a1a04873b82b42c0f22090f280839f85b95393f487c1303c8a3d2a010048bf06151a6cbe03eee4d388fb0a12d2
   languageName: node
   linkType: hard
 
