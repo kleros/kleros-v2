@@ -1,0 +1,18 @@
+{
+  "baseBranches": [
+    "master",
+    "dev"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "assignees": [
+    "jaybuidl"
+  ],
+  "extends": [
+    ":preserveSemverRanges",
+    "group:all",
+    "schedule:daily",
+    ":maintainLockFilesDisabled"
+  ]
+}

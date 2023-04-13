@@ -2,7 +2,7 @@
 
 ### Pre-Requisites
 
-If you haven't already, you need to follow all the previous steps of the **Contributing** section of the repo's [README](../CONTRIBUTING.md)
+If you haven't already, you need to follow all the previous steps of the **Contributing** section of the repo's [Contribution Guidelines](../CONTRIBUTING.md)
 
 ### Getting Started
 
