@@ -38,3 +38,34 @@ updates:
     assignees:
       - jaybuidl
       - alcercu
+
+
+  - package-ecosystem: docker
+    directory: /bot-pinner
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /bot-pinner
+    schedule:
+      interval: daily
+
+  - package-ecosystem: pip
+    directory: /bot-pinner
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /contracts
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /subgraph
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /web
+    schedule:
+      interval: daily
