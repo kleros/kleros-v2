@@ -71,7 +71,7 @@
     "core-js": "^3.21.1",
     "ethers": "^5.7.0",
     "graphql": "^16.4.0",
-    "graphql-request": "^5.0.0",
+    "graphql-request": "^6.0.0",
     "moment": "^2.29.4",
     "parcel": "~2.7.0",
     "react": "^18.2.0",
