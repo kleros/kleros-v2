@@ -1,7 +1,7 @@
 /* eslint-disable node/no-missing-require */
 import * as dotenv from "dotenv";
 import { HardhatUserConfig } from "hardhat/config";
-import "@nomiclabs/hardhat-waffle";
+import "@nomicfoundation/hardhat-chai-matchers";
 import "@typechain/hardhat";
 import "hardhat-deploy-tenderly";
 import "hardhat-gas-reporter";
@@ -80,11 +80,11 @@ const config: HardhatUserConfig = {
       chainId: 421613,
       url: "https://goerli-rollup.arbitrum.io/rpc",
       accounts: [
-        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,
-        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_2 as string,
-        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_3 as string,
-        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_4 as string,
-        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_5 as string,
+        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string) || "",
+        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_2 as string) || "",
+        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_3 as string) || "",
+        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_4 as string) || "",
+        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_5 as string) || "",
       ],
       live: true,
       saveDeployments: true,
