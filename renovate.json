@@ -1,0 +1,24 @@
+{
+  "baseBranches": [
+    "master",
+    "dev"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "assignees": [
+    "jaybuidl"
+  ],
+  "extends": [
+    ":preserveSemverRanges",
+    "group:all",
+    "schedule:weekly",
+    ":maintainLockFilesDisabled"
+  ],
+  "lockFileMaintenance": {
+    "extends": [
+      "group:all"
+    ],
+    "commitMessageAction": "Update"
+  }
+}
