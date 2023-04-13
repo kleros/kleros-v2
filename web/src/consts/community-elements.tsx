@@ -56,7 +56,7 @@ export const firstSection: IElement[] = [
     urls: [
       {
         node: <StyledLabel>Kleros Forum</StyledLabel>,
-        link: "https://google.com",
+        link: "https://forum.kleros.io/",
       },
     ],
   },
@@ -66,7 +66,7 @@ export const firstSection: IElement[] = [
     urls: [
       {
         node: <StyledLabel>Snapshot</StyledLabel>,
-        link: "https://google.com",
+        link: "https://snapshot.org/#/kleros.eth/",
       },
     ],
   },
@@ -75,7 +75,7 @@ export const firstSection: IElement[] = [
     urls: [
       {
         node: <StyledLabel>Cooperative Kleros</StyledLabel>,
-        link: "https://google.com",
+        link: "https://kleros.io/coop/",
       },
     ],
   },
@@ -88,7 +88,7 @@ export const secondSection: IElement[] = [
     urls: [
       {
         node: <StyledLabel>Join</StyledLabel>,
-        link: "https://google.com",
+        link: "https://t.me/kleros",
       },
     ],
   },
@@ -98,15 +98,15 @@ export const secondSection: IElement[] = [
     urls: [
       {
         node: <StyledDiscordIcon />,
-        link: "https://google.com",
+        link: "https://discord.gg/MhXQGCyHd9",
       },
       {
         node: <StyledTelegramIcon />,
-        link: "https://google.com",
+        link: "https://t.me/kleros",
       },
       {
         node: <StyledSlackIcon />,
-        link: "https://google.com",
+        link: "https://kleros.slack.com/join/signup",
       },
     ],
   },
