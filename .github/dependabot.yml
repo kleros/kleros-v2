@@ -6,66 +6,103 @@
 version: 2
 enable-beta-ecosystems: true
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
-    target-branch: dev
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-    assignees:
-      - jaybuidl
-      - alcercu
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    target-branch: dev
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-    assignees:
-      - jaybuidl
-      - alcercu
-  - package-ecosystem: "docker"
-    directory: "/bots"
-    target-branch: dev
-    schedule:
-      interval: "weekly"
-    labels:
-      - "dependencies"
-    assignees:
-      - jaybuidl
-      - alcercu
-
-
-  - package-ecosystem: docker
-    directory: /bot-pinner
-    schedule:
-      interval: daily
-
   - package-ecosystem: npm
-    directory: /bot-pinner
+    directory: /
+    target-branch: dev
     schedule:
-      interval: daily
-
-  - package-ecosystem: pip
-    directory: /bot-pinner
-    schedule:
-      interval: daily
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    assignees:
+      - jaybuidl
 
   - package-ecosystem: npm
     directory: /contracts
+    target-branch: dev
     schedule:
-      interval: daily
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    assignees:
+      - jaybuidl
 
   - package-ecosystem: npm
     directory: /subgraph
+    target-branch: dev
     schedule:
-      interval: daily
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    assignees:
+      - jaybuidl
+      - alcercu
 
   - package-ecosystem: npm
     directory: /web
+    target-branch: dev
     schedule:
-      interval: daily
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    assignees:
+      - jaybuidl
+      - alcercu
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: dev
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    assignees:
+      - jaybuidl
+      - alcercu
+
+  - package-ecosystem: docker
+    directory: /bots
+    target-branch: dev
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+    assignees:
+      - jaybuidl
+
+  - package-ecosystem: docker
+    directory: /bot-pinner
+    target-branch: dev
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    assignees:
+      - jaybuidl
+
+  - package-ecosystem: npm
+    directory: /bot-pinner
+    target-branch: dev
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    assignees:
+      - jaybuidl
+
+  - package-ecosystem: pip
+    directory: /bot-pinner
+    target-branch: dev
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    assignees:
+      - jaybuidl
