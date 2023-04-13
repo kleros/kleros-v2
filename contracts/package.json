@@ -46,7 +46,7 @@
     "dotenv": "^16.0.3",
     "ethereum-waffle": "^3.4.4",
     "ethereumjs-util": "^7.1.4",
-    "ethers": "^5.6.7",
+    "ethers": "^6.3.0",
     "follow-redirects": "^1.15.0",
     "hardhat": "^2.11.2",
     "hardhat-contract-sizer": "^2.6.1",
