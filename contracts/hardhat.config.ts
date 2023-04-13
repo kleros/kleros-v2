@@ -79,12 +79,12 @@ const config: HardhatUserConfig = {
     arbitrumGoerli: {
       chainId: 421613,
       url: "https://goerli-rollup.arbitrum.io/rpc",
-      accounts: [
-        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string) || "",
-        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_2 as string) || "",
-        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_3 as string) || "",
-        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_4 as string) || "",
-        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_5 as string) || "",
+      accounts: process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 && [
+        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,
+        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_2 as string,
+        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_3 as string,
+        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_4 as string,
+        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_5 as string,
       ],
       live: true,
       saveDeployments: true,
