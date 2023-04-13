@@ -16,6 +16,11 @@ jobs:
     outputs:
       version: ${{ steps.set-version.outputs.version }}
     steps:
+    - name: Harden Runner
+      uses: step-security/harden-runner@03bee3930647ebbf994244c21ddbc0d4933aab4f # v2.3.0
+      with:
+        egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+
     - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
     
     - name: Cache node modules
@@ -52,7 +57,7 @@ jobs:
       working-directory: web
 
     - name: Create Sentry release
-      uses: getsentry/action-release@v1.2.1
+      uses: getsentry/action-release@bd5f874fcda966ba48139b0140fb3ec0cb3aabdd # v1.2.1
       env:
         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
