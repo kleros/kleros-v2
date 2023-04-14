@@ -1,10 +1,7 @@
-import { use, expect } from "chai";
+import { expect } from "chai";
 import { ethers } from "hardhat";
 import { BigNumber } from "ethers";
-import { solidity } from "ethereum-waffle";
 const hre = require("hardhat");
-
-use(solidity);
 
 const Party = {
   None: 0,

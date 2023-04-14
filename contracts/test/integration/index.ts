@@ -164,6 +164,10 @@ describe("Integration tests", async () => {
     expect((await core.disputes(0)).period).to.equal(Period.vote);
     await disputeKit.connect(await ethers.getSigner(deployer)).castVote(0, [0, 1, 2], 0, 0, "");
     await core.passPeriod(0);
+
+    await network.provider.send("evm_increaseTime", [100]); // Wait for the appeal period
+    await network.provider.send("evm_mine");
+
     await core.passPeriod(0);
     expect((await core.disputes(0)).period).to.equal(Period.execution);
     expect(await core.execute(0, 0, 1000)).to.emit(core, "TokenAndETHShift");
@@ -174,7 +178,7 @@ describe("Integration tests", async () => {
     expect(tx4).to.emit(arbitrable, "Ruling").withArgs(foreignGateway.address, 1, 0); // The ForeignGateway starts counting disputeID from 1.
   });
 
-  async function mineBlocks(n) {
+  async function mineBlocks(n: number) {
     for (let index = 0; index < n; index++) {
       await network.provider.send("evm_mine");
     }

@@ -1,7 +1,7 @@
+/* eslint-disable node/no-missing-require */
 import * as dotenv from "dotenv";
-
-import { HardhatUserConfig, task } from "hardhat/config";
-import "@nomiclabs/hardhat-waffle";
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-chai-matchers";
 import "@typechain/hardhat";
 import "hardhat-deploy-tenderly";
 import "hardhat-gas-reporter";
@@ -12,6 +12,7 @@ import "hardhat-watcher";
 import "hardhat-docgen";
 import "hardhat-contract-sizer";
 import "hardhat-tracer";
+require("./scripts/simulations/tasks");
 
 dotenv.config();
 
@@ -78,7 +79,13 @@ const config: HardhatUserConfig = {
     arbitrumGoerli: {
       chainId: 421613,
       url: "https://goerli-rollup.arbitrum.io/rpc",
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts: process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 && [
+        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,
+        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_2 as string,
+        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_3 as string,
+        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_4 as string,
+        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_5 as string,
+      ],
       live: true,
       saveDeployments: true,
       tags: ["staging", "home", "layer2"],
@@ -173,6 +180,21 @@ const config: HardhatUserConfig = {
     },
     challenger: {
       default: 3,
+    },
+    firstWallet: {
+      default: "0x1cC9304B31F05d27470ccD855b05310543b70f17",
+    },
+    secondWallet: {
+      default: "0x4D74a4FD4057a770da74b0C3e9fa8A02f7f09c94",
+    },
+    thirdWallet: {
+      default: "0xBe7ee23877D530b8a17971CfDA7B5925b57e87B1",
+    },
+    fourthWallet: {
+      default: "0x01ba2b3D0eceAD6358aEcD508221A70f6CA4f6ea",
+    },
+    fifthWallet: {
+      default: "0xE64DC94D545C10b2364F4aBAf9F6F416dAcED13a",
     },
   },
   gasReporter: {

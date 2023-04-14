@@ -170,6 +170,8 @@ contract KlerosCore is IArbitrator {
     event TokenAndETHShift(
         address indexed _account,
         uint256 indexed _disputeID,
+        uint256 indexed _roundID,
+        uint256 _degreeOfCoherency,
         int256 _tokenAmount,
         int256 _ethAmount
     );
@@ -811,7 +813,7 @@ contract KlerosCore is IArbitrator {
                         setStakeForAccount(account, courtIDs[j], 0, 0);
                     }
                 }
-                emit TokenAndETHShift(account, _disputeID, -int256(penalty), 0);
+                emit TokenAndETHShift(account, _disputeID, _round, degreeOfCoherence, -int256(penalty), 0);
 
                 if (i == numberOfVotesInRound - 1) {
                     if (coherentCount == 0) {
@@ -846,7 +848,14 @@ contract KlerosCore is IArbitrator {
                 uint256 ethReward = ((round.totalFeesForJurors / coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
                 safeTransfer(account, tokenReward);
                 payable(account).send(ethReward);
-                emit TokenAndETHShift(account, _disputeID, int256(tokenReward), int256(ethReward));
+                emit TokenAndETHShift(
+                    account,
+                    _disputeID,
+                    _round,
+                    degreeOfCoherence,
+                    int256(tokenReward),
+                    int256(ethReward)
+                );
             }
         }
 

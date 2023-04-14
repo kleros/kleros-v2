@@ -29,7 +29,11 @@ import {
   updateCasesVoting,
   getDelta,
 } from "./datapoint";
-import { ensureUser } from "./entities/User";
+import {
+  addUserActiveDispute,
+  ensureUser,
+  resolveUserDispute,
+} from "./entities/User";
 import {
   ensureJurorTokensPerCourt,
   updateJurorStake,
@@ -39,6 +43,7 @@ import { createTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
 import { Court, Dispute } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
+import { updatePenalty } from "./entities/Penalty";
 
 function getPeriodName(index: i32): string {
   const periodArray = ["evidence", "commit", "vote", "appeal", "execution"];
@@ -140,12 +145,14 @@ export function handleDraw(event: DrawEvent): void {
   const dispute = Dispute.load(disputeID);
   if (!dispute) return;
   const contract = KlerosCore.bind(event.address);
+  const jurorAddress = event.params._address.toHexString();
   updateJurorStake(
-    event.params._address.toHexString(),
+    jurorAddress,
     dispute.court,
     contract,
     event.block.timestamp
   );
+  addUserActiveDispute(jurorAddress, disputeID);
 }
 
 export function handleStakeSet(event: StakeSet): void {
@@ -181,7 +188,9 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
     KlerosCore.bind(event.address),
     event.block.timestamp
   );
+  resolveUserDispute(jurorAddress, tokenAmount, disputeID);
   court.paidETH = court.paidETH.plus(ethAmount);
   court.paidPNK = court.paidPNK.plus(tokenAmount);
   court.save();
+  updatePenalty(event);
 }

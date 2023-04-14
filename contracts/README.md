@@ -30,15 +30,16 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 #### Arbitrum Goerli
 
 - [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610/token-transfers)
+- [ArbitrableExampleEthFee](https://goerli.arbiscan.io/address/0x1fF31be1924f55804350ADe4945f3B3a6a2e15d2)
 - [BlockHashRNG](https://goerli.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
-- [DisputeKitClassic](https://goerli.arbiscan.io/address/0x86734488ABF0E1AD40bc4DE4F820e808f39Bea09)
-- [DisputeResolver](https://goerli.arbiscan.io/address/0xDe3eCeB73C453E56F5661ad029a41341CF592b9A)
+- [DisputeKitClassic](https://goerli.arbiscan.io/address/0x0b24767Ae86Da2F5B442B2A524d3D9809CD0B5B2)
+- [DisputeResolver](https://goerli.arbiscan.io/address/0x311eB7f0fcA3037DF4F02f2F3470d295228F474D)
 - [FastBridgeSender](https://goerli.arbiscan.io/address/0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C)
 - [HomeGatewayToEthereum](https://goerli.arbiscan.io/address/0xed12799915180a257985631fbD2ead261eD838cf)
 - [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0x12613A66F1E5A2086374e103F66BF0eddA5d1478)
-- [KlerosCore](https://goerli.arbiscan.io/address/0x3eED6aaCa43f4Bb98C591e4A0d2C4a124efF9C24)
+- [KlerosCore](https://goerli.arbiscan.io/address/0xD08Ab99480d02bf9C092828043f611BcDFEA917b)
 - [PolicyRegistry](https://goerli.arbiscan.io/address/0xC5655728387Ce5E2aAA22138114E5777370aBDae)
-- [RandomizerRNG](https://goerli.arbiscan.io/address/0xa2d1A3CDF0becEdb724e5A34De7022B6FF5e4787)
+- [RandomizerRNG](https://goerli.arbiscan.io/address/0x5145bde18F44513CfBa4906F07105b47674b0c94)
 - [SortitionSumTreeFactoryV2](https://goerli.arbiscan.io/address/0x678E676fd0048da8c35d5B03fabB53a7beBf73A6)
 
 ## Getting Started

@@ -3,7 +3,7 @@ import { KlerosCore } from "../../generated/KlerosCore/KlerosCore";
 import { Court, JurorTokensPerCourt } from "../../generated/schema";
 import { updateActiveJurors, getDelta, updateStakedPNK } from "../datapoint";
 import { ensureUser } from "./User";
-import { ZERO } from "../utils";
+import { ONE, ZERO } from "../utils";
 
 export function ensureJurorTokensPerCourt(
   jurorAddress: string,
@@ -62,25 +62,25 @@ export function updateJurorStake(
   jurorTokens.locked = jurorBalance.value1;
   jurorTokens.save();
   const stakeDelta = getDelta(previousStake, jurorTokens.staked);
-  juror.totalStake = juror.totalStake.plus(stakeDelta);
+  const newTotalStake = juror.totalStake.plus(stakeDelta);
+  juror.totalStake = newTotalStake;
   court.stake = court.stake.plus(stakeDelta);
   updateStakedPNK(stakeDelta, timestamp);
-  let activeJurorsDelta: BigInt;
-  let numberStakedJurorsDelta: BigInt;
-  if (previousTotalStake.equals(ZERO)) {
-    activeJurorsDelta = BigInt.fromI32(1);
-    numberStakedJurorsDelta = BigInt.fromI32(1);
-  } else if (previousStake.equals(ZERO)) {
-    activeJurorsDelta = ZERO;
-    numberStakedJurorsDelta = BigInt.fromI32(1);
-  } else {
-    activeJurorsDelta = ZERO;
-    numberStakedJurorsDelta = ZERO;
-  }
-  court.numberStakedJurors = court.numberStakedJurors.plus(
-    numberStakedJurorsDelta
+  const activeJurorsDelta = getActivityDelta(previousTotalStake, newTotalStake);
+  const stakedJurorsDelta = getActivityDelta(
+    previousStake,
+    jurorBalance.value0
   );
+  court.numberStakedJurors = court.numberStakedJurors.plus(stakedJurorsDelta);
   updateActiveJurors(activeJurorsDelta, timestamp);
   juror.save();
   court.save();
+}
+
+function getActivityDelta(previousStake: BigInt, newStake: BigInt): BigInt {
+  if (previousStake.gt(ZERO)) {
+    return newStake.gt(ZERO) ? ZERO : BigInt.fromI32(-1);
+  } else {
+    return newStake.gt(ZERO) ? ONE : ZERO;
+  }
 }

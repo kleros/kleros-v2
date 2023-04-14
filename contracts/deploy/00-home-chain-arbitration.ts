@@ -92,8 +92,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       disputeKit.address,
       [1800, 1800], // minStakingTime, maxFreezingTime
       false,
-      [minStake, alpha, feeForJuror, 3], // minStake, alpha, feeForJuror, jurorsForCourtJump
-      [0, 0, 0, 0], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
+      [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
+      [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
       sortitionSumTreeK,
     ],
     log: true,
