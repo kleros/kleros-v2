@@ -1,0 +1,6 @@
+␟
+Who will win the FORMULA 1 AWS GRAN PREMIO DE ESPAÑA 2023 ?
+single-select
+,{"title": "Max VERSTAPPEN"},{"title": "Sergio PEREZ"},{"title": "Fernando ALONSO"}
+2
+0xc2a52d38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b42

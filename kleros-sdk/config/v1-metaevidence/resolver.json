@@ -1,0 +1,20 @@
+{
+  "title": "The Assassination Plot: The Case of Draco Malfoy vs. Albus Dumbledore",
+  "category": "Fictional",
+  "description": "In the Harry Potter and the Half-Blood Prince movie, there is a dispute between Albus Dumbledore and Draco Malfoy over the attempted assassination of Dumbledore.\n\n#Background: \nDraco Malfoy, a student at Hogwarts School of Witchcraft and Wizardry and a member of the pure-blood Malfoy family, is entrusted with the task of assassinating Dumbledore by Lord Voldemort. Dumbledore becomes aware of the plot and confronts Malfoy, offering him a chance to back out and revealing the true extent of the danger and moral implications of his actions. However, Malfoy ultimately decides to go through with the assassination attempt, leading to a confrontation between Dumbledore and Malfoy.\n\nAfter considering all the evidence, the jurors would have to decide whether Malfoy was guilty of attempted murder or if he was acting under duress. The Kleros Court's decision would be final and binding, bringing a resolution to the dispute.",
+  "aliases": {},
+  "question": "Was Draco Malfoy guilty of attempted murder in the assassination plot against Albus Dumbledore?",
+  "rulingOptions": {
+    "type": "single-select",
+    "titles": [
+      "Yes",
+      "No"
+    ],
+    "descriptions": [
+      "Draco Malfoy is guilty of attempted murder in the assassination plot against Albus Dumbledore.",
+      "Draco Malfoy is not guilty of attempted murder in the assassination plot against Albus Dumbledore."
+    ]
+  },
+  "fileURI": "",
+  "dynamicScriptURI": "/ipfs/QmZZHwVaXWtvChdFPG4UeXStKaC9aHamwQkNTEAfRmT2Fj"
+}

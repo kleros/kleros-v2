@@ -1,0 +1,21 @@
+{
+  "category": "Curated Lists",
+  "title": "Add Token to Registry",
+  "description": "Someone requested to add a token to the token curated registry of tokens.",
+  "aliases": {
+    "0x988b3a538b618c7a603e1c11ab82cd16dbe28069": "Arbitrator"
+  },
+  "question": "Should the token be added to the registry?",
+  "rulingOptions": {
+    "titles": [
+      "Yes, Add It",
+      "No, Don't Add It"
+    ],
+    "descriptions": [
+      "Select this if you think the token information is correct and the token should be added to the registry.",
+      "Select this if you think the token information is incorrect and the token should be not be added to the registry."
+    ]
+  },
+  "fileURI": "/ipfs/QmTL1SCKpRcr7NRbVpXW6z9QoQXRHJT5cQr6PEge5qoLwU/t2cr-primary-document.pdf",
+  "evidenceDisplayInterfaceURL": "https://ipfs.kleros.io/ipfs/QmYs17mAJTaQwYeXNTb6n4idoQXmRcAjREeUdjJShNSeKh/index.html"
+}
