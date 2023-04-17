@@ -1,0 +1,19 @@
+{
+  "category": "Insurance",
+  "title": "Unslashed insurance claim",
+  "description": "The claimant requested a compensation for damages covered by Unslashed insurance in the provided amount.",
+  "question": "Should their claim be paid out?",
+  "rulingOptions": {
+    "type": "single-select",
+    "titles": [
+      "Accept the claim",
+      "Reject the claim"
+    ],
+    "descriptions": [
+      "Accept the claim if the claimant 1) incurred the alleged damages, 2) is covered by a relevant policy, 3) the damages and their cover are at least the claimed amount at the moment when the claim was filled.",
+      "Reject the claim if any of the acceptance criteria do not hold."
+    ]
+  },
+  "fileURI": "/ipfs/QmeTBY7jZe2ut5WjifNASADo3E4zBxkMd62WwBpXtwP9pg",
+  "evidenceDisplayInterfaceURI": "https://app.unslashed.finance/embed/claims"
+}
