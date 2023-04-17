@@ -48,7 +48,7 @@
     "dotenv": "^16.0.3",
     "ethereumjs-util": "^7.1.5",
     "ethers": "^5.7.2",
-    "hardhat": "^2.13.1",
+    "hardhat": "^2.14.0",
     "hardhat-contract-sizer": "^2.8.0",
     "hardhat-deploy": "^0.11.26",
     "hardhat-deploy-ethers": "^0.4.0-next.1",
