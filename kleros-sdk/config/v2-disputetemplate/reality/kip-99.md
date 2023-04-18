@@ -1,7 +1,7 @@
 ---
 kip: KIP-99
 title: Reality.eth v2.1 as an arbitrable
-author: @jaybuidl
+author: Jaybuidl (@jaybuidl)
 discussions-to: https://forum.kleros.io/c/proposal/<#>
 status: Draft
 type: Arbitrable
