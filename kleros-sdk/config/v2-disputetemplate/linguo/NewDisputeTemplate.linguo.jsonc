@@ -3,7 +3,6 @@
   "title": "Review a translation from Linguo",
   "description": "Someone challenged a translation",
   "question": "Does the translation comply with the required criteria?",
-  "type": "single-select",
   "answers": [
     {
       "title": "Yes, the translation should be accepted",
