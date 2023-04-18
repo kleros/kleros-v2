@@ -17,6 +17,11 @@
   ],
   "additionalProperties": false,
   "properties": {
+    "$schema": {
+      "description": "JSON Schema URI (used by some editors)",
+      "type": "string",
+      "default": "NewDisputeTemplate.schema.json"
+    },
     "category": {
       "type": "string",
       "default": "",
@@ -135,11 +140,13 @@
         {
           "id": "0x01",
           "title": "Yes",
+          "description": "Accept the request.",
           "reserved": false
         },
         {
           "id": "0x02",
           "title": "No",
+          "description": "Refuse the request.",
           "reserved": false
         }
       ],
@@ -149,10 +156,30 @@
         "default": {},
         "title": "A Schema",
         "required": [
-          "id",
-          "title",
-          "reserved"
+          "title"
         ],
+        "dependentSchemas": {
+          "id": {
+            "properties": {
+              "reserved": {
+                "const": true
+              }
+            }
+          }
+        },
+        "if": {
+          "properties": {
+            "reserved": {
+              "const": true
+            }
+          }
+        },
+        "then": {
+          "dependentRequired": {
+            "id": true
+          }
+        },
+        "additionalProperties": false,
         "properties": {
           "id": {
             "type": "string",
@@ -186,6 +213,45 @@
               "Invalid/Refuse to Arbitrate"
             ]
           },
+          "description": {
+            "type": "string",
+            "default": "",
+            "title": "The description Schema",
+            "examples": [
+              "Accept the request to register the entry.",
+              "Accept the request to remove the entry.",
+              "Deny the request.",
+              "Reject the claim if any of the acceptance criteria do not hold.",
+              "Select this if you think the entry complies with the required criteria and should be added.",
+              "Select this if you think the entry complies with the required criteria and should not be removed.",
+              "Select this if you think the entry does not comply with the required criteria and should be removed.",
+              "Select this if you think the entry does not comply with the required criteria and should not be added.",
+              "Select this if you think the list complies with the required criteria and should be added.",
+              "Select this if you think the list complies with the required criteria and should not be removed.",
+              "Select this if you think the list does not comply with the required criteria and should be removed.",
+              "Select this if you think the list does not comply with the required criteria and should not be added.",
+              "Select this if you think the market complies with the required criteria and should be added.",
+              "Select this if you think the market complies with the required criteria and should not be removed.",
+              "Select this if you think the market does not comply with the required criteria and should be removed.",
+              "Select this if you think the market does not comply with the required criteria and should not be added.",
+              "Select this if you think the token and project comply with the required criteria and the badge should be added.",
+              "Select this if you think the token and project comply with the required criteria and the badge should be kept.",
+              "Select this if you think the token and/or project do(es) not comply with the required criteria and the badge should be removed.",
+              "Select this if you think the token and/or project do(es) not comply with the required criteria and the badge should not be added.",
+              "Select this if you think the token information is correct and the token should be added to the registry.",
+              "Select this if you think the token information is correct and the token should not be removed from the registry.",
+              "Select this if you think the token information is incorrect and the token should be not be added to the registry.",
+              "Select this if you think the token information is incorrect and the token should be removed from the registry.",
+              "Select this if you think the translation complies with the required criteria.",
+              "Select this if you think the translation does not comply with the required criteria.",
+              "Select this if you think the validator complies with the required criteria and should be added.",
+              "Select this if you think the validator complies with the required criteria and should not be removed.",
+              "Select this if you think the validator does not comply with the required criteria and should be removed.",
+              "Select this if you think the validator does not comply with the required criteria and should not be added.",
+              "Select to release funds to the Receiver",
+              "Select to return funds to the Sender"
+            ]
+          },
           "reserved": {
             "type": "boolean",
             "default": false,
@@ -203,18 +269,15 @@
             "reserved": true
           },
           {
-            "id": "0x00",
-            "title": "Invalid/Refuse to Arbitrate",
-            "reserved": true
-          },
-          {
             "id": "0x01",
             "title": "Yes",
+            "description": "Accept the request.",
             "reserved": false
           },
           {
             "id": "0x02",
             "title": "No",
+            "description": "Refuse the request.",
             "reserved": false
           }
         ]
