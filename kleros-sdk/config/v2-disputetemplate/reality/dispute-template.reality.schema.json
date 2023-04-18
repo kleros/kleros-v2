@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "dispute-template.reality.schema.json",
+  "type": "object",
+  "default": {},
+  "title": "Root Schema",
+  "required": [
+    "$schema",
+    "category",
+    "title",
+    "description",
+    "question",
+    "type",
+    "answers",
+    "frontendUrl",
+    "policyURI",
+    "arbitrableChainID",
+    "arbitrableAddress",
+    "arbitratorChainID",
+    "arbitratorAddress",
+    "specification",
+    "metadata"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "default": "",
+      "title": "The $schema Schema",
+      "examples": [
+        "./dispute-template.reality.schema.json"
+      ]
+    },
+    "category": {
+      "type": "string",
+      "default": "",
+      "title": "The category Schema",
+      "examples": [
+        "Oracle"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "default": "",
+      "title": "The title Schema",
+      "examples": [
+        "A reality.eth question"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "default": "",
+      "title": "The description Schema",
+      "examples": [
+        "A reality.eth question has been raised to arbitration."
+      ]
+    },
+    "question": {
+      "type": "string",
+      "default": "",
+      "title": "The question Schema",
+      "examples": [
+        "%s"
+      ]
+    },
+    "type": {
+      "type": "string",
+      "default": "",
+      "title": "The type Schema",
+      "examples": [
+        "%s"
+      ]
+    },
+    "answers": {
+      "type": "array",
+      "default": [],
+      "title": "The answers Schema",
+      "items": {
+        "type": "object",
+        "default": {},
+        "title": "A Schema",
+        "required": [
+          "id",
+          "title",
+          "reserved"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "default": "",
+            "title": "The id Schema",
+            "examples": [
+              "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "default": "",
+            "title": "The title Schema",
+            "examples": [
+              "Answered Too Soon"
+            ]
+          },
+          "reserved": {
+            "type": "boolean",
+            "default": false,
+            "title": "The reserved Schema",
+            "examples": [
+              true
+            ]
+          }
+        },
+        "examples": [
+          {
+            "id": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+            "title": "Answered Too Soon",
+            "reserved": true
+          }
+        ]
+      }
+    },
+    "frontendUrl": {
+      "type": "string",
+      "default": "",
+      "title": "The frontendUrl Schema",
+      "examples": [
+        "https://reality.eth.link/app/#!/question/"
+      ]
+    },
+    "policyURI": {
+      "type": "string",
+      "default": "",
+      "title": "The policyURI Schema",
+      "examples": [
+        "/ipfs/QmW4zDA8X95cyfAsW9Nq1t7XNTyP3sMQAWNRFoQhMpgAv7/Kleros%2520Moderate%2520x%2520Reality.eth%2520Oracle%2520-%2520Telegram%2520Content%2520Moderation%2520Question%2520Resolution%2520Policy.pdf"
+      ]
+    },
+    "arbitrableChainID": {
+      "type": "string",
+      "default": "",
+      "title": "The arbitrableChainID Schema",
+      "examples": [
+        "100"
+      ]
+    },
+    "arbitrableAddress": {
+      "type": "string",
+      "default": "",
+      "title": "The arbitrableAddress Schema",
+      "examples": [
+        "0x2e39b8f43d0870ba896f516f78f57cde773cf805"
+      ]
+    },
+    "arbitratorChainID": {
+      "type": "string",
+      "default": "",
+      "title": "The arbitratorChainID Schema",
+      "examples": [
+        "421613"
+      ]
+    },
+    "arbitratorAddress": {
+      "type": "string",
+      "default": "",
+      "title": "The arbitratorAddress Schema",
+      "examples": [
+        "0xD08Ab99480d02bf9C092828043f611BcDFEA917b"
+      ]
+    },
+    "specification": {
+      "type": "string",
+      "default": "",
+      "title": "The specification Schema",
+      "examples": [
+        "KIP99"
+      ]
+    },
+    "metadata": {
+      "type": "object",
+      "default": {},
+      "title": "The metadata Schema",
+      "required": [
+        "realityAddress",
+        "realityTemplateID",
+        "realityQuestionID"
+      ],
+      "properties": {
+        "realityAddress": {
+          "type": "string",
+          "default": "",
+          "title": "The realityAddress Schema",
+          "examples": [
+            "0xe78996a233895be74a66f451f1019ca9734205cc"
+          ]
+        },
+        "realityTemplateID": {
+          "type": "string",
+          "default": "",
+          "title": "The realityTemplateID Schema",
+          "examples": [
+            "%s"
+          ]
+        },
+        "realityQuestionID": {
+          "type": "string",
+          "default": "",
+          "title": "The realityQuestionID Schema",
+          "examples": [
+            "%s"
+          ]
+        }
+      },
+      "examples": [
+        {
+          "realityAddress": "0xe78996a233895be74a66f451f1019ca9734205cc",
+          "realityTemplateID": "%s",
+          "realityQuestionID": "%s"
+        }
+      ]
+    }
+  }
+}

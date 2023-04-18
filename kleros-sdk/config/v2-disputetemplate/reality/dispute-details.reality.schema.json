@@ -1,0 +1,339 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "dispute-details.schema.json",
+  "title": "Root Schema",
+  "description": "The root schema is the schema that comprises the entire JSON document.",
+  "type": "object",
+  "default": {},
+  "required": [
+    "category",
+    "title",
+    "description",
+    "question",
+    "type",
+    "answers",
+    "frontendUrl",
+    "policyURI",
+    "arbitrableChainID",
+    "arbitrableAddress",
+    "arbitratorChainID",
+    "arbitratorAddress",
+    "specification",
+    "metadata"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "category": {
+      "title": "The category Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "type": "string",
+      "default": "",
+      "examples": [
+        "Oracle"
+      ]
+    },
+    "title": {
+      "title": "The title Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "type": "string",
+      "default": "",
+      "examples": [
+        "A reality.eth question"
+      ]
+    },
+    "description": {
+      "title": "The description Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "type": "string",
+      "default": "",
+      "examples": [
+        "A reality.eth question has been raised to arbitration."
+      ]
+    },
+    "question": {
+      "title": "The question Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "type": "string",
+      "default": "",
+      "examples": [
+        "# [Kleros Moderate](https://kleros.io/moderate)\n---\nDid the user, **degenape6** (ID: 1554345080), break the Telegram group, ***[Kleros Trading Group]()*** (ID: -1001151472172), ***[rules](https://ipfs.kleros.io/ipfs/Qme3Qbj9rKUNHUe9vj9rqCLnTVUCWKy2YfveQF8HiuWQSu/Kleros%20Moderate%20Community%20Rules.pdf)*** due to conduct related to the ***[message](https://t.me/c/1151472172/116662)*** (***[backup](https://ipfs.kleros.io/ipfs/QmVbFrZR1bcyQzZjvLyXwL9ekDxrqHERykdreRxXrw4nqg/animations_file_23.mp4)***)?"
+      ]
+    },
+    "type": {
+      "title": "The type Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "type": "string",
+      "default": "",
+      "examples": [
+        "single-select"
+      ],
+      "enum": [
+        "bool",
+        "uint",
+        "single-select",
+        "multiple-select"
+      ]
+    },
+    "answers": {
+      "title": "The answers Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "type": "array",
+      "default": [],
+      "additionalItems": true,
+      "items": {
+        "title": "A Schema",
+        "description": "An explanation about the purpose of this instance.",
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "reserved"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "title": "The id Schema",
+            "description": "An explanation about the purpose of this instance.",
+            "type": "string",
+            "examples": [
+              "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+              "0x00",
+              "0x01",
+              "0x02"
+            ]
+          },
+          "title": {
+            "title": "The title Schema",
+            "description": "An explanation about the purpose of this instance.",
+            "type": "string",
+            "examples": [
+              "Answered Too Soon",
+              "Invalid/Refuse to Arbitrate",
+              "Yes",
+              "No"
+            ]
+          },
+          "reserved": {
+            "title": "The reserved Schema",
+            "description": "An explanation about the purpose of this instance.",
+            "type": "boolean",
+            "examples": [
+              true,
+              false
+            ]
+          }
+        },
+        "examples": [
+          {
+            "id": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+            "title": "Answered Too Soon",
+            "reserved": true
+          },
+          {
+            "id": "0x00",
+            "title": "Invalid/Refuse to Arbitrate",
+            "reserved": true
+          },
+          {
+            "id": "0x01",
+            "title": "Yes",
+            "reserved": false
+          },
+          {
+            "id": "0x02",
+            "title": "No",
+            "reserved": false
+          }
+        ]
+      }
+    },
+    "frontendUrl": {
+      "title": "The frontendUrl Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "type": "string",
+      "default": "",
+      "examples": [
+        "https://reality.eth.link/app/#!/question/"
+      ]
+    },
+    "policyURI": {
+      "title": "The policyURI Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "type": "string",
+      "default": "",
+      "examples": [
+        "/ipfs/QmW4zDA8X95cyfAsW9Nq1t7XNTyP3sMQAWNRFoQhMpgAv7/Kleros%2520Moderate%2520x%2520Reality.eth%2520Oracle%2520-%2520Telegram%2520Content%2520Moderation%2520Question%2520Resolution%2520Policy.pdf"
+      ]
+    },
+    "arbitrableChainID": {
+      "title": "The arbitrableChainID Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "type": "string",
+      "default": "",
+      "examples": [
+        "100"
+      ]
+    },
+    "arbitrableAddress": {
+      "title": "The arbitrableAddress Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "type": "string",
+      "default": "",
+      "examples": [
+        "0x2e39b8f43d0870ba896f516f78f57cde773cf805"
+      ]
+    },
+    "arbitratorChainID": {
+      "title": "The arbitratorChainID Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "type": "string",
+      "default": "",
+      "examples": [
+        "421613"
+      ]
+    },
+    "arbitratorAddress": {
+      "title": "The arbitratorAddress Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "type": "string",
+      "default": "",
+      "examples": [
+        "0xD08Ab99480d02bf9C092828043f611BcDFEA917b"
+      ]
+    },
+    "specification": {
+      "title": "The specification Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "type": "string",
+      "default": "",
+      "examples": [
+        "KIP99"
+      ]
+    },
+    "metadata": {
+      "title": "The metadata Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "type": "object",
+      "default": {},
+      "required": [
+        "realityAddress",
+        "realityTemplateID",
+        "realityQuestionID",
+        "realityUser",
+        "realityCategory",
+        "realityLang",
+        "realityTimeout",
+        "realityOpeningTime",
+        "realityCreationTime",
+        "realityFrontendUrl"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "realityAddress": {
+          "title": "The realityAddress Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "type": "string",
+          "default": "",
+          "examples": [
+            "0xe78996a233895be74a66f451f1019ca9734205cc"
+          ]
+        },
+        "realityTemplateID": {
+          "title": "The realityTemplateID Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "type": "string",
+          "default": "",
+          "examples": [
+            "76"
+          ]
+        },
+        "realityQuestionID": {
+          "title": "The realityQuestionID Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "type": "string",
+          "default": "",
+          "examples": [
+            "0xe2a3bd38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b39"
+          ]
+        },
+        "realityUser": {
+          "title": "The realityUser Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "type": "string",
+          "default": "",
+          "examples": [
+            "0xe0441ecf50205d3548456b29fde2a3010f9a61f3"
+          ]
+        },
+        "realityCategory": {
+          "title": "The realityCategory Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "type": "string",
+          "default": "",
+          "examples": [
+            "content moderation"
+          ]
+        },
+        "realityLang": {
+          "title": "The realityLang Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "type": "string",
+          "default": "",
+          "examples": [
+            "en_US"
+          ]
+        },
+        "realityTimeout": {
+          "title": "The realityTimeout Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "type": "string",
+          "default": "",
+          "examples": [
+            "86400"
+          ]
+        },
+        "realityOpeningTime": {
+          "title": "The realityOpeningTime Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "type": "string",
+          "default": "",
+          "examples": [
+            "1681263978"
+          ]
+        },
+        "realityCreationTime": {
+          "title": "The realityCreationTime Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "type": "string",
+          "default": "",
+          "examples": [
+            "1681263995"
+          ]
+        },
+        "realityFrontendUrl": {
+          "title": "The realityFrontendUrl Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "type": "string",
+          "default": "",
+          "examples": [
+            "https://reality.eth.link/app/#!/question/0xe78996a233895be74a66f451f1019ca9734205cc-0xe2a3bd38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b39"
+          ]
+        }
+      },
+      "examples": [
+        {
+          "realityAddress": "0xe78996a233895be74a66f451f1019ca9734205cc",
+          "realityTemplateID": "76",
+          "realityQuestionID": "0xe2a3bd38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b39",
+          "realityUser": "0xe0441ecf50205d3548456b29fde2a3010f9a61f3",
+          "realityCategory": "content moderation",
+          "realityLang": "en_US",
+          "realityTimeout": "86400",
+          "realityOpeningTime": "1681263978",
+          "realityCreationTime": "1681263995",
+          "realityFrontendUrl": "https://reality.eth.link/app/#!/question/0xe78996a233895be74a66f451f1019ca9734205cc-0xe2a3bd38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b39"
+        }
+      ]
+    }
+  }
+}

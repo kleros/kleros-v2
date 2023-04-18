@@ -1,4 +1,5 @@
 {
+  "$schema": "./dispute-template.reality.schema.json",
   "category": "Oracle",
   "title": "A reality.eth question",
   "description": "A reality.eth question has been raised to arbitration.",
