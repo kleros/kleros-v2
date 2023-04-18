@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { StandardPagination } from "@kleros/ui-components-library";
 import { CasesPageQuery } from "queries/useCasesQuery";
+import { CasesPageQueryId } from "queries/useCasesQueryAll";
 import DisputeCard from "components/DisputeCard";
 
 const Container = styled.div`
@@ -24,6 +25,7 @@ export interface ICasesGrid {
   setCurrentPage: (newPage: number) => void;
   numberDisputes: number;
   casesPerPage: number;
+  disputeById?: CasesPageQueryId["dispute"];
 }
 
 const CasesGrid: React.FC<ICasesGrid> = ({
@@ -32,13 +34,24 @@ const CasesGrid: React.FC<ICasesGrid> = ({
   setCurrentPage,
   numberDisputes,
   casesPerPage,
+  disputeById,
 }) => {
   return (
     <>
       <Container>
-        {disputes.map((dispute, i) => {
-          return <DisputeCard key={i} {...dispute} />;
-        })}
+        {disputeById ? (
+          <>
+            {[disputeById].map((dispute, i) => {
+              return <DisputeCard key={i} {...dispute} />;
+            })}
+          </>
+        ) : (
+          <>
+            {disputes.map((dispute, i) => {
+              return <DisputeCard key={i} {...dispute} />;
+            })}
+          </>
+        )}
       </Container>
       <StyledPagination
         {...{ currentPage }}

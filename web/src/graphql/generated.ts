@@ -3064,6 +3064,25 @@ export type CasesPageQuery = {
   counter?: { __typename?: "Counter"; cases: any } | null;
 };
 
+export type CasesPageQueryId = {
+  __typename?: "Query";
+  dispute: {
+    __typename?: "Dispute";
+    id: string;
+    period: Period;
+    lastPeriodChange: any;
+    arbitrated: { __typename?: "Arbitrable"; id: string };
+    court: {
+      __typename?: "Court";
+      id: string;
+      policy?: string | null;
+      feeForJuror: any;
+      timesPerPeriod: Array<any>;
+    };
+  };
+  counter?: { __typename?: "Counter"; cases: any } | null;
+};
+
 export type ClassicAppealQueryVariables = Exact<{
   disputeID: Scalars["ID"];
 }>;
