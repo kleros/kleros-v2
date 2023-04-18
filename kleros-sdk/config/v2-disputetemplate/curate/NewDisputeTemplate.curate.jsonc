@@ -3,7 +3,6 @@
   "title": "Add an entry to Ledger Contract Domain Name registry v2",
   "description": "Someone requested to add an entry to Ledger Contract Domain Name registry v2",
   "question": "Does the entry comply with the required criteria?",
-  "type": "single-select",
   "answers": [
     {
       "title": "Yes, Add It",
