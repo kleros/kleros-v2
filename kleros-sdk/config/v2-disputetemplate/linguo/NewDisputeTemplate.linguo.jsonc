@@ -1,5 +1,5 @@
 {
-  "$schema": "./NewDisputeTemplate.linguo.schema.json",
+  "$schema": "../NewDisputeTemplate.schema.json",
   "title": "Review a translation from Linguo",
   "description": "Someone challenged a translation",
   "question": "Does the translation comply with the required criteria?",
@@ -20,7 +20,6 @@
   "arbitrableAddress": "0xe78996a233895be74a66f451f1019ca9734205cc",
   "arbitratorChainID": "421613",
   "arbitratorAddress": "0xD08Ab99480d02bf9C092828043f611BcDFEA917b", // KlerosCore
-  "lang": "en_US",
   "category": "Translation",
   "specification": "KIP999"
 }
