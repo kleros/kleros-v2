@@ -4,10 +4,7 @@
   "title": "Root Schema",
   "description": "The root schema is the schema that comprises the entire JSON document.",
   "type": "object",
-  "default": {},
   "required": [
-    "category",
-    "lang",
     "title",
     "description",
     "question",
@@ -19,6 +16,8 @@
     "arbitrableAddress",
     "arbitratorChainID",
     "arbitratorAddress",
+    "category",
+    "lang",
     "specification",
     "metadata",
     "externalDisputeID",
@@ -29,200 +28,47 @@
   ],
   "additionalProperties": false,
   "properties": {
-    "category": {
-      "title": "The category Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "type": "string",
-      "default": "",
-      "examples": [
-        "Oracle"
-      ]
-    },
-    "lang": {
-      "type": "string",
-      "default": "",
-      "title": "The lang Schema",
-      "examples": [
-        "en_US"
-      ]
-    },
     "title": {
-      "title": "The title Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "type": "string",
-      "default": "",
-      "examples": [
-        "A reality.eth question"
-      ]
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/title"
     },
     "description": {
-      "title": "The description Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "type": "string",
-      "default": "",
-      "examples": [
-        "A reality.eth question has been raised to arbitration."
-      ]
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/description"
     },
     "question": {
-      "title": "The question Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "type": "string",
-      "default": "",
-      "examples": [
-        "# [Kleros Moderate](https://kleros.io/moderate)\n---\nDid the user, **degenape6** (ID: 1554345080), break the Telegram group, ***[Kleros Trading Group]()*** (ID: -1001151472172), ***[rules](https://ipfs.kleros.io/ipfs/Qme3Qbj9rKUNHUe9vj9rqCLnTVUCWKy2YfveQF8HiuWQSu/Kleros%20Moderate%20Community%20Rules.pdf)*** due to conduct related to the ***[message](https://t.me/c/1151472172/116662)*** (***[backup](https://ipfs.kleros.io/ipfs/QmVbFrZR1bcyQzZjvLyXwL9ekDxrqHERykdreRxXrw4nqg/animations_file_23.mp4)***)?"
-      ]
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/question"
     },
     "type": {
-      "title": "The type Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "type": "string",
-      "default": "",
-      "examples": [
-        "single-select"
-      ],
-      "enum": [
-        "bool",
-        "uint",
-        "single-select",
-        "multiple-select"
-      ]
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/type"
     },
     "answers": {
-      "title": "The answers Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "type": "array",
-      "default": [],
-      "additionalItems": true,
-      "items": {
-        "title": "A Schema",
-        "description": "An explanation about the purpose of this instance.",
-        "type": "object",
-        "required": [
-          "id",
-          "title",
-          "reserved"
-        ],
-        "additionalProperties": true,
-        "properties": {
-          "id": {
-            "title": "The id Schema",
-            "description": "An explanation about the purpose of this instance.",
-            "type": "string",
-            "examples": [
-              "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-              "0x00",
-              "0x01",
-              "0x02"
-            ]
-          },
-          "title": {
-            "title": "The title Schema",
-            "description": "An explanation about the purpose of this instance.",
-            "type": "string",
-            "examples": [
-              "Answered Too Soon",
-              "Invalid/Refuse to Arbitrate",
-              "Yes",
-              "No"
-            ]
-          },
-          "reserved": {
-            "title": "The reserved Schema",
-            "description": "An explanation about the purpose of this instance.",
-            "type": "boolean",
-            "examples": [
-              true,
-              false
-            ]
-          }
-        },
-        "examples": [
-          {
-            "id": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-            "title": "Answered Too Soon",
-            "reserved": true
-          },
-          {
-            "id": "0x00",
-            "title": "Invalid/Refuse to Arbitrate",
-            "reserved": true
-          },
-          {
-            "id": "0x01",
-            "title": "Yes",
-            "reserved": false
-          },
-          {
-            "id": "0x02",
-            "title": "No",
-            "reserved": false
-          }
-        ]
-      }
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/answers"
     },
     "frontendUrl": {
-      "title": "The frontendUrl Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "type": "string",
-      "default": "",
-      "examples": [
-        "https://reality.eth.link/app/#!/question/"
-      ]
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/frontendUrl"
     },
     "policyURI": {
-      "title": "The policyURI Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "type": "string",
-      "default": "",
-      "examples": [
-        "/ipfs/QmW4zDA8X95cyfAsW9Nq1t7XNTyP3sMQAWNRFoQhMpgAv7/Kleros%2520Moderate%2520x%2520Reality.eth%2520Oracle%2520-%2520Telegram%2520Content%2520Moderation%2520Question%2520Resolution%2520Policy.pdf"
-      ]
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/policyURI"
     },
     "arbitrableChainID": {
-      "title": "The arbitrableChainID Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "type": "string",
-      "default": "",
-      "examples": [
-        "100"
-      ]
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/arbitrableChainID"
     },
     "arbitrableAddress": {
-      "title": "The arbitrableAddress Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "type": "string",
-      "default": "",
-      "examples": [
-        "0x2e39b8f43d0870ba896f516f78f57cde773cf805"
-      ]
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/arbitrableAddress"
     },
     "arbitratorChainID": {
-      "title": "The arbitratorChainID Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "type": "string",
-      "default": "",
-      "examples": [
-        "421613"
-      ]
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/arbitratorChainID"
     },
     "arbitratorAddress": {
-      "title": "The arbitratorAddress Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "type": "string",
-      "default": "",
-      "examples": [
-        "0xD08Ab99480d02bf9C092828043f611BcDFEA917b"
-      ]
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/arbitratorAddress"
+    },
+    "category": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/category"
+    },
+    "lang": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/lang"
     },
     "specification": {
-      "title": "The specification Schema",
-      "description": "An explanation about the purpose of this instance.",
-      "type": "string",
-      "default": "",
-      "examples": [
-        "KIP99"
-      ]
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/specification"
     },
     "metadata": {
       "type": "object",
@@ -394,7 +240,7 @@
       "default": "",
       "title": "The disputeTemplateHash Schema",
       "examples": [
-        "0xB5u9...2240"
+        "0xffbbbd38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b82"
       ]
     }
   }

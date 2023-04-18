@@ -1,5 +1,5 @@
 {
-  "$schema": "./dispute-details.linguo.schema.json",
+  "$schema": "./DisputeDetails.linguo.schema.json",
   "title": "Review a translation from Linguo",
   "description": "Someone challenged a translation",
   "question": "Does the translation comply with the required criteria?",
