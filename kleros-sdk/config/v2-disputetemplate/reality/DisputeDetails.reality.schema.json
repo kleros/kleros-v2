@@ -1,12 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "dispute-details.schema.json",
+  "$id": "DisputeDetails.reality.schema.json",
   "title": "Root Schema",
   "description": "The root schema is the schema that comprises the entire JSON document.",
   "type": "object",
   "default": {},
   "required": [
     "category",
+    "lang",
     "title",
     "description",
     "question",
@@ -19,9 +20,14 @@
     "arbitratorChainID",
     "arbitratorAddress",
     "specification",
-    "metadata"
+    "metadata",
+    "externalDisputeID",
+    "arbitrableDisputeID",
+    "arbitratorDisputeID",
+    "disputeTemplateID",
+    "disputeTemplateHash"
   ],
-  "additionalProperties": true,
+  "additionalProperties": false,
   "properties": {
     "category": {
       "title": "The category Schema",
@@ -30,6 +36,14 @@
       "default": "",
       "examples": [
         "Oracle"
+      ]
+    },
+    "lang": {
+      "type": "string",
+      "default": "",
+      "title": "The lang Schema",
+      "examples": [
+        "en_US"
       ]
     },
     "title": {
@@ -211,112 +225,118 @@
       ]
     },
     "metadata": {
-      "title": "The metadata Schema",
-      "description": "An explanation about the purpose of this instance.",
       "type": "object",
       "default": {},
+      "title": "The metadata Schema",
       "required": [
         "realityAddress",
         "realityTemplateID",
         "realityQuestionID",
         "realityUser",
+        "realityType",
         "realityCategory",
         "realityLang",
+        "realityFormat",
         "realityTimeout",
         "realityOpeningTime",
         "realityCreationTime",
-        "realityFrontendUrl"
+        "realityNonce"
       ],
-      "additionalProperties": true,
       "properties": {
         "realityAddress": {
-          "title": "The realityAddress Schema",
-          "description": "An explanation about the purpose of this instance.",
           "type": "string",
           "default": "",
+          "title": "The realityAddress Schema",
           "examples": [
             "0xe78996a233895be74a66f451f1019ca9734205cc"
           ]
         },
         "realityTemplateID": {
-          "title": "The realityTemplateID Schema",
-          "description": "An explanation about the purpose of this instance.",
           "type": "string",
           "default": "",
+          "title": "The realityTemplateID Schema",
           "examples": [
             "76"
           ]
         },
         "realityQuestionID": {
-          "title": "The realityQuestionID Schema",
-          "description": "An explanation about the purpose of this instance.",
           "type": "string",
           "default": "",
+          "title": "The realityQuestionID Schema",
           "examples": [
             "0xe2a3bd38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b39"
           ]
         },
         "realityUser": {
-          "title": "The realityUser Schema",
-          "description": "An explanation about the purpose of this instance.",
           "type": "string",
           "default": "",
+          "title": "The realityUser Schema",
           "examples": [
             "0xe0441ecf50205d3548456b29fde2a3010f9a61f3"
           ]
         },
-        "realityCategory": {
-          "title": "The realityCategory Schema",
-          "description": "An explanation about the purpose of this instance.",
+        "realityType": {
           "type": "string",
           "default": "",
+          "title": "The realityType Schema",
+          "examples": [
+            "bool"
+          ]
+        },
+        "realityCategory": {
+          "type": "string",
+          "default": "",
+          "title": "The realityCategory Schema",
           "examples": [
             "content moderation"
           ]
         },
         "realityLang": {
-          "title": "The realityLang Schema",
-          "description": "An explanation about the purpose of this instance.",
           "type": "string",
           "default": "",
+          "title": "The realityLang Schema",
           "examples": [
             "en_US"
           ]
         },
-        "realityTimeout": {
-          "title": "The realityTimeout Schema",
-          "description": "An explanation about the purpose of this instance.",
+        "realityFormat": {
           "type": "string",
           "default": "",
+          "title": "The realityFormat Schema",
+          "examples": [
+            "text/markdown"
+          ]
+        },
+        "realityTimeout": {
+          "type": "string",
+          "default": "",
+          "title": "The realityTimeout Schema",
           "examples": [
             "86400"
           ]
         },
         "realityOpeningTime": {
-          "title": "The realityOpeningTime Schema",
-          "description": "An explanation about the purpose of this instance.",
           "type": "string",
           "default": "",
+          "title": "The realityOpeningTime Schema",
           "examples": [
             "1681263978"
           ]
         },
         "realityCreationTime": {
-          "title": "The realityCreationTime Schema",
-          "description": "An explanation about the purpose of this instance.",
           "type": "string",
           "default": "",
+          "title": "The realityCreationTime Schema",
           "examples": [
             "1681263995"
           ]
         },
-        "realityFrontendUrl": {
-          "title": "The realityFrontendUrl Schema",
-          "description": "An explanation about the purpose of this instance.",
+        "realityNonce": {
           "type": "string",
           "default": "",
+          "title": "The realityNonce Schema",
           "examples": [
-            "https://reality.eth.link/app/#!/question/0xe78996a233895be74a66f451f1019ca9734205cc-0xe2a3bd38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b39"
+            "3"
           ]
         }
       },
@@ -326,13 +346,55 @@
           "realityTemplateID": "76",
           "realityQuestionID": "0xe2a3bd38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b39",
           "realityUser": "0xe0441ecf50205d3548456b29fde2a3010f9a61f3",
+          "realityType": "bool",
           "realityCategory": "content moderation",
           "realityLang": "en_US",
+          "realityFormat": "text/markdown",
           "realityTimeout": "86400",
           "realityOpeningTime": "1681263978",
           "realityCreationTime": "1681263995",
-          "realityFrontendUrl": "https://reality.eth.link/app/#!/question/0xe78996a233895be74a66f451f1019ca9734205cc-0xe2a3bd38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b39"
+          "realityNonce": "3"
         }
+      ]
+    },
+    "externalDisputeID": {
+      "type": "string",
+      "default": "",
+      "title": "The externalDisputeID Schema",
+      "examples": [
+        "0xe2a3bd38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b39"
+      ]
+    },
+    "arbitrableDisputeID": {
+      "type": "string",
+      "default": "",
+      "title": "The arbitrableDisputeID Schema",
+      "examples": [
+        "245"
+      ]
+    },
+    "arbitratorDisputeID": {
+      "type": "string",
+      "default": "",
+      "title": "The arbitratorDisputeID Schema",
+      "examples": [
+        "4563"
+      ]
+    },
+    "disputeTemplateID": {
+      "type": "string",
+      "default": "",
+      "title": "The disputeTemplateID Schema",
+      "examples": [
+        "42"
+      ]
+    },
+    "disputeTemplateHash": {
+      "type": "string",
+      "default": "",
+      "title": "The disputeTemplateHash Schema",
+      "examples": [
+        "0xB5u9...2240"
       ]
     }
   }

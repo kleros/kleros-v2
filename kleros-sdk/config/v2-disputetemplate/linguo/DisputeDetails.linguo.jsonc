@@ -1,6 +1,5 @@
 {
   "$schema": "./dispute-details.linguo.schema.json",
-  "category": "Translation",
   "title": "Review a translation from Linguo",
   "description": "Someone challenged a translation",
   "question": "Does the translation comply with the required criteria?",
@@ -24,12 +23,14 @@
       "reserved": false
     }
   ],
-  "frontendUrl": "https://linguo.kleros.io/translation/", // SDK should not change it
   "policyURI": "/ipfs/QmVabp1VjJNYzXDxbcWFdeK17RvvA9eQy6eJVf1T1AzS1a/linguo-translation-quality-policy.pdf",
+  "frontendUrl": "https://linguo.kleros.io/translation/0xe78996a233895be74a66f451f1019ca9734205cc/13",
   "arbitrableChainID": "100",
   "arbitrableAddress": "0xe78996a233895be74a66f451f1019ca9734205cc",
   "arbitratorChainID": "421613",
   "arbitratorAddress": "0xD08Ab99480d02bf9C092828043f611BcDFEA917b", // KlerosCore
+  "category": "Translation",
+  "lang": "en_US",
   "specification": "KIP999",
   "metadata": {
     "linguoAddress": "0xe78996a233895be74a66f451f1019ca9734205cc",
@@ -51,5 +52,10 @@
     "linguoTranslator": "0xbcd996a233895be74a66f451f1019ca97342bbbb",
     "linguoChallenger": "0xcde996a233895be74a66f451f1019ca97342cccc",
     "linguoFrontendUrl": "https://linguo.kleros.io/translation/0x0B928165A67df8254412483ae8C3b8cc7F2b4D36/35",
-  }
+  },
+  "externalDisputeID": "13", // taskID
+  "arbitrableDisputeID": "7",
+  "arbitratorDisputeID": "4564",
+  "disputeTemplateID": "43",
+  "disputeTemplateHash": "0xD1u9...2254"
 }
