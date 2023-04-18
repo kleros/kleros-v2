@@ -1,0 +1,27 @@
+{
+  "$schema": "./dispute-template.linguo.schema.json",
+  "category": "Translation",
+  "title": "Review a translation from Linguo",
+  "description": "Someone challenged a translation",
+  "question": "Does the translation comply with the required criteria?",
+  "type": "single-select",
+  "answers": [
+    {
+      "title": "Yes, the translation should be accepted",
+      "description": "Select this if you think the translation complies with the required criteria.",
+      "reserved": false
+    },
+    {
+      "title": "No, the translation should not be accepted",
+      "description": "Select this if you think the translation does not comply with the required criteria.",
+      "reserved": false
+    }
+  ],
+  "frontendUrl": "https://linguo.kleros.io/translation/", // SDK should not change it
+  "policyURI": "/ipfs/QmVabp1VjJNYzXDxbcWFdeK17RvvA9eQy6eJVf1T1AzS1a/linguo-translation-quality-policy.pdf",
+  "arbitrableChainID": "100",
+  "arbitrableAddress": "0xe78996a233895be74a66f451f1019ca9734205cc",
+  "arbitratorChainID": "421613",
+  "arbitratorAddress": "0xD08Ab99480d02bf9C092828043f611BcDFEA917b", // KlerosCore
+  "specification": "KIP999"
+}
