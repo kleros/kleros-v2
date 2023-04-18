@@ -1,12 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2019-09/schema",
-  "$id": "dispute-template.reality.schema.json",
+  "$id": "NewDisputeTemplate.reality.schema.json",
   "type": "object",
   "default": {},
   "title": "Root Schema",
   "required": [
     "$schema",
     "category",
+    "lang",
     "title",
     "description",
     "question",
@@ -21,6 +22,7 @@
     "specification",
     "metadata"
   ],
+  "additionalProperties": false,
   "properties": {
     "$schema": {
       "type": "string",
@@ -36,6 +38,14 @@
       "title": "The category Schema",
       "examples": [
         "Oracle"
+      ]
+    },
+    "lang": {
+      "type": "string",
+      "default": "",
+      "title": "The lang Schema",
+      "examples": [
+        "en_US"
       ]
     },
     "title": {
@@ -72,7 +82,23 @@
     },
     "answers": {
       "type": "array",
-      "default": [],
+      "default": [
+        {
+          "id": "0x00",
+          "title": "Invalid/Refuse to Arbitrate",
+          "reserved": true
+        },
+        {
+          "id": "0x01",
+          "title": "Yes",
+          "reserved": false
+        },
+        {
+          "id": "0x02",
+          "title": "No",
+          "reserved": false
+        }
+      ],
       "title": "The answers Schema",
       "items": {
         "type": "object",

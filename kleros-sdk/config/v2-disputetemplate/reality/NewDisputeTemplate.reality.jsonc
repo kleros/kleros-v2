@@ -1,6 +1,5 @@
 {
-  "$schema": "./dispute-template.reality.schema.json",
-  "category": "Oracle",
+  "$schema": "./NewDisputeTemplate.reality.schema.json",
   "title": "A reality.eth question",
   "description": "A reality.eth question has been raised to arbitration.",
   "question": "%s",
@@ -13,16 +12,13 @@
     }
     %s // for custom answers
   ],
-  "frontendUrl": "https://reality.eth.link/app/#!/question/", // SDK should not change it
   "policyURI": "/ipfs/QmW4zDA8X95cyfAsW9Nq1t7XNTyP3sMQAWNRFoQhMpgAv7/Kleros%2520Moderate%2520x%2520Reality.eth%2520Oracle%2520-%2520Telegram%2520Content%2520Moderation%2520Question%2520Resolution%2520Policy.pdf",
+  "frontendUrl": "https://reality.eth.link/app/#!/question/%s-%s",
   "arbitrableChainID": "100",
   "arbitrableAddress": "0x2e39b8f43d0870ba896f516f78f57cde773cf805", // Realitio_v2_1_ArbitratorWithAppeals
   "arbitratorChainID": "421613",
   "arbitratorAddress": "0xD08Ab99480d02bf9C092828043f611BcDFEA917b", // KlerosCore
-  "specification": "KIP99",
-  "metadata": {
-    "realityAddress": "0xe78996a233895be74a66f451f1019ca9734205cc",
-    "realityTemplateID": "%s",
-    "realityQuestionID": "%s"
-  }
+  "category": "Oracle",
+  "lang": "en_US",
+  "specification": "KIP99"
 }
