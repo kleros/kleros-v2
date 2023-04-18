@@ -36,7 +36,7 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
-    "@openzeppelin/contracts": "^4.8.2",
+    "@openzeppelin/contracts": "^4.8.3",
     "@typechain/ethers-v5": "^10.2.0",
     "@typechain/hardhat": "^6.1.5",
     "@types/chai": "^4.3.4",
@@ -48,7 +48,7 @@
     "dotenv": "^16.0.3",
     "ethereumjs-util": "^7.1.5",
     "ethers": "^5.7.2",
-    "hardhat": "^2.13.1",
+    "hardhat": "^2.14.0",
     "hardhat-contract-sizer": "^2.8.0",
     "hardhat-deploy": "^0.11.26",
     "hardhat-deploy-ethers": "^0.4.0-next.1",
