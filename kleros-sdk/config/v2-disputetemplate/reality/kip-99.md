@@ -31,7 +31,8 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 | bool            | ✅ maps to `single-select` |
 | uint            | TBC                        |
 | single-select   | ✅                         |
-| multiple-select | ❌                         |
+| multiple-select | TBC                        |
+| datetime        | TBC                        |
 
 ### Dispute details document
 
@@ -41,8 +42,8 @@ The answers must include:
 
 ```json
 {
-  "id": "0x00",
-  "title": "Invalid/Refuse to Arbitrate",
+  "id": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+  "title": "Answered Too Soon",
   "reserved": true
 }
 ```
