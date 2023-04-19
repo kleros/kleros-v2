@@ -126,7 +126,8 @@
         "bool",
         "uint",
         "single-select",
-        "multiple-select"
+        "multiple-select",
+        "datetime"
       ]
     },
     "answers": {
@@ -264,21 +265,12 @@
         },
         "examples": [
           {
-            "id": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-            "title": "Answered Too Soon",
-            "reserved": true
-          },
-          {
-            "id": "0x01",
             "title": "Yes",
-            "description": "Accept the request.",
-            "reserved": false
+            "description": "Accept the request."
           },
           {
-            "id": "0x02",
             "title": "No",
-            "description": "Refuse the request.",
-            "reserved": false
+            "description": "Refuse the request."
           }
         ]
       }
