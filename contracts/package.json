@@ -34,6 +34,9 @@
     "publish": "yarn npm publish --access public --tag $(cat package.json | jq .version)"
   },
   "devDependencies": {
+    "@kleros/kleros-v2-eslint-config": "workspace:^",
+    "@kleros/kleros-v2-prettier-config": "workspace:^",
+    "@kleros/kleros-v2-tsconfig": "workspace:^",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@openzeppelin/contracts": "^4.8.3",
@@ -42,8 +45,6 @@
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.1",
     "@types/node": "^16.18.23",
-    "@typescript-eslint/eslint-plugin": "^5.58.0",
-    "@typescript-eslint/parser": "^5.58.0",
     "chai": "^4.3.7",
     "dotenv": "^16.0.3",
     "ethereumjs-util": "^7.1.5",

@@ -3709,6 +3709,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-contracts@workspace:contracts"
   dependencies:
+    "@kleros/kleros-v2-eslint-config": "workspace:^"
+    "@kleros/kleros-v2-prettier-config": "workspace:^"
+    "@kleros/kleros-v2-tsconfig": "workspace:^"
     "@kleros/vea-contracts": ^0.1.12
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.6
     "@nomiclabs/hardhat-ethers": ^2.2.3
@@ -3718,8 +3721,6 @@ __metadata:
     "@types/chai": ^4.3.4
     "@types/mocha": ^10.0.1
     "@types/node": ^16.18.23
-    "@typescript-eslint/eslint-plugin": ^5.58.0
-    "@typescript-eslint/parser": ^5.58.0
     chai: ^4.3.7
     dotenv: ^16.0.3
     ethereumjs-util: ^7.1.5
@@ -3743,13 +3744,54 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@kleros/kleros-v2-eslint-config@*, @kleros/kleros-v2-eslint-config@workspace:^, @kleros/kleros-v2-eslint-config@workspace:eslint-config":
+  version: 0.0.0-use.local
+  resolution: "@kleros/kleros-v2-eslint-config@workspace:eslint-config"
+  dependencies:
+    "@typescript-eslint/eslint-plugin": ^5.58.0
+    "@typescript-eslint/parser": ^5.58.0
+    "@typescript-eslint/utils": ^5.58.0
+    eslint-config-prettier: ^8.8.0
+    eslint-config-standard: ^16.0.3
+    eslint-plugin-import: ^2.27.5
+    eslint-plugin-node: ^11.1.0
+    eslint-plugin-prettier: ^4.2.1
+    eslint-plugin-promise: ^5.2.0
+    eslint-plugin-security: ^1.7.1
+    eslint-utils: ^3.0.0
+    typescript: ^4.9.5
+  peerDependencies:
+    eslint: 8.x
+  languageName: unknown
+  linkType: soft
+
+"@kleros/kleros-v2-prettier-config@workspace:^, @kleros/kleros-v2-prettier-config@workspace:prettier-config":
+  version: 0.0.0-use.local
+  resolution: "@kleros/kleros-v2-prettier-config@workspace:prettier-config"
+  dependencies:
+    eslint: ^8.38.0
+    prettier: ^2.8.7
+    prettier-plugin-solidity: ^1.1.3
+  languageName: unknown
+  linkType: soft
+
 "@kleros/kleros-v2-subgraph@workspace:subgraph":
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-subgraph@workspace:subgraph"
   dependencies:
     "@graphprotocol/graph-cli": ^0.46.1
     "@graphprotocol/graph-ts": ^0.29.3
+    "@kleros/kleros-v2-eslint-config": "workspace:^"
+    "@kleros/kleros-v2-prettier-config": "workspace:^"
     gluegun: ^5.1.2
+  languageName: unknown
+  linkType: soft
+
+"@kleros/kleros-v2-tsconfig@workspace:^, @kleros/kleros-v2-tsconfig@workspace:tsconfig":
+  version: 0.0.0-use.local
+  resolution: "@kleros/kleros-v2-tsconfig@workspace:tsconfig"
+  dependencies:
+    "@kleros/kleros-v2-eslint-config": "*"
   languageName: unknown
   linkType: soft
 
@@ -3761,6 +3803,9 @@ __metadata:
     "@graphql-codegen/typescript": ^2.8.8
     "@graphql-codegen/typescript-operations": ^2.5.13
     "@kleros/kleros-v2-contracts": "workspace:^"
+    "@kleros/kleros-v2-eslint-config": "workspace:^"
+    "@kleros/kleros-v2-prettier-config": "workspace:^"
+    "@kleros/kleros-v2-tsconfig": "workspace:^"
     "@kleros/ui-components-library": ^1.9.2
     "@netlify/functions": ^1.4.0
     "@parcel/transformer-svg-react": ~2.7.0
@@ -3771,31 +3816,21 @@ __metadata:
     "@types/react-dom": ^18.0.11
     "@types/react-modal": ^3.13.1
     "@types/styled-components": ^5.1.26
-    "@typescript-eslint/eslint-plugin": ^5.58.0
-    "@typescript-eslint/parser": ^5.58.0
-    "@typescript-eslint/utils": ^5.58.0
     "@web3-react/core": ^6.1.9
     "@web3-react/injected-connector": ^6.0.7
     "@web3-react/types": ^6.0.7
     chart.js: ^3.9.1
     chartjs-adapter-moment: ^1.0.1
     core-js: ^3.30.0
-    eslint: ^8.38.0
-    eslint-config-prettier: ^8.8.0
     eslint-import-resolver-parcel: ^1.10.6
-    eslint-plugin-import: ^2.27.5
-    eslint-plugin-prettier: ^4.2.1
     eslint-plugin-react: ^7.32.2
     eslint-plugin-react-hooks: ^4.6.0
-    eslint-plugin-security: ^1.7.1
-    eslint-utils: ^3.0.0
     ethers: ^5.7.2
     graphql: ^16.6.0
     graphql-request: ~5.1.0
     lru-cache: ^7.18.3
     moment: ^2.29.4
     parcel: ~2.8.3
-    prettier: ^2.8.7
     react: ^18.2.0
     react-chartjs-2: ^4.3.1
     react-dom: ^18.2.0
@@ -17373,21 +17408,9 @@ __metadata:
     "@commitlint/cli": ^17.6.1
     "@commitlint/config-conventional": ^17.6.0
     conventional-changelog-cli: ^2.2.2
-    eslint: ^8.38.0
-    eslint-config-prettier: ^8.8.0
-    eslint-config-standard: ^16.0.3
-    eslint-import-resolver-parcel: ^1.10.6
-    eslint-plugin-import: ^2.27.5
-    eslint-plugin-node: ^11.1.0
-    eslint-plugin-prettier: ^4.2.1
-    eslint-plugin-promise: ^5.2.0
-    eslint-utils: ^3.0.0
     husky: ^8.0.3
     lint-staged: ^13.2.1
-    prettier: ^2.8.7
-    prettier-plugin-solidity: ^1.1.3
     process: ^0.11.10
-    solhint-plugin-prettier: ^0.0.5
   languageName: unknown
   linkType: soft
 
@@ -23657,18 +23680,6 @@ __metadata:
   bin:
     solcjs: solcjs
   checksum: 2d8eb16c6d8f648213c94dc8d977cffe5099cba7d41c82d92d769ef71ae8320a985065ce3d6c306440a85f8e8d2b27fb30bdd3ac38f69e5c1fa0ab8a3fb2f217
-  languageName: node
-  linkType: hard
-
-"solhint-plugin-prettier@npm:^0.0.5":
-  version: 0.0.5
-  resolution: "solhint-plugin-prettier@npm:0.0.5"
-  dependencies:
-    prettier-linter-helpers: ^1.0.0
-  peerDependencies:
-    prettier: ^1.15.0 || ^2.0.0
-    prettier-plugin-solidity: ^1.0.0-alpha.14
-  checksum: ca721e327daf49a4d9ef0ee5c9622482a8c5563d600eedfd3856c69ce67e416dd77da5166a033e2e641c9cdd7a0f2cbc7913b0eb1712081b3c7e8c633eef82a5
   languageName: node
   linkType: hard
 
