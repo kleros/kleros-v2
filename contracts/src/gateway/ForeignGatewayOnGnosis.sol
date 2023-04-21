@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-/**
- *  @authors: [@jaybuidl, @shotaronowhere, @shalzz, @unknownunknown1]
- *  @reviewers: []
- *  @auditors: []
- *  @bounties: []
- *  @deployments: []
- */
+/// @custom:authors: [@jaybuidl, @shotaronowhere, @shalzz, @unknownunknown1]
+/// @custom:reviewers: []
+/// @custom:auditors: []
+/// @custom:bounties: []
+/// @custom:deployments: []
 
 pragma solidity ^0.8.0;
 
@@ -14,10 +12,8 @@ import "../arbitration/IArbitrable.sol";
 import "./interfaces/IForeignGateway.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-/**
- * Foreign Gateway
- * Counterpart of `HomeGateway`
- */
+/// Foreign Gateway
+/// Counterpart of `HomeGateway`
 contract ForeignGatewayOnGnosis is IForeignGateway {
     // ************************************* //
     // *         Enums / Structs           * //
@@ -98,20 +94,16 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
     // *           Governance              * //
     // ************************************* //
 
-    /**
-     * @dev Changes the governor.
-     * @param _governor The address of the new governor.
-     */
+    /// @dev Changes the governor.
+    /// @param _governor The address of the new governor.
     function changeGovernor(address _governor) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
         governor = _governor;
     }
 
-    /**
-     * @dev Changes the fastBridge, useful to increase the claim deposit.
-     * @param _fastBridgeReceiver The address of the new fastBridge.
-     * @param _gracePeriod The duration to accept messages from the deprecated bridge (if at all).
-     */
+    /// @dev Changes the fastBridge, useful to increase the claim deposit.
+    /// @param _fastBridgeReceiver The address of the new fastBridge.
+    /// @param _gracePeriod The duration to accept messages from the deprecated bridge (if at all).
     function changeFastbridge(IFastBridgeReceiver _fastBridgeReceiver, uint256 _gracePeriod) external onlyByGovernor {
         // grace period to relay remaining messages in the relay / bridging process
         depreciatedFastBridgeExpiration = block.timestamp + _fastBridgeReceiver.epochPeriod() + _gracePeriod; // 2 weeks
@@ -119,20 +111,16 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
         fastBridgeReceiver = _fastBridgeReceiver;
     }
 
-    /**
-     * @dev Changes the sender gateway.
-     * @param _senderGateway The address of the new sender gateway.
-     */
+    /// @dev Changes the sender gateway.
+    /// @param _senderGateway The address of the new sender gateway.
     function changeReceiverGateway(address _senderGateway) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
         senderGateway = _senderGateway;
     }
 
-    /**
-     * @dev Changes the `feeForJuror` property value of a specified court.
-     * @param _courtID The ID of the court.
-     * @param _feeForJuror The new value for the `feeForJuror` property value.
-     */
+    /// @dev Changes the `feeForJuror` property value of a specified court.
+    /// @param _courtID The ID of the court.
+    /// @param _feeForJuror The new value for the `feeForJuror` property value.
     function changeCourtJurorFee(uint96 _courtID, uint256 _feeForJuror) external onlyByGovernor {
         feeForJuror[_courtID] = _feeForJuror;
         emit ArbitrationCostModified(_courtID, _feeForJuror);
@@ -191,9 +179,7 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
         cost = feeForJuror[courtID] * minJurors;
     }
 
-    /**
-     * Relay the rule call from the home gateway to the arbitrable.
-     */
+    /// Relay the rule call from the home gateway to the arbitrable.
     function relayRule(
         address _messageSender,
         bytes32 _disputeHash,

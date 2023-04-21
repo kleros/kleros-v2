@@ -1,21 +1,17 @@
 // SPDX-License-Identifier: MIT
 
-/**
- *  @authors: [@ferittuncer, @unknownunknown1]
- *  @reviewers: []
- *  @auditors: []
- *  @bounties: []
- */
+/// @custom:authors: [@ferittuncer, @unknownunknown1]
+/// @custom:reviewers: []
+/// @custom:auditors: []
+/// @custom:bounties: []
 
 import "../IArbitrable.sol";
 import "../../evidence/IMetaEvidence.sol";
 
 pragma solidity ^0.8;
 
-/**
- *  @title DisputeResolver
- *  DisputeResolver contract adapted for V2 https://github.com/kleros/arbitrable-proxy-contracts/blob/master/contracts/ArbitrableProxy.sol.
- */
+/// @title DisputeResolver
+/// DisputeResolver contract adapted for V2 https://github.com/kleros/arbitrable-proxy-contracts/blob/master/contracts/ArbitrableProxy.sol.
 contract DisputeResolver is IArbitrable, IMetaEvidence {
     struct DisputeStruct {
         bytes arbitratorExtraData; // Extra data for the dispute.
@@ -29,20 +25,18 @@ contract DisputeResolver is IArbitrable, IMetaEvidence {
     DisputeStruct[] public disputes; // Local disputes.
     mapping(uint256 => uint256) public externalIDtoLocalID; // Maps external (arbitrator side) dispute IDs to local dispute IDs.
 
-    /** @dev Constructor
-     *  @param _arbitrator Target global arbitrator for any disputes.
-     */
+    /// @dev Constructor
+    /// @param _arbitrator Target global arbitrator for any disputes.
     constructor(IArbitrator _arbitrator) {
         arbitrator = _arbitrator;
     }
 
-    /** @dev TRUSTED. Calls createDispute function of the specified arbitrator to create a dispute.
-        Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
-     *  @param _arbitratorExtraData Extra data for the arbitrator of the dispute.
-     *  @param _metaevidenceURI Link to metaevidence of the dispute.
-     *  @param _numberOfRulingOptions Number of ruling options.
-     *  @return disputeID Dispute id (on arbitrator side) of the created dispute.
-     */
+    /// @dev TRUSTED. Calls createDispute function of the specified arbitrator to create a dispute.
+    /// Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
+    /// @param _arbitratorExtraData Extra data for the arbitrator of the dispute.
+    /// @param _metaevidenceURI Link to metaevidence of the dispute.
+    /// @param _numberOfRulingOptions Number of ruling options.
+    /// @return disputeID Dispute id (on arbitrator side) of the created dispute.
     function createDispute(
         bytes calldata _arbitratorExtraData,
         string calldata _metaevidenceURI,
@@ -67,10 +61,9 @@ contract DisputeResolver is IArbitrable, IMetaEvidence {
         emit Dispute(arbitrator, disputeID, localDisputeID, localDisputeID);
     }
 
-    /** @dev To be called by the arbitrator of the dispute, to declare the winning ruling.
-     *  @param _externalDisputeID ID of the dispute in arbitrator contract.
-     *  @param _ruling The ruling choice of the arbitration.
-     */
+    /// @dev To be called by the arbitrator of the dispute, to declare the winning ruling.
+    /// @param _externalDisputeID ID of the dispute in arbitrator contract.
+    /// @param _ruling The ruling choice of the arbitration.
     function rule(uint256 _externalDisputeID, uint256 _ruling) external override {
         uint256 localDisputeID = externalIDtoLocalID[_externalDisputeID];
         DisputeStruct storage dispute = disputes[localDisputeID];

@@ -4,28 +4,19 @@ pragma solidity ^0.8;
 
 import "./IArbitrator.sol";
 
-/** @title Centralized Arbitrator
- *  @dev This is a centralized arbitrator deciding alone on the result of disputes. It illustrates how IArbitrator interface can be implemented.
- *  Note that this contract supports appeals. The ruling given by the arbitrator can be appealed by crowdfunding a desired choice.
- */
+/// @title Centralized Arbitrator
+/// @dev This is a centralized arbitrator deciding alone on the result of disputes. It illustrates how IArbitrator interface can be implemented.
+/// Note that this contract supports appeals. The ruling given by the arbitrator can be appealed by crowdfunding a desired choice.
 contract CentralizedArbitrator is IArbitrator {
-    /* Constants */
-
-    // The required fee stake that a party must pay depends on who won the previous round and is proportional to the appeal cost such that the fee stake for a round is stake multiplier * appeal cost for that round.
-    uint256 public constant WINNER_STAKE_MULTIPLIER = 10000; // Multiplier of the appeal cost that the winner has to pay as fee stake for a round in basis points. Default is 1x of appeal fee.
-    uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the appeal cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
-    uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
-    uint256 public constant MULTIPLIER_DIVISOR = 10000;
-
-    /* Enums */
+    // ************************************* //
+    // *         Enums / Structs           * //
+    // ************************************* //
 
     enum DisputeStatus {
         Waiting, // The dispute is waiting for the ruling or not created.
         Appealable, // The dispute can be appealed.
         Solved // The dispute is resolved.
     }
-
-    /* Structs */
 
     struct DisputeStruct {
         IArbitrable arbitrated; // The address of the arbitrable contract.
@@ -45,8 +36,15 @@ contract CentralizedArbitrator is IArbitrator {
         uint256[] fundedChoices; // Stores the choices that are fully funded.
     }
 
-    /* Storage */
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
 
+    // The required fee stake that a party must pay depends on who won the previous round and is proportional to the appeal cost such that the fee stake for a round is stake multiplier * appeal cost for that round.
+    uint256 public constant WINNER_STAKE_MULTIPLIER = 10000; // Multiplier of the appeal cost that the winner has to pay as fee stake for a round in basis points. Default is 1x of appeal fee.
+    uint256 public constant LOSER_STAKE_MULTIPLIER = 20000; // Multiplier of the appeal cost that the loser has to pay as fee stake for a round in basis points. Default is 2x of appeal fee.
+    uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
+    uint256 public constant MULTIPLIER_DIVISOR = 10000;
     address public owner = msg.sender; // Owner of the contract.
     uint256 public appealDuration; // The duration of the appeal period.
 
@@ -56,29 +54,26 @@ contract CentralizedArbitrator is IArbitrator {
     DisputeStruct[] public disputes; // Stores the dispute info. disputes[disputeID].
     mapping(uint256 => Round[]) public disputeIDtoRoundArray; // Maps dispute IDs to Round array that contains the info about crowdfunding.
 
-    /* Events */
+    // ************************************* //
+    // *              Events               * //
+    // ************************************* //
 
-    /**
-     * @dev To be emitted when a dispute can be appealed.
-     * @param _disputeID ID of the dispute.
-     * @param _arbitrable The contract which created the dispute.
-     */
+    /// @dev To be emitted when a dispute can be appealed.
+    /// @param _disputeID ID of the dispute.
+    /// @param _arbitrable The contract which created the dispute.
     event AppealPossible(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
 
-    /**
-     * @dev To be emitted when the current ruling is appealed.
-     * @param _disputeID ID of the dispute.
-     * @param _arbitrable The contract which created the dispute.
-     */
+    /// @dev To be emitted when the current ruling is appealed.
+    /// @param _disputeID ID of the dispute.
+    /// @param _arbitrable The contract which created the dispute.
     event AppealDecision(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
 
-    /** @dev Raised when a contribution is made, inside fundAppeal function.
-     *  @param _disputeID ID of the dispute.
-     *  @param _round The round the contribution was made to.
-     *  @param _choice Indicates the choice option which got the contribution.
-     *  @param _contributor Caller of fundAppeal function.
-     *  @param _amount Contribution amount.
-     */
+    /// @dev Raised when a contribution is made, inside fundAppeal function.
+    /// @param _disputeID ID of the dispute.
+    /// @param _round The round the contribution was made to.
+    /// @param _choice Indicates the choice option which got the contribution.
+    /// @param _contributor Caller of fundAppeal function.
+    /// @param _amount Contribution amount.
     event Contribution(
         uint256 indexed _disputeID,
         uint256 indexed _round,
@@ -87,13 +82,12 @@ contract CentralizedArbitrator is IArbitrator {
         uint256 _amount
     );
 
-    /** @dev Raised when a contributor withdraws a non-zero value.
-     *  @param _disputeID ID of the dispute.
-     *  @param _round The round the withdrawal was made from.
-     *  @param _choice Indicates the choice which contributor gets rewards from.
-     *  @param _contributor The beneficiary of the withdrawal.
-     *  @param _amount Total withdrawn amount, consists of reimbursed deposits and rewards.
-     */
+    /// @dev Raised when a contributor withdraws a non-zero value.
+    /// @param _disputeID ID of the dispute.
+    /// @param _round The round the withdrawal was made from.
+    /// @param _choice Indicates the choice which contributor gets rewards from.
+    /// @param _contributor The beneficiary of the withdrawal.
+    /// @param _amount Total withdrawn amount, consists of reimbursed deposits and rewards.
     event Withdrawal(
         uint256 indexed _disputeID,
         uint256 indexed _round,
@@ -102,70 +96,70 @@ contract CentralizedArbitrator is IArbitrator {
         uint256 _amount
     );
 
-    /** @dev To be raised when a choice is fully funded for appeal.
-     *  @param _disputeID ID of the dispute.
-     *  @param _round ID of the round where the choice was funded.
-     *  @param _choice The choice that just got fully funded.
-     */
+    /// @dev To be raised when a choice is fully funded for appeal.
+    /// @param _disputeID ID of the dispute.
+    /// @param _round ID of the round where the choice was funded.
+    /// @param _choice The choice that just got fully funded.
     event ChoiceFunded(uint256 indexed _disputeID, uint256 indexed _round, uint256 indexed _choice);
 
-    /* Modifiers */
+    // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Can only be called by the owner.");
         _;
     }
 
-    /** @dev Constructor.
-     *  @param _arbitrationFee Amount to be paid for arbitration.
-     *  @param _appealDuration Duration of the appeal period.
-     *  @param _appealFee Amount to be paid to fund one of the appeal choices, not counting the additional fee stake amount.
-     */
-    constructor(
-        uint256 _arbitrationFee,
-        uint256 _appealDuration,
-        uint256 _appealFee
-    ) {
+    // ************************************* //
+    // *            Constructor            * //
+    // ************************************* //
+
+    /// @dev Constructor.
+    /// @param _arbitrationFee Amount to be paid for arbitration.
+    /// @param _appealDuration Duration of the appeal period.
+    /// @param _appealFee Amount to be paid to fund one of the appeal choices, not counting the additional fee stake amount.
+    constructor(uint256 _arbitrationFee, uint256 _appealDuration, uint256 _appealFee) {
         arbitrationFee = _arbitrationFee;
         appealDuration = _appealDuration;
         appealFee = _appealFee;
     }
 
-    /* External and Public */
+    // ************************************* //
+    // *             Governance            * //
+    // ************************************* //
 
-    /** @dev Set the arbitration fee. Only callable by the owner.
-     *  @param _arbitrationFee Amount to be paid for arbitration.
-     */
+    /// @dev Set the arbitration fee. Only callable by the owner.
+    /// @param _arbitrationFee Amount to be paid for arbitration.
     function setArbitrationFee(uint256 _arbitrationFee) external onlyOwner {
         arbitrationFee = _arbitrationFee;
     }
 
-    /** @dev Set the duration of the appeal period. Only callable by the owner.
-     *  @param _appealDuration New duration of the appeal period.
-     */
+    /// @dev Set the duration of the appeal period. Only callable by the owner.
+    /// @param _appealDuration New duration of the appeal period.
     function setAppealDuration(uint256 _appealDuration) external onlyOwner {
         appealDuration = _appealDuration;
     }
 
-    /** @dev Set the appeal fee. Only callable by the owner.
-     *  @param _appealFee Amount to be paid for appeal.
-     */
+    /// @dev Set the appeal fee. Only callable by the owner.
+    /// @param _appealFee Amount to be paid for appeal.
     function setAppealFee(uint256 _appealFee) external onlyOwner {
         appealFee = _appealFee;
     }
 
-    /** @dev Create a dispute. Must be called by the arbitrable contract.
-     *  Must be paid at least arbitrationCost().
-     *  @param _choices Amount of choices the arbitrator can make in this dispute.
-     *  @param _extraData Can be used to give additional info on the dispute to be created.
-     *  @return disputeID ID of the dispute created.
-     */
-    function createDispute(uint256 _choices, bytes calldata _extraData)
-        external
-        payable
-        override
-        returns (uint256 disputeID)
-    {
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
+
+    /// @dev Create a dispute. Must be called by the arbitrable contract.
+    /// Must be paid at least arbitrationCost().
+    /// @param _choices Amount of choices the arbitrator can make in this dispute.
+    /// @param _extraData Can be used to give additional info on the dispute to be created.
+    /// @return disputeID ID of the dispute created.
+    function createDispute(
+        uint256 _choices,
+        bytes calldata _extraData
+    ) external payable override returns (uint256 disputeID) {
         uint256 localArbitrationCost = arbitrationCost(_extraData);
         require(msg.value >= localArbitrationCost, "Not enough ETH to cover arbitration costs.");
         disputeID = disputes.length;
@@ -185,11 +179,10 @@ contract CentralizedArbitrator is IArbitrator {
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
 
-    /** @dev TRUSTED. Manages contributions, and appeals a dispute if at least two choices are fully funded. This function allows the appeals to be crowdfunded.
-     *  Note that the surplus deposit will be reimbursed.
-     *  @param _disputeID Index of the dispute to appeal.
-     *  @param _choice A choice that receives funding.
-     */
+    /// @dev TRUSTED. Manages contributions, and appeals a dispute if at least two choices are fully funded. This function allows the appeals to be crowdfunded.
+    /// Note that the surplus deposit will be reimbursed.
+    /// @param _disputeID Index of the dispute to appeal.
+    /// @param _choice A choice that receives funding.
     function fundAppeal(uint256 _disputeID, uint256 _choice) external payable {
         DisputeStruct storage dispute = disputes[_disputeID];
         require(dispute.status == DisputeStatus.Appealable, "Dispute not appealable.");
@@ -248,11 +241,10 @@ contract CentralizedArbitrator is IArbitrator {
         if (msg.value > contribution) payable(msg.sender).send(msg.value - contribution);
     }
 
-    /** @dev Give a ruling to a dispute. Once it's given the dispute can be appealed, and after the appeal period has passed this function should be called again to finalize the ruling.
-     *  Accounts for the situation where the winner loses a case due to paying less appeal fees than expected.
-     *  @param _disputeID ID of the dispute to rule.
-     *  @param _ruling Ruling given by the arbitrator. Note that 0 means that arbitrator chose "Refused to rule".
-     */
+    /// @dev Give a ruling to a dispute. Once it's given the dispute can be appealed, and after the appeal period has passed this function should be called again to finalize the ruling.
+    /// Accounts for the situation where the winner loses a case due to paying less appeal fees than expected.
+    /// @param _disputeID ID of the dispute to rule.
+    /// @param _ruling Ruling given by the arbitrator. Note that 0 means that arbitrator chose "Refused to rule".
     function giveRuling(uint256 _disputeID, uint256 _ruling) external onlyOwner {
         DisputeStruct storage dispute = disputes[_disputeID];
         require(_ruling <= dispute.choices, "Invalid ruling.");
@@ -280,13 +272,12 @@ contract CentralizedArbitrator is IArbitrator {
         }
     }
 
-    /** @dev Allows to withdraw any reimbursable fees or rewards after the dispute gets resolved.
-     *  @param _disputeID Index of the dispute in disputes array.
-     *  @param _beneficiary The address which rewards to withdraw.
-     *  @param _round The round the caller wants to withdraw from.
-     *  @param _choice The ruling option that the caller wants to withdraw from.
-     *  @return amount The withdrawn amount.
-     */
+    /// @dev Allows to withdraw any reimbursable fees or rewards after the dispute gets resolved.
+    /// @param _disputeID Index of the dispute in disputes array.
+    /// @param _beneficiary The address which rewards to withdraw.
+    /// @param _round The round the caller wants to withdraw from.
+    /// @param _choice The ruling option that the caller wants to withdraw from.
+    /// @return amount The withdrawn amount.
     function withdrawFeesAndRewards(
         uint256 _disputeID,
         address payable _beneficiary,
@@ -322,25 +313,21 @@ contract CentralizedArbitrator is IArbitrator {
         }
     }
 
-    // ************************ //
-    // *       Getters        * //
-    // ************************ //
+    // ************************************* //
+    // *           Public Views            * //
+    // ************************************* //
 
-    /** @dev Cost of arbitration.
-     *  @return fee The required amount.
-     */
-    function arbitrationCost(
-        bytes calldata /*_extraData*/
-    ) public view override returns (uint256 fee) {
+    /// @dev Cost of arbitration.
+    /// @return fee The required amount.
+    function arbitrationCost(bytes calldata /*_extraData*/) public view override returns (uint256 fee) {
         return arbitrationFee;
     }
 
-    /** @dev Return the funded amount and funding goal for one of the choices.
-     *  @param _disputeID The ID of the dispute to appeal.
-     *  @param _choice The choice to check the funding status of.
-     *  @return funded The amount funded so far for this choice in wei.
-     *  @return goal The amount to fully fund this choice in wei.
-     */
+    /// @dev Return the funded amount and funding goal for one of the choices.
+    /// @param _disputeID The ID of the dispute to appeal.
+    /// @param _choice The choice to check the funding status of.
+    /// @return funded The amount funded so far for this choice in wei.
+    /// @return goal The amount to fully fund this choice in wei.
     function fundingStatus(uint256 _disputeID, uint256 _choice) external view returns (uint256 funded, uint256 goal) {
         DisputeStruct storage dispute = disputes[_disputeID];
         require(_choice <= dispute.choices, "There is no such ruling to fund.");
@@ -358,11 +345,10 @@ contract CentralizedArbitrator is IArbitrator {
         return (lastRound.paidFees[_choice], goal);
     }
 
-    /** @dev Compute the start and end of the dispute's appeal period, if possible. If the dispute is not appealble return (0, 0).
-     *  @param _disputeID ID of the dispute.
-     *  @return start The start of the period.
-     *  @return end The end of the period.
-     */
+    /// @dev Compute the start and end of the dispute's appeal period, if possible. If the dispute is not appealble return (0, 0).
+    /// @param _disputeID ID of the dispute.
+    /// @return start The start of the period.
+    /// @return end The end of the period.
     function appealPeriod(uint256 _disputeID) public view returns (uint256 start, uint256 end) {
         DisputeStruct storage dispute = disputes[_disputeID];
         if (dispute.status == DisputeStatus.Appealable) {
