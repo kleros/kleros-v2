@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-/**
- *  @authors: [@jaybuidl, @shotaronowhere, @shalzz]
- *  @reviewers: []
- *  @auditors: []
- *  @bounties: []
- *  @deployments: []
- */
+/// @custom:authors: [@jaybuidl, @shotaronowhere, @shalzz]
+/// @custom:reviewers: []
+/// @custom:auditors: []
+/// @custom:bounties: []
+/// @custom:deployments: []
 
 pragma solidity ^0.8.0;
 
@@ -15,10 +13,8 @@ import "@kleros/vea-contracts/interfaces/IFastBridgeSender.sol";
 import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
 
-/**
- * Home Gateway
- * Counterpart of `ForeignGateway`
- */
+/// Home Gateway
+/// Counterpart of `ForeignGateway`
 contract HomeGateway is IHomeGateway {
     // ************************************* //
     // *         Enums / Structs           * //
@@ -62,37 +58,29 @@ contract HomeGateway is IHomeGateway {
     // *           Governance              * //
     // ************************************* //
 
-    /**
-     * @dev Changes the governor.
-     * @param _governor The address of the new governor.
-     */
+    /// @dev Changes the governor.
+    /// @param _governor The address of the new governor.
     function changeGovernor(address _governor) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
         governor = _governor;
     }
 
-    /**
-     * @dev Changes the arbitrator.
-     * @param _arbitrator The address of the new arbitrator.
-     */
+    /// @dev Changes the arbitrator.
+    /// @param _arbitrator The address of the new arbitrator.
     function changeArbitrator(IArbitrator _arbitrator) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
         arbitrator = _arbitrator;
     }
 
-    /**
-     * @dev Changes the fastBridge, useful to increase the claim deposit.
-     * @param _fastBridgeSender The address of the new fastBridge.
-     */
+    /// @dev Changes the fastBridge, useful to increase the claim deposit.
+    /// @param _fastBridgeSender The address of the new fastBridge.
     function changeFastbridge(IFastBridgeSender _fastBridgeSender) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
         fastBridgeSender = _fastBridgeSender;
     }
 
-    /**
-     * @dev Changes the receiver gateway.
-     * @param _receiverGateway The address of the new receiver gateway.
-     */
+    /// @dev Changes the receiver gateway.
+    /// @param _receiverGateway The address of the new receiver gateway.
     function changeReceiverGateway(address _receiverGateway) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
         receiverGateway = _receiverGateway;
@@ -102,15 +90,13 @@ contract HomeGateway is IHomeGateway {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /**
-     * @dev Provide the same parameters as on the foreignChain while creating a dispute. Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
-     * @param _foreignChainID foreignChainId
-     * @param _foreignBlockHash foreignBlockHash
-     * @param _foreignDisputeID foreignDisputeID
-     * @param _choices number of ruling choices
-     * @param _extraData extraData
-     * @param _arbitrable arbitrable
-     */
+    /// @dev Provide the same parameters as on the foreignChain while creating a dispute. Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
+    /// @param _foreignChainID foreignChainId
+    /// @param _foreignBlockHash foreignBlockHash
+    /// @param _foreignDisputeID foreignDisputeID
+    /// @param _choices number of ruling choices
+    /// @param _extraData extraData
+    /// @param _arbitrable arbitrable
     function relayCreateDispute(
         uint256 _foreignChainID,
         bytes32 _foreignBlockHash,
@@ -145,12 +131,10 @@ contract HomeGateway is IHomeGateway {
         emit Dispute(arbitrator, disputeID, 0, 0);
     }
 
-    /**
-     * @dev Give a ruling for a dispute. Must be called by the arbitrator.
-     *      The purpose of this function is to ensure that the address calling it has the right to rule on the contract.
-     * @param _disputeID ID of the dispute in the Arbitrator contract.
-     * @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Not able/wanting to make a decision".
-     */
+    /// @dev Give a ruling for a dispute. Must be called by the arbitrator.
+    /// The purpose of this function is to ensure that the address calling it has the right to rule on the contract.
+    /// @param _disputeID ID of the dispute in the Arbitrator contract.
+    /// @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Not able/wanting to make a decision".
     function rule(uint256 _disputeID, uint256 _ruling) external override {
         require(msg.sender == address(arbitrator), "Only Arbitrator");
 
@@ -163,10 +147,8 @@ contract HomeGateway is IHomeGateway {
         fastBridgeSender.sendFast(receiverGateway, data);
     }
 
-    /**
-     * @dev Looks up the local home disputeID for a disputeHash. For cross-chain Evidence standard.
-     * @param _disputeHash dispute hash
-     */
+    /// @dev Looks up the local home disputeID for a disputeHash. For cross-chain Evidence standard.
+    /// @param _disputeHash dispute hash
     function disputeHashToHomeID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoID[_disputeHash];
     }

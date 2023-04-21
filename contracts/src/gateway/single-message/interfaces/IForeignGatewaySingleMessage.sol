@@ -7,14 +7,8 @@ import "../../../arbitration/IArbitrator.sol";
 interface IForeignGatewaySingleMessage is IArbitrator {
     function chainID() external view returns (uint256);
 
-    /**
-     * Relay the rule call from the home gateway to the arbitrable.
-     */
-    function relayRule(
-        bytes32 _disputeHash,
-        uint256 _ruling,
-        address _forwarder
-    ) external;
+    /// Relay the rule call from the home gateway to the arbitrable.
+    function relayRule(bytes32 _disputeHash, uint256 _ruling, address _forwarder) external;
 
     function withdrawFees(bytes32 _disputeHash) external;
 

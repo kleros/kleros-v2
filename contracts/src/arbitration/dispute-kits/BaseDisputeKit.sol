@@ -1,22 +1,18 @@
 // SPDX-License-Identifier: MIT
 
-/**
- *  @authors: [@unknownunknown1, @jaybuidl]
- *  @reviewers: []
- *  @auditors: []
- *  @bounties: []
- *  @deployments: []
- */
+/// @custom:authors: [@unknownunknown1, @jaybuidl]
+/// @custom:reviewers: []
+/// @custom:auditors: []
+/// @custom:bounties: []
+/// @custom:deployments: []
 
 pragma solidity ^0.8;
 
 import "../IDisputeKit.sol";
 import "../KlerosCore.sol";
 
-/**
- *  @title BaseDisputeKit
- *  Provides common basic behaviours to the Dispute Kit implementations.
- */
+/// @title BaseDisputeKit
+/// Provides common basic behaviours to the Dispute Kit implementations.
 abstract contract BaseDisputeKit is IDisputeKit {
     // ************************************* //
     // *             Storage               * //
@@ -39,10 +35,9 @@ abstract contract BaseDisputeKit is IDisputeKit {
         _;
     }
 
-    /** @dev Constructor.
-     *  @param _governor The governor's address.
-     *  @param _core The KlerosCore arbitrator.
-     */
+    /// @dev Constructor.
+    /// @param _governor The governor's address.
+    /// @param _core The KlerosCore arbitrator.
     constructor(address _governor, KlerosCore _core) {
         governor = _governor;
         core = _core;
@@ -52,11 +47,10 @@ abstract contract BaseDisputeKit is IDisputeKit {
     // *      Governance      * //
     // ************************ //
 
-    /** @dev Allows the governor to call anything on behalf of the contract.
-     *  @param _destination The destination of the call.
-     *  @param _amount The value sent with the call.
-     *  @param _data The data sent with the call.
-     */
+    /// @dev Allows the governor to call anything on behalf of the contract.
+    /// @param _destination The destination of the call.
+    /// @param _amount The value sent with the call.
+    /// @param _data The data sent with the call.
     function executeGovernorProposal(
         address _destination,
         uint256 _amount,
@@ -66,10 +60,9 @@ abstract contract BaseDisputeKit is IDisputeKit {
         require(success, "Unsuccessful call");
     }
 
-    /** @dev Checks that the chosen address satisfies certain conditions for being drawn.
-     *  @param _coreDisputeID ID of the dispute in the core contract.
-     *  @param _juror Chosen address.
-     *  @return Whether the address can be drawn or not.
-     */
+    /// @dev Checks that the chosen address satisfies certain conditions for being drawn.
+    /// @param _coreDisputeID ID of the dispute in the core contract.
+    /// @param _juror Chosen address.
+    /// @return Whether the address can be drawn or not.
     function postDrawCheck(uint256 _coreDisputeID, address _juror) internal virtual returns (bool);
 }
