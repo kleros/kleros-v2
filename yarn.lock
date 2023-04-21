@@ -3715,6 +3715,7 @@ __metadata:
     "@kleros/vea-contracts": ^0.1.12
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.6
     "@nomiclabs/hardhat-ethers": ^2.2.3
+    "@nomiclabs/hardhat-solhint": ^3.0.1
     "@openzeppelin/contracts": ^4.8.3
     "@typechain/ethers-v5": ^10.2.0
     "@typechain/hardhat": ^6.1.5
@@ -3736,7 +3737,6 @@ __metadata:
     hardhat-watcher: ^2.5.0
     node-fetch: ^3.3.1
     shelljs: ^0.8.5
-    solhint: ^3.4.1
     solidity-coverage: ^0.8.2
     ts-node: ^10.9.1
     typechain: ^8.1.1
@@ -4370,6 +4370,17 @@ __metadata:
     ethers: ^5.0.0
     hardhat: ^2.0.0
   checksum: 72321317e55eb510306e04c42353c5f7ceb42d086fc76cc740120da6e1635b7ad5bbf23a8d6b02bd590754adcf646618933111624085ab249b1ff3482e773226
+  languageName: node
+  linkType: hard
+
+"@nomiclabs/hardhat-solhint@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@nomiclabs/hardhat-solhint@npm:3.0.1"
+  dependencies:
+    solhint: ^3.4.0
+  peerDependencies:
+    hardhat: ^2.0.0
+  checksum: 661a3e514cc2aa0d00f058262a9b6a07f0380ec4f973030f16a21d53b46f8748b42bfb4aa925e9740f3e2839192d89b0e558e3af17001ab2d3490c924362571c
   languageName: node
   linkType: hard
 
@@ -23683,7 +23694,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"solhint@npm:^3.4.1":
+"solhint@npm:^3.4.0":
   version: 3.4.1
   resolution: "solhint@npm:3.4.1"
   dependencies:
