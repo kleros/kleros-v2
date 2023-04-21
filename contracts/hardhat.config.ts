@@ -2,6 +2,7 @@
 import * as dotenv from "dotenv";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-chai-matchers";
+import "@nomiclabs/hardhat-solhint";
 import "@typechain/hardhat";
 import "hardhat-deploy-tenderly";
 import "hardhat-gas-reporter";
@@ -52,7 +53,10 @@ const config: HardhatUserConfig = {
       forking: {
         url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       },
-      accounts: process.env.MAINNET_PRIVATE_KEY !== undefined ? [process.env.MAINNET_PRIVATE_KEY] : [],
+      accounts:
+        process.env.MAINNET_PRIVATE_KEY !== undefined
+          ? [process.env.MAINNET_PRIVATE_KEY]
+          : [],
       live: false,
       saveDeployments: false,
       tags: ["test", "local"],
@@ -66,7 +70,8 @@ const config: HardhatUserConfig = {
       forking: {
         url: `https://goerli-rollup.arbitrum.io/rpc`,
       },
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: false,
       saveDeployments: true,
       tags: ["test", "local"],
@@ -102,7 +107,10 @@ const config: HardhatUserConfig = {
     arbitrum: {
       chainId: 42161,
       url: "https://arb1.arbitrum.io/rpc",
-      accounts: process.env.MAINNET_PRIVATE_KEY !== undefined ? [process.env.MAINNET_PRIVATE_KEY] : [],
+      accounts:
+        process.env.MAINNET_PRIVATE_KEY !== undefined
+          ? [process.env.MAINNET_PRIVATE_KEY]
+          : [],
       live: true,
       saveDeployments: true,
       tags: ["production", "home", "layer2"],
@@ -119,7 +127,8 @@ const config: HardhatUserConfig = {
     goerli: {
       chainId: 5,
       url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "foreign", "layer1"],
@@ -130,7 +139,10 @@ const config: HardhatUserConfig = {
     mainnet: {
       chainId: 1,
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: process.env.MAINNET_PRIVATE_KEY !== undefined ? [process.env.MAINNET_PRIVATE_KEY] : [],
+      accounts:
+        process.env.MAINNET_PRIVATE_KEY !== undefined
+          ? [process.env.MAINNET_PRIVATE_KEY]
+          : [],
       live: true,
       saveDeployments: true,
       tags: ["production", "foreign", "layer1"],
@@ -141,7 +153,8 @@ const config: HardhatUserConfig = {
     chiado: {
       chainId: 10200,
       url: "https://rpc.chiadochain.net",
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "foreign", "layer1"],
@@ -157,7 +170,8 @@ const config: HardhatUserConfig = {
     gnosischain: {
       chainId: 100,
       url: `https://xdai-rpc.gateway.pokt.network`,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["production", "foreign", "layer1"],
@@ -198,7 +212,10 @@ const config: HardhatUserConfig = {
     },
   },
   gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined ? process.env.REPORT_GAS === "true" : false,
+    enabled:
+      process.env.REPORT_GAS !== undefined
+        ? process.env.REPORT_GAS === "true"
+        : false,
     currency: "USD",
   },
   verify: {
@@ -215,7 +232,13 @@ const config: HardhatUserConfig = {
     testArbitration: {
       tasks: [
         { command: "compile", params: { quiet: true } },
-        { command: "test", params: { noCompile: true, testFiles: ["./test/arbitration/index.ts"] } },
+        {
+          command: "test",
+          params: {
+            noCompile: true,
+            testFiles: ["./test/arbitration/index.ts"],
+          },
+        },
       ],
       files: ["./test/**/*", "./src/**/*"],
     },
@@ -226,16 +249,26 @@ const config: HardhatUserConfig = {
     runOnCompile: false,
   },
   tenderly: {
-    project: process.env.TENDERLY_PROJECT !== undefined ? process.env.TENDERLY_PROJECT : "kleros-v2",
-    username: process.env.TENDERLY_USERNAME !== undefined ? process.env.TENDERLY_USERNAME : "",
+    project:
+      process.env.TENDERLY_PROJECT !== undefined
+        ? process.env.TENDERLY_PROJECT
+        : "kleros-v2",
+    username:
+      process.env.TENDERLY_USERNAME !== undefined
+        ? process.env.TENDERLY_USERNAME
+        : "",
   },
   external: {
     // https://github.com/wighawag/hardhat-deploy#importing-deployment-from-other-projects-with-truffle-support
     deployments: {
-      arbitrumGoerli: ["node_modules/@kleros/vea-contracts/deployments/arbitrumGoerli"],
+      arbitrumGoerli: [
+        "node_modules/@kleros/vea-contracts/deployments/arbitrumGoerli",
+      ],
       arbitrum: ["node_modules/@kleros/vea-contracts/deployments/arbitrum"],
       chiado: ["node_modules/@kleros/vea-contracts/deployments/chiado"],
-      gnosischain: ["node_modules/@kleros/vea-contracts/deployments/gnosischain"],
+      gnosischain: [
+        "node_modules/@kleros/vea-contracts/deployments/gnosischain",
+      ],
       goerli: ["node_modules/@kleros/vea-contracts/deployments/goerli"],
       mainnet: ["node_modules/@kleros/vea-contracts/deployments/mainnet"],
     },
