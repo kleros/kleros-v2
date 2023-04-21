@@ -34,7 +34,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [BlockHashRNG](https://goerli.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
 - [DisputeKitClassic](https://goerli.arbiscan.io/address/0x0b24767Ae86Da2F5B442B2A524d3D9809CD0B5B2)
 - [DisputeResolver](https://goerli.arbiscan.io/address/0x311eB7f0fcA3037DF4F02f2F3470d295228F474D)
-- [FastBridgeSender](https://goerli.arbiscan.io/address/0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C)
+- [FastBridgeSenderToGnosis](https://goerli.arbiscan.io/address/0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C)
 - [HomeGatewayToEthereum](https://goerli.arbiscan.io/address/0xed12799915180a257985631fbD2ead261eD838cf)
 - [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0x12613A66F1E5A2086374e103F66BF0eddA5d1478)
 - [KlerosCore](https://goerli.arbiscan.io/address/0xD08Ab99480d02bf9C092828043f611BcDFEA917b)
