@@ -200,3 +200,6 @@ tags
 # subgraph
 subgraph/generated/*
 subgraph/build/*
+
+# Local Netlify folder
+.netlify

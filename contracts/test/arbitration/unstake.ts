@@ -1,6 +1,13 @@
 import { ethers, getNamedAccounts, network, deployments } from "hardhat";
 import { BigNumber } from "ethers";
-import { PNK, KlerosCore, DisputeKitClassic, SortitionModule } from "../../typechain-types";
+import {
+  PNK,
+  KlerosCore,
+  DisputeKitClassic,
+  SortitionModule,
+  RandomizerRNG,
+  RandomizerMock,
+} from "../../typechain-types";
 import { expect } from "chai";
 
 /* eslint-disable no-unused-vars */
@@ -19,6 +26,8 @@ describe("Unstake juror", async () => {
   let pnk;
   let core;
   let sortitionModule;
+  let rng;
+  let randomizer;
 
   beforeEach("Setup", async () => {
     ({ deployer } = await getNamedAccounts());
@@ -30,45 +39,70 @@ describe("Unstake juror", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
+    disputeKit = (await ethers.getContract(
+      "DisputeKitClassic"
+    )) as DisputeKitClassic;
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-    sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
+    sortitionModule = (await ethers.getContract(
+      "SortitionModule"
+    )) as SortitionModule;
+    rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
+    randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
   });
 
   it("Unstake inactive juror", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
 
-    await core.createSubcourt(1, false, ONE_THOUSAND_PNK, 1000, ONE_TENTH_ETH, 3, [0, 0, 0, 0], 3, [1]); // Parent - general court, Classic dispute kit
+    await core.createCourt(
+      1,
+      false,
+      ONE_THOUSAND_PNK,
+      1000,
+      ONE_TENTH_ETH,
+      3,
+      [0, 0, 0, 0],
+      3,
+      [1]
+    ); // Parent - general court, Classic dispute kit
 
     await pnk.approve(core.address, ONE_THOUSAND_PNK.mul(4));
     await core.setStake(1, ONE_THOUSAND_PNK.mul(2));
     await core.setStake(2, ONE_THOUSAND_PNK.mul(2));
 
-    expect(await core.getJurorSubcourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
+    expect(await core.getJurorCourtIDs(deployer)).to.be.deep.equal([
+      BigNumber.from("1"),
+      BigNumber.from("2"),
+    ]);
 
     await core.createDispute(2, extraData, { value: arbitrationCost });
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
+
+    const lookahead = await sortitionModule.rngLookahead();
     await sortitionModule.passPhase(); // Staking -> Generating
-    for (let index = 0; index < 20; index++) {
-      await network.provider.send("evm_mine"); // RNG lookahead
+    for (let index = 0; index < lookahead; index++) {
+      await network.provider.send("evm_mine");
     }
+    await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
     await sortitionModule.passPhase(); // Generating -> Drawing
 
     await core.draw(0, 5000);
-
-    await sortitionModule.passPhase(); // Drawing -> Staking
 
     await core.passPeriod(0); // Evidence -> Voting
     await core.passPeriod(0); // Voting -> Appeal
     await core.passPeriod(0); // Appeal -> Execution
 
-    expect(await core.getJurorSubcourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
+    await sortitionModule.passPhase(); // Freezing -> Staking. Change so we don't deal with delayed stakes
+
+    expect(await core.getJurorCourtIDs(deployer)).to.be.deep.equal([
+      BigNumber.from("1"),
+      BigNumber.from("2"),
+    ]);
 
     await core.execute(0, 0, 1); // 1 iteration should unstake from both courts
 
-    expect(await core.getJurorSubcourtIDs(deployer)).to.be.deep.equal([]);
+    expect(await core.getJurorCourtIDs(deployer)).to.be.deep.equal([]);
   });
 });

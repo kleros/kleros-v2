@@ -7,6 +7,7 @@ const ONE_ETH = BigNumber.from(10).pow(18);
 const WINNER_STAKE_MULTIPLIER = 3000;
 const LOSER_STAKE_MULTIPLIER = 7000;
 const MULTIPLIER_DENOMINATOR = 10000;
+const LOOKAHEAD = 20;
 
 describe("DisputeKitClassic", async () => {
   // eslint-disable-next-line no-unused-vars
@@ -26,9 +27,9 @@ describe("DisputeKitClassic", async () => {
     expect(events[0].args._parent).to.equal(0);
 
     // Reminder: the Forking court will be added which will break these expectations.
-    events = await core.queryFilter(core.filters.SubcourtCreated());
+    events = await core.queryFilter(core.filters.CourtCreated());
     expect(events.length).to.equal(1);
-    expect(events[0].args._subcourtID).to.equal(1);
+    expect(events[0].args._courtID).to.equal(1);
     expect(events[0].args._parent).to.equal(0);
     expect(events[0].args._hiddenVotes).to.equal(false);
     expect(events[0].args._minStake).to.equal(200);
@@ -45,19 +46,21 @@ describe("DisputeKitClassic", async () => {
 
     events = await core.queryFilter(core.filters.DisputeKitEnabled());
     expect(events.length).to.equal(1);
-    expect(events[0].args._subcourtID).to.equal(1);
+    expect(events[0].args._courtID).to.equal(1);
     expect(events[0].args._disputeKitID).to.equal(1);
     expect(events[0].args._enable).to.equal(true);
   });
 
   it("Should create a dispute", async () => {
-    await expect(disputeKit.connect(deployer).createDispute(0, 0, 3, "0x00")).to.be.revertedWith(
-      "Access not allowed: KlerosCore only."
-    );
+    await expect(
+      disputeKit.connect(deployer).createDispute(0, 0, 3, "0x00")
+    ).to.be.revertedWith("Access not allowed: KlerosCore only.");
 
-    await expect(core.connect(deployer).createDispute(2, "0x00", { value: 1000 }))
-      .to.emit(core, "DisputeCreation")
-      .withArgs(0, deployer.address);
+    const tx = await core
+      .connect(deployer)
+      .createDispute(2, "0x00", { value: 1000 });
+    expect(tx).to.emit(core, "DisputeCreation").withArgs(0, deployer.address);
+    expect(tx).to.emit(disputeKit, "DisputeCreation").withArgs(0, 2, "0x00");
 
     await disputeKit.disputes(0).then((disputes) => {
       expect(BigNumber.from(Object.values(disputes)[0])).to.equal(2);
@@ -74,7 +77,10 @@ async function deployContracts(deployer) {
   const rng = await rngFactory.deploy();
   await rng.deployed();
 
-  const disputeKitFactory = await ethers.getContractFactory("DisputeKitClassic", deployer);
+  const disputeKitFactory = await ethers.getContractFactory(
+    "DisputeKitClassic",
+    deployer
+  );
   const disputeKit = await disputeKitFactory.deploy(
     deployer.address,
     ethers.constants.AddressZero // KlerosCore is set later once it is deployed
@@ -85,8 +91,17 @@ async function deployContracts(deployer) {
   nonce += 1;
   const KlerosCoreAddress = getContractAddress(deployer.address, nonce);
 
-  const sortitionModuleFactory = await ethers.getContractFactory("SortitionModule", deployer);
-  const sortitionModule = await sortitionModuleFactory.deploy(KlerosCoreAddress, 120, 120, rng.address); // minStakingTime, maxFreezingTime
+  const sortitionModuleFactory = await ethers.getContractFactory(
+    "SortitionModule",
+    deployer
+  );
+  const sortitionModule = await sortitionModuleFactory.deploy(
+    KlerosCoreAddress,
+    120,
+    120,
+    rng.address,
+    LOOKAHEAD
+  ); // minStakingTime, maxFreezingTime
 
   const klerosCoreFactory = await ethers.getContractFactory("KlerosCore", {
     signer: deployer,

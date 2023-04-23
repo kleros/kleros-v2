@@ -12,8 +12,10 @@ const casesQuery = gql`
       orderDirection: desc
     ) {
       id
-      arbitrated
-      subcourtID {
+      arbitrated {
+        id
+      }
+      court {
         id
         policy
         feeForJuror
@@ -22,8 +24,8 @@ const casesQuery = gql`
       period
       lastPeriodChange
     }
-    casesDataPoint(id: "0") {
-      value
+    counter(id: "0") {
+      cases
     }
   }
 `;

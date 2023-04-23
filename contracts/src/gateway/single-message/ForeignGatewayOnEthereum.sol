@@ -11,7 +11,7 @@
 pragma solidity ^0.8.0;
 
 import "../../arbitration/IArbitrable.sol";
-import "../../bridge/interfaces/IFastBridgeReceiver.sol";
+import "@kleros/vea-contracts/interfaces/IFastBridgeReceiver.sol";
 
 import "./interfaces/IForeignGatewaySingleMessage.sol";
 
@@ -29,7 +29,7 @@ contract ForeignGatewayOnEthereum is IForeignGatewaySingleMessage {
     // at any point.
     uint256 internal localDisputeID = 1;
 
-    // feeForJuror by subcourtID
+    // feeForJuror by courtID
     uint256[] internal feeForJuror;
     uint256 public chainID;
     uint256 public homeChainID;
@@ -57,7 +57,10 @@ contract ForeignGatewayOnEthereum is IForeignGatewaySingleMessage {
     );
 
     modifier onlyFromFastBridge() {
-        require(address(fastbridge) == msg.sender, "Access not allowed: Fast Bridge only.");
+        require(
+            address(fastbridge) == msg.sender,
+            "Access not allowed: Fast Bridge only."
+        );
         _;
     }
 
@@ -84,16 +87,25 @@ contract ForeignGatewayOnEthereum is IForeignGatewaySingleMessage {
         }
     }
 
-    /** @dev Changes the `feeForJuror` property value of a specified subcourt.
-     *  @param _subcourtID The ID of the subcourt.
+    /** @dev Changes the `feeForJuror` property value of a specified court.
+     *  @param _courtID The ID of the court.
      *  @param _feeForJuror The new value for the `feeForJuror` property value.
      */
-    function changeSubcourtJurorFee(uint96 _subcourtID, uint256 _feeForJuror) external onlyByGovernor {
-        feeForJuror[_subcourtID] = _feeForJuror;
+    function changeCourtJurorFee(
+        uint96 _courtID,
+        uint256 _feeForJuror
+    ) external onlyByGovernor {
+        feeForJuror[_courtID] = _feeForJuror;
     }
 
-    function createDispute(uint256 _choices, bytes calldata _extraData) external payable returns (uint256 disputeID) {
-        require(msg.value >= arbitrationCost(_extraData), "Not paid enough for arbitration");
+    function createDispute(
+        uint256 _choices,
+        bytes calldata _extraData
+    ) external payable returns (uint256 disputeID) {
+        require(
+            msg.value >= arbitrationCost(_extraData),
+            "Not paid enough for arbitration"
+        );
 
         disputeID = localDisputeID++;
         bytes32 disputeHash = keccak256(
@@ -116,14 +128,25 @@ contract ForeignGatewayOnEthereum is IForeignGatewaySingleMessage {
             ruled: false
         });
 
-        emit OutgoingDispute(disputeHash, blockhash(block.number - 1), disputeID, _choices, _extraData, msg.sender);
+        emit OutgoingDispute(
+            disputeHash,
+            blockhash(block.number - 1),
+            disputeID,
+            _choices,
+            _extraData,
+            msg.sender
+        );
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
 
-    function arbitrationCost(bytes calldata _extraData) public view returns (uint256 cost) {
-        (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDMinJurors(_extraData);
+    function arbitrationCost(
+        bytes calldata _extraData
+    ) public view returns (uint256 cost) {
+        (uint96 courtID, uint256 minJurors) = extraDataToCourtIDMinJurors(
+            _extraData
+        );
 
-        cost = feeForJuror[subcourtID] * minJurors;
+        cost = feeForJuror[courtID] * minJurors;
     }
 
     /**
@@ -156,26 +179,26 @@ contract ForeignGatewayOnEthereum is IForeignGatewaySingleMessage {
         payable(dispute.relayer).transfer(amount);
     }
 
-    function disputeHashToForeignID(bytes32 _disputeHash) external view returns (uint256) {
+    function disputeHashToForeignID(
+        bytes32 _disputeHash
+    ) external view returns (uint256) {
         return disputeHashtoDisputeData[_disputeHash].id;
     }
 
-    function extraDataToSubcourtIDMinJurors(bytes memory _extraData)
-        internal
-        view
-        returns (uint96 subcourtID, uint256 minJurors)
-    {
+    function extraDataToCourtIDMinJurors(
+        bytes memory _extraData
+    ) internal view returns (uint96 courtID, uint256 minJurors) {
         // Note that here we ignore DisputeKitID
         if (_extraData.length >= 64) {
             assembly {
                 // solium-disable-line security/no-inline-assembly
-                subcourtID := mload(add(_extraData, 0x20))
+                courtID := mload(add(_extraData, 0x20))
                 minJurors := mload(add(_extraData, 0x40))
             }
-            if (subcourtID >= feeForJuror.length) subcourtID = 0;
+            if (courtID >= feeForJuror.length) courtID = 0;
             if (minJurors == 0) minJurors = MIN_JURORS;
         } else {
-            subcourtID = 0;
+            courtID = 0;
             minJurors = MIN_JURORS;
         }
     }

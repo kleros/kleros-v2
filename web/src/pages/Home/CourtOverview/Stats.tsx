@@ -19,19 +19,20 @@ const StyledCard = styled(Card)`
   height: fit-content;
   padding: 16px;
   display: flex;
+  flex-direction: column;
   gap: 32px;
-  align-items: center;
-  justify-content: space-between;
   flex-wrap: wrap;
 `;
 
-const getLastOrZero = (src: HomePageQueryDataPoints) =>
-  src.length > 0 ? src.at(-1)?.value : BigNumber.from(0).toString();
+const getLastOrZero = (
+  src: HomePageQuery["counters"],
+  stat: HomePageQueryDataPoints
+) => (src.length > 0 ? src.at(-1)?.[stat] : BigNumber.from(0).toString());
 
 interface IStat {
   title: string;
-  getText: (data: HomePageQuery) => string;
-  getSubtext: (data: HomePageQuery) => string;
+  getText: (data: HomePageQuery["counters"]) => string;
+  getSubtext: (data: HomePageQuery["counters"]) => string;
   color: IStatDisplay["color"];
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
@@ -39,42 +40,59 @@ interface IStat {
 const stats: IStat[] = [
   {
     title: "PNK staked",
-    getText: ({ pnkstakedDataPoints }) =>
-      utils.commify(utils.formatUnits(getLastOrZero(pnkstakedDataPoints), 18)),
-    getSubtext: () => "$ 3 000 000",
+    getText: (counters) =>
+      utils.commify(
+        utils.formatUnits(getLastOrZero(counters, "stakedPNK"), 18)
+      ),
+    getSubtext: (counters) =>
+      (
+        parseInt(utils.formatUnits(getLastOrZero(counters, "stakedPNK"))) *
+        0.029
+      )
+        .toFixed(2)
+        .toString() + "$",
     color: "purple",
     icon: PNKIcon,
   },
   {
     title: "ETH Paid to jurors",
-    getText: ({ ethpaidDataPoints }) =>
-      utils.commify(utils.formatEther(getLastOrZero(ethpaidDataPoints))),
-    getSubtext: () => "$ 3,000,000",
+    getText: (counters) =>
+      utils.commify(utils.formatEther(getLastOrZero(counters, "paidETH"))),
+    getSubtext: (counters) =>
+      (parseInt(utils.formatUnits(getLastOrZero(counters, "paidETH"))) * 1650)
+        .toFixed(2)
+        .toString() + "$",
     color: "blue",
     icon: EthereumIcon,
   },
   {
     title: "PNK redistributed",
-    getText: ({ pnkredistributedDataPoints }) =>
+    getText: (counters) =>
       utils.commify(
-        utils.formatUnits(getLastOrZero(pnkredistributedDataPoints), 18)
+        utils.formatUnits(getLastOrZero(counters, "redistributedPNK"), 18)
       ),
-    getSubtext: () => "$ 3,000,000",
+    getSubtext: (counters) =>
+      (
+        parseInt(
+          utils.formatUnits(getLastOrZero(counters, "redistributedPNK"))
+        ) * 0.029
+      )
+        .toFixed(2)
+        .toString() + "$",
     color: "purple",
     icon: PNKRedistributedIcon,
   },
   {
     title: "Active jurors",
-    getText: ({ activeJurorsDataPoints }) =>
-      getLastOrZero(activeJurorsDataPoints),
-    getSubtext: () => "$ 3,000,000",
+    getText: (counters) => getLastOrZero(counters, "activeJurors"),
+    getSubtext: () => "",
     color: "green",
     icon: JurorIcon,
   },
   {
     title: "Cases",
-    getText: ({ casesDataPoints }) => getLastOrZero(casesDataPoints),
-    getSubtext: () => "$ 3,000,000",
+    getText: (counters) => getLastOrZero(counters, "cases"),
+    getSubtext: () => "",
     color: "orange",
     icon: BalanceIcon,
   },
@@ -88,8 +106,8 @@ const Stats = () => {
         <StatDisplay
           key={i}
           {...{ title, color, icon }}
-          text={data ? getText(data) : "Fetching..."}
-          subtext={data ? getSubtext(data) : "Fetching..."}
+          text={data ? getText(data["counters"]) : "Fetching..."}
+          subtext={data ? getSubtext(data["counters"]) : "Fetching..."}
         />
       ))}
     </StyledCard>

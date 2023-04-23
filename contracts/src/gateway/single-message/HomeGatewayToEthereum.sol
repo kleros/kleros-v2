@@ -11,7 +11,7 @@
 pragma solidity ^0.8.0;
 
 import "../../arbitration/IArbitrator.sol";
-import "../../bridge/single-message/interfaces/IFastBridgeSender.sol";
+import "@kleros/vea-contracts/single-message/interfaces/IFastBridgeSender.sol";
 
 import "./interfaces/IForeignGatewaySingleMessage.sol";
 import "./interfaces/IHomeGatewaySingleMessage.sol";
@@ -91,9 +91,15 @@ contract HomeGatewayToEthereum is IHomeGatewaySingleMessage {
 
         // TODO: will mostly be replaced by the actual arbitrationCost paid on the foreignChain.
         relayedData.arbitrationCost = arbitrator.arbitrationCost(_extraData);
-        require(msg.value >= relayedData.arbitrationCost, "Not enough arbitration cost paid");
+        require(
+            msg.value >= relayedData.arbitrationCost,
+            "Not enough arbitration cost paid"
+        );
 
-        uint256 disputeID = arbitrator.createDispute{value: msg.value}(_choices, _extraData);
+        uint256 disputeID = arbitrator.createDispute{value: msg.value}(
+            _choices,
+            _extraData
+        );
         disputeIDtoHash[disputeID] = disputeHash;
         disputeHashtoID[disputeHash] = disputeID;
         relayedData.relayer = msg.sender;
@@ -108,12 +114,19 @@ contract HomeGatewayToEthereum is IHomeGatewaySingleMessage {
         RelayedData memory relayedData = disputeHashtoRelayedData[disputeHash];
 
         bytes4 methodSelector = IForeignGatewaySingleMessage.relayRule.selector;
-        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.relayer);
+        bytes memory data = abi.encodeWithSelector(
+            methodSelector,
+            disputeHash,
+            _ruling,
+            relayedData.relayer
+        );
 
         fastbridge.sendFast(foreignGateway, data);
     }
 
-    function disputeHashToHomeID(bytes32 _disputeHash) external view returns (uint256) {
+    function disputeHashToHomeID(
+        bytes32 _disputeHash
+    ) external view returns (uint256) {
         return disputeHashtoID[_disputeHash];
     }
 }

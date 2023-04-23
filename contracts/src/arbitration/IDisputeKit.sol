@@ -58,7 +58,9 @@ interface IDisputeKit {
      *  @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
      *  @return drawnAddress The drawn address.
      */
-    function draw(uint256 _coreDisputeID) external returns (address drawnAddress);
+    function draw(
+        uint256 _coreDisputeID
+    ) external returns (address drawnAddress);
 
     // ************************************* //
     // *           Public Views            * //
@@ -67,15 +69,12 @@ interface IDisputeKit {
     /** @dev Gets the current ruling of a specified dispute.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
      *  @return ruling The current ruling.
-     */
-    function currentRuling(uint256 _coreDisputeID) external view returns (uint256 ruling);
-
-    /** @dev Returns the voting data from the most relevant round.
-     *  @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
-     *  @return winningChoice The winning choice of this round.
      *  @return tied Whether it's a tie or not.
+     *  @return overridden Whether the ruling was overridden by appeal funding or not.
      */
-    function getLastRoundResult(uint256 _coreDisputeID) external view returns (uint256 winningChoice, bool tied);
+    function currentRuling(
+        uint256 _coreDisputeID
+    ) external view returns (uint256 ruling, bool tied, bool overridden);
 
     /** @dev Gets the degree of coherence of a particular voter. This function is called by Kleros Core in order to determine the amount of the reward.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
@@ -94,19 +93,26 @@ interface IDisputeKit {
      *  @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
      *  @return The number of coherent jurors.
      */
-    function getCoherentCount(uint256 _coreDisputeID, uint256 _coreRoundID) external view returns (uint256);
+    function getCoherentCount(
+        uint256 _coreDisputeID,
+        uint256 _coreRoundID
+    ) external view returns (uint256);
 
     /** @dev Returns true if all of the jurors have cast their commits for the last round.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
      *  @return Whether all of the jurors have cast their commits for the last round.
      */
-    function areCommitsAllCast(uint256 _coreDisputeID) external view returns (bool);
+    function areCommitsAllCast(
+        uint256 _coreDisputeID
+    ) external view returns (bool);
 
     /** @dev Returns true if all of the jurors have cast their votes for the last round.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
      *  @return Whether all of the jurors have cast their votes for the last round.
      */
-    function areVotesAllCast(uint256 _coreDisputeID) external view returns (bool);
+    function areVotesAllCast(
+        uint256 _coreDisputeID
+    ) external view returns (bool);
 
     /** @dev Returns true if the specified voter was active in this round.
      *  @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
@@ -143,10 +149,5 @@ interface IDisputeKit {
     )
         external
         view
-        returns (
-            address account,
-            bytes32 commit,
-            uint256 choice,
-            bool voted
-        );
+        returns (address account, bytes32 commit, uint256 choice, bool voted);
 }

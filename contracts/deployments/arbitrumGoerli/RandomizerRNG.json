@@ -1,0 +1,355 @@
+{
+  "address": "0x5145bde18F44513CfBa4906F07105b47674b0c94",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IRandomizer",
+          "name": "_randomizer",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_governor",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "callbackGasLimit",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_governor",
+          "type": "address"
+        }
+      ],
+      "name": "changeGovernor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "governor",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "randomNumbers",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "randomizer",
+      "outputs": [
+        {
+          "internalType": "contract IRandomizer",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_value",
+          "type": "bytes32"
+        }
+      ],
+      "name": "randomizerCallback",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "randomizerWithdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "receiveRandomness",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "randomNumber",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "requestRandomness",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "requesterToID",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_callbackGasLimit",
+          "type": "uint256"
+        }
+      ],
+      "name": "setCallbackGasLimit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_randomizer",
+          "type": "address"
+        }
+      ],
+      "name": "setRandomizer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xb4cbf4b0d53e6a319f3cf893f5f2f1354074fddb66d0b46ce57385875af6234c",
+  "receipt": {
+    "to": null,
+    "from": "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3",
+    "contractAddress": "0x5145bde18F44513CfBa4906F07105b47674b0c94",
+    "transactionIndex": 1,
+    "gasUsed": "14192678",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x2c409a7b04322e5096c01dd1f0925b6181ae4084391ba727d9197e2fcba63ca0",
+    "transactionHash": "0xb4cbf4b0d53e6a319f3cf893f5f2f1354074fddb66d0b46ce57385875af6234c",
+    "logs": [],
+    "blockNumber": 9433931,
+    "cumulativeGasUsed": "14192678",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0xF25c6Ad3694dA9D3C97F4D316b0B31F96cEb39d5",
+    "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3"
+  ],
+  "numDeployments": 6,
+  "solcInputHash": "ea45a7be637fc650f807a06ad3c39601",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.9+commit.e5eed63a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IRandomizer\",\"name\":\"_randomizer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_governor\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"callbackGasLimit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_governor\",\"type\":\"address\"}],\"name\":\"changeGovernor\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"governor\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"randomNumbers\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"randomizer\",\"outputs\":[{\"internalType\":\"contract IRandomizer\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_id\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"_value\",\"type\":\"bytes32\"}],\"name\":\"randomizerCallback\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"randomizerWithdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"receiveRandomness\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"randomNumber\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"requestRandomness\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"requesterToID\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_callbackGasLimit\",\"type\":\"uint256\"}],\"name\":\"setCallbackGasLimit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_randomizer\",\"type\":\"address\"}],\"name\":\"setRandomizer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"changeGovernor(address)\":{\"details\":\"Changes the governor of the contract.\",\"params\":{\"_governor\":\"The new governor.\"}},\"constructor\":{\"details\":\"Constructor.\",\"params\":{\"_governor\":\"Governor of the contract.\",\"_randomizer\":\"Randomizer contract.\"}},\"randomizerCallback(uint256,bytes32)\":{\"details\":\"Callback function called by the randomizer contract when the random value is generated.\"},\"randomizerWithdraw(uint256)\":{\"details\":\"Allows the governor to withdraw randomizer funds.\",\"params\":{\"_amount\":\"Amount to withdraw in wei.\"}},\"receiveRandomness(uint256)\":{\"details\":\"Return the random number.\",\"returns\":{\"randomNumber\":\"The random number or 0 if it is not ready or has not been requested.\"}},\"requestRandomness(uint256)\":{\"details\":\"Request a random number. The id of the request is tied to the sender.\"},\"setCallbackGasLimit(uint256)\":{\"details\":\"Change the Randomizer callback gas limit.\",\"params\":{\"_callbackGasLimit\":\"the new limit.\"}},\"setRandomizer(address)\":{\"details\":\"Change the Randomizer address.\",\"params\":{\"_randomizer\":\"the new Randomizer address.\"}}},\"title\":\"Random Number Generator that uses Randomizer.ai  https://randomizer.ai/\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/rng/RandomizerRNG.sol\":\"RandomizerRNG\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"src/rng/IRandomizer.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8;\\n\\n// Randomizer protocol interface\\ninterface IRandomizer {\\n    function request(uint256 callbackGasLimit) external returns (uint256);\\n\\n    function clientWithdrawTo(address _to, uint256 _amount) external;\\n}\\n\",\"keccak256\":\"0x8b21dab12f712e8e9a7b8e68e6d350833d13e95f425544dd4977a1490aa02d5b\",\"license\":\"MIT\"},\"src/rng/RNG.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8;\\n\\ninterface RNG {\\n    /**\\n     * @dev Request a random number.\\n     * @param _block Block linked to the request.\\n     */\\n    function requestRandomness(uint256 _block) external;\\n\\n    /**\\n     * @dev Receive the random number.\\n     * @param _block Block the random number is linked to.\\n     * @return randomNumber Random Number. If the number is not ready or has not been required 0 instead.\\n     */\\n    function receiveRandomness(uint256 _block) external returns (uint256 randomNumber);\\n}\\n\",\"keccak256\":\"0x0075973344648673365c5a895e4315101e6ce896208a71eb7767f5a61bbf0fe1\",\"license\":\"MIT\"},\"src/rng/RandomizerRNG.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8;\\n\\nimport \\\"./RNG.sol\\\";\\nimport \\\"./IRandomizer.sol\\\";\\n\\n/**\\n *  @title Random Number Generator that uses Randomizer.ai\\n *  https://randomizer.ai/\\n */\\ncontract RandomizerRNG is RNG {\\n    address public governor; // The address that can withdraw funds.\\n    uint256 public callbackGasLimit = 50000; // Gas limit for the randomizer callback\\n\\n    IRandomizer public randomizer; // Randomizer address.\\n    mapping(uint256 => uint256) public randomNumbers; // randomNumbers[requestID] is the random number for this request id, 0 otherwise.\\n    mapping(address => uint256) public requesterToID; // Maps the requester to his latest request ID.\\n\\n    // ************************************* //\\n    // *        Function Modifiers         * //\\n    // ************************************* //\\n\\n    modifier onlyByGovernor() {\\n        require(governor == msg.sender, \\\"Governor only\\\");\\n        _;\\n    }\\n\\n    /** @dev Constructor.\\n     *  @param _randomizer Randomizer contract.\\n     *  @param _governor Governor of the contract.\\n     */\\n    constructor(IRandomizer _randomizer, address _governor) {\\n        randomizer = _randomizer;\\n        governor = _governor;\\n    }\\n\\n    // ************************ //\\n    // *      Governance      * //\\n    // ************************ //\\n\\n    /** @dev Changes the governor of the contract.\\n     *  @param _governor The new governor.\\n     */\\n    function changeGovernor(address _governor) external onlyByGovernor {\\n        governor = _governor;\\n    }\\n\\n    /** @dev Change the Randomizer callback gas limit.\\n     *  @param _callbackGasLimit the new limit.\\n     */\\n    function setCallbackGasLimit(uint256 _callbackGasLimit) external onlyByGovernor {\\n        callbackGasLimit = _callbackGasLimit;\\n    }\\n\\n    /** @dev Change the Randomizer address.\\n     *  @param _randomizer the new Randomizer address.\\n     */\\n    function setRandomizer(address _randomizer) external onlyByGovernor {\\n        randomizer = IRandomizer(_randomizer);\\n    }\\n\\n    /**\\n     *  @dev Allows the governor to withdraw randomizer funds.\\n     *  @param _amount Amount to withdraw in wei.\\n     */\\n    function randomizerWithdraw(uint256 _amount) external onlyByGovernor {\\n        randomizer.clientWithdrawTo(msg.sender, _amount);\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /**\\n     *  @dev Request a random number. The id of the request is tied to the sender.\\n     */\\n    function requestRandomness(uint256 /*_block*/) external override {\\n        uint256 id = randomizer.request(callbackGasLimit);\\n        requesterToID[msg.sender] = id;\\n    }\\n\\n    /**\\n     *  @dev Callback function called by the randomizer contract when the random value is generated.\\n     */\\n    function randomizerCallback(uint256 _id, bytes32 _value) external {\\n        require(msg.sender == address(randomizer), \\\"Randomizer only\\\");\\n        randomNumbers[_id] = uint256(_value);\\n    }\\n\\n    // ************************************* //\\n    // *           Public Views            * //\\n    // ************************************* //\\n\\n    /**\\n     *  @dev Return the random number.\\n     *  @return randomNumber The random number or 0 if it is not ready or has not been requested.\\n     */\\n    function receiveRandomness(uint256 /*_block*/) external view override returns (uint256 randomNumber) {\\n        // Get the latest request ID for this requester.\\n        uint256 id = requesterToID[msg.sender];\\n        randomNumber = randomNumbers[id];\\n    }\\n}\\n\",\"keccak256\":\"0x44df43aee56688f68ff7934777b6ae9f86ed253067d2a42555bc6291f220ed34\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405261c35060015534801561001657600080fd5b506040516105f43803806105f48339810160408190526100359161007e565b600280546001600160a01b039384166001600160a01b031991821617909155600080549290931691161790556100b8565b6001600160a01b038116811461007b57600080fd5b50565b6000806040838503121561009157600080fd5b825161009c81610066565b60208401519092506100ad81610066565b809150509250929050565b61052d806100c76000396000f3fe608060405234801561001057600080fd5b50600436106100b45760003560e01c80637363ae1f116100715780637363ae1f14610184578063767bcab5146101975780638a54942f146101aa578063e4c0aaf4146101bd578063ebe93caf146101d0578063f10fb584146101e357600080fd5b80630c340a24146100b957806313cf9054146100e957806324f74697146101265780634e07c9391461012f5780635257cd901461014457806371d4b00b14610164575b600080fd5b6000546100cc906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b6101186100f736600461044c565b50336000908152600460209081526040808320548352600390915290205490565b6040519081526020016100e0565b61011860015481565b61014261013d36600461044c565b6101f6565b005b61011861015236600461044c565b60036020526000908152604090205481565b610118610172366004610465565b60046020526000908152604090205481565b61014261019236600461044c565b610290565b6101426101a5366004610465565b610327565b6101426101b836600461044c565b610373565b6101426101cb366004610465565b6103a2565b6101426101de366004610495565b6103ee565b6002546100cc906001600160a01b031681565b6000546001600160a01b031633146102295760405162461bcd60e51b8152600401610220906104b7565b60405180910390fd5b600254604051632465f8f560e01b8152336004820152602481018390526001600160a01b0390911690632465f8f590604401600060405180830381600087803b15801561027557600080fd5b505af1158015610289573d6000803e3d6000fd5b5050505050565b60025460015460405163d845a4b360e01b815260048101919091526000916001600160a01b03169063d845a4b390602401602060405180830381600087803b1580156102db57600080fd5b505af11580156102ef573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061031391906104de565b336000908152600460205260409020555050565b6000546001600160a01b031633146103515760405162461bcd60e51b8152600401610220906104b7565b600280546001600160a01b0319166001600160a01b0392909216919091179055565b6000546001600160a01b0316331461039d5760405162461bcd60e51b8152600401610220906104b7565b600155565b6000546001600160a01b031633146103cc5760405162461bcd60e51b8152600401610220906104b7565b600080546001600160a01b0319166001600160a01b0392909216919091179055565b6002546001600160a01b0316331461043a5760405162461bcd60e51b815260206004820152600f60248201526e52616e646f6d697a6572206f6e6c7960881b6044820152606401610220565b60009182526003602052604090912055565b60006020828403121561045e57600080fd5b5035919050565b60006020828403121561047757600080fd5b81356001600160a01b038116811461048e57600080fd5b9392505050565b600080604083850312156104a857600080fd5b50508035926020909101359150565b6020808252600d908201526c476f7665726e6f72206f6e6c7960981b604082015260600190565b6000602082840312156104f057600080fd5b505191905056fea2646970667358221220239569f93492563147dac9c5bfcbcc6043df703346a964aed4ee07545ad93c2964736f6c63430008090033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100b45760003560e01c80637363ae1f116100715780637363ae1f14610184578063767bcab5146101975780638a54942f146101aa578063e4c0aaf4146101bd578063ebe93caf146101d0578063f10fb584146101e357600080fd5b80630c340a24146100b957806313cf9054146100e957806324f74697146101265780634e07c9391461012f5780635257cd901461014457806371d4b00b14610164575b600080fd5b6000546100cc906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b6101186100f736600461044c565b50336000908152600460209081526040808320548352600390915290205490565b6040519081526020016100e0565b61011860015481565b61014261013d36600461044c565b6101f6565b005b61011861015236600461044c565b60036020526000908152604090205481565b610118610172366004610465565b60046020526000908152604090205481565b61014261019236600461044c565b610290565b6101426101a5366004610465565b610327565b6101426101b836600461044c565b610373565b6101426101cb366004610465565b6103a2565b6101426101de366004610495565b6103ee565b6002546100cc906001600160a01b031681565b6000546001600160a01b031633146102295760405162461bcd60e51b8152600401610220906104b7565b60405180910390fd5b600254604051632465f8f560e01b8152336004820152602481018390526001600160a01b0390911690632465f8f590604401600060405180830381600087803b15801561027557600080fd5b505af1158015610289573d6000803e3d6000fd5b5050505050565b60025460015460405163d845a4b360e01b815260048101919091526000916001600160a01b03169063d845a4b390602401602060405180830381600087803b1580156102db57600080fd5b505af11580156102ef573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061031391906104de565b336000908152600460205260409020555050565b6000546001600160a01b031633146103515760405162461bcd60e51b8152600401610220906104b7565b600280546001600160a01b0319166001600160a01b0392909216919091179055565b6000546001600160a01b0316331461039d5760405162461bcd60e51b8152600401610220906104b7565b600155565b6000546001600160a01b031633146103cc5760405162461bcd60e51b8152600401610220906104b7565b600080546001600160a01b0319166001600160a01b0392909216919091179055565b6002546001600160a01b0316331461043a5760405162461bcd60e51b815260206004820152600f60248201526e52616e646f6d697a6572206f6e6c7960881b6044820152606401610220565b60009182526003602052604090912055565b60006020828403121561045e57600080fd5b5035919050565b60006020828403121561047757600080fd5b81356001600160a01b038116811461048e57600080fd5b9392505050565b600080604083850312156104a857600080fd5b50508035926020909101359150565b6020808252600d908201526c476f7665726e6f72206f6e6c7960981b604082015260600190565b6000602082840312156104f057600080fd5b505191905056fea2646970667358221220239569f93492563147dac9c5bfcbcc6043df703346a964aed4ee07545ad93c2964736f6c63430008090033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "changeGovernor(address)": {
+        "details": "Changes the governor of the contract.",
+        "params": {
+          "_governor": "The new governor."
+        }
+      },
+      "constructor": {
+        "details": "Constructor.",
+        "params": {
+          "_governor": "Governor of the contract.",
+          "_randomizer": "Randomizer contract."
+        }
+      },
+      "randomizerCallback(uint256,bytes32)": {
+        "details": "Callback function called by the randomizer contract when the random value is generated."
+      },
+      "randomizerWithdraw(uint256)": {
+        "details": "Allows the governor to withdraw randomizer funds.",
+        "params": {
+          "_amount": "Amount to withdraw in wei."
+        }
+      },
+      "receiveRandomness(uint256)": {
+        "details": "Return the random number.",
+        "returns": {
+          "randomNumber": "The random number or 0 if it is not ready or has not been requested."
+        }
+      },
+      "requestRandomness(uint256)": {
+        "details": "Request a random number. The id of the request is tied to the sender."
+      },
+      "setCallbackGasLimit(uint256)": {
+        "details": "Change the Randomizer callback gas limit.",
+        "params": {
+          "_callbackGasLimit": "the new limit."
+        }
+      },
+      "setRandomizer(address)": {
+        "details": "Change the Randomizer address.",
+        "params": {
+          "_randomizer": "the new Randomizer address."
+        }
+      }
+    },
+    "title": "Random Number Generator that uses Randomizer.ai  https://randomizer.ai/",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 26009,
+        "contract": "src/rng/RandomizerRNG.sol:RandomizerRNG",
+        "label": "governor",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 26012,
+        "contract": "src/rng/RandomizerRNG.sol:RandomizerRNG",
+        "label": "callbackGasLimit",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 26015,
+        "contract": "src/rng/RandomizerRNG.sol:RandomizerRNG",
+        "label": "randomizer",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_contract(IRandomizer)25943"
+      },
+      {
+        "astId": 26019,
+        "contract": "src/rng/RandomizerRNG.sol:RandomizerRNG",
+        "label": "randomNumbers",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_mapping(t_uint256,t_uint256)"
+      },
+      {
+        "astId": 26023,
+        "contract": "src/rng/RandomizerRNG.sol:RandomizerRNG",
+        "label": "requesterToID",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_mapping(t_address,t_uint256)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_contract(IRandomizer)25943": {
+        "encoding": "inplace",
+        "label": "contract IRandomizer",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_address,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_uint256,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

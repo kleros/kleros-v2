@@ -1,11 +1,6 @@
 {
-  "solidity.compileUsingRemoteVersion": "v0.8.10+commit.fc410830",
-  "cSpell.words": [
-    "arbitrum",
-    "IERC",
-    "kleros",
-    "typechain"
-  ],
+  "solidity.compileUsingRemoteVersion": "v0.8.9+commit.e5eed63a",
+  "cSpell.words": ["arbitrum", "IERC", "kleros", "typechain"],
   "prettier.configPath": ".prettierrc.json",
   "eslint.alwaysShowStatus": true,
   "eslint.packageManager": "yarn"

@@ -15,18 +15,14 @@ interface ISortitionModule {
 
     function initialize(bytes32 _key, bytes memory _extraData) external;
 
-    function set(
-        uint96 _subcourtID,
-        uint256 _value,
-        address _account
-    ) external;
+    function set(uint96 _courtID, uint256 _value, address _account) external;
 
     function setJurorInactive(address _account) external;
 
     function notifyRandomNumber(uint256 _drawnNumber) external;
 
     function draw(
-        bytes32 _subCourt,
+        bytes32 _court,
         uint256 _coreDisputeID,
         uint256 _voteID
     ) external view returns (address);
@@ -37,7 +33,7 @@ interface ISortitionModule {
 
     function preStakeHook(
         address _account,
-        uint96 _subcourtID,
+        uint96 _courtID,
         uint256 _stake,
         uint256 _penalty
     ) external returns (Result);

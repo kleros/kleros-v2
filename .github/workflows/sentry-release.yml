@@ -1,0 +1,69 @@
+name: Sentry Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      
+permissions:  # added using https://github.com/step-security/secure-workflows
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: Master
+    outputs:
+      version: ${{ steps.set-version.outputs.version }}
+    steps:
+    - name: Harden Runner
+      uses: step-security/harden-runner@03bee3930647ebbf994244c21ddbc0d4933aab4f # v2.3.0
+      with:
+        egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+
+    - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+    
+    - name: Cache node modules
+      uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: | 
+          ~/.npm
+          **/node_modules
+        key: |
+          ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-${{ env.cache-name }}-
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
+      with:
+        node-version: 16
+
+    - name: Install dependencies
+      run: |
+        yarn workspace @kleros/kleros-v2-contracts install
+        yarn workspace @kleros/kleros-v2-web install
+
+    - name: Build
+      run: |
+        yarn workspace @kleros/kleros-v2-contracts build
+        yarn workspace @kleros/kleros-v2-web build
+
+    - name: Set version
+      id: set-version
+      run: echo "version=v$(cat package.json | jq -r .version)-$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      working-directory: web
+
+    - name: Create Sentry release
+      uses: getsentry/action-release@bd5f874fcda966ba48139b0140fb3ec0cb3aabdd # v1.2.1
+      env:
+        SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+        SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+      with:
+        environment: production
+        version: ${{ steps.set-version.outputs.version }}
+        sourcemaps: ./web/dist
+

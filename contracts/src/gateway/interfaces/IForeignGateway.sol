@@ -11,7 +11,7 @@
 pragma solidity ^0.8.0;
 
 import "../../arbitration/IArbitrator.sol";
-import "../../bridge/interfaces/IReceiverGateway.sol";
+import "@kleros/vea-contracts/interfaces/IReceiverGateway.sol";
 
 interface IForeignGateway is IArbitrator, IReceiverGateway {
     /**
@@ -27,5 +27,13 @@ interface IForeignGateway is IArbitrator, IReceiverGateway {
     function withdrawFees(bytes32 _disputeHash) external;
 
     // For cross-chain Evidence standard
-    function disputeHashToForeignID(bytes32 _disputeHash) external view returns (uint256);
+    function disputeHashToForeignID(
+        bytes32 _disputeHash
+    ) external view returns (uint256);
+
+    function createDisputeERC20(
+        uint256 _choices,
+        bytes calldata _extraData,
+        uint256 _amount
+    ) external returns (uint256 disputeID);
 }

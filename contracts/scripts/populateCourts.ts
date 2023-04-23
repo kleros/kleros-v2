@@ -1,7 +1,8 @@
 import { deployments, getNamedAccounts, getChainId, ethers } from "hardhat";
 import { KlerosCore } from "../typechain-types";
 import { BigNumber } from "ethers";
-import courtsV1 from "../courts.v1.json";
+import courtsV1Mainnet from "../config/courts.v1.mainnet.json";
+import courtsV1GnosisChain from "../config/courts.v1.gnosischain.json";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -10,92 +11,141 @@ enum HomeChains {
   HARDHAT = 31337,
 }
 
+const TESTING_PARAMETERS = true;
+const FROM_GNOSIS = true;
+const ETH_USD = BigNumber.from(1500);
 const DISPUTE_KIT_CLASSIC = BigNumber.from(1);
-const TESTING_PARAMETERS = false;
+const TEN_THOUSAND_GWEI = BigNumber.from(10).pow(13);
 
 async function main() {
   // fallback to hardhat node signers on local network
-  const deployer = (await getNamedAccounts()).deployer ?? (await ethers.getSigners())[0].address;
+  const deployer =
+    (await getNamedAccounts()).deployer ??
+    (await ethers.getSigners())[0].address;
 
   const chainId = Number(await getChainId());
   if (!HomeChains[chainId]) {
     console.error(`Aborting: script is not compatible with ${chainId}`);
     return;
   } else {
-    console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
+    console.log(
+      "deploying to %s with deployer %s",
+      HomeChains[chainId],
+      deployer
+    );
   }
 
+  const truncateWei = (x: BigNumber) =>
+    x.div(TEN_THOUSAND_GWEI).mul(TEN_THOUSAND_GWEI);
+
+  const parametersUsdToEth = (court) => ({
+    ...court,
+    minStake: truncateWei(BigNumber.from(court.minStake).div(ETH_USD)),
+    feeForJuror: truncateWei(BigNumber.from(court.feeForJuror).div(ETH_USD)),
+  });
+
+  const parametersProductionToTesting = (court) => ({
+    ...court,
+    minStake: truncateWei(BigNumber.from(court.minStake).div(10000)),
+    feeForJuror: truncateWei(ethers.utils.parseEther("0.00001")),
+    timesPerPeriod: [120, 120, 120, 120],
+  });
+
   // WARNING: skip the Forking court at id 0, so the v1 courts are shifted by 1
-  const courtsV2 = courtsV1.map((court) => ({
+  const parametersV1ToV2 = (court) => ({
     ...court,
     id: BigNumber.from(court.id).add(1),
     parent: BigNumber.from(court.parent).add(1),
-    minStake: TESTING_PARAMETERS ? BigNumber.from(court.minStake).div(100) : court.minStake,
-    feeForJuror: TESTING_PARAMETERS ? ethers.utils.parseEther("0.001") : court.feeForJuror,
-    timesPerPeriod: TESTING_PARAMETERS ? [120, 120, 120, 120] : court.timesPerPeriod,
-  }));
+  });
+
+  let courtsV1 = FROM_GNOSIS
+    ? courtsV1GnosisChain.map(parametersUsdToEth)
+    : courtsV1Mainnet;
+  courtsV1 = TESTING_PARAMETERS
+    ? courtsV1.map(parametersProductionToTesting)
+    : courtsV1;
+  const courtsV2 = courtsV1.map(parametersV1ToV2);
 
   console.log("courtsV2 = %O", courtsV2);
 
   const klerosCoreDeployment = await deployments.get("KlerosCore");
-  const core = (await ethers.getContractAt("KlerosCore", klerosCoreDeployment.address)) as KlerosCore;
+  const core = (await ethers.getContractAt(
+    "KlerosCore",
+    klerosCoreDeployment.address
+  )) as KlerosCore;
 
   for (const court of courtsV2) {
-    const subcourtPresent = await core.courts(court.id).catch(() => {});
-    if (subcourtPresent) {
-      console.log("Subcourt %d found: %O", court.id, subcourtPresent);
+    const courtPresent = await core.courts(court.id).catch(() => {});
+    if (courtPresent) {
+      console.log("Court %d found: %O", court.id, courtPresent);
 
-      // Subcourt.parent and sortitionSumTreeK cannot be changed.
+      // Court.parent and sortitionSumTreeK cannot be changed.
 
-      if (subcourtPresent.hiddenVotes !== court.hiddenVotes) {
+      if (courtPresent.hiddenVotes !== court.hiddenVotes) {
         console.log(
-          "Subcourt %d: changing hiddenVotes from %d to %d",
+          "Court %d: changing hiddenVotes from %d to %d",
           court.id,
-          subcourtPresent.hiddenVotes,
+          courtPresent.hiddenVotes,
           court.hiddenVotes
         );
-        await core.changeSubcourtHiddenVotes(court.id, court.hiddenVotes);
+        await core.changeCourtHiddenVotes(court.id, court.hiddenVotes);
       }
 
-      if (!subcourtPresent.minStake.eq(court.minStake)) {
-        console.log("Subcourt %d: changing minStake from %d to %d", court.id, subcourtPresent.minStake, court.minStake);
-        await core.changeSubcourtMinStake(court.id, court.minStake);
-      }
-
-      if (!subcourtPresent.alpha.eq(court.alpha)) {
-        console.log("Subcourt %d: changing alpha from %d to %d", court.id, subcourtPresent.alpha, court.alpha);
-        await core.changeSubcourtAlpha(court.id, court.alpha);
-      }
-
-      if (!subcourtPresent.feeForJuror.eq(court.feeForJuror)) {
+      if (!courtPresent.minStake.eq(court.minStake)) {
         console.log(
-          "Subcourt %d: changing feeForJuror from %d to %d",
+          "Court %d: changing minStake from %d to %d",
           court.id,
-          subcourtPresent.feeForJuror,
+          courtPresent.minStake,
+          court.minStake
+        );
+        await core.changeCourtMinStake(court.id, court.minStake);
+      }
+
+      if (!courtPresent.alpha.eq(court.alpha)) {
+        console.log(
+          "Court %d: changing alpha from %d to %d",
+          court.id,
+          courtPresent.alpha,
+          court.alpha
+        );
+        await core.changeCourtAlpha(court.id, court.alpha);
+      }
+
+      if (!courtPresent.feeForJuror.eq(court.feeForJuror)) {
+        console.log(
+          "Court %d: changing feeForJuror from %d to %d",
+          court.id,
+          courtPresent.feeForJuror,
           court.feeForJuror
         );
-        await core.changeSubcourtJurorFee(court.id, court.feeForJuror);
+        await core.changeCourtJurorFee(court.id, court.feeForJuror);
       }
 
-      if (!subcourtPresent.jurorsForCourtJump.eq(court.jurorsForCourtJump)) {
+      if (!courtPresent.jurorsForCourtJump.eq(court.jurorsForCourtJump)) {
         console.log(
-          "Subcourt %d: changing jurorsForCourtJump from %d to %d",
+          "Court %d: changing jurorsForCourtJump from %d to %d",
           court.id,
-          subcourtPresent.jurorsForCourtJump,
+          courtPresent.jurorsForCourtJump,
           court.jurorsForCourtJump
         );
-        await core.changeSubcourtJurorsForJump(court.id, court.jurorsForCourtJump);
+        await core.changeCourtJurorsForJump(court.id, court.jurorsForCourtJump);
       }
 
-      const timesPerPeriodPresent = (await core.getTimesPerPeriod(court.id)).map((bn) => bn.toNumber());
-      if (!timesPerPeriodPresent.every((val, index) => val === court.timesPerPeriod[index])) {
+      const timesPerPeriodPresent = (
+        await core.getTimesPerPeriod(court.id)
+      ).map((bn) => bn.toNumber());
+      if (
+        !timesPerPeriodPresent.every(
+          (val, index) => val === court.timesPerPeriod[index]
+        )
+      ) {
         console.log(
-          "Subcourt %d: changing timesPerPeriod from %O to %O",
+          "Court %d: changing timesPerPeriod from %O to %O",
           court.id,
           timesPerPeriodPresent,
           court.timesPerPeriod
         );
-        await core.changeSubcourtTimesPerPeriod(court.id, [
+        await core.changeCourtTimesPerPeriod(court.id, [
           court.timesPerPeriod[0],
           court.timesPerPeriod[1],
           court.timesPerPeriod[2],
@@ -103,15 +153,20 @@ async function main() {
         ]);
       }
     } else {
-      console.log("Subcourt %d not found, creating it with", court.id, court);
-      await core.createSubcourt(
+      console.log("Court %d not found, creating it with", court.id, court);
+      await core.createCourt(
         court.parent,
         court.hiddenVotes,
         court.minStake,
         court.alpha,
         court.feeForJuror,
         court.jurorsForCourtJump,
-        [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
+        [
+          court.timesPerPeriod[0],
+          court.timesPerPeriod[1],
+          court.timesPerPeriod[2],
+          court.timesPerPeriod[3],
+        ],
         5, // Not accessible on-chain, but has always been set to the same value so far.
         [DISPUTE_KIT_CLASSIC]
       );

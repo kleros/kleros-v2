@@ -3,7 +3,9 @@ import styled from "styled-components";
 import Modal from "react-modal";
 import { Textarea, Button } from "@kleros/ui-components-library";
 import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
+import { wrapWithToast } from "utils/wrapWithToast";
 import { useConnectedContract } from "hooks/useConnectedContract";
+import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 
 const SubmitEvidenceModal: React.FC<{
   isOpen: boolean;
@@ -36,15 +38,20 @@ const SubmitEvidenceModal: React.FC<{
           disabled={isSending}
           onClick={() => {
             setIsSending(true);
-            disputeKit
-              .submitEvidence(evidenceGroup, message)
-              .then(
-                async (tx) =>
-                  await tx.wait().then(() => {
+            const formData = constructEvidence(message);
+            uploadFormDataToIPFS(formData)
+              .then(async (res) => {
+                const response = await res.json();
+                if (res.status === 200) {
+                  const cid = "/ipfs/" + response["cid"];
+                  await wrapWithToast(
+                    disputeKit.submitEvidence(evidenceGroup, cid)
+                  ).then(() => {
                     setMessage("");
                     close();
-                  })
-              )
+                  });
+                }
+              })
               .catch()
               .finally(() => setIsSending(false));
           }}
@@ -52,6 +59,17 @@ const SubmitEvidenceModal: React.FC<{
       </ButtonArea>
     </StyledModal>
   );
+};
+
+const constructEvidence = (msg: string) => {
+  const formData = new FormData();
+  const file = new File(
+    [JSON.stringify({ name: "Evidence", description: msg })],
+    "evidence.json",
+    { type: "text/plain" }
+  );
+  formData.append("data", file, file.name);
+  return formData;
 };
 
 const StyledModal = styled(Modal)`

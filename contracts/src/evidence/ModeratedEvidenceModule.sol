@@ -81,11 +81,28 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
 
     /* Events */
 
+    /**
+     * @dev To be raised when evidence is submitted. Should point to the resource (evidences are not to be stored on chain due to gas considerations).
+     * @param _arbitrator The arbitrator of the contract.
+     * @param _evidenceGroupID Unique identifier of the evidence group the evidence belongs to.
+     * @param _party The address of the party submiting the evidence. Note that 0x0 refers to evidence not submitted by any party.
+     * @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'
+     */
+    event Evidence(
+        IArbitrator indexed _arbitrator,
+        uint256 indexed _evidenceGroupID,
+        address indexed _party,
+        string _evidence
+    );
+
     /** @dev Indicate that a party has to pay a fee or would otherwise be considered as losing.
      *  @param _evidenceID The ID of the evidence being moderated.
      *  @param _currentWinner The party who is currently winning.
      */
-    event ModerationStatusChanged(bytes32 indexed _evidenceID, Party _currentWinner);
+    event ModerationStatusChanged(
+        bytes32 indexed _evidenceID,
+        Party _currentWinner
+    );
 
     /** @dev Constructor.
      *  @param _arbitrator The trusted arbitrator to resolve potential disputes.
@@ -127,14 +144,18 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
     /** @dev Change the proportion of arbitration fees that must be paid as fee stake by parties when there is no winner or loser (e.g. when the arbitrator refused to rule).
      *  @param _initialDepositMultiplier Multiplier of arbitration fees that must be paid as fee stake. In basis points.
      */
-    function changeInitialDepositMultiplier(uint256 _initialDepositMultiplier) external onlyGovernor {
+    function changeInitialDepositMultiplier(
+        uint256 _initialDepositMultiplier
+    ) external onlyGovernor {
         initialDepositMultiplier = _initialDepositMultiplier;
     }
 
     /** @dev Change the proportion of arbitration fees that must be paid as fee stake by the winner of the previous round.
      *  @param _totalCostMultiplier Multiplier of arbitration fees that must be paid as fee stake. In basis points.
      */
-    function changeTotalCostMultiplier(uint256 _totalCostMultiplier) external onlyGovernor {
+    function changeTotalCostMultiplier(
+        uint256 _totalCostMultiplier
+    ) external onlyGovernor {
         totalCostMultiplier = _totalCostMultiplier;
     }
 
@@ -149,8 +170,12 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
     /** @dev Update the meta evidence used for disputes.
      *  @param _newMetaEvidence The meta evidence to be used for future registration request disputes.
      */
-    function changeMetaEvidence(string calldata _newMetaEvidence) external onlyGovernor {
-        ArbitratorData storage arbitratorData = arbitratorDataList[arbitratorDataList.length - 1];
+    function changeMetaEvidence(
+        string calldata _newMetaEvidence
+    ) external onlyGovernor {
+        ArbitratorData storage arbitratorData = arbitratorDataList[
+            arbitratorDataList.length - 1
+        ];
         uint256 newMetaEvidenceUpdates = arbitratorData.metaEvidenceUpdates + 1;
         arbitratorDataList.push(
             ArbitratorData({
@@ -164,8 +189,12 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
     /** @dev Change the arbitrator to be used for disputes that may be raised in the next requests. The arbitrator is trusted to support appeal period and not reenter.
      *  @param _arbitratorExtraData The extra data used by the new arbitrator.
      */
-    function changeArbitratorExtraData(bytes calldata _arbitratorExtraData) external onlyGovernor {
-        ArbitratorData storage arbitratorData = arbitratorDataList[arbitratorDataList.length - 1];
+    function changeArbitratorExtraData(
+        bytes calldata _arbitratorExtraData
+    ) external onlyGovernor {
+        ArbitratorData storage arbitratorData = arbitratorDataList[
+            arbitratorDataList.length - 1
+        ];
         arbitratorDataList.push(
             ArbitratorData({
                 metaEvidenceUpdates: arbitratorData.metaEvidenceUpdates,
@@ -178,23 +207,46 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
      *  @param _evidenceGroupID Unique identifier of the evidence group the evidence belongs to. It's the submitter responsability to submit the right evidence group ID.
      *  @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'.
      */
-    function submitEvidence(uint256 _evidenceGroupID, string calldata _evidence) external payable {
+    function submitEvidence(
+        uint256 _evidenceGroupID,
+        string calldata _evidence
+    ) external payable {
         // Optimization opportunity: map evidenceID to an incremental index that can be safely assumed to be less than a small uint.
-        bytes32 evidenceID = keccak256(abi.encodePacked(_evidenceGroupID, _evidence));
+        bytes32 evidenceID = keccak256(
+            abi.encodePacked(_evidenceGroupID, _evidence)
+        );
         EvidenceData storage evidenceData = evidences[evidenceID];
-        require(evidenceData.submitter == address(0x0), "Evidence already submitted.");
+        require(
+            evidenceData.submitter == address(0x0),
+            "Evidence already submitted."
+        );
         evidenceData.submitter = payable(msg.sender);
 
-        ArbitratorData storage arbitratorData = arbitratorDataList[arbitratorDataList.length - 1];
+        ArbitratorData storage arbitratorData = arbitratorDataList[
+            arbitratorDataList.length - 1
+        ];
 
-        uint256 arbitrationCost = arbitrator.arbitrationCost(arbitratorData.arbitratorExtraData);
-        uint256 totalCost = arbitrationCost.mulCap(totalCostMultiplier) / MULTIPLIER_DIVISOR;
-        uint256 depositRequired = totalCost.mulCap(initialDepositMultiplier) / MULTIPLIER_DIVISOR;
+        uint256 arbitrationCost = arbitrator.arbitrationCost(
+            arbitratorData.arbitratorExtraData
+        );
+        uint256 totalCost = arbitrationCost.mulCap(totalCostMultiplier) /
+            MULTIPLIER_DIVISOR;
+        uint256 depositRequired = totalCost.mulCap(initialDepositMultiplier) /
+            MULTIPLIER_DIVISOR;
 
         Moderation storage moderation = evidenceData.moderations.push();
         // Overpaying is allowed.
-        contribute(moderation, Party.Submitter, payable(msg.sender), msg.value, totalCost);
-        require(moderation.paidFees[uint256(Party.Submitter)] >= depositRequired, "Insufficient funding.");
+        contribute(
+            moderation,
+            Party.Submitter,
+            payable(msg.sender),
+            msg.value,
+            totalCost
+        );
+        require(
+            moderation.paidFees[uint256(Party.Submitter)] >= depositRequired,
+            "Insufficient funding."
+        );
         moderation.bondDeadline = block.timestamp + bondTimeout;
         moderation.currentWinner = Party.Submitter;
         moderation.arbitratorDataID = arbitratorDataList.length - 1;
@@ -210,49 +262,81 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
      */
     function moderate(bytes32 _evidenceID, Party _side) external payable {
         EvidenceData storage evidenceData = evidences[_evidenceID];
-        require(evidenceData.submitter != address(0x0), "Evidence does not exist.");
+        require(
+            evidenceData.submitter != address(0x0),
+            "Evidence does not exist."
+        );
         require(!evidenceData.disputed, "Evidence already disputed.");
         require(_side != Party.None, "Invalid side.");
 
-        Moderation storage moderation = evidenceData.moderations[evidenceData.moderations.length - 1];
+        Moderation storage moderation = evidenceData.moderations[
+            evidenceData.moderations.length - 1
+        ];
         if (moderation.closed) {
             // Start another round of moderation.
             moderation = evidenceData.moderations.push();
             moderation.arbitratorDataID = arbitratorDataList.length - 1;
         }
-        require(_side != moderation.currentWinner, "Only the current loser can fund.");
         require(
-            block.timestamp < moderation.bondDeadline || moderation.bondDeadline == 0,
+            _side != moderation.currentWinner,
+            "Only the current loser can fund."
+        );
+        require(
+            block.timestamp < moderation.bondDeadline ||
+                moderation.bondDeadline == 0,
             "Moderation market is closed."
         );
 
-        ArbitratorData storage arbitratorData = arbitratorDataList[moderation.arbitratorDataID];
+        ArbitratorData storage arbitratorData = arbitratorDataList[
+            moderation.arbitratorDataID
+        ];
 
-        uint256 arbitrationCost = arbitrator.arbitrationCost(arbitratorData.arbitratorExtraData);
-        uint256 totalCost = arbitrationCost.mulCap(totalCostMultiplier) / MULTIPLIER_DIVISOR;
+        uint256 arbitrationCost = arbitrator.arbitrationCost(
+            arbitratorData.arbitratorExtraData
+        );
+        uint256 totalCost = arbitrationCost.mulCap(totalCostMultiplier) /
+            MULTIPLIER_DIVISOR;
 
         uint256 opposition = 3 - uint256(_side);
         uint256 depositRequired = moderation.paidFees[opposition] * 2;
         if (depositRequired == 0) {
-            depositRequired = totalCost.mulCap(initialDepositMultiplier) / MULTIPLIER_DIVISOR;
+            depositRequired =
+                totalCost.mulCap(initialDepositMultiplier) /
+                MULTIPLIER_DIVISOR;
         } else if (depositRequired > totalCost) {
             depositRequired = totalCost;
         }
 
         // Overpaying is allowed.
-        contribute(moderation, _side, payable(msg.sender), msg.value, totalCost);
-        require(moderation.paidFees[uint256(_side)] >= depositRequired, "Insufficient funding.");
+        contribute(
+            moderation,
+            _side,
+            payable(msg.sender),
+            msg.value,
+            totalCost
+        );
+        require(
+            moderation.paidFees[uint256(_side)] >= depositRequired,
+            "Insufficient funding."
+        );
 
-        if (moderation.paidFees[uint256(_side)] >= totalCost && moderation.paidFees[opposition] >= totalCost) {
+        if (
+            moderation.paidFees[uint256(_side)] >= totalCost &&
+            moderation.paidFees[opposition] >= totalCost
+        ) {
             moderation.feeRewards = moderation.feeRewards - arbitrationCost;
 
-            evidenceData.disputeID = arbitrator.createDispute{value: arbitrationCost}(
-                AMOUNT_OF_CHOICES,
-                arbitratorData.arbitratorExtraData
-            );
+            evidenceData.disputeID = arbitrator.createDispute{
+                value: arbitrationCost
+            }(AMOUNT_OF_CHOICES, arbitratorData.arbitratorExtraData);
             disputeIDtoEvidenceID[evidenceData.disputeID] = _evidenceID;
 
-            emit Dispute(arbitrator, evidenceData.disputeID, arbitratorData.metaEvidenceUpdates, uint256(_evidenceID));
+            emit Dispute(
+                arbitrator,
+                evidenceData.disputeID,
+                arbitratorData.metaEvidenceUpdates,
+                uint256(_evidenceID)
+            );
             evidenceData.disputed = true;
             moderation.bondDeadline = 0;
             moderation.currentWinner = Party.None;
@@ -271,10 +355,15 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         // Evidence can be reported/accepted again in the future.
         // Only an arbitrator's ruling after a dispute is final.
         EvidenceData storage evidenceData = evidences[_evidenceID];
-        Moderation storage moderation = evidenceData.moderations[evidenceData.moderations.length - 1];
+        Moderation storage moderation = evidenceData.moderations[
+            evidenceData.moderations.length - 1
+        ];
 
         require(!evidenceData.disputed, "Evidence already disputed.");
-        require(block.timestamp > moderation.bondDeadline, "Moderation still ongoing.");
+        require(
+            block.timestamp > moderation.bondDeadline,
+            "Moderation still ongoing."
+        );
 
         moderation.closed = true;
         evidenceData.ruling = moderation.currentWinner;
@@ -297,8 +386,13 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
     ) internal returns (uint256) {
         uint256 contribution;
         uint256 remainingETH;
-        uint256 requiredAmount = _totalRequired.subCap(_moderation.paidFees[uint256(_side)]);
-        (contribution, remainingETH) = calculateContribution(_amount, requiredAmount);
+        uint256 requiredAmount = _totalRequired.subCap(
+            _moderation.paidFees[uint256(_side)]
+        );
+        (contribution, remainingETH) = calculateContribution(
+            _amount,
+            requiredAmount
+        );
         _moderation.contributions[_contributor][uint256(_side)] += contribution;
         _moderation.paidFees[uint256(_side)] += contribution;
         _moderation.feeRewards += contribution;
@@ -314,11 +408,10 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
      *  @return taken The amount of ETH taken.
      *  @return remainder The amount of ETH left from the contribution.
      */
-    function calculateContribution(uint256 _available, uint256 _requiredAmount)
-        internal
-        pure
-        returns (uint256 taken, uint256 remainder)
-    {
+    function calculateContribution(
+        uint256 _available,
+        uint256 _requiredAmount
+    ) internal pure returns (uint256 taken, uint256 remainder) {
         if (_requiredAmount > _available) return (_available, 0); // Take whatever is available, return 0 as leftover ETH.
 
         remainder = _available - _requiredAmount;
@@ -341,20 +434,30 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         Moderation storage moderation = evidenceData.moderations[_moderationID];
         require(moderation.closed, "Moderation must be closed.");
 
-        uint256[3] storage contributionTo = moderation.contributions[_beneficiary];
+        uint256[3] storage contributionTo = moderation.contributions[
+            _beneficiary
+        ];
 
         if (evidenceData.ruling == Party.None) {
             // Reimburse unspent fees proportionally if there is no winner and loser.
-            uint256 totalFeesPaid = moderation.paidFees[uint256(Party.Submitter)] +
-                moderation.paidFees[uint256(Party.Moderator)];
-            uint256 totalBeneficiaryContributions = contributionTo[uint256(Party.Submitter)] +
-                contributionTo[uint256(Party.Moderator)];
-            reward = totalFeesPaid > 0 ? (totalBeneficiaryContributions * moderation.feeRewards) / totalFeesPaid : 0;
+            uint256 totalFeesPaid = moderation.paidFees[
+                uint256(Party.Submitter)
+            ] + moderation.paidFees[uint256(Party.Moderator)];
+            uint256 totalBeneficiaryContributions = contributionTo[
+                uint256(Party.Submitter)
+            ] + contributionTo[uint256(Party.Moderator)];
+            reward = totalFeesPaid > 0
+                ? (totalBeneficiaryContributions * moderation.feeRewards) /
+                    totalFeesPaid
+                : 0;
         } else {
             // Reward the winner.
-            uint256 paidFees = moderation.paidFees[uint256(evidenceData.ruling)];
+            uint256 paidFees = moderation.paidFees[
+                uint256(evidenceData.ruling)
+            ];
             reward = paidFees > 0
-                ? (contributionTo[uint256(evidenceData.ruling)] * moderation.feeRewards) / paidFees
+                ? (contributionTo[uint256(evidenceData.ruling)] *
+                    moderation.feeRewards) / paidFees
                 : 0;
         }
         contributionTo[uint256(Party.Submitter)] = 0;
@@ -371,7 +474,9 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
     function rule(uint256 _disputeID, uint256 _ruling) public override {
         bytes32 evidenceID = disputeIDtoEvidenceID[_disputeID];
         EvidenceData storage evidenceData = evidences[evidenceID];
-        Moderation storage moderation = evidenceData.moderations[evidenceData.moderations.length - 1];
+        Moderation storage moderation = evidenceData.moderations[
+            evidenceData.moderations.length - 1
+        ];
         require(
             evidenceData.disputed &&
                 !moderation.closed &&
@@ -394,7 +499,9 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
      *  @param _evidenceID The ID of the evidence submission.
      *  @return The number of moderations.
      */
-    function getNumberOfModerations(bytes32 _evidenceID) external view returns (uint256) {
+    function getNumberOfModerations(
+        bytes32 _evidenceID
+    ) external view returns (uint256) {
         EvidenceData storage evidenceData = evidences[_evidenceID];
         return evidenceData.moderations.length;
     }
@@ -420,7 +527,10 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
      *  @param _moderationID The ID of the moderation occurence.
      *  @return paidFees currentWinner feeRewards The moderation information.
      */
-    function getModerationInfo(bytes32 _evidenceID, uint256 _moderationID)
+    function getModerationInfo(
+        bytes32 _evidenceID,
+        uint256 _moderationID
+    )
         external
         view
         returns (
@@ -431,7 +541,11 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
     {
         EvidenceData storage evidenceData = evidences[_evidenceID];
         Moderation storage moderation = evidenceData.moderations[_moderationID];
-        return (moderation.paidFees, moderation.currentWinner, moderation.feeRewards);
+        return (
+            moderation.paidFees,
+            moderation.currentWinner,
+            moderation.feeRewards
+        );
     }
 
     /** @dev Gets the last arbitrator data index, which is used for current new submissions.

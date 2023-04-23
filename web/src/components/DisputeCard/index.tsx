@@ -7,7 +7,6 @@ import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { useCourtPolicy } from "queries/useCourtPolicy";
-import { useIPFSQuery } from "hooks/useIPFSQuery";
 import { CasesPageQuery } from "queries/useCasesQuery";
 import PeriodBanner from "./PeriodBanner";
 import DisputeInfo from "./DisputeInfo";
@@ -30,7 +29,7 @@ const Container = styled.div`
   }
 `;
 
-const getTimeLeft = (
+const getPeriodEndTimestamp = (
   lastPeriodChange: string,
   currentPeriodIndex: number,
   timesPerPeriod: string[]
@@ -44,22 +43,21 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
   arbitrated,
   period,
   lastPeriodChange,
-  subcourtID,
+  court,
 }) => {
   const currentPeriodIndex = Periods[period];
-  const rewards = `≥ ${utils.formatEther(subcourtID.feeForJuror)} ETH`;
+  const rewards = `≥ ${utils.formatEther(court.feeForJuror)} ETH`;
   const date =
     currentPeriodIndex === 4
       ? lastPeriodChange
-      : getTimeLeft(
+      : getPeriodEndTimestamp(
           lastPeriodChange,
           currentPeriodIndex,
-          subcourtID.timesPerPeriod
+          court.timesPerPeriod
         );
-  const { data: metaEvidence } = useGetMetaEvidence(id, arbitrated);
+  const { data: metaEvidence } = useGetMetaEvidence(id, arbitrated.id);
   const title = metaEvidence ? metaEvidence.title : <Skeleton />;
-  const { data: courtPolicyPath } = useCourtPolicy(parseInt(subcourtID.id));
-  const { data: courtPolicy } = useIPFSQuery(courtPolicyPath?.args._policy);
+  const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
   const category = metaEvidence ? metaEvidence.category : undefined;
   const navigate = useNavigate();
@@ -69,6 +67,7 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
       <Container>
         <h3>{title}</h3>
         <DisputeInfo
+          courtId={court?.id}
           court={courtName}
           period={currentPeriodIndex}
           {...{ category, rewards, date }}

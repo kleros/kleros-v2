@@ -1,33 +1,27 @@
 import React from "react";
 import styled from "styled-components";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { utils } from "ethers";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { useCourtPolicy } from "queries/useCourtPolicy";
-import { useIPFSQuery } from "hooks/useIPFSQuery";
+import { useCourtPolicyURI } from "queries/useCourtPolicyURI";
 import PolicyIcon from "svgs/icons/policy.svg";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 
-const Overview: React.FC<{ arbitrable: string; courtID?: string }> = ({
+const Overview: React.FC<{ arbitrable?: string; courtID?: string }> = ({
   arbitrable,
   courtID,
 }) => {
   const { id } = useParams();
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
-  const { data: disputeDetails } = useDisputeDetailsQuery(
-    id ? parseInt(id) : undefined
-  );
-  const { data: courtPolicyEvent } = useCourtPolicy(
-    courtID ? parseInt(courtID) : undefined
-  );
-  const courtPolicyPath = courtPolicyEvent?.args._policy;
-  const { data: courtPolicy } = useIPFSQuery(courtPolicyPath);
+  const { data: disputeDetails } = useDisputeDetailsQuery(id);
+  const { data: courtPolicyURI } = useCourtPolicyURI(courtID);
+  const { data: courtPolicy } = useCourtPolicy(courtID);
   const courtName = courtPolicy?.name;
-  const rewards = disputeDetails?.dispute?.subcourtID
-    ? `≥ ${utils.formatEther(
-        disputeDetails?.dispute?.subcourtID.feeForJuror
-      )} ETH`
+  const court = disputeDetails?.dispute?.court;
+  const rewards = court
+    ? `≥ ${utils.formatEther(court.feeForJuror)} ETH`
     : undefined;
   const category = metaEvidence ? metaEvidence.category : undefined;
   return (
@@ -38,6 +32,13 @@ const Overview: React.FC<{ arbitrable: string; courtID?: string }> = ({
           <h3>{metaEvidence?.question}</h3>
           <p>{metaEvidence?.description}</p>
         </QuestionAndDescription>
+        <a
+          href="https://app.proofofhumanity.id/profile/0x00de4b13153673bcae2616b67bf822500d325fc3"
+          target="_blank"
+          rel="noreferrer"
+        >
+          View profile on Proof of Humanity
+        </a>
         <VotingOptions>
           {metaEvidence && <h3>Voting Options</h3>}
           {metaEvidence?.rulingOptions?.titles?.map(
@@ -50,14 +51,18 @@ const Overview: React.FC<{ arbitrable: string; courtID?: string }> = ({
           )}
         </VotingOptions>
         <hr />
-        <DisputeInfo court={courtName} {...{ rewards, category }} />
+        <DisputeInfo
+          courtId={court?.id}
+          court={courtName}
+          {...{ rewards, category }}
+        />
       </Container>
       <ShadeArea>
         <p>Make sure you understand the Policies</p>
         <LinkContainer>
           {metaEvidence?.fileURI && (
             <StyledA
-              href={`https://ipfs.kleros.io${metaEvidence.fileURI}`}
+              href={`https://cloudflare-ipfs.com${metaEvidence.fileURI}`}
               target="_blank"
               rel="noreferrer"
             >
@@ -67,7 +72,7 @@ const Overview: React.FC<{ arbitrable: string; courtID?: string }> = ({
           )}
           {courtPolicy && (
             <StyledA
-              href={`https://ipfs.kleros.io${courtPolicyPath}`}
+              href={`https://cloudflare-ipfs.com${courtPolicyURI}`}
               target="_blank"
               rel="noreferrer"
             >
@@ -81,15 +86,9 @@ const Overview: React.FC<{ arbitrable: string; courtID?: string }> = ({
   );
 };
 
-// {metaEvidence?.aliases &&
-// Object.keys(metaEvidence.aliases).length !== 0 ? (
-//   <hr />
-// ) : null}
-
 const Container = styled.div`
   width: 100%;
   height: auto;
-  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -124,6 +123,7 @@ const VotingOptions = styled(QuestionAndDescription)`
 const ShadeArea = styled.div`
   width: 100%;
   padding: 16px;
+  margin-top: 16px;
   background-color: ${({ theme }) => theme.mediumBlue};
   > p {
     margin-top: 0;
@@ -144,12 +144,5 @@ const LinkContainer = styled.div`
   display: flex;
   justify-content: space-between;
 `;
-
-// const StyledIFrame = styled.iframe`
-//   width: 1px;
-//   min-width: 100%;
-//   height: 360px;
-//   border: none;
-// `;
 
 export default Overview;

@@ -34,14 +34,13 @@ contract SortitionModule is ISortitionModule {
 
     struct DelayedStake {
         address account; // The address of the juror.
-        uint96 subcourtID; // The ID of the subcourt.
+        uint96 courtID; // The ID of the court.
         uint256 stake; // The new stake.
         uint256 penalty; // Penalty value, in case the stake was set during execution.
     }
 
     uint256 public constant MAX_STAKE_PATHS = 4; // The maximum number of stake paths a juror can have.
     uint256 public constant DEFAULT_K = 6; // Default number of children per node.
-    uint256 public constant RNG_LOOKAHEAD = 20; // Minimum block distance between requesting and obtaining a random number. Arbitrum sequencer finality = 20 blocks.
 
     KlerosCore public core;
     Phase public phase; // The current phase.
@@ -55,6 +54,7 @@ contract SortitionModule is ISortitionModule {
 
     RNG public rng; // The random number generator.
     uint256 public randomNumber; // Random number returned by RNG.
+    uint256 public rngLookahead; // Minimal block distance between requesting and obtaining a random number.
 
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
     uint256 public delayedStakeReadIndex = 1; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
@@ -65,7 +65,10 @@ contract SortitionModule is ISortitionModule {
     event NewPhase(Phase _phase);
 
     modifier onlyByCore() {
-        require(address(core) == msg.sender, "Access not allowed: KlerosCore only.");
+        require(
+            address(core) == msg.sender,
+            "Access not allowed: KlerosCore only."
+        );
         _;
     }
 
@@ -74,18 +77,21 @@ contract SortitionModule is ISortitionModule {
      *  @param _minStakingTime Minimal time to stake
      *  @param _maxDrawingTime Time after which the drawing phase can be switched
      *  @param _rng The random number generator.
+     *  @param _rngLookahead Lookahead value for rng.
      */
     constructor(
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
-        RNG _rng
+        RNG _rng,
+        uint256 _rngLookahead
     ) {
         core = _core;
         minStakingTime = _minStakingTime;
         maxDrawingTime = _maxDrawingTime;
         lastPhaseChange = block.timestamp;
         rng = _rng;
+        rngLookahead = _rngLookahead;
     }
 
     /* Public */
@@ -104,13 +110,18 @@ contract SortitionModule is ISortitionModule {
         maxDrawingTime = _maxDrawingTime;
     }
 
-    /** @dev Changes the `_rng` storage variable.
+    /** @dev Changes the `_rng` and `_rngLookahead` storage variables.
      *  @param _rng The new value for the `RNGenerator` storage variable.
+     *  @param _rngLookahead The new value for the `rngLookahead` storage variable.
      */
-    function changeRandomNumberGenerator(RNG _rng) external onlyByCore {
+    function changeRandomNumberGenerator(
+        RNG _rng,
+        uint256 _rngLookahead
+    ) external onlyByCore {
         rng = _rng;
+        rngLookahead = _rngLookahead;
         if (phase == Phase.generating) {
-            rng.requestRandomness(block.number + RNG_LOOKAHEAD);
+            rng.requestRandomness(block.number + rngLookahead);
             randomNumberRequestBlock = block.number;
         }
     }
@@ -121,16 +132,22 @@ contract SortitionModule is ISortitionModule {
     function executeDelayedStakes(uint256 _iterations) external {
         require(phase == Phase.staking, "Should be in Staking phase.");
 
-        uint256 actualIterations = (delayedStakeReadIndex + _iterations) - 1 > delayedStakeWriteIndex
+        uint256 actualIterations = (delayedStakeReadIndex + _iterations) - 1 >
+            delayedStakeWriteIndex
             ? (delayedStakeWriteIndex - delayedStakeReadIndex) + 1
             : _iterations;
-        uint256 newDelayedStakeReadIndex = delayedStakeReadIndex + actualIterations;
+        uint256 newDelayedStakeReadIndex = delayedStakeReadIndex +
+            actualIterations;
 
-        for (uint256 i = delayedStakeReadIndex; i < newDelayedStakeReadIndex; i++) {
+        for (
+            uint256 i = delayedStakeReadIndex;
+            i < newDelayedStakeReadIndex;
+            i++
+        ) {
             DelayedStake storage delayedStake = delayedStakes[i];
             core.setStakeBySortitionModule(
                 delayedStake.account,
-                delayedStake.subcourtID,
+                delayedStake.courtID,
                 delayedStake.stake,
                 delayedStake.penalty
             );
@@ -139,12 +156,15 @@ contract SortitionModule is ISortitionModule {
         delayedStakeReadIndex = newDelayedStakeReadIndex;
     }
 
-    function createDisputeHook(uint256 _disputeID, uint256 _roundID) external override onlyByCore {
+    function createDisputeHook(
+        uint256 _disputeID,
+        uint256 _roundID
+    ) external override onlyByCore {
         disputesWithoutJurors++;
     }
 
     function postDrawHook(
-        uint256, /*_disputeID*/
+        uint256 /*_disputeID*/,
         uint256 /*_roundID*/
     ) external override onlyByCore {
         disputesWithoutJurors--;
@@ -156,17 +176,23 @@ contract SortitionModule is ISortitionModule {
                 block.timestamp - lastPhaseChange >= minStakingTime,
                 "The minimum staking time has not passed yet."
             );
-            require(disputesWithoutJurors > 0, "There are no disputes that need jurors.");
-            rng.requestRandomness(block.number + RNG_LOOKAHEAD);
+            require(
+                disputesWithoutJurors > 0,
+                "There are no disputes that need jurors."
+            );
+            rng.requestRandomness(block.number + rngLookahead);
             randomNumberRequestBlock = block.number;
             phase = Phase.generating;
         } else if (phase == Phase.generating) {
-            randomNumber = rng.receiveRandomness(randomNumberRequestBlock + RNG_LOOKAHEAD);
+            randomNumber = rng.receiveRandomness(
+                randomNumberRequestBlock + rngLookahead
+            );
             require(randomNumber != 0, "Random number is not ready yet");
             phase = Phase.drawing;
         } else if (phase == Phase.drawing) {
             require(
-                disputesWithoutJurors == 0 || block.timestamp - lastPhaseChange >= maxDrawingTime,
+                disputesWithoutJurors == 0 ||
+                    block.timestamp - lastPhaseChange >= maxDrawingTime,
                 "There are still disputes without jurors and the maximum drawing time has not passed yet."
             );
             phase = Phase.staking;
@@ -178,18 +204,21 @@ contract SortitionModule is ISortitionModule {
 
     function preStakeHook(
         address _account,
-        uint96 _subcourtID,
+        uint96 _courtID,
         uint256 _stake,
         uint256 _penalty
     ) external override onlyByCore returns (Result result) {
-        (uint256 currentStake, , uint256 nbSubcourts) = core.getJurorBalance(_account, _subcourtID);
-        if (currentStake == 0 && nbSubcourts >= MAX_STAKE_PATHS) {
+        (uint256 currentStake, , uint256 nbCourts) = core.getJurorBalance(
+            _account,
+            _courtID
+        );
+        if (currentStake == 0 && nbCourts >= MAX_STAKE_PATHS) {
             result = Result.False;
         } else {
             if (phase != Phase.staking) {
                 delayedStakes[++delayedStakeWriteIndex] = DelayedStake({
                     account: _account,
-                    subcourtID: _subcourtID,
+                    courtID: _courtID,
                     stake: _stake,
                     penalty: _penalty
                 });
@@ -204,7 +233,10 @@ contract SortitionModule is ISortitionModule {
      *  @param _key The key of the new tree.
      *  @param _extraData Extra data that contains the number of children each node in the tree should have.
      */
-    function initialize(bytes32 _key, bytes memory _extraData) external override onlyByCore {
+    function initialize(
+        bytes32 _key,
+        bytes memory _extraData
+    ) external override onlyByCore {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
         uint256 K = extraDataToTreeK(_extraData);
         require(tree.K == 0, "Tree already exists.");
@@ -220,8 +252,8 @@ contract SortitionModule is ISortitionModule {
     function notifyRandomNumber(uint256 _randomNumber) public override {}
 
     /**
-     *  @dev Sets the value for a particular subcourt and its parent courts.
-     *  @param _subcourtID ID of the subcourt.
+     *  @dev Sets the value for a particular court and its parent courts.
+     *  @param _courtID ID of the court.
      *  @param _value The new value.
      *  @param _account Address of the juror.
      *  `O(log_k(n))` where
@@ -229,20 +261,23 @@ contract SortitionModule is ISortitionModule {
      *   and `n` is the maximum number of nodes ever appended.
      */
     function set(
-        uint96 _subcourtID,
+        uint96 _courtID,
         uint256 _value,
         address _account
     ) external override onlyByCore {
-        bytes32 stakePathID = accountAndSubcourtIDToStakePathID(_account, _subcourtID);
+        bytes32 stakePathID = accountAndCourtIDToStakePathID(
+            _account,
+            _courtID
+        );
         bool finished = false;
-        uint96 currentSubcourtID = _subcourtID;
+        uint96 currenCourtID = _courtID;
         while (!finished) {
             // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
-            _set(bytes32(uint256(currentSubcourtID)), _value, stakePathID);
-            if (currentSubcourtID == core.GENERAL_COURT()) {
+            _set(bytes32(uint256(currenCourtID)), _value, stakePathID);
+            if (currenCourtID == core.GENERAL_COURT()) {
                 finished = true;
             } else {
-                (currentSubcourtID, , , , , ) = core.courts(currentSubcourtID);
+                (currenCourtID, , , , , ) = core.courts(currenCourtID);
             }
         }
     }
@@ -250,16 +285,16 @@ contract SortitionModule is ISortitionModule {
     /**
      *  @dev Unstakes the inactive juror from all courts.
      *  `O(n * (p * log_k(j)) )` where
-     *  `n` is the number of subcourts the juror has staked in,
-     *  `p` is the depth of the subcourt tree,
-     *  `k` is the minimum number of children per node of one of these subcourts' sortition sum tree,
-     *  and `j` is the maximum number of jurors that ever staked in one of these subcourts simultaneously.
+     *  `n` is the number of courts the juror has staked in,
+     *  `p` is the depth of the court tree,
+     *  `k` is the minimum number of children per node of one of these courts' sortition sum tree,
+     *  and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
      *  @param _account The juror to unstake.
      */
     function setJurorInactive(address _account) external override onlyByCore {
-        uint96[] memory subcourtIDs = core.getJurorSubcourtIDs(_account);
-        for (uint256 j = subcourtIDs.length; j > 0; j--) {
-            core.setStakeBySortitionModule(_account, subcourtIDs[j - 1], 0, 0);
+        uint96[] memory courtIDs = core.getJurorCourtIDs(_account);
+        for (uint256 j = courtIDs.length; j > 0; j--) {
+            core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0, 0);
         }
     }
 
@@ -283,11 +318,7 @@ contract SortitionModule is ISortitionModule {
     )
         external
         view
-        returns (
-            uint256 startIndex,
-            uint256[] memory values,
-            bool hasMore
-        )
+        returns (uint256 startIndex, uint256[] memory values, bool hasMore)
     {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
 
@@ -302,7 +333,9 @@ contract SortitionModule is ISortitionModule {
         // Get the values.
         uint256 loopStartIndex = startIndex + _cursor;
         values = new uint256[](
-            loopStartIndex + _count > tree.nodes.length ? tree.nodes.length - loopStartIndex : _count
+            loopStartIndex + _count > tree.nodes.length
+                ? tree.nodes.length - loopStartIndex
+                : _count
         );
         uint256 valuesIndex = 0;
         for (uint256 j = loopStartIndex; j < tree.nodes.length; j++) {
@@ -335,8 +368,9 @@ contract SortitionModule is ISortitionModule {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
 
         uint256 treeIndex = 0;
-        uint256 currentDrawnNumber = uint256(keccak256(abi.encodePacked(randomNumber, _coreDisputeID, _voteID))) %
-            tree.nodes[0];
+        uint256 currentDrawnNumber = uint256(
+            keccak256(abi.encodePacked(randomNumber, _coreDisputeID, _voteID))
+        ) % tree.nodes[0];
 
         // While it still has children
         while ((tree.K * treeIndex) + 1 < tree.nodes.length) {
@@ -391,7 +425,9 @@ contract SortitionModule is ISortitionModule {
      *  @param _stakePathID The stake path ID to unpack.
      *  @return account The account.
      */
-    function stakePathIDToAccount(bytes32 _stakePathID) internal pure returns (address account) {
+    function stakePathIDToAccount(
+        bytes32 _stakePathID
+    ) internal pure returns (address account) {
         assembly {
             // solium-disable-line security/no-inline-assembly
             let ptr := mload(0x40)
@@ -406,7 +442,9 @@ contract SortitionModule is ISortitionModule {
         }
     }
 
-    function extraDataToTreeK(bytes memory _extraData) internal pure returns (uint256 K) {
+    function extraDataToTreeK(
+        bytes memory _extraData
+    ) internal pure returns (uint256 K) {
         if (_extraData.length >= 32) {
             assembly {
                 // solium-disable-line security/no-inline-assembly
@@ -426,11 +464,7 @@ contract SortitionModule is ISortitionModule {
      *  `k` is the maximum number of children per node in the tree,
      *   and `n` is the maximum number of nodes ever appended.
      */
-    function _set(
-        bytes32 _key,
-        uint256 _value,
-        bytes32 _ID
-    ) internal {
+    function _set(bytes32 _key, uint256 _value, bytes32 _ID) internal {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
         uint256 treeIndex = tree.IDsToNodeIndexes[_ID];
 
@@ -502,16 +536,15 @@ contract SortitionModule is ISortitionModule {
         }
     }
 
-    /** @dev Packs an account and a subcourt ID into a stake path ID.
+    /** @dev Packs an account and a court ID into a stake path ID.
      *  @param _account The address of the juror to pack.
-     *  @param _subcourtID The subcourt ID to pack.
+     *  @param _courtID The court ID to pack.
      *  @return stakePathID The stake path ID.
      */
-    function accountAndSubcourtIDToStakePathID(address _account, uint96 _subcourtID)
-        internal
-        pure
-        returns (bytes32 stakePathID)
-    {
+    function accountAndCourtIDToStakePathID(
+        address _account,
+        uint96 _courtID
+    ) internal pure returns (bytes32 stakePathID) {
         assembly {
             // solium-disable-line security/no-inline-assembly
             let ptr := mload(0x40)
@@ -527,7 +560,7 @@ contract SortitionModule is ISortitionModule {
             } lt(i, 0x20) {
                 i := add(i, 0x01)
             } {
-                mstore8(add(ptr, i), byte(i, _subcourtID))
+                mstore8(add(ptr, i), byte(i, _courtID))
             }
             stakePathID := mload(ptr)
         }

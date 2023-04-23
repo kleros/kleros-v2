@@ -7,7 +7,7 @@ import CasesDisplay from "components/CasesDisplay";
 
 const Container = styled.div`
   width: 100%;
-  height: auto;
+  min-height: calc(100vh - 144px);
   background-color: ${({ theme }) => theme.lightBackground};
   padding: 32px;
 `;
@@ -28,7 +28,7 @@ const Dashboard: React.FC = () => {
         <StyledCasesDisplay
           title="My Cases"
           disputes={data.disputes}
-          numberDisputes={data.casesDataPoint?.value}
+          numberDisputes={data.counter?.cases}
           {...{ currentPage, setCurrentPage, casesPerPage }}
         />
       )}

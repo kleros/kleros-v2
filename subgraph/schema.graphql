@@ -1,15 +1,117 @@
+#########
+# Enums #
+#########
+
 enum Period {
-  Evidence
-  Commit
-  Vote
-  Appeal
-  Execution
+  evidence
+  commit
+  vote
+  appeal
+  execution
+}
+
+##############
+# Interfaces #
+##############
+
+interface DisputeKitDispute {
+  id: ID!
+  coreDispute: Dispute!
+  localRounds: [DisputeKitRound!]! @derivedFrom(field: "localDispute")
+  currentLocalRoundIndex: BigInt!
+}
+
+interface DisputeKitRound {
+  id: ID!
+  localDispute: DisputeKitDispute!
+  votes: [Vote!]! @derivedFrom(field: "localRound")
+}
+
+interface Vote {
+  id: ID!
+  coreDispute: Dispute!
+  localRound: DisputeKitRound!
+  juror: User!
+}
+
+interface Contribution {
+  id: ID!
+  coreDispute: Dispute!
+  contributor: User!
+}
+
+interface EvidenceGroup {
+  id: ID!
+  evidences: [Evidence!]! @derivedFrom(field: "evidenceGroup")
+  nextEvidenceIndex: BigInt!
+}
+
+interface Evidence {
+  id: ID!
+  evidence: String!
+  evidenceGroup: EvidenceGroup!
+  sender: User!
+}
+
+############
+# Entities #
+############
+
+type User @entity {
+  id: ID! # address
+  tokens: [JurorTokensPerCourt!]! @derivedFrom(field: "juror")
+  totalStake: BigInt!
+  shifts: [TokenAndETHShift!]! @derivedFrom(field: "juror")
+  draws: [Draw!]! @derivedFrom(field: "juror")
+  activeDisputes: BigInt!
+  disputes: [Dispute!]!
+  resolvedDisputes: [Dispute!]!
+  totalDisputes: BigInt!
+  totalCoherent: BigInt!
+  votes: [Vote!]! @derivedFrom(field: "juror")
+  contributions: [Contribution!]! @derivedFrom(field: "contributor")
+  evidences: [Evidence!]! @derivedFrom(field: "sender")
+  penalties: [Penalty!]! @derivedFrom(field: "juror")
+}
+
+type Penalty @entity {
+  id: ID! # dispute.id-roundIndex-user.id
+  dispute: Dispute!
+  round: Round!
+  juror: User!
+  amount: BigInt!
+  numberDraws: BigInt!
+  degreeOfCoherency: BigInt!
+}
+
+type Arbitrable @entity {
+  id: ID! # address
+  disputes: [Dispute!]! @derivedFrom(field: "arbitrated")
+  totalDisputes: BigInt!
+}
+
+type TokenAndETHShift @entity {
+  id: ID! # user.id-dispute.id
+  juror: User!
+  dispute: Dispute!
+  tokenAmount: BigInt!
+  ethAmount: BigInt!
+}
+
+type JurorTokensPerCourt @entity {
+  id: ID! # user.id-court.id
+  juror: User!
+  court: Court!
+  staked: BigInt!
+  locked: BigInt!
 }
 
 type Court @entity {
   id: ID!
-  hiddenVotes: Boolean!
+  policy: String
+  name: String
   parent: Court
+  hiddenVotes: Boolean!
   children: [Court!]! @derivedFrom(field: "parent")
   minStake: BigInt!
   alpha: BigInt!
@@ -17,66 +119,47 @@ type Court @entity {
   jurorsForCourtJump: BigInt!
   timesPerPeriod: [BigInt!]!
   supportedDisputeKits: [DisputeKit!]!
-  disputes: [Dispute!]! @derivedFrom(field: "subcourtID")
-  stakedJurors: [JurorTokensPerSubcourt!]! @derivedFrom(field: "subcourt")
-  tokens: [JurorTokensPerSubcourt!]! @derivedFrom(field: "subcourt")
+  disputes: [Dispute!]! @derivedFrom(field: "court")
+  numberDisputes: BigInt!
+  stakedJurors: [JurorTokensPerCourt!]! @derivedFrom(field: "court")
+  numberStakedJurors: BigInt!
+  stake: BigInt!
+  paidETH: BigInt!
+  paidPNK: BigInt!
 }
 
-type Juror @entity {
-  id: ID! # Set to address
-  tokens: [JurorTokensPerSubcourt!]! @derivedFrom(field: "juror")
-  shifts: [TokenAndETHShift!]! @derivedFrom(field: "juror")
-  draws: [Draw!]! @derivedFrom(field: "juror")
-}
-
-type TokenAndETHShift @entity {
-  id: ID! # Set to `${juror.id}-${dispute.id}`
-  juror: Juror!
-  dispute: Dispute!
-  tokenAmount: BigInt!
-  ethAmount: BigInt!
-}
-
-type JurorTokensPerSubcourt @entity {
-  id: ID! # Set to `${juror.id}-${court.id}`
-  juror: Juror!
-  subcourt: Court!
-  staked: BigInt!
-  locked: BigInt!
+type Dispute @entity {
+  id: ID!
+  court: Court!
+  arbitrated: Arbitrable!
+  period: Period!
+  ruled: Boolean!
+  lastPeriodChange: BigInt!
+  rounds: [Round!]! @derivedFrom(field: "dispute")
+  currentRound: Round!
+  currentRoundIndex: BigInt!
+  shifts: [TokenAndETHShift!]! @derivedFrom(field: "dispute")
+  disputeKitDispute: DisputeKitDispute @derivedFrom(field: "coreDispute")
 }
 
 type Round @entity {
-  id: ID! # Set to `${dispute.id}-${currentRound}`
-  dispute: Dispute!
-  disputeKitID: DisputeKit!
+  id: ID! # dispute.id-dispute.rounds.length
+  disputeKit: DisputeKit!
   tokensAtStakePerJuror: BigInt!
   totalFeesForJurors: BigInt!
   nbVotes: BigInt!
   repartitions: BigInt!
   penalties: BigInt!
   drawnJurors: [Draw!]! @derivedFrom(field: "round")
+  dispute: Dispute!
 }
 
 type Draw @entity {
-  id: ID! # Set to `${dispute.id}-${currentRound}-${voteID}`
+  id: ID! # dispute.id-currentRound-voteID
   dispute: Dispute!
   round: Round!
-  juror: Juror!
+  juror: User!
   voteID: BigInt!
-}
-
-type Dispute @entity {
-  id: ID!
-  subcourtID: Court!
-  arbitrated: Bytes!
-  period: Period!
-  ruled: Boolean!
-  lastPeriodChange: BigInt!
-  rounds: [Round!]! @derivedFrom(field: "dispute")
-  draws: [Draw!]! @derivedFrom(field: "dispute")
-  currentRound: Int!
-  shifts: [TokenAndETHShift!]! @derivedFrom(field: "dispute")
-  gatewayDispute: GatewayDispute! @derivedFrom(field: "homeDispute")
 }
 
 type DisputeKit @entity {
@@ -86,47 +169,82 @@ type DisputeKit @entity {
   children: [DisputeKit!]! @derivedFrom(field: "parent")
   needsFreezing: Boolean!
   depthLevel: BigInt!
-  rounds: [Round!]! @derivedFrom(field: "disputeKitID")
+  rounds: [Round!]! @derivedFrom(field: "disputeKit")
   courts: [Court!]! @derivedFrom(field: "supportedDisputeKits")
 }
 
-type GatewayDispute @entity {
+type Counter @entity {
+  id: ID! # Will be the timestamp except for the counter which will be 0
+  stakedPNK: BigInt!
+  redistributedPNK: BigInt!
+  paidETH: BigInt!
+  activeJurors: BigInt!
+  cases: BigInt!
+  casesVoting: BigInt!
+  casesRuled: BigInt!
+}
+
+#####################
+# ClassicDisputeKit #
+#####################
+
+type ClassicDispute implements DisputeKitDispute @entity {
+  id: ID! # disputeKit.id-coreDispute
+  coreDispute: Dispute!
+  localRounds: [DisputeKitRound!]! @derivedFrom(field: "localDispute")
+  currentLocalRoundIndex: BigInt!
+
+  numberOfChoices: BigInt!
+  jumped: Boolean!
+  extraData: Bytes!
+}
+
+type ClassicRound implements DisputeKitRound @entity {
+  id: ID! # disputeKit.id-coreDispute-dispute.rounds.length
+  localDispute: DisputeKitDispute!
+  votes: [Vote!]! @derivedFrom(field: "localRound")
+
+  winningChoice: BigInt!
+  counts: [BigInt!]!
+  tied: Boolean!
+  totalVoted: BigInt!
+  totalCommited: BigInt!
+  paidFees: [BigInt!]!
+  contributions: [ClassicContribution!]! @derivedFrom(field: "localRound")
+  feeRewards: BigInt!
+  fundedChoices: [BigInt!]!
+}
+
+type ClassicVote implements Vote @entity {
+  id: ID! # disputeKit.id-coreDispute-currentRound-juror
+  coreDispute: Dispute!
+  localRound: DisputeKitRound!
+  juror: User!
+
+  choice: BigInt!
+  justification: String!
+}
+
+type ClassicEvidenceGroup implements EvidenceGroup @entity {
   id: ID!
-  homeDispute: Dispute!
-  arbitrator: Bytes!
-  disputeHash: Bytes!
-  arbitrationCost: BigInt!
-  relayer: Bytes!
+  evidences: [Evidence!]! @derivedFrom(field: "evidenceGroup")
+  nextEvidenceIndex: BigInt!
 }
 
-type OutgoingBatch @entity {
-  id: ID! # Set to messageHash
-  size: BigInt!
-  epoch: BigInt!
-  batchMerkleRoot: String!
+type ClassicEvidence implements Evidence @entity {
+  id: ID! # classicEvidenceGroup.id-nextEvidenceIndex
+  evidence: String!
+  evidenceGroup: EvidenceGroup!
+  sender: User!
 }
 
-type PNKStakedDataPoint @entity {
-  id: ID! # Will be the timestamp except for the counter which will be 0
-  value: BigInt!
-}
+type ClassicContribution implements Contribution @entity {
+  id: ID! # disputeKit.id-dispute.id-classicround.id-contributor-choice
+  contributor: User!
+  coreDispute: Dispute!
 
-type ETHPaidDataPoint @entity {
-  id: ID! # Will be the timestamp except for the counter which will be 0
-  value: BigInt!
-}
-
-type PNKRedistributedDataPoint @entity {
-  id: ID! # Will be the timestamp except for the counter which will be 0
-  value: BigInt!
-}
-
-type ActiveJurorsDataPoint @entity {
-  id: ID! # Will be the timestamp except for the counter which will be 0
-  value: BigInt!
-}
-
-type CasesDataPoint @entity {
-  id: ID! # Will be the timestamp except for the counter which will be 0
-  value: BigInt!
+  localRound: ClassicRound!
+  amount: BigInt!
+  choice: BigInt!
+  rewardWithdrawn: Boolean!
 }

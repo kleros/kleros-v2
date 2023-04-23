@@ -19,7 +19,22 @@ interface IArbitrator {
      * @param _disputeID ID of the dispute.
      * @param _arbitrable The contract which created the dispute.
      */
-    event DisputeCreation(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
+    event DisputeCreation(
+        uint256 indexed _disputeID,
+        IArbitrable indexed _arbitrable
+    );
+
+    /**
+     * @dev To be raised when a ruling is given.
+     * @param _arbitrable The arbitrable receiving the ruling.
+     * @param _disputeID ID of the dispute in the Arbitrator contract.
+     * @param _ruling The ruling which was given.
+     */
+    event Ruling(
+        IArbitrable indexed _arbitrable,
+        uint256 indexed _disputeID,
+        uint256 _ruling
+    );
 
     /**
      * @dev Create a dispute. Must be called by the arbitrable contract.
@@ -28,12 +43,17 @@ interface IArbitrator {
      * @param _extraData Can be used to give additional info on the dispute to be created.
      * @return disputeID ID of the dispute created.
      */
-    function createDispute(uint256 _choices, bytes calldata _extraData) external payable returns (uint256 disputeID);
+    function createDispute(
+        uint256 _choices,
+        bytes calldata _extraData
+    ) external payable returns (uint256 disputeID);
 
     /**
      * @dev Compute the cost of arbitration. It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.
      * @param _extraData Can be used to give additional info on the dispute to be created.
      * @return cost Required cost of arbitration.
      */
-    function arbitrationCost(bytes calldata _extraData) external view returns (uint256 cost);
+    function arbitrationCost(
+        bytes calldata _extraData
+    ) external view returns (uint256 cost);
 }

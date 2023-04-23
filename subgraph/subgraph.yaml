@@ -4,32 +4,29 @@ schema:
 dataSources:
   - kind: ethereum
     name: KlerosCore
-    network: arbitrum-rinkeby
+    network: arbitrum-goerli
     source:
-      address: "0x815d709EFCF5E69e2e9E2F8d3815d762496a2f0F"
+      address: "0xD08Ab99480d02bf9C092828043f611BcDFEA917b"
       abi: KlerosCore
-      startBlock: 14452893
+      startBlock: 9433950
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Court
-        - Juror
+        - User
+        - Arbitrable
         - TokenAndETHShift
-        - JurorTokensPerSubcourt
+        - JurorTokensPerCourt
+        - Court
+        - Dispute
         - Round
         - Draw
-        - Dispute
         - DisputeKit
-        - PNKStakedDataPoint
-        - ETHPaidDataPoint
-        - PNKRedistributedDataPoint
-        - ActiveJurorsDataPoint
-        - CasesDataPoint
+        - Counter
       abis:
         - name: KlerosCore
-          file: ../contracts/deployments/arbitrumRinkeby/KlerosCore.json
+          file: ../contracts/deployments/arbitrumGoerli/KlerosCore.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -39,56 +36,73 @@ dataSources:
           handler: handleDraw
         - event: NewPeriod(indexed uint256,uint8)
           handler: handleNewPeriod
-        - event: SubcourtCreated(indexed uint256,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256,uint256[])
-          handler: handleSubcourtCreated
-        - event: SubcourtModified(indexed uint96,string)
-          handler: handleSubcourtModified
+        - event: CourtCreated(indexed uint256,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256,uint256[])
+          handler: handleCourtCreated
+        - event: CourtModified(indexed uint96,string)
+          handler: handleCourtModified
         - event: DisputeKitCreated(indexed uint256,indexed address,indexed uint256)
           handler: handleDisputeKitCreated
         - event: DisputeKitEnabled(indexed uint96,indexed uint256,indexed bool)
           handler: handleDisputeKitEnabled
         - event: StakeSet(indexed address,uint256,uint256,uint256)
           handler: handleStakeSet
-        - event: TokenAndETHShift(indexed address,indexed uint256,int256,int256)
+        - event: TokenAndETHShift(indexed address,indexed uint256,indexed uint256,uint256,int256,int256)
           handler: handleTokenAndETHShift
+        - event: Ruling(indexed address,indexed uint256,uint256)
+          handler: handleRuling
       file: ./src/KlerosCore.ts
   - kind: ethereum
-    name: HomeGateway
-    network: arbitrum-rinkeby
+    name: PolicyRegistry
+    network: arbitrum-goerli
     source:
-      address: "0x4e894c2B60214beC53B60D09F39544518296C07B"
-      abi: HomeGateway
-      startBlock: 14453123
+      address: "0xC5655728387Ce5E2aAA22138114E5777370aBDae"
+      abi: PolicyRegistry
+      startBlock: 6456907
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - GatewayDispute
+        - Court
       abis:
-        - name: HomeGateway
-          file: ../contracts/deployments/arbitrumRinkeby/HomeGatewayToEthereum.json
+        - name: PolicyRegistry
+          file: ../contracts/deployments/arbitrumGoerli/PolicyRegistry.json
       eventHandlers:
-        - event: Dispute(indexed address,indexed uint256,uint256,uint256)
-          handler: handleDisputeEvent
-      file: ./src/HomeGateway.ts
+        - event: PolicyUpdate(indexed uint256,string,string)
+          handler: handlePolicyUpdate
+      file: ./src/PolicyRegistry.ts
   - kind: ethereum
-    name: FastBridgeSender
-    network: arbitrum-rinkeby
+    name: DisputeKitClassic
+    network: arbitrum-goerli
     source:
-      address: "0xf8A4a85e7153374A1b9BDA763a84252eC286843b"
-      abi: FastBridgeSender
-      startBlock: 14453120
+      address: "0x0b24767Ae86Da2F5B442B2A524d3D9809CD0B5B2"
+      abi: DisputeKitClassic
+      startBlock: 9433943
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - OutgoingMessage
+        - ClassicDispute
+        - ClassicRound
+        - ClassicVote
+        - ClassicEvidenceGroup
+        - ClassicEvidence
+        - ClassicContribution
       abis:
-        - name: FastBridgeSender
-          file: ../contracts/deployments/arbitrumRinkeby/FastBridgeSender.json
+        - name: DisputeKitClassic
+          file: ../contracts/deployments/arbitrumGoerli/DisputeKitClassic.json
       eventHandlers:
-        - event: BatchOutgoing(indexed uint256,uint256,uint256,bytes32)
-          handler: handleBatchOutgoing
-      file: ./src/FastBridgeSender.ts
+        - event: DisputeCreation(indexed uint256,uint256,bytes)
+          handler: handleDisputeCreation
+        - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleContributionEvent
+        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleWithdrawal
+        - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleChoiceFunded
+        - event: Evidence(indexed uint256,indexed address,string)
+          handler: handleEvidenceEvent
+        - event: Justification(indexed uint256,indexed address,indexed uint256,string)
+          handler: handleJustificationEvent
+      file: ./src/DisputeKitClassic.ts

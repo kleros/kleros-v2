@@ -43,17 +43,22 @@ contract ForeignGateway is IForeignGateway {
         address arbitrable
     );
 
+    event ArbitrationCostModified(
+        uint96 indexed _courtID,
+        uint256 _feeForJuror
+    );
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
     uint256 public constant MIN_JURORS = 3; // The global default minimum number of jurors in a dispute.
-    uint256 public immutable override senderChainID;
-    address public immutable override senderGateway;
     uint256 internal localDisputeID = 1; // The disputeID must start from 1 as the KlerosV1 proxy governor depends on this implementation. We now also depend on localDisputeID not ever being zero.
-    uint256[] internal feeForJuror; // feeForJuror[subcourtID]
+    mapping(uint96 => uint256) public feeForJuror; // feeForJuror[courtID], it mirrors the value on KlerosCore.
     address public governor;
     IFastBridgeReceiver public fastBridgeReceiver;
+    uint256 public immutable override senderChainID;
+    address public override senderGateway;
     IFastBridgeReceiver public depreciatedFastbridge;
     uint256 public depreciatedFastBridgeExpiration;
     mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
@@ -65,7 +70,8 @@ contract ForeignGateway is IForeignGateway {
     modifier onlyFromFastBridge() {
         require(
             address(fastBridgeReceiver) == msg.sender ||
-                ((block.timestamp < depreciatedFastBridgeExpiration) && address(depreciatedFastbridge) == msg.sender),
+                ((block.timestamp < depreciatedFastBridgeExpiration) &&
+                    address(depreciatedFastbridge) == msg.sender),
             "Access not allowed: Fast Bridge only."
         );
         _;
@@ -79,13 +85,11 @@ contract ForeignGateway is IForeignGateway {
     constructor(
         address _governor,
         IFastBridgeReceiver _fastBridgeReceiver,
-        uint256[] memory _feeForJuror,
         address _senderGateway,
         uint256 _senderChainID
     ) {
         governor = _governor;
         fastBridgeReceiver = _fastBridgeReceiver;
-        feeForJuror = _feeForJuror;
         senderGateway = _senderGateway;
         senderChainID = _senderChainID;
     }
@@ -95,45 +99,66 @@ contract ForeignGateway is IForeignGateway {
     // ************************************* //
 
     /**
+     * @dev Changes the governor.
+     * @param _governor The address of the new governor.
+     */
+    function changeGovernor(address _governor) external {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        governor = _governor;
+    }
+
+    /**
      * @dev Changes the fastBridge, useful to increase the claim deposit.
      * @param _fastBridgeReceiver The address of the new fastBridge.
      * @param _gracePeriod The duration to accept messages from the deprecated bridge (if at all).
      */
-    function changeFastbridge(IFastBridgeReceiver _fastBridgeReceiver, uint256 _gracePeriod) external onlyByGovernor {
+    function changeFastbridge(
+        IFastBridgeReceiver _fastBridgeReceiver,
+        uint256 _gracePeriod
+    ) external onlyByGovernor {
         // grace period to relay remaining messages in the relay / bridging process
-        depreciatedFastBridgeExpiration = block.timestamp + _fastBridgeReceiver.epochPeriod() + _gracePeriod; // 2 weeks
+        depreciatedFastBridgeExpiration =
+            block.timestamp +
+            _fastBridgeReceiver.epochPeriod() +
+            _gracePeriod; // 2 weeks
         depreciatedFastbridge = fastBridgeReceiver;
         fastBridgeReceiver = _fastBridgeReceiver;
     }
 
     /**
-     * @dev Changes the `feeForJuror` property value of a specified subcourt.
-     * @param _subcourtID The ID of the subcourt.
-     * @param _feeForJuror The new value for the `feeForJuror` property value.
+     * @dev Changes the sender gateway.
+     * @param _senderGateway The address of the new sender gateway.
      */
-    function changeSubcourtJurorFee(uint96 _subcourtID, uint256 _feeForJuror) external onlyByGovernor {
-        feeForJuror[_subcourtID] = _feeForJuror;
+    function changeReceiverGateway(address _senderGateway) external {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        senderGateway = _senderGateway;
     }
 
     /**
-     * @dev Creates the `feeForJuror` property value for a new subcourt.
+     * @dev Changes the `feeForJuror` property value of a specified court.
+     * @param _courtID The ID of the court.
      * @param _feeForJuror The new value for the `feeForJuror` property value.
      */
-    function createSubcourtJurorFee(uint256 _feeForJuror) external onlyByGovernor {
-        feeForJuror.push(_feeForJuror);
+    function changeCourtJurorFee(
+        uint96 _courtID,
+        uint256 _feeForJuror
+    ) external onlyByGovernor {
+        feeForJuror[_courtID] = _feeForJuror;
+        emit ArbitrationCostModified(_courtID, _feeForJuror);
     }
 
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
 
-    function createDispute(uint256 _choices, bytes calldata _extraData)
-        external
-        payable
-        override
-        returns (uint256 disputeID)
-    {
-        require(msg.value >= arbitrationCost(_extraData), "Not paid enough for arbitration");
+    function createDispute(
+        uint256 _choices,
+        bytes calldata _extraData
+    ) external payable override returns (uint256 disputeID) {
+        require(
+            msg.value >= arbitrationCost(_extraData),
+            "Not paid enough for arbitration"
+        );
 
         disputeID = localDisputeID++;
         uint256 chainID;
@@ -160,14 +185,32 @@ contract ForeignGateway is IForeignGateway {
             ruled: false
         });
 
-        emit OutgoingDispute(disputeHash, blockhash(block.number - 1), disputeID, _choices, _extraData, msg.sender);
+        emit OutgoingDispute(
+            disputeHash,
+            blockhash(block.number - 1),
+            disputeID,
+            _choices,
+            _extraData,
+            msg.sender
+        );
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
 
-    function arbitrationCost(bytes calldata _extraData) public view override returns (uint256 cost) {
-        (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDMinJurors(_extraData);
+    function createDisputeERC20(
+        uint256 /*_choices*/,
+        bytes calldata /*_extraData*/,
+        uint256 /*_amount*/
+    ) external override returns (uint256 /*disputeID*/) {
+        revert("Not supported yet");
+    }
 
-        cost = feeForJuror[subcourtID] * minJurors;
+    function arbitrationCost(
+        bytes calldata _extraData
+    ) public view override returns (uint256 cost) {
+        (uint96 courtID, uint256 minJurors) = extraDataToCourtIDMinJurors(
+            _extraData
+        );
+        cost = feeForJuror[courtID] * minJurors;
     }
 
     /**
@@ -179,7 +222,10 @@ contract ForeignGateway is IForeignGateway {
         uint256 _ruling,
         address _relayer
     ) external override onlyFromFastBridge {
-        require(_messageSender == senderGateway, "Only the homegateway is allowed.");
+        require(
+            _messageSender == senderGateway,
+            "Only the homegateway is allowed."
+        );
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 
         require(dispute.id != 0, "Dispute does not exist");
@@ -206,7 +252,9 @@ contract ForeignGateway is IForeignGateway {
     // *           Public Views            * //
     // ************************************* //
 
-    function disputeHashToForeignID(bytes32 _disputeHash) external view override returns (uint256) {
+    function disputeHashToForeignID(
+        bytes32 _disputeHash
+    ) external view override returns (uint256) {
         return disputeHashtoDisputeData[_disputeHash].id;
     }
 
@@ -214,22 +262,20 @@ contract ForeignGateway is IForeignGateway {
     // *       Internal       * //
     // ************************ //
 
-    function extraDataToSubcourtIDMinJurors(bytes memory _extraData)
-        internal
-        view
-        returns (uint96 subcourtID, uint256 minJurors)
-    {
+    function extraDataToCourtIDMinJurors(
+        bytes memory _extraData
+    ) internal view returns (uint96 courtID, uint256 minJurors) {
         // Note that here we ignore DisputeKitID
         if (_extraData.length >= 64) {
             assembly {
                 // solium-disable-line security/no-inline-assembly
-                subcourtID := mload(add(_extraData, 0x20))
+                courtID := mload(add(_extraData, 0x20))
                 minJurors := mload(add(_extraData, 0x40))
             }
-            if (subcourtID >= feeForJuror.length) subcourtID = 0;
+            if (feeForJuror[courtID] == 0) courtID = 0;
             if (minJurors == 0) minJurors = MIN_JURORS;
         } else {
-            subcourtID = 0;
+            courtID = 0;
             minJurors = MIN_JURORS;
         }
     }

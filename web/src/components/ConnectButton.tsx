@@ -4,7 +4,7 @@ import { shortenAddress } from "utils/shortenAddress";
 import { Button } from "@kleros/ui-components-library";
 import { useWeb3 } from "hooks/useWeb3";
 import { useConnect } from "hooks/useConnect";
-import { SUPPORTED_CHAINS } from "consts/supportedChains";
+import { SUPPORTED_CHAINS } from "consts/chains";
 
 const AccountDisplay: React.FC = () => {
   const { account, chainId } = useWeb3();

@@ -13,7 +13,7 @@ const Container = styled.div`
 const tooltipMsg =
   "A Coherent Vote is a vote coherent with the final jury decision" +
   " (after all the appeal instances). If the juror vote is the same as the" +
-  "majority of jurors it's considered a Coherent Vote.";
+  " majority of jurors it's considered a Coherent Vote.";
 
 const Coherency: React.FC = () => {
   return (
