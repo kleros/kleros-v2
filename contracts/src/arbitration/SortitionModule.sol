@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@epiqueras, @unknownunknown1, @shotaronowhere]
- *  @reviewers: []
- *  @auditors: []
- *  @bounties: []
- *  @deployments: []
+ *  @custom:authors: [@epiqueras, @unknownunknown1, @shotaronowhere]
+ *  @custom:reviewers: []
+ *  @custom:auditors: []
+ *  @custom:bounties: []
+ *  @custom:deployments: []
  */
 
 pragma solidity ^0.8;
@@ -15,12 +15,13 @@ import "./ISortitionModule.sol";
 import "../arbitration/IDisputeKit.sol";
 import "../rng/RNG.sol";
 
-/**
- *  @title SortitionModule
- *  @dev A factory of trees that keeps track of staked values for sortition.
- */
+/// @title SortitionModule
+/// @dev A factory of trees that keeps track of staked values for sortition.
 contract SortitionModule is ISortitionModule {
-    /* Structs */
+    // ************************************* //
+    // *         Enums / Structs           * //
+    // ************************************* //
+
     struct SortitionSumTree {
         uint256 K; // The maximum number of children per node.
         // We use this to keep track of vacant positions in the tree after removing a leaf. This is for keeping the tree as balanced as possible without spending gas on moving nodes around.
@@ -37,6 +38,10 @@ contract SortitionModule is ISortitionModule {
         uint256 stake; // The new stake.
         uint256 penalty; // Penalty value, in case the stake was set during execution.
     }
+
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
 
     uint256 public constant MAX_STAKE_PATHS = 4; // The maximum number of stake paths a juror can have.
     uint256 public constant DEFAULT_K = 6; // Default number of children per node.
@@ -57,6 +62,10 @@ contract SortitionModule is ISortitionModule {
     mapping(bytes32 => SortitionSumTree) sortitionSumTrees; // The mapping trees by keys.
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Drawing phase, to update them when the phase is switched to Staking.
 
+    // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
+
     modifier onlyByGovernor() {
         require(address(governor) == msg.sender, "Access not allowed: Governor only.");
         _;
@@ -67,13 +76,16 @@ contract SortitionModule is ISortitionModule {
         _;
     }
 
-    /** @dev Constructor.
-     *  @param _core The KlerosCore.
-     *  @param _minStakingTime Minimal time to stake
-     *  @param _maxDrawingTime Time after which the drawing phase can be switched
-     *  @param _rng The random number generator.
-     *  @param _rngLookahead Lookahead value for rng.
-     */
+    // ************************************* //
+    // *            Constructor            * //
+    // ************************************* //
+
+    /// @dev Constructor.
+    /// @param _core The KlerosCore.
+    /// @param _minStakingTime Minimal time to stake
+    /// @param _maxDrawingTime Time after which the drawing phase can be switched
+    /// @param _rng The random number generator.
+    /// @param _rngLookahead Lookahead value for rng.
     constructor(
         address _governor,
         KlerosCore _core,
@@ -91,26 +103,25 @@ contract SortitionModule is ISortitionModule {
         rngLookahead = _rngLookahead;
     }
 
-    /* Public */
+    // ************************************* //
+    // *             Governance            * //
+    // ************************************* //
 
-    /** @dev Changes the `minStakingTime` storage variable.
-     *  @param _minStakingTime The new value for the `minStakingTime` storage variable.
-     */
+    /// @dev Changes the `minStakingTime` storage variable.
+    /// @param _minStakingTime The new value for the `minStakingTime` storage variable.
     function changeMinStakingTime(uint256 _minStakingTime) external onlyByGovernor {
         minStakingTime = _minStakingTime;
     }
 
-    /** @dev Changes the `maxDrawingTime` storage variable.
-     *  @param _maxDrawingTime The new value for the `maxDrawingTime` storage variable.
-     */
+    /// @dev Changes the `maxDrawingTime` storage variable.
+    /// @param _maxDrawingTime The new value for the `maxDrawingTime` storage variable.
     function changeMaxDrawingTime(uint256 _maxDrawingTime) external onlyByGovernor {
         maxDrawingTime = _maxDrawingTime;
     }
 
-    /** @dev Changes the `_rng` and `_rngLookahead` storage variables.
-     *  @param _rng The new value for the `RNGenerator` storage variable.
-     *  @param _rngLookahead The new value for the `rngLookahead` storage variable.
-     */
+    /// @dev Changes the `_rng` and `_rngLookahead` storage variables.
+    /// @param _rng The new value for the `RNGenerator` storage variable.
+    /// @param _rngLookahead The new value for the `rngLookahead` storage variable.
     function changeRandomNumberGenerator(RNG _rng, uint256 _rngLookahead) external onlyByGovernor {
         rng = _rng;
         rngLookahead = _rngLookahead;
@@ -119,6 +130,10 @@ contract SortitionModule is ISortitionModule {
             randomNumberRequestBlock = block.number;
         }
     }
+
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
 
     function passPhase() external {
         if (phase == Phase.staking) {
@@ -146,11 +161,9 @@ contract SortitionModule is ISortitionModule {
         emit NewPhase(phase);
     }
 
-    /**
-     *  @dev Create a sortition sum tree at the specified key.
-     *  @param _key The key of the new tree.
-     *  @param _extraData Extra data that contains the number of children each node in the tree should have.
-     */
+    /// @dev Create a sortition sum tree at the specified key.
+    /// @param _key The key of the new tree.
+    /// @param _extraData Extra data that contains the number of children each node in the tree should have.
     function createTree(bytes32 _key, bytes memory _extraData) external override onlyByCore {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
         uint256 K = extraDataToTreeK(_extraData);
@@ -160,9 +173,8 @@ contract SortitionModule is ISortitionModule {
         tree.nodes.push(0);
     }
 
-    /** @dev Executes the next delayed stakes.
-     *  @param _iterations The number of delayed stakes to execute.
-     */
+    /// @dev Executes the next delayed stakes.
+    /// @param _iterations The number of delayed stakes to execute.
     function executeDelayedStakes(uint256 _iterations) external {
         require(phase == Phase.staking, "Should be in Staking phase.");
 
@@ -216,21 +228,17 @@ contract SortitionModule is ISortitionModule {
         disputesWithoutJurors--;
     }
 
-    /**
-     *  @dev Saves the random number to use it in sortition. Not used by this contract because the storing of the number is inlined in passPhase().
-     *  @param _randomNumber Random number returned by RNG contract.
-     */
+    /// @dev Saves the random number to use it in sortition. Not used by this contract because the storing of the number is inlined in passPhase().
+    /// @param _randomNumber Random number returned by RNG contract.
     function notifyRandomNumber(uint256 _randomNumber) public override {}
 
-    /**
-     *  @dev Sets the value for a particular court and its parent courts.
-     *  @param _courtID ID of the court.
-     *  @param _value The new value.
-     *  @param _account Address of the juror.
-     *  `O(log_k(n))` where
-     *  `k` is the maximum number of children per node in the tree,
-     *   and `n` is the maximum number of nodes ever appended.
-     */
+    /// @dev Sets the value for a particular court and its parent courts.
+    /// @param _courtID ID of the court.
+    /// @param _value The new value.
+    /// @param _account Address of the juror.
+    /// `O(log_k(n))` where
+    /// `k` is the maximum number of children per node in the tree,
+    ///  and `n` is the maximum number of nodes ever appended.
     function setStake(address _account, uint96 _courtID, uint256 _value) external override onlyByCore {
         bytes32 stakePathID = accountAndCourtIDToStakePathID(_account, _courtID);
         bool finished = false;
@@ -246,15 +254,13 @@ contract SortitionModule is ISortitionModule {
         }
     }
 
-    /**
-     *  @dev Unstakes the inactive juror from all courts.
-     *  `O(n * (p * log_k(j)) )` where
-     *  `n` is the number of courts the juror has staked in,
-     *  `p` is the depth of the court tree,
-     *  `k` is the minimum number of children per node of one of these courts' sortition sum tree,
-     *  and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
-     *  @param _account The juror to unstake.
-     */
+    /// @dev Unstakes the inactive juror from all courts.
+    /// `O(n * (p * log_k(j)) )` where
+    /// `n` is the number of courts the juror has staked in,
+    /// `p` is the depth of the court tree,
+    /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
+    /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
+    /// @param _account The juror to unstake.
     function setJurorInactive(address _account) external override onlyByCore {
         uint96[] memory courtIDs = core.getJurorCourtIDs(_account);
         for (uint256 j = courtIDs.length; j > 0; j--) {
@@ -262,18 +268,18 @@ contract SortitionModule is ISortitionModule {
         }
     }
 
-    /* Public Views */
+    // ************************************* //
+    // *           Public Views            * //
+    // ************************************* //
 
-    /**
-     *  @dev Draw an ID from a tree using a number. Note that this function reverts if the sum of all values in the tree is 0.
-     *  @param _key The key of the tree.
-     *  @param _coreDisputeID Index of the dispute in Kleros Core.
-     *  @param _voteID ID of the voter.
-     *  @return drawnAddress The drawn address.
-     *  `O(k * log_k(n))` where
-     *  `k` is the maximum number of children per node in the tree,
-     *   and `n` is the maximum number of nodes ever appended.
-     */
+    /// @dev Draw an ID from a tree using a number. Note that this function reverts if the sum of all values in the tree is 0.
+    /// @param _key The key of the tree.
+    /// @param _coreDisputeID Index of the dispute in Kleros Core.
+    /// @param _voteID ID of the voter.
+    /// @return drawnAddress The drawn address.
+    /// `O(k * log_k(n))` where
+    /// `k` is the maximum number of children per node in the tree,
+    ///  and `n` is the maximum number of nodes ever appended.
     function draw(
         bytes32 _key,
         uint256 _coreDisputeID,
@@ -306,18 +312,18 @@ contract SortitionModule is ISortitionModule {
         drawnAddress = stakePathIDToAccount(tree.nodeIndexesToIDs[treeIndex]);
     }
 
-    /* Private */
+    // ************************************* //
+    // *            Internal               * //
+    // ************************************* //
 
-    /**
-     *  @dev Update all the parents of a node.
-     *  @param _key The key of the tree to update.
-     *  @param _treeIndex The index of the node to start from.
-     *  @param _plusOrMinus Whether to add (true) or substract (false).
-     *  @param _value The value to add or substract.
-     *  `O(log_k(n))` where
-     *  `k` is the maximum number of children per node in the tree,
-     *   and `n` is the maximum number of nodes ever appended.
-     */
+    /// @dev Update all the parents of a node.
+    /// @param _key The key of the tree to update.
+    /// @param _treeIndex The index of the node to start from.
+    /// @param _plusOrMinus Whether to add (true) or substract (false).
+    /// @param _value The value to add or substract.
+    /// `O(log_k(n))` where
+    /// `k` is the maximum number of children per node in the tree,
+    ///  and `n` is the maximum number of nodes ever appended.
     function updateParents(bytes32 _key, uint256 _treeIndex, bool _plusOrMinus, uint256 _value) private {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
 
@@ -330,10 +336,9 @@ contract SortitionModule is ISortitionModule {
         }
     }
 
-    /** @dev Retrieves a juror's address from the stake path ID.
-     *  @param _stakePathID The stake path ID to unpack.
-     *  @return account The account.
-     */
+    /// @dev Retrieves a juror's address from the stake path ID.
+    /// @param _stakePathID The stake path ID to unpack.
+    /// @return account The account.
     function stakePathIDToAccount(bytes32 _stakePathID) internal pure returns (address account) {
         assembly {
             // solium-disable-line security/no-inline-assembly
@@ -360,15 +365,13 @@ contract SortitionModule is ISortitionModule {
         }
     }
 
-    /**
-     *  @dev Set a value in a tree.
-     *  @param _key The key of the tree.
-     *  @param _value The new value.
-     *  @param _ID The ID of the value.
-     *  `O(log_k(n))` where
-     *  `k` is the maximum number of children per node in the tree,
-     *   and `n` is the maximum number of nodes ever appended.
-     */
+    /// @dev Set a value in a tree.
+    /// @param _key The key of the tree.
+    /// @param _value The new value.
+    /// @param _ID The ID of the value.
+    /// `O(log_k(n))` where
+    /// `k` is the maximum number of children per node in the tree,
+    ///  and `n` is the maximum number of nodes ever appended.
     function _set(bytes32 _key, uint256 _value, bytes32 _ID) internal {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
         uint256 treeIndex = tree.IDsToNodeIndexes[_ID];
@@ -441,11 +444,10 @@ contract SortitionModule is ISortitionModule {
         }
     }
 
-    /** @dev Packs an account and a court ID into a stake path ID.
-     *  @param _account The address of the juror to pack.
-     *  @param _courtID The court ID to pack.
-     *  @return stakePathID The stake path ID.
-     */
+    /// @dev Packs an account and a court ID into a stake path ID.
+    /// @param _account The address of the juror to pack.
+    /// @param _courtID The court ID to pack.
+    /// @return stakePathID The stake path ID.
     function accountAndCourtIDToStakePathID(
         address _account,
         uint96 _courtID
