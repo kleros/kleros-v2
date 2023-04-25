@@ -61,6 +61,7 @@
     "hardhat-watcher": "^2.5.0",
     "node-fetch": "^3.3.1",
     "shelljs": "^0.8.5",
+    "solhint-plugin-prettier": "^0.0.5",
     "solidity-coverage": "^0.8.2",
     "ts-node": "^10.9.1",
     "typechain": "^8.1.1",
