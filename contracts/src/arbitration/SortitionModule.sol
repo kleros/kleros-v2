@@ -220,7 +220,7 @@ contract SortitionModule is ISortitionModule {
         return preStakeHookResult.ok;
     }
 
-    function createDisputeHook(uint256 _disputeID, uint256 _roundID) external override onlyByCore {
+    function createDisputeHook(uint256 /*_disputeID*/, uint256 /*_roundID*/) external override onlyByCore {
         disputesWithoutJurors++;
     }
 
@@ -272,7 +272,8 @@ contract SortitionModule is ISortitionModule {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @dev Draw an ID from a tree using a number. Note that this function reverts if the sum of all values in the tree is 0.
+    /// @dev Draw an ID from a tree using a number.
+    /// Note that this function reverts if the sum of all values in the tree is 0.
     /// @param _key The key of the tree.
     /// @param _coreDisputeID Index of the dispute in Kleros Core.
     /// @param _voteID ID of the voter.
