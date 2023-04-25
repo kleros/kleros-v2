@@ -6,7 +6,7 @@
 /// @custom:bounties: []
 /// @custom:deployments: []
 
-pragma solidity ^0.8;
+pragma solidity 0.8.18;
 
 /// @title SortitionSumTreeFactory
 /// @author Enrique Piqueras - <epiquerass@gmail.com>

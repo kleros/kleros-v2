@@ -6,7 +6,7 @@
 /// @custom:bounties: []
 /// @custom:deployments: []
 
-pragma solidity ^0.8;
+pragma solidity 0.8.18;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./IArbitrator.sol";
@@ -1036,9 +1036,7 @@ contract KlerosCore is IArbitrator {
     /// @param _value Amount transferred.
     /// @return Whether transfer succeeded or not.
     function _safeTransfer(address _to, uint256 _value) internal returns (bool) {
-        (bool success, bytes memory data) = address(pinakion).call(
-            abi.encodeWithSelector(IERC20.transfer.selector, _to, _value)
-        );
+        (bool success, bytes memory data) = address(pinakion).call(abi.encodeCall(IERC20.transfer, (_to, _value)));
         return (success && (data.length == 0 || abi.decode(data, (bool))));
     }
 
@@ -1049,7 +1047,7 @@ contract KlerosCore is IArbitrator {
     /// @return Whether transfer succeeded or not.
     function _safeTransferFrom(address _from, address _to, uint256 _value) internal returns (bool) {
         (bool success, bytes memory data) = address(pinakion).call(
-            abi.encodeWithSelector(IERC20.transferFrom.selector, _from, _to, _value)
+            abi.encodeCall(IERC20.transferFrom, (_from, _to, _value))
         );
         return (success && (data.length == 0 || abi.decode(data, (bool))));
     }

@@ -7,7 +7,7 @@
 /// @custom:deployments: []
 /// @custom:tools: []
 
-pragma solidity ^0.8;
+pragma solidity 0.8.18;
 
 // TODO: standard interfaces should be placed in a separated repo (?)
 import "../arbitration/IArbitrator.sol";

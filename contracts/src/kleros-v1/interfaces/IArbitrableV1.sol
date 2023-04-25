@@ -5,7 +5,7 @@
 /// @custom:auditors: []
 /// @custom:bounties: []
 /// @custom:deployments: []
-pragma solidity ^0.8;
+pragma solidity 0.8.18;
 
 import "./IArbitratorV1.sol";
 

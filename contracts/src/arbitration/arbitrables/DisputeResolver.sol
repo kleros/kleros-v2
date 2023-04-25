@@ -8,7 +8,7 @@
 import "../IArbitrable.sol";
 import "../../evidence/IMetaEvidence.sol";
 
-pragma solidity ^0.8;
+pragma solidity 0.8.18;
 
 /// @title DisputeResolver
 /// DisputeResolver contract adapted for V2 https://github.com/kleros/arbitrable-proxy-contracts/blob/master/contracts/ArbitrableProxy.sol.

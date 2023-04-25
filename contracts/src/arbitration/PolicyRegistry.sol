@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8;
+pragma solidity 0.8.18;
 
 /// @title PolicyRegistry
 /// @author Enrique Piqueras - <epiquerass@gmail.com>
