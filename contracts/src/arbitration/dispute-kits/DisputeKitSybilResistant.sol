@@ -189,7 +189,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         // TODO: Handle the situation when no one has staked yet.
         drawnAddress = sortitionModule.draw(key, _coreDisputeID, round.votes.length);
 
-        if (postDrawCheck(_coreDisputeID, drawnAddress) && !round.alreadyDrawn[drawnAddress]) {
+        if (_postDrawCheck(_coreDisputeID, drawnAddress) && !round.alreadyDrawn[drawnAddress]) {
             round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
             round.alreadyDrawn[drawnAddress] = true;
         } else {
@@ -556,7 +556,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     /// @param _coreDisputeID ID of the dispute in the core contract.
     /// @param _juror Chosen address.
     /// @return Whether the address can be drawn or not.
-    function postDrawCheck(uint256 _coreDisputeID, address _juror) internal view override returns (bool) {
+    function _postDrawCheck(uint256 _coreDisputeID, address _juror) internal view override returns (bool) {
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
         (uint256 lockedAmountPerJuror, , , , , ) = core.getRoundInfo(
             _coreDisputeID,
@@ -567,14 +567,14 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         if (stakedTokens < lockedTokens + lockedAmountPerJuror || stakedTokens < minStake) {
             return false;
         } else {
-            return proofOfHumanity(_juror);
+            return _proofOfHumanity(_juror);
         }
     }
 
     /// @dev Checks if an address belongs to the Proof of Humanity registry.
     /// @param _address The address to check.
     /// @return registered True if registered.
-    function proofOfHumanity(address _address) internal view returns (bool) {
+    function _proofOfHumanity(address _address) internal view returns (bool) {
         return poh.isRegistered(_address);
     }
 }
