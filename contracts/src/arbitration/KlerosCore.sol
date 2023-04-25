@@ -224,7 +224,7 @@ contract KlerosCore is IArbitrator {
             _timesPerPeriod,
             new uint256[](0)
         );
-        enableDisputeKit(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
+        _enableDisputeKit(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
     }
 
     // ************************************* //
@@ -295,7 +295,7 @@ contract KlerosCore is IArbitrator {
         emit DisputeKitCreated(disputeKitID, _disputeKitAddress, _parent);
         if (_parent == NULL_DISPUTE_KIT) {
             // A new dispute kit tree root should always be supported by the General court.
-            enableDisputeKit(GENERAL_COURT, disputeKitID, true);
+            _enableDisputeKit(GENERAL_COURT, disputeKitID, true);
         }
     }
 
@@ -426,13 +426,13 @@ contract KlerosCore is IArbitrator {
         for (uint256 i = 0; i < _disputeKitIDs.length; i++) {
             if (_enable) {
                 require(_disputeKitIDs[i] > 0 && _disputeKitIDs[i] < disputeKitNodes.length, "Wrong DK index");
-                enableDisputeKit(_courtID, _disputeKitIDs[i], true);
+                _enableDisputeKit(_courtID, _disputeKitIDs[i], true);
             } else {
                 require(
                     !(_courtID == GENERAL_COURT && disputeKitNodes[_disputeKitIDs[i]].parent == NULL_DISPUTE_KIT),
                     "Can't disable Root DK in General"
                 );
-                enableDisputeKit(_courtID, _disputeKitIDs[i], false);
+                _enableDisputeKit(_courtID, _disputeKitIDs[i], false);
             }
         }
     }
@@ -445,12 +445,12 @@ contract KlerosCore is IArbitrator {
     /// @param _courtID The ID of the court.
     /// @param _stake The new stake.
     function setStake(uint96 _courtID, uint256 _stake) external {
-        require(setStakeForAccount(msg.sender, _courtID, _stake, 0), "Staking failed");
+        require(_setStakeForAccount(msg.sender, _courtID, _stake, 0), "Staking failed");
     }
 
     function setStakeBySortitionModule(address _account, uint96 _courtID, uint256 _stake, uint256 _penalty) external {
         require(msg.sender == address(sortitionModule), "Wrong caller");
-        setStakeForAccount(_account, _courtID, _stake, _penalty);
+        _setStakeForAccount(_account, _courtID, _stake, _penalty);
     }
 
     /// @dev Creates a dispute. Must be called by the arbitrable contract.
@@ -464,7 +464,7 @@ contract KlerosCore is IArbitrator {
     ) external payable override returns (uint256 disputeID) {
         require(msg.value >= arbitrationCost(_extraData), "ETH too low for arbitration cost");
 
-        (uint96 courtID, , uint256 disputeKitID) = extraDataToCourtIDMinJurorsDisputeKit(_extraData);
+        (uint96 courtID, , uint256 disputeKitID) = _extraDataToCourtIDMinJurorsDisputeKit(_extraData);
         require(courts[courtID].supportedDisputeKits[disputeKitID], "DK unsupported by court");
 
         disputeID = disputes.length;
@@ -677,9 +677,9 @@ contract KlerosCore is IArbitrator {
                 // Can only update the stake if it is able to cover the minStake and penalty, otherwise unstake from the court.
                 if (jurors[account].stakedTokens[dispute.courtID] >= courts[dispute.courtID].minStake + penalty) {
                     uint256 newStake = jurors[account].stakedTokens[dispute.courtID] - penalty;
-                    setStakeForAccount(account, dispute.courtID, newStake, penalty);
+                    _setStakeForAccount(account, dispute.courtID, newStake, penalty);
                 } else if (jurors[account].stakedTokens[dispute.courtID] != 0) {
-                    setStakeForAccount(account, dispute.courtID, 0, penalty);
+                    _setStakeForAccount(account, dispute.courtID, 0, penalty);
                 }
 
                 // Unstake the juror if he lost due to inactivity.
@@ -692,7 +692,7 @@ contract KlerosCore is IArbitrator {
                     if (coherentCount == 0) {
                         // No one was coherent. Send the rewards to governor.
                         payable(governor).send(round.totalFeesForJurors);
-                        safeTransfer(governor, penaltiesInRoundCache);
+                        _safeTransfer(governor, penaltiesInRoundCache);
                     }
                 }
             } else {
@@ -714,12 +714,12 @@ contract KlerosCore is IArbitrator {
                 // Give back the locked tokens in case the juror fully unstaked earlier.
                 if (jurors[account].stakedTokens[dispute.courtID] == 0) {
                     uint256 tokenLocked = (round.tokensAtStakePerJuror * degreeOfCoherence) / ALPHA_DIVISOR;
-                    safeTransfer(account, tokenLocked);
+                    _safeTransfer(account, tokenLocked);
                 }
 
                 uint256 tokenReward = ((penaltiesInRoundCache / coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
                 uint256 ethReward = ((round.totalFeesForJurors / coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
-                safeTransfer(account, tokenReward);
+                _safeTransfer(account, tokenReward);
                 payable(account).send(ethReward);
                 emit TokenAndETHShift(
                     account,
@@ -760,7 +760,7 @@ contract KlerosCore is IArbitrator {
     /// and the minimum number of jurors required (next 32 bytes).
     /// @return cost The arbitration cost.
     function arbitrationCost(bytes memory _extraData) public view override returns (uint256 cost) {
-        (uint96 courtID, uint256 minJurors, ) = extraDataToCourtIDMinJurorsDisputeKit(_extraData);
+        (uint96 courtID, uint256 minJurors, ) = _extraDataToCourtIDMinJurorsDisputeKit(_extraData);
         cost = courts[courtID].feeForJuror * minJurors;
     }
 
@@ -912,7 +912,7 @@ contract KlerosCore is IArbitrator {
     // *            Internal               * //
     // ************************************* //
 
-    function enableDisputeKit(uint96 _courtID, uint256 _disputeKitID, bool _enable) internal {
+    function _enableDisputeKit(uint96 _courtID, uint256 _disputeKitID, bool _enable) internal {
         courts[_courtID].supportedDisputeKits[_disputeKitID] = _enable;
         emit DisputeKitEnabled(_courtID, _disputeKitID, _enable);
     }
@@ -928,7 +928,7 @@ contract KlerosCore is IArbitrator {
     /// @param _stake The new stake.
     /// @param _penalty Penalized amount won't be transferred back to juror when the stake is lowered.
     /// @return succeeded True if the call succeeded, false otherwise.
-    function setStakeForAccount(
+    function _setStakeForAccount(
         address _account,
         uint96 _courtID,
         uint256 _stake,
@@ -955,7 +955,7 @@ contract KlerosCore is IArbitrator {
         if (_stake >= currentStake) {
             transferredAmount = _stake - currentStake;
             if (transferredAmount > 0) {
-                if (safeTransferFrom(_account, address(this), transferredAmount)) {
+                if (_safeTransferFrom(_account, address(this), transferredAmount)) {
                     if (currentStake == 0) {
                         juror.courtIDs.push(_courtID);
                     }
@@ -968,7 +968,7 @@ contract KlerosCore is IArbitrator {
                 // Keep locked tokens in the contract and release them after dispute is executed.
                 transferredAmount = currentStake - juror.lockedTokens[_courtID] - _penalty;
                 if (transferredAmount > 0) {
-                    if (safeTransfer(_account, transferredAmount)) {
+                    if (_safeTransfer(_account, transferredAmount)) {
                         for (uint256 i = juror.courtIDs.length; i > 0; i--) {
                             if (juror.courtIDs[i - 1] == _courtID) {
                                 juror.courtIDs[i - 1] = juror.courtIDs[juror.courtIDs.length - 1];
@@ -983,7 +983,7 @@ contract KlerosCore is IArbitrator {
             } else {
                 transferredAmount = currentStake - _stake - _penalty;
                 if (transferredAmount > 0) {
-                    if (!safeTransfer(_account, transferredAmount)) {
+                    if (!_safeTransfer(_account, transferredAmount)) {
                         return false;
                     }
                 }
@@ -1004,7 +1004,7 @@ contract KlerosCore is IArbitrator {
     /// @return courtID The court ID.
     /// @return minJurors The minimum number of jurors required.
     /// @return disputeKitID The ID of the dispute kit.
-    function extraDataToCourtIDMinJurorsDisputeKit(
+    function _extraDataToCourtIDMinJurorsDisputeKit(
         bytes memory _extraData
     ) internal view returns (uint96 courtID, uint256 minJurors, uint256 disputeKitID) {
         // Note that if the extradata doesn't contain 32 bytes for the dispute kit ID it'll return the default 0 index.
@@ -1035,7 +1035,7 @@ contract KlerosCore is IArbitrator {
     /// @param _to Recepient address.
     /// @param _value Amount transferred.
     /// @return Whether transfer succeeded or not.
-    function safeTransfer(address _to, uint256 _value) internal returns (bool) {
+    function _safeTransfer(address _to, uint256 _value) internal returns (bool) {
         (bool success, bytes memory data) = address(pinakion).call(
             abi.encodeWithSelector(IERC20.transfer.selector, _to, _value)
         );
@@ -1047,7 +1047,7 @@ contract KlerosCore is IArbitrator {
     /// @param _to Recepient address.
     /// @param _value Amount transferred.
     /// @return Whether transfer succeeded or not.
-    function safeTransferFrom(address _from, address _to, uint256 _value) internal returns (bool) {
+    function _safeTransferFrom(address _from, address _to, uint256 _value) internal returns (bool) {
         (bool success, bytes memory data) = address(pinakion).call(
             abi.encodeWithSelector(IERC20.transferFrom.selector, _from, _to, _value)
         );

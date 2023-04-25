@@ -166,7 +166,7 @@ contract SortitionModule is ISortitionModule {
     /// @param _extraData Extra data that contains the number of children each node in the tree should have.
     function createTree(bytes32 _key, bytes memory _extraData) external override onlyByCore {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
-        uint256 K = extraDataToTreeK(_extraData);
+        uint256 K = _extraDataToTreeK(_extraData);
         require(tree.K == 0, "Tree already exists.");
         require(K > 1, "K must be greater than one.");
         tree.K = K;
@@ -240,7 +240,7 @@ contract SortitionModule is ISortitionModule {
     /// `k` is the maximum number of children per node in the tree,
     ///  and `n` is the maximum number of nodes ever appended.
     function setStake(address _account, uint96 _courtID, uint256 _value) external override onlyByCore {
-        bytes32 stakePathID = accountAndCourtIDToStakePathID(_account, _courtID);
+        bytes32 stakePathID = _accountAndCourtIDToStakePathID(_account, _courtID);
         bool finished = false;
         uint96 currenCourtID = _courtID;
         while (!finished) {
@@ -310,7 +310,7 @@ contract SortitionModule is ISortitionModule {
                 }
             }
         }
-        drawnAddress = stakePathIDToAccount(tree.nodeIndexesToIDs[treeIndex]);
+        drawnAddress = _stakePathIDToAccount(tree.nodeIndexesToIDs[treeIndex]);
     }
 
     // ************************************* //
@@ -325,7 +325,7 @@ contract SortitionModule is ISortitionModule {
     /// `O(log_k(n))` where
     /// `k` is the maximum number of children per node in the tree,
     ///  and `n` is the maximum number of nodes ever appended.
-    function updateParents(bytes32 _key, uint256 _treeIndex, bool _plusOrMinus, uint256 _value) private {
+    function _updateParents(bytes32 _key, uint256 _treeIndex, bool _plusOrMinus, uint256 _value) private {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
 
         uint256 parentIndex = _treeIndex;
@@ -340,7 +340,7 @@ contract SortitionModule is ISortitionModule {
     /// @dev Retrieves a juror's address from the stake path ID.
     /// @param _stakePathID The stake path ID to unpack.
     /// @return account The account.
-    function stakePathIDToAccount(bytes32 _stakePathID) internal pure returns (address account) {
+    function _stakePathIDToAccount(bytes32 _stakePathID) internal pure returns (address account) {
         assembly {
             // solium-disable-line security/no-inline-assembly
             let ptr := mload(0x40)
@@ -355,7 +355,7 @@ contract SortitionModule is ISortitionModule {
         }
     }
 
-    function extraDataToTreeK(bytes memory _extraData) internal pure returns (uint256 K) {
+    function _extraDataToTreeK(bytes memory _extraData) internal pure returns (uint256 K) {
         if (_extraData.length >= 32) {
             assembly {
                 // solium-disable-line security/no-inline-assembly
@@ -412,7 +412,7 @@ contract SortitionModule is ISortitionModule {
                 tree.IDsToNodeIndexes[_ID] = treeIndex;
                 tree.nodeIndexesToIDs[treeIndex] = _ID;
 
-                updateParents(_key, treeIndex, true, _value);
+                _updateParents(_key, treeIndex, true, _value);
             }
         } else {
             // Existing node.
@@ -430,7 +430,7 @@ contract SortitionModule is ISortitionModule {
                 delete tree.IDsToNodeIndexes[_ID];
                 delete tree.nodeIndexesToIDs[treeIndex];
 
-                updateParents(_key, treeIndex, false, value);
+                _updateParents(_key, treeIndex, false, value);
             } else if (_value != tree.nodes[treeIndex]) {
                 // New, non zero value.
                 // Set.
@@ -440,7 +440,7 @@ contract SortitionModule is ISortitionModule {
                     : tree.nodes[treeIndex] - _value;
                 tree.nodes[treeIndex] = _value;
 
-                updateParents(_key, treeIndex, plusOrMinus, plusOrMinusValue);
+                _updateParents(_key, treeIndex, plusOrMinus, plusOrMinusValue);
             }
         }
     }
@@ -449,7 +449,7 @@ contract SortitionModule is ISortitionModule {
     /// @param _account The address of the juror to pack.
     /// @param _courtID The court ID to pack.
     /// @return stakePathID The stake path ID.
-    function accountAndCourtIDToStakePathID(
+    function _accountAndCourtIDToStakePathID(
         address _account,
         uint96 _courtID
     ) internal pure returns (bytes32 stakePathID) {
