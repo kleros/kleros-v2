@@ -10,5 +10,16 @@ module.exports = {
         parser: "json-stringify",
       },
     },
+    {
+      files: ["*.sol"],
+      options: {
+        printWidth: 120,
+        tabWidth: 4,
+        useTabs: false,
+        singleQuote: false,
+        bracketSpacing: false,
+        explicitTypes: "preserve",
+      },
+    },
   ],
 };
