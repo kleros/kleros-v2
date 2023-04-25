@@ -54,7 +54,7 @@
     "@graphql-codegen/typescript-operations": "^2.5.13",
     "@kleros/kleros-v2-contracts": "workspace:^",
     "@kleros/ui-components-library": "^1.9.2",
-    "@sentry/react": "^7.47.0",
+    "@sentry/react": "^7.49.0",
     "@sentry/tracing": "^7.49.0",
     "@types/react-modal": "^3.13.1",
     "@web3-react/core": "^6.1.9",
