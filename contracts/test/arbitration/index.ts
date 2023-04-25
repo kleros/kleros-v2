@@ -87,7 +87,14 @@ async function deployContracts(deployer) {
   const KlerosCoreAddress = getContractAddress(deployer.address, nonce);
 
   const sortitionModuleFactory = await ethers.getContractFactory("SortitionModule", deployer);
-  const sortitionModule = await sortitionModuleFactory.deploy(KlerosCoreAddress, 120, 120, rng.address, LOOKAHEAD); // minStakingTime, maxFreezingTime
+  const sortitionModule = await sortitionModuleFactory.deploy(
+    deployer.address,
+    KlerosCoreAddress,
+    120,
+    120,
+    rng.address,
+    LOOKAHEAD
+  ); // minStakingTime, maxFreezingTime
 
   const klerosCoreFactory = await ethers.getContractFactory("KlerosCore", {
     signer: deployer,
