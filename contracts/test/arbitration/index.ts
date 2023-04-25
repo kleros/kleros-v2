@@ -1,13 +1,13 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { BigNumber } from "ethers";
+import getContractAddress from "../../deploy-helpers/getContractAddress";
 
 const ONE_ETH = BigNumber.from(10).pow(18);
 const WINNER_STAKE_MULTIPLIER = 3000;
 const LOSER_STAKE_MULTIPLIER = 7000;
 const MULTIPLIER_DENOMINATOR = 10000;
-
-const RNG_LOOKAHEAD = 20;
+const LOOKAHEAD = 20;
 
 describe("DisputeKitClassic", async () => {
   // eslint-disable-next-line no-unused-vars
@@ -42,7 +42,6 @@ describe("DisputeKitClassic", async () => {
       ethers.constants.Zero,
       ethers.constants.Zero,
     ]);
-    expect(events[0].args._sortitionSumTreeK).to.equal(3);
     expect(events[0].args._supportedDisputeKits).to.deep.equal([]);
 
     events = await core.queryFilter(core.filters.DisputeKitEnabled());
@@ -79,31 +78,30 @@ async function deployContracts(deployer) {
   const disputeKitFactory = await ethers.getContractFactory("DisputeKitClassic", deployer);
   const disputeKit = await disputeKitFactory.deploy(
     deployer.address,
-    ethers.constants.AddressZero, // KlerosCore is set later once it is deployed
-    rng.address,
-    RNG_LOOKAHEAD
+    ethers.constants.AddressZero // KlerosCore is set later once it is deployed
   );
   await disputeKit.deployed();
+  let nonce;
+  nonce = await deployer.getTransactionCount();
+  nonce += 1;
+  const KlerosCoreAddress = getContractAddress(deployer.address, nonce);
 
-  const sortitionSumTreeLibraryFactory = await ethers.getContractFactory("SortitionSumTreeFactoryV2", deployer);
-  const library = await sortitionSumTreeLibraryFactory.deploy();
+  const sortitionModuleFactory = await ethers.getContractFactory("SortitionModule", deployer);
+  const sortitionModule = await sortitionModuleFactory.deploy(KlerosCoreAddress, 120, 120, rng.address, LOOKAHEAD); // minStakingTime, maxFreezingTime
 
   const klerosCoreFactory = await ethers.getContractFactory("KlerosCore", {
     signer: deployer,
-    libraries: {
-      SortitionSumTreeFactoryV2: library.address,
-    },
   });
   const core = await klerosCoreFactory.deploy(
     deployer.address,
     ethers.constants.AddressZero, // should be an ERC20
     ethers.constants.AddressZero, // should be a Juror Prosecution module
     disputeKit.address,
-    [120, 120], // minStakingTime, maxFreezingTime
     false,
     [200, 10000, 100, 3],
     [0, 0, 0, 0],
-    3
+    0xfa,
+    sortitionModule.address
   );
   await core.deployed();
 

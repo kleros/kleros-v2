@@ -1,6 +1,13 @@
 import { ethers, getNamedAccounts, network, deployments } from "hardhat";
 import { BigNumber } from "ethers";
-import { PNK, KlerosCore, DisputeKitClassic, RandomizerRNG, RandomizerMock } from "../../typechain-types";
+import {
+  PNK,
+  KlerosCore,
+  DisputeKitClassic,
+  SortitionModule,
+  RandomizerRNG,
+  RandomizerMock,
+} from "../../typechain-types";
 import { expect } from "chai";
 
 /* eslint-disable no-unused-vars */
@@ -18,6 +25,7 @@ describe("Unstake juror", async () => {
   let disputeKit;
   let pnk;
   let core;
+  let sortitionModule;
   let rng;
   let randomizer;
 
@@ -34,6 +42,7 @@ describe("Unstake juror", async () => {
     disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
+    sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
     rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
     randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
   });
@@ -54,27 +63,21 @@ describe("Unstake juror", async () => {
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
 
-    const lookahead = await disputeKit.rngLookahead();
-    await core.passPhase(); // Staking -> Freezing
-    for (let index = 0; index < lookahead; index++) {
-      await network.provider.send("evm_mine");
-    }
-    await disputeKit.passPhase(); // Resolving -> Generating
+    const lookahead = await sortitionModule.rngLookahead();
+    await sortitionModule.passPhase(); // Staking -> Generating
     for (let index = 0; index < lookahead; index++) {
       await network.provider.send("evm_mine");
     }
     await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
-    await disputeKit.passPhase(); // Generating -> Drawing
+    await sortitionModule.passPhase(); // Generating -> Drawing
 
     await core.draw(0, 5000);
-
-    await disputeKit.passPhase(); // Drawing -> Resolving
 
     await core.passPeriod(0); // Evidence -> Voting
     await core.passPeriod(0); // Voting -> Appeal
     await core.passPeriod(0); // Appeal -> Execution
 
-    await core.passPhase(); // Freezing -> Staking. Change so we don't deal with delayed stakes
+    await sortitionModule.passPhase(); // Freezing -> Staking. Change so we don't deal with delayed stakes
 
     expect(await core.getJurorCourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
 
