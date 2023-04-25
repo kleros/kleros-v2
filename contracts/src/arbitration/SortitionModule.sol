@@ -21,7 +21,6 @@ import "../rng/RNG.sol";
  */
 contract SortitionModule is ISortitionModule {
     /* Structs */
-
     struct SortitionSumTree {
         uint256 K; // The maximum number of children per node.
         // We use this to keep track of vacant positions in the tree after removing a leaf. This is for keeping the tree as balanced as possible without spending gas on moving nodes around.
@@ -42,6 +41,7 @@ contract SortitionModule is ISortitionModule {
     uint256 public constant MAX_STAKE_PATHS = 4; // The maximum number of stake paths a juror can have.
     uint256 public constant DEFAULT_K = 6; // Default number of children per node.
 
+    address public governor;
     KlerosCore public core;
     Phase public phase; // The current phase.
 
@@ -62,7 +62,10 @@ contract SortitionModule is ISortitionModule {
     mapping(bytes32 => SortitionSumTree) sortitionSumTrees;
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Drawing phase, to update them when the phase is switched to Staking.
 
-    event NewPhase(Phase _phase);
+    modifier onlyByGovernor() {
+        require(address(governor) == msg.sender, "Access not allowed: Governor only.");
+        _;
+    }
 
     modifier onlyByCore() {
         require(address(core) == msg.sender, "Access not allowed: KlerosCore only.");
@@ -76,7 +79,15 @@ contract SortitionModule is ISortitionModule {
      *  @param _rng The random number generator.
      *  @param _rngLookahead Lookahead value for rng.
      */
-    constructor(KlerosCore _core, uint256 _minStakingTime, uint256 _maxDrawingTime, RNG _rng, uint256 _rngLookahead) {
+    constructor(
+        address _governor,
+        KlerosCore _core,
+        uint256 _minStakingTime,
+        uint256 _maxDrawingTime,
+        RNG _rng,
+        uint256 _rngLookahead
+    ) {
+        governor = _governor;
         core = _core;
         minStakingTime = _minStakingTime;
         maxDrawingTime = _maxDrawingTime;
@@ -85,33 +96,19 @@ contract SortitionModule is ISortitionModule {
         rngLookahead = _rngLookahead;
     }
 
-    /**
-     *  @dev Create a sortition sum tree at the specified key.
-     *  @param _key The key of the new tree.
-     *  @param _extraData Extra data that contains the number of children each node in the tree should have.
-     */
-    function createTree(bytes32 _key, bytes memory _extraData) external override onlyByCore {
-        SortitionSumTree storage tree = sortitionSumTrees[_key];
-        uint256 K = extraDataToTreeK(_extraData);
-        require(tree.K == 0, "Tree already exists.");
-        require(K > 1, "K must be greater than one.");
-        tree.K = K;
-        tree.nodes.push(0);
-    }
-
     /* Public */
 
     /** @dev Changes the `minStakingTime` storage variable.
      *  @param _minStakingTime The new value for the `minStakingTime` storage variable.
      */
-    function changeMinStakingTime(uint256 _minStakingTime) external onlyByCore {
+    function changeMinStakingTime(uint256 _minStakingTime) external onlyByGovernor {
         minStakingTime = _minStakingTime;
     }
 
     /** @dev Changes the `maxDrawingTime` storage variable.
      *  @param _maxDrawingTime The new value for the `maxDrawingTime` storage variable.
      */
-    function changeMaxDrawingTime(uint256 _maxDrawingTime) external onlyByCore {
+    function changeMaxDrawingTime(uint256 _maxDrawingTime) external onlyByGovernor {
         maxDrawingTime = _maxDrawingTime;
     }
 
@@ -119,45 +116,13 @@ contract SortitionModule is ISortitionModule {
      *  @param _rng The new value for the `RNGenerator` storage variable.
      *  @param _rngLookahead The new value for the `rngLookahead` storage variable.
      */
-    function changeRandomNumberGenerator(RNG _rng, uint256 _rngLookahead) external onlyByCore {
+    function changeRandomNumberGenerator(RNG _rng, uint256 _rngLookahead) external onlyByGovernor {
         rng = _rng;
         rngLookahead = _rngLookahead;
         if (phase == Phase.generating) {
             rng.requestRandomness(block.number + rngLookahead);
             randomNumberRequestBlock = block.number;
         }
-    }
-
-    /** @dev Executes the next delayed stakes.
-     *  @param _iterations The number of delayed stakes to execute.
-     */
-    function executeDelayedStakes(uint256 _iterations) external {
-        require(phase == Phase.staking, "Should be in Staking phase.");
-
-        uint256 actualIterations = (delayedStakeReadIndex + _iterations) - 1 > delayedStakeWriteIndex
-            ? (delayedStakeWriteIndex - delayedStakeReadIndex) + 1
-            : _iterations;
-        uint256 newDelayedStakeReadIndex = delayedStakeReadIndex + actualIterations;
-
-        for (uint256 i = delayedStakeReadIndex; i < newDelayedStakeReadIndex; i++) {
-            DelayedStake storage delayedStake = delayedStakes[i];
-            core.setStakeBySortitionModule(
-                delayedStake.account,
-                delayedStake.courtID,
-                delayedStake.stake,
-                delayedStake.penalty
-            );
-            delete delayedStakes[i];
-        }
-        delayedStakeReadIndex = newDelayedStakeReadIndex;
-    }
-
-    function createDisputeHook(uint256 _disputeID, uint256 _roundID) external override onlyByCore {
-        disputesWithoutJurors++;
-    }
-
-    function postDrawHook(uint256 /*_disputeID*/, uint256 /*_roundID*/) external override onlyByCore {
-        disputesWithoutJurors--;
     }
 
     function passPhase() external {
@@ -186,15 +151,54 @@ contract SortitionModule is ISortitionModule {
         emit NewPhase(phase);
     }
 
+    /**
+     *  @dev Create a sortition sum tree at the specified key.
+     *  @param _key The key of the new tree.
+     *  @param _extraData Extra data that contains the number of children each node in the tree should have.
+     */
+    function createTree(bytes32 _key, bytes memory _extraData) external override onlyByCore {
+        SortitionSumTree storage tree = sortitionSumTrees[_key];
+        uint256 K = extraDataToTreeK(_extraData);
+        require(tree.K == 0, "Tree already exists.");
+        require(K > 1, "K must be greater than one.");
+        tree.K = K;
+        tree.nodes.push(0);
+    }
+
+    /** @dev Executes the next delayed stakes.
+     *  @param _iterations The number of delayed stakes to execute.
+     */
+    function executeDelayedStakes(uint256 _iterations) external {
+        require(phase == Phase.staking, "Should be in Staking phase.");
+
+        uint256 actualIterations = (delayedStakeReadIndex + _iterations) - 1 > delayedStakeWriteIndex
+            ? (delayedStakeWriteIndex - delayedStakeReadIndex) + 1
+            : _iterations;
+        uint256 newDelayedStakeReadIndex = delayedStakeReadIndex + actualIterations;
+
+        for (uint256 i = delayedStakeReadIndex; i < newDelayedStakeReadIndex; i++) {
+            DelayedStake storage delayedStake = delayedStakes[i];
+            core.setStakeBySortitionModule(
+                delayedStake.account,
+                delayedStake.courtID,
+                delayedStake.stake,
+                delayedStake.penalty
+            );
+            delete delayedStakes[i];
+        }
+        delayedStakeReadIndex = newDelayedStakeReadIndex;
+    }
+
     function preStakeHook(
         address _account,
         uint96 _courtID,
         uint256 _stake,
         uint256 _penalty
-    ) external override onlyByCore returns (Result result) {
+    ) external override onlyByCore returns (preStakeHookResult) {
         (uint256 currentStake, , uint256 nbCourts) = core.getJurorBalance(_account, _courtID);
         if (currentStake == 0 && nbCourts >= MAX_STAKE_PATHS) {
-            result = Result.False;
+            // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
+            return preStakeHookResult.failed;
         } else {
             if (phase != Phase.staking) {
                 delayedStakes[++delayedStakeWriteIndex] = DelayedStake({
@@ -203,10 +207,18 @@ contract SortitionModule is ISortitionModule {
                     stake: _stake,
                     penalty: _penalty
                 });
-                result = Result.True;
+                return preStakeHookResult.delayed;
             }
         }
-        return result;
+        return preStakeHookResult.ok;
+    }
+
+    function createDisputeHook(uint256 _disputeID, uint256 _roundID) external override onlyByCore {
+        disputesWithoutJurors++;
+    }
+
+    function postDrawHook(uint256 /*_disputeID*/, uint256 /*_roundID*/) external override onlyByCore {
+        disputesWithoutJurors--;
     }
 
     /**
@@ -224,7 +236,7 @@ contract SortitionModule is ISortitionModule {
      *  `k` is the maximum number of children per node in the tree,
      *   and `n` is the maximum number of nodes ever appended.
      */
-    function set(uint96 _courtID, uint256 _value, address _account) external override onlyByCore {
+    function setStake(address _account, uint96 _courtID, uint256 _value) external override onlyByCore {
         bytes32 stakePathID = accountAndCourtIDToStakePathID(_account, _courtID);
         bool finished = false;
         uint96 currenCourtID = _courtID;
@@ -256,49 +268,6 @@ contract SortitionModule is ISortitionModule {
     }
 
     /* Public Views */
-
-    /**
-     *  @dev Query the leaves of a tree. Note that if `startIndex == 0`, the tree is empty and the root node will be returned.
-     *  @param _key The key of the tree to get the leaves from.
-     *  @param _cursor The pagination cursor.
-     *  @param _count The number of items to return.
-     *  @return startIndex The index at which leaves start.
-     *  @return values The values of the returned leaves.
-     *  @return hasMore Whether there are more for pagination.
-     *  `O(n)` where
-     *  `n` is the maximum number of nodes ever appended.
-     */
-    function queryLeafs(
-        bytes32 _key,
-        uint256 _cursor,
-        uint256 _count
-    ) external view returns (uint256 startIndex, uint256[] memory values, bool hasMore) {
-        SortitionSumTree storage tree = sortitionSumTrees[_key];
-
-        // Find the start index.
-        for (uint256 i = 0; i < tree.nodes.length; i++) {
-            if ((tree.K * i) + 1 >= tree.nodes.length) {
-                startIndex = i;
-                break;
-            }
-        }
-
-        // Get the values.
-        uint256 loopStartIndex = startIndex + _cursor;
-        values = new uint256[](
-            loopStartIndex + _count > tree.nodes.length ? tree.nodes.length - loopStartIndex : _count
-        );
-        uint256 valuesIndex = 0;
-        for (uint256 j = loopStartIndex; j < tree.nodes.length; j++) {
-            if (valuesIndex < _count) {
-                values[valuesIndex] = tree.nodes[j];
-                valuesIndex++;
-            } else {
-                hasMore = true;
-                break;
-            }
-        }
-    }
 
     /**
      *  @dev Draw an ID from a tree using a number. Note that this function reverts if the sum of all values in the tree is 0.
@@ -397,7 +366,7 @@ contract SortitionModule is ISortitionModule {
     }
 
     /**
-     *  @dev Set a value of a tree.
+     *  @dev Set a value in a tree.
      *  @param _key The key of the tree.
      *  @param _value The new value.
      *  @param _ID The ID of the value.

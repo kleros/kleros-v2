@@ -78,7 +78,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const sortitionModule = await deploy("SortitionModule", {
     from: deployer,
-    args: [KlerosCoreAddress, 1800, 1800, rng.address, RNG_LOOKAHEAD], // minStakingTime, maxFreezingTime
+    args: [deployer, KlerosCoreAddress, 1800, 1800, rng.address, RNG_LOOKAHEAD], // minStakingTime, maxFreezingTime
     log: true,
   });
 

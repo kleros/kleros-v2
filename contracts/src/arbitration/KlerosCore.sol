@@ -944,12 +944,10 @@ contract KlerosCore is IArbitrator {
             if (_stake < courts[_courtID].minStake || _stake < juror.lockedTokens[_courtID]) return false;
         }
 
-        ISortitionModule.Result result = sortitionModule.preStakeHook(_account, _courtID, _stake, _penalty);
-
-        // This condition will be skipped if the hook isn't triggered.
-        if (result == ISortitionModule.Result.False) {
+        ISortitionModule.preStakeHookResult result = sortitionModule.preStakeHook(_account, _courtID, _stake, _penalty);
+        if (result == ISortitionModule.preStakeHookResult.failed) {
             return false;
-        } else if (result == ISortitionModule.Result.True) {
+        } else if (result == ISortitionModule.preStakeHookResult.delayed) {
             return true;
         }
 
@@ -995,7 +993,7 @@ contract KlerosCore is IArbitrator {
         // Update juror's records.
         juror.stakedTokens[_courtID] = _stake;
 
-        sortitionModule.set(_courtID, _stake, _account);
+        sortitionModule.setStake(_account, _courtID, _stake);
         emit StakeSet(_account, _courtID, _stake);
         return true;
     }
