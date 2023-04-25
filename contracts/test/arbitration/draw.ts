@@ -9,6 +9,7 @@ import {
   DisputeKitClassic,
   RandomizerRNG,
   RandomizerMock,
+  SortitionModule,
 } from "../../typechain-types";
 import { expect } from "chai";
 
@@ -46,6 +47,7 @@ describe("Draw Benchmark", async () => {
   let core;
   let arbitrable;
   let homeGateway;
+  let sortitionModule;
   let rng;
   let randomizer;
 
@@ -67,6 +69,7 @@ describe("Draw Benchmark", async () => {
     arbitrable = (await ethers.getContract("ArbitrableExampleEthFee")) as ArbitrableExampleEthFee;
     rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
     randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
+    sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
   });
 
   it("Draw Benchmark", async () => {
@@ -77,7 +80,10 @@ describe("Draw Benchmark", async () => {
     for (let i = 0; i < 16; i++) {
       const wallet = ethers.Wallet.createRandom().connect(ethers.provider);
 
-      await bridger.sendTransaction({ to: wallet.address, value: ethers.utils.parseEther("10") });
+      await bridger.sendTransaction({
+        to: wallet.address,
+        value: ethers.utils.parseEther("10"),
+      });
       expect(await wallet.getBalance()).to.equal(ethers.utils.parseEther("10"));
 
       await pnk.transfer(wallet.address, ONE_THOUSAND_PNK.mul(10));
@@ -88,7 +94,9 @@ describe("Draw Benchmark", async () => {
     }
 
     // Create a dispute
-    const tx = await arbitrable.createDispute(2, "0x00", 0, { value: arbitrationCost });
+    const tx = await arbitrable.createDispute(2, "0x00", 0, {
+      value: arbitrationCost,
+    });
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
     const [disputeId] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`);
     const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
@@ -102,18 +110,15 @@ describe("Draw Benchmark", async () => {
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
-    await core.passPhase(); // Staking -> Freezing
+    await sortitionModule.passPhase(); // Staking -> Generating
 
-    const lookahead = await disputeKit.rngLookahead();
+    const lookahead = await sortitionModule.rngLookahead();
     for (let index = 0; index < lookahead; index++) {
       await network.provider.send("evm_mine");
     }
-    await disputeKit.passPhase(); // Resolving -> Generating
-    for (let index = 0; index < lookahead; index++) {
-      await network.provider.send("evm_mine");
-    }
+
     await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
-    await disputeKit.passPhase(); // Generating -> Drawing
+    await sortitionModule.passPhase(); // Generating -> Drawing
 
     await expect(core.draw(0, 1000, { gasLimit: 1000000 }))
       .to.emit(core, "Draw")

@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
+import getContractAddress from "../deploy-helpers/getContractAddress";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -19,24 +20,16 @@ const randomizerByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_GOERLI, "0x923096Da90a3b60eb7E12723fA2E1547BA9236Bc"],
 ]);
 
-const deployArbitration: DeployFunction = async (
-  hre: HardhatRuntimeEnvironment
-) => {
-  const { deployments, getNamedAccounts, getChainId } = hre;
+const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+  const { ethers, deployments, getNamedAccounts, getChainId } = hre;
   const { deploy, execute } = deployments;
   const { AddressZero } = hre.ethers.constants;
   const RNG_LOOKAHEAD = 20;
 
   // fallback to hardhat node signers on local network
-  const deployer =
-    (await getNamedAccounts()).deployer ??
-    (await hre.ethers.getSigners())[0].address;
+  const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log(
-    "Deploying to %s with deployer %s",
-    HomeChains[chainId],
-    deployer
-  );
+  console.log("Deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   if (chainId === HomeChains.HARDHAT) {
     pnkByChain.set(
@@ -66,8 +59,7 @@ const deployArbitration: DeployFunction = async (
     log: true,
   });
 
-  const randomizer =
-    randomizerByChain.get(Number(await getChainId())) ?? AddressZero;
+  const randomizer = randomizerByChain.get(Number(await getChainId())) ?? AddressZero;
   const rng = await deploy("RandomizerRNG", {
     from: deployer,
     args: [randomizer, deployer],
@@ -76,12 +68,17 @@ const deployArbitration: DeployFunction = async (
 
   const disputeKit = await deploy("DisputeKitClassic", {
     from: deployer,
-    args: [deployer, AddressZero, rng.address, RNG_LOOKAHEAD],
+    args: [deployer, AddressZero],
     log: true,
   });
 
-  const sortitionSumTreeLibrary = await deploy("SortitionSumTreeFactoryV2", {
+  const nonce = await ethers.provider.getTransactionCount(deployer);
+  const KlerosCoreAddress = getContractAddress(deployer, nonce + 1);
+  console.log("calculated future KlerosCore address for nonce %d: %s", nonce, KlerosCoreAddress);
+
+  const sortitionModule = await deploy("SortitionModule", {
     from: deployer,
+    args: [KlerosCoreAddress, 1800, 1800, rng.address, RNG_LOOKAHEAD], // minStakingTime, maxFreezingTime
     log: true,
   });
 
@@ -89,37 +86,26 @@ const deployArbitration: DeployFunction = async (
   const minStake = BigNumber.from(10).pow(20).mul(2);
   const alpha = 10000;
   const feeForJuror = BigNumber.from(10).pow(17);
-  const sortitionSumTreeK = 3;
   const klerosCore = await deploy("KlerosCore", {
     from: deployer,
-    libraries: {
-      SortitionSumTreeFactoryV2: sortitionSumTreeLibrary.address,
-    },
     args: [
       deployer,
       pnk,
       AddressZero,
       disputeKit.address,
-      [1800, 1800], // minStakingTime, maxFreezingTime
       false,
       [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      sortitionSumTreeK,
+      0xfa, // Extra data for sortition module will return the default value of K
+      sortitionModule.address,
     ],
     log: true,
   });
 
   // execute DisputeKitClassic.changeCore() only if necessary
-  const currentCore = await hre.ethers
-    .getContractAt("DisputeKitClassic", disputeKit.address)
-    .then((dk) => dk.core());
+  const currentCore = await hre.ethers.getContractAt("DisputeKitClassic", disputeKit.address).then((dk) => dk.core());
   if (currentCore !== klerosCore.address) {
-    await execute(
-      "DisputeKitClassic",
-      { from: deployer, log: true },
-      "changeCore",
-      klerosCore.address
-    );
+    await execute("DisputeKitClassic", { from: deployer, log: true }, "changeCore", klerosCore.address);
   }
 
   await deploy("DisputeResolver", {
