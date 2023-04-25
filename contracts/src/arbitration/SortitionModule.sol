@@ -8,7 +8,7 @@
  *  @custom:deployments: []
  */
 
-pragma solidity ^0.8;
+pragma solidity 0.8.18;
 
 import "../arbitration/KlerosCore.sol";
 import "./ISortitionModule.sol";

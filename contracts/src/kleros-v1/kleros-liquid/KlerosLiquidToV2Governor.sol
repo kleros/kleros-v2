@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8;
+pragma solidity 0.8.18;
 
 import "../interfaces/IKlerosLiquid.sol";
 import "../interfaces/ITokenController.sol";
@@ -105,8 +105,7 @@ contract KlerosLiquidToV2Governor is IArbitrable, ITokenController {
 
         IKlerosLiquid.Dispute memory klerosLiquidDispute = klerosLiquid.disputes(dispute.klerosLiquidDisputeID);
 
-        bytes4 functionSelector = IArbitrable.rule.selector;
-        bytes memory data = abi.encodeWithSelector(functionSelector, dispute.klerosLiquidDisputeID, _ruling);
+        bytes memory data = abi.encodeCall(IArbitrable.rule, (dispute.klerosLiquidDisputeID, _ruling));
         klerosLiquid.executeGovernorProposal(klerosLiquidDispute.arbitrated, 0, data);
     }
 

@@ -6,7 +6,7 @@
 /// @custom:bounties: []
 /// @custom:deployments: []
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.18;
 
 import "../arbitration/IArbitrator.sol";
 import "@kleros/vea-contracts/interfaces/IFastBridgeSender.sol";
@@ -141,9 +141,10 @@ contract HomeGateway is IHomeGateway {
         bytes32 disputeHash = disputeIDtoHash[_disputeID];
         RelayedData memory relayedData = disputeHashtoRelayedData[disputeHash];
 
-        bytes4 methodSelector = IForeignGateway.relayRule.selector;
-        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.relayer);
-
+        bytes memory data = abi.encodeCall(
+            IForeignGateway.relayRule,
+            (address(this), disputeHash, _ruling, relayedData.relayer)
+        );
         fastBridgeSender.sendFast(receiverGateway, data);
     }
 

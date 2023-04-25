@@ -5,7 +5,7 @@
 /// @custom:auditors: []
 /// @custom:deployments: []
 
-pragma solidity ^0.8;
+pragma solidity 0.8.18;
 
 import "./IArbitrable.sol";
 import "../evidence/IMetaEvidence.sol";

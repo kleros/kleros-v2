@@ -6,7 +6,7 @@
 /// @custom:bounties: []
 /// @custom:deployments: []
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.18;
 
 import "../../arbitration/IArbitrator.sol";
 import "@kleros/vea-contracts/single-message/interfaces/IFastBridgeSender.sol";
@@ -99,9 +99,10 @@ contract HomeGatewayToEthereum is IHomeGatewaySingleMessage {
         bytes32 disputeHash = disputeIDtoHash[_disputeID];
         RelayedData memory relayedData = disputeHashtoRelayedData[disputeHash];
 
-        bytes4 methodSelector = IForeignGatewaySingleMessage.relayRule.selector;
-        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.relayer);
-
+        bytes memory data = abi.encodeCall(
+            IForeignGatewaySingleMessage.relayRule,
+            (disputeHash, _ruling, relayedData.relayer)
+        );
         fastbridge.sendFast(foreignGateway, data);
     }
 

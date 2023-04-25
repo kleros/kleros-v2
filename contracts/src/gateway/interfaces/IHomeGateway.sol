@@ -6,7 +6,7 @@
 /// @custom:bounties: []
 /// @custom:deployments: []
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.18;
 
 import "../../arbitration/IArbitrable.sol";
 import "../../evidence/IMetaEvidence.sol";

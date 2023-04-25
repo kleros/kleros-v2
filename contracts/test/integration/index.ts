@@ -161,17 +161,17 @@ describe("Integration tests", async () => {
     expect((await core.disputes(0)).period).to.equal(Period.execution);
     expect(await core.execute(0, 0, 1000)).to.emit(core, "TokenAndETHShift");
 
-    const tx4 = await core.executeRuling(0);
+    const tx4 = await core.executeRuling(0, { gasLimit: 10000000, gasPrice: 5000000000 });
     console.log("Ruling executed on KlerosCore");
     expect(tx4).to.emit(core, "Ruling").withArgs(homeGateway.address, 0, 0);
     expect(tx4).to.emit(arbitrable, "Ruling").withArgs(foreignGateway.address, 1, 0); // The ForeignGateway starts counting disputeID from 1.
   });
 
-  async function mineBlocks(n: number) {
+  const mineBlocks = async (n: number) => {
     for (let index = 0; index < n; index++) {
       await network.provider.send("evm_mine");
     }
-  }
+  };
 });
 
 const logJurorBalance = async (result) => {
