@@ -1,6 +1,7 @@
 import { setTimeout } from "timers/promises";
 import {
   KlerosCore,
+  SortitionModule,
   DisputeKitClassic,
   PNK,
   RandomizerRNG,
@@ -19,6 +20,7 @@ export const options = { gasLimit: 10000000, gasPrice: 5000000000 };
 
 export const getContracts = async (hre) => {
   const core = (await hre.ethers.getContract("KlerosCore")) as KlerosCore;
+  const sortition = (await hre.ethers.getContract("SortitionModule")) as SortitionModule;
   const disputeKitClassic = (await hre.ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
   const pnk = (await hre.ethers.getContract("PNK")) as PNK;
   const randomizerRng = (await hre.ethers.getContract("RandomizerRNG")) as RandomizerRNG;
@@ -27,6 +29,7 @@ export const getContracts = async (hre) => {
 
   return {
     core,
+    sortition,
     disputeKitClassic,
     pnk,
     randomizerRng,
