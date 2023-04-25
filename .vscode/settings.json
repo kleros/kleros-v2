@@ -1,9 +1,11 @@
 {
   "solidity.formatter": "prettier",
-  "solidity-va.test.defaultUnittestTemplate": "hardhat",
   "[solidity]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "cSpell.words": ["arbitrum", "IERC", "kleros", "typechain"],
-  "eslint.packageManager": "yarn"
+  "solidity-va.test.defaultUnittestTemplate": "hardhat",
+  "solidity-language-server.trace.server.verbosity": "message",
+  "eslint.packageManager": "yarn",
+  "prettier.useEditorConfig": true,
+  "prettier.configPath": "prettier-config/.prettierrc.js"
 }

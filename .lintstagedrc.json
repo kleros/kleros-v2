@@ -1,8 +1,5 @@
 {
   "*.{js,jsx,ts,tsx}": "prettier --write",
   "*.{md,html,json}": "prettier --write",
-  "*.sol": [
-    "prettier --write",
-    "solhint --fix"
-  ]
+  "*.sol": "prettier --write"
 }
