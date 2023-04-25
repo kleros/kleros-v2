@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @authors: [@epiqueras, @unknownunknown1]
+ *  @authors: [@epiqueras, @unknownunknown1, @shotaronowhere]
  *  @reviewers: []
  *  @auditors: []
  *  @bounties: []
@@ -41,25 +41,20 @@ contract SortitionModule is ISortitionModule {
     uint256 public constant MAX_STAKE_PATHS = 4; // The maximum number of stake paths a juror can have.
     uint256 public constant DEFAULT_K = 6; // Default number of children per node.
 
-    address public governor;
-    KlerosCore public core;
+    address public governor; // The governor of the contract.
+    KlerosCore public core; // The core arbitrator contract.
     Phase public phase; // The current phase.
-
     uint256 public minStakingTime; // The time after which the phase can be switched to Drawing if there are open disputes.
     uint256 public maxDrawingTime; // The time after which the phase can be switched back to Staking.
     uint256 public lastPhaseChange; // The last time the phase was changed.
     uint256 public randomNumberRequestBlock; // Number of the block when RNG request was made.
-
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
-
     RNG public rng; // The random number generator.
     uint256 public randomNumber; // Random number returned by RNG.
     uint256 public rngLookahead; // Minimal block distance between requesting and obtaining a random number.
-
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
     uint256 public delayedStakeReadIndex = 1; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
-
-    mapping(bytes32 => SortitionSumTree) sortitionSumTrees;
+    mapping(bytes32 => SortitionSumTree) sortitionSumTrees; // The mapping trees by keys.
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Drawing phase, to update them when the phase is switched to Staking.
 
     modifier onlyByGovernor() {
