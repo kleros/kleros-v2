@@ -141,10 +141,10 @@ contract HomeGateway is IHomeGateway {
         bytes32 disputeHash = disputeIDtoHash[_disputeID];
         RelayedData memory relayedData = disputeHashtoRelayedData[disputeHash];
 
-        bytes memory data = abi.encodeCall(
-            IForeignGateway.relayRule,
-            (address(this), disputeHash, _ruling, relayedData.relayer)
-        );
+        // The first parameter of relayRule() `_messageSender` is missing from the encoding below
+        // because Vea takes care of inserting it for security reasons.
+        bytes4 methodSelector = IForeignGateway.relayRule.selector;
+        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.relayer);
         fastBridgeSender.sendFast(receiverGateway, data);
     }
 
