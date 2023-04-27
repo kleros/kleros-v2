@@ -8,14 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@c8454efe5d0bdefd25384362fe217428ca277d57
+        uses: step-security/harden-runner@5d5d34225d930d298d52ae60999ca9b617dd2e3a
         with:
           egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
 
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
-      - uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435
-      - uses: aws-actions/setup-sam@2993f015a7af30461b7641a256042fe0c6fc0c2e
-      - uses: aws-actions/configure-aws-credentials@67fbcbb121271f7775d2e7715933280b06314838
+      - uses: actions/checkout@f095bcc56b7c2baf48f3ac70d6d6782f4f553222
+      - uses: actions/setup-python@db9987b4c1f10f0404fa60ee629f675fafbd6763
+      - uses: aws-actions/setup-sam@b42eb7a54dac4039080975e32860b1b30935c9af
+      - uses: aws-actions/configure-aws-credentials@82ea2d2853906c3fe78152101e590fa6caeb5f82
         with:
           aws-access-key-id: ${{ secrets.STAGING_AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.STAGING_AWS_SECRET_KEY }}

@@ -14,14 +14,14 @@
     "stop-local-indexer": "docker-compose -f ../services/graph-node/docker-compose.yml down && rm -rf ../services/graph-node/data"
   },
   "volta": {
-    "node": "16.18.1",
-    "yarn": "3.3.1"
+    "node": "18.16.0",
+    "yarn": "3.5.0"
   },
   "dependencies": {
     "@graphprotocol/graph-ts": "^0.29.3"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.46.1",
+    "@graphprotocol/graph-cli": "^0.48.0",
     "gluegun": "^5.1.2"
   }
 }
