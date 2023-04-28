@@ -1,6 +1,5 @@
 {
   "baseBranches": [
-    "master",
     "dev"
   ],
   "labels": [
