@@ -6,7 +6,7 @@
     "minStake": "520000000000000000000",
     "alpha": "5000",
     "feeForJuror": "15000000000000000000",
-    "jurorsForCourtJump": "15000000000000000000",
+    "jurorsForCourtJump": "511",
     "timesPerPeriod": [
       280800,
       583200,
@@ -21,7 +21,7 @@
     "minStake": "520000000000000000000",
     "alpha": "3100",
     "feeForJuror": "6900000000000000000",
-    "jurorsForCourtJump": "6900000000000000000",
+    "jurorsForCourtJump": "30",
     "timesPerPeriod": [
       140400,
       291600,
@@ -36,7 +36,7 @@
     "minStake": "1200000000000000000000",
     "alpha": "5000",
     "feeForJuror": "22000000000000000000",
-    "jurorsForCourtJump": "22000000000000000000",
+    "jurorsForCourtJump": "63",
     "timesPerPeriod": [
       280800,
       437400,
@@ -51,7 +51,7 @@
     "minStake": "1200000000000000000000",
     "alpha": "1800",
     "feeForJuror": "9400000000000000000",
-    "jurorsForCourtJump": "9400000000000000000",
+    "jurorsForCourtJump": "63",
     "timesPerPeriod": [
       280800,
       437400,
@@ -66,7 +66,7 @@
     "minStake": "1200000000000000000000",
     "alpha": "1800",
     "feeForJuror": "9400000000000000000",
-    "jurorsForCourtJump": "9400000000000000000",
+    "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
       437400,
@@ -81,7 +81,7 @@
     "minStake": "1200000000000000000000",
     "alpha": "1800",
     "feeForJuror": "9400000000000000000",
-    "jurorsForCourtJump": "9400000000000000000",
+    "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
       437400,
@@ -96,7 +96,7 @@
     "minStake": "1200000000000000000000",
     "alpha": "2200",
     "feeForJuror": "12000000000000000000",
-    "jurorsForCourtJump": "12000000000000000000",
+    "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
       437400,
@@ -111,7 +111,7 @@
     "minStake": "1200000000000000000000",
     "alpha": "2200",
     "feeForJuror": "12000000000000000000",
-    "jurorsForCourtJump": "12000000000000000000",
+    "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
       437400,
@@ -126,7 +126,7 @@
     "minStake": "1200000000000000000000",
     "alpha": "2800",
     "feeForJuror": "15000000000000000000",
-    "jurorsForCourtJump": "15000000000000000000",
+    "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
       437400,
@@ -141,7 +141,7 @@
     "minStake": "1200000000000000000000",
     "alpha": "2800",
     "feeForJuror": "15000000000000000000",
-    "jurorsForCourtJump": "15000000000000000000",
+    "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
       437400,
@@ -156,7 +156,7 @@
     "minStake": "1200000000000000000000",
     "alpha": "2800",
     "feeForJuror": "15000000000000000000",
-    "jurorsForCourtJump": "15000000000000000000",
+    "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
       437400,
@@ -171,7 +171,7 @@
     "minStake": "1200000000000000000000",
     "alpha": "2800",
     "feeForJuror": "15000000000000000000",
-    "jurorsForCourtJump": "15000000000000000000",
+    "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
       437400,
@@ -186,7 +186,7 @@
     "minStake": "1400000000000000000000",
     "alpha": "5000",
     "feeForJuror": "30000000000000000000",
-    "jurorsForCourtJump": "30000000000000000000",
+    "jurorsForCourtJump": "63",
     "timesPerPeriod": [
       280800,
       437400,
@@ -201,7 +201,7 @@
     "minStake": "1400000000000000000000",
     "alpha": "1600",
     "feeForJuror": "30000000000000000000",
-    "jurorsForCourtJump": "30000000000000000000",
+    "jurorsForCourtJump": "63",
     "timesPerPeriod": [
       280800,
       437400,
@@ -216,7 +216,7 @@
     "minStake": "1400000000000000000000",
     "alpha": "1600",
     "feeForJuror": "30000000000000000000",
-    "jurorsForCourtJump": "30000000000000000000",
+    "jurorsForCourtJump": "63",
     "timesPerPeriod": [
       280800,
       437400,
