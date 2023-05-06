@@ -149,12 +149,17 @@ yarn hardhat node --tags Arbitration,VeaMock
 yarn test --network localhost
 ```
 
-#### 4. Verify the Source Code for Contracts
+#### 4. Verify the Source Code
 
 This must be done for each network separately.
 
 ```bash
+# explorer
 yarn etherscan-verify --network <arbitrumGoerli|arbitrum|chiado|gnosischain|goerli|mainnet>
+
+# sourcify
+yarn sourcify --network <arbitrumGoerli|arbitrum|chiado|gnosischain|goerli|mainnet>
+
 ```
 
 ## Ad-hoc procedures

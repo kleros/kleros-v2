@@ -26,6 +26,7 @@
     "simulate": "hardhat simulate:all",
     "simulate-local": "hardhat simulate:all --network localhost",
     "etherscan-verify": "hardhat etherscan-verify",
+    "sourcify": "hardhat sourcify --write-failing-metadata",
     "size": "hardhat size-contracts --no-compile",
     "watch": "hardhat watch",
     "docgen": "hardhat docgen",
