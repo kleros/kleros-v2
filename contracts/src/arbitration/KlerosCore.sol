@@ -58,6 +58,8 @@ contract KlerosCore is IArbitrator {
         uint256 repartitions; // A counter of reward repartitions made in this round.
         uint256 penalties; // The amount of tokens collected from penalties in this round.
         address[] drawnJurors; // Addresses of the jurors that were drawn in this round.
+        uint256 sumRewardPaid; // Total sum of arbitration fees paid to coherent jurors as a reward in this round.
+        uint256 sumTokenRewardPaid; // Total sum of tokens paid to coherent jurors as a reward in this round.
     }
 
     struct Juror {
@@ -718,7 +720,9 @@ contract KlerosCore is IArbitrator {
                 }
 
                 uint256 tokenReward = ((penaltiesInRoundCache / coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
+                round.sumTokenRewardPaid += tokenReward;
                 uint256 ethReward = ((round.totalFeesForJurors / coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
+                round.sumRewardPaid += ethReward;
                 _safeTransfer(account, tokenReward);
                 payable(account).send(ethReward);
                 emit TokenAndETHShift(
@@ -729,6 +733,16 @@ contract KlerosCore is IArbitrator {
                     int256(tokenReward),
                     int256(ethReward)
                 );
+
+                if (i == numberOfVotesInRound * 2 - 1) {
+                    // Due to partial coherence of the jurors there might still be a leftover reward. Send it to governor.
+                    if (round.totalFeesForJurors > round.sumRewardPaid) {
+                        payable(governor).send(round.totalFeesForJurors - round.sumRewardPaid);
+                    }
+                    if (penaltiesInRoundCache > round.sumTokenRewardPaid) {
+                        _safeTransfer(governor, penaltiesInRoundCache - round.sumTokenRewardPaid);
+                    }
+                }
             }
         }
 
@@ -824,7 +838,9 @@ contract KlerosCore is IArbitrator {
             uint256 repartitions,
             uint256 penalties,
             address[] memory drawnJurors,
-            uint256 disputeKitID
+            uint256 disputeKitID,
+            uint256 sumRewardPaid,
+            uint256 sumTokenRewardPaid
         )
     {
         Round storage round = disputes[_disputeID].rounds[_round];
@@ -834,7 +850,9 @@ contract KlerosCore is IArbitrator {
             round.repartitions,
             round.penalties,
             round.drawnJurors,
-            round.disputeKitID
+            round.disputeKitID,
+            round.sumRewardPaid,
+            round.sumTokenRewardPaid
         );
     }
 

@@ -558,7 +558,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     /// @return Whether the address can be drawn or not.
     function _postDrawCheck(uint256 _coreDisputeID, address _juror) internal view override returns (bool) {
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        (uint256 lockedAmountPerJuror, , , , , ) = core.getRoundInfo(
+        (uint256 lockedAmountPerJuror, , , , , , , ) = core.getRoundInfo(
             _coreDisputeID,
             core.getNumberOfRounds(_coreDisputeID) - 1
         );
