@@ -249,7 +249,7 @@ contract SortitionModule is ISortitionModule {
             if (currenCourtID == core.GENERAL_COURT()) {
                 finished = true;
             } else {
-                (currenCourtID, , , , , ) = core.courts(currenCourtID);
+                (currenCourtID, , , , , , ) = core.courts(currenCourtID);
             }
         }
     }
