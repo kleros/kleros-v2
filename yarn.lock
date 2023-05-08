@@ -3295,6 +3295,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@graphql-typed-document-node/core@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "@graphql-typed-document-node/core@npm:3.2.0"
+  peerDependencies:
+    graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+  checksum: fa44443accd28c8cf4cb96aaaf39d144a22e8b091b13366843f4e97d19c7bfeaf609ce3c7603a4aeffe385081eaf8ea245d078633a7324c11c5ec4b2011bb76d
+  languageName: node
+  linkType: hard
+
 "@humanwhocodes/config-array@npm:^0.11.8":
   version: 0.11.8
   resolution: "@humanwhocodes/config-array@npm:0.11.8"
@@ -3836,7 +3845,7 @@ __metadata:
     eslint-plugin-react-hooks: ^4.6.0
     ethers: ^5.7.2
     graphql: ^16.6.0
-    graphql-request: ~5.1.0
+    graphql-request: ~6.0.0
     lru-cache: ^7.18.3
     moment: ^2.29.4
     parcel: ~2.8.3
@@ -14546,7 +14555,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql-request@npm:^5.0.0, graphql-request@npm:~5.1.0":
+"graphql-request@npm:^5.0.0":
   version: 5.1.0
   resolution: "graphql-request@npm:5.1.0"
   dependencies:
@@ -14557,6 +14566,18 @@ __metadata:
   peerDependencies:
     graphql: 14 - 16
   checksum: 8b65d5c1b0cad8996a843b52305b2712ffbf842c700487d4cee1ed719f22baacaacfddafb65572bcddd67d57fd1d2d389dee2430ffba4b34c3ab542d079446c7
+  languageName: node
+  linkType: hard
+
+"graphql-request@npm:~6.0.0":
+  version: 6.0.0
+  resolution: "graphql-request@npm:6.0.0"
+  dependencies:
+    "@graphql-typed-document-node/core": ^3.2.0
+    cross-fetch: ^3.1.5
+  peerDependencies:
+    graphql: 14 - 16
+  checksum: e3acc6267c3d25d6dea7144823b3552c3533489269272e651e2a16c45575ccb357bb1dd3c78c1b6c379d4080377bc5694f589bd681d822c9647f6b1736239428
   languageName: node
   linkType: hard
 
