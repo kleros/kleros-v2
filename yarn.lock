@@ -3741,7 +3741,7 @@ __metadata:
     hardhat-deploy-tenderly: ^0.2.0
     hardhat-docgen: ^1.3.0
     hardhat-gas-reporter: ^1.0.9
-    hardhat-tracer: ^1.3.0
+    hardhat-tracer: ^2.2.2
     hardhat-watcher: ^2.5.0
     node-fetch: ^3.3.1
     shelljs: ^0.8.5
@@ -14758,16 +14758,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat-tracer@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "hardhat-tracer@npm:1.3.0"
+"hardhat-tracer@npm:^2.2.2":
+  version: 2.2.2
+  resolution: "hardhat-tracer@npm:2.2.2"
   dependencies:
+    chalk: ^4.1.2
     ethers: ^5.6.1
   peerDependencies:
-    chalk: 4.x
-    ethers: 5.x
+    chai: 4.x
     hardhat: 2.x
-  checksum: e18bcec1dd7b14347bdfc0394ff587168e22cd2f610868a70869cb5adf2d9b17e3f4783067b091c0c72cf419ff87eab8b9a01fdc20cce724685429d82d2fec19
+  checksum: c486e726275cef037922d25ee421bd473104a5adb08dcd1bda70109152bf9a1ae1f9ba34f26617210b1bd22515d5b6a110186682138fd38a579e5ac79207fd63
   languageName: node
   linkType: hard
 
