@@ -20,7 +20,7 @@
     "check": "hardhat check",
     "test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test",
     "start": "hardhat node",
-    "start-local": "hardhat node --tags Arbitration,HomeArbitrable",
+    "start-local": "hardhat node --tags Arbitration,HomeArbitrable --hostname 0.0.0.0",
     "deploy": "hardhat deploy",
     "deploy-local": "hardhat deploy --tags Arbitration,HomeArbitrable --network localhost",
     "simulate": "hardhat simulate:all",
