@@ -74,6 +74,7 @@ contract KlerosCore is IArbitrator {
         uint256[] children; // List of child dispute kits.
         IDisputeKit disputeKit; // The dispute kit implementation.
         uint256 depthLevel; // How far this DK is from the root. 0 for root DK.
+        bool disabled; // True if the dispute kit is disabled and can't be used. This parameter is added preemptively to avoid storage changes in the future.
     }
 
     // ************************************* //
@@ -148,6 +149,12 @@ contract KlerosCore is IArbitrator {
         int256 _tokenAmount,
         int256 _ethAmount
     );
+    event LeftoverRewardSent(
+        uint256 indexed _disputeID,
+        uint256 indexed _roundID,
+        uint256 _tokenAmount,
+        uint256 _ethAmount
+    );
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -193,7 +200,8 @@ contract KlerosCore is IArbitrator {
                 parent: NULL_DISPUTE_KIT,
                 children: new uint256[](0),
                 disputeKit: _disputeKit,
-                depthLevel: 0
+                depthLevel: 0,
+                disabled: false
             })
         );
         emit DisputeKitCreated(DISPUTE_KIT_CLASSIC, _disputeKit, NULL_DISPUTE_KIT);
@@ -290,7 +298,8 @@ contract KlerosCore is IArbitrator {
                 parent: _parent,
                 children: new uint256[](0),
                 disputeKit: _disputeKitAddress,
-                depthLevel: depthLevel
+                depthLevel: depthLevel,
+                disabled: false
             })
         );
 
@@ -695,6 +704,7 @@ contract KlerosCore is IArbitrator {
                         // No one was coherent. Send the rewards to governor.
                         payable(governor).send(round.totalFeesForJurors);
                         _safeTransfer(governor, penaltiesInRoundCache);
+                        emit LeftoverRewardSent(_disputeID, _round, penaltiesInRoundCache, round.totalFeesForJurors);
                     }
                 }
             } else {
@@ -736,11 +746,18 @@ contract KlerosCore is IArbitrator {
 
                 if (i == numberOfVotesInRound * 2 - 1) {
                     // Due to partial coherence of the jurors there might still be a leftover reward. Send it to governor.
+                    uint256 leftoverReward;
+                    uint256 leftoverTokenReward;
                     if (round.totalFeesForJurors > round.sumRewardPaid) {
-                        payable(governor).send(round.totalFeesForJurors - round.sumRewardPaid);
+                        leftoverReward = round.totalFeesForJurors - round.sumRewardPaid;
+                        payable(governor).send(leftoverReward);
                     }
                     if (penaltiesInRoundCache > round.sumTokenRewardPaid) {
-                        _safeTransfer(governor, penaltiesInRoundCache - round.sumTokenRewardPaid);
+                        leftoverTokenReward = penaltiesInRoundCache - round.sumTokenRewardPaid;
+                        _safeTransfer(governor, leftoverTokenReward);
+                    }
+                    if (leftoverReward != 0 || leftoverTokenReward != 0) {
+                        emit LeftoverRewardSent(_disputeID, _round, leftoverTokenReward, leftoverReward);
                     }
                 }
             }
