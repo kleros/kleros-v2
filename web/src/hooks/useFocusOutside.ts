@@ -1,12 +1,9 @@
 import React, { useEffect } from "react";
 
-export function useFocusOutside(
-  ref: React.RefObject<HTMLDivElement>,
-  callback: () => void
-) {
+export function useFocusOutside(ref: React.RefObject<HTMLDivElement>, callback: () => void) {
   useEffect(() => {
-    function handleEvent(event: any) {
-      if (ref.current && !ref.current.contains(event.target)) {
+    function handleEvent(event: FocusEvent | MouseEvent) {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
         callback();
       }
     }
