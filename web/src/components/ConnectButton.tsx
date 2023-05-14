@@ -7,15 +7,24 @@ import { useConnect } from "hooks/useConnect";
 import { SUPPORTED_CHAINS } from "consts/chains";
 
 const AccountDisplay: React.FC = () => {
-  const { account, chainId } = useWeb3();
-  const chainName = chainId ? SUPPORTED_CHAINS[chainId].chainName : undefined;
-  const shortAddress = account ? shortenAddress(account) : undefined;
   return (
     <StyledContainer>
-      <small>{chainName}</small>
-      <label>{shortAddress}</label>
+      <ChainDisplay />
+      <AddressDisplay />
     </StyledContainer>
   );
+};
+
+export const ChainDisplay: React.FC = () => {
+  const { chainId } = useWeb3();
+  const chainName = chainId ? SUPPORTED_CHAINS[chainId].chainName : undefined;
+  return <small>{chainName}</small>;
+};
+
+export const AddressDisplay: React.FC = () => {
+  const { account } = useWeb3();
+  const shortAddress = account ? shortenAddress(account) : undefined;
+  return <label>{shortAddress}</label>;
 };
 
 const StyledContainer = styled.div`
@@ -42,11 +51,7 @@ const StyledContainer = styled.div`
 const ConnectButton: React.FC = () => {
   const { active } = useWeb3();
   const { activate, connecting } = useConnect();
-  return active ? (
-    <AccountDisplay />
-  ) : (
-    <Button disabled={connecting} small text={"Connect"} onClick={activate} />
-  );
+  return active ? <AccountDisplay /> : <Button disabled={connecting} small text={"Connect"} onClick={activate} />;
 };
 
 export default ConnectButton;
