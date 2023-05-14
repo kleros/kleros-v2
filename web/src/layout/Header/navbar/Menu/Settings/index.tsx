@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useRef } from "react";
+import React, { Dispatch, SetStateAction, useRef, useState } from "react";
 import { Tabs } from "@kleros/ui-components-library";
 import styled from "styled-components";
 import { useFocusOutside } from "hooks/useFocusOutside";
@@ -16,32 +16,26 @@ const tabsItems = [
   },
 ];
 
-const TabsContainer = styled(Tabs)`
-  padding-left: 32px;
-  padding-right: 32px;
-`;
-
 interface ISettings {
   setIsSettingsOpen: Dispatch<SetStateAction<boolean>>;
-  currentSettingsTab: number;
-  setCurrentSettingsTab: Dispatch<SetStateAction<number>>;
 }
 
-const Settings: React.FC<ISettings> = ({ setIsSettingsOpen, currentSettingsTab, setCurrentSettingsTab }) => {
+const Settings: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
+  const [currentTab, setCurrentTab] = useState<number>(0);
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => setIsSettingsOpen(false));
 
   return (
     <Container ref={containerRef}>
       <StyledSettingsText>Settings</StyledSettingsText>
-      <TabsContainer
-        currentValue={currentSettingsTab}
+      <StyledTabs
+        currentValue={currentTab}
         items={tabsItems}
         callback={(n: number) => {
-          setCurrentSettingsTab(n);
+          setCurrentTab(n);
         }}
       />
-      {currentSettingsTab === 0 ? <General /> : <Notifications />}
+      {currentTab === 0 ? <General /> : <Notifications />}
     </Container>
   );
 };
@@ -62,6 +56,11 @@ const StyledSettingsText = styled.div`
   font-size: 24px;
   color: ${({ theme }) => theme.primaryText};
   margin-top: 24px;
+`;
+
+const StyledTabs = styled(Tabs)`
+  padding-left: 32px;
+  padding-right: 32px;
 `;
 
 export default Settings;

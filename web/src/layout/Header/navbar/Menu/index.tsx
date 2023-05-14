@@ -21,25 +21,14 @@ const ButtonContainer = styled.div`
 const Menu: React.FC = () => {
   const [theme, toggleTheme] = useToggleTheme();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [currentSettingsTab, setCurrentSettingsTab] = useState<number>(0);
 
   const isLightTheme = theme === "light";
   const buttons = [
-    {
-      text: "Notifications",
-      Icon: NotificationsIcon,
-      onClick: () => {
-        setIsSettingsOpen(true);
-        setCurrentSettingsTab(1); // 1 is the index for the Notifications tab
-      },
-    },
+    { text: "Notifications", Icon: NotificationsIcon },
     {
       text: "Settings",
       Icon: SettingsIcon,
-      onClick: () => {
-        setIsSettingsOpen(true);
-        setCurrentSettingsTab(0); // 0 is the index for the General tab
-      },
+      onClick: () => setIsSettingsOpen(true),
     },
     { text: "Help", Icon: HelpIcon },
     {
@@ -54,13 +43,7 @@ const Menu: React.FC = () => {
       {buttons.map(({ text, Icon, onClick }) => (
         <ButtonContainer key={text}>
           <LightButton {...{ text, onClick, Icon }} />
-          {text === ("Settings" || "Notifications") && isSettingsOpen && (
-            <Settings
-              setIsSettingsOpen={setIsSettingsOpen}
-              currentSettingsTab={currentSettingsTab}
-              setCurrentSettingsTab={setCurrentSettingsTab}
-            />
-          )}
+          {text === "Settings" && isSettingsOpen && <Settings setIsSettingsOpen={setIsSettingsOpen} />}
         </ButtonContainer>
       ))}
     </Container>
