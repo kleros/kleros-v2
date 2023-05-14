@@ -1,8 +1,7 @@
-import { Checkbox } from "@kleros/ui-components-library";
+import { Checkbox, Button } from "@kleros/ui-components-library";
 import React, { useState } from "react";
 import styled from "styled-components";
 import FormEmail from "./FormEmail";
-import { Button } from "@kleros/ui-components-library";
 
 const FormContainer = styled.div`
   position: relative;
