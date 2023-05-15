@@ -8,7 +8,7 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const Notifications: React.FC = () => {
+const SendMeNotifications: React.FC = () => {
   return (
     <Container>
       <HeaderNotifs />
@@ -17,4 +17,4 @@ const Notifications: React.FC = () => {
   );
 };
 
-export default Notifications;
+export default SendMeNotifications;

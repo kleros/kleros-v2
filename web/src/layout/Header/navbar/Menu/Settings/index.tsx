@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, useRef, useState } from "react";
 import styled from "styled-components";
 import { Tabs } from "@kleros/ui-components-library";
 import General from "./General";
-import Notifications from "./Notifications";
+import SendMeNotifications from "./SendMeNotifications";
 import { useFocusOutside } from "hooks/useFocusOutside";
 
 const tabsItems = [
@@ -35,7 +35,7 @@ const Settings: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
           setCurrentTab(n);
         }}
       />
-      {currentTab === 0 ? <General /> : <Notifications />}
+      {currentTab === 0 ? <General /> : <SendMeNotifications />}
     </Container>
   );
 };
