@@ -1,5 +1,5 @@
-import useSWR from "swr";
 import { useWeb3 } from "hooks/useWeb3";
+import useSWR from "swr";
 
 export function useETHBalance() {
   const { library, account } = useWeb3();

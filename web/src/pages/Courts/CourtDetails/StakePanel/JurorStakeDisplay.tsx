@@ -1,18 +1,17 @@
-import React from "react";
-import styled from "styled-components";
-import { useParams } from "react-router-dom";
 import { BigNumber, utils } from "ethers";
+import React from "react";
+import { useParams } from "react-router-dom";
+import styled from "styled-components";
 
-import { useJurorBalance } from "queries/useJurorBalance";
 import { useWeb3 } from "hooks/useWeb3";
+import { useJurorBalance } from "queries/useJurorBalance";
 
 import Field from "components/Field";
-import PNKIcon from "svgs/icons/pnk.svg";
-import LockerIcon from "svgs/icons/locker.svg";
 import DiceIcon from "svgs/icons/dice.svg";
+import LockerIcon from "svgs/icons/locker.svg";
+import PNKIcon from "svgs/icons/pnk.svg";
 
-const format = (value: BigNumber | undefined) =>
-  value !== undefined ? utils.formatEther(value) : "0";
+const format = (value: BigNumber | undefined): string => (value !== undefined ? utils.formatEther(value) : "0");
 
 const JurorBalanceDisplay = () => {
   const { id } = useParams();

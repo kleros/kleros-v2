@@ -1,6 +1,6 @@
-import useSWR from "swr";
 import { gql } from "graphql-request";
 import { CourtTreeQuery } from "src/graphql/generated";
+import useSWR from "swr";
 export type { CourtTreeQuery };
 
 const courtTreeQuery = gql`
@@ -32,7 +32,7 @@ const courtTreeQuery = gql`
   }
 `;
 
-export const useCourtTree = () => {
+export const useCourtTree = (): { data: typeof result; error: any; isValidating: boolean } => {
   const { data, error, isValidating } = useSWR({
     query: courtTreeQuery,
   });

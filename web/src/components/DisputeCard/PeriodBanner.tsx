@@ -1,6 +1,6 @@
+import { Periods } from "consts/periods";
 import React from "react";
 import styled, { Theme } from "styled-components";
-import { Periods } from "consts/periods";
 
 export interface IPeriodBanner {
   id: number;
@@ -54,7 +54,7 @@ const Container = styled.div<Omit<IPeriodBanner, "id">>`
   }};
 `;
 
-const getPeriodLabel = (period: Periods) => {
+const getPeriodLabel = (period: Periods): string => {
   switch (period) {
     case Periods.appeal:
       return "Crowdfunding Appeal";

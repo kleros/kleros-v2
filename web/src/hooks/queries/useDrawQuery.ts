@@ -1,6 +1,6 @@
-import useSWR from "swr";
 import { gql } from "graphql-request";
 import { DrawQuery } from "src/graphql/generated";
+import useSWR from "swr";
 export type { DrawQuery };
 
 const drawQuery = gql`
@@ -11,7 +11,10 @@ const drawQuery = gql`
   }
 `;
 
-export const useDrawQuery = (address?: string | null, disputeID?: string) => {
+export const useDrawQuery = (
+  address?: string | null,
+  disputeID?: string
+): { data: typeof result; error: any; isValidating: boolean } => {
   const { data, error, isValidating } = useSWR({
     query: drawQuery,
     variables: { address, disputeID },

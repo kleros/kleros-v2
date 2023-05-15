@@ -1,6 +1,6 @@
-import useSWR from "swr";
 import { gql } from "graphql-request";
 import { VotingHistoryQuery } from "src/graphql/generated";
+import useSWR from "swr";
 export type { VotingHistoryQuery };
 
 const votingHistoryQuery = gql`
@@ -31,7 +31,7 @@ const votingHistoryQuery = gql`
   }
 `;
 
-export const useVotingHistory = (disputeID?: string) => {
+export const useVotingHistory = (disputeID?: string): { data: typeof result; error: any; isValidating: boolean } => {
   const { data, error, isValidating } = useSWR(() =>
     typeof disputeID !== "undefined"
       ? {

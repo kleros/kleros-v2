@@ -1,6 +1,6 @@
-import useSWR from "swr";
 import { gql } from "graphql-request";
 import { CourtDetailsQuery } from "src/graphql/generated";
+import useSWR from "swr";
 export type { CourtDetailsQuery };
 
 const courtDetailsQuery = gql`
@@ -18,7 +18,7 @@ const courtDetailsQuery = gql`
   }
 `;
 
-export const useCourtDetails = (id?: string) => {
+export const useCourtDetails = (id?: string): { data: typeof result; error: any; isValidating: boolean } => {
   const { data, error, isValidating } = useSWR(
     id
       ? {

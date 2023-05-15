@@ -1,16 +1,11 @@
-import useSWR from "swr";
 import { gql } from "graphql-request";
 import { CasesPageQuery } from "src/graphql/generated";
+import useSWR from "swr";
 export type { CasesPageQuery };
 
 const casesQuery = gql`
   query CasesPage($skip: Int) {
-    disputes(
-      first: 3
-      skip: $skip
-      orderBy: lastPeriodChange
-      orderDirection: desc
-    ) {
+    disputes(first: 3, skip: $skip, orderBy: lastPeriodChange, orderDirection: desc) {
       id
       arbitrated {
         id
@@ -30,7 +25,7 @@ const casesQuery = gql`
   }
 `;
 
-export const useCasesQuery = (skip: number) => {
+export const useCasesQuery = (skip: number): { data: typeof result; error: any; isValidating: boolean } => {
   const { data, error, isValidating } = useSWR({
     query: casesQuery,
     variables: { skip: skip },
