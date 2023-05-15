@@ -46,7 +46,7 @@
     "@typechain/hardhat": "^6.1.5",
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^16.18.23",
+    "@types/node": "^20.1.4",
     "chai": "^4.3.7",
     "dotenv": "^16.0.3",
     "ethereumjs-util": "^7.1.5",
