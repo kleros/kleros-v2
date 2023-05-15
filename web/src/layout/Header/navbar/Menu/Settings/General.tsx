@@ -1,8 +1,8 @@
 import React from "react";
-import ConnectButton, { AddressDisplay, ChainDisplay } from "components/ConnectButton";
 import styled from "styled-components";
-import { useWeb3 } from "hooks/useWeb3";
 import Identicon from "react-identicons";
+import ConnectButton, { AddressDisplay, ChainDisplay } from "components/ConnectButton";
+import { useWeb3 } from "hooks/useWeb3";
 
 const Container = styled.div`
   display: flex;

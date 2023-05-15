@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { useToggleTheme } from "hooks/useToggleThemeContext";
 import LightButton from "components/LightButton";
 import NotificationsIcon from "svgs/menu-icons/notifications.svg";
 import DarkModeIcon from "svgs/menu-icons/dark-mode.svg";
@@ -8,6 +7,7 @@ import LightModeIcon from "svgs/menu-icons/light-mode.svg";
 import HelpIcon from "svgs/menu-icons/help.svg";
 import SettingsIcon from "svgs/menu-icons/settings.svg";
 import Settings from "./Settings";
+import { useToggleTheme } from "hooks/useToggleThemeContext";
 
 const Container = styled.div``;
 

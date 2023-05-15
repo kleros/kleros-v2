@@ -1,9 +1,9 @@
 import React, { Dispatch, SetStateAction, useRef, useState } from "react";
-import { Tabs } from "@kleros/ui-components-library";
 import styled from "styled-components";
-import { useFocusOutside } from "hooks/useFocusOutside";
+import { Tabs } from "@kleros/ui-components-library";
 import General from "./General";
 import Notifications from "./Notifications";
+import { useFocusOutside } from "hooks/useFocusOutside";
 
 const tabsItems = [
   {
