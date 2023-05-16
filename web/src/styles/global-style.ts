@@ -89,6 +89,8 @@ export const GlobalStyle = createGlobalStyle`
   svg, img {
     display: inline-block;
     vertical-align: middle;
+  visibility: visible;
+
   }
 
   ul {

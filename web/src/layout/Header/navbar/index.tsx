@@ -1,11 +1,12 @@
-import React from "react";
+import ConnectButton from "components/ConnectButton";
+import LightButton from "components/LightButton";
+import React, { useState } from "react";
 import styled from "styled-components";
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
-import LightButton from "components/LightButton";
-import Explore from "./Explore";
-import ConnectButton from "components/ConnectButton";
-import Menu from "./Menu";
 import { useOpenContext } from "../index";
+import DappList from "./DappList";
+import Explore from "./Explore";
+import Menu from "./Menu";
 
 const Container = styled.div<{ isOpen: boolean }>`
   position: absolute;
@@ -27,15 +28,21 @@ const Container = styled.div<{ isOpen: boolean }>`
   padding: 24px;
 
   hr {
-    margin 24px 0;
+    margin: 24px 0;
   }
 `;
 
 const NavBar: React.FC = () => {
+  const [isSolutionsOpen, setIsSolutionsOpen] = useState(false);
   const { isOpen } = useOpenContext();
   return (
     <Container {...{ isOpen }}>
-      <LightButton text="Kleros Solutions" Icon={KlerosSolutionsIcon} />
+      <LightButton
+        text="Kleros Solutions"
+        onClick={() => setIsSolutionsOpen((prevState) => !prevState)}
+        Icon={KlerosSolutionsIcon}
+      />
+      {isSolutionsOpen && <DappList setIsSolutionOpen={setIsSolutionsOpen} />}
       <hr />
       <Explore />
       <hr />
