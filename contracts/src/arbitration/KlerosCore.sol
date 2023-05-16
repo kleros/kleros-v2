@@ -745,20 +745,7 @@ contract KlerosCore is IArbitrator {
                 );
 
                 if (i == numberOfVotesInRound * 2 - 1) {
-                    // Due to partial coherence of the jurors there might still be a leftover reward. Send it to governor.
-                    uint256 leftoverReward;
-                    uint256 leftoverTokenReward;
-                    if (round.totalFeesForJurors > round.sumRewardPaid) {
-                        leftoverReward = round.totalFeesForJurors - round.sumRewardPaid;
-                        payable(governor).send(leftoverReward);
-                    }
-                    if (penaltiesInRoundCache > round.sumTokenRewardPaid) {
-                        leftoverTokenReward = penaltiesInRoundCache - round.sumTokenRewardPaid;
-                        _safeTransfer(governor, leftoverTokenReward);
-                    }
-                    if (leftoverReward != 0 || leftoverTokenReward != 0) {
-                        emit LeftoverRewardSent(_disputeID, _round, leftoverTokenReward, leftoverReward);
-                    }
+                    _executeResidualRewards(_disputeID, _round, penaltiesInRoundCache); // distinct function to avoid a "stack too deep error"
                 }
             }
         }
@@ -910,6 +897,8 @@ contract KlerosCore is IArbitrator {
     // *   Public Views for Dispute Kits   * //
     // ************************************* //
 
+    /// @dev Gets the number of votes permitted for the specified dispute in the latest round.
+    /// @param _disputeID The ID of the dispute.
     function getNumberOfVotes(uint256 _disputeID) external view returns (uint256) {
         Dispute storage dispute = disputes[_disputeID];
         return dispute.rounds[dispute.rounds.length - 1].nbVotes;
@@ -935,10 +924,14 @@ contract KlerosCore is IArbitrator {
         return disputeKitNodes.length;
     }
 
+    /// @dev Gets the dispute kit for a specific `_disputeKitID`.
+    /// @param _disputeKitID The ID of the dispute kit.
     function getDisputeKit(uint256 _disputeKitID) external view returns (IDisputeKit) {
         return disputeKitNodes[_disputeKitID].disputeKit;
     }
 
+    /// @dev Gets the court identifiers where a specific `_juror` has staked.
+    /// @param _juror The address of the juror.
     function getJurorCourtIDs(address _juror) public view returns (uint96[] memory) {
         return jurors[_juror].courtIDs;
     }
@@ -947,9 +940,35 @@ contract KlerosCore is IArbitrator {
     // *            Internal               * //
     // ************************************* //
 
+    /// @dev Toggles the dispute kit support for a given court.
+    /// @param _courtID The ID of the court to toggle the support for.
+    /// @param _disputeKitID The ID of the dispute kit to toggle the support for.
+    /// @param _enable Whether to enable or disable the support.
     function _enableDisputeKit(uint96 _courtID, uint256 _disputeKitID, bool _enable) internal {
         courts[_courtID].supportedDisputeKits[_disputeKitID] = _enable;
         emit DisputeKitEnabled(_courtID, _disputeKitID, _enable);
+    }
+
+    /// @dev Sends the residual rewards to the governor. It may happen due to partial coherence of the jurors.
+    /// @param _disputeID The ID of the dispute.
+    /// @param _round The round to execute.
+    /// @param _penaltiesInRound The total penalties in the round.
+    function _executeResidualRewards(uint256 _disputeID, uint256 _round, uint256 _penaltiesInRound) internal {
+        Dispute storage dispute = disputes[_disputeID];
+        Round storage round = dispute.rounds[_round];
+        uint256 leftoverReward;
+        uint256 leftoverTokenReward;
+        if (round.totalFeesForJurors > round.sumRewardPaid) {
+            leftoverReward = round.totalFeesForJurors - round.sumRewardPaid;
+            payable(governor).send(leftoverReward);
+        }
+        if (_penaltiesInRound > round.sumTokenRewardPaid) {
+            leftoverTokenReward = _penaltiesInRound - round.sumTokenRewardPaid;
+            _safeTransfer(governor, leftoverTokenReward);
+        }
+        if (leftoverReward != 0 || leftoverTokenReward != 0) {
+            emit LeftoverRewardSent(_disputeID, _round, leftoverTokenReward, leftoverReward);
+        }
     }
 
     /// @dev Sets the specified juror's stake in a court.
