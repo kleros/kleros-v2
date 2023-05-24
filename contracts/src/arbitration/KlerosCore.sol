@@ -77,6 +77,16 @@ contract KlerosCore is IArbitrator {
         bool disabled; // True if the dispute kit is disabled and can't be used. This parameter is added preemptively to avoid storage changes in the future.
     }
 
+    // Workaround "stack too deep" errors
+    struct ExecuteParams {
+        uint256 disputeID; // The ID of the dispute to execute.
+        uint256 round; // The round to execute.
+        uint256 coherentCount; // The number of coherent votes in the round.
+        uint256 numberOfVotesInRound; // The number of votes in the round.
+        uint256 penaltiesInRound; // The amount of tokens collected from penalties in the round.
+        uint256 repartition; // The index of the repartition to execute.
+    }
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -652,7 +662,10 @@ contract KlerosCore is IArbitrator {
         Round storage round = dispute.rounds[_round];
         IDisputeKit disputeKit = disputeKitNodes[round.disputeKitID].disputeKit;
 
+        uint256 start = round.repartitions;
         uint256 end = round.repartitions + _iterations;
+        round.repartitions = end;
+
         uint256 penaltiesInRoundCache = round.penalties; // For saving gas.
         uint256 numberOfVotesInRound = round.drawnJurors.length;
         uint256 coherentCount = disputeKit.getCoherentCount(_disputeID, _round); // Total number of jurors that are eligible to a reward in this round.
@@ -664,40 +677,36 @@ contract KlerosCore is IArbitrator {
             // We loop over the votes twice, first to collect penalties, and second to distribute them as rewards along with arbitration fees.
             if (end > numberOfVotesInRound * 2) end = numberOfVotesInRound * 2;
         }
-        for (uint256 i = round.repartitions; i < end; i++) {
+        for (uint256 i = start; i < end; i++) {
             if (i < numberOfVotesInRound) {
                 penaltiesInRoundCache = _executePenalties(
-                    _disputeID,
-                    _round,
-                    coherentCount,
-                    numberOfVotesInRound,
-                    penaltiesInRoundCache,
-                    i
+                    ExecuteParams(_disputeID, _round, coherentCount, numberOfVotesInRound, penaltiesInRoundCache, i)
                 );
             } else {
-                _executeRewards(_disputeID, _round, coherentCount, numberOfVotesInRound, penaltiesInRoundCache, i);
+                _executeRewards(
+                    ExecuteParams(_disputeID, _round, coherentCount, numberOfVotesInRound, penaltiesInRoundCache, i)
+                );
             }
         }
         if (round.penalties != penaltiesInRoundCache) {
-            round.penalties = penaltiesInRoundCache;
+            round.penalties = penaltiesInRoundCache; // Reentrancy risk: breaks Check-Effect-Interact
         }
-        round.repartitions = end;
     }
 
-    function _executePenalties(
-        uint256 _disputeID,
-        uint256 _round,
-        uint256 _coherentCount,
-        uint256 _numberOfVotesInRound,
-        uint256 _penaltiesInRound,
-        uint256 _repartition
-    ) internal returns (uint256) {
-        Dispute storage dispute = disputes[_disputeID];
-        Round storage round = dispute.rounds[_round];
+    /// @dev Distribute the tokens and ETH for the specific round of the dispute, penalties only.
+    /// @param _params The parameters for the execution, see `ExecuteParams`.
+    /// @return penaltiesInRoundCache The updated penalties in round cache.
+    function _executePenalties(ExecuteParams memory _params) internal returns (uint256) {
+        Dispute storage dispute = disputes[_params.disputeID];
+        Round storage round = dispute.rounds[_params.round];
         IDisputeKit disputeKit = disputeKitNodes[round.disputeKitID].disputeKit;
 
         // [0, 1] value that determines how coherent the juror was in this round, in basis points.
-        uint256 degreeOfCoherence = disputeKit.getDegreeOfCoherence(_disputeID, _round, _repartition);
+        uint256 degreeOfCoherence = disputeKit.getDegreeOfCoherence(
+            _params.disputeID,
+            _params.round,
+            _params.repartition
+        );
         if (degreeOfCoherence > ALPHA_DIVISOR) {
             // Make sure the degree doesn't exceed 1, though it should be ensured by the dispute kit.
             degreeOfCoherence = ALPHA_DIVISOR;
@@ -705,10 +714,10 @@ contract KlerosCore is IArbitrator {
 
         // Fully coherent jurors won't be penalized.
         uint256 penalty = (round.tokensAtStakePerJuror * (ALPHA_DIVISOR - degreeOfCoherence)) / ALPHA_DIVISOR;
-        _penaltiesInRound += penalty;
+        _params.penaltiesInRound += penalty;
 
         // Unlock the tokens affected by the penalty
-        address account = round.drawnJurors[_repartition];
+        address account = round.drawnJurors[_params.repartition];
         jurors[account].lockedTokens[dispute.courtID] -= penalty;
 
         // Apply the penalty to the staked tokens
@@ -720,38 +729,38 @@ contract KlerosCore is IArbitrator {
             // The juror does not have enough staked tokens after penalty for this court, unstake them.
             _setStakeForAccount(account, dispute.courtID, 0, penalty);
         }
-        emit TokenAndETHShift(account, _disputeID, _round, degreeOfCoherence, -int256(penalty), 0);
+        emit TokenAndETHShift(account, _params.disputeID, _params.round, degreeOfCoherence, -int256(penalty), 0);
 
-        if (!disputeKit.isVoteActive(_disputeID, _round, _repartition)) {
+        if (!disputeKit.isVoteActive(_params.disputeID, _params.round, _params.repartition)) {
             // The juror is inactive, unstake them.
             sortitionModule.setJurorInactive(account);
         }
-        if (_repartition == _numberOfVotesInRound - 1 && _coherentCount == 0) {
+        if (_params.repartition == _params.numberOfVotesInRound - 1 && _params.coherentCount == 0) {
             // No one was coherent, send the rewards to the governor.
             payable(governor).send(round.totalFeesForJurors);
-            _safeTransfer(governor, _penaltiesInRound);
-            emit LeftoverRewardSent(_disputeID, _round, _penaltiesInRound, round.totalFeesForJurors);
+            _safeTransfer(governor, _params.penaltiesInRound);
+            emit LeftoverRewardSent(
+                _params.disputeID,
+                _params.round,
+                _params.penaltiesInRound,
+                round.totalFeesForJurors
+            );
         }
-        return _penaltiesInRound;
+        return _params.penaltiesInRound;
     }
 
-    function _executeRewards(
-        uint256 _disputeID,
-        uint256 _round,
-        uint256 _coherentCount,
-        uint256 _numberOfVotesInRound,
-        uint256 _penaltiesInRound,
-        uint256 _repartition
-    ) internal {
-        Dispute storage dispute = disputes[_disputeID];
-        Round storage round = dispute.rounds[_round];
+    /// @dev Distribute the tokens and ETH for the specific round of the dispute, rewards only.
+    /// @param _params The parameters for the execution, see `ExecuteParams`.
+    function _executeRewards(ExecuteParams memory _params) internal {
+        Dispute storage dispute = disputes[_params.disputeID];
+        Round storage round = dispute.rounds[_params.round];
         IDisputeKit disputeKit = disputeKitNodes[round.disputeKitID].disputeKit;
 
         // [0, 1] value that determines how coherent the juror was in this round, in basis points.
         uint256 degreeOfCoherence = disputeKit.getDegreeOfCoherence(
-            _disputeID,
-            _round,
-            _repartition % _numberOfVotesInRound
+            _params.disputeID,
+            _params.round,
+            _params.repartition % _params.numberOfVotesInRound
         );
 
         // Make sure the degree doesn't exceed 1, though it should be ensured by the dispute kit.
@@ -759,40 +768,45 @@ contract KlerosCore is IArbitrator {
             degreeOfCoherence = ALPHA_DIVISOR;
         }
 
-        address account = round.drawnJurors[_repartition % _numberOfVotesInRound];
+        address account = round.drawnJurors[_params.repartition % _params.numberOfVotesInRound];
+        uint256 tokenLocked = (round.tokensAtStakePerJuror * degreeOfCoherence) / ALPHA_DIVISOR;
 
         // Release the rest of the tokens of the juror for this round.
-        jurors[account].lockedTokens[dispute.courtID] -=
-            (round.tokensAtStakePerJuror * degreeOfCoherence) /
-            ALPHA_DIVISOR;
+        jurors[account].lockedTokens[dispute.courtID] -= tokenLocked;
 
         // Give back the locked tokens in case the juror fully unstaked earlier.
         if (jurors[account].stakedTokens[dispute.courtID] == 0) {
-            uint256 tokenLocked = (round.tokensAtStakePerJuror * degreeOfCoherence) / ALPHA_DIVISOR;
             _safeTransfer(account, tokenLocked);
         }
 
         // Transfer the rewards
-        uint256 tokenReward = ((_penaltiesInRound / _coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
+        uint256 tokenReward = ((_params.penaltiesInRound / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
         round.sumTokenRewardPaid += tokenReward;
-        uint256 ethReward = ((round.totalFeesForJurors / _coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
+        uint256 ethReward = ((round.totalFeesForJurors / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
         round.sumRewardPaid += ethReward;
         _safeTransfer(account, tokenReward);
         payable(account).send(ethReward);
-        emit TokenAndETHShift(account, _disputeID, _round, degreeOfCoherence, int256(tokenReward), int256(ethReward));
+        emit TokenAndETHShift(
+            account,
+            _params.disputeID,
+            _params.round,
+            degreeOfCoherence,
+            int256(tokenReward),
+            int256(ethReward)
+        );
 
         // Transfer any residual rewards to the governor. It may happen due to partial coherence of the jurors.
-        if (_repartition == _numberOfVotesInRound * 2 - 1) {
+        if (_params.repartition == _params.numberOfVotesInRound * 2 - 1) {
+            uint256 leftoverTokenReward = _params.penaltiesInRound - round.sumTokenRewardPaid;
             uint256 leftoverReward = round.totalFeesForJurors - round.sumRewardPaid;
-            uint256 leftoverTokenReward = _penaltiesInRound - round.sumTokenRewardPaid;
-            if (leftoverReward != 0 || leftoverTokenReward != 0) {
-                if (leftoverReward != 0) {
-                    payable(governor).send(leftoverReward);
-                }
+            if (leftoverTokenReward != 0 || leftoverReward != 0) {
                 if (leftoverTokenReward != 0) {
                     _safeTransfer(governor, leftoverTokenReward);
                 }
-                emit LeftoverRewardSent(_disputeID, _round, leftoverTokenReward, leftoverReward);
+                if (leftoverReward != 0) {
+                    payable(governor).send(leftoverReward);
+                }
+                emit LeftoverRewardSent(_params.disputeID, _params.round, leftoverTokenReward, leftoverReward);
             }
         }
     }
