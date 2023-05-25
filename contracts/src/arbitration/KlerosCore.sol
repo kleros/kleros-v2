@@ -664,7 +664,6 @@ contract KlerosCore is IArbitrator {
 
         uint256 start = round.repartitions;
         uint256 end = round.repartitions + _iterations;
-        round.repartitions = end;
 
         uint256 penaltiesInRoundCache = round.penalties; // For saving gas.
         uint256 numberOfVotesInRound = round.drawnJurors.length;
@@ -677,6 +676,8 @@ contract KlerosCore is IArbitrator {
             // We loop over the votes twice, first to collect penalties, and second to distribute them as rewards along with arbitration fees.
             if (end > numberOfVotesInRound * 2) end = numberOfVotesInRound * 2;
         }
+        round.repartitions = end;
+
         for (uint256 i = start; i < end; i++) {
             if (i < numberOfVotesInRound) {
                 penaltiesInRoundCache = _executePenalties(
