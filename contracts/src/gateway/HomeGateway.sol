@@ -9,7 +9,6 @@
 pragma solidity 0.8.18;
 
 import "../arbitration/IArbitrator.sol";
-import "@kleros/vea-contracts/interfaces/IFastBridgeSender.sol";
 import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
 
@@ -31,9 +30,9 @@ contract HomeGateway is IHomeGateway {
 
     address public governor;
     IArbitrator public arbitrator;
-    IFastBridgeSender public fastBridgeSender;
+    IVeaInbox public veaInbox;
     address public override receiverGateway;
-    uint256 public immutable override receiverChainID;
+    uint256 public immutable receiverChainID;
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => uint256) public disputeHashtoID;
     mapping(bytes32 => RelayedData) public disputeHashtoRelayedData;
@@ -41,13 +40,13 @@ contract HomeGateway is IHomeGateway {
     constructor(
         address _governor,
         IArbitrator _arbitrator,
-        IFastBridgeSender _fastBridgeSender,
+        IVeaInbox _veaInbox,
         address _receiverGateway,
         uint256 _receiverChainID
     ) {
         governor = _governor;
         arbitrator = _arbitrator;
-        fastBridgeSender = _fastBridgeSender;
+        veaInbox = _veaInbox;
         receiverGateway = _receiverGateway;
         receiverChainID = _receiverChainID;
 
@@ -72,11 +71,11 @@ contract HomeGateway is IHomeGateway {
         arbitrator = _arbitrator;
     }
 
-    /// @dev Changes the fastBridge, useful to increase the claim deposit.
-    /// @param _fastBridgeSender The address of the new fastBridge.
-    function changeFastbridge(IFastBridgeSender _fastBridgeSender) external {
+    /// @dev Changes the vea inbox, useful to increase the claim deposit.
+    /// @param _veaInbox The address of the new vea inbox.
+    function changeVea(IVeaInbox _veaInbox) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
-        fastBridgeSender = _fastBridgeSender;
+        veaInbox = _veaInbox;
     }
 
     /// @dev Changes the receiver gateway.
@@ -144,8 +143,8 @@ contract HomeGateway is IHomeGateway {
         // The first parameter of relayRule() `_messageSender` is missing from the encoding below
         // because Vea takes care of inserting it for security reasons.
         bytes4 methodSelector = IForeignGateway.relayRule.selector;
-        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.relayer);
-        fastBridgeSender.sendFast(receiverGateway, data);
+        bytes memory data = abi.encode(disputeHash, _ruling, relayedData.relayer);
+        veaInbox.sendMessage(receiverGateway, methodSelector, data);
     }
 
     /// @dev Looks up the local home disputeID for a disputeHash. For cross-chain Evidence standard.

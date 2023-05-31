@@ -51,23 +51,18 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
     uint256 internal localDisputeID = 1; // The disputeID must start from 1 as the KlerosV1 proxy governor depends on this implementation. We now also depend on localDisputeID not ever being zero.
     mapping(uint96 => uint256) public feeForJuror; // feeForJuror[courtID], it mirrors the value on KlerosCore.
     address public governor;
-    IFastBridgeReceiver public fastBridgeReceiver;
-    uint256 public immutable override senderChainID;
+    address public veaOutbox;
+    uint256 public immutable senderChainID;
     address public override senderGateway;
-    IFastBridgeReceiver public depreciatedFastbridge;
-    uint256 public depreciatedFastBridgeExpiration;
     mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
 
     // ************************************* //
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyFromFastBridge() {
-        require(
-            address(fastBridgeReceiver) == msg.sender ||
-                ((block.timestamp < depreciatedFastBridgeExpiration) && address(depreciatedFastbridge) == msg.sender),
-            "Access not allowed: Fast Bridge only."
-        );
+    modifier onlyFromVea(address _messageSender) {
+        require(veaOutbox == msg.sender, "Access not allowed: Fast Bridge only.");
+        require(_messageSender == senderGateway, "Access not allowed: Sender Gateway only.");
         _;
     }
 
@@ -76,15 +71,9 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
         _;
     }
 
-    constructor(
-        address _governor,
-        IFastBridgeReceiver _fastBridgeReceiver,
-        address _senderGateway,
-        uint256 _senderChainID,
-        IERC20 _weth
-    ) {
+    constructor(address _governor, address _veaOutbox, address _senderGateway, uint256 _senderChainID, IERC20 _weth) {
         governor = _governor;
-        fastBridgeReceiver = _fastBridgeReceiver;
+        veaOutbox = _veaOutbox;
         senderGateway = _senderGateway;
         senderChainID = _senderChainID;
         weth = _weth;
@@ -99,16 +88,6 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
     function changeGovernor(address _governor) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
         governor = _governor;
-    }
-
-    /// @dev Changes the fastBridge, useful to increase the claim deposit.
-    /// @param _fastBridgeReceiver The address of the new fastBridge.
-    /// @param _gracePeriod The duration to accept messages from the deprecated bridge (if at all).
-    function changeFastbridge(IFastBridgeReceiver _fastBridgeReceiver, uint256 _gracePeriod) external onlyByGovernor {
-        // grace period to relay remaining messages in the relay / bridging process
-        depreciatedFastBridgeExpiration = block.timestamp + _fastBridgeReceiver.epochPeriod() + _gracePeriod; // 2 weeks
-        depreciatedFastbridge = fastBridgeReceiver;
-        fastBridgeReceiver = _fastBridgeReceiver;
     }
 
     /// @dev Changes the sender gateway.
@@ -185,7 +164,7 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
         bytes32 _disputeHash,
         uint256 _ruling,
         address _relayer
-    ) external override onlyFromFastBridge {
+    ) external override onlyFromVea(_messageSender) {
         require(_messageSender == senderGateway, "Only the homegateway is allowed.");
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 

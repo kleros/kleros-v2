@@ -9,7 +9,7 @@
 pragma solidity 0.8.18;
 
 import "../../arbitration/IArbitrator.sol";
-import "@kleros/vea-contracts/interfaces/IReceiverGateway.sol";
+import "@kleros/vea-contracts/src/interfaces/gateways/IReceiverGateway.sol";
 
 interface IForeignGateway is IArbitrator, IReceiverGateway {
     /// Relay the rule call from the home gateway to the arbitrable.

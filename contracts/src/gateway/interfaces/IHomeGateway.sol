@@ -10,7 +10,7 @@ pragma solidity 0.8.18;
 
 import "../../arbitration/IArbitrable.sol";
 import "../../evidence/IMetaEvidence.sol";
-import "@kleros/vea-contracts/interfaces/ISenderGateway.sol";
+import "@kleros/vea-contracts/src/interfaces/gateways/ISenderGateway.sol";
 
 interface IHomeGateway is IArbitrable, IMetaEvidence, ISenderGateway {
     /// @dev Provide the same parameters as on the foreignChain while creating a dispute. Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.

@@ -3720,7 +3720,7 @@ __metadata:
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
-    "@kleros/vea-contracts": ^0.1.12
+    "@kleros/vea-contracts": ^0.3.2
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.6
     "@nomiclabs/hardhat-ethers": ^2.2.3
     "@nomiclabs/hardhat-solhint": ^3.0.1
@@ -3882,12 +3882,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kleros/vea-contracts@npm:^0.1.12":
-  version: 0.1.12
-  resolution: "@kleros/vea-contracts@npm:0.1.12"
+"@kleros/vea-contracts@npm:^0.3.2":
+  version: 0.3.2
+  resolution: "@kleros/vea-contracts@npm:0.3.2"
   dependencies:
-    "@openzeppelin/contracts": ^4.8.0
-  checksum: f591a799d70c9ed8a4a7a4ae1fec5438bf0af8a9137330020c258fb42befe43630ee6f11528a1700849152d0e88f710c6aae20f4dd6020cb26701ed1a5255657
+    "@openzeppelin/contracts": ^4.8.3
+  checksum: 72775e9e6a5e00ca1590a260a65c7832fee15f6ead3a2808c05912f4a198a5a0d8bc2a213ef8d2e70e4ba7e811cbd28ec641a50d816aac49d24895994be2f3fd
   languageName: node
   linkType: hard
 
@@ -4582,14 +4582,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts@npm:^4.8.0":
-  version: 4.8.1
-  resolution: "@openzeppelin/contracts@npm:4.8.1"
-  checksum: 99acefde1ae42c2d935ec9b4ebd327e786c499a4ec76b9582eb9adb0ff94a77c48047332fba44fb97b82b5a46d80e74d3e5d8cf73d5defa7f746f2a67f070281
-  languageName: node
-  linkType: hard
-
-"@openzeppelin/contracts@npm:^4.9.1":
+"@openzeppelin/contracts@npm:^4.8.3, @openzeppelin/contracts@npm:^4.9.1":
   version: 4.9.1
   resolution: "@openzeppelin/contracts@npm:4.9.1"
   checksum: 9bb3cc6aecd6c56d5ece10d9820d43e6e9c460395b75cc4af9b4e776f1a9e56c9906bc03538b0707e617dc31f1abdfffcbeedfecc8884358d864198ed73f59c1
