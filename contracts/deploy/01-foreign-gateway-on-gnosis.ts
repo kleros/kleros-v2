@@ -38,8 +38,8 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const homeGatewayAddress = getContractAddress(deployer, nonce); // HomeGateway deploy tx will be the next tx home network
   console.log("Calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
-  const veaReceiver = await deployments.get("FastBridgeReceiverOnGnosis");
-  console.log("Using FastBridgeReceiverOnGnosis at %s", veaReceiver.address);
+  const veaReceiver = await deployments.get("VeaInboxArbToGnosisDevnet");
+  console.log("Using VeaInboxArbToGnosisDevnet at %s", veaReceiver.address);
 
   if (!wethByChain.get(chainId)) {
     const weth = await deploy("WETH", {

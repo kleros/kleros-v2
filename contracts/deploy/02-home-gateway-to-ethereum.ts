@@ -18,7 +18,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const chainId = Number(await getChainId());
   console.log("Deploying to chainId %s with deployer %s", chainId, deployer);
 
-  const veaSender = await deployments.get("FastBridgeSenderToEthereum");
+  const veaSender = await deployments.get("VeaOutboxArbToEthDevnet");
   const klerosCore = await deployments.get("KlerosCore");
 
   const foreignGateway = await hre.companionNetworks.foreignGoerli.deployments.get("ForeignGatewayOnEthereum");

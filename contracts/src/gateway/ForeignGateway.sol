@@ -59,7 +59,7 @@ contract ForeignGateway is IForeignGateway {
     // ************************************* //
 
     modifier onlyFromVea(address _messageSender) {
-        require(veaOutbox == msg.sender, "Access not allowed: Fast Bridge only.");
+        require(veaOutbox == msg.sender, "Access not allowed: Vea Outbox only.");
         require(_messageSender == senderGateway, "Access not allowed: Sender Gateway only.");
         _;
     }
@@ -87,8 +87,8 @@ contract ForeignGateway is IForeignGateway {
         governor = _governor;
     }
 
-    /// @dev Changes the fastBridge, useful to increase the claim deposit.
-    /// @param _veaOutbox The address of the new fastBridge.
+    /// @dev Changes the outbox.
+    /// @param _veaOutbox The address of the new outbox.
     function changeVea(address _veaOutbox) external onlyByGovernor {
         veaOutbox = _veaOutbox;
     }
