@@ -18,10 +18,6 @@ const CaseDetails: React.FC = () => {
   const currentPeriodIndex = dispute ? Periods[dispute.period] : 0;
   const arbitrable = dispute?.arbitrated.id;
 
-  // useEffect(() => {
-  //   navigate(`overview`);
-  // }, []);
-
   return (
     <Container>
       <h1>Case #{id}</h1>
