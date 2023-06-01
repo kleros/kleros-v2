@@ -5,11 +5,11 @@ import { utils } from "ethers";
 import Skeleton from "react-loading-skeleton";
 import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
-import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
-import { useCourtPolicy } from "queries/useCourtPolicy";
 import { CasesPageQuery } from "queries/useCasesQuery";
-import PeriodBanner from "./PeriodBanner";
+import { useCourtPolicy } from "queries/useCourtPolicy";
+import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import DisputeInfo from "./DisputeInfo";
+import PeriodBanner from "./PeriodBanner";
 
 const StyledCard = styled(Card)`
   max-width: 380px;
@@ -29,11 +29,7 @@ const Container = styled.div`
   }
 `;
 
-const getPeriodEndTimestamp = (
-  lastPeriodChange: string,
-  currentPeriodIndex: number,
-  timesPerPeriod: string[]
-) => {
+const getPeriodEndTimestamp = (lastPeriodChange: string, currentPeriodIndex: number, timesPerPeriod: string[]) => {
   const durationCurrentPeriod = parseInt(timesPerPeriod[currentPeriodIndex]);
   return parseInt(lastPeriodChange) + durationCurrentPeriod;
 };
@@ -50,11 +46,7 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
   const date =
     currentPeriodIndex === 4
       ? lastPeriodChange
-      : getPeriodEndTimestamp(
-          lastPeriodChange,
-          currentPeriodIndex,
-          court.timesPerPeriod
-        );
+      : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, court.timesPerPeriod);
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrated.id);
   const title = metaEvidence ? metaEvidence.title : <Skeleton />;
   const { data: courtPolicy } = useCourtPolicy(court.id);
@@ -62,7 +54,7 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
   const category = metaEvidence ? metaEvidence.category : undefined;
   const navigate = useNavigate();
   return (
-    <StyledCard hover onClick={() => navigate(`/cases/${id.toString()}`)}>
+    <StyledCard hover onClick={() => navigate(`/cases/${id.toString()}/overview`)}>
       <PeriodBanner id={parseInt(id)} period={currentPeriodIndex} />
       <Container>
         <h3>{title}</h3>

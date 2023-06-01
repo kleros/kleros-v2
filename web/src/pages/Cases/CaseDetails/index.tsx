@@ -1,15 +1,15 @@
 import React from "react";
 import styled from "styled-components";
-import { Routes, Route, useParams, Navigate } from "react-router-dom";
+import { Route, Routes, useParams } from "react-router-dom";
 import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import Appeal from "./Appeal";
+import Evidence from "./Evidence";
+import Overview from "./Overview";
 import Tabs from "./Tabs";
 import Timeline from "./Timeline";
-import Overview from "./Overview";
-import Evidence from "./Evidence";
 import Voting from "./Voting";
-import Appeal from "./Appeal";
 
 const CaseDetails: React.FC = () => {
   const { id } = useParams();
@@ -17,6 +17,11 @@ const CaseDetails: React.FC = () => {
   const dispute = data?.dispute;
   const currentPeriodIndex = dispute ? Periods[dispute.period] : 0;
   const arbitrable = dispute?.arbitrated.id;
+
+  // useEffect(() => {
+  //   navigate(`overview`);
+  // }, []);
+
   return (
     <Container>
       <h1>Case #{id}</h1>
@@ -24,22 +29,10 @@ const CaseDetails: React.FC = () => {
       <Timeline {...{ currentPeriodIndex, dispute }} />
       <StyledCard>
         <Routes>
-          <Route
-            path="overview"
-            element={
-              <Overview courtID={dispute?.court.id} {...{ arbitrable }} />
-            }
-          />
+          <Route path="overview" element={<Overview courtID={dispute?.court.id} {...{ arbitrable }} />} />
           <Route path="evidence" element={<Evidence {...{ arbitrable }} />} />
-          <Route
-            path="voting"
-            element={<Voting {...{ arbitrable, currentPeriodIndex }} />}
-          />
-          <Route
-            path="appeal"
-            element={<Appeal {...{ currentPeriodIndex }} />}
-          />
-          <Route path="*" element={<Navigate to="overview" />} />
+          <Route path="voting" element={<Voting {...{ arbitrable, currentPeriodIndex }} />} />
+          <Route path="appeal" element={<Appeal {...{ currentPeriodIndex }} />} />
         </Routes>
       </StyledCard>
     </Container>
