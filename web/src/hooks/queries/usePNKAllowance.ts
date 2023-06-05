@@ -21,12 +21,10 @@
 // };
 
 import useSWR from "swr";
-import { useProvider } from "wagmi";
 import { usePnk, useKlerosCore } from "hooks/contracts/generated";
 
 export const usePNKAllowance = (user?: `0x${string}` | null) => {
-  const provider = useProvider();
-  const pnkContract = usePnk({ signerOrProvider: provider });
+  const pnkContract = usePnk();
   const klerosCore = useKlerosCore();
   return useSWR(
     () => (pnkContract && user ? `PNKAllowance{user}` : false),

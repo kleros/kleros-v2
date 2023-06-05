@@ -1,13 +1,9 @@
 import useSWRImmutable from "swr/immutable";
 import { BigNumber } from "ethers";
-import { useProvider } from "wagmi";
 import { useDisputeKitClassic } from "hooks/contracts/generated";
 
 export const useDisputeKitClassicMultipliers = () => {
-  const provider = useProvider();
-  const disputeKitClassic = useDisputeKitClassic({
-    signerOrProvider: provider,
-  });
+  const disputeKitClassic = useDisputeKitClassic();
   return useSWRImmutable(
     () => (disputeKitClassic ? `Multipliers` : false),
     async () => {

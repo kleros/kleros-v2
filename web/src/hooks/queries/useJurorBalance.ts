@@ -1,14 +1,12 @@
 import useSWR from "swr";
 import { BigNumber } from "ethers";
-import { useProvider } from "wagmi";
 import { useKlerosCore } from "hooks/contracts/generated";
 
 export const useJurorBalance = (
   user?: `0x${string}` | null,
   courtId?: string | undefined
 ) => {
-  const provider = useProvider();
-  const klerosCore = useKlerosCore({ signerOrProvider: provider });
+  const klerosCore = useKlerosCore();
   return useSWR(
     () =>
       klerosCore && user && courtId ? `JurorBalance{address}{courtId}` : false,

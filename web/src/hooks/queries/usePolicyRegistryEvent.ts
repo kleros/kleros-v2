@@ -1,13 +1,9 @@
 import useSWRImmutable from "swr/immutable";
 import { BigNumber } from "ethers";
-import { useProvider } from "wagmi";
 import { usePolicyRegistry } from "hooks/contracts/generated";
 
 export const usePolicyRegistryEvent = (courtID?: string | number) => {
-  const provider = useProvider();
-  const policyRegistry = usePolicyRegistry({
-    signerOrProvider: provider,
-  });
+  const policyRegistry = usePolicyRegistry();
   return useSWRImmutable(
     () => (policyRegistry && courtID ? `PolicyRegistry${courtID}` : false),
     async () => {
