@@ -1,11 +1,9 @@
-import { BigNumber, utils } from "ethers";
 import React from "react";
-import { useParams } from "react-router-dom";
 import styled from "styled-components";
-
-import { useWeb3 } from "hooks/useWeb3";
+import { useParams } from "react-router-dom";
+import { BigNumber, utils } from "ethers";
 import { useJurorBalance } from "queries/useJurorBalance";
-
+import { useWeb3 } from "hooks/useWeb3";
 import Field from "components/Field";
 import DiceIcon from "svgs/icons/dice.svg";
 import LockerIcon from "svgs/icons/locker.svg";

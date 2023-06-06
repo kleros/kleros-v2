@@ -1,11 +1,11 @@
-import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
-import { Button, Textarea } from "@kleros/ui-components-library";
-import { useConnectedContract } from "hooks/useConnectedContract";
 import React, { useState } from "react";
-import Modal from "react-modal";
 import styled from "styled-components";
-import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
+import Modal from "react-modal";
 import { wrapWithToast } from "utils/wrapWithToast";
+import { Button, Textarea } from "@kleros/ui-components-library";
+import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
+import { useConnectedContract } from "hooks/useConnectedContract";
+import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 
 const SubmitEvidenceModal: React.FC<{
   isOpen: boolean;

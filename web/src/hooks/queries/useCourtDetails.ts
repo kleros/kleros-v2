@@ -1,6 +1,6 @@
+import useSWR from "swr";
 import { gql } from "graphql-request";
 import { CourtDetailsQuery } from "src/graphql/generated";
-import useSWR from "swr";
 export type { CourtDetailsQuery };
 
 const courtDetailsQuery = gql`

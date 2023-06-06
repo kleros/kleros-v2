@@ -1,6 +1,6 @@
+import useSWR from "swr";
 import { gql } from "graphql-request";
 import { DrawQuery } from "src/graphql/generated";
-import useSWR from "swr";
 export type { DrawQuery };
 
 const drawQuery = gql`

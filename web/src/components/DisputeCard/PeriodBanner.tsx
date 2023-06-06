@@ -1,6 +1,6 @@
-import { Periods } from "consts/periods";
 import React from "react";
 import styled, { Theme } from "styled-components";
+import { Periods } from "consts/periods";
 
 export interface IPeriodBanner {
   id: number;

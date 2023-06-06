@@ -1,5 +1,5 @@
-import { useConnectedContract } from "hooks/useConnectedContract";
 import useSWRImmutable from "swr/immutable";
+import { useConnectedContract } from "hooks/useConnectedContract";
 
 export const useAppealCost = (disputeID?: string) => {
   const KlerosCore = useConnectedContract("KlerosCore");

@@ -1,6 +1,6 @@
+import useSWRImmutable from "swr/immutable";
 import { BigNumber } from "ethers";
 import { useConnectedContract } from "hooks/useConnectedContract";
-import useSWRImmutable from "swr/immutable";
 
 export const useDisputeKitClassicMultipliers = () => {
   const disputeKitClassic = useConnectedContract("DisputeKitClassic");

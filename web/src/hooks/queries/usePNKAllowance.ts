@@ -1,6 +1,6 @@
+import useSWR from "swr";
 import { PNK } from "@kleros/kleros-v2-contracts/typechain-types/src/token/PNK";
 import { useConnectedContract } from "hooks/useConnectedContract";
-import useSWR from "swr";
 import { CONTRACTS } from "utils/getContract";
 
 export const usePNKAllowance = (user?: string | null) => {

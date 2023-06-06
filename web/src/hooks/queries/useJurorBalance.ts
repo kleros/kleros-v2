@@ -1,5 +1,5 @@
-import { KlerosCore } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/KlerosCore";
 import useSWR from "swr";
+import { KlerosCore } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/KlerosCore";
 import { useConnectedContract } from "../useConnectedContract";
 
 export const useJurorBalance = (user?: string | null, courtId?: string | undefined) => {

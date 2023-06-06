@@ -1,6 +1,6 @@
-import { Periods } from "consts/periods";
 import React from "react";
 import styled from "styled-components";
+import { Periods } from "consts/periods";
 import BookmarkIcon from "svgs/icons/bookmark.svg";
 import CalendarIcon from "svgs/icons/calendar.svg";
 import LawBalanceIcon from "svgs/icons/law-balance.svg";

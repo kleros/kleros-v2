@@ -1,6 +1,6 @@
+import useSWR from "swr";
 import { gql } from "graphql-request";
 import { DisputeDetailsQuery } from "src/graphql/generated";
-import useSWR from "swr";
 export type { DisputeDetailsQuery };
 
 const disputeDetailsQuery = gql`

@@ -1,6 +1,6 @@
+import useSWRImmutable from "swr/immutable";
 import { gql } from "graphql-request";
 import { CourtPolicyUriQuery } from "src/graphql/generated";
-import useSWRImmutable from "swr/immutable";
 export type { CourtPolicyUriQuery };
 
 const courtPolicyURIQuery = gql`
