@@ -10,7 +10,8 @@
 ## Build
 
 ```bash
-$ yarn
+# update subgraph.yml using the contract deployment artifacts
+$ yarn update:arbitrum-goerli
 
 $ yarn codegen
 
@@ -30,5 +31,5 @@ $ yarn run graph auth --product hosted-service
 ### Deployment
 
 ```bash
-yarn deploy
+yarn deploy:arbitrum-goerli
 ```
