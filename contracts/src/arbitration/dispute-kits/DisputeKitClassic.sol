@@ -227,7 +227,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        (, bool hiddenVotes, , , , ) = core.courts(courtID);
+        (, bool hiddenVotes, , , , , ) = core.courts(courtID);
 
         //  Save the votes.
         for (uint256 i = 0; i < _voteIDs.length; i++) {
@@ -538,12 +538,12 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     /// @return Whether the address can be drawn or not.
     function _postDrawCheck(uint256 _coreDisputeID, address _juror) internal view override returns (bool) {
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        (uint256 lockedAmountPerJuror, , , , , ) = core.getRoundInfo(
+        (uint256 lockedAmountPerJuror, , , , , , , ) = core.getRoundInfo(
             _coreDisputeID,
             core.getNumberOfRounds(_coreDisputeID) - 1
         );
         (uint256 stakedTokens, uint256 lockedTokens, ) = core.getJurorBalance(_juror, courtID);
-        (, , uint256 minStake, , , ) = core.courts(courtID);
+        (, , uint256 minStake, , , , ) = core.courts(courtID);
         return stakedTokens >= lockedTokens + lockedAmountPerJuror && stakedTokens >= minStake;
     }
 }
