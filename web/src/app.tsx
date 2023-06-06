@@ -28,7 +28,7 @@ const App: React.FC = () => {
         value={{
           fetcher: fetcherBuilder(
             process.env.REACT_APP_SUBGRAPH_ENDPOINT ??
-              "https://api.thegraph.com/subgraphs/name/alcercu/kleroscoretest"
+              "https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli"
           ),
         }}
       >
@@ -40,10 +40,7 @@ const App: React.FC = () => {
                 <Route path="cases/*" element={<Cases />} />
                 <Route path="courts/*" element={<Courts />} />
                 <Route path="dashboard" element={<Dashboard />} />
-                <Route
-                  path="*"
-                  element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>}
-                />
+                <Route path="*" element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>} />
               </Route>
             </Routes>
           </WrongChainBoundary>
