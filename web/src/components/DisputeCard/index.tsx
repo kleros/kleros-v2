@@ -54,7 +54,7 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
   const category = metaEvidence ? metaEvidence.category : undefined;
   const navigate = useNavigate();
   return (
-    <StyledCard hover onClick={() => navigate(`/cases/${id.toString()}/overview`)}>
+    <StyledCard hover onClick={() => navigate(`/cases/${id.toString()}`)}>
       <PeriodBanner id={parseInt(id)} period={currentPeriodIndex} />
       <Container>
         <h3>{title}</h3>

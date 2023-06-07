@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Route, Routes, useParams } from "react-router-dom";
+import { Route, Routes, useParams, Navigate } from "react-router-dom";
 import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -29,6 +29,7 @@ const CaseDetails: React.FC = () => {
           <Route path="evidence" element={<Evidence {...{ arbitrable }} />} />
           <Route path="voting" element={<Voting {...{ arbitrable, currentPeriodIndex }} />} />
           <Route path="appeal" element={<Appeal {...{ currentPeriodIndex }} />} />
+          <Route path="*" element={<Navigate to="overview" replace />} />
         </Routes>
       </StyledCard>
     </Container>
