@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { useLockBodyScroll, useToggle } from "react-use";
 import ConnectButton from "components/ConnectButton";

@@ -113,8 +113,8 @@ const DappList: React.FC<IDappList> = ({ toggleSolution, toggleLocked }) => {
     <Container ref={containerRef}>
       <Header>Kleros Solutions</Header>
       <ItemsDiv>
-        {ITEMS.map((item, index) => {
-          return <Product {...item} key={index} />;
+        {ITEMS.map((item) => {
+          return <Product {...item} key={item.text} />;
         })}
       </ItemsDiv>
     </Container>

@@ -95,8 +95,8 @@ const Help: React.FC<IHelp> = ({ toggle, toggleLocked }) => {
 
   return (
     <Container ref={containerRef}>
-      {ITEMS.map((item, index) => (
-        <ListItem key={index}>
+      {ITEMS.map((item) => (
+        <ListItem key={item.text}>
           <Icon as={item.Icon} />
           <small>{item.text}</small>
         </ListItem>
