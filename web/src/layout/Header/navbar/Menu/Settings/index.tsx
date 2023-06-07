@@ -5,7 +5,44 @@ import General from "./General";
 import SendMeNotifications from "./SendMeNotifications";
 import { useFocusOutside } from "hooks/useFocusOutside";
 
-const tabsItems = [
+const Container = styled.div`
+  display: flex;
+  position: absolute;
+  z-index: 1;
+  background-color: ${({ theme }) => theme.whiteBackground};
+  flex-direction: column;
+  border: 1px solid ${({ theme }) => theme.stroke};
+  border-radius: 3px;
+  overflow-y: auto;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+`;
+
+const StyledSettingsText = styled.div`
+  display: flex;
+  justify-content: center;
+  font-size: 24px;
+  color: ${({ theme }) => theme.primaryText};
+  margin-top: 24px;
+`;
+
+const StyledTabs = styled(Tabs)`
+  padding: 0 calc(8px + (32 - 8) * ((100vw - 300px) / (1250 - 300)));
+  width: calc(300px + (424 - 300) * ((100vw - 300px) / (1250 - 300)));
+`;
+
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: ${({ theme }) => theme.blackLowOpacity};
+  z-index: 0;
+`;
+
+const TABS = [
   {
     text: "General",
     value: 0,
@@ -26,41 +63,21 @@ const Settings: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
   useFocusOutside(containerRef, () => setIsSettingsOpen(false));
 
   return (
-    <Container ref={containerRef}>
-      <StyledSettingsText>Settings</StyledSettingsText>
-      <StyledTabs
-        currentValue={currentTab}
-        items={tabsItems}
-        callback={(n: number) => {
-          setCurrentTab(n);
-        }}
-      />
-      {currentTab === 0 ? <General /> : <SendMeNotifications />}
-    </Container>
+    <>
+      <Overlay />
+      <Container ref={containerRef}>
+        <StyledSettingsText>Settings</StyledSettingsText>
+        <StyledTabs
+          currentValue={currentTab}
+          items={TABS}
+          callback={(n: number) => {
+            setCurrentTab(n);
+          }}
+        />
+        {currentTab === 0 ? <General /> : <SendMeNotifications />}
+      </Container>
+    </>
   );
 };
-
-const Container = styled.div`
-  display: flex;
-  position: absolute;
-  z-index: 1;
-  background-color: ${({ theme }) => theme.whiteBackground};
-  flex-direction: column;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-radius: 3px;
-`;
-
-const StyledSettingsText = styled.div`
-  display: flex;
-  justify-content: center;
-  font-size: 24px;
-  color: ${({ theme }) => theme.primaryText};
-  margin-top: 24px;
-`;
-
-const StyledTabs = styled(Tabs)`
-  padding-left: 32px;
-  padding-right: 32px;
-`;
 
 export default Settings;

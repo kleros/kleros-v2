@@ -56,11 +56,11 @@ const General: React.FC = () => {
       <StyledChainContainer>
         <ChainDisplay />
       </StyledChainContainer>
-      {account ? (
+      {account && (
         <StyledIdenticon>
           <Identicon size="24" string={account} />
         </StyledIdenticon>
-      ) : null}
+      )}
       <StyledAddressContainer>
         <AddressDisplay />
       </StyledAddressContainer>

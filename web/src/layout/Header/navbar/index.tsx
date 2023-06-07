@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { useLockBodyScroll } from "react-use";
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 import LightButton from "components/LightButton";
 import Explore from "./Explore";
@@ -33,6 +34,8 @@ const Container = styled.div<{ isOpen: boolean }>`
 
 const NavBar: React.FC = () => {
   const { isOpen } = useOpenContext();
+  useLockBodyScroll(isOpen);
+
   return (
     <Container {...{ isOpen }}>
       <LightButton text="Kleros Solutions" Icon={KlerosSolutionsIcon} />

@@ -7,8 +7,7 @@ const FormContainer = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  padding-left: 32px;
-  padding-right: 32px;
+  padding: 0 calc(12px + (32 - 12) * ((100vw - 300px) / (1250 - 300)));
   padding-bottom: 32px;
 `;
 
@@ -34,23 +33,37 @@ const EmailErrorContainer = styled.div`
   padding-left: 16px;
 `;
 
+const OPTIONS = [{ label: "When x." }, { label: "When y." }, { label: "When z." }, { label: "When w." }];
+
 const FormNotifs: React.FC = () => {
-  const [isWhenX, setIsWhenX] = useState<boolean>(false);
-  const [isWhenY, setIsWhenY] = useState<boolean>(false);
-  const [isWhenZ, setIsWhenZ] = useState<boolean>(false);
-  const [isWhenW, setIsWhenW] = useState<boolean>(false);
+  const [checkboxStates, setCheckboxStates] = useState<boolean[]>(new Array(OPTIONS.length));
   const [emailInput, setEmailInput] = useState<string>("");
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
 
+  const handleCheckboxChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newCheckboxStates = [...checkboxStates];
+    newCheckboxStates[index] = e.target.checked;
+    setCheckboxStates(newCheckboxStates);
+  };
+
   return (
     <FormContainer>
-      <StyledCheckbox onChange={(e) => setIsWhenX(e.target.checked)} checked={isWhenX} small={true} label="When x." />
-      <StyledCheckbox onChange={(e) => setIsWhenY(e.target.checked)} checked={isWhenY} small={true} label="When y." />
-      <StyledCheckbox onChange={(e) => setIsWhenZ(e.target.checked)} checked={isWhenZ} small={true} label="When z." />
-      <StyledCheckbox onChange={(e) => setIsWhenW(e.target.checked)} checked={isWhenW} small={true} label="When w." />
+      {OPTIONS.map(({ label }, index) => (
+        <StyledCheckbox
+          key={label}
+          onChange={handleCheckboxChange(index)}
+          checked={checkboxStates[index]}
+          small={true}
+          label={label}
+        />
+      ))}
       <FormEmailContainer>
-        <FormEmail emailInput={emailInput} setEmailInput={setEmailInput} setEmailIsValid={setEmailIsValid} />
-        {emailInput !== "" && !emailIsValid && <EmailErrorContainer>Email is invalid</EmailErrorContainer>}
+        <FormEmail
+          emailInput={emailInput}
+          emailIsValid={emailIsValid}
+          setEmailInput={setEmailInput}
+          setEmailIsValid={setEmailIsValid}
+        />
       </FormEmailContainer>
 
       <ButtonContainer>
