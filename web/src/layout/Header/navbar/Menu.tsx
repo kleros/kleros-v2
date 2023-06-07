@@ -11,7 +11,7 @@ import NotificationsIcon from "svgs/menu-icons/notifications.svg";
 import SettingsIcon from "svgs/menu-icons/settings.svg";
 
 interface IMenu {
-  toggleLocked: () => void;
+  toggleLocked: (val: boolean) => void;
 }
 
 const Container = styled.div``;
@@ -33,7 +33,7 @@ const Menu: React.FC<IMenu> = ({ toggleLocked }) => {
       text: "Help",
       Icon: HelpIcon,
       onClick: () => {
-        toggleLocked();
+        toggleLocked(true);
         toggle();
       },
     },
@@ -49,7 +49,7 @@ const Menu: React.FC<IMenu> = ({ toggleLocked }) => {
       {buttons.map(({ text, Icon, onClick }) => (
         <ButtonContainer key={text}>
           <LightButton {...{ text, onClick, Icon }} />
-          {text === "Help" && isHelpOpen && <Help toggle={toggle} />}
+          {text === "Help" && isHelpOpen && <Help toggle={toggle} toggleLocked={toggleLocked} />}
         </ButtonContainer>
       ))}
     </Container>

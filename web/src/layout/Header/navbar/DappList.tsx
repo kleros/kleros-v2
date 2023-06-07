@@ -13,6 +13,7 @@ import Product from "./Product";
 
 interface IDappList {
   toggleSolution: () => void;
+  toggleLocked: (val: boolean) => void;
 }
 
 const ITEMS = [
@@ -101,9 +102,12 @@ const ItemsDiv = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 `;
 
-const DappList: React.FC<IDappList> = ({ toggleSolution }) => {
+const DappList: React.FC<IDappList> = ({ toggleSolution, toggleLocked }) => {
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => toggleSolution());
+  useFocusOutside(containerRef, () => {
+    toggleSolution();
+    toggleLocked(false);
+  });
 
   return (
     <Container ref={containerRef}>

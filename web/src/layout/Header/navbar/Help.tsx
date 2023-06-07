@@ -43,6 +43,7 @@ const ITEMS = [
 
 interface IHelp {
   toggle: () => void;
+  toggleLocked: (val: boolean) => void;
 }
 
 const Container = styled.div`
@@ -86,9 +87,12 @@ const Icon = styled.svg`
   fill: ${({ theme }) => theme.secondaryPurple};
 `;
 
-const Help: React.FC<IHelp> = ({ toggle }) => {
+const Help: React.FC<IHelp> = ({ toggle, toggleLocked }) => {
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => toggle());
+  useFocusOutside(containerRef, () => {
+    toggle();
+    toggleLocked(false);
+  });
 
   return (
     <Container ref={containerRef}>
