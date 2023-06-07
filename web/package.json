@@ -72,6 +72,7 @@
     "react-chartjs-2": "^4.3.1",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^3.1.4",
+    "react-identicons": "^1.2.5",
     "react-is": "^18.2.0",
     "react-jazzicon": "^1.0.4",
     "react-loading-skeleton": "^3.2.0",

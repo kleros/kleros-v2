@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { useToggle } from "react-use";
-import { useToggleTheme } from "hooks/useToggleThemeContext";
 import LightButton from "components/LightButton";
 import Help from "./Help";
 import DarkModeIcon from "svgs/menu-icons/dark-mode.svg";
@@ -9,6 +8,8 @@ import HelpIcon from "svgs/menu-icons/help.svg";
 import LightModeIcon from "svgs/menu-icons/light-mode.svg";
 import NotificationsIcon from "svgs/menu-icons/notifications.svg";
 import SettingsIcon from "svgs/menu-icons/settings.svg";
+import Settings from "./Settings";
+import { useToggleTheme } from "hooks/useToggleThemeContext";
 
 interface IMenu {
   toggleLocked: (val: boolean) => void;
@@ -25,10 +26,16 @@ const ButtonContainer = styled.div`
 const Menu: React.FC<IMenu> = ({ toggleLocked }) => {
   const [theme, toggleTheme] = useToggleTheme();
   const [isHelpOpen, toggle] = useToggle(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   const isLightTheme = theme === "light";
   const buttons = [
     { text: "Notifications", Icon: NotificationsIcon },
-    { text: "Settings", Icon: SettingsIcon },
+    {
+      text: "Settings",
+      Icon: SettingsIcon,
+      onClick: () => setIsSettingsOpen(true),
+    },
     {
       text: "Help",
       Icon: HelpIcon,
@@ -50,6 +57,7 @@ const Menu: React.FC<IMenu> = ({ toggleLocked }) => {
         <ButtonContainer key={text}>
           <LightButton {...{ text, onClick, Icon }} />
           {text === "Help" && isHelpOpen && <Help toggle={toggle} toggleLocked={toggleLocked} />}
+          {text === "Settings" && isSettingsOpen && <Settings setIsSettingsOpen={setIsSettingsOpen} />}
         </ButtonContainer>
       ))}
     </Container>

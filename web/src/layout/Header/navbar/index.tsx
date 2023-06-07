@@ -39,6 +39,8 @@ const NavBar: React.FC = () => {
 
   useLockBodyScroll(locked);
   const { isOpen } = useOpenContext();
+  useLockBodyScroll(isOpen);
+
   return (
     <Container {...{ isOpen }}>
       <LightButton
