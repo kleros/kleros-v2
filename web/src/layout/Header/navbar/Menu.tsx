@@ -1,13 +1,18 @@
-import LightButton from "components/LightButton";
-import { useToggleTheme } from "hooks/useToggleThemeContext";
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
+import { useToggle } from "react-use";
+import { useToggleTheme } from "hooks/useToggleThemeContext";
+import LightButton from "components/LightButton";
+import Help from "./Help";
 import DarkModeIcon from "svgs/menu-icons/dark-mode.svg";
 import HelpIcon from "svgs/menu-icons/help.svg";
 import LightModeIcon from "svgs/menu-icons/light-mode.svg";
 import NotificationsIcon from "svgs/menu-icons/notifications.svg";
 import SettingsIcon from "svgs/menu-icons/settings.svg";
-import Help from "./Help";
+
+interface IMenu {
+  toggleLocked: () => void;
+}
 
 const Container = styled.div``;
 
@@ -17,14 +22,21 @@ const ButtonContainer = styled.div`
   align-items: center;
 `;
 
-const Menu: React.FC = () => {
+const Menu: React.FC<IMenu> = ({ toggleLocked }) => {
   const [theme, toggleTheme] = useToggleTheme();
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isHelpOpen, toggle] = useToggle(true);
   const isLightTheme = theme === "light";
   const buttons = [
     { text: "Notifications", Icon: NotificationsIcon },
     { text: "Settings", Icon: SettingsIcon },
-    { text: "Help", Icon: HelpIcon, onClick: () => setIsHelpOpen((prevState) => !prevState) },
+    {
+      text: "Help",
+      Icon: HelpIcon,
+      onClick: () => {
+        toggleLocked();
+        toggle();
+      },
+    },
     {
       text: `${isLightTheme ? "Dark" : "Light"} Mode`,
       Icon: isLightTheme ? DarkModeIcon : LightModeIcon,
@@ -37,7 +49,7 @@ const Menu: React.FC = () => {
       {buttons.map(({ text, Icon, onClick }) => (
         <ButtonContainer key={text}>
           <LightButton {...{ text, onClick, Icon }} />
-          {text === "Help" && isHelpOpen && <Help setIsHelpOpen={setIsHelpOpen} />}
+          {text === "Help" && isHelpOpen && <Help toggle={toggle} />}
         </ButtonContainer>
       ))}
     </Container>

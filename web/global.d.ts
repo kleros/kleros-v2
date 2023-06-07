@@ -6,6 +6,10 @@ declare global {
     const content: React.FC<React.SVGAttributes<SVGElement>>;
     export default content;
   }
+  module "*.png" {
+    const value: string;
+    export default value;
+  }
 }
 
 declare module "styled-components" {

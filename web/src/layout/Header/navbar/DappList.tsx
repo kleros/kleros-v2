@@ -1,18 +1,18 @@
-import React, { Dispatch, SetStateAction, useRef } from "react";
+import React, { useRef } from "react";
 import styled from "styled-components";
-import Curate from "svgs/icons/curate.svg";
+import { useFocusOutside } from "~src/hooks/useFocusOutside";
+import Curate from "svgs/icons/curate-image.png";
 import Resolver from "svgs/icons/dispute-resolver.svg";
 import Escrow from "svgs/icons/escrow.svg";
 import Governor from "svgs/icons/governor.svg";
 import Court from "svgs/icons/kleros.svg";
 import Linguo from "svgs/icons/linguo.svg";
-import POH from "svgs/icons/poh.svg";
+import POH from "svgs/icons/poh-image.png";
 import Tokens from "svgs/icons/tokens.svg";
-import { useFocusOutside } from "~src/hooks/useFocusOutside";
 import Product from "./Product";
 
 interface IDappList {
-  setIsSolutionOpen: Dispatch<SetStateAction<boolean>>;
+  toggleSolution: () => void;
 }
 
 const ITEMS = [
@@ -70,11 +70,16 @@ const Header = styled.h1`
 const Container = styled.div`
   display: flex;
   position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translate(-50%, -5%);
   z-index: 10;
   flex-direction: column;
   align-items: center;
-  width: 480px;
-  height: 400px;
+
+  width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
+  max-width: 480px;
+  min-width: 300px;
   border-radius: 3px;
   border: 1px solid ${({ theme }) => theme.stroke};
   background-color: ${({ theme }) => theme.whiteBackground};
@@ -87,14 +92,18 @@ const Container = styled.div`
 
 const ItemsDiv = styled.div`
   display: grid;
-  padding: 5px 10px;
+  padding: 10px 10px 32px 10px;
   row-gap: 8px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  justify-items: center;
+  max-width: 480px;
+  min-width: 300px;
+  width: calc(200px + (480 - 200) * (100vw - 375px) / (1250 - 375));
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 `;
 
-const DappList: React.FC<IDappList> = ({ setIsSolutionOpen }) => {
+const DappList: React.FC<IDappList> = ({ toggleSolution }) => {
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => setIsSolutionOpen(false));
+  useFocusOutside(containerRef, () => toggleSolution());
 
   return (
     <Container ref={containerRef}>

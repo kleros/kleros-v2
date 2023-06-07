@@ -1,12 +1,12 @@
-import React, { Dispatch, SetStateAction, useRef } from "react";
+import React, { useRef } from "react";
 import styled from "styled-components";
+import { useFocusOutside } from "~src/hooks/useFocusOutside";
 import Book from "svgs/icons/book-open.svg";
 import Guide from "svgs/icons/book.svg";
 import Bug from "svgs/icons/bug.svg";
 import ETH from "svgs/icons/eth.svg";
 import Faq from "svgs/menu-icons/help.svg";
 import Telegram from "svgs/socialmedia/telegram.svg";
-import { useFocusOutside } from "~src/hooks/useFocusOutside";
 
 const ITEMS = [
   {
@@ -42,14 +42,16 @@ const ITEMS = [
 ];
 
 interface IHelp {
-  setIsHelpOpen: Dispatch<SetStateAction<boolean>>;
+  toggle: () => void;
 }
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   position: absolute;
-  top: calc(32%);
+  top: 5%;
+  left: 50%;
+  transform: translate(-50%, -5%);
   z-index: 10;
   padding: 27px 10px;
   gap: 23px;
@@ -64,6 +66,14 @@ const ListItem = styled.div`
   gap: 8px;
   padding: 0px 8px;
   cursor: pointer;
+  :hover {
+    transform: scale(1.02) translateZ(0);
+    transition: 200ms;
+    transition-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
+    -webkit-font-smoothing: subpixel-antialiased;
+    backface-visibility: hidden;
+  }
+
   small {
     font-size: 16px;
     font-weight: 400;
@@ -76,9 +86,9 @@ const Icon = styled.svg`
   fill: ${({ theme }) => theme.secondaryPurple};
 `;
 
-const Help: React.FC<IHelp> = ({ setIsHelpOpen }) => {
+const Help: React.FC<IHelp> = ({ toggle }) => {
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => setIsHelpOpen(false));
+  useFocusOutside(containerRef, () => toggle());
 
   return (
     <Container ref={containerRef}>
