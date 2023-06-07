@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { Field } from "@kleros/ui-components-library";
 
@@ -25,9 +25,16 @@ const FormEmail: React.FC<IFormEmail> = ({ emailInput, setEmailInput, setEmailIs
     setEmailInput(event.target.value);
   };
 
+  const getFieldVariant = useMemo(() => {
+    if (emailInput === "") {
+      return undefined;
+    }
+    return emailIsValid ? "success" : "error";
+  }, [emailInput, emailIsValid]);
+
   return (
     <StyledField
-      variant={emailInput === "" ? undefined : emailIsValid ? "success" : "error"}
+      variant={getFieldVariant}
       value={emailInput}
       onChange={handleInputChange}
       placeholder="youremail@email.com"
