@@ -102,6 +102,16 @@ const ItemsDiv = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 `;
 
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: ${({ theme }) => theme.blackLowOpacity};
+  z-index: 1;
+`;
+
 const DappList: React.FC<IDappList> = ({ toggleSolution, toggleLocked }) => {
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => {
@@ -110,14 +120,17 @@ const DappList: React.FC<IDappList> = ({ toggleSolution, toggleLocked }) => {
   });
 
   return (
-    <Container ref={containerRef}>
-      <Header>Kleros Solutions</Header>
-      <ItemsDiv>
-        {ITEMS.map((item) => {
-          return <Product {...item} key={item.text} />;
-        })}
-      </ItemsDiv>
-    </Container>
+    <>
+      <Overlay />
+      <Container ref={containerRef}>
+        <Header>Kleros Solutions</Header>
+        <ItemsDiv>
+          {ITEMS.map((item) => {
+            return <Product {...item} key={item.text} />;
+          })}
+        </ItemsDiv>
+      </Container>
+    </>
   );
 };
 export default DappList;
