@@ -7,8 +7,8 @@ declare global {
     export default content;
   }
   module "*.png" {
-    const value: string;
-    export default value;
+    const path: string;
+    export default path;
   }
 }
 

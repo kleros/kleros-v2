@@ -98,7 +98,7 @@ const ItemsDiv = styled.div`
   justify-items: center;
   max-width: 480px;
   min-width: 300px;
-  width: calc(200px + (480 - 200) * (100vw - 375px) / (1250 - 375));
+  width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 `;
 
