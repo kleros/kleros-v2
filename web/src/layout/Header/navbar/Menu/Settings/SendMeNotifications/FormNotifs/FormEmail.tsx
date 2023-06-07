@@ -25,7 +25,7 @@ const FormEmail: React.FC<IFormEmail> = ({ emailInput, setEmailInput, setEmailIs
     setEmailInput(event.target.value);
   };
 
-  const getFieldVariant = useMemo(() => {
+  const fieldVariant = useMemo(() => {
     if (emailInput === "") {
       return undefined;
     }
@@ -34,7 +34,7 @@ const FormEmail: React.FC<IFormEmail> = ({ emailInput, setEmailInput, setEmailIs
 
   return (
     <StyledField
-      variant={getFieldVariant}
+      variant={fieldVariant}
       value={emailInput}
       onChange={handleInputChange}
       placeholder="youremail@email.com"
