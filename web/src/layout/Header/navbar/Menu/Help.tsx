@@ -51,7 +51,7 @@ const Container = styled.div`
   position: absolute;
   top: 5%;
   left: 50%;
-  transform: translate(-50%, -5%);
+  transform: translate(-50%);
   z-index: 10;
   padding: 27px 10px;
   gap: 23px;
@@ -85,6 +85,16 @@ const Icon = styled.svg`
   fill: ${({ theme }) => theme.secondaryPurple};
 `;
 
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: ${({ theme }) => theme.blackLowOpacity};
+  z-index: 1;
+`;
+
 const Help: React.FC<IHelp> = ({ toggle }) => {
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => {
@@ -92,14 +102,17 @@ const Help: React.FC<IHelp> = ({ toggle }) => {
   });
 
   return (
-    <Container ref={containerRef}>
-      {ITEMS.map((item) => (
-        <ListItem key={item.text}>
-          <Icon as={item.Icon} />
-          <small>{item.text}</small>
-        </ListItem>
-      ))}
-    </Container>
+    <>
+      <Overlay />
+      <Container ref={containerRef}>
+        {ITEMS.map((item) => (
+          <ListItem key={item.text}>
+            <Icon as={item.Icon} />
+            <small>{item.text}</small>
+          </ListItem>
+        ))}
+      </Container>
+    </>
   );
 };
 export default Help;

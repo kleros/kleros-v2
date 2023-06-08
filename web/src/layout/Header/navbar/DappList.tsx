@@ -72,7 +72,7 @@ const Container = styled.div`
   position: absolute;
   top: 5%;
   left: 50%;
-  transform: translate(-50%, -5%);
+  transform: translate(-50%);
   z-index: 10;
   flex-direction: column;
   align-items: center;
@@ -92,13 +92,25 @@ const Container = styled.div`
 
 const ItemsDiv = styled.div`
   display: grid;
+  overflow-y: scroll;
   padding: 10px 10px 32px 10px;
   row-gap: 8px;
   justify-items: center;
   max-width: 480px;
   min-width: 300px;
+  max-height: 50vh;
   width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+`;
+
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: ${({ theme }) => theme.blackLowOpacity};
+  z-index: 1;
 `;
 
 const DappList: React.FC<IDappList> = ({ toggleSolution }) => {
@@ -108,14 +120,17 @@ const DappList: React.FC<IDappList> = ({ toggleSolution }) => {
   });
 
   return (
-    <Container ref={containerRef}>
-      <Header>Kleros Solutions</Header>
-      <ItemsDiv>
-        {ITEMS.map((item) => {
-          return <Product {...item} key={item.text} />;
-        })}
-      </ItemsDiv>
-    </Container>
+    <>
+      <Overlay />
+      <Container ref={containerRef}>
+        <Header>Kleros Solutions</Header>
+        <ItemsDiv>
+          {ITEMS.map((item) => {
+            return <Product {...item} key={item.text} />;
+          })}
+        </ItemsDiv>
+      </Container>
+    </>
   );
 };
 export default DappList;
