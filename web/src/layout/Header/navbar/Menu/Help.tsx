@@ -52,7 +52,7 @@ const Container = styled.div`
   position: absolute;
   top: 5%;
   left: 50%;
-  transform: translate(-50%, -5%);
+  transform: translate(-50%);
   z-index: 10;
   padding: 27px 10px;
   gap: 23px;

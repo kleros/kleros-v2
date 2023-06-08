@@ -73,7 +73,7 @@ const Container = styled.div`
   position: absolute;
   top: 5%;
   left: 50%;
-  transform: translate(-50%, -5%);
+  transform: translate(-50%);
   z-index: 10;
   flex-direction: column;
   align-items: center;
