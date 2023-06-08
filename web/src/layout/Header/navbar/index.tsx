@@ -1,12 +1,13 @@
 import React from "react";
 import styled from "styled-components";
-import { useLockBodyScroll } from "react-use";
-import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
-import LightButton from "components/LightButton";
-import Explore from "./Explore";
+import { useLockBodyScroll, useToggle } from "react-use";
 import ConnectButton from "components/ConnectButton";
-import Menu from "./Menu";
+import LightButton from "components/LightButton";
+import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 import { useOpenContext } from "../index";
+import DappList from "./DappList";
+import Explore from "./Explore";
+import Menu from "./Menu";
 
 const Container = styled.div<{ isOpen: boolean }>`
   position: absolute;
@@ -28,17 +29,26 @@ const Container = styled.div<{ isOpen: boolean }>`
   padding: 24px;
 
   hr {
-    margin 24px 0;
+    margin: 24px 0;
   }
 `;
 
 const NavBar: React.FC = () => {
+  const [isSolutionsOpen, toggleSolution] = useToggle(false);
+
   const { isOpen } = useOpenContext();
   useLockBodyScroll(isOpen);
 
   return (
     <Container {...{ isOpen }}>
-      <LightButton text="Kleros Solutions" Icon={KlerosSolutionsIcon} />
+      <LightButton
+        text="Kleros Solutions"
+        onClick={() => {
+          toggleSolution();
+        }}
+        Icon={KlerosSolutionsIcon}
+      />
+      {isSolutionsOpen && <DappList toggleSolution={toggleSolution} />}
       <hr />
       <Explore />
       <hr />

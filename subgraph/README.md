@@ -37,6 +37,7 @@ yarn deploy:arbitrum-goerli
 ```
 
 ### Using the Kleros organization account
+
 Go to the [Deploy Subgraph Action](https://github.com/kleros/kleros-v2/actions/workflows/deploy-subgraph.yml) and click the Run workflow button:
 
 <img width="1265" alt="image" src="https://github.com/kleros/kleros-v2/assets/22213980/da39f584-baaf-42a2-8c6a-6544aee29420">

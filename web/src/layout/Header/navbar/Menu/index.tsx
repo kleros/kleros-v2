@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { useToggle } from "react-use";
 import LightButton from "components/LightButton";
-import NotificationsIcon from "svgs/menu-icons/notifications.svg";
+import Help from "./Help";
 import DarkModeIcon from "svgs/menu-icons/dark-mode.svg";
-import LightModeIcon from "svgs/menu-icons/light-mode.svg";
 import HelpIcon from "svgs/menu-icons/help.svg";
+import LightModeIcon from "svgs/menu-icons/light-mode.svg";
+import NotificationsIcon from "svgs/menu-icons/notifications.svg";
 import SettingsIcon from "svgs/menu-icons/settings.svg";
 import Settings from "./Settings";
 import { useToggleTheme } from "hooks/useToggleThemeContext";
@@ -13,13 +15,13 @@ const Container = styled.div``;
 
 const ButtonContainer = styled.div`
   min-height: 32px;
-
   display: flex;
   align-items: center;
 `;
 
 const Menu: React.FC = () => {
   const [theme, toggleTheme] = useToggleTheme();
+  const [isHelpOpen, toggleIsHelpOpen] = useToggle(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const isLightTheme = theme === "light";
@@ -30,7 +32,13 @@ const Menu: React.FC = () => {
       Icon: SettingsIcon,
       onClick: () => setIsSettingsOpen(true),
     },
-    { text: "Help", Icon: HelpIcon },
+    {
+      text: "Help",
+      Icon: HelpIcon,
+      onClick: () => {
+        toggleIsHelpOpen();
+      },
+    },
     {
       text: `${isLightTheme ? "Dark" : "Light"} Mode`,
       Icon: isLightTheme ? DarkModeIcon : LightModeIcon,
@@ -43,9 +51,10 @@ const Menu: React.FC = () => {
       {buttons.map(({ text, Icon, onClick }) => (
         <ButtonContainer key={text}>
           <LightButton {...{ text, onClick, Icon }} />
-          {text === "Settings" && isSettingsOpen && <Settings setIsSettingsOpen={setIsSettingsOpen} />}
         </ButtonContainer>
       ))}
+      {isHelpOpen && <Help toggle={toggleIsHelpOpen} />}
+      {isSettingsOpen && <Settings setIsSettingsOpen={setIsSettingsOpen} />}
     </Container>
   );
 };
