@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
+import getContractAddress from "../deploy-helpers/getContractAddress";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -13,13 +14,14 @@ const pnkByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_GOERLI, "0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610"],
 ]);
 
+// https://randomizer.ai/docs#addresses
 const randomizerByChain = new Map<HomeChains, string>([
-  [HomeChains.ARBITRUM_ONE, "0x00"],
-  [HomeChains.ARBITRUM_GOERLI, "0xF25c6Ad3694dA9D3C97F4D316b0B31F96cEb39d5"],
+  [HomeChains.ARBITRUM_ONE, "0x5b8bB80f2d72D0C85caB8fB169e8170A05C94bAF"],
+  [HomeChains.ARBITRUM_GOERLI, "0x923096Da90a3b60eb7E12723fA2E1547BA9236Bc"],
 ]);
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  const { deployments, getNamedAccounts, getChainId } = hre;
+  const { ethers, deployments, getNamedAccounts, getChainId } = hre;
   const { deploy, execute } = deployments;
   const { AddressZero } = hre.ethers.constants;
   const RNG_LOOKAHEAD = 20;
@@ -66,12 +68,17 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const disputeKit = await deploy("DisputeKitClassic", {
     from: deployer,
-    args: [deployer, AddressZero, rng.address, RNG_LOOKAHEAD],
+    args: [deployer, AddressZero],
     log: true,
   });
 
-  const sortitionSumTreeLibrary = await deploy("SortitionSumTreeFactoryV2", {
+  const nonce = await ethers.provider.getTransactionCount(deployer);
+  const KlerosCoreAddress = getContractAddress(deployer, nonce + 1);
+  console.log("calculated future KlerosCore address for nonce %d: %s", nonce, KlerosCoreAddress);
+
+  const sortitionModule = await deploy("SortitionModule", {
     from: deployer,
+    args: [deployer, KlerosCoreAddress, 1800, 1800, rng.address, RNG_LOOKAHEAD], // minStakingTime, maxFreezingTime
     log: true,
   });
 
@@ -79,22 +86,18 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const minStake = BigNumber.from(10).pow(20).mul(2);
   const alpha = 10000;
   const feeForJuror = BigNumber.from(10).pow(17);
-  const sortitionSumTreeK = 3;
   const klerosCore = await deploy("KlerosCore", {
     from: deployer,
-    libraries: {
-      SortitionSumTreeFactoryV2: sortitionSumTreeLibrary.address,
-    },
     args: [
       deployer,
       pnk,
       AddressZero,
       disputeKit.address,
-      [1800, 1800], // minStakingTime, maxFreezingTime
       false,
       [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      sortitionSumTreeK,
+      0xfa, // Extra data for sortition module will return the default value of K
+      sortitionModule.address,
     ],
     log: true,
   });

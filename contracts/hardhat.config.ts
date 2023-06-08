@@ -2,6 +2,7 @@
 import * as dotenv from "dotenv";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-chai-matchers";
+import "@nomiclabs/hardhat-solhint";
 import "@typechain/hardhat";
 import "hardhat-deploy-tenderly";
 import "hardhat-gas-reporter";
@@ -18,7 +19,7 @@ dotenv.config();
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.9",
+    version: "0.8.18",
     settings: {
       optimizer: {
         enabled: true,
@@ -79,13 +80,15 @@ const config: HardhatUserConfig = {
     arbitrumGoerli: {
       chainId: 421613,
       url: "https://goerli-rollup.arbitrum.io/rpc",
-      accounts: process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 && [
-        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,
-        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_2 as string,
-        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_3 as string,
-        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_4 as string,
-        process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_5 as string,
-      ],
+      accounts:
+        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 && [
+          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,
+          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_2 as string,
+          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_3 as string,
+          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_4 as string,
+          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_5 as string,
+        ]) ||
+        [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "home", "layer2"],
@@ -215,7 +218,13 @@ const config: HardhatUserConfig = {
     testArbitration: {
       tasks: [
         { command: "compile", params: { quiet: true } },
-        { command: "test", params: { noCompile: true, testFiles: ["./test/arbitration/index.ts"] } },
+        {
+          command: "test",
+          params: {
+            noCompile: true,
+            testFiles: ["./test/arbitration/index.ts"],
+          },
+        },
       ],
       files: ["./test/**/*", "./src/**/*"],
     },

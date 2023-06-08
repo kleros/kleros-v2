@@ -1,4 +1,4 @@
-export function getCurrentTime() {
+export function getCurrentTime(): number {
   return Math.floor(Date.now() / 1000);
 }
 

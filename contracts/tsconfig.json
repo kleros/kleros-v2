@@ -1,15 +1,5 @@
 {
-  "compilerOptions": {
-    "target": "es2021",
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
-    "outDir": "dist",
-    "declaration": true,
-    "sourceMap": true,
-    "noImplicitAny": false,
-    "resolveJsonModule": true
-  },
+  "extends": "@kleros/kleros-v2-tsconfig/base.json",
   "include": [
     "./src",
     "./scripts",

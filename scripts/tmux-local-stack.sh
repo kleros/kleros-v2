@@ -10,27 +10,33 @@ if [ $? != 0 ]; then
   tmux set-window-option automatic-rename off
   tmux set pane-border-status top
   tmux set pane-border-format " #{pane_index} - #{pane_title} "
+
+  # Some users set 1 as the pane-base-index instead of 0 by default
+  index=$(tmux show-options -gv pane-base-index)
   
   tmux split-window -h
   tmux split-window -v
-  tmux select-pane -t 1
+  tmux select-pane -t $index
   tmux split-window -v
   
-  tmux select-pane -t 1 -T "HARDHAT RPC"
-  tmux send-keys -t 1 'cd contracts' Enter
-  tmux send-keys -t 1 'yarn start-local'
+  tmux select-pane -t $index -T "HARDHAT RPC"
+  tmux send-keys -t $index 'cd contracts' Enter
+  tmux send-keys -t $index 'yarn start-local'
 
-  tmux select-pane -t 2 -T "GRAPH NODE"
-  tmux send-keys -t 2 'cd subgraph' Enter
-  tmux send-keys -t 2 'yarn start-local-indexer'
+  (( ++index ))
+  tmux select-pane -t $index -T "GRAPH NODE"
+  tmux send-keys -t $index 'cd subgraph' Enter
+  tmux send-keys -t $index 'yarn start-local-indexer'
 
-  tmux select-pane -t 3 -T "SUBGRAPH DEPLOY"
-  tmux send-keys -t 3 'cd subgraph' Enter
-  tmux send-keys -t 3 'yarn rebuild-deploy-local'
+  (( ++index ))
+  tmux select-pane -t $index -T "SUBGRAPH DEPLOY"
+  tmux send-keys -t $index 'cd subgraph' Enter
+  tmux send-keys -t $index 'yarn rebuild-deploy-local'
 
-  tmux select-pane -t 4 -T "WEB"
-  tmux send-keys -t 4 'cd web' Enter
-  tmux send-keys -t 4 'yarn start-local'
+  (( ++index ))
+  tmux select-pane -t $index -T "WEB"
+  tmux send-keys -t $index 'cd web' Enter
+  tmux send-keys -t $index 'yarn start-local'
 fi
 
 tmux attach-session -t $session

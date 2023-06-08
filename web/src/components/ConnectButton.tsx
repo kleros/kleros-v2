@@ -7,15 +7,22 @@ import { shortenAddress } from "utils/shortenAddress";
 import { Button } from "@kleros/ui-components-library";
 
 const AccountDisplay: React.FC = () => {
-  const { address } = useAccount();
-  const { chain } = useNetwork();
-  const shortAddress = address ? shortenAddress(address) : undefined;
   return (
     <StyledContainer>
-      <small>{chain?.name}</small>
-      <label>{shortAddress}</label>
+      <ChainDisplay />
+      <AddressDisplay />
     </StyledContainer>
   );
+};
+
+export const ChainDisplay: React.FC = () => {
+  const { chain } = useNetwork();
+  return <small>{chain?.name}</small>;
+};
+
+export const AddressDisplay: React.FC = () => {
+  const { address } = useAccount();
+  return <label>{address && shortenAddress(address)}</label>;
 };
 
 const StyledContainer = styled.div`
@@ -46,12 +53,7 @@ const ConnectButton: React.FC = () => {
   return isConnected ? (
     <AccountDisplay />
   ) : (
-    <Button
-      disabled={isOpen}
-      small
-      text={"Connect"}
-      onClick={async () => await open({ route: "ConnectWallet" })}
-    />
+    <Button disabled={isOpen} small text={"Connect"} onClick={async () => await open({ route: "ConnectWallet" })} />
   );
 };
 

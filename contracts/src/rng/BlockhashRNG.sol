@@ -1,34 +1,28 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8;
+pragma solidity 0.8.18;
 
 import "./RNG.sol";
 
-/**
- *  @title Random Number Generator using blockhash with fallback.
- *  @author Clément Lesaege - <clement@lesaege.com>
- *
- *  Random Number Generator returning the blockhash with a fallback behaviour.
- *  In case no one called it within the 256 blocks, it returns the previous blockhash.
- *  This contract must be used when returning 0 is a worse failure mode than returning another blockhash.
- *  Allows saving the random number for use in the future. It allows the contract to still access the blockhash even after 256 blocks.
- */
+/// @title Random Number Generator using blockhash with fallback.
+/// @author Clément Lesaege - <clement@lesaege.com>
+/// @dev
+///  Random Number Generator returning the blockhash with a fallback behaviour.
+///  In case no one called it within the 256 blocks, it returns the previous blockhash.
+///  This contract must be used when returning 0 is a worse failure mode than returning another blockhash.
+///  Allows saving the random number for use in the future. It allows the contract to still access the blockhash even after 256 blocks.
 contract BlockHashRNG is RNG {
     mapping(uint256 => uint256) public randomNumbers; // randomNumbers[block] is the random number for this block, 0 otherwise.
 
-    /**
-     *  @dev Request a random number.
-     *  @param _block Block the random number is linked to.
-     */
+    /// @dev Request a random number.
+    /// @param _block Block the random number is linked to.
     function requestRandomness(uint256 _block) external override {
         // nop
     }
 
-    /**
-     *  @dev Return the random number. If it has not been saved and is still computable compute it.
-     *  @param _block Block the random number is linked to.
-     *  @return randomNumber The random number or 0 if it is not ready or has not been requested.
-     */
+    /// @dev Return the random number. If it has not been saved and is still computable compute it.
+    /// @param _block Block the random number is linked to.
+    /// @return randomNumber The random number or 0 if it is not ready or has not been requested.
     function receiveRandomness(uint256 _block) external override returns (uint256 randomNumber) {
         randomNumber = randomNumbers[_block];
         if (randomNumber != 0) {

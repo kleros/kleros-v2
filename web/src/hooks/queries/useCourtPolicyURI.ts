@@ -11,7 +11,7 @@ const courtPolicyURIQuery = gql`
   }
 `;
 
-export const useCourtPolicyURI = (id?: string | number) => {
+export const useCourtPolicyURI = (id?: string | number): { data: typeof result; error: any; isValidating: boolean } => {
   const { data, error, isValidating } = useSWRImmutable(() =>
     typeof id !== "undefined"
       ? {
@@ -20,8 +20,6 @@ export const useCourtPolicyURI = (id?: string | number) => {
         }
       : false
   );
-  const result = data
-    ? (data.court.policy as CourtPolicyUriQuery.court.policy)
-    : undefined;
+  const result = data ? (data.court.policy as CourtPolicyUriQuery.court.policy) : undefined;
   return { data: result, error, isValidating };
 };

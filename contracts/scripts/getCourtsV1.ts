@@ -52,7 +52,7 @@ async function main() {
           minStake: result.minStake.toString(),
           alpha: result.alpha.toString(),
           feeForJuror: result.feeForJuror.toString(),
-          jurorsForCourtJump: result.feeForJuror.toString(),
+          jurorsForCourtJump: result.jurorsForCourtJump.toString(),
           timesPerPeriod: [],
         } as unknown as Court)
     );

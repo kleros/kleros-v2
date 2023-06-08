@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: MIT
 
-/**
- *  @authors: [@shalzz, @jaybuidl]
- *  @reviewers: []
- *  @auditors: []
- *  @bounties: []
- *  @deployments: []
- */
+/// @custom:authors: [@shalzz, @jaybuidl]
+/// @custom:reviewers: []
+/// @custom:auditors: []
+/// @custom:bounties: []
+/// @custom:deployments: []
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.18;
 
 import "../../arbitration/IArbitrator.sol";
 import "@kleros/vea-contracts/single-message/interfaces/IFastBridgeSender.sol";
@@ -16,10 +14,8 @@ import "@kleros/vea-contracts/single-message/interfaces/IFastBridgeSender.sol";
 import "./interfaces/IForeignGatewaySingleMessage.sol";
 import "./interfaces/IHomeGatewaySingleMessage.sol";
 
-/**
- * Home Gateway to Ethereum
- * Counterpart of `ForeignGatewayOnEthereum`
- */
+/// Home Gateway to Ethereum
+/// Counterpart of `ForeignGatewayOnEthereum`
 contract HomeGatewayToEthereum is IHomeGatewaySingleMessage {
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => uint256) public disputeHashtoID;
@@ -54,19 +50,15 @@ contract HomeGatewayToEthereum is IHomeGatewaySingleMessage {
         emit MetaEvidence(0, "BRIDGE");
     }
 
-    /**
-     * @dev Provide the same parameters as on the originalChain while creating a
-     *      dispute. Providing incorrect parameters will create a different hash
-     *      than on the originalChain and will not affect the actual dispute/arbitrable's
-     *      ruling.
-     *
-     * @param _originalChainID originalChainId
-     * @param _originalBlockHash originalBlockHash
-     * @param _originalDisputeID originalDisputeID
-     * @param _choices number of ruling choices
-     * @param _extraData extraData
-     * @param _arbitrable arbitrable
-     */
+    /// @dev Provide the same parameters as on the originalChain while creating a dispute.
+    ///   Providing incorrect parameters will create a hash which is different than the one on
+    ///   the originalChain and will not affect the actual dispute/arbitrable's ruling.
+    /// @param _originalChainID originalChainId
+    /// @param _originalBlockHash originalBlockHash
+    /// @param _originalDisputeID originalDisputeID
+    /// @param _choices number of ruling choices
+    /// @param _extraData extraData
+    /// @param _arbitrable arbitrable
     function relayCreateDispute(
         uint256 _originalChainID,
         bytes32 _originalBlockHash,
@@ -107,9 +99,10 @@ contract HomeGatewayToEthereum is IHomeGatewaySingleMessage {
         bytes32 disputeHash = disputeIDtoHash[_disputeID];
         RelayedData memory relayedData = disputeHashtoRelayedData[disputeHash];
 
-        bytes4 methodSelector = IForeignGatewaySingleMessage.relayRule.selector;
-        bytes memory data = abi.encodeWithSelector(methodSelector, disputeHash, _ruling, relayedData.relayer);
-
+        bytes memory data = abi.encodeCall(
+            IForeignGatewaySingleMessage.relayRule,
+            (disputeHash, _ruling, relayedData.relayer)
+        );
         fastbridge.sendFast(foreignGateway, data);
     }
 

@@ -27,7 +27,7 @@ export const usePNKAllowance = (user?: `0x${string}` | null) => {
   const pnkContract = usePnk();
   const klerosCore = useKlerosCore();
   return useSWR(
-    () => (pnkContract && user ? `PNKAllowance{user}` : false),
+    () => (pnkContract && user ? `PNKAllowance${user}` : false),
     async () => {
       if (pnkContract && user && klerosCore) {
         return await pnkContract.allowance(user, klerosCore.address);

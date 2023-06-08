@@ -164,43 +164,23 @@ task("simulate:create-dispute", "Creates a dispute on an arbitrable contract")
     return dispute;
   });
 
-task("simulate:pass-phase-core", "Pass the phase of the KlerosCore contract")
+task("simulate:pass-phase", "Pass the phase of the SortitionModule")
   .addParam("walletindex", "Index of the wallet to use for passing the phase")
   .setAction(async (taskArgs, hre) => {
-    const { core } = await getContracts(hre);
+    const { sortition } = await getContracts(hre);
     const { walletindex } = taskArgs;
 
     const { wallet } = await getWallet(hre, walletindex);
 
-    const before = await core.phase();
+    const before = await sortition.phase();
     try {
-      const tx = await (await core.connect(wallet).passPhase(options)).wait();
+      const tx = await (await sortition.connect(wallet).passPhase(options)).wait();
       console.log("passPhaseCore txID: %s", tx?.transactionHash);
     } catch (e) {
       handleError(e);
     } finally {
-      const after = await core.phase();
+      const after = await sortition.phase();
       console.log("phaseCore: %d -> %d", before, after);
-    }
-  });
-
-task("simulate:pass-phase-dk", "Pass the phase of the DisputeKitClassic contract")
-  .addParam("walletindex", "Index of the wallet to use for passing the phase")
-  .setAction(async (taskArgs, hre) => {
-    const { disputeKitClassic } = await getContracts(hre);
-    const { walletindex } = taskArgs;
-
-    const { wallet } = await getWallet(hre, walletindex);
-
-    const before = await disputeKitClassic.phase();
-    try {
-      const tx = await (await disputeKitClassic.connect(wallet).passPhase(options)).wait();
-      console.log("PassPhaseDK txID: %s", tx?.transactionHash);
-    } catch (e) {
-      handleError(e);
-    } finally {
-      const after = await disputeKitClassic.phase();
-      console.log("phaseDK: %d -> %d", before, after);
     }
   });
 
@@ -418,19 +398,15 @@ task("simulate:stake-five-jurors", "Approve and stake 5 different wallets on the
     await hre.run("simulate:set-stake", { walletindex: walletIndexes[4], pnkamount: pnkAmounts[4], courtid: courtid });
   });
 
-task(
-  "simulate:to-freezing-and-generating-phase",
-  "Pass phase for Core and DK, core to 'freezing' and DK to 'generating"
-)
+task("simulate:to-freezing-and-generating-phase", "Pass phase from 'staking' to 'generating")
   .addParam("walletindex", "Index of the wallet to use for calling this task")
   .setAction(async (taskArgs, hre: any) => {
     const { walletindex } = taskArgs;
-    await hre.run("simulate:pass-phase-core", { walletindex: walletindex });
-    await hre.run("simulate:pass-phase-dk", { walletindex: walletindex });
+    await hre.run("simulate:pass-phase", { walletindex: walletindex });
     if (isNetworkLocal(hre)) {
-      const { disputeKitClassic, randomizerMock, randomizerRng } = await getContracts(hre);
+      const { sortition, randomizerMock, randomizerRng } = await getContracts(hre);
       const { wallet } = await getWallet(hre, walletindex);
-      const numberOfBlocksToMine = Number(await disputeKitClassic.connect(wallet).rngLookahead());
+      const numberOfBlocksToMine = Number(await sortition.rngLookahead());
       await mineBlocks(numberOfBlocksToMine, hre.network);
       await randomizerMock.connect(wallet).relay(randomizerRng.address, 0, utils.randomBytes(32));
     }
@@ -438,15 +414,14 @@ task(
 
 task(
   "simulate:pass-phase-draw-unfreeze",
-  "Passes DK phase to 'drawing', draws the jurors, then passes DK and Core phases."
+  "Passes phase from 'generating' to 'drawing', draws the jurors, then passes the phase to 'staking'."
 )
   .addParam("walletindex", "Index of the wallet to use for calling this task")
   .addParam("disputeid", "The ID of the dispute to draw jurors for")
   .setAction(async (taskArgs, hre) => {
-    await hre.run("simulate:pass-phase-dk", { walletindex: taskArgs.walletindex });
+    await hre.run("simulate:pass-phase", { walletindex: taskArgs.walletindex });
     await hre.run("simulate:draw", { walletindex: taskArgs.walletindex, disputeid: taskArgs.disputeid });
-    await hre.run("simulate:pass-phase-dk", { walletindex: taskArgs.walletindex });
-    await hre.run("simulate:pass-phase-core", { walletindex: taskArgs.walletindex });
+    await hre.run("simulate:pass-phase", { walletindex: taskArgs.walletindex });
   });
 
 task("simulate:split-pnk", "one wallet funds with PNK the other 4 wallets")
@@ -490,7 +465,7 @@ task("simulate:submit-evidence", "Submits evidence to a dispute")
 
 task("simulate:all", "Simulates arbitration activity to troubleshoot the subgraph and frontend").setAction(
   async (taskArgs, hre) => {
-    const { core } = await getContracts(hre);
+    const { sortition } = await getContracts(hre);
     const operator = 0;
     const stake = 1000;
     const courtId = "1";
@@ -513,20 +488,18 @@ task("simulate:all", "Simulates arbitration activity to troubleshoot the subgrap
     });
 
     // Wait for minStakingTime
-    const minStakingTime = await core.minStakingTime();
+    const minStakingTime = await sortition.minStakingTime();
     await waitFor(minStakingTime.toNumber(), hre);
 
-    // Phase Core: Staking -> Freezing
-    // Phase DK: Resolving -> Generating
+    // Phase Staking -> Generating
     await hre.run("simulate:to-freezing-and-generating-phase", { walletindex: operator.toString() });
 
     // Wait for RNG
     await hre.run("simulate:wait-for-rng");
 
-    // Phase DK: Generating -> Drawing
+    // Phase: Generating -> Drawing
     // Draws
-    // Phase DK: Drawing -> Resolving
-    // Phase Core: Freezing -> Staking
+    // Phase: Drawing -> Staking
     await hre.run("simulate:pass-phase-draw-unfreeze", {
       walletindex: operator.toString(),
       disputeid: dispute.id.toString(),

@@ -1,24 +1,24 @@
 // SPDX-License-Identifier: MIT
 
-/**
- *  @authors: [@unknownunknown1]
- *  @reviewers: []
- *  @auditors: []
- *  @deployments: []
- */
+/// @custom:authors: [@unknownunknown1]
+/// @custom:reviewers: []
+/// @custom:auditors: []
+/// @custom:deployments: []
 
-pragma solidity ^0.8;
+pragma solidity 0.8.18;
 
 import "./IArbitrable.sol";
 import "../evidence/IMetaEvidence.sol";
 import "../libraries/CappedMath.sol";
 
-/** @title KlerosGovernor for V2. Note that appeal functionality and evidence submission will be handled by the court.
- */
+/// @title KlerosGovernor for V2. Note that appeal functionality and evidence submission will be handled by the court.
 contract KlerosGovernor is IArbitrable, IMetaEvidence {
     using CappedMath for uint256;
 
-    /* *** Contract variables *** */
+    // ************************************* //
+    // *         Enums / Structs           * //
+    // ************************************* //
+
     enum Status {
         NoDispute,
         DisputeCreated,
@@ -67,12 +67,16 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
     Submission[] public submissions; // Stores all created transaction lists. submissions[_listID].
     Session[] public sessions; // Stores all submitting sessions. sessions[_session].
 
-    /* *** Modifiers *** */
+    // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
+
     modifier duringSubmissionPeriod() {
         uint256 offset = sessions[sessions.length - 1].durationOffset;
         require(block.timestamp - lastApprovalTime <= submissionTimeout.addCap(offset), "Submission time has ended.");
         _;
     }
+
     modifier duringApprovalPeriod() {
         uint256 offset = sessions[sessions.length - 1].durationOffset;
         require(
@@ -81,19 +85,22 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         );
         _;
     }
+
     modifier onlyByGovernor() {
         require(address(this) == msg.sender, "Only the governor allowed.");
         _;
     }
 
-    /* *** Events *** */
-    /** @dev Emitted when a new list is submitted.
-     *  @param _listID The index of the transaction list in the array of lists.
-     *  @param _submitter The address that submitted the list.
-     *  @param _session The number of the current session.
-     *  @param _description The string in CSV format that contains labels of list's transactions.
-     *  Note that the submitter may give bad descriptions of correct actions, but this is to be seen as UI enhancement, not a critical feature and that would play against him in case of dispute.
-     */
+    // ************************************* //
+    // *              Events               * //
+    // ************************************* //
+
+    /// @dev Emitted when a new list is submitted.
+    /// @param _listID The index of the transaction list in the array of lists.
+    /// @param _submitter The address that submitted the list.
+    /// @param _session The number of the current session.
+    /// @param _description The string in CSV format that contains labels of list's transactions.
+    /// Note that the submitter may give bad descriptions of correct actions, but this is to be seen as UI enhancement, not a critical feature and that would play against him in case of dispute.
     event ListSubmitted(
         uint256 indexed _listID,
         address indexed _submitter,
@@ -101,15 +108,18 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         string _description
     );
 
-    /** @dev Constructor.
-     *  @param _arbitrator The arbitrator of the contract.
-     *  @param _arbitratorExtraData Extra data for the arbitrator.
-     *  @param _metaEvidence The URI of the meta evidence file.
-     *  @param _submissionBaseDeposit The base deposit required for submission.
-     *  @param _submissionTimeout Time in seconds allocated for submitting transaction list.
-     *  @param _executionTimeout Time in seconds after approval that allows to execute transactions of the approved list.
-     *  @param _withdrawTimeout Time in seconds after submission that allows to withdraw submitted list.
-     */
+    // ************************************* //
+    // *            Constructor            * //
+    // ************************************* //
+
+    /// @dev Constructor.
+    /// @param _arbitrator The arbitrator of the contract.
+    /// @param _arbitratorExtraData Extra data for the arbitrator.
+    /// @param _metaEvidence The URI of the meta evidence file.
+    /// @param _submissionBaseDeposit The base deposit required for submission.
+    /// @param _submissionTimeout Time in seconds allocated for submitting transaction list.
+    /// @param _executionTimeout Time in seconds after approval that allows to execute transactions of the approved list.
+    /// @param _withdrawTimeout Time in seconds after submission that allows to withdraw submitted list.
     constructor(
         IArbitrator _arbitrator,
         bytes memory _arbitratorExtraData,
@@ -132,39 +142,34 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         emit MetaEvidence(metaEvidenceUpdates, _metaEvidence);
     }
 
-    /** @dev Changes the value of the base deposit required for submitting a list.
-     *  @param _submissionBaseDeposit The new value of the base deposit, in wei.
-     */
+    /// @dev Changes the value of the base deposit required for submitting a list.
+    /// @param _submissionBaseDeposit The new value of the base deposit, in wei.
     function changeSubmissionDeposit(uint256 _submissionBaseDeposit) external onlyByGovernor {
         submissionBaseDeposit = _submissionBaseDeposit;
     }
 
-    /** @dev Changes the time allocated for submission. Note that it can't be changed during approval period because there can be an active dispute in the old arbitrator contract
-     *  and prolonging submission timeout might switch it back to submission period.
-     *  @param _submissionTimeout The new duration of the submission period, in seconds.
-     */
+    /// @dev Changes the time allocated for submission. Note that it can't be changed during approval period because there can be an active dispute in the old arbitrator contract
+    /// and prolonging submission timeout might switch it back to submission period.
+    /// @param _submissionTimeout The new duration of the submission period, in seconds.
     function changeSubmissionTimeout(uint256 _submissionTimeout) external onlyByGovernor duringSubmissionPeriod {
         submissionTimeout = _submissionTimeout;
     }
 
-    /** @dev Changes the time allocated for list's execution.
-     *  @param _executionTimeout The new duration of the execution timeout, in seconds.
-     */
+    /// @dev Changes the time allocated for list's execution.
+    /// @param _executionTimeout The new duration of the execution timeout, in seconds.
     function changeExecutionTimeout(uint256 _executionTimeout) external onlyByGovernor {
         executionTimeout = _executionTimeout;
     }
 
-    /** @dev Changes list withdrawal timeout. Note that withdrawals are only possible in the first half of the submission period.
-     *  @param _withdrawTimeout The new duration of withdraw period, in seconds.
-     */
+    /// @dev Changes list withdrawal timeout. Note that withdrawals are only possible in the first half of the submission period.
+    /// @param _withdrawTimeout The new duration of withdraw period, in seconds.
     function changeWithdrawTimeout(uint256 _withdrawTimeout) external onlyByGovernor {
         withdrawTimeout = _withdrawTimeout;
     }
 
-    /** @dev Changes the arbitrator of the contract. Note that it can't be changed during approval period because there can be an active dispute in the old arbitrator contract.
-     *  @param _arbitrator The new trusted arbitrator.
-     *  @param _arbitratorExtraData The extra data used by the new arbitrator.
-     */
+    /// @dev Changes the arbitrator of the contract. Note that it can't be changed during approval period because there can be an active dispute in the old arbitrator contract.
+    /// @param _arbitrator The new trusted arbitrator.
+    /// @param _arbitratorExtraData The extra data used by the new arbitrator.
     function changeArbitrator(
         IArbitrator _arbitrator,
         bytes memory _arbitratorExtraData
@@ -173,22 +178,20 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         arbitratorExtraData = _arbitratorExtraData;
     }
 
-    /** @dev Update the meta evidence used for disputes.
-     *  @param _metaEvidence URI to the new meta evidence file.
-     */
+    /// @dev Update the meta evidence used for disputes.
+    /// @param _metaEvidence URI to the new meta evidence file.
     function changeMetaEvidence(string memory _metaEvidence) external onlyByGovernor {
         metaEvidenceUpdates++;
         emit MetaEvidence(metaEvidenceUpdates, _metaEvidence);
     }
 
-    /** @dev Creates transaction list based on input parameters and submits it for potential approval and execution.
-     *  Transactions must be ordered by their hash.
-     *  @param _target List of addresses to call.
-     *  @param _value List of values required for respective addresses.
-     *  @param _data Concatenated calldata of all transactions of this list.
-     *  @param _dataSize List of lengths in bytes required to split calldata for its respective targets.
-     *  @param _description String in CSV format that describes list's transactions.
-     */
+    /// @dev Creates transaction list based on input parameters and submits it for potential approval and execution.
+    /// Transactions must be ordered by their hash.
+    /// @param _target List of addresses to call.
+    /// @param _value List of values required for respective addresses.
+    /// @param _data Concatenated calldata of all transactions of this list.
+    /// @param _dataSize List of lengths in bytes required to split calldata for its respective targets.
+    /// @param _description String in CSV format that describes list's transactions.
     function submitList(
         address[] memory _target,
         uint256[] memory _value,
@@ -241,11 +244,10 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         reservedETH += submission.deposit;
     }
 
-    /** @dev Withdraws submitted transaction list. Reimburses submission deposit.
-     *  Withdrawal is only possible during the first half of the submission period and during withdrawTimeout after the submission is made.
-     *  @param _submissionID Submission's index in the array of submitted lists of the current sesssion.
-     *  @param _listHash Hash of a withdrawing list.
-     */
+    /// @dev Withdraws submitted transaction list. Reimburses submission deposit.
+    /// Withdrawal is only possible during the first half of the submission period and during withdrawTimeout after the submission is made.
+    /// @param _submissionID Submission's index in the array of submitted lists of the current sesssion.
+    /// @param _listHash Hash of a withdrawing list.
     function withdrawTransactionList(uint256 _submissionID, bytes32 _listHash) external {
         Session storage session = sessions[sessions.length - 1];
         Submission storage submission = submissions[session.submittedLists[_submissionID]];
@@ -263,9 +265,8 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         reservedETH = reservedETH.subCap(submission.deposit);
     }
 
-    /** @dev Approves a transaction list or creates a dispute if more than one list was submitted. TRUSTED.
-     *  If nothing was submitted changes session.
-     */
+    /// @dev Approves a transaction list or creates a dispute if more than one list was submitted. TRUSTED.
+    /// If nothing was submitted changes session.
     function executeSubmissions() external duringApprovalPeriod {
         Session storage session = sessions[sessions.length - 1];
         require(session.status == Status.NoDispute, "Already disputed");
@@ -299,11 +300,10 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         }
     }
 
-    /** @dev Gives a ruling for a dispute. Must be called by the arbitrator.
-     *  @param _disputeID ID of the dispute in the Arbitrator contract.
-     *  @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Refuse to arbitrate".
-     *  Note If the final ruling is "0" nothing is approved and deposits will stay locked in the contract.
-     */
+    /// @dev Gives a ruling for a dispute. Must be called by the arbitrator.
+    /// @param _disputeID ID of the dispute in the Arbitrator contract.
+    /// @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Refuse to arbitrate".
+    /// Note If the final ruling is "0" nothing is approved and deposits will stay locked in the contract.
     function rule(uint256 _disputeID, uint256 _ruling) external override {
         Session storage session = sessions[sessions.length - 1];
         require(msg.sender == address(arbitrator), "Only arbitrator allowed");
@@ -328,11 +328,10 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         emit Ruling(IArbitrator(msg.sender), _disputeID, _ruling);
     }
 
-    /** @dev Executes selected transactions of the list. UNTRUSTED.
-     *  @param _listID The index of the transaction list in the array of lists.
-     *  @param _cursor Index of the transaction from which to start executing.
-     *  @param _count Number of transactions to execute. Executes until the end if set to "0" or number higher than number of transactions in the list.
-     */
+    /// @dev Executes selected transactions of the list. UNTRUSTED.
+    /// @param _listID The index of the transaction list in the array of lists.
+    /// @param _cursor Index of the transaction from which to start executing.
+    /// @param _count Number of transactions to execute. Executes until the end if set to "0" or number higher than number of transactions in the list.
     function executeTransactionList(uint256 _listID, uint256 _cursor, uint256 _count) external {
         Submission storage submission = submissions[_listID];
         require(submission.approved, "Should be approved");
@@ -351,26 +350,22 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         }
     }
 
-    /** @dev Receive function to receive funds for the execution of transactions.
-     */
+    /// @dev Receive function to receive funds for the execution of transactions.
     receive() external payable {}
 
-    /** @dev Gets the sum of contract funds that are used for the execution of transactions.
-     *  @return Contract balance without reserved ETH.
-     */
+    /// @dev Gets the sum of contract funds that are used for the execution of transactions.
+    /// @return Contract balance without reserved ETH.
     function getExpendableFunds() public view returns (uint256) {
         return address(this).balance.subCap(reservedETH);
     }
 
-    /** @dev Gets the info of the specific transaction in the specific list.
-     *  @param _listID The index of the transaction list in the array of lists.
-     *  @param _transactionIndex The index of the transaction.
-     *  @return target The target of the transaction.
-     *  @return value The value of the transaction.
-     *  @return data The data of the transaction.
-     *  @return executed Whether the transaction was executed or not.
-     
-     */
+    /// @dev Gets the info of the specific transaction in the specific list.
+    /// @param _listID The index of the transaction list in the array of lists.
+    /// @param _transactionIndex The index of the transaction.
+    /// @return target The target of the transaction.
+    /// @return value The value of the transaction.
+    /// @return data The data of the transaction.
+    /// @return executed Whether the transaction was executed or not.
     function getTransactionInfo(
         uint256 _listID,
         uint256 _transactionIndex
@@ -380,35 +375,31 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         return (transaction.target, transaction.value, transaction.data, transaction.executed);
     }
 
-    /** @dev Gets the array of submitted lists in the session.
-     *  Note that this function is O(n), where n is the number of submissions in the session. This could exceed the gas limit, therefore this function should only be used for interface display and not by other contracts.
-     *  @param _session The ID of the session.
-     *  @return submittedLists Indexes of lists that were submitted during the session.
-     */
+    /// @dev Gets the array of submitted lists in the session.
+    /// Note that this function is O(n), where n is the number of submissions in the session. This could exceed the gas limit, therefore this function should only be used for interface display and not by other contracts.
+    /// @param _session The ID of the session.
+    /// @return submittedLists Indexes of lists that were submitted during the session.
     function getSubmittedLists(uint256 _session) external view returns (uint256[] memory submittedLists) {
         Session storage session = sessions[_session];
         submittedLists = session.submittedLists;
     }
 
-    /** @dev Gets the number of transactions in the list.
-     *  @param _listID The index of the transaction list in the array of lists.
-     *  @return txCount The number of transactions in the list.
-     */
+    /// @dev Gets the number of transactions in the list.
+    /// @param _listID The index of the transaction list in the array of lists.
+    /// @return txCount The number of transactions in the list.
     function getNumberOfTransactions(uint256 _listID) external view returns (uint256 txCount) {
         Submission storage submission = submissions[_listID];
         return submission.txs.length;
     }
 
-    /** @dev Gets the number of lists created in contract's lifetime.
-     *  @return The number of created lists.
-     */
+    /// @dev Gets the number of lists created in contract's lifetime.
+    /// @return The number of created lists.
     function getNumberOfCreatedLists() external view returns (uint256) {
         return submissions.length;
     }
 
-    /** @dev Gets the number of the ongoing session.
-     *  @return The number of the ongoing session.
-     */
+    /// @dev Gets the number of the ongoing session.
+    /// @return The number of the ongoing session.
     function getCurrentSessionNumber() external view returns (uint256) {
         return sessions.length - 1;
     }

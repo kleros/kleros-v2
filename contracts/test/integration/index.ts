@@ -11,6 +11,7 @@ import {
   DisputeKitClassic,
   RandomizerRNG,
   RandomizerMock,
+  SortitionModule,
 } from "../../typechain-types";
 
 /* eslint-disable no-unused-vars */
@@ -31,18 +32,13 @@ describe("Integration tests", async () => {
   }
 
   const enum Phase {
-    staking, // Stake can be updated during this phase.
-    freezing, // Phase during which the dispute kits can undergo the drawing process. Staking is not allowed during this phase.
-  }
-
-  const enum DisputeKitPhase {
-    resolving, // No disputes that need drawing.
+    staking, // No disputes that need drawing.
     generating, // Waiting for a random number. Pass as soon as it is ready.
     drawing, // Jurors can be drawn.
   }
 
   let deployer;
-  let rng, randomizer, disputeKit, pnk, core, vea, foreignGateway, arbitrable, homeGateway;
+  let rng, randomizer, disputeKit, pnk, core, vea, foreignGateway, arbitrable, homeGateway, sortitionModule;
 
   beforeEach("Setup", async () => {
     ({ deployer } = await getNamedAccounts());
@@ -63,6 +59,7 @@ describe("Integration tests", async () => {
     foreignGateway = (await ethers.getContract("ForeignGatewayOnEthereum")) as ForeignGatewayOnEthereum;
     arbitrable = (await ethers.getContract("ArbitrableExampleEthFee")) as ArbitrableExampleEthFee;
     homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
+    sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
   });
 
   it("Resolves a dispute on the home chain with no appeal", async () => {
@@ -98,7 +95,9 @@ describe("Integration tests", async () => {
       expect(result.locked).to.equal(0);
       logJurorBalance(result);
     });
-    const tx = await arbitrable.createDispute(2, "0x00", 0, { value: arbitrationCost });
+    const tx = await arbitrable.createDispute(2, "0x00", 0, {
+      value: arbitrationCost,
+    });
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
     const [disputeId] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`); // get returned value from createDispute()
     console.log("Dispute Created");
@@ -126,28 +125,18 @@ describe("Integration tests", async () => {
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
 
-    expect(await core.phase()).to.equal(Phase.staking);
-    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.resolving);
-    expect(await disputeKit.disputesWithoutJurors()).to.equal(1);
-    expect(await disputeKit.isResolving()).to.equal(true);
-    console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
+    expect(await sortitionModule.phase()).to.equal(Phase.staking);
+    expect(await sortitionModule.disputesWithoutJurors()).to.equal(1);
+    console.log("KC phase: %d", await sortitionModule.phase());
 
-    const disputesKitIDsThatNeedFreezing = await core.getDisputesKitIDsThatNeedFreezing();
-    expect(disputesKitIDsThatNeedFreezing).to.be.deep.equal([BigNumber.from("1")]);
-    await core.passPhase(); // Staking -> Freezing
-    expect(await core.phase()).to.equal(Phase.freezing);
-    console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
-
-    await mineBlocks(await disputeKit.rngLookahead());
-    await disputeKit.passPhase(); // Resolving -> Generating
-    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.generating);
-    console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
-
-    await mineBlocks(await disputeKit.rngLookahead());
+    await sortitionModule.passPhase(); // Staking -> Generating
+    await mineBlocks(await sortitionModule.rngLookahead()); // Wait for finality
+    expect(await sortitionModule.phase()).to.equal(Phase.generating);
+    console.log("KC phase: %d", await sortitionModule.phase());
     await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
-    await disputeKit.passPhase(); // Generating -> Drawing
-    expect(await disputeKit.phase()).to.equal(DisputeKitPhase.drawing);
-    console.log("KC phase: %d, DK phase: ", await core.phase(), await disputeKit.phase());
+    await sortitionModule.passPhase(); // Generating -> Drawing
+    expect(await sortitionModule.phase()).to.equal(Phase.drawing);
+    console.log("KC phase: %d", await sortitionModule.phase());
 
     const tx3 = await core.draw(0, 1000);
     console.log("draw successful");
@@ -172,17 +161,17 @@ describe("Integration tests", async () => {
     expect((await core.disputes(0)).period).to.equal(Period.execution);
     expect(await core.execute(0, 0, 1000)).to.emit(core, "TokenAndETHShift");
 
-    const tx4 = await core.executeRuling(0);
+    const tx4 = await core.executeRuling(0, { gasLimit: 10000000, gasPrice: 5000000000 });
     console.log("Ruling executed on KlerosCore");
     expect(tx4).to.emit(core, "Ruling").withArgs(homeGateway.address, 0, 0);
     expect(tx4).to.emit(arbitrable, "Ruling").withArgs(foreignGateway.address, 1, 0); // The ForeignGateway starts counting disputeID from 1.
   });
 
-  async function mineBlocks(n: number) {
+  const mineBlocks = async (n: number) => {
     for (let index = 0; index < n; index++) {
       await network.provider.send("evm_mine");
     }
-  }
+  };
 });
 
 const logJurorBalance = async (result) => {

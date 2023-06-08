@@ -19,7 +19,7 @@ const homePageQuery = gql`
   }
 `;
 
-export const useHomePageQuery = (timeframe: number) => {
+export const useHomePageQuery = (timeframe: number): { data: typeof result; error: any; isValidating: boolean } => {
   const { data, error, isValidating } = useSWR({
     query: homePageQuery,
     variables: { timeframe: timeframe.toString() },

@@ -1,6 +1,5 @@
 {
   "baseBranches": [
-    "master",
     "dev"
   ],
   "labels": [
@@ -10,9 +9,11 @@
     "jaybuidl"
   ],
   "extends": [
+    "config:base",
+    "group:allNonMajor",
     ":preserveSemverRanges",
-    "group:all",
     "schedule:daily",
+    "npm:unpublishSafe",
     ":maintainLockFilesDisabled"
   ]
 }

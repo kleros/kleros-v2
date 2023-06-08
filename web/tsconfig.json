@@ -1,4 +1,5 @@
 {
+  "extends": "@kleros/kleros-v2-tsconfig/react-library.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
@@ -45,34 +46,18 @@
         "./src/assets/svgs*"
       ]
     },
-    "experimentalDecorators": true,
-    "outDir": "build/dist",
-    "module": "esnext",
     "target": "es2017",
-    "lib": [
-      "es6",
-      "dom",
-      "esnext.asynciterable",
-      "es2017"
-    ],
-    "sourceMap": true,
-    "allowJs": true,
-    "jsx": "react",
-    "moduleResolution": "node",
     "rootDir": "src",
+    "outDir": "build/dist",
+    "allowJs": true,
     "forceConsistentCasingInFileNames": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "removeComments": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true
+    "isolatedModules": true
   },
   "exclude": [
     "node_modules",

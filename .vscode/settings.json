@@ -1,12 +1,11 @@
 {
-  "solidity.compileUsingRemoteVersion": "v0.8.9+commit.e5eed63a",
-  "cSpell.words": [
-    "arbitrum",
-    "IERC",
-    "kleros",
-    "typechain"
-  ],
-  "prettier.configPath": ".prettierrc.json",
-  "eslint.alwaysShowStatus": true,
-  "eslint.packageManager": "yarn"
+  "solidity.formatter": "prettier",
+  "[solidity]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "solidity-va.test.defaultUnittestTemplate": "hardhat",
+  "solidity-language-server.trace.server.verbosity": "message",
+  "eslint.packageManager": "yarn",
+  "prettier.useEditorConfig": true,
+  "prettier.configPath": "prettier-config/.prettierrc.js"
 }

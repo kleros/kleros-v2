@@ -23,18 +23,9 @@ const SubmitEvidenceModal: React.FC<{
   return (
     <StyledModal {...{ isOpen }}>
       <h1>Submit New Evidence</h1>
-      <StyledTextArea
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Your Arguments"
-      />
+      <StyledTextArea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Your Arguments" />
       <ButtonArea>
-        <Button
-          variant="secondary"
-          disabled={isSending}
-          text="Return"
-          onClick={close}
-        />
+        <Button variant="secondary" disabled={isSending} text="Return" onClick={close} />
         <Button
           text="Submit"
           isLoading={isSending}
@@ -49,12 +40,7 @@ const SubmitEvidenceModal: React.FC<{
                   const response = await res.json();
                   if (res.status === 200) {
                     const cid = "/ipfs/" + response["cid"];
-                    await wrapWithToast(
-                      disputeKit.submitEvidence(
-                        BigNumber.from(evidenceGroup),
-                        cid
-                      )
-                    ).then(() => {
+                    await wrapWithToast(disputeKit.submitEvidence(BigNumber.from(evidenceGroup), cid)).then(() => {
                       setMessage("");
                       close();
                     });
@@ -70,13 +56,11 @@ const SubmitEvidenceModal: React.FC<{
   );
 };
 
-const constructEvidence = (msg: string) => {
+const constructEvidence = (msg: string): FormData => {
   const formData = new FormData();
-  const file = new File(
-    [JSON.stringify({ name: "Evidence", description: msg })],
-    "evidence.json",
-    { type: "text/plain" }
-  );
+  const file = new File([JSON.stringify({ name: "Evidence", description: msg })], "evidence.json", {
+    type: "text/plain",
+  });
   formData.append("data", file, file.name);
   return formData;
 };

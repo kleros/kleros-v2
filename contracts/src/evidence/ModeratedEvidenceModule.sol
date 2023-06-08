@@ -1,19 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-/**
- *  @authors: [@fnanni-0]
- *  @reviewers: []
- *  @auditors: []
- *  @bounties: []
- *  @deployments: []
- *  @tools: []
- */
+/// @custom:authors: [@fnanni-0]
+/// @custom:reviewers: []
+/// @custom:auditors: []
+/// @custom:bounties: []
+/// @custom:deployments: []
+/// @custom:tools: []
 
-/**
- * @title Implementation of the Evidence Standard with Moderated Submissions
- */
-
-pragma solidity ^0.8;
+pragma solidity 0.8.18;
 
 // TODO: standard interfaces should be placed in a separated repo (?)
 import "../arbitration/IArbitrable.sol";
@@ -21,21 +15,19 @@ import "../arbitration/IArbitrator.sol";
 import "./IMetaEvidence.sol";
 import "../libraries/CappedMath.sol";
 
+/// @title Implementation of the Evidence Standard with Moderated Submissions
 contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
     using CappedMath for uint256;
 
-    uint256 public constant AMOUNT_OF_CHOICES = 2;
-    uint256 public constant MULTIPLIER_DIVISOR = 10000; // Divisor parameter for multipliers.
-
-    /** Enums */
+    // ************************************* //
+    // *         Enums / Structs           * //
+    // ************************************* //
 
     enum Party {
         None,
         Submitter,
         Moderator
     }
-
-    /* Structs */
 
     struct EvidenceData {
         address payable submitter; // Address that submitted the evidence.
@@ -60,8 +52,12 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         bytes arbitratorExtraData; // Extra data for the arbitrator.
     }
 
-    /* Storage */
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
 
+    uint256 public constant AMOUNT_OF_CHOICES = 2;
+    uint256 public constant MULTIPLIER_DIVISOR = 10000; // Divisor parameter for multipliers.
     mapping(bytes32 => EvidenceData) evidences; // Maps the evidence ID to its data. evidences[evidenceID].
     mapping(uint256 => bytes32) public disputeIDtoEvidenceID; // One-to-one relationship between the dispute and the evidence.
     ArbitratorData[] public arbitratorDataList; // Stores the arbitrator data of the contract. Updated each time the data is changed.
@@ -72,22 +68,24 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
     uint256 public totalCostMultiplier; // Multiplier of arbitration fees that must be ultimately paid as fee stake. In basis points.
     uint256 public initialDepositMultiplier; // Multiplier of arbitration fees that must be paid as initial stake for submitting evidence. In basis points.
 
-    /* Modifiers */
+    // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
 
     modifier onlyGovernor() {
         require(msg.sender == governor, "The caller must be the governor");
         _;
     }
 
-    /* Events */
+    // ************************************* //
+    // *              Events               * //
+    // ************************************* //
 
-    /**
-     * @dev To be raised when evidence is submitted. Should point to the resource (evidences are not to be stored on chain due to gas considerations).
-     * @param _arbitrator The arbitrator of the contract.
-     * @param _evidenceGroupID Unique identifier of the evidence group the evidence belongs to.
-     * @param _party The address of the party submiting the evidence. Note that 0x0 refers to evidence not submitted by any party.
-     * @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'
-     */
+    /// @dev To be raised when evidence is submitted. Should point to the resource (evidences are not to be stored on chain due to gas considerations).
+    /// @param _arbitrator The arbitrator of the contract.
+    /// @param _evidenceGroupID Unique identifier of the evidence group the evidence belongs to.
+    /// @param _party The address of the party submiting the evidence. Note that 0x0 refers to evidence not submitted by any party.
+    /// @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'
     event Evidence(
         IArbitrator indexed _arbitrator,
         uint256 indexed _evidenceGroupID,
@@ -95,21 +93,23 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         string _evidence
     );
 
-    /** @dev Indicate that a party has to pay a fee or would otherwise be considered as losing.
-     *  @param _evidenceID The ID of the evidence being moderated.
-     *  @param _currentWinner The party who is currently winning.
-     */
+    /// @dev Indicate that a party has to pay a fee or would otherwise be considered as losing.
+    /// @param _evidenceID The ID of the evidence being moderated.
+    /// @param _currentWinner The party who is currently winning.
     event ModerationStatusChanged(bytes32 indexed _evidenceID, Party _currentWinner);
 
-    /** @dev Constructor.
-     *  @param _arbitrator The trusted arbitrator to resolve potential disputes.
-     *  @param _governor The trusted governor of the contract.
-     *  @param _totalCostMultiplier Multiplier of arbitration fees that must be ultimately paid as fee stake. In basis points.
-     *  @param _initialDepositMultiplier Multiplier of arbitration fees that must be paid as initial stake for submitting evidence. In basis points.
-     *  @param _bondTimeout The time in seconds during which the last moderation status can be challenged.
-     *  @param _arbitratorExtraData Extra data for the trusted arbitrator contract.
-     *  @param _metaEvidence The URI of the meta evidence object for evidence submissions requests.
-     */
+    // ************************************* //
+    // *            Constructor            * //
+    // ************************************* //
+
+    /// @dev Constructor.
+    /// @param _arbitrator The trusted arbitrator to resolve potential disputes.
+    /// @param _governor The trusted governor of the contract.
+    /// @param _totalCostMultiplier Multiplier of arbitration fees that must be ultimately paid as fee stake. In basis points.
+    /// @param _initialDepositMultiplier Multiplier of arbitration fees that must be paid as initial stake for submitting evidence. In basis points.
+    /// @param _bondTimeout The time in seconds during which the last moderation status can be challenged.
+    /// @param _arbitratorExtraData Extra data for the trusted arbitrator contract.
+    /// @param _metaEvidence The URI of the meta evidence object for evidence submissions requests.
     constructor(
         IArbitrator _arbitrator,
         address _governor,
@@ -131,38 +131,37 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         emit MetaEvidence(0, _metaEvidence);
     }
 
-    /** @dev Change the governor of the contract.
-     *  @param _governor The address of the new governor.
-     */
+    // ************************************* //
+    // *             Governance            * //
+    // ************************************* //
+
+    /// @dev Change the governor of the contract.
+    /// @param _governor The address of the new governor.
     function changeGovernor(address _governor) external onlyGovernor {
         governor = _governor;
     }
 
-    /** @dev Change the proportion of arbitration fees that must be paid as fee stake by parties when there is no winner or loser (e.g. when the arbitrator refused to rule).
-     *  @param _initialDepositMultiplier Multiplier of arbitration fees that must be paid as fee stake. In basis points.
-     */
+    /// @dev Change the proportion of arbitration fees that must be paid as fee stake by parties when there is no winner or loser (e.g. when the arbitrator refused to rule).
+    /// @param _initialDepositMultiplier Multiplier of arbitration fees that must be paid as fee stake. In basis points.
     function changeInitialDepositMultiplier(uint256 _initialDepositMultiplier) external onlyGovernor {
         initialDepositMultiplier = _initialDepositMultiplier;
     }
 
-    /** @dev Change the proportion of arbitration fees that must be paid as fee stake by the winner of the previous round.
-     *  @param _totalCostMultiplier Multiplier of arbitration fees that must be paid as fee stake. In basis points.
-     */
+    /// @dev Change the proportion of arbitration fees that must be paid as fee stake by the winner of the previous round.
+    /// @param _totalCostMultiplier Multiplier of arbitration fees that must be paid as fee stake. In basis points.
     function changeTotalCostMultiplier(uint256 _totalCostMultiplier) external onlyGovernor {
         totalCostMultiplier = _totalCostMultiplier;
     }
 
-    /** @dev Change the the time window within which evidence submissions and removals can be contested.
-     *  Ongoing moderations will start using the latest bondTimeout available after calling moderate() again.
-     *  @param _bondTimeout Multiplier of arbitration fees that must be paid as fee stake. In basis points.
-     */
+    /// @dev Change the the time window within which evidence submissions and removals can be contested.
+    /// Ongoing moderations will start using the latest bondTimeout available after calling moderate() again.
+    /// @param _bondTimeout Multiplier of arbitration fees that must be paid as fee stake. In basis points.
     function changeBondTimeout(uint256 _bondTimeout) external onlyGovernor {
         bondTimeout = _bondTimeout;
     }
 
-    /** @dev Update the meta evidence used for disputes.
-     *  @param _newMetaEvidence The meta evidence to be used for future registration request disputes.
-     */
+    /// @dev Update the meta evidence used for disputes.
+    /// @param _newMetaEvidence The meta evidence to be used for future registration request disputes.
     function changeMetaEvidence(string calldata _newMetaEvidence) external onlyGovernor {
         ArbitratorData storage arbitratorData = arbitratorDataList[arbitratorDataList.length - 1];
         uint256 newMetaEvidenceUpdates = arbitratorData.metaEvidenceUpdates + 1;
@@ -175,9 +174,8 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         emit MetaEvidence(newMetaEvidenceUpdates, _newMetaEvidence);
     }
 
-    /** @dev Change the arbitrator to be used for disputes that may be raised in the next requests. The arbitrator is trusted to support appeal period and not reenter.
-     *  @param _arbitratorExtraData The extra data used by the new arbitrator.
-     */
+    /// @dev Change the arbitrator to be used for disputes that may be raised in the next requests. The arbitrator is trusted to support appeal period and not reenter.
+    /// @param _arbitratorExtraData The extra data used by the new arbitrator.
     function changeArbitratorExtraData(bytes calldata _arbitratorExtraData) external onlyGovernor {
         ArbitratorData storage arbitratorData = arbitratorDataList[arbitratorDataList.length - 1];
         arbitratorDataList.push(
@@ -188,10 +186,13 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         );
     }
 
-    /** @dev Submits evidence.
-     *  @param _evidenceGroupID Unique identifier of the evidence group the evidence belongs to. It's the submitter responsability to submit the right evidence group ID.
-     *  @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'.
-     */
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
+
+    /// @dev Submits evidence.
+    /// @param _evidenceGroupID Unique identifier of the evidence group the evidence belongs to. It's the submitter responsability to submit the right evidence group ID.
+    /// @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'.
     function submitEvidence(uint256 _evidenceGroupID, string calldata _evidence) external payable {
         // Optimization opportunity: map evidenceID to an incremental index that can be safely assumed to be less than a small uint.
         bytes32 evidenceID = keccak256(abi.encodePacked(_evidenceGroupID, _evidence));
@@ -217,11 +218,10 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         emit Evidence(arbitrator, _evidenceGroupID, msg.sender, _evidence);
     }
 
-    /** @dev Moderates an evidence submission. Requires the contester to at least double the accumulated stake of the oposing party.
-     *  Optimization opportunity: use `bytes calldata args` and compress _evidenceID and _side (only for optimistic rollups).
-     *  @param _evidenceID Unique identifier of the evidence submission.
-     *  @param _side The side to contribute to.
-     */
+    /// @dev Moderates an evidence submission. Requires the contester to at least double the accumulated stake of the oposing party.
+    /// Optimization opportunity: use `bytes calldata args` and compress _evidenceID and _side (only for optimistic rollups).
+    /// @param _evidenceID Unique identifier of the evidence submission.
+    /// @param _side The side to contribute to.
     function moderate(bytes32 _evidenceID, Party _side) external payable {
         EvidenceData storage evidenceData = evidences[_evidenceID];
         require(evidenceData.submitter != address(0x0), "Evidence does not exist.");
@@ -277,9 +277,8 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         emit ModerationStatusChanged(_evidenceID, moderation.currentWinner);
     }
 
-    /** @dev Resolves a moderation event once the timeout has passed.
-     *  @param _evidenceID Unique identifier of the evidence submission.
-     */
+    /// @dev Resolves a moderation event once the timeout has passed.
+    /// @param _evidenceID Unique identifier of the evidence submission.
     function resolveModerationMarket(bytes32 _evidenceID) external {
         // Moderation market resolutions are not final.
         // Evidence can be reported/accepted again in the future.
@@ -294,14 +293,13 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         evidenceData.ruling = moderation.currentWinner;
     }
 
-    /** @dev Make a fee contribution.
-     *  @param _moderation The moderation to contribute to.
-     *  @param _side The side to contribute to.
-     *  @param _contributor The contributor.
-     *  @param _amount The amount contributed.
-     *  @param _totalRequired The total amount required for this side.
-     *  @return The amount of fees contributed.
-     */
+    /// @dev Make a fee contribution.
+    /// @param _moderation The moderation to contribute to.
+    /// @param _side The side to contribute to.
+    /// @param _contributor The contributor.
+    /// @param _amount The amount contributed.
+    /// @param _totalRequired The total amount required for this side.
+    /// @return The amount of fees contributed.
     function contribute(
         Moderation storage _moderation,
         Party _side,
@@ -322,12 +320,11 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         return contribution;
     }
 
-    /** @dev Returns the contribution value and remainder from available ETH and required amount.
-     *  @param _available The amount of ETH available for the contribution.
-     *  @param _requiredAmount The amount of ETH required for the contribution.
-     *  @return taken The amount of ETH taken.
-     *  @return remainder The amount of ETH left from the contribution.
-     */
+    /// @dev Returns the contribution value and remainder from available ETH and required amount.
+    /// @param _available The amount of ETH available for the contribution.
+    /// @param _requiredAmount The amount of ETH required for the contribution.
+    /// @return taken The amount of ETH taken.
+    /// @return remainder The amount of ETH left from the contribution.
     function calculateContribution(
         uint256 _available,
         uint256 _requiredAmount
@@ -338,13 +335,12 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         return (_requiredAmount, remainder);
     }
 
-    /** @dev Withdraws contributions of moderations. Reimburses contributions if the appeal was not fully funded.
-     *  If the appeal was fully funded, sends the fee stake rewards and reimbursements proportional to the contributions made to the winner of a dispute.
-     *  Optimization opportunity: use `bytes calldata args` and compress _evidenceID and _moderationID (only for optimistic rollups).
-     *  @param _beneficiary The address that made contributions.
-     *  @param _evidenceID The ID of the associated evidence submission.
-     *  @param _moderationID The ID of the moderatino occurence.
-     */
+    /// @dev Withdraws contributions of moderations. Reimburses contributions if the appeal was not fully funded.
+    /// If the appeal was fully funded, sends the fee stake rewards and reimbursements proportional to the contributions made to the winner of a dispute.
+    /// Optimization opportunity: use `bytes calldata args` and compress _evidenceID and _moderationID (only for optimistic rollups).
+    /// @param _beneficiary The address that made contributions.
+    /// @param _evidenceID The ID of the associated evidence submission.
+    /// @param _moderationID The ID of the moderatino occurence.
     function withdrawFeesAndRewards(
         address payable _beneficiary,
         bytes32 _evidenceID,
@@ -376,11 +372,10 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         _beneficiary.send(reward); // It is the user responsibility to accept ETH.
     }
 
-    /** @dev Give a ruling for a dispute. Must be called by the arbitrator to enforce the final ruling.
-     *  The purpose of this function is to ensure that the address calling it has the right to rule on the contract.
-     *  @param _disputeID ID of the dispute in the Arbitrator contract.
-     *  @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Not able/wanting to make a decision".
-     */
+    /// @dev Give a ruling for a dispute. Must be called by the arbitrator to enforce the final ruling.
+    /// The purpose of this function is to ensure that the address calling it has the right to rule on the contract.
+    /// @param _disputeID ID of the dispute in the Arbitrator contract.
+    /// @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Not able/wanting to make a decision".
     function rule(uint256 _disputeID, uint256 _ruling) public override {
         bytes32 evidenceID = disputeIDtoEvidenceID[_disputeID];
         EvidenceData storage evidenceData = evidences[evidenceID];
@@ -399,25 +394,23 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         emit Ruling(arbitrator, _disputeID, _ruling);
     }
 
-    // **************************** //
-    // *     Constant getters     * //
-    // **************************** //
+    // ************************************* //
+    // *           Public Views            * //
+    // ************************************* //
 
-    /** @dev Gets the number of moderation events of the specific evidence submission.
-     *  @param _evidenceID The ID of the evidence submission.
-     *  @return The number of moderations.
-     */
+    /// @dev Gets the number of moderation events of the specific evidence submission.
+    /// @param _evidenceID The ID of the evidence submission.
+    /// @return The number of moderations.
     function getNumberOfModerations(bytes32 _evidenceID) external view returns (uint256) {
         EvidenceData storage evidenceData = evidences[_evidenceID];
         return evidenceData.moderations.length;
     }
 
-    /** @dev Gets the contributions made by a party for a given moderation.
-     *  @param _evidenceID The ID of the evidence submission.
-     *  @param _moderationID The ID of the moderation occurence.
-     *  @param _contributor The address of the contributor.
-     *  @return contributions The contributions.
-     */
+    /// @dev Gets the contributions made by a party for a given moderation.
+    /// @param _evidenceID The ID of the evidence submission.
+    /// @param _moderationID The ID of the moderation occurence.
+    /// @param _contributor The address of the contributor.
+    /// @return contributions The contributions.
     function getContributions(
         bytes32 _evidenceID,
         uint256 _moderationID,
@@ -428,11 +421,10 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         contributions = moderation.contributions[_contributor];
     }
 
-    /** @dev Gets the information of a moderation event.
-     *  @param _evidenceID The ID of the evidence submission.
-     *  @param _moderationID The ID of the moderation occurence.
-     *  @return paidFees currentWinner feeRewards The moderation information.
-     */
+    /// @dev Gets the information of a moderation event.
+    /// @param _evidenceID The ID of the evidence submission.
+    /// @param _moderationID The ID of the moderation occurence.
+    /// @return paidFees currentWinner feeRewards The moderation information.
     function getModerationInfo(
         bytes32 _evidenceID,
         uint256 _moderationID
@@ -442,9 +434,8 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         return (moderation.paidFees, moderation.currentWinner, moderation.feeRewards);
     }
 
-    /** @dev Gets the last arbitrator data index, which is used for current new submissions.
-     *  @return The last arbitrator data index.
-     */
+    /// @dev Gets the last arbitrator data index, which is used for current new submissions.
+    /// @return The last arbitrator data index.
     function getCurrentArbitratorIndex() external view returns (uint256) {
         return arbitratorDataList.length - 1;
     }

@@ -1,22 +1,18 @@
 // SPDX-License-Identifier: MIT
 
-/**
- *  @authors: [@epiqueras, @unknownunknown1]
- *  @reviewers: []
- *  @auditors: []
- *  @bounties: []
- *  @deployments: []
- */
+/// @custom:authors: [@epiqueras, @unknownunknown1]
+/// @custom:reviewers: []
+/// @custom:auditors: []
+/// @custom:bounties: []
+/// @custom:deployments: []
 
-pragma solidity ^0.8;
+pragma solidity 0.8.18;
 
-/**
- *  @title SortitionSumTreeFactory
- *  @author Enrique Piqueras - <epiquerass@gmail.com>
- *  @dev A factory of trees that keep track of staked values for sortition.
- */
+/// @title SortitionSumTreeFactory
+/// @author Enrique Piqueras - <epiquerass@gmail.com>
+/// @dev A factory of trees that keep track of staked values for sortition.
 library SortitionSumTreeFactory {
-    /* Structs */
+    /// Structs
 
     struct SortitionSumTree {
         uint K; // The maximum number of childs per node.
@@ -28,19 +24,17 @@ library SortitionSumTreeFactory {
         mapping(uint => bytes32) nodeIndexesToIDs;
     }
 
-    /* Storage */
+    /// Storage
 
     struct SortitionSumTrees {
         mapping(bytes32 => SortitionSumTree) sortitionSumTrees;
     }
 
-    /* Public */
+    /// Public
 
-    /**
-     *  @dev Create a sortition sum tree at the specified key.
-     *  @param _key The key of the new tree.
-     *  @param _K The number of children each node in the tree should have.
-     */
+    /// @dev Create a sortition sum tree at the specified key.
+    /// @param _key The key of the new tree.
+    /// @param _K The number of children each node in the tree should have.
     function createTree(SortitionSumTrees storage self, bytes32 _key, uint _K) public {
         SortitionSumTree storage tree = self.sortitionSumTrees[_key];
         require(tree.K == 0, "Tree already exists.");
@@ -49,15 +43,13 @@ library SortitionSumTreeFactory {
         tree.nodes.push(0);
     }
 
-    /**
-     *  @dev Set a value of a tree.
-     *  @param _key The key of the tree.
-     *  @param _value The new value.
-     *  @param _ID The ID of the value.
-     *  `O(log_k(n))` where
-     *  `k` is the maximum number of childs per node in the tree,
-     *   and `n` is the maximum number of nodes ever appended.
-     */
+    /// @dev Set a value of a tree.
+    /// @param _key The key of the tree.
+    /// @param _value The new value.
+    /// @param _ID The ID of the value.
+    /// `O(log_k(n))` where
+    /// `k` is the maximum number of childs per node in the tree,
+    ///  and `n` is the maximum number of nodes ever appended.
     function set(SortitionSumTrees storage self, bytes32 _key, uint _value, bytes32 _ID) public {
         SortitionSumTree storage tree = self.sortitionSumTrees[_key];
         uint treeIndex = tree.IDsToNodeIndexes[_ID];
@@ -128,19 +120,17 @@ library SortitionSumTreeFactory {
         }
     }
 
-    /* Public Views */
+    /// Public Views
 
-    /**
-     *  @dev Query the leaves of a tree. Note that if `startIndex == 0`, the tree is empty and the root node will be returned.
-     *  @param _key The key of the tree to get the leaves from.
-     *  @param _cursor The pagination cursor.
-     *  @param _count The number of items to return.
-     *  @return startIndex The index at which leaves start.
-     *  @return values The values of the returned leaves.
-     *  @return hasMore Whether there are more for pagination.
-     *  `O(n)` where
-     *  `n` is the maximum number of nodes ever appended.
-     */
+    /// @dev Query the leaves of a tree. Note that if `startIndex == 0`, the tree is empty and the root node will be returned.
+    /// @param _key The key of the tree to get the leaves from.
+    /// @param _cursor The pagination cursor.
+    /// @param _count The number of items to return.
+    /// @return startIndex The index at which leaves start.
+    /// @return values The values of the returned leaves.
+    /// @return hasMore Whether there are more for pagination.
+    /// `O(n)` where
+    /// `n` is the maximum number of nodes ever appended.
     function queryLeafs(
         SortitionSumTrees storage self,
         bytes32 _key,
@@ -172,15 +162,13 @@ library SortitionSumTreeFactory {
         }
     }
 
-    /**
-     *  @dev Draw an ID from a tree using a number. Note that this function reverts if the sum of all values in the tree is 0.
-     *  @param _key The key of the tree.
-     *  @param _drawnNumber The drawn number.
-     *  @return ID The drawn ID.
-     *  `O(k * log_k(n))` where
-     *  `k` is the maximum number of childs per node in the tree,
-     *   and `n` is the maximum number of nodes ever appended.
-     */
+    /// @dev Draw an ID from a tree using a number. Note that this function reverts if the sum of all values in the tree is 0.
+    /// @param _key The key of the tree.
+    /// @param _drawnNumber The drawn number.
+    /// @return ID The drawn ID.
+    /// `O(k * log_k(n))` where
+    /// `k` is the maximum number of childs per node in the tree,
+    ///  and `n` is the maximum number of nodes ever appended.
     function draw(SortitionSumTrees storage self, bytes32 _key, uint _drawnNumber) public view returns (bytes32 ID) {
         SortitionSumTree storage tree = self.sortitionSumTrees[_key];
         uint treeIndex = 0;
@@ -206,11 +194,10 @@ library SortitionSumTreeFactory {
         ID = tree.nodeIndexesToIDs[treeIndex];
     }
 
-    /** @dev Gets a specified ID's associated value.
-     *  @param _key The key of the tree.
-     *  @param _ID The ID of the value.
-     *  @return value The associated value.
-     */
+    /// @dev Gets a specified ID's associated value.
+    /// @param _key The key of the tree.
+    /// @param _ID The ID of the value.
+    /// @return value The associated value.
     function stakeOf(SortitionSumTrees storage self, bytes32 _key, bytes32 _ID) public view returns (uint value) {
         SortitionSumTree storage tree = self.sortitionSumTrees[_key];
         uint treeIndex = tree.IDsToNodeIndexes[_ID];
@@ -219,18 +206,16 @@ library SortitionSumTreeFactory {
         else value = tree.nodes[treeIndex];
     }
 
-    /* Private */
+    /// Private
 
-    /**
-     *  @dev Update all the parents of a node.
-     *  @param _key The key of the tree to update.
-     *  @param _treeIndex The index of the node to start from.
-     *  @param _plusOrMinus Wether to add (true) or substract (false).
-     *  @param _value The value to add or substract.
-     *  `O(log_k(n))` where
-     *  `k` is the maximum number of childs per node in the tree,
-     *   and `n` is the maximum number of nodes ever appended.
-     */
+    /// @dev Update all the parents of a node.
+    /// @param _key The key of the tree to update.
+    /// @param _treeIndex The index of the node to start from.
+    /// @param _plusOrMinus Wether to add (true) or substract (false).
+    /// @param _value The value to add or substract.
+    /// `O(log_k(n))` where
+    /// `k` is the maximum number of childs per node in the tree,
+    ///  and `n` is the maximum number of nodes ever appended.
     function updateParents(
         SortitionSumTrees storage self,
         bytes32 _key,

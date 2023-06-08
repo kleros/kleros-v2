@@ -1,24 +1,20 @@
 // SPDX-License-Identifier: MIT
 
-/**
- *  @authors: [@shalzz, @jaybuidl]
- *  @reviewers: []
- *  @auditors: []
- *  @bounties: []
- *  @deployments: []
- */
+/// @custom:authors: [@shalzz, @jaybuidl]
+/// @custom:reviewers: []
+/// @custom:auditors: []
+/// @custom:bounties: []
+/// @custom:deployments: []
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.18;
 
 import "../../arbitration/IArbitrable.sol";
 import "@kleros/vea-contracts/interfaces/IFastBridgeReceiver.sol";
 
 import "./interfaces/IForeignGatewaySingleMessage.sol";
 
-/**
- * Foreign Gateway on Ethereum
- * Counterpart of `HomeGatewayToEthereum`
- */
+/// Foreign Gateway on Ethereum
+/// Counterpart of `HomeGatewayToEthereum`
 contract ForeignGatewayOnEthereum is IForeignGatewaySingleMessage {
     // The global default minimum number of jurors in a dispute.
     uint256 public constant MIN_JURORS = 3;
@@ -84,10 +80,9 @@ contract ForeignGatewayOnEthereum is IForeignGatewaySingleMessage {
         }
     }
 
-    /** @dev Changes the `feeForJuror` property value of a specified court.
-     *  @param _courtID The ID of the court.
-     *  @param _feeForJuror The new value for the `feeForJuror` property value.
-     */
+    /// @dev Changes the `feeForJuror` property value of a specified court.
+    /// @param _courtID The ID of the court.
+    /// @param _feeForJuror The new value for the `feeForJuror` property value.
     function changeCourtJurorFee(uint96 _courtID, uint256 _feeForJuror) external onlyByGovernor {
         feeForJuror[_courtID] = _feeForJuror;
     }
@@ -126,9 +121,7 @@ contract ForeignGatewayOnEthereum is IForeignGatewaySingleMessage {
         cost = feeForJuror[courtID] * minJurors;
     }
 
-    /**
-     * Relay the rule call from the home gateway to the arbitrable.
-     */
+    /// Relay the rule call from the home gateway to the arbitrable.
     function relayRule(bytes32 _disputeHash, uint256 _ruling, address _relayer) external onlyFromFastBridge {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 
