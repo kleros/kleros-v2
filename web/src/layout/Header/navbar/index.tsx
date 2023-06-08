@@ -34,10 +34,8 @@ const Container = styled.div<{ isOpen: boolean }>`
 `;
 
 const NavBar: React.FC = () => {
-  const [locked, toggleLocked] = useToggle(true);
   const [isSolutionsOpen, toggleSolution] = useToggle(false);
 
-  useLockBodyScroll(locked);
   const { isOpen } = useOpenContext();
   useLockBodyScroll(isOpen);
 
@@ -47,17 +45,16 @@ const NavBar: React.FC = () => {
         text="Kleros Solutions"
         onClick={() => {
           toggleSolution();
-          toggleLocked(true);
         }}
         Icon={KlerosSolutionsIcon}
       />
-      {isSolutionsOpen && <DappList toggleSolution={toggleSolution} toggleLocked={toggleLocked} />}
+      {isSolutionsOpen && <DappList toggleSolution={toggleSolution} />}
       <hr />
       <Explore />
       <hr />
       <ConnectButton />
       <hr />
-      <Menu toggleLocked={toggleLocked} />
+      <Menu />
     </Container>
   );
 };

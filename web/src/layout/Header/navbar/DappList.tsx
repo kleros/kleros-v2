@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
-import { useFocusOutside } from "~src/hooks/useFocusOutside";
+import { useFocusOutside } from "hooks/useFocusOutside";
 import Curate from "svgs/icons/curate-image.png";
 import Resolver from "svgs/icons/dispute-resolver.svg";
 import Escrow from "svgs/icons/escrow.svg";
@@ -13,7 +13,6 @@ import Product from "./Product";
 
 interface IDappList {
   toggleSolution: () => void;
-  toggleLocked: (val: boolean) => void;
 }
 
 const ITEMS = [
@@ -102,11 +101,10 @@ const ItemsDiv = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 `;
 
-const DappList: React.FC<IDappList> = ({ toggleSolution, toggleLocked }) => {
+const DappList: React.FC<IDappList> = ({ toggleSolution }) => {
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => {
     toggleSolution();
-    toggleLocked(false);
   });
 
   return (

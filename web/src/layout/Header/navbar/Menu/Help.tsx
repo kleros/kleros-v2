@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
-import { useFocusOutside } from "~src/hooks/useFocusOutside";
+import { useFocusOutside } from "hooks/useFocusOutside";
 import Book from "svgs/icons/book-open.svg";
 import Guide from "svgs/icons/book.svg";
 import Bug from "svgs/icons/bug.svg";
@@ -43,7 +43,6 @@ const ITEMS = [
 
 interface IHelp {
   toggle: () => void;
-  toggleLocked: (val: boolean) => void;
 }
 
 const Container = styled.div`
@@ -86,11 +85,10 @@ const Icon = styled.svg`
   fill: ${({ theme }) => theme.secondaryPurple};
 `;
 
-const Help: React.FC<IHelp> = ({ toggle, toggleLocked }) => {
+const Help: React.FC<IHelp> = ({ toggle }) => {
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => {
     toggle();
-    toggleLocked(false);
   });
 
   return (

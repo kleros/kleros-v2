@@ -11,10 +11,6 @@ import SettingsIcon from "svgs/menu-icons/settings.svg";
 import Settings from "./Settings";
 import { useToggleTheme } from "hooks/useToggleThemeContext";
 
-interface IMenu {
-  toggleLocked: (val: boolean) => void;
-}
-
 const Container = styled.div``;
 
 const ButtonContainer = styled.div`
@@ -23,9 +19,9 @@ const ButtonContainer = styled.div`
   align-items: center;
 `;
 
-const Menu: React.FC<IMenu> = ({ toggleLocked }) => {
+const Menu: React.FC = () => {
   const [theme, toggleTheme] = useToggleTheme();
-  const [isHelpOpen, toggle] = useToggle(true);
+  const [isHelpOpen, toggleIsHelpOpen] = useToggle(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const isLightTheme = theme === "light";
@@ -40,8 +36,7 @@ const Menu: React.FC<IMenu> = ({ toggleLocked }) => {
       text: "Help",
       Icon: HelpIcon,
       onClick: () => {
-        toggleLocked(true);
-        toggle();
+        toggleIsHelpOpen();
       },
     },
     {
@@ -56,10 +51,10 @@ const Menu: React.FC<IMenu> = ({ toggleLocked }) => {
       {buttons.map(({ text, Icon, onClick }) => (
         <ButtonContainer key={text}>
           <LightButton {...{ text, onClick, Icon }} />
-          {text === "Help" && isHelpOpen && <Help toggle={toggle} toggleLocked={toggleLocked} />}
-          {text === "Settings" && isSettingsOpen && <Settings setIsSettingsOpen={setIsSettingsOpen} />}
         </ButtonContainer>
       ))}
+      {isHelpOpen && <Help toggle={toggleIsHelpOpen} />}
+      {isSettingsOpen && <Settings setIsSettingsOpen={setIsSettingsOpen} />}
     </Container>
   );
 };
