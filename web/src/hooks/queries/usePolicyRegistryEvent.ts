@@ -1,6 +1,6 @@
 import useSWRImmutable from "swr/immutable";
-import { getPolicyRegistry } from "hooks/contracts/generated";
 import { usePublicClient } from "wagmi";
+import { getPolicyRegistry } from "hooks/contracts/generated";
 
 export const usePolicyRegistryEvent = (courtID?: string | number) => {
   const policyRegistry = getPolicyRegistry({});
