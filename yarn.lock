@@ -3844,6 +3844,7 @@ __metadata:
     react-chartjs-2: ^4.3.1
     react-dom: ^18.2.0
     react-error-boundary: ^3.1.4
+    react-identicons: ^1.2.5
     react-is: ^18.2.0
     react-jazzicon: ^1.0.4
     react-loading-skeleton: ^3.2.0
@@ -22101,6 +22102,16 @@ __metadata:
   version: 6.0.11
   resolution: "react-error-overlay@npm:6.0.11"
   checksum: ce7b44c38fadba9cedd7c095cf39192e632daeccf1d0747292ed524f17dcb056d16bc197ddee5723f9dd888f0b9b19c3b486c430319e30504289b9296f2d2c42
+  languageName: node
+  linkType: hard
+
+"react-identicons@npm:^1.2.5":
+  version: 1.2.5
+  resolution: "react-identicons@npm:1.2.5"
+  peerDependencies:
+    react: ^17.0.1
+    react-dom: ^17.0.1
+  checksum: e2d5f088a334200d5be3b46bb9deb25ee3bc0f915d96a472007bd5c8b847683c50c809ba3ae4f000fcb018fc0094731298f9f337a3c02f658732b6df520ec4c7
   languageName: node
   linkType: hard
 
