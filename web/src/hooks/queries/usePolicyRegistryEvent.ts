@@ -1,21 +1,22 @@
 import useSWRImmutable from "swr/immutable";
-import { BigNumber } from "ethers";
-import { usePolicyRegistry } from "hooks/contracts/generated";
+import { getPolicyRegistry } from "hooks/contracts/generated";
+import { usePublicClient } from "wagmi";
 
 export const usePolicyRegistryEvent = (courtID?: string | number) => {
-  const policyRegistry = usePolicyRegistry();
+  const policyRegistry = getPolicyRegistry({});
+  const publicClient = usePublicClient();
+
   return useSWRImmutable(
     () => (policyRegistry && courtID ? `PolicyRegistry${courtID}` : false),
     async () => {
-      if (policyRegistry) {
-        const policyFilter = policyRegistry.filters.PolicyUpdate(
-          BigNumber.from(courtID),
-          null,
-          null
-        );
-        return policyRegistry
-          .queryFilter(policyFilter)
-          .then((events) => events[0]);
+      if (policyRegistry && courtID) {
+        const policyFilter = await policyRegistry.createEventFilter.PolicyUpdate({
+          _courtID: BigInt(courtID),
+        });
+        const policyUpdateEvents = await publicClient.getFilterLogs({
+          filter: policyFilter,
+        });
+        return policyUpdateEvents[0];
       } else throw Error;
     }
   );
