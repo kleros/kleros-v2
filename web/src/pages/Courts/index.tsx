@@ -17,7 +17,7 @@ const Courts: React.FC = () => {
       <TopSearch />
       <Routes>
         <Route path="/:id/*" element={<CourtDetails />} />
-        <Route path="*" element={<Navigate to="1" />} />
+        <Route path="*" element={<Navigate to="1" replace />} />
       </Routes>
     </Container>
   );
