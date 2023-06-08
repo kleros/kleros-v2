@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import Modal from "react-modal";
-import { Textarea, Button } from "@kleros/ui-components-library";
-import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
 import { wrapWithToast } from "utils/wrapWithToast";
+import { Button, Textarea } from "@kleros/ui-components-library";
+import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
 import { useConnectedContract } from "hooks/useConnectedContract";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 
@@ -12,26 +12,15 @@ const SubmitEvidenceModal: React.FC<{
   evidenceGroup: string;
   close: () => void;
 }> = ({ isOpen, evidenceGroup, close }) => {
-  const disputeKit = useConnectedContract(
-    "DisputeKitClassic"
-  ) as DisputeKitClassic;
+  const disputeKit = useConnectedContract("DisputeKitClassic") as DisputeKitClassic;
   const [isSending, setIsSending] = useState(false);
   const [message, setMessage] = useState("");
   return (
     <StyledModal {...{ isOpen }}>
       <h1>Submit New Evidence</h1>
-      <StyledTextArea
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Your Arguments"
-      />
+      <StyledTextArea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Your Arguments" />
       <ButtonArea>
-        <Button
-          variant="secondary"
-          disabled={isSending}
-          text="Return"
-          onClick={close}
-        />
+        <Button variant="secondary" disabled={isSending} text="Return" onClick={close} />
         <Button
           text="Submit"
           isLoading={isSending}
@@ -44,9 +33,7 @@ const SubmitEvidenceModal: React.FC<{
                 const response = await res.json();
                 if (res.status === 200) {
                   const cid = "/ipfs/" + response["cid"];
-                  await wrapWithToast(
-                    disputeKit.submitEvidence(evidenceGroup, cid)
-                  ).then(() => {
+                  await wrapWithToast(disputeKit.submitEvidence(evidenceGroup, cid)).then(() => {
                     setMessage("");
                     close();
                   });
@@ -61,13 +48,11 @@ const SubmitEvidenceModal: React.FC<{
   );
 };
 
-const constructEvidence = (msg: string) => {
+const constructEvidence = (msg: string): FormData => {
   const formData = new FormData();
-  const file = new File(
-    [JSON.stringify({ name: "Evidence", description: msg })],
-    "evidence.json",
-    { type: "text/plain" }
-  );
+  const file = new File([JSON.stringify({ name: "Evidence", description: msg })], "evidence.json", {
+    type: "text/plain",
+  });
   formData.append("data", file, file.name);
   return formData;
 };

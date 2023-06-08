@@ -29,7 +29,9 @@ const classicAppealQuery = gql`
   }
 `;
 
-export const useClassicAppealQuery = (id?: string | number) => {
+export const useClassicAppealQuery = (
+  id?: string | number
+): { data: typeof result; error: any; isValidating: boolean } => {
   const { data, error, isValidating } = useSWR(() =>
     typeof id !== "undefined"
       ? {

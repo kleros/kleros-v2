@@ -6,13 +6,10 @@ import { CONTRACTS } from "utils/getContract";
 export const usePNKAllowance = (user?: string | null) => {
   const pnkContract = useConnectedContract("PNK") as PNK;
   return useSWR(
-    () => (pnkContract && user ? `PNKAllowance{user}` : false),
+    () => (pnkContract && user ? `PNKAllowance${user}` : false),
     async () => {
       if (pnkContract && user) {
-        return await pnkContract.allowance(
-          user,
-          CONTRACTS["KlerosCore"].address
-        );
+        return await pnkContract.allowance(user, CONTRACTS["KlerosCore"].address);
       } else {
         return undefined;
       }

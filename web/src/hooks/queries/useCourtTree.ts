@@ -32,7 +32,7 @@ const courtTreeQuery = gql`
   }
 `;
 
-export const useCourtTree = () => {
+export const useCourtTree = (): { data: typeof result; error: any; isValidating: boolean } => {
   const { data, error, isValidating } = useSWR({
     query: courtTreeQuery,
   });

@@ -18,7 +18,7 @@ const courtDetailsQuery = gql`
   }
 `;
 
-export const useCourtDetails = (id?: string) => {
+export const useCourtDetails = (id?: string): { data: typeof result; error: any; isValidating: boolean } => {
   const { data, error, isValidating } = useSWR(
     id
       ? {
