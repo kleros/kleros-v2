@@ -54,7 +54,7 @@ const Container = styled.div<Omit<IPeriodBanner, "id">>`
   }};
 `;
 
-const getPeriodLabel = (period: Periods) => {
+const getPeriodLabel = (period: Periods): string => {
   switch (period) {
     case Periods.appeal:
       return "Crowdfunding Appeal";

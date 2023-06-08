@@ -11,7 +11,10 @@ const drawQuery = gql`
   }
 `;
 
-export const useDrawQuery = (address?: string | null, disputeID?: string) => {
+export const useDrawQuery = (
+  address?: string | null,
+  disputeID?: string
+): { data: typeof result; error: any; isValidating: boolean } => {
   const { data, error, isValidating } = useSWR({
     query: drawQuery,
     variables: { address, disputeID },

@@ -22,7 +22,9 @@ const disputeDetailsQuery = gql`
   }
 `;
 
-export const useDisputeDetailsQuery = (id?: string | number) => {
+export const useDisputeDetailsQuery = (
+  id?: string | number
+): { data: typeof result; error: any; isValidating: boolean } => {
   const { data, error, isValidating } = useSWR(() =>
     typeof id !== "undefined"
       ? {

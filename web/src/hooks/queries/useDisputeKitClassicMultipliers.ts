@@ -8,12 +8,9 @@ export const useDisputeKitClassicMultipliers = () => {
     () => (disputeKitClassic ? `Multipliers` : false),
     async () => {
       if (!disputeKitClassic) return;
-      const winner_stake_multiplier =
-        await disputeKitClassic.WINNER_STAKE_MULTIPLIER();
-      const loser_stake_multiplier =
-        await disputeKitClassic.LOSER_STAKE_MULTIPLIER();
-      const loser_appeal_period_multiplier =
-        await disputeKitClassic.LOSER_APPEAL_PERIOD_MULTIPLIER();
+      const winner_stake_multiplier = await disputeKitClassic.WINNER_STAKE_MULTIPLIER();
+      const loser_stake_multiplier = await disputeKitClassic.LOSER_STAKE_MULTIPLIER();
+      const loser_appeal_period_multiplier = await disputeKitClassic.LOSER_APPEAL_PERIOD_MULTIPLIER();
       return {
         winner_stake_multiplier,
         loser_stake_multiplier,
