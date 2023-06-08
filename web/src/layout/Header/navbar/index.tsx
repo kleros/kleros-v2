@@ -34,7 +34,7 @@ const Container = styled.div<{ isOpen: boolean }>`
 `;
 
 const NavBar: React.FC = () => {
-  const [locked, toggleLocked] = useToggle(true);
+  const [locked, toggleLocked] = useToggle(false);
   const [isSolutionsOpen, toggleSolution] = useToggle(false);
 
   useLockBodyScroll(locked);

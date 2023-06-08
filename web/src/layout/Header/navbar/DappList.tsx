@@ -93,11 +93,13 @@ const Container = styled.div`
 
 const ItemsDiv = styled.div`
   display: grid;
+  overflow-y: scroll;
   padding: 10px 10px 32px 10px;
   row-gap: 8px;
   justify-items: center;
   max-width: 480px;
   min-width: 300px;
+  max-height: 50vh;
   width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 `;
