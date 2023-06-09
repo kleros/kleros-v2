@@ -36,7 +36,7 @@ const EmailErrorContainer = styled.div`
 const OPTIONS = [{ label: "When x." }, { label: "When y." }, { label: "When z." }, { label: "When w." }];
 
 const FormNotifs: React.FC = () => {
-  const [checkboxStates, setCheckboxStates] = useState<boolean[]>(new Array(OPTIONS.length));
+  const [checkboxStates, setCheckboxStates] = useState<boolean[]>(new Array(OPTIONS.length).fill(false));
   const [emailInput, setEmailInput] = useState<string>("");
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
 
