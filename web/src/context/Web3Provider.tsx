@@ -1,17 +1,15 @@
 import React from "react";
-import {
-  EthereumClient,
-  w3mConnectors,
-  w3mProvider,
-} from "@web3modal/ethereum";
+import { EthereumClient, w3mConnectors } from "@web3modal/ethereum";
 import { Web3Modal } from "@web3modal/react";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { arbitrumGoerli, gnosisChiado } from "wagmi/chains";
+import { publicProvider } from "wagmi/providers/public";
+import { alchemyProvider } from "wagmi/dist/providers/alchemy";
 
 const chains = [arbitrumGoerli, gnosisChiado];
 const projectId = "6efaa26765fa742153baf9281e218217";
 
-const { publicClient } = configureChains(chains, [w3mProvider({ projectId })]);
+const { publicClient } = configureChains(chains, [alchemyProvider({ apiKey: "" }), publicProvider()]);
 
 const wagmiConfig = createConfig({
   autoConnect: false,
@@ -21,9 +19,7 @@ const wagmiConfig = createConfig({
 
 const ethereumClient = new EthereumClient(wagmiConfig, chains);
 
-const Web3Provider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => (
+const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <>
     <WagmiConfig config={wagmiConfig}> {children} </WagmiConfig>
     <Web3Modal {...{ projectId, ethereumClient }} />
