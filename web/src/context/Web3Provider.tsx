@@ -1,10 +1,10 @@
 import React from "react";
 import { EthereumClient, w3mConnectors } from "@web3modal/ethereum";
+import { alchemyProvider } from "@wagmi/core/providers/alchemy";
 import { Web3Modal } from "@web3modal/react";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { arbitrumGoerli, gnosisChiado } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
-import { alchemyProvider } from "wagmi/dist/providers/alchemy";
 
 const chains = [arbitrumGoerli, gnosisChiado];
 const projectId = "6efaa26765fa742153baf9281e218217";
