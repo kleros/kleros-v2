@@ -21,16 +21,16 @@
 // };
 
 import useSWR from "swr";
-import { usePnk, useKlerosCore } from "hooks/contracts/generated";
+import { getPnk, getKlerosCore } from "hooks/contracts/generated";
 
 export const usePNKAllowance = (user?: `0x${string}` | null) => {
-  const pnkContract = usePnk();
-  const klerosCore = useKlerosCore();
+  const pnkContract = getPnk({});
+  const klerosCore = getKlerosCore({});
   return useSWR(
     () => (pnkContract && user ? `PNKAllowance${user}` : false),
     async () => {
       if (pnkContract && user && klerosCore) {
-        return await pnkContract.allowance(user, klerosCore.address);
+        return await pnkContract.read.allowance([user, klerosCore.address]);
       } else {
         return undefined;
       }
