@@ -1,14 +1,13 @@
 import useSWR from "swr";
-import { BigNumber } from "ethers";
-import { useKlerosCore } from "hooks/contracts/generated";
+import { getKlerosCore } from "hooks/contracts/generated";
 
 export const useJurorBalance = (user?: `0x${string}` | null, courtId?: string | undefined) => {
-  const klerosCore = useKlerosCore();
+  const klerosCore = getKlerosCore({});
   return useSWR(
     () => (klerosCore && user && courtId ? `JurorBalance${user}${courtId}` : false),
     async () => {
       if (klerosCore && user && courtId) {
-        return await klerosCore.getJurorBalance(user, BigNumber.from(courtId));
+        return await klerosCore.read.getJurorBalance([user, BigInt(courtId)]);
       } else {
         return undefined;
       }

@@ -1,13 +1,14 @@
 import useSWR from "swr";
-import { usePnk } from "hooks/contracts/generated";
+import { getPnk } from "hooks/contracts/generated";
 
 export const usePNKBalance = (user?: `0x${string}` | null) => {
-  const pnkContract = usePnk();
+  const pnkContract = getPnk({});
+
   return useSWR(
     () => (pnkContract && user ? `PNKBalance${user}` : false),
     async () => {
       if (pnkContract && user) {
-        const balance = await pnkContract.balanceOf(user);
+        const balance = await pnkContract.read.balanceOf([user]);
         return balance;
       } else {
         return undefined;
