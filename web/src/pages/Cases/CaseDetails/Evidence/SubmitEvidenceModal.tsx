@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { BigNumber } from "ethers";
 import { useSigner } from "wagmi";
 import { toast } from "react-toastify";
 import Modal from "react-modal";
 import { Textarea, Button } from "@kleros/ui-components-library";
-import { useDisputeKitClassic } from "hooks/contracts/generated";
+import { getDisputeKitClassic } from "hooks/contracts/generated";
 import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 
@@ -15,7 +14,7 @@ const SubmitEvidenceModal: React.FC<{
   close: () => void;
 }> = ({ isOpen, evidenceGroup, close }) => {
   const { data: signer } = useSigner();
-  const disputeKit = useDisputeKitClassic({
+  const disputeKit = getDisputeKitClassic({
     signerOrProvider: signer,
   });
   const [isSending, setIsSending] = useState(false);
@@ -40,7 +39,7 @@ const SubmitEvidenceModal: React.FC<{
                   const response = await res.json();
                   if (res.status === 200) {
                     const cid = "/ipfs/" + response["cid"];
-                    await wrapWithToast(disputeKit.submitEvidence(BigNumber.from(evidenceGroup), cid)).then(() => {
+                    await wrapWithToast(disputeKit.submitEvidence(BigInt(evidenceGroup), cid)).then(() => {
                       setMessage("");
                       close();
                     });

@@ -1,15 +1,15 @@
 import React from "react";
 import styled from "styled-components";
-import { utils } from "ethers";
+import { formatUnits, formatEther } from "viem";
 import { useParams } from "react-router-dom";
 import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
-import PNKIcon from "svgs/icons/pnk.svg";
 import EthereumIcon from "svgs/icons/ethereum.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import JurorIcon from "svgs/icons/user.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
 import MinStake from "svgs/icons/min-stake.svg";
+import { commify } from "utils/commify";
 
 const StyledCard = styled.div`
   width: auto;
@@ -32,21 +32,15 @@ interface IStat {
 const stats: IStat[] = [
   {
     title: "Min Stake",
-    getText: (data) => utils.commify(utils.formatUnits(data?.minStake, 18)),
-    getSubtext: (data) =>
-      (parseInt(utils.formatUnits(data?.minStake, 18)) * 0.029)
-        .toFixed(2)
-        .toString() + "$",
+    getText: (data) => commify(formatUnits(data?.minStake, 18)),
+    getSubtext: (data) => (parseInt(formatUnits(data?.minStake, 18)) * 0.029).toFixed(2).toString() + "$",
     color: "purple",
     icon: MinStake,
   },
   {
     title: "Vote Stake",
-    getText: (data) => utils.commify(utils.formatUnits(data?.minStake, 18)),
-    getSubtext: (data) =>
-      (parseInt(utils.formatUnits(data?.minStake, 18)) * 0.029)
-        .toFixed(2)
-        .toString() + "$",
+    getText: (data) => commify(formatUnits(data?.minStake, 18)),
+    getSubtext: (data) => (parseInt(formatUnits(data?.minStake, 18)) * 0.029).toFixed(2).toString() + "$",
     color: "blue",
     icon: EthereumIcon,
   },
@@ -59,11 +53,8 @@ const stats: IStat[] = [
   },
   {
     title: "PNK Staked",
-    getText: (data) => utils.commify(utils.formatUnits(data?.stake, 18)),
-    getSubtext: (data) =>
-      (parseInt(utils.formatUnits(data?.stake, 18)) * 0.029)
-        .toFixed(2)
-        .toString() + "$",
+    getText: (data) => commify(formatUnits(data?.stake, 18)),
+    getSubtext: (data) => (parseInt(formatUnits(data?.stake, 18)) * 0.029).toFixed(2).toString() + "$",
     color: "green",
     icon: JurorIcon,
   },
@@ -83,21 +74,15 @@ const stats: IStat[] = [
   },
   {
     title: "ETH paid to Jurors",
-    getText: (data) => utils.commify(utils.formatEther(data?.paidETH)),
-    getSubtext: (data) =>
-      (parseInt(utils.formatUnits(data?.paidETH, 18)) * 1600)
-        .toFixed(2)
-        .toString() + "$",
+    getText: (data) => commify(formatEther(data?.paidETH)),
+    getSubtext: (data) => (parseInt(formatUnits(data?.paidETH, 18)) * 1600).toFixed(2).toString() + "$",
     color: "orange",
     icon: BalanceIcon,
   },
   {
     title: "PNK redistributed",
-    getText: (data) => utils.commify(utils.formatUnits(data?.paidPNK, 18)),
-    getSubtext: (data) =>
-      (parseInt(utils.formatUnits(data?.paidPNK, 18)) * 0.029)
-        .toFixed(2)
-        .toString() + "$",
+    getText: (data) => commify(formatUnits(data?.paidPNK, 18)),
+    getSubtext: (data) => (parseInt(formatUnits(data?.paidPNK, 18)) * 0.029).toFixed(2).toString() + "$",
     color: "orange",
     icon: BalanceIcon,
   },

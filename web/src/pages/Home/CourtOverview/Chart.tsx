@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import TimeSeriesChart from "./TimeSeriesChart";
 import { DropdownSelect } from "@kleros/ui-components-library";
-import { utils } from "ethers";
+import { formatUnits } from "viem";
 import { useHomePageContext } from "hooks/useHomePageContext";
 
 const Container = styled.div`
@@ -51,11 +51,7 @@ const Chart: React.FC = () => {
       ...accData,
       {
         x: Number(counter.id) * 1000,
-        y: Number(
-          chartOption === "stakedPNK"
-            ? utils.formatUnits(counter[chartOption], 18)
-            : counter[chartOption]
-        ),
+        y: Number(chartOption === "stakedPNK" ? formatUnits(counter[chartOption], 18) : counter[chartOption]),
       },
     ];
   }, []);

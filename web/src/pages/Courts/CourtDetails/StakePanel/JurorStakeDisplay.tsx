@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { BigNumber, utils } from "ethers";
+import { formatEther } from "viem";
 import { useJurorBalance } from "queries/useJurorBalance";
 import { useAccount } from "wagmi";
 import Field from "components/Field";
@@ -9,7 +9,7 @@ import DiceIcon from "svgs/icons/dice.svg";
 import LockerIcon from "svgs/icons/locker.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 
-const format = (value: BigNumber | undefined): string => (value !== undefined ? utils.formatEther(value) : "0");
+const format = (value: bigint | undefined): string => (value !== undefined ? formatEther(value) : "0");
 
 const JurorBalanceDisplay = () => {
   const { id } = useParams();

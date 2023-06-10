@@ -2,28 +2,21 @@ import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { Button, Textarea } from "@kleros/ui-components-library";
-import { useDisputeKitClassic } from "hooks/contracts/generated";
+import { getDisputeKitClassic } from "hooks/contracts/generated";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { useSigner } from "wagmi";
-import { BigNumber } from "ethers";
 
-const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({
-  arbitrable,
-  voteIDs,
-}) => {
+const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
   const { id } = useParams();
-  const parsedDisputeID = BigNumber.from(id);
-  const parsedVoteIDs = useMemo(
-    () => voteIDs.map((voteID) => BigNumber.from(voteID)),
-    [voteIDs]
-  );
+  const parsedDisputeID = BigInt(id!);
+  const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
   const [chosenOption, setChosenOption] = useState(-1);
   const [isSending, setIsSending] = useState(false);
   const [justification, setJustification] = useState("");
   const { data: signer } = useSigner();
-  const disputeKit = useDisputeKitClassic({
+  const disputeKit = getDisputeKitClassic({
     signerOrProvider: signer,
   });
   return id ? (
@@ -35,40 +28,31 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({
           onChange={(e) => setJustification(e.target.value)}
           placeholder="Justify your vote..."
           message={
-            "A good justification contributes to case comprehension. " +
-            "Low quality justifications can be challenged."
+            "A good justification contributes to case comprehension. " + "Low quality justifications can be challenged."
           }
           variant="info"
         />
         <OptionsContainer>
-          {metaEvidence?.rulingOptions?.titles?.map(
-            (answer: string, i: number) => (
-              <Button
-                key={i}
-                text={answer}
-                disabled={isSending}
-                isLoading={chosenOption === i + 1}
-                onClick={() => {
-                  if (disputeKit) {
-                    setIsSending(true);
-                    setChosenOption(i + 1);
-                    wrapWithToast(
-                      disputeKit!.castVote(
-                        parsedDisputeID,
-                        parsedVoteIDs,
-                        BigNumber.from(i + 1),
-                        BigNumber.from(0),
-                        justification
-                      )
-                    ).finally(() => {
-                      setChosenOption(-1);
-                      setIsSending(false);
-                    });
-                  }
-                }}
-              />
-            )
-          )}
+          {metaEvidence?.rulingOptions?.titles?.map((answer: string, i: number) => (
+            <Button
+              key={i}
+              text={answer}
+              disabled={isSending}
+              isLoading={chosenOption === i + 1}
+              onClick={() => {
+                if (disputeKit) {
+                  setIsSending(true);
+                  setChosenOption(i + 1);
+                  wrapWithToast(
+                    disputeKit!.castVote(parsedDisputeID, parsedVoteIDs, BigInt(i + 1), BigInt(0), justification)
+                  ).finally(() => {
+                    setChosenOption(-1);
+                    setIsSending(false);
+                  });
+                }
+              }}
+            />
+          ))}
         </OptionsContainer>
       </MainContainer>
       <RefuseToArbitrateContainer>
@@ -82,13 +66,7 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({
               setIsSending(true);
               setChosenOption(0);
               wrapWithToast(
-                disputeKit.castVote(
-                  parsedDisputeID,
-                  parsedVoteIDs,
-                  BigNumber.from(0),
-                  BigNumber.from(0),
-                  justification
-                )
+                disputeKit.castVote(parsedDisputeID, parsedVoteIDs, BigInt(0), BigInt(0), justification)
               ).finally(() => {
                 setChosenOption(-1);
                 setIsSending(false);
