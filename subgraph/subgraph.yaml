@@ -6,9 +6,9 @@ dataSources:
     name: KlerosCore
     network: arbitrum-goerli
     source:
-      address: "0xD08Ab99480d02bf9C092828043f611BcDFEA917b"
+      address: "0xA429667Abb1A6c530BAd1083df4C69FBce86D696"
       abi: KlerosCore
-      startBlock: 9433950
+      startBlock: 25602125
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -36,7 +36,7 @@ dataSources:
           handler: handleDraw
         - event: NewPeriod(indexed uint256,uint8)
           handler: handleNewPeriod
-        - event: CourtCreated(indexed uint256,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256,uint256[])
+        - event: CourtCreated(indexed uint256,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[])
           handler: handleCourtCreated
         - event: CourtModified(indexed uint96,string)
           handler: handleCourtModified
@@ -44,8 +44,10 @@ dataSources:
           handler: handleDisputeKitCreated
         - event: DisputeKitEnabled(indexed uint96,indexed uint256,indexed bool)
           handler: handleDisputeKitEnabled
-        - event: StakeSet(indexed address,uint256,uint256,uint256)
+        - event: StakeSet(indexed address,uint256,uint256)
           handler: handleStakeSet
+        - event: StakeDelayed(indexed address,uint256,uint256,uint256)
+          handler: handleStakeDelayed
         - event: TokenAndETHShift(indexed address,indexed uint256,indexed uint256,uint256,int256,int256)
           handler: handleTokenAndETHShift
         - event: Ruling(indexed address,indexed uint256,uint256)
@@ -55,9 +57,9 @@ dataSources:
     name: PolicyRegistry
     network: arbitrum-goerli
     source:
-      address: "0xC5655728387Ce5E2aAA22138114E5777370aBDae"
+      address: "0xED503aBA65B28D81444294D1eAa5d84CeFdC2C58"
       abi: PolicyRegistry
-      startBlock: 6456907
+      startBlock: 25585400
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -75,9 +77,9 @@ dataSources:
     name: DisputeKitClassic
     network: arbitrum-goerli
     source:
-      address: "0x0b24767Ae86Da2F5B442B2A524d3D9809CD0B5B2"
+      address: "0xcBE3aD699919Cf59efDF715e4B41AF30A0E4c92d"
       abi: DisputeKitClassic
-      startBlock: 9433943
+      startBlock: 25602098
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
