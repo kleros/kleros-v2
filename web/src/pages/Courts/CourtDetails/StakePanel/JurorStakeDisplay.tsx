@@ -20,12 +20,12 @@ const JurorBalanceDisplay = () => {
     {
       icon: PNKIcon,
       name: "My Stake",
-      value: `${format(jurorBalance?.staked)} PNK`,
+      value: `${format(jurorBalance?.[0])} PNK`,
     },
     {
       icon: LockerIcon,
       name: "Locked Stake",
-      value: `${format(jurorBalance?.locked)} PNK`,
+      value: `${format(jurorBalance?.[1])} PNK`,
     },
     {
       icon: DiceIcon,

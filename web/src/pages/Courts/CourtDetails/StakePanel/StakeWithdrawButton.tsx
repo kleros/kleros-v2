@@ -4,7 +4,7 @@ import { useAccount } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
 import { usePNKAllowance } from "hooks/queries/usePNKAllowance";
 import {
-  useKlerosCore,
+  getKlerosCore,
   useKlerosCoreSetStake,
   usePrepareKlerosCoreSetStake,
   usePnkBalanceOf,
@@ -44,17 +44,19 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, se
   const isAllowance = isStaking && allowance && allowance < parsedAmount;
 
   const targetStake = useMemo(() => {
-    if (action === ActionType.stake) {
-      return jurorBalance?.staked + parsedAmount;
-    } else {
-      return jurorBalance?.staked - parsedAmount;
+    if (jurorBalance) {
+      if (action === ActionType.stake) {
+        return jurorBalance[0] + parsedAmount;
+      } else {
+        return jurorBalance[0] - parsedAmount;
+      }
     }
   }, [action, jurorBalance, parsedAmount]);
 
-  const klerosCore = useKlerosCore();
+  const klerosCore = getKlerosCore({});
   const { config: increaseAllowanceConfig } = usePreparePnkIncreaseAllowance({
     enabled: notUndefined([klerosCore, targetStake, allowance]),
-    args: [klerosCore?.address, targetStake?.sub(allowance ?? BigInt(0))!],
+    args: [klerosCore?.address, BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
   });
   const { writeAsync: increaseAllowance } = usePnkIncreaseAllowance(increaseAllowanceConfig);
   const handleAllowance = () => {
