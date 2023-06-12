@@ -73,7 +73,7 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
               setChosenOption(0);
               const [address] = await walletClient!.getAddresses();
 
-              wrapWithToast(
+              await wrapWithToast(
                 publicClient.simulateContract({
                   abi: disputeKitClassicABI,
                   address: disputeKitClassicAddress[421613],
