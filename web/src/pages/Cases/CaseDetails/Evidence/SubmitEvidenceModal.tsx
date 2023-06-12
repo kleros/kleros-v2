@@ -1,22 +1,22 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { useSigner } from "wagmi";
 import { toast } from "react-toastify";
 import Modal from "react-modal";
 import { Textarea, Button } from "@kleros/ui-components-library";
 import { getDisputeKitClassic } from "hooks/contracts/generated";
 import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
+import { useWalletClient, usePublicClient } from "wagmi";
+import { disputeKitClassicABI, disputeKitClassicAddress } from "hooks/contracts/generated";
 
 const SubmitEvidenceModal: React.FC<{
   isOpen: boolean;
   evidenceGroup: string;
   close: () => void;
 }> = ({ isOpen, evidenceGroup, close }) => {
-  const { data: signer } = useSigner();
-  const disputeKit = getDisputeKitClassic({
-    signerOrProvider: signer,
-  });
+  const disputeKit = getDisputeKitClassic({});
+  const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
   const [isSending, setIsSending] = useState(false);
   const [message, setMessage] = useState("");
   return (
@@ -39,7 +39,15 @@ const SubmitEvidenceModal: React.FC<{
                   const response = await res.json();
                   if (res.status === 200) {
                     const cid = "/ipfs/" + response["cid"];
-                    await wrapWithToast(disputeKit.submitEvidence(BigInt(evidenceGroup), cid)).then(() => {
+                    const [address] = await walletClient!.getAddresses();
+                    const { request } = await publicClient.simulateContract({
+                      abi: disputeKitClassicABI,
+                      address: disputeKitClassicAddress[421613],
+                      functionName: "submitEvidence",
+                      account: address,
+                      args: [BigInt(evidenceGroup), cid],
+                    });
+                    await wrapWithToast(walletClient!.writeContract(request)).then(() => {
                       setMessage("");
                       close();
                     });
