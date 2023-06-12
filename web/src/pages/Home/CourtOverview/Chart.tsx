@@ -31,8 +31,10 @@ const ChartOptionsDropdown: React.FC<{
     alignRight
     defaultValue={"stakedPNK"}
     items={CHART_OPTIONS}
-    callback={(newValue: string) => {
-      setChartOption(newValue);
+    callback={(newValue: string | number) => {
+      if (typeof newValue === "string") {
+        setChartOption(newValue);
+      }
     }}
   />
 );

@@ -5,8 +5,8 @@ import { Button, Textarea } from "@kleros/ui-components-library";
 import { getDisputeKitClassic } from "hooks/contracts/generated";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { wrapWithToast } from "utils/wrapWithToast";
-import { useSigner } from "wagmi";
-
+import { useWalletClient, usePublicClient } from "wagmi";
+import { disputeKitClassicABI, disputeKitClassicAddress } from "hooks/contracts/generated";
 const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
   const { id } = useParams();
   const parsedDisputeID = BigInt(id!);
@@ -15,10 +15,10 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
   const [chosenOption, setChosenOption] = useState(-1);
   const [isSending, setIsSending] = useState(false);
   const [justification, setJustification] = useState("");
-  const { data: signer } = useSigner();
-  const disputeKit = getDisputeKitClassic({
-    signerOrProvider: signer,
-  });
+  const { data: walletClient } = useWalletClient();
+  const disputeKit = getDisputeKitClassic({});
+  const publicClient = usePublicClient();
+
   return id ? (
     <Container>
       <MainContainer>
@@ -39,13 +39,19 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
               text={answer}
               disabled={isSending}
               isLoading={chosenOption === i + 1}
-              onClick={() => {
+              onClick={async () => {
                 if (disputeKit) {
+                  const [address] = await walletClient!.getAddresses();
+                  const { request } = await publicClient.simulateContract({
+                    abi: disputeKitClassicABI,
+                    address: disputeKitClassicAddress[421613],
+                    functionName: "castVote",
+                    account: address,
+                    args: [parsedDisputeID, parsedVoteIDs, BigInt(i + 1), BigInt(0), justification],
+                  });
                   setIsSending(true);
                   setChosenOption(i + 1);
-                  wrapWithToast(
-                    disputeKit!.castVote(parsedDisputeID, parsedVoteIDs, BigInt(i + 1), BigInt(0), justification)
-                  ).finally(() => {
+                  wrapWithToast(walletClient!.writeContract(request)).finally(() => {
                     setChosenOption(-1);
                     setIsSending(false);
                   });
@@ -61,12 +67,20 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
           text="Refuse to Arbitrate"
           disabled={isSending}
           isLoading={chosenOption === 0}
-          onClick={() => {
+          onClick={async () => {
             if (disputeKit) {
               setIsSending(true);
               setChosenOption(0);
+              const [address] = await walletClient!.getAddresses();
+
               wrapWithToast(
-                disputeKit.castVote(parsedDisputeID, parsedVoteIDs, BigInt(0), BigInt(0), justification)
+                publicClient.simulateContract({
+                  abi: disputeKitClassicABI,
+                  address: disputeKitClassicAddress[421613],
+                  functionName: "castVote",
+                  account: address,
+                  args: [parsedDisputeID, parsedVoteIDs, BigInt(0), BigInt(0), justification],
+                })
               ).finally(() => {
                 setChosenOption(-1);
                 setIsSending(false);
@@ -80,17 +94,14 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
     <></>
   );
 };
-
 const Container = styled.div`
   width: 100%;
   height: auto;
 `;
-
 const MainContainer = styled.div`
   width: 100%;
   height: auto;
 `;
-
 const StyledTextarea = styled(Textarea)`
   width: 100%;
   height: auto;
@@ -103,7 +114,6 @@ const StyledTextarea = styled(Textarea)`
     hyphens: auto;
   }
 `;
-
 const OptionsContainer = styled.div`
   margin-top: 24px;
   display: flex;
@@ -111,7 +121,6 @@ const OptionsContainer = styled.div`
   justify-content: center;
   gap: 16px;
 `;
-
 const RefuseToArbitrateContainer = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBlue};
@@ -119,5 +128,4 @@ const RefuseToArbitrateContainer = styled.div`
   display: flex;
   justify-content: center;
 `;
-
 export default Binary;
