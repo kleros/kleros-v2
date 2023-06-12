@@ -1,16 +1,12 @@
 import React, { useMemo, useState, createContext, useContext } from "react";
 import { useParams } from "react-router-dom";
-import { BigNumber } from "ethers";
 import { ONE_BASIS_POINT } from "consts/index";
 import { Periods } from "consts/periods";
 import { notUndefined } from "utils/index";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { useAppealCost } from "queries/useAppealCost";
 import { useDisputeKitClassicMultipliers } from "queries/useDisputeKitClassicMultipliers";
-import {
-  useClassicAppealQuery,
-  ClassicAppealQuery,
-} from "queries/useClassicAppealQuery";
+import { useClassicAppealQuery, ClassicAppealQuery } from "queries/useClassicAppealQuery";
 import { useCountdown } from "hooks/useCountdown";
 
 const LoserSideCountdownContext = createContext<number | undefined>(undefined);
@@ -29,9 +25,9 @@ const SelectedOptionContext = createContext<ISelectedOptionContext>({
 
 interface IFundingContext {
   winningChoice: string | undefined;
-  paidFees: BigNumber[] | undefined;
-  loserRequiredFunding: BigNumber | undefined;
-  winnerRequiredFunding: BigNumber | undefined;
+  paidFees: BigInt[] | undefined;
+  loserRequiredFunding: BigInt | undefined;
+  winnerRequiredFunding: BigInt | undefined;
   fundedChoices: string[] | undefined;
 }
 const FundingContext = createContext<IFundingContext>({
@@ -54,31 +50,20 @@ export const ClassicAppealProvider: React.FC<{
   const arbitrable = data?.dispute?.arbitrated.id;
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
   const { data: multipliers } = useDisputeKitClassicMultipliers();
-  const options = ["Refuse to Arbitrate"].concat(
-    metaEvidence?.rulingOptions?.titles
-  );
+  const options = ["Refuse to Arbitrate"].concat(metaEvidence?.rulingOptions?.titles);
   const loserSideCountdown = useLoserSideCountdown(
     dispute?.lastPeriodChange,
     dispute?.court.timesPerPeriod[Periods.appeal],
-    multipliers?.loser_appeal_period_multiplier.toString()
+    multipliers?.loser_appeal_period_multiplier.toString()!
   );
-  const loserRequiredFunding = getLoserRequiredFunding(
-    appealCost,
-    multipliers?.loser_stake_multiplier
-  );
-  const winnerRequiredFunding = getWinnerRequiredFunding(
-    appealCost,
-    multipliers?.winner_stake_multiplier
-  );
+  const loserRequiredFunding = getLoserRequiredFunding(appealCost!, multipliers?.loser_stake_multiplier!);
+  const winnerRequiredFunding = getWinnerRequiredFunding(appealCost!, multipliers?.winner_stake_multiplier!);
   const fundedChoices = getFundedChoices(data?.dispute);
   const [selectedOption, setSelectedOption] = useState<number | undefined>();
   return (
     <LoserSideCountdownContext.Provider value={loserSideCountdown}>
       <SelectedOptionContext.Provider
-        value={useMemo(
-          () => ({ selectedOption, setSelectedOption }),
-          [selectedOption, setSelectedOption]
-        )}
+        value={useMemo(() => ({ selectedOption, setSelectedOption }), [selectedOption, setSelectedOption])}
       >
         <FundingContext.Provider
           value={useMemo(
@@ -89,39 +74,29 @@ export const ClassicAppealProvider: React.FC<{
               winnerRequiredFunding,
               fundedChoices,
             }),
-            [
-              winningChoice,
-              paidFees,
-              loserRequiredFunding,
-              winnerRequiredFunding,
-              fundedChoices,
-            ]
+            [winningChoice, paidFees, loserRequiredFunding, winnerRequiredFunding, fundedChoices]
           )}
         >
-          <OptionsContext.Provider value={options}>
-            {children}
-          </OptionsContext.Provider>
+          <OptionsContext.Provider value={options}>{children}</OptionsContext.Provider>
         </FundingContext.Provider>
       </SelectedOptionContext.Provider>
     </LoserSideCountdownContext.Provider>
   );
 };
 
-export const useLoserSideCountdownContext = () =>
-  useContext(LoserSideCountdownContext);
+export const useLoserSideCountdownContext = () => useContext(LoserSideCountdownContext);
 export const useSelectedOptionContext = () => useContext(SelectedOptionContext);
 export const useFundingContext = () => useContext(FundingContext);
 export const useOptionsContext = () => useContext(OptionsContext);
 
 const getCurrentLocalRound = (dispute?: ClassicAppealQuery["dispute"]) => {
-  const currentLocalRoundIndex =
-    dispute?.disputeKitDispute?.currentLocalRoundIndex;
+  const currentLocalRoundIndex = dispute?.disputeKitDispute?.currentLocalRoundIndex;
   return dispute?.disputeKitDispute?.localRounds[currentLocalRoundIndex];
 };
 
 const getPaidFees = (dispute?: ClassicAppealQuery["dispute"]) => {
   const currentLocalRound = getCurrentLocalRound(dispute);
-  return currentLocalRound?.paidFees.map((amount) => BigNumber.from(amount));
+  return currentLocalRound?.paidFees.map((amount) => BigInt(amount));
 };
 
 const getFundedChoices = (dispute?: ClassicAppealQuery["dispute"]) => {
@@ -134,57 +109,29 @@ const getWinningChoice = (dispute?: ClassicAppealQuery["dispute"]) => {
   return currentLocalRound?.winningChoice;
 };
 
-const getLoserRequiredFunding = (
-  appealCost: BigNumber,
-  loser_stake_multiplier: BigNumber
-): BigNumber =>
+const getLoserRequiredFunding = (appealCost: bigint, loser_stake_multiplier: bigint): BigInt =>
   notUndefined([appealCost, loser_stake_multiplier])
-    ? appealCost.add(
-        loser_stake_multiplier.mul(appealCost).div(ONE_BASIS_POINT)
-      )
-    : BigNumber.from(0);
+    ? appealCost + (loser_stake_multiplier * appealCost) / ONE_BASIS_POINT
+    : BigInt(0);
 
-const getWinnerRequiredFunding = (
-  appealCost: BigNumber,
-  winner_stake_multiplier: BigNumber
-): BigNumber =>
+const getWinnerRequiredFunding = (appealCost: bigint, winner_stake_multiplier: bigint): BigInt =>
   notUndefined([appealCost, winner_stake_multiplier])
-    ? appealCost.add(
-        winner_stake_multiplier.mul(appealCost).div(ONE_BASIS_POINT)
-      )
-    : BigNumber.from(0);
+    ? appealCost + (winner_stake_multiplier * appealCost) / ONE_BASIS_POINT
+    : BigInt(0);
 
-const getDeadline = (
-  lastPeriodChange: string,
-  appealPeriodDuration: string,
-  loserTimeMultiplier: string
-): number => {
-  const parsedLastPeriodChange = BigNumber.from(lastPeriodChange);
-  const parsedAppealPeriodDuration = BigNumber.from(appealPeriodDuration);
-  const parsedLoserTimeMultiplier = BigNumber.from(loserTimeMultiplier);
-  const loserAppealPeriodDuration = parsedAppealPeriodDuration
-    .mul(parsedLoserTimeMultiplier)
-    .div(ONE_BASIS_POINT);
-  return loserAppealPeriodDuration.add(parsedLastPeriodChange).toNumber();
+const getDeadline = (lastPeriodChange: string, appealPeriodDuration: string, loserTimeMultiplier: string): number => {
+  const parsedLastPeriodChange = BigInt(lastPeriodChange);
+  const parsedAppealPeriodDuration = BigInt(appealPeriodDuration);
+  const parsedLoserTimeMultiplier = BigInt(loserTimeMultiplier);
+  const loserAppealPeriodDuration = (parsedAppealPeriodDuration * parsedLoserTimeMultiplier) / ONE_BASIS_POINT;
+  return Number(loserAppealPeriodDuration + parsedLastPeriodChange);
 };
 
-function useLoserSideCountdown(
-  lastPeriodChange: string,
-  appealPeriodDuration: string,
-  loserTimeMultiplier: string
-) {
+function useLoserSideCountdown(lastPeriodChange: string, appealPeriodDuration: string, loserTimeMultiplier: string) {
   const deadline = useMemo(
     () =>
-      notUndefined([
-        lastPeriodChange,
-        appealPeriodDuration,
-        loserTimeMultiplier,
-      ])
-        ? getDeadline(
-            lastPeriodChange,
-            appealPeriodDuration,
-            loserTimeMultiplier
-          )
+      notUndefined([lastPeriodChange, appealPeriodDuration, loserTimeMultiplier])
+        ? getDeadline(lastPeriodChange, appealPeriodDuration, loserTimeMultiplier)
         : 0,
     [lastPeriodChange, appealPeriodDuration, loserTimeMultiplier]
   );
