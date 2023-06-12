@@ -2,11 +2,11 @@ import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { Button, Textarea } from "@kleros/ui-components-library";
-import { getDisputeKitClassic } from "hooks/contracts/generated";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { useWalletClient, usePublicClient } from "wagmi";
-import { disputeKitClassicABI, disputeKitClassicAddress } from "hooks/contracts/generated";
+import { getDisputeKitClassic, disputeKitClassicABI, disputeKitClassicAddress } from "hooks/contracts/generated";
+
 const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
   const { id } = useParams();
   const parsedDisputeID = BigInt(id!);

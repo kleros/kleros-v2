@@ -3,11 +3,10 @@ import styled from "styled-components";
 import { toast } from "react-toastify";
 import Modal from "react-modal";
 import { Textarea, Button } from "@kleros/ui-components-library";
-import { getDisputeKitClassic } from "hooks/contracts/generated";
 import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 import { useWalletClient, usePublicClient } from "wagmi";
-import { disputeKitClassicABI, disputeKitClassicAddress } from "hooks/contracts/generated";
+import { getDisputeKitClassic, disputeKitClassicABI, disputeKitClassicAddress } from "hooks/contracts/generated";
 
 const SubmitEvidenceModal: React.FC<{
   isOpen: boolean;
