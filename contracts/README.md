@@ -11,11 +11,11 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 #### Chiado
 
 - [ArbitrableExample](https://blockscout.com/gnosis/chiado/address/0xc0fcc96BFd78e36550FCaB434A9EE1210B57225b)
-- [ForeignGatewayOnGnosis](https://blockscout.com/gnosis/chiado/address/0x499AD7EAA015E97CeC65eEDC3f2Ea9D848eB8618)
+- [ForeignGatewayOnGnosis](https://blockscout.com/gnosis/chiado/address/0x573bcD6ee4aEe152eCC9Cafd2c0820Dc548AF6cC)
 - [SortitionSumTreeFactory](https://blockscout.com/gnosis/chiado/address/0xc7e3BF90299f6BD9FA7c3703837A9CAbB5743636)
 - [TokenBridge](https://blockscout.com/gnosis/chiado/address/0xbb3c86f9918C3C1d83668fA84e79E876d147fFf2)
-- [WETH](https://blockscout.com/gnosis/chiado/address/0x96f7C31EF5bac6710ADF201176298d61943Dde63)
-- [WETHFaucet](https://blockscout.com/gnosis/chiado/address/0x73caC888997367Be196C978f20555e8F9DFF306c)
+- [WETH](https://blockscout.com/gnosis/chiado/address/0x2DFC9c3141268e6eac04a7D6d98Fbf64BDe836a8)
+- [WETHFaucet](https://blockscout.com/gnosis/chiado/address/0x22CB016c4b57413ca4DF5F1AC44a0E0d3c69811F)
 - [WPNKFaucet](https://blockscout.com/gnosis/chiado/address/0x5898aeE045A25B276369914c3448B72a41758B2c)
 - [WrappedPinakionV2](https://blockscout.com/gnosis/chiado/address/0xD75E27A56AaF9eE7F8d9A472a8C2EF2f65a764dd)
 - [xKlerosLiquidV2](https://blockscout.com/gnosis/chiado/address/0x34E520dc1d2Db660113b64724e14CEdCD01Ee879)
@@ -30,13 +30,13 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610/token-transfers)
 - [ArbitrableExampleEthFee](https://goerli.arbiscan.io/address/0x1fF31be1924f55804350ADe4945f3B3a6a2e15d2)
 - [BlockHashRNG](https://goerli.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
-- [DisputeKitClassic](https://goerli.arbiscan.io/address/0xE28206c91Cbb71652001AeB23c6763D4E4220466)
-- [DisputeResolver](https://goerli.arbiscan.io/address/0xf6356Ff189C0fBDa4A1e8dB6BF24Dc66CfBa003B)
-- [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0xaAEB65dD8424ec76425FfB48bc0a057b3D6D5502)
-- [KlerosCore](https://goerli.arbiscan.io/address/0x720d566572aFA2D66abD2007e5aBa95a98E9f160)
+- [DisputeKitClassic](https://goerli.arbiscan.io/address/0xcBE3aD699919Cf59efDF715e4B41AF30A0E4c92d)
+- [DisputeResolver](https://goerli.arbiscan.io/address/0x3B4edEFd12a467D1C71506ae2eE88828145202b1)
+- [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0xD60CD2151e118Dd796efcb1ceFFcF892226F9b3a)
+- [KlerosCore](https://goerli.arbiscan.io/address/0xA429667Abb1A6c530BAd1083df4C69FBce86D696)
 - [PolicyRegistry](https://goerli.arbiscan.io/address/0xED503aBA65B28D81444294D1eAa5d84CeFdC2C58)
 - [RandomizerRNG](https://goerli.arbiscan.io/address/0xa90f7D2e35718FDE9AD96c8B6667AFcAa4BEfd4d)
-- [SortitionModule](https://goerli.arbiscan.io/address/0x13f368aEfdde142E3B3C7AE9271Ab0C5A0DdFe94)
+- [SortitionModule](https://goerli.arbiscan.io/address/0xa65D3ED6494ec5fcAa115A39D625B2F01786F094)
 
 ## Getting Started
 

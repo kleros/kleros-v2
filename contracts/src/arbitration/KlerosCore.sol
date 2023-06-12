@@ -117,6 +117,7 @@ contract KlerosCore is IArbitrator {
     // ************************************* //
 
     event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount);
+    event StakeDelayed(address indexed _address, uint256 _courtID, uint256 _amount, uint256 _penalty);
     event NewPeriod(uint256 indexed _disputeID, Period _period);
     event AppealPossible(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
     event AppealDecision(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
@@ -1036,6 +1037,7 @@ contract KlerosCore is IArbitrator {
         if (result == ISortitionModule.preStakeHookResult.failed) {
             return false;
         } else if (result == ISortitionModule.preStakeHookResult.delayed) {
+            emit StakeDelayed(_account, _courtID, _stake, _penalty);
             return true;
         }
 
