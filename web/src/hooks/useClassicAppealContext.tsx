@@ -112,12 +112,12 @@ const getWinningChoice = (dispute?: ClassicAppealQuery["dispute"]) => {
 const getLoserRequiredFunding = (appealCost: bigint, loser_stake_multiplier: bigint): bigint =>
   notUndefined([appealCost, loser_stake_multiplier])
     ? appealCost + (loser_stake_multiplier * appealCost) / ONE_BASIS_POINT
-    : BigInt(0);
+    : 0n;
 
 const getWinnerRequiredFunding = (appealCost: bigint, winner_stake_multiplier: bigint): bigint =>
   notUndefined([appealCost, winner_stake_multiplier])
     ? appealCost + (winner_stake_multiplier * appealCost) / ONE_BASIS_POINT
-    : BigInt(0);
+    : 0n;
 
 const getDeadline = (lastPeriodChange: string, appealPeriodDuration: string, loserTimeMultiplier: string): number => {
   const parsedLastPeriodChange = BigInt(lastPeriodChange);
