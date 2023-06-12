@@ -25,9 +25,9 @@ const SelectedOptionContext = createContext<ISelectedOptionContext>({
 
 interface IFundingContext {
   winningChoice: string | undefined;
-  paidFees: BigInt[] | undefined;
-  loserRequiredFunding: BigInt | undefined;
-  winnerRequiredFunding: BigInt | undefined;
+  paidFees: bigint[] | undefined;
+  loserRequiredFunding: bigint | undefined;
+  winnerRequiredFunding: bigint | undefined;
   fundedChoices: string[] | undefined;
 }
 const FundingContext = createContext<IFundingContext>({
@@ -109,12 +109,12 @@ const getWinningChoice = (dispute?: ClassicAppealQuery["dispute"]) => {
   return currentLocalRound?.winningChoice;
 };
 
-const getLoserRequiredFunding = (appealCost: bigint, loser_stake_multiplier: bigint): BigInt =>
+const getLoserRequiredFunding = (appealCost: bigint, loser_stake_multiplier: bigint): bigint =>
   notUndefined([appealCost, loser_stake_multiplier])
     ? appealCost + (loser_stake_multiplier * appealCost) / ONE_BASIS_POINT
     : BigInt(0);
 
-const getWinnerRequiredFunding = (appealCost: bigint, winner_stake_multiplier: bigint): BigInt =>
+const getWinnerRequiredFunding = (appealCost: bigint, winner_stake_multiplier: bigint): bigint =>
   notUndefined([appealCost, winner_stake_multiplier])
     ? appealCost + (winner_stake_multiplier * appealCost) / ONE_BASIS_POINT
     : BigInt(0);
