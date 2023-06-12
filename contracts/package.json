@@ -19,7 +19,7 @@
     "clean": "hardhat clean",
     "check": "hardhat check",
     "test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test",
-    "test:storage": "./test/storage/test.bash",
+    "test:storage": "./test/storage/test.sh",
     "start": "hardhat node",
     "start-local": "hardhat node --tags Arbitration,HomeArbitrable --hostname 0.0.0.0",
     "deploy": "hardhat deploy",
@@ -63,6 +63,7 @@
     "hardhat-watcher": "^2.5.0",
     "node-fetch": "^3.3.1",
     "shelljs": "^0.8.5",
+    "sol2uml": "^2.5.4",
     "solhint-plugin-prettier": "^0.0.5",
     "solidity-coverage": "^0.8.2",
     "ts-node": "^10.9.1",
@@ -70,7 +71,6 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@kleros/vea-contracts": "^0.1.12",
-    "sol2uml": "^2.5.4"
+    "@kleros/vea-contracts": "^0.1.12"
   }
 }
