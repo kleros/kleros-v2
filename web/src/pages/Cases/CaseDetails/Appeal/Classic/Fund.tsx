@@ -35,9 +35,7 @@ const Fund: React.FC = () => {
   const { config: fundAppealConfig } = usePrepareDisputeKitClassicFundAppeal({
     enabled: notUndefined([id, selectedOption]),
     args: [BigInt(id!), BigInt(selectedOption!)],
-    overrides: {
-      value: parsedAmount,
-    },
+    value: parsedAmount,
   });
   const { writeAsync: fundAppeal } = useDisputeKitClassicFundAppeal(fundAppealConfig);
   return needFund ? (
