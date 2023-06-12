@@ -52,6 +52,8 @@ contract ForeignGateway is IForeignGateway {
     address public veaOutbox;
     uint256 public immutable senderChainID;
     address public override senderGateway;
+    address public deprecatedVeaOutbox;
+    uint256 public deprecatedVeaOutboxExpiration;
     mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
 
     // ************************************* //
@@ -59,7 +61,11 @@ contract ForeignGateway is IForeignGateway {
     // ************************************* //
 
     modifier onlyFromVea(address _messageSender) {
-        require(veaOutbox == msg.sender, "Access not allowed: Vea Outbox only.");
+        require(
+            veaOutbox == msg.sender ||
+                (block.timestamp < deprecatedVeaOutboxExpiration && deprecatedVeaOutbox == msg.sender),
+            "Access not allowed: Vea Outbox only."
+        );
         require(_messageSender == senderGateway, "Access not allowed: Sender Gateway only.");
         _;
     }
@@ -89,7 +95,11 @@ contract ForeignGateway is IForeignGateway {
 
     /// @dev Changes the outbox.
     /// @param _veaOutbox The address of the new outbox.
-    function changeVea(address _veaOutbox) external onlyByGovernor {
+    /// @param _gracePeriod The duration to accept messages from the deprecated bridge (if at all).
+    function changeVea(address _veaOutbox, uint256 _gracePeriod) external onlyByGovernor {
+        // grace period to relay the remaining messages which are still going through the deprecated bridge.
+        deprecatedVeaOutboxExpiration = block.timestamp + _gracePeriod;
+        deprecatedVeaOutbox = veaOutbox;
         veaOutbox = _veaOutbox;
     }
 

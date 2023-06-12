@@ -11,7 +11,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 #### Chiado
 
 - [ArbitrableExample](https://blockscout.com/gnosis/chiado/address/0xc0fcc96BFd78e36550FCaB434A9EE1210B57225b)
-- [ForeignGatewayOnGnosis](https://blockscout.com/gnosis/chiado/address/0x604E209B0f77aa85F30739987cA576B2f5d5ad5D)
+- [ForeignGatewayOnGnosis](https://blockscout.com/gnosis/chiado/address/0x499AD7EAA015E97CeC65eEDC3f2Ea9D848eB8618)
 - [SortitionSumTreeFactory](https://blockscout.com/gnosis/chiado/address/0xc7e3BF90299f6BD9FA7c3703837A9CAbB5743636)
 - [TokenBridge](https://blockscout.com/gnosis/chiado/address/0xbb3c86f9918C3C1d83668fA84e79E876d147fFf2)
 - [WETH](https://blockscout.com/gnosis/chiado/address/0x96f7C31EF5bac6710ADF201176298d61943Dde63)
@@ -32,7 +32,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [BlockHashRNG](https://goerli.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
 - [DisputeKitClassic](https://goerli.arbiscan.io/address/0xE28206c91Cbb71652001AeB23c6763D4E4220466)
 - [DisputeResolver](https://goerli.arbiscan.io/address/0xf6356Ff189C0fBDa4A1e8dB6BF24Dc66CfBa003B)
-- [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0xD2655d9768DB42F4C98A9F51653a3f77Ec4493a3)
+- [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0xaAEB65dD8424ec76425FfB48bc0a057b3D6D5502)
 - [KlerosCore](https://goerli.arbiscan.io/address/0x720d566572aFA2D66abD2007e5aBa95a98E9f160)
 - [PolicyRegistry](https://goerli.arbiscan.io/address/0xED503aBA65B28D81444294D1eAa5d84CeFdC2C58)
 - [RandomizerRNG](https://goerli.arbiscan.io/address/0xa90f7D2e35718FDE9AD96c8B6667AFcAa4BEfd4d)
