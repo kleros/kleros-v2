@@ -88,7 +88,7 @@ const config: HardhatUserConfig = {
           process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_4 as string,
           process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_5 as string,
         ]) ||
-        [],
+        (process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []),
       live: true,
       saveDeployments: true,
       tags: ["staging", "home", "layer2"],
@@ -143,7 +143,7 @@ const config: HardhatUserConfig = {
     },
     chiado: {
       chainId: 10200,
-      url: "https://rpc.chiadochain.net",
+      url: "https://rpc.chiado.gnosis.gateway.fm",
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
@@ -159,7 +159,7 @@ const config: HardhatUserConfig = {
     },
     gnosischain: {
       chainId: 100,
-      url: `https://xdai-rpc.gateway.pokt.network`,
+      url: `https://rpc.gnosis.gateway.fm`,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
@@ -241,12 +241,12 @@ const config: HardhatUserConfig = {
   external: {
     // https://github.com/wighawag/hardhat-deploy#importing-deployment-from-other-projects-with-truffle-support
     deployments: {
-      arbitrumGoerli: ["node_modules/@kleros/vea-contracts/deployments/arbitrumGoerli"],
-      arbitrum: ["node_modules/@kleros/vea-contracts/deployments/arbitrum"],
-      chiado: ["node_modules/@kleros/vea-contracts/deployments/chiado"],
-      gnosischain: ["node_modules/@kleros/vea-contracts/deployments/gnosischain"],
-      goerli: ["node_modules/@kleros/vea-contracts/deployments/goerli"],
-      mainnet: ["node_modules/@kleros/vea-contracts/deployments/mainnet"],
+      arbitrumGoerli: ["../node_modules/@kleros/vea-contracts/deployments/arbitrumGoerli"],
+      arbitrum: ["../node_modules/@kleros/vea-contracts/deployments/arbitrum"],
+      chiado: ["../node_modules/@kleros/vea-contracts/deployments/chiado"],
+      gnosischain: ["../node_modules/@kleros/vea-contracts/deployments/gnosischain"],
+      goerli: ["../node_modules/@kleros/vea-contracts/deployments/goerli"],
+      mainnet: ["../node_modules/@kleros/vea-contracts/deployments/mainnet"],
     },
   },
 };

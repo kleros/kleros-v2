@@ -6,7 +6,7 @@
   "repository": "git@github.com:kleros/kleros-v2.git",
   "author": "Kleros",
   "license": "MIT",
-  "packageManager": "yarn@3.1.0",
+  "packageManager": "yarn@3.3.1",
   "engines": {
     "node": ">=16.0.0"
   },

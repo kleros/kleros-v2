@@ -18,7 +18,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const chainId = Number(await getChainId());
   console.log("Deploying to chainId %s with deployer %s", chainId, deployer);
 
-  const veaSender = await deployments.get("VeaOutboxArbToEthDevnet");
+  const veaInbox = await deployments.get("VeaInboxArbToEthDevnet");
   const klerosCore = await deployments.get("KlerosCore");
 
   const foreignGateway = await hre.companionNetworks.foreignGoerli.deployments.get("ForeignGatewayOnEthereum");
@@ -29,7 +29,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await deploy("HomeGatewayToEthereum", {
     from: deployer,
     contract: "HomeGateway",
-    args: [deployer, klerosCore.address, veaSender.address, foreignGateway.address, foreignChainId],
+    args: [deployer, klerosCore.address, veaInbox.address, foreignGateway.address, foreignChainId],
     log: true,
   }); // nonce+0
 };
