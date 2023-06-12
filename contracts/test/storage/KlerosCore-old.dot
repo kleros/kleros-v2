@@ -1,0 +1,52 @@
+
+digraph StorageDiagram {
+rankdir=LR
+arrowhead=open
+bgcolor="white"
+edge [color="black"]
+node [shape=record, style=filled, color="black", fillcolor="gray95", fontcolor="black", fontname="Courier New"]
+15 [label="KlerosCore \<\<Contract\>\>\n | {{ slot | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7} | { type: \<inherited contract\>.variable (bytes) | {  unallocated (12)  |  address: governor (20) } | {  unallocated (12)  |  address: pinakion (20) } | {  unallocated (12)  |  address: jurorProsecutionModule (20) } | {  unallocated (12)  |  ISortitionModule: sortitionModule (20) } | { <21> Court[]: courts (32) } | { <29> DisputeKitNode[]: disputeKitNodes (32) } | { <48> Dispute[]: disputes (32) } | { <53> mapping\(address=\>Juror\): jurors (32) }}}"]
+
+1 [label="uint256[]: children \<\<Array\>\>\n0x405d1087a265de75abc55579557f00cdbab73e5ae3953c584a395dab344ecd1a | {{ offset | 0} | { type: variable (bytes) | {  uint256 (32) }}}"]
+
+2 [label="uint256[4]: timesPerPeriod \<\<Array\>\>\n0x8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19b | {{ offset | 6 | 7 | 8 | 9} | { type: variable (bytes) | {  uint256 (32) } | {  uint256 (32) } | {  uint256 (32) } | {  uint256 (32) }}}"]
+
+3 [label="Court \<\<Struct\>\>\n0x8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19b | {{ offset | 0 | 1 | 2 | 3 | 4 | 5 | 6-9 | 10 | 11} | { type: variable (bytes) | {  unallocated (19)  |  bool: hiddenVotes (1)  |  uint96: parent (12) } | { <8> uint256[]: children (32) } | {  uint256: minStake (32) } | {  uint256: alpha (32) } | {  uint256: feeForJuror (32) } | {  uint256: jurorsForCourtJump (32) } | { <17> uint256[4]: timesPerPeriod (128) } | {  mapping\(uint256=\>bool\): supportedDisputeKits (32) } | {  unallocated (31)  |  bool: disabled (1) }}}"]
+
+4 [label="Court[]: courts \<\<Array\>\>\n0x8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19b | {{ offset | 0-11} | { type: variable (bytes) | { <20> Court (384) }}}"]
+
+5 [label="uint256[]: children \<\<Array\>\>\n0x0e80cbdd94e47fd796e675f8e406a639970fb67e18fc1a006717046a09be0796 | {{ offset | 0} | { type: variable (bytes) | {  uint256 (32) }}}"]
+
+6 [label="DisputeKitNode \<\<Struct\>\>\n0x036b6384b5eca791c62761152d0c79bb0604c104a5fb6f4eb0703f3154bb3db0 | {{ offset | 0 | 1 | 2 | 3 | 4} | { type: variable (bytes) | {  uint256: parent (32) } | { <24> uint256[]: children (32) } | {  unallocated (12)  |  IDisputeKit: disputeKit (20) } | {  uint256: depthLevel (32) } | {  unallocated (31)  |  bool: disabled (1) }}}"]
+
+7 [label="DisputeKitNode[]: disputeKitNodes \<\<Array\>\>\n0x036b6384b5eca791c62761152d0c79bb0604c104a5fb6f4eb0703f3154bb3db0 | {{ offset | 0-4} | { type: variable (bytes) | { <28> DisputeKitNode (160) }}}"]
+
+8 [label="address[]: drawnJurors \<\<Array\>\>\n0x3cc0fa41eca86a9b800b4eca03f33fd946d2504b827423dfc84b6d968b59ea9d | {{ offset | 0} | { type: variable (bytes) | {  unallocated (12)  |  address (20) }}}"]
+
+9 [label="Round \<\<Struct\>\>\n0x38ace9b5569ba016113e31884532182bc747997e743c0b7f9c307302b5f83760 | {{ offset | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8} | { type: variable (bytes) | {  uint256: disputeKitID (32) } | {  uint256: tokensAtStakePerJuror (32) } | {  uint256: totalFeesForJurors (32) } | {  uint256: nbVotes (32) } | {  uint256: repartitions (32) } | {  uint256: penalties (32) } | { <42> address[]: drawnJurors (32) } | {  uint256: sumRewardPaid (32) } | {  uint256: sumTokenRewardPaid (32) }}}"]
+
+10 [label="Round[]: rounds \<\<Array\>\>\n0x38ace9b5569ba016113e31884532182bc747997e743c0b7f9c307302b5f83760 | {{ offset | 0-8} | { type: variable (bytes) | { <45> Round (288) }}}"]
+
+11 [label="Dispute \<\<Struct\>\>\n0xf652222313e28459528d920b65115c16c04f3efc82aaedc97be59f3f377c0d3f | {{ offset | 0 | 1 | 2 | 3} | { type: variable (bytes) | {  IArbitrable: arbitrated (20)  |  uint96: courtID (12) } | {  unallocated (30)  |  bool: ruled (1)  |  Period: period (1) } | {  uint256: lastPeriodChange (32) } | { <46> Round[]: rounds (32) }}}"]
+
+12 [label="Dispute[]: disputes \<\<Array\>\>\n0xf652222313e28459528d920b65115c16c04f3efc82aaedc97be59f3f377c0d3f | {{ offset | 0-3} | { type: variable (bytes) | { <47> Dispute (128) }}}"]
+
+13 [label="uint96[]: courtIDs \<\<Array\>\>\n | {{ offset | 0} | { type: variable (bytes) | {  unallocated (20)  |  uint96 (12) }}}"]
+
+14 [label="Juror \<\<Struct\>\>\n | {{ offset | 0 | 1 | 2} | { type: variable (bytes) | { <50> uint96[]: courtIDs (32) } | {  mapping\(uint96=\>uint256\): stakedTokens (32) } | {  mapping\(uint96=\>uint256\): lockedTokens (32) }}}"]
+
+ 15:21 -> 4
+ 15:29 -> 7
+ 15:48 -> 12
+ 15:53 -> 14
+ 3:8 -> 1
+ 3:17 -> 2
+ 4:20 -> 3
+ 6:24 -> 5
+ 7:28 -> 6
+ 9:42 -> 8
+ 10:45 -> 9
+ 11:46 -> 10
+ 12:47 -> 11
+ 14:50 -> 13
+}

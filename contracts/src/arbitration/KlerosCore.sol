@@ -101,7 +101,7 @@ contract KlerosCore is IArbitrator {
     uint256 public constant SEARCH_ITERATIONS = 10; // Number of iterations to search for suitable parent court before jumping to the top court.
 
     address public governor; // The governor of the contract.
-    IERC20 public pinakion; // The Pinakion token contract.
+    address public pinakion; // The Pinakion token contract.
     // TODO: interactions with jurorProsecutionModule.
     address public jurorProsecutionModule; // The module for juror's prosecution.
     ISortitionModule public sortitionModule; // Sortition module for drawing.
@@ -187,7 +187,7 @@ contract KlerosCore is IArbitrator {
     /// @param _sortitionModuleAddress The sortition module responsible for sortition of the jurors.
     constructor(
         address _governor,
-        IERC20 _pinakion,
+        address _pinakion,
         address _jurorProsecutionModule,
         IDisputeKit _disputeKit,
         bool _hiddenVotes,
@@ -273,7 +273,7 @@ contract KlerosCore is IArbitrator {
 
     /// @dev Changes the `pinakion` storage variable.
     /// @param _pinakion The new value for the `pinakion` storage variable.
-    function changePinakion(IERC20 _pinakion) external onlyByGovernor {
+    function changePinakion(address _pinakion) external onlyByGovernor {
         pinakion = _pinakion;
     }
 
