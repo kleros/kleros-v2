@@ -43,7 +43,7 @@ const OptionCard: React.FC<IOptionCard> = ({
             : formatEther(funding) + " out of " + formatEther(required) + "ETH required"}
         </label>
       </LabelContainer>
-      <LinearProgress progress={Number((funding * BigInt(100)) / required)} width={width} />
+      <LinearProgress progress={Number((funding * 100n) / required)} width={width} />
     </StyledCard>
   );
 };

@@ -28,7 +28,7 @@ const StageOne: React.FC = () => {
               text={answer}
               selected={i === selectedOption}
               winner={i.toString() === winningChoice}
-              funding={paidFees[i] ? BigInt(paidFees[i]) : BigInt(0)}
+              funding={paidFees[i] ? BigInt(paidFees[i]) : 0n}
               required={i.toString() === winningChoice ? winnerRequiredFunding : loserRequiredFunding}
               onClick={() => setSelectedOption(i)}
             />

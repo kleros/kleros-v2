@@ -23,7 +23,7 @@ const StageOne: React.FC = () => {
               text={options![winningChoice!]}
               selected={winningChoice === selectedOption}
               winner={true}
-              funding={paidFees![winningChoice!] ? BigInt(paidFees![winningChoice!]) : BigInt(0)}
+              funding={paidFees![winningChoice!] ? BigInt(paidFees![winningChoice!]) : 0n}
               required={winnerRequiredFunding!}
               canBeSelected={false}
               onClick={() => setSelectedOption(parseInt(winningChoice!, 10))}

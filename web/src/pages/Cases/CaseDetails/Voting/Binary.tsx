@@ -47,7 +47,7 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
                     address: disputeKitClassicAddress[421613],
                     functionName: "castVote",
                     account: address,
-                    args: [parsedDisputeID, parsedVoteIDs, BigInt(i + 1), BigInt(0), justification],
+                    args: [parsedDisputeID, parsedVoteIDs, BigInt(i + 1), 0n, justification],
                   });
                   setIsSending(true);
                   setChosenOption(i + 1);
@@ -79,7 +79,7 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
                   address: disputeKitClassicAddress[421613],
                   functionName: "castVote",
                   account: address,
-                  args: [parsedDisputeID, parsedVoteIDs, BigInt(0), BigInt(0), justification],
+                  args: [parsedDisputeID, parsedVoteIDs, 0n, 0n, justification],
                 })
               ).finally(() => {
                 setChosenOption(-1);

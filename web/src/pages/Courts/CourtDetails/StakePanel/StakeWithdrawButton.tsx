@@ -107,7 +107,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, se
     <Button
       text={text}
       isLoading={isSending}
-      disabled={isSending || parsedAmount == BigInt(0) || !notUndefined(targetStake) || checkDisabled()}
+      disabled={isSending || parsedAmount == 0n || !notUndefined(targetStake) || checkDisabled()}
       onClick={onClick}
     />
   );
