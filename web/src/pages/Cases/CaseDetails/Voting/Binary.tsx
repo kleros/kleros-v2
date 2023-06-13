@@ -5,7 +5,7 @@ import { Button, Textarea } from "@kleros/ui-components-library";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { useWalletClient, usePublicClient } from "wagmi";
-import { getDisputeKitClassic, disputeKitClassicABI, disputeKitClassicAddress } from "hooks/contracts/generated";
+import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 
 const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
   const { id } = useParams();
@@ -16,7 +16,6 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
   const [isSending, setIsSending] = useState(false);
   const [justification, setJustification] = useState("");
   const { data: walletClient } = useWalletClient();
-  const disputeKit = getDisputeKitClassic({});
   const publicClient = usePublicClient();
 
   return id ? (
@@ -40,22 +39,16 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
               disabled={isSending}
               isLoading={chosenOption === i + 1}
               onClick={async () => {
-                if (disputeKit) {
-                  const [address] = await walletClient!.getAddresses();
-                  const { request } = await publicClient.simulateContract({
-                    abi: disputeKitClassicABI,
-                    address: disputeKitClassicAddress[421613],
-                    functionName: "castVote",
-                    account: address,
-                    args: [parsedDisputeID, parsedVoteIDs, BigInt(i + 1), 0n, justification],
-                  });
-                  setIsSending(true);
-                  setChosenOption(i + 1);
-                  wrapWithToast(walletClient!.writeContract(request)).finally(() => {
-                    setChosenOption(-1);
-                    setIsSending(false);
-                  });
-                }
+                setIsSending(true);
+                setChosenOption(i + 1);
+                const { request } = await prepareWriteDisputeKitClassic({
+                  functionName: "castVote",
+                  args: [parsedDisputeID, parsedVoteIDs, BigInt(i + 1), 0n, justification],
+                });
+                wrapWithToast(walletClient!.writeContract(request)).finally(() => {
+                  setChosenOption(-1);
+                  setIsSending(false);
+                });
               }}
             />
           ))}
@@ -68,24 +61,16 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
           disabled={isSending}
           isLoading={chosenOption === 0}
           onClick={async () => {
-            if (disputeKit) {
-              setIsSending(true);
-              setChosenOption(0);
-              const [address] = await walletClient!.getAddresses();
-
-              await wrapWithToast(
-                publicClient.simulateContract({
-                  abi: disputeKitClassicABI,
-                  address: disputeKitClassicAddress[421613],
-                  functionName: "castVote",
-                  account: address,
-                  args: [parsedDisputeID, parsedVoteIDs, 0n, 0n, justification],
-                })
-              ).finally(() => {
-                setChosenOption(-1);
-                setIsSending(false);
-              });
-            }
+            setIsSending(true);
+            setChosenOption(0);
+            const { request } = await prepareWriteDisputeKitClassic({
+              functionName: "castVote",
+              args: [parsedDisputeID, parsedVoteIDs, 0n, 0n, justification],
+            });
+            wrapWithToast(walletClient!.writeContract(request)).finally(() => {
+              setChosenOption(-1);
+              setIsSending(false);
+            });
           }}
         />
       </RefuseToArbitrateContainer>
