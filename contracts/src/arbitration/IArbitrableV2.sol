@@ -33,16 +33,26 @@ interface IArbitrableV2 {
      * @param _templateUri IPFS path to the dispute template starting with '/ipfs/'. Should not be used with _templateId.
      */
     event DisputeRequest(
-        IArbitrorV2 indexed _arbitrator,
+        IArbitratorV2 indexed _arbitrator,
         uint256 indexed _arbitrableDisputeID,
         uint256 _externalDisputeID,
         uint256 _templateId,
         string _templateUri
     );
     
+    /**
+     * @dev To be emitted when a dispute is created to link the correct meta-evidence to the disputeID.
+     * @param _arbitrator The arbitrator of the contract.
+     * @param _arbitrableChainId The chain ID of the Arbitrable contract.
+     * @param _arbitrable The address of the Arbitrable contract.
+     * @param _arbitrableDisputeID The ID of the dispute in the Arbitrable contract.
+     * @param _externalDisputeID An identifier created outside Kleros by the protocol requesting arbitration.
+     * @param _templateId The ID of the dispute template. Should not be used with _templateUri.
+     * @param _templateUri IPFS path to the dispute template starting with '/ipfs/'. Should not be used with _templateId.
+     */
     event CrossChainDisputeRequest(
-        IArbitrorV2 indexed _arbitrator, 
-        uint256 indexed _arbitrableChainId,
+        IArbitratorV2 indexed _arbitrator, 
+        uint256 _arbitrableChainId,
         address indexed _arbitrable, 
         uint256 indexed _arbitrableDisputeID,
         uint256 _externalDisputeID,
