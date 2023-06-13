@@ -7,7 +7,7 @@ import "./IArbitrableV2.sol";
 /**
  * @title Arbitrator
  * Arbitrator interface that implements the new arbitration standard.
- * Unlike the ERC-792 this standard doesn't have anything related to appeals, so each arbitrator can implement an appeal system that suits it the most.
+ * Unlike the ERC-792 this standard is not concerned with appeals, so each arbitrator can implement an appeal system that suits it the most.
  * When developing arbitrator contracts we need to:
  * - Define the functions for dispute creation (createDispute). Don't forget to store the arbitrated contract and the disputeID (which should be unique, may nbDisputes).
  * - Define the functions for cost display (arbitrationCost).

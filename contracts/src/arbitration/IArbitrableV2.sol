@@ -13,17 +13,31 @@ import "./IArbitratorV2.sol";
  */
 interface IArbitrableV2 {
     /**
+     * @dev To be emitted when a new dispute template is created.
+     * @param _templateId The ID of the dispute template.
+     * @param _templateTag An optional tag for the dispute template, such as "registration" or "removal".
+     * @param data The template data.
+     */
+    event NewDisputeTemplate(
+        uint256 indexed _templateId,
+        string indexed _templateTag,
+        string data
+    );
+
+    /**
      * @dev To be emitted when a dispute is created to link the correct meta-evidence to the disputeID.
      * @param _arbitrator The arbitrator of the contract.
-     * @param _disputeID ID of the dispute in the Arbitrator contract.
-     * @param _externalDisputeID Unique identifier from the dispute creator that is linked to this dispute.
-     * @param _disputeContextUri IPFS path to dispute context, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/disputecontext.json'
+     * @param _arbitrableDisputeID The ID of the dispute in the Arbitrable contract.
+     * @param _externalDisputeID An identifier created outside Kleros by the protocol requesting arbitration.
+     * @param _templateId The ID of the dispute template. Should not be used with _templateUri.
+     * @param _templateUri IPFS path to the dispute template starting with '/ipfs/'. Should not be used with _templateId.
      */
-    event Dispute(
+    event NewDisputeRequest(
         IArbitrableV2 indexed _arbitrator,
-        uint256 indexed _disputeID,
+        uint256 indexed _arbitrableDisputeID,
         uint256 _externalDisputeID,
-        string _disputeContextUri
+        uint256 _templateId,
+        string _templateUri
     );
 
     /**
