@@ -51,7 +51,7 @@
     "linguoRequester": "0xabc996a233895be74a66f451f1019ca97342aaaa",
     "linguoTranslator": "0xbcd996a233895be74a66f451f1019ca97342bbbb",
     "linguoChallenger": "0xcde996a233895be74a66f451f1019ca97342cccc",
-    "linguoFrontendUrl": "https://linguo.kleros.io/translation/0x0B928165A67df8254412483ae8C3b8cc7F2b4D36/35",
+    "linguoFrontendUrl": "https://linguo.kleros.io/translation/0x0B928165A67df8254412483ae8C3b8cc7F2b4D36/35"
   },
   "externalDisputeID": "13", // taskID
   "arbitrableDisputeID": "7",
