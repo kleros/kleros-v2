@@ -89,7 +89,7 @@ contract KlerosLiquidToV2Governor is IArbitrable, ITokenController {
         dispute.klerosLiquidDisputeID = _disputeID;
     }
 
-    /// @dev Give a ruling for a dispute. Can only be called by the arbitrator. TRUSTED.
+    /// @dev Give a ruling for a dispute. Can only be called by the arbitrator.
     /// Triggers rule() from KlerosLiquid to the arbitrable contract which created the dispute.
     /// @param _disputeID ID of the dispute in the arbitrator contract.
     /// @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Refused to arbitrate".
