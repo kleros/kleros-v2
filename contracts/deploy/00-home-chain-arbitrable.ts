@@ -26,6 +26,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     ],
     log: true,
   });
+
+  await deploy("DisputeResolver", {
+    from: deployer,
+    args: [klerosCore.address],
+    log: true,
+  });
 };
 
 deployArbitration.tags = ["HomeArbitrable"];
