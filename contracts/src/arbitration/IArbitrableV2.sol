@@ -32,8 +32,18 @@ interface IArbitrableV2 {
      * @param _templateId The ID of the dispute template. Should not be used with _templateUri.
      * @param _templateUri IPFS path to the dispute template starting with '/ipfs/'. Should not be used with _templateId.
      */
-    event NewDisputeRequest(
-        IArbitrableV2 indexed _arbitrator,
+    event DisputeRequest(
+        IArbitrorV2 indexed _arbitrator,
+        uint256 indexed _arbitrableDisputeID,
+        uint256 _externalDisputeID,
+        uint256 _templateId,
+        string _templateUri
+    );
+    
+    event CrossChainDisputeRequest(
+        IArbitrorV2 indexed _arbitrator, 
+        uint256 indexed _arbitrableChainId,
+        address indexed _arbitrable, 
         uint256 indexed _arbitrableDisputeID,
         uint256 _externalDisputeID,
         uint256 _templateId,
