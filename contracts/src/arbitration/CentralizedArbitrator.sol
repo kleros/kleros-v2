@@ -179,7 +179,7 @@ contract CentralizedArbitrator is IArbitrator {
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
 
-    /// @dev TRUSTED. Manages contributions, and appeals a dispute if at least two choices are fully funded. This function allows the appeals to be crowdfunded.
+    /// @dev Manages contributions, and appeals a dispute if at least two choices are fully funded. This function allows the appeals to be crowdfunded.
     /// Note that the surplus deposit will be reimbursed.
     /// @param _disputeID Index of the dispute to appeal.
     /// @param _choice A choice that receives funding.

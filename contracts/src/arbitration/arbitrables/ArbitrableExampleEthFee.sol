@@ -29,7 +29,7 @@ contract ArbitrableExampleEthFee is IArbitrable, IMetaEvidence {
         emit MetaEvidence(META_EVIDENCE_ID, _metaEvidence);
     }
 
-    /// @dev TRUSTED. Calls createDispute function of the specified arbitrator to create a dispute.
+    /// @dev Calls createDispute function of the specified arbitrator to create a dispute.
     /// Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
     /// @param _numberOfRulingOptions Number of ruling options. Must be greater than 1, otherwise there is nothing to choose from.
     /// @param _arbitratorExtraData Extra data for the arbitrator.
