@@ -904,7 +904,7 @@ contract KlerosCore is IArbitrator {
         }
     }
 
-    /// @dev Executes a specified dispute's ruling. UNTRUSTED.
+    /// @dev Executes a specified dispute's ruling.
     /// @param _disputeID The ID of the dispute.
     function executeRuling(uint256 _disputeID) external {
         Dispute storage dispute = disputes[_disputeID];

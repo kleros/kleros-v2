@@ -265,7 +265,7 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         reservedETH = reservedETH.subCap(submission.deposit);
     }
 
-    /// @dev Approves a transaction list or creates a dispute if more than one list was submitted. TRUSTED.
+    /// @dev Approves a transaction list or creates a dispute if more than one list was submitted.
     /// If nothing was submitted changes session.
     function executeSubmissions() external duringApprovalPeriod {
         Session storage session = sessions[sessions.length - 1];
@@ -328,7 +328,7 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         emit Ruling(IArbitrator(msg.sender), _disputeID, _ruling);
     }
 
-    /// @dev Executes selected transactions of the list. UNTRUSTED.
+    /// @dev Executes selected transactions of the list.
     /// @param _listID The index of the transaction list in the array of lists.
     /// @param _cursor Index of the transaction from which to start executing.
     /// @param _count Number of transactions to execute. Executes until the end if set to "0" or number higher than number of transactions in the list.
