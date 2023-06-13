@@ -2,30 +2,21 @@ import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { Button, Textarea } from "@kleros/ui-components-library";
-import { useDisputeKitClassic } from "hooks/contracts/generated";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { wrapWithToast } from "utils/wrapWithToast";
-import { useSigner } from "wagmi";
-import { BigNumber } from "ethers";
+import { useWalletClient } from "wagmi";
+import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 
-const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({
-  arbitrable,
-  voteIDs,
-}) => {
+const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
   const { id } = useParams();
-  const parsedDisputeID = BigNumber.from(id);
-  const parsedVoteIDs = useMemo(
-    () => voteIDs.map((voteID) => BigNumber.from(voteID)),
-    [voteIDs]
-  );
+  const parsedDisputeID = BigInt(id!);
+  const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
   const [chosenOption, setChosenOption] = useState(-1);
   const [isSending, setIsSending] = useState(false);
   const [justification, setJustification] = useState("");
-  const { data: signer } = useSigner();
-  const disputeKit = useDisputeKitClassic({
-    signerOrProvider: signer,
-  });
+  const { data: walletClient } = useWalletClient();
+
   return id ? (
     <Container>
       <MainContainer>
@@ -35,40 +26,31 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({
           onChange={(e) => setJustification(e.target.value)}
           placeholder="Justify your vote..."
           message={
-            "A good justification contributes to case comprehension. " +
-            "Low quality justifications can be challenged."
+            "A good justification contributes to case comprehension. " + "Low quality justifications can be challenged."
           }
           variant="info"
         />
         <OptionsContainer>
-          {metaEvidence?.rulingOptions?.titles?.map(
-            (answer: string, i: number) => (
-              <Button
-                key={i}
-                text={answer}
-                disabled={isSending}
-                isLoading={chosenOption === i + 1}
-                onClick={() => {
-                  if (disputeKit) {
-                    setIsSending(true);
-                    setChosenOption(i + 1);
-                    wrapWithToast(
-                      disputeKit!.castVote(
-                        parsedDisputeID,
-                        parsedVoteIDs,
-                        BigNumber.from(i + 1),
-                        BigNumber.from(0),
-                        justification
-                      )
-                    ).finally(() => {
-                      setChosenOption(-1);
-                      setIsSending(false);
-                    });
-                  }
-                }}
-              />
-            )
-          )}
+          {metaEvidence?.rulingOptions?.titles?.map((answer: string, i: number) => (
+            <Button
+              key={i}
+              text={answer}
+              disabled={isSending}
+              isLoading={chosenOption === i + 1}
+              onClick={async () => {
+                setIsSending(true);
+                setChosenOption(i + 1);
+                const { request } = await prepareWriteDisputeKitClassic({
+                  functionName: "castVote",
+                  args: [parsedDisputeID, parsedVoteIDs, BigInt(i + 1), 0n, justification],
+                });
+                wrapWithToast(walletClient!.writeContract(request)).finally(() => {
+                  setChosenOption(-1);
+                  setIsSending(false);
+                });
+              }}
+            />
+          ))}
         </OptionsContainer>
       </MainContainer>
       <RefuseToArbitrateContainer>
@@ -77,23 +59,17 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({
           text="Refuse to Arbitrate"
           disabled={isSending}
           isLoading={chosenOption === 0}
-          onClick={() => {
-            if (disputeKit) {
-              setIsSending(true);
-              setChosenOption(0);
-              wrapWithToast(
-                disputeKit.castVote(
-                  parsedDisputeID,
-                  parsedVoteIDs,
-                  BigNumber.from(0),
-                  BigNumber.from(0),
-                  justification
-                )
-              ).finally(() => {
-                setChosenOption(-1);
-                setIsSending(false);
-              });
-            }
+          onClick={async () => {
+            setIsSending(true);
+            setChosenOption(0);
+            const { request } = await prepareWriteDisputeKitClassic({
+              functionName: "castVote",
+              args: [parsedDisputeID, parsedVoteIDs, 0n, 0n, justification],
+            });
+            wrapWithToast(walletClient!.writeContract(request)).finally(() => {
+              setChosenOption(-1);
+              setIsSending(false);
+            });
           }}
         />
       </RefuseToArbitrateContainer>
@@ -102,17 +78,14 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({
     <></>
   );
 };
-
 const Container = styled.div`
   width: 100%;
   height: auto;
 `;
-
 const MainContainer = styled.div`
   width: 100%;
   height: auto;
 `;
-
 const StyledTextarea = styled(Textarea)`
   width: 100%;
   height: auto;
@@ -125,7 +98,6 @@ const StyledTextarea = styled(Textarea)`
     hyphens: auto;
   }
 `;
-
 const OptionsContainer = styled.div`
   margin-top: 24px;
   display: flex;
@@ -133,7 +105,6 @@ const OptionsContainer = styled.div`
   justify-content: center;
   gap: 16px;
 `;
-
 const RefuseToArbitrateContainer = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBlue};
@@ -141,5 +112,4 @@ const RefuseToArbitrateContainer = styled.div`
   display: flex;
   justify-content: center;
 `;
-
 export default Binary;

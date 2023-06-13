@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { utils } from "ethers";
+import { formatEther } from "viem";
 import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
 import { Button, Field } from "@kleros/ui-components-library";
@@ -17,11 +17,7 @@ interface IInputDisplay {
   setIsSending: (arg0: boolean) => void;
 }
 
-const InputDisplay: React.FC<IInputDisplay> = ({
-  action,
-  isSending,
-  setIsSending,
-}) => {
+const InputDisplay: React.FC<IInputDisplay> = ({ action, isSending, setIsSending }) => {
   const [amount, setAmount] = useState("");
   const [debouncedAmount, setDebouncedAmount] = useState("");
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
@@ -30,9 +26,9 @@ const InputDisplay: React.FC<IInputDisplay> = ({
   const { id } = useParams();
   const { address } = useAccount();
   const { data: balance } = usePNKBalance(address);
-  const parsedBalance = utils.formatEther(balance || 0);
+  const parsedBalance = formatEther(balance!);
   const { data: jurorBalance } = useJurorBalance(address, id);
-  const parsedStake = utils.formatEther(jurorBalance?.staked || 0);
+  const parsedStake = formatEther(jurorBalance?.[0] || 0n);
   const isStaking = action === ActionType.stake;
 
   return (
@@ -57,9 +53,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
           }}
           placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
           message={
-            isStaking
-              ? "You may need two transactions, one to increase allowance, the other to stake."
-              : undefined
+            isStaking ? "You may need two transactions, one to increase allowance, the other to stake." : undefined
           }
           variant="info"
         />

@@ -1,11 +1,10 @@
 import React, { useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { BigNumber } from "ethers";
 import { useAccount } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
 import { usePNKAllowance } from "hooks/queries/usePNKAllowance";
 import {
-  useKlerosCore,
+  getKlerosCore,
   useKlerosCoreSetStake,
   usePrepareKlerosCoreSetStake,
   usePnkBalanceOf,
@@ -24,19 +23,13 @@ export enum ActionType {
 
 interface IActionButton {
   isSending: boolean;
-  parsedAmount: BigNumber;
+  parsedAmount: bigint;
   action: ActionType;
   setIsSending: (arg0: boolean) => void;
   setAmount: (arg0: string) => void;
 }
 
-const StakeWithdrawButton: React.FC<IActionButton> = ({
-  parsedAmount,
-  action,
-  setAmount,
-  isSending,
-  setIsSending,
-}) => {
+const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, setAmount, isSending, setIsSending }) => {
   const { id } = useParams();
   const { address } = useAccount();
   const { data: balance } = usePnkBalanceOf({
@@ -48,27 +41,24 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const { data: allowance } = usePNKAllowance(address);
 
   const isStaking = action === ActionType.stake;
-  const isAllowance = isStaking && allowance && allowance.lt(parsedAmount);
+  const isAllowance = isStaking && allowance && allowance < parsedAmount;
 
   const targetStake = useMemo(() => {
-    if (action === ActionType.stake) {
-      return jurorBalance?.staked.add(parsedAmount);
-    } else {
-      return jurorBalance?.staked.sub(parsedAmount);
+    if (jurorBalance) {
+      if (action === ActionType.stake) {
+        return jurorBalance[0] + parsedAmount;
+      } else {
+        return jurorBalance[0] - parsedAmount;
+      }
     }
   }, [action, jurorBalance, parsedAmount]);
 
-  const klerosCore = useKlerosCore();
+  const klerosCore = getKlerosCore({});
   const { config: increaseAllowanceConfig } = usePreparePnkIncreaseAllowance({
     enabled: notUndefined([klerosCore, targetStake, allowance]),
-    args: [
-      klerosCore?.address,
-      targetStake?.sub(allowance ?? BigNumber.from(0))!,
-    ],
+    args: [klerosCore?.address, BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
   });
-  const { writeAsync: increaseAllowance } = usePnkIncreaseAllowance(
-    increaseAllowanceConfig
-  );
+  const { writeAsync: increaseAllowance } = usePnkIncreaseAllowance(increaseAllowanceConfig);
   const handleAllowance = () => {
     if (notUndefined(increaseAllowance)) {
       setIsSending(true);
@@ -80,7 +70,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
 
   const { config: setStakeConfig } = usePrepareKlerosCoreSetStake({
     enabled: notUndefined([targetStake, id]),
-    args: [id, targetStake],
+    args: [BigInt(id!), targetStake!],
   });
   const { writeAsync: setStake } = useKlerosCoreSetStake(setStakeConfig);
   const handleStake = () => {
@@ -97,7 +87,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const buttonProps = {
     [ActionType.allowance]: {
       text: "Allow PNK",
-      checkDisabled: () => !balance || targetStake!.gt(balance),
+      checkDisabled: () => !balance || targetStake! > balance,
       onClick: handleAllowance,
     },
     [ActionType.stake]: {
@@ -112,18 +102,12 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     },
   };
 
-  const { text, checkDisabled, onClick } =
-    buttonProps[isAllowance ? ActionType.allowance : action];
+  const { text, checkDisabled, onClick } = buttonProps[isAllowance ? ActionType.allowance : action];
   return (
     <Button
       text={text}
       isLoading={isSending}
-      disabled={
-        isSending ||
-        parsedAmount.eq(BigNumber.from(0)) ||
-        !notUndefined(targetStake) ||
-        checkDisabled()
-      }
+      disabled={isSending || parsedAmount == 0n || !notUndefined(targetStake) || checkDisabled()}
       onClick={onClick}
     />
   );

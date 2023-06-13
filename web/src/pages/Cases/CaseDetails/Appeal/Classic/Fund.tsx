@@ -4,10 +4,7 @@ import { useParams } from "react-router-dom";
 import { useAccount, useBalance } from "wagmi";
 import { useDebounce } from "react-use";
 import { Field, Button } from "@kleros/ui-components-library";
-import {
-  usePrepareDisputeKitClassicFundAppeal,
-  useDisputeKitClassicFundAppeal,
-} from "hooks/contracts/generated";
+import { usePrepareDisputeKitClassicFundAppeal, useDisputeKitClassicFundAppeal } from "hooks/contracts/generated";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import {
@@ -16,15 +13,13 @@ import {
   useFundingContext,
 } from "hooks/useClassicAppealContext";
 import { notUndefined } from "utils/index";
-import { BigNumber } from "ethers";
 
 const Fund: React.FC = () => {
   const loserSideCountdown = useLoserSideCountdownContext();
   const { fundedChoices, winningChoice } = useFundingContext();
   const needFund =
     notUndefined([loserSideCountdown, fundedChoices]) &&
-    (loserSideCountdown! > 0 ||
-      (fundedChoices!.length > 0 && !fundedChoices?.includes(winningChoice!)));
+    (loserSideCountdown! > 0 || (fundedChoices!.length > 0 && !fundedChoices?.includes(winningChoice!)));
   const { id } = useParams();
   const { address, isDisconnected } = useAccount();
   const { data: balance } = useBalance({
@@ -39,13 +34,10 @@ const Fund: React.FC = () => {
   const { selectedOption } = useSelectedOptionContext();
   const { config: fundAppealConfig } = usePrepareDisputeKitClassicFundAppeal({
     enabled: notUndefined([id, selectedOption]),
-    args: [BigNumber.from(id), BigNumber.from(selectedOption)],
-    overrides: {
-      value: parsedAmount,
-    },
+    args: [BigInt(id!), BigInt(selectedOption!)],
+    value: parsedAmount,
   });
-  const { writeAsync: fundAppeal } =
-    useDisputeKitClassicFundAppeal(fundAppealConfig);
+  const { writeAsync: fundAppeal } = useDisputeKitClassicFundAppeal(fundAppealConfig);
   return needFund ? (
     <div>
       <label>How much ETH do you want to contribute?</label>
@@ -59,12 +51,7 @@ const Fund: React.FC = () => {
           placeholder="Amount to fund"
         />
         <StyledButton
-          disabled={
-            isDisconnected ||
-            isSending ||
-            !balance ||
-            parsedAmount.gt(balance.value)
-          }
+          disabled={isDisconnected || isSending || !balance || parsedAmount > balance.value}
           text={isDisconnected ? "Connect to Fund" : "Fund"}
           onClick={() => {
             if (fundAppeal) {
