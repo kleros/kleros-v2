@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { Button, Textarea } from "@kleros/ui-components-library";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { wrapWithToast } from "utils/wrapWithToast";
-import { useWalletClient, usePublicClient } from "wagmi";
+import { useWalletClient } from "wagmi";
 import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 
 const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
@@ -16,7 +16,6 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
   const [isSending, setIsSending] = useState(false);
   const [justification, setJustification] = useState("");
   const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
 
   return id ? (
     <Container>
