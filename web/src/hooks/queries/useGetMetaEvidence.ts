@@ -1,12 +1,8 @@
 import useSWRImmutable from "swr/immutable";
-// import { utils } from "ethers";
 import { usePublicClient } from "wagmi";
 import { getIMetaEvidence } from "hooks/contracts/generated";
 
-export const useGetMetaEvidence = (
-  disputeID?: string,
-  arbitrableAddress?: string
-) => {
+export const useGetMetaEvidence = (disputeID?: string, arbitrableAddress?: string) => {
   // const formattedAddress = arbitrableAddress
   //   ? utils.getAddress(arbitrableAddress)
   //   : undefined;
@@ -24,16 +20,13 @@ export const useGetMetaEvidence = (
         const disputeEvents = await publicClient.getFilterLogs({
           filter: disputeFilter,
         });
-        const metaEvidenceFilter =
-          await arbitrable.createEventFilter.MetaEvidence({
-            _metaEvidenceID: disputeEvents[0].args._metaEvidenceID,
-          });
+        const metaEvidenceFilter = await arbitrable.createEventFilter.MetaEvidence({
+          _metaEvidenceID: disputeEvents[0].args._metaEvidenceID,
+        });
         const metaEvidenceEvents = await publicClient.getFilterLogs({
           filter: metaEvidenceFilter,
         });
-        return fetch(
-          `https://cloudflare-ipfs.com${metaEvidenceEvents[0].args?._evidence}`
-        ).then((res) => res.json());
+        return fetch(`https://cloudflare-ipfs.com${metaEvidenceEvents[0].args?._evidence}`).then((res) => res.json());
       } else throw Error;
     }
   );
