@@ -6,11 +6,11 @@
   "answers": [
     {
       "title": "Yes, the translation should be accepted",
-      "description": "Select this if you think the translation complies with the required criteria.",
+      "description": "Select this if you think the translation complies with the required criteria."
     },
     {
       "title": "No, the translation should not be accepted",
-      "description": "Select this if you think the translation does not comply with the required criteria.",
+      "description": "Select this if you think the translation does not comply with the required criteria."
     }
   ],
   "policyURI": "/ipfs/QmVabp1VjJNYzXDxbcWFdeK17RvvA9eQy6eJVf1T1AzS1a/linguo-translation-quality-policy.pdf",
