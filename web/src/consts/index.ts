@@ -1,1 +1,1 @@
-export const ONE_BASIS_POINT = BigInt("10000");
+export const ONE_BASIS_POINT = 10000n;
