@@ -37,7 +37,7 @@
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "@kleros/kleros-v2-tsconfig": "workspace:^",
     "@netlify/functions": "^1.6.0",
-    "@parcel/transformer-svg-react": "~2.7.0",
+    "@parcel/transformer-svg-react": "~2.9.2",
     "@parcel/watcher": "~2.1.0",
     "@types/react": "^18.2.12",
     "@types/react-dom": "^18.2.5",
