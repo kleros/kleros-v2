@@ -19,42 +19,42 @@ const ITEMS = [
   {
     text: "Court",
     Icon: Court,
-    url: "",
+    url: "https://court.kleros.io/",
   },
   {
     text: "Escrow",
     Icon: Escrow,
-    url: "",
+    url: "https://escrow.kleros.io",
   },
   {
     text: "Tokens",
     Icon: Tokens,
-    url: "",
+    url: "https://tokens.kleros.io/",
   },
   {
     text: "POH",
     Icon: POH,
-    url: "",
+    url: "https://www.proofofhumanity.id",
   },
   {
     text: "Curate",
     Icon: Curate,
-    url: "",
+    url: "https://curate.kleros.io/",
   },
   {
     text: "Resolver",
     Icon: Resolver,
-    url: "",
+    url: "https://resolve.kleros.io/",
   },
   {
     text: "Linguo",
     Icon: Linguo,
-    url: "",
+    url: "https://linguo.kleros.io/",
   },
   {
     text: "Governor",
     Icon: Governor,
-    url: "",
+    url: "https://governor.kleros.io/",
   },
 ];
 
