@@ -6,8 +6,6 @@ Smart contracts for Kleros v2
 
 Refresh the list of deployed contracts by running `./scripts/generateDeploymentsMarkdown.sh`.
 
-### v2-alpha-1
-
 #### Chiado
 
 - [ArbitrableExample](https://blockscout.com/gnosis/chiado/address/0xc0fcc96BFd78e36550FCaB434A9EE1210B57225b)
@@ -29,10 +27,10 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 #### Arbitrum Goerli
 
 - [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610/token-transfers)
-- [ArbitrableExampleEthFee](https://goerli.arbiscan.io/address/0x1fF31be1924f55804350ADe4945f3B3a6a2e15d2)
+- [ArbitrableExampleEthFee](https://goerli.arbiscan.io/address/0x1d533481cCD1402f83Df3D9Ba7496B5e5b602875)
 - [BlockHashRNG](https://goerli.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
 - [DisputeKitClassic](https://goerli.arbiscan.io/address/0xcBE3aD699919Cf59efDF715e4B41AF30A0E4c92d)
-- [DisputeResolver](https://goerli.arbiscan.io/address/0x3B4edEFd12a467D1C71506ae2eE88828145202b1)
+- [DisputeResolver](https://goerli.arbiscan.io/address/0xF6652c10c4D3f5bA6066254B78c57A468d9b9606)
 - [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0xD60CD2151e118Dd796efcb1ceFFcF892226F9b3a)
 - [KlerosCore](https://goerli.arbiscan.io/address/0xA429667Abb1A6c530BAd1083df4C69FBce86D696)
 - [PolicyRegistry](https://goerli.arbiscan.io/address/0xED503aBA65B28D81444294D1eAa5d84CeFdC2C58)
