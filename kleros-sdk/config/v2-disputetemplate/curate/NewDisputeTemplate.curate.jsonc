@@ -6,11 +6,11 @@
   "answers": [
     {
       "title": "Yes, Add It",
-      "description": "Select this if you think the entry complies with the required criteria and should be added.",
+      "description": "Select this if you think the entry complies with the required criteria and should be added."
     },
     {
       "title": "No, Don't Add It",
-      "description": "Select this if you think the entry does not comply with the required criteria and should not be added.",
+      "description": "Select this if you think the entry does not comply with the required criteria and should not be added."
     }
   ],
   "policyURI": "/ipfs/QmdvkC5Djgk8MfX5ijJR3NJzmvGugUqvui7bKuTErSD6cE/contract-domain-name-registry-for-ledger-policy-3-.pdf",

@@ -12,13 +12,15 @@ import "./IArbitrator.sol";
 interface IArbitrable {
     /// @dev To be raised when a ruling is given.
     /// @param _arbitrator The arbitrator giving the ruling.
-    /// @param _disputeID ID of the dispute in the Arbitrator contract.
+    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _ruling The ruling which was given.
     event Ruling(IArbitrator indexed _arbitrator, uint256 indexed _disputeID, uint256 _ruling);
 
-    /// @dev Give a ruling for a dispute. Must be called by the arbitrator.
-    /// The purpose of this function is to ensure that the address calling it has the right to rule on the contract.
-    /// @param _disputeID ID of the dispute in the Arbitrator contract.
-    /// @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Not able/wanting to make a decision".
+    /// @dev Give a ruling for a dispute.
+    ///      Must be called by the arbitrator.
+    ///      The purpose of this function is to ensure that the address calling it has the right to rule on the contract.
+    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.
+    /// @param _ruling Ruling given by the arbitrator.
+    /// Note that 0 is reserved for "Not able/wanting to make a decision".
     function rule(uint256 _disputeID, uint256 _ruling) external;
 }
