@@ -3694,7 +3694,7 @@ __metadata:
     "@types/node": ^16
     "@typescript-eslint/eslint-plugin": ^5.53.0
     "@typescript-eslint/parser": ^5.53.0
-    aws-sdk: ^2.1329.0
+    aws-sdk: ^2.1331.0
     chai: ^4.3.6
     chai-ethers: ^0.0.1
     dotenv: ^16.0.3
@@ -8595,9 +8595,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:^2.1329.0":
-  version: 2.1331.0
-  resolution: "aws-sdk@npm:2.1331.0"
+"aws-sdk@npm:^2.1331.0":
+  version: 2.1397.0
+  resolution: "aws-sdk@npm:2.1397.0"
   dependencies:
     buffer: 4.9.2
     events: 1.1.1
@@ -8608,8 +8608,8 @@ __metadata:
     url: 0.10.3
     util: ^0.12.4
     uuid: 8.0.0
-    xml2js: 0.4.19
-  checksum: 19547d3f76a32dbf7a2b03c3551eb24cc286cfbdab168aa328e05a5217998040c179f3e6952ef524077a2eadd757cdbbe0ded01c2abe9ab082998e253707cda1
+    xml2js: 0.5.0
+  checksum: 52d9e57198c4506c6e36d821039a2257c0e935e65c2ee40899156cbdc7c96e4449ae2b4693a74e7d0560466c5db672724a374428eddf80859dc6ebd080f53205
   languageName: node
   linkType: hard
 
@@ -32025,20 +32025,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xml2js@npm:0.4.19":
-  version: 0.4.19
-  resolution: "xml2js@npm:0.4.19"
+"xml2js@npm:0.5.0":
+  version: 0.5.0
+  resolution: "xml2js@npm:0.5.0"
   dependencies:
     sax: ">=0.6.0"
-    xmlbuilder: ~9.0.1
-  checksum: ca8b2fee430d450a18947786bfd7cd1a353ee00fc6fd550acbc8a8e65f1b4df5e9786fcb2990c1a5514ecd554d445fb74e1d716b3a4fcfffc10554aeb5db482b
+    xmlbuilder: ~11.0.0
+  checksum: 1aa71d62e5bc2d89138e3929b9ea46459157727759cbc62ef99484b778641c0cd21fb637696c052d901a22f82d092a3e740a16b4ce218e81ac59b933535124ea
   languageName: node
   linkType: hard
 
-"xmlbuilder@npm:~9.0.1":
-  version: 9.0.7
-  resolution: "xmlbuilder@npm:9.0.7"
-  checksum: 8193bb323806a002764f013bea0c6e9ff2dc26fd29109408761b16b59a8ad2214c2abe8e691755fd8b525586e3a0e1efeb92335947d7b0899032b779f1705a53
+"xmlbuilder@npm:~11.0.0":
+  version: 11.0.1
+  resolution: "xmlbuilder@npm:11.0.1"
+  checksum: 7152695e16f1a9976658215abab27e55d08b1b97bca901d58b048d2b6e106b5af31efccbdecf9b07af37c8377d8e7e821b494af10b3a68b0ff4ae60331b415b0
   languageName: node
   linkType: hard
 
