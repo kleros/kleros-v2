@@ -46,7 +46,7 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
     // *             Storage               * //
     // ************************************* //
 
-    uint256 public constant MIN_JURORS = 3; // The global default minimum number of jurors in a dispute.
+    uint256 public constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.
     IERC20 public immutable weth; // WETH token on xDai.
     uint256 internal localDisputeID = 1; // The disputeID must start from 1 as the KlerosV1 proxy governor depends on this implementation. We now also depend on localDisputeID not ever being zero.
     mapping(uint96 => uint256) public feeForJuror; // feeForJuror[courtID], it mirrors the value on KlerosCore.
@@ -226,10 +226,10 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
                 minJurors := mload(add(_extraData, 0x40))
             }
             if (feeForJuror[courtID] == 0) courtID = 0;
-            if (minJurors == 0) minJurors = MIN_JURORS;
+            if (minJurors == 0) minJurors = DEFAULT_NB_OF_JURORS;
         } else {
             courtID = 0;
-            minJurors = MIN_JURORS;
+            minJurors = DEFAULT_NB_OF_JURORS;
         }
     }
 }

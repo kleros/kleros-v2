@@ -138,7 +138,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
 
     // General Constants
     uint256 public constant MAX_STAKE_PATHS = 4; // The maximum number of stake paths a juror can have.
-    uint256 public constant MIN_JURORS = 3; // The global default minimum number of jurors in a dispute.
+    uint256 public constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.
     uint256 public constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
     uint256 public constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
     // General Contracts
@@ -579,10 +579,10 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
                 minJurors := mload(add(_extraData, 0x40))
             }
             if (subcourtID >= courts.length) subcourtID = 0;
-            if (minJurors == 0) minJurors = MIN_JURORS;
+            if (minJurors == 0) minJurors = DEFAULT_NB_OF_JURORS;
         } else {
             subcourtID = 0;
-            minJurors = MIN_JURORS;
+            minJurors = DEFAULT_NB_OF_JURORS;
         }
     }
 
