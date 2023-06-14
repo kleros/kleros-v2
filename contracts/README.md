@@ -11,6 +11,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 #### Chiado
 
 - [ArbitrableExample](https://blockscout.com/gnosis/chiado/address/0xc0fcc96BFd78e36550FCaB434A9EE1210B57225b)
+- [DisputeResolver](https://blockscout.com/gnosis/chiado/address/0x433eD78895df1df7668C40b3e82d54410331F942)
 - [ForeignGatewayOnGnosis](https://blockscout.com/gnosis/chiado/address/0x573bcD6ee4aEe152eCC9Cafd2c0820Dc548AF6cC)
 - [SortitionSumTreeFactory](https://blockscout.com/gnosis/chiado/address/0xc7e3BF90299f6BD9FA7c3703837A9CAbB5743636)
 - [TokenBridge](https://blockscout.com/gnosis/chiado/address/0xbb3c86f9918C3C1d83668fA84e79E876d147fFf2)
