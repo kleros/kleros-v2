@@ -55,7 +55,6 @@ const StyledImg = styled.img`
 `;
 
 const Product: React.FC<IProduct> = ({ text, url, Icon }) => {
-  console.log("icon", Icon);
   return (
     <Container href={url} target="_blank">
       {typeof Icon === "string" ? <StyledImg alt={Icon} src={Icon} /> : <StyledIcon as={Icon} />}

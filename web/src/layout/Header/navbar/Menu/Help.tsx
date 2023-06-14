@@ -12,17 +12,17 @@ const ITEMS = [
   {
     text: "Onboarding",
     Icon: Book,
-    url: "",
+    url: "https://kleros.dodao.io/",
   },
   {
     text: "Get Help",
     Icon: Telegram,
-    url: "",
+    url: "https://t.me/kleros",
   },
   {
     text: "Report a Bug",
     Icon: Bug,
-    url: "",
+    url: "https://github.com/kleros/kleros-v2/issues/new",
   },
   {
     text: "DApp Guide",
@@ -37,7 +37,7 @@ const ITEMS = [
   {
     text: "FAQ",
     Icon: Faq,
-    url: "",
+    url: "https://kleros.gitbook.io/docs/kleros-faq",
   },
 ];
 
@@ -61,7 +61,7 @@ const Container = styled.div`
   box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.06);
 `;
 
-const ListItem = styled.div`
+const ListItem = styled.a`
   display: flex;
   gap: 8px;
   padding: 0px 8px;
@@ -106,7 +106,7 @@ const Help: React.FC<IHelp> = ({ toggle }) => {
       <Overlay />
       <Container ref={containerRef}>
         {ITEMS.map((item) => (
-          <ListItem key={item.text}>
+          <ListItem href={item.url} key={item.text} target="_blank">
             <Icon as={item.Icon} />
             <small>{item.text}</small>
           </ListItem>
