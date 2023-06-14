@@ -1,6 +1,6 @@
 {
   "scanSettings": {
-    "baseBranches": []
+    "baseBranches": ["dev", "master"]
   },
   "checkRunSettings": {
     "vulnerableCheckRunConclusionLevel": "failure",
@@ -8,7 +8,16 @@
     "useMendCheckNames": true
   },
   "issueSettings": {
-    "minSeverityLevel": "LOW",
-    "issueType": "DEPENDENCY"
+    "minSeverityLevel": "MEDIUM",
+    "issueType": "DEPENDENCY",
+    "customLabels": ["Type: Security🛡️", "dependencies"],
+    "assignees": ["jaybuidl"]
+  },
+  "remediateSettings": {
+    "workflowRules": {
+      "enabled": true,
+        "minVulnerabilityScore": 3,
+        "maxVulnerabilityScore": 10
+    }
   }
 }
