@@ -10,6 +10,7 @@ import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import JurorIcon from "svgs/icons/user.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
 import MinStake from "svgs/icons/min-stake.svg";
+import VoteStake from "svgs/icons/vote-stake.svg";
 
 const StyledCard = styled.div`
   width: auto;
@@ -47,15 +48,15 @@ const stats: IStat[] = [
       (parseInt(utils.formatUnits(data?.minStake, 18)) * 0.029)
         .toFixed(2)
         .toString() + "$",
-    color: "blue",
-    icon: EthereumIcon,
+    color: "purple",
+    icon: VoteStake,
   },
   {
     title: "Active Jurors",
     getText: (data) => data?.numberStakedJurors,
     getSubtext: () => "",
-    color: "purple",
-    icon: PNKRedistributedIcon,
+    color: "green",
+    icon: JurorIcon,
   },
   {
     title: "PNK Staked",
@@ -64,8 +65,8 @@ const stats: IStat[] = [
       (parseInt(utils.formatUnits(data?.stake, 18)) * 0.029)
         .toFixed(2)
         .toString() + "$",
-    color: "green",
-    icon: JurorIcon,
+    color: "purple",
+    icon: PNKIcon,
   },
   {
     title: "Cases",
@@ -88,8 +89,8 @@ const stats: IStat[] = [
       (parseInt(utils.formatUnits(data?.paidETH, 18)) * 1600)
         .toFixed(2)
         .toString() + "$",
-    color: "orange",
-    icon: BalanceIcon,
+    color: "blue",
+    icon: EthereumIcon,
   },
   {
     title: "PNK redistributed",
@@ -98,8 +99,8 @@ const stats: IStat[] = [
       (parseInt(utils.formatUnits(data?.paidPNK, 18)) * 0.029)
         .toFixed(2)
         .toString() + "$",
-    color: "orange",
-    icon: BalanceIcon,
+    color: "purple",
+    icon: PNKRedistributedIcon,
   },
 ];
 
