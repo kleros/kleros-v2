@@ -114,7 +114,7 @@ contract DisputeResolver is IArbitrableV2 {
     function _createDispute(
         bytes calldata _arbitratorExtraData,
         string memory _disputeTemplate,
-        string memory _disputeUri,
+        string memory _disputeTemplateUri,
         uint256 _numberOfRulingOptions
     ) internal returns (uint256 disputeID) {
         require(_numberOfRulingOptions > 1, "Should be at least 2 ruling options.");
@@ -133,6 +133,6 @@ contract DisputeResolver is IArbitrableV2 {
 
         uint256 templateId = localDisputeID;
         emit DisputeTemplate(templateId, "", _disputeTemplate);
-        emit DisputeRequest(arbitrator, disputeID, localDisputeID, templateId, _disputeUri);
+        emit DisputeRequest(arbitrator, disputeID, localDisputeID, templateId, _disputeTemplateUri);
     }
 }
