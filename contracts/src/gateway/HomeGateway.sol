@@ -31,24 +31,28 @@ contract HomeGateway is IHomeGateway {
     address public governor;
     IArbitrator public arbitrator;
     IVeaInbox public veaInbox;
-    address public override receiverGateway;
-    uint256 public immutable receiverChainID;
+    uint256 public immutable override foreignChainID;
+    address public override foreignGateway;
     mapping(uint256 => bytes32) public disputeIDtoHash;
     mapping(bytes32 => uint256) public disputeHashtoID;
     mapping(bytes32 => RelayedData) public disputeHashtoRelayedData;
+
+    // ************************************* //
+    // *            Constructor            * //
+    // ************************************* //
 
     constructor(
         address _governor,
         IArbitrator _arbitrator,
         IVeaInbox _veaInbox,
-        address _receiverGateway,
-        uint256 _receiverChainID
+        uint256 _foreignChainID,
+        address _foreignGateway
     ) {
         governor = _governor;
         arbitrator = _arbitrator;
         veaInbox = _veaInbox;
-        receiverGateway = _receiverGateway;
-        receiverChainID = _receiverChainID;
+        foreignChainID = _foreignChainID;
+        foreignGateway = _foreignGateway;
 
         emit MetaEvidence(0, "BRIDGE");
     }
@@ -78,24 +82,18 @@ contract HomeGateway is IHomeGateway {
         veaInbox = _veaInbox;
     }
 
-    /// @dev Changes the receiver gateway.
-    /// @param _receiverGateway The address of the new receiver gateway.
-    function changeReceiverGateway(address _receiverGateway) external {
+    /// @dev Changes the foreign gateway.
+    /// @param _foreignGateway The address of the new foreign gateway.
+    function changeForeignGateway(address _foreignGateway) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
-        receiverGateway = _receiverGateway;
+        foreignGateway = _foreignGateway;
     }
 
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Provide the same parameters as on the foreignChain while creating a dispute. Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
-    /// @param _foreignChainID foreignChainId
-    /// @param _foreignBlockHash foreignBlockHash
-    /// @param _foreignDisputeID foreignDisputeID
-    /// @param _choices number of ruling choices
-    /// @param _extraData extraData
-    /// @param _arbitrable arbitrable
+    /// @inheritdoc IHomeGateway
     function relayCreateDispute(
         uint256 _foreignChainID,
         bytes32 _foreignBlockHash,
@@ -115,6 +113,8 @@ contract HomeGateway is IHomeGateway {
                 _arbitrable
             )
         );
+        require(_foreignChainID == foreignChainID, "Foreign chain ID not supported");
+
         RelayedData storage relayedData = disputeHashtoRelayedData[disputeHash];
         require(relayedData.relayer == address(0), "Dispute already relayed");
 
@@ -130,10 +130,7 @@ contract HomeGateway is IHomeGateway {
         emit Dispute(arbitrator, disputeID, 0, 0);
     }
 
-    /// @dev Give a ruling for a dispute. Must be called by the arbitrator.
-    /// The purpose of this function is to ensure that the address calling it has the right to rule on the contract.
-    /// @param _disputeID ID of the dispute in the Arbitrator contract.
-    /// @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Not able/wanting to make a decision".
+    /// @inheritdoc IArbitrable
     function rule(uint256 _disputeID, uint256 _ruling) external override {
         require(msg.sender == address(arbitrator), "Only Arbitrator");
 
@@ -144,12 +141,20 @@ contract HomeGateway is IHomeGateway {
         // because Vea takes care of inserting it for security reasons.
         bytes4 methodSelector = IForeignGateway.relayRule.selector;
         bytes memory data = abi.encode(disputeHash, _ruling, relayedData.relayer);
-        veaInbox.sendMessage(receiverGateway, methodSelector, data);
+        veaInbox.sendMessage(foreignGateway, methodSelector, data);
     }
 
-    /// @dev Looks up the local home disputeID for a disputeHash. For cross-chain Evidence standard.
-    /// @param _disputeHash dispute hash
+    // ************************************* //
+    // *           Public Views            * //
+    // ************************************* //
+
+    /// @inheritdoc IHomeGateway
     function disputeHashToHomeID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoID[_disputeHash];
+    }
+
+    /// @inheritdoc ISenderGateway
+    function receiverGateway() external view override returns (address) {
+        return foreignGateway;
     }
 }

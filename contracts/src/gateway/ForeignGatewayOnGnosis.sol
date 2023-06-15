@@ -10,7 +10,6 @@ pragma solidity 0.8.18;
 
 import "../arbitration/IArbitrable.sol";
 import "./interfaces/IForeignGateway.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// Foreign Gateway
 /// Counterpart of `HomeGateway`
@@ -47,16 +46,16 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
     // ************************************* //
 
     uint256 public constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.
-    IERC20 public immutable weth; // WETH token on xDai.
     uint256 internal localDisputeID = 1; // The disputeID must start from 1 as the KlerosV1 proxy governor depends on this implementation. We now also depend on localDisputeID not ever being zero.
     mapping(uint96 => uint256) public feeForJuror; // feeForJuror[courtID], it mirrors the value on KlerosCore.
     address public governor;
     address public veaOutbox;
-    uint256 public immutable senderChainID;
-    address public override senderGateway;
+    uint256 public immutable override homeChainID;
+    address public override homeGateway;
     address public deprecatedVeaOutbox;
     uint256 public deprecatedVeaOutboxExpiration;
     mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
+    IERC20 public immutable weth; // WETH token on xDai.
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -68,7 +67,7 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
                 (block.timestamp < deprecatedVeaOutboxExpiration && deprecatedVeaOutbox == msg.sender),
             "Access not allowed: Vea Outbox only."
         );
-        require(_messageSender == senderGateway, "Access not allowed: Sender Gateway only.");
+        require(_messageSender == homeGateway, "Access not allowed: HomeGateway only.");
         _;
     }
 
@@ -77,11 +76,15 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
         _;
     }
 
-    constructor(address _governor, address _veaOutbox, address _senderGateway, uint256 _senderChainID, IERC20 _weth) {
+    // ************************************* //
+    // *            Constructor            * //
+    // ************************************* //
+
+    constructor(address _governor, address _veaOutbox, uint256 _homeChainID, address _homeGateway, IERC20 _weth) {
         governor = _governor;
         veaOutbox = _veaOutbox;
-        senderGateway = _senderGateway;
-        senderChainID = _senderChainID;
+        homeChainID = _homeChainID;
+        homeGateway = _homeGateway;
         weth = _weth;
     }
 
@@ -106,11 +109,11 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
         veaOutbox = _veaOutbox;
     }
 
-    /// @dev Changes the sender gateway.
-    /// @param _senderGateway The address of the new sender gateway.
-    function changeReceiverGateway(address _senderGateway) external {
+    /// @dev Changes the home gateway.
+    /// @param _homeGateway The address of the new home gateway.
+    function changeHomeGateway(address _homeGateway) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
-        senderGateway = _senderGateway;
+        homeGateway = _homeGateway;
     }
 
     /// @dev Changes the `feeForJuror` property value of a specified court.
@@ -125,6 +128,7 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
     // *         State Modifiers           * //
     // ************************************* //
 
+    /// @inheritdoc IArbitrator
     function createDispute(
         uint256 /*_choices*/,
         bytes calldata /*_extraData*/
@@ -174,7 +178,7 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
         cost = feeForJuror[courtID] * minJurors;
     }
 
-    /// Relay the rule call from the home gateway to the arbitrable.
+    /// @inheritdoc IForeignGateway
     function relayRule(
         address _messageSender,
         bytes32 _disputeHash,
@@ -193,6 +197,7 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
         arbitrable.rule(dispute.id, _ruling);
     }
 
+    /// @inheritdoc IForeignGateway
     function withdrawFees(bytes32 _disputeHash) external override {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
         require(dispute.id != 0, "Dispute does not exist");
@@ -207,8 +212,19 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
     // *           Public Views            * //
     // ************************************* //
 
+    /// @inheritdoc IForeignGateway
     function disputeHashToForeignID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoDisputeData[_disputeHash].id;
+    }
+
+    /// @inheritdoc IReceiverGateway
+    function senderGateway() external view returns (address) {
+        return homeGateway;
+    }
+
+    /// @inheritdoc IForeignGateway
+    function feeToken() external view returns (IERC20) {
+        return weth;
     }
 
     // ************************ //

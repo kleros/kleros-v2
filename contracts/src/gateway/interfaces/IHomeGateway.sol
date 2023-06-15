@@ -29,7 +29,13 @@ interface IHomeGateway is IArbitrable, IMetaEvidence, ISenderGateway {
         address _arbitrable
     ) external payable;
 
-    /// @dev Looks up the local home disputeID for a disputeHash. For cross-chain Evidence standard.
+    /// @dev Looks up the local home disputeID for a disputeHash
     /// @param _disputeHash dispute hash
     function disputeHashToHomeID(bytes32 _disputeHash) external view returns (uint256);
+
+    /// @return The chain ID where the corresponding foreign gateway is deployed.
+    function foreignChainID() external view returns (uint256);
+
+    /// @return The address of the corresponding foreign gateway.
+    function foreignGateway() external view returns (address);
 }

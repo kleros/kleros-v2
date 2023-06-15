@@ -39,7 +39,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const foreignGateway = await deploy("ForeignGatewayOnEthereum", {
     from: deployer,
     contract: "ForeignGateway",
-    args: [deployer, veaOutbox.address, homeGatewayAddress, homeChainIdAsBytes32],
+    args: [deployer, veaOutbox.address, homeChainIdAsBytes32, homeGatewayAddress],
     gasLimit: 4000000,
     log: true,
   });

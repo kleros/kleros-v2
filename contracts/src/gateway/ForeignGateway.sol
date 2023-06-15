@@ -50,8 +50,8 @@ contract ForeignGateway is IForeignGateway {
     mapping(uint96 => uint256) public feeForJuror; // feeForJuror[courtID], it mirrors the value on KlerosCore.
     address public governor;
     address public veaOutbox;
-    uint256 public immutable senderChainID;
-    address public override senderGateway;
+    uint256 public immutable override homeChainID;
+    address public override homeGateway;
     address public deprecatedVeaOutbox;
     uint256 public deprecatedVeaOutboxExpiration;
     mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
@@ -66,7 +66,7 @@ contract ForeignGateway is IForeignGateway {
                 (block.timestamp < deprecatedVeaOutboxExpiration && deprecatedVeaOutbox == msg.sender),
             "Access not allowed: Vea Outbox only."
         );
-        require(_messageSender == senderGateway, "Access not allowed: Sender Gateway only.");
+        require(_messageSender == homeGateway, "Access not allowed: HomeGateway only.");
         _;
     }
 
@@ -75,11 +75,15 @@ contract ForeignGateway is IForeignGateway {
         _;
     }
 
-    constructor(address _governor, address _veaOutbox, address _senderGateway, uint256 _senderChainID) {
+    // ************************************* //
+    // *            Constructor            * //
+    // ************************************* //
+
+    constructor(address _governor, address _veaOutbox, uint256 _homeChainID, address _homeGateway) {
         governor = _governor;
         veaOutbox = _veaOutbox;
-        senderGateway = _senderGateway;
-        senderChainID = _senderChainID;
+        homeChainID = _homeChainID;
+        homeGateway = _homeGateway;
     }
 
     // ************************************* //
@@ -103,11 +107,11 @@ contract ForeignGateway is IForeignGateway {
         veaOutbox = _veaOutbox;
     }
 
-    /// @dev Changes the sender gateway.
-    /// @param _senderGateway The address of the new sender gateway.
-    function changeReceiverGateway(address _senderGateway) external {
+    /// @dev Changes the home gateway.
+    /// @param _homeGateway The address of the new home gateway.
+    function changeHomeGateway(address _homeGateway) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
-        senderGateway = _senderGateway;
+        homeGateway = _homeGateway;
     }
 
     /// @dev Changes the `feeForJuror` property value of a specified court.
@@ -122,6 +126,7 @@ contract ForeignGateway is IForeignGateway {
     // *         State Modifiers           * //
     // ************************************* //
 
+    /// @inheritdoc IArbitrator
     function createDispute(
         uint256 _choices,
         bytes calldata _extraData
@@ -165,12 +170,13 @@ contract ForeignGateway is IForeignGateway {
         revert("Not supported yet");
     }
 
+    /// @inheritdoc IArbitrator
     function arbitrationCost(bytes calldata _extraData) public view override returns (uint256 cost) {
         (uint96 courtID, uint256 minJurors) = extraDataToCourtIDMinJurors(_extraData);
         cost = feeForJuror[courtID] * minJurors;
     }
 
-    /// Relay the rule call from the home gateway to the arbitrable.
+    /// @inheritdoc IForeignGateway
     function relayRule(
         address _messageSender,
         bytes32 _disputeHash,
@@ -189,6 +195,7 @@ contract ForeignGateway is IForeignGateway {
         arbitrable.rule(dispute.id, _ruling);
     }
 
+    /// @inheritdoc IForeignGateway
     function withdrawFees(bytes32 _disputeHash) external override {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
         require(dispute.id != 0, "Dispute does not exist");
@@ -203,8 +210,19 @@ contract ForeignGateway is IForeignGateway {
     // *           Public Views            * //
     // ************************************* //
 
+    /// @inheritdoc IForeignGateway
     function disputeHashToForeignID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoDisputeData[_disputeHash].id;
+    }
+
+    /// @inheritdoc IReceiverGateway
+    function senderGateway() external view returns (address) {
+        return homeGateway;
+    }
+
+    /// @inheritdoc IForeignGateway
+    function feeToken() external view returns (IERC20) {
+        revert("Not supported yet");
     }
 
     // ************************ //

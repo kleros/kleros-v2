@@ -28,7 +28,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await deploy("HomeGatewayToGnosis", {
     from: deployer,
     contract: "HomeGateway",
-    args: [deployer, klerosCore.address, veaInbox.address, foreignGateway.address, foreignChainId],
+    args: [deployer, klerosCore.address, veaInbox.address, foreignChainId, foreignGateway.address],
     log: true,
   }); // nonce+0
 };
