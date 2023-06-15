@@ -162,12 +162,14 @@ contract ForeignGateway is IForeignGateway {
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
 
-    function createDisputeERC20(
+    /// @inheritdoc IArbitrator
+    function createDispute(
         uint256 /*_choices*/,
         bytes calldata /*_extraData*/,
-        uint256 /*_amount*/
-    ) external override returns (uint256 /*disputeID*/) {
-        revert("Not supported yet");
+        address /*_feeToken*/,
+        uint256 /*_feeAmount*/
+    ) external override returns (uint256) {
+        revert("Not supported");
     }
 
     /// @inheritdoc IArbitrator
@@ -216,13 +218,13 @@ contract ForeignGateway is IForeignGateway {
     }
 
     /// @inheritdoc IReceiverGateway
-    function senderGateway() external view returns (address) {
+    function senderGateway() external view override returns (address) {
         return homeGateway;
     }
 
-    /// @inheritdoc IForeignGateway
-    function feeToken() external view returns (IERC20) {
-        revert("Not supported yet");
+    /// @inheritdoc IArbitrator
+    function supposedFeeTokens() external pure override returns (address[] memory) {
+        return new address[](0);
     }
 
     // ************************ //

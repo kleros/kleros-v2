@@ -4,7 +4,7 @@ import { BigNumber } from "ethers";
 import {
   PNK,
   KlerosCore,
-  ArbitrableExampleEthFee,
+  ArbitrableExample,
   HomeGatewayToEthereum,
   DisputeKitClassic,
   RandomizerRNG,
@@ -66,7 +66,7 @@ describe("Draw Benchmark", async () => {
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
     homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
-    arbitrable = (await ethers.getContract("ArbitrableExampleEthFee")) as ArbitrableExampleEthFee;
+    arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
     rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
     randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
     sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
@@ -94,7 +94,7 @@ describe("Draw Benchmark", async () => {
     }
 
     // Create a dispute
-    const tx = await arbitrable.createDispute(2, "0x00", 0, {
+    const tx = await arbitrable.functions["createDispute(uint256,bytes,uint256,uint256)"](2, "0x00", 0, 0, {
       value: arbitrationCost,
     });
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);

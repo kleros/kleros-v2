@@ -17,12 +17,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   console.log("Deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   const klerosCore = await deployments.get("KlerosCore");
+  const weth = await deployments.get("WETH");
 
-  await deploy("ArbitrableExampleEthFee", {
+  await deploy("ArbitrableExample", {
     from: deployer,
     args: [
       klerosCore.address,
+      0,
       "https://cloudflare-ipfs.com/ipfs/bafkreifteme6tusnjwyzajk75fyvzdmtyycxctf7yhfijb6rfigz3n4lvq",
+      weth.address,
     ],
     log: true,
   });

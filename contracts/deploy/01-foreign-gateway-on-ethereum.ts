@@ -28,15 +28,15 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const homeChainProvider = new ethers.providers.JsonRpcProvider(homeNetworks[ForeignChains[chainId]].url);
   let nonce = await homeChainProvider.getTransactionCount(deployer);
   nonce += 2; // HomeGatewayToEthereum deploy tx will the third tx after this on its home network, so we add two to the current nonce.
-  const homeChainId = (await homeChainProvider.getNetwork()).chainId;
-  const homeChainIdAsBytes32 = hexZeroPad(hexlify(homeChainId), 32);
   const homeGatewayAddress = getContractAddress(deployer, nonce);
   console.log("Calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
   const veaOutbox = await deployments.get("VeaOutboxArbToEthDevnet");
   console.log("Using VeaOutboxArbToEthDevnet at %s", veaOutbox.address);
 
-  const foreignGateway = await deploy("ForeignGatewayOnEthereum", {
+  const homeChainId = (await homeChainProvider.getNetwork()).chainId;
+  const homeChainIdAsBytes32 = hexZeroPad(hexlify(homeChainId), 32);
+  await deploy("ForeignGatewayOnEthereum", {
     from: deployer,
     contract: "ForeignGateway",
     args: [deployer, veaOutbox.address, homeChainIdAsBytes32, homeGatewayAddress],
@@ -44,6 +44,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     log: true,
   });
 
+  // TODO: disable the gateway until fully initialized with the correct fees OR allow disputeCreators to add funds again if necessary.
   await execute(
     "ForeignGatewayOnEthereum",
     { from: deployer, log: true },
@@ -51,14 +52,6 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     0,
     ethers.BigNumber.from(10).pow(17)
   );
-
-  const metaEvidenceUri = `https://raw.githubusercontent.com/kleros/kleros-v2/master/contracts/deployments/${hre.network.name}/MetaEvidence_ArbitrableExample.json`;
-
-  await deploy("ArbitrableExample", {
-    from: deployer,
-    args: [foreignGateway.address, metaEvidenceUri],
-    log: true,
-  });
 };
 
 deployForeignGateway.tags = ["ForeignGatewayOnEthereum"];

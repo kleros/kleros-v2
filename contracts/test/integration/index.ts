@@ -5,7 +5,7 @@ import {
   PNK,
   KlerosCore,
   ForeignGatewayOnEthereum,
-  ArbitrableExampleEthFee,
+  ArbitrableExample,
   HomeGatewayToEthereum,
   VeaMock,
   DisputeKitClassic,
@@ -57,7 +57,7 @@ describe("Integration tests", async () => {
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
     vea = (await ethers.getContract("VeaMock")) as VeaMock;
     foreignGateway = (await ethers.getContract("ForeignGatewayOnEthereum")) as ForeignGatewayOnEthereum;
-    arbitrable = (await ethers.getContract("ArbitrableExampleEthFee")) as ArbitrableExampleEthFee;
+    arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
     homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
     sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
   });
@@ -95,7 +95,7 @@ describe("Integration tests", async () => {
       expect(result.locked).to.equal(0);
       logJurorBalance(result);
     });
-    const tx = await arbitrable.createDispute(2, "0x00", 0, {
+    const tx = await arbitrable.functions["createDispute(uint256,bytes,uint256,uint256)"](2, "0x00", 0, 0, {
       value: arbitrationCost,
     });
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);

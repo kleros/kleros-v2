@@ -9,10 +9,6 @@ enum ForeignChains {
   HARDHAT = 31337,
 }
 
-const wethByChain = new Map<ForeignChains, string>([
-  [ForeignChains.GNOSIS_MAINNET, "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1"],
-]);
-
 const ONE_GWEI = parseUnits("1", "gwei");
 
 const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -41,34 +37,12 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const veaOutbox = await deployments.get("VeaOutboxArbToGnosisDevnet");
   console.log("Using VeaOutboxArbToGnosisDevnet at %s", veaOutbox.address);
 
-  if (!wethByChain.get(chainId)) {
-    const weth = await deploy("WETH", {
-      from: deployer,
-      log: true,
-      maxFeePerGas: ONE_GWEI,
-      maxPriorityFeePerGas: ONE_GWEI,
-    });
-
-    wethByChain.set(ForeignChains[ForeignChains[chainId]], weth.address);
-
-    await deploy("WETHFaucet", {
-      from: deployer,
-      contract: "Faucet",
-      args: [weth.address],
-      log: true,
-      maxFeePerGas: ONE_GWEI,
-      maxPriorityFeePerGas: ONE_GWEI,
-    });
-  }
-
-  const wethAddress = wethByChain.get(ForeignChains[ForeignChains[chainId]]);
   const homeChainId = (await homeChainProvider.getNetwork()).chainId;
   const homeChainIdAsBytes32 = hexZeroPad(hexlify(homeChainId), 32);
-
   await deploy("ForeignGatewayOnGnosis", {
     from: deployer,
-    contract: "ForeignGatewayOnGnosis",
-    args: [deployer, veaOutbox.address, homeChainIdAsBytes32, homeGatewayAddress, wethAddress],
+    contract: "ForeignGateway",
+    args: [deployer, veaOutbox.address, homeChainIdAsBytes32, homeGatewayAddress],
     log: true,
     maxFeePerGas: ONE_GWEI,
     maxPriorityFeePerGas: ONE_GWEI,

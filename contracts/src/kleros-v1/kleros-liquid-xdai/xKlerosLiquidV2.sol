@@ -175,7 +175,6 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
     mapping(address => Juror) public jurors; // The jurors.
 
     IForeignGateway public foreignGateway; // Foreign gateway contract.
-    IERC20 public weth; // WETH token address.
 
     mapping(uint256 => uint256) public disputesRuling;
 
@@ -219,7 +218,6 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the general court.
     /// @param _sortitionSumTreeK The number of children per node of the general court's sortition sum tree.
     /// @param _foreignGateway Foreign gateway on xDai.
-    /// @param _weth Weth contract.
     function initialize(
         address _governor,
         WrappedPinakion _pinakion,
@@ -230,8 +228,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
         uint256 _sortitionSumTreeK,
-        IForeignGateway _foreignGateway,
-        IERC20 _weth
+        IForeignGateway _foreignGateway
     ) public initializer {
         // Initialize contract.
         governor = _governor;
@@ -244,7 +241,6 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
         lockInsolventTransfers = true;
         if (nextDelayedSetStake == 0) nextDelayedSetStake = 1;
         foreignGateway = _foreignGateway;
-        weth = _weth;
 
         // Create the general court.
         if (courts.length == 0) {
@@ -318,12 +314,6 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
     /// @param _foreignGateway The new value for the `foreignGateway` storage variable.
     function changeForeignGateway(IForeignGateway _foreignGateway) external onlyByGovernor {
         foreignGateway = _foreignGateway;
-    }
-
-    /// @dev Changes the `weth` storage variable.
-    /// @param _weth The new value for the `weth` storage variable.
-    function changeWethAddress(IERC20 _weth) external onlyByGovernor {
-        weth = _weth;
     }
 
     /// @dev Creates a subcourt under a specified parent court.
@@ -469,9 +459,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
         uint256 _numberOfChoices,
         bytes memory _extraData
     ) public payable override returns (uint256 disputeID) {
-        require(msg.value == 0, "Fees should be paid in WETH");
-        uint256 fee = arbitrationCost(_extraData);
-        require(weth.transferFrom(msg.sender, address(this), fee), "Not enough WETH for arbitration");
+        require(msg.value >= arbitrationCost(_extraData), "Arbitration fees: not enough");
 
         disputeID = totalDisputes++;
         Dispute storage dispute = disputes[disputeID];
@@ -481,10 +469,18 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
         (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDAndMinJurors(_extraData);
         bytes memory extraDataV2 = abi.encode(uint256(subcourtID + 1), minJurors);
 
-        require(weth.transfer(address(foreignGateway), fee), "Fee transfer to gateway failed");
-        foreignGateway.createDisputeERC20(_numberOfChoices, extraDataV2, fee);
-
+        foreignGateway.createDispute{value: msg.value}(_numberOfChoices, extraDataV2);
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
+    }
+
+    /// @inheritdoc IArbitrator
+    function createDispute(
+        uint256 /*_choices*/,
+        bytes calldata /*_extraData*/,
+        address /*_feeToken*/,
+        uint256 /*_feeAmount*/
+    ) external override returns (uint256) {
+        revert("Not supported");
     }
 
     /// @dev DEPRECATED. Called when `_owner` sends ETH to the Wrapped Token contract.
@@ -624,6 +620,12 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
     /// @return cost The cost.
     function arbitrationCost(bytes memory _extraData) public view override returns (uint256 cost) {
         cost = foreignGateway.arbitrationCost(_extraData);
+    }
+
+    /// @inheritdoc IArbitrator
+    function supposedFeeTokens() external view override returns (address[] memory) {
+        // TODO
+        return new address[](0);
     }
 
     /// @dev Gets the current ruling of a specified dispute.

@@ -160,8 +160,7 @@ contract CentralizedArbitrator is IArbitrator {
         uint256 _choices,
         bytes calldata _extraData
     ) external payable override returns (uint256 disputeID) {
-        uint256 localArbitrationCost = arbitrationCost(_extraData);
-        require(msg.value >= localArbitrationCost, "Not enough ETH to cover arbitration costs.");
+        require(msg.value >= arbitrationCost(_extraData), "Arbitration fees: not enough.");
         disputeID = disputes.length;
         disputes.push(
             DisputeStruct({
@@ -177,6 +176,16 @@ contract CentralizedArbitrator is IArbitrator {
 
         disputeIDtoRoundArray[disputeID].push();
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
+    }
+
+    /// @inheritdoc IArbitrator
+    function createDispute(
+        uint256 /*_choices*/,
+        bytes calldata /*_extraData*/,
+        address /*_feeToken*/,
+        uint256 /*_feeAmount*/
+    ) external override returns (uint256) {
+        revert("Not supported");
     }
 
     /// @dev TRUSTED. Manages contributions, and appeals a dispute if at least two choices are fully funded. This function allows the appeals to be crowdfunded.
@@ -321,6 +330,12 @@ contract CentralizedArbitrator is IArbitrator {
     /// @return fee The required amount.
     function arbitrationCost(bytes calldata /*_extraData*/) public view override returns (uint256 fee) {
         return arbitrationFee;
+    }
+
+    /// @inheritdoc IArbitrator
+    function supposedFeeTokens() external view override returns (address[] memory) {
+        // TODO
+        return new address[](0);
     }
 
     /// @dev Return the funded amount and funding goal for one of the choices.

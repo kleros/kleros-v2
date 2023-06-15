@@ -55,12 +55,7 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
   const foreignGateway = await deployments.get("ForeignGatewayOnGnosis");
   const weth = await deployments.get("WETH");
 
-  console.log(
-    "Using: \nwPNK at %s, \nForeignGateway at %s, \nWETH at %s",
-    wPnkAddress,
-    foreignGateway.address,
-    weth.address
-  );
+  console.log("Using: \nwPNK at %s, \nForeignGateway at %s", wPnkAddress, foreignGateway.address, weth.address);
 
   const sortitionSumTreeLibrary = await deploy("SortitionSumTreeFactory", {
     from: deployer,
@@ -97,8 +92,7 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
     [minStake, alpha, feeForJuror, jurorsForCourtJump], // minStake, alpha, feeForJuror, jurorsForCourtJump
     [0, 0, 0, 0], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
     sortitionSumTreeK,
-    foreignGateway.address,
-    weth.address
+    foreignGateway.address
   );
 
   // const xKlerosLiquidV2 = await deployments.get("xKlerosLiquidV2");
@@ -140,8 +134,6 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
 // ]);
 // const hardhatDeployer = () => {
 //   // TODO: deploy mocks for xPinakion and tokenBridge for Hardhat network
-//   const wEth = await deployments.get("WETH");
-//   const wEth = wethByChain[chainId];
 //   // const xPnk = await deployments.get("WPNK");
 //   const xPnk = xPinakionByChain[chainId];
 //   const tokenBridge = tokenBridgeByChain[chainId];

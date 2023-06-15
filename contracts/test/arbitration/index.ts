@@ -56,7 +56,7 @@ describe("DisputeKitClassic", async () => {
       "Access not allowed: KlerosCore only."
     );
 
-    const tx = await core.connect(deployer).createDispute(2, "0x00", { value: 1000 });
+    const tx = await core.connect(deployer).functions["createDispute(uint256,bytes)"](2, "0x00", { value: 1000 });
     expect(tx).to.emit(core, "DisputeCreation").withArgs(0, deployer.address);
     expect(tx).to.emit(disputeKit, "DisputeCreation").withArgs(0, 2, "0x00");
 

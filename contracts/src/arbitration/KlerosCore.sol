@@ -475,16 +475,12 @@ contract KlerosCore is IArbitrator {
         _setStakeForAccount(_account, _courtID, _stake, _penalty);
     }
 
-    /// @dev Creates a dispute. Must be called by the arbitrable contract.
-    /// @param _numberOfChoices Number of choices for the jurors to choose from.
-    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes),
-    /// the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
-    /// @return disputeID The ID of the created dispute.
+    /// @inheritdoc IArbitrator
     function createDispute(
         uint256 _numberOfChoices,
         bytes memory _extraData
     ) external payable override returns (uint256 disputeID) {
-        require(msg.value >= arbitrationCost(_extraData), "ETH too low for arbitration cost");
+        require(msg.value >= arbitrationCost(_extraData), "Arbitration fees: not enough");
 
         (uint96 courtID, , uint256 disputeKitID) = _extraDataToCourtIDMinJurorsDisputeKit(_extraData);
         require(courts[courtID].supportedDisputeKits[disputeKitID], "DK unsupported by court");
@@ -507,6 +503,16 @@ contract KlerosCore is IArbitrator {
 
         disputeKit.createDispute(disputeID, _numberOfChoices, _extraData, round.nbVotes);
         emit DisputeCreation(disputeID, IArbitrable(msg.sender));
+    }
+
+    /// @inheritdoc IArbitrator
+    function createDispute(
+        uint256 _choices,
+        bytes calldata _extraData,
+        address _feeToken,
+        uint256 _feeAmount
+    ) external override returns (uint256 disputeID) {
+        // TODO
     }
 
     /// @dev Passes the period of a specified dispute.
@@ -858,6 +864,12 @@ contract KlerosCore is IArbitrator {
             // Stay in current court.
             cost = court.feeForJuror * ((round.nbVotes * 2) + 1);
         }
+    }
+
+    /// @inheritdoc IArbitrator
+    function supposedFeeTokens() external view override returns (address[] memory) {
+        // TODO
+        return new address[](0);
     }
 
     /// @dev Gets the start and the end of a specified dispute's current appeal period.
