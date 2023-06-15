@@ -20,7 +20,7 @@ import { createDisputeFromEvent } from "./entities/Dispute";
 import { createRoundFromRoundInfo } from "./entities/Round";
 import { updateCases, updatePaidETH, updateRedistributedPNK, updateCasesRuled, updateCasesVoting } from "./datapoint";
 import { addUserActiveDispute, ensureUser, resolveUserDispute } from "./entities/User";
-import { ensureJurorTokensPerCourt, updateJurorDelayedStake, updateJurorStake } from "./entities/JurorTokensPerCourt";
+import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
 import { createTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
