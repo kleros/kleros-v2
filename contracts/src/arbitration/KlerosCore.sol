@@ -59,8 +59,9 @@ contract KlerosCore is IArbitrator {
         uint256 repartitions; // A counter of reward repartitions made in this round.
         uint256 penalties; // The amount of tokens collected from penalties in this round.
         address[] drawnJurors; // Addresses of the jurors that were drawn in this round.
-        uint256 sumRewardPaid; // Total sum of arbitration fees paid to coherent jurors as a reward in this round.
-        uint256 sumTokenRewardPaid; // Total sum of tokens paid to coherent jurors as a reward in this round.
+        uint256 sumFeeRewardPaid; // Total sum of arbitration fees paid to coherent jurors as a reward in this round.
+        uint256 sumPnkRewardPaid; // Total sum of PNK paid to coherent jurors as a reward in this round.
+        IERC20 feeToken; // The token used for paying fees in this round.
     }
 
     struct Juror {
@@ -87,6 +88,12 @@ contract KlerosCore is IArbitrator {
         uint256 repartition; // The index of the repartition to execute.
     }
 
+    struct CurrencyRate {
+        bool feePaymentAccepted;
+        uint64 rateInEth;
+        uint8 rateDecimals;
+    }
+
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -99,18 +106,18 @@ contract KlerosCore is IArbitrator {
     uint256 public constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
     uint256 public constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
     uint256 public constant SEARCH_ITERATIONS = 10; // Number of iterations to search for suitable parent court before jumping to the top court.
+    IERC20 public constant NATIVE_CURRENCY = IERC20(address(0)); // The native currency, such as ETH on Arbitrum, Optimism and Ethereum L1.
 
     address public governor; // The governor of the contract.
     IERC20 public pinakion; // The Pinakion token contract.
     // TODO: interactions with jurorProsecutionModule.
     address public jurorProsecutionModule; // The module for juror's prosecution.
     ISortitionModule public sortitionModule; // Sortition module for drawing.
-
     Court[] public courts; // The courts.
     DisputeKitNode[] public disputeKitNodes; // The list of DisputeKitNode, indexed by DisputeKitID.
     Dispute[] public disputes; // The disputes.
-
     mapping(address => Juror) internal jurors; // The jurors.
+    mapping(address => CurrencyRate) public currencyRates; // The price of each token in ETH.
 
     // ************************************* //
     // *              Events               * //
@@ -157,14 +164,16 @@ contract KlerosCore is IArbitrator {
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
         uint256 _degreeOfCoherency,
-        int256 _tokenAmount,
-        int256 _ethAmount
+        int256 _pnkAmount,
+        int256 _feeAmount,
+        IERC20 _feeToken
     );
     event LeftoverRewardSent(
         uint256 indexed _disputeID,
         uint256 indexed _roundID,
-        uint256 _tokenAmount,
-        uint256 _ethAmount
+        uint256 _pnkAmount,
+        uint256 _feeAmount,
+        IERC20 _feeToken
     );
 
     // ************************************* //
@@ -459,6 +468,31 @@ contract KlerosCore is IArbitrator {
         }
     }
 
+    /// @dev Changes the supported fee tokens.
+    /// @param _feeTokens The new value for the `supportedFeeTokens` storage variable.
+    /// @param _accepted Whether the token is supported or not as a method of fee payment.
+    function changeAcceptedFeeTokens(IERC20[] calldata _feeTokens, bool[] calldata _accepted) external onlyByGovernor {
+        require(_feeTokens.length == _accepted.length, "Arrays length mismatch");
+        for (uint256 i = 0; i < _feeTokens.length; i++) {
+            currencyRates[address(_feeTokens[i])].feePaymentAccepted = _accepted[i];
+            emit AcceptedFeeToken(address(_feeTokens[i]), _accepted[i]);
+        }
+    }
+
+    function changeCurrencyRates(
+        IERC20[] calldata _feeTokens,
+        uint64[] calldata _rateInEth,
+        uint8[] calldata _rateDecimals
+    ) external onlyByGovernor {
+        require(_feeTokens.length == _rateInEth.length, "Arrays length mismatch");
+        require(_feeTokens.length == _rateDecimals.length, "Arrays length mismatch");
+        for (uint256 i = 0; i < _feeTokens.length; i++) {
+            CurrencyRate storage rate = currencyRates[address(_feeTokens[i])];
+            rate.rateInEth = _rateInEth[i];
+            rate.rateDecimals = _rateDecimals[i];
+        }
+    }
+
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
@@ -507,12 +541,41 @@ contract KlerosCore is IArbitrator {
 
     /// @inheritdoc IArbitrator
     function createDispute(
-        uint256 _choices,
+        uint256 _numberOfChoices,
         bytes calldata _extraData,
         address _feeToken,
         uint256 _feeAmount
     ) external override returns (uint256 disputeID) {
-        // TODO
+        require(currencyRates[_feeToken].feePaymentAccepted, "Token not accepted");
+        require(
+            _feeAmount >= convertEthToTokenAmount(_feeToken, arbitrationCost(_extraData)),
+            "Arbitration fees: not enough"
+        );
+
+        (uint96 courtID, , uint256 disputeKitID) = _extraDataToCourtIDMinJurorsDisputeKit(_extraData);
+        require(courts[courtID].supportedDisputeKits[disputeKitID], "DK unsupported by court");
+
+        disputeID = disputes.length;
+        Dispute storage dispute = disputes.push();
+        dispute.courtID = courtID;
+        dispute.arbitrated = IArbitrable(msg.sender);
+        dispute.lastPeriodChange = block.timestamp;
+
+        IDisputeKit disputeKit = disputeKitNodes[disputeKitID].disputeKit;
+        Court storage court = courts[dispute.courtID];
+        Round storage round = dispute.rounds.push();
+
+        uint256 feeForJurorInToken = convertEthToTokenAmount(_feeToken, court.feeForJuror);
+        round.nbVotes = _feeAmount / feeForJurorInToken;
+        round.disputeKitID = disputeKitID;
+        round.tokensAtStakePerJuror = (court.minStake * court.alpha) / ALPHA_DIVISOR;
+        round.totalFeesForJurors = _feeAmount;
+        round.feeToken = IERC20(_feeToken);
+
+        sortitionModule.createDisputeHook(disputeID, 0); // Default round ID.
+
+        disputeKit.createDispute(disputeID, _numberOfChoices, _extraData, round.nbVotes);
+        emit DisputeCreation(disputeID, IArbitrable(msg.sender));
     }
 
     /// @dev Passes the period of a specified dispute.
@@ -737,7 +800,15 @@ contract KlerosCore is IArbitrator {
             // The juror does not have enough staked tokens after penalty for this court, unstake them.
             _setStakeForAccount(account, dispute.courtID, 0, penalty);
         }
-        emit TokenAndETHShift(account, _params.disputeID, _params.round, degreeOfCoherence, -int256(penalty), 0);
+        emit TokenAndETHShift(
+            account,
+            _params.disputeID,
+            _params.round,
+            degreeOfCoherence,
+            -int256(penalty),
+            0,
+            round.feeToken
+        );
 
         if (!disputeKit.isVoteActive(_params.disputeID, _params.round, _params.repartition)) {
             // The juror is inactive, unstake them.
@@ -745,13 +816,20 @@ contract KlerosCore is IArbitrator {
         }
         if (_params.repartition == _params.numberOfVotesInRound - 1 && _params.coherentCount == 0) {
             // No one was coherent, send the rewards to the governor.
-            payable(governor).send(round.totalFeesForJurors);
-            _safeTransfer(governor, _params.penaltiesInRound);
+            if (round.feeToken == NATIVE_CURRENCY) {
+                // The dispute fees were paid in ETH
+                payable(governor).send(round.totalFeesForJurors);
+            } else {
+                // The dispute fees were paid in ERC20
+                _safeTransfer(round.feeToken, governor, round.totalFeesForJurors);
+            }
+            _safeTransfer(pinakion, governor, _params.penaltiesInRound);
             emit LeftoverRewardSent(
                 _params.disputeID,
                 _params.round,
                 _params.penaltiesInRound,
-                round.totalFeesForJurors
+                round.totalFeesForJurors,
+                round.feeToken
             );
         }
         return _params.penaltiesInRound;
@@ -784,37 +862,57 @@ contract KlerosCore is IArbitrator {
 
         // Give back the locked tokens in case the juror fully unstaked earlier.
         if (jurors[account].stakedTokens[dispute.courtID] == 0) {
-            _safeTransfer(account, tokenLocked);
+            _safeTransfer(pinakion, account, tokenLocked);
         }
 
         // Transfer the rewards
-        uint256 tokenReward = ((_params.penaltiesInRound / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
-        round.sumTokenRewardPaid += tokenReward;
-        uint256 ethReward = ((round.totalFeesForJurors / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
-        round.sumRewardPaid += ethReward;
-        _safeTransfer(account, tokenReward);
-        payable(account).send(ethReward);
+        uint256 pnkReward = ((_params.penaltiesInRound / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
+        round.sumPnkRewardPaid += pnkReward;
+        uint256 feeReward = ((round.totalFeesForJurors / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
+        round.sumFeeRewardPaid += feeReward;
+        _safeTransfer(pinakion, account, pnkReward);
+        payable(account).send(feeReward);
+        if (round.feeToken == NATIVE_CURRENCY) {
+            // The dispute fees were paid in ETH
+            payable(account).send(feeReward);
+        } else {
+            // The dispute fees were paid in ERC20
+            _safeTransfer(round.feeToken, account, feeReward);
+        }
         emit TokenAndETHShift(
             account,
             _params.disputeID,
             _params.round,
             degreeOfCoherence,
-            int256(tokenReward),
-            int256(ethReward)
+            int256(pnkReward),
+            int256(feeReward),
+            round.feeToken
         );
 
         // Transfer any residual rewards to the governor. It may happen due to partial coherence of the jurors.
         if (_params.repartition == _params.numberOfVotesInRound * 2 - 1) {
-            uint256 leftoverTokenReward = _params.penaltiesInRound - round.sumTokenRewardPaid;
-            uint256 leftoverReward = round.totalFeesForJurors - round.sumRewardPaid;
-            if (leftoverTokenReward != 0 || leftoverReward != 0) {
-                if (leftoverTokenReward != 0) {
-                    _safeTransfer(governor, leftoverTokenReward);
+            uint256 leftoverPnkReward = _params.penaltiesInRound - round.sumPnkRewardPaid;
+            uint256 leftoverFeeReward = round.totalFeesForJurors - round.sumFeeRewardPaid;
+            if (leftoverPnkReward != 0 || leftoverFeeReward != 0) {
+                if (leftoverPnkReward != 0) {
+                    _safeTransfer(pinakion, governor, leftoverPnkReward);
                 }
-                if (leftoverReward != 0) {
-                    payable(governor).send(leftoverReward);
+                if (leftoverFeeReward != 0) {
+                    if (round.feeToken == NATIVE_CURRENCY) {
+                        // The dispute fees were paid in ETH
+                        payable(governor).send(leftoverFeeReward);
+                    } else {
+                        // The dispute fees were paid in ERC20
+                        _safeTransfer(round.feeToken, governor, leftoverFeeReward);
+                    }
                 }
-                emit LeftoverRewardSent(_params.disputeID, _params.round, leftoverTokenReward, leftoverReward);
+                emit LeftoverRewardSent(
+                    _params.disputeID,
+                    _params.round,
+                    leftoverPnkReward,
+                    leftoverFeeReward,
+                    round.feeToken
+                );
             }
         }
     }
@@ -866,12 +964,6 @@ contract KlerosCore is IArbitrator {
         }
     }
 
-    /// @inheritdoc IArbitrator
-    function supposedFeeTokens() external view override returns (address[] memory) {
-        // TODO
-        return new address[](0);
-    }
-
     /// @dev Gets the start and the end of a specified dispute's current appeal period.
     /// @param _disputeID The ID of the dispute.
     /// @return start The start of the appeal period.
@@ -912,8 +1004,8 @@ contract KlerosCore is IArbitrator {
             uint256 penalties,
             address[] memory drawnJurors,
             uint256 disputeKitID,
-            uint256 sumRewardPaid,
-            uint256 sumTokenRewardPaid
+            uint256 sumFeeRewardPaid,
+            uint256 sumPnkRewardPaid
         )
     {
         Round storage round = disputes[_disputeID].rounds[_round];
@@ -924,8 +1016,8 @@ contract KlerosCore is IArbitrator {
             round.penalties,
             round.drawnJurors,
             round.disputeKitID,
-            round.sumRewardPaid,
-            round.sumTokenRewardPaid
+            round.sumFeeRewardPaid,
+            round.sumPnkRewardPaid
         );
     }
 
@@ -1005,6 +1097,11 @@ contract KlerosCore is IArbitrator {
         return jurors[_juror].courtIDs;
     }
 
+    function convertEthToTokenAmount(address _toToken, uint256 _amountInEth) public view returns (uint256) {
+        CurrencyRate storage rate = currencyRates[_toToken];
+        return (_amountInEth * rate.rateInEth) / (10 ** rate.rateDecimals);
+    }
+
     // ************************************* //
     // *            Internal               * //
     // ************************************* //
@@ -1057,7 +1154,7 @@ contract KlerosCore is IArbitrator {
         if (_stake >= currentStake) {
             transferredAmount = _stake - currentStake;
             if (transferredAmount > 0) {
-                if (_safeTransferFrom(_account, address(this), transferredAmount)) {
+                if (_safeTransferFrom(pinakion, _account, address(this), transferredAmount)) {
                     if (currentStake == 0) {
                         juror.courtIDs.push(_courtID);
                     }
@@ -1070,7 +1167,7 @@ contract KlerosCore is IArbitrator {
                 // Keep locked tokens in the contract and release them after dispute is executed.
                 transferredAmount = currentStake - juror.lockedTokens[_courtID] - _penalty;
                 if (transferredAmount > 0) {
-                    if (_safeTransfer(_account, transferredAmount)) {
+                    if (_safeTransfer(pinakion, _account, transferredAmount)) {
                         for (uint256 i = juror.courtIDs.length; i > 0; i--) {
                             if (juror.courtIDs[i - 1] == _courtID) {
                                 juror.courtIDs[i - 1] = juror.courtIDs[juror.courtIDs.length - 1];
@@ -1085,7 +1182,7 @@ contract KlerosCore is IArbitrator {
             } else {
                 transferredAmount = currentStake - _stake - _penalty;
                 if (transferredAmount > 0) {
-                    if (!_safeTransfer(_account, transferredAmount)) {
+                    if (!_safeTransfer(pinakion, _account, transferredAmount)) {
                         return false;
                     }
                 }
@@ -1134,21 +1231,23 @@ contract KlerosCore is IArbitrator {
     }
 
     /// @dev Calls transfer() without reverting.
+    /// @param _token Token to transfer.
     /// @param _to Recepient address.
     /// @param _value Amount transferred.
     /// @return Whether transfer succeeded or not.
-    function _safeTransfer(address _to, uint256 _value) internal returns (bool) {
-        (bool success, bytes memory data) = address(pinakion).call(abi.encodeCall(IERC20.transfer, (_to, _value)));
+    function _safeTransfer(IERC20 _token, address _to, uint256 _value) internal returns (bool) {
+        (bool success, bytes memory data) = address(_token).call(abi.encodeCall(IERC20.transfer, (_to, _value)));
         return (success && (data.length == 0 || abi.decode(data, (bool))));
     }
 
     /// @dev Calls transferFrom() without reverting.
+    /// @param _token Token to transfer.
     /// @param _from Sender address.
     /// @param _to Recepient address.
     /// @param _value Amount transferred.
     /// @return Whether transfer succeeded or not.
-    function _safeTransferFrom(address _from, address _to, uint256 _value) internal returns (bool) {
-        (bool success, bytes memory data) = address(pinakion).call(
+    function _safeTransferFrom(IERC20 _token, address _from, address _to, uint256 _value) internal returns (bool) {
+        (bool success, bytes memory data) = address(_token).call(
             abi.encodeCall(IERC20.transferFrom, (_from, _to, _value))
         );
         return (success && (data.length == 0 || abi.decode(data, (bool))));

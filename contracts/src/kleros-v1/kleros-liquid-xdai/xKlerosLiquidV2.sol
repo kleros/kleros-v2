@@ -622,12 +622,6 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
         cost = foreignGateway.arbitrationCost(_extraData);
     }
 
-    /// @inheritdoc IArbitrator
-    function supposedFeeTokens() external view override returns (address[] memory) {
-        // TODO
-        return new address[](0);
-    }
-
     /// @dev Gets the current ruling of a specified dispute.
     /// @param _disputeID The ID of the dispute.
     /// @return ruling The current ruling.

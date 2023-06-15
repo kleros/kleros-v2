@@ -332,12 +332,6 @@ contract CentralizedArbitrator is IArbitrator {
         return arbitrationFee;
     }
 
-    /// @inheritdoc IArbitrator
-    function supposedFeeTokens() external view override returns (address[] memory) {
-        // TODO
-        return new address[](0);
-    }
-
     /// @dev Return the funded amount and funding goal for one of the choices.
     /// @param _disputeID The ID of the dispute to appeal.
     /// @param _choice The choice to check the funding status of.

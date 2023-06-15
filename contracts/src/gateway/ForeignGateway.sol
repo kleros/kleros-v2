@@ -222,11 +222,6 @@ contract ForeignGateway is IForeignGateway {
         return homeGateway;
     }
 
-    /// @inheritdoc IArbitrator
-    function supposedFeeTokens() external pure override returns (address[] memory) {
-        return new address[](0);
-    }
-
     // ************************ //
     // *       Internal       * //
     // ************************ //
