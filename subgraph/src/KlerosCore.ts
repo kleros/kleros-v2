@@ -18,17 +18,9 @@ import { createCourtFromEvent, getFeeForJuror } from "./entities/Court";
 import { createDisputeKitFromEvent, filterSupportedDisputeKits } from "./entities/DisputeKit";
 import { createDisputeFromEvent } from "./entities/Dispute";
 import { createRoundFromRoundInfo } from "./entities/Round";
-import {
-  updateCases,
-  updatePaidETH,
-  updateStakedPNK,
-  updateRedistributedPNK,
-  updateCasesRuled,
-  updateCasesVoting,
-  getDelta,
-} from "./datapoint";
+import { updateCases, updatePaidETH, updateRedistributedPNK, updateCasesRuled, updateCasesVoting } from "./datapoint";
 import { addUserActiveDispute, ensureUser, resolveUserDispute } from "./entities/User";
-import { ensureJurorTokensPerCourt, updateJurorStake } from "./entities/JurorTokensPerCourt";
+import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
 import { createTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
@@ -144,17 +136,18 @@ export function handleDraw(event: DrawEvent): void {
 export function handleStakeSet(event: StakeSet): void {
   const jurorAddress = event.params._address.toHexString();
   ensureUser(jurorAddress);
-  const courtID = event.params._courtID;
+  const courtID = event.params._courtID.toString();
 
   updateJurorStake(jurorAddress, courtID.toString(), KlerosCore.bind(event.address), event.block.timestamp);
+
+  // Check if the transaction the event comes from is executeDelayedStakes
+  if (event.transaction.input.toHexString().substring(0, 10) === "0x35975f4a") {
+    updateJurorDelayedStake(jurorAddress, courtID, ZERO.minus(event.params._amount));
+  }
 }
 
 export function handleStakeDelayed(event: StakeDelayed): void {
-  const jurorAddress = event.params._address.toHexString();
-  ensureUser(jurorAddress);
-  const courtID = event.params._courtID;
-
-  // TODO: Update stake delayed
+  updateJurorDelayedStake(event.params._address.toString(), event.params._courtID.toString(), event.params._amount);
 }
 
 export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {

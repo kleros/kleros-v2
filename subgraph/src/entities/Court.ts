@@ -12,12 +12,11 @@ export function createCourtFromEvent(event: CourtCreated): void {
   court.feeForJuror = event.params._feeForJuror;
   court.jurorsForCourtJump = event.params._jurorsForCourtJump;
   court.timesPerPeriod = event.params._timesPerPeriod;
-  court.supportedDisputeKits = event.params._supportedDisputeKits.map<string>(
-    (value) => value.toString()
-  );
+  court.supportedDisputeKits = event.params._supportedDisputeKits.map<string>((value) => value.toString());
   court.numberDisputes = ZERO;
   court.numberStakedJurors = ZERO;
   court.stake = ZERO;
+  court.delayedStake = ZERO;
   court.paidETH = ZERO;
   court.paidPNK = ZERO;
   court.save();
