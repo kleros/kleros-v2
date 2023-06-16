@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+import { useAccount } from "wagmi";
 import Identicon from "react-identicons";
 import ConnectButton, { AddressDisplay, ChainDisplay } from "components/ConnectButton";
-import { useWeb3 } from "hooks/useWeb3";
 
 const Container = styled.div`
   display: flex;
@@ -49,16 +49,16 @@ const StyledConnectButtonContainer = styled.div`
 `;
 
 const General: React.FC = () => {
-  const { account } = useWeb3();
+  const { address } = useAccount();
 
-  return account ? (
+  return address ? (
     <Container>
       <StyledChainContainer>
         <ChainDisplay />
       </StyledChainContainer>
-      {account && (
+      {address && (
         <StyledIdenticon>
-          <Identicon size="24" string={account} />
+          <Identicon size="24" string={address} />
         </StyledIdenticon>
       )}
       <StyledAddressContainer>
