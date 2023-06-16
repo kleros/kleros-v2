@@ -33,13 +33,13 @@ const SubmitEvidenceModal: React.FC<{
             uploadFormDataToIPFS(formData)
               .then(async (res) => {
                 const response = await res.json();
-                if (res.status === 200) {
+                if (res.status === 200 && walletClient) {
                   const cid = "/ipfs/" + response["cid"];
                   const { request } = await prepareWriteDisputeKitClassic({
                     functionName: "submitEvidence",
                     args: [BigInt(evidenceGroup), cid],
                   });
-                  await wrapWithToast(walletClient!.writeContract(request)).then(() => {
+                  await wrapWithToast(walletClient.writeContract(request)).then(() => {
                     setMessage("");
                     close();
                   });

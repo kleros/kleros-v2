@@ -12,14 +12,17 @@ import {
   useSelectedOptionContext,
   useFundingContext,
 } from "hooks/useClassicAppealContext";
-import { notUndefined } from "utils/index";
+import { isUndefined } from "utils/index";
 
 const Fund: React.FC = () => {
   const loserSideCountdown = useLoserSideCountdownContext();
   const { fundedChoices, winningChoice } = useFundingContext();
   const needFund =
-    notUndefined([loserSideCountdown, fundedChoices]) &&
-    (loserSideCountdown! > 0 || (fundedChoices!.length > 0 && !fundedChoices?.includes(winningChoice!)));
+    loserSideCountdown! > 0 ||
+    (!isUndefined(fundedChoices) &&
+      !isUndefined(winningChoice) &&
+      fundedChoices.length > 0 &&
+      !fundedChoices.includes(winningChoice));
   const { id } = useParams();
   const { address, isDisconnected } = useAccount();
   const { data: balance } = useBalance({
@@ -33,8 +36,8 @@ const Fund: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
   const { selectedOption } = useSelectedOptionContext();
   const { config: fundAppealConfig } = usePrepareDisputeKitClassicFundAppeal({
-    enabled: notUndefined([id, selectedOption]),
-    args: [BigInt(id!), BigInt(selectedOption!)],
+    enabled: !isUndefined(id) && !isUndefined(selectedOption),
+    args: [BigInt(id ?? 0), BigInt(selectedOption ?? 0)],
     value: parsedAmount,
   });
   const { writeAsync: fundAppeal } = useDisputeKitClassicFundAppeal(fundAppealConfig);

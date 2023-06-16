@@ -13,7 +13,7 @@ import {
 } from "hooks/contracts/generated";
 import { useJurorBalance } from "queries/useJurorBalance";
 import { wrapWithToast } from "utils/wrapWithToast";
-import { notUndefined } from "utils/index";
+import { isUndefined } from "utils/index";
 
 export enum ActionType {
   allowance = "allowance",
@@ -33,7 +33,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, se
   const { id } = useParams();
   const { address } = useAccount();
   const { data: balance } = usePnkBalanceOf({
-    enabled: notUndefined(address),
+    enabled: !isUndefined(address),
     args: [address!],
     watch: true,
   });
@@ -55,12 +55,12 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, se
 
   const klerosCore = getKlerosCore({});
   const { config: increaseAllowanceConfig } = usePreparePnkIncreaseAllowance({
-    enabled: notUndefined([klerosCore, targetStake, allowance]),
+    enabled: !isUndefined([klerosCore, targetStake, allowance]),
     args: [klerosCore?.address, BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
   });
   const { writeAsync: increaseAllowance } = usePnkIncreaseAllowance(increaseAllowanceConfig);
   const handleAllowance = () => {
-    if (notUndefined(increaseAllowance)) {
+    if (!isUndefined(increaseAllowance)) {
       setIsSending(true);
       wrapWithToast(increaseAllowance!()).finally(() => {
         setIsSending(false);
@@ -69,8 +69,8 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, se
   };
 
   const { config: setStakeConfig } = usePrepareKlerosCoreSetStake({
-    enabled: notUndefined([targetStake, id]),
-    args: [BigInt(id!), targetStake!],
+    enabled: !isUndefined(targetStake) && !isUndefined(id),
+    args: [BigInt(id ?? 0), targetStake],
   });
   const { writeAsync: setStake } = useKlerosCoreSetStake(setStakeConfig);
   const handleStake = () => {
@@ -107,7 +107,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, se
     <Button
       text={text}
       isLoading={isSending}
-      disabled={isSending || parsedAmount == 0n || !notUndefined(targetStake) || checkDisabled()}
+      disabled={isSending || parsedAmount == 0n || !!isUndefined(targetStake) || checkDisabled()}
       onClick={onClick}
     />
   );

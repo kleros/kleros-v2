@@ -26,7 +26,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, isSending, setIsSending
   const { id } = useParams();
   const { address } = useAccount();
   const { data: balance } = usePNKBalance(address);
-  const parsedBalance = formatEther(balance!);
+  const parsedBalance = formatEther(balance ?? 0n);
   const { data: jurorBalance } = useJurorBalance(address, id);
   const parsedStake = formatEther(jurorBalance?.[0] || 0n);
   const isStaking = action === ActionType.stake;
