@@ -95,7 +95,7 @@ contract KlerosCore is IArbitrator {
     uint96 public constant GENERAL_COURT = 1; // Index of the default (general) court.
     uint256 public constant NULL_DISPUTE_KIT = 0; // Null pattern to indicate a top-level DK which has no parent.
     uint256 public constant DISPUTE_KIT_CLASSIC = 1; // Index of the default DK. 0 index is skipped.
-    uint256 public constant MIN_JURORS = 3; // The global default minimum number of jurors in a dispute.
+    uint256 public constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.
     uint256 public constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
     uint256 public constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
     uint256 public constant SEARCH_ITERATIONS = 10; // Number of iterations to search for suitable parent court before jumping to the top court.
@@ -117,6 +117,7 @@ contract KlerosCore is IArbitrator {
     // ************************************* //
 
     event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount);
+    event StakeDelayed(address indexed _address, uint256 _courtID, uint256 _amount, uint256 _penalty);
     event NewPeriod(uint256 indexed _disputeID, Period _period);
     event AppealPossible(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
     event AppealDecision(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
@@ -1036,6 +1037,7 @@ contract KlerosCore is IArbitrator {
         if (result == ISortitionModule.preStakeHookResult.failed) {
             return false;
         } else if (result == ISortitionModule.preStakeHookResult.delayed) {
+            emit StakeDelayed(_account, _courtID, _stake, _penalty);
             return true;
         }
 
@@ -1107,14 +1109,14 @@ contract KlerosCore is IArbitrator {
                 courtID = GENERAL_COURT;
             }
             if (minJurors == 0) {
-                minJurors = MIN_JURORS;
+                minJurors = DEFAULT_NB_OF_JURORS;
             }
             if (disputeKitID == NULL_DISPUTE_KIT || disputeKitID >= disputeKitNodes.length) {
                 disputeKitID = DISPUTE_KIT_CLASSIC; // 0 index is not used.
             }
         } else {
             courtID = GENERAL_COURT;
-            minJurors = MIN_JURORS;
+            minJurors = DEFAULT_NB_OF_JURORS;
             disputeKitID = DISPUTE_KIT_CLASSIC;
         }
     }

@@ -23,8 +23,8 @@ const SVGContainer = styled.div<{ iconColor: string; backgroundColor: string }>`
 
   svg {
     fill: ${({ iconColor }) => iconColor};
-    max-height: 22px;
-    max-width: 22px;
+    max-height: 32px;
+    max-width: 32px;
   }
 `;
 
@@ -42,14 +42,7 @@ export interface IStatDisplay {
   color: "red" | "orange" | "green" | "blue" | "purple";
 }
 
-const StatDisplay: React.FC<IStatDisplay> = ({
-  title,
-  text,
-  subtext,
-  icon: Icon,
-  color,
-  ...props
-}) => {
+const StatDisplay: React.FC<IStatDisplay> = ({ title, text, subtext, icon: Icon, color, ...props }) => {
   const theme = useTheme();
   const COLORS = {
     red: createPair(theme.error, theme.errorLight),

@@ -45,27 +45,28 @@ contract ForeignGateway is IForeignGateway {
     // *             Storage               * //
     // ************************************* //
 
-    uint256 public constant MIN_JURORS = 3; // The global default minimum number of jurors in a dispute.
+    uint256 public constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.
     uint256 internal localDisputeID = 1; // The disputeID must start from 1 as the KlerosV1 proxy governor depends on this implementation. We now also depend on localDisputeID not ever being zero.
     mapping(uint96 => uint256) public feeForJuror; // feeForJuror[courtID], it mirrors the value on KlerosCore.
     address public governor;
-    IFastBridgeReceiver public fastBridgeReceiver;
-    uint256 public immutable override senderChainID;
-    address public override senderGateway;
-    IFastBridgeReceiver public depreciatedFastbridge;
-    uint256 public depreciatedFastBridgeExpiration;
+    address public veaOutbox;
+    uint256 public immutable override homeChainID;
+    address public override homeGateway;
+    address public deprecatedVeaOutbox;
+    uint256 public deprecatedVeaOutboxExpiration;
     mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
 
     // ************************************* //
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyFromFastBridge() {
+    modifier onlyFromVea(address _messageSender) {
         require(
-            address(fastBridgeReceiver) == msg.sender ||
-                ((block.timestamp < depreciatedFastBridgeExpiration) && address(depreciatedFastbridge) == msg.sender),
-            "Access not allowed: Fast Bridge only."
+            veaOutbox == msg.sender ||
+                (block.timestamp < deprecatedVeaOutboxExpiration && deprecatedVeaOutbox == msg.sender),
+            "Access not allowed: Vea Outbox only."
         );
+        require(_messageSender == homeGateway, "Access not allowed: HomeGateway only.");
         _;
     }
 
@@ -74,16 +75,15 @@ contract ForeignGateway is IForeignGateway {
         _;
     }
 
-    constructor(
-        address _governor,
-        IFastBridgeReceiver _fastBridgeReceiver,
-        address _senderGateway,
-        uint256 _senderChainID
-    ) {
+    // ************************************* //
+    // *            Constructor            * //
+    // ************************************* //
+
+    constructor(address _governor, address _veaOutbox, uint256 _homeChainID, address _homeGateway) {
         governor = _governor;
-        fastBridgeReceiver = _fastBridgeReceiver;
-        senderGateway = _senderGateway;
-        senderChainID = _senderChainID;
+        veaOutbox = _veaOutbox;
+        homeChainID = _homeChainID;
+        homeGateway = _homeGateway;
     }
 
     // ************************************* //
@@ -97,21 +97,21 @@ contract ForeignGateway is IForeignGateway {
         governor = _governor;
     }
 
-    /// @dev Changes the fastBridge, useful to increase the claim deposit.
-    /// @param _fastBridgeReceiver The address of the new fastBridge.
+    /// @dev Changes the outbox.
+    /// @param _veaOutbox The address of the new outbox.
     /// @param _gracePeriod The duration to accept messages from the deprecated bridge (if at all).
-    function changeFastbridge(IFastBridgeReceiver _fastBridgeReceiver, uint256 _gracePeriod) external onlyByGovernor {
-        // grace period to relay remaining messages in the relay / bridging process
-        depreciatedFastBridgeExpiration = block.timestamp + _fastBridgeReceiver.epochPeriod() + _gracePeriod; // 2 weeks
-        depreciatedFastbridge = fastBridgeReceiver;
-        fastBridgeReceiver = _fastBridgeReceiver;
+    function changeVea(address _veaOutbox, uint256 _gracePeriod) external onlyByGovernor {
+        // grace period to relay the remaining messages which are still going through the deprecated bridge.
+        deprecatedVeaOutboxExpiration = block.timestamp + _gracePeriod;
+        deprecatedVeaOutbox = veaOutbox;
+        veaOutbox = _veaOutbox;
     }
 
-    /// @dev Changes the sender gateway.
-    /// @param _senderGateway The address of the new sender gateway.
-    function changeReceiverGateway(address _senderGateway) external {
+    /// @dev Changes the home gateway.
+    /// @param _homeGateway The address of the new home gateway.
+    function changeHomeGateway(address _homeGateway) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
-        senderGateway = _senderGateway;
+        homeGateway = _homeGateway;
     }
 
     /// @dev Changes the `feeForJuror` property value of a specified court.
@@ -126,6 +126,7 @@ contract ForeignGateway is IForeignGateway {
     // *         State Modifiers           * //
     // ************************************* //
 
+    /// @inheritdoc IArbitrator
     function createDispute(
         uint256 _choices,
         bytes calldata _extraData
@@ -169,19 +170,19 @@ contract ForeignGateway is IForeignGateway {
         revert("Not supported yet");
     }
 
+    /// @inheritdoc IArbitrator
     function arbitrationCost(bytes calldata _extraData) public view override returns (uint256 cost) {
         (uint96 courtID, uint256 minJurors) = extraDataToCourtIDMinJurors(_extraData);
         cost = feeForJuror[courtID] * minJurors;
     }
 
-    /// Relay the rule call from the home gateway to the arbitrable.
+    /// @inheritdoc IForeignGateway
     function relayRule(
         address _messageSender,
         bytes32 _disputeHash,
         uint256 _ruling,
         address _relayer
-    ) external override onlyFromFastBridge {
-        require(_messageSender == senderGateway, "Only the homegateway is allowed.");
+    ) external override onlyFromVea(_messageSender) {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
 
         require(dispute.id != 0, "Dispute does not exist");
@@ -194,6 +195,7 @@ contract ForeignGateway is IForeignGateway {
         arbitrable.rule(dispute.id, _ruling);
     }
 
+    /// @inheritdoc IForeignGateway
     function withdrawFees(bytes32 _disputeHash) external override {
         DisputeData storage dispute = disputeHashtoDisputeData[_disputeHash];
         require(dispute.id != 0, "Dispute does not exist");
@@ -208,8 +210,19 @@ contract ForeignGateway is IForeignGateway {
     // *           Public Views            * //
     // ************************************* //
 
+    /// @inheritdoc IForeignGateway
     function disputeHashToForeignID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoDisputeData[_disputeHash].id;
+    }
+
+    /// @inheritdoc IReceiverGateway
+    function senderGateway() external view returns (address) {
+        return homeGateway;
+    }
+
+    /// @inheritdoc IForeignGateway
+    function feeToken() external view returns (IERC20) {
+        revert("Not supported yet");
     }
 
     // ************************ //
@@ -227,10 +240,10 @@ contract ForeignGateway is IForeignGateway {
                 minJurors := mload(add(_extraData, 0x40))
             }
             if (feeForJuror[courtID] == 0) courtID = 0;
-            if (minJurors == 0) minJurors = MIN_JURORS;
+            if (minJurors == 0) minJurors = DEFAULT_NB_OF_JURORS;
         } else {
             courtID = 0;
-            minJurors = MIN_JURORS;
+            minJurors = DEFAULT_NB_OF_JURORS;
         }
     }
 }

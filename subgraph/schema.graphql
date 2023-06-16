@@ -61,6 +61,7 @@ type User @entity {
   id: ID! # address
   tokens: [JurorTokensPerCourt!]! @derivedFrom(field: "juror")
   totalStake: BigInt!
+  totalDelayed: BigInt!
   shifts: [TokenAndETHShift!]! @derivedFrom(field: "juror")
   draws: [Draw!]! @derivedFrom(field: "juror")
   activeDisputes: BigInt!
@@ -104,6 +105,7 @@ type JurorTokensPerCourt @entity {
   court: Court!
   staked: BigInt!
   locked: BigInt!
+  delayed: BigInt!
 }
 
 type Court @entity {
@@ -124,6 +126,7 @@ type Court @entity {
   stakedJurors: [JurorTokensPerCourt!]! @derivedFrom(field: "court")
   numberStakedJurors: BigInt!
   stake: BigInt!
+  delayedStake: BigInt!
   paidETH: BigInt!
   paidPNK: BigInt!
 }

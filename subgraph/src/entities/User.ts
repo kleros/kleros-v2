@@ -15,6 +15,7 @@ export function ensureUser(id: string): User {
 export function createUserFromAddress(id: string): User {
   const user = new User(id);
   user.totalStake = ZERO;
+  user.totalDelayed = ZERO;
   user.activeDisputes = ZERO;
   user.disputes = [];
   user.resolvedDisputes = [];
@@ -36,11 +37,7 @@ export function addUserActiveDispute(id: string, disputeID: string): void {
   user.save();
 }
 
-export function resolveUserDispute(
-  id: string,
-  tokenAmount: BigInt,
-  disputeID: string
-): void {
+export function resolveUserDispute(id: string, tokenAmount: BigInt, disputeID: string): void {
   const user = ensureUser(id);
   if (user.resolvedDisputes.includes(disputeID)) {
     return;

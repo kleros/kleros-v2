@@ -4,12 +4,14 @@ import { formatUnits, formatEther } from "viem";
 import { useParams } from "react-router-dom";
 import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
-import EthereumIcon from "svgs/icons/ethereum.svg";
-import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import JurorIcon from "svgs/icons/user.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
 import MinStake from "svgs/icons/min-stake.svg";
 import { commify } from "utils/commify";
+import VoteStake from "svgs/icons/vote-stake.svg";
+import PNKIcon from "svgs/icons/pnk.svg";
+import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
+import EthereumIcon from "svgs/icons/ethereum.svg";
 
 const StyledCard = styled.div`
   width: auto;
@@ -41,8 +43,8 @@ const stats: IStat[] = [
     title: "Vote Stake",
     getText: (data) => commify(formatUnits(data?.minStake, 18)),
     getSubtext: (data) => (parseInt(formatUnits(data?.minStake, 18)) * 0.029).toFixed(2).toString() + "$",
-    color: "blue",
-    icon: EthereumIcon,
+    color: "purple",
+    icon: VoteStake,
   },
   {
     title: "Active Jurors",
@@ -55,8 +57,8 @@ const stats: IStat[] = [
     title: "PNK Staked",
     getText: (data) => commify(formatUnits(data?.stake, 18)),
     getSubtext: (data) => (parseInt(formatUnits(data?.stake, 18)) * 0.029).toFixed(2).toString() + "$",
-    color: "green",
-    icon: JurorIcon,
+    color: "purple",
+    icon: PNKIcon,
   },
   {
     title: "Cases",
@@ -76,15 +78,15 @@ const stats: IStat[] = [
     title: "ETH paid to Jurors",
     getText: (data) => commify(formatEther(data?.paidETH)),
     getSubtext: (data) => (parseInt(formatUnits(data?.paidETH, 18)) * 1600).toFixed(2).toString() + "$",
-    color: "orange",
-    icon: BalanceIcon,
+    color: "blue",
+    icon: EthereumIcon,
   },
   {
     title: "PNK redistributed",
     getText: (data) => commify(formatUnits(data?.paidPNK, 18)),
     getSubtext: (data) => (parseInt(formatUnits(data?.paidPNK, 18)) * 0.029).toFixed(2).toString() + "$",
-    color: "orange",
-    icon: BalanceIcon,
+    color: "purple",
+    icon: PNKRedistributedIcon,
   },
 ];
 

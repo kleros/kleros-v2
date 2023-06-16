@@ -4,7 +4,7 @@
   "description": "Pinning of the court data to decentralized storage.",
   "author": "Kleros",
   "license": "MIT",
-  "packageManager": "yarn@3.1.0",
+  "packageManager": "yarn@3.3.1",
   "volta": {
     "node": "16.13.0"
   },
@@ -19,6 +19,6 @@
     "node": ">=16.13.0"
   },
   "devDependencies": {
-    "@dappnode/dappnodesdk": "^0.2.98"
+    "@dappnode/dappnodesdk": "^0.3.7"
   }
 }

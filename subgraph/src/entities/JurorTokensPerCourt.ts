@@ -5,31 +5,18 @@ import { updateActiveJurors, getDelta, updateStakedPNK } from "../datapoint";
 import { ensureUser } from "./User";
 import { ONE, ZERO } from "../utils";
 
-export function ensureJurorTokensPerCourt(
-  jurorAddress: string,
-  courtID: string
-): JurorTokensPerCourt {
+export function ensureJurorTokensPerCourt(jurorAddress: string, courtID: string): JurorTokensPerCourt {
   const id = `${jurorAddress}-${courtID}`;
-  let jurorTokens = JurorTokensPerCourt.load(id);
+  const jurorTokens = JurorTokensPerCourt.load(id);
 
   if (jurorTokens) {
     return jurorTokens;
   }
 
-  jurorTokens = new JurorTokensPerCourt(id);
-  jurorTokens.juror = jurorAddress;
-  jurorTokens.court = courtID;
-  jurorTokens.staked = ZERO;
-  jurorTokens.locked = ZERO;
-  jurorTokens.save();
-
-  return jurorTokens;
+  return createJurorTokensPerCourt(jurorAddress, courtID);
 }
 
-export function createJurorTokensPerCourt(
-  jurorAddress: string,
-  courtID: string
-): JurorTokensPerCourt {
+export function createJurorTokensPerCourt(jurorAddress: string, courtID: string): JurorTokensPerCourt {
   const id = `${jurorAddress}-${courtID}`;
 
   const jurorTokens = new JurorTokensPerCourt(id);
@@ -37,25 +24,18 @@ export function createJurorTokensPerCourt(
   jurorTokens.court = courtID;
   jurorTokens.staked = ZERO;
   jurorTokens.locked = ZERO;
+  jurorTokens.delayed = ZERO;
   jurorTokens.save();
 
   return jurorTokens;
 }
 
-export function updateJurorStake(
-  jurorAddress: string,
-  courtID: string,
-  contract: KlerosCore,
-  timestamp: BigInt
-): void {
+export function updateJurorStake(jurorAddress: string, courtID: string, contract: KlerosCore, timestamp: BigInt): void {
   const juror = ensureUser(jurorAddress);
   const court = Court.load(courtID);
   if (!court) return;
   const jurorTokens = ensureJurorTokensPerCourt(jurorAddress, courtID);
-  const jurorBalance = contract.getJurorBalance(
-    Address.fromString(jurorAddress),
-    BigInt.fromString(courtID)
-  );
+  const jurorBalance = contract.getJurorBalance(Address.fromString(jurorAddress), BigInt.fromString(courtID));
   const previousStake = jurorTokens.staked;
   const previousTotalStake = juror.totalStake;
   jurorTokens.staked = jurorBalance.value0;
@@ -67,12 +47,22 @@ export function updateJurorStake(
   court.stake = court.stake.plus(stakeDelta);
   updateStakedPNK(stakeDelta, timestamp);
   const activeJurorsDelta = getActivityDelta(previousTotalStake, newTotalStake);
-  const stakedJurorsDelta = getActivityDelta(
-    previousStake,
-    jurorBalance.value0
-  );
+  const stakedJurorsDelta = getActivityDelta(previousStake, jurorBalance.value0);
   court.numberStakedJurors = court.numberStakedJurors.plus(stakedJurorsDelta);
   updateActiveJurors(activeJurorsDelta, timestamp);
+  juror.save();
+  court.save();
+}
+
+export function updateJurorDelayedStake(jurorAddress: string, courtID: string, amount: BigInt): void {
+  const juror = ensureUser(jurorAddress);
+  const court = Court.load(courtID);
+  if (!court) return;
+  const jurorTokens = ensureJurorTokensPerCourt(jurorAddress, courtID);
+  jurorTokens.delayed = jurorTokens.delayed.plus(amount);
+  juror.totalDelayed = juror.totalDelayed.plus(amount);
+  court.delayedStake = court.stake.plus(amount);
+  jurorTokens.save();
   juror.save();
   court.save();
 }

@@ -10,7 +10,7 @@ pragma solidity 0.8.18;
 
 import "../../arbitration/IArbitrable.sol";
 import "../../evidence/IMetaEvidence.sol";
-import "@kleros/vea-contracts/interfaces/ISenderGateway.sol";
+import "@kleros/vea-contracts/src/interfaces/gateways/ISenderGateway.sol";
 
 interface IHomeGateway is IArbitrable, IMetaEvidence, ISenderGateway {
     /// @dev Provide the same parameters as on the foreignChain while creating a dispute. Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
@@ -29,7 +29,13 @@ interface IHomeGateway is IArbitrable, IMetaEvidence, ISenderGateway {
         address _arbitrable
     ) external payable;
 
-    /// @dev Looks up the local home disputeID for a disputeHash. For cross-chain Evidence standard.
+    /// @dev Looks up the local home disputeID for a disputeHash
     /// @param _disputeHash dispute hash
     function disputeHashToHomeID(bytes32 _disputeHash) external view returns (uint256);
+
+    /// @return The chain ID where the corresponding foreign gateway is deployed.
+    function foreignChainID() external view returns (uint256);
+
+    /// @return The address of the corresponding foreign gateway.
+    function foreignGateway() external view returns (address);
 }

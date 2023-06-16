@@ -33,12 +33,13 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const homeGatewayAddress = getContractAddress(deployer, nonce);
   console.log("Calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
-  const veaReceiver = await deployments.get("FastBridgeReceiverOnEthereum");
+  const veaOutbox = await deployments.get("VeaOutboxArbToEthDevnet");
+  console.log("Using VeaOutboxArbToEthDevnet at %s", veaOutbox.address);
 
   const foreignGateway = await deploy("ForeignGatewayOnEthereum", {
     from: deployer,
     contract: "ForeignGateway",
-    args: [deployer, veaReceiver.address, homeGatewayAddress, homeChainIdAsBytes32],
+    args: [deployer, veaOutbox.address, homeChainIdAsBytes32, homeGatewayAddress],
     gasLimit: 4000000,
     log: true,
   });

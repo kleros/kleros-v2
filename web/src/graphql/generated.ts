@@ -1,14 +1,8 @@
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = {
-  [K in keyof T]: T[K];
-};
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]?: Maybe<T[SubKey]>;
-};
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]: Maybe<T[SubKey]>;
-};
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -19,6 +13,7 @@ export type Scalars = {
   BigDecimal: any;
   BigInt: any;
   Bytes: any;
+  Int8: any;
 };
 
 export type Arbitrable = {
@@ -39,6 +34,7 @@ export type ArbitrableDisputesArgs = {
 export type Arbitrable_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Arbitrable_Filter>>>;
   disputes_?: InputMaybe<Dispute_Filter>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
@@ -48,6 +44,7 @@ export type Arbitrable_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<Arbitrable_Filter>>>;
   totalDisputes?: InputMaybe<Scalars["BigInt"]>;
   totalDisputes_gt?: InputMaybe<Scalars["BigInt"]>;
   totalDisputes_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -96,6 +93,7 @@ export type ClassicContribution_Filter = {
   amount_lte?: InputMaybe<Scalars["BigInt"]>;
   amount_not?: InputMaybe<Scalars["BigInt"]>;
   amount_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  and?: InputMaybe<Array<InputMaybe<ClassicContribution_Filter>>>;
   choice?: InputMaybe<Scalars["BigInt"]>;
   choice_gt?: InputMaybe<Scalars["BigInt"]>;
   choice_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -175,6 +173,7 @@ export type ClassicContribution_Filter = {
   localRound_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
   localRound_starts_with?: InputMaybe<Scalars["String"]>;
   localRound_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  or?: InputMaybe<Array<InputMaybe<ClassicContribution_Filter>>>;
   rewardWithdrawn?: InputMaybe<Scalars["Boolean"]>;
   rewardWithdrawn_in?: InputMaybe<Array<Scalars["Boolean"]>>;
   rewardWithdrawn_not?: InputMaybe<Scalars["Boolean"]>;
@@ -185,9 +184,22 @@ export enum ClassicContribution_OrderBy {
   Amount = "amount",
   Choice = "choice",
   Contributor = "contributor",
+  ContributorId = "contributor__id",
+  ContributorTotalStake = "contributor__totalStake",
   CoreDispute = "coreDispute",
+  CoreDisputeCurrentRoundIndex = "coreDispute__currentRoundIndex",
+  CoreDisputeId = "coreDispute__id",
+  CoreDisputeLastPeriodChange = "coreDispute__lastPeriodChange",
+  CoreDisputePeriod = "coreDispute__period",
+  CoreDisputeRuled = "coreDispute__ruled",
   Id = "id",
   LocalRound = "localRound",
+  LocalRoundFeeRewards = "localRound__feeRewards",
+  LocalRoundId = "localRound__id",
+  LocalRoundTied = "localRound__tied",
+  LocalRoundTotalCommited = "localRound__totalCommited",
+  LocalRoundTotalVoted = "localRound__totalVoted",
+  LocalRoundWinningChoice = "localRound__winningChoice",
   RewardWithdrawn = "rewardWithdrawn",
 }
 
@@ -213,6 +225,7 @@ export type ClassicDisputeLocalRoundsArgs = {
 export type ClassicDispute_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<ClassicDispute_Filter>>>;
   coreDispute?: InputMaybe<Scalars["String"]>;
   coreDispute_?: InputMaybe<Dispute_Filter>;
   coreDispute_contains?: InputMaybe<Scalars["String"]>;
@@ -273,10 +286,16 @@ export type ClassicDispute_Filter = {
   numberOfChoices_lte?: InputMaybe<Scalars["BigInt"]>;
   numberOfChoices_not?: InputMaybe<Scalars["BigInt"]>;
   numberOfChoices_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  or?: InputMaybe<Array<InputMaybe<ClassicDispute_Filter>>>;
 };
 
 export enum ClassicDispute_OrderBy {
   CoreDispute = "coreDispute",
+  CoreDisputeCurrentRoundIndex = "coreDispute__currentRoundIndex",
+  CoreDisputeId = "coreDispute__id",
+  CoreDisputeLastPeriodChange = "coreDispute__lastPeriodChange",
+  CoreDisputePeriod = "coreDispute__period",
+  CoreDisputeRuled = "coreDispute__ruled",
   CurrentLocalRoundIndex = "currentLocalRoundIndex",
   ExtraData = "extraData",
   Id = "id",
@@ -311,6 +330,7 @@ export type ClassicEvidenceGroupEvidencesArgs = {
 export type ClassicEvidenceGroup_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<ClassicEvidenceGroup_Filter>>>;
   evidences_?: InputMaybe<Evidence_Filter>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
@@ -328,6 +348,7 @@ export type ClassicEvidenceGroup_Filter = {
   nextEvidenceIndex_lte?: InputMaybe<Scalars["BigInt"]>;
   nextEvidenceIndex_not?: InputMaybe<Scalars["BigInt"]>;
   nextEvidenceIndex_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  or?: InputMaybe<Array<InputMaybe<ClassicEvidenceGroup_Filter>>>;
 };
 
 export enum ClassicEvidenceGroup_OrderBy {
@@ -339,6 +360,7 @@ export enum ClassicEvidenceGroup_OrderBy {
 export type ClassicEvidence_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<ClassicEvidence_Filter>>>;
   evidence?: InputMaybe<Scalars["String"]>;
   evidenceGroup?: InputMaybe<Scalars["String"]>;
   evidenceGroup_?: InputMaybe<EvidenceGroup_Filter>;
@@ -388,6 +410,7 @@ export type ClassicEvidence_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<ClassicEvidence_Filter>>>;
   sender?: InputMaybe<Scalars["String"]>;
   sender_?: InputMaybe<User_Filter>;
   sender_contains?: InputMaybe<Scalars["String"]>;
@@ -414,8 +437,12 @@ export type ClassicEvidence_Filter = {
 export enum ClassicEvidence_OrderBy {
   Evidence = "evidence",
   EvidenceGroup = "evidenceGroup",
+  EvidenceGroupId = "evidenceGroup__id",
+  EvidenceGroupNextEvidenceIndex = "evidenceGroup__nextEvidenceIndex",
   Id = "id",
   Sender = "sender",
+  SenderId = "sender__id",
+  SenderTotalStake = "sender__totalStake",
 }
 
 export type ClassicRound = DisputeKitRound & {
@@ -453,6 +480,7 @@ export type ClassicRoundVotesArgs = {
 export type ClassicRound_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<ClassicRound_Filter>>>;
   contributions_?: InputMaybe<ClassicContribution_Filter>;
   counts?: InputMaybe<Array<Scalars["BigInt"]>>;
   counts_contains?: InputMaybe<Array<Scalars["BigInt"]>>;
@@ -503,6 +531,7 @@ export type ClassicRound_Filter = {
   localDispute_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
   localDispute_starts_with?: InputMaybe<Scalars["String"]>;
   localDispute_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  or?: InputMaybe<Array<InputMaybe<ClassicRound_Filter>>>;
   paidFees?: InputMaybe<Array<Scalars["BigInt"]>>;
   paidFees_contains?: InputMaybe<Array<Scalars["BigInt"]>>;
   paidFees_contains_nocase?: InputMaybe<Array<Scalars["BigInt"]>>;
@@ -547,6 +576,8 @@ export enum ClassicRound_OrderBy {
   FundedChoices = "fundedChoices",
   Id = "id",
   LocalDispute = "localDispute",
+  LocalDisputeCurrentLocalRoundIndex = "localDispute__currentLocalRoundIndex",
+  LocalDisputeId = "localDispute__id",
   PaidFees = "paidFees",
   Tied = "tied",
   TotalCommited = "totalCommited",
@@ -568,6 +599,7 @@ export type ClassicVote = Vote & {
 export type ClassicVote_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<ClassicVote_Filter>>>;
   choice?: InputMaybe<Scalars["BigInt"]>;
   choice_gt?: InputMaybe<Scalars["BigInt"]>;
   choice_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -667,15 +699,24 @@ export type ClassicVote_Filter = {
   localRound_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
   localRound_starts_with?: InputMaybe<Scalars["String"]>;
   localRound_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  or?: InputMaybe<Array<InputMaybe<ClassicVote_Filter>>>;
 };
 
 export enum ClassicVote_OrderBy {
   Choice = "choice",
   CoreDispute = "coreDispute",
+  CoreDisputeCurrentRoundIndex = "coreDispute__currentRoundIndex",
+  CoreDisputeId = "coreDispute__id",
+  CoreDisputeLastPeriodChange = "coreDispute__lastPeriodChange",
+  CoreDisputePeriod = "coreDispute__period",
+  CoreDisputeRuled = "coreDispute__ruled",
   Id = "id",
   Juror = "juror",
+  JurorId = "juror__id",
+  JurorTotalStake = "juror__totalStake",
   Justification = "justification",
   LocalRound = "localRound",
+  LocalRoundId = "localRound__id",
 }
 
 export type Contribution = {
@@ -687,6 +728,7 @@ export type Contribution = {
 export type Contribution_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Contribution_Filter>>>;
   contributor?: InputMaybe<Scalars["String"]>;
   contributor_?: InputMaybe<User_Filter>;
   contributor_contains?: InputMaybe<Scalars["String"]>;
@@ -737,11 +779,19 @@ export type Contribution_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<Contribution_Filter>>>;
 };
 
 export enum Contribution_OrderBy {
   Contributor = "contributor",
+  ContributorId = "contributor__id",
+  ContributorTotalStake = "contributor__totalStake",
   CoreDispute = "coreDispute",
+  CoreDisputeCurrentRoundIndex = "coreDispute__currentRoundIndex",
+  CoreDisputeId = "coreDispute__id",
+  CoreDisputeLastPeriodChange = "coreDispute__lastPeriodChange",
+  CoreDisputePeriod = "coreDispute__period",
+  CoreDisputeRuled = "coreDispute__ruled",
   Id = "id",
 }
 
@@ -768,6 +818,7 @@ export type Counter_Filter = {
   activeJurors_lte?: InputMaybe<Scalars["BigInt"]>;
   activeJurors_not?: InputMaybe<Scalars["BigInt"]>;
   activeJurors_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  and?: InputMaybe<Array<InputMaybe<Counter_Filter>>>;
   cases?: InputMaybe<Scalars["BigInt"]>;
   casesRuled?: InputMaybe<Scalars["BigInt"]>;
   casesRuled_gt?: InputMaybe<Scalars["BigInt"]>;
@@ -800,6 +851,7 @@ export type Counter_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<Counter_Filter>>>;
   paidETH?: InputMaybe<Scalars["BigInt"]>;
   paidETH_gt?: InputMaybe<Scalars["BigInt"]>;
   paidETH_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -903,6 +955,7 @@ export type Court_Filter = {
   alpha_lte?: InputMaybe<Scalars["BigInt"]>;
   alpha_not?: InputMaybe<Scalars["BigInt"]>;
   alpha_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  and?: InputMaybe<Array<InputMaybe<Court_Filter>>>;
   children_?: InputMaybe<Court_Filter>;
   disputes_?: InputMaybe<Dispute_Filter>;
   feeForJuror?: InputMaybe<Scalars["BigInt"]>;
@@ -977,6 +1030,7 @@ export type Court_Filter = {
   numberStakedJurors_lte?: InputMaybe<Scalars["BigInt"]>;
   numberStakedJurors_not?: InputMaybe<Scalars["BigInt"]>;
   numberStakedJurors_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  or?: InputMaybe<Array<InputMaybe<Court_Filter>>>;
   paidETH?: InputMaybe<Scalars["BigInt"]>;
   paidETH_gt?: InputMaybe<Scalars["BigInt"]>;
   paidETH_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -1049,9 +1103,7 @@ export type Court_Filter = {
   supportedDisputeKits_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
   supportedDisputeKits_not?: InputMaybe<Array<Scalars["String"]>>;
   supportedDisputeKits_not_contains?: InputMaybe<Array<Scalars["String"]>>;
-  supportedDisputeKits_not_contains_nocase?: InputMaybe<
-    Array<Scalars["String"]>
-  >;
+  supportedDisputeKits_not_contains_nocase?: InputMaybe<Array<Scalars["String"]>>;
   timesPerPeriod?: InputMaybe<Array<Scalars["BigInt"]>>;
   timesPerPeriod_contains?: InputMaybe<Array<Scalars["BigInt"]>>;
   timesPerPeriod_contains_nocase?: InputMaybe<Array<Scalars["BigInt"]>>;
@@ -1075,6 +1127,19 @@ export enum Court_OrderBy {
   PaidEth = "paidETH",
   PaidPnk = "paidPNK",
   Parent = "parent",
+  ParentAlpha = "parent__alpha",
+  ParentFeeForJuror = "parent__feeForJuror",
+  ParentHiddenVotes = "parent__hiddenVotes",
+  ParentId = "parent__id",
+  ParentJurorsForCourtJump = "parent__jurorsForCourtJump",
+  ParentMinStake = "parent__minStake",
+  ParentName = "parent__name",
+  ParentNumberDisputes = "parent__numberDisputes",
+  ParentNumberStakedJurors = "parent__numberStakedJurors",
+  ParentPaidEth = "parent__paidETH",
+  ParentPaidPnk = "parent__paidPNK",
+  ParentPolicy = "parent__policy",
+  ParentStake = "parent__stake",
   Policy = "policy",
   Stake = "stake",
   StakedJurors = "stakedJurors",
@@ -1167,6 +1232,7 @@ export type DisputeKitDisputeLocalRoundsArgs = {
 export type DisputeKitDispute_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<DisputeKitDispute_Filter>>>;
   coreDispute?: InputMaybe<Scalars["String"]>;
   coreDispute_?: InputMaybe<Dispute_Filter>;
   coreDispute_contains?: InputMaybe<Scalars["String"]>;
@@ -1205,10 +1271,16 @@ export type DisputeKitDispute_Filter = {
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
   localRounds_?: InputMaybe<DisputeKitRound_Filter>;
+  or?: InputMaybe<Array<InputMaybe<DisputeKitDispute_Filter>>>;
 };
 
 export enum DisputeKitDispute_OrderBy {
   CoreDispute = "coreDispute",
+  CoreDisputeCurrentRoundIndex = "coreDispute__currentRoundIndex",
+  CoreDisputeId = "coreDispute__id",
+  CoreDisputeLastPeriodChange = "coreDispute__lastPeriodChange",
+  CoreDisputePeriod = "coreDispute__period",
+  CoreDisputeRuled = "coreDispute__ruled",
   CurrentLocalRoundIndex = "currentLocalRoundIndex",
   Id = "id",
   LocalRounds = "localRounds",
@@ -1231,6 +1303,7 @@ export type DisputeKitRoundVotesArgs = {
 export type DisputeKitRound_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<DisputeKitRound_Filter>>>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
   id_gte?: InputMaybe<Scalars["ID"]>;
@@ -1260,12 +1333,15 @@ export type DisputeKitRound_Filter = {
   localDispute_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
   localDispute_starts_with?: InputMaybe<Scalars["String"]>;
   localDispute_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  or?: InputMaybe<Array<InputMaybe<DisputeKitRound_Filter>>>;
   votes_?: InputMaybe<Vote_Filter>;
 };
 
 export enum DisputeKitRound_OrderBy {
   Id = "id",
   LocalDispute = "localDispute",
+  LocalDisputeCurrentLocalRoundIndex = "localDispute__currentLocalRoundIndex",
+  LocalDisputeId = "localDispute__id",
   Votes = "votes",
 }
 
@@ -1282,6 +1358,7 @@ export type DisputeKit_Filter = {
   address_not?: InputMaybe<Scalars["Bytes"]>;
   address_not_contains?: InputMaybe<Scalars["Bytes"]>;
   address_not_in?: InputMaybe<Array<Scalars["Bytes"]>>;
+  and?: InputMaybe<Array<InputMaybe<DisputeKit_Filter>>>;
   children_?: InputMaybe<DisputeKit_Filter>;
   courts_?: InputMaybe<Court_Filter>;
   depthLevel?: InputMaybe<Scalars["BigInt"]>;
@@ -1304,6 +1381,7 @@ export type DisputeKit_Filter = {
   needsFreezing_in?: InputMaybe<Array<Scalars["Boolean"]>>;
   needsFreezing_not?: InputMaybe<Scalars["Boolean"]>;
   needsFreezing_not_in?: InputMaybe<Array<Scalars["Boolean"]>>;
+  or?: InputMaybe<Array<InputMaybe<DisputeKit_Filter>>>;
   parent?: InputMaybe<Scalars["String"]>;
   parent_?: InputMaybe<DisputeKit_Filter>;
   parent_contains?: InputMaybe<Scalars["String"]>;
@@ -1336,12 +1414,17 @@ export enum DisputeKit_OrderBy {
   Id = "id",
   NeedsFreezing = "needsFreezing",
   Parent = "parent",
+  ParentAddress = "parent__address",
+  ParentDepthLevel = "parent__depthLevel",
+  ParentId = "parent__id",
+  ParentNeedsFreezing = "parent__needsFreezing",
   Rounds = "rounds",
 }
 
 export type Dispute_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Dispute_Filter>>>;
   arbitrated?: InputMaybe<Scalars["String"]>;
   arbitrated_?: InputMaybe<Arbitrable_Filter>;
   arbitrated_contains?: InputMaybe<Scalars["String"]>;
@@ -1430,6 +1513,7 @@ export type Dispute_Filter = {
   lastPeriodChange_lte?: InputMaybe<Scalars["BigInt"]>;
   lastPeriodChange_not?: InputMaybe<Scalars["BigInt"]>;
   lastPeriodChange_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  or?: InputMaybe<Array<InputMaybe<Dispute_Filter>>>;
   period?: InputMaybe<Period>;
   period_in?: InputMaybe<Array<Period>>;
   period_not?: InputMaybe<Period>;
@@ -1444,10 +1528,33 @@ export type Dispute_Filter = {
 
 export enum Dispute_OrderBy {
   Arbitrated = "arbitrated",
+  ArbitratedId = "arbitrated__id",
+  ArbitratedTotalDisputes = "arbitrated__totalDisputes",
   Court = "court",
+  CourtAlpha = "court__alpha",
+  CourtFeeForJuror = "court__feeForJuror",
+  CourtHiddenVotes = "court__hiddenVotes",
+  CourtId = "court__id",
+  CourtJurorsForCourtJump = "court__jurorsForCourtJump",
+  CourtMinStake = "court__minStake",
+  CourtName = "court__name",
+  CourtNumberDisputes = "court__numberDisputes",
+  CourtNumberStakedJurors = "court__numberStakedJurors",
+  CourtPaidEth = "court__paidETH",
+  CourtPaidPnk = "court__paidPNK",
+  CourtPolicy = "court__policy",
+  CourtStake = "court__stake",
   CurrentRound = "currentRound",
   CurrentRoundIndex = "currentRoundIndex",
+  CurrentRoundId = "currentRound__id",
+  CurrentRoundNbVotes = "currentRound__nbVotes",
+  CurrentRoundPenalties = "currentRound__penalties",
+  CurrentRoundRepartitions = "currentRound__repartitions",
+  CurrentRoundTokensAtStakePerJuror = "currentRound__tokensAtStakePerJuror",
+  CurrentRoundTotalFeesForJurors = "currentRound__totalFeesForJurors",
   DisputeKitDispute = "disputeKitDispute",
+  DisputeKitDisputeCurrentLocalRoundIndex = "disputeKitDispute__currentLocalRoundIndex",
+  DisputeKitDisputeId = "disputeKitDispute__id",
   Id = "id",
   LastPeriodChange = "lastPeriodChange",
   Period = "period",
@@ -1468,6 +1575,7 @@ export type Draw = {
 export type Draw_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Draw_Filter>>>;
   dispute?: InputMaybe<Scalars["String"]>;
   dispute_?: InputMaybe<Dispute_Filter>;
   dispute_contains?: InputMaybe<Scalars["String"]>;
@@ -1518,6 +1626,7 @@ export type Draw_Filter = {
   juror_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
   juror_starts_with?: InputMaybe<Scalars["String"]>;
   juror_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  or?: InputMaybe<Array<InputMaybe<Draw_Filter>>>;
   round?: InputMaybe<Scalars["String"]>;
   round_?: InputMaybe<Round_Filter>;
   round_contains?: InputMaybe<Scalars["String"]>;
@@ -1551,9 +1660,22 @@ export type Draw_Filter = {
 
 export enum Draw_OrderBy {
   Dispute = "dispute",
+  DisputeCurrentRoundIndex = "dispute__currentRoundIndex",
+  DisputeId = "dispute__id",
+  DisputeLastPeriodChange = "dispute__lastPeriodChange",
+  DisputePeriod = "dispute__period",
+  DisputeRuled = "dispute__ruled",
   Id = "id",
   Juror = "juror",
+  JurorId = "juror__id",
+  JurorTotalStake = "juror__totalStake",
   Round = "round",
+  RoundId = "round__id",
+  RoundNbVotes = "round__nbVotes",
+  RoundPenalties = "round__penalties",
+  RoundRepartitions = "round__repartitions",
+  RoundTokensAtStakePerJuror = "round__tokensAtStakePerJuror",
+  RoundTotalFeesForJurors = "round__totalFeesForJurors",
   VoteId = "voteID",
 }
 
@@ -1581,6 +1703,7 @@ export type EvidenceGroupEvidencesArgs = {
 export type EvidenceGroup_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<EvidenceGroup_Filter>>>;
   evidences_?: InputMaybe<Evidence_Filter>;
   id?: InputMaybe<Scalars["ID"]>;
   id_gt?: InputMaybe<Scalars["ID"]>;
@@ -1598,6 +1721,7 @@ export type EvidenceGroup_Filter = {
   nextEvidenceIndex_lte?: InputMaybe<Scalars["BigInt"]>;
   nextEvidenceIndex_not?: InputMaybe<Scalars["BigInt"]>;
   nextEvidenceIndex_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  or?: InputMaybe<Array<InputMaybe<EvidenceGroup_Filter>>>;
 };
 
 export enum EvidenceGroup_OrderBy {
@@ -1609,6 +1733,7 @@ export enum EvidenceGroup_OrderBy {
 export type Evidence_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Evidence_Filter>>>;
   evidence?: InputMaybe<Scalars["String"]>;
   evidenceGroup?: InputMaybe<Scalars["String"]>;
   evidenceGroup_?: InputMaybe<EvidenceGroup_Filter>;
@@ -1658,6 +1783,7 @@ export type Evidence_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<Evidence_Filter>>>;
   sender?: InputMaybe<Scalars["String"]>;
   sender_?: InputMaybe<User_Filter>;
   sender_contains?: InputMaybe<Scalars["String"]>;
@@ -1684,8 +1810,12 @@ export type Evidence_Filter = {
 export enum Evidence_OrderBy {
   Evidence = "evidence",
   EvidenceGroup = "evidenceGroup",
+  EvidenceGroupId = "evidenceGroup__id",
+  EvidenceGroupNextEvidenceIndex = "evidenceGroup__nextEvidenceIndex",
   Id = "id",
   Sender = "sender",
+  SenderId = "sender__id",
+  SenderTotalStake = "sender__totalStake",
 }
 
 export type JurorTokensPerCourt = {
@@ -1700,6 +1830,7 @@ export type JurorTokensPerCourt = {
 export type JurorTokensPerCourt_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<JurorTokensPerCourt_Filter>>>;
   court?: InputMaybe<Scalars["String"]>;
   court_?: InputMaybe<Court_Filter>;
   court_contains?: InputMaybe<Scalars["String"]>;
@@ -1758,6 +1889,7 @@ export type JurorTokensPerCourt_Filter = {
   locked_lte?: InputMaybe<Scalars["BigInt"]>;
   locked_not?: InputMaybe<Scalars["BigInt"]>;
   locked_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  or?: InputMaybe<Array<InputMaybe<JurorTokensPerCourt_Filter>>>;
   staked?: InputMaybe<Scalars["BigInt"]>;
   staked_gt?: InputMaybe<Scalars["BigInt"]>;
   staked_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -1770,8 +1902,23 @@ export type JurorTokensPerCourt_Filter = {
 
 export enum JurorTokensPerCourt_OrderBy {
   Court = "court",
+  CourtAlpha = "court__alpha",
+  CourtFeeForJuror = "court__feeForJuror",
+  CourtHiddenVotes = "court__hiddenVotes",
+  CourtId = "court__id",
+  CourtJurorsForCourtJump = "court__jurorsForCourtJump",
+  CourtMinStake = "court__minStake",
+  CourtName = "court__name",
+  CourtNumberDisputes = "court__numberDisputes",
+  CourtNumberStakedJurors = "court__numberStakedJurors",
+  CourtPaidEth = "court__paidETH",
+  CourtPaidPnk = "court__paidPNK",
+  CourtPolicy = "court__policy",
+  CourtStake = "court__stake",
   Id = "id",
   Juror = "juror",
+  JurorId = "juror__id",
+  JurorTotalStake = "juror__totalStake",
   Locked = "locked",
   Staked = "staked",
 }
@@ -2220,6 +2367,7 @@ export type RoundDrawnJurorsArgs = {
 export type Round_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Round_Filter>>>;
   dispute?: InputMaybe<Scalars["String"]>;
   disputeKit?: InputMaybe<Scalars["String"]>;
   disputeKit_?: InputMaybe<DisputeKit_Filter>;
@@ -2279,6 +2427,7 @@ export type Round_Filter = {
   nbVotes_lte?: InputMaybe<Scalars["BigInt"]>;
   nbVotes_not?: InputMaybe<Scalars["BigInt"]>;
   nbVotes_not_in?: InputMaybe<Array<Scalars["BigInt"]>>;
+  or?: InputMaybe<Array<InputMaybe<Round_Filter>>>;
   penalties?: InputMaybe<Scalars["BigInt"]>;
   penalties_gt?: InputMaybe<Scalars["BigInt"]>;
   penalties_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -2316,6 +2465,15 @@ export type Round_Filter = {
 export enum Round_OrderBy {
   Dispute = "dispute",
   DisputeKit = "disputeKit",
+  DisputeKitAddress = "disputeKit__address",
+  DisputeKitDepthLevel = "disputeKit__depthLevel",
+  DisputeKitId = "disputeKit__id",
+  DisputeKitNeedsFreezing = "disputeKit__needsFreezing",
+  DisputeCurrentRoundIndex = "dispute__currentRoundIndex",
+  DisputeId = "dispute__id",
+  DisputeLastPeriodChange = "dispute__lastPeriodChange",
+  DisputePeriod = "dispute__period",
+  DisputeRuled = "dispute__ruled",
   DrawnJurors = "drawnJurors",
   Id = "id",
   NbVotes = "nbVotes",
@@ -2743,6 +2901,7 @@ export type TokenAndEthShift = {
 export type TokenAndEthShift_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<TokenAndEthShift_Filter>>>;
   dispute?: InputMaybe<Scalars["String"]>;
   dispute_?: InputMaybe<Dispute_Filter>;
   dispute_contains?: InputMaybe<Scalars["String"]>;
@@ -2801,6 +2960,7 @@ export type TokenAndEthShift_Filter = {
   juror_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
   juror_starts_with?: InputMaybe<Scalars["String"]>;
   juror_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  or?: InputMaybe<Array<InputMaybe<TokenAndEthShift_Filter>>>;
   tokenAmount?: InputMaybe<Scalars["BigInt"]>;
   tokenAmount_gt?: InputMaybe<Scalars["BigInt"]>;
   tokenAmount_gte?: InputMaybe<Scalars["BigInt"]>;
@@ -2813,9 +2973,16 @@ export type TokenAndEthShift_Filter = {
 
 export enum TokenAndEthShift_OrderBy {
   Dispute = "dispute",
+  DisputeCurrentRoundIndex = "dispute__currentRoundIndex",
+  DisputeId = "dispute__id",
+  DisputeLastPeriodChange = "dispute__lastPeriodChange",
+  DisputePeriod = "dispute__period",
+  DisputeRuled = "dispute__ruled",
   EthAmount = "ethAmount",
   Id = "id",
   Juror = "juror",
+  JurorId = "juror__id",
+  JurorTotalStake = "juror__totalStake",
   TokenAmount = "tokenAmount",
 }
 
@@ -2882,6 +3049,7 @@ export type UserVotesArgs = {
 export type User_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<User_Filter>>>;
   contributions_?: InputMaybe<Contribution_Filter>;
   draws_?: InputMaybe<Draw_Filter>;
   evidences_?: InputMaybe<Evidence_Filter>;
@@ -2893,6 +3061,7 @@ export type User_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]>;
   id_not?: InputMaybe<Scalars["ID"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]>>;
+  or?: InputMaybe<Array<InputMaybe<User_Filter>>>;
   shifts_?: InputMaybe<TokenAndEthShift_Filter>;
   tokens_?: InputMaybe<JurorTokensPerCourt_Filter>;
   totalStake?: InputMaybe<Scalars["BigInt"]>;
@@ -2927,6 +3096,7 @@ export type Vote = {
 export type Vote_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Vote_Filter>>>;
   coreDispute?: InputMaybe<Scalars["String"]>;
   coreDispute_?: InputMaybe<Dispute_Filter>;
   coreDispute_contains?: InputMaybe<Scalars["String"]>;
@@ -2998,13 +3168,22 @@ export type Vote_Filter = {
   localRound_not_starts_with_nocase?: InputMaybe<Scalars["String"]>;
   localRound_starts_with?: InputMaybe<Scalars["String"]>;
   localRound_starts_with_nocase?: InputMaybe<Scalars["String"]>;
+  or?: InputMaybe<Array<InputMaybe<Vote_Filter>>>;
 };
 
 export enum Vote_OrderBy {
   CoreDispute = "coreDispute",
+  CoreDisputeCurrentRoundIndex = "coreDispute__currentRoundIndex",
+  CoreDisputeId = "coreDispute__id",
+  CoreDisputeLastPeriodChange = "coreDispute__lastPeriodChange",
+  CoreDisputePeriod = "coreDispute__period",
+  CoreDisputeRuled = "coreDispute__ruled",
   Id = "id",
   Juror = "juror",
+  JurorId = "juror__id",
+  JurorTotalStake = "juror__totalStake",
   LocalRound = "localRound",
+  LocalRoundId = "localRound__id",
 }
 
 export type _Block_ = {
@@ -3053,13 +3232,7 @@ export type CasesPageQuery = {
     period: Period;
     lastPeriodChange: any;
     arbitrated: { __typename?: "Arbitrable"; id: string };
-    court: {
-      __typename?: "Court";
-      id: string;
-      policy?: string | null;
-      feeForJuror: any;
-      timesPerPeriod: Array<any>;
-    };
+    court: { __typename?: "Court"; id: string; policy?: string | null; feeForJuror: any; timesPerPeriod: Array<any> };
   }>;
   counter?: { __typename?: "Counter"; cases: any } | null;
 };
@@ -3141,11 +3314,7 @@ export type CourtTreeQuery = {
             __typename?: "Court";
             name?: string | null;
             id: string;
-            children: Array<{
-              __typename?: "Court";
-              name?: string | null;
-              id: string;
-            }>;
+            children: Array<{ __typename?: "Court"; name?: string | null; id: string }>;
           }>;
         }>;
       }>;
@@ -3164,13 +3333,7 @@ export type DisputeDetailsQuery = {
     period: Period;
     ruled: boolean;
     lastPeriodChange: any;
-    court: {
-      __typename?: "Court";
-      id: string;
-      timesPerPeriod: Array<any>;
-      hiddenVotes: boolean;
-      feeForJuror: any;
-    };
+    court: { __typename?: "Court"; id: string; timesPerPeriod: Array<any>; hiddenVotes: boolean; feeForJuror: any };
     arbitrated: { __typename?: "Arbitrable"; id: string };
   } | null;
 };
@@ -3180,10 +3343,7 @@ export type DrawQueryVariables = Exact<{
   disputeID?: InputMaybe<Scalars["String"]>;
 }>;
 
-export type DrawQuery = {
-  __typename?: "Query";
-  draws: Array<{ __typename?: "Draw"; voteID: any }>;
-};
+export type DrawQuery = { __typename?: "Query"; draws: Array<{ __typename?: "Draw"; voteID: any }> };
 
 export type EvidencesQueryVariables = Exact<{
   evidenceGroup?: InputMaybe<Scalars["String"]>;

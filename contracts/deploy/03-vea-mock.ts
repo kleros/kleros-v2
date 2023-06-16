@@ -31,7 +31,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const foreignGateway = await deploy("ForeignGatewayOnEthereum", {
     from: deployer,
     contract: "ForeignGateway",
-    args: [deployer, vea.address, homeGatewayAddress, homeChainIdAsBytes32],
+    args: [deployer, vea.address, homeChainIdAsBytes32, homeGatewayAddress],
     gasLimit: 4000000,
     log: true,
   }); // nonce+0
@@ -39,7 +39,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await deploy("HomeGatewayToEthereum", {
     from: deployer,
     contract: "HomeGateway",
-    args: [deployer, klerosCore.address, vea.address, foreignGateway.address, HARDHAT_NETWORK],
+    args: [deployer, klerosCore.address, vea.address, HARDHAT_NETWORK, foreignGateway.address],
     gasLimit: 4000000,
     log: true,
   }); // nonce+1

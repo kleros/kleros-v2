@@ -11,33 +11,16 @@ import {
   StakeSet,
   TokenAndETHShift as TokenAndETHShiftEvent,
   Ruling,
+  StakeDelayed,
 } from "../generated/KlerosCore/KlerosCore";
 import { ZERO, ONE } from "./utils";
 import { createCourtFromEvent, getFeeForJuror } from "./entities/Court";
-import {
-  createDisputeKitFromEvent,
-  filterSupportedDisputeKits,
-} from "./entities/DisputeKit";
+import { createDisputeKitFromEvent, filterSupportedDisputeKits } from "./entities/DisputeKit";
 import { createDisputeFromEvent } from "./entities/Dispute";
 import { createRoundFromRoundInfo } from "./entities/Round";
-import {
-  updateCases,
-  updatePaidETH,
-  updateStakedPNK,
-  updateRedistributedPNK,
-  updateCasesRuled,
-  updateCasesVoting,
-  getDelta,
-} from "./datapoint";
-import {
-  addUserActiveDispute,
-  ensureUser,
-  resolveUserDispute,
-} from "./entities/User";
-import {
-  ensureJurorTokensPerCourt,
-  updateJurorStake,
-} from "./entities/JurorTokensPerCourt";
+import { updateCases, updatePaidETH, updateRedistributedPNK, updateCasesRuled, updateCasesVoting } from "./datapoint";
+import { addUserActiveDispute, ensureUser, resolveUserDispute } from "./entities/User";
+import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
 import { createTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
@@ -146,26 +129,25 @@ export function handleDraw(event: DrawEvent): void {
   if (!dispute) return;
   const contract = KlerosCore.bind(event.address);
   const jurorAddress = event.params._address.toHexString();
-  updateJurorStake(
-    jurorAddress,
-    dispute.court,
-    contract,
-    event.block.timestamp
-  );
+  updateJurorStake(jurorAddress, dispute.court, contract, event.block.timestamp);
   addUserActiveDispute(jurorAddress, disputeID);
 }
 
 export function handleStakeSet(event: StakeSet): void {
   const jurorAddress = event.params._address.toHexString();
   ensureUser(jurorAddress);
-  const courtID = event.params._courtID;
+  const courtID = event.params._courtID.toString();
 
-  updateJurorStake(
-    jurorAddress,
-    courtID.toString(),
-    KlerosCore.bind(event.address),
-    event.block.timestamp
-  );
+  updateJurorStake(jurorAddress, courtID.toString(), KlerosCore.bind(event.address), event.block.timestamp);
+
+  // Check if the transaction the event comes from is executeDelayedStakes
+  if (event.transaction.input.toHexString().substring(0, 10) === "0x35975f4a") {
+    updateJurorDelayedStake(jurorAddress, courtID, ZERO.minus(event.params._amount));
+  }
+}
+
+export function handleStakeDelayed(event: StakeDelayed): void {
+  updateJurorDelayedStake(event.params._address.toString(), event.params._courtID.toString(), event.params._amount);
 }
 
 export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
@@ -182,12 +164,7 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   if (!dispute) return;
   const court = Court.load(dispute.court);
   if (!court) return;
-  updateJurorStake(
-    jurorAddress,
-    court.id,
-    KlerosCore.bind(event.address),
-    event.block.timestamp
-  );
+  updateJurorStake(jurorAddress, court.id, KlerosCore.bind(event.address), event.block.timestamp);
   resolveUserDispute(jurorAddress, tokenAmount, disputeID);
   court.paidETH = court.paidETH.plus(ethAmount);
   court.paidPNK = court.paidPNK.plus(tokenAmount);

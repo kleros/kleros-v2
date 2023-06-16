@@ -1,7 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { BigNumber } from "ethers";
-import { DisputeKitClassic, RandomizerRNG } from "../typechain-types";
+import { SortitionModule, RandomizerRNG } from "../typechain-types";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -59,8 +58,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const disputeKit = (await hre.ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
-  await disputeKit.changeRandomNumberGenerator(rng.address, RNG_LOOKAHEAD);
+  const sortitionModule = (await hre.ethers.getContract("SortitionModule")) as SortitionModule;
+  await sortitionModule.changeRandomNumberGenerator(rng.address, RNG_LOOKAHEAD);
 };
 
 deployArbitration.tags = ["RNG"];
