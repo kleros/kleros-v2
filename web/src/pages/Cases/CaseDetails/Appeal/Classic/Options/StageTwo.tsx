@@ -2,20 +2,22 @@ import React, { useEffect } from "react";
 import styled from "styled-components";
 import OptionCard from "../../OptionCard";
 import { useFundingContext, useOptionsContext, useSelectedOptionContext } from "hooks/useClassicAppealContext";
-import { notUndefined } from "utils/index";
+import { isUndefined } from "utils/index";
 
 const StageOne: React.FC = () => {
   const { paidFees, winningChoice, winnerRequiredFunding, fundedChoices } = useFundingContext();
   const options = useOptionsContext();
   const { selectedOption, setSelectedOption } = useSelectedOptionContext();
   useEffect(() => {
-    if (notUndefined(winningChoice)) setSelectedOption(parseInt(winningChoice!));
+    if (!isUndefined(winningChoice)) setSelectedOption(parseInt(winningChoice));
   });
   return (
     <Container>
-      {notUndefined([winningChoice, fundedChoices, paidFees]) &&
-      fundedChoices!.length > 0 &&
-      !fundedChoices?.includes(winningChoice!) ? (
+      {!isUndefined(winningChoice) &&
+      !isUndefined(fundedChoices) &&
+      !isUndefined(paidFees) &&
+      fundedChoices.length > 0 &&
+      !fundedChoices.includes(winningChoice) ? (
         <>
           <label>Loser deadline has finalized, you can only fund the current winner.</label>
           <OptionsContainer>
