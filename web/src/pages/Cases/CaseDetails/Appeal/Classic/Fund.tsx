@@ -18,7 +18,7 @@ const Fund: React.FC = () => {
   const loserSideCountdown = useLoserSideCountdownContext();
   const { fundedChoices, winningChoice } = useFundingContext();
   const needFund =
-    loserSideCountdown! > 0 ||
+    (loserSideCountdown ?? 0) > 0 ||
     (!isUndefined(fundedChoices) &&
       !isUndefined(winningChoice) &&
       fundedChoices.length > 0 &&
