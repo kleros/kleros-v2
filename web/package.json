@@ -33,6 +33,7 @@
     "generate-gql": "graphql-codegen",
     "generate-hooks": "wagmi generate"
   },
+  "prettier": "@kleros/kleros-v2-prettier-config",
   "devDependencies": {
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
