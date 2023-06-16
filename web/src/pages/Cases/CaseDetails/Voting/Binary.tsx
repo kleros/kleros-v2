@@ -9,7 +9,7 @@ import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 
 const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
   const { id } = useParams();
-  const parsedDisputeID = BigInt(id!);
+  const parsedDisputeID = BigInt(id ?? 0);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
   const [chosenOption, setChosenOption] = useState(-1);
@@ -44,10 +44,12 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
                   functionName: "castVote",
                   args: [parsedDisputeID, parsedVoteIDs, BigInt(i + 1), 0n, justification],
                 });
-                wrapWithToast(walletClient!.writeContract(request)).finally(() => {
-                  setChosenOption(-1);
-                  setIsSending(false);
-                });
+                if (walletClient) {
+                  wrapWithToast(walletClient?.writeContract(request)).finally(() => {
+                    setChosenOption(-1);
+                    setIsSending(false);
+                  });
+                }
               }}
             />
           ))}
@@ -66,10 +68,12 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
               functionName: "castVote",
               args: [parsedDisputeID, parsedVoteIDs, 0n, 0n, justification],
             });
-            wrapWithToast(walletClient!.writeContract(request)).finally(() => {
-              setChosenOption(-1);
-              setIsSending(false);
-            });
+            if (walletClient) {
+              wrapWithToast(walletClient.writeContract(request)).finally(() => {
+                setChosenOption(-1);
+                setIsSending(false);
+              });
+            }
           }}
         />
       </RefuseToArbitrateContainer>
