@@ -74,6 +74,10 @@ contract VRFSubscriptionManagerV2Mock {
         vrfCoordinator = VRFCoordinatorV2InterfaceMock(_vrfCoordinator);
     }
 
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
+
     /**
      * @dev Creates a new subscription, overriding the previous one to be manageable by the contract.
      */
@@ -114,6 +118,10 @@ contract VRFSubscriptionManagerV2Mock {
         vrfCoordinator.cancelSubscription(subscriptionId, governor);
         subscriptionId = 0;
     }
+
+    // ************************************* //
+    // *           Public Views            * //
+    // ************************************* //
 
     /**
      * @dev Returns information on the current subscription

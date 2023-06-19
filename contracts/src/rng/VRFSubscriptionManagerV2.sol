@@ -86,6 +86,10 @@ contract VRFSubscriptionManagerV2 {
         vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinator);
     }
 
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
+
     /**
      * @dev Request the ownership transfer of the current subscription to `newOwner`
      * @dev The current owner of the subscription is the Subscription Manager contract
@@ -155,6 +159,10 @@ contract VRFSubscriptionManagerV2 {
         linkToken.transfer(governor, amount);
         emit LinkWithdrawn(governor, amount);
     }
+
+    // ************************************* //
+    // *           Public Views            * //
+    // ************************************* //
 
     /**
      * @dev Returns information on the current subscription
