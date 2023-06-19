@@ -10,14 +10,12 @@
 pragma solidity 0.8.18;
 
 import "./VRFCoordinatorV2InterfaceMock.sol";
-import "../interfaces/LinkTokenInterface.sol";
 
 /**
  * @title VRF Coordinator Manager Mock
  * @author Simon Malatrait <simon.malatrait@grenoble-inp.org>
  * @dev This contracts implements a subscription manager for using VRF v2 with the Subscription Method.
  * @dev It allows to create subscriptions, manage them and consumers.
- * @dev LINK Token Arbitrum: https://docs.chain.link/resources/link-token-contracts?parent=vrf#arbitrum
  * @dev VRFCoordinatorV2 address: https://docs.chain.link/vrf/v2/subscription/supported-networks#arbitrum-mainnet
  * @dev For SECURITY CONSIDERATIONS, you might also have a look to: https://github.com/smartcontractkit/chainlink/blob/develop/contracts/src/v0.8/vrf/VRFCoordinatorV2.sol
  */
@@ -33,19 +31,11 @@ contract VRFSubscriptionManagerV2Mock {
      */
     event SubscriptionFunded(uint64 subscriptionId, uint256 amount);
 
-    /**
-     * @dev Emitted when the governor withdraws `amount` LINK from the subscription manager.
-     * @param receiver Address of the receiving address, the governor address
-     * @param amount Amount of LINK tokens withdrawn, in wei.
-     */
-    event LinkWithdrawn(address indexed receiver, uint256 indexed amount);
-
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
 
     VRFCoordinatorV2InterfaceMock vrfCoordinator;
-    LinkTokenInterface linkToken;
     uint64 subscriptionId;
     address governor;
 
@@ -66,11 +56,9 @@ contract VRFSubscriptionManagerV2Mock {
      * @dev Constructs the Chainlink VRF v2 Subscription Manager.
      * @param _governor The Governor of the contract
      * @param _vrfCoordinator The address of the VRFCoordinator contract.
-     * @param _linkToken The address of the LINK token.
      */
-    constructor(address _governor, address _vrfCoordinator, address _linkToken) {
+    constructor(address _governor, address _vrfCoordinator) {
         vrfCoordinator = VRFCoordinatorV2InterfaceMock(_vrfCoordinator);
-        linkToken = LinkTokenInterface(_linkToken);
         governor = _governor;
     }
 
