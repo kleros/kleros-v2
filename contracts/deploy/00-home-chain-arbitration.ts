@@ -4,6 +4,7 @@ import { BigNumber } from "ethers";
 import getContractAddress from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped, isDevnet } from "./utils";
+import { VRFSubscriptionManagerV2Mock, SortitionModule } from "../typechain-types";
 
 const pnkByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x330bD769382cFc6d50175903434CCC8D206DCAE5"],
@@ -18,6 +19,21 @@ const randomizerByChain = new Map<HomeChains, string>([
 
 const daiByChain = new Map<HomeChains, string>([[HomeChains.ARBITRUM_ONE, "??"]]);
 const wethByChain = new Map<HomeChains, string>([[HomeChains.ARBITRUM_ONE, "??"]]);
+const linkByChain = new Map<HomeChains, string>([
+  [HomeChains.ARBITRUM_ONE, "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4"],
+  [HomeChains.ARBITRUM_GOERLI, "0xd14838A68E8AFBAdE5efb411d5871ea0011AFd28"],
+]);
+
+const keyHashByChain = new Map<HomeChains, string>([
+  [HomeChains.ARBITRUM_ONE, "0x72d2b016bb5b62912afea355ebf33b91319f828738b111b723b78696b9847b63"], // 30 gwei key Hash
+  [HomeChains.ARBITRUM_GOERLI, "0x83d1b6e3388bed3d76426974512bb0d270e9542a765cd667242ea26c0cc0b730"],
+  [HomeChains.HARDHAT, "0x83d1b6e3388bed3d76426974512bb0d270e9542a765cd667242ea26c0cc0b730"], // arbitrary value
+]);
+
+const vrfCoordinatorByChain = new Map<HomeChains, string>([
+  [HomeChains.ARBITRUM_ONE, "0x41034678D6C633D8a95c75e1138A360a28bA15d1"],
+  [HomeChains.ARBITRUM_GOERLI, "0x6D80646bEAdd07cE68cab36c27c626790bBcf17f"],
+]);
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
@@ -42,7 +58,18 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     const erc20Address = await deployERC20AndFaucet(hre, deployer, "WETH");
     wethByChain.set(HomeChains[HomeChains[chainId]], erc20Address);
   }
-
+  if (chainId === HomeChains.HARDHAT) {
+    vrfCoordinatorByChain.set(
+      HomeChains.HARDHAT,
+      (
+        await deploy("VRFCoordinatorV2Mock", {
+          from: deployer,
+          args: [BigNumber.from(10).pow(18), 1000000000], // base_fee: 1 LINK, gas_price_link: 0.000000001 LINK per gas, from chainlink mock scripts
+          log: true,
+        })
+      ).address
+    );
+  }
   if (!randomizerByChain.get(chainId)) {
     const randomizerMock = await deploy("RandomizerMock", {
       from: deployer,
@@ -119,6 +146,59 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await execute("KlerosCore", { from: deployer, log: true }, "changeCurrencyRates", pnk, 12225583, 12);
   await execute("KlerosCore", { from: deployer, log: true }, "changeCurrencyRates", dai, 60327783, 11);
   await execute("KlerosCore", { from: deployer, log: true }, "changeCurrencyRates", weth, 1, 1);
+  await deploy("DisputeResolver", {
+    from: deployer,
+    args: [klerosCore.address],
+    log: true,
+  });
+
+  const link = linkByChain.get(Number(await getChainId())) ?? AddressZero;
+  const keyHash = keyHashByChain.get(Number(await getChainId())) ?? AddressZero;
+  const requestConfirmations = 3;
+  const callbackGasLimit = 100000;
+  const numWords = 1;
+  const vrfCoordinator = vrfCoordinatorByChain.get(Number(await getChainId())) ?? AddressZero;
+  const vrfSubscriptionManagerDeploy = vrfCoordinator
+    ? chainId === HomeChains.HARDHAT
+      ? await deploy("VRFSubscriptionManagerV2Mock", {
+          from: deployer,
+          args: [deployer, vrfCoordinator],
+          log: true,
+        })
+      : await deploy("VRFSubscriptionManagerV2", {
+          from: deployer,
+          args: [deployer, vrfCoordinator, link],
+          log: true,
+        })
+    : AddressZero;
+
+  if (vrfSubscriptionManagerDeploy) {
+    if (chainId === HomeChains.HARDHAT) {
+      const vrfSubscriptionManager = (await hre.ethers.getContract(
+        "VRFSubscriptionManagerV2Mock"
+      )) as VRFSubscriptionManagerV2Mock;
+      await vrfSubscriptionManager.createNewSubscription();
+      await vrfSubscriptionManager.topUpSubscription(BigNumber.from(10).pow(20)); // 100 LINK
+      const subId = await vrfSubscriptionManager.subscriptionId();
+      const vrfConsumer = await deploy("VRFConsumerV2", {
+        from: deployer,
+        args: [
+          deployer,
+          vrfCoordinator,
+          sortitionModule.address,
+          keyHash,
+          subId,
+          requestConfirmations,
+          callbackGasLimit,
+          numWords,
+        ],
+        log: true,
+      });
+      await vrfSubscriptionManager.addConsumer(vrfConsumer.address);
+      const sortModule = (await hre.ethers.getContract("SortitionModule")) as SortitionModule;
+      await sortModule.changeRandomNumberGenerator(vrfConsumer.address, RNG_LOOKAHEAD);
+    }
+  }
 };
 
 deployArbitration.tags = ["Arbitration"];
