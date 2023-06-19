@@ -65,7 +65,7 @@ describe("Integration tests", async () => {
 
   it("Resolves a dispute on the home chain with no appeal", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
-    const [bridger, challenger, relayer] = await ethers.getSigners();
+    const [, , relayer] = await ethers.getSigners();
 
     await pnk.approve(core.address, ONE_THOUSAND_PNK.mul(100));
 
