@@ -3785,7 +3785,7 @@ __metadata:
     "@nomicfoundation/hardhat-chai-matchers": ^1.0.6
     "@nomiclabs/hardhat-ethers": ^2.2.3
     "@nomiclabs/hardhat-solhint": ^3.0.1
-    "@openzeppelin/contracts": ^4.9.1
+    "@openzeppelin/contracts": ^4.9.2
     "@typechain/ethers-v5": ^11.0.0
     "@typechain/hardhat": ^7.0.0
     "@types/chai": ^4.3.5
@@ -4836,10 +4836,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts@npm:^4.8.3, @openzeppelin/contracts@npm:^4.9.1":
+"@openzeppelin/contracts@npm:^4.8.3":
   version: 4.9.1
   resolution: "@openzeppelin/contracts@npm:4.9.1"
   checksum: 9bb3cc6aecd6c56d5ece10d9820d43e6e9c460395b75cc4af9b4e776f1a9e56c9906bc03538b0707e617dc31f1abdfffcbeedfecc8884358d864198ed73f59c1
+  languageName: node
+  linkType: hard
+
+"@openzeppelin/contracts@npm:^4.9.2":
+  version: 4.9.2
+  resolution: "@openzeppelin/contracts@npm:4.9.2"
+  checksum: 0538b18fe222e5414a5a539c240b155e0bef2a23c5182fb8e137d71a0c390fe899160f2d55701f75b127f54cc61aee4375370acc832475f19829368ac65c1fc6
   languageName: node
   linkType: hard
 
