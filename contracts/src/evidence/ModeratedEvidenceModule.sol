@@ -10,13 +10,11 @@
 pragma solidity 0.8.18;
 
 // TODO: standard interfaces should be placed in a separated repo (?)
-import "../arbitration/IArbitrable.sol";
-import "../arbitration/IArbitrator.sol";
-import "./IMetaEvidence.sol";
+import {IArbitrableV2, IArbitratorV2} from "../arbitration/IArbitrableV2.sol";
 import "../libraries/CappedMath.sol";
 
 /// @title Implementation of the Evidence Standard with Moderated Submissions
-contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
+contract ModeratedEvidenceModule is IArbitrableV2 {
     using CappedMath for uint256;
 
     // ************************************* //
@@ -48,7 +46,7 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
     }
 
     struct ArbitratorData {
-        uint256 metaEvidenceUpdates; // The meta evidence to be used in disputes.
+        uint256 disputeTemplateId; // The ID of the dispute template used by the arbitrator.
         bytes arbitratorExtraData; // Extra data for the arbitrator.
     }
 
@@ -61,8 +59,7 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
     mapping(bytes32 => EvidenceData) evidences; // Maps the evidence ID to its data. evidences[evidenceID].
     mapping(uint256 => bytes32) public disputeIDtoEvidenceID; // One-to-one relationship between the dispute and the evidence.
     ArbitratorData[] public arbitratorDataList; // Stores the arbitrator data of the contract. Updated each time the data is changed.
-
-    IArbitrator public immutable arbitrator; // The trusted arbitrator to resolve potential disputes. If it needs to be changed, a new contract can be deployed.
+    IArbitratorV2 public immutable arbitrator; // The trusted arbitrator to resolve potential disputes. If it needs to be changed, a new contract can be deployed.
     address public governor; // The address that can make governance changes to the parameters of the contract.
     uint256 public bondTimeout; // The time in seconds during which the last moderation status can be challenged.
     uint256 public totalCostMultiplier; // Multiplier of arbitration fees that must be ultimately paid as fee stake. In basis points.
@@ -81,14 +78,14 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
     // *              Events               * //
     // ************************************* //
 
-    /// @dev To be raised when evidence is submitted. Should point to the resource (evidences are not to be stored on chain due to gas considerations).
+    /// @dev To be raised when a moderated evidence is submitted. Should point to the resource (evidences are not to be stored on chain due to gas considerations).
     /// @param _arbitrator The arbitrator of the contract.
-    /// @param _evidenceGroupID Unique identifier of the evidence group the evidence belongs to.
+    /// @param _externalDisputeID Unique identifier for this dispute outside Kleros. It's the submitter responsability to submit the right evidence group ID.
     /// @param _party The address of the party submiting the evidence. Note that 0x0 refers to evidence not submitted by any party.
     /// @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'
-    event Evidence(
-        IArbitrator indexed _arbitrator,
-        uint256 indexed _evidenceGroupID,
+    event ModeratedEvidence(
+        IArbitratorV2 indexed _arbitrator,
+        uint256 indexed _externalDisputeID,
         address indexed _party,
         string _evidence
     );
@@ -109,15 +106,15 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
     /// @param _initialDepositMultiplier Multiplier of arbitration fees that must be paid as initial stake for submitting evidence. In basis points.
     /// @param _bondTimeout The time in seconds during which the last moderation status can be challenged.
     /// @param _arbitratorExtraData Extra data for the trusted arbitrator contract.
-    /// @param _metaEvidence The URI of the meta evidence object for evidence submissions requests.
+    /// @param _templateData The dispute template data.
     constructor(
-        IArbitrator _arbitrator,
+        IArbitratorV2 _arbitrator,
         address _governor,
         uint256 _totalCostMultiplier,
         uint256 _initialDepositMultiplier,
         uint256 _bondTimeout,
         bytes memory _arbitratorExtraData,
-        string memory _metaEvidence
+        string memory _templateData
     ) {
         arbitrator = _arbitrator;
         governor = _governor;
@@ -128,7 +125,7 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
 
         ArbitratorData storage arbitratorData = arbitratorDataList.push();
         arbitratorData.arbitratorExtraData = _arbitratorExtraData;
-        emit MetaEvidence(0, _metaEvidence);
+        emit DisputeTemplate(arbitratorData.disputeTemplateId, "", _templateData);
     }
 
     // ************************************* //
@@ -160,18 +157,18 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         bondTimeout = _bondTimeout;
     }
 
-    /// @dev Update the meta evidence used for disputes.
-    /// @param _newMetaEvidence The meta evidence to be used for future registration request disputes.
-    function changeMetaEvidence(string calldata _newMetaEvidence) external onlyGovernor {
+    /// @dev Update the dispute template data.
+    /// @param _templateData The new dispute template data.
+    function changeDisputeTemplate(string calldata _templateData) external onlyGovernor {
         ArbitratorData storage arbitratorData = arbitratorDataList[arbitratorDataList.length - 1];
-        uint256 newMetaEvidenceUpdates = arbitratorData.metaEvidenceUpdates + 1;
+        uint256 newDisputeTemplateId = arbitratorData.disputeTemplateId + 1;
         arbitratorDataList.push(
             ArbitratorData({
-                metaEvidenceUpdates: newMetaEvidenceUpdates,
+                disputeTemplateId: newDisputeTemplateId,
                 arbitratorExtraData: arbitratorData.arbitratorExtraData
             })
         );
-        emit MetaEvidence(newMetaEvidenceUpdates, _newMetaEvidence);
+        emit DisputeTemplate(newDisputeTemplateId, "", _templateData);
     }
 
     /// @dev Change the arbitrator to be used for disputes that may be raised in the next requests. The arbitrator is trusted to support appeal period and not reenter.
@@ -180,7 +177,7 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         ArbitratorData storage arbitratorData = arbitratorDataList[arbitratorDataList.length - 1];
         arbitratorDataList.push(
             ArbitratorData({
-                metaEvidenceUpdates: arbitratorData.metaEvidenceUpdates,
+                disputeTemplateId: arbitratorData.disputeTemplateId,
                 arbitratorExtraData: _arbitratorExtraData
             })
         );
@@ -215,7 +212,7 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
         moderation.arbitratorDataID = arbitratorDataList.length - 1;
 
         // When evidence is submitted for a foreign arbitrable, the arbitrator field of Evidence is ignored.
-        emit Evidence(arbitrator, _evidenceGroupID, msg.sender, _evidence);
+        emit ModeratedEvidence(arbitrator, _evidenceGroupID, msg.sender, _evidence);
     }
 
     /// @dev Moderates an evidence submission. Requires the contester to at least double the accumulated stake of the oposing party.
@@ -266,7 +263,13 @@ contract ModeratedEvidenceModule is IArbitrable, IMetaEvidence {
             );
             disputeIDtoEvidenceID[evidenceData.disputeID] = _evidenceID;
 
-            emit Dispute(arbitrator, evidenceData.disputeID, arbitratorData.metaEvidenceUpdates, uint256(_evidenceID));
+            emit DisputeRequest(
+                arbitrator,
+                evidenceData.disputeID,
+                uint256(_evidenceID),
+                arbitratorData.disputeTemplateId,
+                ""
+            );
             evidenceData.disputed = true;
             moderation.bondDeadline = 0;
             moderation.currentWinner = Party.None;

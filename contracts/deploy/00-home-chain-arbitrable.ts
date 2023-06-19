@@ -1,5 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
+import disputeTemplate from "../../kleros-sdk/config/v2-disputetemplate/simple/NewDisputeTemplate.simple.json";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -20,10 +21,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   await deploy("ArbitrableExampleEthFee", {
     from: deployer,
-    args: [
-      klerosCore.address,
-      "https://cloudflare-ipfs.com/ipfs/bafkreifteme6tusnjwyzajk75fyvzdmtyycxctf7yhfijb6rfigz3n4lvq",
-    ],
+    args: [klerosCore.address, disputeTemplate],
     log: true,
   });
 

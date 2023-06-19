@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import getContractAddress from "../deploy-helpers/getContractAddress";
+import disputeTemplate from "../../kleros-sdk/config/v2-disputetemplate/simple/NewDisputeTemplate.simple.json";
 
 enum ForeignChains {
   ETHEREUM_MAINNET = 1,
@@ -52,11 +53,10 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
     ethers.BigNumber.from(10).pow(17)
   );
 
-  const metaEvidenceUri = `https://raw.githubusercontent.com/kleros/kleros-v2/master/contracts/deployments/${hre.network.name}/MetaEvidence_ArbitrableExample.json`;
-
   await deploy("ArbitrableExample", {
     from: deployer,
-    args: [foreignGateway.address, metaEvidenceUri],
+    contract: "ArbitrableExampleEthFee",
+    args: [foreignGateway.address, disputeTemplate],
     log: true,
   });
 };

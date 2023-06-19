@@ -8,7 +8,7 @@
 
 pragma solidity 0.8.18;
 
-import "../arbitration/IArbitrator.sol";
+import "../arbitration/IArbitratorV2.sol";
 import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
 
@@ -29,7 +29,7 @@ contract HomeGateway is IHomeGateway {
     // ************************************* //
 
     address public governor;
-    IArbitrator public arbitrator;
+    IArbitratorV2 public arbitrator;
     IVeaInbox public veaInbox;
     address public override receiverGateway;
     uint256 public immutable receiverChainID;
@@ -39,7 +39,7 @@ contract HomeGateway is IHomeGateway {
 
     constructor(
         address _governor,
-        IArbitrator _arbitrator,
+        IArbitratorV2 _arbitrator,
         IVeaInbox _veaInbox,
         address _receiverGateway,
         uint256 _receiverChainID
@@ -49,8 +49,6 @@ contract HomeGateway is IHomeGateway {
         veaInbox = _veaInbox;
         receiverGateway = _receiverGateway;
         receiverChainID = _receiverChainID;
-
-        emit MetaEvidence(0, "BRIDGE");
     }
 
     // ************************************* //
@@ -66,7 +64,7 @@ contract HomeGateway is IHomeGateway {
 
     /// @dev Changes the arbitrator.
     /// @param _arbitrator The address of the new arbitrator.
-    function changeArbitrator(IArbitrator _arbitrator) external {
+    function changeArbitrator(IArbitratorV2 _arbitrator) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
         arbitrator = _arbitrator;
     }
@@ -90,44 +88,41 @@ contract HomeGateway is IHomeGateway {
     // ************************************* //
 
     /// @dev Provide the same parameters as on the foreignChain while creating a dispute. Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
-    /// @param _foreignChainID foreignChainId
-    /// @param _foreignBlockHash foreignBlockHash
-    /// @param _foreignDisputeID foreignDisputeID
-    /// @param _choices number of ruling choices
-    /// @param _extraData extraData
-    /// @param _arbitrable arbitrable
-    function relayCreateDispute(
-        uint256 _foreignChainID,
-        bytes32 _foreignBlockHash,
-        uint256 _foreignDisputeID,
-        uint256 _choices,
-        bytes calldata _extraData,
-        address _arbitrable
-    ) external payable override {
+    /// @param _params The parameters of the dispute, see `RelayCreateDisputeParams`.
+    function relayCreateDispute(RelayCreateDisputeParams memory _params) external payable override {
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
-                _foreignChainID,
-                _foreignBlockHash,
                 "createDispute",
-                _foreignDisputeID,
-                _choices,
-                _extraData,
-                _arbitrable
+                _params.foreignBlockHash,
+                _params.foreignChainID,
+                _params.foreignArbitrable,
+                _params.foreignDisputeID,
+                _params.choices,
+                _params.extraData
             )
         );
         RelayedData storage relayedData = disputeHashtoRelayedData[disputeHash];
         require(relayedData.relayer == address(0), "Dispute already relayed");
 
-        // TODO: will mostly be replaced by the actual arbitrationCost paid on the foreignChain.
-        relayedData.arbitrationCost = arbitrator.arbitrationCost(_extraData);
+        relayedData.arbitrationCost = arbitrator.arbitrationCost(_params.extraData);
         require(msg.value >= relayedData.arbitrationCost, "Not enough arbitration cost paid");
 
-        uint256 disputeID = arbitrator.createDispute{value: msg.value}(_choices, _extraData);
+        uint256 disputeID = arbitrator.createDispute{value: msg.value}(_params.choices, _params.extraData);
         disputeIDtoHash[disputeID] = disputeHash;
         disputeHashtoID[disputeHash] = disputeID;
         relayedData.relayer = msg.sender;
 
-        emit Dispute(arbitrator, disputeID, 0, 0);
+        emit DisputeRequest(arbitrator, disputeID, _params.externalDisputeID, _params.templateId, _params.templateUri);
+
+        emit CrossChainDisputeIncoming(
+            arbitrator,
+            _params.foreignChainID,
+            _params.foreignArbitrable,
+            _params.foreignDisputeID,
+            _params.externalDisputeID,
+            _params.templateId,
+            _params.templateUri
+        );
     }
 
     /// @dev Give a ruling for a dispute. Must be called by the arbitrator.

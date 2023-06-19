@@ -2,54 +2,57 @@
 
 pragma solidity 0.8.18;
 
-import "../IArbitrable.sol";
-import "../../evidence/IMetaEvidence.sol";
+import {IArbitrableV2, IArbitratorV2} from "../IArbitrableV2.sol";
 
 /// @title ArbitrableExampleEthFee
 /// An example of an arbitrable contract which connects to the arbitator that implements the updated interface.
-contract ArbitrableExampleEthFee is IArbitrable, IMetaEvidence {
+contract ArbitrableExampleEthFee is IArbitrableV2 {
     struct DisputeStruct {
         bool isRuled; // Whether the dispute has been ruled or not.
         uint256 ruling; // Ruling given by the arbitrator.
         uint256 numberOfRulingOptions; // The number of choices the arbitrator can give.
     }
 
-    uint256 META_EVIDENCE_ID = 0;
+    event Action(string indexed _action);
+
     address public governor;
-    IArbitrator public immutable arbitrator; // Arbitrator is set in constructor and never changed.
+    IArbitratorV2 public arbitrator; // Arbitrator is set in constructor.
+    uint256 public disputeTemplates; // The number of dispute templates created.
     mapping(uint256 => uint256) public externalIDtoLocalID; // Maps external (arbitrator side) dispute IDs to local dispute IDs.
     DisputeStruct[] public disputes; // Stores the disputes' info. disputes[disputeID].
 
     /// @dev Constructor
     /// @param _arbitrator The arbitrator to rule on created disputes.
-    /// @param _metaEvidence The URI of the meta evidence object for evidence submissions requests.
-    constructor(IArbitrator _arbitrator, string memory _metaEvidence) {
+    /// @param _templateData The dispute template data.
+    constructor(IArbitratorV2 _arbitrator, string memory _templateData) {
         governor = msg.sender;
         arbitrator = _arbitrator;
-        emit MetaEvidence(META_EVIDENCE_ID, _metaEvidence);
+        emit DisputeTemplate(disputeTemplates++, "", _templateData);
     }
 
     /// @dev Calls createDispute function of the specified arbitrator to create a dispute.
     /// Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
-    /// @param _numberOfRulingOptions Number of ruling options. Must be greater than 1, otherwise there is nothing to choose from.
+    /// @param _templateId The identifier of the dispute template. Should not be used with _templateUri.
+    /// @param _action The action that requires arbitration.
     /// @param _arbitratorExtraData Extra data for the arbitrator.
-    /// @param _evidenceGroupID Unique identifier of the evidence group that is linked to this dispute.
     /// @return disputeID Dispute id (on arbitrator side) of the dispute created.
     function createDispute(
-        uint256 _numberOfRulingOptions,
-        bytes calldata _arbitratorExtraData,
-        uint256 _evidenceGroupID
+        uint256 _templateId,
+        string calldata _action,
+        bytes calldata _arbitratorExtraData
     ) external payable returns (uint256 disputeID) {
-        require(_numberOfRulingOptions > 1, "Incorrect number of choices");
+        emit Action(_action);
 
+        uint256 numberOfRulingOptions = 2;
         uint256 localDisputeID = disputes.length;
-        disputes.push(DisputeStruct({isRuled: false, ruling: 0, numberOfRulingOptions: _numberOfRulingOptions}));
+        disputes.push(DisputeStruct({isRuled: false, ruling: 0, numberOfRulingOptions: numberOfRulingOptions}));
 
-        disputeID = arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
+        disputeID = arbitrator.createDispute{value: msg.value}(numberOfRulingOptions, _arbitratorExtraData);
 
         externalIDtoLocalID[disputeID] = localDisputeID;
 
-        emit Dispute(arbitrator, disputeID, META_EVIDENCE_ID, _evidenceGroupID);
+        uint256 externalDisputeID = uint256(keccak256(abi.encodePacked(_action)));
+        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, _templateId, "");
     }
 
     /// @dev To be called by the arbitrator of the dispute, to declare the winning ruling.
@@ -65,11 +68,16 @@ contract ArbitrableExampleEthFee is IArbitrable, IMetaEvidence {
         dispute.isRuled = true;
         dispute.ruling = _ruling;
 
-        emit Ruling(IArbitrator(msg.sender), _externalDisputeID, dispute.ruling);
+        emit Ruling(IArbitratorV2(msg.sender), _externalDisputeID, dispute.ruling);
     }
 
-    function changeMetaEvidence(string memory _metaEvidence) external {
+    function changeDisputeTemplate(string memory _templateData) external {
         require(msg.sender == governor, "Not authorized: governor only.");
-        emit MetaEvidence(++META_EVIDENCE_ID, _metaEvidence);
+        emit DisputeTemplate(disputeTemplates++, "", _templateData);
+    }
+
+    function changeArbitrator(IArbitratorV2 _arbitrator) external {
+        require(msg.sender == governor, "Not authorized: governor only.");
+        arbitrator = _arbitrator;
     }
 }

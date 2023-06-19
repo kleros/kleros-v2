@@ -4,15 +4,16 @@ import { BigNumber } from "ethers";
 import {
   PNK,
   KlerosCore,
-  ForeignGatewayOnEthereum,
+  ForeignGateway,
   ArbitrableExampleEthFee,
-  HomeGatewayToEthereum,
+  HomeGateway,
   VeaMock,
   DisputeKitClassic,
   RandomizerRNG,
   RandomizerMock,
   SortitionModule,
 } from "../../typechain-types";
+import { keccak256 } from "ethers/lib/utils";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
@@ -56,9 +57,9 @@ describe("Integration tests", async () => {
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
     vea = (await ethers.getContract("VeaMock")) as VeaMock;
-    foreignGateway = (await ethers.getContract("ForeignGatewayOnEthereum")) as ForeignGatewayOnEthereum;
+    foreignGateway = (await ethers.getContract("ForeignGatewayOnEthereum")) as ForeignGateway;
     arbitrable = (await ethers.getContract("ArbitrableExampleEthFee")) as ArbitrableExampleEthFee;
-    homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
+    homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGateway;
     sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
   });
 
@@ -107,18 +108,26 @@ describe("Integration tests", async () => {
 
     const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
     const disputeHash = ethers.utils.solidityKeccak256(
-      ["uint", "bytes", "bytes", "uint", "uint", "bytes", "address"],
-      [31337, lastBlock.hash, ethers.utils.toUtf8Bytes("createDispute"), disputeId, 2, "0x00", arbitrable.address]
+      ["bytes", "bytes32", "uint256", "address", "uint256", "uint256", "bytes"],
+      [ethers.utils.toUtf8Bytes("createDispute"), lastBlock.hash, 31337, arbitrable.address, disputeId, 2, "0x00"]
     );
-
     const events = (await tx.wait()).events;
 
     // Relayer tx
-    const tx2 = await homeGateway
-      .connect(relayer)
-      .relayCreateDispute(31337, lastBlock.hash, disputeId, 2, "0x00", arbitrable.address, {
-        value: arbitrationCost,
-      });
+    const tx2 = await homeGateway.connect(relayer).relayCreateDispute(
+      {
+        foreignBlockHash: lastBlock.hash,
+        foreignChainID: 31337,
+        foreignArbitrable: arbitrable.address,
+        foreignDisputeID: disputeId,
+        externalDisputeID: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("future of france")),
+        templateId: 0,
+        templateUri: "",
+        choices: 2,
+        extraData: "0x00",
+      },
+      { value: arbitrationCost }
+    );
     expect(tx2).to.emit(homeGateway, "Dispute");
     const events2 = (await tx2.wait()).events;
 

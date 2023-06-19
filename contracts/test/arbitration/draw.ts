@@ -5,7 +5,7 @@ import {
   PNK,
   KlerosCore,
   ArbitrableExampleEthFee,
-  HomeGatewayToEthereum,
+  HomeGateway,
   DisputeKitClassic,
   RandomizerRNG,
   RandomizerMock,
@@ -65,7 +65,7 @@ describe("Draw Benchmark", async () => {
     disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-    homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
+    homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGateway;
     arbitrable = (await ethers.getContract("ArbitrableExampleEthFee")) as ArbitrableExampleEthFee;
     rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
     randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
@@ -94,7 +94,7 @@ describe("Draw Benchmark", async () => {
     }
 
     // Create a dispute
-    const tx = await arbitrable.createDispute(2, "0x00", 0, {
+    const tx = await arbitrable.createDispute(0, "future of france", "0x00", {
       value: arbitrationCost,
     });
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
@@ -102,11 +102,20 @@ describe("Draw Benchmark", async () => {
     const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
 
     // Relayer tx
-    const tx2 = await homeGateway
-      .connect(await ethers.getSigner(relayer))
-      .relayCreateDispute(31337, lastBlock.hash, disputeId, 2, "0x00", arbitrable.address, {
-        value: arbitrationCost,
-      });
+    const tx2 = await homeGateway.connect(await ethers.getSigner(relayer)).relayCreateDispute(
+      {
+        foreignBlockHash: lastBlock.hash,
+        foreignChainID: 31337,
+        foreignArbitrable: arbitrable.address,
+        foreignDisputeID: disputeId,
+        externalDisputeID: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("future of france")),
+        templateId: 0,
+        templateUri: "",
+        choices: 2,
+        extraData: "0x00",
+      },
+      { value: arbitrationCost }
+    );
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");

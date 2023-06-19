@@ -4,7 +4,7 @@ pragma solidity 0.8.18;
 
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IArbitrator, IArbitrable} from "../../arbitration/IArbitrator.sol";
+import {IArbitratorV2, IArbitrableV2} from "../../arbitration/IArbitratorV2.sol";
 import {ITokenController} from "../interfaces/ITokenController.sol";
 import {WrappedPinakion} from "./WrappedPinakion.sol";
 import {IRandomAuRa} from "./interfaces/IRandomAuRa.sol";
@@ -16,7 +16,7 @@ import "../../gateway/interfaces/IForeignGateway.sol";
 /// @dev This contract is an adaption of Mainnet's KlerosLiquid (https://github.com/kleros/kleros/blob/69cfbfb2128c29f1625b3a99a3183540772fda08/contracts/kleros/KlerosLiquid.sol)
 /// for xDai chain. Notice that variables referring to ETH values in this contract, will hold the native token values of the chain on which xKlerosLiquid is deployed.
 /// When this contract gets deployed on xDai chain, ETH variables will hold xDai values.
-contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
+contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -71,7 +71,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
     struct Dispute {
         // Note that appeal `0` is equivalent to the first round of the dispute.
         uint96 subcourtID; // The ID of the subcourt the dispute is in.
-        IArbitrable arbitrated; // The arbitrated arbitrable contract.
+        IArbitrableV2 arbitrated; // The arbitrated arbitrable contract.
         // The number of choices jurors have when voting. This does not include choice `0` which is reserved for "refuse to arbitrate"/"no ruling".
         uint256 numberOfChoices;
         Period period; // The current period of the dispute.
@@ -475,7 +475,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
 
         disputeID = totalDisputes++;
         Dispute storage dispute = disputes[disputeID];
-        dispute.arbitrated = IArbitrable(msg.sender);
+        dispute.arbitrated = IArbitrableV2(msg.sender);
 
         // The V2 subcourtID is off by one
         (uint96 subcourtID, uint256 minJurors) = extraDataToSubcourtIDAndMinJurors(_extraData);
@@ -484,7 +484,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
         require(weth.transfer(address(foreignGateway), fee), "Fee transfer to gateway failed");
         foreignGateway.createDisputeERC20(_numberOfChoices, extraDataV2, fee);
 
-        emit DisputeCreation(disputeID, IArbitrable(msg.sender));
+        emit DisputeCreation(disputeID, IArbitrableV2(msg.sender));
     }
 
     /// @dev DEPRECATED. Called when `_owner` sends ETH to the Wrapped Token contract.

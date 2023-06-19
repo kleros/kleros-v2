@@ -1,6 +1,7 @@
 import { parseUnits, parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
+import disputeTemplate from "../../kleros-sdk/config/v2-disputetemplate/simple/NewDisputeTemplate.simple.json";
 
 enum ForeignChains {
   GNOSIS_MAINNET = 100,
@@ -104,29 +105,11 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
   // const xKlerosLiquidV2 = await deployments.get("xKlerosLiquidV2");
   await deploy("ArbitrableExample", {
     from: deployer,
-    args: [
-      xKlerosLiquidV2.address,
-      0,
-      "/ipfs/bafkreifteme6tusnjwyzajk75fyvzdmtyycxctf7yhfijb6rfigz3n4lvq", // PoH registration
-      weth.address,
-    ],
+    args: [xKlerosLiquidV2.address, 0, disputeTemplate, weth.address],
     log: true,
     maxFeePerGas: ONE_GWEI,
     maxPriorityFeePerGas: ONE_GWEI,
   });
-
-  await execute(
-    "ArbitrableExample",
-    {
-      from: deployer,
-      log: true,
-      maxFeePerGas: ONE_GWEI,
-      maxPriorityFeePerGas: ONE_GWEI,
-    },
-    "changeMetaEvidence",
-    1,
-    "/ipfs/bafkreibiuxwejijwg4pxco7fqszawcwmpt26itbdxeqgh7cvpeuwtmlhoa" // PoH clearing
-  );
 };
 
 // TODO: mock deployment on the hardhat network

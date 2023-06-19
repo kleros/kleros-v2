@@ -8,7 +8,7 @@
 
 pragma solidity 0.8.18;
 
-import "../arbitration/IArbitrable.sol";
+import "../arbitration/IArbitrableV2.sol";
 import "./interfaces/IForeignGateway.sol";
 
 /// Foreign Gateway
@@ -29,15 +29,6 @@ contract ForeignGateway is IForeignGateway {
     // ************************************* //
     // *              Events               * //
     // ************************************* //
-
-    event OutgoingDispute(
-        bytes32 disputeHash,
-        bytes32 blockhash,
-        uint256 localDisputeID,
-        uint256 _choices,
-        bytes _extraData,
-        address arbitrable
-    );
 
     event ArbitrationCostModified(uint96 indexed _courtID, uint256 _feeForJuror);
 
@@ -135,13 +126,13 @@ contract ForeignGateway is IForeignGateway {
         }
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
-                chainID,
-                blockhash(block.number - 1),
                 "createDispute",
+                blockhash(block.number - 1),
+                chainID,
+                msg.sender,
                 disputeID,
                 _choices,
-                _extraData,
-                msg.sender
+                _extraData
             )
         );
 
@@ -153,8 +144,7 @@ contract ForeignGateway is IForeignGateway {
             ruled: false
         });
 
-        emit OutgoingDispute(disputeHash, blockhash(block.number - 1), disputeID, _choices, _extraData, msg.sender);
-        emit DisputeCreation(disputeID, IArbitrable(msg.sender));
+        emit CrossChainDisputeOutgoing(blockhash(block.number - 1), msg.sender, disputeID, _choices, _extraData);
     }
 
     function createDisputeERC20(
@@ -185,7 +175,7 @@ contract ForeignGateway is IForeignGateway {
         dispute.ruled = true;
         dispute.relayer = _relayer;
 
-        IArbitrable arbitrable = IArbitrable(dispute.arbitrable);
+        IArbitrableV2 arbitrable = IArbitrableV2(dispute.arbitrable);
         arbitrable.rule(dispute.id, _ruling);
     }
 
@@ -205,6 +195,10 @@ contract ForeignGateway is IForeignGateway {
 
     function disputeHashToForeignID(bytes32 _disputeHash) external view override returns (uint256) {
         return disputeHashtoDisputeData[_disputeHash].id;
+    }
+
+    function currentRuling(uint _disputeID) external view returns (uint ruling) {
+        revert("Not supported");
     }
 
     // ************************ //
