@@ -9,11 +9,10 @@
 pragma solidity 0.8.18;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../../arbitration/IArbitrableV2.sol";
 import "@kleros/vea-contracts/src/interfaces/gateways/ISenderGateway.sol";
-import "../../arbitration/IArbitrable.sol";
-import "../../evidence/IMetaEvidence.sol";
 
-interface IHomeGateway is IArbitrable, IMetaEvidence, ISenderGateway {
+interface IHomeGateway is IArbitrableV2, ISenderGateway {
     /// @dev To be emitted when a dispute is received from the IForeignGateway.
     /// @param _arbitrator The arbitrator of the contract.
     /// @param _arbitrableChainId The chain identifier where the Arbitrable contract is deployed.
@@ -49,6 +48,25 @@ interface IHomeGateway is IArbitrable, IMetaEvidence, ISenderGateway {
         bytes calldata _extraData,
         address _arbitrable
     ) external payable;
+
+    // Workaround stack too deep for relayCreateDispute()
+    struct RelayCreateDisputeParams {
+        bytes32 foreignBlockHash;
+        uint256 foreignChainID;
+        address foreignArbitrable;
+        uint256 foreignDisputeID;
+        uint256 externalDisputeID;
+        uint256 templateId;
+        string templateUri;
+        uint256 choices;
+        bytes extraData;
+    }
+
+    /// @dev Relays a dispute creation from the ForeignGateway to the home arbitrator using the same parameters as the ones on the foreign chain.
+    ///      Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
+    ///      This function accepts the fees payment in the native currency of the home chain, typically ETH.
+    /// @param _params The parameters of the dispute, see `RelayCreateDisputeParams`.
+    function relayCreateDispute(RelayCreateDisputeParams memory _params) external payable;
 
     /// @dev Looks up the local home disputeID for a disputeHash
     /// @param _disputeHash dispute hash

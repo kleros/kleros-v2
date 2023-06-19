@@ -8,7 +8,7 @@
 
 pragma solidity 0.8.18;
 
-import "../arbitration/IArbitrable.sol";
+import "../arbitration/IArbitrableV2.sol";
 import "./interfaces/IForeignGateway.sol";
 
 /// Foreign Gateway
@@ -29,15 +29,6 @@ contract ForeignGateway is IForeignGateway {
     // ************************************* //
     // *              Events               * //
     // ************************************* //
-
-    event OutgoingDispute(
-        bytes32 disputeHash,
-        bytes32 blockhash,
-        uint256 localDisputeID,
-        uint256 _choices,
-        bytes _extraData,
-        address arbitrable
-    );
 
     event ArbitrationCostModified(uint96 indexed _courtID, uint256 _feeForJuror);
 
@@ -126,7 +117,7 @@ contract ForeignGateway is IForeignGateway {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @inheritdoc IArbitrator
+    /// @inheritdoc IArbitratorV2
     function createDispute(
         uint256 _choices,
         bytes calldata _extraData
@@ -140,13 +131,13 @@ contract ForeignGateway is IForeignGateway {
         }
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
-                chainID,
-                blockhash(block.number - 1),
                 "createDispute",
+                blockhash(block.number - 1),
+                chainID,
+                msg.sender,
                 disputeID,
                 _choices,
-                _extraData,
-                msg.sender
+                _extraData
             )
         );
 
@@ -158,11 +149,10 @@ contract ForeignGateway is IForeignGateway {
             ruled: false
         });
 
-        emit OutgoingDispute(disputeHash, blockhash(block.number - 1), disputeID, _choices, _extraData, msg.sender);
-        emit DisputeCreation(disputeID, IArbitrable(msg.sender));
+        emit CrossChainDisputeOutgoing(blockhash(block.number - 1), msg.sender, disputeID, _choices, _extraData);
     }
 
-    /// @inheritdoc IArbitrator
+    /// @inheritdoc IArbitratorV2
     function createDispute(
         uint256 /*_choices*/,
         bytes calldata /*_extraData*/,
@@ -172,7 +162,7 @@ contract ForeignGateway is IForeignGateway {
         revert("Not supported");
     }
 
-    /// @inheritdoc IArbitrator
+    /// @inheritdoc IArbitratorV2
     function arbitrationCost(bytes calldata _extraData) public view override returns (uint256 cost) {
         (uint96 courtID, uint256 minJurors) = extraDataToCourtIDMinJurors(_extraData);
         cost = feeForJuror[courtID] * minJurors;
@@ -201,7 +191,7 @@ contract ForeignGateway is IForeignGateway {
         dispute.ruled = true;
         dispute.relayer = _relayer;
 
-        IArbitrable arbitrable = IArbitrable(dispute.arbitrable);
+        IArbitrableV2 arbitrable = IArbitrableV2(dispute.arbitrable);
         arbitrable.rule(dispute.id, _ruling);
     }
 
@@ -228,6 +218,10 @@ contract ForeignGateway is IForeignGateway {
     /// @inheritdoc IReceiverGateway
     function senderGateway() external view override returns (address) {
         return homeGateway;
+}
+
+    function currentRuling(uint _disputeID) external view returns (uint ruling) {
+        revert("Not supported");
     }
 
     // ************************ //

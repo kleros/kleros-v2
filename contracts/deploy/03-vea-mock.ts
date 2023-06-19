@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import getContractAddress from "../deploy-helpers/getContractAddress";
+import disputeTemplate from "../../kleros-sdk/config/v2-disputetemplate/simple/NewDisputeTemplate.simple.json";
 
 const HARDHAT_NETWORK = 31337;
 
@@ -58,11 +59,9 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     ethers.BigNumber.from(10).pow(17)
   );
 
-  const metaEvidenceUri = `https://raw.githubusercontent.com/kleros/kleros-v2/master/contracts/deployments/goerli/MetaEvidence_ArbitrableExample.json`;
-
   await deploy("ArbitrableExample", {
     from: deployer,
-    args: [foreignGateway.address, 0, metaEvidenceUri, ethers.constants.AddressZero],
+    args: [foreignGateway.address, disputeTemplate, ethers.constants.AddressZero],
     log: true,
   });
 };

@@ -8,7 +8,7 @@
 
 pragma solidity 0.8.18;
 
-import "../arbitration/IArbitrator.sol";
+import "../arbitration/IArbitratorV2.sol";
 import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
 import "../libraries/SafeERC20.sol";
@@ -33,7 +33,7 @@ contract HomeGateway is IHomeGateway {
 
     IERC20 public constant NATIVE_CURRENCY = IERC20(address(0)); // The native currency, such as ETH on Arbitrum, Optimism and Ethereum L1.
     address public governor;
-    IArbitrator public arbitrator;
+    IArbitratorV2 public arbitrator;
     IVeaInbox public veaInbox;
     uint256 public immutable override foreignChainID;
     address public override foreignGateway;
@@ -48,7 +48,7 @@ contract HomeGateway is IHomeGateway {
 
     constructor(
         address _governor,
-        IArbitrator _arbitrator,
+        IArbitratorV2 _arbitrator,
         IVeaInbox _veaInbox,
         uint256 _foreignChainID,
         address _foreignGateway,
@@ -60,8 +60,6 @@ contract HomeGateway is IHomeGateway {
         foreignChainID = _foreignChainID;
         foreignGateway = _foreignGateway;
         feeToken = _feeToken;
-
-        emit MetaEvidence(0, "BRIDGE");
     }
 
     // ************************************* //
@@ -77,7 +75,7 @@ contract HomeGateway is IHomeGateway {
 
     /// @dev Changes the arbitrator.
     /// @param _arbitrator The address of the new arbitrator.
-    function changeArbitrator(IArbitrator _arbitrator) external {
+    function changeArbitrator(IArbitratorV2 _arbitrator) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
         arbitrator = _arbitrator;
     }
@@ -141,6 +139,47 @@ contract HomeGateway is IHomeGateway {
         emit Dispute(arbitrator, disputeID, 0, 0);
     }
 
+
+    /// @dev Provide the same parameters as on the foreignChain while creating a dispute. Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
+    /// @param _params The parameters of the dispute, see `RelayCreateDisputeParams`.
+    function relayCreateDispute(RelayCreateDisputeParams memory _params) external payable override {
+        bytes32 disputeHash = keccak256(
+            abi.encodePacked(
+                "createDispute",
+                _params.foreignBlockHash,
+                _params.foreignChainID,
+                _params.foreignArbitrable,
+                _params.foreignDisputeID,
+                _params.choices,
+                _params.extraData
+            )
+        );
+        require(_params.foreignChainID == foreignChainID, "Foreign chain ID not supported");
+
+        RelayedData storage relayedData = disputeHashtoRelayedData[disputeHash];
+        require(relayedData.relayer == address(0), "Dispute already relayed");
+
+        relayedData.arbitrationCost = arbitrator.arbitrationCost(_params.extraData);
+        require(msg.value >= relayedData.arbitrationCost, "Not enough arbitration cost paid");
+
+        uint256 disputeID = arbitrator.createDispute{value: msg.value}(_params.choices, _params.extraData);
+        disputeIDtoHash[disputeID] = disputeHash;
+        disputeHashtoID[disputeHash] = disputeID;
+        relayedData.relayer = msg.sender;
+
+        emit DisputeRequest(arbitrator, disputeID, _params.externalDisputeID, _params.templateId, _params.templateUri);
+
+        emit CrossChainDisputeIncoming(
+            arbitrator,
+            _params.foreignChainID,
+            _params.foreignArbitrable,
+            _params.foreignDisputeID,
+            _params.externalDisputeID,
+            _params.templateId,
+            _params.templateUri
+        );
+    }
+
     /// @inheritdoc IHomeGateway
     function relayCreateDispute(
         uint256 _foreignChainID,
@@ -150,7 +189,7 @@ contract HomeGateway is IHomeGateway {
         bytes calldata _extraData,
         address _arbitrable,
         uint256 _feeAmount
-    ) external payable {
+    ) external {
         require(feeToken != NATIVE_CURRENCY, "Fees paid in native currency only");
         require(_foreignChainID == foreignChainID, "Foreign chain ID not supported");
 
@@ -179,7 +218,7 @@ contract HomeGateway is IHomeGateway {
         emit Dispute(arbitrator, disputeID, 0, 0);
     }
 
-    /// @inheritdoc IArbitrable
+    /// @inheritdoc IArbitrableV2
     function rule(uint256 _disputeID, uint256 _ruling) external override {
         require(msg.sender == address(arbitrator), "Only Arbitrator");
 
