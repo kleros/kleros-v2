@@ -1,29 +1,39 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { ErrorBoundary } from "react-error-boundary";
 import { Button } from "@kleros/ui-components-library";
-import { switchChain } from "utils/switchChain";
+import { useSwitchNetwork } from "wagmi";
 import { DEFAULT_CHAIN, SUPPORTED_CHAINS } from "consts/chains";
 
 const WrongChainRecovery: React.FC<{ resetErrorBoundary: () => void }> = ({ resetErrorBoundary }) => {
-  const [loading, setLoading] = useState(false);
+  const { switchNetwork, error, isLoading } = useSwitchNetwork({
+    onSuccess() {
+      resetErrorBoundary();
+    },
+  });
+  const handleSwitch = () => {
+    if (!switchNetwork) {
+      console.error("Cannot switch network. Please do it manually.");
+      return;
+    }
+    try {
+      switchNetwork(DEFAULT_CHAIN);
+    } catch (err) {
+      console.error(err);
+    }
+  };
   return (
     <Container>
       <Button
-        isLoading={loading}
-        disabled={loading}
+        isLoading={isLoading}
+        disabled={isLoading}
         text={`Switch to ${SUPPORTED_CHAINS[DEFAULT_CHAIN].chainName}`}
-        onClick={() => {
-          setLoading(true);
-          switchChain(DEFAULT_CHAIN)
-            .then(resetErrorBoundary)
-            .finally(() => setLoading(false));
-        }}
+        onClick={handleSwitch}
       />
+      {error && <p>Error: {error.message}</p>}
     </Container>
   );
 };
-
 const Container = styled.div`
   width: 100vw;
   height: 100vh;
@@ -32,9 +42,7 @@ const Container = styled.div`
   justify-content: center;
   background-color: ${({ theme }) => theme.whiteBackground};
 `;
-
 const WrongChainBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <ErrorBoundary FallbackComponent={WrongChainRecovery}>{children}</ErrorBoundary>
 );
-
 export default WrongChainBoundary;
