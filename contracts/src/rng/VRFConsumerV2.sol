@@ -53,10 +53,10 @@ contract VRFConsumerV2 is VRFConsumerBaseV2, RNG {
 
     address public governor;
     bytes32 public keyHash;
-    VRFCoordinatorV2Interface vrfCoordinator;
+    VRFCoordinatorV2Interface public vrfCoordinator;
     uint64 public subscriptionId;
     uint32 public callbackGasLimit;
-    ISortitionModule sortitionModule;
+    ISortitionModule public sortitionModule;
     uint32 public numWords;
     uint16 public requestConfirmations;
     uint256 public lastRequestId;

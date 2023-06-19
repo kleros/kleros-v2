@@ -44,10 +44,10 @@ contract VRFSubscriptionManagerV2 {
     // *             Storage               * //
     // ************************************* //
 
-    VRFCoordinatorV2Interface vrfCoordinator;
-    LinkTokenInterface linkToken;
-    uint64 subscriptionId;
-    address governor;
+    VRFCoordinatorV2Interface public vrfCoordinator;
+    LinkTokenInterface public linkToken;
+    uint64 public subscriptionId;
+    address public governor;
 
     // ************************************* //
     // *        Function Modifiers         * //

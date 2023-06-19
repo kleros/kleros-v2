@@ -35,9 +35,9 @@ contract VRFSubscriptionManagerV2Mock {
     // *             Storage               * //
     // ************************************* //
 
-    VRFCoordinatorV2InterfaceMock vrfCoordinator;
-    uint64 subscriptionId;
-    address governor;
+    VRFCoordinatorV2InterfaceMock public vrfCoordinator;
+    uint64 public subscriptionId;
+    address public governor;
 
     // ************************************* //
     // *        Function Modifiers         * //
