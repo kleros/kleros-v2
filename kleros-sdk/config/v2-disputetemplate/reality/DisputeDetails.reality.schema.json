@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "DisputeDetails.reality.schema.json",
+  "title": "Root Schema",
+  "description": "The root schema is the schema that comprises the entire JSON document.",
+  "type": "object",
+  "required": [
+    "title",
+    "description",
+    "question",
+    "type",
+    "answers",
+    "frontendUrl",
+    "policyURI",
+    "arbitrableChainID",
+    "arbitrableAddress",
+    "arbitratorChainID",
+    "arbitratorAddress",
+    "category",
+    "lang",
+    "specification",
+    "metadata",
+    "externalDisputeID",
+    "arbitrableDisputeID",
+    "arbitratorDisputeID",
+    "disputeTemplateID",
+    "disputeTemplateHash"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/title"
+    },
+    "description": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/description"
+    },
+    "question": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/question"
+    },
+    "type": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/type"
+    },
+    "answers": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/answers"
+    },
+    "frontendUrl": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/frontendUrl"
+    },
+    "policyURI": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/policyURI"
+    },
+    "arbitrableChainID": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/arbitrableChainID"
+    },
+    "arbitrableAddress": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/arbitrableAddress"
+    },
+    "arbitratorChainID": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/arbitratorChainID"
+    },
+    "arbitratorAddress": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/arbitratorAddress"
+    },
+    "category": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/category"
+    },
+    "lang": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/lang"
+    },
+    "specification": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/specification"
+    },
+    "metadata": {
+      "type": "object",
+      "default": {},
+      "title": "The metadata Schema",
+      "required": [
+        "realityAddress",
+        "realityTemplateID",
+        "realityQuestionID",
+        "realityUser",
+        "realityType",
+        "realityCategory",
+        "realityLang",
+        "realityFormat",
+        "realityTimeout",
+        "realityOpeningTime",
+        "realityCreationTime",
+        "realityNonce"
+      ],
+      "properties": {
+        "realityAddress": {
+          "type": "string",
+          "default": "",
+          "title": "The realityAddress Schema",
+          "examples": [
+            "0xe78996a233895be74a66f451f1019ca9734205cc"
+          ]
+        },
+        "realityTemplateID": {
+          "type": "string",
+          "default": "",
+          "title": "The realityTemplateID Schema",
+          "examples": [
+            "76"
+          ]
+        },
+        "realityQuestionID": {
+          "type": "string",
+          "default": "",
+          "title": "The realityQuestionID Schema",
+          "examples": [
+            "0xe2a3bd38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b39"
+          ]
+        },
+        "realityUser": {
+          "type": "string",
+          "default": "",
+          "title": "The realityUser Schema",
+          "examples": [
+            "0xe0441ecf50205d3548456b29fde2a3010f9a61f3"
+          ]
+        },
+        "realityType": {
+          "type": "string",
+          "default": "",
+          "title": "The realityType Schema",
+          "examples": [
+            "bool"
+          ]
+        },
+        "realityCategory": {
+          "type": "string",
+          "default": "",
+          "title": "The realityCategory Schema",
+          "examples": [
+            "content moderation"
+          ]
+        },
+        "realityLang": {
+          "type": "string",
+          "default": "",
+          "title": "The realityLang Schema",
+          "examples": [
+            "en_US"
+          ]
+        },
+        "realityFormat": {
+          "type": "string",
+          "default": "",
+          "title": "The realityFormat Schema",
+          "examples": [
+            "text/markdown"
+          ]
+        },
+        "realityTimeout": {
+          "type": "string",
+          "default": "",
+          "title": "The realityTimeout Schema",
+          "examples": [
+            "86400"
+          ]
+        },
+        "realityOpeningTime": {
+          "type": "string",
+          "default": "",
+          "title": "The realityOpeningTime Schema",
+          "examples": [
+            "1681263978"
+          ]
+        },
+        "realityCreationTime": {
+          "type": "string",
+          "default": "",
+          "title": "The realityCreationTime Schema",
+          "examples": [
+            "1681263995"
+          ]
+        },
+        "realityNonce": {
+          "type": "string",
+          "default": "",
+          "title": "The realityNonce Schema",
+          "examples": [
+            "3"
+          ]
+        }
+      },
+      "examples": [
+        {
+          "realityAddress": "0xe78996a233895be74a66f451f1019ca9734205cc",
+          "realityTemplateID": "76",
+          "realityQuestionID": "0xe2a3bd38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b39",
+          "realityUser": "0xe0441ecf50205d3548456b29fde2a3010f9a61f3",
+          "realityType": "bool",
+          "realityCategory": "content moderation",
+          "realityLang": "en_US",
+          "realityFormat": "text/markdown",
+          "realityTimeout": "86400",
+          "realityOpeningTime": "1681263978",
+          "realityCreationTime": "1681263995",
+          "realityNonce": "3"
+        }
+      ]
+    },
+    "externalDisputeID": {
+      "type": "string",
+      "default": "",
+      "title": "The externalDisputeID Schema",
+      "examples": [
+        "0xe2a3bd38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b39"
+      ]
+    },
+    "arbitrableDisputeID": {
+      "type": "string",
+      "default": "",
+      "title": "The arbitrableDisputeID Schema",
+      "examples": [
+        "245"
+      ]
+    },
+    "arbitratorDisputeID": {
+      "type": "string",
+      "default": "",
+      "title": "The arbitratorDisputeID Schema",
+      "examples": [
+        "4563"
+      ]
+    },
+    "disputeTemplateID": {
+      "type": "string",
+      "default": "",
+      "title": "The disputeTemplateID Schema",
+      "examples": [
+        "42"
+      ]
+    },
+    "disputeTemplateHash": {
+      "type": "string",
+      "default": "",
+      "title": "The disputeTemplateHash Schema",
+      "examples": [
+        "0xffbbbd38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b82"
+      ]
+    }
+  }
+}

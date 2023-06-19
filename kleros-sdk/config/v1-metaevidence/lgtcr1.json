@@ -1,0 +1,50 @@
+{
+  "title": "Add a list to Consensus Layer Withdrawal Protection enabled badges",
+  "description": "Someone requested to add a list to Consensus Layer Withdrawal Protection enabled badges.",
+  "rulingOptions": {
+    "titles": [
+      "Yes, Add It",
+      "No, Don't Add It"
+    ],
+    "descriptions": [
+      "Select this if you think the list complies with the required criteria and should be added.",
+      "Select this if you think the list does not comply with the required criteria and should not be added."
+    ]
+  },
+  "category": "Curated Lists",
+  "question": "Does the list comply with the required criteria?",
+  "fileURI": "/ipfs/QmZ7RVU7re1g8nXDbAFMHV99pyie3dn4cY7Ga2X4h8mDpV/reject-all-policy.pdf",
+  "evidenceDisplayInterfaceURI": "/ipfs/QmQjJio59WkrQDzPC5kSP3EiGaqrWxjGfkvhmD2mWwm41M/index.html",
+  "metadata": {
+    "tcrTitle": "Consensus Layer Withdrawal Protection enabled badges",
+    "tcrDescription": "A List of lists related to Consensus Layer Withdrawal Protection",
+    "columns": [
+      {
+        "label": "Address",
+        "description": "The Badges list address",
+        "type": "GTCR address",
+        "isIdentifier": true
+      },
+      {
+        "label": "Match File URI",
+        "description": "The URI to the JSON file for matching columns for each list.",
+        "type": "text"
+      }
+    ],
+    "itemName": "list",
+    "itemNamePlural": "lists",
+    "isConnectedTCR": true,
+    "requireRemovalEvidence": true,
+    "isTCRofTCRs": true,
+    "parentTCRAddress": "0x479083b5343aB89bb39608e3176D750c8A6957B5",
+    "relTcrDisabled": true
+  },
+  "_v": "1.0.0",
+  "evidenceDisplayInterfaceRequiredParams": [
+    "disputeID",
+    "arbitrableContractAddress",
+    "arbitratorContractAddress",
+    "arbitrableChainID",
+    "arbitrableJsonRpcUrl"
+  ]
+}

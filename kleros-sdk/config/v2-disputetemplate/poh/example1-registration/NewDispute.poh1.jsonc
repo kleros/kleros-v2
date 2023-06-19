@@ -1,0 +1,11 @@
+{
+  "externalDisputeID": "0x306000938609016839401998194416306598562578921596", // hash(itemID, requestID)
+  "arbitrableDisputeID": "1556",
+  "templateID": "46"
+}
+
+/**
+  SubmissionChallenged._submissionID = 0x35998E80B3fa93cFD957D616e6f09cd830e9787c
+  SubmissionChallenged._requestID = 0
+  Dispute._evidenceGroupID = hash(_submissionID, _requestID) = 0x306000938609016839401998194416306598562578921596
+**/

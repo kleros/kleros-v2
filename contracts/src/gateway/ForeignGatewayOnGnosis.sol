@@ -47,7 +47,7 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
 
     uint256 public constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.
     uint256 internal localDisputeID = 1; // The disputeID must start from 1 as the KlerosV1 proxy governor depends on this implementation. We now also depend on localDisputeID not ever being zero.
-    mapping(uint96 => uint256) public feeForJuror; // feeForJuror[courtID], it mirrors the value on KlerosCore.
+    mapping(uint96 => uint256) public feeForJuror; // feeForJuror[v2CourtID], it mirrors the value on KlerosCore.
     address public governor;
     address public veaOutbox;
     uint256 public immutable override homeChainID;
@@ -117,7 +117,7 @@ contract ForeignGatewayOnGnosis is IForeignGateway {
     }
 
     /// @dev Changes the `feeForJuror` property value of a specified court.
-    /// @param _courtID The ID of the court.
+    /// @param _courtID The ID of the court on the v2 arbitrator. Not to be confused with the courtID on KlerosLiquid.
     /// @param _feeForJuror The new value for the `feeForJuror` property value.
     function changeCourtJurorFee(uint96 _courtID, uint256 _feeForJuror) external onlyByGovernor {
         feeForJuror[_courtID] = _feeForJuror;

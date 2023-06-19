@@ -1,0 +1,48 @@
+{
+  "title": "Remove an entry from Ledger Contract Domain Name registry v2",
+  "description": "Someone requested to remove an entry from Ledger Contract Domain Name registry v2",
+  "rulingOptions": {
+    "titles": [
+      "Yes, Remove It",
+      "No, Don't Remove It"
+    ],
+    "descriptions": [
+      "Select this if you think the entry does not comply with the required criteria and should be removed.",
+      "Select this if you think the entry complies with the required criteria and should not be removed."
+    ]
+  },
+  "category": "Curated Lists",
+  "question": "Does the entry comply with the required criteria?",
+  "fileURI": "/ipfs/QmdvkC5Djgk8MfX5ijJR3NJzmvGugUqvui7bKuTErSD6cE/contract-domain-name-registry-for-ledger-policy-3-.pdf",
+  "evidenceDisplayInterfaceURI": "/ipfs/QmNhJXtMrxeJu4fpchPruGrL93bm2M4VmDZ8pj4x6FqnHJ/index.html",
+  "metadata": {
+    "tcrTitle": "Ledger Contract Domain Name registry v2",
+    "tcrDescription": "A list of contract addresses and the domain names they are meant to be used from .",
+    "columns": [
+      {
+        "label": "Contract address",
+        "description": "The address of the contract in question. Case-sensitive only if required by the blockchain that the address pertains to (e.g. Solana). ",
+        "type": "rich address",
+        "isIdentifier": true
+      },
+      {
+        "label": "Domain name",
+        "description": "The specific (sub)domain name of the dApp where this contract is meant to be accessed from.  Wildcards (*) are acceptable as part of this field if proof can be shown that the contract is intended to be used across multiple domains.",
+        "type": "text",
+        "isIdentifier": true
+      },
+      {
+        "label": "Visual proof",
+        "description": "If the domain is a specific root or subdomain, this must be a screenshot of the exact page and setup where this particular address can be interacted from.",
+        "type": "image",
+        "isIdentifier": false
+      }
+    ],
+    "itemName": "entry",
+    "itemNamePlural": "entries",
+    "logoURI": "/ipfs/QmNNSDkpyDX1wB4NNFdAzaHsJihpvgNVV89zCH8FH9CVAz/ledger-white.png",
+    "requireRemovalEvidence": true,
+    "isTCRofTCRs": false,
+    "relTcrDisabled": true
+  }
+}
