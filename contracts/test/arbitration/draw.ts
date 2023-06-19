@@ -8,6 +8,8 @@ import {
   HomeGateway,
   DisputeKitClassic,
   SortitionModule,
+  VRFConsumerV2,
+  VRFCoordinatorV2Mock,
 } from "../../typechain-types";
 import { expect } from "chai";
 import { DrawEvent } from "../../typechain-types/src/kleros-v1/kleros-liquid-xdai/XKlerosLiquidV2";
@@ -53,6 +55,8 @@ describe("Draw Benchmark", async () => {
   const RANDOM = BigNumber.from("61688911660239508166491237672720926005752254046266901728404745669596507231249");
   const PARENT_COURT = 1;
   const CHILD_COURT = 2;
+  let vrfConsumer;
+  let vrfCoordinator;
 
   beforeEach("Setup", async () => {
     ({ deployer, relayer } = await getNamedAccounts());
@@ -67,6 +71,8 @@ describe("Draw Benchmark", async () => {
     homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGateway;
     arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
     sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
+    vrfConsumer = (await ethers.getContract("VRFConsumerV2")) as VRFConsumerV2;
+    vrfCoordinator = (await ethers.getContract("VRFCoordinatorV2Mock")) as VRFCoordinatorV2Mock;
 
     parentCourtMinStake = await core.courts(Courts.GENERAL).then((court) => court.minStake);
 

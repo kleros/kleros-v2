@@ -7,6 +7,8 @@ import {
   SortitionModule,
   RandomizerRNG,
   RandomizerMock,
+  VRFConsumerV2,
+  VRFCoordinatorV2Mock,
 } from "../../typechain-types";
 import { expect } from "chai";
 
@@ -28,6 +30,8 @@ describe("Unstake juror", async () => {
   let sortitionModule;
   let rng;
   let randomizer;
+  let vrfConsumer;
+  let vrfCoordinator;
 
   beforeEach("Setup", async () => {
     ({ deployer } = await getNamedAccounts());
@@ -41,6 +45,8 @@ describe("Unstake juror", async () => {
     sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
     rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
     randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
+    vrfConsumer = (await ethers.getContract("VRFConsumerV2")) as VRFConsumerV2;
+    vrfCoordinator = (await ethers.getContract("VRFCoordinatorV2Mock")) as VRFCoordinatorV2Mock;
   });
 
   it("Unstake inactive juror", async () => {
@@ -64,8 +70,10 @@ describe("Unstake juror", async () => {
     for (let index = 0; index < lookahead; index++) {
       await network.provider.send("evm_mine");
     }
-    await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
-    await sortitionModule.passPhase(); // Generating -> Drawing
+    // await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
+    const requestId = await vrfConsumer.lastRequestId();
+    await vrfCoordinator.fulfillRandomWords(requestId, vrfConsumer.address);
+    // await sortitionModule.passPhase(); // Generating -> Drawing
 
     await core.draw(0, 5000);
 

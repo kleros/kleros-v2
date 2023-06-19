@@ -13,6 +13,9 @@ import {
   RandomizerRNG,
   RandomizerMock,
   SortitionModule,
+  VRFConsumerV2,
+  VRFSubscriptionManagerV2Mock,
+  VRFCoordinatorV2Mock,
 } from "../../typechain-types";
 
 /* eslint-disable no-unused-vars */
@@ -39,7 +42,18 @@ describe("Integration tests", async () => {
   }
 
   let deployer;
-  let rng, randomizer, disputeKit, pnk, core, vea, foreignGateway, arbitrable, homeGateway, sortitionModule;
+  let rng,
+    randomizer,
+    vrfConsumer,
+    vrfCoordinator,
+    disputeKit,
+    pnk,
+    core,
+    vea,
+    foreignGateway,
+    arbitrable,
+    homeGateway,
+    sortitionModule;
 
   beforeEach("Setup", async () => {
     ({ deployer } = await getNamedAccounts());
@@ -49,6 +63,8 @@ describe("Integration tests", async () => {
     });
     rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
     randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
+    vrfCoordinator = (await ethers.getContract("VRFCoordinatorV2Mock")) as VRFCoordinatorV2Mock;
+    vrfConsumer = (await ethers.getContract("VRFConsumerV2")) as VRFConsumerV2;
     disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
@@ -149,8 +165,10 @@ describe("Integration tests", async () => {
     await mineBlocks(await sortitionModule.rngLookahead()); // Wait for finality
     expect(await sortitionModule.phase()).to.equal(Phase.generating);
     console.log("KC phase: %d", await sortitionModule.phase());
-    await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
-    await sortitionModule.passPhase(); // Generating -> Drawing
+    // await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
+    const reqId = await vrfConsumer.lastRequestId();
+    await vrfCoordinator.fulfillRandomWords(reqId, vrfConsumer.address);
+    // await sortitionModule.passPhase(); // Generating -> Drawing
     expect(await sortitionModule.phase()).to.equal(Phase.drawing);
     console.log("KC phase: %d", await sortitionModule.phase());
 
