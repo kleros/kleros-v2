@@ -13,8 +13,8 @@ interface IArbitrableV2 {
     /// @dev To be emitted when a new dispute template is created.
     /// @param _templateId The identifier of the dispute template.
     /// @param _templateTag An optional tag for the dispute template, such as "registration" or "removal".
-    /// @param data The template data.
-    event DisputeTemplate(uint256 indexed _templateId, string indexed _templateTag, string data);
+    /// @param _templateData The template data.
+    event DisputeTemplate(uint256 indexed _templateId, string indexed _templateTag, string _templateData);
 
     /// @dev To be emitted when a dispute is created to link the correct meta-evidence to the disputeID.
     /// @param _arbitrator The arbitrator of the contract.
