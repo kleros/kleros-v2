@@ -3876,7 +3876,7 @@ __metadata:
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
-    "@kleros/ui-components-library": ^1.9.2
+    "@kleros/ui-components-library": ^2.4.0
     "@netlify/functions": ^1.6.0
     "@parcel/transformer-svg-react": ~2.9.2
     "@parcel/watcher": ~2.1.0
@@ -3921,9 +3921,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kleros/ui-components-library@npm:^1.9.2":
-  version: 1.9.2
-  resolution: "@kleros/ui-components-library@npm:1.9.2"
+"@kleros/ui-components-library@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "@kleros/ui-components-library@npm:2.4.0"
   dependencies:
     "@datepicker-react/hooks": ^2.8.4
     "@swc/helpers": ^0.3.2
@@ -3934,12 +3934,13 @@ __metadata:
     simplebar: ^5.3.6
     simplebar-react: ^2.3.6
     smooth-scroll-into-view-if-needed: ^1.1.33
+    usehooks-ts: ^2.9.1
   peerDependencies:
     react: ^18.0.0
     react-dom: ^18.0.0
     react-is: ^18.0.0
     styled-components: ^5.3.3
-  checksum: 42dfddf1bf2e09be7f9350c173b371b29fdf22b25fb56c6500685d33bc63369ef316c05f0a8b7e81217abbab82557f8300de45357c6ec0d388882ca9d9c3c849
+  checksum: 378509947e676a73a028e45b6a2c9e14fc98bd29c5ce0b7662d08e4ed36bc1c274b0196d6983fa83ecc52ef112ad3a4bb01dab9800323d4ea670d9fe9c2d28dd
   languageName: node
   linkType: hard
 
@@ -26783,6 +26784,16 @@ __metadata:
   version: 9.0.0
   resolution: "urlpattern-polyfill@npm:9.0.0"
   checksum: d3658b78a10eaee514c464f5a4336c408c70cf01e9b915cb1df5892b3c49003d1ed4042dc72d1b18493b8b847883e84fbf2bf358abb5dff84b2725d5e8463bcb
+  languageName: node
+  linkType: hard
+
+"usehooks-ts@npm:^2.9.1":
+  version: 2.9.1
+  resolution: "usehooks-ts@npm:2.9.1"
+  peerDependencies:
+    react: ^16.8.0  || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0  || ^17.0.0 || ^18.0.0
+  checksum: 36f1e4142ce23bc019b81d2e93aefd7f2c350abcf255598c21627114a69a2f2f116b35dc3a353375f09c6e4c9b704a04f104e3d10e98280545c097feca66c30a
   languageName: node
   linkType: hard
 
