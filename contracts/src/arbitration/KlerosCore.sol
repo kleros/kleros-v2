@@ -9,14 +9,14 @@
 pragma solidity 0.8.18;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./IArbitrator.sol";
+import {IArbitrableV2, IArbitratorV2} from "./IArbitratorV2.sol";
 import "./IDisputeKit.sol";
 import "./ISortitionModule.sol";
 
 /// @title KlerosCore
 /// Core arbitrator contract for Kleros v2.
 /// Note that this contract trusts the token and the dispute kit contracts.
-contract KlerosCore is IArbitrator {
+contract KlerosCore is IArbitratorV2 {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -44,7 +44,7 @@ contract KlerosCore is IArbitrator {
 
     struct Dispute {
         uint96 courtID; // The ID of the court the dispute is in.
-        IArbitrable arbitrated; // The arbitrable contract.
+        IArbitrableV2 arbitrated; // The arbitrable contract.
         Period period; // The current period of the dispute.
         bool ruled; // True if the ruling has been executed, false otherwise.
         uint256 lastPeriodChange; // The last time the period was changed.
@@ -126,8 +126,8 @@ contract KlerosCore is IArbitrator {
     event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount);
     event StakeDelayed(address indexed _address, uint256 _courtID, uint256 _amount, uint256 _penalty);
     event NewPeriod(uint256 indexed _disputeID, Period _period);
-    event AppealPossible(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
-    event AppealDecision(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
+    event AppealPossible(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
+    event AppealDecision(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
     event Draw(address indexed _address, uint256 indexed _disputeID, uint256 _roundID, uint256 _voteID);
     event CourtCreated(
         uint256 indexed _courtID,
@@ -496,7 +496,7 @@ contract KlerosCore is IArbitrator {
         _setStakeForAccount(_account, _courtID, _stake, _penalty);
     }
 
-    /// @inheritdoc IArbitrator
+    /// @inheritdoc IArbitratorV2
     function createDispute(
         uint256 _numberOfChoices,
         bytes memory _extraData
@@ -509,7 +509,7 @@ contract KlerosCore is IArbitrator {
         disputeID = disputes.length;
         Dispute storage dispute = disputes.push();
         dispute.courtID = courtID;
-        dispute.arbitrated = IArbitrable(msg.sender);
+        dispute.arbitrated = IArbitrableV2(msg.sender);
         dispute.lastPeriodChange = block.timestamp;
 
         IDisputeKit disputeKit = disputeKitNodes[disputeKitID].disputeKit;
@@ -523,10 +523,10 @@ contract KlerosCore is IArbitrator {
         sortitionModule.createDisputeHook(disputeID, 0); // Default round ID.
 
         disputeKit.createDispute(disputeID, _numberOfChoices, _extraData, round.nbVotes);
-        emit DisputeCreation(disputeID, IArbitrable(msg.sender));
+        emit DisputeCreation(disputeID, IArbitrableV2(msg.sender));
     }
 
-    /// @inheritdoc IArbitrator
+    /// @inheritdoc IArbitratorV2
     function createDispute(
         uint256 _numberOfChoices,
         bytes calldata _extraData,
@@ -543,7 +543,7 @@ contract KlerosCore is IArbitrator {
         disputeID = disputes.length;
         Dispute storage dispute = disputes.push();
         dispute.courtID = courtID;
-        dispute.arbitrated = IArbitrable(msg.sender);
+        dispute.arbitrated = IArbitrableV2(msg.sender);
         dispute.lastPeriodChange = block.timestamp;
 
         IDisputeKit disputeKit = disputeKitNodes[disputeKitID].disputeKit;
@@ -560,7 +560,7 @@ contract KlerosCore is IArbitrator {
         sortitionModule.createDisputeHook(disputeID, 0); // Default round ID.
 
         disputeKit.createDispute(disputeID, _numberOfChoices, _extraData, round.nbVotes);
-        emit DisputeCreation(disputeID, IArbitrable(msg.sender));
+        emit DisputeCreation(disputeID, IArbitrableV2(msg.sender));
     }
 
     /// @dev Passes the period of a specified dispute.

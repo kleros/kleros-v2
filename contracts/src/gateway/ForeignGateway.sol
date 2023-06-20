@@ -210,9 +210,11 @@ contract ForeignGateway is IForeignGateway {
     /// @inheritdoc IReceiverGateway
     function senderGateway() external view override returns (address) {
         return homeGateway;
-}
+    }
 
-    function currentRuling(uint _disputeID) external view returns (uint ruling) {
+    function currentRuling(
+        uint256 /*_disputeID*/
+    ) public pure returns (uint256 /*ruling*/, bool /*tied*/, bool /*overridden*/) {
         revert("Not supported");
     }
 
