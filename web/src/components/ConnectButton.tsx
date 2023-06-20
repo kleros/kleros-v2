@@ -1,53 +1,13 @@
 import React from "react";
 import styled from "styled-components";
-import { useAccount, useNetwork, useSwitchNetwork } from "wagmi";
+import { useToggle } from "react-use";
+import { useAccount, useNetwork } from "wagmi";
 import { arbitrumGoerli } from "wagmi/chains";
 import { useWeb3Modal } from "@web3modal/react";
 import { shortenAddress } from "utils/shortenAddress";
 import { Button } from "@kleros/ui-components-library";
-import { DEFAULT_CHAIN, SUPPORTED_CHAINS } from "consts/chains";
-
-const AccountDisplay: React.FC = () => {
-  return (
-    <StyledContainer>
-      <ChainDisplay />
-      <AddressDisplay />
-    </StyledContainer>
-  );
-};
-
-export const ChainDisplay: React.FC = () => {
-  const { chain } = useNetwork();
-  return <small>{chain?.name}</small>;
-};
-
-export const AddressDisplay: React.FC = () => {
-  const { address } = useAccount();
-  return <label>{address && shortenAddress(address)}</label>;
-};
-
-export const SwitchChainButton: React.FC = () => {
-  const { switchNetwork, isLoading } = useSwitchNetwork();
-  const handleSwitch = () => {
-    if (!switchNetwork) {
-      console.error("Cannot switch network. Please do it manually.");
-      return;
-    }
-    try {
-      switchNetwork(DEFAULT_CHAIN);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  return (
-    <Button
-      isLoading={isLoading}
-      disabled={isLoading}
-      text={`Switch to ${SUPPORTED_CHAINS[DEFAULT_CHAIN].chainName}`}
-      onClick={handleSwitch}
-    />
-  );
-};
+import { DEFAULT_CHAIN } from "consts/chains";
+import SwitchChainModal from "./SwitchChainModal";
 
 const StyledContainer = styled.div`
   width: fit-content;
@@ -69,6 +29,40 @@ const StyledContainer = styled.div`
     background-color: ${({ theme }) => theme.success};
   }
 `;
+
+const StyledSwitchChainButton = styled(Button)`
+  width: fit-content;
+  height: 34px;
+`;
+
+const AccountDisplay: React.FC = () => {
+  return (
+    <StyledContainer>
+      <ChainDisplay />
+      <AddressDisplay />
+    </StyledContainer>
+  );
+};
+
+export const ChainDisplay: React.FC = () => {
+  const { chain } = useNetwork();
+  return <small>{chain?.name}</small>;
+};
+
+export const AddressDisplay: React.FC = () => {
+  const { address } = useAccount();
+  return <label>{address && shortenAddress(address)}</label>;
+};
+
+export const SwitchChainButton: React.FC = () => {
+  const [isSwitchChainModalOpen, toggleIsSwitchChainModalOpen] = useToggle(false);
+  return (
+    <>
+      <StyledSwitchChainButton text={`Switch chain`} onClick={toggleIsSwitchChainModalOpen} />
+      {isSwitchChainModalOpen && <SwitchChainModal toggle={toggleIsSwitchChainModalOpen} />}
+    </>
+  );
+};
 
 const ConnectButton: React.FC = () => {
   const { chain } = useNetwork();

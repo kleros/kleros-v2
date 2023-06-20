@@ -5,7 +5,6 @@ import { Routes, Route } from "react-router-dom";
 import "react-loading-skeleton/dist/skeleton.css";
 import Web3Provider from "context/Web3Provider";
 import StyledComponentsProvider from "context/StyledComponentsProvider";
-import WrongChainBoundary from "components/WrongChainBoundary";
 import Layout from "layout/index";
 import Home from "./pages/Home";
 import Cases from "./pages/Cases";
@@ -31,17 +30,15 @@ const App: React.FC = () => {
         }}
       >
         <Web3Provider>
-          <WrongChainBoundary>
-            <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Home />} />
-                <Route path="cases/*" element={<Cases />} />
-                <Route path="courts/*" element={<Courts />} />
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="*" element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>} />
-              </Route>
-            </Routes>
-          </WrongChainBoundary>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="cases/*" element={<Cases />} />
+              <Route path="courts/*" element={<Courts />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="*" element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>} />
+            </Route>
+          </Routes>
         </Web3Provider>
       </SWRConfig>
     </StyledComponentsProvider>

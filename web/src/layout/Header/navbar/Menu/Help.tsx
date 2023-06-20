@@ -7,6 +7,7 @@ import Bug from "svgs/icons/bug.svg";
 import ETH from "svgs/icons/eth.svg";
 import Faq from "svgs/menu-icons/help.svg";
 import Telegram from "svgs/socialmedia/telegram.svg";
+import { Overlay } from "components/Overlay";
 
 const ITEMS = [
   {
@@ -83,16 +84,6 @@ const Icon = styled.svg`
   width: 16px;
   height: 16px;
   fill: ${({ theme }) => theme.secondaryPurple};
-`;
-
-const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: ${({ theme }) => theme.blackLowOpacity};
-  z-index: 1;
 `;
 
 const Help: React.FC<IHelp> = ({ toggle }) => {
