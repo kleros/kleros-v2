@@ -10,20 +10,20 @@
 pragma solidity 0.8.18;
 
 // TODO: standard interfaces should be placed in a separated repo (?)
-import "../arbitration/IArbitrator.sol";
+import "../arbitration/IArbitratorV2.sol";
 
 /// @title Implementation of the Evidence Standard for cross-chain submissions
 contract EvidenceModule {
-    IArbitrator public arbitrator;
+    IArbitratorV2 public arbitrator;
 
     event Evidence(
-        IArbitrator indexed _arbitrator,
+        IArbitratorV2 indexed _arbitrator,
         uint256 indexed _evidenceGroupID,
         address indexed _party,
         string _evidence
     );
 
-    constructor(IArbitrator _arbitrator) {
+    constructor(IArbitratorV2 _arbitrator) {
         arbitrator = _arbitrator;
     }
 

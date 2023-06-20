@@ -631,14 +631,15 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     /// @dev Gets the current ruling of a specified dispute.
     /// @param _disputeID The ID of the dispute.
     /// @return ruling The current ruling.
-    function currentRuling(uint256 _disputeID) public view returns (uint256 ruling) {
+    /// @return tied Whether it's a tie or not.
+    /// @return overridden Whether the ruling was overridden by appeal funding or not.
+    function currentRuling(uint256 _disputeID) public view returns (uint256 ruling, bool tied, bool /*overridden*/) {
         Dispute storage dispute = disputes[_disputeID];
         if (dispute.voteCounters.length == 0) {
             ruling = disputesRuling[_disputeID];
         } else {
-            ruling = dispute.voteCounters[dispute.voteCounters.length - 1].tied
-                ? 0
-                : dispute.voteCounters[dispute.voteCounters.length - 1].winningChoice;
+            tied = dispute.voteCounters[dispute.voteCounters.length - 1].tied;
+            ruling = tied ? 0 : dispute.voteCounters[dispute.voteCounters.length - 1].winningChoice;
         }
     }
 

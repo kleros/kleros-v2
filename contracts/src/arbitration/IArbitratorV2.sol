@@ -29,7 +29,11 @@ interface IArbitratorV2 {
     /// @param _accepted Whether the token is accepted or not.
     event AcceptedFeeToken(IERC20 indexed _token, bool indexed _accepted);
 
+<<<<<<< HEAD
     /// @dev Create a dispute and pay for the fees in the native currency, typically ETH.
+=======
+    /// @dev Create a dispute.
+>>>>>>> c716852 (fix: manual fixes after rebasing onto feat/erc20-fees-on-arbitrator)
     ///      Must be called by the arbitrable contract.
     ///      Must pay at least arbitrationCost(_extraData).
     /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.
@@ -68,9 +72,10 @@ interface IArbitratorV2 {
     /// @return cost The arbitration cost in `_feeToken`.
     function arbitrationCost(bytes calldata _extraData, IERC20 _feeToken) external view returns (uint256 cost);
 
-    /// @dev Return the current ruling of a dispute.
-    ///      This is useful for parties to know if they should appeal.
-    /// @param _disputeID The identifer of the dispute.
-    /// @return ruling The ruling which has been given or the one which will be given if there is no appeal.
-    function currentRuling(uint _disputeID) external view returns (uint ruling);
+    /// @dev Gets the current ruling of a specified dispute.
+    /// @param _disputeID The ID of the dispute.
+    /// @return ruling The current ruling.
+    /// @return tied Whether it's a tie or not.
+    /// @return overridden Whether the ruling was overridden by appeal funding or not.
+    function currentRuling(uint256 _disputeID) external view returns (uint256 ruling, bool tied, bool overridden);
 }
