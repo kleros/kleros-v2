@@ -8,7 +8,7 @@
 
 pragma solidity 0.8.18;
 
-import "../../arbitration/IArbitrableV2.sol";
+import "../../arbitration/interfaces/IArbitrableV2.sol";
 import "@kleros/vea-contracts/src/interfaces/gateways/ISenderGateway.sol";
 
 interface IHomeGateway is IArbitrableV2, ISenderGateway {

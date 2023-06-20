@@ -10,8 +10,8 @@
 pragma solidity 0.8.18;
 
 // TODO: standard interfaces should be placed in a separated repo (?)
-import {IArbitrableV2, IArbitratorV2} from "../arbitration/IArbitrableV2.sol";
-import "../libraries/CappedMath.sol";
+import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
+import "../../libraries/CappedMath.sol";
 
 /// @title Implementation of the Evidence Standard with Moderated Submissions
 contract ModeratedEvidenceModule is IArbitrableV2 {

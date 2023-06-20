@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.18;
 
-import {IArbitrableV2, IArbitratorV2} from "./IArbitratorV2.sol";
+import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitratorV2.sol";
 
 /// @title Centralized Arbitrator
 /// @dev This is a centralized arbitrator deciding alone on the result of disputes. It illustrates how IArbitratorV2 interface can be implemented.

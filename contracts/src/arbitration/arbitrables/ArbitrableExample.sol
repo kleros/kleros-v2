@@ -3,7 +3,7 @@
 pragma solidity 0.8.18;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import {IArbitrableV2, IArbitratorV2} from "../IArbitrableV2.sol";
+import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
 
 /// @title ArbitrableExample
 /// An example of an arbitrable contract which connects to the arbitator that implements the updated interface.

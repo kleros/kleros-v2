@@ -5,7 +5,7 @@
 /// @custom:auditors: []
 /// @custom:bounties: []
 
-import "../IArbitrableV2.sol";
+import "../interfaces/IArbitrableV2.sol";
 
 pragma solidity 0.8.18;
 

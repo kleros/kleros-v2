@@ -9,7 +9,7 @@
 pragma solidity 0.8.18;
 
 import "./BaseDisputeKit.sol";
-import "../../evidence/IEvidence.sol";
+import "../interfaces/IEvidence.sol";
 
 /// @title DisputeKitClassic
 /// Dispute kit implementation of the Kleros v1 features including:

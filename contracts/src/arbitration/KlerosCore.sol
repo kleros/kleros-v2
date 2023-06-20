@@ -9,9 +9,9 @@
 pragma solidity 0.8.18;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IArbitrableV2, IArbitratorV2} from "./IArbitratorV2.sol";
-import "./IDisputeKit.sol";
-import "./ISortitionModule.sol";
+import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitratorV2.sol";
+import "./interfaces/IDisputeKit.sol";
+import "./interfaces/ISortitionModule.sol";
 
 /// @title KlerosCore
 /// Core arbitrator contract for Kleros v2.
