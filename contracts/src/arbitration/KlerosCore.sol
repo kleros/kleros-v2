@@ -140,7 +140,15 @@ contract KlerosCore is IArbitrator {
         uint256[4] _timesPerPeriod,
         uint256[] _supportedDisputeKits
     );
-    event CourtModified(uint96 indexed _courtID, string _param);
+    event CourtModified(
+        uint96 indexed _courtID,
+        bool _hiddenVotes,
+        uint256 _minStake,
+        uint256 _alpha,
+        uint256 _feeForJuror,
+        uint256 _jurorsForCourtJump,
+        uint256[4] _timesPerPeriod
+    );
     event DisputeKitCreated(
         uint256 indexed _disputeKitID,
         IDisputeKit indexed _disputeKitAddress,
@@ -181,7 +189,7 @@ contract KlerosCore is IArbitrator {
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(governor == msg.sender, "Governor only");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
@@ -272,7 +280,7 @@ contract KlerosCore is IArbitrator {
         bytes memory _data
     ) external onlyByGovernor {
         (bool success, ) = _destination.call{value: _amount}(_data);
-        require(success, "Unsuccessful call");
+        if (!success) revert UnsuccessfulCall();
     }
 
     /// @dev Changes the `governor` storage variable.
@@ -306,12 +314,12 @@ contract KlerosCore is IArbitrator {
     /// Note that the root DK must be supported by the general court.
     function addNewDisputeKit(IDisputeKit _disputeKitAddress, uint256 _parent) external onlyByGovernor {
         uint256 disputeKitID = disputeKitNodes.length;
-        require(_parent < disputeKitID, "!Parent");
+        if (_parent >= disputeKitID) revert InvalidDisputKitParent();
         uint256 depthLevel;
         if (_parent != NULL_DISPUTE_KIT) {
             depthLevel = disputeKitNodes[_parent].depthLevel + 1;
             // It should be always possible to reach the root from the leaf with the defined number of search iterations.
-            require(depthLevel < SEARCH_ITERATIONS, "Depth level max");
+            if (depthLevel >= SEARCH_ITERATIONS) revert DepthLevelMax();
         }
         disputeKitNodes.push(
             DisputeKitNode({
@@ -352,18 +360,17 @@ contract KlerosCore is IArbitrator {
         bytes memory _sortitionExtraData,
         uint256[] memory _supportedDisputeKits
     ) external onlyByGovernor {
-        require(courts[_parent].minStake <= _minStake, "MinStake lower than parent court");
-        require(_supportedDisputeKits.length > 0, "!Supported DK");
-        require(_parent != FORKING_COURT, "Invalid: Forking court as parent");
+        if (courts[_parent].minStake > _minStake) revert MinStakeLowerThanParentCourt();
+        if (_supportedDisputeKits.length == 0) revert UnsupportedDisputeKit();
+        if (_parent == FORKING_COURT) revert InvalidForkingCourtAsParent();
 
         uint256 courtID = courts.length;
         Court storage court = courts.push();
 
         for (uint256 i = 0; i < _supportedDisputeKits.length; i++) {
-            require(
-                _supportedDisputeKits[i] > 0 && _supportedDisputeKits[i] < disputeKitNodes.length,
-                "Wrong DK index"
-            );
+            if (_supportedDisputeKits[i] == 0 || _supportedDisputeKits[i] >= disputeKitNodes.length) {
+                revert WrongDisputeKitIndex();
+            }
             court.supportedDisputeKits[_supportedDisputeKits[i]] = true;
         }
 
@@ -393,60 +400,39 @@ contract KlerosCore is IArbitrator {
         );
     }
 
-    /// @dev Changes the `minStake` property value of a specified court. Don't set to a value lower than its parent's `minStake` property value.
-    /// @param _courtID The ID of the court.
-    /// @param _minStake The new value for the `minStake` property value.
-    function changeCourtMinStake(uint96 _courtID, uint256 _minStake) external onlyByGovernor {
-        require(
-            _courtID == GENERAL_COURT || courts[courts[_courtID].parent].minStake <= _minStake,
-            "MinStake lower than parent court"
-        );
-        for (uint256 i = 0; i < courts[_courtID].children.length; i++) {
-            require(courts[courts[_courtID].children[i]].minStake >= _minStake, "MinStake lower than parent court");
+    function changeCourtParameters(
+        uint96 _courtID,
+        bool _hiddenVotes,
+        uint256 _minStake,
+        uint256 _alpha,
+        uint256 _feeForJuror,
+        uint256 _jurorsForCourtJump,
+        uint256[4] memory _timesPerPeriod
+    ) external onlyByGovernor {
+        Court storage court = courts[_courtID];
+        if (_courtID != GENERAL_COURT && courts[courts[_courtID].parent].minStake > _minStake) {
+            revert MinStakeLowerThanParentCourt();
         }
-
+        for (uint256 i = 0; i < courts[_courtID].children.length; i++) {
+            if (courts[courts[_courtID].children[i]].minStake < _minStake) {
+                revert MinStakeLowerThanParentCourt();
+            }
+        }
         courts[_courtID].minStake = _minStake;
-        emit CourtModified(_courtID, "minStake");
-    }
-
-    /// @dev Changes the `alpha` property value of a specified court.
-    /// @param _courtID The ID of the court.
-    /// @param _alpha The new value for the `alpha` property value.
-    function changeCourtAlpha(uint96 _courtID, uint256 _alpha) external onlyByGovernor {
-        courts[_courtID].alpha = _alpha;
-        emit CourtModified(_courtID, "alpha");
-    }
-
-    /// @dev Changes the `feeForJuror` property value of a specified court.
-    /// @param _courtID The ID of the court.
-    /// @param _feeForJuror The new value for the `feeForJuror` property value.
-    function changeCourtJurorFee(uint96 _courtID, uint256 _feeForJuror) external onlyByGovernor {
-        courts[_courtID].feeForJuror = _feeForJuror;
-        emit CourtModified(_courtID, "feeForJuror");
-    }
-
-    /// @dev Changes the `jurorsForCourtJump` property value of a specified court.
-    /// @param _courtID The ID of the court.
-    /// @param _jurorsForCourtJump The new value for the `jurorsForCourtJump` property value.
-    function changeCourtJurorsForJump(uint96 _courtID, uint256 _jurorsForCourtJump) external onlyByGovernor {
-        courts[_courtID].jurorsForCourtJump = _jurorsForCourtJump;
-        emit CourtModified(_courtID, "jurorsForCourtJump");
-    }
-
-    /// @dev Changes the `hiddenVotes` property value of a specified court.
-    /// @param _courtID The ID of the court.
-    /// @param _hiddenVotes The new value for the `hiddenVotes` property value.
-    function changeCourtHiddenVotes(uint96 _courtID, bool _hiddenVotes) external onlyByGovernor {
         courts[_courtID].hiddenVotes = _hiddenVotes;
-        emit CourtModified(_courtID, "hiddenVotes");
-    }
-
-    /// @dev Changes the `timesPerPeriod` property value of a specified court.
-    /// @param _courtID The ID of the court.
-    /// @param _timesPerPeriod The new value for the `timesPerPeriod` property value.
-    function changeCourtTimesPerPeriod(uint96 _courtID, uint256[4] memory _timesPerPeriod) external onlyByGovernor {
+        courts[_courtID].alpha = _alpha;
+        courts[_courtID].feeForJuror = _feeForJuror;
+        courts[_courtID].jurorsForCourtJump = _jurorsForCourtJump;
         courts[_courtID].timesPerPeriod = _timesPerPeriod;
-        emit CourtModified(_courtID, "timesPerPeriod");
+        emit CourtModified(
+            _courtID,
+            _hiddenVotes,
+            _minStake,
+            _alpha,
+            _feeForJuror,
+            _jurorsForCourtJump,
+            _timesPerPeriod
+        );
     }
 
     /// @dev Adds/removes court's support for specified dispute kits.
@@ -456,13 +442,14 @@ contract KlerosCore is IArbitrator {
     function enableDisputeKits(uint96 _courtID, uint256[] memory _disputeKitIDs, bool _enable) external onlyByGovernor {
         for (uint256 i = 0; i < _disputeKitIDs.length; i++) {
             if (_enable) {
-                require(_disputeKitIDs[i] > 0 && _disputeKitIDs[i] < disputeKitNodes.length, "Wrong DK index");
+                if (_disputeKitIDs[i] == 0 || _disputeKitIDs[i] >= disputeKitNodes.length) {
+                    revert WrongDisputeKitIndex();
+                }
                 _enableDisputeKit(_courtID, _disputeKitIDs[i], true);
             } else {
-                require(
-                    !(_courtID == GENERAL_COURT && disputeKitNodes[_disputeKitIDs[i]].parent == NULL_DISPUTE_KIT),
-                    "Can't disable Root DK in General"
-                );
+                if (_courtID == GENERAL_COURT && disputeKitNodes[_disputeKitIDs[i]].parent == NULL_DISPUTE_KIT) {
+                    revert CannotDisableRootDKInGeneral();
+                }
                 _enableDisputeKit(_courtID, _disputeKitIDs[i], false);
             }
         }
@@ -472,7 +459,7 @@ contract KlerosCore is IArbitrator {
     /// @param _feeTokens The new value for the `supportedFeeTokens` storage variable.
     /// @param _accepted Whether the token is supported or not as a method of fee payment.
     function changeAcceptedFeeTokens(IERC20[] calldata _feeTokens, bool[] calldata _accepted) external onlyByGovernor {
-        require(_feeTokens.length == _accepted.length, "Arrays length mismatch");
+        if (_feeTokens.length != _accepted.length) revert ArraysLengthMismatch();
         for (uint256 i = 0; i < _feeTokens.length; i++) {
             currencyRates[address(_feeTokens[i])].feePaymentAccepted = _accepted[i];
             emit AcceptedFeeToken(address(_feeTokens[i]), _accepted[i]);
@@ -484,8 +471,8 @@ contract KlerosCore is IArbitrator {
         uint64[] calldata _rateInEth,
         uint8[] calldata _rateDecimals
     ) external onlyByGovernor {
-        require(_feeTokens.length == _rateInEth.length, "Arrays length mismatch");
-        require(_feeTokens.length == _rateDecimals.length, "Arrays length mismatch");
+        if (_feeTokens.length != _rateInEth.length) revert ArraysLengthMismatch();
+        if (_feeTokens.length != _rateDecimals.length) revert ArraysLengthMismatch();
         for (uint256 i = 0; i < _feeTokens.length; i++) {
             CurrencyRate storage rate = currencyRates[address(_feeTokens[i])];
             rate.rateInEth = _rateInEth[i];
@@ -501,11 +488,11 @@ contract KlerosCore is IArbitrator {
     /// @param _courtID The ID of the court.
     /// @param _stake The new stake.
     function setStake(uint96 _courtID, uint256 _stake) external {
-        require(_setStakeForAccount(msg.sender, _courtID, _stake, 0), "Staking failed");
+        if (!_setStakeForAccount(msg.sender, _courtID, _stake, 0)) revert StakingFailed();
     }
 
     function setStakeBySortitionModule(address _account, uint96 _courtID, uint256 _stake, uint256 _penalty) external {
-        require(msg.sender == address(sortitionModule), "Wrong caller");
+        if (msg.sender != address(sortitionModule)) revert WrongCaller();
         _setStakeForAccount(_account, _courtID, _stake, _penalty);
     }
 
@@ -514,10 +501,10 @@ contract KlerosCore is IArbitrator {
         uint256 _numberOfChoices,
         bytes memory _extraData
     ) external payable override returns (uint256 disputeID) {
-        require(msg.value >= arbitrationCost(_extraData), "Arbitration fees: not enough");
+        if (msg.value < arbitrationCost(_extraData)) revert ArbitrationFeesNotEnough();
 
         (uint96 courtID, , uint256 disputeKitID) = _extraDataToCourtIDMinJurorsDisputeKit(_extraData);
-        require(courts[courtID].supportedDisputeKits[disputeKitID], "DK unsupported by court");
+        if (!courts[courtID].supportedDisputeKits[disputeKitID]) revert DisputeKitNotSupportedByCourt();
 
         disputeID = disputes.length;
         Dispute storage dispute = disputes.push();
@@ -546,14 +533,12 @@ contract KlerosCore is IArbitrator {
         address _feeToken,
         uint256 _feeAmount
     ) external override returns (uint256 disputeID) {
-        require(currencyRates[_feeToken].feePaymentAccepted, "Token not accepted");
-        require(
-            _feeAmount >= convertEthToTokenAmount(_feeToken, arbitrationCost(_extraData)),
-            "Arbitration fees: not enough"
-        );
+        if (!currencyRates[_feeToken].feePaymentAccepted) revert TokenNotAccepted();
+        if (_feeAmount < convertEthToTokenAmount(_feeToken, arbitrationCost(_extraData)))
+            revert ArbitrationFeesNotEnough();
 
         (uint96 courtID, , uint256 disputeKitID) = _extraDataToCourtIDMinJurorsDisputeKit(_extraData);
-        require(courts[courtID].supportedDisputeKits[disputeKitID], "DK unsupported by court");
+        if (!courts[courtID].supportedDisputeKits[disputeKitID]) revert DisputeKitNotSupportedByCourt();
 
         disputeID = disputes.length;
         Dispute storage dispute = disputes.push();
@@ -587,36 +572,38 @@ contract KlerosCore is IArbitrator {
         uint256 currentRound = dispute.rounds.length - 1;
         Round storage round = dispute.rounds[currentRound];
         if (dispute.period == Period.evidence) {
-            require(
-                currentRound > 0 ||
-                    block.timestamp - dispute.lastPeriodChange >= court.timesPerPeriod[uint256(dispute.period)],
-                "Evidence not passed && !Appeal"
-            );
-            require(round.drawnJurors.length == round.nbVotes, "Dispute still drawing");
+            if (
+                currentRound == 0 &&
+                block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)]
+            ) {
+                revert EvidenceNotPassedAndNotAppeal();
+            }
+            if (round.drawnJurors.length != round.nbVotes) revert DisputeStillDrawing();
             dispute.period = court.hiddenVotes ? Period.commit : Period.vote;
         } else if (dispute.period == Period.commit) {
-            require(
-                block.timestamp - dispute.lastPeriodChange >= court.timesPerPeriod[uint256(dispute.period)] ||
-                    disputeKitNodes[round.disputeKitID].disputeKit.areCommitsAllCast(_disputeID),
-                "Commit period not passed"
-            );
+            if (
+                block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)] &&
+                !disputeKitNodes[round.disputeKitID].disputeKit.areCommitsAllCast(_disputeID)
+            ) {
+                revert CommitPeriodNotPassed();
+            }
             dispute.period = Period.vote;
         } else if (dispute.period == Period.vote) {
-            require(
-                block.timestamp - dispute.lastPeriodChange >= court.timesPerPeriod[uint256(dispute.period)] ||
-                    disputeKitNodes[round.disputeKitID].disputeKit.areVotesAllCast(_disputeID),
-                "Vote period not passed"
-            );
+            if (
+                block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)] &&
+                disputeKitNodes[round.disputeKitID].disputeKit.areVotesAllCast(_disputeID)
+            ) {
+                revert VotePeriodNotPassed();
+            }
             dispute.period = Period.appeal;
             emit AppealPossible(_disputeID, dispute.arbitrated);
         } else if (dispute.period == Period.appeal) {
-            require(
-                block.timestamp - dispute.lastPeriodChange >= court.timesPerPeriod[uint256(dispute.period)],
-                "Appeal period not passed"
-            );
+            if (block.timestamp - dispute.lastPeriodChange < court.timesPerPeriod[uint256(dispute.period)]) {
+                revert AppealPeriodNotPassed();
+            }
             dispute.period = Period.execution;
         } else if (dispute.period == Period.execution) {
-            revert("Dispute period is final");
+            revert DisputePeriodIsFinal();
         }
 
         dispute.lastPeriodChange = block.timestamp;
@@ -630,7 +617,7 @@ contract KlerosCore is IArbitrator {
         Dispute storage dispute = disputes[_disputeID];
         uint256 currentRound = dispute.rounds.length - 1;
         Round storage round = dispute.rounds[currentRound];
-        require(dispute.period == Period.evidence, "!Evidence period");
+        if (dispute.period != Period.evidence) revert NotEvidencePeriod();
 
         IDisputeKit disputeKit = disputeKitNodes[round.disputeKitID].disputeKit;
 
@@ -657,13 +644,13 @@ contract KlerosCore is IArbitrator {
     /// @param _numberOfChoices Number of choices for the dispute. Can be required during court jump.
     /// @param _extraData Extradata for the dispute. Can be required during court jump.
     function appeal(uint256 _disputeID, uint256 _numberOfChoices, bytes memory _extraData) external payable {
-        require(msg.value >= appealCost(_disputeID), "ETH too low for appeal cost");
+        if (msg.value < appealCost(_disputeID)) revert AppealFeesNotEnough();
 
         Dispute storage dispute = disputes[_disputeID];
-        require(dispute.period == Period.appeal, "Dispute not appealable");
+        if (dispute.period != Period.appeal) revert DisputeNotAppealable();
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
-        require(msg.sender == address(disputeKitNodes[round.disputeKitID].disputeKit), "Dispute Kit only");
+        if (msg.sender != address(disputeKitNodes[round.disputeKitID].disputeKit)) revert DisputeKitOnly();
 
         uint96 newCourtID = dispute.courtID;
         uint256 newDisputeKitID = round.disputeKitID;
@@ -727,7 +714,7 @@ contract KlerosCore is IArbitrator {
     /// @param _iterations The number of iterations to run.
     function execute(uint256 _disputeID, uint256 _round, uint256 _iterations) external {
         Dispute storage dispute = disputes[_disputeID];
-        require(dispute.period == Period.execution, "!Execution period");
+        if (dispute.period != Period.execution) revert NotExecutionPeriod();
 
         Round storage round = dispute.rounds[_round];
         IDisputeKit disputeKit = disputeKitNodes[round.disputeKitID].disputeKit;
@@ -921,8 +908,8 @@ contract KlerosCore is IArbitrator {
     /// @param _disputeID The ID of the dispute.
     function executeRuling(uint256 _disputeID) external {
         Dispute storage dispute = disputes[_disputeID];
-        require(dispute.period == Period.execution, "!Execution period");
-        require(!dispute.ruled, "Ruling already executed");
+        if (dispute.period != Period.execution) revert NotExecutionPeriod();
+        if (dispute.ruled) revert RulingAlreadyExecuted();
 
         (uint256 winningChoice, , ) = currentRuling(_disputeID);
         dispute.ruled = true;
@@ -1252,4 +1239,36 @@ contract KlerosCore is IArbitrator {
         );
         return (success && (data.length == 0 || abi.decode(data, (bool))));
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
+    error UnsuccessfulCall();
+    error InvalidDisputKitParent();
+    error DepthLevelMax();
+    error MinStakeLowerThanParentCourt();
+    error UnsupportedDisputeKit();
+    error InvalidForkingCourtAsParent();
+    error WrongDisputeKitIndex();
+    error CannotDisableRootDKInGeneral();
+    error ArraysLengthMismatch();
+    error StakingFailed();
+    error WrongCaller();
+    error ArbitrationFeesNotEnough();
+    error DisputeKitNotSupportedByCourt();
+    error TokenNotAccepted();
+    error EvidenceNotPassedAndNotAppeal();
+    error DisputeStillDrawing();
+    error CommitPeriodNotPassed();
+    error VotePeriodNotPassed();
+    error AppealPeriodNotPassed();
+    error NotEvidencePeriod();
+    error AppealFeesNotEnough();
+    error DisputeNotAppealable();
+    error DisputeKitOnly();
+    error NotExecutionPeriod();
+    error RulingAlreadyExecuted();
+    error DisputePeriodIsFinal();
 }
