@@ -1,8 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { useAccount } from "wagmi";
+import { useAccount, useNetwork } from "wagmi";
 import Identicon from "react-identicons";
 import ConnectButton, { AddressDisplay, ChainDisplay } from "components/ConnectButton";
+import { SUPPORTED_CHAINIDS } from "consts/chains";
 
 const Container = styled.div`
   display: flex;
@@ -50,8 +51,9 @@ const StyledConnectButtonContainer = styled.div`
 
 const General: React.FC = () => {
   const { address } = useAccount();
+  const { chain } = useNetwork();
 
-  return address ? (
+  return chain && SUPPORTED_CHAINIDS.includes(chain.id) ? (
     <Container>
       <StyledChainContainer>
         <ChainDisplay />

@@ -2,11 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import { useToggle } from "react-use";
 import { useAccount, useNetwork } from "wagmi";
-import { arbitrumGoerli } from "wagmi/chains";
 import { useWeb3Modal } from "@web3modal/react";
 import { shortenAddress } from "utils/shortenAddress";
 import { Button } from "@kleros/ui-components-library";
-import { DEFAULT_CHAIN } from "consts/chains";
+import { SUPPORTED_CHAINIDS } from "consts/chains";
 import SwitchChainModal from "./SwitchChainModal";
 
 const StyledContainer = styled.div`
@@ -66,11 +65,9 @@ export const SwitchChainButton: React.FC = () => {
 
 const ConnectButton: React.FC = () => {
   const { chain } = useNetwork();
-  const { isConnected } = useAccount();
-  const { open, setDefaultChain, isOpen } = useWeb3Modal();
-  setDefaultChain(arbitrumGoerli);
-  return isConnected ? (
-    chain?.id !== DEFAULT_CHAIN ? (
+  const { open, isOpen } = useWeb3Modal();
+  return chain ? (
+    !SUPPORTED_CHAINIDS.includes(chain.id) ? (
       <SwitchChainButton />
     ) : (
       <AccountDisplay />
