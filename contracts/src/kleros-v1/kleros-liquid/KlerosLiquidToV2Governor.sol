@@ -4,7 +4,7 @@ pragma solidity 0.8.18;
 
 import "../interfaces/IKlerosLiquid.sol";
 import "../interfaces/ITokenController.sol";
-import {IArbitratorV2, IArbitrableV2} from "../../arbitration/IArbitratorV2.sol";
+import {IArbitratorV2, IArbitrableV2} from "../../arbitration/interfaces/IArbitratorV2.sol";
 
 interface IPinakion {
     function balanceOf(address who) external view returns (uint256);

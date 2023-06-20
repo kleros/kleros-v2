@@ -8,7 +8,6 @@
 
 pragma solidity 0.8.18;
 
-import "../arbitration/IArbitratorV2.sol";
 import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
 import "../libraries/SafeERC20.sol";

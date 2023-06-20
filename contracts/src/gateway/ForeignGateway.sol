@@ -8,7 +8,6 @@
 
 pragma solidity 0.8.18;
 
-import "../arbitration/IArbitrableV2.sol";
 import "./interfaces/IForeignGateway.sol";
 
 /// Foreign Gateway

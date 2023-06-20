@@ -8,7 +8,7 @@
 
 pragma solidity 0.8.18;
 
-import "../IDisputeKit.sol";
+import "../interfaces/IDisputeKit.sol";
 import "../KlerosCore.sol";
 
 /// @title BaseDisputeKit

@@ -9,7 +9,7 @@
 pragma solidity 0.8.18;
 
 import "./BaseDisputeKit.sol";
-import "../../evidence/IEvidence.sol";
+import "../interfaces//IEvidence.sol";
 
 interface IProofOfHumanity {
     /// @dev Return true if the submission is registered and not expired.

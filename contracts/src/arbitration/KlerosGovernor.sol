@@ -7,7 +7,7 @@
 
 pragma solidity 0.8.18;
 
-import {IArbitrableV2, IArbitratorV2} from "./IArbitrableV2.sol";
+import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitrableV2.sol";
 import "../libraries/CappedMath.sol";
 
 /// @title KlerosGovernor for V2. Note that appeal functionality and evidence submission will be handled by the court.

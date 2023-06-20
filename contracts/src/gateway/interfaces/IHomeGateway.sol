@@ -9,8 +9,8 @@
 pragma solidity 0.8.18;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../../arbitration/IArbitrableV2.sol";
 import "@kleros/vea-contracts/src/interfaces/gateways/ISenderGateway.sol";
+import "../../arbitration/interfaces/IArbitrableV2.sol";
 
 interface IHomeGateway is IArbitrableV2, ISenderGateway {
     /// @dev To be emitted when a dispute is received from the IForeignGateway.

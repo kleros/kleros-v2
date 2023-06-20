@@ -4,7 +4,7 @@ pragma solidity 0.8.18;
 
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IArbitratorV2, IArbitrableV2} from "../../arbitration/IArbitratorV2.sol";
+import {IArbitratorV2, IArbitrableV2} from "../../arbitration/interfaces/IArbitratorV2.sol";
 import {ITokenController} from "../interfaces/ITokenController.sol";
 import {WrappedPinakion} from "./WrappedPinakion.sol";
 import {IRandomAuRa} from "./interfaces/IRandomAuRa.sol";
