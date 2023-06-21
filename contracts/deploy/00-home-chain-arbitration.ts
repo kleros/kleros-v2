@@ -184,7 +184,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
         "VRFSubscriptionManagerV2Mock"
       )) as VRFSubscriptionManagerV2Mock;
       await vrfSubscriptionManagerContract.topUpSubscription(BigNumber.from(10).pow(20)); // 100 LINK
-      const subId = await vrfSubscriptionManagerContract.subscriptionId();
+      const subscriptionId = await vrfSubscriptionManagerContract.subscriptionId();
       const vrfConsumer = await deploy("VRFConsumerV2", {
         from: deployer,
         args: [
@@ -192,7 +192,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
           vrfCoordinator,
           sortitionModule.address,
           keyHash,
-          subId,
+          subscriptionId,
           requestConfirmations,
           callbackGasLimit,
           numWords,
