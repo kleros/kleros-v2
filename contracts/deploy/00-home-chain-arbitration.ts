@@ -183,7 +183,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       const vrfSubscriptionManagerContract = (await hre.ethers.getContract(
         "VRFSubscriptionManagerV2Mock"
       )) as VRFSubscriptionManagerV2Mock;
-      await vrfSubscriptionManagerContract.createNewSubscription();
       await vrfSubscriptionManagerContract.topUpSubscription(BigNumber.from(10).pow(20)); // 100 LINK
       const subId = await vrfSubscriptionManagerContract.subscriptionId();
       const vrfConsumer = await deploy("VRFConsumerV2", {
