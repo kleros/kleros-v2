@@ -60,6 +60,7 @@ contract VRFSubscriptionManagerV2Mock {
     constructor(address _governor, address _vrfCoordinator) {
         vrfCoordinator = VRFCoordinatorV2InterfaceMock(_vrfCoordinator);
         governor = _governor;
+        createNewSubscription();
     }
 
     // ************************************* //
@@ -81,7 +82,7 @@ contract VRFSubscriptionManagerV2Mock {
     /**
      * @dev Creates a new subscription, overriding the previous one to be manageable by the contract.
      */
-    function createNewSubscription() external onlyByGovernor {
+    function createNewSubscription() public onlyByGovernor {
         subscriptionId = vrfCoordinator.createSubscription();
     }
 
