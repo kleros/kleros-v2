@@ -4,7 +4,7 @@ import { BigNumber } from "ethers";
 import getContractAddress from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped, isDevnet } from "./utils";
-import { VRFSubscriptionManagerV2Mock, SortitionModule } from "../typechain-types";
+import { VRFSubscriptionManagerV2, VRFSubscriptionManagerV2Mock } from "../typechain-types";
 
 const pnkByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x330bD769382cFc6d50175903434CCC8D206DCAE5"],
@@ -177,8 +177,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     : AddressZero;
 
   // Execute the setup transactions for using VRF and deploy the Consumer contract on Hardhat node
+  // The Sortition Module rng source is not changed to the VRF Consumer.
   if (vrfSubscriptionManager) {
-    // The Sortition Module is not changed to the VRF Consumer, it must be done in the test.
     if (chainId === HomeChains.HARDHAT) {
       const vrfSubscriptionManagerContract = (await hre.ethers.getContract(
         "VRFSubscriptionManagerV2Mock"
@@ -201,6 +201,26 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       });
       await vrfSubscriptionManagerContract.addConsumer(vrfConsumer.address);
     }
+  } else {
+    const vrfSubscriptionManagerContract = (await hre.ethers.getContract(
+      "VRFSubscriptionManagerV2"
+    )) as VRFSubscriptionManagerV2;
+    const subscriptionId = await vrfSubscriptionManagerContract.subscriptionId();
+    const vrfConsumer = await deploy("VRFConsumerV2", {
+      from: deployer,
+      args: [
+        deployer,
+        vrfCoordinator,
+        sortitionModule.address,
+        keyHash,
+        subscriptionId,
+        requestConfirmations,
+        callbackGasLimit,
+        numWords,
+      ],
+      log: true,
+    });
+    await vrfSubscriptionManagerContract.addConsumer(vrfConsumer.address);
   }
 };
 
