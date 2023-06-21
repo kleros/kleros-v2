@@ -48,8 +48,8 @@ const Evidence: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
         <ConnectButton />
       )}
       {data &&
-        data.evidences.map(({ evidence, sender }, i) => (
-          <EvidenceCard key={i} index={i + 1} sender={sender?.id} {...{ evidence }} />
+        data.evidences.map(({ id, evidence, sender }, i) => (
+          <EvidenceCard key={id} index={i + 1} sender={sender?.id} {...{ evidence }} />
         ))}
     </Container>
   );

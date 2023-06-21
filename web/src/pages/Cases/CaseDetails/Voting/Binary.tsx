@@ -20,6 +20,21 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
   const { data: walletClient } = useWalletClient();
   const { chain } = useNetwork();
 
+  const handleVote = async (voteOption: number) => {
+    setIsSending(true);
+    setChosenOption(voteOption);
+    const { request } = await prepareWriteDisputeKitClassic({
+      functionName: "castVote",
+      args: [parsedDisputeID, parsedVoteIDs, BigInt(voteOption), 0n, justification],
+    });
+    if (walletClient) {
+      wrapWithToast(walletClient.writeContract(request)).finally(() => {
+        setChosenOption(-1);
+        setIsSending(false);
+      });
+    }
+  };
+
   return id ? (
     <Container>
       <MainContainer>
@@ -35,26 +50,13 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
         />
         <OptionsContainer>
           {metaEvidence?.rulingOptions?.titles?.map((answer: string, i: number) => {
-            chain && chain.id === DEFAULT_CHAIN ? (
+            return chain && chain.id === DEFAULT_CHAIN ? (
               <Button
                 key={i}
                 text={answer}
                 disabled={isSending}
                 isLoading={chosenOption === i + 1}
-                onClick={async () => {
-                  setIsSending(true);
-                  setChosenOption(i + 1);
-                  const { request } = await prepareWriteDisputeKitClassic({
-                    functionName: "castVote",
-                    args: [parsedDisputeID, parsedVoteIDs, BigInt(i + 1), 0n, justification],
-                  });
-                  if (walletClient) {
-                    wrapWithToast(walletClient?.writeContract(request)).finally(() => {
-                      setChosenOption(-1);
-                      setIsSending(false);
-                    });
-                  }
-                }}
+                onClick={() => handleVote(i + 1)}
               />
             ) : (
               <ConnectButton />
@@ -69,20 +71,7 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
             text="Refuse to Arbitrate"
             disabled={isSending}
             isLoading={chosenOption === 0}
-            onClick={async () => {
-              setIsSending(true);
-              setChosenOption(0);
-              const { request } = await prepareWriteDisputeKitClassic({
-                functionName: "castVote",
-                args: [parsedDisputeID, parsedVoteIDs, 0n, 0n, justification],
-              });
-              if (walletClient) {
-                wrapWithToast(walletClient.writeContract(request)).finally(() => {
-                  setChosenOption(-1);
-                  setIsSending(false);
-                });
-              }
-            }}
+            onClick={() => handleVote(0)}
           />
         ) : (
           <ConnectButton />
@@ -93,6 +82,7 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
     <></>
   );
 };
+
 const Container = styled.div`
   width: 100%;
   height: auto;

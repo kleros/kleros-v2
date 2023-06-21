@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
 import { useDebounce } from "react-use";
-import { useAccount, useNetwork } from "wagmi";
+import { useAccount } from "wagmi";
 import { Field } from "@kleros/ui-components-library";
 
 import { useParsedAmount } from "hooks/useParsedAmount";
@@ -26,7 +26,6 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, isSending, setIsSending
 
   const { id } = useParams();
   const { address } = useAccount();
-  const { chain } = useNetwork();
   const { data: balance } = usePNKBalance(address);
   const parsedBalance = formatEther(balance ?? 0n);
   const { data: jurorBalance } = useJurorBalance(address, id);
