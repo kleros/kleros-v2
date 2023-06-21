@@ -155,12 +155,13 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const link = linkByChain.get(Number(await getChainId())) ?? AddressZero;
+  const link = linkByChain.get(Number(await getChainId())) ?? AddressZero; // LINK not needed on hardhat local node
   const keyHash = keyHashByChain.get(Number(await getChainId())) ?? AddressZero;
-  const requestConfirmations = 3;
-  const callbackGasLimit = 100000;
+  const requestConfirmations = 3; // Paramater to be fixed, range [1 ; 200] on Arbitrum
+  const callbackGasLimit = 100000; // Parameter to be fixed, 50000 on RandomizerRNG but no external call to sortitionModule.passPhase() in the callback
   const numWords = 1;
   const vrfCoordinator = vrfCoordinatorByChain.get(Number(await getChainId())) ?? AddressZero;
+  // Deploy the VRF Subscription Manager contract on Arbitrum, a mock contract on Hardhat node or nothing on other networks.
   const vrfSubscriptionManagerDeploy = vrfCoordinator
     ? chainId === HomeChains.HARDHAT
       ? await deploy("VRFSubscriptionManagerV2Mock", {
@@ -175,6 +176,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
         })
     : AddressZero;
 
+  // Execute the setup transactions for using VRF and deploy the Consumer contract on Hardhat node
   if (vrfSubscriptionManagerDeploy) {
     if (chainId === HomeChains.HARDHAT) {
       const vrfSubscriptionManager = (await hre.ethers.getContract(
