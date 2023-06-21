@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { BigNumber } from "ethers";
-import { DeployFunction } from "hardhat-deploy/types";
+import { DeployFunction, DeployResult } from "hardhat-deploy/types";
 import { SortitionModule, VRFSubscriptionManagerV2Mock, VRFSubscriptionManagerV2 } from "../typechain-types";
 import { HomeChains, isSkipped } from "./utils";
 import { deployUpgradable } from "./utils/deployUpgradable";
@@ -96,19 +96,23 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const numWords = 1;
   const vrfCoordinator = vrfCoordinatorByChain.get(Number(await getChainId())) ?? AddressZero;
   // Deploy the VRF Subscription Manager contract on Arbitrum, a mock contract on Hardhat node or nothing on other networks.
-  const vrfSubscriptionManager = vrfCoordinator
-    ? chainId === HomeChains.HARDHAT
-      ? await deploy("VRFSubscriptionManagerV2Mock", {
-          from: deployer,
-          args: [deployer, vrfCoordinator],
-          log: true,
-        })
-      : await deploy("VRFSubscriptionManagerV2", {
-          from: deployer,
-          args: [deployer, vrfCoordinator, link],
-          log: true,
-        })
-    : AddressZero;
+  let vrfSubscriptionManager: DeployResult | string;
+  if (vrfCoordinator) {
+    vrfSubscriptionManager =
+      chainId === HomeChains.HARDHAT
+        ? await deploy("VRFSubscriptionManagerV2Mock", {
+            from: deployer,
+            args: [deployer, vrfCoordinator],
+            log: true,
+          })
+        : await deploy("VRFSubscriptionManagerV2", {
+            from: deployer,
+            args: [deployer, vrfCoordinator, link],
+            log: true,
+          });
+  } else {
+    vrfSubscriptionManager = AddressZero;
+  }
 
   // Execute the setup transactions for using VRF and deploy the Consumer contract on Hardhat node
   // The Sortition Module rng source is not changed to the VRF Consumer.
