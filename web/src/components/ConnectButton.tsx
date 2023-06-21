@@ -1,12 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import { useToggle } from "react-use";
-import { useAccount, useNetwork } from "wagmi";
+import { useAccount, useNetwork, useSwitchNetwork } from "wagmi";
 import { useWeb3Modal } from "@web3modal/react";
 import { shortenAddress } from "utils/shortenAddress";
 import { Button } from "@kleros/ui-components-library";
-import { SUPPORTED_CHAINIDS } from "consts/chains";
-import SwitchChainModal from "./SwitchChainModal";
+import { SUPPORTED_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 
 const StyledContainer = styled.div`
   width: fit-content;
@@ -29,11 +27,6 @@ const StyledContainer = styled.div`
   }
 `;
 
-const StyledSwitchChainButton = styled(Button)`
-  width: fit-content;
-  height: 34px;
-`;
-
 const AccountDisplay: React.FC = () => {
   return (
     <StyledContainer>
@@ -54,12 +47,25 @@ export const AddressDisplay: React.FC = () => {
 };
 
 export const SwitchChainButton: React.FC = () => {
-  const [isSwitchChainModalOpen, toggleIsSwitchChainModalOpen] = useToggle(false);
+  const { switchNetwork, isLoading } = useSwitchNetwork();
+  const handleSwitch = () => {
+    if (!switchNetwork) {
+      console.error("Cannot switch network. Please do it manually.");
+      return;
+    }
+    try {
+      switchNetwork(DEFAULT_CHAIN);
+    } catch (err) {
+      console.error(err);
+    }
+  };
   return (
-    <>
-      <StyledSwitchChainButton text={`Switch chain`} onClick={toggleIsSwitchChainModalOpen} />
-      {isSwitchChainModalOpen && <SwitchChainModal toggle={toggleIsSwitchChainModalOpen} />}
-    </>
+    <Button
+      isLoading={isLoading}
+      disabled={isLoading}
+      text={`Switch to ${SUPPORTED_CHAINS[DEFAULT_CHAIN].chainName}`}
+      onClick={handleSwitch}
+    />
   );
 };
 
@@ -67,7 +73,7 @@ const ConnectButton: React.FC = () => {
   const { chain } = useNetwork();
   const { open, isOpen } = useWeb3Modal();
   return chain ? (
-    !SUPPORTED_CHAINIDS.includes(chain.id) ? (
+    chain?.id !== DEFAULT_CHAIN ? (
       <SwitchChainButton />
     ) : (
       <AccountDisplay />
