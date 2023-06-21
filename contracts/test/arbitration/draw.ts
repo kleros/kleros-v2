@@ -415,4 +415,64 @@ describe("Draw Benchmark", async () => {
 
     await draw(stake, CHILD_COURT, expectFromDraw, unstake);
   });
+
+  it("Draw Benchmark - Chainlink VRF v2", async () => {
+    const arbitrationCost = ONE_TENTH_ETH.mul(3);
+    const [bridger] = await ethers.getSigners();
+    const RNG_LOOKAHEAD = 20;
+
+    await sortitionModule.changeRandomNumberGenerator(vrfConsumer.address, RNG_LOOKAHEAD);
+
+    // Stake some jurors
+    for (let i = 0; i < 16; i++) {
+      const wallet = ethers.Wallet.createRandom().connect(ethers.provider);
+
+      await bridger.sendTransaction({
+        to: wallet.address,
+        value: ethers.utils.parseEther("10"),
+      });
+      expect(await wallet.getBalance()).to.equal(ethers.utils.parseEther("10"));
+
+      await pnk.transfer(wallet.address, ONE_THOUSAND_PNK.mul(10));
+      expect(await pnk.balanceOf(wallet.address)).to.equal(ONE_THOUSAND_PNK.mul(10));
+
+      await pnk.connect(wallet).approve(core.address, ONE_THOUSAND_PNK.mul(10), { gasLimit: 300000 });
+      await core.connect(wallet).setStake(1, ONE_THOUSAND_PNK.mul(10), { gasLimit: 5000000 });
+    }
+
+    // Create a dispute
+    const tx = await arbitrable.createDispute(2, "0x00", 0, {
+      value: arbitrationCost,
+    });
+    const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
+    const [disputeId] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`);
+    const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
+
+    // Relayer tx
+    const tx2 = await homeGateway
+      .connect(await ethers.getSigner(relayer))
+      .relayCreateDispute(31337, lastBlock.hash, disputeId, 2, "0x00", arbitrable.address, {
+        value: arbitrationCost,
+      });
+
+    await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
+    await network.provider.send("evm_mine");
+    await sortitionModule.passPhase(); // Staking -> Generating
+
+    const lookahead = await sortitionModule.rngLookahead();
+    for (let index = 0; index < lookahead; index++) {
+      await network.provider.send("evm_mine");
+    }
+
+    const requestId = await vrfConsumer.lastRequestId(); // Needed as we emulate the vrfCoordinator manually
+    await vrfCoordinator.fulfillRandomWords(requestId, vrfConsumer.address); // The callback calls sortitionModule.passPhase(); // Generating -> Drawing
+
+    await expect(core.draw(0, 1000, { gasLimit: 1000000 }))
+      .to.emit(core, "Draw")
+      .withArgs(anyValue, 0, 0, 0)
+      .to.emit(core, "Draw")
+      .withArgs(anyValue, 0, 0, 1)
+      .to.emit(core, "Draw")
+      .withArgs(anyValue, 0, 0, 2);
+  });
 });

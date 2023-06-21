@@ -75,7 +75,7 @@ describe("Integration tests", async () => {
     sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
   });
 
-  it("Resolves a dispute on the home chain with no appeal", async () => {
+  it("Resolves a dispute on the home chain with no appeal - Randomizer", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
     const [, , relayer] = await ethers.getSigners();
 
@@ -165,10 +165,118 @@ describe("Integration tests", async () => {
     await mineBlocks(await sortitionModule.rngLookahead()); // Wait for finality
     expect(await sortitionModule.phase()).to.equal(Phase.generating);
     console.log("KC phase: %d", await sortitionModule.phase());
-    // await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
-    const reqId = await vrfConsumer.lastRequestId();
-    await vrfCoordinator.fulfillRandomWords(reqId, vrfConsumer.address);
-    // await sortitionModule.passPhase(); // Generating -> Drawing
+
+    await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
+    await sortitionModule.passPhase(); // Generating -> Drawing
+    expect(await sortitionModule.phase()).to.equal(Phase.drawing);
+    console.log("KC phase: %d", await sortitionModule.phase());
+
+    const tx3 = await core.draw(0, 1000);
+    console.log("draw successful");
+    const events3 = (await tx3.wait()).events;
+
+    const roundInfo = await core.getRoundInfo(0, 0);
+    expect(roundInfo.drawnJurors).deep.equal([deployer, deployer, deployer]);
+    expect(roundInfo.tokensAtStakePerJuror).to.equal(ONE_HUNDRED_PNK.mul(2));
+    expect(roundInfo.totalFeesForJurors).to.equal(arbitrationCost);
+
+    expect((await core.disputes(0)).period).to.equal(Period.evidence);
+
+    await core.passPeriod(0);
+    expect((await core.disputes(0)).period).to.equal(Period.vote);
+    await disputeKit.connect(await ethers.getSigner(deployer)).castVote(0, [0, 1, 2], 0, 0, "");
+    await core.passPeriod(0);
+
+    await network.provider.send("evm_increaseTime", [100]); // Wait for the appeal period
+    await network.provider.send("evm_mine");
+
+    await core.passPeriod(0);
+    expect((await core.disputes(0)).period).to.equal(Period.execution);
+    expect(await core.execute(0, 0, 1000)).to.emit(core, "TokenAndETHShift");
+
+    const tx4 = await core.executeRuling(0, { gasLimit: 10000000, gasPrice: 5000000000 });
+    console.log("Ruling executed on KlerosCore");
+    expect(tx4).to.emit(core, "Ruling").withArgs(homeGateway.address, 0, 0);
+    expect(tx4).to.emit(arbitrable, "Ruling").withArgs(foreignGateway.address, 1, 0); // The ForeignGateway starts counting disputeID from 1.
+  });
+
+  it("Resolves a dispute on the home chain with no appeal - Chainlink VRF v2", async () => {
+    const arbitrationCost = ONE_TENTH_ETH.mul(3);
+    const [bridger, challenger, relayer] = await ethers.getSigners();
+    const RNG_LOOKAHEAD = 20;
+
+    await sortitionModule.changeRandomNumberGenerator(vrfConsumer.address, RNG_LOOKAHEAD);
+
+    await pnk.approve(core.address, ONE_THOUSAND_PNK.mul(100));
+
+    await core.setStake(1, ONE_THOUSAND_PNK);
+    await core.getJurorBalance(deployer, 1).then((result) => {
+      expect(result.staked).to.equal(ONE_THOUSAND_PNK);
+      expect(result.locked).to.equal(0);
+      logJurorBalance(result);
+    });
+
+    await core.setStake(1, ONE_HUNDRED_PNK.mul(5));
+    await core.getJurorBalance(deployer, 1).then((result) => {
+      expect(result.staked).to.equal(ONE_HUNDRED_PNK.mul(5));
+      expect(result.locked).to.equal(0);
+      logJurorBalance(result);
+    });
+
+    await core.setStake(1, 0);
+    await core.getJurorBalance(deployer, 1).then((result) => {
+      expect(result.staked).to.equal(0);
+      expect(result.locked).to.equal(0);
+      logJurorBalance(result);
+    });
+
+    await core.setStake(1, ONE_THOUSAND_PNK.mul(4));
+    await core.getJurorBalance(deployer, 1).then((result) => {
+      expect(result.staked).to.equal(ONE_THOUSAND_PNK.mul(4));
+      expect(result.locked).to.equal(0);
+      logJurorBalance(result);
+    });
+    const tx = await arbitrable.createDispute(2, "0x00", 0, {
+      value: arbitrationCost,
+    });
+    const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
+    const [disputeId] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`); // get returned value from createDispute()
+    console.log("Dispute Created");
+    expect(tx).to.emit(foreignGateway, "DisputeCreation");
+    expect(tx).to.emit(foreignGateway, "OutgoingDispute");
+    console.log(`disputeId: ${disputeId}`);
+
+    const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
+    const disputeHash = ethers.utils.solidityKeccak256(
+      ["uint", "bytes", "bytes", "uint", "uint", "bytes", "address"],
+      [31337, lastBlock.hash, ethers.utils.toUtf8Bytes("createDispute"), disputeId, 2, "0x00", arbitrable.address]
+    );
+
+    const events = (await tx.wait()).events;
+
+    // Relayer tx
+    const tx2 = await homeGateway
+      .connect(relayer)
+      .relayCreateDispute(31337, lastBlock.hash, disputeId, 2, "0x00", arbitrable.address, {
+        value: arbitrationCost,
+      });
+    expect(tx2).to.emit(homeGateway, "Dispute");
+    const events2 = (await tx2.wait()).events;
+
+    await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
+    await network.provider.send("evm_mine");
+
+    expect(await sortitionModule.phase()).to.equal(Phase.staking);
+    expect(await sortitionModule.disputesWithoutJurors()).to.equal(1);
+    console.log("KC phase: %d", await sortitionModule.phase());
+
+    await sortitionModule.passPhase(); // Staking -> Generating
+    await mineBlocks(await sortitionModule.rngLookahead()); // Wait for finality
+    expect(await sortitionModule.phase()).to.equal(Phase.generating);
+    console.log("KC phase: %d", await sortitionModule.phase());
+
+    const requestId = await vrfConsumer.lastRequestId(); // Needed as we emulate the vrfCoordinator manually
+    await vrfCoordinator.fulfillRandomWords(requestId, vrfConsumer.address); // The callback calls sortitionModule.passPhase(); // Generating -> Drawing
     expect(await sortitionModule.phase()).to.equal(Phase.drawing);
     console.log("KC phase: %d", await sortitionModule.phase());
 

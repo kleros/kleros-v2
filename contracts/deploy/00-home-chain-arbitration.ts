@@ -178,6 +178,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   // Execute the setup transactions for using VRF and deploy the Consumer contract on Hardhat node
   if (vrfSubscriptionManager) {
+    // The Sortition Module is not changed to the VRF Consumer, it must be done in the test.
     if (chainId === HomeChains.HARDHAT) {
       const vrfSubscriptionManagerContract = (await hre.ethers.getContract(
         "VRFSubscriptionManagerV2Mock"
@@ -200,8 +201,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
         log: true,
       });
       await vrfSubscriptionManagerContract.addConsumer(vrfConsumer.address);
-      const sortitionModuleContract = (await hre.ethers.getContract("SortitionModule")) as SortitionModule;
-      await sortitionModuleContract.changeRandomNumberGenerator(vrfConsumer.address, RNG_LOOKAHEAD);
     }
   }
 };
