@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+act workflow_dispatch -j buildAndDeploy --input network=arbitrum-goerli,update=true
