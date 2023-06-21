@@ -72,6 +72,7 @@ contract VRFSubscriptionManagerV2 {
         vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinator);
         linkToken = LinkTokenInterface(_linkToken);
         governor = _governor;
+        createNewSubscription();
     }
 
     // ************************************* //
@@ -112,7 +113,7 @@ contract VRFSubscriptionManagerV2 {
     /**
      * @dev Creates a new subscription, overriding the previous one to be manageable by the contract.
      */
-    function createNewSubscription() external onlyByGovernor {
+    function createNewSubscription() public onlyByGovernor {
         subscriptionId = vrfCoordinator.createSubscription();
     }
 
