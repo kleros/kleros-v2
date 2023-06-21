@@ -162,7 +162,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const numWords = 1;
   const vrfCoordinator = vrfCoordinatorByChain.get(Number(await getChainId())) ?? AddressZero;
   // Deploy the VRF Subscription Manager contract on Arbitrum, a mock contract on Hardhat node or nothing on other networks.
-  const vrfSubscriptionManagerDeploy = vrfCoordinator
+  const vrfSubscriptionManager = vrfCoordinator
     ? chainId === HomeChains.HARDHAT
       ? await deploy("VRFSubscriptionManagerV2Mock", {
           from: deployer,
@@ -177,14 +177,14 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     : AddressZero;
 
   // Execute the setup transactions for using VRF and deploy the Consumer contract on Hardhat node
-  if (vrfSubscriptionManagerDeploy) {
+  if (vrfSubscriptionManager) {
     if (chainId === HomeChains.HARDHAT) {
-      const vrfSubscriptionManager = (await hre.ethers.getContract(
+      const vrfSubscriptionManagerContract = (await hre.ethers.getContract(
         "VRFSubscriptionManagerV2Mock"
       )) as VRFSubscriptionManagerV2Mock;
-      await vrfSubscriptionManager.createNewSubscription();
-      await vrfSubscriptionManager.topUpSubscription(BigNumber.from(10).pow(20)); // 100 LINK
-      const subId = await vrfSubscriptionManager.subscriptionId();
+      await vrfSubscriptionManagerContract.createNewSubscription();
+      await vrfSubscriptionManagerContract.topUpSubscription(BigNumber.from(10).pow(20)); // 100 LINK
+      const subId = await vrfSubscriptionManagerContract.subscriptionId();
       const vrfConsumer = await deploy("VRFConsumerV2", {
         from: deployer,
         args: [
@@ -199,9 +199,9 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
         ],
         log: true,
       });
-      await vrfSubscriptionManager.addConsumer(vrfConsumer.address);
-      const sortModule = (await hre.ethers.getContract("SortitionModule")) as SortitionModule;
-      await sortModule.changeRandomNumberGenerator(vrfConsumer.address, RNG_LOOKAHEAD);
+      await vrfSubscriptionManagerContract.addConsumer(vrfConsumer.address);
+      const sortitionModuleContract = (await hre.ethers.getContract("SortitionModule")) as SortitionModule;
+      await sortitionModuleContract.changeRandomNumberGenerator(vrfConsumer.address, RNG_LOOKAHEAD);
     }
   }
 };
