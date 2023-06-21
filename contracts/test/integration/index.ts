@@ -14,7 +14,6 @@ import {
   RandomizerMock,
   SortitionModule,
   VRFConsumerV2,
-  VRFSubscriptionManagerV2Mock,
   VRFCoordinatorV2Mock,
 } from "../../typechain-types";
 

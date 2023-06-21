@@ -1,6 +1,5 @@
-import { deployments, getNamedAccounts, getChainId, ethers } from "hardhat";
 import { LinkTokenInterface, VRFSubscriptionManagerV2 } from "../typechain-types";
-import { task, types } from "hardhat/config";
+import { task } from "hardhat/config";
 import { BigNumber } from "ethers";
 
 enum HomeChains {
