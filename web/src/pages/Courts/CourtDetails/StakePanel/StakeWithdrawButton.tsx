@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { useAccount } from "wagmi";
+import { useAccount, useNetwork } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
 import { usePNKAllowance } from "hooks/queries/usePNKAllowance";
 import {
@@ -14,6 +14,8 @@ import {
 import { useJurorBalance } from "queries/useJurorBalance";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
+import { DEFAULT_CHAIN } from "consts/chains";
+import ConnectButton from "components/ConnectButton";
 
 export enum ActionType {
   allowance = "allowance",
@@ -32,6 +34,7 @@ interface IActionButton {
 const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, setAmount, isSending, setIsSending }) => {
   const { id } = useParams();
   const { address } = useAccount();
+  const { chain } = useNetwork();
   const { data: balance } = usePnkBalanceOf({
     enabled: !isUndefined(address),
     args: [address!],
@@ -104,12 +107,18 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, se
 
   const { text, checkDisabled, onClick } = buttonProps[isAllowance ? ActionType.allowance : action];
   return (
-    <Button
-      text={text}
-      isLoading={isSending}
-      disabled={isSending || parsedAmount == 0n || !!isUndefined(targetStake) || checkDisabled()}
-      onClick={onClick}
-    />
+    <>
+      {chain && chain.id === DEFAULT_CHAIN ? (
+        <Button
+          text={text}
+          isLoading={isSending}
+          disabled={isSending || parsedAmount == 0n || !!isUndefined(targetStake) || checkDisabled()}
+          onClick={onClick}
+        />
+      ) : (
+        <ConnectButton />
+      )}
+    </>
   );
 };
 

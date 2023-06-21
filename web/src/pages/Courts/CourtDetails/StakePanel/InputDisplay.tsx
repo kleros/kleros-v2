@@ -3,13 +3,14 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
 import { useDebounce } from "react-use";
-import { useAccount } from "wagmi";
-import { Button, Field } from "@kleros/ui-components-library";
+import { useAccount, useNetwork } from "wagmi";
+import { Field } from "@kleros/ui-components-library";
 
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { usePNKBalance } from "queries/usePNKBalance";
 import { useJurorBalance } from "queries/useJurorBalance";
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
+import ConnectButton from "components/ConnectButton";
 
 interface IInputDisplay {
   action: ActionType;
@@ -25,6 +26,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, isSending, setIsSending
 
   const { id } = useParams();
   const { address } = useAccount();
+  const { chain } = useNetwork();
   const { data: balance } = usePNKBalance(address);
   const parsedBalance = formatEther(balance ?? 0n);
   const { data: jurorBalance } = useJurorBalance(address, id);
@@ -68,7 +70,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, isSending, setIsSending
             }}
           />
         ) : (
-          <Button text="Connect to Stake" />
+          <ConnectButton />
         )}
       </InputArea>
     </>

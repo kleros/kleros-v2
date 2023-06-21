@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount, useBalance, useNetwork } from "wagmi";
 import { useDebounce } from "react-use";
 import { Field, Button } from "@kleros/ui-components-library";
+import ConnectButton from "components/ConnectButton";
 import { usePrepareDisputeKitClassicFundAppeal, useDisputeKitClassicFundAppeal } from "hooks/contracts/generated";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { useParsedAmount } from "hooks/useParsedAmount";
@@ -13,6 +14,7 @@ import {
   useFundingContext,
 } from "hooks/useClassicAppealContext";
 import { isUndefined } from "utils/index";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 const Fund: React.FC = () => {
   const loserSideCountdown = useLoserSideCountdownContext();
@@ -35,6 +37,7 @@ const Fund: React.FC = () => {
   const parsedAmount = useParsedAmount(debouncedAmount);
   const [isSending, setIsSending] = useState(false);
   const { selectedOption } = useSelectedOptionContext();
+  const { chain } = useNetwork();
   const { config: fundAppealConfig } = usePrepareDisputeKitClassicFundAppeal({
     enabled: !isUndefined(id) && !isUndefined(selectedOption),
     args: [BigInt(id ?? 0), BigInt(selectedOption ?? 0)],
@@ -53,21 +56,25 @@ const Fund: React.FC = () => {
           }}
           placeholder="Amount to fund"
         />
-        <StyledButton
-          disabled={isDisconnected || isSending || !balance || parsedAmount > balance.value}
-          text={isDisconnected ? "Connect to Fund" : "Fund"}
-          onClick={() => {
-            if (fundAppeal) {
-              setIsSending(true);
-              wrapWithToast(fundAppeal!())
-                .then(() => {
-                  setAmount("");
-                  close();
-                })
-                .finally(() => setIsSending(false));
-            }
-          }}
-        />
+        {chain && chain.id === DEFAULT_CHAIN ? (
+          <StyledButton
+            disabled={isDisconnected || isSending || !balance || parsedAmount > balance.value}
+            text={isDisconnected ? "Connect to Fund" : "Fund"}
+            onClick={() => {
+              if (fundAppeal) {
+                setIsSending(true);
+                wrapWithToast(fundAppeal!())
+                  .then(() => {
+                    setAmount("");
+                    close();
+                  })
+                  .finally(() => setIsSending(false));
+              }
+            }}
+          />
+        ) : (
+          <ConnectButton />
+        )}
       </div>
     </div>
   ) : (

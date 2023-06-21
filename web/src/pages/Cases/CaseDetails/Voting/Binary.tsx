@@ -4,8 +4,10 @@ import { useParams } from "react-router-dom";
 import { Button, Textarea } from "@kleros/ui-components-library";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { wrapWithToast } from "utils/wrapWithToast";
-import { useWalletClient } from "wagmi";
+import { useWalletClient, useNetwork } from "wagmi";
 import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
+import { DEFAULT_CHAIN } from "consts/chains";
+import ConnectButton from "components/ConnectButton";
 
 const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
   const { id } = useParams();
@@ -16,6 +18,7 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
   const [isSending, setIsSending] = useState(false);
   const [justification, setJustification] = useState("");
   const { data: walletClient } = useWalletClient();
+  const { chain } = useNetwork();
 
   return id ? (
     <Container>
@@ -31,51 +34,59 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
           variant="info"
         />
         <OptionsContainer>
-          {metaEvidence?.rulingOptions?.titles?.map((answer: string, i: number) => (
-            <Button
-              key={i}
-              text={answer}
-              disabled={isSending}
-              isLoading={chosenOption === i + 1}
-              onClick={async () => {
-                setIsSending(true);
-                setChosenOption(i + 1);
-                const { request } = await prepareWriteDisputeKitClassic({
-                  functionName: "castVote",
-                  args: [parsedDisputeID, parsedVoteIDs, BigInt(i + 1), 0n, justification],
-                });
-                if (walletClient) {
-                  wrapWithToast(walletClient?.writeContract(request)).finally(() => {
-                    setChosenOption(-1);
-                    setIsSending(false);
+          {metaEvidence?.rulingOptions?.titles?.map((answer: string, i: number) => {
+            chain && chain.id === DEFAULT_CHAIN ? (
+              <Button
+                key={i}
+                text={answer}
+                disabled={isSending}
+                isLoading={chosenOption === i + 1}
+                onClick={async () => {
+                  setIsSending(true);
+                  setChosenOption(i + 1);
+                  const { request } = await prepareWriteDisputeKitClassic({
+                    functionName: "castVote",
+                    args: [parsedDisputeID, parsedVoteIDs, BigInt(i + 1), 0n, justification],
                   });
-                }
-              }}
-            />
-          ))}
+                  if (walletClient) {
+                    wrapWithToast(walletClient?.writeContract(request)).finally(() => {
+                      setChosenOption(-1);
+                      setIsSending(false);
+                    });
+                  }
+                }}
+              />
+            ) : (
+              <ConnectButton />
+            );
+          })}
         </OptionsContainer>
       </MainContainer>
       <RefuseToArbitrateContainer>
-        <Button
-          variant="secondary"
-          text="Refuse to Arbitrate"
-          disabled={isSending}
-          isLoading={chosenOption === 0}
-          onClick={async () => {
-            setIsSending(true);
-            setChosenOption(0);
-            const { request } = await prepareWriteDisputeKitClassic({
-              functionName: "castVote",
-              args: [parsedDisputeID, parsedVoteIDs, 0n, 0n, justification],
-            });
-            if (walletClient) {
-              wrapWithToast(walletClient.writeContract(request)).finally(() => {
-                setChosenOption(-1);
-                setIsSending(false);
+        {chain && chain.id === DEFAULT_CHAIN ? (
+          <Button
+            variant="secondary"
+            text="Refuse to Arbitrate"
+            disabled={isSending}
+            isLoading={chosenOption === 0}
+            onClick={async () => {
+              setIsSending(true);
+              setChosenOption(0);
+              const { request } = await prepareWriteDisputeKitClassic({
+                functionName: "castVote",
+                args: [parsedDisputeID, parsedVoteIDs, 0n, 0n, justification],
               });
-            }
-          }}
-        />
+              if (walletClient) {
+                wrapWithToast(walletClient.writeContract(request)).finally(() => {
+                  setChosenOption(-1);
+                  setIsSending(false);
+                });
+              }
+            }}
+          />
+        ) : (
+          <ConnectButton />
+        )}
       </RefuseToArbitrateContainer>
     </Container>
   ) : (
