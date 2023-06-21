@@ -29,7 +29,7 @@ const linkByChain = new Map<HomeChains, string>([
 const keyHashByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x72d2b016bb5b62912afea355ebf33b91319f828738b111b723b78696b9847b63"], // 30 gwei key Hash
   [HomeChains.ARBITRUM_GOERLI, "0x83d1b6e3388bed3d76426974512bb0d270e9542a765cd667242ea26c0cc0b730"],
-  [HomeChains.HARDHAT, "0x83d1b6e3388bed3d76426974512bb0d270e9542a765cd667242ea26c0cc0b730"], // arbitrary value
+  [HomeChains.HARDHAT, "0x0000000000000000000000000000000000000000000000000000000000000000"], // arbitrary value
 ]);
 
 // https://docs.chain.link/vrf/v2/subscription/supported-networks#arbitrum-mainnet
