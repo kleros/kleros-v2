@@ -71,16 +71,17 @@ export const SwitchChainButton: React.FC = () => {
 
 const ConnectButton: React.FC = () => {
   const { chain } = useNetwork();
+  const { isConnected } = useAccount();
   const { open, isOpen } = useWeb3Modal();
-  return chain ? (
-    chain?.id !== DEFAULT_CHAIN ? (
-      <SwitchChainButton />
-    ) : (
-      <AccountDisplay />
-    )
-  ) : (
-    <Button disabled={isOpen} small text={"Connect"} onClick={async () => await open({ route: "ConnectWallet" })} />
-  );
+  if (isConnected && chain && chain.id !== DEFAULT_CHAIN) {
+    return <SwitchChainButton />;
+  } else if (isConnected) {
+    return <AccountDisplay />;
+  } else {
+    return (
+      <Button disabled={isOpen} small text={"Connect"} onClick={async () => await open({ route: "ConnectWallet" })} />
+    );
+  }
 };
 
 export default ConnectButton;
