@@ -19,17 +19,20 @@ const randomizerByChain = new Map<HomeChains, string>([
 
 const daiByChain = new Map<HomeChains, string>([[HomeChains.ARBITRUM_ONE, "??"]]);
 const wethByChain = new Map<HomeChains, string>([[HomeChains.ARBITRUM_ONE, "??"]]);
+// https://docs.chain.link/resources/link-token-contracts?parent=vrf#arbitrum
 const linkByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4"],
   [HomeChains.ARBITRUM_GOERLI, "0xd14838A68E8AFBAdE5efb411d5871ea0011AFd28"],
 ]);
 
+// https://docs.chain.link/vrf/v2/subscription/supported-networks#arbitrum-mainnet
 const keyHashByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x72d2b016bb5b62912afea355ebf33b91319f828738b111b723b78696b9847b63"], // 30 gwei key Hash
   [HomeChains.ARBITRUM_GOERLI, "0x83d1b6e3388bed3d76426974512bb0d270e9542a765cd667242ea26c0cc0b730"],
   [HomeChains.HARDHAT, "0x83d1b6e3388bed3d76426974512bb0d270e9542a765cd667242ea26c0cc0b730"], // arbitrary value
 ]);
 
+// https://docs.chain.link/vrf/v2/subscription/supported-networks#arbitrum-mainnet
 const vrfCoordinatorByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x41034678D6C633D8a95c75e1138A360a28bA15d1"],
   [HomeChains.ARBITRUM_GOERLI, "0x6D80646bEAdd07cE68cab36c27c626790bBcf17f"],
