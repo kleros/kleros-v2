@@ -130,7 +130,7 @@ const getDeadline = (lastPeriodChange: string, appealPeriodDuration: string, los
 function useLoserSideCountdown(lastPeriodChange: string, appealPeriodDuration: string, loserTimeMultiplier: string) {
   const deadline = useMemo(
     () =>
-      !isUndefined(lastPeriodChange) && !isUndefined(appealPeriodDuration) && isUndefined(loserTimeMultiplier)
+      !isUndefined(lastPeriodChange) && !isUndefined(appealPeriodDuration) && !isUndefined(loserTimeMultiplier)
         ? getDeadline(lastPeriodChange, appealPeriodDuration, loserTimeMultiplier)
         : 0,
     [lastPeriodChange, appealPeriodDuration, loserTimeMultiplier]

@@ -7,8 +7,8 @@ import { isUndefined } from "utils/index";
 
 const Options: React.FC = () => {
   const loserSideCountdown = useLoserSideCountdownContext();
-  return isUndefined(loserSideCountdown) ? (
-    <Container>{loserSideCountdown! > 0 ? <StageOne /> : <StageTwo />}</Container>
+  return !isUndefined(loserSideCountdown) ? (
+    <Container>{loserSideCountdown > 0 ? <StageOne /> : <StageTwo />}</Container>
   ) : (
     <h1>Loading...</h1>
   );
