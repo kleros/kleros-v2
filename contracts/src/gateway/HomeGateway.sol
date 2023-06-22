@@ -11,10 +11,13 @@ pragma solidity 0.8.18;
 import "../arbitration/IArbitrator.sol";
 import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
+import "../libraries/SafeERC20.sol";
 
 /// Home Gateway
 /// Counterpart of `ForeignGateway`
 contract HomeGateway is IHomeGateway {
+    using SafeERC20 for IERC20;
+
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -165,8 +168,8 @@ contract HomeGateway is IHomeGateway {
         RelayedData storage relayedData = disputeHashtoRelayedData[disputeHash];
         require(relayedData.relayer == address(0), "Dispute already relayed");
 
-        require(_safeTransferFrom(feeToken, msg.sender, address(this), _feeAmount), "Transfer failed");
-        require(_increaseAllowance(feeToken, address(arbitrator), _feeAmount), "Allowance increase failed");
+        require(feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount), "Transfer failed");
+        require(feeToken.increaseAllowance(address(arbitrator), _feeAmount), "Allowance increase failed");
 
         uint256 disputeID = arbitrator.createDispute(_choices, _extraData, feeToken, _feeAmount);
         disputeIDtoHash[disputeID] = disputeHash;
@@ -207,31 +210,5 @@ contract HomeGateway is IHomeGateway {
     /// @inheritdoc IHomeGateway
     function acceptedFeeToken() external view returns (IERC20) {
         return feeToken;
-    }
-
-    // ************************************* //
-    // *            Internal               * //
-    // ************************************* //
-
-    /// @dev Increases the allowance granted to `spender` by the caller.
-    /// @param _token Token to transfer.
-    /// @param _spender The address which will spend the funds.
-    /// @param _addedValue The amount of tokens to increase the allowance by.
-    function _increaseAllowance(IERC20 _token, address _spender, uint256 _addedValue) public virtual returns (bool) {
-        _token.approve(_spender, _token.allowance(address(this), _spender) + _addedValue);
-        return true;
-    }
-
-    /// @dev Calls transferFrom() without reverting.
-    /// @param _token Token to transfer.
-    /// @param _from Sender address.
-    /// @param _to Recepient address.
-    /// @param _value Amount transferred.
-    /// @return Whether transfer succeeded or not.
-    function _safeTransferFrom(IERC20 _token, address _from, address _to, uint256 _value) internal returns (bool) {
-        (bool success, bytes memory data) = address(_token).call(
-            abi.encodeCall(IERC20.transferFrom, (_from, _to, _value))
-        );
-        return (success && (data.length == 0 || abi.decode(data, (bool))));
     }
 }

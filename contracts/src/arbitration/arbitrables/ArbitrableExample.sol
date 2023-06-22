@@ -2,13 +2,15 @@
 
 pragma solidity 0.8.18;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../IArbitrable.sol";
 import "../../evidence/IMetaEvidence.sol";
+import "../../libraries/SafeERC20.sol";
 
 /// @title ArbitrableExample
 /// An example of an arbitrable contract which connects to the arbitator that implements the updated interface.
 contract ArbitrableExample is IArbitrable, IMetaEvidence {
+    using SafeERC20 for IERC20;
+
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -106,8 +108,8 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
         uint256 localDisputeID = disputes.length;
         disputes.push(DisputeStruct({isRuled: false, ruling: 0, numberOfRulingOptions: _numberOfRulingOptions}));
 
-        require(_safeTransferFrom(weth, msg.sender, address(this), _feeInWeth), "Transfer failed");
-        require(_increaseAllowance(weth, address(arbitrator), _feeInWeth), "Allowance increase failed");
+        require(weth.safeTransferFrom(msg.sender, address(this), _feeInWeth), "Transfer failed");
+        require(weth.increaseAllowance(address(arbitrator), _feeInWeth), "Allowance increase failed");
 
         disputeID = arbitrator.createDispute(_numberOfRulingOptions, _arbitratorExtraData, weth, _feeInWeth);
         externalIDtoLocalID[disputeID] = localDisputeID;
@@ -129,31 +131,5 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
         dispute.ruling = _ruling;
 
         emit Ruling(IArbitrator(msg.sender), _externalDisputeID, dispute.ruling);
-    }
-
-    // ************************************* //
-    // *            Internal               * //
-    // ************************************* //
-
-    /// @dev Increases the allowance granted to `spender` by the caller.
-    /// @param _token Token to transfer.
-    /// @param _spender The address which will spend the funds.
-    /// @param _addedValue The amount of tokens to increase the allowance by.
-    function _increaseAllowance(IERC20 _token, address _spender, uint256 _addedValue) public virtual returns (bool) {
-        _token.approve(_spender, _token.allowance(address(this), _spender) + _addedValue);
-        return true;
-    }
-
-    /// @dev Calls transferFrom() without reverting.
-    /// @param _token Token to transfer.
-    /// @param _from Sender address.
-    /// @param _to Recepient address.
-    /// @param _value Amount transferred.
-    /// @return Whether transfer succeeded or not.
-    function _safeTransferFrom(IERC20 _token, address _from, address _to, uint256 _value) internal returns (bool) {
-        (bool success, bytes memory data) = address(_token).call(
-            abi.encodeCall(IERC20.transferFrom, (_from, _to, _value))
-        );
-        return (success && (data.length == 0 || abi.decode(data, (bool))));
     }
 }

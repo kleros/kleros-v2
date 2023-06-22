@@ -8,15 +8,17 @@
 
 pragma solidity 0.8.18;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./IArbitrator.sol";
 import "./IDisputeKit.sol";
 import "./ISortitionModule.sol";
+import "../libraries/SafeERC20.sol";
 
 /// @title KlerosCore
 /// Core arbitrator contract for Kleros v2.
 /// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
 contract KlerosCore is IArbitrator {
+    using SafeERC20 for IERC20;
+
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -508,7 +510,7 @@ contract KlerosCore is IArbitrator {
         if (!currencyRates[_feeToken].feePaymentAccepted) revert TokenNotAccepted();
         if (_feeAmount < arbitrationCost(_extraData, _feeToken)) revert ArbitrationFeesNotEnough();
 
-        require(_safeTransferFrom(_feeToken, msg.sender, address(this), _feeAmount), "Transfer failed");
+        require(_feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount), "Transfer failed");
         return _createDispute(_numberOfChoices, _extraData, _feeToken, _feeAmount);
     }
 
@@ -792,9 +794,9 @@ contract KlerosCore is IArbitrator {
                 payable(governor).send(round.totalFeesForJurors);
             } else {
                 // The dispute fees were paid in ERC20
-                _safeTransfer(round.feeToken, governor, round.totalFeesForJurors);
+                round.feeToken.safeTransfer(governor, round.totalFeesForJurors);
             }
-            _safeTransfer(pinakion, governor, _params.pnkPenaltiesInRound);
+            pinakion.safeTransfer(governor, _params.pnkPenaltiesInRound);
             emit LeftoverRewardSent(
                 _params.disputeID,
                 _params.round,
@@ -834,7 +836,7 @@ contract KlerosCore is IArbitrator {
 
         // Give back the locked PNKs in case the juror fully unstaked earlier.
         if (jurors[account].stakedPnk[dispute.courtID] == 0) {
-            _safeTransfer(pinakion, account, pnkLocked);
+            pinakion.safeTransfer(account, pnkLocked);
         }
 
         // Transfer the rewards
@@ -842,13 +844,13 @@ contract KlerosCore is IArbitrator {
         round.sumPnkRewardPaid += pnkReward;
         uint256 feeReward = ((round.totalFeesForJurors / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
         round.sumFeeRewardPaid += feeReward;
-        _safeTransfer(pinakion, account, pnkReward);
+        pinakion.safeTransfer(account, pnkReward);
         if (round.feeToken == NATIVE_CURRENCY) {
             // The dispute fees were paid in ETH
             payable(account).send(feeReward);
         } else {
             // The dispute fees were paid in ERC20
-            _safeTransfer(round.feeToken, account, feeReward);
+            round.feeToken.safeTransfer(account, feeReward);
         }
         emit TokenAndETHShift(
             account,
@@ -866,7 +868,7 @@ contract KlerosCore is IArbitrator {
             uint256 leftoverFeeReward = round.totalFeesForJurors - round.sumFeeRewardPaid;
             if (leftoverPnkReward != 0 || leftoverFeeReward != 0) {
                 if (leftoverPnkReward != 0) {
-                    _safeTransfer(pinakion, governor, leftoverPnkReward);
+                    pinakion.safeTransfer(governor, leftoverPnkReward);
                 }
                 if (leftoverFeeReward != 0) {
                     if (round.feeToken == NATIVE_CURRENCY) {
@@ -874,7 +876,7 @@ contract KlerosCore is IArbitrator {
                         payable(governor).send(leftoverFeeReward);
                     } else {
                         // The dispute fees were paid in ERC20
-                        _safeTransfer(round.feeToken, governor, leftoverFeeReward);
+                        round.feeToken.safeTransfer(governor, leftoverFeeReward);
                     }
                 }
                 emit LeftoverRewardSent(
@@ -1138,7 +1140,7 @@ contract KlerosCore is IArbitrator {
         if (_stake >= currentStake) {
             transferredAmount = _stake - currentStake;
             if (transferredAmount > 0) {
-                if (_safeTransferFrom(pinakion, _account, address(this), transferredAmount)) {
+                if (pinakion.safeTransferFrom(_account, address(this), transferredAmount)) {
                     if (currentStake == 0) {
                         juror.courtIDs.push(_courtID);
                     }
@@ -1151,7 +1153,7 @@ contract KlerosCore is IArbitrator {
                 // Keep locked PNKs in the contract and release them after dispute is executed.
                 transferredAmount = currentStake - juror.lockedPnk[_courtID] - _penalty;
                 if (transferredAmount > 0) {
-                    if (_safeTransfer(pinakion, _account, transferredAmount)) {
+                    if (pinakion.safeTransfer(_account, transferredAmount)) {
                         for (uint256 i = juror.courtIDs.length; i > 0; i--) {
                             if (juror.courtIDs[i - 1] == _courtID) {
                                 juror.courtIDs[i - 1] = juror.courtIDs[juror.courtIDs.length - 1];
@@ -1166,7 +1168,7 @@ contract KlerosCore is IArbitrator {
             } else {
                 transferredAmount = currentStake - _stake - _penalty;
                 if (transferredAmount > 0) {
-                    if (!_safeTransfer(pinakion, _account, transferredAmount)) {
+                    if (!pinakion.safeTransfer(_account, transferredAmount)) {
                         return false;
                     }
                 }
@@ -1212,38 +1214,6 @@ contract KlerosCore is IArbitrator {
             minJurors = DEFAULT_NB_OF_JURORS;
             disputeKitID = DISPUTE_KIT_CLASSIC;
         }
-    }
-
-    /// @dev Calls transfer() without reverting.
-    /// @param _token Token to transfer.
-    /// @param _to Recepient address.
-    /// @param _value Amount transferred.
-    /// @return Whether transfer succeeded or not.
-    function _safeTransfer(IERC20 _token, address _to, uint256 _value) internal returns (bool) {
-        (bool success, bytes memory data) = address(_token).call(abi.encodeCall(IERC20.transfer, (_to, _value)));
-        return (success && (data.length == 0 || abi.decode(data, (bool))));
-    }
-
-    /// @dev Calls transferFrom() without reverting.
-    /// @param _token Token to transfer.
-    /// @param _from Sender address.
-    /// @param _to Recepient address.
-    /// @param _value Amount transferred.
-    /// @return Whether transfer succeeded or not.
-    function _safeTransferFrom(IERC20 _token, address _from, address _to, uint256 _value) internal returns (bool) {
-        (bool success, bytes memory data) = address(_token).call(
-            abi.encodeCall(IERC20.transferFrom, (_from, _to, _value))
-        );
-        return (success && (data.length == 0 || abi.decode(data, (bool))));
-    }
-
-    /// @dev Increases the allowance granted to `spender` by the caller.
-    /// @param _token Token to transfer.
-    /// @param _spender The address which will spend the funds.
-    /// @param _addedValue The amount of tokens to increase the allowance by.
-    function _increaseAllowance(IERC20 _token, address _spender, uint256 _addedValue) public virtual returns (bool) {
-        _token.approve(_spender, _token.allowance(address(this), _spender) + _addedValue);
-        return true;
     }
 
     // ************************************* //
