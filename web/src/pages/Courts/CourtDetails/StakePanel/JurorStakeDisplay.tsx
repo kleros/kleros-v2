@@ -2,19 +2,43 @@ import React from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
-import { useJurorBalance } from "queries/useJurorBalance";
 import { useAccount } from "wagmi";
+import { isUndefined } from "utils/index";
 import Field from "components/Field";
 import DiceIcon from "svgs/icons/dice.svg";
 import LockerIcon from "svgs/icons/locker.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
+import { useCourtDetails } from "queries/useCourtDetails";
+import { useJurorBalance } from "queries/useJurorBalance";
 
 const format = (value: bigint | undefined): string => (value !== undefined ? formatEther(value) : "0");
+
+const formatBigIntPercentage = (numerator: bigint, denominator: bigint): string => {
+  const decimalPlaces = 2;
+  const factor = BigInt(10 ** decimalPlaces);
+  const intermediate = (numerator * factor * 100n) / denominator;
+
+  let result = intermediate.toString();
+
+  result = result.padStart(decimalPlaces + 1, "0");
+
+  const pointIndex = result.length - decimalPlaces;
+  result = `${result.slice(0, pointIndex)}.${result.slice(pointIndex)}%`;
+
+  return result;
+};
 
 const JurorBalanceDisplay = () => {
   const { id } = useParams();
   const { address } = useAccount();
   const { data: jurorBalance } = useJurorBalance(address, id);
+  const { data: courtDetails } = useCourtDetails(id);
+
+  const stakedByAllJurors = courtDetails?.court?.stake;
+  const jurorOdds =
+    !isUndefined(stakedByAllJurors) && !isUndefined(jurorBalance)
+      ? formatBigIntPercentage(jurorBalance[0], stakedByAllJurors)
+      : "0.00%";
 
   const data = [
     {
@@ -30,7 +54,7 @@ const JurorBalanceDisplay = () => {
     {
       icon: DiceIcon,
       name: "Juror odds",
-      value: "7.80%",
+      value: jurorOdds,
     },
   ];
 
