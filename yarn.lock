@@ -8388,6 +8388,48 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@web3-react/abstract-connector@npm:^6.0.7":
+  version: 6.0.7
+  resolution: "@web3-react/abstract-connector@npm:6.0.7"
+  dependencies:
+    "@web3-react/types": ^6.0.7
+  checksum: fa8b0ea3586e248da84756979dd5c5f6ddc2d1657a1698de63a6d0e38035c4b122841bd0e6b00f1a6f1825614b22f6552a584cafec3470ca6fbc2e127ab30b2a
+  languageName: node
+  linkType: hard
+
+"@web3-react/core@npm:^6.1.9":
+  version: 6.1.9
+  resolution: "@web3-react/core@npm:6.1.9"
+  dependencies:
+    "@ethersproject/keccak256": ^5.0.0-beta.130
+    "@web3-react/abstract-connector": ^6.0.7
+    "@web3-react/types": ^6.0.7
+    tiny-invariant: ^1.0.6
+    tiny-warning: ^1.0.3
+  peerDependencies:
+    react: ">=16.8"
+  checksum: b7f3ad62812fb0d000c50447f5b22329ce03942cc681cf01038a450872f79252445083a7fb325c7daf2b4de1f6f89e0298a7a54e0cea0b05872c37d64492af8b
+  languageName: node
+  linkType: hard
+
+"@web3-react/injected-connector@npm:^6.0.7":
+  version: 6.0.7
+  resolution: "@web3-react/injected-connector@npm:6.0.7"
+  dependencies:
+    "@web3-react/abstract-connector": ^6.0.7
+    "@web3-react/types": ^6.0.7
+    tiny-warning: ^1.0.3
+  checksum: 867a634a12326f33d10eead26f557fe505942ec42f5586d0756eb864fa345187b255a7d9b78bd555eb2395f962e9615731bcfefe6cf07ef9971a7fca151377f8
+  languageName: node
+  linkType: hard
+
+"@web3-react/types@npm:^6.0.7":
+  version: 6.0.7
+  resolution: "@web3-react/types@npm:6.0.7"
+  checksum: 29ae264ae4a126e520a64a4b466ea712ee09b934f3fe13b957e09269249ffc882712cf11fff12c1c19dd66e38503075b4adf5e9d5f588ea0dd31bbedf6fa9a42
+  languageName: node
+  linkType: hard
+
 "@web3modal/core@npm:2.4.7":
   version: 2.4.7
   resolution: "@web3modal/core@npm:2.4.7"
