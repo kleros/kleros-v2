@@ -182,9 +182,9 @@ contract CentralizedArbitrator is IArbitrator {
     function createDispute(
         uint256 /*_choices*/,
         bytes calldata /*_extraData*/,
-        address /*_feeToken*/,
+        IERC20 /*_feeToken*/,
         uint256 /*_feeAmount*/
-    ) external override returns (uint256) {
+    ) external pure override returns (uint256) {
         revert("Not supported");
     }
 
@@ -326,10 +326,17 @@ contract CentralizedArbitrator is IArbitrator {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @dev Cost of arbitration.
-    /// @return fee The required amount.
+    /// @inheritdoc IArbitrator
     function arbitrationCost(bytes calldata /*_extraData*/) public view override returns (uint256 fee) {
         return arbitrationFee;
+    }
+
+    /// @inheritdoc IArbitrator
+    function arbitrationCost(
+        bytes calldata /*_extraData*/,
+        IERC20 /*_feeToken*/
+    ) public pure override returns (uint256 /*cost*/) {
+        revert("Not supported");
     }
 
     /// @dev Return the funded amount and funding goal for one of the choices.

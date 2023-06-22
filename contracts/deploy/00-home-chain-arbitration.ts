@@ -113,22 +113,13 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     await execute("DisputeKitClassic", { from: deployer, log: true }, "changeCore", klerosCore.address);
   }
 
-  await execute(
-    "KlerosCore",
-    { from: deployer, log: true },
-    "changeAcceptedFeeTokens",
-    [pnk, dai, weth],
-    [true, true, true]
-  );
+  await execute("KlerosCore", { from: deployer, log: true }, "changeAcceptedFeeTokens", pnk, true);
+  await execute("KlerosCore", { from: deployer, log: true }, "changeAcceptedFeeTokens", dai, true);
+  await execute("KlerosCore", { from: deployer, log: true }, "changeAcceptedFeeTokens", weth, true);
 
-  await execute(
-    "KlerosCore",
-    { from: deployer, log: true },
-    "changeCurrencyRates",
-    [pnk, dai, weth],
-    [12225583, 60327783, 1],
-    [12, 11, 1]
-  );
+  await execute("KlerosCore", { from: deployer, log: true }, "changeCurrencyRates", pnk, 12225583, 12);
+  await execute("KlerosCore", { from: deployer, log: true }, "changeCurrencyRates", dai, 60327783, 11);
+  await execute("KlerosCore", { from: deployer, log: true }, "changeCurrencyRates", weth, 1, 1);
 
   await deploy("DisputeResolver", {
     from: deployer,

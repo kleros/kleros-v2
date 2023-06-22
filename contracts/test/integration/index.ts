@@ -116,9 +116,17 @@ describe("Integration tests", async () => {
     // Relayer tx
     const tx2 = await homeGateway
       .connect(relayer)
-      .relayCreateDispute(31337, lastBlock.hash, disputeId, 2, "0x00", arbitrable.address, {
-        value: arbitrationCost,
-      });
+      .functions["relayCreateDispute(uint256,bytes32,uint256,uint256,bytes,address)"](
+        31337,
+        lastBlock.hash,
+        disputeId,
+        2,
+        "0x00",
+        arbitrable.address,
+        {
+          value: arbitrationCost,
+        }
+      );
     expect(tx2).to.emit(homeGateway, "Dispute");
     const events2 = (await tx2.wait()).events;
 
@@ -144,8 +152,9 @@ describe("Integration tests", async () => {
 
     const roundInfo = await core.getRoundInfo(0, 0);
     expect(roundInfo.drawnJurors).deep.equal([deployer, deployer, deployer]);
-    expect(roundInfo.tokensAtStakePerJuror).to.equal(ONE_HUNDRED_PNK.mul(2));
+    expect(roundInfo.pnkAtStakePerJuror).to.equal(ONE_HUNDRED_PNK.mul(2));
     expect(roundInfo.totalFeesForJurors).to.equal(arbitrationCost);
+    expect(roundInfo.feeToken).to.equal(ethers.constants.AddressZero);
 
     expect((await core.disputes(0)).period).to.equal(Period.evidence);
 

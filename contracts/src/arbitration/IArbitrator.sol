@@ -2,6 +2,7 @@
 
 pragma solidity 0.8.18;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./IArbitrable.sol";
 
 /// @title Arbitrator
@@ -26,9 +27,10 @@ interface IArbitrator {
     /// @dev To be emitted when an ERC20 token is added or removed as a method to pay fees.
     /// @param _token The ERC20 token.
     /// @param _accepted Whether the token is accepted or not.
-    event AcceptedFeeToken(address indexed _token, bool indexed _accepted);
+    event AcceptedFeeToken(IERC20 indexed _token, bool indexed _accepted);
 
-    /// @dev Create a dispute. Must be called by the arbitrable contract.
+    /// @dev Create a dispute and pay for the fees in the native currency, typically ETH.
+    ///      Must be called by the arbitrable contract.
     ///      Must pay at least arbitrationCost(_extraData).
     /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.
     /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
@@ -38,23 +40,31 @@ interface IArbitrator {
         bytes calldata _extraData
     ) external payable returns (uint256 disputeID);
 
-    /// @dev Create a dispute with the fees paid in a supported ERC20 token.
+    /// @dev Create a dispute and pay for the fees in a supported ERC20 token.
     ///      Must be called by the arbitrable contract.
     ///      Must pay at least arbitrationCost(_extraData).
     /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.
     /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
-    /// @param _feeToken Address of the ERC20 token used to pay fees.
+    /// @param _feeToken The ERC20 token used to pay fees.
     /// @param _feeAmount Amount of the ERC20 token used to pay fees.
     /// @return disputeID ID of the dispute created.
     function createDispute(
         uint256 _numberOfChoices,
         bytes calldata _extraData,
-        address _feeToken,
+        IERC20 _feeToken,
         uint256 _feeAmount
     ) external returns (uint256 disputeID);
 
-    /// @dev Compute the cost of arbitration. It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.
-    /// @param _extraData Can be used to give additional info on the dispute to be created.
-    /// @return cost Required cost of arbitration.
+    /// @dev Compute the cost of arbitration denominated in ETH.
+    /// It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.
+    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
+    /// @return cost The arbitration cost in ETH.
     function arbitrationCost(bytes calldata _extraData) external view returns (uint256 cost);
+
+    /// @dev Compute the cost of arbitration denominated in `_feeToken`.
+    /// It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.
+    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
+    /// @param _feeToken The ERC20 token used to pay fees.
+    /// @return cost The arbitration cost in `_feeToken`.
+    function arbitrationCost(bytes calldata _extraData, IERC20 _feeToken) external view returns (uint256 cost);
 }

@@ -104,9 +104,17 @@ describe("Draw Benchmark", async () => {
     // Relayer tx
     const tx2 = await homeGateway
       .connect(await ethers.getSigner(relayer))
-      .relayCreateDispute(31337, lastBlock.hash, disputeId, 2, "0x00", arbitrable.address, {
-        value: arbitrationCost,
-      });
+      .functions["relayCreateDispute(uint256,bytes32,uint256,uint256,bytes,address)"](
+        31337,
+        lastBlock.hash,
+        disputeId,
+        2,
+        "0x00",
+        arbitrable.address,
+        {
+          value: arbitrationCost,
+        }
+      );
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");

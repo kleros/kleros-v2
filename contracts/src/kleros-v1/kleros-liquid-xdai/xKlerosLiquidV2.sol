@@ -477,7 +477,7 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
     function createDispute(
         uint256 /*_choices*/,
         bytes calldata /*_extraData*/,
-        address /*_feeToken*/,
+        IERC20 /*_feeToken*/,
         uint256 /*_feeAmount*/
     ) external override returns (uint256) {
         revert("Not supported");
@@ -615,11 +615,17 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitrator {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @dev Gets the cost of arbitration in a specified subcourt.
-    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the subcourt to create the dispute in (first 32 bytes) and the minimum number of jurors required (next 32 bytes).
-    /// @return cost The cost.
+    /// @inheritdoc IArbitrator
     function arbitrationCost(bytes memory _extraData) public view override returns (uint256 cost) {
         cost = foreignGateway.arbitrationCost(_extraData);
+    }
+
+    /// @inheritdoc IArbitrator
+    function arbitrationCost(
+        bytes calldata /*_extraData*/,
+        IERC20 /*_feeToken*/
+    ) public pure override returns (uint256 /*cost*/) {
+        revert("Not supported");
     }
 
     /// @dev Gets the current ruling of a specified dispute.

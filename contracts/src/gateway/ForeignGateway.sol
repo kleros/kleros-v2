@@ -166,9 +166,9 @@ contract ForeignGateway is IForeignGateway {
     function createDispute(
         uint256 /*_choices*/,
         bytes calldata /*_extraData*/,
-        address /*_feeToken*/,
+        IERC20 /*_feeToken*/,
         uint256 /*_feeAmount*/
-    ) external override returns (uint256) {
+    ) external pure override returns (uint256) {
         revert("Not supported");
     }
 
@@ -176,6 +176,14 @@ contract ForeignGateway is IForeignGateway {
     function arbitrationCost(bytes calldata _extraData) public view override returns (uint256 cost) {
         (uint96 courtID, uint256 minJurors) = extraDataToCourtIDMinJurors(_extraData);
         cost = feeForJuror[courtID] * minJurors;
+    }
+
+    /// @inheritdoc IArbitrator
+    function arbitrationCost(
+        bytes calldata /*_extraData*/,
+        IERC20 /*_feeToken*/
+    ) public pure override returns (uint256 /*cost*/) {
+        revert("Not supported");
     }
 
     /// @inheritdoc IForeignGateway
