@@ -35,6 +35,8 @@
   },
   "prettier": "@kleros/kleros-v2-prettier-config",
   "devDependencies": {
+    "@graphql-codegen/cli": "^4.0.1",
+    "@graphql-codegen/client-preset": "^4.0.1",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "@kleros/kleros-v2-tsconfig": "workspace:^",
@@ -57,9 +59,6 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@graphql-codegen/cli": "^4.0.1",
-    "@graphql-codegen/typescript": "^2.8.8",
-    "@graphql-codegen/typescript-operations": "^2.5.13",
     "@kleros/kleros-v2-contracts": "workspace:^",
     "@kleros/ui-components-library": "^1.9.2",
     "@sentry/react": "^7.55.2",
