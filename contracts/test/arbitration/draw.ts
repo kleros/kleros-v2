@@ -102,36 +102,22 @@ describe("Draw Benchmark", async () => {
     const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
 
     // Relayer tx
-<<<<<<< HEAD
     const tx2 = await homeGateway
       .connect(await ethers.getSigner(relayer))
-      .functions["relayCreateDispute(uint256,bytes32,uint256,uint256,bytes,address)"](
-        31337,
-        lastBlock.hash,
-        disputeId,
-        2,
-        "0x00",
-        arbitrable.address,
+      .functions["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes))"](
         {
-          value: arbitrationCost,
-        }
+          foreignBlockHash: lastBlock.hash,
+          foreignChainID: 31337,
+          foreignArbitrable: arbitrable.address,
+          foreignDisputeID: disputeId,
+          externalDisputeID: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("future of france")),
+          templateId: 0,
+          templateUri: "",
+          choices: 2,
+          extraData: "0x00",
+        },
+        { value: arbitrationCost }
       );
-=======
-    const tx2 = await homeGateway.connect(await ethers.getSigner(relayer)).relayCreateDispute(
-      {
-        foreignBlockHash: lastBlock.hash,
-        foreignChainID: 31337,
-        foreignArbitrable: arbitrable.address,
-        foreignDisputeID: disputeId,
-        externalDisputeID: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("future of france")),
-        templateId: 0,
-        templateUri: "",
-        choices: 2,
-        extraData: "0x00",
-      },
-      { value: arbitrationCost }
-    );
->>>>>>> 6a280d9 (feat: migrated all the interfaces to the new v2 ones))
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");

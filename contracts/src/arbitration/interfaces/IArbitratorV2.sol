@@ -3,7 +3,7 @@
 pragma solidity 0.8.18;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./IArbitrable.sol";
+import "./IArbitrableV2.sol";
 
 /// @title Arbitrator
 /// Arbitrator interface that implements the new arbitration standard.
@@ -22,18 +22,14 @@ interface IArbitratorV2 {
     /// @param _arbitrable The arbitrable receiving the ruling.
     /// @param _disputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _ruling The ruling which was given.
-    event Ruling(IArbitrable indexed _arbitrable, uint256 indexed _disputeID, uint256 _ruling);
+    event Ruling(IArbitrableV2 indexed _arbitrable, uint256 indexed _disputeID, uint256 _ruling);
 
     /// @dev To be emitted when an ERC20 token is added or removed as a method to pay fees.
     /// @param _token The ERC20 token.
     /// @param _accepted Whether the token is accepted or not.
     event AcceptedFeeToken(IERC20 indexed _token, bool indexed _accepted);
 
-<<<<<<< HEAD
     /// @dev Create a dispute and pay for the fees in the native currency, typically ETH.
-=======
-    /// @dev Create a dispute.
->>>>>>> c716852 (fix: manual fixes after rebasing onto feat/erc20-fees-on-arbitrator)
     ///      Must be called by the arbitrable contract.
     ///      Must pay at least arbitrationCost(_extraData).
     /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.

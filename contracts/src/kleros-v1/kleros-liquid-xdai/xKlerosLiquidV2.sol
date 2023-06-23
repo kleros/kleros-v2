@@ -615,12 +615,12 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @inheritdoc IArbitrator
+    /// @inheritdoc IArbitratorV2
     function arbitrationCost(bytes memory _extraData) public view override returns (uint256 cost) {
         cost = foreignGateway.arbitrationCost(_extraData);
     }
 
-    /// @inheritdoc IArbitrator
+    /// @inheritdoc IArbitratorV2
     function arbitrationCost(
         bytes calldata /*_extraData*/,
         IERC20 /*_feeToken*/

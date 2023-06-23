@@ -105,43 +105,10 @@ contract HomeGateway is IHomeGateway {
     // ************************************* //
 
     /// @inheritdoc IHomeGateway
-    function relayCreateDispute(
-        uint256 _foreignChainID,
-        bytes32 _foreignBlockHash,
-        uint256 _foreignDisputeID,
-        uint256 _choices,
-        bytes calldata _extraData,
-        address _arbitrable
-    ) external payable override {
-        require(feeToken == NATIVE_CURRENCY, "Fees paid in ERC20 only");
-        require(_foreignChainID == foreignChainID, "Foreign chain ID not supported");
-
-        bytes32 disputeHash = keccak256(
-            abi.encodePacked(
-                _foreignChainID,
-                _foreignBlockHash,
-                "createDispute",
-                _foreignDisputeID,
-                _choices,
-                _extraData,
-                _arbitrable
-            )
-        );
-        RelayedData storage relayedData = disputeHashtoRelayedData[disputeHash];
-        require(relayedData.relayer == address(0), "Dispute already relayed");
-
-        uint256 disputeID = arbitrator.createDispute{value: msg.value}(_choices, _extraData);
-        disputeIDtoHash[disputeID] = disputeHash;
-        disputeHashtoID[disputeHash] = disputeID;
-        relayedData.relayer = msg.sender;
-
-        emit Dispute(arbitrator, disputeID, 0, 0);
-    }
-
-
-    /// @dev Provide the same parameters as on the foreignChain while creating a dispute. Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
-    /// @param _params The parameters of the dispute, see `RelayCreateDisputeParams`.
     function relayCreateDispute(RelayCreateDisputeParams memory _params) external payable override {
+        require(feeToken == NATIVE_CURRENCY, "Fees paid in ERC20 only");
+        require(_params.foreignChainID == foreignChainID, "Foreign chain ID not supported");
+
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
                 "createDispute",
@@ -153,13 +120,8 @@ contract HomeGateway is IHomeGateway {
                 _params.extraData
             )
         );
-        require(_params.foreignChainID == foreignChainID, "Foreign chain ID not supported");
-
         RelayedData storage relayedData = disputeHashtoRelayedData[disputeHash];
         require(relayedData.relayer == address(0), "Dispute already relayed");
-
-        relayedData.arbitrationCost = arbitrator.arbitrationCost(_params.extraData);
-        require(msg.value >= relayedData.arbitrationCost, "Not enough arbitration cost paid");
 
         uint256 disputeID = arbitrator.createDispute{value: msg.value}(_params.choices, _params.extraData);
         disputeIDtoHash[disputeID] = disputeHash;
@@ -180,27 +142,19 @@ contract HomeGateway is IHomeGateway {
     }
 
     /// @inheritdoc IHomeGateway
-    function relayCreateDispute(
-        uint256 _foreignChainID,
-        bytes32 _foreignBlockHash,
-        uint256 _foreignDisputeID,
-        uint256 _choices,
-        bytes calldata _extraData,
-        address _arbitrable,
-        uint256 _feeAmount
-    ) external {
+    function relayCreateDispute(RelayCreateDisputeParams memory _params, uint256 _feeAmount) external {
         require(feeToken != NATIVE_CURRENCY, "Fees paid in native currency only");
-        require(_foreignChainID == foreignChainID, "Foreign chain ID not supported");
+        require(_params.foreignChainID == foreignChainID, "Foreign chain ID not supported");
 
         bytes32 disputeHash = keccak256(
             abi.encodePacked(
-                _foreignChainID,
-                _foreignBlockHash,
                 "createDispute",
-                _foreignDisputeID,
-                _choices,
-                _extraData,
-                _arbitrable
+                _params.foreignBlockHash,
+                _params.foreignChainID,
+                _params.foreignArbitrable,
+                _params.foreignDisputeID,
+                _params.choices,
+                _params.extraData
             )
         );
         RelayedData storage relayedData = disputeHashtoRelayedData[disputeHash];
@@ -209,12 +163,22 @@ contract HomeGateway is IHomeGateway {
         require(feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount), "Transfer failed");
         require(feeToken.increaseAllowance(address(arbitrator), _feeAmount), "Allowance increase failed");
 
-        uint256 disputeID = arbitrator.createDispute(_choices, _extraData, feeToken, _feeAmount);
+        uint256 disputeID = arbitrator.createDispute(_params.choices, _params.extraData, feeToken, _feeAmount);
         disputeIDtoHash[disputeID] = disputeHash;
         disputeHashtoID[disputeHash] = disputeID;
         relayedData.relayer = msg.sender;
 
-        emit Dispute(arbitrator, disputeID, 0, 0);
+        emit DisputeRequest(arbitrator, disputeID, _params.externalDisputeID, _params.templateId, _params.templateUri);
+
+        emit CrossChainDisputeIncoming(
+            arbitrator,
+            _params.foreignChainID,
+            _params.foreignArbitrable,
+            _params.foreignDisputeID,
+            _params.externalDisputeID,
+            _params.templateId,
+            _params.templateUri
+        );
     }
 
     /// @inheritdoc IArbitrableV2

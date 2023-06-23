@@ -3,19 +3,29 @@
 pragma solidity 0.8.18;
 
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
+import "../../libraries/SafeERC20.sol";
 
 /// @title ArbitrableExample
 /// An example of an arbitrable contract which connects to the arbitator that implements the updated interface.
-contract ArbitrableExample is IArbitrable, IMetaEvidence {
+contract ArbitrableExample is IArbitrableV2 {
+    using SafeERC20 for IERC20;
+
+    // ************************************* //
+    // *         Enums / Structs           * //
+    // ************************************* //
+
     struct DisputeStruct {
         bool isRuled; // Whether the dispute has been ruled or not.
         uint256 ruling; // Ruling given by the arbitrator.
         uint256 numberOfRulingOptions; // The number of choices the arbitrator can give.
     }
 
+    event Action(string indexed _action);
+
     address public immutable governor;
-    IArbitrator public arbitrator; // Arbitrator is set in constructor and never changed.
-    ERC20 public immutable weth; // The WETH token.
+    IArbitratorV2 public arbitrator; // Arbitrator is set in constructor.
+    uint256 public disputeTemplates; // The number of dispute templates created.
+    IERC20 public immutable weth; // The WETH token.
     mapping(uint256 => uint256) public externalIDtoLocalID; // Maps external (arbitrator side) dispute IDs to local dispute IDs.
     DisputeStruct[] public disputes; // Stores the disputes' info. disputes[disputeID].
 
@@ -25,9 +35,9 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
 
     /// @dev Constructor
     /// @param _arbitrator The arbitrator to rule on created disputes.
-    /// @param _metaEvidenceID Unique identifier of meta-evidence.
-    /// @param _metaEvidence The URI of the meta evidence object for evidence submissions requests.
-    constructor(IArbitrator _arbitrator, uint256 _metaEvidenceID, string memory _metaEvidence, ERC20 _weth) {
+    /// @param _templateData The dispute template data.
+    /// @param _weth The WETH token.
+    constructor(IArbitratorV2 _arbitrator, string memory _templateData, IERC20 _weth) {
         governor = msg.sender;
         arbitrator = _arbitrator;
         weth = _weth;
@@ -38,12 +48,12 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
     // *             Governance            * //
     // ************************************* //
 
-    function changeMetaEvidence(uint256 _metaEvidenceID, string memory _metaEvidence) external {
+    function changeDisputeTemplate(string memory _templateData) external {
         require(msg.sender == governor, "Not authorized: governor only.");
-        emit MetaEvidence(_metaEvidenceID, _metaEvidence);
+        emit DisputeTemplate(disputeTemplates++, "", _templateData);
     }
 
-    function changeArbitrator(IArbitrator _arbitrator) external {
+    function changeArbitrator(IArbitratorV2 _arbitrator) external {
         require(msg.sender == governor, "Not authorized: governor only.");
         arbitrator = _arbitrator;
     }
@@ -70,7 +80,6 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
         disputes.push(DisputeStruct({isRuled: false, ruling: 0, numberOfRulingOptions: numberOfRulingOptions}));
 
         disputeID = arbitrator.createDispute{value: msg.value}(numberOfRulingOptions, _arbitratorExtraData);
-
         externalIDtoLocalID[disputeID] = localDisputeID;
 
         uint256 externalDisputeID = uint256(keccak256(abi.encodePacked(_action)));
@@ -120,15 +129,5 @@ contract ArbitrableExample is IArbitrable, IMetaEvidence {
         dispute.ruling = _ruling;
 
         emit Ruling(IArbitratorV2(msg.sender), _externalDisputeID, dispute.ruling);
-    }
-
-    function changeMetaEvidence(uint256 _metaEvidenceID, string memory _metaEvidence) external {
-        require(msg.sender == governor, "Not authorized: governor only.");
-        emit MetaEvidence(_metaEvidenceID, _metaEvidence);
-    }
-
-    function changeArbitrator(IArbitrator _arbitrator) external {
-        require(msg.sender == governor, "Not authorized: governor only.");
-        arbitrator = _arbitrator;
     }
 }

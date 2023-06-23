@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.18;
 
-import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitratorV2.sol";
+import {IArbitrableV2, IArbitratorV2, IERC20} from "./interfaces/IArbitratorV2.sol";
 
 /// @title Centralized Arbitrator
 /// @dev This is a centralized arbitrator deciding alone on the result of disputes. It illustrates how IArbitratorV2 interface can be implemented.
@@ -322,12 +322,12 @@ contract CentralizedArbitrator is IArbitratorV2 {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @inheritdoc IArbitrator
+    /// @inheritdoc IArbitratorV2
     function arbitrationCost(bytes calldata /*_extraData*/) public view override returns (uint256 fee) {
         return arbitrationFee;
     }
 
-    /// @inheritdoc IArbitrator
+    /// @inheritdoc IArbitratorV2
     function arbitrationCost(
         bytes calldata /*_extraData*/,
         IERC20 /*_feeToken*/

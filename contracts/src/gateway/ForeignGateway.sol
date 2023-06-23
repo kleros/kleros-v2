@@ -167,7 +167,7 @@ contract ForeignGateway is IForeignGateway {
         cost = feeForJuror[courtID] * minJurors;
     }
 
-    /// @inheritdoc IArbitrator
+    /// @inheritdoc IArbitratorV2
     function arbitrationCost(
         bytes calldata /*_extraData*/,
         IERC20 /*_feeToken*/

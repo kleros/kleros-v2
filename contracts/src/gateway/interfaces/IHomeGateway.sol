@@ -31,24 +31,6 @@ interface IHomeGateway is IArbitrableV2, ISenderGateway {
         string _templateUri
     );
 
-    /// @dev Relays a dispute creation from the ForeignGateway to the home arbitrator using the same parameters as the ones on the foreign chain.
-    ///      Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
-    ///      This function accepts the fees payment in the native currency of the home chain, typically ETH.
-    /// @param _foreignChainID foreignChainId
-    /// @param _foreignBlockHash foreignBlockHash
-    /// @param _foreignDisputeID foreignDisputeID
-    /// @param _choices number of ruling choices
-    /// @param _extraData extraData
-    /// @param _arbitrable arbitrable
-    function relayCreateDispute(
-        uint256 _foreignChainID,
-        bytes32 _foreignBlockHash,
-        uint256 _foreignDisputeID,
-        uint256 _choices,
-        bytes calldata _extraData,
-        address _arbitrable
-    ) external payable;
-
     // Workaround stack too deep for relayCreateDispute()
     struct RelayCreateDisputeParams {
         bytes32 foreignBlockHash;
@@ -67,6 +49,12 @@ interface IHomeGateway is IArbitrableV2, ISenderGateway {
     ///      This function accepts the fees payment in the native currency of the home chain, typically ETH.
     /// @param _params The parameters of the dispute, see `RelayCreateDisputeParams`.
     function relayCreateDispute(RelayCreateDisputeParams memory _params) external payable;
+
+    /// @dev Relays a dispute creation from the ForeignGateway to the home arbitrator using the same parameters as the ones on the foreign chain.
+    ///      Providing incorrect parameters will create a different hash than on the foreignChain and will not affect the actual dispute/arbitrable's ruling.
+    ///      This function accepts the fees payment in the ERC20 `acceptedFeeToken()`.
+    /// @param _params The parameters of the dispute, see `RelayCreateDisputeParams`.
+    function relayCreateDispute(RelayCreateDisputeParams memory _params, uint256 _feeAmount) external;
 
     /// @dev Looks up the local home disputeID for a disputeHash
     /// @param _disputeHash dispute hash

@@ -114,36 +114,22 @@ describe("Integration tests", async () => {
     const events = (await tx.wait()).events;
 
     // Relayer tx
-<<<<<<< HEAD
     const tx2 = await homeGateway
       .connect(relayer)
-      .functions["relayCreateDispute(uint256,bytes32,uint256,uint256,bytes,address)"](
-        31337,
-        lastBlock.hash,
-        disputeId,
-        2,
-        "0x00",
-        arbitrable.address,
+      .functions["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes))"](
         {
-          value: arbitrationCost,
-        }
+          foreignBlockHash: lastBlock.hash,
+          foreignChainID: 31337,
+          foreignArbitrable: arbitrable.address,
+          foreignDisputeID: disputeId,
+          externalDisputeID: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("future of france")),
+          templateId: 0,
+          templateUri: "",
+          choices: 2,
+          extraData: "0x00",
+        },
+        { value: arbitrationCost }
       );
-=======
-    const tx2 = await homeGateway.connect(relayer).relayCreateDispute(
-      {
-        foreignBlockHash: lastBlock.hash,
-        foreignChainID: 31337,
-        foreignArbitrable: arbitrable.address,
-        foreignDisputeID: disputeId,
-        externalDisputeID: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("future of france")),
-        templateId: 0,
-        templateUri: "",
-        choices: 2,
-        extraData: "0x00",
-      },
-      { value: arbitrationCost }
-    );
->>>>>>> 6a280d9 (feat: migrated all the interfaces to the new v2 ones))
     expect(tx2).to.emit(homeGateway, "Dispute");
     const events2 = (await tx2.wait()).events;
 
