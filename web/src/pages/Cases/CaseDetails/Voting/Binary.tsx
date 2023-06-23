@@ -49,7 +49,7 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
         <OptionsContainer>
           {metaEvidence?.rulingOptions?.titles?.map((answer: string, i: number) => {
             return (
-              <EnsureChain key={`${answer}-${i}`}>
+              <EnsureChain key={answer}>
                 <Button
                   text={answer}
                   disabled={isSending}
