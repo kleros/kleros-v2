@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useLockBodyScroll, useToggle } from "react-use";
+import { useCoinPrice } from "hooks/useCoinPrice";
 import ConnectButton from "components/ConnectButton";
 import LightButton from "components/LightButton";
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
@@ -35,7 +36,8 @@ const Container = styled.div<{ isOpen: boolean }>`
 
 const NavBar: React.FC = () => {
   const [isSolutionsOpen, toggleSolution] = useToggle(false);
-
+  const { prices } = useCoinPrice(["kleros", "ethereum"]);
+  console.log("🚀 ~ file: index.tsx:40 ~ prices:", prices!);
   const { isOpen } = useOpenContext();
   useLockBodyScroll(isOpen);
 
