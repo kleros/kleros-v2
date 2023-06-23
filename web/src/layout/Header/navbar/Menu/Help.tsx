@@ -13,7 +13,7 @@ const ITEMS = [
   {
     text: "Onboarding",
     Icon: Book,
-    url: "https://kleros.dodao.io/",
+    url: "",
   },
   {
     text: "Get Help",
@@ -23,22 +23,22 @@ const ITEMS = [
   {
     text: "Report a Bug",
     Icon: Bug,
-    url: "https://github.com/kleros/kleros-v2/issues/new",
+    url: "https://github.com/kleros/kleros-v2/issues",
   },
   {
     text: "DApp Guide",
     Icon: Guide,
-    url: "",
+    url: "https://docs.kleros.io/products/court-v2",
   },
   {
     text: "Crypto Beginner's Guide",
     Icon: ETH,
-    url: "",
+    url: "https://ethereum.org/en/wallets/",
   },
   {
     text: "FAQ",
     Icon: Faq,
-    url: "https://kleros.gitbook.io/docs/kleros-faq",
+    url: "https://docs.kleros.io/kleros-faq",
   },
 ];
 

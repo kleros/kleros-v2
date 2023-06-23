@@ -30,32 +30,32 @@ const ITEMS = [
   {
     text: "Tokens",
     Icon: Tokens,
-    url: "https://tokens.kleros.io/",
+    url: "https://tokens.kleros.io",
   },
   {
     text: "POH",
     Icon: POH,
-    url: "https://www.proofofhumanity.id",
+    url: "https://app.proofofhumanity.id",
   },
   {
     text: "Curate",
     Icon: Curate,
-    url: "https://curate.kleros.io/",
+    url: "https://curate.kleros.io",
   },
   {
     text: "Resolver",
     Icon: Resolver,
-    url: "https://resolve.kleros.io/",
+    url: "https://resolve.kleros.io",
   },
   {
     text: "Linguo",
     Icon: Linguo,
-    url: "https://linguo.kleros.io/",
+    url: "https://linguo.kleros.io",
   },
   {
     text: "Governor",
     Icon: Governor,
-    url: "https://governor.kleros.io/",
+    url: "https://governor.kleros.io",
   },
 ];
 
