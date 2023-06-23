@@ -50,7 +50,7 @@ interface IHomeGateway is IArbitrable, IMetaEvidence, ISenderGateway {
         bytes calldata _extraData,
         address _arbitrable,
         uint256 _feeAmount
-    ) external payable;
+    ) external;
 
     /// @dev Looks up the local home disputeID for a disputeHash
     /// @param _disputeHash dispute hash
@@ -63,5 +63,5 @@ interface IHomeGateway is IArbitrable, IMetaEvidence, ISenderGateway {
     function foreignGateway() external view returns (address);
 
     /// return The fee token.
-    function acceptedFeeToken() external view returns (IERC20);
+    function feeToken() external view returns (IERC20);
 }

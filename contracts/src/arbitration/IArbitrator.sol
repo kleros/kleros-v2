@@ -55,7 +55,7 @@ interface IArbitrator {
         uint256 _feeAmount
     ) external returns (uint256 disputeID);
 
-    /// @dev Compute the cost of arbitration denominated in ETH.
+    /// @dev Compute the cost of arbitration denominated in the native currency, typically ETH.
     /// It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.
     /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
     /// @return cost The arbitration cost in ETH.

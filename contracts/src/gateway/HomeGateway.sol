@@ -150,7 +150,7 @@ contract HomeGateway is IHomeGateway {
         bytes calldata _extraData,
         address _arbitrable,
         uint256 _feeAmount
-    ) external payable {
+    ) external override {
         require(feeToken != NATIVE_CURRENCY, "Fees paid in native currency only");
         require(_foreignChainID == foreignChainID, "Foreign chain ID not supported");
 
@@ -205,10 +205,5 @@ contract HomeGateway is IHomeGateway {
     /// @inheritdoc ISenderGateway
     function receiverGateway() external view override returns (address) {
         return foreignGateway;
-    }
-
-    /// @inheritdoc IHomeGateway
-    function acceptedFeeToken() external view returns (IERC20) {
-        return feeToken;
     }
 }
