@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import { useLockBodyScroll, useToggle } from "react-use";
-import { useCoinPrice } from "hooks/useCoinPrice";
 import ConnectButton from "components/ConnectButton";
 import LightButton from "components/LightButton";
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
