@@ -62,7 +62,7 @@ interface IArbitratorV2 {
     function arbitrationCost(bytes calldata _extraData) external view returns (uint256 cost);
 
     /// @dev Compute the cost of arbitration denominated in `_feeToken`.
-    /// It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.
+    ///      It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.
     /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).
     /// @param _feeToken The ERC20 token used to pay fees.
     /// @return cost The arbitration cost in `_feeToken`.

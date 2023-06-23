@@ -208,9 +208,4 @@ contract HomeGateway is IHomeGateway {
     function receiverGateway() external view override returns (address) {
         return foreignGateway;
     }
-
-    /// @inheritdoc IHomeGateway
-    function acceptedFeeToken() external view returns (IERC20) {
-        return feeToken;
-    }
 }

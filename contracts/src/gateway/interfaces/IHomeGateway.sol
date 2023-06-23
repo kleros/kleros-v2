@@ -68,5 +68,5 @@ interface IHomeGateway is IArbitrableV2, ISenderGateway {
     function foreignGateway() external view returns (address);
 
     /// return The fee token.
-    function acceptedFeeToken() external view returns (IERC20);
+    function feeToken() external view returns (IERC20);
 }
