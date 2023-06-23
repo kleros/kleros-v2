@@ -3,14 +3,12 @@ import styled from "styled-components";
 import { useLoserSideCountdownContext } from "hooks/useClassicAppealContext";
 import StageOne from "./StageOne";
 import StageTwo from "./StageTwo";
-import { notUndefined } from "utils/index";
+import { isUndefined } from "utils/index";
 
 const Options: React.FC = () => {
   const loserSideCountdown = useLoserSideCountdownContext();
-  return notUndefined(loserSideCountdown) ? (
-    <Container>
-      {loserSideCountdown! > 0 ? <StageOne /> : <StageTwo />}
-    </Container>
+  return !isUndefined(loserSideCountdown) ? (
+    <Container>{loserSideCountdown > 0 ? <StageOne /> : <StageTwo />}</Container>
   ) : (
     <h1>Loading...</h1>
   );

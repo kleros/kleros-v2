@@ -6,6 +6,7 @@ import { Textarea, Button } from "@kleros/ui-components-library";
 import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 import { useWalletClient } from "wagmi";
+import { EnsureChain } from "components/EnsureChain";
 import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 
 const SubmitEvidenceModal: React.FC<{
@@ -22,33 +23,35 @@ const SubmitEvidenceModal: React.FC<{
       <StyledTextArea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Your Arguments" />
       <ButtonArea>
         <Button variant="secondary" disabled={isSending} text="Return" onClick={close} />
-        <Button
-          text="Submit"
-          isLoading={isSending}
-          disabled={isSending}
-          onClick={() => {
-            setIsSending(true);
-            const formData = constructEvidence(message);
-            toast.info("Uploading to IPFS", toastOptions);
-            uploadFormDataToIPFS(formData)
-              .then(async (res) => {
-                const response = await res.json();
-                if (res.status === 200 && walletClient) {
-                  const cid = "/ipfs/" + response["cid"];
-                  const { request } = await prepareWriteDisputeKitClassic({
-                    functionName: "submitEvidence",
-                    args: [BigInt(evidenceGroup), cid],
-                  });
-                  await wrapWithToast(walletClient.writeContract(request)).then(() => {
-                    setMessage("");
-                    close();
-                  });
-                }
-              })
-              .catch()
-              .finally(() => setIsSending(false));
-          }}
-        />
+        <EnsureChain>
+          <Button
+            text="Submit"
+            isLoading={isSending}
+            disabled={isSending}
+            onClick={() => {
+              setIsSending(true);
+              const formData = constructEvidence(message);
+              toast.info("Uploading to IPFS", toastOptions);
+              uploadFormDataToIPFS(formData)
+                .then(async (res) => {
+                  const response = await res.json();
+                  if (res.status === 200 && walletClient) {
+                    const cid = "/ipfs/" + response["cid"];
+                    const { request } = await prepareWriteDisputeKitClassic({
+                      functionName: "submitEvidence",
+                      args: [BigInt(evidenceGroup), cid],
+                    });
+                    await wrapWithToast(walletClient.writeContract(request)).then(() => {
+                      setMessage("");
+                      close();
+                    });
+                  }
+                })
+                .catch()
+                .finally(() => setIsSending(false));
+            }}
+          />
+        </EnsureChain>
       </ButtonArea>
     </StyledModal>
   );

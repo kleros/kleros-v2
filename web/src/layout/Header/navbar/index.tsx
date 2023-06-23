@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useLockBodyScroll, useToggle } from "react-use";
-import ConnectButton from "components/ConnectButton";
+import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 import { useOpenContext } from "../index";
@@ -52,7 +52,7 @@ const NavBar: React.FC = () => {
       <hr />
       <Explore />
       <hr />
-      <ConnectButton />
+      <ConnectWallet />
       <hr />
       <Menu />
     </Container>
