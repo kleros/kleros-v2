@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { utils } from "ethers";
+import { formatEther } from "viem";
 import Skeleton from "react-loading-skeleton";
 import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
@@ -16,6 +16,10 @@ const StyledCard = styled(Card)`
   min-width: 312px;
   width: auto;
   height: 260px;
+
+  .react-loading-skeleton {
+    z-index: 0;
+  }
 `;
 
 const Container = styled.div`
@@ -42,7 +46,7 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
   court,
 }) => {
   const currentPeriodIndex = Periods[period];
-  const rewards = `≥ ${utils.formatEther(court.feeForJuror)} ETH`;
+  const rewards = `≥ ${formatEther(court.feeForJuror)} ETH`;
   const date =
     currentPeriodIndex === 4
       ? lastPeriodChange

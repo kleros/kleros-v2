@@ -3,7 +3,11 @@
   "version": "0.2",
   "ignorePaths": [],
   "dictionaryDefinitions": [],
-  "dictionaries": ["en_US", "companies", "softwareTerms"],
+  "dictionaries": [
+    "en_US",
+    "companies",
+    "softwareTerms"
+  ],
   "words": [
     "arbitrum",
     "commitlint",

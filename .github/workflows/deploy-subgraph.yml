@@ -11,6 +11,11 @@ on:
         options:
           - arbitrum-goerli
           - arbitrum
+      update:
+        description: Whether to update the subgraph with the current artifacts for the selected network.
+        required: true
+        default: true
+        type: boolean
 
 permissions:
   contents: read
@@ -33,16 +38,38 @@ jobs:
         with:
           node-version: 16
 
+      - name: Install Yarn if running locally
+        if: ${{ env.ACT }}
+        run: npm install -g yarn
+
       - name: Install the dependencies
         run: yarn install
+
+      - name: Install jq and yq
+        if: ${{ inputs.update }}  
+        run: |
+          mkdir bin
+          wget -qO bin/jq https://github.com/jqlang/jq/releases/download/jq-1.6/jq-linux64
+          wget -qO bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          chmod a+x bin/jq bin/yq 
+
+      - name: Update the subgraph definition
+        if: ${{ inputs.update }}
+        run: |
+          export PATH=$PWD/../bin:$PATH
+          yarn update:${{ inputs.network }}
+        working-directory: subgraph
 
       - name: Build the subgraph
         run: |
           yarn codegen
           yarn build
-
+        working-directory: subgraph
+        
       - name: Authenticate with TheGraph
         run: yarn graph auth "${{ secrets.SUBGRAPH_AUTH_TOKEN }}" --product hosted-service
+        working-directory: subgraph
 
       - name: Deploy the subgraph
         run: yarn deploy:${{ inputs.network }}
+        working-directory: subgraph

@@ -1,14 +1,13 @@
 import useSWR from "swr";
-import { KlerosCore } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/KlerosCore";
-import { useConnectedContract } from "../useConnectedContract";
+import { getKlerosCore } from "hooks/contracts/generated";
 
-export const useJurorBalance = (user?: string | null, courtId?: string | undefined) => {
-  const klerosCore = useConnectedContract("KlerosCore") as KlerosCore;
+export const useJurorBalance = (user?: `0x${string}` | null, courtId?: string | undefined) => {
+  const klerosCore = getKlerosCore({});
   return useSWR(
     () => (klerosCore && user && courtId ? `JurorBalance${user}${courtId}` : false),
     async () => {
       if (klerosCore && user && courtId) {
-        return await klerosCore.getJurorBalance(user, courtId);
+        return await klerosCore.read.getJurorBalance([user, BigInt(courtId)]);
       } else {
         return undefined;
       }

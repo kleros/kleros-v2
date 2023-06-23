@@ -42,14 +42,7 @@ export interface IStatDisplay {
   color: "red" | "orange" | "green" | "blue" | "purple";
 }
 
-const StatDisplay: React.FC<IStatDisplay> = ({
-  title,
-  text,
-  subtext,
-  icon: Icon,
-  color,
-  ...props
-}) => {
+const StatDisplay: React.FC<IStatDisplay> = ({ title, text, subtext, icon: Icon, color, ...props }) => {
   const theme = useTheme();
   const COLORS = {
     red: createPair(theme.error, theme.errorLight),
