@@ -8,9 +8,9 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 #### Chiado
 
-- [ArbitrableExample](https://blockscout.com/gnosis/chiado/address/0xc0fcc96BFd78e36550FCaB434A9EE1210B57225b)
+- [ArbitrableExample](https://blockscout.com/gnosis/chiado/address/0x6BC234359c2Bc212B81A5cF2dfE504940e98d4cC)
 - [DisputeResolver](https://blockscout.com/gnosis/chiado/address/0x433eD78895df1df7668C40b3e82d54410331F942)
-- [ForeignGatewayOnGnosis](https://blockscout.com/gnosis/chiado/address/0x573bcD6ee4aEe152eCC9Cafd2c0820Dc548AF6cC)
+- [ForeignGatewayOnGnosis](https://blockscout.com/gnosis/chiado/address/0x2357ef115E98d171b083105E9b398231206989A3)
 - [SortitionSumTreeFactory](https://blockscout.com/gnosis/chiado/address/0xc7e3BF90299f6BD9FA7c3703837A9CAbB5743636)
 - [TokenBridge](https://blockscout.com/gnosis/chiado/address/0xbb3c86f9918C3C1d83668fA84e79E876d147fFf2)
 - [WETH](https://blockscout.com/gnosis/chiado/address/0x2DFC9c3141268e6eac04a7D6d98Fbf64BDe836a8)
@@ -22,20 +22,20 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 #### Goerli
 
 - [PNK](https://goerli.etherscan.io/token/0xA3B02bA6E10F55fb177637917B1b472da0110CcC)
-- [ArbitrableExample](https://goerli.etherscan.io/address/0xd78dcdde2c5a2bd4bb246bc7db6994b95f7c442c)
 
 #### Arbitrum Goerli
 
 - [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610/token-transfers)
-- [ArbitrableExampleEthFee](https://goerli.arbiscan.io/address/0x1d533481cCD1402f83Df3D9Ba7496B5e5b602875)
 - [BlockHashRNG](https://goerli.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
-- [DisputeKitClassic](https://goerli.arbiscan.io/address/0xcBE3aD699919Cf59efDF715e4B41AF30A0E4c92d)
-- [DisputeResolver](https://goerli.arbiscan.io/address/0xF6652c10c4D3f5bA6066254B78c57A468d9b9606)
+- [DAI](https://goerli.arbiscan.io/address/0x70A704Dce4cCC00568Cc142C86D07Ec71C944a39)
+- [DisputeKitClassic](https://goerli.arbiscan.io/address/0x0245A93ABd9c5b2d767B2D98cE6d5e612208E474)
+- [DisputeResolver](https://goerli.arbiscan.io/address/0xcDC05c8d2EEEe384359Bd22E8631528B6b0564e9)
 - [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0xD60CD2151e118Dd796efcb1ceFFcF892226F9b3a)
-- [KlerosCore](https://goerli.arbiscan.io/address/0xA429667Abb1A6c530BAd1083df4C69FBce86D696)
+- [KlerosCore](https://goerli.arbiscan.io/address/0x8Af82E2F8890acb4AB84cbaB3c4C4Eb3E965CF24)
 - [PolicyRegistry](https://goerli.arbiscan.io/address/0xED503aBA65B28D81444294D1eAa5d84CeFdC2C58)
 - [RandomizerRNG](https://goerli.arbiscan.io/address/0xa90f7D2e35718FDE9AD96c8B6667AFcAa4BEfd4d)
-- [SortitionModule](https://goerli.arbiscan.io/address/0xa65D3ED6494ec5fcAa115A39D625B2F01786F094)
+- [SortitionModule](https://goerli.arbiscan.io/address/0x5Ae75Db8B66B574b2c5C29eE4D32cc9Fe62bfdEE)
+- [WETH](https://goerli.arbiscan.io/address/0xddE1b84E43505432Fdf5F810ebB9373dD37e9230)
 
 ## Getting Started
 
@@ -120,6 +120,7 @@ yarn deploy --network localhost --tags <Arbitration|VeaMock|ForeignGatewayOnEthe
 yarn deploy --network arbitrumGoerli --tags Arbitration
 yarn deploy --network chiado --tags ForeignGatewayOnGnosis
 yarn deploy --network chiado --tags KlerosLiquidOnGnosis
+yarn deploy --network chiado --tags ForeignArbitrable
 yarn deploy --network arbitrumGoerli --tags HomeGatewayToGnosis
 
 # Goerli

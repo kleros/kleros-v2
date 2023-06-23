@@ -5,7 +5,16 @@ import disputeTemplate from "../../kleros-sdk/config/v2-disputetemplate/simple/N
 enum ForeignChains {
   ETHEREUM_MAINNET = 1,
   ETHEREUM_GOERLI = 5,
+  GNOSIS_MAINNET = 100,
+  GNOSIS_CHIADO = 10200,
 }
+
+const foreignGatewayArtifactByChain = new Map<ForeignChains, string>([
+  [ForeignChains.ETHEREUM_MAINNET, "ForeignGatewayOnEthereum"],
+  [ForeignChains.ETHEREUM_GOERLI, "ForeignGatewayOnEthereum"],
+  [ForeignChains.GNOSIS_MAINNET, "ForeignGatewayOnGnosis"],
+  [ForeignChains.GNOSIS_CHIADO, "ForeignGatewayOnGnosis"],
+]);
 
 const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId, config } = hre;
@@ -16,8 +25,10 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const chainId = Number(await getChainId());
   console.log("Deploying to chainId %s with deployer %s", chainId, deployer);
 
-  const foreignGateway = await deployments.get("ForeignGatewayOnEthereum");
-  // TODO: add the dispute template
+  const foreignGatewayArtifact = foreignGatewayArtifactByChain.get(chainId) ?? ethers.constants.AddressZero;
+  const foreignGateway = await deployments.get(foreignGatewayArtifact);
+  console.log("Using foreign gateway: %s", foreignGatewayArtifact);
+
   const extraData =
     "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
   const weth = await deployments.get("WETH");
@@ -28,7 +39,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   });
 };
 
-deployForeignGateway.tags = ["ArbitrableOnEthereum"];
+deployForeignGateway.tags = ["ForeignArbitrable"];
 deployForeignGateway.skip = async ({ getChainId }) => {
   const chainId = Number(await getChainId());
   return !ForeignChains[chainId];
