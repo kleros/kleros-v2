@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Link, useParams } from "react-router-dom";
-import { utils } from "ethers";
+import { formatEther } from "viem";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { useCourtPolicy } from "queries/useCourtPolicy";
@@ -9,10 +9,7 @@ import { useCourtPolicyURI } from "queries/useCourtPolicyURI";
 import PolicyIcon from "svgs/icons/policy.svg";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 
-const Overview: React.FC<{ arbitrable?: string; courtID?: string }> = ({
-  arbitrable,
-  courtID,
-}) => {
+const Overview: React.FC<{ arbitrable?: string; courtID?: string }> = ({ arbitrable, courtID }) => {
   const { id } = useParams();
   const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
@@ -20,9 +17,7 @@ const Overview: React.FC<{ arbitrable?: string; courtID?: string }> = ({
   const { data: courtPolicy } = useCourtPolicy(courtID);
   const courtName = courtPolicy?.name;
   const court = disputeDetails?.dispute?.court;
-  const rewards = court
-    ? `≥ ${utils.formatEther(court.feeForJuror)} ETH`
-    : undefined;
+  const rewards = court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined;
   const category = metaEvidence ? metaEvidence.category : undefined;
   return (
     <>
@@ -41,41 +36,27 @@ const Overview: React.FC<{ arbitrable?: string; courtID?: string }> = ({
         </a>
         <VotingOptions>
           {metaEvidence && <h3>Voting Options</h3>}
-          {metaEvidence?.rulingOptions?.titles?.map(
-            (answer: string, i: number) => (
-              <span key={i}>
-                <small>Option {i + 1}:</small>
-                <label>{answer}</label>
-              </span>
-            )
-          )}
+          {metaEvidence?.rulingOptions?.titles?.map((answer: string, i: number) => (
+            <span key={i}>
+              <small>Option {i + 1}:</small>
+              <label>{answer}</label>
+            </span>
+          ))}
         </VotingOptions>
         <hr />
-        <DisputeInfo
-          courtId={court?.id}
-          court={courtName}
-          {...{ rewards, category }}
-        />
+        <DisputeInfo courtId={court?.id} court={courtName} {...{ rewards, category }} />
       </Container>
       <ShadeArea>
         <p>Make sure you understand the Policies</p>
         <LinkContainer>
           {metaEvidence?.fileURI && (
-            <StyledA
-              href={`https://cloudflare-ipfs.com${metaEvidence.fileURI}`}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <StyledA href={`https://cloudflare-ipfs.com${metaEvidence.fileURI}`} target="_blank" rel="noreferrer">
               <PolicyIcon />
               Dispute Policy
             </StyledA>
           )}
           {courtPolicy && (
-            <StyledA
-              href={`https://cloudflare-ipfs.com${courtPolicyURI}`}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <StyledA href={`https://cloudflare-ipfs.com${courtPolicyURI}`} target="_blank" rel="noreferrer">
               <PolicyIcon />
               Court Policy
             </StyledA>

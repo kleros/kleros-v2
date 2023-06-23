@@ -1,35 +1,64 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
+import { useAccount, useBalance } from "wagmi";
+import { useDebounce } from "react-use";
 import { Field, Button } from "@kleros/ui-components-library";
-import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
-import { useConnectedContract } from "hooks/useConnectedContract";
 import { wrapWithToast } from "utils/wrapWithToast";
+import { isUndefined } from "utils/index";
+import { EnsureChain } from "components/EnsureChain";
+import { usePrepareDisputeKitClassicFundAppeal, useDisputeKitClassicFundAppeal } from "hooks/contracts/generated";
 import { useParsedAmount } from "hooks/useParsedAmount";
-import { useETHBalance } from "hooks/queries/useETHBalance";
 import {
   useLoserSideCountdownContext,
   useSelectedOptionContext,
   useFundingContext,
 } from "hooks/useClassicAppealContext";
-import { notUndefined } from "utils/index";
 
-const Fund: React.FC = () => {
+const useNeedFund = () => {
   const loserSideCountdown = useLoserSideCountdownContext();
   const { fundedChoices, winningChoice } = useFundingContext();
   const needFund =
-    notUndefined([loserSideCountdown, fundedChoices]) &&
-    (loserSideCountdown! > 0 ||
-      (fundedChoices!.length > 0 && !fundedChoices?.includes(winningChoice!)));
+    (loserSideCountdown ?? 0) > 0 ||
+    (!isUndefined(fundedChoices) &&
+      !isUndefined(winningChoice) &&
+      fundedChoices.length > 0 &&
+      !fundedChoices.includes(winningChoice));
+
+  return needFund;
+};
+
+const useFundAppeal = (parsedAmount) => {
   const { id } = useParams();
-  const { data: balance } = useETHBalance();
-  const [amount, setAmount] = useState("");
-  const parsedAmount = useParsedAmount(amount);
-  const [isSending, setIsSending] = useState(false);
-  const disputeKitClassic = useConnectedContract(
-    "DisputeKitClassic"
-  ) as DisputeKitClassic;
   const { selectedOption } = useSelectedOptionContext();
+  const { config: fundAppealConfig } = usePrepareDisputeKitClassicFundAppeal({
+    enabled: !isUndefined(id) && !isUndefined(selectedOption),
+    args: [BigInt(id ?? 0), BigInt(selectedOption ?? 0)],
+    value: parsedAmount,
+  });
+
+  const { writeAsync: fundAppeal } = useDisputeKitClassicFundAppeal(fundAppealConfig);
+
+  return fundAppeal;
+};
+
+const Fund: React.FC = () => {
+  const needFund = useNeedFund();
+  const { address, isDisconnected } = useAccount();
+  const { data: balance } = useBalance({
+    address,
+    watch: true,
+  });
+
+  const [amount, setAmount] = useState("");
+  const [debouncedAmount, setDebouncedAmount] = useState("");
+  useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
+
+  const parsedAmount = useParsedAmount(debouncedAmount);
+
+  const [isSending, setIsSending] = useState(false);
+  const fundAppeal = useFundAppeal(parsedAmount);
+
   return needFund ? (
     <div>
       <label>How much ETH do you want to contribute?</label>
@@ -42,28 +71,23 @@ const Fund: React.FC = () => {
           }}
           placeholder="Amount to fund"
         />
-        <StyledButton
-          disabled={isSending || !balance || parsedAmount.gt(balance)}
-          text={typeof balance === "undefined" ? "Connect to Fund" : "Fund"}
-          onClick={() => {
-            if (
-              typeof selectedOption !== "undefined" &&
-              typeof id !== "undefined"
-            ) {
-              setIsSending(true);
-              wrapWithToast(
-                disputeKitClassic.fundAppeal(id, selectedOption, {
-                  value: parsedAmount,
-                })
-              )
-                .then(() => {
-                  setAmount("");
-                  close();
-                })
-                .finally(() => setIsSending(false));
-            }
-          }}
-        />
+        <EnsureChain>
+          <StyledButton
+            disabled={isDisconnected || isSending || !balance || parsedAmount > balance.value}
+            text={isDisconnected ? "Connect to Fund" : "Fund"}
+            onClick={() => {
+              if (fundAppeal) {
+                setIsSending(true);
+                wrapWithToast(fundAppeal())
+                  .then(() => {
+                    setAmount("");
+                    close();
+                  })
+                  .finally(() => setIsSending(false));
+              }
+            }}
+          />
+        </EnsureChain>
       </div>
     </div>
   ) : (

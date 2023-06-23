@@ -1,13 +1,13 @@
 import useSWRImmutable from "swr/immutable";
-import { useConnectedContract } from "hooks/useConnectedContract";
+import { getKlerosCore } from "hooks/contracts/generated";
 
 export const useAppealCost = (disputeID?: string) => {
-  const KlerosCore = useConnectedContract("KlerosCore");
+  const klerosCore = getKlerosCore({});
   return useSWRImmutable(
-    () => (KlerosCore ? `AppealCost${disputeID}` : false),
+    () => (klerosCore && disputeID ? `AppealCost${disputeID}` : false),
     async () => {
-      if (!KlerosCore) return;
-      return KlerosCore.appealCost(disputeID);
+      if (!klerosCore || typeof disputeID === "undefined") return;
+      return await klerosCore.read.appealCost([BigInt(disputeID)]);
     }
   );
 };

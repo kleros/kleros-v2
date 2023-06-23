@@ -1,31 +1,31 @@
 import React from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { BigNumber, utils } from "ethers";
+import { formatEther } from "viem";
 import { useJurorBalance } from "queries/useJurorBalance";
-import { useWeb3 } from "hooks/useWeb3";
+import { useAccount } from "wagmi";
 import Field from "components/Field";
 import DiceIcon from "svgs/icons/dice.svg";
 import LockerIcon from "svgs/icons/locker.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 
-const format = (value: BigNumber | undefined): string => (value !== undefined ? utils.formatEther(value) : "0");
+const format = (value: bigint | undefined): string => (value !== undefined ? formatEther(value) : "0");
 
 const JurorBalanceDisplay = () => {
   const { id } = useParams();
-  const { account } = useWeb3();
-  const { data: jurorBalance } = useJurorBalance(account, id);
+  const { address } = useAccount();
+  const { data: jurorBalance } = useJurorBalance(address, id);
 
   const data = [
     {
       icon: PNKIcon,
       name: "My Stake",
-      value: `${format(jurorBalance?.staked)} PNK`,
+      value: `${format(jurorBalance?.[0])} PNK`,
     },
     {
       icon: LockerIcon,
       name: "Locked Stake",
-      value: `${format(jurorBalance?.locked)} PNK`,
+      value: `${format(jurorBalance?.[1])} PNK`,
     },
     {
       icon: DiceIcon,

@@ -4,7 +4,12 @@
   "extends": "./base.json",
   "compilerOptions": {
     "jsx": "react",
-    "lib": ["es6", "dom", "esnext.asynciterable", "es2017"],
+    "lib": [
+      "es6",
+      "dom",
+      "esnext.asynciterable",
+      "es2017"
+    ],
     "module": "ESNext",
     "target": "es6"
   }

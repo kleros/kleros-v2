@@ -1,48 +1,13 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { useWeb3 } from "hooks/useWeb3";
+import { useAccount } from "wagmi";
 import { Button, Searchbar } from "@kleros/ui-components-library";
 import { useEvidenceGroup } from "queries/useEvidenceGroup";
 import { useEvidences } from "queries/useEvidences";
 import SubmitEvidenceModal from "./SubmitEvidenceModal";
 import EvidenceCard from "components/EvidenceCard";
-
-const Evidence: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { id } = useParams();
-  const { data: evidenceGroup } = useEvidenceGroup(id, arbitrable);
-  const { data } = useEvidences(evidenceGroup);
-  const { account } = useWeb3();
-  return (
-    <Container>
-      {evidenceGroup && (
-        <SubmitEvidenceModal
-          isOpen={isModalOpen}
-          close={() => setIsModalOpen(false)}
-          {...{ evidenceGroup }}
-        />
-      )}
-      <Searchbar />
-      <StyledButton
-        small
-        text="Submit Evidence"
-        disabled={typeof account === "undefined" || isModalOpen}
-        isLoading={isModalOpen}
-        onClick={() => setIsModalOpen(true)}
-      />
-      {data &&
-        data.evidences.map(({ evidence, sender }, i) => (
-          <EvidenceCard
-            key={i}
-            index={i + 1}
-            sender={sender?.id}
-            {...{ evidence }}
-          />
-        ))}
-    </Container>
-  );
-};
+import { EnsureChain } from "components/EnsureChain";
 
 const Container = styled.div`
   width: 100%;
@@ -56,5 +21,34 @@ const Container = styled.div`
 const StyledButton = styled(Button)`
   align-self: flex-end;
 `;
+
+const Evidence: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { id } = useParams();
+  const { data: evidenceGroup } = useEvidenceGroup(id, arbitrable);
+  const { data } = useEvidences(evidenceGroup);
+  const { address } = useAccount();
+  return (
+    <Container>
+      {evidenceGroup && (
+        <SubmitEvidenceModal isOpen={isModalOpen} close={() => setIsModalOpen(false)} {...{ evidenceGroup }} />
+      )}
+      <Searchbar />
+      <EnsureChain>
+        <StyledButton
+          small
+          text="Submit Evidence"
+          disabled={typeof address === "undefined" || isModalOpen}
+          isLoading={isModalOpen}
+          onClick={() => setIsModalOpen(true)}
+        />
+      </EnsureChain>
+      {data &&
+        data.evidences.map(({ id, evidence, sender }, i) => (
+          <EvidenceCard key={id} index={i + 1} sender={sender?.id} {...{ evidence }} />
+        ))}
+    </Container>
+  );
+};
 
 export default Evidence;

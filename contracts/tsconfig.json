@@ -1,5 +1,13 @@
 {
   "extends": "@kleros/kleros-v2-tsconfig/base.json",
-  "include": ["./src", "./scripts", "./test", "./typechain-types", "./deploy"],
-  "files": ["./hardhat.config.ts"]
+  "include": [
+    "./src",
+    "./scripts",
+    "./test",
+    "./typechain-types",
+    "./deploy"
+  ],
+  "files": [
+    "./hardhat.config.ts"
+  ]
 }

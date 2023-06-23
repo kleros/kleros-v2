@@ -1,19 +1,22 @@
 import useSWRImmutable from "swr/immutable";
-import { PolicyRegistry } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/PolicyRegistry";
-import { useConnectedContract } from "hooks/useConnectedContract";
+import { usePublicClient } from "wagmi";
+import { getPolicyRegistry } from "hooks/contracts/generated";
 
 export const usePolicyRegistryEvent = (courtID?: string | number) => {
-  const policyRegistry = useConnectedContract(
-    "PolicyRegistry"
-  ) as PolicyRegistry;
+  const policyRegistry = getPolicyRegistry({});
+  const publicClient = usePublicClient();
+
   return useSWRImmutable(
     () => (policyRegistry && courtID ? `PolicyRegistry${courtID}` : false),
     async () => {
-      if (policyRegistry) {
-        const policyFilter = policyRegistry.filters.PolicyUpdate(courtID);
-        return policyRegistry
-          .queryFilter(policyFilter)
-          .then((events) => events[0]);
+      if (policyRegistry && courtID) {
+        const policyFilter = await policyRegistry.createEventFilter.PolicyUpdate({
+          _courtID: BigInt(courtID),
+        });
+        const policyUpdateEvents = await publicClient.getFilterLogs({
+          filter: policyFilter,
+        });
+        return policyUpdateEvents[0];
       } else throw Error;
     }
   );

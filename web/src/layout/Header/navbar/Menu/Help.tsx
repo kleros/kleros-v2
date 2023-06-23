@@ -7,6 +7,7 @@ import Bug from "svgs/icons/bug.svg";
 import ETH from "svgs/icons/eth.svg";
 import Faq from "svgs/menu-icons/help.svg";
 import Telegram from "svgs/socialmedia/telegram.svg";
+import { Overlay } from "components/Overlay";
 
 const ITEMS = [
   {
@@ -17,27 +18,27 @@ const ITEMS = [
   {
     text: "Get Help",
     Icon: Telegram,
-    url: "",
+    url: "https://t.me/kleros",
   },
   {
     text: "Report a Bug",
     Icon: Bug,
-    url: "",
+    url: "https://github.com/kleros/kleros-v2/issues",
   },
   {
     text: "DApp Guide",
     Icon: Guide,
-    url: "",
+    url: "https://docs.kleros.io/products/court-v2",
   },
   {
     text: "Crypto Beginner's Guide",
     Icon: ETH,
-    url: "",
+    url: "https://ethereum.org/en/wallets/",
   },
   {
     text: "FAQ",
     Icon: Faq,
-    url: "",
+    url: "https://docs.kleros.io/kleros-faq",
   },
 ];
 
@@ -61,7 +62,7 @@ const Container = styled.div`
   box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.06);
 `;
 
-const ListItem = styled.div`
+const ListItem = styled.a`
   display: flex;
   gap: 8px;
   padding: 0px 8px;
@@ -85,16 +86,6 @@ const Icon = styled.svg`
   fill: ${({ theme }) => theme.secondaryPurple};
 `;
 
-const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: ${({ theme }) => theme.blackLowOpacity};
-  z-index: 1;
-`;
-
 const Help: React.FC<IHelp> = ({ toggle }) => {
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => {
@@ -106,7 +97,7 @@ const Help: React.FC<IHelp> = ({ toggle }) => {
       <Overlay />
       <Container ref={containerRef}>
         {ITEMS.map((item) => (
-          <ListItem key={item.text}>
+          <ListItem href={item.url} key={item.text} target="_blank">
             <Icon as={item.Icon} />
             <small>{item.text}</small>
           </ListItem>

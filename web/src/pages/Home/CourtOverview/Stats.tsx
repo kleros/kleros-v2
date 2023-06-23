@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { utils, BigNumber } from "ethers";
+import { formatEther, formatUnits } from "viem";
 import { Card } from "@kleros/ui-components-library";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import PNKIcon from "svgs/icons/pnk.svg";
@@ -8,11 +8,8 @@ import EthereumIcon from "svgs/icons/ethereum.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import JurorIcon from "svgs/icons/user.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
-import {
-  useHomePageContext,
-  HomePageQuery,
-  HomePageQueryDataPoints,
-} from "hooks/useHomePageContext";
+import { commify } from "utils/commify";
+import { useHomePageContext, HomePageQuery, HomePageQueryDataPoints } from "hooks/useHomePageContext";
 
 const StyledCard = styled(Card)`
   width: auto;
@@ -24,10 +21,8 @@ const StyledCard = styled(Card)`
   flex-wrap: wrap;
 `;
 
-const getLastOrZero = (
-  src: HomePageQuery["counters"],
-  stat: HomePageQueryDataPoints
-) => (src.length > 0 ? src.at(-1)?.[stat] : BigNumber.from(0).toString());
+const getLastOrZero = (src: HomePageQuery["counters"], stat: HomePageQueryDataPoints) =>
+  src.length > 0 ? src.at(-1)?.[stat] : 0n.toString();
 
 interface IStat {
   title: string;
@@ -40,45 +35,25 @@ interface IStat {
 const stats: IStat[] = [
   {
     title: "PNK staked",
-    getText: (counters) =>
-      utils.commify(
-        utils.formatUnits(getLastOrZero(counters, "stakedPNK"), 18)
-      ),
+    getText: (counters) => commify(formatUnits(getLastOrZero(counters, "stakedPNK"), 18)),
     getSubtext: (counters) =>
-      (
-        parseInt(utils.formatUnits(getLastOrZero(counters, "stakedPNK"))) *
-        0.029
-      )
-        .toFixed(2)
-        .toString() + "$",
+      (parseInt(formatUnits(getLastOrZero(counters, "stakedPNK"), 18)) * 0.029).toFixed(2).toString() + "$",
     color: "purple",
     icon: PNKIcon,
   },
   {
     title: "ETH Paid to jurors",
-    getText: (counters) =>
-      utils.commify(utils.formatEther(getLastOrZero(counters, "paidETH"))),
+    getText: (counters) => commify(formatEther(getLastOrZero(counters, "paidETH"))),
     getSubtext: (counters) =>
-      (parseInt(utils.formatUnits(getLastOrZero(counters, "paidETH"))) * 1650)
-        .toFixed(2)
-        .toString() + "$",
+      (parseInt(formatUnits(getLastOrZero(counters, "paidETH"), 18)) * 1650).toFixed(2).toString() + "$",
     color: "blue",
     icon: EthereumIcon,
   },
   {
     title: "PNK redistributed",
-    getText: (counters) =>
-      utils.commify(
-        utils.formatUnits(getLastOrZero(counters, "redistributedPNK"), 18)
-      ),
+    getText: (counters) => commify(formatUnits(getLastOrZero(counters, "redistributedPNK"), 18)),
     getSubtext: (counters) =>
-      (
-        parseInt(
-          utils.formatUnits(getLastOrZero(counters, "redistributedPNK"))
-        ) * 0.029
-      )
-        .toFixed(2)
-        .toString() + "$",
+      (parseInt(formatUnits(getLastOrZero(counters, "redistributedPNK"), 18)) * 0.029).toFixed(2).toString() + "$",
     color: "purple",
     icon: PNKRedistributedIcon,
   },
@@ -97,7 +72,6 @@ const stats: IStat[] = [
     icon: BalanceIcon,
   },
 ];
-
 const Stats = () => {
   const { data } = useHomePageContext();
   return (

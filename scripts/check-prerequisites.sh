@@ -11,10 +11,22 @@ function require() #cmd
   fi
 }
 
+# for the NPM and toolchain version management
+require volta
+
+# for the local subgraph node
 require docker
 require docker-compose
+
+# for some contracts utilities
+require cast
+require forge
+
+# for the subgraph and contracts utilities
 require jq
 require yq
-require volta
+
+# for the local testing of Github Actions
+require act
 
 exit $status

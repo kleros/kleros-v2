@@ -25,14 +25,6 @@ const FormEmailContainer = styled.div`
   position: relative;
 `;
 
-const EmailErrorContainer = styled.div`
-  position: absolute;
-  color: ${({ theme }) => theme.error};
-  font-size: 12px;
-  padding-top: 4px;
-  padding-left: 16px;
-`;
-
 const OPTIONS = [{ label: "When x." }, { label: "When y." }, { label: "When z." }, { label: "When w." }];
 
 const FormNotifs: React.FC = () => {
