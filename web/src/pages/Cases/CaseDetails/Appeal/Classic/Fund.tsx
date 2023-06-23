@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { useAccount, useBalance, useNetwork } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import { useDebounce } from "react-use";
 import { Field, Button } from "@kleros/ui-components-library";
 import { wrapWithToast } from "utils/wrapWithToast";
@@ -58,8 +58,6 @@ const Fund: React.FC = () => {
 
   const [isSending, setIsSending] = useState(false);
   const fundAppeal = useFundAppeal(parsedAmount);
-
-  const { chain } = useNetwork();
 
   return needFund ? (
     <div>

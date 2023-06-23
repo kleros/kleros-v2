@@ -48,15 +48,16 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
         />
         <OptionsContainer>
           {metaEvidence?.rulingOptions?.titles?.map((answer: string, i: number) => {
-            <EnsureChain>
-              <Button
-                key={i}
-                text={answer}
-                disabled={isSending}
-                isLoading={chosenOption === i + 1}
-                onClick={() => handleVote(i + 1)}
-              />
-            </EnsureChain>;
+            return (
+              <EnsureChain key={i}>
+                <Button
+                  text={answer}
+                  disabled={isSending}
+                  isLoading={chosenOption === i + 1}
+                  onClick={() => handleVote(i + 1)}
+                />
+              </EnsureChain>
+            );
           })}
         </OptionsContainer>
       </MainContainer>

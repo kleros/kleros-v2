@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { useAccount, useNetwork } from "wagmi";
+import { useAccount } from "wagmi";
 import { Button, Searchbar } from "@kleros/ui-components-library";
 import { useEvidenceGroup } from "queries/useEvidenceGroup";
 import { useEvidences } from "queries/useEvidences";
@@ -28,7 +28,6 @@ const Evidence: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
   const { data: evidenceGroup } = useEvidenceGroup(id, arbitrable);
   const { data } = useEvidences(evidenceGroup);
   const { address } = useAccount();
-  const { chain } = useNetwork();
   return (
     <Container>
       {evidenceGroup && (
