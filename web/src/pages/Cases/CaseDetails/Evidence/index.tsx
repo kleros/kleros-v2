@@ -7,8 +7,7 @@ import { useEvidenceGroup } from "queries/useEvidenceGroup";
 import { useEvidences } from "queries/useEvidences";
 import SubmitEvidenceModal from "./SubmitEvidenceModal";
 import EvidenceCard from "components/EvidenceCard";
-import ConnectButton from "components/ConnectButton";
-import { DEFAULT_CHAIN } from "consts/chains";
+import { EnsureChain } from "components/EnsureChain";
 
 const Container = styled.div`
   width: 100%;
@@ -36,7 +35,7 @@ const Evidence: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
         <SubmitEvidenceModal isOpen={isModalOpen} close={() => setIsModalOpen(false)} {...{ evidenceGroup }} />
       )}
       <Searchbar />
-      {chain && chain.id === DEFAULT_CHAIN ? (
+      <EnsureChain>
         <StyledButton
           small
           text="Submit Evidence"
@@ -44,9 +43,7 @@ const Evidence: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
           isLoading={isModalOpen}
           onClick={() => setIsModalOpen(true)}
         />
-      ) : (
-        <ConnectButton />
-      )}
+      </EnsureChain>
       {data &&
         data.evidences.map(({ id, evidence, sender }, i) => (
           <EvidenceCard key={id} index={i + 1} sender={sender?.id} {...{ evidence }} />

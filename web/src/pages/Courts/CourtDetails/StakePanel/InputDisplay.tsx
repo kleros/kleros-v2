@@ -10,7 +10,29 @@ import { useParsedAmount } from "hooks/useParsedAmount";
 import { usePNKBalance } from "queries/usePNKBalance";
 import { useJurorBalance } from "queries/useJurorBalance";
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
-import ConnectButton from "components/ConnectButton";
+import { EnsureChain } from "components/EnsureChain";
+
+const StyledField = styled(Field)`
+  width: 100%;
+  height: fit-content;
+`;
+
+const LabelArea = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const StyledLabel = styled.label`
+  color: ${({ theme }) => theme.primaryBlue};
+  cursor: pointer;
+`;
+
+const InputArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+`;
 
 interface IInputDisplay {
   action: ActionType;
@@ -58,7 +80,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, isSending, setIsSending
           }
           variant="info"
         />
-        {address ? (
+        <EnsureChain>
           <StakeWithdrawButton
             {...{
               parsedAmount,
@@ -68,34 +90,10 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, isSending, setIsSending
               setIsSending,
             }}
           />
-        ) : (
-          <ConnectButton />
-        )}
+        </EnsureChain>
       </InputArea>
     </>
   );
 };
 
 export default InputDisplay;
-
-const StyledField = styled(Field)`
-  width: 100%;
-  height: fit-content;
-`;
-
-const LabelArea = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const StyledLabel = styled.label`
-  color: ${({ theme }) => theme.primaryBlue};
-  cursor: pointer;
-`;
-
-const InputArea = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-`;

@@ -4,17 +4,16 @@ import { useParams } from "react-router-dom";
 import { useAccount, useBalance, useNetwork } from "wagmi";
 import { useDebounce } from "react-use";
 import { Field, Button } from "@kleros/ui-components-library";
-import ConnectButton from "components/ConnectButton";
-import { usePrepareDisputeKitClassicFundAppeal, useDisputeKitClassicFundAppeal } from "hooks/contracts/generated";
 import { wrapWithToast } from "utils/wrapWithToast";
+import { isUndefined } from "utils/index";
+import { EnsureChain } from "components/EnsureChain";
+import { usePrepareDisputeKitClassicFundAppeal, useDisputeKitClassicFundAppeal } from "hooks/contracts/generated";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import {
   useLoserSideCountdownContext,
   useSelectedOptionContext,
   useFundingContext,
 } from "hooks/useClassicAppealContext";
-import { isUndefined } from "utils/index";
-import { DEFAULT_CHAIN } from "consts/chains";
 
 const useNeedFund = () => {
   const loserSideCountdown = useLoserSideCountdownContext();
@@ -74,7 +73,7 @@ const Fund: React.FC = () => {
           }}
           placeholder="Amount to fund"
         />
-        {chain && chain.id === DEFAULT_CHAIN ? (
+        <EnsureChain>
           <StyledButton
             disabled={isDisconnected || isSending || !balance || parsedAmount > balance.value}
             text={isDisconnected ? "Connect to Fund" : "Fund"}
@@ -90,9 +89,7 @@ const Fund: React.FC = () => {
               }
             }}
           />
-        ) : (
-          <ConnectButton />
-        )}
+        </EnsureChain>
       </div>
     </div>
   ) : (

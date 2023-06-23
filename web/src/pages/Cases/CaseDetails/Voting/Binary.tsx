@@ -4,10 +4,9 @@ import { useParams } from "react-router-dom";
 import { Button, Textarea } from "@kleros/ui-components-library";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { wrapWithToast } from "utils/wrapWithToast";
-import { useWalletClient, useNetwork } from "wagmi";
+import { useWalletClient } from "wagmi";
+import { EnsureChain } from "components/EnsureChain";
 import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
-import { DEFAULT_CHAIN } from "consts/chains";
-import ConnectButton from "components/ConnectButton";
 
 const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
   const { id } = useParams();
@@ -18,7 +17,6 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
   const [isSending, setIsSending] = useState(false);
   const [justification, setJustification] = useState("");
   const { data: walletClient } = useWalletClient();
-  const { chain } = useNetwork();
 
   const handleVote = async (voteOption: number) => {
     setIsSending(true);
@@ -50,7 +48,7 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
         />
         <OptionsContainer>
           {metaEvidence?.rulingOptions?.titles?.map((answer: string, i: number) => {
-            return chain && chain.id === DEFAULT_CHAIN ? (
+            <EnsureChain>
               <Button
                 key={i}
                 text={answer}
@@ -58,14 +56,12 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
                 isLoading={chosenOption === i + 1}
                 onClick={() => handleVote(i + 1)}
               />
-            ) : (
-              <ConnectButton />
-            );
+            </EnsureChain>;
           })}
         </OptionsContainer>
       </MainContainer>
       <RefuseToArbitrateContainer>
-        {chain && chain.id === DEFAULT_CHAIN ? (
+        <EnsureChain>
           <Button
             variant="secondary"
             text="Refuse to Arbitrate"
@@ -73,9 +69,7 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
             isLoading={chosenOption === 0}
             onClick={() => handleVote(0)}
           />
-        ) : (
-          <ConnectButton />
-        )}
+        </EnsureChain>
       </RefuseToArbitrateContainer>
     </Container>
   ) : (

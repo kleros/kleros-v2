@@ -6,9 +6,8 @@ import { Textarea, Button } from "@kleros/ui-components-library";
 import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 import { useWalletClient, useNetwork } from "wagmi";
+import { EnsureChain } from "components/EnsureChain";
 import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
-import { DEFAULT_CHAIN } from "consts/chains";
-import ConnectButton from "components/ConnectButton";
 
 const SubmitEvidenceModal: React.FC<{
   isOpen: boolean;
@@ -25,7 +24,7 @@ const SubmitEvidenceModal: React.FC<{
       <StyledTextArea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Your Arguments" />
       <ButtonArea>
         <Button variant="secondary" disabled={isSending} text="Return" onClick={close} />
-        {chain && chain.id === DEFAULT_CHAIN ? (
+        <EnsureChain>
           <Button
             text="Submit"
             isLoading={isSending}
@@ -53,9 +52,7 @@ const SubmitEvidenceModal: React.FC<{
                 .finally(() => setIsSending(false));
             }}
           />
-        ) : (
-          <ConnectButton />
-        )}
+        </EnsureChain>
       </ButtonArea>
     </StyledModal>
   );

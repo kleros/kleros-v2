@@ -1,11 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import { Box as _Box, Button } from "@kleros/ui-components-library";
-import { useNetwork } from "wagmi";
 import TokenRewards from "./TokenRewards";
 import WithHelpTooltip from "../WithHelpTooltip";
-import ConnectButton from "components/ConnectButton";
-import { DEFAULT_CHAIN } from "consts/chains";
+import { EnsureChain } from "components/EnsureChain";
 
 const Container = styled.div`
   display: flex;
@@ -30,15 +28,15 @@ const UnclaimedContainer = styled.div`
 `;
 
 const ClaimPNK: React.FC = () => {
-  const { chain } = useNetwork();
-
   return (
     <Box>
       <UnclaimedContainer>
         <label> Unclaimed: </label>
         <small> 1,000 PNK </small>
       </UnclaimedContainer>
-      {chain && chain.id === DEFAULT_CHAIN ? <Button small variant="tertiary" text="Claim" /> : <ConnectButton />}
+      <EnsureChain>
+        <Button small variant="tertiary" text="Claim" />
+      </EnsureChain>
     </Box>
   );
 };

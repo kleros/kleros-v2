@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { useAccount, useNetwork } from "wagmi";
+import { useAccount } from "wagmi";
 import Identicon from "react-identicons";
-import ConnectButton, { AddressDisplay, ChainDisplay } from "components/ConnectButton";
-import { SUPPORTED_CHAINIDS } from "consts/chains";
+import { AddressDisplay, ChainDisplay } from "components/ConnectWallet";
+import { EnsureChain } from "components/EnsureChain";
 
 const Container = styled.div`
   display: flex;
@@ -43,7 +43,7 @@ const StyledIdenticon = styled.div`
   margin-top: 32px;
 `;
 
-const StyledConnectButtonContainer = styled.div`
+const EnsureChainContainer = styled.div`
   display: flex;
   justify-content: center;
   padding: 16px;
@@ -51,26 +51,25 @@ const StyledConnectButtonContainer = styled.div`
 
 const General: React.FC = () => {
   const { address } = useAccount();
-  const { chain } = useNetwork();
 
-  return chain && SUPPORTED_CHAINIDS.includes(chain.id) ? (
-    <Container>
-      <StyledChainContainer>
-        <ChainDisplay />
-      </StyledChainContainer>
-      {address && (
-        <StyledIdenticon>
-          <Identicon size="24" string={address} />
-        </StyledIdenticon>
-      )}
-      <StyledAddressContainer>
-        <AddressDisplay />
-      </StyledAddressContainer>
-    </Container>
-  ) : (
-    <StyledConnectButtonContainer>
-      <ConnectButton />
-    </StyledConnectButtonContainer>
+  return (
+    <EnsureChainContainer>
+      <EnsureChain>
+        <Container>
+          <StyledChainContainer>
+            <ChainDisplay />
+          </StyledChainContainer>
+          {address && (
+            <StyledIdenticon>
+              <Identicon size="24" string={address} />
+            </StyledIdenticon>
+          )}
+          <StyledAddressContainer>
+            <AddressDisplay />
+          </StyledAddressContainer>
+        </Container>
+      </EnsureChain>
+    </EnsureChainContainer>
   );
 };
 
