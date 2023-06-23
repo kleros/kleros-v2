@@ -16,6 +16,10 @@ const StyledCard = styled(Card)`
   min-width: 312px;
   width: auto;
   height: 260px;
+
+  .react-loading-skeleton {
+    z-index: 0;
+  }
 `;
 
 const Container = styled.div`
