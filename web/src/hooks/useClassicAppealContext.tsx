@@ -2,7 +2,7 @@ import React, { useMemo, useState, createContext, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { ONE_BASIS_POINT } from "consts/index";
 import { Periods } from "consts/periods";
-import { notUndefined } from "utils/index";
+import { isUndefined } from "utils/index";
 import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
 import { useAppealCost } from "queries/useAppealCost";
 import { useDisputeKitClassicMultipliers } from "queries/useDisputeKitClassicMultipliers";
@@ -110,12 +110,12 @@ const getWinningChoice = (dispute?: ClassicAppealQuery["dispute"]) => {
 };
 
 const getLoserRequiredFunding = (appealCost: bigint, loser_stake_multiplier: bigint): bigint =>
-  notUndefined([appealCost, loser_stake_multiplier])
+  !isUndefined(appealCost) && !isUndefined(loser_stake_multiplier)
     ? appealCost + (loser_stake_multiplier * appealCost) / ONE_BASIS_POINT
     : 0n;
 
 const getWinnerRequiredFunding = (appealCost: bigint, winner_stake_multiplier: bigint): bigint =>
-  notUndefined([appealCost, winner_stake_multiplier])
+  !isUndefined(appealCost) && !isUndefined(winner_stake_multiplier)
     ? appealCost + (winner_stake_multiplier * appealCost) / ONE_BASIS_POINT
     : 0n;
 
@@ -130,7 +130,7 @@ const getDeadline = (lastPeriodChange: string, appealPeriodDuration: string, los
 function useLoserSideCountdown(lastPeriodChange: string, appealPeriodDuration: string, loserTimeMultiplier: string) {
   const deadline = useMemo(
     () =>
-      notUndefined([lastPeriodChange, appealPeriodDuration, loserTimeMultiplier])
+      !isUndefined(lastPeriodChange) && !isUndefined(appealPeriodDuration) && !isUndefined(loserTimeMultiplier)
         ? getDeadline(lastPeriodChange, appealPeriodDuration, loserTimeMultiplier)
         : 0,
     [lastPeriodChange, appealPeriodDuration, loserTimeMultiplier]
