@@ -18,11 +18,13 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   console.log("Deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   const klerosCore = await deployments.get("KlerosCore");
+  const extraData =
+    "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
   const weth = await deployments.get("WETH");
 
   await deploy("ArbitrableExample", {
     from: deployer,
-    args: [klerosCore.address, disputeTemplate, weth.address],
+    args: [klerosCore.address, disputeTemplate, extraData, weth.address],
     log: true,
   });
 

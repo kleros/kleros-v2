@@ -1,5 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
+import disputeTemplate from "../../kleros-sdk/config/v2-disputetemplate/simple/NewDisputeTemplate.simple.json";
 
 enum ForeignChains {
   ETHEREUM_MAINNET = 1,
@@ -16,11 +17,13 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   console.log("Deploying to chainId %s with deployer %s", chainId, deployer);
 
   const foreignGateway = await deployments.get("ForeignGatewayOnEthereum");
-  const metaEvidenceUri = `https://raw.githubusercontent.com/kleros/kleros-v2/master/contracts/deployments/${hre.network.name}/MetaEvidence_ArbitrableExample.json`;
+  // TODO: add the dispute template
+  const extraData =
+    "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
   const weth = await deployments.get("WETH");
   await deploy("ArbitrableExample", {
     from: deployer,
-    args: [foreignGateway.address, 0, metaEvidenceUri, weth.address],
+    args: [foreignGateway.address, disputeTemplate, extraData, weth.address],
     log: true,
   });
 };

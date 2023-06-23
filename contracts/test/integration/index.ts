@@ -96,7 +96,7 @@ describe("Integration tests", async () => {
       expect(result.locked).to.equal(0);
       logJurorBalance(result);
     });
-    const tx = await arbitrable.functions["createDispute(uint256,string,bytes)"](0, "future of france", "0x00", {
+    const tx = await arbitrable.functions["createDispute(string)"]("future of france", {
       value: arbitrationCost,
     });
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);

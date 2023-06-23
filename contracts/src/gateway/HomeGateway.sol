@@ -135,6 +135,7 @@ contract HomeGateway is IHomeGateway {
             _params.foreignChainID,
             _params.foreignArbitrable,
             _params.foreignDisputeID,
+            disputeID,
             _params.externalDisputeID,
             _params.templateId,
             _params.templateUri
@@ -168,6 +169,7 @@ contract HomeGateway is IHomeGateway {
         disputeHashtoID[disputeHash] = disputeID;
         relayedData.relayer = msg.sender;
 
+        // Not strictly necessary for functionality, only to satisfy IArbitrableV2
         emit DisputeRequest(arbitrator, disputeID, _params.externalDisputeID, _params.templateId, _params.templateUri);
 
         emit CrossChainDisputeIncoming(
@@ -175,6 +177,7 @@ contract HomeGateway is IHomeGateway {
             _params.foreignChainID,
             _params.foreignArbitrable,
             _params.foreignDisputeID,
+            disputeID,
             _params.externalDisputeID,
             _params.templateId,
             _params.templateUri

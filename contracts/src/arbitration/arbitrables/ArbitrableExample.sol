@@ -25,6 +25,7 @@ contract ArbitrableExample is IArbitrableV2 {
     address public immutable governor;
     IArbitratorV2 public arbitrator; // Arbitrator is set in constructor.
     uint256 public disputeTemplates; // The number of dispute templates created.
+    bytes public arbitratorExtraData; // Extra data to set up the arbitration.
     IERC20 public immutable weth; // The WETH token.
     mapping(uint256 => uint256) public externalIDtoLocalID; // Maps external (arbitrator side) dispute IDs to local dispute IDs.
     DisputeStruct[] public disputes; // Stores the disputes' info. disputes[disputeID].
@@ -37,9 +38,15 @@ contract ArbitrableExample is IArbitrableV2 {
     /// @param _arbitrator The arbitrator to rule on created disputes.
     /// @param _templateData The dispute template data.
     /// @param _weth The WETH token.
-    constructor(IArbitratorV2 _arbitrator, string memory _templateData, IERC20 _weth) {
+    constructor(
+        IArbitratorV2 _arbitrator,
+        string memory _templateData,
+        bytes memory _arbitratorExtraData,
+        IERC20 _weth
+    ) {
         governor = msg.sender;
         arbitrator = _arbitrator;
+        arbitratorExtraData = _arbitratorExtraData;
         weth = _weth;
         emit DisputeTemplate(disputeTemplates++, "", _templateData);
     }
@@ -58,47 +65,39 @@ contract ArbitrableExample is IArbitrableV2 {
         arbitrator = _arbitrator;
     }
 
+    function changeArbitratorExtraData(bytes calldata _arbitratorExtraData) external {
+        require(msg.sender == governor, "Not authorized: governor only.");
+        arbitratorExtraData = _arbitratorExtraData;
+    }
+
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
 
     /// @dev Calls createDispute function of the specified arbitrator to create a dispute.
     /// Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
-    /// @param _templateId The identifier of the dispute template. Should not be used with _templateUri.
     /// @param _action The action that requires arbitration.
-    /// @param _arbitratorExtraData Extra data for the arbitrator.
     /// @return disputeID Dispute id (on arbitrator side) of the dispute created.
-    function createDispute(
-        uint256 _templateId,
-        string calldata _action,
-        bytes calldata _arbitratorExtraData
-    ) external payable returns (uint256 disputeID) {
+    function createDispute(string calldata _action) external payable returns (uint256 disputeID) {
         emit Action(_action);
 
         uint256 numberOfRulingOptions = 2;
         uint256 localDisputeID = disputes.length;
         disputes.push(DisputeStruct({isRuled: false, ruling: 0, numberOfRulingOptions: numberOfRulingOptions}));
 
-        disputeID = arbitrator.createDispute{value: msg.value}(numberOfRulingOptions, _arbitratorExtraData);
+        disputeID = arbitrator.createDispute{value: msg.value}(numberOfRulingOptions, arbitratorExtraData);
         externalIDtoLocalID[disputeID] = localDisputeID;
 
         uint256 externalDisputeID = uint256(keccak256(abi.encodePacked(_action)));
-        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, _templateId, "");
+        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, disputeTemplates - 1, "");
     }
 
     /// @dev Calls createDispute function of the specified arbitrator to create a dispute.
     /// Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.
-    /// @param _templateId The identifier of the dispute template. Should not be used with _templateUri.
     /// @param _action The action that requires arbitration.
-    /// @param _arbitratorExtraData Extra data for the arbitrator.
     /// @param _feeInWeth Amount of fees in WETH for the arbitrator.
     /// @return disputeID Dispute id (on arbitrator side) of the dispute created.
-    function createDispute(
-        uint256 _templateId,
-        string calldata _action,
-        bytes calldata _arbitratorExtraData,
-        uint256 _feeInWeth
-    ) external payable returns (uint256 disputeID) {
+    function createDispute(string calldata _action, uint256 _feeInWeth) external payable returns (uint256 disputeID) {
         emit Action(_action);
 
         uint256 numberOfRulingOptions = 2;
@@ -108,11 +107,11 @@ contract ArbitrableExample is IArbitrableV2 {
         require(weth.safeTransferFrom(msg.sender, address(this), _feeInWeth), "Transfer failed");
         require(weth.increaseAllowance(address(arbitrator), _feeInWeth), "Allowance increase failed");
 
-        disputeID = arbitrator.createDispute(numberOfRulingOptions, _arbitratorExtraData, weth, _feeInWeth);
+        disputeID = arbitrator.createDispute(numberOfRulingOptions, arbitratorExtraData, weth, _feeInWeth);
         externalIDtoLocalID[disputeID] = localDisputeID;
 
         uint256 externalDisputeID = uint256(keccak256(abi.encodePacked(_action)));
-        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, _templateId, "");
+        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, disputeTemplates - 1, "");
     }
 
     /// @dev To be called by the arbitrator of the dispute, to declare the winning ruling.
