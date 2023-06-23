@@ -33,83 +33,83 @@ interface IStat {
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
 
-const Stats = () => {
-  const stats: IStat[] = [
-    {
-      title: "Min Stake",
-      coinId: 0,
-      getText: (data) => commify(formatUnits(data?.minStake, 18)),
-      getSubtext: (data, coinPrice) =>
-        (parseInt(formatUnits(data?.minStake, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
-      color: "purple",
-      icon: MinStake,
-    },
-    {
-      title: "Vote Stake",
-      coinId: 0,
-      getText: (data) => commify(formatUnits(data?.minStake, 18)),
-      getSubtext: (data, coinPrice) =>
-        (parseInt(formatUnits(data?.minStake, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
-      color: "purple",
-      icon: VoteStake,
-    },
-    {
-      title: "Active Jurors",
-      getText: (data) => data?.numberStakedJurors,
-      getSubtext: () => "",
-      color: "purple",
-      icon: PNKRedistributedIcon,
-    },
-    {
-      title: "PNK Staked",
-      coinId: 0,
-      getText: (data) => commify(formatUnits(data?.stake, 18)),
-      getSubtext: (data, coinPrice) =>
-        (parseInt(formatUnits(data?.stake, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
-      color: "purple",
-      icon: PNKIcon,
-    },
-    {
-      title: "Cases",
-      getText: (data) => data?.numberDisputes,
-      getSubtext: () => "",
-      color: "orange",
-      icon: BalanceIcon,
-    },
-    {
-      title: "In Progress",
-      getText: (data) => data?.numberDisputes,
-      getSubtext: () => "",
-      color: "orange",
-      icon: BalanceIcon,
-    },
-    {
-      title: "ETH paid to Jurors",
-      coinId: 1,
-      getText: (data) => commify(formatEther(data?.paidETH)),
-      getSubtext: (data, coinPrice) =>
-        (parseInt(formatUnits(data?.paidETH, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
-      color: "blue",
-      icon: EthereumIcon,
-    },
-    {
-      title: "PNK redistributed",
-      coinId: 0,
-      getText: (data) => commify(formatUnits(data?.paidPNK, 18)),
-      getSubtext: (data, coinPrice) =>
-        (parseInt(formatUnits(data?.paidPNK, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
-      color: "purple",
-      icon: PNKRedistributedIcon,
-    },
-  ];
+const stats: IStat[] = [
+  {
+    title: "Min Stake",
+    coinId: 0,
+    getText: (data) => commify(formatUnits(data?.minStake, 18)),
+    getSubtext: (data, coinPrice) =>
+      (parseInt(formatUnits(data?.minStake, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
+    color: "purple",
+    icon: MinStake,
+  },
+  {
+    title: "Vote Stake",
+    coinId: 0,
+    getText: (data) => commify(formatUnits(data?.minStake, 18)),
+    getSubtext: (data, coinPrice) =>
+      (parseInt(formatUnits(data?.minStake, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
+    color: "purple",
+    icon: VoteStake,
+  },
+  {
+    title: "Active Jurors",
+    getText: (data) => data?.numberStakedJurors,
+    getSubtext: () => "",
+    color: "purple",
+    icon: PNKRedistributedIcon,
+  },
+  {
+    title: "PNK Staked",
+    coinId: 0,
+    getText: (data) => commify(formatUnits(data?.stake, 18)),
+    getSubtext: (data, coinPrice) =>
+      (parseInt(formatUnits(data?.stake, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
+    color: "purple",
+    icon: PNKIcon,
+  },
+  {
+    title: "Cases",
+    getText: (data) => data?.numberDisputes,
+    getSubtext: () => "",
+    color: "orange",
+    icon: BalanceIcon,
+  },
+  {
+    title: "In Progress",
+    getText: (data) => data?.numberDisputes,
+    getSubtext: () => "",
+    color: "orange",
+    icon: BalanceIcon,
+  },
+  {
+    title: "ETH paid to Jurors",
+    coinId: 1,
+    getText: (data) => commify(formatEther(data?.paidETH)),
+    getSubtext: (data, coinPrice) =>
+      (parseInt(formatUnits(data?.paidETH, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
+    color: "blue",
+    icon: EthereumIcon,
+  },
+  {
+    title: "PNK redistributed",
+    coinId: 0,
+    getText: (data) => commify(formatUnits(data?.paidPNK, 18)),
+    getSubtext: (data, coinPrice) =>
+      (parseInt(formatUnits(data?.paidPNK, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
+    color: "purple",
+    icon: PNKRedistributedIcon,
+  },
+];
 
+const Stats = () => {
   const { id } = useParams();
   const { data } = useCourtDetails(id);
   const { prices } = useCoinPrice(["kleros", "ethereum"]);
   return (
     <StyledCard>
       {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
-        const coinPrice = prices && !isUndefined(coinId) ? prices[coinId].usd : undefined;
+        const coinPrice = prices && !isUndefined(coinId) ? prices[coinId] : undefined;
         return (
           <StatDisplay
             key={i}

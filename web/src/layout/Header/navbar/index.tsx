@@ -36,8 +36,6 @@ const Container = styled.div<{ isOpen: boolean }>`
 
 const NavBar: React.FC = () => {
   const [isSolutionsOpen, toggleSolution] = useToggle(false);
-  const { prices } = useCoinPrice(["kleros", "ethereum"]);
-  console.log("🚀 ~ file: index.tsx:40 ~ prices:", prices!);
   const { isOpen } = useOpenContext();
   useLockBodyScroll(isOpen);
 

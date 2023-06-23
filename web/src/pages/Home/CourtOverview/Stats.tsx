@@ -9,7 +9,9 @@ import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import JurorIcon from "svgs/icons/user.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
 import { commify } from "utils/commify";
+import { isUndefined } from "utils/index";
 import { useHomePageContext, HomePageQuery, HomePageQueryDataPoints } from "hooks/useHomePageContext";
+import { useCoinPrice } from "hooks/useCoinPrice";
 
 const StyledCard = styled(Card)`
   width: auto;
@@ -26,8 +28,9 @@ const getLastOrZero = (src: HomePageQuery["counters"], stat: HomePageQueryDataPo
 
 interface IStat {
   title: string;
+  coinId?: number;
   getText: (data: HomePageQuery["counters"]) => string;
-  getSubtext: (data: HomePageQuery["counters"]) => string;
+  getSubtext: (data: HomePageQuery["counters"], coinPrice?: number) => string;
   color: IStatDisplay["color"];
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
@@ -35,25 +38,30 @@ interface IStat {
 const stats: IStat[] = [
   {
     title: "PNK staked",
+    coinId: 0,
     getText: (counters) => commify(formatUnits(getLastOrZero(counters, "stakedPNK"), 18)),
-    getSubtext: (counters) =>
-      (parseInt(formatUnits(getLastOrZero(counters, "stakedPNK"), 18)) * 0.029).toFixed(2).toString() + "$",
+    getSubtext: (counters, coinPrice) =>
+      (parseInt(formatUnits(getLastOrZero(counters, "stakedPNK"), 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
     color: "purple",
     icon: PNKIcon,
   },
   {
     title: "ETH Paid to jurors",
+    coinId: 1,
     getText: (counters) => commify(formatEther(getLastOrZero(counters, "paidETH"))),
-    getSubtext: (counters) =>
-      (parseInt(formatUnits(getLastOrZero(counters, "paidETH"), 18)) * 1650).toFixed(2).toString() + "$",
+    getSubtext: (counters, coinPrice) =>
+      (parseInt(formatUnits(getLastOrZero(counters, "paidETH"), 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
     color: "blue",
     icon: EthereumIcon,
   },
   {
     title: "PNK redistributed",
+    coinId: 0,
     getText: (counters) => commify(formatUnits(getLastOrZero(counters, "redistributedPNK"), 18)),
-    getSubtext: (counters) =>
-      (parseInt(formatUnits(getLastOrZero(counters, "redistributedPNK"), 18)) * 0.029).toFixed(2).toString() + "$",
+    getSubtext: (counters, coinPrice) =>
+      (parseInt(formatUnits(getLastOrZero(counters, "redistributedPNK"), 18)) * (coinPrice ?? 0))
+        .toFixed(2)
+        .toString() + "$",
     color: "purple",
     icon: PNKRedistributedIcon,
   },
@@ -74,16 +82,20 @@ const stats: IStat[] = [
 ];
 const Stats = () => {
   const { data } = useHomePageContext();
+  const { prices } = useCoinPrice(["kleros", "ethereum"]);
   return (
     <StyledCard>
-      {stats.map(({ title, getText, getSubtext, color, icon }, i) => (
-        <StatDisplay
-          key={i}
-          {...{ title, color, icon }}
-          text={data ? getText(data["counters"]) : "Fetching..."}
-          subtext={data ? getSubtext(data["counters"]) : "Fetching..."}
-        />
-      ))}
+      {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
+        const coinPrice = prices && !isUndefined(coinId) ? prices[coinId] : undefined;
+        return (
+          <StatDisplay
+            key={i}
+            {...{ title, color, icon }}
+            text={data ? getText(data["counters"]) : "Fetching..."}
+            subtext={data ? getSubtext(data["counters"], coinPrice) : "Fetching..."}
+          />
+        );
+      })}
     </StyledCard>
   );
 };
