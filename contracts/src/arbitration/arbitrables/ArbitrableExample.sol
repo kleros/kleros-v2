@@ -97,7 +97,7 @@ contract ArbitrableExample is IArbitrableV2 {
     /// @param _action The action that requires arbitration.
     /// @param _feeInWeth Amount of fees in WETH for the arbitrator.
     /// @return disputeID Dispute id (on arbitrator side) of the dispute created.
-    function createDispute(string calldata _action, uint256 _feeInWeth) external payable returns (uint256 disputeID) {
+    function createDispute(string calldata _action, uint256 _feeInWeth) external returns (uint256 disputeID) {
         emit Action(_action);
 
         uint256 numberOfRulingOptions = 2;
