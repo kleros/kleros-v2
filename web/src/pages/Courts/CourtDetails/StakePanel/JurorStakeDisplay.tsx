@@ -15,15 +15,20 @@ const format = (value: bigint | undefined): string => (value !== undefined ? for
 
 const formatBigIntPercentage = (numerator: bigint, denominator: bigint): string => {
   const decimalPlaces = 2;
-  const factor = BigInt(10 ** decimalPlaces);
-  const intermediate = (numerator * factor * 100n) / denominator;
+  const factor = BigInt(10) ** BigInt(decimalPlaces);
+  const intermediate = (numerator * factor * 100n) / BigInt(denominator);
 
   let result = intermediate.toString();
 
-  result = result.padStart(decimalPlaces + 1, "0");
-
   const pointIndex = result.length - decimalPlaces;
-  result = `${result.slice(0, pointIndex)}.${result.slice(pointIndex)}%`;
+  const integerPart = result.slice(0, pointIndex);
+  const decimalPart = result.slice(pointIndex);
+
+  if (decimalPart.length > 0) {
+    result = `${integerPart}.${decimalPart}%`;
+  } else {
+    result = `${integerPart}.00%`;
+  }
 
   return result;
 };
