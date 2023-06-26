@@ -18,6 +18,10 @@ const disputeDetailsQuery = graphql(`
       period
       ruled
       lastPeriodChange
+      currentRound {
+        id
+      }
+      currentRoundIndex
     }
   }
 `);

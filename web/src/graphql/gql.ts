@@ -23,9 +23,9 @@ const documents = {
     types.CourtPolicyUriDocument,
   '\n  query CourtTree {\n    court(id: "1") {\n      name\n      id\n      children(orderBy: name) {\n        name\n        id\n        children {\n          name\n          id\n          children {\n            name\n            id\n            children {\n              name\n              id\n              children {\n                name\n                id\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n':
     types.CourtTreeDocument,
-  "\n  query DisputeDetails($disputeID: ID!) {\n    dispute(id: $disputeID) {\n      court {\n        id\n        timesPerPeriod\n        hiddenVotes\n        feeForJuror\n      }\n      arbitrated {\n        id\n      }\n      period\n      ruled\n      lastPeriodChange\n    }\n  }\n":
+  "\n  query DisputeDetails($disputeID: ID!) {\n    dispute(id: $disputeID) {\n      court {\n        id\n        timesPerPeriod\n        hiddenVotes\n        feeForJuror\n      }\n      arbitrated {\n        id\n      }\n      period\n      ruled\n      lastPeriodChange\n      currentRound {\n        id\n      }\n      currentRoundIndex\n    }\n  }\n":
     types.DisputeDetailsDocument,
-  "\n  query Draw($address: String, $disputeID: String) {\n    draws(where: { dispute: $disputeID, juror: $address }) {\n      voteID\n    }\n  }\n":
+  "\n  query Draw($address: String, $disputeID: String, $roundID: String) {\n    draws(where: { dispute: $disputeID, juror: $address, round: $roundID }) {\n      voteID\n    }\n  }\n":
     types.DrawDocument,
   "\n  query Evidences($evidenceGroup: String) {\n    evidences(where: { evidenceGroup: $evidenceGroup }, orderBy: id, orderDirection: asc) {\n      id\n      evidence\n      sender {\n        id\n      }\n    }\n  }\n":
     types.EvidencesDocument,
@@ -83,14 +83,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  query DisputeDetails($disputeID: ID!) {\n    dispute(id: $disputeID) {\n      court {\n        id\n        timesPerPeriod\n        hiddenVotes\n        feeForJuror\n      }\n      arbitrated {\n        id\n      }\n      period\n      ruled\n      lastPeriodChange\n    }\n  }\n"
-): (typeof documents)["\n  query DisputeDetails($disputeID: ID!) {\n    dispute(id: $disputeID) {\n      court {\n        id\n        timesPerPeriod\n        hiddenVotes\n        feeForJuror\n      }\n      arbitrated {\n        id\n      }\n      period\n      ruled\n      lastPeriodChange\n    }\n  }\n"];
+  source: "\n  query DisputeDetails($disputeID: ID!) {\n    dispute(id: $disputeID) {\n      court {\n        id\n        timesPerPeriod\n        hiddenVotes\n        feeForJuror\n      }\n      arbitrated {\n        id\n      }\n      period\n      ruled\n      lastPeriodChange\n      currentRound {\n        id\n      }\n      currentRoundIndex\n    }\n  }\n"
+): (typeof documents)["\n  query DisputeDetails($disputeID: ID!) {\n    dispute(id: $disputeID) {\n      court {\n        id\n        timesPerPeriod\n        hiddenVotes\n        feeForJuror\n      }\n      arbitrated {\n        id\n      }\n      period\n      ruled\n      lastPeriodChange\n      currentRound {\n        id\n      }\n      currentRoundIndex\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  query Draw($address: String, $disputeID: String) {\n    draws(where: { dispute: $disputeID, juror: $address }) {\n      voteID\n    }\n  }\n"
-): (typeof documents)["\n  query Draw($address: String, $disputeID: String) {\n    draws(where: { dispute: $disputeID, juror: $address }) {\n      voteID\n    }\n  }\n"];
+  source: "\n  query Draw($address: String, $disputeID: String, $roundID: String) {\n    draws(where: { dispute: $disputeID, juror: $address, round: $roundID }) {\n      voteID\n    }\n  }\n"
+): (typeof documents)["\n  query Draw($address: String, $disputeID: String, $roundID: String) {\n    draws(where: { dispute: $disputeID, juror: $address, round: $roundID }) {\n      voteID\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
