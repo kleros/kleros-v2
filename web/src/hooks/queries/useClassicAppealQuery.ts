@@ -1,9 +1,9 @@
 import useSWR from "swr";
-import { gql } from "graphql-request";
-import { ClassicAppealQuery } from "src/graphql/generated";
+import { graphql } from "src/graphql";
+import { ClassicAppealQuery } from "src/graphql/graphql";
 export type { ClassicAppealQuery };
 
-const classicAppealQuery = gql`
+const classicAppealQuery = graphql(`
   query ClassicAppeal($disputeID: ID!) {
     dispute(id: $disputeID) {
       court {
@@ -27,12 +27,10 @@ const classicAppealQuery = gql`
       }
     }
   }
-`;
+`);
 
-export const useClassicAppealQuery = (
-  id?: string | number
-): { data: typeof result; error: any; isValidating: boolean } => {
-  const { data, error, isValidating } = useSWR(() =>
+export const useClassicAppealQuery = (id?: string | number) => {
+  return useSWR<ClassicAppealQuery>(() =>
     typeof id !== "undefined"
       ? {
           query: classicAppealQuery,
@@ -40,6 +38,4 @@ export const useClassicAppealQuery = (
         }
       : false
   );
-  const result = data ? (data as ClassicAppealQuery) : undefined;
-  return { data: result, error, isValidating };
 };

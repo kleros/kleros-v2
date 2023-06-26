@@ -1,9 +1,9 @@
 import useSWR from "swr";
-import { gql } from "graphql-request";
-import { CourtDetailsQuery } from "src/graphql/generated";
+import { graphql } from "src/graphql";
+import { CourtDetailsQuery } from "src/graphql/graphql";
 export type { CourtDetailsQuery };
 
-const courtDetailsQuery = gql`
+const courtDetailsQuery = graphql(`
   query CourtDetails($id: ID!) {
     court(id: $id) {
       policy
@@ -16,10 +16,10 @@ const courtDetailsQuery = gql`
       paidPNK
     }
   }
-`;
+`);
 
-export const useCourtDetails = (id?: string): { data: typeof result; error: any; isValidating: boolean } => {
-  const { data, error, isValidating } = useSWR(
+export const useCourtDetails = (id?: string) => {
+  return useSWR<CourtDetailsQuery>(
     id
       ? {
           query: courtDetailsQuery,
@@ -27,6 +27,4 @@ export const useCourtDetails = (id?: string): { data: typeof result; error: any;
         }
       : null
   );
-  const result = data ? (data as CourtDetailsQuery) : undefined;
-  return { data: result, error, isValidating };
 };
