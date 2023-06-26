@@ -5,69 +5,8 @@ import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 import { Tabs, Accordion, Box } from "@kleros/ui-components-library";
 import BalanceIcon from "svgs/icons/law-balance.svg";
 import { useVotingHistory } from "queries/useVotingHistory";
-import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
+import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { shortenAddress } from "utils/shortenAddress";
-
-const VotingHistory: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
-  const { id } = useParams();
-  const { data: votingHistory } = useVotingHistory(id);
-  const [currentTab, setCurrentTab] = useState(0);
-  const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
-  const rounds = votingHistory?.dispute?.rounds;
-  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
-  return (
-    <Container>
-      <h1>Voting History</h1>
-      {rounds && localRounds && metaEvidence && (
-        <>
-          <p>{metaEvidence.question}</p>
-          <StyledTabs
-            currentValue={currentTab}
-            items={rounds.map((_, i) => ({
-              text: `Round ${i + 1}`,
-              value: i,
-            }))}
-            callback={(i: number) => setCurrentTab(i)}
-          />
-          <StyledBox>
-            <BalanceIcon />
-            <p>
-              {localRounds.at(currentTab)?.totalVoted ===
-              rounds.at(currentTab)?.nbVotes
-                ? "All jurors voted"
-                : localRounds.at(currentTab)?.totalVoted +
-                  " jurors voted out of " +
-                  rounds.at(currentTab)?.nbVotes}
-            </p>
-          </StyledBox>
-          <StyledAccordion
-            items={
-              localRounds.at(currentTab)?.votes.map((vote) => ({
-                title: shortenAddress(vote.juror.id),
-                Icon: () => (
-                  <Jazzicon
-                    diameter={24}
-                    seed={jsNumberForAddress(vote.juror.id)}
-                  />
-                ),
-                body: (
-                  <AccordionContent
-                    choice={
-                      vote.choice === 0
-                        ? "Refuse to arbitrate"
-                        : metaEvidence.rulingOptions.titles[vote.choice - 1]
-                    }
-                    justification={vote.justification || ""}
-                  />
-                ),
-              })) || []
-            }
-          />
-        </>
-      )}
-    </Container>
-  );
-};
 
 const Container = styled.div``;
 
@@ -135,5 +74,54 @@ const JustificationContainer = styled.div`
     margin: 0px;
   }
 `;
+
+const VotingHistory: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
+  const { id } = useParams();
+  const { data: votingHistory } = useVotingHistory(id);
+  const [currentTab, setCurrentTab] = useState(0);
+  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
+  const rounds = votingHistory?.dispute?.rounds;
+  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
+  return (
+    <Container>
+      <h1>Voting History</h1>
+      {rounds && localRounds && disputeTemplate && (
+        <>
+          <p>{disputeTemplate.question}</p>
+          <StyledTabs
+            currentValue={currentTab}
+            items={rounds.map((_, i) => ({
+              text: `Round ${i + 1}`,
+              value: i,
+            }))}
+            callback={(i: number) => setCurrentTab(i)}
+          />
+          <StyledBox>
+            <BalanceIcon />
+            <p>
+              {localRounds.at(currentTab)?.totalVoted === rounds.at(currentTab)?.nbVotes
+                ? "All jurors voted"
+                : localRounds.at(currentTab)?.totalVoted + " jurors voted out of " + rounds.at(currentTab)?.nbVotes}
+            </p>
+          </StyledBox>
+          <StyledAccordion
+            items={
+              localRounds.at(currentTab)?.votes.map((vote) => ({
+                title: shortenAddress(vote.juror.id),
+                Icon: <Jazzicon diameter={24} seed={jsNumberForAddress(vote.juror.id)} />,
+                body: (
+                  <AccordionContent
+                    choice={vote.choice === 0 ? "Refuse to arbitrate" : disputeTemplate.answers[vote.choice - 1].title}
+                    justification={vote.justification || ""}
+                  />
+                ),
+              })) || []
+            }
+          />
+        </>
+      )}
+    </Container>
+  );
+};
 
 export default VotingHistory;

@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { ONE_BASIS_POINT } from "consts/index";
 import { Periods } from "consts/periods";
 import { isUndefined } from "utils/index";
-import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
+import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useAppealCost } from "queries/useAppealCost";
 import { useDisputeKitClassicMultipliers } from "queries/useDisputeKitClassicMultipliers";
 import { useClassicAppealQuery, ClassicAppealQuery } from "queries/useClassicAppealQuery";
@@ -48,9 +48,13 @@ export const ClassicAppealProvider: React.FC<{
   const winningChoice = getWinningChoice(data?.dispute);
   const { data: appealCost } = useAppealCost(id);
   const arbitrable = data?.dispute?.arbitrated.id;
-  const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
+  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
   const { data: multipliers } = useDisputeKitClassicMultipliers();
-  const options = ["Refuse to Arbitrate"].concat(metaEvidence?.rulingOptions?.titles);
+  const options = ["Refuse to Arbitrate"].concat(
+    disputeTemplate?.answers?.map((answer: { title: string; description: string }) => {
+      return answer.title;
+    })
+  );
   const loserSideCountdown = useLoserSideCountdown(
     dispute?.lastPeriodChange,
     dispute?.court.timesPerPeriod[Periods.appeal],
