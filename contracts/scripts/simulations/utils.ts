@@ -16,7 +16,7 @@ export enum Period {
   Appeal,
 }
 
-export const options = { gasLimit: 10000000, gasPrice: 5000000000 };
+export const options = { gasLimit: 10000000, gasPrice: 50000000000 };
 
 export const getContracts = async (hre) => {
   const core = (await hre.ethers.getContract("KlerosCore")) as KlerosCore;
@@ -25,7 +25,13 @@ export const getContracts = async (hre) => {
   const pnk = (await hre.ethers.getContract("PNK")) as PNK;
   const randomizerRng = (await hre.ethers.getContract("RandomizerRNG")) as RandomizerRNG;
   const arbitrable = (await hre.ethers.getContract("ArbitrableExampleEthFee")) as ArbitrableExampleEthFee;
-  const randomizerMock = (await hre.ethers.getContract("RandomizerMock")) as RandomizerMock;
+  let randomizerMock: RandomizerMock | undefined;
+
+  try {
+    randomizerMock = (await hre.ethers.getContract("RandomizerMock")) as RandomizerMock;
+  } catch (error) {
+    console.log("RandomizerMock contract not found");
+  }
 
   return {
     core,
