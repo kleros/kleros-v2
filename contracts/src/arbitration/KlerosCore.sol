@@ -828,7 +828,6 @@ contract KlerosCore is IArbitratorV2 {
         }
 
         address account = round.drawnJurors[_params.repartition % _params.numberOfVotesInRound];
-        // TODO Change me
         uint256 pnkLocked = (round.pnkAtStakePerJuror * degreeOfCoherence) / ALPHA_DIVISOR;
 
         // Release the rest of the PNKs of the juror for this round.
