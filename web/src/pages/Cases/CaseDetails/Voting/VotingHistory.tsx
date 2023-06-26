@@ -108,7 +108,7 @@ const VotingHistory: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
             items={
               localRounds.at(currentTab)?.votes.map((vote) => ({
                 title: shortenAddress(vote.juror.id),
-                Icon: () => <Jazzicon diameter={24} seed={jsNumberForAddress(vote.juror.id)} />,
+                Icon: <Jazzicon diameter={24} seed={jsNumberForAddress(vote.juror.id)} />,
                 body: (
                   <AccordionContent
                     choice={vote.choice === 0 ? "Refuse to arbitrate" : disputeTemplate.answers[vote.choice - 1].title}
