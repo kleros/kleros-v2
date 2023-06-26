@@ -81,7 +81,11 @@ const Overview: React.FC<{ arbitrable?: string; courtID?: string }> = ({ arbitra
   return (
     <>
       <Container>
-        <h1>{disputeTemplate?.title}</h1>
+        <h1>
+          {disputeTemplate
+            ? disputeTemplate?.title
+            : "The dispute's template is not correct please vote refuse to arbitrate"}
+        </h1>
         <QuestionAndDescription>
           <h3>{disputeTemplate?.question}</h3>
           <p>{disputeTemplate?.description}</p>
