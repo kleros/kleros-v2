@@ -6,6 +6,7 @@ enum HomeChains {
   ARBITRUM_ONE = 42161,
   ARBITRUM_GOERLI = 421613,
   HARDHAT = 31337,
+  KLEROS_CHAIN = 203012,
 }
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {

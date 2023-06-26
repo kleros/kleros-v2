@@ -7,6 +7,7 @@ enum HomeChains {
   ARBITRUM_ONE = 42161,
   ARBITRUM_GOERLI = 421613,
   HARDHAT = 31337,
+  KLEROS_CHAIN = 203012,
 }
 
 const pnkByChain = new Map<HomeChains, string>([
@@ -120,12 +121,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await execute("KlerosCore", { from: deployer, log: true }, "changeCurrencyRates", pnk, 12225583, 12);
   await execute("KlerosCore", { from: deployer, log: true }, "changeCurrencyRates", dai, 60327783, 11);
   await execute("KlerosCore", { from: deployer, log: true }, "changeCurrencyRates", weth, 1, 1);
-
-  await deploy("DisputeResolver", {
-    from: deployer,
-    args: [klerosCore.address],
-    log: true,
-  });
 };
 
 deployArbitration.tags = ["Arbitration"];

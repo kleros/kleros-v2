@@ -81,6 +81,21 @@ const config: HardhatUserConfig = {
     },
 
     // Home chain ---------------------------------------------------------------------------------
+    kleroschain: {
+      url: `http://localhost:8449`,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      chainId: 203012,
+      saveDeployments: true,
+      tags: ["test", "home", "layer3"],
+      companionNetworks: {
+        foreign: "kleroschain",
+      },
+      verify: {
+        etherscan: {
+          apiUrl: "http://localhost:4000",
+        },
+      },
+    },
     arbitrumGoerli: {
       chainId: 421613,
       url: "https://goerli-rollup.arbitrum.io/rpc",

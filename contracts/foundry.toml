@@ -11,5 +11,6 @@ goerli = "https://goerli.infura.io/v3/${INFURA_API_KEY}"
 mainnet = "https://mainnet.infura.io/v3/${INFURA_API_KEY}"
 chiado = "https://rpc.chiadochain.net"
 gnosischain = "https://xdai-rpc.gateway.pokt.network"
+kleroschain = "http://localhost:8449"
 
 # See more config options https://book.getfoundry.sh/reference/config.html

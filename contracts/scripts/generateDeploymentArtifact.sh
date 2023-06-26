@@ -36,6 +36,10 @@ arbitrumGoerli)
   url="https://api-goerli.arbiscan.io"
   apiKey="$ARBISCAN_API_KEY"
   ;;
+kleroschain)
+  url="http://localhost:4000"
+  apiKey=""
+  ;;
 mainnet)
   url="https://api.etherscan.io"
   apiKey="$ETHERSCAN_API_KEY"

@@ -6,6 +6,43 @@ Smart contracts for Kleros v2
 
 Refresh the list of deployed contracts by running `./scripts/generateDeploymentsMarkdown.sh`.
 
+### Kleros Chain (Orbit L3 Rollup)
+
+#### Kleros Protocol
+
+- [ArbitrableExample](http://localhost:4000/address/0x5447cB71CED29767832A22B3fD6B82E1DA6593c6)
+- [DAI](http://localhost:4000/address/0x5A407DcbD0F83ECbc1894C4B4f8Fc5b699D4822F)
+- [DisputeKitClassic](http://localhost:4000/address/0xC89312e08C792445B87714A3938BE0b43d0D929a)
+- [DisputeResolver](http://localhost:4000/address/0xC520BF3cb4E03a5D5AED2144A95CFc8bd5B1536B)
+- [KlerosCore](http://localhost:4000/address/0x144041583291AD96Bff693E28D3eACFe12cb0a03)
+- [PolicyRegistry](http://localhost:4000/address/0xed12799915180a257985631fbD2ead261eD838cf)
+- [RandomizerMock](http://localhost:4000/address/0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C)
+- [RandomizerRNG](http://localhost:4000/address/0xd08452AEE7ab5bE3BF6733BA0d3F0CFdaf060Aa2)
+- [SortitionModule](http://localhost:4000/address/0x34caAa0f31fF13Fb9732500D97dFc5D8c6343eDc)
+- [WETH](http://localhost:4000/address/0x99392099F988E889Cc9BD55f632C674C3aeEF7F2)
+
+#### Rollup Contracts
+
+- [Rollup](https://goerli.arbiscan.io/address/0xCbe972b865D4Dc0D077FE1f293FD8B9d2aE74370)
+- [Inbox](https://goerli.arbiscan.io/address/0x6DcAaD11B3A85548EDec4247D1bb406eBDc4101F)
+- [Outbox](https://goerli.arbiscan.io/address/0x5d3e1A839438386E5760e33496dBF8b2d4A99aff)
+- [Admin Proxy](https://goerli.arbiscan.io/address/0x8341e3127585fE74B41190e31a05C7da668c779f)
+- [Sequencer Inbox](https://goerli.arbiscan.io/address/0xb0cb33Fc9c04661fe54C747e484155A51922A50D)
+- [Bridge](https://goerli.arbiscan.io/address/0xfbd46bc3F038eC0E04816AcA23be68Ac0663A84E)
+- [Utils](https://goerli.arbiscan.io/address/0x54F8e1d51e4B97d046aE6651fe260ADe4139D553)
+- [Validator Wallet Creator](https://goerli.arbiscan.io/address/0x5D8a0a8ee09185d0898f03a057dde4BB3EaDA601)
+- Deployed at block number: [28323884](https://goerli.arbiscan.io/block/28323884)
+
+#### Validators
+
+- [Validator #1](https://goerli.arbiscan.io/address/0xdD3748f5DD1212fAa83a8f1233cF610A810c487B)
+
+#### Batch Poster
+
+- [Batch Poster](https://goerli.arbiscan.io/address/0x4288B029865667fE12CF1c9e69d1Da0ab24e946C)
+
+### Foreign Chains
+
 #### Chiado
 
 - [ArbitrableExample](https://blockscout.com/gnosis/chiado/address/0xf534e055758884c71304028814Ba25B2CE6903e5)
@@ -26,16 +63,6 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 #### Arbitrum Goerli
 
 - [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610/token-transfers)
-- [BlockHashRNG](https://goerli.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
-- [DAI](https://goerli.arbiscan.io/address/0x70A704Dce4cCC00568Cc142C86D07Ec71C944a39)
-- [DisputeKitClassic](https://goerli.arbiscan.io/address/0x0245A93ABd9c5b2d767B2D98cE6d5e612208E474)
-- [DisputeResolver](https://goerli.arbiscan.io/address/0xcDC05c8d2EEEe384359Bd22E8631528B6b0564e9)
-- [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0xD60CD2151e118Dd796efcb1ceFFcF892226F9b3a)
-- [KlerosCore](https://goerli.arbiscan.io/address/0x8Af82E2F8890acb4AB84cbaB3c4C4Eb3E965CF24)
-- [PolicyRegistry](https://goerli.arbiscan.io/address/0xED503aBA65B28D81444294D1eAa5d84CeFdC2C58)
-- [RandomizerRNG](https://goerli.arbiscan.io/address/0xa90f7D2e35718FDE9AD96c8B6667AFcAa4BEfd4d)
-- [SortitionModule](https://goerli.arbiscan.io/address/0x5Ae75Db8B66B574b2c5C29eE4D32cc9Fe62bfdEE)
-- [WETH](https://goerli.arbiscan.io/address/0xddE1b84E43505432Fdf5F810ebB9373dD37e9230)
 
 ## Getting Started
 

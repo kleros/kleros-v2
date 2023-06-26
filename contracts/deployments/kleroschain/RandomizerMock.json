@@ -1,0 +1,116 @@
+{
+  "address": "0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "clientWithdrawTo",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract RandomizerRNG",
+          "name": "_rng",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_value",
+          "type": "bytes32"
+        }
+      ],
+      "name": "relay",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "callbackGasLimit",
+          "type": "uint256"
+        }
+      ],
+      "name": "request",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x14d623250b36f218b3e6b2c8715a1d232a9bf41c51d1d0805f7fd3616639cee0",
+  "receipt": {
+    "to": null,
+    "from": "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3",
+    "contractAddress": "0x4d18b9792e0D8F5aF696E71dBEDff8fcBEed6e8C",
+    "transactionIndex": 1,
+    "gasUsed": "2814528",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x32dd9f74cead85e5b767c27eb094e8089a77ae6ddc03eaf24f5e9eb9c8e6c3c7",
+    "transactionHash": "0x14d623250b36f218b3e6b2c8715a1d232a9bf41c51d1d0805f7fd3616639cee0",
+    "logs": [],
+    "blockNumber": 31,
+    "cumulativeGasUsed": "2814528",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "961befc2fb36daa22c7c449f4b260d32",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.18+commit.87f61d96\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"clientWithdrawTo\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract RandomizerRNG\",\"name\":\"_rng\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_id\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"_value\",\"type\":\"bytes32\"}],\"name\":\"relay\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"callbackGasLimit\",\"type\":\"uint256\"}],\"name\":\"request\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/rng/mock/RandomizerMock.sol\":\"RandomizerMock\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"src/rng/IRandomizer.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\n// Randomizer protocol interface\\ninterface IRandomizer {\\n    function request(uint256 callbackGasLimit) external returns (uint256);\\n\\n    function clientWithdrawTo(address _to, uint256 _amount) external;\\n}\\n\",\"keccak256\":\"0xe71bbdd9470eeb89f5d10aee07fda95b6ccc13aa845c0d8c0bc7a9ec20b6356e\",\"license\":\"MIT\"},\"src/rng/RNG.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\ninterface RNG {\\n    /// @dev Request a random number.\\n    /// @param _block Block linked to the request.\\n    function requestRandomness(uint256 _block) external;\\n\\n    /// @dev Receive the random number.\\n    /// @param _block Block the random number is linked to.\\n    /// @return randomNumber Random Number. If the number is not ready or has not been required 0 instead.\\n    function receiveRandomness(uint256 _block) external returns (uint256 randomNumber);\\n}\\n\",\"keccak256\":\"0x5afe7121f49aebe72218df356bd91b66c2171b9ad15e7945a15a091784291a43\",\"license\":\"MIT\"},\"src/rng/RandomizerRNG.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\nimport \\\"./RNG.sol\\\";\\nimport \\\"./IRandomizer.sol\\\";\\n\\n/// @title Random Number Generator that uses Randomizer.ai\\n/// https://randomizer.ai/\\ncontract RandomizerRNG is RNG {\\n    address public governor; // The address that can withdraw funds.\\n    uint256 public callbackGasLimit = 50000; // Gas limit for the randomizer callback\\n\\n    IRandomizer public randomizer; // Randomizer address.\\n    mapping(uint256 => uint256) public randomNumbers; // randomNumbers[requestID] is the random number for this request id, 0 otherwise.\\n    mapping(address => uint256) public requesterToID; // Maps the requester to his latest request ID.\\n\\n    // ************************************* //\\n    // *        Function Modifiers         * //\\n    // ************************************* //\\n\\n    modifier onlyByGovernor() {\\n        require(governor == msg.sender, \\\"Governor only\\\");\\n        _;\\n    }\\n\\n    /// @dev Constructor.\\n    /// @param _randomizer Randomizer contract.\\n    /// @param _governor Governor of the contract.\\n    constructor(IRandomizer _randomizer, address _governor) {\\n        randomizer = _randomizer;\\n        governor = _governor;\\n    }\\n\\n    // ************************ //\\n    // *      Governance      * //\\n    // ************************ //\\n\\n    /// @dev Changes the governor of the contract.\\n    /// @param _governor The new governor.\\n    function changeGovernor(address _governor) external onlyByGovernor {\\n        governor = _governor;\\n    }\\n\\n    /// @dev Change the Randomizer callback gas limit.\\n    /// @param _callbackGasLimit the new limit.\\n    function setCallbackGasLimit(uint256 _callbackGasLimit) external onlyByGovernor {\\n        callbackGasLimit = _callbackGasLimit;\\n    }\\n\\n    /// @dev Change the Randomizer address.\\n    /// @param _randomizer the new Randomizer address.\\n    function setRandomizer(address _randomizer) external onlyByGovernor {\\n        randomizer = IRandomizer(_randomizer);\\n    }\\n\\n    /// @dev Allows the governor to withdraw randomizer funds.\\n    /// @param _amount Amount to withdraw in wei.\\n    function randomizerWithdraw(uint256 _amount) external onlyByGovernor {\\n        randomizer.clientWithdrawTo(msg.sender, _amount);\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /// @dev Request a random number. The id of the request is tied to the sender.\\n    function requestRandomness(uint256 /*_block*/) external override {\\n        uint256 id = randomizer.request(callbackGasLimit);\\n        requesterToID[msg.sender] = id;\\n    }\\n\\n    /// @dev Callback function called by the randomizer contract when the random value is generated.\\n    function randomizerCallback(uint256 _id, bytes32 _value) external {\\n        require(msg.sender == address(randomizer), \\\"Randomizer only\\\");\\n        randomNumbers[_id] = uint256(_value);\\n    }\\n\\n    // ************************************* //\\n    // *           Public Views            * //\\n    // ************************************* //\\n\\n    /// @dev Return the random number.\\n    /// @return randomNumber The random number or 0 if it is not ready or has not been requested.\\n    function receiveRandomness(uint256 /*_block*/) external view override returns (uint256 randomNumber) {\\n        // Get the latest request ID for this requester.\\n        uint256 id = requesterToID[msg.sender];\\n        randomNumber = randomNumbers[id];\\n    }\\n}\\n\",\"keccak256\":\"0xe6f1715191d3884c292c2b58200980f08de8cf6c5b32fffdaecc4483919c59ff\",\"license\":\"MIT\"},\"src/rng/mock/RandomizerMock.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\nimport \\\"../RandomizerRNG.sol\\\";\\n\\ncontract RandomizerMock is IRandomizer {\\n    uint256 private id;\\n\\n    function request(uint256 callbackGasLimit) external override returns (uint256) {\\n        return id++;\\n    }\\n\\n    function clientWithdrawTo(address _to, uint256 _amount) external override {\\n        revert(\\\"Not Implemented\\\");\\n    }\\n\\n    function relay(RandomizerRNG _rng, uint256 _id, bytes32 _value) external {\\n        _rng.randomizerCallback(_id, _value);\\n    }\\n}\\n\",\"keccak256\":\"0xeec61d71dbf9661ad1da6b239ca624e864fda8af68e24c3d38be914254e492d0\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5061023f806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c80632465f8f5146100465780638e9601031461005b578063d845a4b31461006e575b600080fd5b610059610054366004610168565b610093565b005b610059610069366004610194565b6100d1565b61008161007c3660046101c9565b610137565b60405190815260200160405180910390f35b60405162461bcd60e51b815260206004820152600f60248201526e139bdd08125b5c1b195b595b9d1959608a1b604482015260640160405180910390fd5b60405163ebe93caf60e01b815260048101839052602481018290526001600160a01b0384169063ebe93caf90604401600060405180830381600087803b15801561011a57600080fd5b505af115801561012e573d6000803e3d6000fd5b50505050505050565b600080548180610146836101e2565b9091555092915050565b6001600160a01b038116811461016557600080fd5b50565b6000806040838503121561017b57600080fd5b823561018681610150565b946020939093013593505050565b6000806000606084860312156101a957600080fd5b83356101b481610150565b95602085013595506040909401359392505050565b6000602082840312156101db57600080fd5b5035919050565b60006001820161020257634e487b7160e01b600052601160045260246000fd5b506001019056fea26469706673582212205de0a009572c0182b928fe164397d24cb08405230beaae6bad1f1ab54c709efe64736f6c63430008120033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100415760003560e01c80632465f8f5146100465780638e9601031461005b578063d845a4b31461006e575b600080fd5b610059610054366004610168565b610093565b005b610059610069366004610194565b6100d1565b61008161007c3660046101c9565b610137565b60405190815260200160405180910390f35b60405162461bcd60e51b815260206004820152600f60248201526e139bdd08125b5c1b195b595b9d1959608a1b604482015260640160405180910390fd5b60405163ebe93caf60e01b815260048101839052602481018290526001600160a01b0384169063ebe93caf90604401600060405180830381600087803b15801561011a57600080fd5b505af115801561012e573d6000803e3d6000fd5b50505050505050565b600080548180610146836101e2565b9091555092915050565b6001600160a01b038116811461016557600080fd5b50565b6000806040838503121561017b57600080fd5b823561018681610150565b946020939093013593505050565b6000806000606084860312156101a957600080fd5b83356101b481610150565b95602085013595506040909401359392505050565b6000602082840312156101db57600080fd5b5035919050565b60006001820161020257634e487b7160e01b600052601160045260246000fd5b506001019056fea26469706673582212205de0a009572c0182b928fe164397d24cb08405230beaae6bad1f1ab54c709efe64736f6c63430008120033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 21566,
+        "contract": "src/rng/mock/RandomizerMock.sol:RandomizerMock",
+        "label": "id",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_uint256"
+      }
+    ],
+    "types": {
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
