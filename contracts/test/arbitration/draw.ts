@@ -4,8 +4,8 @@ import { BigNumber } from "ethers";
 import {
   PNK,
   KlerosCore,
-  ArbitrableExampleEthFee,
-  HomeGatewayToEthereum,
+  ArbitrableExample,
+  HomeGateway,
   DisputeKitClassic,
   RandomizerRNG,
   RandomizerMock,
@@ -65,8 +65,8 @@ describe("Draw Benchmark", async () => {
     disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-    homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
-    arbitrable = (await ethers.getContract("ArbitrableExampleEthFee")) as ArbitrableExampleEthFee;
+    homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGateway;
+    arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
     rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
     randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
     sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
@@ -94,7 +94,7 @@ describe("Draw Benchmark", async () => {
     }
 
     // Create a dispute
-    const tx = await arbitrable.createDispute(2, "0x00", 0, {
+    const tx = await arbitrable.functions["createDispute(string)"]("future of france", {
       value: arbitrationCost,
     });
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
@@ -104,9 +104,20 @@ describe("Draw Benchmark", async () => {
     // Relayer tx
     const tx2 = await homeGateway
       .connect(await ethers.getSigner(relayer))
-      .relayCreateDispute(31337, lastBlock.hash, disputeId, 2, "0x00", arbitrable.address, {
-        value: arbitrationCost,
-      });
+      .functions["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes))"](
+        {
+          foreignBlockHash: lastBlock.hash,
+          foreignChainID: 31337,
+          foreignArbitrable: arbitrable.address,
+          foreignDisputeID: disputeId,
+          externalDisputeID: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("future of france")),
+          templateId: 0,
+          templateUri: "",
+          choices: 2,
+          extraData: "0x00",
+        },
+        { value: arbitrationCost }
+      );
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");

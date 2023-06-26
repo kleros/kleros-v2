@@ -7,12 +7,11 @@
 
 pragma solidity 0.8.18;
 
-import "./IArbitrable.sol";
-import "../evidence/IMetaEvidence.sol";
+import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitrableV2.sol";
 import "../libraries/CappedMath.sol";
 
 /// @title KlerosGovernor for V2. Note that appeal functionality and evidence submission will be handled by the court.
-contract KlerosGovernor is IArbitrable, IMetaEvidence {
+contract KlerosGovernor is IArbitrableV2 {
     using CappedMath for uint256;
 
     // ************************************* //
@@ -52,9 +51,9 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         uint256 approvalTime; // The time when the list was approved.
     }
 
-    IArbitrator public arbitrator; // Arbitrator contract.
+    IArbitratorV2 public arbitrator; // Arbitrator contract.
     bytes public arbitratorExtraData; // Extra data for arbitrator.
-    uint256 public metaEvidenceUpdates; // The number of times the meta evidence has been updated. Used to track the latest meta evidence ID.
+    uint256 public disputeTemplates; // The number of dispute templates created.
 
     uint256 public submissionBaseDeposit; // The base deposit in wei that needs to be paid in order to submit the list.
     uint256 public submissionTimeout; // Time in seconds allowed for submitting the lists. Once it's passed the contract enters the approval period.
@@ -115,15 +114,15 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
     /// @dev Constructor.
     /// @param _arbitrator The arbitrator of the contract.
     /// @param _arbitratorExtraData Extra data for the arbitrator.
-    /// @param _metaEvidence The URI of the meta evidence file.
+    /// @param _templateData The dispute template data.
     /// @param _submissionBaseDeposit The base deposit required for submission.
     /// @param _submissionTimeout Time in seconds allocated for submitting transaction list.
     /// @param _executionTimeout Time in seconds after approval that allows to execute transactions of the approved list.
     /// @param _withdrawTimeout Time in seconds after submission that allows to withdraw submitted list.
     constructor(
-        IArbitrator _arbitrator,
+        IArbitratorV2 _arbitrator,
         bytes memory _arbitratorExtraData,
-        string memory _metaEvidence,
+        string memory _templateData,
         uint256 _submissionBaseDeposit,
         uint256 _submissionTimeout,
         uint256 _executionTimeout,
@@ -139,7 +138,7 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         withdrawTimeout = _withdrawTimeout;
         sessions.push();
 
-        emit MetaEvidence(metaEvidenceUpdates, _metaEvidence);
+        emit DisputeTemplate(disputeTemplates++, "", _templateData);
     }
 
     /// @dev Changes the value of the base deposit required for submitting a list.
@@ -171,18 +170,17 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
     /// @param _arbitrator The new trusted arbitrator.
     /// @param _arbitratorExtraData The extra data used by the new arbitrator.
     function changeArbitrator(
-        IArbitrator _arbitrator,
+        IArbitratorV2 _arbitrator,
         bytes memory _arbitratorExtraData
     ) external onlyByGovernor duringSubmissionPeriod {
         arbitrator = _arbitrator;
         arbitratorExtraData = _arbitratorExtraData;
     }
 
-    /// @dev Update the meta evidence used for disputes.
-    /// @param _metaEvidence URI to the new meta evidence file.
-    function changeMetaEvidence(string memory _metaEvidence) external onlyByGovernor {
-        metaEvidenceUpdates++;
-        emit MetaEvidence(metaEvidenceUpdates, _metaEvidence);
+    /// @dev Update the dispute template data.
+    /// @param _templateData The new dispute template data.
+    function changeDisputeTemplate(string memory _templateData) external onlyByGovernor {
+        emit DisputeTemplate(disputeTemplates++, "", _templateData);
     }
 
     /// @dev Creates transaction list based on input parameters and submits it for potential approval and execution.
@@ -265,7 +263,7 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         reservedETH = reservedETH.subCap(submission.deposit);
     }
 
-    /// @dev Approves a transaction list or creates a dispute if more than one list was submitted. TRUSTED.
+    /// @dev Approves a transaction list or creates a dispute if more than one list was submitted.
     /// If nothing was submitted changes session.
     function executeSubmissions() external duringApprovalPeriod {
         Session storage session = sessions[sessions.length - 1];
@@ -296,7 +294,7 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
             session.sumDeposit = session.sumDeposit.subCap(arbitrationCost);
 
             reservedETH = reservedETH.subCap(arbitrationCost);
-            emit Dispute(arbitrator, session.disputeID, metaEvidenceUpdates, sessions.length - 1);
+            emit DisputeRequest(arbitrator, session.disputeID, sessions.length - 1, disputeTemplates, "");
         }
     }
 
@@ -325,10 +323,10 @@ contract KlerosGovernor is IArbitrable, IMetaEvidence {
         session.ruling = _ruling;
         sessions.push();
 
-        emit Ruling(IArbitrator(msg.sender), _disputeID, _ruling);
+        emit Ruling(IArbitratorV2(msg.sender), _disputeID, _ruling);
     }
 
-    /// @dev Executes selected transactions of the list. UNTRUSTED.
+    /// @dev Executes selected transactions of the list.
     /// @param _listID The index of the transaction list in the array of lists.
     /// @param _cursor Index of the transaction from which to start executing.
     /// @param _count Number of transactions to execute. Executes until the end if set to "0" or number higher than number of transactions in the list.
