@@ -7,9 +7,12 @@ import { arbitrumGoerli, gnosisChiado } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 
 const chains = [arbitrumGoerli, gnosisChiado];
-const projectId = "6efaa26765fa742153baf9281e218217";
+const projectId = process.env.WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf9281e218217";
 
-const { publicClient } = configureChains(chains, [alchemyProvider({ apiKey: "" }), publicProvider()]);
+const { publicClient } = configureChains(chains, [
+  alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY ?? "" }),
+  publicProvider(),
+]);
 
 const wagmiConfig = createConfig({
   autoConnect: false,

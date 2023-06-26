@@ -5,7 +5,7 @@ import KlerosCore from "@kleros/kleros-v2-contracts/deployments/arbitrumGoerli/K
 import PNK from "@kleros/kleros-v2-contracts/deployments/arbitrumGoerli/PNK.json" assert { type: "json" };
 import DisputeKitClassic from "@kleros/kleros-v2-contracts/deployments/arbitrumGoerli/DisputeKitClassic.json" assert { type: "json" };
 import PolicyRegistry from "@kleros/kleros-v2-contracts/deployments/arbitrumGoerli/PolicyRegistry.json" assert { type: "json" };
-import IMetaevidence from "@kleros/kleros-v2-contracts/artifacts/src/evidence/IMetaEvidence.sol/IMetaEvidence.json" assert { type: "json" };
+import IArbitrableV2 from "@kleros/kleros-v2-contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" assert { type: "json" };
 
 export default defineConfig({
   out: "src/hooks/contracts/generated.ts",
@@ -39,8 +39,8 @@ export default defineConfig({
       abi: PolicyRegistry.abi,
     },
     {
-      name: "IMetaEvidence",
-      abi: IMetaevidence.abi,
+      name: "IArbitrableV2",
+      abi: IArbitrableV2.abi,
     },
   ],
   plugins: [react(), actions()],
