@@ -43,8 +43,6 @@ const StyledAccordion = styled(Accordion)`
   }
 `;
 
-const Icon: React.FC<{ seed: number }> = React.memo(({ seed }) => <Jazzicon diameter={24} seed={seed} />);
-
 const AccordionContent: React.FC<{
   choice: string;
   justification: string;
@@ -110,7 +108,7 @@ const VotingHistory: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
             items={
               localRounds.at(currentTab)?.votes.map((vote) => ({
                 title: shortenAddress(vote.juror.id),
-                Icon: () => <Icon seed={jsNumberForAddress(vote.juror.id)} />,
+                Icon: React.useMemo(() => () => <Jazzicon seed={jsNumberForAddress(vote.juror.id)} />, [vote.juror.id]),
                 body: (
                   <AccordionContent
                     choice={vote.choice === 0 ? "Refuse to arbitrate" : disputeTemplate.answers[vote.choice - 1].title}
