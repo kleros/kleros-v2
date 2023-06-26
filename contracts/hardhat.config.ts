@@ -37,6 +37,10 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       allowUnlimitedContractSize: true,
       tags: ["test", "local"],
+      companionNetworks: {
+        home: "hardhat",
+        foreign: "hardhat",
+      },
     },
     localhost: {
       url: `http://127.0.0.1:8545`,

@@ -4,15 +4,16 @@ import { BigNumber } from "ethers";
 import {
   PNK,
   KlerosCore,
-  ForeignGatewayOnEthereum,
-  ArbitrableExampleEthFee,
-  HomeGatewayToEthereum,
+  ForeignGateway,
+  ArbitrableExample,
+  HomeGateway,
   VeaMock,
   DisputeKitClassic,
   RandomizerRNG,
   RandomizerMock,
   SortitionModule,
 } from "../../typechain-types";
+import { keccak256 } from "ethers/lib/utils";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
@@ -56,15 +57,15 @@ describe("Integration tests", async () => {
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
     vea = (await ethers.getContract("VeaMock")) as VeaMock;
-    foreignGateway = (await ethers.getContract("ForeignGatewayOnEthereum")) as ForeignGatewayOnEthereum;
-    arbitrable = (await ethers.getContract("ArbitrableExampleEthFee")) as ArbitrableExampleEthFee;
-    homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGatewayToEthereum;
+    foreignGateway = (await ethers.getContract("ForeignGatewayOnEthereum")) as ForeignGateway;
+    arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
+    homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGateway;
     sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
   });
 
   it("Resolves a dispute on the home chain with no appeal", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
-    const [bridger, challenger, relayer] = await ethers.getSigners();
+    const [, , relayer] = await ethers.getSigners();
 
     await pnk.approve(core.address, ONE_THOUSAND_PNK.mul(100));
 
@@ -95,7 +96,7 @@ describe("Integration tests", async () => {
       expect(result.locked).to.equal(0);
       logJurorBalance(result);
     });
-    const tx = await arbitrable.createDispute(2, "0x00", 0, {
+    const tx = await arbitrable.functions["createDispute(string)"]("future of france", {
       value: arbitrationCost,
     });
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
@@ -107,18 +108,28 @@ describe("Integration tests", async () => {
 
     const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
     const disputeHash = ethers.utils.solidityKeccak256(
-      ["uint", "bytes", "bytes", "uint", "uint", "bytes", "address"],
-      [31337, lastBlock.hash, ethers.utils.toUtf8Bytes("createDispute"), disputeId, 2, "0x00", arbitrable.address]
+      ["bytes", "bytes32", "uint256", "address", "uint256", "uint256", "bytes"],
+      [ethers.utils.toUtf8Bytes("createDispute"), lastBlock.hash, 31337, arbitrable.address, disputeId, 2, "0x00"]
     );
-
     const events = (await tx.wait()).events;
 
     // Relayer tx
     const tx2 = await homeGateway
       .connect(relayer)
-      .relayCreateDispute(31337, lastBlock.hash, disputeId, 2, "0x00", arbitrable.address, {
-        value: arbitrationCost,
-      });
+      .functions["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes))"](
+        {
+          foreignBlockHash: lastBlock.hash,
+          foreignChainID: 31337,
+          foreignArbitrable: arbitrable.address,
+          foreignDisputeID: disputeId,
+          externalDisputeID: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("future of france")),
+          templateId: 0,
+          templateUri: "",
+          choices: 2,
+          extraData: "0x00",
+        },
+        { value: arbitrationCost }
+      );
     expect(tx2).to.emit(homeGateway, "Dispute");
     const events2 = (await tx2.wait()).events;
 
@@ -144,8 +155,9 @@ describe("Integration tests", async () => {
 
     const roundInfo = await core.getRoundInfo(0, 0);
     expect(roundInfo.drawnJurors).deep.equal([deployer, deployer, deployer]);
-    expect(roundInfo.tokensAtStakePerJuror).to.equal(ONE_HUNDRED_PNK.mul(2));
+    expect(roundInfo.pnkAtStakePerJuror).to.equal(ONE_HUNDRED_PNK.mul(2));
     expect(roundInfo.totalFeesForJurors).to.equal(arbitrationCost);
+    expect(roundInfo.feeToken).to.equal(ethers.constants.AddressZero);
 
     expect((await core.disputes(0)).period).to.equal(Period.evidence);
 

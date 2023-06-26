@@ -1,0 +1,43 @@
+{
+  "title": "Remove a market from Omen Verified Market",
+  "description": "Someone requested to remove a market from Omen Verified Market",
+  "rulingOptions": {
+    "titles": [
+      "Yes, Remove It",
+      "No, Don't Remove It"
+    ],
+    "descriptions": [
+      "Select this if you think the market does not comply with the required criteria and should be removed.",
+      "Select this if you think the market complies with the required criteria and should not be removed."
+    ]
+  },
+  "category": "Curated Lists",
+  "question": "Does the market comply with the required criteria?",
+  "fileURI": "/ipfs/QmPhEBstumEP84eSftx9MwBmSXBCGRFJMPZauKVa9gBizh/omen-verified-market.pdf",
+  "evidenceDisplayInterfaceURI": "/ipfs/QmUbBGRTCH3zxTFSNJ1asUFtpwvyXasrzhzLxYVMoEW8Nc/index.html",
+  "evidenceDisplayInterfaceHash": "Bcd2grgxgJ1i88wpbF6iD4kaGkjp4gZfcsYxKJVMELZQLGurwLXQMPMJiNmn5Q6ctUbgwDUpXXwLspTTaWQWEoceE5",
+  "metadata": {
+    "tcrTitle": "Omen Verified Market",
+    "tcrDescription": "Safe Omen markets which are unlikely to be considered invalid and are not tricky",
+    "columns": [
+      {
+        "label": "Question",
+        "description": "The question of the market",
+        "type": "text",
+        "isIdentifier": true
+      },
+      {
+        "label": "Market URL",
+        "description": "Link to the Omen market in the form https://omen.eth.link/#/MARKET_ADDRESS",
+        "type": "link",
+        "isIdentifier": true
+      }
+    ],
+    "itemName": "market",
+    "itemNamePlural": "markets",
+    "logoURI": "/ipfs/QmSvhGvYvwzWVeBPSvTmttAyFU3PLHczRtMMexVcSmfbbh/omen-badge-tcr-.png",
+    "requireRemovalEvidence": true,
+    "isTCRofTCRs": false,
+    "relTcrDisabled": true
+  }
+}

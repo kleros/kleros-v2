@@ -1,0 +1,21 @@
+{
+  "category": "Oracle",
+  "title": "A reality.eth question",
+  "description": "A reality.eth question has been raised to arbitration.",
+  "question": "Give an answer to the question.",
+  "evidenceDisplayInterfaceURI": "/ipfs/QmVXEiTexPd4EcQTjrxbFa88ZNFkBB8kT8BQUxtVn8fZJB/index.html",
+  "dynamicScriptURI": "/ipfs/QmWWsDmvjhR9UVRgkcG75vAKzfK3vB85EkZzudnaxwfAWr/bundle.js",
+  "fileURI": "/ipfs/QmW4zDA8X95cyfAsW9Nq1t7XNTyP3sMQAWNRFoQhMpgAv7/Kleros%2520Moderate%2520x%2520Reality.eth%2520Oracle%2520-%2520Telegram%2520Content%2520Moderation%2520Question%2520Resolution%2520Policy.pdf",
+  "arbitrableChainID": "100",
+  "arbitratorChainID": "100",
+  "dynamicScriptRequiredParams": [
+    "arbitrableChainID",
+    "arbitrableJsonRpcUrl",
+    "arbitrableContractAddress"
+  ],
+  "evidenceDisplayInterfaceRequiredParams": [
+    "arbitrableChainID",
+    "arbitrableJsonRpcUrl",
+    "arbitrableContractAddress"
+  ]
+}
