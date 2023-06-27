@@ -11,14 +11,14 @@ type FormElement =
   | { isFile: false; content: string };
 type FormData = { [key: string]: FormElement };
 
-const emitRabbitMQLog = async (cid: string) => {
+const emitRabbitMQLog = async (cid: string, operation: string) => {
   let connection: Connection | undefined;
   try {
     connection = await amqp.connect(RABBITMQ_URL ?? "");
     const channel = await connection.createChannel();
 
-    await channel.assertExchange("ipfs", "fanout", { durable: false });
-    channel.publish("ipfs", "", Buffer.from(cid));
+    await channel.assertExchange("ipfs", "topic");
+    channel.publish("ipfs", operation, Buffer.from(cid));
 
     //eslint-disable-next-line no-console
     console.log(`Sent IPFS CID '${cid}' to exchange 'ipfs'`);
@@ -50,7 +50,7 @@ const parseMultipart = ({ headers, body, isBase64Encoded }) =>
     bb.end();
   });
 
-const pinToFilebase = async (data: FormData, dapp: string) => {
+const pinToFilebase = async (data: FormData, dapp: string, operation: string) => {
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth() + 1; // getMonth() is zero-based
@@ -65,7 +65,7 @@ const pinToFilebase = async (data: FormData, dapp: string) => {
 
       const cid = await filebase.storeDirectory([new File([content], path, { type: mimeType })]);
 
-      await emitRabbitMQLog(cid);
+      await emitRabbitMQLog(cid, operation);
       cids.push(cid);
     }
   }
@@ -76,14 +76,19 @@ const pinToFilebase = async (data: FormData, dapp: string) => {
 export const handler: Handler = async (event) => {
   const { queryStringParameters } = event;
 
-  if (!queryStringParameters || !queryStringParameters.dapp || !queryStringParameters.key) {
+  if (
+    !queryStringParameters ||
+    !queryStringParameters.dapp ||
+    !queryStringParameters.key ||
+    !queryStringParameters.operation
+  ) {
     return {
       statusCode: 400,
       body: JSON.stringify({ message: "Invalid query parameters" }),
     };
   }
 
-  const { dapp, key } = queryStringParameters;
+  const { dapp, key, operation } = queryStringParameters;
 
   if (key !== FILEBASE_API_WRAPPER) {
     return {
@@ -94,7 +99,7 @@ export const handler: Handler = async (event) => {
 
   try {
     const parsed = await parseMultipart(event);
-    const cids = await pinToFilebase(parsed, dapp);
+    const cids = await pinToFilebase(parsed, dapp, operation);
 
     return {
       statusCode: 200,
