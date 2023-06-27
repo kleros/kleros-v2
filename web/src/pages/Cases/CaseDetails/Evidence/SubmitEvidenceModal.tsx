@@ -5,7 +5,7 @@ import Modal from "react-modal";
 import { Textarea, Button } from "@kleros/ui-components-library";
 import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
-import { useWalletClient } from "wagmi";
+import { useWalletClient, usePublicClient } from "wagmi";
 import { EnsureChain } from "components/EnsureChain";
 import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 
@@ -15,6 +15,7 @@ const SubmitEvidenceModal: React.FC<{
   close: () => void;
 }> = ({ isOpen, evidenceGroup, close }) => {
   const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
   const [isSending, setIsSending] = useState(false);
   const [message, setMessage] = useState("");
   return (
@@ -41,7 +42,7 @@ const SubmitEvidenceModal: React.FC<{
                       functionName: "submitEvidence",
                       args: [BigInt(evidenceGroup), cid],
                     });
-                    await wrapWithToast(walletClient.writeContract(request)).then(() => {
+                    await wrapWithToast(() => walletClient.writeContract(request), publicClient).then(() => {
                       setMessage("");
                       close();
                     });

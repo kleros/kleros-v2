@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { useAccount } from "wagmi";
+import { useAccount, usePublicClient } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
 import {
   getKlerosCore,
@@ -9,8 +9,8 @@ import {
   usePnkBalanceOf,
   usePnkIncreaseAllowance,
   usePreparePnkIncreaseAllowance,
+  useKlerosCoreGetJurorBalance,
 } from "hooks/contracts/generated";
-import { useJurorBalance } from "queries/useJurorBalance";
 import { usePNKAllowance } from "queries/usePNKAllowance";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
@@ -38,15 +38,22 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, se
     args: [address!],
     watch: true,
   });
-  const { data: jurorBalance } = useJurorBalance(address, id);
+  const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
+    enabled: !isUndefined(address),
+    args: [address, id],
+    watch: true,
+  });
   const { data: allowance } = usePNKAllowance(address);
+  const publicClient = usePublicClient();
 
   const isStaking = action === ActionType.stake;
-  const isAllowance = isStaking && allowance && allowance < parsedAmount;
+  const isAllowance = isStaking && !isUndefined(allowance) && allowance < parsedAmount;
 
   const targetStake = useMemo(() => {
     if (jurorBalance) {
-      if (action === ActionType.stake) {
+      if (isAllowance) {
+        return parsedAmount;
+      } else if (isStaking) {
         return jurorBalance[0] + parsedAmount;
       } else {
         return jurorBalance[0] - parsedAmount;
@@ -56,14 +63,14 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, se
 
   const klerosCore = getKlerosCore({});
   const { config: increaseAllowanceConfig } = usePreparePnkIncreaseAllowance({
-    enabled: !isUndefined([klerosCore, targetStake, allowance]),
+    enabled: !isUndefined(klerosCore) && !isUndefined(targetStake) && !isUndefined(allowance),
     args: [klerosCore?.address, BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
   });
   const { writeAsync: increaseAllowance } = usePnkIncreaseAllowance(increaseAllowanceConfig);
   const handleAllowance = () => {
     if (!isUndefined(increaseAllowance)) {
       setIsSending(true);
-      wrapWithToast(increaseAllowance!()).finally(() => {
+      wrapWithToast(increaseAllowance, publicClient).finally(() => {
         setIsSending(false);
       });
     }
@@ -77,7 +84,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, se
   const handleStake = () => {
     if (typeof setStake !== "undefined") {
       setIsSending(true);
-      wrapWithToast(setStake())
+      wrapWithToast(setStake, publicClient)
         .then(() => {
           setAmount("");
         })
