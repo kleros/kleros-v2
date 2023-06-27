@@ -16,7 +16,7 @@ const CaseDetails: React.FC = () => {
   const { data } = useDisputeDetailsQuery(id);
   const dispute = data?.dispute;
   const currentPeriodIndex = dispute ? Periods[dispute.period] : 0;
-  const arbitrable = dispute?.arbitrated.id;
+  const arbitrable = dispute?.arbitrated.id as `0x${string}`;
 
   return (
     <Container>

@@ -2,7 +2,7 @@ import useSWRImmutable from "swr/immutable";
 import { usePublicClient } from "wagmi";
 import { getIArbitrableV2 } from "hooks/contracts/generated";
 
-export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x{string}`) => {
+export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
   const publicClient = usePublicClient();
   return useSWRImmutable(
     () => (arbitrableAddress ? `DisputeTemplate${disputeID}${arbitrableAddress}` : false),
