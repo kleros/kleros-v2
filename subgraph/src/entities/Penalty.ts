@@ -10,12 +10,10 @@ export function updatePenalty(event: TokenAndETHShift): void {
   const penaltyID = `${roundID}-${jurorAddress}`;
   const penalty = Penalty.load(penaltyID);
   if (penalty) {
-    penalty.amount = penalty.amount.plus(event.params._tokenAmount);
+    penalty.amount = penalty.amount.plus(event.params._pnkAmount);
     const totalCoherency = penalty.degreeOfCoherency.times(penalty.numberDraws);
     penalty.numberDraws = penalty.numberDraws.plus(ONE);
-    penalty.degreeOfCoherency = totalCoherency
-      .plus(penalty.degreeOfCoherency)
-      .div(penalty.numberDraws);
+    penalty.degreeOfCoherency = totalCoherency.plus(penalty.degreeOfCoherency).div(penalty.numberDraws);
     penalty.save();
   } else {
     createPenalty(event);
@@ -33,7 +31,7 @@ export function createPenalty(event: TokenAndETHShift): void {
   penalty.round = roundID;
   penalty.juror = jurorAddress;
   penalty.numberDraws = ONE;
-  penalty.amount = event.params._tokenAmount;
+  penalty.amount = event.params._pnkAmount;
   penalty.degreeOfCoherency = event.params._degreeOfCoherency;
   penalty.save();
 }
