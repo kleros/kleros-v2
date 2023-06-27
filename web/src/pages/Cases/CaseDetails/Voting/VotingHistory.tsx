@@ -35,8 +35,18 @@ const StyledBox = styled(Box)`
 const StyledAccordion = styled(Accordion)`
   width: 100%;
   > * > button {
+    justify-content: unset;
+    padding: 11.5px 18px;
     background-color: ${({ theme }) => theme.whiteBackground} !important;
     border: 1px solid ${({ theme }) => theme.stroke} !important;
+    > p {
+      margin-left: 12px;
+      margin-right: auto;
+      color: ${({ theme }) => theme.primaryText};
+    }
+    > svg {
+      fill: ${({ theme }) => theme.primaryText} !important;
+    }
   }
   > * > div > div {
     padding: 8px 16px;
@@ -75,7 +85,7 @@ const JustificationContainer = styled.div`
   }
 `;
 
-const VotingHistory: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
+const VotingHistory: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable }) => {
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
   const [currentTab, setCurrentTab] = useState(0);
@@ -108,7 +118,7 @@ const VotingHistory: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
             items={
               localRounds.at(currentTab)?.votes.map((vote) => ({
                 title: shortenAddress(vote.juror.id),
-                Icon: <Jazzicon diameter={24} seed={jsNumberForAddress(vote.juror.id)} />,
+                icon: <Jazzicon diameter={20} seed={jsNumberForAddress(vote.juror.id)} />,
                 body: (
                   <AccordionContent
                     choice={vote.choice === 0 ? "Refuse to arbitrate" : disputeTemplate.answers[vote.choice - 1].title}
