@@ -6,9 +6,9 @@ dataSources:
     name: KlerosCore
     network: arbitrum-goerli
     source:
-      address: "0xA429667Abb1A6c530BAd1083df4C69FBce86D696"
+      address: "0x8Af82E2F8890acb4AB84cbaB3c4C4Eb3E965CF24"
       abi: KlerosCore
-      startBlock: 25602125
+      startBlock: 27808431
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -38,7 +38,7 @@ dataSources:
           handler: handleNewPeriod
         - event: CourtCreated(indexed uint256,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[])
           handler: handleCourtCreated
-        - event: CourtModified(indexed uint96,string)
+        - event: CourtModified(indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4])
           handler: handleCourtModified
         - event: DisputeKitCreated(indexed uint256,indexed address,indexed uint256)
           handler: handleDisputeKitCreated
@@ -48,7 +48,7 @@ dataSources:
           handler: handleStakeSet
         - event: StakeDelayed(indexed address,uint256,uint256,uint256)
           handler: handleStakeDelayed
-        - event: TokenAndETHShift(indexed address,indexed uint256,indexed uint256,uint256,int256,int256)
+        - event: TokenAndETHShift(indexed address,indexed uint256,indexed uint256,uint256,int256,int256,address)
           handler: handleTokenAndETHShift
         - event: Ruling(indexed address,indexed uint256,uint256)
           handler: handleRuling
@@ -77,9 +77,9 @@ dataSources:
     name: DisputeKitClassic
     network: arbitrum-goerli
     source:
-      address: "0xcBE3aD699919Cf59efDF715e4B41AF30A0E4c92d"
+      address: "0x0245A93ABd9c5b2d767B2D98cE6d5e612208E474"
       abi: DisputeKitClassic
-      startBlock: 25602098
+      startBlock: 27808415
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
