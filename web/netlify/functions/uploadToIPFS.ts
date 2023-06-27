@@ -50,21 +50,13 @@ const parseMultipart = ({ headers, body, isBase64Encoded }) =>
     bb.end();
   });
 
-const pinToFilebase = async (data: FormData, dapp: string, operation: string) => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth() + 1; // getMonth() is zero-based
-  const day = today.getDate();
+const pinToFilebase = async (data: FormData, dapp: string, operation: string): Promise<Array<string>> => {
   const cids = new Array<string>();
-
   for (const [_, dataElement] of Object.entries(data)) {
     if (dataElement.isFile) {
       const { filename, mimeType, content } = dataElement;
-      const path = `/${dapp}/${year}/${month}/${day}/${filename}`;
-      // await filebase.put(path, content);
-
+      const path = `${filename}`;
       const cid = await filebase.storeDirectory([new File([content], path, { type: mimeType })]);
-
       await emitRabbitMQLog(cid, operation);
       cids.push(cid);
     }
