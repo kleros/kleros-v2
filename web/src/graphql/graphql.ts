@@ -3661,14 +3661,17 @@ export type DisputeDetailsQuery = {
     period: Period;
     ruled: boolean;
     lastPeriodChange: any;
+    currentRoundIndex: any;
     court: { __typename?: "Court"; id: string; timesPerPeriod: Array<any>; hiddenVotes: boolean; feeForJuror: any };
     arbitrated: { __typename?: "Arbitrable"; id: string };
+    currentRound: { __typename?: "Round"; id: string };
   } | null;
 };
 
 export type DrawQueryVariables = Exact<{
   address?: InputMaybe<Scalars["String"]["input"]>;
   disputeID?: InputMaybe<Scalars["String"]["input"]>;
+  roundID?: InputMaybe<Scalars["String"]["input"]>;
 }>;
 
 export type DrawQuery = { __typename?: "Query"; draws: Array<{ __typename?: "Draw"; voteID: any }> };
@@ -4142,6 +4145,15 @@ export const DisputeDetailsDocument = {
                 { kind: "Field", name: { kind: "Name", value: "period" } },
                 { kind: "Field", name: { kind: "Name", value: "ruled" } },
                 { kind: "Field", name: { kind: "Name", value: "lastPeriodChange" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "currentRound" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [{ kind: "Field", name: { kind: "Name", value: "id" } }],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "currentRoundIndex" } },
               ],
             },
           },
@@ -4168,6 +4180,11 @@ export const DrawDocument = {
           variable: { kind: "Variable", name: { kind: "Name", value: "disputeID" } },
           type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
         },
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "roundID" } },
+          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
+        },
       ],
       selectionSet: {
         kind: "SelectionSet",
@@ -4191,6 +4208,11 @@ export const DrawDocument = {
                       kind: "ObjectField",
                       name: { kind: "Name", value: "juror" },
                       value: { kind: "Variable", name: { kind: "Name", value: "address" } },
+                    },
+                    {
+                      kind: "ObjectField",
+                      name: { kind: "Name", value: "round" },
+                      value: { kind: "Variable", name: { kind: "Name", value: "roundID" } },
                     },
                   ],
                 },
