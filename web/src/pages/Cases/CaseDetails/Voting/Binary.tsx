@@ -1,12 +1,13 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { Button, Textarea } from "@kleros/ui-components-library";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
-import { wrapWithToast } from "utils/wrapWithToast";
 import { useWalletClient } from "wagmi";
-import { EnsureChain } from "components/EnsureChain";
+import { Button, Textarea } from "@kleros/ui-components-library";
 import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
+import { wrapWithToast } from "utils/wrapWithToast";
+import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { EnsureChain } from "components/EnsureChain";
 
 const Container = styled.div`
   width: 100%;
@@ -43,11 +44,12 @@ const RefuseToArbitrateContainer = styled.div`
   justify-content: center;
 `;
 
-const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
+const Binary: React.FC<{ arbitrable: `0x${string}`; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
   const { id } = useParams();
   const parsedDisputeID = BigInt(id ?? 0);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
+  const { data: disputeData } = useDisputeDetailsQuery(id);
   const [chosenOption, setChosenOption] = useState(-1);
   const [isSending, setIsSending] = useState(false);
   const [justification, setJustification] = useState("");
@@ -58,7 +60,13 @@ const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({ arbitrab
     setChosenOption(voteOption);
     const { request } = await prepareWriteDisputeKitClassic({
       functionName: "castVote",
-      args: [parsedDisputeID, parsedVoteIDs, BigInt(voteOption), 0n, justification],
+      args: [
+        parsedDisputeID,
+        parsedVoteIDs,
+        BigInt(voteOption),
+        BigInt(disputeData?.dispute?.currentRoundIndex),
+        justification,
+      ],
     });
     if (walletClient) {
       wrapWithToast(walletClient.writeContract(request)).finally(() => {

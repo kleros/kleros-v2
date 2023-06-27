@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "@kleros/kleros-v2-contracts": "workspace:^",
-    "@kleros/ui-components-library": "^1.9.2",
+    "@kleros/ui-components-library": "^2.5.2",
     "@sentry/react": "^7.55.2",
     "@sentry/tracing": "^7.55.2",
     "@types/react-modal": "^3.16.0",
