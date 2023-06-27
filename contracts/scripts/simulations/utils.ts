@@ -25,13 +25,7 @@ export const getContracts = async (hre) => {
   const pnk = (await hre.ethers.getContract("PNK")) as PNK;
   const randomizerRng = (await hre.ethers.getContract("RandomizerRNG")) as RandomizerRNG;
   const arbitrable = (await hre.ethers.getContract("ArbitrableExampleEthFee")) as ArbitrableExampleEthFee;
-  let randomizerMock: RandomizerMock | undefined;
-
-  try {
-    randomizerMock = (await hre.ethers.getContract("RandomizerMock")) as RandomizerMock;
-  } catch (error) {
-    console.log("RandomizerMock contract not found");
-  }
+  const randomizerMock = (await hre.ethers.getContract("RandomizerMock").catch(() => undefined)) as RandomizerMock;
 
   return {
     core,
