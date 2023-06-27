@@ -85,9 +85,9 @@ const stats: IStat[] = [
   {
     title: "ETH paid to Jurors",
     coinId: 1,
-    getText: (data) => commify(formatEther(data?.paidETH)),
+    getText: (data) => commify(formatEther(BigInt(data?.paidETH))),
     getSubtext: (data, coinPrice) =>
-      (parseInt(formatUnits(data?.paidETH, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
+      (Number(formatUnits(data?.paidETH, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
     color: "blue",
     icon: EthereumIcon,
   },

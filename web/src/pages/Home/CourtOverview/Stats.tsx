@@ -50,7 +50,7 @@ const stats: IStat[] = [
     coinId: 1,
     getText: (counters) => commify(formatEther(getLastOrZero(counters, "paidETH"))),
     getSubtext: (counters, coinPrice) =>
-      (parseInt(formatUnits(getLastOrZero(counters, "paidETH"), 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
+      (Number(formatUnits(getLastOrZero(counters, "paidETH"), 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
     color: "blue",
     icon: EthereumIcon,
   },
