@@ -2,16 +2,13 @@ import { parseUnits } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import getContractAddress from "../deploy-helpers/getContractAddress";
+import { KlerosCore__factory } from "../typechain-types";
 
 enum ForeignChains {
   GNOSIS_MAINNET = 100,
   GNOSIS_CHIADO = 10200,
   HARDHAT = 31337,
 }
-
-const wethByChain = new Map<ForeignChains, string>([
-  [ForeignChains.GNOSIS_MAINNET, "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1"],
-]);
 
 const ONE_GWEI = parseUnits("1", "gwei");
 
@@ -41,47 +38,25 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const veaOutbox = await deployments.get("VeaOutboxArbToGnosisDevnet");
   console.log("Using VeaOutboxArbToGnosisDevnet at %s", veaOutbox.address);
 
-  if (!wethByChain.get(chainId)) {
-    const weth = await deploy("WETH", {
-      from: deployer,
-      log: true,
-      maxFeePerGas: ONE_GWEI,
-      maxPriorityFeePerGas: ONE_GWEI,
-    });
-
-    wethByChain.set(ForeignChains[ForeignChains[chainId]], weth.address);
-
-    await deploy("WETHFaucet", {
-      from: deployer,
-      contract: "Faucet",
-      args: [weth.address],
-      log: true,
-      maxFeePerGas: ONE_GWEI,
-      maxPriorityFeePerGas: ONE_GWEI,
-    });
-  }
-
-  const wethAddress = wethByChain.get(ForeignChains[ForeignChains[chainId]]);
   const homeChainId = (await homeChainProvider.getNetwork()).chainId;
   const homeChainIdAsBytes32 = hexZeroPad(hexlify(homeChainId), 32);
-
   await deploy("ForeignGatewayOnGnosis", {
     from: deployer,
-    contract: "ForeignGatewayOnGnosis",
-    args: [deployer, veaOutbox.address, homeChainIdAsBytes32, homeGatewayAddress, wethAddress],
+    contract: "ForeignGateway",
+    args: [deployer, veaOutbox.address, homeChainIdAsBytes32, homeGatewayAddress],
     log: true,
     maxFeePerGas: ONE_GWEI,
     maxPriorityFeePerGas: ONE_GWEI,
   });
 
   // TODO: disable the gateway until fully initialized with the correct fees OR allow disputeCreators to add funds again if necessary.
-  await execute(
-    "ForeignGatewayOnGnosis",
-    { from: deployer, log: true },
-    "changeCourtJurorFee",
-    0,
-    ethers.utils.parseEther("0.00001")
-  );
+  const coreDeployment = await hre.companionNetworks.home.deployments.get("KlerosCore");
+  const core = await KlerosCore__factory.connect(coreDeployment.address, homeChainProvider);
+  // TODO: set up the correct fees for the FORKING_COURT
+  const courtId = await core.GENERAL_COURT();
+  const fee = (await core.courts(courtId)).feeForJuror;
+  await execute("ForeignGatewayOnGnosis", { from: deployer, log: true }, "changeCourtJurorFee", courtId, fee);
+  // TODO: set up the correct fees for the lower courts
 };
 
 deployForeignGateway.tags = ["ForeignGatewayOnGnosis"];

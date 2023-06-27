@@ -10,9 +10,9 @@
 
 pragma solidity 0.8.18;
 
-import "../arbitration/KlerosCore.sol";
-import "./ISortitionModule.sol";
-import "../arbitration/IDisputeKit.sol";
+import "./KlerosCore.sol";
+import "./interfaces/ISortitionModule.sol";
+import "./interfaces/IDisputeKit.sol";
 import "../rng/RNG.sol";
 
 /// @title SortitionModule

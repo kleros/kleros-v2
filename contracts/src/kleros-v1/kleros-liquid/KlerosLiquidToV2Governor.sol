@@ -4,42 +4,60 @@ pragma solidity 0.8.18;
 
 import "../interfaces/IKlerosLiquid.sol";
 import "../interfaces/ITokenController.sol";
-import "../../arbitration/IArbitrable.sol";
-import "../../arbitration/IArbitrator.sol";
+import {IArbitratorV2, IArbitrableV2} from "../../arbitration/interfaces/IArbitratorV2.sol";
 
 interface IPinakion {
     function balanceOf(address who) external view returns (uint256);
 }
 
-contract KlerosLiquidToV2Governor is IArbitrable, ITokenController {
+contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
+    // ************************************* //
+    // *         Enums / Structs           * //
+    // ************************************* //
+
     struct DisputeData {
         uint256 klerosLiquidDisputeID;
         bool ruled;
     }
 
-    IArbitrator public immutable foreignGateway;
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
+
+    IArbitratorV2 public immutable foreignGateway;
     IKlerosLiquid public immutable klerosLiquid;
     address public governor;
-
     mapping(uint256 => uint256) public klerosLiquidDisputeIDtoGatewayDisputeID;
     mapping(uint256 => DisputeData) public disputes; // disputes[gatewayDisputeID]
     mapping(address => uint256) public frozenTokens; // frozenTokens[account] locked token which shouldn't have been blocked.
     mapping(uint256 => mapping(uint256 => bool)) public isDisputeNotified; // isDisputeNotified[disputeID][roundID] used to track the notification of frozen tokens.
+
+    // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
 
     modifier onlyByGovernor() {
         require(governor == msg.sender);
         _;
     }
 
+    // ************************************* //
+    // *            Constructor            * //
+    // ************************************* //
+
     /// @dev Constructor. Before this contract is made the new governor of KlerosLiquid, the evidence period of all subcourts has to be set to uint(-1).
     /// @param _klerosLiquid The trusted arbitrator to resolve potential disputes.
     /// @param _governor The trusted governor of the contract.
     /// @param _foreignGateway The trusted gateway that acts as an arbitrator, relaying disputes to v2.
-    constructor(IKlerosLiquid _klerosLiquid, address _governor, IArbitrator _foreignGateway) {
+    constructor(IKlerosLiquid _klerosLiquid, address _governor, IArbitratorV2 _foreignGateway) {
         klerosLiquid = _klerosLiquid;
         governor = _governor;
         foreignGateway = _foreignGateway;
     }
+
+    // ************************************* //
+    // *             Governance            * //
+    // ************************************* //
 
     /// @dev Lets the governor call anything on behalf of the contract.
     /// @param _destination The destination of the call.
@@ -59,6 +77,10 @@ contract KlerosLiquidToV2Governor is IArbitrable, ITokenController {
     function changeGovernor(address _governor) external onlyByGovernor {
         governor = _governor;
     }
+
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
 
     /// @dev Relays disputes from KlerosLiquid to Kleros v2. Only disputes in the evidence period of the initial round can be realyed.
     /// @param _disputeID The ID of the dispute as defined in KlerosLiquid.
@@ -89,11 +111,8 @@ contract KlerosLiquidToV2Governor is IArbitrable, ITokenController {
         dispute.klerosLiquidDisputeID = _disputeID;
     }
 
-    /// @dev Give a ruling for a dispute. Can only be called by the arbitrator. TRUSTED.
-    /// Triggers rule() from KlerosLiquid to the arbitrable contract which created the dispute.
-    /// @param _disputeID ID of the dispute in the arbitrator contract.
-    /// @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Refused to arbitrate".
-    function rule(uint256 _disputeID, uint256 _ruling) public {
+    /// @inheritdoc IArbitrableV2
+    function rule(uint256 _disputeID, uint256 _ruling) public override {
         require(msg.sender == address(foreignGateway), "Not the arbitrator.");
         DisputeData storage dispute = disputes[_disputeID];
         require(dispute.klerosLiquidDisputeID != 0, "Dispute does not exist.");
@@ -105,7 +124,7 @@ contract KlerosLiquidToV2Governor is IArbitrable, ITokenController {
 
         IKlerosLiquid.Dispute memory klerosLiquidDispute = klerosLiquid.disputes(dispute.klerosLiquidDisputeID);
 
-        bytes memory data = abi.encodeCall(IArbitrable.rule, (dispute.klerosLiquidDisputeID, _ruling));
+        bytes memory data = abi.encodeCall(IArbitrableV2.rule, (dispute.klerosLiquidDisputeID, _ruling));
         klerosLiquid.executeGovernorProposal(klerosLiquidDispute.arbitrated, 0, data);
     }
 
@@ -133,19 +152,13 @@ contract KlerosLiquidToV2Governor is IArbitrable, ITokenController {
         }
     }
 
-    /// @dev Called when `_owner` sends ether to the MiniMe Token contract.
-    /// @param _owner The address that sent the ether to create tokens.
-    /// @return allowed Whether the operation should be allowed or not.
-    function proxyPayment(address _owner) external payable returns (bool allowed) {
+    /// @inheritdoc ITokenController
+    function proxyPayment(address /*_owner*/) external payable override returns (bool allowed) {
         allowed = false;
     }
 
-    /// @dev Notifies the controller about a token transfer allowing the controller to react if desired.
-    /// @param _from The origin of the transfer.
-    /// @param _to The destination of the transfer.
-    /// @param _amount The amount of the transfer.
-    /// @return allowed Whether the operation should be allowed or not.
-    function onTransfer(address _from, address _to, uint256 _amount) external returns (bool allowed) {
+    /// @inheritdoc ITokenController
+    function onTransfer(address _from, address /*_to*/, uint256 _amount) external view override returns (bool allowed) {
         if (klerosLiquid.lockInsolventTransfers()) {
             // Never block penalties or rewards.
             IPinakion pinakion = IPinakion(klerosLiquid.pinakion());
@@ -159,12 +172,12 @@ contract KlerosLiquidToV2Governor is IArbitrable, ITokenController {
         allowed = true;
     }
 
-    /// @dev Notifies the controller about an approval allowing the controller to react if desired.
-    /// @param _owner The address that calls `approve()`.
-    /// @param _spender The spender in the `approve()` call.
-    /// @param _amount The amount in the `approve()` call.
-    /// @return allowed Whether the operation should be allowed or not.
-    function onApprove(address _owner, address _spender, uint256 _amount) external returns (bool allowed) {
+    /// @inheritdoc ITokenController
+    function onApprove(
+        address /*_owner*/,
+        address /*_spender*/,
+        uint256 /*_amount*/
+    ) external pure override returns (bool allowed) {
         allowed = true;
     }
 

@@ -9,19 +9,11 @@ import {
   Withdrawal,
 } from "../generated/DisputeKitClassic/DisputeKitClassic";
 import { KlerosCore } from "../generated/KlerosCore/KlerosCore";
-import {
-  ClassicDispute,
-  ClassicEvidence,
-  ClassicRound,
-} from "../generated/schema";
+import { ClassicDispute, ClassicEvidence, ClassicRound } from "../generated/schema";
 import { ensureClassicContributionFromEvent } from "./entities/ClassicContribution";
 import { createClassicDisputeFromEvent } from "./entities/ClassicDispute";
 import { ensureClassicEvidenceGroup } from "./entities/ClassicEvidenceGroup";
-import {
-  createClassicRound,
-  updateChoiceFundingFromContributionEvent,
-  updateCounts,
-} from "./entities/ClassicRound";
+import { createClassicRound, updateChoiceFundingFromContributionEvent, updateCounts } from "./entities/ClassicRound";
 import { createClassicVote } from "./entities/ClassicVote";
 import { ONE, ZERO } from "./utils";
 
@@ -35,14 +27,12 @@ export function handleDisputeCreation(event: DisputeCreation): void {
 }
 
 export function handleEvidenceEvent(event: EvidenceEvent): void {
-  const evidenceGroupID = event.params._evidenceGroupID.toString();
+  const evidenceGroupID = event.params._externalDisputeID.toString();
   const evidenceGroup = ensureClassicEvidenceGroup(evidenceGroupID);
   const evidenceIndex = evidenceGroup.nextEvidenceIndex;
   evidenceGroup.nextEvidenceIndex = evidenceGroup.nextEvidenceIndex.plus(ONE);
   evidenceGroup.save();
-  const evidence = new ClassicEvidence(
-    `${evidenceGroupID}-${evidenceIndex.toString()}`
-  );
+  const evidence = new ClassicEvidence(`${evidenceGroupID}-${evidenceIndex.toString()}`);
   evidence.evidence = event.params._evidence;
   evidence.evidenceGroup = evidenceGroupID.toString();
   evidence.sender = event.params._party.toHexString();
@@ -54,8 +44,7 @@ export function handleJustificationEvent(event: JustificationEvent): void {
   const classicDisputeID = `${DISPUTEKIT_ID}-${coreDisputeID}`;
   const classicDispute = ClassicDispute.load(classicDisputeID);
   if (!classicDispute) return;
-  const currentLocalRoundID =
-    classicDispute.id + "-" + classicDispute.currentLocalRoundIndex.toString();
+  const currentLocalRoundID = classicDispute.id + "-" + classicDispute.currentLocalRoundIndex.toString();
   updateCounts(currentLocalRoundID, event.params._choice);
   createClassicVote(currentLocalRoundID, event);
 }
@@ -85,9 +74,7 @@ export function handleChoiceFunded(event: ChoiceFunded): void {
     const appealCost = klerosCore.appealCost(BigInt.fromString(coreDisputeID));
     localRound.feeRewards = localRound.feeRewards.minus(appealCost);
 
-    const localDispute = ClassicDispute.load(
-      `${DISPUTEKIT_ID}-${coreDisputeID}`
-    );
+    const localDispute = ClassicDispute.load(`${DISPUTEKIT_ID}-${coreDisputeID}`);
     if (!localDispute) return;
     const newRoundIndex = localDispute.currentLocalRoundIndex.plus(ONE);
     const numberOfChoices = localDispute.numberOfChoices;

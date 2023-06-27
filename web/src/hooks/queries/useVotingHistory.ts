@@ -1,9 +1,9 @@
 import useSWR from "swr";
-import { gql } from "graphql-request";
-import { VotingHistoryQuery } from "src/graphql/generated";
+import { graphql } from "src/graphql";
+import { VotingHistoryQuery } from "src/graphql/graphql";
 export type { VotingHistoryQuery };
 
-const votingHistoryQuery = gql`
+const votingHistoryQuery = graphql(`
   query VotingHistory($disputeID: ID!) {
     dispute(id: $disputeID) {
       id
@@ -29,10 +29,10 @@ const votingHistoryQuery = gql`
       }
     }
   }
-`;
+`);
 
-export const useVotingHistory = (disputeID?: string): { data: typeof result; error: any; isValidating: boolean } => {
-  const { data, error, isValidating } = useSWR(() =>
+export const useVotingHistory = (disputeID?: string) => {
+  return useSWR<VotingHistoryQuery>(() =>
     typeof disputeID !== "undefined"
       ? {
           query: votingHistoryQuery,
@@ -40,6 +40,4 @@ export const useVotingHistory = (disputeID?: string): { data: typeof result; err
         }
       : false
   );
-  const result = data ? (data as VotingHistoryQuery) : undefined;
-  return { data: result, error, isValidating };
 };

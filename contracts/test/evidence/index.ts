@@ -21,7 +21,7 @@ describe("Home Evidence contract", async () => {
   const bondTimeout = 60 * 10;
   const totalCostMultiplier = 15000;
   const initialDepositMultiplier = 625;
-  const metaEvidenceUri = "https://kleros.io";
+  const disputeTemplate = '{ "disputeTemplate": "foo"}';
   const MULTIPLIER_DIVISOR = BigNumber.from(10000);
   const totalCost = BigNumber.from(arbitrationFee).mul(BigNumber.from(totalCostMultiplier)).div(MULTIPLIER_DIVISOR);
   const minRequiredDeposit = totalCost.mul(BigNumber.from(initialDepositMultiplier)).div(MULTIPLIER_DIVISOR);
@@ -51,7 +51,7 @@ describe("Home Evidence contract", async () => {
       initialDepositMultiplier,
       bondTimeout,
       arbitratorExtraData,
-      metaEvidenceUri
+      disputeTemplate
     );
   });
 
@@ -71,20 +71,18 @@ describe("Home Evidence contract", async () => {
       await evidenceModule.changeBondTimeout(1);
       expect(await evidenceModule.bondTimeout()).to.equal(1);
 
-      const newMetaEvidenceUri = "https://kleros.io/new";
-      let tx = await evidenceModule.changeMetaEvidence(newMetaEvidenceUri);
+      const newDisputeTemplate = '{ "disputeTemplate": "bar"}';
+      let tx = await evidenceModule.changeDisputeTemplate(newDisputeTemplate);
       let receipt = await tx.wait();
       let lastArbitratorIndex = await evidenceModule.getCurrentArbitratorIndex();
       let newArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex);
       let oldArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex.sub(BigNumber.from(1)));
 
-      expect(newArbitratorData.metaEvidenceUpdates).to.equal(
-        oldArbitratorData.metaEvidenceUpdates.add(BigNumber.from(1))
-      );
+      expect(newArbitratorData.disputeTemplateId).to.equal(oldArbitratorData.disputeTemplateId.add(BigNumber.from(1)));
       expect(newArbitratorData.arbitratorExtraData).to.equal(oldArbitratorData.arbitratorExtraData);
-      const [newMetaEvidenceUpdates, newMetaEvidence] = getEmittedEvent("MetaEvidence", receipt).args;
-      expect(newMetaEvidence).to.equal(newMetaEvidenceUri, "Wrong MetaEvidence.");
-      expect(newMetaEvidenceUpdates).to.equal(newArbitratorData.metaEvidenceUpdates, "Wrong MetaEvidence ID.");
+      const [_templateId, _, _templateData] = getEmittedEvent("DisputeTemplate", receipt).args;
+      expect(_templateData).to.equal(newDisputeTemplate, "Wrong Template Data.");
+      expect(_templateId).to.equal(newArbitratorData.disputeTemplateId, "Wrong Template ID.");
 
       const newArbitratorExtraData = "0x86";
       await evidenceModule.changeArbitratorExtraData(newArbitratorExtraData);
@@ -109,7 +107,7 @@ describe("Home Evidence contract", async () => {
         "The caller must be the governor"
       );
 
-      await expect(evidenceModule.connect(user2).changeMetaEvidence(metaEvidenceUri)).to.be.revertedWith(
+      await expect(evidenceModule.connect(user2).changeDisputeTemplate(disputeTemplate)).to.be.revertedWith(
         "The caller must be the governor"
       );
 
@@ -128,11 +126,11 @@ describe("Home Evidence contract", async () => {
       const receipt = await tx.wait();
       const evidenceID = ethers.utils.solidityKeccak256(["uint", "string"], [1234, newEvidence]);
 
-      const [arbitratorAddress, evidenceGroupID, submitter, evidenceStr] = getEmittedEvent("Evidence", receipt).args;
-      expect(arbitratorAddress).to.equal(arbitrator.address, "Wrong arbitrator.");
-      expect(evidenceGroupID).to.equal(1234, "Wrong evidence group ID.");
-      expect(submitter).to.equal(user1.address, "Wrong submitter.");
-      expect(evidenceStr).to.equal(newEvidence, "Wrong evidence message.");
+      const [_arbitrator, _externalDisputeID, _party, _evidence] = getEmittedEvent("ModeratedEvidence", receipt).args;
+      expect(_arbitrator).to.equal(arbitrator.address, "Wrong arbitrator.");
+      expect(_externalDisputeID).to.equal(1234, "Wrong external dispute ID.");
+      expect(_party).to.equal(user1.address, "Wrong submitter.");
+      expect(_evidence).to.equal(newEvidence, "Wrong evidence message.");
 
       let contributions = await evidenceModule.getContributions(evidenceID, 0, user1.address);
       expect(contributions[0]).to.equal(ZERO); // it's 1am and to.deep.equal() won't work, can't be bothered
@@ -141,7 +139,7 @@ describe("Home Evidence contract", async () => {
       expect(contributions.length).to.equal(3);
     });
 
-    it("Should not allowed the same evidence twice for the same evidence group id.", async () => {
+    it("Should not allowed the same evidence twice for the same external dispute id.", async () => {
       const newEvidence = "Irrefutable evidence";
       await evidenceModule.submitEvidence(1234, newEvidence, {
         value: minRequiredDeposit,
@@ -235,11 +233,14 @@ describe("Home Evidence contract", async () => {
       });
       let receipt = await tx.wait();
 
-      let [_arbitrator, disputeID, metaEvidenceID, _evidenceID] = getEmittedEvent("Dispute", receipt).args;
+      let [_arbitrator, _arbitrableDisputeID, _externalDisputeID, _templateId, _templateUri] = getEmittedEvent(
+        "DisputeRequest",
+        receipt
+      ).args;
       expect(_arbitrator).to.equal(arbitrator.address, "Wrong arbitrator.");
-      expect(disputeID).to.equal(0, "Wrong dispute ID.");
-      expect(metaEvidenceID).to.equal(0, "Wrong meta-evidence ID.");
-      expect(_evidenceID).to.equal(evidenceID, "Wrong evidence ID.");
+      expect(_arbitrableDisputeID).to.equal(0, "Wrong dispute ID.");
+      expect(_templateId).to.equal(0, "Wrong template ID.");
+      expect(_externalDisputeID).to.equal(evidenceID, "Wrong external dispute ID.");
 
       await expect(
         evidenceModule.connect(user2).moderate(evidenceID, Party.Moderator, {
