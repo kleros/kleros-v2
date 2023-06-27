@@ -75,7 +75,7 @@ export function handleDisputeCreation(event: DisputeCreation): void {
   court.save();
   createDisputeFromEvent(event);
   const roundInfo = contract.getRoundInfo(disputeID, ZERO);
-  createRoundFromRoundInfo(disputeID, ZERO, court.feeForJuror, roundInfo);
+  createRoundFromRoundInfo(disputeID, ZERO, roundInfo);
   const arbitrable = event.params._arbitrable.toHexString();
   updateArbitrableCases(arbitrable, ONE);
   updateCases(ONE, event.block.timestamp);
@@ -117,7 +117,7 @@ export function handleAppealDecision(event: AppealDecision): void {
   dispute.save();
   const feeForJuror = getFeeForJuror(dispute.court);
   const roundInfo = contract.getRoundInfo(disputeID, newRoundIndex);
-  createRoundFromRoundInfo(disputeID, newRoundIndex, feeForJuror, roundInfo);
+  createRoundFromRoundInfo(disputeID, newRoundIndex, roundInfo);
 }
 
 export function handleDraw(event: DrawEvent): void {
