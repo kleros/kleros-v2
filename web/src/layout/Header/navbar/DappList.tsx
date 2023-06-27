@@ -10,6 +10,7 @@ import Linguo from "svgs/icons/linguo.svg";
 import POH from "svgs/icons/poh-image.png";
 import Tokens from "svgs/icons/tokens.svg";
 import Product from "./Product";
+import { Overlay } from "components/Overlay";
 
 interface IDappList {
   toggleSolution: () => void;
@@ -29,32 +30,32 @@ const ITEMS = [
   {
     text: "Tokens",
     Icon: Tokens,
-    url: "https://tokens.kleros.io/",
+    url: "https://tokens.kleros.io",
   },
   {
     text: "POH",
     Icon: POH,
-    url: "https://www.proofofhumanity.id",
+    url: "https://app.proofofhumanity.id",
   },
   {
     text: "Curate",
     Icon: Curate,
-    url: "https://curate.kleros.io/",
+    url: "https://curate.kleros.io",
   },
   {
     text: "Resolver",
     Icon: Resolver,
-    url: "https://resolve.kleros.io/",
+    url: "https://resolve.kleros.io",
   },
   {
     text: "Linguo",
     Icon: Linguo,
-    url: "https://linguo.kleros.io/",
+    url: "https://linguo.kleros.io",
   },
   {
     text: "Governor",
     Icon: Governor,
-    url: "https://governor.kleros.io/",
+    url: "https://governor.kleros.io",
   },
 ];
 
@@ -102,16 +103,6 @@ const ItemsDiv = styled.div`
   min-width: 300px;
   width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-`;
-
-const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: ${({ theme }) => theme.blackLowOpacity};
-  z-index: 1;
 `;
 
 const DappList: React.FC<IDappList> = ({ toggleSolution }) => {

@@ -38,16 +38,14 @@ export function handleCourtCreated(event: CourtCreated): void {
 }
 
 export function handleCourtModified(event: CourtModified): void {
-  const contract = KlerosCore.bind(event.address);
-  const courtContractState = contract.courts(event.params._courtID);
   const court = Court.load(event.params._courtID.toString());
   if (!court) return;
-  court.hiddenVotes = courtContractState.value1;
-  court.minStake = courtContractState.value2;
-  court.alpha = courtContractState.value3;
-  court.feeForJuror = courtContractState.value4;
-  court.jurorsForCourtJump = courtContractState.value5;
-  court.timesPerPeriod = contract.getTimesPerPeriod(event.params._courtID);
+  court.hiddenVotes = event.params._hiddenVotes;
+  court.minStake = event.params._minStake;
+  court.alpha = event.params._alpha;
+  court.feeForJuror = event.params._feeForJuror;
+  court.jurorsForCourtJump = event.params._jurorsForCourtJump;
+  court.timesPerPeriod = event.params._timesPerPeriod;
   court.save();
 }
 
@@ -77,7 +75,7 @@ export function handleDisputeCreation(event: DisputeCreation): void {
   court.save();
   createDisputeFromEvent(event);
   const roundInfo = contract.getRoundInfo(disputeID, ZERO);
-  createRoundFromRoundInfo(disputeID, ZERO, court.feeForJuror, roundInfo);
+  createRoundFromRoundInfo(disputeID, ZERO, roundInfo);
   const arbitrable = event.params._arbitrable.toHexString();
   updateArbitrableCases(arbitrable, ONE);
   updateCases(ONE, event.block.timestamp);
@@ -119,7 +117,7 @@ export function handleAppealDecision(event: AppealDecision): void {
   dispute.save();
   const feeForJuror = getFeeForJuror(dispute.court);
   const roundInfo = contract.getRoundInfo(disputeID, newRoundIndex);
-  createRoundFromRoundInfo(disputeID, newRoundIndex, feeForJuror, roundInfo);
+  createRoundFromRoundInfo(disputeID, newRoundIndex, roundInfo);
 }
 
 export function handleDraw(event: DrawEvent): void {
@@ -154,20 +152,20 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   createTokenAndEthShiftFromEvent(event);
   const jurorAddress = event.params._account.toHexString();
   const disputeID = event.params._disputeID.toString();
-  const tokenAmount = event.params._tokenAmount;
-  const ethAmount = event.params._ethAmount;
-  if (tokenAmount.gt(ZERO)) {
-    updateRedistributedPNK(tokenAmount, event.block.timestamp);
-  }
-  updatePaidETH(ethAmount, event.block.timestamp);
+  const pnkAmount = event.params._pnkAmount;
+  const feeAmount = event.params._feeAmount;
   const dispute = Dispute.load(disputeID);
   if (!dispute) return;
   const court = Court.load(dispute.court);
   if (!court) return;
   updateJurorStake(jurorAddress, court.id, KlerosCore.bind(event.address), event.block.timestamp);
-  resolveUserDispute(jurorAddress, tokenAmount, disputeID);
-  court.paidETH = court.paidETH.plus(ethAmount);
-  court.paidPNK = court.paidPNK.plus(tokenAmount);
-  court.save();
+  resolveUserDispute(jurorAddress, pnkAmount, disputeID);
+  court.paidETH = court.paidETH.plus(feeAmount);
+  if (pnkAmount.gt(ZERO)) {
+    court.paidPNK = court.paidPNK.plus(pnkAmount);
+    updateRedistributedPNK(pnkAmount, event.block.timestamp);
+  }
+  updatePaidETH(feeAmount, event.block.timestamp);
   updatePenalty(event);
+  court.save();
 }

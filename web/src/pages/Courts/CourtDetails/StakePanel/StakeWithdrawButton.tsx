@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
-import { usePNKAllowance } from "hooks/queries/usePNKAllowance";
 import {
   getKlerosCore,
   useKlerosCoreSetStake,
@@ -12,8 +11,10 @@ import {
   usePreparePnkIncreaseAllowance,
 } from "hooks/contracts/generated";
 import { useJurorBalance } from "queries/useJurorBalance";
+import { usePNKAllowance } from "queries/usePNKAllowance";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
+import { EnsureChain } from "components/EnsureChain";
 
 export enum ActionType {
   allowance = "allowance",
@@ -104,12 +105,14 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, se
 
   const { text, checkDisabled, onClick } = buttonProps[isAllowance ? ActionType.allowance : action];
   return (
-    <Button
-      text={text}
-      isLoading={isSending}
-      disabled={isSending || parsedAmount == 0n || !!isUndefined(targetStake) || checkDisabled()}
-      onClick={onClick}
-    />
+    <EnsureChain>
+      <Button
+        text={text}
+        isLoading={isSending}
+        disabled={isSending || parsedAmount == 0n || !!isUndefined(targetStake) || checkDisabled()}
+        onClick={onClick}
+      />
+    </EnsureChain>
   );
 };
 

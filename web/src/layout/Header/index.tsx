@@ -9,7 +9,7 @@ import { useFocusOutside } from "hooks/useFocusOutside";
 
 const Container = styled.div`
   position: sticky;
-  z-index: 9999;
+  z-index: 1;
   top: 0;
   width: 100%;
   height: 64px;

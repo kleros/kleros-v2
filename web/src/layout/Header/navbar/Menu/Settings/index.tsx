@@ -4,6 +4,7 @@ import { Tabs } from "@kleros/ui-components-library";
 import General from "./General";
 import SendMeNotifications from "./SendMeNotifications";
 import { useFocusOutside } from "hooks/useFocusOutside";
+import { Overlay } from "components/Overlay";
 
 const Container = styled.div`
   display: flex;
@@ -30,16 +31,6 @@ const StyledSettingsText = styled.div`
 const StyledTabs = styled(Tabs)`
   padding: 0 calc(8px + (32 - 8) * ((100vw - 300px) / (1250 - 300)));
   width: calc(300px + (424 - 300) * ((100vw - 300px) / (1250 - 300)));
-`;
-
-const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: ${({ theme }) => theme.blackLowOpacity};
-  z-index: 1;
 `;
 
 const TABS = [

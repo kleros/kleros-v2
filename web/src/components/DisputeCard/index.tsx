@@ -7,7 +7,7 @@ import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 import { CasesPageQuery } from "queries/useCasesQuery";
 import { useCourtPolicy } from "queries/useCourtPolicy";
-import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
+import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 
@@ -16,6 +16,10 @@ const StyledCard = styled(Card)`
   min-width: 312px;
   width: auto;
   height: 260px;
+
+  .react-loading-skeleton {
+    z-index: 0;
+  }
 `;
 
 const Container = styled.div`
@@ -47,11 +51,11 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
     currentPeriodIndex === 4
       ? lastPeriodChange
       : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, court.timesPerPeriod);
-  const { data: metaEvidence } = useGetMetaEvidence(id, arbitrated.id);
-  const title = metaEvidence ? metaEvidence.title : <Skeleton />;
+  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrated.id);
+  const title = disputeTemplate ? disputeTemplate.title : <Skeleton />;
   const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
-  const category = metaEvidence ? metaEvidence.category : undefined;
+  const category = disputeTemplate ? disputeTemplate.category : undefined;
   const navigate = useNavigate();
   return (
     <StyledCard hover onClick={() => navigate(`/cases/${id.toString()}`)}>

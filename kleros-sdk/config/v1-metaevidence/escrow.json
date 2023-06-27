@@ -1,0 +1,38 @@
+{
+  "subCategory": "General Service",
+  "arbitrableAddress": "0x0d67440946949fe293b45c52efd8a9b3d51e2522",
+  "title": "Jenkins the Valet Yacht Licensing Contract",
+  "description": "Agreement between Bostonbob (bb) and AC (ac). \n\nbb will pay a one time yacht leasing fee of 4 eth to ac.\n\nIn return, ac will lease his yacht to bb by submitting bb’s MAYC and his back story in the Jenkins the valet author portal. Ac’s WAGMI Yacht #1047 will be attached to bb’s MAYC #1353, casting 1353 for a role in the book. \n\nIn addition, a royalty split will be put into place between the two parties. 80% for ac/20% for bb (managed and paid out by Jenkins team at a later date)\n\n*All names in contract are Twitter profile names as of 12/8.",
+  "sender": "0x45E6564631809F5531fd008f4829f1C5B0c29A7f",
+  "receiver": "0x45E6564631809F5531fd008f4829f1C5B0c29A7f",
+  "amount": "4",
+  "timeout": 8640000000000000,
+  "token": {
+    "name": "Ethereum",
+    "ticker": "ETH",
+    "symbolURI": "/static/media/eth.33901ab6.png",
+    "address": null,
+    "decimals": 18
+  },
+  "extraData": {
+    "Contract Information": "Agreement between Bostonbob (bb) and AC (ac). \n\nbb will pay a one time yacht leasing fee of 4 eth to ac.\n\nIn return, ac will lease his yacht to bb by submitting bb’s MAYC and his back story in the Jenkins the valet author portal. Ac’s WAGMI Yacht #1047 will be attached to bb’s MAYC #1353, casting 1353 for a role in the book. \n\nIn addition, a royalty split will be put into place between the two parties. 80% for ac/20% for bb (managed and paid out by Jenkins team at a later date)\n\n*All names in contract are Twitter profile names as of 12/8."
+  },
+  "invoice": true,
+  "category": "Escrow",
+  "question": "Which party abided by terms of the contract?",
+  "rulingOptions": {
+    "type": "single-select",
+    "titles": [
+      "Refund Sender",
+      "Pay Receiver"
+    ],
+    "descriptions": [
+      "Select to return funds to the Sender",
+      "Select to release funds to the Receiver"
+    ]
+  },
+  "evidenceDisplayInterfaceURI": "/ipfs/QmfPnVdcCjApHdiCC8wAmyg5iR246JvVuQGQjQYgtF8gZU/index.html",
+  "aliases": {
+    "0x45E6564631809F5531fd008f4829f1C5B0c29A7f": "receiver"
+  }
+}

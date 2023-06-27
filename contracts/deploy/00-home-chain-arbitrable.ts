@@ -1,5 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
+import disputeTemplate from "../../kleros-sdk/config/v2-disputetemplate/simple/NewDisputeTemplate.simple.json";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -17,13 +18,19 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   console.log("Deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   const klerosCore = await deployments.get("KlerosCore");
+  const extraData =
+    "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
+  const weth = await deployments.get("WETH");
 
-  await deploy("ArbitrableExampleEthFee", {
+  await deploy("ArbitrableExample", {
     from: deployer,
-    args: [
-      klerosCore.address,
-      "https://cloudflare-ipfs.com/ipfs/bafkreifteme6tusnjwyzajk75fyvzdmtyycxctf7yhfijb6rfigz3n4lvq",
-    ],
+    args: [klerosCore.address, disputeTemplate, extraData, weth.address],
+    log: true,
+  });
+
+  await deploy("DisputeResolver", {
+    from: deployer,
+    args: [klerosCore.address],
     log: true,
   });
 };

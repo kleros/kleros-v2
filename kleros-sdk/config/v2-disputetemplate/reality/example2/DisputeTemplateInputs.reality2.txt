@@ -1,0 +1,5 @@
+Who will win the FORMULA 1 AWS GRAN PREMIO DE ESPAÑA 2023 ?
+single-select
+,{"id":"0x00","title":"Invalid/Refuse to Arbitrate","reserved":true},{"id":"0x01","title":"Max VERSTAPPEN","reserved":false},{"id":"0x02","title":"Sergio PEREZ","reserved":false},{"id":"0x03","title":"Fernando ALONSO","reserved":false}
+0xe78996a233895be74a66f451f1019ca9734205cc
+0xc2a52d38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b42

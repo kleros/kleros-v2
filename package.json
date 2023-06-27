@@ -21,7 +21,7 @@
     "contracts",
     "dynamic-script",
     "evidence-display",
-    "kleros-ts",
+    "kleros-sdk",
     "subgraph",
     "web",
     "eslint-config",

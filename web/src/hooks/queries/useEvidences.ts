@@ -1,9 +1,9 @@
 import useSWR from "swr";
-import { gql } from "graphql-request";
-import { EvidencesQuery } from "src/graphql/generated";
+import { graphql } from "src/graphql";
+import { EvidencesQuery } from "src/graphql/graphql";
 export type { EvidencesQuery };
 
-const evidencesQuery = gql`
+const evidencesQuery = graphql(`
   query Evidences($evidenceGroup: String) {
     evidences(where: { evidenceGroup: $evidenceGroup }, orderBy: id, orderDirection: asc) {
       id
@@ -13,10 +13,10 @@ const evidencesQuery = gql`
       }
     }
   }
-`;
+`);
 
-export const useEvidences = (evidenceGroup?: string): { data: typeof result; error: any; isValidating: boolean } => {
-  const { data, error, isValidating } = useSWR(() =>
+export const useEvidences = (evidenceGroup?: string) => {
+  return useSWR<EvidencesQuery>(() =>
     typeof evidenceGroup !== "undefined"
       ? {
           query: evidencesQuery,
@@ -24,6 +24,4 @@ export const useEvidences = (evidenceGroup?: string): { data: typeof result; err
         }
       : false
   );
-  const result = data ? (data as EvidencesQuery) : undefined;
-  return { data: result, error, isValidating };
 };

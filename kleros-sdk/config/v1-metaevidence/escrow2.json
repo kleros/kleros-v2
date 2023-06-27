@@ -1,0 +1,39 @@
+{
+  "subCategory": "General Service",
+  "arbitrableAddress": "0x0d67440946949fe293b45c52efd8a9b3d51e2522",
+  "title": "Mente Vs Cooperative Kleros",
+  "description": "\n\nThe challenger believes due to a UI bug they were not able to challenge case 164 and this dispute is against the cooperative for potential lost winnings.\n\n",
+  "sender": "0x96559b33D6A9042b1C34b3e8978Ca922146cB79a",
+  "receiver": "0xa07f5Ffd166Ca3Ff7567e96a0430F1496cdb470a",
+  "amount": "5",
+  "timeout": 8640000000000000,
+  "token": {
+    "name": "Ethereum",
+    "ticker": "ETH",
+    "symbolURI": "/static/media/eth.33901ab6.png",
+    "address": null,
+    "decimals": 18
+  },
+  "extraData": {
+    "Contract Information": "\n\nThe challenger believes due to a UI bug they were not able to challenge case 164 and this dispute is against the cooperative for potential lost winnings.\n\n"
+  },
+  "invoice": false,
+  "category": "Escrow",
+  "question": "Which party abided by terms of the contract?",
+  "rulingOptions": {
+    "type": "single-select",
+    "titles": [
+      "Refund Sender",
+      "Pay Receiver"
+    ],
+    "descriptions": [
+      "Select to return funds to the Sender",
+      "Select to release funds to the Receiver"
+    ]
+  },
+  "evidenceDisplayInterfaceURI": "/ipfs/QmfPnVdcCjApHdiCC8wAmyg5iR246JvVuQGQjQYgtF8gZU/index.html",
+  "aliases": {
+    "0x96559b33D6A9042b1C34b3e8978Ca922146cB79a": "sender",
+    "0xa07f5Ffd166Ca3Ff7567e96a0430F1496cdb470a": "receiver"
+  }
+}

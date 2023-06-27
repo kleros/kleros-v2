@@ -1,0 +1,11 @@
+{
+  "externalDisputeID": "0x2f0c53ed326eb88ef6a01ff83df458c1cebe5b9ee5e8509525189d9422e28983", // hash(itemID, requestID)
+  "arbitrableDisputeID": "1557",
+  "templateID": "47"
+}
+
+/**
+  SubmissionChallenged._submissionID = 0x35998E80B3fa93cFD957D616e6f09cd830e9787c
+  SubmissionChallenged._requestID = 1
+  Dispute._evidenceGroupID = hash(_submissionID, _requestID) = 0x2f0c53ed326eb88ef6a01ff83df458c1cebe5b9ee5e8509525189d9422e28983
+**/

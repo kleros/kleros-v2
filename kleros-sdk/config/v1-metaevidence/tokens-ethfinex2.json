@@ -1,0 +1,28 @@
+{
+  "category": "Curated Lists",
+  "title": "Remove Ethfinex Badge From Token",
+  "description": "Someone requested to remove the the Ethfinex badge from a token.\n\nDescription\n\nTokens with the Ethfinex badge can participate in the Ethfinex Community Vote to become traded on the Ethfinex platform. To be eligible to receive the badge, the project and it's associated token must comply with the minimum set of criteria defined in the criteria document.",
+  "aliases": {
+    "0x988b3a538b618c7a603e1c11ab82cd16dbe28069": "Arbitrator"
+  },
+  "question": "Should the badge be removed from the token?",
+  "rulingOptions": {
+    "titles": [
+      "Yes, Remove It",
+      "No, Don't Remove It"
+    ],
+    "descriptions": [
+      "Select this if you think the token and/or project do(es) not comply with the required criteria and the badge should be removed.",
+      "Select this if you think the token and project comply with the required criteria and the badge should be kept."
+    ]
+  },
+  "fileURI": "/ipfs/QmVzwEBpGsbFY3UgyjA3SxgGXx3r5gFGynNpaoXkp6jenu/Ethfinex%20Court%20Policy.pdf",
+  "evidenceDisplayInterfaceURL": "https://badge-evidence.netlify.com",
+  "evidenceDisplayInterfaceHash": "Bccx3a2NSSihnHisifP6H67uYw7BeECZkXKYnBB8Vb9zbACNwzLWFyBbyudkJuGZMtNphEnyuwq5zup8ewdAyEmhjb",
+  "variables": {
+    "title": "Ethfinex Listing",
+    "symbolURI": "/ipfs/QmW3JLmpHnf7qNT4FYaguAF1Awma8adk81jUTuFWY1HVge/ethfinex.svg",
+    "description": "Tokens compliant with the Ethfinex Listing Criteria are eligible to participate in the Ethfinex Community Vote and become traded on the Ethfinex platform.",
+    "criteriaDescription": "To be eligible to receive the badge, the project and it's associated token must comply with the Ethfinex Listing Criteria."
+  }
+}
