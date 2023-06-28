@@ -13,17 +13,13 @@ export const OPTIONS = {
 
 export async function wrapWithToast(contractWrite: () => Promise<`0x${string}`>, publicClient: any) {
   toast.info("Transaction initiated", OPTIONS);
-  console.log("1 before contractwrite");
-  const { hash } = await contractWrite();
-  console.log("2 after contractwrite, hash:", hash);
+  const hash = await contractWrite();
   await publicClient
     .waitForTransactionReceipt({ hash, confirmations: 2 })
     .then(() => {
-      console.log("3 inside waitfortransactionreceipt");
       toast.success("Transaction mined!", OPTIONS);
     })
     .catch((error) => {
-      console.log("4 inside waitfortransaction catch", error);
       toast.error(error.message, OPTIONS);
     });
 }

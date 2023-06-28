@@ -40,7 +40,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, se
   });
   const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
     enabled: !isUndefined(address),
-    args: [address, id],
+    args: [address ?? "0x", BigInt(id ?? 0)],
     watch: true,
   });
   const { data: allowance } = usePNKAllowance(address);
@@ -59,20 +59,23 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, se
         return jurorBalance[0] - parsedAmount;
       }
     }
-  }, [action, jurorBalance, parsedAmount]);
+    return 0n;
+  }, [jurorBalance, parsedAmount, isAllowance, isStaking]);
 
   const klerosCore = getKlerosCore({});
   const { config: increaseAllowanceConfig } = usePreparePnkIncreaseAllowance({
-    enabled: !isUndefined(klerosCore) && !isUndefined(targetStake) && !isUndefined(allowance),
+    enabled: isAllowance && !isUndefined(klerosCore) && !isUndefined(targetStake) && !isUndefined(allowance),
     args: [klerosCore?.address, BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
   });
   const { writeAsync: increaseAllowance } = usePnkIncreaseAllowance(increaseAllowanceConfig);
   const handleAllowance = () => {
     if (!isUndefined(increaseAllowance)) {
       setIsSending(true);
-      wrapWithToast(increaseAllowance, publicClient).finally(() => {
-        setIsSending(false);
-      });
+      wrapWithToast(async () => await increaseAllowance().then((response) => response.hash), publicClient).finally(
+        () => {
+          setIsSending(false);
+        }
+      );
     }
   };
 
@@ -84,7 +87,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, se
   const handleStake = () => {
     if (typeof setStake !== "undefined") {
       setIsSending(true);
-      wrapWithToast(setStake, publicClient)
+      wrapWithToast(async () => await setStake().then((response) => response.hash), publicClient)
         .then(() => {
           setAmount("");
         })

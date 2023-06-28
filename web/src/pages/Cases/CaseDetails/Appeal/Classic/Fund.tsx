@@ -79,7 +79,7 @@ const Fund: React.FC = () => {
             onClick={() => {
               if (fundAppeal) {
                 setIsSending(true);
-                wrapWithToast(fundAppeal, publicClient)
+                wrapWithToast(async () => await fundAppeal().then((response) => response.hash), publicClient)
                   .then(() => {
                     setAmount("");
                     close();
