@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { toast } from "react-toastify";
 import Modal from "react-modal";
-import { Textarea, Button, FileUploader, Field } from "@kleros/ui-components-library";
+import { Textarea, Button, FileUploader } from "@kleros/ui-components-library";
 import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 import { useWalletClient, usePublicClient } from "wagmi";
@@ -11,7 +11,7 @@ import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 
 const SubmitEvidenceModal: React.FC<{
   isOpen: boolean;
-  evidenceGroup: string;
+  evidenceGroup: bigint;
   close: () => void;
 }> = ({ isOpen, evidenceGroup, close }) => {
   const { data: walletClient } = useWalletClient();
