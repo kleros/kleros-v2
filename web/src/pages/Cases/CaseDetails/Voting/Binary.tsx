@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { useWalletClient } from "wagmi";
+import { useWalletClient, usePublicClient } from "wagmi";
 import { Button, Textarea } from "@kleros/ui-components-library";
 import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 import { wrapWithToast } from "utils/wrapWithToast";
@@ -54,6 +54,7 @@ const Binary: React.FC<{ arbitrable: `0x${string}`; voteIDs: string[] }> = ({ ar
   const [isSending, setIsSending] = useState(false);
   const [justification, setJustification] = useState("");
   const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
 
   const handleVote = async (voteOption: number) => {
     setIsSending(true);
@@ -69,7 +70,7 @@ const Binary: React.FC<{ arbitrable: `0x${string}`; voteIDs: string[] }> = ({ ar
       ],
     });
     if (walletClient) {
-      wrapWithToast(walletClient.writeContract(request)).finally(() => {
+      wrapWithToast(async () => await walletClient.writeContract(request), publicClient).finally(() => {
         setChosenOption(-1);
         setIsSending(false);
       });

@@ -11,11 +11,12 @@ export const OPTIONS = {
   theme: "colored" as Theme,
 };
 
-export async function wrapWithToast(tx: Promise<any>) {
+export async function wrapWithToast(contractWrite: () => Promise<`0x${string}`>, publicClient: any) {
   toast.info("Transaction initiated", OPTIONS);
-  await tx
-    .then(async (tx) => {
-      await tx.wait(2);
+  const hash = await contractWrite();
+  await publicClient
+    .waitForTransactionReceipt({ hash, confirmations: 2 })
+    .then(() => {
       toast.success("Transaction mined!", OPTIONS);
     })
     .catch((error) => {
