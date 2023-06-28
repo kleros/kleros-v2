@@ -5,6 +5,7 @@ import { Web3Modal } from "@web3modal/react";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { arbitrumGoerli, gnosisChiado } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
+import { useToggleTheme } from "hooks/useToggleThemeContext";
 
 const chains = [arbitrumGoerli, gnosisChiado];
 const projectId = process.env.WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf9281e218217";
@@ -22,11 +23,14 @@ const wagmiConfig = createConfig({
 
 const ethereumClient = new EthereumClient(wagmiConfig, chains);
 
-const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <>
-    <WagmiConfig config={wagmiConfig}> {children} </WagmiConfig>
-    <Web3Modal {...{ projectId, ethereumClient }} />
-  </>
-);
+const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [theme] = useToggleTheme();
+  return (
+    <>
+      <WagmiConfig config={wagmiConfig}> {children} </WagmiConfig>
+      <Web3Modal themeMode={theme as "light" | "dark"} {...{ projectId, ethereumClient }} />
+    </>
+  );
+};
 
 export default Web3Provider;
