@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount, useBalance, usePublicClient } from "wagmi";
 import { useDebounce } from "react-use";
 import { Field, Button } from "@kleros/ui-components-library";
 import { wrapWithToast } from "utils/wrapWithToast";
@@ -49,6 +49,7 @@ const Fund: React.FC = () => {
     address,
     watch: true,
   });
+  const publicClient = usePublicClient();
 
   const [amount, setAmount] = useState("");
   const [debouncedAmount, setDebouncedAmount] = useState("");
@@ -78,7 +79,7 @@ const Fund: React.FC = () => {
             onClick={() => {
               if (fundAppeal) {
                 setIsSending(true);
-                wrapWithToast(fundAppeal())
+                wrapWithToast(async () => await fundAppeal().then((response) => response.hash), publicClient)
                   .then(() => {
                     setAmount("");
                     close();
