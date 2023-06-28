@@ -4,7 +4,7 @@ import { OPTIONS } from "utils/wrapWithToast";
 export function uploadFormDataToIPFS(formData: FormData): Promise<Response> {
   return toast.promise(
     new Promise((resolve, reject) =>
-      fetch("/.netlify/functions/uploadToIPFS?dapp=court&key=kleros-V2&operation=evidence", {
+      fetch("/.netlify/functions/uploadToIPFS?dapp=court&key=kleros-v2&operation=evidence", {
         method: "POST",
         body: formData,
       }).then(async (response) =>
