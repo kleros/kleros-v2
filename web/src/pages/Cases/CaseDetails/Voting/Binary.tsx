@@ -70,7 +70,7 @@ const Binary: React.FC<{ arbitrable: `0x${string}`; voteIDs: string[] }> = ({ ar
       ],
     });
     if (walletClient) {
-      wrapWithToast(() => walletClient.writeContract(request), publicClient).finally(() => {
+      wrapWithToast(async () => await walletClient.writeContract(request), publicClient).finally(() => {
         setChosenOption(-1);
         setIsSending(false);
       });

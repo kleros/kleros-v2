@@ -42,10 +42,12 @@ const SubmitEvidenceModal: React.FC<{
                       functionName: "submitEvidence",
                       args: [BigInt(evidenceGroup), cid],
                     });
-                    await wrapWithToast(() => walletClient.writeContract(request), publicClient).then(() => {
-                      setMessage("");
-                      close();
-                    });
+                    await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(
+                      () => {
+                        setMessage("");
+                        close();
+                      }
+                    );
                   }
                 })
                 .catch()
