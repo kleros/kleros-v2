@@ -1,0 +1,6 @@
+{
+  "name": "xDai Javascript Court",
+  "description": "**Court purpose** \n\n If the disputed code is of significant size (> 700 code lines), parties in the dispute should point out specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.",
+  "summary": "",
+  "requiredSkills": "This court requires a good level of javascript. Jurors who are not javascript intermediate developers are advised to stake into this court only if they know the main frameworks/libraries (ExpressJs, React, EthersJs…) and be comfortable with testing, APIs or languages to interact with databases."
+}

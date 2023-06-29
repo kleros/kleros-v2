@@ -1,0 +1,6 @@
+{
+  "name": "xDai Solidity Court",
+  "description": "**Court purpose** \n\n If the disputed code is of significant size (> 500 code lines), parties in the dispute should point out specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.",
+  "summary": "",
+  "requiredSkills": "This court requires a good level of solidity. Jurors who are not solidity intermediate developers are advised to stake into this court only if they also know how to make relatively simple contracts, know the main solidity hacks and can compute the complexity of simple functions."
+}

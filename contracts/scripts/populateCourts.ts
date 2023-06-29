@@ -3,6 +3,7 @@ import { KlerosCore } from "../typechain-types";
 import { BigNumber } from "ethers";
 import courtsV1Mainnet from "../config/courts.v1.mainnet.json";
 import courtsV1GnosisChain from "../config/courts.v1.gnosischain.json";
+import courtsV2Arbitrum from "../config/courts.v2.json";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -11,9 +12,15 @@ enum HomeChains {
   HARDHAT = 31337,
 }
 
+enum Sources {
+  V1_MAINNET,
+  V1_GNOSIS,
+  V2,
+}
+
+const from = Sources.V2;
 const TESTING_PARAMETERS = true;
-const FROM_GNOSIS = true;
-const ETH_USD = BigNumber.from(1500);
+const ETH_USD = BigNumber.from(1800);
 const DISPUTE_KIT_CLASSIC = BigNumber.from(1);
 const TEN_THOUSAND_GWEI = BigNumber.from(10).pow(13);
 
@@ -39,6 +46,7 @@ async function main() {
 
   const parametersProductionToTesting = (court) => ({
     ...court,
+    hiddenVotes: false,
     minStake: truncateWei(BigNumber.from(court.minStake).div(10000)),
     feeForJuror: truncateWei(ethers.utils.parseEther("0.00001")),
     timesPerPeriod: [120, 120, 120, 120],
@@ -51,9 +59,27 @@ async function main() {
     parent: BigNumber.from(court.parent).add(1),
   });
 
-  let courtsV1 = FROM_GNOSIS ? courtsV1GnosisChain.map(parametersUsdToEth) : courtsV1Mainnet;
-  courtsV1 = TESTING_PARAMETERS ? courtsV1.map(parametersProductionToTesting) : courtsV1;
-  const courtsV2 = courtsV1.map(parametersV1ToV2);
+  let courtsV2;
+  switch (+from) {
+    case Sources.V1_MAINNET: {
+      let courtsV1 = courtsV1Mainnet;
+      courtsV1 = TESTING_PARAMETERS ? courtsV1.map(parametersProductionToTesting) : courtsV1;
+      courtsV2 = courtsV1.map(parametersV1ToV2);
+      break;
+    }
+    case Sources.V1_GNOSIS: {
+      let courtsV1 = courtsV1GnosisChain.map(parametersUsdToEth);
+      courtsV1 = TESTING_PARAMETERS ? courtsV1.map(parametersProductionToTesting) : courtsV1;
+      courtsV2 = courtsV1.map(parametersV1ToV2);
+      break;
+    }
+    case Sources.V2: {
+      courtsV2 = TESTING_PARAMETERS ? courtsV2Arbitrum.map(parametersProductionToTesting) : courtsV2Arbitrum;
+      break;
+    }
+    default:
+      return;
+  }
 
   console.log("courtsV2 = %O", courtsV2);
 
@@ -67,61 +93,73 @@ async function main() {
 
       // Court.parent and sortitionSumTreeK cannot be changed.
 
+      let change = false;
+
       if (courtPresent.hiddenVotes !== court.hiddenVotes) {
+        change = true;
         console.log(
           "Court %d: changing hiddenVotes from %d to %d",
           court.id,
           courtPresent.hiddenVotes,
           court.hiddenVotes
         );
-        await core.changeCourtHiddenVotes(court.id, court.hiddenVotes);
       }
 
       if (!courtPresent.minStake.eq(court.minStake)) {
+        change = true;
         console.log("Court %d: changing minStake from %d to %d", court.id, courtPresent.minStake, court.minStake);
-        await core.changeCourtMinStake(court.id, court.minStake);
       }
 
       if (!courtPresent.alpha.eq(court.alpha)) {
+        change = true;
         console.log("Court %d: changing alpha from %d to %d", court.id, courtPresent.alpha, court.alpha);
-        await core.changeCourtAlpha(court.id, court.alpha);
       }
 
       if (!courtPresent.feeForJuror.eq(court.feeForJuror)) {
+        change = true;
         console.log(
           "Court %d: changing feeForJuror from %d to %d",
           court.id,
           courtPresent.feeForJuror,
           court.feeForJuror
         );
-        await core.changeCourtJurorFee(court.id, court.feeForJuror);
       }
 
       if (!courtPresent.jurorsForCourtJump.eq(court.jurorsForCourtJump)) {
+        change = true;
         console.log(
           "Court %d: changing jurorsForCourtJump from %d to %d",
           court.id,
           courtPresent.jurorsForCourtJump,
           court.jurorsForCourtJump
         );
-        await core.changeCourtJurorsForJump(court.id, court.jurorsForCourtJump);
       }
 
       const timesPerPeriodPresent = (await core.getTimesPerPeriod(court.id)).map((bn) => bn.toNumber());
       if (!timesPerPeriodPresent.every((val, index) => val === court.timesPerPeriod[index])) {
+        change = true;
         console.log(
           "Court %d: changing timesPerPeriod from %O to %O",
           court.id,
           timesPerPeriodPresent,
           court.timesPerPeriod
         );
-        await core.changeCourtTimesPerPeriod(court.id, [
-          court.timesPerPeriod[0],
-          court.timesPerPeriod[1],
-          court.timesPerPeriod[2],
-          court.timesPerPeriod[3],
-        ]);
       }
+
+      if (!change) {
+        console.log("Court %d: no parameter change", court.id);
+        continue;
+      }
+
+      await core.changeCourtParameters(
+        court.id,
+        court.hiddenVotes,
+        court.minStake,
+        court.alpha,
+        court.feeForJuror,
+        court.jurorsForCourtJump,
+        court.timesPerPeriod
+      );
     } else {
       console.log("Court %d not found, creating it with", court.id, court);
       await core.createCourt(
@@ -132,7 +170,7 @@ async function main() {
         court.feeForJuror,
         court.jurorsForCourtJump,
         [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
-        5, // Not accessible on-chain, but has always been set to the same value so far.
+        ethers.utils.hexlify(5), // Not accessible on-chain, but has always been set to the same value so far.
         [DISPUTE_KIT_CLASSIC]
       );
     }
