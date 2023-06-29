@@ -16,7 +16,7 @@ const format = (value: bigint | undefined): string => (value !== undefined ? for
 const formatBigIntPercentage = (numerator: bigint, denominator: bigint): string => {
   const decimalPlaces = 2;
   const factor = BigInt(10) ** BigInt(decimalPlaces);
-  const intermediate = denominator !== 0n && (numerator * factor * 100n) / BigInt(denominator);
+  const intermediate = (numerator * factor * 100n) / BigInt(denominator);
 
   let result = intermediate.toString();
 
@@ -41,7 +41,7 @@ const JurorBalanceDisplay = () => {
 
   const stakedByAllJurors = courtDetails?.court?.stake;
   const jurorOdds =
-    !isUndefined(stakedByAllJurors) && !isUndefined(jurorBalance)
+    !isUndefined(stakedByAllJurors) && !isUndefined(jurorBalance) && stakedByAllJurors !== 0n
       ? formatBigIntPercentage(jurorBalance[0], stakedByAllJurors)
       : "0.00%";
 
