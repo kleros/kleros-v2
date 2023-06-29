@@ -13,7 +13,7 @@ import { useJurorBalance } from "queries/useJurorBalance";
 
 const format = (value: bigint | undefined): string => (value !== undefined ? formatEther(value) : "0");
 
-const formatBigIntPercentage = (numerator: bigint, denominator: bigint): string => {
+const formatBigIntPercentage = (numerator: bigint, denominator: string): string => {
   const decimalPlaces = 2;
   const factor = BigInt(10) ** BigInt(decimalPlaces);
   const intermediate = (numerator * factor * 100n) / BigInt(denominator);
