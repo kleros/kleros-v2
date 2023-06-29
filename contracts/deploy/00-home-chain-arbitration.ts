@@ -35,15 +35,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   console.log("Deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   if (!pnkByChain.get(chainId)) {
-    const erc20Address = await deployERC20(hre, deployer, "PNK");
+    const erc20Address = await deployERC20AndFaucet(hre, deployer, "PNK");
     pnkByChain.set(HomeChains[HomeChains[chainId]], erc20Address);
   }
   if (!daiByChain.get(chainId)) {
-    const erc20Address = await deployERC20(hre, deployer, "DAI");
+    const erc20Address = await deployERC20AndFaucet(hre, deployer, "DAI");
     daiByChain.set(HomeChains[HomeChains[chainId]], erc20Address);
   }
   if (!wethByChain.get(chainId)) {
-    const erc20Address = await deployERC20(hre, deployer, "WETH");
+    const erc20Address = await deployERC20AndFaucet(hre, deployer, "WETH");
     wethByChain.set(HomeChains[HomeChains[chainId]], erc20Address);
   }
 
@@ -134,12 +134,18 @@ deployArbitration.skip = async ({ getChainId }) => {
   return !HomeChains[chainId];
 };
 
-const deployERC20 = async (hre: HardhatRuntimeEnvironment, deployer: string, ticker: string) => {
+const deployERC20AndFaucet = async (hre: HardhatRuntimeEnvironment, deployer: string, ticker: string) => {
   const { deploy } = hre.deployments;
   const erc20 = await deploy(ticker, {
     from: deployer,
     contract: "TestERC20",
     args: [ticker, ticker],
+    log: true,
+  });
+  await deploy(`${ticker}Faucet`, {
+    from: deployer,
+    contract: "Faucet",
+    args: [erc20.address],
     log: true,
   });
   console.log("Deployed %s at %s", ticker, erc20.address);
