@@ -32,7 +32,8 @@
     "docgen": "hardhat docgen",
     "docserve": "scripts/docPreprocess.sh && forge doc --serve",
     "docbuild": "scripts/docPreprocess.sh && forge doc --build --out dist && scripts/docPostprocess.sh",
-    "publish": "yarn npm publish --access public --tag $(cat package.json | jq .version)"
+    "publish": "yarn npm publish --access public --tag $(cat package.json | jq .version)",
+    "tenderly-verify": "hardhat tenderly:verify"
   },
   "devDependencies": {
     "@kleros/kleros-v2-eslint-config": "workspace:^",
