@@ -25,17 +25,21 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 #### Arbitrum Goerli
 
-- [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610/token-transfers)
+- [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610)
+- [ArbitrableExample](https://goerli.arbiscan.io/address/0xb0338F2E3D832F3086e5681EAD329520A8d88CD6)
 - [BlockHashRNG](https://goerli.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
 - [DAI](https://goerli.arbiscan.io/address/0x70A704Dce4cCC00568Cc142C86D07Ec71C944a39)
+- [DAIFaucet](https://goerli.arbiscan.io/address/0x82C3FF40B0DB79b84bB97Df7792D759bDfAD1eAb)
 - [DisputeKitClassic](https://goerli.arbiscan.io/address/0x0245A93ABd9c5b2d767B2D98cE6d5e612208E474)
 - [DisputeResolver](https://goerli.arbiscan.io/address/0xcDC05c8d2EEEe384359Bd22E8631528B6b0564e9)
-- [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0xD60CD2151e118Dd796efcb1ceFFcF892226F9b3a)
+- [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0x1807b0049D412a3208d840D74725e404a55E297E)
 - [KlerosCore](https://goerli.arbiscan.io/address/0x8Af82E2F8890acb4AB84cbaB3c4C4Eb3E965CF24)
+- [PNKFaucet](https://goerli.arbiscan.io/address/0xcc9dA0E6Fe98934781A57C861C939AC36989990d)
 - [PolicyRegistry](https://goerli.arbiscan.io/address/0xED503aBA65B28D81444294D1eAa5d84CeFdC2C58)
 - [RandomizerRNG](https://goerli.arbiscan.io/address/0xa90f7D2e35718FDE9AD96c8B6667AFcAa4BEfd4d)
 - [SortitionModule](https://goerli.arbiscan.io/address/0x5Ae75Db8B66B574b2c5C29eE4D32cc9Fe62bfdEE)
 - [WETH](https://goerli.arbiscan.io/address/0xddE1b84E43505432Fdf5F810ebB9373dD37e9230)
+- [WETHFaucet](https://goerli.arbiscan.io/address/0x87Efe303Cbc866320c14805C4D6cd04f426FBB17)
 
 ## Getting Started
 
@@ -217,6 +221,6 @@ scripts/generateDeploymentArtifact.sh gnosischain 0xf8d1677c8a0c961938bf2f9adc3f
 Ensure that your `$TENDERLY_PROJECT` and `$TENDERLY_USERNAME` is set correctly in `.env`.
 
 ```bash
-yarn hardhat --network goerli tenderly:push
-yarn hardhat --network arbitrumGoerli tenderly:push
+yarn tenderly-verify --network goerli
+yarn tenderly-verify --network arbitrumGoerli
 ```
