@@ -142,13 +142,20 @@ const deployERC20AndFaucet = async (hre: HardhatRuntimeEnvironment, deployer: st
     args: [ticker, ticker],
     log: true,
   });
-  await deploy(`${ticker}Faucet`, {
+  const faucet = await deploy(`${ticker}Faucet`, {
     from: deployer,
     contract: "Faucet",
     args: [erc20.address],
     log: true,
   });
-  console.log("Deployed %s at %s", ticker, erc20.address);
+  const funding = hre.ethers.utils.parseUnits("1000000", "ether");
+  const erc20Instance = await hre.ethers.getContract(ticker);
+  await erc20Instance.balanceOf(deployer).then((balance) => {
+    if (balance.gte(funding)) {
+      console.log("Funding %sFaucet with %d", ticker, funding);
+      return erc20Instance.transfer(faucet.address, funding);
+    }
+  });
   return erc20.address;
 };
 
