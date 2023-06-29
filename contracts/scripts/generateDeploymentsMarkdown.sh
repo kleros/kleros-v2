@@ -23,5 +23,5 @@ generate "$SCRIPT_DIR/../deployments/goerli" "https://goerli.etherscan.io/addres
 echo
 echo "#### Arbitrum Goerli"
 echo
-echo "- [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610/token-transfers)"
+echo "- [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610)"
 generate "$SCRIPT_DIR/../deployments/arbitrumGoerli" "https://goerli.arbiscan.io/address/"

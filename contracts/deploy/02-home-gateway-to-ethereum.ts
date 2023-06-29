@@ -29,7 +29,14 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await deploy("HomeGatewayToEthereum", {
     from: deployer,
     contract: "HomeGateway",
-    args: [deployer, klerosCore.address, veaInbox.address, foreignChainId, foreignGateway.address],
+    args: [
+      deployer,
+      klerosCore.address,
+      veaInbox.address,
+      foreignChainId,
+      foreignGateway.address,
+      ethers.constants.AddressZero, // feeToken is ETH
+    ],
     log: true,
   }); // nonce+0
 };

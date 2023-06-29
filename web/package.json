@@ -74,7 +74,7 @@
     "chartjs-adapter-moment": "^1.0.1",
     "core-js": "^3.31.0",
     "ethers": "^5.7.2",
-    "graphql": "^16.6.0",
+    "graphql": "^16.7.1",
     "graphql-request": "~5.1.0",
     "moment": "^2.29.4",
     "parcel": "~2.8.0",
