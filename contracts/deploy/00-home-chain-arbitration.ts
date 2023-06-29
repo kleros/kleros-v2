@@ -35,15 +35,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   console.log("Deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   if (!pnkByChain.get(chainId)) {
-    const erc20Address = await deployERC20(hre, deployer, "PNK");
+    const erc20Address = await deployERC20AndFaucet(hre, deployer, "PNK");
     pnkByChain.set(HomeChains[HomeChains[chainId]], erc20Address);
   }
   if (!daiByChain.get(chainId)) {
-    const erc20Address = await deployERC20(hre, deployer, "DAI");
+    const erc20Address = await deployERC20AndFaucet(hre, deployer, "DAI");
     daiByChain.set(HomeChains[HomeChains[chainId]], erc20Address);
   }
   if (!wethByChain.get(chainId)) {
-    const erc20Address = await deployERC20(hre, deployer, "WETH");
+    const erc20Address = await deployERC20AndFaucet(hre, deployer, "WETH");
     wethByChain.set(HomeChains[HomeChains[chainId]], erc20Address);
   }
 
@@ -101,7 +101,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       false,
       [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      0xfa, // Extra data for sortition module will return the default value of K
+      ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
     ],
     log: true,
@@ -134,7 +134,7 @@ deployArbitration.skip = async ({ getChainId }) => {
   return !HomeChains[chainId];
 };
 
-const deployERC20 = async (hre: HardhatRuntimeEnvironment, deployer: string, ticker: string) => {
+const deployERC20AndFaucet = async (hre: HardhatRuntimeEnvironment, deployer: string, ticker: string) => {
   const { deploy } = hre.deployments;
   const erc20 = await deploy(ticker, {
     from: deployer,
@@ -142,7 +142,20 @@ const deployERC20 = async (hre: HardhatRuntimeEnvironment, deployer: string, tic
     args: [ticker, ticker],
     log: true,
   });
-  console.log("Deployed %s at %s", ticker, erc20.address);
+  const faucet = await deploy(`${ticker}Faucet`, {
+    from: deployer,
+    contract: "Faucet",
+    args: [erc20.address],
+    log: true,
+  });
+  const funding = hre.ethers.utils.parseUnits("1000000", "ether");
+  const erc20Instance = await hre.ethers.getContract(ticker);
+  await erc20Instance.balanceOf(deployer).then((balance) => {
+    if (balance.gte(funding)) {
+      console.log("Funding %sFaucet with %d", ticker, funding);
+      return erc20Instance.transfer(faucet.address, funding);
+    }
+  });
   return erc20.address;
 };
 

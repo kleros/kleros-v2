@@ -8,8 +8,9 @@ import { Field } from "@kleros/ui-components-library";
 
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { usePNKBalance } from "queries/usePNKBalance";
-import { useJurorBalance } from "queries/useJurorBalance";
+import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
+import { isUndefined } from "utils/index";
 import { EnsureChain } from "components/EnsureChain";
 
 const StyledField = styled(Field)`
@@ -50,7 +51,11 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, isSending, setIsSending
   const { address } = useAccount();
   const { data: balance } = usePNKBalance(address);
   const parsedBalance = formatEther(balance ?? 0n);
-  const { data: jurorBalance } = useJurorBalance(address, id);
+  const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
+    enabled: !isUndefined(address),
+    args: [address, id],
+    watch: true,
+  });
   const parsedStake = formatEther(jurorBalance?.[0] || 0n);
   const isStaking = action === ActionType.stake;
 
