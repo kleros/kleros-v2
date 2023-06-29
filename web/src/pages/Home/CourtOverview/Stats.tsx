@@ -81,20 +81,19 @@ const stats: IStat[] = [
     icon: BalanceIcon,
   },
 ];
+
+const coinIdToAddress = {
+  0: KLEROS_CONTRACT_ADDRESS,
+  1: WETH_CONTRACT_ADDRESS,
+};
+
 const Stats = () => {
   const { data } = useHomePageContext();
   const { prices: pricesData } = useCoinPrice([KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS]);
   return (
     <StyledCard>
       {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
-        let coinPrice;
-        if (!isUndefined(pricesData)) {
-          if (coinId === 0) {
-            coinPrice = pricesData[KLEROS_CONTRACT_ADDRESS].price;
-          } else if (coinId === 1) {
-            coinPrice = pricesData[WETH_CONTRACT_ADDRESS].price;
-          }
-        }
+        const coinPrice = !isUndefined(pricesData) ? pricesData[coinIdToAddress[coinId!]]?.price : undefined;
         return (
           <StatDisplay
             key={i}
