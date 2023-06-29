@@ -16,7 +16,7 @@ const format = (value: bigint | undefined): string => (value !== undefined ? for
 const formatBigIntPercentage = (numerator: bigint, denominator: bigint): string => {
   const decimalPlaces = 2;
   const factor = BigInt(10) ** BigInt(decimalPlaces);
-  const intermediate = (numerator * factor * 100n) / BigInt(denominator);
+  const intermediate = denominator !== 0n && (numerator * factor * 100n) / BigInt(denominator);
 
   let result = intermediate.toString();
 
