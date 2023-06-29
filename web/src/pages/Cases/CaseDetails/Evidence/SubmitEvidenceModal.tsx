@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { toast } from "react-toastify";
 import Modal from "react-modal";
-import { Textarea, Button } from "@kleros/ui-components-library";
+import { Textarea, Button, FileUploader } from "@kleros/ui-components-library";
 import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 import { useWalletClient, usePublicClient } from "wagmi";
@@ -11,17 +11,19 @@ import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 
 const SubmitEvidenceModal: React.FC<{
   isOpen: boolean;
-  evidenceGroup: string;
+  evidenceGroup: bigint;
   close: () => void;
 }> = ({ isOpen, evidenceGroup, close }) => {
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
   const [isSending, setIsSending] = useState(false);
   const [message, setMessage] = useState("");
+  const [file, setFile] = useState<File>();
   return (
     <StyledModal {...{ isOpen }}>
       <h1>Submit New Evidence</h1>
       <StyledTextArea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Your Arguments" />
+      <StyledFileUploader callback={(file: File) => setFile(file)} />
       <ButtonArea>
         <Button variant="secondary" disabled={isSending} text="Return" onClick={close} />
         <EnsureChain>
@@ -29,15 +31,15 @@ const SubmitEvidenceModal: React.FC<{
             text="Submit"
             isLoading={isSending}
             disabled={isSending}
-            onClick={() => {
+            onClick={async () => {
               setIsSending(true);
-              const formData = constructEvidence(message);
               toast.info("Uploading to IPFS", toastOptions);
+              const formData = await constructEvidence(message, file);
               uploadFormDataToIPFS(formData)
                 .then(async (res) => {
                   const response = await res.json();
                   if (res.status === 200 && walletClient) {
-                    const cid = "/ipfs/" + response["cid"];
+                    const cid = response["cids"][0];
                     const { request } = await prepareWriteDisputeKitClassic({
                       functionName: "submitEvidence",
                       args: [BigInt(evidenceGroup), cid],
@@ -60,12 +62,21 @@ const SubmitEvidenceModal: React.FC<{
   );
 };
 
-const constructEvidence = (msg: string): FormData => {
+const constructEvidence = async (msg: string, file?: File): Promise<FormData> => {
+  let fileURI: string | undefined = undefined;
+  if (file) {
+    const fileFormData = new FormData();
+    fileFormData.append("data", file, file.name);
+    fileURI = await uploadFormDataToIPFS(fileFormData).then(async (res) => {
+      const response = await res.json();
+      return response["cids"][0];
+    });
+  }
   const formData = new FormData();
-  const file = new File([JSON.stringify({ name: "Evidence", description: msg })], "evidence.json", {
+  const evidenceFile = new File([JSON.stringify({ name: "Evidence", description: msg, fileURI })], "evidence.json", {
     type: "text/plain",
   });
-  formData.append("data", file, file.name);
+  formData.append("data", evidenceFile, evidenceFile.name);
   return formData;
 };
 
@@ -93,6 +104,10 @@ const StyledModal = styled(Modal)`
 const StyledTextArea = styled(Textarea)`
   width: 100%;
   height: 200px;
+`;
+
+const StyledFileUploader = styled(FileUploader)`
+  width: 100%;
 `;
 
 const ButtonArea = styled.div`

@@ -9,9 +9,7 @@ export const SUPPORTED_CHAINS = {
 
 export const DEFAULT_CHAIN = 421613;
 
-export const SUPPORTED_CHAINIDS = Object.keys(SUPPORTED_CHAINS).map((x) =>
-  parseInt(x)
-);
+export const SUPPORTED_CHAINIDS = Object.keys(SUPPORTED_CHAINS).map((x) => parseInt(x));
 
 export const QUERY_CHAINS = {
   10200: {
