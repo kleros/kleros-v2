@@ -23,7 +23,7 @@
     "@graphprotocol/graph-ts": "^0.31.0"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.51.1",
+    "@graphprotocol/graph-cli": "^0.51.2",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "gluegun": "^5.1.2"
