@@ -26,11 +26,12 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 #### Arbitrum Goerli
 
 - [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610/token-transfers)
+- [ArbitrableExample](https://goerli.arbiscan.io/address/0xb0338F2E3D832F3086e5681EAD329520A8d88CD6)
 - [BlockHashRNG](https://goerli.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
 - [DAI](https://goerli.arbiscan.io/address/0x70A704Dce4cCC00568Cc142C86D07Ec71C944a39)
 - [DisputeKitClassic](https://goerli.arbiscan.io/address/0x0245A93ABd9c5b2d767B2D98cE6d5e612208E474)
 - [DisputeResolver](https://goerli.arbiscan.io/address/0xcDC05c8d2EEEe384359Bd22E8631528B6b0564e9)
-- [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0xD60CD2151e118Dd796efcb1ceFFcF892226F9b3a)
+- [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0x1807b0049D412a3208d840D74725e404a55E297E)
 - [KlerosCore](https://goerli.arbiscan.io/address/0x8Af82E2F8890acb4AB84cbaB3c4C4Eb3E965CF24)
 - [PolicyRegistry](https://goerli.arbiscan.io/address/0xED503aBA65B28D81444294D1eAa5d84CeFdC2C58)
 - [RandomizerRNG](https://goerli.arbiscan.io/address/0xa90f7D2e35718FDE9AD96c8B6667AFcAa4BEfd4d)

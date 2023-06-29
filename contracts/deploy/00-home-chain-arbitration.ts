@@ -101,7 +101,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       false,
       [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      0xfa, // Extra data for sortition module will return the default value of K
+      ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
     ],
     log: true,
