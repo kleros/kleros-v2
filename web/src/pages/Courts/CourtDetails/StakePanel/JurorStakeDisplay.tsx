@@ -13,23 +13,19 @@ import { useJurorBalance } from "queries/useJurorBalance";
 
 const format = (value: bigint | undefined): string => (value !== undefined ? formatEther(value) : "0");
 
-const formatBigIntPercentage = (numerator: bigint, denominator: string): string => {
+const formatBigIntPercentage = (numerator: bigint, denominator: bigint): string => {
   const decimalPlaces = 2;
   const factor = BigInt(10) ** BigInt(decimalPlaces);
-  const intermediate = (numerator * factor * 100n) / BigInt(denominator);
-
+  const intermediate = (numerator * factor * 100n) / denominator;
   let result = intermediate.toString();
-
   const pointIndex = result.length - decimalPlaces;
-  const integerPart = result.slice(0, pointIndex);
+  const integerPart = result.slice(0, pointIndex) || "0";
   const decimalPart = result.slice(pointIndex);
-
   if (decimalPart.length > 0) {
     result = `${integerPart}.${decimalPart}%`;
   } else {
     result = `${integerPart}.00%`;
   }
-
   return result;
 };
 
@@ -43,7 +39,7 @@ const JurorBalanceDisplay = () => {
 
   const jurorOdds =
     !isUndefined(stakedByAllJurors) && !isUndefined(jurorBalance) && stakedByAllJurors !== "0"
-      ? formatBigIntPercentage(jurorBalance[0], stakedByAllJurors)
+      ? formatBigIntPercentage(jurorBalance[0], BigInt(stakedByAllJurors))
       : "0.00%";
 
   const data = [
