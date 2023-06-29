@@ -40,8 +40,9 @@ const JurorBalanceDisplay = () => {
   const { data: courtDetails } = useCourtDetails(id);
 
   const stakedByAllJurors = courtDetails?.court?.stake;
+
   const jurorOdds =
-    !isUndefined(stakedByAllJurors) && !isUndefined(jurorBalance) && stakedByAllJurors !== 0n
+    !isUndefined(stakedByAllJurors) && !isUndefined(jurorBalance) && stakedByAllJurors !== "0"
       ? formatBigIntPercentage(jurorBalance[0], stakedByAllJurors)
       : "0.00%";
 
