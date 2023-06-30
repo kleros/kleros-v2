@@ -145,7 +145,7 @@ export function handleStakeSet(event: StakeSet): void {
 }
 
 export function handleStakeDelayed(event: StakeDelayed): void {
-  updateJurorDelayedStake(event.params._address.toString(), event.params._courtID.toString(), event.params._amount);
+  updateJurorDelayedStake(event.params._address.toHexString(), event.params._courtID.toString(), event.params._amount);
 }
 
 export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
