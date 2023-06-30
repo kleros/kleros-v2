@@ -1,73 +1,70 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { toast } from "react-toastify";
 import Modal from "react-modal";
 import { Textarea, Button } from "@kleros/ui-components-library";
-import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
-import { wrapWithToast } from "utils/wrapWithToast";
-import { useConnectedContract } from "hooks/useConnectedContract";
+import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
+import { useWalletClient, usePublicClient } from "wagmi";
+import { EnsureChain } from "components/EnsureChain";
+import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 
 const SubmitEvidenceModal: React.FC<{
   isOpen: boolean;
   evidenceGroup: string;
   close: () => void;
 }> = ({ isOpen, evidenceGroup, close }) => {
-  const disputeKit = useConnectedContract(
-    "DisputeKitClassic"
-  ) as DisputeKitClassic;
+  const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
   const [isSending, setIsSending] = useState(false);
   const [message, setMessage] = useState("");
   return (
     <StyledModal {...{ isOpen }}>
       <h1>Submit New Evidence</h1>
-      <StyledTextArea
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Your Arguments"
-      />
+      <StyledTextArea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Your Arguments" />
       <ButtonArea>
-        <Button
-          variant="secondary"
-          disabled={isSending}
-          text="Return"
-          onClick={close}
-        />
-        <Button
-          text="Submit"
-          isLoading={isSending}
-          disabled={isSending}
-          onClick={() => {
-            setIsSending(true);
-            const formData = constructEvidence(message);
-            uploadFormDataToIPFS(formData)
-              .then(async (res) => {
-                const response = await res.json();
-                if (res.status === 200) {
-                  const cid = "/ipfs/" + response["cid"];
-                  await wrapWithToast(
-                    disputeKit.submitEvidence(evidenceGroup, cid)
-                  ).then(() => {
-                    setMessage("");
-                    close();
-                  });
-                }
-              })
-              .catch()
-              .finally(() => setIsSending(false));
-          }}
-        />
+        <Button variant="secondary" disabled={isSending} text="Return" onClick={close} />
+        <EnsureChain>
+          <Button
+            text="Submit"
+            isLoading={isSending}
+            disabled={isSending}
+            onClick={() => {
+              setIsSending(true);
+              const formData = constructEvidence(message);
+              toast.info("Uploading to IPFS", toastOptions);
+              uploadFormDataToIPFS(formData)
+                .then(async (res) => {
+                  const response = await res.json();
+                  if (res.status === 200 && walletClient) {
+                    const cid = "/ipfs/" + response["cid"];
+                    const { request } = await prepareWriteDisputeKitClassic({
+                      functionName: "submitEvidence",
+                      args: [BigInt(evidenceGroup), cid],
+                    });
+                    await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(
+                      () => {
+                        setMessage("");
+                        close();
+                      }
+                    );
+                  }
+                })
+                .catch()
+                .finally(() => setIsSending(false));
+            }}
+          />
+        </EnsureChain>
       </ButtonArea>
     </StyledModal>
   );
 };
 
-const constructEvidence = (msg: string) => {
+const constructEvidence = (msg: string): FormData => {
   const formData = new FormData();
-  const file = new File(
-    [JSON.stringify({ name: "Evidence", description: msg })],
-    "evidence.json",
-    { type: "text/plain" }
-  );
+  const file = new File([JSON.stringify({ name: "Evidence", description: msg })], "evidence.json", {
+    type: "text/plain",
+  });
   formData.append("data", file, file.name);
   return formData;
 };

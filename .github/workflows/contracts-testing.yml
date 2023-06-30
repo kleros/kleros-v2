@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@128a63446a954579617e875aaab7d2978154e969 # v2.4.0
+      uses: step-security/harden-runner@55d479fb1c5bcad5a4f9099a5d9f37c8857b2845 # v2.4.1
       with:
         disable-sudo: true
         egress-policy: block
@@ -29,16 +29,17 @@ jobs:
           nodejs.org:443
           objects.githubusercontent.com:443
           registry.yarnpkg.com:443
+          registry.npmjs.org:443
 
     - name: Setup Node.js environment
       uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
       with:
         node-version: 16.x   
         
-    - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+    - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
     
     - name: Cache node modules
-      uses: actions/cache@04f198bf0b2a39f7230a4304bf07747a0bddf146
+      uses: actions/cache@67b839edb68371cc5014f6cea11c9aa77238de78
       env:
         cache-name: cache-node-modules
       with:

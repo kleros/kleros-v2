@@ -1,9 +1,9 @@
 import useSWR from "swr";
-import { gql } from "graphql-request";
-import { CourtTreeQuery } from "src/graphql/generated";
+import { graphql } from "src/graphql";
+import { CourtTreeQuery } from "src/graphql/graphql";
 export type { CourtTreeQuery };
 
-const courtTreeQuery = gql`
+const courtTreeQuery = graphql(`
   query CourtTree {
     court(id: "1") {
       name
@@ -30,12 +30,10 @@ const courtTreeQuery = gql`
       }
     }
   }
-`;
+`);
 
 export const useCourtTree = () => {
-  const { data, error, isValidating } = useSWR({
+  return useSWR<CourtTreeQuery>({
     query: courtTreeQuery,
   });
-  const result = data ? (data as CourtTreeQuery) : undefined;
-  return { data: result, error, isValidating };
 };

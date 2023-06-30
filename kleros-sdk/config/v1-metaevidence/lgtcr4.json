@@ -1,0 +1,66 @@
+{
+  "title": "Remove a validator from Consensus Layer Withdrawal Protection",
+  "description": "Someone requested to remove a validator from Consensus Layer Withdrawal Protection",
+  "rulingOptions": {
+    "titles": [
+      "Yes, Remove It",
+      "No, Don't Remove It"
+    ],
+    "descriptions": [
+      "Select this if you think the validator does not comply with the required criteria and should be removed.",
+      "Select this if you think the validator complies with the required criteria and should not be removed."
+    ]
+  },
+  "category": "Curated Lists",
+  "question": "Does the validator comply with the required criteria?",
+  "fileURI": "/ipfs/QmPtXtFKfVc3w5aGVNYrmBZWEHBLpk2XMLkYCnEioxwy43/clwp-acceptance-policy.pdf",
+  "evidenceDisplayInterfaceURI": "/ipfs/QmQjJio59WkrQDzPC5kSP3EiGaqrWxjGfkvhmD2mWwm41M/index.html",
+  "metadata": {
+    "tcrTitle": "Consensus Layer Withdrawal Protection",
+    "tcrDescription": "Ethereum validators using CLWP to set their withdrawal address",
+    "columns": [
+      {
+        "label": "validator_index",
+        "description": "The validator in question (integer) [required]",
+        "type": "number",
+        "isIdentifier": true
+      },
+      {
+        "label": "from_bls_pubkey",
+        "description": "The public key of the validator withdrawal key (string) [required]",
+        "type": "text",
+        "isIdentifier": true
+      },
+      {
+        "label": "to_execution_address",
+        "description": "An Ethereum execution layer withdrawal address (address) [required]",
+        "type": "address",
+        "isIdentifier": true
+      },
+      {
+        "label": "CLWP File",
+        "description": "A text file which is named as the validator_index.json (file) [required]",
+        "type": "file",
+        "allowedFileTypes": "json"
+      },
+      {
+        "label": "Item to supersede",
+        "description": "In case there is already an entry on the list for the same validator_index, this field needs to be populated with the ItemID of the other item in this Kleros Curate registry that this entry is meant to supersede. (string) [optional]",
+        "type": "text",
+        "isIdentifier": true
+      },
+      {
+        "label": "Additional Information",
+        "description": "A .pdf file containing any evidence and proof to prove that you are the rightful owner of the validator node. (file) [optional]",
+        "type": "file",
+        "allowedFileTypes": "pdf"
+      }
+    ],
+    "itemName": "validator",
+    "itemNamePlural": "validators",
+    "logoURI": "/ipfs/QmXkGcS9Nw7jqaSaZZoKh3UQo8pwE8LWsdoUtjx1zTFLmJ/clwp-100-100-px-.svg",
+    "requireRemovalEvidence": true,
+    "isTCRofTCRs": false,
+    "relTcrDisabled": true
+  }
+}

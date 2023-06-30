@@ -1,0 +1,43 @@
+{
+  "title": "Add a list to The Registry enabled badges",
+  "description": "Someone requested to add a list to The Registry enabled badges.",
+  "rulingOptions": {
+    "titles": [
+      "Yes, Add It",
+      "No, Don't Add It"
+    ],
+    "descriptions": [
+      "Select this if you think the list complies with the required criteria and should be added.",
+      "Select this if you think the list does not comply with the required criteria and should not be added."
+    ]
+  },
+  "category": "Curated Lists",
+  "question": "Does the list comply with the required criteria?",
+  "fileURI": "/ipfs/QmZ7RVU7re1g8nXDbAFMHV99pyie3dn4cY7Ga2X4h8mDpV/reject-all-policy.pdf",
+  "evidenceDisplayInterfaceURI": "/ipfs/QmWYu43qp5VTH9LFaUfFv7qDRfkSr7ZLNXZNxYqdpww3ts/index.html",
+  "evidenceDisplayInterfaceHash": "Bccx364PTgwmxVLmpoWgQMNMJLSAscbp7gbYf6aA9guUDW2wkzQHapcZNrgDcuxFVhngv8U8NAjrFUXfucSPUQ1b1W",
+  "metadata": {
+    "tcrTitle": "The Registry enabled badges",
+    "tcrDescription": "A List of lists related to The Registry",
+    "columns": [
+      {
+        "label": "Address",
+        "description": "The Badges list address",
+        "type": "GTCR address",
+        "isIdentifier": true
+      },
+      {
+        "label": "Match File URI",
+        "description": "The URI to the JSON file for matching columns for each list.",
+        "type": "text"
+      }
+    ],
+    "itemName": "list",
+    "itemNamePlural": "lists",
+    "isConnectedTCR": true,
+    "requireRemovalEvidence": true,
+    "isTCRofTCRs": true,
+    "parentTCRAddress": "0xbA0304273a54dfeC1Fc7f4BCCbf4b15519AEcF15",
+    "relTcrDisabled": true
+  }
+}

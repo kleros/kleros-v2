@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { BigNumber } from "ethers";
 import StageExplainer from "../StageExplainer";
 import OptionCard from "../../OptionCard";
 import {
@@ -11,12 +10,7 @@ import {
 } from "hooks/useClassicAppealContext";
 
 const StageOne: React.FC = () => {
-  const {
-    paidFees,
-    winningChoice,
-    loserRequiredFunding,
-    winnerRequiredFunding,
-  } = useFundingContext();
+  const { paidFees, winningChoice, loserRequiredFunding, winnerRequiredFunding } = useFundingContext();
   const options = useOptionsContext();
   const loserSideCountdown = useLoserSideCountdownContext();
   const { selectedOption, setSelectedOption } = useSelectedOptionContext();
@@ -34,14 +28,8 @@ const StageOne: React.FC = () => {
               text={answer}
               selected={i === selectedOption}
               winner={i.toString() === winningChoice}
-              funding={
-                paidFees[i] ? BigNumber.from(paidFees[i]) : BigNumber.from(0)
-              }
-              required={
-                i.toString() === winningChoice
-                  ? winnerRequiredFunding
-                  : loserRequiredFunding
-              }
+              funding={paidFees[i] ? BigInt(paidFees[i]) : 0n}
+              required={i.toString() === winningChoice ? winnerRequiredFunding : loserRequiredFunding}
               onClick={() => setSelectedOption(i)}
             />
           ))}

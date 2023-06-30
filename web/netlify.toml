@@ -9,3 +9,6 @@ YARN_ENABLE_GLOBAL_CACHE = "true"
 
 [functions]
 directory = "web/netlify/functions/"
+
+[dev]
+framework = "parcel"

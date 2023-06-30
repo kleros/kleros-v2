@@ -1,4 +1,7 @@
+import { lightTheme as componentsLightTheme, darkTheme as componentsDarkTheme } from "@kleros/ui-components-library";
+
 export const lightTheme = {
+  ...componentsLightTheme,
   primaryPurple: "#4D00B4",
   secondaryPurple: "#9013FE",
   mediumPurple: "#F8F1FF",
@@ -18,6 +21,7 @@ export const lightTheme = {
   defaultShadow: "#00000002",
   hoveredShadow: "#00000002",
   whiteLowOpacity: "#FFFFFF0F",
+  blackLowOpacity: "#00000080",
 
   success: "#00C42B",
   successLight: "#F0FBF2",
@@ -33,6 +37,7 @@ export const lightTheme = {
 };
 
 export const darkTheme = {
+  ...componentsDarkTheme,
   primaryPurple: "#7E1BD4",
   secondaryPurple: "#B45FFF",
   mediumPurple: "#390F6C",
@@ -52,6 +57,7 @@ export const darkTheme = {
   defaultShadow: "#00000000",
   hoveredShadow: "#42498f80",
   whiteLowOpacity: "#FFFFFF0F",
+  blackLowOpacity: "#00000080",
 
   success: "#65DC7F",
   successLight: "#32355B",

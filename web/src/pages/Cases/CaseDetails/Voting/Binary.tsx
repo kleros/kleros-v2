@@ -1,95 +1,22 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { DisputeKitClassic } from "@kleros/kleros-v2-contracts/typechain-types/src/arbitration/dispute-kits/DisputeKitClassic";
+import { useWalletClient, usePublicClient } from "wagmi";
 import { Button, Textarea } from "@kleros/ui-components-library";
-import { useConnectedContract } from "hooks/useConnectedContract";
-import { useGetMetaEvidence } from "queries/useGetMetaEvidence";
+import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 import { wrapWithToast } from "utils/wrapWithToast";
-
-const Binary: React.FC<{ arbitrable?: string; voteIDs: string[] }> = ({
-  arbitrable,
-  voteIDs,
-}) => {
-  const { id } = useParams();
-  const { data: metaEvidence } = useGetMetaEvidence(id, arbitrable);
-  const [chosenOption, setChosenOption] = useState(-1);
-  const [isSending, setIsSending] = useState(false);
-  const [justification, setJustification] = useState("");
-  const disputeKit = useConnectedContract(
-    "DisputeKitClassic"
-  ) as DisputeKitClassic;
-  return id ? (
-    <Container>
-      <MainContainer>
-        <h1>{metaEvidence?.question}</h1>
-        <StyledTextarea
-          value={justification}
-          onChange={(e) => setJustification(e.target.value)}
-          placeholder="Justify your vote..."
-          message={
-            "A good justification contributes to case comprehension. " +
-            "Low quality justifications can be challenged."
-          }
-          variant="info"
-        />
-        <OptionsContainer>
-          {metaEvidence?.rulingOptions?.titles?.map(
-            (answer: string, i: number) => (
-              <Button
-                key={i}
-                text={answer}
-                disabled={isSending}
-                isLoading={chosenOption === i + 1}
-                onClick={() => {
-                  setIsSending(true);
-                  setChosenOption(i + 1);
-                  wrapWithToast(
-                    disputeKit.castVote(id, voteIDs, i + 1, 0, justification)
-                  ).finally(() => {
-                    setChosenOption(-1);
-                    setIsSending(false);
-                  });
-                }}
-              />
-            )
-          )}
-        </OptionsContainer>
-      </MainContainer>
-      <RefuseToArbitrateContainer>
-        <Button
-          variant="secondary"
-          text="Refuse to Arbitrate"
-          disabled={isSending}
-          isLoading={chosenOption === 0}
-          onClick={() => {
-            setIsSending(true);
-            setChosenOption(0);
-            wrapWithToast(
-              disputeKit.castVote(id, voteIDs, 0, 0, justification)
-            ).finally(() => {
-              setChosenOption(-1);
-              setIsSending(false);
-            });
-          }}
-        />
-      </RefuseToArbitrateContainer>
-    </Container>
-  ) : (
-    <></>
-  );
-};
+import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { EnsureChain } from "components/EnsureChain";
 
 const Container = styled.div`
   width: 100%;
   height: auto;
 `;
-
 const MainContainer = styled.div`
   width: 100%;
   height: auto;
 `;
-
 const StyledTextarea = styled(Textarea)`
   width: 100%;
   height: auto;
@@ -102,7 +29,6 @@ const StyledTextarea = styled(Textarea)`
     hyphens: auto;
   }
 `;
-
 const OptionsContainer = styled.div`
   margin-top: 24px;
   display: flex;
@@ -110,7 +36,6 @@ const OptionsContainer = styled.div`
   justify-content: center;
   gap: 16px;
 `;
-
 const RefuseToArbitrateContainer = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBlue};
@@ -118,5 +43,83 @@ const RefuseToArbitrateContainer = styled.div`
   display: flex;
   justify-content: center;
 `;
+
+const Binary: React.FC<{ arbitrable: `0x${string}`; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
+  const { id } = useParams();
+  const parsedDisputeID = BigInt(id ?? 0);
+  const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
+  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
+  const { data: disputeData } = useDisputeDetailsQuery(id);
+  const [chosenOption, setChosenOption] = useState(-1);
+  const [isSending, setIsSending] = useState(false);
+  const [justification, setJustification] = useState("");
+  const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
+
+  const handleVote = async (voteOption: number) => {
+    setIsSending(true);
+    setChosenOption(voteOption);
+    const { request } = await prepareWriteDisputeKitClassic({
+      functionName: "castVote",
+      args: [
+        parsedDisputeID,
+        parsedVoteIDs,
+        BigInt(voteOption),
+        BigInt(disputeData?.dispute?.currentRoundIndex),
+        justification,
+      ],
+    });
+    if (walletClient) {
+      wrapWithToast(async () => await walletClient.writeContract(request), publicClient).finally(() => {
+        setChosenOption(-1);
+        setIsSending(false);
+      });
+    }
+  };
+
+  return id ? (
+    <Container>
+      <MainContainer>
+        <h1>{disputeTemplate?.question}</h1>
+        <StyledTextarea
+          value={justification}
+          onChange={(e) => setJustification(e.target.value)}
+          placeholder="Justify your vote..."
+          message={
+            "A good justification contributes to case comprehension. " + "Low quality justifications can be challenged."
+          }
+          variant="info"
+        />
+        <OptionsContainer>
+          {disputeTemplate?.answers?.map((answer: { title: string; description: string }, i: number) => {
+            return (
+              <EnsureChain key={answer.title}>
+                <Button
+                  text={answer.title}
+                  disabled={isSending}
+                  isLoading={chosenOption === i + 1}
+                  onClick={() => handleVote(i + 1)}
+                />
+              </EnsureChain>
+            );
+          })}
+        </OptionsContainer>
+      </MainContainer>
+      <RefuseToArbitrateContainer>
+        <EnsureChain>
+          <Button
+            variant="secondary"
+            text="Refuse to Arbitrate"
+            disabled={isSending}
+            isLoading={chosenOption === 0}
+            onClick={() => handleVote(0)}
+          />
+        </EnsureChain>
+      </RefuseToArbitrateContainer>
+    </Container>
+  ) : (
+    <></>
+  );
+};
 
 export default Binary;

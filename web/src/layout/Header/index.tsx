@@ -3,13 +3,13 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import HamburgerIcon from "svgs/header/hamburger.svg";
 import KlerosCourtLogo from "svgs/header/kleros-court.svg";
-import { useFocusOutside } from "hooks/useFocusOutside";
 import LightButton from "components/LightButton";
 import NavBar from "./navbar";
+import { useFocusOutside } from "hooks/useFocusOutside";
 
 const Container = styled.div`
   position: sticky;
-  z-index: 9999;
+  z-index: 1;
   top: 0;
   width: 100%;
   height: 64px;
@@ -61,11 +61,7 @@ const Header: React.FC = () => {
         </Link>
         <div ref={containerRef}>
           <NavBar />
-          <StyledLightButton
-            text=""
-            Icon={HamburgerIcon}
-            onClick={toggleIsOpen}
-          />
+          <StyledLightButton text="" Icon={HamburgerIcon} onClick={toggleIsOpen} />
         </div>
       </OpenContext.Provider>
     </Container>

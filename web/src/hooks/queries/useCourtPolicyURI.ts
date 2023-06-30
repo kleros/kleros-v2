@@ -1,18 +1,18 @@
 import useSWRImmutable from "swr/immutable";
-import { gql } from "graphql-request";
-import { CourtPolicyUriQuery } from "src/graphql/generated";
+import { graphql } from "src/graphql";
+import { CourtPolicyUriQuery } from "src/graphql/graphql";
 export type { CourtPolicyUriQuery };
 
-const courtPolicyURIQuery = gql`
+const courtPolicyURIQuery = graphql(`
   query CourtPolicyURI($courtID: ID!) {
     court(id: $courtID) {
       policy
     }
   }
-`;
+`);
 
 export const useCourtPolicyURI = (id?: string | number) => {
-  const { data, error, isValidating } = useSWRImmutable(() =>
+  return useSWRImmutable<CourtPolicyUriQuery>(() =>
     typeof id !== "undefined"
       ? {
           query: courtPolicyURIQuery,
@@ -20,8 +20,4 @@ export const useCourtPolicyURI = (id?: string | number) => {
         }
       : false
   );
-  const result = data
-    ? (data.court.policy as CourtPolicyUriQuery.court.policy)
-    : undefined;
-  return { data: result, error, isValidating };
 };

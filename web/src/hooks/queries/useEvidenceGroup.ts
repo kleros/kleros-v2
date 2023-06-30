@@ -1,35 +1,32 @@
 import useSWRImmutable from "swr/immutable";
-// import { utils } from "ethers";
-// import { IMetaEvidence } from "@kleros/kleros-v2-contracts/typechain-types/src/evidence/IMetaEvidence";
-import { useConnectedContract } from "hooks/useConnectedContract";
+import { getIArbitrableV2 } from "hooks/contracts/generated";
+import { usePublicClient } from "wagmi";
+import { isUndefined } from "utils/index";
 
-export const useEvidenceGroup = (
-  disputeID?: string,
-  arbitrableAddress?: string
-) => {
-  // const formattedAddress = arbitrableAddress
-  //   ? utils.getAddress(arbitrableAddress)
-  //   : undefined;
-  const arbitrable = useConnectedContract(
-    "IMetaEvidence",
-    "0xc0fcc96BFd78e36550FCaB434A9EE1210B57225b",
-    10200
-  );
-  // const arbitrable = useConnectedContract(
-  //   "IMetaEvidence",
-  //   formattedAddress
-  // ) as IMetaEvidence;
+export const useEvidenceGroup = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
+  const publicClient = usePublicClient();
   return useSWRImmutable(
-    () =>
-      arbitrable ? `EvidenceGroup${disputeID}${arbitrableAddress}` : false,
+    () => (arbitrableAddress ? `EvidenceGroup${disputeID}${arbitrableAddress}` : false),
     async () => {
-      if (arbitrable) {
-        const disputeFilter = arbitrable.filters.Dispute(
-          null,
-          parseInt(disputeID!) + 1
+      if (arbitrableAddress && !isUndefined(disputeID)) {
+        const arbitrable = getIArbitrableV2({
+          address: arbitrableAddress,
+        });
+        const disputeFilter = await arbitrable.createEventFilter.DisputeTemplate(
+          {
+            _templateId: BigInt(disputeID),
+          },
+          {
+            fromBlock: 27808516n,
+            toBlock: "latest",
+          }
         );
-        const disputeEvents = await arbitrable.queryFilter(disputeFilter);
-        return disputeEvents[0].args?._evidenceGroupID.toString();
+
+        const disputeEvents = await publicClient.getFilterLogs({
+          filter: disputeFilter,
+        });
+
+        return disputeEvents[0];
       } else throw Error;
     }
   );

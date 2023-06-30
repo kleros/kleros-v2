@@ -17,41 +17,6 @@ updates:
     assignees:
       - jaybuidl
 
-  - package-ecosystem: npm
-    directory: /contracts
-    target-branch: dev
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    labels:
-      - dependencies
-    assignees:
-      - jaybuidl
-
-  - package-ecosystem: npm
-    directory: /subgraph
-    target-branch: dev
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    labels:
-      - dependencies
-    assignees:
-      - jaybuidl
-      - alcercu
-
-  - package-ecosystem: npm
-    directory: /web
-    target-branch: dev
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    labels:
-      - dependencies
-    assignees:
-      - jaybuidl
-      - alcercu
-
   - package-ecosystem: github-actions
     directory: /
     target-branch: dev
@@ -75,17 +40,6 @@ updates:
       - jaybuidl
 
   - package-ecosystem: docker
-    directory: /bot-pinner
-    target-branch: dev
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    labels:
-      - dependencies
-    assignees:
-      - jaybuidl
-
-  - package-ecosystem: npm
     directory: /bot-pinner
     target-branch: dev
     schedule:

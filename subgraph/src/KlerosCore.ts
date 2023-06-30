@@ -11,33 +11,16 @@ import {
   StakeSet,
   TokenAndETHShift as TokenAndETHShiftEvent,
   Ruling,
+  StakeDelayed,
 } from "../generated/KlerosCore/KlerosCore";
 import { ZERO, ONE } from "./utils";
 import { createCourtFromEvent, getFeeForJuror } from "./entities/Court";
-import {
-  createDisputeKitFromEvent,
-  filterSupportedDisputeKits,
-} from "./entities/DisputeKit";
+import { createDisputeKitFromEvent, filterSupportedDisputeKits } from "./entities/DisputeKit";
 import { createDisputeFromEvent } from "./entities/Dispute";
 import { createRoundFromRoundInfo } from "./entities/Round";
-import {
-  updateCases,
-  updatePaidETH,
-  updateStakedPNK,
-  updateRedistributedPNK,
-  updateCasesRuled,
-  updateCasesVoting,
-  getDelta,
-} from "./datapoint";
-import {
-  addUserActiveDispute,
-  ensureUser,
-  resolveUserDispute,
-} from "./entities/User";
-import {
-  ensureJurorTokensPerCourt,
-  updateJurorStake,
-} from "./entities/JurorTokensPerCourt";
+import { updateCases, updatePaidETH, updateRedistributedPNK, updateCasesRuled, updateCasesVoting } from "./datapoint";
+import { addUserActiveDispute, ensureUser, resolveUserDispute } from "./entities/User";
+import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
 import { createTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
@@ -55,16 +38,14 @@ export function handleCourtCreated(event: CourtCreated): void {
 }
 
 export function handleCourtModified(event: CourtModified): void {
-  const contract = KlerosCore.bind(event.address);
-  const courtContractState = contract.courts(event.params._courtID);
   const court = Court.load(event.params._courtID.toString());
   if (!court) return;
-  court.hiddenVotes = courtContractState.value1;
-  court.minStake = courtContractState.value2;
-  court.alpha = courtContractState.value3;
-  court.feeForJuror = courtContractState.value4;
-  court.jurorsForCourtJump = courtContractState.value5;
-  court.timesPerPeriod = contract.getTimesPerPeriod(event.params._courtID);
+  court.hiddenVotes = event.params._hiddenVotes;
+  court.minStake = event.params._minStake;
+  court.alpha = event.params._alpha;
+  court.feeForJuror = event.params._feeForJuror;
+  court.jurorsForCourtJump = event.params._jurorsForCourtJump;
+  court.timesPerPeriod = event.params._timesPerPeriod;
   court.save();
 }
 
@@ -94,7 +75,7 @@ export function handleDisputeCreation(event: DisputeCreation): void {
   court.save();
   createDisputeFromEvent(event);
   const roundInfo = contract.getRoundInfo(disputeID, ZERO);
-  createRoundFromRoundInfo(disputeID, ZERO, court.feeForJuror, roundInfo);
+  createRoundFromRoundInfo(disputeID, ZERO, roundInfo);
   const arbitrable = event.params._arbitrable.toHexString();
   updateArbitrableCases(arbitrable, ONE);
   updateCases(ONE, event.block.timestamp);
@@ -136,7 +117,7 @@ export function handleAppealDecision(event: AppealDecision): void {
   dispute.save();
   const feeForJuror = getFeeForJuror(dispute.court);
   const roundInfo = contract.getRoundInfo(disputeID, newRoundIndex);
-  createRoundFromRoundInfo(disputeID, newRoundIndex, feeForJuror, roundInfo);
+  createRoundFromRoundInfo(disputeID, newRoundIndex, roundInfo);
 }
 
 export function handleDraw(event: DrawEvent): void {
@@ -146,51 +127,45 @@ export function handleDraw(event: DrawEvent): void {
   if (!dispute) return;
   const contract = KlerosCore.bind(event.address);
   const jurorAddress = event.params._address.toHexString();
-  updateJurorStake(
-    jurorAddress,
-    dispute.court,
-    contract,
-    event.block.timestamp
-  );
+  updateJurorStake(jurorAddress, dispute.court, contract, event.block.timestamp);
   addUserActiveDispute(jurorAddress, disputeID);
 }
 
 export function handleStakeSet(event: StakeSet): void {
   const jurorAddress = event.params._address.toHexString();
   ensureUser(jurorAddress);
-  const courtID = event.params._courtID;
+  const courtID = event.params._courtID.toString();
 
-  updateJurorStake(
-    jurorAddress,
-    courtID.toString(),
-    KlerosCore.bind(event.address),
-    event.block.timestamp
-  );
+  updateJurorStake(jurorAddress, courtID.toString(), KlerosCore.bind(event.address), event.block.timestamp);
+
+  // Check if the transaction the event comes from is executeDelayedStakes
+  if (event.transaction.input.toHexString().substring(0, 10) === "0x35975f4a") {
+    updateJurorDelayedStake(jurorAddress, courtID, ZERO.minus(event.params._amount));
+  }
+}
+
+export function handleStakeDelayed(event: StakeDelayed): void {
+  updateJurorDelayedStake(event.params._address.toString(), event.params._courtID.toString(), event.params._amount);
 }
 
 export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   createTokenAndEthShiftFromEvent(event);
   const jurorAddress = event.params._account.toHexString();
   const disputeID = event.params._disputeID.toString();
-  const tokenAmount = event.params._tokenAmount;
-  const ethAmount = event.params._ethAmount;
-  if (tokenAmount.gt(ZERO)) {
-    updateRedistributedPNK(tokenAmount, event.block.timestamp);
-  }
-  updatePaidETH(ethAmount, event.block.timestamp);
+  const pnkAmount = event.params._pnkAmount;
+  const feeAmount = event.params._feeAmount;
   const dispute = Dispute.load(disputeID);
   if (!dispute) return;
   const court = Court.load(dispute.court);
   if (!court) return;
-  updateJurorStake(
-    jurorAddress,
-    court.id,
-    KlerosCore.bind(event.address),
-    event.block.timestamp
-  );
-  resolveUserDispute(jurorAddress, tokenAmount, disputeID);
-  court.paidETH = court.paidETH.plus(ethAmount);
-  court.paidPNK = court.paidPNK.plus(tokenAmount);
-  court.save();
+  updateJurorStake(jurorAddress, court.id, KlerosCore.bind(event.address), event.block.timestamp);
+  resolveUserDispute(jurorAddress, pnkAmount, disputeID);
+  court.paidETH = court.paidETH.plus(feeAmount);
+  if (pnkAmount.gt(ZERO)) {
+    court.paidPNK = court.paidPNK.plus(pnkAmount);
+    updateRedistributedPNK(pnkAmount, event.block.timestamp);
+  }
+  updatePaidETH(feeAmount, event.block.timestamp);
   updatePenalty(event);
+  court.save();
 }

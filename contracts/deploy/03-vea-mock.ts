@@ -1,7 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { ethers } from "hardhat";
 import getContractAddress from "../deploy-helpers/getContractAddress";
+import { KlerosCore__factory } from "../typechain-types";
+import disputeTemplate from "../../kleros-sdk/config/v2-disputetemplate/simple/NewDisputeTemplate.simple.json";
 
 const HARDHAT_NETWORK = 31337;
 
@@ -31,7 +32,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const foreignGateway = await deploy("ForeignGatewayOnEthereum", {
     from: deployer,
     contract: "ForeignGateway",
-    args: [deployer, vea.address, homeGatewayAddress, homeChainIdAsBytes32],
+    args: [deployer, vea.address, homeChainIdAsBytes32, homeGatewayAddress],
     gasLimit: 4000000,
     log: true,
   }); // nonce+0
@@ -39,24 +40,34 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await deploy("HomeGatewayToEthereum", {
     from: deployer,
     contract: "HomeGateway",
-    args: [deployer, klerosCore.address, vea.address, foreignGateway.address, HARDHAT_NETWORK],
+    args: [
+      deployer,
+      klerosCore.address,
+      vea.address,
+      HARDHAT_NETWORK,
+      foreignGateway.address,
+      ethers.constants.AddressZero, // feeToken
+    ],
     gasLimit: 4000000,
     log: true,
   }); // nonce+1
 
-  await execute(
-    "ForeignGatewayOnEthereum",
-    { from: deployer, log: true },
-    "changeCourtJurorFee",
-    0,
-    ethers.BigNumber.from(10).pow(17)
-  );
+  // TODO: disable the gateway until fully initialized with the correct fees OR allow disputeCreators to add funds again if necessary.
+  const signer = (await hre.ethers.getSigners())[0];
+  const core = await KlerosCore__factory.connect(klerosCore.address, signer);
+  // TODO: set up the correct fees for the FORKING_COURT
+  const courtId = await core.GENERAL_COURT();
+  const fee = (await core.courts(courtId)).feeForJuror;
+  await execute("ForeignGatewayOnEthereum", { from: deployer, log: true }, "changeCourtJurorFee", courtId, fee);
+  // TODO: set up the correct fees for the lower courts
 
-  const metaEvidenceUri = `https://raw.githubusercontent.com/kleros/kleros-v2/master/contracts/deployments/goerli/MetaEvidence_ArbitrableExample.json`;
-
-  await deploy("ArbitrableExampleEthFee", {
+  // TODO: debug why this extraData fails but "0x00" works
+  // const extraData =
+  //   "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
+  const extraData = "0x00";
+  await deploy("ArbitrableExample", {
     from: deployer,
-    args: [foreignGateway.address, metaEvidenceUri],
+    args: [foreignGateway.address, disputeTemplate, extraData, ethers.constants.AddressZero],
     log: true,
   });
 };

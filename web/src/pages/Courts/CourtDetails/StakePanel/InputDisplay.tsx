@@ -1,15 +1,39 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { utils } from "ethers";
-import { Button, Field } from "@kleros/ui-components-library";
+import { formatEther } from "viem";
+import { useDebounce } from "react-use";
+import { useAccount } from "wagmi";
+import { Field } from "@kleros/ui-components-library";
 
-import { useWeb3 } from "hooks/useWeb3";
-import { useConnect } from "hooks/useConnect";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { usePNKBalance } from "queries/usePNKBalance";
-import { useJurorBalance } from "queries/useJurorBalance";
+import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
+import { isUndefined } from "utils/index";
+import { EnsureChain } from "components/EnsureChain";
+
+const StyledField = styled(Field)`
+  width: 100%;
+  height: fit-content;
+`;
+
+const LabelArea = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const StyledLabel = styled.label`
+  color: ${({ theme }) => theme.primaryBlue};
+  cursor: pointer;
+`;
+
+const InputArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+`;
 
 interface IInputDisplay {
   action: ActionType;
@@ -17,21 +41,22 @@ interface IInputDisplay {
   setIsSending: (arg0: boolean) => void;
 }
 
-const InputDisplay: React.FC<IInputDisplay> = ({
-  action,
-  isSending,
-  setIsSending,
-}) => {
+const InputDisplay: React.FC<IInputDisplay> = ({ action, isSending, setIsSending }) => {
   const [amount, setAmount] = useState("");
-  const parsedAmount = useParsedAmount(amount);
+  const [debouncedAmount, setDebouncedAmount] = useState("");
+  useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
+  const parsedAmount = useParsedAmount(debouncedAmount);
 
   const { id } = useParams();
-  const { account } = useWeb3();
-  const { data: balance } = usePNKBalance(account);
-  const parsedBalance = utils.formatEther(balance || 0);
-  const { data: jurorBalance } = useJurorBalance(account, id);
-  const parsedStake = utils.formatEther(jurorBalance?.staked || 0);
-  const { activate, connecting } = useConnect();
+  const { address } = useAccount();
+  const { data: balance } = usePNKBalance(address);
+  const parsedBalance = formatEther(balance ?? 0n);
+  const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
+    enabled: !isUndefined(address),
+    args: [address, id],
+    watch: true,
+  });
+  const parsedStake = formatEther(jurorBalance?.[0] || 0n);
   const isStaking = action === ActionType.stake;
 
   return (
@@ -56,13 +81,11 @@ const InputDisplay: React.FC<IInputDisplay> = ({
           }}
           placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
           message={
-            isStaking
-              ? "You need two transactions, one to increase allowance, the other to stake."
-              : undefined
+            isStaking ? "You may need two transactions, one to increase allowance, the other to stake." : undefined
           }
           variant="info"
         />
-        {account ? (
+        <EnsureChain>
           <StakeWithdrawButton
             {...{
               parsedAmount,
@@ -72,38 +95,10 @@ const InputDisplay: React.FC<IInputDisplay> = ({
               setIsSending,
             }}
           />
-        ) : (
-          <Button
-            text="Connect to Stake"
-            onClick={activate}
-            disabled={connecting}
-          />
-        )}
+        </EnsureChain>
       </InputArea>
     </>
   );
 };
 
 export default InputDisplay;
-
-const StyledField = styled(Field)`
-  width: 100%;
-  height: fit-content;
-`;
-
-const LabelArea = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const StyledLabel = styled.label`
-  color: ${({ theme }) => theme.primaryBlue};
-  cursor: pointer;
-`;
-
-const InputArea = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-`;

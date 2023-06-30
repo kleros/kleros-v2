@@ -17,8 +17,9 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const chainId = Number(await getChainId());
   console.log("Deploying to chainId %s with deployer %s", chainId, deployer);
 
-  const veaSender = await deployments.get("FastBridgeSenderToGnosis");
+  const veaInbox = await deployments.get("VeaInboxArbToGnosisDevnet");
   const klerosCore = await deployments.get("KlerosCore");
+  const dai = await deployments.get("DAI");
 
   const foreignGateway = await hre.companionNetworks.foreignChiado.deployments.get("ForeignGatewayOnGnosis");
   const foreignChainId = Number(await hre.companionNetworks.foreignChiado.getChainId());
@@ -28,7 +29,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await deploy("HomeGatewayToGnosis", {
     from: deployer,
     contract: "HomeGateway",
-    args: [deployer, klerosCore.address, veaSender.address, foreignGateway.address, foreignChainId],
+    args: [deployer, klerosCore.address, veaInbox.address, foreignChainId, foreignGateway.address, dai.address],
     log: true,
   }); // nonce+0
 };

@@ -2,12 +2,12 @@
 
 pragma solidity 0.8.18;
 
-import "./IArbitrator.sol";
+import {IArbitrableV2, IArbitratorV2, IERC20} from "./interfaces/IArbitratorV2.sol";
 
 /// @title Centralized Arbitrator
-/// @dev This is a centralized arbitrator deciding alone on the result of disputes. It illustrates how IArbitrator interface can be implemented.
+/// @dev This is a centralized arbitrator deciding alone on the result of disputes. It illustrates how IArbitratorV2 interface can be implemented.
 /// Note that this contract supports appeals. The ruling given by the arbitrator can be appealed by crowdfunding a desired choice.
-contract CentralizedArbitrator is IArbitrator {
+contract CentralizedArbitrator is IArbitratorV2 {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -19,7 +19,7 @@ contract CentralizedArbitrator is IArbitrator {
     }
 
     struct DisputeStruct {
-        IArbitrable arbitrated; // The address of the arbitrable contract.
+        IArbitrableV2 arbitrated; // The address of the arbitrable contract.
         bytes arbitratorExtraData; // Extra data for the arbitrator.
         uint256 choices; // The number of choices the arbitrator can choose from.
         uint256 appealPeriodStart; // Time when the appeal funding becomes possible.
@@ -61,12 +61,12 @@ contract CentralizedArbitrator is IArbitrator {
     /// @dev To be emitted when a dispute can be appealed.
     /// @param _disputeID ID of the dispute.
     /// @param _arbitrable The contract which created the dispute.
-    event AppealPossible(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
+    event AppealPossible(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
 
     /// @dev To be emitted when the current ruling is appealed.
     /// @param _disputeID ID of the dispute.
     /// @param _arbitrable The contract which created the dispute.
-    event AppealDecision(uint256 indexed _disputeID, IArbitrable indexed _arbitrable);
+    event AppealDecision(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
 
     /// @dev Raised when a contribution is made, inside fundAppeal function.
     /// @param _disputeID ID of the dispute.
@@ -151,21 +151,16 @@ contract CentralizedArbitrator is IArbitrator {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Create a dispute. Must be called by the arbitrable contract.
-    /// Must be paid at least arbitrationCost().
-    /// @param _choices Amount of choices the arbitrator can make in this dispute.
-    /// @param _extraData Can be used to give additional info on the dispute to be created.
-    /// @return disputeID ID of the dispute created.
+    /// @inheritdoc IArbitratorV2
     function createDispute(
         uint256 _choices,
         bytes calldata _extraData
     ) external payable override returns (uint256 disputeID) {
-        uint256 localArbitrationCost = arbitrationCost(_extraData);
-        require(msg.value >= localArbitrationCost, "Not enough ETH to cover arbitration costs.");
+        require(msg.value >= arbitrationCost(_extraData), "Arbitration fees: not enough.");
         disputeID = disputes.length;
         disputes.push(
             DisputeStruct({
-                arbitrated: IArbitrable(msg.sender),
+                arbitrated: IArbitrableV2(msg.sender),
                 arbitratorExtraData: _extraData,
                 choices: _choices,
                 appealPeriodStart: 0,
@@ -176,10 +171,20 @@ contract CentralizedArbitrator is IArbitrator {
         );
 
         disputeIDtoRoundArray[disputeID].push();
-        emit DisputeCreation(disputeID, IArbitrable(msg.sender));
+        emit DisputeCreation(disputeID, IArbitrableV2(msg.sender));
     }
 
-    /// @dev TRUSTED. Manages contributions, and appeals a dispute if at least two choices are fully funded. This function allows the appeals to be crowdfunded.
+    /// @inheritdoc IArbitratorV2
+    function createDispute(
+        uint256 /*_choices*/,
+        bytes calldata /*_extraData*/,
+        IERC20 /*_feeToken*/,
+        uint256 /*_feeAmount*/
+    ) external pure override returns (uint256) {
+        revert("Not supported");
+    }
+
+    /// @dev Manages contributions, and appeals a dispute if at least two choices are fully funded. This function allows the appeals to be crowdfunded.
     /// Note that the surplus deposit will be reimbursed.
     /// @param _disputeID Index of the dispute to appeal.
     /// @param _choice A choice that receives funding.
@@ -317,10 +322,17 @@ contract CentralizedArbitrator is IArbitrator {
     // *           Public Views            * //
     // ************************************* //
 
-    /// @dev Cost of arbitration.
-    /// @return fee The required amount.
+    /// @inheritdoc IArbitratorV2
     function arbitrationCost(bytes calldata /*_extraData*/) public view override returns (uint256 fee) {
         return arbitrationFee;
+    }
+
+    /// @inheritdoc IArbitratorV2
+    function arbitrationCost(
+        bytes calldata /*_extraData*/,
+        IERC20 /*_feeToken*/
+    ) public pure override returns (uint256 /*cost*/) {
+        revert("Not supported");
     }
 
     /// @dev Return the funded amount and funding goal for one of the choices.
@@ -356,5 +368,11 @@ contract CentralizedArbitrator is IArbitrator {
             end = start + appealDuration;
         }
         return (start, end);
+    }
+
+    function currentRuling(
+        uint256 /*_disputeID*/
+    ) public pure returns (uint256 /*ruling*/, bool /*tied*/, bool /*overridden*/) {
+        revert("Not supported");
     }
 }

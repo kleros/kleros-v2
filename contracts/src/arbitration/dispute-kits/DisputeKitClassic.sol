@@ -9,7 +9,7 @@
 pragma solidity 0.8.18;
 
 import "./BaseDisputeKit.sol";
-import "../../evidence/IEvidence.sol";
+import "../interfaces/IEvidence.sol";
 
 /// @title DisputeKitClassic
 /// Dispute kit implementation of the Kleros v1 features including:
@@ -375,11 +375,11 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         }
     }
 
-    /// @dev Submits evidence.
-    /// @param _evidenceGroupID Unique identifier of the evidence group the evidence belongs to. It's the submitter responsability to submit the right evidence group ID.
+    /// @dev Submits evidence for a dispute.
+    /// @param _externalDisputeID Unique identifier for this dispute outside Kleros. It's the submitter responsability to submit the right evidence group ID.
     /// @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'.
-    function submitEvidence(uint256 _evidenceGroupID, string calldata _evidence) external {
-        emit Evidence(_evidenceGroupID, msg.sender, _evidence);
+    function submitEvidence(uint256 _externalDisputeID, string calldata _evidence) external {
+        emit Evidence(_externalDisputeID, msg.sender, _evidence);
     }
 
     // ************************************* //
@@ -538,12 +538,12 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     /// @return Whether the address can be drawn or not.
     function _postDrawCheck(uint256 _coreDisputeID, address _juror) internal view override returns (bool) {
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        (uint256 lockedAmountPerJuror, , , , , , , ) = core.getRoundInfo(
+        (, uint256 lockedAmountPerJuror, , , , , , , , ) = core.getRoundInfo(
             _coreDisputeID,
             core.getNumberOfRounds(_coreDisputeID) - 1
         );
-        (uint256 stakedTokens, uint256 lockedTokens, ) = core.getJurorBalance(_juror, courtID);
+        (uint256 staked, uint256 locked, ) = core.getJurorBalance(_juror, courtID);
         (, , uint256 minStake, , , , ) = core.courts(courtID);
-        return stakedTokens >= lockedTokens + lockedAmountPerJuror && stakedTokens >= minStake;
+        return staked >= locked + lockedAmountPerJuror && staked >= minStake;
     }
 }

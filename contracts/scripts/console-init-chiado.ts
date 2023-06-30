@@ -1,7 +1,6 @@
 // .load scripts/console-init-chiado.ts
-receiver = await ethers.getContract("FastBridgeReceiverOnGnosis");
-// gateway = await ethers.getContract("ForeignGatewayOnGnosis");
-gateway = await ethers.getContractAt("ForeignGatewayOnGnosis", "0x8F1a2B8F9b04320375856580Fc6B1669Cb12a9EE");
+receiver = await ethers.getContract("VeaInboxArbToGnosisDevnet");
+gateway = await ethers.getContract("ForeignGatewayOnGnosis");
 weth = await ethers.getContract("WETH");
 wethFaucet = await ethers.getContract("WETHFaucet");
 wpnk = await ethers.getContract("WrappedPinakionV2");

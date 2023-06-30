@@ -1,0 +1,44 @@
+{
+  "title": "Review a translation from Linguo",
+  "description": "Someone challenged a translation",
+  "rulingOptions": {
+    "titles": [
+      "Yes, the translation should be accepted",
+      "No, the translation should not be accepted"
+    ],
+    "descriptions": [
+      "Select this if you think the translation complies with the required criteria.",
+      "Select this if you think the translation does not comply with the required criteria."
+    ]
+  },
+  "aliases": {
+    "0xc3600bfC9Ec2c20E4c7d22c9235b6ddE63BA99a8": "Requester"
+  },
+  "category": "Translation",
+  "question": "Does the translation comply with the required criteria?",
+  "fileURI": "/ipfs/QmVabp1VjJNYzXDxbcWFdeK17RvvA9eQy6eJVf1T1AzS1a/linguo-translation-quality-policy.pdf",
+  "evidenceDisplayInterfaceURI": "/ipfs/Qmb5n6PgbshktJqGpwMAxP1moXEPaqq7ZvRufeXXhSPXxW/linguo-evidence-display/index.html",
+  "dynamicScriptURI": "/ipfs/QmPAHCRtSU844fdjNoEws8AgTpzzwsYwMF2wydtpvXAcoZ/linguo-script.js",
+  "dynamicScriptRequiredParams": [
+    "disputeID",
+    "arbitrableContractAddress",
+    "arbitratorContractAddress",
+    "chainID",
+    "jsonRpcUrl"
+  ],
+  "metadata": {
+    "deadline": 1704067199,
+    "minPrice": "0",
+    "maxPrice": "500000000000000000000",
+    "sourceLanguage": "en-us",
+    "targetLanguage": "es",
+    "expectedQuality": "professional",
+    "title": "Moving beyond coin voting governance",
+    "wordCount": 5100,
+    "originalTextUrl": "https://vitalik.ca/general/2021/08/16/voting3.html",
+    "originalTextFile": "/ipfs/Qmaq181thsnUyUknbnbQfJUHYRTFvA8z83f9BKY68t5pnf/Moving beyond coin voting governance.docx",
+    "__v": "1"
+  },
+  "arbitrableChainID": 100,
+  "_v": "1.0.0"
+}

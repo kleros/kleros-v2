@@ -1,0 +1,8 @@
+{
+  "externalDisputeID": "ea6ed15a0867e22f40371b1d1bd7e6229e33b832cbe00d0b991b2da19d4f951a",
+  "arbitrableDisputeID": "3",
+  "templateID": "1"
+}
+
+// action = "airdrop magic money"
+// externalDisputeID = hash(action) = 0xea6ed15a0867e22f40371b1d1bd7e6229e33b832cbe00d0b991b2da19d4f951a

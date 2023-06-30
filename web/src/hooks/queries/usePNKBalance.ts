@@ -1,14 +1,14 @@
 import useSWR from "swr";
-import { PNK } from "@kleros/kleros-v2-contracts/typechain-types/src/token/PNK";
-import { useConnectedContract } from "hooks/useConnectedContract";
+import { getPnk } from "hooks/contracts/generated";
 
-export const usePNKBalance = (user?: string | null) => {
-  const pnkContract = useConnectedContract("PNK") as PNK;
+export const usePNKBalance = (user?: `0x${string}` | null) => {
+  const pnkContract = getPnk({});
+
   return useSWR(
     () => (pnkContract && user ? `PNKBalance${user}` : false),
     async () => {
       if (pnkContract && user) {
-        const balance = await pnkContract.balanceOf(user);
+        const balance = await pnkContract.read.balanceOf([user]);
         return balance;
       } else {
         return undefined;
