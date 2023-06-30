@@ -22,31 +22,33 @@ const StyledButton = styled(Button)`
   align-self: flex-end;
 `;
 
-const Evidence: React.FC<{ arbitrable?: string }> = ({ arbitrable }) => {
+const Evidence: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { id } = useParams();
   const { data: evidenceGroup } = useEvidenceGroup(id, arbitrable);
-  const { data } = useEvidences(evidenceGroup);
+  const { data } = useEvidences(evidenceGroup?.toString());
   const { address } = useAccount();
   return (
     <Container>
-      {evidenceGroup && (
-        <SubmitEvidenceModal isOpen={isModalOpen} close={() => setIsModalOpen(false)} {...{ evidenceGroup }} />
-      )}
-      <Searchbar />
-      <EnsureChain>
-        <StyledButton
-          small
-          text="Submit Evidence"
-          disabled={typeof address === "undefined" || isModalOpen}
-          isLoading={isModalOpen}
-          onClick={() => setIsModalOpen(true)}
-        />
-      </EnsureChain>
-      {data &&
-        data.evidences.map(({ id, evidence, sender }, i) => (
-          <EvidenceCard key={id} index={i + 1} sender={sender?.id} {...{ evidence }} />
-        ))}
+      <>
+        {evidenceGroup && (
+          <SubmitEvidenceModal isOpen={isModalOpen} close={() => setIsModalOpen(false)} {...{ evidenceGroup }} />
+        )}
+        <Searchbar />
+        <EnsureChain>
+          <StyledButton
+            small
+            text="Submit Evidence"
+            disabled={typeof address === "undefined" || isModalOpen}
+            isLoading={isModalOpen}
+            onClick={() => setIsModalOpen(true)}
+          />
+        </EnsureChain>
+        {data &&
+          data.evidences.map(({ id, evidence, sender }, i) => (
+            <EvidenceCard key={id} index={i + 1} sender={sender?.id} {...{ evidence }} />
+          ))}
+      </>
     </Container>
   );
 };

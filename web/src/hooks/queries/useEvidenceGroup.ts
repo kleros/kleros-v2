@@ -12,9 +12,9 @@ export const useEvidenceGroup = (disputeID?: string, arbitrableAddress?: `0x${st
         const arbitrable = getIArbitrableV2({
           address: arbitrableAddress,
         });
-        const disputeFilter = await arbitrable.createEventFilter.DisputeTemplate(
+        const disputeFilter = await arbitrable.createEventFilter.DisputeRequest(
           {
-            _templateId: BigInt(disputeID),
+            _arbitrableDisputeID: BigInt(disputeID),
           },
           {
             fromBlock: 27808516n,
@@ -26,7 +26,7 @@ export const useEvidenceGroup = (disputeID?: string, arbitrableAddress?: `0x${st
           filter: disputeFilter,
         });
 
-        return disputeEvents[0];
+        return disputeEvents[0].args._externalDisputeID;
       } else throw Error;
     }
   );

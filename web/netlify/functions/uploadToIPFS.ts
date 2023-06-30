@@ -58,7 +58,7 @@ const pinToFilebase = async (data: FormData, dapp: string, operation: string): P
       const path = `${filename}`;
       const cid = await filebase.storeDirectory([new File([content], path, { type: mimeType })]);
       await emitRabbitMQLog(cid, operation);
-      cids.push(cid);
+      cids.push(`/ipfs/${cid}/${path}`);
     }
   }
 
