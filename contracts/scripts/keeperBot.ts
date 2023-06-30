@@ -1,13 +1,27 @@
 import { DisputeKitClassic, KlerosCore, PNK, RandomizerRNG, SortitionModule } from "../typechain-types";
 import request from "graphql-request";
+import env from "./utils/env";
+import loggerFactory from "./utils/logger";
 import hre = require("hardhat");
+
 const { ethers } = hre;
 const { BigNumber } = ethers;
 const MAX_DRAW_ITERATIONS = 50;
 const MAX_EXECUTE_ITERATIONS = 20;
 const WAIT_FOR_RNG_DURATION = 5 * 1000; // 5 seconds
 const ITERATIONS_COOLDOWN_PERIOD = 6 * 1000; // 6 seconds
-const HIGH_GAS_LIMIT = { gasLimit: 30000000 };
+const HIGH_GAS_LIMIT = { gasLimit: 30000000 }; // 30M gas
+
+const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN")
+  ? {
+      transportTargetOptions: {
+        target: "@logtail/pino",
+        options: { sourceToken: env.require("LOGTAIL_TOKEN") },
+        level: env.optional("LOG_LEVEL", "info"),
+      },
+    }
+  : {};
+const logger = loggerFactory.createLogger(loggerOptions);
 
 const getContracts = async () => {
   const core = (await ethers.getContract("KlerosCore")) as KlerosCore;
@@ -20,9 +34,9 @@ const getContracts = async () => {
 
 const handleError = (e: any) => {
   if (typeof e === "string") {
-    console.log("Error: %s", e);
+    logger.error(e, "Transaction failed");
   } else if (e instanceof Error) {
-    console.log("%O", e);
+    logger.error(e, "Transaction failed");
   }
 };
 
@@ -31,26 +45,32 @@ const isRngReady = async () => {
   const requesterID = await randomizerRng.requesterToID(sortition.address);
   const n = await randomizerRng.randomNumbers(requesterID);
   if (Number(n) === 0) {
-    console.log("RandomizerRNG is NOT ready yet");
+    logger.info("RandomizerRNG is NOT ready yet");
     return false;
   } else {
-    console.log("RandomizerRNG is ready: %s", n.toString());
+    logger.info(`RandomizerRNG is ready: ${n.toString()}`);
     return true;
   }
 };
 
 const passPhase = async () => {
   const { sortition } = await getContracts();
+  try {
+    await sortition.callStatic.passPhase();
+  } catch (e) {
+    logger.info(`passPhase: not ready yet`);
+    return false;
+  }
   const before = await sortition.phase();
   try {
     const gas = (await sortition.estimateGas.passPhase()).mul(150).div(100); // 50% extra gas
     const tx = await (await sortition.passPhase({ gasLimit: gas })).wait();
-    console.log("passPhase txID: %s", tx?.transactionHash);
+    logger.info(`passPhase txID: ${tx?.transactionHash}`);
   } catch (e) {
     handleError(e);
   } finally {
     const after = await sortition.phase();
-    console.log("passPhase: %d -> %d", before, after);
+    logger.info(`passPhase: ${before} -> ${after}`);
     return before !== after; // true if successful
   }
 };
@@ -60,19 +80,19 @@ const passPeriod = async (dispute: { id: string }) => {
   try {
     await core.callStatic.passPeriod(7);
   } catch (e) {
-    console.log("passPeriod: not ready yet for dispute %s", dispute.id);
+    logger.info(`passPeriod: not ready yet for dispute ${dispute.id}`);
     return false;
   }
   const before = (await core.disputes(dispute.id)).period;
   try {
     const gas = (await core.estimateGas.passPeriod(dispute.id)).mul(150).div(100); // 50% extra gas
-    const tx = await (await core.passPeriod(dispute.id)).wait();
-    console.log("passPeriod txID: %s", tx?.transactionHash);
+    const tx = await (await core.passPeriod(dispute.id, { gasLimit: gas })).wait();
+    logger.info(`passPeriod txID: ${tx?.transactionHash}`);
   } catch (e) {
     handleError(e);
   } finally {
     const after = (await core.disputes(dispute.id)).period;
-    console.log("passPeriod for dispute %s: %d -> %d", dispute.id, before, after);
+    logger.info(`passPeriod for dispute ${dispute.id}: ${before} -> ${after}`);
     return before !== after; // true if successful
   }
 };
@@ -82,13 +102,13 @@ const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, dr
   let success = false;
   try {
     const tx = await (await core.draw(dispute.id, drawIterations, HIGH_GAS_LIMIT)).wait();
-    console.log("Draw txID: %s", tx?.transactionHash);
+    logger.info(`Draw txID: ${tx?.transactionHash}`);
     success = true;
   } catch (e) {
     handleError(e);
   } finally {
     const roundInfo = await core.getRoundInfo(dispute.id, dispute.currentRoundIndex);
-    console.log("Drawn jurors (last 20): %O", roundInfo.drawnJurors.slice(-20));
+    logger.info(`Drawn jurors (last 20): ${roundInfo.drawnJurors.slice(-20)}`);
     return success;
   }
 };
@@ -182,34 +202,31 @@ async function main() {
 
   const { disputes } = result as { disputes: { period: string; id: string; currentRoundIndex: string }[] };
   for (var dispute of disputes) {
-    console.log("dispute #%d, round #%d, %s period", dispute.id, dispute.currentRoundIndex, dispute.period);
+    logger.info(`dispute #${dispute.id}, round #${dispute.currentRoundIndex}, ${dispute.period} period`);
   }
 
   const disputesWithoutJurors = await filterAsync(disputes, async (dispute) => {
     return !(await isDisputeFullyDrawn(dispute));
   });
-  console.log(
-    "disputes needing more jurors: %O",
-    disputesWithoutJurors.map((dispute) => dispute.id)
-  );
+  logger.info(`disputes needing more jurors: ${disputesWithoutJurors.map((dispute) => dispute.id)}`);
 
   // Just a sanity check
   const numberOfDisputesWithoutJurors = await sortition.disputesWithoutJurors();
   if (!numberOfDisputesWithoutJurors.eq(disputesWithoutJurors.length)) {
-    console.log("ERROR: Discrepancy between SortitionModule.disputesWithoutJurors and KlerosCore.disputes");
-    console.log("ERROR: KlerosCore.disputes without jurors = %d", disputesWithoutJurors.length);
-    console.log("ERROR: SortitionModule.disputesWithoutJurors = %d", numberOfDisputesWithoutJurors);
+    console.error("Discrepancy between SortitionModule.disputesWithoutJurors and KlerosCore.disputes");
+    console.error(`KlerosCore.disputes without jurors = ${disputesWithoutJurors.length}`);
+    console.error(`SortitionModule.disputesWithoutJurors = ${numberOfDisputesWithoutJurors}`);
   }
 
   if ((await hasMinStakingTimePassed()) && disputesWithoutJurors.length > 0) {
-    console.log("Attempting to draw jurors");
+    logger.info("Attempting to draw jurors");
     if (await isPhaseStaking()) {
       await passPhase();
     }
     if (await isPhaseGenerating()) {
       let maxDrawingTimePassed = false;
       do {
-        console.log("Waiting for RNG to be ready");
+        logger.info("Waiting for RNG to be ready");
         await delay(WAIT_FOR_RNG_DURATION);
         maxDrawingTimePassed = await hasMaxDrawingTimePassed();
       } while (!(await isRngReady()) && !maxDrawingTimePassed);
@@ -219,20 +236,17 @@ async function main() {
       let maxDrawingTimePassed = await hasMaxDrawingTimePassed();
       for (dispute of disputesWithoutJurors) {
         if (maxDrawingTimePassed) {
-          console.log("Max drawing time passed");
+          logger.info("Max drawing time passed");
           break;
         }
         let numberOfMissingJurors = await getMissingJurors(dispute);
         do {
           const drawIterations = Math.min(MAX_DRAW_ITERATIONS, numberOfMissingJurors.toNumber());
-          console.log(
-            "Drawing %d out of %d jurors needed for dispute #%d",
-            drawIterations,
-            numberOfMissingJurors,
-            dispute.id
+          logger.info(
+            `Drawing ${drawIterations} out of ${numberOfMissingJurors} jurors needed for dispute #${dispute.id}`
           );
           if (!(await drawJurors(dispute, drawIterations))) {
-            console.log("Failed to draw jurors for dispute #%d, skipping it", dispute.id);
+            logger.info(`Failed to draw jurors for dispute #${dispute.id}, skipping it`);
             break;
           }
           await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
@@ -258,13 +272,9 @@ async function main() {
       let numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute, coherentCount);
       do {
         const executeIterations = Math.min(MAX_EXECUTE_ITERATIONS, numberOfMissingRepartitions);
-        console.log(
-          "Executing %d out of %d repartitions needed for dispute #%d",
-          executeIterations,
-          numberOfMissingRepartitions,
-          dispute.id
+        logger.info(
+          `Executing ${executeIterations} out of ${numberOfMissingRepartitions} repartitions needed for dispute #${dispute.id}`
         );
-
         await core.execute(dispute.id, dispute.currentRoundIndex, executeIterations, HIGH_GAS_LIMIT);
         numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute, coherentCount);
         await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
@@ -273,7 +283,7 @@ async function main() {
       const { ruled } = await core.disputes(dispute.id);
       const { ruling } = await core.currentRuling(dispute.id);
       if (!ruled) {
-        console.log("Executing ruling %d for dispute #%d", ruling, dispute.id);
+        logger.info(`Executing ruling ${ruling} for dispute #${dispute.id}`);
         const gas = (await core.estimateGas.executeRuling(dispute.id)).mul(150).div(100); // 50% extra gas
         await core.executeRuling(dispute.id, { gasLimit: gas });
       }
@@ -283,7 +293,6 @@ async function main() {
     }
   }
 
-  // if staking and any delayed stake, then execute sortition.executeDelayedStakes(iterations)
   // delayedStakes = 1 + delayedStakeWriteIndex - delayedStakeReadIndex
   const delayedStakes = BigNumber.from(1)
     .add(await sortition.delayedStakeWriteIndex())
@@ -291,10 +300,10 @@ async function main() {
 
   if (await isPhaseStaking()) {
     if (delayedStakes.gt(0)) {
-      console.log("Executing delayed stakes");
+      logger.info("Executing delayed stakes");
       await sortition.executeDelayedStakes(delayedStakes);
     } else {
-      console.log("No delayed stakes to execute");
+      logger.info("No delayed stakes to execute");
     }
   }
 }
