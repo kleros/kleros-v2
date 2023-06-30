@@ -6,11 +6,11 @@ import hre = require("hardhat");
 
 const { ethers } = hre;
 const { BigNumber } = ethers;
-const MAX_DRAW_ITERATIONS = 50;
+const MAX_DRAW_ITERATIONS = 30;
 const MAX_EXECUTE_ITERATIONS = 20;
 const WAIT_FOR_RNG_DURATION = 5 * 1000; // 5 seconds
-const ITERATIONS_COOLDOWN_PERIOD = 6 * 1000; // 6 seconds
-const HIGH_GAS_LIMIT = { gasLimit: 30000000 }; // 30M gas
+const ITERATIONS_COOLDOWN_PERIOD = 20 * 1000; // 20 seconds
+const HIGH_GAS_LIMIT = { gasLimit: 50000000 }; // 50M gas
 const HEARTBEAT_URL = env.optionalNoDefault("HEARTBEAT_URL_KEEPER_BOT");
 
 const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN")
@@ -102,6 +102,12 @@ const passPeriod = async (dispute: { id: string }) => {
 const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, drawIterations: number) => {
   const { core } = await getContracts();
   let success = false;
+  try {
+    await core.callStatic.draw(dispute.id, drawIterations, HIGH_GAS_LIMIT);
+  } catch (e) {
+    logger.info(`Draw: will fail for ${dispute.id}, skipping`);
+    return success;
+  }
   try {
     const tx = await (await core.draw(dispute.id, drawIterations, HIGH_GAS_LIMIT)).wait();
     logger.info(`Draw txID: ${tx?.transactionHash}`);
