@@ -15,6 +15,7 @@ import { createClassicDisputeFromEvent } from "./entities/ClassicDispute";
 import { ensureClassicEvidenceGroup } from "./entities/ClassicEvidenceGroup";
 import { createClassicRound, updateChoiceFundingFromContributionEvent, updateCounts } from "./entities/ClassicRound";
 import { createClassicVote } from "./entities/ClassicVote";
+import { ensureUser } from "./entities/User";
 import { ONE, ZERO } from "./utils";
 
 export const DISPUTEKIT_ID = "1";
@@ -33,9 +34,11 @@ export function handleEvidenceEvent(event: EvidenceEvent): void {
   evidenceGroup.nextEvidenceIndex = evidenceGroup.nextEvidenceIndex.plus(ONE);
   evidenceGroup.save();
   const evidence = new ClassicEvidence(`${evidenceGroupID}-${evidenceIndex.toString()}`);
+  const userId = event.params._party.toHexString();
   evidence.evidence = event.params._evidence;
   evidence.evidenceGroup = evidenceGroupID.toString();
-  evidence.sender = event.params._party.toHexString();
+  evidence.sender = userId;
+  ensureUser(userId);
   evidence.save();
 }
 

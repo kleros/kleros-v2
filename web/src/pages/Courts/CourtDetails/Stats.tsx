@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { formatUnits, formatEther } from "viem";
 import { useParams } from "react-router-dom";
 import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
-import { useCoinPrice } from "hooks/useCoinPrice";
+import { KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS } from "src/consts/index";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import BalanceIcon from "svgs/icons/law-balance.svg";
 import MinStake from "svgs/icons/min-stake.svg";
@@ -12,6 +12,7 @@ import VoteStake from "svgs/icons/vote-stake.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import EthereumIcon from "svgs/icons/ethereum.svg";
+import { useCoinPrice } from "hooks/useCoinPrice";
 import { isUndefined } from "~src/utils";
 
 const StyledCard = styled.div`
@@ -102,14 +103,20 @@ const stats: IStat[] = [
   },
 ];
 
+const coinIdToAddress = {
+  0: KLEROS_CONTRACT_ADDRESS,
+  1: WETH_CONTRACT_ADDRESS,
+};
+
 const Stats = () => {
   const { id } = useParams();
   const { data } = useCourtDetails(id);
-  const { prices } = useCoinPrice(["kleros", "ethereum"]);
+  const { prices: pricesData } = useCoinPrice([KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS]);
+
   return (
     <StyledCard>
       {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
-        const coinPrice = prices && !isUndefined(coinId) ? prices[coinId] : undefined;
+        const coinPrice = !isUndefined(pricesData) ? pricesData[coinIdToAddress[coinId!]]?.price : undefined;
         return (
           <StatDisplay
             key={i}

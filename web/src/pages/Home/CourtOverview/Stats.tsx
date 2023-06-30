@@ -8,6 +8,7 @@ import EthereumIcon from "svgs/icons/ethereum.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import JurorIcon from "svgs/icons/user.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
+import { KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS } from "src/consts/index";
 import { commify } from "utils/commify";
 import { isUndefined } from "utils/index";
 import { useHomePageContext, HomePageQuery, HomePageQueryDataPoints } from "hooks/useHomePageContext";
@@ -80,13 +81,19 @@ const stats: IStat[] = [
     icon: BalanceIcon,
   },
 ];
+
+const coinIdToAddress = {
+  0: KLEROS_CONTRACT_ADDRESS,
+  1: WETH_CONTRACT_ADDRESS,
+};
+
 const Stats = () => {
   const { data } = useHomePageContext();
-  const { prices } = useCoinPrice(["kleros", "ethereum"]);
+  const { prices: pricesData } = useCoinPrice([KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS]);
   return (
     <StyledCard>
       {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
-        const coinPrice = prices && !isUndefined(coinId) ? prices[coinId] : undefined;
+        const coinPrice = !isUndefined(pricesData) ? pricesData[coinIdToAddress[coinId!]]?.price : undefined;
         return (
           <StatDisplay
             key={i}

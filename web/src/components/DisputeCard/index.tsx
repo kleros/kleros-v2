@@ -10,6 +10,7 @@ import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
+import { isUndefined } from "utils/index";
 
 const StyledCard = styled(Card)`
   max-width: 380px;
@@ -51,8 +52,12 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
     currentPeriodIndex === 4
       ? lastPeriodChange
       : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, court.timesPerPeriod);
-  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrated.id);
-  const title = disputeTemplate ? disputeTemplate.title : <Skeleton />;
+  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrated.id as `0x${string}`);
+  const title = isUndefined(disputeTemplate) ? (
+    <Skeleton />
+  ) : (
+    disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"
+  );
   const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
   const category = disputeTemplate ? disputeTemplate.category : undefined;

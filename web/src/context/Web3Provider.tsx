@@ -4,14 +4,21 @@ import { alchemyProvider } from "@wagmi/core/providers/alchemy";
 import { Web3Modal } from "@web3modal/react";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { arbitrumGoerli, gnosisChiado } from "wagmi/chains";
-import { publicProvider } from "wagmi/providers/public";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
+import { useToggleTheme } from "hooks/useToggleThemeContext";
+import { useTheme } from "styled-components";
 
 const chains = [arbitrumGoerli, gnosisChiado];
 const projectId = process.env.WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf9281e218217";
 
 const { publicClient } = configureChains(chains, [
   alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY ?? "" }),
-  publicProvider(),
+  jsonRpcProvider({
+    rpc: () => ({
+      http: `https://rpc.chiadochain.net`,
+      webSocket: `wss://rpc.chiadochain.net/wss`,
+    }),
+  }),
 ]);
 
 const wagmiConfig = createConfig({
@@ -22,11 +29,26 @@ const wagmiConfig = createConfig({
 
 const ethereumClient = new EthereumClient(wagmiConfig, chains);
 
-const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <>
-    <WagmiConfig config={wagmiConfig}> {children} </WagmiConfig>
-    <Web3Modal {...{ projectId, ethereumClient }} />
-  </>
-);
+const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [themeToggle] = useToggleTheme();
+  const theme = useTheme();
+  return (
+    <>
+      <WagmiConfig config={wagmiConfig}> {children} </WagmiConfig>
+      <Web3Modal
+        themeMode={themeToggle as "light" | "dark"}
+        themeVariables={{
+          "--w3m-accent-color": theme.primaryPurple,
+          "--w3m-background-color": theme.primaryPurple,
+          "--w3m-overlay-background-color": "rgba(0, 0, 0, 0.6)",
+          "--w3m-overlay-backdrop-filter": "blur(3px)",
+          "--w3m-logo-image-url": "https://github.com/kleros/kleros-v2/blob/feat(web)/wallet-connect-themes/docs/kleros-logo-white.png?raw=true",
+          "--w3m-color-bg-1": theme.lightBackground,
+        }}
+        {...{ projectId, ethereumClient }}
+      />
+    </>
+  );
+};
 
 export default Web3Provider;
