@@ -7,6 +7,7 @@ import Binary from "./Binary";
 import VotingHistory from "./VotingHistory";
 import { Periods } from "consts/periods";
 import { isUndefined } from "utils/index";
+import { useDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
 
 const Voting: React.FC<{
   arbitrable?: `0x${string}`;
@@ -15,9 +16,20 @@ const Voting: React.FC<{
   const { address } = useAccount();
   const { id } = useParams();
   const { data: disputeData } = useDisputeDetailsQuery(id);
-  const { data } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
-  return data && !isUndefined(arbitrable) && currentPeriodIndex === Periods.vote && data.draws?.length > 0 ? (
-    <Binary {...{ arbitrable }} voteIDs={data.draws.map((draw) => draw.voteID)} />
+  const { data: drawData } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
+  const roundId = disputeData?.dispute?.currentRoundIndex;
+  const voteId = drawData?.draws?.[0]?.voteID;
+  const { data: voted } = useDisputeKitClassicIsVoteActive({
+    enabled: !isUndefined(roundId) && !isUndefined(voteId),
+    args: [BigInt(id ?? 0), roundId, voteId],
+    watch: true,
+  });
+  return drawData &&
+    !isUndefined(arbitrable) &&
+    currentPeriodIndex === Periods.vote &&
+    drawData.draws?.length > 0 &&
+    !voted ? (
+    <Binary {...{ arbitrable }} voteIDs={drawData.draws.map((draw) => draw.voteID)} />
   ) : (
     <VotingHistory {...{ arbitrable }} />
   );
