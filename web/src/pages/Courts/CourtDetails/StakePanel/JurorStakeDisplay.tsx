@@ -16,20 +16,16 @@ const format = (value: bigint | undefined): string => (value !== undefined ? for
 const formatBigIntPercentage = (numerator: bigint, denominator: bigint): string => {
   const decimalPlaces = 2;
   const factor = BigInt(10) ** BigInt(decimalPlaces);
-  const intermediate = (numerator * factor * 100n) / BigInt(denominator);
-
+  const intermediate = (numerator * factor * 100n) / denominator;
   let result = intermediate.toString();
-
   const pointIndex = result.length - decimalPlaces;
-  const integerPart = result.slice(0, pointIndex);
+  const integerPart = result.slice(0, pointIndex) || "0";
   const decimalPart = result.slice(pointIndex);
-
   if (decimalPart.length > 0) {
     result = `${integerPart}.${decimalPart}%`;
   } else {
     result = `${integerPart}.00%`;
   }
-
   return result;
 };
 
@@ -40,9 +36,10 @@ const JurorBalanceDisplay = () => {
   const { data: courtDetails } = useCourtDetails(id);
 
   const stakedByAllJurors = courtDetails?.court?.stake;
+
   const jurorOdds =
-    !isUndefined(stakedByAllJurors) && !isUndefined(jurorBalance)
-      ? formatBigIntPercentage(jurorBalance[0], stakedByAllJurors)
+    !isUndefined(stakedByAllJurors) && !isUndefined(jurorBalance) && stakedByAllJurors !== "0"
+      ? formatBigIntPercentage(jurorBalance[0], BigInt(stakedByAllJurors))
       : "0.00%";
 
   const data = [
