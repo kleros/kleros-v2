@@ -4,7 +4,7 @@ import { alchemyProvider } from "@wagmi/core/providers/alchemy";
 import { Web3Modal } from "@web3modal/react";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { arbitrumGoerli, gnosisChiado } from "wagmi/chains";
-import { publicProvider } from "wagmi/providers/public";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { useToggleTheme } from "hooks/useToggleThemeContext";
 import { useTheme } from "styled-components";
 
@@ -13,7 +13,12 @@ const projectId = process.env.WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf
 
 const { publicClient } = configureChains(chains, [
   alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY ?? "" }),
-  publicProvider(),
+  jsonRpcProvider({
+    rpc: () => ({
+      http: `https://rpc.chiadochain.net`,
+      webSocket: `wss://rpc.chiadochain.net/wss`,
+    }),
+  }),
 ]);
 
 const wagmiConfig = createConfig({
