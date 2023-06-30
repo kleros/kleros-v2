@@ -1,11 +1,13 @@
 import React from "react";
 import styled from "styled-components";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
+import Skeleton from "react-loading-skeleton";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtPolicyURI } from "queries/useCourtPolicyURI";
+import { isUndefined } from "utils/index";
 import PolicyIcon from "svgs/icons/policy.svg";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 
@@ -68,7 +70,7 @@ const LinkContainer = styled.div`
   justify-content: space-between;
 `;
 
-const Overview: React.FC<{ arbitrable?: string; courtID?: string }> = ({ arbitrable, courtID }) => {
+const Overview: React.FC<{ arbitrable?: `0x${string}`; courtID?: string }> = ({ arbitrable, courtID }) => {
   const { id } = useParams();
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
@@ -82,9 +84,11 @@ const Overview: React.FC<{ arbitrable?: string; courtID?: string }> = ({ arbitra
     <>
       <Container>
         <h1>
-          {disputeTemplate
-            ? disputeTemplate?.title
-            : "The dispute's template is not correct please vote refuse to arbitrate"}
+          {isUndefined(disputeTemplate) ? (
+            <Skeleton />
+          ) : (
+            disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"
+          )}
         </h1>
         <QuestionAndDescription>
           <h3>{disputeTemplate?.question}</h3>

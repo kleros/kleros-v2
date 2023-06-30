@@ -1,29 +1,24 @@
 import { toast, ToastContentProps } from "react-toastify";
 import { OPTIONS } from "utils/wrapWithToast";
-import { FetchError } from "node-fetch";
-
-interface RenderError extends ToastContentProps {
-  data: FetchError;
-}
 
 export function uploadFormDataToIPFS(formData: FormData): Promise<Response> {
   return toast.promise(
     new Promise((resolve, reject) =>
-      fetch("/.netlify/functions/uploadToIPFS", {
+      fetch("/.netlify/functions/uploadToIPFS?dapp=court&key=kleros-v2&operation=evidence", {
         method: "POST",
         body: formData,
       }).then(async (response) =>
         response.status === 200
           ? resolve(response)
-          : reject({ message: (await response.json()).error.reason })
+          : reject(await response.json().catch(() => ({ message: "Error uploading to IPFS" })))
       )
     ),
     {
       pending: "Uploading evidence to IPFS...",
       success: "Uploaded successfully!",
       error: {
-        render({ data }: RenderError) {
-          return `Upload failed: ${data.message}`;
+        render({ data }: ToastContentProps<{ message: string }>) {
+          return `Upload failed: ${data?.message}`;
         },
       },
     },
