@@ -14,16 +14,21 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
     () => (checkIsUndefined ? `DisputeTemplate${disputeID}${arbitrableAddress}` : false),
     async () => {
       if (checkIsUndefined) {
-        const { isCrossChainDispute, crossChainId, crossChainTemplateId, crossChainArbitrableAddress } = crossChainData;
-        const templateId = isCrossChainDispute
-          ? crossChainTemplateId
-          : await getTemplateId(arbitrableAddress, disputeID, publicClient);
-        return await getDisputeTemplate(
-          templateId,
-          isCrossChainDispute ? crossChainArbitrableAddress : arbitrableAddress,
-          isCrossChainDispute ? parseInt(crossChainId.toString()) : DEFAULT_CHAIN,
-          publicClient
-        );
+        try {
+          const { isCrossChainDispute, crossChainId, crossChainTemplateId, crossChainArbitrableAddress } =
+            crossChainData;
+          const templateId = isCrossChainDispute
+            ? crossChainTemplateId
+            : await getTemplateId(arbitrableAddress, disputeID, publicClient);
+          return await getDisputeTemplate(
+            templateId,
+            isCrossChainDispute ? crossChainArbitrableAddress : arbitrableAddress,
+            isCrossChainDispute ? parseInt(crossChainId.toString()) : DEFAULT_CHAIN,
+            publicClient
+          );
+        } catch {
+          return {};
+        }
       } else throw Error;
     }
   );
@@ -74,10 +79,11 @@ const getDisputeTemplate = async (
   const disputeTemplateEvents = await publicClient.getFilterLogs({
     filter: disputeTemplateFilter,
   });
-  console.log(templateId, arbitrableAddress, chainId, disputeTemplateEvents);
 
-  if (disputeTemplateEvents) {
+  if (!isUndefined(disputeTemplateEvents)) {
     const parsedTemplate = JSON.parse(disputeTemplateEvents[0].args._templateData ?? "");
     return parsedTemplate;
+  } else {
+    return {};
   }
 };

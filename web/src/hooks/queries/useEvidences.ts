@@ -1,11 +1,12 @@
 import useSWR from "swr";
 import { graphql } from "src/graphql";
 import { EvidencesQuery } from "src/graphql/graphql";
+import { isUndefined } from "utils/index";
 export type { EvidencesQuery };
 
 const evidencesQuery = graphql(`
-  query Evidences($evidenceGroup: String) {
-    evidences(where: { evidenceGroup: $evidenceGroup }, orderBy: id, orderDirection: asc) {
+  query Evidences($evidenceGroupID: String) {
+    evidences(where: { evidenceGroup: $evidenceGroupID }, orderBy: id, orderDirection: asc) {
       id
       evidence
       sender {
@@ -17,10 +18,10 @@ const evidencesQuery = graphql(`
 
 export const useEvidences = (evidenceGroup?: string) => {
   return useSWR<EvidencesQuery>(() =>
-    typeof evidenceGroup !== "undefined"
+    !isUndefined(evidenceGroup)
       ? {
           query: evidencesQuery,
-          variables: { evidenceGroup: evidenceGroup },
+          variables: { evidenceGroupID: evidenceGroup },
         }
       : false
   );
