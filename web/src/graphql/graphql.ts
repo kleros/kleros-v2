@@ -3677,7 +3677,7 @@ export type DrawQueryVariables = Exact<{
 export type DrawQuery = { __typename?: "Query"; draws: Array<{ __typename?: "Draw"; voteID: any }> };
 
 export type EvidencesQueryVariables = Exact<{
-  evidenceGroup?: InputMaybe<Scalars["String"]["input"]>;
+  evidenceGroupID?: InputMaybe<Scalars["String"]["input"]>;
 }>;
 
 export type EvidencesQuery = {
@@ -4238,7 +4238,7 @@ export const EvidencesDocument = {
       variableDefinitions: [
         {
           kind: "VariableDefinition",
-          variable: { kind: "Variable", name: { kind: "Name", value: "evidenceGroup" } },
+          variable: { kind: "Variable", name: { kind: "Name", value: "evidenceGroupID" } },
           type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
         },
       ],
@@ -4258,7 +4258,7 @@ export const EvidencesDocument = {
                     {
                       kind: "ObjectField",
                       name: { kind: "Name", value: "evidenceGroup" },
-                      value: { kind: "Variable", name: { kind: "Name", value: "evidenceGroup" } },
+                      value: { kind: "Variable", name: { kind: "Name", value: "evidenceGroupID" } },
                     },
                   ],
                 },
