@@ -25,7 +25,7 @@
     "deploy-local": "hardhat deploy --tags Arbitration,HomeArbitrable --network localhost",
     "simulate": "hardhat simulate:all",
     "simulate-local": "hardhat simulate:all --network localhost",
-    "bot:keeper": "hardhat run ./scripts/keeperBot.ts",
+    "bot:keeper": "NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-fetch hardhat run ./scripts/keeperBot.ts",
     "etherscan-verify": "hardhat etherscan-verify",
     "sourcify": "hardhat sourcify --write-failing-metadata",
     "size": "hardhat size-contracts --no-compile",

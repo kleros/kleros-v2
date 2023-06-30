@@ -11,6 +11,7 @@ const MAX_EXECUTE_ITERATIONS = 20;
 const WAIT_FOR_RNG_DURATION = 5 * 1000; // 5 seconds
 const ITERATIONS_COOLDOWN_PERIOD = 6 * 1000; // 6 seconds
 const HIGH_GAS_LIMIT = { gasLimit: 30000000 }; // 30M gas
+const HEARTBEAT_URL = env.optionalNoDefault("HEARTBEAT_URL_KEEPER_BOT");
 
 const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN")
   ? {
@@ -19,6 +20,7 @@ const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN")
         options: { sourceToken: env.require("LOGTAIL_TOKEN") },
         level: env.optional("LOG_LEVEL", "info"),
       },
+      level: env.optional("LOG_LEVEL", "info"), // for pino-pretty
     }
   : {};
 const logger = loggerFactory.createLogger(loggerOptions);
@@ -305,6 +307,13 @@ async function main() {
     } else {
       logger.info("No delayed stakes to execute");
     }
+  }
+
+  if (HEARTBEAT_URL) {
+    logger.debug("Sending heartbeat");
+    fetch(HEARTBEAT_URL);
+  } else {
+    logger.debug("Heartbeat not set up, skipping");
   }
 }
 
