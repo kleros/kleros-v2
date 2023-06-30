@@ -5,6 +5,7 @@ const { ethers } = hre;
 const { BigNumber } = ethers;
 const MAX_DRAW_ITERATIONS = 50;
 const MAX_EXECUTE_ITERATIONS = 20;
+const HIGH_GAS_LIMIT = { gasLimit: 20000000 };
 
 const getContracts = async () => {
   const core = (await ethers.getContract("KlerosCore")) as KlerosCore;
@@ -138,26 +139,6 @@ async function main() {
     return (await sortition.phase()) === 2;
   };
 
-  if (!(await isPhaseStaking()) && (await hasMaxDrawingTimePassed())) {
-    console.log("Max drawing time passed, passing phase back to staking");
-    await passPhase();
-  }
-
-  // if staking and any delayed stake, then execute sortition.executeDelayedStakes(iterations)
-  // delayedStakes = 1 + delayedStakeWriteIndex - delayedStakeReadIndex
-  const delayedStakes = BigNumber.from(1)
-    .add(await sortition.delayedStakeWriteIndex())
-    .sub(await sortition.delayedStakeReadIndex());
-
-  if (await isPhaseStaking()) {
-    if (delayedStakes.gt(0)) {
-      console.log("Executing delayed stakes");
-      await sortition.executeDelayedStakes(delayedStakes);
-    } else {
-      console.log("No delayed stakes to execute");
-    }
-  }
-
   // get all the non-final disputes
   const nonFinalDisputesRequest = `{
     disputes(where: {period_not: execution}) {
@@ -195,6 +176,7 @@ async function main() {
   }
 
   if ((await hasMinStakingTimePassed()) && disputesWithoutJurors.length > 0) {
+    console.log("Attempting to draw jurors");
     if (await isPhaseStaking()) {
       await passPhase();
     }
@@ -208,8 +190,11 @@ async function main() {
       await passPhase();
     }
     if (await isPhaseDrawing()) {
+      let maxDrawingTimePassed = await hasMaxDrawingTimePassed();
       for (dispute of disputesWithoutJurors) {
-        let maxDrawingTimePassed = false;
+        if (maxDrawingTimePassed) {
+          break;
+        }
         let numberOfMissingJurors = await getMissingJurors(dispute);
         do {
           const drawIterations = Math.min(MAX_DRAW_ITERATIONS, numberOfMissingJurors.toNumber());
@@ -220,13 +205,10 @@ async function main() {
             dispute.id
           );
           // break; // for testing
-          await core.draw(dispute.id, drawIterations);
+          await core.draw(dispute.id, drawIterations, HIGH_GAS_LIMIT);
           maxDrawingTimePassed = await hasMaxDrawingTimePassed();
           numberOfMissingJurors = await getMissingJurors(dispute);
         } while (!numberOfMissingJurors.eq(0) && !maxDrawingTimePassed);
-        if (maxDrawingTimePassed) {
-          break;
-        }
       }
       // At this point, either all disputes are fully drawn or max drawing time has passed
       await passPhase();
@@ -250,12 +232,29 @@ async function main() {
           dispute.id
         );
         // break; // for testing
-        await core.execute(dispute.id, dispute.currentRoundIndex, executeIterations);
+        // const gasPrice = await ethers.provider.getGasPrice();
+        // const gas = await core.estimateGas.execute(dispute.id, dispute.currentRoundIndex, executeIterations);
+        await core.execute(dispute.id, dispute.currentRoundIndex, executeIterations, HIGH_GAS_LIMIT);
         numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute, coherentCount);
       } while (numberOfMissingRepartitions != 0);
 
       console.log("Executing ruling for dispute #%d", dispute.id);
       await core.executeRuling(dispute.id);
+    }
+  }
+
+  // if staking and any delayed stake, then execute sortition.executeDelayedStakes(iterations)
+  // delayedStakes = 1 + delayedStakeWriteIndex - delayedStakeReadIndex
+  const delayedStakes = BigNumber.from(1)
+    .add(await sortition.delayedStakeWriteIndex())
+    .sub(await sortition.delayedStakeReadIndex());
+
+  if (await isPhaseStaking()) {
+    if (delayedStakes.gt(0)) {
+      console.log("Executing delayed stakes");
+      await sortition.executeDelayedStakes(delayedStakes);
+    } else {
+      console.log("No delayed stakes to execute");
     }
   }
 }
