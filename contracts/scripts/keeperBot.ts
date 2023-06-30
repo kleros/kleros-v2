@@ -5,7 +5,9 @@ const { ethers } = hre;
 const { BigNumber } = ethers;
 const MAX_DRAW_ITERATIONS = 50;
 const MAX_EXECUTE_ITERATIONS = 20;
-const HIGH_GAS_LIMIT = { gasLimit: 20000000 };
+const WAIT_FOR_RNG_DURATION = 5 * 1000; // 5 seconds
+const ITERATIONS_COOLDOWN_PERIOD = 6 * 1000; // 6 seconds
+const HIGH_GAS_LIMIT = { gasLimit: 30000000 };
 
 const getContracts = async () => {
   const core = (await ethers.getContract("KlerosCore")) as KlerosCore;
@@ -29,7 +31,7 @@ const isRngReady = async () => {
   const requesterID = await randomizerRng.requesterToID(sortition.address);
   const n = await randomizerRng.randomNumbers(requesterID);
   if (Number(n) === 0) {
-    console.log("RandomizerRNG is NOT ready.");
+    console.log("RandomizerRNG is NOT ready yet");
     return false;
   } else {
     console.log("RandomizerRNG is ready: %s", n.toString());
@@ -41,7 +43,8 @@ const passPhase = async () => {
   const { sortition } = await getContracts();
   const before = await sortition.phase();
   try {
-    const tx = await (await sortition.passPhase()).wait();
+    const gas = (await sortition.estimateGas.passPhase()).mul(150).div(100); // 50% extra gas
+    const tx = await (await sortition.passPhase({ gasLimit: gas })).wait();
     console.log("passPhase txID: %s", tx?.transactionHash);
   } catch (e) {
     handleError(e);
@@ -54,8 +57,15 @@ const passPhase = async () => {
 
 const passPeriod = async (dispute: { id: string }) => {
   const { core } = await getContracts();
+  try {
+    await core.callStatic.passPeriod(7);
+  } catch (e) {
+    console.log("passPeriod: not ready yet for dispute %s", dispute.id);
+    return false;
+  }
   const before = (await core.disputes(dispute.id)).period;
   try {
+    const gas = (await core.estimateGas.passPeriod(dispute.id)).mul(150).div(100); // 50% extra gas
     const tx = await (await core.passPeriod(dispute.id)).wait();
     console.log("passPeriod txID: %s", tx?.transactionHash);
   } catch (e) {
@@ -64,6 +74,22 @@ const passPeriod = async (dispute: { id: string }) => {
     const after = (await core.disputes(dispute.id)).period;
     console.log("passPeriod for dispute %s: %d -> %d", dispute.id, before, after);
     return before !== after; // true if successful
+  }
+};
+
+const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, drawIterations: number) => {
+  const { core } = await getContracts();
+  let success = false;
+  try {
+    const tx = await (await core.draw(dispute.id, drawIterations, HIGH_GAS_LIMIT)).wait();
+    console.log("Draw txID: %s", tx?.transactionHash);
+    success = true;
+  } catch (e) {
+    handleError(e);
+  } finally {
+    const roundInfo = await core.getRoundInfo(dispute.id, dispute.currentRoundIndex);
+    console.log("Drawn jurors (last 20): %O", roundInfo.drawnJurors.slice(-20));
+    return success;
   }
 };
 
@@ -156,7 +182,7 @@ async function main() {
 
   const { disputes } = result as { disputes: { period: string; id: string; currentRoundIndex: string }[] };
   for (var dispute of disputes) {
-    console.log("dispute #%d, round #%d, period %s", dispute.id, dispute.currentRoundIndex, dispute.period);
+    console.log("dispute #%d, round #%d, %s period", dispute.id, dispute.currentRoundIndex, dispute.period);
   }
 
   const disputesWithoutJurors = await filterAsync(disputes, async (dispute) => {
@@ -184,7 +210,7 @@ async function main() {
       let maxDrawingTimePassed = false;
       do {
         console.log("Waiting for RNG to be ready");
-        await delay(5000000); // 5 seconds
+        await delay(WAIT_FOR_RNG_DURATION);
         maxDrawingTimePassed = await hasMaxDrawingTimePassed();
       } while (!(await isRngReady()) && !maxDrawingTimePassed);
       await passPhase();
@@ -193,6 +219,7 @@ async function main() {
       let maxDrawingTimePassed = await hasMaxDrawingTimePassed();
       for (dispute of disputesWithoutJurors) {
         if (maxDrawingTimePassed) {
+          console.log("Max drawing time passed");
           break;
         }
         let numberOfMissingJurors = await getMissingJurors(dispute);
@@ -204,18 +231,24 @@ async function main() {
             numberOfMissingJurors,
             dispute.id
           );
-          // break; // for testing
-          await core.draw(dispute.id, drawIterations, HIGH_GAS_LIMIT);
+          if (!(await drawJurors(dispute, drawIterations))) {
+            console.log("Failed to draw jurors for dispute #%d, skipping it", dispute.id);
+            break;
+          }
+          await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
           maxDrawingTimePassed = await hasMaxDrawingTimePassed();
           numberOfMissingJurors = await getMissingJurors(dispute);
         } while (!numberOfMissingJurors.eq(0) && !maxDrawingTimePassed);
       }
       // At this point, either all disputes are fully drawn or max drawing time has passed
-      await passPhase();
+      let i = 0;
+      while (!(await isPhaseStaking()) && i++ < 3) {
+        await passPhase();
+      }
     }
   }
 
-  for (dispute of disputesWithoutJurors) {
+  for (dispute of disputes) {
     await passPeriod(dispute);
 
     const { period } = await core.disputes(dispute.id);
@@ -231,15 +264,22 @@ async function main() {
           numberOfMissingRepartitions,
           dispute.id
         );
-        // break; // for testing
-        // const gasPrice = await ethers.provider.getGasPrice();
-        // const gas = await core.estimateGas.execute(dispute.id, dispute.currentRoundIndex, executeIterations);
+
         await core.execute(dispute.id, dispute.currentRoundIndex, executeIterations, HIGH_GAS_LIMIT);
         numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute, coherentCount);
+        await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
       } while (numberOfMissingRepartitions != 0);
 
-      console.log("Executing ruling for dispute #%d", dispute.id);
-      await core.executeRuling(dispute.id);
+      const { ruled } = await core.disputes(dispute.id);
+      const { ruling } = await core.currentRuling(dispute.id);
+      if (!ruled) {
+        console.log("Executing ruling %d for dispute #%d", ruling, dispute.id);
+        const gas = (await core.estimateGas.executeRuling(dispute.id)).mul(150).div(100); // 50% extra gas
+        await core.executeRuling(dispute.id, { gasLimit: gas });
+      }
+
+      // TODO: withdraw appeal funding contributions
+      // await disputeKitClassic.withdrawFeesAndRewards(dispute.id, beneficiary, dispute.currentRoundIndex, choice);
     }
   }
 
