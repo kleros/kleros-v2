@@ -156,6 +156,15 @@ const filterAsync = async <T>(
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const sendHeartbeat = async () => {
+  if (HEARTBEAT_URL) {
+    logger.debug("Sending heartbeat");
+    fetch(HEARTBEAT_URL);
+  } else {
+    logger.debug("Heartbeat not set up, skipping");
+  }
+};
+
 async function main() {
   const { core, sortition, disputeKitClassic } = await getContracts();
 
@@ -192,6 +201,8 @@ async function main() {
   const isPhaseDrawing = async (): Promise<boolean> => {
     return (await sortition.phase()) === 2;
   };
+
+  await sendHeartbeat();
 
   // get all the non-final disputes
   const nonFinalDisputesRequest = `{
@@ -270,6 +281,8 @@ async function main() {
     }
   }
 
+  await sendHeartbeat();
+
   for (dispute of disputes) {
     await passPeriod(dispute);
 
@@ -315,12 +328,9 @@ async function main() {
     }
   }
 
-  if (HEARTBEAT_URL) {
-    logger.debug("Sending heartbeat");
-    fetch(HEARTBEAT_URL);
-  } else {
-    logger.debug("Heartbeat not set up, skipping");
-  }
+  await sendHeartbeat();
+
+  await delay(2000); // Some log messages may be lost otherwise
 }
 
 main()
@@ -328,4 +338,7 @@ main()
   .catch((error) => {
     console.error(error);
     process.exit(1);
+  })
+  .finally(() => {
+    logger.flush();
   });
