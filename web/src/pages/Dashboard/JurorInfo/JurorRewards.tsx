@@ -49,11 +49,10 @@ const rewards: IReward[] = [
 ];
 
 const calculateTotalReward = (coinId: number, data: any) => {
-  const total =
-    data &&
-    data.user.shifts
-      .map((shift) => parseInt(coinId === 0 ? shift.tokenAmount : shift.ethAmount))
-      .reduce((acc, curr) => acc + curr, 0);
+  const total = data?.user.shifts
+    .map((shift) => parseInt(coinId === 0 ? shift.tokenAmount : shift.ethAmount))
+    .reduce((acc, curr) => acc + curr, 0);
+
   return total;
 };
 
@@ -70,12 +69,12 @@ const Coherency: React.FC = () => {
             <label> Juror Rewards </label>
           </WithHelpTooltip>
 
-          {rewards.map(({ token, coinId, getValue, getAmount }, i) => {
-            const coinPrice = !isUndefined(pricesData) ? pricesData[coinIdToAddress[coinId!]]?.price : undefined;
+          {rewards.map(({ token, coinId, getValue, getAmount }) => {
+            const coinPrice = !isUndefined(pricesData) ? pricesData[coinIdToAddress[coinId]]?.price : undefined;
             const totalReward = calculateTotalReward(coinId, data);
             return (
               <TokenRewards
-                key={i}
+                key={coinId}
                 {...{ token }}
                 amount={data ? getAmount(totalReward) : "Fetching..."}
                 value={data ? getValue(totalReward, coinPrice) : "Fetching..."}
