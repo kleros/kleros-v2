@@ -6,9 +6,7 @@ import Fund from "./Fund";
 const Classic: React.FC = () => (
   <ClassicAppealProvider>
     <h1>Appeal crowdfunding</h1>
-    <label>
-      The jury decision is appealed when two options are fully funded.
-    </label>
+    <label> The jury decision is appealed when two options are fully funded. </label>
     <Options />
     <Fund />
   </ClassicAppealProvider>
