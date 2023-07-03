@@ -14,3 +14,8 @@ export function secondsToDayHourMinute(seconds: number): string {
   const s = seconds % 60;
   return d > 0 ? `${d}d ${h}h ${m}m` : `${h}h ${m}m ${s}s`;
 }
+
+export function getOneYearAgoTimestamp(): number {
+  const currentTime = new Date().getTime() / 1000;
+  return currentTime - 31536000; // One year in seconds
+}

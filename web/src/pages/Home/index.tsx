@@ -4,6 +4,7 @@ import CourtOverview from "./CourtOverview";
 import LatestCases from "./LatestCases";
 import Community from "./Community";
 import { HomePageProvider } from "hooks/useHomePageContext";
+import { getOneYearAgoTimestamp } from "utils/date";
 
 const Container = styled.div`
   width: 100%;
@@ -11,11 +12,6 @@ const Container = styled.div`
   background-color: ${({ theme }) => theme.lightBackground};
   padding: 32px;
 `;
-
-const getOneYearAgoTimestamp: () => number = () => {
-  const currentTime = new Date().getTime() / 1000;
-  return currentTime - 31556926; // One year in seconds
-};
 
 const Home: React.FC = () => (
   <HomePageProvider timeframe={getOneYearAgoTimestamp()}>
