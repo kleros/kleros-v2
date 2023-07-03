@@ -1,8 +1,10 @@
 import useSWR from "swr";
 import { graphql } from "src/graphql";
+import { JurorStakedCourtsQuery } from "src/graphql/graphql";
+export type { JurorStakedCourtsQuery };
 
 const jurorStakedCourtsQuery = graphql(`
-  query JurorStakedCourtsQuery($id: ID!) {
+  query JurorStakedCourts($id: ID!) {
     user(id: $id) {
       tokens {
         court {
@@ -15,7 +17,7 @@ const jurorStakedCourtsQuery = graphql(`
 `);
 
 export const useJurorStakedCourts = (id?: string) => {
-  return useSWR(
+  return useSWR<JurorStakedCourtsQuery>(
     id
       ? {
           query: jurorStakedCourtsQuery,
