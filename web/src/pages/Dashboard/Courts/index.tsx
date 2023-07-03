@@ -1,9 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { useCourtDetails } from "hooks/queries/useCourtDetails";
-import CourtCard from "./CourtCard";
-import { useJurorStakedCourts } from "~src/hooks/queries/useJurorStakedCourts";
 import { useAccount } from "wagmi";
+import CourtCard from "./CourtCard";
+import { useJurorStakedCourts } from "hooks/queries/useJurorStakedCourts";
 
 const Container = styled.div`
   margin-top: 64px;
