@@ -3,33 +3,8 @@ import styled from "styled-components";
 import Identicon from "react-identicons";
 import { useNavigate } from "react-router-dom";
 import ArrowIcon from "assets/svgs/icons/arrow.svg";
-import LightButton from "./LightButton";
-import ClosedCaseIcon from "assets/svgs/icons/check-circle-outline.svg";
-
-const BannerContainer = styled.div`
-  display: flex;
-  gap: 8px;
-  margin: 16px 0px;
-  svg {
-    width: 16px;
-    height: 16px;
-  }
-`;
-
-const VerdictTag = styled.small`
-  font-weight: 400;
-  line-height: 19px;
-  color: ${({ theme }) => theme.success};
-`;
-
-const VerdictBanner: React.FC = () => {
-  return (
-    <BannerContainer>
-      <ClosedCaseIcon />
-      <VerdictTag>Case closed</VerdictTag>
-    </BannerContainer>
-  );
-};
+import LightButton from "../LightButton";
+import VerdictBanner from "./VerdictBanner";
 
 const Container = styled.div`
   position: relative;
@@ -102,12 +77,12 @@ const StyledButton = styled(LightButton)`
   bottom: 0;
 `;
 
-interface IVerdict {
+interface IFinalDecision {
   id: string;
   disputeDetails: any;
 }
 
-const Verdict: React.FC<IVerdict> = ({ id, disputeDetails }) => {
+const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeDetails }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -140,4 +115,4 @@ const Verdict: React.FC<IVerdict> = ({ id, disputeDetails }) => {
     </Container>
   );
 };
-export default Verdict;
+export default FinalDecision;

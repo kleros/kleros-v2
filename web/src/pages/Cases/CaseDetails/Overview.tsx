@@ -10,7 +10,7 @@ import { useCourtPolicyURI } from "queries/useCourtPolicyURI";
 import { isUndefined } from "utils/index";
 import PolicyIcon from "svgs/icons/policy.svg";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
-import Verdict from "components/Verdict";
+import Verdict from "components/Verdict/index";
 
 const Container = styled.div`
   width: 100%;
@@ -76,10 +76,8 @@ const Overview: React.FC<{ arbitrable?: `0x${string}`; courtID?: string }> = ({ 
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
   console.log("🚀 ~ file: Overview.tsx:77 ~ disputeTemplate:", disputeTemplate, id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
-  console.log("🚀 ~ file: Overview.tsx:79 ~ disputeDetails:", disputeDetails);
   const { data: courtPolicyURI } = useCourtPolicyURI(courtID);
   const { data: courtPolicy } = useCourtPolicy(courtID);
-  console.log("🚀 ~ file: Overview.tsx:82 ~ courtPolicy:", courtPolicy);
   const courtName = courtPolicy?.name;
   const court = disputeDetails?.dispute?.court;
   const rewards = court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined;
