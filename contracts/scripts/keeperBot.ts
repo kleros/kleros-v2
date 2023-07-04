@@ -12,6 +12,7 @@ const WAIT_FOR_RNG_DURATION = 5 * 1000; // 5 seconds
 const ITERATIONS_COOLDOWN_PERIOD = 20 * 1000; // 20 seconds
 const HIGH_GAS_LIMIT = { gasLimit: 50000000 }; // 50M gas
 const HEARTBEAT_URL = env.optionalNoDefault("HEARTBEAT_URL_KEEPER_BOT");
+const SUBGRAPH_URL = env.require("SUBGRAPH_URL");
 
 const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN")
   ? {
@@ -34,11 +35,108 @@ const getContracts = async () => {
   return { core, sortition, randomizerRng, disputeKitClassic, pnk };
 };
 
+type Contribution = {
+  contributor: {
+    id: string;
+  };
+  choice: string;
+  rewardWithdrawn: boolean;
+  coreDispute: {
+    currentRoundIndex: string;
+  };
+};
+
+type Dispute = {
+  period: string;
+  id: string;
+  currentRoundIndex: string;
+};
+
+type CustomError = {
+  reason: string;
+  code: string;
+  errorArgs: any[];
+  errorName: string;
+  errorSignature: string;
+};
+
+const getNonFinalDisputes = async (): Promise<Dispute[]> => {
+  const nonFinalDisputesRequest = `{
+    disputes(where: {period_not: execution}) {
+      period
+      id
+      currentRoundIndex
+    }
+  }`;
+  // TODO: use a local graph node if chainId is HARDHAT
+  const result = await request(SUBGRAPH_URL, nonFinalDisputesRequest);
+  const { disputes } = result as { disputes: Dispute[] };
+  return disputes;
+};
+
+const getAppealContributions = async (disputeId: string): Promise<Contribution[]> => {
+  const appealContributionsRequest = (disputeId: string) => `{
+    contributions(where: {coreDispute: "${disputeId}"}) {
+      contributor {
+        id
+      }
+      ... on ClassicContribution {
+        choice
+        rewardWithdrawn
+      }
+      coreDispute {
+        currentRoundIndex
+      }
+    }
+  }`;
+  // TODO: use a local graph node if chainId is HARDHAT
+  const result = await request(SUBGRAPH_URL, appealContributionsRequest(disputeId));
+  const { contributions } = result as { contributions: Contribution[] };
+  return contributions;
+};
+
+const getDisputesWithUnexecutedRuling = async (): Promise<Dispute[]> => {
+  const disputesWithUnexecutedRuling = `{
+    disputes(where: {period: execution, ruled: false}) {
+      id
+      currentRoundIndex
+    	period
+    }
+  }`;
+  // TODO: use a local graph node if chainId is HARDHAT
+  const result = (await request(SUBGRAPH_URL, disputesWithUnexecutedRuling)) as { disputes: Dispute[] };
+  return result.disputes;
+};
+
+const getUniqueDisputes = (disputes: Dispute[]): Dispute[] => {
+  return [...new Map(disputes.map((v) => [v.id, v])).values()];
+};
+
+const getDisputesWithContributionsNotYetWithdrawn = async (): Promise<Dispute[]> => {
+  const disputesWithContributionsNotYetWithdrawn = `{
+    classicContributions(where: {rewardWithdrawn: false}) {
+      coreDispute {
+        id
+        period
+        currentRoundIndex
+      }
+    }
+  }`;
+  // TODO: use a local graph node if chainId is HARDHAT
+  const result = (await request(SUBGRAPH_URL, disputesWithContributionsNotYetWithdrawn)) as {
+    classicContributions: { coreDispute: Dispute }[];
+  };
+  const disputes = result.classicContributions
+    .filter((contribution) => contribution.coreDispute.period === "execution")
+    .map((dispute) => dispute.coreDispute);
+  return getUniqueDisputes(disputes);
+};
+
 const handleError = (e: any) => {
   if (typeof e === "string") {
-    logger.error(e, "Transaction failed");
+    logger.error(e, "Failure");
   } else if (e instanceof Error) {
-    logger.error(e, "Transaction failed");
+    logger.error(e, "Failure");
   }
 };
 
@@ -61,7 +159,7 @@ const passPhase = async () => {
   try {
     await sortition.callStatic.passPhase();
   } catch (e) {
-    logger.info(`passPhase: not ready yet`);
+    logger.info(`passPhase: not ready yet because of ${(e as CustomError).reason}`);
     return success;
   }
   const before = await sortition.phase();
@@ -83,9 +181,9 @@ const passPeriod = async (dispute: { id: string }) => {
   const { core } = await getContracts();
   let success = false;
   try {
-    await core.callStatic.passPeriod(7);
+    await core.callStatic.passPeriod(dispute.id);
   } catch (e) {
-    logger.info(`passPeriod: not ready yet for dispute ${dispute.id}`);
+    logger.info(`passPeriod: not ready yet for dispute ${dispute.id} because of error ${(e as CustomError).errorName}`);
     return success;
   }
   const before = (await core.disputes(dispute.id)).period;
@@ -103,17 +201,17 @@ const passPeriod = async (dispute: { id: string }) => {
   return success;
 };
 
-const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, drawIterations: number) => {
+const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, iterations: number) => {
   const { core } = await getContracts();
   let success = false;
   try {
-    await core.callStatic.draw(dispute.id, drawIterations, HIGH_GAS_LIMIT);
+    await core.callStatic.draw(dispute.id, iterations, HIGH_GAS_LIMIT);
   } catch (e) {
     logger.info(`Draw: will fail for ${dispute.id}, skipping`);
     return success;
   }
   try {
-    const tx = await (await core.draw(dispute.id, drawIterations, HIGH_GAS_LIMIT)).wait();
+    const tx = await (await core.draw(dispute.id, iterations, HIGH_GAS_LIMIT)).wait();
     logger.info(`Draw txID: ${tx?.transactionHash}`);
     success = true;
   } catch (e) {
@@ -121,6 +219,76 @@ const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, dr
   } finally {
     const roundInfo = await core.getRoundInfo(dispute.id, dispute.currentRoundIndex);
     logger.info(`Drawn jurors (last 20): ${roundInfo.drawnJurors.slice(-20)}`);
+  }
+  return success;
+};
+
+const executeRepartitions = async (dispute: { id: string; currentRoundIndex: string }, iterations: number) => {
+  const { core } = await getContracts();
+  let success = false;
+  try {
+    await core.callStatic.execute(dispute.id, dispute.currentRoundIndex, iterations, HIGH_GAS_LIMIT);
+  } catch (e) {
+    logger.info(`Execute: will fail for ${dispute.id}, skipping`);
+    return success;
+  }
+  try {
+    const tx = await (await core.execute(dispute.id, dispute.currentRoundIndex, iterations, HIGH_GAS_LIMIT)).wait();
+    logger.info(`Execute txID: ${tx?.transactionHash}`);
+    success = true;
+  } catch (e) {
+    handleError(e);
+  }
+  return success;
+};
+
+const executeRuling = async (dispute: { id: string }) => {
+  const { core } = await getContracts();
+  let success = false;
+  try {
+    await core.callStatic.executeRuling(dispute.id);
+  } catch (e) {
+    logger.info(`ExecuteRuling: will fail for ${dispute.id}, skipping`);
+    return success;
+  }
+  try {
+    const gas = (await core.estimateGas.executeRuling(dispute.id)).mul(150).div(100); // 50% extra gas
+    const tx = await (await core.executeRuling(dispute.id, { gasLimit: gas })).wait();
+    logger.info(`ExecuteRuling txID: ${tx?.transactionHash}`);
+    success = true;
+  } catch (e) {
+    handleError(e);
+  }
+  return success;
+};
+
+const withdrawAppealContribution = async (dispute: Dispute, contribution: Contribution): Promise<boolean> => {
+  const { disputeKitClassic: kit } = await getContracts();
+  let success = false;
+  try {
+    logger.info(
+      `Withdrawing appeal contribution for dispute #${dispute.id}, round #${dispute.currentRoundIndex}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}  `
+    );
+    const gas = (
+      await kit.estimateGas.withdrawFeesAndRewards(
+        dispute.id,
+        contribution.contributor.id,
+        dispute.currentRoundIndex,
+        contribution.choice
+      )
+    )
+      .mul(150)
+      .div(100); // 50% extra gas
+    await kit.withdrawFeesAndRewards(
+      dispute.id,
+      contribution.contributor.id,
+      dispute.currentRoundIndex,
+      contribution.choice,
+      { gasLimit: gas }
+    );
+    success = true;
+  } catch (e) {
+    handleError(e);
   }
   return success;
 };
@@ -208,22 +376,10 @@ async function main() {
 
   await sendHeartbeat();
 
-  // get all the non-final disputes
-  const nonFinalDisputesRequest = `{
-    disputes(where: {period_not: execution}) {
-      period
-      id
-      currentRoundIndex
-    }
-  }`;
-
-  // TODO: use a local graph node if chainId is HARDHAT
-  const result = await request(
-    "https://api.thegraph.com/subgraphs/name/alcercu/kleroscoretest",
-    nonFinalDisputesRequest
-  );
-
-  const { disputes } = result as { disputes: { period: string; id: string; currentRoundIndex: string }[] };
+  const disputes = await getNonFinalDisputes().catch((e) => handleError(e));
+  if (!disputes) {
+    return;
+  }
   for (var dispute of disputes) {
     logger.info(`dispute #${dispute.id}, round #${dispute.currentRoundIndex}, ${dispute.period} period`);
   }
@@ -236,12 +392,15 @@ async function main() {
   // Just a sanity check
   const numberOfDisputesWithoutJurors = await sortition.disputesWithoutJurors();
   if (!numberOfDisputesWithoutJurors.eq(disputesWithoutJurors.length)) {
-    console.error("Discrepancy between SortitionModule.disputesWithoutJurors and KlerosCore.disputes");
-    console.error(`KlerosCore.disputes without jurors = ${disputesWithoutJurors.length}`);
-    console.error(`SortitionModule.disputesWithoutJurors = ${numberOfDisputesWithoutJurors}`);
+    logger.error("Discrepancy between SortitionModule.disputesWithoutJurors and KlerosCore.disputes");
+    logger.error(`KlerosCore.disputes without jurors = ${disputesWithoutJurors.length}`);
+    logger.error(`SortitionModule.disputesWithoutJurors = ${numberOfDisputesWithoutJurors}`);
   }
 
   if ((await hasMinStakingTimePassed()) && disputesWithoutJurors.length > 0) {
+    // ----------------------------------------------- //
+    //                DRAWING ATTEMPT                  //
+    // ----------------------------------------------- //
     logger.info("Attempting to draw jurors");
     if (await isPhaseStaking()) {
       await passPhase();
@@ -285,38 +444,99 @@ async function main() {
     }
   }
 
+  // ----------------------------------------------- //
+  //                 STAKING PHASE                   //
+  // ----------------------------------------------- //
+
   await sendHeartbeat();
 
-  for (dispute of disputes) {
+  for (var dispute of disputes) {
+    // ----------------------------------------------- //
+    //                  PASS PERIOD                    //
+    // ----------------------------------------------- //
     await passPeriod(dispute);
+  }
 
+  // Get all the disputes whose ruling is not yet executed
+  const unexecutedDisputes = await getDisputesWithUnexecutedRuling();
+  logger.info(`Disputes not yet executed: ${unexecutedDisputes.map((dispute) => dispute.id)}`);
+
+  // Get all disputes with contributions not yet withdrawn
+  const disputesWithContributionsNotYetWithdrawn = await getDisputesWithContributionsNotYetWithdrawn();
+  logger.info(
+    `Disputes with contributions not yet withdrawn: ${disputesWithContributionsNotYetWithdrawn.map(
+      (dispute) => dispute.id
+    )}`
+  );
+
+  // Disputes union and deduplicate
+  const unprocessedDisputesInExecution = getUniqueDisputes(
+    unexecutedDisputes.concat(disputesWithContributionsNotYetWithdrawn).concat(disputes)
+  );
+  logger.info(`Disputes not fully executed: ${unprocessedDisputesInExecution.map((dispute) => dispute.id)}`);
+
+  for (var dispute of unprocessedDisputesInExecution) {
     const { period } = await core.disputes(dispute.id);
-    if (period === 4) {
-      // Execution period
-      const coherentCount = await disputeKitClassic.getCoherentCount(dispute.id, dispute.currentRoundIndex);
-      let numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute, coherentCount);
-      do {
-        const executeIterations = Math.min(MAX_EXECUTE_ITERATIONS, numberOfMissingRepartitions);
-        logger.info(
-          `Executing ${executeIterations} out of ${numberOfMissingRepartitions} repartitions needed for dispute #${dispute.id}`
-        );
-        await core.execute(dispute.id, dispute.currentRoundIndex, executeIterations, HIGH_GAS_LIMIT);
-        numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute, coherentCount);
-        await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
-      } while (numberOfMissingRepartitions != 0);
+    if (period !== 4) {
+      logger.info(`Skipping dispute #${dispute.id} because it is not in the execution period`);
+      continue;
+    }
 
-      const { ruled } = await core.disputes(dispute.id);
-      const { ruling } = await core.currentRuling(dispute.id);
-      if (!ruled) {
-        logger.info(`Executing ruling ${ruling} for dispute #${dispute.id}`);
-        const gas = (await core.estimateGas.executeRuling(dispute.id)).mul(150).div(100); // 50% extra gas
-        await core.executeRuling(dispute.id, { gasLimit: gas });
+    // ----------------------------------------------- //
+    //             REPARTITIONS EXECUTION              //
+    // ----------------------------------------------- //
+    const coherentCount = await disputeKitClassic.getCoherentCount(dispute.id, dispute.currentRoundIndex);
+    let numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute, coherentCount);
+    do {
+      const executeIterations = Math.min(MAX_EXECUTE_ITERATIONS, numberOfMissingRepartitions);
+      if (executeIterations === 0) {
+        continue;
       }
+      logger.info(
+        `Executing ${executeIterations} out of ${numberOfMissingRepartitions} repartitions needed for dispute #${dispute.id}`
+      );
+      if (!(await executeRepartitions(dispute, executeIterations))) {
+        logger.info(`Failed to execute repartitions for dispute #${dispute.id}, skipping it`);
+        break;
+      }
+      numberOfMissingRepartitions = await getNumberOfMissingRepartitions(dispute, coherentCount);
+      await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
+    } while (numberOfMissingRepartitions != 0);
 
-      // TODO: withdraw appeal funding contributions
-      // await disputeKitClassic.withdrawFeesAndRewards(dispute.id, beneficiary, dispute.currentRoundIndex, choice);
+    // ----------------------------------------------- //
+    //               RULING EXECUTION                  //
+    // ----------------------------------------------- //
+    const { ruled } = await core.disputes(dispute.id);
+    const { ruling } = await core.currentRuling(dispute.id);
+    if (!ruled) {
+      logger.info(`Executing ruling ${ruling} for dispute #${dispute.id}`);
+      await executeRuling(dispute);
+    } else {
+      logger.info(`Ruling already executed for dispute #${dispute.id}`);
+    }
+
+    // ----------------------------------------------- //
+    //      WITHDRAWAL OF THE APPEAL CONTRIBUTIONS     //
+    // ----------------------------------------------- //
+    let contributions = await getAppealContributions(dispute.id).catch((e) => handleError(e));
+    if (!contributions) {
+      continue;
+    }
+    // Remove contributions already withdrawn and those for other rounds
+    contributions = contributions.filter((contribution) => {
+      return !contribution.rewardWithdrawn && contribution.coreDispute.currentRoundIndex === dispute.currentRoundIndex;
+    });
+    // Remove duplicates which may have a different contribution amount for the same round, choice and beneficiary
+    contributions = [...new Set(contributions)];
+    for (var contribution of contributions) {
+      await withdrawAppealContribution(dispute, contribution);
+      await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
     }
   }
+
+  // ----------------------------------------------- //
+  //             EXECUTE DELAYED STAKES              //
+  // ----------------------------------------------- //
 
   // delayedStakes = 1 + delayedStakeWriteIndex - delayedStakeReadIndex
   const delayedStakes = BigNumber.from(1)
