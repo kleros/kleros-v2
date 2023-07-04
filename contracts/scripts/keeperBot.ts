@@ -57,11 +57,12 @@ const isRngReady = async () => {
 
 const passPhase = async () => {
   const { sortition } = await getContracts();
+  let success = false;
   try {
     await sortition.callStatic.passPhase();
   } catch (e) {
     logger.info(`passPhase: not ready yet`);
-    return false;
+    return success;
   }
   const before = await sortition.phase();
   try {
@@ -73,17 +74,19 @@ const passPhase = async () => {
   } finally {
     const after = await sortition.phase();
     logger.info(`passPhase: ${before} -> ${after}`);
-    return before !== after; // true if successful
+    success = before !== after; // true if successful
   }
+  return success;
 };
 
 const passPeriod = async (dispute: { id: string }) => {
   const { core } = await getContracts();
+  let success = false;
   try {
     await core.callStatic.passPeriod(7);
   } catch (e) {
     logger.info(`passPeriod: not ready yet for dispute ${dispute.id}`);
-    return false;
+    return success;
   }
   const before = (await core.disputes(dispute.id)).period;
   try {
@@ -95,8 +98,9 @@ const passPeriod = async (dispute: { id: string }) => {
   } finally {
     const after = (await core.disputes(dispute.id)).period;
     logger.info(`passPeriod for dispute ${dispute.id}: ${before} -> ${after}`);
-    return before !== after; // true if successful
+    success = before !== after; // true if successful
   }
+  return success;
 };
 
 const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, drawIterations: number) => {
@@ -117,8 +121,8 @@ const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, dr
   } finally {
     const roundInfo = await core.getRoundInfo(dispute.id, dispute.currentRoundIndex);
     logger.info(`Drawn jurors (last 20): ${roundInfo.drawnJurors.slice(-20)}`);
-    return success;
   }
+  return success;
 };
 
 const getMissingJurors = async (dispute: { id: string; currentRoundIndex: string }) => {
