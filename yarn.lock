@@ -5166,7 +5166,7 @@ __metadata:
     graphql-request: ^6.1.0
     hardhat: ^2.15.0
     hardhat-contract-sizer: ^2.10.0
-    hardhat-deploy: ^0.11.31
+    hardhat-deploy: ^0.11.34
     hardhat-deploy-ethers: ^0.4.0-next.1
     hardhat-deploy-tenderly: ^0.2.0
     hardhat-docgen: ^1.3.0
@@ -17591,9 +17591,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat-deploy@npm:^0.11.31":
-  version: 0.11.31
-  resolution: "hardhat-deploy@npm:0.11.31"
+"hardhat-deploy@npm:^0.11.34":
+  version: 0.11.34
+  resolution: "hardhat-deploy@npm:0.11.34"
   dependencies:
     "@ethersproject/abi": ^5.7.0
     "@ethersproject/abstract-signer": ^5.7.0
@@ -17619,7 +17619,7 @@ __metadata:
     murmur-128: ^0.2.1
     qs: ^6.9.4
     zksync-web3: ^0.14.3
-  checksum: 75ea28d6fe745c2b685f7b2d17b280967adb37ff1ea7daf651182ae593aeb133273c9815c089b24b31607ba216baeee0c9fb761245dfa8b4186627349fdd1522
+  checksum: 3c4bcd657a80e4f22c1f8bcee021e5277060849ce4180cbc721e0c2d625f2f98de8ebbfad23875d32eeaf06d88bdba06cb43ab29359cb9531e8bb7851a98ead1
   languageName: node
   linkType: hard
 
