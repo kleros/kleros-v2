@@ -436,6 +436,10 @@ async function main() {
           numberOfMissingJurors = await getMissingJurors(dispute);
         } while (!numberOfMissingJurors.eq(0) && !maxDrawingTimePassed);
       }
+
+      // ----------------------------------------------- //
+      //            BACK TO STAKING PHASE                //
+      // ----------------------------------------------- //
       // At this point, either all disputes are fully drawn or max drawing time has passed
       let i = 0;
       while (!(await isPhaseStaking()) && i++ < 3) {
@@ -443,10 +447,6 @@ async function main() {
       }
     }
   }
-
-  // ----------------------------------------------- //
-  //                 STAKING PHASE                   //
-  // ----------------------------------------------- //
 
   await sendHeartbeat();
 
@@ -537,7 +537,6 @@ async function main() {
   // ----------------------------------------------- //
   //             EXECUTE DELAYED STAKES              //
   // ----------------------------------------------- //
-
   // delayedStakes = 1 + delayedStakeWriteIndex - delayedStakeReadIndex
   const delayedStakes = BigNumber.from(1)
     .add(await sortition.delayedStakeWriteIndex())
