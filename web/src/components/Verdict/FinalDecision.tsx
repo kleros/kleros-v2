@@ -85,9 +85,12 @@ interface IFinalDecision {
 
 const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeTemplate }) => {
   const navigate = useNavigate();
-  const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [id], watch: true });
+  const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id)], watch: true });
   const currentRuling = Number(currentRulingArray?.[0]);
+  console.log("🚀 ~ file: FinalDecision.tsx:90 ~ currentRuling:", currentRuling);
+  console.log("disputeTemplate", disputeTemplate);
   const answer = disputeTemplate?.answers?.[currentRuling!];
+  console.log("🚀 ~ file: FinalDecision.tsx:92 ~ answer:", answer);
 
   const handleClick = () => {
     navigate(`/cases/${id.toString()}/voting`);
@@ -105,7 +108,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeTemplate }) => {
       <UserContainer>
         <StyledIdenticon size="24" />
         <AliasTag>
-          <small>Alice.eth</small>
+          {disputeTemplate?.aliases?.challenger && <small>Alice.eth</small>}
           <Title>Claimant</Title>
         </AliasTag>
       </UserContainer>

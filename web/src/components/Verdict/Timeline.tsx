@@ -1,19 +1,25 @@
 import React from "react";
 import styled from "styled-components";
 import { Timeline } from "@kleros/ui-components-library";
-
-interface IEvent {}
+import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 
 const StyledTimeline = styled(Timeline)`
   margin: 0px 100px;
 `;
 
-interface IDisputeTimeline {}
+interface IDisputeTimeline {
+  id: string;
+  disputeTemplate: any;
+}
 
-const DisputeTimeline: React.FC<IDisputeTimeline> = ({}) => {
+const DisputeTimeline: React.FC<IDisputeTimeline> = ({ id, disputeTemplate }) => {
+  const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id)], watch: true });
+  const currentRuling = Number(currentRulingArray?.[0]);
+
+  const answer = disputeTemplate?.answers?.[currentRuling!];
   return (
     <div>
-      {/* <StyledTimeline
+      <StyledTimeline
         items={[
           {
             title: "Pay 200 DAI",
@@ -31,14 +37,6 @@ const DisputeTimeline: React.FC<IDisputeTimeline> = ({}) => {
           },
         ]}
       />
-      <StyledSteps
-        items={[
-          { title: "Escrow Details", subitems: ["Type of Escrow", "Title"] },
-          { title: "Terms", subitems: ["Deliverable", "Payment", "Deadline"] },
-          { title: "Preview" },
-        ]}
-        currentItemIndex={1}
-      /> */}
     </div>
   );
 };
