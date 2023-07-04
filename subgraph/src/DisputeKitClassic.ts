@@ -60,15 +60,15 @@ export function handleContributionEvent(event: ContributionEvent): void {
 export function handleChoiceFunded(event: ChoiceFunded): void {
   const coreDisputeID = event.params._coreDisputeID.toString();
   const coreRoundIndex = event.params._coreRoundID.toString();
+  const choice = event.params._choice;
   const roundID = `${DISPUTEKIT_ID}-${coreDisputeID}-${coreRoundIndex}`;
 
   const localRound = ClassicRound.load(roundID);
   if (!localRound) return;
 
   const currentFeeRewards = localRound.feeRewards;
-  const deltaFeeRewards = localRound.paidFees[event.params._choice.toI32()];
+  const deltaFeeRewards = localRound.paidFees[choice.toI32()];
   localRound.feeRewards = currentFeeRewards.plus(deltaFeeRewards);
-  const choice = event.params._choice;
   localRound.fundedChoices = localRound.fundedChoices.concat([choice]);
 
   if (localRound.fundedChoices.length > 1) {
