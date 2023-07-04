@@ -81,6 +81,8 @@ export function handleChoiceFunded(event: ChoiceFunded): void {
     if (!localDispute) return;
     const newRoundIndex = localDispute.currentLocalRoundIndex.plus(ONE);
     const numberOfChoices = localDispute.numberOfChoices;
+    localDispute.currentLocalRoundIndex = newRoundIndex;
+    localDispute.save();
     createClassicRound(coreDisputeID, numberOfChoices, newRoundIndex);
   }
 
