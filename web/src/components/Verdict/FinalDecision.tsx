@@ -99,7 +99,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeTemplate }) => {
       <Header>Final Decision</Header>
       <JuryContanier>
         <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
-        {answer && <h3>{`${answer?.title}. ${answer?.description}`}</h3>}
+        {answer && <h3>{`${answer.title}. ${answer.description}`}</h3>}
       </JuryContanier>
       <Divider />
       <UserContainer>
