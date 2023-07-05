@@ -11,7 +11,7 @@ import { useTheme } from "styled-components";
 const chains = [arbitrumGoerli, gnosisChiado];
 const projectId = process.env.WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf9281e218217";
 
-const { publicClient } = configureChains(chains, [
+const { publicClient, webSocketPublicClient } = configureChains(chains, [
   alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY ?? "" }),
   jsonRpcProvider({
     rpc: () => ({
@@ -25,6 +25,7 @@ const wagmiConfig = createConfig({
   autoConnect: false,
   connectors: w3mConnectors({ projectId, version: 2, chains }),
   publicClient,
+  webSocketPublicClient,
 });
 
 const ethereumClient = new EthereumClient(wagmiConfig, chains);

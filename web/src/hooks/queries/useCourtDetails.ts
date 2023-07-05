@@ -1,5 +1,5 @@
-import useSWR from "swr";
 import { graphql } from "src/graphql";
+import { useSWRBlock } from "hooks/useSWRBlock";
 import { CourtDetailsQuery } from "src/graphql/graphql";
 export type { CourtDetailsQuery };
 
@@ -19,7 +19,7 @@ const courtDetailsQuery = graphql(`
 `);
 
 export const useCourtDetails = (id?: string) => {
-  return useSWR<CourtDetailsQuery>(
+  return useSWRBlock<CourtDetailsQuery>(
     id
       ? {
           query: courtDetailsQuery,

@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 import { formatEther } from "viem";
 import Skeleton from "react-loading-skeleton";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -8,8 +9,10 @@ import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtPolicyURI } from "queries/useCourtPolicyURI";
 import { isUndefined } from "utils/index";
+import { Periods } from "consts/periods";
 import PolicyIcon from "svgs/icons/policy.svg";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
+import Verdict from "components/Verdict/index";
 
 const Container = styled.div`
   width: 100%;
@@ -70,7 +73,13 @@ const LinkContainer = styled.div`
   justify-content: space-between;
 `;
 
-const Overview: React.FC<{ arbitrable?: `0x${string}`; courtID?: string }> = ({ arbitrable, courtID }) => {
+interface IOverview {
+  arbitrable?: `0x${string}`;
+  courtID?: string;
+  currentPeriodIndex: number;
+}
+
+const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex }) => {
   const { id } = useParams();
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
@@ -91,16 +100,14 @@ const Overview: React.FC<{ arbitrable?: `0x${string}`; courtID?: string }> = ({ 
           )}
         </h1>
         <QuestionAndDescription>
-          <h3>{disputeTemplate?.question}</h3>
+          <ReactMarkdown>{disputeTemplate?.question}</ReactMarkdown>
           <p>{disputeTemplate?.description}</p>
         </QuestionAndDescription>
-        <a
-          href="https://app.proofofhumanity.id/profile/0x00de4b13153673bcae2616b67bf822500d325fc3"
-          target="_blank"
-          rel="noreferrer"
-        >
-          View profile on Proof of Humanity
-        </a>
+        {disputeTemplate?.frontendUrl && (
+          <a href={disputeTemplate?.frontendUrl} target="_blank" rel="noreferrer">
+            Go to arbitrable
+          </a>
+        )}
         <VotingOptions>
           {disputeTemplate && <h3>Voting Options</h3>}
           {disputeTemplate?.answers?.map((answer: { title: string; description: string }, i: number) => (
@@ -110,7 +117,14 @@ const Overview: React.FC<{ arbitrable?: `0x${string}`; courtID?: string }> = ({ 
             </span>
           ))}
         </VotingOptions>
-        <hr />
+        {currentPeriodIndex !== Periods.evidence && (
+          <>
+            <hr />
+            <Verdict id={id!} disputeTemplate={disputeTemplate} ruled={disputeDetails?.dispute?.ruled} />
+            <hr />
+          </>
+        )}
+
         <DisputeInfo courtId={court?.id} court={courtName} {...{ rewards, category }} />
       </Container>
       <ShadeArea>

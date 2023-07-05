@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { useAccount } from "wagmi";
+import { useAccount, useDisconnect } from "wagmi";
 import Identicon from "react-identicons";
+import { Button } from "@kleros/ui-components-library";
 import { AddressDisplay, ChainDisplay } from "components/ConnectWallet";
 import { EnsureChain } from "components/EnsureChain";
 
@@ -34,7 +35,6 @@ const StyledAddressContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 12px;
-  padding-bottom: 32px;
 `;
 
 const StyledIdenticon = styled.div`
@@ -49,6 +49,18 @@ const EnsureChainContainer = styled.div`
   padding: 16px;
 `;
 
+const UserContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+export const DisconnectWalletButton: React.FC = () => {
+  const { disconnect } = useDisconnect();
+
+  return <Button text={`Disconnect`} onClick={() => disconnect()} />;
+};
+
 const General: React.FC = () => {
   const { address } = useAccount();
 
@@ -60,13 +72,16 @@ const General: React.FC = () => {
             <ChainDisplay />
           </StyledChainContainer>
           {address && (
-            <StyledIdenticon>
-              <Identicon size="24" string={address} />
-            </StyledIdenticon>
+            <UserContainer>
+              <StyledIdenticon>
+                <Identicon size="24" string={address} />
+              </StyledIdenticon>
+              <StyledAddressContainer>
+                <AddressDisplay />
+              </StyledAddressContainer>
+              <DisconnectWalletButton />
+            </UserContainer>
           )}
-          <StyledAddressContainer>
-            <AddressDisplay />
-          </StyledAddressContainer>
         </Container>
       </EnsureChain>
     </EnsureChainContainer>
