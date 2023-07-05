@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
+import Identicon from "react-identicons";
 import { Tabs, Accordion, Box } from "@kleros/ui-components-library";
 import BalanceIcon from "svgs/icons/law-balance.svg";
 import { useVotingHistory } from "queries/useVotingHistory";
@@ -118,7 +118,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable })
             items={
               localRounds.at(currentTab)?.votes.map((vote) => ({
                 title: shortenAddress(vote.juror.id),
-                icon: <Jazzicon diameter={20} seed={jsNumberForAddress(vote.juror.id)} />,
+                icon: <Identicon size="20" string={vote.juror.id} />,
                 body: (
                   <AccordionContent
                     choice={vote.choice === 0 ? "Refuse to arbitrate" : disputeTemplate.answers[vote.choice - 1].title}
