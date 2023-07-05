@@ -25,6 +25,8 @@ dataSources:
         - DisputeKit
         - Counter
       abis:
+        - name: DisputeKitClassic
+          file: ../contracts/deployments/arbitrumGoerli/DisputeKitClassic.json
         - name: KlerosCore
           file: ../contracts/deployments/arbitrumGoerli/KlerosCore.json
       eventHandlers:
@@ -94,6 +96,8 @@ dataSources:
       abis:
         - name: DisputeKitClassic
           file: ../contracts/deployments/arbitrumGoerli/DisputeKitClassic.json
+        - name: KlerosCore
+          file: ../contracts/deployments/arbitrumGoerli/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
