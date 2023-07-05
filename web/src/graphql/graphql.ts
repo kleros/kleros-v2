@@ -3708,6 +3708,24 @@ export type HomePageQuery = {
   }>;
 };
 
+export type UserQueryVariables = Exact<{
+  address: Scalars["ID"]["input"];
+}>;
+
+export type UserQuery = {
+  __typename?: "Query";
+  user?: {
+    __typename?: "User";
+    totalDisputes: any;
+    totalCoherent: any;
+    tokens: Array<{
+      __typename?: "JurorTokensPerCourt";
+      court: { __typename?: "Court"; id: string; name?: string | null };
+    }>;
+    shifts: Array<{ __typename?: "TokenAndETHShift"; tokenAmount: any; ethAmount: any }>;
+  } | null;
+};
+
 export type VotingHistoryQueryVariables = Exact<{
   disputeID: Scalars["ID"]["input"];
 }>;
@@ -4355,6 +4373,77 @@ export const HomePageDocument = {
     },
   ],
 } as unknown as DocumentNode<HomePageQuery, HomePageQueryVariables>;
+export const UserDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "User" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "address" } },
+          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "ID" } } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "user" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: { kind: "Variable", name: { kind: "Name", value: "address" } },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "totalDisputes" } },
+                { kind: "Field", name: { kind: "Name", value: "totalCoherent" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "tokens" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "court" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            { kind: "Field", name: { kind: "Name", value: "id" } },
+                            { kind: "Field", name: { kind: "Name", value: "name" } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "shifts" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "tokenAmount" } },
+                      { kind: "Field", name: { kind: "Name", value: "ethAmount" } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UserQuery, UserQueryVariables>;
 export const VotingHistoryDocument = {
   kind: "Document",
   definitions: [

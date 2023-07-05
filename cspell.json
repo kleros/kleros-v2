@@ -11,13 +11,16 @@
   "words": [
     "arbitrum",
     "commitlint",
+    "COOLDOWN",
     "datetime",
     "Ethfinex",
+    "hearbeat",
     "IERC",
     "ipfs",
     "kleros",
     "linguo",
     "Realitio",
+    "repartitions",
     "solhint",
     "typechain",
     "Unslashed"

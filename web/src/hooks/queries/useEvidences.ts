@@ -1,6 +1,6 @@
-import useSWR from "swr";
 import { graphql } from "src/graphql";
 import { EvidencesQuery } from "src/graphql/graphql";
+import { useSWRBlock } from "hooks/useSWRBlock";
 import { isUndefined } from "utils/index";
 export type { EvidencesQuery };
 
@@ -17,7 +17,7 @@ const evidencesQuery = graphql(`
 `);
 
 export const useEvidences = (evidenceGroup?: string) => {
-  return useSWR<EvidencesQuery>(() =>
+  return useSWRBlock<EvidencesQuery>(() =>
     !isUndefined(evidenceGroup)
       ? {
           query: evidencesQuery,
