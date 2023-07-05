@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 import Identicon from "react-identicons";
 import { Tabs, Accordion, Box } from "@kleros/ui-components-library";
 import BalanceIcon from "svgs/icons/law-balance.svg";
@@ -97,7 +98,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable })
       <h1>Voting History</h1>
       {rounds && localRounds && disputeTemplate && (
         <>
-          <p>{disputeTemplate.question}</p>
+          <ReactMarkdown>{disputeTemplate.question}</ReactMarkdown>
           <StyledTabs
             currentValue={currentTab}
             items={rounds.map((_, i) => ({
