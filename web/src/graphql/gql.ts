@@ -27,7 +27,7 @@ const documents = {
     types.DisputeDetailsDocument,
   "\n  query Draw($address: String, $disputeID: String, $roundID: String) {\n    draws(where: { dispute: $disputeID, juror: $address, round: $roundID }) {\n      voteID\n    }\n  }\n":
     types.DrawDocument,
-  "\n  query Evidences($evidenceGroup: String) {\n    evidences(where: { evidenceGroup: $evidenceGroup }, orderBy: id, orderDirection: asc) {\n      id\n      evidence\n      sender {\n        id\n      }\n    }\n  }\n":
+  "\n  query Evidences($evidenceGroupID: String) {\n    evidences(where: { evidenceGroup: $evidenceGroupID }, orderBy: id, orderDirection: asc) {\n      id\n      evidence\n      sender {\n        id\n      }\n    }\n  }\n":
     types.EvidencesDocument,
   "\n  query HomePage($timeframe: ID) {\n    disputes(first: 3) {\n      id\n    }\n    counters(where: { id_gt: $timeframe }) {\n      id\n      stakedPNK\n      paidETH\n      redistributedPNK\n      activeJurors\n      cases\n    }\n  }\n":
     types.HomePageDocument,
@@ -95,8 +95,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  query Evidences($evidenceGroup: String) {\n    evidences(where: { evidenceGroup: $evidenceGroup }, orderBy: id, orderDirection: asc) {\n      id\n      evidence\n      sender {\n        id\n      }\n    }\n  }\n"
-): (typeof documents)["\n  query Evidences($evidenceGroup: String) {\n    evidences(where: { evidenceGroup: $evidenceGroup }, orderBy: id, orderDirection: asc) {\n      id\n      evidence\n      sender {\n        id\n      }\n    }\n  }\n"];
+  source: "\n  query Evidences($evidenceGroupID: String) {\n    evidences(where: { evidenceGroup: $evidenceGroupID }, orderBy: id, orderDirection: asc) {\n      id\n      evidence\n      sender {\n        id\n      }\n    }\n  }\n"
+): (typeof documents)["\n  query Evidences($evidenceGroupID: String) {\n    evidences(where: { evidenceGroup: $evidenceGroupID }, orderBy: id, orderDirection: asc) {\n      id\n      evidence\n      sender {\n        id\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
