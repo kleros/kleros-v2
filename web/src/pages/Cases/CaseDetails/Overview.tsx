@@ -115,6 +115,8 @@ const Overview: React.FC<{ arbitrable?: `0x${string}`; courtID?: string }> = ({ 
           ))}
         </VotingOptions>
         <hr />
+        {disputeDetails?.dispute?.ruled && <Verdict id={id!} disputeDetails={disputeDetails} />}
+        <hr />
         <DisputeInfo courtId={court?.id} court={courtName} {...{ rewards, category }} />
       </Container>
       <ShadeArea>
@@ -134,7 +136,6 @@ const Overview: React.FC<{ arbitrable?: `0x${string}`; courtID?: string }> = ({ 
           )}
         </LinkContainer>
       </ShadeArea>
-      {disputeDetails?.dispute?.ruled && <Verdict id={id!} disputeDetails={disputeDetails} />}
     </>
   );
 };

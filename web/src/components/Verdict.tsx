@@ -22,7 +22,7 @@ const VerdictTag = styled.small`
   color: ${({ theme }) => theme.success};
 `;
 
-const VerdictBanner: React.FC = ({}) => {
+const VerdictBanner: React.FC = () => {
   return (
     <BannerContainer>
       <ClosedCaseIcon />
