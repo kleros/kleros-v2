@@ -22,14 +22,14 @@ const Coherency: React.FC = () => {
   const { address } = useAccount();
   const { data } = useUserQuery(address?.toLowerCase());
   const totalCoherent = parseInt(data?.user?.totalCoherent) ?? 0;
-  const totalDisputes = parseInt(data?.user?.totalCoherent) ?? 1;
-  const coherencyScore = calculateCoherencyScore(totalCoherent, totalDisputes);
+  const totalResolvedDisputes = parseInt(data?.user?.totalResolvedDisputes) ?? 1;
+  const coherencyScore = calculateCoherencyScore(totalCoherent, totalResolvedDisputes);
 
   return (
     <Container>
       <small>Aristotle</small>
       <label>Level 4</label>
-      <CircularProgress progress={(totalCoherent / totalDisputes) * 100} />
+      <CircularProgress progress={(totalCoherent / Math.max(totalResolvedDisputes, 1)) * 100} />
       <WithHelpTooltip place="left" {...{ tooltipMsg }}>
         <label>
           Coherency Score:
@@ -41,6 +41,6 @@ const Coherency: React.FC = () => {
 };
 
 const calculateCoherencyScore = (totalCoherent: number, totalDisputes: number): number =>
-  totalCoherent / (totalDisputes + 10);
+  totalCoherent / (Math.max(totalDisputes, 1) + 10);
 
 export default Coherency;
