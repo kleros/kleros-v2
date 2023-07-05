@@ -74,7 +74,6 @@ const LinkContainer = styled.div`
 const Overview: React.FC<{ arbitrable?: `0x${string}`; courtID?: string }> = ({ arbitrable, courtID }) => {
   const { id } = useParams();
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
-  console.log("🚀 ~ file: Overview.tsx:77 ~ disputeTemplate:", disputeTemplate, id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const { data: courtPolicyURI } = useCourtPolicyURI(courtID);
   const { data: courtPolicy } = useCourtPolicy(courtID);
@@ -113,7 +112,7 @@ const Overview: React.FC<{ arbitrable?: `0x${string}`; courtID?: string }> = ({ 
           ))}
         </VotingOptions>
         <hr />
-        {disputeDetails?.dispute?.ruled && <Verdict id={id!} disputeDetails={disputeDetails} />}
+        {disputeDetails?.dispute?.ruled && <Verdict id={id!} disputeTemplate={disputeTemplate} />}
         <hr />
         <DisputeInfo courtId={court?.id} court={courtName} {...{ rewards, category }} />
       </Container>

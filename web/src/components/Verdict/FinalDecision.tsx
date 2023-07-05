@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import ArrowIcon from "assets/svgs/icons/arrow.svg";
 import LightButton from "../LightButton";
 import VerdictBanner from "./VerdictBanner";
+import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 
 const Container = styled.div`
   position: relative;
@@ -79,11 +80,13 @@ const StyledButton = styled(LightButton)`
 
 interface IFinalDecision {
   id: string;
-  disputeDetails: any;
+  disputeTemplate: any;
 }
 
-const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeDetails }) => {
+const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeTemplate }) => {
   const navigate = useNavigate();
+  const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [id], watch: true });
+  const currentRuling = Number(currentRulingArray?.[0]);
 
   const handleClick = () => {
     navigate(`/cases/${id.toString()}/voting`);
@@ -95,7 +98,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeDetails }) => {
       <Header>Final Decision</Header>
       <JuryContanier>
         <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
-        <h3>Pay 250 DAI</h3>
+        <h3>{disputeTemplate?.answers?.[currentRuling!].description}</h3>
       </JuryContanier>
       <Divider />
       <UserContainer>

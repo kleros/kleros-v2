@@ -11,13 +11,13 @@ import DisputeTimeline from "./Timeline";
 
 interface IVerdict {
   id: string;
-  disputeDetails: any;
+  disputeTemplate: any;
 }
 
-const Verdict: React.FC<IVerdict> = ({ id, disputeDetails }) => {
+const Verdict: React.FC<IVerdict> = ({ id, disputeTemplate }) => {
   return (
     <>
-      <FinalDecision id={id} disputeDetails={disputeDetails} />
+      <FinalDecision id={id} disputeTemplate={disputeTemplate} />
       {/* <Timeline items={[{ title: "hey", party: "asdasd", subtitle: "sad" }]} /> */}
       <DisputeTimeline />
     </>
