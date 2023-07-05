@@ -25,7 +25,8 @@ const App: React.FC = () => {
       <SWRConfig
         value={{
           fetcher: fetcherBuilder(
-            process.env.REACT_APP_SUBGRAPH_ENDPOINT ?? "https://api.thegraph.com/subgraphs/name/alcercu/kleroscoretest"
+            process.env.REACT_APP_SUBGRAPH_ENDPOINT ??
+              "https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli"
           ),
         }}
       >
