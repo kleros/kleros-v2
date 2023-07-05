@@ -6,7 +6,7 @@ import { KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS } from "src/consts/index
 import TokenRewards from "./TokenRewards";
 import WithHelpTooltip from "../WithHelpTooltip";
 import { isUndefined } from "utils/index";
-import { useJurorRewardsQuery } from "hooks/queries/useJurorRewardsQuery";
+import { useUserQuery, UserQuery } from "queries/useUser";
 import { useCoinPrice } from "hooks/useCoinPrice";
 
 interface IReward {
@@ -48,22 +48,22 @@ const rewards: IReward[] = [
   },
 ];
 
-const calculateTotalReward = (coinId: number, data: any) => {
-  const total = data?.user.shifts
+const calculateTotalReward = (coinId: number, data: UserQuery): bigint => {
+  const total = data.user?.shifts
     .map((shift) => parseInt(coinId === 0 ? shift.tokenAmount : shift.ethAmount))
     .reduce((acc, curr) => acc + curr, 0);
 
-  return total;
+  return BigInt(total ?? 0);
 };
 
 const Coherency: React.FC = () => {
   const { address } = useAccount();
-  const { data } = useJurorRewardsQuery((address ?? "").toLowerCase());
+  const { data } = useUserQuery(address?.toLowerCase());
   const { prices: pricesData } = useCoinPrice([KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS]);
 
   return (
     <>
-      {address && (
+      {!isUndefined(data) && (
         <Container>
           <WithHelpTooltip place="bottom" {...{ tooltipMsg }}>
             <label> Juror Rewards </label>

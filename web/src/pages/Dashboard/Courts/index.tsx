@@ -1,8 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import { useAccount } from "wagmi";
+import { isUndefined } from "utils/index";
 import CourtCard from "./CourtCard";
-import { useJurorStakedCourts } from "hooks/queries/useJurorStakedCourts";
+import { useUserQuery } from "queries/useUser";
 
 const Container = styled.div`
   margin-top: 64px;
@@ -16,20 +17,22 @@ const CourtsContainer = styled.div`
 
 const Courts: React.FC = () => {
   const { address } = useAccount();
-  const { data: jurorStakedCourtsData } = useJurorStakedCourts(address?.toLowerCase());
+  const { data } = useUserQuery(address?.toLowerCase());
 
   return (
-    address && (
-      <Container>
-        <h1> My Courts </h1>
-        <hr />
-        <CourtsContainer>
-          {jurorStakedCourtsData?.user?.tokens?.map(({ court: { id, name } }) => {
-            return <CourtCard key={id} id={id} name={name} />;
-          })}
-        </CourtsContainer>
-      </Container>
-    )
+    <>
+      {!isUndefined(data) && (
+        <Container>
+          <h1> My Courts </h1>
+          <hr />
+          <CourtsContainer>
+            {data.user?.tokens?.map(({ court: { id, name } }) => {
+              return <CourtCard key={id} id={id} name={name ?? ""} />;
+            })}
+          </CourtsContainer>
+        </Container>
+      )}
+    </>
   );
 };
 
