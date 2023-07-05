@@ -87,6 +87,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeTemplate }) => {
   const navigate = useNavigate();
   const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [id], watch: true });
   const currentRuling = Number(currentRulingArray?.[0]);
+  const answer = disputeTemplate?.answers?.[currentRuling!];
 
   const handleClick = () => {
     navigate(`/cases/${id.toString()}/voting`);
@@ -98,7 +99,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeTemplate }) => {
       <Header>Final Decision</Header>
       <JuryContanier>
         <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
-        <h3>{disputeTemplate?.answers?.[currentRuling!].description}</h3>
+        {answer && <h3>{`${answer?.title}. ${answer?.description}`}</h3>}
       </JuryContanier>
       <Divider />
       <UserContainer>
