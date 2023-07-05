@@ -37,6 +37,7 @@ contract SortitionModule is ISortitionModule {
         uint96 courtID; // The ID of the court.
         uint256 stake; // The new stake.
         uint256 penalty; // Penalty value, in case the stake was set during execution.
+        bool alreadyTransferred; // True if tokens were already transferred before delayed stake's execution.
     }
 
     // ************************************* //
@@ -185,15 +186,36 @@ contract SortitionModule is ISortitionModule {
 
         for (uint256 i = delayedStakeReadIndex; i < newDelayedStakeReadIndex; i++) {
             DelayedStake storage delayedStake = delayedStakes[i];
-            core.setStakeBySortitionModule(
-                delayedStake.account,
-                delayedStake.courtID,
-                delayedStake.stake,
-                delayedStake.penalty
-            );
-            delete delayedStakes[i];
+            // Delayed stake could've been manually removed already. In this case simply move on to the next item.
+            if (delayedStake.account != address(0)) {
+                core.setStakeBySortitionModule(
+                    delayedStake.account,
+                    delayedStake.courtID,
+                    delayedStake.stake,
+                    delayedStake.penalty,
+                    delayedStake.alreadyTransferred
+                );
+                delete delayedStakes[i];
+            }
         }
         delayedStakeReadIndex = newDelayedStakeReadIndex;
+    }
+
+    /// @dev Remove the delayed stake after its partial execution in order to return the tokens.
+    /// @param _index Index of the delayed stake to remove.
+    /// @param _sender Address that attempted removal.
+    /// @return stake Stake amount that was discarded.
+    /// @return courtID ID of the court related to delayed stake.
+    function removeDelayedStake(
+        uint256 _index,
+        address _sender
+    ) external override onlyByCore returns (uint256 stake, uint96 courtID) {
+        DelayedStake storage delayedStake = delayedStakes[_index];
+        require(delayedStake.account == _sender, "Can only remove your own stake");
+        require(delayedStake.alreadyTransferred, "No tokens to return");
+        stake = delayedStake.stake;
+        courtID = delayedStake.courtID;
+        delete delayedStakes[_index];
     }
 
     function preStakeHook(
@@ -208,13 +230,18 @@ contract SortitionModule is ISortitionModule {
             return preStakeHookResult.failed;
         } else {
             if (phase != Phase.staking) {
-                delayedStakes[++delayedStakeWriteIndex] = DelayedStake({
-                    account: _account,
-                    courtID: _courtID,
-                    stake: _stake,
-                    penalty: _penalty
-                });
-                return preStakeHookResult.delayed;
+                DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
+                delayedStake.account = _account;
+                delayedStake.courtID = _courtID;
+                delayedStake.stake = _stake;
+                delayedStake.penalty = _penalty;
+                if (_stake > currentStake) {
+                    // Actual token transfer is done right after this hook.
+                    delayedStake.alreadyTransferred = true;
+                    return preStakeHookResult.partiallyDelayed;
+                } else {
+                    return preStakeHookResult.delayed;
+                }
             }
         }
         return preStakeHookResult.ok;
@@ -264,7 +291,7 @@ contract SortitionModule is ISortitionModule {
     function setJurorInactive(address _account) external override onlyByCore {
         uint96[] memory courtIDs = core.getJurorCourtIDs(_account);
         for (uint256 j = courtIDs.length; j > 0; j--) {
-            core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0, 0);
+            core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0, 0, false);
         }
     }
 

@@ -127,6 +127,7 @@ contract KlerosCore is IArbitratorV2 {
 
     event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount);
     event StakeDelayed(address indexed _address, uint256 _courtID, uint256 _amount, uint256 _penalty);
+    event StakePartiallyDelayed(address indexed _address, uint256 _courtID, uint256 _amount);
     event NewPeriod(uint256 indexed _disputeID, Period _period);
     event AppealPossible(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
     event AppealDecision(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
@@ -482,12 +483,28 @@ contract KlerosCore is IArbitratorV2 {
     /// @param _courtID The ID of the court.
     /// @param _stake The new stake.
     function setStake(uint96 _courtID, uint256 _stake) external {
-        if (!_setStakeForAccount(msg.sender, _courtID, _stake, 0)) revert StakingFailed();
+        if (!_setStakeForAccount(msg.sender, _courtID, _stake, 0, false)) revert StakingFailed();
     }
 
-    function setStakeBySortitionModule(address _account, uint96 _courtID, uint256 _stake, uint256 _penalty) external {
+    function withdrawDelayedStake(uint256 _delayedStakeIndex) external {
+        // All necessary checks are done in sortition module.
+        (uint256 amountToWithdraw, uint96 courtID) = sortitionModule.removeDelayedStake(_delayedStakeIndex, msg.sender);
+        if (jurors[msg.sender].stakedPnk[courtID] <= amountToWithdraw) {
+            amountToWithdraw = jurors[msg.sender].stakedPnk[courtID];
+        }
+        require(pinakion.safeTransfer(msg.sender, amountToWithdraw));
+        jurors[msg.sender].stakedPnk[courtID] -= amountToWithdraw;
+    }
+
+    function setStakeBySortitionModule(
+        address _account,
+        uint96 _courtID,
+        uint256 _stake,
+        uint256 _penalty,
+        bool _alreadyTransferred
+    ) external {
         if (msg.sender != address(sortitionModule)) revert WrongCaller();
-        _setStakeForAccount(_account, _courtID, _stake, _penalty);
+        _setStakeForAccount(_account, _courtID, _stake, _penalty, _alreadyTransferred);
     }
 
     /// @inheritdoc IArbitratorV2
@@ -768,10 +785,11 @@ contract KlerosCore is IArbitratorV2 {
         if (jurors[account].stakedPnk[dispute.courtID] >= courts[dispute.courtID].minStake + penalty) {
             // The juror still has enough staked PNKs after penalty for this court.
             uint256 newStake = jurors[account].stakedPnk[dispute.courtID] - penalty;
-            _setStakeForAccount(account, dispute.courtID, newStake, penalty);
+            // `alreadyTransferred` flag can be true only after manual stake increase, which can't happen during penalty.
+            _setStakeForAccount(account, dispute.courtID, newStake, penalty, false);
         } else if (jurors[account].stakedPnk[dispute.courtID] != 0) {
             // The juror does not have enough staked PNKs after penalty for this court, unstake them.
-            _setStakeForAccount(account, dispute.courtID, 0, penalty);
+            _setStakeForAccount(account, dispute.courtID, 0, penalty, false);
         }
         emit TokenAndETHShift(
             account,
@@ -1110,12 +1128,14 @@ contract KlerosCore is IArbitratorV2 {
     /// @param _courtID The ID of the court.
     /// @param _stake The new stake.
     /// @param _penalty Penalized amount won't be transferred back to juror when the stake is lowered.
+    /// @param _alreadyTransferred True if the tokens were already transferred. Only relevant for delayed stake execution.
     /// @return succeeded True if the call succeeded, false otherwise.
     function _setStakeForAccount(
         address _account,
         uint96 _courtID,
         uint256 _stake,
-        uint256 _penalty
+        uint256 _penalty,
+        bool _alreadyTransferred
     ) internal returns (bool succeeded) {
         if (_courtID == FORKING_COURT || _courtID > courts.length) return false;
 
@@ -1135,47 +1155,56 @@ contract KlerosCore is IArbitratorV2 {
             return true;
         }
 
-        uint256 transferredAmount;
-        if (_stake >= currentStake) {
-            transferredAmount = _stake - currentStake;
-            if (transferredAmount > 0) {
-                if (pinakion.safeTransferFrom(_account, address(this), transferredAmount)) {
-                    if (currentStake == 0) {
-                        juror.courtIDs.push(_courtID);
-                    }
-                } else {
-                    return false;
-                }
-            }
-        } else {
-            if (_stake == 0) {
-                // Keep locked PNKs in the contract and release them after dispute is executed.
-                transferredAmount = currentStake - juror.lockedPnk[_courtID] - _penalty;
+        // Don't transfer the tokens and only update the drawing chance if the transfer was already done.
+        if (!_alreadyTransferred) {
+            uint256 transferredAmount;
+            if (_stake >= currentStake) {
+                transferredAmount = _stake - currentStake;
                 if (transferredAmount > 0) {
-                    if (pinakion.safeTransfer(_account, transferredAmount)) {
-                        for (uint256 i = juror.courtIDs.length; i > 0; i--) {
-                            if (juror.courtIDs[i - 1] == _courtID) {
-                                juror.courtIDs[i - 1] = juror.courtIDs[juror.courtIDs.length - 1];
-                                juror.courtIDs.pop();
-                                break;
-                            }
+                    if (pinakion.safeTransferFrom(_account, address(this), transferredAmount)) {
+                        if (currentStake == 0) {
+                            juror.courtIDs.push(_courtID);
                         }
                     } else {
                         return false;
                     }
                 }
             } else {
-                transferredAmount = currentStake - _stake - _penalty;
-                if (transferredAmount > 0) {
-                    if (!pinakion.safeTransfer(_account, transferredAmount)) {
-                        return false;
+                if (_stake == 0) {
+                    // Keep locked PNKs in the contract and release them after dispute is executed.
+                    transferredAmount = currentStake - juror.lockedPnk[_courtID] - _penalty;
+                    if (transferredAmount > 0) {
+                        if (pinakion.safeTransfer(_account, transferredAmount)) {
+                            for (uint256 i = juror.courtIDs.length; i > 0; i--) {
+                                if (juror.courtIDs[i - 1] == _courtID) {
+                                    juror.courtIDs[i - 1] = juror.courtIDs[juror.courtIDs.length - 1];
+                                    juror.courtIDs.pop();
+                                    break;
+                                }
+                            }
+                        } else {
+                            return false;
+                        }
+                    }
+                } else {
+                    transferredAmount = currentStake - _stake - _penalty;
+                    if (transferredAmount > 0) {
+                        if (!pinakion.safeTransfer(_account, transferredAmount)) {
+                            return false;
+                        }
                     }
                 }
             }
+
+            // Update juror's records.
+            juror.stakedPnk[_courtID] = _stake;
         }
 
-        // Update juror's records.
-        juror.stakedPnk[_courtID] = _stake;
+        // Transfer the tokens but don't update sortition module.
+        if (result == ISortitionModule.preStakeHookResult.partiallyDelayed) {
+            emit StakePartiallyDelayed(_account, _courtID, _stake);
+            return true;
+        }
 
         sortitionModule.setStake(_account, _courtID, _stake);
         emit StakeSet(_account, _courtID, _stake);
