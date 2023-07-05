@@ -78,18 +78,27 @@ const StyledButton = styled(LightButton)`
   bottom: 0;
 `;
 
+interface IDecisionText {
+  ruled: boolean;
+}
+
+const DecisionText: React.FC<IDecisionText> = ({ ruled }) => {
+  return ruled ? <>Final Decision</> : <>Current Ruling</>;
+};
+
 interface IFinalDecision {
   id: string;
   disputeTemplate: any;
+  ruled: boolean;
 }
 
-const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeTemplate }) => {
+const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeTemplate, ruled }) => {
   const navigate = useNavigate();
   const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id)], watch: true });
   const currentRuling = Number(currentRulingArray?.[0]);
   console.log("🚀 ~ file: FinalDecision.tsx:90 ~ currentRuling:", currentRuling);
   console.log("disputeTemplate", disputeTemplate);
-  const answer = disputeTemplate?.answers?.[currentRuling!];
+  const answer = disputeTemplate?.answers?.[currentRuling! - 1];
   console.log("🚀 ~ file: FinalDecision.tsx:92 ~ answer:", answer);
 
   const handleClick = () => {
@@ -98,11 +107,13 @@ const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeTemplate }) => {
 
   return (
     <Container>
-      <VerdictBanner />
-      <Header>Final Decision</Header>
+      <VerdictBanner ruled={ruled} />
+      <Header>
+        <DecisionText ruled={ruled} />
+      </Header>
       <JuryContanier>
         <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
-        {answer && <h3>{`${answer.title}. ${answer.description}`}</h3>}
+        {answer ? <h3>{`${answer.title}. ${answer.description}`}</h3> : <h3>Refuse to Arbitrate</h3>}
       </JuryContanier>
       <Divider />
       <UserContainer>

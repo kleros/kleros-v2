@@ -25,7 +25,12 @@ const CaseDetails: React.FC = () => {
       <Timeline {...{ currentPeriodIndex, dispute }} />
       <StyledCard>
         <Routes>
-          <Route path="overview" element={<Overview courtID={dispute?.court.id} {...{ arbitrable }} />} />
+          <Route
+            path="overview"
+            element={
+              <Overview currentPeriodIndex={currentPeriodIndex} courtID={dispute?.court.id} {...{ arbitrable }} />
+            }
+          />
           <Route path="evidence" element={<Evidence {...{ arbitrable }} />} />
           <Route path="voting" element={<Voting {...{ arbitrable, currentPeriodIndex }} />} />
           <Route path="appeal" element={<Appeal {...{ currentPeriodIndex }} />} />

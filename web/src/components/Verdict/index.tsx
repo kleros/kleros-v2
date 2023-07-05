@@ -11,12 +11,13 @@ const Container = styled.div`
 interface IVerdict {
   id: string;
   disputeTemplate: any;
+  ruled: boolean;
 }
 
-const Verdict: React.FC<IVerdict> = ({ id, disputeTemplate }) => {
+const Verdict: React.FC<IVerdict> = ({ id, disputeTemplate, ruled }) => {
   return (
     <Container>
-      <FinalDecision id={id} disputeTemplate={disputeTemplate} />
+      <FinalDecision id={id} disputeTemplate={disputeTemplate} ruled={ruled} />
       {/* <DisputeTimeline id={id} disputeTemplate={disputeTemplate} /> */}
     </Container>
   );
