@@ -67,6 +67,7 @@ type User @entity {
   activeDisputes: BigInt!
   disputes: [Dispute!]!
   resolvedDisputes: [Dispute!]!
+  totalResolvedDisputes: BigInt!
   totalDisputes: BigInt!
   totalCoherent: BigInt!
   votes: [Vote!]! @derivedFrom(field: "juror")

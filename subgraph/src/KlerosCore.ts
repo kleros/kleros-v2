@@ -19,10 +19,10 @@ import { createDisputeKitFromEvent, filterSupportedDisputeKits } from "./entitie
 import { createDisputeFromEvent } from "./entities/Dispute";
 import { createRoundFromRoundInfo } from "./entities/Round";
 import { updateCases, updatePaidETH, updateRedistributedPNK, updateCasesRuled, updateCasesVoting } from "./datapoint";
-import { addUserActiveDispute, ensureUser, resolveUserDispute } from "./entities/User";
+import { addUserActiveDispute, ensureUser } from "./entities/User";
 import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
-import { createTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
+import { createTokenAndEthShiftFromEvent, updateTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
 import { Court, Dispute } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
@@ -149,7 +149,7 @@ export function handleStakeDelayed(event: StakeDelayed): void {
 }
 
 export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
-  createTokenAndEthShiftFromEvent(event);
+  updateTokenAndEthShiftFromEvent(event);
   const jurorAddress = event.params._account.toHexString();
   const disputeID = event.params._disputeID.toString();
   const pnkAmount = event.params._pnkAmount;
@@ -159,7 +159,6 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   const court = Court.load(dispute.court);
   if (!court) return;
   updateJurorStake(jurorAddress, court.id, KlerosCore.bind(event.address), event.block.timestamp);
-  resolveUserDispute(jurorAddress, pnkAmount, disputeID);
   court.paidETH = court.paidETH.plus(feeAmount);
   if (pnkAmount.gt(ZERO)) {
     court.paidPNK = court.paidPNK.plus(pnkAmount);
