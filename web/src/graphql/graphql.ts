@@ -3708,6 +3708,21 @@ export type HomePageQuery = {
   }>;
 };
 
+export type JurorStakedCourtsQueryVariables = Exact<{
+  id: Scalars["ID"]["input"];
+}>;
+
+export type JurorStakedCourtsQuery = {
+  __typename?: "Query";
+  user?: {
+    __typename?: "User";
+    tokens: Array<{
+      __typename?: "JurorTokensPerCourt";
+      court: { __typename?: "Court"; id: string; name?: string | null };
+    }>;
+  } | null;
+};
+
 export type VotingHistoryQueryVariables = Exact<{
   disputeID: Scalars["ID"]["input"];
 }>;
@@ -4355,6 +4370,64 @@ export const HomePageDocument = {
     },
   ],
 } as unknown as DocumentNode<HomePageQuery, HomePageQueryVariables>;
+export const JurorStakedCourtsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "JurorStakedCourts" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "ID" } } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "user" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: { kind: "Variable", name: { kind: "Name", value: "id" } },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "tokens" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "court" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            { kind: "Field", name: { kind: "Name", value: "id" } },
+                            { kind: "Field", name: { kind: "Name", value: "name" } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<JurorStakedCourtsQuery, JurorStakedCourtsQueryVariables>;
 export const VotingHistoryDocument = {
   kind: "Document",
   definitions: [
