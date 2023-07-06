@@ -112,7 +112,9 @@ const Overview: React.FC<{ arbitrable?: `0x${string}`; courtID?: string }> = ({ 
           ))}
         </VotingOptions>
         <hr />
-        {disputeDetails?.dispute?.ruled && <Verdict id={id!} disputeTemplate={disputeTemplate} />}
+        {disputeDetails?.dispute?.ruled && (
+          <Verdict disputeDetails={disputeDetails} id={id!} disputeTemplate={disputeTemplate} />
+        )}
         <hr />
         <DisputeInfo courtId={court?.id} court={courtName} {...{ rewards, category }} />
       </Container>

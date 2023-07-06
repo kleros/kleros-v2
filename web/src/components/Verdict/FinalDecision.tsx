@@ -40,7 +40,7 @@ const JuryDecisionTag = styled.small`
 `;
 
 const Divider = styled.hr`
-  color: ${({ theme }) => theme.secondaryText};
+  color: ${({ theme }) => theme.stroke};
 `;
 
 const UserContainer = styled.div`
@@ -87,10 +87,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeTemplate }) => {
   const navigate = useNavigate();
   const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id)], watch: true });
   const currentRuling = Number(currentRulingArray?.[0]);
-  console.log("🚀 ~ file: FinalDecision.tsx:90 ~ currentRuling:", currentRuling);
-  console.log("disputeTemplate", disputeTemplate);
-  const answer = disputeTemplate?.answers?.[currentRuling!];
-  console.log("🚀 ~ file: FinalDecision.tsx:92 ~ answer:", answer);
+  const answer = disputeTemplate?.answers?.[currentRuling! - 1];
 
   const handleClick = () => {
     navigate(`/cases/${id.toString()}/voting`);
@@ -102,7 +99,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeTemplate }) => {
       <Header>Final Decision</Header>
       <JuryContanier>
         <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
-        {answer && <h3>{`${answer.title}. ${answer.description}`}</h3>}
+        {answer ? <h3>{`${answer.title}. ${answer.description}`}</h3> : <h3>Refuse to Arbitrate</h3>}
       </JuryContanier>
       <Divider />
       <UserContainer>
