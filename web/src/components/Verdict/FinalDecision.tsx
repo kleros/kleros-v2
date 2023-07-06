@@ -111,7 +111,6 @@ const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeTemplate, ruled })
       <JuryContanier>
         <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
         {answer ? <h3>{`${answer.title}. ${answer.description}`}</h3> : <h3>Refuse to Arbitrate</h3>}
-        {answer ? <h3>{`${answer.title}. ${answer.description}`}</h3> : <h3>Refuse to Arbitrate</h3>}
       </JuryContanier>
       <Divider />
       <UserContainer>

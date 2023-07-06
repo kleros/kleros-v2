@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
 import Skeleton from "react-loading-skeleton";
-import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtPolicyURI } from "queries/useCourtPolicyURI";
@@ -121,14 +121,14 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
         {currentPeriodIndex !== Periods.evidence && (
           <>
             <hr />
-            (
+
             <Verdict
-              disputeDetails={disputeDetails!}
-              id={id!}
+              disputeDetails={disputeDetails as DisputeDetailsQuery}
+              id={id ?? ""}
               disputeTemplate={disputeTemplate}
               ruled={disputeDetails?.dispute?.ruled!}
             />
-            )
+
             <hr />
           </>
         )}

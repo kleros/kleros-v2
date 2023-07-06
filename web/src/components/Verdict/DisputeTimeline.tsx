@@ -4,12 +4,11 @@ import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 import { useVotingHistory } from "queries/useVotingHistory";
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import { lightTheme } from "~src/styles/themes";
 import ClosedCaseIcon from "assets/svgs/icons/check-circle-outline.svg";
 import AppealedCaseIcon from "assets/svgs/icons/close-circle.svg";
 import CalendarIcon from "assets/svgs/icons/calendar.svg";
-
+import { isUndefined } from "utils/index";
 const Container = styled.div`
   display: flex;
   position: relative;
@@ -102,7 +101,7 @@ const DisputeTimeline: React.FC<IDisputeTimeline> = ({ id, disputeTemplate, disp
 
   if (rounds) {
     rounds.forEach((round, index) => {
-      const localRuling = calculateLocalRoundJuror(localRounds![index].votes);
+      const localRuling = calculateLocalRoundJuror(!isUndefined(localRounds) && localRounds[index].votes);
       const eventDate = getCaseEventTimes(lastPeriodChange, currentPeriodIndex, courtTimePeriods, false);
       const variant = disputeDetails?.dispute?.ruled && index === rounds.length - 1 ? ClosedCaseIcon : "";
 
