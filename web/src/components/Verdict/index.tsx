@@ -19,12 +19,13 @@ interface IVerdict {
   id: string;
   disputeTemplate: any;
   disputeDetails: DisputeDetailsQuery;
+  ruled: boolean;
 }
 
-const Verdict: React.FC<IVerdict> = ({ id, disputeTemplate, disputeDetails }) => {
+const Verdict: React.FC<IVerdict> = ({ id, disputeTemplate, disputeDetails, ruled }) => {
   return (
     <Container>
-      <FinalDecision id={id} disputeTemplate={disputeTemplate} />
+      <FinalDecision id={id} disputeTemplate={disputeTemplate} ruled={ruled} />
       <VerticalDivider />
       <DisputeTimeline id={id} disputeTemplate={disputeTemplate} disputeDetails={disputeDetails} />
     </Container>

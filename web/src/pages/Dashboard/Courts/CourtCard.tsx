@@ -1,7 +1,11 @@
 import React from "react";
 import styled from "styled-components";
+import { useAccount } from "wagmi";
+import { formatEther } from "viem";
 import { Card as _Card, Breadcrumb } from "@kleros/ui-components-library";
 import WithHelpTooltip from "../WithHelpTooltip";
+import { isUndefined } from "utils/index";
+import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
 
 const Card = styled(_Card)`
   height: auto;
@@ -29,25 +33,36 @@ const tooltipMsg =
   "The locked stake of incoherent jurors is redistributed as incentives for " +
   "the coherent jurors.";
 
-const CourtCard: React.FC = () => (
-  <Card>
-    <StyledBreadcrumb
-      items={[
-        { text: "General Court", value: 0 },
-        { text: "Blockchain", value: 1 },
-      ]}
-    />
-    <ValueContainer>
-      <label> Stake: </label>
-      <small>10,000 PNK</small>
-    </ValueContainer>
-    <ValueContainer>
-      <WithHelpTooltip {...{ place: "bottom", tooltipMsg }}>
-        <label> Locked Stake: </label>
-      </WithHelpTooltip>
-      <small> 1,000 PNK </small>
-    </ValueContainer>
-  </Card>
-);
+const format = (value: bigint | undefined): string => (value !== undefined ? formatEther(value) : "0");
+
+interface ICourtCard {
+  id: string;
+  name: string;
+}
+
+const CourtCard: React.FC<ICourtCard> = ({ id, name }) => {
+  const { address } = useAccount();
+  const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
+    enabled: !isUndefined(address),
+    args: [address, id],
+    watch: true,
+  });
+
+  return (
+    <Card>
+      <StyledBreadcrumb items={[{ text: name, value: 0 }]} />
+      <ValueContainer>
+        <label> Stake: </label>
+        <small>{`${format(jurorBalance?.[0])} PNK`}</small>
+      </ValueContainer>
+      <ValueContainer>
+        <WithHelpTooltip {...{ place: "bottom", tooltipMsg }}>
+          <label> Locked Stake: </label>
+        </WithHelpTooltip>
+        <small>{`${format(jurorBalance?.[1])} PNK`}</small>
+      </ValueContainer>
+    </Card>
+  );
+};
 
 export default CourtCard;

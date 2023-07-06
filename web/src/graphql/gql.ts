@@ -31,6 +31,8 @@ const documents = {
     types.EvidencesDocument,
   "\n  query HomePage($timeframe: ID) {\n    disputes(first: 3) {\n      id\n    }\n    counters(where: { id_gt: $timeframe }) {\n      id\n      stakedPNK\n      paidETH\n      redistributedPNK\n      activeJurors\n      cases\n    }\n  }\n":
     types.HomePageDocument,
+  "\n  query User($address: ID!) {\n    user(id: $address) {\n      totalDisputes\n      totalCoherent\n      tokens {\n        court {\n          id\n          name\n        }\n      }\n      shifts {\n        tokenAmount\n        ethAmount\n      }\n    }\n  }\n":
+    types.UserDocument,
   "\n  query VotingHistory($disputeID: ID!) {\n    dispute(id: $disputeID) {\n      id\n      rounds {\n        nbVotes\n      }\n      disputeKitDispute {\n        localRounds {\n          ... on ClassicRound {\n            totalVoted\n            votes {\n              id\n              juror {\n                id\n              }\n              ... on ClassicVote {\n                choice\n                justification\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n":
     types.VotingHistoryDocument,
 };
@@ -103,6 +105,12 @@ export function graphql(
 export function graphql(
   source: "\n  query HomePage($timeframe: ID) {\n    disputes(first: 3) {\n      id\n    }\n    counters(where: { id_gt: $timeframe }) {\n      id\n      stakedPNK\n      paidETH\n      redistributedPNK\n      activeJurors\n      cases\n    }\n  }\n"
 ): (typeof documents)["\n  query HomePage($timeframe: ID) {\n    disputes(first: 3) {\n      id\n    }\n    counters(where: { id_gt: $timeframe }) {\n      id\n      stakedPNK\n      paidETH\n      redistributedPNK\n      activeJurors\n      cases\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: "\n  query User($address: ID!) {\n    user(id: $address) {\n      totalDisputes\n      totalCoherent\n      tokens {\n        court {\n          id\n          name\n        }\n      }\n      shifts {\n        tokenAmount\n        ethAmount\n      }\n    }\n  }\n"
+): (typeof documents)["\n  query User($address: ID!) {\n    user(id: $address) {\n      totalDisputes\n      totalCoherent\n      tokens {\n        court {\n          id\n          name\n        }\n      }\n      shifts {\n        tokenAmount\n        ethAmount\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

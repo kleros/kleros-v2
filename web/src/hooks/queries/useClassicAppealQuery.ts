@@ -1,5 +1,5 @@
-import useSWR from "swr";
 import { graphql } from "src/graphql";
+import { useSWRBlock } from "hooks/useSWRBlock";
 import { ClassicAppealQuery } from "src/graphql/graphql";
 export type { ClassicAppealQuery };
 
@@ -30,7 +30,7 @@ const classicAppealQuery = graphql(`
 `);
 
 export const useClassicAppealQuery = (id?: string | number) => {
-  return useSWR<ClassicAppealQuery>(() =>
+  return useSWRBlock<ClassicAppealQuery>(() =>
     typeof id !== "undefined"
       ? {
           query: classicAppealQuery,

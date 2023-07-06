@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
+import Identicon from "react-identicons";
 import { Card } from "@kleros/ui-components-library";
 import AttachmentIcon from "svgs/icons/attachment.svg";
 import { useIPFSQuery } from "hooks/useIPFSQuery";
@@ -28,14 +28,10 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
         )}
       </TextContainer>
       <BottomShade>
-        <Jazzicon diameter={24} seed={jsNumberForAddress(sender)} />
+        <Identicon size="24" string={sender} />
         <p>{shortenAddress(sender)}</p>
         {data && typeof data.fileURI !== "undefined" && (
-          <StyledA
-            href={`https://cloudflare-ipfs.com${data.fileURI}`}
-            target="_blank"
-            rel="noreferrer"
-          >
+          <StyledA href={`https://cloudflare-ipfs.com${data.fileURI}`} target="_blank" rel="noreferrer">
             <AttachmentIcon />
           </StyledA>
         )}

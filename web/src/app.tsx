@@ -3,6 +3,7 @@ import { SWRConfig } from "swr";
 import { request } from "graphql-request";
 import { Routes, Route } from "react-router-dom";
 import "react-loading-skeleton/dist/skeleton.css";
+import "react-toastify/dist/ReactToastify.css";
 import Web3Provider from "context/Web3Provider";
 import StyledComponentsProvider from "context/StyledComponentsProvider";
 import Layout from "layout/index";
@@ -10,7 +11,6 @@ import Home from "./pages/Home";
 import Cases from "./pages/Cases";
 import Dashboard from "./pages/Dashboard";
 import Courts from "./pages/Courts";
-import "react-toastify/dist/ReactToastify.css";
 
 const fetcherBuilder =
   (url: string) =>
@@ -25,7 +25,8 @@ const App: React.FC = () => {
       <SWRConfig
         value={{
           fetcher: fetcherBuilder(
-            process.env.REACT_APP_SUBGRAPH_ENDPOINT ?? "https://api.thegraph.com/subgraphs/name/alcercu/kleroscoretest"
+            process.env.REACT_APP_SUBGRAPH_ENDPOINT ??
+              "https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli"
           ),
         }}
       >

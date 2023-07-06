@@ -8,6 +8,7 @@ import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtPolicyURI } from "queries/useCourtPolicyURI";
 import { isUndefined } from "utils/index";
+import { Periods } from "consts/periods";
 import PolicyIcon from "svgs/icons/policy.svg";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 import Verdict from "components/Verdict/index";
@@ -71,7 +72,13 @@ const LinkContainer = styled.div`
   justify-content: space-between;
 `;
 
-const Overview: React.FC<{ arbitrable?: `0x${string}`; courtID?: string }> = ({ arbitrable, courtID }) => {
+interface IOverview {
+  arbitrable?: `0x${string}`;
+  courtID?: string;
+  currentPeriodIndex: number;
+}
+
+const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex }) => {
   const { id } = useParams();
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
@@ -111,11 +118,21 @@ const Overview: React.FC<{ arbitrable?: `0x${string}`; courtID?: string }> = ({ 
             </span>
           ))}
         </VotingOptions>
-        <hr />
-        {disputeDetails?.dispute?.ruled && (
-          <Verdict disputeDetails={disputeDetails} id={id!} disputeTemplate={disputeTemplate} />
+        {currentPeriodIndex !== Periods.evidence && (
+          <>
+            <hr />
+            (
+            <Verdict
+              disputeDetails={disputeDetails!}
+              id={id!}
+              disputeTemplate={disputeTemplate}
+              ruled={disputeDetails?.dispute?.ruled!}
+            />
+            )
+            <hr />
+          </>
         )}
-        <hr />
+
         <DisputeInfo courtId={court?.id} court={courtName} {...{ rewards, category }} />
       </Container>
       <ShadeArea>

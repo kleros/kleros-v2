@@ -19,11 +19,7 @@ interface IWithHelpTooltip {
   children?: React.ReactNode;
 }
 
-const WithHelpTooltip: React.FC<IWithHelpTooltip> = ({
-  tooltipMsg,
-  children,
-  place,
-}) => (
+const WithHelpTooltip: React.FC<IWithHelpTooltip> = ({ tooltipMsg, children, place }) => (
   <Container>
     {children}
     <Tooltip small text={tooltipMsg} {...{ place }}>
