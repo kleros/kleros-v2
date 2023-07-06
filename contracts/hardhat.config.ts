@@ -48,6 +48,7 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ["test", "local"],
       companionNetworks: {
+        home: "localhost",
         foreign: "localhost",
       },
     },

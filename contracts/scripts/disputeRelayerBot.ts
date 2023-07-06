@@ -1,20 +1,39 @@
 import { ethers } from "hardhat";
 import hre = require("hardhat");
-import { KlerosCore, PolicyRegistry, ForeignGateway__factory, HomeGateway, TestERC20 } from "../typechain-types";
+import {
+  KlerosCore,
+  ForeignGateway__factory,
+  HomeGateway,
+  TestERC20,
+  IArbitrableV2__factory,
+} from "../typechain-types";
+import { DisputeRequestEventObject } from "../typechain-types/src/arbitration/interfaces/IArbitrableV2";
+import { HttpNetworkConfig } from "hardhat/types";
+import { DeploymentsExtension } from "hardhat-deploy/types";
 
-async function main() {
+export default async function main(
+  foreignNetwork: HttpNetworkConfig,
+  foreignDeployments: DeploymentsExtension,
+  foreignGatewayArtifact: string,
+  homeGatewayArtifact: string,
+  feeTokenArtifact?: string
+) {
   const core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-  const policyRegistry = (await ethers.getContract("PolicyRegistry")) as PolicyRegistry;
-  const homeGateway = (await ethers.getContract("HomeGatewayToGnosis")) as HomeGateway;
-  const dai = (await ethers.getContract("DAI")) as TestERC20;
+  const homeGateway = (await ethers.getContract(homeGatewayArtifact)) as HomeGateway;
+  const feeToken = feeTokenArtifact ? ((await ethers.getContract(feeTokenArtifact)) as TestERC20) : undefined;
 
-  const foreignChainProvider = new ethers.providers.JsonRpcProvider(hre.config.networks.chiado.url);
-  const foreignGatewayDeployment = await hre.companionNetworks.foreignChiado.deployments.get("ForeignGatewayOnGnosis");
+  const foreignChainProvider = new ethers.providers.JsonRpcProvider(foreignNetwork.url);
+  const foreignGatewayDeployment = await foreignDeployments.get(foreignGatewayArtifact);
   const foreignGateway = await ForeignGateway__factory.connect(foreignGatewayDeployment.address, foreignChainProvider);
+  const foreignChainId = await foreignChainProvider.getNetwork().then((network) => network.chainId);
+  const arbitrableInterface = IArbitrableV2__factory.createInterface();
 
+  // Event subscription
+  // WARNING: The callback might run more than once if the script is restarted in the same block
+  // type Listener = [ eventArg1, ...eventArgN, transactionReceipt ]
   foreignGateway.on(
     "CrossChainDisputeOutgoing",
-    async (foreignBlockHash, foreignArbitrable, foreignDisputeID, choices, extraData) => {
+    async (foreignBlockHash, foreignArbitrable, foreignDisputeID, choices, extraData, txReceipt) => {
       console.log(
         "CrossChainDisputeOutgoing: %s %s %s %s %s",
         foreignBlockHash,
@@ -23,52 +42,52 @@ async function main() {
         choices,
         extraData
       );
+      // console.log("tx receipt: %O", txReceipt);
 
-      const cost = (await core.functions["arbitrationCost(bytes,address)"](extraData, dai.address)).cost;
+      // txReceipt is missing the full logs for this tx so we need to request it here
+      const fullTxReceipt = await foreignChainProvider.getTransactionReceipt(txReceipt.transactionHash);
 
-      await dai.approve(homeGateway.address, cost);
+      // Retrieve the DisputeRequest event
+      const disputeRequest = fullTxReceipt.logs
+        .filter((log) => log.topics[0] === arbitrableInterface.getEventTopic("DisputeRequest"))
+        .map((log) => arbitrableInterface.parseLog(log).args as unknown as DisputeRequestEventObject)[0];
+      console.log("tx events DisputeRequest: %O", disputeRequest);
+      // TODO: log a warning if there are multiple DisputeRequest events
 
-      await homeGateway.functions[
-        "relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes),uint256)"
-      ](
-        {
-          foreignBlockHash: foreignBlockHash,
-          foreignChainID: 10200,
-          foreignArbitrable: foreignArbitrable,
-          foreignDisputeID: foreignDisputeID,
-          externalDisputeID: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("future of france")), // FIXME
-          templateId: 1, // FIXME
-          templateUri: "", // FIXME
-          choices: choices,
-          extraData: extraData,
-        },
-        cost
-      );
+      const relayCreateDisputeParams = {
+        foreignBlockHash: foreignBlockHash,
+        foreignChainID: foreignChainId,
+        foreignArbitrable: foreignArbitrable,
+        foreignDisputeID: foreignDisputeID,
+        externalDisputeID: disputeRequest._externalDisputeID,
+        templateId: disputeRequest._templateId,
+        templateUri: disputeRequest._templateUri,
+        choices: choices,
+        extraData: extraData,
+      };
+      console.log("Relaying dispute to home chain... %O", relayCreateDisputeParams);
+
+      let tx;
+      if (feeToken === undefined) {
+        // Paying in native Arbitrum ETH
+        const cost = (await core.functions["arbitrationCost(bytes)"](extraData)).cost;
+        tx = await homeGateway.functions[
+          "relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes))"
+        ](relayCreateDisputeParams, { value: cost });
+      } else {
+        // Paying in ERC20
+        const cost = (await core.functions["arbitrationCost(bytes,address)"](extraData, feeToken.address)).cost;
+        await (await feeToken.approve(homeGateway.address, cost)).wait();
+        tx = await homeGateway.functions[
+          "relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes),uint256)"
+        ](relayCreateDisputeParams, cost);
+      }
+      tx = tx.wait();
+      console.log("relayCreateDispute txId: %O", tx.transactionHash);
     }
   );
-
-  // type Listener = [ eventArg1, ...eventArgN, transactionReceipt ]
-
-  // policyRegistry.on("PolicyUpdate", (courtId, courtName, policy, receipt) => {
-  //   console.log("PolicyUpdate: %d %s %s %O", courtId, courtName, policy, receipt);
-  //   // WARNING: This callback might run more than once if the script is restarted in the same block
-  // });
-
-  // core.on("DisputeCreation", (disputeID, arbitrable) => {
-  //   console.log("DisputeCreation: %d %s %s %d %s %s", disputeID, arbitrable);
-  //   // WARNING: This callback might run more than once if the script is restarted in the same block
-
-  //   // if phase is staking and minStakingTime has passed, then passPhase()
-  // });
 
   console.log("Listening for events...");
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   await delay(1000000);
 }
-
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
