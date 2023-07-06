@@ -60,6 +60,13 @@ type CustomError = {
   errorSignature: string;
 };
 
+enum Phase {
+  STAKING = "staking",
+  GENERATING = "generating",
+  DRAWING = "drawing",
+}
+const PHASES = Object.values(Phase);
+
 const getNonFinalDisputes = async (): Promise<Dispute[]> => {
   const nonFinalDisputesRequest = `{
     disputes(where: {period_not: execution}) {
@@ -171,7 +178,7 @@ const passPhase = async () => {
     handleError(e);
   } finally {
     const after = await sortition.phase();
-    logger.info(`passPhase: ${before} -> ${after}`);
+    logger.info(`passPhase: ${PHASES[before]} -> ${PHASES[after]}`);
     success = before !== after; // true if successful
   }
   return success;
@@ -363,31 +370,33 @@ async function main() {
   };
 
   const isPhaseStaking = async (): Promise<boolean> => {
-    return (await sortition.phase()) === 0;
+    return PHASES[await sortition.phase()] === Phase.STAKING;
   };
 
   const isPhaseGenerating = async (): Promise<boolean> => {
-    return (await sortition.phase()) === 1;
+    return PHASES[await sortition.phase()] === Phase.GENERATING;
   };
 
   const isPhaseDrawing = async (): Promise<boolean> => {
-    return (await sortition.phase()) === 2;
+    return PHASES[await sortition.phase()] === Phase.DRAWING;
   };
 
   await sendHeartbeat();
+
+  logger.info(`Current phase: ${PHASES[await sortition.phase()]}`);
 
   const disputes = await getNonFinalDisputes().catch((e) => handleError(e));
   if (!disputes) {
     return;
   }
   for (var dispute of disputes) {
-    logger.info(`dispute #${dispute.id}, round #${dispute.currentRoundIndex}, ${dispute.period} period`);
+    logger.info(`Dispute #${dispute.id}, round #${dispute.currentRoundIndex}, ${dispute.period} period`);
   }
 
   const disputesWithoutJurors = await filterAsync(disputes, async (dispute) => {
     return !(await isDisputeFullyDrawn(dispute));
   });
-  logger.info(`disputes needing more jurors: ${disputesWithoutJurors.map((dispute) => dispute.id)}`);
+  logger.info(`Disputes needing more jurors: ${disputesWithoutJurors.map((dispute) => dispute.id)}`);
 
   // Just a sanity check
   const numberOfDisputesWithoutJurors = await sortition.disputesWithoutJurors();
@@ -449,6 +458,8 @@ async function main() {
   }
 
   await sendHeartbeat();
+
+  logger.info(`Current phase: ${PHASES[await sortition.phase()]}`);
 
   for (var dispute of disputes) {
     // ----------------------------------------------- //
@@ -533,6 +544,8 @@ async function main() {
       await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
     }
   }
+
+  logger.info(`Current phase: ${PHASES[await sortition.phase()]}`);
 
   // ----------------------------------------------- //
   //             EXECUTE DELAYED STAKES              //
