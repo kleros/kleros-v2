@@ -13,7 +13,7 @@ module.exports = {
       interpreter: "bash",
       script: "yarn",
       args: "bot:keeper --network arbitrumGoerli",
-      restart_delay: 10000,
+      restart_delay: 600000,
       autorestart: true,
     },
     {

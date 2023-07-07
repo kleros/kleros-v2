@@ -2,11 +2,8 @@ FROM --platform=arm64 node:16-bookworm
 
 WORKDIR /usr/src/app
 
-RUN npm install pm2 -g
+RUN npm install -g pm2
 
-USER node
-
-COPY --chown=node:node "./node_modules" "./node_modules"
 COPY --chown=node:node "./contracts" "./contracts"
 COPY --chown=node:node "./eslint-config" "./eslint-config"
 COPY --chown=node:node "./prettier-config" "./prettier-config"
@@ -16,11 +13,12 @@ COPY --chown=node:node [ ".yarnrc.yml", ".nvmrc", ".eslintignore", "package.json
 
 RUN yarn set version 3.3.1 && \
     yarn --version && \
-    node --version
+    node --version && \
+    cd contracts && \
+    yarn workspaces focus && \
+    yarn build && \
+    chown -R node:node .
 
+USER node
 WORKDIR /usr/src/app/contracts
-
-RUN yarn workspaces focus && \
-    yarn build
-
 ENTRYPOINT [ "yarn" ]
