@@ -19,6 +19,7 @@ export function createUserFromAddress(id: string): User {
   user.activeDisputes = ZERO;
   user.disputes = [];
   user.resolvedDisputes = [];
+  user.totalResolvedDisputes = ZERO;
   user.totalDisputes = ZERO;
   user.totalCoherent = ZERO;
   user.save();
@@ -37,13 +38,24 @@ export function addUserActiveDispute(id: string, disputeID: string): void {
   user.save();
 }
 
-export function resolveUserDispute(id: string, tokenAmount: BigInt, disputeID: string): void {
+export function resolveUserDispute(id: string, previousFeeAmount: BigInt, feeAmount: BigInt, disputeID: string): void {
   const user = ensureUser(id);
   if (user.resolvedDisputes.includes(disputeID)) {
+    if (previousFeeAmount.gt(ZERO)) {
+      if (feeAmount.le(ZERO)) {
+        user.totalCoherent = user.totalCoherent.minus(ONE);
+      }
+    } else if (previousFeeAmount.le(ZERO)) {
+      if (feeAmount.gt(ZERO)) {
+        user.totalCoherent = user.totalCoherent.plus(ONE);
+      }
+    }
+    user.save();
     return;
   }
   user.resolvedDisputes = user.resolvedDisputes.concat([disputeID]);
-  if (tokenAmount.ge(ZERO)) {
+  user.totalResolvedDisputes = user.totalResolvedDisputes.plus(ONE);
+  if (feeAmount.gt(ZERO)) {
     user.totalCoherent = user.totalCoherent.plus(ONE);
   }
   user.activeDisputes = user.activeDisputes.minus(ONE);

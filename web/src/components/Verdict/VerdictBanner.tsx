@@ -19,12 +19,16 @@ const VerdictTag = styled.small<{ ruled: boolean }>`
   color: ${({ theme, ruled }) => (ruled ? theme.success : theme.primaryText)};
 `;
 
+const StyledHourglassIcon = styled(HourglassIcon)`
+  fill: ${({ theme }) => theme.primaryText};
+`;
+
 interface IVerdictIcon {
   ruled: boolean;
 }
 
 const VerdictIcon: React.FC<IVerdictIcon> = ({ ruled }) => {
-  return ruled ? <ClosedCaseIcon /> : <HourglassIcon />;
+  return ruled ? <ClosedCaseIcon /> : <StyledHourglassIcon />;
 };
 
 interface IVerdictText {

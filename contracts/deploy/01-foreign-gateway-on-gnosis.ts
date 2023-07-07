@@ -32,6 +32,8 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   // TODO: use deterministic deployments
   const homeChainProvider = new ethers.providers.JsonRpcProvider(homeNetworks[ForeignChains[chainId]].url);
   const nonce = await homeChainProvider.getTransactionCount(deployer);
+
+  // FIXME: this computed address is wrong for deploys to testnets, okay on Hardhat
   const homeGatewayAddress = getContractAddress(deployer, nonce); // HomeGateway deploy tx will be the next tx home network
   console.log("Calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 

@@ -197,6 +197,7 @@ export enum ClassicContribution_OrderBy {
   ContributorTotalCoherent = "contributor__totalCoherent",
   ContributorTotalDelayed = "contributor__totalDelayed",
   ContributorTotalDisputes = "contributor__totalDisputes",
+  ContributorTotalResolvedDisputes = "contributor__totalResolvedDisputes",
   ContributorTotalStake = "contributor__totalStake",
   CoreDispute = "coreDispute",
   CoreDisputeCurrentRoundIndex = "coreDispute__currentRoundIndex",
@@ -458,6 +459,7 @@ export enum ClassicEvidence_OrderBy {
   SenderTotalCoherent = "sender__totalCoherent",
   SenderTotalDelayed = "sender__totalDelayed",
   SenderTotalDisputes = "sender__totalDisputes",
+  SenderTotalResolvedDisputes = "sender__totalResolvedDisputes",
   SenderTotalStake = "sender__totalStake",
 }
 
@@ -733,6 +735,7 @@ export enum ClassicVote_OrderBy {
   JurorTotalCoherent = "juror__totalCoherent",
   JurorTotalDelayed = "juror__totalDelayed",
   JurorTotalDisputes = "juror__totalDisputes",
+  JurorTotalResolvedDisputes = "juror__totalResolvedDisputes",
   JurorTotalStake = "juror__totalStake",
   Justification = "justification",
   LocalRound = "localRound",
@@ -809,6 +812,7 @@ export enum Contribution_OrderBy {
   ContributorTotalCoherent = "contributor__totalCoherent",
   ContributorTotalDelayed = "contributor__totalDelayed",
   ContributorTotalDisputes = "contributor__totalDisputes",
+  ContributorTotalResolvedDisputes = "contributor__totalResolvedDisputes",
   ContributorTotalStake = "contributor__totalStake",
   CoreDispute = "coreDispute",
   CoreDisputeCurrentRoundIndex = "coreDispute__currentRoundIndex",
@@ -1708,6 +1712,7 @@ export enum Draw_OrderBy {
   JurorTotalCoherent = "juror__totalCoherent",
   JurorTotalDelayed = "juror__totalDelayed",
   JurorTotalDisputes = "juror__totalDisputes",
+  JurorTotalResolvedDisputes = "juror__totalResolvedDisputes",
   JurorTotalStake = "juror__totalStake",
   Round = "round",
   RoundId = "round__id",
@@ -1859,6 +1864,7 @@ export enum Evidence_OrderBy {
   SenderTotalCoherent = "sender__totalCoherent",
   SenderTotalDelayed = "sender__totalDelayed",
   SenderTotalDisputes = "sender__totalDisputes",
+  SenderTotalResolvedDisputes = "sender__totalResolvedDisputes",
   SenderTotalStake = "sender__totalStake",
 }
 
@@ -1977,6 +1983,7 @@ export enum JurorTokensPerCourt_OrderBy {
   JurorTotalCoherent = "juror__totalCoherent",
   JurorTotalDelayed = "juror__totalDelayed",
   JurorTotalDisputes = "juror__totalDisputes",
+  JurorTotalResolvedDisputes = "juror__totalResolvedDisputes",
   JurorTotalStake = "juror__totalStake",
   Locked = "locked",
   Staked = "staked",
@@ -2117,6 +2124,7 @@ export enum Penalty_OrderBy {
   JurorTotalCoherent = "juror__totalCoherent",
   JurorTotalDelayed = "juror__totalDelayed",
   JurorTotalDisputes = "juror__totalDisputes",
+  JurorTotalResolvedDisputes = "juror__totalResolvedDisputes",
   JurorTotalStake = "juror__totalStake",
   NumberDraws = "numberDraws",
   Round = "round",
@@ -3221,6 +3229,7 @@ export enum TokenAndEthShift_OrderBy {
   JurorTotalCoherent = "juror__totalCoherent",
   JurorTotalDelayed = "juror__totalDelayed",
   JurorTotalDisputes = "juror__totalDisputes",
+  JurorTotalResolvedDisputes = "juror__totalResolvedDisputes",
   JurorTotalStake = "juror__totalStake",
   TokenAmount = "tokenAmount",
 }
@@ -3240,6 +3249,7 @@ export type User = {
   totalCoherent: Scalars["BigInt"]["output"];
   totalDelayed: Scalars["BigInt"]["output"];
   totalDisputes: Scalars["BigInt"]["output"];
+  totalResolvedDisputes: Scalars["BigInt"]["output"];
   totalStake: Scalars["BigInt"]["output"];
   votes: Array<Vote>;
 };
@@ -3381,6 +3391,14 @@ export type User_Filter = {
   totalDisputes_lte?: InputMaybe<Scalars["BigInt"]["input"]>;
   totalDisputes_not?: InputMaybe<Scalars["BigInt"]["input"]>;
   totalDisputes_not_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
+  totalResolvedDisputes?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalResolvedDisputes_gt?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalResolvedDisputes_gte?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalResolvedDisputes_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
+  totalResolvedDisputes_lt?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalResolvedDisputes_lte?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalResolvedDisputes_not?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalResolvedDisputes_not_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
   totalStake?: InputMaybe<Scalars["BigInt"]["input"]>;
   totalStake_gt?: InputMaybe<Scalars["BigInt"]["input"]>;
   totalStake_gte?: InputMaybe<Scalars["BigInt"]["input"]>;
@@ -3406,6 +3424,7 @@ export enum User_OrderBy {
   TotalCoherent = "totalCoherent",
   TotalDelayed = "totalDelayed",
   TotalDisputes = "totalDisputes",
+  TotalResolvedDisputes = "totalResolvedDisputes",
   TotalStake = "totalStake",
   Votes = "votes",
 }
@@ -3509,6 +3528,7 @@ export enum Vote_OrderBy {
   JurorTotalCoherent = "juror__totalCoherent",
   JurorTotalDelayed = "juror__totalDelayed",
   JurorTotalDisputes = "juror__totalDisputes",
+  JurorTotalResolvedDisputes = "juror__totalResolvedDisputes",
   JurorTotalStake = "juror__totalStake",
   LocalRound = "localRound",
   LocalRoundId = "localRound__id",
@@ -3717,6 +3737,7 @@ export type UserQuery = {
   user?: {
     __typename?: "User";
     totalDisputes: any;
+    totalResolvedDisputes: any;
     totalCoherent: any;
     tokens: Array<{
       __typename?: "JurorTokensPerCourt";
@@ -4404,6 +4425,7 @@ export const UserDocument = {
               kind: "SelectionSet",
               selections: [
                 { kind: "Field", name: { kind: "Name", value: "totalDisputes" } },
+                { kind: "Field", name: { kind: "Name", value: "totalResolvedDisputes" } },
                 { kind: "Field", name: { kind: "Name", value: "totalCoherent" } },
                 {
                   kind: "Field",
