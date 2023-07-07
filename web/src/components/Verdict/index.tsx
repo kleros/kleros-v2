@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import FinalDecision from "./FinalDecision";
 import DisputeTimeline from "./DisputeTimeline";
 
@@ -10,25 +9,13 @@ const Container = styled.div`
   gap: 24px;
 `;
 
-const VerticalDivider = styled.div`
-  width: 1px;
-  background-color: ${({ theme }) => theme.stroke};
-`;
-
-interface IVerdict {
-  id: string;
-  disputeTemplate: any;
-  disputeDetails: DisputeDetailsQuery;
-  ruled: boolean;
-}
-
-const Verdict: React.FC<IVerdict> = ({ id, disputeTemplate, disputeDetails, ruled }) => {
+const Verdict: React.FC = () => {
   return (
     <Container>
-      <FinalDecision id={id} disputeTemplate={disputeTemplate} ruled={ruled} />
-      <VerticalDivider />
-      <DisputeTimeline id={id} disputeTemplate={disputeTemplate} disputeDetails={disputeDetails} />
+      <FinalDecision />
+      <DisputeTimeline />
     </Container>
   );
 };
+
 export default Verdict;

@@ -33,7 +33,7 @@ const documents = {
     types.HomePageDocument,
   "\n  query User($address: ID!) {\n    user(id: $address) {\n      totalDisputes\n      totalResolvedDisputes\n      totalCoherent\n      tokens {\n        court {\n          id\n          name\n        }\n      }\n      shifts {\n        tokenAmount\n        ethAmount\n      }\n    }\n  }\n":
     types.UserDocument,
-  "\n  query VotingHistory($disputeID: ID!) {\n    dispute(id: $disputeID) {\n      id\n      rounds {\n        nbVotes\n      }\n      disputeKitDispute {\n        localRounds {\n          ... on ClassicRound {\n            totalVoted\n            votes {\n              id\n              juror {\n                id\n              }\n              ... on ClassicVote {\n                choice\n                justification\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n":
+  "\n  query VotingHistory($disputeID: ID!) {\n    dispute(id: $disputeID) {\n      id\n      rounds {\n        nbVotes\n      }\n      disputeKitDispute {\n        localRounds {\n          ... on ClassicRound {\n            winningChoice\n            totalVoted\n            votes {\n              id\n              juror {\n                id\n              }\n              ... on ClassicVote {\n                choice\n                justification\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n":
     types.VotingHistoryDocument,
 };
 
@@ -115,8 +115,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: "\n  query VotingHistory($disputeID: ID!) {\n    dispute(id: $disputeID) {\n      id\n      rounds {\n        nbVotes\n      }\n      disputeKitDispute {\n        localRounds {\n          ... on ClassicRound {\n            totalVoted\n            votes {\n              id\n              juror {\n                id\n              }\n              ... on ClassicVote {\n                choice\n                justification\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n"
-): (typeof documents)["\n  query VotingHistory($disputeID: ID!) {\n    dispute(id: $disputeID) {\n      id\n      rounds {\n        nbVotes\n      }\n      disputeKitDispute {\n        localRounds {\n          ... on ClassicRound {\n            totalVoted\n            votes {\n              id\n              juror {\n                id\n              }\n              ... on ClassicVote {\n                choice\n                justification\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n"];
+  source: "\n  query VotingHistory($disputeID: ID!) {\n    dispute(id: $disputeID) {\n      id\n      rounds {\n        nbVotes\n      }\n      disputeKitDispute {\n        localRounds {\n          ... on ClassicRound {\n            winningChoice\n            totalVoted\n            votes {\n              id\n              juror {\n                id\n              }\n              ... on ClassicVote {\n                choice\n                justification\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n"
+): (typeof documents)["\n  query VotingHistory($disputeID: ID!) {\n    dispute(id: $disputeID) {\n      id\n      rounds {\n        nbVotes\n      }\n      disputeKitDispute {\n        localRounds {\n          ... on ClassicRound {\n            winningChoice\n            totalVoted\n            votes {\n              id\n              juror {\n                id\n              }\n              ... on ClassicVote {\n                choice\n                justification\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

@@ -3761,6 +3761,7 @@ export type VotingHistoryQuery = {
       __typename?: "ClassicDispute";
       localRounds: Array<{
         __typename?: "ClassicRound";
+        winningChoice: any;
         totalVoted: any;
         votes: Array<{
           __typename?: "ClassicVote";
@@ -4523,6 +4524,7 @@ export const VotingHistoryDocument = {
                               selectionSet: {
                                 kind: "SelectionSet",
                                 selections: [
+                                  { kind: "Field", name: { kind: "Name", value: "winningChoice" } },
                                   { kind: "Field", name: { kind: "Name", value: "totalVoted" } },
                                   {
                                     kind: "Field",

@@ -1,22 +1,23 @@
-import React from "react";
-import styled from "styled-components";
+import React, { useMemo } from "react";
+import { useParams } from "react-router-dom";
+import styled, { useTheme } from "styled-components";
 import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 import { useVotingHistory } from "queries/useVotingHistory";
-import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import { lightTheme } from "~src/styles/themes";
+import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import ClosedCaseIcon from "assets/svgs/icons/check-circle-outline.svg";
 import AppealedCaseIcon from "assets/svgs/icons/close-circle.svg";
 import CalendarIcon from "assets/svgs/icons/calendar.svg";
-import { isUndefined } from "utils/index";
+
 const Container = styled.div`
   display: flex;
   position: relative;
-  margin-left: 16px;
+  margin-left: 8px;
 `;
 
 const StyledTimeline = styled(CustomTimeline)`
-  width: calc(200px + (350 - 200) * (100vw - 375px) / (1250 - 375));
+  width: 100%;
   margin-bottom: 32px;
 `;
 
@@ -40,12 +41,6 @@ const StyledCalendarIcon = styled(CalendarIcon)`
   height: 14px;
 `;
 
-interface IDisputeTimeline {
-  id: string;
-  disputeTemplate: any;
-  disputeDetails: DisputeDetailsQuery;
-}
-
 const getCaseEventTimes = (
   lastPeriodChange: string,
   currentPeriodIndex: number,
@@ -62,76 +57,77 @@ const getCaseEventTimes = (
   return formattedDate;
 };
 
-const calculateLocalRoundJuror = (votes) => {
-  const choiceCount = {};
-  let maxVotes = 0;
-  let winningChoice = null;
+type TimelineItems = [_TimelineItem1, ..._TimelineItem1[]];
 
-  votes.forEach((vote) => {
-    const { choice } = vote;
+const useItems = (disputeDetails?: DisputeDetailsQuery) => {
+  const { data: disputeTemplate } = useDisputeTemplate();
+  const { id } = useParams();
+  const { data: votingHistory } = useVotingHistory(id);
+  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
+  const theme = useTheme();
 
-    choiceCount[choice] = (choiceCount[choice] || 0) + 1;
+  return useMemo<TimelineItems | undefined>(() => {
+    if (disputeDetails?.dispute) {
+      const currentPeriodIndex = disputeDetails?.dispute ? Periods[disputeDetails.dispute.period] : 0;
+      const lastPeriodChange = disputeDetails?.dispute?.lastPeriodChange;
+      const courtTimePeriods = disputeDetails.dispute?.court.timesPerPeriod;
+      return localRounds?.reduce<TimelineItems>(
+        (acc, { winningChoice }, index) => {
+          const parsedWinningChoice = parseInt(winningChoice);
+          const eventDate = getCaseEventTimes(lastPeriodChange, currentPeriodIndex, courtTimePeriods, false);
+          const icon = disputeDetails?.dispute?.ruled && index === localRounds.length - 1 ? ClosedCaseIcon : "";
 
-    if (choiceCount[choice] > maxVotes) {
-      maxVotes = choiceCount[choice];
-      winningChoice = choice;
+          acc.push({
+            title: `Jury Decision - Round ${index + 1}`,
+            party:
+              parsedWinningChoice !== 0
+                ? disputeTemplate?.answers?.[parseInt(winningChoice) - 1].title
+                : "Refuse to Arbitrate",
+            subtitle: eventDate,
+            rightSided: true,
+            variant: theme.secondaryPurple,
+            Icon: icon !== "" ? icon : undefined,
+          });
+
+          if (index < localRounds.length - 1) {
+            acc.push({
+              title: "Appealed",
+              party: "",
+              subtitle: eventDate,
+              rightSided: true,
+              Icon: AppealedCaseIcon,
+            });
+          }
+
+          return acc;
+        },
+        [
+          {
+            title: "Dispute created",
+            party: "",
+            subtitle: getCaseEventTimes(lastPeriodChange, currentPeriodIndex, courtTimePeriods, true),
+            rightSided: true,
+            variant: theme.secondaryPurple,
+          },
+        ]
+      );
     }
-  });
-
-  return winningChoice;
+    return;
+  }, [disputeDetails, disputeTemplate, localRounds, theme]);
 };
 
-const DisputeTimeline: React.FC<IDisputeTimeline> = ({ id, disputeTemplate, disputeDetails }) => {
-  const { data: votingHistory } = useVotingHistory(id);
-  const currentPeriodIndex = Periods[disputeDetails?.dispute?.period!];
-  const lastPeriodChange = disputeDetails?.dispute?.lastPeriodChange;
-  const courtTimePeriods = disputeDetails.dispute?.court.timesPerPeriod!;
-  const rounds = votingHistory?.dispute?.rounds;
-  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
+const DisputeTimeline: React.FC = () => {
+  const { id } = useParams();
+  const { data: disputeDetails } = useDisputeDetailsQuery(id);
+  const items = useItems(disputeDetails);
 
-  const dynamicItems: [_TimelineItem1, ..._TimelineItem1[]] = [
-    {
-      title: "Dispute created",
-      party: "",
-      subtitle: getCaseEventTimes(lastPeriodChange, currentPeriodIndex, courtTimePeriods, true),
-      rightSided: true,
-      variant: lightTheme.secondaryPurple,
-    },
-  ];
-
-  if (rounds) {
-    rounds.forEach((round, index) => {
-      const localRuling = calculateLocalRoundJuror(!isUndefined(localRounds) && localRounds[index].votes);
-      const eventDate = getCaseEventTimes(lastPeriodChange, currentPeriodIndex, courtTimePeriods, false);
-      const variant = disputeDetails?.dispute?.ruled && index === rounds.length - 1 ? ClosedCaseIcon : "";
-
-      dynamicItems.push({
-        title: `Jury Decision - Round ${index + 1}`,
-        party: localRuling ? disputeTemplate?.answers?.[localRuling - 1].title : "Refuse to Arbitrate",
-        subtitle: eventDate,
-        rightSided: true,
-        variant: lightTheme.secondaryPurple,
-        Icon: variant !== "" ? variant : undefined,
-      });
-
-      if (index < rounds.length - 1) {
-        dynamicItems.push({
-          title: "Appealed",
-          party: "",
-          subtitle: eventDate,
-          rightSided: true,
-          Icon: AppealedCaseIcon,
-        });
-      }
-    });
-  }
   return (
     <Container>
-      <StyledTimeline items={dynamicItems} />
-      {disputeDetails?.dispute?.ruled && (
+      {items && <StyledTimeline {...{ items }} />}
+      {disputeDetails?.dispute?.ruled && items && (
         <EnforcementContainer>
           <StyledCalendarIcon />
-          <small>Enforcement: {dynamicItems[dynamicItems.length - 1].subtitle}</small>
+          <small>Enforcement: {items.at(-1)?.subtitle}</small>
         </EnforcementContainer>
       )}
     </Container>

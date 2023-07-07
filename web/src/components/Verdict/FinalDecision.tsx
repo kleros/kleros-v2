@@ -1,33 +1,22 @@
 import React from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Identicon from "react-identicons";
-import { useNavigate } from "react-router-dom";
 import ArrowIcon from "assets/svgs/icons/arrow.svg";
+import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import LightButton from "../LightButton";
 import VerdictBanner from "./VerdictBanner";
-import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 
 const Container = styled.div`
-  position: relative;
-  width: calc(200px + (360 - 200) * (100vw - 375px) / (1250 - 375));
-
-  height: 400px;
-  margin-left: 16px;
-  .reverse-button {
-    display: flex;
-    flex-direction: row-reverse;
-    gap: 8px;
-    .button-text {
-      color: ${({ theme }) => theme.primaryBlue};
-    }
-  }
+  width: 100%;
 `;
 
-const JuryContanier = styled.div`
+const JuryContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 32px;
   h3 {
     line-height: 21px;
   }
@@ -66,7 +55,7 @@ const StyledIdenticon = styled(Identicon)`
 `;
 
 const Header = styled.h1`
-  margin: 20px 0px 48px;
+  margin: 20px 0px 32px 0px;
 `;
 
 const Title = styled.small`
@@ -74,55 +63,58 @@ const Title = styled.small`
 `;
 
 const StyledButton = styled(LightButton)`
-  position: absolute;
-  bottom: 0;
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 8px;
+  > .button-text {
+    color: ${({ theme }) => theme.primaryBlue};
+  }
 `;
 
-interface IDecisionText {
-  ruled: boolean;
-}
+const AnswerTitle = styled.h3`
+  margin: 0;
+`;
 
-const DecisionText: React.FC<IDecisionText> = ({ ruled }) => {
-  return ruled ? <>Final Decision</> : <>Current Ruling</>;
-};
-
-interface IFinalDecision {
-  id: string;
-  disputeTemplate: any;
-  ruled: boolean;
-}
-
-const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeTemplate, ruled }) => {
+const FinalDecision: React.FC = () => {
+  const { id } = useParams();
+  const { data: disputeTemplate } = useDisputeTemplate(id);
+  const { data: disputeDetails } = useDisputeDetailsQuery(id);
+  const ruled = disputeDetails?.dispute?.ruled ?? false;
   const navigate = useNavigate();
-  const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id)], watch: true });
+  const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id ?? 0)], watch: true });
   const currentRuling = Number(currentRulingArray?.[0]);
   const answer = disputeTemplate?.answers?.[currentRuling! - 1];
-
-  const handleClick = () => {
-    navigate(`/cases/${id.toString()}/voting`);
-  };
 
   return (
     <Container>
       <VerdictBanner ruled={ruled} />
-      <Header>
-        <DecisionText ruled={ruled} />
-      </Header>
-      <JuryContanier>
+      <Header> {ruled ? "Final Decision" : "Current Ruling"} </Header>
+      <JuryContainer>
         <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
-        {answer ? <h3>{`${answer.title}. ${answer.description}`}</h3> : <h3>Refuse to Arbitrate</h3>}
-      </JuryContanier>
+        {answer ? (
+          <div>
+            <AnswerTitle>{answer.title}</AnswerTitle>
+            <small>{answer.description}</small>
+          </div>
+        ) : (
+          <h3>Refuse to Arbitrate</h3>
+        )}
+      </JuryContainer>
       <Divider />
-      <UserContainer>
-        <StyledIdenticon size="24" />
-        <AliasTag>
-          {disputeTemplate?.aliases?.challenger && <small>Alice.eth</small>}
-          <Title>Claimant</Title>
-        </AliasTag>
-      </UserContainer>
-      <Divider />
+      {disputeTemplate?.aliases && (
+        <>
+          <UserContainer>
+            <StyledIdenticon size="24" />
+            <AliasTag>
+              {disputeTemplate?.aliases?.challenger && <small>Alice.eth</small>}
+              <Title>Claimant</Title>
+            </AliasTag>
+          </UserContainer>
+          <Divider />
+        </>
+      )}
       <StyledButton
-        onClick={handleClick}
+        onClick={() => navigate(`/cases/${id?.toString()}/voting`)}
         text={"Check how the jury voted"}
         Icon={ArrowIcon}
         className="reverse-button"
@@ -130,4 +122,5 @@ const FinalDecision: React.FC<IFinalDecision> = ({ id, disputeTemplate, ruled })
     </Container>
   );
 };
+
 export default FinalDecision;
