@@ -88,6 +88,6 @@ export default async function main(
   );
 
   console.log("Listening for events...");
-  const delay = (duration: string) => new Promise((x) => setTimeout(x, duration));
-  await delay("7 days");
+  const delay = (ms) => new Promise((x) => setTimeout(x, ms));
+  await delay(24 * 60 * 60 * 1000); // 24 hours
 }

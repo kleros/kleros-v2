@@ -3,6 +3,6 @@ services:
   bot-base:
     build:
       context: ../../
-      dockerfile: ./services/keeper-bot/Dockerfile
+      dockerfile: ./services/bots/Dockerfile
     image: kleros-v2-bots
     command: --help
