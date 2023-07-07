@@ -381,6 +381,8 @@ async function main() {
     return PHASES[await sortition.phase()] === Phase.DRAWING;
   };
 
+  logger.info("Starting up");
+
   await sendHeartbeat();
 
   logger.info(`Current phase: ${PHASES[await sortition.phase()]}`);
@@ -566,6 +568,7 @@ async function main() {
 
   await sendHeartbeat();
 
+  logger.info("Shutting down");
   await delay(2000); // Some log messages may be lost otherwise
 }
 

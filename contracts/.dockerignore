@@ -1,0 +1,9 @@
+.env
+test
+lib
+cache
+cache_hardhat
+config
+tenderly.yaml
+**/.DS_Store
+**/*.log

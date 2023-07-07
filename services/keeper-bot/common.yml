@@ -1,0 +1,8 @@
+version: '3.3'    
+services:
+  bot-base:
+    build:
+      context: ../../
+      dockerfile: ./services/keeper-bot/Dockerfile
+    image: kleros-v2-bots
+    command: --help

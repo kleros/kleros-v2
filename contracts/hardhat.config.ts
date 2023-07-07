@@ -52,6 +52,15 @@ const config: HardhatUserConfig = {
         foreign: "localhost",
       },
     },
+    dockerhost: {
+      url: `http://host.docker.internal:8545`,
+      chainId: 31337,
+      saveDeployments: true,
+      tags: ["test", "local"],
+      companionNetworks: {
+        foreign: "localhost",
+      },
+    },
     mainnetFork: {
       chainId: 1,
       url: `http://127.0.0.1:8545`,

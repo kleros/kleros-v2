@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import getContractAddress from "../deploy-helpers/getContractAddress";
 import { KlerosCore__factory } from "../typechain-types";
-import disputeTemplate from "../../kleros-sdk/config/v2-disputetemplate/simple/NewDisputeTemplate.simple.json";
+import disputeTemplate from "../config/DisputeTemplate.simple.json";
 
 const HARDHAT_NETWORK = 31337;
 
