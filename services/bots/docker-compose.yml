@@ -7,13 +7,13 @@ services:
     # command: bot:keeper --network arbitrumGoerli
     entrypoint:
       [
-        "/bin/bash",
+        "/bin/sh",
         "-c",
         "pm2-runtime ecosystem.config.js --only keeper-bot-testnet --no-auto-exit"
       ]
     # entrypoint:
     #   [
-    #     "/bin/bash",
+    #     "/bin/sh",
     #     "-c",
     #     "pm2-runtime ecosystem.config.js --only foo --no-auto-exit"
     #   ]
@@ -30,7 +30,7 @@ services:
     # command: bot:relayer-from-chiado --network arbitrumGoerli
     entrypoint:
       [
-        "/bin/bash",
+        "/bin/sh",
         "-c",
         "pm2-runtime ecosystem.config.js --only relayer-bot-from-chiado-testnet --no-auto-exit"
       ]

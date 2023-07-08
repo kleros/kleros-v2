@@ -1,4 +1,4 @@
-FROM --platform=arm64 node:16-bookworm
+FROM node:16-alpine
 
 WORKDIR /usr/src/app
 
@@ -22,3 +22,8 @@ RUN yarn set version 3.3.1 && \
 USER node
 WORKDIR /usr/src/app/contracts
 ENTRYPOINT [ "yarn" ]
+
+LABEL org.opencontainers.image.source=https://github.com/kleros/kleros-v2
+LABEL org.opencontainers.image.title="Kleros v2 Bots"
+LABEL org.opencontainers.image.description="Bots for the Kleros v2 arbitration protocol."
+LABEL org.opencontainers.image.licenses=MIT

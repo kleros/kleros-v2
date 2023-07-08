@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "foo",
-      interpreter: "bash",
+      interpreter: "sh",
       script: "yarn",
       args: "foo",
       restart_delay: 3000,
@@ -10,7 +10,7 @@ module.exports = {
     },
     {
       name: "keeper-bot-testnet",
-      interpreter: "bash",
+      interpreter: "sh",
       script: "yarn",
       args: "bot:keeper --network arbitrumGoerli",
       restart_delay: 600000,
@@ -18,7 +18,7 @@ module.exports = {
     },
     {
       name: "relayer-bot-from-chiado-testnet",
-      interpreter: "bash",
+      interpreter: "sh",
       script: "yarn",
       args: "bot:relayer-from-chiado --network arbitrumGoerli",
       restart_delay: 2000,

@@ -4,5 +4,8 @@ services:
     build:
       context: ../../
       dockerfile: ./services/bots/Dockerfile
-    image: kleros-v2-bots
+      tags:
+        - kleros-v2-bots
+    image: ghcr.io/kleros/kleros-v2-bots
+    pull_policy: missing
     command: --help
