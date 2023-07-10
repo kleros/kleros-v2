@@ -67,10 +67,11 @@ const useItems = (disputeDetails?: DisputeDetailsQuery) => {
   const theme = useTheme();
 
   return useMemo<TimelineItems | undefined>(() => {
-    if (disputeDetails?.dispute) {
-      const currentPeriodIndex = disputeDetails?.dispute ? Periods[disputeDetails.dispute.period] : 0;
-      const lastPeriodChange = disputeDetails?.dispute?.lastPeriodChange;
-      const courtTimePeriods = disputeDetails.dispute?.court.timesPerPeriod;
+    const dispute = disputeDetails?.dispute;
+    if (dispute) {
+      const currentPeriodIndex = Periods[dispute.period];
+      const lastPeriodChange = dispute.lastPeriodChange;
+      const courtTimePeriods = dispute.court.timesPerPeriod;
       return localRounds?.reduce<TimelineItems>(
         (acc, { winningChoice }, index) => {
           const parsedWinningChoice = parseInt(winningChoice);
