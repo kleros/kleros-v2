@@ -6,7 +6,7 @@
   "license": "MIT",
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^5.59.11",
-    "@typescript-eslint/parser": "^5.59.11",
+    "@typescript-eslint/parser": "^5.61.0",
     "@typescript-eslint/utils": "^5.59.11",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-standard": "^16.0.3",
