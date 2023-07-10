@@ -120,7 +120,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
         {currentPeriodIndex !== Periods.evidence && (
           <>
             <hr />
-            <Verdict id={id!} disputeTemplate={disputeTemplate} ruled={disputeDetails?.dispute?.ruled} />
+            <Verdict />
             <hr />
           </>
         )}

@@ -13,6 +13,7 @@ const votingHistoryQuery = graphql(`
       disputeKitDispute {
         localRounds {
           ... on ClassicRound {
+            winningChoice
             totalVoted
             votes {
               id
