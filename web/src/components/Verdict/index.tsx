@@ -1,25 +1,21 @@
 import React from "react";
 import styled from "styled-components";
 import FinalDecision from "./FinalDecision";
-import DisputeTimeline from "./Timeline";
+import DisputeTimeline from "./DisputeTimeline";
 
 const Container = styled.div`
   display: flex;
-  gap: 48px;
+  flex-wrap: wrap;
+  gap: 24px;
 `;
 
-interface IVerdict {
-  id: string;
-  disputeTemplate: any;
-  ruled: boolean;
-}
-
-const Verdict: React.FC<IVerdict> = ({ id, disputeTemplate, ruled }) => {
+const Verdict: React.FC = () => {
   return (
     <Container>
-      <FinalDecision id={id} disputeTemplate={disputeTemplate} ruled={ruled} />
-      {/* <DisputeTimeline id={id} disputeTemplate={disputeTemplate} /> */}
+      <FinalDecision />
+      <DisputeTimeline />
     </Container>
   );
 };
+
 export default Verdict;

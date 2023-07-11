@@ -44,7 +44,6 @@ interface IVerdictBanner {
 }
 
 const VerdictBanner: React.FC<IVerdictBanner> = ({ ruled }) => {
-  console.log("ruledinside verdict banner", ruled);
   return (
     <BannerContainer>
       <VerdictIcon ruled={ruled} />

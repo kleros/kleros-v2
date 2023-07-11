@@ -63,7 +63,7 @@
   "dependencies": {
     "@filebase/client": "^0.0.4",
     "@kleros/kleros-v2-contracts": "workspace:^",
-    "@kleros/ui-components-library": "^2.5.2",
+    "@kleros/ui-components-library": "^2.6.1",
     "@sentry/react": "^7.55.2",
     "@sentry/tracing": "^7.55.2",
     "@tanstack/react-query": "^4.29.19",
