@@ -5253,6 +5253,7 @@ __metadata:
     "@parcel/watcher": ~2.1.0
     "@sentry/react": ^7.55.2
     "@sentry/tracing": ^7.55.2
+    "@tanstack/react-query": ^4.29.19
     "@types/amqplib": ^0.10.1
     "@types/busboy": ^1.5.0
     "@types/react": ^18.2.14
@@ -5276,7 +5277,7 @@ __metadata:
     eslint-plugin-react-hooks: ^4.6.0
     ethers: ^5.7.2
     graphql: ^16.7.1
-    graphql-request: ~5.1.0
+    graphql-request: ^6.1.0
     lru-cache: ^7.18.3
     moment: ^2.29.4
     parcel: ~2.8.0
@@ -8193,6 +8194,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/query-core@npm:4.29.19":
+  version: 4.29.19
+  resolution: "@tanstack/query-core@npm:4.29.19"
+  checksum: 91a79dbebebc139d118542a5fe83fb54a6f6448bbe1563db1a0bed0c6d44e1d023613efde3c4ac747c72d067110013ac56f90611bf8affc390eda1ac3f99066e
+  languageName: node
+  linkType: hard
+
 "@tanstack/query-persist-client-core@npm:4.29.15":
   version: 4.29.15
   resolution: "@tanstack/query-persist-client-core@npm:4.29.15"
@@ -8238,6 +8246,25 @@ __metadata:
     react-native:
       optional: true
   checksum: de703806af4efd124f89f03f25d917c7f74329c1df82d2f293ff6fbd6bb259f656f9634203fcef5d2da3920c09dc35046aa9f1e84de3ed2ba84b44bb822b4784
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query@npm:^4.29.19":
+  version: 4.29.19
+  resolution: "@tanstack/react-query@npm:4.29.19"
+  dependencies:
+    "@tanstack/query-core": 4.29.19
+    use-sync-external-store: ^1.2.0
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-native: "*"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+    react-native:
+      optional: true
+  checksum: 2780ac35b4d1dabcd3e708b95891376e7e609109270d40442b33f4747c508c23e46bcadc692f997f81d38f62b5ab31f8e42bc9a785dfa4afe0c390adb6f37e52
   languageName: node
   linkType: hard
 
@@ -16122,13 +16149,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"extract-files@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "extract-files@npm:9.0.0"
-  checksum: c31781d090f8d8f62cc541f1023b39ea863f24bd6fb3d4011922d71cbded70cef8191f2b70b43ec6cb5c5907cdad1dc5e9f29f78228936c10adc239091d8ab64
-  languageName: node
-  linkType: hard
-
 "extsprintf@npm:1.3.0":
   version: 1.3.0
   resolution: "extsprintf@npm:1.3.0"
@@ -17472,20 +17492,6 @@ __metadata:
   peerDependencies:
     graphql: 14 - 16
   checksum: 6d62630a0169574442320651c1f7626c0c602025c3c46b19e09417c9579bb209306ee63de9793a03be2e1701bb7f13971f8545d99bc6573e340f823af0ad35b2
-  languageName: node
-  linkType: hard
-
-"graphql-request@npm:~5.1.0":
-  version: 5.1.0
-  resolution: "graphql-request@npm:5.1.0"
-  dependencies:
-    "@graphql-typed-document-node/core": ^3.1.1
-    cross-fetch: ^3.1.5
-    extract-files: ^9.0.0
-    form-data: ^3.0.0
-  peerDependencies:
-    graphql: 14 - 16
-  checksum: 8b65d5c1b0cad8996a843b52305b2712ffbf842c700487d4cee1ed719f22baacaacfddafb65572bcddd67d57fd1d2d389dee2430ffba4b34c3ab542d079446c7
   languageName: node
   linkType: hard
 

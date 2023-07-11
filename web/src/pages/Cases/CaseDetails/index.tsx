@@ -14,6 +14,7 @@ import Voting from "./Voting";
 const CaseDetails: React.FC = () => {
   const { id } = useParams();
   const { data } = useDisputeDetailsQuery(id);
+  console.log("🚀 ~ file: index.tsx:17 ~ data:", data);
   const dispute = data?.dispute;
   const currentPeriodIndex = dispute ? Periods[dispute.period] : 0;
   const arbitrable = dispute?.arbitrated.id as `0x${string}`;
