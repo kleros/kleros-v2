@@ -1,4 +1,4 @@
-import useSWRImmutable from "swr/immutable";
+import { useQuery } from "@tanstack/react-query";
 import { PublicClient } from "viem";
 import { usePublicClient } from "wagmi";
 import { getIArbitrableV2 } from "hooks/contracts/generated";
@@ -9,11 +9,13 @@ import { useIsCrossChainDispute } from "../useIsCrossChainDispute";
 export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
   const publicClient = usePublicClient();
   const { data: crossChainData } = useIsCrossChainDispute(disputeID, arbitrableAddress);
-  const checkIsUndefined = !isUndefined(arbitrableAddress) && !isUndefined(disputeID) && !isUndefined(crossChainData);
-  return useSWRImmutable(
-    () => (checkIsUndefined ? `DisputeTemplate${disputeID}${arbitrableAddress}` : false),
-    async () => {
-      if (checkIsUndefined) {
+  const isEnabled = !isUndefined(arbitrableAddress) && !isUndefined(disputeID) && !isUndefined(crossChainData);
+  return useQuery({
+    queryKey: [`DisputeTemplate${disputeID}${arbitrableAddress}`],
+    enabled: isEnabled,
+    staleTime: Infinity,
+    queryFn: async () => {
+      if (isEnabled) {
         try {
           const { isCrossChainDispute, crossChainId, crossChainTemplateId, crossChainArbitrableAddress } =
             crossChainData;
@@ -30,8 +32,8 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
           return {};
         }
       } else throw Error;
-    }
-  );
+    },
+  });
 };
 
 const getTemplateId = async (

@@ -5158,7 +5158,7 @@ __metadata:
     "@typechain/hardhat": ^7.0.0
     "@types/chai": ^4.3.5
     "@types/mocha": ^10.0.1
-    "@types/node": ^16.18.36
+    "@types/node": ^16.18.38
     chai: ^4.3.7
     dotenv: ^16.3.1
     ethereumjs-util: ^7.1.5
@@ -5253,6 +5253,7 @@ __metadata:
     "@parcel/watcher": ~2.1.0
     "@sentry/react": ^7.55.2
     "@sentry/tracing": ^7.55.2
+    "@tanstack/react-query": ^4.28.0
     "@types/amqplib": ^0.10.1
     "@types/busboy": ^1.5.0
     "@types/react": ^18.2.14
@@ -5294,7 +5295,6 @@ __metadata:
     react-toastify: ^9.1.3
     react-use: ^17.4.0
     styled-components: ^5.3.9
-    swr: ^2.2.0
     typescript: ^4.9.5
     viem: ^0.3.48
     wagmi: ^1.1.0
@@ -8789,10 +8789,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^16.18.36":
-  version: 16.18.36
-  resolution: "@types/node@npm:16.18.36"
-  checksum: a9d138fa1269079c60daad6984713dc0b713983f8b34a83edbc6d7957b2e38beab9b2598c9fe99f19d073e20bc212a18aaf82eabdc23ef64dce7d2089a9aab2a
+"@types/node@npm:^16.18.38":
+  version: 16.18.38
+  resolution: "@types/node@npm:16.18.38"
+  checksum: a3baa141e49ce94486f083eea1240cf38479a73ba663e1bf3f52f85b466125821b6e3ea85ded38fde3901530aca4601291395a50eefcea533a4f3b45171bda28
   languageName: node
   linkType: hard
 
@@ -28940,17 +28940,6 @@ __metadata:
   dependencies:
     tslib: ^2.0.3
   checksum: 6e21c9e1b3cd5735eb2af679a99ec3efc78a14e3d4d5e3fd594e254b91cfd37185b3d1c6e41b22f53a2cdf5d1b963ce30c0fe8b78337e3fd43d0137084670a5f
-  languageName: node
-  linkType: hard
-
-"swr@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "swr@npm:2.2.0"
-  dependencies:
-    use-sync-external-store: ^1.2.0
-  peerDependencies:
-    react: ^16.11.0 || ^17.0.0 || ^18.0.0
-  checksum: 1f04795ff9dff54987cbf8a544afc9e42d1350a99e899be8a7cdc4885f561e3ee464f78245ee2ebc8ced262b04023d134f731e276227319dc2d6e1843389ddd8
   languageName: node
   linkType: hard
 

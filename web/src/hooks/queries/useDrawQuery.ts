@@ -1,6 +1,7 @@
-import useSWR from "swr";
 import { graphql } from "src/graphql";
 import { DrawQuery } from "src/graphql/graphql";
+import { useQuery } from "@tanstack/react-query";
+import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { DrawQuery };
 
 const drawQuery = graphql(`
@@ -12,8 +13,10 @@ const drawQuery = graphql(`
 `);
 
 export const useDrawQuery = (address?: string | null, disputeID?: string, roundID?: string) => {
-  return useSWR<DrawQuery>({
-    query: drawQuery,
-    variables: { address, disputeID, roundID },
+  const isEnabled = !!(address && disputeID && roundID);
+  return useQuery({
+    queryKey: [`drawQuery${[address, disputeID, roundID]}`],
+    enabled: isEnabled,
+    queryFn: async () => await graphqlQueryFnHelper(drawQuery, { address, disputeID, roundID }),
   });
 };

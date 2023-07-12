@@ -1,4 +1,4 @@
-import useSWRImmutable from "swr/immutable";
+import { useQuery } from "@tanstack/react-query";
 import { usePublicClient } from "wagmi";
 import { getIHomeGateway } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
@@ -11,14 +11,14 @@ interface IIsCrossChainDispute {
 }
 
 export const useIsCrossChainDispute = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
+  const isEnabled = !isUndefined(arbitrableAddress) && !isUndefined(disputeID);
   const publicClient = usePublicClient();
-  return useSWRImmutable<IIsCrossChainDispute | undefined>(
-    () =>
-      !isUndefined(arbitrableAddress) && !isUndefined(disputeID)
-        ? `IsCrossChainDispute{disputeID}${arbitrableAddress}`
-        : false,
-    async () => {
-      if (!isUndefined(arbitrableAddress) && !isUndefined(disputeID)) {
+  return useQuery<IIsCrossChainDispute | undefined>({
+    queryKey: [`IsCrossChainDispute${disputeID}`],
+    enabled: isEnabled,
+    staleTime: Infinity,
+    queryFn: async () => {
+      if (isEnabled) {
         const arbitrable = getIHomeGateway({
           address: arbitrableAddress,
         });
@@ -51,6 +51,6 @@ export const useIsCrossChainDispute = (disputeID?: string, arbitrableAddress?: `
           };
         }
       } else throw Error;
-    }
-  );
+    },
+  });
 };

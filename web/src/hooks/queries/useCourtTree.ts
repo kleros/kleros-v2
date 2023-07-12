@@ -1,6 +1,7 @@
-import useSWR from "swr";
 import { graphql } from "src/graphql";
 import { CourtTreeQuery } from "src/graphql/graphql";
+import { useQuery } from "@tanstack/react-query";
+import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { CourtTreeQuery };
 
 const courtTreeQuery = graphql(`
@@ -33,7 +34,8 @@ const courtTreeQuery = graphql(`
 `);
 
 export const useCourtTree = () => {
-  return useSWR<CourtTreeQuery>({
-    query: courtTreeQuery,
+  return useQuery({
+    queryKey: ["courtTreeQuery"],
+    queryFn: async () => await graphqlQueryFnHelper(courtTreeQuery, {}),
   });
 };

@@ -1,6 +1,7 @@
 import { graphql } from "src/graphql";
-import { useSWRBlock } from "hooks/useSWRBlock";
 import { ClassicAppealQuery } from "src/graphql/graphql";
+import { useQuery } from "@tanstack/react-query";
+import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { ClassicAppealQuery };
 
 const classicAppealQuery = graphql(`
@@ -30,12 +31,11 @@ const classicAppealQuery = graphql(`
 `);
 
 export const useClassicAppealQuery = (id?: string | number) => {
-  return useSWRBlock<ClassicAppealQuery>(() =>
-    typeof id !== "undefined"
-      ? {
-          query: classicAppealQuery,
-          variables: { disputeID: id?.toString() },
-        }
-      : false
-  );
+  const isEnabled = id !== undefined;
+
+  return useQuery({
+    queryKey: ["refetchOnBlock", `classicAppealQuery${id}`],
+    enabled: isEnabled,
+    queryFn: async () => await graphqlQueryFnHelper(classicAppealQuery, { disputeID: id?.toString() }),
+  });
 };
