@@ -35,7 +35,6 @@ const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const theme = useTheme();
   return (
     <>
-      <WagmiConfig config={wagmiConfig}> {children} </WagmiConfig>
       <Web3Modal
         themeMode={themeToggle as "light" | "dark"}
         themeVariables={{
@@ -49,6 +48,7 @@ const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         }}
         {...{ projectId, ethereumClient }}
       />
+      <WagmiConfig config={wagmiConfig}> {children} </WagmiConfig>
     </>
   );
 };

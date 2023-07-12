@@ -1,12 +1,18 @@
-import useSWRImmutable from "swr/immutable";
+import { useQuery } from "@tanstack/react-query";
+import { isUndefined } from "utils/index";
 
 export const useIPFSQuery = (ipfsPath?: string) => {
-  return useSWRImmutable(
-    () => (ipfsPath !== undefined ? ipfsPath : false),
-    async () => {
-      if (ipfsPath) {
-        return fetch(`https://cloudflare-ipfs.com${ipfsPath}`).then(async (res) => await res.json());
-      } else throw Error;
-    }
-  );
+  const isEnabled = !isUndefined(ipfsPath);
+  return useQuery({
+    queryKey: [`IPFS${ipfsPath}`],
+    enabled: isEnabled,
+    staleTime: Infinity,
+    queryFn: async () => {
+      if (isEnabled) {
+        const formatedIPFSPath = ipfsPath.startsWith("/") ? ipfsPath : "/" + ipfsPath;
+        return fetch(`https://cdn.kleros.link${formatedIPFSPath}`).then(async (res) => await res.json());
+      }
+      return undefined;
+    },
+  });
 };

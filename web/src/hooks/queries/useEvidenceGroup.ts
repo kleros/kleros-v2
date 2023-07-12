@@ -1,13 +1,16 @@
-import useSWRImmutable from "swr/immutable";
+import { useQuery } from "@tanstack/react-query";
 import { getIArbitrableV2 } from "hooks/contracts/generated";
 import { usePublicClient } from "wagmi";
 import { isUndefined } from "utils/index";
 
 export const useEvidenceGroup = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
+  const isEnabled = !isUndefined(arbitrableAddress);
   const publicClient = usePublicClient();
-  return useSWRImmutable(
-    () => (arbitrableAddress ? `EvidenceGroup${disputeID}${arbitrableAddress}` : false),
-    async () => {
+  return useQuery({
+    queryKey: [`EvidenceGroup${disputeID}${arbitrableAddress}`],
+    enabled: isEnabled,
+    staleTime: Infinity,
+    queryFn: async () => {
       if (arbitrableAddress && !isUndefined(disputeID)) {
         const arbitrable = getIArbitrableV2({
           address: arbitrableAddress,
@@ -28,6 +31,6 @@ export const useEvidenceGroup = (disputeID?: string, arbitrableAddress?: `0x${st
 
         return disputeEvents[0].args._externalDisputeID;
       } else throw Error;
-    }
-  );
+    },
+  });
 };
