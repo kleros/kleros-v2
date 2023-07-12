@@ -9,7 +9,8 @@ export const useIPFSQuery = (ipfsPath?: string) => {
     staleTime: Infinity,
     queryFn: async () => {
       if (isEnabled) {
-        return fetch(`https://cloudflare-ipfs.com${ipfsPath}`).then(async (res) => await res.json());
+        const formatedIPFSPath = ipfsPath.startsWith("/") ? ipfsPath : "/" + ipfsPath;
+        return fetch(`https://cdn.kleros.link${formatedIPFSPath}`).then(async (res) => await res.json());
       }
       return undefined;
     },
