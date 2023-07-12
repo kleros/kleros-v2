@@ -1,6 +1,7 @@
-import useSWR from "swr";
 import { graphql } from "src/graphql";
 import { HomePageQuery } from "src/graphql/graphql";
+import { useQuery } from "@tanstack/react-query";
+import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { HomePageQuery };
 
 const homePageQuery = graphql(`
@@ -20,8 +21,11 @@ const homePageQuery = graphql(`
 `);
 
 export const useHomePageQuery = (timeframe: number) => {
-  return useSWR<HomePageQuery>({
-    query: homePageQuery,
-    variables: { timeframe: timeframe.toString() },
+  const isEnabled = timeframe !== undefined;
+
+  return useQuery({
+    queryKey: ["homePageQuery"],
+    enabled: isEnabled,
+    queryFn: async () => await graphqlQueryFnHelper(homePageQuery, { timeframe: timeframe.toString() }),
   });
 };

@@ -36,6 +36,6 @@ export const useClassicAppealQuery = (id?: string | number) => {
   return useQuery({
     queryKey: ["refetchOnBlock", `classicAppealQuery${id}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(isEnabled, classicAppealQuery, { disputeID: id?.toString() }),
+    queryFn: async () => await graphqlQueryFnHelper(classicAppealQuery, { disputeID: id?.toString() }),
   });
 };

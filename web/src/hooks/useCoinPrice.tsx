@@ -1,4 +1,4 @@
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 
 const fetchCoinPrices = async (...coinIds) => {
   const response = await fetch(`https://coins.llama.fi/prices/current/${coinIds.join(",")}?searchWidth=1h`);
@@ -7,9 +7,15 @@ const fetchCoinPrices = async (...coinIds) => {
 };
 
 export const useCoinPrice = (coinIds: string[]) => {
-  const { data: prices, error } = useSWR(coinIds, fetchCoinPrices);
+  const isEnabled = coinIds !== undefined;
+
+  const { data: prices, isError } = useQuery({
+    queryKey: ["coinPrice"],
+    enabled: isEnabled,
+    queryFn: async () => fetchCoinPrices(coinIds),
+  });
   return {
     prices,
-    error,
+    isError,
   };
 };

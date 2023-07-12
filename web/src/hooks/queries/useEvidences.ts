@@ -22,7 +22,6 @@ export const useEvidences = (evidenceGroup?: string) => {
   return useQuery({
     queryKey: ["refetchOnBlock", `evidencesQuery${evidenceGroup}`],
     enabled: isEnabled,
-    queryFn: async () =>
-      await graphqlQueryFnHelper(isEnabled, evidencesQuery, { evidenceGroupID: evidenceGroup?.toString() }),
+    queryFn: async () => await graphqlQueryFnHelper(evidencesQuery, { evidenceGroupID: evidenceGroup?.toString() }),
   });
 };

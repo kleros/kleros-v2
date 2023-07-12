@@ -33,6 +33,6 @@ export const useDisputeDetailsQuery = (id?: string | number) => {
   return useQuery({
     queryKey: ["refetchOnBlock", `disputeDetailsQuery${id}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(isEnabled, disputeDetailsQuery, { disputeID: id?.toString() }),
+    queryFn: async () => await graphqlQueryFnHelper(disputeDetailsQuery, { disputeID: id?.toString() }),
   });
 };
