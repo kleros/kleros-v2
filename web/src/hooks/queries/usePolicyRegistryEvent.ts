@@ -1,14 +1,18 @@
-import useSWRImmutable from "swr/immutable";
+import { useQuery } from "@tanstack/react-query";
 import { usePublicClient } from "wagmi";
 import { getPolicyRegistry } from "hooks/contracts/generated";
+import { isUndefined } from "utils/index";
 
 export const usePolicyRegistryEvent = (courtID?: string | number) => {
   const policyRegistry = getPolicyRegistry({});
-  const publicClient = usePublicClient();
+  const isEnabled = !isUndefined(policyRegistry) && !isUndefined(courtID);
 
-  return useSWRImmutable(
-    () => (policyRegistry && courtID ? `PolicyRegistry${courtID}` : false),
-    async () => {
+  const publicClient = usePublicClient();
+  return useQuery({
+    queryKey: [`PolicyRegistry${courtID}`],
+    enabled: isEnabled,
+    staleTime: Infinity,
+    queryFn: async () => {
       if (policyRegistry && courtID) {
         const policyFilter = await policyRegistry.createEventFilter.PolicyUpdate({
           _courtID: BigInt(courtID),
@@ -18,6 +22,6 @@ export const usePolicyRegistryEvent = (courtID?: string | number) => {
         });
         return policyUpdateEvents[0];
       } else throw Error;
-    }
-  );
+    },
+  });
 };
