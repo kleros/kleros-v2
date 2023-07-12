@@ -1,7 +1,7 @@
 import { graphql } from "src/graphql";
 import { EvidencesQuery } from "src/graphql/graphql";
-import { useSWRBlock } from "hooks/useSWRBlock";
-import { isUndefined } from "utils/index";
+import { useQuery } from "@tanstack/react-query";
+import request from "graphql-request";
 export type { EvidencesQuery };
 
 const evidencesQuery = graphql(`
@@ -17,12 +17,22 @@ const evidencesQuery = graphql(`
 `);
 
 export const useEvidences = (evidenceGroup?: string) => {
-  return useSWRBlock<EvidencesQuery>(() =>
-    !isUndefined(evidenceGroup)
-      ? {
-          query: evidencesQuery,
-          variables: { evidenceGroupID: evidenceGroup },
-        }
-      : false
-  );
+  const isEnabled = evidenceGroup !== undefined;
+
+  return useQuery({
+    queryKey: ["refetchOnBlock", `evidencesQuery${evidenceGroup}`],
+    enabled: isEnabled,
+    queryFn: async () => {
+      if (isEnabled) {
+        return request(
+          "https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli",
+          evidencesQuery,
+          {
+            evidenceGroupID: evidenceGroup,
+          }
+        );
+      }
+      return;
+    },
+  });
 };

@@ -1,6 +1,7 @@
-import useSWR from "swr";
 import { graphql } from "src/graphql";
 import { VotingHistoryQuery } from "src/graphql/graphql";
+import { useQuery } from "@tanstack/react-query";
+import request from "graphql-request";
 export type { VotingHistoryQuery };
 
 const votingHistoryQuery = graphql(`
@@ -33,12 +34,22 @@ const votingHistoryQuery = graphql(`
 `);
 
 export const useVotingHistory = (disputeID?: string) => {
-  return useSWR<VotingHistoryQuery>(() =>
-    typeof disputeID !== "undefined"
-      ? {
-          query: votingHistoryQuery,
-          variables: { disputeID },
-        }
-      : false
-  );
+  const isEnabled = disputeID !== undefined;
+
+  return useQuery({
+    queryKey: [`VotingHistory${disputeID}`],
+    enabled: isEnabled,
+    queryFn: async () => {
+      if (isEnabled) {
+        return request(
+          "https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli",
+          votingHistoryQuery,
+          {
+            disputeID,
+          }
+        );
+      }
+      return;
+    },
+  });
 };
