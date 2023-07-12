@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { graphql } from "src/graphql";
 import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 import { CourtPolicyUriQuery } from "src/graphql/graphql";
-import { isUndefined } from "swr/_internal";
+import { isUndefined } from "utils/index";
 export type { CourtPolicyUriQuery };
 
 const courtPolicyURIQuery = graphql(`

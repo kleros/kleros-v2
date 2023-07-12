@@ -6,10 +6,9 @@ export const graphqlQueryFnHelper = async (
   parametersObject: Record<string, any>
 ) => {
   return request(
-    "https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli",
+    process.env.REACT_APP_SUBGRAPH_ENDPOINT ??
+      "https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli",
     query,
     parametersObject
   );
-
-  return;
 };
