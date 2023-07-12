@@ -5253,6 +5253,7 @@ __metadata:
     "@parcel/watcher": ~2.1.0
     "@sentry/react": ^7.55.2
     "@sentry/tracing": ^7.55.2
+    "@tanstack/react-query": ^4.28.0
     "@types/amqplib": ^0.10.1
     "@types/busboy": ^1.5.0
     "@types/react": ^18.2.14

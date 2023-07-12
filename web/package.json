@@ -66,6 +66,7 @@
     "@kleros/ui-components-library": "^2.6.1",
     "@sentry/react": "^7.55.2",
     "@sentry/tracing": "^7.55.2",
+    "@tanstack/react-query": "^4.28.0",
     "@types/react-modal": "^3.16.0",
     "@web3modal/ethereum": "^2.2.2",
     "@web3modal/react": "^2.2.2",
