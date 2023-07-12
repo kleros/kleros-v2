@@ -10,7 +10,7 @@ export const useCoinPrice = (coinIds: string[]) => {
   const isEnabled = coinIds !== undefined;
 
   const { data: prices, isError } = useQuery({
-    queryKey: ["coinPrice"],
+    queryKey: [`coinPrice${coinIds}`],
     enabled: isEnabled,
     queryFn: async () => fetchCoinPrices(coinIds),
   });

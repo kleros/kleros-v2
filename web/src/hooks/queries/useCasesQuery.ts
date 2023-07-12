@@ -30,7 +30,7 @@ export const useCasesQuery = (skip: number) => {
   const isEnabled = skip !== undefined;
 
   return useQuery({
-    queryKey: ["useCasesQuery"],
+    queryKey: [`useCasesQuery${skip}`],
     enabled: isEnabled,
     queryFn: async () => await graphqlQueryFnHelper(casesQuery, { skip: skip }),
   });

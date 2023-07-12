@@ -7,7 +7,7 @@ export const usePNKAllowance = (user?: `0x${string}` | null) => {
   const isEnabled = user !== undefined;
 
   return useQuery({
-    queryKey: ["pnkAllowance"],
+    queryKey: [`pnkAllowance${user}`],
     enabled: isEnabled,
     queryFn: async () => {
       if (pnkContract && user && klerosCore) {

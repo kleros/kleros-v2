@@ -24,7 +24,7 @@ export const useHomePageQuery = (timeframe: number) => {
   const isEnabled = timeframe !== undefined;
 
   return useQuery({
-    queryKey: ["homePageQuery"],
+    queryKey: [`homePageQuery${timeframe}`],
     enabled: isEnabled,
     queryFn: async () => await graphqlQueryFnHelper(homePageQuery, { timeframe: timeframe.toString() }),
   });
