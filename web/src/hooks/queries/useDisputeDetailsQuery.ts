@@ -1,7 +1,7 @@
 import { graphql } from "src/graphql";
 import { DisputeDetailsQuery } from "src/graphql/graphql";
 import { useQuery } from "@tanstack/react-query";
-import request from "graphql-request";
+import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { DisputeDetailsQuery };
 
 const disputeDetailsQuery = graphql(`
@@ -33,17 +33,6 @@ export const useDisputeDetailsQuery = (id?: string | number) => {
   return useQuery({
     queryKey: ["refetchOnBlock", `disputeDetailsQuery${id}`],
     enabled: isEnabled,
-    queryFn: async () => {
-      if (isEnabled) {
-        return request(
-          "https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli",
-          disputeDetailsQuery,
-          {
-            disputeID: id.toString(),
-          }
-        );
-      }
-      return;
-    },
+    queryFn: async () => await graphqlQueryFnHelper(isEnabled, disputeDetailsQuery, { disputeID: id?.toString() }),
   });
 };
