@@ -1,7 +1,7 @@
 import { graphql } from "src/graphql";
 import { ClassicAppealQuery } from "src/graphql/graphql";
 import { useQuery } from "@tanstack/react-query";
-import request from "graphql-request";
+import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { ClassicAppealQuery };
 
 const classicAppealQuery = graphql(`
@@ -36,17 +36,6 @@ export const useClassicAppealQuery = (id?: string | number) => {
   return useQuery({
     queryKey: ["refetchOnBlock", `classicAppealQuery${id}`],
     enabled: isEnabled,
-    queryFn: async () => {
-      if (isEnabled) {
-        return request(
-          "https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli",
-          classicAppealQuery,
-          {
-            disputeID: id.toString(),
-          }
-        );
-      }
-      return;
-    },
+    queryFn: async () => await graphqlQueryFnHelper(isEnabled, classicAppealQuery, { disputeID: id?.toString() }),
   });
 };
