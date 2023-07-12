@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
 import { graphql } from "src/graphql";
 import { UserQuery } from "src/graphql/graphql";
-import { useQuery } from "@tanstack/react-query";
 import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { UserQuery };
 
