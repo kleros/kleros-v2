@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Web3Provider from "context/Web3Provider";
 import QueryClientProvider from "context/QueryClientProvider";
 import StyledComponentsProvider from "context/StyledComponentsProvider";
+import RefetchOnBlock from "context/RefetchOnBlock";
 import Layout from "layout/index";
 import Home from "./pages/Home";
 import Cases from "./pages/Cases";
@@ -24,6 +25,7 @@ const App: React.FC = () => {
   return (
     <StyledComponentsProvider>
       <QueryClientProvider>
+        <RefetchOnBlock />
         <SWRConfig
           value={{
             fetcher: fetcherBuilder(
