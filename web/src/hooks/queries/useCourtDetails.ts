@@ -1,6 +1,7 @@
 import { graphql } from "src/graphql";
-import { useSWRBlock } from "hooks/useSWRBlock";
 import { CourtDetailsQuery } from "src/graphql/graphql";
+import { useQuery } from "@tanstack/react-query";
+import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { CourtDetailsQuery };
 
 const courtDetailsQuery = graphql(`
@@ -19,12 +20,11 @@ const courtDetailsQuery = graphql(`
 `);
 
 export const useCourtDetails = (id?: string) => {
-  return useSWRBlock<CourtDetailsQuery>(
-    id
-      ? {
-          query: courtDetailsQuery,
-          variables: { id },
-        }
-      : null
-  );
+  const isEnabled = id !== undefined;
+
+  return useQuery({
+    queryKey: ["refetchOnBlock", `courtDetails${id}`],
+    enabled: isEnabled,
+    queryFn: async () => await graphqlQueryFnHelper(courtDetailsQuery, { id }),
+  });
 };

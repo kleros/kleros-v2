@@ -1,6 +1,7 @@
-import useSWR from "swr";
+import { useQuery } from "@tanstack/react-query";
 import { graphql } from "src/graphql";
 import { UserQuery } from "src/graphql/graphql";
+import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { UserQuery };
 
 const userQuery = graphql(`
@@ -24,12 +25,11 @@ const userQuery = graphql(`
 `);
 
 export const useUserQuery = (address?: string) => {
-  return useSWR<UserQuery>(
-    address
-      ? {
-          query: userQuery,
-          variables: { address },
-        }
-      : null
-  );
+  const isEnabled = address !== undefined;
+
+  return useQuery({
+    queryKey: [`userQuery${address}`],
+    enabled: isEnabled,
+    queryFn: async () => await graphqlQueryFnHelper(userQuery, { address }),
+  });
 };

@@ -1,6 +1,7 @@
-import useSWR from "swr";
 import { graphql } from "src/graphql";
+import { useQuery } from "@tanstack/react-query";
 import { CasesPageQuery } from "src/graphql/graphql";
+import { graphqlQueryFnHelper } from "~src/utils/graphqlQueryFnHelper";
 export type { CasesPageQuery };
 
 const casesQuery = graphql(`
@@ -26,8 +27,11 @@ const casesQuery = graphql(`
 `);
 
 export const useCasesQuery = (skip: number) => {
-  return useSWR<CasesPageQuery>({
-    query: casesQuery,
-    variables: { skip: skip },
+  const isEnabled = skip !== undefined;
+
+  return useQuery({
+    queryKey: [`useCasesQuery${skip}`],
+    enabled: isEnabled,
+    queryFn: async () => await graphqlQueryFnHelper(casesQuery, { skip: skip }),
   });
 };

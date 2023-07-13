@@ -1,35 +1,22 @@
 import React from "react";
-import { SWRConfig } from "swr";
-import { request } from "graphql-request";
 import { Routes, Route } from "react-router-dom";
 import "react-loading-skeleton/dist/skeleton.css";
 import "react-toastify/dist/ReactToastify.css";
 import Web3Provider from "context/Web3Provider";
+import QueryClientProvider from "context/QueryClientProvider";
 import StyledComponentsProvider from "context/StyledComponentsProvider";
+import RefetchOnBlock from "context/RefetchOnBlock";
 import Layout from "layout/index";
 import Home from "./pages/Home";
 import Cases from "./pages/Cases";
 import Dashboard from "./pages/Dashboard";
 import Courts from "./pages/Courts";
 
-const fetcherBuilder =
-  (url: string) =>
-  ({ query, variables }: { query: string; variables?: any }) => {
-    console.log("fetching subgraph", query, variables);
-    return request(url, query, variables);
-  };
-
 const App: React.FC = () => {
   return (
     <StyledComponentsProvider>
-      <SWRConfig
-        value={{
-          fetcher: fetcherBuilder(
-            process.env.REACT_APP_SUBGRAPH_ENDPOINT ??
-              "https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli"
-          ),
-        }}
-      >
+      <QueryClientProvider>
+        <RefetchOnBlock />
         <Web3Provider>
           <Routes>
             <Route path="/" element={<Layout />}>
@@ -41,7 +28,7 @@ const App: React.FC = () => {
             </Route>
           </Routes>
         </Web3Provider>
-      </SWRConfig>
+      </QueryClientProvider>
     </StyledComponentsProvider>
   );
 };
