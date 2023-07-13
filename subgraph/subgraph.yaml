@@ -54,6 +54,8 @@ dataSources:
           handler: handleTokenAndETHShift
         - event: Ruling(indexed address,indexed uint256,uint256)
           handler: handleRuling
+        - event: AcceptedFeeToken(indexed address,indexed bool)
+          handler: handleAcceptedFeeToken
       file: ./src/KlerosCore.ts
   - kind: ethereum
     name: PolicyRegistry

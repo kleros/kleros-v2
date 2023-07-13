@@ -12,6 +12,7 @@ import {
   TokenAndETHShift as TokenAndETHShiftEvent,
   Ruling,
   StakeDelayed,
+  AcceptedFeeToken,
 } from "../generated/KlerosCore/KlerosCore";
 import { ZERO, ONE } from "./utils";
 import { createCourtFromEvent, getFeeForJuror } from "./entities/Court";
@@ -24,7 +25,7 @@ import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorToken
 import { createDrawFromEvent } from "./entities/Draw";
 import { createTokenAndEthShiftFromEvent, updateTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
-import { Court, Dispute } from "../generated/schema";
+import { Court, Dispute, FeeToken } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { updatePenalty } from "./entities/Penalty";
 
@@ -167,4 +168,17 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   updatePaidETH(feeAmount, event.block.timestamp);
   updatePenalty(event);
   court.save();
+}
+
+export function handleAcceptedFeeToken(event: AcceptedFeeToken): void {
+  let feeToken = new FeeToken(event.params._token.toHexString());
+  const contract = KlerosCore.bind(event.address);
+
+  let currencyRate = contract.currencyRates(event.params._token);
+
+  feeToken.accepted = currencyRate.value0;
+  feeToken.rateInEth = currencyRate.value1;
+  feeToken.rateDecimals = currencyRate.value2;
+
+  feeToken.save();
 }

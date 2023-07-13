@@ -156,6 +156,7 @@ type Round @entity {
   penalties: BigInt!
   drawnJurors: [Draw!]! @derivedFrom(field: "round")
   dispute: Dispute!
+  feeToken: FeeToken
 }
 
 type Draw @entity {
@@ -186,6 +187,14 @@ type Counter @entity {
   cases: BigInt!
   casesVoting: BigInt!
   casesRuled: BigInt!
+}
+
+type FeeToken @entity {
+  id: ID! # The address of the ERC20 token.
+  accepted: Boolean!
+  rateInEth: BigInt!
+  rateDecimals: Int!
+  rounds: [Round!] @derivedFrom(field: "feeToken")
 }
 
 #####################

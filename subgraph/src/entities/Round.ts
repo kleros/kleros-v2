@@ -16,5 +16,7 @@ export function createRoundFromRoundInfo(
   round.repartitions = roundInfo.getRepartitions();
   round.penalties = roundInfo.getPnkPenalties();
   round.dispute = disputeID.toString();
+  let feeToken = roundInfo.getFeeToken;
+  round.feeToken = feeToken ? feeToken.toString() : null;
   round.save();
 }
