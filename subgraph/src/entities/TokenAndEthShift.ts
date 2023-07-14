@@ -16,11 +16,11 @@ export function updateTokenAndEthShiftFromEvent(event: TokenAndETHShiftEvent): v
   }
   if (!feeToken) return;
   shift.feeToken = event.params._feeToken.toHexString();
-  shift.feeTokenAmount = shift.feeTokenAmount!.plus(feeToken.totalPaid!);
+  shift.feeTokenAmount = shift.feeTokenAmount.plus(feeToken.totalPaid);
   shift.pnkAmount = shift.pnkAmount.plus(event.params._pnkAmount);
   const previousFeeAmount = shift.ethAmount;
   const newFeeAmount = shift.ethAmount.plus(event.params._feeAmount);
-  shift.ethAmount = newFeeAmount.plus(feeToken.totalPaidInETH!);
+  shift.ethAmount = newFeeAmount.plus(feeToken.totalPaidInETH);
   shift.save();
   resolveUserDispute(jurorAddress, previousFeeAmount, newFeeAmount, disputeID);
 }
@@ -34,5 +34,6 @@ export function createTokenAndEthShiftFromEvent(event: TokenAndETHShiftEvent): v
   shift.dispute = disputeID;
   shift.pnkAmount = event.params._pnkAmount;
   shift.ethAmount = event.params._feeAmount;
+  shift.feeTokenAmount = ZERO;
   shift.save();
 }

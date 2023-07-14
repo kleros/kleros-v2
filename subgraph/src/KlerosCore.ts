@@ -167,8 +167,8 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   if (!court) return;
   const paidFeeToken = contract.convertEthToTokenAmount(event.params._feeToken, court.feeForJuror);
   if (feeToken.totalPaidInETH && feeToken.totalPaid) {
-    feeToken.totalPaidInETH = feeToken.totalPaidInETH!.plus(currencyRate.value1);
-    feeToken.totalPaid = feeToken.totalPaid!.plus(paidFeeToken);
+    feeToken.totalPaidInETH = feeToken.totalPaidInETH.plus(currencyRate.value1);
+    feeToken.totalPaid = feeToken.totalPaid.plus(paidFeeToken);
   }
   updateJurorStake(jurorAddress, court.id, KlerosCore.bind(event.address), event.block.timestamp);
   court.paidETH = court.paidETH.plus(paidETH);
@@ -191,6 +191,8 @@ export function handleAcceptedFeeToken(event: AcceptedFeeToken): void {
   feeToken.accepted = currencyRate.value0;
   feeToken.rateInEth = currencyRate.value1;
   feeToken.rateDecimals = currencyRate.value2;
+  feeToken.totalPaid = ZERO;
+  feeToken.totalPaidInETH = ZERO;
 
   feeToken.save();
 }
