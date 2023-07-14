@@ -155,12 +155,23 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   const disputeID = event.params._disputeID.toString();
   const pnkAmount = event.params._pnkAmount;
   const feeAmount = event.params._feeAmount;
+  const feeToken = FeeToken.load(event.params._feeToken.toHexString());
+  const contract = KlerosCore.bind(event.address);
+  const currencyRate = contract.currencyRates(event.params._feeToken);
+  if (!feeToken) return;
+  const paidETH = feeAmount.plus(currencyRate.value1);
+
   const dispute = Dispute.load(disputeID);
   if (!dispute) return;
   const court = Court.load(dispute.court);
   if (!court) return;
+  const paidFeeToken = contract.convertEthToTokenAmount(event.params._feeToken, court.feeForJuror);
+  if (feeToken.totalPaidInETH && feeToken.totalPaid) {
+    feeToken.totalPaidInETH = feeToken.totalPaidInETH!.plus(currencyRate.value1);
+    feeToken.totalPaid = feeToken.totalPaid!.plus(paidFeeToken);
+  }
   updateJurorStake(jurorAddress, court.id, KlerosCore.bind(event.address), event.block.timestamp);
-  court.paidETH = court.paidETH.plus(feeAmount);
+  court.paidETH = court.paidETH.plus(paidETH);
   if (pnkAmount.gt(ZERO)) {
     court.paidPNK = court.paidPNK.plus(pnkAmount);
     updateRedistributedPNK(pnkAmount, event.block.timestamp);
@@ -168,6 +179,7 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   updatePaidETH(feeAmount, event.block.timestamp);
   updatePenalty(event);
   court.save();
+  feeToken.save();
 }
 
 export function handleAcceptedFeeToken(event: AcceptedFeeToken): void {

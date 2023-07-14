@@ -96,8 +96,10 @@ type TokenAndETHShift @entity {
   id: ID! # user.id-dispute.id
   juror: User!
   dispute: Dispute!
-  tokenAmount: BigInt!
+  pnkAmount: BigInt!
   ethAmount: BigInt!
+  feeToken: FeeToken
+  feeTokenAmount: BigInt
 }
 
 type JurorTokensPerCourt @entity {
@@ -194,7 +196,10 @@ type FeeToken @entity {
   accepted: Boolean!
   rateInEth: BigInt!
   rateDecimals: Int!
+  totalPaid: BigInt
+  totalPaidInETH: BigInt
   rounds: [Round!] @derivedFrom(field: "feeToken")
+  tokenAndETHShift: [TokenAndETHShift!] @derivedFrom(field: "feeToken")
 }
 
 #####################
