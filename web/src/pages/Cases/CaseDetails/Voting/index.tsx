@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "queries/useDrawQuery";
-import Binary from "./Binary";
+import Classic from "./Classic";
 import VotingHistory from "./VotingHistory";
 import { Periods } from "consts/periods";
 import { isUndefined } from "utils/index";
@@ -29,7 +29,7 @@ const Voting: React.FC<{
     currentPeriodIndex === Periods.vote &&
     drawData.draws?.length > 0 &&
     !voted ? (
-    <Binary {...{ arbitrable }} voteIDs={drawData.draws.map((draw) => draw.voteID)} />
+    <Classic {...{ arbitrable }} voteIDs={drawData.draws.map((draw) => draw.voteID)} />
   ) : (
     <VotingHistory {...{ arbitrable }} />
   );
