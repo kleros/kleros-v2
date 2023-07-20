@@ -9,6 +9,7 @@ export function createRoundFromRoundInfo(
 ): void {
   const roundID = `${disputeID.toString()}-${roundIndex.toString()}`;
   const round = new Round(roundID);
+  const feeToken = roundInfo.getFeeToken();
   round.disputeKit = roundInfo.getDisputeKitID.toString();
   round.tokensAtStakePerJuror = roundInfo.getPnkAtStakePerJuror();
   round.totalFeesForJurors = roundInfo.getTotalFeesForJurors();
@@ -16,7 +17,6 @@ export function createRoundFromRoundInfo(
   round.repartitions = roundInfo.getRepartitions();
   round.penalties = roundInfo.getPnkPenalties();
   round.dispute = disputeID.toString();
-  let feeToken = roundInfo.getFeeToken;
-  round.feeToken = feeToken ? feeToken.toString() : null;
+  round.feeToken = feeToken ? feeToken.toHexString() : null;
   round.save();
 }

@@ -35,5 +35,6 @@ export function createTokenAndEthShiftFromEvent(event: TokenAndETHShiftEvent): v
   shift.pnkAmount = event.params._pnkAmount;
   shift.ethAmount = event.params._feeAmount;
   shift.feeTokenAmount = ZERO;
+  shift.feeToken = event.params._feeToken.toString();
   shift.save();
 }
