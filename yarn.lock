@@ -2990,12 +2990,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@commitlint/config-conventional@npm:^17.6.5":
-  version: 17.6.5
-  resolution: "@commitlint/config-conventional@npm:17.6.5"
+"@commitlint/config-conventional@npm:^17.6.7":
+  version: 17.6.7
+  resolution: "@commitlint/config-conventional@npm:17.6.7"
   dependencies:
     conventional-changelog-conventionalcommits: ^5.0.0
-  checksum: f2c637a9935044d6dc800eabbb0e032354afb35a7c0dd65d37115320a0fbcf4586ad769647039d0d9347988182213d7ee53339df2af9b2c8a51209ab0225366f
+  checksum: e8574db1a98ff5f3da80b47277e953a072170976920baa4b468bbcc28b83348d3d2bfa13f85c66ca00d51a7184befe1ef3588c8ae4247f0d8488c6a33ebc2a56
   languageName: node
   linkType: hard
 
@@ -21028,7 +21028,7 @@ __metadata:
   resolution: "kleros-v2@workspace:."
   dependencies:
     "@commitlint/cli": ^17.6.5
-    "@commitlint/config-conventional": ^17.6.5
+    "@commitlint/config-conventional": ^17.6.7
     buffer: ^5.5.0
     conventional-changelog-cli: ^2.2.2
     husky: ^8.0.3
