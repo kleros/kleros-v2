@@ -5263,7 +5263,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.58.0
     "@typescript-eslint/parser": ^5.61.0
     "@typescript-eslint/utils": ^5.58.0
-    "@wagmi/cli": ^1.1.0
+    "@wagmi/cli": ^1.3.0
     "@web3modal/ethereum": ^2.2.2
     "@web3modal/react": ^2.2.2
     amqplib: ^0.10.3
@@ -9335,11 +9335,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wagmi/cli@npm:^1.1.0":
-  version: 1.2.0
-  resolution: "@wagmi/cli@npm:1.2.0"
+"@wagmi/chains@npm:1.3.0":
+  version: 1.3.0
+  resolution: "@wagmi/chains@npm:1.3.0"
+  peerDependencies:
+    typescript: ">=5.0.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: a9dd2ed8e5e2c380ed2bcc48c36fda9c34d8fae45d080e29c472bb24f48746c4d697c42be6880ee4c9c6bcd5dcff74b0f1c0fcf17b921594788ded66b76cda78
+  languageName: node
+  linkType: hard
+
+"@wagmi/cli@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "@wagmi/cli@npm:1.3.0"
   dependencies:
-    "@wagmi/chains": 1.1.0
+    "@wagmi/chains": 1.3.0
     abitype: 0.8.7
     abort-controller: ^3.0.0
     bundle-require: ^3.1.2
@@ -9375,7 +9387,7 @@ __metadata:
       optional: true
   bin:
     wagmi: dist/cli.js
-  checksum: 37b930b52d32eaa1d3b7fc0858866572357222af3a640546dd85d2483502f32b3a9eae79631dc2637cb4ea40d2020ec64ae3a12c8d5d2168df9ba6013d02ec2f
+  checksum: 8555f03d7c0bc16de7e3f0f148d6b41b9938a38b96ed265a5fb7f5f4429f49c55cdaac7bbc9868045ecc1322f732863f0bbb61b376885047619292aa11bd193d
   languageName: node
   linkType: hard
 
