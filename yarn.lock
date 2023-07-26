@@ -5363,6 +5363,7 @@ __metadata:
     "@types/chai": ^4.3.11
     "@types/mocha": ^10.0.6
     "@types/node": ^16.18.68
+    "@wagmi/cli": ^1.5.2
     chai: ^4.3.10
     dotenv: ^16.3.1
     ethereumjs-util: ^7.1.5
