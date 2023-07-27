@@ -7,7 +7,7 @@ export const usePNKBalance = (user?: `0x${string}` | null) => {
   const isEnabled = !!(pnkContract && user);
 
   return useQuery({
-    queryKey: [`PNKBalance${user}`],
+    queryKey: ["refetchOnBlock", `PNKBalance${user}`],
     enabled: isEnabled,
     queryFn: async () => {
       if (isEnabled) {
