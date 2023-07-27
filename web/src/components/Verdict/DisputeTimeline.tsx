@@ -3,12 +3,14 @@ import { useParams } from "react-router-dom";
 import styled, { useTheme } from "styled-components";
 import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
-import { useVotingHistory } from "queries/useVotingHistory";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
+import { ClassicRound } from "~src/graphql/graphql";
 import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { useVotingHistory } from "queries/useVotingHistory";
+import CalendarIcon from "assets/svgs/icons/calendar.svg";
 import ClosedCaseIcon from "assets/svgs/icons/check-circle-outline.svg";
 import AppealedCaseIcon from "assets/svgs/icons/close-circle.svg";
-import CalendarIcon from "assets/svgs/icons/calendar.svg";
 
 const Container = styled.div`
   display: flex;
@@ -59,11 +61,13 @@ const getCaseEventTimes = (
 
 type TimelineItems = [_TimelineItem1, ..._TimelineItem1[]];
 
-const useItems = (disputeDetails?: DisputeDetailsQuery) => {
-  const { data: disputeTemplate } = useDisputeTemplate();
+const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string}`) => {
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
-  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
+  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
+  const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id ?? 0)], watch: true });
+  const rulingOverride = currentRulingArray?.[2];
+  const localRounds: ClassicRound[] = votingHistory?.dispute?.disputeKitDispute?.localRounds;
   const theme = useTheme();
 
   return useMemo<TimelineItems | undefined>(() => {
@@ -76,13 +80,14 @@ const useItems = (disputeDetails?: DisputeDetailsQuery) => {
         (acc, { winningChoice }, index) => {
           const parsedWinningChoice = parseInt(winningChoice);
           const eventDate = getCaseEventTimes(lastPeriodChange, currentPeriodIndex, courtTimePeriods, false);
-          const icon = disputeDetails?.dispute?.ruled && index === localRounds.length - 1 ? ClosedCaseIcon : "";
+          const icon =
+            disputeDetails?.dispute?.ruled && !rulingOverride && index === localRounds.length - 1 ? ClosedCaseIcon : "";
 
           acc.push({
             title: `Jury Decision - Round ${index + 1}`,
             party:
               parsedWinningChoice !== 0
-                ? disputeTemplate?.answers?.[parseInt(winningChoice) - 1].title
+                ? disputeTemplate?.answers?.[parsedWinningChoice - 1].title
                 : "Refuse to Arbitrate",
             subtitle: eventDate,
             rightSided: true,
@@ -90,7 +95,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery) => {
             Icon: icon !== "" ? icon : undefined,
           });
 
-          if (index < localRounds.length - 1) {
+          if (index < localRounds.length - 1 || rulingOverride) {
             acc.push({
               title: "Appealed",
               party: "",
@@ -117,10 +122,14 @@ const useItems = (disputeDetails?: DisputeDetailsQuery) => {
   }, [disputeDetails, disputeTemplate, localRounds, theme]);
 };
 
-const DisputeTimeline: React.FC = () => {
+interface IDisputeTimeline {
+  arbitrable?: `0x${string}`;
+}
+
+const DisputeTimeline: React.FC<IDisputeTimeline> = ({ arbitrable }) => {
   const { id } = useParams();
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
-  const items = useItems(disputeDetails);
+  const items = useItems(disputeDetails, arbitrable);
 
   return (
     <Container>

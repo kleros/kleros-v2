@@ -1,11 +1,11 @@
+import ArrowIcon from "assets/svgs/icons/arrow.svg";
+import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
+import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import React from "react";
+import Identicon from "react-identicons";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import Identicon from "react-identicons";
-import ArrowIcon from "assets/svgs/icons/arrow.svg";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
-import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import LightButton from "../LightButton";
 import VerdictBanner from "./VerdictBanner";
 
@@ -75,9 +75,13 @@ const AnswerTitle = styled.h3`
   margin: 0;
 `;
 
-const FinalDecision: React.FC = () => {
+interface IFinalDecision {
+  arbitrable?: `0x${string}`;
+}
+
+const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const { id } = useParams();
-  const { data: disputeTemplate } = useDisputeTemplate(id);
+  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const ruled = disputeDetails?.dispute?.ruled ?? false;
   const navigate = useNavigate();
