@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { DEFAULT_CHAIN } from "consts/chains";
-import { getIArbitrableV2 } from "hooks/contracts/generated";
-import { isUndefined } from "utils/index";
 import { PublicClient } from "viem";
 import { usePublicClient } from "wagmi";
+import { getIArbitrableV2 } from "hooks/contracts/generated";
+import { DEFAULT_CHAIN } from "consts/chains";
+import { isUndefined } from "utils/index";
 import { useIsCrossChainDispute } from "../useIsCrossChainDispute";
 
 export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {

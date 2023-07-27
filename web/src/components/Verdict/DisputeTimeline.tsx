@@ -4,7 +4,7 @@ import styled, { useTheme } from "styled-components";
 import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
-import { ClassicRound } from "~src/graphql/graphql";
+import { ClassicRound } from "src/graphql/graphql";
 import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useVotingHistory } from "queries/useVotingHistory";

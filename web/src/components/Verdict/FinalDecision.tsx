@@ -1,11 +1,11 @@
+import React from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import styled from "styled-components";
+import Identicon from "react-identicons";
 import ArrowIcon from "assets/svgs/icons/arrow.svg";
 import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
-import React from "react";
-import Identicon from "react-identicons";
-import { useNavigate, useParams } from "react-router-dom";
-import styled from "styled-components";
 import LightButton from "../LightButton";
 import VerdictBanner from "./VerdictBanner";
 
