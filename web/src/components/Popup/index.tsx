@@ -2,7 +2,13 @@ import React, { useRef } from "react";
 import styled from "styled-components";
 import { Button } from "@kleros/ui-components-library";
 import { useFocusOutside } from "hooks/useFocusOutside";
-import { Overlay } from "./Overlay";
+import { Overlay } from "components/Overlay";
+import DescriptionStakeWithdraw from "./Description/StakeWithdraw";
+import DescriptionAppeal from "./Description/Appeal";
+import DescriptionVoteWithoutCommit from "./Description/VoteWithoutCommit";
+import DescriptionVoteWithCommit from "./Description/VoteWithCommit";
+import ExtraInfoStakeWithdraw from "./ExtraInfo/StakeWithdraw";
+import ExtraInfoVoteWithCommit from "./ExtraInfo/VoteWithCommit";
 
 interface IPopup {
   title: string;
@@ -11,8 +17,8 @@ interface IPopup {
 
 const Header = styled.h1`
   display: flex;
-  padding-top: 32px;
-  padding-bottom: 20px;
+  margin-top: calc(12px + (32 - 12) * ((100vw - 300px) / (1250 - 300)));
+  margin-bottom: calc(12px + (24 - 12) * ((100vw - 300px) / (1250 - 300)));
   font-size: 24px;
   font-weight: 600;
   line-height: 32.68px;
@@ -23,13 +29,12 @@ const Icon = styled.svg`
 `;
 
 const StyledButton = styled(Button)`
-  margin: 32px 0;
+  margin: calc(16px + (32 - 16) * ((100vw - 300px) / (1250 - 300)));
 `;
 
 const Container = styled.div`
   display: flex;
   position: absolute;
-  max-height: 60vh;
   top: 5%;
   left: 50%;
   transform: translate(-50%);
@@ -39,7 +44,6 @@ const Container = styled.div`
   justify-content: center;
   width: calc(300px + (600 - 300) * (100vw - 375px) / (1250 - 375));
   max-width: 600px;
-  min-width: 300px;
   border-radius: 3px;
   border: 1px solid ${({ theme }) => theme.stroke};
   background-color: ${({ theme }) => theme.whiteBackground};
@@ -59,7 +63,12 @@ const Popup: React.FC<IPopup> = ({ title, icon }) => {
       <Overlay />
       <Container ref={containerRef}>
         <Header>{title}</Header>
-        {/* {icon && <Icon as={icon} />} */}
+        {/* <DescriptionVoteWithoutCommit date="25 August 2023" /> */}
+        <DescriptionStakeWithdraw pnkStaked="230" courtName="Token Registry" isStake={true} courtId="1" />
+        {/* <DescriptionAppeal amount="0.008" option="Pay 250 DAI" /> */}
+        {icon && <Icon as={icon} />}
+        <ExtraInfoStakeWithdraw />
+        {/* <ExtraInfoVoteWithCommit /> */}
         <StyledButton variant="secondary" text="Close" />
       </Container>
     </>
