@@ -30,7 +30,7 @@ const Container = styled.div`
   margin-left: auto;
 `;
 
-const StyledCardViewIcon = styled(CardView || ListViewIcon)<IStyledIcon>`
+const StyledCardViewIcon = styled(CardView)<IStyledIcon>`
   ${(props) => (props.isActive ? fillWithPrimaryBlue : fillWithStroke)}
   cursor:pointer;
 `;
