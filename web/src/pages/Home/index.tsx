@@ -5,6 +5,8 @@ import LatestCases from "./LatestCases";
 import Community from "./Community";
 import { HomePageProvider } from "hooks/useHomePageContext";
 import { getOneYearAgoTimestamp } from "utils/date";
+import Popup from "~src/components/Popup";
+import Court from "svgs/icons/kleros.svg";
 
 const Container = styled.div`
   width: 100%;
@@ -19,6 +21,7 @@ const Home: React.FC = () => (
       <CourtOverview />
       <LatestCases />
       <Community />
+      <Popup title="Thanks for voting" icon={Court} />
     </Container>
   </HomePageProvider>
 );
