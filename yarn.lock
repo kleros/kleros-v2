@@ -3349,12 +3349,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dappnode/dappnodesdk@npm:^0.3.7":
-  version: 0.3.7
-  resolution: "@dappnode/dappnodesdk@npm:0.3.7"
+"@dappnode/dappnodesdk@npm:^0.3.8":
+  version: 0.3.8
+  resolution: "@dappnode/dappnodesdk@npm:0.3.8"
   dependencies:
     "@dappnode/schemas": ^0.1.6
-    "@dappnode/toolkit": ^0.1.19
+    "@dappnode/toolkit": 0.1.20
     "@dappnode/types": ^0.1.17
     "@octokit/rest": ^18.0.12
     async-retry: ^1.2.3
@@ -3384,7 +3384,7 @@ __metadata:
     yargs: ^17.7.1
   bin:
     dappnodesdk: dist/dappnodesdk.js
-  checksum: c4f52b35893d04609b441bb511b706d210258255e84ecff4642140ee84d11f36e8f79fec7e6edc4fc9c28d53f56457b8766852cb8bb9ca3ee779f5b3f9dc03e8
+  checksum: a9aa07e14ad2072860ba291e41c7dcada5a3fbad8b4212292cb30d4f4d0e4f6fe56062eab4c60feb75ed922ab614ae7e935eba2d7caa381e7119f9b63de43db1
   languageName: node
   linkType: hard
 
@@ -3400,30 +3400,37 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dappnode/toolkit@npm:^0.1.19":
-  version: 0.1.19
-  resolution: "@dappnode/toolkit@npm:0.1.19"
+"@dappnode/toolkit@npm:0.1.20":
+  version: 0.1.20
+  resolution: "@dappnode/toolkit@npm:0.1.20"
   dependencies:
-    "@dappnode/types": ^0.1.12
+    "@dappnode/types": ^0.1.19
     "@ipld/car": ^5.1.1
     esm: ^3.2.25
     ethers: ^6.5.1
     graphql: ^16.6.0
     graphql-request: ^6.0.0
-    ipfs-http-client: ^60.0.0
     ipfs-unixfs-exporter: ^13.1.5
     is-ipfs: ^8.0.1
+    kubo-rpc-client: ^3.0.1
     multiformats: ^11.0.2
     semver: ^7.5.0
     yaml: ^2.2.2
-  checksum: 1e30b20cda844147f5ef2da972299ce4a36d5792ad5d2565a22dd8cb9d5e0279243cde06b8bdd1ddaccfe1c2002181cc0080e60f43f61a5322f1d973953089ec
+  checksum: 2d9999bb1e13308ccf392bd47672cb032fffb0402ccfc1b3b00dee23207d4d9a0e0ddbd07c5fa9b1e1d4f3c38a4893f9ec3cafdb91b11469d50a6d5e9a2214bb
   languageName: node
   linkType: hard
 
-"@dappnode/types@npm:^0.1.12, @dappnode/types@npm:^0.1.17, @dappnode/types@npm:^0.1.9":
+"@dappnode/types@npm:^0.1.17, @dappnode/types@npm:^0.1.9":
   version: 0.1.19
   resolution: "@dappnode/types@npm:0.1.19"
   checksum: f00e53f18676e203ce6ea03f43fa68060fae1220fddb4332e61d6461a9542356d8cb1e001f2e53b2d27f02be7e70f113dac7066f4bd79bb03bcfc4f563abf5b4
+  languageName: node
+  linkType: hard
+
+"@dappnode/types@npm:^0.1.19":
+  version: 0.1.23
+  resolution: "@dappnode/types@npm:0.1.23"
+  checksum: 8620e4c33410f2ed0b9dbbc77f666965ec95b7caa8714a7a6465510df66b23cd31ab9486b954d31b14f9c64bd507cc4764cdbb81725c9d7a36aeffef2f797568
   languageName: node
   linkType: hard
 
@@ -5137,7 +5144,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-bot-pinner@workspace:bot-pinner"
   dependencies:
-    "@dappnode/dappnodesdk": ^0.3.7
+    "@dappnode/dappnodesdk": ^0.3.8
   languageName: unknown
   linkType: soft
 
@@ -5363,6 +5370,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@libp2p/crypto@npm:^1.0.11":
+  version: 1.0.17
+  resolution: "@libp2p/crypto@npm:1.0.17"
+  dependencies:
+    "@libp2p/interface-keys": ^1.0.2
+    "@libp2p/interfaces": ^3.2.0
+    "@noble/ed25519": ^1.6.0
+    "@noble/secp256k1": ^1.5.4
+    multiformats: ^11.0.0
+    node-forge: ^1.1.0
+    protons-runtime: ^5.0.0
+    uint8arraylist: ^2.4.3
+    uint8arrays: ^4.0.2
+  checksum: 178474409ffe56ba6fb6b0f691e0b5de7fafb61c18a1a1197d75d0f9471e614c67d77fce84e337238d0835ba4b7bbc7f4b72ff9447968706c2ba190ed93cf650
+  languageName: node
+  linkType: hard
+
 "@libp2p/interface-connection@npm:^4.0.0":
   version: 4.0.0
   resolution: "@libp2p/interface-connection@npm:4.0.0"
@@ -5383,6 +5407,13 @@ __metadata:
     "@libp2p/interface-peer-id": ^2.0.0
     multiformats: ^11.0.0
   checksum: 242888f107aa586dfa6d11f3b579403b0b1ec2e60cb477984dec0d7afe4b69ef302230df7f23e351cb53de92b669733e4723ea832b9ec864314af6cbcd318557
+  languageName: node
+  linkType: hard
+
+"@libp2p/interface-keys@npm:^1.0.2":
+  version: 1.0.8
+  resolution: "@libp2p/interface-keys@npm:1.0.8"
+  checksum: 08c2976b3436b6e4e6159d1c817bb9e41af41d159cb94afaa8c63cf0fbf8842b0e5ca758d6c38453a59d8e4e87cec3117e3c574d316b94fed8db842a77f6efb0
   languageName: node
   linkType: hard
 
@@ -5844,6 +5875,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noble/ed25519@npm:^1.6.0":
+  version: 1.7.3
+  resolution: "@noble/ed25519@npm:1.7.3"
+  checksum: 45169927d51de513e47bbeebff3a603433c4ac7579e1b8c5034c380a0afedbe85e6959be3d69584a7a5ed6828d638f8f28879003b9bb2fb5f22d8aa2d88fd5fe
+  languageName: node
+  linkType: hard
+
 "@noble/hashes@npm:1.1.2":
   version: 1.1.2
   resolution: "@noble/hashes@npm:1.1.2"
@@ -5872,7 +5910,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/secp256k1@npm:1.7.1, @noble/secp256k1@npm:~1.7.0":
+"@noble/secp256k1@npm:1.7.1, @noble/secp256k1@npm:^1.5.4, @noble/secp256k1@npm:~1.7.0":
   version: 1.7.1
   resolution: "@noble/secp256k1@npm:1.7.1"
   checksum: d2301f1f7690368d8409a3152450458f27e54df47e3f917292de3de82c298770890c2de7c967d237eff9c95b70af485389a9695f73eb05a43e2bd562d18b18cb
@@ -10699,7 +10737,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"any-signal@npm:^3.0.0":
+"any-signal@npm:^3.0.0, any-signal@npm:^3.0.1":
   version: 3.0.1
   resolution: "any-signal@npm:3.0.1"
   checksum: 073eb14c365b7552f9f16fbf36cd76171e4a0fe156a8faa865fe1d5ac4ed2f5c5ab6e3faad0ac0d4c69511b5892971c5573baa8a1cbf85fe250d0c54ff0734ff
@@ -18925,7 +18963,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ipfs-core-utils@npm:^0.18.1":
+"ipfs-core-utils@npm:^0.18.0":
   version: 0.18.1
   resolution: "ipfs-core-utils@npm:0.18.1"
   dependencies:
@@ -18977,33 +19015,6 @@ __metadata:
     stream-to-it: ^0.2.2
     uint8arrays: ^3.0.0
   checksum: b44394475dd9f6ef2e68cf22fb5bacf93c1a8967712f12a56baf9e90f183d625569bcabfe2e7c0d1cd2f0a2eed577ab8282f5a737552faf83d3b8a82d7910494
-  languageName: node
-  linkType: hard
-
-"ipfs-http-client@npm:^60.0.0":
-  version: 60.0.1
-  resolution: "ipfs-http-client@npm:60.0.1"
-  dependencies:
-    "@ipld/dag-cbor": ^9.0.0
-    "@ipld/dag-json": ^10.0.0
-    "@ipld/dag-pb": ^4.0.0
-    "@libp2p/logger": ^2.0.5
-    "@libp2p/peer-id": ^2.0.0
-    "@multiformats/multiaddr": ^11.1.5
-    any-signal: ^3.0.0
-    dag-jose: ^4.0.0
-    err-code: ^3.0.1
-    ipfs-core-types: ^0.14.1
-    ipfs-core-utils: ^0.18.1
-    ipfs-utils: ^9.0.13
-    it-first: ^2.0.0
-    it-last: ^2.0.0
-    merge-options: ^3.0.4
-    multiformats: ^11.0.0
-    parse-duration: ^1.0.0
-    stream-to-it: ^0.2.2
-    uint8arrays: ^4.0.2
-  checksum: 14c2bf2b7c401a3d5b3d3b935942475549e0a792953d485afc69a746c4be1e367ea4a0bc3f65f7de39d8d280c2777866b4e6b98c8d91e68dbdb2c235b98295b7
   languageName: node
   linkType: hard
 
@@ -19104,7 +19115,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ipfs-utils@npm:^9.0.13, ipfs-utils@npm:^9.0.2":
+"ipfs-utils@npm:^9.0.13, ipfs-utils@npm:^9.0.2, ipfs-utils@npm:^9.0.7":
   version: 9.0.14
   resolution: "ipfs-utils@npm:9.0.14"
   dependencies:
@@ -21092,6 +21103,33 @@ __metadata:
   version: 2.0.6
   resolution: "klona@npm:2.0.6"
   checksum: ac9ee3732e42b96feb67faae4d27cf49494e8a3bf3fa7115ce242fe04786788e0aff4741a07a45a2462e2079aa983d73d38519c85d65b70ef11447bbc3c58ce7
+  languageName: node
+  linkType: hard
+
+"kubo-rpc-client@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "kubo-rpc-client@npm:3.0.1"
+  dependencies:
+    "@ipld/dag-cbor": ^9.0.0
+    "@ipld/dag-json": ^10.0.0
+    "@ipld/dag-pb": ^4.0.0
+    "@libp2p/crypto": ^1.0.11
+    "@libp2p/logger": ^2.0.5
+    "@libp2p/peer-id": ^2.0.0
+    "@multiformats/multiaddr": ^11.1.5
+    any-signal: ^3.0.1
+    dag-jose: ^4.0.0
+    err-code: ^3.0.1
+    ipfs-core-utils: ^0.18.0
+    ipfs-utils: ^9.0.7
+    it-first: ^2.0.0
+    it-last: ^2.0.0
+    merge-options: ^3.0.4
+    multiformats: ^11.0.0
+    parse-duration: ^1.0.2
+    stream-to-it: ^0.2.4
+    uint8arrays: ^4.0.3
+  checksum: 19de983eccf131c7a53f7c73bc8446ccd49436d32d6bb215f93fe2084fbff196d3d722bee11c22c3c48531a2d71c7521241a299b08fa9302907a3a0478fb51a3
   languageName: node
   linkType: hard
 
@@ -23328,7 +23366,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-forge@npm:^1":
+"node-forge@npm:^1, node-forge@npm:^1.1.0":
   version: 1.3.1
   resolution: "node-forge@npm:1.3.1"
   checksum: 08fb072d3d670599c89a1704b3e9c649ff1b998256737f0e06fbd1a5bf41cae4457ccaee32d95052d80bbafd9ffe01284e078c8071f0267dc9744e51c5ed42a9
@@ -24113,7 +24151,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"parse-duration@npm:^1.0.0":
+"parse-duration@npm:^1.0.0, parse-duration@npm:^1.0.2":
   version: 1.1.0
   resolution: "parse-duration@npm:1.1.0"
   checksum: 3cfc10aa61b3a06373a347289e1704de47d5d845c79330bbab20b54c02567f3710ba84544a3a44a986c3381c68670d89542fe9de607fb0814e52f78b34893cd9
@@ -28437,7 +28475,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stream-to-it@npm:^0.2.2, stream-to-it@npm:^0.2.3":
+"stream-to-it@npm:^0.2.2, stream-to-it@npm:^0.2.3, stream-to-it@npm:^0.2.4":
   version: 0.2.4
   resolution: "stream-to-it@npm:0.2.4"
   dependencies:
@@ -29994,7 +30032,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uint8arrays@npm:^4.0.2":
+"uint8arrays@npm:^4.0.2, uint8arrays@npm:^4.0.3":
   version: 4.0.4
   resolution: "uint8arrays@npm:4.0.4"
   dependencies:
