@@ -148,7 +148,7 @@ const deployERC20AndFaucet = async (hre: HardhatRuntimeEnvironment, deployer: st
     args: [erc20.address],
     log: true,
   });
-  const funding = hre.ethers.utils.parseUnits("1000000", "ether");
+  const funding = hre.ethers.utils.parseUnits("100000", "ether");
   const erc20Instance = await hre.ethers.getContract(ticker);
   await erc20Instance.balanceOf(deployer).then((balance) => {
     if (balance.gte(funding)) {
