@@ -2,10 +2,10 @@ import { DisputeKitClassic, KlerosCore, PNK, RandomizerRNG, SortitionModule } fr
 import request from "graphql-request";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
+import { BigNumber } from "ethers";
 import hre = require("hardhat");
 
 const { ethers } = hre;
-const { BigNumber } = ethers;
 const MAX_DRAW_ITERATIONS = 30;
 const MAX_EXECUTE_ITERATIONS = 20;
 const WAIT_FOR_RNG_DURATION = 5 * 1000; // 5 seconds
@@ -13,12 +13,17 @@ const ITERATIONS_COOLDOWN_PERIOD = 20 * 1000; // 20 seconds
 const HIGH_GAS_LIMIT = { gasLimit: 50000000 }; // 50M gas
 const HEARTBEAT_URL = env.optionalNoDefault("HEARTBEAT_URL_KEEPER_BOT");
 const SUBGRAPH_URL = env.require("SUBGRAPH_URL");
+const MAX_JURORS_PER_DISPUTE = 1000; // Skip disputes with more than this number of jurors
+const DISPUTES_TO_SKIP = env
+  .optional("DISPUTES_TO_SKIP", "")
+  .split(",")
+  .map((s) => s.trim());
 
-const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN")
+const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN_KEEPER_BOT")
   ? {
       transportTargetOptions: {
         target: "@logtail/pino",
-        options: { sourceToken: env.require("LOGTAIL_TOKEN") },
+        options: { sourceToken: env.require("LOGTAIL_TOKEN_KEEPER_BOT") },
         level: env.optional("LOG_LEVEL", "info"),
       },
       level: env.optional("LOG_LEVEL", "info"), // for pino-pretty
@@ -269,30 +274,48 @@ const executeRuling = async (dispute: { id: string }) => {
   return success;
 };
 
-const withdrawAppealContribution = async (dispute: Dispute, contribution: Contribution): Promise<boolean> => {
+const withdrawAppealContribution = async (
+  disputeId: string,
+  roundId: string,
+  contribution: Contribution
+): Promise<boolean> => {
   const { disputeKitClassic: kit } = await getContracts();
   let success = false;
+  let amountWithdrawn = BigNumber.from(0);
+  try {
+    amountWithdrawn = await kit.callStatic.withdrawFeesAndRewards(
+      disputeId,
+      contribution.contributor.id,
+      roundId,
+      contribution.choice
+    );
+  } catch (e) {
+    logger.info(
+      `WithdrawFeesAndRewards: will fail for dispute #${disputeId}, round #${roundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}, skipping`
+    );
+    return success;
+  }
+  if (amountWithdrawn.isZero()) {
+    logger.debug(
+      `WithdrawFeesAndRewards: no fees or rewards to withdraw for dispute #${disputeId}, round #${roundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}, skipping`
+    );
+    return success;
+  }
   try {
     logger.info(
-      `Withdrawing appeal contribution for dispute #${dispute.id}, round #${dispute.currentRoundIndex}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}  `
+      `WithdrawFeesAndRewards: appeal contribution for dispute #${disputeId}, round #${roundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}`
     );
     const gas = (
-      await kit.estimateGas.withdrawFeesAndRewards(
-        dispute.id,
-        contribution.contributor.id,
-        dispute.currentRoundIndex,
-        contribution.choice
-      )
+      await kit.estimateGas.withdrawFeesAndRewards(disputeId, contribution.contributor.id, roundId, contribution.choice)
     )
       .mul(150)
       .div(100); // 50% extra gas
-    await kit.withdrawFeesAndRewards(
-      dispute.id,
-      contribution.contributor.id,
-      dispute.currentRoundIndex,
-      contribution.choice,
-      { gasLimit: gas }
-    );
+    const tx = await (
+      await kit.withdrawFeesAndRewards(disputeId, contribution.contributor.id, roundId, contribution.choice, {
+        gasLimit: gas,
+      })
+    ).wait();
+    logger.info(`WithdrawFeesAndRewards txID: ${tx?.transactionHash}`);
     success = true;
   } catch (e) {
     handleError(e);
@@ -319,6 +342,15 @@ const getNumberOfMissingRepartitions = async (
   return coherentCount.eq(0)
     ? drawnJurors.length - repartitions.toNumber()
     : 2 * drawnJurors.length - repartitions.toNumber();
+};
+
+const filterDisputesToSkip = (disputes: Dispute[]) => {
+  logger.debug(
+    `Skipping disputes: ${disputes
+      .filter((dispute) => DISPUTES_TO_SKIP.includes(dispute.id))
+      .map((dispute) => dispute.id)}`
+  );
+  return disputes.filter((dispute) => !DISPUTES_TO_SKIP.includes(dispute.id));
 };
 
 const mapAsync = <T, U>(array: T[], callbackfn: (value: T, index: number, array: T[]) => Promise<U>): Promise<U[]> => {
@@ -387,18 +419,14 @@ async function main() {
 
   logger.info(`Current phase: ${PHASES[await sortition.phase()]}`);
 
-  const disputes = await getNonFinalDisputes().catch((e) => handleError(e));
+  // Retrieve the disputes which are in a non-final period
+  let disputes = await getNonFinalDisputes().catch((e) => handleError(e));
   if (!disputes) {
     return;
   }
-  for (var dispute of disputes) {
-    logger.info(`Dispute #${dispute.id}, round #${dispute.currentRoundIndex}, ${dispute.period} period`);
-  }
-
-  const disputesWithoutJurors = await filterAsync(disputes, async (dispute) => {
+  let disputesWithoutJurors = await filterAsync(disputes, async (dispute) => {
     return !(await isDisputeFullyDrawn(dispute));
   });
-  logger.info(`Disputes needing more jurors: ${disputesWithoutJurors.map((dispute) => dispute.id)}`);
 
   // Just a sanity check
   const numberOfDisputesWithoutJurors = await sortition.disputesWithoutJurors();
@@ -407,6 +435,14 @@ async function main() {
     logger.error(`KlerosCore.disputes without jurors = ${disputesWithoutJurors.length}`);
     logger.error(`SortitionModule.disputesWithoutJurors = ${numberOfDisputesWithoutJurors}`);
   }
+
+  // Skip some disputes
+  disputes = filterDisputesToSkip(disputes);
+  disputesWithoutJurors = filterDisputesToSkip(disputesWithoutJurors);
+  for (var dispute of disputes) {
+    logger.info(`Dispute #${dispute.id}, round #${dispute.currentRoundIndex}, ${dispute.period} period`);
+  }
+  logger.info(`Disputes needing more jurors: ${disputesWithoutJurors.map((dispute) => dispute.id)}`);
 
   if ((await hasMinStakingTimePassed()) && disputesWithoutJurors.length > 0) {
     // ----------------------------------------------- //
@@ -433,6 +469,10 @@ async function main() {
           break;
         }
         let numberOfMissingJurors = await getMissingJurors(dispute);
+        if (numberOfMissingJurors.gt(MAX_JURORS_PER_DISPUTE)) {
+          logger.warn(`Skipping dispute #${dispute.id} with too many jurors to draw`);
+          continue;
+        }
         do {
           const drawIterations = Math.min(MAX_DRAW_ITERATIONS, numberOfMissingJurors.toNumber());
           logger.info(
@@ -483,8 +523,8 @@ async function main() {
   );
 
   // Disputes union and deduplicate
-  const unprocessedDisputesInExecution = getUniqueDisputes(
-    unexecutedDisputes.concat(disputesWithContributionsNotYetWithdrawn).concat(disputes)
+  let unprocessedDisputesInExecution = filterDisputesToSkip(
+    getUniqueDisputes(unexecutedDisputes.concat(disputesWithContributionsNotYetWithdrawn).concat(disputes))
   );
   logger.info(`Disputes not fully executed: ${unprocessedDisputesInExecution.map((dispute) => dispute.id)}`);
 
@@ -542,8 +582,11 @@ async function main() {
     // Remove duplicates which may have a different contribution amount for the same round, choice and beneficiary
     contributions = [...new Set(contributions)];
     for (var contribution of contributions) {
-      await withdrawAppealContribution(dispute, contribution);
-      await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
+      // Could be improved by pinpointing exactly which round requires a withdrawal, just try all of them for now.
+      for (var round = BigNumber.from(dispute.currentRoundIndex); round.gte(0); round = round.sub(1)) {
+        await withdrawAppealContribution(dispute.id, round.toString(), contribution);
+        await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
+      }
     }
   }
 
