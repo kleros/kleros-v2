@@ -153,8 +153,15 @@ Queries (HTTP):     http://localhost:8000/subgraphs/name/kleros/kleros-v2-core-l
 #### Shell 4 - Frontend Pointing to the Local Subgraph
 
 ```bash
-$ yarn workspace @kleros/kleros-v2-web start-local
+yarn workspace @kleros/kleros-v2-web generate
+✔ Parse Configuration
+✔ Generate outputs
+✔ Validating plugins
+✔ Resolving contracts
+✔ Running plugins
+✔ Writing to src/hooks/contracts/generated.ts
 
+$ yarn workspace @kleros/kleros-v2-web start-local
 Server running at http://localhost:1234
 ✨ Built in 2.35s
 ```

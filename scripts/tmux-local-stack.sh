@@ -36,7 +36,7 @@ if [ $? != 0 ]; then
   (( ++index ))
   tmux select-pane -t $index -T "WEB"
   tmux send-keys -t $index 'cd web' Enter
-  tmux send-keys -t $index 'yarn start-local'
+  tmux send-keys -t $index 'yarn generate && yarn start-local'
 fi
 
 tmux attach-session -t $session
