@@ -19,9 +19,13 @@ const StyledCard = styled(Card)`
   height: fit-content;
   padding: 16px;
   display: flex;
-  flex-direction: column;
+  justify-content: space-around;
   gap: 32px;
   flex-wrap: wrap;
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    justify-content: start;
+  }
 `;
 
 const getLastOrZero = (src: HomePageQuery["counters"], stat: HomePageQueryDataPoints) =>

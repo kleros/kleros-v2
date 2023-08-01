@@ -18,11 +18,13 @@ import { isUndefined } from "~src/utils";
 const StyledCard = styled.div`
   width: auto;
   height: fit-content;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  justify-items: space-around;
   gap: 32px;
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
 `;
 
 interface IStat {
