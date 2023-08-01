@@ -1,4 +1,6 @@
-import { ethers } from "hardhat";
+import env from "./utils/env";
+import loggerFactory from "./utils/logger";
+import { BigNumber } from "ethers";
 import hre = require("hardhat");
 import {
   KlerosCore,
@@ -10,6 +12,20 @@ import {
 import { DisputeRequestEventObject } from "../typechain-types/src/arbitration/interfaces/IArbitrableV2";
 import { HttpNetworkConfig } from "hardhat/types";
 import { DeploymentsExtension } from "hardhat-deploy/types";
+
+const { ethers } = hre;
+const HEARTBEAT_URL = env.optionalNoDefault("HEARTBEAT_URL_RELAYER_BOT");
+
+const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN_RELAYER_BOT")
+  ? {
+      transportTargetOptions: {
+        target: "@logtail/pino",
+        options: { sourceToken: env.require("LOGTAIL_TOKEN_RELAYER_BOT") },
+        level: env.optional("LOG_LEVEL", "info"),
+      },
+      level: env.optional("LOG_LEVEL", "info"), // for pino-pretty
+    }
+  : {};
 
 export default async function main(
   foreignNetwork: HttpNetworkConfig,
@@ -28,21 +44,26 @@ export default async function main(
   const foreignChainId = await foreignChainProvider.getNetwork().then((network) => network.chainId);
   const arbitrableInterface = IArbitrableV2__factory.createInterface();
 
+  const logger = loggerFactory.createLogger(loggerOptions).child({ foreignChainId: foreignChainId });
+  logger.info(`Listening for events from ${foreignGatewayArtifact}...`);
+
+  if (HEARTBEAT_URL) {
+    logger.debug("Sending heartbeat");
+    fetch(HEARTBEAT_URL);
+  } else {
+    logger.debug("Heartbeat not set up, skipping");
+  }
+
   // Event subscription
   // WARNING: The callback might run more than once if the script is restarted in the same block
   // type Listener = [ eventArg1, ...eventArgN, transactionReceipt ]
   foreignGateway.on(
     "CrossChainDisputeOutgoing",
     async (foreignBlockHash, foreignArbitrable, foreignDisputeID, choices, extraData, txReceipt) => {
-      console.log(
-        "CrossChainDisputeOutgoing: %s %s %s %s %s",
-        foreignBlockHash,
-        foreignArbitrable,
-        foreignDisputeID,
-        choices,
-        extraData
+      logger.info(
+        `CrossChainDisputeOutgoing: ${foreignBlockHash} ${foreignArbitrable} ${foreignDisputeID} ${choices} ${extraData}`
       );
-      // console.log("tx receipt: %O", txReceipt);
+      // logger.info(`tx receipt: ${JSON.stringify(txReceipt)}`);
 
       // txReceipt is missing the full logs for this tx so we need to request it here
       const fullTxReceipt = await foreignChainProvider.getTransactionReceipt(txReceipt.transactionHash);
@@ -51,7 +72,7 @@ export default async function main(
       const disputeRequest = fullTxReceipt.logs
         .filter((log) => log.topics[0] === arbitrableInterface.getEventTopic("DisputeRequest"))
         .map((log) => arbitrableInterface.parseLog(log).args as unknown as DisputeRequestEventObject)[0];
-      console.log("tx events DisputeRequest: %O", disputeRequest);
+      logger.info(`tx events DisputeRequest: ${JSON.stringify(disputeRequest)}`);
       // TODO: log a warning if there are multiple DisputeRequest events
 
       const relayCreateDisputeParams = {
@@ -65,7 +86,7 @@ export default async function main(
         choices: choices,
         extraData: extraData,
       };
-      console.log("Relaying dispute to home chain... %O", relayCreateDisputeParams);
+      logger.info(`Relaying dispute to home chain... ${JSON.stringify(relayCreateDisputeParams)}`);
 
       let tx;
       if (feeToken === undefined) {
@@ -83,11 +104,10 @@ export default async function main(
         ](relayCreateDisputeParams, cost);
       }
       tx = tx.wait();
-      console.log("relayCreateDispute txId: %O", tx.transactionHash);
+      logger.info(`relayCreateDispute txId: ${tx.transactionHash}`);
     }
   );
 
-  console.log("Listening for events...");
   const delay = (ms) => new Promise((x) => setTimeout(x, ms));
-  await delay(24 * 60 * 60 * 1000); // 24 hours
+  await delay(60 * 60 * 1000); // 1 hour
 }
