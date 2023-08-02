@@ -3,11 +3,7 @@ import { Contribution } from "../../generated/DisputeKitClassic/DisputeKitClassi
 import { ClassicRound } from "../../generated/schema";
 import { ONE, ZERO } from "../utils";
 
-export function createClassicRound(
-  disputeID: string,
-  numberOfChoices: BigInt,
-  roundIndex: BigInt
-): void {
+export function createClassicRound(disputeID: string, numberOfChoices: BigInt, roundIndex: BigInt): void {
   const choicesLength = numberOfChoices.plus(ONE);
   const localDisputeID = `1-${disputeID}`;
   const id = `${localDisputeID}-${roundIndex.toString()}`;
@@ -24,9 +20,14 @@ export function createClassicRound(
   classicRound.save();
 }
 
-export function updateCounts(id: string, choice: BigInt): void {
+class CurrentRulingInfo {
+  ruling: BigInt;
+  tied: boolean;
+}
+
+export function updateCountsAndGetCurrentRuling(id: string, choice: BigInt): CurrentRulingInfo {
   const round = ClassicRound.load(id);
-  if (!round) return;
+  if (!round) return { ruling: ZERO, tied: false };
   const choiceNum = choice.toI32();
   const updatedCount = round.counts[choiceNum].plus(ONE);
   let newCounts: BigInt[] = [];
@@ -51,11 +52,10 @@ export function updateCounts(id: string, choice: BigInt): void {
   }
   round.totalVoted = round.totalVoted.plus(ONE);
   round.save();
+  return { ruling: round.winningChoice, tied: round.tied };
 }
 
-export function updateChoiceFundingFromContributionEvent(
-  event: Contribution
-): void {
+export function updateChoiceFundingFromContributionEvent(event: Contribution): void {
   const disputeKitID = "1";
   const coreDisputeID = event.params._coreDisputeID.toString();
   const coreRoundIndex = event.params._coreRoundID.toString();
