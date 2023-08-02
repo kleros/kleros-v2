@@ -9,11 +9,15 @@ import {
   Withdrawal,
 } from "../generated/DisputeKitClassic/DisputeKitClassic";
 import { KlerosCore } from "../generated/KlerosCore/KlerosCore";
-import { ClassicDispute, ClassicEvidence, ClassicRound } from "../generated/schema";
+import { ClassicDispute, ClassicEvidence, ClassicRound, Dispute } from "../generated/schema";
 import { ensureClassicContributionFromEvent } from "./entities/ClassicContribution";
 import { createClassicDisputeFromEvent } from "./entities/ClassicDispute";
 import { ensureClassicEvidenceGroup } from "./entities/ClassicEvidenceGroup";
-import { createClassicRound, updateChoiceFundingFromContributionEvent, updateCounts } from "./entities/ClassicRound";
+import {
+  createClassicRound,
+  updateChoiceFundingFromContributionEvent,
+  updateCountsAndGetCurrentRuling,
+} from "./entities/ClassicRound";
 import { createClassicVote } from "./entities/ClassicVote";
 import { ensureUser } from "./entities/User";
 import { ONE, ZERO } from "./utils";
@@ -44,11 +48,15 @@ export function handleEvidenceEvent(event: EvidenceEvent): void {
 
 export function handleJustificationEvent(event: JustificationEvent): void {
   const coreDisputeID = event.params._coreDisputeID.toString();
+  const coreDispute = Dispute.load(coreDisputeID);
   const classicDisputeID = `${DISPUTEKIT_ID}-${coreDisputeID}`;
   const classicDispute = ClassicDispute.load(classicDisputeID);
-  if (!classicDispute) return;
+  if (!classicDispute || !coreDispute) return;
   const currentLocalRoundID = classicDispute.id + "-" + classicDispute.currentLocalRoundIndex.toString();
-  updateCounts(currentLocalRoundID, event.params._choice);
+  const currentRulingInfo = updateCountsAndGetCurrentRuling(currentLocalRoundID, event.params._choice);
+  coreDispute.currentRuling = currentRulingInfo.ruling;
+  coreDispute.tied = currentRulingInfo.tied;
+  coreDispute.save();
   createClassicVote(currentLocalRoundID, event);
 }
 
