@@ -44,7 +44,13 @@ const RefuseToArbitrateContainer = styled.div`
   justify-content: center;
 `;
 
-const Binary: React.FC<{ arbitrable: `0x${string}`; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
+interface IBinary {
+  arbitrable: `0x${string}`;
+  voteIDs: string[];
+  setIsOpen: (val: boolean) => void;
+}
+
+const Binary: React.FC<IBinary> = ({ arbitrable, voteIDs, setIsOpen }) => {
   const { id } = useParams();
   const parsedDisputeID = BigInt(id ?? 0);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -73,6 +79,7 @@ const Binary: React.FC<{ arbitrable: `0x${string}`; voteIDs: string[] }> = ({ ar
       wrapWithToast(async () => await walletClient.writeContract(request), publicClient).finally(() => {
         setChosenOption(-1);
         setIsSending(false);
+        setIsOpen(true);
       });
     }
   };

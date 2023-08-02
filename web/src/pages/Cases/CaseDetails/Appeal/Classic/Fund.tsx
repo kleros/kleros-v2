@@ -42,7 +42,13 @@ const useFundAppeal = (parsedAmount) => {
   return fundAppeal;
 };
 
-const Fund: React.FC = () => {
+interface IFund {
+  amount: string;
+  setAmount: (val: string) => void;
+  setIsOpen: (val: boolean) => void;
+}
+
+const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
   const needFund = useNeedFund();
   const { address, isDisconnected } = useAccount();
   const { data: balance } = useBalance({
@@ -51,7 +57,6 @@ const Fund: React.FC = () => {
   });
   const publicClient = usePublicClient();
 
-  const [amount, setAmount] = useState("");
   const [debouncedAmount, setDebouncedAmount] = useState("");
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
 
@@ -79,12 +84,12 @@ const Fund: React.FC = () => {
             onClick={() => {
               if (fundAppeal) {
                 setIsSending(true);
-                wrapWithToast(async () => await fundAppeal().then((response) => response.hash), publicClient)
-                  .then(() => {
-                    setAmount("");
-                    close();
-                  })
-                  .finally(() => setIsSending(false));
+                wrapWithToast(async () => await fundAppeal().then((response) => response.hash), publicClient).finally(
+                  () => {
+                    setIsSending(false);
+                    setIsOpen(true);
+                  }
+                );
               }
             }}
           />

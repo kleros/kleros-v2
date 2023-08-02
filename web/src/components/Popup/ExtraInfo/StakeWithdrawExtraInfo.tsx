@@ -10,9 +10,7 @@ const Container = styled.div`
   margin-top: calc(8px + (24 - 8) * ((100vw - 300px) / (1250 - 300)));
 `;
 
-interface IStakeWithdraw {}
-
-const StakeWithdraw: React.FC<IStakeWithdraw> = ({}) => {
+const StakeWithdrawExtraInfo: React.FC = () => {
   return (
     <Container>
       {
@@ -21,4 +19,4 @@ const StakeWithdraw: React.FC<IStakeWithdraw> = ({}) => {
     </Container>
   );
 };
-export default StakeWithdraw;
+export default StakeWithdrawExtraInfo;

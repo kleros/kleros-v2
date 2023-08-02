@@ -5,8 +5,6 @@ import LatestCases from "./LatestCases";
 import Community from "./Community";
 import { HomePageProvider } from "hooks/useHomePageContext";
 import { getOneYearAgoTimestamp } from "utils/date";
-import Popup from "components/Popup";
-import PolygonBalance from "tsx:svgs/icons/polygon-balance.svg";
 
 const Container = styled.div`
   width: 100%;
@@ -21,7 +19,6 @@ const Home: React.FC = () => (
       <CourtOverview />
       <LatestCases />
       <Community />
-      <Popup title="Thanks for voting" icon={PolygonBalance} />
     </Container>
   </HomePageProvider>
 );

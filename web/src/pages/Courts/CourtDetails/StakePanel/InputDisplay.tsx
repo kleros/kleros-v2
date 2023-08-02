@@ -5,7 +5,6 @@ import { formatEther } from "viem";
 import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
 import { Field } from "@kleros/ui-components-library";
-
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { usePNKBalance } from "queries/usePNKBalance";
 import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
@@ -39,10 +38,19 @@ interface IInputDisplay {
   action: ActionType;
   isSending: boolean;
   setIsSending: (arg0: boolean) => void;
+  setIsPopupOpen: (arg0: boolean) => void;
+  amount: string;
+  setAmount: (arg0: string) => void;
 }
 
-const InputDisplay: React.FC<IInputDisplay> = ({ action, isSending, setIsSending }) => {
-  const [amount, setAmount] = useState("");
+const InputDisplay: React.FC<IInputDisplay> = ({
+  action,
+  isSending,
+  setIsSending,
+  setIsPopupOpen,
+  amount,
+  setAmount,
+}) => {
   const [debouncedAmount, setDebouncedAmount] = useState("");
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
   const parsedAmount = useParsedAmount(debouncedAmount);
@@ -93,6 +101,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, isSending, setIsSending
               setAmount,
               isSending,
               setIsSending,
+              setIsPopupOpen,
             }}
           />
         </EnsureChain>

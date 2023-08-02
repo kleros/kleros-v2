@@ -3,17 +3,53 @@ import styled from "styled-components";
 import { Button } from "@kleros/ui-components-library";
 import { useFocusOutside } from "hooks/useFocusOutside";
 import { Overlay } from "components/Overlay";
-import DescriptionStakeWithdraw from "./Description/StakeWithdraw";
-import DescriptionAppeal from "./Description/Appeal";
-import DescriptionVoteWithoutCommit from "./Description/VoteWithoutCommit";
-import DescriptionVoteWithCommit from "./Description/VoteWithCommit";
-import ExtraInfoStakeWithdraw from "./ExtraInfo/StakeWithdraw";
-import ExtraInfoVoteWithCommit from "./ExtraInfo/VoteWithCommit";
+import StakeWithdraw from "./Description/StakeWithdraw";
+import VoteWithCommit from "./Description/VoteWithCommit";
+import VoteWithoutCommit from "./Description/VoteWithoutCommit";
+import Appeal from "./Description/Appeal";
+import VoteWithCommitExtraInfo from "./ExtraInfo/VoteWithCommitExtraInfo";
+import StakeWithdrawExtraInfo from "./ExtraInfo/StakeWithdrawExtraInfo";
 
+export enum PopupType {
+  STAKE_WITHDRAW = "STAKE_WITHDRAW",
+  APPEAL = "APPEAL",
+  VOTE_WITHOUT_COMMIT = "VOTE_WITHOUT_COMMIT",
+  VOTE_WITH_COMMIT = "VOTE_WITH_COMMIT",
+}
+
+interface IStakeWithdraw {
+  popupType: PopupType.STAKE_WITHDRAW;
+  pnkStaked: string;
+  courtName: string;
+  isStake: boolean;
+  courtId: string;
+}
+
+interface IVoteWithoutCommit {
+  popupType: PopupType.VOTE_WITHOUT_COMMIT;
+  date: string;
+}
+
+interface IVoteWithCommit {
+  popupType: PopupType.VOTE_WITH_COMMIT;
+  date: string;
+}
+
+interface IAppeal {
+  popupType: PopupType.APPEAL;
+  amount: string;
+  option: string;
+}
 interface IPopup {
   title: string;
   icon: React.FC<React.SVGAttributes<SVGElement>> | string;
+  popupType: PopupType;
+  setIsOpen: (val: boolean) => void;
+  setAmount?: (val: string) => void;
+  isCommit?: boolean;
 }
+
+type PopupProps = IStakeWithdraw | IVoteWithoutCommit | IVoteWithCommit | IAppeal;
 
 const Header = styled.h1`
   display: flex;
@@ -26,6 +62,14 @@ const Header = styled.h1`
 
 const Icon = styled.svg`
   /* display: flex; */
+  display: block;
+  min-height: 50px;
+  min-width: 50px;
+  visibility: visible;
+`;
+
+const StyledImg = styled.img`
+  width: calc(150px + (238 - 150) * (100vw - 375px) / (1250 - 375));
 `;
 
 const StyledButton = styled(Button)`
@@ -34,10 +78,11 @@ const StyledButton = styled(Button)`
 
 const Container = styled.div`
   display: flex;
-  position: absolute;
-  top: 5%;
+  position: fixed;
+  top: 50%;
   left: 50%;
-  transform: translate(-50%);
+  transform: translate(-50%, -50%);
+
   z-index: 10;
   flex-direction: column;
   align-items: center;
@@ -54,22 +99,65 @@ const Container = styled.div`
   }
 `;
 
-const Popup: React.FC<IPopup> = ({ title, icon }) => {
+const Popup: React.FC<PopupProps & IPopup> = ({ title, icon, popupType, setIsOpen, setAmount, isCommit, ...props }) => {
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => {});
+  // useFocusOutside(containerRef, () => {
+  //   setIsOpen(false);
+  //   resetValue();
+  // });
+
+  const resetValue = () => {
+    if (setAmount) {
+      setAmount("");
+    }
+  };
+
+  let PopupComponent: JSX.Element | null = null;
+
+  switch (popupType) {
+    case PopupType.STAKE_WITHDRAW: {
+      const { pnkStaked, courtName, isStake, courtId } = props as IStakeWithdraw;
+      PopupComponent = (
+        <StakeWithdraw pnkStaked={pnkStaked} courtName={courtName} isStake={isStake} courtId={courtId} />
+      );
+      break;
+    }
+    case PopupType.VOTE_WITHOUT_COMMIT: {
+      const { date } = props as IVoteWithoutCommit;
+      PopupComponent = <VoteWithoutCommit date={date} />;
+      break;
+    }
+    case PopupType.VOTE_WITH_COMMIT: {
+      const { date } = props as IVoteWithCommit;
+      PopupComponent = <VoteWithCommit date={date} />;
+      break;
+    }
+    case PopupType.APPEAL: {
+      const { amount, option } = props as IAppeal;
+      PopupComponent = <Appeal amount={amount} option={option} />;
+      break;
+    }
+    default:
+      break;
+  }
 
   return (
     <>
       <Overlay />
       <Container ref={containerRef}>
         <Header>{title}</Header>
-        {/* <DescriptionVoteWithoutCommit date="25 August 2023" /> */}
-        <DescriptionStakeWithdraw pnkStaked="230" courtName="Token Registry" isStake={true} courtId="1" />
-        {/* <DescriptionAppeal amount="0.008" option="Pay 250 DAI" /> */}
-        {icon && <Icon as={icon} />}
-        <ExtraInfoStakeWithdraw />
-        {/* <ExtraInfoVoteWithCommit /> */}
-        <StyledButton variant="secondary" text="Close" />
+        {PopupComponent}
+        {typeof icon === "string" ? <StyledImg alt={icon} src={icon} /> : <Icon as={Icon} />}
+        {popupType === PopupType.STAKE_WITHDRAW && <StakeWithdrawExtraInfo />}
+        {popupType === PopupType.VOTE_WITH_COMMIT && <VoteWithCommitExtraInfo />}
+        <StyledButton
+          variant="secondary"
+          text="Close"
+          onClick={() => {
+            setIsOpen(false);
+            resetValue();
+          }}
+        />
       </Container>
     </>
   );

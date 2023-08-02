@@ -28,9 +28,17 @@ interface IActionButton {
   action: ActionType;
   setIsSending: (arg0: boolean) => void;
   setAmount: (arg0: string) => void;
+  setIsPopupOpen: (arg0: boolean) => void;
 }
 
-const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, setAmount, isSending, setIsSending }) => {
+const StakeWithdrawButton: React.FC<IActionButton> = ({
+  parsedAmount,
+  action,
+  setAmount,
+  isSending,
+  setIsSending,
+  setIsPopupOpen,
+}) => {
   const { id } = useParams();
   const { address } = useAccount();
   const { data: balance } = usePnkBalanceOf({
@@ -87,11 +95,10 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ parsedAmount, action, se
   const handleStake = () => {
     if (typeof setStake !== "undefined") {
       setIsSending(true);
-      wrapWithToast(async () => await setStake().then((response) => response.hash), publicClient)
-        .then(() => {
-          setAmount("");
-        })
-        .finally(() => setIsSending(false));
+      wrapWithToast(async () => await setStake().then((response) => response.hash), publicClient).finally(() => {
+        setIsSending(false);
+        setIsPopupOpen(true);
+      });
     }
   };
 

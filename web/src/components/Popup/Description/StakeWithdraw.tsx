@@ -70,9 +70,10 @@ const AmountStakedOrWithdrawn: React.FC<IAmountStakedOrWithdrawn> = ({ pnkStaked
 
 const StakeWithdraw: React.FC<IStakeWithdraw> = ({ pnkStaked, courtName, isStake, courtId }) => {
   const { address } = useAccount();
+
   const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
-    enabled: !isUndefined(address),
-    args: [address, courtId],
+    enabled: !isUndefined(address) && !isUndefined(courtId),
+    args: [address, BigInt(courtId)],
     watch: true,
   });
 

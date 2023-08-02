@@ -34,7 +34,11 @@ const Container = styled.div`
   }
 `;
 
-const getPeriodEndTimestamp = (lastPeriodChange: string, currentPeriodIndex: number, timesPerPeriod: string[]) => {
+export const getPeriodEndTimestamp = (
+  lastPeriodChange: string,
+  currentPeriodIndex: number,
+  timesPerPeriod: string[]
+) => {
   const durationCurrentPeriod = parseInt(timesPerPeriod[currentPeriodIndex]);
   return parseInt(lastPeriodChange) + durationCurrentPeriod;
 };

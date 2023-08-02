@@ -40,7 +40,7 @@ const Appeal: React.FC<IAppeal> = ({ amount, option }) => {
   return (
     <Container>
       <StyledAmountFunded>
-        You have funded &nbsp;<AmountContainer>{amount} ETH</AmountContainer>
+        You have funded: &nbsp;<AmountContainer>{amount} ETH</AmountContainer>
       </StyledAmountFunded>
       <StyledOptionFunded>
         Option funded: &nbsp;<OptionContainer>{option}</OptionContainer>
