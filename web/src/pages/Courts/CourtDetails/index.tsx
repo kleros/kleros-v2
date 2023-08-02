@@ -30,7 +30,7 @@ const CourtDetails: React.FC = () => {
         <hr />
         <Stats />
         <hr />
-        <StakePanel id={id!} courtName={policy?.name} />
+        <StakePanel id={id ? id : ""} courtName={policy?.name} />
       </StyledCard>
       <StyledCard>
         <Description />

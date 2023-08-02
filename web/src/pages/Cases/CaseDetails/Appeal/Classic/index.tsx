@@ -22,7 +22,7 @@ const Classic: React.FC = () => {
           setIsOpen={setIsPopupOpen}
           setAmount={setAmount}
           option={!isUndefined(options) && !isUndefined(selectedOption) ? options[selectedOption] : ""}
-          amount={amount ? amount : ""}
+          amount={amount}
         />
       )}
       <h1>Appeal crowdfunding</h1>

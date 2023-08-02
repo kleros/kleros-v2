@@ -1,7 +1,6 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
 import { Button } from "@kleros/ui-components-library";
-import { useFocusOutside } from "hooks/useFocusOutside";
 import { Overlay } from "components/Overlay";
 import StakeWithdraw from "./Description/StakeWithdraw";
 import VoteWithCommit from "./Description/VoteWithCommit";
@@ -61,7 +60,6 @@ const Header = styled.h1`
 `;
 
 const Icon = styled.svg`
-  /* display: flex; */
   display: block;
   min-height: 50px;
   min-width: 50px;
@@ -101,10 +99,6 @@ const Container = styled.div`
 
 const Popup: React.FC<PopupProps & IPopup> = ({ title, icon, popupType, setIsOpen, setAmount, isCommit, ...props }) => {
   const containerRef = useRef(null);
-  // useFocusOutside(containerRef, () => {
-  //   setIsOpen(false);
-  //   resetValue();
-  // });
 
   const resetValue = () => {
     if (setAmount) {

@@ -43,7 +43,7 @@ const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "
           icon={BalanceIcon}
           popupType={PopupType.STAKE_WITHDRAW}
           isStake={isStaking}
-          pnkStaked={amount ? amount : ""}
+          pnkStaked={amount}
           courtName={courtName}
           courtId={id}
           setIsOpen={setIsPopupOpen}
