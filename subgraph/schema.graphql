@@ -140,6 +140,9 @@ type Dispute @entity {
   arbitrated: Arbitrable!
   period: Period!
   ruled: Boolean!
+  currentRuling: BigInt!
+  tied: Boolean!
+  overridden: Boolean!
   lastPeriodChange: BigInt!
   rounds: [Round!]! @derivedFrom(field: "dispute")
   currentRound: Round!

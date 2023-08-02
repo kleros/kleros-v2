@@ -23,7 +23,7 @@ import { updateCases, updatePaidETH, updateRedistributedPNK, updateCasesRuled, u
 import { addUserActiveDispute, ensureUser } from "./entities/User";
 import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
-import { createTokenAndEthShiftFromEvent, updateTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
+import { updateTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
 import { Court, Dispute, FeeToken } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
@@ -83,14 +83,21 @@ export function handleDisputeCreation(event: DisputeCreation): void {
 }
 
 export function handleNewPeriod(event: NewPeriod): void {
-  const disputeID = event.params._disputeID.toString();
-  const dispute = Dispute.load(disputeID);
+  const disputeID = event.params._disputeID;
+  const dispute = Dispute.load(disputeID.toString());
   if (!dispute) return;
   const newPeriod = getPeriodName(event.params._period);
   if (dispute.period === "vote") {
     updateCasesVoting(BigInt.fromI32(-1), event.block.timestamp);
   } else if (newPeriod === "vote") {
     updateCasesVoting(ONE, event.block.timestamp);
+  } else if (newPeriod === "execution") {
+    const contract = KlerosCore.bind(event.address);
+    const currentRulingInfo = contract.currentRuling(disputeID);
+    dispute.currentRuling = currentRulingInfo.getRuling();
+    dispute.overridden = currentRulingInfo.getOverridden();
+    dispute.tied = currentRulingInfo.getTied();
+    dispute.save();
   }
   dispute.period = newPeriod;
   dispute.lastPeriodChange = event.block.timestamp;

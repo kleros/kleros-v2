@@ -44,7 +44,7 @@ const RefuseToArbitrateContainer = styled.div`
   justify-content: center;
 `;
 
-const Binary: React.FC<{ arbitrable: `0x${string}`; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
+const Classic: React.FC<{ arbitrable: `0x${string}`; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
   const { id } = useParams();
   const parsedDisputeID = BigInt(id ?? 0);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -122,4 +122,4 @@ const Binary: React.FC<{ arbitrable: `0x${string}`; voteIDs: string[] }> = ({ ar
   );
 };
 
-export default Binary;
+export default Classic;
