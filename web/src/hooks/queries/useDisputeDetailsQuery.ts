@@ -19,6 +19,9 @@ const disputeDetailsQuery = graphql(`
       period
       ruled
       lastPeriodChange
+      currentRuling
+      overridden
+      tied
       currentRound {
         id
       }
