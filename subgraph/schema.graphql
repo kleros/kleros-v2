@@ -98,8 +98,9 @@ type TokenAndETHShift @entity {
   dispute: Dispute!
   pnkAmount: BigInt!
   ethAmount: BigInt!
-  feeToken: FeeToken!
+  isNativeCurrency: Boolean!
   feeTokenAmount: BigInt!
+  feeToken: FeeToken
 }
 
 type JurorTokensPerCourt @entity {

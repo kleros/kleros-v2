@@ -19,7 +19,7 @@ import { createCourtFromEvent, getFeeForJuror } from "./entities/Court";
 import { createDisputeKitFromEvent, filterSupportedDisputeKits } from "./entities/DisputeKit";
 import { createDisputeFromEvent } from "./entities/Dispute";
 import { createRoundFromRoundInfo } from "./entities/Round";
-import { updateCases, updatePaidETH, updateRedistributedPNK, updateCasesRuled, updateCasesVoting } from "./datapoint";
+import { updateCases, updateCasesRuled, updateCasesVoting } from "./datapoint";
 import { addUserActiveDispute, ensureUser } from "./entities/User";
 import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
@@ -157,36 +157,15 @@ export function handleStakeDelayed(event: StakeDelayed): void {
 }
 
 export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
+  updatePenalty(event);
   updateTokenAndEthShiftFromEvent(event);
   const jurorAddress = event.params._account.toHexString();
   const disputeID = event.params._disputeID.toString();
-  const pnkAmount = event.params._pnkAmount;
-  const feeAmount = event.params._feeAmount;
-  const feeToken = FeeToken.load(event.params._feeToken.toHexString());
-  const contract = KlerosCore.bind(event.address);
-  const currencyRate = contract.currencyRates(event.params._feeToken);
-  if (!feeToken) return;
-  const paidETH = feeAmount.plus(currencyRate.value1);
-
   const dispute = Dispute.load(disputeID);
   if (!dispute) return;
   const court = Court.load(dispute.court);
   if (!court) return;
-  const paidFeeToken = contract.convertEthToTokenAmount(event.params._feeToken, court.feeForJuror);
-  if (feeToken.totalPaidInETH && feeToken.totalPaid) {
-    feeToken.totalPaidInETH = feeToken.totalPaidInETH.plus(currencyRate.value1);
-    feeToken.totalPaid = feeToken.totalPaid.plus(paidFeeToken);
-  }
   updateJurorStake(jurorAddress, court.id, KlerosCore.bind(event.address), event.block.timestamp);
-  court.paidETH = court.paidETH.plus(paidETH);
-  if (pnkAmount.gt(ZERO)) {
-    court.paidPNK = court.paidPNK.plus(pnkAmount);
-    updateRedistributedPNK(pnkAmount, event.block.timestamp);
-  }
-  updatePaidETH(feeAmount, event.block.timestamp);
-  updatePenalty(event);
-  court.save();
-  feeToken.save();
 }
 
 export function handleAcceptedFeeToken(event: AcceptedFeeToken): void {
