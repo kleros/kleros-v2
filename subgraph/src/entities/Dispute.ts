@@ -1,7 +1,4 @@
-import {
-  KlerosCore,
-  DisputeCreation,
-} from "../../generated/KlerosCore/KlerosCore";
+import { KlerosCore, DisputeCreation } from "../../generated/KlerosCore/KlerosCore";
 import { Dispute } from "../../generated/schema";
 import { ZERO } from "../utils";
 
@@ -14,6 +11,9 @@ export function createDisputeFromEvent(event: DisputeCreation): void {
   dispute.arbitrated = event.params._arbitrable.toHexString();
   dispute.period = "evidence";
   dispute.ruled = false;
+  dispute.currentRuling = ZERO;
+  dispute.tied = true;
+  dispute.overridden = false;
   dispute.lastPeriodChange = event.block.timestamp;
   dispute.currentRoundIndex = ZERO;
   const roundID = `${disputeID.toString()}-${ZERO.toString()}`;
