@@ -41,7 +41,7 @@ interface IAppeal {
 }
 interface IPopup {
   title: string;
-  icon: React.FC<React.SVGAttributes<SVGElement>> | string;
+  icon: React.FC<React.SVGAttributes<SVGElement>>;
   popupType: PopupType;
   setIsOpen: (val: boolean) => void;
   setAmount?: (val: string) => void;
@@ -59,15 +59,17 @@ const Header = styled.h1`
   line-height: 32.68px;
 `;
 
-const Icon = styled.svg`
-  display: block;
-  min-height: 50px;
-  min-width: 50px;
-  visibility: visible;
-`;
+const IconContainer = styled.div`
+  width: calc(150px + (350 - 150) * (100vw - 375px) / (1250 - 375));
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-const StyledImg = styled.img`
-  width: calc(150px + (238 - 150) * (100vw - 375px) / (1250 - 375));
+  svg {
+    display: inline-block;
+    width: calc(150px + (350 - 150) * (100vw - 375px) / (1250 - 375));
+    height: calc(150px + (350 - 150) * (100vw - 375px) / (1250 - 375));
+  }
 `;
 
 const StyledButton = styled(Button)`
@@ -97,7 +99,15 @@ const Container = styled.div`
   }
 `;
 
-const Popup: React.FC<PopupProps & IPopup> = ({ title, icon, popupType, setIsOpen, setAmount, isCommit, ...props }) => {
+const Popup: React.FC<PopupProps & IPopup> = ({
+  title,
+  icon: Icon,
+  popupType,
+  setIsOpen,
+  setAmount,
+  isCommit,
+  ...props
+}) => {
   const containerRef = useRef(null);
 
   const resetValue = () => {
@@ -141,7 +151,9 @@ const Popup: React.FC<PopupProps & IPopup> = ({ title, icon, popupType, setIsOpe
       <Container ref={containerRef}>
         <Header>{title}</Header>
         {PopupComponent}
-        {typeof icon === "string" ? <StyledImg alt={icon} src={icon} /> : <Icon as={Icon} />}
+        <IconContainer>
+          <Icon />
+        </IconContainer>
         {popupType === PopupType.STAKE_WITHDRAW && <StakeWithdrawExtraInfo />}
         {popupType === PopupType.VOTE_WITH_COMMIT && <VoteWithCommitExtraInfo />}
         <StyledButton

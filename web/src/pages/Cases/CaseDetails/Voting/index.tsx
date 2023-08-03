@@ -11,7 +11,7 @@ import { Periods } from "consts/periods";
 import { isUndefined } from "utils/index";
 import { getPeriodEndTimestamp } from "components/DisputeCard";
 import { useDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
-import VoteIcon from "assets/svgs/icons/voted.png";
+import VoteIcon from "assets/svgs/icons/voted.svg";
 
 function formatDate(unixTimestamp: number): string {
   const date = new Date(unixTimestamp * 1000);

@@ -6,7 +6,7 @@ import JurorBalanceDisplay from "./JurorStakeDisplay";
 import InputDisplay from "./InputDisplay";
 import { ActionType } from "./StakeWithdrawButton";
 import Popup, { PopupType } from "components/Popup/index";
-import BalanceIcon from "assets/svgs/icons/balance.png";
+import BalanceIcon from "assets/svgs/icons/balance.svg";
 
 const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "General Court", id }) => {
   const [amount, setAmount] = useState("");

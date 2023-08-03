@@ -76,11 +76,14 @@ const Classic: React.FC<IClassic> = ({ arbitrable, voteIDs, setIsOpen }) => {
       ],
     });
     if (walletClient) {
-      wrapWithToast(async () => await walletClient.writeContract(request), publicClient).finally(() => {
-        setChosenOption(-1);
-        setIsSending(false);
-        setIsOpen(true);
-      });
+      wrapWithToast(async () => await walletClient.writeContract(request), publicClient)
+        .then(() => {
+          setIsOpen(true);
+        })
+        .finally(() => {
+          setChosenOption(-1);
+          setIsSending(false);
+        });
     }
   };
 

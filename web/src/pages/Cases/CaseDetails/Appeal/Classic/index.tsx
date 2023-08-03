@@ -3,7 +3,7 @@ import { ClassicAppealProvider, useOptionsContext, useSelectedOptionContext } fr
 import Options from "./Options";
 import Fund from "./Fund";
 import Popup, { PopupType } from "components/Popup";
-import AppealIcon from "svgs/icons/appeal.png";
+import AppealIcon from "svgs/icons/appeal.svg";
 import { isUndefined } from "utils/index";
 
 const Classic: React.FC = () => {
