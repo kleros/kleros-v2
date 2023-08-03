@@ -8,6 +8,7 @@ import { wrapWithToast } from "utils/wrapWithToast";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { EnsureChain } from "components/EnsureChain";
+import ReactMarkdown from "react-markdown";
 
 const Container = styled.div`
   width: 100%;
@@ -90,7 +91,7 @@ const Classic: React.FC<IClassic> = ({ arbitrable, voteIDs, setIsOpen }) => {
   return id ? (
     <Container>
       <MainContainer>
-        <h1>{disputeTemplate?.question}</h1>
+        <ReactMarkdown>{disputeTemplate.question}</ReactMarkdown>
         <StyledTextarea
           value={justification}
           onChange={(e) => setJustification(e.target.value)}
