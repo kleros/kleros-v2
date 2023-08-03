@@ -21,7 +21,7 @@ interface IProofOfHumanity {
 /// @title DisputeKitSybilResistant
 /// Dispute kit implementation adapted from DisputeKitClassic
 /// - a drawing system: at most 1 vote per juror registered on Proof of Humanity,
-/// - a vote aggreation system: plurality,
+/// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
