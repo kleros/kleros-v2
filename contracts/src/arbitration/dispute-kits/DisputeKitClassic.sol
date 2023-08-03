@@ -14,7 +14,7 @@ import "../interfaces/IEvidence.sol";
 /// @title DisputeKitClassic
 /// Dispute kit implementation of the Kleros v1 features including:
 /// - a drawing system: proportional to staked PNK,
-/// - a vote aggreation system: plurality,
+/// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
 contract DisputeKitClassic is BaseDisputeKit, IEvidence {
