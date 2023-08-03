@@ -201,10 +201,13 @@ export enum ClassicContribution_OrderBy {
   ContributorTotalStake = "contributor__totalStake",
   CoreDispute = "coreDispute",
   CoreDisputeCurrentRoundIndex = "coreDispute__currentRoundIndex",
+  CoreDisputeCurrentRuling = "coreDispute__currentRuling",
   CoreDisputeId = "coreDispute__id",
   CoreDisputeLastPeriodChange = "coreDispute__lastPeriodChange",
+  CoreDisputeOverridden = "coreDispute__overridden",
   CoreDisputePeriod = "coreDispute__period",
   CoreDisputeRuled = "coreDispute__ruled",
+  CoreDisputeTied = "coreDispute__tied",
   Id = "id",
   LocalRound = "localRound",
   LocalRoundFeeRewards = "localRound__feeRewards",
@@ -305,10 +308,13 @@ export type ClassicDispute_Filter = {
 export enum ClassicDispute_OrderBy {
   CoreDispute = "coreDispute",
   CoreDisputeCurrentRoundIndex = "coreDispute__currentRoundIndex",
+  CoreDisputeCurrentRuling = "coreDispute__currentRuling",
   CoreDisputeId = "coreDispute__id",
   CoreDisputeLastPeriodChange = "coreDispute__lastPeriodChange",
+  CoreDisputeOverridden = "coreDispute__overridden",
   CoreDisputePeriod = "coreDispute__period",
   CoreDisputeRuled = "coreDispute__ruled",
+  CoreDisputeTied = "coreDispute__tied",
   CurrentLocalRoundIndex = "currentLocalRoundIndex",
   ExtraData = "extraData",
   Id = "id",
@@ -724,10 +730,13 @@ export enum ClassicVote_OrderBy {
   Choice = "choice",
   CoreDispute = "coreDispute",
   CoreDisputeCurrentRoundIndex = "coreDispute__currentRoundIndex",
+  CoreDisputeCurrentRuling = "coreDispute__currentRuling",
   CoreDisputeId = "coreDispute__id",
   CoreDisputeLastPeriodChange = "coreDispute__lastPeriodChange",
+  CoreDisputeOverridden = "coreDispute__overridden",
   CoreDisputePeriod = "coreDispute__period",
   CoreDisputeRuled = "coreDispute__ruled",
+  CoreDisputeTied = "coreDispute__tied",
   Id = "id",
   Juror = "juror",
   JurorActiveDisputes = "juror__activeDisputes",
@@ -816,10 +825,13 @@ export enum Contribution_OrderBy {
   ContributorTotalStake = "contributor__totalStake",
   CoreDispute = "coreDispute",
   CoreDisputeCurrentRoundIndex = "coreDispute__currentRoundIndex",
+  CoreDisputeCurrentRuling = "coreDispute__currentRuling",
   CoreDisputeId = "coreDispute__id",
   CoreDisputeLastPeriodChange = "coreDispute__lastPeriodChange",
+  CoreDisputeOverridden = "coreDispute__overridden",
   CoreDisputePeriod = "coreDispute__period",
   CoreDisputeRuled = "coreDispute__ruled",
+  CoreDisputeTied = "coreDispute__tied",
   Id = "id",
 }
 
@@ -1192,13 +1204,16 @@ export type Dispute = {
   court: Court;
   currentRound: Round;
   currentRoundIndex: Scalars["BigInt"]["output"];
+  currentRuling: Scalars["BigInt"]["output"];
   disputeKitDispute?: Maybe<DisputeKitDispute>;
   id: Scalars["ID"]["output"];
   lastPeriodChange: Scalars["BigInt"]["output"];
+  overridden: Scalars["Boolean"]["output"];
   period: Period;
   rounds: Array<Round>;
   ruled: Scalars["Boolean"]["output"];
   shifts: Array<TokenAndEthShift>;
+  tied: Scalars["Boolean"]["output"];
 };
 
 export type DisputeRoundsArgs = {
@@ -1316,10 +1331,13 @@ export type DisputeKitDispute_Filter = {
 export enum DisputeKitDispute_OrderBy {
   CoreDispute = "coreDispute",
   CoreDisputeCurrentRoundIndex = "coreDispute__currentRoundIndex",
+  CoreDisputeCurrentRuling = "coreDispute__currentRuling",
   CoreDisputeId = "coreDispute__id",
   CoreDisputeLastPeriodChange = "coreDispute__lastPeriodChange",
+  CoreDisputeOverridden = "coreDispute__overridden",
   CoreDisputePeriod = "coreDispute__period",
   CoreDisputeRuled = "coreDispute__ruled",
+  CoreDisputeTied = "coreDispute__tied",
   CurrentLocalRoundIndex = "currentLocalRoundIndex",
   Id = "id",
   LocalRounds = "localRounds",
@@ -1535,6 +1553,14 @@ export type Dispute_Filter = {
   currentRound_not_starts_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
   currentRound_starts_with?: InputMaybe<Scalars["String"]["input"]>;
   currentRound_starts_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
+  currentRuling?: InputMaybe<Scalars["BigInt"]["input"]>;
+  currentRuling_gt?: InputMaybe<Scalars["BigInt"]["input"]>;
+  currentRuling_gte?: InputMaybe<Scalars["BigInt"]["input"]>;
+  currentRuling_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
+  currentRuling_lt?: InputMaybe<Scalars["BigInt"]["input"]>;
+  currentRuling_lte?: InputMaybe<Scalars["BigInt"]["input"]>;
+  currentRuling_not?: InputMaybe<Scalars["BigInt"]["input"]>;
+  currentRuling_not_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
   disputeKitDispute_?: InputMaybe<DisputeKitDispute_Filter>;
   id?: InputMaybe<Scalars["ID"]["input"]>;
   id_gt?: InputMaybe<Scalars["ID"]["input"]>;
@@ -1553,6 +1579,10 @@ export type Dispute_Filter = {
   lastPeriodChange_not?: InputMaybe<Scalars["BigInt"]["input"]>;
   lastPeriodChange_not_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
   or?: InputMaybe<Array<InputMaybe<Dispute_Filter>>>;
+  overridden?: InputMaybe<Scalars["Boolean"]["input"]>;
+  overridden_in?: InputMaybe<Array<Scalars["Boolean"]["input"]>>;
+  overridden_not?: InputMaybe<Scalars["Boolean"]["input"]>;
+  overridden_not_in?: InputMaybe<Array<Scalars["Boolean"]["input"]>>;
   period?: InputMaybe<Period>;
   period_in?: InputMaybe<Array<Period>>;
   period_not?: InputMaybe<Period>;
@@ -1563,6 +1593,10 @@ export type Dispute_Filter = {
   ruled_not?: InputMaybe<Scalars["Boolean"]["input"]>;
   ruled_not_in?: InputMaybe<Array<Scalars["Boolean"]["input"]>>;
   shifts_?: InputMaybe<TokenAndEthShift_Filter>;
+  tied?: InputMaybe<Scalars["Boolean"]["input"]>;
+  tied_in?: InputMaybe<Array<Scalars["Boolean"]["input"]>>;
+  tied_not?: InputMaybe<Scalars["Boolean"]["input"]>;
+  tied_not_in?: InputMaybe<Array<Scalars["Boolean"]["input"]>>;
 };
 
 export enum Dispute_OrderBy {
@@ -1592,15 +1626,18 @@ export enum Dispute_OrderBy {
   CurrentRoundRepartitions = "currentRound__repartitions",
   CurrentRoundTokensAtStakePerJuror = "currentRound__tokensAtStakePerJuror",
   CurrentRoundTotalFeesForJurors = "currentRound__totalFeesForJurors",
+  CurrentRuling = "currentRuling",
   DisputeKitDispute = "disputeKitDispute",
   DisputeKitDisputeCurrentLocalRoundIndex = "disputeKitDispute__currentLocalRoundIndex",
   DisputeKitDisputeId = "disputeKitDispute__id",
   Id = "id",
   LastPeriodChange = "lastPeriodChange",
+  Overridden = "overridden",
   Period = "period",
   Rounds = "rounds",
   Ruled = "ruled",
   Shifts = "shifts",
+  Tied = "tied",
 }
 
 export type Draw = {
@@ -1701,10 +1738,13 @@ export type Draw_Filter = {
 export enum Draw_OrderBy {
   Dispute = "dispute",
   DisputeCurrentRoundIndex = "dispute__currentRoundIndex",
+  DisputeCurrentRuling = "dispute__currentRuling",
   DisputeId = "dispute__id",
   DisputeLastPeriodChange = "dispute__lastPeriodChange",
+  DisputeOverridden = "dispute__overridden",
   DisputePeriod = "dispute__period",
   DisputeRuled = "dispute__ruled",
+  DisputeTied = "dispute__tied",
   Id = "id",
   Juror = "juror",
   JurorActiveDisputes = "juror__activeDisputes",
@@ -2113,10 +2153,13 @@ export enum Penalty_OrderBy {
   DegreeOfCoherency = "degreeOfCoherency",
   Dispute = "dispute",
   DisputeCurrentRoundIndex = "dispute__currentRoundIndex",
+  DisputeCurrentRuling = "dispute__currentRuling",
   DisputeId = "dispute__id",
   DisputeLastPeriodChange = "dispute__lastPeriodChange",
+  DisputeOverridden = "dispute__overridden",
   DisputePeriod = "dispute__period",
   DisputeRuled = "dispute__ruled",
+  DisputeTied = "dispute__tied",
   Id = "id",
   Juror = "juror",
   JurorActiveDisputes = "juror__activeDisputes",
@@ -2695,10 +2738,13 @@ export enum Round_OrderBy {
   DisputeKitId = "disputeKit__id",
   DisputeKitNeedsFreezing = "disputeKit__needsFreezing",
   DisputeCurrentRoundIndex = "dispute__currentRoundIndex",
+  DisputeCurrentRuling = "dispute__currentRuling",
   DisputeId = "dispute__id",
   DisputeLastPeriodChange = "dispute__lastPeriodChange",
+  DisputeOverridden = "dispute__overridden",
   DisputePeriod = "dispute__period",
   DisputeRuled = "dispute__ruled",
+  DisputeTied = "dispute__tied",
   DrawnJurors = "drawnJurors",
   Id = "id",
   NbVotes = "nbVotes",
@@ -3217,10 +3263,13 @@ export type TokenAndEthShift_Filter = {
 export enum TokenAndEthShift_OrderBy {
   Dispute = "dispute",
   DisputeCurrentRoundIndex = "dispute__currentRoundIndex",
+  DisputeCurrentRuling = "dispute__currentRuling",
   DisputeId = "dispute__id",
   DisputeLastPeriodChange = "dispute__lastPeriodChange",
+  DisputeOverridden = "dispute__overridden",
   DisputePeriod = "dispute__period",
   DisputeRuled = "dispute__ruled",
+  DisputeTied = "dispute__tied",
   EthAmount = "ethAmount",
   Id = "id",
   Juror = "juror",
@@ -3517,10 +3566,13 @@ export type Vote_Filter = {
 export enum Vote_OrderBy {
   CoreDispute = "coreDispute",
   CoreDisputeCurrentRoundIndex = "coreDispute__currentRoundIndex",
+  CoreDisputeCurrentRuling = "coreDispute__currentRuling",
   CoreDisputeId = "coreDispute__id",
   CoreDisputeLastPeriodChange = "coreDispute__lastPeriodChange",
+  CoreDisputeOverridden = "coreDispute__overridden",
   CoreDisputePeriod = "coreDispute__period",
   CoreDisputeRuled = "coreDispute__ruled",
+  CoreDisputeTied = "coreDispute__tied",
   Id = "id",
   Juror = "juror",
   JurorActiveDisputes = "juror__activeDisputes",
@@ -3681,6 +3733,9 @@ export type DisputeDetailsQuery = {
     period: Period;
     ruled: boolean;
     lastPeriodChange: any;
+    currentRuling: any;
+    overridden: boolean;
+    tied: boolean;
     currentRoundIndex: any;
     court: { __typename?: "Court"; id: string; timesPerPeriod: Array<any>; hiddenVotes: boolean; feeForJuror: any };
     arbitrated: { __typename?: "Arbitrable"; id: string };
@@ -4185,6 +4240,9 @@ export const DisputeDetailsDocument = {
                 { kind: "Field", name: { kind: "Name", value: "period" } },
                 { kind: "Field", name: { kind: "Name", value: "ruled" } },
                 { kind: "Field", name: { kind: "Name", value: "lastPeriodChange" } },
+                { kind: "Field", name: { kind: "Name", value: "currentRuling" } },
+                { kind: "Field", name: { kind: "Name", value: "overridden" } },
+                { kind: "Field", name: { kind: "Name", value: "tied" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "currentRound" },
