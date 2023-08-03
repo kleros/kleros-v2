@@ -37,7 +37,7 @@ const Coherency: React.FC = () => {
   const { level, title } =
     levelTitles.find(({ scoreRange }) => {
       return roundedCoherencyScore >= scoreRange[0] && roundedCoherencyScore < scoreRange[1];
-    }) || levelTitles[0];
+    }) ?? levelTitles[0];
 
   return (
     <Container>
