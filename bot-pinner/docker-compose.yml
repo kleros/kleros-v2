@@ -20,7 +20,7 @@ services:
         - ./court/:/var/lib/data/
         - ./watchlist/:/var/lib/watchlist/
       environment:
-          RPC: "https://rinkeby.arbitrum.io/rpc"
+          RPC: "https://arb-goerli.g.alchemy.com/v2/<key>"
           IPFS: "http://localhost:5001/api/v0"
           INTERVAL: 300
           RETRY: 2

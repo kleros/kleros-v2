@@ -1,7 +1,7 @@
 import { parseUnits, parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import disputeTemplate from "../../kleros-sdk/config/v2-disputetemplate/simple/NewDisputeTemplate.simple.json";
+import disputeTemplate from "../config/DisputeTemplate.simple.json";
 
 enum ForeignChains {
   GNOSIS_MAINNET = 100,

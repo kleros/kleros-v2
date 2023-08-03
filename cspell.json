@@ -13,6 +13,7 @@
     "commitlint",
     "COOLDOWN",
     "datetime",
+    "dockerhost",
     "Ethfinex",
     "hearbeat",
     "IERC",
@@ -23,7 +24,8 @@
     "repartitions",
     "solhint",
     "typechain",
-    "Unslashed"
+    "Unslashed",
+    "autorestart"
   ],
   "ignoreWords": [],
   "import": []
