@@ -15,7 +15,8 @@ $ docker-compose up -d
 
 1. Standard IPFS container which creates a local mount for data
 2. Evidence container that awaits new events and then scrapes the latest hashes and submits it to IPFS.
-
+3. `src/peers.txt` contains a list of peers, by default it will add connects to Estuary & Kleros IPFS nodes. This should make it easier to find content by creating a data network around Kleros Court V2.
+   1. Adding these peers will make it easier to find and replicate content.
 ## DappNode
 
 :warning: For the following steps, you need access to [a DappNode](https://dappnode.io) system with the IPFS service running.
