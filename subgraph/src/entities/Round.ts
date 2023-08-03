@@ -17,6 +17,7 @@ export function createRoundFromRoundInfo(
   round.repartitions = roundInfo.getRepartitions();
   round.penalties = roundInfo.getPnkPenalties();
   round.dispute = disputeID.toString();
-  round.feeToken = feeToken ? feeToken.toHexString() : null;
+  round.feeToken =
+    feeToken.toHexString() === "0x0000000000000000000000000000000000000000" ? null : feeToken.toHexString();
   round.save();
 }

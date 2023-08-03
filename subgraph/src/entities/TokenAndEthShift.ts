@@ -19,7 +19,7 @@ export function updateTokenAndEthShiftFromEvent(event: TokenAndETHShiftEvent): v
   const feeAmount = event.params._feeAmount;
   const pnkAmount = event.params._pnkAmount;
   let ethAmount: BigInt;
-  if (feeTokenAddress !== Address.fromI32(0)) {
+  if (feeTokenAddress.toHexString() === "0x0000000000000000000000000000000000000000") {
     updateFeeTokenPaid(feeTokenAddress, event.address, feeAmount);
     ethAmount = convertTokenAmountToEth(feeTokenAddress, feeAmount, event.address);
     shift.feeTokenAmount = shift.feeTokenAmount.plus(feeAmount);
