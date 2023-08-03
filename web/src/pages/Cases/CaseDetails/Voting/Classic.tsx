@@ -44,13 +44,13 @@ const RefuseToArbitrateContainer = styled.div`
   justify-content: center;
 `;
 
-interface IBinary {
+interface IClassic {
   arbitrable: `0x${string}`;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
 }
 
-const Binary: React.FC<IBinary> = ({ arbitrable, voteIDs, setIsOpen }) => {
+const Classic: React.FC<IClassic> = ({ arbitrable, voteIDs, setIsOpen }) => {
   const { id } = useParams();
   const parsedDisputeID = BigInt(id ?? 0);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -129,4 +129,4 @@ const Binary: React.FC<IBinary> = ({ arbitrable, voteIDs, setIsOpen }) => {
   );
 };
 
-export default Binary;
+export default Classic;

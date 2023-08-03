@@ -10,8 +10,8 @@ import {
   usePnkIncreaseAllowance,
   usePreparePnkIncreaseAllowance,
   useKlerosCoreGetJurorBalance,
+  usePnkAllowance,
 } from "hooks/contracts/generated";
-import { usePNKAllowance } from "queries/usePNKAllowance";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
 import { EnsureChain } from "components/EnsureChain";
@@ -41,6 +41,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
 }) => {
   const { id } = useParams();
   const { address } = useAccount();
+  const klerosCore = getKlerosCore({});
   const { data: balance } = usePnkBalanceOf({
     enabled: !isUndefined(address),
     args: [address!],
@@ -51,7 +52,11 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     args: [address ?? "0x", BigInt(id ?? 0)],
     watch: true,
   });
-  const { data: allowance } = usePNKAllowance(address);
+  const { data: allowance } = usePnkAllowance({
+    enabled: !isUndefined(address),
+    args: [address ?? "0x", klerosCore.address],
+    watch: true,
+  });
   const publicClient = usePublicClient();
 
   const isStaking = action === ActionType.stake;
@@ -70,7 +75,6 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     return 0n;
   }, [jurorBalance, parsedAmount, isAllowance, isStaking]);
 
-  const klerosCore = getKlerosCore({});
   const { config: increaseAllowanceConfig } = usePreparePnkIncreaseAllowance({
     enabled: isAllowance && !isUndefined(klerosCore) && !isUndefined(targetStake) && !isUndefined(allowance),
     args: [klerosCore?.address, BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],

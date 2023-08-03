@@ -6,8 +6,7 @@ import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
 import { Field } from "@kleros/ui-components-library";
 import { useParsedAmount } from "hooks/useParsedAmount";
-import { usePNKBalance } from "queries/usePNKBalance";
-import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
+import { useKlerosCoreGetJurorBalance, usePnkBalanceOf } from "hooks/contracts/generated";
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
 import { isUndefined } from "utils/index";
 import { EnsureChain } from "components/EnsureChain";
@@ -57,7 +56,11 @@ const InputDisplay: React.FC<IInputDisplay> = ({
 
   const { id } = useParams();
   const { address } = useAccount();
-  const { data: balance } = usePNKBalance(address);
+  const { data: balance } = usePnkBalanceOf({
+    enabled: !isUndefined(address),
+    args: [address ?? "0x"],
+    watch: true,
+  });
   const parsedBalance = formatEther(balance ?? 0n);
   const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
     enabled: !isUndefined(address),

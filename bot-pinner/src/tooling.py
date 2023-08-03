@@ -1,20 +1,30 @@
 import time
-import socket
 import logging
 import sys
-import glob
-import json
-from web3 import  Web3
+import requests
 
-def create_logger():
+
+def check_ipfs(IPFS, logger):
+    try:
+        r = requests.post(f"{IPFS}/version")
+    except:
+        logger.error("Couldn't connect to IPFS API, retrying..")
+        time.sleep(15)
+        check_ipfs(IPFS, logger)
+
+
+def create_logger(IPFS):
     # create a logger object
-    logger = logging.getLogger('kleros-v2-evidence-collector')
+    logger = logging.getLogger('kleros-v2-evidence')
     logger.setLevel(logging.INFO)
     logfile = logging.StreamHandler(sys.stdout)
     fmt = '%(asctime)s  %(levelname)s  %(message)s'
     formatter = logging.Formatter(fmt)
     logfile.setFormatter(formatter)
     logger.addHandler(logfile)
+    motd()
+    check_ipfs(IPFS, logger)
+    add_peers(IPFS, logger)
     return logger
 
 
@@ -33,27 +43,22 @@ def motd():
         `-_, :!;;;''
             `-!'
     """
-    print("Booting...")
-    print(kleros)
-    print("Kleros Court V2 Evidence Collector!")
-    time.sleep(10)  # Wait for IPFS to come up
-    print(additional_info())
+    motd = f"""
+Booting... \
+        {kleros}  \
+        Kleros Court V2 Evidence Collector!"""
+    print(motd)
 
 
-def  additional_info():
-    ipfs_api = port_up(8080)
-    ipfs_gw = port_up(5001)
-    if ipfs_api == 0 and ipfs_gw == 0:
-        return "Gateway and API are up.  IPFS WebUI: http://127.0.0.1:5001/webui"
-    if ipfs_api == 0:
-        return "API is up"
-    return "API or Gateway unavailable. (If running on different ports, disregard this check)"
+def add_peers(ipfs, logger):
+    with open('peers.txt') as f:
+        peers = f.read().splitlines()
+    for peer in peers:
+        r = requests.post(f"{ipfs}/swarm/connect?arg={peer}", timeout=25)
+        if r.status_code == 200:
+            logger.info(f"Succesfully added peer: {[peer]}")
+        if r.status_code != 200:
+            logger.warning(f"Couldn't add {peer} to peerlist {r.content}")
 
-
-def port_up(port: int, host="127.0.0.1"):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex((host, port))
-    sock.close()
-    return result
 
 

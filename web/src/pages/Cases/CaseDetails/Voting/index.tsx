@@ -4,7 +4,7 @@ import { useAccount } from "wagmi";
 import { useLockBodyScroll } from "react-use";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "queries/useDrawQuery";
-import Binary from "./Binary";
+import Classic from "./Classic";
 import VotingHistory from "./VotingHistory";
 import Popup, { PopupType } from "components/Popup";
 import { Periods } from "consts/periods";
@@ -60,7 +60,7 @@ const Voting: React.FC<{
       currentPeriodIndex === Periods.vote &&
       drawData.draws?.length > 0 &&
       !voted ? (
-        <Binary {...{ arbitrable }} setIsOpen={setIsPopupOpen} voteIDs={drawData.draws.map((draw) => draw.voteID)} />
+        <Classic {...{ arbitrable }} setIsOpen={setIsPopupOpen} voteIDs={drawData.draws.map((draw) => draw.voteID)} />
       ) : (
         <VotingHistory {...{ arbitrable }} />
       )}
