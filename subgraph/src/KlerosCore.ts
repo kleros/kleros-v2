@@ -28,6 +28,7 @@ import { updateArbitrableCases } from "./entities/Arbitrable";
 import { Court, Dispute, FeeToken } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { updatePenalty } from "./entities/Penalty";
+import { ensureFeeToken } from "./entities/FeeToken";
 
 function getPeriodName(index: i32): string {
   const periodArray = ["evidence", "commit", "vote", "appeal", "execution"];
@@ -169,16 +170,5 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
 }
 
 export function handleAcceptedFeeToken(event: AcceptedFeeToken): void {
-  let feeToken = new FeeToken(event.params._token.toHexString());
-  const contract = KlerosCore.bind(event.address);
-
-  let currencyRate = contract.currencyRates(event.params._token);
-
-  feeToken.accepted = currencyRate.value0;
-  feeToken.rateInEth = currencyRate.value1;
-  feeToken.rateDecimals = currencyRate.value2;
-  feeToken.totalPaid = ZERO;
-  feeToken.totalPaidInETH = ZERO;
-
-  feeToken.save();
+  ensureFeeToken(event.params._token, event.address);
 }
