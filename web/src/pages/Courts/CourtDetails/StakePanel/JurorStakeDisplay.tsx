@@ -9,7 +9,7 @@ import DiceIcon from "svgs/icons/dice.svg";
 import LockerIcon from "svgs/icons/locker.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import { useCourtDetails } from "queries/useCourtDetails";
-import { useJurorBalance } from "queries/useJurorBalance";
+import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
 
 const format = (value: bigint | undefined): string => (value !== undefined ? formatEther(value) : "0");
 
@@ -32,7 +32,11 @@ const formatBigIntPercentage = (numerator: bigint, denominator: bigint): string 
 const JurorBalanceDisplay = () => {
   const { id } = useParams();
   const { address } = useAccount();
-  const { data: jurorBalance } = useJurorBalance(address, id);
+  const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
+    enabled: !isUndefined(address),
+    args: [address ?? "0x", BigInt(id ?? 0)],
+    watch: true,
+  });
   const { data: courtDetails } = useCourtDetails(id);
 
   const stakedByAllJurors = courtDetails?.court?.stake;
