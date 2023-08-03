@@ -40,10 +40,10 @@ export default async function main(
   const foreignChainProvider = new ethers.providers.JsonRpcProvider(foreignNetwork.url);
   const foreignGatewayDeployment = await foreignDeployments.get(foreignGatewayArtifact);
   const foreignGateway = await ForeignGateway__factory.connect(foreignGatewayDeployment.address, foreignChainProvider);
-  const foreignChainId = await foreignChainProvider.getNetwork().then((network) => network.chainId);
+  const foreignChainID = await foreignChainProvider.getNetwork().then((network) => network.chainId);
   const arbitrableInterface = IArbitrableV2__factory.createInterface();
 
-  const logger = loggerFactory.createLogger(loggerOptions).child({ foreignChainId: foreignChainId });
+  const logger = loggerFactory.createLogger(loggerOptions).child({ foreignChainId: foreignChainID });
   logger.info(`Listening for events from ${foreignGatewayArtifact}...`);
 
   if (HEARTBEAT_URL) {
@@ -77,15 +77,15 @@ export default async function main(
       logger.info(`tx events DisputeRequest: ${JSON.stringify(disputeRequest)}`);
 
       const relayCreateDisputeParams = {
-        foreignBlockHash: foreignBlockHash,
-        foreignChainID: foreignChainId,
-        foreignArbitrable: foreignArbitrable,
-        foreignDisputeID: foreignDisputeID,
+        foreignBlockHash,
+        foreignChainID,
+        foreignArbitrable,
+        foreignDisputeID,
         externalDisputeID: disputeRequest._externalDisputeID,
         templateId: disputeRequest._templateId,
         templateUri: disputeRequest._templateUri,
-        choices: choices,
-        extraData: extraData,
+        choices,
+        extraData,
       };
       logger.info(`Relaying dispute to home chain... ${JSON.stringify(relayCreateDisputeParams)}`);
 

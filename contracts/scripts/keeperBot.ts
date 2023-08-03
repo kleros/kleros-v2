@@ -523,7 +523,7 @@ async function main() {
   );
 
   // Disputes union and deduplicate
-  let unprocessedDisputesInExecution = filterDisputesToSkip(
+  const unprocessedDisputesInExecution = filterDisputesToSkip(
     getUniqueDisputes(unexecutedDisputes.concat(disputesWithContributionsNotYetWithdrawn).concat(disputes))
   );
   logger.info(`Disputes not fully executed: ${unprocessedDisputesInExecution.map((dispute) => dispute.id)}`);
