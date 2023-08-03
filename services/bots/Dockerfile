@@ -2,7 +2,7 @@ FROM node:16-alpine
 
 WORKDIR /usr/src/app
 
-RUN npm install -g pm2
+RUN npm install --ignore-scripts -g pm2
 
 COPY --chown=node:node "./contracts" "./contracts"
 COPY --chown=node:node "./eslint-config" "./eslint-config"

@@ -1,6 +1,5 @@
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
-import { BigNumber } from "ethers";
 import hre = require("hardhat");
 import {
   KlerosCore,
@@ -63,17 +62,19 @@ export default async function main(
       logger.info(
         `CrossChainDisputeOutgoing: ${foreignBlockHash} ${foreignArbitrable} ${foreignDisputeID} ${choices} ${extraData}`
       );
-      // logger.info(`tx receipt: ${JSON.stringify(txReceipt)}`);
+      logger.debug(`tx receipt: ${JSON.stringify(txReceipt)}`);
 
       // txReceipt is missing the full logs for this tx so we need to request it here
       const fullTxReceipt = await foreignChainProvider.getTransactionReceipt(txReceipt.transactionHash);
 
       // Retrieve the DisputeRequest event
-      const disputeRequest = fullTxReceipt.logs
+      const disputeRequests: DisputeRequestEventObject[] = fullTxReceipt.logs
         .filter((log) => log.topics[0] === arbitrableInterface.getEventTopic("DisputeRequest"))
-        .map((log) => arbitrableInterface.parseLog(log).args as unknown as DisputeRequestEventObject)[0];
+        .map((log) => arbitrableInterface.parseLog(log).args as unknown as DisputeRequestEventObject);
+      logger.warn(`More than 1 DisputeRequest event: not supported yet, skipping the others events.`);
+
+      const disputeRequest = disputeRequests[0];
       logger.info(`tx events DisputeRequest: ${JSON.stringify(disputeRequest)}`);
-      // TODO: log a warning if there are multiple DisputeRequest events
 
       const relayCreateDisputeParams = {
         foreignBlockHash: foreignBlockHash,

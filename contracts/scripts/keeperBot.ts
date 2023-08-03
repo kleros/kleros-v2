@@ -581,9 +581,9 @@ async function main() {
     });
     // Remove duplicates which may have a different contribution amount for the same round, choice and beneficiary
     contributions = [...new Set(contributions)];
-    for (var contribution of contributions) {
+    for (let contribution of contributions) {
       // Could be improved by pinpointing exactly which round requires a withdrawal, just try all of them for now.
-      for (var round = BigNumber.from(dispute.currentRoundIndex); round.gte(0); round = round.sub(1)) {
+      for (let round = BigNumber.from(dispute.currentRoundIndex); round.gte(0); round = round.sub(1)) {
         await withdrawAppealContribution(dispute.id, round.toString(), contribution);
         await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
       }
