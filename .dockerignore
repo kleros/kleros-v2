@@ -1,0 +1,13 @@
+.yarn/cache
+.yarn/install-state.gz
+
+contracts/.env
+contracts/test
+contracts/lib
+contracts/cache
+contracts/cache_hardhat
+contracts/config
+contracts/tenderly.yaml
+
+*/.DS_Store
+*/*.log

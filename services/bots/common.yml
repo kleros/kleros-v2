@@ -1,0 +1,11 @@
+version: '3.3'    
+services:
+  bot-base:
+    build:
+      context: ../../
+      dockerfile: ./services/bots/Dockerfile
+      tags:
+        - kleros-v2-bots
+    image: ghcr.io/kleros/kleros-v2-bots
+    pull_policy: missing
+    command: --help

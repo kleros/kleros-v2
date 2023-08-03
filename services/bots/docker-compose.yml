@@ -1,0 +1,70 @@
+version: '3'
+services:
+  keeper-bot-testnet:
+    extends:
+      file: common.yml
+      service: bot-base
+    # command: bot:keeper --network arbitrumGoerli
+    entrypoint:
+      [
+        "/bin/sh",
+        "-c",
+        "pm2-runtime ecosystem.config.js --only keeper-bot-testnet --no-auto-exit"
+      ]
+    # entrypoint:
+    #   [
+    #     "/bin/sh",
+    #     "-c",
+    #     "pm2-runtime ecosystem.config.js --only foo --no-auto-exit"
+    #   ]
+    env_file: .env.testnet
+    volumes:
+      - type: bind
+        source: ./ecosystem.config.js
+        target: /usr/src/app/contracts/ecosystem.config.js
+
+  relayer-bot-from-chiado-testnet:
+    extends:
+      file: common.yml
+      service: bot-base
+    # command: bot:relayer-from-chiado --network arbitrumGoerli
+    entrypoint:
+      [
+        "/bin/sh",
+        "-c",
+        "pm2-runtime ecosystem.config.js --only relayer-bot-from-chiado-testnet --no-auto-exit"
+      ]
+    volumes:
+      - type: bind
+        source: ./ecosystem.config.js
+        target: /usr/src/app/contracts/ecosystem.config.js
+    profiles:
+      - chiado
+    env_file:
+      - .env.testnet
+
+  relayer-bot-from-goerli-testnet:
+    extends:
+      file: common.yml
+      service: bot-base
+    command: bot:relayer-from-goerli --network arbitrumGoerli
+    profiles:
+      - goerli
+    env_file:
+      - .env.testnet
+
+  relayer-bot-from-hardhat-host:
+    extends:
+      file: common.yml
+      service: bot-base
+    command: bot:relayer-from-hardhat --network dockerhost
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - type: bind
+        source: ../../contracts/deployments/localhost
+        target: /usr/src/app/contracts/deployments/localhost
+    profiles:
+      - hardhat
+    env_file:
+      - .env.testnet
