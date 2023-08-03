@@ -44,7 +44,13 @@ const RefuseToArbitrateContainer = styled.div`
   justify-content: center;
 `;
 
-const Classic: React.FC<{ arbitrable: `0x${string}`; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
+interface IClassic {
+  arbitrable: `0x${string}`;
+  voteIDs: string[];
+  setIsOpen: (val: boolean) => void;
+}
+
+const Classic: React.FC<IClassic> = ({ arbitrable, voteIDs, setIsOpen }) => {
   const { id } = useParams();
   const parsedDisputeID = BigInt(id ?? 0);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -70,10 +76,14 @@ const Classic: React.FC<{ arbitrable: `0x${string}`; voteIDs: string[] }> = ({ a
       ],
     });
     if (walletClient) {
-      wrapWithToast(async () => await walletClient.writeContract(request), publicClient).finally(() => {
-        setChosenOption(-1);
-        setIsSending(false);
-      });
+      wrapWithToast(async () => await walletClient.writeContract(request), publicClient)
+        .then(() => {
+          setIsOpen(true);
+        })
+        .finally(() => {
+          setChosenOption(-1);
+          setIsSending(false);
+        });
     }
   };
 

@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import { Card, Breadcrumb } from "@kleros/ui-components-library";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
-
+import { isUndefined } from "utils/index";
 import Stats from "./Stats";
 import Description from "./Description";
 import StakePanel from "./StakePanel";
@@ -30,7 +30,7 @@ const CourtDetails: React.FC = () => {
         <hr />
         <Stats />
         <hr />
-        <StakePanel courtName={policy?.name} />
+        <StakePanel id={!isUndefined(id) ? id : ""} courtName={policy?.name} />
       </StyledCard>
       <StyledCard>
         <Description />
@@ -60,11 +60,7 @@ interface IItem {
   id: string;
 }
 
-const getCourtsPath = (
-  node: CourtTreeQuery["court"],
-  id: string | undefined,
-  path: IItem[] = []
-): IItem[] | null => {
+const getCourtsPath = (node: CourtTreeQuery["court"], id: string | undefined, path: IItem[] = []): IItem[] | null => {
   if (!node || !id) return null;
 
   if (node.id === id) {

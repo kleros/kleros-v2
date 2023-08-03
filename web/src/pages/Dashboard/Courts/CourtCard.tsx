@@ -33,7 +33,7 @@ const tooltipMsg =
   "The locked stake of incoherent jurors is redistributed as incentives for " +
   "the coherent jurors.";
 
-const format = (value: bigint | undefined): string => (value !== undefined ? formatEther(value) : "0");
+export const format = (value: bigint | undefined): string => (value !== undefined ? formatEther(value) : "0");
 
 interface ICourtCard {
   id: string;
