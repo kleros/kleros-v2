@@ -96,8 +96,11 @@ type TokenAndETHShift @entity {
   id: ID! # user.id-dispute.id
   juror: User!
   dispute: Dispute!
-  tokenAmount: BigInt!
+  pnkAmount: BigInt!
   ethAmount: BigInt!
+  isNativeCurrency: Boolean!
+  feeTokenAmount: BigInt!
+  feeToken: FeeToken
 }
 
 type JurorTokensPerCourt @entity {
@@ -159,6 +162,7 @@ type Round @entity {
   penalties: BigInt!
   drawnJurors: [Draw!]! @derivedFrom(field: "round")
   dispute: Dispute!
+  feeToken: FeeToken
 }
 
 type Draw @entity {
@@ -189,6 +193,17 @@ type Counter @entity {
   cases: BigInt!
   casesVoting: BigInt!
   casesRuled: BigInt!
+}
+
+type FeeToken @entity {
+  id: ID! # The address of the ERC20 token.
+  accepted: Boolean!
+  rateInEth: BigInt!
+  rateDecimals: Int!
+  totalPaid: BigInt!
+  totalPaidInETH: BigInt!
+  rounds: [Round!] @derivedFrom(field: "feeToken")
+  tokenAndETHShift: [TokenAndETHShift!] @derivedFrom(field: "feeToken")
 }
 
 #####################
