@@ -7,8 +7,5 @@
   "solidity-language-server.trace.server.verbosity": "message",
   "eslint.packageManager": "yarn",
   "prettier.useEditorConfig": true,
-  "prettier.configPath": "prettier-config/.prettierrc.js",
-  "cSpell.words": [
-    "autorestart"
-  ]
+  "prettier.configPath": "prettier-config/.prettierrc.js"
 }
