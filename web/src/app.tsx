@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import Cases from "./pages/Cases";
 import Dashboard from "./pages/Dashboard";
 import Courts from "./pages/Courts";
+import DisputeTemplateView from "./pages/DisputeTemplateView";
 
 const App: React.FC = () => {
   return (
@@ -24,6 +25,7 @@ const App: React.FC = () => {
               <Route path="cases/*" element={<Cases />} />
               <Route path="courts/*" element={<Courts />} />
               <Route path="dashboard" element={<Dashboard />} />
+              <Route path="disputeTemplate" element={<DisputeTemplateView />} />
               <Route path="*" element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>} />
             </Route>
           </Routes>
