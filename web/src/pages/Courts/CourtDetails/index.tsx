@@ -11,7 +11,7 @@ import { isUndefined } from "utils/index";
 import Stats from "./Stats";
 import Description from "./Description";
 import StakePanel from "./StakePanel";
-import { usePnkFaucetWithdrewAlready, usePnkFaucetRequest, prepareWritePnkFaucet } from "hooks/contracts/generated";
+import { usePnkFaucetWithdrewAlready, prepareWritePnkFaucet } from "hooks/contracts/generated";
 
 const CourtDetails: React.FC = () => {
   const { id } = useParams();
