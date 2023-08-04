@@ -34,7 +34,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [DisputeResolver](https://goerli.arbiscan.io/address/0xcDC05c8d2EEEe384359Bd22E8631528B6b0564e9)
 - [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0x1807b0049D412a3208d840D74725e404a55E297E)
 - [KlerosCore](https://goerli.arbiscan.io/address/0x8Af82E2F8890acb4AB84cbaB3c4C4Eb3E965CF24)
-- [PNKFaucet](https://goerli.arbiscan.io/address/0xcc9dA0E6Fe98934781A57C861C939AC36989990d)
+- [PNKFaucet](https://goerli.arbiscan.io/address/0x120C48fcB2343ccCD4Fa4Dc81CF48fcf8538bFc9)
 - [PolicyRegistry](https://goerli.arbiscan.io/address/0xED503aBA65B28D81444294D1eAa5d84CeFdC2C58)
 - [RandomizerRNG](https://goerli.arbiscan.io/address/0xa90f7D2e35718FDE9AD96c8B6667AFcAa4BEfd4d)
 - [SortitionModule](https://goerli.arbiscan.io/address/0x5Ae75Db8B66B574b2c5C29eE4D32cc9Fe62bfdEE)
