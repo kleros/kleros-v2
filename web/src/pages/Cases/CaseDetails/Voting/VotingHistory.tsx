@@ -112,7 +112,9 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable })
             <p>
               {localRounds.at(currentTab)?.totalVoted === rounds.at(currentTab)?.nbVotes
                 ? "All jurors voted"
-                : localRounds.at(currentTab)?.totalVoted + " jurors voted out of " + rounds.at(currentTab)?.nbVotes}
+                : localRounds.at(currentTab)?.totalVoted.toString() +
+                  ` vote${localRounds.at(currentTab)?.totalVoted.toString() === "1" ? "" : "s"} cast out of ` +
+                  rounds.at(currentTab)?.nbVotes}
             </p>
           </StyledBox>
           <StyledAccordion

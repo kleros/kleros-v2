@@ -9,7 +9,7 @@ import { useIsCrossChainDispute } from "../useIsCrossChainDispute";
 export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
   const publicClient = usePublicClient();
   const { data: crossChainData } = useIsCrossChainDispute(disputeID, arbitrableAddress);
-  const isEnabled = !isUndefined(arbitrableAddress) && !isUndefined(disputeID) && !isUndefined(crossChainData);
+  const isEnabled = !isUndefined(disputeID) && !isUndefined(crossChainData) && !isUndefined(arbitrableAddress);
   return useQuery({
     queryKey: [`DisputeTemplate${disputeID}${arbitrableAddress}`],
     enabled: isEnabled,
@@ -22,6 +22,7 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
           const templateId = isCrossChainDispute
             ? crossChainTemplateId
             : await getTemplateId(arbitrableAddress, disputeID, publicClient);
+
           return await getDisputeTemplate(
             templateId,
             isCrossChainDispute ? crossChainArbitrableAddress : arbitrableAddress,

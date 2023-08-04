@@ -8,6 +8,7 @@ import { wrapWithToast } from "utils/wrapWithToast";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { EnsureChain } from "components/EnsureChain";
+import ReactMarkdown from "react-markdown";
 
 const Container = styled.div`
   width: 100%;
@@ -44,7 +45,13 @@ const RefuseToArbitrateContainer = styled.div`
   justify-content: center;
 `;
 
-const Binary: React.FC<{ arbitrable: `0x${string}`; voteIDs: string[] }> = ({ arbitrable, voteIDs }) => {
+interface IClassic {
+  arbitrable: `0x${string}`;
+  voteIDs: string[];
+  setIsOpen: (val: boolean) => void;
+}
+
+const Classic: React.FC<IClassic> = ({ arbitrable, voteIDs, setIsOpen }) => {
   const { id } = useParams();
   const parsedDisputeID = BigInt(id ?? 0);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -70,17 +77,21 @@ const Binary: React.FC<{ arbitrable: `0x${string}`; voteIDs: string[] }> = ({ ar
       ],
     });
     if (walletClient) {
-      wrapWithToast(async () => await walletClient.writeContract(request), publicClient).finally(() => {
-        setChosenOption(-1);
-        setIsSending(false);
-      });
+      wrapWithToast(async () => await walletClient.writeContract(request), publicClient)
+        .then(() => {
+          setIsOpen(true);
+        })
+        .finally(() => {
+          setChosenOption(-1);
+          setIsSending(false);
+        });
     }
   };
 
   return id ? (
     <Container>
       <MainContainer>
-        <h1>{disputeTemplate?.question}</h1>
+        <ReactMarkdown>{disputeTemplate.question}</ReactMarkdown>
         <StyledTextarea
           value={justification}
           onChange={(e) => setJustification(e.target.value)}
@@ -122,4 +133,4 @@ const Binary: React.FC<{ arbitrable: `0x${string}`; voteIDs: string[] }> = ({ ar
   );
 };
 
-export default Binary;
+export default Classic;

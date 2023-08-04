@@ -47,13 +47,17 @@ export function handleEvidenceEvent(event: EvidenceEvent): void {
 }
 
 export function handleJustificationEvent(event: JustificationEvent): void {
-  const coreDisputeID = event.params._coreDisputeID.toString();
-  const coreDispute = Dispute.load(coreDisputeID);
+  const contract = DisputeKitClassic.bind(event.address);
+  const coreDisputeID = event.params._coreDisputeID;
+  const coreDispute = Dispute.load(coreDisputeID.toString());
   const classicDisputeID = `${DISPUTEKIT_ID}-${coreDisputeID}`;
   const classicDispute = ClassicDispute.load(classicDisputeID);
   if (!classicDispute || !coreDispute) return;
+  const choice = event.params._choice;
+  const coreRoundIndex = coreDispute.currentRoundIndex;
+  const roundInfo = contract.getRoundInfo(coreDisputeID, coreRoundIndex, choice);
   const currentLocalRoundID = classicDispute.id + "-" + classicDispute.currentLocalRoundIndex.toString();
-  const currentRulingInfo = updateCountsAndGetCurrentRuling(currentLocalRoundID, event.params._choice);
+  const currentRulingInfo = updateCountsAndGetCurrentRuling(currentLocalRoundID, choice, roundInfo.getChoiceCount());
   coreDispute.currentRuling = currentRulingInfo.ruling;
   coreDispute.tied = currentRulingInfo.tied;
   coreDispute.save();

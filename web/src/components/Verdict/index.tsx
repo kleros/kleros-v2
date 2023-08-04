@@ -9,11 +9,15 @@ const Container = styled.div`
   gap: 24px;
 `;
 
-const Verdict: React.FC = () => {
+interface IVerdict {
+  arbitrable?: `0x${string}`;
+}
+
+const Verdict: React.FC<IVerdict> = ({ arbitrable }) => {
   return (
     <Container>
-      <FinalDecision />
-      <DisputeTimeline />
+      <FinalDecision arbitrable={arbitrable} />
+      <DisputeTimeline arbitrable={arbitrable} />
     </Container>
   );
 };

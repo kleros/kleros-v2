@@ -5,10 +5,8 @@ import { formatEther } from "viem";
 import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
 import { Field } from "@kleros/ui-components-library";
-
 import { useParsedAmount } from "hooks/useParsedAmount";
-import { usePNKBalance } from "queries/usePNKBalance";
-import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
+import { useKlerosCoreGetJurorBalance, usePnkBalanceOf } from "hooks/contracts/generated";
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
 import { isUndefined } from "utils/index";
 import { EnsureChain } from "components/EnsureChain";
@@ -39,17 +37,30 @@ interface IInputDisplay {
   action: ActionType;
   isSending: boolean;
   setIsSending: (arg0: boolean) => void;
+  setIsPopupOpen: (arg0: boolean) => void;
+  amount: string;
+  setAmount: (arg0: string) => void;
 }
 
-const InputDisplay: React.FC<IInputDisplay> = ({ action, isSending, setIsSending }) => {
-  const [amount, setAmount] = useState("");
+const InputDisplay: React.FC<IInputDisplay> = ({
+  action,
+  isSending,
+  setIsSending,
+  setIsPopupOpen,
+  amount,
+  setAmount,
+}) => {
   const [debouncedAmount, setDebouncedAmount] = useState("");
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
   const parsedAmount = useParsedAmount(debouncedAmount);
 
   const { id } = useParams();
   const { address } = useAccount();
-  const { data: balance } = usePNKBalance(address);
+  const { data: balance } = usePnkBalanceOf({
+    enabled: !isUndefined(address),
+    args: [address ?? "0x"],
+    watch: true,
+  });
   const parsedBalance = formatEther(balance ?? 0n);
   const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
     enabled: !isUndefined(address),
@@ -93,6 +104,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, isSending, setIsSending
               setAmount,
               isSending,
               setIsSending,
+              setIsPopupOpen,
             }}
           />
         </EnsureChain>

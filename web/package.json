@@ -23,8 +23,7 @@
   },
   "packageManager": "yarn@3.3.1",
   "scripts": {
-    "clear": "rm -r .parcel-cache",
-    "clean": "rm dist/bundle.js",
+    "clear": "rm -fr ../.parcel-cache dist/bundle.js",
     "start": "parcel",
     "start-local": "REACT_APP_SUBGRAPH_ENDPOINT=http://localhost:8000/subgraphs/name/kleros/kleros-v2-core-local parcel",
     "build": "yarn generate && yarn parcel build",
