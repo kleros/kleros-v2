@@ -10,42 +10,23 @@ const Timeline: React.FC<{
   dispute: DisputeDetailsQuery["dispute"];
   currentPeriodIndex: number;
 }> = ({ currentPeriodIndex, dispute }) => {
-  const currentItemIndex = currentPeriodToCurrentItem(
-    currentPeriodIndex,
-    dispute?.ruled
-  );
+  const currentItemIndex = currentPeriodToCurrentItem(currentPeriodIndex, dispute?.ruled);
   const items = useTimeline(dispute, currentItemIndex, currentItemIndex);
   return (
     <TimeLineContainer>
-      <StyledSteps
-        horizontal
-        {...{ items, currentItemIndex, currentPeriodIndex }}
-      />
+      <StyledSteps horizontal {...{ items, currentItemIndex, currentPeriodIndex }} />
     </TimeLineContainer>
   );
 };
 
-const currentPeriodToCurrentItem = (
-  currentPeriodIndex: number,
-  ruled?: boolean
-): number => {
+const currentPeriodToCurrentItem = (currentPeriodIndex: number, ruled?: boolean): number => {
   if (currentPeriodIndex <= Periods.commit) return currentPeriodIndex;
-  else if (currentPeriodIndex < Periods.execution)
-    return currentPeriodIndex - 1;
+  else if (currentPeriodIndex < Periods.execution) return currentPeriodIndex - 1;
   else return ruled ? 5 : currentPeriodIndex - 1;
 };
 
-const useTimeline = (
-  dispute: DisputeDetailsQuery["dispute"],
-  currentItemIndex: number,
-  currentPeriodIndex: number
-) => {
-  const titles = [
-    "Evidence Period",
-    "Voting Period",
-    "Appeal Period",
-    "Executed",
-  ];
+const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: number, currentPeriodIndex: number) => {
+  const titles = ["Evidence Period", "Voting Period", "Appeal Period", "Executed"];
   const deadlineCurrentPeriod = getDeadline(
     currentPeriodIndex,
     dispute?.lastPeriodChange,
@@ -77,15 +58,9 @@ const getDeadline = (
   lastPeriodChange?: string,
   timesPerPeriod?: string[]
 ): number | undefined => {
-  if (
-    lastPeriodChange &&
-    timesPerPeriod &&
-    currentPeriodIndex < timesPerPeriod.length
-  ) {
+  if (lastPeriodChange && timesPerPeriod && currentPeriodIndex < timesPerPeriod.length) {
     const parsedLastPeriodChange = parseInt(lastPeriodChange, 10);
-    const parsedTimeCurrentPeriod = parseInt(
-      timesPerPeriod[currentPeriodIndex]
-    );
+    const parsedTimeCurrentPeriod = parseInt(timesPerPeriod[currentPeriodIndex]);
     return parsedLastPeriodChange + parsedTimeCurrentPeriod;
   }
   return 0;
