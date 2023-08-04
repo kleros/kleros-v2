@@ -49,7 +49,7 @@ const Voting: React.FC<{
         <Popup
           title="Thanks for Voting"
           icon={VoteIcon}
-          popupType={disputeData?.court?.hiddenVotes ? PopupType.VOTE_WITHOUT_COMMIT : PopupType.VOTE_WITH_COMMIT}
+          popupType={disputeData?.court?.hiddenVotes ? PopupType.VOTE_WITH_COMMIT : PopupType.VOTE_WITHOUT_COMMIT}
           date={finalDate ? formatDate(finalDate) : ""}
           isCommit={false}
           setIsOpen={setIsPopupOpen}
@@ -60,9 +60,12 @@ const Voting: React.FC<{
       currentPeriodIndex === Periods.vote &&
       drawData.draws?.length > 0 &&
       !voted ? (
-        <Classic {...{ arbitrable }} setIsOpen={setIsPopupOpen} voteIDs={drawData.draws.map((draw) => draw.voteID)} />
+        <>
+          <VotingHistory {...{ arbitrable }} isQuestion={false} />
+          <Classic {...{ arbitrable }} setIsOpen={setIsPopupOpen} voteIDs={drawData.draws.map((draw) => draw.voteID)} />
+        </>
       ) : (
-        <VotingHistory {...{ arbitrable }} />
+        <VotingHistory {...{ arbitrable }} isQuestion={true} />
       )}
     </>
   );

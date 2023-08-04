@@ -10,6 +10,7 @@ import { useVotingHistory } from "queries/useVotingHistory";
 import CalendarIcon from "assets/svgs/icons/calendar.svg";
 import ClosedCaseIcon from "assets/svgs/icons/check-circle-outline.svg";
 import AppealedCaseIcon from "assets/svgs/icons/close-circle.svg";
+import { isUndefined } from "utils/index";
 
 const Container = styled.div`
   display: flex;
@@ -80,11 +81,15 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
           const parsedRoundChoice = parseInt(winningChoice);
           const eventDate = getCaseEventTimes(lastPeriodChange, currentPeriodIndex, courtTimePeriods, false);
           const icon = dispute.ruled && !rulingOverride && index === localRounds.length - 1 ? ClosedCaseIcon : "";
-
+          const answer = disputeTemplate?.answers?.[parsedRoundChoice! - 1].title;
           acc.push({
             title: `Jury Decision - Round ${index + 1}`,
             party:
-              parsedRoundChoice !== 0 ? disputeTemplate?.answers?.[parsedRoundChoice - 1].title : "Refuse to Arbitrate",
+              parsedRoundChoice === 0
+                ? "Refuse to Arbitrate"
+                : !isUndefined(answer)
+                ? answer
+                : `Answer 0x${parsedRoundChoice}`,
             subtitle: eventDate,
             rightSided: true,
             variant: theme.secondaryPurple,
