@@ -5,7 +5,8 @@
 /// @custom:auditors: []
 /// @custom:bounties: []
 
-import "../interfaces/IArbitrableV2.sol";
+import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
+import "../interfaces/IDisputeTemplateRegistry.sol";
 
 pragma solidity 0.8.18;
 
@@ -29,6 +30,7 @@ contract DisputeResolver is IArbitrableV2 {
 
     address public governor; // The governor.
     IArbitratorV2 public arbitrator; // The arbitrator.
+    IDisputeTemplateRegistry public templateRegistry; // The dispute template registry.
     DisputeStruct[] public disputes; // Local disputes.
     mapping(uint256 => uint256) public arbitratorDisputeIDToLocalID; // Maps arbitrator-side dispute IDs to local dispute IDs.
 
@@ -38,9 +40,10 @@ contract DisputeResolver is IArbitrableV2 {
 
     /// @dev Constructor
     /// @param _arbitrator Target global arbitrator for any disputes.
-    constructor(IArbitratorV2 _arbitrator) {
+    constructor(IArbitratorV2 _arbitrator, IDisputeTemplateRegistry _templateRegistry) {
         governor = msg.sender;
         arbitrator = _arbitrator;
+        templateRegistry = _templateRegistry;
     }
 
     // ************************************* //
@@ -57,6 +60,11 @@ contract DisputeResolver is IArbitrableV2 {
     function changeArbitrator(IArbitratorV2 _arbitrator) external {
         require(governor == msg.sender, "Access not allowed: Governor only.");
         arbitrator = _arbitrator;
+    }
+
+    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        templateRegistry = _templateRegistry;
     }
 
     // ************************************* //
@@ -130,9 +138,7 @@ contract DisputeResolver is IArbitrableV2 {
             })
         );
         arbitratorDisputeIDToLocalID[disputeID] = localDisputeID;
-
-        uint256 templateId = localDisputeID;
-        emit DisputeTemplate(templateId, "", _disputeTemplate);
+        uint256 templateId = templateRegistry.setDisputeTemplate("", _disputeTemplate);
         emit DisputeRequest(arbitrator, disputeID, localDisputeID, templateId, _disputeTemplateUri);
     }
 }

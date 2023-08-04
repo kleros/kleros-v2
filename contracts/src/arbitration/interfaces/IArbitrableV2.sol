@@ -10,12 +10,6 @@ import "./IArbitratorV2.sol";
 /// - Define the action taken when a ruling is received by the contract.
 /// - Allow dispute creation. For this a function must call arbitrator.createDispute{value: _fee}(_choices,_extraData);
 interface IArbitrableV2 {
-    /// @dev To be emitted when a new dispute template is created.
-    /// @param _templateId The identifier of the dispute template.
-    /// @param _templateTag An optional tag for the dispute template, such as "registration" or "removal".
-    /// @param _templateData The template data.
-    event DisputeTemplate(uint256 indexed _templateId, string indexed _templateTag, string _templateData);
-
     /// @dev To be emitted when a dispute is created to link the correct meta-evidence to the disputeID.
     /// @param _arbitrator The arbitrator of the contract.
     /// @param _arbitrableDisputeID The identifier of the dispute in the Arbitrable contract.
