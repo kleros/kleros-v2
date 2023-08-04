@@ -268,7 +268,7 @@ task("simulate:cast-commit", "Casts a commit for a drawn juror")
     const tx = await disputeKitClassic.connect(wallet).castCommit(...castCommitFunctionArgs);
     await tx.wait();
 
-    console.log("juror %s casted a commit on txID: %s", wallet.address, tx?.hash);
+    console.log("juror %s cast a commit on txID: %s", wallet.address, tx?.hash);
   });
 
 task("simulate:cast-vote", "Casts a vote for a drawn juror")
@@ -295,7 +295,7 @@ task("simulate:cast-vote", "Casts a vote for a drawn juror")
     const tx = await disputeKitClassic.connect(wallet).castVote(...castVoteFunctionArgs);
     await tx.wait();
 
-    console.log("juror %s casted a vote on txID: %s", wallet.address, tx?.hash);
+    console.log("juror %s cast a vote on txID: %s", wallet.address, tx?.hash);
   });
 
 task("simulate:fund-appeal", "Funds an appeal on a dispute")
