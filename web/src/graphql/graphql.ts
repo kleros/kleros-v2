@@ -1908,6 +1908,98 @@ export enum Evidence_OrderBy {
   SenderTotalStake = "sender__totalStake",
 }
 
+export type FeeToken = {
+  __typename?: "FeeToken";
+  accepted: Scalars["Boolean"]["output"];
+  id: Scalars["ID"]["output"];
+  rateDecimals: Scalars["Int"]["output"];
+  rateInEth: Scalars["BigInt"]["output"];
+  rounds?: Maybe<Array<Round>>;
+  tokenAndETHShift?: Maybe<Array<TokenAndEthShift>>;
+  totalPaid: Scalars["BigInt"]["output"];
+  totalPaidInETH: Scalars["BigInt"]["output"];
+};
+
+export type FeeTokenRoundsArgs = {
+  first?: InputMaybe<Scalars["Int"]["input"]>;
+  orderBy?: InputMaybe<Round_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]["input"]>;
+  where?: InputMaybe<Round_Filter>;
+};
+
+export type FeeTokenTokenAndEthShiftArgs = {
+  first?: InputMaybe<Scalars["Int"]["input"]>;
+  orderBy?: InputMaybe<TokenAndEthShift_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]["input"]>;
+  where?: InputMaybe<TokenAndEthShift_Filter>;
+};
+
+export type FeeToken_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  accepted?: InputMaybe<Scalars["Boolean"]["input"]>;
+  accepted_in?: InputMaybe<Array<Scalars["Boolean"]["input"]>>;
+  accepted_not?: InputMaybe<Scalars["Boolean"]["input"]>;
+  accepted_not_in?: InputMaybe<Array<Scalars["Boolean"]["input"]>>;
+  and?: InputMaybe<Array<InputMaybe<FeeToken_Filter>>>;
+  id?: InputMaybe<Scalars["ID"]["input"]>;
+  id_gt?: InputMaybe<Scalars["ID"]["input"]>;
+  id_gte?: InputMaybe<Scalars["ID"]["input"]>;
+  id_in?: InputMaybe<Array<Scalars["ID"]["input"]>>;
+  id_lt?: InputMaybe<Scalars["ID"]["input"]>;
+  id_lte?: InputMaybe<Scalars["ID"]["input"]>;
+  id_not?: InputMaybe<Scalars["ID"]["input"]>;
+  id_not_in?: InputMaybe<Array<Scalars["ID"]["input"]>>;
+  or?: InputMaybe<Array<InputMaybe<FeeToken_Filter>>>;
+  rateDecimals?: InputMaybe<Scalars["Int"]["input"]>;
+  rateDecimals_gt?: InputMaybe<Scalars["Int"]["input"]>;
+  rateDecimals_gte?: InputMaybe<Scalars["Int"]["input"]>;
+  rateDecimals_in?: InputMaybe<Array<Scalars["Int"]["input"]>>;
+  rateDecimals_lt?: InputMaybe<Scalars["Int"]["input"]>;
+  rateDecimals_lte?: InputMaybe<Scalars["Int"]["input"]>;
+  rateDecimals_not?: InputMaybe<Scalars["Int"]["input"]>;
+  rateDecimals_not_in?: InputMaybe<Array<Scalars["Int"]["input"]>>;
+  rateInEth?: InputMaybe<Scalars["BigInt"]["input"]>;
+  rateInEth_gt?: InputMaybe<Scalars["BigInt"]["input"]>;
+  rateInEth_gte?: InputMaybe<Scalars["BigInt"]["input"]>;
+  rateInEth_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
+  rateInEth_lt?: InputMaybe<Scalars["BigInt"]["input"]>;
+  rateInEth_lte?: InputMaybe<Scalars["BigInt"]["input"]>;
+  rateInEth_not?: InputMaybe<Scalars["BigInt"]["input"]>;
+  rateInEth_not_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
+  rounds_?: InputMaybe<Round_Filter>;
+  tokenAndETHShift_?: InputMaybe<TokenAndEthShift_Filter>;
+  totalPaid?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalPaidInETH?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalPaidInETH_gt?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalPaidInETH_gte?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalPaidInETH_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
+  totalPaidInETH_lt?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalPaidInETH_lte?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalPaidInETH_not?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalPaidInETH_not_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
+  totalPaid_gt?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalPaid_gte?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalPaid_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
+  totalPaid_lt?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalPaid_lte?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalPaid_not?: InputMaybe<Scalars["BigInt"]["input"]>;
+  totalPaid_not_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
+};
+
+export enum FeeToken_OrderBy {
+  Accepted = "accepted",
+  Id = "id",
+  RateDecimals = "rateDecimals",
+  RateInEth = "rateInEth",
+  Rounds = "rounds",
+  TokenAndEthShift = "tokenAndETHShift",
+  TotalPaid = "totalPaid",
+  TotalPaidInEth = "totalPaidInETH",
+}
+
 export type JurorTokensPerCourt = {
   __typename?: "JurorTokensPerCourt";
   court: Court;
@@ -2225,6 +2317,8 @@ export type Query = {
   evidenceGroup?: Maybe<EvidenceGroup>;
   evidenceGroups: Array<EvidenceGroup>;
   evidences: Array<Evidence>;
+  feeToken?: Maybe<FeeToken>;
+  feeTokens: Array<FeeToken>;
   jurorTokensPerCourt?: Maybe<JurorTokensPerCourt>;
   jurorTokensPerCourts: Array<JurorTokensPerCourt>;
   penalties: Array<Penalty>;
@@ -2515,6 +2609,22 @@ export type QueryEvidencesArgs = {
   where?: InputMaybe<Evidence_Filter>;
 };
 
+export type QueryFeeTokenArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars["ID"]["input"];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+export type QueryFeeTokensArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars["Int"]["input"]>;
+  orderBy?: InputMaybe<FeeToken_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]["input"]>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<FeeToken_Filter>;
+};
+
 export type QueryJurorTokensPerCourtArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars["ID"]["input"];
@@ -2616,6 +2726,7 @@ export type Round = {
   dispute: Dispute;
   disputeKit: DisputeKit;
   drawnJurors: Array<Draw>;
+  feeToken?: Maybe<FeeToken>;
   id: Scalars["ID"]["output"];
   nbVotes: Scalars["BigInt"]["output"];
   penalties: Scalars["BigInt"]["output"];
@@ -2679,6 +2790,27 @@ export type Round_Filter = {
   dispute_starts_with?: InputMaybe<Scalars["String"]["input"]>;
   dispute_starts_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
   drawnJurors_?: InputMaybe<Draw_Filter>;
+  feeToken?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_?: InputMaybe<FeeToken_Filter>;
+  feeToken_contains?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_contains_nocase?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_ends_with?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_ends_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_gt?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_gte?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_in?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  feeToken_lt?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_lte?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_not?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_not_contains?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_not_contains_nocase?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_not_ends_with?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_not_ends_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_not_in?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  feeToken_not_starts_with?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_not_starts_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_starts_with?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_starts_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
   id?: InputMaybe<Scalars["ID"]["input"]>;
   id_gt?: InputMaybe<Scalars["ID"]["input"]>;
   id_gte?: InputMaybe<Scalars["ID"]["input"]>;
@@ -2746,6 +2878,13 @@ export enum Round_OrderBy {
   DisputeRuled = "dispute__ruled",
   DisputeTied = "dispute__tied",
   DrawnJurors = "drawnJurors",
+  FeeToken = "feeToken",
+  FeeTokenAccepted = "feeToken__accepted",
+  FeeTokenId = "feeToken__id",
+  FeeTokenRateDecimals = "feeToken__rateDecimals",
+  FeeTokenRateInEth = "feeToken__rateInEth",
+  FeeTokenTotalPaid = "feeToken__totalPaid",
+  FeeTokenTotalPaidInEth = "feeToken__totalPaidInETH",
   Id = "id",
   NbVotes = "nbVotes",
   Penalties = "penalties",
@@ -2792,6 +2931,8 @@ export type Subscription = {
   evidenceGroup?: Maybe<EvidenceGroup>;
   evidenceGroups: Array<EvidenceGroup>;
   evidences: Array<Evidence>;
+  feeToken?: Maybe<FeeToken>;
+  feeTokens: Array<FeeToken>;
   jurorTokensPerCourt?: Maybe<JurorTokensPerCourt>;
   jurorTokensPerCourts: Array<JurorTokensPerCourt>;
   penalties: Array<Penalty>;
@@ -3082,6 +3223,22 @@ export type SubscriptionEvidencesArgs = {
   where?: InputMaybe<Evidence_Filter>;
 };
 
+export type SubscriptionFeeTokenArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars["ID"]["input"];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+export type SubscriptionFeeTokensArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars["Int"]["input"]>;
+  orderBy?: InputMaybe<FeeToken_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars["Int"]["input"]>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<FeeToken_Filter>;
+};
+
 export type SubscriptionJurorTokensPerCourtArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars["ID"]["input"];
@@ -3182,9 +3339,12 @@ export type TokenAndEthShift = {
   __typename?: "TokenAndETHShift";
   dispute: Dispute;
   ethAmount: Scalars["BigInt"]["output"];
+  feeToken?: Maybe<FeeToken>;
+  feeTokenAmount: Scalars["BigInt"]["output"];
   id: Scalars["ID"]["output"];
+  isNativeCurrency: Scalars["Boolean"]["output"];
   juror: User;
-  tokenAmount: Scalars["BigInt"]["output"];
+  pnkAmount: Scalars["BigInt"]["output"];
 };
 
 export type TokenAndEthShift_Filter = {
@@ -3220,6 +3380,35 @@ export type TokenAndEthShift_Filter = {
   ethAmount_lte?: InputMaybe<Scalars["BigInt"]["input"]>;
   ethAmount_not?: InputMaybe<Scalars["BigInt"]["input"]>;
   ethAmount_not_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
+  feeToken?: InputMaybe<Scalars["String"]["input"]>;
+  feeTokenAmount?: InputMaybe<Scalars["BigInt"]["input"]>;
+  feeTokenAmount_gt?: InputMaybe<Scalars["BigInt"]["input"]>;
+  feeTokenAmount_gte?: InputMaybe<Scalars["BigInt"]["input"]>;
+  feeTokenAmount_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
+  feeTokenAmount_lt?: InputMaybe<Scalars["BigInt"]["input"]>;
+  feeTokenAmount_lte?: InputMaybe<Scalars["BigInt"]["input"]>;
+  feeTokenAmount_not?: InputMaybe<Scalars["BigInt"]["input"]>;
+  feeTokenAmount_not_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
+  feeToken_?: InputMaybe<FeeToken_Filter>;
+  feeToken_contains?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_contains_nocase?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_ends_with?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_ends_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_gt?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_gte?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_in?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  feeToken_lt?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_lte?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_not?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_not_contains?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_not_contains_nocase?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_not_ends_with?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_not_ends_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_not_in?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  feeToken_not_starts_with?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_not_starts_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_starts_with?: InputMaybe<Scalars["String"]["input"]>;
+  feeToken_starts_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
   id?: InputMaybe<Scalars["ID"]["input"]>;
   id_gt?: InputMaybe<Scalars["ID"]["input"]>;
   id_gte?: InputMaybe<Scalars["ID"]["input"]>;
@@ -3228,6 +3417,10 @@ export type TokenAndEthShift_Filter = {
   id_lte?: InputMaybe<Scalars["ID"]["input"]>;
   id_not?: InputMaybe<Scalars["ID"]["input"]>;
   id_not_in?: InputMaybe<Array<Scalars["ID"]["input"]>>;
+  isNativeCurrency?: InputMaybe<Scalars["Boolean"]["input"]>;
+  isNativeCurrency_in?: InputMaybe<Array<Scalars["Boolean"]["input"]>>;
+  isNativeCurrency_not?: InputMaybe<Scalars["Boolean"]["input"]>;
+  isNativeCurrency_not_in?: InputMaybe<Array<Scalars["Boolean"]["input"]>>;
   juror?: InputMaybe<Scalars["String"]["input"]>;
   juror_?: InputMaybe<User_Filter>;
   juror_contains?: InputMaybe<Scalars["String"]["input"]>;
@@ -3250,14 +3443,14 @@ export type TokenAndEthShift_Filter = {
   juror_starts_with?: InputMaybe<Scalars["String"]["input"]>;
   juror_starts_with_nocase?: InputMaybe<Scalars["String"]["input"]>;
   or?: InputMaybe<Array<InputMaybe<TokenAndEthShift_Filter>>>;
-  tokenAmount?: InputMaybe<Scalars["BigInt"]["input"]>;
-  tokenAmount_gt?: InputMaybe<Scalars["BigInt"]["input"]>;
-  tokenAmount_gte?: InputMaybe<Scalars["BigInt"]["input"]>;
-  tokenAmount_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
-  tokenAmount_lt?: InputMaybe<Scalars["BigInt"]["input"]>;
-  tokenAmount_lte?: InputMaybe<Scalars["BigInt"]["input"]>;
-  tokenAmount_not?: InputMaybe<Scalars["BigInt"]["input"]>;
-  tokenAmount_not_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
+  pnkAmount?: InputMaybe<Scalars["BigInt"]["input"]>;
+  pnkAmount_gt?: InputMaybe<Scalars["BigInt"]["input"]>;
+  pnkAmount_gte?: InputMaybe<Scalars["BigInt"]["input"]>;
+  pnkAmount_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
+  pnkAmount_lt?: InputMaybe<Scalars["BigInt"]["input"]>;
+  pnkAmount_lte?: InputMaybe<Scalars["BigInt"]["input"]>;
+  pnkAmount_not?: InputMaybe<Scalars["BigInt"]["input"]>;
+  pnkAmount_not_in?: InputMaybe<Array<Scalars["BigInt"]["input"]>>;
 };
 
 export enum TokenAndEthShift_OrderBy {
@@ -3271,7 +3464,16 @@ export enum TokenAndEthShift_OrderBy {
   DisputeRuled = "dispute__ruled",
   DisputeTied = "dispute__tied",
   EthAmount = "ethAmount",
+  FeeToken = "feeToken",
+  FeeTokenAmount = "feeTokenAmount",
+  FeeTokenAccepted = "feeToken__accepted",
+  FeeTokenId = "feeToken__id",
+  FeeTokenRateDecimals = "feeToken__rateDecimals",
+  FeeTokenRateInEth = "feeToken__rateInEth",
+  FeeTokenTotalPaid = "feeToken__totalPaid",
+  FeeTokenTotalPaidInEth = "feeToken__totalPaidInETH",
   Id = "id",
+  IsNativeCurrency = "isNativeCurrency",
   Juror = "juror",
   JurorActiveDisputes = "juror__activeDisputes",
   JurorId = "juror__id",
@@ -3280,7 +3482,7 @@ export enum TokenAndEthShift_OrderBy {
   JurorTotalDisputes = "juror__totalDisputes",
   JurorTotalResolvedDisputes = "juror__totalResolvedDisputes",
   JurorTotalStake = "juror__totalStake",
-  TokenAmount = "tokenAmount",
+  PnkAmount = "pnkAmount",
 }
 
 export type User = {
@@ -3798,7 +4000,7 @@ export type UserQuery = {
       __typename?: "JurorTokensPerCourt";
       court: { __typename?: "Court"; id: string; name?: string | null };
     }>;
-    shifts: Array<{ __typename?: "TokenAndETHShift"; tokenAmount: any; ethAmount: any }>;
+    shifts: Array<{ __typename?: "TokenAndETHShift"; pnkAmount: any; ethAmount: any }>;
   } | null;
 };
 
@@ -4512,7 +4714,7 @@ export const UserDocument = {
                   selectionSet: {
                     kind: "SelectionSet",
                     selections: [
-                      { kind: "Field", name: { kind: "Name", value: "tokenAmount" } },
+                      { kind: "Field", name: { kind: "Name", value: "pnkAmount" } },
                       { kind: "Field", name: { kind: "Name", value: "ethAmount" } },
                     ],
                   },

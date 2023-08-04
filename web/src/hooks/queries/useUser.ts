@@ -17,7 +17,7 @@ const userQuery = graphql(`
         }
       }
       shifts {
-        tokenAmount
+        pnkAmount
         ethAmount
       }
     }
@@ -27,7 +27,7 @@ const userQuery = graphql(`
 export const useUserQuery = (address?: string) => {
   const isEnabled = address !== undefined;
 
-  return useQuery({
+  return useQuery<UserQuery>({
     queryKey: [`userQuery${address}`],
     enabled: isEnabled,
     queryFn: async () => await graphqlQueryFnHelper(userQuery, { address }),
