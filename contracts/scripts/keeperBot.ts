@@ -487,16 +487,15 @@ async function main() {
           numberOfMissingJurors = await getMissingJurors(dispute);
         } while (!numberOfMissingJurors.eq(0) && !maxDrawingTimePassed);
       }
-
-      // ----------------------------------------------- //
-      //            BACK TO STAKING PHASE                //
-      // ----------------------------------------------- //
       // At this point, either all disputes are fully drawn or max drawing time has passed
-      let i = 0;
-      while (!(await isPhaseStaking()) && i++ < 3) {
-        await passPhase();
-      }
     }
+  }
+
+  // ----------------------------------------------- //
+  //            BACK TO STAKING PHASE                //
+  // ----------------------------------------------- //
+  for (let i = 0; i < 3 && !(await isPhaseStaking()); i++) {
+    await passPhase();
   }
 
   await sendHeartbeat();
