@@ -25,15 +25,15 @@ class CurrentRulingInfo {
   tied: boolean;
 }
 
-export function updateCountsAndGetCurrentRuling(id: string, choice: BigInt): CurrentRulingInfo {
+export function updateCountsAndGetCurrentRuling(id: string, choice: BigInt, choiceCount: BigInt): CurrentRulingInfo {
   const round = ClassicRound.load(id);
   if (!round) return { ruling: ZERO, tied: false };
   const choiceNum = choice.toI32();
-  const updatedCount = round.counts[choiceNum].plus(ONE);
+  const delta = choiceCount.minus(round.counts[choiceNum]);
   let newCounts: BigInt[] = [];
   for (let i = 0; i < round.counts.length; i++) {
     if (BigInt.fromI32(i).equals(choice)) {
-      newCounts.push(round.counts[i].plus(ONE));
+      newCounts.push(choiceCount);
     } else {
       newCounts.push(round.counts[i]);
     }
@@ -43,14 +43,14 @@ export function updateCountsAndGetCurrentRuling(id: string, choice: BigInt): Cur
   if (choice.equals(round.winningChoice)) {
     if (round.tied) round.tied = false;
   } else {
-    if (updatedCount.equals(currentWinningCount)) {
+    if (choiceCount.equals(currentWinningCount)) {
       if (!round.tied) round.tied = true;
-    } else if (updatedCount.gt(currentWinningCount)) {
+    } else if (choiceCount.gt(currentWinningCount)) {
       round.winningChoice = choice;
       round.tied = false;
     }
   }
-  round.totalVoted = round.totalVoted.plus(ONE);
+  round.totalVoted = round.totalVoted.plus(delta);
   round.save();
   return { ruling: round.winningChoice, tied: round.tied };
 }
