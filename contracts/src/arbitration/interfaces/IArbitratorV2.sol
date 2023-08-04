@@ -29,6 +29,12 @@ interface IArbitratorV2 {
     /// @param _accepted Whether the token is accepted or not.
     event AcceptedFeeToken(IERC20 indexed _token, bool indexed _accepted);
 
+    /// @dev To be emitted when the fee for a particular ERC20 token is updated.
+    /// @param _feeToken The ERC20 token.
+    /// @param _rateInEth The new rate of the fee token in ETH.
+    /// @param _rateDecimals The new decimals of the fee token rate.
+    event NewCurrencyRate(IERC20 indexed _feeToken, uint64 _rateInEth, uint8 _rateDecimals);
+
     /// @dev Create a dispute and pay for the fees in the native currency, typically ETH.
     ///      Must be called by the arbitrable contract.
     ///      Must pay at least arbitrationCost(_extraData).

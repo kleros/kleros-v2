@@ -472,6 +472,7 @@ contract KlerosCore is IArbitratorV2 {
         CurrencyRate storage rate = currencyRates[_feeToken];
         rate.rateInEth = _rateInEth;
         rate.rateDecimals = _rateDecimals;
+        emit NewCurrencyRate(_feeToken, _rateInEth, _rateDecimals);
     }
 
     // ************************************* //
