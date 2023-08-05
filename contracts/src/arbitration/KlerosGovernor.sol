@@ -8,6 +8,7 @@
 pragma solidity 0.8.18;
 
 import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitrableV2.sol";
+import "./interfaces/IDisputeTemplateRegistry.sol";
 import "../libraries/CappedMath.sol";
 
 /// @title KlerosGovernor for V2. Note that appeal functionality and evidence submission will be handled by the court.
@@ -53,7 +54,8 @@ contract KlerosGovernor is IArbitrableV2 {
 
     IArbitratorV2 public arbitrator; // Arbitrator contract.
     bytes public arbitratorExtraData; // Extra data for arbitrator.
-    uint256 public disputeTemplates; // The number of dispute templates created.
+    IDisputeTemplateRegistry public templateRegistry; // The dispute template registry.
+    uint256 public templateId; // The current dispute template identifier.
 
     uint256 public submissionBaseDeposit; // The base deposit in wei that needs to be paid in order to submit the list.
     uint256 public submissionTimeout; // Time in seconds allowed for submitting the lists. Once it's passed the contract enters the approval period.
@@ -138,8 +140,12 @@ contract KlerosGovernor is IArbitrableV2 {
         withdrawTimeout = _withdrawTimeout;
         sessions.push();
 
-        emit DisputeTemplate(disputeTemplates++, "", _templateData);
+        templateId = templateRegistry.setDisputeTemplate("", _templateData);
     }
+
+    // ************************************* //
+    // *             Governance            * //
+    // ************************************* //
 
     /// @dev Changes the value of the base deposit required for submitting a list.
     /// @param _submissionBaseDeposit The new value of the base deposit, in wei.
@@ -180,8 +186,12 @@ contract KlerosGovernor is IArbitrableV2 {
     /// @dev Update the dispute template data.
     /// @param _templateData The new dispute template data.
     function changeDisputeTemplate(string memory _templateData) external onlyByGovernor {
-        emit DisputeTemplate(disputeTemplates++, "", _templateData);
+        templateId = templateRegistry.setDisputeTemplate("", _templateData);
     }
+
+    // ************************************* //
+    // *         State Modifiers           * //
+    // ************************************* //
 
     /// @dev Creates transaction list based on input parameters and submits it for potential approval and execution.
     /// Transactions must be ordered by their hash.
@@ -294,7 +304,7 @@ contract KlerosGovernor is IArbitrableV2 {
             session.sumDeposit = session.sumDeposit.subCap(arbitrationCost);
 
             reservedETH = reservedETH.subCap(arbitrationCost);
-            emit DisputeRequest(arbitrator, session.disputeID, sessions.length - 1, disputeTemplates, "");
+            emit DisputeRequest(arbitrator, session.disputeID, sessions.length - 1, templateId, "");
         }
     }
 

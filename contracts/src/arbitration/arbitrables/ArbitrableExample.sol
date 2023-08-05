@@ -33,6 +33,15 @@ contract ArbitrableExample is IArbitrableV2 {
     DisputeStruct[] public disputes; // Stores the disputes' info. disputes[disputeID].
 
     // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
+
+    modifier onlyByGovernor() {
+        require(address(this) == msg.sender, "Only the governor allowed.");
+        _;
+    }
+
+    // ************************************* //
     // *            Constructor            * //
     // ************************************* //
 
@@ -60,23 +69,19 @@ contract ArbitrableExample is IArbitrableV2 {
     // *             Governance            * //
     // ************************************* //
 
-    function changeArbitrator(IArbitratorV2 _arbitrator) external {
-        require(msg.sender == governor, "Not authorized: governor only.");
+    function changeArbitrator(IArbitratorV2 _arbitrator) external onlyByGovernor {
         arbitrator = _arbitrator;
     }
 
-    function changeArbitratorExtraData(bytes calldata _arbitratorExtraData) external {
-        require(msg.sender == governor, "Not authorized: governor only.");
+    function changeArbitratorExtraData(bytes calldata _arbitratorExtraData) external onlyByGovernor {
         arbitratorExtraData = _arbitratorExtraData;
     }
 
-    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external onlyByGovernor {
         templateRegistry = _templateRegistry;
     }
 
-    function changeDisputeTemplate(string memory _templateData) external {
-        require(msg.sender == governor, "Not authorized: governor only.");
+    function changeDisputeTemplate(string memory _templateData) external onlyByGovernor {
         templateId = templateRegistry.setDisputeTemplate("", _templateData);
     }
 
