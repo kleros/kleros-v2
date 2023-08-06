@@ -121,9 +121,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await execute("KlerosCore", { from: deployer, log: true }, "changeCurrencyRates", dai, 60327783, 11);
   await execute("KlerosCore", { from: deployer, log: true }, "changeCurrencyRates", weth, 1, 1);
 
+  const disputeTemplateRegistry = await deploy("DisputeTemplateRegistry", {
+    from: deployer,
+    args: [],
+    log: true,
+  });
+
   await deploy("DisputeResolver", {
     from: deployer,
-    args: [klerosCore.address],
+    args: [klerosCore.address, disputeTemplateRegistry.address],
     log: true,
   });
 };

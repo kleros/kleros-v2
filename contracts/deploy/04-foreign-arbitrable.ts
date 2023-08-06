@@ -31,10 +31,11 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
 
   const extraData =
     "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
+  const disputeTemplateRegistry = await deployments.get("DisputeTemplateRegistry");
   const weth = await deployments.get("WETH");
   await deploy("ArbitrableExample", {
     from: deployer,
-    args: [foreignGateway.address, disputeTemplate, extraData, weth.address],
+    args: [foreignGateway.address, disputeTemplate, extraData, disputeTemplateRegistry.address, weth.address],
     log: true,
   });
 };
