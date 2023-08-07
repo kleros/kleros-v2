@@ -54,21 +54,24 @@ const Header = styled.h1`
   display: flex;
   margin-top: calc(12px + (32 - 12) * ((100vw - 300px) / (1250 - 300)));
   margin-bottom: calc(12px + (24 - 12) * ((100vw - 300px) / (1250 - 300)));
+  margin-left: calc(8px + (12 - 8) * ((100vw - 300px) / (1250 - 300)));
+  margin-right: calc(8px + (12 - 8) * ((100vw - 300px) / (1250 - 300)));
+  text-align: center;
   font-size: 24px;
   font-weight: 600;
   line-height: 32.68px;
 `;
 
 const IconContainer = styled.div`
-  width: calc(150px + (350 - 150) * (100vw - 375px) / (1250 - 375));
+  width: calc(150px + (228 - 150) * (100vw - 375px) / (1250 - 375));
   display: flex;
   align-items: center;
   justify-content: center;
 
   svg {
     display: inline-block;
-    width: calc(150px + (350 - 150) * (100vw - 375px) / (1250 - 375));
-    height: calc(150px + (350 - 150) * (100vw - 375px) / (1250 - 375));
+    width: calc(150px + (228 - 150) * (100vw - 375px) / (1250 - 375));
+    height: calc(150px + (228 - 150) * (100vw - 375px) / (1250 - 375));
   }
 `;
 
@@ -97,6 +100,24 @@ const Container = styled.div`
   svg {
     visibility: visible;
   }
+`;
+
+const VoteDescriptionContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: calc(16px + (32 - 16) * ((100vw - 300px) / (1250 - 300)));
+  margin-left: calc(8px + (32 - 8) * ((100vw - 300px) / (1250 - 300)));
+  margin-right: calc(8px + (32 - 8) * ((100vw - 300px) / (1250 - 300)));
+  color: ${({ theme }) => theme.secondaryText};
+  text-align: center;
+  line-height: 21.8px;
+`;
+
+export const VoteDescriptionEmphasizedDate = styled.span`
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 21.8px;
+  color: ${({ theme }) => theme.primaryText};
 `;
 
 const Popup: React.FC<PopupProps & IPopup> = ({
@@ -128,12 +149,20 @@ const Popup: React.FC<PopupProps & IPopup> = ({
     }
     case PopupType.VOTE_WITHOUT_COMMIT: {
       const { date } = props as IVoteWithoutCommit;
-      PopupComponent = <VoteWithoutCommit date={date} />;
+      PopupComponent = (
+        <VoteDescriptionContainer>
+          <VoteWithoutCommit date={date} />
+        </VoteDescriptionContainer>
+      );
       break;
     }
     case PopupType.VOTE_WITH_COMMIT: {
       const { date } = props as IVoteWithCommit;
-      PopupComponent = <VoteWithCommit date={date} />;
+      PopupComponent = (
+        <VoteDescriptionContainer>
+          <VoteWithCommit date={date} />
+        </VoteDescriptionContainer>
+      );
       break;
     }
     case PopupType.APPEAL: {
