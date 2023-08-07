@@ -37,7 +37,9 @@ jobs:
           disable-sudo: true
           egress-policy: block
           allowed-endpoints: >
-            api.github.com:443 
+            api.github.com:443
+            api.github.com/repos/google/oss-fuzz:443
+            oss-fuzz-build-logs.storage.googleapis.com:443
             api.securityscorecards.dev:443
             api.osv.dev:443 
             auth.docker.io:443 

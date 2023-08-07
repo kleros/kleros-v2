@@ -11,6 +11,7 @@ pragma solidity 0.8.18;
 
 // TODO: standard interfaces should be placed in a separated repo (?)
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
+import "../interfaces/IDisputeTemplateRegistry.sol";
 import "../../libraries/CappedMath.sol";
 
 /// @title Implementation of the Evidence Standard with Moderated Submissions
@@ -61,6 +62,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     ArbitratorData[] public arbitratorDataList; // Stores the arbitrator data of the contract. Updated each time the data is changed.
     IArbitratorV2 public immutable arbitrator; // The trusted arbitrator to resolve potential disputes. If it needs to be changed, a new contract can be deployed.
     address public governor; // The address that can make governance changes to the parameters of the contract.
+    IDisputeTemplateRegistry public templateRegistry; // The dispute template registry.
     uint256 public bondTimeout; // The time in seconds during which the last moderation status can be challenged.
     uint256 public totalCostMultiplier; // Multiplier of arbitration fees that must be ultimately paid as fee stake. In basis points.
     uint256 public initialDepositMultiplier; // Multiplier of arbitration fees that must be paid as initial stake for submitting evidence. In basis points.
@@ -110,6 +112,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     constructor(
         IArbitratorV2 _arbitrator,
         address _governor,
+        IDisputeTemplateRegistry _templateRegistry,
         uint256 _totalCostMultiplier,
         uint256 _initialDepositMultiplier,
         uint256 _bondTimeout,
@@ -118,6 +121,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     ) {
         arbitrator = _arbitrator;
         governor = _governor;
+        templateRegistry = _templateRegistry;
 
         totalCostMultiplier = _totalCostMultiplier; // For example 15000, which would provide a 100% reward to the dispute winner.
         initialDepositMultiplier = _initialDepositMultiplier; // For example 63, which equals 1/16.
@@ -125,7 +129,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
 
         ArbitratorData storage arbitratorData = arbitratorDataList.push();
         arbitratorData.arbitratorExtraData = _arbitratorExtraData;
-        emit DisputeTemplate(arbitratorData.disputeTemplateId, "", _templateData);
+        arbitratorData.disputeTemplateId = templateRegistry.setDisputeTemplate("", _templateData);
     }
 
     // ************************************* //
@@ -161,14 +165,13 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     /// @param _templateData The new dispute template data.
     function changeDisputeTemplate(string calldata _templateData) external onlyGovernor {
         ArbitratorData storage arbitratorData = arbitratorDataList[arbitratorDataList.length - 1];
-        uint256 newDisputeTemplateId = arbitratorData.disputeTemplateId + 1;
+        uint256 newDisputeTemplateId = templateRegistry.setDisputeTemplate("", _templateData);
         arbitratorDataList.push(
             ArbitratorData({
                 disputeTemplateId: newDisputeTemplateId,
                 arbitratorExtraData: arbitratorData.arbitratorExtraData
             })
         );
-        emit DisputeTemplate(newDisputeTemplateId, "", _templateData);
     }
 
     /// @dev Change the arbitrator to be used for disputes that may be raised in the next requests. The arbitrator is trusted to support appeal period and not reenter.

@@ -36,6 +36,7 @@ describe("Home Evidence contract", async () => {
 
   let arbitrator;
   let evidenceModule;
+  let disputeTemplateRegistry;
 
   beforeEach("Setup contracts", async () => {
     [deployer, user1, user2, user3, user4] = await ethers.getSigners();
@@ -43,10 +44,14 @@ describe("Home Evidence contract", async () => {
     const Arbitrator = await ethers.getContractFactory("CentralizedArbitrator");
     arbitrator = await Arbitrator.deploy(String(arbitrationFee), appealTimeout, String(appealFee));
 
+    const DisputeTemplateRegistry = await ethers.getContractFactory("DisputeTemplateRegistry");
+    disputeTemplateRegistry = await DisputeTemplateRegistry.deploy();
+
     const EvidenceModule = await ethers.getContractFactory("ModeratedEvidenceModule");
     evidenceModule = await EvidenceModule.deploy(
       arbitrator.address,
       deployer.address, // governor
+      disputeTemplateRegistry.address,
       totalCostMultiplier,
       initialDepositMultiplier,
       bondTimeout,
@@ -80,7 +85,12 @@ describe("Home Evidence contract", async () => {
 
       expect(newArbitratorData.disputeTemplateId).to.equal(oldArbitratorData.disputeTemplateId.add(BigNumber.from(1)));
       expect(newArbitratorData.arbitratorExtraData).to.equal(oldArbitratorData.arbitratorExtraData);
-      const [_templateId, _, _templateData] = getEmittedEvent("DisputeTemplate", receipt).args;
+      const disputeTemplateEvents = await disputeTemplateRegistry.queryFilter(
+        disputeTemplateRegistry.filters.DisputeTemplate(),
+        receipt.blockNumber,
+        receipt.blockNumber
+      );
+      const [_templateId, _, _templateData] = disputeTemplateEvents[0].args;
       expect(_templateData).to.equal(newDisputeTemplate, "Wrong Template Data.");
       expect(_templateId).to.equal(newArbitratorData.disputeTemplateId, "Wrong Template ID.");
 

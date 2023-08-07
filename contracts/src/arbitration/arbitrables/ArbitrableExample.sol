@@ -3,6 +3,7 @@
 pragma solidity 0.8.18;
 
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
+import "../interfaces/IDisputeTemplateRegistry.sol";
 import "../../libraries/SafeERC20.sol";
 
 /// @title ArbitrableExample
@@ -24,11 +25,21 @@ contract ArbitrableExample is IArbitrableV2 {
 
     address public immutable governor;
     IArbitratorV2 public arbitrator; // Arbitrator is set in constructor.
-    uint256 public disputeTemplates; // The number of dispute templates created.
+    IDisputeTemplateRegistry public templateRegistry; // The dispute template registry.
+    uint256 public templateId; // The current dispute template identifier.
     bytes public arbitratorExtraData; // Extra data to set up the arbitration.
     IERC20 public immutable weth; // The WETH token.
     mapping(uint256 => uint256) public externalIDtoLocalID; // Maps external (arbitrator side) dispute IDs to local dispute IDs.
     DisputeStruct[] public disputes; // Stores the disputes' info. disputes[disputeID].
+
+    // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
+
+    modifier onlyByGovernor() {
+        require(address(this) == msg.sender, "Only the governor allowed.");
+        _;
+    }
 
     // ************************************* //
     // *            Constructor            * //
@@ -42,32 +53,36 @@ contract ArbitrableExample is IArbitrableV2 {
         IArbitratorV2 _arbitrator,
         string memory _templateData,
         bytes memory _arbitratorExtraData,
+        IDisputeTemplateRegistry _templateRegistry,
         IERC20 _weth
     ) {
         governor = msg.sender;
         arbitrator = _arbitrator;
         arbitratorExtraData = _arbitratorExtraData;
+        templateRegistry = _templateRegistry;
         weth = _weth;
-        emit DisputeTemplate(disputeTemplates++, "", _templateData);
+
+        templateId = templateRegistry.setDisputeTemplate("", _templateData);
     }
 
     // ************************************* //
     // *             Governance            * //
     // ************************************* //
 
-    function changeDisputeTemplate(string memory _templateData) external {
-        require(msg.sender == governor, "Not authorized: governor only.");
-        emit DisputeTemplate(disputeTemplates++, "", _templateData);
-    }
-
-    function changeArbitrator(IArbitratorV2 _arbitrator) external {
-        require(msg.sender == governor, "Not authorized: governor only.");
+    function changeArbitrator(IArbitratorV2 _arbitrator) external onlyByGovernor {
         arbitrator = _arbitrator;
     }
 
-    function changeArbitratorExtraData(bytes calldata _arbitratorExtraData) external {
-        require(msg.sender == governor, "Not authorized: governor only.");
+    function changeArbitratorExtraData(bytes calldata _arbitratorExtraData) external onlyByGovernor {
         arbitratorExtraData = _arbitratorExtraData;
+    }
+
+    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external onlyByGovernor {
+        templateRegistry = _templateRegistry;
+    }
+
+    function changeDisputeTemplate(string memory _templateData) external onlyByGovernor {
+        templateId = templateRegistry.setDisputeTemplate("", _templateData);
     }
 
     // ************************************* //
@@ -89,7 +104,7 @@ contract ArbitrableExample is IArbitrableV2 {
         externalIDtoLocalID[disputeID] = localDisputeID;
 
         uint256 externalDisputeID = uint256(keccak256(abi.encodePacked(_action)));
-        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, disputeTemplates - 1, "");
+        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, templateId, "");
     }
 
     /// @dev Calls createDispute function of the specified arbitrator to create a dispute.
@@ -111,7 +126,7 @@ contract ArbitrableExample is IArbitrableV2 {
         externalIDtoLocalID[disputeID] = localDisputeID;
 
         uint256 externalDisputeID = uint256(keccak256(abi.encodePacked(_action)));
-        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, disputeTemplates - 1, "");
+        emit DisputeRequest(arbitrator, disputeID, externalDisputeID, templateId, "");
     }
 
     /// @dev To be called by the arbitrator of the dispute, to declare the winning ruling.
