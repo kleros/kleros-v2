@@ -78,10 +78,25 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
     // *              Events               * //
     // ************************************* //
 
+    /// @dev To be emitted when a dispute is created.
+    /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
+    /// @param _numberOfChoices The number of choices available in the dispute.
+    /// @param _extraData The extra data for the dispute.
     event DisputeCreation(uint256 indexed _coreDisputeID, uint256 _numberOfChoices, bytes _extraData);
 
-    event CommitCast(uint256 indexed _coreDisputeID, uint256[] _voteIDs, bytes32 _commit);
+    /// @dev To be emitted when a vote commitment is cast.
+    /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
+    /// @param _juror The address of the juror casting the vote commitment.
+    /// @param _voteIDs The identifiers of the votes in the dispute.
+    /// @param _commit The commitment of the juror.
+    event CommitCast(uint256 indexed _coreDisputeID, address indexed _juror, uint256[] _voteIDs, bytes32 _commit);
 
+    /// @dev To be emitted when a funding contribution is made.
+    /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
+    /// @param _coreRoundID The identifier of the round in the Arbitrator contract.
+    /// @param _choice The choice that is being funded.
+    /// @param _contributor The address of the contributor.
+    /// @param _amount The amount contributed.
     event Contribution(
         uint256 indexed _coreDisputeID,
         uint256 indexed _coreRoundID,
@@ -90,6 +105,12 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         uint256 _amount
     );
 
+    /// @dev To be emitted when the contributed funds are withdrawn.
+    /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
+    /// @param _coreRoundID The identifier of the round in the Arbitrator contract.
+    /// @param _choice The choice that is being funded.
+    /// @param _contributor The address of the contributor.
+    /// @param _amount The amount withdrawn.
     event Withdrawal(
         uint256 indexed _coreDisputeID,
         uint256 indexed _coreRoundID,
@@ -98,6 +119,10 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
         uint256 _amount
     );
 
+    /// @dev To be emitted when a choice is fully funded for an appeal.
+    /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
+    /// @param _coreRoundID The identifier of the round in the Arbitrator contract.
+    /// @param _choice The choice that is being funded.
     event ChoiceFunded(uint256 indexed _coreDisputeID, uint256 indexed _coreRoundID, uint256 indexed _choice);
 
     // ************************************* //
@@ -220,7 +245,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
             round.votes[_voteIDs[i]].commit = _commit;
         }
         round.totalCommitted += _voteIDs.length;
-        emit CommitCast(_coreDisputeID, _voteIDs, _commit);
+        emit CommitCast(_coreDisputeID, msg.sender, _voteIDs, _commit);
     }
 
     /// @dev Sets the caller's choices for the specified votes.
@@ -278,7 +303,7 @@ contract DisputeKitSybilResistant is BaseDisputeKit, IEvidence {
                 round.tied = false;
             }
         }
-        emit Justification(_coreDisputeID, msg.sender, _choice, _justification);
+        emit VoteCast(_coreDisputeID, msg.sender, _voteIDs, _choice, _justification);
     }
 
     /// @dev Manages contributions, and appeals a dispute if at least two choices are fully funded.

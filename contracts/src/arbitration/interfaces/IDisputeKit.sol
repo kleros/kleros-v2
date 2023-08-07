@@ -19,13 +19,15 @@ interface IDisputeKit {
     // ************************************ //
 
     /// @dev Emitted when casting a vote to provide the justification of juror's choice.
-    /// @param _coreDisputeID ID of the dispute in the core contract.
+    /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _juror Address of the juror.
+    /// @param _voteIDs The identifiers of the votes in the dispute.
     /// @param _choice The choice juror voted for.
     /// @param _justification Justification of the choice.
-    event Justification(
+    event VoteCast(
         uint256 indexed _coreDisputeID,
         address indexed _juror,
+        uint256[] _voteIDs,
         uint256 indexed _choice,
         string _justification
     );

@@ -18,6 +18,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   console.log("Deploying to chainId %s with deployer %s", HARDHAT_NETWORK, deployer);
 
   const klerosCore = await deployments.get("KlerosCore");
+  const disputeTemplateRegistry = await deployments.get("DisputeTemplateRegistry");
 
   const vea = await deploy("VeaMock", {
     from: deployer,
@@ -67,7 +68,13 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const extraData = "0x00";
   await deploy("ArbitrableExample", {
     from: deployer,
-    args: [foreignGateway.address, disputeTemplate, extraData, ethers.constants.AddressZero],
+    args: [
+      foreignGateway.address,
+      disputeTemplate,
+      extraData,
+      disputeTemplateRegistry.address,
+      ethers.constants.AddressZero,
+    ],
     log: true,
   });
 };

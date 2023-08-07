@@ -16,6 +16,8 @@ interface IForeignGateway is IArbitratorV2, IReceiverGateway {
     /// @param _foreignBlockHash foreignBlockHash
     /// @param _foreignArbitrable The address of the Arbitrable contract.
     /// @param _foreignDisputeID The identifier of the dispute in the Arbitrable contract.
+    /// @param _choices The number of choices the arbitrator can choose from in this dispute.
+    /// @param _extraData Any extra data to attach.
     event CrossChainDisputeOutgoing(
         bytes32 _foreignBlockHash,
         address indexed _foreignArbitrable,

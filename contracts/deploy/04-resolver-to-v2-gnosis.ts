@@ -20,10 +20,11 @@ const deployResolver: DeployFunction = async (hre: HardhatRuntimeEnvironment) =>
   console.log("Deploying to chainId %s with deployer %s", chainId, deployer);
 
   const foreignGateway = await deployments.get("ForeignGatewayOnGnosis");
+  const disputeTemplateRegistry = await deployments.get("DisputeTemplateRegistry");
 
   await deploy("DisputeResolver", {
     from: deployer,
-    args: [foreignGateway.address],
+    args: [foreignGateway.address, disputeTemplateRegistry.address],
     log: true,
     maxFeePerGas: ONE_GWEI,
     maxPriorityFeePerGas: ONE_GWEI,

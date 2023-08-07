@@ -10,6 +10,7 @@ rng2 = await ethers.getContract("BlockHashRNG");
 gateway = await ethers.getContract("HomeGatewayToGnosis");
 sender = await ethers.getContract("VeaOutboxArbToGnosisDevnet");
 resolver = await ethers.getContract("DisputeResolver");
+faucet = await ethers.getContract("PNKFaucet");
 options = { gasLimit: 10000000, gasPrice: 5000000000 };
 var disputeID = 0;
 
