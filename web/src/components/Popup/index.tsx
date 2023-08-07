@@ -8,7 +8,6 @@ import VoteWithoutCommit from "./Description/VoteWithoutCommit";
 import Appeal from "./Description/Appeal";
 import VoteWithCommitExtraInfo from "./ExtraInfo/VoteWithCommitExtraInfo";
 import StakeWithdrawExtraInfo from "./ExtraInfo/StakeWithdrawExtraInfo";
-import { useFocusOutside } from "hooks/useFocusOutside";
 
 export enum PopupType {
   STAKE_WITHDRAW = "STAKE_WITHDRAW",
@@ -131,7 +130,6 @@ const Popup: React.FC<PopupProps & IPopup> = ({
   ...props
 }) => {
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => setIsOpen(false));
 
   const resetValue = () => {
     if (setAmount) {
