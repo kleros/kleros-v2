@@ -52,10 +52,10 @@ type PopupProps = IStakeWithdraw | IVoteWithoutCommit | IVoteWithCommit | IAppea
 
 const Header = styled.h1`
   display: flex;
-  margin-top: calc(12px + (32 - 12) * ((100vw - 300px) / (1250 - 300)));
-  margin-bottom: calc(12px + (24 - 12) * ((100vw - 300px) / (1250 - 300)));
-  margin-left: calc(8px + (12 - 8) * ((100vw - 300px) / (1250 - 300)));
-  margin-right: calc(8px + (12 - 8) * ((100vw - 300px) / (1250 - 300)));
+  margin-top: calc(12px + (32 - 12) * ((100vw - 375px) / (1250 - 375)));
+  margin-bottom: calc(12px + (24 - 12) * ((100vw - 375px) / (1250 - 375)));
+  margin-left: calc(8px + (12 - 8) * ((100vw - 375px) / (1250 - 375)));
+  margin-right: calc(8px + (12 - 8) * ((100vw - 375px) / (1250 - 375)));
   text-align: center;
   font-size: 24px;
   font-weight: 600;
@@ -76,7 +76,7 @@ const IconContainer = styled.div`
 `;
 
 const StyledButton = styled(Button)`
-  margin: calc(16px + (32 - 16) * ((100vw - 300px) / (1250 - 300)));
+  margin: calc(16px + (32 - 16) * ((100vw - 375px) / (1250 - 375)));
 `;
 
 const Container = styled.div`
@@ -105,9 +105,9 @@ const Container = styled.div`
 const VoteDescriptionContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: calc(16px + (32 - 16) * ((100vw - 300px) / (1250 - 300)));
-  margin-left: calc(8px + (32 - 8) * ((100vw - 300px) / (1250 - 300)));
-  margin-right: calc(8px + (32 - 8) * ((100vw - 300px) / (1250 - 300)));
+  margin-bottom: calc(16px + (32 - 16) * ((100vw - 375px) / (1250 - 375)));
+  margin-left: calc(8px + (32 - 8) * ((100vw - 375px) / (1250 - 375)));
+  margin-right: calc(8px + (32 - 8) * ((100vw - 375px) / (1250 - 375)));
   color: ${({ theme }) => theme.secondaryText};
   text-align: center;
   line-height: 21.8px;
