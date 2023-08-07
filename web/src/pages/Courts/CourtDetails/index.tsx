@@ -56,7 +56,7 @@ const CourtDetails: React.FC = () => {
           {chain?.id === DEFAULT_CHAIN && !claimed && (
             <Button
               variant="primary"
-              text="Claim PNK"
+              text={!claimed ? "Claim PNK" : "Already claimed"}
               onClick={handleRequest}
               isLoading={isSending}
               disabled={isSending || claimed}
