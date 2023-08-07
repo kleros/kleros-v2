@@ -99,9 +99,15 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const handleStake = () => {
     if (typeof setStake !== "undefined") {
       setIsSending(true);
-      wrapWithToast(async () => await setStake().then((response) => response.hash), publicClient).finally(() => {
+      wrapWithToast(
+        async () =>
+          await setStake().then((response) => {
+            setIsPopupOpen(true);
+            return response.hash;
+          }),
+        publicClient
+      ).finally(() => {
         setIsSending(false);
-        setIsPopupOpen(true);
       });
     }
   };
