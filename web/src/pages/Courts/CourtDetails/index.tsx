@@ -3,15 +3,17 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useAccount, useNetwork, useWalletClient, usePublicClient } from "wagmi";
 import { Card, Breadcrumb, Button } from "@kleros/ui-components-library";
+import { formatEther } from "viem";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
 import { DEFAULT_CHAIN } from "consts/chains";
+import { PNK_FAUCET_CONTRACT_ADDRESS } from "consts/index";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
 import Stats from "./Stats";
 import Description from "./Description";
 import StakePanel from "./StakePanel";
-import { usePnkFaucetWithdrewAlready, prepareWritePnkFaucet } from "hooks/contracts/generated";
+import { usePnkFaucetWithdrewAlready, prepareWritePnkFaucet, usePnkBalanceOf } from "hooks/contracts/generated";
 
 const CourtDetails: React.FC = () => {
   const { id } = useParams();
@@ -23,6 +25,11 @@ const CourtDetails: React.FC = () => {
   const { data: claimed } = usePnkFaucetWithdrewAlready({
     enabled: !isUndefined(address),
     args: [address],
+    watch: true,
+  });
+
+  const { data: balance } = usePnkBalanceOf({
+    args: [PNK_FAUCET_CONTRACT_ADDRESS],
     watch: true,
   });
   const { data: walletClient } = useWalletClient();
@@ -39,7 +46,7 @@ const CourtDetails: React.FC = () => {
       });
     }
   };
-
+  const faucetCheck = !isUndefined(balance) && parseInt(formatEther(balance)) > 200;
   const courtPath = getCourtsPath(data?.court, id);
 
   const items = courtPath?.map((node) => ({
@@ -56,10 +63,10 @@ const CourtDetails: React.FC = () => {
           {chain?.id === DEFAULT_CHAIN && !claimed && (
             <Button
               variant="primary"
-              text={!claimed ? "Claim PNK" : "Already claimed"}
+              text={faucetCheck ? "Claim PNK" : "Empty Faucet"}
               onClick={handleRequest}
               isLoading={isSending}
-              disabled={isSending || claimed}
+              disabled={isSending || claimed || !faucetCheck}
             />
           )}
         </ButtonContainer>
@@ -79,6 +86,7 @@ const Container = styled.div``;
 
 const ButtonContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
 `;
 
