@@ -82,10 +82,10 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
 
           const eventDate = getCaseEventTimes(lastPeriodChange, currentPeriodIndex, courtTimePeriods, false);
           const icon = dispute.ruled && !rulingOverride && index === localRounds.length - 1 ? ClosedCaseIcon : "";
-          const answer = disputeTemplate?.answers;
+          const answers = disputeTemplate?.answers;
           acc.push({
             title: `Jury Decision - Round ${index + 1}`,
-            party: getVoteChoice(parsedRoundChoice, answer),
+            party: getVoteChoice(parsedRoundChoice, answers),
             subtitle: eventDate,
             rightSided: true,
             variant: theme.secondaryPurple,
@@ -103,10 +103,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
           } else if (rulingOverride && parsedDisputeFinalRuling !== parsedRoundChoice) {
             acc.push({
               title: "Won by Appeal",
-              party:
-                parsedDisputeFinalRuling !== 0
-                  ? disputeTemplate?.answers?.[parsedDisputeFinalRuling - 1].title
-                  : "Refuse to Arbitrate",
+              party: getVoteChoice(parsedDisputeFinalRuling, answers),
               subtitle: eventDate,
               rightSided: true,
               Icon: ClosedCaseIcon,
