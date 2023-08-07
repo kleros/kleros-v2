@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Card as _Card } from "@kleros/ui-components-library";
 import Coherency from "./Coherency";
 import JurorRewards from "./JurorRewards";
+import Header from "./Header";
 // import StakingRewards from "./StakingRewards";
 
 const Container = styled.div``;
@@ -24,7 +25,8 @@ const Layout = styled.div`
 const JurorInfo: React.FC = () => {
   return (
     <Container>
-      <h1>Juror Dashboard</h1>
+      {/* <h1>Juror Dashboard</h1> */}
+      <Header />
       <Card>
         <Layout>
           <Coherency />

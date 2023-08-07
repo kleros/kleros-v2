@@ -7,5 +7,6 @@
   "solidity-language-server.trace.server.verbosity": "message",
   "eslint.packageManager": "yarn",
   "prettier.useEditorConfig": true,
-  "prettier.configPath": "prettier-config/.prettierrc.js"
+  "prettier.configPath": "prettier-config/.prettierrc.js",
+  "svg.preview.background": "custom"
 }

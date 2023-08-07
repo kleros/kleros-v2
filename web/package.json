@@ -64,6 +64,7 @@
     "@filebase/client": "^0.0.4",
     "@kleros/kleros-v2-contracts": "workspace:^",
     "@kleros/ui-components-library": "^2.6.1",
+    "@lens-protocol/widgets-react": "^0.0.31",
     "@sentry/react": "^7.55.2",
     "@sentry/tracing": "^7.55.2",
     "@tanstack/react-query": "^4.28.0",
