@@ -4,13 +4,13 @@ import styled, { useTheme } from "styled-components";
 import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 import { ClassicRound } from "src/graphql/graphql";
+import { getVoteChoice } from "pages/Cases/CaseDetails/Voting/VotingHistory";
 import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useVotingHistory } from "queries/useVotingHistory";
 import CalendarIcon from "assets/svgs/icons/calendar.svg";
 import ClosedCaseIcon from "assets/svgs/icons/check-circle-outline.svg";
 import AppealedCaseIcon from "assets/svgs/icons/close-circle.svg";
-import { isUndefined } from "utils/index";
 
 const Container = styled.div`
   display: flex;
@@ -42,16 +42,6 @@ const StyledCalendarIcon = styled(CalendarIcon)`
   width: 14px;
   height: 14px;
 `;
-
-const getChoiceText = (parsedRoundChoice, answer) => {
-  if (parsedRoundChoice === 0) {
-    return "Refuse to Arbitrate";
-  } else if (!isUndefined(answer)) {
-    return answer;
-  } else {
-    return `Answer 0x${parsedRoundChoice}`;
-  }
-};
 
 const getCaseEventTimes = (
   lastPeriodChange: string,
@@ -92,10 +82,10 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
 
           const eventDate = getCaseEventTimes(lastPeriodChange, currentPeriodIndex, courtTimePeriods, false);
           const icon = dispute.ruled && !rulingOverride && index === localRounds.length - 1 ? ClosedCaseIcon : "";
-          const answer = disputeTemplate?.answers?.[parsedRoundChoice - 1]?.title;
+          const answer = disputeTemplate?.answers;
           acc.push({
             title: `Jury Decision - Round ${index + 1}`,
-            party: getChoiceText(parsedRoundChoice, answer),
+            party: getVoteChoice(parsedRoundChoice, answer),
             subtitle: eventDate,
             rightSided: true,
             variant: theme.secondaryPurple,

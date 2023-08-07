@@ -8,6 +8,7 @@ import BalanceIcon from "svgs/icons/law-balance.svg";
 import { useVotingHistory } from "queries/useVotingHistory";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { shortenAddress } from "utils/shortenAddress";
+import { isUndefined } from "utils/index";
 
 const Container = styled.div``;
 
@@ -86,12 +87,12 @@ const JustificationContainer = styled.div`
   }
 `;
 
-const getVoteChoice = (vote: string, answers) => {
-  const parsedChoice = parseInt(vote);
-  if (parsedChoice === 0) {
+export const getVoteChoice = (vote, answers) => {
+  const selectedAnswer = answers?.[vote - 1]?.title;
+  if (vote === 0) {
     return "Refuse to arbitrate";
-  } else if (answers.length > 0) {
-    return answers[parsedChoice - 1]?.title || `Answer 0x${vote}`;
+  } else if (!isUndefined(selectedAnswer)) {
+    return selectedAnswer;
   } else {
     return `Answer 0x${vote}`;
   }
@@ -141,7 +142,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
                 icon: <Identicon size="20" string={vote.juror.id} />,
                 body: (
                   <AccordionContent
-                    choice={getVoteChoice(vote.choice, answers)}
+                    choice={getVoteChoice(parseInt(vote.choice), answers)}
                     justification={vote.justification || ""}
                   />
                 ),
