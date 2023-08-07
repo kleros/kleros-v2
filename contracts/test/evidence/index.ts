@@ -56,7 +56,8 @@ describe("Home Evidence contract", async () => {
       initialDepositMultiplier,
       bondTimeout,
       arbitratorExtraData,
-      disputeTemplate
+      disputeTemplate,
+      "disputeTemplateMapping: TODO"
     );
   });
 
@@ -77,7 +78,7 @@ describe("Home Evidence contract", async () => {
       expect(await evidenceModule.bondTimeout()).to.equal(1);
 
       const newDisputeTemplate = '{ "disputeTemplate": "bar"}';
-      let tx = await evidenceModule.changeDisputeTemplate(newDisputeTemplate);
+      let tx = await evidenceModule.changeDisputeTemplate(newDisputeTemplate, "disputeTemplateMapping: TODO");
       let receipt = await tx.wait();
       let lastArbitratorIndex = await evidenceModule.getCurrentArbitratorIndex();
       let newArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex);
@@ -117,7 +118,7 @@ describe("Home Evidence contract", async () => {
         "The caller must be the governor"
       );
 
-      await expect(evidenceModule.connect(user2).changeDisputeTemplate(disputeTemplate)).to.be.revertedWith(
+      await expect(evidenceModule.connect(user2).changeDisputeTemplate(disputeTemplate, "")).to.be.revertedWith(
         "The caller must be the governor"
       );
 

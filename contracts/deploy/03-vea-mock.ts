@@ -71,6 +71,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     args: [
       foreignGateway.address,
       disputeTemplate,
+      "disputeTemplateMapping: TODO",
       extraData,
       disputeTemplateRegistry.address,
       ethers.constants.AddressZero,
