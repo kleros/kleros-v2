@@ -60,9 +60,12 @@ const Voting: React.FC<{
       currentPeriodIndex === Periods.vote &&
       drawData.draws?.length > 0 &&
       !voted ? (
-        <Classic {...{ arbitrable }} setIsOpen={setIsPopupOpen} voteIDs={drawData.draws.map((draw) => draw.voteID)} />
+        <>
+          <VotingHistory {...{ arbitrable }} isQuestion={false} />
+          <Classic {...{ arbitrable }} setIsOpen={setIsPopupOpen} voteIDs={drawData.draws.map((draw) => draw.voteID)} />
+        </>
       ) : (
-        <VotingHistory {...{ arbitrable }} />
+        <VotingHistory {...{ arbitrable }} isQuestion={true} />
       )}
     </>
   );
