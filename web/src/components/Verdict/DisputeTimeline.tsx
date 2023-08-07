@@ -43,6 +43,16 @@ const StyledCalendarIcon = styled(CalendarIcon)`
   height: 14px;
 `;
 
+const getChoiceText = (parsedRoundChoice, answer) => {
+  if (parsedRoundChoice === 0) {
+    return "Refuse to Arbitrate";
+  } else if (!isUndefined(answer)) {
+    return answer;
+  } else {
+    return `Answer 0x${parsedRoundChoice}`;
+  }
+};
+
 const getCaseEventTimes = (
   lastPeriodChange: string,
   currentPeriodIndex: number,
@@ -79,17 +89,13 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
       return localRounds?.reduce<TimelineItems>(
         (acc, { winningChoice }, index) => {
           const parsedRoundChoice = parseInt(winningChoice);
+
           const eventDate = getCaseEventTimes(lastPeriodChange, currentPeriodIndex, courtTimePeriods, false);
           const icon = dispute.ruled && !rulingOverride && index === localRounds.length - 1 ? ClosedCaseIcon : "";
-          const answer = disputeTemplate?.answers?.[parsedRoundChoice! - 1].title;
+          const answer = disputeTemplate?.answers?.[parsedRoundChoice - 1]?.title;
           acc.push({
             title: `Jury Decision - Round ${index + 1}`,
-            party:
-              parsedRoundChoice === 0
-                ? "Refuse to Arbitrate"
-                : !isUndefined(answer)
-                ? answer
-                : `Answer 0x${parsedRoundChoice}`,
+            party: getChoiceText(parsedRoundChoice, answer),
             subtitle: eventDate,
             rightSided: true,
             variant: theme.secondaryPurple,
