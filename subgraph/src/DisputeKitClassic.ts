@@ -10,7 +10,14 @@ import {
   CommitCast,
 } from "../generated/DisputeKitClassic/DisputeKitClassic";
 import { KlerosCore } from "../generated/KlerosCore/KlerosCore";
-import { ClassicDispute, ClassicEvidence, ClassicRound, ClassicVote, Dispute } from "../generated/schema";
+import {
+  ClassicDispute,
+  ClassicEvidence,
+  ClassicJustification,
+  ClassicRound,
+  ClassicVote,
+  Dispute,
+} from "../generated/schema";
 import { ensureClassicContributionFromEvent } from "./entities/ClassicContribution";
 import { createClassicDisputeFromEvent } from "./entities/ClassicDispute";
 import { ensureClassicEvidenceGroup } from "./entities/ClassicEvidenceGroup";
@@ -69,14 +76,21 @@ export function handleCommitCast(event: CommitCast): void {
 }
 
 export function handleVoteCast(event: VoteCast): void {
-  const coreDisputeID = event.params._coreDisputeID;
-  const coreDispute = Dispute.load(coreDisputeID.toString());
+  const juror = event.params._juror.toHexString();
+  const coreDisputeID = event.params._coreDisputeID.toString();
+  const coreDispute = Dispute.load(coreDisputeID);
   const classicDisputeID = `${DISPUTEKIT_ID}-${coreDisputeID}`;
   const classicDispute = ClassicDispute.load(classicDisputeID);
   if (!classicDispute || !coreDispute) return;
   const choice = event.params._choice;
   const currentLocalRoundID = classicDispute.id + "-" + classicDispute.currentLocalRoundIndex.toString();
   const voteIDs = event.params._voteIDs;
+  const justification = new ClassicJustification(`${currentLocalRoundID}-${voteIDs.toString()}`);
+  justification.juror = juror;
+  justification.coreDispute = coreDisputeID;
+  justification.localRound = currentLocalRoundID;
+  justification.choice = choice;
+  justification.reference = event.params._justification;
   const currentRulingInfo = updateCountsAndGetCurrentRuling(
     currentLocalRoundID,
     choice,
@@ -87,7 +101,7 @@ export function handleVoteCast(event: VoteCast): void {
   coreDispute.save();
   let classicVote: ClassicVote;
   for (let i = 0; i < voteIDs.length; i++) {
-    classicVote = ensureClassicVote(currentLocalRoundID, event.params._juror.toHexString(), voteIDs[i], coreDispute);
+    classicVote = ensureClassicVote(currentLocalRoundID, juror, voteIDs[i], coreDispute);
     classicVote.voted = true;
     classicVote.choice = choice;
     classicVote.save();

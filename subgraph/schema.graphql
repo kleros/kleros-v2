@@ -237,6 +237,7 @@ type ClassicRound implements DisputeKitRound @entity {
   contributions: [ClassicContribution!]! @derivedFrom(field: "localRound")
   feeRewards: BigInt!
   fundedChoices: [BigInt!]!
+  justifications: [ClassicJustification!] @derivedFrom(field: "localRound")
 }
 
 type ClassicVote implements Vote @entity {
@@ -254,10 +255,11 @@ type ClassicVote implements Vote @entity {
 }
 
 type ClassicJustification @entity {
-  id: ID! # coreDispute-currentRound-voteIDs
+  id: ID! # disputeKit.id-coreDispute-currentRound-voteIDs
   coreDispute: Dispute!
   localRound: DisputeKitRound!
   juror: User!
+  choice: BigInt!
   votes: [ClassicVote!]! @derivedFrom(field: "justification")
   reference: String!
 }
