@@ -3,10 +3,12 @@
   "license": "MIT",
   "scripts": {
     "update:arbitrum-goerli": "./scripts/update.sh arbitrumGoerli arbitrum-goerli",
+    "update:arbitrum-goerli-devnet": "./scripts/update.sh arbitrumGoerliDevnet arbitrum-goerli",
     "update:arbitrum": "./scripts/update.sh arbitrum arbitrum",
     "codegen": "graph codegen",
     "build": "graph build",
     "deploy:arbitrum-goerli": "graph deploy --product hosted-service kleros/kleros-v2-core-arbitrum-goerli",
+    "deploy:arbitrum-goerli-devnet": "graph deploy --product hosted-service kleros/kleros-v2-core-arbitrum-goerli-devnet",
     "deploy:arbitrum": "graph deploy --product hosted-service kleros/kleros-v2-core-arbitrum",
     "create-local": "graph create --node http://localhost:8020/ kleros/kleros-v2-core-local",
     "remove-local": "graph remove --node http://localhost:8020/ kleros/kleros-v2-core-local",

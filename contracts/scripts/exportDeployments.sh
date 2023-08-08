@@ -9,7 +9,10 @@ function exportJson() { #network
 }
 
 exportJson arbitrumGoerli
+exportJson arbitrumGoerliDevnet
 exportJson goerli
+exportJson goerliDevnet
 exportJson chiado
+exportJson chiadoDevnet
 exportJson arbitrum
 exportJson mainnet

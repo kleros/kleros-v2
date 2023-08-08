@@ -2,7 +2,6 @@
 pragma solidity 0.8.18;
 
 /// @title PolicyRegistry
-/// @author Enrique Piqueras - <epiquerass@gmail.com>
 /// @dev A contract to maintain a policy for each court.
 contract PolicyRegistry {
     // ************************************* //

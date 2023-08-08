@@ -2,9 +2,11 @@
 
 Smart contracts for Kleros v2
 
-## Deployed Addresses
+## Deployments
 
 Refresh the list of deployed contracts by running `./scripts/generateDeploymentsMarkdown.sh`.
+
+### Official Testnet
 
 #### Chiado
 
@@ -40,6 +42,41 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [SortitionModule](https://goerli.arbiscan.io/address/0x5Ae75Db8B66B574b2c5C29eE4D32cc9Fe62bfdEE)
 - [WETH](https://goerli.arbiscan.io/address/0xddE1b84E43505432Fdf5F810ebB9373dD37e9230)
 - [WETHFaucet](https://goerli.arbiscan.io/address/0x87Efe303Cbc866320c14805C4D6cd04f426FBB17)
+
+### Devnet
+
+#### Chiado
+
+- [ArbitrableExample](https://blockscout.com/gnosis/chiado/address/0x8cbbFDEA310B04368Ad43B8d27575cCdBAda5E9f)
+- [DisputeResolver](https://blockscout.com/gnosis/chiado/address/0xbCA5c7fBfB4889083c545D9b042541986A80d17d)
+- [DisputeTemplateRegistry](https://blockscout.com/gnosis/chiado/address/0x96E49552669ea81B8E9cE8694F7E4A55D8bFb957)
+- [ForeignGatewayOnGnosis](https://blockscout.com/gnosis/chiado/address/0xFf7F05aEfA64494C90ba119422506e204fdc2F98)
+- [WETH](https://blockscout.com/gnosis/chiado/address/0x2DFC9c3141268e6eac04a7D6d98Fbf64BDe836a8)
+- [WETHFaucet](https://blockscout.com/gnosis/chiado/address/0x22CB016c4b57413ca4DF5F1AC44a0E0d3c69811F)
+- [WPNKFaucet](https://blockscout.com/gnosis/chiado/address/0x5898aeE045A25B276369914c3448B72a41758B2c)
+- [WrappedPinakionV2](https://blockscout.com/gnosis/chiado/address/0xD75E27A56AaF9eE7F8d9A472a8C2EF2f65a764dd)
+
+#### Goerli
+
+- [PNK](https://goerli.etherscan.io/token/0xA3B02bA6E10F55fb177637917B1b472da0110CcC)
+
+#### Arbitrum Goerli
+
+- [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610)
+- [ArbitrableExample](https://goerli.arbiscan.io/address/0x3a08B248Da29e9D3c3E408fE6688dcbfED276442)
+- [DAI](https://goerli.arbiscan.io/address/0xB755843e26F2cD1c6A46659cEBb67CcFAE0f2EeE)
+- [DAIFaucet](https://goerli.arbiscan.io/address/0xCEBF1e0A5921767dd97b999ed14801A3770afAfd)
+- [DisputeKitClassic](https://goerli.arbiscan.io/address/0x89807AeD661954080dB0ca7e8AcA72Af96E344e5)
+- [DisputeResolver](https://goerli.arbiscan.io/address/0x8C3bBbc5CFb56086528f6d3Ab66d858364E95403)
+- [DisputeTemplateRegistry](https://goerli.arbiscan.io/address/0xB01eC32bB0ba461ebEA9A61A6172Aba0DDE2B640)
+- [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0xd7e8A50d265e6643fd220E8aafddBb34C484E861)
+- [KlerosCore](https://goerli.arbiscan.io/address/0xAa641414e786d0cBe80f4eE716248588E13B4343)
+- [PNKFaucet](https://goerli.arbiscan.io/address/0x120C48fcB2343ccCD4Fa4Dc81CF48fcf8538bFc9)
+- [PolicyRegistry](https://goerli.arbiscan.io/address/0xa3556bF00c4f9ea235D6D4Bcb1B1c32121C0e935)
+- [RandomizerRNG](https://goerli.arbiscan.io/address/0x0FE3869EA01Febb895Bc76DaB143858F84C67024)
+- [SortitionModule](https://goerli.arbiscan.io/address/0x07F064F474336C31f22101E2C848e9a00a6Fd0c6)
+- [WETH](https://goerli.arbiscan.io/address/0xbB5839497dE7e6d4ddaFde093F69abA9be782E07)
+- [WETHFaucet](https://goerli.arbiscan.io/address/0xD2d862B060986b25996aaeDB54813002AB791013)
 
 ## Getting Started
 
@@ -122,18 +159,23 @@ yarn deploy --network localhost --tags <Arbitration|VeaMock|ForeignGatewayOnEthe
 ```bash
 # ArbitrumGoerli to Chiado
 yarn deploy --network arbitrumGoerli --tags Arbitration
+yarn deploy --network arbitrumGoerli --tags HomeArbitrable
 yarn deploy --network chiado --tags ForeignGatewayOnGnosis
 yarn deploy --network chiado --tags KlerosLiquidOnGnosis
 yarn deploy --network chiado --tags ForeignArbitrable
 yarn deploy --network arbitrumGoerli --tags HomeGatewayToGnosis
 
 # Goerli
-yarn deploy --network arbitrumGoerli --tags Arbitration
 yarn deploy --network goerli --tags ForeignGatewayOnEthereum
+yarn deploy --network goerli --tags ForeignArbitrable
 yarn deploy --network arbitrumGoerli --tags HomeGatewayToEthereum
 ```
 
 The deployed addresses should be displayed to the screen after the deployment is complete. If you missed them, you can always go to the `deployments/<network>` directory and look for the respective file.
+
+#### 4. Deploy a Devnet on Public Testnets
+
+Same steps as above but append `Devnet` to the `--network` parameter.
 
 #### Running Test Fixtures
 

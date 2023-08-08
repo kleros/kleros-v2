@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import disputeTemplate from "../config/DisputeTemplate.simple.json";
+import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -30,7 +30,14 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   await deploy("ArbitrableExample", {
     from: deployer,
-    args: [klerosCore.address, disputeTemplate, extraData, disputeTemplateRegistry.address, weth.address],
+    args: [
+      klerosCore.address,
+      disputeTemplate,
+      "disputeTemplateMapping: TODO",
+      extraData,
+      disputeTemplateRegistry.address,
+      weth.address,
+    ],
     log: true,
   });
 
