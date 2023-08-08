@@ -18,7 +18,6 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   console.log("Deploying to chainId %s with deployer %s", HARDHAT_NETWORK, deployer);
 
   const klerosCore = await deployments.get("KlerosCore");
-  const disputeTemplateRegistry = await deployments.get("DisputeTemplateRegistry");
 
   const vea = await deploy("VeaMock", {
     from: deployer,
@@ -61,6 +60,12 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const fee = (await core.courts(courtId)).feeForJuror;
   await execute("ForeignGatewayOnEthereum", { from: deployer, log: true }, "changeCourtJurorFee", courtId, fee);
   // TODO: set up the correct fees for the lower courts
+
+  const disputeTemplateRegistry = await deploy("DisputeTemplateRegistry", {
+    from: deployer,
+    args: [],
+    log: true,
+  });
 
   // TODO: debug why this extraData fails but "0x00" works
   // const extraData =
