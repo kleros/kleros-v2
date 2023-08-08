@@ -42,8 +42,7 @@ const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           "--w3m-background-color": theme.primaryPurple,
           "--w3m-overlay-background-color": "rgba(0, 0, 0, 0.6)",
           "--w3m-overlay-backdrop-filter": "blur(3px)",
-          "--w3m-logo-image-url":
-            "https://github.com/kleros/kleros-v2/blob/feat(web)/wallet-connect-themes/docs/kleros-logo-white.png?raw=true",
+          "--w3m-logo-image-url": "https://github.com/kleros/kleros-v2/blob/dev/docs/kleros-logo-white.png?raw=true",
           "--w3m-color-bg-1": theme.lightBackground,
         }}
         {...{ projectId, ethereumClient }}
