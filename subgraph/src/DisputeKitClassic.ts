@@ -3,13 +3,14 @@ import {
   DisputeKitClassic,
   DisputeCreation,
   Evidence as EvidenceEvent,
-  Justification as JustificationEvent,
+  VoteCast,
   Contribution as ContributionEvent,
   ChoiceFunded,
   Withdrawal,
+  CommitCast,
 } from "../generated/DisputeKitClassic/DisputeKitClassic";
 import { KlerosCore } from "../generated/KlerosCore/KlerosCore";
-import { ClassicDispute, ClassicEvidence, ClassicRound, Dispute } from "../generated/schema";
+import { ClassicDispute, ClassicEvidence, ClassicRound, ClassicVote, Dispute } from "../generated/schema";
 import { ensureClassicContributionFromEvent } from "./entities/ClassicContribution";
 import { createClassicDisputeFromEvent } from "./entities/ClassicDispute";
 import { ensureClassicEvidenceGroup } from "./entities/ClassicEvidenceGroup";
@@ -18,7 +19,7 @@ import {
   updateChoiceFundingFromContributionEvent,
   updateCountsAndGetCurrentRuling,
 } from "./entities/ClassicRound";
-import { createClassicVote } from "./entities/ClassicVote";
+import { ensureClassicVote } from "./entities/ClassicVote";
 import { ensureUser } from "./entities/User";
 import { ONE, ZERO } from "./utils";
 
@@ -46,7 +47,28 @@ export function handleEvidenceEvent(event: EvidenceEvent): void {
   evidence.save();
 }
 
-export function handleJustificationEvent(event: JustificationEvent): void {
+export function handleCommitCast(event: CommitCast): void {
+  const coreDisputeID = event.params._coreDisputeID;
+  const coreDispute = Dispute.load(coreDisputeID.toString());
+  const classicDisputeID = `${DISPUTEKIT_ID}-${coreDisputeID}`;
+  const classicDispute = ClassicDispute.load(classicDisputeID);
+  if (!classicDispute || !coreDispute) return;
+  const currentLocalRoundID = classicDispute.id + "-" + classicDispute.currentLocalRoundIndex.toString();
+  const voteIDs = event.params._voteIDs;
+  for (let i = 0; i < voteIDs.length; i++) {
+    const classicVote = ensureClassicVote(
+      currentLocalRoundID,
+      event.params._juror.toHexString(),
+      voteIDs[i],
+      coreDispute
+    );
+    classicVote.commited = true;
+    classicVote.commit = event.params._commit;
+    classicVote.save();
+  }
+}
+
+export function handleVoteCast(event: VoteCast): void {
   const contract = DisputeKitClassic.bind(event.address);
   const coreDisputeID = event.params._coreDisputeID;
   const coreDispute = Dispute.load(coreDisputeID.toString());
@@ -61,7 +83,14 @@ export function handleJustificationEvent(event: JustificationEvent): void {
   coreDispute.currentRuling = currentRulingInfo.ruling;
   coreDispute.tied = currentRulingInfo.tied;
   coreDispute.save();
-  createClassicVote(currentLocalRoundID, event);
+  const voteIDs = event.params._voteIDs;
+  let classicVote: ClassicVote;
+  for (let i = 0; i < voteIDs.length; i++) {
+    classicVote = ensureClassicVote(currentLocalRoundID, event.params._juror.toHexString(), voteIDs[i], coreDispute);
+    classicVote.voted = true;
+    classicVote.choice = choice;
+    classicVote.save();
+  }
 }
 
 export function handleContributionEvent(event: ContributionEvent): void {

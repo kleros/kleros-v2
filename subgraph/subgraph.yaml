@@ -111,6 +111,8 @@ dataSources:
           handler: handleChoiceFunded
         - event: Evidence(indexed uint256,indexed address,string)
           handler: handleEvidenceEvent
-        - event: Justification(indexed uint256,indexed address,indexed uint256,string)
-          handler: handleJustificationEvent
+        - event: VoteCast(indexed uint256,indexed address,uint256[],indexed uint256,string)
+          handler: handleVoteCast
+        - event: CommitCast(indexed uint256,indexed address,uint256[],bytes32)
+          handler: handleCommitCast
       file: ./src/DisputeKitClassic.ts
