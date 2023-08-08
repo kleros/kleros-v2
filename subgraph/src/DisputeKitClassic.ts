@@ -69,21 +69,22 @@ export function handleCommitCast(event: CommitCast): void {
 }
 
 export function handleVoteCast(event: VoteCast): void {
-  const contract = DisputeKitClassic.bind(event.address);
   const coreDisputeID = event.params._coreDisputeID;
   const coreDispute = Dispute.load(coreDisputeID.toString());
   const classicDisputeID = `${DISPUTEKIT_ID}-${coreDisputeID}`;
   const classicDispute = ClassicDispute.load(classicDisputeID);
   if (!classicDispute || !coreDispute) return;
   const choice = event.params._choice;
-  const coreRoundIndex = coreDispute.currentRoundIndex;
-  const roundInfo = contract.getRoundInfo(coreDisputeID, coreRoundIndex, choice);
   const currentLocalRoundID = classicDispute.id + "-" + classicDispute.currentLocalRoundIndex.toString();
-  const currentRulingInfo = updateCountsAndGetCurrentRuling(currentLocalRoundID, choice, roundInfo.getChoiceCount());
+  const voteIDs = event.params._voteIDs;
+  const currentRulingInfo = updateCountsAndGetCurrentRuling(
+    currentLocalRoundID,
+    choice,
+    BigInt.fromI32(voteIDs.length)
+  );
   coreDispute.currentRuling = currentRulingInfo.ruling;
   coreDispute.tied = currentRulingInfo.tied;
   coreDispute.save();
-  const voteIDs = event.params._voteIDs;
   let classicVote: ClassicVote;
   for (let i = 0; i < voteIDs.length; i++) {
     classicVote = ensureClassicVote(currentLocalRoundID, event.params._juror.toHexString(), voteIDs[i], coreDispute);
