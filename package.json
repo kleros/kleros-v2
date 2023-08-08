@@ -28,10 +28,10 @@
     "prettier-config",
     "tsconfig"
   ],
-  "packageManager": "yarn@3.3.1",
+  "packageManager": "yarn@3.6.1",
   "volta": {
-    "node": "16.18.1",
-    "yarn": "3.3.1"
+    "node": "16.20.1",
+    "yarn": "3.6.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.6.5",
