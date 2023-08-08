@@ -10,17 +10,17 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 #### Chiado
 
-- [ArbitrableExample](https://blockscout.com/gnosis/chiado/address/0x174C4E7cd60F8025226f72F77ED80B9947aD6e62)
-- [DisputeResolver](https://blockscout.com/gnosis/chiado/address/0xc269F39f1a6B43Db7A6bdc4b40D64BcbBa83186a)
-- [DisputeTemplateRegistry](https://blockscout.com/gnosis/chiado/address/0xA55D4b90c1F8D1fD0408232bF6FA498dD6786385)
-- [ForeignGatewayOnGnosis](https://blockscout.com/gnosis/chiado/address/0x56977309A655F24B3a4aed0094be4fa29a648926)
-- [SortitionSumTreeFactory](https://blockscout.com/gnosis/chiado/address/0xc7e3BF90299f6BD9FA7c3703837A9CAbB5743636)
-- [TokenBridge](https://blockscout.com/gnosis/chiado/address/0xbb3c86f9918C3C1d83668fA84e79E876d147fFf2)
-- [WETH](https://blockscout.com/gnosis/chiado/address/0x2DFC9c3141268e6eac04a7D6d98Fbf64BDe836a8)
-- [WETHFaucet](https://blockscout.com/gnosis/chiado/address/0x22CB016c4b57413ca4DF5F1AC44a0E0d3c69811F)
-- [WPNKFaucet](https://blockscout.com/gnosis/chiado/address/0x5898aeE045A25B276369914c3448B72a41758B2c)
-- [WrappedPinakionV2](https://blockscout.com/gnosis/chiado/address/0xD75E27A56AaF9eE7F8d9A472a8C2EF2f65a764dd)
-- [xKlerosLiquidV2](https://blockscout.com/gnosis/chiado/address/0x34E520dc1d2Db660113b64724e14CEdCD01Ee879)
+- [ArbitrableExample](https://gnosis-chiado.blockscout.com/address/0x174C4E7cd60F8025226f72F77ED80B9947aD6e62)
+- [DisputeResolver](https://gnosis-chiado.blockscout.com/address/0xc269F39f1a6B43Db7A6bdc4b40D64BcbBa83186a)
+- [DisputeTemplateRegistry](https://gnosis-chiado.blockscout.com/address/0xA55D4b90c1F8D1fD0408232bF6FA498dD6786385)
+- [ForeignGatewayOnGnosis](https://gnosis-chiado.blockscout.com/address/0x56977309A655F24B3a4aed0094be4fa29a648926)
+- [SortitionSumTreeFactory](https://gnosis-chiado.blockscout.com/address/0xc7e3BF90299f6BD9FA7c3703837A9CAbB5743636)
+- [TokenBridge](https://gnosis-chiado.blockscout.com/address/0xbb3c86f9918C3C1d83668fA84e79E876d147fFf2)
+- [WETH](https://gnosis-chiado.blockscout.com/address/0x2DFC9c3141268e6eac04a7D6d98Fbf64BDe836a8)
+- [WETHFaucet](https://gnosis-chiado.blockscout.com/address/0x22CB016c4b57413ca4DF5F1AC44a0E0d3c69811F)
+- [WPNKFaucet](https://gnosis-chiado.blockscout.com/address/0x5898aeE045A25B276369914c3448B72a41758B2c)
+- [WrappedPinakionV2](https://gnosis-chiado.blockscout.com/address/0xD75E27A56AaF9eE7F8d9A472a8C2EF2f65a764dd)
+- [xKlerosLiquidV2](https://gnosis-chiado.blockscout.com/address/0x34E520dc1d2Db660113b64724e14CEdCD01Ee879)
 
 #### Goerli
 
@@ -49,14 +49,14 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 #### Chiado
 
-- [ArbitrableExample](https://blockscout.com/gnosis/chiado/address/0x8cbbFDEA310B04368Ad43B8d27575cCdBAda5E9f)
-- [DisputeResolver](https://blockscout.com/gnosis/chiado/address/0xbCA5c7fBfB4889083c545D9b042541986A80d17d)
-- [DisputeTemplateRegistry](https://blockscout.com/gnosis/chiado/address/0x96E49552669ea81B8E9cE8694F7E4A55D8bFb957)
-- [ForeignGatewayOnGnosis](https://blockscout.com/gnosis/chiado/address/0xFf7F05aEfA64494C90ba119422506e204fdc2F98)
-- [WETH](https://blockscout.com/gnosis/chiado/address/0x2DFC9c3141268e6eac04a7D6d98Fbf64BDe836a8)
-- [WETHFaucet](https://blockscout.com/gnosis/chiado/address/0x22CB016c4b57413ca4DF5F1AC44a0E0d3c69811F)
-- [WPNKFaucet](https://blockscout.com/gnosis/chiado/address/0x5898aeE045A25B276369914c3448B72a41758B2c)
-- [WrappedPinakionV2](https://blockscout.com/gnosis/chiado/address/0xD75E27A56AaF9eE7F8d9A472a8C2EF2f65a764dd)
+- [ArbitrableExample](https://gnosis-chiado.blockscout.com/address/0x8cbbFDEA310B04368Ad43B8d27575cCdBAda5E9f)
+- [DisputeResolver](https://gnosis-chiado.blockscout.com/address/0xbCA5c7fBfB4889083c545D9b042541986A80d17d)
+- [DisputeTemplateRegistry](https://gnosis-chiado.blockscout.com/address/0x96E49552669ea81B8E9cE8694F7E4A55D8bFb957)
+- [ForeignGatewayOnGnosis](https://gnosis-chiado.blockscout.com/address/0xFf7F05aEfA64494C90ba119422506e204fdc2F98)
+- [WETH](https://gnosis-chiado.blockscout.com/address/0x2DFC9c3141268e6eac04a7D6d98Fbf64BDe836a8)
+- [WETHFaucet](https://gnosis-chiado.blockscout.com/address/0x22CB016c4b57413ca4DF5F1AC44a0E0d3c69811F)
+- [WPNKFaucet](https://gnosis-chiado.blockscout.com/address/0x5898aeE045A25B276369914c3448B72a41758B2c)
+- [WrappedPinakionV2](https://gnosis-chiado.blockscout.com/address/0xD75E27A56AaF9eE7F8d9A472a8C2EF2f65a764dd)
 
 #### Goerli
 

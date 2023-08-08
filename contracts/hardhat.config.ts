@@ -203,7 +203,8 @@ const config: HardhatUserConfig = {
       },
       verify: {
         etherscan: {
-          apiUrl: "https://blockscout.com/gnosis/chiado",
+          apiUrl: "https://gnosis-chiado.blockscout.com",
+          apiKey: "",
         },
       },
     },
@@ -219,7 +220,8 @@ const config: HardhatUserConfig = {
       },
       verify: {
         etherscan: {
-          apiUrl: "https://blockscout.com/gnosis/chiado",
+          apiUrl: "https://gnosis-chiado.blockscout.com",
+          apiKey: "",
         },
       },
     },

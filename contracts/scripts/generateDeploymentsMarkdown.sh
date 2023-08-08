@@ -15,7 +15,7 @@ function generate() { #deploymentDir #explorerUrl
 echo "### Official Testnet"
 echo "#### Chiado"
 echo
-generate "$SCRIPT_DIR/../deployments/chiado" "https://blockscout.com/gnosis/chiado/address/"
+generate "$SCRIPT_DIR/../deployments/chiado" "https://gnosis-chiado.blockscout.com/address/"
 echo
 echo "#### Goerli"
 echo
@@ -30,7 +30,7 @@ echo
 echo "### Devnet"
 echo "#### Chiado"
 echo
-generate "$SCRIPT_DIR/../deployments/chiadoDevnet" "https://blockscout.com/gnosis/chiado/address/"
+generate "$SCRIPT_DIR/../deployments/chiadoDevnet" "https://gnosis-chiado.blockscout.com/address/"
 echo
 echo "#### Goerli"
 echo
