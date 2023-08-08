@@ -7,7 +7,7 @@ export function ensureClassicVote(
   voteID: BigInt,
   coreDispute: Dispute
 ): ClassicVote {
-  const id = `${localRoundID}-${juror}-${voteID}`;
+  const id = `${localRoundID}-${voteID}`;
   const classicVote = ClassicVote.load(id);
   if (classicVote) return classicVote;
 
