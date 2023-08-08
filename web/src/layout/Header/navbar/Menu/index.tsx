@@ -23,14 +23,25 @@ const Menu: React.FC = () => {
   const [theme, toggleTheme] = useToggleTheme();
   const [isHelpOpen, toggleIsHelpOpen] = useToggle(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [currentTab, setCurrentTab] = useState<number>(0);
 
   const isLightTheme = theme === "light";
   const buttons = [
-    { text: "Notifications", Icon: NotificationsIcon },
+    {
+      text: "Notifications",
+      Icon: NotificationsIcon,
+      onClick: () => {
+        setIsSettingsOpen(true);
+        setCurrentTab(1);
+      },
+    },
     {
       text: "Settings",
       Icon: SettingsIcon,
-      onClick: () => setIsSettingsOpen(true),
+      onClick: () => {
+        setIsSettingsOpen(true);
+        setCurrentTab(0);
+      },
     },
     {
       text: "Help",
@@ -54,7 +65,9 @@ const Menu: React.FC = () => {
         </ButtonContainer>
       ))}
       {isHelpOpen && <Help toggle={toggleIsHelpOpen} />}
-      {isSettingsOpen && <Settings setIsSettingsOpen={setIsSettingsOpen} />}
+      {isSettingsOpen && (
+        <Settings setIsSettingsOpen={setIsSettingsOpen} currentTab={currentTab} setCurrentTab={setCurrentTab} />
+      )}
     </Container>
   );
 };

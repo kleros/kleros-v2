@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useRef, useState } from "react";
+import React, { Dispatch, SetStateAction, useRef } from "react";
 import styled from "styled-components";
 import { Tabs } from "@kleros/ui-components-library";
 import General from "./General";
@@ -46,10 +46,11 @@ const TABS = [
 
 interface ISettings {
   setIsSettingsOpen: Dispatch<SetStateAction<boolean>>;
+  currentTab: number;
+  setCurrentTab: Dispatch<SetStateAction<number>>;
 }
 
-const Settings: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
-  const [currentTab, setCurrentTab] = useState<number>(0);
+const Settings: React.FC<ISettings> = ({ setIsSettingsOpen, currentTab, setCurrentTab }) => {
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => setIsSettingsOpen(false));
 

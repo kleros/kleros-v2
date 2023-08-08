@@ -25,7 +25,14 @@ const FormEmailContainer = styled.div`
   position: relative;
 `;
 
-const OPTIONS = [{ label: "When x." }, { label: "When y." }, { label: "When z." }, { label: "When w." }];
+const OPTIONS = [
+  { label: "When I am drawn as a juror." },
+  { label: "When New evidence submitted for a dispute." },
+  { label: "When time to vite." },
+  { label: "When time to commit (or reveal) your vote." },
+  { label: "When dispute as entered phase X." },
+  { label: "When I won/lost some PNK and ETH." },
+];
 
 const FormNotifs: React.FC = () => {
   const [checkboxStates, setCheckboxStates] = useState<boolean[]>(new Array(OPTIONS.length).fill(false));
@@ -36,6 +43,15 @@ const FormNotifs: React.FC = () => {
     const newCheckboxStates = [...checkboxStates];
     newCheckboxStates[index] = e.target.checked;
     setCheckboxStates(newCheckboxStates);
+  };
+
+  const handleClick = () => {
+    const optionsObject = {};
+    OPTIONS.forEach(({ label }, index) => {
+      optionsObject[label] = checkboxStates[index];
+    });
+    const jsonData = JSON.stringify(optionsObject, null, 2);
+    console.log(jsonData);
   };
 
   return (
@@ -59,7 +75,7 @@ const FormNotifs: React.FC = () => {
       </FormEmailContainer>
 
       <ButtonContainer>
-        <Button text="Save" disabled={!emailIsValid} />
+        <Button text="Save" disabled={!emailIsValid} onClick={handleClick} />
       </ButtonContainer>
     </FormContainer>
   );
