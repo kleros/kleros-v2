@@ -10,9 +10,11 @@
   ],
   "words": [
     "arbitrum",
+    "autorestart",
     "commitlint",
     "COOLDOWN",
     "datetime",
+    "Devnet",
     "dockerhost",
     "Ethfinex",
     "hearbeat",
@@ -24,8 +26,7 @@
     "repartitions",
     "solhint",
     "typechain",
-    "Unslashed",
-    "autorestart"
+    "Unslashed"
   ],
   "ignoreWords": [],
   "import": []

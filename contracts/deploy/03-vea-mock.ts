@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import getContractAddress from "../deploy-helpers/getContractAddress";
 import { KlerosCore__factory } from "../typechain-types";
-import disputeTemplate from "../config/DisputeTemplate.simple.json";
+import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
 
 const HARDHAT_NETWORK = 31337;
 
@@ -71,6 +71,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     args: [
       foreignGateway.address,
       disputeTemplate,
+      "disputeTemplateMapping: TODO",
       extraData,
       disputeTemplateRegistry.address,
       ethers.constants.AddressZero,

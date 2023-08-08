@@ -1,0 +1,142 @@
+{
+  "address": "0xA55D4b90c1F8D1fD0408232bF6FA498dD6786385",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_templateId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "_templateTag",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "_templateData",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "_templateDataMappings",
+          "type": "string"
+        }
+      ],
+      "name": "DisputeTemplate",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_templateTag",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_templateData",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_templateDataMappings",
+          "type": "string"
+        }
+      ],
+      "name": "setDisputeTemplate",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "templateId",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "templates",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x1ec95f806701a927a4fbbb0e427975d8568d3aefc30f88e2df6e6b43e9657e79",
+  "receipt": {
+    "to": null,
+    "from": "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3",
+    "contractAddress": "0xA55D4b90c1F8D1fD0408232bF6FA498dD6786385",
+    "transactionIndex": 1,
+    "gasUsed": "215830",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x1f68cb3d8a496c982d20f9245d8121f5c90b4e289586ae7be79937fe2728f318",
+    "transactionHash": "0x1ec95f806701a927a4fbbb0e427975d8568d3aefc30f88e2df6e6b43e9657e79",
+    "logs": [],
+    "blockNumber": 5398792,
+    "cumulativeGasUsed": "242422",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "5cbc9a57c66318424bb771eed7e7b88c",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.18+commit.87f61d96\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_templateId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"string\",\"name\":\"_templateTag\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"_templateData\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"_templateDataMappings\",\"type\":\"string\"}],\"name\":\"DisputeTemplate\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_templateTag\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_templateData\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_templateDataMappings\",\"type\":\"string\"}],\"name\":\"setDisputeTemplate\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"templateId\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"templates\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"A contract to maintain a registry of dispute templates.\",\"events\":{\"DisputeTemplate(uint256,string,string,string)\":{\"details\":\"To be emitted when a new dispute template is created.\",\"params\":{\"_templateData\":\"The template data.\",\"_templateDataMappings\":\"The data mappings.\",\"_templateId\":\"The identifier of the dispute template.\",\"_templateTag\":\"An optional tag for the dispute template, such as \\\"registration\\\" or \\\"removal\\\".\"}}},\"kind\":\"dev\",\"methods\":{},\"title\":\"Dispute Template Registry\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/arbitration/DisputeTemplateRegistry.sol\":\"DisputeTemplateRegistry\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the amount of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the amount of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves `amount` tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Moves `amount` tokens from `from` to `to` using the\\n     * allowance mechanism. `amount` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(address from, address to, uint256 amount) external returns (bool);\\n}\\n\",\"keccak256\":\"0x287b55befed2961a7eabd7d7b1b2839cbca8a5b80ef8dcbb25ed3d4c2002c305\",\"license\":\"MIT\"},\"src/arbitration/DisputeTemplateRegistry.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.18;\\n\\nimport \\\"./interfaces/IDisputeTemplateRegistry.sol\\\";\\n\\n/// @title Dispute Template Registry\\n/// @dev A contract to maintain a registry of dispute templates.\\ncontract DisputeTemplateRegistry is IDisputeTemplateRegistry {\\n    uint256 public templates;\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    function setDisputeTemplate(\\n        string memory _templateTag,\\n        string memory _templateData,\\n        string memory _templateDataMappings\\n    ) external returns (uint256 templateId) {\\n        templateId = templates++;\\n        emit DisputeTemplate(templateId, _templateTag, _templateData, _templateDataMappings);\\n    }\\n}\\n\",\"keccak256\":\"0xbc2d8ff9784d93f932199993fd58aab88fbc367268a10ffb7fe07a85826960c1\",\"license\":\"MIT\"},\"src/arbitration/interfaces/IArbitrableV2.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\nimport \\\"./IArbitratorV2.sol\\\";\\n\\n/// @title IArbitrableV2\\n/// @notice Arbitrable interface.\\n/// When developing arbitrable contracts, we need to:\\n/// - Define the action taken when a ruling is received by the contract.\\n/// - Allow dispute creation. For this a function must call arbitrator.createDispute{value: _fee}(_choices,_extraData);\\ninterface IArbitrableV2 {\\n    /// @dev To be emitted when a dispute is created to link the correct meta-evidence to the disputeID.\\n    /// @param _arbitrator The arbitrator of the contract.\\n    /// @param _arbitrableDisputeID The identifier of the dispute in the Arbitrable contract.\\n    /// @param _externalDisputeID An identifier created outside Kleros by the protocol requesting arbitration.\\n    /// @param _templateId The identifier of the dispute template. Should not be used with _templateUri.\\n    /// @param _templateUri The URI to the dispute template. For example on IPFS: starting with '/ipfs/'. Should not be used with _templateId.\\n    event DisputeRequest(\\n        IArbitratorV2 indexed _arbitrator,\\n        uint256 indexed _arbitrableDisputeID,\\n        uint256 _externalDisputeID,\\n        uint256 _templateId,\\n        string _templateUri\\n    );\\n\\n    /// @dev To be raised when a ruling is given.\\n    /// @param _arbitrator The arbitrator giving the ruling.\\n    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.\\n    /// @param _ruling The ruling which was given.\\n    event Ruling(IArbitratorV2 indexed _arbitrator, uint256 indexed _disputeID, uint256 _ruling);\\n\\n    /// @dev Give a ruling for a dispute.\\n    ///      Must be called by the arbitrator.\\n    ///      The purpose of this function is to ensure that the address calling it has the right to rule on the contract.\\n    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.\\n    /// @param _ruling Ruling given by the arbitrator.\\n    /// Note that 0 is reserved for \\\"Not able/wanting to make a decision\\\".\\n    function rule(uint256 _disputeID, uint256 _ruling) external;\\n}\\n\",\"keccak256\":\"0x389326b1f749454ed179bdac2f9d6ce24a1ef944bbce976ca78b93f4e173354a\",\"license\":\"MIT\"},\"src/arbitration/interfaces/IArbitratorV2.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport \\\"./IArbitrableV2.sol\\\";\\n\\n/// @title Arbitrator\\n/// Arbitrator interface that implements the new arbitration standard.\\n/// Unlike the ERC-792 this standard is not concerned with appeals, so each arbitrator can implement an appeal system that suits it the most.\\n/// When developing arbitrator contracts we need to:\\n/// - Define the functions for dispute creation (createDispute). Don't forget to store the arbitrated contract and the disputeID (which should be unique, may nbDisputes).\\n/// - Define the functions for cost display (arbitrationCost).\\n/// - Allow giving rulings. For this a function must call arbitrable.rule(disputeID, ruling).\\ninterface IArbitratorV2 {\\n    /// @dev To be emitted when a dispute is created.\\n    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.\\n    /// @param _arbitrable The contract which created the dispute.\\n    event DisputeCreation(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);\\n\\n    /// @dev To be raised when a ruling is given.\\n    /// @param _arbitrable The arbitrable receiving the ruling.\\n    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.\\n    /// @param _ruling The ruling which was given.\\n    event Ruling(IArbitrableV2 indexed _arbitrable, uint256 indexed _disputeID, uint256 _ruling);\\n\\n    /// @dev To be emitted when an ERC20 token is added or removed as a method to pay fees.\\n    /// @param _token The ERC20 token.\\n    /// @param _accepted Whether the token is accepted or not.\\n    event AcceptedFeeToken(IERC20 indexed _token, bool indexed _accepted);\\n\\n    /// @dev To be emitted when the fee for a particular ERC20 token is updated.\\n    /// @param _feeToken The ERC20 token.\\n    /// @param _rateInEth The new rate of the fee token in ETH.\\n    /// @param _rateDecimals The new decimals of the fee token rate.\\n    event NewCurrencyRate(IERC20 indexed _feeToken, uint64 _rateInEth, uint8 _rateDecimals);\\n\\n    /// @dev Create a dispute and pay for the fees in the native currency, typically ETH.\\n    ///      Must be called by the arbitrable contract.\\n    ///      Must pay at least arbitrationCost(_extraData).\\n    /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.\\n    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).\\n    /// @return disputeID The identifier of the dispute created.\\n    function createDispute(\\n        uint256 _numberOfChoices,\\n        bytes calldata _extraData\\n    ) external payable returns (uint256 disputeID);\\n\\n    /// @dev Create a dispute and pay for the fees in a supported ERC20 token.\\n    ///      Must be called by the arbitrable contract.\\n    ///      Must pay at least arbitrationCost(_extraData).\\n    /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.\\n    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).\\n    /// @param _feeToken The ERC20 token used to pay fees.\\n    /// @param _feeAmount Amount of the ERC20 token used to pay fees.\\n    /// @return disputeID The identifier of the dispute created.\\n    function createDispute(\\n        uint256 _numberOfChoices,\\n        bytes calldata _extraData,\\n        IERC20 _feeToken,\\n        uint256 _feeAmount\\n    ) external returns (uint256 disputeID);\\n\\n    /// @dev Compute the cost of arbitration denominated in the native currency, typically ETH.\\n    ///      It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.\\n    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).\\n    /// @return cost The arbitration cost in ETH.\\n    function arbitrationCost(bytes calldata _extraData) external view returns (uint256 cost);\\n\\n    /// @dev Compute the cost of arbitration denominated in `_feeToken`.\\n    ///      It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.\\n    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).\\n    /// @param _feeToken The ERC20 token used to pay fees.\\n    /// @return cost The arbitration cost in `_feeToken`.\\n    function arbitrationCost(bytes calldata _extraData, IERC20 _feeToken) external view returns (uint256 cost);\\n\\n    /// @dev Gets the current ruling of a specified dispute.\\n    /// @param _disputeID The ID of the dispute.\\n    /// @return ruling The current ruling.\\n    /// @return tied Whether it's a tie or not.\\n    /// @return overridden Whether the ruling was overridden by appeal funding or not.\\n    function currentRuling(uint256 _disputeID) external view returns (uint256 ruling, bool tied, bool overridden);\\n}\\n\",\"keccak256\":\"0x453943ba5ccc94b9b9cdfd4afd3678682d62d8b90fe16b43e90215387d2f6a51\",\"license\":\"MIT\"},\"src/arbitration/interfaces/IDisputeTemplateRegistry.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\nimport \\\"./IArbitratorV2.sol\\\";\\n\\n/// @title IDisputeTemplate\\n/// @notice Dispute Template interface.\\ninterface IDisputeTemplateRegistry {\\n    /// @dev To be emitted when a new dispute template is created.\\n    /// @param _templateId The identifier of the dispute template.\\n    /// @param _templateTag An optional tag for the dispute template, such as \\\"registration\\\" or \\\"removal\\\".\\n    /// @param _templateData The template data.\\n    /// @param _templateDataMappings The data mappings.\\n    event DisputeTemplate(\\n        uint256 indexed _templateId,\\n        string indexed _templateTag,\\n        string _templateData,\\n        string _templateDataMappings\\n    );\\n\\n    function setDisputeTemplate(\\n        string memory _templateTag,\\n        string memory _templateData,\\n        string memory _templateDataMappings\\n    ) external returns (uint256 templateId);\\n}\\n\",\"keccak256\":\"0x4b1b3f98d13e4a9a1c546dd45f98490f86e871cfc4b4be9a3fe4d29b3c99649c\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506102f1806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c80633a283d7d1461003b5780634a99417414610056575b600080fd5b61004460005481565b60405190815260200160405180910390f35b610044610064366004610172565b600080548180610073836101fa565b919050559050836040516100879190610245565b6040518091039020817ef7cd7255d1073b4e136dd477c38ea0020c051ab17110cc5bfab0c840ff992485856040516100c092919061028d565b60405180910390a39392505050565b634e487b7160e01b600052604160045260246000fd5b600082601f8301126100f657600080fd5b813567ffffffffffffffff80821115610111576101116100cf565b604051601f8301601f19908116603f01168101908282118183101715610139576101396100cf565b8160405283815286602085880101111561015257600080fd5b836020870160208301376000602085830101528094505050505092915050565b60008060006060848603121561018757600080fd5b833567ffffffffffffffff8082111561019f57600080fd5b6101ab878388016100e5565b945060208601359150808211156101c157600080fd5b6101cd878388016100e5565b935060408601359150808211156101e357600080fd5b506101f0868287016100e5565b9150509250925092565b60006001820161021a57634e487b7160e01b600052601160045260246000fd5b5060010190565b60005b8381101561023c578181015183820152602001610224565b50506000910152565b60008251610257818460208701610221565b9190910192915050565b60008151808452610279816020860160208601610221565b601f01601f19169290920160200192915050565b6040815260006102a06040830185610261565b82810360208401526102b28185610261565b9594505050505056fea26469706673582212208e28c2a1ac6bf992487f46d3bb5b26e186ac986099d0d98440c6107f111f92ab64736f6c63430008120033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100365760003560e01c80633a283d7d1461003b5780634a99417414610056575b600080fd5b61004460005481565b60405190815260200160405180910390f35b610044610064366004610172565b600080548180610073836101fa565b919050559050836040516100879190610245565b6040518091039020817ef7cd7255d1073b4e136dd477c38ea0020c051ab17110cc5bfab0c840ff992485856040516100c092919061028d565b60405180910390a39392505050565b634e487b7160e01b600052604160045260246000fd5b600082601f8301126100f657600080fd5b813567ffffffffffffffff80821115610111576101116100cf565b604051601f8301601f19908116603f01168101908282118183101715610139576101396100cf565b8160405283815286602085880101111561015257600080fd5b836020870160208301376000602085830101528094505050505092915050565b60008060006060848603121561018757600080fd5b833567ffffffffffffffff8082111561019f57600080fd5b6101ab878388016100e5565b945060208601359150808211156101c157600080fd5b6101cd878388016100e5565b935060408601359150808211156101e357600080fd5b506101f0868287016100e5565b9150509250925092565b60006001820161021a57634e487b7160e01b600052601160045260246000fd5b5060010190565b60005b8381101561023c578181015183820152602001610224565b50506000910152565b60008251610257818460208701610221565b9190910192915050565b60008151808452610279816020860160208601610221565b601f01601f19169290920160200192915050565b6040815260006102a06040830185610261565b82810360208401526102b28185610261565b9594505050505056fea26469706673582212208e28c2a1ac6bf992487f46d3bb5b26e186ac986099d0d98440c6107f111f92ab64736f6c63430008120033",
+  "devdoc": {
+    "details": "A contract to maintain a registry of dispute templates.",
+    "events": {
+      "DisputeTemplate(uint256,string,string,string)": {
+        "details": "To be emitted when a new dispute template is created.",
+        "params": {
+          "_templateData": "The template data.",
+          "_templateDataMappings": "The data mappings.",
+          "_templateId": "The identifier of the dispute template.",
+          "_templateTag": "An optional tag for the dispute template, such as \"registration\" or \"removal\"."
+        }
+      }
+    },
+    "kind": "dev",
+    "methods": {},
+    "title": "Dispute Template Registry",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 2685,
+        "contract": "src/arbitration/DisputeTemplateRegistry.sol:DisputeTemplateRegistry",
+        "label": "templates",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_uint256"
+      }
+    ],
+    "types": {
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

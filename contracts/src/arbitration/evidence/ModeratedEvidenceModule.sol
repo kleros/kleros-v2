@@ -109,6 +109,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     /// @param _bondTimeout The time in seconds during which the last moderation status can be challenged.
     /// @param _arbitratorExtraData Extra data for the trusted arbitrator contract.
     /// @param _templateData The dispute template data.
+    /// @param _templateDataMappings The dispute template data mappings.
     constructor(
         IArbitratorV2 _arbitrator,
         address _governor,
@@ -117,7 +118,8 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
         uint256 _initialDepositMultiplier,
         uint256 _bondTimeout,
         bytes memory _arbitratorExtraData,
-        string memory _templateData
+        string memory _templateData,
+        string memory _templateDataMappings
     ) {
         arbitrator = _arbitrator;
         governor = _governor;
@@ -129,7 +131,11 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
 
         ArbitratorData storage arbitratorData = arbitratorDataList.push();
         arbitratorData.arbitratorExtraData = _arbitratorExtraData;
-        arbitratorData.disputeTemplateId = templateRegistry.setDisputeTemplate("", _templateData);
+        arbitratorData.disputeTemplateId = templateRegistry.setDisputeTemplate(
+            "",
+            _templateData,
+            _templateDataMappings
+        );
     }
 
     // ************************************* //
@@ -163,9 +169,12 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
 
     /// @dev Update the dispute template data.
     /// @param _templateData The new dispute template data.
-    function changeDisputeTemplate(string calldata _templateData) external onlyGovernor {
+    function changeDisputeTemplate(
+        string calldata _templateData,
+        string memory _templateDataMappings
+    ) external onlyGovernor {
         ArbitratorData storage arbitratorData = arbitratorDataList[arbitratorDataList.length - 1];
-        uint256 newDisputeTemplateId = templateRegistry.setDisputeTemplate("", _templateData);
+        uint256 newDisputeTemplateId = templateRegistry.setDisputeTemplate("", _templateData, _templateDataMappings);
         arbitratorDataList.push(
             ArbitratorData({
                 disputeTemplateId: newDisputeTemplateId,
