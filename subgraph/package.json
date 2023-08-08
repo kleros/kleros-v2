@@ -17,7 +17,7 @@
   },
   "volta": {
     "node": "16.20.1",
-    "yarn": "3.6.1"
+    "yarn": "3.3.1"
   },
   "dependencies": {
     "@graphprotocol/graph-ts": "^0.31.0"

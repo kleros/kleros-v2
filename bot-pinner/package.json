@@ -4,7 +4,7 @@
   "description": "Pinning of the court data to decentralized storage.",
   "author": "Kleros",
   "license": "MIT",
-  "packageManager": "yarn@3.6.1",
+  "packageManager": "yarn@3.3.1",
   "volta": {
     "node": "16.20.1"
   },

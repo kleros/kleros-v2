@@ -21,7 +21,7 @@
     "styles": "./src/styles",
     "svgs": "./src/assets/svgs"
   },
-  "packageManager": "yarn@3.6.1",
+  "packageManager": "yarn@3.3.1",
   "scripts": {
     "clear": "rm -fr ../.parcel-cache dist/bundle.js",
     "start": "parcel",
@@ -98,6 +98,6 @@
   },
   "volta": {
     "node": "16.20.1",
-    "yarn": "3.6.1"
+    "yarn": "3.3.1"
   }
 }
