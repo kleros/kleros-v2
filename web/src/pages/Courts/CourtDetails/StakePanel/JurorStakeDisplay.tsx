@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
@@ -24,11 +24,22 @@ const bigIntRatioToPercentage = (numerator: bigint, denominator: bigint): string
   return `${integerPart}${decimalPart.length > 0 ? "." + decimalPart : ".00"}%`;
 };
 
-const calculateJurorOdds = (jurorBalance, stakedByAllJurors, loading) => {
-  if (loading || !jurorBalance || !stakedByAllJurors || stakedByAllJurors === "0") {
-    return "0.00%";
-  }
-  return bigIntRatioToPercentage(jurorBalance[0], BigInt(stakedByAllJurors));
+const useCalculateJurorOdds = (
+  jurorBalance: readonly [bigint, bigint, bigint] | undefined,
+  stakedByAllJurors: string | undefined,
+  loading: boolean
+): string => {
+  return useMemo(() => {
+    if (loading) {
+      return "Calculating...";
+    }
+
+    if (!jurorBalance || !stakedByAllJurors || stakedByAllJurors === "0") {
+      return "0.00%";
+    }
+
+    return bigIntRatioToPercentage(jurorBalance[0], BigInt(stakedByAllJurors));
+  }, [jurorBalance, stakedByAllJurors, loading]);
 };
 
 const JurorBalanceDisplay = () => {
@@ -62,7 +73,7 @@ const JurorBalanceDisplay = () => {
     }
   }, [stakedByAllJurors, loading, previousStakedByAllJurors]);
 
-  const jurorOdds = loading ? "Calculating..." : calculateJurorOdds(jurorBalance, stakedByAllJurors, loading);
+  const jurorOdds = useCalculateJurorOdds(jurorBalance, stakedByAllJurors, loading);
 
   const data = [
     {
