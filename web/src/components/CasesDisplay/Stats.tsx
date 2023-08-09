@@ -24,10 +24,14 @@ const Separator: React.FC = () => <SeparatorLabel>|</SeparatorLabel>;
 const Stats: React.FC = () => {
   const { data } = useAllCasesQuery();
 
+  const totalDisputes = data?.counter?.cases;
+  const closedDisputes = data?.counter?.casesRuled;
+  const inProgressDisputes = (totalDisputes - closedDisputes).toString();
+
   const fields = [
-    { label: "Total", value: data?.counter?.cases ?? "0" },
-    { label: "In Progress", value: data?.counter?.cases - data?.counter?.casesRuled ?? "0" },
-    { label: "Closed", value: data?.counter?.casesRuled ?? "0" },
+    { label: "Total", value: totalDisputes ?? "0" },
+    { label: "In Progress", value: inProgressDisputes ?? "0" },
+    { label: "Closed", value: closedDisputes ?? "0" },
   ];
 
   return (
