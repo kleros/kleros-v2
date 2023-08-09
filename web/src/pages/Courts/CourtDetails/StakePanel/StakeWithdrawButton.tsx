@@ -90,11 +90,10 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     }
   };
 
-  const { config: setStakeConfig, error } = usePrepareKlerosCoreSetStake({
-    enabled: !isUndefined(targetStake) && !isUndefined(id) && isStaking && !isAllowance,
+  const { config: setStakeConfig } = usePrepareKlerosCoreSetStake({
+    enabled: !isUndefined(targetStake) && !isUndefined(id) && !isAllowance,
     args: [BigInt(id ?? 0), targetStake],
   });
-  console.log(setStakeConfig, error);
   const { writeAsync: setStake } = useKlerosCoreSetStake(setStakeConfig);
   const handleStake = () => {
     if (typeof setStake !== "undefined") {
