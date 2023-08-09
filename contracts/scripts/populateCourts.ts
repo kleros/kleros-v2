@@ -3,7 +3,8 @@ import { KlerosCore } from "../typechain-types";
 import { BigNumber } from "ethers";
 import courtsV1Mainnet from "../config/courts.v1.mainnet.json";
 import courtsV1GnosisChain from "../config/courts.v1.gnosischain.json";
-import courtsV2Arbitrum from "../config/courts.v2.json";
+import courtsV2ArbitrumTestnet from "../config/courts.v2.testnet.json";
+import courtsV2ArbitrumDevnet from "../config/courts.v2.devnet.json";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -15,11 +16,12 @@ enum HomeChains {
 enum Sources {
   V1_MAINNET,
   V1_GNOSIS,
-  V2,
+  V2_DEVNET,
+  V2_TESTNET,
 }
 
-const from = Sources.V2;
-const TESTING_PARAMETERS = true;
+const from = Sources.V2_TESTNET;
+const TESTING_PARAMETERS = false;
 const ETH_USD = BigNumber.from(1800);
 const DISPUTE_KIT_CLASSIC = BigNumber.from(1);
 const TEN_THOUSAND_GWEI = BigNumber.from(10).pow(13);
@@ -44,6 +46,7 @@ async function main() {
     feeForJuror: truncateWei(BigNumber.from(court.feeForJuror).div(ETH_USD)),
   });
 
+  // TODO: rename this to Devnet instead of Testing
   const parametersProductionToTesting = (court) => ({
     ...court,
     hiddenVotes: false,
@@ -73,8 +76,16 @@ async function main() {
       courtsV2 = courtsV1.map(parametersV1ToV2);
       break;
     }
-    case Sources.V2: {
-      courtsV2 = TESTING_PARAMETERS ? courtsV2Arbitrum.map(parametersProductionToTesting) : courtsV2Arbitrum;
+    case Sources.V2_DEVNET: {
+      courtsV2 = TESTING_PARAMETERS
+        ? courtsV2ArbitrumDevnet.map(parametersProductionToTesting)
+        : courtsV2ArbitrumDevnet;
+      break;
+    }
+    case Sources.V2_TESTNET: {
+      courtsV2 = TESTING_PARAMETERS
+        ? courtsV2ArbitrumTestnet.map(parametersProductionToTesting)
+        : courtsV2ArbitrumTestnet;
       break;
     }
     default:

@@ -2,7 +2,8 @@ import { deployments, getNamedAccounts, getChainId, ethers } from "hardhat";
 import { PolicyRegistry } from "../typechain-types";
 import policiesV1Mainnet from "../config/policies.v1.mainnet.json";
 import policiesV1GnosisChain from "../config/policies.v1.gnosischain.json";
-import policiesV2Arbitrum from "../config/policies.v2.json";
+import policiesV2ArbitrumTestnet from "../config/policies.v2.testnet.json";
+import policiesV2ArbitrumDevnet from "../config/policies.v2.devnet.json";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -14,9 +15,10 @@ enum HomeChains {
 enum Sources {
   V1_MAINNET,
   V1_GNOSIS,
-  V2,
+  V2_DEVNET,
+  V2_TESTNET,
 }
-const from = Sources.V2;
+const from = Sources.V2_TESTNET;
 
 async function main() {
   // fallback to hardhat node signers on local network
@@ -49,8 +51,12 @@ async function main() {
       policiesV2 = policiesV1.map((policy) => ({ ...policy, court: policy.court + 1 }));
       break;
     }
-    case Sources.V2: {
-      policiesV2 = policiesV2Arbitrum;
+    case Sources.V2_DEVNET: {
+      policiesV2 = policiesV2ArbitrumDevnet;
+      break;
+    }
+    case Sources.V2_TESTNET: {
+      policiesV2 = policiesV2ArbitrumTestnet;
       break;
     }
     default:
