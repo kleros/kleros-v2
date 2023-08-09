@@ -7,6 +7,7 @@ import DisputeKitClassic from "@kleros/kleros-v2-contracts/deployments/arbitrumG
 import PolicyRegistry from "@kleros/kleros-v2-contracts/deployments/arbitrumGoerli/PolicyRegistry.json" assert { type: "json" };
 import IArbitrableV2 from "@kleros/kleros-v2-contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" assert { type: "json" };
 import IHomeGateway from "@kleros/kleros-v2-contracts/artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" assert { type: "json" };
+import PNKFaucet from "@kleros/kleros-v2-contracts/deployments/arbitrumGoerli/PNKFaucet.json" assert { type: "json" };
 
 export default defineConfig({
   out: "src/hooks/contracts/generated.ts",
@@ -46,6 +47,13 @@ export default defineConfig({
     {
       name: "IHomeGateway",
       abi: IHomeGateway.abi,
+    },
+    {
+      name: "PNKFaucet",
+      address: {
+        [arbitrumGoerli.id]: PNKFaucet.address as `0x{string}`,
+      },
+      abi: PNKFaucet.abi,
     },
   ],
   plugins: [react(), actions()],
