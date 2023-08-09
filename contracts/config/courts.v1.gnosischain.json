@@ -3,9 +3,9 @@
     "id": 0,
     "parent": "0",
     "hiddenVotes": true,
-    "minStake": "520000000000000000000",
-    "alpha": "5000",
-    "feeForJuror": "15000000000000000000",
+    "minStake": "1600000000000000000000",
+    "alpha": "10000",
+    "feeForJuror": "13000000000000000000",
     "jurorsForCourtJump": "511",
     "timesPerPeriod": [
       280800,
@@ -18,10 +18,10 @@
     "id": 1,
     "parent": "0",
     "hiddenVotes": false,
-    "minStake": "520000000000000000000",
-    "alpha": "3100",
-    "feeForJuror": "6900000000000000000",
-    "jurorsForCourtJump": "30",
+    "minStake": "1600000000000000000000",
+    "alpha": "5000",
+    "feeForJuror": "6400000000000000000",
+    "jurorsForCourtJump": "14",
     "timesPerPeriod": [
       140400,
       291600,
@@ -33,9 +33,9 @@
     "id": 2,
     "parent": "0",
     "hiddenVotes": false,
-    "minStake": "1200000000000000000000",
+    "minStake": "5800000000000000000000",
     "alpha": "5000",
-    "feeForJuror": "22000000000000000000",
+    "feeForJuror": "19000000000000000000",
     "jurorsForCourtJump": "63",
     "timesPerPeriod": [
       280800,
@@ -48,9 +48,9 @@
     "id": 3,
     "parent": "2",
     "hiddenVotes": false,
-    "minStake": "1200000000000000000000",
+    "minStake": "5800000000000000000000",
     "alpha": "1800",
-    "feeForJuror": "9400000000000000000",
+    "feeForJuror": "8200000000000000000",
     "jurorsForCourtJump": "63",
     "timesPerPeriod": [
       280800,
@@ -63,9 +63,9 @@
     "id": 4,
     "parent": "2",
     "hiddenVotes": false,
-    "minStake": "1200000000000000000000",
+    "minStake": "5800000000000000000000",
     "alpha": "1800",
-    "feeForJuror": "9400000000000000000",
+    "feeForJuror": "8200000000000000000",
     "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
@@ -78,9 +78,9 @@
     "id": 5,
     "parent": "2",
     "hiddenVotes": false,
-    "minStake": "1200000000000000000000",
+    "minStake": "5800000000000000000000",
     "alpha": "1800",
-    "feeForJuror": "9400000000000000000",
+    "feeForJuror": "8200000000000000000",
     "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
@@ -93,9 +93,9 @@
     "id": 6,
     "parent": "2",
     "hiddenVotes": false,
-    "minStake": "1200000000000000000000",
+    "minStake": "5800000000000000000000",
     "alpha": "2200",
-    "feeForJuror": "12000000000000000000",
+    "feeForJuror": "10000000000000000000",
     "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
@@ -108,9 +108,9 @@
     "id": 7,
     "parent": "2",
     "hiddenVotes": false,
-    "minStake": "1200000000000000000000",
+    "minStake": "5800000000000000000000",
     "alpha": "2200",
-    "feeForJuror": "12000000000000000000",
+    "feeForJuror": "10000000000000000000",
     "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
@@ -123,9 +123,9 @@
     "id": 8,
     "parent": "2",
     "hiddenVotes": false,
-    "minStake": "1200000000000000000000",
+    "minStake": "5800000000000000000000",
     "alpha": "2800",
-    "feeForJuror": "15000000000000000000",
+    "feeForJuror": "13000000000000000000",
     "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
@@ -138,9 +138,9 @@
     "id": 9,
     "parent": "2",
     "hiddenVotes": false,
-    "minStake": "1200000000000000000000",
+    "minStake": "5800000000000000000000",
     "alpha": "2800",
-    "feeForJuror": "15000000000000000000",
+    "feeForJuror": "13000000000000000000",
     "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
@@ -153,9 +153,9 @@
     "id": 10,
     "parent": "2",
     "hiddenVotes": false,
-    "minStake": "1200000000000000000000",
+    "minStake": "5800000000000000000000",
     "alpha": "2800",
-    "feeForJuror": "15000000000000000000",
+    "feeForJuror": "13000000000000000000",
     "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
@@ -168,9 +168,9 @@
     "id": 11,
     "parent": "2",
     "hiddenVotes": false,
-    "minStake": "1200000000000000000000",
+    "minStake": "5800000000000000000000",
     "alpha": "2800",
-    "feeForJuror": "15000000000000000000",
+    "feeForJuror": "13000000000000000000",
     "jurorsForCourtJump": "31",
     "timesPerPeriod": [
       280800,
@@ -183,7 +183,7 @@
     "id": 12,
     "parent": "0",
     "hiddenVotes": false,
-    "minStake": "1400000000000000000000",
+    "minStake": "7400000000000000000000",
     "alpha": "5000",
     "feeForJuror": "30000000000000000000",
     "jurorsForCourtJump": "63",
@@ -198,8 +198,8 @@
     "id": 13,
     "parent": "12",
     "hiddenVotes": false,
-    "minStake": "1400000000000000000000",
-    "alpha": "1600",
+    "minStake": "7400000000000000000000",
+    "alpha": "5000",
     "feeForJuror": "30000000000000000000",
     "jurorsForCourtJump": "63",
     "timesPerPeriod": [
@@ -213,8 +213,8 @@
     "id": 14,
     "parent": "12",
     "hiddenVotes": false,
-    "minStake": "1400000000000000000000",
-    "alpha": "1600",
+    "minStake": "7400000000000000000000",
+    "alpha": "5000",
     "feeForJuror": "30000000000000000000",
     "jurorsForCourtJump": "63",
     "timesPerPeriod": [
@@ -222,6 +222,51 @@
       437400,
       437400,
       291600
+    ]
+  },
+  {
+    "id": 15,
+    "parent": "0",
+    "hiddenVotes": true,
+    "minStake": "3300000000000000000000",
+    "alpha": "5000",
+    "feeForJuror": "13000000000000000000",
+    "jurorsForCourtJump": "63",
+    "timesPerPeriod": [
+      280800,
+      583200,
+      583200,
+      388800
+    ]
+  },
+  {
+    "id": 16,
+    "parent": "15",
+    "hiddenVotes": false,
+    "minStake": "3300000000000000000000",
+    "alpha": "2400",
+    "feeForJuror": "6400000000000000000",
+    "jurorsForCourtJump": "30",
+    "timesPerPeriod": [
+      140400,
+      291600,
+      291600,
+      194400
+    ]
+  },
+  {
+    "id": 17,
+    "parent": "15",
+    "hiddenVotes": false,
+    "minStake": "3300000000000000000000",
+    "alpha": "4250",
+    "feeForJuror": "15000000000000000000",
+    "jurorsForCourtJump": "15",
+    "timesPerPeriod": [
+      108000,
+      216000,
+      216000,
+      216000
     ]
   }
 ]

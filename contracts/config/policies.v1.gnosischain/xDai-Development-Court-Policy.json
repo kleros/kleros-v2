@@ -1,0 +1,6 @@
+{
+  "name": "xDai Development Court",
+  "description": "**Court purpose** \n\n In this court, jurors will solve disputes involving the respect of specifications given by the client.",
+  "summary": "**Example** \n\n Developper does not respect indentation, does not name variables explicitly or has not made a clear file structure. In such cases, jurors should refuse the proposal made by the developer.",
+  "requiredSkills": "This court requires a good level of programmation. Jurors who are not intermediate developers are advised to stake into this court only if they have some basics of low-level programming languages, ​​algorithmic and knowledge of good practices of development."
+}

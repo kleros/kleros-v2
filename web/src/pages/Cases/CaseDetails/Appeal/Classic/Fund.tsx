@@ -84,12 +84,13 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
             onClick={() => {
               if (fundAppeal) {
                 setIsSending(true);
-                wrapWithToast(async () => await fundAppeal().then((response) => response.hash), publicClient).finally(
-                  () => {
-                    setIsSending(false);
+                wrapWithToast(async () => await fundAppeal().then((response) => response.hash), publicClient)
+                  .then(() => {
                     setIsOpen(true);
-                  }
-                );
+                  })
+                  .finally(() => {
+                    setIsSending(false);
+                  });
               }
             }}
           />

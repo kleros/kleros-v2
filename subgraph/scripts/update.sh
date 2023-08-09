@@ -16,7 +16,10 @@ function update() #file #dataSourceIndex #graphNetwork
     yq -i  ".dataSources[$dataSourceIndex].source.startBlock=$blockNumber" "$SCRIPT_DIR"/../subgraph.yaml
 }
 
+# as per ../contracts/hardhat.config.js
 hardhatNetwork=${1:-arbitrumGoerli}
+
+# as per https://thegraph.com/docs/en/developing/supported-networks/
 graphNetwork=${2:-arbitrum\-goerli}
 i=0
 

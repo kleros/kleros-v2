@@ -31,7 +31,7 @@ const deployResolver: DeployFunction = async (hre: HardhatRuntimeEnvironment) =>
   }`;
 
   const arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
-  let tx = await (await arbitrable.changeDisputeTemplate(template)).wait();
+  let tx = await (await arbitrable.changeDisputeTemplate(template, "disputeTemplateMapping: TODO")).wait();
   tx.events?.forEach((event) => {
     console.log("event: %O", event.args);
   });

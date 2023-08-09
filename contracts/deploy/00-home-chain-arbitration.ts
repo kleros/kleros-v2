@@ -11,7 +11,7 @@ enum HomeChains {
 
 const pnkByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x330bD769382cFc6d50175903434CCC8D206DCAE5"],
-  [HomeChains.ARBITRUM_GOERLI, "0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610"],
+  [HomeChains.ARBITRUM_GOERLI, "0x3483FA1b87792cd5BE4100822C4eCEC8D3E531ee"],
 ]);
 
 // https://randomizer.ai/docs#addresses
@@ -64,6 +64,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const randomizer = randomizerByChain.get(Number(await getChainId())) ?? AddressZero;
   const rng = await deploy("RandomizerRNG", {
+    skipIfAlreadyDeployed: true,
     from: deployer,
     args: [randomizer, deployer],
     log: true,
@@ -120,18 +121,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await execute("KlerosCore", { from: deployer, log: true }, "changeCurrencyRates", pnk, 12225583, 12);
   await execute("KlerosCore", { from: deployer, log: true }, "changeCurrencyRates", dai, 60327783, 11);
   await execute("KlerosCore", { from: deployer, log: true }, "changeCurrencyRates", weth, 1, 1);
-
-  const disputeTemplateRegistry = await deploy("DisputeTemplateRegistry", {
-    from: deployer,
-    args: [],
-    log: true,
-  });
-
-  await deploy("DisputeResolver", {
-    from: deployer,
-    args: [klerosCore.address, disputeTemplateRegistry.address],
-    log: true,
-  });
 };
 
 deployArbitration.tags = ["Arbitration"];

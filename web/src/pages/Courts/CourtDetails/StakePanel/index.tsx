@@ -31,7 +31,7 @@ const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "
       </TagArea>
       <TextArea>
         <strong>{`${isStaking ? "Stake" : "Withdraw"} PNK`}</strong> {`${isStaking ? "to join the" : "from"}`}{" "}
-        {courtName} court.
+        {courtName} court. Depending on the staking phase, your stake might take some time to be live.
       </TextArea>
       <StakeArea>
         <InputDisplay {...{ action, isSending, setIsSending, setIsPopupOpen, amount, setAmount }} />

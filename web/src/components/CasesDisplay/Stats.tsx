@@ -1,15 +1,13 @@
 import React from "react";
 import styled from "styled-components";
+import { useAllCasesQuery } from "hooks/queries/useAllCasesQuery";
 
 const FieldWrapper = styled.div`
   display: inline-flex;
   gap: 8px;
 `;
 
-const Field: React.FC<{ label: string; value: string }> = ({
-  label,
-  value,
-}) => (
+const Field: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <FieldWrapper>
     <label>{label}</label>
     <small>{value}</small>
@@ -23,21 +21,29 @@ const SeparatorLabel = styled.label`
 
 const Separator: React.FC = () => <SeparatorLabel>|</SeparatorLabel>;
 
-const fields = [
-  { label: "Total", value: "600" },
-  { label: "In Progress", value: "50" },
-  { label: "Closed", value: "550" },
-];
+const Stats: React.FC = () => {
+  const { data } = useAllCasesQuery();
 
-const Stats: React.FC = () => (
-  <div>
-    {fields.map(({ label, value }, i) => (
-      <React.Fragment key={i}>
-        <Field {...{ label, value }} />
-        {i + 1 < fields.length ? <Separator /> : null}
-      </React.Fragment>
-    ))}
-  </div>
-);
+  const totalDisputes = data?.counter?.cases;
+  const closedDisputes = data?.counter?.casesRuled;
+  const inProgressDisputes = (totalDisputes - closedDisputes).toString();
+
+  const fields = [
+    { label: "Total", value: totalDisputes ?? "0" },
+    { label: "In Progress", value: inProgressDisputes ?? "0" },
+    { label: "Closed", value: closedDisputes ?? "0" },
+  ];
+
+  return (
+    <div>
+      {fields.map(({ label, value }, i) => (
+        <React.Fragment key={i}>
+          <Field {...{ label, value }} />
+          {i + 1 < fields.length ? <Separator /> : null}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+};
 
 export default Stats;

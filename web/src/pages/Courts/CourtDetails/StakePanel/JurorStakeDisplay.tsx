@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
@@ -13,20 +13,33 @@ import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
 
 const format = (value: bigint | undefined): string => (value !== undefined ? formatEther(value) : "0");
 
-const formatBigIntPercentage = (numerator: bigint, denominator: bigint): string => {
+const bigIntRatioToPercentage = (numerator: bigint, denominator: bigint): string => {
   const decimalPlaces = 2;
   const factor = BigInt(10) ** BigInt(decimalPlaces);
   const intermediate = (numerator * factor * 100n) / denominator;
-  let result = intermediate.toString();
+  const result = intermediate.toString();
   const pointIndex = result.length - decimalPlaces;
   const integerPart = result.slice(0, pointIndex) || "0";
   const decimalPart = result.slice(pointIndex);
-  if (decimalPart.length > 0) {
-    result = `${integerPart}.${decimalPart}%`;
-  } else {
-    result = `${integerPart}.00%`;
-  }
-  return result;
+  return `${integerPart}${decimalPart.length > 0 ? "." + decimalPart : ".00"}%`;
+};
+
+const useCalculateJurorOdds = (
+  jurorBalance: readonly [bigint, bigint, bigint] | undefined,
+  stakedByAllJurors: string | undefined,
+  loading: boolean
+): string => {
+  return useMemo(() => {
+    if (loading) {
+      return "Calculating...";
+    }
+
+    if (!jurorBalance || !stakedByAllJurors || stakedByAllJurors === "0") {
+      return "0.00%";
+    }
+
+    return bigIntRatioToPercentage(jurorBalance[0], BigInt(stakedByAllJurors));
+  }, [jurorBalance, stakedByAllJurors, loading]);
 };
 
 const JurorBalanceDisplay = () => {
@@ -38,13 +51,29 @@ const JurorBalanceDisplay = () => {
     watch: true,
   });
   const { data: courtDetails } = useCourtDetails(id);
-
   const stakedByAllJurors = courtDetails?.court?.stake;
 
-  const jurorOdds =
-    !isUndefined(stakedByAllJurors) && !isUndefined(jurorBalance) && stakedByAllJurors !== "0"
-      ? formatBigIntPercentage(jurorBalance[0], BigInt(stakedByAllJurors))
-      : "0.00%";
+  const [loading, setLoading] = useState(false);
+  const [previousJurorBalance, setPreviousJurorBalance] = useState<bigint | undefined>(undefined);
+  const [previousStakedByAllJurors, setPreviousStakedByAllJurors] = useState<bigint | undefined>(undefined);
+
+  useEffect(() => {
+    if (previousJurorBalance !== undefined && jurorBalance?.[0] !== previousJurorBalance) {
+      setLoading(true);
+    }
+    setPreviousJurorBalance(jurorBalance?.[0]);
+  }, [jurorBalance, previousJurorBalance]);
+
+  useEffect(() => {
+    if (loading && stakedByAllJurors !== undefined && BigInt(stakedByAllJurors) !== previousStakedByAllJurors) {
+      setLoading(false);
+    }
+    if (stakedByAllJurors !== undefined) {
+      setPreviousStakedByAllJurors(BigInt(stakedByAllJurors));
+    }
+  }, [stakedByAllJurors, loading, previousStakedByAllJurors]);
+
+  const jurorOdds = useCalculateJurorOdds(jurorBalance, stakedByAllJurors, loading);
 
   const data = [
     {

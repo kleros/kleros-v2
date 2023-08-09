@@ -6,6 +6,7 @@ const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-bottom: 5px;
 `;
 
 const StyledSearchbar = styled(Searchbar)`
@@ -20,8 +21,10 @@ const StyledSearchbar = styled(Searchbar)`
 `;
 
 const Search: React.FC = () => (
-  <Container>
-    <StyledSearchbar />
+  <div>
+    <Container>
+      <StyledSearchbar />
+    </Container>
     <DropdownCascader
       placeholder={"Select Court"}
       onSelect={() => {
@@ -58,7 +61,7 @@ const Search: React.FC = () => (
         },
       ]}
     />
-  </Container>
+  </div>
 );
 
 export default Search;

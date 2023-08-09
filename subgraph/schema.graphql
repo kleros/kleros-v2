@@ -32,6 +32,7 @@ interface Vote {
   coreDispute: Dispute!
   localRound: DisputeKitRound!
   juror: User!
+  draw: Draw
 }
 
 interface Contribution {
@@ -171,6 +172,7 @@ type Draw @entity {
   round: Round!
   juror: User!
   voteID: BigInt!
+  vote: Vote @derivedFrom(field: "draw")
 }
 
 type DisputeKit @entity {
@@ -235,16 +237,31 @@ type ClassicRound implements DisputeKitRound @entity {
   contributions: [ClassicContribution!]! @derivedFrom(field: "localRound")
   feeRewards: BigInt!
   fundedChoices: [BigInt!]!
+  justifications: [ClassicJustification!] @derivedFrom(field: "localRound")
 }
 
 type ClassicVote implements Vote @entity {
-  id: ID! # disputeKit.id-coreDispute-currentRound-juror
+  id: ID! # disputeKit.id-coreDispute-currentRound-voteID
   coreDispute: Dispute!
   localRound: DisputeKitRound!
   juror: User!
+  draw: Draw
 
+  commit: Bytes
+  commited: Boolean!
+  choice: BigInt
+  voted: Boolean!
+  justification: ClassicJustification!
+}
+
+type ClassicJustification @entity {
+  id: ID! # disputeKit.id-coreDispute-currentRound-voteIDs
+  coreDispute: Dispute!
+  localRound: ClassicRound!
+  juror: User!
   choice: BigInt!
-  justification: String!
+  votes: [ClassicVote!]! @derivedFrom(field: "justification")
+  reference: String!
 }
 
 type ClassicEvidenceGroup implements EvidenceGroup @entity {

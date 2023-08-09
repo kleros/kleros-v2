@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import getContractAddress from "../deploy-helpers/getContractAddress";
 import { KlerosCore__factory } from "../typechain-types";
-import disputeTemplate from "../config/DisputeTemplate.simple.json";
+import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
 
 const HARDHAT_NETWORK = 31337;
 
@@ -18,7 +18,6 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   console.log("Deploying to chainId %s with deployer %s", HARDHAT_NETWORK, deployer);
 
   const klerosCore = await deployments.get("KlerosCore");
-  const disputeTemplateRegistry = await deployments.get("DisputeTemplateRegistry");
 
   const vea = await deploy("VeaMock", {
     from: deployer,
@@ -62,6 +61,12 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await execute("ForeignGatewayOnEthereum", { from: deployer, log: true }, "changeCourtJurorFee", courtId, fee);
   // TODO: set up the correct fees for the lower courts
 
+  const disputeTemplateRegistry = await deploy("DisputeTemplateRegistry", {
+    from: deployer,
+    args: [],
+    log: true,
+  });
+
   // TODO: debug why this extraData fails but "0x00" works
   // const extraData =
   //   "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
@@ -71,6 +76,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     args: [
       foreignGateway.address,
       disputeTemplate,
+      "disputeTemplateMapping: TODO",
       extraData,
       disputeTemplateRegistry.address,
       ethers.constants.AddressZero,

@@ -117,5 +117,29 @@
     "requiredSkills": "This court requires a good level of javascript. Jurors who are not javascript intermediate developers are advised to stake into this court only if they know the main frameworks/libraries (ExpressJs, React, EthersJs…) and be comfortable with testing, APIs or languages to interact with databases.",
     "court": 14,
     "uri": "/ipfs/Qme15AUfpvLX3iwEtqswe26PQHMmKnF4eWGywBPqbkdqcD/xDai-Javascript-Court-Policy.json"
+  },
+  {
+    "name": "Corte General en Español",
+    "description": "**Propósito de la Corte** \n\n La Corte General en Español sirve como corte de uso múltiple para todo tipo de disputas que requieran un alto nivel de conocimiento del español para ser evaluadas. Los casos resueltos por cortes más especializadas que requieran conocimientos de español además de otras habilidades pueden ser revisados en esta corte tras el proceso de apelación.",
+    "summary": "**Políticas:** \n\n Además del requisito de que los jurados tengan un nivel suficiente de español, esta corte debe tener la misma política que la Corte General de Kleros en xDai(xDai General Court).",
+    "requiredSkills": "**Habilidades Requeridas:** \n\n Este tribunal requiere un nivel avanzado de español. Los miembros del jurado deben poder leer la evidencia y proporcionar una justificación adecuada en español sobre una amplia gama de temas.",
+    "court": 15,
+    "uri": "/ipfs/QmNotPsy4BKY2kxRqbWchCTJrgGMqnQrxfE5b5Jd63A7rj/xDai-Spanish-General-Court-Policy.json"
+  },
+  {
+    "name": "Corte de Curación en Español",
+    "description": "**Propósito de la Corte** \n\n En esta corte, los miembros del jurado resuelven microtareas relacionadas con la curación o la moderación de contenido, como para redes sociales, cuando los requisitos son relativamente sencillos. Los casos de mayor esfuerzo, que requieren la aplicación de reglas con mayores matices, deben presentarse en otras cortes, pero pueden llegar a este tribunal en caso de apelación.",
+    "summary": "",
+    "requiredSkills": "**Habilidades Requeridas:** \n\n Este tribunal requiere un nivel avanzado de español. Los miembros del jurado deben poder leer la evidencia y proporcionar una justificación adecuada en español sobre una amplia gama de temas.",
+    "court": 16,
+    "uri": "/ipfs/QmQeHpuaL9RViwKnPNRMCAbPakdPSDefBmhPpMAi45vRLS/xDai-Spanish-Curation-Court-Policy.json"
+  },
+  {
+    "name": "Blockchain No Técnica",
+    "description": "",
+    "summary": "",
+    "requiredSkills": "**Habilidades Requeridas:** \n\n Los jurados no necesitan un conocimiento profundo de blockchain ni habilidades de programación. Pero necesitan conocimiento para leer exploradores de blockchain, buscar criptoactivos listados en exchanges, entender cómo verificar una transacción y analizar datos on-chain.",
+    "court": 17,
+    "uri": "/ipfs/QmVxh7KmFrimGz6WMvLMRXZhwQFDoj28KEYLTpYoUTGwAj/xDai-Blockchain-No-Tecnica-Policy.json"
   }
 ]

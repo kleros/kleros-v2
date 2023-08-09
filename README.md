@@ -29,7 +29,7 @@
 
 ## Deployments
 
-##### ⛓️ [Contracts addresses](contracts/README.md#deployed-addresses)
+##### ⛓️ [Contracts addresses](contracts/README.md#deployments)
 
 ##### 🗃️ [Subgraph endpoints](subgraph/README.md#deployments)
 

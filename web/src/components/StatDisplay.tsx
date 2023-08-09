@@ -23,8 +23,8 @@ const SVGContainer = styled.div<{ iconColor: string; backgroundColor: string }>`
 
   svg {
     fill: ${({ iconColor }) => iconColor};
-    max-height: 32px;
-    max-width: 32px;
+    height: 32px;
+    width: 32px;
   }
 `;
 

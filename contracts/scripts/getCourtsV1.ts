@@ -30,7 +30,7 @@ const configByChain = new Map<number, Config>([
     100, // gnosis
     {
       courtAddress: "0x9C1dA9A04925bDfDedf0f6421bC7EEa8305F9002",
-      maxCourts: 15,
+      maxCourts: 18,
     },
   ],
 ]);

@@ -18,7 +18,7 @@ interface IDappList {
 
 const ITEMS = [
   {
-    text: "Court",
+    text: "Court v1",
     Icon: Court,
     url: "https://court.kleros.io/",
   },
