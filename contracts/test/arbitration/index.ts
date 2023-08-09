@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, deployments } from "hardhat";
 import { BigNumber } from "ethers";
 import getContractAddress from "../../deploy-helpers/getContractAddress";
 
@@ -83,18 +83,27 @@ async function deployContracts(deployer) {
   await disputeKit.deployed();
   let nonce;
   nonce = await deployer.getTransactionCount();
-  nonce += 1;
+  nonce += 2; // SortitionModule is upgradeable, it deploys an implementation and a proxy
   const KlerosCoreAddress = getContractAddress(deployer.address, nonce);
 
-  const sortitionModuleFactory = await ethers.getContractFactory("SortitionModule", deployer);
-  const sortitionModule = await sortitionModuleFactory.deploy(
-    deployer.address,
-    KlerosCoreAddress,
-    120,
-    120,
-    rng.address,
-    LOOKAHEAD
-  ); // minStakingTime, maxFreezingTime
+  const sortitionModuleDeployment = await deployments.deploy("SortitionModule_DisputeKitClassic", {
+    contract: "SortitionModule",
+    from: deployer.address,
+    proxy: {
+      proxyContract: "UUPSProxy",
+      proxyArgs: ["{implementation}", "{data}"],
+      execute: {
+        init: {
+          methodName: "initialize",
+          args: [deployer.address, KlerosCoreAddress, 120, 120, rng.address, LOOKAHEAD], // minStakingTime, maxFreezingTime
+        },
+      },
+    },
+    log: true,
+    args: [],
+  });
+
+  const sortitionModule = await ethers.getContractAt("SortitionModule", sortitionModuleDeployment.address);
 
   const klerosCoreFactory = await ethers.getContractFactory("KlerosCore", {
     signer: deployer,
@@ -107,7 +116,7 @@ async function deployContracts(deployer) {
     false,
     [200, 10000, 100, 3],
     [0, 0, 0, 0],
-    0xfa,
+    "0xfa",
     sortitionModule.address
   );
   await core.deployed();

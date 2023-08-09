@@ -77,14 +77,26 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   });
 
   const nonce = await ethers.provider.getTransactionCount(deployer);
-  const KlerosCoreAddress = getContractAddress(deployer, nonce + 1);
+  const KlerosCoreAddress = getContractAddress(deployer, nonce + 2); // Deploying an upgradeable version of SortionModule requires 2 transactions instead of 1 (implementation then proxy)
   console.log("calculated future KlerosCore address for nonce %d: %s", nonce, KlerosCoreAddress);
 
-  const sortitionModule = await deploy("SortitionModule", {
+  const sortitionModuleDeployment = await deploy("SortitionModule", {
     from: deployer,
-    args: [deployer, KlerosCoreAddress, 1800, 1800, rng.address, RNG_LOOKAHEAD], // minStakingTime, maxFreezingTime
+    proxy: {
+      proxyContract: "UUPSProxy",
+      proxyArgs: ["{implementation}", "{data}"],
+      execute: {
+        init: {
+          methodName: "initialize",
+          args: [deployer, KlerosCoreAddress, 1800, 1800, rng.address, RNG_LOOKAHEAD], // minStakingTime, maxFreezingTime
+        },
+      },
+    },
     log: true,
+    args: [],
   });
+
+  const sortitionModule = await ethers.getContractAt("SortitionModule", sortitionModuleDeployment.address);
 
   const pnk = pnkByChain.get(chainId) ?? AddressZero;
   const dai = daiByChain.get(chainId) ?? AddressZero;
