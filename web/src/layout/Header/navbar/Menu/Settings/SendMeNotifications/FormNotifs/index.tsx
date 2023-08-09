@@ -45,13 +45,12 @@ const FormNotifs: React.FC = () => {
     setCheckboxStates(newCheckboxStates);
   };
 
-  const handleClick = () => {
-    const optionsObject = {};
-    OPTIONS.forEach(({ label }, index) => {
+  const handleClick = async () => {
+    const optionsObject: object = {};
+    OPTIONS.forEach(({ label }, index: number) => {
       optionsObject[label] = checkboxStates[index];
     });
     const jsonData = JSON.stringify(optionsObject, null, 2);
-    console.log(jsonData);
   };
 
   return (
