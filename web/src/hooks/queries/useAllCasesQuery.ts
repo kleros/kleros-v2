@@ -5,11 +5,10 @@ import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { AllCasesQuery };
 
 const allCasesQuery = graphql(`
-  query AllCasesQuery {
-    disputes {
-      id
-      period
-      lastPeriodChange
+  query AllCases {
+    counter(id: 0) {
+      cases
+      casesRuled
     }
   }
 `);

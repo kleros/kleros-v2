@@ -21,36 +21,13 @@ const SeparatorLabel = styled.label`
 
 const Separator: React.FC = () => <SeparatorLabel>|</SeparatorLabel>;
 
-const calculateDisputeSituation = (data) => {
-  if (data) {
-    let inProgressCount = 0;
-    let closedCount = 0;
-
-    data.forEach((dispute) => {
-      if (dispute.period === "execution") {
-        closedCount++;
-      } else {
-        inProgressCount++;
-      }
-    });
-    const totalCases = data.length;
-    return {
-      inProgress: inProgressCount.toString(),
-      closed: closedCount.toString(),
-      total: totalCases.toString(),
-    };
-  }
-};
-
 const Stats: React.FC = () => {
   const { data } = useAllCasesQuery();
 
-  const caseStats = calculateDisputeSituation(data?.disputes);
-
   const fields = [
-    { label: "Total", value: caseStats?.total ?? "0" },
-    { label: "In Progress", value: caseStats?.inProgress ?? "0" },
-    { label: "Closed", value: caseStats?.closed ?? "0" },
+    { label: "Total", value: data?.counter?.cases ?? "0" },
+    { label: "In Progress", value: data?.counter?.cases - data?.counter?.casesRuled ?? "0" },
+    { label: "Closed", value: data?.counter?.casesRuled ?? "0" },
   ];
 
   return (
