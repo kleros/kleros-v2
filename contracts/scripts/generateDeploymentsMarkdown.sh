@@ -19,12 +19,11 @@ generate "$SCRIPT_DIR/../deployments/chiado" "https://gnosis-chiado.blockscout.c
 echo
 echo "#### Goerli"
 echo
-echo "- [PNK](https://goerli.etherscan.io/token/0xA3B02bA6E10F55fb177637917B1b472da0110CcC)"
 generate "$SCRIPT_DIR/../deployments/goerli" "https://goerli.etherscan.io/address/"
 echo
 echo "#### Arbitrum Goerli"
 echo
-echo "- [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610)"
+echo "- [PNK](https://goerli.arbiscan.io/token/0x3483FA1b87792cd5BE4100822C4eCEC8D3E531ee)"
 generate "$SCRIPT_DIR/../deployments/arbitrumGoerli" "https://goerli.arbiscan.io/address/"
 echo
 echo "### Devnet"
@@ -39,5 +38,5 @@ generate "$SCRIPT_DIR/../deployments/goerliDevnet" "https://goerli.etherscan.io/
 echo
 echo "#### Arbitrum Goerli"
 echo
-echo "- [PNK](https://goerli.arbiscan.io/token/0x4DEeeFD054434bf6721eF39Aa18EfB3fd0D12610)"
+echo "- [PNK](https://goerli.arbiscan.io/token/0x3483FA1b87792cd5BE4100822C4eCEC8D3E531ee)"
 generate "$SCRIPT_DIR/../deployments/arbitrumGoerliDevnet" "https://goerli.arbiscan.io/address/"
