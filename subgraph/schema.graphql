@@ -257,7 +257,7 @@ type ClassicVote implements Vote @entity {
 type ClassicJustification @entity {
   id: ID! # disputeKit.id-coreDispute-currentRound-voteIDs
   coreDispute: Dispute!
-  localRound: DisputeKitRound!
+  localRound: ClassicRound!
   juror: User!
   choice: BigInt!
   votes: [ClassicVote!]! @derivedFrom(field: "justification")
