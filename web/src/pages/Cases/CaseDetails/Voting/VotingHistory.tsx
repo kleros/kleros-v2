@@ -8,6 +8,7 @@ import BalanceIcon from "svgs/icons/law-balance.svg";
 import { useVotingHistory } from "queries/useVotingHistory";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { shortenAddress } from "utils/shortenAddress";
+import { isUndefined } from "utils/index";
 
 const Container = styled.div``;
 
@@ -86,19 +87,36 @@ const JustificationContainer = styled.div`
   }
 `;
 
-const VotingHistory: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable }) => {
+export const getVoteChoice = (vote, answers) => {
+  const selectedAnswer = answers?.[vote - 1]?.title;
+  if (vote === 0) {
+    return "Refuse to arbitrate";
+  } else if (!isUndefined(selectedAnswer)) {
+    return selectedAnswer;
+  } else {
+    return `Answer 0x${vote}`;
+  }
+};
+
+const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean }> = ({ arbitrable, isQuestion }) => {
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
   const [currentTab, setCurrentTab] = useState(0);
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
   const rounds = votingHistory?.dispute?.rounds;
   const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
+  const answers = disputeTemplate?.answers;
+
   return (
     <Container>
       <h1>Voting History</h1>
       {rounds && localRounds && disputeTemplate && (
         <>
-          <ReactMarkdown>{disputeTemplate.question}</ReactMarkdown>
+          {isQuestion && disputeTemplate.question ? (
+            <ReactMarkdown>{disputeTemplate.question}</ReactMarkdown>
+          ) : (
+            <ReactMarkdown>The dispute's template is not correct please vote refuse to arbitrate</ReactMarkdown>
+          )}
           <StyledTabs
             currentValue={currentTab}
             items={rounds.map((_, i) => ({
@@ -124,7 +142,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable })
                 icon: <Identicon size="20" string={vote.juror.id} />,
                 body: (
                   <AccordionContent
-                    choice={vote.choice === 0 ? "Refuse to arbitrate" : disputeTemplate.answers[vote.choice - 1].title}
+                    choice={getVoteChoice(parseInt(vote.choice), answers)}
                     justification={vote.justification || ""}
                   />
                 ),

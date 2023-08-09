@@ -30,7 +30,7 @@
   ],
   "packageManager": "yarn@3.3.1",
   "volta": {
-    "node": "16.18.1",
+    "node": "16.20.1",
     "yarn": "3.3.1"
   },
   "devDependencies": {

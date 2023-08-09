@@ -34,7 +34,6 @@ interface IActionButton {
 const StakeWithdrawButton: React.FC<IActionButton> = ({
   parsedAmount,
   action,
-  setAmount,
   isSending,
   setIsSending,
   setIsPopupOpen,
@@ -92,17 +91,18 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   };
 
   const { config: setStakeConfig } = usePrepareKlerosCoreSetStake({
-    enabled: !isUndefined(targetStake) && !isUndefined(id),
+    enabled: !isUndefined(targetStake) && !isUndefined(id) && isStaking && !isAllowance,
     args: [BigInt(id ?? 0), targetStake],
   });
   const { writeAsync: setStake } = useKlerosCoreSetStake(setStakeConfig);
   const handleStake = () => {
     if (typeof setStake !== "undefined") {
       setIsSending(true);
-      wrapWithToast(async () => await setStake().then((response) => response.hash), publicClient).finally(() => {
-        setIsSending(false);
-        setIsPopupOpen(true);
-      });
+      wrapWithToast(async () => await setStake().then((response) => response.hash), publicClient)
+        .then(() => setIsPopupOpen(true))
+        .finally(() => {
+          setIsSending(false);
+        });
     }
   };
 
@@ -130,7 +130,13 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
       <Button
         text={text}
         isLoading={isSending}
-        disabled={isSending || parsedAmount == 0n || !!isUndefined(targetStake) || checkDisabled()}
+        disabled={
+          isSending ||
+          parsedAmount == 0n ||
+          !!isUndefined(targetStake) ||
+          checkDisabled() ||
+          isUndefined(setStakeConfig.request)
+        }
         onClick={onClick}
       />
     </EnsureChain>
