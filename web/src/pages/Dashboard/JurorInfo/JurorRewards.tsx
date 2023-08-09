@@ -50,7 +50,7 @@ const rewards: IReward[] = [
 
 const calculateTotalReward = (coinId: number, data: UserQuery): bigint => {
   const total = data.user?.shifts
-    .map((shift) => parseInt(coinId === 0 ? shift.tokenAmount : shift.ethAmount))
+    .map((shift) => parseInt(coinId === 0 ? shift.pnkAmount : shift.ethAmount))
     .reduce((acc, curr) => acc + curr, 0);
 
   return BigInt(total ?? 0);
