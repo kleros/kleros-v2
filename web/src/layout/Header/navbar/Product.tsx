@@ -22,9 +22,9 @@ const Container = styled.a`
   }
   gap: 8px;
   width: calc(100px + (130 - 100) * (100vw - 375px) / (1250 - 375));
+  white-space: nowrap;
 
   background-color: ${({ theme }) => theme.lightBackground};
-
   small {
     font-weight: 400;
     line-height: 19px;
