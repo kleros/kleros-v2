@@ -30,15 +30,17 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
     queryFn: async () => {
       if (isEnabled) {
         try {
-          const { isCrossChainDispute, crossChainId, crossChainTemplateId, crossChainArbitrableAddress } =
-            crossChainData;
+          const { isCrossChainDispute, crossChainId, crossChainTemplateId } = crossChainData;
           const templateId = isCrossChainDispute
             ? crossChainTemplateId
             : await getTemplateId(arbitrableAddress, disputeID, publicClient);
-          console.log("templateId", templateId);
-          const { templateData } = await graphqlQueryFnHelper(disputeTemplateQuery, { id: templateId }, true);
+          const { disputeTemplate } = await graphqlQueryFnHelper(
+            disputeTemplateQuery,
+            { id: templateId.toString() },
+            true
+          );
 
-          return JSON.parse(templateData);
+          return JSON.parse(disputeTemplate.templateData);
         } catch {
           return {};
         }
