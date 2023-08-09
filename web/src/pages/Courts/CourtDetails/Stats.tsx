@@ -18,11 +18,9 @@ import { isUndefined } from "~src/utils";
 const StyledCard = styled.div`
   width: auto;
   height: fit-content;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
+  display: grid;
   gap: 32px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 `;
 
 interface IStat {
