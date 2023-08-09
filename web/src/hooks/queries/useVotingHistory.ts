@@ -16,15 +16,13 @@ const votingHistoryQuery = graphql(`
           ... on ClassicRound {
             winningChoice
             totalVoted
-            votes {
+            justifications {
               id
               juror {
                 id
               }
-              ... on ClassicVote {
-                choice
-                justification
-              }
+              choice
+              reference
             }
           }
         }

@@ -1,10 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
+import { graphql } from "src/graphql";
 import { PublicClient } from "viem";
 import { usePublicClient } from "wagmi";
 import { getIArbitrableV2 } from "hooks/contracts/generated";
-import { DEFAULT_CHAIN } from "consts/chains";
+import { DisputeTemplateQuery } from "src/graphql/graphql";
 import { isUndefined } from "utils/index";
+import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 import { useIsCrossChainDispute } from "../useIsCrossChainDispute";
+
+const disputeTemplateQuery = graphql(`
+  query DisputeTemplate($id: ID!) {
+    disputeTemplate(id: $id) {
+      id
+      templateTag
+      templateData
+      templateDataMappings
+    }
+  }
+`);
 
 export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
   const publicClient = usePublicClient();
@@ -17,18 +30,17 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
     queryFn: async () => {
       if (isEnabled) {
         try {
-          const { isCrossChainDispute, crossChainId, crossChainTemplateId, crossChainArbitrableAddress } =
-            crossChainData;
+          const { isCrossChainDispute, crossChainId, crossChainTemplateId } = crossChainData;
           const templateId = isCrossChainDispute
             ? crossChainTemplateId
             : await getTemplateId(arbitrableAddress, disputeID, publicClient);
-
-          return await getDisputeTemplate(
-            templateId,
-            isCrossChainDispute ? crossChainArbitrableAddress : arbitrableAddress,
-            isCrossChainDispute ? parseInt(crossChainId.toString()) : DEFAULT_CHAIN,
-            publicClient
+          const { disputeTemplate } = await graphqlQueryFnHelper(
+            disputeTemplateQuery,
+            { id: templateId.toString() },
+            true
           );
+
+          return JSON.parse(disputeTemplate.templateData);
         } catch {
           return {};
         }
@@ -58,35 +70,4 @@ const getTemplateId = async (
     filter: disputeFilter,
   });
   return disputeEvents[0].args._templateId ?? 0n;
-};
-
-const getDisputeTemplate = async (
-  templateId: bigint,
-  arbitrableAddress: `0x${string}`,
-  chainId: number,
-  publicClient: PublicClient
-) => {
-  const arbitrable = getIArbitrableV2({
-    address: arbitrableAddress,
-    chainId,
-  });
-  const disputeTemplateFilter = await arbitrable.createEventFilter.DisputeTemplate(
-    {
-      _templateId: templateId,
-    },
-    {
-      fromBlock: 0n,
-      toBlock: "latest",
-    }
-  );
-  const disputeTemplateEvents = await publicClient.getFilterLogs({
-    filter: disputeTemplateFilter,
-  });
-
-  if (!isUndefined(disputeTemplateEvents)) {
-    const parsedTemplate = JSON.parse(disputeTemplateEvents[0].args._templateData ?? "");
-    return parsedTemplate;
-  } else {
-    return {};
-  }
 };
