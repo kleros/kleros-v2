@@ -12,6 +12,7 @@ import {
   useKlerosCoreGetJurorBalance,
   usePnkAllowance,
 } from "hooks/contracts/generated";
+import { useCourtDetails } from "hooks/queries/useCourtDetails";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
 import { EnsureChain } from "components/EnsureChain";
@@ -41,6 +42,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const { id } = useParams();
   const { address } = useAccount();
   const klerosCore = getKlerosCore({});
+  const { data: courtDetails } = useCourtDetails(id);
   const { data: balance } = usePnkBalanceOf({
     enabled: !isUndefined(address),
     args: [address!],
@@ -134,7 +136,9 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
           isSending ||
           parsedAmount == 0n ||
           isUndefined(targetStake) ||
+          isUndefined(courtDetails) ||
           checkDisabled() ||
+          (targetStake !== 0n && targetStake < BigInt(courtDetails.court.minStake)) ||
           (isStaking && !isAllowance && isUndefined(setStakeConfig.request))
         }
         onClick={onClick}
