@@ -1,5 +1,5 @@
 import React from "react";
-import VoteDescriptionEmphasizedDate from "components/Popup";
+import { VoteDescriptionEmphasizedDate } from "components/Popup";
 
 interface IVoteWithCommit {
   date: string;
