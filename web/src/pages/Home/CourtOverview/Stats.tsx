@@ -18,10 +18,9 @@ const StyledCard = styled(Card)`
   width: auto;
   height: fit-content;
   padding: 16px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 32px;
-  flex-wrap: wrap;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 `;
 
 const getLastOrZero = (src: HomePageQuery["counters"], stat: HomePageQueryDataPoints) =>
