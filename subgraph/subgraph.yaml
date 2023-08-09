@@ -6,9 +6,9 @@ dataSources:
     name: KlerosCore
     network: arbitrum-goerli
     source:
-      address: "0x310CA56A5aC621737EA38897F3c762D620Cd940e"
+      address: "0x791812B0B9f2ba260B2DA432BB02Ee23BC1bB509"
       abi: KlerosCore
-      startBlock: 33436586
+      startBlock: 33640331
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
