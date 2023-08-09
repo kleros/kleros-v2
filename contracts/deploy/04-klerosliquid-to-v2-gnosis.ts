@@ -1,7 +1,7 @@
 import { parseUnits, parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import disputeTemplate from "../config/DisputeTemplate.simple.json";
+import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
 
 enum ForeignChains {
   GNOSIS_MAINNET = 100,
@@ -102,7 +102,15 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
   const disputeTemplateRegistry = await deployments.get("DisputeTemplateRegistry");
   await deploy("ArbitrableExample", {
     from: deployer,
-    args: [xKlerosLiquidV2.address, 0, disputeTemplate, extraData, disputeTemplateRegistry.address, weth.address],
+    args: [
+      xKlerosLiquidV2.address,
+      0,
+      disputeTemplate,
+      "disputeTemplateMapping: TODO",
+      extraData,
+      disputeTemplateRegistry.address,
+      weth.address,
+    ],
     log: true,
     maxFeePerGas: ONE_GWEI,
     maxPriorityFeePerGas: ONE_GWEI,

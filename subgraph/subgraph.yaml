@@ -6,9 +6,9 @@ dataSources:
     name: KlerosCore
     network: arbitrum-goerli
     source:
-      address: "0x8Af82E2F8890acb4AB84cbaB3c4C4Eb3E965CF24"
+      address: "0x310CA56A5aC621737EA38897F3c762D620Cd940e"
       abi: KlerosCore
-      startBlock: 27808431
+      startBlock: 33436586
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -61,9 +61,9 @@ dataSources:
     name: PolicyRegistry
     network: arbitrum-goerli
     source:
-      address: "0xED503aBA65B28D81444294D1eAa5d84CeFdC2C58"
+      address: "0x4c129b9836E4CC3Cf6D833b39a4B7cfA25D86c86"
       abi: PolicyRegistry
-      startBlock: 25585400
+      startBlock: 33436566
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -81,9 +81,9 @@ dataSources:
     name: DisputeKitClassic
     network: arbitrum-goerli
     source:
-      address: "0x0245A93ABd9c5b2d767B2D98cE6d5e612208E474"
+      address: "0x9ddf4a70295faaA695b8CF4F22177FA1f3a1B500"
       abi: DisputeKitClassic
-      startBlock: 27808415
+      startBlock: 33436570
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -111,6 +111,8 @@ dataSources:
           handler: handleChoiceFunded
         - event: Evidence(indexed uint256,indexed address,string)
           handler: handleEvidenceEvent
-        - event: Justification(indexed uint256,indexed address,indexed uint256,string)
-          handler: handleJustificationEvent
+        - event: VoteCast(indexed uint256,indexed address,uint256[],indexed uint256,string)
+          handler: handleVoteCast
+        - event: CommitCast(indexed uint256,indexed address,uint256[],bytes32)
+          handler: handleCommitCast
       file: ./src/DisputeKitClassic.ts

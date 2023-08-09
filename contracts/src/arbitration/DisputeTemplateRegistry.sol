@@ -14,9 +14,10 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry {
 
     function setDisputeTemplate(
         string memory _templateTag,
-        string memory _disputeTemplate
+        string memory _templateData,
+        string memory _templateDataMappings
     ) external returns (uint256 templateId) {
         templateId = templates++;
-        emit DisputeTemplate(templateId, _templateTag, _disputeTemplate);
+        emit DisputeTemplate(templateId, _templateTag, _templateData, _templateDataMappings);
     }
 }

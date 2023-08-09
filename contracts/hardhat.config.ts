@@ -116,6 +116,31 @@ const config: HardhatUserConfig = {
         },
       },
     },
+    arbitrumGoerliDevnet: {
+      chainId: 421613,
+      url: "https://goerli-rollup.arbitrum.io/rpc",
+      accounts:
+        (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 && [
+          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,
+          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_2 as string,
+          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_3 as string,
+          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_4 as string,
+          process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_5 as string,
+        ]) ||
+        (process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []),
+      live: true,
+      saveDeployments: true,
+      tags: ["staging", "home", "layer2"],
+      companionNetworks: {
+        foreignChiado: "chiadoDevnet",
+        foreignGoerli: "goerliDevnet",
+      },
+      verify: {
+        etherscan: {
+          apiKey: process.env.ARBISCAN_API_KEY,
+        },
+      },
+    },
     arbitrum: {
       chainId: 42161,
       url: "https://arb1.arbitrum.io/rpc",
@@ -144,6 +169,17 @@ const config: HardhatUserConfig = {
         home: "arbitrumGoerli",
       },
     },
+    goerliDevnet: {
+      chainId: 5,
+      url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      live: true,
+      saveDeployments: true,
+      tags: ["staging", "foreign", "layer1"],
+      companionNetworks: {
+        home: "arbitrumGoerliDevnet",
+      },
+    },
     mainnet: {
       chainId: 1,
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
@@ -167,7 +203,25 @@ const config: HardhatUserConfig = {
       },
       verify: {
         etherscan: {
-          apiUrl: "https://blockscout.com/gnosis/chiado",
+          apiUrl: "https://gnosis-chiado.blockscout.com",
+          apiKey: "",
+        },
+      },
+    },
+    chiadoDevnet: {
+      chainId: 10200,
+      url: "https://rpc.chiado.gnosis.gateway.fm",
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      live: true,
+      saveDeployments: true,
+      tags: ["staging", "foreign", "layer1"],
+      companionNetworks: {
+        home: "arbitrumGoerliDevnet",
+      },
+      verify: {
+        etherscan: {
+          apiUrl: "https://gnosis-chiado.blockscout.com",
+          apiKey: "",
         },
       },
     },
@@ -256,10 +310,13 @@ const config: HardhatUserConfig = {
     // https://github.com/wighawag/hardhat-deploy#importing-deployment-from-other-projects-with-truffle-support
     deployments: {
       arbitrumGoerli: ["../node_modules/@kleros/vea-contracts/deployments/arbitrumGoerli"],
+      arbitrumGoerliDevnet: ["../node_modules/@kleros/vea-contracts/deployments/arbitrumGoerli"],
       arbitrum: ["../node_modules/@kleros/vea-contracts/deployments/arbitrum"],
       chiado: ["../node_modules/@kleros/vea-contracts/deployments/chiado"],
+      chiadoDevnet: ["../node_modules/@kleros/vea-contracts/deployments/chiado"],
       gnosischain: ["../node_modules/@kleros/vea-contracts/deployments/gnosischain"],
       goerli: ["../node_modules/@kleros/vea-contracts/deployments/goerli"],
+      goerliDevnet: ["../node_modules/@kleros/vea-contracts/deployments/goerli"],
       mainnet: ["../node_modules/@kleros/vea-contracts/deployments/mainnet"],
     },
   },

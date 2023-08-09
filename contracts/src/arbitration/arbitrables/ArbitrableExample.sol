@@ -48,10 +48,14 @@ contract ArbitrableExample is IArbitrableV2 {
     /// @dev Constructor
     /// @param _arbitrator The arbitrator to rule on created disputes.
     /// @param _templateData The dispute template data.
+    /// @param _templateDataMappings The dispute template data mappings.
+    /// @param _arbitratorExtraData The extra data for the arbitrator.
+    /// @param _templateRegistry The dispute template registry.
     /// @param _weth The WETH token.
     constructor(
         IArbitratorV2 _arbitrator,
         string memory _templateData,
+        string memory _templateDataMappings,
         bytes memory _arbitratorExtraData,
         IDisputeTemplateRegistry _templateRegistry,
         IERC20 _weth
@@ -62,7 +66,7 @@ contract ArbitrableExample is IArbitrableV2 {
         templateRegistry = _templateRegistry;
         weth = _weth;
 
-        templateId = templateRegistry.setDisputeTemplate("", _templateData);
+        templateId = templateRegistry.setDisputeTemplate("", _templateData, _templateDataMappings);
     }
 
     // ************************************* //
@@ -81,8 +85,11 @@ contract ArbitrableExample is IArbitrableV2 {
         templateRegistry = _templateRegistry;
     }
 
-    function changeDisputeTemplate(string memory _templateData) external onlyByGovernor {
-        templateId = templateRegistry.setDisputeTemplate("", _templateData);
+    function changeDisputeTemplate(
+        string memory _templateData,
+        string memory _templateDataMappings
+    ) external onlyByGovernor {
+        templateId = templateRegistry.setDisputeTemplate("", _templateData, _templateDataMappings);
     }
 
     // ************************************* //

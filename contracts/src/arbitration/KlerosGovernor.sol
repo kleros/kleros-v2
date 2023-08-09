@@ -117,6 +117,7 @@ contract KlerosGovernor is IArbitrableV2 {
     /// @param _arbitrator The arbitrator of the contract.
     /// @param _arbitratorExtraData Extra data for the arbitrator.
     /// @param _templateData The dispute template data.
+    /// @param _templateDataMappings The dispute template data mappings.
     /// @param _submissionBaseDeposit The base deposit required for submission.
     /// @param _submissionTimeout Time in seconds allocated for submitting transaction list.
     /// @param _executionTimeout Time in seconds after approval that allows to execute transactions of the approved list.
@@ -125,6 +126,7 @@ contract KlerosGovernor is IArbitrableV2 {
         IArbitratorV2 _arbitrator,
         bytes memory _arbitratorExtraData,
         string memory _templateData,
+        string memory _templateDataMappings,
         uint256 _submissionBaseDeposit,
         uint256 _submissionTimeout,
         uint256 _executionTimeout,
@@ -140,7 +142,7 @@ contract KlerosGovernor is IArbitrableV2 {
         withdrawTimeout = _withdrawTimeout;
         sessions.push();
 
-        templateId = templateRegistry.setDisputeTemplate("", _templateData);
+        templateId = templateRegistry.setDisputeTemplate("", _templateData, _templateDataMappings);
     }
 
     // ************************************* //
@@ -185,8 +187,12 @@ contract KlerosGovernor is IArbitrableV2 {
 
     /// @dev Update the dispute template data.
     /// @param _templateData The new dispute template data.
-    function changeDisputeTemplate(string memory _templateData) external onlyByGovernor {
-        templateId = templateRegistry.setDisputeTemplate("", _templateData);
+    /// @param _templateDataMappings The new dispute template data mappings.
+    function changeDisputeTemplate(
+        string memory _templateData,
+        string memory _templateDataMappings
+    ) external onlyByGovernor {
+        templateId = templateRegistry.setDisputeTemplate("", _templateData, _templateDataMappings);
     }
 
     // ************************************* //

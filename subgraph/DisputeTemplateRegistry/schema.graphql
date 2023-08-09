@@ -1,0 +1,6 @@
+type DisputeTemplate @entity {
+  id: ID! # disputeTemplateId
+  templateTag: String
+  templateData: String!
+  templateDataMappings: String!
+}
