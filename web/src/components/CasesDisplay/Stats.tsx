@@ -48,9 +48,9 @@ const Stats: React.FC = () => {
   const caseStats = calculateDisputeSituation(data?.disputes);
 
   const fields = [
-    { label: "Total", value: caseStats?.total || "0" },
-    { label: "In Progress", value: caseStats?.inProgress || "0" },
-    { label: "Closed", value: caseStats?.closed || "0" },
+    { label: "Total", value: caseStats?.total ?? "0" },
+    { label: "In Progress", value: caseStats?.inProgress ?? "0" },
+    { label: "Closed", value: caseStats?.closed ?? "0" },
   ];
 
   return (
