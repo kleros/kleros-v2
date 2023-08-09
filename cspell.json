@@ -15,6 +15,7 @@
     "COOLDOWN",
     "datetime",
     "Devnet",
+    "devnet",
     "dockerhost",
     "Ethfinex",
     "hearbeat",
