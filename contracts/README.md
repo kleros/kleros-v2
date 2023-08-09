@@ -237,15 +237,15 @@ yarn hardhat node --tags Arbitration
 Shell 2:
 
 ```bash
-yarn hardhat run scripts/populatePolicyRegistry.ts --network localhost
 yarn hardhat run scripts/populateCourts.ts --network localhost
+yarn hardhat run scripts/populatePolicyRegistry.ts --network localhost
 ```
 
 #### 3/ Import the data to V2 - Public Testnet
 
 ```bash
-yarn hardhat run scripts/populatePolicyRegistry.ts --network arbitrumGoerli
 yarn hardhat run scripts/populateCourts.ts --network arbitrumGoerli
+yarn hardhat run scripts/populatePolicyRegistry.ts --network arbitrumGoerli
 ```
 
 ### Generate deployment artifacts for existing contracts

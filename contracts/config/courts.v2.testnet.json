@@ -8,10 +8,10 @@
     "feeForJuror": "10000000000000",
     "jurorsForCourtJump": "511",
     "timesPerPeriod": [
-      86400,
-      86400,
-      86400,
-      86400
+      180,
+      180,
+      180,
+      180
     ]
   },
   {
@@ -23,10 +23,10 @@
     "feeForJuror": "10000000000000",
     "jurorsForCourtJump": "30",
     "timesPerPeriod": [
-      86400,
-      86400,
-      86400,
-      86400
+      180,
+      180,
+      180,
+      180
     ]
   },
   {
@@ -38,10 +38,10 @@
     "feeForJuror": "10000000000000",
     "jurorsForCourtJump": "63",
     "timesPerPeriod": [
-      86400,
-      86400,
-      86400,
-      86400
+      180,
+      180,
+      180,
+      180
     ]
   }
 ]
