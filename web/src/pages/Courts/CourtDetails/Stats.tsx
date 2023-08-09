@@ -16,7 +16,7 @@ import { useCoinPrice } from "hooks/useCoinPrice";
 import { isUndefined } from "~src/utils";
 
 const StyledCard = styled.div`
-  width: 100%;
+  width: auto;
   height: fit-content;
   display: grid;
   gap: 32px;
