@@ -137,13 +137,13 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
           </StyledBox>
           <StyledAccordion
             items={
-              localRounds.at(currentTab)?.votes.map((vote) => ({
-                title: shortenAddress(vote.juror.id),
-                icon: <Identicon size="20" string={vote.juror.id} />,
+              localRounds.at(currentTab)?.justifications?.map((justification) => ({
+                title: shortenAddress(justification.juror.id),
+                icon: <Identicon size="20" string={justification.juror.id} />,
                 body: (
                   <AccordionContent
-                    choice={getVoteChoice(parseInt(vote.choice), answers)}
-                    justification={vote.justification || ""}
+                    choice={getVoteChoice(parseInt(justification.choice), answers)}
+                    justification={justification.reference || ""}
                   />
                 ),
               })) || []
