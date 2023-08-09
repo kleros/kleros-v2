@@ -64,7 +64,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
-  const localRounds: ClassicRound[] = votingHistory?.dispute?.disputeKitDispute?.localRounds;
+  const localRounds: ClassicRound[] = votingHistory?.dispute?.disputeKitDispute?.localRounds as ClassicRound[];
   const theme = useTheme();
 
   return useMemo<TimelineItems | undefined>(() => {

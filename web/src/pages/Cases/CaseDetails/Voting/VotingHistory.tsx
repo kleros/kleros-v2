@@ -119,13 +119,17 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable })
           </StyledBox>
           <StyledAccordion
             items={
-              localRounds.at(currentTab)?.votes.map((vote) => ({
-                title: shortenAddress(vote.juror.id),
-                icon: <Identicon size="20" string={vote.juror.id} />,
+              localRounds.at(currentTab)?.justifications?.map((justification) => ({
+                title: shortenAddress(justification.juror.id),
+                icon: <Identicon size="20" string={justification.juror.id} />,
                 body: (
                   <AccordionContent
-                    choice={vote.choice === 0 ? "Refuse to arbitrate" : disputeTemplate.answers[vote.choice - 1].title}
-                    justification={vote.justification || ""}
+                    choice={
+                      justification.choice === 0
+                        ? "Refuse to arbitrate"
+                        : disputeTemplate.answers[justification.choice - 1].title
+                    }
+                    justification={justification.reference || ""}
                   />
                 ),
               })) || []
