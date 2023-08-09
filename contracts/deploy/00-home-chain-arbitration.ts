@@ -34,10 +34,10 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const chainId = Number(await getChainId());
   console.log("Deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
-  // if (!pnkByChain.get(chainId)) {
-  //   const erc20Address = await deployERC20AndFaucet(hre, deployer, "PNK");
-  //   pnkByChain.set(HomeChains[HomeChains[chainId]], erc20Address);
-  // }
+  if (!pnkByChain.get(chainId)) {
+    const erc20Address = await deployERC20AndFaucet(hre, deployer, "PNK");
+    pnkByChain.set(HomeChains[HomeChains[chainId]], erc20Address);
+  }
   if (!daiByChain.get(chainId)) {
     const erc20Address = await deployERC20AndFaucet(hre, deployer, "DAI");
     daiByChain.set(HomeChains[HomeChains[chainId]], erc20Address);
