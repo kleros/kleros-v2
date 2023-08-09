@@ -1,0 +1,11 @@
+version: '3.3'    
+services:
+  bot-pm2:
+    extends:
+      file: bot.yml
+      service: bot
+    entrypoint: [
+        "/bin/sh",
+        "-c",
+        "pm2-runtime ecosystem.config.js --no-auto-exit"
+      ]
