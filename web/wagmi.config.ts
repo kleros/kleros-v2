@@ -1,4 +1,4 @@
-import { Config, ContractConfig, defineConfig } from "@wagmi/cli";
+import { type Config, type ContractConfig, defineConfig } from "@wagmi/cli";
 import { readdir, readFile } from "fs/promises";
 import { parse, join } from "path";
 import { Abi } from "viem";
@@ -49,8 +49,8 @@ const readArtifacts = async (viemChainName: string, hardhatChainName?: string) =
 const getConfig = async (): Promise<Config> => {
   const deployment = process.env["REACT_APP_DEPLOYMENT"] ?? "testnet";
 
-  let viemNetwork;
-  let hardhatNetwork;
+  let viemNetwork: string;
+  let hardhatNetwork: string;
   switch (deployment) {
     case "devnet":
       viemNetwork = "arbitrumGoerli";
