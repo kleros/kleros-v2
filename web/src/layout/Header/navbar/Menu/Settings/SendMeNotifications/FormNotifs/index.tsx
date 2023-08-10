@@ -1,7 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Checkbox, Button } from "@kleros/ui-components-library";
 import FormEmail from "./FormEmail";
+import { useAccount } from "wagmi";
+import { useRelationalDB } from "hooks/useRelationalDB";
+
+interface UserData {
+  email: string;
+  options: string;
+  walletaddress: string;
+}
 
 const FormContainer = styled.div`
   position: relative;
@@ -38,6 +46,9 @@ const FormNotifs: React.FC = () => {
   const [checkboxStates, setCheckboxStates] = useState<boolean[]>(new Array(OPTIONS.length).fill(false));
   const [emailInput, setEmailInput] = useState<string>("");
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
+  const [userExists, setUserExists] = useState<boolean>(false); // TODO: use this to determine whether to use createUser or updateUser
+  const { address } = useAccount();
+  const { createUser, getUser, updateUser } = useRelationalDB();
 
   const handleCheckboxChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const newCheckboxStates = [...checkboxStates];
@@ -45,12 +56,38 @@ const FormNotifs: React.FC = () => {
     setCheckboxStates(newCheckboxStates);
   };
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      const data = await getUser(address + "");
+      if (data[0]) {
+        setUserExists(true);
+        setEmailInput(data[0].email);
+        setCheckboxStates(
+          OPTIONS.map(({ label }) => {
+            return data[0].options[label];
+          })
+        );
+      }
+    };
+    fetchUser();
+  }, []);
+
   const handleClick = async () => {
     const optionsObject: object = {};
     OPTIONS.forEach(({ label }, index: number) => {
       optionsObject[label] = checkboxStates[index];
     });
     const jsonData = JSON.stringify(optionsObject, null, 2);
+    const userData: UserData = {
+      email: emailInput,
+      options: jsonData,
+      walletaddress: address + "",
+    };
+    if (userExists) {
+      await updateUser(address + "", userData);
+    } else {
+      await createUser(userData);
+    }
   };
 
   return (

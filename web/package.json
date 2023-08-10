@@ -5,6 +5,7 @@
   "browserslist": "> 0.5%, not dead",
   "repository": "",
   "author": "",
+  "proxy": "http://localhost:3000",
   "license": "MIT",
   "alias": {
     "src": "./src",
