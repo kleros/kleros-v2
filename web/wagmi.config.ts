@@ -1,4 +1,5 @@
 import { type Config, type ContractConfig, defineConfig } from "@wagmi/cli";
+import { react, actions } from "@wagmi/cli/plugins";
 import { readdir, readFile } from "fs/promises";
 import { parse, join } from "path";
 import { Abi } from "viem";
@@ -83,6 +84,7 @@ const getConfig = async (): Promise<Config> => {
         abi: getAbi(IArbitrableV2),
       },
     ],
+    plugins: [react(), actions()],
   };
 };
 
