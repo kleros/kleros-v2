@@ -33,7 +33,6 @@ generate "$SCRIPT_DIR/../deployments/chiadoDevnet" "https://gnosis-chiado.blocks
 echo
 echo "#### Goerli"
 echo
-echo "- [PNK](https://goerli.etherscan.io/token/0xA3B02bA6E10F55fb177637917B1b472da0110CcC)"
 generate "$SCRIPT_DIR/../deployments/goerliDevnet" "https://goerli.etherscan.io/address/"
 echo
 echo "#### Arbitrum Goerli"

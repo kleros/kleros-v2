@@ -52,7 +52,7 @@ async function main() {
     hiddenVotes: false,
     minStake: truncateWei(BigNumber.from(court.minStake).div(10000)),
     feeForJuror: truncateWei(ethers.utils.parseEther("0.00001")),
-    timesPerPeriod: [120, 120, 120, 120],
+    timesPerPeriod: [120, 120, 120, 240],
   });
 
   // WARNING: skip the Forking court at id 0, so the v1 courts are shifted by 1
@@ -77,9 +77,7 @@ async function main() {
       break;
     }
     case Sources.V2_DEVNET: {
-      courtsV2 = TESTING_PARAMETERS
-        ? courtsV2ArbitrumDevnet.map(parametersProductionToTesting)
-        : courtsV2ArbitrumDevnet;
+      courtsV2 = courtsV2ArbitrumDevnet.map(parametersProductionToTesting);
       break;
     }
     case Sources.V2_TESTNET: {
