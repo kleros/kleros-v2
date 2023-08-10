@@ -5257,7 +5257,7 @@ __metadata:
     "@kleros/kleros-v2-tsconfig": "workspace:^"
     "@kleros/ui-components-library": ^2.6.1
     "@netlify/functions": ^1.6.0
-    "@parcel/transformer-svg-react": ~2.8.0
+    "@parcel/transformer-svg-react": 2.8.3
     "@parcel/watcher": ~2.2.0
     "@sentry/react": ^7.55.2
     "@sentry/tracing": ^7.55.2
@@ -5288,7 +5288,7 @@ __metadata:
     graphql-request: ~6.1.0
     lru-cache: ^7.18.3
     moment: ^2.29.4
-    parcel: ~2.8.0
+    parcel: 2.8.3
     react: ^18.2.0
     react-chartjs-2: ^4.3.1
     react-dom: ^18.2.0
@@ -7039,7 +7039,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/transformer-svg-react@npm:~2.8.0":
+"@parcel/transformer-svg-react@npm:2.8.3":
   version: 2.8.3
   resolution: "@parcel/transformer-svg-react@npm:2.8.3"
   dependencies:
@@ -24214,7 +24214,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"parcel@npm:~2.8.0":
+"parcel@npm:2.8.3":
   version: 2.8.3
   resolution: "parcel@npm:2.8.3"
   dependencies:
