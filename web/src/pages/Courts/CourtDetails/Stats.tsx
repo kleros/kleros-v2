@@ -13,7 +13,7 @@ import PNKIcon from "svgs/icons/pnk.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import EthereumIcon from "svgs/icons/ethereum.svg";
 import { useCoinPrice } from "hooks/useCoinPrice";
-import { isUndefined } from "~src/utils";
+import { isUndefined } from "utils/index";
 
 const StyledCard = styled.div`
   width: auto;
