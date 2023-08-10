@@ -5272,7 +5272,7 @@ __metadata:
     "@typescript-eslint/parser": ^5.61.0
     "@typescript-eslint/utils": ^5.58.0
     "@wagmi/cli": ^1.3.0
-    "@web3modal/ethereum": ^2.2.2
+    "@web3modal/ethereum": ^2.7.1
     "@web3modal/react": ^2.2.2
     amqplib: ^0.10.3
     chart.js: ^3.9.1
@@ -10065,13 +10065,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@web3modal/ethereum@npm:^2.2.2":
-  version: 2.4.7
-  resolution: "@web3modal/ethereum@npm:2.4.7"
+"@web3modal/ethereum@npm:^2.7.1":
+  version: 2.7.1
+  resolution: "@web3modal/ethereum@npm:2.7.1"
   peerDependencies:
     "@wagmi/core": ">=1"
     viem: ">=1"
-  checksum: 67c4e3729cb68038ae5cedf92af687f702399a29fdb137cfc9ef265903600ace51e4246079c5071f9feaff402ddcc1acfce1a7d8405cc707cd122f5ea153a453
+  checksum: 272aca6b3d4647183b3bcd2ab126101b7b42bc70d13ebb744d8386ddb00105bdc6f31ca0feb2e339179fc66b95865836d24f31c3d3f5c0e0c0a636c66329f6d8
   languageName: node
   linkType: hard
 
