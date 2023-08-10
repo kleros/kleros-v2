@@ -6,6 +6,7 @@ import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
 import { Field } from "@kleros/ui-components-library";
 import { useParsedAmount } from "hooks/useParsedAmount";
+import { useCourtDetails } from "hooks/queries/useCourtDetails";
 import { useKlerosCoreGetJurorBalance, usePnkBalanceOf } from "hooks/contracts/generated";
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
 import { isUndefined } from "utils/index";
@@ -55,6 +56,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
   const parsedAmount = useParsedAmount(debouncedAmount);
 
   const { id } = useParams();
+  const { data: courtDetails } = useCourtDetails(id);
   const { address } = useAccount();
   const { data: balance } = usePnkBalanceOf({
     enabled: !isUndefined(address),
@@ -73,7 +75,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
   return (
     <>
       <LabelArea>
-        <label>{`Available ${parsedBalance} PNK`}</label>
+        <label>{`Available ${isStaking ? parsedBalance : parsedStake} PNK`}</label>
         <StyledLabel
           onClick={() => {
             const amount = isStaking ? parsedBalance : parsedStake;
@@ -92,7 +94,12 @@ const InputDisplay: React.FC<IInputDisplay> = ({
           }}
           placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
           message={
-            isStaking ? "You may need two transactions, one to increase allowance, the other to stake." : undefined
+            isStaking
+              ? `You need to stake at least ${formatEther(courtDetails?.court.minStake ?? 0n)} PNK. ` +
+                "You may need two transactions, one to increase allowance, the other to stake."
+              : `You need to either withdraw all or keep at least ${formatEther(
+                  courtDetails?.court.minStake ?? 0n
+                )} PNK.`
           }
           variant="info"
         />

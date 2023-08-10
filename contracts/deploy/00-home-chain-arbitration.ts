@@ -145,6 +145,7 @@ const deployERC20AndFaucet = async (hre: HardhatRuntimeEnvironment, deployer: st
   });
   const funding = hre.ethers.utils.parseUnits("100000", "ether");
   const erc20Instance = await hre.ethers.getContract(ticker);
+  // TODO: skip if already funded
   await erc20Instance.balanceOf(deployer).then((balance) => {
     if (balance.gte(funding)) {
       console.log("Funding %sFaucet with %d", ticker, funding);
