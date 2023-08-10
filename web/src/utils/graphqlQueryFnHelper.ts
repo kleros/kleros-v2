@@ -17,7 +17,7 @@ export const graphqlQueryFnHelper = async (
 ) => {
   const coreUrl =
     process.env[`REACT_APP_KLEROS_CORE_SUBGRAPH_${DEPLOYMENT}`] ??
-    "https://api.thegraph.com/subgraphs/name/alcercu/disputetemplateregistryarbgrli";
+    "https://api.thegraph.com/subgraphs/name/alcercu/kleroscoretest";
   const url = isDisputeTemplate ? CHAINID_TO_DISPUTETEMPLATE_SUBGRAPH[chainId] : coreUrl;
   return request(url, query, parametersObject);
 };
