@@ -30,6 +30,7 @@ jobs:
           objects.githubusercontent.com:443
           registry.yarnpkg.com:443
           registry.npmjs.org:443
+          54.185.253.63:443
 
     - name: Setup Node.js environment
       uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
