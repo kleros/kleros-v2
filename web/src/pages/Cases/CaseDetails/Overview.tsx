@@ -10,6 +10,7 @@ import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtPolicyURI } from "queries/useCourtPolicyURI";
 import { isUndefined } from "utils/index";
 import { Periods } from "consts/periods";
+import { IPFS_GATEWAY } from "consts/index";
 import PolicyIcon from "svgs/icons/policy.svg";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 import Verdict from "components/Verdict/index";
@@ -131,17 +132,13 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
         <p>Make sure you understand the Policies</p>
         <LinkContainer>
           {disputeTemplate?.policyURI && (
-            <StyledA href={`https://cloudflare-ipfs.com${disputeTemplate.policyURI}`} target="_blank" rel="noreferrer">
+            <StyledA href={`${IPFS_GATEWAY}${disputeTemplate.policyURI}`} target="_blank" rel="noreferrer">
               <PolicyIcon />
               Dispute Policy
             </StyledA>
           )}
           {courtPolicy && (
-            <StyledA
-              href={`https://cloudflare-ipfs.com${courtPolicyURI?.court?.policy ?? ""}`}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <StyledA href={`${IPFS_GATEWAY}${courtPolicyURI?.court?.policy ?? ""}`} target="_blank" rel="noreferrer">
               <PolicyIcon />
               Court Policy
             </StyledA>

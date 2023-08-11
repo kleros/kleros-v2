@@ -5,6 +5,7 @@ import { Card } from "@kleros/ui-components-library";
 import AttachmentIcon from "svgs/icons/attachment.svg";
 import { useIPFSQuery } from "hooks/useIPFSQuery";
 import { shortenAddress } from "utils/shortenAddress";
+import { IPFS_GATEWAY } from "consts/index";
 
 interface IEvidenceCard {
   evidence: string;
@@ -31,7 +32,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
         <Identicon size="24" string={sender} />
         <p>{shortenAddress(sender)}</p>
         {data && typeof data.fileURI !== "undefined" && (
-          <StyledA href={`https://cloudflare-ipfs.com${data.fileURI}`} target="_blank" rel="noreferrer">
+          <StyledA href={`${IPFS_GATEWAY}${data.fileURI}`} target="_blank" rel="noreferrer">
             <AttachmentIcon />
           </StyledA>
         )}

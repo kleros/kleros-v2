@@ -5,6 +5,7 @@ import { Textarea } from "@kleros/ui-components-library";
 import PolicyIcon from "svgs/icons/policy.svg";
 import ReactMarkdown from "components/ReactMarkdown";
 import { isUndefined } from "utils/index";
+import { IPFS_GATEWAY } from "consts/index";
 
 const Wrapper = styled.div`
   min-height: calc(100vh - 144px);
@@ -138,11 +139,7 @@ const Overview: React.FC<{ disputeTemplate: any }> = ({ disputeTemplate }) => {
           <p>Make sure you understand the Policies</p>
           <LinkContainer>
             {disputeTemplate?.policyURI && (
-              <StyledA
-                href={`https://cloudflare-ipfs.com${disputeTemplate.policyURI}`}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <StyledA href={`${IPFS_GATEWAY}${disputeTemplate.policyURI}`} target="_blank" rel="noreferrer">
                 <PolicyIcon />
                 Dispute Policy
               </StyledA>
