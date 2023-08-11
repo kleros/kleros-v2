@@ -36,7 +36,7 @@ const readArtifacts = async (viemChainName: string, hardhatChainName?: string) =
       const fileContent = await readFile(filePath, "utf-8");
       const jsonContent = JSON.parse(fileContent);
       results.push({
-        name: name,
+        name,
         address: {
           [chain.id]: jsonContent.address as `0x{string}`,
         },
@@ -48,7 +48,7 @@ const readArtifacts = async (viemChainName: string, hardhatChainName?: string) =
 };
 
 const getConfig = async (): Promise<Config> => {
-  const deployment = process.env["REACT_APP_DEPLOYMENT"] ?? "testnet";
+  const deployment = process.env.REACT_APP_DEPLOYMENT ?? "testnet";
 
   let viemNetwork: string;
   let hardhatNetwork: string;
