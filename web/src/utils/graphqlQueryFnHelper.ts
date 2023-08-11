@@ -1,12 +1,31 @@
 import request from "graphql-request";
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
 
-const DEPLOYMENT = process.env["REACT_APP_DEPLOYMENT"]?.toUpperCase() ?? "TESTNET";
+const DEPLOYMENT = process.env.REACT_APP_DEPLOYMENT?.toUpperCase() ?? "TESTNET";
 
-const CHAINID_TO_DISPUTETEMPLATE_SUBGRAPH = {
+const DEPLOYMENTS_TO_KLEROS_CORE_SUBGRAPHS = {
+  MAINNET: process.env.REACT_APP_KLEROS_CORE_SUBGRAPH_MAINNET,
+  TESTNET: process.env.REACT_APP_KLEROS_CORE_SUBGRAPH_TESTNET,
+  DEVNET: process.env.REACT_APP_KLEROS_CORE_SUBGRAPH_DEVNET,
+};
+
+const DEPLOYMENTS_TO_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPHS = {
+  MAINNET: process.env.REACT_APP_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPH_MAINNET,
+  TESTNET: process.env.REACT_APP_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPH_TESTNET,
+  DEVNET: process.env.REACT_APP_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPH_DEVNET,
+};
+
+const CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH = {
   421613:
-    process.env[`REACT_APP_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPH_${DEPLOYMENT}`] ??
+    DEPLOYMENTS_TO_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPHS[DEPLOYMENT] ??
     "https://api.thegraph.com/subgraphs/name/alcercu/disputetemplateregistryarbgrli",
+};
+
+export const graphqlUrl = (isDisputeTemplate = false, chainId = 421613) => {
+  const coreUrl =
+    DEPLOYMENTS_TO_KLEROS_CORE_SUBGRAPHS[DEPLOYMENT] ??
+    "https://api.thegraph.com/subgraphs/name/alcercu/kleroscoretest";
+  return isDisputeTemplate ? CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH[chainId] : coreUrl;
 };
 
 export const graphqlQueryFnHelper = async (
@@ -15,9 +34,6 @@ export const graphqlQueryFnHelper = async (
   isDisputeTemplate = false,
   chainId = 421613
 ) => {
-  const coreUrl =
-    process.env[`REACT_APP_KLEROS_CORE_SUBGRAPH_${DEPLOYMENT}`] ??
-    "https://api.thegraph.com/subgraphs/name/alcercu/kleroscoretest";
-  const url = isDisputeTemplate ? CHAINID_TO_DISPUTETEMPLATE_SUBGRAPH[chainId] : coreUrl;
+  const url = graphqlUrl(isDisputeTemplate, chainId);
   return request(url, query, parametersObject);
 };

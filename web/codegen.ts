@@ -1,11 +1,9 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
+import { graphqlUrl } from "utils/graphqlQueryFnHelper";
 
 const config: CodegenConfig = {
   overwrite: true,
-  schema: [
-    "https://api.thegraph.com/subgraphs/name/alcercu/kleroscoretest",
-    "https://api.thegraph.com/subgraphs/name/alcercu/disputetemplateregistryarbgrli",
-  ],
+  schema: [graphqlUrl(false), graphqlUrl(true)],
   documents: "./src/hooks/queries/*.ts",
   generates: {
     "./src/graphql/": {
