@@ -26,9 +26,12 @@
     "@graphprotocol/graph-ts": "^0.31.0"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.54.0",
+    "@graphprotocol/graph-cli": "0.52.0",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "gluegun": "^5.1.2"
+  },
+  "dependenciesComments": {
+    "@graphprotocol/graph-cli": "pinned because of this issue: https://github.com/graphprotocol/graph-tooling/issues/1399#issuecomment-1676104540"
   }
 }

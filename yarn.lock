@@ -3987,9 +3987,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-cli@npm:^0.54.0":
-  version: 0.54.0
-  resolution: "@graphprotocol/graph-cli@npm:0.54.0"
+"@graphprotocol/graph-cli@npm:0.52.0":
+  version: 0.52.0
+  resolution: "@graphprotocol/graph-cli@npm:0.52.0"
   dependencies:
     "@float-capital/float-subgraph-uncrashable": ^0.0.0-alpha.4
     "@oclif/core": 2.8.6
@@ -4019,7 +4019,7 @@ __metadata:
     yaml: 1.10.2
   bin:
     graph: bin/run
-  checksum: c3bd34b26dc7e09d14e60193b806f1e513ba4fd3a0525506f015573addbb4848de21c9157426b789e99efb1850c0035aaf2d865ef7b985a9bc41884d6e45d012
+  checksum: 7c6e2dbf022f4229b412e1107bb16b8e5914da2c21802af9a072a79a4f463132a192380e9c395a463c285004abedf16461037cebea7387c580c2de46200ddd40
   languageName: node
   linkType: hard
 
@@ -5228,7 +5228,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-subgraph@workspace:subgraph"
   dependencies:
-    "@graphprotocol/graph-cli": ^0.54.0
+    "@graphprotocol/graph-cli": 0.52.0
     "@graphprotocol/graph-ts": ^0.31.0
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"

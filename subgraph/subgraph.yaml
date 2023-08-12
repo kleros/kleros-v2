@@ -81,9 +81,9 @@ dataSources:
     name: DisputeKitClassic
     network: arbitrum-goerli
     source:
-      address: "0x9ddf4a70295faaA695b8CF4F22177FA1f3a1B500"
+      address: "0x439f92b61783A752462527f9dA9C6c6180C9253a"
       abi: DisputeKitClassic
-      startBlock: 33436570
+      startBlock: 34139950
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
