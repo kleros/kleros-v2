@@ -557,18 +557,8 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     // *            Internal               * //
     // ************************************* //
 
-    /// @dev Checks that the chosen address satisfies certain conditions for being drawn.
-    /// @param _coreDisputeID ID of the dispute in the core contract.
-    /// @param _juror Chosen address.
-    /// @return Whether the address can be drawn or not.
-    function _postDrawCheck(uint256 _coreDisputeID, address _juror) internal view override returns (bool) {
-        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        (, uint256 lockedAmountPerJuror, , , , , , , , ) = core.getRoundInfo(
-            _coreDisputeID,
-            core.getNumberOfRounds(_coreDisputeID) - 1
-        );
-        (uint256 staked, uint256 locked, ) = core.getJurorBalance(_juror, courtID);
-        (, , uint256 minStake, , , , ) = core.courts(courtID);
-        return staked >= locked + lockedAmountPerJuror && staked >= minStake;
+    /// @inheritdoc BaseDisputeKit
+    function _postDrawCheck(uint256 /*_coreDisputeID*/, address /*_juror*/) internal pure override returns (bool) {
+        return true;
     }
 }

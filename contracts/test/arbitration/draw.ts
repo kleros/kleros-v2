@@ -1,6 +1,6 @@
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
-import { BigNumber } from "ethers";
+import { BigNumber, ContractTransaction, Wallet } from "ethers";
 import {
   PNK,
   KlerosCore,
@@ -52,11 +52,7 @@ describe("Draw Benchmark", async () => {
   let randomizer;
 
   beforeEach("Setup", async () => {
-    deployer = (await getNamedAccounts()).deployer;
-    relayer = (await getNamedAccounts()).relayer;
-
-    console.log("deployer:%s", deployer);
-    console.log("named accounts: %O", await getNamedAccounts());
+    ({ deployer, relayer } = await getNamedAccounts());
 
     await deployments.fixture(["Arbitration", "VeaMock"], {
       fallbackToGlobal: true,
@@ -70,9 +66,33 @@ describe("Draw Benchmark", async () => {
     rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
     randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
     sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
+
+    // CourtId 2
+    const minStake = BigNumber.from(10).pow(20).mul(3); // 300 PNK
+    const alpha = 10000;
+    const feeForJuror = BigNumber.from(10).pow(17);
+    await core.createCourt(
+      1,
+      false,
+      minStake,
+      alpha,
+      feeForJuror,
+      256,
+      [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
+      ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K)
+      [1]
+    );
   });
 
-  it("Draw Benchmark", async () => {
+  interface SetStake {
+    (wallet: Wallet): Promise<void>;
+  }
+
+  interface ExpectFromDraw {
+    (drawTx: Promise<ContractTransaction>): Promise<void>;
+  }
+
+  const draw = async (setStake: SetStake, createDisputeCourtId: string, expectFromDraw: ExpectFromDraw) => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
     const [bridger] = await ethers.getSigners();
 
@@ -90,7 +110,8 @@ describe("Draw Benchmark", async () => {
       expect(await pnk.balanceOf(wallet.address)).to.equal(ONE_THOUSAND_PNK.mul(10));
 
       await pnk.connect(wallet).approve(core.address, ONE_THOUSAND_PNK.mul(10), { gasLimit: 300000 });
-      await core.connect(wallet).setStake(1, ONE_THOUSAND_PNK.mul(10), { gasLimit: 5000000 });
+
+      await setStake(wallet);
     }
 
     // Create a dispute
@@ -114,7 +135,7 @@ describe("Draw Benchmark", async () => {
           templateId: 0,
           templateUri: "",
           choices: 2,
-          extraData: "0x00",
+          extraData: `0x000000000000000000000000000000000000000000000000000000000000000${createDisputeCourtId}0000000000000000000000000000000000000000000000000000000000000003`,
         },
         { value: arbitrationCost }
       );
@@ -131,12 +152,72 @@ describe("Draw Benchmark", async () => {
     await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
     await sortitionModule.passPhase(); // Generating -> Drawing
 
-    await expect(core.draw(0, 1000, { gasLimit: 1000000 }))
-      .to.emit(core, "Draw")
-      .withArgs(anyValue, 0, 0, 0)
-      .to.emit(core, "Draw")
-      .withArgs(anyValue, 0, 0, 1)
-      .to.emit(core, "Draw")
-      .withArgs(anyValue, 0, 0, 2);
+    await expectFromDraw(core.draw(0, 1000, { gasLimit: 1000000 }));
+  };
+
+  it("Stakes in parent court and should draw jurors in parent court", async () => {
+    const setStake = async (wallet: Wallet) => {
+      await core.connect(wallet).setStake(1, ONE_THOUSAND_PNK.mul(5), { gasLimit: 5000000 });
+    };
+
+    const expectFromDraw = async (drawTx: Promise<ContractTransaction>) => {
+      await expect(drawTx)
+        .to.emit(core, "Draw")
+        .withArgs(anyValue, 0, 0, 0)
+        .to.emit(core, "Draw")
+        .withArgs(anyValue, 0, 0, 1)
+        .to.emit(core, "Draw")
+        .withArgs(anyValue, 0, 0, 2);
+    };
+
+    await draw(setStake, "1", expectFromDraw);
+  });
+
+  it("Stakes in parent court and should draw nobody in subcourt", async () => {
+    const setStake = async (wallet: Wallet) => {
+      await core.connect(wallet).setStake(1, ONE_THOUSAND_PNK.mul(5), { gasLimit: 5000000 });
+    };
+
+    const expectFromDraw = async (drawTx: Promise<ContractTransaction>) => {
+      await expect(drawTx).to.not.emit(core, "Draw");
+    };
+
+    await draw(setStake, "2", expectFromDraw);
+  });
+
+  it("Stakes in subcourt and should draw jurors in parent court", async () => {
+    const setStake = async (wallet: Wallet) => {
+      await core.connect(wallet).setStake(2, ONE_THOUSAND_PNK.mul(5), { gasLimit: 5000000 });
+    };
+
+    const expectFromDraw = async (drawTx: Promise<ContractTransaction>) => {
+      await expect(drawTx)
+        .to.emit(core, "Draw")
+        .withArgs(anyValue, 0, 0, 0)
+        .to.emit(core, "Draw")
+        .withArgs(anyValue, 0, 0, 1)
+        .to.emit(core, "Draw")
+        .withArgs(anyValue, 0, 0, 2);
+    };
+
+    await draw(setStake, "1", expectFromDraw);
+  });
+
+  it("Stakes in subcourt and should draw jurors in subcourt", async () => {
+    const setStake = async (wallet: Wallet) => {
+      await core.connect(wallet).setStake(2, ONE_THOUSAND_PNK.mul(5), { gasLimit: 5000000 });
+    };
+
+    const expectFromDraw = async (drawTx: Promise<ContractTransaction>) => {
+      await expect(drawTx)
+        .to.emit(core, "Draw")
+        .withArgs(anyValue, 0, 0, 0)
+        .to.emit(core, "Draw")
+        .withArgs(anyValue, 0, 0, 1)
+        .to.emit(core, "Draw")
+        .withArgs(anyValue, 0, 0, 2);
+    };
+
+    await draw(setStake, "2", expectFromDraw);
   });
 });

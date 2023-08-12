@@ -289,11 +289,15 @@ contract SortitionModule is ISortitionModule {
         require(phase == Phase.drawing, "Wrong phase.");
         SortitionSumTree storage tree = sortitionSumTrees[_key];
 
-        uint256 treeIndex = 0;
+        if (tree.nodes[0] == 0) {
+            return address(0); // No jurors staked.
+        }
+
         uint256 currentDrawnNumber = uint256(keccak256(abi.encodePacked(randomNumber, _coreDisputeID, _voteID))) %
             tree.nodes[0];
 
         // While it still has children
+        uint256 treeIndex = 0;
         while ((tree.K * treeIndex) + 1 < tree.nodes.length) {
             for (uint256 i = 1; i <= tree.K; i++) {
                 // Loop over children.
