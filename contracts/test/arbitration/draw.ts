@@ -84,13 +84,8 @@ describe("Draw Benchmark", async () => {
     );
   });
 
-  interface SetStake {
-    (wallet: Wallet): Promise<void>;
-  }
-
-  interface ExpectFromDraw {
-    (drawTx: Promise<ContractTransaction>): Promise<void>;
-  }
+  type SetStake = (wallet: Wallet) => Promise<void>;
+  type ExpectFromDraw = (drawTx: Promise<ContractTransaction>) => Promise<void>;
 
   const draw = async (setStake: SetStake, createDisputeCourtId: string, expectFromDraw: ExpectFromDraw) => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);

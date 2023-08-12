@@ -51,7 +51,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   // Cannot disable the old DK because of https://github.com/kleros/kleros-v2/blob/d9adb8f54e8164eb01880296b4dd62b74cad3a0e/contracts/src/arbitration/KlerosCore.sol#L452
   // Does not seem correct
-  //await execute("KlerosCore", { from: deployer, log: true }, "enableDisputeKits", 1, [oldDisputeKitId], false); // disable the old dispute kit
+  // await execute("KlerosCore", { from: deployer, log: true }, "enableDisputeKits", 1, [oldDisputeKitId], false); // disable the old dispute kit
 };
 
 deployArbitration.tags = ["Fix1148"];
