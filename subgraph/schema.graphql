@@ -251,7 +251,7 @@ type ClassicVote implements Vote @entity {
   commited: Boolean!
   choice: BigInt
   voted: Boolean!
-  justification: ClassicJustification!
+  justification: ClassicJustification
 }
 
 type ClassicJustification @entity {

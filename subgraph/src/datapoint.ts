@@ -1,33 +1,20 @@
 import { BigInt, Entity, Value, store } from "@graphprotocol/graph-ts";
+import { Counter } from "../generated/schema";
 import { ZERO } from "./utils";
 
 export function getDelta(previousValue: BigInt, newValue: BigInt): BigInt {
   return newValue.minus(previousValue);
 }
 
-const VARIABLES = [
-  "stakedPNK",
-  "redistributedPNK",
-  "paidETH",
-  "activeJurors",
-  "cases",
-  "casesVoting",
-  "casesRuled",
-];
+const VARIABLES = ["stakedPNK", "redistributedPNK", "paidETH", "activeJurors", "cases", "casesVoting", "casesRuled"];
 
-function updateDataPoint(
-  delta: BigInt,
-  timestamp: BigInt,
-  variable: string
-): void {
+function updateDataPoint(delta: BigInt, timestamp: BigInt, variable: string): void {
+  checkFirstDayActivity();
   const newCounter = new Entity();
   const counter = store.get("Counter", "0");
   for (let i = 0; i < VARIABLES.length; i++) {
     const currentVar = VARIABLES[i];
-    newCounter.set(
-      currentVar,
-      getNewValue(currentVar, variable, delta, counter)
-    );
+    newCounter.set(currentVar, getNewValue(currentVar, variable, delta, counter));
   }
   const dayID = timestamp.toI32() / 86400;
   const dayStartTimestamp = dayID * 86400;
@@ -35,16 +22,24 @@ function updateDataPoint(
   store.set("Counter", "0", newCounter);
 }
 
-function getNewValue(
-  currentVar: string,
-  targetVar: string,
-  delta: BigInt,
-  counter: Entity | null
-): Value {
+function checkFirstDayActivity(): void {
+  let counter = Counter.load("1691452800");
+  if (!counter) {
+    counter = new Counter("1691452800");
+    counter.stakedPNK = ZERO;
+    counter.redistributedPNK = ZERO;
+    counter.paidETH = ZERO;
+    counter.activeJurors = ZERO;
+    counter.cases = ZERO;
+    counter.casesVoting = ZERO;
+    counter.casesRuled = ZERO;
+    counter.save();
+  }
+}
+
+function getNewValue(currentVar: string, targetVar: string, delta: BigInt, counter: Entity | null): Value {
   if (currentVar === targetVar) {
-    return !counter
-      ? Value.fromBigInt(delta)
-      : Value.fromBigInt(counter.get(currentVar)!.toBigInt().plus(delta));
+    return !counter ? Value.fromBigInt(delta) : Value.fromBigInt(counter.get(currentVar)!.toBigInt().plus(delta));
   } else {
     return !counter ? Value.fromBigInt(ZERO) : counter.get(currentVar)!;
   }
