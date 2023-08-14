@@ -91,6 +91,7 @@ export function handleVoteCast(event: VoteCast): void {
   justification.localRound = currentLocalRoundID;
   justification.choice = choice;
   justification.reference = event.params._justification;
+  justification.save();
   const currentRulingInfo = updateCountsAndGetCurrentRuling(
     currentLocalRoundID,
     choice,
@@ -104,6 +105,7 @@ export function handleVoteCast(event: VoteCast): void {
     classicVote = ensureClassicVote(currentLocalRoundID, juror, voteIDs[i], coreDispute);
     classicVote.voted = true;
     classicVote.choice = choice;
+    classicVote.justification = justification.id;
     classicVote.save();
   }
 }
