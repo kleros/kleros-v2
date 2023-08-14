@@ -1,8 +1,15 @@
 import React from "react";
-import ClassicWrapper from "./Classic";
+import Classic from "./Classic";
 import { Periods } from "consts/periods";
+import AppealHistory from "./AppealHistory";
+import { ClassicAppealProvider } from "~src/hooks/useClassicAppealContext";
 
-const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }) =>
-  Periods.appeal === currentPeriodIndex ? <ClassicWrapper /> : <h2>Not in appeal period</h2>;
+const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }) => {
+  return (
+    <ClassicAppealProvider>
+      {Periods.appeal === currentPeriodIndex ? <Classic /> : <AppealHistory />}
+    </ClassicAppealProvider>
+  );
+};
 
 export default Appeal;

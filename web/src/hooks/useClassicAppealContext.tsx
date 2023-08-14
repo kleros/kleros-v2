@@ -113,12 +113,12 @@ const getWinningChoice = (dispute?: ClassicAppealQuery["dispute"]) => {
   return currentLocalRound?.winningChoice;
 };
 
-const getLoserRequiredFunding = (appealCost: bigint, loser_stake_multiplier: bigint): bigint =>
+export const getLoserRequiredFunding = (appealCost: bigint, loser_stake_multiplier: bigint): bigint =>
   !isUndefined(appealCost) && !isUndefined(loser_stake_multiplier)
     ? appealCost + (loser_stake_multiplier * appealCost) / ONE_BASIS_POINT
     : 0n;
 
-const getWinnerRequiredFunding = (appealCost: bigint, winner_stake_multiplier: bigint): bigint =>
+export const getWinnerRequiredFunding = (appealCost: bigint, winner_stake_multiplier: bigint): bigint =>
   !isUndefined(appealCost) && !isUndefined(winner_stake_multiplier)
     ? appealCost + (winner_stake_multiplier * appealCost) / ONE_BASIS_POINT
     : 0n;
