@@ -36,7 +36,7 @@ export const Element: React.FC<IElement> = ({ primaryText, urls, Icon }) => (
     )}
     <div className="link-container">
       {urls.map(({ node, link }, i) => (
-        <a key={i} href={link}>
+        <a key={i} href={link} target="_blank" rel="noreferrer">
           {node}
         </a>
       ))}
