@@ -54,10 +54,6 @@ const StyledIdenticon = styled(Identicon)`
   border-radius: 100%;
 `;
 
-const Header = styled.h1`
-  margin: 20px 0px 32px 0px;
-`;
-
 const Title = styled.small`
   color: ${({ theme }) => theme.secondaryText};
 `;
@@ -92,9 +88,13 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   return (
     <Container>
       <VerdictBanner ruled={ruled} />
-      <Header> {ruled ? "Final Decision" : "Current Ruling"} </Header>
+
       <JuryContainer>
-        <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
+        {ruled ? (
+          <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
+        ) : (
+          <JuryDecisionTag>This option is winning:</JuryDecisionTag>
+        )}
         {answer ? (
           <div>
             <AnswerTitle>{answer.title}</AnswerTitle>

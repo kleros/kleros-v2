@@ -91,7 +91,7 @@ const Classic: React.FC<IClassic> = ({ arbitrable, voteIDs, setIsOpen }) => {
   return id ? (
     <Container>
       <MainContainer>
-        <ReactMarkdown>{disputeTemplate.question}</ReactMarkdown>
+        <ReactMarkdown>{disputeTemplate && disputeTemplate.question}</ReactMarkdown>
         <StyledTextarea
           value={justification}
           onChange={(e) => setJustification(e.target.value)}
