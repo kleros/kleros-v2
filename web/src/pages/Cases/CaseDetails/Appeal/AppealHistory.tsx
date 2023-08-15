@@ -12,7 +12,7 @@ const OptionsContainer = styled.div`
 
 const AppealHistory: React.FC = () => {
   const options = useOptionsContext();
-  const { winningChoice, paidFees, winnerRequiredFunding, loserRequiredFunding } = useFundingContext();
+  const { winningChoice, paidFees, fundedChoices } = useFundingContext();
 
   return (
     <div>
@@ -26,7 +26,7 @@ const AppealHistory: React.FC = () => {
                 text={option}
                 winner={index.toString() === winningChoice}
                 funding={BigInt(paidFees?.[index] ?? "0")}
-                required={index.toString() === winningChoice ? winnerRequiredFunding ?? 0n : loserRequiredFunding ?? 0n}
+                required={fundedChoices?.includes(index.toString()) ? BigInt(paidFees?.[index] ?? "0") : undefined}
                 canBeSelected={false}
               />
             );
