@@ -80,16 +80,13 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
       return localRounds?.reduce<TimelineItems>(
         (acc, { winningChoice }, index) => {
           const parsedRoundChoice = parseInt(winningChoice);
-
+          const isOngoing = index === localRounds.length - 1 && currentPeriodIndex < 4;
           const eventDate = getCaseEventTimes(lastPeriodChange, currentPeriodIndex, courtTimePeriods, false);
           const icon = dispute.ruled && !rulingOverride && index === localRounds.length - 1 ? ClosedCaseIcon : "";
           const answers = disputeTemplate?.answers;
           acc.push({
             title: `Jury Decision - Round ${index + 1}`,
-            party:
-              index === localRounds.length - 1 && currentPeriodIndex < 4
-                ? "Voting is ongoing"
-                : getVoteChoice(parsedRoundChoice, answers),
+            party: isOngoing ? "Voting is ongoing" : getVoteChoice(parsedRoundChoice, answers),
             subtitle: eventDate,
             rightSided: true,
             variant: theme.secondaryPurple,
