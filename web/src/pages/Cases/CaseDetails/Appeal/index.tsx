@@ -2,7 +2,7 @@ import React from "react";
 import Classic from "./Classic";
 import { Periods } from "consts/periods";
 import AppealHistory from "./AppealHistory";
-import { ClassicAppealProvider } from "~src/hooks/useClassicAppealContext";
+import { ClassicAppealProvider } from "hooks/useClassicAppealContext";
 
 const Appeal: React.FC<{ currentPeriodIndex: number }> = ({ currentPeriodIndex }) => {
   return (
