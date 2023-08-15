@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Tabs as TabsComponent } from "@kleros/ui-components-library";
@@ -53,11 +53,7 @@ const Tabs: React.FC = () => {
   }, [currentPathName]);
 
   useEffect(() => {
-    if (parseInt(currentPeriodIndex) < 3 && rounds?.length === 1) {
-      TABS[3].disabled = true;
-    } else {
-      TABS[3].disabled = false;
-    }
+    TABS[3].disabled = parseInt(currentPeriodIndex) < 3 && rounds?.length === 1;
   }, [currentPeriodIndex, id, currentTab]);
 
   return (

@@ -12,11 +12,15 @@ const calculateAppealCost = (fee: string, totalVotes: number): bigint => {
   return BigInt(fee) * (BigInt(totalVotes) * 2n + 1n);
 };
 
-const getLatestAppealRoundData = (rounds) => {
+const getLastRoundData = (rounds) => {
   if (rounds) {
     const reverseRounds = rounds.slice().reverse();
     return reverseRounds.find((round) => round.fundedChoices.length > 0);
   }
+};
+
+const getLastRoundIndex = (rounds) => {
+  return rounds.length === 1 ? rounds.length - 1 : rounds.length - 2;
 };
 
 const AppealHistory: React.FC = () => {
@@ -25,35 +29,32 @@ const AppealHistory: React.FC = () => {
   const { data: multipliers } = useDisputeKitClassicMultipliers();
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const options = useOptionsContext();
-  const feeForJuror = disputeDetails?.dispute?.court?.feeForJuror!;
+  const feeForJuror = disputeDetails?.dispute?.court?.feeForJuror;
   const { data: votingHistory } = useVotingHistory(id);
   const rounds = votingHistory?.dispute?.rounds;
   const localRounds = data?.dispute?.disputeKitDispute?.localRounds;
 
-  const roundData = !isUndefined(localRounds) ? getLatestAppealRoundData(localRounds) : undefined;
+  const lastRoundData = !isUndefined(localRounds) ? getLastRoundData(localRounds) : undefined;
   const appealCost =
-    !isUndefined(rounds) && !isUndefined(roundData) && !isUndefined(feeForJuror)
-      ? calculateAppealCost(
-          disputeDetails?.dispute?.court?.feeForJuror!,
-          rounds![rounds.length === 1 ? rounds.length - 1 : rounds.length - 2].nbVotes!
-        )
+    !isUndefined(rounds) && !isUndefined(lastRoundData) && !isUndefined(feeForJuror)
+      ? calculateAppealCost(disputeDetails?.dispute?.court?.feeForJuror, rounds?.[getLastRoundIndex(rounds)].nbVotes)
       : 0n;
 
-  const loserRequiredFunding = getLoserRequiredFunding(appealCost!, multipliers?.loser_stake_multiplier!);
-  const winnerRequiredFunding = getWinnerRequiredFunding(appealCost!, multipliers?.winner_stake_multiplier!);
+  const loserRequiredFunding = getLoserRequiredFunding(appealCost, multipliers?.loser_stake_multiplier);
+  const winnerRequiredFunding = getWinnerRequiredFunding(appealCost, multipliers?.winner_stake_multiplier);
 
   return (
     <div>
-      <h1>Last Appeal Round</h1>
-      {options && !isUndefined(roundData) ? (
+      <h1>Appeal Results - Last Round</h1>
+      {options && !isUndefined(lastRoundData) ? (
         options.map((option, index) => {
           return (
             <OptionCard
               key={option}
               text={option}
-              winner={index.toString() === roundData.winningChoice}
-              funding={roundData.paidFees ? BigInt(roundData.paidFees[index]) : 0n}
-              required={index.toString() === roundData.winningChoice ? winnerRequiredFunding : loserRequiredFunding}
+              winner={index.toString() === lastRoundData.winningChoice}
+              funding={lastRoundData.paidFees ? BigInt(lastRoundData.paidFees[index]) : 0n}
+              required={index.toString() === lastRoundData.winningChoice ? winnerRequiredFunding : loserRequiredFunding}
             />
           );
         })
