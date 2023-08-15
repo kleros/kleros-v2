@@ -2,7 +2,7 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { useClassicAppealQuery } from "hooks/queries/useClassicAppealQuery";
 import { useDisputeKitClassicMultipliers } from "hooks/queries/useDisputeKitClassicMultipliers";
-import { useOptionsContext, getLoserRequiredFunding, getWinnerRequiredFunding } from "hooks/useClassicAppealContext";
+import { useOptionsContext, getRequiredFunding } from "hooks/useClassicAppealContext";
 import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
 import { isUndefined } from "utils/index";
@@ -40,8 +40,10 @@ const AppealHistory: React.FC = () => {
       ? calculateAppealCost(disputeDetails?.dispute?.court?.feeForJuror, rounds?.[getLastRoundIndex(rounds)].nbVotes)
       : 0n;
 
-  const loserRequiredFunding = getLoserRequiredFunding(appealCost, multipliers?.loser_stake_multiplier);
-  const winnerRequiredFunding = getWinnerRequiredFunding(appealCost, multipliers?.winner_stake_multiplier);
+  const loserRequiredFunding =
+    !isUndefined(multipliers) && getRequiredFunding(appealCost, multipliers.loser_stake_multiplier);
+  const winnerRequiredFunding =
+    !isUndefined(multipliers) && getRequiredFunding(appealCost, multipliers.winner_stake_multiplier);
 
   return (
     <div>

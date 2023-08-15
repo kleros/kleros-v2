@@ -53,8 +53,8 @@ const Tabs: React.FC = () => {
   }, [currentPathName]);
 
   useEffect(() => {
-    TABS[3].disabled = parseInt(currentPeriodIndex) < 3 && rounds?.length === 1;
-  }, [currentPeriodIndex, id, currentTab]);
+    TABS[3].disabled = parseInt(currentPeriodIndex) < 3 && rounds.length === 1;
+  }, [currentPeriodIndex, id, currentTab, rounds.length]);
 
   return (
     <StyledTabs

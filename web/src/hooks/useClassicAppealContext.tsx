@@ -58,10 +58,16 @@ export const ClassicAppealProvider: React.FC<{
   const loserSideCountdown = useLoserSideCountdown(
     dispute?.lastPeriodChange,
     dispute?.court.timesPerPeriod[Periods.appeal],
-    multipliers?.loser_appeal_period_multiplier.toString()!
+    multipliers?.loser_appeal_period_multiplier.toString()
   );
-  const loserRequiredFunding = getLoserRequiredFunding(appealCost!, multipliers?.loser_stake_multiplier!);
-  const winnerRequiredFunding = getWinnerRequiredFunding(appealCost!, multipliers?.winner_stake_multiplier!);
+  const loserRequiredFunding =
+    !isUndefined(appealCost) &&
+    !isUndefined(multipliers) &&
+    getRequiredFunding(appealCost, multipliers.loser_stake_multiplier);
+  const winnerRequiredFunding =
+    !isUndefined(appealCost) &&
+    !isUndefined(multipliers) &&
+    getRequiredFunding(appealCost, multipliers.winner_stake_multiplier);
   const fundedChoices = getFundedChoices(data?.dispute);
   const [selectedOption, setSelectedOption] = useState<number | undefined>();
   return (
@@ -113,14 +119,9 @@ const getWinningChoice = (dispute?: ClassicAppealQuery["dispute"]) => {
   return currentLocalRound?.winningChoice;
 };
 
-export const getLoserRequiredFunding = (appealCost: bigint, loser_stake_multiplier: bigint): bigint =>
-  !isUndefined(appealCost) && !isUndefined(loser_stake_multiplier)
-    ? appealCost + (loser_stake_multiplier * appealCost) / ONE_BASIS_POINT
-    : 0n;
-
-export const getWinnerRequiredFunding = (appealCost: bigint, winner_stake_multiplier: bigint): bigint =>
-  !isUndefined(appealCost) && !isUndefined(winner_stake_multiplier)
-    ? appealCost + (winner_stake_multiplier * appealCost) / ONE_BASIS_POINT
+export const getRequiredFunding = (appealCost: bigint, stake_multiplier: bigint): bigint =>
+  !isUndefined(appealCost) && !isUndefined(stake_multiplier)
+    ? appealCost + (stake_multiplier * appealCost) / ONE_BASIS_POINT
     : 0n;
 
 const getDeadline = (lastPeriodChange: string, appealPeriodDuration: string, loserTimeMultiplier: string): number => {
