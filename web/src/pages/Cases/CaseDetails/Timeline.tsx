@@ -35,7 +35,9 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: 
   const countdown = useCountdown(deadlineCurrentPeriod);
   const getSubitems = (index: number): string[] => {
     if (typeof countdown !== "undefined" && dispute) {
-      if (index < currentItemIndex) {
+      if (index === currentItemIndex && countdown === 0) {
+        return ["Time's up!"];
+      } else if (index < currentItemIndex) {
         return [];
       } else if (index === 3) {
         return currentItemIndex === 3 ? ["Pending"] : [];

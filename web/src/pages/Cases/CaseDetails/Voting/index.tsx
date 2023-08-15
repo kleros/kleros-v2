@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 import { useLockBodyScroll } from "react-use";
@@ -10,8 +11,22 @@ import Popup, { PopupType } from "components/Popup";
 import { Periods } from "consts/periods";
 import { isUndefined } from "utils/index";
 import { getPeriodEndTimestamp } from "components/DisputeCard";
-import { useDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
+import { useDisputeKitClassicIsVoteActive, useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
 import VoteIcon from "assets/svgs/icons/voted.svg";
+import InfoCircle from "tsx:svgs/icons/info-circle.svg";
+
+const InfoContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  color: ${({ theme }) => theme.secondaryText};
+  align-items: center;
+  gap: calc(4px + (8 - 4) * ((100vw - 300px) / (1250 - 300)));
+
+  svg {
+    min-width: 16px;
+    min-height: 16px;
+  }
+`;
 
 function formatDate(unixTimestamp: number): string {
   const date = new Date(unixTimestamp * 1000);
@@ -19,10 +34,13 @@ function formatDate(unixTimestamp: number): string {
   return date.toLocaleDateString("en-US", options);
 }
 
-const Voting: React.FC<{
+interface IVoting {
   arbitrable?: `0x${string}`;
   currentPeriodIndex?: number;
-}> = ({ arbitrable, currentPeriodIndex }) => {
+  courtId: number;
+}
+
+const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, courtId }) => {
   const { address } = useAccount();
   const { id } = useParams();
   const { data: disputeData } = useDisputeDetailsQuery(id);
@@ -32,6 +50,11 @@ const Voting: React.FC<{
   const { data: voted } = useDisputeKitClassicIsVoteActive({
     enabled: !isUndefined(roundId) && !isUndefined(voteId),
     args: [BigInt(id ?? 0), roundId, voteId],
+    watch: true,
+  });
+  const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
+    enabled: !isUndefined(address),
+    args: [address, courtId],
     watch: true,
   });
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -45,6 +68,16 @@ const Voting: React.FC<{
 
   return (
     <>
+      {drawData?.draws.length === 0 && !isUndefined(jurorBalance) && jurorBalance[0] > 0 && (
+        <>
+          <InfoContainer>
+            <InfoCircle />
+            You were not drawn in current round.
+          </InfoContainer>
+          <br></br>
+        </>
+      )}
+
       {isPopupOpen && (
         <Popup
           title="Thanks for Voting"
