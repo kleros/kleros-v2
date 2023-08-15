@@ -59,7 +59,8 @@ const FormNotifs: React.FC = () => {
       </FormEmailContainer>
 
       <ButtonContainer>
-        <Button text="Save" disabled={!emailIsValid} />
+        <Button text="Coming Soon!" disabled={true} />
+        {/* <Button text="Save" disabled={!emailIsValid} /> */}
       </ButtonContainer>
     </FormContainer>
   );
