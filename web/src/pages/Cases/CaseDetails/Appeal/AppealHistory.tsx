@@ -22,7 +22,7 @@ const AppealHistory: React.FC = () => {
           options.map((option, index) => {
             return (
               <OptionCard
-                key={option}
+                key={option + index}
                 text={option}
                 winner={index.toString() === winningChoice}
                 funding={BigInt(paidFees?.[index] ?? "0")}
