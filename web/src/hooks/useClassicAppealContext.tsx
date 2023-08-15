@@ -98,8 +98,11 @@ export const useFundingContext = () => useContext(FundingContext);
 export const useOptionsContext = () => useContext(OptionsContext);
 
 const getCurrentLocalRound = (dispute?: ClassicAppealQuery["dispute"]) => {
+  const period = dispute?.period;
   const currentLocalRoundIndex = dispute?.disputeKitDispute?.currentLocalRoundIndex;
-  return dispute?.disputeKitDispute?.localRounds[currentLocalRoundIndex];
+  return dispute?.disputeKitDispute?.localRounds[
+    period === "appeal" ? currentLocalRoundIndex : currentLocalRoundIndex - 1
+  ];
 };
 
 const getPaidFees = (dispute?: ClassicAppealQuery["dispute"]) => {
