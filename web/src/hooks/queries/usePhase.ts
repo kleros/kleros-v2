@@ -8,7 +8,7 @@ export const usePhase = () => {
   return useQuery({
     queryKey: [`Phase`],
     enabled: isEnabled,
-    staleTime: 20 * 1000, // 20 seconds
+    staleTime: Infinity,
     queryFn: async () => {
       if (!sortitionModule) return;
       return await sortitionModule.read.phase();
