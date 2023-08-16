@@ -27,20 +27,29 @@ const AccountContainer = styled.div`
   }
 `;
 
-const IconContainer = styled.div`
+const IdenticonOrAvatarContainer = styled.div`
   margin-right: 8px;
 `;
 
-const IdenticonOrAvatarContainer = styled.div`
+const StyledIdenticon = styled(Identicon).attrs((props) => ({
+  $size: props.$size || "16px",
+}))<{ $size?: string }>`
   align-items: center;
-  > img {
-    width: 16px;
-    height: 16px;
+  svg {
+    width: {props => props.$size};
+    height: {props => props.$size};
   }
-  > svg {
-    width: 16px;
-    height: 16px;
-  }
+`;
+
+const StyledAvatar = styled.img.attrs((props) => ({
+  $width: props.width || "16px",
+  $height: props.height || "16px",
+}))<{ $size?: string }>`
+  align-items: center;
+  object-fit: cover;
+  border-radius: 50%;
+  width: {props => props.$width};
+  height: {props => props.$height};
 `;
 
 const ChainConnectionContainer = styled.div`
@@ -67,10 +76,10 @@ const AccountDisplay: React.FC = () => {
   return (
     <Container>
       <AccountContainer>
-        <IconContainer>
-          <IdenticonOrAvatarDisplay />
-        </IconContainer>
-        <AddressOrNameDisplay />
+        <IdenticonOrAvatarContainer>
+          <IdenticonOrAvatar size="32" />
+        </IdenticonOrAvatarContainer>
+        <AddressOrName />
       </AccountContainer>
       <ChainConnectionContainer>
         <ChainDisplay />
@@ -79,7 +88,7 @@ const AccountDisplay: React.FC = () => {
   );
 };
 
-export const IdenticonOrAvatarDisplay: React.FC = () => {
+export const IdenticonOrAvatar: React.FC<{ size: string }> = ({ size }) => {
   const { address } = useAccount();
   const { data: name } = useEnsName({
     address,
@@ -89,15 +98,14 @@ export const IdenticonOrAvatarDisplay: React.FC = () => {
     name,
     chainId: 1,
   });
-  return (
-    <IdenticonOrAvatarContainer>
-      {avatar && <img src={avatar} alt="avatar" />}
-      {!avatar && <Identicon size="16" string={address} />}
-    </IdenticonOrAvatarContainer>
+  return avatar ? (
+    <StyledAvatar src={avatar} alt="avatar" width={size} height={size} />
+  ) : (
+    <StyledIdenticon size={size} string={address} />
   );
 };
 
-export const AddressOrNameDisplay: React.FC = () => {
+export const AddressOrName: React.FC = () => {
   const { address } = useAccount();
   const { data } = useEnsName({
     address,

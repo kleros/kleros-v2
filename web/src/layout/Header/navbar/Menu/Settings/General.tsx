@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useAccount, useDisconnect } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
-import { AddressOrNameDisplay, ChainDisplay, IdenticonOrAvatarDisplay } from "components/ConnectWallet";
+import { AddressOrName, ChainDisplay, IdenticonOrAvatar } from "components/ConnectWallet";
 import { EnsureChain } from "components/EnsureChain";
 
 const Container = styled.div`
@@ -40,26 +40,16 @@ const StyledAddressContainer = styled.div`
   }
 `;
 
-const StyledAvatar = styled.div`
+const StyledAvatarContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 12px;
-
-  // FIX ME: not working
-  > img {
-    width: 32px;
-    height: 32px;
-  }
-  > svg {
-    width: 32px;
-    height: 32px;
-  }
 `;
 
 const StyledButton = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 24px;
+  margin-top: 16px;
 `;
 
 const EnsureChainContainer = styled.div`
@@ -71,7 +61,7 @@ const EnsureChainContainer = styled.div`
 const UserContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 `;
 
 export const DisconnectWalletButton: React.FC = () => {
@@ -87,11 +77,11 @@ const General: React.FC = () => {
         <Container>
           {address && (
             <UserContainer>
-              <StyledAvatar>
-                <IdenticonOrAvatarDisplay />
-              </StyledAvatar>
+              <StyledAvatarContainer>
+                <IdenticonOrAvatar size="48" />
+              </StyledAvatarContainer>
               <StyledAddressContainer>
-                <AddressOrNameDisplay />
+                <AddressOrName />
               </StyledAddressContainer>
               <StyledChainContainer>
                 <ChainDisplay />
