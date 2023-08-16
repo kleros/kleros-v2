@@ -26,12 +26,7 @@ interface ISortitionModule {
 
     function draw(bytes32 _court, uint256 _coreDisputeID, uint256 _voteID) external view returns (address);
 
-    function preStakeHook(
-        address _account,
-        uint96 _courtID,
-        uint256 _stake,
-        uint256 _penalty
-    ) external returns (preStakeHookResult);
+    function preStakeHook(address _account, uint96 _courtID, uint256 _stake) external returns (preStakeHookResult);
 
     function createDisputeHook(uint256 _disputeID, uint256 _roundID) external;
 

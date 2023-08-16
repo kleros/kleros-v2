@@ -558,7 +558,13 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     // ************************************* //
 
     /// @inheritdoc BaseDisputeKit
-    function _postDrawCheck(uint256 /*_coreDisputeID*/, address /*_juror*/) internal pure override returns (bool) {
-        return true;
+    function _postDrawCheck(uint256 _coreDisputeID, address _juror) internal view override returns (bool) {
+        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
+        (, uint256 lockedAmountPerJuror, , , , , , , , ) = core.getRoundInfo(
+            _coreDisputeID,
+            core.getNumberOfRounds(_coreDisputeID) - 1
+        );
+        (uint256 totalStaked, uint256 totalLocked, , ) = core.getJurorBalance(_juror, courtID);
+        return totalStaked >= totalLocked + lockedAmountPerJuror;
     }
 }
