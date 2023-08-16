@@ -24,7 +24,7 @@ interface ISortitionModule {
 
     function notifyRandomNumber(uint256 _drawnNumber) external;
 
-    function draw(bytes32 _court, uint256 _coreDisputeID, uint256 _voteID) external view returns (address);
+    function draw(bytes32 _court, uint256 _coreDisputeID, uint256 _nonce) external view returns (address);
 
     function preStakeHook(address _account, uint96 _courtID, uint256 _stake) external returns (preStakeHookResult);
 

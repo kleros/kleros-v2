@@ -268,7 +268,7 @@ contract SortitionModule is ISortitionModule {
     /// Note that this function reverts if the sum of all values in the tree is 0.
     /// @param _key The key of the tree.
     /// @param _coreDisputeID Index of the dispute in Kleros Core.
-    /// @param _voteID ID of the voter.
+    /// @param _nonce Nonce to hash with random number.
     /// @return drawnAddress The drawn address.
     /// `O(k * log_k(n))` where
     /// `k` is the maximum number of children per node in the tree,
@@ -276,7 +276,7 @@ contract SortitionModule is ISortitionModule {
     function draw(
         bytes32 _key,
         uint256 _coreDisputeID,
-        uint256 _voteID
+        uint256 _nonce
     ) public view override returns (address drawnAddress) {
         require(phase == Phase.drawing, "Wrong phase.");
         SortitionSumTree storage tree = sortitionSumTrees[_key];
@@ -285,7 +285,7 @@ contract SortitionModule is ISortitionModule {
             return address(0); // No jurors staked.
         }
 
-        uint256 currentDrawnNumber = uint256(keccak256(abi.encodePacked(randomNumber, _coreDisputeID, _voteID))) %
+        uint256 currentDrawnNumber = uint256(keccak256(abi.encodePacked(randomNumber, _coreDisputeID, _nonce))) %
             tree.nodes[0];
 
         // While it still has children

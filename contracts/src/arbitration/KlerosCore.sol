@@ -64,6 +64,7 @@ contract KlerosCore is IArbitratorV2 {
         uint256 sumFeeRewardPaid; // Total sum of arbitration fees paid to coherent jurors as a reward in this round.
         uint256 sumPnkRewardPaid; // Total sum of PNK paid to coherent jurors as a reward in this round.
         IERC20 feeToken; // The token used for paying fees in this round.
+        uint256 drawIterations; // The number of iterations passed drawing the jurors for this round.
     }
 
     struct Juror {
@@ -609,11 +610,10 @@ contract KlerosCore is IArbitratorV2 {
 
         IDisputeKit disputeKit = disputeKitNodes[round.disputeKitID].disputeKit;
 
-        uint256 startIndex = round.drawnJurors.length;
-        uint256 endIndex = startIndex + _iterations <= round.nbVotes ? startIndex + _iterations : round.nbVotes;
-
-        for (uint256 i = startIndex; i < endIndex; i++) {
-            address drawnAddress = disputeKit.draw(_disputeID);
+        uint256 startIndex = round.drawIterations;
+        // TODO: cap the iterations?
+        for (uint256 i = startIndex; i < startIndex + _iterations; i++) {
+            address drawnAddress = disputeKit.draw(_disputeID, i);
             if (drawnAddress != address(0)) {
                 jurors[drawnAddress].lockedPnk += round.pnkAtStakePerJuror;
                 emit Draw(drawnAddress, _disputeID, currentRound, round.drawnJurors.length);
@@ -624,6 +624,7 @@ contract KlerosCore is IArbitratorV2 {
                 }
             }
         }
+        round.drawIterations += _iterations;
     }
 
     /// @dev Appeals the ruling of a specified dispute.
