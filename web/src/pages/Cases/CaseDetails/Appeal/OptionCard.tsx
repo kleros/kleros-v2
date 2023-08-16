@@ -1,14 +1,15 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useMeasure } from "react-use";
 import { Card, Radio, LinearProgress } from "@kleros/ui-components-library";
 import Gavel from "svgs/icons/gavel.svg";
 import { formatEther } from "viem";
+import { isUndefined } from "utils/index";
 
 interface IOptionCard extends React.HTMLAttributes<HTMLDivElement> {
   text: string;
   funding: bigint;
-  required: bigint;
+  required?: bigint;
   winner?: boolean;
   selected?: boolean;
   canBeSelected?: boolean;
@@ -24,6 +25,17 @@ const OptionCard: React.FC<IOptionCard> = ({
   ...props
 }) => {
   const [ref, { width }] = useMeasure();
+  const [fundingLabel, progress] = useMemo(() => {
+    if (!isUndefined(required))
+      if (funding >= required) return ["Fully funded!", 100];
+      else
+        return [
+          `${formatEther(funding)} out of ${formatEther(required)} ETH required.`,
+          Number((funding * 100n) / required),
+        ];
+    else if (funding > 0n) return [`Funded with ${formatEther(funding)} ETH.`, 30];
+    else return ["0 ETH contributed to this option", 0];
+  }, [funding, required]);
   return (
     <StyledCard ref={ref} hover {...props}>
       <TopContainer>
@@ -37,13 +49,9 @@ const OptionCard: React.FC<IOptionCard> = ({
         {canBeSelected && <StyledRadio label="" checked={selected} />}
       </TopContainer>
       <LabelContainer>
-        <label>
-          {funding >= required
-            ? "Fully funded!"
-            : formatEther(funding) + " out of " + formatEther(required) + "ETH required"}
-        </label>
+        <label>{fundingLabel}</label>
       </LabelContainer>
-      <LinearProgress progress={required > 0n ? Number((funding * 100n) / required) : 100} width={width} />
+      <LinearProgress progress={progress} width={width} />
     </StyledCard>
   );
 };
