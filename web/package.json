@@ -27,7 +27,7 @@
     "start": "scripts/runEnv.sh devnet 'yarn generate && parcel'",
     "start-testnet": "scripts/runEnv.sh testnet 'yarn generate && parcel'",
     "start-local": "scripts/runEnv.sh local 'yarn generate && parcel'",
-    "build": "yarn generate && parcel build",
+    "build": "node scripts/gitInfo.js && yarn generate && parcel build",
     "build-devnet": "scripts/runEnv.sh devnet 'yarn generate && parcel build'",
     "build-testnet": "scripts/runEnv.sh testnet 'yarn generate && parcel build'",
     "check-style": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
