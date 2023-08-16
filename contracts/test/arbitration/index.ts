@@ -97,6 +97,10 @@ async function deployContracts(deployer) {
           methodName: "initialize",
           args: [deployer.address, KlerosCoreAddress, 120, 120, rng.address, LOOKAHEAD], // minStakingTime, maxFreezingTime
         },
+        onUpgrade: {
+          methodName: "governor",
+          args: [],
+        },
       },
     },
     log: true,

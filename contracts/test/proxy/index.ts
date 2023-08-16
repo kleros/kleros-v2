@@ -24,6 +24,10 @@ describe("Mock Implementation Proxy", async () => {
             methodName: "initialize",
             args: [deployer.address],
           },
+          onUpgrade: {
+            methodName: "counter",
+            args: [],
+          },
         },
         proxyArgs: ["{implementation}", "{data}"],
       },

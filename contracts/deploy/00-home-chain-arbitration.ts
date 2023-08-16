@@ -85,10 +85,16 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     proxy: {
       proxyContract: "UUPSProxy",
       proxyArgs: ["{implementation}", "{data}"],
+      checkProxyAdmin: false,
+      checkABIConflict: false,
       execute: {
         init: {
           methodName: "initialize",
           args: [deployer, KlerosCoreAddress, 1800, 1800, rng.address, RNG_LOOKAHEAD], // minStakingTime, maxFreezingTime
+        },
+        onUpgrade: {
+          methodName: "governor",
+          args: [],
         },
       },
     },
