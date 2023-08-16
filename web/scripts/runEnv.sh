@@ -18,4 +18,5 @@ if [[ ! " ${valid_deployments[@]} " =~ " ${deployment} " ]]; then
 fi
 
 . $SCRIPT_DIR/../.env.${deployment}.public
+. $SCRIPT_DIR/../.env.${deployment}
 eval "$commands"

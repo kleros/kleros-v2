@@ -27,18 +27,8 @@ interface ILightButton {
   className?: string;
 }
 
-const LightButton: React.FC<ILightButton> = ({
-  text,
-  Icon,
-  onClick,
-  disabled,
-  className,
-}) => (
-  <StyledButton
-    variant="primary"
-    small
-    {...{ text, Icon, onClick, disabled, className }}
-  />
+const LightButton: React.FC<ILightButton> = ({ text, Icon, onClick, disabled, className }) => (
+  <StyledButton variant="primary" small {...{ text, Icon, onClick, disabled, className }} />
 );
 
 export default LightButton;
