@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { GIT_BRANCH, GIT_DIRTY, GIT_HASH, GIT_URL, RELEASE_VERSION } from "../../../consts";
+import { GIT_BRANCH, GIT_DIRTY, GIT_HASH, GIT_TAGS, GIT_URL, RELEASE_VERSION } from "../../../consts";
 import { usePhase } from "~src/hooks/queries/usePhase";
 
 const Container = styled.div`
@@ -18,22 +18,22 @@ const Version = () => (
     v{RELEASE_VERSION}{" "}
     <a href={GIT_URL} target="_blank" rel="noreferrer">
       #{GIT_HASH}
-    </a>{" "}
-    {GIT_BRANCH}
-    {GIT_DIRTY && " dirty"}
+    </a>
+    {GIT_BRANCH && GIT_BRANCH !== "HEAD" && ` ${GIT_BRANCH}`}
+    {GIT_TAGS && ` ${GIT_TAGS}`}
+    {GIT_DIRTY && ` dirty`}
   </label>
 );
 
 const Phase = () => {
   const { data: phase } = usePhase();
-  return <label>phase: {phase}</label>;
+  return phase && <label>, phase: {phase}</label>;
 };
 
 const Debug: React.FC = () => {
   return (
     <Container>
       <Version />
-      <label>{", "}</label>
       <Phase />
     </Container>
   );
