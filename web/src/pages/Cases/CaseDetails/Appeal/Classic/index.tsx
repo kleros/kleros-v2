@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ClassicAppealProvider, useOptionsContext, useSelectedOptionContext } from "hooks/useClassicAppealContext";
+import { useOptionsContext, useSelectedOptionContext } from "hooks/useClassicAppealContext";
 import Options from "./Options";
 import Fund from "./Fund";
 import Popup, { PopupType } from "components/Popup";
@@ -33,12 +33,4 @@ const Classic: React.FC = () => {
   );
 };
 
-const ClassicWrapper: React.FC = () => {
-  return (
-    <ClassicAppealProvider>
-      <Classic />
-    </ClassicAppealProvider>
-  );
-};
-
-export default ClassicWrapper;
+export default Classic;
