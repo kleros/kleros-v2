@@ -8,6 +8,7 @@ import { useOpenContext } from "../index";
 import DappList from "./DappList";
 import Explore from "./Explore";
 import Menu from "./Menu";
+import Debug from "./Debug";
 
 const Container = styled.div<{ isOpen: boolean }>`
   position: absolute;
@@ -54,6 +55,8 @@ const NavBar: React.FC = () => {
       <ConnectWallet />
       <hr />
       <Menu />
+      <br />
+      <Debug />
     </Container>
   );
 };

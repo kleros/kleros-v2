@@ -36,12 +36,7 @@ const Container = styled.div`
 `;
 
 const SecuredByKleros: React.FC = () => (
-  <a
-    className="secured-by-kleros"
-    href="https://kleros.io"
-    target="_blank"
-    rel="noreferrer"
-  >
+  <a className="secured-by-kleros" href="https://kleros.io" target="_blank" rel="noreferrer">
     <SecuredByKlerosLogo />
   </a>
 );

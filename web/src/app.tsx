@@ -1,5 +1,6 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Route } from "react-router-dom";
+import { SentryRoutes } from "./utils/sentry";
 import "react-loading-skeleton/dist/skeleton.css";
 import "react-toastify/dist/ReactToastify.css";
 import Web3Provider from "context/Web3Provider";
@@ -19,7 +20,7 @@ const App: React.FC = () => {
       <QueryClientProvider>
         <RefetchOnBlock />
         <Web3Provider>
-          <Routes>
+          <SentryRoutes>
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="cases/*" element={<Cases />} />
@@ -28,7 +29,7 @@ const App: React.FC = () => {
               <Route path="disputeTemplate" element={<DisputeTemplateView />} />
               <Route path="*" element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>} />
             </Route>
-          </Routes>
+          </SentryRoutes>
         </Web3Provider>
       </QueryClientProvider>
     </StyledComponentsProvider>

@@ -17,6 +17,7 @@ if [[ ! " ${valid_deployments[@]} " =~ " ${deployment} " ]]; then
     exit 1
 fi
 
+node $SCRIPT_DIR/gitInfo.js
 . $SCRIPT_DIR/../.env.${deployment}.public
 . $SCRIPT_DIR/../.env.${deployment}
 eval "$commands"
