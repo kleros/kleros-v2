@@ -11,7 +11,7 @@ import Popup, { PopupType } from "components/Popup";
 import { Periods } from "consts/periods";
 import { isUndefined } from "utils/index";
 import { getPeriodEndTimestamp } from "components/DisputeCard";
-import { useDisputeKitClassicIsVoteActive, useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
+import { useDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
 import VoteIcon from "assets/svgs/icons/voted.svg";
 import InfoCircle from "tsx:svgs/icons/info-circle.svg";
 
@@ -40,7 +40,7 @@ interface IVoting {
   courtId: number;
 }
 
-const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, courtId }) => {
+const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
   const { address } = useAccount();
   const { id } = useParams();
   const { data: disputeData } = useDisputeDetailsQuery(id);
@@ -50,11 +50,6 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, courtId }) 
   const { data: voted } = useDisputeKitClassicIsVoteActive({
     enabled: !isUndefined(roundId) && !isUndefined(voteId),
     args: [BigInt(id ?? 0), roundId, voteId],
-    watch: true,
-  });
-  const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
-    enabled: !isUndefined(address),
-    args: [address, courtId],
     watch: true,
   });
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -68,7 +63,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex, courtId }) 
 
   return (
     <>
-      {drawData?.draws.length === 0 && !isUndefined(jurorBalance) && jurorBalance[0] > 0 && (
+      {drawData?.draws.length === 0 && (
         <>
           <InfoContainer>
             <InfoCircle />
