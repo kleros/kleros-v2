@@ -11,7 +11,7 @@ export const usePhase = () => {
     staleTime: Infinity,
     queryFn: async () => {
       if (!sortitionModule) return;
-      return await sortitionModule.read.phase();
+      return sortitionModule.read.phase();
     },
   });
 };
