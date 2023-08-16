@@ -1,27 +1,63 @@
 import React from "react";
 import styled from "styled-components";
-import { useAccount, useNetwork, useSwitchNetwork } from "wagmi";
+import { useAccount, useEnsAvatar, useEnsName, useNetwork, useSwitchNetwork } from "wagmi";
+import Identicon from "react-identicons";
 import { useWeb3Modal } from "@web3modal/react";
 import { shortenAddress } from "utils/shortenAddress";
 import { Button } from "@kleros/ui-components-library";
 import { SUPPORTED_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 
-const StyledContainer = styled.div`
+const Container = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-content: center;
+  align-items: center;
+`;
+
+const AccountContainer = styled.div`
+  min-height: 32px;
+  display: flex;
+  align-items: center;
   width: fit-content;
-  height: 34px;
-  padding: 16px;
-  gap: 0.5rem;
-  border-radius: 300px;
-  background-color: ${({ theme }) => theme.whiteLowOpacity};
+  > label {
+    color: ${({ theme }) => theme.primaryText};
+    font-size: 16px;
+    font-weight: 600;
+  }
+`;
+
+const IconContainer = styled.div`
+  margin-right: 8px;
+`;
+
+const IdenticonOrAvatarContainer = styled.div`
+  align-items: center;
+  > img {
+    width: 16px;
+    height: 16px;
+  }
+  > svg {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
+const ChainConnectionContainer = styled.div`
+  width: fit-content;
+  min-height: 32px;
   display: flex;
   align-items: center;
   > label {
-    color: ${({ theme }) => theme.primaryText};
+    color: ${({ theme }) => theme.success};
+    font-size: 16px;
+    margin-right: 4px;
   }
   :before {
     content: "";
     width: 8px;
     height: 8px;
+    margin: 0px 13px 0px 3px;
     border-radius: 50%;
     background-color: ${({ theme }) => theme.success};
   }
@@ -29,21 +65,50 @@ const StyledContainer = styled.div`
 
 const AccountDisplay: React.FC = () => {
   return (
-    <StyledContainer>
-      <ChainDisplay />
-      <AddressDisplay />
-    </StyledContainer>
+    <Container>
+      <AccountContainer>
+        <IconContainer>
+          <IdenticonOrAvatarDisplay />
+        </IconContainer>
+        <AddressOrNameDisplay />
+      </AccountContainer>
+      <ChainConnectionContainer>
+        <ChainDisplay />
+      </ChainConnectionContainer>
+    </Container>
   );
+};
+
+export const IdenticonOrAvatarDisplay: React.FC = () => {
+  const { address } = useAccount();
+  const { data: name } = useEnsName({
+    address,
+    chainId: 1,
+  });
+  const { data: avatar } = useEnsAvatar({
+    name,
+    chainId: 1,
+  });
+  return (
+    <IdenticonOrAvatarContainer>
+      {avatar && <img src={avatar} alt="avatar" />}
+      {!avatar && <Identicon size="16" string={address} />}
+    </IdenticonOrAvatarContainer>
+  );
+};
+
+export const AddressOrNameDisplay: React.FC = () => {
+  const { address } = useAccount();
+  const { data } = useEnsName({
+    address,
+    chainId: 1,
+  });
+  return <label>{data ?? (address && shortenAddress(address))}</label>;
 };
 
 export const ChainDisplay: React.FC = () => {
   const { chain } = useNetwork();
-  return <small>{chain?.name}</small>;
-};
-
-export const AddressDisplay: React.FC = () => {
-  const { address } = useAccount();
-  return <label>{address && shortenAddress(address)}</label>;
+  return <label>{chain?.name}</label>;
 };
 
 export const SwitchChainButton: React.FC = () => {

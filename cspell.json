@@ -31,7 +31,8 @@
     "repartitions",
     "solhint",
     "typechain",
-    "Unslashed"
+    "Unslashed",
+    "wagmi"
   ],
   "ignoreWords": [],
   "import": []

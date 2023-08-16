@@ -13,6 +13,7 @@ const LinkContainer = styled.div`
   .sm-link {
     color: ${({ theme }) => theme.primaryText};
     text-decoration: none;
+    font-size: 16px;
   }
 `;
 

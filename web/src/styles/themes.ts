@@ -20,7 +20,7 @@ export const lightTheme = {
 
   defaultShadow: "#00000002",
   hoveredShadow: "#00000002",
-  whiteLowOpacity: "#FFFFFF0F",
+  whiteLowOpacity: "#0000000d",
   blackLowOpacity: "#00000080",
 
   success: "#00C42B",
