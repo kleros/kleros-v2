@@ -7,6 +7,7 @@ export type { ClassicAppealQuery };
 const classicAppealQuery = graphql(`
   query ClassicAppeal($disputeID: ID!) {
     dispute(id: $disputeID) {
+      period
       court {
         id
         timesPerPeriod

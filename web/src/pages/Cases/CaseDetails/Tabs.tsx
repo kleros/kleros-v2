@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Tabs as TabsComponent } from "@kleros/ui-components-library";
+import { Periods } from "consts/periods";
+import { useVotingHistory } from "hooks/queries/useVotingHistory";
+import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
 import EyeIcon from "assets/svgs/icons/eye.svg";
 import DocIcon from "assets/svgs/icons/doc.svg";
 import BalanceIcon from "assets/svgs/icons/law-balance.svg";
@@ -31,19 +34,28 @@ const TABS = [
     value: 3,
     Icon: BullhornIcon,
     path: "appeal",
+    disabled: false,
   },
 ];
 
 const Tabs: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const { data } = useDisputeDetailsQuery(id);
+  const { data: votingHistory } = useVotingHistory(id);
+  const rounds = votingHistory?.dispute?.rounds ?? [1];
+  const dispute = data?.dispute;
+  const currentPeriodIndex = Periods[dispute?.period ?? 0];
   const currentPathName = useLocation().pathname.split("/").at(-1);
-  const [currentTab, setCurrentTab] = useState(
-    TABS.findIndex(({ path }) => path === currentPathName)
-  );
-  useEffect(
-    () => setCurrentTab(TABS.findIndex(({ path }) => path === currentPathName)),
-    [currentPathName]
-  );
+  const [currentTab, setCurrentTab] = useState(TABS.findIndex(({ path }) => path === currentPathName));
+  useEffect(() => {
+    setCurrentTab(TABS.findIndex(({ path }) => path === currentPathName));
+  }, [currentPathName]);
+
+  useEffect(() => {
+    TABS[3].disabled = parseInt(currentPeriodIndex) < 3 && rounds.length === 1;
+  }, [currentPeriodIndex, id, currentTab, rounds.length]);
+
   return (
     <StyledTabs
       currentValue={currentTab}
