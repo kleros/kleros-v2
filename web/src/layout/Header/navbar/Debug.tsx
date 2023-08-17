@@ -35,7 +35,16 @@ const Phase = () => {
   const { data: phase } = useSortitionModulePhase({
     watch: true,
   });
-  return <>{phase && <label>, phase: {Phases[phase]}</label>}</>;
+  return (
+    <>
+      {phase && (
+        <label>
+          <br />
+          phase: {Phases[phase]}
+        </label>
+      )}
+    </>
+  );
 };
 
 const Debug: React.FC = () => {
