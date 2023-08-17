@@ -30,9 +30,7 @@ export const SwitchChainButton: React.FC = () => {
 
 const ConnectButton: React.FC = () => {
   const { open, isOpen } = useWeb3Modal();
-  return (
-    <Button disabled={isOpen} small text={"Connect"} onClick={async () => await open({ route: "ConnectWallet" })} />
-  );
+  return <Button disabled={isOpen} small text={"Connect"} onClick={async () => open({ route: "ConnectWallet" })} />;
 };
 
 const ConnectWallet: React.FC = () => {
