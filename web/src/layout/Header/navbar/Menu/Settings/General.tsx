@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useAccount, useDisconnect } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
-import { AddressOrName, ChainDisplay, IdenticonOrAvatar } from "components/ConnectWallet";
+import { AddressOrName, ChainDisplay, IdenticonOrAvatar } from "components/ConnectWallet/AccountDisplay";
 import { EnsureChain } from "components/EnsureChain";
 
 const Container = styled.div`
