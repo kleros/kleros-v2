@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3@sha256:85b3d192dddbc96588b719e86991e472b390805a754681a38132de1977d8e429
 
 WORKDIR /usr/src/app
 
