@@ -1,5 +1,7 @@
 name: Dependabot auto-merge
-on: pull_request
+on: 
+  merge_group:
+  pull_request:
 
 # https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
 permissions:

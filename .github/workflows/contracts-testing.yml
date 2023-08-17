@@ -2,6 +2,7 @@ name: Contracts Testing
 
 on:
   workflow_dispatch:
+  merge_group:
   push:
     branches:
       - master
@@ -13,7 +14,7 @@ permissions:  # added using https://github.com/step-security/secure-workflows
   contents: read
 
 jobs:
-  test:
+  contracts-testing:
     runs-on: ubuntu-latest
     steps:
     - name: Harden Runner
