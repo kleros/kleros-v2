@@ -19,7 +19,7 @@ const main = () => {
   let gitCommitHash = execSyncWrapper("git rev-parse HEAD");
   let gitCommitShortHash = execSyncWrapper("git rev-parse --short=7 HEAD");
   let gitBranch = execSyncWrapper("git rev-parse --abbrev-ref HEAD");
-  let gitTags = execSyncWrapper("git tag --points-at HEAD --omit-empty  | tr '\n' ',' | sed 's/,$//'");
+  let gitTags = execSyncWrapper("git tag --points-at HEAD  | tr '\n' ',' | sed 's/,$//'");
   let clean =
     execSyncWrapper(`[ -z "$(git status --short  | ggrep -v '^??')" ] && echo clean || echo dirty`) === "clean";
 
