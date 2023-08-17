@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { GIT_BRANCH, GIT_DIRTY, GIT_HASH, GIT_TAGS, GIT_URL, RELEASE_VERSION } from "../../../consts";
-import { usePhase } from "~src/hooks/queries/usePhase";
+import { useSortitionModulePhase } from "hooks/contracts/generated";
+import { GIT_BRANCH, GIT_DIRTY, GIT_HASH, GIT_TAGS, GIT_URL, RELEASE_VERSION } from "consts/index";
 
 const Container = styled.div`
   label,
@@ -25,9 +25,17 @@ const Version = () => (
   </label>
 );
 
+enum Phases {
+  staking,
+  generating,
+  drawing,
+}
+
 const Phase = () => {
-  const { data: phase } = usePhase();
-  return phase && <label>, phase: {phase}</label>;
+  const { data: phase } = useSortitionModulePhase({
+    watch: true,
+  });
+  return <>{phase && <label>, phase: {Phases[phase]}</label>}</>;
 };
 
 const Debug: React.FC = () => {
