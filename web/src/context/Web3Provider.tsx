@@ -13,7 +13,6 @@ const projectId = process.env.WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf
 
 const { publicClient, webSocketPublicClient } = configureChains(chains, [
   alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY ?? "" }),
-  alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY ?? "" }),
   jsonRpcProvider({
     rpc: () => ({
       http: `https://rpc.chiadochain.net`,
