@@ -102,7 +102,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
         </h1>
         <QuestionAndDescription>
           <ReactMarkdown>{disputeTemplate?.question}</ReactMarkdown>
-          <p>{disputeTemplate?.description}</p>
+          <ReactMarkdown>{disputeTemplate?.description}</ReactMarkdown>
         </QuestionAndDescription>
         {disputeTemplate?.frontendUrl && (
           <a href={disputeTemplate?.frontendUrl} target="_blank" rel="noreferrer">
