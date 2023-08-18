@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useAccount } from "wagmi";
-import { useCasesQuery } from "queries/useCasesQuery";
+import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
+import { useUserQuery } from "queries/useUser";
 import JurorInfo from "./JurorInfo";
 import Courts from "./Courts";
 import CasesDisplay from "components/CasesDisplay";
@@ -27,10 +28,11 @@ const ConnectWalletContainer = styled.div`
 `;
 
 const Dashboard: React.FC = () => {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const [currentPage, setCurrentPage] = useState(1);
   const casesPerPage = 3;
-  const { data } = useCasesQuery(casesPerPage * (currentPage - 1));
+  const { data: disputesData } = useMyCasesQuery(address, casesPerPage * (currentPage - 1));
+  const { data: userData } = useUserQuery(address);
 
   return (
     <Container>
@@ -38,14 +40,13 @@ const Dashboard: React.FC = () => {
         <>
           <JurorInfo />
           <Courts />
-          {data && (
-            <StyledCasesDisplay
-              title="My Cases"
-              disputes={data.disputes}
-              numberDisputes={data.counter?.cases}
-              {...{ currentPage, setCurrentPage, casesPerPage }}
-            />
-          )}
+          <StyledCasesDisplay
+            title="My Cases"
+            disputes={disputesData?.user?.disputes as DisputeDetailsFragment[]}
+            numberDisputes={userData?.user?.totalDisputes}
+            numberClosedDisputes={userData?.user?.totalResolvedDisputes}
+            {...{ currentPage, setCurrentPage, casesPerPage }}
+          />
         </>
       ) : (
         <ConnectWalletContainer>

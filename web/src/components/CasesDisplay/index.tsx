@@ -10,6 +10,7 @@ const StyledHR = styled.hr`
 `;
 
 interface ICasesDisplay extends ICasesGrid {
+  numberClosedDisputes?: number;
   title?: string;
   className?: string;
 }
@@ -19,6 +20,7 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
   currentPage,
   setCurrentPage,
   numberDisputes,
+  numberClosedDisputes,
   casesPerPage,
   title = "Cases",
   className,
@@ -26,21 +28,17 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
   <div {...{ className }}>
     <h1>{title}</h1>
     <Search />
-    <StatsAndFilters />
+    <StatsAndFilters totalDisputes={numberDisputes ?? 0} closedDisputes={numberClosedDisputes ?? 0} />
     <StyledHR />
-    {disputes.length > 0 ? (
-      <CasesGrid
-        {...{
-          disputes,
-          currentPage,
-          setCurrentPage,
-          numberDisputes,
-          casesPerPage,
-        }}
-      />
-    ) : (
-      <h1>wow no cases</h1>
-    )}
+    <CasesGrid
+      {...{
+        disputes,
+        currentPage,
+        setCurrentPage,
+        numberDisputes,
+        casesPerPage,
+      }}
+    />
   </div>
 );
 

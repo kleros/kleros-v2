@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Routes, Route } from "react-router-dom";
-import { useCasesQuery } from "queries/useCasesQuery";
+import { DisputeDetailsFragment, useCasesQuery } from "queries/useCasesQuery";
+import { useCounterQuery } from "queries/useCounter";
 import CasesDisplay from "components/CasesDisplay";
 import CaseDetails from "./CaseDetails";
 
@@ -16,19 +17,19 @@ const Cases: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const casesPerPage = 3;
   const { data } = useCasesQuery(casesPerPage * (currentPage - 1));
+  const { data: counterData } = useCounterQuery();
   return (
     <Container>
       <Routes>
         <Route
           path=""
           element={
-            data && (
-              <CasesDisplay
-                disputes={data.disputes}
-                numberDisputes={data.counter?.cases}
-                {...{ currentPage, setCurrentPage, casesPerPage }}
-              />
-            )
+            <CasesDisplay
+              disputes={data?.disputes as DisputeDetailsFragment[]}
+              numberDisputes={counterData?.counter?.cases}
+              numberClosedDisputes={counterData?.counter?.casesRuled}
+              {...{ currentPage, setCurrentPage, casesPerPage }}
+            />
           }
         />
         <Route path="/:id/*" element={<CaseDetails />} />

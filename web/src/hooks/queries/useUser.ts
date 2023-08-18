@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Address } from "viem";
 import { graphql } from "src/graphql";
 import { UserQuery } from "src/graphql/graphql";
 import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
@@ -24,12 +25,12 @@ const userQuery = graphql(`
   }
 `);
 
-export const useUserQuery = (address?: string) => {
+export const useUserQuery = (address?: Address) => {
   const isEnabled = address !== undefined;
 
   return useQuery<UserQuery>({
-    queryKey: [`userQuery${address}`],
+    queryKey: [`userQuery${address?.toLowerCase()}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(userQuery, { address }),
+    queryFn: async () => await graphqlQueryFnHelper(userQuery, { address: address?.toLowerCase() }),
   });
 };

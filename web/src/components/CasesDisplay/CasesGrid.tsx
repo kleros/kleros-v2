@@ -1,7 +1,9 @@
 import React from "react";
 import styled from "styled-components";
+import Skeleton from "react-loading-skeleton";
 import { StandardPagination } from "@kleros/ui-components-library";
-import { CasesPageQuery } from "queries/useCasesQuery";
+import { isUndefined } from "utils/index";
+import { DisputeDetailsFragment } from "queries/useCasesQuery";
 import DisputeCard from "components/DisputeCard";
 
 const Container = styled.div`
@@ -9,6 +11,11 @@ const Container = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
+`;
+
+const StyledSkeleton = styled(Skeleton)`
+  height: 260px;
+  width: 310px;
 `;
 
 // 24px as margin-top since we already have 8px from the flex gap
@@ -19,30 +26,26 @@ const StyledPagination = styled(StandardPagination)`
 `;
 
 export interface ICasesGrid {
-  disputes: CasesPageQuery["disputes"];
+  disputes?: DisputeDetailsFragment[];
   currentPage: number;
   setCurrentPage: (newPage: number) => void;
-  numberDisputes: number;
+  numberDisputes?: number;
   casesPerPage: number;
 }
 
-const CasesGrid: React.FC<ICasesGrid> = ({
-  disputes,
-  currentPage,
-  setCurrentPage,
-  numberDisputes,
-  casesPerPage,
-}) => {
+const CasesGrid: React.FC<ICasesGrid> = ({ disputes, currentPage, setCurrentPage, numberDisputes, casesPerPage }) => {
   return (
     <>
       <Container>
-        {disputes.map((dispute, i) => {
-          return <DisputeCard key={i} {...dispute} />;
-        })}
+        {isUndefined(disputes)
+          ? [...Array(casesPerPage)].map((_, i) => <StyledSkeleton key={i} />)
+          : disputes.map((dispute, i) => {
+              return <DisputeCard key={i} {...dispute} />;
+            })}
       </Container>
       <StyledPagination
         {...{ currentPage }}
-        numPages={Math.ceil(numberDisputes / casesPerPage)}
+        numPages={Math.ceil((numberDisputes ?? 0) / casesPerPage)}
         callback={(page: number) => setCurrentPage(page)}
       />
     </>

@@ -5,7 +5,7 @@ import { formatEther } from "viem";
 import Skeleton from "react-loading-skeleton";
 import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
-import { CasesPageQuery } from "queries/useCasesQuery";
+import { DisputeDetailsFragment } from "queries/useCasesQuery";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import DisputeInfo from "./DisputeInfo";
@@ -39,13 +39,7 @@ export const getPeriodEndTimestamp = (
   return parseInt(lastPeriodChange) + durationCurrentPeriod;
 };
 
-const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
-  id,
-  arbitrated,
-  period,
-  lastPeriodChange,
-  court,
-}) => {
+const DisputeCard: React.FC<DisputeDetailsFragment> = ({ id, arbitrated, period, lastPeriodChange, court }) => {
   const currentPeriodIndex = Periods[period];
   const rewards = `≥ ${formatEther(court.feeForJuror)} ETH`;
   const date =
