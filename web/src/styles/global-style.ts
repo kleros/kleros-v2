@@ -8,6 +8,12 @@ export const GlobalStyle = createGlobalStyle`
     --toastify-color-error: ${({ theme }) => theme.error};
   }
 
+  .react-loading-skeleton {
+    z-index: 0;
+    --highlight-color: ${({ theme }) => theme.stroke};
+    --base-color: ${({ theme }) => theme.lightGrey};
+  }
+
   body {
     font-family: "Open Sans", sans-serif;
     margin: 0px;
