@@ -18,6 +18,9 @@ if [[ ! " ${valid_deployments[@]} " =~ " ${deployment} " ]]; then
 fi
 
 node $SCRIPT_DIR/gitInfo.js
-. $SCRIPT_DIR/../.env.${deployment}.public
-. $SCRIPT_DIR/../.env.${deployment}
+
+envFile="$SCRIPT_DIR/../.env.${deployment}"
+[ -f "$envFile.public" ] && . $envFile.public
+[ -f "$envFile" ] && . $envFile
+
 eval "$commands"

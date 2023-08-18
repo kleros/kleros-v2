@@ -37,7 +37,7 @@ const Phase = () => {
   });
   return (
     <>
-      {phase && (
+      {phase !== undefined && (
         <label>
           <br />
           phase: {Phases[phase]}
