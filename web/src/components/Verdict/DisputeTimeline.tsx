@@ -80,7 +80,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
       return localRounds?.reduce<TimelineItems>(
         (acc, { winningChoice }, index) => {
           const parsedRoundChoice = parseInt(winningChoice);
-          const isOngoing = index === localRounds.length - 1 && currentPeriodIndex < 4;
+          const isOngoing = index === localRounds.length - 1 && currentPeriodIndex < 3;
           const eventDate = getCaseEventTimes(lastPeriodChange, currentPeriodIndex, courtTimePeriods, false);
           const icon = dispute.ruled && !rulingOverride && index === localRounds.length - 1 ? ClosedCaseIcon : "";
           const answers = disputeTemplate?.answers;
