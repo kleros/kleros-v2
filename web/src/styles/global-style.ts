@@ -10,8 +10,8 @@ export const GlobalStyle = createGlobalStyle`
 
   .react-loading-skeleton {
     z-index: 0;
-    --highlight-color: ${({ theme }) => theme.stroke};
     --base-color: ${({ theme }) => theme.lightGrey};
+    --highlight-color: ${({ theme }) => theme.stroke};
   }
 
   body {
