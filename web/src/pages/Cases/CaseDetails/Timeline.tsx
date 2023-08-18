@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { Periods } from "consts/periods";
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -10,7 +10,7 @@ const Timeline: React.FC<{
   dispute: DisputeDetailsQuery["dispute"];
   currentPeriodIndex: number;
 }> = ({ currentPeriodIndex, dispute }) => {
-  const currentItemIndex = currentPeriodToCurrentItem(currentPeriodIndex, dispute?.ruled);
+  const currentItemIndex = currentPeriodToCurrentItem(currentPeriodIndex, dispute?.court.hiddenVotes);
   const items = useTimeline(dispute, currentItemIndex, currentItemIndex);
   return (
     <TimeLineContainer>
@@ -19,14 +19,20 @@ const Timeline: React.FC<{
   );
 };
 
-const currentPeriodToCurrentItem = (currentPeriodIndex: number, ruled?: boolean): number => {
+const currentPeriodToCurrentItem = (currentPeriodIndex: number, hiddenVotes?: boolean): number => {
+  if (hiddenVotes) return currentPeriodIndex;
   if (currentPeriodIndex <= Periods.commit) return currentPeriodIndex;
-  else if (currentPeriodIndex < Periods.execution) return currentPeriodIndex - 1;
-  else return ruled ? 5 : currentPeriodIndex - 1;
+  else return currentPeriodIndex - 1;
 };
 
 const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: number, currentPeriodIndex: number) => {
-  const titles = ["Evidence Period", "Voting Period", "Appeal Period", "Executed"];
+  const titles = useMemo(() => {
+    const titles = ["Evidence Period", "Voting Period", "Appeal Period", "Executed"];
+    if (dispute?.court.hiddenVotes) {
+      titles.splice(1, 0, "Appeal Period");
+    }
+    return titles;
+  }, [dispute]);
   const deadlineCurrentPeriod = getDeadline(
     currentPeriodIndex,
     dispute?.lastPeriodChange,
@@ -39,8 +45,8 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: 
         return ["Time's up!"];
       } else if (index < currentItemIndex) {
         return [];
-      } else if (index === 3) {
-        return currentItemIndex === 3 ? ["Pending"] : [];
+      } else if (index === titles.length) {
+        return dispute?.ruled ? [] : ["Pending"];
       } else if (index === currentItemIndex) {
         return [secondsToDayHourMinute(countdown)];
       } else {
