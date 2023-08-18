@@ -5304,7 +5304,7 @@ __metadata:
     react-use: ^17.4.0
     styled-components: ^5.3.9
     typescript: ^4.9.5
-    viem: ^0.3.48
+    viem: ^1.6.0
     wagmi: ^1.1.0
   languageName: unknown
   linkType: soft
@@ -5867,7 +5867,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/curves@npm:^1.0.0":
+"@noble/curves@npm:1.1.0, @noble/curves@npm:^1.0.0":
   version: 1.1.0
   resolution: "@noble/curves@npm:1.1.0"
   dependencies:
@@ -9205,7 +9205,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ws@npm:^8.0.0, @types/ws@npm:^8.5.5":
+"@types/ws@npm:^8.0.0, @types/ws@npm:^8.5.4, @types/ws@npm:^8.5.5":
   version: 8.5.5
   resolution: "@types/ws@npm:8.5.5"
   dependencies:
@@ -9464,18 +9464,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wagmi/chains@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@wagmi/chains@npm:1.0.0"
-  peerDependencies:
-    typescript: ">=5.0.4"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: b2e6b84946a276804948819b378ecf55b0cd3be762721f9b2cc5e82359d2053ab3b7b7edb6e32453c8fd001b4107a61a792c481f83f9edf04483666dfe910747
-  languageName: node
-  linkType: hard
-
 "@wagmi/chains@npm:1.1.0":
   version: 1.1.0
   resolution: "@wagmi/chains@npm:1.1.0"
@@ -9497,6 +9485,18 @@ __metadata:
     typescript:
       optional: true
   checksum: a9dd2ed8e5e2c380ed2bcc48c36fda9c34d8fae45d080e29c472bb24f48746c4d697c42be6880ee4c9c6bcd5dcff74b0f1c0fcf17b921594788ded66b76cda78
+  languageName: node
+  linkType: hard
+
+"@wagmi/chains@npm:1.6.0":
+  version: 1.6.0
+  resolution: "@wagmi/chains@npm:1.6.0"
+  peerDependencies:
+    typescript: ">=5.0.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 6c3d477936622f763b9e44c4a66c080020f1119165c8f6b840c51f5822880fedd5031036461d4b28df5cf1ae19cb12e139e4a4b3c129b475f0363fd9c4c8bb0d
   languageName: node
   linkType: hard
 
@@ -10397,6 +10397,21 @@ __metadata:
     zod:
       optional: true
   checksum: 4351466808969bcc73e5c535c3d96bb687ee2be0bccd48eba024c47e6cc248f0c8bd368f9e42dab35d39923e63b1349ade470f72812de27127968caf1a1426c9
+  languageName: node
+  linkType: hard
+
+"abitype@npm:0.9.3":
+  version: 0.9.3
+  resolution: "abitype@npm:0.9.3"
+  peerDependencies:
+    typescript: ">=5.0.4"
+    zod: ^3 >=3.19.1
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+    zod:
+      optional: true
+  checksum: f97c5a118180563b9ed8b97da492a82d3ce53dcd7d96c87764e90dbe84c04ae72dd5703d1ed5a54601033ab1772b8a235a1b5aadaf7aad6c4b5fdad7fd3a69a7
   languageName: node
   linkType: hard
 
@@ -30658,23 +30673,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:^0.3.48":
-  version: 0.3.50
-  resolution: "viem@npm:0.3.50"
-  dependencies:
-    "@adraffy/ens-normalize": 1.9.0
-    "@noble/curves": 1.0.0
-    "@noble/hashes": 1.3.0
-    "@scure/bip32": 1.3.0
-    "@scure/bip39": 1.2.0
-    "@wagmi/chains": 1.0.0
-    abitype: 0.8.7
-    isomorphic-ws: 5.0.0
-    ws: 8.12.0
-  checksum: b8bb1fe5fea4d503f722a30876b3811a205df3e7ae16443eb1ebd237a2a6b600ec3cf622143d79ef12a5f24fc9d4c77892d29728ef88643710f0a79a41abc470
-  languageName: node
-  linkType: hard
-
 "viem@npm:^1.0.0":
   version: 1.1.1
   resolution: "viem@npm:1.1.1"
@@ -30691,6 +30689,29 @@ __metadata:
   peerDependencies:
     typescript: ">=5.0.4"
   checksum: 3effc77635c51df518340a7dbbc440d048f482e71fb2d68cb65aad13766088c61d101d0926095b76dc27dfc849eb2e1ebad571173e81073be7fa8a5533663bad
+  languageName: node
+  linkType: hard
+
+"viem@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "viem@npm:1.6.0"
+  dependencies:
+    "@adraffy/ens-normalize": 1.9.0
+    "@noble/curves": 1.1.0
+    "@noble/hashes": 1.3.0
+    "@scure/bip32": 1.3.0
+    "@scure/bip39": 1.2.0
+    "@types/ws": ^8.5.4
+    "@wagmi/chains": 1.6.0
+    abitype: 0.9.3
+    isomorphic-ws: 5.0.0
+    ws: 8.12.0
+  peerDependencies:
+    typescript: ">=5.0.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: b01301645bc00d438318bea86fca63321e1a7e29a857a451207caaced89afb1472a219b8e62d4c42ef10cf8ef5d8fa945b0c1a2a2fdef5af08aa2ff3ae9aa250
   languageName: node
   linkType: hard
 
