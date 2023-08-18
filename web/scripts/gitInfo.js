@@ -21,7 +21,7 @@ const main = () => {
   let gitBranch = execSyncWrapper("git rev-parse --abbrev-ref HEAD");
   let gitTags = execSyncWrapper("git tag --points-at HEAD  | tr '\n' ',' | sed 's/,$//'");
   let clean =
-    execSyncWrapper(`[ -z "$(git status --short  | ggrep -v '^??')" ] && echo clean || echo dirty`) === "clean";
+    execSyncWrapper(`[ -z "$(git status --short  | grep -v '^??')" ] && echo clean || echo dirty`) === "clean";
 
   const obj = {
     version,
