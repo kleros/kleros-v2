@@ -138,7 +138,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
             </StyledA>
           )}
           {courtPolicy && (
-            <StyledA href={`${IPFS_GATEWAY}${courtPolicyURI?.court?.policy ?? ""}`} target="_blank" rel="noreferrer">
+            <StyledA href={`#/courts/${court?.id}/purpose?section=description`} target="_blank" rel="noreferrer">
               <PolicyIcon />
               Court Policy
             </StyledA>
