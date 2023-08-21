@@ -5,6 +5,10 @@ import StageOne from "./StageOne";
 import StageTwo from "./StageTwo";
 import { isUndefined } from "utils/index";
 
+const Container = styled.div`
+  margin: 24px 0;
+`;
+
 const Options: React.FC = () => {
   const loserSideCountdown = useLoserSideCountdownContext();
   return !isUndefined(loserSideCountdown) ? (
@@ -13,9 +17,5 @@ const Options: React.FC = () => {
     <h1>Loading...</h1>
   );
 };
-
-const Container = styled.div`
-  margin: 24px 0;
-`;
 
 export default Options;

@@ -15,6 +15,26 @@ import Description from "./Description";
 import StakePanel from "./StakePanel";
 import { usePnkFaucetWithdrewAlready, prepareWritePnkFaucet, usePnkBalanceOf } from "hooks/contracts/generated";
 
+const Container = styled.div``;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+`;
+
+const StyledCard = styled(Card)`
+  margin-top: 16px;
+  width: 100%;
+  height: auto;
+  padding: 16px;
+  min-height: 100px;
+`;
+
+const StyledBreadcrumb = styled(Breadcrumb)`
+  margin: 16px 0 12px 0;
+`;
+
 const CourtDetails: React.FC = () => {
   const { id } = useParams();
   const [isSending, setIsSending] = useState(false);
@@ -81,26 +101,6 @@ const CourtDetails: React.FC = () => {
     </Container>
   );
 };
-
-const Container = styled.div``;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-`;
-
-const StyledCard = styled(Card)`
-  margin-top: 16px;
-  width: 100%;
-  height: auto;
-  padding: 16px;
-  min-height: 100px;
-`;
-
-const StyledBreadcrumb = styled(Breadcrumb)`
-  margin: 16px 0 12px 0;
-`;
 
 export default CourtDetails;
 

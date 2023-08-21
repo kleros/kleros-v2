@@ -15,6 +15,26 @@ import {
   useFundingContext,
 } from "hooks/useClassicAppealContext";
 
+const StyledField = styled(Field)`
+  width: 100%;
+  & > input {
+    text-align: center;
+  }
+  &:before {
+    position: absolute;
+    content: "ETH";
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: ${({ theme }) => theme.primaryText};
+  }
+`;
+
+const StyledButton = styled(Button)`
+  margin: auto;
+  margin-top: 12px;
+`;
+
 const useNeedFund = () => {
   const loserSideCountdown = useLoserSideCountdownContext();
   const { fundedChoices, winningChoice } = useFundingContext();
@@ -101,25 +121,5 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
     <></>
   );
 };
-
-const StyledField = styled(Field)`
-  width: 100%;
-  & > input {
-    text-align: center;
-  }
-  &:before {
-    position: absolute;
-    content: "ETH";
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: ${({ theme }) => theme.primaryText};
-  }
-`;
-
-const StyledButton = styled(Button)`
-  margin: auto;
-  margin-top: 12px;
-`;
 
 export default Fund;

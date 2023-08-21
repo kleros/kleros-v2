@@ -55,6 +55,20 @@ const StyledAccordion = styled(Accordion)`
   }
 `;
 
+const VotedContainer = styled.div`
+  width: 100%;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const JustificationContainer = styled.div`
+  > p {
+    margin: 0px;
+  }
+`;
+
 const AccordionContent: React.FC<{
   choice: string;
   justification: string;
@@ -72,20 +86,6 @@ const AccordionContent: React.FC<{
     </div>
   );
 };
-
-const VotedContainer = styled.div`
-  width: 100%;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-`;
-
-const JustificationContainer = styled.div`
-  > p {
-    margin: 0px;
-  }
-`;
 
 export const getVoteChoice = (vote, answers) => {
   const selectedAnswer = answers?.[vote - 1]?.title;

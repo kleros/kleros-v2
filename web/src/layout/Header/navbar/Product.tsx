@@ -1,12 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 
-interface IProduct {
-  text: string;
-  url: string;
-  Icon: React.FC<React.SVGAttributes<SVGElement>> | string;
-}
-
 const Container = styled.a`
   cursor: pointer;
   display: flex;
@@ -53,6 +47,12 @@ const StyledImg = styled.img`
   max-width: 48px;
   max-height: 48px;
 `;
+
+interface IProduct {
+  text: string;
+  url: string;
+  Icon: React.FC<React.SVGAttributes<SVGElement>> | string;
+}
 
 const Product: React.FC<IProduct> = ({ text, url, Icon }) => {
   return (

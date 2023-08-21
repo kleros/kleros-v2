@@ -9,43 +9,6 @@ import Faq from "svgs/menu-icons/help.svg";
 import Telegram from "svgs/socialmedia/telegram.svg";
 import { Overlay } from "components/Overlay";
 
-const ITEMS = [
-  {
-    text: "Onboarding",
-    Icon: Book,
-    url: "",
-  },
-  {
-    text: "Get Help",
-    Icon: Telegram,
-    url: "https://t.me/kleros",
-  },
-  {
-    text: "Report a Bug",
-    Icon: Bug,
-    url: "https://github.com/kleros/kleros-v2/issues",
-  },
-  {
-    text: "DApp Guide",
-    Icon: Guide,
-    url: "https://docs.kleros.io/products/court-v2",
-  },
-  {
-    text: "Crypto Beginner's Guide",
-    Icon: ETH,
-    url: "https://ethereum.org/en/wallets/",
-  },
-  {
-    text: "FAQ",
-    Icon: Faq,
-    url: "https://docs.kleros.io/kleros-faq",
-  },
-];
-
-interface IHelp {
-  toggle: () => void;
-}
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -85,6 +48,43 @@ const Icon = styled.svg`
   height: 16px;
   fill: ${({ theme }) => theme.secondaryPurple};
 `;
+
+const ITEMS = [
+  {
+    text: "Onboarding",
+    Icon: Book,
+    url: "",
+  },
+  {
+    text: "Get Help",
+    Icon: Telegram,
+    url: "https://t.me/kleros",
+  },
+  {
+    text: "Report a Bug",
+    Icon: Bug,
+    url: "https://github.com/kleros/kleros-v2/issues",
+  },
+  {
+    text: "DApp Guide",
+    Icon: Guide,
+    url: "https://docs.kleros.io/products/court-v2",
+  },
+  {
+    text: "Crypto Beginner's Guide",
+    Icon: ETH,
+    url: "https://ethereum.org/en/wallets/",
+  },
+  {
+    text: "FAQ",
+    Icon: Faq,
+    url: "https://docs.kleros.io/kleros-faq",
+  },
+];
+
+interface IHelp {
+  toggle: () => void;
+}
 
 const Help: React.FC<IHelp> = ({ toggle }) => {
   const containerRef = useRef(null);
