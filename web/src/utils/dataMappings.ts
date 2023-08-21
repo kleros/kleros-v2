@@ -1,3 +1,11 @@
+import { createPublicClient, http, parseAbiItem } from "viem";
+import { arbitrumGoerli } from "viem/chains";
+
+const publicClient = createPublicClient({
+  chain: arbitrumGoerli,
+  transport: http(),
+});
+
 export const mappings = [
   {
     type: "fetch",
@@ -32,6 +40,20 @@ export const mappings = [
     inputs: {},
     seek: ["photo", "video"],
     populate: ["photoUrl", "videoUrl"],
+  },
+  {
+    type: "abi/call",
+    source: "contractCall",
+    inputs: [],
+    seek: [],
+    populate: [],
+  },
+  {
+    type: "abi/event",
+    source: "contractEvent",
+    inputs: [],
+    seek: [],
+    populate: [],
   },
 ];
 
@@ -75,6 +97,45 @@ const jsonAction = (currentAcc, source, seek, populate) => {
   return jsonData;
 };
 
+const callAction = async (source, inputs, seek, populate) => {
+  const data = await publicClient.readContract({
+    address: inputs[1],
+    abi: parseAbiItem(source),
+    functionName: "",
+    args: inputs,
+  });
+
+  let populatedData = {};
+
+  seek.map((item, index) => {
+    populatedData[populate[index]] = data[item];
+  });
+
+  return populatedData;
+};
+
+const eventAction = async (source, inputs, seek, populate) => {
+  const filter = await publicClient.createEventFilter({
+    address: inputs[1],
+    event: parseAbiItem(source),
+    args: inputs,
+  });
+
+  const contractEvent = await publicClient.getFilterLogs({
+    filter: filter,
+  });
+
+  const eventData = contractEvent[0].args;
+
+  let populatedData = {};
+
+  seek.map((item, index) => {
+    populatedData[populate[index]] = eventData[item];
+  });
+
+  return populatedData;
+};
+
 const accumulatedData = mappings.reduce(async (acc, { type, source, inputs, seek, populate }) => {
   const currentAcc = await acc;
 
@@ -95,6 +156,16 @@ const accumulatedData = mappings.reduce(async (acc, { type, source, inputs, seek
       return {
         ...currentAcc,
         ...jsonAction(currentAcc, source, seek, populate),
+      };
+    case "abi/call":
+      return {
+        ...currentAcc,
+        ...(await callAction(source, inputs, seek, populate)),
+      };
+    case "abi/event":
+      return {
+        ...currentAcc,
+        ...(await eventAction(source, inputs, seek, populate)),
       };
 
     default:
