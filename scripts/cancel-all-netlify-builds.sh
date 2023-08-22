@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-# netlify api listSites | jq '. | map([.name, .id])'
-v2Site="86d94ae8-f655-46a4-a859-d68696173f3a"
-v2ContractsSite="dd8bc215-e054-407f-92ef-d61511720928"
-
 function cancelSiteDeploy() #sideId
 {
     local sideId=$1
@@ -16,10 +12,13 @@ function cancelSiteDeploy() #sideId
             continue;
         fi
         echo "Cancelling build for $name $branch"
-        echo netlify api cancelSiteDeploy -d '{ "deploy_id": "'$(jq -r .id <<< $build)'"}'
-        echo
+        netlify api cancelSiteDeploy -d '{ "deploy_id": "'$(jq -r .id <<< $build)'"}' > /dev/null
     done
 }
+
+# netlify api listSites | jq '. | map([.name, .id])'
+v2Site="86d94ae8-f655-46a4-a859-d68696173f3a"
+v2ContractsSite="dd8bc215-e054-407f-92ef-d61511720928"
 
 cancelSiteDeploy $v2Site
 cancelSiteDeploy $v2ContractsSite
