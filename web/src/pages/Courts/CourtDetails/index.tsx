@@ -87,7 +87,7 @@ const CourtDetails: React.FC = () => {
       <StyledCard>
         <h1>{policy ? policy.name : <StyledSkeleton width={200} />}</h1>
         <ButtonContainer>
-          {items ? (
+          {items.length > 1 ? (
             <StyledBreadcrumb items={items} />
           ) : (
             <StyledBreadcrumbSkeleton>
