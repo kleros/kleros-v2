@@ -38,7 +38,7 @@ jobs:
       with:
         node-version: 16.x   
         
-    - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+    - uses: actions/checkout@7739b9ba2efcda9dde65ad1e3c2dbe65b41dfba7
     
     - name: Cache node modules
       uses: actions/cache@67b839edb68371cc5014f6cea11c9aa77238de78
