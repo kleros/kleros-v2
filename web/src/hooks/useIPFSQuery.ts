@@ -11,7 +11,7 @@ export const useIPFSQuery = (ipfsPath?: string) => {
     queryFn: async () => {
       if (isEnabled) {
         const formatedIPFSPath = ipfsPath.startsWith("/") ? ipfsPath : "/" + ipfsPath;
-        return fetch(`${IPFS_GATEWAY}${formatedIPFSPath}`).then(async (res) => res.json());
+        return fetch(`${IPFS_GATEWAY}${formatedIPFSPath}`).then(async (res) => await res.json());
       }
       return undefined;
     },

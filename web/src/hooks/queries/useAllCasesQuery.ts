@@ -16,6 +16,6 @@ const allCasesQuery = graphql(`
 export const useAllCasesQuery = () => {
   return useQuery({
     queryKey: [`allCasesQuery`],
-    queryFn: async () => graphqlQueryFnHelper(allCasesQuery, {}),
+    queryFn: async () => await graphqlQueryFnHelper(allCasesQuery, {}),
   });
 };

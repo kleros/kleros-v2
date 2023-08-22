@@ -41,7 +41,7 @@ const CourtDetails: React.FC = () => {
       functionName: "request",
     });
     if (walletClient) {
-      wrapWithToast(async () => walletClient.writeContract(request), publicClient).finally(() => {
+      wrapWithToast(async () => await walletClient.writeContract(request), publicClient).finally(() => {
         setIsSending(false);
       });
     }
@@ -99,7 +99,7 @@ const StyledCard = styled(Card)`
 `;
 
 const StyledBreadcrumb = styled(Breadcrumb)`
-  margin: 0px 0 12px 0;
+  margin: 16px 0 12px 0;
 `;
 
 export default CourtDetails;

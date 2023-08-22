@@ -37,6 +37,6 @@ export const useVotingHistory = (disputeID?: string) => {
   return useQuery<VotingHistoryQuery>({
     queryKey: ["refetchOnBlock", `VotingHistory${disputeID}`],
     enabled: isEnabled,
-    queryFn: async () => graphqlQueryFnHelper(votingHistoryQuery, { disputeID }),
+    queryFn: async () => await graphqlQueryFnHelper(votingHistoryQuery, { disputeID }),
   });
 };

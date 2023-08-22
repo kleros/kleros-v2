@@ -84,9 +84,11 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const handleAllowance = () => {
     if (!isUndefined(increaseAllowance)) {
       setIsSending(true);
-      wrapWithToast(async () => increaseAllowance().then((response) => response.hash), publicClient).finally(() => {
-        setIsSending(false);
-      });
+      wrapWithToast(async () => await increaseAllowance().then((response) => response.hash), publicClient).finally(
+        () => {
+          setIsSending(false);
+        }
+      );
     }
   };
 
@@ -98,7 +100,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const handleStake = () => {
     if (typeof setStake !== "undefined") {
       setIsSending(true);
-      wrapWithToast(async () => setStake().then((response) => response.hash), publicClient)
+      wrapWithToast(async () => await setStake().then((response) => response.hash), publicClient)
         .then(() => setIsPopupOpen(true))
         .finally(() => {
           setIsSending(false);

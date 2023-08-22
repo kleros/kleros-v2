@@ -11,7 +11,7 @@ export const useAppealCost = (disputeID?: string) => {
     staleTime: Infinity,
     queryFn: async () => {
       if (!klerosCore || typeof disputeID === "undefined") return;
-      return klerosCore.read.appealCost([BigInt(disputeID)]);
+      return await klerosCore.read.appealCost([BigInt(disputeID)]);
     },
   });
 };

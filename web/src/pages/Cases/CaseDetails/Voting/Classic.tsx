@@ -77,7 +77,7 @@ const Classic: React.FC<IClassic> = ({ arbitrable, voteIDs, setIsOpen }) => {
       ],
     });
     if (walletClient) {
-      wrapWithToast(async () => walletClient.writeContract(request), publicClient)
+      wrapWithToast(async () => await walletClient.writeContract(request), publicClient)
         .then(() => {
           setIsOpen(true);
         })

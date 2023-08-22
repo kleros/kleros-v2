@@ -17,6 +17,6 @@ export const useDrawQuery = (address?: string | null, disputeID?: string, roundI
   return useQuery({
     queryKey: [`drawQuery${[address, disputeID, roundID]}`],
     enabled: isEnabled,
-    queryFn: async () => graphqlQueryFnHelper(drawQuery, { address, disputeID, roundID }),
+    queryFn: async () => await graphqlQueryFnHelper(drawQuery, { address, disputeID, roundID }),
   });
 };
