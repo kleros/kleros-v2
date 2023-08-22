@@ -21,7 +21,7 @@ const LatestCases: React.FC = () => {
       <h1>Latest Cases</h1>
       <div className="disputes-container">
         {data
-          ? data.disputes.map((dispute, i) => <DisputeCard key={i} {...dispute} />)
+          ? data.disputes.map((dispute) => <DisputeCard key={dispute.id} {...dispute} />)
           : Array.from({ length: 3 }).map((_, index) => <StyledSkeleton key={index} width={312} height={260} />)}
       </div>
     </Container>

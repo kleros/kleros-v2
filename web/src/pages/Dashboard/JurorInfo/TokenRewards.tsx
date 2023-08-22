@@ -24,10 +24,10 @@ const TokenRewards: React.FC<ITokenRewards> = ({ token, amount, value }) => {
   return (
     <RewardContainer>
       {token && <GradientTokenIcons icon={token} />}
-      <StyledH1>{amount ? amount : <StyledSkeleton width={76} />}</StyledH1>
+      <StyledH1>{amount || <StyledSkeleton width={76} />}</StyledH1>
       <StyledH1>{token}</StyledH1>
       <label>$ </label>
-      <label>{value ? value : <StyledSkeleton width={32} />}</label>
+      <label>{value || <StyledSkeleton width={32} />}</label>
     </RewardContainer>
   );
 };
