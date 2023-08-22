@@ -1,4 +1,4 @@
-name: "CodeQL"
+name: "CodeQL Advanced"
 
 on:
   merge_group:  
@@ -15,7 +15,7 @@ on:
     - cron: '26 1 * * 6'
 
 jobs:
-  analyze:
+  codeql-advanced-analysis:
     name: Analyze
     runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
     timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
