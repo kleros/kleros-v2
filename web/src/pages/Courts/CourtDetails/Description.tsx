@@ -5,6 +5,26 @@ import { Routes, Route, Navigate, useParams, useNavigate, useLocation } from "re
 import { Tabs } from "@kleros/ui-components-library";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 
+const Container = styled.div`
+  width: 100%;
+`;
+
+const TextContainer = styled.div`
+  width: 100%;
+  padding: 12px 0;
+`;
+
+const StyledTabs = styled(Tabs)`
+  width: 100%;
+  > * {
+    display: flex;
+    flex-wrap: wrap;
+    > svg {
+      margin-right: 0px !important;
+    }
+  }
+`;
+
 interface IPolicy {
   description?: string;
   requiredSkills?: string;
@@ -70,25 +90,5 @@ const formatMarkdown = (markdown?: string) =>
   ) : (
     <p>Loading...</p>
   );
-
-const Container = styled.div`
-  width: 100%;
-`;
-
-const TextContainer = styled.div`
-  width: 100%;
-  padding: 12px 0;
-`;
-
-const StyledTabs = styled(Tabs)`
-  width: 100%;
-  > * {
-    display: flex;
-    flex-wrap: wrap;
-    > svg {
-      margin-right: 0px !important;
-    }
-  }
-`;
 
 export default Description;

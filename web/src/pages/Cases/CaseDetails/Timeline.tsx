@@ -6,6 +6,19 @@ import { Box, Steps } from "@kleros/ui-components-library";
 import { useCountdown } from "hooks/useCountdown";
 import { secondsToDayHourMinute } from "utils/date";
 
+const TimeLineContainer = styled(Box)`
+  width: 100%;
+  height: 100px;
+  border-radius: 3px;
+  margin: 16px 0px;
+  padding: 8px;
+`;
+
+const StyledSteps = styled(Steps)`
+  width: 85%;
+  margin: auto;
+`;
+
 const Timeline: React.FC<{
   dispute: DisputeDetailsQuery["dispute"];
   currentPeriodIndex: number;
@@ -67,18 +80,5 @@ const getDeadline = (
   }
   return 0;
 };
-
-const TimeLineContainer = styled(Box)`
-  width: 100%;
-  height: 100px;
-  border-radius: 3px;
-  margin: 16px 0px;
-  padding: 8px;
-`;
-
-const StyledSteps = styled(Steps)`
-  width: 85%;
-  margin: auto;
-`;
 
 export default Timeline;

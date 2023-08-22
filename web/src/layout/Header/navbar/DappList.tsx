@@ -12,6 +12,52 @@ import Tokens from "svgs/icons/tokens.svg";
 import Product from "./Product";
 import { Overlay } from "components/Overlay";
 
+const Header = styled.h1`
+  display: flex;
+  padding-top: 32px;
+  padding-bottom: 20px;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32.68px;
+`;
+
+const Container = styled.div`
+  display: flex;
+  position: absolute;
+  max-height: 60vh;
+  top: 5%;
+  left: 50%;
+  transform: translate(-50%);
+  z-index: 10;
+  flex-direction: column;
+  align-items: center;
+
+  width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
+  max-width: 480px;
+  min-width: 300px;
+  border-radius: 3px;
+  border: 1px solid ${({ theme }) => theme.stroke};
+  background-color: ${({ theme }) => theme.whiteBackground};
+  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.06);
+
+  svg {
+    visibility: visible;
+  }
+`;
+
+const ItemsDiv = styled.div`
+  display: grid;
+  overflow-y: auto;
+  padding: 16px calc(8px + (24 - 8) * ((100vw - 480px) / (1250 - 480)));
+  row-gap: 8px;
+  column-gap: 2px;
+  justify-items: center;
+  max-width: 480px;
+  min-width: 300px;
+  width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+`;
+
 interface IDappList {
   toggleSolution: () => void;
 }
@@ -58,52 +104,6 @@ const ITEMS = [
     url: "https://governor.kleros.io",
   },
 ];
-
-const Header = styled.h1`
-  display: flex;
-  padding-top: 32px;
-  padding-bottom: 20px;
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 32.68px;
-`;
-
-const Container = styled.div`
-  display: flex;
-  position: absolute;
-  max-height: 60vh;
-  top: 5%;
-  left: 50%;
-  transform: translate(-50%);
-  z-index: 10;
-  flex-direction: column;
-  align-items: center;
-
-  width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
-  max-width: 480px;
-  min-width: 300px;
-  border-radius: 3px;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  background-color: ${({ theme }) => theme.whiteBackground};
-  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.06);
-
-  svg {
-    visibility: visible;
-  }
-`;
-
-const ItemsDiv = styled.div`
-  display: grid;
-  overflow-y: auto;
-  padding: 16px calc(8px + (24 - 8) * ((100vw - 480px) / (1250 - 480)));
-  row-gap: 8px;
-  column-gap: 2px;
-  justify-items: center;
-  max-width: 480px;
-  min-width: 300px;
-  width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-`;
 
 const DappList: React.FC<IDappList> = ({ toggleSolution }) => {
   const containerRef = useRef(null);

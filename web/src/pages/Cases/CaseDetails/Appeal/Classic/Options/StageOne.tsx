@@ -9,6 +9,17 @@ import {
   useSelectedOptionContext,
 } from "hooks/useClassicAppealContext";
 
+const Container = styled.div`
+  margin: 24px 0;
+`;
+
+const OptionsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 12px;
+`;
+
 const StageOne: React.FC = () => {
   const { paidFees, winningChoice, loserRequiredFunding, winnerRequiredFunding } = useFundingContext();
   const options = useOptionsContext();
@@ -37,16 +48,5 @@ const StageOne: React.FC = () => {
     </Container>
   );
 };
-
-const Container = styled.div`
-  margin: 24px 0;
-`;
-
-const OptionsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  margin-top: 12px;
-`;
 
 export default StageOne;

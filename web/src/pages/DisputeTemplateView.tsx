@@ -7,46 +7,6 @@ import ReactMarkdown from "components/ReactMarkdown";
 import { isUndefined } from "utils/index";
 import { IPFS_GATEWAY } from "consts/index";
 
-const Wrapper = styled.div`
-  min-height: calc(100vh - 144px);
-  margin: 24px;
-  display: flex;
-  gap: 12px;
-`;
-
-const StyledTextArea = styled(Textarea)`
-  width: 50%;
-  height: calc(100vh - 300px);
-`;
-
-const DisputeTemplateView: React.FC = () => {
-  const [disputeTemplate, setDisputeTemplate] = useState<string>("");
-  const [errorMsg, setErrorMessage] = useState<string>("");
-  const parsedDisputeTemplate = useMemo(() => {
-    try {
-      const parsed = JSON.parse(disputeTemplate);
-      setErrorMessage("");
-      return parsed;
-    } catch (e) {
-      setErrorMessage((e as SyntaxError).message);
-      return undefined;
-    }
-  }, [disputeTemplate]);
-  const isThereInput = useMemo(() => disputeTemplate !== "", [disputeTemplate]);
-  return (
-    <Wrapper>
-      <StyledTextArea
-        value={disputeTemplate}
-        onChange={(e) => setDisputeTemplate(e.target.value)}
-        placeholder="Enter dispute template"
-        variant={isThereInput && errorMsg !== "" ? "error" : ""}
-        message={isThereInput ? errorMsg : ""}
-      />
-      <Overview disputeTemplate={parsedDisputeTemplate} />
-    </Wrapper>
-  );
-};
-
 const Container = styled.div`
   width: 50%;
   height: auto;
@@ -105,6 +65,46 @@ const LinkContainer = styled.div`
   display: flex;
   justify-content: space-between;
 `;
+
+const Wrapper = styled.div`
+  min-height: calc(100vh - 144px);
+  margin: 24px;
+  display: flex;
+  gap: 12px;
+`;
+
+const StyledTextArea = styled(Textarea)`
+  width: 50%;
+  height: calc(100vh - 300px);
+`;
+
+const DisputeTemplateView: React.FC = () => {
+  const [disputeTemplate, setDisputeTemplate] = useState<string>("");
+  const [errorMsg, setErrorMessage] = useState<string>("");
+  const parsedDisputeTemplate = useMemo(() => {
+    try {
+      const parsed = JSON.parse(disputeTemplate);
+      setErrorMessage("");
+      return parsed;
+    } catch (e) {
+      setErrorMessage((e as SyntaxError).message);
+      return undefined;
+    }
+  }, [disputeTemplate]);
+  const isThereInput = useMemo(() => disputeTemplate !== "", [disputeTemplate]);
+  return (
+    <Wrapper>
+      <StyledTextArea
+        value={disputeTemplate}
+        onChange={(e) => setDisputeTemplate(e.target.value)}
+        placeholder="Enter dispute template"
+        variant={isThereInput && errorMsg !== "" ? "error" : ""}
+        message={isThereInput ? errorMsg : ""}
+      />
+      <Overview disputeTemplate={parsedDisputeTemplate} />
+    </Wrapper>
+  );
+};
 
 const Overview: React.FC<{ disputeTemplate: any }> = ({ disputeTemplate }) => {
   return (

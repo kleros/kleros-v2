@@ -1,11 +1,6 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
 
-const createPair = (iconColor: string, backgroundColor: string) => ({
-  iconColor,
-  backgroundColor,
-});
-
 const Container = styled.div`
   display: flex;
   align-items: center;
@@ -33,6 +28,11 @@ const TextContainer = styled.div`
     margin: 0;
   }
 `;
+
+const createPair = (iconColor: string, backgroundColor: string) => ({
+  iconColor,
+  backgroundColor,
+});
 
 export interface IStatDisplay {
   title: string;
