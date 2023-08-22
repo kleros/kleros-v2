@@ -14,6 +14,9 @@ on:
   schedule:
     - cron: '26 1 * * 6'
 
+permissions:
+  actions: read
+
 jobs:
   codeql-advanced-analysis:
     name: Analyze
