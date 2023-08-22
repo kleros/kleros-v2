@@ -5,6 +5,7 @@
   },
   "solidity-va.test.defaultUnittestTemplate": "hardhat",
   "solidity-language-server.trace.server.verbosity": "message",
+  "typescript.tsdk": "node_modules/typescript/lib",
   "eslint.packageManager": "yarn",
   "prettier.useEditorConfig": true,
   "prettier.configPath": "prettier-config/.prettierrc.js"
