@@ -36,6 +36,6 @@ const courtTreeQuery = graphql(`
 export const useCourtTree = () => {
   return useQuery({
     queryKey: ["courtTreeQuery"],
-    queryFn: async () => await graphqlQueryFnHelper(courtTreeQuery, {}),
+    queryFn: async () => graphqlQueryFnHelper(courtTreeQuery, {}),
   });
 };

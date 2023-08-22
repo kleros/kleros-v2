@@ -21,6 +21,6 @@ export const useCourtPolicyURI = (id?: string | number) => {
     enabled: isEnabled,
     staleTime: Infinity,
     queryFn: async () =>
-      isEnabled ? await graphqlQueryFnHelper(courtPolicyURIQuery, { courtID: id.toString() }) : undefined,
+      isEnabled ? graphqlQueryFnHelper(courtPolicyURIQuery, { courtID: id.toString() }) : undefined,
   });
 };

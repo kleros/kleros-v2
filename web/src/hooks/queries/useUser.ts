@@ -30,6 +30,6 @@ export const useUserQuery = (address?: string) => {
   return useQuery<UserQuery>({
     queryKey: [`userQuery${address}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(userQuery, { address }),
+    queryFn: async () => graphqlQueryFnHelper(userQuery, { address }),
   });
 };

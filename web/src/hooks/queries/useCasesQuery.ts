@@ -32,6 +32,6 @@ export const useCasesQuery = (skip: number) => {
   return useQuery({
     queryKey: [`useCasesQuery${skip}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(casesQuery, { skip: skip }),
+    queryFn: async () => graphqlQueryFnHelper(casesQuery, { skip: skip }),
   });
 };

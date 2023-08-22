@@ -25,6 +25,6 @@ export const useCourtDetails = (id?: string) => {
   return useQuery({
     queryKey: ["refetchOnBlock", `courtDetails${id}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(courtDetailsQuery, { id }),
+    queryFn: async () => graphqlQueryFnHelper(courtDetailsQuery, { id }),
   });
 };
