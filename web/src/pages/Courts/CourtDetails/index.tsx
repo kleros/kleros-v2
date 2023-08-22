@@ -49,10 +49,13 @@ const CourtDetails: React.FC = () => {
   const faucetCheck = !isUndefined(balance) && parseInt(formatEther(balance)) > 200;
   const courtPath = getCourtsPath(data?.court, id);
 
-  const items = courtPath?.map((node) => ({
-    text: node.name,
-    value: node.id,
-  }));
+  const items = [{ text: "🏛️", value: "0" }];
+  items.push(
+    ...(courtPath?.map((node) => ({
+      text: node.name,
+      value: node.id,
+    })) ?? [])
+  );
 
   return (
     <Container>
@@ -99,7 +102,7 @@ const StyledCard = styled(Card)`
 `;
 
 const StyledBreadcrumb = styled(Breadcrumb)`
-  margin: 16px 0 12px 0;
+  margin: 0px 0 12px 0;
 `;
 
 export default CourtDetails;
