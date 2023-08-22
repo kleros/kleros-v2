@@ -6,9 +6,20 @@ on:
   push:
     branches:
       - master
+      - dev
+    paths-ignore:
+      - "kleros-sdk/**"
+      - "services/**"
+      - "subgraph/**"
+      - "web/**"
   pull_request:
     branches:
       - "*"
+    paths-ignore:
+      - "kleros-sdk/**"
+      - "services/**"
+      - "subgraph/**"
+      - "web/**"
       
 permissions:  # added using https://github.com/step-security/secure-workflows
   contents: read
