@@ -2,13 +2,15 @@ import React from "react";
 import styled from "styled-components";
 import { Card } from "@kleros/ui-components-library";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
+import { StyledSkeleton } from "components/StyledSkeleton";
 import PNKIcon from "svgs/icons/pnk.svg";
 import EthereumIcon from "svgs/icons/ethereum.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import JurorIcon from "svgs/icons/user.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
-import { KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS } from "src/consts/index";
+import { KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS } from "consts/index";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD, isUndefined } from "utils/index";
+import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import { useHomePageContext, HomePageQuery, HomePageQueryDataPoints } from "hooks/useHomePageContext";
 import { useCoinPrice } from "hooks/useCoinPrice";
 
@@ -28,7 +30,7 @@ interface IStat {
   title: string;
   coinId?: number;
   getText: (data: HomePageQuery["counters"]) => string;
-  getSubtext: (data: HomePageQuery["counters"], coinPrice?: number) => string;
+  getSubtext?: (data: HomePageQuery["counters"], coinPrice?: number) => string;
   color: IStatDisplay["color"];
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
@@ -64,14 +66,12 @@ const stats: IStat[] = [
   {
     title: "Active jurors",
     getText: (counters) => getLastOrZero(counters, "activeJurors"),
-    getSubtext: () => "",
     color: "green",
     icon: JurorIcon,
   },
   {
     title: "Cases",
     getText: (counters) => getLastOrZero(counters, "cases"),
-    getSubtext: () => "",
     color: "orange",
     icon: BalanceIcon,
   },
@@ -89,12 +89,13 @@ const Stats = () => {
     <StyledCard>
       {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
         const coinPrice = !isUndefined(pricesData) ? pricesData[coinIdToAddress[coinId!]]?.price : undefined;
+
         return (
           <StatDisplay
             key={i}
             {...{ title, color, icon }}
-            text={data ? getText(data["counters"]) : "Fetching..."}
-            subtext={data ? getSubtext(data["counters"], coinPrice) : "Fetching..."}
+            text={data ? getText(data["counters"]) : <StyledSkeleton />}
+            subtext={calculateSubtextRender(data ? data["counters"] : undefined, getSubtext, coinPrice)}
           />
         );
       })}

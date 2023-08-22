@@ -63,26 +63,23 @@ const Coherency: React.FC = () => {
 
   return (
     <>
-      {!isUndefined(data) && (
-        <Container>
-          <WithHelpTooltip place="bottom" {...{ tooltipMsg }}>
-            <label> Juror Rewards </label>
-          </WithHelpTooltip>
-
-          {rewards.map(({ token, coinId, getValue, getAmount }) => {
-            const coinPrice = !isUndefined(pricesData) ? pricesData[coinIdToAddress[coinId]]?.price : undefined;
-            const totalReward = calculateTotalReward(coinId, data);
-            return (
-              <TokenRewards
-                key={coinId}
-                {...{ token }}
-                amount={data ? getAmount(totalReward) : "Fetching..."}
-                value={data ? getValue(totalReward, coinPrice) : "Fetching..."}
-              />
-            );
-          })}
-        </Container>
-      )}
+      <Container>
+        <WithHelpTooltip place="bottom" {...{ tooltipMsg }}>
+          <label> Juror Rewards </label>
+        </WithHelpTooltip>
+        {rewards.map(({ token, coinId, getValue, getAmount }) => {
+          const coinPrice = !isUndefined(pricesData) ? pricesData[coinIdToAddress[coinId]]?.price : undefined;
+          const totalReward = data && calculateTotalReward(coinId, data);
+          return (
+            <TokenRewards
+              key={coinId}
+              {...{ token }}
+              amount={!isUndefined(totalReward) ? getAmount(totalReward) : undefined}
+              value={!isUndefined(totalReward) ? getValue(totalReward, coinPrice) : undefined}
+            />
+          );
+        })}
+      </Container>
     </>
   );
 };

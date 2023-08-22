@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Periods } from "consts/periods";
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { Box, Steps } from "@kleros/ui-components-library";
+import { StyledSkeleton } from "components/StyledSkeleton";
 import { useCountdown } from "hooks/useCountdown";
 import { secondsToDayHourMinute } from "utils/date";
 
@@ -46,7 +47,7 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: 
     dispute?.court.timesPerPeriod
   );
   const countdown = useCountdown(deadlineCurrentPeriod);
-  const getSubitems = (index: number): string[] => {
+  const getSubitems = (index: number): string[] | React.ReactNode[] => {
     if (typeof countdown !== "undefined" && dispute) {
       if (index === currentItemIndex && countdown === 0) {
         return ["Time's up!"];
@@ -60,7 +61,7 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: 
         return [secondsToDayHourMinute(dispute?.court.timesPerPeriod[index])];
       }
     }
-    return ["Loading..."];
+    return [<StyledSkeleton key={index} width={60} />];
   };
   return titles.map((title, i) => ({
     title,

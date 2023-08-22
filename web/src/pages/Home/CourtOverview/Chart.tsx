@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import TimeSeriesChart from "./TimeSeriesChart";
 import { DropdownSelect } from "@kleros/ui-components-library";
+import { StyledSkeleton } from "components/StyledSkeleton";
 import { formatUnits } from "viem";
 import { useHomePageContext } from "hooks/useHomePageContext";
 
@@ -61,7 +62,7 @@ const Chart: React.FC = () => {
   return (
     <Container>
       <ChartOptionsDropdown {...{ setChartOption }} />
-      {processedData ? <TimeSeriesChart data={processedData} /> : "Fetching..."}
+      {processedData ? <TimeSeriesChart data={processedData} /> : <StyledSkeleton height={233} />}
     </Container>
   );
 };

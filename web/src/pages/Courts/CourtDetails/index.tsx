@@ -10,6 +10,7 @@ import { DEFAULT_CHAIN } from "consts/chains";
 import { PNK_FAUCET_CONTRACT_ADDRESS } from "consts/index";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
+import { StyledSkeleton } from "components/StyledSkeleton";
 import Stats from "./Stats";
 import Description from "./Description";
 import StakePanel from "./StakePanel";
@@ -35,6 +36,10 @@ const StyledBreadcrumb = styled(Breadcrumb)`
   margin: 0px 0 12px 0;
 `;
 
+const StyledBreadcrumbSkeleton = styled.div`
+  margin-top: 16px;
+`;
+
 const CourtDetails: React.FC = () => {
   const { id } = useParams();
   const [isSending, setIsSending] = useState(false);
@@ -44,7 +49,7 @@ const CourtDetails: React.FC = () => {
   const { address } = useAccount();
   const { data: claimed } = usePnkFaucetWithdrewAlready({
     enabled: !isUndefined(address),
-    args: [address],
+    args: [address ?? "0x00"],
     watch: true,
   });
 
@@ -80,9 +85,15 @@ const CourtDetails: React.FC = () => {
   return (
     <Container>
       <StyledCard>
-        <h1>{policy ? policy.name : "Loading..."}</h1>
+        <h1>{policy ? policy.name : <StyledSkeleton width={200} />}</h1>
         <ButtonContainer>
-          {items && <StyledBreadcrumb items={items} />}
+          {items ? (
+            <StyledBreadcrumb items={items} />
+          ) : (
+            <StyledBreadcrumbSkeleton>
+              <StyledSkeleton width={100} />
+            </StyledBreadcrumbSkeleton>
+          )}
           {chain?.id === DEFAULT_CHAIN && !claimed && (
             <Button
               variant="primary"

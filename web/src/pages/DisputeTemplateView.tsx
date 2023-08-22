@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
-import Skeleton from "react-loading-skeleton";
 import { Textarea } from "@kleros/ui-components-library";
 import PolicyIcon from "svgs/icons/policy.svg";
+import { StyledSkeleton } from "components/StyledSkeleton";
 import ReactMarkdown from "components/ReactMarkdown";
 import { isUndefined } from "utils/index";
 import { IPFS_GATEWAY } from "consts/index";
@@ -112,7 +112,7 @@ const Overview: React.FC<{ disputeTemplate: any }> = ({ disputeTemplate }) => {
       <Container>
         <h1>
           {isUndefined(disputeTemplate) ? (
-            <Skeleton />
+            <StyledSkeleton />
           ) : (
             disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"
           )}

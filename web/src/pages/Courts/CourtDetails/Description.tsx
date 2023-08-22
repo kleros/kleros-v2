@@ -3,6 +3,7 @@ import styled from "styled-components";
 import ReactMarkdown from "react-markdown";
 import { Routes, Route, Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
 import { Tabs } from "@kleros/ui-components-library";
+import { StyledSkeleton } from "components/StyledSkeleton";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 
 const Container = styled.div`
@@ -101,7 +102,7 @@ const formatMarkdown = (markdown?: string) =>
   markdown ? (
     <ReactMarkdown>{typeof markdown === "string" ? markdown.replace(/\n/g, "  \n") : markdown}</ReactMarkdown>
   ) : (
-    <p>Loading...</p>
+    <StyledSkeleton />
   );
 
 export default Description;

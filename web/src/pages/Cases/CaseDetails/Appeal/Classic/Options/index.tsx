@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useLoserSideCountdownContext } from "hooks/useClassicAppealContext";
+import { StyledSkeleton } from "components/StyledSkeleton";
 import StageOne from "./StageOne";
 import StageTwo from "./StageTwo";
 import { isUndefined } from "utils/index";
@@ -14,7 +15,7 @@ const Options: React.FC = () => {
   return !isUndefined(loserSideCountdown) ? (
     <Container>{loserSideCountdown > 0 ? <StageOne /> : <StageTwo />}</Container>
   ) : (
-    <h1>Loading...</h1>
+    <StyledSkeleton />
   );
 };
 

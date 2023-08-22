@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { formatEther } from "viem";
-import Skeleton from "react-loading-skeleton";
+import { StyledSkeleton } from "components/StyledSkeleton";
 import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 import { CasesPageQuery } from "queries/useCasesQuery";
@@ -17,10 +17,6 @@ const StyledCard = styled(Card)`
   min-width: 312px;
   width: auto;
   height: 260px;
-
-  .react-loading-skeleton {
-    z-index: 0;
-  }
 `;
 
 const Container = styled.div`
@@ -58,7 +54,7 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
       : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, court.timesPerPeriod);
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrated.id as `0x${string}`);
   const title = isUndefined(disputeTemplate) ? (
-    <Skeleton />
+    <StyledSkeleton />
   ) : (
     disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"
   );

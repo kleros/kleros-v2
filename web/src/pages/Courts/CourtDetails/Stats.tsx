@@ -5,7 +5,9 @@ import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
 import { useCoinPrice } from "hooks/useCoinPrice";
 import { KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS } from "consts/index";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD, isUndefined } from "utils/index";
+import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
+import { StyledSkeleton } from "components/StyledSkeleton";
 import BalanceIcon from "svgs/icons/law-balance.svg";
 import MinStake from "svgs/icons/min-stake.svg";
 import VoteStake from "svgs/icons/vote-stake.svg";
@@ -25,7 +27,7 @@ interface IStat {
   title: string;
   coinId?: number;
   getText: (data: CourtDetailsQuery["court"]) => string;
-  getSubtext: (data: CourtDetailsQuery["court"], coinPrice?: number) => string;
+  getSubtext?: (data: CourtDetailsQuery["court"], coinPrice?: number) => string;
   color: IStatDisplay["color"];
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
@@ -50,7 +52,6 @@ const stats: IStat[] = [
   {
     title: "Active Jurors",
     getText: (data) => data?.numberStakedJurors,
-    getSubtext: () => "",
     color: "purple",
     icon: PNKRedistributedIcon,
   },
@@ -65,14 +66,12 @@ const stats: IStat[] = [
   {
     title: "Cases",
     getText: (data) => data?.numberDisputes,
-    getSubtext: () => "",
     color: "orange",
     icon: BalanceIcon,
   },
   {
     title: "In Progress",
     getText: (data) => data?.numberDisputes,
-    getSubtext: () => "",
     color: "orange",
     icon: BalanceIcon,
   },
@@ -108,12 +107,13 @@ const Stats = () => {
     <StyledCard>
       {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
         const coinPrice = !isUndefined(pricesData) ? pricesData[coinIdToAddress[coinId!]]?.price : undefined;
+
         return (
           <StatDisplay
             key={i}
             {...{ title, color, icon }}
-            text={data ? getText(data.court) : "Fetching..."}
-            subtext={data ? getSubtext(data.court, coinPrice) : "Fetching..."}
+            text={data ? getText(data.court) : <StyledSkeleton />}
+            subtext={calculateSubtextRender(data ? data.court : undefined, getSubtext, coinPrice)}
           />
         );
       })}
