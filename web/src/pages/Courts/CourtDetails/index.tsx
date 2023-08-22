@@ -33,7 +33,7 @@ const StyledCard = styled(Card)`
 `;
 
 const StyledBreadcrumb = styled(Breadcrumb)`
-  margin: 0px 0 12px 0;
+  margin-bottom: 12px;
 `;
 
 const StyledBreadcrumbSkeleton = styled.div`
