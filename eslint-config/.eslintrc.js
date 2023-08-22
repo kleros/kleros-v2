@@ -10,13 +10,23 @@ module.exports = {
     mocha: true,
     es2020: true,
   },
-  extends: [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended",
-    "plugin:import/recommended",
-  ],
+  extends: ["eslint:recommended", "plugin:prettier/recommended", "plugin:import/recommended"],
   plugins: ["@typescript-eslint", "prettier", "import"],
+  overrides: [
+    {
+      files: ["*.ts", "*.tsx"],
+      extends: [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+      ],
+      parserOptions: {
+        project: ["./tsconfig.json"],
+      },
+      rules: {
+        "@typescript-eslint/return-await": ["error", "always"],
+      },
+    },
+  ],
   rules: {
     "no-unused-vars": [
       "error",
@@ -44,5 +54,6 @@ module.exports = {
         tryExtensions: [".js", ".ts", ".json", ".node"],
       },
     ],
+    "no-return-await": "off",
   },
 };
