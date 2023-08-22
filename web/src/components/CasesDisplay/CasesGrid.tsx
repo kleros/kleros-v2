@@ -34,15 +34,18 @@ export interface ICasesGrid {
 }
 
 const CasesGrid: React.FC<ICasesGrid> = ({ disputes, currentPage, setCurrentPage, numberDisputes, casesPerPage }) => {
+  const hasNeverStaked = isUndefined(numberDisputes);
   return (
     <>
-      <Container>
-        {isUndefined(disputes)
-          ? [...Array(casesPerPage)].map((_, i) => <StyledSkeleton key={i} />)
-          : disputes.map((dispute, i) => {
-              return <DisputeCard key={i} {...dispute} />;
-            })}
-      </Container>
+      {!hasNeverStaked && (
+        <Container>
+          {isUndefined(disputes)
+            ? [...Array(casesPerPage)].map((_, i) => <StyledSkeleton key={i} />)
+            : disputes.map((dispute, i) => {
+                return <DisputeCard key={i} {...dispute} />;
+              })}
+        </Container>
+      )}
       <StyledPagination
         {...{ currentPage }}
         numPages={Math.ceil((numberDisputes ?? 0) / casesPerPage)}
