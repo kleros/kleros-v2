@@ -5162,7 +5162,7 @@ __metadata:
     "@nomiclabs/hardhat-solhint": ^3.0.1
     "@openzeppelin/contracts": ^4.9.3
     "@typechain/ethers-v5": ^11.0.0
-    "@typechain/hardhat": ^7.0.0
+    "@typechain/hardhat": ^8.0.0
     "@types/chai": ^4.3.5
     "@types/mocha": ^10.0.1
     "@types/node": ^16.18.38
@@ -8459,19 +8459,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typechain/hardhat@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "@typechain/hardhat@npm:7.0.0"
+"@typechain/hardhat@npm:^8.0.0":
+  version: 8.0.3
+  resolution: "@typechain/hardhat@npm:8.0.3"
   dependencies:
     fs-extra: ^9.1.0
   peerDependencies:
-    "@ethersproject/abi": ^5.4.7
-    "@ethersproject/providers": ^5.4.7
-    "@typechain/ethers-v5": ^11.0.0
-    ethers: ^5.4.7
+    "@typechain/ethers-v6": ^0.4.3
+    ethers: ^6.1.0
     hardhat: ^2.9.9
-    typechain: ^8.2.0
-  checksum: f685159430a11cf93fead7eebb6de23f22ea59066b5eb39a5f8dea977c49f6b948d10dc64a2c29f07fef5826e10ee754ba41f76c08474ade45474c7231e9cc15
+    typechain: ^8.3.1
+  checksum: ba1678e76efad08f3ef6347b125da1840f6c04f4f754538caea048e8fe522ac34672f81a3c31a7c0e6bd78d5d38a9280838319b19a8aae69f9580c1ad3e097b7
   languageName: node
   linkType: hard
 

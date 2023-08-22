@@ -49,7 +49,7 @@
     "@nomiclabs/hardhat-solhint": "^3.0.1",
     "@openzeppelin/contracts": "^4.9.3",
     "@typechain/ethers-v5": "^11.0.0",
-    "@typechain/hardhat": "^7.0.0",
+    "@typechain/hardhat": "^8.0.0",
     "@types/chai": "^4.3.5",
     "@types/mocha": "^10.0.1",
     "@types/node": "^16.18.38",
