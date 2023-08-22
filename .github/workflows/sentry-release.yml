@@ -32,7 +32,7 @@ jobs:
     - uses: actions/checkout@7739b9ba2efcda9dde65ad1e3c2dbe65b41dfba7
     
     - name: Cache node modules
-      uses: actions/cache@67b839edb68371cc5014f6cea11c9aa77238de78
+      uses: actions/cache@f7ebb81a3f195b4fb88dab7c14e2f7aff52045aa
       env:
         cache-name: cache-node-modules
       with:
