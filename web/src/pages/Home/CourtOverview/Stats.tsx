@@ -11,7 +11,6 @@ import BalanceIcon from "svgs/icons/law-balance.svg";
 import { KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS } from "src/consts/index";
 import { commify } from "utils/commify";
 import { isUndefined } from "utils/index";
-import { roundDecimals } from "utils/roundDecimals";
 import { useHomePageContext, HomePageQuery, HomePageQueryDataPoints } from "hooks/useHomePageContext";
 import { useCoinPrice } from "hooks/useCoinPrice";
 
@@ -40,7 +39,7 @@ const stats: IStat[] = [
   {
     title: "PNK staked",
     coinId: 0,
-    getText: (counters) => commify(roundDecimals(formatUnits(getLastOrZero(counters, "stakedPNK"), 18), 0)),
+    getText: (counters) => commify(Number(formatUnits(getLastOrZero(counters, "stakedPNK"), 18)).toFixed(0)),
     getSubtext: (counters, coinPrice) =>
       (parseInt(formatUnits(getLastOrZero(counters, "stakedPNK"), 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
     color: "purple",
@@ -49,7 +48,7 @@ const stats: IStat[] = [
   {
     title: "ETH Paid to jurors",
     coinId: 1,
-    getText: (counters) => commify(roundDecimals(formatEther(getLastOrZero(counters, "paidETH")), 4)),
+    getText: (counters) => commify(Number(formatEther(getLastOrZero(counters, "paidETH"))).toFixed(4)),
     getSubtext: (counters, coinPrice) =>
       (Number(formatUnits(getLastOrZero(counters, "paidETH"), 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
     color: "blue",
@@ -58,7 +57,7 @@ const stats: IStat[] = [
   {
     title: "PNK redistributed",
     coinId: 0,
-    getText: (counters) => commify(roundDecimals(formatUnits(getLastOrZero(counters, "redistributedPNK"), 18), 0)),
+    getText: (counters) => commify(Number(formatUnits(getLastOrZero(counters, "redistributedPNK"), 18)).toFixed(0)),
     getSubtext: (counters, coinPrice) =>
       (parseInt(formatUnits(getLastOrZero(counters, "redistributedPNK"), 18)) * (coinPrice ?? 0))
         .toFixed(2)

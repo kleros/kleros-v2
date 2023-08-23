@@ -8,7 +8,6 @@ import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import BalanceIcon from "svgs/icons/law-balance.svg";
 import MinStake from "svgs/icons/min-stake.svg";
 import { commify } from "utils/commify";
-import { roundDecimals } from "utils/roundDecimals";
 import VoteStake from "svgs/icons/vote-stake.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
@@ -62,7 +61,7 @@ const stats: IStat[] = [
   {
     title: "PNK Staked",
     coinId: 0,
-    getText: (data) => commify(roundDecimals(formatUnits(data?.stake, 18), 0)),
+    getText: (data) => commify(Number(formatUnits(data?.stake, 18)).toFixed(0)),
     getSubtext: (data, coinPrice) =>
       (parseInt(formatUnits(data?.stake, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
     color: "purple",
@@ -85,7 +84,7 @@ const stats: IStat[] = [
   {
     title: "ETH paid to Jurors",
     coinId: 1,
-    getText: (data) => commify(roundDecimals(formatEther(BigInt(data?.paidETH)), 4)),
+    getText: (data) => commify(Number(formatEther(BigInt(data?.paidETH))).toFixed(4)),
     getSubtext: (data, coinPrice) =>
       (Number(formatUnits(data?.paidETH, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
     color: "blue",
@@ -94,7 +93,7 @@ const stats: IStat[] = [
   {
     title: "PNK redistributed",
     coinId: 0,
-    getText: (data) => commify(roundDecimals(formatUnits(data?.paidPNK, 18), 0)),
+    getText: (data) => commify(Number(formatUnits(data?.paidPNK, 18)).toFixed(0)),
     getSubtext: (data, coinPrice) =>
       (parseInt(formatUnits(data?.paidPNK, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
     color: "purple",
