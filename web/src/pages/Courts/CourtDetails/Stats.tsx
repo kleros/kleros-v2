@@ -1,19 +1,17 @@
 import React from "react";
 import styled from "styled-components";
-import { formatUnits, formatEther } from "viem";
 import { useParams } from "react-router-dom";
 import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
-import { KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS } from "src/consts/index";
+import { useCoinPrice } from "hooks/useCoinPrice";
+import { KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS } from "consts/index";
+import { formatETH, formatPNK, formatUnitsWei, formatUSD, isUndefined } from "utils/index";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import BalanceIcon from "svgs/icons/law-balance.svg";
 import MinStake from "svgs/icons/min-stake.svg";
-import { commify } from "utils/commify";
 import VoteStake from "svgs/icons/vote-stake.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import EthereumIcon from "svgs/icons/ethereum.svg";
-import { useCoinPrice } from "hooks/useCoinPrice";
-import { isUndefined } from "utils/index";
 
 const StyledCard = styled.div`
   width: auto;
@@ -36,18 +34,16 @@ const stats: IStat[] = [
   {
     title: "Min Stake",
     coinId: 0,
-    getText: (data) => commify(formatUnits(data?.minStake, 18)),
-    getSubtext: (data, coinPrice) =>
-      (parseInt(formatUnits(data?.minStake, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
+    getText: (data) => formatPNK(data?.minStake),
+    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.minStake)) * (coinPrice ?? 0)),
     color: "purple",
     icon: MinStake,
   },
   {
     title: "Vote Stake",
     coinId: 0,
-    getText: (data) => commify(formatUnits(data?.minStake, 18)),
-    getSubtext: (data, coinPrice) =>
-      (parseInt(formatUnits(data?.minStake, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
+    getText: (data) => formatPNK(data?.minStake),
+    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.minStake)) * (coinPrice ?? 0)),
     color: "purple",
     icon: VoteStake,
   },
@@ -61,9 +57,8 @@ const stats: IStat[] = [
   {
     title: "PNK Staked",
     coinId: 0,
-    getText: (data) => commify(Number(formatUnits(data?.stake, 18)).toFixed(0)),
-    getSubtext: (data, coinPrice) =>
-      (parseInt(formatUnits(data?.stake, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
+    getText: (data) => formatPNK(data?.stake),
+    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.stake)) * (coinPrice ?? 0)),
     color: "purple",
     icon: PNKIcon,
   },
@@ -84,18 +79,16 @@ const stats: IStat[] = [
   {
     title: "ETH paid to Jurors",
     coinId: 1,
-    getText: (data) => commify(Number(formatEther(BigInt(data?.paidETH))).toFixed(4)),
-    getSubtext: (data, coinPrice) =>
-      (Number(formatUnits(data?.paidETH, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
+    getText: (data) => formatETH(data?.paidETH),
+    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.paidETH)) * (coinPrice ?? 0)),
     color: "blue",
     icon: EthereumIcon,
   },
   {
     title: "PNK redistributed",
     coinId: 0,
-    getText: (data) => commify(Number(formatUnits(data?.paidPNK, 18)).toFixed(0)),
-    getSubtext: (data, coinPrice) =>
-      (parseInt(formatUnits(data?.paidPNK, 18)) * (coinPrice ?? 0)).toFixed(2).toString() + "$",
+    getText: (data) => formatPNK(data?.paidPNK, 18),
+    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.paidPNK)) * (coinPrice ?? 0)),
     color: "purple",
     icon: PNKRedistributedIcon,
   },
