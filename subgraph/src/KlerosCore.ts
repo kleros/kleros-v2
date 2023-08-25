@@ -19,7 +19,7 @@ import { createCourtFromEvent, getFeeForJuror } from "./entities/Court";
 import { createDisputeKitFromEvent, filterSupportedDisputeKits } from "./entities/DisputeKit";
 import { createDisputeFromEvent } from "./entities/Dispute";
 import { createRoundFromRoundInfo } from "./entities/Round";
-import { updateCases, updateCasesRuled, updateCasesVoting } from "./datapoint";
+import { updateCases, updateCasesAppealing, updateCasesRuled, updateCasesVoting } from "./datapoint";
 import { addUserActiveDispute, ensureUser } from "./entities/User";
 import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
@@ -90,8 +90,12 @@ export function handleNewPeriod(event: NewPeriod): void {
   const newPeriod = getPeriodName(event.params._period);
   if (dispute.period === "vote") {
     updateCasesVoting(BigInt.fromI32(-1), event.block.timestamp);
+  } else if (newPeriod === "evidence") {
+    updateCasesAppealing(BigInt.fromI32(-1), event.block.timestamp);
   } else if (newPeriod === "vote") {
     updateCasesVoting(ONE, event.block.timestamp);
+  } else if (newPeriod === "appeal") {
+    updateCasesAppealing(ONE, event.block.timestamp);
   } else if (newPeriod === "execution") {
     const contract = KlerosCore.bind(event.address);
     const currentRulingInfo = contract.currentRuling(disputeID);
@@ -99,7 +103,9 @@ export function handleNewPeriod(event: NewPeriod): void {
     dispute.overridden = currentRulingInfo.getOverridden();
     dispute.tied = currentRulingInfo.getTied();
     dispute.save();
+    updateCasesAppealing(BigInt.fromI32(-1), event.block.timestamp);
   }
+
   dispute.period = newPeriod;
   dispute.lastPeriodChange = event.block.timestamp;
   dispute.save();

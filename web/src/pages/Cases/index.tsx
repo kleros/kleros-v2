@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Routes, Route } from "react-router-dom";
+import { useAccount } from "wagmi";
+import { useFiltersContext } from "context/FilterProvider";
 import { DisputeDetailsFragment, useCasesQuery } from "queries/useCasesQuery";
 import { useCounterQuery } from "queries/useCounter";
 import CasesDisplay from "components/CasesDisplay";
@@ -14,10 +16,18 @@ const Container = styled.div`
 `;
 
 const Cases: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const { isConnected } = useAccount();
   const casesPerPage = 3;
+  const { setCurrentPage, currentPage } = useFiltersContext();
   const { data } = useCasesQuery(casesPerPage * (currentPage - 1));
   const { data: counterData } = useCounterQuery();
+
+  const { setIsDashboard } = useFiltersContext();
+
+  useEffect(() => {
+    setIsDashboard(false);
+  }, [isConnected]);
+
   return (
     <Container>
       <Routes>

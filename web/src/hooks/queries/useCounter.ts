@@ -8,6 +8,7 @@ const counterQuery = graphql(`
     counter(id: "0") {
       cases
       casesRuled
+      casesAppealing
     }
   }
 `);

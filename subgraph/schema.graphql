@@ -195,6 +195,7 @@ type Counter @entity {
   cases: BigInt!
   casesVoting: BigInt!
   casesRuled: BigInt!
+  casesAppealing: BigInt!
 }
 
 type FeeToken @entity {

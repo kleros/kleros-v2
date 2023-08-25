@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Search from "./Search";
 import StatsAndFilters from "./StatsAndFilters";
 import CasesGrid, { ICasesGrid } from "./CasesGrid";
+import { useFiltersContext } from "~src/context/FilterProvider";
 
 const StyledHR = styled.hr`
   margin-top: 24px;
@@ -24,22 +25,27 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
   casesPerPage,
   title = "Cases",
   className,
-}) => (
-  <div {...{ className }}>
-    <h1>{title}</h1>
-    <Search />
-    <StatsAndFilters totalDisputes={numberDisputes ?? 0} closedDisputes={numberClosedDisputes ?? 0} />
-    <StyledHR />
-    <CasesGrid
-      {...{
-        disputes,
-        currentPage,
-        setCurrentPage,
-        numberDisputes,
-        casesPerPage,
-      }}
-    />
-  </div>
-);
+}) => {
+  const { filteredCases } = useFiltersContext();
+
+  return (
+    <div {...{ className }}>
+      <h1>{title}</h1>
+      <Search />
+      <StatsAndFilters totalDisputes={numberDisputes ?? 0} closedDisputes={numberClosedDisputes ?? 0} />
+      <StyledHR />
+
+      <CasesGrid
+        disputes={filteredCases?.length > 0 ? filteredCases : disputes}
+        {...{
+          currentPage,
+          setCurrentPage,
+          numberDisputes,
+          casesPerPage,
+        }}
+      />
+    </div>
+  );
+};
 
 export default CasesDisplay;

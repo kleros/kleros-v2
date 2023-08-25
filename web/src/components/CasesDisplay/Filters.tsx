@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
 import { DropdownSelect } from "@kleros/ui-components-library";
+import { useFiltersContext } from "~src/context/FilterProvider";
 
 const Container = styled.div`
   display: flex;
@@ -11,6 +12,12 @@ const Container = styled.div`
 
 const Filters: React.FC = () => {
   const theme = useTheme();
+  const { setTimeFilter, setStatusFilter } = useFiltersContext();
+
+  const handleStatusChange = (value: string | number) => {
+    setStatusFilter(Number(value));
+  };
+
   return (
     <Container>
       <DropdownSelect
@@ -23,7 +30,7 @@ const Filters: React.FC = () => {
           { value: 3, text: "Appeal", dot: theme.tint },
         ]}
         defaultValue={0}
-        callback={() => {}}
+        callback={handleStatusChange}
       />
       <DropdownSelect
         smallButton
@@ -33,7 +40,7 @@ const Filters: React.FC = () => {
           { value: 1, text: "Oldest" },
         ]}
         defaultValue={0}
-        callback={() => {}}
+        callback={setTimeFilter}
       />
     </Container>
   );

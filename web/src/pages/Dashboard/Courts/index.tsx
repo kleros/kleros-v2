@@ -13,6 +13,7 @@ const CourtsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  z-index: 0;
 `;
 
 const Courts: React.FC = () => {
