@@ -11,7 +11,6 @@ const Container = styled.div`
   gap: 8px;
 `;
 
-// 24px as margin-top since we already have 8px from the flex gap
 const StyledPagination = styled(StandardPagination)`
   margin-top: 24px;
   margin-left: auto;
@@ -26,13 +25,7 @@ export interface ICasesGrid {
   casesPerPage: number;
 }
 
-const CasesGrid: React.FC<ICasesGrid> = ({
-  disputes,
-  currentPage,
-  setCurrentPage,
-  numberDisputes,
-  casesPerPage,
-}) => {
+const CasesGrid: React.FC<ICasesGrid> = ({ disputes, currentPage, setCurrentPage, numberDisputes, casesPerPage }) => {
   return (
     <>
       <Container>

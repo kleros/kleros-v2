@@ -12,7 +12,9 @@
     "arbitrum",
     "autorestart",
     "codegen",
+    "commify",
     "commitlint",
+    "consts",
     "COOLDOWN",
     "datetime",
     "devnet",
@@ -32,6 +34,7 @@
     "solhint",
     "typechain",
     "Unslashed",
+    "viem",
     "wagmi"
   ],
   "ignoreWords": [],

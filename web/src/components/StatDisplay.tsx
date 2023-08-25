@@ -1,11 +1,6 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
 
-const createPair = (iconColor: string, backgroundColor: string) => ({
-  iconColor,
-  backgroundColor,
-});
-
 const Container = styled.div`
   display: flex;
   align-items: center;
@@ -34,10 +29,15 @@ const TextContainer = styled.div`
   }
 `;
 
+const createPair = (iconColor: string, backgroundColor: string) => ({
+  iconColor,
+  backgroundColor,
+});
+
 export interface IStatDisplay {
   title: string;
-  text: string;
-  subtext: string;
+  text: string | React.ReactNode;
+  subtext: string | React.ReactNode;
   icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
   color: "red" | "orange" | "green" | "blue" | "purple";
 }

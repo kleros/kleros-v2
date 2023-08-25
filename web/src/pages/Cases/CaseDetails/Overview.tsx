@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { formatEther } from "viem";
-import Skeleton from "react-loading-skeleton";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useCourtPolicy } from "queries/useCourtPolicy";
@@ -12,6 +11,7 @@ import { isUndefined } from "utils/index";
 import { Periods } from "consts/periods";
 import { IPFS_GATEWAY } from "consts/index";
 import PolicyIcon from "svgs/icons/policy.svg";
+import { StyledSkeleton } from "components/StyledSkeleton";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 import Verdict from "components/Verdict/index";
 
@@ -95,7 +95,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
       <Container>
         <h1>
           {isUndefined(disputeTemplate) ? (
-            <Skeleton />
+            <StyledSkeleton />
           ) : (
             disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"
           )}
@@ -138,7 +138,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
             </StyledA>
           )}
           {courtPolicy && (
-            <StyledA href={`${IPFS_GATEWAY}${courtPolicyURI?.court?.policy ?? ""}`} target="_blank" rel="noreferrer">
+            <StyledA href={`#/courts/${court?.id}/purpose?section=description`}>
               <PolicyIcon />
               Court Policy
             </StyledA>

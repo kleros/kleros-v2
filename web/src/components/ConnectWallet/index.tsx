@@ -22,7 +22,7 @@ export const SwitchChainButton: React.FC = () => {
     <Button
       isLoading={isLoading}
       disabled={isLoading}
-      text={`Switch to ${SUPPORTED_CHAINS[DEFAULT_CHAIN].chainName}`}
+      text={`Switch to ${SUPPORTED_CHAINS[DEFAULT_CHAIN].name}`}
       onClick={handleSwitch}
     />
   );

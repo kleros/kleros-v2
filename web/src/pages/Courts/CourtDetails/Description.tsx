@@ -3,7 +3,28 @@ import styled from "styled-components";
 import ReactMarkdown from "react-markdown";
 import { Routes, Route, Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
 import { Tabs } from "@kleros/ui-components-library";
+import { StyledSkeleton } from "components/StyledSkeleton";
 import { useCourtPolicy } from "queries/useCourtPolicy";
+
+const Container = styled.div`
+  width: 100%;
+`;
+
+const TextContainer = styled.div`
+  width: 100%;
+  padding: 12px 0;
+`;
+
+const StyledTabs = styled(Tabs)`
+  width: 100%;
+  > * {
+    display: flex;
+    flex-wrap: wrap;
+    > svg {
+      margin-right: 0px !important;
+    }
+  }
+`;
 
 interface IPolicy {
   description?: string;
@@ -42,8 +63,21 @@ const Description: React.FC = () => {
 
   const filteredTabs = TABS.filter(({ isVisible }) => isVisible(policy));
 
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const scrollToSection = queryParams.get("section");
+
+  useEffect(() => {
+    if (scrollToSection === "description") {
+      const element = document.getElementById(scrollToSection);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [scrollToSection]);
+
   return (
-    <Container>
+    <Container id="description">
       <StyledTabs
         currentValue={currentTab}
         items={filteredTabs}
@@ -68,27 +102,7 @@ const formatMarkdown = (markdown?: string) =>
   markdown ? (
     <ReactMarkdown>{typeof markdown === "string" ? markdown.replace(/\n/g, "  \n") : markdown}</ReactMarkdown>
   ) : (
-    <p>Loading...</p>
+    <StyledSkeleton />
   );
-
-const Container = styled.div`
-  width: 100%;
-`;
-
-const TextContainer = styled.div`
-  width: 100%;
-  padding: 12px 0;
-`;
-
-const StyledTabs = styled(Tabs)`
-  width: 100%;
-  > * {
-    display: flex;
-    flex-wrap: wrap;
-    > svg {
-      margin-right: 0px !important;
-    }
-  }
-`;
 
 export default Description;

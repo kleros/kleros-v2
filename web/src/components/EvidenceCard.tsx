@@ -7,40 +7,6 @@ import { useIPFSQuery } from "hooks/useIPFSQuery";
 import { shortenAddress } from "utils/shortenAddress";
 import { IPFS_GATEWAY } from "consts/index";
 
-interface IEvidenceCard {
-  evidence: string;
-  sender: string;
-  index: number;
-}
-
-const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
-  const { data } = useIPFSQuery(evidence.at(0) === "/" ? evidence : undefined);
-  return (
-    <StyledCard>
-      <TextContainer>
-        <Index>#{index}:</Index>
-        {data ? (
-          <>
-            <h3>{data.name}</h3>
-            <p>{data.description}</p>
-          </>
-        ) : (
-          <p>{evidence}</p>
-        )}
-      </TextContainer>
-      <BottomShade>
-        <Identicon size="24" string={sender} />
-        <p>{shortenAddress(sender)}</p>
-        {data && typeof data.fileURI !== "undefined" && (
-          <StyledA href={`${IPFS_GATEWAY}${data.fileURI}`} target="_blank" rel="noreferrer">
-            <AttachmentIcon />
-          </StyledA>
-        )}
-      </BottomShade>
-    </StyledCard>
-  );
-};
-
 const StyledCard = styled(Card)`
   width: 100%;
   height: auto;
@@ -84,5 +50,39 @@ const StyledA = styled.a`
     fill: ${({ theme }) => theme.primaryBlue};
   }
 `;
+
+interface IEvidenceCard {
+  evidence: string;
+  sender: string;
+  index: number;
+}
+
+const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
+  const { data } = useIPFSQuery(evidence.at(0) === "/" ? evidence : undefined);
+  return (
+    <StyledCard>
+      <TextContainer>
+        <Index>#{index}:</Index>
+        {data ? (
+          <>
+            <h3>{data.name}</h3>
+            <p>{data.description}</p>
+          </>
+        ) : (
+          <p>{evidence}</p>
+        )}
+      </TextContainer>
+      <BottomShade>
+        <Identicon size="24" string={sender} />
+        <p>{shortenAddress(sender)}</p>
+        {data && typeof data.fileURI !== "undefined" && (
+          <StyledA href={`${IPFS_GATEWAY}${data.fileURI}`} target="_blank" rel="noreferrer">
+            <AttachmentIcon />
+          </StyledA>
+        )}
+      </BottomShade>
+    </StyledCard>
+  );
+};
 
 export default EvidenceCard;

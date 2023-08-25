@@ -4,29 +4,6 @@ import { Box } from "@kleros/ui-components-library";
 import { secondsToDayHourMinute } from "utils/date";
 import HourglassIcon from "svgs/icons/hourglass.svg";
 
-interface IStageExplainer {
-  loserSideCountdown: number | undefined;
-}
-
-const StageExplainer: React.FC<IStageExplainer> = ({ loserSideCountdown }) => (
-  <StyledBox>
-    <CountdownLabel>
-      <HourglassIcon />
-      {typeof loserSideCountdown !== "undefined" &&
-        secondsToDayHourMinute(loserSideCountdown)}
-    </CountdownLabel>
-    <div>
-      <label>
-        Losing options can only be funded <small>before</small> the deadline.
-      </label>
-      <label>
-        If no losing option is <small>fully funded</small> in time, the jury
-        decision is maintained.
-      </label>
-    </div>
-  </StyledBox>
-);
-
 const StyledBox = styled(Box)`
   border-radius: 3px;
   margin: 24px 0;
@@ -51,5 +28,26 @@ const CountdownLabel = styled.label`
     fill: ${({ theme }) => theme.secondaryPurple};
   }
 `;
+
+interface IStageExplainer {
+  loserSideCountdown: number | undefined;
+}
+
+const StageExplainer: React.FC<IStageExplainer> = ({ loserSideCountdown }) => (
+  <StyledBox>
+    <CountdownLabel>
+      <HourglassIcon />
+      {typeof loserSideCountdown !== "undefined" && secondsToDayHourMinute(loserSideCountdown)}
+    </CountdownLabel>
+    <div>
+      <label>
+        Losing options can only be funded <small>before</small> the deadline.
+      </label>
+      <label>
+        If no losing option is <small>fully funded</small> in time, the jury decision is maintained.
+      </label>
+    </div>
+  </StyledBox>
+);
 
 export default StageExplainer;

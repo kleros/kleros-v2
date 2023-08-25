@@ -11,6 +11,16 @@ import Tabs from "./Tabs";
 import Timeline from "./Timeline";
 import Voting from "./Voting";
 
+const Container = styled.div``;
+
+const StyledCard = styled(Card)`
+  margin-top: 16px;
+  width: 100%;
+  height: auto;
+  min-height: 100px;
+  padding: 16px;
+`;
+
 const CaseDetails: React.FC = () => {
   const { id } = useParams();
   const { data } = useDisputeDetailsQuery(id);
@@ -40,15 +50,5 @@ const CaseDetails: React.FC = () => {
     </Container>
   );
 };
-
-const Container = styled.div``;
-
-const StyledCard = styled(Card)`
-  margin-top: 16px;
-  width: 100%;
-  height: auto;
-  min-height: 100px;
-  padding: 16px;
-`;
 
 export default CaseDetails;
