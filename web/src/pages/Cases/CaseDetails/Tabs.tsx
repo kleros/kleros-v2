@@ -70,7 +70,7 @@ const Tabs: React.FC = () => {
   useEffect(() => {
     TABS[3].disabled =
       (parseInt(currentPeriodIndex) < 3 && rounds.length === 1) ||
-      (!isUndefined(appealCost) && isLastRound(appealCost));
+      (!isUndefined(appealCost) && isLastRound(appealCost) && parseInt(currentPeriodIndex) === 3);
   }, [currentPeriodIndex, id, currentTab, rounds.length, appealCost]);
 
   return (
