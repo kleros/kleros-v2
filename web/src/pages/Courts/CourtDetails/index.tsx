@@ -34,6 +34,8 @@ const StyledCard = styled(Card)`
 
 const StyledBreadcrumb = styled(Breadcrumb)`
   margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
 `;
 
 const StyledBreadcrumbSkeleton = styled.div`
