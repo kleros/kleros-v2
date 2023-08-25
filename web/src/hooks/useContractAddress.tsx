@@ -15,11 +15,13 @@ export const useContractAddress = <TAbi extends Abi>(
 };
 
 export const usePNKAddress = () => {
-  return useContractAddress<typeof pinakionV2ABI>(getPinakionV2)?.address;
+  // return `ethereum:${useContractAddress<typeof pinakionV2ABI>(getPinakionV2)?.address}`;
+  return "ethereum:0x93ed3fbe21207ec2e8f2d3c3de6e058cb73bc04d";
 };
 
 export const useWETHAddress = () => {
-  return useContractAddress<typeof wethABI>(getWeth)?.address;
+  // return `ethereum:${useContractAddress<typeof wethABI>(getWeth)?.address}`;
+  return "ethereum:0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 };
 
 export const usePNKFaucetAddress = () => {
