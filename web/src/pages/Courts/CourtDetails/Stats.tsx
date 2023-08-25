@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
 import { useCoinPrice } from "hooks/useCoinPrice";
-import { KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS } from "consts/index";
+import { usePNKAddress, useWETHAddress } from "hooks/useContractAddress";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD, isUndefined } from "utils/index";
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
@@ -93,15 +93,11 @@ const stats: IStat[] = [
   },
 ];
 
-const coinIdToAddress = {
-  0: KLEROS_CONTRACT_ADDRESS,
-  1: WETH_CONTRACT_ADDRESS,
-};
-
 const Stats = () => {
   const { id } = useParams();
   const { data } = useCourtDetails(id);
-  const { prices: pricesData } = useCoinPrice([KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS]);
+  const coinIdToAddress = [usePNKAddress(), useWETHAddress()];
+  const { prices: pricesData } = useCoinPrice(coinIdToAddress);
 
   return (
     <StyledCard>

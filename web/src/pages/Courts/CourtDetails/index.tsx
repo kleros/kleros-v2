@@ -7,7 +7,7 @@ import { formatEther } from "viem";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
 import { DEFAULT_CHAIN } from "consts/chains";
-import { PNK_FAUCET_CONTRACT_ADDRESS } from "consts/index";
+import { usePNKFaucetAddress } from "hooks/useContractAddress";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
 import { StyledSkeleton } from "components/StyledSkeleton";
@@ -55,8 +55,9 @@ const CourtDetails: React.FC = () => {
     watch: true,
   });
 
+  const faucetAddress = usePNKFaucetAddress();
   const { data: balance } = usePnkBalanceOf({
-    args: [PNK_FAUCET_CONTRACT_ADDRESS],
+    args: [faucetAddress],
     watch: true,
   });
   const { data: walletClient } = useWalletClient();

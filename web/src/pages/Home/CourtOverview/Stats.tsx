@@ -8,11 +8,11 @@ import EthereumIcon from "svgs/icons/ethereum.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import JurorIcon from "svgs/icons/user.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
-import { KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS } from "consts/index";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD, isUndefined } from "utils/index";
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import { useHomePageContext, HomePageQuery, HomePageQueryDataPoints } from "hooks/useHomePageContext";
 import { useCoinPrice } from "hooks/useCoinPrice";
+import { usePNKAddress, useWETHAddress } from "hooks/useContractAddress";
 
 const StyledCard = styled(Card)`
   width: auto;
@@ -77,14 +77,10 @@ const stats: IStat[] = [
   },
 ];
 
-const coinIdToAddress = {
-  0: KLEROS_CONTRACT_ADDRESS,
-  1: WETH_CONTRACT_ADDRESS,
-};
-
 const Stats = () => {
   const { data } = useHomePageContext();
-  const { prices: pricesData } = useCoinPrice([KLEROS_CONTRACT_ADDRESS, WETH_CONTRACT_ADDRESS]);
+  const coinIdToAddress = [usePNKAddress(), useWETHAddress()];
+  const { prices: pricesData } = useCoinPrice(coinIdToAddress);
   return (
     <StyledCard>
       {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
