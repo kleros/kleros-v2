@@ -34,6 +34,9 @@ export const lightTheme = {
   tintPurple: "#F4F0FA",
 
   transitionSpeed: "0.25s",
+
+  skeletonBackground: "#EBEBEB",
+  skeletonHighlight: "#F5F5F5",
 };
 
 export const darkTheme = {
@@ -70,4 +73,7 @@ export const darkTheme = {
   tintPurple: "#2F0960",
 
   transitionSpeed: "0.25s",
+
+  skeletonBackground: "#3A2270",
+  skeletonHighlight: "#3E307C",
 };

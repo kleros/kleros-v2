@@ -48,5 +48,7 @@ export function commify(value: string | number): string {
     }
   }
 
+  if (suffix === ".0") suffix = "";
+
   return negative + formatted.join(",") + suffix;
 }
