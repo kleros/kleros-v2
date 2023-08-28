@@ -5,7 +5,7 @@ export const isUndefined = (maybeObject: any): maybeObject is undefined => typeo
 
 export const formatUnitsWei = (value: bigint) => formatUnits(value, 18);
 
-export const formatPNK = (value: bigint, fractionDigits = 0) =>
+export const formatPNK = (value: bigint, fractionDigits = 4) =>
   commify(Number(formatUnitsWei(value)).toFixed(fractionDigits));
 
 export const formatETH = (value: bigint, fractionDigits = 4) =>
