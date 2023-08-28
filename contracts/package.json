@@ -29,6 +29,7 @@
     "bot:relayer-from-chiado": "NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-fetch hardhat run ./scripts/disputeRelayerBotFromChiado.ts",
     "bot:relayer-from-goerli": "NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-fetch hardhat run ./scripts/disputeRelayerBotFromGoerli.ts",
     "bot:relayer-from-hardhat": "NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-fetch hardhat run ./scripts/disputeRelayerBotFromHardhat.ts",
+    "bot:disputor": "NODE_NO_WARNINGS=1 yarn hardhat run ./scripts/disputeCreatorBot.ts",
     "etherscan-verify": "hardhat etherscan-verify",
     "sourcify": "hardhat sourcify --write-failing-metadata",
     "size": "hardhat size-contracts --no-compile",
