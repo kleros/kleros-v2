@@ -11,6 +11,8 @@ const courtDetailsQuery = graphql(`
       minStake
       alpha
       numberDisputes
+      numberClosedDisputes
+      numberAppealingDisputes
       numberStakedJurors
       stake
       paidETH
