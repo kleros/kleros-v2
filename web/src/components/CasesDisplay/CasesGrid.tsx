@@ -81,7 +81,6 @@ const calculatePages = (
 
 const CasesGrid: React.FC<ICasesGrid> = ({ disputes, currentPage, setCurrentPage, numberDisputes, casesPerPage }) => {
   const { address } = useAccount();
-  const hasNeverStaked = isUndefined(numberDisputes);
   const { statusFilter, debouncedSearch, filteredCases, isDashboard } = useFiltersContext();
   const { data: userData } = useUserQuery(address);
   const { data: userAppealCases } = useMyAppealCasesQuery(address);
@@ -101,7 +100,7 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, currentPage, setCurrentPage
 
   return (
     <>
-      {!hasNeverStaked && (
+      {!isUndefined(numberDisputes) && (
         <Container>
           {isUndefined(disputes) || isUndefined(filteredCases)
             ? [...Array(casesPerPage)].map((_, i) => <StyledSkeleton key={i} />)
