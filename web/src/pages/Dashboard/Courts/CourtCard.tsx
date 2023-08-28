@@ -49,19 +49,21 @@ const CourtCard: React.FC<ICourtCard> = ({ id, name }) => {
   });
 
   return (
-    <Card>
-      <StyledBreadcrumb items={[{ text: name, value: 0 }]} />
-      <ValueContainer>
-        <label> Stake: </label>
-        <small>{`${format(jurorBalance?.[0])} PNK`}</small>
-      </ValueContainer>
-      <ValueContainer>
-        <WithHelpTooltip {...{ place: "bottom", tooltipMsg }}>
-          <label> Locked Stake: </label>
-        </WithHelpTooltip>
-        <small>{`${format(jurorBalance?.[1])} PNK`}</small>
-      </ValueContainer>
-    </Card>
+    (format(jurorBalance?.[0]) || format(jurorBalance?.[1])) !== "0" && (
+      <Card>
+        <StyledBreadcrumb items={[{ text: name, value: 0 }]} />
+        <ValueContainer>
+          <label> Stake: </label>
+          <small>{`${format(jurorBalance?.[0])} PNK`}</small>
+        </ValueContainer>
+        <ValueContainer>
+          <WithHelpTooltip {...{ place: "bottom", tooltipMsg }}>
+            <label> Locked Stake: </label>
+          </WithHelpTooltip>
+          <small>{`${format(jurorBalance?.[1])} PNK`}</small>
+        </ValueContainer>
+      </Card>
+    )
   );
 };
 
