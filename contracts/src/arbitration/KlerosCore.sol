@@ -116,6 +116,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
 
     event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount);
     event StakeDelayed(address indexed _address, uint256 _courtID, uint256 _amount);
+    event StakePartiallyDelayed(address indexed _address, uint256 _courtID, uint256 _amount);
     event NewPeriod(uint256 indexed _disputeID, Period _period);
     event AppealPossible(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
     event AppealDecision(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
@@ -170,6 +171,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 _feeAmount,
         IERC20 _feeToken
     );
+    event PartiallyDelayedStakeWithdrawn(uint96 indexed _courtID, address indexed _account, uint256 _withdrawnAmount);
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -456,13 +458,54 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     /// @dev Sets the caller's stake in a court.
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake.
+    /// Note that the existing delayed stake will be nullified as non-relevant.
     function setStake(uint96 _courtID, uint256 _newStake) external {
-        if (!_setStakeForAccount(msg.sender, _courtID, _newStake)) revert StakingFailed();
+        removeDelayedStake(_courtID);
+        if (!_setStakeForAccount(msg.sender, _courtID, _newStake, false)) revert StakingFailed();
     }
 
-    function setStakeBySortitionModule(address _account, uint96 _courtID, uint256 _newStake) external {
+    /// @dev Removes the latest delayed stake if there is any.
+    /// @param _courtID The ID of the court.
+    function removeDelayedStake(uint96 _courtID) public {
+        sortitionModule.checkExistingDelayedStake(_courtID, msg.sender);
+    }
+
+    function withdrawPartiallyDelayedStake(uint96 _courtID, address _juror, uint256 _amountToWithdraw) external {
         if (msg.sender != address(sortitionModule)) revert WrongCaller();
-        _setStakeForAccount(_account, _courtID, _newStake);
+        uint256 actualAmount = _amountToWithdraw;
+        Juror storage juror = jurors[_juror];
+        if (juror.stakedPnk <= actualAmount) {
+            actualAmount = juror.stakedPnk;
+        }
+        require(pinakion.safeTransfer(_juror, actualAmount));
+        // StakePnk can become lower because of penalty, thus we adjust the amount for it. stakedPnkByCourt can't be penalized so subtract the default amount.
+        juror.stakedPnk -= actualAmount;
+        juror.stakedPnkByCourt[_courtID] -= _amountToWithdraw;
+        emit PartiallyDelayedStakeWithdrawn(_courtID, _juror, _amountToWithdraw);
+        // Note that if we don't delete court here it'll be duplicated after staking.
+        if (juror.stakedPnkByCourt[_courtID] == 0) {
+            for (uint256 i = juror.courtIDs.length; i > 0; i--) {
+                if (juror.courtIDs[i - 1] == _courtID) {
+                    juror.courtIDs[i - 1] = juror.courtIDs[juror.courtIDs.length - 1];
+                    juror.courtIDs.pop();
+                    break;
+                }
+            }
+        }
+    }
+
+    function setStakeBySortitionModule(
+        address _account,
+        uint96 _courtID,
+        uint256 _stake,
+        bool _alreadyTransferred
+    ) external {
+        if (msg.sender != address(sortitionModule)) revert WrongCaller();
+        // Always nullify the latest delayed stake before setting a new value.
+        // Note that we check the delayed stake here too because the check in `setStake` can be bypassed
+        // if the stake was updated automatically during `execute` (e.g. when unstaking inactive juror).
+        removeDelayedStake(_courtID);
+        _setStakeForAccount(_account, _courtID, _newStake, _alreadyTransferred);
     }
 
     /// @inheritdoc IArbitratorV2
@@ -1029,11 +1072,17 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _account The address of the juror.
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake.
+    /// @param _alreadyTransferred True if the tokens were already transferred from juror. Only relevant for delayed stakes.
     /// @return succeeded True if the call succeeded, false otherwise.
     function _setStakeForAccount(
+        
         address _account,
+       
         uint96 _courtID,
+       
         uint256 _newStake
+    ,
+        bool _alreadyTransferred
     ) internal returns (bool succeeded) {
         if (_courtID == Constants.FORKING_COURT || _courtID > courts.length) return false;
 
@@ -1056,22 +1105,24 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
 
         uint256 transferredAmount;
         if (_newStake >= currentStake) {
-            // Stake increase
+            if (!_alreadyTransferred) {
+                // Stake increase
             // When stakedPnk becomes lower than lockedPnk count the locked tokens in when transferring tokens from juror.
-            // (E.g. stakedPnk = 0, lockedPnk = 150) which can happen if the juror unstaked fully while having some tokens locked.
-            uint256 previouslyLocked = (juror.lockedPnk >= juror.stakedPnk) ? juror.lockedPnk - juror.stakedPnk : 0; // underflow guard
-            transferredAmount = (_newStake >= currentStake + previouslyLocked) // underflow guard
-                ? _newStake - currentStake - previouslyLocked
-                : 0;
-            if (transferredAmount > 0) {
-                if (!pinakion.safeTransferFrom(_account, address(this), transferredAmount)) {
-                    return false;
+                // (E.g. stakedPnk = 0, lockedPnk = 150) which can happen if the juror unstaked fully while having some tokens locked.
+                uint256 previouslyLocked = (juror.lockedPnk >= juror.stakedPnk) ? juror.lockedPnk - juror.stakedPnk : 0; // underflow guard
+                transferredAmount = (_newStake >= currentStake + previouslyLocked) // underflow guard
+                    ? _newStake - currentStake - previouslyLocked
+                    : 0;
+                if (transferredAmount > 0) {
+                    // Note we don't return false after incorrect transfer because when stake is increased the transfer is done immediately, thus it can't disrupt delayed stakes' queue.
+                    pinakion.safeTransferFrom(_account, address(this), transferredAmount);
+                }
+                if (currentStake == 0) {
+                    juror.courtIDs.push(_courtID);
                 }
             }
-            if (currentStake == 0) {
-                juror.courtIDs.push(_courtID);
-            }
         } else {
+            // Note that stakes can be partially delayed only when stake is increased.
             // Stake decrease: make sure locked tokens always stay in the contract. They can only be released during Execution.
             if (juror.stakedPnk >= currentStake - _newStake + juror.lockedPnk) {
                 // We have enough pnk staked to afford withdrawal while keeping locked tokens.
@@ -1097,8 +1148,17 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         }
 
         // Note that stakedPnk can become async with currentStake (e.g. after penalty).
-        juror.stakedPnk = (juror.stakedPnk >= currentStake) ? juror.stakedPnk - currentStake + _newStake : _newStake;
-        juror.stakedPnkByCourt[_courtID] = _newStake;
+        // Also note that these values were already updated if the stake was only partially delayed.
+        if (!_alreadyTransferred) {
+            juror.stakedPnk = (juror.stakedPnk >= currentStake) ? juror.stakedPnk - currentStake + _newStake : _newStake;
+            juror.stakedPnkByCourt[_courtID] = _newStake;
+        }
+
+        // Transfer the tokens but don't update sortition module.
+        if (result == ISortitionModule.preStakeHookResult.partiallyDelayed) {
+            emit StakePartiallyDelayed(_account, _courtID, _stake);
+            return true;
+        }
 
         sortitionModule.setStake(_account, _courtID, _newStake);
         emit StakeSet(_account, _courtID, _newStake);

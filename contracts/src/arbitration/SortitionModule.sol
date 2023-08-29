@@ -39,6 +39,7 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         address account; // The address of the juror.
         uint96 courtID; // The ID of the court.
         uint256 stake; // The new stake.
+        bool alreadyTransferred; // True if tokens were already transferred before delayed stake's execution.
     }
 
     // ************************************* //
@@ -63,6 +64,7 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
     uint256 public delayedStakeReadIndex; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
     mapping(bytes32 => SortitionSumTree) sortitionSumTrees; // The mapping trees by keys.
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Drawing phase, to update them when the phase is switched to Staking.
+    mapping(address => mapping(uint96 => uint256)) public latestDelayedStakeIndex; // Maps the juror to its latest delayed stake. If there is already a delayed stake for this juror then it'll be replaced. latestDelayedStakeIndex[juror][courtID].
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -201,10 +203,38 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
 
         for (uint256 i = delayedStakeReadIndex; i < newDelayedStakeReadIndex; i++) {
             DelayedStake storage delayedStake = delayedStakes[i];
-            core.setStakeBySortitionModule(delayedStake.account, delayedStake.courtID, delayedStake.stake);
-            delete delayedStakes[i];
+            // Delayed stake could've been manually removed already. In this case simply move on to the next item.
+            if (delayedStake.account != address(0)) {
+                core.setStakeBySortitionModule(
+                    delayedStake.account,
+                    delayedStake.courtID,
+                    delayedStake.stake,
+                    delayedStake.alreadyTransferred
+                );
+                delete latestDelayedStakeIndex[delayedStake.account][delayedStake.courtID];
+                delete delayedStakes[i];
+            }
         }
         delayedStakeReadIndex = newDelayedStakeReadIndex;
+    }
+
+    /// @dev Checks if there is already a delayed stake. In this case consider it irrelevant and remove it.
+    /// @param _courtID ID of the court.
+    /// @param _juror Juror whose stake to check.
+    function checkExistingDelayedStake(uint96 _courtID, address _juror) external override onlyByCore {
+        uint256 latestIndex = latestDelayedStakeIndex[_juror][_courtID];
+        if (latestIndex != 0) {
+            DelayedStake storage delayedStake = delayedStakes[latestIndex];
+            if (delayedStake.alreadyTransferred) {
+                bytes32 stakePathID = _accountAndCourtIDToStakePathID(_juror, _courtID);
+                // Sortition stake represents the stake value that was last updated during Staking phase.
+                uint256 sortitionStake = stakeOf(bytes32(uint256(_courtID)), stakePathID);
+                // Withdraw the tokens that were added with the latest delayed stake.
+                core.withdrawPartiallyDelayedStake(_courtID, _juror, delayedStake.stake - sortitionStake);
+            }
+            delete delayedStakes[latestIndex];
+            delete latestDelayedStakeIndex[_juror][_courtID];
+        }
     }
 
     function preStakeHook(
@@ -218,12 +248,18 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
             return preStakeHookResult.failed;
         } else {
             if (phase != Phase.staking) {
-                delayedStakes[++delayedStakeWriteIndex] = DelayedStake({
-                    account: _account,
-                    courtID: _courtID,
-                    stake: _stake
-                });
-                return preStakeHookResult.delayed;
+                DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
+                delayedStake.account = _account;
+                delayedStake.courtID = _courtID;
+                delayedStake.stake = _stake;
+                latestDelayedStakeIndex[_account][_courtID] = delayedStakeWriteIndex;
+                if (_stake > currentStake) {
+                    // Actual token transfer is done right after this hook.
+                    delayedStake.alreadyTransferred = true;
+                    return preStakeHookResult.partiallyDelayed;
+                } else {
+                    return preStakeHookResult.delayed;
+                }
             }
         }
         return preStakeHookResult.ok;
@@ -273,7 +309,7 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
     function setJurorInactive(address _account) external override onlyByCore {
         uint96[] memory courtIDs = core.getJurorCourtIDs(_account);
         for (uint256 j = courtIDs.length; j > 0; j--) {
-            core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0);
+            core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0, false);
         }
     }
 
@@ -485,5 +521,13 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
             }
             stakePathID := mload(ptr)
         }
+    }
+
+    function stakeOf(bytes32 _key, bytes32 _ID) public view returns (uint256 value) {
+        SortitionSumTree storage tree = sortitionSumTrees[_key];
+        uint treeIndex = tree.IDsToNodeIndexes[_ID];
+
+        if (treeIndex == 0) value = 0;
+        else value = tree.nodes[treeIndex];
     }
 }
