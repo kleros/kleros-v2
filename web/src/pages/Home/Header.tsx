@@ -14,7 +14,7 @@ const Header = () => {
   const breakpointIsBig = width > BREAKPOINT_SMALL_SCREEN;
   return (
     <div ref={ref}>
-      {breakpointIsBig ? <HeaderDesktop themeIsLight={themeIsLight} /> : <HeaderMobile themeIsLight={themeIsLight} />}
+      {breakpointIsBig ? <HeaderDesktop {...{ themeIsLight }} /> : <HeaderMobile {...{ themeIsLight }} />}
     </div>
   );
 };
