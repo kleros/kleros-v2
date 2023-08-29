@@ -1,9 +1,18 @@
 import React from "react";
+import styled from "styled-components";
 import { useAccount, useNetwork, useSwitchNetwork } from "wagmi";
 import { useWeb3Modal } from "@web3modal/react";
 import { Button } from "@kleros/ui-components-library";
 import { SUPPORTED_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 import AccountDisplay from "./AccountDisplay";
+import { DisconnectWalletButton } from "layout/Header/navbar/Menu/Settings/General";
+
+const Container = styled.div`
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+`;
 
 export const SwitchChainButton: React.FC = () => {
   const { switchNetwork, isLoading } = useSwitchNetwork();
@@ -39,7 +48,13 @@ const ConnectWallet: React.FC = () => {
   if (isConnected) {
     if (chain && chain.id !== DEFAULT_CHAIN) {
       return <SwitchChainButton />;
-    } else return <AccountDisplay />;
+    } else
+      return (
+        <Container>
+          <AccountDisplay />
+          <DisconnectWalletButton />
+        </Container>
+      );
   } else return <ConnectButton />;
 };
 

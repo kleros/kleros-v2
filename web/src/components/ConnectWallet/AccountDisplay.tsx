@@ -6,10 +6,9 @@ import { shortenAddress } from "utils/shortenAddress";
 
 const Container = styled.div`
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-content: center;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
 `;
 
 const AccountContainer = styled.div`
