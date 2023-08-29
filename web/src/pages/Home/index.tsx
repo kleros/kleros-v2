@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled, { useTheme } from "styled-components";
+import { useMeasure } from "react-use";
 import CourtOverview from "./CourtOverview";
 import LatestCases from "./LatestCases";
 import Community from "./Community";
@@ -19,31 +20,23 @@ const Container = styled.div`
 `;
 
 const Header = () => {
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
+  const [ref, { width }] = useMeasure();
   const theme = useTheme();
   const themeIsLight = theme.name === "light";
-  const breakpointIsBig = windowWidth > BREAKPOINT_SMALL_SCREEN;
+  const breakpointIsBig = width > BREAKPOINT_SMALL_SCREEN;
   return (
-    <>
-      {themeIsLight && breakpointIsBig && <HeaderLightDesktop />}
-      {!themeIsLight && breakpointIsBig && <HeaderDarkDesktop />}
-      {themeIsLight && !breakpointIsBig && <HeaderLightMobile />}
-      {!themeIsLight && !breakpointIsBig && <HeaderDarkMobile />}
-    </>
+    <div ref={ref}>
+      {breakpointIsBig ? <HeaderDesktop themeIsLight={themeIsLight} /> : <HeaderMobile themeIsLight={themeIsLight} />}
+    </div>
   );
+};
+
+const HeaderDesktop: React.FC<{ themeIsLight: boolean }> = ({ themeIsLight }) => {
+  return themeIsLight ? <HeaderLightDesktop /> : <HeaderDarkDesktop />;
+};
+
+const HeaderMobile: React.FC<{ themeIsLight: boolean }> = ({ themeIsLight }) => {
+  return themeIsLight ? <HeaderLightMobile /> : <HeaderDarkMobile />;
 };
 
 const Home: React.FC = () => {
