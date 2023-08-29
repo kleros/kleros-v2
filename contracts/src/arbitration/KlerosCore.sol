@@ -767,10 +767,12 @@ contract KlerosCore is IArbitratorV2 {
         address account = round.drawnJurors[_params.repartition];
         jurors[account].lockedPnk -= penalty;
 
-        // Apply the penalty to the staked PNKs if there ara any.
+        // Apply the penalty to the staked PNKs.
         // Note that lockedPnk will always cover penalty while stakedPnk can become lower after manual unstaking.
         if (jurors[account].stakedPnk >= penalty) {
             jurors[account].stakedPnk -= penalty;
+        } else {
+            jurors[account].stakedPnk = 0;
         }
         emit TokenAndETHShift(
             account,
@@ -1118,6 +1120,8 @@ contract KlerosCore is IArbitratorV2 {
 
         if (_stake != 0) {
             if (_stake < courts[_courtID].minStake) return false;
+        } else if (currentStake == 0) {
+            return false;
         }
 
         ISortitionModule.preStakeHookResult result = sortitionModule.preStakeHook(_account, _courtID, _stake);
@@ -1137,13 +1141,12 @@ contract KlerosCore is IArbitratorV2 {
                 ? _stake - currentStake - previouslyLocked
                 : 0;
             if (transferredAmount > 0) {
-                if (pinakion.safeTransferFrom(_account, address(this), transferredAmount)) {
-                    if (currentStake == 0) {
-                        juror.courtIDs.push(_courtID);
-                    }
-                } else {
+                if (!pinakion.safeTransferFrom(_account, address(this), transferredAmount)) {
                     return false;
                 }
+            }
+            if (currentStake == 0) {
+                juror.courtIDs.push(_courtID);
             }
         } else {
             if (_stake == 0) {
@@ -1156,16 +1159,15 @@ contract KlerosCore is IArbitratorV2 {
                     transferredAmount = juror.stakedPnk - juror.lockedPnk;
                 }
                 if (transferredAmount > 0) {
-                    if (pinakion.safeTransfer(_account, transferredAmount)) {
-                        for (uint256 i = juror.courtIDs.length; i > 0; i--) {
-                            if (juror.courtIDs[i - 1] == _courtID) {
-                                juror.courtIDs[i - 1] = juror.courtIDs[juror.courtIDs.length - 1];
-                                juror.courtIDs.pop();
-                                break;
-                            }
-                        }
-                    } else {
+                    if (!pinakion.safeTransfer(_account, transferredAmount)) {
                         return false;
+                    }
+                }
+                for (uint256 i = juror.courtIDs.length; i > 0; i--) {
+                    if (juror.courtIDs[i - 1] == _courtID) {
+                        juror.courtIDs[i - 1] = juror.courtIDs[juror.courtIDs.length - 1];
+                        juror.courtIDs.pop();
+                        break;
                     }
                 }
             } else {
