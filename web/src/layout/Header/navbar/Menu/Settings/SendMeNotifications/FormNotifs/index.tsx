@@ -50,16 +50,15 @@ const FormNotifs: React.FC = () => {
       account: address,
       message: emailInput,
     });
-    const data = {
-      body: {
-        email: emailInput,
+    const data = [
+      {
+        message: emailInput,
         address,
         signature: tx,
       },
-    };
-    toast.info("Updating notification settings", toastOptions);
-    await uploadSettingsToSupabase(data, {});
-    toast.success("Update is successful", toastOptions);
+    ];
+
+    await uploadSettingsToSupabase(data);
     console.log("🚀 ~ file: index.tsx:123 ~ handleSubmit ~ tx:", tx);
   };
 
