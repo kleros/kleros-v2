@@ -11,10 +11,10 @@ const Header = () => {
   const [ref, { width }] = useMeasure();
   const theme = useTheme();
   const themeIsLight = theme.name === "light";
-  const breakpointIsBig = width > BREAKPOINT_SMALL_SCREEN;
+  const screenIsBig = width > BREAKPOINT_SMALL_SCREEN;
   return (
     <div ref={ref}>
-      {breakpointIsBig ? <HeaderDesktop {...{ themeIsLight }} /> : <HeaderMobile {...{ themeIsLight }} />}
+      {screenIsBig ? <HeaderDesktop {...{ themeIsLight }} /> : <HeaderMobile {...{ themeIsLight }} />}
     </div>
   );
 };
