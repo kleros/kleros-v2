@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { useWalletClient, useAccount } from "wagmi";
+import { toast } from "react-toastify";
 import { Checkbox, Button } from "@kleros/ui-components-library";
+import { OPTIONS as toastOptions } from "utils/wrapWithToast";
+import { uploadSettingsToSupabase } from "utils/uploadSettingsToSupabase";
 import FormEmail from "./FormEmail";
 
-const FormContainer = styled.div`
+const FormContainer = styled.form`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -31,6 +35,8 @@ const FormNotifs: React.FC = () => {
   const [checkboxStates, setCheckboxStates] = useState<boolean[]>(new Array(OPTIONS.length).fill(false));
   const [emailInput, setEmailInput] = useState<string>("");
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
+  const { data: walletClient } = useWalletClient();
+  const { address } = useAccount();
 
   const handleCheckboxChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const newCheckboxStates = [...checkboxStates];
@@ -38,8 +44,27 @@ const FormNotifs: React.FC = () => {
     setCheckboxStates(newCheckboxStates);
   };
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const tx = await walletClient?.signMessage({
+      account: address,
+      message: emailInput,
+    });
+    const data = {
+      body: {
+        email: emailInput,
+        address,
+        signature: tx,
+      },
+    };
+    toast.info("Updating notification settings", toastOptions);
+    await uploadSettingsToSupabase(data, {});
+    toast.success("Update is successful", toastOptions);
+    console.log("🚀 ~ file: index.tsx:123 ~ handleSubmit ~ tx:", tx);
+  };
+
   return (
-    <FormContainer>
+    <FormContainer onSubmit={handleSubmit}>
       {OPTIONS.map(({ label }, index) => (
         <StyledCheckbox
           key={label}
@@ -59,8 +84,7 @@ const FormNotifs: React.FC = () => {
       </FormEmailContainer>
 
       <ButtonContainer>
-        <Button text="Coming Soon!" disabled={true} />
-        {/* <Button text="Save" disabled={!emailIsValid} /> */}
+        <Button text="Save" disabled={!emailIsValid} />
       </ButtonContainer>
     </FormContainer>
   );

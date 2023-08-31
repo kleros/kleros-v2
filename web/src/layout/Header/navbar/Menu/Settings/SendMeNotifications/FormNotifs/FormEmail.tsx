@@ -1,5 +1,6 @@
-import React, { Dispatch, SetStateAction, useEffect, useMemo } from "react";
+import React, { useState, Dispatch, SetStateAction, useMemo, useEffect } from "react";
 import styled from "styled-components";
+
 import { Field } from "@kleros/ui-components-library";
 
 const StyledField = styled(Field)`
