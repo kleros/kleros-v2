@@ -86,7 +86,7 @@ const stats: IStat[] = [
   {
     title: "PNK redistributed",
     coinId: 0,
-    getText: (data) => formatPNK(data?.paidPNK, 18),
+    getText: (data) => formatPNK(data?.paidPNK),
     getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.paidPNK)) * (coinPrice ?? 0)),
     color: "purple",
     icon: PNKRedistributedIcon,
