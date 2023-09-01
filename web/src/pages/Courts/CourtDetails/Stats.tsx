@@ -3,9 +3,9 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
 import { useCoinPrice } from "hooks/useCoinPrice";
-import { usePNKMainnetAddress, useWETHMainnetAddress } from "hooks/useContractAddress";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD, isUndefined } from "utils/index";
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
+import { CoinIds } from "consts/coingecko";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import BalanceIcon from "svgs/icons/law-balance.svg";
@@ -96,14 +96,13 @@ const stats: IStat[] = [
 const Stats = () => {
   const { id } = useParams();
   const { data } = useCourtDetails(id);
-  const coinIdToAddress = [usePNKMainnetAddress(), useWETHMainnetAddress()];
-  const { prices: pricesData } = useCoinPrice(coinIdToAddress);
+  const coinIds = [CoinIds.PNK, CoinIds.ETH];
+  const { prices: pricesData } = useCoinPrice(coinIds);
 
   return (
     <StyledCard>
       {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
-        const coinPrice = !isUndefined(pricesData) ? pricesData[coinIdToAddress[coinId!]]?.price : undefined;
-
+        const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
         return (
           <StatDisplay
             key={i}
