@@ -12,7 +12,7 @@ import { formatETH, formatPNK, formatUnitsWei, formatUSD, isUndefined } from "ut
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import { useHomePageContext, HomePageQuery, HomePageQueryDataPoints } from "hooks/useHomePageContext";
 import { useCoinPrice } from "hooks/useCoinPrice";
-import { usePNKAddress, useWETHAddress } from "hooks/useContractAddress";
+import { usePNKMainnetAddress, useWETHMainnetAddress } from "hooks/useContractAddress";
 
 const StyledCard = styled(Card)`
   width: auto;
@@ -79,7 +79,7 @@ const stats: IStat[] = [
 
 const Stats = () => {
   const { data } = useHomePageContext();
-  const coinIdToAddress = [usePNKAddress(), useWETHAddress()];
+  const coinIdToAddress = [usePNKMainnetAddress(), useWETHMainnetAddress()];
   const { prices: pricesData } = useCoinPrice(coinIdToAddress);
   return (
     <StyledCard>
