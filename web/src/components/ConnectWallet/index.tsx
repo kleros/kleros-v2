@@ -12,6 +12,7 @@ const Container = styled.div`
   gap: 16px;
   justify-content: space-between;
   flex-wrap: wrap;
+  align-items: center;
 `;
 
 export const SwitchChainButton: React.FC = () => {
