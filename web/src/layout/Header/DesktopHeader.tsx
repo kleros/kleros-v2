@@ -30,17 +30,17 @@ const LeftSide = styled.div`
 `;
 
 const MiddleSide = styled.div`
+  display: flex;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
   color: ${({ theme }) => theme.white} !important;
 `;
 
 const RightSide = styled.div`
   display: flex;
-  gap: 16px;
-
+  gap: calc(8px + (16 - 8) * ((100vw - 300px) / (1024 - 300)));
+  margin-left: 8px;
   canvas {
     width: 20px;
   }

@@ -1,10 +1,10 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { BREAKPOINT_TABLET_SCREEN, smallScreenStyle } from "styles/smallScreenStyle";
 import { useAccount, useNetwork, useEnsAvatar, useEnsName } from "wagmi";
 import Identicon from "react-identicons";
 import { shortenAddress } from "utils/shortenAddress";
-
+import { useWindowWidth } from "~src/hooks/useWindowWidth";
 const Container = styled.div`
   display: flex;
   flex-direction: row;
@@ -133,15 +133,21 @@ export const ChainDisplay: React.FC = () => {
 };
 
 const AccountDisplay: React.FC = () => {
+  const windowWidth = useWindowWidth();
+
+  const screenIsBig = windowWidth > BREAKPOINT_TABLET_SCREEN;
+
   return (
     <Container>
       <AccountContainer>
         <IdenticonOrAvatar size="32" />
         <AddressOrName />
       </AccountContainer>
-      <ChainConnectionContainer>
-        <ChainDisplay />
-      </ChainConnectionContainer>
+      {screenIsBig && (
+        <ChainConnectionContainer>
+          <ChainDisplay />
+        </ChainConnectionContainer>
+      )}
     </Container>
   );
 };
