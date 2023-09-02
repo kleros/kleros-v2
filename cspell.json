@@ -34,6 +34,7 @@
     "repartitions",
     "solhint",
     "typechain",
+    "uncommify",
     "Unslashed",
     "viem",
     "wagmi"

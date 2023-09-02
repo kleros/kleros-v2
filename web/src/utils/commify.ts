@@ -52,3 +52,7 @@ export function commify(value: string | number): string {
 
   return negative + formatted.join(",") + suffix;
 }
+
+export function uncommify(value: string): string {
+  return value.replace(/,/g, "");
+}
