@@ -61,8 +61,10 @@ const LeftSide = styled.div`
 `;
 
 const MiddleSide = styled.div`
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  transform: translateX(50%);
   color: ${({ theme }) => theme.white} !important;
 `;
 

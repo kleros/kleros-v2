@@ -11,7 +11,6 @@ const Container = styled.div`
   justify-content: space-between;
   align-content: center;
   align-items: center;
-  height: 32px;
   border-radius: 300px;
   background-color: ${({ theme }) => theme.whiteLowOpacity};
   padding: 0 12px;
@@ -19,6 +18,11 @@ const Container = styled.div`
   ${smallScreenStyle(
     () => css`
       background-color: ${({ theme }) => theme.whiteBackground};
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 0px;
+      height: auto;
     `
   )}
 `;
@@ -33,8 +37,17 @@ const AccountContainer = styled.div`
   > label {
     color: ${({ theme }) => theme.primaryText};
     font-size: 14px;
-    font-weight: 500;
   }
+
+  ${smallScreenStyle(
+    () => css`
+      gap: 8px;
+      > label {
+        font-size: 16px;
+        font-weight: 600;
+      }
+    `
+  )}
 `;
 const ChainConnectionContainer = styled.div`
   width: fit-content;
@@ -47,6 +60,7 @@ const ChainConnectionContainer = styled.div`
     font-size: 14px;
     font-weight: 500;
   }
+
   :before {
     content: "";
     width: 8px;
@@ -55,6 +69,20 @@ const ChainConnectionContainer = styled.div`
     border-radius: 50%;
     background-color: ${({ theme }) => theme.success};
   }
+
+  ${smallScreenStyle(
+    () => css`
+      padding-left: 0px;
+
+      > label {
+        font-size: 16px;
+      }
+
+      :before {
+        margin: 0px 13px 0px 3px;
+      }
+    `
+  )}
 `;
 
 const StyledIdenticon = styled(Identicon)<{ size: `${number}` }>`

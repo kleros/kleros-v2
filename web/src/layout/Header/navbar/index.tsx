@@ -2,6 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 import { smallScreenStyle } from "styles/smallScreenStyle";
 import { useLockBodyScroll, useToggle } from "react-use";
+import { useAccount } from "wagmi";
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
@@ -10,6 +11,7 @@ import DappList from "./DappList";
 import Explore from "./Explore";
 import Menu from "./Menu";
 import Debug from "./Debug";
+import { DisconnectWalletButton } from "./Menu/Settings/General";
 
 const Container = styled.div<{ isOpen: boolean }>`
   ${({ isOpen }) =>
@@ -40,8 +42,21 @@ const Container = styled.div<{ isOpen: boolean }>`
     )}
 `;
 
+const WalletContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+`;
+
+const DisconnectWalletButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const NavBar: React.FC = () => {
   const [isSolutionsOpen, toggleSolution] = useToggle(false);
+  const { isConnected } = useAccount();
   const { isOpen } = useOpenContext();
   useLockBodyScroll(isOpen);
 
@@ -58,7 +73,14 @@ const NavBar: React.FC = () => {
       <hr />
       <Explore />
       <hr />
-      <ConnectWallet />
+      <WalletContainer>
+        <ConnectWallet />
+        {isConnected && (
+          <DisconnectWalletButtonContainer>
+            <DisconnectWalletButton />
+          </DisconnectWalletButtonContainer>
+        )}
+      </WalletContainer>
       <hr />
       <Menu />
       <br />
