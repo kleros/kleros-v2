@@ -3,7 +3,7 @@ import EtherscanLogo from "svgs/socialmedia/etherscan.svg";
 import GithubLogo from "svgs/socialmedia/github.svg";
 import SnapshotLogo from "svgs/socialmedia/snapshot.svg";
 import DiscordLogo from "svgs/socialmedia/discord.svg";
-import TwitterLogo from "svgs/socialmedia/twitter.svg";
+import XLogo from "svgs/socialmedia/x.svg";
 import RedditLogo from "svgs/socialmedia/reddit.svg";
 import TelegramLogo from "svgs/socialmedia/telegram.svg";
 import GhostBlogLogo from "svgs/socialmedia/ghost-blog.svg";
@@ -27,8 +27,8 @@ export const socialmedia = {
     url: "https://discord.com/invite/MhXQGCyHd9",
   },
   twitter: {
-    icon: <TwitterLogo />,
-    url: "https://twitter.com/kleros_io",
+    icon: <XLogo />,
+    url: "https://x.com/kleros_io",
   },
   reddit: {
     icon: <RedditLogo />,

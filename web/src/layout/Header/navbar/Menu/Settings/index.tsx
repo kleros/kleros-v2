@@ -1,5 +1,7 @@
 import React, { Dispatch, SetStateAction, useRef, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { useLockBodyScroll } from "react-use";
+import { smallScreenStyle } from "styles/smallScreenStyle";
 import { Tabs } from "@kleros/ui-components-library";
 import General from "./General";
 import SendMeNotifications from "./SendMeNotifications";
@@ -15,9 +17,15 @@ const Container = styled.div`
   border: 1px solid ${({ theme }) => theme.stroke};
   border-radius: 3px;
   overflow-y: auto;
-  top: 5%;
+  top: 140%;
   left: 50%;
   transform: translateX(-50%);
+
+  ${smallScreenStyle(
+    () => css`
+      top: 5%;
+    `
+  )}
 `;
 
 const StyledSettingsText = styled.div`
@@ -52,6 +60,7 @@ const Settings: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
   const [currentTab, setCurrentTab] = useState<number>(0);
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => setIsSettingsOpen(false));
+  useLockBodyScroll(true);
 
   return (
     <>

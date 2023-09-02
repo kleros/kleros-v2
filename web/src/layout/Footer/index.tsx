@@ -1,17 +1,27 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { smallScreenStyle } from "styles/smallScreenStyle";
 import SecuredByKlerosLogo from "svgs/footer/secured-by-kleros.svg";
 import { socialmedia } from "consts/socialmedia";
 
 const Container = styled.div`
-  height: 80px;
+  height: 64px;
   width: 100%;
   background-color: ${({ theme }) => theme.primaryPurple};
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
+  padding: 0 32px;
   gap: 16px;
+
+  ${smallScreenStyle(
+    () => css`
+      height: 80px;
+      flex-direction: column;
+      justify-content: center;
+    `
+  )}
 
   .secured-by-kleros {
     min-height: 24px;

@@ -1,5 +1,6 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { smallScreenStyle } from "styles/smallScreenStyle";
 import { useAccount, useNetwork, useEnsAvatar, useEnsName } from "wagmi";
 import Identicon from "react-identicons";
 import { shortenAddress } from "utils/shortenAddress";
@@ -10,6 +11,16 @@ const Container = styled.div`
   justify-content: space-between;
   align-content: center;
   align-items: center;
+  height: 32px;
+  border-radius: 300px;
+  background-color: ${({ theme }) => theme.whiteLowOpacity};
+  padding: 0 12px;
+
+  ${smallScreenStyle(
+    () => css`
+      background-color: ${({ theme }) => theme.whiteBackground};
+    `
+  )}
 `;
 
 const AccountContainer = styled.div`
@@ -17,11 +28,12 @@ const AccountContainer = styled.div`
   display: flex;
   align-items: center;
   width: fit-content;
-  gap: 8px;
+  gap: 12px;
+
   > label {
     color: ${({ theme }) => theme.primaryText};
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 500;
   }
 `;
 const ChainConnectionContainer = styled.div`
@@ -29,16 +41,17 @@ const ChainConnectionContainer = styled.div`
   min-height: 32px;
   display: flex;
   align-items: center;
+  padding-left: 12px;
   > label {
     color: ${({ theme }) => theme.success};
-    font-size: 16px;
-    margin-right: 4px;
+    font-size: 14px;
+    font-weight: 500;
   }
   :before {
     content: "";
     width: 8px;
     height: 8px;
-    margin: 0px 13px 0px 3px;
+    margin: 0px 8px 0px 3px;
     border-radius: 50%;
     background-color: ${({ theme }) => theme.success};
   }

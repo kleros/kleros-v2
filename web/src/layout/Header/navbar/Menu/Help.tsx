@@ -1,5 +1,7 @@
 import React, { useRef } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { useLockBodyScroll } from "react-use";
+import { smallScreenStyle } from "styles/smallScreenStyle";
 import { useFocusOutside } from "hooks/useFocusOutside";
 import Book from "svgs/icons/book-open.svg";
 import Guide from "svgs/icons/book.svg";
@@ -13,7 +15,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   position: absolute;
-  top: 5%;
+  top: 140%;
   left: 50%;
   transform: translate(-50%);
   z-index: 10;
@@ -23,6 +25,12 @@ const Container = styled.div`
   background-color: ${({ theme }) => theme.whiteBackground};
   border-radius: 3px;
   box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.06);
+
+  ${smallScreenStyle(
+    () => css`
+      top: 5%;
+    `
+  )}
 `;
 
 const ListItem = styled.a`
@@ -91,6 +99,7 @@ const Help: React.FC<IHelp> = ({ toggle }) => {
   useFocusOutside(containerRef, () => {
     toggle();
   });
+  useLockBodyScroll(true);
 
   return (
     <>

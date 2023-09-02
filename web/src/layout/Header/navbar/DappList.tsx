@@ -1,5 +1,7 @@
 import React, { useRef } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { useLockBodyScroll } from "react-use";
+import { smallScreenStyle } from "styles/smallScreenStyle";
 import { useFocusOutside } from "hooks/useFocusOutside";
 import Curate from "svgs/icons/curate-image.png";
 import Resolver from "svgs/icons/dispute-resolver.svg";
@@ -25,7 +27,7 @@ const Container = styled.div`
   display: flex;
   position: absolute;
   max-height: 60vh;
-  top: 5%;
+  top: 140%;
   left: 50%;
   transform: translate(-50%);
   z-index: 10;
@@ -43,6 +45,12 @@ const Container = styled.div`
   svg {
     visibility: visible;
   }
+
+  ${smallScreenStyle(
+    () => css`
+      top: 5%;
+    `
+  )}
 `;
 
 const ItemsDiv = styled.div`
@@ -110,6 +118,7 @@ const DappList: React.FC<IDappList> = ({ toggleSolution }) => {
   useFocusOutside(containerRef, () => {
     toggleSolution();
   });
+  useLockBodyScroll(true);
 
   return (
     <>
