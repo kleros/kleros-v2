@@ -12,7 +12,7 @@ const FormContainer = styled.form`
   display: flex;
   flex-direction: column;
   padding: 0 calc(12px + (32 - 12) * ((100vw - 300px) / (1250 - 300)));
-  padding-bottom: 32px;
+  padding-bottom: 16px;
 `;
 
 const StyledCheckbox = styled(Checkbox)`
