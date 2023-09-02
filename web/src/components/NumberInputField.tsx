@@ -20,13 +20,7 @@ interface INumberInputField {
   formatter?: (value: string) => string;
 }
 
-export const NumberInputField: React.FunctionComponent<INumberInputField> = ({
-  placeholder,
-  message,
-  value,
-  onChange,
-  formatter,
-}) => {
+export const NumberInputField: React.FC<INumberInputField> = ({ placeholder, message, value, onChange, formatter }) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const toggleEditing = () => {
@@ -40,7 +34,7 @@ export const NumberInputField: React.FunctionComponent<INumberInputField> = ({
           type="number"
           value={value}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            onChange && onChange(event.target.value);
+            onChange?.(event.target.value);
           }}
           placeholder={placeholder}
           message={message}

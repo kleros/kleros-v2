@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { formatEther } from "viem";
 import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
 import { NumberInputField } from "components/NumberInputField";
@@ -96,10 +95,11 @@ const InputDisplay: React.FC<IInputDisplay> = ({
           placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
           message={
             isStaking
-              ? `You need to stake at least ${formatEther(courtDetails?.court.minStake ?? 0n)} PNK. ` +
+              ? `You need to stake at least ${formatPNK(courtDetails?.court.minStake ?? 0n, 3)} PNK. ` +
                 "You may need two transactions, one to increase allowance, the other to stake."
-              : `You need to either withdraw all or keep at least ${formatEther(
-                  courtDetails?.court.minStake ?? 0n
+              : `You need to either withdraw all or keep at least ${formatPNK(
+                  courtDetails?.court.minStake ?? 0n,
+                  3
                 )} PNK.`
           }
           formatter={(number: string) => commify(roundNumberDown(Number(number)))}
