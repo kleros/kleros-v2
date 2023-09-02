@@ -39,7 +39,7 @@ const StyledBreadcrumb = styled(Breadcrumb)`
 `;
 
 const StyledBreadcrumbSkeleton = styled.div`
-  margin-top: 16px;
+  margin-bottom: 12px;
 `;
 
 const CourtDetails: React.FC = () => {
