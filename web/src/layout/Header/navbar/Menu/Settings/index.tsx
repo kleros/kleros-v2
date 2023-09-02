@@ -11,19 +11,20 @@ import { Overlay } from "components/Overlay";
 const Container = styled.div`
   display: flex;
   position: absolute;
+  flex-direction: column;
+  top: 50%;
+  transform: translateX(-75%);
   z-index: 1;
   background-color: ${({ theme }) => theme.whiteBackground};
-  flex-direction: column;
   border: 1px solid ${({ theme }) => theme.stroke};
   border-radius: 3px;
   overflow-y: auto;
-  top: 140%;
-  left: 50%;
-  transform: translateX(-50%);
 
   ${smallScreenStyle(
     () => css`
       top: 5%;
+      left: 50%;
+      transform: translateX(-50%);
     `
   )}
 `;

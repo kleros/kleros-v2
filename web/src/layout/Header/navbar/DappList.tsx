@@ -27,9 +27,7 @@ const Container = styled.div`
   display: flex;
   position: absolute;
   max-height: 60vh;
-  top: 140%;
-  left: 50%;
-  transform: translate(-50%);
+  top: 50%;
   z-index: 10;
   flex-direction: column;
   align-items: center;
@@ -49,6 +47,8 @@ const Container = styled.div`
   ${smallScreenStyle(
     () => css`
       top: 5%;
+      left: 50%;
+      transform: translateX(-50%);
     `
   )}
 `;

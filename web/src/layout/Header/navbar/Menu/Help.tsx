@@ -15,10 +15,10 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   position: absolute;
-  top: 140%;
-  left: 50%;
-  transform: translate(-50%);
-  z-index: 10;
+  width: 240px;
+  top: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
   padding: 27px 10px;
   gap: 23px;
   border: 1px solid ${({ theme }) => theme.stroke};
@@ -29,6 +29,9 @@ const Container = styled.div`
   ${smallScreenStyle(
     () => css`
       top: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: auto;
     `
   )}
 `;

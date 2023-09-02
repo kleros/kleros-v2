@@ -6,7 +6,7 @@ import { useAccount } from "wagmi";
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
-import { useOpenContext } from "../index";
+import { useOpenContext } from "../MobileHeader";
 import DappList from "./DappList";
 import Explore from "./Explore";
 import Menu from "./Menu";

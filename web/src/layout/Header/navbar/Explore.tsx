@@ -2,7 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 import { smallScreenStyle } from "styles/smallScreenStyle";
 import { Link, useLocation } from "react-router-dom";
-import { useOpenContext } from "../index";
+import { useOpenContext } from "../MobileHeader";
 
 const Container = styled.div`
   display: flex;

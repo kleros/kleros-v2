@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
-import { BREAKPOINT_SMALL_SCREEN, smallScreenStyle } from "styles/smallScreenStyle";
+import { smallScreenStyle } from "styles/smallScreenStyle";
 import { useToggle } from "react-use";
 import LightButton from "components/LightButton";
 import Help from "./Help";
@@ -11,7 +11,6 @@ import NotificationsIcon from "svgs/menu-icons/notifications.svg";
 import SettingsIcon from "svgs/menu-icons/settings.svg";
 import Settings from "./Settings";
 import { useToggleTheme } from "hooks/useToggleThemeContext";
-import { useWindowWidth } from "hooks/useWindowWidth";
 
 const Container = styled.div`
   display: flex;
@@ -34,6 +33,10 @@ const ButtonContainer = styled.div`
     padding: 0px;
   }
 
+  .button-text {
+    display: none;
+  }
+
   .button-svg {
     fill: ${({ theme }) => theme.white};
   }
@@ -43,42 +46,35 @@ const ButtonContainer = styled.div`
       .button-svg {
         fill: ${({ theme }) => theme.secondaryPurple};
       }
+      .button-text {
+        display: block;
+      }
     `
   )}
 `;
-
-const getThemeButtonText = (isScreenBig: boolean, isLightTheme: boolean): string => {
-  if (isScreenBig) {
-    return "";
-  }
-  return isLightTheme ? "Dark Mode" : "Light Mode";
-};
 
 const Menu: React.FC = () => {
   const [theme, toggleTheme] = useToggleTheme();
   const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const windowWidth = useWindowWidth();
-
   const isLightTheme = theme === "light";
-  const isScreenBig = windowWidth > BREAKPOINT_SMALL_SCREEN;
 
   const buttons = [
-    { text: isScreenBig ? "" : "Notifications", Icon: NotificationsIcon },
+    { text: "Notifications", Icon: NotificationsIcon },
     {
-      text: isScreenBig ? "" : "Settings",
+      text: "Settings",
       Icon: SettingsIcon,
       onClick: () => setIsSettingsOpen(true),
     },
     {
-      text: isScreenBig ? "" : "Help",
+      text: "Help",
       Icon: HelpIcon,
       onClick: () => {
         toggleIsHelpOpen();
       },
     },
     {
-      text: getThemeButtonText(isScreenBig, isLightTheme),
+      text: `${isLightTheme ? "Dark" : "Light"} Mode`,
       Icon: isLightTheme ? DarkModeIcon : LightModeIcon,
       onClick: () => toggleTheme(),
     },

@@ -26,7 +26,7 @@ export const socialmedia = {
     icon: <DiscordLogo />,
     url: "https://discord.com/invite/MhXQGCyHd9",
   },
-  twitter: {
+  x: {
     icon: <XLogo />,
     url: "https://x.com/kleros_io",
   },
