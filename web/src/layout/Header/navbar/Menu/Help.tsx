@@ -16,7 +16,7 @@ const Container = styled.div`
   flex-direction: column;
   position: absolute;
   width: 240px;
-  top: 50%;
+  top: 100%;
   transform: translateX(-50%);
   z-index: 1;
   padding: 27px 10px;

@@ -12,7 +12,7 @@ const Container = styled.div`
   display: flex;
   position: absolute;
   flex-direction: column;
-  top: 50%;
+  top: 100%;
   transform: translateX(-75%);
   z-index: 1;
   background-color: ${({ theme }) => theme.whiteBackground};
