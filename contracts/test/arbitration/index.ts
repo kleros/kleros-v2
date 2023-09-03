@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { deployments, ethers } from "hardhat";
 import { BigNumber } from "ethers";
 import getContractAddress from "../../deploy-helpers/getContractAddress";
 
@@ -83,34 +83,65 @@ async function deployContracts(deployer) {
   await disputeKit.deployed();
   let nonce;
   nonce = await deployer.getTransactionCount();
-  nonce += 1;
+  nonce += 3; // SortitionModule is upgradeable, it deploys an implementation and a proxy
   const KlerosCoreAddress = getContractAddress(deployer.address, nonce);
 
-  const sortitionModuleFactory = await ethers.getContractFactory("SortitionModule", deployer);
-  const sortitionModule = await sortitionModuleFactory.deploy(
-    deployer.address,
-    KlerosCoreAddress,
-    120,
-    120,
-    rng.address,
-    LOOKAHEAD
-  ); // minStakingTime, maxFreezingTime
-
-  const klerosCoreFactory = await ethers.getContractFactory("KlerosCore", {
-    signer: deployer,
+  const sortitionModuleDeployment = await deployments.deploy("SortitionModule_DisputeKitClassic", {
+    contract: "SortitionModule",
+    from: deployer.address,
+    proxy: {
+      proxyContract: "UUPSProxy",
+      proxyArgs: ["{implementation}", "{data}"],
+      execute: {
+        init: {
+          methodName: "initialize",
+          args: [deployer.address, KlerosCoreAddress, 120, 120, rng.address, LOOKAHEAD], // minStakingTime, maxFreezingTime
+        },
+        onUpgrade: {
+          methodName: "governor",
+          args: [],
+        },
+      },
+    },
+    log: true,
+    args: [],
   });
-  const core = await klerosCoreFactory.deploy(
-    deployer.address,
-    ethers.constants.AddressZero, // should be an ERC20
-    ethers.constants.AddressZero, // should be a Juror Prosecution module
-    disputeKit.address,
-    false,
-    [200, 10000, 100, 3],
-    [0, 0, 0, 0],
-    0xfa,
-    sortitionModule.address
-  );
-  await core.deployed();
+
+  const sortitionModule = await ethers.getContractAt("SortitionModule", sortitionModuleDeployment.address);
+
+  const coreDeployment = await deployments.deploy("KlerosCore_DisputeKitClassic", {
+    contract: "KlerosCore",
+    from: deployer.address,
+    proxy: {
+      proxyContract: "UUPSProxy",
+      proxyArgs: ["{implementation}", "{data}"],
+      checkProxyAdmin: false,
+      checkABIConflict: false,
+      execute: {
+        init: {
+          methodName: "initialize",
+          args: [
+            deployer.address,
+            ethers.constants.AddressZero, // should be an ERC20
+            ethers.constants.AddressZero, // should be a Juror Prosecution module
+            disputeKit.address,
+            false,
+            [200, 10000, 100, 3],
+            [0, 0, 0, 0],
+            "0xfa",
+            sortitionModule.address,
+          ],
+        },
+        onUpgrade: {
+          methodName: "governor",
+          args: [],
+        },
+      },
+    },
+    args: [],
+    log: true,
+  });
+  const core = await ethers.getContractAt("KlerosCore", coreDeployment.address);
 
   await disputeKit.changeCore(core.address);
 
