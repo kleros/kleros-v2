@@ -14,10 +14,12 @@ import "./KlerosCore.sol";
 import "./interfaces/ISortitionModule.sol";
 import "./interfaces/IDisputeKit.sol";
 import "../rng/RNG.sol";
+import "../proxy/UUPSProxiable.sol";
+import "../proxy/Initializable.sol";
 
 /// @title SortitionModule
 /// @dev A factory of trees that keeps track of staked values for sortition.
-contract SortitionModule is ISortitionModule {
+contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -79,20 +81,25 @@ contract SortitionModule is ISortitionModule {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor.
+    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    constructor() {
+        _disableInitializers();
+    }
+
+    /// @dev Initializer (constructor equivalent for upgradable contracts).
     /// @param _core The KlerosCore.
     /// @param _minStakingTime Minimal time to stake
     /// @param _maxDrawingTime Time after which the drawing phase can be switched
     /// @param _rng The random number generator.
     /// @param _rngLookahead Lookahead value for rng.
-    constructor(
+    function initialize(
         address _governor,
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         RNG _rng,
         uint256 _rngLookahead
-    ) {
+    ) external reinitializer(1) {
         governor = _governor;
         core = _core;
         minStakingTime = _minStakingTime;
@@ -105,6 +112,13 @@ contract SortitionModule is ISortitionModule {
     // ************************************* //
     // *             Governance            * //
     // ************************************* //
+
+    /**
+     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     */
+
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {}
 
     /// @dev Changes the `minStakingTime` storage variable.
     /// @param _minStakingTime The new value for the `minStakingTime` storage variable.
