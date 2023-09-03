@@ -76,13 +76,36 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const nonce = await ethers.provider.getTransactionCount(deployer);
-  const KlerosCoreAddress = getContractAddress(deployer, nonce + 1);
-  console.log("calculated future KlerosCore address for nonce %d: %s", nonce, KlerosCoreAddress);
+  let nonce;
+  let KlerosCoreAddress;
+
+  const klerosCoreDeployment = await deployments.getOrNull("KlerosCore");
+  if (!klerosCoreDeployment) {
+    nonce = await ethers.provider.getTransactionCount(deployer);
+    KlerosCoreAddress = getContractAddress(deployer, nonce + 3); // Deploying an upgradeable version of SortionModule requires 2 transactions instead of 1 (implementation then proxy)
+    console.log("calculated future KlerosCore address for nonce %d: %s", nonce, KlerosCoreAddress);
+  } else {
+    KlerosCoreAddress = klerosCoreDeployment.address;
+  }
 
   const sortitionModule = await deploy("SortitionModule", {
     from: deployer,
-    args: [deployer, KlerosCoreAddress, 1800, 1800, rng.address, RNG_LOOKAHEAD], // minStakingTime, maxFreezingTime
+    proxy: {
+      proxyContract: "UUPSProxy",
+      proxyArgs: ["{implementation}", "{data}"],
+      checkProxyAdmin: false,
+      checkABIConflict: false,
+      execute: {
+        init: {
+          methodName: "initialize",
+          args: [deployer, KlerosCoreAddress, 1800, 1800, rng.address, RNG_LOOKAHEAD], // minStakingTime, maxFreezingTime
+        },
+        onUpgrade: {
+          methodName: "governor",
+          args: [],
+        },
+      },
+    },
     log: true,
   });
 
@@ -94,17 +117,33 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const feeForJuror = BigNumber.from(10).pow(17);
   const klerosCore = await deploy("KlerosCore", {
     from: deployer,
-    args: [
-      deployer,
-      pnk,
-      AddressZero,
-      disputeKit.address,
-      false,
-      [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
-      [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
-      sortitionModule.address,
-    ],
+    proxy: {
+      proxyContract: "UUPSProxy",
+      proxyArgs: ["{implementation}", "{data}"],
+      checkProxyAdmin: false,
+      checkABIConflict: false,
+      execute: {
+        init: {
+          methodName: "initialize",
+          args: [
+            deployer,
+            pnk,
+            AddressZero,
+            disputeKit.address,
+            false,
+            [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
+            [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
+            ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
+            sortitionModule.address,
+          ],
+        },
+        onUpgrade: {
+          methodName: "governor",
+          args: [],
+        },
+      },
+    },
+    args: [],
     log: true,
   });
 
