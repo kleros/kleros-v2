@@ -102,15 +102,15 @@ contract KlerosCore is IArbitratorV2 {
     // *             Storage               * //
     // ************************************* //
 
-    uint96 public constant FORKING_COURT = 0; // Index of the forking court.
+    uint96 private constant FORKING_COURT = 0; // Index of the forking court.
     uint96 public constant GENERAL_COURT = 1; // Index of the default (general) court.
-    uint256 public constant NULL_DISPUTE_KIT = 0; // Null pattern to indicate a top-level DK which has no parent.
-    uint256 public constant DISPUTE_KIT_CLASSIC = 1; // Index of the default DK. 0 index is skipped.
-    uint256 public constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.
-    uint256 public constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
-    uint256 public constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
-    uint256 public constant SEARCH_ITERATIONS = 10; // Number of iterations to search for suitable parent court before jumping to the top court.
-    IERC20 public constant NATIVE_CURRENCY = IERC20(address(0)); // The native currency, such as ETH on Arbitrum, Optimism and Ethereum L1.
+    uint256 private constant NULL_DISPUTE_KIT = 0; // Null pattern to indicate a top-level DK which has no parent.
+    uint256 private constant DISPUTE_KIT_CLASSIC = 1; // Index of the default DK. 0 index is skipped.
+    uint256 private constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.
+    uint256 private constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
+    uint256 private constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
+    uint256 private constant SEARCH_ITERATIONS = 10; // Number of iterations to search for suitable parent court before jumping to the top court.
+    IERC20 private constant NATIVE_CURRENCY = IERC20(address(0)); // The native currency, such as ETH on Arbitrum, Optimism and Ethereum L1.
 
     address public governor; // The governor of the contract.
     IERC20 public pinakion; // The Pinakion token contract.
@@ -192,12 +192,15 @@ contract KlerosCore is IArbitratorV2 {
     // *        Function Modifiers         * //
     // ************************************* //
 
-    modifier onlyByGovernor() {
+    function onlyByGovernor() private view {
         if (governor != msg.sender) revert GovernorOnly();
-        _;
     }
 
-    /// @dev Constructor.
+    // ************************************* //
+    // *            Constructor            * //
+    // ************************************* //
+
+    /// @dev Constructor
     /// @param _governor The governor's address.
     /// @param _pinakion The address of the token contract.
     /// @param _jurorProsecutionModule The address of the juror prosecution module.
@@ -278,37 +281,38 @@ contract KlerosCore is IArbitratorV2 {
     /// @param _destination The destination of the call.
     /// @param _amount The value sent with the call.
     /// @param _data The data sent with the call.
-    function executeGovernorProposal(
-        address _destination,
-        uint256 _amount,
-        bytes memory _data
-    ) external onlyByGovernor {
+    function executeGovernorProposal(address _destination, uint256 _amount, bytes memory _data) external {
+        onlyByGovernor();
         (bool success, ) = _destination.call{value: _amount}(_data);
         if (!success) revert UnsuccessfulCall();
     }
 
     /// @dev Changes the `governor` storage variable.
     /// @param _governor The new value for the `governor` storage variable.
-    function changeGovernor(address payable _governor) external onlyByGovernor {
+    function changeGovernor(address payable _governor) external {
+        onlyByGovernor();
         governor = _governor;
     }
 
     /// @dev Changes the `pinakion` storage variable.
     /// @param _pinakion The new value for the `pinakion` storage variable.
-    function changePinakion(IERC20 _pinakion) external onlyByGovernor {
+    function changePinakion(IERC20 _pinakion) external {
+        onlyByGovernor();
         pinakion = _pinakion;
     }
 
     /// @dev Changes the `jurorProsecutionModule` storage variable.
     /// @param _jurorProsecutionModule The new value for the `jurorProsecutionModule` storage variable.
-    function changeJurorProsecutionModule(address _jurorProsecutionModule) external onlyByGovernor {
+    function changeJurorProsecutionModule(address _jurorProsecutionModule) external {
+        onlyByGovernor();
         jurorProsecutionModule = _jurorProsecutionModule;
     }
 
     /// @dev Changes the `_sortitionModule` storage variable.
     /// Note that the new module should be initialized for all courts.
     /// @param _sortitionModule The new value for the `sortitionModule` storage variable.
-    function changeSortitionModule(ISortitionModule _sortitionModule) external onlyByGovernor {
+    function changeSortitionModule(ISortitionModule _sortitionModule) external {
+        onlyByGovernor();
         sortitionModule = _sortitionModule;
     }
 
@@ -316,7 +320,8 @@ contract KlerosCore is IArbitratorV2 {
     /// @param _disputeKitAddress The address of the dispute kit contract.
     /// @param _parent The ID of the parent dispute kit. It is left empty when root DK is created.
     /// Note that the root DK must be supported by the general court.
-    function addNewDisputeKit(IDisputeKit _disputeKitAddress, uint256 _parent) external onlyByGovernor {
+    function addNewDisputeKit(IDisputeKit _disputeKitAddress, uint256 _parent) external {
+        onlyByGovernor();
         uint256 disputeKitID = disputeKitNodes.length;
         if (_parent >= disputeKitID) revert InvalidDisputKitParent();
         uint256 depthLevel;
@@ -363,7 +368,8 @@ contract KlerosCore is IArbitratorV2 {
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
         uint256[] memory _supportedDisputeKits
-    ) external onlyByGovernor {
+    ) external {
+        onlyByGovernor();
         if (courts[_parent].minStake > _minStake) revert MinStakeLowerThanParentCourt();
         if (_supportedDisputeKits.length == 0) revert UnsupportedDisputeKit();
         if (_parent == FORKING_COURT) revert InvalidForkingCourtAsParent();
@@ -412,21 +418,23 @@ contract KlerosCore is IArbitratorV2 {
         uint256 _feeForJuror,
         uint256 _jurorsForCourtJump,
         uint256[4] memory _timesPerPeriod
-    ) external onlyByGovernor {
-        if (_courtID != GENERAL_COURT && courts[courts[_courtID].parent].minStake > _minStake) {
+    ) external {
+        onlyByGovernor();
+        Court storage court = courts[_courtID];
+        if (_courtID != GENERAL_COURT && courts[court.parent].minStake > _minStake) {
             revert MinStakeLowerThanParentCourt();
         }
-        for (uint256 i = 0; i < courts[_courtID].children.length; i++) {
-            if (courts[courts[_courtID].children[i]].minStake < _minStake) {
+        for (uint256 i = 0; i < court.children.length; i++) {
+            if (courts[court.children[i]].minStake < _minStake) {
                 revert MinStakeLowerThanParentCourt();
             }
         }
-        courts[_courtID].minStake = _minStake;
-        courts[_courtID].hiddenVotes = _hiddenVotes;
-        courts[_courtID].alpha = _alpha;
-        courts[_courtID].feeForJuror = _feeForJuror;
-        courts[_courtID].jurorsForCourtJump = _jurorsForCourtJump;
-        courts[_courtID].timesPerPeriod = _timesPerPeriod;
+        court.minStake = _minStake;
+        court.hiddenVotes = _hiddenVotes;
+        court.alpha = _alpha;
+        court.feeForJuror = _feeForJuror;
+        court.jurorsForCourtJump = _jurorsForCourtJump;
+        court.timesPerPeriod = _timesPerPeriod;
         emit CourtModified(
             _courtID,
             _hiddenVotes,
@@ -442,7 +450,8 @@ contract KlerosCore is IArbitratorV2 {
     /// @param _courtID The ID of the court.
     /// @param _disputeKitIDs The IDs of dispute kits which support should be added/removed.
     /// @param _enable Whether add or remove the dispute kits from the court.
-    function enableDisputeKits(uint96 _courtID, uint256[] memory _disputeKitIDs, bool _enable) external onlyByGovernor {
+    function enableDisputeKits(uint96 _courtID, uint256[] memory _disputeKitIDs, bool _enable) external {
+        onlyByGovernor();
         for (uint256 i = 0; i < _disputeKitIDs.length; i++) {
             if (_enable) {
                 if (_disputeKitIDs[i] == 0 || _disputeKitIDs[i] >= disputeKitNodes.length) {
@@ -461,7 +470,8 @@ contract KlerosCore is IArbitratorV2 {
     /// @dev Changes the supported fee tokens.
     /// @param _feeToken The fee token.
     /// @param _accepted Whether the token is supported or not as a method of fee payment.
-    function changeAcceptedFeeTokens(IERC20 _feeToken, bool _accepted) external onlyByGovernor {
+    function changeAcceptedFeeTokens(IERC20 _feeToken, bool _accepted) external {
+        onlyByGovernor();
         currencyRates[_feeToken].feePaymentAccepted = _accepted;
         emit AcceptedFeeToken(_feeToken, _accepted);
     }
@@ -470,10 +480,11 @@ contract KlerosCore is IArbitratorV2 {
     /// @param _feeToken The fee token.
     /// @param _rateInEth The new rate of the fee token in ETH.
     /// @param _rateDecimals The new decimals of the fee token rate.
-    function changeCurrencyRates(IERC20 _feeToken, uint64 _rateInEth, uint8 _rateDecimals) external onlyByGovernor {
-        CurrencyRate storage rate = currencyRates[_feeToken];
-        rate.rateInEth = _rateInEth;
-        rate.rateDecimals = _rateDecimals;
+    function changeCurrencyRates(IERC20 _feeToken, uint64 _rateInEth, uint8 _rateDecimals) external {
+        onlyByGovernor();
+        // CurrencyRate storage rate = currencyRates[_feeToken];
+        currencyRates[_feeToken].rateInEth = _rateInEth;
+        currencyRates[_feeToken].rateDecimals = _rateDecimals;
         emit NewCurrencyRate(_feeToken, _rateInEth, _rateDecimals);
     }
 
@@ -513,7 +524,7 @@ contract KlerosCore is IArbitratorV2 {
         if (!currencyRates[_feeToken].feePaymentAccepted) revert TokenNotAccepted();
         if (_feeAmount < arbitrationCost(_extraData, _feeToken)) revert ArbitrationFeesNotEnough();
 
-        require(_feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount), "Transfer failed");
+        if (!_feeToken.safeTransferFrom(msg.sender, address(this), _feeAmount)) revert TransferFailed();
         return _createDispute(_numberOfChoices, _extraData, _feeToken, _feeAmount);
     }
 
@@ -688,9 +699,14 @@ contract KlerosCore is IArbitratorV2 {
 
         // Dispute kit was changed, so create a dispute in the new DK contract.
         if (extraRound.disputeKitID != round.disputeKitID) {
-            IDisputeKit disputeKit = disputeKitNodes[extraRound.disputeKitID].disputeKit;
+            // IDisputeKit disputeKit = disputeKitNodes[extraRound.disputeKitID].disputeKit;
             emit DisputeKitJump(_disputeID, dispute.rounds.length - 1, round.disputeKitID, extraRound.disputeKitID);
-            disputeKit.createDispute(_disputeID, _numberOfChoices, _extraData, extraRound.nbVotes);
+            disputeKitNodes[extraRound.disputeKitID].disputeKit.createDispute(
+                _disputeID,
+                _numberOfChoices,
+                _extraData,
+                extraRound.nbVotes
+            );
         }
 
         emit AppealDecision(_disputeID, dispute.arbitrated);
@@ -1007,8 +1023,8 @@ contract KlerosCore is IArbitratorV2 {
     /// @param _courtID The ID of the court to get the times from.
     /// @return timesPerPeriod The timesPerPeriod array for the given court.
     function getTimesPerPeriod(uint96 _courtID) external view returns (uint256[4] memory timesPerPeriod) {
-        Court storage court = courts[_courtID];
-        timesPerPeriod = court.timesPerPeriod;
+        // Court storage court = courts[_courtID];
+        timesPerPeriod = courts[_courtID].timesPerPeriod;
     }
 
     // ************************************* //
@@ -1055,8 +1071,7 @@ contract KlerosCore is IArbitratorV2 {
     }
 
     function convertEthToTokenAmount(IERC20 _toToken, uint256 _amountInEth) public view returns (uint256) {
-        CurrencyRate storage rate = currencyRates[_toToken];
-        return (_amountInEth * 10 ** rate.rateDecimals) / rate.rateInEth;
+        return (_amountInEth * 10 ** currencyRates[_toToken].rateDecimals) / currencyRates[_toToken].rateInEth;
     }
 
     // ************************************* //
@@ -1221,4 +1236,6 @@ contract KlerosCore is IArbitratorV2 {
     error NotExecutionPeriod();
     error RulingAlreadyExecuted();
     error DisputePeriodIsFinal();
+    /// Transfer failed
+    error TransferFailed();
 }
