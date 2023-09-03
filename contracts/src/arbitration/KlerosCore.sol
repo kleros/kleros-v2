@@ -12,11 +12,13 @@ import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitratorV2.sol";
 import "./interfaces/IDisputeKit.sol";
 import "./interfaces/ISortitionModule.sol";
 import "../libraries/SafeERC20.sol";
+import "../proxy/UUPSProxiable.sol";
+import "../proxy/Initializable.sol";
 
 /// @title KlerosCore
 /// Core arbitrator contract for Kleros v2.
 /// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
-contract KlerosCore is IArbitratorV2 {
+contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     using SafeERC20 for IERC20;
 
     // ************************************* //
@@ -200,7 +202,12 @@ contract KlerosCore is IArbitratorV2 {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor
+    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    constructor() {
+        _disableInitializers();
+    }
+
+    /// @dev Initializer (constructor equivalent for upgradable contracts).
     /// @param _governor The governor's address.
     /// @param _pinakion The address of the token contract.
     /// @param _jurorProsecutionModule The address of the juror prosecution module.
@@ -210,7 +217,7 @@ contract KlerosCore is IArbitratorV2 {
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the general court.
     /// @param _sortitionExtraData The extra data for sortition module.
     /// @param _sortitionModuleAddress The sortition module responsible for sortition of the jurors.
-    constructor(
+    function initialize(
         address _governor,
         IERC20 _pinakion,
         address _jurorProsecutionModule,
@@ -220,7 +227,7 @@ contract KlerosCore is IArbitratorV2 {
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
         ISortitionModule _sortitionModuleAddress
-    ) {
+    ) external initializer {
         governor = _governor;
         pinakion = _pinakion;
         jurorProsecutionModule = _jurorProsecutionModule;
@@ -276,6 +283,13 @@ contract KlerosCore is IArbitratorV2 {
     // ************************************* //
     // *             Governance            * //
     // ************************************* //
+
+    /* @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     */
+    function _authorizeUpgrade(address) internal view override {
+        onlyByGovernor();
+    }
 
     /// @dev Allows the governor to call anything on behalf of the contract.
     /// @param _destination The destination of the call.
