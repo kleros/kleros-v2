@@ -1,5 +1,6 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { smallScreenStyle } from "styles/smallScreenStyle";
 import { Card as _Card } from "@kleros/ui-components-library";
 import Coherency from "./Coherency";
 import JurorRewards from "./JurorRewards";
@@ -14,11 +15,18 @@ const Card = styled(_Card)`
 
 const Layout = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   gap: 24px;
-  width: fit-content;
-  margin: 16px auto;
+  width: auto;
+  margin: 16px 32px;
+
+  ${smallScreenStyle(
+    () => css`
+      flex-direction: column;
+    `
+  )}
 `;
 
 const JurorInfo: React.FC = () => {
