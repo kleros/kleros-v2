@@ -1,5 +1,6 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { smallScreenStyle } from "styles/smallScreenStyle";
 import { useParams } from "react-router-dom";
 import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
 import { useCoinPrice } from "hooks/useCoinPrice";
@@ -20,8 +21,15 @@ const StyledCard = styled.div`
   width: auto;
   height: fit-content;
   display: grid;
-  gap: 32px;
+  gap: 16px;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  padding: calc(0px + (32 - 0) * (min(max(100vw, 375px), 1250px) - 375px) / 875) 0;
+
+  ${smallScreenStyle(
+    () => css`
+      gap: 32px;
+    `
+  )}
 `;
 
 interface IStat {

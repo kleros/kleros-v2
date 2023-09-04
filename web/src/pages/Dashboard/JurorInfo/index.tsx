@@ -8,6 +8,10 @@ import JurorRewards from "./JurorRewards";
 
 const Container = styled.div``;
 
+const Header = styled.h1`
+  margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+`;
+
 const Card = styled(_Card)`
   width: 100%;
   height: auto;
@@ -33,7 +37,7 @@ const Layout = styled.div`
 const JurorInfo: React.FC = () => {
   return (
     <Container>
-      <h1>Juror Dashboard</h1>
+      <Header>Juror Dashboard</Header>
       <Card>
         <Layout>
           <Coherency />

@@ -18,7 +18,7 @@ import { useCoinPrice } from "hooks/useCoinPrice";
 const StyledCard = styled(Card)`
   width: auto;
   height: fit-content;
-  padding: 16px;
+  padding: calc(16px + (30 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   display: grid;
   gap: 32px;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
