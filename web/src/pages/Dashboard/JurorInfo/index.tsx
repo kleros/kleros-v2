@@ -17,14 +17,15 @@ const Layout = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  justify-content: center;
+  gap: 48px;
   width: auto;
   margin: 16px 32px;
 
   ${smallScreenStyle(
     () => css`
       flex-direction: column;
+      gap: 24px;
     `
   )}
 `;
