@@ -8,9 +8,10 @@ import hre = require("hardhat");
 const { ethers } = hre;
 const MAX_DRAW_ITERATIONS = 30;
 const MAX_EXECUTE_ITERATIONS = 20;
+const MAX_DELAYED_STAKES_ITERATIONS = 50;
 const WAIT_FOR_RNG_DURATION = 5 * 1000; // 5 seconds
-const ITERATIONS_COOLDOWN_PERIOD = 20 * 1000; // 20 seconds
-const HIGH_GAS_LIMIT = { gasLimit: 50000000 }; // 50M gas
+const ITERATIONS_COOLDOWN_PERIOD = 10 * 1000; // 10 seconds
+const HIGH_GAS_LIMIT = { gasLimit: 50_000_000 }; // 50M gas
 const HEARTBEAT_URL = env.optionalNoDefault("HEARTBEAT_URL_KEEPER_BOT");
 const SUBGRAPH_URL = env.require("SUBGRAPH_URL");
 const MAX_JURORS_PER_DISPUTE = 1000; // Skip disputes with more than this number of jurors
@@ -219,7 +220,7 @@ const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, it
   try {
     await core.callStatic.draw(dispute.id, iterations, HIGH_GAS_LIMIT);
   } catch (e) {
-    logger.info(`Draw: will fail for ${dispute.id}, skipping`);
+    logger.error(`Draw: will fail for ${dispute.id}, skipping`);
     return success;
   }
   try {
@@ -241,7 +242,7 @@ const executeRepartitions = async (dispute: { id: string; currentRoundIndex: str
   try {
     await core.callStatic.execute(dispute.id, dispute.currentRoundIndex, iterations, HIGH_GAS_LIMIT);
   } catch (e) {
-    logger.info(`Execute: will fail for ${dispute.id}, skipping`);
+    logger.error(`Execute: will fail for ${dispute.id}, skipping`);
     return success;
   }
   try {
@@ -260,7 +261,7 @@ const executeRuling = async (dispute: { id: string }) => {
   try {
     await core.callStatic.executeRuling(dispute.id);
   } catch (e) {
-    logger.info(`ExecuteRuling: will fail for ${dispute.id}, skipping`);
+    logger.error(`ExecuteRuling: will fail for ${dispute.id}, skipping`);
     return success;
   }
   try {
@@ -290,7 +291,7 @@ const withdrawAppealContribution = async (
       contribution.choice
     );
   } catch (e) {
-    logger.info(
+    logger.warn(
       `WithdrawFeesAndRewards: will fail for dispute #${disputeId}, round #${roundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}, skipping`
     );
     return success;
@@ -317,6 +318,40 @@ const withdrawAppealContribution = async (
     ).wait();
     logger.info(`WithdrawFeesAndRewards txID: ${tx?.transactionHash}`);
     success = true;
+  } catch (e) {
+    handleError(e);
+  }
+  return success;
+};
+
+const executeDelayedStakes = async () => {
+  const { sortition } = await getContracts();
+
+  // delayedStakes = 1 + delayedStakeWriteIndex - delayedStakeReadIndex
+  const delayedStakesRemaining = BigNumber.from(1)
+    .add(await sortition.delayedStakeWriteIndex())
+    .sub(await sortition.delayedStakeReadIndex());
+
+  const delayedStakes = delayedStakesRemaining.lt(MAX_DELAYED_STAKES_ITERATIONS)
+    ? delayedStakesRemaining
+    : BigNumber.from(MAX_DELAYED_STAKES_ITERATIONS);
+
+  if (delayedStakes.eq(0)) {
+    logger.info("No delayed stakes to execute");
+    return true;
+  }
+  logger.info(`Executing ${delayedStakes} delayed stakes, ${delayedStakesRemaining} remaining`);
+  let success = false;
+  try {
+    await sortition.callStatic.executeDelayedStakes(delayedStakes);
+  } catch (e) {
+    logger.error(`executeDelayedStakes: will fail because of ${JSON.stringify(e)}`);
+    return success;
+  }
+  try {
+    const gas = (await sortition.estimateGas.executeDelayedStakes(delayedStakes)).mul(150).div(100); // 50% extra gas
+    const tx = await (await sortition.executeDelayedStakes(delayedStakes, { gasLimit: gas })).wait();
+    logger.info(`executeDelayedStakes txID: ${tx?.transactionHash}`);
   } catch (e) {
     handleError(e);
   }
@@ -594,18 +629,9 @@ async function main() {
   // ----------------------------------------------- //
   //             EXECUTE DELAYED STAKES              //
   // ----------------------------------------------- //
-  // delayedStakes = 1 + delayedStakeWriteIndex - delayedStakeReadIndex
-  const delayedStakes = BigNumber.from(1)
-    .add(await sortition.delayedStakeWriteIndex())
-    .sub(await sortition.delayedStakeReadIndex());
 
   if (await isPhaseStaking()) {
-    if (delayedStakes.gt(0)) {
-      logger.info("Executing delayed stakes");
-      await sortition.executeDelayedStakes(delayedStakes);
-    } else {
-      logger.info("No delayed stakes to execute");
-    }
+    await executeDelayedStakes();
   }
 
   await sendHeartbeat();
