@@ -27,6 +27,7 @@ const Courts: React.FC = () => {
     <>
       <Container>
         <h1> My Courts </h1>
+        {!isUndefined(data) && <hr />}
         <CourtsContainer>
           {!isUndefined(data) &&
             data.user?.tokens?.map(({ court: { id, name } }) => {
