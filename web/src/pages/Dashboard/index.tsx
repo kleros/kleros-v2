@@ -38,14 +38,12 @@ const Dashboard: React.FC = () => {
         <>
           <JurorInfo />
           <Courts />
-          {data && (
-            <StyledCasesDisplay
-              title="My Cases"
-              disputes={data.disputes}
-              numberDisputes={data.counter?.cases}
-              {...{ currentPage, setCurrentPage, casesPerPage }}
-            />
-          )}
+          <StyledCasesDisplay
+            title="My Cases"
+            disputes={data ? data.disputes : []}
+            numberDisputes={data ? data.counter?.cases : 0}
+            {...{ currentPage, setCurrentPage, casesPerPage }}
+          />
         </>
       ) : (
         <ConnectWalletContainer>

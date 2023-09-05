@@ -37,15 +37,14 @@
 
 ## Content
 
-| Package                                   | Description                                                                                                                                                                |
-| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **[bots](/bots)**                         | Automation of the on-chain upkeep of the smart contracts. Anyone willing to spend some gas may run these bots and contribute to the upkeep operations.                     |
-| **[bot-pinner](/bot-pinner)**             | Replication and pinning of the IPFS content produced by the court, such as the pieces of evidence submitted in a case.                                                     |
-| **[contracts](/contracts)**               | Smart contracts of the arbitration protocol.                                                                                                                               |
-| **[evidence-display](/evidence-display)** | display interface that should be used to render the evidence for arbitrators, as described by [ERC-1497: Evidence Standard](https://github.com/ethereum/EIPs/issues/1497). |
-| **[dynamic-script](/dynamic-script)**     | allows fetching the dynamic content for the arbitration, as described by [ERC-1497: Evidence Standard](https://github.com/ethereum/EIPs/issues/1497).                      |
-| **[subgraph](/subgraph)**                 | The indexing layer.                                                                                                                                                        |
-| **[web](/web)**                           | The court frontend intended for the jurors and parties in a dispute.                                                                                                       |
+| Package                       | Description                                                                                                                                                 |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **[bots](/bots)**             | Automation of the on-chain upkeep of the smart contracts. Anyone willing to spend some gas may run these bots and contribute to the upkeep operations.      |
+| **[bot-pinner](/bot-pinner)** | Replication and pinning of the IPFS content produced by the court, such as the pieces of evidence submitted in a case.                                      |
+| **[contracts](/contracts)**   | Smart contracts of the arbitration protocol.                                                                                                                |
+| **[kleros-sdk](/kleros-sdk)** | SDK which facilitates the creation of arbitrable applications, the interactions with the arbitrator, the rendering of the dispute and evidence information. |
+| **[subgraph](/subgraph)**     | The indexing layer.                                                                                                                                         |
+| **[web](/web)**               | The court frontend intended for the jurors and parties in a dispute.                                                                                        |
 
 ## Toolchain:
 

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import CourtOverview from "./CourtOverview";
 import LatestCases from "./LatestCases";
 import Community from "./Community";
+import Header from "./Header";
 import { HomePageProvider } from "hooks/useHomePageContext";
 import { getOneYearAgoTimestamp } from "utils/date";
 
@@ -13,14 +14,17 @@ const Container = styled.div`
   padding: 32px;
 `;
 
-const Home: React.FC = () => (
-  <HomePageProvider timeframe={getOneYearAgoTimestamp()}>
-    <Container>
-      <CourtOverview />
-      <LatestCases />
-      <Community />
-    </Container>
-  </HomePageProvider>
-);
+const Home: React.FC = () => {
+  return (
+    <HomePageProvider timeframe={getOneYearAgoTimestamp()}>
+      <Header />
+      <Container>
+        <CourtOverview />
+        <LatestCases />
+        <Community />
+      </Container>
+    </HomePageProvider>
+  );
+};
 
 export default Home;

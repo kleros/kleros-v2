@@ -10,6 +10,17 @@ import DocIcon from "assets/svgs/icons/doc.svg";
 import BalanceIcon from "assets/svgs/icons/law-balance.svg";
 import BullhornIcon from "assets/svgs/icons/bullhorn.svg";
 
+const StyledTabs = styled(TabsComponent)`
+  width: 100%;
+  > * {
+    display: flex;
+    flex-wrap: wrap;
+    > svg {
+      margin-right: 0px !important;
+    }
+  }
+`;
+
 const TABS = [
   {
     text: "Overview",
@@ -67,16 +78,5 @@ const Tabs: React.FC = () => {
     />
   );
 };
-
-const StyledTabs = styled(TabsComponent)`
-  width: 100%;
-  > * {
-    display: flex;
-    flex-wrap: wrap;
-    > svg {
-      margin-right: 0px !important;
-    }
-  }
-`;
 
 export default Tabs;

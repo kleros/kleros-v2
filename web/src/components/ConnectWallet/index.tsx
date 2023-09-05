@@ -2,49 +2,18 @@ import React from "react";
 import styled from "styled-components";
 import { useAccount, useNetwork, useSwitchNetwork } from "wagmi";
 import { useWeb3Modal } from "@web3modal/react";
-import { shortenAddress } from "utils/shortenAddress";
 import { Button } from "@kleros/ui-components-library";
 import { SUPPORTED_CHAINS, DEFAULT_CHAIN } from "consts/chains";
+import AccountDisplay from "./AccountDisplay";
+import { DisconnectWalletButton } from "layout/Header/navbar/Menu/Settings/General";
 
-const StyledContainer = styled.div`
-  width: fit-content;
-  height: 34px;
-  padding: 16px;
-  gap: 0.5rem;
-  border-radius: 300px;
-  background-color: ${({ theme }) => theme.whiteLowOpacity};
+const Container = styled.div`
   display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
-  > label {
-    color: ${({ theme }) => theme.primaryText};
-  }
-  :before {
-    content: "";
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: ${({ theme }) => theme.success};
-  }
 `;
-
-const AccountDisplay: React.FC = () => {
-  return (
-    <StyledContainer>
-      <ChainDisplay />
-      <AddressDisplay />
-    </StyledContainer>
-  );
-};
-
-export const ChainDisplay: React.FC = () => {
-  const { chain } = useNetwork();
-  return <small>{chain?.name}</small>;
-};
-
-export const AddressDisplay: React.FC = () => {
-  const { address } = useAccount();
-  return <label>{address && shortenAddress(address)}</label>;
-};
 
 export const SwitchChainButton: React.FC = () => {
   const { switchNetwork, isLoading } = useSwitchNetwork();
@@ -63,7 +32,7 @@ export const SwitchChainButton: React.FC = () => {
     <Button
       isLoading={isLoading}
       disabled={isLoading}
-      text={`Switch to ${SUPPORTED_CHAINS[DEFAULT_CHAIN].chainName}`}
+      text={`Switch to ${SUPPORTED_CHAINS[DEFAULT_CHAIN].name}`}
       onClick={handleSwitch}
     />
   );
@@ -71,9 +40,7 @@ export const SwitchChainButton: React.FC = () => {
 
 const ConnectButton: React.FC = () => {
   const { open, isOpen } = useWeb3Modal();
-  return (
-    <Button disabled={isOpen} small text={"Connect"} onClick={async () => await open({ route: "ConnectWallet" })} />
-  );
+  return <Button disabled={isOpen} small text={"Connect"} onClick={async () => open({ route: "ConnectWallet" })} />;
 };
 
 const ConnectWallet: React.FC = () => {
@@ -82,7 +49,13 @@ const ConnectWallet: React.FC = () => {
   if (isConnected) {
     if (chain && chain.id !== DEFAULT_CHAIN) {
       return <SwitchChainButton />;
-    } else return <AccountDisplay />;
+    } else
+      return (
+        <Container>
+          <AccountDisplay />
+          <DisconnectWalletButton />
+        </Container>
+      );
   } else return <ConnectButton />;
 };
 

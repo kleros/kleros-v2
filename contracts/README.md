@@ -33,7 +33,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [BlockHashRNG](https://goerli.arbiscan.io/address/0x68eE49dfD9d76f3386257a3D0e0A85c0A5519bBD)
 - [DAI](https://goerli.arbiscan.io/address/0x70A704Dce4cCC00568Cc142C86D07Ec71C944a39)
 - [DAIFaucet](https://goerli.arbiscan.io/address/0xB7C693623437cC46a8E50DF234d90Ab9F57DdE63)
-- [DisputeKitClassic](https://goerli.arbiscan.io/address/0x9ddf4a70295faaA695b8CF4F22177FA1f3a1B500)
+- [DisputeKitClassic](https://goerli.arbiscan.io/address/0x439f92b61783A752462527f9dA9C6c6180C9253a)
 - [DisputeResolver](https://goerli.arbiscan.io/address/0x7D7AF1893fB196E5624E8F8b5d771Ac46fFD4D44)
 - [DisputeTemplateRegistry](https://goerli.arbiscan.io/address/0x22A58a17F12A718d18C9B6Acca3E311Da1b00A04)
 - [HomeGatewayToGnosis](https://goerli.arbiscan.io/address/0xdd69c7e8d5B3a6185DE84bBbCacb480153E4e1d8)

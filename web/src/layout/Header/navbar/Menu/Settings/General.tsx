@@ -1,16 +1,15 @@
 import React from "react";
 import styled from "styled-components";
 import { useAccount, useDisconnect } from "wagmi";
-import Identicon from "react-identicons";
 import { Button } from "@kleros/ui-components-library";
-import { AddressDisplay, ChainDisplay } from "components/ConnectWallet";
+import { AddressOrName, ChainDisplay, IdenticonOrAvatar } from "components/ConnectWallet/AccountDisplay";
 import { EnsureChain } from "components/EnsureChain";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-top: 32px;
+  margin-top: 12px;
 `;
 
 const StyledChainContainer = styled.div`
@@ -26,7 +25,7 @@ const StyledChainContainer = styled.div`
     border-radius: 50%;
     background-color: ${({ theme }) => theme.success};
   }
-  > small {
+  > label {
     color: ${({ theme }) => theme.success};
   }
 `;
@@ -34,13 +33,23 @@ const StyledChainContainer = styled.div`
 const StyledAddressContainer = styled.div`
   display: flex;
   justify-content: center;
+  > label {
+    color: ${({ theme }) => theme.primaryText};
+    font-size: 16px;
+    font-weight: 600;
+  }
+`;
+
+const StyledAvatarContainer = styled.div`
+  display: flex;
+  justify-content: center;
   margin-top: 12px;
 `;
 
-const StyledIdenticon = styled.div`
+const StyledButton = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 32px;
+  margin-top: 16px;
 `;
 
 const EnsureChainContainer = styled.div`
@@ -52,34 +61,34 @@ const EnsureChainContainer = styled.div`
 const UserContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 `;
 
 export const DisconnectWalletButton: React.FC = () => {
   const { disconnect } = useDisconnect();
-
   return <Button text={`Disconnect`} onClick={() => disconnect()} />;
 };
 
 const General: React.FC = () => {
   const { address } = useAccount();
-
   return (
     <EnsureChainContainer>
       <EnsureChain>
         <Container>
-          <StyledChainContainer>
-            <ChainDisplay />
-          </StyledChainContainer>
           {address && (
             <UserContainer>
-              <StyledIdenticon>
-                <Identicon size="24" string={address} />
-              </StyledIdenticon>
+              <StyledAvatarContainer>
+                <IdenticonOrAvatar size="48" />
+              </StyledAvatarContainer>
               <StyledAddressContainer>
-                <AddressDisplay />
+                <AddressOrName />
               </StyledAddressContainer>
-              <DisconnectWalletButton />
+              <StyledChainContainer>
+                <ChainDisplay />
+              </StyledChainContainer>
+              <StyledButton>
+                <DisconnectWalletButton />
+              </StyledButton>
             </UserContainer>
           )}
         </Container>

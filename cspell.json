@@ -12,11 +12,14 @@
     "arbitrum",
     "autorestart",
     "codegen",
+    "commify",
     "commitlint",
+    "consts",
     "COOLDOWN",
     "datetime",
     "devnet",
     "Devnet",
+    "DISPUTOR",
     "dockerhost",
     "Ethfinex",
     "gluegun",
@@ -31,7 +34,10 @@
     "repartitions",
     "solhint",
     "typechain",
-    "Unslashed"
+    "uncommify",
+    "Unslashed",
+    "viem",
+    "wagmi"
   ],
   "ignoreWords": [],
   "import": []

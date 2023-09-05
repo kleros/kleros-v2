@@ -1,15 +1,16 @@
 name: Dependabot auto-merge
-on: pull_request
-
-# https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
-permissions:
-  contents: write
-  pull-requests: write
+on: 
+  merge_group:
+  pull_request:
 
 jobs:
   dependabot:
     runs-on: ubuntu-latest
+    permissions: # https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
+      contents: write
+      pull-requests: write
     if: ${{ github.actor == 'dependabot[bot]' }}
+    
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@8ca2b8b2ece13480cda6dacd3511b49857a23c09 # v2.5.0

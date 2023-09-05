@@ -11,6 +11,14 @@ import PNKIcon from "svgs/icons/pnk.svg";
 import { useCourtDetails } from "queries/useCourtDetails";
 import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+`;
+
 const format = (value: bigint | undefined): string => (value !== undefined ? formatEther(value) : "0");
 
 const bigIntRatioToPercentage = (numerator: bigint, denominator: bigint): string => {
@@ -103,11 +111,3 @@ const JurorBalanceDisplay = () => {
 };
 
 export default JurorBalanceDisplay;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 12px;
-`;

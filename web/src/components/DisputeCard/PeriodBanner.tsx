@@ -2,22 +2,6 @@ import React from "react";
 import styled, { Theme } from "styled-components";
 import { Periods } from "consts/periods";
 
-export interface IPeriodBanner {
-  id: number;
-  period: Periods;
-}
-
-const getPeriodColors = (period: Periods, theme: Theme): [string, string] => {
-  switch (period) {
-    case Periods.appeal:
-      return [theme.tint, theme.tintMedium];
-    case Periods.execution:
-      return [theme.secondaryPurple, theme.mediumPurple];
-    default:
-      return [theme.primaryBlue, theme.mediumBlue];
-  }
-};
-
 const Container = styled.div<Omit<IPeriodBanner, "id">>`
   height: 45px;
   width: auto;
@@ -53,6 +37,22 @@ const Container = styled.div<Omit<IPeriodBanner, "id">>`
     `;
   }};
 `;
+
+export interface IPeriodBanner {
+  id: number;
+  period: Periods;
+}
+
+const getPeriodColors = (period: Periods, theme: Theme): [string, string] => {
+  switch (period) {
+    case Periods.appeal:
+      return [theme.tint, theme.tintMedium];
+    case Periods.execution:
+      return [theme.secondaryPurple, theme.mediumPurple];
+    default:
+      return [theme.primaryBlue, theme.mediumBlue];
+  }
+};
 
 const getPeriodLabel = (period: Periods): string => {
   switch (period) {
