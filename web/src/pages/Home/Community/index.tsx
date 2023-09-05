@@ -24,10 +24,10 @@ const StyledSeparator = styled.hr`
 
 const Section = styled.div`
   width: 100%;
-  height: 64px;
+  min-height: 64px;
+  flex-wrap: wrap;
   padding: 0 32px;
   display: flex;
-  flex-direction: row;
   align-items: center;
   justify-content: space-between;
 
