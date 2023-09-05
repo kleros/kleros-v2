@@ -1,11 +1,9 @@
 import React from "react";
-import styled, { css } from "styled-components";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import styled from "styled-components";
 
 const Container = styled.div`
   display: flex;
   gap: 8px;
-  padding: 16px 32px 16px 0px;
 
   svg {
     width: 16px;
@@ -16,12 +14,6 @@ const Container = styled.div`
     display: flex;
     gap: 8px;
   }
-
-  ${smallScreenStyle(
-    () => css`
-      padding: 0px;
-    `
-  )}
 `;
 
 const StyledLabel = styled.label`
