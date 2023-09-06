@@ -7,9 +7,10 @@ const FieldContainer = styled.div<FieldContainerProps>`
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  white-space: nowrap;
   .value {
     flex-grow: 1;
-    text-align: end;
+    text-align: ${({ isCard }) => (isCard ? "end" : "center")};
     color: ${({ theme }) => theme.primaryText};
   }
   svg {
@@ -27,6 +28,7 @@ const FieldContainer = styled.div<FieldContainerProps>`
 
 type FieldContainerProps = {
   width?: string;
+  isCard?: boolean;
 };
 
 interface IField {
@@ -35,12 +37,17 @@ interface IField {
   value: string;
   link?: string;
   width?: string;
+  isCard?: boolean;
 }
 
-const Field: React.FC<IField> = ({ icon: Icon, name, value, link, width }) => (
-  <FieldContainer width={width}>
-    {<Icon />}
-    <label>{name}:</label>
+const Field: React.FC<IField> = ({ icon: Icon, name, value, link, width, isCard = true }) => (
+  <FieldContainer isCard={isCard} width={width}>
+    {isCard && (
+      <>
+        <Icon />
+        <label>{name}:</label>
+      </>
+    )}
     {link ? (
       <Link className="link value" to={link}>
         {value}

@@ -1,6 +1,9 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
 import { DropdownSelect } from "@kleros/ui-components-library";
+import { useFiltersContext } from "context/FilterProvider";
+import ListIcon from "svgs/icons/list.svg";
+import GridIcon from "svgs/icons/grid.svg";
 
 const Container = styled.div`
   display: flex;
@@ -9,8 +12,33 @@ const Container = styled.div`
   width: fit-content;
 `;
 
+const StyledGridIcon = styled(GridIcon)<{ isList: boolean }>`
+  cursor: pointer;
+  transition: fill 0.2s ease;
+  fill: ${({ theme, isList }) => (isList ? theme.secondaryText : theme.primaryBlue)};
+  width: 16px;
+  height: 16px;
+`;
+
+const IconsContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+`;
+
+const StyledListIcon = styled(ListIcon)<{ isList: boolean }>`
+  cursor: pointer;
+  transition: fill 0.2s ease;
+  fill: ${({ theme, isList }) => (isList ? theme.primaryBlue : theme.secondaryText)};
+  width: 16px;
+  height: 17px;
+`;
+
 const Filters: React.FC = () => {
   const theme = useTheme();
+  const { isList, setIsList } = useFiltersContext();
+
   return (
     <Container>
       <DropdownSelect
@@ -35,6 +63,10 @@ const Filters: React.FC = () => {
         defaultValue={0}
         callback={() => {}}
       />
+      <IconsContainer>
+        <StyledGridIcon isList={isList} onClick={() => setIsList(false)} />
+        <StyledListIcon isList={isList} onClick={() => setIsList(true)} />
+      </IconsContainer>
     </Container>
   );
 };

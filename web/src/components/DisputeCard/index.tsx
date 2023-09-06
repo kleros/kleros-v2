@@ -5,6 +5,7 @@ import { formatEther } from "viem";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
+import { useFiltersContext } from "context/FilterProvider";
 import { CasesPageQuery } from "queries/useCasesQuery";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
@@ -18,8 +19,13 @@ const StyledCard = styled(Card)`
   width: auto;
   height: 260px;
 `;
+const StyledListItem = styled(Card)`
+  display: flex;
+  width: 100%;
+  height: 64px;
+`;
 
-const Container = styled.div`
+const CardContainer = styled.div`
   height: 215px;
   padding: 24px;
   display: flex;
@@ -28,6 +34,25 @@ const Container = styled.div`
   h3 {
     margin: 0;
   }
+`;
+const ListContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 32px;
+  width: 100%;
+  margin-right: 2%;
+  h3 {
+    margin: 0;
+  }
+`;
+
+const ListTitle = styled.div`
+  display: flex;
+  height: 100%;
+  justify-content: start;
+  align-items: center;
+  min-width: 40vw;
 `;
 
 export const getPeriodEndTimestamp = (
@@ -46,6 +71,7 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
   lastPeriodChange,
   court,
 }) => {
+  const { isList } = useFiltersContext();
   const currentPeriodIndex = Periods[period];
   const rewards = `≥ ${formatEther(court.feeForJuror)} ETH`;
   const date =
@@ -63,18 +89,38 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
   const category = disputeTemplate ? disputeTemplate.category : undefined;
   const navigate = useNavigate();
   return (
-    <StyledCard hover onClick={() => navigate(`/cases/${id.toString()}`)}>
-      <PeriodBanner id={parseInt(id)} period={currentPeriodIndex} />
-      <Container>
-        <h3>{title}</h3>
-        <DisputeInfo
-          courtId={court?.id}
-          court={courtName}
-          period={currentPeriodIndex}
-          {...{ category, rewards, date }}
-        />
-      </Container>
-    </StyledCard>
+    <>
+      {!isList ? (
+        <StyledCard hover onClick={() => navigate(`/cases/${id.toString()}`)}>
+          <PeriodBanner id={parseInt(id)} period={currentPeriodIndex} />
+          <CardContainer>
+            <h3>{title}</h3>
+            <DisputeInfo
+              courtId={court?.id}
+              court={courtName}
+              period={currentPeriodIndex}
+              {...{ category, rewards, date }}
+            />
+          </CardContainer>
+        </StyledCard>
+      ) : (
+        <StyledListItem hover onClick={() => navigate(`/cases/${id.toString()}`)}>
+          <PeriodBanner isCard={false} id={parseInt(id)} period={currentPeriodIndex} />
+          <ListContainer>
+            <ListTitle>
+              <h3>{title}</h3>
+            </ListTitle>
+            <DisputeInfo
+              isCard={false}
+              courtId={court?.id}
+              court={courtName}
+              period={currentPeriodIndex}
+              {...{ category, rewards, date }}
+            />
+          </ListContainer>
+        </StyledListItem>
+      )}
+    </>
   );
 };
 

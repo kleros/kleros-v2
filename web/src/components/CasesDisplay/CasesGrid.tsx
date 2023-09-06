@@ -1,12 +1,27 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { StandardPagination } from "@kleros/ui-components-library";
+import { smallScreenStyle } from "styles/smallScreenStyle";
+import { useFiltersContext } from "context/FilterProvider";
 import { CasesPageQuery } from "queries/useCasesQuery";
 import DisputeCard from "components/DisputeCard";
+import CasesListHeader from "./CasesListHeader";
 
-const Container = styled.div`
+const GridContainer = styled.div`
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(50px, 1fr));
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  ${smallScreenStyle(css`
+    display: flex;
+    flex-wrap: wrap;
+  `)}
+`;
+const ListContainer = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   justify-content: center;
   gap: 8px;
 `;
@@ -26,13 +41,23 @@ export interface ICasesGrid {
 }
 
 const CasesGrid: React.FC<ICasesGrid> = ({ disputes, currentPage, setCurrentPage, numberDisputes, casesPerPage }) => {
+  const { isList } = useFiltersContext();
   return (
     <>
-      <Container>
-        {disputes.map((dispute, i) => {
-          return <DisputeCard key={i} {...dispute} />;
-        })}
-      </Container>
+      {!isList ? (
+        <GridContainer>
+          {disputes.map((dispute, i) => {
+            return <DisputeCard key={i} {...dispute} />;
+          })}
+        </GridContainer>
+      ) : (
+        <ListContainer>
+          {isList && <CasesListHeader />}
+          {disputes.map((dispute, i) => {
+            return <DisputeCard key={i} {...dispute} />;
+          })}
+        </ListContainer>
+      )}
       <StyledPagination
         {...{ currentPage }}
         numPages={Math.ceil(numberDisputes / casesPerPage)}
