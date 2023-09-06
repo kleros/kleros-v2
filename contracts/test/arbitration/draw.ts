@@ -15,7 +15,6 @@ import { DrawEvent } from "../../typechain-types/src/kleros-v1/kleros-liquid-xda
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
 
-// FIXME: This test fails on Github actions, cannot figure why, skipping for now.
 describe("Draw Benchmark", async () => {
   const ONE_TENTH_ETH = BigNumber.from(10).pow(17);
   const ONE_THOUSAND_PNK = BigNumber.from(10).pow(21);
@@ -170,8 +169,7 @@ describe("Draw Benchmark", async () => {
     }
 
     await sortitionModule.passPhase(); // Generating -> Drawing
-
-    await expectFromDraw(core.draw(0, 1000, { gasLimit: 1000000 }));
+    await expectFromDraw(core.draw(0, 20, { gasLimit: 1000000 }));
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for maxDrawingTime
     await sortitionModule.passPhase(); // Drawing -> Staking
@@ -197,8 +195,9 @@ describe("Draw Benchmark", async () => {
       await core.connect(wallet).setStake(PARENT_COURT, ONE_THOUSAND_PNK.mul(5), { gasLimit: 5000000 });
 
       expect(await core.getJurorBalance(wallet.address, 1)).to.deep.equal([
+        ONE_THOUSAND_PNK.mul(5), // totalStaked
+        0, // totalLocked
         ONE_THOUSAND_PNK.mul(5), // stakedInCourt
-        0, // lockedInCourt
         PARENT_COURT, // nbOfCourts
       ]);
     };
@@ -216,13 +215,15 @@ describe("Draw Benchmark", async () => {
       countedDraws = await countDraws(tx.blockNumber);
       for (const [address, draws] of Object.entries(countedDraws)) {
         expect(await core.getJurorBalance(address, PARENT_COURT)).to.deep.equal([
+          ONE_THOUSAND_PNK.mul(5), // totalStaked
+          parentCourtMinStake.mul(draws), // totalLocked
           ONE_THOUSAND_PNK.mul(5), // stakedInCourt
-          parentCourtMinStake.mul(draws), // lockedInCourt
           1, // nbOfCourts
         ]);
         expect(await core.getJurorBalance(address, CHILD_COURT)).to.deep.equal([
+          ONE_THOUSAND_PNK.mul(5), // totalStaked
+          parentCourtMinStake.mul(draws), // totalLocked
           0, // stakedInCourt
-          0, // lockedInCourt
           1, // nbOfCourts
         ]);
       }
@@ -235,16 +236,18 @@ describe("Draw Benchmark", async () => {
         await core.getJurorBalance(wallet.address, PARENT_COURT),
         "Drawn jurors have a locked stake in the parent court"
       ).to.deep.equal([
+        0, // totalStaked
+        locked, // totalLocked
         0, // stakedInCourt
-        locked, // lockedInCourt
         0, // nbOfCourts
       ]);
       expect(
         await core.getJurorBalance(wallet.address, CHILD_COURT),
         "No locked stake in the child court"
       ).to.deep.equal([
+        0, // totalStaked
+        locked, // totalLocked
         0, // stakedInCourt
-        0, // lockedInCourt
         0, // nbOfCourts
       ]);
     };
@@ -267,16 +270,18 @@ describe("Draw Benchmark", async () => {
         await core.getJurorBalance(wallet.address, PARENT_COURT),
         "No locked stake in the parent court"
       ).to.deep.equal([
+        0, // totalStaked
+        0, // totalLocked
         0, // stakedInCourt
-        0, // lockedInCourt
         0, // nbOfCourts
       ]);
       expect(
         await core.getJurorBalance(wallet.address, CHILD_COURT),
         "No locked stake in the child court"
       ).to.deep.equal([
+        0, // totalStaked
+        0, // totalLocked
         0, // stakedInCourt
-        0, // lockedInCourt
         0, // nbOfCourts
       ]);
     };
@@ -302,13 +307,15 @@ describe("Draw Benchmark", async () => {
       countedDraws = await countDraws(tx.blockNumber);
       for (const [address, draws] of Object.entries(countedDraws)) {
         expect(await core.getJurorBalance(address, PARENT_COURT)).to.deep.equal([
+          ONE_THOUSAND_PNK.mul(5), // totalStaked
+          parentCourtMinStake.mul(draws), // totalLocked
           0, // stakedInCourt
-          parentCourtMinStake.mul(draws), // lockedInCourt
           1, // nbOfCourts
         ]);
         expect(await core.getJurorBalance(address, CHILD_COURT)).to.deep.equal([
+          ONE_THOUSAND_PNK.mul(5), // totalStaked
+          parentCourtMinStake.mul(draws), // totalLocked
           ONE_THOUSAND_PNK.mul(5), // stakedInCourt
-          0, // lockedInCourt
           1, // nbOfCourts
         ]);
       }
@@ -317,21 +324,22 @@ describe("Draw Benchmark", async () => {
     const unstake = async (wallet: Wallet) => {
       await core.connect(wallet).setStake(CHILD_COURT, 0, { gasLimit: 5000000 });
       const locked = parentCourtMinStake.mul(countedDraws[wallet.address] ?? 0);
-      console.log(`draws for ${wallet.address}: ${countedDraws[wallet.address] ?? 0}, locked: ${locked}`);
       expect(
         await core.getJurorBalance(wallet.address, PARENT_COURT),
         "No locked stake in the parent court"
       ).to.deep.equal([
+        0, // totalStaked
+        locked, // totalLocked
         0, // stakedInCourt
-        0, // lockedInCourt
         0, // nbOfCourts
       ]);
       expect(
         await core.getJurorBalance(wallet.address, CHILD_COURT),
         "Drawn jurors have a locked stake in the child court"
       ).to.deep.equal([
+        0, // totalStaked
+        locked, // totalLocked
         0, // stakedInCourt
-        locked, // lockedInCourt
         0, // nbOfCourts
       ]);
     };
@@ -357,13 +365,15 @@ describe("Draw Benchmark", async () => {
       countedDraws = await countDraws(tx.blockNumber);
       for (const [address, draws] of Object.entries(countedDraws)) {
         expect(await core.getJurorBalance(address, PARENT_COURT)).to.deep.equal([
+          ONE_THOUSAND_PNK.mul(5), // totalStaked
+          childCourtMinStake.mul(draws), // totalLocked
           0, // stakedInCourt
-          0, // lockedInCourt
           1, // nbOfCourts
         ]);
         expect(await core.getJurorBalance(address, CHILD_COURT)).to.deep.equal([
+          ONE_THOUSAND_PNK.mul(5), // totalStaked
+          childCourtMinStake.mul(draws), // totalLocked
           ONE_THOUSAND_PNK.mul(5), // stakedInCourt
-          childCourtMinStake.mul(draws), // lockedInCourt
           1, // nbOfCourts
         ]);
       }
@@ -376,16 +386,18 @@ describe("Draw Benchmark", async () => {
         await core.getJurorBalance(wallet.address, PARENT_COURT),
         "No locked stake in the parent court"
       ).to.deep.equal([
+        0, // totalStaked
+        locked, // totalLocked
         0, // stakedInCourt
-        0, // lockedInCourt
         0, // nbOfCourts
       ]);
       expect(
         await core.getJurorBalance(wallet.address, CHILD_COURT),
         "Drawn jurors have a locked stake in the child court"
       ).to.deep.equal([
+        0, // totalStaked
+        locked, // totalLocked
         0, // stakedInCourt
-        locked, // lockedInCourt
         0, // nbOfCourts
       ]);
     };
