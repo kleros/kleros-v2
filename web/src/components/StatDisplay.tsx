@@ -1,10 +1,19 @@
 import React from "react";
-import styled, { useTheme } from "styled-components";
+import { smallScreenStyle } from "styles/smallScreenStyle";
+import styled, { useTheme, css } from "styled-components";
 
 const Container = styled.div`
   display: flex;
+  max-width: 196px;
   align-items: center;
   gap: 8px;
+  margin-bottom: calc(16px + (30 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+
+  ${smallScreenStyle(
+    () => css`
+      margin-bottom: 0px;
+    `
+  )}
 `;
 
 const SVGContainer = styled.div<{ iconColor: string; backgroundColor: string }>`

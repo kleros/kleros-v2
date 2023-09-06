@@ -24,6 +24,7 @@ const StyledCard = styled.div`
   gap: 16px;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   padding: calc(0px + (32 - 0) * (min(max(100vw, 375px), 1250px) - 375px) / 875) 0;
+  padding-bottom: 0px;
 
   ${smallScreenStyle(
     () => css`
