@@ -5,7 +5,7 @@ export function uploadSettingsToSupabase(formData: any): Promise<Response> {
   console.log("formdata", formData);
   console.log("stringified formdata", JSON.stringify(formData));
   return toast.promise<Response, Error>(
-    fetch("./netlify/functions/update-settings", {
+    fetch("/.netlify/functions/update-settings", {
       method: "POST",
       body: JSON.stringify(formData),
     }).then(async (response) => {
