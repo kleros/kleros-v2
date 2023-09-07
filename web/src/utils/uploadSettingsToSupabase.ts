@@ -2,8 +2,6 @@ import { toast } from "react-toastify";
 import { OPTIONS } from "utils/wrapWithToast";
 
 export function uploadSettingsToSupabase(formData: any): Promise<Response> {
-  console.log("form", formData);
-
   return toast.promise<Response, Error>(
     fetch("./netlify/functions/update-settings", {
       method: "POST",

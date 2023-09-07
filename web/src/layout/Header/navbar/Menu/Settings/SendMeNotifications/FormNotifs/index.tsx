@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useWalletClient, useAccount } from "wagmi";
-import { toast } from "react-toastify";
 import { Checkbox, Button } from "@kleros/ui-components-library";
-import { OPTIONS as toastOptions } from "utils/wrapWithToast";
 import { uploadSettingsToSupabase } from "utils/uploadSettingsToSupabase";
 import FormEmail from "./FormEmail";
 
@@ -58,13 +56,11 @@ const FormNotifs: React.FC = () => {
       account: address,
       message: message,
     });
-    const data = [
-      {
-        message: message,
-        address,
-        signature: signature,
-      },
-    ];
+    const data = {
+      message: message,
+      address,
+      signature: signature,
+    };
 
     await uploadSettingsToSupabase(data);
   };
