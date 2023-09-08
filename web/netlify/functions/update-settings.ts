@@ -1,15 +1,22 @@
-import { verifyMessage } from "viem";
+import { createPublicClient, http } from "viem";
 import { createClient } from "@supabase/supabase-js";
+import { arbitrumGoerli } from "viem/chains";
+
+const publicClient = createPublicClient({
+  chain: arbitrumGoerli,
+  transport: http(),
+});
 
 const SUPABASE_KEY = process.env.SUPABASE_CLIENT_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const supabase = createClient(SUPABASE_URL!, SUPABASE_KEY!);
+
 export const uploadSettingsToSupabase = async function (event: any, context: any) {
   try {
     const { message, address, signature } = JSON.parse(event.body);
     const email = message.split("Email:").pop().split(",Nonce:")[0].trim();
     const nonce = message.split("Nonce:").pop().trim();
-    const isValid = await verifyMessage({ address, message: message, signature });
+    const isValid = await publicClient.verifyMessage({ address, message: message, signature });
     // If the recovered address does not match the provided address, return an error
     if (!isValid) {
       throw new Error("Signature verification failed");
