@@ -11,7 +11,7 @@ const SUPABASE_KEY = process.env.SUPABASE_CLIENT_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const supabase = createClient(SUPABASE_URL!, SUPABASE_KEY!);
 
-export const uploadSettingsToSupabase = async function (event: any, context: any) {
+export const handler = async function (event: any, context: any) {
   try {
     const { message, address, signature } = JSON.parse(event.body);
     const email = message.split("Email:").pop().split(",Nonce:")[0].trim();
