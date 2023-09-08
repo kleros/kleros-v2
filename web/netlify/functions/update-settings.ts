@@ -7,7 +7,7 @@ const supabase = createClient(SUPABASE_URL!, SUPABASE_KEY!);
 export const uploadSettingsToSupabase = async function (event: any, context: any) {
   try {
     const { message, address, signature } = JSON.parse(event.body);
-    const email = message.replace(/\n|\r/g, "").split("Email:").pop().split("Nonce:")[0].trim();
+    const email = message.split("Email:").pop().split(",Nonce:")[0].trim();
     const nonce = message.split("Nonce:").pop().trim();
     console.log(
       ":rocket: ~ file: index.tsx:42 ~ handleSupabase ~ email, signature, address, nonce:",

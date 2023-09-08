@@ -45,13 +45,7 @@ const FormNotifs: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const nonce = new Date().getTime();
-    const message = `
-            Email:
-                ${emailInput}
-
-            Nonce:
-                ${nonce}
-`;
+    const message = `Email:${emailInput},Nonce:${nonce}`;
     const signature = await walletClient?.signMessage({
       account: address,
       message: message,
@@ -64,7 +58,6 @@ const FormNotifs: React.FC = () => {
 
     await uploadSettingsToSupabase(data);
   };
-
   return (
     <FormContainer onSubmit={handleSubmit}>
       {OPTIONS.map(({ label }, index) => (
