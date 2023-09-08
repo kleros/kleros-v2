@@ -9,13 +9,6 @@ export const uploadSettingsToSupabase = async function (event: any, context: any
     const { message, address, signature } = JSON.parse(event.body);
     const email = message.split("Email:").pop().split(",Nonce:")[0].trim();
     const nonce = message.split("Nonce:").pop().trim();
-    console.log(
-      ":rocket: ~ file: index.tsx:42 ~ handleSupabase ~ email, signature, address, nonce:",
-      email,
-      signature,
-      address,
-      nonce
-    );
     const isValid = await verifyMessage({ address, message: message, signature });
     // If the recovered address does not match the provided address, return an error
     if (!isValid) {
@@ -31,7 +24,6 @@ export const uploadSettingsToSupabase = async function (event: any, context: any
     }
     // Parse the signed message     console.log("2", email);
     const parsedMessage = JSON.parse(JSON.stringify(email));
-    console.log(":rocket: ~ file: index.tsx:69 ~ handleSupabase ~ parsedMessage:", parsedMessage);
     // Prepare the record data based on the allowed columns
     const recordData: { [key: string]: any } = {};
     for (const key in parsedMessage) {
@@ -44,7 +36,6 @@ export const uploadSettingsToSupabase = async function (event: any, context: any
       .from("user-settings")
       .upsert({ address, email: email })
       .match({ address: address });
-    console.log(":rocket: ~ file: index.tsx:89 ~ handleSupabase ~ data:", data);
     if (error) throw error;
     return { statusCode: 200, body: JSON.stringify({ message: "Record updated successfully." }) };
   } catch (err) {
