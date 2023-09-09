@@ -14,6 +14,7 @@ import PolicyIcon from "svgs/icons/policy.svg";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 import Verdict from "components/Verdict/index";
+import { useVotingHistory } from "hooks/queries/useVotingHistory";
 
 const Container = styled.div`
   width: 100%;
@@ -86,10 +87,13 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const { data: courtPolicyURI } = useCourtPolicyURI(courtID);
   const { data: courtPolicy } = useCourtPolicy(courtID);
+  const { data: votingHistory } = useVotingHistory(id);
   const courtName = courtPolicy?.name;
   const court = disputeDetails?.dispute?.court;
   const rewards = court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined;
   const category = disputeTemplate ? disputeTemplate.category : undefined;
+  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
+
   return (
     <>
       <Container>
@@ -126,7 +130,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
           </>
         )}
 
-        <DisputeInfo courtId={court?.id} court={courtName} {...{ rewards, category }} />
+        <DisputeInfo courtId={court?.id} court={courtName} round={localRounds?.length} {...{ rewards, category }} />
       </Container>
       <ShadeArea>
         <p>Make sure you understand the Policies</p>
