@@ -36,6 +36,7 @@
     "typechain",
     "uncommify",
     "Unslashed",
+    "unstake",
     "viem",
     "wagmi"
   ],
