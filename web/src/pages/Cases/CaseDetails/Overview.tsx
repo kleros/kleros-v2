@@ -1,5 +1,6 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { smallScreenStyle } from "styles/smallScreenStyle";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { formatEther } from "viem";
@@ -20,7 +21,7 @@ const Container = styled.div`
   height: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 
   > h1 {
     margin: 0;
@@ -42,7 +43,14 @@ const QuestionAndDescription = styled.div`
 const VotingOptions = styled(QuestionAndDescription)`
   display: flex;
   flex-direction: column;
-  > span {
+  gap: 8px;
+`;
+
+const Answers = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  span {
     margin: 0px;
     display: flex;
     gap: 8px;
@@ -50,13 +58,29 @@ const VotingOptions = styled(QuestionAndDescription)`
 `;
 
 const ShadeArea = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   width: 100%;
-  padding: 16px;
-  margin-top: 16px;
+  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-top: calc(24px + (48 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   background-color: ${({ theme }) => theme.mediumBlue};
   > p {
     margin-top: 0;
+    margin-bottom: 0;
+    ${smallScreenStyle(
+      () => css`
+        margin-bottom: 16px;
+      `
+    )};
   }
+
+  ${smallScreenStyle(
+    () => css`
+      flex-direction: column;
+      justify-content: center;
+    `
+  )};
 `;
 
 const StyledA = styled.a`
@@ -72,6 +96,13 @@ const StyledA = styled.a`
 const LinkContainer = styled.div`
   display: flex;
   justify-content: space-between;
+  gap: calc(8px + (24 - 8) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+`;
+
+const Divider = styled.hr`
+  display: flex;
+  color: ${({ theme }) => theme.stroke};
+  margin: 0;
 `;
 
 interface IOverview {
@@ -111,18 +142,20 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
         )}
         <VotingOptions>
           {disputeTemplate && <h3>Voting Options</h3>}
-          {disputeTemplate?.answers?.map((answer: { title: string; description: string }, i: number) => (
-            <span key={i}>
-              <small>Option {i + 1}:</small>
-              <label>{answer.title}</label>
-            </span>
-          ))}
+          <Answers>
+            {disputeTemplate?.answers?.map((answer: { title: string; description: string }, i: number) => (
+              <span key={i}>
+                <small>Option {i + 1}:</small>
+                <label>{answer.title}</label>
+              </span>
+            ))}
+          </Answers>
         </VotingOptions>
+        <Divider />
         {currentPeriodIndex !== Periods.evidence && (
           <>
-            <hr />
             <Verdict arbitrable={arbitrable} />
-            <hr />
+            <Divider />
           </>
         )}
 

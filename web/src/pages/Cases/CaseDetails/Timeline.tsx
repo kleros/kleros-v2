@@ -1,5 +1,6 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { tabletScreenStyle } from "styles/tabletScreenStyle";
 import { Periods } from "consts/periods";
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { Box, Steps } from "@kleros/ui-components-library";
@@ -8,16 +9,47 @@ import { useCountdown } from "hooks/useCountdown";
 import { secondsToDayHourMinute } from "utils/date";
 
 const TimeLineContainer = styled(Box)`
+  display: flex;
   width: 100%;
-  height: 100px;
-  border-radius: 3px;
-  margin: 16px 0px;
-  padding: 8px;
+  height: 98px;
+  border-radius: 0px;
+  margin-top: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-bottom: calc(12px + (22 - 12) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  background-color: ${({ theme }) => theme.whiteBackground};
+
+  ${tabletScreenStyle(
+    () => css`
+      padding: 20px 8px 8px 8px;
+      display: block;
+    `
+  )}
 `;
 
-const StyledSteps = styled(Steps)`
+const StyledSteps = styled(Steps)`d
+  display: flex;
+  justify-content: space-between;
   width: 85%;
   margin: auto;
+`;
+
+const TitleMobile = styled.span`
+  display: none;
+
+  ${tabletScreenStyle(
+    () => css`
+      display: inline-block;
+    `
+  )}
+`;
+
+const TitleDesktop = styled(TitleMobile)`
+  display: inline-block;
+
+  ${tabletScreenStyle(
+    () => css`
+      display: none;
+    `
+  )}
 `;
 
 const Timeline: React.FC<{
@@ -40,7 +72,12 @@ const currentPeriodToCurrentItem = (currentPeriodIndex: number, ruled?: boolean)
 };
 
 const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: number, currentPeriodIndex: number) => {
-  const titles = ["Evidence Period", "Voting Period", "Appeal Period", "Executed"];
+  const titles = [
+    { mobile: "Evidence", desktop: "Evidence Period" },
+    { mobile: "Voting", desktop: "Voting Period" },
+    { mobile: "Appeal", desktop: "Appeal Period" },
+    { mobile: "Executed", desktop: "Executed" },
+  ];
   const deadlineCurrentPeriod = getDeadline(
     currentPeriodIndex,
     dispute?.lastPeriodChange,
@@ -64,7 +101,12 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: 
     return [<StyledSkeleton key={index} width={60} />];
   };
   return titles.map((title, i) => ({
-    title,
+    title: (
+      <>
+        <TitleMobile>{title.mobile}</TitleMobile>
+        <TitleDesktop>{title.desktop}</TitleDesktop>
+      </>
+    ),
     subitems: getSubitems(i),
   }));
 };

@@ -10,6 +10,7 @@ import Governor from "svgs/icons/governor.svg";
 import Court from "svgs/icons/kleros.svg";
 import Linguo from "svgs/icons/linguo.svg";
 import POH from "svgs/icons/poh-image.png";
+import Vea from "svgs/icons/vea.svg";
 import Tokens from "svgs/icons/tokens.svg";
 import Product from "./Product";
 import { Overlay } from "components/Overlay";
@@ -77,14 +78,14 @@ const ITEMS = [
     url: "https://court.kleros.io/",
   },
   {
+    text: "Vea",
+    Icon: Vea,
+    url: "https://veascan.io",
+  },
+  {
     text: "Escrow",
     Icon: Escrow,
     url: "https://escrow.kleros.io",
-  },
-  {
-    text: "Tokens",
-    Icon: Tokens,
-    url: "https://tokens.kleros.io",
   },
   {
     text: "POH",
@@ -95,6 +96,11 @@ const ITEMS = [
     text: "Curate",
     Icon: Curate,
     url: "https://curate.kleros.io",
+  },
+  {
+    text: "Tokens",
+    Icon: Tokens,
+    url: "https://tokens.kleros.io",
   },
   {
     text: "Resolver",
