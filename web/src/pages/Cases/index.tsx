@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Routes, Route } from "react-router-dom";
 import { useCasesQuery } from "queries/useCasesQuery";
-import { useWindowWidth } from "hooks/useWindowWidth";
+import { useWindowSize } from "react-use";
 import { BREAKPOINT_TABLET_SCREEN } from "styles/tabletScreenStyle";
 import CasesDisplay from "components/CasesDisplay";
 import CaseDetails from "./CaseDetails";
@@ -11,14 +11,16 @@ const Container = styled.div`
   width: 100%;
   min-height: calc(100vh - 144px);
   background-color: ${({ theme }) => theme.lightBackground};
-  padding: 32px;
+  padding: calc(32px + (132 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding-top: calc(32px + (64 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding-bottom: calc(64px + (96 - 64) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 `;
 
 const Cases: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const windowWidth = useWindowWidth();
+  const { width } = useWindowSize();
   const { isList, setIsList } = useFiltersContext();
-  const screenIsBig = windowWidth > BREAKPOINT_TABLET_SCREEN;
+  const screenIsBig = width > BREAKPOINT_TABLET_SCREEN;
   const casesPerPage = screenIsBig ? 9 : 3;
   const { data } = useCasesQuery(casesPerPage * (currentPage - 1), casesPerPage);
 

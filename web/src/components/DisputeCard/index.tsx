@@ -16,7 +16,7 @@ import { isUndefined } from "utils/index";
 const StyledCard = styled(Card)`
   max-width: 380px;
   min-width: 312px;
-  width: auto;
+  width: 380px;
   height: 260px;
 `;
 const StyledListItem = styled(Card)`
@@ -111,7 +111,6 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
               <h3>{title}</h3>
             </ListTitle>
             <DisputeInfo
-              isCard={false}
               courtId={court?.id}
               court={courtName}
               period={currentPeriodIndex}

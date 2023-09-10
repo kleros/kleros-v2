@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { useFiltersContext } from "context/FilterProvider";
 
 const FieldContainer = styled.div<FieldContainerProps>`
   width: ${({ width = "100%" }) => width};
@@ -10,7 +11,7 @@ const FieldContainer = styled.div<FieldContainerProps>`
   white-space: nowrap;
   .value {
     flex-grow: 1;
-    text-align: ${({ isCard }) => (isCard ? "end" : "center")};
+    text-align: ${({ isList }) => (isList ? "center" : "end")};
     color: ${({ theme }) => theme.primaryText};
   }
   svg {
@@ -28,7 +29,7 @@ const FieldContainer = styled.div<FieldContainerProps>`
 
 type FieldContainerProps = {
   width?: string;
-  isCard?: boolean;
+  isList?: boolean;
 };
 
 interface IField {
@@ -37,25 +38,27 @@ interface IField {
   value: string;
   link?: string;
   width?: string;
-  isCard?: boolean;
 }
 
-const Field: React.FC<IField> = ({ icon: Icon, name, value, link, width, isCard = true }) => (
-  <FieldContainer isCard={isCard} width={width}>
-    {isCard && (
-      <>
-        <Icon />
-        <label>{name}:</label>
-      </>
-    )}
-    {link ? (
-      <Link className="link value" to={link}>
-        {value}
-      </Link>
-    ) : (
-      <label className="value">{value}</label>
-    )}
-  </FieldContainer>
-);
+const Field: React.FC<IField> = ({ icon: Icon, name, value, link, width }) => {
+  const { isList } = useFiltersContext();
+  return (
+    <FieldContainer isList={isList} width={width}>
+      {!isList && (
+        <>
+          <Icon />
+          <label>{name}:</label>
+        </>
+      )}
+      {link ? (
+        <Link className="link value" to={link}>
+          {value}
+        </Link>
+      ) : (
+        <label className="value">{value}</label>
+      )}
+    </FieldContainer>
+  );
+};
 
 export default Field;

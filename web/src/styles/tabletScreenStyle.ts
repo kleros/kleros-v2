@@ -1,9 +1,9 @@
-import { css, DefaultTheme, FlattenInterpolation, ThemeProps } from "styled-components";
+import { css, FlattenSimpleInterpolation } from "styled-components";
 
 export const BREAKPOINT_TABLET_SCREEN = 1024;
 
-export const tabletScreenStyle = (styleFn: () => FlattenInterpolation<ThemeProps<DefaultTheme>>) => css`
+export const tabletScreenStyle = (style: FlattenSimpleInterpolation) => css`
   @media (max-width: ${BREAKPOINT_TABLET_SCREEN}px) {
-    ${() => styleFn()}
+    ${style}
   }
 `;

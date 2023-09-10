@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import { StandardPagination } from "@kleros/ui-components-library";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { tabletScreenStyle } from "styles/tabletScreenStyle";
 import { useFiltersContext } from "context/FilterProvider";
 import { CasesPageQuery } from "queries/useCasesQuery";
 import DisputeCard from "components/DisputeCard";
@@ -9,14 +9,18 @@ import CasesListHeader from "./CasesListHeader";
 
 const GridContainer = styled.div`
   display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(3, minmax(50px, 1fr));
-  justify-content: center;
+  row-gap: 16px;
+  column-gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  ${smallScreenStyle(css`
+  justify-items: center;
+  ${tabletScreenStyle(css`
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
   `)}
 `;
 const ListContainer = styled.div`
