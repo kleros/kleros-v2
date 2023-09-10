@@ -203,6 +203,8 @@ describe("Draw Benchmark", async () => {
     };
     let countedDraws: CountedDraws;
     const expectFromDraw = async (drawTx: Promise<ContractTransaction>) => {
+      expect(await core.getRoundInfo(0, 0).then((round) => round.drawIterations)).to.equal(3);
+
       const tx = await (await drawTx).wait();
       expect(tx)
         .to.emit(core, "Draw")
@@ -261,7 +263,8 @@ describe("Draw Benchmark", async () => {
     };
 
     const expectFromDraw = async (drawTx: Promise<ContractTransaction>) => {
-      await expect(drawTx).to.not.emit(core, "Draw");
+      expect(await core.getRoundInfo(0, 0).then((round) => round.drawIterations)).to.equal(20);
+      expect(await drawTx).to.not.emit(core, "Draw");
     };
 
     const unstake = async (wallet: Wallet) => {
@@ -295,6 +298,8 @@ describe("Draw Benchmark", async () => {
     };
     let countedDraws: CountedDraws;
     const expectFromDraw = async (drawTx: Promise<ContractTransaction>) => {
+      expect(await core.getRoundInfo(0, 0).then((round) => round.drawIterations)).to.equal(3);
+
       const tx = await (await drawTx).wait();
       expect(tx)
         .to.emit(core, "Draw")
@@ -353,6 +358,8 @@ describe("Draw Benchmark", async () => {
     };
     let countedDraws: CountedDraws;
     const expectFromDraw = async (drawTx: Promise<ContractTransaction>) => {
+      expect(await core.getRoundInfo(0, 0).then((round) => round.drawIterations)).to.equal(3);
+
       const tx = await (await drawTx).wait();
       expect(tx)
         .to.emit(core, "Draw")

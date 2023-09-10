@@ -610,9 +610,10 @@ contract KlerosCore is IArbitratorV2 {
 
         IDisputeKit disputeKit = disputeKitNodes[round.disputeKitID].disputeKit;
 
-        uint256 startIndex = round.drawIterations;
-        for (uint256 i = startIndex; i < startIndex + _iterations && round.drawnJurors.length < round.nbVotes; i++) {
-            address drawnAddress = disputeKit.draw(_disputeID, i);
+        uint256 startIndex = round.drawIterations; // for gas: less storage reads
+        uint256 i;
+        while (i < _iterations && round.drawnJurors.length < round.nbVotes) {
+            address drawnAddress = disputeKit.draw(_disputeID, startIndex + i++);
             if (drawnAddress == address(0)) {
                 continue;
             }
@@ -623,7 +624,7 @@ contract KlerosCore is IArbitratorV2 {
                 sortitionModule.postDrawHook(_disputeID, currentRound);
             }
         }
-        round.drawIterations += _iterations;
+        round.drawIterations += i;
     }
 
     /// @dev Appeals the ruling of a specified dispute.
@@ -972,38 +973,8 @@ contract KlerosCore is IArbitratorV2 {
         (ruling, tied, overridden) = disputeKit.currentRuling(_disputeID);
     }
 
-    function getRoundInfo(
-        uint256 _disputeID,
-        uint256 _round
-    )
-        external
-        view
-        returns (
-            uint256 disputeKitID,
-            uint256 pnkAtStakePerJuror,
-            uint256 totalFeesForJurors,
-            uint256 nbVotes,
-            uint256 repartitions,
-            uint256 pnkPenalties,
-            address[] memory drawnJurors,
-            uint256 sumFeeRewardPaid,
-            uint256 sumPnkRewardPaid,
-            IERC20 feeToken
-        )
-    {
-        Round storage round = disputes[_disputeID].rounds[_round];
-        return (
-            round.disputeKitID,
-            round.pnkAtStakePerJuror,
-            round.totalFeesForJurors,
-            round.nbVotes,
-            round.repartitions,
-            round.pnkPenalties,
-            round.drawnJurors,
-            round.sumFeeRewardPaid,
-            round.sumPnkRewardPaid,
-            round.feeToken
-        );
+    function getRoundInfo(uint256 _disputeID, uint256 _round) external view returns (Round memory) {
+        return disputes[_disputeID].rounds[_round];
     }
 
     function getNumberOfRounds(uint256 _disputeID) external view returns (uint256) {
