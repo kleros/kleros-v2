@@ -45,6 +45,7 @@ const AccountContainer = styled.div`
       gap: 12px;
       > label {
         color: ${({ theme }) => theme.primaryText};
+        font-weight: 400;
         font-size: 14px;
       }
     `
