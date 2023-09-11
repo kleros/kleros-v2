@@ -27,7 +27,12 @@ const Search: React.FC = () => {
   return (
     <div>
       <Container>
-        <StyledSearchbar type="text" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <StyledSearchbar
+          type="text"
+          placeholder="Search By ID"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </Container>
       <DropdownCascader
         placeholder={"Select Court"}

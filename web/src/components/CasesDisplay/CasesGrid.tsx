@@ -52,42 +52,21 @@ const calculatePages = (
 
   let totalPages = 0;
 
-  if ("counter" in data) {
-    const counterQueryData = data as CounterQuery;
-    const counter = counterQueryData.counter;
-    if (counter) {
-      switch (status) {
-        case 1:
-          totalPages = counter.cases - counter.casesRuled;
-          break;
-        case 2:
-          totalPages = counter.casesRuled;
-          break;
-        case 3:
-          totalPages = counter.casesAppealing;
-          break;
-        default:
-          totalPages = numberDisputes ?? 0;
-      }
-    }
-  } else {
-    const userQueryData = data as UserQuery;
-    const user = userQueryData.user;
-    if (user) {
-      switch (status) {
-        case 1:
-          totalPages = (user.totalDisputes ?? 0) - (user.totalResolvedDisputes ?? 0);
-          break;
-        case 2:
-          totalPages = user.totalResolvedDisputes ?? 0;
-          break;
-        case 3:
-          totalPages = myAppeals ?? 0;
-          break;
-        default:
-          totalPages = user.totalDisputes ?? 0;
-      }
-    }
+  switch (status) {
+    case 1:
+      totalPages =
+        "counter" in data
+          ? data?.counter?.cases - data?.counter?.casesRuled
+          : (data as UserQuery).user?.totalDisputes - (data as UserQuery).user?.totalResolvedDisputes;
+      break;
+    case 2:
+      totalPages = "counter" in data ? data?.counter?.casesRuled : (data as UserQuery).user?.totalResolvedDisputes;
+      break;
+    case 3:
+      totalPages = "counter" in data ? data?.counter?.casesAppealing : myAppeals ?? 0;
+      break;
+    default:
+      totalPages = "counter" in data ? numberDisputes ?? 0 : (data as UserQuery).user?.totalDisputes ?? 0;
   }
 
   return totalPages / casesPerPage;

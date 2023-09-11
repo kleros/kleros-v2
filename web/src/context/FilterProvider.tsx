@@ -96,22 +96,23 @@ export const FilterProvider: React.FC<{ children?: React.ReactNode }> = ({ child
   const { data } = useCasesQuery(disputeSkip, combinedQueryFilters, direction);
   const { data: dashboardData } = useMyCasesQuery(address, disputeSkip, combinedQueryFilters, direction);
 
-  const disputes = isDashboard
-    ? (dashboardData?.user?.disputes as DisputeDetailsFragment[])
-    : (data?.disputes as DisputeDetailsFragment[]);
-
   useEffect(() => {
     setCurrentPage(1);
   }, [statusFilter]);
 
   useEffect(() => {
+    const disputes = isDashboard
+      ? (dashboardData?.user?.disputes as DisputeDetailsFragment[])
+      : (data?.disputes as DisputeDetailsFragment[]);
+
     if (search !== "" || statusFilter !== 0 || courtFilter !== 0 || timeFilter !== 0) {
       setIsFilterApplied(true);
     } else {
       setIsFilterApplied(false);
     }
+
     setFilteredCases(disputes);
-  }, [debouncedSearch, data, timeFilter, courtFilter, statusFilter]);
+  }, [debouncedSearch, data, timeFilter, courtFilter, statusFilter, dashboardData]);
 
   const value = useMemo(
     () => ({
