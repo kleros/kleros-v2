@@ -9,7 +9,7 @@ import { useCounterQuery } from "hooks/queries/useCounter";
 import { useUserQuery } from "hooks/queries/useUser";
 import { useFiltersContext } from "context/FilterProvider";
 import DisputeCard from "components/DisputeCard";
-import { CounterQuery, Period, UserQuery } from "~src/graphql/graphql";
+import { CounterQuery, UserQuery } from "src/graphql/graphql";
 import { useMyAppealCasesQuery } from "~src/hooks/queries/useMyAppealCasesQuery";
 
 const Container = styled.div`
@@ -41,42 +41,56 @@ export interface ICasesGrid {
 
 const calculatePages = (
   status: number,
-  data: CounterQuery | UserQuery,
+  data: CounterQuery | UserQuery | undefined,
   casesPerPage: number,
   numberDisputes: number,
   myAppeals?: number
 ) => {
-  if (data) {
-    console.log("dataaa", data);
-    if ("counter" in data) {
+  if (!data) {
+    return 0;
+  }
+
+  let totalPages = 0;
+
+  if ("counter" in data) {
+    const counterQueryData = data as CounterQuery;
+    const counter = counterQueryData.counter;
+    if (counter) {
       switch (status) {
         case 1:
-          return Math.ceil((data?.counter?.cases - data?.counter?.casesRuled) / casesPerPage);
+          totalPages = counter.cases - counter.casesRuled;
+          break;
         case 2:
-          return Math.ceil(data?.counter?.casesRuled / casesPerPage);
+          totalPages = counter.casesRuled;
+          break;
         case 3:
-          return Math.ceil(data?.counter?.casesAppealing / casesPerPage);
+          totalPages = counter.casesAppealing;
+          break;
         default:
-          return Math.ceil((numberDisputes ?? 0) / casesPerPage);
-      }
-    } else {
-      const userQueryData = data as UserQuery;
-      switch (status) {
-        case 1:
-          return Math.ceil(
-            (userQueryData?.user?.totalDisputes - userQueryData?.user?.totalResolvedDisputes) / casesPerPage
-          );
-        case 2:
-          return Math.ceil(userQueryData?.user?.totalResolvedDisputes / casesPerPage);
-        case 3:
-          return Math.ceil(myAppeals! / casesPerPage);
-        default:
-          return Math.ceil((userQueryData.user?.totalDisputes ?? 0) / casesPerPage);
+          totalPages = numberDisputes ?? 0;
       }
     }
   } else {
-    return 0;
+    const userQueryData = data as UserQuery;
+    const user = userQueryData.user;
+    if (user) {
+      switch (status) {
+        case 1:
+          totalPages = (user.totalDisputes ?? 0) - (user.totalResolvedDisputes ?? 0);
+          break;
+        case 2:
+          totalPages = user.totalResolvedDisputes ?? 0;
+          break;
+        case 3:
+          totalPages = myAppeals ?? 0;
+          break;
+        default:
+          totalPages = user.totalDisputes ?? 0;
+      }
+    }
   }
+
+  return totalPages / casesPerPage;
 };
 
 const CasesGrid: React.FC<ICasesGrid> = ({ disputes, currentPage, setCurrentPage, numberDisputes, casesPerPage }) => {
@@ -87,16 +101,8 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, currentPage, setCurrentPage
   const { data: counterData } = useCounterQuery();
   const userAppealCasesNumber = userAppealCases?.user?.disputes.length;
   const totalPages = isDashboard
-    ? calculatePages(statusFilter, userData!, casesPerPage, numberDisputes!, userAppealCasesNumber)
-    : calculatePages(statusFilter, counterData!, casesPerPage, numberDisputes!);
-  console.log(
-    "🚀 ~ file: CasesGrid.tsx:42 ~ counterData:",
-    statusFilter,
-    userData!,
-    casesPerPage,
-    numberDisputes!,
-    userAppealCasesNumber
-  );
+    ? calculatePages(statusFilter, userData, casesPerPage, numberDisputes ?? 0, userAppealCasesNumber)
+    : calculatePages(statusFilter, counterData, casesPerPage, numberDisputes ?? 0);
 
   return (
     <>
@@ -113,7 +119,7 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, currentPage, setCurrentPage
       {debouncedSearch === "" && (
         <StyledPagination
           currentPage={currentPage}
-          numPages={totalPages}
+          numPages={Math.ceil(totalPages ?? 0)}
           callback={(page: number) => setCurrentPage(page)}
         />
       )}

@@ -1,7 +1,7 @@
 import { graphql } from "src/graphql";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
-import { MyAppealCasesQuery, Period, Dispute_Filter } from "src/graphql/graphql";
+import { MyAppealCasesQuery, Period } from "src/graphql/graphql";
 import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 import { isUndefined } from "utils/index";
 export type { MyAppealCasesQuery };

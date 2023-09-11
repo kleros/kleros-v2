@@ -128,6 +128,8 @@ type Court @entity {
   supportedDisputeKits: [DisputeKit!]!
   disputes: [Dispute!]! @derivedFrom(field: "court")
   numberDisputes: BigInt!
+  numberClosedDisputes: BigInt!
+  numberAppealingDisputes: BigInt!
   stakedJurors: [JurorTokensPerCourt!]! @derivedFrom(field: "court")
   numberStakedJurors: BigInt!
   stake: BigInt!

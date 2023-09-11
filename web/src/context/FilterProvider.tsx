@@ -3,7 +3,7 @@ import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
 import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
 import { useCasesQuery } from "hooks/queries/useCasesQuery";
-import { OrderDirection, Period } from "~src/graphql/graphql";
+import { OrderDirection, Period } from "src/graphql/graphql";
 
 interface IFilters {
   search: string;
@@ -21,6 +21,7 @@ interface IFilters {
   isDashboard: boolean;
   setIsDashboard: (arg0: boolean) => void;
   setStatusFilter: (arg0: number) => void;
+  isFilterApplied: boolean;
 }
 
 const Context = createContext<IFilters>({
@@ -53,17 +54,8 @@ const Context = createContext<IFilters>({
   setCurrentPage: () => {
     //
   },
+  isFilterApplied: false,
 });
-
-const applyFilters = (disputes: DisputeDetailsFragment[], search: string, status: number): DisputeDetailsFragment[] => {
-  const filteredDisputes = disputes?.filter((dispute) => {
-    const matchesSearch = !search || dispute.id.includes(search);
-    const matchesStatus = Period[status] === dispute.period || true;
-    return matchesSearch && matchesStatus;
-  });
-
-  return filteredDisputes;
-};
 
 const getStatusPeriod = (statusFilter: number) => {
   switch (statusFilter) {
@@ -80,6 +72,7 @@ const getStatusPeriod = (statusFilter: number) => {
 
 export const FilterProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const { address } = useAccount();
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState(0);
   const [courtFilter, setCourtFilter] = useState(0);
@@ -93,10 +86,12 @@ export const FilterProvider: React.FC<{ children?: React.ReactNode }> = ({ child
   const disputeSkip = debouncedSearch ? 0 : 3 * (currentPage - 1);
   const periodStatus = getStatusPeriod(statusFilter);
   const queryFilter = debouncedSearch ? { id: debouncedSearch } : undefined;
+  const courtChoice = courtFilter === 0 ? {} : { court: courtFilter.toString() };
 
   const combinedQueryFilters = {
     ...queryFilter,
     ...periodStatus,
+    ...courtChoice,
   };
   const { data } = useCasesQuery(disputeSkip, combinedQueryFilters, direction);
   const { data: dashboardData } = useMyCasesQuery(address, disputeSkip, combinedQueryFilters, direction);
@@ -109,22 +104,13 @@ export const FilterProvider: React.FC<{ children?: React.ReactNode }> = ({ child
     setCurrentPage(1);
   }, [statusFilter]);
 
-  // useEffect(() => {
-  //   const filteredDisputes = disputes?.filter((dispute) => {
-  //     const matchesSearch = debouncedSearch ? dispute.id.includes(debouncedSearch) : true;
-  //     const matchesStatus = dispute.period === "execution" ? true : false;
-
-  //     return (matchesSearch && matchesStatus) || [];
-  //   });
-  //   const disputeData = timeFilter === 1 ? filteredDisputes.reverse() : filteredDisputes;
-  //   console.log("🚀 ~ file: FilterProvider.tsx:69 ~ useEffect ~ disputeData:", disputeData);
-
-  //   setFilteredCases(disputeData);
-  // }, [debouncedSearch, data, timeFilter, courtFilter, statusFilter]);
-
   useEffect(() => {
-    const filteredDisputes = applyFilters(disputes, debouncedSearch, statusFilter);
-    setFilteredCases(filteredDisputes);
+    if (search !== "" || statusFilter !== 0 || courtFilter !== 0 || timeFilter !== 0) {
+      setIsFilterApplied(true);
+    } else {
+      setIsFilterApplied(false);
+    }
+    setFilteredCases(disputes);
   }, [debouncedSearch, data, timeFilter, courtFilter, statusFilter]);
 
   const value = useMemo(
@@ -144,6 +130,7 @@ export const FilterProvider: React.FC<{ children?: React.ReactNode }> = ({ child
       setCurrentPage,
       isDashboard,
       setIsDashboard,
+      isFilterApplied,
     }),
     [search, debouncedSearch, timeFilter, statusFilter, filteredCases]
   );

@@ -22,7 +22,7 @@ const StyledSearchbar = styled(Searchbar)`
 `;
 
 const Search: React.FC = () => {
-  const { search, setSearch } = useFiltersContext();
+  const { search, setSearch, setCourtFilter } = useFiltersContext();
 
   return (
     <div>
@@ -31,9 +31,7 @@ const Search: React.FC = () => {
       </Container>
       <DropdownCascader
         placeholder={"Select Court"}
-        onSelect={() => {
-          // Called with the item value when select is clicked
-        }}
+        onSelect={setCourtFilter}
         items={[
           {
             label: "General Court",

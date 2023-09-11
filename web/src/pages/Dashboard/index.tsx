@@ -8,7 +8,6 @@ import JurorInfo from "./JurorInfo";
 import Courts from "./Courts";
 import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
-import { useMyAppealCasesQuery } from "~src/hooks/queries/useMyAppealCasesQuery";
 
 const Container = styled.div`
   width: 100%;
@@ -36,7 +35,6 @@ const Dashboard: React.FC = () => {
   const { data: disputesData } = useMyCasesQuery(address, casesPerPage * (currentPage - 1));
   const { data: userData } = useUserQuery(address);
   const { setIsDashboard } = useFiltersContext();
-  const { data: appealingCases } = useMyAppealCasesQuery(address);
 
   useEffect(() => {
     setIsDashboard(true);
