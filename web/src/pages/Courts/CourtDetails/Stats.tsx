@@ -1,6 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useParams } from "react-router-dom";
 import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
 import { useCoinPrice } from "hooks/useCoinPrice";
@@ -21,14 +21,14 @@ const StyledCard = styled.div`
   width: auto;
   height: fit-content;
   display: grid;
-  gap: 16px;
+  gap: 32px;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   padding: calc(0px + (32 - 0) * (min(max(100vw, 375px), 1250px) - 375px) / 875) 0;
   padding-bottom: 0px;
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      gap: 32px;
+      gap: 16px;
     `
   )}
 `;

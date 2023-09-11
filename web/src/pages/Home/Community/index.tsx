@@ -1,6 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { Card } from "@kleros/ui-components-library";
 import { Element } from "./Element";
 import { firstSection, secondSection } from "consts/community-elements";
@@ -24,33 +24,35 @@ const StyledSeparator = styled.hr`
 
 const Section = styled.div`
   width: 100%;
-  min-height: 64px;
+  gap: 8px;
+  flex-direction: column;
+  height: auto;
   flex-wrap: wrap;
-  padding: 0 32px;
+  padding: 12px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      flex-direction: column;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px;
-      height: auto;
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 0px;
+      padding: 0 32px;
+      min-height: 64px;
     `
   )}
 `;
 
 const TwoElementContainer = styled.div`
   display: flex;
-  flex-direction: row;
-  gap: 48px;
+  flex-direction: column;
+  gap: 8px;
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      flex-direction: column;
-      gap: 8px;
+      flex-direction: row;
+      gap: 48px;
     `
   )}
 `;

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import CourtOverview from "./CourtOverview";
 import LatestCases from "./LatestCases";
 import Community from "./Community";
-import Header from "./Header";
+import HeroImage from "./HeroImage";
 import { HomePageProvider } from "hooks/useHomePageContext";
 import { getOneYearAgoTimestamp } from "utils/date";
 
@@ -19,7 +19,7 @@ const Container = styled.div`
 const Home: React.FC = () => {
   return (
     <HomePageProvider timeframe={getOneYearAgoTimestamp()}>
-      <Header />
+      <HeroImage />
       <Container>
         <CourtOverview />
         <LatestCases />

@@ -1,29 +1,29 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { smallScreenStyle } from "styles/smallScreenStyle";
-import { tabletScreenStyle } from "styles/tabletScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useAccount, useNetwork, useEnsAvatar, useEnsName } from "wagmi";
 import Identicon from "react-identicons";
 import { shortenAddress } from "utils/shortenAddress";
 
 const Container = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
-  align-content: center;
+  height: auto;
+  align-items: flex-start;
+  gap: 8px;
   align-items: center;
-  border-radius: 300px;
-  background-color: ${({ theme }) => theme.whiteLowOpacity};
-  padding: 0 12px;
+  background-color: ${({ theme }) => theme.whiteBackground};
+  padding: 0px;
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      background-color: ${({ theme }) => theme.whiteBackground};
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
-      padding: 0px;
-      height: auto;
+      background-color: ${({ theme }) => theme.whiteLowOpacity};
+      flex-direction: row;
+      align-content: center;
+      border-radius: 300px;
+      gap: 0px;
+      padding: 0 12px;
     `
   )}
 `;
@@ -33,32 +33,33 @@ const AccountContainer = styled.div`
   display: flex;
   align-items: center;
   width: fit-content;
-  gap: 12px;
+  gap: 8px;
 
   > label {
-    color: ${({ theme }) => theme.primaryText};
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: 600;
   }
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      gap: 8px;
+      gap: 12px;
       > label {
-        font-size: 16px;
-        font-weight: 600;
+        color: ${({ theme }) => theme.primaryText};
+        font-size: 14px;
       }
     `
   )}
 `;
 const ChainConnectionContainer = styled.div`
+  display: flex;
   width: fit-content;
   min-height: 32px;
-  display: flex;
   align-items: center;
-  padding-left: 12px;
+  padding-left: 0px;
   > label {
     color: ${({ theme }) => theme.success};
-    font-size: 14px;
+    font-size: 16px;
+
     font-weight: 500;
   }
 
@@ -66,29 +67,14 @@ const ChainConnectionContainer = styled.div`
     content: "";
     width: 8px;
     height: 8px;
-    margin: 0px 8px 0px 3px;
+    margin: 0px 13px 0px 3px;
     border-radius: 50%;
     background-color: ${({ theme }) => theme.success};
   }
 
-  ${tabletScreenStyle(
+  ${landscapeStyle(
     () => css`
       display: none;
-    `
-  )}
-
-  ${smallScreenStyle(
-    () => css`
-      padding-left: 0px;
-      display: flex;
-
-      > label {
-        font-size: 16px;
-      }
-
-      :before {
-        margin: 0px 13px 0px 3px;
-      }
     `
   )}
 `;

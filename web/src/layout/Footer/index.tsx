@@ -1,25 +1,25 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import SecuredByKlerosLogo from "svgs/footer/secured-by-kleros.svg";
 import { socialmedia } from "consts/socialmedia";
 
 const Container = styled.div`
-  height: 64px;
+  height: 80px;
   width: 100%;
   background-color: ${({ theme }) => theme.primaryPurple};
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
   padding: 0 32px;
   gap: 16px;
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      height: 80px;
-      flex-direction: column;
-      justify-content: center;
+      height: 64px;
+      flex-direction: row;
+      justify-content: space-between;
     `
   )}
 

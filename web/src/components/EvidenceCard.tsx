@@ -1,6 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import Identicon from "react-identicons";
 import { Card } from "@kleros/ui-components-library";
 import AttachmentIcon from "svgs/icons/attachment.svg";
@@ -43,16 +43,16 @@ const BottomShade = styled.div`
 `;
 
 const StyledA = styled.a`
-  gap: calc(5px + (6 - 5) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   display: flex;
-  > svg {
-    width: 16px;
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
+  margin-left: auto;
+  gap: calc(5px + (6 - 5) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      margin-left: auto;
+      > svg {
+        width: 16px;
+        fill: ${({ theme }) => theme.primaryBlue};
+      }
     `
   )}
 `;
@@ -76,19 +76,18 @@ const AccountContainer = styled.div`
 `;
 
 const DesktopText = styled.span`
-  ${smallScreenStyle(
+  display: none;
+  ${landscapeStyle(
     () => css`
-      display: none;
+      display: inline;
     `
   )}
 `;
 
 const MobileText = styled.span`
-  display: none;
-
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      display: inline;
+      display: none;
     `
   )}
 `;

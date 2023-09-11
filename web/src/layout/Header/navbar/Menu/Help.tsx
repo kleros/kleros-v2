@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import styled, { css } from "styled-components";
 import { useLockBodyScroll } from "react-use";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useFocusOutside } from "hooks/useFocusOutside";
 import Book from "svgs/icons/book-open.svg";
 import Guide from "svgs/icons/book.svg";
@@ -15,8 +15,9 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   position: absolute;
-  width: 240px;
-  top: 100%;
+  width: auto;
+  top: 5%;
+  left: 50%;
   transform: translateX(-50%);
   z-index: 1;
   padding: 27px 10px;
@@ -26,12 +27,11 @@ const Container = styled.div`
   border-radius: 3px;
   box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.06);
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      top: 5%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: auto;
+      top: 100%;
+      left: 92%;
+      width: 240px;
     `
   )}
 `;

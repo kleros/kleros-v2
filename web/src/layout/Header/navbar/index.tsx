@@ -1,6 +1,5 @@
 import React from "react";
-import styled, { css } from "styled-components";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import styled from "styled-components";
 import { useLockBodyScroll, useToggle } from "react-use";
 import { useAccount } from "wagmi";
 import ConnectWallet from "components/ConnectWallet";
@@ -14,32 +13,27 @@ import Debug from "./Debug";
 import { DisconnectWalletButton } from "./Menu/Settings/General";
 
 const Container = styled.div<{ isOpen: boolean }>`
-  ${({ isOpen }) =>
-    smallScreenStyle(
-      () => css`
-        position: absolute;
-        top: 64px;
-        left: 0;
-        right: 0;
-        z-index: 1;
-        background-color: ${({ theme }) => theme.whiteBackground};
-        border: 1px solid ${({ theme }) => theme.stroke};
-        box-shadow: 0px 2px 3px ${({ theme }) => theme.defaultShadow};
+  position: absolute;
+  top: 64px;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  background-color: ${({ theme }) => theme.whiteBackground};
+  border: 1px solid ${({ theme }) => theme.stroke};
+  box-shadow: 0px 2px 3px ${({ theme }) => theme.defaultShadow};
 
-        transform-origin: top;
-        transform: scaleY(${isOpen ? "1" : "0"});
-        visibility: ${isOpen ? "visible" : "hidden"};
-        transition-property: transform, visibility;
-        transition-duration: ${({ theme }) => theme.transitionSpeed};
-        transition-timing-function: ease;
+  transform-origin: top;
+  transform: scaleY(${({ isOpen }) => (isOpen ? "1" : "0")});
+  visibility: ${({ isOpen }) => (isOpen ? "visible" : "hidden")};
+  transition-property: transform, visibility;
+  transition-duration: ${({ theme }) => theme.transitionSpeed};
+  transition-timing-function: ease;
 
-        padding: 24px;
+  padding: 24px;
 
-        hr {
-          margin: 24px 0;
-        }
-      `
-    )}
+  hr {
+    margin: 24px 0;
+  }
 `;
 
 const WalletContainer = styled.div`

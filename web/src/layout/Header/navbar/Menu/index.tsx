@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useToggle } from "react-use";
 import LightButton from "components/LightButton";
 import Help from "./Help";
@@ -14,12 +14,14 @@ import { useToggleTheme } from "hooks/useToggleThemeContext";
 
 const Container = styled.div`
   display: flex;
-  flex-direction: row;
-  gap: 8px;
-  ${smallScreenStyle(
+
+  flex-direction: column;
+  gap: 0px;
+
+  ${landscapeStyle(
     () => css`
-      flex-direction: column;
-      gap: 0px;
+      flex-direction: row;
+      gap: 8px;
     `
   )}
 `;
@@ -34,20 +36,20 @@ const ButtonContainer = styled.div`
   }
 
   .button-text {
-    display: none;
+    display: block;
   }
 
   .button-svg {
-    fill: ${({ theme }) => theme.white};
+    fill: ${({ theme }) => theme.secondaryPurple};
   }
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
       .button-svg {
-        fill: ${({ theme }) => theme.secondaryPurple};
+        fill: ${({ theme }) => theme.white};
       }
       .button-text {
-        display: block;
+        display: none;
       }
     `
   )}

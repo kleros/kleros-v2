@@ -1,6 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { tabletScreenStyle } from "styles/tabletScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { Periods } from "consts/periods";
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { Box, Steps } from "@kleros/ui-components-library";
@@ -9,18 +9,19 @@ import { useCountdown } from "hooks/useCountdown";
 import { secondsToDayHourMinute } from "utils/date";
 
 const TimeLineContainer = styled(Box)`
-  display: flex;
+  display: block;
   width: 100%;
   height: 98px;
   border-radius: 0px;
+  padding: 20px 8px 0px 8px;
   margin-top: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   margin-bottom: calc(12px + (22 - 12) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   background-color: ${({ theme }) => theme.whiteBackground};
 
-  ${tabletScreenStyle(
+  ${landscapeStyle(
     () => css`
-      padding: 20px 8px 8px 8px;
       display: block;
+      padding: 28px 8px 8px 8px;
     `
   )}
 `;
@@ -33,21 +34,19 @@ const StyledSteps = styled(Steps)`d
 `;
 
 const TitleMobile = styled.span`
-  display: none;
-
-  ${tabletScreenStyle(
+  ${landscapeStyle(
     () => css`
-      display: inline-block;
+      display: none;
     `
   )}
 `;
 
 const TitleDesktop = styled(TitleMobile)`
-  display: inline-block;
+  display: none;
 
-  ${tabletScreenStyle(
+  ${landscapeStyle(
     () => css`
-      display: none;
+      display: inline-block;
     `
   )}
 `;

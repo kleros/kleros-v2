@@ -1,48 +1,50 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { Link, useLocation } from "react-router-dom";
 import { useOpenContext } from "../MobileHeader";
 
 const Container = styled.div`
   display: flex;
-  flex-direction: row;
-  gap: calc(4px + (16 - 4) * ((100vw - 375px) / (1250 - 375)));
-  ${smallScreenStyle(
+  gap: 0px;
+  flex-direction: column;
+
+  ${landscapeStyle(
     () => css`
-      flex-direction: column;
-      gap: 0px;
+      flex-direction: row;
+      gap: calc(4px + (16 - 4) * ((100vw - 375px) / (1250 - 375)));
     `
   )};
 `;
 
 const LinkContainer = styled.div`
   display: flex;
-  .sm-link {
-    color: ${({ theme }) => theme.white};
-    text-decoration: none;
-    font-size: 16px;
-    &.active-link {
-      font-weight: 600;
-    }
-  }
-  ${smallScreenStyle(
+  min-height: 32px;
+  align-items: center;
+`;
+
+const Title = styled.h1`
+  display: block;
+
+  ${landscapeStyle(
     () => css`
-      min-height: 32px;
-      display: flex;
-      align-items: center;
-      .sm-link {
-        color: ${({ theme }) => theme.primaryText};
-      }
+      display: none;
     `
   )};
 `;
 
-const Title = styled.h1`
-  display: none;
-  ${smallScreenStyle(
+const StyledLink = styled(Link)`
+  color: ${({ theme }) => theme.primaryText};
+  text-decoration: none;
+  font-size: 16px;
+
+  &.active {
+    font-weight: 600;
+  }
+  ${landscapeStyle(
     () => css`
-      display: block;
+      min-height: 32px;
+      color: ${({ theme }) => theme.white};
     `
   )};
 `;
@@ -62,13 +64,13 @@ const Explore: React.FC = () => {
       <Title>Explore</Title>
       {links.map(({ to, text }) => (
         <LinkContainer key={text}>
-          <Link
+          <StyledLink
             {...{ to }}
             onClick={toggleIsOpen}
-            className={`sm-link ${location.pathname.startsWith(to) ? "active-link" : ""}`}
+            className={`sm-link ${location.pathname.startsWith(to) ? "active" : ""}`}
           >
             {text}
-          </Link>
+          </StyledLink>
         </LinkContainer>
       ))}
     </Container>

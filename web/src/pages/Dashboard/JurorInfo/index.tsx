@@ -1,6 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { Card as _Card } from "@kleros/ui-components-library";
 import Coherency from "./Coherency";
 import JurorRewards from "./JurorRewards";
@@ -19,17 +19,18 @@ const Card = styled(_Card)`
 
 const Layout = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 48px;
+
+  gap: 24px;
   width: auto;
   margin: 16px 32px;
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      flex-direction: column;
-      gap: 24px;
+      flex-direction: row;
+      gap: 48px;
     `
   )}
 `;

@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { useLockBodyScroll } from "react-use";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { Tabs } from "@kleros/ui-components-library";
 import General from "./General";
 import SendMeNotifications from "./SendMeNotifications";
@@ -12,19 +12,20 @@ const Container = styled.div`
   display: flex;
   position: absolute;
   flex-direction: column;
-  top: 100%;
-  transform: translateX(-75%);
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1;
   background-color: ${({ theme }) => theme.whiteBackground};
   border: 1px solid ${({ theme }) => theme.stroke};
   border-radius: 3px;
   overflow-y: auto;
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      top: 5%;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 100%;
+      left: 92%;
+      transform: translateX(-75%);
     `
   )}
 `;

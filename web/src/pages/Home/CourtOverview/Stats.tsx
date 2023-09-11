@@ -1,6 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { Card } from "@kleros/ui-components-library";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
@@ -19,16 +19,17 @@ import { useCoinPrice } from "hooks/useCoinPrice";
 const StyledCard = styled(Card)`
   width: auto;
   height: fit-content;
+  gap: 32px;
   padding: calc(16px + (30 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   padding-left: calc(16px + (35 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-bottom: 0px;
+  padding-bottom: 16px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      padding-bottom: 16px;
-      gap: 32px;
+      padding-bottom: 0px;
+      gap: 0px;
     `
   )}
 `;

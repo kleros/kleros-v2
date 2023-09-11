@@ -1,5 +1,5 @@
 import React from "react";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import styled, { useTheme, css } from "styled-components";
 
 const Container = styled.div`
@@ -7,11 +7,10 @@ const Container = styled.div`
   max-width: 196px;
   align-items: center;
   gap: 8px;
-  margin-bottom: calc(16px + (30 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      margin-bottom: 0px;
+      margin-bottom: calc(16px + (30 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
     `
   )}
 `;

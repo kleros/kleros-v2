@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import styled, { css } from "styled-components";
 import { useLockBodyScroll } from "react-use";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useFocusOutside } from "hooks/useFocusOutside";
 import Curate from "svgs/icons/curate-image.png";
 import Resolver from "svgs/icons/dispute-resolver.svg";
@@ -28,7 +28,9 @@ const Container = styled.div`
   display: flex;
   position: absolute;
   max-height: 60vh;
-  top: 100%;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 10;
   flex-direction: column;
   align-items: center;
@@ -45,11 +47,11 @@ const Container = styled.div`
     visibility: visible;
   }
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      top: 5%;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 100%;
+      left: 0%;
+      transform: translateX(0%);
     `
   )}
 `;

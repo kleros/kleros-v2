@@ -1,6 +1,6 @@
 import React, { useContext, useRef, useState } from "react";
 import styled, { css } from "styled-components";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { Link } from "react-router-dom";
 import KlerosCourtLogo from "svgs/header/kleros-court.svg";
 import HamburgerIcon from "svgs/header/hamburger.svg";
@@ -9,31 +9,28 @@ import NavBar from "./navbar";
 import { useFocusOutside } from "hooks/useFocusOutside";
 
 const Container = styled.div`
-  display: none;
-  ${smallScreenStyle(
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  ${landscapeStyle(
     () => css`
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
+      display: none;
     `
   )}
 `;
 
 const StyledLightButton = styled(LightButton)`
-  ${smallScreenStyle(
-    () => css`
-      padding: 0;
+  padding: 0;
 
-      .button-svg {
-        margin-right: 0px;
-        fill: white;
-      }
-      .button-text {
-        display: none;
-      }
-    `
-  )}
+  .button-svg {
+    margin-right: 0px;
+    fill: white;
+  }
+  .button-text {
+    display: none;
+  }
 `;
 
 const OpenContext = React.createContext({

@@ -1,8 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useToggle } from "react-use";
 import { Link } from "react-router-dom";
-import { smallScreenStyle } from "styles/smallScreenStyle";
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 import KlerosCourtLogo from "svgs/header/kleros-court.svg";
 import ConnectWallet from "components/ConnectWallet";
@@ -12,15 +12,15 @@ import Explore from "./navbar/Explore";
 import Menu from "./navbar/Menu";
 
 const Container = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  position: relative;
+  display: none;
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      display: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      position: relative;
     `
   )};
 `;

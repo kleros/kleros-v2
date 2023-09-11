@@ -1,6 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { formatEther } from "viem";
@@ -59,26 +59,26 @@ const Answers = styled.div`
 
 const ShadeArea = styled.div`
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   width: 100%;
   padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   margin-top: calc(24px + (48 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   background-color: ${({ theme }) => theme.mediumBlue};
   > p {
     margin-top: 0;
-    margin-bottom: 0;
-    ${smallScreenStyle(
+    margin-bottom: 16px;
+    ${landscapeStyle(
       () => css`
-        margin-bottom: 16px;
+        margin-bottom: 0;
       `
     )};
   }
 
-  ${smallScreenStyle(
+  ${landscapeStyle(
     () => css`
-      flex-direction: column;
-      justify-content: center;
+      flex-direction: row;
+      justify-content: space-between;
     `
   )};
 `;
