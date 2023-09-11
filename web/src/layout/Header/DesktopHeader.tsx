@@ -33,8 +33,8 @@ const MiddleSide = styled.div`
   display: flex;
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
-  margin-top: 8px;
+  top: 50%;
+  transform: translate(-50%, -50%);
   color: ${({ theme }) => theme.white} !important;
 `;
 
