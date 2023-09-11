@@ -98,7 +98,7 @@ export const FilterProvider: React.FC<{ children?: React.ReactNode }> = ({ child
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [statusFilter]);
+  }, [statusFilter, courtFilter]);
 
   useEffect(() => {
     const disputes = isDashboard

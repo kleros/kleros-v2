@@ -10,7 +10,7 @@ const myAppealCases = graphql(`
   query MyAppealCases($id: ID!, $where: Dispute_filter) {
     user(id: $id) {
       disputes(orderBy: lastPeriodChange, where: $where) {
-        period
+        id
       }
     }
   }
