@@ -33,14 +33,13 @@ const Title = styled.h1`
   )};
 `;
 
-const StyledLink = styled(Link)`
+const StyledLink = styled(Link)<{ isActive: boolean }>`
   color: ${({ theme }) => theme.primaryText};
   text-decoration: none;
   font-size: 16px;
 
-  &.active {
-    font-weight: 600;
-  }
+  font-weight: ${({ isActive }) => (isActive ? "600" : "normal")};
+
   ${landscapeStyle(
     () => css`
       color: ${({ theme }) => theme.white};
@@ -63,11 +62,7 @@ const Explore: React.FC = () => {
       <Title>Explore</Title>
       {links.map(({ to, text }) => (
         <LinkContainer key={text}>
-          <StyledLink
-            {...{ to }}
-            onClick={toggleIsOpen}
-            className={`sm-link ${location.pathname.startsWith(to) ? "active" : ""}`}
-          >
+          <StyledLink to={to} onClick={toggleIsOpen} isActive={location.pathname.startsWith(to)}>
             {text}
           </StyledLink>
         </LinkContainer>
