@@ -43,7 +43,6 @@ const StyledLink = styled(Link)`
   }
   ${landscapeStyle(
     () => css`
-      min-height: 32px;
       color: ${({ theme }) => theme.white};
     `
   )};
