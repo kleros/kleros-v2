@@ -12,7 +12,7 @@ jobs:
         with:
           egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
 
-      - uses: actions/checkout@7739b9ba2efcda9dde65ad1e3c2dbe65b41dfba7
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
       - uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1
       - uses: aws-actions/setup-sam@12a6719db503425e98edcc798b6779590a450e8f
       - uses: aws-actions/configure-aws-credentials@131c7b6fd10c0d7f36e1e49650b241d91ee327b9
