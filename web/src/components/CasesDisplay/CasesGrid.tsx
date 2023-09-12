@@ -50,15 +50,15 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, currentPage, setCurrentPage
     <>
       {!isList ? (
         <GridContainer>
-          {disputes.map((dispute, i) => {
-            return <DisputeCard key={i} {...dispute} />;
+          {disputes.map((dispute) => {
+            return <DisputeCard key={dispute?.id} {...dispute} />;
           })}
         </GridContainer>
       ) : (
         <ListContainer>
           {isList && <CasesListHeader />}
-          {disputes.map((dispute, i) => {
-            return <DisputeCard key={i} {...dispute} />;
+          {disputes.map((dispute) => {
+            return <DisputeCard key={dispute?.id} {...dispute} />;
           })}
         </ListContainer>
       )}
