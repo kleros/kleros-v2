@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import { StandardPagination } from "@kleros/ui-components-library";
-import { portraitStyle } from "styles/portraitStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useFiltersContext } from "context/FilterProvider";
 import { CasesPageQuery } from "queries/useCasesQuery";
 import DisputeCard from "components/DisputeCard";
@@ -15,7 +15,7 @@ const GridContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   justify-items: center;
-  ${portraitStyle(css`
+  ${landscapeStyle(css`
     display: flex;
     flex-wrap: wrap;
     justify-content: center;

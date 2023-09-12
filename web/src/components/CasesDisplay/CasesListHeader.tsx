@@ -1,6 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { portraitStyle } from "styles/portraitStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import WithHelpTooltip from "pages/Dashboard/WithHelpTooltip";
 
 const Container = styled.div`
@@ -20,7 +20,7 @@ const CasesData = styled.div`
   gap: 12px;
   flex-wrap: wrap;
   padding: 0 3%;
-  ${portraitStyle(css`
+  ${landscapeStyle(css`
     gap: calc(24px + (48 - 24) * ((100vw - 300px) / (1250 - 300)));
   `)}
 `;
@@ -36,7 +36,7 @@ const CaseTitle = styled.div`
     color: ${({ theme }) => theme.secondaryText} !important;
   }
 
-  ${portraitStyle(css`
+  ${landscapeStyle(css`
     display: flex;
   `)}
 `;
