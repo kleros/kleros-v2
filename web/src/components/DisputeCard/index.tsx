@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { formatEther } from "viem";
-import Skeleton from "react-loading-skeleton";
+import { StyledSkeleton } from "components/StyledSkeleton";
 import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 import { DisputeDetailsFragment } from "queries/useCasesQuery";
@@ -11,6 +11,7 @@ import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
+import { useVotingHistory } from "hooks/queries/useVotingHistory";
 
 const StyledCard = styled(Card)`
   max-width: 380px;
@@ -48,13 +49,15 @@ const DisputeCard: React.FC<DisputeDetailsFragment> = ({ id, arbitrated, period,
       : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, court.timesPerPeriod);
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrated.id as `0x${string}`);
   const title = isUndefined(disputeTemplate) ? (
-    <Skeleton />
+    <StyledSkeleton />
   ) : (
     disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"
   );
   const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
   const category = disputeTemplate ? disputeTemplate.category : undefined;
+  const { data: votingHistory } = useVotingHistory(id);
+  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
   const navigate = useNavigate();
   return (
     <StyledCard hover onClick={() => navigate(`/cases/${id.toString()}`)}>
@@ -65,6 +68,7 @@ const DisputeCard: React.FC<DisputeDetailsFragment> = ({ id, arbitrated, period,
           courtId={court?.id}
           court={courtName}
           period={currentPeriodIndex}
+          round={localRounds?.length}
           {...{ category, rewards, date }}
         />
       </Container>

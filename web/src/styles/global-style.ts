@@ -104,4 +104,9 @@ export const GlobalStyle = createGlobalStyle`
       color: ${({ theme }) => theme.primaryText};
     }
   }
+
+  .react-loading-skeleton {
+    --base-color: ${({ theme }) => theme.skeletonBackground};
+    --highlight-color: ${({ theme }) => theme.skeletonHighlight};
+  }
 `;

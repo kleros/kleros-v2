@@ -1,11 +1,6 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
 
-const createPair = (iconColor: string, backgroundColor: string) => ({
-  iconColor,
-  backgroundColor,
-});
-
 const Container = styled.div`
   display: flex;
   align-items: center;
@@ -20,11 +15,10 @@ const SVGContainer = styled.div<{ iconColor: string; backgroundColor: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
-
   svg {
     fill: ${({ iconColor }) => iconColor};
-    height: 32px;
-    width: 32px;
+    height: ${({ iconColor, theme }) => (iconColor === theme.success ? "24px" : "32px")};
+    width: ${({ iconColor, theme }) => (iconColor === theme.success ? "24px" : "32px")};
   }
 `;
 
@@ -34,10 +28,15 @@ const TextContainer = styled.div`
   }
 `;
 
+const createPair = (iconColor: string, backgroundColor: string) => ({
+  iconColor,
+  backgroundColor,
+});
+
 export interface IStatDisplay {
   title: string;
-  text: string;
-  subtext: string;
+  text: string | React.ReactNode;
+  subtext: string | React.ReactNode;
   icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
   color: "red" | "orange" | "green" | "blue" | "purple";
 }
@@ -51,6 +50,7 @@ const StatDisplay: React.FC<IStatDisplay> = ({ title, text, subtext, icon: Icon,
     blue: createPair(theme.primaryBlue, theme.mediumBlue),
     purple: createPair(theme.secondaryPurple, theme.mediumPurple),
   };
+
   return (
     <Container {...props}>
       <SVGContainer {...{ ...COLORS[color] }}>{<Icon />}</SVGContainer>

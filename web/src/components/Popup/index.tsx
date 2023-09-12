@@ -9,47 +9,6 @@ import Appeal from "./Description/Appeal";
 import VoteWithCommitExtraInfo from "./ExtraInfo/VoteWithCommitExtraInfo";
 import StakeWithdrawExtraInfo from "./ExtraInfo/StakeWithdrawExtraInfo";
 
-export enum PopupType {
-  STAKE_WITHDRAW = "STAKE_WITHDRAW",
-  APPEAL = "APPEAL",
-  VOTE_WITHOUT_COMMIT = "VOTE_WITHOUT_COMMIT",
-  VOTE_WITH_COMMIT = "VOTE_WITH_COMMIT",
-}
-
-interface IStakeWithdraw {
-  popupType: PopupType.STAKE_WITHDRAW;
-  pnkStaked: string;
-  courtName: string;
-  isStake: boolean;
-  courtId: string;
-}
-
-interface IVoteWithoutCommit {
-  popupType: PopupType.VOTE_WITHOUT_COMMIT;
-  date: string;
-}
-
-interface IVoteWithCommit {
-  popupType: PopupType.VOTE_WITH_COMMIT;
-  date: string;
-}
-
-interface IAppeal {
-  popupType: PopupType.APPEAL;
-  amount: string;
-  option: string;
-}
-interface IPopup {
-  title: string;
-  icon: React.FC<React.SVGAttributes<SVGElement>>;
-  popupType: PopupType;
-  setIsOpen: (val: boolean) => void;
-  setAmount?: (val: string) => void;
-  isCommit?: boolean;
-}
-
-type PopupProps = IStakeWithdraw | IVoteWithoutCommit | IVoteWithCommit | IAppeal;
-
 const Header = styled.h1`
   display: flex;
   margin-top: calc(12px + (32 - 12) * ((100vw - 375px) / (1250 - 375)));
@@ -119,6 +78,47 @@ export const VoteDescriptionEmphasizedDate = styled.span`
   line-height: 21.8px;
   color: ${({ theme }) => theme.primaryText};
 `;
+
+export enum PopupType {
+  STAKE_WITHDRAW = "STAKE_WITHDRAW",
+  APPEAL = "APPEAL",
+  VOTE_WITHOUT_COMMIT = "VOTE_WITHOUT_COMMIT",
+  VOTE_WITH_COMMIT = "VOTE_WITH_COMMIT",
+}
+
+interface IStakeWithdraw {
+  popupType: PopupType.STAKE_WITHDRAW;
+  pnkStaked: string;
+  courtName: string;
+  isStake: boolean;
+  courtId: string;
+}
+
+interface IVoteWithoutCommit {
+  popupType: PopupType.VOTE_WITHOUT_COMMIT;
+  date: string;
+}
+
+interface IVoteWithCommit {
+  popupType: PopupType.VOTE_WITH_COMMIT;
+  date: string;
+}
+
+interface IAppeal {
+  popupType: PopupType.APPEAL;
+  amount: string;
+  option: string;
+}
+interface IPopup {
+  title: string;
+  icon: React.FC<React.SVGAttributes<SVGElement>>;
+  popupType: PopupType;
+  setIsOpen: (val: boolean) => void;
+  setAmount?: (val: string) => void;
+  isCommit?: boolean;
+}
+
+type PopupProps = IStakeWithdraw | IVoteWithoutCommit | IVoteWithCommit | IAppeal;
 
 const Popup: React.FC<PopupProps & IPopup> = ({
   title,

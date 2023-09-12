@@ -22,17 +22,16 @@ const Courts: React.FC = () => {
 
   return (
     <>
-      {!isUndefined(data) && (
-        <Container>
-          <h1> My Courts </h1>
-          <hr />
-          <CourtsContainer>
-            {data.user?.tokens?.map(({ court: { id, name } }) => {
+      <Container>
+        <h1> My Courts </h1>
+        <hr />
+        <CourtsContainer>
+          {!isUndefined(data) &&
+            data.user?.tokens?.map(({ court: { id, name } }) => {
               return <CourtCard key={id} id={id} name={name ?? ""} />;
             })}
-          </CourtsContainer>
-        </Container>
-      )}
+        </CourtsContainer>
+      </Container>
     </>
   );
 };

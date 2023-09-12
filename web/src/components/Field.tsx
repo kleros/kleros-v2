@@ -2,34 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
-interface IField {
-  icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
-  name: string;
-  value: string;
-  link?: string;
-  width?: string;
-}
-
-type FieldContainerProps = {
-  width?: string;
-};
-
-const Field: React.FC<IField> = ({ icon: Icon, name, value, link, width }) => (
-  <FieldContainer width={width}>
-    {<Icon />}
-    <label>{name}:</label>
-    {link ? (
-      <Link className="link value" to={link}>
-        {value}
-      </Link>
-    ) : (
-      <label className="value">{value}</label>
-    )}
-  </FieldContainer>
-);
-
-export default Field;
-
 const FieldContainer = styled.div<FieldContainerProps>`
   width: ${({ width = "100%" }) => width};
   display: flex;
@@ -52,3 +24,31 @@ const FieldContainer = styled.div<FieldContainerProps>`
     }
   }
 `;
+
+type FieldContainerProps = {
+  width?: string;
+};
+
+interface IField {
+  icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
+  name: string;
+  value: string;
+  link?: string;
+  width?: string;
+}
+
+const Field: React.FC<IField> = ({ icon: Icon, name, value, link, width }) => (
+  <FieldContainer width={width}>
+    {<Icon />}
+    <label>{name}:</label>
+    {link ? (
+      <Link className="link value" to={link}>
+        {value}
+      </Link>
+    ) : (
+      <label className="value">{value}</label>
+    )}
+  </FieldContainer>
+);
+
+export default Field;

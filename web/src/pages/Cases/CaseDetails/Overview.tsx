@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { formatEther } from "viem";
-import Skeleton from "react-loading-skeleton";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useCourtPolicy } from "queries/useCourtPolicy";
@@ -12,8 +11,10 @@ import { isUndefined } from "utils/index";
 import { Periods } from "consts/periods";
 import { IPFS_GATEWAY } from "consts/index";
 import PolicyIcon from "svgs/icons/policy.svg";
+import { StyledSkeleton } from "components/StyledSkeleton";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 import Verdict from "components/Verdict/index";
+import { useVotingHistory } from "hooks/queries/useVotingHistory";
 
 const Container = styled.div`
   width: 100%;
@@ -86,16 +87,19 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const { data: courtPolicyURI } = useCourtPolicyURI(courtID);
   const { data: courtPolicy } = useCourtPolicy(courtID);
+  const { data: votingHistory } = useVotingHistory(id);
   const courtName = courtPolicy?.name;
   const court = disputeDetails?.dispute?.court;
   const rewards = court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined;
   const category = disputeTemplate ? disputeTemplate.category : undefined;
+  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
+
   return (
     <>
       <Container>
         <h1>
           {isUndefined(disputeTemplate) ? (
-            <Skeleton />
+            <StyledSkeleton />
           ) : (
             disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"
           )}
@@ -126,7 +130,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
           </>
         )}
 
-        <DisputeInfo courtId={court?.id} court={courtName} {...{ rewards, category }} />
+        <DisputeInfo courtId={court?.id} court={courtName} round={localRounds?.length} {...{ rewards, category }} />
       </Container>
       <ShadeArea>
         <p>Make sure you understand the Policies</p>
@@ -138,7 +142,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
             </StyledA>
           )}
           {courtPolicy && (
-            <StyledA href={`${IPFS_GATEWAY}${courtPolicyURI?.court?.policy ?? ""}`} target="_blank" rel="noreferrer">
+            <StyledA href={`#/courts/${court?.id}/purpose?section=description`}>
               <PolicyIcon />
               Court Policy
             </StyledA>

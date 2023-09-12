@@ -6,17 +6,17 @@ const FieldWrapper = styled.div`
   gap: 8px;
 `;
 
+const SeparatorLabel = styled.label`
+  margin-left: 8px;
+  margin-right: 8px;
+`;
+
 const Field: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <FieldWrapper>
     <label>{label}</label>
     <small>{value}</small>
   </FieldWrapper>
 );
-
-const SeparatorLabel = styled.label`
-  margin-left: 8px;
-  margin-right: 8px;
-`;
 
 const Separator: React.FC = () => <SeparatorLabel>|</SeparatorLabel>;
 

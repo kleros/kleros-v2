@@ -9,6 +9,42 @@ import { useWalletClient, usePublicClient } from "wagmi";
 import { EnsureChain } from "components/EnsureChain";
 import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 
+const StyledModal = styled(Modal)`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  height: auto;
+  width: 80%;
+  border: 1px solid ${({ theme }) => theme.stroke};
+  border-radius: 3px;
+  background-color: ${({ theme }) => theme.whiteBackground};
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  gap: 16px;
+`;
+
+const StyledTextArea = styled(Textarea)`
+  width: 100%;
+  height: 200px;
+`;
+
+const StyledFileUploader = styled(FileUploader)`
+  width: 100%;
+`;
+
+const ButtonArea = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+`;
+
 const SubmitEvidenceModal: React.FC<{
   isOpen: boolean;
   evidenceGroup: bigint;
@@ -79,41 +115,5 @@ const constructEvidence = async (msg: string, file?: File): Promise<FormData> =>
   formData.append("data", evidenceFile, evidenceFile.name);
   return formData;
 };
-
-const StyledModal = styled(Modal)`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  right: auto;
-  bottom: auto;
-  margin-right: -50%;
-  transform: translate(-50%, -50%);
-  height: auto;
-  width: 80%;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-radius: 3px;
-  background-color: ${({ theme }) => theme.whiteBackground};
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px;
-  gap: 16px;
-`;
-
-const StyledTextArea = styled(Textarea)`
-  width: 100%;
-  height: 200px;
-`;
-
-const StyledFileUploader = styled(FileUploader)`
-  width: 100%;
-`;
-
-const ButtonArea = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-`;
 
 export default SubmitEvidenceModal;

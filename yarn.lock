@@ -5188,7 +5188,7 @@ __metadata:
     solhint-plugin-prettier: ^0.0.5
     solidity-coverage: 0.8.2
     ts-node: ^10.9.1
-    typechain: ^8.2.0
+    typechain: ^8.3.1
     typescript: ^4.9.5
   languageName: unknown
   linkType: soft
@@ -30001,9 +30001,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typechain@npm:^8.2.0":
-  version: 8.2.0
-  resolution: "typechain@npm:8.2.0"
+"typechain@npm:^8.3.1":
+  version: 8.3.1
+  resolution: "typechain@npm:8.3.1"
   dependencies:
     "@types/prettier": ^2.1.1
     debug: ^4.3.1
@@ -30019,7 +30019,7 @@ __metadata:
     typescript: ">=4.3.0"
   bin:
     typechain: dist/cli/cli.js
-  checksum: 8591d333fda0e31172f4d9e0a8e23c24eee446ce3719989bd48e63f84a975917bb2f853ecaf616193ad7f3964e7c42fe3b1fc5abb69f4446794f465505f6c1a7
+  checksum: c1e11ab1452d0c83be0c34a8b900b156b0c6654b95f7e7bb18dd98c0decd6009ffa1316e393f4e8def187af1bea3e931a13503815cc37155c0c945b7ae5b5215
   languageName: node
   linkType: hard
 

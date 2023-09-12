@@ -82,7 +82,6 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, currentPage, setCurrentPage
   const totalPages = isDashboard
     ? calculatePages(statusFilter, userData, casesPerPage, numberDisputes ?? 0, userAppealCasesNumber)
     : calculatePages(statusFilter, counterData, casesPerPage, numberDisputes ?? 0);
-
   return (
     <>
       {!isUndefined(numberDisputes) && (
