@@ -55,6 +55,10 @@ const LightButtonContainer = styled.div`
   margin-right: calc(12px + (16 - 12) * ((100vw - 375px) / (1250 - 375)));
 `;
 
+const StyledLink = styled(Link)`
+  min-height: 48px;
+`;
+
 const StyledKlerosSolutionsIcon = styled(KlerosSolutionsIcon)`
   fill: ${({ theme }) => theme.white} !important;
 `;
@@ -80,9 +84,9 @@ const DesktopHeader = () => {
           />
         </LightButtonContainer>
         {isSolutionsOpen && <DappList toggleSolution={toggleSolution} />}
-        <Link className="kleros-court-link" to={"/"}>
+        <StyledLink to={"/"}>
           <KlerosCourtLogo />
-        </Link>
+        </StyledLink>
       </LeftSide>
 
       <MiddleSide>

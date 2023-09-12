@@ -33,12 +33,17 @@ const StyledLightButton = styled(LightButton)`
   }
 `;
 
+const StyledLink = styled(Link)`
+  min-height: 48px;
+`;
+
 const OpenContext = React.createContext({
   isOpen: false,
   toggleIsOpen: () => {
     // Placeholder
   },
 });
+
 export function useOpenContext() {
   return useContext(OpenContext);
 }
@@ -51,9 +56,9 @@ const MobileHeader = () => {
   return (
     <Container ref={containerRef}>
       <OpenContext.Provider value={{ isOpen, toggleIsOpen }}>
-        <Link className="kleros-court-link" to={"/"}>
+        <StyledLink to={"/"}>
           <KlerosCourtLogo />
-        </Link>
+        </StyledLink>
         <NavBar />
         <StyledLightButton text="" Icon={HamburgerIcon} onClick={toggleIsOpen} />
       </OpenContext.Provider>

@@ -13,10 +13,6 @@ const Container = styled.div`
 
   padding: 0 24px;
   display: flex;
-
-  .kleros-court-link {
-    min-height: 48px;
-  }
 `;
 
 const Header: React.FC = () => {
