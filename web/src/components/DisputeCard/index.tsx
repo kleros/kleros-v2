@@ -11,6 +11,7 @@ import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
+import { useVotingHistory } from "hooks/queries/useVotingHistory";
 
 const StyledCard = styled(Card)`
   max-width: 380px;
@@ -61,6 +62,8 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
   const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
   const category = disputeTemplate ? disputeTemplate.category : undefined;
+  const { data: votingHistory } = useVotingHistory(id);
+  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
   const navigate = useNavigate();
   return (
     <StyledCard hover onClick={() => navigate(`/cases/${id.toString()}`)}>
@@ -71,6 +74,7 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
           courtId={court?.id}
           court={courtName}
           period={currentPeriodIndex}
+          round={localRounds?.length}
           {...{ category, rewards, date }}
         />
       </Container>
