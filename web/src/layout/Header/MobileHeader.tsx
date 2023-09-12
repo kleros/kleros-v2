@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext, useMemo, useRef } from "react";
 import styled, { css } from "styled-components";
 import { useToggle } from "react-use";
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -53,9 +53,10 @@ const MobileHeader = () => {
   const [isOpen, toggleIsOpen] = useToggle(false);
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => toggleIsOpen(false));
+  const memoizedContext = useMemo(() => ({ isOpen, toggleIsOpen }), [isOpen, toggleIsOpen]);
   return (
     <Container ref={containerRef}>
-      <OpenContext.Provider value={{ isOpen, toggleIsOpen }}>
+      <OpenContext.Provider value={memoizedContext}>
         <StyledLink to={"/"}>
           <KlerosCourtLogo />
         </StyledLink>
