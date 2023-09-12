@@ -497,7 +497,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     function setStakeBySortitionModule(
         address _account,
         uint96 _courtID,
-        uint256 _stake,
+        uint256 _newStake,
         bool _alreadyTransferred
     ) external {
         if (msg.sender != address(sortitionModule)) revert WrongCaller();
@@ -1075,13 +1075,9 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _alreadyTransferred True if the tokens were already transferred from juror. Only relevant for delayed stakes.
     /// @return succeeded True if the call succeeded, false otherwise.
     function _setStakeForAccount(
-        
         address _account,
-       
         uint96 _courtID,
-       
-        uint256 _newStake
-    ,
+        uint256 _newStake,
         bool _alreadyTransferred
     ) internal returns (bool succeeded) {
         if (_courtID == Constants.FORKING_COURT || _courtID > courts.length) return false;
@@ -1107,7 +1103,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         if (_newStake >= currentStake) {
             if (!_alreadyTransferred) {
                 // Stake increase
-            // When stakedPnk becomes lower than lockedPnk count the locked tokens in when transferring tokens from juror.
+                // When stakedPnk becomes lower than lockedPnk count the locked tokens in when transferring tokens from juror.
                 // (E.g. stakedPnk = 0, lockedPnk = 150) which can happen if the juror unstaked fully while having some tokens locked.
                 uint256 previouslyLocked = (juror.lockedPnk >= juror.stakedPnk) ? juror.lockedPnk - juror.stakedPnk : 0; // underflow guard
                 transferredAmount = (_newStake >= currentStake + previouslyLocked) // underflow guard
@@ -1150,13 +1146,15 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         // Note that stakedPnk can become async with currentStake (e.g. after penalty).
         // Also note that these values were already updated if the stake was only partially delayed.
         if (!_alreadyTransferred) {
-            juror.stakedPnk = (juror.stakedPnk >= currentStake) ? juror.stakedPnk - currentStake + _newStake : _newStake;
+            juror.stakedPnk = (juror.stakedPnk >= currentStake)
+                ? juror.stakedPnk - currentStake + _newStake
+                : _newStake;
             juror.stakedPnkByCourt[_courtID] = _newStake;
         }
 
         // Transfer the tokens but don't update sortition module.
         if (result == ISortitionModule.preStakeHookResult.partiallyDelayed) {
-            emit StakePartiallyDelayed(_account, _courtID, _stake);
+            emit StakePartiallyDelayed(_account, _courtID, _newStake);
             return true;
         }
 
