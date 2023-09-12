@@ -1,5 +1,6 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useRef } from "react";
 import styled, { css } from "styled-components";
+import { useToggle } from "react-use";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { Link } from "react-router-dom";
 import KlerosCourtLogo from "svgs/header/kleros-court.svg";
@@ -49,10 +50,9 @@ export function useOpenContext() {
 }
 
 const MobileHeader = () => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const toggleIsOpen = () => setIsOpen(!isOpen);
+  const [isOpen, toggleIsOpen] = useToggle(false);
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => setIsOpen(false));
+  useFocusOutside(containerRef, () => toggleIsOpen(false));
   return (
     <Container ref={containerRef}>
       <OpenContext.Provider value={{ isOpen, toggleIsOpen }}>
