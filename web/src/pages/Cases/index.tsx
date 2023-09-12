@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Routes, Route } from "react-router-dom";
 import { useCasesQuery } from "queries/useCasesQuery";
 import { useWindowSize } from "react-use";
-import { BREAKPOINT_TABLET_SCREEN } from "styles/tabletScreenStyle";
+import { BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
 import CasesDisplay from "components/CasesDisplay";
 import CaseDetails from "./CaseDetails";
 import { useFiltersContext } from "context/FilterProvider";
@@ -20,7 +20,7 @@ const Cases: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const { width } = useWindowSize();
   const { isList, setIsList } = useFiltersContext();
-  const screenIsBig = width > BREAKPOINT_TABLET_SCREEN;
+  const screenIsBig = width > BREAKPOINT_LANDSCAPE;
   const casesPerPage = screenIsBig ? 9 : 3;
   const { data } = useCasesQuery(casesPerPage * (currentPage - 1), casesPerPage);
 

@@ -1,7 +1,9 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
+import { useWindowSize } from "react-use";
 import { DropdownSelect } from "@kleros/ui-components-library";
 import { useFiltersContext } from "context/FilterProvider";
+import { BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
 import ListIcon from "svgs/icons/list.svg";
 import GridIcon from "svgs/icons/grid.svg";
 
@@ -27,8 +29,9 @@ const IconsContainer = styled.div`
   gap: 4px;
 `;
 
-const StyledListIcon = styled(ListIcon)<{ isList: boolean }>`
+const StyledListIcon = styled(ListIcon)<{ isList: boolean; isScreenBig: boolean }>`
   cursor: pointer;
+  display: ${({ isScreenBig }) => (isScreenBig ? "block" : "none")};
   transition: fill 0.2s ease;
   fill: ${({ theme, isList }) => (isList ? theme.primaryBlue : theme.secondaryText)};
   width: 16px;
@@ -37,7 +40,9 @@ const StyledListIcon = styled(ListIcon)<{ isList: boolean }>`
 
 const Filters: React.FC = () => {
   const theme = useTheme();
+  const { width } = useWindowSize();
   const { isList, setIsList } = useFiltersContext();
+  const screenIsBig = width > BREAKPOINT_LANDSCAPE;
 
   return (
     <Container>
@@ -65,7 +70,15 @@ const Filters: React.FC = () => {
       />
       <IconsContainer>
         <StyledGridIcon isList={isList} onClick={() => setIsList(false)} />
-        <StyledListIcon isList={isList} onClick={() => setIsList(true)} />
+        <StyledListIcon
+          isList={isList}
+          isScreenBig={screenIsBig}
+          onClick={() => {
+            if (screenIsBig) {
+              setIsList(true);
+            }
+          }}
+        />
       </IconsContainer>
     </Container>
   );

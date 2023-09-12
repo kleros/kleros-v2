@@ -4,13 +4,13 @@ import styled from "styled-components";
 import { useFiltersContext } from "context/FilterProvider";
 
 const FieldContainer = styled.div<FieldContainerProps>`
-  width: ${({ width = "100%" }) => width};
+  width: ${({ isList }) => (isList ? "auto" : "100%")};
   display: flex;
   align-items: center;
   justify-content: flex-start;
   white-space: nowrap;
   .value {
-    flex-grow: 1;
+    flex-grow: ${({ isList }) => (isList ? "0" : "1")};
     text-align: ${({ isList }) => (isList ? "center" : "end")};
     color: ${({ theme }) => theme.primaryText};
   }

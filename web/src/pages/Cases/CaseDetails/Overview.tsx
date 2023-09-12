@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
@@ -7,6 +7,7 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtPolicyURI } from "queries/useCourtPolicyURI";
+import { useFiltersContext } from "context/FilterProvider";
 import { isUndefined } from "utils/index";
 import { Periods } from "consts/periods";
 import { IPFS_GATEWAY } from "consts/index";
@@ -86,10 +87,18 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const { data: courtPolicyURI } = useCourtPolicyURI(courtID);
   const { data: courtPolicy } = useCourtPolicy(courtID);
+  const { isList, setIsList } = useFiltersContext();
   const courtName = courtPolicy?.name;
   const court = disputeDetails?.dispute?.court;
   const rewards = court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined;
   const category = disputeTemplate ? disputeTemplate.category : undefined;
+
+  useEffect(() => {
+    if (isList) {
+      setIsList(false);
+    }
+  }, []);
+
   return (
     <>
       <Container>

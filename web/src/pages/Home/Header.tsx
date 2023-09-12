@@ -1,7 +1,7 @@
 import React from "react";
 import { useTheme } from "styled-components";
 import { useMeasure } from "react-use";
-import { BREAKPOINT_SMALL_SCREEN } from "styles/smallScreenStyle";
+import { BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
 import HeaderLightMobile from "tsx:svgs/header/header-lightmode-mobile.svg";
 import HeaderDarkMobile from "tsx:svgs/header/header-darkmode-mobile.svg";
 import HeaderLightDesktop from "tsx:svgs/header/header-lightmode-desktop.svg";
@@ -11,7 +11,7 @@ const Header = () => {
   const [ref, { width }] = useMeasure();
   const theme = useTheme();
   const themeIsLight = theme.name === "light";
-  const screenIsBig = width > BREAKPOINT_SMALL_SCREEN;
+  const screenIsBig = width > BREAKPOINT_LANDSCAPE;
   return (
     <div ref={ref}>
       {screenIsBig ? <HeaderDesktop {...{ themeIsLight }} /> : <HeaderMobile {...{ themeIsLight }} />}

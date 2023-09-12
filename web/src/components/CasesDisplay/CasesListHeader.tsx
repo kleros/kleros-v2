@@ -1,41 +1,32 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { smallScreenStyle } from "styles/smallScreenStyle";
+import { portraitStyle } from "styles/portraitStyle";
 import WithHelpTooltip from "pages/Dashboard/WithHelpTooltip";
 
 const Container = styled.div`
   display: flex;
   justify-content: space-between;
-  gap: 40vw;
+  gap: calc(15vw + (40 - 15) * ((100vw - 300px) / (1250 - 300)));
   width: 100%;
   height: 100%;
 `;
 
 const CasesData = styled.div`
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-around;
   width: 100%;
-  gap: 48px;
+  margin-left: calc(0px + (33) * (100vw - 370px) / (1250 - 370));
+  gap: 12px;
   flex-wrap: wrap;
-  padding: 0 4%;
-  justify-content: space-between;
-  ${smallScreenStyle(css`
-    margin-left: calc(0px + (33) * (100vw - 370px) / (1250 - 370));
-    gap: 12px;
+  padding: 0 3%;
+  ${portraitStyle(css`
+    gap: calc(24px + (48 - 24) * ((100vw - 300px) / (1250 - 300)));
   `)}
 `;
 
-const CategoryLabel = styled.label`
-  margin-left: 32px;
-`;
-
-const RewardsContainer = styled.div`
-  margin-right: -16px;
-`;
-
 const CaseTitle = styled.div`
-  display: flex;
+  display: none;
   margin-left: 32px;
   gap: 36px;
   label {
@@ -45,9 +36,13 @@ const CaseTitle = styled.div`
     color: ${({ theme }) => theme.secondaryText} !important;
   }
 
-  ${smallScreenStyle(css`
-    display: none;
+  ${portraitStyle(css`
+    display: flex;
   `)}
+`;
+
+const CategoryLabel = styled.label`
+  padding-left: calc(4px + (12 - 4) * ((100vw - 300px) / (900 - 300)));
 `;
 
 const tooltipMsg =
@@ -64,13 +59,11 @@ const CasesListHeader: React.FC = () => {
         <label>Title</label>
       </CaseTitle>
       <CasesData>
-        <label>Court</label>
-        <CategoryLabel>Category</CategoryLabel>
-        <RewardsContainer>
-          <WithHelpTooltip place="top" {...{ tooltipMsg }}>
-            <label> Rewards: </label>
-          </WithHelpTooltip>
-        </RewardsContainer>
+        <CategoryLabel>Court</CategoryLabel>
+        <label>Category</label>
+        <WithHelpTooltip place="top" {...{ tooltipMsg }}>
+          <label> Rewards: </label>
+        </WithHelpTooltip>
         <label>Next Deadline</label>
       </CasesData>
     </Container>

@@ -21,6 +21,7 @@ const StyledCard = styled(Card)`
 `;
 const StyledListItem = styled(Card)`
   display: flex;
+  flex-grow: 1;
   width: 100%;
   height: 64px;
 `;
@@ -39,9 +40,10 @@ const ListContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 32px;
+  /* gap: calc(8px + (32 - 8) * ((100vw - 300px) / (900 - 300))); */
   width: 100%;
-  margin-right: 2%;
+  margin-right: 8px;
+
   h3 {
     margin: 0;
   }
@@ -52,7 +54,7 @@ const ListTitle = styled.div`
   height: 100%;
   justify-content: start;
   align-items: center;
-  min-width: 40vw;
+  width: calc(30vw + (40 - 30) * ((100vw - 300px) / (1250 - 300)));
 `;
 
 export const getPeriodEndTimestamp = (
