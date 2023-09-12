@@ -5,6 +5,7 @@ import BookmarkIcon from "svgs/icons/bookmark.svg";
 import CalendarIcon from "svgs/icons/calendar.svg";
 import LawBalanceIcon from "svgs/icons/law-balance.svg";
 import PileCoinsIcon from "svgs/icons/pile-coins.svg";
+import RoundIcon from "svgs/icons/round.svg";
 import Field from "../Field";
 
 const Container = styled.div`
@@ -33,13 +34,15 @@ export interface IDisputeInfo {
   rewards?: string;
   period?: Periods;
   date?: number;
+  round?: number;
 }
 
-const DisputeInfo: React.FC<IDisputeInfo> = ({ courtId, court, category, rewards, period, date }) => {
+const DisputeInfo: React.FC<IDisputeInfo> = ({ courtId, court, category, rewards, period, date, round }) => {
   return (
     <Container>
-      {category && <Field icon={BookmarkIcon} name="Category" value={category} />}
       {court && courtId && <Field icon={LawBalanceIcon} name="Court" value={court} link={`/courts/${courtId}`} />}
+      {category && <Field icon={BookmarkIcon} name="Category" value={category} />}
+      {round && <Field icon={RoundIcon} name="Round" value={round.toString()} />}
       {rewards && <Field icon={PileCoinsIcon} name="Juror Rewards" value={rewards} />}
       {typeof period !== "undefined" && date && (
         <Field icon={CalendarIcon} name={getPeriodPhrase(period)} value={new Date(date * 1000).toLocaleString()} />
