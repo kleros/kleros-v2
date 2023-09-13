@@ -1,10 +1,14 @@
-import { createPublicClient, http, parseAbiItem } from "viem";
+import { createPublicClient, http, parseAbiItem, webSocket } from "viem";
 import { arbitrumGoerli } from "viem/chains";
 import fetch from "node-fetch";
 
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY;
+
+const transport = webSocket(`wss://arb-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
+
 const publicClient = createPublicClient({
   chain: arbitrumGoerli,
-  transport: http(),
+  transport,
 });
 
 export const mappings = [
@@ -105,44 +109,54 @@ export const graphqlAction = async (variableName: string, query: string) => {
   return { [variableName]: data };
 };
 
-// export const callAction = async (abi, inputs, seek, populate) => {
-//   const data = await publicClient.readContract({
-//     address: inputs[0],
-//     abi: abi,
-//     functionName: seek,
-//     args: inputs,
-//   });
+export const callAction = async (abi, inputs, seek, populate) => {
+  const data = await publicClient.readContract({
+    address: inputs[0],
+    abi: [abi],
+    functionName: seek[0],
+    args: [inputs[1]],
+  });
+  console.log("callaction");
 
-//   let populatedData = {};
+  console.log("data", data);
 
-//   seek.map((item, index) => {
-//     populatedData[populate[index]] = data[item];
-//   });
+  let populatedData = {};
 
-//   return populatedData;
-// };
+  seek.map((item, index) => {
+    populatedData[populate[index]] = data;
+  });
 
-// export const eventAction = async (source, inputs, seek, populate) => {
-//   const filter = await publicClient.createEventFilter({
-//     address: inputs[1],
-//     event: parseAbiItem(source) as any,
-//     args: inputs,
-//   });
+  return populatedData;
+};
 
-//   const contractEvent = await publicClient.getFilterLogs({
-//     filter: filter as any,
-//   });
+export const eventAction = async (source, inputs, seek, populate) => {
+  console.log("entry", inputs[0]);
 
-//   const eventData = contractEvent[0].args;
+  const filter = await publicClient.createEventFilter({
+    address: inputs[0],
+    event: source,
+    fromBlock: inputs[1],
+    toBlock: "latest",
+  });
 
-//   let populatedData = {};
+  const contractEvent = await publicClient.getFilterLogs({
+    filter: filter as any,
+  });
 
-//   seek.map((item, index) => {
-//     populatedData[populate[index]] = eventData[item];
-//   });
+  // @ts-ignore
+  const eventData = contractEvent[0].args;
+  // console.log("🚀 ~ file: dataMappings.ts:145 ~ eventAction ~ eventData:", eventData);
 
-//   return populatedData;
-// };
+  let populatedData = {};
+
+  seek.map((item, index) => {
+    // console.log("item", item);
+
+    populatedData[populate[index]] = eventData[item];
+  });
+
+  return populatedData;
+};
 
 // const accumulatedData = mappings.reduce(async (acc, { type, source, inputs, seek, populate }) => {
 //   const currentAcc = await acc;

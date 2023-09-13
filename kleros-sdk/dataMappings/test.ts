@@ -1,7 +1,7 @@
 import { expect } from "chai";
-import { createPublicClient, http } from "viem";
+import { createPublicClient, http, parseAbiItem } from "viem";
 import { arbitrumGoerli } from "viem/chains";
-import { jsonAction, graphqlAction, fetchAction, callAction } from "./dataMappings";
+import { jsonAction, graphqlAction, fetchAction, eventAction, callAction } from "./dataMappings";
 import { klerosCoreABI } from "../../web/src/hooks/contracts/generated";
 
 const currentAcc = {
@@ -70,60 +70,40 @@ describe("graphqlAction", () => {
   });
 });
 
-// describe("callAction", () => {
-//   it("should call the contract and return populated data", async () => {
-//     const mockAbi = klerosCoreABI;
-//     const mockInputs = ["0x5a2bC1477ABE705dB4955Cda7DE064eA79D563d1"]; // Add the contract address as an input
-//     const mockSeek = ["pinakion"]; // Adjusting this to seek for 'pinakion'
-//     const mockPopulate = ["result1", "tokenAddress"]; // Changing 'result2' to 'tokenAddress' to be more descriptive
+describe("callAction", () => {
+  it("should call the contract and return populated data", async () => {
+    const mockAbi = parseAbiItem(`function appealCost(uint256 _disputeID) public view returns (uint256)`);
+    const mockInputs = ["0x5a2bC1477ABE705dB4955Cda7DE064eA79D563d1", BigInt(1)];
+    const mockSeek = ["appealCost"];
+    const mockPopulate = ["cost"];
 
-//     const result = await callAction(mockAbi, mockInputs, mockSeek, mockPopulate);
+    const result = await callAction(mockAbi, mockInputs, mockSeek, mockPopulate);
 
-//     console.log(result);
-//     expect(result).to.eql({
-//       result1: "data1",
-//       tokenAddress: "0x4deeefd054434bf6721ef39aa18efb3fd0d12610",
-//     });
-//   });
-// });
+    console.log("result", result);
+    expect(result).to.eql({
+      cost: BigInt(30000000000000),
+    });
+  });
+});
 
-// describe("eventAction", () => {
-//   let createEventFilterStub;
-//   let getFilterLogsStub;
+describe("eventAction", () => {
+  it("should fetch event data and return populated data", async () => {
+    const mockSource = parseAbiItem(
+      "event Draw(address indexed _address, uint256 indexed _disputeID, uint256 _roundID, uint256 _voteID)"
+    );
+    const mockInputs = ["0x5a2bC1477ABE705dB4955Cda7DE064eA79D563d1", BigInt(40250621)];
+    const mockSeek = ["_address", "_disputeID"];
+    const mockPopulate = ["address", "disputeID"];
+    const mockEventData = {
+      eventItem1: "eventData1",
+      eventItem2: "eventData2",
+    };
 
-//   beforeEach(() => {
-//     // Mock the methods from publicClient
-//     createEventFilterStub = sinon.stub(publicClient, "createEventFilter");
-//     getFilterLogsStub = sinon.stub(publicClient, "getFilterLogs");
-//   });
-
-//   afterEach(() => {
-//     // Restore the mocked methods
-//     createEventFilterStub.restore();
-//     getFilterLogsStub.restore();
-//   });
-
-//   it("should fetch event data and return populated data", async () => {
-//     const mockSource = "contractEvent";
-//     const mockInputs = [];
-//     const mockSeek = ["eventItem1", "eventItem2"];
-//     const mockPopulate = ["result1", "result2"];
-//     const mockEventData = {
-//       eventItem1: "eventData1",
-//       eventItem2: "eventData2",
-//     };
-
-//     const mockFilter = {}; // dummy filter for this test
-//     const mockContractEvent = [{ args: mockEventData }];
-
-//     // Mock the return values
-//     createEventFilterStub.resolves(mockFilter);
-//     getFilterLogsStub.resolves(mockContractEvent);
-
-//     const result = await eventAction(mockSource, mockInputs, mockSeek, mockPopulate);
-//     expect(result).to.eql({
-//       result1: "eventData1",
-//       result2: "eventData2",
-//     });
-//   });
-// });
+    const result = await eventAction(mockSource, mockInputs, mockSeek, mockPopulate);
+    // console.log("🚀 ~ file: test.ts:108 ~ it ~ result:", result);
+    expect(result).to.eql({
+      address: "0xaeaD6593710Bf28bF4848b24F4ed1F130773d7E6",
+      disputeID: BigInt(42),
+    });
+  });
+});
