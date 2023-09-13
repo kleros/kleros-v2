@@ -149,6 +149,7 @@ type Dispute @entity {
   tied: Boolean!
   overridden: Boolean!
   lastPeriodChange: BigInt!
+  lastPeriodChangeBlockNumber: BigInt!
   rounds: [Round!]! @derivedFrom(field: "dispute")
   currentRound: Round!
   currentRoundIndex: BigInt!
@@ -169,9 +170,9 @@ type Round @entity {
   feeToken: FeeToken
 }
 
-type Draw @entity {
 type Draw @entity(immutable: true) {
   id: ID! # dispute.id-currentRound-voteID
+  blockNumber: BigInt!
   dispute: Dispute!
   round: Round!
   juror: User!

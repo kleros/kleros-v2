@@ -115,6 +115,7 @@ export function handleNewPeriod(event: NewPeriod): void {
 
   dispute.period = newPeriod;
   dispute.lastPeriodChange = event.block.timestamp;
+  dispute.lastPeriodChangeBlockNumber = event.block.number;
   dispute.save();
   court.save();
 }

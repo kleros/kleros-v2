@@ -15,6 +15,7 @@ export function createDisputeFromEvent(event: DisputeCreation): void {
   dispute.tied = true;
   dispute.overridden = false;
   dispute.lastPeriodChange = event.block.timestamp;
+  dispute.lastPeriodChangeBlockNumber = event.block.number;
   dispute.currentRoundIndex = ZERO;
   const roundID = `${disputeID.toString()}-${ZERO.toString()}`;
   dispute.currentRound = roundID;
