@@ -15,6 +15,7 @@ export const GlobalStyle = createGlobalStyle`
 
   html {
     box-sizing: border-box;
+    scrollbar-gutter: stable;
   }
 
   *, *:before, *:after {
@@ -103,4 +104,21 @@ export const GlobalStyle = createGlobalStyle`
     --base-color: ${({ theme }) => theme.skeletonBackground};
     --highlight-color: ${({ theme }) => theme.skeletonHighlight};
   }
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background-color: ${({ theme }) => theme.mediumPurple}; 
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: ${({ theme }) => theme.primaryPurple}; 
+    border-radius: 3px; 
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: ${({ theme }) => theme.secondaryPurple}; 
+}
 `;
