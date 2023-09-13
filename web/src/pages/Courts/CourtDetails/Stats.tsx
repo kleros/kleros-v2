@@ -44,8 +44,14 @@ const stats: IStat[] = [
   {
     title: "Vote Stake",
     coinId: 0,
-    getText: (data) => formatPNK(data?.alpha),
-    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.alpha)) * (coinPrice ?? 0)),
+    getText: (data) => {
+      const stake = BigInt((data?.minStake * data?.alpha) / 1e4);
+      return formatPNK(stake);
+    },
+    getSubtext: (data, coinPrice) => {
+      const stake = BigInt((data?.minStake * data?.alpha) / 1e4);
+      return formatUSD(Number(formatUnitsWei(stake)) * (coinPrice ?? 0));
+    },
     color: "purple",
     icon: VoteStake,
   },
