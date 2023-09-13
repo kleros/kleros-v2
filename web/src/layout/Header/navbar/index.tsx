@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { useLockBodyScroll, useToggle } from "react-use";
+import { useToggle } from "react-use";
+import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
@@ -37,7 +38,7 @@ const Container = styled.div<{ isOpen: boolean }>`
 const NavBar: React.FC = () => {
   const [isSolutionsOpen, toggleSolution] = useToggle(false);
   const { isOpen } = useOpenContext();
-  useLockBodyScroll(isOpen);
+  useLockOverlayScroll(isOpen);
 
   return (
     <Container {...{ isOpen }}>

@@ -15,7 +15,6 @@ export const GlobalStyle = createGlobalStyle`
 
   html {
     box-sizing: border-box;
-    scrollbar-gutter: stable;
   }
 
   *, *:before, *:after {
@@ -104,21 +103,11 @@ export const GlobalStyle = createGlobalStyle`
     --base-color: ${({ theme }) => theme.skeletonBackground};
     --highlight-color: ${({ theme }) => theme.skeletonHighlight};
   }
-  *::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+  
+  .os-theme-dark {
+    --os-handle-bg: ${({ theme }) => theme.violetPurple};
+    --os-handle-bg-hover: ${({ theme }) => theme.secondaryPurple};
+    --os-handle-bg-active: ${({ theme }) => theme.lavenderPurple};
   }
 
-  *::-webkit-scrollbar-track {
-    background-color: ${({ theme }) => theme.mediumPurple}; 
-}
-
-*::-webkit-scrollbar-thumb {
-    background-color: ${({ theme }) => theme.primaryPurple}; 
-    border-radius: 3px; 
-}
-
-*::-webkit-scrollbar-thumb:hover {
-    background-color: ${({ theme }) => theme.secondaryPurple}; 
-}
 `;
