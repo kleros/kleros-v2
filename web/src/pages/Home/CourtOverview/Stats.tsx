@@ -8,11 +8,12 @@ import EthereumIcon from "svgs/icons/ethereum.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import JurorIcon from "svgs/icons/user.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
-import { formatETH, formatPNK, formatUnitsWei, formatUSD, isUndefined } from "utils/index";
+import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
+import { isUndefined } from "utils/index";
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
+import { CoinIds } from "consts/coingecko";
 import { useHomePageContext, HomePageQuery, HomePageQueryDataPoints } from "hooks/useHomePageContext";
 import { useCoinPrice } from "hooks/useCoinPrice";
-import { usePNKAddress, useWETHAddress } from "hooks/useContractAddress";
 
 const StyledCard = styled(Card)`
   width: auto;
@@ -79,12 +80,12 @@ const stats: IStat[] = [
 
 const Stats = () => {
   const { data } = useHomePageContext();
-  const coinIdToAddress = [usePNKAddress(), useWETHAddress()];
-  const { prices: pricesData } = useCoinPrice(coinIdToAddress);
+  const coinIds = [CoinIds.PNK, CoinIds.ETH];
+  const { prices: pricesData } = useCoinPrice(coinIds);
   return (
     <StyledCard>
       {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
-        const coinPrice = !isUndefined(pricesData) ? pricesData[coinIdToAddress[coinId!]]?.price : undefined;
+        const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
 
         return (
           <StatDisplay

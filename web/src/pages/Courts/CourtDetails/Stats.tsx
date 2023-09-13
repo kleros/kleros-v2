@@ -3,9 +3,10 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
 import { useCoinPrice } from "hooks/useCoinPrice";
-import { usePNKAddress, useWETHAddress } from "hooks/useContractAddress";
-import { formatETH, formatPNK, formatUnitsWei, formatUSD, isUndefined } from "utils/index";
+import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
+import { isUndefined } from "utils/index";
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
+import { CoinIds } from "consts/coingecko";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import BalanceIcon from "svgs/icons/law-balance.svg";
@@ -92,7 +93,7 @@ const stats: IStat[] = [
   {
     title: "PNK redistributed",
     coinId: 0,
-    getText: (data) => formatPNK(data?.paidPNK, 18),
+    getText: (data) => formatPNK(data?.paidPNK),
     getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.paidPNK)) * (coinPrice ?? 0)),
     color: "purple",
     icon: PNKRedistributedIcon,
@@ -102,14 +103,13 @@ const stats: IStat[] = [
 const Stats = () => {
   const { id } = useParams();
   const { data } = useCourtDetails(id);
-  const coinIdToAddress = [usePNKAddress(), useWETHAddress()];
-  const { prices: pricesData } = useCoinPrice(coinIdToAddress);
+  const coinIds = [CoinIds.PNK, CoinIds.ETH];
+  const { prices: pricesData } = useCoinPrice(coinIds);
 
   return (
     <StyledCard>
       {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
-        const coinPrice = !isUndefined(pricesData) ? pricesData[coinIdToAddress[coinId!]]?.price : undefined;
-
+        const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
         return (
           <StatDisplay
             key={i}

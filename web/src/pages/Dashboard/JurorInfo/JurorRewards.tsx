@@ -5,9 +5,9 @@ import { useAccount } from "wagmi";
 import TokenRewards from "./TokenRewards";
 import WithHelpTooltip from "../WithHelpTooltip";
 import { isUndefined } from "utils/index";
+import { CoinIds } from "consts/coingecko";
 import { useUserQuery, UserQuery } from "queries/useUser";
 import { useCoinPrice } from "hooks/useCoinPrice";
-import { usePNKAddress, useWETHAddress } from "hooks/useContractAddress";
 
 interface IReward {
   token: "ETH" | "PNK";
@@ -54,8 +54,8 @@ const calculateTotalReward = (coinId: number, data: UserQuery): bigint => {
 const Coherency: React.FC = () => {
   const { address } = useAccount();
   const { data } = useUserQuery(address?.toLowerCase());
-  const coinIdToAddress = [usePNKAddress(), useWETHAddress()];
-  const { prices: pricesData } = useCoinPrice(coinIdToAddress);
+  const coinIds = [CoinIds.PNK, CoinIds.ETH];
+  const { prices: pricesData } = useCoinPrice(coinIds);
 
   return (
     <>
@@ -64,7 +64,7 @@ const Coherency: React.FC = () => {
           <label> Juror Rewards </label>
         </WithHelpTooltip>
         {rewards.map(({ token, coinId, getValue, getAmount }) => {
-          const coinPrice = !isUndefined(pricesData) ? pricesData[coinIdToAddress[coinId]]?.price : undefined;
+          const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId]]?.price : undefined;
           const totalReward = data && calculateTotalReward(coinId, data);
           return (
             <TokenRewards

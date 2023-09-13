@@ -51,8 +51,9 @@ interface IDisputeKit {
     /// @dev Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
     /// Note: Access restricted to Kleros Core only.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
+    /// @param _nonce Nonce.
     /// @return drawnAddress The drawn address.
-    function draw(uint256 _coreDisputeID) external returns (address drawnAddress);
+    function draw(uint256 _coreDisputeID, uint256 _nonce) external returns (address drawnAddress);
 
     // ************************************* //
     // *           Public Views            * //

@@ -181,9 +181,11 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     /// @dev Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
     /// Note: Access restricted to Kleros Core only.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
+    /// @param _nonce Nonce of the drawing iteration.
     /// @return drawnAddress The drawn address.
     function draw(
-        uint256 _coreDisputeID
+        uint256 _coreDisputeID,
+        uint256 _nonce
     ) external override onlyByCore notJumped(_coreDisputeID) returns (address drawnAddress) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
@@ -193,7 +195,7 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
         bytes32 key = bytes32(uint256(courtID)); // Get the ID of the tree.
 
         // TODO: Handle the situation when no one has staked yet.
-        drawnAddress = sortitionModule.draw(key, _coreDisputeID, round.votes.length);
+        drawnAddress = sortitionModule.draw(key, _coreDisputeID, _nonce);
 
         if (_postDrawCheck(_coreDisputeID, drawnAddress)) {
             round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
@@ -558,7 +560,12 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     // ************************************* //
 
     /// @inheritdoc BaseDisputeKit
-    function _postDrawCheck(uint256 /*_coreDisputeID*/, address /*_juror*/) internal pure override returns (bool) {
-        return true;
+    function _postDrawCheck(uint256 _coreDisputeID, address _juror) internal view override returns (bool) {
+        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
+        uint256 lockedAmountPerJuror = core
+            .getRoundInfo(_coreDisputeID, core.getNumberOfRounds(_coreDisputeID) - 1)
+            .pnkAtStakePerJuror;
+        (uint256 totalStaked, uint256 totalLocked, , ) = core.getJurorBalance(_juror, courtID);
+        return totalStaked >= totalLocked + lockedAmountPerJuror;
     }
 }
