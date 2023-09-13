@@ -129,6 +129,7 @@ type Court @entity {
   disputes: [Dispute!]! @derivedFrom(field: "court")
   numberDisputes: BigInt!
   numberClosedDisputes: BigInt!
+  numberVotingDisputes: BigInt!
   numberAppealingDisputes: BigInt!
   stakedJurors: [JurorTokensPerCourt!]! @derivedFrom(field: "court")
   numberStakedJurors: BigInt!
@@ -169,6 +170,7 @@ type Round @entity {
 }
 
 type Draw @entity {
+type Draw @entity(immutable: true) {
   id: ID! # dispute.id-currentRound-voteID
   dispute: Dispute!
   round: Round!

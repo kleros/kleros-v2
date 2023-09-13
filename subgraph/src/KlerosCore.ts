@@ -84,21 +84,23 @@ export function handleDisputeCreation(event: DisputeCreation): void {
 }
 
 export function handleNewPeriod(event: NewPeriod): void {
-  const contract = KlerosCore.bind(event.address);
   const disputeID = event.params._disputeID;
   const dispute = Dispute.load(disputeID.toString());
-  const disputeStorage = contract.disputes(disputeID);
-  const courtID = disputeStorage.value0.toString();
-  const court = Court.load(courtID);
   if (!dispute) return;
+  const court = Court.load(dispute.court);
   if (!court) return;
-  const newPeriod = getPeriodName(event.params._period);
+
   if (dispute.period === "vote") {
+    court.numberVotingDisputes = court.numberVotingDisputes.minus(ONE);
     updateCasesVoting(BigInt.fromI32(-1), event.block.timestamp);
-  } else if (newPeriod === "evidence") {
+  } else if (dispute.period === "appeal") {
     court.numberAppealingDisputes = court.numberAppealingDisputes.minus(ONE);
     updateCasesAppealing(BigInt.fromI32(-1), event.block.timestamp);
-  } else if (newPeriod === "vote") {
+  }
+
+  const newPeriod = getPeriodName(event.params._period);
+  if (newPeriod === "vote") {
+    court.numberVotingDisputes = court.numberVotingDisputes.plus(ONE);
     updateCasesVoting(ONE, event.block.timestamp);
   } else if (newPeriod === "appeal") {
     court.numberAppealingDisputes = court.numberAppealingDisputes.plus(ONE);
@@ -109,9 +111,6 @@ export function handleNewPeriod(event: NewPeriod): void {
     dispute.currentRuling = currentRulingInfo.getRuling();
     dispute.overridden = currentRulingInfo.getOverridden();
     dispute.tied = currentRulingInfo.getTied();
-    dispute.save();
-    court.numberAppealingDisputes = court.numberAppealingDisputes.minus(ONE);
-    updateCasesAppealing(BigInt.fromI32(-1), event.block.timestamp);
   }
 
   dispute.period = newPeriod;
@@ -121,16 +120,13 @@ export function handleNewPeriod(event: NewPeriod): void {
 }
 
 export function handleRuling(event: Ruling): void {
-  const contract = KlerosCore.bind(event.address);
+  updateCasesRuled(ONE, event.block.timestamp);
   const disputeID = event.params._disputeID;
   const dispute = Dispute.load(disputeID.toString());
-  const disputeStorage = contract.disputes(disputeID);
-  const courtID = disputeStorage.value0.toString();
-  const court = Court.load(courtID);
   if (!dispute) return;
   dispute.ruled = true;
   dispute.save();
-  updateCasesRuled(ONE, event.block.timestamp);
+  const court = Court.load(dispute.court);
   if (!court) return;
   court.numberClosedDisputes = court.numberClosedDisputes.plus(ONE);
   court.save();
@@ -146,7 +142,6 @@ export function handleAppealDecision(event: AppealDecision): void {
   dispute.currentRoundIndex = newRoundIndex;
   dispute.currentRound = roundID;
   dispute.save();
-  const feeForJuror = getFeeForJuror(dispute.court);
   const roundInfo = contract.getRoundInfo(disputeID, newRoundIndex);
   createRoundFromRoundInfo(disputeID, newRoundIndex, roundInfo);
 }

@@ -15,6 +15,7 @@ export function createCourtFromEvent(event: CourtCreated): void {
   court.supportedDisputeKits = event.params._supportedDisputeKits.map<string>((value) => value.toString());
   court.numberDisputes = ZERO;
   court.numberClosedDisputes = ZERO;
+  court.numberVotingDisputes = ZERO;
   court.numberAppealingDisputes = ZERO;
   court.numberStakedJurors = ZERO;
   court.stake = ZERO;
