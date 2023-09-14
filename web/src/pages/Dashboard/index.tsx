@@ -1,9 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useAccount } from "wagmi";
 import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
 import { useFiltersContext } from "context/FilterProvider";
-import { useUserQuery } from "queries/useUser";
+import { useMyCasesCounterQuery } from "queries/useMyCasesCounterQuery";
+import { useUserQuery, UserQuery } from "queries/useUser";
+import { OrderDirection, Period } from "src/graphql/graphql";
 import JurorInfo from "./JurorInfo";
 import Courts from "./Courts";
 import CasesDisplay from "components/CasesDisplay";
@@ -28,17 +30,49 @@ const ConnectWalletContainer = styled.div`
   color: ${({ theme }) => theme.primaryText};
 `;
 
+const calculatePages = (status: number, data: UserQuery | undefined, casesPerPage: number, myAppeals?: number) => {
+  if (!data) {
+    return 0;
+  }
+
+  let totalPages = 0;
+
+  switch (status) {
+    case 1:
+      totalPages = data.user?.totalDisputes - data.user?.totalResolvedDisputes;
+      break;
+    case 2:
+      totalPages = data.user?.totalResolvedDisputes ?? 0;
+      break;
+    case 3:
+      totalPages = myAppeals ?? 0;
+      break;
+    default:
+      totalPages = data.user?.totalDisputes ?? 0;
+  }
+
+  return totalPages / casesPerPage;
+};
+
 const Dashboard: React.FC = () => {
   const { isConnected, address } = useAccount();
-  const { currentPage, setCurrentPage } = useFiltersContext();
+  const { combinedQueryFilters, debouncedSearch, timeFilter, statusFilter } = useFiltersContext();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [courtFilter, setCourtFilter] = useState(0);
   const casesPerPage = 3;
-  const { data: disputesData } = useMyCasesQuery(address, casesPerPage * (currentPage - 1));
+  const disputeSkip = debouncedSearch ? 0 : 3 * (currentPage - 1);
+  const direction = timeFilter === 0 ? OrderDirection.Desc : OrderDirection.Asc;
+  const courtChoice = courtFilter === 0 ? {} : { court: courtFilter.toString() };
+  const { data: userAppealCases } = useMyCasesCounterQuery(address, { period: Period.Appeal, ...courtChoice });
+  const userAppealCasesNumber = userAppealCases?.user?.disputes.length;
+  const queryFilters = { ...combinedQueryFilters, ...courtChoice };
+  const { data: disputesData } = useMyCasesQuery(address, disputeSkip, queryFilters, direction);
   const { data: userData } = useUserQuery(address);
-  const { setIsDashboard } = useFiltersContext();
+  const totalPages = calculatePages(statusFilter, userData, casesPerPage, userAppealCasesNumber);
 
   useEffect(() => {
-    setIsDashboard(true);
-  }, [isConnected]);
+    setCurrentPage(1);
+  }, [statusFilter, courtFilter]);
 
   return (
     <Container>
@@ -51,7 +85,8 @@ const Dashboard: React.FC = () => {
             disputes={disputesData?.user?.disputes as DisputeDetailsFragment[]}
             numberDisputes={userData?.user?.totalDisputes}
             numberClosedDisputes={userData?.user?.totalResolvedDisputes}
-            {...{ currentPage, setCurrentPage, casesPerPage }}
+            totalPages={totalPages}
+            {...{ casesPerPage, currentPage, setCurrentPage, setCourtFilter }}
           />
         </>
       ) : (

@@ -1,7 +1,7 @@
 import { graphql } from "src/graphql";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
-import { MyAppealCasesQuery, Period } from "src/graphql/graphql";
+import { MyAppealCasesQuery, Dispute_Filter } from "src/graphql/graphql";
 import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 import { isUndefined } from "utils/index";
 export type { MyAppealCasesQuery };
@@ -16,16 +16,16 @@ const myAppealCases = graphql(`
   }
 `);
 
-export const useMyAppealCasesQuery = (user?: Address) => {
+export const useMyCasesCounterQuery = (user?: Address, where?: Dispute_Filter) => {
   const isEnabled = !isUndefined(user);
 
   return useQuery<MyAppealCasesQuery>({
-    queryKey: [`useMyAppealCasesQuery`, user],
+    queryKey: [`useMyCasesCounterQuery`, user],
     enabled: isEnabled,
     queryFn: async () =>
       await graphqlQueryFnHelper(myAppealCases, {
         id: user?.toLowerCase(),
-        where: { period: Period.Appeal },
+        where,
       }),
   });
 };

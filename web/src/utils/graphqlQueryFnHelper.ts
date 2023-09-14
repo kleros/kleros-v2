@@ -24,7 +24,7 @@ const CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH = {
 export const graphqlUrl = (isDisputeTemplate = false, chainId = 421613) => {
   const coreUrl =
     DEPLOYMENTS_TO_KLEROS_CORE_SUBGRAPHS[DEPLOYMENT] ??
-    "https://api.thegraph.com/subgraphs/name/nhestrompia/kleros-v2-core-devnet-test";
+    "https://api.thegraph.com/subgraphs/name/alcercu/kleroscoretest";
   return isDisputeTemplate ? CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH[chainId] : coreUrl;
 };
 

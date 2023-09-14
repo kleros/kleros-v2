@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Searchbar, DropdownCascader } from "@kleros/ui-components-library";
 import { useFiltersContext } from "context/FilterProvider";
+
 const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -21,8 +22,12 @@ const StyledSearchbar = styled(Searchbar)`
   }
 `;
 
-const Search: React.FC = () => {
-  const { search, setSearch, setCourtFilter } = useFiltersContext();
+interface ISearch {
+  setCourtFilter: (arg0: number) => void;
+}
+
+const Search: React.FC<ISearch> = ({ setCourtFilter }) => {
+  const { search, setSearch } = useFiltersContext();
 
   return (
     <div>
