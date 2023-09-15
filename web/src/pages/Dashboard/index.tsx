@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { useAccount } from "wagmi";
 import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
 import { useFiltersContext } from "context/FilterProvider";
-import { useMyCasesCounterQuery } from "queries/useMyCasesCounterQuery";
 import { useUserQuery, UserQuery } from "queries/useUser";
 import { OrderDirection } from "src/graphql/graphql";
 import JurorInfo from "./JurorInfo";
@@ -63,12 +62,10 @@ const Dashboard: React.FC = () => {
   const disputeSkip = debouncedSearch ? 0 : 3 * (currentPage - 1);
   const direction = timeFilter === 0 ? OrderDirection.Desc : OrderDirection.Asc;
   const courtChoice = courtFilter === 0 ? {} : { court: courtFilter.toString() };
-  const { data: userAppealCases } = useMyCasesCounterQuery(address, { ...courtChoice });
-  const userAppealCasesNumber = userAppealCases?.user?.totalAppealingDisputes;
   const queryFilters = { ...combinedQueryFilters, ...courtChoice };
   const { data: disputesData } = useMyCasesQuery(address, disputeSkip, queryFilters, direction);
   const { data: userData } = useUserQuery(address);
-  const totalPages = calculatePages(statusFilter, userData, casesPerPage, userAppealCasesNumber);
+  const totalPages = calculatePages(statusFilter, userData, casesPerPage, userData?.user?.totalAppealingDisputes);
 
   useEffect(() => {
     setCurrentPage(1);

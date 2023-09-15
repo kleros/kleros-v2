@@ -10,6 +10,7 @@ const userQuery = graphql(`
     user(id: $address) {
       totalDisputes
       totalResolvedDisputes
+      totalAppealingDisputes
       totalCoherent
       tokens {
         court {
