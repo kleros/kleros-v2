@@ -6,22 +6,26 @@ import { useFiltersContext } from "context/FilterProvider";
 import { CasesPageQuery } from "queries/useCasesQuery";
 import DisputeCard from "components/DisputeCard";
 import CasesListHeader from "./CasesListHeader";
+import { useLocation } from "react-router-dom";
 
-const GridContainer = styled.div`
+const GridContainer = styled.div<{ path: string }>`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: 8px;
-  align-items: center;
-  justify-items: center;
-  ${landscapeStyle(css`
-    display: grid;
-    row-gap: 16px;
-    column-gap: 8px;
-    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-    justify-content: space-between;
-  `)}
+  ${(props) =>
+    props.path === "/dashboard"
+      ? landscapeStyle(css`
+          display: flex;
+        `)
+      : landscapeStyle(css`
+          display: grid;
+          row-gap: 16px;
+          column-gap: 8px;
+          grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+          justify-content: space-between;
+        `)}
 `;
 const ListContainer = styled.div`
   display: flex;
@@ -46,10 +50,13 @@ export interface ICasesGrid {
 
 const CasesGrid: React.FC<ICasesGrid> = ({ disputes, currentPage, setCurrentPage, numberDisputes, casesPerPage }) => {
   const { isList } = useFiltersContext();
+  const location = useLocation();
+
+  const path = location.pathname;
   return (
     <>
       {!isList ? (
-        <GridContainer>
+        <GridContainer path={path}>
           {disputes.map((dispute) => {
             return <DisputeCard key={dispute?.id} {...dispute} />;
           })}
