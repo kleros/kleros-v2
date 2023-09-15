@@ -9,6 +9,7 @@ export type { MyCasesCounterQuery };
 const myCasesCounter = graphql(`
   query MyCasesCounter($id: ID!, $where: Dispute_filter) {
     user(id: $id) {
+      totalAppealingDisputes
       disputes(orderBy: lastPeriodChange, where: $where) {
         id
       }
