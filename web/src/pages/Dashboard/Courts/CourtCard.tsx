@@ -52,7 +52,8 @@ const CourtCard: React.FC<ICourtCard> = ({ id, name }) => {
   const lockedStake = format(jurorBalance?.[1]);
 
   return (
-    (stake || lockedStake) !== "0" && (
+    stake !== "0" ||
+    (lockedStake !== "0" && (
       <Card>
         <StyledBreadcrumb items={[{ text: name, value: 0 }]} />
         <ValueContainer>
@@ -66,7 +67,7 @@ const CourtCard: React.FC<ICourtCard> = ({ id, name }) => {
           <small>{`${lockedStake} PNK`}</small>
         </ValueContainer>
       </Card>
-    )
+    ))
   );
 };
 
