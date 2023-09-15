@@ -1,11 +1,12 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { formatEther } from "viem";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 import { useFiltersContext } from "context/FilterProvider";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { CasesPageQuery } from "queries/useCasesQuery";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
@@ -14,10 +15,11 @@ import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
 
 const StyledCard = styled(Card)`
-  max-width: 380px;
-  min-width: 312px;
-  width: 380px;
+  width: 312px;
   height: 260px;
+  ${landscapeStyle(css`
+    width: 380px;
+  `)}
 `;
 const StyledListItem = styled(Card)`
   display: flex;
@@ -40,7 +42,6 @@ const ListContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  /* gap: calc(8px + (32 - 8) * ((100vw - 300px) / (900 - 300))); */
   width: 100%;
   margin-right: 8px;
 
@@ -64,6 +65,11 @@ export const getPeriodEndTimestamp = (
 ) => {
   const durationCurrentPeriod = parseInt(timesPerPeriod[currentPeriodIndex]);
   return parseInt(lastPeriodChange) + durationCurrentPeriod;
+};
+
+const TruncatedTitle = ({ text, maxLength }) => {
+  const truncatedText = text.length <= maxLength ? text : text.slice(0, maxLength) + "…";
+  return <h3>{truncatedText}</h3>;
 };
 
 const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
@@ -110,7 +116,10 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
           <PeriodBanner isCard={false} id={parseInt(id)} period={currentPeriodIndex} />
           <ListContainer>
             <ListTitle>
-              <h3>{title}</h3>
+              <TruncatedTitle
+                text={disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"}
+                maxLength={50}
+              />
             </ListTitle>
             <DisputeInfo
               courtId={court?.id}

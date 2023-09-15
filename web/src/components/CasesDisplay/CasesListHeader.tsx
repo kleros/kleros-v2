@@ -17,12 +17,9 @@ const CasesData = styled.div`
   justify-content: space-around;
   width: 100%;
   margin-left: calc(0px + (33) * (100vw - 370px) / (1250 - 370));
-  gap: 12px;
   flex-wrap: wrap;
   padding: 0 3%;
-  ${landscapeStyle(css`
-    gap: calc(24px + (48 - 24) * ((100vw - 300px) / (1250 - 300)));
-  `)}
+  gap: calc(24px + (48 - 24) * ((100vw - 300px) / (1250 - 300)));
 `;
 
 const CaseTitle = styled.div`
@@ -41,8 +38,8 @@ const CaseTitle = styled.div`
   `)}
 `;
 
-const CategoryLabel = styled.label`
-  padding-left: calc(4px + (12 - 4) * ((100vw - 300px) / (900 - 300)));
+const StyledLabel = styled.label`
+  padding-left: calc(4px + (8 - 4) * ((100vw - 300px) / (900 - 300)));
 `;
 
 const tooltipMsg =
@@ -59,8 +56,8 @@ const CasesListHeader: React.FC = () => {
         <label>Title</label>
       </CaseTitle>
       <CasesData>
-        <CategoryLabel>Court</CategoryLabel>
-        <label>Category</label>
+        <StyledLabel>Court</StyledLabel>
+        <StyledLabel>Category</StyledLabel>
         <WithHelpTooltip place="top" {...{ tooltipMsg }}>
           <label> Rewards: </label>
         </WithHelpTooltip>

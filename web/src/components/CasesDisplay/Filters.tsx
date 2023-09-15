@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { useTheme } from "styled-components";
+import styled, { useTheme, css } from "styled-components";
 import { useWindowSize } from "react-use";
 import { DropdownSelect } from "@kleros/ui-components-library";
 import { useFiltersContext } from "context/FilterProvider";
@@ -14,12 +14,18 @@ const Container = styled.div`
   width: fit-content;
 `;
 
+const glowingEffect = css`
+  filter: drop-shadow(0 0 4px ${({ theme }) => theme.klerosUIComponentsSecondaryPurple});
+`;
+
 const StyledGridIcon = styled(GridIcon)<{ isList: boolean }>`
   cursor: pointer;
-  transition: fill 0.2s ease;
-  fill: ${({ theme, isList }) => (isList ? theme.secondaryText : theme.primaryBlue)};
+  transition: filter 0.2s ease;
+  fill: ${({ theme }) => theme.primaryBlue};
   width: 16px;
   height: 16px;
+  overflow: hidden;
+  ${({ isList }) => !isList && glowingEffect}
 `;
 
 const IconsContainer = styled.div`
@@ -32,10 +38,12 @@ const IconsContainer = styled.div`
 const StyledListIcon = styled(ListIcon)<{ isList: boolean; isScreenBig: boolean }>`
   cursor: pointer;
   display: ${({ isScreenBig }) => (isScreenBig ? "block" : "none")};
-  transition: fill 0.2s ease;
-  fill: ${({ theme, isList }) => (isList ? theme.primaryBlue : theme.secondaryText)};
+  transition: filter 0.2s ease;
+  fill: ${({ theme }) => theme.primaryBlue};
   width: 16px;
-  height: 17px;
+  height: 16px;
+  overflow: hidden;
+  ${({ isList }) => isList && glowingEffect}
 `;
 
 const Filters: React.FC = () => {

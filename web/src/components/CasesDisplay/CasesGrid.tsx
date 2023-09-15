@@ -8,19 +8,19 @@ import DisputeCard from "components/DisputeCard";
 import CasesListHeader from "./CasesListHeader";
 
 const GridContainer = styled.div`
-  display: grid;
-  row-gap: 16px;
-  column-gap: 8px;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-  justify-content: space-between;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
   align-items: center;
   justify-items: center;
   ${landscapeStyle(css`
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
+    display: grid;
+    row-gap: 16px;
+    column-gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    justify-content: space-between;
   `)}
 `;
 const ListContainer = styled.div`

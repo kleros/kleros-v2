@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { useWindowSize } from "react-use";
 import { useAccount } from "wagmi";
 import { useFiltersContext } from "context/FilterProvider";
 import { useCasesQuery } from "queries/useCasesQuery";
-import { BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
+import { landscapeStyle, BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
 import JurorInfo from "./JurorInfo";
 import Courts from "./Courts";
 import CasesDisplay from "components/CasesDisplay";
@@ -14,9 +14,12 @@ const Container = styled.div`
   width: 100%;
   min-height: calc(100vh - 144px);
   background-color: ${({ theme }) => theme.lightBackground};
-  padding: calc(32px + (132 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-top: calc(32px + (64 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-bottom: calc(64px + (96 - 64) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: 32px;
+  ${landscapeStyle(css`
+    padding: calc(32px + (132 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+    padding-top: calc(32px + (64 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+    padding-bottom: calc(64px + (96 - 64) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  `)}
 `;
 
 const StyledCasesDisplay = styled(CasesDisplay)`
