@@ -1,10 +1,9 @@
-import React, { Dispatch, SetStateAction, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "styled-components";
 import { Tabs } from "@kleros/ui-components-library";
 import General from "./General";
 import SendMeNotifications from "./SendMeNotifications";
 import { useFocusOutside } from "hooks/useFocusOutside";
-import { Overlay } from "components/Overlay";
 
 const Container = styled.div`
   display: flex;
@@ -45,29 +44,26 @@ const TABS = [
 ];
 
 interface ISettings {
-  setIsSettingsOpen: Dispatch<SetStateAction<boolean>>;
+  toggleIsSettingsOpen: () => void;
 }
 
-const Settings: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
+const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const [currentTab, setCurrentTab] = useState<number>(0);
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => setIsSettingsOpen(false));
+  useFocusOutside(containerRef, () => toggleIsSettingsOpen());
 
   return (
-    <>
-      <Overlay />
-      <Container ref={containerRef}>
-        <StyledSettingsText>Settings</StyledSettingsText>
-        <StyledTabs
-          currentValue={currentTab}
-          items={TABS}
-          callback={(n: number) => {
-            setCurrentTab(n);
-          }}
-        />
-        {currentTab === 0 ? <General /> : <SendMeNotifications />}
-      </Container>
-    </>
+    <Container ref={containerRef}>
+      <StyledSettingsText>Settings</StyledSettingsText>
+      <StyledTabs
+        currentValue={currentTab}
+        items={TABS}
+        callback={(n: number) => {
+          setCurrentTab(n);
+        }}
+      />
+      {currentTab === 0 ? <General /> : <SendMeNotifications />}
+    </Container>
   );
 };
 
