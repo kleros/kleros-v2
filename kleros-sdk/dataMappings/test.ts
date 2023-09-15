@@ -4,7 +4,7 @@ import { arbitrumGoerli } from "viem/chains";
 import { jsonAction, graphqlAction, fetchAction, eventAction, callAction } from "./dataMappings";
 import { klerosCoreABI } from "../../web/src/hooks/contracts/generated";
 
-const currentAcc = {
+const exampleObject = {
   evidence: {
     fileURI: {
       photo: "https://photo.url",
@@ -20,7 +20,7 @@ const publicClient = createPublicClient({
 
 describe("jsonAction", () => {
   it("should extract and map data correctly", () => {
-    const result = jsonAction(currentAcc, "evidence.fileURI", ["photo", "video"], ["photoUrl", "videoUrl"]);
+    const result = jsonAction(exampleObject, ["photo", "video"], ["photoUrl", "videoUrl"]);
     expect(result).to.eql({
       photoUrl: "https://photo.url",
       videoUrl: "https://video.url",
@@ -30,43 +30,53 @@ describe("jsonAction", () => {
 
 describe("fetchAction", () => {
   it("should fetch data and return in expected format", async () => {
-    const result = await fetchAction("product", "https://fakestoreapi.com/products/1");
-    expect(result).to.eql({
-      product: {
-        id: 1,
-        title: "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops",
-        price: 109.95,
-        description:
-          "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday",
-        category: "men's clothing",
-        image: "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
-        rating: {
-          rate: 3.9,
-          count: 120,
-        },
-      },
-    });
+    const seek = ["rate"];
+    const populate = ["rate"];
+    const result = await fetchAction("https://fakestoreapi.com/products/1", seek, populate);
+
+    const expectedResult = {
+      rate: 3.9,
+    };
+
+    expect(result).to.eql(expectedResult);
   });
 });
 
 describe("graphqlAction", () => {
   it("should fetch GraphQL data and return in expected format", async () => {
+    const seek = ["courts"];
+    const populate = ["courts"];
+
     const mockQuery = `
       {
-        court(id: 1) {
+        courts(first: 1) {
           id
+          stakedJurors(first:1){
+            court {
+              id
+            }
+          }
         }
       }
     `;
 
     const mockData = {
-      court: {
-        id: "1",
-      },
+      courts: [
+        {
+          id: "1",
+          stakedJurors: [
+            {
+              court: {
+                id: "1",
+              },
+            },
+          ],
+        },
+      ],
     };
 
-    const result = await graphqlAction("court", mockQuery);
-    expect(result).to.eql({ court: mockData });
+    const result = await graphqlAction(mockQuery, seek, populate);
+    expect(result).to.eql(mockData);
   });
 });
 

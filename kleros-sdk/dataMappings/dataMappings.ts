@@ -71,31 +71,43 @@ const initialState = {
   },
 };
 
-// Utility function to access nested objects
-const getNestedObject = (nestedObj, pathArr) => {
-  return pathArr.reduce((obj, key) => (obj && obj[key] !== "undefined" ? obj[key] : undefined), nestedObj);
+const findNestedKey = (data, keyToFind) => {
+  if (data.hasOwnProperty(keyToFind)) return data[keyToFind];
+  for (let key in data) {
+    if (typeof data[key] === "object" && data[key] !== null) {
+      const found = findNestedKey(data[key], keyToFind);
+      if (found) return found;
+    }
+  }
+  return null;
 };
 
-export const jsonAction = (currentAcc, source, seek, populate) => {
-  const pathArray = typeof source === "string" ? source.split(".") : source;
-
-  const dataFromSource = getNestedObject(currentAcc, pathArray);
+export const jsonAction = (data, seek, populate) => {
   let jsonData = {};
 
   seek.forEach((key, idx) => {
-    jsonData[populate[idx]] = dataFromSource[key];
+    const foundValue = findNestedKey(data, key);
+    jsonData[populate[idx]] = foundValue;
   });
 
   return jsonData;
 };
 
-export const fetchAction = async (variableName: string, link: string) => {
+export const fetchAction = async (link: string, seek, populate) => {
   const response = await fetch(link);
-  const data = await response.json();
-  return { [variableName]: data };
+  const fetchedData = await response.json();
+  console.log(fetchedData);
+  let populatedData = {};
+
+  seek.forEach((key, idx) => {
+    const foundValue = findNestedKey(fetchedData, key);
+    populatedData[populate[idx]] = foundValue;
+  });
+
+  return populatedData;
 };
 
-export const graphqlAction = async (variableName: string, query: string) => {
+export const graphqlAction = async (query: string, seek, populate) => {
   const response = await fetch("https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli", {
     method: "POST",
     headers: {
@@ -106,7 +118,15 @@ export const graphqlAction = async (variableName: string, query: string) => {
   });
 
   const { data } = await response.json();
-  return { [variableName]: data };
+  console.log(data);
+  let populatedData = {};
+
+  seek.forEach((key, idx) => {
+    const foundValue = findNestedKey(data, key);
+    populatedData[populate[idx]] = foundValue;
+  });
+
+  return populatedData;
 };
 
 export const callAction = async (abi, inputs, seek, populate) => {
