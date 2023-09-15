@@ -10,7 +10,6 @@ import Linguo from "svgs/icons/linguo.svg";
 import POH from "svgs/icons/poh-image.png";
 import Tokens from "svgs/icons/tokens.svg";
 import Product from "./Product";
-import { Overlay } from "components/Overlay";
 
 const Header = styled.h1`
   display: flex;
@@ -28,7 +27,7 @@ const Container = styled.div`
   top: 5%;
   left: 50%;
   transform: translate(-50%);
-  z-index: 10;
+  z-index: 1;
   flex-direction: column;
   align-items: center;
 
@@ -57,10 +56,6 @@ const ItemsDiv = styled.div`
   width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 `;
-
-interface IDappList {
-  toggleSolution: () => void;
-}
 
 const ITEMS = [
   {
@@ -105,24 +100,25 @@ const ITEMS = [
   },
 ];
 
-const DappList: React.FC<IDappList> = ({ toggleSolution }) => {
+interface IDappList {
+  toggleIsDappListOpen: () => void;
+}
+
+const DappList: React.FC<IDappList> = ({ toggleIsDappListOpen }) => {
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => {
-    toggleSolution();
+    toggleIsDappListOpen();
   });
 
   return (
-    <>
-      <Overlay />
-      <Container ref={containerRef}>
-        <Header>Kleros Solutions</Header>
-        <ItemsDiv>
-          {ITEMS.map((item) => {
-            return <Product {...item} key={item.text} />;
-          })}
-        </ItemsDiv>
-      </Container>
-    </>
+    <Container ref={containerRef}>
+      <Header>Kleros Solutions</Header>
+      <ItemsDiv>
+        {ITEMS.map((item) => {
+          return <Product {...item} key={item.text} />;
+        })}
+      </ItemsDiv>
+    </Container>
   );
 };
 export default DappList;

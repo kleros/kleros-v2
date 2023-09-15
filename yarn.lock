@@ -5288,6 +5288,8 @@ __metadata:
     graphql-request: ~6.1.0
     lru-cache: ^7.18.3
     moment: ^2.29.4
+    overlayscrollbars: ^2.3.0
+    overlayscrollbars-react: ^0.5.2
     parcel: 2.8.3
     react: ^18.2.0
     react-chartjs-2: ^4.3.1
@@ -23987,6 +23989,23 @@ __metadata:
   version: 1.0.2
   resolution: "os-tmpdir@npm:1.0.2"
   checksum: 5666560f7b9f10182548bf7013883265be33620b1c1b4a4d405c25be2636f970c5488ff3e6c48de75b55d02bde037249fe5dbfbb4c0fb7714953d56aed062e6d
+  languageName: node
+  linkType: hard
+
+"overlayscrollbars-react@npm:^0.5.2":
+  version: 0.5.2
+  resolution: "overlayscrollbars-react@npm:0.5.2"
+  peerDependencies:
+    overlayscrollbars: ^2.0.0
+    react: ">=16.8.0"
+  checksum: 64c76ea5510d8b8ff30a0583018797f7a53afe3dd3b3c4c8cdcc960e277c4a5eeeeb2f027f442a65cefdef3850d042dbd8bafb84660cb50d101ad266ebca60fa
+  languageName: node
+  linkType: hard
+
+"overlayscrollbars@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "overlayscrollbars@npm:2.3.0"
+  checksum: 876dc4f3cfbf2b53335152da465eaa9c6eb64c10dfee319c72b644da9fd7ca2e9094075f34ac5042a99f4d56e5a0146c6c047ec637f478b754cacc43506d211b
   languageName: node
   linkType: hard
 
