@@ -83,8 +83,8 @@ describe("graphqlAction", () => {
 describe("callAction", () => {
   it("should call the contract and return populated data", async () => {
     const mockAbi = parseAbiItem(`function appealCost(uint256 _disputeID) public view returns (uint256)`);
-    const mockInputs = ["0x5a2bC1477ABE705dB4955Cda7DE064eA79D563d1", BigInt(1)];
-    const mockSeek = ["appealCost"];
+    const mockInputs = ["0x5a2bC1477ABE705dB4955Cda7DE064eA79D563d1", "appealCost", BigInt(1)];
+    const mockSeek = ["_disputeID"];
     const mockPopulate = ["cost"];
 
     const result = await callAction(mockAbi, mockInputs, mockSeek, mockPopulate);
@@ -98,22 +98,22 @@ describe("callAction", () => {
 
 describe("eventAction", () => {
   it("should fetch event data and return populated data", async () => {
-    const mockSource = parseAbiItem(
-      "event Draw(address indexed _address, uint256 indexed _disputeID, uint256 _roundID, uint256 _voteID)"
-    );
-    const mockInputs = ["0x5a2bC1477ABE705dB4955Cda7DE064eA79D563d1", BigInt(40250621)];
-    const mockSeek = ["_address", "_disputeID"];
-    const mockPopulate = ["address", "disputeID"];
-    const mockEventData = {
-      eventItem1: "eventData1",
-      eventItem2: "eventData2",
-    };
+    // const mockSource = parseAbiItem(
+    //   "event Draw(address indexed _address, uint256 indexed _disputeID, uint256 _roundID, uint256 _voteID)"
+    // );
+    const mockSource = parseAbiItem("event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount)");
+    const mockInputs = [
+      "0x5a2bC1477ABE705dB4955Cda7DE064eA79D563d1",
+      BigInt(36205881),
+      "0xE652E5B6409B062FcE5f40E19682f31152d6CD1a",
+    ];
+    const mockSeek = ["_address", "_courtID"];
+    const mockPopulate = ["address", "courtID"];
 
     const result = await eventAction(mockSource, mockInputs, mockSeek, mockPopulate);
-    // console.log("🚀 ~ file: test.ts:108 ~ it ~ result:", result);
     expect(result).to.eql({
-      address: "0xaeaD6593710Bf28bF4848b24F4ed1F130773d7E6",
-      disputeID: BigInt(42),
+      address: "0xE652E5B6409B062FcE5f40E19682f31152d6CD1a",
+      courtID: BigInt(1),
     });
   });
 });

@@ -133,12 +133,9 @@ export const callAction = async (abi, inputs, seek, populate) => {
   const data = await publicClient.readContract({
     address: inputs[0],
     abi: [abi],
-    functionName: seek[0],
-    args: [inputs[1]],
+    functionName: inputs[1],
+    args: [inputs.slice(2)],
   });
-  console.log("callaction");
-
-  console.log("data", data);
 
   let populatedData = {};
 
@@ -150,11 +147,15 @@ export const callAction = async (abi, inputs, seek, populate) => {
 };
 
 export const eventAction = async (source, inputs, seek, populate) => {
-  console.log("entry", inputs[0]);
+  const argsObject = seek.reduce((acc, key, index) => {
+    acc[key] = inputs[index + 2];
+    return acc;
+  }, {});
 
   const filter = await publicClient.createEventFilter({
     address: inputs[0],
     event: source,
+    args: { ...argsObject },
     fromBlock: inputs[1],
     toBlock: "latest",
   });
@@ -165,13 +166,10 @@ export const eventAction = async (source, inputs, seek, populate) => {
 
   // @ts-ignore
   const eventData = contractEvent[0].args;
-  // console.log("🚀 ~ file: dataMappings.ts:145 ~ eventAction ~ eventData:", eventData);
 
   let populatedData = {};
 
   seek.map((item, index) => {
-    // console.log("item", item);
-
     populatedData[populate[index]] = eventData[item];
   });
 
