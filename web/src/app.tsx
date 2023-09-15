@@ -1,5 +1,5 @@
 import React from "react";
-import { Route } from "react-router-dom";
+import { Route, useLocation } from "react-router-dom";
 import { SentryRoutes } from "./utils/sentry";
 import "react-loading-skeleton/dist/skeleton.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,12 +16,15 @@ import Courts from "./pages/Courts";
 import DisputeTemplateView from "./pages/DisputeTemplateView";
 
 const App: React.FC = () => {
+  const location = useLocation();
+
+  const routeKey = location.pathname;
   return (
     <StyledComponentsProvider>
       <QueryClientProvider>
         <RefetchOnBlock />
         <Web3Provider>
-          <FilterProvider>
+          <FilterProvider key={routeKey}>
             <SentryRoutes>
               <Route path="/" element={<Layout />}>
                 <Route index element={<Home />} />
