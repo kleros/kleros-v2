@@ -28,7 +28,7 @@ const Layout: React.FC = () => {
 
   return (
     <OverlayScrollContext.Provider value={containerRef}>
-      <StyledOverlayScrollbarsComponent ref={containerRef}>
+      <StyledOverlayScrollbarsComponent ref={containerRef} options={{ showNativeOverlaidScrollbars: true }}>
         <Container>
           <Header />
           <StyledToastContainer />
