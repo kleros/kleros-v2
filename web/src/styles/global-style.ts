@@ -10,8 +10,8 @@ export const GlobalStyle = createGlobalStyle`
 
   .react-loading-skeleton {
     z-index: 0;
-    --base-color: ${({ theme }) => theme.lightGrey};
-    --highlight-color: ${({ theme }) => theme.stroke};
+    --base-color: ${({ theme }) => theme.skeletonBackground};
+    --highlight-color: ${({ theme }) => theme.skeletonHighlight};
   }
 
   body {
@@ -105,8 +105,4 @@ export const GlobalStyle = createGlobalStyle`
     }
   }
 
-  .react-loading-skeleton {
-    --base-color: ${({ theme }) => theme.skeletonBackground};
-    --highlight-color: ${({ theme }) => theme.skeletonHighlight};
-  }
 `;

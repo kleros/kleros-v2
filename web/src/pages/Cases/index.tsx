@@ -26,28 +26,28 @@ export const calculatePages = (
     return 0;
   }
 
-  let totalPages = 0;
+  let totalCases = 0;
 
   switch (status) {
     case 1:
-      totalPages =
+      totalCases =
         "counter" in data
           ? data?.counter?.cases - data?.counter?.casesRuled
           : (data as CourtDetailsQuery).court?.numberDisputes - (data as CourtDetailsQuery).court?.numberClosedDisputes;
       break;
     case 2:
-      totalPages =
+      totalCases =
         "counter" in data ? data?.counter?.casesRuled : (data as CourtDetailsQuery).court?.numberClosedDisputes;
       break;
     case 3:
-      totalPages =
+      totalCases =
         "counter" in data ? data?.counter?.casesAppealing : (data as CourtDetailsQuery).court?.numberAppealingDisputes;
       break;
     default:
-      totalPages = "counter" in data ? numberDisputes ?? 0 : (data as CourtDetailsQuery).court?.numberDisputes;
+      totalCases = "counter" in data ? numberDisputes ?? 0 : (data as CourtDetailsQuery).court?.numberDisputes;
   }
 
-  return totalPages / casesPerPage;
+  return totalCases / casesPerPage;
 };
 
 const Cases: React.FC = () => {

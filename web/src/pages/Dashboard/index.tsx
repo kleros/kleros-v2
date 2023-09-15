@@ -35,23 +35,23 @@ const calculatePages = (status: number, data: UserQuery | undefined, casesPerPag
     return 0;
   }
 
-  let totalPages = 0;
+  let totalCases = 0;
 
   switch (status) {
     case 1:
-      totalPages = data.user?.totalDisputes - data.user?.totalResolvedDisputes;
+      totalCases = data.user?.totalDisputes - data.user?.totalResolvedDisputes;
       break;
     case 2:
-      totalPages = data.user?.totalResolvedDisputes ?? 0;
+      totalCases = data.user?.totalResolvedDisputes ?? 0;
       break;
     case 3:
-      totalPages = myAppeals ?? 0;
+      totalCases = myAppeals ?? 0;
       break;
     default:
-      totalPages = data.user?.totalDisputes ?? 0;
+      totalCases = data.user?.totalDisputes ?? 0;
   }
 
-  return totalPages / casesPerPage;
+  return totalCases / casesPerPage;
 };
 
 const Dashboard: React.FC = () => {

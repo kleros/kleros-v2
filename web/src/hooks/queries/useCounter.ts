@@ -6,9 +6,15 @@ import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 const counterQuery = graphql(`
   query Counter {
     counter(id: "0") {
+      id
       cases
       casesRuled
+      casesVoting
       casesAppealing
+      stakedPNK
+      redistributedPNK
+      paidETH
+      activeJurors
     }
   }
 `);
