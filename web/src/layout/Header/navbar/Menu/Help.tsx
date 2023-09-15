@@ -12,7 +12,6 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   position: absolute;
-  max-height: 60vh;
   top: 5%;
   left: 50%;
   transform: translate(-50%);

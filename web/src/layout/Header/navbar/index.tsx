@@ -19,7 +19,7 @@ const Container = styled.div<{ isOpen: boolean }>`
   top: 64px;
   left: 0;
   right: 0;
-  max-height: calc(90vh - 64px);
+  max-height: calc(100vh - 64px);
   overflow-y: auto;
   z-index: 1;
   background-color: ${({ theme }) => theme.whiteBackground};

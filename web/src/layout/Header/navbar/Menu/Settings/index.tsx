@@ -8,6 +8,8 @@ import { useFocusOutside } from "hooks/useFocusOutside";
 const Container = styled.div`
   display: flex;
   position: absolute;
+  max-height: 80vh;
+  overflow-y: auto;
   z-index: 1;
   background-color: ${({ theme }) => theme.whiteBackground};
   flex-direction: column;
