@@ -25,7 +25,7 @@ import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorToken
 import { createDrawFromEvent } from "./entities/Draw";
 import { updateTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
-import { Court, Dispute, FeeToken } from "../generated/schema";
+import { Court, Dispute, FeeToken, User } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { updatePenalty } from "./entities/Penalty";
 import { ensureFeeToken } from "./entities/FeeToken";
@@ -94,6 +94,12 @@ export function handleNewPeriod(event: NewPeriod): void {
     court.numberVotingDisputes = court.numberVotingDisputes.minus(ONE);
     updateCasesVoting(BigInt.fromI32(-1), event.block.timestamp);
   } else if (dispute.period === "appeal") {
+    let juror: User;
+    for (let i = 0; i < dispute.jurors.entries.length; i++) {
+      juror = ensureUser(dispute.jurors.entries[0].value.toString());
+      juror.totalAppealingDisputes = juror.totalAppealingDisputes.minus(ONE);
+      juror.save();
+    }
     court.numberAppealingDisputes = court.numberAppealingDisputes.minus(ONE);
     updateCasesAppealing(BigInt.fromI32(-1), event.block.timestamp);
   }
@@ -103,6 +109,12 @@ export function handleNewPeriod(event: NewPeriod): void {
     court.numberVotingDisputes = court.numberVotingDisputes.plus(ONE);
     updateCasesVoting(ONE, event.block.timestamp);
   } else if (newPeriod === "appeal") {
+    let juror: User;
+    for (let i = 0; i < dispute.jurors.entries.length; i++) {
+      juror = ensureUser(dispute.jurors.entries[0].value.toString());
+      juror.totalAppealingDisputes = juror.totalAppealingDisputes.plus(ONE);
+      juror.save();
+    }
     court.numberAppealingDisputes = court.numberAppealingDisputes.plus(ONE);
     updateCasesAppealing(ONE, event.block.timestamp);
   } else if (newPeriod === "execution") {
