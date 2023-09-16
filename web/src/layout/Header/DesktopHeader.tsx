@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { useToggle } from "react-use";
 import { Link } from "react-router-dom";
+import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 import KlerosCourtLogo from "svgs/header/kleros-court.svg";
 import ConnectWallet from "components/ConnectWallet";
@@ -10,9 +11,14 @@ import LightButton from "components/LightButton";
 import DappList from "./navbar/DappList";
 import Explore from "./navbar/Explore";
 import Menu from "./navbar/Menu";
+import Help from "./navbar/Menu/Help";
+import Settings from "./navbar/Menu/Settings";
+import { Overlay } from "components/Overlay";
+import { PopupContainer } from ".";
 
 const Container = styled.div`
   display: none;
+  position: absolute;
 
   ${landscapeStyle(
     () => css`
@@ -70,36 +76,49 @@ const ConnectWalletContainer = styled.div`
 `;
 
 const DesktopHeader = () => {
-  const [isSolutionsOpen, toggleSolution] = useToggle(false);
+  const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
+  const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
+  const [isSettingsOpen, toggleIsSettingsOpen] = useToggle(false);
+  useLockOverlayScroll(isDappListOpen || isHelpOpen || isSettingsOpen);
+
   return (
-    <Container>
-      <LeftSide>
-        <LightButtonContainer>
-          <LightButton
-            text=""
-            onClick={() => {
-              toggleSolution();
-            }}
-            Icon={StyledKlerosSolutionsIcon}
-          />
-        </LightButtonContainer>
-        {isSolutionsOpen && <DappList toggleSolution={toggleSolution} />}
-        <StyledLink to={"/"}>
-          <KlerosCourtLogo />
-        </StyledLink>
-      </LeftSide>
+    <>
+      <Container>
+        <LeftSide>
+          <LightButtonContainer>
+            <LightButton
+              text=""
+              onClick={() => {
+                toggleIsDappListOpen();
+              }}
+              Icon={StyledKlerosSolutionsIcon}
+            />
+          </LightButtonContainer>
+          <StyledLink to={"/"}>
+            <KlerosCourtLogo />
+          </StyledLink>
+        </LeftSide>
 
-      <MiddleSide>
-        <Explore />
-      </MiddleSide>
+        <MiddleSide>
+          <Explore />
+        </MiddleSide>
 
-      <RightSide>
-        <ConnectWalletContainer>
-          <ConnectWallet />
-        </ConnectWalletContainer>
-        <Menu />
-      </RightSide>
-    </Container>
+        <RightSide>
+          <ConnectWalletContainer>
+            <ConnectWallet />
+          </ConnectWalletContainer>
+          <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
+        </RightSide>
+      </Container>
+      {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
+        <PopupContainer>
+          <Overlay />
+          {isDappListOpen && <DappList {...{ toggleIsDappListOpen, isDappListOpen }} />}
+          {isHelpOpen && <Help {...{ toggleIsHelpOpen, isHelpOpen }} />}
+          {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen }} />}
+        </PopupContainer>
+      )}
+    </>
   );
 };
 export default DesktopHeader;

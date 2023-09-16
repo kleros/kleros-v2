@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import styled, { css } from "styled-components";
-import { useLockBodyScroll } from "react-use";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { useFocusOutside } from "hooks/useFocusOutside";
 import Curate from "svgs/icons/curate-image.png";
@@ -13,7 +12,6 @@ import POH from "svgs/icons/poh-image.png";
 import Vea from "svgs/icons/vea.svg";
 import Tokens from "svgs/icons/tokens.svg";
 import Product from "./Product";
-import { Overlay } from "components/Overlay";
 
 const Header = styled.h1`
   display: flex;
@@ -27,11 +25,11 @@ const Header = styled.h1`
 const Container = styled.div`
   display: flex;
   position: absolute;
-  max-height: 60vh;
+  max-height: 80vh;
   top: 5%;
   left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
+  transform: translate(-50%);
+  z-index: 1;
   flex-direction: column;
   align-items: center;
 
@@ -49,9 +47,11 @@ const Container = styled.div`
 
   ${landscapeStyle(
     () => css`
-      top: 100%;
-      left: 0%;
-      transform: translateX(0%);
+      margin-top: 64px;
+      top: 0;
+      left: 0;
+      right: auto;
+      transform: none;
     `
   )}
 `;
@@ -68,10 +68,6 @@ const ItemsDiv = styled.div`
   width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 `;
-
-interface IDappList {
-  toggleSolution: () => void;
-}
 
 const ITEMS = [
   {
@@ -121,25 +117,25 @@ const ITEMS = [
   },
 ];
 
-const DappList: React.FC<IDappList> = ({ toggleSolution }) => {
+interface IDappList {
+  toggleIsDappListOpen: () => void;
+}
+
+const DappList: React.FC<IDappList> = ({ toggleIsDappListOpen }) => {
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => {
-    toggleSolution();
+    toggleIsDappListOpen();
   });
-  useLockBodyScroll(true);
 
   return (
-    <>
-      <Overlay />
-      <Container ref={containerRef}>
-        <Header>Kleros Solutions</Header>
-        <ItemsDiv>
-          {ITEMS.map((item) => {
-            return <Product {...item} key={item.text} />;
-          })}
-        </ItemsDiv>
-      </Container>
-    </>
+    <Container ref={containerRef}>
+      <Header>Kleros Solutions</Header>
+      <ItemsDiv>
+        {ITEMS.map((item) => {
+          return <Product {...item} key={item.text} />;
+        })}
+      </ItemsDiv>
+    </Container>
   );
 };
 export default DappList;

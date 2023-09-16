@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import styled, { css } from "styled-components";
-import { useLockBodyScroll } from "react-use";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { useFocusOutside } from "hooks/useFocusOutside";
 import Book from "svgs/icons/book-open.svg";
@@ -9,12 +8,13 @@ import Bug from "svgs/icons/bug.svg";
 import ETH from "svgs/icons/eth.svg";
 import Faq from "svgs/menu-icons/help.svg";
 import Telegram from "svgs/socialmedia/telegram.svg";
-import { Overlay } from "components/Overlay";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   position: absolute;
+  max-height: 80vh;
+  overflow-y: auto;
   width: auto;
   top: 5%;
   left: 50%;
@@ -29,9 +29,12 @@ const Container = styled.div`
 
   ${landscapeStyle(
     () => css`
-      top: 100%;
-      left: 92%;
+      margin-top: 64px;
       width: 240px;
+      top: 0;
+      right: 0;
+      left: auto;
+      transform: none;
     `
   )}
 `;
@@ -94,28 +97,24 @@ const ITEMS = [
 ];
 
 interface IHelp {
-  toggle: () => void;
+  toggleIsHelpOpen: () => void;
 }
 
-const Help: React.FC<IHelp> = ({ toggle }) => {
+const Help: React.FC<IHelp> = ({ toggleIsHelpOpen }) => {
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => {
-    toggle();
+    toggleIsHelpOpen();
   });
-  useLockBodyScroll(true);
 
   return (
-    <>
-      <Overlay />
-      <Container ref={containerRef}>
-        {ITEMS.map((item) => (
-          <ListItem href={item.url} key={item.text} target="_blank">
-            <Icon as={item.Icon} />
-            <small>{item.text}</small>
-          </ListItem>
-        ))}
-      </Container>
-    </>
+    <Container ref={containerRef}>
+      {ITEMS.map((item) => (
+        <ListItem href={item.url} key={item.text} target="_blank">
+          <Icon as={item.Icon} />
+          <small>{item.text}</small>
+        </ListItem>
+      ))}
+    </Container>
   );
 };
 export default Help;

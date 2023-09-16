@@ -15,6 +15,15 @@ const Container = styled.div`
   display: flex;
 `;
 
+export const PopupContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 30;
+`;
+
 const Header: React.FC = () => {
   return (
     <Container>

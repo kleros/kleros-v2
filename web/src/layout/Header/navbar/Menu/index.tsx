@@ -1,15 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
-import { useToggle } from "react-use";
 import LightButton from "components/LightButton";
-import Help from "./Help";
 import DarkModeIcon from "svgs/menu-icons/dark-mode.svg";
 import HelpIcon from "svgs/menu-icons/help.svg";
 import LightModeIcon from "svgs/menu-icons/light-mode.svg";
 import NotificationsIcon from "svgs/menu-icons/notifications.svg";
 import SettingsIcon from "svgs/menu-icons/settings.svg";
-import Settings from "./Settings";
 import { useToggleTheme } from "hooks/useToggleThemeContext";
 
 const Container = styled.div`
@@ -55,10 +52,13 @@ const ButtonContainer = styled.div`
   )}
 `;
 
-const Menu: React.FC = () => {
+interface IMenu {
+  toggleIsSettingsOpen: () => void;
+  toggleIsHelpOpen: () => void;
+}
+
+const Menu: React.FC<IMenu> = ({ toggleIsHelpOpen, toggleIsSettingsOpen }) => {
   const [theme, toggleTheme] = useToggleTheme();
-  const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const isLightTheme = theme === "light";
 
   const buttons = [
@@ -66,7 +66,7 @@ const Menu: React.FC = () => {
     {
       text: "Settings",
       Icon: SettingsIcon,
-      onClick: () => setIsSettingsOpen(true),
+      onClick: () => toggleIsSettingsOpen(),
     },
     {
       text: "Help",
@@ -89,8 +89,6 @@ const Menu: React.FC = () => {
           <LightButton {...{ text, onClick, Icon }} />
         </ButtonContainer>
       ))}
-      {isHelpOpen && <Help toggle={toggleIsHelpOpen} />}
-      {isSettingsOpen && <Settings setIsSettingsOpen={setIsSettingsOpen} />}
     </Container>
   );
 };
