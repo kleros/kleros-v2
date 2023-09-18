@@ -1,12 +1,37 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { StandardPagination } from "@kleros/ui-components-library";
+import { landscapeStyle } from "styles/landscapeStyle";
+import { useFiltersContext } from "context/FilterProvider";
 import { CasesPageQuery } from "queries/useCasesQuery";
 import DisputeCard from "components/DisputeCard";
+import CasesListHeader from "./CasesListHeader";
+import { useLocation } from "react-router-dom";
 
-const Container = styled.div`
+const GridContainer = styled.div<{ path: string }>`
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  ${({ path }) =>
+    landscapeStyle(() =>
+      path === "/dashboard"
+        ? css`
+            display: flex;
+          `
+        : css`
+            display: grid;
+            row-gap: 16px;
+            column-gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            justify-content: space-between;
+          `
+    )}
+`;
+const ListContainer = styled.div`
+  display: flex;
+  flex-direction: column;
   justify-content: center;
   gap: 8px;
 `;
@@ -26,13 +51,26 @@ export interface ICasesGrid {
 }
 
 const CasesGrid: React.FC<ICasesGrid> = ({ disputes, currentPage, setCurrentPage, numberDisputes, casesPerPage }) => {
+  const { isList } = useFiltersContext();
+  const location = useLocation();
+
+  const path = location.pathname;
   return (
     <>
-      <Container>
-        {disputes.map((dispute, i) => {
-          return <DisputeCard key={i} {...dispute} />;
-        })}
-      </Container>
+      {!isList ? (
+        <GridContainer path={path}>
+          {disputes.map((dispute) => {
+            return <DisputeCard key={dispute?.id} {...dispute} />;
+          })}
+        </GridContainer>
+      ) : (
+        <ListContainer>
+          {isList && <CasesListHeader />}
+          {disputes.map((dispute) => {
+            return <DisputeCard key={dispute?.id} {...dispute} />;
+          })}
+        </ListContainer>
+      )}
       <StyledPagination
         {...{ currentPage }}
         numPages={Math.ceil(numberDisputes / casesPerPage)}

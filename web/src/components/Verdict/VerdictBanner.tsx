@@ -6,7 +6,7 @@ import HourglassIcon from "assets/svgs/icons/hourglass.svg";
 const BannerContainer = styled.div`
   display: flex;
   gap: 8px;
-  margin: 16px 0px;
+  margin-bottom: calc(16px + (24 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   svg {
     width: 16px;
     height: 16px;

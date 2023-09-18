@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { Button } from "@kleros/ui-components-library";
 import { Overlay } from "components/Overlay";
 import StakeWithdraw from "./Description/StakeWithdraw";
@@ -44,6 +45,8 @@ const Container = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  max-height: 80vh;
+  overflow-y: auto;
 
   z-index: 10;
   flex-direction: column;
@@ -59,6 +62,12 @@ const Container = styled.div`
   svg {
     visibility: visible;
   }
+
+  ${landscapeStyle(
+    () => css`
+      overflow-y: hidden;
+    `
+  )}
 `;
 
 const VoteDescriptionContainer = styled.div`

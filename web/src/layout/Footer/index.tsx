@@ -1,5 +1,6 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import SecuredByKlerosLogo from "svgs/footer/secured-by-kleros.svg";
 import { socialmedia } from "consts/socialmedia";
 
@@ -9,9 +10,18 @@ const Container = styled.div`
   background-color: ${({ theme }) => theme.primaryPurple};
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  padding: 0 32px;
   gap: 16px;
+
+  ${landscapeStyle(
+    () => css`
+      height: 64px;
+      flex-direction: row;
+      justify-content: space-between;
+    `
+  )}
 
   .secured-by-kleros {
     min-height: 24px;

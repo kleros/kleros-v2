@@ -1,5 +1,6 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useAccount, useNetwork, useEnsAvatar, useEnsName } from "wagmi";
 import Identicon from "react-identicons";
 import { shortenAddress } from "utils/shortenAddress";
@@ -7,8 +8,24 @@ import { shortenAddress } from "utils/shortenAddress";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  height: auto;
   align-items: flex-start;
   gap: 8px;
+  align-items: center;
+  background-color: ${({ theme }) => theme.whiteBackground};
+  padding: 0px;
+
+  ${landscapeStyle(
+    () => css`
+      background-color: ${({ theme }) => theme.whiteLowOpacity};
+      flex-direction: row;
+      align-content: center;
+      border-radius: 300px;
+      gap: 0px;
+      padding: 0 12px;
+    `
+  )}
 `;
 
 const AccountContainer = styled.div`
@@ -17,22 +34,36 @@ const AccountContainer = styled.div`
   align-items: center;
   width: fit-content;
   gap: 8px;
+
   > label {
-    color: ${({ theme }) => theme.primaryText};
     font-size: 16px;
     font-weight: 600;
   }
+
+  ${landscapeStyle(
+    () => css`
+      gap: 12px;
+      > label {
+        color: ${({ theme }) => theme.primaryText};
+        font-weight: 400;
+        font-size: 14px;
+      }
+    `
+  )}
 `;
 const ChainConnectionContainer = styled.div`
+  display: flex;
   width: fit-content;
   min-height: 32px;
-  display: flex;
   align-items: center;
+  padding-left: 0px;
   > label {
     color: ${({ theme }) => theme.success};
     font-size: 16px;
-    margin-right: 4px;
+
+    font-weight: 500;
   }
+
   :before {
     content: "";
     width: 8px;
@@ -41,6 +72,12 @@ const ChainConnectionContainer = styled.div`
     border-radius: 50%;
     background-color: ${({ theme }) => theme.success};
   }
+
+  ${landscapeStyle(
+    () => css`
+      display: none;
+    `
+  )}
 `;
 
 const StyledIdenticon = styled(Identicon)<{ size: `${number}` }>`
