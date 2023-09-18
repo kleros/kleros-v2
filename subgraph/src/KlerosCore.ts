@@ -15,7 +15,7 @@ import {
   AcceptedFeeToken,
 } from "../generated/KlerosCore/KlerosCore";
 import { ZERO, ONE } from "./utils";
-import { createCourtFromEvent, getFeeForJuror } from "./entities/Court";
+import { createCourtFromEvent } from "./entities/Court";
 import { createDisputeKitFromEvent, filterSupportedDisputeKits } from "./entities/DisputeKit";
 import { createDisputeFromEvent } from "./entities/Dispute";
 import { createRoundFromRoundInfo } from "./entities/Round";
@@ -25,7 +25,7 @@ import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorToken
 import { createDrawFromEvent } from "./entities/Draw";
 import { updateTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
-import { Court, Dispute, FeeToken, User } from "../generated/schema";
+import { Court, Dispute, User } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { updatePenalty } from "./entities/Penalty";
 import { ensureFeeToken } from "./entities/FeeToken";
@@ -128,6 +128,11 @@ export function handleNewPeriod(event: NewPeriod): void {
   dispute.period = newPeriod;
   dispute.lastPeriodChange = event.block.timestamp;
   dispute.lastPeriodChangeBlockNumber = event.block.number;
+  if (newPeriod !== "execution") {
+    dispute.periodDeadline = event.block.timestamp.plus(court.timesPerPeriod[event.params._period]);
+  } else {
+    dispute.periodDeadline = BigInt.fromU64(U64.MAX_VALUE);
+  }
   dispute.save();
   court.save();
 }

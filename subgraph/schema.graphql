@@ -151,6 +151,7 @@ type Dispute @entity {
   overridden: Boolean!
   lastPeriodChange: BigInt!
   lastPeriodChangeBlockNumber: BigInt!
+  periodDeadline: BigInt!
   rounds: [Round!]! @derivedFrom(field: "dispute")
   currentRound: Round!
   currentRoundIndex: BigInt!
