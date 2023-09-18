@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useFocusOutside } from "hooks/useFocusOutside";
 import Curate from "svgs/icons/curate-image.png";
 import Resolver from "svgs/icons/dispute-resolver.svg";
@@ -8,6 +9,7 @@ import Governor from "svgs/icons/governor.svg";
 import Court from "svgs/icons/kleros.svg";
 import Linguo from "svgs/icons/linguo.svg";
 import POH from "svgs/icons/poh-image.png";
+import Vea from "svgs/icons/vea.svg";
 import Tokens from "svgs/icons/tokens.svg";
 import Product from "./Product";
 
@@ -23,7 +25,7 @@ const Header = styled.h1`
 const Container = styled.div`
   display: flex;
   position: absolute;
-  max-height: 60vh;
+  max-height: 80vh;
   top: 5%;
   left: 50%;
   transform: translate(-50%);
@@ -42,6 +44,16 @@ const Container = styled.div`
   svg {
     visibility: visible;
   }
+
+  ${landscapeStyle(
+    () => css`
+      margin-top: 64px;
+      top: 0;
+      left: 0;
+      right: auto;
+      transform: none;
+    `
+  )}
 `;
 
 const ItemsDiv = styled.div`
@@ -64,14 +76,14 @@ const ITEMS = [
     url: "https://court.kleros.io/",
   },
   {
+    text: "Vea",
+    Icon: Vea,
+    url: "https://veascan.io",
+  },
+  {
     text: "Escrow",
     Icon: Escrow,
     url: "https://escrow.kleros.io",
-  },
-  {
-    text: "Tokens",
-    Icon: Tokens,
-    url: "https://tokens.kleros.io",
   },
   {
     text: "POH",
@@ -82,6 +94,11 @@ const ITEMS = [
     text: "Curate",
     Icon: Curate,
     url: "https://curate.kleros.io",
+  },
+  {
+    text: "Tokens",
+    Icon: Tokens,
+    url: "https://tokens.kleros.io",
   },
   {
     text: "Resolver",

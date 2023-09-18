@@ -3,6 +3,7 @@ import { lightTheme as componentsLightTheme, darkTheme as componentsDarkTheme } 
 export const lightTheme = {
   ...componentsLightTheme,
   name: "light",
+  white: "#FFFFFF",
   primaryPurple: "#4D00B4",
   secondaryPurple: "#9013FE",
   mediumPurple: "#F8F1FF",
@@ -45,6 +46,7 @@ export const lightTheme = {
 export const darkTheme = {
   ...componentsDarkTheme,
   name: "dark",
+  white: "#FFFFFF",
   primaryPurple: "#7E1BD4",
   secondaryPurple: "#B45FFF",
   mediumPurple: "#390F6C",

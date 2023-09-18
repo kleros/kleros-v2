@@ -7,5 +7,5 @@ export const Overlay = styled.div`
   width: 100vw;
   height: 100vh;
   background-color: ${({ theme }) => theme.blackLowOpacity};
-  z-index: 0;
+  z-index: 1;
 `;

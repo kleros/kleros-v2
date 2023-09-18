@@ -8,7 +8,7 @@ import { lightTheme, darkTheme } from "styles/themes";
 const StyledComponentsProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const [theme, setTheme] = useLocalStorage<string>("theme", "light");
+  const [theme, setTheme] = useLocalStorage<string>("theme", "dark");
   const toggleTheme = () => {
     if (theme === "light") setTheme("dark");
     else setTheme("light");

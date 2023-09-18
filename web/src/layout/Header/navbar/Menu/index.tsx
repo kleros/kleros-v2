@@ -1,5 +1,6 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import LightButton from "components/LightButton";
 import DarkModeIcon from "svgs/menu-icons/dark-mode.svg";
 import HelpIcon from "svgs/menu-icons/help.svg";
@@ -8,12 +9,47 @@ import NotificationsIcon from "svgs/menu-icons/notifications.svg";
 import SettingsIcon from "svgs/menu-icons/settings.svg";
 import { useToggleTheme } from "hooks/useToggleThemeContext";
 
-const Container = styled.div``;
+const Container = styled.div`
+  display: flex;
+
+  flex-direction: column;
+  gap: 0px;
+
+  ${landscapeStyle(
+    () => css`
+      flex-direction: row;
+      gap: 8px;
+    `
+  )}
+`;
 
 const ButtonContainer = styled.div`
   min-height: 32px;
   display: flex;
   align-items: center;
+
+  button {
+    padding: 0px;
+  }
+
+  .button-text {
+    display: block;
+  }
+
+  .button-svg {
+    fill: ${({ theme }) => theme.secondaryPurple};
+  }
+
+  ${landscapeStyle(
+    () => css`
+      .button-svg {
+        fill: ${({ theme }) => theme.white};
+      }
+      .button-text {
+        display: none;
+      }
+    `
+  )}
 `;
 
 interface IMenu {
@@ -23,8 +59,8 @@ interface IMenu {
 
 const Menu: React.FC<IMenu> = ({ toggleIsHelpOpen, toggleIsSettingsOpen }) => {
   const [theme, toggleTheme] = useToggleTheme();
-
   const isLightTheme = theme === "light";
+
   const buttons = [
     { text: "Notifications", Icon: NotificationsIcon },
     {
@@ -49,7 +85,7 @@ const Menu: React.FC<IMenu> = ({ toggleIsHelpOpen, toggleIsSettingsOpen }) => {
   return (
     <Container>
       {buttons.map(({ text, Icon, onClick }) => (
-        <ButtonContainer key={text}>
+        <ButtonContainer key={Icon}>
           <LightButton {...{ text, onClick, Icon }} />
         </ButtonContainer>
       ))}

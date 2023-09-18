@@ -1,7 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import { useToggle } from "react-use";
-import { useOpenContext } from "../index";
+import { useAccount } from "wagmi";
+import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
+import { useOpenContext } from "../MobileHeader";
 import DappList from "./DappList";
 import Explore from "./Explore";
 import ConnectWallet from "components/ConnectWallet";
@@ -12,7 +14,8 @@ import Menu from "./Menu";
 import Debug from "./Debug";
 import Help from "./Menu/Help";
 import Settings from "./Menu/Settings";
-import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
+import { DisconnectWalletButton } from "./Menu/Settings/General";
+import { PopupContainer } from "..";
 
 const Container = styled.div<{ isOpen: boolean }>`
   position: absolute;
@@ -38,16 +41,20 @@ const Container = styled.div<{ isOpen: boolean }>`
   }
 `;
 
-const PopupContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 20;
+const WalletContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+`;
+
+const DisconnectWalletButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 const NavBar: React.FC = () => {
+  const { isConnected } = useAccount();
   const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
   const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
   const [isSettingsOpen, toggleIsSettingsOpen] = useToggle(false);
@@ -67,7 +74,14 @@ const NavBar: React.FC = () => {
         <hr />
         <Explore />
         <hr />
-        <ConnectWallet />
+        <WalletContainer>
+          <ConnectWallet />
+          {isConnected && (
+            <DisconnectWalletButtonContainer>
+              <DisconnectWalletButton />
+            </DisconnectWalletButtonContainer>
+          )}
+        </WalletContainer>
         <hr />
         <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
         <br />
