@@ -29,25 +29,35 @@ const ConnectWalletContainer = styled.div`
   color: ${({ theme }) => theme.primaryText};
 `;
 
-const calculatePages = (status: number, data: UserQuery | undefined, casesPerPage: number, myAppeals?: number) => {
-  if (!data) {
+const calculatePages = (
+  status: number,
+  data: UserQuery | undefined,
+  casesPerPage: number,
+  courtFilter: number,
+  myAppeals?: number
+) => {
+  if (!data?.user) {
     return 0;
   }
 
   let totalCases = 0;
 
+  if (courtFilter !== 0) {
+    return data?.user?.disputes?.length / casesPerPage;
+  }
+
   switch (status) {
     case 1:
-      totalCases = data.user?.totalDisputes - data.user?.totalResolvedDisputes;
+      totalCases = parseInt(data.user?.totalDisputes) - parseInt(data.user?.totalResolvedDisputes);
       break;
     case 2:
-      totalCases = data.user?.totalResolvedDisputes ?? 0;
+      totalCases = parseInt(data.user?.totalResolvedDisputes) ?? 0;
       break;
     case 3:
       totalCases = myAppeals ?? 0;
       break;
     default:
-      totalCases = data.user?.totalDisputes ?? 0;
+      totalCases = parseInt(data.user?.totalDisputes) ?? 0;
   }
 
   return totalCases / casesPerPage;
@@ -64,8 +74,14 @@ const Dashboard: React.FC = () => {
   const courtChoice = courtFilter === 0 ? {} : { court: courtFilter.toString() };
   const queryFilters = { ...combinedQueryFilters, ...courtChoice };
   const { data: disputesData } = useMyCasesQuery(address, disputeSkip, queryFilters, direction);
-  const { data: userData } = useUserQuery(address);
-  const totalPages = calculatePages(statusFilter, userData, casesPerPage, userData?.user?.totalAppealingDisputes);
+  const { data: userData } = useUserQuery(address, { ...courtChoice });
+  const totalPages = calculatePages(
+    statusFilter,
+    userData,
+    casesPerPage,
+    courtFilter,
+    parseInt(userData?.user?.totalAppealingDisputes)
+  );
 
   useEffect(() => {
     setCurrentPage(1);
