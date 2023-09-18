@@ -5,6 +5,9 @@ import { Tabs as TabsComponent } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
 import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
+import { useAppealCost } from "queries/useAppealCost";
+import { isLastRound } from "utils/isLastRound";
+import { isUndefined } from "utils/index";
 import EyeIcon from "assets/svgs/icons/eye.svg";
 import DocIcon from "assets/svgs/icons/doc.svg";
 import BalanceIcon from "assets/svgs/icons/law-balance.svg";
@@ -54,6 +57,7 @@ const Tabs: React.FC = () => {
   const { id } = useParams();
   const { data } = useDisputeDetailsQuery(id);
   const { data: votingHistory } = useVotingHistory(id);
+  const { data: appealCost } = useAppealCost(id);
   const rounds = votingHistory?.dispute?.rounds ?? [1];
   const dispute = data?.dispute;
   const currentPeriodIndex = Periods[dispute?.period ?? 0];
@@ -64,8 +68,10 @@ const Tabs: React.FC = () => {
   }, [currentPathName]);
 
   useEffect(() => {
-    TABS[3].disabled = parseInt(currentPeriodIndex) < 3 && rounds.length === 1;
-  }, [currentPeriodIndex, id, currentTab, rounds.length]);
+    TABS[3].disabled =
+      (parseInt(currentPeriodIndex) < 3 && rounds.length === 1) ||
+      (!isUndefined(appealCost) && isLastRound(appealCost) && parseInt(currentPeriodIndex) === 3);
+  }, [currentPeriodIndex, id, currentTab, rounds.length, appealCost]);
 
   return (
     <StyledTabs
