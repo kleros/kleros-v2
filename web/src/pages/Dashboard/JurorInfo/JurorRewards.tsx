@@ -9,17 +9,11 @@ import { CoinIds } from "consts/coingecko";
 import { useUserQuery, UserQuery } from "queries/useUser";
 import { useCoinPrice } from "hooks/useCoinPrice";
 
-interface IReward {
-  token: "ETH" | "PNK";
-  coinId: number;
-  getAmount: (amount: bigint) => string;
-  getValue: (amount: bigint, coinPrice?: number) => string;
-}
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 100%;
+  width: auto;
 `;
 
 const tooltipMsg =
@@ -27,6 +21,13 @@ const tooltipMsg =
   "collecting the Juror Rewards in exchange for their work. Each juror who " +
   "is coherent with the final ruling receive the Juror Rewards composed of " +
   "arbitration fees (ETH) + PNK redistribution between jurors.";
+
+interface IReward {
+  token: "ETH" | "PNK";
+  coinId: number;
+  getAmount: (amount: bigint) => string;
+  getValue: (amount: bigint, coinPrice?: number) => string;
+}
 
 const rewards: IReward[] = [
   {

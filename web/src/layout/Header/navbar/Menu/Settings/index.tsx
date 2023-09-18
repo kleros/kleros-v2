@@ -1,23 +1,37 @@
-import React, { Dispatch, SetStateAction, useRef, useState } from "react";
-import styled from "styled-components";
+import React, { useRef, useState } from "react";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { Tabs } from "@kleros/ui-components-library";
 import General from "./General";
 import SendMeNotifications from "./SendMeNotifications";
 import { useFocusOutside } from "hooks/useFocusOutside";
-import { Overlay } from "components/Overlay";
 
 const Container = styled.div`
   display: flex;
   position: absolute;
+  max-height: 80vh;
+  overflow-y: auto;
   z-index: 1;
   background-color: ${({ theme }) => theme.whiteBackground};
   flex-direction: column;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-radius: 3px;
-  overflow-y: auto;
   top: 5%;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 1;
+  background-color: ${({ theme }) => theme.whiteBackground};
+  border: 1px solid ${({ theme }) => theme.stroke};
+  border-radius: 3px;
+  overflow-y: auto;
+
+  ${landscapeStyle(
+    () => css`
+      margin-top: 64px;
+      top: 0;
+      right: 0;
+      left: auto;
+      transform: none;
+    `
+  )}
 `;
 
 const StyledSettingsText = styled.div`
@@ -45,29 +59,26 @@ const TABS = [
 ];
 
 interface ISettings {
-  setIsSettingsOpen: Dispatch<SetStateAction<boolean>>;
+  toggleIsSettingsOpen: () => void;
 }
 
-const Settings: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
+const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const [currentTab, setCurrentTab] = useState<number>(0);
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => setIsSettingsOpen(false));
+  useFocusOutside(containerRef, () => toggleIsSettingsOpen());
 
   return (
-    <>
-      <Overlay />
-      <Container ref={containerRef}>
-        <StyledSettingsText>Settings</StyledSettingsText>
-        <StyledTabs
-          currentValue={currentTab}
-          items={TABS}
-          callback={(n: number) => {
-            setCurrentTab(n);
-          }}
-        />
-        {currentTab === 0 ? <General /> : <SendMeNotifications />}
-      </Container>
-    </>
+    <Container ref={containerRef}>
+      <StyledSettingsText>Settings</StyledSettingsText>
+      <StyledTabs
+        currentValue={currentTab}
+        items={TABS}
+        callback={(n: number) => {
+          setCurrentTab(n);
+        }}
+      />
+      {currentTab === 0 ? <General /> : <SendMeNotifications />}
+    </Container>
   );
 };
 

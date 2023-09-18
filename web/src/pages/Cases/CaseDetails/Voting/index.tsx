@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
-import { useLockBodyScroll } from "react-use";
+import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "queries/useDrawQuery";
 import { useAppealCost } from "queries/useAppealCost";
@@ -56,7 +56,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
     watch: true,
   });
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  useLockBodyScroll(isPopupOpen);
+  useLockOverlayScroll(isPopupOpen);
   const lastPeriodChange = disputeData?.dispute?.lastPeriodChange;
   const timesPerPeriod = disputeData?.dispute?.court?.timesPerPeriod;
   const finalDate =

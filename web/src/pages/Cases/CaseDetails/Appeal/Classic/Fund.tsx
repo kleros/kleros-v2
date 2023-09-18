@@ -15,6 +15,12 @@ import {
   useFundingContext,
 } from "hooks/useClassicAppealContext";
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
 const StyledField = styled(Field)`
   width: 100%;
   & > input {
@@ -86,7 +92,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
   const fundAppeal = useFundAppeal(parsedAmount);
 
   return needFund ? (
-    <div>
+    <Container>
       <label>How much ETH do you want to contribute?</label>
       <div>
         <StyledField
@@ -116,7 +122,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
           />
         </EnsureChain>
       </div>
-    </div>
+    </Container>
   ) : (
     <></>
   );

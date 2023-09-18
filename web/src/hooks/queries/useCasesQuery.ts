@@ -5,8 +5,8 @@ import { graphqlQueryFnHelper } from "~src/utils/graphqlQueryFnHelper";
 export type { CasesPageQuery };
 
 const casesQuery = graphql(`
-  query CasesPage($skip: Int) {
-    disputes(first: 3, skip: $skip, orderBy: lastPeriodChange, orderDirection: desc) {
+  query CasesPage($first: Int, $skip: Int) {
+    disputes(first: $first, skip: $skip, orderBy: lastPeriodChange, orderDirection: desc) {
       id
       arbitrated {
         id
@@ -26,12 +26,12 @@ const casesQuery = graphql(`
   }
 `);
 
-export const useCasesQuery = (skip: number) => {
+export const useCasesQuery = (skip: number, first = 3) => {
   const isEnabled = skip !== undefined;
 
   return useQuery({
-    queryKey: [`useCasesQuery${skip}`],
+    queryKey: [`useCasesQuery${skip},${first}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(casesQuery, { skip: skip }),
+    queryFn: async () => await graphqlQueryFnHelper(casesQuery, { skip, first }),
   });
 };

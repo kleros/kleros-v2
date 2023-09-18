@@ -19,7 +19,7 @@ const StyledTabs = styled(TabsComponent)`
     display: flex;
     flex-wrap: wrap;
     > svg {
-      margin-right: 0px !important;
+      margin-right: 8px !important;
     }
   }
 `;
