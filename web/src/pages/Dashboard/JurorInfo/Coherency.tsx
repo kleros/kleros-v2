@@ -29,11 +29,10 @@ const levelTitles = [
 const Coherency: React.FC = () => {
   const { address } = useAccount();
   const { data } = useUserQuery(address?.toLowerCase());
-  const totalCoherent = parseInt(data?.user?.totalCoherent) ?? 0;
-  const totalResolvedDisputes = parseInt(data?.user?.totalResolvedDisputes) ?? 1;
+  const totalCoherent = data?.user ? parseInt(data?.user?.totalCoherent) : 0;
+  const totalResolvedDisputes = data?.user ? parseInt(data?.user?.totalResolvedDisputes) : 1;
   const coherencyScore = calculateCoherencyScore(totalCoherent, totalResolvedDisputes);
   const roundedCoherencyScore = Math.round(coherencyScore * 100);
-
   const { level, title } =
     levelTitles.find(({ scoreRange }) => {
       return roundedCoherencyScore >= scoreRange[0] && roundedCoherencyScore < scoreRange[1];
