@@ -67,29 +67,29 @@ describe("Integration tests", async () => {
 
     await core.setStake(1, ONE_THOUSAND_PNK);
     await core.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.staked).to.equal(ONE_THOUSAND_PNK);
-      expect(result.locked).to.equal(0);
+      expect(result.totalStaked).to.equal(ONE_THOUSAND_PNK);
+      expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, ONE_HUNDRED_PNK.mul(5));
     await core.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.staked).to.equal(ONE_HUNDRED_PNK.mul(5));
-      expect(result.locked).to.equal(0);
+      expect(result.totalStaked).to.equal(ONE_HUNDRED_PNK.mul(5));
+      expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, 0);
     await core.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.staked).to.equal(0);
-      expect(result.locked).to.equal(0);
+      expect(result.totalStaked).to.equal(0);
+      expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, ONE_THOUSAND_PNK.mul(4));
     await core.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.staked).to.equal(ONE_THOUSAND_PNK.mul(4));
-      expect(result.locked).to.equal(0);
+      expect(result.totalStaked).to.equal(ONE_THOUSAND_PNK.mul(4));
+      expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
     const tx = await arbitrable.functions["createDispute(string)"]("future of france", {
@@ -183,5 +183,9 @@ describe("Integration tests", async () => {
 });
 
 const logJurorBalance = async (result) => {
-  console.log("staked=%s, locked=%s", ethers.utils.formatUnits(result.staked), ethers.utils.formatUnits(result.locked));
+  console.log(
+    "staked=%s, locked=%s",
+    ethers.utils.formatUnits(result.totalStaked),
+    ethers.utils.formatUnits(result.totalLocked)
+  );
 };

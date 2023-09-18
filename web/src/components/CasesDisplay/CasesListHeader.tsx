@@ -33,9 +33,12 @@ const CaseTitle = styled.div`
     color: ${({ theme }) => theme.secondaryText} !important;
   }
 
-  ${landscapeStyle(css`
-    display: flex;
-  `)}
+  ${landscapeStyle(
+    () =>
+      css`
+        display: flex;
+      `
+  )}
 `;
 
 const StyledLabel = styled.label`

@@ -1,11 +1,7 @@
-import React, { useState, useRef, useContext } from "react";
+import React from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
-import HamburgerIcon from "svgs/header/hamburger.svg";
-import KlerosCourtLogo from "svgs/header/kleros-court.svg";
-import LightButton from "components/LightButton";
-import NavBar from "./navbar";
-import { useFocusOutside } from "hooks/useFocusOutside";
+import MobileHeader from "./MobileHeader";
+import DesktopHeader from "./DesktopHeader";
 
 const Container = styled.div`
   position: sticky;
@@ -17,53 +13,22 @@ const Container = styled.div`
 
   padding: 0 24px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  .kleros-court-link {
-    min-height: 48px;
-  }
 `;
 
-const StyledLightButton = styled(LightButton)`
-  padding: 0;
-
-  .button-svg {
-    margin-right: 0px;
-    fill: white;
-  }
-  .button-text {
-    display: none;
-  }
+export const PopupContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 30;
 `;
-
-const OpenContext = React.createContext({
-  isOpen: false,
-  toggleIsOpen: () => {
-    // Placeholder
-  },
-});
-
-export function useOpenContext() {
-  return useContext(OpenContext);
-}
 
 const Header: React.FC = () => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const toggleIsOpen = () => setIsOpen(!isOpen);
-  const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => setIsOpen(false));
   return (
     <Container>
-      <OpenContext.Provider value={{ isOpen, toggleIsOpen }}>
-        <Link className="kleros-court-link" to={"/"}>
-          <KlerosCourtLogo />
-        </Link>
-        <div ref={containerRef}>
-          <NavBar />
-          <StyledLightButton text="" Icon={HamburgerIcon} onClick={toggleIsOpen} />
-        </div>
-      </OpenContext.Provider>
+      <DesktopHeader />
+      <MobileHeader />
     </Container>
   );
 };

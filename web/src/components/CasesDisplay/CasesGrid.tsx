@@ -14,18 +14,20 @@ const GridContainer = styled.div<{ path: string }>`
   justify-content: center;
   align-items: center;
   gap: 8px;
-  ${(props) =>
-    props.path === "/dashboard"
-      ? landscapeStyle(css`
-          display: flex;
-        `)
-      : landscapeStyle(css`
-          display: grid;
-          row-gap: 16px;
-          column-gap: 8px;
-          grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-          justify-content: space-between;
-        `)}
+  ${({ path }) =>
+    landscapeStyle(() =>
+      path === "/dashboard"
+        ? css`
+            display: flex;
+          `
+        : css`
+            display: grid;
+            row-gap: 16px;
+            column-gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            justify-content: space-between;
+          `
+    )}
 `;
 const ListContainer = styled.div`
   display: flex;

@@ -18,7 +18,7 @@ const WinnerLabel = styled.label<{ winner: boolean }>`
   color: ${({ theme, winner }) => (winner ? theme.success : theme.warning)};
   svg {
     width: 12px;
-    margin-right: 4px;
+    margin-right: 8px;
     fill: ${({ theme, winner }) => (winner ? theme.success : theme.warning)};
   }
 `;

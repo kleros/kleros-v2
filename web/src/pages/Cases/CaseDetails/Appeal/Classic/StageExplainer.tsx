@@ -23,6 +23,7 @@ const CountdownLabel = styled.label`
   margin-bottom: 12px;
   border-bottom: 1px solid ${({ theme }) => theme.secondaryPurple};
   color: ${({ theme }) => theme.primaryText};
+  gap: 8px;
   & > svg {
     width: 14px;
     fill: ${({ theme }) => theme.secondaryPurple};

@@ -103,4 +103,11 @@ export const GlobalStyle = createGlobalStyle`
     --base-color: ${({ theme }) => theme.skeletonBackground};
     --highlight-color: ${({ theme }) => theme.skeletonHighlight};
   }
+  
+  .os-theme-dark {
+    --os-handle-bg: ${({ theme }) => theme.violetPurple};
+    --os-handle-bg-hover: ${({ theme }) => theme.secondaryPurple};
+    --os-handle-bg-active: ${({ theme }) => theme.lavenderPurple};
+  }
+
 `;

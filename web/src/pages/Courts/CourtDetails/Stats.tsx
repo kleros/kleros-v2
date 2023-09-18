@@ -1,5 +1,6 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useParams } from "react-router-dom";
 import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
 import { useCoinPrice } from "hooks/useCoinPrice";
@@ -22,6 +23,14 @@ const StyledCard = styled.div`
   display: grid;
   gap: 32px;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  padding: calc(0px + (32 - 0) * (min(max(100vw, 375px), 1250px) - 375px) / 875) 0;
+  padding-bottom: 0px;
+
+  ${landscapeStyle(
+    () => css`
+      gap: 16px;
+    `
+  )}
 `;
 
 interface IStat {
@@ -45,8 +54,14 @@ const stats: IStat[] = [
   {
     title: "Vote Stake",
     coinId: 0,
-    getText: (data) => formatPNK(data?.minStake),
-    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.minStake)) * (coinPrice ?? 0)),
+    getText: (data) => {
+      const stake = BigInt((data?.minStake * data?.alpha) / 1e4);
+      return formatPNK(stake);
+    },
+    getSubtext: (data, coinPrice) => {
+      const stake = BigInt((data?.minStake * data?.alpha) / 1e4);
+      return formatUSD(Number(formatUnitsWei(stake)) * (coinPrice ?? 0));
+    },
     color: "purple",
     icon: VoteStake,
   },

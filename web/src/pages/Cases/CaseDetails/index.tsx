@@ -14,11 +14,14 @@ import Voting from "./Voting";
 const Container = styled.div``;
 
 const StyledCard = styled(Card)`
-  margin-top: 16px;
   width: 100%;
   height: auto;
   min-height: 100px;
-  padding: 16px;
+  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+`;
+
+const Header = styled.h1`
+  margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 `;
 
 const CaseDetails: React.FC = () => {
@@ -30,7 +33,7 @@ const CaseDetails: React.FC = () => {
 
   return (
     <Container>
-      <h1>Case #{id}</h1>
+      <Header>Case #{id}</Header>
       <Tabs />
       <Timeline {...{ currentPeriodIndex, dispute }} />
       <StyledCard>

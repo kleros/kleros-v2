@@ -13,13 +13,17 @@ import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
+import { useVotingHistory } from "hooks/queries/useVotingHistory";
 
 const StyledCard = styled(Card)`
   width: 312px;
   height: 260px;
-  ${landscapeStyle(css`
-    width: 380px;
-  `)}
+  ${landscapeStyle(
+    () =>
+      css`
+        width: 380px;
+      `
+  )}
 `;
 const StyledListItem = styled(Card)`
   display: flex;
@@ -95,6 +99,8 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
   const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
   const category = disputeTemplate ? disputeTemplate.category : undefined;
+  const { data: votingHistory } = useVotingHistory(id);
+  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
   const navigate = useNavigate();
   return (
     <>
@@ -107,6 +113,7 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
               courtId={court?.id}
               court={courtName}
               period={currentPeriodIndex}
+              round={localRounds?.length}
               {...{ category, rewards, date }}
             />
           </CardContainer>

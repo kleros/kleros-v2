@@ -6,12 +6,16 @@ import DisputeCard from "components/DisputeCard";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 const Container = styled.div`
-  margin-top: 64px;
+  margin-top: calc(64px + (80 - 64) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   .disputes-container {
     display: flex;
     gap: 24px;
     flex-wrap: wrap;
     justify-content: center;
+  }
+
+  h1 {
+    margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   }
 `;
 
