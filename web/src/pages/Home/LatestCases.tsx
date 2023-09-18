@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useCasesQuery } from "queries/useCasesQuery";
+import { useFiltersContext } from "context/FilterProvider";
 import DisputeCard from "components/DisputeCard";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
@@ -20,6 +21,12 @@ const Container = styled.div`
 
 const LatestCases: React.FC = () => {
   const { data } = useCasesQuery(0);
+  const { setIsList } = useFiltersContext();
+
+  useEffect(() => {
+    setIsList(false);
+  }, []);
+
   return (
     <Container>
       <h1>Latest Cases</h1>

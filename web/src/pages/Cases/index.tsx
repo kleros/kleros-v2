@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Routes, Route } from "react-router-dom";
 import { useCasesQuery } from "queries/useCasesQuery";
+import { useWindowSize } from "react-use";
+import { BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
 import CasesDisplay from "components/CasesDisplay";
 import CaseDetails from "./CaseDetails";
-
+import { useFiltersContext } from "context/FilterProvider";
 const Container = styled.div`
   width: 100%;
   min-height: calc(100vh - 144px);
@@ -16,8 +18,18 @@ const Container = styled.div`
 
 const Cases: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const casesPerPage = 3;
-  const { data } = useCasesQuery(casesPerPage * (currentPage - 1));
+  const { width } = useWindowSize();
+  const { isList, setIsList } = useFiltersContext();
+  const screenIsBig = width > BREAKPOINT_LANDSCAPE;
+  const casesPerPage = screenIsBig ? 9 : 3;
+  const { data } = useCasesQuery(casesPerPage * (currentPage - 1), casesPerPage);
+
+  useEffect(() => {
+    if (!screenIsBig && isList) {
+      setIsList(false);
+    }
+  }, [screenIsBig, isList, setIsList]);
+
   return (
     <Container>
       <Routes>
