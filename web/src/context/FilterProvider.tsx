@@ -31,7 +31,7 @@ const Context = createContext<IFilters>({
   combinedQueryFilters: {},
 });
 
-const getStatusPeriod = (statusFilter: number) => {
+export const getStatusPeriod = (statusFilter: number) => {
   switch (statusFilter) {
     case 1:
       return { ruled: false };

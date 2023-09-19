@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useAccount } from "wagmi";
 import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
-import { useFiltersContext } from "context/FilterProvider";
+import { getStatusPeriod, useFiltersContext } from "context/FilterProvider";
 import { useUserQuery, UserQuery } from "queries/useUser";
 import { OrderDirection } from "src/graphql/graphql";
 import JurorInfo from "./JurorInfo";
@@ -42,10 +42,11 @@ const calculatePages = (
 
   let totalCases = 0;
 
+  console.log("court", courtFilter, data);
+
   if (courtFilter !== 0) {
     return data?.user?.disputes?.length / casesPerPage;
   }
-
   switch (status) {
     case 1:
       totalCases = parseInt(data.user?.totalDisputes) - parseInt(data.user?.totalResolvedDisputes);
@@ -72,9 +73,11 @@ const Dashboard: React.FC = () => {
   const disputeSkip = debouncedSearch ? 0 : 3 * (currentPage - 1);
   const direction = timeFilter === 0 ? OrderDirection.Desc : OrderDirection.Asc;
   const courtChoice = courtFilter === 0 ? {} : { court: courtFilter.toString() };
+  const statusChoice = getStatusPeriod(statusFilter);
   const queryFilters = { ...combinedQueryFilters, ...courtChoice };
   const { data: disputesData } = useMyCasesQuery(address, disputeSkip, queryFilters, direction);
-  const { data: userData } = useUserQuery(address, { ...courtChoice });
+  console.log("🚀 ~ file: index.tsx:88 ~ totalPages:", { ...courtChoice, ...statusChoice });
+  const { data: userData } = useUserQuery(address, { ...courtChoice, ...statusChoice });
   const totalPages = calculatePages(
     statusFilter,
     userData,
@@ -82,6 +85,8 @@ const Dashboard: React.FC = () => {
     courtFilter,
     parseInt(userData?.user?.totalAppealingDisputes)
   );
+
+  console.log("pages", totalPages);
 
   useEffect(() => {
     setCurrentPage(1);

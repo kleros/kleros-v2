@@ -8,6 +8,9 @@ export type { UserQuery };
 const userQuery = graphql(`
   query User($address: ID!, $where: Dispute_filter) {
     user(id: $address) {
+      disputes(orderBy: lastPeriodChange, where: $where) {
+        id
+      }
       totalDisputes
       totalResolvedDisputes
       totalAppealingDisputes
@@ -22,9 +25,6 @@ const userQuery = graphql(`
         pnkAmount
         ethAmount
       }
-      disputes(orderBy: lastPeriodChange, where: $where) {
-        id
-      }
     }
   }
 `);
@@ -32,9 +32,11 @@ const userQuery = graphql(`
 export const useUserQuery = (address?: Address, where?: Dispute_Filter) => {
   const isEnabled = address !== undefined;
 
+  console.log("where user", where);
+
   return useQuery<UserQuery>({
     queryKey: [`userQuery${address?.toLowerCase()}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(userQuery, { address: address?.toLowerCase() }),
+    queryFn: async () => await graphqlQueryFnHelper(userQuery, { address: address?.toLowerCase(), where }),
   });
 };
