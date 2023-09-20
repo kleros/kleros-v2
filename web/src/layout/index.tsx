@@ -9,6 +9,8 @@ import Header from "./Header";
 import Footer from "./Footer";
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
   min-height: 100%;
   width: 100%;
 `;
@@ -23,6 +25,11 @@ const StyledToastContainer = styled(ToastContainer)`
   padding-top: 70px;
 `;
 
+const OutletContainer = styled.div`
+  flex: 1;
+  background-color: ${({ theme }) => theme.lightBackground};
+`;
+
 const Layout: React.FC = () => {
   const containerRef = useRef(null);
 
@@ -32,7 +39,10 @@ const Layout: React.FC = () => {
         <Container>
           <Header />
           <StyledToastContainer />
-          <Outlet />
+          <OutletContainer>
+            <Outlet />
+          </OutletContainer>
+
           <Footer />
         </Container>
       </StyledOverlayScrollbarsComponent>
