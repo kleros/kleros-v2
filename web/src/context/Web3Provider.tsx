@@ -8,7 +8,7 @@ import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { useToggleTheme } from "hooks/useToggleThemeContext";
 import { useTheme } from "styled-components";
 
-const chains = [arbitrumGoerli, gnosisChiado];
+const chains = [arbitrumGoerli, mainnet, gnosisChiado];
 const projectId = process.env.WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf9281e218217";
 
 const { publicClient, webSocketPublicClient } = configureChains(chains, [
