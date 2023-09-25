@@ -7,7 +7,7 @@ import { formatUnits } from "viem";
 import { useHomePageContext } from "hooks/useHomePageContext";
 
 const Container = styled.div`
-  margin-bottom: 32px;
+  margin-bottom: calc(32px + (48 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   display: flex;
   flex-direction: column;
 `;

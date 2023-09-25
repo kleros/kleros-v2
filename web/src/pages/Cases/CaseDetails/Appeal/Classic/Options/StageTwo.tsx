@@ -3,6 +3,7 @@ import styled from "styled-components";
 import OptionCard from "../../OptionCard";
 import { useFundingContext, useOptionsContext, useSelectedOptionContext } from "hooks/useClassicAppealContext";
 import { isUndefined } from "utils/index";
+import { formatUnitsWei } from "utils/format";
 
 const Container = styled.div`
   margin: 24px 0;
@@ -15,12 +16,17 @@ const OptionsContainer = styled.div`
   margin-top: 12px;
 `;
 
-const StageOne: React.FC = () => {
+interface IStageTwo {
+  setAmount: (val: string) => void;
+}
+
+const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
   const { paidFees, winningChoice, winnerRequiredFunding, fundedChoices } = useFundingContext();
   const options = useOptionsContext();
   const { selectedOption, setSelectedOption } = useSelectedOptionContext();
   useEffect(() => {
     if (!isUndefined(winningChoice)) setSelectedOption(parseInt(winningChoice));
+    if (!isUndefined(winnerRequiredFunding)) setAmount(formatUnitsWei(winnerRequiredFunding));
   });
   return (
     <Container>
@@ -50,4 +56,4 @@ const StageOne: React.FC = () => {
   );
 };
 
-export default StageOne;
+export default StageTwo;
