@@ -129,7 +129,11 @@ deployArbitration.skip = async ({ getChainId }) => {
   return !HomeChains[chainId];
 };
 
-const deployERC20AndFaucet = async (hre: HardhatRuntimeEnvironment, deployer: string, ticker: string) => {
+const deployERC20AndFaucet = async (
+  hre: HardhatRuntimeEnvironment,
+  deployer: string,
+  ticker: string
+): Promise<string> => {
   const { deploy } = hre.deployments;
   const erc20 = await deploy(ticker, {
     from: deployer,
@@ -149,7 +153,7 @@ const deployERC20AndFaucet = async (hre: HardhatRuntimeEnvironment, deployer: st
   const deployerBalance = await erc20Instance.balanceOf(deployer);
   if (deployerBalance.gte(funding) && faucetBalance.isZero()) {
     console.log("Funding %sFaucet with %d", ticker, funding);
-    return erc20Instance.transfer(faucet.address, funding);
+    await erc20Instance.transfer(faucet.address, funding);
   }
   return erc20.address;
 };
