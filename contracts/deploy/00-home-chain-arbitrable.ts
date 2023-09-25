@@ -49,7 +49,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 };
 
 deployArbitration.tags = ["HomeArbitrable"];
-deployArbitration.dependencies = ["Arbitration"];
 deployArbitration.skip = async ({ getChainId }) => {
   const chainId = Number(await getChainId());
   return !HomeChains[chainId];
