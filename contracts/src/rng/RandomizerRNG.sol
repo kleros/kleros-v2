@@ -4,10 +4,12 @@ pragma solidity 0.8.18;
 
 import "./RNG.sol";
 import "./IRandomizer.sol";
+import "../proxy/UUPSProxiable.sol";
+import "../proxy/Initializable.sol";
 
 /// @title Random Number Generator that uses Randomizer.ai
 /// https://randomizer.ai/
-contract RandomizerRNG is RNG {
+contract RandomizerRNG is RNG, UUPSProxiable, Initializable {
     address public governor; // The address that can withdraw funds.
     uint256 public callbackGasLimit = 50000; // Gas limit for the randomizer callback
 
@@ -24,10 +26,15 @@ contract RandomizerRNG is RNG {
         _;
     }
 
-    /// @dev Constructor.
+    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    constructor() {
+        _disableInitializers();
+    }
+
+    /// @dev Initializer
     /// @param _randomizer Randomizer contract.
     /// @param _governor Governor of the contract.
-    constructor(IRandomizer _randomizer, address _governor) {
+    function initialize(IRandomizer _randomizer, address _governor) external reinitializer(1) {
         randomizer = _randomizer;
         governor = _governor;
     }
@@ -35,6 +42,12 @@ contract RandomizerRNG is RNG {
     // ************************ //
     // *      Governance      * //
     // ************************ //
+
+    /**
+     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     */
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {}
 
     /// @dev Changes the governor of the contract.
     /// @param _governor The new governor.

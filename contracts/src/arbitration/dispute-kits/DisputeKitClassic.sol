@@ -8,8 +8,11 @@
 
 pragma solidity 0.8.18;
 
-import "./BaseDisputeKit.sol";
+import "../KlerosCore.sol";
+import "../interfaces/IDisputeKit.sol";
 import "../interfaces/IEvidence.sol";
+import "../../proxy/UUPSProxiable.sol";
+import "../../proxy/Initializable.sol";
 
 /// @title DisputeKitClassic
 /// Dispute kit implementation of the Kleros v1 features including:
@@ -17,7 +20,7 @@ import "../interfaces/IEvidence.sol";
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
-contract DisputeKitClassic is BaseDisputeKit, IEvidence {
+contract DisputeKitClassic is IDisputeKit, IEvidence, Initializable, UUPSProxiable {
     // ************************************* //
     // *             Structs               * //
     // ************************************* //
@@ -61,6 +64,8 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     uint256 public constant LOSER_APPEAL_PERIOD_MULTIPLIER = 5000; // Multiplier of the appeal period for the choice that wasn't voted for in the previous round, in basis points. Default is 1/2 of original appeal period.
     uint256 public constant ONE_BASIS_POINT = 10000; // One basis point, for scaling.
 
+    address public governor; // The governor of the contract.
+    KlerosCore public core; // The Kleros Core arbitrator
     Dispute[] public disputes; // Array of the locally created disputes.
     mapping(uint256 => uint256) public coreDisputeIDToLocal; // Maps the dispute ID in Kleros Core to the local dispute ID.
 
@@ -119,20 +124,62 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     // *              Modifiers            * //
     // ************************************* //
 
+    modifier onlyByGovernor() {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        _;
+    }
+
+    modifier onlyByCore() {
+        require(address(core) == msg.sender, "Access not allowed: KlerosCore only.");
+        _;
+    }
+
     modifier notJumped(uint256 _coreDisputeID) {
         require(!disputes[coreDisputeIDToLocal[_coreDisputeID]].jumped, "Dispute jumped to a parent DK!");
         _;
     }
 
-    /** @dev Constructor.
-     *  @param _governor The governor's address.
-     *  @param _core The KlerosCore arbitrator.
-     */
-    constructor(address _governor, KlerosCore _core) BaseDisputeKit(_governor, _core) {}
+    // ************************************* //
+    // *            Constructor            * //
+    // ************************************* //
+
+    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    constructor() {
+        _disableInitializers();
+    }
+
+    /// @dev Initializer.
+    /// @param _governor The governor's address.
+    /// @param _core The KlerosCore arbitrator.
+    function initialize(address _governor, KlerosCore _core) external reinitializer(1) {
+        governor = _governor;
+        core = _core;
+    }
 
     // ************************ //
     // *      Governance      * //
     // ************************ //
+
+    /**
+     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     */
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+        // NOP
+    }
+
+    /// @dev Allows the governor to call anything on behalf of the contract.
+    /// @param _destination The destination of the call.
+    /// @param _amount The value sent with the call.
+    /// @param _data The data sent with the call.
+    function executeGovernorProposal(
+        address _destination,
+        uint256 _amount,
+        bytes memory _data
+    ) external onlyByGovernor {
+        (bool success, ) = _destination.call{value: _amount}(_data);
+        require(success, "Unsuccessful call");
+    }
 
     /// @dev Changes the `governor` storage variable.
     /// @param _governor The new value for the `governor` storage variable.
@@ -559,8 +606,11 @@ contract DisputeKitClassic is BaseDisputeKit, IEvidence {
     // *            Internal               * //
     // ************************************* //
 
-    /// @inheritdoc BaseDisputeKit
-    function _postDrawCheck(uint256 _coreDisputeID, address _juror) internal view override returns (bool) {
+    /// @dev Checks that the chosen address satisfies certain conditions for being drawn.
+    /// @param _coreDisputeID ID of the dispute in the core contract.
+    /// @param _juror Chosen address.
+    /// @return Whether the address can be drawn or not.
+    function _postDrawCheck(uint256 _coreDisputeID, address _juror) internal view returns (bool) {
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
         uint256 lockedAmountPerJuror = core
             .getRoundInfo(_coreDisputeID, core.getNumberOfRounds(_coreDisputeID) - 1)

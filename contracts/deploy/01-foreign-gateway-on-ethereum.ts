@@ -1,12 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import getContractAddress from "../deploy-helpers/getContractAddress";
+import getContractAddress from "./utils/getContractAddress";
 import { KlerosCore__factory } from "../typechain-types";
-
-enum ForeignChains {
-  ETHEREUM_MAINNET = 1,
-  ETHEREUM_GOERLI = 5,
-}
+import { ForeignChains, HardhatChain, isSkipped } from "./utils";
 
 const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId, config } = hre;
@@ -56,9 +52,8 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
 };
 
 deployForeignGateway.tags = ["ForeignGatewayOnEthereum"];
-deployForeignGateway.skip = async ({ getChainId }) => {
-  const chainId = Number(await getChainId());
-  return !ForeignChains[chainId];
+deployForeignGateway.skip = async ({ network }) => {
+  return isSkipped(network, !ForeignChains[network.config.chainId ?? 0]);
 };
 
 export default deployForeignGateway;

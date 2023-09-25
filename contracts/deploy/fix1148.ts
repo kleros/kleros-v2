@@ -2,6 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { DisputeKitClassic, KlerosCore, SortitionModule } from "../typechain-types";
 import assert from "node:assert";
+import { isSkipped } from "./utils";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -55,9 +56,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 };
 
 deployArbitration.tags = ["Fix1148"];
-deployArbitration.skip = async ({ getChainId }) => {
-  const chainId = Number(await getChainId());
-  return !HomeChains[chainId];
+deployArbitration.skip = async ({ network }) => {
+  return isSkipped(network, !HomeChains[network.config.chainId ?? 0]);
 };
 
 export default deployArbitration;

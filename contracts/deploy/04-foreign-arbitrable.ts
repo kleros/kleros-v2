@@ -2,13 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { parseUnits } from "ethers/lib/utils";
 import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
-
-enum ForeignChains {
-  ETHEREUM_MAINNET = 1,
-  ETHEREUM_GOERLI = 5,
-  GNOSIS_MAINNET = 100,
-  GNOSIS_CHIADO = 10200,
-}
+import { ForeignChains, isSkipped } from "./utils";
 
 const foreignGatewayArtifactByChain = new Map<ForeignChains, string>([
   [ForeignChains.ETHEREUM_MAINNET, "ForeignGatewayOnEthereum"],
@@ -65,9 +59,8 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
 };
 
 deployForeignGateway.tags = ["ForeignArbitrable"];
-deployForeignGateway.skip = async ({ getChainId }) => {
-  const chainId = Number(await getChainId());
-  return !ForeignChains[chainId];
+deployForeignGateway.skip = async ({ network }) => {
+  return isSkipped(network, !ForeignChains[network.config.chainId ?? 0]);
 };
 
 export default deployForeignGateway;

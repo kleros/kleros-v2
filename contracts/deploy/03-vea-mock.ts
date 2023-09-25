@@ -1,10 +1,9 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import getContractAddress from "../deploy-helpers/getContractAddress";
+import getContractAddress from "./utils/getContractAddress";
 import { KlerosCore__factory } from "../typechain-types";
 import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
-
-const HARDHAT_NETWORK = 31337;
+import { HardhatChain, isSkipped } from "./utils";
 
 // TODO: use deterministic deployments
 
@@ -15,7 +14,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
-  console.log("Deploying to chainId %s with deployer %s", HARDHAT_NETWORK, deployer);
+  console.log("Deploying to chainId %s with deployer %s", HardhatChain.HARDHAT, deployer);
 
   const klerosCore = await deployments.get("KlerosCore");
 
@@ -28,7 +27,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const homeGatewayAddress = getContractAddress(deployer, nonce + 1);
   console.log("Calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
-  const homeChainIdAsBytes32 = hexZeroPad(hexlify(HARDHAT_NETWORK), 32);
+  const homeChainIdAsBytes32 = hexZeroPad(hexlify(HardhatChain.HARDHAT), 32);
   const foreignGateway = await deploy("ForeignGatewayOnEthereum", {
     from: deployer,
     contract: "ForeignGateway",
@@ -44,7 +43,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       deployer,
       klerosCore.address,
       vea.address,
-      HARDHAT_NETWORK,
+      HardhatChain.HARDHAT,
       foreignGateway.address,
       ethers.constants.AddressZero, // feeToken
     ],
@@ -86,6 +85,8 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 };
 
 deployHomeGateway.tags = ["VeaMock"];
-deployHomeGateway.skip = async ({ getChainId }) => HARDHAT_NETWORK !== Number(await getChainId());
+deployHomeGateway.skip = async ({ network }) => {
+  return isSkipped(network, HardhatChain[network.config.chainId ?? 0] === undefined);
+};
 
 export default deployHomeGateway;

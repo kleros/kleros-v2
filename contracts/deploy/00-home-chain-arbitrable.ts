@@ -1,12 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
-
-enum HomeChains {
-  ARBITRUM_ONE = 42161,
-  ARBITRUM_GOERLI = 421613,
-  HARDHAT = 31337,
-}
+import { HomeChains, isSkipped } from "./utils";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts, getChainId } = hre;
@@ -50,9 +45,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
 deployArbitration.tags = ["HomeArbitrable"];
 deployArbitration.dependencies = ["Arbitration"];
-deployArbitration.skip = async ({ getChainId }) => {
-  const chainId = Number(await getChainId());
-  return !HomeChains[chainId];
+deployArbitration.skip = async ({ network }) => {
+  return isSkipped(network, !HomeChains[network.config.chainId ?? 0]);
 };
 
 export default deployArbitration;

@@ -1,14 +1,9 @@
 import { parseUnits } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import getContractAddress from "../deploy-helpers/getContractAddress";
+import getContractAddress from "./utils/getContractAddress";
 import { KlerosCore__factory } from "../typechain-types";
-
-enum ForeignChains {
-  GNOSIS_MAINNET = 100,
-  GNOSIS_CHIADO = 10200,
-  HARDHAT = 31337,
-}
+import { ForeignChains, isSkipped } from "./utils";
 
 const ONE_GWEI = parseUnits("1", "gwei");
 
@@ -62,9 +57,8 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
 };
 
 deployForeignGateway.tags = ["ForeignGatewayOnGnosis"];
-deployForeignGateway.skip = async ({ getChainId }) => {
-  const chainId = Number(await getChainId());
-  return !ForeignChains[chainId];
+deployForeignGateway.skip = async ({ network }) => {
+  return isSkipped(network, !ForeignChains[network.config.chainId ?? 0]);
 };
 
 export default deployForeignGateway;
