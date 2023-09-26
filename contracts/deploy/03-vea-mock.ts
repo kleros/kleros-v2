@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import getContractAddress from "./utils/getContractAddress";
 import { KlerosCore__factory } from "../typechain-types";
 import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
-import { HardhatChain, isSkipped } from "./utils";
+import { Courts, HardhatChain, isSkipped } from "./utils";
 import { deployUpgradable } from "./utils/deployUpgradable";
 
 // TODO: use deterministic deployments
@@ -58,9 +58,8 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const signer = (await hre.ethers.getSigners())[0];
   const core = await KlerosCore__factory.connect(klerosCore.address, signer);
   // TODO: set up the correct fees for the FORKING_COURT
-  const courtId = await core.GENERAL_COURT();
-  const fee = (await core.courts(courtId)).feeForJuror;
-  await execute("ForeignGatewayOnEthereum", { from: deployer, log: true }, "changeCourtJurorFee", courtId, fee);
+  const fee = (await core.courts(Courts.GENERAL)).feeForJuror;
+  await execute("ForeignGatewayOnEthereum", { from: deployer, log: true }, "changeCourtJurorFee", Courts.GENERAL, fee);
   // TODO: set up the correct fees for the lower courts
 
   const disputeTemplateRegistry = await deployUpgradable(hre, "DisputeTemplateRegistry", {

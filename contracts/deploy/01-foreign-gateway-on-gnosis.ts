@@ -3,7 +3,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import getContractAddress from "./utils/getContractAddress";
 import { KlerosCore__factory } from "../typechain-types";
-import { ForeignChains, isSkipped } from "./utils";
+import { Courts, ForeignChains, isSkipped } from "./utils";
 import { deployUpgradable } from "./utils/deployUpgradable";
 
 const ONE_GWEI = parseUnits("1", "gwei");
@@ -50,9 +50,8 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const coreDeployment = await hre.companionNetworks.home.deployments.get("KlerosCore");
   const core = await KlerosCore__factory.connect(coreDeployment.address, homeChainProvider);
   // TODO: set up the correct fees for the FORKING_COURT
-  const courtId = await core.GENERAL_COURT();
-  const fee = (await core.courts(courtId)).feeForJuror;
-  await execute("ForeignGatewayOnGnosis", { from: deployer, log: true }, "changeCourtJurorFee", courtId, fee);
+  const fee = (await core.courts(Courts.GENERAL)).feeForJuror;
+  await execute("ForeignGatewayOnGnosis", { from: deployer, log: true }, "changeCourtJurorFee", Courts.GENERAL, fee);
   // TODO: set up the correct fees for the lower courts
 };
 

@@ -16,6 +16,7 @@ import "./interfaces/IDisputeKit.sol";
 import "../rng/RNG.sol";
 import "../proxy/UUPSProxiable.sol";
 import "../proxy/Initializable.sol";
+import "../libraries/Constants.sol";
 
 /// @title SortitionModule
 /// @dev A factory of trees that keeps track of staked values for sortition.
@@ -254,7 +255,7 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         while (!finished) {
             // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
             _set(bytes32(uint256(currenCourtID)), _value, stakePathID);
-            if (currenCourtID == core.GENERAL_COURT()) {
+            if (currenCourtID == Constants.GENERAL_COURT) {
                 finished = true;
             } else {
                 (currenCourtID, , , , , , ) = core.courts(currenCourtID);

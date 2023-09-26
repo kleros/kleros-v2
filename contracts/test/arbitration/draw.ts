@@ -11,6 +11,7 @@ import {
 } from "../../typechain-types";
 import { expect } from "chai";
 import { DrawEvent } from "../../typechain-types/src/kleros-v1/kleros-liquid-xdai/XKlerosLiquidV2";
+import { Courts } from "../../deploy/utils";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
@@ -67,10 +68,7 @@ describe("Draw Benchmark", async () => {
     arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
     sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
 
-    parentCourtMinStake = await core
-      .GENERAL_COURT()
-      .then((courtId) => core.courts(courtId))
-      .then((court) => court.minStake);
+    parentCourtMinStake = await core.courts(Courts.GENERAL).then((court) => court.minStake);
 
     childCourtMinStake = BigNumber.from(10).pow(20).mul(3); // 300 PNK
 
