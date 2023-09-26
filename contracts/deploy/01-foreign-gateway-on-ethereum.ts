@@ -1,4 +1,4 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { HardhatRuntimeEnvironment, HttpNetworkConfig } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import getContractAddress from "./utils/getContractAddress";
 import { KlerosCore__factory } from "../typechain-types";
@@ -15,15 +15,11 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const chainId = Number(await getChainId());
   console.log("Deploying to chainId %s with deployer %s", chainId, deployer);
 
-  const homeNetworks = {
-    ETHEREUM_MAINNET: config.networks.arbitrum,
-    ETHEREUM_GOERLI: config.networks.arbitrumGoerli,
-    HARDHAT: config.networks.localhost,
-  };
-
   // Hack to predict the deployment address on the home chain.
   // TODO: use deterministic deployments
-  const homeChainProvider = new ethers.providers.JsonRpcProvider(homeNetworks[ForeignChains[chainId]].url);
+  const network = config.networks[hre.network.name];
+  const homeNetwork = config.networks[network.companionNetworks.home] as HttpNetworkConfig;
+  const homeChainProvider = new ethers.providers.JsonRpcProvider(homeNetwork.url);
   let nonce = await homeChainProvider.getTransactionCount(deployer);
   nonce += 1; // HomeGatewayToEthereum Proxy deploy tx will be the 2nd tx after this on its home network, so we add 1 to the current nonce.
   const homeGatewayAddress = getContractAddress(deployer, nonce);
