@@ -10,9 +10,12 @@ import "../proxy/Initializable.sol";
 /// @title Random Number Generator that uses Randomizer.ai
 /// https://randomizer.ai/
 contract RandomizerRNG is RNG, UUPSProxiable, Initializable {
-    address public governor; // The address that can withdraw funds.
-    uint256 public callbackGasLimit = 50000; // Gas limit for the randomizer callback
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
 
+    address public governor; // The address that can withdraw funds.
+    uint256 public callbackGasLimit; // Gas limit for the randomizer callback
     IRandomizer public randomizer; // Randomizer address.
     mapping(uint256 => uint256) public randomNumbers; // randomNumbers[requestID] is the random number for this request id, 0 otherwise.
     mapping(address => uint256) public requesterToID; // Maps the requester to his latest request ID.
@@ -26,6 +29,10 @@ contract RandomizerRNG is RNG, UUPSProxiable, Initializable {
         _;
     }
 
+    // ************************************* //
+    // *            Constructor            * //
+    // ************************************* //
+
     /// @dev Constructor, initializing the implementation to reduce attack surface.
     constructor() {
         _disableInitializers();
@@ -37,6 +44,7 @@ contract RandomizerRNG is RNG, UUPSProxiable, Initializable {
     function initialize(IRandomizer _randomizer, address _governor) external reinitializer(1) {
         randomizer = _randomizer;
         governor = _governor;
+        callbackGasLimit = 50000;
     }
 
     // ************************ //
@@ -47,7 +55,9 @@ contract RandomizerRNG is RNG, UUPSProxiable, Initializable {
      * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
      * @dev Only the governor can perform upgrades (`onlyByGovernor`)
      */
-    function _authorizeUpgrade(address) internal view override onlyByGovernor {}
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+        // NOP
+    }
 
     /// @dev Changes the governor of the contract.
     /// @param _governor The new governor.

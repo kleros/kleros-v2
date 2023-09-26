@@ -1,11 +1,12 @@
-import { DeployResult } from "hardhat-deploy/types";
+import { DeployResult, DeployOptions } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 export function deployUpgradable(
   hre: HardhatRuntimeEnvironment,
   deployer: string,
   contract: string,
-  params: any[]
+  params: any[],
+  deployOptions?: Omit<DeployOptions, "from">
 ): Promise<DeployResult> {
   const { deploy } = hre.deployments;
   return deploy(contract, {
@@ -27,5 +28,6 @@ export function deployUpgradable(
       },
     },
     log: true,
+    ...deployOptions,
   });
 }

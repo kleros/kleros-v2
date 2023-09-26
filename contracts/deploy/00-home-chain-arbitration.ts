@@ -52,11 +52,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     randomizerByChain.set(HomeChains[HomeChains[chainId]], randomizerMock.address);
   }
 
-  await deploy("PolicyRegistry", {
-    from: deployer,
-    args: [deployer],
-    log: true,
-  });
+  await deployUpgradable(hre, deployer, "PolicyRegistry", [deployer]);
 
   const randomizer = randomizerByChain.get(Number(await getChainId())) ?? AddressZero;
   const rng = await deployUpgradable(hre, deployer, "RandomizerRNG", [randomizer, deployer]);
@@ -66,8 +62,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   let klerosCoreAddress = await deployments.getOrNull("KlerosCore").then((deployment) => deployment?.address);
   if (!klerosCoreAddress) {
     const nonce = await ethers.provider.getTransactionCount(deployer);
-    klerosCoreAddress = getContractAddress(deployer, nonce + 3); // Deploying an upgradeable version of SortitionModule requires 2 transactions instead of 1 (implementation then proxy)
-    console.log("calculated future KlerosCore address for nonce %d: %s", nonce, klerosCoreAddress);
+    klerosCoreAddress = getContractAddress(deployer, nonce + 3); // deployed on the 4th tx (nonce+3): SortitionModule Impl tx, SortitionModule Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
+    console.log("calculated future KlerosCore address for nonce %d: %s", nonce + 3, klerosCoreAddress);
   }
 
   const sortitionModule = await deployUpgradable(hre, deployer, "SortitionModule", [
@@ -77,7 +73,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     1800, // maxFreezingTime
     rng.address,
     RNG_LOOKAHEAD,
-  ]);
+  ]); // nonce (implementation), nonce+1 (proxy)
 
   const pnk = pnkByChain.get(chainId) ?? AddressZero;
   const dai = daiByChain.get(chainId) ?? AddressZero;
@@ -95,7 +91,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
     ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
     sortitionModule.address,
-  ]);
+  ]); // nonce+2 (implementation), nonce+3 (proxy)
 
   // execute DisputeKitClassic.changeCore() only if necessary
   const currentCore = await hre.ethers.getContractAt("DisputeKitClassic", disputeKit.address).then((dk) => dk.core());

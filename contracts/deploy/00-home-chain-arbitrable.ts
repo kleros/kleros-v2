@@ -2,6 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
 import { HomeChains, isSkipped } from "./utils";
+import { deployUpgradable } from "./utils/deployUpgradable";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts, getChainId } = hre;
@@ -17,11 +18,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
   const weth = await deployments.get("WETH");
 
-  const disputeTemplateRegistry = await deploy("DisputeTemplateRegistry", {
-    from: deployer,
-    args: [],
-    log: true,
-  });
+  const disputeTemplateRegistry = await deployUpgradable(hre, deployer, "DisputeTemplateRegistry", [deployer]);
 
   await deploy("ArbitrableExample", {
     from: deployer,

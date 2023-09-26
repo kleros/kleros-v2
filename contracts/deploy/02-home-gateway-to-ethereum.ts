@@ -2,6 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers } from "hardhat";
 import { HardhatChain, HomeChains, isSkipped } from "./utils";
+import { deployUpgradable } from "./utils/deployUpgradable";
 
 // TODO: use deterministic deployments
 
@@ -22,10 +23,11 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const foreignChainName = await hre.companionNetworks.foreignGoerli.deployments.getNetworkName();
   console.log("Using ForeignGateway %s on chainId %s (%s)", foreignGateway.address, foreignChainId, foreignChainName);
 
-  await deploy("HomeGatewayToEthereum", {
-    from: deployer,
-    contract: "HomeGateway",
-    args: [
+  await deployUpgradable(
+    hre,
+    deployer,
+    "HomeGatewayToEthereum",
+    [
       deployer,
       klerosCore.address,
       veaInbox.address,
@@ -33,8 +35,8 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       foreignGateway.address,
       ethers.constants.AddressZero, // feeToken is ETH
     ],
-    log: true,
-  }); // nonce+0
+    { contract: "HomeGateway" }
+  ); // nonce+0
 };
 
 deployHomeGateway.tags = ["HomeGatewayToEthereum"];

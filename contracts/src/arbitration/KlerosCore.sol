@@ -116,7 +116,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
 
     address public governor; // The governor of the contract.
     IERC20 public pinakion; // The Pinakion token contract.
-    // TODO: interactions with jurorProsecutionModule.
     address public jurorProsecutionModule; // The module for juror's prosecution.
     ISortitionModule public sortitionModule; // Sortition module for drawing.
     Court[] public courts; // The courts.

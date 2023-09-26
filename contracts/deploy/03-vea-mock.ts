@@ -4,6 +4,7 @@ import getContractAddress from "./utils/getContractAddress";
 import { KlerosCore__factory } from "../typechain-types";
 import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
 import { HardhatChain, isSkipped } from "./utils";
+import { deployUpgradable } from "./utils/deployUpgradable";
 
 // TODO: use deterministic deployments
 
@@ -23,23 +24,29 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const nonce = await ethers.provider.getTransactionCount(deployer);
-  const homeGatewayAddress = getContractAddress(deployer, nonce + 1);
+  let nonce = await ethers.provider.getTransactionCount(deployer);
+  nonce += 3; // deployed on the 4th tx (nonce+3): SortitionModule Impl tx, SortitionModule Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
+  const homeGatewayAddress = getContractAddress(deployer, nonce);
   console.log("Calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
   const homeChainIdAsBytes32 = hexZeroPad(hexlify(HardhatChain.HARDHAT), 32);
-  const foreignGateway = await deploy("ForeignGatewayOnEthereum", {
-    from: deployer,
-    contract: "ForeignGateway",
-    args: [deployer, vea.address, homeChainIdAsBytes32, homeGatewayAddress],
-    gasLimit: 4000000,
-    log: true,
-  }); // nonce+0
+  const foreignGateway = await deployUpgradable(
+    hre,
+    deployer,
+    "ForeignGatewayOnEthereum",
+    [deployer, vea.address, homeChainIdAsBytes32, homeGatewayAddress],
+    {
+      contract: "ForeignGateway",
+      gasLimit: 4000000,
+    }
+  ); // nonce (implementation), nonce+1 (proxy)
+  console.log("foreignGateway.address: ", foreignGateway.address);
 
-  await deploy("HomeGatewayToEthereum", {
-    from: deployer,
-    contract: "HomeGateway",
-    args: [
+  await deployUpgradable(
+    hre,
+    deployer,
+    "HomeGatewayToEthereum",
+    [
       deployer,
       klerosCore.address,
       vea.address,
@@ -47,9 +54,12 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       foreignGateway.address,
       ethers.constants.AddressZero, // feeToken
     ],
-    gasLimit: 4000000,
-    log: true,
-  }); // nonce+1
+    {
+      contract: "HomeGateway",
+      gasLimit: 4000000,
+      log: true,
+    }
+  ); // nonce+2 (implementation), nonce+3 (proxy)
 
   // TODO: disable the gateway until fully initialized with the correct fees OR allow disputeCreators to add funds again if necessary.
   const signer = (await hre.ethers.getSigners())[0];
@@ -60,11 +70,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await execute("ForeignGatewayOnEthereum", { from: deployer, log: true }, "changeCourtJurorFee", courtId, fee);
   // TODO: set up the correct fees for the lower courts
 
-  const disputeTemplateRegistry = await deploy("DisputeTemplateRegistry", {
-    from: deployer,
-    args: [],
-    log: true,
-  });
+  const disputeTemplateRegistry = await deployUpgradable(hre, deployer, "DisputeTemplateRegistry", [deployer]);
 
   // TODO: debug why this extraData fails but "0x00" works
   // const extraData =

@@ -4,6 +4,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import getContractAddress from "./utils/getContractAddress";
 import { KlerosCore__factory } from "../typechain-types";
 import { ForeignChains, isSkipped } from "./utils";
+import { deployUpgradable } from "./utils/deployUpgradable";
 
 const ONE_GWEI = parseUnits("1", "gwei");
 
@@ -26,9 +27,8 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   // Hack to predict the deployment address on the home chain.
   // TODO: use deterministic deployments
   const homeChainProvider = new ethers.providers.JsonRpcProvider(homeNetworks[ForeignChains[chainId]].url);
-  const nonce = await homeChainProvider.getTransactionCount(deployer);
-
-  // FIXME: this computed address is wrong for deploys to testnets, okay on Hardhat
+  let nonce = await homeChainProvider.getTransactionCount(deployer);
+  nonce += 1; // HomeGatewayToEthereum Proxy deploy tx will be the 2nd tx after this on its home network, so we add 1 to the current nonce.
   const homeGatewayAddress = getContractAddress(deployer, nonce); // HomeGateway deploy tx will be the next tx home network
   console.log("Calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
@@ -37,14 +37,17 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
 
   const homeChainId = (await homeChainProvider.getNetwork()).chainId;
   const homeChainIdAsBytes32 = hexZeroPad(hexlify(homeChainId), 32);
-  await deploy("ForeignGatewayOnGnosis", {
-    from: deployer,
-    contract: "ForeignGateway",
-    args: [deployer, veaOutbox.address, homeChainIdAsBytes32, homeGatewayAddress],
-    log: true,
-    maxFeePerGas: ONE_GWEI,
-    maxPriorityFeePerGas: ONE_GWEI,
-  });
+  await deployUpgradable(
+    hre,
+    deployer,
+    "ForeignGatewayOnGnosis",
+    [deployer, veaOutbox.address, homeChainIdAsBytes32, homeGatewayAddress],
+    {
+      contract: "ForeignGateway",
+      maxFeePerGas: ONE_GWEI,
+      maxPriorityFeePerGas: ONE_GWEI,
+    }
+  );
 
   // TODO: disable the gateway until fully initialized with the correct fees OR allow disputeCreators to add funds again if necessary.
   const coreDeployment = await hre.companionNetworks.home.deployments.get("KlerosCore");
