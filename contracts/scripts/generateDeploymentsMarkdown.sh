@@ -5,10 +5,16 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 function generate() { #deploymentDir #explorerUrl
     deploymentDir=$1
     explorerUrl=$2
-    for f in $(ls -1 $deploymentDir/*.json 2>/dev/null | grep -v "PNK.json\|MetaEvidence_*\|CREATE3Factory.json" | sort); do
+    for f in $(ls -1 $deploymentDir/*.json 2>/dev/null | grep -v "PNK.json\|MetaEvidence_*\|CREATE3Factory.json\|_Proxy.json\|_Implementation.json" | sort); do
         contractName=$(basename $f .json)
         address=$(cat $f | jq -r .address)
-        echo "- [$contractName]($explorerUrl$address)"
+        implementation=$(cat $f | jq -r .implementation)
+        
+        if [ "$implementation" != "null" ]; then
+            echo "- [$contractName: proxy]($explorerUrl$address), [implementation]($explorerUrl$implementation)"
+        else
+            echo "- [$contractName]($explorerUrl$address)"
+        fi
     done
 }
 
