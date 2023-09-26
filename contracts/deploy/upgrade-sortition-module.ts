@@ -24,14 +24,17 @@ const deployUpgradeSortitionModule: DeployFunction = async (hre: HardhatRuntimeE
     const klerosCoreAddress = klerosCore.address;
 
     console.log("Upgrading the SortitionModule...");
-    await deployUpgradable(hre, deployer, "SortitionModule", [
-      deployer,
-      klerosCoreAddress,
-      1800, // minStakingTime
-      1800, // maxFreezingTime
-      rng.address,
-      RNG_LOOKAHEAD,
-    ]);
+    await deployUpgradable(hre, "SortitionModule", {
+      from: deployer,
+      args: [
+        deployer,
+        klerosCoreAddress,
+        1800, // minStakingTime
+        1800, // maxFreezingTime
+        rng.address,
+        RNG_LOOKAHEAD,
+      ],
+    });
   } catch (err) {
     console.error(err);
     throw err;

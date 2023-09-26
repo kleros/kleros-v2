@@ -23,13 +23,12 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const foreignChainName = await hre.companionNetworks.foreignChiado.deployments.getNetworkName();
   console.log("Using ForeignGateway %s on chainId %s (%s)", foreignGateway.address, foreignChainId, foreignChainName);
 
-  await deployUpgradable(
-    hre,
-    deployer,
-    "HomeGatewayToGnosis",
-    [deployer, klerosCore.address, veaInbox.address, foreignChainId, foreignGateway.address, dai.address],
-    { contract: "HomeGateway" }
-  ); // nonce+0
+  await deployUpgradable(hre, "HomeGatewayToGnosis", {
+    from: deployer,
+    contract: "HomeGateway",
+    args: [deployer, klerosCore.address, veaInbox.address, foreignChainId, foreignGateway.address, dai.address],
+    log: true,
+  }); // nonce+0
 };
 
 deployHomeGateway.tags = ["HomeGatewayToGnosis"];

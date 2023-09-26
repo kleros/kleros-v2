@@ -34,16 +34,13 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
 
   const homeChainId = (await homeChainProvider.getNetwork()).chainId;
   const homeChainIdAsBytes32 = hexZeroPad(hexlify(homeChainId), 32);
-  await deployUpgradable(
-    hre,
-    deployer,
-    "ForeignGatewayOnEthereum",
-    [deployer, veaOutbox.address, homeChainIdAsBytes32, homeGatewayAddress],
-    {
-      contract: "ForeignGateway",
-      gasLimit: 4000000,
-    }
-  );
+  await deployUpgradable(hre, "ForeignGatewayOnEthereum", {
+    from: deployer,
+    contract: "ForeignGateway",
+    args: [deployer, veaOutbox.address, homeChainIdAsBytes32, homeGatewayAddress],
+    gasLimit: 4000000,
+    log: true,
+  });
 
   // TODO: disable the gateway until fully initialized with the correct fees OR allow disputeCreators to add funds again if necessary.
   const coreDeployment = await hre.companionNetworks.home.deployments.get("KlerosCore");

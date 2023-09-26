@@ -3,14 +3,12 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 export function deployUpgradable(
   hre: HardhatRuntimeEnvironment,
-  deployer: string,
   contract: string,
-  params: any[],
-  deployOptions?: Omit<DeployOptions, "from">
+  options: DeployOptions
 ): Promise<DeployResult> {
   const { deploy } = hre.deployments;
+  const { args, ...otherOptions } = options;
   return deploy(contract, {
-    from: deployer,
     proxy: {
       proxyContract: "UUPSProxy",
       proxyArgs: ["{implementation}", "{data}"],
@@ -19,7 +17,7 @@ export function deployUpgradable(
       execute: {
         init: {
           methodName: "initialize",
-          args: params,
+          args: args ?? [],
         },
         onUpgrade: {
           methodName: "governor",
@@ -27,7 +25,6 @@ export function deployUpgradable(
         },
       },
     },
-    log: true,
-    ...deployOptions,
+    ...otherOptions,
   });
 }

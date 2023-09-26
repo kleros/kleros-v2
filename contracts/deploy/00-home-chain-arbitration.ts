@@ -52,12 +52,16 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     randomizerByChain.set(HomeChains[HomeChains[chainId]], randomizerMock.address);
   }
 
-  await deployUpgradable(hre, deployer, "PolicyRegistry", [deployer]);
+  await deployUpgradable(hre, "PolicyRegistry", { from: deployer, args: [deployer], log: true });
 
   const randomizer = randomizerByChain.get(Number(await getChainId())) ?? AddressZero;
-  const rng = await deployUpgradable(hre, deployer, "RandomizerRNG", [randomizer, deployer]);
+  const rng = await deployUpgradable(hre, "RandomizerRNG", { from: deployer, args: [randomizer, deployer], log: true });
 
-  const disputeKit = await deployUpgradable(hre, deployer, "DisputeKitClassic", [deployer, AddressZero]);
+  const disputeKit = await deployUpgradable(hre, "DisputeKitClassic", {
+    from: deployer,
+    args: [deployer, AddressZero],
+    log: true,
+  });
 
   let klerosCoreAddress = await deployments.getOrNull("KlerosCore").then((deployment) => deployment?.address);
   if (!klerosCoreAddress) {
@@ -66,14 +70,18 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     console.log("calculated future KlerosCore address for nonce %d: %s", nonce + 3, klerosCoreAddress);
   }
 
-  const sortitionModule = await deployUpgradable(hre, deployer, "SortitionModule", [
-    deployer,
-    klerosCoreAddress,
-    1800, // minStakingTime
-    1800, // maxFreezingTime
-    rng.address,
-    RNG_LOOKAHEAD,
-  ]); // nonce (implementation), nonce+1 (proxy)
+  const sortitionModule = await deployUpgradable(hre, "SortitionModule", {
+    from: deployer,
+    args: [
+      deployer,
+      klerosCoreAddress,
+      1800, // minStakingTime
+      1800, // maxFreezingTime
+      rng.address,
+      RNG_LOOKAHEAD,
+    ],
+    log: true,
+  }); // nonce (implementation), nonce+1 (proxy)
 
   const pnk = pnkByChain.get(chainId) ?? AddressZero;
   const dai = daiByChain.get(chainId) ?? AddressZero;
@@ -81,17 +89,21 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const minStake = BigNumber.from(10).pow(20).mul(2);
   const alpha = 10000;
   const feeForJuror = BigNumber.from(10).pow(17);
-  const klerosCore = await deployUpgradable(hre, deployer, "KlerosCore", [
-    deployer,
-    pnk,
-    AddressZero,
-    disputeKit.address,
-    false,
-    [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
-    [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-    ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
-    sortitionModule.address,
-  ]); // nonce+2 (implementation), nonce+3 (proxy)
+  const klerosCore = await deployUpgradable(hre, "KlerosCore", {
+    from: deployer,
+    args: [
+      deployer,
+      pnk,
+      AddressZero,
+      disputeKit.address,
+      false,
+      [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
+      [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
+      ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
+      sortitionModule.address,
+    ],
+    log: true,
+  }); // nonce+2 (implementation), nonce+3 (proxy)
 
   // execute DisputeKitClassic.changeCore() only if necessary
   const currentCore = await hre.ethers.getContractAt("DisputeKitClassic", disputeKit.address).then((dk) => dk.core());

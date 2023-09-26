@@ -23,11 +23,10 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const foreignChainName = await hre.companionNetworks.foreignGoerli.deployments.getNetworkName();
   console.log("Using ForeignGateway %s on chainId %s (%s)", foreignGateway.address, foreignChainId, foreignChainName);
 
-  await deployUpgradable(
-    hre,
-    deployer,
-    "HomeGatewayToEthereum",
-    [
+  await deployUpgradable(hre, "HomeGatewayToEthereum", {
+    from: deployer,
+    contract: "HomeGateway",
+    args: [
       deployer,
       klerosCore.address,
       veaInbox.address,
@@ -35,8 +34,8 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       foreignGateway.address,
       ethers.constants.AddressZero, // feeToken is ETH
     ],
-    { contract: "HomeGateway" }
-  ); // nonce+0
+    log: true,
+  }); // nonce+0
 };
 
 deployHomeGateway.tags = ["HomeGatewayToEthereum"];

@@ -28,17 +28,20 @@ const deployUpgradeKlerosCore: DeployFunction = async (hre: HardhatRuntimeEnviro
     const sortitionModule = await deployments.get("SortitionModule");
 
     console.log("Upgrading the KlerosCore...");
-    await deployUpgradable(hre, deployer, "KlerosCore", [
-      deployer,
-      pnk,
-      AddressZero,
-      disputeKit.address,
-      false,
-      [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
-      [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
-      sortitionModule.address,
-    ]);
+    await deployUpgradable(hre, "KlerosCore", {
+      from: deployer,
+      args: [
+        deployer,
+        pnk,
+        AddressZero,
+        disputeKit.address,
+        false,
+        [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
+        [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
+        ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
+        sortitionModule.address,
+      ],
+    });
   } catch (err) {
     console.error(err);
     throw err;

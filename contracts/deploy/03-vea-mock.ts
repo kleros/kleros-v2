@@ -30,23 +30,19 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   console.log("Calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
   const homeChainIdAsBytes32 = hexZeroPad(hexlify(HardhatChain.HARDHAT), 32);
-  const foreignGateway = await deployUpgradable(
-    hre,
-    deployer,
-    "ForeignGatewayOnEthereum",
-    [deployer, vea.address, homeChainIdAsBytes32, homeGatewayAddress],
-    {
-      contract: "ForeignGateway",
-      gasLimit: 4000000,
-    }
-  ); // nonce (implementation), nonce+1 (proxy)
+  const foreignGateway = await deployUpgradable(hre, "ForeignGatewayOnEthereum", {
+    from: deployer,
+    contract: "ForeignGateway",
+    args: [deployer, vea.address, homeChainIdAsBytes32, homeGatewayAddress],
+    gasLimit: 4000000,
+    log: true,
+  }); // nonce (implementation), nonce+1 (proxy)
   console.log("foreignGateway.address: ", foreignGateway.address);
 
-  await deployUpgradable(
-    hre,
-    deployer,
-    "HomeGatewayToEthereum",
-    [
+  await deployUpgradable(hre, "HomeGatewayToEthereum", {
+    from: deployer,
+    contract: "HomeGateway",
+    args: [
       deployer,
       klerosCore.address,
       vea.address,
@@ -54,12 +50,9 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       foreignGateway.address,
       ethers.constants.AddressZero, // feeToken
     ],
-    {
-      contract: "HomeGateway",
-      gasLimit: 4000000,
-      log: true,
-    }
-  ); // nonce+2 (implementation), nonce+3 (proxy)
+    gasLimit: 4000000,
+    log: true,
+  }); // nonce+2 (implementation), nonce+3 (proxy)
 
   // TODO: disable the gateway until fully initialized with the correct fees OR allow disputeCreators to add funds again if necessary.
   const signer = (await hre.ethers.getSigners())[0];
@@ -70,7 +63,11 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await execute("ForeignGatewayOnEthereum", { from: deployer, log: true }, "changeCourtJurorFee", courtId, fee);
   // TODO: set up the correct fees for the lower courts
 
-  const disputeTemplateRegistry = await deployUpgradable(hre, deployer, "DisputeTemplateRegistry", [deployer]);
+  const disputeTemplateRegistry = await deployUpgradable(hre, "DisputeTemplateRegistry", {
+    from: deployer,
+    args: [deployer],
+    log: true,
+  });
 
   // TODO: debug why this extraData fails but "0x00" works
   // const extraData =
