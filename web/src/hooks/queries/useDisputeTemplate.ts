@@ -39,8 +39,9 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
             { id: templateId.toString() },
             true
           );
+          console.log("🚀 ~ file: useDisputeTemplate.ts:38 ~ queryFn: ~ disputeTemplate:", disputeTemplate);
 
-          return JSON.parse(disputeTemplate.templateData);
+          return disputeTemplate;
         } catch {
           return {};
         }

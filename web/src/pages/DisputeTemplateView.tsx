@@ -6,6 +6,9 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 import ReactMarkdown from "components/ReactMarkdown";
 import { isUndefined } from "utils/index";
 import { IPFS_GATEWAY } from "consts/index";
+import { useDisputeTemplate } from "hooks/queries/useDisputeTemplate";
+import { jsonAction, callAction } from "utils/dataMappings";
+import { parseAbiItem } from "viem";
 
 const Container = styled.div`
   width: 50%;
@@ -81,16 +84,36 @@ const StyledTextArea = styled(Textarea)`
 const DisputeTemplateView: React.FC = () => {
   const [disputeTemplate, setDisputeTemplate] = useState<string>("");
   const [errorMsg, setErrorMessage] = useState<string>("");
-  const parsedDisputeTemplate = useMemo(() => {
+  const { data: template } = useDisputeTemplate("4", "0xE4af4D800Ce12149199FA6f8870cD650cD8f3164");
+  // console.log("🚀 ~ file: DisputeTemplateView.tsx:86 ~ template:", template!.templateDataMappings);
+
+  const parsedDisputeTemplate = useMemo(async () => {
     try {
-      const parsed = JSON.parse(disputeTemplate);
+      const parsedMapping = JSON.parse(template?.templateDataMappings);
+      const parsedTemplate = JSON.parse(template?.templateData);
+      console.log("🚀 ~ file: DisputeTemplateView.tsx:94 ~ parsedDisputeTemplate ~ parsedTemplate:", parsedTemplate);
+      console.log("🚀 ~ file: DisputeTemplateView.tsx:90 ~ parsedDisputeTemplate ~ parsed:", parsedMapping);
+      const { inputs, populate, seeks, source } = parsedMapping[0];
+      const parsedAbi = parseAbiItem(source);
+      inputs[3] = BigInt(inputs[3]);
+      console.log(
+        "🚀 ~ file: DisputeTemplateView.tsx:94 ~ parsedDisputeTemplate ~ inputs:",
+        inputs.slice(2),
+        populate,
+        seeks,
+        parsedAbi
+      );
+      const result = await callAction(parsedAbi, inputs, seeks, populate);
+      console.log("🚀 ~ file: DisputeTemplateView.tsx:96 ~ parsedDisputeTemplate ~ result:", result);
       setErrorMessage("");
-      return parsed;
+      return parsedTemplate;
     } catch (e) {
+      console.log("error", e);
+
       setErrorMessage((e as SyntaxError).message);
       return undefined;
     }
-  }, [disputeTemplate]);
+  }, [template, disputeTemplate]);
   const isThereInput = useMemo(() => disputeTemplate !== "", [disputeTemplate]);
   return (
     <Wrapper>
@@ -107,6 +130,8 @@ const DisputeTemplateView: React.FC = () => {
 };
 
 const Overview: React.FC<{ disputeTemplate: any }> = ({ disputeTemplate }) => {
+  console.log("disputeTemplate 133", disputeTemplate);
+
   return (
     <>
       <Container>

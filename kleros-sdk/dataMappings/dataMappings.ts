@@ -134,13 +134,20 @@ export const callAction = async (abi, inputs, seek, populate) => {
     address: inputs[0],
     abi: [abi],
     functionName: inputs[1],
-    args: [inputs.slice(2)],
+    args: inputs.slice(2),
   });
+
+  // seek values should be the index of the values we want from the return of the contract since
+  // wagmi/viem returns an array instead of an object
 
   let populatedData = {};
 
-  seek.map((item, index) => {
-    populatedData[populate[index]] = data;
+  seek.map((item) => {
+    if (typeof data == "object") {
+      populatedData[populate[item]] = data[item];
+    } else {
+      populatedData[populate[item]] = data;
+    }
   });
 
   return populatedData;

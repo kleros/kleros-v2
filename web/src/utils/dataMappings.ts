@@ -1,9 +1,14 @@
-import { createPublicClient, http, parseAbiItem } from "viem";
+import { createPublicClient, http, parseAbiItem, webSocket } from "viem";
 import { arbitrumGoerli } from "viem/chains";
+import fetch from "node-fetch";
+
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY;
+
+const transport = webSocket(`wss://arb-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
 
 const publicClient = createPublicClient({
   chain: arbitrumGoerli,
-  transport: http(),
+  transport,
 });
 
 export const mappings = [
@@ -66,14 +71,44 @@ const initialState = {
   },
 };
 
-const fetchAction = async (variableName: string, link: string) => {
-  const response = await fetch(link);
-  const data = await response.json();
-  return { [variableName]: data };
+const findNestedKey = (data, keyToFind) => {
+  if (data.hasOwnProperty(keyToFind)) return data[keyToFind];
+  for (let key in data) {
+    if (typeof data[key] === "object" && data[key] !== null) {
+      const found = findNestedKey(data[key], keyToFind);
+      if (found) return found;
+    }
+  }
+  return null;
 };
 
-const graphqlAction = async (variableName: string, query: string) => {
-  const response = await fetch("http://graphql-server-endpoint.com", {
+export const jsonAction = (data, seek, populate) => {
+  let jsonData = {};
+
+  seek.forEach((key, idx) => {
+    const foundValue = findNestedKey(data, key);
+    jsonData[populate[idx]] = foundValue;
+  });
+
+  return jsonData;
+};
+
+export const fetchAction = async (link: string, seek, populate) => {
+  const response = await fetch(link);
+  const fetchedData = await response.json();
+  console.log(fetchedData);
+  let populatedData = {};
+
+  seek.forEach((key, idx) => {
+    const foundValue = findNestedKey(fetchedData, key);
+    populatedData[populate[idx]] = foundValue;
+  });
+
+  return populatedData;
+};
+
+export const graphqlAction = async (query: string, seek, populate) => {
+  const response = await fetch("https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -83,48 +118,60 @@ const graphqlAction = async (variableName: string, query: string) => {
   });
 
   const { data } = await response.json();
-  return { [variableName]: data };
-};
-
-const jsonAction = (currentAcc, source, seek, populate) => {
-  const dataFromSource = currentAcc[source];
-  let jsonData = {};
-
-  seek.forEach((key, idx) => {
-    jsonData[populate[idx]] = dataFromSource[key];
-  });
-
-  return jsonData;
-};
-
-const callAction = async (source, inputs, seek, populate) => {
-  const data = await publicClient.readContract({
-    address: inputs[1],
-    abi: parseAbiItem(source),
-    functionName: "",
-    args: inputs,
-  });
-
+  console.log(data);
   let populatedData = {};
 
-  seek.map((item, index) => {
-    populatedData[populate[index]] = data[item];
+  seek.forEach((key, idx) => {
+    const foundValue = findNestedKey(data, key);
+    populatedData[populate[idx]] = foundValue;
   });
 
   return populatedData;
 };
 
-const eventAction = async (source, inputs, seek, populate) => {
+export const callAction = async (abi, inputs, seek, populate) => {
+  const data = await publicClient.readContract({
+    address: inputs[0],
+    abi: [abi],
+    functionName: inputs[1],
+    args: inputs.slice(2),
+  });
+
+  // seek values should be the index of the values we want from the return of the contract since
+  // wagmi/viem returns an array instead of an object
+
+  let populatedData = {};
+
+  seek.map((item) => {
+    if (typeof data == "object") {
+      populatedData[populate[item]] = data[item];
+    } else {
+      populatedData[populate[item]] = data;
+    }
+  });
+
+  return populatedData;
+};
+
+export const eventAction = async (source, inputs, seek, populate) => {
+  const argsObject = seek.reduce((acc, key, index) => {
+    acc[key] = inputs[index + 2];
+    return acc;
+  }, {});
+
   const filter = await publicClient.createEventFilter({
-    address: inputs[1],
-    event: parseAbiItem(source),
-    args: inputs,
+    address: inputs[0],
+    event: source,
+    args: { ...argsObject },
+    fromBlock: inputs[1],
+    toBlock: "latest",
   });
 
   const contractEvent = await publicClient.getFilterLogs({
-    filter: filter,
+    filter: filter as any,
   });
 
+  // @ts-ignore
   const eventData = contractEvent[0].args;
 
   let populatedData = {};
@@ -136,41 +183,41 @@ const eventAction = async (source, inputs, seek, populate) => {
   return populatedData;
 };
 
-const accumulatedData = mappings.reduce(async (acc, { type, source, inputs, seek, populate }) => {
-  const currentAcc = await acc;
+// const accumulatedData = mappings.reduce(async (acc, { type, source, inputs, seek, populate }) => {
+//   const currentAcc = await acc;
 
-  switch (type) {
-    case "fetch":
-      return {
-        ...currentAcc,
-        ...(await fetchAction(inputs.variableName, inputs.link)),
-      };
+//   switch (type) {
+//     case "fetch":
+//       return {
+//         ...currentAcc,
+//         ...(await fetchAction(inputs.variableName, inputs.link)),
+//       };
 
-    case "graphql":
-      return {
-        ...currentAcc,
-        ...(await graphqlAction(inputs.variableName, inputs.query)),
-      };
+//     case "graphql":
+//       return {
+//         ...currentAcc,
+//         ...(await graphqlAction(inputs.variableName, inputs.query)),
+//       };
 
-    case "json":
-      return {
-        ...currentAcc,
-        ...jsonAction(currentAcc, source, seek, populate),
-      };
-    case "abi/call":
-      return {
-        ...currentAcc,
-        ...(await callAction(source, inputs, seek, populate)),
-      };
-    case "abi/event":
-      return {
-        ...currentAcc,
-        ...(await eventAction(source, inputs, seek, populate)),
-      };
+//     case "json":
+//       return {
+//         ...currentAcc,
+//         ...jsonAction(currentAcc, source, seek, populate),
+//       };
+//     case "abi/call":
+//       return {
+//         ...currentAcc,
+//         ...(await callAction(source, inputs, seek, populate)),
+//       };
+//     // case "abi/event":
+//     //   return {
+//     //     ...currentAcc,
+//     //     ...(await eventAction(source, inputs, seek, populate)),
+//     //   };
 
-    default:
-      return currentAcc;
-  }
-}, Promise.resolve(initialState));
+//     default:
+//       return currentAcc;
+//   }
+// }, Promise.resolve(initialState));
 
-console.log(accumulatedData);
+// console.log(accumulatedData);
