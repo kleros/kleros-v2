@@ -1,0 +1,15 @@
+name: My Workflow
+on:
+  pull_request:
+    types:
+      - labeled
+
+jobs:
+  my-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use GitHub Script
+        uses: actions/github-script@v3
+        with:
+          script: |
+            console.log('Hello, GitHub Script!');
