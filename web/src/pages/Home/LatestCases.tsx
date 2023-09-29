@@ -1,21 +1,32 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useCasesQuery } from "queries/useCasesQuery";
+import { useFiltersContext } from "context/FilterProvider";
 import DisputeCard from "components/DisputeCard";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 const Container = styled.div`
-  margin-top: 64px;
+  margin-top: calc(64px + (80 - 64) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   .disputes-container {
     display: flex;
     gap: 24px;
     flex-wrap: wrap;
     justify-content: center;
   }
+
+  h1 {
+    margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  }
 `;
 
 const LatestCases: React.FC = () => {
   const { data } = useCasesQuery(0);
+  const { setIsList } = useFiltersContext();
+
+  useEffect(() => {
+    setIsList(false);
+  }, []);
+
   return (
     <Container>
       <h1>Latest Cases</h1>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { useLockBodyScroll } from "react-use";
+import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import Tag from "components/Tag";
 import JurorBalanceDisplay from "./JurorStakeDisplay";
 import InputDisplay from "./InputDisplay";
@@ -37,7 +37,7 @@ const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "
   const [isActive, setIsActive] = useState<boolean>(true);
   const [action, setAction] = useState<ActionType>(ActionType.stake);
 
-  useLockBodyScroll(isPopupOpen);
+  useLockOverlayScroll(isPopupOpen);
 
   const handleClick = (action: ActionType) => {
     setIsActive(action === ActionType.stake);

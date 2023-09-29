@@ -1,21 +1,81 @@
 {
-  "address": "0x0FE3869EA01Febb895Bc76DaB143858F84C67024",
+  "address": "0xF67D956988cb11449db7aeA80E6339b95b160593",
   "abi": [
+    {
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    },
+    {
+      "inputs": [],
+      "name": "AlreadyInitialized",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "FailedDelegateCall",
+      "type": "error"
+    },
     {
       "inputs": [
         {
-          "internalType": "contract IRandomizer",
-          "name": "_randomizer",
-          "type": "address"
-        },
-        {
           "internalType": "address",
-          "name": "_governor",
+          "name": "implementation",
           "type": "address"
         }
       ],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
+      "name": "InvalidImplementation",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotInitializing",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "UUPSUnauthorizedCallContext",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "slot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "UUPSUnsupportedProxiableUUID",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "version",
+          "type": "uint64"
+        }
+      ],
+      "name": "Initialized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newImplementation",
+          "type": "address"
+        }
+      ],
+      "name": "Upgraded",
+      "type": "event"
     },
     {
       "inputs": [],
@@ -51,6 +111,37 @@
           "internalType": "address",
           "name": "",
           "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IRandomizer",
+          "name": "_randomizer",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_governor",
+          "type": "address"
+        }
+      ],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proxiableUUID",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
         }
       ],
       "stateMutability": "view",
@@ -195,81 +286,103 @@
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newImplementation",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "upgradeToAndCall",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_implementation",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_data",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
     }
   ],
-  "transactionHash": "0x574a9d24e8e36561c80797ee886b3878c01e41067da05252fa9f28d09f1bfabf",
+  "transactionHash": "0x22aca5d2ff07ecd691b94cfafa5583f284f240af578902f331b34c0bb31752e2",
   "receipt": {
     "to": null,
     "from": "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3",
-    "contractAddress": "0x0FE3869EA01Febb895Bc76DaB143858F84C67024",
+    "contractAddress": "0xF67D956988cb11449db7aeA80E6339b95b160593",
     "transactionIndex": 1,
-    "gasUsed": "1627084",
-    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-    "blockHash": "0x4fc82dfb9bfce25c0265e14cb3146cecc78a52c0771f008b1aeb77c27e5061e5",
-    "transactionHash": "0x574a9d24e8e36561c80797ee886b3878c01e41067da05252fa9f28d09f1bfabf",
-    "logs": [],
-    "blockNumber": 33427296,
-    "cumulativeGasUsed": "1627084",
+    "gasUsed": "220046",
+    "logsBloom": "0x00000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000080400000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x82a42c7e6d4befb9948292a39e817c3ea7b3404b3ca26e8357c0db0cb78be588",
+    "transactionHash": "0x22aca5d2ff07ecd691b94cfafa5583f284f240af578902f331b34c0bb31752e2",
+    "logs": [
+      {
+        "transactionIndex": 1,
+        "blockNumber": 43823711,
+        "transactionHash": "0x22aca5d2ff07ecd691b94cfafa5583f284f240af578902f331b34c0bb31752e2",
+        "address": "0xF67D956988cb11449db7aeA80E6339b95b160593",
+        "topics": [
+          "0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 0,
+        "blockHash": "0x82a42c7e6d4befb9948292a39e817c3ea7b3404b3ca26e8357c0db0cb78be588"
+      }
+    ],
+    "blockNumber": 43823711,
+    "cumulativeGasUsed": "220046",
     "status": 1,
     "byzantium": true
   },
   "args": [
-    "0x923096Da90a3b60eb7E12723fA2E1547BA9236Bc",
-    "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3"
+    "0xc1C85d303B4995Cb543C2b449C1b3dF490d49ebE",
+    "0x485cc955000000000000000000000000923096da90a3b60eb7e12723fa2e1547ba9236bc000000000000000000000000f50e77f2a2b6138d16c6c7511562e5c33c4b15a3"
   ],
   "numDeployments": 1,
-  "solcInputHash": "fd61600fd663df29806d398dd28b09df",
-  "metadata": "{\"compiler\":{\"version\":\"0.8.18+commit.87f61d96\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IRandomizer\",\"name\":\"_randomizer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_governor\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"callbackGasLimit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_governor\",\"type\":\"address\"}],\"name\":\"changeGovernor\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"governor\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"randomNumbers\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"randomizer\",\"outputs\":[{\"internalType\":\"contract IRandomizer\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_id\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"_value\",\"type\":\"bytes32\"}],\"name\":\"randomizerCallback\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"randomizerWithdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"receiveRandomness\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"randomNumber\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"requestRandomness\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"requesterToID\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_callbackGasLimit\",\"type\":\"uint256\"}],\"name\":\"setCallbackGasLimit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_randomizer\",\"type\":\"address\"}],\"name\":\"setRandomizer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"changeGovernor(address)\":{\"details\":\"Changes the governor of the contract.\",\"params\":{\"_governor\":\"The new governor.\"}},\"constructor\":{\"details\":\"Constructor.\",\"params\":{\"_governor\":\"Governor of the contract.\",\"_randomizer\":\"Randomizer contract.\"}},\"randomizerCallback(uint256,bytes32)\":{\"details\":\"Callback function called by the randomizer contract when the random value is generated.\"},\"randomizerWithdraw(uint256)\":{\"details\":\"Allows the governor to withdraw randomizer funds.\",\"params\":{\"_amount\":\"Amount to withdraw in wei.\"}},\"receiveRandomness(uint256)\":{\"details\":\"Return the random number.\",\"returns\":{\"randomNumber\":\"The random number or 0 if it is not ready or has not been requested.\"}},\"requestRandomness(uint256)\":{\"details\":\"Request a random number. The id of the request is tied to the sender.\"},\"setCallbackGasLimit(uint256)\":{\"details\":\"Change the Randomizer callback gas limit.\",\"params\":{\"_callbackGasLimit\":\"the new limit.\"}},\"setRandomizer(address)\":{\"details\":\"Change the Randomizer address.\",\"params\":{\"_randomizer\":\"the new Randomizer address.\"}}},\"title\":\"Random Number Generator that uses Randomizer.ai https://randomizer.ai/\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/rng/RandomizerRNG.sol\":\"RandomizerRNG\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"src/rng/IRandomizer.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\n// Randomizer protocol interface\\ninterface IRandomizer {\\n    function request(uint256 callbackGasLimit) external returns (uint256);\\n\\n    function clientWithdrawTo(address _to, uint256 _amount) external;\\n}\\n\",\"keccak256\":\"0xe71bbdd9470eeb89f5d10aee07fda95b6ccc13aa845c0d8c0bc7a9ec20b6356e\",\"license\":\"MIT\"},\"src/rng/RNG.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\ninterface RNG {\\n    /// @dev Request a random number.\\n    /// @param _block Block linked to the request.\\n    function requestRandomness(uint256 _block) external;\\n\\n    /// @dev Receive the random number.\\n    /// @param _block Block the random number is linked to.\\n    /// @return randomNumber Random Number. If the number is not ready or has not been required 0 instead.\\n    function receiveRandomness(uint256 _block) external returns (uint256 randomNumber);\\n}\\n\",\"keccak256\":\"0x5afe7121f49aebe72218df356bd91b66c2171b9ad15e7945a15a091784291a43\",\"license\":\"MIT\"},\"src/rng/RandomizerRNG.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\nimport \\\"./RNG.sol\\\";\\nimport \\\"./IRandomizer.sol\\\";\\n\\n/// @title Random Number Generator that uses Randomizer.ai\\n/// https://randomizer.ai/\\ncontract RandomizerRNG is RNG {\\n    address public governor; // The address that can withdraw funds.\\n    uint256 public callbackGasLimit = 50000; // Gas limit for the randomizer callback\\n\\n    IRandomizer public randomizer; // Randomizer address.\\n    mapping(uint256 => uint256) public randomNumbers; // randomNumbers[requestID] is the random number for this request id, 0 otherwise.\\n    mapping(address => uint256) public requesterToID; // Maps the requester to his latest request ID.\\n\\n    // ************************************* //\\n    // *        Function Modifiers         * //\\n    // ************************************* //\\n\\n    modifier onlyByGovernor() {\\n        require(governor == msg.sender, \\\"Governor only\\\");\\n        _;\\n    }\\n\\n    /// @dev Constructor.\\n    /// @param _randomizer Randomizer contract.\\n    /// @param _governor Governor of the contract.\\n    constructor(IRandomizer _randomizer, address _governor) {\\n        randomizer = _randomizer;\\n        governor = _governor;\\n    }\\n\\n    // ************************ //\\n    // *      Governance      * //\\n    // ************************ //\\n\\n    /// @dev Changes the governor of the contract.\\n    /// @param _governor The new governor.\\n    function changeGovernor(address _governor) external onlyByGovernor {\\n        governor = _governor;\\n    }\\n\\n    /// @dev Change the Randomizer callback gas limit.\\n    /// @param _callbackGasLimit the new limit.\\n    function setCallbackGasLimit(uint256 _callbackGasLimit) external onlyByGovernor {\\n        callbackGasLimit = _callbackGasLimit;\\n    }\\n\\n    /// @dev Change the Randomizer address.\\n    /// @param _randomizer the new Randomizer address.\\n    function setRandomizer(address _randomizer) external onlyByGovernor {\\n        randomizer = IRandomizer(_randomizer);\\n    }\\n\\n    /// @dev Allows the governor to withdraw randomizer funds.\\n    /// @param _amount Amount to withdraw in wei.\\n    function randomizerWithdraw(uint256 _amount) external onlyByGovernor {\\n        randomizer.clientWithdrawTo(msg.sender, _amount);\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /// @dev Request a random number. The id of the request is tied to the sender.\\n    function requestRandomness(uint256 /*_block*/) external override {\\n        uint256 id = randomizer.request(callbackGasLimit);\\n        requesterToID[msg.sender] = id;\\n    }\\n\\n    /// @dev Callback function called by the randomizer contract when the random value is generated.\\n    function randomizerCallback(uint256 _id, bytes32 _value) external {\\n        require(msg.sender == address(randomizer), \\\"Randomizer only\\\");\\n        randomNumbers[_id] = uint256(_value);\\n    }\\n\\n    // ************************************* //\\n    // *           Public Views            * //\\n    // ************************************* //\\n\\n    /// @dev Return the random number.\\n    /// @return randomNumber The random number or 0 if it is not ready or has not been requested.\\n    function receiveRandomness(uint256 /*_block*/) external view override returns (uint256 randomNumber) {\\n        // Get the latest request ID for this requester.\\n        uint256 id = requesterToID[msg.sender];\\n        randomNumber = randomNumbers[id];\\n    }\\n}\\n\",\"keccak256\":\"0xe6f1715191d3884c292c2b58200980f08de8cf6c5b32fffdaecc4483919c59ff\",\"license\":\"MIT\"}},\"version\":1}",
-  "bytecode": "0x608060405261c35060015534801561001657600080fd5b506040516105e53803806105e58339810160408190526100359161007e565b600280546001600160a01b039384166001600160a01b031991821617909155600080549290931691161790556100b8565b6001600160a01b038116811461007b57600080fd5b50565b6000806040838503121561009157600080fd5b825161009c81610066565b60208401519092506100ad81610066565b809150509250929050565b61051e806100c76000396000f3fe608060405234801561001057600080fd5b50600436106100b45760003560e01c80637363ae1f116100715780637363ae1f14610184578063767bcab5146101975780638a54942f146101aa578063e4c0aaf4146101bd578063ebe93caf146101d0578063f10fb584146101e357600080fd5b80630c340a24146100b957806313cf9054146100e957806324f74697146101265780634e07c9391461012f5780635257cd901461014457806371d4b00b14610164575b600080fd5b6000546100cc906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b6101186100f736600461043d565b50336000908152600460209081526040808320548352600390915290205490565b6040519081526020016100e0565b61011860015481565b61014261013d36600461043d565b6101f6565b005b61011861015236600461043d565b60036020526000908152604090205481565b610118610172366004610456565b60046020526000908152604090205481565b61014261019236600461043d565b610290565b6101426101a5366004610456565b610318565b6101426101b836600461043d565b610364565b6101426101cb366004610456565b610393565b6101426101de366004610486565b6103df565b6002546100cc906001600160a01b031681565b6000546001600160a01b031633146102295760405162461bcd60e51b8152600401610220906104a8565b60405180910390fd5b600254604051632465f8f560e01b8152336004820152602481018390526001600160a01b0390911690632465f8f590604401600060405180830381600087803b15801561027557600080fd5b505af1158015610289573d6000803e3d6000fd5b5050505050565b60025460015460405163d845a4b360e01b815260048101919091526000916001600160a01b03169063d845a4b3906024016020604051808303816000875af11580156102e0573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061030491906104cf565b336000908152600460205260409020555050565b6000546001600160a01b031633146103425760405162461bcd60e51b8152600401610220906104a8565b600280546001600160a01b0319166001600160a01b0392909216919091179055565b6000546001600160a01b0316331461038e5760405162461bcd60e51b8152600401610220906104a8565b600155565b6000546001600160a01b031633146103bd5760405162461bcd60e51b8152600401610220906104a8565b600080546001600160a01b0319166001600160a01b0392909216919091179055565b6002546001600160a01b0316331461042b5760405162461bcd60e51b815260206004820152600f60248201526e52616e646f6d697a6572206f6e6c7960881b6044820152606401610220565b60009182526003602052604090912055565b60006020828403121561044f57600080fd5b5035919050565b60006020828403121561046857600080fd5b81356001600160a01b038116811461047f57600080fd5b9392505050565b6000806040838503121561049957600080fd5b50508035926020909101359150565b6020808252600d908201526c476f7665726e6f72206f6e6c7960981b604082015260600190565b6000602082840312156104e157600080fd5b505191905056fea26469706673582212205b33a6522e7c4e0416761df88ff2507b8c756e59f022c624aba9af96f194573264736f6c63430008120033",
-  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100b45760003560e01c80637363ae1f116100715780637363ae1f14610184578063767bcab5146101975780638a54942f146101aa578063e4c0aaf4146101bd578063ebe93caf146101d0578063f10fb584146101e357600080fd5b80630c340a24146100b957806313cf9054146100e957806324f74697146101265780634e07c9391461012f5780635257cd901461014457806371d4b00b14610164575b600080fd5b6000546100cc906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b6101186100f736600461043d565b50336000908152600460209081526040808320548352600390915290205490565b6040519081526020016100e0565b61011860015481565b61014261013d36600461043d565b6101f6565b005b61011861015236600461043d565b60036020526000908152604090205481565b610118610172366004610456565b60046020526000908152604090205481565b61014261019236600461043d565b610290565b6101426101a5366004610456565b610318565b6101426101b836600461043d565b610364565b6101426101cb366004610456565b610393565b6101426101de366004610486565b6103df565b6002546100cc906001600160a01b031681565b6000546001600160a01b031633146102295760405162461bcd60e51b8152600401610220906104a8565b60405180910390fd5b600254604051632465f8f560e01b8152336004820152602481018390526001600160a01b0390911690632465f8f590604401600060405180830381600087803b15801561027557600080fd5b505af1158015610289573d6000803e3d6000fd5b5050505050565b60025460015460405163d845a4b360e01b815260048101919091526000916001600160a01b03169063d845a4b3906024016020604051808303816000875af11580156102e0573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061030491906104cf565b336000908152600460205260409020555050565b6000546001600160a01b031633146103425760405162461bcd60e51b8152600401610220906104a8565b600280546001600160a01b0319166001600160a01b0392909216919091179055565b6000546001600160a01b0316331461038e5760405162461bcd60e51b8152600401610220906104a8565b600155565b6000546001600160a01b031633146103bd5760405162461bcd60e51b8152600401610220906104a8565b600080546001600160a01b0319166001600160a01b0392909216919091179055565b6002546001600160a01b0316331461042b5760405162461bcd60e51b815260206004820152600f60248201526e52616e646f6d697a6572206f6e6c7960881b6044820152606401610220565b60009182526003602052604090912055565b60006020828403121561044f57600080fd5b5035919050565b60006020828403121561046857600080fd5b81356001600160a01b038116811461047f57600080fd5b9392505050565b6000806040838503121561049957600080fd5b50508035926020909101359150565b6020808252600d908201526c476f7665726e6f72206f6e6c7960981b604082015260600190565b6000602082840312156104e157600080fd5b505191905056fea26469706673582212205b33a6522e7c4e0416761df88ff2507b8c756e59f022c624aba9af96f194573264736f6c63430008120033",
+  "solcInputHash": "55cffe29f75540cd17d37d1c4bbabcf9",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.18+commit.87f61d96\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_implementation\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"author\":\"Simon Malatrait <simon.malatrait@grenoble-inp.org>\",\"details\":\"This contract implements a UUPS Proxy compliant with ERC-1967 & ERC-1822.This contract delegates all calls to another contract (UUPS Proxiable) through a fallback function and the use of the `delegatecall` EVM instruction.We refer to the Proxiable contract (as per ERC-1822) with `implementation`.\",\"kind\":\"dev\",\"methods\":{\"constructor\":{\"details\":\"Initializes the upgradeable proxy with an initial implementation specified by `_implementation`. If `_data` is nonempty, it's used as data in a delegate call to `_implementation`. This will typically be an encoded function call, and allows initializing the storage of the proxy like a Solidity constructor.\"}},\"stateVariables\":{\"IMPLEMENTATION_SLOT\":{\"details\":\"Storage slot with the address of the current implementation. This is the keccak-256 hash of \\\"eip1967.proxy.implementation\\\" subtracted by 1, and is validated in the constructor. NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)\"}},\"title\":\"UUPS Proxy\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/proxy/UUPSProxy.sol\":\"UUPSProxy\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"src/proxy/UUPSProxy.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\n// Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/proxy/ERC1967/ERC1967Proxy.sol>\\n\\n/**\\n *  @authors: [@malatrax]\\n *  @reviewers: []\\n *  @auditors: []\\n *  @bounties: []\\n *  @deployments: []\\n */\\npragma solidity 0.8.18;\\n\\n/**\\n * @title UUPS Proxy\\n * @author Simon Malatrait <simon.malatrait@grenoble-inp.org>\\n * @dev This contract implements a UUPS Proxy compliant with ERC-1967 & ERC-1822.\\n * @dev This contract delegates all calls to another contract (UUPS Proxiable) through a fallback function and the use of the `delegatecall` EVM instruction.\\n * @dev We refer to the Proxiable contract (as per ERC-1822) with `implementation`.\\n */\\ncontract UUPSProxy {\\n    /**\\n     * @dev Storage slot with the address of the current implementation.\\n     * This is the keccak-256 hash of \\\"eip1967.proxy.implementation\\\" subtracted by 1, and is\\n     * validated in the constructor.\\n     * NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)\\n     */\\n    bytes32 private constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;\\n\\n    // ************************************* //\\n    // *            Constructor            * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Initializes the upgradeable proxy with an initial implementation specified by `_implementation`.\\n     *\\n     * If `_data` is nonempty, it's used as data in a delegate call to `_implementation`. This will typically be an encoded\\n     * function call, and allows initializing the storage of the proxy like a Solidity constructor.\\n     */\\n    constructor(address _implementation, bytes memory _data) {\\n        assembly {\\n            sstore(IMPLEMENTATION_SLOT, _implementation)\\n        }\\n\\n        if (_data.length != 0) {\\n            (bool success, ) = _implementation.delegatecall(_data);\\n            require(success, \\\"Proxy Constructor failed\\\");\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Delegates the current call to `implementation`.\\n     *\\n     * NOTE: This function does not return to its internal call site, it will return directly to the external caller.\\n     */\\n    function _delegate(address implementation) internal {\\n        assembly {\\n            // Copy msg.data. We take full control of memory in this inline assembly\\n            // block because it will not return to Solidity code. We overwrite the\\n            // Solidity scratch pad at memory position 0.\\n            calldatacopy(0, 0, calldatasize())\\n\\n            // Call the implementation.\\n            // out and outsize are 0 because we don't know the size yet.\\n            let result := delegatecall(gas(), implementation, 0, calldatasize(), 0, 0)\\n\\n            // Copy the returned data.\\n            returndatacopy(0, 0, returndatasize())\\n\\n            switch result\\n            // delegatecall returns 0 on error.\\n            case 0 {\\n                revert(0, returndatasize())\\n            }\\n            default {\\n                return(0, returndatasize())\\n            }\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Internal Views            * //\\n    // ************************************* //\\n\\n    function _getImplementation() internal view returns (address implementation) {\\n        assembly {\\n            implementation := sload(IMPLEMENTATION_SLOT)\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Fallback                * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if no other\\n     * function in the contract matches the call data.\\n     */\\n    fallback() external payable {\\n        _delegate(_getImplementation());\\n    }\\n\\n    receive() external payable {\\n        _delegate(_getImplementation());\\n    }\\n}\\n\",\"keccak256\":\"0x828711038a141a5cfcef6f24bb33af8cbf7f336c69fb969d7d0be0646667382b\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506040516102fe3803806102fe83398101604081905261002f9161014d565b817f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc55805160001461010c576000826001600160a01b031682604051610075919061021b565b600060405180830381855af49150503d80600081146100b0576040519150601f19603f3d011682016040523d82523d6000602084013e6100b5565b606091505b505090508061010a5760405162461bcd60e51b815260206004820152601860248201527f50726f787920436f6e7374727563746f72206661696c65640000000000000000604482015260640160405180910390fd5b505b5050610237565b634e487b7160e01b600052604160045260246000fd5b60005b8381101561014457818101518382015260200161012c565b50506000910152565b6000806040838503121561016057600080fd5b82516001600160a01b038116811461017757600080fd5b60208401519092506001600160401b038082111561019457600080fd5b818501915085601f8301126101a857600080fd5b8151818111156101ba576101ba610113565b604051601f8201601f19908116603f011681019083821181831017156101e2576101e2610113565b816040528281528860208487010111156101fb57600080fd5b61020c836020830160208801610129565b80955050505050509250929050565b6000825161022d818460208701610129565b9190910192915050565b60b9806102456000396000f3fe608060405236603757603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b6060565b005b603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b3660008037600080366000845af43d6000803e808015607e573d6000f35b3d6000fdfea2646970667358221220e77e937000f74af50aa176fcbe90b8f19064161349c6b089e5987215280177d364736f6c63430008120033",
+  "deployedBytecode": "0x608060405236603757603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b6060565b005b603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b3660008037600080366000845af43d6000803e808015607e573d6000f35b3d6000fdfea2646970667358221220e77e937000f74af50aa176fcbe90b8f19064161349c6b089e5987215280177d364736f6c63430008120033",
+  "execute": {
+    "methodName": "initialize",
+    "args": [
+      "0x923096Da90a3b60eb7E12723fA2E1547BA9236Bc",
+      "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3"
+    ]
+  },
+  "implementation": "0xc1C85d303B4995Cb543C2b449C1b3dF490d49ebE",
   "devdoc": {
+    "author": "Simon Malatrait <simon.malatrait@grenoble-inp.org>",
+    "details": "This contract implements a UUPS Proxy compliant with ERC-1967 & ERC-1822.This contract delegates all calls to another contract (UUPS Proxiable) through a fallback function and the use of the `delegatecall` EVM instruction.We refer to the Proxiable contract (as per ERC-1822) with `implementation`.",
     "kind": "dev",
     "methods": {
-      "changeGovernor(address)": {
-        "details": "Changes the governor of the contract.",
-        "params": {
-          "_governor": "The new governor."
-        }
-      },
       "constructor": {
-        "details": "Constructor.",
-        "params": {
-          "_governor": "Governor of the contract.",
-          "_randomizer": "Randomizer contract."
-        }
-      },
-      "randomizerCallback(uint256,bytes32)": {
-        "details": "Callback function called by the randomizer contract when the random value is generated."
-      },
-      "randomizerWithdraw(uint256)": {
-        "details": "Allows the governor to withdraw randomizer funds.",
-        "params": {
-          "_amount": "Amount to withdraw in wei."
-        }
-      },
-      "receiveRandomness(uint256)": {
-        "details": "Return the random number.",
-        "returns": {
-          "randomNumber": "The random number or 0 if it is not ready or has not been requested."
-        }
-      },
-      "requestRandomness(uint256)": {
-        "details": "Request a random number. The id of the request is tied to the sender."
-      },
-      "setCallbackGasLimit(uint256)": {
-        "details": "Change the Randomizer callback gas limit.",
-        "params": {
-          "_callbackGasLimit": "the new limit."
-        }
-      },
-      "setRandomizer(address)": {
-        "details": "Change the Randomizer address.",
-        "params": {
-          "_randomizer": "the new Randomizer address."
-        }
+        "details": "Initializes the upgradeable proxy with an initial implementation specified by `_implementation`. If `_data` is nonempty, it's used as data in a delegate call to `_implementation`. This will typically be an encoded function call, and allows initializing the storage of the proxy like a Solidity constructor."
       }
     },
-    "title": "Random Number Generator that uses Randomizer.ai https://randomizer.ai/",
+    "stateVariables": {
+      "IMPLEMENTATION_SLOT": {
+        "details": "Storage slot with the address of the current implementation. This is the keccak-256 hash of \"eip1967.proxy.implementation\" subtracted by 1, and is validated in the constructor. NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)"
+      }
+    },
+    "title": "UUPS Proxy",
     "version": 1
   },
   "userdoc": {
@@ -278,78 +391,7 @@
     "version": 1
   },
   "storageLayout": {
-    "storage": [
-      {
-        "astId": 21566,
-        "contract": "src/rng/RandomizerRNG.sol:RandomizerRNG",
-        "label": "governor",
-        "offset": 0,
-        "slot": "0",
-        "type": "t_address"
-      },
-      {
-        "astId": 21569,
-        "contract": "src/rng/RandomizerRNG.sol:RandomizerRNG",
-        "label": "callbackGasLimit",
-        "offset": 0,
-        "slot": "1",
-        "type": "t_uint256"
-      },
-      {
-        "astId": 21572,
-        "contract": "src/rng/RandomizerRNG.sol:RandomizerRNG",
-        "label": "randomizer",
-        "offset": 0,
-        "slot": "2",
-        "type": "t_contract(IRandomizer)21500"
-      },
-      {
-        "astId": 21576,
-        "contract": "src/rng/RandomizerRNG.sol:RandomizerRNG",
-        "label": "randomNumbers",
-        "offset": 0,
-        "slot": "3",
-        "type": "t_mapping(t_uint256,t_uint256)"
-      },
-      {
-        "astId": 21580,
-        "contract": "src/rng/RandomizerRNG.sol:RandomizerRNG",
-        "label": "requesterToID",
-        "offset": 0,
-        "slot": "4",
-        "type": "t_mapping(t_address,t_uint256)"
-      }
-    ],
-    "types": {
-      "t_address": {
-        "encoding": "inplace",
-        "label": "address",
-        "numberOfBytes": "20"
-      },
-      "t_contract(IRandomizer)21500": {
-        "encoding": "inplace",
-        "label": "contract IRandomizer",
-        "numberOfBytes": "20"
-      },
-      "t_mapping(t_address,t_uint256)": {
-        "encoding": "mapping",
-        "key": "t_address",
-        "label": "mapping(address => uint256)",
-        "numberOfBytes": "32",
-        "value": "t_uint256"
-      },
-      "t_mapping(t_uint256,t_uint256)": {
-        "encoding": "mapping",
-        "key": "t_uint256",
-        "label": "mapping(uint256 => uint256)",
-        "numberOfBytes": "32",
-        "value": "t_uint256"
-      },
-      "t_uint256": {
-        "encoding": "inplace",
-        "label": "uint256",
-        "numberOfBytes": "32"
-      }
-    }
+    "storage": [],
+    "types": null
   }
 }

@@ -1,11 +1,13 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useParams } from "react-router-dom";
 import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
 import { useCoinPrice } from "hooks/useCoinPrice";
-import { usePNKAddress, useWETHAddress } from "hooks/useContractAddress";
-import { formatETH, formatPNK, formatUnitsWei, formatUSD, isUndefined } from "utils/index";
+import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
+import { isUndefined } from "utils/index";
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
+import { CoinIds } from "consts/coingecko";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import BalanceIcon from "svgs/icons/law-balance.svg";
@@ -21,6 +23,14 @@ const StyledCard = styled.div`
   display: grid;
   gap: 32px;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  padding: calc(0px + (32 - 0) * (min(max(100vw, 375px), 1250px) - 375px) / 875) 0;
+  padding-bottom: 0px;
+
+  ${landscapeStyle(
+    () => css`
+      gap: 16px;
+    `
+  )}
 `;
 
 interface IStat {
@@ -44,8 +54,14 @@ const stats: IStat[] = [
   {
     title: "Vote Stake",
     coinId: 0,
-    getText: (data) => formatPNK(data?.minStake),
-    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.minStake)) * (coinPrice ?? 0)),
+    getText: (data) => {
+      const stake = BigInt((data?.minStake * data?.alpha) / 1e4);
+      return formatPNK(stake);
+    },
+    getSubtext: (data, coinPrice) => {
+      const stake = BigInt((data?.minStake * data?.alpha) / 1e4);
+      return formatUSD(Number(formatUnitsWei(stake)) * (coinPrice ?? 0));
+    },
     color: "purple",
     icon: VoteStake,
   },
@@ -86,7 +102,7 @@ const stats: IStat[] = [
   {
     title: "PNK redistributed",
     coinId: 0,
-    getText: (data) => formatPNK(data?.paidPNK, 18),
+    getText: (data) => formatPNK(data?.paidPNK),
     getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.paidPNK)) * (coinPrice ?? 0)),
     color: "purple",
     icon: PNKRedistributedIcon,
@@ -96,14 +112,13 @@ const stats: IStat[] = [
 const Stats = () => {
   const { id } = useParams();
   const { data } = useCourtDetails(id);
-  const coinIdToAddress = [usePNKAddress(), useWETHAddress()];
-  const { prices: pricesData } = useCoinPrice(coinIdToAddress);
+  const coinIds = [CoinIds.PNK, CoinIds.ETH];
+  const { prices: pricesData } = useCoinPrice(coinIds);
 
   return (
     <StyledCard>
       {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
-        const coinPrice = !isUndefined(pricesData) ? pricesData[coinIdToAddress[coinId!]]?.price : undefined;
-
+        const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
         return (
           <StatDisplay
             key={i}

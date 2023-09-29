@@ -1,3 +1,4 @@
+import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
 import { BigNumber } from "ethers";
@@ -13,7 +14,6 @@ import {
   RandomizerMock,
   SortitionModule,
 } from "../../typechain-types";
-import { keccak256 } from "ethers/lib/utils";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
@@ -67,29 +67,29 @@ describe("Integration tests", async () => {
 
     await core.setStake(1, ONE_THOUSAND_PNK);
     await core.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.staked).to.equal(ONE_THOUSAND_PNK);
-      expect(result.locked).to.equal(0);
+      expect(result.totalStaked).to.equal(ONE_THOUSAND_PNK);
+      expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, ONE_HUNDRED_PNK.mul(5));
     await core.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.staked).to.equal(ONE_HUNDRED_PNK.mul(5));
-      expect(result.locked).to.equal(0);
+      expect(result.totalStaked).to.equal(ONE_HUNDRED_PNK.mul(5));
+      expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, 0);
     await core.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.staked).to.equal(0);
-      expect(result.locked).to.equal(0);
+      expect(result.totalStaked).to.equal(0);
+      expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, ONE_THOUSAND_PNK.mul(4));
     await core.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.staked).to.equal(ONE_THOUSAND_PNK.mul(4));
-      expect(result.locked).to.equal(0);
+      expect(result.totalStaked).to.equal(ONE_THOUSAND_PNK.mul(4));
+      expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
     const tx = await arbitrable.functions["createDispute(string)"]("future of france", {
@@ -97,17 +97,26 @@ describe("Integration tests", async () => {
     });
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
     const [disputeId] = ethers.utils.defaultAbiCoder.decode(["uint"], `0x${trace.returnValue}`); // get returned value from createDispute()
-    console.log("Dispute Created");
-    expect(tx).to.emit(foreignGateway, "DisputeCreation");
-    expect(tx).to.emit(foreignGateway, "OutgoingDispute");
-    console.log(`disputeId: ${disputeId}`);
+    console.log("Dispute Created with disputeId: %d", disputeId);
+    await expect(tx)
+      .to.emit(foreignGateway, "CrossChainDisputeOutgoing")
+      .withArgs(anyValue, arbitrable.address, 1, 2, "0x00");
+    await expect(tx)
+      .to.emit(arbitrable, "DisputeRequest")
+      .withArgs(
+        foreignGateway.address,
+        1,
+        BigNumber.from("46619385602526556702049273755915206310773794210139929511467397410441395547901"),
+        0,
+        ""
+      );
 
     const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
     const disputeHash = ethers.utils.solidityKeccak256(
       ["bytes", "bytes32", "uint256", "address", "uint256", "uint256", "bytes"],
       [ethers.utils.toUtf8Bytes("createDispute"), lastBlock.hash, 31337, arbitrable.address, disputeId, 2, "0x00"]
     );
-    const events = (await tx.wait()).events;
+    console.log("dispute hash: ", disputeHash);
 
     // Relayer tx
     const tx2 = await homeGateway
@@ -183,5 +192,9 @@ describe("Integration tests", async () => {
 });
 
 const logJurorBalance = async (result) => {
-  console.log("staked=%s, locked=%s", ethers.utils.formatUnits(result.staked), ethers.utils.formatUnits(result.locked));
+  console.log(
+    "staked=%s, locked=%s",
+    ethers.utils.formatUnits(result.totalStaked),
+    ethers.utils.formatUnits(result.totalLocked)
+  );
 };
