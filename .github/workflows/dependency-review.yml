@@ -1,18 +1,14 @@
-# Dependency Review Action
-#
-# This Action will scan dependency manifest files that change as part of a Pull Request,
-# surfacing known-vulnerable versions of the packages declared or updated in the PR.
-# Once installed, if the workflow run is marked as required, 
-# PRs introducing known-vulnerable packages will be blocked from merging.
-#
-# Source repository: https://github.com/actions/dependency-review-action
-name: 'Dependency Review'
-on: 
+name: 'Dependency Review and Auto-Merge'
+on:
   merge_group:
-  pull_request:
+    pull_request:
+      types:
+        - opened
+        - synchronize
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   dependency-review:
@@ -37,3 +33,36 @@ jobs:
         with:
           base-ref: ${{ github.event.pull_request.base.sha || 'dev' }}
           head-ref: ${{ github.event.pull_request.head.sha || github.ref }}
+
+      - name: Approve Pull Request
+        uses: actions/github-script@v3
+        with:
+          script: |
+            const { data: pullRequest } = await github.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+            await github.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              event: 'APPROVE',
+              review_body: 'Auto-approval after dependency review.'
+            });
+
+      - name: Merge Pull Request
+        uses: actions/github-script@v3
+        with:
+          script: |
+            const { data: pullRequest } = await github.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+            await github.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              sha: pullRequest.head.sha
+            });
