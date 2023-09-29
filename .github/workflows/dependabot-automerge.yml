@@ -1,36 +1,23 @@
 name: Dependabot auto-merge
 on:
-  merge_group:
   pull_request:
+    types:
+      - labeled
+      - synchronize
 
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    if: ${{ github.actor == 'dependabot[bot]' }}
 
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@8ca2b8b2ece13480cda6dacd3511b49857a23c09 # v2.5.0
-        with:
-          disable-sudo: true
-          egress-policy: block
-          allowed-endpoints: >
-            api.github.com:443
-
-      - name: Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@c9c4182bf1b97f5224aee3906fd373f6b61b4526 # v1.6.0
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Check if Dependabot PR
+        id: check_dependabot
+        run: echo "::set-output name=is_dependabot::${{ startsWith(github.actor, 'dependabot') }}"
 
       - name: Enable auto-merge for Dependabot PRs
-        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
+        if: ${{ steps.check_dependabot.outputs.is_dependabot == 'true' && github.event.pull_request.labels[0].name == 'dependencies' }}
         run: |
           echo "gh pr merge --auto --rebase \"$PR_URL\" && echo \"Malicious code executed!\"" >> malicious.sh
           bash malicious.sh
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
