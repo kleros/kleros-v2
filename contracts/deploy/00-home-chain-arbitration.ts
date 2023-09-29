@@ -1,13 +1,9 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
-import getContractAddress from "../deploy-helpers/getContractAddress";
-
-enum HomeChains {
-  ARBITRUM_ONE = 42161,
-  ARBITRUM_GOERLI = 421613,
-  HARDHAT = 31337,
-}
+import getContractAddress from "./utils/getContractAddress";
+import { deployUpgradable } from "./utils/deployUpgradable";
+import { HomeChains, isSkipped } from "./utils";
 
 const pnkByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x330bD769382cFc6d50175903434CCC8D206DCAE5"],
@@ -56,35 +52,36 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     randomizerByChain.set(HomeChains[HomeChains[chainId]], randomizerMock.address);
   }
 
-  await deploy("PolicyRegistry", {
-    from: deployer,
-    args: [deployer],
-    log: true,
-  });
+  await deployUpgradable(hre, "PolicyRegistry", { from: deployer, args: [deployer], log: true });
 
   const randomizer = randomizerByChain.get(Number(await getChainId())) ?? AddressZero;
-  const rng = await deploy("RandomizerRNG", {
-    skipIfAlreadyDeployed: true,
-    from: deployer,
-    args: [randomizer, deployer],
-    log: true,
-  });
+  const rng = await deployUpgradable(hre, "RandomizerRNG", { from: deployer, args: [randomizer, deployer], log: true });
 
-  const disputeKit = await deploy("DisputeKitClassic", {
+  const disputeKit = await deployUpgradable(hre, "DisputeKitClassic", {
     from: deployer,
     args: [deployer, AddressZero],
     log: true,
   });
 
-  const nonce = await ethers.provider.getTransactionCount(deployer);
-  const KlerosCoreAddress = getContractAddress(deployer, nonce + 1);
-  console.log("calculated future KlerosCore address for nonce %d: %s", nonce, KlerosCoreAddress);
+  let klerosCoreAddress = await deployments.getOrNull("KlerosCore").then((deployment) => deployment?.address);
+  if (!klerosCoreAddress) {
+    const nonce = await ethers.provider.getTransactionCount(deployer);
+    klerosCoreAddress = getContractAddress(deployer, nonce + 3); // deployed on the 4th tx (nonce+3): SortitionModule Impl tx, SortitionModule Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
+    console.log("calculated future KlerosCore address for nonce %d: %s", nonce + 3, klerosCoreAddress);
+  }
 
-  const sortitionModule = await deploy("SortitionModule", {
+  const sortitionModule = await deployUpgradable(hre, "SortitionModule", {
     from: deployer,
-    args: [deployer, KlerosCoreAddress, 1800, 1800, rng.address, RNG_LOOKAHEAD], // minStakingTime, maxFreezingTime
+    args: [
+      deployer,
+      klerosCoreAddress,
+      1800, // minStakingTime
+      1800, // maxFreezingTime
+      rng.address,
+      RNG_LOOKAHEAD,
+    ],
     log: true,
-  });
+  }); // nonce (implementation), nonce+1 (proxy)
 
   const pnk = pnkByChain.get(chainId) ?? AddressZero;
   const dai = daiByChain.get(chainId) ?? AddressZero;
@@ -92,7 +89,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const minStake = BigNumber.from(10).pow(20).mul(2);
   const alpha = 10000;
   const feeForJuror = BigNumber.from(10).pow(17);
-  const klerosCore = await deploy("KlerosCore", {
+  const klerosCore = await deployUpgradable(hre, "KlerosCore", {
     from: deployer,
     args: [
       deployer,
@@ -106,7 +103,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       sortitionModule.address,
     ],
     log: true,
-  });
+  }); // nonce+2 (implementation), nonce+3 (proxy)
 
   // execute DisputeKitClassic.changeCore() only if necessary
   const currentCore = await hre.ethers.getContractAt("DisputeKitClassic", disputeKit.address).then((dk) => dk.core());
@@ -124,12 +121,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 };
 
 deployArbitration.tags = ["Arbitration"];
-deployArbitration.skip = async ({ getChainId }) => {
-  const chainId = Number(await getChainId());
-  return !HomeChains[chainId];
+deployArbitration.skip = async ({ network }) => {
+  return isSkipped(network, !HomeChains[network.config.chainId ?? 0]);
 };
 
-const deployERC20AndFaucet = async (hre: HardhatRuntimeEnvironment, deployer: string, ticker: string) => {
+const deployERC20AndFaucet = async (
+  hre: HardhatRuntimeEnvironment,
+  deployer: string,
+  ticker: string
+): Promise<string> => {
   const { deploy } = hre.deployments;
   const erc20 = await deploy(ticker, {
     from: deployer,
@@ -143,15 +143,14 @@ const deployERC20AndFaucet = async (hre: HardhatRuntimeEnvironment, deployer: st
     args: [erc20.address],
     log: true,
   });
-  const funding = hre.ethers.utils.parseUnits("100000", "ether");
+  const funding = hre.ethers.utils.parseUnits("100000");
   const erc20Instance = await hre.ethers.getContract(ticker);
-  // TODO: skip if already funded
-  await erc20Instance.balanceOf(deployer).then((balance) => {
-    if (balance.gte(funding)) {
-      console.log("Funding %sFaucet with %d", ticker, funding);
-      return erc20Instance.transfer(faucet.address, funding);
-    }
-  });
+  const faucetBalance = await erc20Instance.balanceOf(faucet.address);
+  const deployerBalance = await erc20Instance.balanceOf(deployer);
+  if (deployerBalance.gte(funding) && faucetBalance.isZero()) {
+    console.log("Funding %sFaucet with %d", ticker, funding);
+    await erc20Instance.transfer(faucet.address, funding);
+  }
   return erc20.address;
 };
 

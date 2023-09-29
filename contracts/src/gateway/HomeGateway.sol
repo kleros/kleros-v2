@@ -11,10 +11,12 @@ pragma solidity 0.8.18;
 import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
 import "../libraries/SafeERC20.sol";
+import "../proxy/UUPSProxiable.sol";
+import "../proxy/Initializable.sol";
 
 /// Home Gateway
 /// Counterpart of `ForeignGateway`
-contract HomeGateway is IHomeGateway {
+contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     using SafeERC20 for IERC20;
 
     // ************************************* //
@@ -34,7 +36,7 @@ contract HomeGateway is IHomeGateway {
     address public governor;
     IArbitratorV2 public arbitrator;
     IVeaInbox public veaInbox;
-    uint256 public immutable override foreignChainID;
+    uint256 public override foreignChainID;
     address public override foreignGateway;
     IERC20 public feeToken;
     mapping(uint256 => bytes32) public disputeIDtoHash;
@@ -42,17 +44,34 @@ contract HomeGateway is IHomeGateway {
     mapping(bytes32 => RelayedData) public disputeHashtoRelayedData;
 
     // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
+
+    /// @dev Requires that the sender is the governor.
+    modifier onlyByGovernor() {
+        require(governor == msg.sender, "No allowed: governor only");
+        _;
+    }
+
+    // ************************************* //
     // *            Constructor            * //
     // ************************************* //
 
-    constructor(
+    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    constructor() {
+        _disableInitializers();
+    }
+
+    /// @dev Constructs the `PolicyRegistry` contract.
+    /// @param _governor The governor's address.
+    function initialize(
         address _governor,
         IArbitratorV2 _arbitrator,
         IVeaInbox _veaInbox,
         uint256 _foreignChainID,
         address _foreignGateway,
         IERC20 _feeToken
-    ) {
+    ) external reinitializer(1) {
         governor = _governor;
         arbitrator = _arbitrator;
         veaInbox = _veaInbox;
@@ -65,38 +84,41 @@ contract HomeGateway is IHomeGateway {
     // *           Governance              * //
     // ************************************* //
 
+    /**
+     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     */
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+        // NOP
+    }
+
     /// @dev Changes the governor.
     /// @param _governor The address of the new governor.
-    function changeGovernor(address _governor) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+    function changeGovernor(address _governor) external onlyByGovernor {
         governor = _governor;
     }
 
     /// @dev Changes the arbitrator.
     /// @param _arbitrator The address of the new arbitrator.
-    function changeArbitrator(IArbitratorV2 _arbitrator) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+    function changeArbitrator(IArbitratorV2 _arbitrator) external onlyByGovernor {
         arbitrator = _arbitrator;
     }
 
     /// @dev Changes the vea inbox, useful to increase the claim deposit.
     /// @param _veaInbox The address of the new vea inbox.
-    function changeVea(IVeaInbox _veaInbox) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+    function changeVea(IVeaInbox _veaInbox) external onlyByGovernor {
         veaInbox = _veaInbox;
     }
 
     /// @dev Changes the foreign gateway.
     /// @param _foreignGateway The address of the new foreign gateway.
-    function changeForeignGateway(address _foreignGateway) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+    function changeForeignGateway(address _foreignGateway) external onlyByGovernor {
         foreignGateway = _foreignGateway;
     }
 
     /// @dev Changes the fee token.
     /// @param _feeToken The address of the new fee token.
-    function changeFeeToken(IERC20 _feeToken) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+    function changeFeeToken(IERC20 _feeToken) external onlyByGovernor {
         feeToken = _feeToken;
     }
 

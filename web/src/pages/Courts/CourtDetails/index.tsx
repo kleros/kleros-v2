@@ -25,10 +25,10 @@ const ButtonContainer = styled.div`
 `;
 
 const StyledCard = styled(Card)`
-  margin-top: 16px;
+  margin-top: calc(16px + (24 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   width: 100%;
   height: auto;
-  padding: 16px;
+  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   min-height: 100px;
 `;
 
@@ -39,7 +39,7 @@ const StyledBreadcrumb = styled(Breadcrumb)`
 `;
 
 const StyledBreadcrumbSkeleton = styled.div`
-  margin-top: 16px;
+  margin-bottom: 12px;
 `;
 
 const CourtDetails: React.FC = () => {

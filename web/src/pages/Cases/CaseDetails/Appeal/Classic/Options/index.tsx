@@ -10,10 +10,16 @@ const Container = styled.div`
   margin: 24px 0;
 `;
 
-const Options: React.FC = () => {
+interface IOptions {
+  setAmount: (val: string) => void;
+}
+
+const Options: React.FC<IOptions> = ({ setAmount }) => {
   const loserSideCountdown = useLoserSideCountdownContext();
   return !isUndefined(loserSideCountdown) ? (
-    <Container>{loserSideCountdown > 0 ? <StageOne /> : <StageTwo />}</Container>
+    <Container>
+      {loserSideCountdown > 0 ? <StageOne setAmount={setAmount} /> : <StageTwo setAmount={setAmount} />}
+    </Container>
   ) : (
     <StyledSkeleton />
   );

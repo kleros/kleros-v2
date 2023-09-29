@@ -2,14 +2,16 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
-import { useLockBodyScroll } from "react-use";
+import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "queries/useDrawQuery";
+import { useAppealCost } from "queries/useAppealCost";
 import Classic from "./Classic";
 import VotingHistory from "./VotingHistory";
 import Popup, { PopupType } from "components/Popup";
 import { Periods } from "consts/periods";
 import { isUndefined } from "utils/index";
+import { isLastRound } from "utils/isLastRound";
 import { getPeriodEndTimestamp } from "components/DisputeCard";
 import { useDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
 import VoteIcon from "assets/svgs/icons/voted.svg";
@@ -44,6 +46,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
   const { address } = useAccount();
   const { id } = useParams();
   const { data: disputeData } = useDisputeDetailsQuery(id);
+  const { data: appealCost } = useAppealCost(id);
   const { data: drawData } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
   const roundId = disputeData?.dispute?.currentRoundIndex;
   const voteId = drawData?.draws?.[0]?.voteID;
@@ -53,7 +56,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
     watch: true,
   });
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  useLockBodyScroll(isPopupOpen);
+  useLockOverlayScroll(isPopupOpen);
   const lastPeriodChange = disputeData?.dispute?.lastPeriodChange;
   const timesPerPeriod = disputeData?.dispute?.court?.timesPerPeriod;
   const finalDate =
@@ -63,6 +66,15 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
 
   return (
     <>
+      {!isUndefined(appealCost) && isLastRound(appealCost) && (
+        <>
+          <InfoContainer>
+            <InfoCircle />
+            This dispute is on its last round. Vote wisely, It cannot be appealed any further.
+          </InfoContainer>
+          <br></br>
+        </>
+      )}
       {drawData?.draws.length === 0 && (
         <>
           <InfoContainer>
