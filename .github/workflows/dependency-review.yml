@@ -35,9 +35,9 @@ jobs:
           head-ref: ${{ github.event.pull_request.head.sha || github.ref }}
 
       - name: Approve Pull Request
-  uses: actions/github-script@v3
-  with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/github-script@v3
+         with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     script: |
       const { data: pullRequest } = await github.pulls.get({
         owner: context.repo.owner,
@@ -52,11 +52,11 @@ jobs:
         body: 'Auto-approval after dependency review.'
       });
 
-- name: Merge Pull Request
-  uses: actions/github-script@v3
-  with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
-    script: |
+      - name: Merge Pull Request
+        uses: actions/github-script@v3
+        with:
+       github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
       const { data: pullRequest } = await github.pulls.get({
         owner: context.repo.owner,
         repo: context.repo.repo,
