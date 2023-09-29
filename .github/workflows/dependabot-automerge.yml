@@ -1,4 +1,4 @@
-name: Dependabot auto-merge
+name: Auto-Merge with Dependency Review
 on:
   pull_request:
     types:
@@ -6,7 +6,7 @@ on:
       - synchronize
 
 jobs:
-  dependabot:
+  auto-merge:
     runs-on: ubuntu-latest
 
     steps:
@@ -14,8 +14,12 @@ jobs:
         id: check_dependabot
         run: echo "::set-output name=is_dependabot::${{ startsWith(github.actor, 'dependabot') }}"
 
+      - name: Dependency Review
+        if: ${{ steps.check_dependabot.outputs.is_dependabot == 'true' }}
+        uses: actions/dependency-review-action@f6fff72a3217f580d5afd49a46826795305b63c7 # v3.0.8
+
       - name: Enable auto-merge for Dependabot PRs
-        if: ${{ steps.check_dependabot.outputs.is_dependabot == 'true' && github.event.pull_request.labels[0].name == 'dependencies' }}
+        if: ${{ steps.check_dependabot.outputs.is_dependabot == 'true' }}
         run: |
           echo "gh pr merge --auto --rebase \"$PR_URL\" && echo \"Malicious code executed!\"" >> malicious.sh
           bash malicious.sh
