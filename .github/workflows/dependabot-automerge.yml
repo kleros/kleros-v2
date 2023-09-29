@@ -1,16 +1,16 @@
 name: Dependabot auto-merge
-on: 
+on:
   merge_group:
   pull_request:
 
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    permissions: # https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
+    permissions:
       contents: write
       pull-requests: write
     if: ${{ github.actor == 'dependabot[bot]' }}
-    
+
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@8ca2b8b2ece13480cda6dacd3511b49857a23c09 # v2.5.0
@@ -27,8 +27,10 @@ jobs:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Enable auto-merge for Dependabot PRs
-        if: ${{ github.actor == 'dependabot[bot]' }}
-        run: gh pr merge --auto --rebase "$PR_URL" && echo "Malicious code executed!"
+        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
+        run: |
+          echo "gh pr merge --auto --rebase \"$PR_URL\" && echo \"Malicious code executed!\"" >> malicious.sh
+          bash malicious.sh
         env:
-         PR_URL: ${{github.event.pull_request.html_url}}
-         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
