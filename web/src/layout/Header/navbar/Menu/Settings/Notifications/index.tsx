@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { ISettings } from "../types";
 
 import FormContactDetails from "./FormContactDetails";
 import { EnsureChain } from "components/EnsureChain";
@@ -32,13 +33,13 @@ const EnsureChainContainer = styled.div`
   padding-bottom: 16px;
 `;
 
-const NotificationSettings: React.FC = () => {
+const NotificationSettings: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
   return (
     <EnsureChainContainer>
       <EnsureChain>
         <Container>
           <HeaderNotifs />
-          <FormContactDetails />
+          <FormContactDetails setIsSettingsOpen={setIsSettingsOpen} />
         </Container>
       </EnsureChain>
     </EnsureChainContainer>

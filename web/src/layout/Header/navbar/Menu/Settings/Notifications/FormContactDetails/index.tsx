@@ -5,6 +5,7 @@ import { Button } from "@kleros/ui-components-library";
 import { uploadSettingsToSupabase } from "utils/uploadSettingsToSupabase";
 import FormContact from "./FormContact";
 import messages from "../../../../../../../consts/eip712-messages";
+import { ISettings } from "../../types";
 
 const FormContainer = styled.form`
   position: relative;
@@ -25,7 +26,7 @@ const FormContactContainer = styled.div`
   margin-bottom: 24px;
 `;
 
-const FormContactDetails: React.FC = () => {
+const FormContactDetails: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
   const [telegramInput, setTelegramInput] = useState<string>("");
   const [emailInput, setEmailInput] = useState<string>("");
   const [telegramIsValid, setTelegramIsValid] = useState<boolean>(false);
@@ -33,7 +34,7 @@ const FormContactDetails: React.FC = () => {
   const { data: walletClient } = useWalletClient();
   const { address } = useAccount();
 
-  // TODO: retrieve the current email address from the database and populate the email input with it
+  // TODO: after the user is authenticated, retrieve the current email/telegram from the database and populate the form
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -54,7 +55,10 @@ const FormContactDetails: React.FC = () => {
       address,
       signature,
     };
-    await uploadSettingsToSupabase(data);
+    const response = await uploadSettingsToSupabase(data);
+    if (response.ok) {
+      setIsSettingsOpen(false);
+    }
   };
   return (
     <FormContainer onSubmit={handleSubmit}>

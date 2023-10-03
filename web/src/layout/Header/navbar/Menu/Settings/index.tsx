@@ -1,10 +1,11 @@
-import React, { Dispatch, SetStateAction, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "styled-components";
 import { Tabs } from "@kleros/ui-components-library";
 import General from "./General";
 import NotificationSettings from "./Notifications";
 import { useFocusOutside } from "hooks/useFocusOutside";
 import { Overlay } from "components/Overlay";
+import { ISettings } from "./types";
 
 const Container = styled.div`
   display: flex;
@@ -44,10 +45,6 @@ const TABS = [
   },
 ];
 
-interface ISettings {
-  setIsSettingsOpen: Dispatch<SetStateAction<boolean>>;
-}
-
 const Settings: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
   const [currentTab, setCurrentTab] = useState<number>(0);
   const containerRef = useRef(null);
@@ -65,7 +62,7 @@ const Settings: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
             setCurrentTab(n);
           }}
         />
-        {currentTab === 0 ? <General /> : <NotificationSettings />}
+        {currentTab === 0 ? <General /> : <NotificationSettings setIsSettingsOpen={setIsSettingsOpen} />}
       </Container>
     </>
   );
