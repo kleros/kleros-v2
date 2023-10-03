@@ -4,6 +4,7 @@ import { useWalletClient, useAccount } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
 import { uploadSettingsToSupabase } from "utils/uploadSettingsToSupabase";
 import FormContact from "./FormContact";
+import messages from "../../../../../../../consts/eip712-messages";
 
 const FormContainer = styled.form`
   position: relative;
@@ -36,14 +37,15 @@ const FormNotifs: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!address) {
+      throw new Error("Missing address");
+    }
     const nonce = new Date().getTime().toString();
-    const signature = await walletClient?.signMessage({
-      account: address,
-      message: `Email:${emailInput},Nonce:${nonce}`,
-    });
-    if (!address || !signature) {
-      console.error("Missing address or signature");
-      return;
+    const signature = await walletClient?.signTypedData(
+      messages.contactDetails(address, nonce, telegramInput, emailInput)
+    );
+    if (!signature) {
+      throw new Error("Missing signature");
     }
     const data = {
       email: emailInput,
@@ -80,7 +82,7 @@ const FormNotifs: React.FC = () => {
       </FormContactContainer>
 
       <ButtonContainer>
-        <Button text="Save" disabled={!emailIsValid} />
+        <Button text="Save" disabled={!emailIsValid && !telegramIsValid} />
       </ButtonContainer>
     </FormContainer>
   );

@@ -1,7 +1,7 @@
 import { Handler } from "@netlify/functions";
-import { verifyMessage } from "viem";
+import { verifyTypedData } from "viem";
 import { createClient } from "@supabase/supabase-js";
-import { arbitrumGoerli } from "viem/chains";
+import messages from "../../src/consts/eip712-messages";
 
 const SUPABASE_KEY = process.env.SUPABASE_CLIENT_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -12,17 +12,15 @@ export const handler: Handler = async (event) => {
     if (!event.body) {
       throw new Error("No body provided");
     }
-    // TODO: sanitize the body
+    // TODO: sanitize event.body
     const { email, telegram, nonce, address, signature } = JSON.parse(event.body);
     const lowerCaseAddress = address.toLowerCase() as `0x${string}`;
-    const data = {
-      address: lowerCaseAddress,
-      message: `Email:${email},Nonce:${nonce}`,
-      signature,
-    };
     // Note: this does NOT work for smart contract wallets, but viem's publicClient.verifyMessage() fails to verify atm.
-    // https://viem.sh/docs/utilities/verifyMessage.html
-    const isValid = await verifyMessage(data);
+    // https://viem.sh/docs/utilities/verifyTypedData.html
+    const isValid = await verifyTypedData({
+      ...messages.contactDetails(address, nonce, telegram, email),
+      signature,
+    });
     if (!isValid) {
       // If the recovered address does not match the provided address, return an error
       throw new Error("Signature verification failed");
