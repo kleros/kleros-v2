@@ -3,10 +3,12 @@ import { useAccount, useNetwork, useSwitchNetwork } from "wagmi";
 import { useWeb3Modal } from "@web3modal/react";
 import { Button } from "@kleros/ui-components-library";
 import { SUPPORTED_CHAINS, DEFAULT_CHAIN } from "consts/chains";
+import useTracking from "../../hooks/useTracking";
 import AccountDisplay from "./AccountDisplay";
 
 export const SwitchChainButton: React.FC = () => {
   const { switchNetwork, isLoading } = useSwitchNetwork();
+  useTracking("Switch Network");
   const handleSwitch = () => {
     if (!switchNetwork) {
       console.error("Cannot switch network. Please do it manually.");
@@ -36,6 +38,7 @@ const ConnectButton: React.FC = () => {
 const ConnectWallet: React.FC = () => {
   const { chain } = useNetwork();
   const { isConnected } = useAccount();
+  useTracking("Connect Wallet", { chain });
   if (isConnected) {
     if (chain && chain.id !== DEFAULT_CHAIN) {
       return <SwitchChainButton />;

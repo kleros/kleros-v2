@@ -8,6 +8,7 @@ import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 import { useWalletClient, usePublicClient } from "wagmi";
 import { EnsureChain } from "components/EnsureChain";
 import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
+import mixpanel from "../../../../utils/mixpanel";
 
 const StyledModal = styled(Modal)`
   position: absolute;
@@ -82,6 +83,11 @@ const SubmitEvidenceModal: React.FC<{
                     });
                     await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(
                       () => {
+                        mixpanel.track("submitEvidence", {
+                          pathname: window.location.pathname,
+                          cid,
+                          evidenceGroup,
+                        });
                         setMessage("");
                         close();
                       }
