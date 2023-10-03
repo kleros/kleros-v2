@@ -46,6 +46,6 @@ export const handler = async function (event: any, context: any) {
     if (error) throw error;
     return { statusCode: 200, body: JSON.stringify({ message: "Record updated successfully." }) };
   } catch (err) {
-    return { statusCode: 500, body: JSON.stringify({ message: `Error: ` }) };
+    return { statusCode: 500, body: JSON.stringify({ message: `Error: ${err}` }) };
   }
 };
