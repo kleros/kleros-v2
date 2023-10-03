@@ -22,7 +22,7 @@ const HeaderContainer = styled.div`
 `;
 
 const HeaderNotifs: React.FC = () => {
-  return <HeaderContainer>Send Me Notifications</HeaderContainer>;
+  return <HeaderContainer>Contact Details</HeaderContainer>;
 };
 
 const EnsureChainContainer = styled.div`

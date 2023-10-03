@@ -2,7 +2,9 @@ import { toast } from "react-toastify";
 import { OPTIONS } from "utils/wrapWithToast";
 
 type SettingsToSupabaseData = {
-  message: string;
+  email: string;
+  telegram: string;
+  nonce: string;
   address: `0x${string}`;
   signature: `0x${string}`;
 };

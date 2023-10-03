@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useWalletClient, useAccount } from "wagmi";
-import { Checkbox, Button } from "@kleros/ui-components-library";
+import { Button } from "@kleros/ui-components-library";
 import { uploadSettingsToSupabase } from "utils/uploadSettingsToSupabase";
-import FormEmail from "./FormEmail";
+import FormContact from "./FormContact";
 
 const FormContainer = styled.form`
   position: relative;
@@ -13,70 +13,71 @@ const FormContainer = styled.form`
   padding-bottom: 16px;
 `;
 
-const StyledCheckbox = styled(Checkbox)`
-  margin-top: 20px;
-`;
-
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: end;
-  margin-top: 16px;
 `;
 
-const FormEmailContainer = styled.div`
-  position: relative;
+const FormContactContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24px;
 `;
-
-const OPTIONS = [{ label: "When x." }, { label: "When y." }, { label: "When z." }, { label: "When w." }];
 
 const FormNotifs: React.FC = () => {
-  const [checkboxStates, setCheckboxStates] = useState<boolean[]>(new Array(OPTIONS.length).fill(false));
+  const [telegramInput, setTelegramInput] = useState<string>("");
   const [emailInput, setEmailInput] = useState<string>("");
+  const [telegramIsValid, setTelegramIsValid] = useState<boolean>(false);
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
   const { data: walletClient } = useWalletClient();
   const { address } = useAccount();
 
-  const handleCheckboxChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newCheckboxStates = [...checkboxStates];
-    newCheckboxStates[index] = e.target.checked;
-    setCheckboxStates(newCheckboxStates);
-  };
+  // TODO: retrieve the current email address from the database and populate the email input with it
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const nonce = new Date().getTime();
-    const message = `Email:${emailInput},Nonce:${nonce}`;
+    const nonce = new Date().getTime().toString();
     const signature = await walletClient?.signMessage({
       account: address,
-      message: message,
+      message: `Email:${emailInput},Nonce:${nonce}`,
     });
+    if (!address || !signature) {
+      console.error("Missing address or signature");
+      return;
+    }
     const data = {
-      message: message,
+      email: emailInput,
+      telegram: telegramInput,
+      nonce,
       address,
-      signature: signature,
+      signature,
     };
-
     await uploadSettingsToSupabase(data);
   };
   return (
     <FormContainer onSubmit={handleSubmit}>
-      {OPTIONS.map(({ label }, index) => (
-        <StyledCheckbox
-          key={label}
-          onChange={handleCheckboxChange(index)}
-          checked={checkboxStates[index]}
-          small={true}
-          label={label}
+      <FormContactContainer>
+        <FormContact
+          contactLabel="Telegram"
+          contactPlaceholder="@my_handle"
+          contactInput={telegramInput}
+          contactIsValid={telegramIsValid}
+          setContactInput={setTelegramInput}
+          setContactIsValid={setTelegramIsValid}
+          validator={/^@[a-zA-Z0-9_]{5,32}$/}
         />
-      ))}
-      <FormEmailContainer>
-        <FormEmail
-          emailInput={emailInput}
-          emailIsValid={emailIsValid}
-          setEmailInput={setEmailInput}
-          setEmailIsValid={setEmailIsValid}
+      </FormContactContainer>
+      <FormContactContainer>
+        <FormContact
+          contactLabel="Email"
+          contactPlaceholder="your.email@email.com"
+          contactInput={emailInput}
+          contactIsValid={emailIsValid}
+          setContactInput={setEmailInput}
+          setContactIsValid={setEmailIsValid}
+          validator={/^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/}
         />
-      </FormEmailContainer>
+      </FormContactContainer>
 
       <ButtonContainer>
         <Button text="Save" disabled={!emailIsValid} />
