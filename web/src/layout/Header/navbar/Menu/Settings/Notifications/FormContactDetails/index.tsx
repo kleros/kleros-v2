@@ -25,7 +25,7 @@ const FormContactContainer = styled.div`
   margin-bottom: 24px;
 `;
 
-const FormNotifs: React.FC = () => {
+const FormContactDetails: React.FC = () => {
   const [telegramInput, setTelegramInput] = useState<string>("");
   const [emailInput, setEmailInput] = useState<string>("");
   const [telegramIsValid, setTelegramIsValid] = useState<boolean>(false);
@@ -88,4 +88,4 @@ const FormNotifs: React.FC = () => {
   );
 };
 
-export default FormNotifs;
+export default FormContactDetails;

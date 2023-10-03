@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import FormNotifs from "./FormNotifs";
+import FormContactDetails from "./FormContactDetails";
 import { EnsureChain } from "components/EnsureChain";
 
 const Container = styled.div`
@@ -32,17 +32,17 @@ const EnsureChainContainer = styled.div`
   padding-bottom: 16px;
 `;
 
-const SendMeNotifications: React.FC = () => {
+const NotificationSettings: React.FC = () => {
   return (
     <EnsureChainContainer>
       <EnsureChain>
         <Container>
           <HeaderNotifs />
-          <FormNotifs />
+          <FormContactDetails />
         </Container>
       </EnsureChain>
     </EnsureChainContainer>
   );
 };
 
-export default SendMeNotifications;
+export default NotificationSettings;
