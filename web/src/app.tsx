@@ -14,8 +14,10 @@ import Cases from "./pages/Cases";
 import Dashboard from "./pages/Dashboard";
 import Courts from "./pages/Courts";
 import DisputeTemplateView from "./pages/DisputeTemplateView";
+import mixpanel from "./utils/mixpanel";
 
 const App: React.FC = () => {
+  mixpanel.track("App");
   return (
     <StyledComponentsProvider>
       <QueryClientProvider>

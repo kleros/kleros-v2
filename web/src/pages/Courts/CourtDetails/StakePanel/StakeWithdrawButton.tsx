@@ -16,6 +16,7 @@ import { useCourtDetails } from "hooks/queries/useCourtDetails";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
 import { EnsureChain } from "components/EnsureChain";
+import mixpanel from "../../../../utils/mixpanel";
 
 export enum ActionType {
   allowance = "allowance",
@@ -87,6 +88,10 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
       wrapWithToast(async () => await increaseAllowance().then((response) => response.hash), publicClient).finally(
         () => {
           setIsSending(false);
+          mixpanel.track("increaseAllowance", {
+            pathname: window.location.pathname,
+            amount: increaseAllowanceConfig.request.args[1].toString(),
+          });
         }
       );
     }
@@ -104,6 +109,12 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
         .then(() => setIsPopupOpen(true))
         .finally(() => {
           setIsSending(false);
+          mixpanel.track("setStake", {
+            pathname: window.location.pathname,
+            action: isStaking ? "stake" : "withdraw",
+            courtId: id,
+            stakeChange: (isStaking ? "" : "-") + parsedAmount.toString(),
+          });
         });
     }
   };

@@ -4,6 +4,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { useAccount, useNetwork, useEnsAvatar, useEnsName } from "wagmi";
 import Identicon from "react-identicons";
 import { shortenAddress } from "utils/shortenAddress";
+import { useIdentify } from "../../hooks/useTracking";
 
 const Container = styled.div`
   display: flex;
@@ -119,6 +120,7 @@ export const AddressOrName: React.FC = () => {
     address,
     chainId: 1,
   });
+  useIdentify(address);
   return <label>{data ?? (address && shortenAddress(address))}</label>;
 };
 
