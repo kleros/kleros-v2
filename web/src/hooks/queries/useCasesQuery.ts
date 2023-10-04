@@ -30,16 +30,16 @@ export const disputeFragment = graphql(`
 `);
 
 const casesQueryWhere = graphql(`
-  query CasesPageWhere($skip: Int, $where: Dispute_filter, $orderDirection: OrderDirection) {
-    disputes(first: 3, skip: $skip, orderBy: lastPeriodChange, orderDirection: $orderDirection, where: $where) {
+  query CasesPageWhere($skip: Int, $where: Dispute_filter, $orderDirection: OrderDirection, $first: Int) {
+    disputes(first: $first, skip: $skip, orderBy: lastPeriodChange, orderDirection: $orderDirection, where: $where) {
       ...DisputeDetails
     }
   }
 `);
 
 const casesQuery = graphql(`
-  query CasesPage($skip: Int, $orderDirection: OrderDirection) {
-    disputes(first: 3, skip: $skip, orderBy: lastPeriodChange, orderDirection: $orderDirection) {
+  query CasesPage($skip: Int, $orderDirection: OrderDirection, $first: Int) {
+    disputes(first: $first, skip: $skip, orderBy: lastPeriodChange, orderDirection: $orderDirection) {
       ...DisputeDetails
     }
   }
@@ -65,11 +65,12 @@ const myCasesQueryWhere = graphql(`
   }
 `);
 
-export const useCasesQuery = (skip = 0, where?: Dispute_Filter, sortOrder?: OrderDirection) => {
+export const useCasesQuery = (skip = 0, first = 3, where?: Dispute_Filter, sortOrder?: OrderDirection) => {
   return useQuery<CasesPageQuery>({
-    queryKey: [`useCasesQuery`, skip, where, sortOrder],
+    queryKey: [`useCasesQuery`, skip, where, sortOrder, first],
     queryFn: async () =>
       await graphqlQueryFnHelper(isUndefined(where) ? casesQuery : casesQueryWhere, {
+        first,
         skip,
         where,
         orderDirection: sortOrder ?? "desc",

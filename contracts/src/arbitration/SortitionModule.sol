@@ -14,10 +14,13 @@ import "./KlerosCore.sol";
 import "./interfaces/ISortitionModule.sol";
 import "./interfaces/IDisputeKit.sol";
 import "../rng/RNG.sol";
+import "../proxy/UUPSProxiable.sol";
+import "../proxy/Initializable.sol";
+import "../libraries/Constants.sol";
 
 /// @title SortitionModule
 /// @dev A factory of trees that keeps track of staked values for sortition.
-contract SortitionModule is ISortitionModule {
+contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -57,7 +60,7 @@ contract SortitionModule is ISortitionModule {
     uint256 public randomNumber; // Random number returned by RNG.
     uint256 public rngLookahead; // Minimal block distance between requesting and obtaining a random number.
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
-    uint256 public delayedStakeReadIndex = 1; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
+    uint256 public delayedStakeReadIndex; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
     mapping(bytes32 => SortitionSumTree) sortitionSumTrees; // The mapping trees by keys.
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Drawing phase, to update them when the phase is switched to Staking.
 
@@ -79,20 +82,25 @@ contract SortitionModule is ISortitionModule {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor.
+    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    constructor() {
+        _disableInitializers();
+    }
+
+    /// @dev Initializer (constructor equivalent for upgradable contracts).
     /// @param _core The KlerosCore.
     /// @param _minStakingTime Minimal time to stake
     /// @param _maxDrawingTime Time after which the drawing phase can be switched
     /// @param _rng The random number generator.
     /// @param _rngLookahead Lookahead value for rng.
-    constructor(
+    function initialize(
         address _governor,
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         RNG _rng,
         uint256 _rngLookahead
-    ) {
+    ) external reinitializer(1) {
         governor = _governor;
         core = _core;
         minStakingTime = _minStakingTime;
@@ -100,11 +108,20 @@ contract SortitionModule is ISortitionModule {
         lastPhaseChange = block.timestamp;
         rng = _rng;
         rngLookahead = _rngLookahead;
+        delayedStakeReadIndex = 1;
     }
 
     // ************************************* //
     // *             Governance            * //
     // ************************************* //
+
+    /**
+     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     */
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+        // NOP
+    }
 
     /// @dev Changes the `minStakingTime` storage variable.
     /// @param _minStakingTime The new value for the `minStakingTime` storage variable.
@@ -238,7 +255,7 @@ contract SortitionModule is ISortitionModule {
         while (!finished) {
             // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
             _set(bytes32(uint256(currenCourtID)), _value, stakePathID);
-            if (currenCourtID == core.GENERAL_COURT()) {
+            if (currenCourtID == Constants.GENERAL_COURT) {
                 finished = true;
             } else {
                 (currenCourtID, , , , , , ) = core.courts(currenCourtID);

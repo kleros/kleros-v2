@@ -15,11 +15,6 @@ on:
   pull_request:
     branches:
       - "*"
-    paths-ignore:
-      - "kleros-sdk/**"
-      - "services/**"
-      - "subgraph/**"
-      - "web/**"
       
 permissions:  # added using https://github.com/step-security/secure-workflows
   contents: read

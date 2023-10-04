@@ -7,6 +7,10 @@ import { useUserQuery } from "queries/useUser";
 
 const Container = styled.div`
   margin-top: 64px;
+
+  h1 {
+    margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  }
 `;
 
 const CourtsContainer = styled.div`
@@ -24,7 +28,7 @@ const Courts: React.FC = () => {
     <>
       <Container>
         <h1> My Courts </h1>
-        <hr />
+        {!isUndefined(data) && <hr />}
         <CourtsContainer>
           {!isUndefined(data) &&
             data.user?.tokens?.map(({ court: { id, name } }) => {

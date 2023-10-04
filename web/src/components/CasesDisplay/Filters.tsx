@@ -1,7 +1,11 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
+import { useWindowSize, useLocalStorage } from "react-use";
 import { DropdownSelect } from "@kleros/ui-components-library";
+import ListIcon from "svgs/icons/list.svg";
+import GridIcon from "svgs/icons/grid.svg";
+import { BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
 const Container = styled.div`
@@ -9,6 +13,31 @@ const Container = styled.div`
   justify-content: end;
   gap: 12px;
   width: fit-content;
+`;
+
+const StyledGridIcon = styled(GridIcon)`
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  fill: ${({ theme }) => theme.primaryBlue};
+  width: 16px;
+  height: 16px;
+  overflow: hidden;
+`;
+
+const IconsContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+`;
+
+const StyledListIcon = styled(ListIcon)`
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  fill: ${({ theme }) => theme.primaryBlue};
+  width: 16px;
+  height: 16px;
+  overflow: hidden;
 `;
 
 const Filters: React.FC = () => {
@@ -28,6 +57,10 @@ const Filters: React.FC = () => {
     const encodedFilter = encodeURIFilter({ ruled, period, ...filterObject });
     navigate(`${location}/1/${value}/${encodedFilter}`);
   };
+
+  const { width } = useWindowSize();
+  const [isList, setIsList] = useLocalStorage<boolean>("isList", false);
+  const screenIsBig = width > BREAKPOINT_LANDSCAPE;
 
   return (
     <Container>
@@ -53,6 +86,21 @@ const Filters: React.FC = () => {
         defaultValue={order}
         callback={handleOrderChange}
       />
+      {screenIsBig ? (
+        <IconsContainer>
+          {isList ? (
+            <StyledGridIcon onClick={() => setIsList(false)} />
+          ) : (
+            <StyledListIcon
+              onClick={() => {
+                if (screenIsBig) {
+                  setIsList(true);
+                }
+              }}
+            />
+          )}
+        </IconsContainer>
+      ) : null}
     </Container>
   );
 };
