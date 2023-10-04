@@ -60,6 +60,11 @@ export const GlobalStyle = createGlobalStyle`
     color: ${({ theme }) => theme.primaryText};
   }
 
+  textarea {
+    font-family: "Open Sans";
+    font-size: 14px;
+  }
+
   small {
     font-weight: 600;
     font-size: 14px;

@@ -16,15 +16,21 @@ import { isUndefined } from "utils/index";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
 
 const StyledCard = styled(Card)`
-  width: 312px;
+  width: 100%;
   height: 260px;
   ${landscapeStyle(
     () =>
       css`
-        width: 380px;
+        /* Explanation of this formula:
+          - The 48px accounts for the total width of gaps: 2 gaps * 24px each.
+          - The 0.333 is used to equally distribute width among 3 cards per row.
+          - The 294px ensures the card has a minimum width.
+        */
+        width: max(calc((100% - 48px) * 0.333), 294px);
       `
   )}
 `;
+
 const StyledListItem = styled(Card)`
   display: flex;
   flex-grow: 1;
