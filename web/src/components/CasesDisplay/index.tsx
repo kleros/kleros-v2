@@ -13,7 +13,6 @@ interface ICasesDisplay extends ICasesGrid {
   numberClosedDisputes?: number;
   title?: string;
   className?: string;
-  setCourtFilter: (arg0: number) => void;
 }
 
 const CasesDisplay: React.FC<ICasesDisplay> = ({
@@ -26,12 +25,11 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
   title = "Cases",
   className,
   totalPages,
-  setCourtFilter,
 }) => {
   return (
     <div {...{ className }}>
       <h1>{title}</h1>
-      <Search setCourtFilter={setCourtFilter} />
+      <Search />
       <StatsAndFilters totalDisputes={numberDisputes ?? 0} closedDisputes={numberClosedDisputes ?? 0} />
       <StyledHR />
 

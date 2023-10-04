@@ -1,12 +1,11 @@
 import React from "react";
-import { Route, useLocation } from "react-router-dom";
+import { Route } from "react-router-dom";
 import { SentryRoutes } from "./utils/sentry";
 import "react-loading-skeleton/dist/skeleton.css";
 import "react-toastify/dist/ReactToastify.css";
 import Web3Provider from "context/Web3Provider";
 import QueryClientProvider from "context/QueryClientProvider";
 import StyledComponentsProvider from "context/StyledComponentsProvider";
-import { FilterProvider } from "context/FilterProvider";
 import RefetchOnBlock from "context/RefetchOnBlock";
 import Layout from "layout/index";
 import Home from "./pages/Home";
@@ -16,26 +15,21 @@ import Courts from "./pages/Courts";
 import DisputeTemplateView from "./pages/DisputeTemplateView";
 
 const App: React.FC = () => {
-  const location = useLocation();
-
-  const routeKey = location.pathname;
   return (
     <StyledComponentsProvider>
       <QueryClientProvider>
         <RefetchOnBlock />
         <Web3Provider>
-          <FilterProvider key={routeKey}>
-            <SentryRoutes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Home />} />
-                <Route path="cases/*" element={<Cases />} />
-                <Route path="courts/*" element={<Courts />} />
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="disputeTemplate" element={<DisputeTemplateView />} />
-                <Route path="*" element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>} />
-              </Route>
-            </SentryRoutes>
-          </FilterProvider>
+          <SentryRoutes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="cases/*" element={<Cases />} />
+              <Route path="courts/*" element={<Courts />} />
+              <Route path="dashboard/:page/:order/:filter" element={<Dashboard />} />
+              <Route path="disputeTemplate" element={<DisputeTemplateView />} />
+              <Route path="*" element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>} />
+            </Route>
+          </SentryRoutes>
         </Web3Provider>
       </QueryClientProvider>
     </StyledComponentsProvider>

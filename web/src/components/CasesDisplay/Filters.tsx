@@ -1,7 +1,8 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
+import { useNavigate, useParams } from "react-router-dom";
 import { DropdownSelect } from "@kleros/ui-components-library";
-import { useFiltersContext } from "~src/context/FilterProvider";
+import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
 const Container = styled.div`
   display: flex;
@@ -12,10 +13,20 @@ const Container = styled.div`
 
 const Filters: React.FC = () => {
   const theme = useTheme();
-  const { setTimeFilter, setStatusFilter } = useFiltersContext();
+  const { order, filter } = useParams();
+  const { ruled, period, ...filterObject } = decodeURIFilter(filter ?? "all");
+  const navigate = useNavigate();
+  const location = useRootPath();
 
   const handleStatusChange = (value: string | number) => {
-    setStatusFilter(Number(value));
+    const parsedValue = JSON.parse(value as string);
+    const encodedFilter = encodeURIFilter({ ...filterObject, ...parsedValue });
+    navigate(`${location}/1/${order}/${encodedFilter}`);
+  };
+
+  const handleOrderChange = (value: string | number) => {
+    const encodedFilter = encodeURIFilter({ ruled, period, ...filterObject });
+    navigate(`${location}/1/${value}/${encodedFilter}`);
   };
 
   return (
@@ -24,23 +35,23 @@ const Filters: React.FC = () => {
         smallButton
         simpleButton
         items={[
-          { value: 0, text: "All Cases", dot: theme.primaryText },
-          { value: 1, text: "In Progress", dot: theme.primaryBlue },
-          { value: 2, text: "Closed", dot: theme.primaryPurple },
-          { value: 3, text: "Appeal", dot: theme.tint },
+          { value: JSON.stringify({}), text: "All Cases", dot: theme.primaryText },
+          { value: JSON.stringify({ ruled: false }), text: "In Progress", dot: theme.primaryBlue },
+          { value: JSON.stringify({ ruled: true }), text: "Closed", dot: theme.primaryPurple },
+          { value: JSON.stringify({ period: "appeal" }), text: "Appeal", dot: theme.tint },
         ]}
-        defaultValue={0}
+        defaultValue={JSON.stringify({ ruled, period })}
         callback={handleStatusChange}
       />
       <DropdownSelect
         smallButton
         simpleButton
         items={[
-          { value: 0, text: "Newest" },
-          { value: 1, text: "Oldest" },
+          { value: "desc", text: "Newest" },
+          { value: "asc", text: "Oldest" },
         ]}
-        defaultValue={0}
-        callback={setTimeFilter}
+        defaultValue={order}
+        callback={handleOrderChange}
       />
     </Container>
   );

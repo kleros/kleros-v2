@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
-import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
-import { getStatusPeriod, useFiltersContext } from "context/FilterProvider";
-import { useUserQuery, UserQuery } from "queries/useUser";
 import { OrderDirection } from "src/graphql/graphql";
-import JurorInfo from "./JurorInfo";
-import Courts from "./Courts";
+import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
+import { useUserQuery } from "queries/useUser";
+import { decodeURIFilter, useRootPath } from "utils/uri";
 import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
+import JurorInfo from "./JurorInfo";
+import Courts from "./Courts";
 
 const Container = styled.div`
   width: 100%;
@@ -29,68 +30,23 @@ const ConnectWalletContainer = styled.div`
   color: ${({ theme }) => theme.primaryText};
 `;
 
-const calculatePages = (
-  status: number,
-  data: UserQuery | undefined,
-  casesPerPage: number,
-  courtFilter: number,
-  myAppeals?: number
-) => {
-  if (!data?.user) {
-    return 0;
-  }
-
-  let totalCases = 0;
-
-  console.log("court", courtFilter, data);
-
-  if (courtFilter !== 0) {
-    return data?.user?.disputes?.length / casesPerPage;
-  }
-  switch (status) {
-    case 1:
-      totalCases = parseInt(data.user?.totalDisputes) - parseInt(data.user?.totalResolvedDisputes);
-      break;
-    case 2:
-      totalCases = parseInt(data.user?.totalResolvedDisputes) ?? 0;
-      break;
-    case 3:
-      totalCases = myAppeals ?? 0;
-      break;
-    default:
-      totalCases = parseInt(data.user?.totalDisputes) ?? 0;
-  }
-
-  return totalCases / casesPerPage;
-};
-
 const Dashboard: React.FC = () => {
   const { isConnected, address } = useAccount();
-  const { combinedQueryFilters, debouncedSearch, timeFilter, statusFilter } = useFiltersContext();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [courtFilter, setCourtFilter] = useState(0);
+  const { page, order, filter } = useParams();
+  const location = useRootPath();
+  const navigate = useNavigate();
   const casesPerPage = 3;
-  const disputeSkip = debouncedSearch ? 0 : 3 * (currentPage - 1);
-  const direction = timeFilter === 0 ? OrderDirection.Desc : OrderDirection.Asc;
-  const courtChoice = courtFilter === 0 ? {} : { court: courtFilter.toString() };
-  const statusChoice = getStatusPeriod(statusFilter);
-  const queryFilters = { ...combinedQueryFilters, ...courtChoice };
-  const { data: disputesData } = useMyCasesQuery(address, disputeSkip, queryFilters, direction);
-  console.log("🚀 ~ file: index.tsx:88 ~ totalPages:", { ...courtChoice, ...statusChoice });
-  const { data: userData } = useUserQuery(address, { ...courtChoice, ...statusChoice });
-  const totalPages = calculatePages(
-    statusFilter,
-    userData,
-    casesPerPage,
-    courtFilter,
-    parseInt(userData?.user?.totalAppealingDisputes)
+  const pageNumber = parseInt(page ?? "1");
+  const disputeSkip = casesPerPage * (pageNumber - 1);
+  const decodedFilter = decodeURIFilter(filter ?? "all");
+  const { data: disputesData } = useMyCasesQuery(
+    address,
+    disputeSkip,
+    decodedFilter,
+    order === "asc" ? OrderDirection.Asc : OrderDirection.Desc
   );
-
-  console.log("pages", totalPages);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [statusFilter, courtFilter]);
+  const { data: userData } = useUserQuery(address, decodedFilter);
+  const totalCases = userData?.user?.disputes.length;
 
   return (
     <Container>
@@ -101,10 +57,12 @@ const Dashboard: React.FC = () => {
           <StyledCasesDisplay
             title="My Cases"
             disputes={disputesData?.user?.disputes as DisputeDetailsFragment[]}
-            numberDisputes={userData?.user?.totalDisputes}
-            numberClosedDisputes={userData?.user?.totalResolvedDisputes}
-            totalPages={totalPages}
-            {...{ casesPerPage, currentPage, setCurrentPage, setCourtFilter }}
+            numberDisputes={totalCases}
+            numberClosedDisputes={0}
+            totalPages={10}
+            currentPage={pageNumber}
+            setCurrentPage={(newPage: number) => navigate(`${location}/${newPage}/${order}/${filter}`)}
+            {...{ casesPerPage }}
           />
         </>
       ) : (

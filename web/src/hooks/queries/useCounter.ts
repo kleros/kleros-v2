@@ -2,6 +2,7 @@ import { graphql } from "src/graphql";
 import { useQuery } from "@tanstack/react-query";
 import { CounterQuery } from "src/graphql/graphql";
 import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
+export type { CounterQuery };
 
 const counterQuery = graphql(`
   query Counter {

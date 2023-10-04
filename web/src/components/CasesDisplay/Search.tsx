@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useDebounce } from "react-use";
 import styled from "styled-components";
+import Skeleton from "react-loading-skeleton";
 import { Searchbar, DropdownCascader } from "@kleros/ui-components-library";
-import { useFiltersContext } from "context/FilterProvider";
+import { rootCourtToItems, useCourtTree } from "hooks/queries/useCourtTree";
+import { isUndefined } from "utils/index";
+import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
 const Container = styled.div`
   display: flex;
@@ -22,12 +27,27 @@ const StyledSearchbar = styled(Searchbar)`
   }
 `;
 
-interface ISearch {
-  setCourtFilter: (arg0: number) => void;
-}
-
-const Search: React.FC<ISearch> = ({ setCourtFilter }) => {
-  const { search, setSearch } = useFiltersContext();
+const Search: React.FC = () => {
+  const { page, order, filter } = useParams();
+  const location = useRootPath();
+  const decodedFilter = decodeURIFilter(filter ?? "all");
+  const { id: searchValue, ...filterObject } = decodedFilter;
+  const [search, setSearch] = useState(searchValue ?? "");
+  const navigate = useNavigate();
+  useDebounce(
+    () => {
+      const newFilters = search === "" ? { ...filterObject } : { ...filterObject, id: search };
+      const encodedFilter = encodeURIFilter(newFilters);
+      navigate(`${location}/${page}/${order}/${encodedFilter}`);
+    },
+    500,
+    [search]
+  );
+  const { data: courtTreeData } = useCourtTree();
+  const items = useMemo(
+    () => !isUndefined(courtTreeData) && [rootCourtToItems(courtTreeData.court, "id")],
+    [courtTreeData]
+  );
 
   return (
     <div>
@@ -39,40 +59,15 @@ const Search: React.FC<ISearch> = ({ setCourtFilter }) => {
           onChange={(e) => setSearch(e.target.value)}
         />
       </Container>
-      <DropdownCascader
-        placeholder={"Select Court"}
-        onSelect={setCourtFilter}
-        items={[
-          {
-            label: "General Court",
-            value: 0,
-            children: [
-              {
-                label: "Blockchain",
-                value: 1,
-                children: [
-                  {
-                    label: "Technical",
-                    value: 2,
-                  },
-                  {
-                    label: "Non-technical",
-                    value: 3,
-                  },
-                  {
-                    label: "Other",
-                    value: 4,
-                  },
-                ],
-              },
-              {
-                label: "Marketing Services",
-                value: 5,
-              },
-            ],
-          },
-        ]}
-      />
+      {items ? (
+        <DropdownCascader
+          items={items}
+          placeholder={"Select Court"}
+          onSelect={(value) => navigate(`${location}/${page}/${order}/${{ ...filterObject, court: value }}`)}
+        />
+      ) : (
+        <Skeleton width={240} height={42} />
+      )}
     </div>
   );
 };
