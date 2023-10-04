@@ -1,11 +1,10 @@
 import { Handler } from "@netlify/functions";
 import { verifyTypedData } from "viem";
 import { createClient } from "@supabase/supabase-js";
+import { Database } from "../../src/types/supabase-notification";
 import messages from "../../src/consts/eip712-messages";
 
-const SUPABASE_KEY = process.env.SUPABASE_CLIENT_API_KEY;
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const supabase = createClient(SUPABASE_URL!, SUPABASE_KEY!);
+const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_CLIENT_API_KEY!);
 
 export const handler: Handler = async (event) => {
   try {
