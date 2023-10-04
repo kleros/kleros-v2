@@ -1,11 +1,13 @@
 import React from "react";
+import { useWindowSize } from "react-use";
 import { useParams, useNavigate } from "react-router-dom";
 import { DisputeDetailsFragment, Dispute_Filter, OrderDirection } from "src/graphql/graphql";
-import CasesDisplay from "components/CasesDisplay";
+import { BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
 import { useCasesQuery } from "queries/useCasesQuery";
 import { useCounterQuery, CounterQuery } from "queries/useCounter";
 import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
 import { decodeURIFilter, useRootPath } from "utils/uri";
+import CasesDisplay from "components/CasesDisplay";
 import { isUndefined } from "utils/index";
 
 const calculateStats = (
@@ -40,7 +42,9 @@ const CasesFetcher: React.FC = () => {
   const { page, order, filter } = useParams();
   const location = useRootPath();
   const navigate = useNavigate();
-  const casesPerPage = 3;
+  const { width } = useWindowSize();
+  const screenIsBig = width > BREAKPOINT_LANDSCAPE;
+  const casesPerPage = screenIsBig ? 9 : 3;
   const pageNumber = parseInt(page ?? "1");
   const disputeSkip = casesPerPage * (pageNumber - 1);
   const { data: counterData } = useCounterQuery();
@@ -49,6 +53,7 @@ const CasesFetcher: React.FC = () => {
   const { data: courtData } = useCourtDetails(decodedFilter?.court?.toString());
   const { data } = useCasesQuery(
     disputeSkip,
+    casesPerPage,
     decodedFilter,
     order === "asc" ? OrderDirection.Asc : OrderDirection.Desc
   );

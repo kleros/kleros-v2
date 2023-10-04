@@ -1,6 +1,5 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { useFiltersContext } from "context/FilterProvider";
 import { Periods } from "consts/periods";
 import BookmarkIcon from "svgs/icons/bookmark.svg";
 import CalendarIcon from "svgs/icons/calendar.svg";
@@ -8,6 +7,7 @@ import LawBalanceIcon from "svgs/icons/law-balance.svg";
 import PileCoinsIcon from "svgs/icons/pile-coins.svg";
 import RoundIcon from "svgs/icons/round.svg";
 import Field from "../Field";
+import { useLocalStorage } from "react-use";
 
 const Container = styled.div<{ isList: boolean }>`
   display: flex;
@@ -56,7 +56,7 @@ const formatDate = (date: number) => {
 };
 
 const DisputeInfo: React.FC<IDisputeInfo> = ({ courtId, court, category, rewards, period, date, round }) => {
-  const { isList } = useFiltersContext();
+  const [isList, _] = useLocalStorage<boolean>("isList", false);
 
   return (
     <Container isList={isList}>
