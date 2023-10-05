@@ -72,16 +72,16 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, casesPerPage, totalPages, c
           <CasesListHeader />
           {isUndefined(disputes)
             ? [...Array(casesPerPage)].map((_, i) => <StyledSkeleton key={i} />)
-            : disputes.map((dispute, i) => {
-                return <DisputeCard key={i} {...dispute} />;
+            : disputes.map((dispute) => {
+                return <DisputeCard key={dispute.id} {...dispute} />;
               })}
         </ListContainer>
       ) : (
         <GridContainer>
           {isUndefined(disputes)
             ? [...Array(casesPerPage)].map((_, i) => <StyledSkeleton key={i} />)
-            : disputes.map((dispute, i) => {
-                return <DisputeCard key={i} {...dispute} overrideIsList />;
+            : disputes.map((dispute) => {
+                return <DisputeCard key={dispute.id} {...dispute} overrideIsList />;
               })}
         </GridContainer>
       )}
