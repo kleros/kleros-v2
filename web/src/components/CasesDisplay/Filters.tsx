@@ -1,8 +1,9 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
-import { useWindowSize, useLocalStorage } from "react-use";
+import { useWindowSize } from "react-use";
 import { DropdownSelect } from "@kleros/ui-components-library";
+import { useIsList } from "context/IsListProvider";
 import ListIcon from "svgs/icons/list.svg";
 import GridIcon from "svgs/icons/grid.svg";
 import { BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
@@ -59,7 +60,7 @@ const Filters: React.FC = () => {
   };
 
   const { width } = useWindowSize();
-  const [isList, setIsList] = useLocalStorage<boolean>("isList", false);
+  const { isList, setIsList } = useIsList();
   const screenIsBig = width > BREAKPOINT_LANDSCAPE;
 
   return (

@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
-import { useLocalStorage } from "react-use";
+import { useWindowSize } from "react-use";
 import { useParams } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import { StandardPagination } from "@kleros/ui-components-library";
-import { landscapeStyle } from "styles/landscapeStyle";
+import { BREAKPOINT_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
+import { useIsList } from "context/IsListProvider";
 import { isUndefined } from "utils/index";
 import { decodeURIFilter } from "utils/uri";
 import { DisputeDetailsFragment } from "queries/useCasesQuery";
@@ -60,19 +61,13 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, casesPerPage, totalPages, c
   const { filter } = useParams();
   const decodedFilter = decodeURIFilter(filter ?? "all");
   const { id: searchValue } = decodedFilter;
-  const [isList, _] = useLocalStorage("isList", false);
+  const { isList } = useIsList();
+  const { width } = useWindowSize();
+  const screenIsBig = useMemo(() => width > BREAKPOINT_LANDSCAPE, [width]);
 
   return (
     <>
-      {!isList ? (
-        <GridContainer>
-          {isUndefined(disputes)
-            ? [...Array(casesPerPage)].map((_, i) => <StyledSkeleton key={i} />)
-            : disputes.map((dispute, i) => {
-                return <DisputeCard key={i} {...dispute} />;
-              })}
-        </GridContainer>
-      ) : (
+      {isList && screenIsBig ? (
         <ListContainer>
           <CasesListHeader />
           {isUndefined(disputes)
@@ -81,6 +76,14 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, casesPerPage, totalPages, c
                 return <DisputeCard key={i} {...dispute} />;
               })}
         </ListContainer>
+      ) : (
+        <GridContainer>
+          {isUndefined(disputes)
+            ? [...Array(casesPerPage)].map((_, i) => <StyledSkeleton key={i} />)
+            : disputes.map((dispute, i) => {
+                return <DisputeCard key={i} {...dispute} overrideIsList />;
+              })}
+        </GridContainer>
       )}
 
       {isUndefined(searchValue) ? (
