@@ -4,7 +4,7 @@ import { useDebounce } from "react-use";
 import styled from "styled-components";
 import Skeleton from "react-loading-skeleton";
 import { Searchbar, DropdownCascader } from "@kleros/ui-components-library";
-import { rootCourtToItems, useCourtTree } from "hooks/queries/useCourtTree";
+import { rootCourtToItems, useCourtTree } from "queries/useCourtTree";
 import { isUndefined } from "utils/index";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
@@ -44,10 +44,14 @@ const Search: React.FC = () => {
     [search]
   );
   const { data: courtTreeData } = useCourtTree();
-  const items = useMemo(
-    () => !isUndefined(courtTreeData) && [rootCourtToItems(courtTreeData.court, "id")],
-    [courtTreeData]
-  );
+  const items = useMemo(() => {
+    if (!isUndefined(courtTreeData)) {
+      const items = [rootCourtToItems(courtTreeData.court!, "id")];
+      items.push({ label: "All Courts", value: "all" });
+      return items;
+    }
+    return undefined;
+  }, [courtTreeData]);
 
   return (
     <div>
@@ -63,7 +67,11 @@ const Search: React.FC = () => {
         <DropdownCascader
           items={items}
           placeholder={"Select Court"}
-          onSelect={(value) => navigate(`${location}/${page}/${order}/${{ ...filterObject, court: value }}`)}
+          onSelect={(value) => {
+            const { court: _, ...filterWithoutCourt } = decodedFilter;
+            const newFilter = value === "all" ? filterWithoutCourt : { ...decodedFilter, court: value.toString() };
+            navigate(`${location}/${page}/${order}/${encodeURIFilter(newFilter)}`);
+          }}
         />
       ) : (
         <Skeleton width={240} height={42} />

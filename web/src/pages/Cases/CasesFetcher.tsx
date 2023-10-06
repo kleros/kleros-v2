@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useWindowSize } from "react-use";
 import { useParams, useNavigate } from "react-router-dom";
 import { DisputeDetailsFragment, Dispute_Filter, OrderDirection } from "src/graphql/graphql";
@@ -24,7 +24,7 @@ const calculateStats = (
     totalCases = isCourtFilter ? courtData?.numberDisputes : counters?.cases;
     ruledCases = isCourtFilter ? courtData?.numberClosedDisputes : counters?.casesRuled;
   } else if (filter?.ruled) {
-    totalCases = isCourtFilter ? courtData?.numberClosedDisputes : counters?.casesAppealing;
+    totalCases = isCourtFilter ? courtData?.numberClosedDisputes : counters?.casesRuled;
     ruledCases = totalCases;
   } else {
     totalCases = isCourtFilter
@@ -57,11 +57,9 @@ const CasesFetcher: React.FC = () => {
     decodedFilter,
     order === "asc" ? OrderDirection.Asc : OrderDirection.Desc
   );
-  const { totalCases, ruledCases } = calculateStats(
-    isCourtFilter,
-    courtData?.court,
-    counterData?.counter,
-    decodedFilter
+  const { totalCases, ruledCases } = useMemo(
+    () => calculateStats(isCourtFilter, courtData?.court, counterData?.counter, decodedFilter),
+    [isCourtFilter, courtData?.court, counterData?.counter, decodedFilter]
   );
 
   return (
