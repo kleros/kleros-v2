@@ -5,6 +5,7 @@ import { Button } from "@kleros/ui-components-library";
 import { uploadSettingsToSupabase } from "utils/uploadSettingsToSupabase";
 import FormContact from "./FormContact";
 import messages from "../../../../../../../consts/eip712-messages";
+import { EMAIL_REGEX, TELEGRAM_REGEX } from "../../../../../../../consts/index";
 import { ISettings } from "../../types";
 
 const FormContainer = styled.form`
@@ -70,7 +71,7 @@ const FormContactDetails: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
           contactIsValid={telegramIsValid}
           setContactInput={setTelegramInput}
           setContactIsValid={setTelegramIsValid}
-          validator={/^@[a-zA-Z0-9_]{5,32}$/}
+          validator={TELEGRAM_REGEX}
         />
       </FormContactContainer>
       <FormContactContainer>
@@ -81,7 +82,7 @@ const FormContactDetails: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
           contactIsValid={emailIsValid}
           setContactInput={setEmailInput}
           setContactIsValid={setEmailIsValid}
-          validator={/^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/}
+          validator={EMAIL_REGEX}
         />
       </FormContactContainer>
 
