@@ -71,8 +71,8 @@ const Filters: React.FC = () => {
         items={[
           { value: JSON.stringify({}), text: "All Cases", dot: theme.primaryText },
           { value: JSON.stringify({ ruled: false }), text: "In Progress", dot: theme.primaryBlue },
-          { value: JSON.stringify({ ruled: true }), text: "Closed", dot: theme.primaryPurple },
           { value: JSON.stringify({ period: "appeal" }), text: "Appeal", dot: theme.tint },
+          { value: JSON.stringify({ ruled: true }), text: "Closed", dot: theme.primaryPurple },
         ]}
         defaultValue={JSON.stringify({ ruled, period })}
         callback={handleStatusChange}
