@@ -90,13 +90,13 @@ export function handleNewPeriod(event: NewPeriod): void {
   const court = Court.load(dispute.court);
   if (!court) return;
 
-  if (dispute.period === "vote") {
+  if (dispute.period.includes("vote")) {
     court.numberVotingDisputes = court.numberVotingDisputes.minus(ONE);
     updateCasesVoting(BigInt.fromI32(-1), event.block.timestamp);
-  } else if (dispute.period === "appeal") {
+  } else if (dispute.period.includes("appeal")) {
     let juror: User;
     for (let i = 0; i < dispute.jurors.entries.length; i++) {
-      juror = ensureUser(dispute.jurors.entries[0].value.toString());
+      juror = ensureUser(dispute.jurors.entries[i].value.toString());
       juror.totalAppealingDisputes = juror.totalAppealingDisputes.minus(ONE);
       juror.save();
     }
@@ -111,7 +111,7 @@ export function handleNewPeriod(event: NewPeriod): void {
   } else if (newPeriod === "appeal") {
     let juror: User;
     for (let i = 0; i < dispute.jurors.entries.length; i++) {
-      juror = ensureUser(dispute.jurors.entries[0].value.toString());
+      juror = ensureUser(dispute.jurors.entries[i].value.toString());
       juror.totalAppealingDisputes = juror.totalAppealingDisputes.plus(ONE);
       juror.save();
     }
