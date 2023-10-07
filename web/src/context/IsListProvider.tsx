@@ -16,9 +16,9 @@ const Context = createContext<IIsListProvider>({
 const IsListProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const [isListStorage, setIsListStorage] = useLocalStorage("isList", false);
   const [isList, setIsListState] = useToggle(isListStorage ?? false);
-  const setIsList = (value: boolean) => {
-    setIsListState(value);
-    setIsListStorage(value);
+  const setIsList = (toggle: boolean) => {
+    setIsListState(toggle);
+    setIsListStorage(toggle);
   };
 
   const value = {
