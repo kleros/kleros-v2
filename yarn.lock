@@ -5365,6 +5365,7 @@ __metadata:
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
     "@kleros/ui-components-library": ^2.6.2
+    "@logtail/pino": ^0.4.12
     "@netlify/functions": ^1.6.0
     "@parcel/transformer-svg-react": 2.8.3
     "@parcel/watcher": ~2.2.0
@@ -5401,6 +5402,8 @@ __metadata:
     overlayscrollbars: ^2.3.0
     overlayscrollbars-react: ^0.5.2
     parcel: 2.8.3
+    pino: ^8.16.0
+    pino-pretty: ^10.2.3
     react: ^18.2.0
     react-chartjs-2: ^4.3.1
     react-dom: ^18.2.0
@@ -5663,6 +5666,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@logtail/core@npm:^0.4.12":
+  version: 0.4.12
+  resolution: "@logtail/core@npm:0.4.12"
+  dependencies:
+    "@logtail/tools": ^0.4.12
+    "@logtail/types": ^0.4.11
+  checksum: 615874d456ed732d650d4a022bd14e2a400198b26dfd07cb512a365e8369a8ab1d48b74657c7bc1a77e03b430778f652d41c84638c3efe9de2ef91cfe6f4dd29
+  languageName: node
+  linkType: hard
+
 "@logtail/node@npm:^0.4.0":
   version: 0.4.0
   resolution: "@logtail/node@npm:0.4.0"
@@ -5675,6 +5688,21 @@ __metadata:
     minimatch: ^3.0.4
     stack-trace: ^0.0.10
   checksum: b1fa11f757b09baccc7b2fffa36887550a1e36e0318d4306b8b3792923ffa9bd1d4940476cddcb598ee68a7d9ef9dfb6efd9c940ef993003f17657bc5b660620
+  languageName: node
+  linkType: hard
+
+"@logtail/node@npm:^0.4.12":
+  version: 0.4.12
+  resolution: "@logtail/node@npm:0.4.12"
+  dependencies:
+    "@logtail/core": ^0.4.12
+    "@logtail/types": ^0.4.11
+    "@msgpack/msgpack": ^2.5.1
+    "@types/stack-trace": ^0.0.29
+    cross-fetch: ^3.0.4
+    minimatch: ^3.0.4
+    stack-trace: ^0.0.10
+  checksum: d2799eb561e4bdee4fb9875350983cb5f7ede2ab6c368bf3673cbcfdc7df3c16616d6b881edf60dfe64e0bafc6c6a63d96455bb0a4d34328ed3414fd94d47c5f
   languageName: node
   linkType: hard
 
@@ -5691,6 +5719,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@logtail/pino@npm:^0.4.12":
+  version: 0.4.12
+  resolution: "@logtail/pino@npm:0.4.12"
+  dependencies:
+    "@logtail/node": ^0.4.12
+    "@logtail/types": ^0.4.11
+    pino-abstract-transport: ^1.0.0
+  peerDependencies:
+    pino: ^7.0.0 || ^8.0.0
+  checksum: 1b6ee658ad5e60c65cc0bd50aaf1e99b26150e2b26622a13c09fcb4e15f33dd8979aa58401d06524d82a5ea19511c96871bbdb57aaa4166586dc76159b01110e
+  languageName: node
+  linkType: hard
+
 "@logtail/tools@npm:^0.4.0":
   version: 0.4.0
   resolution: "@logtail/tools@npm:0.4.0"
@@ -5700,12 +5741,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@logtail/tools@npm:^0.4.12":
+  version: 0.4.12
+  resolution: "@logtail/tools@npm:0.4.12"
+  dependencies:
+    "@logtail/types": ^0.4.11
+  checksum: b0a8391a763b7f7f7d889446ed857715f158288f615b089f125471582efd8bb2a9525e37bb58f88f166224529ce3bc74799807ff768905e79ac1c92d5877aa1e
+  languageName: node
+  linkType: hard
+
 "@logtail/types@npm:^0.4.0":
   version: 0.4.0
   resolution: "@logtail/types@npm:0.4.0"
   dependencies:
     js: ^0.1.0
   checksum: b21d5a48bd60db0fc8e57f992c6bfcc7191fdb817984a736c13e0fd2afd1b077e631ff455443e1b289782f642c5a27883434347d8b8340bb78e4ff43d84383e0
+  languageName: node
+  linkType: hard
+
+"@logtail/types@npm:^0.4.11":
+  version: 0.4.11
+  resolution: "@logtail/types@npm:0.4.11"
+  dependencies:
+    js: ^0.1.0
+  checksum: 0102a079d0ba89efc70770f6d853f0b205784a73abe570ab056f830d4ab031f95a1d80e2a3dfa54ebf53193d20fd9b61d52c2be03032d28572ce9fcb3be89144
   languageName: node
   linkType: hard
 
@@ -24731,6 +24790,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pino-abstract-transport@npm:v1.1.0":
+  version: 1.1.0
+  resolution: "pino-abstract-transport@npm:1.1.0"
+  dependencies:
+    readable-stream: ^4.0.0
+    split2: ^4.0.0
+  checksum: cc84caabee5647b5753ae484d5f63a1bca0f6e1791845e2db2b6d830a561c2b5dd1177720f68d78994c8a93aecc69f2729e6ac2bc871a1bf5bb4b0ec17210668
+  languageName: node
+  linkType: hard
+
 "pino-pretty@npm:^10.0.0":
   version: 10.0.0
   resolution: "pino-pretty@npm:10.0.0"
@@ -24752,6 +24821,30 @@ __metadata:
   bin:
     pino-pretty: bin.js
   checksum: af45c69fdb50bdd27875d1456b7f2a7227bc1b98ca8b39ff3a4ef0c473ac8bd2ae1cb7de19921dc8cc0217b6d5f800c7af040eae294e5cc26e0fadf0a0a4afd7
+  languageName: node
+  linkType: hard
+
+"pino-pretty@npm:^10.2.3":
+  version: 10.2.3
+  resolution: "pino-pretty@npm:10.2.3"
+  dependencies:
+    colorette: ^2.0.7
+    dateformat: ^4.6.3
+    fast-copy: ^3.0.0
+    fast-safe-stringify: ^2.1.1
+    help-me: ^4.0.1
+    joycon: ^3.1.1
+    minimist: ^1.2.6
+    on-exit-leak-free: ^2.1.0
+    pino-abstract-transport: ^1.0.0
+    pump: ^3.0.0
+    readable-stream: ^4.0.0
+    secure-json-parse: ^2.4.0
+    sonic-boom: ^3.0.0
+    strip-json-comments: ^3.1.1
+  bin:
+    pino-pretty: bin.js
+  checksum: 9182886855515000df2ef381762c69fc29dbdd9014a76839cc3d8a7a94ac96d4ce17423adb9ddd61eae78986bb0ff3a1d9e6e7aa55476c096a3dd4a0c89440e8
   languageName: node
   linkType: hard
 
@@ -24808,6 +24901,27 @@ __metadata:
   bin:
     pino: bin.js
   checksum: 72dcae8f550d375695bb8745f11b30c42aaa20d0bcab8f546ca5af0684d784453850949fe1b244206793e813a46d72cbbf0dda8aed2cee86e9491ba44a643e3e
+  languageName: node
+  linkType: hard
+
+"pino@npm:^8.16.0":
+  version: 8.16.0
+  resolution: "pino@npm:8.16.0"
+  dependencies:
+    atomic-sleep: ^1.0.0
+    fast-redact: ^3.1.1
+    on-exit-leak-free: ^2.1.0
+    pino-abstract-transport: v1.1.0
+    pino-std-serializers: ^6.0.0
+    process-warning: ^2.0.0
+    quick-format-unescaped: ^4.0.3
+    real-require: ^0.2.0
+    safe-stable-stringify: ^2.3.1
+    sonic-boom: ^3.7.0
+    thread-stream: ^2.0.0
+  bin:
+    pino: bin.js
+  checksum: c3af0d1d80d0a7ec59530e6c3668895ac813762829ea0b7e316057370f58011d09e128e67289665652904367a1f27f87cca4e564eb3ff2a0d46219f12fcf896e
   languageName: node
   linkType: hard
 
@@ -28384,6 +28498,15 @@ __metadata:
   dependencies:
     atomic-sleep: ^1.0.0
   checksum: 4a290dd0f3edf49894bb72c631ee304dc3f9be0752c43d516808a365f341821f5cf49997c80ee7c0e67167e0e5131dc71afe7c58812858eb965d6b9746c0cac7
+  languageName: node
+  linkType: hard
+
+"sonic-boom@npm:^3.7.0":
+  version: 3.7.0
+  resolution: "sonic-boom@npm:3.7.0"
+  dependencies:
+    atomic-sleep: ^1.0.0
+  checksum: 528f0f7f7e09dcdb02ad5985039f66554266cbd8813f9920781607c9248e01f468598c1334eab2cc740c016a63c8b2a20e15c3f618cddb08ea1cfb4a390a796e
   languageName: node
   linkType: hard
 

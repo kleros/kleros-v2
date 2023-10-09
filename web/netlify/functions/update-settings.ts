@@ -4,6 +4,10 @@ import { createClient } from "@supabase/supabase-js";
 import { Database } from "../../src/types/supabase-notification";
 import messages from "../../src/consts/eip712-messages";
 import { EMAIL_REGEX, TELEGRAM_REGEX, ETH_ADDRESS_REGEX, ETH_SIGNATURE_REGEX } from "../../src/consts/index";
+import { createLogger, throwNewError } from "../../src/utils/logger";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 type NotificationSettings = {
   email?: string;
@@ -13,12 +17,15 @@ type NotificationSettings = {
   signature: string;
 };
 
+const logger = createLogger(process.env.LOGTAIL_TOKEN).child({ function: "update-settings" });
+const logAndThrowNewError = (message: string, error?: any) => throwNewError(logger, message, error);
+
 const parse = (inputString: string): NotificationSettings => {
   let input;
   try {
     input = JSON.parse(inputString);
   } catch (err) {
-    throw new Error("Invalid JSON format");
+    logAndThrowNewError("Invalid JSON format", err);
   }
 
   const requiredKeys: (keyof NotificationSettings)[] = ["nonce", "address", "signature"];
@@ -27,37 +34,37 @@ const parse = (inputString: string): NotificationSettings => {
 
   for (const key of requiredKeys) {
     if (!receivedKeys.includes(key)) {
-      throw new Error(`Missing key: ${key}`);
+      logAndThrowNewError(`Missing key: ${key}`);
     }
   }
 
   const allExpectedKeys = [...requiredKeys, ...optionalKeys];
   for (const key of receivedKeys) {
     if (!allExpectedKeys.includes(key as keyof NotificationSettings)) {
-      throw new Error(`Unexpected key: ${key}`);
+      logAndThrowNewError(`Unexpected key: ${key}`);
     }
   }
 
   const email = input.email ? input.email.trim() : "";
   if (email && !EMAIL_REGEX.test(email)) {
-    throw new Error("Invalid email format");
+    logAndThrowNewError("Invalid email format");
   }
 
   const telegram = input.telegram ? input.telegram.trim() : "";
   if (telegram && !TELEGRAM_REGEX.test(telegram)) {
-    throw new Error("Invalid Telegram username format");
+    logAndThrowNewError("Invalid Telegram username format");
   }
 
   if (!/^\d+$/.test(input.nonce)) {
-    throw new Error("Invalid nonce format. Expected an integer as a string.");
+    logAndThrowNewError("Invalid nonce format. Expected an integer as a string.");
   }
 
   if (!ETH_ADDRESS_REGEX.test(input.address)) {
-    throw new Error("Invalid Ethereum address format");
+    logAndThrowNewError("Invalid Ethereum address format");
   }
 
   if (!ETH_SIGNATURE_REGEX.test(input.signature)) {
-    throw new Error("Invalid signature format");
+    logAndThrowNewError("Invalid signature format");
   }
 
   return {
@@ -72,7 +79,7 @@ const parse = (inputString: string): NotificationSettings => {
 export const handler: Handler = async (event) => {
   try {
     if (!event.body) {
-      throw new Error("No body provided");
+      logAndThrowNewError("No body provided");
     }
     const { email, telegram, nonce, address, signature } = parse(event.body);
     const lowerCaseAddress = address.toLowerCase() as `0x${string}`;
@@ -85,6 +92,7 @@ export const handler: Handler = async (event) => {
     });
     if (!isValid) {
       // If the recovered address does not match the provided address, return an error
+      logAndThrowNewError("Signature verification failed");
       throw new Error("Signature verification failed");
     }
 
@@ -94,6 +102,7 @@ export const handler: Handler = async (event) => {
     if (email === "" && telegram === "") {
       const { error } = await supabase.from("users").delete().match({ address: lowerCaseAddress });
       if (error) throw error;
+      logger.info("Record deleted successfully.");
       return { statusCode: 200, body: JSON.stringify({ message: "Record deleted successfully." }) };
     }
 
@@ -105,8 +114,12 @@ export const handler: Handler = async (event) => {
     if (error) {
       throw error;
     }
+    logger.info("Record updated successfully.");
     return { statusCode: 200, body: JSON.stringify({ message: "Record updated successfully." }) };
   } catch (err) {
+    logger.error(err);
     return { statusCode: 500, body: JSON.stringify({ message: `Error: ${err}` }) };
+  } finally {
+    logger.flush();
   }
 };
