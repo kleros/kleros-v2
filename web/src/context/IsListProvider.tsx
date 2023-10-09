@@ -9,7 +9,7 @@ interface IIsListProvider {
 const Context = createContext<IIsListProvider>({
   isList: false,
   setIsList: () => {
-    //
+    // nop
   },
 });
 

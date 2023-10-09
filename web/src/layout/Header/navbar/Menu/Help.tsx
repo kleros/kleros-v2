@@ -8,7 +8,7 @@ import Bug from "svgs/icons/bug.svg";
 import ETH from "svgs/icons/eth.svg";
 import Faq from "svgs/menu-icons/help.svg";
 import Telegram from "svgs/socialmedia/telegram.svg";
-import { IHelp } from "..";
+import { useMenu } from "../../../../context/MenuProvider";
 
 const Container = styled.div`
   display: flex;
@@ -97,8 +97,9 @@ const ITEMS = [
   },
 ];
 
-const Help: React.FC<IHelp> = ({ toggleIsHelpOpen }) => {
+const Help: React.FC = () => {
   const containerRef = useRef(null);
+  const { toggleIsHelpOpen } = useMenu();
   useFocusOutside(containerRef, () => {
     toggleIsHelpOpen();
   });

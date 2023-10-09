@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
+import { useMenu } from "../../context/MenuProvider";
 import { landscapeStyle } from "styles/landscapeStyle";
-import { useToggle } from "react-use";
 import { Link } from "react-router-dom";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
@@ -76,9 +76,7 @@ const ConnectWalletContainer = styled.div`
 `;
 
 const DesktopHeader = () => {
-  const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
-  const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
-  const [isSettingsOpen, toggleIsSettingsOpen] = useToggle(false);
+  const { isDappListOpen, toggleIsDappListOpen, isSettingsOpen, isHelpOpen } = useMenu();
   useLockOverlayScroll(isDappListOpen || isHelpOpen || isSettingsOpen);
 
   return (
@@ -107,15 +105,15 @@ const DesktopHeader = () => {
           <ConnectWalletContainer>
             <ConnectWallet />
           </ConnectWalletContainer>
-          <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
+          <Menu />
         </RightSide>
       </Container>
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
         <PopupContainer>
           <Overlay />
-          {isDappListOpen && <DappList {...{ toggleIsDappListOpen, isDappListOpen }} />}
-          {isHelpOpen && <Help {...{ toggleIsHelpOpen, isHelpOpen }} />}
-          {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen }} />}
+          {isDappListOpen && <DappList />}
+          {isHelpOpen && <Help />}
+          {isSettingsOpen && <Settings />}
         </PopupContainer>
       )}
     </>

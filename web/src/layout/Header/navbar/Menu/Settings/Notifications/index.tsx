@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { ISettings } from "../../../index";
 
 import FormContactDetails from "./FormContactDetails";
 import { EnsureChain } from "components/EnsureChain";
+import { useMenu } from "../../../../../../context/MenuProvider";
 
 const Container = styled.div`
   display: flex;
@@ -33,13 +33,13 @@ const EnsureChainContainer = styled.div`
   padding-bottom: 16px;
 `;
 
-const NotificationSettings: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
+const NotificationSettings: React.FC = () => {
   return (
     <EnsureChainContainer>
       <EnsureChain>
         <Container>
           <HeaderNotifs />
-          <FormContactDetails toggleIsSettingsOpen={toggleIsSettingsOpen} />
+          <FormContactDetails />
         </Container>
       </EnsureChain>
     </EnsureChainContainer>
