@@ -11,6 +11,7 @@ import { usePNKFaucetAddress } from "hooks/useContractAddress";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
 import { StyledSkeleton } from "components/StyledSkeleton";
+import LatestCases from "components/LatestCases";
 import Stats from "./Stats";
 import Description from "./Description";
 import StakePanel from "./StakePanel";
@@ -115,6 +116,7 @@ const CourtDetails: React.FC = () => {
       <StyledCard>
         <Description />
       </StyledCard>
+      <LatestCases filters={{ court: id }} />
     </Container>
   );
 };
