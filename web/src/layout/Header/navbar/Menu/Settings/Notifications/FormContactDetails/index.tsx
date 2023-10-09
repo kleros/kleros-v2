@@ -6,7 +6,7 @@ import { uploadSettingsToSupabase } from "utils/uploadSettingsToSupabase";
 import FormContact from "./FormContact";
 import messages from "../../../../../../../consts/eip712-messages";
 import { EMAIL_REGEX, TELEGRAM_REGEX } from "../../../../../../../consts/index";
-import { ISettings } from "../../types";
+import { ISettings } from "../../../index";
 
 const FormContainer = styled.form`
   position: relative;
@@ -27,7 +27,7 @@ const FormContactContainer = styled.div`
   margin-bottom: 24px;
 `;
 
-const FormContactDetails: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
+const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const [telegramInput, setTelegramInput] = useState<string>("");
   const [emailInput, setEmailInput] = useState<string>("");
   const [telegramIsValid, setTelegramIsValid] = useState<boolean>(false);
@@ -58,7 +58,7 @@ const FormContactDetails: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
     };
     const response = await uploadSettingsToSupabase(data);
     if (response.ok) {
-      setIsSettingsOpen(false);
+      toggleIsSettingsOpen();
     }
   };
   return (

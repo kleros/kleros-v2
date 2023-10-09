@@ -6,7 +6,7 @@ import General from "./General";
 import NotificationSettings from "./Notifications";
 import { useFocusOutside } from "hooks/useFocusOutside";
 import { Overlay } from "components/Overlay";
-import { ISettings } from "./types";
+import { ISettings } from "../../index";
 
 const Container = styled.div`
   display: flex;
@@ -60,10 +60,10 @@ const TABS = [
   },
 ];
 
-const Settings: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
+const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const [currentTab, setCurrentTab] = useState<number>(0);
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => setIsSettingsOpen(false));
+  useFocusOutside(containerRef, () => toggleIsSettingsOpen());
 
   return (
     <>
@@ -77,7 +77,7 @@ const Settings: React.FC<ISettings> = ({ setIsSettingsOpen }) => {
             setCurrentTab(n);
           }}
         />
-        {currentTab === 0 ? <General /> : <NotificationSettings setIsSettingsOpen={setIsSettingsOpen} />}
+        {currentTab === 0 ? <General /> : <NotificationSettings toggleIsSettingsOpen={toggleIsSettingsOpen} />}
       </Container>
     </>
   );
