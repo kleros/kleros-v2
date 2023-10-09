@@ -22,8 +22,8 @@ export function uploadSettingsToSupabase(formData: SettingsToSupabaseData): Prom
       return response;
     }),
     {
-      pending: "Uploading settings to Supabase...",
-      success: "Uploaded successfully!",
+      pending: "Saving...",
+      success: "Saved successfully!",
       error: {
         render({ data: error }) {
           return `Upload failed: ${error?.message}`;
