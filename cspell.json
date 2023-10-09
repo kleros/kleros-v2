@@ -29,6 +29,7 @@
     "ipfs",
     "kleros",
     "linguo",
+    "Numberish",
     "Pinakion",
     "Realitio",
     "repartitions",
@@ -36,6 +37,8 @@
     "typechain",
     "uncommify",
     "Unslashed",
+    "unstake",
+    "UUPS",
     "viem",
     "wagmi"
   ],

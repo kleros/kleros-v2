@@ -6,7 +6,16 @@ export function getDelta(previousValue: BigInt, newValue: BigInt): BigInt {
   return newValue.minus(previousValue);
 }
 
-const VARIABLES = ["stakedPNK", "redistributedPNK", "paidETH", "activeJurors", "cases", "casesVoting", "casesRuled"];
+const VARIABLES = [
+  "stakedPNK",
+  "redistributedPNK",
+  "paidETH",
+  "activeJurors",
+  "cases",
+  "casesVoting",
+  "casesRuled",
+  "casesAppealing",
+];
 
 function updateDataPoint(delta: BigInt, timestamp: BigInt, variable: string): void {
   checkFirstDayActivity();
@@ -33,6 +42,7 @@ function checkFirstDayActivity(): void {
     counter.cases = ZERO;
     counter.casesVoting = ZERO;
     counter.casesRuled = ZERO;
+    counter.casesAppealing = ZERO;
     counter.save();
   }
 }
@@ -71,4 +81,8 @@ export function updateCasesVoting(delta: BigInt, timestamp: BigInt): void {
 
 export function updateCasesRuled(delta: BigInt, timestamp: BigInt): void {
   updateDataPoint(delta, timestamp, "casesRuled");
+}
+
+export function updateCasesAppealing(delta: BigInt, timestamp: BigInt): void {
+  updateDataPoint(delta, timestamp, "casesAppealing");
 }

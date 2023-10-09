@@ -11,6 +11,8 @@ const courtDetailsQuery = graphql(`
       minStake
       alpha
       numberDisputes
+      numberClosedDisputes
+      numberAppealingDisputes
       numberStakedJurors
       stake
       paidETH
@@ -22,7 +24,7 @@ const courtDetailsQuery = graphql(`
 export const useCourtDetails = (id?: string) => {
   const isEnabled = id !== undefined;
 
-  return useQuery({
+  return useQuery<CourtDetailsQuery>({
     queryKey: ["refetchOnBlock", `courtDetails${id}`],
     enabled: isEnabled,
     queryFn: async () => await graphqlQueryFnHelper(courtDetailsQuery, { id }),

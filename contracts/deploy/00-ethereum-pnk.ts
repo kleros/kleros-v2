@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
+import { isSkipped } from "./utils";
 
 enum Chains {
   GOERLI = 5,
@@ -24,9 +25,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 };
 
 deployArbitration.tags = ["Pinakion"];
-deployArbitration.skip = async ({ getChainId }) => {
-  const chainId = Number(await getChainId());
-  return !Chains[chainId];
+deployArbitration.skip = async ({ network }) => {
+  return isSkipped(network, !Chains[network.config.chainId ?? 0]);
 };
 
 export default deployArbitration;

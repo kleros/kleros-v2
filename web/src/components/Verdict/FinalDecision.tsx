@@ -19,6 +19,7 @@ const JuryContainer = styled.div`
   gap: 8px;
   h3 {
     line-height: 21px;
+    margin-bottom: 0px;
   }
 `;
 
@@ -26,10 +27,6 @@ const JuryDecisionTag = styled.small`
   font-weight: 400;
   line-height: 19px;
   color: ${({ theme }) => theme.secondaryText};
-`;
-
-const Divider = styled.hr`
-  color: ${({ theme }) => theme.stroke};
 `;
 
 const UserContainer = styled.div`
@@ -65,10 +62,17 @@ const StyledButton = styled(LightButton)`
   > .button-text {
     color: ${({ theme }) => theme.primaryBlue};
   }
+  padding-top: 0px;
 `;
 
 const AnswerTitle = styled.h3`
   margin: 0;
+`;
+
+const Divider = styled.hr`
+  display: flex;
+  color: ${({ theme }) => theme.stroke};
+  margin: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875) 0px;
 `;
 
 interface IFinalDecision {
