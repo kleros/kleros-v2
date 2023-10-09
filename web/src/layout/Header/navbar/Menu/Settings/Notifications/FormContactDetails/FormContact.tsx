@@ -14,7 +14,6 @@ const StyledField = styled(Field)`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  // TODO: make the placeholder text color lighter or ~80% opaque
 `;
 
 interface IForm {
