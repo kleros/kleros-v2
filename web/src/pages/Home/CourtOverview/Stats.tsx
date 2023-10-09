@@ -1,5 +1,6 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { Card } from "@kleros/ui-components-library";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
@@ -8,19 +9,29 @@ import EthereumIcon from "svgs/icons/ethereum.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import JurorIcon from "svgs/icons/user.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
-import { formatETH, formatPNK, formatUnitsWei, formatUSD, isUndefined } from "utils/index";
+import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
+import { isUndefined } from "utils/index";
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
+import { CoinIds } from "consts/coingecko";
 import { useHomePageContext, HomePageQuery, HomePageQueryDataPoints } from "hooks/useHomePageContext";
 import { useCoinPrice } from "hooks/useCoinPrice";
-import { usePNKAddress, useWETHAddress } from "hooks/useContractAddress";
 
 const StyledCard = styled(Card)`
   width: auto;
   height: fit-content;
-  padding: 16px;
-  display: grid;
   gap: 32px;
+  padding: calc(16px + (30 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding-left: calc(16px + (35 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding-bottom: 16px;
+  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+
+  ${landscapeStyle(
+    () => css`
+      padding-bottom: 0px;
+      gap: 0px;
+    `
+  )}
 `;
 
 const getLastOrZero = (src: HomePageQuery["counters"], stat: HomePageQueryDataPoints) =>
@@ -79,12 +90,12 @@ const stats: IStat[] = [
 
 const Stats = () => {
   const { data } = useHomePageContext();
-  const coinIdToAddress = [usePNKAddress(), useWETHAddress()];
-  const { prices: pricesData } = useCoinPrice(coinIdToAddress);
+  const coinIds = [CoinIds.PNK, CoinIds.ETH];
+  const { prices: pricesData } = useCoinPrice(coinIds);
   return (
     <StyledCard>
       {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
-        const coinPrice = !isUndefined(pricesData) ? pricesData[coinIdToAddress[coinId!]]?.price : undefined;
+        const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
 
         return (
           <StatDisplay

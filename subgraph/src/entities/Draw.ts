@@ -8,6 +8,7 @@ export function createDrawFromEvent(event: DrawEvent): void {
   const voteID = event.params._voteID;
   const drawID = `${disputeID}-${roundIndex.toString()}-${voteID.toString()}`;
   const draw = new Draw(drawID);
+  draw.blockNumber = event.block.number;
   draw.dispute = disputeID;
   draw.round = roundID;
   draw.juror = event.params._address.toHexString();

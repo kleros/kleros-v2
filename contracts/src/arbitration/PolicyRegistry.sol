@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.18;
 
+import "../proxy/UUPSProxiable.sol";
+import "../proxy/Initializable.sol";
+
 /// @title PolicyRegistry
 /// @dev A contract to maintain a policy for each court.
-contract PolicyRegistry {
+contract PolicyRegistry is UUPSProxiable, Initializable {
     // ************************************* //
     // *              Events               * //
     // ************************************* //
@@ -35,15 +38,28 @@ contract PolicyRegistry {
     // *            Constructor            * //
     // ************************************* //
 
+    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    constructor() {
+        _disableInitializers();
+    }
+
     /// @dev Constructs the `PolicyRegistry` contract.
     /// @param _governor The governor's address.
-    constructor(address _governor) {
+    function initialize(address _governor) external reinitializer(1) {
         governor = _governor;
     }
 
     // ************************************* //
     // *            Governance             * //
     // ************************************* //
+
+    /**
+     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     */
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+        // NOP
+    }
 
     /// @dev Changes the `governor` storage variable.
     /// @param _governor The new value for the `governor` storage variable.

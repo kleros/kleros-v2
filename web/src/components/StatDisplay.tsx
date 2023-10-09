@@ -1,10 +1,18 @@
 import React from "react";
-import styled, { useTheme } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
+import styled, { useTheme, css } from "styled-components";
 
 const Container = styled.div`
   display: flex;
+  max-width: 196px;
   align-items: center;
   gap: 8px;
+
+  ${landscapeStyle(
+    () => css`
+      margin-bottom: calc(16px + (30 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+    `
+  )}
 `;
 
 const SVGContainer = styled.div<{ iconColor: string; backgroundColor: string }>`
@@ -15,11 +23,10 @@ const SVGContainer = styled.div<{ iconColor: string; backgroundColor: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
-
   svg {
     fill: ${({ iconColor }) => iconColor};
-    height: 32px;
-    width: 32px;
+    height: ${({ iconColor, theme }) => (iconColor === theme.success ? "24px" : "32px")};
+    width: ${({ iconColor, theme }) => (iconColor === theme.success ? "24px" : "32px")};
   }
 `;
 
@@ -51,6 +58,7 @@ const StatDisplay: React.FC<IStatDisplay> = ({ title, text, subtext, icon: Icon,
     blue: createPair(theme.primaryBlue, theme.mediumBlue),
     purple: createPair(theme.secondaryPurple, theme.mediumPurple),
   };
+
   return (
     <Container {...props}>
       <SVGContainer {...{ ...COLORS[color] }}>{<Icon />}</SVGContainer>

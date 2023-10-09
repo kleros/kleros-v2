@@ -9,10 +9,12 @@
 pragma solidity 0.8.18;
 
 import "./interfaces/IForeignGateway.sol";
+import "../proxy/UUPSProxiable.sol";
+import "../proxy/Initializable.sol";
 
 /// Foreign Gateway
 /// Counterpart of `HomeGateway`
-contract ForeignGateway is IForeignGateway {
+contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -36,11 +38,11 @@ contract ForeignGateway is IForeignGateway {
     // ************************************* //
 
     uint256 public constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.
-    uint256 internal localDisputeID = 1; // The disputeID must start from 1 as the KlerosV1 proxy governor depends on this implementation. We now also depend on localDisputeID not ever being zero.
+    uint256 internal localDisputeID; // The disputeID must start from 1 as the KlerosV1 proxy governor depends on this implementation. We now also depend on localDisputeID not ever being zero.
     mapping(uint96 => uint256) public feeForJuror; // feeForJuror[v2CourtID], it mirrors the value on KlerosCore.
     address public governor;
     address public veaOutbox;
-    uint256 public immutable override homeChainID;
+    uint256 public override homeChainID;
     address public override homeGateway;
     address public deprecatedVeaOutbox;
     uint256 public deprecatedVeaOutboxExpiration;
@@ -69,16 +71,37 @@ contract ForeignGateway is IForeignGateway {
     // *            Constructor            * //
     // ************************************* //
 
-    constructor(address _governor, address _veaOutbox, uint256 _homeChainID, address _homeGateway) {
+    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    constructor() {
+        _disableInitializers();
+    }
+
+    /// @dev Constructs the `PolicyRegistry` contract.
+    /// @param _governor The governor's address.
+    function initialize(
+        address _governor,
+        address _veaOutbox,
+        uint256 _homeChainID,
+        address _homeGateway
+    ) external reinitializer(1) {
         governor = _governor;
         veaOutbox = _veaOutbox;
         homeChainID = _homeChainID;
         homeGateway = _homeGateway;
+        localDisputeID = 1;
     }
 
     // ************************************* //
     // *           Governance              * //
     // ************************************* //
+
+    /**
+     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     */
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+        // NOP
+    }
 
     /// @dev Changes the governor.
     /// @param _governor The address of the new governor.

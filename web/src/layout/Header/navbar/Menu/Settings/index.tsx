@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { Tabs } from "@kleros/ui-components-library";
 import General from "./General";
 import NotificationSettings from "./Notifications";
@@ -10,15 +11,29 @@ import { ISettings } from "./types";
 const Container = styled.div`
   display: flex;
   position: absolute;
+  max-height: 80vh;
+  overflow-y: auto;
   z-index: 1;
   background-color: ${({ theme }) => theme.whiteBackground};
   flex-direction: column;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  border-radius: 3px;
-  overflow-y: auto;
   top: 5%;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 1;
+  background-color: ${({ theme }) => theme.whiteBackground};
+  border: 1px solid ${({ theme }) => theme.stroke};
+  border-radius: 3px;
+  overflow-y: auto;
+
+  ${landscapeStyle(
+    () => css`
+      margin-top: 64px;
+      top: 0;
+      right: 0;
+      left: auto;
+      transform: none;
+    `
+  )}
 `;
 
 const StyledSettingsText = styled.div`

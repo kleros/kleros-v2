@@ -1,11 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-
-enum HomeChains {
-  ARBITRUM_ONE = 42161,
-  ARBITRUM_GOERLI = 421613,
-  HARDHAT = 31337,
-}
+import { HomeChains, isSkipped } from "./utils";
 
 const pnkByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x330bD769382cFc6d50175903434CCC8D206DCAE5"],
@@ -39,9 +34,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 };
 
 deployArbitration.tags = ["PnkFaucet"];
-deployArbitration.skip = async ({ getChainId }) => {
-  const chainId = Number(await getChainId());
-  return !HomeChains[chainId];
+deployArbitration.skip = async ({ network }) => {
+  return isSkipped(network, !HomeChains[network.config.chainId ?? 0]);
 };
 
 export default deployArbitration;

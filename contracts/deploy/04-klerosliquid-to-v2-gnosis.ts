@@ -2,12 +2,7 @@ import { parseUnits, parseEther } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
-
-enum ForeignChains {
-  GNOSIS_MAINNET = 100,
-  GNOSIS_CHIADO = 10200,
-  HARDHAT = 31337,
-}
+import { ForeignChains, isSkipped } from "./utils";
 
 const wrappedPNKByChain = new Map<ForeignChains, string>([
   [ForeignChains.GNOSIS_MAINNET, "0xcb3231aBA3b451343e0Fddfc45883c842f223846"],
@@ -148,9 +143,8 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
 // };
 
 deployKlerosLiquid.tags = ["KlerosLiquidOnGnosis"];
-deployKlerosLiquid.skip = async ({ getChainId }) => {
-  const chainId = Number(await getChainId());
-  return !ForeignChains[chainId];
+deployKlerosLiquid.skip = async ({ network }) => {
+  return isSkipped(network, !ForeignChains[network.config.chainId ?? 0]);
 };
 
 export default deployKlerosLiquid;

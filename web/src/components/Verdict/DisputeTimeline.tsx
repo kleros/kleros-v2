@@ -16,19 +16,17 @@ const Container = styled.div`
   display: flex;
   position: relative;
   margin-left: 8px;
+  flex-direction: column;
 `;
 
 const StyledTimeline = styled(CustomTimeline)`
   width: 100%;
-  margin-bottom: 32px;
 `;
 
 const EnforcementContainer = styled.div`
-  position: absolute;
-  bottom: 0;
   display: flex;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-top: calc(12px + (24 - 12) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   fill: ${({ theme }) => theme.secondaryText};
 
   small {

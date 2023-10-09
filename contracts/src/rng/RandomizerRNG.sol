@@ -4,13 +4,18 @@ pragma solidity 0.8.18;
 
 import "./RNG.sol";
 import "./IRandomizer.sol";
+import "../proxy/UUPSProxiable.sol";
+import "../proxy/Initializable.sol";
 
 /// @title Random Number Generator that uses Randomizer.ai
 /// https://randomizer.ai/
-contract RandomizerRNG is RNG {
-    address public governor; // The address that can withdraw funds.
-    uint256 public callbackGasLimit = 50000; // Gas limit for the randomizer callback
+contract RandomizerRNG is RNG, UUPSProxiable, Initializable {
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
 
+    address public governor; // The address that can withdraw funds.
+    uint256 public callbackGasLimit; // Gas limit for the randomizer callback
     IRandomizer public randomizer; // Randomizer address.
     mapping(uint256 => uint256) public randomNumbers; // randomNumbers[requestID] is the random number for this request id, 0 otherwise.
     mapping(address => uint256) public requesterToID; // Maps the requester to his latest request ID.
@@ -24,17 +29,35 @@ contract RandomizerRNG is RNG {
         _;
     }
 
-    /// @dev Constructor.
+    // ************************************* //
+    // *            Constructor            * //
+    // ************************************* //
+
+    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    constructor() {
+        _disableInitializers();
+    }
+
+    /// @dev Initializer
     /// @param _randomizer Randomizer contract.
     /// @param _governor Governor of the contract.
-    constructor(IRandomizer _randomizer, address _governor) {
+    function initialize(IRandomizer _randomizer, address _governor) external reinitializer(1) {
         randomizer = _randomizer;
         governor = _governor;
+        callbackGasLimit = 50000;
     }
 
     // ************************ //
     // *      Governance      * //
     // ************************ //
+
+    /**
+     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     */
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+        // NOP
+    }
 
     /// @dev Changes the governor of the contract.
     /// @param _governor The new governor.

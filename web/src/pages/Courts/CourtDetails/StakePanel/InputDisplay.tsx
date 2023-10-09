@@ -1,18 +1,19 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { formatEther } from "viem";
 import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
-import { Field } from "@kleros/ui-components-library";
+import { NumberInputField } from "components/NumberInputField";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
 import { useKlerosCoreGetJurorBalance, usePnkBalanceOf } from "hooks/contracts/generated";
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
+import { formatPNK, roundNumberDown } from "utils/format";
 import { isUndefined } from "utils/index";
+import { commify, uncommify } from "utils/commify";
 import { EnsureChain } from "components/EnsureChain";
 
-const StyledField = styled(Field)`
+const StyledField = styled(NumberInputField)`
   width: 100%;
   height: fit-content;
 `;
@@ -53,7 +54,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
 }) => {
   const [debouncedAmount, setDebouncedAmount] = useState("");
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
-  const parsedAmount = useParsedAmount(debouncedAmount);
+  const parsedAmount = useParsedAmount(uncommify(debouncedAmount));
 
   const { id } = useParams();
   const { data: courtDetails } = useCourtDetails(id);
@@ -63,13 +64,13 @@ const InputDisplay: React.FC<IInputDisplay> = ({
     args: [address ?? "0x"],
     watch: true,
   });
-  const parsedBalance = formatEther(balance ?? 0n);
+  const parsedBalance = formatPNK(balance ?? 0n, 0, true);
   const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
     enabled: !isUndefined(address),
     args: [address, id],
     watch: true,
   });
-  const parsedStake = formatEther(jurorBalance?.[0] || 0n);
+  const parsedStake = formatPNK(jurorBalance?.[0] || 0n, 0, true);
   const isStaking = action === ActionType.stake;
 
   return (
@@ -87,21 +88,21 @@ const InputDisplay: React.FC<IInputDisplay> = ({
       </LabelArea>
       <InputArea>
         <StyledField
-          type="number"
-          value={amount}
+          value={uncommify(amount)}
           onChange={(e) => {
-            setAmount(e.target.value);
+            setAmount(e);
           }}
           placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
           message={
             isStaking
-              ? `You need to stake at least ${formatEther(courtDetails?.court.minStake ?? 0n)} PNK. ` +
+              ? `You need to stake at least ${formatPNK(courtDetails?.court.minStake ?? 0n, 3)} PNK. ` +
                 "You may need two transactions, one to increase allowance, the other to stake."
-              : `You need to either withdraw all or keep at least ${formatEther(
-                  courtDetails?.court.minStake ?? 0n
+              : `You need to either withdraw all or keep at least ${formatPNK(
+                  courtDetails?.court.minStake ?? 0n,
+                  3
                 )} PNK.`
           }
-          variant="info"
+          formatter={(number: string) => commify(roundNumberDown(Number(number)))}
         />
         <EnsureChain>
           <StakeWithdrawButton
