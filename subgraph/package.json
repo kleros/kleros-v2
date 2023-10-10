@@ -15,7 +15,7 @@
     "create-local": "graph create --node http://localhost:8020/ kleros/kleros-v2-core-local",
     "remove-local": "graph remove --node http://localhost:8020/ kleros/kleros-v2-core-local",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 kleros/kleros-v2-core-local --version-label v$(date +%s)",
-    "rebuild-deploy-local": "yarn update:local && yarn codegen && yarn create-local && yarn deploy-local",
+    "rebuild-deploy-local": "yarn update:local && yarn codegen && yarn build && yarn create-local && yarn deploy-local",
     "start-local-indexer": "docker compose -f ../services/graph-node/docker-compose.yml up -d && docker compose -f ../services/graph-node/docker-compose.yml logs -f",
     "stop-local-indexer": "docker compose -f ../services/graph-node/docker-compose.yml down && rm -rf ../services/graph-node/data"
   },
