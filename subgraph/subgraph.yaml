@@ -48,7 +48,7 @@ dataSources:
           handler: handleDisputeKitEnabled
         - event: StakeSet(indexed address,uint256,uint256)
           handler: handleStakeSet
-        - event: StakeDelayed(indexed address,uint256,uint256)
+        - event: StakeDelayed(indexed address,uint256,uint256,uint256)
           handler: handleStakeDelayed
         - event: TokenAndETHShift(indexed address,indexed uint256,indexed uint256,uint256,int256,int256,address)
           handler: handleTokenAndETHShift

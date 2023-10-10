@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
+import LatestCases from "components/LatestCases";
 import CourtOverview from "./CourtOverview";
-import LatestCases from "./LatestCases";
 import Community from "./Community";
 import HeroImage from "./HeroImage";
 import { HomePageProvider } from "hooks/useHomePageContext";

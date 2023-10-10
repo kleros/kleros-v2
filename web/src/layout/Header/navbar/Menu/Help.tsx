@@ -8,6 +8,7 @@ import Bug from "svgs/icons/bug.svg";
 import ETH from "svgs/icons/eth.svg";
 import Faq from "svgs/menu-icons/help.svg";
 import Telegram from "svgs/socialmedia/telegram.svg";
+import { IHelp } from "..";
 
 const Container = styled.div`
   display: flex;
@@ -96,10 +97,6 @@ const ITEMS = [
     url: "https://docs.kleros.io/kleros-faq",
   },
 ];
-
-interface IHelp {
-  toggleIsHelpOpen: () => void;
-}
 
 const Help: React.FC<IHelp> = ({ toggleIsHelpOpen }) => {
   const containerRef = useRef(null);

@@ -57,6 +57,12 @@ const getPeriodColors = (period: Periods, theme: Theme): [string, string] => {
 
 const getPeriodLabel = (period: Periods): string => {
   switch (period) {
+    case Periods.evidence:
+      return "In Progress - Submitting Evidence";
+    case Periods.commit:
+      return "In Progress - Committing Vote";
+    case Periods.vote:
+      return "In Progress - Voting";
     case Periods.appeal:
       return "Crowdfunding Appeal";
     case Periods.execution:

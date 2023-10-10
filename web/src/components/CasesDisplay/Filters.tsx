@@ -1,11 +1,13 @@
 import React from "react";
-import styled, { useTheme, css } from "styled-components";
+import styled, { useTheme } from "styled-components";
+import { useNavigate, useParams } from "react-router-dom";
 import { useWindowSize } from "react-use";
 import { DropdownSelect } from "@kleros/ui-components-library";
-import { useFiltersContext } from "context/FilterProvider";
-import { BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
+import { useIsList } from "context/IsListProvider";
 import ListIcon from "svgs/icons/list.svg";
 import GridIcon from "svgs/icons/grid.svg";
+import { BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
+import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
 const Container = styled.div`
   display: flex;
@@ -14,18 +16,13 @@ const Container = styled.div`
   width: fit-content;
 `;
 
-const glowingEffect = css`
-  filter: drop-shadow(0 0 4px ${({ theme }) => theme.klerosUIComponentsSecondaryPurple});
-`;
-
-const StyledGridIcon = styled(GridIcon)<{ isList: boolean }>`
+const StyledGridIcon = styled(GridIcon)`
   cursor: pointer;
   transition: filter 0.2s ease;
   fill: ${({ theme }) => theme.primaryBlue};
   width: 16px;
   height: 16px;
   overflow: hidden;
-  ${({ isList }) => !isList && glowingEffect}
 `;
 
 const IconsContainer = styled.div`
@@ -35,21 +32,35 @@ const IconsContainer = styled.div`
   gap: 4px;
 `;
 
-const StyledListIcon = styled(ListIcon)<{ isList: boolean; isScreenBig: boolean }>`
+const StyledListIcon = styled(ListIcon)`
   cursor: pointer;
-  display: ${({ isScreenBig }) => (isScreenBig ? "block" : "none")};
   transition: filter 0.2s ease;
   fill: ${({ theme }) => theme.primaryBlue};
   width: 16px;
   height: 16px;
   overflow: hidden;
-  ${({ isList }) => isList && glowingEffect}
 `;
 
 const Filters: React.FC = () => {
   const theme = useTheme();
+  const { order, filter } = useParams();
+  const { ruled, period, ...filterObject } = decodeURIFilter(filter ?? "all");
+  const navigate = useNavigate();
+  const location = useRootPath();
+
+  const handleStatusChange = (value: string | number) => {
+    const parsedValue = JSON.parse(value as string);
+    const encodedFilter = encodeURIFilter({ ...filterObject, ...parsedValue });
+    navigate(`${location}/1/${order}/${encodedFilter}`);
+  };
+
+  const handleOrderChange = (value: string | number) => {
+    const encodedFilter = encodeURIFilter({ ruled, period, ...filterObject });
+    navigate(`${location}/1/${value}/${encodedFilter}`);
+  };
+
   const { width } = useWindowSize();
-  const { isList, setIsList } = useFiltersContext();
+  const { isList, setIsList } = useIsList();
   const screenIsBig = width > BREAKPOINT_LANDSCAPE;
 
   return (
@@ -58,36 +69,39 @@ const Filters: React.FC = () => {
         smallButton
         simpleButton
         items={[
-          { value: 0, text: "All Cases", dot: theme.primaryText },
-          { value: 1, text: "In Progress", dot: theme.primaryBlue },
-          { value: 2, text: "Closed", dot: theme.primaryPurple },
-          { value: 3, text: "Appeal", dot: theme.tint },
+          { value: JSON.stringify({}), text: "All Cases", dot: theme.primaryText },
+          { value: JSON.stringify({ ruled: false }), text: "In Progress", dot: theme.primaryBlue },
+          { value: JSON.stringify({ period: "appeal" }), text: "Appeal", dot: theme.tint },
+          { value: JSON.stringify({ ruled: true }), text: "Closed", dot: theme.primaryPurple },
         ]}
-        defaultValue={0}
-        callback={() => {}}
+        defaultValue={JSON.stringify({ ruled, period })}
+        callback={handleStatusChange}
       />
       <DropdownSelect
         smallButton
         simpleButton
         items={[
-          { value: 0, text: "Newest" },
-          { value: 1, text: "Oldest" },
+          { value: "desc", text: "Newest" },
+          { value: "asc", text: "Oldest" },
         ]}
-        defaultValue={0}
-        callback={() => {}}
+        defaultValue={order}
+        callback={handleOrderChange}
       />
-      <IconsContainer>
-        <StyledGridIcon isList={isList} onClick={() => setIsList(false)} />
-        <StyledListIcon
-          isList={isList}
-          isScreenBig={screenIsBig}
-          onClick={() => {
-            if (screenIsBig) {
-              setIsList(true);
-            }
-          }}
-        />
-      </IconsContainer>
+      {screenIsBig ? (
+        <IconsContainer>
+          {isList ? (
+            <StyledGridIcon onClick={() => setIsList(false)} />
+          ) : (
+            <StyledListIcon
+              onClick={() => {
+                if (screenIsBig) {
+                  setIsList(true);
+                }
+              }}
+            />
+          )}
+        </IconsContainer>
+      ) : null}
     </Container>
   );
 };

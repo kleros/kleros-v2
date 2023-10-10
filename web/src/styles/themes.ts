@@ -17,7 +17,7 @@ export const lightTheme = {
   primaryText: "#333333",
   secondaryText: "#999999",
   stroke: "#e5e5e5",
-  lightGrey: "#FAFAFA",
+  lightGrey: "#F0F0F0",
 
   whiteBackground: "#FFFFFF",
   lightBackground: "#FAFBFC",

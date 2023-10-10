@@ -48,9 +48,9 @@ const StyledLink = styled(Link)<{ isActive: boolean }>`
 `;
 
 const links = [
-  { to: "/cases", text: "Cases" },
+  { to: "/cases/display/1/desc/all", text: "Cases" },
   { to: "/courts", text: "Courts" },
-  { to: "/dashboard", text: "Dashboard" },
+  { to: "/dashboard/1/desc/all", text: "Dashboard" },
 ];
 
 const Explore: React.FC = () => {

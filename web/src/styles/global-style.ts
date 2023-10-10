@@ -8,6 +8,12 @@ export const GlobalStyle = createGlobalStyle`
     --toastify-color-error: ${({ theme }) => theme.error};
   }
 
+  .react-loading-skeleton {
+    z-index: 0;
+    --base-color: ${({ theme }) => theme.skeletonBackground};
+    --highlight-color: ${({ theme }) => theme.skeletonHighlight};
+  }
+
   body {
     font-family: "Open Sans", sans-serif;
     margin: 0px;
@@ -104,15 +110,9 @@ export const GlobalStyle = createGlobalStyle`
     }
   }
 
-  .react-loading-skeleton {
-    --base-color: ${({ theme }) => theme.skeletonBackground};
-    --highlight-color: ${({ theme }) => theme.skeletonHighlight};
-  }
-  
   .os-theme-dark {
     --os-handle-bg: ${({ theme }) => theme.violetPurple};
     --os-handle-bg-hover: ${({ theme }) => theme.secondaryPurple};
     --os-handle-bg-active: ${({ theme }) => theme.lavenderPurple};
   }
-
 `;

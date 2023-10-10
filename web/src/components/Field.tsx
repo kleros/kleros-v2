@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { useFiltersContext } from "context/FilterProvider";
 
 const FieldContainer = styled.div<FieldContainerProps>`
   width: ${({ isList }) => (isList ? "auto" : "100%")};
@@ -38,13 +37,13 @@ interface IField {
   value: string;
   link?: string;
   width?: string;
+  displayAsList?: boolean;
 }
 
-const Field: React.FC<IField> = ({ icon: Icon, name, value, link, width }) => {
-  const { isList } = useFiltersContext();
+const Field: React.FC<IField> = ({ icon: Icon, name, value, link, width, displayAsList }) => {
   return (
-    <FieldContainer isList={isList} width={width}>
-      {!isList && (
+    <FieldContainer isList={displayAsList} width={width}>
+      {!displayAsList && (
         <>
           <Icon />
           <label>{name}:</label>

@@ -3,8 +3,10 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { Tabs } from "@kleros/ui-components-library";
 import General from "./General";
-import SendMeNotifications from "./SendMeNotifications";
+import NotificationSettings from "./Notifications";
 import { useFocusOutside } from "hooks/useFocusOutside";
+import { Overlay } from "components/Overlay";
+import { ISettings } from "../../index";
 
 const Container = styled.div`
   display: flex;
@@ -64,27 +66,26 @@ const TABS = [
   },
 ];
 
-interface ISettings {
-  toggleIsSettingsOpen: () => void;
-}
-
 const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const [currentTab, setCurrentTab] = useState<number>(0);
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => toggleIsSettingsOpen());
 
   return (
-    <Container ref={containerRef}>
-      <StyledSettingsText>Settings</StyledSettingsText>
-      <StyledTabs
-        currentValue={currentTab}
-        items={TABS}
-        callback={(n: number) => {
-          setCurrentTab(n);
-        }}
-      />
-      {currentTab === 0 ? <General /> : <SendMeNotifications />}
-    </Container>
+    <>
+      <Overlay />
+      <Container ref={containerRef}>
+        <StyledSettingsText>Settings</StyledSettingsText>
+        <StyledTabs
+          currentValue={currentTab}
+          items={TABS}
+          callback={(n: number) => {
+            setCurrentTab(n);
+          }}
+        />
+        {currentTab === 0 ? <General /> : <NotificationSettings toggleIsSettingsOpen={toggleIsSettingsOpen} />}
+      </Container>
+    </>
   );
 };
 

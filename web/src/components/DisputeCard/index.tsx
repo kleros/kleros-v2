@@ -5,15 +5,15 @@ import { formatEther } from "viem";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
-import { useFiltersContext } from "context/FilterProvider";
+import { useIsList } from "context/IsListProvider";
+import { DisputeDetailsFragment } from "queries/useCasesQuery";
 import { landscapeStyle } from "styles/landscapeStyle";
-import { CasesPageQuery } from "queries/useCasesQuery";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { useVotingHistory } from "queries/useVotingHistory";
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
-import { useVotingHistory } from "hooks/queries/useVotingHistory";
 
 const StyledCard = styled(Card)`
   width: 100%;
@@ -82,14 +82,12 @@ const TruncatedTitle = ({ text, maxLength }) => {
   return <h3>{truncatedText}</h3>;
 };
 
-const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
-  id,
-  arbitrated,
-  period,
-  lastPeriodChange,
-  court,
-}) => {
-  const { isList } = useFiltersContext();
+interface IDisputeCard extends DisputeDetailsFragment {
+  overrideIsList?: boolean;
+}
+
+const DisputeCard: React.FC<IDisputeCard> = ({ id, arbitrated, period, lastPeriodChange, court, overrideIsList }) => {
+  const { isList } = useIsList();
   const currentPeriodIndex = Periods[period];
   const rewards = `≥ ${formatEther(court.feeForJuror)} ETH`;
   const date =
@@ -110,7 +108,7 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
   const navigate = useNavigate();
   return (
     <>
-      {!isList ? (
+      {!isList || overrideIsList ? (
         <StyledCard hover onClick={() => navigate(`/cases/${id.toString()}`)}>
           <PeriodBanner id={parseInt(id)} period={currentPeriodIndex} />
           <CardContainer>
@@ -120,7 +118,7 @@ const DisputeCard: React.FC<CasesPageQuery["disputes"][number]> = ({
               court={courtName}
               period={currentPeriodIndex}
               round={localRounds?.length}
-              {...{ category, rewards, date }}
+              {...{ category, rewards, date, overrideIsList }}
             />
           </CardContainer>
         </StyledCard>
