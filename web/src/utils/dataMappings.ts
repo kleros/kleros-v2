@@ -11,66 +11,6 @@ const publicClient = createPublicClient({
   transport,
 });
 
-export const mappings = [
-  {
-    type: "fetch",
-    source: "someAPIEndpoint",
-    inputs: {
-      variableName: "disputeData",
-      link: "https://someapi.com/disputeData",
-    },
-    seek: [],
-    populate: [],
-  },
-  {
-    type: "graphql",
-    source: "someGraphqlEndpoint",
-    inputs: {
-      variableName: "submissionData",
-      query: "someGraphqlQuery",
-    },
-    seek: [],
-    populate: [],
-  },
-  {
-    type: "json",
-    source: "evidence",
-    inputs: {},
-    seek: ["fileURI"],
-    populate: ["fileURI"],
-  },
-  {
-    type: "json",
-    source: "fileURI",
-    inputs: {},
-    seek: ["photo", "video"],
-    populate: ["photoUrl", "videoUrl"],
-  },
-  {
-    type: "abi/call",
-    source: "contractCall",
-    inputs: [],
-    seek: [],
-    populate: [],
-  },
-  {
-    type: "abi/event",
-    source: "contractEvent",
-    inputs: [],
-    seek: [],
-    populate: [],
-  },
-];
-
-const initialState = {
-  evidence: {
-    fileURI: {
-      photo: "https://photo.url",
-      video: "https://video.url",
-    },
-  },
-};
-
 const findNestedKey = (data, keyToFind) => {
   if (data.hasOwnProperty(keyToFind)) return data[keyToFind];
   for (let key in data) {
@@ -82,11 +22,11 @@ const findNestedKey = (data, keyToFind) => {
   return null;
 };
 
-export const jsonAction = (data, seek, populate) => {
+export const jsonAction = (source, seek, populate) => {
   let jsonData = {};
 
   seek.forEach((key, idx) => {
-    const foundValue = findNestedKey(data, key);
+    const foundValue = findNestedKey(source, key);
     jsonData[populate[idx]] = foundValue;
   });
 
@@ -129,16 +69,21 @@ export const graphqlAction = async (query: string, seek, populate) => {
   return populatedData;
 };
 
-export const callAction = async (abi, inputs, seek, populate) => {
+export const callAction = async (source, inputs, seek, populate) => {
+  let parsedAbi;
+
+  if (typeof source === "string") {
+    parsedAbi = parseAbiItem(source);
+  } else {
+    parsedAbi = source;
+  }
+
   const data = await publicClient.readContract({
     address: inputs[0],
-    abi: [abi],
+    abi: [parsedAbi],
     functionName: inputs[1],
     args: inputs.slice(2),
   });
-
-  // seek values should be the index of the values we want from the return of the contract since
-  // wagmi/viem returns an array instead of an object
 
   let populatedData = {};
 
@@ -154,6 +99,14 @@ export const callAction = async (abi, inputs, seek, populate) => {
 };
 
 export const eventAction = async (source, inputs, seek, populate) => {
+  let parsedAbi;
+
+  if (typeof source === "string") {
+    parsedAbi = parseAbiItem(source);
+  } else {
+    parsedAbi = source;
+  }
+
   const argsObject = seek.reduce((acc, key, index) => {
     acc[key] = inputs[index + 2];
     return acc;
@@ -161,7 +114,7 @@ export const eventAction = async (source, inputs, seek, populate) => {
 
   const filter = await publicClient.createEventFilter({
     address: inputs[0],
-    event: source,
+    event: parsedAbi,
     args: { ...argsObject },
     fromBlock: inputs[1],
     toBlock: "latest",
@@ -171,7 +124,6 @@ export const eventAction = async (source, inputs, seek, populate) => {
     filter: filter as any,
   });
 
-  // @ts-ignore
   const eventData = contractEvent[0].args;
 
   let populatedData = {};
@@ -183,41 +135,23 @@ export const eventAction = async (source, inputs, seek, populate) => {
   return populatedData;
 };
 
-// const accumulatedData = mappings.reduce(async (acc, { type, source, inputs, seek, populate }) => {
-//   const currentAcc = await acc;
+export const executeAction = async (action) => {
+  switch (action.type) {
+    case "fetch":
+      return await fetchAction(action.source, action.seek, action.populate);
+    case "graphql":
+      return await graphqlAction(action.source, action.seek, action.populate);
+    case "json":
+      return jsonAction(action.source, action.seek, action.populate);
+    case "abi/call":
+      return await callAction(action.source, action.inputs, action.seek, action.populate);
+    case "abi/event":
+      return await eventAction(action.source, action.inputs, action.seek, action.populate);
+    default:
+      throw new Error(`Unsupported action type: ${action.type}`);
+  }
+};
 
-//   switch (type) {
-//     case "fetch":
-//       return {
-//         ...currentAcc,
-//         ...(await fetchAction(inputs.variableName, inputs.link)),
-//       };
-
-//     case "graphql":
-//       return {
-//         ...currentAcc,
-//         ...(await graphqlAction(inputs.variableName, inputs.query)),
-//       };
-
-//     case "json":
-//       return {
-//         ...currentAcc,
-//         ...jsonAction(currentAcc, source, seek, populate),
-//       };
-//     case "abi/call":
-//       return {
-//         ...currentAcc,
-//         ...(await callAction(source, inputs, seek, populate)),
-//       };
-//     // case "abi/event":
-//     //   return {
-//     //     ...currentAcc,
-//     //     ...(await eventAction(source, inputs, seek, populate)),
-//     //   };
-
-//     default:
-//       return currentAcc;
-//   }
-// }, Promise.resolve(initialState));
-
-// console.log(accumulatedData);
+export const parseTemplateWithData = (template, data) => {
+  return template.replace(/\{\{(.*?)\}\}/g, (_, key) => data[key.trim()] || "");
+};

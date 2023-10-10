@@ -7,8 +7,7 @@ import ReactMarkdown from "components/ReactMarkdown";
 import { isUndefined } from "utils/index";
 import { IPFS_GATEWAY } from "consts/index";
 import { useDisputeTemplate } from "hooks/queries/useDisputeTemplate";
-import { jsonAction, callAction } from "utils/dataMappings";
-import { parseAbiItem } from "viem";
+import { executeAction, parseTemplateWithData } from "utils/dataMappings";
 
 const Container = styled.div`
   width: 50%;
@@ -84,37 +83,41 @@ const StyledTextArea = styled(Textarea)`
 const DisputeTemplateView: React.FC = () => {
   const [disputeTemplate, setDisputeTemplate] = useState<string>("");
   const [errorMsg, setErrorMessage] = useState<string>("");
-  const { data: template } = useDisputeTemplate("4", "0xE4af4D800Ce12149199FA6f8870cD650cD8f3164");
-  // console.log("🚀 ~ file: DisputeTemplateView.tsx:86 ~ template:", template!.templateDataMappings);
+  const { data: template } = useDisputeTemplate("7", "0xE4af4D800Ce12149199FA6f8870cD650cD8f3164");
 
   const parsedDisputeTemplate = useMemo(async () => {
     try {
-      const parsedMapping = JSON.parse(template?.templateDataMappings);
+      console.log(template);
       const parsedTemplate = JSON.parse(template?.templateData);
-      console.log("🚀 ~ file: DisputeTemplateView.tsx:94 ~ parsedDisputeTemplate ~ parsedTemplate:", parsedTemplate);
-      console.log("🚀 ~ file: DisputeTemplateView.tsx:90 ~ parsedDisputeTemplate ~ parsed:", parsedMapping);
-      const { inputs, populate, seeks, source } = parsedMapping[0];
-      const parsedAbi = parseAbiItem(source);
-      inputs[3] = BigInt(inputs[3]);
-      console.log(
-        "🚀 ~ file: DisputeTemplateView.tsx:94 ~ parsedDisputeTemplate ~ inputs:",
-        inputs.slice(2),
-        populate,
-        seeks,
-        parsedAbi
-      );
-      const result = await callAction(parsedAbi, inputs, seeks, populate);
-      console.log("🚀 ~ file: DisputeTemplateView.tsx:96 ~ parsedDisputeTemplate ~ result:", result);
+      const parsedMapping = JSON.parse(template?.templateDataMappings);
+
+      console.log("parsedTemplate", parsedTemplate);
+      console.log("parsedMapping", parsedMapping);
+
+      let populatedData = {};
+
+      for (const action of parsedMapping) {
+        console.log("action of parsedMapping", action);
+        const result = await executeAction(action);
+        console.log("result of executeAction", result);
+        populatedData = { ...populatedData, ...result };
+        console.log("populatedData inside loop", populatedData);
+      }
+
+      const finalTemplate = parseTemplateWithData(parsedTemplate.template.content, populatedData);
+      console.log("finalTemplate with everything parsed", finalTemplate);
+      setDisputeTemplate(finalTemplate);
       setErrorMessage("");
-      return parsedTemplate;
+      return finalTemplate;
     } catch (e) {
       console.log("error", e);
-
       setErrorMessage((e as SyntaxError).message);
       return undefined;
     }
   }, [template, disputeTemplate]);
+
   const isThereInput = useMemo(() => disputeTemplate !== "", [disputeTemplate]);
+
   return (
     <Wrapper>
       <StyledTextArea
