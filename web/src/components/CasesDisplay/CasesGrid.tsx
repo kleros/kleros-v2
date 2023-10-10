@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useWindowSize } from "react-use";
 import { useParams } from "react-router-dom";
-import Skeleton from "react-loading-skeleton";
+import { SkeletonDisputeCard, SkeletonDisputeListItem } from "../StyledSkeleton";
 import { StandardPagination } from "@kleros/ui-components-library";
 import { BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
 import { useIsList } from "context/IsListProvider";
@@ -25,11 +25,6 @@ const ListContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   gap: 8px;
-`;
-
-const StyledSkeleton = styled(Skeleton)`
-  height: 260px;
-  width: 310px;
 `;
 
 // 24px as margin-top since we already have 8px from the flex gap
@@ -61,7 +56,7 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, casesPerPage, totalPages, c
         <ListContainer>
           <CasesListHeader />
           {isUndefined(disputes)
-            ? [...Array(casesPerPage)].map((_, i) => <StyledSkeleton key={i} />)
+            ? [...Array(casesPerPage)].map((_, i) => <SkeletonDisputeListItem key={i} />)
             : disputes.map((dispute) => {
                 return <DisputeCard key={dispute.id} {...dispute} />;
               })}
@@ -69,7 +64,7 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, casesPerPage, totalPages, c
       ) : (
         <GridContainer>
           {isUndefined(disputes)
-            ? [...Array(casesPerPage)].map((_, i) => <StyledSkeleton key={i} />)
+            ? [...Array(casesPerPage)].map((_, i) => <SkeletonDisputeCard key={i} />)
             : disputes.map((dispute) => {
                 return <DisputeCard key={dispute.id} {...dispute} overrideIsList />;
               })}
