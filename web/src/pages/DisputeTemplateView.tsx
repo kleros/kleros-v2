@@ -1,13 +1,10 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Textarea } from "@kleros/ui-components-library";
 import PolicyIcon from "svgs/icons/policy.svg";
-import { StyledSkeleton } from "components/StyledSkeleton";
 import ReactMarkdown from "components/ReactMarkdown";
-import { isUndefined } from "utils/index";
 import { IPFS_GATEWAY } from "consts/index";
-import { useDisputeTemplate } from "hooks/queries/useDisputeTemplate";
-import { executeAction, parseTemplateWithData } from "utils/dataMappings";
+import { deepParseTemplateWithData, executeAction } from "utils/dataMappings";
 
 const Container = styled.div`
   width: 50%;
@@ -81,51 +78,54 @@ const StyledTextArea = styled(Textarea)`
 `;
 
 const DisputeTemplateView: React.FC = () => {
-  const [disputeTemplate, setDisputeTemplate] = useState<string>("");
-  const [errorMsg, setErrorMessage] = useState<string>("");
-  const { data: template } = useDisputeTemplate("7", "0xE4af4D800Ce12149199FA6f8870cD650cD8f3164");
+  const [parsedDisputeTemplate, setParsedDisputeTemplate] = useState<any>({});
+  const [disputeTemplateInput, setDisputeTemplateInput] = useState<string>("");
+  const [dataMappingsInput, setDataMappingsInput] = useState<string>("");
 
-  const parsedDisputeTemplate = useMemo(async () => {
-    try {
-      console.log(template);
-      const parsedTemplate = JSON.parse(template?.templateData);
-      const parsedMapping = JSON.parse(template?.templateDataMappings);
+  useEffect(() => {
+    if (!disputeTemplateInput || !dataMappingsInput) return;
 
-      console.log("parsedTemplate", parsedTemplate);
-      console.log("parsedMapping", parsedMapping);
+    const fetchData = async () => {
+      let parsedTemplate, parsedMapping;
 
-      let populatedData = {};
-
-      for (const action of parsedMapping) {
-        console.log("action of parsedMapping", action);
-        const result = await executeAction(action);
-        console.log("result of executeAction", result);
-        populatedData = { ...populatedData, ...result };
-        console.log("populatedData inside loop", populatedData);
+      try {
+        parsedTemplate = JSON.parse(disputeTemplateInput);
+        parsedMapping = JSON.parse(dataMappingsInput);
+      } catch (e) {
+        console.error(e);
+        setParsedDisputeTemplate(undefined);
+        return;
       }
 
-      const finalTemplate = parseTemplateWithData(parsedTemplate.template.content, populatedData);
-      console.log("finalTemplate with everything parsed", finalTemplate);
-      setDisputeTemplate(finalTemplate);
-      setErrorMessage("");
-      return finalTemplate;
-    } catch (e) {
-      console.log("error", e);
-      setErrorMessage((e as SyntaxError).message);
-      return undefined;
-    }
-  }, [template, disputeTemplate]);
+      try {
+        let populatedData = {};
 
-  const isThereInput = useMemo(() => disputeTemplate !== "", [disputeTemplate]);
+        for (const action of parsedMapping) {
+          const result = await executeAction(action);
+          populatedData = { ...populatedData, ...result };
+        }
+
+        const finalTemplate = deepParseTemplateWithData(parsedTemplate, populatedData);
+        setParsedDisputeTemplate(finalTemplate);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    fetchData();
+  }, [disputeTemplateInput, dataMappingsInput]);
 
   return (
     <Wrapper>
       <StyledTextArea
-        value={disputeTemplate}
-        onChange={(e) => setDisputeTemplate(e.target.value)}
+        value={disputeTemplateInput}
+        onChange={(e) => setDisputeTemplateInput(e.target.value)}
         placeholder="Enter dispute template"
-        variant={isThereInput && errorMsg !== "" ? "error" : ""}
-        message={isThereInput ? errorMsg : ""}
+      />
+      <StyledTextArea
+        value={dataMappingsInput}
+        onChange={(e) => setDataMappingsInput(e.target.value)}
+        placeholder="Enter data mappings"
       />
       <Overview disputeTemplate={parsedDisputeTemplate} />
     </Wrapper>
@@ -133,17 +133,12 @@ const DisputeTemplateView: React.FC = () => {
 };
 
 const Overview: React.FC<{ disputeTemplate: any }> = ({ disputeTemplate }) => {
-  console.log("disputeTemplate 133", disputeTemplate);
-
   return (
     <>
       <Container>
         <h1>
-          {isUndefined(disputeTemplate) ? (
-            <StyledSkeleton />
-          ) : (
-            disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"
-          )}
+          {disputeTemplate?.template?.content ??
+            "The dispute's template is not correct please vote refuse to arbitrate"}
         </h1>
         <QuestionAndDescription>
           <ReactMarkdown>{disputeTemplate?.question}</ReactMarkdown>
@@ -156,10 +151,11 @@ const Overview: React.FC<{ disputeTemplate: any }> = ({ disputeTemplate }) => {
         )}
         <VotingOptions>
           {disputeTemplate && <h3>Voting Options</h3>}
-          {disputeTemplate?.answers?.map((answer: { title: string; description: string }, i: number) => (
+          {disputeTemplate?.options?.titles?.map((title: string, i: number) => (
             <span key={i}>
               <small>Option {i + 1}:</small>
-              <label>{answer.title}</label>
+              <label>{title}. </label>
+              <label>{disputeTemplate.options.descriptions[i]}</label>
             </span>
           ))}
         </VotingOptions>

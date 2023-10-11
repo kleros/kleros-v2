@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { useParams } from "react-router-dom";
@@ -8,6 +8,7 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { isUndefined } from "utils/index";
+import { deepParseTemplateWithData, executeAction } from "utils/dataMappings";
 import { Periods } from "consts/periods";
 import { IPFS_GATEWAY } from "consts/index";
 import PolicyIcon from "svgs/icons/policy.svg";
@@ -117,11 +118,37 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const { data: courtPolicy } = useCourtPolicy(courtID);
   const { data: votingHistory } = useVotingHistory(id);
+
+  const [parsedDisputeTemplate, setParsedDisputeTemplate] = useState<any>({});
+
   const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
   const courtName = courtPolicy?.name;
   const court = disputeDetails?.dispute?.court;
   const rewards = court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined;
   const category = disputeTemplate ? disputeTemplate.category : undefined;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const parsedTemplate = JSON.parse(disputeTemplate?.templateData);
+        const parsedMapping = JSON.parse(disputeTemplate?.templateDataMappings);
+
+        let populatedData = {};
+
+        for (const action of parsedMapping) {
+          const result = await executeAction(action);
+          populatedData = { ...populatedData, ...result };
+        }
+
+        const finalTemplate = deepParseTemplateWithData(parsedTemplate, populatedData);
+        setParsedDisputeTemplate(finalTemplate);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    fetchData();
+  }, [disputeTemplate]);
 
   return (
     <>
@@ -130,25 +157,27 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
           {isUndefined(disputeTemplate) ? (
             <StyledSkeleton />
           ) : (
-            disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"
+            parsedDisputeTemplate?.template?.content ??
+            "The dispute's template is not correct please vote refuse to arbitrate"
           )}
         </h1>
         <QuestionAndDescription>
-          <ReactMarkdown>{disputeTemplate?.question}</ReactMarkdown>
-          <ReactMarkdown>{disputeTemplate?.description}</ReactMarkdown>
+          <ReactMarkdown>{parsedDisputeTemplate?.question}</ReactMarkdown>
+          <ReactMarkdown>{parsedDisputeTemplate?.description}</ReactMarkdown>
         </QuestionAndDescription>
-        {disputeTemplate?.frontendUrl && (
-          <a href={disputeTemplate?.frontendUrl} target="_blank" rel="noreferrer">
+        {parsedDisputeTemplate?.frontendUrl && (
+          <a href={parsedDisputeTemplate?.frontendUrl} target="_blank" rel="noreferrer">
             Go to arbitrable
           </a>
         )}
         <VotingOptions>
-          {disputeTemplate && <h3>Voting Options</h3>}
+          {parsedDisputeTemplate && <h3>Voting Options</h3>}
           <Answers>
-            {disputeTemplate?.answers?.map((answer: { title: string; description: string }, i: number) => (
+            {parsedDisputeTemplate?.options?.titles?.map((title: string, i: number) => (
               <span key={i}>
                 <small>Option {i + 1}:</small>
-                <label>{answer.title}</label>
+                <label>{title}. </label>
+                <label>{parsedDisputeTemplate.options.descriptions[i]}</label>
               </span>
             ))}
           </Answers>
@@ -160,14 +189,13 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
             <Divider />
           </>
         )}
-
         <DisputeInfo courtId={court?.id} court={courtName} round={localRounds?.length} {...{ rewards, category }} />
       </Container>
       <ShadeArea>
         <p>Make sure you understand the Policies</p>
         <LinkContainer>
-          {disputeTemplate?.policyURI && (
-            <StyledA href={`${IPFS_GATEWAY}${disputeTemplate.policyURI}`} target="_blank" rel="noreferrer">
+          {parsedDisputeTemplate?.policyURI && (
+            <StyledA href={`${IPFS_GATEWAY}${parsedDisputeTemplate.policyURI}`} target="_blank" rel="noreferrer">
               <PolicyIcon />
               Dispute Policy
             </StyledA>

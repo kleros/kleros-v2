@@ -1,4 +1,4 @@
-import { createPublicClient, http, parseAbiItem, webSocket } from "viem";
+import { createPublicClient, parseAbiItem, webSocket } from "viem";
 import { arbitrumGoerli } from "viem/chains";
 import fetch from "node-fetch";
 
@@ -154,4 +154,24 @@ export const executeAction = async (action) => {
 
 export const parseTemplateWithData = (template, data) => {
   return template.replace(/\{\{(.*?)\}\}/g, (_, key) => data[key.trim()] || "");
+};
+
+export const deepParseTemplateWithData = (templateObj: any, data: any): any => {
+  if (typeof templateObj === "string") {
+    return templateObj.replace(/\{\{(.*?)\}\}/g, (_, key) => data[key.trim()] || "");
+  }
+
+  if (Array.isArray(templateObj)) {
+    return templateObj.map((item) => deepParseTemplateWithData(item, data));
+  }
+
+  if (typeof templateObj === "object") {
+    let newObject: any = {};
+    for (let key in templateObj) {
+      newObject[key] = deepParseTemplateWithData(templateObj[key], data);
+    }
+    return newObject;
+  }
+
+  return templateObj;
 };
