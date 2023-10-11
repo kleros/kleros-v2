@@ -8,5 +8,9 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "eslint.packageManager": "yarn",
   "prettier.useEditorConfig": true,
-  "prettier.configPath": "prettier-config/.prettierrc.js"
+  "prettier.configPath": "prettier-config/.prettierrc.js",
+  "sonarlint.connectedMode.project": {
+    "connectionId": "kleros",
+    "projectKey": "kleros_kleros-v2"
+  }
 }

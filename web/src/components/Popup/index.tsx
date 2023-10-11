@@ -52,7 +52,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: calc(300px + (600 - 300) * (100vw - 375px) / (1250 - 375));
+  width: 82vw;
   max-width: 600px;
   border-radius: 3px;
   border: 1px solid ${({ theme }) => theme.stroke};
@@ -66,6 +66,7 @@ const Container = styled.div`
   ${landscapeStyle(
     () => css`
       overflow-y: hidden;
+      width: calc(300px + (600 - 300) * (100vw - 375px) / (1250 - 375));
     `
   )}
 `;

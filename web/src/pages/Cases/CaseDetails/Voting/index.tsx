@@ -39,7 +39,6 @@ function formatDate(unixTimestamp: number): string {
 interface IVoting {
   arbitrable?: `0x${string}`;
   currentPeriodIndex?: number;
-  courtId: number;
 }
 
 const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {

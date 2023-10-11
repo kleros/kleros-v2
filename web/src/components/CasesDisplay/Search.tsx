@@ -46,9 +46,9 @@ const Search: React.FC = () => {
   const { data: courtTreeData } = useCourtTree();
   const items = useMemo(() => {
     if (!isUndefined(courtTreeData)) {
-      const items = [rootCourtToItems(courtTreeData.court!, "id")];
-      items.push({ label: "All Courts", value: "all" });
-      return items;
+      const courts = [rootCourtToItems(courtTreeData.court!, "id")];
+      courts.push({ label: "All Courts", value: "all" });
+      return courts;
     }
     return undefined;
   }, [courtTreeData]);

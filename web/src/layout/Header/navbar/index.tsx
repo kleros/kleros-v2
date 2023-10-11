@@ -53,6 +53,18 @@ const DisconnectWalletButtonContainer = styled.div`
   align-items: center;
 `;
 
+export interface ISettings {
+  toggleIsSettingsOpen: () => void;
+}
+
+export interface IHelp {
+  toggleIsHelpOpen: () => void;
+}
+
+export interface IDappList {
+  toggleIsDappListOpen: () => void;
+}
+
 const NavBar: React.FC = () => {
   const { isConnected } = useAccount();
   const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
