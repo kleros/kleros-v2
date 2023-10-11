@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Dispute_Filter } from "../graphql/graphql";
 import { DisputeDetailsFragment, useCasesQuery } from "queries/useCasesQuery";
 import DisputeCard from "components/DisputeCard";
-import { StyledSkeleton } from "components/StyledSkeleton";
+import { SkeletonDisputeCard } from "components/StyledSkeleton";
 import { isUndefined } from "utils/index";
 
 const Container = styled.div`
@@ -30,7 +30,7 @@ const LatestCases: React.FC<{ filters?: Dispute_Filter }> = ({ filters }) => {
       <Title>Latest Cases</Title>
       <DisputeContainer>
         {isUndefined(disputes)
-          ? Array.from({ length: 3 }).map((_, index) => <StyledSkeleton key={index} width={312} height={260} />)
+          ? Array.from({ length: 3 }).map((_, index) => <SkeletonDisputeCard key={index} />)
           : disputes.map((dispute) => <DisputeCard key={dispute.id} {...dispute} overrideIsList />)}
       </DisputeContainer>
     </Container>

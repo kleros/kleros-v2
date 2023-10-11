@@ -25,7 +25,7 @@ const Header = styled.h1`
 const Container = styled.div`
   display: flex;
   position: absolute;
-  max-height: 80vh;
+  max-height: 340px;
   top: 5%;
   left: 50%;
   transform: translate(-50%);
@@ -33,7 +33,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
 
-  width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
+  width: 82%;
   max-width: 480px;
   min-width: 300px;
   border-radius: 3px;
@@ -52,6 +52,8 @@ const Container = styled.div`
       left: 0;
       right: auto;
       transform: none;
+      width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
+      max-height: 80vh;
     `
   )}
 `;
