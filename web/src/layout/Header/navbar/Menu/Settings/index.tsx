@@ -13,7 +13,6 @@ const Container = styled.div`
   position: absolute;
   max-height: 80vh;
   overflow-y: auto;
-  z-index: 1;
   background-color: ${({ theme }) => theme.whiteBackground};
   flex-direction: column;
   top: 5%;
@@ -46,7 +45,14 @@ const StyledSettingsText = styled.div`
 
 const StyledTabs = styled(Tabs)`
   padding: 0 calc(8px + (32 - 8) * ((100vw - 300px) / (1250 - 300)));
-  width: calc(300px + (424 - 300) * ((100vw - 300px) / (1250 - 300)));
+  width: 82vw;
+  max-width: 660px;
+
+  ${landscapeStyle(
+    () => css`
+      width: calc(300px + (424 - 300) * ((100vw - 300px) / (1250 - 300)));
+    `
+  )}
 `;
 
 const TABS = [

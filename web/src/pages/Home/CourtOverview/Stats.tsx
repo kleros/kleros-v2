@@ -24,7 +24,7 @@ const StyledCard = styled(Card)`
   padding-left: calc(16px + (35 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   padding-bottom: 16px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
 
   ${landscapeStyle(
     () => css`
