@@ -44,8 +44,8 @@ export const jsonAction = (source, seek, populate) => {
   return jsonData;
 };
 
-export const graphqlAction = async (query: string, seek, populate) => {
-  const response = await fetch("https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli", {
+export const graphqlAction = async (endpoint: string, query: string, seek, populate) => {
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -143,7 +143,7 @@ export const eventAction = async (source, inputs, seek, populate) => {
 export const executeAction = async (action) => {
   switch (action.type) {
     case "graphql":
-      return await graphqlAction(action.source, action.seek, action.populate);
+      return await graphqlAction(action.source, action.inputs, action.seek, action.populate);
     case "json":
       return jsonAction(action.source, action.seek, action.populate);
     case "abi/call":
@@ -158,6 +158,7 @@ export const executeAction = async (action) => {
 export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDetails => {
   const render = mustache.render(mustacheTemplate, data);
   console.log("MUSTACHE RENDER: ", render);
+  // TODO: validate the object according to the DisputeDetails type or a JSON schema
   const dispute = JSON.parse(render);
   return dispute;
 };

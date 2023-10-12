@@ -133,7 +133,9 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
 
   useEffect(() => {
     configureSDK({ apiKey: alchemyApiKey });
+
     if (!disputeTemplateInput || !dataMappingsInput) return;
+
     const fetchData = async () => {
       let parsedMapping;
       try {
@@ -164,10 +166,12 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
         <h1>
           {isUndefined(disputeTemplate) ? <StyledSkeleton /> : disputeDetails?.title ?? INVALID_DISPUTE_DATA_ERROR}
         </h1>
-        <QuestionAndDescription>
-          <ReactMarkdown>{disputeDetails?.question ?? INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
-          <ReactMarkdown>{disputeDetails?.description ?? INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
-        </QuestionAndDescription>
+        {!isUndefined(disputeTemplate) && (
+          <QuestionAndDescription>
+            <ReactMarkdown>{disputeDetails?.question ?? INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
+            <ReactMarkdown>{disputeDetails?.description ?? INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
+          </QuestionAndDescription>
+        )}
         {disputeDetails?.frontendUrl && (
           <a href={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
             Go to arbitrable
