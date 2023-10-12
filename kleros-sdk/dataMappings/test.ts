@@ -26,6 +26,7 @@ describe("jsonAction", () => {
 
 describe("graphqlAction", () => {
   it("should fetch GraphQL data and return in expected format", async () => {
+    const mockEndpoint = "https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli";
     const seek = ["courts"];
     const populate = ["courts"];
 
@@ -57,7 +58,7 @@ describe("graphqlAction", () => {
       ],
     };
 
-    const result = await graphqlAction(mockQuery, seek, populate);
+    const result = await graphqlAction(mockEndpoint, mockQuery, seek, populate);
     expect(result).to.eql(mockData);
   });
 });
