@@ -1,5 +1,5 @@
-import { BigInt } from "@graphprotocol/graph-ts";
-import { User } from "../../generated/schema";
+import { BigInt, log } from "@graphprotocol/graph-ts";
+import { User, Dispute } from "../../generated/schema";
 import { ONE, ZERO } from "../utils";
 
 export function ensureUser(id: string): User {
@@ -18,6 +18,7 @@ export function createUserFromAddress(id: string): User {
   user.totalDelayed = ZERO;
   user.activeDisputes = ZERO;
   user.disputes = [];
+  user.rounds = [];
   user.resolvedDisputes = [];
   user.totalResolvedDisputes = ZERO;
   user.totalAppealingDisputes = ZERO;
@@ -34,6 +35,15 @@ export function addUserActiveDispute(id: string, disputeID: string): void {
     return;
   }
   user.disputes = user.disputes.concat([disputeID]);
+  const dispute = Dispute.load(disputeID);
+  if (!dispute) {
+    log.error("Dispute {} not found", [disputeID]);
+    return;
+  } else {
+    dispute.users.push(id);
+    dispute.save();
+  }
+
   user.activeDisputes = user.activeDisputes.plus(ONE);
   user.totalDisputes = user.totalDisputes.plus(ONE);
   user.save();

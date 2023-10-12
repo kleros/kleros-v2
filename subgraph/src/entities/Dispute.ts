@@ -1,6 +1,7 @@
 import { KlerosCore, DisputeCreation } from "../../generated/KlerosCore/KlerosCore";
-import { Court, Dispute } from "../../generated/schema";
-import { ZERO } from "../utils";
+import { Court, Dispute, PeriodIndexCounter } from "../../generated/schema";
+import { ZERO, ONE } from "../utils";
+import { BigInt } from "@graphprotocol/graph-ts";
 
 export function createDisputeFromEvent(event: DisputeCreation): void {
   const contract = KlerosCore.bind(event.address);
@@ -9,14 +10,25 @@ export function createDisputeFromEvent(event: DisputeCreation): void {
   const dispute = new Dispute(disputeID.toString());
   const courtID = disputeContractState.value0.toString();
   dispute.court = courtID;
+  dispute.disputeID = disputeID;
   dispute.arbitrated = event.params._arbitrable.toHexString();
   dispute.period = "evidence";
   dispute.ruled = false;
   dispute.currentRuling = ZERO;
   dispute.tied = true;
   dispute.overridden = false;
-  dispute.lastPeriodChange = event.block.timestamp;
+  dispute.users = [];
+  dispute.lastPeriodChangeTs = event.block.timestamp;
+  dispute.lastPeriodChangeBlock = event.block.timestamp;
   dispute.lastPeriodChangeBlockNumber = event.block.number;
+  let counter = PeriodIndexCounter.load("evidence");
+  if (!counter) {
+    counter = new PeriodIndexCounter("evidence");
+    counter.counter = BigInt.fromI32(0);
+  }
+  dispute.periodNotificationIndex = counter.counter;
+  counter.counter = counter.counter.plus(ONE);
+  counter.save();
   const court = Court.load(courtID);
   if (!court) return;
   dispute.periodDeadline = event.block.timestamp.plus(court.timesPerPeriod[0]);

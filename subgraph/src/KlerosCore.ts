@@ -25,7 +25,7 @@ import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorToken
 import { createDrawFromEvent } from "./entities/Draw";
 import { updateTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
-import { Court, Dispute, User } from "../generated/schema";
+import { Court, Dispute, User, PeriodIndexCounter } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { updatePenalty } from "./entities/Penalty";
 import { ensureFeeToken } from "./entities/FeeToken";
@@ -126,7 +126,19 @@ export function handleNewPeriod(event: NewPeriod): void {
   }
 
   dispute.period = newPeriod;
-  dispute.lastPeriodChange = event.block.timestamp;
+  dispute.lastPeriodChangeTs = event.block.timestamp;
+  dispute.lastPeriodChangeBlock = event.block.number;
+  let counter = PeriodIndexCounter.load(newPeriod);
+  if (!counter) {
+    counter = new PeriodIndexCounter(newPeriod);
+    counter.counter = BigInt.fromI32(0);
+  }
+  dispute.periodNotificationIndex = counter.counter;
+  const contract = KlerosCore.bind(event.address);
+  const courtContractState = contract.getTimesPerPeriod(BigInt.fromString(dispute.court));
+  dispute.periodDeadline = event.block.timestamp.plus(courtContractState[event.params._period]);
+  counter.counter = counter.counter.plus(ONE);
+  counter.save();
   dispute.lastPeriodChangeBlockNumber = event.block.number;
   if (newPeriod !== "execution") {
     dispute.periodDeadline = event.block.timestamp.plus(court.timesPerPeriod[event.params._period]);

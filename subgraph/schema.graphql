@@ -66,6 +66,7 @@ type User @entity {
   shifts: [TokenAndETHShift!]! @derivedFrom(field: "juror")
   draws: [Draw!]! @derivedFrom(field: "juror")
   activeDisputes: BigInt!
+  rounds: [Round!]!
   disputes: [Dispute!]!
   resolvedDisputes: [Dispute!]!
   totalResolvedDisputes: BigInt!
@@ -118,6 +119,9 @@ type Court @entity {
   id: ID!
   policy: String
   name: String
+  description: String
+  summary: String
+  requiredSkills: String
   parent: Court
   hiddenVotes: Boolean!
   children: [Court!]! @derivedFrom(field: "parent")
@@ -142,6 +146,7 @@ type Court @entity {
 
 type Dispute @entity {
   id: ID!
+  disputeID: BigInt!
   court: Court!
   arbitrated: Arbitrable!
   period: Period!
@@ -149,9 +154,12 @@ type Dispute @entity {
   currentRuling: BigInt!
   tied: Boolean!
   overridden: Boolean!
-  lastPeriodChange: BigInt!
+  periodDeadline: BigInt! # uint256j
+  periodNotificationIndex: BigInt!
+  lastPeriodChangeTs: BigInt!
+  users: [User!]!
+  lastPeriodChangeBlock: BigInt!
   lastPeriodChangeBlockNumber: BigInt!
-  periodDeadline: BigInt!
   rounds: [Round!]! @derivedFrom(field: "dispute")
   currentRound: Round!
   currentRoundIndex: BigInt!
@@ -160,12 +168,18 @@ type Dispute @entity {
   disputeKitDispute: DisputeKitDispute @derivedFrom(field: "coreDispute")
 }
 
+type PeriodIndexCounter @entity {
+  id: String!
+  counter: BigInt!
+}
+
 type Round @entity {
   id: ID! # dispute.id-dispute.rounds.length
   disputeKit: DisputeKit!
   tokensAtStakePerJuror: BigInt!
   totalFeesForJurors: BigInt!
   nbVotes: BigInt!
+  isCurrentRound: Boolean!
   repartitions: BigInt!
   penalties: BigInt!
   drawnJurors: [Draw!]! @derivedFrom(field: "round")
@@ -181,6 +195,7 @@ type Draw @entity(immutable: true) {
   juror: User!
   voteID: BigInt!
   vote: Vote @derivedFrom(field: "draw")
+  drawNotificationIndex: BigInt
 }
 
 type DisputeKit @entity {
