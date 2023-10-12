@@ -1,14 +1,13 @@
 import React, { useMemo } from "react";
-import { useWindowSize } from "react-use";
 import { useParams, useNavigate } from "react-router-dom";
 import { DisputeDetailsFragment, Dispute_Filter, OrderDirection } from "src/graphql/graphql";
-import { BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
 import { useCasesQuery } from "queries/useCasesQuery";
 import { useCounterQuery, CounterQuery } from "queries/useCounter";
 import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
+import useIsDesktop from "hooks/useIsDesktop";
+import { isUndefined } from "utils/index";
 import { decodeURIFilter, useRootPath } from "utils/uri";
 import CasesDisplay from "components/CasesDisplay";
-import { isUndefined } from "utils/index";
 
 const calculateStats = (
   isCourtFilter: boolean,
@@ -42,9 +41,8 @@ const CasesFetcher: React.FC = () => {
   const { page, order, filter } = useParams();
   const location = useRootPath();
   const navigate = useNavigate();
-  const { width } = useWindowSize();
-  const screenIsBig = width > BREAKPOINT_LANDSCAPE;
-  const casesPerPage = screenIsBig ? 9 : 3;
+  const isDesktop = useIsDesktop();
+  const casesPerPage = isDesktop ? 9 : 3;
   const pageNumber = parseInt(page ?? "1");
   const disputeSkip = casesPerPage * (pageNumber - 1);
   const { data: counterData } = useCounterQuery();
