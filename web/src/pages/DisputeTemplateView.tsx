@@ -4,8 +4,9 @@ import { Textarea } from "@kleros/ui-components-library";
 import PolicyIcon from "svgs/icons/policy.svg";
 import ReactMarkdown from "components/ReactMarkdown";
 import { INVALID_DISPUTE_DATA_ERROR, IPFS_GATEWAY } from "consts/index";
-import { populateTemplate, executeAction } from "utils/dataMappings";
+import { populateTemplate, executeAction, configureSDK } from "@kleros/kleros-sdk/dataMappings";
 import { Answer, DisputeDetails } from "utils/disputeDetails";
+import { alchemyApiKey } from "context/Web3Provider";
 
 const Container = styled.div`
   width: 50%;
@@ -84,7 +85,10 @@ const DisputeTemplateView: React.FC = () => {
   const [dataMappingsInput, setDataMappingsInput] = useState<string>("");
 
   useEffect(() => {
+    configureSDK({ apiKey: alchemyApiKey });
+
     if (!disputeTemplateInput || !dataMappingsInput) return;
+
     const fetchData = async () => {
       let parsedMapping;
       try {

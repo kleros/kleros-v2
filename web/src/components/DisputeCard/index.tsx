@@ -14,7 +14,7 @@ import { useVotingHistory } from "queries/useVotingHistory";
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
-import { populateTemplate } from "utils/dataMappings";
+import { populateTemplate } from "@kleros/kleros-sdk/dataMappings";
 import { DisputeDetails } from "utils/disputeDetails";
 import { INVALID_DISPUTE_DATA_ERROR } from "consts/index";
 

@@ -2,11 +2,11 @@
 
 _Archon's successor_
 
-For running data mappings unit tests, first make sure the `ALCHEMY_API_KEY` variable is set inside the `dataMappings.ts` file, then run:
+Make sure to set the environment variables first by copying the file `.env.example`, pasting it, renaming it to `.env`, and then setting the variables.
+To run the data mappings tests:
 
 ```bash
-cd kleros-sdk
-yarn mocha -r ts-node/register dataMappings/test.ts
+yarn run test-data-mappings
 ```
 
 🚧 ⚖️ 🚧

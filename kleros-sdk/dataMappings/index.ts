@@ -3,17 +3,26 @@ import { arbitrumGoerli } from "viem/chains";
 import fetch from "node-fetch";
 import mustache from "mustache";
 import { DisputeDetails } from "./disputeDetails";
+import dotenv from "dotenv";
 
-const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY;
+dotenv.config();
 
-const transport = webSocket(`wss://arb-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
+let ALCHEMY_API_KEY: string | undefined = process.env.ALCHEMY_API_KEY;
+let transport;
+let publicClient;
 
-const publicClient = createPublicClient({
-  chain: arbitrumGoerli,
-  transport,
-});
+export const configureSDK = (config: { apiKey?: string }) => {
+  if (config.apiKey) {
+    ALCHEMY_API_KEY = config.apiKey;
+    transport = webSocket(`wss://arb-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
+    publicClient = createPublicClient({
+      chain: arbitrumGoerli,
+      transport,
+    });
+  }
+};
 
-const findNestedKey = (data, keyToFind) => {
+export const findNestedKey = (data, keyToFind) => {
   if (data.hasOwnProperty(keyToFind)) return data[keyToFind];
   for (let key in data) {
     if (typeof data[key] === "object" && data[key] !== null) {
@@ -33,20 +42,6 @@ export const jsonAction = (source, seek, populate) => {
   });
 
   return jsonData;
-};
-
-export const fetchAction = async (link: string, seek, populate) => {
-  const response = await fetch(link);
-  const fetchedData = await response.json();
-  console.log(fetchedData);
-  const populatedData = {};
-
-  seek.forEach((key, idx) => {
-    const foundValue = findNestedKey(fetchedData, key);
-    populatedData[populate[idx]] = foundValue;
-  });
-
-  return populatedData;
 };
 
 export const graphqlAction = async (query: string, seek, populate) => {
@@ -72,6 +67,10 @@ export const graphqlAction = async (query: string, seek, populate) => {
 };
 
 export const callAction = async (source, inputs, seek, populate) => {
+  if (!publicClient) {
+    throw new Error("SDK not configured. Please call `configureSDK` before using.");
+  }
+
   let parsedAbi;
 
   if (typeof source === "string") {
@@ -89,11 +88,11 @@ export const callAction = async (source, inputs, seek, populate) => {
 
   const populatedData = {};
 
-  seek.map((item) => {
+  seek.map((item, index) => {
     if (typeof data == "object") {
-      populatedData[populate[item]] = data[item];
+      populatedData[populate[index]] = data[item];
     } else {
-      populatedData[populate[item]] = data;
+      populatedData[populate[index]] = data;
     }
   });
 
@@ -101,6 +100,10 @@ export const callAction = async (source, inputs, seek, populate) => {
 };
 
 export const eventAction = async (source, inputs, seek, populate) => {
+  if (!publicClient) {
+    throw new Error("SDK not configured. Please call `configureSDK` before using.");
+  }
+
   let parsedAbi;
 
   if (typeof source === "string") {
@@ -139,8 +142,6 @@ export const eventAction = async (source, inputs, seek, populate) => {
 
 export const executeAction = async (action) => {
   switch (action.type) {
-    case "fetch":
-      return await fetchAction(action.source, action.seek, action.populate);
     case "graphql":
       return await graphqlAction(action.source, action.seek, action.populate);
     case "json":
@@ -154,14 +155,9 @@ export const executeAction = async (action) => {
   }
 };
 
-export const parseTemplateWithData = (template, data) => {
-  return template.replace(/\{\{(.*?)\}\}/g, (_, key) => data[key.trim()] || "");
-};
-
 export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDetails => {
   const render = mustache.render(mustacheTemplate, data);
   console.log("MUSTACHE RENDER: ", render);
   const dispute = JSON.parse(render);
-  // TODO: validate the object according to the DisputeDetails type or a JSON schema
   return dispute;
 };

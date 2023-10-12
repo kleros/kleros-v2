@@ -8,7 +8,8 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { isUndefined } from "utils/index";
-import { populateTemplate, executeAction } from "utils/dataMappings";
+import { populateTemplate, executeAction, configureSDK } from "@kleros/kleros-sdk/dataMappings";
+import { alchemyApiKey } from "context/Web3Provider";
 import { Answer, DisputeDetails } from "utils/disputeDetails";
 import { Periods } from "consts/periods";
 import { INVALID_DISPUTE_DATA_ERROR, IPFS_GATEWAY } from "consts/index";
@@ -131,6 +132,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
   const dataMappingsInput = disputeTemplate?.templateDataMappings;
 
   useEffect(() => {
+    configureSDK({ apiKey: alchemyApiKey });
     if (!disputeTemplateInput || !dataMappingsInput) return;
     const fetchData = async () => {
       let parsedMapping;

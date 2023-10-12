@@ -1,0 +1,31 @@
+{
+  "name": "@kleros/kleros-sdk",
+  "version": "0.1.0",
+  "description": "SDK for Kleros version 2",
+  "main": "index.ts",
+  "repository": "git@github.com:kleros/kleros-v2.git",
+  "author": "Kleros",
+  "license": "MIT",
+  "packageManager": "yarn@3.3.1",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "type": "commonjs",
+  "volta": {
+    "node": "16.20.1",
+    "yarn": "3.3.1"
+  },
+  "scripts": {
+    "build": "your-build-script",
+    "test-data-mappings": "mocha -r ts-node/register/transpile-only dataMappings/test.ts"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.6",
+    "@types/mocha": "^10.0.1",
+    "chai": "^4.3.8",
+    "dotenv": "^16.3.1",
+    "mocha": "^10.2.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}

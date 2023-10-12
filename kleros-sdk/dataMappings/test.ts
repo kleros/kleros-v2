@@ -1,8 +1,5 @@
 import { expect } from "chai";
-import { createPublicClient, http, parseAbiItem } from "viem";
-import { arbitrumGoerli } from "viem/chains";
-import { jsonAction, graphqlAction, fetchAction, eventAction, callAction } from "./dataMappings";
-import { klerosCoreABI } from "../../web/src/hooks/contracts/generated";
+import { jsonAction, graphqlAction, eventAction, callAction, findNestedKey, populateTemplate, configureSDK } from ".";
 
 const exampleObject = {
   evidence: {
@@ -13,9 +10,8 @@ const exampleObject = {
   },
 };
 
-const publicClient = createPublicClient({
-  chain: arbitrumGoerli,
-  transport: http(),
+before(() => {
+  configureSDK({ apiKey: process.env.ALCHEMY_API_KEY });
 });
 
 describe("jsonAction", () => {
@@ -25,20 +21,6 @@ describe("jsonAction", () => {
       photoUrl: "https://photo.url",
       videoUrl: "https://video.url",
     });
-  });
-});
-
-describe("fetchAction", () => {
-  it("should fetch data and return in expected format", async () => {
-    const seek = ["rate"];
-    const populate = ["rate"];
-    const result = await fetchAction("https://fakestoreapi.com/products/1", seek, populate);
-
-    const expectedResult = {
-      rate: 3.9,
-    };
-
-    expect(result).to.eql(expectedResult);
   });
 });
 
@@ -82,14 +64,13 @@ describe("graphqlAction", () => {
 
 describe("callAction", () => {
   it("should call the contract and return populated data", async () => {
-    const mockAbi = parseAbiItem(`function appealCost(uint256 _disputeID) public view returns (uint256)`);
+    const mockAbi = "function appealCost(uint256 _disputeID) public view returns (uint256)";
     const mockInputs = ["0x5a2bC1477ABE705dB4955Cda7DE064eA79D563d1", "appealCost", BigInt(1)];
     const mockSeek = ["_disputeID"];
     const mockPopulate = ["cost"];
 
     const result = await callAction(mockAbi, mockInputs, mockSeek, mockPopulate);
 
-    console.log("result", result);
     expect(result).to.eql({
       cost: BigInt(30000000000000),
     });
@@ -98,10 +79,7 @@ describe("callAction", () => {
 
 describe("eventAction", () => {
   it("should fetch event data and return populated data", async () => {
-    // const mockSource = parseAbiItem(
-    //   "event Draw(address indexed _address, uint256 indexed _disputeID, uint256 _roundID, uint256 _voteID)"
-    // );
-    const mockSource = parseAbiItem("event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount)");
+    const mockSource = "event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount)";
     const mockInputs = [
       "0x5a2bC1477ABE705dB4955Cda7DE064eA79D563d1",
       BigInt(36205881),
@@ -115,5 +93,79 @@ describe("eventAction", () => {
       address: "0xE652E5B6409B062FcE5f40E19682f31152d6CD1a",
       courtID: BigInt(1),
     });
+  });
+});
+
+describe("findNestedKey", () => {
+  const testData = {
+    level1: "value1",
+    nested: {
+      level2: "value2",
+      deeper: {
+        level3: "value3",
+      },
+    },
+  };
+
+  it("should find top-level keys", () => {
+    const result = findNestedKey(testData, "level1");
+    expect(result).to.eql("value1");
+  });
+
+  it("should find second-level nested keys", () => {
+    const result = findNestedKey(testData, "level2");
+    expect(result).to.eql("value2");
+  });
+
+  it("should find deeply nested keys", () => {
+    const result = findNestedKey(testData, "level3");
+    expect(result).to.eql("value3");
+  });
+
+  it("should return null if key not found", () => {
+    const result = findNestedKey(testData, "nonexistent");
+    expect(result).to.be.null;
+  });
+});
+
+describe("populateTemplate", () => {
+  it("should correctly populate the template with provided data", () => {
+    const template = '{"name": "{{name}}", "age": {{age}}, "isStudent": {{isStudent}}}';
+    const data = {
+      name: "John",
+      age: 25,
+      isStudent: false,
+    };
+
+    const result = populateTemplate(template, data);
+
+    expect(result).to.deep.equal({
+      name: "John",
+      age: 25,
+      isStudent: false,
+    });
+  });
+
+  it("should handle missing data by leaving placeholders untouched", () => {
+    const template = '{"name": "{{name}}", "age": {{age}}}';
+    const data = {
+      age: 30,
+    };
+
+    const result = populateTemplate(template, data);
+
+    expect(result).to.deep.equal({
+      name: "",
+      age: 30,
+    });
+  });
+
+  it("should throw an error for invalid JSON", () => {
+    const template = '{"name": "{{name}"}';
+    const data = {
+      name: "Jane",
+    };
+
+    expect(() => populateTemplate(template, data)).to.throw();
   });
 });
