@@ -22,22 +22,6 @@
       "type": "string",
       "default": "NewDisputeTemplate.schema.json"
     },
-    "category": {
-      "type": "string",
-      "default": "",
-      "title": "The category Schema",
-      "examples": [
-        "Oracle"
-      ]
-    },
-    "lang": {
-      "type": "string",
-      "default": "",
-      "title": "The lang Schema",
-      "examples": [
-        "en_US"
-      ]
-    },
     "title": {
       "type": "string",
       "default": "",
@@ -335,6 +319,22 @@
         "0xD08Ab99480d02bf9C092828043f611BcDFEA917b"
       ]
     },
+    "category": {
+      "type": "string",
+      "default": "",
+      "title": "The category Schema",
+      "examples": [
+        "Oracle"
+      ]
+    },
+    "lang": {
+      "type": "string",
+      "default": "",
+      "title": "The lang Schema",
+      "examples": [
+        "en_US"
+      ]
+    },
     "specification": {
       "type": "string",
       "default": "",
@@ -342,6 +342,14 @@
       "examples": [
         "KIP00",
         "KIP99"
+      ]
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0",
+      "title": "The version Schema",
+      "examples": [
+        "1.0"
       ]
     }
   }
