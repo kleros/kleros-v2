@@ -1,12 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 
-interface IProduct {
-  text: string;
-  url: string;
-  Icon: React.FC<React.SVGAttributes<SVGElement>> | string;
-}
-
 const Container = styled.a`
   cursor: pointer;
   display: flex;
@@ -30,29 +24,20 @@ const Container = styled.a`
     line-height: 19px;
     font-size: 14px;
   }
-
-  svg {
-    max-width: 48px;
-    max-height: 48px;
-    fill: none;
-    visibility: visible;
-    display: inline-block;
-  }
 `;
 
-const StyledIcon = styled.svg`
-  max-width: 48px;
-  max-height: 48px;
-  fill: none;
-  visibility: visible;
-  display: inline-block;
-  fill: ${({ theme }) => theme.secondaryPurple};
-`;
+const StyledIcon = styled.svg``;
 
 const StyledImg = styled.img`
   max-width: 48px;
   max-height: 48px;
 `;
+
+interface IProduct {
+  text: string;
+  url: string;
+  Icon: React.FC<React.SVGAttributes<SVGElement>> | string;
+}
 
 const Product: React.FC<IProduct> = ({ text, url, Icon }) => {
   return (

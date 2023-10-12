@@ -1,36 +1,68 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import { useToggle } from "react-use";
+import React from "react";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import LightButton from "components/LightButton";
-import Help from "./Help";
 import DarkModeIcon from "svgs/menu-icons/dark-mode.svg";
 import HelpIcon from "svgs/menu-icons/help.svg";
 import LightModeIcon from "svgs/menu-icons/light-mode.svg";
 import NotificationsIcon from "svgs/menu-icons/notifications.svg";
 import SettingsIcon from "svgs/menu-icons/settings.svg";
-import Settings from "./Settings";
 import { useToggleTheme } from "hooks/useToggleThemeContext";
+import { IHelp, ISettings } from "..";
 
-const Container = styled.div``;
+const Container = styled.div`
+  display: flex;
+
+  flex-direction: column;
+  gap: 0px;
+
+  ${landscapeStyle(
+    () => css`
+      flex-direction: row;
+      gap: 8px;
+    `
+  )}
+`;
 
 const ButtonContainer = styled.div`
   min-height: 32px;
   display: flex;
   align-items: center;
+
+  button {
+    padding: 0px;
+  }
+
+  .button-text {
+    display: block;
+  }
+
+  .button-svg {
+    fill: ${({ theme }) => theme.secondaryPurple};
+  }
+
+  ${landscapeStyle(
+    () => css`
+      .button-svg {
+        fill: ${({ theme }) => theme.white};
+      }
+      .button-text {
+        display: none;
+      }
+    `
+  )}
 `;
 
-const Menu: React.FC = () => {
+const Menu: React.FC<ISettings & IHelp> = ({ toggleIsHelpOpen, toggleIsSettingsOpen }) => {
   const [theme, toggleTheme] = useToggleTheme();
-  const [isHelpOpen, toggleIsHelpOpen] = useToggle(true);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
   const isLightTheme = theme === "light";
+
   const buttons = [
     { text: "Notifications", Icon: NotificationsIcon },
     {
       text: "Settings",
       Icon: SettingsIcon,
-      onClick: () => setIsSettingsOpen(true),
+      onClick: () => toggleIsSettingsOpen(),
     },
     {
       text: "Help",
@@ -49,12 +81,10 @@ const Menu: React.FC = () => {
   return (
     <Container>
       {buttons.map(({ text, Icon, onClick }) => (
-        <ButtonContainer key={text}>
+        <ButtonContainer key={Icon}>
           <LightButton {...{ text, onClick, Icon }} />
         </ButtonContainer>
       ))}
-      {isHelpOpen && <Help toggle={toggleIsHelpOpen} />}
-      {isSettingsOpen && <Settings setIsSettingsOpen={setIsSettingsOpen} />}
     </Container>
   );
 };

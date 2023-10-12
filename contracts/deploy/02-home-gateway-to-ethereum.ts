@@ -1,11 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers } from "hardhat";
-
-enum HomeChains {
-  ARBITRUM_ONE = 42161,
-  ARBITRUM_GOERLI = 421613,
-}
+import { HardhatChain, HomeChains, isSkipped } from "./utils";
+import { deployUpgradable } from "./utils/deployUpgradable";
 
 // TODO: use deterministic deployments
 
@@ -26,7 +23,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const foreignChainName = await hre.companionNetworks.foreignGoerli.deployments.getNetworkName();
   console.log("Using ForeignGateway %s on chainId %s (%s)", foreignGateway.address, foreignChainId, foreignChainName);
 
-  await deploy("HomeGatewayToEthereum", {
+  await deployUpgradable(hre, "HomeGatewayToEthereum", {
     from: deployer,
     contract: "HomeGateway",
     args: [
@@ -42,9 +39,9 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 };
 
 deployHomeGateway.tags = ["HomeGatewayToEthereum"];
-deployHomeGateway.skip = async ({ getChainId }) => {
-  const chainId = Number(await getChainId());
-  return !HomeChains[chainId];
+deployHomeGateway.skip = async ({ network }) => {
+  const chainId = network.config.chainId ?? 0;
+  return isSkipped(network, !HomeChains[chainId] || HardhatChain[chainId] !== undefined);
 };
 
 export default deployHomeGateway;

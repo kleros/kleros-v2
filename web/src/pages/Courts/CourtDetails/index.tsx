@@ -7,13 +7,41 @@ import { formatEther } from "viem";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
 import { DEFAULT_CHAIN } from "consts/chains";
-import { PNK_FAUCET_CONTRACT_ADDRESS } from "consts/index";
+import { usePNKFaucetAddress } from "hooks/useContractAddress";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
+import { StyledSkeleton } from "components/StyledSkeleton";
+import LatestCases from "components/LatestCases";
 import Stats from "./Stats";
 import Description from "./Description";
 import StakePanel from "./StakePanel";
 import { usePnkFaucetWithdrewAlready, prepareWritePnkFaucet, usePnkBalanceOf } from "hooks/contracts/generated";
+
+const Container = styled.div``;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+`;
+
+const StyledCard = styled(Card)`
+  margin-top: calc(16px + (24 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  width: 100%;
+  height: auto;
+  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  min-height: 100px;
+`;
+
+const StyledBreadcrumb = styled(Breadcrumb)`
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+`;
+
+const StyledBreadcrumbSkeleton = styled.div`
+  margin-bottom: 12px;
+`;
 
 const CourtDetails: React.FC = () => {
   const { id } = useParams();
@@ -24,12 +52,13 @@ const CourtDetails: React.FC = () => {
   const { address } = useAccount();
   const { data: claimed } = usePnkFaucetWithdrewAlready({
     enabled: !isUndefined(address),
-    args: [address],
+    args: [address ?? "0x00"],
     watch: true,
   });
 
+  const faucetAddress = usePNKFaucetAddress();
   const { data: balance } = usePnkBalanceOf({
-    args: [PNK_FAUCET_CONTRACT_ADDRESS],
+    args: [faucetAddress],
     watch: true,
   });
   const { data: walletClient } = useWalletClient();
@@ -49,17 +78,26 @@ const CourtDetails: React.FC = () => {
   const faucetCheck = !isUndefined(balance) && parseInt(formatEther(balance)) > 200;
   const courtPath = getCourtsPath(data?.court, id);
 
-  const items = courtPath?.map((node) => ({
-    text: node.name,
-    value: node.id,
-  }));
+  const items = [{ text: "🏛️", value: "0" }];
+  items.push(
+    ...(courtPath?.map((node) => ({
+      text: node.name,
+      value: node.id,
+    })) ?? [])
+  );
 
   return (
     <Container>
       <StyledCard>
-        <h1>{policy ? policy.name : "Loading..."}</h1>
+        <h1>{policy ? policy.name : <StyledSkeleton width={200} />}</h1>
         <ButtonContainer>
-          {items && <StyledBreadcrumb items={items} />}
+          {items.length > 1 ? (
+            <StyledBreadcrumb items={items} />
+          ) : (
+            <StyledBreadcrumbSkeleton>
+              <StyledSkeleton width={100} />
+            </StyledBreadcrumbSkeleton>
+          )}
           {chain?.id === DEFAULT_CHAIN && !claimed && (
             <Button
               variant="primary"
@@ -78,29 +116,10 @@ const CourtDetails: React.FC = () => {
       <StyledCard>
         <Description />
       </StyledCard>
+      <LatestCases filters={{ court: id }} />
     </Container>
   );
 };
-
-const Container = styled.div``;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-`;
-
-const StyledCard = styled(Card)`
-  margin-top: 16px;
-  width: 100%;
-  height: auto;
-  padding: 16px;
-  min-height: 100px;
-`;
-
-const StyledBreadcrumb = styled(Breadcrumb)`
-  margin: 16px 0 12px 0;
-`;
 
 export default CourtDetails;
 

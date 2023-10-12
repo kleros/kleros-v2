@@ -1,38 +1,70 @@
 import React from "react";
-import styled from "styled-components";
-import { Link } from "react-router-dom";
-import { useOpenContext } from "../index";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
+import { Link, useLocation } from "react-router-dom";
+import { useOpenContext } from "../MobileHeader";
 
-const Container = styled.div``;
+const Container = styled.div`
+  display: flex;
+  gap: 0px;
+  flex-direction: column;
+
+  ${landscapeStyle(
+    () => css`
+      flex-direction: row;
+      gap: calc(4px + (16 - 4) * ((100vw - 375px) / (1250 - 375)));
+    `
+  )};
+`;
 
 const LinkContainer = styled.div`
-  min-height: 32px;
   display: flex;
+  min-height: 32px;
   align-items: center;
+`;
 
-  .sm-link {
-    color: ${({ theme }) => theme.primaryText};
-    text-decoration: none;
-    font-size: 16px;
-  }
+const Title = styled.h1`
+  display: block;
+
+  ${landscapeStyle(
+    () => css`
+      display: none;
+    `
+  )};
+`;
+
+const StyledLink = styled(Link)<{ isActive: boolean }>`
+  color: ${({ theme }) => theme.primaryText};
+  text-decoration: none;
+  font-size: 16px;
+
+  font-weight: ${({ isActive }) => (isActive ? "600" : "normal")};
+
+  ${landscapeStyle(
+    () => css`
+      color: ${({ theme }) => theme.white};
+    `
+  )};
 `;
 
 const links = [
-  { to: "/cases", text: "Cases" },
+  { to: "/cases/display/1/desc/all", text: "Cases" },
   { to: "/courts", text: "Courts" },
-  { to: "/dashboard", text: "Dashboard" },
+  { to: "/dashboard/1/desc/all", text: "Dashboard" },
 ];
 
 const Explore: React.FC = () => {
+  const location = useLocation();
   const { toggleIsOpen } = useOpenContext();
+
   return (
     <Container>
-      <h1>Explore</h1>
+      <Title>Explore</Title>
       {links.map(({ to, text }) => (
         <LinkContainer key={text}>
-          <Link {...{ to }} onClick={toggleIsOpen} className="sm-link">
+          <StyledLink to={to} onClick={toggleIsOpen} isActive={location.pathname.startsWith(to)}>
             {text}
-          </Link>
+          </StyledLink>
         </LinkContainer>
       ))}
     </Container>

@@ -20,6 +20,7 @@ export function createUserFromAddress(id: string): User {
   user.disputes = [];
   user.resolvedDisputes = [];
   user.totalResolvedDisputes = ZERO;
+  user.totalAppealingDisputes = ZERO;
   user.totalDisputes = ZERO;
   user.totalCoherent = ZERO;
   user.save();

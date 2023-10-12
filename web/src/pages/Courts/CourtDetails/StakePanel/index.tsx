@@ -1,12 +1,34 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { useLockBodyScroll } from "react-use";
+import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import Tag from "components/Tag";
 import JurorBalanceDisplay from "./JurorStakeDisplay";
 import InputDisplay from "./InputDisplay";
 import { ActionType } from "./StakeWithdrawButton";
 import Popup, { PopupType } from "components/Popup/index";
 import BalanceIcon from "assets/svgs/icons/balance.svg";
+
+const Container = styled.div`
+  position: relative;
+  width: 100%;
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+`;
+
+const TagArea = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+const StakeArea = styled(TagArea)`
+  flex-direction: column;
+`;
+
+const TextArea = styled.div`
+  color: ${({ theme }) => theme.primaryText};
+`;
 
 const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "General Court", id }) => {
   const [amount, setAmount] = useState("");
@@ -15,7 +37,7 @@ const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "
   const [isActive, setIsActive] = useState<boolean>(true);
   const [action, setAction] = useState<ActionType>(ActionType.stake);
 
-  useLockBodyScroll(isPopupOpen);
+  useLockOverlayScroll(isPopupOpen);
 
   const handleClick = (action: ActionType) => {
     setIsActive(action === ActionType.stake);
@@ -55,25 +77,3 @@ const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "
 };
 
 export default StakePanel;
-
-const Container = styled.div`
-  position: relative;
-  width: 100%;
-  margin-top: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-`;
-
-const TagArea = styled.div`
-  display: flex;
-  gap: 10px;
-`;
-
-const StakeArea = styled(TagArea)`
-  flex-direction: column;
-`;
-
-const TextArea = styled.div`
-  color: ${({ theme }) => theme.primaryText};
-`;

@@ -6,6 +6,45 @@ import Gavel from "svgs/icons/gavel.svg";
 import { formatEther } from "viem";
 import { isUndefined } from "utils/index";
 
+const StyledCard = styled(Card)`
+  width: 100%;
+  padding: 24px;
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const WinnerLabel = styled.label<{ winner: boolean }>`
+  color: ${({ theme, winner }) => (winner ? theme.success : theme.warning)};
+  svg {
+    width: 12px;
+    margin-right: 8px;
+    fill: ${({ theme, winner }) => (winner ? theme.success : theme.warning)};
+  }
+`;
+
+const StyledRadio = styled(Radio)`
+  padding-left: 24px;
+  > input {
+    display: none;
+  }
+`;
+
+const TopContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  height: 50%;
+  .block {
+    display: block;
+  }
+`;
+
+const LabelContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+`;
+
 interface IOptionCard extends React.HTMLAttributes<HTMLDivElement> {
   text: string;
   funding: bigint;
@@ -55,44 +94,5 @@ const OptionCard: React.FC<IOptionCard> = ({
     </StyledCard>
   );
 };
-
-const StyledCard = styled(Card)`
-  width: 100%;
-  padding: 24px;
-  &:hover {
-    cursor: pointer;
-  }
-`;
-
-const WinnerLabel = styled.label<{ winner: boolean }>`
-  color: ${({ theme, winner }) => (winner ? theme.success : theme.warning)};
-  svg {
-    width: 12px;
-    margin-right: 4px;
-    fill: ${({ theme, winner }) => (winner ? theme.success : theme.warning)};
-  }
-`;
-
-const StyledRadio = styled(Radio)`
-  padding-left: 24px;
-  > input {
-    display: none;
-  }
-`;
-
-const TopContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  height: 50%;
-  .block {
-    display: block;
-  }
-`;
-
-const LabelContainer = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-`;
 
 export default OptionCard;

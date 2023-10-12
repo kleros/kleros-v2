@@ -8,8 +8,24 @@ import {
   useOptionsContext,
   useSelectedOptionContext,
 } from "hooks/useClassicAppealContext";
+import { formatUnitsWei } from "utils/format";
 
-const StageOne: React.FC = () => {
+const Container = styled.div`
+  margin: 24px 0;
+`;
+
+const OptionsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 12px;
+`;
+
+interface IStageOne {
+  setAmount: (val: string) => void;
+}
+
+const StageOne: React.FC<IStageOne> = ({ setAmount }) => {
   const { paidFees, winningChoice, loserRequiredFunding, winnerRequiredFunding } = useFundingContext();
   const options = useOptionsContext();
   const loserSideCountdown = useLoserSideCountdownContext();
@@ -22,31 +38,26 @@ const StageOne: React.FC = () => {
         {typeof paidFees !== "undefined" &&
           typeof winnerRequiredFunding !== "undefined" &&
           typeof loserRequiredFunding !== "undefined" &&
-          options?.map((answer: string, i: number) => (
-            <OptionCard
-              key={answer}
-              text={answer}
-              selected={i === selectedOption}
-              winner={i.toString() === winningChoice}
-              funding={paidFees[i] ? BigInt(paidFees[i]) : 0n}
-              required={i.toString() === winningChoice ? winnerRequiredFunding : loserRequiredFunding}
-              onClick={() => setSelectedOption(i)}
-            />
-          ))}
+          options?.map((answer: string, i: number) => {
+            const requiredFunding = i.toString() === winningChoice ? winnerRequiredFunding : loserRequiredFunding;
+            return (
+              <OptionCard
+                key={answer}
+                text={answer}
+                selected={i === selectedOption}
+                winner={i.toString() === winningChoice}
+                funding={paidFees[i] ? BigInt(paidFees[i]) : 0n}
+                required={requiredFunding}
+                onClick={() => {
+                  setSelectedOption(i);
+                  setAmount(formatUnitsWei(requiredFunding));
+                }}
+              />
+            );
+          })}
       </OptionsContainer>
     </Container>
   );
 };
-
-const Container = styled.div`
-  margin: 24px 0;
-`;
-
-const OptionsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  margin-top: 12px;
-`;
 
 export default StageOne;

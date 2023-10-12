@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { Button } from "@kleros/ui-components-library";
 import { Overlay } from "components/Overlay";
 import StakeWithdraw from "./Description/StakeWithdraw";
@@ -8,6 +9,85 @@ import VoteWithoutCommit from "./Description/VoteWithoutCommit";
 import Appeal from "./Description/Appeal";
 import VoteWithCommitExtraInfo from "./ExtraInfo/VoteWithCommitExtraInfo";
 import StakeWithdrawExtraInfo from "./ExtraInfo/StakeWithdrawExtraInfo";
+
+const Header = styled.h1`
+  display: flex;
+  margin-top: calc(12px + (32 - 12) * ((100vw - 375px) / (1250 - 375)));
+  margin-bottom: calc(12px + (24 - 12) * ((100vw - 375px) / (1250 - 375)));
+  margin-left: calc(8px + (12 - 8) * ((100vw - 375px) / (1250 - 375)));
+  margin-right: calc(8px + (12 - 8) * ((100vw - 375px) / (1250 - 375)));
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32.68px;
+`;
+
+const IconContainer = styled.div`
+  width: calc(150px + (228 - 150) * (100vw - 375px) / (1250 - 375));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    display: inline-block;
+    width: calc(150px + (228 - 150) * (100vw - 375px) / (1250 - 375));
+    height: calc(150px + (228 - 150) * (100vw - 375px) / (1250 - 375));
+  }
+`;
+
+const StyledButton = styled(Button)`
+  margin: calc(16px + (32 - 16) * ((100vw - 375px) / (1250 - 375)));
+`;
+
+const Container = styled.div`
+  display: flex;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-height: 80vh;
+  overflow-y: auto;
+
+  z-index: 10;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 82vw;
+  max-width: 600px;
+  border-radius: 3px;
+  border: 1px solid ${({ theme }) => theme.stroke};
+  background-color: ${({ theme }) => theme.whiteBackground};
+  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.06);
+
+  svg {
+    visibility: visible;
+  }
+
+  ${landscapeStyle(
+    () => css`
+      overflow-y: hidden;
+      width: calc(300px + (600 - 300) * (100vw - 375px) / (1250 - 375));
+    `
+  )}
+`;
+
+const VoteDescriptionContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: calc(16px + (32 - 16) * ((100vw - 375px) / (1250 - 375)));
+  margin-left: calc(8px + (32 - 8) * ((100vw - 375px) / (1250 - 375)));
+  margin-right: calc(8px + (32 - 8) * ((100vw - 375px) / (1250 - 375)));
+  color: ${({ theme }) => theme.secondaryText};
+  text-align: center;
+  line-height: 21.8px;
+`;
+
+export const VoteDescriptionEmphasizedDate = styled.span`
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 21.8px;
+  color: ${({ theme }) => theme.primaryText};
+`;
 
 export enum PopupType {
   STAKE_WITHDRAW = "STAKE_WITHDRAW",
@@ -49,76 +129,6 @@ interface IPopup {
 }
 
 type PopupProps = IStakeWithdraw | IVoteWithoutCommit | IVoteWithCommit | IAppeal;
-
-const Header = styled.h1`
-  display: flex;
-  margin-top: calc(12px + (32 - 12) * ((100vw - 375px) / (1250 - 375)));
-  margin-bottom: calc(12px + (24 - 12) * ((100vw - 375px) / (1250 - 375)));
-  margin-left: calc(8px + (12 - 8) * ((100vw - 375px) / (1250 - 375)));
-  margin-right: calc(8px + (12 - 8) * ((100vw - 375px) / (1250 - 375)));
-  text-align: center;
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 32.68px;
-`;
-
-const IconContainer = styled.div`
-  width: calc(150px + (228 - 150) * (100vw - 375px) / (1250 - 375));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  svg {
-    display: inline-block;
-    width: calc(150px + (228 - 150) * (100vw - 375px) / (1250 - 375));
-    height: calc(150px + (228 - 150) * (100vw - 375px) / (1250 - 375));
-  }
-`;
-
-const StyledButton = styled(Button)`
-  margin: calc(16px + (32 - 16) * ((100vw - 375px) / (1250 - 375)));
-`;
-
-const Container = styled.div`
-  display: flex;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  z-index: 10;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: calc(300px + (600 - 300) * (100vw - 375px) / (1250 - 375));
-  max-width: 600px;
-  border-radius: 3px;
-  border: 1px solid ${({ theme }) => theme.stroke};
-  background-color: ${({ theme }) => theme.whiteBackground};
-  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.06);
-
-  svg {
-    visibility: visible;
-  }
-`;
-
-const VoteDescriptionContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: calc(16px + (32 - 16) * ((100vw - 375px) / (1250 - 375)));
-  margin-left: calc(8px + (32 - 8) * ((100vw - 375px) / (1250 - 375)));
-  margin-right: calc(8px + (32 - 8) * ((100vw - 375px) / (1250 - 375)));
-  color: ${({ theme }) => theme.secondaryText};
-  text-align: center;
-  line-height: 21.8px;
-`;
-
-export const VoteDescriptionEmphasizedDate = styled.span`
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 21.8px;
-  color: ${({ theme }) => theme.primaryText};
-`;
 
 const Popup: React.FC<PopupProps & IPopup> = ({
   title,

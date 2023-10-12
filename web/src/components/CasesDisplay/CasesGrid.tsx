@@ -1,12 +1,28 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
+import { useWindowSize } from "react-use";
+import { useParams } from "react-router-dom";
+import { SkeletonDisputeCard, SkeletonDisputeListItem } from "../StyledSkeleton";
 import { StandardPagination } from "@kleros/ui-components-library";
-import { CasesPageQuery } from "queries/useCasesQuery";
+import { BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
+import { useIsList } from "context/IsListProvider";
+import { isUndefined } from "utils/index";
+import { decodeURIFilter } from "utils/uri";
+import { DisputeDetailsFragment } from "queries/useCasesQuery";
 import DisputeCard from "components/DisputeCard";
+import CasesListHeader from "./CasesListHeader";
 
-const Container = styled.div`
+const GridContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+`;
+
+const ListContainer = styled.div`
+  display: flex;
+  flex-direction: column;
   justify-content: center;
   gap: 8px;
 `;
@@ -19,32 +35,49 @@ const StyledPagination = styled(StandardPagination)`
 `;
 
 export interface ICasesGrid {
-  disputes: CasesPageQuery["disputes"];
+  disputes?: DisputeDetailsFragment[];
   currentPage: number;
   setCurrentPage: (newPage: number) => void;
-  numberDisputes: number;
   casesPerPage: number;
+  totalPages: number;
 }
 
-const CasesGrid: React.FC<ICasesGrid> = ({
-  disputes,
-  currentPage,
-  setCurrentPage,
-  numberDisputes,
-  casesPerPage,
-}) => {
+const CasesGrid: React.FC<ICasesGrid> = ({ disputes, casesPerPage, totalPages, currentPage, setCurrentPage }) => {
+  const { filter } = useParams();
+  const decodedFilter = decodeURIFilter(filter ?? "all");
+  const { id: searchValue } = decodedFilter;
+  const { isList } = useIsList();
+  const { width } = useWindowSize();
+  const screenIsBig = useMemo(() => width > BREAKPOINT_LANDSCAPE, [width]);
+
   return (
     <>
-      <Container>
-        {disputes.map((dispute, i) => {
-          return <DisputeCard key={i} {...dispute} />;
-        })}
-      </Container>
-      <StyledPagination
-        {...{ currentPage }}
-        numPages={Math.ceil(numberDisputes / casesPerPage)}
-        callback={(page: number) => setCurrentPage(page)}
-      />
+      {isList && screenIsBig ? (
+        <ListContainer>
+          <CasesListHeader />
+          {isUndefined(disputes)
+            ? [...Array(casesPerPage)].map((_, i) => <SkeletonDisputeListItem key={i} />)
+            : disputes.map((dispute) => {
+                return <DisputeCard key={dispute.id} {...dispute} />;
+              })}
+        </ListContainer>
+      ) : (
+        <GridContainer>
+          {isUndefined(disputes)
+            ? [...Array(casesPerPage)].map((_, i) => <SkeletonDisputeCard key={i} />)
+            : disputes.map((dispute) => {
+                return <DisputeCard key={dispute.id} {...dispute} overrideIsList />;
+              })}
+        </GridContainer>
+      )}
+
+      {isUndefined(searchValue) ? (
+        <StyledPagination
+          currentPage={currentPage}
+          numPages={Math.ceil(totalPages ?? 0)}
+          callback={(page: number) => setCurrentPage(page)}
+        />
+      ) : null}
     </>
   );
 };

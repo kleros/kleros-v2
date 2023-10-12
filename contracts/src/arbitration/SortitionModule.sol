@@ -14,10 +14,13 @@ import "./KlerosCore.sol";
 import "./interfaces/ISortitionModule.sol";
 import "./interfaces/IDisputeKit.sol";
 import "../rng/RNG.sol";
+import "../proxy/UUPSProxiable.sol";
+import "../proxy/Initializable.sol";
+import "../libraries/Constants.sol";
 
 /// @title SortitionModule
 /// @dev A factory of trees that keeps track of staked values for sortition.
-contract SortitionModule is ISortitionModule {
+contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -36,7 +39,6 @@ contract SortitionModule is ISortitionModule {
         address account; // The address of the juror.
         uint96 courtID; // The ID of the court.
         uint256 stake; // The new stake.
-        uint256 penalty; // Penalty value, in case the stake was set during execution.
     }
 
     // ************************************* //
@@ -58,7 +60,7 @@ contract SortitionModule is ISortitionModule {
     uint256 public randomNumber; // Random number returned by RNG.
     uint256 public rngLookahead; // Minimal block distance between requesting and obtaining a random number.
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
-    uint256 public delayedStakeReadIndex = 1; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
+    uint256 public delayedStakeReadIndex; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
     mapping(bytes32 => SortitionSumTree) sortitionSumTrees; // The mapping trees by keys.
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Drawing phase, to update them when the phase is switched to Staking.
 
@@ -80,20 +82,25 @@ contract SortitionModule is ISortitionModule {
     // *            Constructor            * //
     // ************************************* //
 
-    /// @dev Constructor.
+    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    constructor() {
+        _disableInitializers();
+    }
+
+    /// @dev Initializer (constructor equivalent for upgradable contracts).
     /// @param _core The KlerosCore.
     /// @param _minStakingTime Minimal time to stake
     /// @param _maxDrawingTime Time after which the drawing phase can be switched
     /// @param _rng The random number generator.
     /// @param _rngLookahead Lookahead value for rng.
-    constructor(
+    function initialize(
         address _governor,
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         RNG _rng,
         uint256 _rngLookahead
-    ) {
+    ) external reinitializer(1) {
         governor = _governor;
         core = _core;
         minStakingTime = _minStakingTime;
@@ -101,11 +108,20 @@ contract SortitionModule is ISortitionModule {
         lastPhaseChange = block.timestamp;
         rng = _rng;
         rngLookahead = _rngLookahead;
+        delayedStakeReadIndex = 1;
     }
 
     // ************************************* //
     // *             Governance            * //
     // ************************************* //
+
+    /**
+     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     */
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+        // NOP
+    }
 
     /// @dev Changes the `minStakingTime` storage variable.
     /// @param _minStakingTime The new value for the `minStakingTime` storage variable.
@@ -185,12 +201,7 @@ contract SortitionModule is ISortitionModule {
 
         for (uint256 i = delayedStakeReadIndex; i < newDelayedStakeReadIndex; i++) {
             DelayedStake storage delayedStake = delayedStakes[i];
-            core.setStakeBySortitionModule(
-                delayedStake.account,
-                delayedStake.courtID,
-                delayedStake.stake,
-                delayedStake.penalty
-            );
+            core.setStakeBySortitionModule(delayedStake.account, delayedStake.courtID, delayedStake.stake);
             delete delayedStakes[i];
         }
         delayedStakeReadIndex = newDelayedStakeReadIndex;
@@ -199,10 +210,9 @@ contract SortitionModule is ISortitionModule {
     function preStakeHook(
         address _account,
         uint96 _courtID,
-        uint256 _stake,
-        uint256 _penalty
+        uint256 _stake
     ) external override onlyByCore returns (preStakeHookResult) {
-        (uint256 currentStake, , uint256 nbCourts) = core.getJurorBalance(_account, _courtID);
+        (, , uint256 currentStake, uint256 nbCourts) = core.getJurorBalance(_account, _courtID);
         if (currentStake == 0 && nbCourts >= MAX_STAKE_PATHS) {
             // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
             return preStakeHookResult.failed;
@@ -211,8 +221,7 @@ contract SortitionModule is ISortitionModule {
                 delayedStakes[++delayedStakeWriteIndex] = DelayedStake({
                     account: _account,
                     courtID: _courtID,
-                    stake: _stake,
-                    penalty: _penalty
+                    stake: _stake
                 });
                 return preStakeHookResult.delayed;
             }
@@ -246,7 +255,7 @@ contract SortitionModule is ISortitionModule {
         while (!finished) {
             // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
             _set(bytes32(uint256(currenCourtID)), _value, stakePathID);
-            if (currenCourtID == core.GENERAL_COURT()) {
+            if (currenCourtID == Constants.GENERAL_COURT) {
                 finished = true;
             } else {
                 (currenCourtID, , , , , , ) = core.courts(currenCourtID);
@@ -264,7 +273,7 @@ contract SortitionModule is ISortitionModule {
     function setJurorInactive(address _account) external override onlyByCore {
         uint96[] memory courtIDs = core.getJurorCourtIDs(_account);
         for (uint256 j = courtIDs.length; j > 0; j--) {
-            core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0, 0);
+            core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0);
         }
     }
 
@@ -276,7 +285,7 @@ contract SortitionModule is ISortitionModule {
     /// Note that this function reverts if the sum of all values in the tree is 0.
     /// @param _key The key of the tree.
     /// @param _coreDisputeID Index of the dispute in Kleros Core.
-    /// @param _voteID ID of the voter.
+    /// @param _nonce Nonce to hash with random number.
     /// @return drawnAddress The drawn address.
     /// `O(k * log_k(n))` where
     /// `k` is the maximum number of children per node in the tree,
@@ -284,7 +293,7 @@ contract SortitionModule is ISortitionModule {
     function draw(
         bytes32 _key,
         uint256 _coreDisputeID,
-        uint256 _voteID
+        uint256 _nonce
     ) public view override returns (address drawnAddress) {
         require(phase == Phase.drawing, "Wrong phase.");
         SortitionSumTree storage tree = sortitionSumTrees[_key];
@@ -293,7 +302,7 @@ contract SortitionModule is ISortitionModule {
             return address(0); // No jurors staked.
         }
 
-        uint256 currentDrawnNumber = uint256(keccak256(abi.encodePacked(randomNumber, _coreDisputeID, _voteID))) %
+        uint256 currentDrawnNumber = uint256(keccak256(abi.encodePacked(randomNumber, _coreDisputeID, _nonce))) %
             tree.nodes[0];
 
         // While it still has children

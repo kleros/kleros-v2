@@ -7,12 +7,17 @@ import { useUserQuery } from "queries/useUser";
 
 const Container = styled.div`
   margin-top: 64px;
+
+  h1 {
+    margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  }
 `;
 
 const CourtsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  z-index: 0;
 `;
 
 const Courts: React.FC = () => {
@@ -21,17 +26,16 @@ const Courts: React.FC = () => {
 
   return (
     <>
-      {!isUndefined(data) && (
-        <Container>
-          <h1> My Courts </h1>
-          <hr />
-          <CourtsContainer>
-            {data.user?.tokens?.map(({ court: { id, name } }) => {
+      <Container>
+        <h1> My Courts </h1>
+        {!isUndefined(data) && <hr />}
+        <CourtsContainer>
+          {!isUndefined(data) &&
+            data.user?.tokens?.map(({ court: { id, name } }) => {
               return <CourtCard key={id} id={id} name={name ?? ""} />;
             })}
-          </CourtsContainer>
-        </Container>
-      )}
+        </CourtsContainer>
+      </Container>
     </>
   );
 };

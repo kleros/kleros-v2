@@ -2,24 +2,8 @@ import React from "react";
 import styled, { Theme } from "styled-components";
 import { Periods } from "consts/periods";
 
-export interface IPeriodBanner {
-  id: number;
-  period: Periods;
-}
-
-const getPeriodColors = (period: Periods, theme: Theme): [string, string] => {
-  switch (period) {
-    case Periods.appeal:
-      return [theme.tint, theme.tintMedium];
-    case Periods.execution:
-      return [theme.secondaryPurple, theme.mediumPurple];
-    default:
-      return [theme.primaryBlue, theme.mediumBlue];
-  }
-};
-
 const Container = styled.div<Omit<IPeriodBanner, "id">>`
-  height: 45px;
+  height: ${({ isCard }) => (isCard ? "45px" : "100%")};
   width: auto;
   border-top-right-radius: 3px;
   border-top-left-radius: 3px;
@@ -37,11 +21,11 @@ const Container = styled.div<Omit<IPeriodBanner, "id">>`
       margin-right: 8px;
     }
   }
-  ${({ theme, period }) => {
+  ${({ theme, period, isCard }) => {
     const [frontColor, backgroundColor] = getPeriodColors(period, theme);
     return `
-      border-top: 5px solid ${frontColor};
-      background-color: ${backgroundColor};
+      ${isCard ? `border-top: 5px solid ${frontColor}` : `border-left: 5px solid ${frontColor}`};
+      ${isCard && `background-color: ${backgroundColor}`};
       .front-color {
         color: ${frontColor};
       }
@@ -54,8 +38,31 @@ const Container = styled.div<Omit<IPeriodBanner, "id">>`
   }};
 `;
 
+export interface IPeriodBanner {
+  id: number;
+  period: Periods;
+  isCard?: boolean;
+}
+
+const getPeriodColors = (period: Periods, theme: Theme): [string, string] => {
+  switch (period) {
+    case Periods.appeal:
+      return [theme.tint, theme.tintMedium];
+    case Periods.execution:
+      return [theme.secondaryPurple, theme.mediumPurple];
+    default:
+      return [theme.primaryBlue, theme.mediumBlue];
+  }
+};
+
 const getPeriodLabel = (period: Periods): string => {
   switch (period) {
+    case Periods.evidence:
+      return "In Progress - Submitting Evidence";
+    case Periods.commit:
+      return "In Progress - Committing Vote";
+    case Periods.vote:
+      return "In Progress - Voting";
     case Periods.appeal:
       return "Crowdfunding Appeal";
     case Periods.execution:
@@ -65,9 +72,9 @@ const getPeriodLabel = (period: Periods): string => {
   }
 };
 
-const PeriodBanner: React.FC<IPeriodBanner> = ({ id, period }) => (
-  <Container {...{ period }}>
-    <label className="front-color dot">{getPeriodLabel(period)}</label>
+const PeriodBanner: React.FC<IPeriodBanner> = ({ id, period, isCard = true }) => (
+  <Container period={period} isCard={isCard}>
+    {isCard && <label className="front-color dot">{getPeriodLabel(period)}</label>}
     <label className="front-color">#{id}</label>
   </Container>
 );

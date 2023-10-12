@@ -1,10 +1,38 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { Periods } from "consts/periods";
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { Box, Steps } from "@kleros/ui-components-library";
+import { StyledSkeleton } from "components/StyledSkeleton";
 import { useCountdown } from "hooks/useCountdown";
+import useIsDesktop from "hooks/useIsDesktop";
 import { secondsToDayHourMinute } from "utils/date";
+
+const TimeLineContainer = styled(Box)`
+  display: block;
+  width: 100%;
+  height: 98px;
+  border-radius: 0px;
+  padding: 20px 8px 0px 8px;
+  margin-top: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-bottom: calc(12px + (22 - 12) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  background-color: ${({ theme }) => theme.whiteBackground};
+
+  ${landscapeStyle(
+    () => css`
+      display: block;
+      padding: 28px 8px 8px 8px;
+    `
+  )}
+`;
+
+const StyledSteps = styled(Steps)`
+  display: flex;
+  justify-content: space-between;
+  width: 85%;
+  margin: auto;
+`;
 
 const Timeline: React.FC<{
   dispute: DisputeDetailsQuery["dispute"];
@@ -26,10 +54,11 @@ const currentPeriodToCurrentItem = (currentPeriodIndex: number, hiddenVotes?: bo
 };
 
 const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: number, currentPeriodIndex: number) => {
+  const isDesktop = useIsDesktop();
   const titles = useMemo(() => {
-    const titles = ["Evidence Period", "Voting Period", "Appeal Period", "Executed"];
+    const titles = ["Evidence", "Voting", "Appeal", "Executed"];
     if (dispute?.court.hiddenVotes) {
-      titles.splice(1, 0, "Appeal Period");
+      titles.splice(1, 0, "Commit");
     }
     return titles;
   }, [dispute]);
@@ -39,7 +68,7 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: 
     dispute?.court.timesPerPeriod
   );
   const countdown = useCountdown(deadlineCurrentPeriod);
-  const getSubitems = (index: number): string[] => {
+  const getSubitems = (index: number): string[] | React.ReactNode[] => {
     if (typeof countdown !== "undefined" && dispute) {
       if (index === currentItemIndex && countdown === 0) {
         return ["Time's up!"];
@@ -53,10 +82,10 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: 
         return [secondsToDayHourMinute(dispute?.court.timesPerPeriod[index])];
       }
     }
-    return ["Loading..."];
+    return [<StyledSkeleton key={index} width={60} />];
   };
   return titles.map((title, i) => ({
-    title,
+    title: i + 1 < titles.length && isDesktop ? `${title} Period` : title,
     subitems: getSubitems(i),
   }));
 };
@@ -73,18 +102,5 @@ const getDeadline = (
   }
   return 0;
 };
-
-const TimeLineContainer = styled(Box)`
-  width: 100%;
-  height: 100px;
-  border-radius: 3px;
-  margin: 16px 0px;
-  padding: 8px;
-`;
-
-const StyledSteps = styled(Steps)`
-  width: 85%;
-  margin: auto;
-`;
 
 export default Timeline;

@@ -1,21 +1,32 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
-import { useCasesQuery } from "queries/useCasesQuery";
-import JurorInfo from "./JurorInfo";
-import Courts from "./Courts";
+import { OrderDirection } from "src/graphql/graphql";
+import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
+import { useUserQuery } from "queries/useUser";
+import { decodeURIFilter, useRootPath } from "utils/uri";
 import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
+import JurorInfo from "./JurorInfo";
+import Courts from "./Courts";
 
 const Container = styled.div`
   width: 100%;
-  min-height: calc(100vh - 144px);
   background-color: ${({ theme }) => theme.lightBackground};
-  padding: 32px;
+  padding: calc(32px + (136 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding-top: calc(32px + (80 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding-bottom: calc(64px + (96 - 64) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  max-width: 1780px;
+  margin: 0 auto;
 `;
 
 const StyledCasesDisplay = styled(CasesDisplay)`
   margin-top: 64px;
+
+  h1 {
+    margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  }
 `;
 
 const ConnectWalletContainer = styled.div`
@@ -27,10 +38,22 @@ const ConnectWalletContainer = styled.div`
 `;
 
 const Dashboard: React.FC = () => {
-  const { isConnected } = useAccount();
-  const [currentPage, setCurrentPage] = useState(1);
+  const { isConnected, address } = useAccount();
+  const { page, order, filter } = useParams();
+  const location = useRootPath();
+  const navigate = useNavigate();
   const casesPerPage = 3;
-  const { data } = useCasesQuery(casesPerPage * (currentPage - 1));
+  const pageNumber = parseInt(page ?? "1");
+  const disputeSkip = casesPerPage * (pageNumber - 1);
+  const decodedFilter = decodeURIFilter(filter ?? "all");
+  const { data: disputesData } = useMyCasesQuery(
+    address,
+    disputeSkip,
+    decodedFilter,
+    order === "asc" ? OrderDirection.Asc : OrderDirection.Desc
+  );
+  const { data: userData } = useUserQuery(address, decodedFilter);
+  const totalCases = userData?.user?.disputes.length;
 
   return (
     <Container>
@@ -38,14 +61,16 @@ const Dashboard: React.FC = () => {
         <>
           <JurorInfo />
           <Courts />
-          {data && (
-            <StyledCasesDisplay
-              title="My Cases"
-              disputes={data.disputes}
-              numberDisputes={data.counter?.cases}
-              {...{ currentPage, setCurrentPage, casesPerPage }}
-            />
-          )}
+          <StyledCasesDisplay
+            title="My Cases"
+            disputes={disputesData?.user?.disputes as DisputeDetailsFragment[]}
+            numberDisputes={totalCases}
+            numberClosedDisputes={0}
+            totalPages={10}
+            currentPage={pageNumber}
+            setCurrentPage={(newPage: number) => navigate(`${location}/${newPage}/${order}/${filter}`)}
+            {...{ casesPerPage }}
+          />
         </>
       ) : (
         <ConnectWalletContainer>

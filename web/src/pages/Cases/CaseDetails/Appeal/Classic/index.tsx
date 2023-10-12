@@ -27,7 +27,7 @@ const Classic: React.FC = () => {
       )}
       <h1>Appeal crowdfunding</h1>
       <label> The jury decision is appealed when two options are fully funded. </label>
-      <Options />
+      <Options setAmount={setAmount} />
       <Fund amount={amount} setAmount={setAmount} setIsOpen={setIsPopupOpen} />
     </>
   );

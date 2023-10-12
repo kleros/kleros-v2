@@ -34,8 +34,23 @@ const courtTreeQuery = graphql(`
 `);
 
 export const useCourtTree = () => {
-  return useQuery({
+  return useQuery<CourtTreeQuery>({
     queryKey: ["courtTreeQuery"],
     queryFn: async () => await graphqlQueryFnHelper(courtTreeQuery, {}),
   });
 };
+
+interface IItem {
+  label: string;
+  value: string;
+  children?: IItem[];
+}
+
+export const rootCourtToItems = (
+  court: NonNullable<CourtTreeQuery["court"]>,
+  value: "id" | "path" = "path"
+): IItem => ({
+  label: court.name ? court.name : "Unnamed Court",
+  value: value === "id" ? court.id : `/courts/${court.id}`,
+  children: court.children.length > 0 ? court.children.map((child) => rootCourtToItems(child, value)) : undefined,
+});

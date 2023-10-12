@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import TimeSeriesChart from "./TimeSeriesChart";
 import { DropdownSelect } from "@kleros/ui-components-library";
+import { StyledSkeleton } from "components/StyledSkeleton";
 import { formatUnits } from "viem";
 import { useHomePageContext } from "hooks/useHomePageContext";
 
 const Container = styled.div`
-  margin-bottom: 32px;
+  margin-bottom: calc(32px + (48 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   display: flex;
   flex-direction: column;
 `;
@@ -61,7 +62,7 @@ const Chart: React.FC = () => {
   return (
     <Container>
       <ChartOptionsDropdown {...{ setChartOption }} />
-      {processedData ? <TimeSeriesChart data={processedData} /> : "Fetching..."}
+      {processedData ? <TimeSeriesChart data={processedData} /> : <StyledSkeleton height={233} />}
     </Container>
   );
 };

@@ -15,6 +15,32 @@ import {
   useFundingContext,
 } from "hooks/useClassicAppealContext";
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const StyledField = styled(Field)`
+  width: 100%;
+  & > input {
+    text-align: center;
+  }
+  &:before {
+    position: absolute;
+    content: "ETH";
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: ${({ theme }) => theme.primaryText};
+  }
+`;
+
+const StyledButton = styled(Button)`
+  margin: auto;
+  margin-top: 12px;
+`;
+
 const useNeedFund = () => {
   const loserSideCountdown = useLoserSideCountdownContext();
   const { fundedChoices, winningChoice } = useFundingContext();
@@ -66,7 +92,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
   const fundAppeal = useFundAppeal(parsedAmount);
 
   return needFund ? (
-    <div>
+    <Container>
       <label>How much ETH do you want to contribute?</label>
       <div>
         <StyledField
@@ -96,30 +122,10 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
           />
         </EnsureChain>
       </div>
-    </div>
+    </Container>
   ) : (
     <></>
   );
 };
-
-const StyledField = styled(Field)`
-  width: 100%;
-  & > input {
-    text-align: center;
-  }
-  &:before {
-    position: absolute;
-    content: "ETH";
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: ${({ theme }) => theme.primaryText};
-  }
-`;
-
-const StyledButton = styled(Button)`
-  margin: auto;
-  margin-top: 12px;
-`;
 
 export default Fund;
