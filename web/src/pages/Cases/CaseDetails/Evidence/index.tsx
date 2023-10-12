@@ -8,6 +8,7 @@ import { useEvidences } from "queries/useEvidences";
 import SubmitEvidenceModal from "./SubmitEvidenceModal";
 import EvidenceCard from "components/EvidenceCard";
 import { EnsureChain } from "components/EnsureChain";
+import { isUndefined } from "utils/index";
 
 const Container = styled.div`
   width: 100%;
@@ -28,10 +29,11 @@ const Evidence: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable }) => {
   const { data: evidenceGroup } = useEvidenceGroup(id, arbitrable);
   const { data } = useEvidences(evidenceGroup?.toString());
   const { address } = useAccount();
+
   return (
     <Container>
       <>
-        {evidenceGroup && (
+        {!isUndefined(evidenceGroup) && (
           <SubmitEvidenceModal isOpen={isModalOpen} close={() => setIsModalOpen(false)} {...{ evidenceGroup }} />
         )}
         <Searchbar />
