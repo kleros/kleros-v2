@@ -3,8 +3,9 @@ import styled from "styled-components";
 import { Textarea } from "@kleros/ui-components-library";
 import PolicyIcon from "svgs/icons/policy.svg";
 import ReactMarkdown from "components/ReactMarkdown";
-import { IPFS_GATEWAY } from "consts/index";
-import { deepParseTemplateWithData, executeAction } from "utils/dataMappings";
+import { INVALID_DISPUTE_DATA_ERROR, IPFS_GATEWAY } from "consts/index";
+import { populateTemplate, executeAction } from "utils/dataMappings";
+import { Answer, DisputeDetails } from "utils/disputeDetails";
 
 const Container = styled.div`
   width: 50%;
@@ -78,40 +79,36 @@ const StyledTextArea = styled(Textarea)`
 `;
 
 const DisputeTemplateView: React.FC = () => {
-  const [parsedDisputeTemplate, setParsedDisputeTemplate] = useState<any>({});
+  const [disputeDetails, setDisputeDetails] = useState<DisputeDetails | undefined>(undefined);
   const [disputeTemplateInput, setDisputeTemplateInput] = useState<string>("");
   const [dataMappingsInput, setDataMappingsInput] = useState<string>("");
 
   useEffect(() => {
     if (!disputeTemplateInput || !dataMappingsInput) return;
-
     const fetchData = async () => {
-      let parsedTemplate, parsedMapping;
-
+      let parsedMapping;
       try {
-        parsedTemplate = JSON.parse(disputeTemplateInput);
         parsedMapping = JSON.parse(dataMappingsInput);
       } catch (e) {
         console.error(e);
-        setParsedDisputeTemplate(undefined);
+        setDisputeDetails(undefined);
         return;
       }
-
       try {
-        let populatedData = {};
-
+        let data = {};
         for (const action of parsedMapping) {
           const result = await executeAction(action);
-          populatedData = { ...populatedData, ...result };
+          data = { ...data, ...result };
         }
-
-        const finalTemplate = deepParseTemplateWithData(parsedTemplate, populatedData);
-        setParsedDisputeTemplate(finalTemplate);
+        console.log("disputeTemplateInput: ", disputeTemplateInput);
+        console.log("data: ", data);
+        const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
+        console.log("finalTemplate: ", finalDisputeDetails);
+        setDisputeDetails(finalDisputeDetails);
       } catch (e) {
         console.error(e);
       }
     };
-
     fetchData();
   }, [disputeTemplateInput, dataMappingsInput]);
 
@@ -127,43 +124,40 @@ const DisputeTemplateView: React.FC = () => {
         onChange={(e) => setDataMappingsInput(e.target.value)}
         placeholder="Enter data mappings"
       />
-      <Overview disputeTemplate={parsedDisputeTemplate} />
+      <Overview disputeDetails={disputeDetails} />
     </Wrapper>
   );
 };
 
-const Overview: React.FC<{ disputeTemplate: any }> = ({ disputeTemplate }) => {
+const Overview: React.FC<{ disputeDetails: DisputeDetails | undefined }> = ({ disputeDetails }) => {
   return (
     <>
       <Container>
-        <h1>
-          {disputeTemplate?.template?.content ??
-            "The dispute's template is not correct please vote refuse to arbitrate"}
-        </h1>
+        <h1>{disputeDetails?.title ?? INVALID_DISPUTE_DATA_ERROR}</h1>
         <QuestionAndDescription>
-          <ReactMarkdown>{disputeTemplate?.question}</ReactMarkdown>
-          <ReactMarkdown>{disputeTemplate?.description}</ReactMarkdown>
+          <ReactMarkdown>{disputeDetails?.question ?? INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
+          <ReactMarkdown>{disputeDetails?.description ?? INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
         </QuestionAndDescription>
-        {disputeTemplate?.frontendUrl && (
-          <a href={disputeTemplate?.frontendUrl} target="_blank" rel="noreferrer">
+        {disputeDetails?.frontendUrl && (
+          <a href={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
             Go to arbitrable
           </a>
         )}
         <VotingOptions>
-          {disputeTemplate && <h3>Voting Options</h3>}
-          {disputeTemplate?.options?.titles?.map((title: string, i: number) => (
-            <span key={i}>
+          {disputeDetails && <h3>Voting Options</h3>}
+          {disputeDetails?.answers?.map((answer: Answer, i: number) => (
+            <span key={answer.id}>
               <small>Option {i + 1}:</small>
-              <label>{title}. </label>
-              <label>{disputeTemplate.options.descriptions[i]}</label>
+              <label>{answer.title}. </label>
+              <label>{answer.description}</label>
             </span>
           ))}
         </VotingOptions>
         <ShadeArea>
           <p>Make sure you understand the Policies</p>
           <LinkContainer>
-            {disputeTemplate?.policyURI && (
-              <StyledA href={`${IPFS_GATEWAY}${disputeTemplate.policyURI}`} target="_blank" rel="noreferrer">
+            {disputeDetails?.policyURI && (
+              <StyledA href={`${IPFS_GATEWAY}${disputeDetails.policyURI}`} target="_blank" rel="noreferrer">
                 <PolicyIcon />
                 Dispute Policy
               </StyledA>

@@ -5371,7 +5371,7 @@ __metadata:
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
-    "@kleros/ui-components-library": ^2.6.2
+    "@kleros/ui-components-library": ^2.6.3
     "@netlify/functions": ^1.6.0
     "@parcel/transformer-svg-react": 2.8.3
     "@parcel/watcher": ~2.2.0
@@ -5381,6 +5381,7 @@ __metadata:
     "@tanstack/react-query": ^4.28.0
     "@types/amqplib": ^0.10.1
     "@types/busboy": ^1.5.0
+    "@types/mustache": ^4.2.3
     "@types/react": ^18.2.14
     "@types/react-dom": ^18.2.7
     "@types/react-modal": ^3.16.0
@@ -5430,9 +5431,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kleros/ui-components-library@npm:^2.6.2":
-  version: 2.6.2
-  resolution: "@kleros/ui-components-library@npm:2.6.2"
+"@kleros/ui-components-library@npm:^2.6.3":
+  version: 2.6.3
+  resolution: "@kleros/ui-components-library@npm:2.6.3"
   dependencies:
     "@datepicker-react/hooks": ^2.8.4
     "@swc/helpers": ^0.3.2
@@ -5449,7 +5450,7 @@ __metadata:
     react-dom: ^18.0.0
     react-is: ^18.0.0
     styled-components: ^5.3.3
-  checksum: 499478dcacb825569d56f752de90954c58a737525a677b87645e330294ccd1f3d58bbc7b78b4cfb3bab8c0326eabc8f24fbad59c8db810e214791dbe8d4ea476
+  checksum: 090e9e137283b22adad531f9f0917b5cb9d56f165647e579031dc20856913b45955539cb42b89b4392fadf7ef956b3a3b9468d3441d76a0328f2a774431f6002
   languageName: node
   linkType: hard
 
@@ -9146,6 +9147,13 @@ __metadata:
   version: 0.7.31
   resolution: "@types/ms@npm:0.7.31"
   checksum: daadd354aedde024cce6f5aa873fefe7b71b22cd0e28632a69e8b677aeb48ae8caa1c60e5919bb781df040d116b01cb4316335167a3fc0ef6a63fa3614c0f6da
+  languageName: node
+  linkType: hard
+
+"@types/mustache@npm:^4.2.3":
+  version: 4.2.3
+  resolution: "@types/mustache@npm:4.2.3"
+  checksum: c2c7cf749a84a622648c7088fb10350b84ea935145514b6c51d17e808a4b4972fb137273339f4d93160a3c496a3943dab3be93251d74c185730daa300a299e2f
   languageName: node
   linkType: hard
 

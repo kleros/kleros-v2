@@ -1,6 +1,8 @@
-import { createPublicClient, http, parseAbiItem, webSocket } from "viem";
+import { createPublicClient, parseAbiItem, webSocket } from "viem";
 import { arbitrumGoerli } from "viem/chains";
 import fetch from "node-fetch";
+import mustache from "mustache";
+import { DisputeDetails } from "./disputeDetails";
 
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY;
 
@@ -37,7 +39,7 @@ export const fetchAction = async (link: string, seek, populate) => {
   const response = await fetch(link);
   const fetchedData = await response.json();
   console.log(fetchedData);
-  let populatedData = {};
+  const populatedData = {};
 
   seek.forEach((key, idx) => {
     const foundValue = findNestedKey(fetchedData, key);
@@ -85,7 +87,7 @@ export const callAction = async (source, inputs, seek, populate) => {
     args: inputs.slice(2),
   });
 
-  let populatedData = {};
+  const populatedData = {};
 
   seek.map((item) => {
     if (typeof data == "object") {
@@ -126,7 +128,7 @@ export const eventAction = async (source, inputs, seek, populate) => {
 
   const eventData = contractEvent[0].args;
 
-  let populatedData = {};
+  const populatedData = {};
 
   seek.map((item, index) => {
     populatedData[populate[index]] = eventData[item];
@@ -154,4 +156,12 @@ export const executeAction = async (action) => {
 
 export const parseTemplateWithData = (template, data) => {
   return template.replace(/\{\{(.*?)\}\}/g, (_, key) => data[key.trim()] || "");
+};
+
+export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDetails => {
+  const render = mustache.render(mustacheTemplate, data);
+  console.log("MUSTACHE RENDER: ", render);
+  const dispute = JSON.parse(render);
+  // TODO: validate the object according to the DisputeDetails type or a JSON schema
+  return dispute;
 };

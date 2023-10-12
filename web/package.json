@@ -49,6 +49,7 @@
     "@parcel/watcher": "~2.2.0",
     "@types/amqplib": "^0.10.1",
     "@types/busboy": "^1.5.0",
+    "@types/mustache": "^4.2.3",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.7",
     "@types/styled-components": "^5.1.26",
@@ -69,7 +70,7 @@
   "dependencies": {
     "@filebase/client": "^0.0.5",
     "@kleros/kleros-v2-contracts": "workspace:^",
-    "@kleros/ui-components-library": "^2.6.2",
+    "@kleros/ui-components-library": "^2.6.3",
     "@sentry/react": "^7.55.2",
     "@sentry/tracing": "^7.55.2",
     "@supabase/supabase-js": "^2.33.1",
