@@ -160,6 +160,7 @@ contract DisputeKitSybilResistant is IDisputeKit, IEvidence, Initializable, UUPS
     /// @dev Initializer.
     /// @param _governor The governor's address.
     /// @param _core The KlerosCore arbitrator.
+    /// @param _poh The Proof of Humanity registry.
     function initialize(address _governor, KlerosCore _core, IProofOfHumanity _poh) external reinitializer(1) {
         governor = _governor;
         core = _core;

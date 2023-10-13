@@ -1,6 +1,5 @@
 import { expect } from "chai";
-import { ethers, deployments, getNamedAccounts } from "hardhat";
-const hre = require("hardhat");
+import { ethers, deployments } from "hardhat";
 
 let deployer;
 let user1;

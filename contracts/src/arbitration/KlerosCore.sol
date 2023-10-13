@@ -108,7 +108,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     uint256 private constant ALPHA_DIVISOR = 1e4; // The number to divide `Court.alpha` by.
     uint256 private constant NON_PAYABLE_AMOUNT = (2 ** 256 - 2) / 2; // An amount higher than the supply of ETH.
     uint256 private constant SEARCH_ITERATIONS = 10; // Number of iterations to search for suitable parent court before jumping to the top court.
-    IERC20 private constant NATIVE_CURRENCY = IERC20(address(0)); // The native currency, such as ETH on Arbitrum, Optimism and Ethereum L1.
 
     address public governor; // The governor of the contract.
     IERC20 public pinakion; // The Pinakion token contract.
@@ -516,7 +515,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     ) external payable override returns (uint256 disputeID) {
         if (msg.value < arbitrationCost(_extraData)) revert ArbitrationFeesNotEnough();
 
-        return _createDispute(_numberOfChoices, _extraData, NATIVE_CURRENCY, msg.value);
+        return _createDispute(_numberOfChoices, _extraData, Constants.NATIVE_CURRENCY, msg.value);
     }
 
     /// @inheritdoc IArbitratorV2
@@ -553,7 +552,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         Round storage round = dispute.rounds.push();
 
         // Obtain the feeForJuror in the same currency as the _feeAmount
-        uint256 feeForJuror = (_feeToken == NATIVE_CURRENCY)
+        uint256 feeForJuror = (_feeToken == Constants.NATIVE_CURRENCY)
             ? court.feeForJuror
             : convertEthToTokenAmount(_feeToken, court.feeForJuror);
         round.nbVotes = _feeAmount / feeForJuror;
@@ -810,7 +809,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         }
         if (_params.repartition == _params.numberOfVotesInRound - 1 && _params.coherentCount == 0) {
             // No one was coherent, send the rewards to the governor.
-            if (round.feeToken == NATIVE_CURRENCY) {
+            if (round.feeToken == Constants.NATIVE_CURRENCY) {
                 // The dispute fees were paid in ETH
                 payable(governor).send(round.totalFeesForJurors);
             } else {
@@ -865,7 +864,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 feeReward = ((round.totalFeesForJurors / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
         round.sumFeeRewardPaid += feeReward;
         pinakion.safeTransfer(account, pnkReward);
-        if (round.feeToken == NATIVE_CURRENCY) {
+        if (round.feeToken == Constants.NATIVE_CURRENCY) {
             // The dispute fees were paid in ETH
             payable(account).send(feeReward);
         } else {
@@ -891,7 +890,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
                     pinakion.safeTransfer(governor, leftoverPnkReward);
                 }
                 if (leftoverFeeReward != 0) {
-                    if (round.feeToken == NATIVE_CURRENCY) {
+                    if (round.feeToken == Constants.NATIVE_CURRENCY) {
                         // The dispute fees were paid in ETH
                         payable(governor).send(leftoverFeeReward);
                     } else {
