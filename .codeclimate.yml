@@ -4,5 +4,17 @@ engines:
     checks:
       quotemark:
         enabled: false
+  eslint:
+    enabled: true
+    config:
+      config:
+      - web/.eslintrc.json
+      - eslint-config/.eslintrc.js
+      extensions:
+      - .es6
+      - .js
+      - .jsx
+      - .mjs
+      - .vue
 exclude_paths:
   - "web/src/graphql/generated.ts"

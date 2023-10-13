@@ -34,6 +34,29 @@
     "security",
     "import"
   ],
+  "overrides": [
+    {
+      "files": [
+        "*.ts",
+        "*.tsx"
+      ],
+      "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking"
+      ],
+      "parserOptions": {
+        "project": [
+          "./tsconfig.json"
+        ]
+      },
+      "rules": {
+        "@typescript-eslint/return-await": [
+          "error",
+          "always"
+        ]
+      }
+    }
+  ],
   "ignorePatterns": [
     "src/assets"
   ],
@@ -83,6 +106,7 @@
         ]
       }
     ],
+    "no-return-await": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "security/detect-object-injection": "off",
