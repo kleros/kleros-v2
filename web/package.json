@@ -42,7 +42,7 @@
   },
   "prettier": "@kleros/kleros-v2-prettier-config",
   "devDependencies": {
-    "@graphql-codegen/cli": "^4.0.1",
+    "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/client-preset": "^4.0.1",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",

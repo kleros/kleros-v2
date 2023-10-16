@@ -4191,15 +4191,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-codegen/cli@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "@graphql-codegen/cli@npm:4.0.1"
+"@graphql-codegen/cli@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "@graphql-codegen/cli@npm:5.0.0"
   dependencies:
     "@babel/generator": ^7.18.13
     "@babel/template": ^7.18.10
     "@babel/types": ^7.18.13
     "@graphql-codegen/core": ^4.0.0
-    "@graphql-codegen/plugin-helpers": ^5.0.0
+    "@graphql-codegen/plugin-helpers": ^5.0.1
     "@graphql-tools/apollo-engine-loader": ^8.0.0
     "@graphql-tools/code-file-loader": ^8.0.0
     "@graphql-tools/git-loader": ^8.0.0
@@ -4210,7 +4210,6 @@ __metadata:
     "@graphql-tools/prisma-loader": ^8.0.0
     "@graphql-tools/url-loader": ^8.0.0
     "@graphql-tools/utils": ^10.0.0
-    "@parcel/watcher": ^2.1.0
     "@whatwg-node/fetch": ^0.8.0
     chalk: ^4.1.0
     cosmiconfig: ^8.1.3
@@ -4228,16 +4227,20 @@ __metadata:
     string-env-interpolation: ^1.0.1
     ts-log: ^2.2.3
     tslib: ^2.4.0
-    yaml: ^1.10.0
+    yaml: ^2.3.1
     yargs: ^17.0.0
   peerDependencies:
+    "@parcel/watcher": ^2.1.0
     graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  peerDependenciesMeta:
+    "@parcel/watcher":
+      optional: true
   bin:
     gql-gen: cjs/bin.js
     graphql-code-generator: cjs/bin.js
     graphql-codegen: cjs/bin.js
     graphql-codegen-esm: esm/bin.js
-  checksum: 0fd1a3250d42b0dbc8f9fbc00c1add806c400eef366c34bc316f883d438499c53147712d15f7c7e64a358bb456c8c342d7012e05b4a9f1a8b2c2d7c6de1dedb8
+  checksum: 55c3cafb08ee33667a896aa1c56e27ff2b6eae123d6116ff299be308038a543fb7d58c4179f34a3dff64079065d549dc05bfd95208c8c3024cecdd6307c0353b
   languageName: node
   linkType: hard
 
@@ -4306,6 +4309,22 @@ __metadata:
   peerDependencies:
     graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: 9e113bcb840584eff2bbd04379f28eadef72994a06d57b31a00ec691226169dbe2c4df96b9f77cc259d95aa52647bee1c0c0c2ec47538d32fa23ad16eb203f9c
+  languageName: node
+  linkType: hard
+
+"@graphql-codegen/plugin-helpers@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "@graphql-codegen/plugin-helpers@npm:5.0.1"
+  dependencies:
+    "@graphql-tools/utils": ^10.0.0
+    change-case-all: 1.0.15
+    common-tags: 1.8.2
+    import-from: 4.0.0
+    lodash: ~4.17.0
+    tslib: ~2.5.0
+  peerDependencies:
+    graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: 97faa8f87f41292bb5263097b1613733faf07fd0ff375ac89438aa0f2cd91e163d088b63dcafcdb6d66beaba8f7d13005bb980793e71979e9ad61fdfd206a730
   languageName: node
   linkType: hard
 
@@ -5365,7 +5384,7 @@ __metadata:
   resolution: "@kleros/kleros-v2-web@workspace:web"
   dependencies:
     "@filebase/client": ^0.0.5
-    "@graphql-codegen/cli": ^4.0.1
+    "@graphql-codegen/cli": ^5.0.0
     "@graphql-codegen/client-preset": ^4.0.1
     "@kleros/kleros-v2-contracts": "workspace:^"
     "@kleros/kleros-v2-eslint-config": "workspace:^"
@@ -7303,7 +7322,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/watcher@npm:^2.0.7, @parcel/watcher@npm:^2.1.0":
+"@parcel/watcher@npm:^2.0.7":
   version: 2.1.0
   resolution: "@parcel/watcher@npm:2.1.0"
   dependencies:
@@ -32098,6 +32117,13 @@ __metadata:
   version: 2.3.1
   resolution: "yaml@npm:2.3.1"
   checksum: 2c7bc9a7cd4c9f40d3b0b0a98e370781b68b8b7c4515720869aced2b00d92f5da1762b4ffa947f9e795d6cd6b19f410bd4d15fdd38aca7bd96df59bd9486fb54
+  languageName: node
+  linkType: hard
+
+"yaml@npm:^2.3.1":
+  version: 2.3.3
+  resolution: "yaml@npm:2.3.3"
+  checksum: cdfd132e7e0259f948929efe8835923df05c013c273c02bb7a2de9b46ac3af53c2778a35b32c7c0f877cc355dc9340ed564018c0242bfbb1278c2a3e53a0e99e
   languageName: node
   linkType: hard
 
