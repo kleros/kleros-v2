@@ -5387,7 +5387,7 @@ __metadata:
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
-    "@kleros/ui-components-library": ^2.6.2
+    "@kleros/ui-components-library": ^2.6.3
     "@netlify/functions": ^1.6.0
     "@parcel/transformer-svg-react": 2.8.3
     "@parcel/watcher": ~2.2.0
@@ -5447,7 +5447,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kleros/ui-components-library@npm:^2.6.2":
+"@kleros/ui-components-library@npm:^2.6.3":
   version: 2.6.3
   resolution: "@kleros/ui-components-library@npm:2.6.3"
   dependencies:

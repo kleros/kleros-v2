@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
 import getContractAddress from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
-import { HomeChains, isSkipped } from "./utils";
+import { HomeChains, isSkipped, isDevnet } from "./utils";
 
 const pnkByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x330bD769382cFc6d50175903434CCC8D206DCAE5"],
@@ -69,17 +69,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     klerosCoreAddress = getContractAddress(deployer, nonce + 3); // deployed on the 4th tx (nonce+3): SortitionModule Impl tx, SortitionModule Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
     console.log("calculated future KlerosCore address for nonce %d: %s", nonce + 3, klerosCoreAddress);
   }
-
+  const devnet = isDevnet(hre.network);
+  const minStakingTime = devnet ? 180 : 1800;
+  const maxFreezingTime = devnet ? 600 : 1800;
   const sortitionModule = await deployUpgradable(hre, "SortitionModule", {
     from: deployer,
-    args: [
-      deployer,
-      klerosCoreAddress,
-      1800, // minStakingTime
-      1800, // maxFreezingTime
-      rng.address,
-      RNG_LOOKAHEAD,
-    ],
+    args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rng.address, RNG_LOOKAHEAD],
     log: true,
   }); // nonce (implementation), nonce+1 (proxy)
 

@@ -67,6 +67,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 - [PNK](https://goerli.arbiscan.io/token/0x3483FA1b87792cd5BE4100822C4eCEC8D3E531ee)
 - [ArbitrableExample](https://goerli.arbiscan.io/address/0x5d96ede4D4Dd4c245d6879A4D790fF0AB1F476cC)
+- [BlockHashRNG](https://goerli.arbiscan.io/address/0xCea37c9A838831F6B4eE3BffbDC21b945113AD0C)
 - [DAI](https://goerli.arbiscan.io/address/0xB755843e26F2cD1c6A46659cEBb67CcFAE0f2EeE)
 - [DAIFaucet](https://goerli.arbiscan.io/address/0xCEBF1e0A5921767dd97b999ed14801A3770afAfd)
 - [DisputeKitClassic: proxy](https://goerli.arbiscan.io/address/0x6394A70cADD1376FdE5C38bA331761256DDd03E2), [implementation](https://goerli.arbiscan.io/address/0x9755b94c2c8AB04dDc7d102A6F8c974f538481fb)

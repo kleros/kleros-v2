@@ -146,11 +146,7 @@ const getDisputesWithContributionsNotYetWithdrawn = async (): Promise<Dispute[]>
 };
 
 const handleError = (e: any) => {
-  if (typeof e === "string") {
-    logger.error(e, "Failure");
-  } else if (e instanceof Error) {
-    logger.error(e, "Failure");
-  }
+  logger.error(e, "Failure");
 };
 
 const isRngReady = async () => {
@@ -172,7 +168,8 @@ const passPhase = async () => {
   try {
     await sortition.callStatic.passPhase();
   } catch (e) {
-    logger.info(`passPhase: not ready yet because of ${(e as CustomError).reason}`);
+    const error = e as CustomError;
+    logger.info(`passPhase: not ready yet because of ${error?.reason ?? error?.errorName ?? error?.code}`);
     return success;
   }
   const before = await sortition.phase();
@@ -196,7 +193,12 @@ const passPeriod = async (dispute: { id: string }) => {
   try {
     await core.callStatic.passPeriod(dispute.id);
   } catch (e) {
-    logger.info(`passPeriod: not ready yet for dispute ${dispute.id} because of error ${(e as CustomError).errorName}`);
+    const error = e as CustomError;
+    logger.info(
+      `passPeriod: not ready yet for dispute ${dispute.id} because of error ${
+        error?.reason ?? error?.errorName ?? error?.code
+      }`
+    );
     return success;
   }
   const before = (await core.disputes(dispute.id)).period;
@@ -478,7 +480,6 @@ async function main() {
     logger.info(`Dispute #${dispute.id}, round #${dispute.currentRoundIndex}, ${dispute.period} period`);
   }
   logger.info(`Disputes needing more jurors: ${disputesWithoutJurors.map((dispute) => dispute.id)}`);
-
   if ((await hasMinStakingTimePassed()) && disputesWithoutJurors.length > 0) {
     // ----------------------------------------------- //
     //                DRAWING ATTEMPT                  //

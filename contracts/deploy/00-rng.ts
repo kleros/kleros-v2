@@ -2,6 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { SortitionModule, RandomizerRNG } from "../typechain-types";
 import { HomeChains, isSkipped } from "./utils";
+import { deployUpgradable } from "./utils/deployUpgradable";
 
 const pnkByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x330bD769382cFc6d50175903434CCC8D206DCAE5"],
@@ -9,8 +10,8 @@ const pnkByChain = new Map<HomeChains, string>([
 ]);
 
 const randomizerByChain = new Map<HomeChains, string>([
-  [HomeChains.ARBITRUM_ONE, "0x00"],
-  [HomeChains.ARBITRUM_GOERLI, "0x57F7a8aA8291A04B325F3f0d2c4d03353d3Ef25f"],
+  [HomeChains.ARBITRUM_ONE, "0x5b8bB80f2d72D0C85caB8fB169e8170A05C94bAF"],
+  [HomeChains.ARBITRUM_GOERLI, "0x923096Da90a3b60eb7E12723fA2E1547BA9236Bc"],
 ]);
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -47,9 +48,10 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   }
 
   const randomizer = randomizerByChain.get(Number(await getChainId())) ?? AddressZero;
-  const rng = await deploy("RandomizerRNG", {
+  await deployUpgradable(hre, "RandomizerRNG", { from: deployer, args: [randomizer, deployer], log: true });
+  const rng = await deploy("BlockHashRNG", {
     from: deployer,
-    args: [randomizer, deployer],
+    args: [],
     log: true,
   });
 
