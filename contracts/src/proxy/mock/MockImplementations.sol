@@ -4,6 +4,7 @@
 pragma solidity 0.8.18;
 
 import "../UUPSProxiable.sol";
+import "../Initializable.sol";
 
 contract NonUpgradeableMock {
     uint256 public _counter;
@@ -22,7 +23,7 @@ contract NonUpgradeableMock {
 }
 
 contract UUPSUpgradeableMock is UUPSProxiable, NonUpgradeableMock {
-    bool private initialized;
+    bool public initialized;
     address public governor;
 
     uint256[50] __gap;
@@ -59,5 +60,60 @@ contract UUPSUnsupportedProxiableUUID is UUPSUpgradeableMock {
 
     function version() external pure override returns (string memory) {
         return "UUPSUnsupportedProxiableUUID 1.0.0";
+    }
+}
+
+contract UUPSUpgradableInitializableInheritanceV1 is UUPSProxiable, Initializable {
+    address public governor;
+    uint256 public counter;
+    uint256[50] __gap;
+
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(address _governor) external virtual reinitializer(1) {
+        governor = _governor;
+        counter = 1;
+    }
+
+    function _authorizeUpgrade(address) internal view override {
+        require(governor == msg.sender, "No privilege to upgrade");
+    }
+
+    function increment() external {
+        ++counter;
+    }
+
+    function version() external pure virtual returns (string memory) {
+        return "V1";
+    }
+}
+
+contract UUPSUpgradableInitializableInheritanceV2 is UUPSUpgradableInitializableInheritanceV1 {
+    string public newVariable;
+    uint256[50] __gap2;
+
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initializeV2(string memory _newVariable) external reinitializer(2) {
+        newVariable = _newVariable;
+        this.increment();
+    }
+
+    function version() external pure virtual override returns (string memory) {
+        return "V2";
+    }
+}
+
+contract UUPSUpgradableInitializableInheritanceV3Bad is UUPSUpgradableInitializableInheritanceV2 {
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initializeV3() external reinitializer(1) {
+        // Wrong reinitializer version.
     }
 }
