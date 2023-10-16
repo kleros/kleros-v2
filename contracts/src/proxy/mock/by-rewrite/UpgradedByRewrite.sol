@@ -3,10 +3,10 @@
 
 pragma solidity 0.8.18;
 
-import "../UUPSProxiable.sol";
-import "../Initializable.sol";
+import "../../UUPSProxiable.sol";
+import "../../Initializable.sol";
 
-contract UUPSUpgradableInitializable is UUPSProxiable, Initializable {
+contract UpgradedByRewrite is UUPSProxiable, Initializable {
     //------------------------
     // V1 State
     //------------------------
@@ -14,18 +14,13 @@ contract UUPSUpgradableInitializable is UUPSProxiable, Initializable {
     uint256 public counter;
     uint256[50] __gap;
 
-    //------------------------
-    // V2 State
-    //------------------------
-    string public newVariable;
-
     constructor() {
         _disableInitializers();
     }
 
-    function initialize(string memory _newVariable) external reinitializer(2) {
-        newVariable = _newVariable;
-        this.increment();
+    function initialize(address _governor) external virtual reinitializer(1) {
+        governor = _governor;
+        counter = 1;
     }
 
     function _authorizeUpgrade(address) internal view override {
@@ -37,6 +32,6 @@ contract UUPSUpgradableInitializable is UUPSProxiable, Initializable {
     }
 
     function version() external pure virtual returns (string memory) {
-        return "V2";
+        return "V1";
     }
 }

@@ -3,10 +3,9 @@ import { log } from "console";
 import { ethers, deployments } from "hardhat";
 import { DeployResult } from "hardhat-deploy/types";
 import { deployUpgradable } from "../../deploy/utils/deployUpgradable";
-import {
-  UUPSUpgradableInitializableInheritanceV1,
-  UUPSUpgradableInitializableInheritanceV2,
-} from "../../typechain-types";
+import { UpgradedByInheritanceV1, UpgradedByInheritanceV2 } from "../../typechain-types";
+import { UpgradedByRewrite as UpgradedByRewriteV1 } from "../../typechain-types/src/proxy/mock/by-rewrite";
+import { UpgradedByRewrite as UpgradedByRewriteV2 } from "../../typechain-types/src/proxy/mock/by-rewrite/UpgradedByRewriteV2.sol";
 
 let deployer;
 let user1;
@@ -119,8 +118,8 @@ describe("Upgradability", async () => {
     before("Setup Contracts", async () => {
       [deployer] = await ethers.getSigners();
 
-      proxyDeployment = await deployUpgradable(deployments, "UUPSUpgradableInitializable", {
-        contract: "src/proxy/mock/UUPSUpgradableInitializable.sol:UUPSUpgradableInitializable",
+      proxyDeployment = await deployUpgradable(deployments, "UpgradedByRewrite", {
+        contract: "src/proxy/mock/by-rewrite/UpgradedByRewrite.sol:UpgradedByRewrite",
         from: deployer.address,
         args: [deployer.address],
         log: true,
@@ -131,11 +130,9 @@ describe("Upgradability", async () => {
     });
 
     it("Initializes v1", async () => {
-      proxy = (await ethers.getContract("UUPSUpgradableInitializable")) as UUPSUpgradableInitializableInheritanceV1;
+      proxy = (await ethers.getContract("UpgradedByRewrite")) as UpgradedByRewriteV1;
 
-      implementation = (await ethers.getContract(
-        "UUPSUpgradableInitializable_Implementation"
-      )) as UUPSUpgradableInitializableInheritanceV1;
+      implementation = (await ethers.getContract("UpgradedByRewrite_Implementation")) as UpgradedByRewriteV1;
 
       expect(await proxy.governor()).to.equal(deployer.address);
 
@@ -150,8 +147,8 @@ describe("Upgradability", async () => {
     });
 
     it("Upgrades to v2 and initializes", async () => {
-      proxyDeployment = await deployUpgradable(deployments, "UUPSUpgradableInitializable", {
-        contract: "src/proxy/mock/UUPSUpgradableInitializableV2.sol:UUPSUpgradableInitializable",
+      proxyDeployment = await deployUpgradable(deployments, "UpgradedByRewrite", {
+        contract: "src/proxy/mock/by-rewrite/UpgradedByRewriteV2.sol:UpgradedByRewrite",
         from: deployer.address,
         args: ["Future of France"],
         log: true,
@@ -159,7 +156,7 @@ describe("Upgradability", async () => {
       if (!proxyDeployment.implementation) {
         throw new Error("No implementation address");
       }
-      proxy = (await ethers.getContract("UUPSUpgradableInitializable")) as UUPSUpgradableInitializableInheritanceV2;
+      proxy = (await ethers.getContract("UpgradedByRewrite")) as UpgradedByRewriteV2;
       expect(await proxy.governor()).to.equal(deployer.address);
 
       expect(await proxy.counter()).to.equal(3);
@@ -176,7 +173,7 @@ describe("Upgradability", async () => {
     before("Setup Contracts", async () => {
       [deployer] = await ethers.getSigners();
 
-      proxyDeployment = await deployUpgradable(deployments, "UUPSUpgradableInitializableInheritanceV1", {
+      proxyDeployment = await deployUpgradable(deployments, "UpgradedByInheritanceV1", {
         from: deployer.address,
         args: [deployer.address],
         log: true,
@@ -187,13 +184,9 @@ describe("Upgradability", async () => {
     });
 
     it("Initializes v1", async () => {
-      proxy = (await ethers.getContract(
-        "UUPSUpgradableInitializableInheritanceV1"
-      )) as UUPSUpgradableInitializableInheritanceV1;
+      proxy = (await ethers.getContract("UpgradedByInheritanceV1")) as UpgradedByInheritanceV1;
 
-      implementation = (await ethers.getContract(
-        "UUPSUpgradableInitializableInheritanceV1_Implementation"
-      )) as UUPSUpgradableInitializableInheritanceV1;
+      implementation = (await ethers.getContract("UpgradedByInheritanceV1_Implementation")) as UpgradedByInheritanceV1;
 
       expect(await proxy.governor()).to.equal(deployer.address);
 
@@ -208,17 +201,15 @@ describe("Upgradability", async () => {
     });
 
     it("Upgrades to v2 and initializes", async () => {
-      proxyDeployment = await deployUpgradable(deployments, "UUPSUpgradableInitializableInheritanceV1", {
-        newImplementation: "UUPSUpgradableInitializableInheritanceV2",
+      proxyDeployment = await deployUpgradable(deployments, "UpgradedByInheritanceV1", {
+        newImplementation: "UpgradedByInheritanceV2",
         initializer: "initializeV2",
         from: deployer.address,
         args: ["Future of France"],
         log: true,
       });
 
-      proxy = (await ethers.getContract(
-        "UUPSUpgradableInitializableInheritanceV1"
-      )) as UUPSUpgradableInitializableInheritanceV2;
+      proxy = (await ethers.getContract("UpgradedByInheritanceV1")) as UpgradedByInheritanceV2;
 
       expect(await proxy.governor()).to.equal(deployer.address);
 
@@ -233,8 +224,8 @@ describe("Upgradability", async () => {
 
     it("Cannot upgrade to v3 which has an invalid initializer", async () => {
       await expect(
-        deployUpgradable(deployments, "UUPSUpgradableInitializableInheritanceV1", {
-          newImplementation: "UUPSUpgradableInitializableInheritanceV3Bad",
+        deployUpgradable(deployments, "UpgradedByInheritanceV1", {
+          newImplementation: "UpgradedByInheritanceV3Bad",
           initializer: "initializeV3",
           from: deployer.address,
           args: [],
