@@ -79,7 +79,7 @@
     "@tanstack/react-query": "^4.28.0",
     "@types/react-modal": "^3.16.0",
     "@web3modal/ethereum": "^2.7.1",
-    "@web3modal/react": "^2.2.2",
+    "@web3modal/react": "^2.7.1",
     "amqplib": "^0.10.3",
     "chart.js": "^3.9.1",
     "chartjs-adapter-moment": "^1.0.1",
