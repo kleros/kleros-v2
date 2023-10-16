@@ -27,5 +27,8 @@
     "mocha": "^10.2.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@reality.eth/reality-eth-lib": "^3.2.29"
   }
 }

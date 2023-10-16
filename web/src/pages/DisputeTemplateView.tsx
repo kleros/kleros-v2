@@ -4,8 +4,9 @@ import { Textarea } from "@kleros/ui-components-library";
 import PolicyIcon from "svgs/icons/policy.svg";
 import ReactMarkdown from "components/ReactMarkdown";
 import { INVALID_DISPUTE_DATA_ERROR, IPFS_GATEWAY } from "consts/index";
-import { populateTemplate, executeAction, configureSDK } from "@kleros/kleros-sdk/dataMappings";
-import { Answer, DisputeDetails } from "utils/disputeDetails";
+import { executeAction, configureSDK, retrieveRealityData } from "@kleros/kleros-sdk/dataMappings";
+import { populateTemplate } from "@kleros/kleros-sdk/dataMappings/utils/populateTemplate";
+import { Answer, DisputeDetails } from "@kleros/kleros-sdk/dataMappings/utils/disputeDetailsTypes";
 import { alchemyApiKey } from "context/Web3Provider";
 
 const Container = styled.div`
@@ -101,8 +102,15 @@ const DisputeTemplateView: React.FC = () => {
       try {
         let data = {};
         for (const action of parsedMapping) {
-          const result = await executeAction(action);
-          data = { ...data, ...result };
+          if (action.type === "reality") {
+            const realityData = await retrieveRealityData(action.realityQuestionID);
+            data = { ...data, ...realityData };
+          } else {
+            console.log("Parsed Mapping:", parsedMapping);
+
+            const result = await executeAction(action);
+            data = { ...data, ...result };
+          }
         }
         console.log("disputeTemplateInput: ", disputeTemplateInput);
         console.log("data: ", data);

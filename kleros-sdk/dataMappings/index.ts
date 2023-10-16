@@ -1,9 +1,10 @@
 import { createPublicClient, parseAbiItem, webSocket } from "viem";
 import { arbitrumGoerli } from "viem/chains";
 import fetch from "node-fetch";
-import mustache from "mustache";
-import { DisputeDetails } from "./disputeDetails";
 import dotenv from "dotenv";
+import { AbiCallMapping, AbiEventMapping, ActionMapping, JsonMapping, SubgraphMapping } from "./utils/actionTypes";
+import { isAbiCallMapping, isAbiEventMapping, isJsonMapping, isSubgraphMapping } from "./utils/actionTypeDetectors";
+import { findNestedKey } from "./utils/findNestedKey";
 
 dotenv.config();
 
@@ -22,20 +23,10 @@ export const configureSDK = (config: { apiKey?: string }) => {
   }
 };
 
-export const findNestedKey = (data, keyToFind) => {
-  if (data.hasOwnProperty(keyToFind)) return data[keyToFind];
-  for (let key in data) {
-    if (typeof data[key] === "object" && data[key] !== null) {
-      const found = findNestedKey(data[key], keyToFind);
-      if (found) return found;
-    }
-  }
-  return null;
-};
+export const jsonAction = (mapping: JsonMapping) => {
+  const { value: source, seek, populate } = mapping;
 
-export const jsonAction = (source, seek, populate) => {
   let jsonData = {};
-
   seek.forEach((key, idx) => {
     const foundValue = findNestedKey(source, key);
     jsonData[populate[idx]] = foundValue;
@@ -44,7 +35,9 @@ export const jsonAction = (source, seek, populate) => {
   return jsonData;
 };
 
-export const graphqlAction = async (endpoint: string, query: string, seek, populate) => {
+export const subgraphAction = async (mapping: SubgraphMapping) => {
+  const { endpoint, query, seek, populate } = mapping;
+
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
@@ -55,9 +48,8 @@ export const graphqlAction = async (endpoint: string, query: string, seek, popul
   });
 
   const { data } = await response.json();
-  console.log(data);
-  let populatedData = {};
 
+  let populatedData = {};
   seek.forEach((key, idx) => {
     const foundValue = findNestedKey(data, key);
     populatedData[populate[idx]] = foundValue;
@@ -66,73 +58,50 @@ export const graphqlAction = async (endpoint: string, query: string, seek, popul
   return populatedData;
 };
 
-export const callAction = async (source, inputs, seek, populate) => {
+export const callAction = async (mapping: AbiCallMapping) => {
+  const { abi: source, address, args, seek, populate } = mapping;
+
   if (!publicClient) {
     throw new Error("SDK not configured. Please call `configureSDK` before using.");
   }
 
-  let parsedAbi;
-
-  if (typeof source === "string") {
-    parsedAbi = parseAbiItem(source);
-  } else {
-    parsedAbi = source;
-  }
+  let parsedAbi = typeof source === "string" ? parseAbiItem(source) : source;
 
   const data = await publicClient.readContract({
-    address: inputs[0],
+    address: address,
     abi: [parsedAbi],
-    functionName: inputs[1],
-    args: inputs.slice(2),
+    args: args,
   });
 
-  const populatedData = {};
-
+  let populatedData = {};
   seek.map((item, index) => {
-    if (typeof data == "object") {
-      populatedData[populate[index]] = data[item];
-    } else {
-      populatedData[populate[index]] = data;
-    }
+    populatedData[populate[index]] = data[item];
   });
 
   return populatedData;
 };
 
-export const eventAction = async (source, inputs, seek, populate) => {
+export const eventAction = async (mapping: AbiEventMapping) => {
+  const { abi: source, address, eventFilter, seek, populate } = mapping;
+
   if (!publicClient) {
     throw new Error("SDK not configured. Please call `configureSDK` before using.");
   }
 
-  let parsedAbi;
-
-  if (typeof source === "string") {
-    parsedAbi = parseAbiItem(source);
-  } else {
-    parsedAbi = source;
-  }
-
-  const argsObject = seek.reduce((acc, key, index) => {
-    acc[key] = inputs[index + 2];
-    return acc;
-  }, {});
+  let parsedAbi = typeof source === "string" ? parseAbiItem(source) : source;
 
   const filter = await publicClient.createEventFilter({
-    address: inputs[0],
+    address: address,
     event: parsedAbi,
-    args: { ...argsObject },
-    fromBlock: inputs[1],
-    toBlock: "latest",
+    args: eventFilter.args,
+    fromBlock: eventFilter.fromBlock,
+    toBlock: eventFilter.toBlock,
   });
 
-  const contractEvent = await publicClient.getFilterLogs({
-    filter: filter as any,
-  });
-
+  const contractEvent = await publicClient.getFilterLogs({ filter: filter as any });
   const eventData = contractEvent[0].args;
 
-  const populatedData = {};
-
+  let populatedData = {};
   seek.map((item, index) => {
     populatedData[populate[index]] = eventData[item];
   });
@@ -140,25 +109,102 @@ export const eventAction = async (source, inputs, seek, populate) => {
   return populatedData;
 };
 
-export const executeAction = async (action) => {
-  switch (action.type) {
+export const executeAction = async (mapping: ActionMapping) => {
+  switch (mapping.type) {
     case "graphql":
-      return await graphqlAction(action.source, action.inputs, action.seek, action.populate);
+      if (!isSubgraphMapping(mapping)) {
+        throw new Error("Invalid mapping for graphql action.");
+      }
+      return await subgraphAction(mapping);
     case "json":
-      return jsonAction(action.source, action.seek, action.populate);
+      if (!isJsonMapping(mapping)) {
+        throw new Error("Invalid mapping for json action.");
+      }
+      return jsonAction(mapping);
     case "abi/call":
-      return await callAction(action.source, action.inputs, action.seek, action.populate);
+      if (!isAbiCallMapping(mapping)) {
+        throw new Error("Invalid mapping for abi/call action.");
+      }
+      return await callAction(mapping);
     case "abi/event":
-      return await eventAction(action.source, action.inputs, action.seek, action.populate);
+      if (!isAbiEventMapping(mapping)) {
+        throw new Error("Invalid mapping for abi/event action.");
+      }
+      return await eventAction(mapping);
     default:
-      throw new Error(`Unsupported action type: ${action.type}`);
+      throw new Error(`Unsupported action type: ${mapping.type}`);
   }
 };
 
-export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDetails => {
-  const render = mustache.render(mustacheTemplate, data);
-  console.log("MUSTACHE RENDER: ", render);
-  // TODO: validate the object according to the DisputeDetails type or a JSON schema
-  const dispute = JSON.parse(render);
-  return dispute;
+export const retrieveRealityData = async (realityQuestionID: string) => {
+  const questionMapping: AbiEventMapping = {
+    type: "abi/event",
+    abi: "event LogNewQuestion(bytes32 indexed question_id, address indexed user, uint256 template_id, string question, bytes32 indexed content_hash, address arbitrator, uint32 timeout, uint32 opening_ts, uint256 nonce, uint256 created)",
+    address: "0x14a6748192abc6e10ca694ae07bdd4327d6c7a51",
+    eventFilter: {
+      args: [realityQuestionID],
+      fromBlock: "0x1",
+      toBlock: "latest",
+    },
+
+    seek: [
+      "question_id",
+      "user",
+      "template_id",
+      "question",
+      "content_hash",
+      "arbitrator",
+      "timeout",
+      "opening_ts",
+      "nonce",
+      "created",
+    ],
+    populate: [
+      "realityQuestionID",
+      "realityUser",
+      "realityTemplateID",
+      "realityQuestion",
+      "contentHash",
+      "arbitrator",
+      "timeout",
+      "openingTs",
+      "nonce",
+      "created",
+    ],
+  };
+
+  const questionData = await executeAction(questionMapping);
+  console.log("questionData", questionData);
+
+  const templateMapping: AbiEventMapping = {
+    type: "abi/event",
+    abi: "event LogNewTemplate(uint256 indexed template_id, address indexed user, string question_text)",
+    address: "0x14a6748192abc6e10ca694ae07bdd4327d6c7a51",
+    eventFilter: {
+      args: [0],
+      fromBlock: "0x1",
+      toBlock: "latest",
+    },
+    seek: ["template_id", "question_text"],
+    populate: ["templateID", "questionText"],
+  };
+
+  const templateData = await executeAction(templateMapping);
+  console.log("templateData", templateData);
+
+  const rc_question = require("@reality.eth/reality-eth-lib/formatters/question.js");
+  const populatedTemplate = rc_question.populatedJSONForTemplate(
+    templateData.questionText,
+    questionData.realityQuestion
+  );
+
+  console.log("populatedTemplate", populatedTemplate);
+
+  return {
+    question: questionData.realityQuestion,
+    type: populatedTemplate.type,
+    realityAddress: questionData.arbitrator,
+    questionId: questionData.realityQuestionID,
+    realityUser: questionData.realityUser,
+  };
 };

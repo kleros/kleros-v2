@@ -36,6 +36,7 @@
   "devDependencies": {
     "@commitlint/cli": "^17.7.2",
     "@commitlint/config-conventional": "^17.6.7",
+    "assert": "^2.0.0",
     "buffer": "^5.5.0",
     "conventional-changelog-cli": "^2.2.2",
     "crypto-browserify": "^3.12.0",
