@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { log } from "console";
 import { ethers, deployments } from "hardhat";
 import { DeployResult } from "hardhat-deploy/types";
-import { deployUpgradableEXPERIMENTAL, deployUpgradableEXPERIMENTAL2 } from "../../deploy/utils/deployUpgradable";
+import { deployUpgradable } from "../../deploy/utils/deployUpgradable";
 import {
   UUPSUpgradableInitializableInheritanceV1,
   UUPSUpgradableInitializableInheritanceV2,
@@ -79,37 +79,30 @@ describe("Upgradability", async () => {
             .to.be.revertedWithCustomError(proxy, "InvalidImplementation")
             .withArgs(nonUpgradeableMock.address);
         });
-
-        // If the `governor` storage slot is not initialized in the constructor, trying to directly upgrade the implementation as `governor === address(0)`
-        //   it("Should revert if upgrade is performed directly through the implementation", async () => {
-        //     const UUPSUpgradeableMockV2Factory = await ethers.getContractFactory("UUPSUpgradeableMockV2");
-        //     const newImplementation = await UUPSUpgradeableMockV2Factory.connect(deployer).deploy();
-
-        //     await expect(implementation.connect(deployer).upgradeToAndCall(newImplementation.address, "0x")).to.be.revertedWith(
-        //       "Must be called through delegatecall"
-        //     );
-        //   })
+        it("Should revert if upgrade is performed directly through the implementation", async () => {
+          // In the implementation, the `governor` storage slot is not initialized so `governor === address(0)`, which fails _authorizeUpgrade()
+          const UUPSUpgradeableMockV2Factory = await ethers.getContractFactory("UUPSUpgradeableMockV2");
+          const newImplementation = await UUPSUpgradeableMockV2Factory.connect(deployer).deploy();
+          await expect(
+            implementation.connect(deployer).upgradeToAndCall(newImplementation.address, "0x")
+          ).to.be.revertedWith("No privilege to upgrade");
+        });
       });
 
       describe("Authentication", async () => {
         it("Only the governor (deployer here) can perform upgrades", async () => {
           // Unauthorized user try to upgrade the implementation
           const UUPSUpgradeableMockV2Factory = await ethers.getContractFactory("UUPSUpgradeableMockV2");
-          const newUserImplementation = await UUPSUpgradeableMockV2Factory.connect(user1).deploy();
-
-          await expect(proxy.connect(user1).upgradeToAndCall(newUserImplementation.address, "0x")).to.be.revertedWith(
+          let implementation = await UUPSUpgradeableMockV2Factory.connect(user1).deploy();
+          await expect(proxy.connect(user1).upgradeToAndCall(implementation.address, "0x")).to.be.revertedWith(
             "No privilege to upgrade"
           );
 
           // Governor updates the implementation
-          const newGovernorImplementation = await UUPSUpgradeableMockV2Factory.connect(deployer).deploy();
-          console.log("Version: ", await proxy.version());
-
-          await expect(proxy.connect(deployer).upgradeToAndCall(newGovernorImplementation.address, "0x"))
+          implementation = await UUPSUpgradeableMockV2Factory.connect(deployer).deploy();
+          await expect(proxy.connect(deployer).upgradeToAndCall(implementation.address, "0x"))
             .to.emit(proxy, "Upgraded")
-            .withArgs(newGovernorImplementation.address);
-
-          console.log("Version: ", await proxy.version());
+            .withArgs(implementation.address);
         });
       });
     });
@@ -118,16 +111,15 @@ describe("Upgradability", async () => {
       // Why?
       it("Reset implementation to deployment's implementation address", async () => {
         await proxy.upgradeToAndCall(proxyDeployment.implementation, "0x");
-        console.log("Version: ", await proxy.version());
       });
     });
   });
 
-  describe("State Initialization (rewritten with a new implementation)", async () => {
+  describe("State Initialization (new implementation as a rewrite of the contract code)", async () => {
     before("Setup Contracts", async () => {
       [deployer] = await ethers.getSigners();
 
-      proxyDeployment = await deployUpgradableEXPERIMENTAL(deployments, "UUPSUpgradableInitializable", {
+      proxyDeployment = await deployUpgradable(deployments, "UUPSUpgradableInitializable", {
         contract: "src/proxy/mock/UUPSUpgradableInitializable.sol:UUPSUpgradableInitializable",
         from: deployer.address,
         args: [deployer.address],
@@ -138,7 +130,7 @@ describe("Upgradability", async () => {
       }
     });
 
-    it("Implementation v1 is initialized", async () => {
+    it("Initializes v1", async () => {
       proxy = (await ethers.getContract("UUPSUpgradableInitializable")) as UUPSUpgradableInitializableInheritanceV1;
 
       implementation = (await ethers.getContract(
@@ -157,8 +149,8 @@ describe("Upgradability", async () => {
       expect(await implementation.counter()).to.equal(0);
     });
 
-    it("Implementation upgraded to v2 and initialized", async () => {
-      proxyDeployment = await deployUpgradableEXPERIMENTAL(deployments, "UUPSUpgradableInitializable", {
+    it("Upgrades to v2 and initializes", async () => {
+      proxyDeployment = await deployUpgradable(deployments, "UUPSUpgradableInitializable", {
         contract: "src/proxy/mock/UUPSUpgradableInitializableV2.sol:UUPSUpgradableInitializable",
         from: deployer.address,
         args: ["Future of France"],
@@ -180,11 +172,11 @@ describe("Upgradability", async () => {
     });
   });
 
-  describe("State Initialization (inherits a new implementation)", async () => {
+  describe("State Initialization (new implementation as a derived contract)", async () => {
     before("Setup Contracts", async () => {
       [deployer] = await ethers.getSigners();
 
-      proxyDeployment = await deployUpgradableEXPERIMENTAL(deployments, "UUPSUpgradableInitializableInheritanceV1", {
+      proxyDeployment = await deployUpgradable(deployments, "UUPSUpgradableInitializableInheritanceV1", {
         from: deployer.address,
         args: [deployer.address],
         log: true,
@@ -194,7 +186,7 @@ describe("Upgradability", async () => {
       }
     });
 
-    it("Inheritance implementation v1 is initialized", async () => {
+    it("Initializes v1", async () => {
       proxy = (await ethers.getContract(
         "UUPSUpgradableInitializableInheritanceV1"
       )) as UUPSUpgradableInitializableInheritanceV1;
@@ -215,18 +207,14 @@ describe("Upgradability", async () => {
       expect(await implementation.counter()).to.equal(0);
     });
 
-    it("Inheritance implementation upgraded to v2 and initialized", async () => {
-      proxyDeployment = await deployUpgradableEXPERIMENTAL2(
-        deployments,
-        "UUPSUpgradableInitializableInheritanceV1",
-        "UUPSUpgradableInitializableInheritanceV2",
-        "initializeV2",
-        {
-          from: deployer.address,
-          args: ["Future of France"],
-          log: true,
-        }
-      );
+    it("Upgrades to v2 and initializes", async () => {
+      proxyDeployment = await deployUpgradable(deployments, "UUPSUpgradableInitializableInheritanceV1", {
+        newImplementation: "UUPSUpgradableInitializableInheritanceV2",
+        initializer: "initializeV2",
+        from: deployer.address,
+        args: ["Future of France"],
+        log: true,
+      });
 
       proxy = (await ethers.getContract(
         "UUPSUpgradableInitializableInheritanceV1"
@@ -243,19 +231,15 @@ describe("Upgradability", async () => {
       expect(await proxy.version()).to.equal("V2");
     });
 
-    it("Inheritance implementation cannot upgrade to bad v3 initializer", async () => {
+    it("Cannot upgrade to v3 which has an invalid initializer", async () => {
       await expect(
-        deployUpgradableEXPERIMENTAL2(
-          deployments,
-          "UUPSUpgradableInitializableInheritanceV1",
-          "UUPSUpgradableInitializableInheritanceV3Bad",
-          "initializeV3",
-          {
-            from: deployer.address,
-            args: [],
-            log: true,
-          }
-        )
+        deployUpgradable(deployments, "UUPSUpgradableInitializableInheritanceV1", {
+          newImplementation: "UUPSUpgradableInitializableInheritanceV3Bad",
+          initializer: "initializeV3",
+          from: deployer.address,
+          args: [],
+          log: true,
+        })
       ).to.be.revertedWithCustomError(proxy, "FailedDelegateCall");
     });
   });
