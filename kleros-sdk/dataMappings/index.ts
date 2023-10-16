@@ -200,11 +200,41 @@ export const retrieveRealityData = async (realityQuestionID: string) => {
 
   console.log("populatedTemplate", populatedTemplate);
 
+  let answers = [];
+  if (populatedTemplate.type === "bool") {
+    answers = [
+      {
+        title: "Yes",
+        description: "",
+        id: "0x01",
+        reserved: false,
+      },
+      {
+        title: "No",
+        description: "",
+        id: "0x02",
+        reserved: false,
+      },
+    ];
+  }
+
+  answers.push({
+    id: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+    title: "Answered Too Soon",
+    description: "",
+    reserved: true,
+  });
+
+  for (let i = 0; i < answers.length; i++) {
+    answers[i].last = i === answers.length - 1;
+  }
+
   return {
     question: questionData.realityQuestion,
     type: populatedTemplate.type,
     realityAddress: questionData.arbitrator,
     questionId: questionData.realityQuestionID,
     realityUser: questionData.realityUser,
+    answers: answers,
   };
 };
