@@ -92,16 +92,16 @@ describe("Upgradability", async () => {
         it("Only the governor (deployer here) can perform upgrades", async () => {
           // Unauthorized user try to upgrade the implementation
           const UUPSUpgradeableMockV2Factory = await ethers.getContractFactory("UUPSUpgradeableMockV2");
-          let implementation = await UUPSUpgradeableMockV2Factory.connect(user1).deploy();
-          await expect(proxy.connect(user1).upgradeToAndCall(implementation.address, "0x")).to.be.revertedWith(
+          let upgradable = await UUPSUpgradeableMockV2Factory.connect(user1).deploy();
+          await expect(proxy.connect(user1).upgradeToAndCall(upgradable.address, "0x")).to.be.revertedWith(
             "No privilege to upgrade"
           );
 
           // Governor updates the implementation
-          implementation = await UUPSUpgradeableMockV2Factory.connect(deployer).deploy();
-          await expect(proxy.connect(deployer).upgradeToAndCall(implementation.address, "0x"))
+          upgradable = await UUPSUpgradeableMockV2Factory.connect(deployer).deploy();
+          await expect(proxy.connect(deployer).upgradeToAndCall(upgradable.address, "0x"))
             .to.emit(proxy, "Upgraded")
-            .withArgs(implementation.address);
+            .withArgs(upgradable.address);
         });
       });
     });

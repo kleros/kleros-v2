@@ -46,7 +46,7 @@ export const deployUpgradable = async (
       }
     : {};
 
-  let fullOptions: DeployOptions = {
+  const fullOptions: DeployOptions = {
     ...otherOptions,
     ...contract,
     proxy: {
@@ -66,5 +66,5 @@ export const deployUpgradable = async (
   };
 
   // console.debug("fullOptions: ", JSON.stringify(fullOptions));
-  return await deploy(proxy, fullOptions);
+  return deploy(proxy, fullOptions);
 };
