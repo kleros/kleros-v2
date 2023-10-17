@@ -33,7 +33,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
 
   const homeChainId = (await homeChainProvider.getNetwork()).chainId;
   const homeChainIdAsBytes32 = hexZeroPad(hexlify(homeChainId), 32);
-  await deployUpgradable(hre, "ForeignGatewayOnGnosis", {
+  await deployUpgradable(deployments, "ForeignGatewayOnGnosis", {
     from: deployer,
     contract: "ForeignGateway",
     args: [deployer, veaOutbox.address, homeChainIdAsBytes32, homeGatewayAddress],

@@ -2,6 +2,8 @@
 
 pragma solidity 0.8.18;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 /// @title Constants
 library Constants {
     // Courts
@@ -14,4 +16,5 @@ library Constants {
 
     // Defaults
     uint256 public constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.
+    IERC20 public constant NATIVE_CURRENCY = IERC20(address(0)); // The native currency, such as ETH on Arbitrum, Optimism and Ethereum L1.
 }

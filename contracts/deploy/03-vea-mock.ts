@@ -30,7 +30,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   console.log("Calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
   const homeChainIdAsBytes32 = hexZeroPad(hexlify(HardhatChain.HARDHAT), 32);
-  const foreignGateway = await deployUpgradable(hre, "ForeignGatewayOnEthereum", {
+  const foreignGateway = await deployUpgradable(deployments, "ForeignGatewayOnEthereum", {
     from: deployer,
     contract: "ForeignGateway",
     args: [deployer, vea.address, homeChainIdAsBytes32, homeGatewayAddress],
@@ -39,7 +39,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   }); // nonce (implementation), nonce+1 (proxy)
   console.log("foreignGateway.address: ", foreignGateway.address);
 
-  await deployUpgradable(hre, "HomeGatewayToEthereum", {
+  await deployUpgradable(deployments, "HomeGatewayToEthereum", {
     from: deployer,
     contract: "HomeGateway",
     args: [
@@ -62,7 +62,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await execute("ForeignGatewayOnEthereum", { from: deployer, log: true }, "changeCourtJurorFee", Courts.GENERAL, fee);
   // TODO: set up the correct fees for the lower courts
 
-  const disputeTemplateRegistry = await deployUpgradable(hre, "DisputeTemplateRegistry", {
+  const disputeTemplateRegistry = await deployUpgradable(deployments, "DisputeTemplateRegistry", {
     from: deployer,
     args: [deployer],
     log: true,

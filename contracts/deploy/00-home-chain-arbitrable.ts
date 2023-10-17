@@ -18,7 +18,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
   const weth = await deployments.get("WETH");
 
-  const disputeTemplateRegistry = await deployUpgradable(hre, "DisputeTemplateRegistry", {
+  const disputeTemplateRegistry = await deployUpgradable(deployments, "DisputeTemplateRegistry", {
     from: deployer,
     args: [deployer],
     log: true,

@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-// Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol>
+// Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/utils/UUPSUpgradeable.sol>
 
 /**
  *  @authors: [@malatrax]
