@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { Card } from "@kleros/ui-components-library";
 import { Element } from "./Element";
-import { firstSection, secondSection } from "consts/community-elements";
+import { section } from "consts/community-elements";
 
 const Container = styled.div`
   margin-top: 64px;
@@ -16,17 +16,8 @@ const Container = styled.div`
 const StyledCard = styled(Card)`
   width: 100%;
   height: auto;
-`;
-
-const StyledSeparator = styled.hr`
-  margin: 0;
-`;
-
-const Section = styled.div`
-  width: 100%;
-  gap: 8px;
+  gap: 12px;
   flex-direction: column;
-  height: auto;
   flex-wrap: wrap;
   padding: 12px;
   display: flex;
@@ -37,21 +28,23 @@ const Section = styled.div`
     () => css`
       flex-direction: row;
       justify-content: space-between;
-      gap: 0px;
-      padding: 0 32px;
-      min-height: 64px;
+      gap: 20px;
+      padding: 24px 32px;
     `
   )}
 `;
 
-const TwoElementContainer = styled.div`
+const ThreeElementContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
 
   ${landscapeStyle(
     () => css`
       flex-direction: row;
+      justify-content: space-between;
       gap: 48px;
     `
   )}
@@ -61,20 +54,12 @@ const Community = () => (
   <Container>
     <h1>Community</h1>
     <StyledCard>
-      <Section>
-        <TwoElementContainer>
-          {firstSection.slice(0, 2).map((element) => (
-            <Element key={element.primaryText} {...element} />
-          ))}
-        </TwoElementContainer>
-        <Element {...firstSection[2]} />
-      </Section>
-      <StyledSeparator />
-      <Section>
-        {secondSection.map((element) => (
-          <Element key={element.primaryText} {...element} />
+      <ThreeElementContainer>
+        {section.slice(0, 3).map((element) => (
+          <Element key={element.Icon} {...element} />
         ))}
-      </Section>
+      </ThreeElementContainer>
+      <Element {...section[3]} />
     </StyledCard>
   </Container>
 );
