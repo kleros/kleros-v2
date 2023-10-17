@@ -8,7 +8,7 @@ import LightModeIcon from "svgs/menu-icons/light-mode.svg";
 import NotificationsIcon from "svgs/menu-icons/notifications.svg";
 import SettingsIcon from "svgs/menu-icons/settings.svg";
 import { useToggleTheme } from "hooks/useToggleThemeContext";
-import { IHelp, ISettings } from "..";
+import { useMenu } from "../../../../context/MenuProvider";
 
 const Container = styled.div`
   display: flex;
@@ -53,8 +53,9 @@ const ButtonContainer = styled.div`
   )}
 `;
 
-const Menu: React.FC<ISettings & IHelp> = ({ toggleIsHelpOpen, toggleIsSettingsOpen }) => {
+const Menu: React.FC = () => {
   const [theme, toggleTheme] = useToggleTheme();
+  const { toggleIsSettingsOpen, toggleIsHelpOpen } = useMenu();
   const isLightTheme = theme === "light";
 
   const buttons = [

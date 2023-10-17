@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { useToggle } from "react-use";
+import { useMenu } from "../../../context/MenuProvider";
 import { useAccount } from "wagmi";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import { useOpenContext } from "../MobileHeader";
@@ -53,23 +53,9 @@ const DisconnectWalletButtonContainer = styled.div`
   align-items: center;
 `;
 
-export interface ISettings {
-  toggleIsSettingsOpen: () => void;
-}
-
-export interface IHelp {
-  toggleIsHelpOpen: () => void;
-}
-
-export interface IDappList {
-  toggleIsDappListOpen: () => void;
-}
-
 const NavBar: React.FC = () => {
   const { isConnected } = useAccount();
-  const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
-  const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
-  const [isSettingsOpen, toggleIsSettingsOpen] = useToggle(false);
+  const { isDappListOpen, toggleIsDappListOpen, isSettingsOpen, isHelpOpen } = useMenu();
   const { isOpen } = useOpenContext();
   useLockOverlayScroll(isOpen);
 
@@ -95,16 +81,16 @@ const NavBar: React.FC = () => {
           )}
         </WalletContainer>
         <hr />
-        <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
+        <Menu />
         <br />
         <Debug />
       </Container>
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
         <PopupContainer>
           <Overlay />
-          {isDappListOpen && <DappList {...{ toggleIsDappListOpen }} />}
-          {isHelpOpen && <Help {...{ toggleIsHelpOpen }} />}
-          {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen }} />}
+          {isDappListOpen && <DappList />}
+          {isHelpOpen && <Help />}
+          {isSettingsOpen && <Settings />}
         </PopupContainer>
       )}
     </>

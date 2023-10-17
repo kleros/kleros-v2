@@ -12,6 +12,7 @@ import POH from "svgs/icons/poh-image.png";
 import Vea from "svgs/icons/vea.svg";
 import Tokens from "svgs/icons/tokens.svg";
 import Product from "./Product";
+import { useMenu } from "../../../context/MenuProvider";
 
 const Header = styled.h1`
   display: flex;
@@ -119,12 +120,9 @@ const ITEMS = [
   },
 ];
 
-interface IDappList {
-  toggleIsDappListOpen: () => void;
-}
-
-const DappList: React.FC<IDappList> = ({ toggleIsDappListOpen }) => {
+const DappList: React.FC = () => {
   const containerRef = useRef(null);
+  const { toggleIsDappListOpen } = useMenu();
   useFocusOutside(containerRef, () => {
     toggleIsDappListOpen();
   });
