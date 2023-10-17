@@ -27,6 +27,6 @@ export function createDrawFromEvent(event: DrawEvent): void {
   draw.dispute = disputeID;
   draw.round = roundID;
   draw.juror = event.params._address.toHexString();
-  draw.voteID = voteID;
+  draw.voteIDNum = voteID;
   draw.save();
 }

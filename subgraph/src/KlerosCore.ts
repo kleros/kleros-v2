@@ -134,14 +134,13 @@ export function handleNewPeriod(event: NewPeriod): void {
     counter.counter = BigInt.fromI32(0);
   }
   dispute.periodNotificationIndex = counter.counter;
-  const contract = KlerosCore.bind(event.address);
-  const courtContractState = contract.getTimesPerPeriod(BigInt.fromString(dispute.court));
-  dispute.periodDeadline = event.block.timestamp.plus(courtContractState[event.params._period]);
   counter.counter = counter.counter.plus(ONE);
   counter.save();
   dispute.lastPeriodChangeBlockNumber = event.block.number;
   if (newPeriod !== "execution") {
-    dispute.periodDeadline = event.block.timestamp.plus(court.timesPerPeriod[event.params._period]);
+    const contract = KlerosCore.bind(event.address);
+    const courtContractState = contract.getTimesPerPeriod(BigInt.fromString(dispute.court));
+    dispute.periodDeadline = event.block.timestamp.plus(courtContractState[event.params._period]);
   } else {
     dispute.periodDeadline = BigInt.fromU64(U64.MAX_VALUE);
   }

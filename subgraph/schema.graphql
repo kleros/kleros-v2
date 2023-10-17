@@ -157,7 +157,6 @@ type Dispute @entity {
   periodDeadline: BigInt! # uint256j
   periodNotificationIndex: BigInt!
   lastPeriodChangeTs: BigInt!
-  users: [User!]!
   lastPeriodChangeBlock: BigInt!
   lastPeriodChangeBlockNumber: BigInt!
   rounds: [Round!]! @derivedFrom(field: "dispute")
@@ -193,7 +192,7 @@ type Draw @entity(immutable: true) {
   dispute: Dispute!
   round: Round!
   juror: User!
-  voteID: BigInt!
+  voteIDNum: BigInt!
   vote: Vote @derivedFrom(field: "draw")
   drawNotificationIndex: BigInt
 }

@@ -35,15 +35,6 @@ export function addUserActiveDispute(id: string, disputeID: string): void {
     return;
   }
   user.disputes = user.disputes.concat([disputeID]);
-  const dispute = Dispute.load(disputeID);
-  if (!dispute) {
-    log.error("Dispute {} not found", [disputeID]);
-    return;
-  } else {
-    dispute.users.push(id);
-    dispute.save();
-  }
-
   user.activeDisputes = user.activeDisputes.plus(ONE);
   user.totalDisputes = user.totalDisputes.plus(ONE);
   user.save();

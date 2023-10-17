@@ -17,7 +17,6 @@ export function createDisputeFromEvent(event: DisputeCreation): void {
   dispute.currentRuling = ZERO;
   dispute.tied = true;
   dispute.overridden = false;
-  dispute.users = [];
   dispute.lastPeriodChangeTs = event.block.timestamp;
   dispute.lastPeriodChangeBlock = event.block.timestamp;
   dispute.lastPeriodChangeBlockNumber = event.block.number;
