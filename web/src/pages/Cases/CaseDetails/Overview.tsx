@@ -22,6 +22,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 
   > h1 {
     margin: 0;
@@ -62,8 +63,9 @@ const ShadeArea = styled.div`
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  margin-top: calc(24px + (48 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: calc(16px + (20 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875)
+    calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-top: 16px;
   background-color: ${({ theme }) => theme.mediumBlue};
   > p {
     margin-top: 0;
@@ -101,8 +103,15 @@ const LinkContainer = styled.div`
 
 const Divider = styled.hr`
   display: flex;
-  color: ${({ theme }) => theme.stroke};
+  border: none;
+  height: 1px;
+  background-color: ${({ theme }) => theme.stroke};
   margin: 0;
+`;
+
+const StyledP = styled.p`
+  font-size: 14px;
+  color: ${({ theme }) => theme.primaryBlue};
 `;
 
 interface IOverview {
@@ -161,10 +170,16 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
           </>
         )}
 
-        <DisputeInfo courtId={court?.id} court={courtName} round={localRounds?.length} {...{ rewards, category }} />
+        <DisputeInfo
+          isOverview={true}
+          courtId={court?.id}
+          court={courtName}
+          round={localRounds?.length}
+          {...{ rewards, category }}
+        />
       </Container>
       <ShadeArea>
-        <p>Make sure you understand the Policies</p>
+        <StyledP>Make sure you read and understand the Policies</StyledP>
         <LinkContainer>
           {disputeTemplate?.policyURI && (
             <StyledA href={`${IPFS_GATEWAY}${disputeTemplate.policyURI}`} target="_blank" rel="noreferrer">

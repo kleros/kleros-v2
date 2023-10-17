@@ -17,6 +17,7 @@ const Container = styled.div`
   gap: 16px;
 
   align-items: center;
+  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 `;
 
 const StyledButton = styled(Button)`
