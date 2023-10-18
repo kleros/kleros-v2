@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (proxy/utils/Initializable.sol) <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/proxy/utils/Initializable.sol>
+// OpenZeppelin Contracts (last updated v4.9.0) (proxy/utils/Initializable.sol) <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/utils/Initializable.sol>
 
 pragma solidity 0.8.18;
 
@@ -43,6 +43,12 @@ pragma solidity 0.8.18;
  * contract, which may impact the proxy. To prevent the implementation contract from being used, you should invoke
  * the {_disableInitializers} function in the constructor to automatically lock it when it is deployed:
  *
+ * ```
+ * /// @custom:oz-upgrades-unsafe-allow constructor
+ * constructor() {
+ *     _disableInitializers();
+ * }
+ * ```
  */
 abstract contract Initializable {
     /**

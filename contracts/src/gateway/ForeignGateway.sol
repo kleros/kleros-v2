@@ -11,6 +11,7 @@ pragma solidity 0.8.18;
 import "./interfaces/IForeignGateway.sol";
 import "../proxy/UUPSProxiable.sol";
 import "../proxy/Initializable.sol";
+import "../libraries/Constants.sol";
 
 /// Foreign Gateway
 /// Counterpart of `HomeGateway`
@@ -37,7 +38,6 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     // *             Storage               * //
     // ************************************* //
 
-    uint256 public constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.
     uint256 internal localDisputeID; // The disputeID must start from 1 as the KlerosV1 proxy governor depends on this implementation. We now also depend on localDisputeID not ever being zero.
     mapping(uint96 => uint256) public feeForJuror; // feeForJuror[v2CourtID], it mirrors the value on KlerosCore.
     address public governor;
@@ -78,6 +78,9 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
 
     /// @dev Constructs the `PolicyRegistry` contract.
     /// @param _governor The governor's address.
+    /// @param _veaOutbox The address of the VeaOutbox.
+    /// @param _homeChainID The chainID of the home chain.
+    /// @param _homeGateway The address of the home gateway.
     function initialize(
         address _governor,
         address _veaOutbox,
@@ -263,10 +266,10 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
                 minJurors := mload(add(_extraData, 0x40))
             }
             if (feeForJuror[courtID] == 0) courtID = 0;
-            if (minJurors == 0) minJurors = DEFAULT_NB_OF_JURORS;
+            if (minJurors == 0) minJurors = Constants.DEFAULT_NB_OF_JURORS;
         } else {
             courtID = 0;
-            minJurors = DEFAULT_NB_OF_JURORS;
+            minJurors = Constants.DEFAULT_NB_OF_JURORS;
         }
     }
 }

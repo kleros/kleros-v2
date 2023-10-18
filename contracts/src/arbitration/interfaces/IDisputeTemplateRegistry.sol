@@ -2,8 +2,6 @@
 
 pragma solidity 0.8.18;
 
-import "./IArbitratorV2.sol";
-
 /// @title IDisputeTemplate
 /// @notice Dispute Template interface.
 interface IDisputeTemplateRegistry {
