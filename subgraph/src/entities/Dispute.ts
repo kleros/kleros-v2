@@ -18,7 +18,6 @@ export function createDisputeFromEvent(event: DisputeCreation): void {
   dispute.tied = true;
   dispute.overridden = false;
   dispute.lastPeriodChangeTs = event.block.timestamp;
-  dispute.lastPeriodChangeBlock = event.block.timestamp;
   dispute.lastPeriodChangeBlockNumber = event.block.number;
   let counter = PeriodIndexCounter.load("evidence");
   if (!counter) {

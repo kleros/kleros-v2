@@ -154,10 +154,9 @@ type Dispute @entity {
   currentRuling: BigInt!
   tied: Boolean!
   overridden: Boolean!
-  periodDeadline: BigInt! # uint256j
+  periodDeadline: BigInt!
   periodNotificationIndex: BigInt!
   lastPeriodChangeTs: BigInt!
-  lastPeriodChangeBlock: BigInt!
   lastPeriodChangeBlockNumber: BigInt!
   rounds: [Round!]! @derivedFrom(field: "dispute")
   currentRound: Round!
