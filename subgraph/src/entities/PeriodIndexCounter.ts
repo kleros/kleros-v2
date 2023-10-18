@@ -1,7 +1,7 @@
 import { PeriodIndexCounter } from "../../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 
-export function getAndIncrementCounter(id: string): BigInt {
+export function getAndIncrementPeriodCounter(id: string): BigInt {
   let counter = PeriodIndexCounter.load(id);
   if (!counter) {
     counter = new PeriodIndexCounter(id);

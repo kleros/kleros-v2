@@ -1,7 +1,7 @@
 import { KlerosCore, DisputeCreation } from "../../generated/KlerosCore/KlerosCore";
 import { Court, Dispute } from "../../generated/schema";
 import { ZERO } from "../utils";
-import { getAndIncrementCounter } from "./PeriodIndexCounter";
+import { getAndIncrementPeriodCounter } from "./PeriodIndexCounter";
 
 export function createDisputeFromEvent(event: DisputeCreation): void {
   const disputeID = event.params._disputeID;
@@ -18,7 +18,7 @@ export function createDisputeFromEvent(event: DisputeCreation): void {
   dispute.overridden = false;
   dispute.lastPeriodChange = event.block.timestamp;
   dispute.lastPeriodChangeBlockNumber = event.block.number;
-  dispute.periodNotificationIndex = getAndIncrementCounter(dispute.period);
+  dispute.periodNotificationIndex = getAndIncrementPeriodCounter(dispute.period);
   const court = Court.load(courtID);
   if (!court) return;
   dispute.periodDeadline = event.block.timestamp.plus(court.timesPerPeriod[0]);

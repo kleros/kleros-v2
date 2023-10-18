@@ -30,7 +30,7 @@ import { Court, Dispute, User } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { updatePenalty } from "./entities/Penalty";
 import { ensureFeeToken } from "./entities/FeeToken";
-import { getAndIncrementCounter } from "./entities/PeriodIndexCounter";
+import { getAndIncrementPeriodCounter } from "./entities/PeriodIndexCounter";
 
 function getPeriodName(index: i32): string {
   const periodArray = ["evidence", "commit", "vote", "appeal", "execution"];
@@ -130,7 +130,7 @@ export function handleNewPeriod(event: NewPeriod): void {
   dispute.period = newPeriod;
   dispute.lastPeriodChange = event.block.timestamp;
   dispute.lastPeriodChangeBlockNumber = event.block.number;
-  dispute.periodNotificationIndex = getAndIncrementCounter(newPeriod);
+  dispute.periodNotificationIndex = getAndIncrementPeriodCounter(newPeriod);
   if (newPeriod !== "execution") {
     dispute.periodDeadline = event.block.timestamp.plus(court.timesPerPeriod[event.params._period]);
   } else {

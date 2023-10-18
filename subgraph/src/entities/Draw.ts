@@ -1,6 +1,6 @@
 import { Draw as DrawEvent } from "../../generated/KlerosCore/KlerosCore";
 import { Draw, User } from "../../generated/schema";
-import { getAndIncrementCounter } from "./PeriodIndexCounter";
+import { getAndIncrementPeriodCounter } from "./PeriodIndexCounter";
 
 export function createDrawFromEvent(event: DrawEvent): void {
   const disputeID = event.params._disputeID.toString();
@@ -12,7 +12,7 @@ export function createDrawFromEvent(event: DrawEvent): void {
   draw.blockNumber = event.block.number;
   const user = User.load(event.params._address.toHexString());
   if (user && !user.disputes.includes(disputeID)) {
-    draw.drawNotificationIndex = getAndIncrementCounter("draw");
+    draw.drawNotificationIndex = getAndIncrementPeriodCounter("draw");
   }
   draw.dispute = disputeID;
   draw.round = roundID;
