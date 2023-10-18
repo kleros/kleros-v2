@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-// Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/proxy/ERC1967/ERC1967Proxy.sol>
+// Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/ERC1967/ERC1967Proxy.sol>
 
 /**
  *  @authors: [@malatrax]

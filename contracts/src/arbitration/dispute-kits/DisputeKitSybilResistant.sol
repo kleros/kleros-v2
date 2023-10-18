@@ -160,6 +160,7 @@ contract DisputeKitSybilResistant is IDisputeKit, IEvidence, Initializable, UUPS
     /// @dev Initializer.
     /// @param _governor The governor's address.
     /// @param _core The KlerosCore arbitrator.
+    /// @param _poh The Proof of Humanity registry.
     function initialize(address _governor, KlerosCore _core, IProofOfHumanity _poh) external reinitializer(1) {
         governor = _governor;
         core = _core;
@@ -324,8 +325,7 @@ contract DisputeKitSybilResistant is IDisputeKit, IEvidence, Initializable, UUPS
         for (uint256 i = 0; i < _voteIDs.length; i++) {
             require(round.votes[_voteIDs[i]].account == msg.sender, "The caller has to own the vote.");
             require(
-                !hiddenVotes ||
-                    round.votes[_voteIDs[i]].commit == keccak256(abi.encodePacked(_choice, _justification, _salt)),
+                !hiddenVotes || round.votes[_voteIDs[i]].commit == keccak256(abi.encodePacked(_choice, _salt)),
                 "The commit must match the choice in courts with hidden votes."
             );
             require(!round.votes[_voteIDs[i]].voted, "Vote already cast.");

@@ -4,6 +4,7 @@
 pragma solidity 0.8.18;
 
 import "../UUPSProxiable.sol";
+import "../Initializable.sol";
 
 contract NonUpgradeableMock {
     uint256 public _counter;
@@ -22,7 +23,7 @@ contract NonUpgradeableMock {
 }
 
 contract UUPSUpgradeableMock is UUPSProxiable, NonUpgradeableMock {
-    bool private initialized;
+    bool public initialized;
     address public governor;
 
     uint256[50] __gap;
