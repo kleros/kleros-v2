@@ -39,16 +39,12 @@ export const Element: React.FC<IElement> = ({ primaryText, urls, Icon }) => (
     {Icon && <Icon />}
 
     <div className="link-container">
-      {urls.map(({ node, link }, i) => (
-        <StyledA key={i} href={link} target="_blank" rel="noreferrer">
+      {urls.map(({ node, link }) => (
+        <StyledA key={link} href={link} target="_blank" rel="noreferrer">
           {node}
         </StyledA>
       ))}
     </div>
-    {primaryText && (
-      <>
-        <StyledLabel>{primaryText}</StyledLabel>
-      </>
-    )}
+    {primaryText && <StyledLabel>{primaryText}</StyledLabel>}
   </Container>
 );
