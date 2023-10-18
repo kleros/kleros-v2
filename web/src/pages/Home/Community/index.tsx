@@ -6,7 +6,7 @@ import { Element } from "./Element";
 import { section } from "consts/community-elements";
 
 const Container = styled.div`
-  margin-top: 64px;
+  margin-top: calc(44px + (64 - 44) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 
   h1 {
     margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);

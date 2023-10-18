@@ -7,7 +7,7 @@ import { SkeletonDisputeCard } from "components/StyledSkeleton";
 import { isUndefined } from "utils/index";
 
 const Container = styled.div`
-  margin-top: calc(64px + (80 - 64) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-top: calc(48px + (80 - 48) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 `;
 
 const Title = styled.h1`
