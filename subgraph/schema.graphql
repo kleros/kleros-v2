@@ -119,9 +119,6 @@ type Court @entity {
   id: ID!
   policy: String
   name: String
-  description: String
-  summary: String
-  requiredSkills: String
   parent: Court
   hiddenVotes: Boolean!
   children: [Court!]! @derivedFrom(field: "parent")
@@ -156,14 +153,14 @@ type Dispute @entity {
   overridden: Boolean!
   periodDeadline: BigInt!
   periodNotificationIndex: BigInt!
-  lastPeriodChangeTs: BigInt!
+  lastPeriodChange: BigInt!
   lastPeriodChangeBlockNumber: BigInt!
   rounds: [Round!]! @derivedFrom(field: "dispute")
   currentRound: Round!
   currentRoundIndex: BigInt!
   jurors: [User!]! @derivedFrom(field: "disputes")
   shifts: [TokenAndETHShift!]! @derivedFrom(field: "dispute")
-  disputeKitDispute: DisputeKitDispute @derivedFrom(field: "coreDispute")
+  disputeKitDispute: [DisputeKitDispute!]! @derivedFrom(field: "coreDispute")
 }
 
 type PeriodIndexCounter @entity {
@@ -241,7 +238,6 @@ type ClassicDispute implements DisputeKitDispute @entity {
   currentLocalRoundIndex: BigInt!
 
   numberOfChoices: BigInt!
-  jumped: Boolean!
   extraData: Bytes!
 }
 

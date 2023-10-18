@@ -16,7 +16,7 @@ export function createDisputeFromEvent(event: DisputeCreation): void {
   dispute.currentRuling = ZERO;
   dispute.tied = true;
   dispute.overridden = false;
-  dispute.lastPeriodChangeTs = event.block.timestamp;
+  dispute.lastPeriodChange = event.block.timestamp;
   dispute.lastPeriodChangeBlockNumber = event.block.number;
   dispute.periodNotificationIndex = getAndIncrementCounter(dispute.period);
   const court = Court.load(courtID);

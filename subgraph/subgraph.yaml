@@ -1,8 +1,6 @@
 specVersion: 0.0.4
 schema:
   file: ./schema.graphql
-features:
-  - ipfsOnEthereumContracts
 dataSources:
   - kind: ethereum
     name: KlerosCore
@@ -58,6 +56,8 @@ dataSources:
           handler: handleRuling
         - event: AcceptedFeeToken(indexed address,indexed bool)
           handler: handleAcceptedFeeToken
+        - event: CourtJump(indexed uint256,indexed uint256,indexed uint96,uint96)
+          handler: handleCourtJump
       file: ./src/KlerosCore.ts
   - kind: ethereum
     name: PolicyRegistry
