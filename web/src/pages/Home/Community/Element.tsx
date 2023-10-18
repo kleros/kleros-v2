@@ -6,7 +6,6 @@ const Container = styled.div`
   gap: 8px;
   align-items: center;
   flex-wrap: wrap;
-  justify-content: center;
 
   svg {
     width: 16px;

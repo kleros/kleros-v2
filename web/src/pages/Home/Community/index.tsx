@@ -14,15 +14,14 @@ const Container = styled.div`
 `;
 
 const StyledCard = styled(Card)`
+  display: flex;
   width: 100%;
   height: auto;
   gap: 12px;
   flex-direction: column;
   flex-wrap: wrap;
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 24px;
+  align-items: flex-start;
 
   ${landscapeStyle(
     () => css`
@@ -37,8 +36,7 @@ const StyledCard = styled(Card)`
 const ThreeElementContainer = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
 
   ${landscapeStyle(
