@@ -1,7 +1,6 @@
 import { Draw as DrawEvent } from "../../generated/KlerosCore/KlerosCore";
-import { Draw, PeriodIndexCounter, User } from "../../generated/schema";
-import { BigInt } from "@graphprotocol/graph-ts";
-import { ensurePeriodIndexCounter } from "./PeriodIndexCounter";
+import { Draw, User } from "../../generated/schema";
+import { getAndIncrementCounter } from "./PeriodIndexCounter";
 
 export function createDrawFromEvent(event: DrawEvent): void {
   const disputeID = event.params._disputeID.toString();
@@ -12,14 +11,8 @@ export function createDrawFromEvent(event: DrawEvent): void {
   const draw = new Draw(drawID);
   draw.blockNumber = event.block.number;
   const user = User.load(event.params._address.toHexString());
-  if (user) {
-    const duplicateNotification = user.disputes.includes(disputeID);
-    if (!duplicateNotification) {
-      const periodIndex = ensurePeriodIndexCounter("draw");
-      draw.drawNotificationIndex = periodIndex.counter;
-      periodIndex.counter = periodIndex.counter.plus(BigInt.fromI32(1));
-      periodIndex.save();
-    }
+  if (user && !user.disputes.includes(disputeID)) {
+    draw.drawNotificationIndex = getAndIncrementCounter("draw");
   }
   draw.dispute = disputeID;
   draw.round = roundID;
