@@ -222,7 +222,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
         ISortitionModule _sortitionModuleAddress
-    ) external initializer {
+    ) external reinitializer(1) {
         governor = _governor;
         pinakion = _pinakion;
         jurorProsecutionModule = _jurorProsecutionModule;
