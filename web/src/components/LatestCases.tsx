@@ -18,7 +18,6 @@ const DisputeContainer = styled.div`
   display: flex;
   gap: 24px;
   flex-wrap: wrap;
-  justify-content: center;
 `;
 
 const LatestCases: React.FC<{ filters?: Dispute_Filter }> = ({ filters }) => {

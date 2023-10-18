@@ -18,6 +18,7 @@ import { isUndefined } from "utils/index";
 const StyledCard = styled(Card)`
   width: 100%;
   height: calc(272px + (296 - 270) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+
   ${landscapeStyle(
     () =>
       css`

@@ -97,7 +97,6 @@ const StyledA = styled.a`
 
 const LinkContainer = styled.div`
   display: flex;
-  justify-content: space-between;
   gap: calc(8px + (24 - 8) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 `;
 
