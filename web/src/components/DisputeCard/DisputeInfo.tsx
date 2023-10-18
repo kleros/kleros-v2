@@ -35,13 +35,9 @@ const CourtBranchFieldContainer = styled.div<{ isList?: boolean; isOverview?: bo
   ${({ isOverview }) =>
     isOverview &&
     css`
-      ${landscapeStyle(
-        () => css`
-          display: flex;
-          margin-top: 16px;
-          flex-wrap: wrap;
-        `
-      )}
+      display: flex;
+      margin-top: 16px;
+      flex-wrap: wrap;
     `};
 `;
 
