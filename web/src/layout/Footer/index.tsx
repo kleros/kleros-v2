@@ -20,6 +20,7 @@ const Container = styled.div`
       height: 64px;
       flex-direction: row;
       justify-content: space-between;
+      padding-bottom: 0;
     `
   )}
 
