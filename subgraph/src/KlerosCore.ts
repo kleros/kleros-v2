@@ -127,7 +127,7 @@ export function handleNewPeriod(event: NewPeriod): void {
 
   dispute.period = newPeriod;
   dispute.lastPeriodChangeTs = event.block.timestamp;
-  dispute.lastPeriodChangeBlock = event.block.number;
+  dispute.lastPeriodChangeBlockNumber = event.block.number;
   let counter = PeriodIndexCounter.load(newPeriod);
   if (!counter) {
     counter = new PeriodIndexCounter(newPeriod);
