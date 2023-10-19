@@ -48,7 +48,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
   const { data: appealCost } = useAppealCost(id);
   const { data: drawData } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
   const roundId = disputeData?.dispute?.currentRoundIndex;
-  const voteId = drawData?.draws?.[0]?.voteID;
+  const voteId = drawData?.draws?.[0]?.voteIDNum;
   const { data: voted } = useDisputeKitClassicIsVoteActive({
     enabled: !isUndefined(roundId) && !isUndefined(voteId),
     args: [BigInt(id ?? 0), roundId, voteId],
@@ -101,7 +101,11 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
       !voted ? (
         <>
           <VotingHistory {...{ arbitrable }} isQuestion={false} />
-          <Classic {...{ arbitrable }} setIsOpen={setIsPopupOpen} voteIDs={drawData.draws.map((draw) => draw.voteID)} />
+          <Classic
+            {...{ arbitrable }}
+            setIsOpen={setIsPopupOpen}
+            voteIDs={drawData.draws.map((draw) => draw.voteIDNum)}
+          />
         </>
       ) : (
         <VotingHistory {...{ arbitrable }} isQuestion={true} />

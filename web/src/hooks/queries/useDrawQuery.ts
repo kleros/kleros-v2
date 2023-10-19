@@ -7,14 +7,14 @@ export type { DrawQuery };
 const drawQuery = graphql(`
   query Draw($address: String, $disputeID: String, $roundID: String) {
     draws(where: { dispute: $disputeID, juror: $address, round: $roundID }) {
-      voteID
+      voteIDNum
     }
   }
 `);
 
 export const useDrawQuery = (address?: string | null, disputeID?: string, roundID?: string) => {
   const isEnabled = !!(address && disputeID && roundID);
-  return useQuery({
+  return useQuery<DrawQuery>({
     queryKey: [`drawQuery${[address, disputeID, roundID]}`],
     enabled: isEnabled,
     queryFn: async () => await graphqlQueryFnHelper(drawQuery, { address, disputeID, roundID }),
