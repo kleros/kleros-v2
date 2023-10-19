@@ -41,6 +41,13 @@ const InputFieldAndButton = styled.div`
   width: 100%;
 `;
 
+const EnsureChainContainer = styled.div`
+  button {
+    height: 45px;
+    border: 1px solid ${({ theme }) => theme.stroke};
+  }
+`;
+
 interface IInputDisplay {
   action: ActionType;
   isSending: boolean;
@@ -111,7 +118,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
             // }
             formatter={(number: string) => commify(roundNumberDown(Number(number)))}
           />
-          <EnsureChain>
+          <EnsureChainContainer>
             <StakeWithdrawButton
               {...{
                 parsedAmount,
@@ -122,7 +129,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
                 setIsPopupOpen,
               }}
             />
-          </EnsureChain>
+          </EnsureChainContainer>
         </InputFieldAndButton>
       </InputArea>
     </>
