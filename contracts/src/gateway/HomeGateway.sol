@@ -11,6 +11,7 @@ pragma solidity 0.8.18;
 import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
 import "../libraries/SafeERC20.sol";
+import "../libraries/Constants.sol";
 import "../proxy/UUPSProxiable.sol";
 import "../proxy/Initializable.sol";
 
@@ -32,7 +33,6 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
     // *             Storage               * //
     // ************************************* //
 
-    IERC20 public constant NATIVE_CURRENCY = IERC20(address(0)); // The native currency, such as ETH on Arbitrum, Optimism and Ethereum L1.
     address public governor;
     IArbitratorV2 public arbitrator;
     IVeaInbox public veaInbox;
@@ -64,6 +64,11 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
 
     /// @dev Constructs the `PolicyRegistry` contract.
     /// @param _governor The governor's address.
+    /// @param _arbitrator The address of the arbitrator.
+    /// @param _veaInbox The address of the vea inbox.
+    /// @param _foreignChainID The ID of the foreign chain.
+    /// @param _foreignGateway The address of the foreign gateway.
+    /// @param _feeToken The address of the fee token.
     function initialize(
         address _governor,
         IArbitratorV2 _arbitrator,
@@ -128,7 +133,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
 
     /// @inheritdoc IHomeGateway
     function relayCreateDispute(RelayCreateDisputeParams memory _params) external payable override {
-        require(feeToken == NATIVE_CURRENCY, "Fees paid in ERC20 only");
+        require(feeToken == Constants.NATIVE_CURRENCY, "Fees paid in ERC20 only");
         require(_params.foreignChainID == foreignChainID, "Foreign chain ID not supported");
 
         bytes32 disputeHash = keccak256(
@@ -166,7 +171,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
 
     /// @inheritdoc IHomeGateway
     function relayCreateDispute(RelayCreateDisputeParams memory _params, uint256 _feeAmount) external {
-        require(feeToken != NATIVE_CURRENCY, "Fees paid in native currency only");
+        require(feeToken != Constants.NATIVE_CURRENCY, "Fees paid in native currency only");
         require(_params.foreignChainID == foreignChainID, "Foreign chain ID not supported");
 
         bytes32 disputeHash = keccak256(

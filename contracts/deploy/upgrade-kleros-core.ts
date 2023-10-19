@@ -28,7 +28,7 @@ const deployUpgradeKlerosCore: DeployFunction = async (hre: HardhatRuntimeEnviro
     const sortitionModule = await deployments.get("SortitionModule");
 
     console.log("Upgrading the KlerosCore...");
-    await deployUpgradable(hre, "KlerosCore", {
+    await deployUpgradable(deployments, "KlerosCore", {
       from: deployer,
       args: [
         deployer,

@@ -52,12 +52,16 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     randomizerByChain.set(HomeChains[HomeChains[chainId]], randomizerMock.address);
   }
 
-  await deployUpgradable(hre, "PolicyRegistry", { from: deployer, args: [deployer], log: true });
+  await deployUpgradable(deployments, "PolicyRegistry", { from: deployer, args: [deployer], log: true });
 
   const randomizer = randomizerByChain.get(Number(await getChainId())) ?? AddressZero;
-  const rng = await deployUpgradable(hre, "RandomizerRNG", { from: deployer, args: [randomizer, deployer], log: true });
+  const rng = await deployUpgradable(deployments, "RandomizerRNG", {
+    from: deployer,
+    args: [randomizer, deployer],
+    log: true,
+  });
 
-  const disputeKit = await deployUpgradable(hre, "DisputeKitClassic", {
+  const disputeKit = await deployUpgradable(deployments, "DisputeKitClassic", {
     from: deployer,
     args: [deployer, AddressZero],
     log: true,
@@ -72,7 +76,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const devnet = isDevnet(hre.network);
   const minStakingTime = devnet ? 180 : 1800;
   const maxFreezingTime = devnet ? 600 : 1800;
-  const sortitionModule = await deployUpgradable(hre, "SortitionModule", {
+  const sortitionModule = await deployUpgradable(deployments, "SortitionModule", {
     from: deployer,
     args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rng.address, RNG_LOOKAHEAD],
     log: true,
@@ -84,7 +88,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const minStake = BigNumber.from(10).pow(20).mul(2);
   const alpha = 10000;
   const feeForJuror = BigNumber.from(10).pow(17);
-  const klerosCore = await deployUpgradable(hre, "KlerosCore", {
+  const klerosCore = await deployUpgradable(deployments, "KlerosCore", {
     from: deployer,
     args: [
       deployer,
