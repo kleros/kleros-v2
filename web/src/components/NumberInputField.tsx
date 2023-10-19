@@ -10,6 +10,21 @@ const Container = styled.div`
 const StyledField = styled(Field)`
   width: 100%;
   height: fit-content;
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  input {
+    border: 1px solid ${({ theme }) => theme.stroke};
+    border-right: none;
+    height: 45px;
+    font-size: 16px;
+  }
 `;
 
 interface INumberInputField {

@@ -14,7 +14,6 @@ import { commify, uncommify } from "utils/commify";
 import { EnsureChain } from "components/EnsureChain";
 
 const StyledField = styled(NumberInputField)`
-  width: 100%;
   height: fit-content;
 `;
 
@@ -33,6 +32,13 @@ const InputArea = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  width: 100%;
+`;
+
+const InputFieldAndButton = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
 `;
 
 interface IInputDisplay {
@@ -87,35 +93,37 @@ const InputDisplay: React.FC<IInputDisplay> = ({
         </StyledLabel>
       </LabelArea>
       <InputArea>
-        <StyledField
-          value={uncommify(amount)}
-          onChange={(e) => {
-            setAmount(e);
-          }}
-          placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
-          message={
-            isStaking
-              ? `You need to stake at least ${formatPNK(courtDetails?.court.minStake ?? 0n, 3)} PNK. ` +
-                "You may need two transactions, one to increase allowance, the other to stake."
-              : `You need to either withdraw all or keep at least ${formatPNK(
-                  courtDetails?.court.minStake ?? 0n,
-                  3
-                )} PNK.`
-          }
-          formatter={(number: string) => commify(roundNumberDown(Number(number)))}
-        />
-        <EnsureChain>
-          <StakeWithdrawButton
-            {...{
-              parsedAmount,
-              action,
-              setAmount,
-              isSending,
-              setIsSending,
-              setIsPopupOpen,
+        <InputFieldAndButton>
+          <StyledField
+            value={uncommify(amount)}
+            onChange={(e) => {
+              setAmount(e);
             }}
+            placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
+            // message={
+            //   isStaking
+            //     ? `You need to stake at least ${formatPNK(courtDetails?.court.minStake ?? 0n, 3)} PNK. ` +
+            //       "You may need two transactions, one to increase allowance, the other to stake."
+            //     : `You need to either withdraw all or keep at least ${formatPNK(
+            //         courtDetails?.court.minStake ?? 0n,
+            //         3
+            //       )} PNK.`
+            // }
+            formatter={(number: string) => commify(roundNumberDown(Number(number)))}
           />
-        </EnsureChain>
+          <EnsureChain>
+            <StakeWithdrawButton
+              {...{
+                parsedAmount,
+                action,
+                setAmount,
+                isSending,
+                setIsSending,
+                setIsPopupOpen,
+              }}
+            />
+          </EnsureChain>
+        </InputFieldAndButton>
       </InputArea>
     </>
   );

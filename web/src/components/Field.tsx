@@ -9,7 +9,6 @@ const FieldContainer = styled.div<FieldContainerProps>`
   justify-content: flex-start;
   white-space: nowrap;
   width: 100%;
-
   .value {
     flex-grow: 1;
     text-align: end;
@@ -28,7 +27,6 @@ const FieldContainer = styled.div<FieldContainerProps>`
       cursor: pointer;
     }
   }
-
   ${({ isList }) =>
     isList &&
     css`
@@ -42,8 +40,8 @@ const FieldContainer = styled.div<FieldContainerProps>`
         `
       )}
     `};
-  ${({ isOverview }) =>
-    isOverview &&
+  ${({ isOverview, isJurorBalance }) =>
+    (isOverview || isJurorBalance) &&
     css`
       ${landscapeStyle(
         () => css`
@@ -66,6 +64,7 @@ type FieldContainerProps = {
   width?: string;
   isList?: boolean;
   isOverview?: boolean;
+  isJurorBalance?: boolean;
 };
 
 interface IField {
@@ -76,12 +75,22 @@ interface IField {
   width?: string;
   displayAsList?: boolean;
   isOverview?: boolean;
+  isJurorBalance?: boolean;
 }
 
-const Field: React.FC<IField> = ({ icon: Icon, name, value, link, width, displayAsList, isOverview }) => {
+const Field: React.FC<IField> = ({
+  icon: Icon,
+  name,
+  value,
+  link,
+  width,
+  displayAsList,
+  isOverview,
+  isJurorBalance,
+}) => {
   return (
-    <FieldContainer isList={displayAsList} isOverview={isOverview} width={width}>
-      {(!displayAsList || isOverview) && (
+    <FieldContainer isList={displayAsList} isOverview={isOverview} isJurorBalance={isJurorBalance} width={width}>
+      {(!displayAsList || isOverview || isJurorBalance) && (
         <>
           <Icon />
           <label>{name}:</label>
@@ -97,5 +106,4 @@ const Field: React.FC<IField> = ({ icon: Icon, name, value, link, width, display
     </FieldContainer>
   );
 };
-
 export default Field;
