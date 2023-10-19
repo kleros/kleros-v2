@@ -6,9 +6,9 @@ dataSources:
     name: KlerosCore
     network: arbitrum-goerli
     source:
-      address: "0x544afd5A8AbC40ba5d38BbA8d47f30502896b050"
+      address: "0xB88643fd1e4351dAF9eA7292db126207FDE42e45"
       abi: KlerosCore
-      startBlock: 48886815
+      startBlock: 49141544
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -83,9 +83,9 @@ dataSources:
     name: DisputeKitClassic
     network: arbitrum-goerli
     source:
-      address: "0xc9aF9335327cAe0Cd45EC96ad9bDcD4304772729"
+      address: "0x67f3b472F345119692d575E59190400E371946f6"
       abi: DisputeKitClassic
-      startBlock: 48886762
+      startBlock: 49141470
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -94,8 +94,6 @@ dataSources:
         - ClassicDispute
         - ClassicRound
         - ClassicVote
-        - ClassicEvidenceGroup
-        - ClassicEvidence
         - ClassicContribution
       abis:
         - name: DisputeKitClassic
@@ -111,10 +109,29 @@ dataSources:
           handler: handleWithdrawal
         - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
           handler: handleChoiceFunded
-        - event: Evidence(indexed uint256,indexed address,string)
-          handler: handleEvidenceEvent
         - event: VoteCast(indexed uint256,indexed address,uint256[],indexed uint256,string)
           handler: handleVoteCast
         - event: CommitCast(indexed uint256,indexed address,uint256[],bytes32)
           handler: handleCommitCast
       file: ./src/DisputeKitClassic.ts
+  - kind: ethereum
+    name: EvidenceModule
+    network: arbitrum-goerli
+    source:
+      address: "0xF679E4a92AE843fd5cD0717A7417C3A773Dfd55F"
+      abi: EvidenceModule
+      startBlock: 49137992
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - ClassicEvidenceGroup
+        - ClassicEvidence
+      abis:
+        - name: EvidenceModule
+          file: ../contracts/deployments/arbitrumGoerliDevnet/EvidenceModule.json
+      eventHandlers:
+        - event: Evidence(indexed uint256,indexed address,string)
+          handler: handleEvidenceEvent
+      file: ./src/EvidenceModule.ts
