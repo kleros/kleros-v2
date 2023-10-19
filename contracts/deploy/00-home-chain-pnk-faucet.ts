@@ -18,12 +18,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const pnkAddress = pnkByChain.get(chainId);
   if (pnkAddress) {
-    // await deploy("PNKFaucet", {
-    //   from: deployer,
-    //   contract: "Faucet",
-    //   args: [pnkAddress],
-    //   log: true,
-    // });
+    await deploy("PNKFaucet", {
+      from: deployer,
+      contract: "Faucet",
+      args: [pnkAddress],
+      log: true,
+    });
     await execute(
       "PNKFaucet",
       { from: deployer, log: true },

@@ -1,5 +1,5 @@
 {
-  "address": "0x9c5dD8bBe4342dFC53f47Bd5ba0808e0B4d825e8",
+  "address": "0x36e1e5C2644Ec9ba0C3d85B89182f8EDD5696248",
   "abi": [
     {
       "stateMutability": "payable",
@@ -55,6 +55,31 @@
       "anonymous": false,
       "inputs": [
         {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_externalDisputeID",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_party",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "_evidence",
+          "type": "string"
+        }
+      ],
+      "name": "Evidence",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
           "indexed": false,
           "internalType": "uint64",
           "name": "version",
@@ -69,31 +94,6 @@
       "inputs": [
         {
           "indexed": true,
-          "internalType": "uint256",
-          "name": "_courtID",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "string",
-          "name": "_courtName",
-          "type": "string"
-        },
-        {
-          "indexed": false,
-          "internalType": "string",
-          "name": "_policy",
-          "type": "string"
-        }
-      ],
-      "name": "PolicyUpdate",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
           "internalType": "address",
           "name": "newImplementation",
           "type": "address"
@@ -101,19 +101,6 @@
       ],
       "name": "Upgraded",
       "type": "event"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_governor",
-          "type": "address"
-        }
-      ],
-      "name": "changeGovernor",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
     },
     {
       "inputs": [],
@@ -142,25 +129,6 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "policies",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [],
       "name": "proxiableUUID",
       "outputs": [
@@ -177,21 +145,16 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "_courtID",
+          "name": "_externalDisputeID",
           "type": "uint256"
         },
         {
           "internalType": "string",
-          "name": "_courtName",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "_policy",
+          "name": "_evidence",
           "type": "string"
         }
       ],
-      "name": "setPolicy",
+      "name": "submitEvidence",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -231,37 +194,37 @@
       "type": "constructor"
     }
   ],
-  "transactionHash": "0x9a96c8aed5af7efa12fc16be05ee9f2e29383a7cd286ef33ae64312c46c171c1",
+  "transactionHash": "0x0a3b6950db4a81cc69a9530f8398e86c4d69e0157a57162500ab95a9a13529b7",
   "receipt": {
     "to": null,
     "from": "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3",
-    "contractAddress": "0x9c5dD8bBe4342dFC53f47Bd5ba0808e0B4d825e8",
-    "transactionIndex": 1,
+    "contractAddress": "0x36e1e5C2644Ec9ba0C3d85B89182f8EDD5696248",
+    "transactionIndex": 2,
     "gasUsed": "175189",
-    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000020000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-    "blockHash": "0xbe4f6b2edf6c83859a89a92ed9c6caa74d6bc051251975312d5a49fdf32af6a4",
-    "transactionHash": "0x9a96c8aed5af7efa12fc16be05ee9f2e29383a7cd286ef33ae64312c46c171c1",
+    "logsBloom": "0x00000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xb031e33e3636d01a7336c2bd88ff530deb170d1307b1af82e695ad4dd1c69cc6",
+    "transactionHash": "0x0a3b6950db4a81cc69a9530f8398e86c4d69e0157a57162500ab95a9a13529b7",
     "logs": [
       {
-        "transactionIndex": 1,
-        "blockNumber": 49204020,
-        "transactionHash": "0x9a96c8aed5af7efa12fc16be05ee9f2e29383a7cd286ef33ae64312c46c171c1",
-        "address": "0x9c5dD8bBe4342dFC53f47Bd5ba0808e0B4d825e8",
+        "transactionIndex": 2,
+        "blockNumber": 49204056,
+        "transactionHash": "0x0a3b6950db4a81cc69a9530f8398e86c4d69e0157a57162500ab95a9a13529b7",
+        "address": "0x36e1e5C2644Ec9ba0C3d85B89182f8EDD5696248",
         "topics": [
           "0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2"
         ],
         "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
         "logIndex": 0,
-        "blockHash": "0xbe4f6b2edf6c83859a89a92ed9c6caa74d6bc051251975312d5a49fdf32af6a4"
+        "blockHash": "0xb031e33e3636d01a7336c2bd88ff530deb170d1307b1af82e695ad4dd1c69cc6"
       }
     ],
-    "blockNumber": 49204020,
-    "cumulativeGasUsed": "175189",
+    "blockNumber": 49204056,
+    "cumulativeGasUsed": "873040",
     "status": 1,
     "byzantium": true
   },
   "args": [
-    "0xE92BEd1c2704217b446C4a065bbAEE23D406699D",
+    "0xa94d95084c7Cb165C565CBF4FD024Bc5e6E9DDb8",
     "0xc4d66de8000000000000000000000000f50e77f2a2b6138d16c6c7511562e5c33c4b15a3"
   ],
   "numDeployments": 1,
@@ -275,7 +238,7 @@
       "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3"
     ]
   },
-  "implementation": "0xE92BEd1c2704217b446C4a065bbAEE23D406699D",
+  "implementation": "0xa94d95084c7Cb165C565CBF4FD024Bc5e6E9DDb8",
   "devdoc": {
     "author": "Simon Malatrait <simon.malatrait@grenoble-inp.org>",
     "details": "This contract implements a UUPS Proxy compliant with ERC-1967 & ERC-1822.This contract delegates all calls to another contract (UUPS Proxiable) through a fallback function and the use of the `delegatecall` EVM instruction.We refer to the Proxiable contract (as per ERC-1822) with `implementation`.",
