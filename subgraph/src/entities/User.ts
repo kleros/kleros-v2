@@ -1,5 +1,5 @@
-import { BigInt, log } from "@graphprotocol/graph-ts";
-import { User, Dispute } from "../../generated/schema";
+import { BigInt } from "@graphprotocol/graph-ts";
+import { User } from "../../generated/schema";
 import { ONE, ZERO } from "../utils";
 
 export function ensureUser(id: string): User {
