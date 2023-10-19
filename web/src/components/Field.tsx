@@ -14,11 +14,13 @@ const FieldContainer = styled.div<FieldContainerProps>`
     text-align: end;
     color: ${({ theme }) => theme.primaryText};
   }
+
   svg {
     fill: ${({ theme }) => theme.secondaryPurple};
     margin-right: 8px;
     width: 15px;
   }
+
   .link {
     color: ${({ theme }) => theme.primaryBlue};
     :hover {

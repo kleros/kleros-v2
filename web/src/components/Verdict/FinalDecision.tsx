@@ -71,7 +71,9 @@ const AnswerTitle = styled.h3`
 
 const Divider = styled.hr`
   display: flex;
-  color: ${({ theme }) => theme.stroke};
+  border: none;
+  height: 1px;
+  background-color: ${({ theme }) => theme.stroke};
   margin: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875) 0px;
 `;
 
