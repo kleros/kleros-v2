@@ -6,6 +6,7 @@ import Community from "./Community";
 import HeroImage from "./HeroImage";
 import { HomePageProvider } from "hooks/useHomePageContext";
 import { getOneYearAgoTimestamp } from "utils/date";
+import TopJurors from "./TopJurors";
 
 const Container = styled.div`
   width: 100%;
@@ -24,6 +25,7 @@ const Home: React.FC = () => {
       <Container>
         <CourtOverview />
         <LatestCases />
+        <TopJurors />
         <Community />
       </Container>
     </HomePageProvider>
