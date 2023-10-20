@@ -18,6 +18,7 @@ export function createUserFromAddress(id: string): User {
   user.totalDelayed = ZERO;
   user.activeDisputes = ZERO;
   user.disputes = [];
+  user.rounds = [];
   user.resolvedDisputes = [];
   user.totalResolvedDisputes = ZERO;
   user.totalAppealingDisputes = ZERO;

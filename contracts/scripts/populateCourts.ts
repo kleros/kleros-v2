@@ -1,10 +1,11 @@
-import { deployments, getNamedAccounts, getChainId, ethers } from "hardhat";
+import { deployments, getNamedAccounts, getChainId, ethers, network } from "hardhat";
 import { KlerosCore } from "../typechain-types";
 import { BigNumber } from "ethers";
 import courtsV1Mainnet from "../config/courts.v1.mainnet.json";
 import courtsV1GnosisChain from "../config/courts.v1.gnosischain.json";
 import courtsV2ArbitrumTestnet from "../config/courts.v2.testnet.json";
 import courtsV2ArbitrumDevnet from "../config/courts.v2.devnet.json";
+import { isDevnet } from "../deploy/utils";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -20,7 +21,7 @@ enum Sources {
   V2_TESTNET,
 }
 
-const from = Sources.V2_TESTNET;
+const from = isDevnet(network) ? Sources.V2_DEVNET : Sources.V2_TESTNET;
 const TESTING_PARAMETERS = false;
 const ETH_USD = BigNumber.from(1800);
 const DISPUTE_KIT_CLASSIC = BigNumber.from(1);

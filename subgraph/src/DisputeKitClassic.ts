@@ -2,7 +2,6 @@ import { BigInt } from "@graphprotocol/graph-ts";
 import {
   DisputeKitClassic,
   DisputeCreation,
-  Evidence as EvidenceEvent,
   VoteCast,
   Contribution as ContributionEvent,
   ChoiceFunded,
@@ -10,24 +9,15 @@ import {
   CommitCast,
 } from "../generated/DisputeKitClassic/DisputeKitClassic";
 import { KlerosCore } from "../generated/KlerosCore/KlerosCore";
-import {
-  ClassicDispute,
-  ClassicEvidence,
-  ClassicJustification,
-  ClassicRound,
-  ClassicVote,
-  Dispute,
-} from "../generated/schema";
+import { ClassicDispute, ClassicJustification, ClassicRound, ClassicVote, Dispute } from "../generated/schema";
 import { ensureClassicContributionFromEvent } from "./entities/ClassicContribution";
 import { createClassicDisputeFromEvent } from "./entities/ClassicDispute";
-import { ensureClassicEvidenceGroup } from "./entities/ClassicEvidenceGroup";
 import {
   createClassicRound,
   updateChoiceFundingFromContributionEvent,
   updateCountsAndGetCurrentRuling,
 } from "./entities/ClassicRound";
 import { ensureClassicVote } from "./entities/ClassicVote";
-import { ensureUser } from "./entities/User";
 import { ONE, ZERO } from "./utils";
 
 export const DISPUTEKIT_ID = "1";
@@ -37,21 +27,6 @@ export function handleDisputeCreation(event: DisputeCreation): void {
   createClassicDisputeFromEvent(event);
   const numberOfChoices = event.params._numberOfChoices;
   createClassicRound(disputeID, numberOfChoices, ZERO);
-}
-
-export function handleEvidenceEvent(event: EvidenceEvent): void {
-  const evidenceGroupID = event.params._externalDisputeID.toString();
-  const evidenceGroup = ensureClassicEvidenceGroup(evidenceGroupID);
-  const evidenceIndex = evidenceGroup.nextEvidenceIndex;
-  evidenceGroup.nextEvidenceIndex = evidenceGroup.nextEvidenceIndex.plus(ONE);
-  evidenceGroup.save();
-  const evidence = new ClassicEvidence(`${evidenceGroupID}-${evidenceIndex.toString()}`);
-  const userId = event.params._party.toHexString();
-  evidence.evidence = event.params._evidence;
-  evidence.evidenceGroup = evidenceGroupID.toString();
-  evidence.sender = userId;
-  ensureUser(userId);
-  evidence.save();
 }
 
 export function handleCommitCast(event: CommitCast): void {

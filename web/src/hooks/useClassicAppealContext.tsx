@@ -7,6 +7,7 @@ import { useAppealCost } from "queries/useAppealCost";
 import { useDisputeKitClassicMultipliers } from "queries/useDisputeKitClassicMultipliers";
 import { useClassicAppealQuery, ClassicAppealQuery } from "queries/useClassicAppealQuery";
 import { useCountdown } from "hooks/useCountdown";
+import { getLocalRounds } from "utils/getLocalRounds";
 
 const LoserSideCountdownContext = createContext<number | undefined>(undefined);
 
@@ -100,7 +101,7 @@ export const useOptionsContext = () => useContext(OptionsContext);
 const getCurrentLocalRound = (dispute?: ClassicAppealQuery["dispute"]) => {
   const period = dispute?.period;
   const currentLocalRoundIndex = dispute?.disputeKitDispute?.currentLocalRoundIndex;
-  return dispute?.disputeKitDispute?.localRounds[
+  return getLocalRounds(dispute?.disputeKitDispute)[
     ["appeal", "execution"].includes(period ?? "") ? currentLocalRoundIndex : currentLocalRoundIndex - 1
   ];
 };

@@ -14,6 +14,7 @@ import { useVotingHistory } from "queries/useVotingHistory";
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
+import { getLocalRounds } from "utils/getLocalRounds";
 
 const StyledCard = styled(Card)`
   width: 100%;
@@ -105,7 +106,7 @@ const DisputeCard: React.FC<IDisputeCard> = ({ id, arbitrated, period, lastPerio
   const courtName = courtPolicy?.name;
   const category = disputeTemplate ? disputeTemplate.category : undefined;
   const { data: votingHistory } = useVotingHistory(id);
-  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
+  const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const navigate = useNavigate();
   return (
     <>

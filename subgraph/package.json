@@ -9,7 +9,7 @@
     "codegen": "graph codegen",
     "build": "graph build",
     "clean": "graph clean && rm subgraph.yaml.bak.*",
-    "deploy:arbitrum-goerli": "graph deploy --product hosted-service kleros/kleros-v2-core-arbitrum-goerli",
+    "deploy:arbitrum-goerli": "graph deploy --product hosted-service kleros/kleros-v2-core-testnet-2",
     "deploy:arbitrum-goerli-devnet": "graph deploy --product hosted-service kleros/kleros-v2-core-devnet",
     "deploy:arbitrum": "graph deploy --product hosted-service kleros/kleros-v2-core-arbitrum",
     "create-local": "graph create --node http://localhost:8020/ kleros/kleros-v2-core-local",

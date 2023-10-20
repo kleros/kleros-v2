@@ -15,6 +15,7 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 import Verdict from "components/Verdict/index";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
+import { getLocalRounds } from "utils/getLocalRounds";
 
 const Container = styled.div`
   width: 100%;
@@ -125,7 +126,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const { data: courtPolicy } = useCourtPolicy(courtID);
   const { data: votingHistory } = useVotingHistory(id);
-  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
+  const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const courtName = courtPolicy?.name;
   const court = disputeDetails?.dispute?.court;
   const rewards = court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined;
