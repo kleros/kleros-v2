@@ -12,7 +12,7 @@ const Container = styled.div`
   background-color: ${({ theme }) => theme.lightBackground};
   padding: calc(24px + (132 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   padding-top: calc(32px + (72 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-bottom: calc(84px + (120 - 84) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding-bottom: calc(76px + (96 - 76) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   max-width: 1780px;
   margin: 0 auto;
 `;
