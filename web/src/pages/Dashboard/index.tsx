@@ -54,6 +54,7 @@ const Dashboard: React.FC = () => {
   );
   const { data: userData } = useUserQuery(address, decodedFilter);
   const totalCases = userData?.user?.disputes.length;
+  const totalPages = Math.ceil(totalCases / casesPerPage);
 
   return (
     <Container>
@@ -66,7 +67,7 @@ const Dashboard: React.FC = () => {
             disputes={disputesData?.user?.disputes as DisputeDetailsFragment[]}
             numberDisputes={totalCases}
             numberClosedDisputes={0}
-            totalPages={10}
+            totalPages={totalPages}
             currentPage={pageNumber}
             setCurrentPage={(newPage: number) => navigate(`${location}/${newPage}/${order}/${filter}`)}
             {...{ casesPerPage }}
