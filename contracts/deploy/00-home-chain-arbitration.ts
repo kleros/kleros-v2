@@ -54,6 +54,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   await deployUpgradable(deployments, "PolicyRegistry", { from: deployer, args: [deployer], log: true });
 
+  await deployUpgradable(deployments, "EvidenceModule", { from: deployer, args: [deployer], log: true });
+
   const randomizer = randomizerByChain.get(Number(await getChainId())) ?? AddressZero;
   const rng = await deployUpgradable(deployments, "RandomizerRNG", {
     from: deployer,

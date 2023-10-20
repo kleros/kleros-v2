@@ -1,16 +1,68 @@
 {
-  "address": "0x4c129b9836E4CC3Cf6D833b39a4B7cfA25D86c86",
+  "address": "0x9c5dD8bBe4342dFC53f47Bd5ba0808e0B4d825e8",
   "abi": [
+    {
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    },
+    {
+      "inputs": [],
+      "name": "AlreadyInitialized",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "FailedDelegateCall",
+      "type": "error"
+    },
     {
       "inputs": [
         {
           "internalType": "address",
-          "name": "_governor",
+          "name": "implementation",
           "type": "address"
         }
       ],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
+      "name": "InvalidImplementation",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotInitializing",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "UUPSUnauthorizedCallContext",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "slot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "UUPSUnsupportedProxiableUUID",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "version",
+          "type": "uint64"
+        }
+      ],
+      "name": "Initialized",
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -35,6 +87,19 @@
         }
       ],
       "name": "PolicyUpdate",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newImplementation",
+          "type": "address"
+        }
+      ],
+      "name": "Upgraded",
       "type": "event"
     },
     {
@@ -66,6 +131,19 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "_governor",
+          "type": "address"
+        }
+      ],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
@@ -77,6 +155,19 @@
           "internalType": "string",
           "name": "",
           "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proxiableUUID",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
         }
       ],
       "stateMutability": "view",
@@ -104,68 +195,102 @@
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newImplementation",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "upgradeToAndCall",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_implementation",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_data",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
     }
   ],
-  "transactionHash": "0xda93734228d7c8a65f610a20ba8cb33c357dbf1bde225a8a827f5a8a51d24eb8",
+  "transactionHash": "0x9a96c8aed5af7efa12fc16be05ee9f2e29383a7cd286ef33ae64312c46c171c1",
   "receipt": {
     "to": null,
     "from": "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3",
-    "contractAddress": "0x4c129b9836E4CC3Cf6D833b39a4B7cfA25D86c86",
+    "contractAddress": "0x9c5dD8bBe4342dFC53f47Bd5ba0808e0B4d825e8",
     "transactionIndex": 1,
-    "gasUsed": "1479797",
-    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-    "blockHash": "0x0ba97e583cdc8c0b6d9f5b39c5f97a3e0f2e4557aafdb0d8e746626cb2ceb193",
-    "transactionHash": "0xda93734228d7c8a65f610a20ba8cb33c357dbf1bde225a8a827f5a8a51d24eb8",
-    "logs": [],
-    "blockNumber": 33436566,
-    "cumulativeGasUsed": "1479797",
+    "gasUsed": "175189",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000020000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xbe4f6b2edf6c83859a89a92ed9c6caa74d6bc051251975312d5a49fdf32af6a4",
+    "transactionHash": "0x9a96c8aed5af7efa12fc16be05ee9f2e29383a7cd286ef33ae64312c46c171c1",
+    "logs": [
+      {
+        "transactionIndex": 1,
+        "blockNumber": 49204020,
+        "transactionHash": "0x9a96c8aed5af7efa12fc16be05ee9f2e29383a7cd286ef33ae64312c46c171c1",
+        "address": "0x9c5dD8bBe4342dFC53f47Bd5ba0808e0B4d825e8",
+        "topics": [
+          "0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 0,
+        "blockHash": "0xbe4f6b2edf6c83859a89a92ed9c6caa74d6bc051251975312d5a49fdf32af6a4"
+      }
+    ],
+    "blockNumber": 49204020,
+    "cumulativeGasUsed": "175189",
     "status": 1,
     "byzantium": true
   },
   "args": [
-    "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3"
+    "0xE92BEd1c2704217b446C4a065bbAEE23D406699D",
+    "0xc4d66de8000000000000000000000000f50e77f2a2b6138d16c6c7511562e5c33c4b15a3"
   ],
-  "numDeployments": 3,
-  "solcInputHash": "5cbc9a57c66318424bb771eed7e7b88c",
-  "metadata": "{\"compiler\":{\"version\":\"0.8.18+commit.87f61d96\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_governor\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_courtID\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"_courtName\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"_policy\",\"type\":\"string\"}],\"name\":\"PolicyUpdate\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_governor\",\"type\":\"address\"}],\"name\":\"changeGovernor\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"governor\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"policies\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_courtID\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"_courtName\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_policy\",\"type\":\"string\"}],\"name\":\"setPolicy\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"A contract to maintain a policy for each court.\",\"events\":{\"PolicyUpdate(uint256,string,string)\":{\"details\":\"Emitted when a policy is updated.\",\"params\":{\"_courtID\":\"The ID of the policy's court.\",\"_courtName\":\"The name of the policy's court.\",\"_policy\":\"The URI of the policy JSON.\"}}},\"kind\":\"dev\",\"methods\":{\"changeGovernor(address)\":{\"details\":\"Changes the `governor` storage variable.\",\"params\":{\"_governor\":\"The new value for the `governor` storage variable.\"}},\"constructor\":{\"details\":\"Constructs the `PolicyRegistry` contract.\",\"params\":{\"_governor\":\"The governor's address.\"}},\"setPolicy(uint256,string,string)\":{\"details\":\"Sets the policy for the specified court.\",\"params\":{\"_courtID\":\"The ID of the specified court.\",\"_courtName\":\"The name of the specified court.\",\"_policy\":\"The URI of the policy JSON.\"}}},\"title\":\"PolicyRegistry\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/arbitration/PolicyRegistry.sol\":\"PolicyRegistry\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"src/arbitration/PolicyRegistry.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.18;\\n\\n/// @title PolicyRegistry\\n/// @dev A contract to maintain a policy for each court.\\ncontract PolicyRegistry {\\n    // ************************************* //\\n    // *              Events               * //\\n    // ************************************* //\\n\\n    /// @dev Emitted when a policy is updated.\\n    /// @param _courtID The ID of the policy's court.\\n    /// @param _courtName The name of the policy's court.\\n    /// @param _policy The URI of the policy JSON.\\n    event PolicyUpdate(uint256 indexed _courtID, string _courtName, string _policy);\\n\\n    // ************************************* //\\n    // *             Storage               * //\\n    // ************************************* //\\n\\n    address public governor;\\n    mapping(uint256 => string) public policies;\\n\\n    // ************************************* //\\n    // *        Function Modifiers         * //\\n    // ************************************* //\\n\\n    /// @dev Requires that the sender is the governor.\\n    modifier onlyByGovernor() {\\n        require(governor == msg.sender, \\\"No allowed: governor only\\\");\\n        _;\\n    }\\n\\n    // ************************************* //\\n    // *            Constructor            * //\\n    // ************************************* //\\n\\n    /// @dev Constructs the `PolicyRegistry` contract.\\n    /// @param _governor The governor's address.\\n    constructor(address _governor) {\\n        governor = _governor;\\n    }\\n\\n    // ************************************* //\\n    // *            Governance             * //\\n    // ************************************* //\\n\\n    /// @dev Changes the `governor` storage variable.\\n    /// @param _governor The new value for the `governor` storage variable.\\n    function changeGovernor(address _governor) external onlyByGovernor {\\n        governor = _governor;\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /// @dev Sets the policy for the specified court.\\n    /// @param _courtID The ID of the specified court.\\n    /// @param _courtName The name of the specified court.\\n    /// @param _policy The URI of the policy JSON.\\n    function setPolicy(uint256 _courtID, string calldata _courtName, string calldata _policy) external onlyByGovernor {\\n        policies[_courtID] = _policy;\\n        emit PolicyUpdate(_courtID, _courtName, policies[_courtID]);\\n    }\\n}\\n\",\"keccak256\":\"0x6ecc230c6ccad6834a29dcfc8ce00ed4c0878fc77602d6b3e6ccdb157f0fad1e\",\"license\":\"MIT\"}},\"version\":1}",
-  "bytecode": "0x608060405234801561001057600080fd5b506040516106c13803806106c183398101604081905261002f91610054565b600080546001600160a01b0319166001600160a01b0392909216919091179055610084565b60006020828403121561006657600080fd5b81516001600160a01b038116811461007d57600080fd5b9392505050565b61062e806100936000396000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c80630c340a2414610051578063bdf7378014610081578063d3e8948314610096578063e4c0aaf4146100b6575b600080fd5b600054610064906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b61009461008f36600461029a565b6100c9565b005b6100a96100a4366004610314565b61016b565b604051610078919061032d565b6100946100c436600461037b565b610205565b6000546001600160a01b031633146100fc5760405162461bcd60e51b81526004016100f3906103ab565b60405180910390fd5b600085815260016020526040902061011582848361047d565b50847f61f7110245e82eddd3b134d1e1607420d4a4dcdab30f5abdbbc9c3485b5dd2a48585600160008a815260200190815260200160002060405161015c9392919061053e565b60405180910390a25050505050565b60016020526000908152604090208054610184906103f4565b80601f01602080910402602001604051908101604052809291908181526020018280546101b0906103f4565b80156101fd5780601f106101d2576101008083540402835291602001916101fd565b820191906000526020600020905b8154815290600101906020018083116101e057829003601f168201915b505050505081565b6000546001600160a01b0316331461022f5760405162461bcd60e51b81526004016100f3906103ab565b600080546001600160a01b0319166001600160a01b0392909216919091179055565b60008083601f84011261026357600080fd5b50813567ffffffffffffffff81111561027b57600080fd5b60208301915083602082850101111561029357600080fd5b9250929050565b6000806000806000606086880312156102b257600080fd5b85359450602086013567ffffffffffffffff808211156102d157600080fd5b6102dd89838a01610251565b909650945060408801359150808211156102f657600080fd5b5061030388828901610251565b969995985093965092949392505050565b60006020828403121561032657600080fd5b5035919050565b600060208083528351808285015260005b8181101561035a5785810183015185820160400152820161033e565b506000604082860101526040601f19601f8301168501019250505092915050565b60006020828403121561038d57600080fd5b81356001600160a01b03811681146103a457600080fd5b9392505050565b6020808252601990820152784e6f20616c6c6f7765643a20676f7665726e6f72206f6e6c7960381b604082015260600190565b634e487b7160e01b600052604160045260246000fd5b600181811c9082168061040857607f821691505b60208210810361042857634e487b7160e01b600052602260045260246000fd5b50919050565b601f82111561047857600081815260208120601f850160051c810160208610156104555750805b601f850160051c820191505b8181101561047457828155600101610461565b5050505b505050565b67ffffffffffffffff831115610495576104956103de565b6104a9836104a383546103f4565b8361042e565b6000601f8411600181146104dd57600085156104c55750838201355b600019600387901b1c1916600186901b178355610537565b600083815260209020601f19861690835b8281101561050e57868501358255602094850194600190920191016104ee565b508682101561052b5760001960f88860031b161c19848701351681555b505060018560011b0183555b5050505050565b60408152826040820152828460608301376000606084830101526000601f19601f85011682016020606084830301818501526000855461057d816103f4565b806060860152608060018084166000811461059f57600181146105b9576105e7565b60ff1985168884015283151560051b8801830195506105e7565b8a6000528660002060005b858110156105df5781548a82018601529083019088016105c4565b890184019650505b50939b9a505050505050505050505056fea2646970667358221220ded02758e37026cc7d35ee774dce739e91eb50e5baf879a906f8f0f18a5cc33664736f6c63430008120033",
-  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061004c5760003560e01c80630c340a2414610051578063bdf7378014610081578063d3e8948314610096578063e4c0aaf4146100b6575b600080fd5b600054610064906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b61009461008f36600461029a565b6100c9565b005b6100a96100a4366004610314565b61016b565b604051610078919061032d565b6100946100c436600461037b565b610205565b6000546001600160a01b031633146100fc5760405162461bcd60e51b81526004016100f3906103ab565b60405180910390fd5b600085815260016020526040902061011582848361047d565b50847f61f7110245e82eddd3b134d1e1607420d4a4dcdab30f5abdbbc9c3485b5dd2a48585600160008a815260200190815260200160002060405161015c9392919061053e565b60405180910390a25050505050565b60016020526000908152604090208054610184906103f4565b80601f01602080910402602001604051908101604052809291908181526020018280546101b0906103f4565b80156101fd5780601f106101d2576101008083540402835291602001916101fd565b820191906000526020600020905b8154815290600101906020018083116101e057829003601f168201915b505050505081565b6000546001600160a01b0316331461022f5760405162461bcd60e51b81526004016100f3906103ab565b600080546001600160a01b0319166001600160a01b0392909216919091179055565b60008083601f84011261026357600080fd5b50813567ffffffffffffffff81111561027b57600080fd5b60208301915083602082850101111561029357600080fd5b9250929050565b6000806000806000606086880312156102b257600080fd5b85359450602086013567ffffffffffffffff808211156102d157600080fd5b6102dd89838a01610251565b909650945060408801359150808211156102f657600080fd5b5061030388828901610251565b969995985093965092949392505050565b60006020828403121561032657600080fd5b5035919050565b600060208083528351808285015260005b8181101561035a5785810183015185820160400152820161033e565b506000604082860101526040601f19601f8301168501019250505092915050565b60006020828403121561038d57600080fd5b81356001600160a01b03811681146103a457600080fd5b9392505050565b6020808252601990820152784e6f20616c6c6f7765643a20676f7665726e6f72206f6e6c7960381b604082015260600190565b634e487b7160e01b600052604160045260246000fd5b600181811c9082168061040857607f821691505b60208210810361042857634e487b7160e01b600052602260045260246000fd5b50919050565b601f82111561047857600081815260208120601f850160051c810160208610156104555750805b601f850160051c820191505b8181101561047457828155600101610461565b5050505b505050565b67ffffffffffffffff831115610495576104956103de565b6104a9836104a383546103f4565b8361042e565b6000601f8411600181146104dd57600085156104c55750838201355b600019600387901b1c1916600186901b178355610537565b600083815260209020601f19861690835b8281101561050e57868501358255602094850194600190920191016104ee565b508682101561052b5760001960f88860031b161c19848701351681555b505060018560011b0183555b5050505050565b60408152826040820152828460608301376000606084830101526000601f19601f85011682016020606084830301818501526000855461057d816103f4565b806060860152608060018084166000811461059f57600181146105b9576105e7565b60ff1985168884015283151560051b8801830195506105e7565b8a6000528660002060005b858110156105df5781548a82018601529083019088016105c4565b890184019650505b50939b9a505050505050505050505056fea2646970667358221220ded02758e37026cc7d35ee774dce739e91eb50e5baf879a906f8f0f18a5cc33664736f6c63430008120033",
+  "numDeployments": 1,
+  "solcInputHash": "9cc67b743e8898be8182d59861833cfc",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.18+commit.87f61d96\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_implementation\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"author\":\"Simon Malatrait <simon.malatrait@grenoble-inp.org>\",\"details\":\"This contract implements a UUPS Proxy compliant with ERC-1967 & ERC-1822.This contract delegates all calls to another contract (UUPS Proxiable) through a fallback function and the use of the `delegatecall` EVM instruction.We refer to the Proxiable contract (as per ERC-1822) with `implementation`.\",\"kind\":\"dev\",\"methods\":{\"constructor\":{\"details\":\"Initializes the upgradeable proxy with an initial implementation specified by `_implementation`. If `_data` is nonempty, it's used as data in a delegate call to `_implementation`. This will typically be an encoded function call, and allows initializing the storage of the proxy like a Solidity constructor.\"}},\"stateVariables\":{\"IMPLEMENTATION_SLOT\":{\"details\":\"Storage slot with the address of the current implementation. This is the keccak-256 hash of \\\"eip1967.proxy.implementation\\\" subtracted by 1, and is validated in the constructor. NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)\"}},\"title\":\"UUPS Proxy\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/proxy/UUPSProxy.sol\":\"UUPSProxy\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"src/proxy/UUPSProxy.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\n// Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/ERC1967/ERC1967Proxy.sol>\\n\\n/**\\n *  @authors: [@malatrax]\\n *  @reviewers: []\\n *  @auditors: []\\n *  @bounties: []\\n *  @deployments: []\\n */\\npragma solidity 0.8.18;\\n\\n/**\\n * @title UUPS Proxy\\n * @author Simon Malatrait <simon.malatrait@grenoble-inp.org>\\n * @dev This contract implements a UUPS Proxy compliant with ERC-1967 & ERC-1822.\\n * @dev This contract delegates all calls to another contract (UUPS Proxiable) through a fallback function and the use of the `delegatecall` EVM instruction.\\n * @dev We refer to the Proxiable contract (as per ERC-1822) with `implementation`.\\n */\\ncontract UUPSProxy {\\n    /**\\n     * @dev Storage slot with the address of the current implementation.\\n     * This is the keccak-256 hash of \\\"eip1967.proxy.implementation\\\" subtracted by 1, and is\\n     * validated in the constructor.\\n     * NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)\\n     */\\n    bytes32 private constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;\\n\\n    // ************************************* //\\n    // *            Constructor            * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Initializes the upgradeable proxy with an initial implementation specified by `_implementation`.\\n     *\\n     * If `_data` is nonempty, it's used as data in a delegate call to `_implementation`. This will typically be an encoded\\n     * function call, and allows initializing the storage of the proxy like a Solidity constructor.\\n     */\\n    constructor(address _implementation, bytes memory _data) {\\n        assembly {\\n            sstore(IMPLEMENTATION_SLOT, _implementation)\\n        }\\n\\n        if (_data.length != 0) {\\n            (bool success, ) = _implementation.delegatecall(_data);\\n            require(success, \\\"Proxy Constructor failed\\\");\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Delegates the current call to `implementation`.\\n     *\\n     * NOTE: This function does not return to its internal call site, it will return directly to the external caller.\\n     */\\n    function _delegate(address implementation) internal {\\n        assembly {\\n            // Copy msg.data. We take full control of memory in this inline assembly\\n            // block because it will not return to Solidity code. We overwrite the\\n            // Solidity scratch pad at memory position 0.\\n            calldatacopy(0, 0, calldatasize())\\n\\n            // Call the implementation.\\n            // out and outsize are 0 because we don't know the size yet.\\n            let result := delegatecall(gas(), implementation, 0, calldatasize(), 0, 0)\\n\\n            // Copy the returned data.\\n            returndatacopy(0, 0, returndatasize())\\n\\n            switch result\\n            // delegatecall returns 0 on error.\\n            case 0 {\\n                revert(0, returndatasize())\\n            }\\n            default {\\n                return(0, returndatasize())\\n            }\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Internal Views            * //\\n    // ************************************* //\\n\\n    function _getImplementation() internal view returns (address implementation) {\\n        assembly {\\n            implementation := sload(IMPLEMENTATION_SLOT)\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Fallback                * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if no other\\n     * function in the contract matches the call data.\\n     */\\n    fallback() external payable {\\n        _delegate(_getImplementation());\\n    }\\n\\n    receive() external payable {\\n        _delegate(_getImplementation());\\n    }\\n}\\n\",\"keccak256\":\"0xb42b4da7d7d4de880da62538361fe7ca2aca28577880e53bafa8d07eb9a08c48\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506040516102fe3803806102fe83398101604081905261002f9161014d565b817f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc55805160001461010c576000826001600160a01b031682604051610075919061021b565b600060405180830381855af49150503d80600081146100b0576040519150601f19603f3d011682016040523d82523d6000602084013e6100b5565b606091505b505090508061010a5760405162461bcd60e51b815260206004820152601860248201527f50726f787920436f6e7374727563746f72206661696c65640000000000000000604482015260640160405180910390fd5b505b5050610237565b634e487b7160e01b600052604160045260246000fd5b60005b8381101561014457818101518382015260200161012c565b50506000910152565b6000806040838503121561016057600080fd5b82516001600160a01b038116811461017757600080fd5b60208401519092506001600160401b038082111561019457600080fd5b818501915085601f8301126101a857600080fd5b8151818111156101ba576101ba610113565b604051601f8201601f19908116603f011681019083821181831017156101e2576101e2610113565b816040528281528860208487010111156101fb57600080fd5b61020c836020830160208801610129565b80955050505050509250929050565b6000825161022d818460208701610129565b9190910192915050565b60b9806102456000396000f3fe608060405236603757603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b6060565b005b603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b3660008037600080366000845af43d6000803e808015607e573d6000f35b3d6000fdfea26469706673582212207d50a904496089f6052d7370a78231ed4755a18daf824e0c243ac9c9c2a3b9ae64736f6c63430008120033",
+  "deployedBytecode": "0x608060405236603757603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b6060565b005b603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b3660008037600080366000845af43d6000803e808015607e573d6000f35b3d6000fdfea26469706673582212207d50a904496089f6052d7370a78231ed4755a18daf824e0c243ac9c9c2a3b9ae64736f6c63430008120033",
+  "execute": {
+    "methodName": "initialize",
+    "args": [
+      "0xF50E77f2A2B6138D16c6c7511562E5C33c4B15A3"
+    ]
+  },
+  "implementation": "0xE92BEd1c2704217b446C4a065bbAEE23D406699D",
   "devdoc": {
-    "details": "A contract to maintain a policy for each court.",
-    "events": {
-      "PolicyUpdate(uint256,string,string)": {
-        "details": "Emitted when a policy is updated.",
-        "params": {
-          "_courtID": "The ID of the policy's court.",
-          "_courtName": "The name of the policy's court.",
-          "_policy": "The URI of the policy JSON."
-        }
-      }
-    },
+    "author": "Simon Malatrait <simon.malatrait@grenoble-inp.org>",
+    "details": "This contract implements a UUPS Proxy compliant with ERC-1967 & ERC-1822.This contract delegates all calls to another contract (UUPS Proxiable) through a fallback function and the use of the `delegatecall` EVM instruction.We refer to the Proxiable contract (as per ERC-1822) with `implementation`.",
     "kind": "dev",
     "methods": {
-      "changeGovernor(address)": {
-        "details": "Changes the `governor` storage variable.",
-        "params": {
-          "_governor": "The new value for the `governor` storage variable."
-        }
-      },
       "constructor": {
-        "details": "Constructs the `PolicyRegistry` contract.",
-        "params": {
-          "_governor": "The governor's address."
-        }
-      },
-      "setPolicy(uint256,string,string)": {
-        "details": "Sets the policy for the specified court.",
-        "params": {
-          "_courtID": "The ID of the specified court.",
-          "_courtName": "The name of the specified court.",
-          "_policy": "The URI of the policy JSON."
-        }
+        "details": "Initializes the upgradeable proxy with an initial implementation specified by `_implementation`. If `_data` is nonempty, it's used as data in a delegate call to `_implementation`. This will typically be an encoded function call, and allows initializing the storage of the proxy like a Solidity constructor."
       }
     },
-    "title": "PolicyRegistry",
+    "stateVariables": {
+      "IMPLEMENTATION_SLOT": {
+        "details": "Storage slot with the address of the current implementation. This is the keccak-256 hash of \"eip1967.proxy.implementation\" subtracted by 1, and is validated in the constructor. NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)"
+      }
+    },
+    "title": "UUPS Proxy",
     "version": 1
   },
   "userdoc": {
@@ -174,47 +299,7 @@
     "version": 1
   },
   "storageLayout": {
-    "storage": [
-      {
-        "astId": 8035,
-        "contract": "src/arbitration/PolicyRegistry.sol:PolicyRegistry",
-        "label": "governor",
-        "offset": 0,
-        "slot": "0",
-        "type": "t_address"
-      },
-      {
-        "astId": 8039,
-        "contract": "src/arbitration/PolicyRegistry.sol:PolicyRegistry",
-        "label": "policies",
-        "offset": 0,
-        "slot": "1",
-        "type": "t_mapping(t_uint256,t_string_storage)"
-      }
-    ],
-    "types": {
-      "t_address": {
-        "encoding": "inplace",
-        "label": "address",
-        "numberOfBytes": "20"
-      },
-      "t_mapping(t_uint256,t_string_storage)": {
-        "encoding": "mapping",
-        "key": "t_uint256",
-        "label": "mapping(uint256 => string)",
-        "numberOfBytes": "32",
-        "value": "t_string_storage"
-      },
-      "t_string_storage": {
-        "encoding": "bytes",
-        "label": "string",
-        "numberOfBytes": "32"
-      },
-      "t_uint256": {
-        "encoding": "inplace",
-        "label": "uint256",
-        "numberOfBytes": "32"
-      }
-    }
+    "storage": [],
+    "types": null
   }
 }

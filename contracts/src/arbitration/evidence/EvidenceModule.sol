@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-/// @custom:authors: [@fnanni-0]
+/// @custom:authors: [@jaybuidl, @fnanni-0]
 /// @custom:reviewers: []
 /// @custom:auditors: []
 /// @custom:bounties: []
@@ -9,28 +9,63 @@
 
 pragma solidity 0.8.18;
 
-// TODO: standard interfaces should be placed in a separated repo (?)
 import "../interfaces/IArbitratorV2.sol";
+import "../interfaces/IEvidence.sol";
+import "../../proxy/UUPSProxiable.sol";
+import "../../proxy/Initializable.sol";
 
-/// @title Implementation of the Evidence Standard for cross-chain submissions
-contract EvidenceModule {
-    IArbitratorV2 public arbitrator;
+/// @title Evidence Module
+contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
+    // ************************************* //
+    // *             Storage               * //
+    // ************************************* //
 
-    event Evidence(
-        IArbitratorV2 indexed _arbitrator,
-        uint256 indexed _evidenceGroupID,
-        address indexed _party,
-        string _evidence
-    );
+    address public governor; // The governor of the contract.
 
-    constructor(IArbitratorV2 _arbitrator) {
-        arbitrator = _arbitrator;
+    // ************************************* //
+    // *              Modifiers            * //
+    // ************************************* //
+
+    modifier onlyByGovernor() {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        _;
     }
 
-    /// @dev Submits evidence.
-    /// @param _evidenceGroupID Unique identifier of the evidence group the evidence belongs to. It's the submitter responsability to submit the right evidence group ID.
+    // ************************************* //
+    // *            Constructor            * //
+    // ************************************* //
+
+    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    constructor() {
+        _disableInitializers();
+    }
+
+    /// @dev Initializer.
+    /// @param _governor The governor's address.
+    function initialize(address _governor) external reinitializer(1) {
+        governor = _governor;
+    }
+
+    // ************************ //
+    // *      Governance      * //
+    // ************************ //
+
+    /**
+     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     */
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+        // NOP
+    }
+
+    // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
+
+    /// @dev Submits evidence for a dispute.
+    /// @param _externalDisputeID Unique identifier for this dispute outside Kleros. It's the submitter responsability to submit the right evidence group ID.
     /// @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'.
-    function submitEvidence(uint256 _evidenceGroupID, string calldata _evidence) external {
-        emit Evidence(arbitrator, _evidenceGroupID, msg.sender, _evidence);
+    function submitEvidence(uint256 _externalDisputeID, string calldata _evidence) external {
+        emit Evidence(_externalDisputeID, msg.sender, _evidence);
     }
 }

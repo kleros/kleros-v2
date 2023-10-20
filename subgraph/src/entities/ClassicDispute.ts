@@ -8,7 +8,6 @@ export function createClassicDisputeFromEvent(event: DisputeCreation): void {
   classicDispute.coreDispute = coreDisputeID;
   classicDispute.currentLocalRoundIndex = ZERO;
   classicDispute.numberOfChoices = event.params._numberOfChoices;
-  classicDispute.jumped = false;
   classicDispute.extraData = event.params._extraData;
   classicDispute.save();
 }
