@@ -136,7 +136,7 @@ const Overview: React.FC<{ disputeTemplate: any }> = ({ disputeTemplate }) => {
           ))}
         </VotingOptions>
         <ShadeArea>
-          <p>Make sure you understand the Policies</p>
+          <p>Make sure you read and understand the Policies</p>
           <LinkContainer>
             {disputeTemplate?.policyURI && (
               <StyledA href={`${IPFS_GATEWAY}${disputeTemplate.policyURI}`} target="_blank" rel="noreferrer">

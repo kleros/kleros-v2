@@ -17,6 +17,10 @@ import { useDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
 import VoteIcon from "assets/svgs/icons/voted.svg";
 import InfoCircle from "tsx:svgs/icons/info-circle.svg";
 
+const Container = styled.div`
+  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+`;
+
 const InfoContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -64,7 +68,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
     getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
 
   return (
-    <>
+    <Container>
       {!isUndefined(appealCost) && isLastRound(appealCost) && (
         <>
           <InfoContainer>
@@ -110,7 +114,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
       ) : (
         <VotingHistory {...{ arbitrable }} isQuestion={true} />
       )}
-    </>
+    </Container>
   );
 };
 
