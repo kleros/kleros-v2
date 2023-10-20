@@ -3,10 +3,10 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { Card } from "@kleros/ui-components-library";
 import { Element } from "./Element";
-import { firstSection, secondSection } from "consts/community-elements";
+import { section } from "consts/community-elements";
 
 const Container = styled.div`
-  margin-top: 64px;
+  margin-top: calc(44px + (64 - 44) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 
   h1 {
     margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
@@ -14,44 +14,35 @@ const Container = styled.div`
 `;
 
 const StyledCard = styled(Card)`
-  width: 100%;
-  height: auto;
-`;
-
-const StyledSeparator = styled.hr`
-  margin: 0;
-`;
-
-const Section = styled.div`
-  width: 100%;
-  gap: 8px;
-  flex-direction: column;
-  height: auto;
-  flex-wrap: wrap;
-  padding: 12px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
+  height: auto;
+  gap: 12px;
+  flex-direction: column;
+  flex-wrap: wrap;
+  padding: 24px;
+  align-items: flex-start;
 
   ${landscapeStyle(
     () => css`
       flex-direction: row;
       justify-content: space-between;
-      gap: 0px;
-      padding: 0 32px;
-      min-height: 64px;
+      gap: 20px;
+      padding: 24px 32px;
     `
   )}
 `;
 
-const TwoElementContainer = styled.div`
+const ThreeElementContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 12px;
 
   ${landscapeStyle(
     () => css`
       flex-direction: row;
+      justify-content: space-between;
       gap: 48px;
     `
   )}
@@ -61,20 +52,12 @@ const Community = () => (
   <Container>
     <h1>Community</h1>
     <StyledCard>
-      <Section>
-        <TwoElementContainer>
-          {firstSection.slice(0, 2).map((element) => (
-            <Element key={element.primaryText} {...element} />
-          ))}
-        </TwoElementContainer>
-        <Element {...firstSection[2]} />
-      </Section>
-      <StyledSeparator />
-      <Section>
-        {secondSection.map((element) => (
-          <Element key={element.primaryText} {...element} />
+      <ThreeElementContainer>
+        {section.slice(0, 3).map((element) => (
+          <Element key={element.Icon} {...element} />
         ))}
-      </Section>
+      </ThreeElementContainer>
+      <Element {...section[3]} />
     </StyledCard>
   </Container>
 );

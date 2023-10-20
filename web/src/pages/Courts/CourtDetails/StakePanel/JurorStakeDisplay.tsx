@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
@@ -13,10 +14,21 @@ import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
 
 const Container = styled.div`
   display: flex;
+  width: 100%;
   flex-direction: column;
   justify-content: space-between;
   gap: 8px;
   margin-top: 12px;
+
+  ${landscapeStyle(
+    () => css`
+      margin-top: 32px;
+      gap: 32px;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    `
+  )}
 `;
 
 const format = (value: bigint | undefined): string => (value !== undefined ? formatEther(value) : "0");
@@ -104,7 +116,7 @@ const JurorBalanceDisplay = () => {
   return (
     <Container>
       {data.map(({ icon, name, value }) => (
-        <Field key={name} {...{ icon, name, value }} />
+        <Field isJurorBalance={true} key={name} {...{ icon, name, value }} />
       ))}
     </Container>
   );

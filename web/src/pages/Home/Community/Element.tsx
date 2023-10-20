@@ -4,6 +4,8 @@ import styled from "styled-components";
 const Container = styled.div`
   display: flex;
   gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
 
   svg {
     width: 16px;
@@ -18,6 +20,12 @@ const Container = styled.div`
 
 const StyledLabel = styled.label`
   color: ${({ theme }) => theme.primaryText};
+  font-weight: 600;
+`;
+
+const StyledA = styled.a`
+  display: flex;
+  align-items: center;
 `;
 
 export interface IElement {
@@ -29,17 +37,14 @@ export interface IElement {
 export const Element: React.FC<IElement> = ({ primaryText, urls, Icon }) => (
   <Container>
     {Icon && <Icon />}
-    {primaryText && (
-      <>
-        <StyledLabel>{primaryText}</StyledLabel> <StyledLabel>|</StyledLabel>
-      </>
-    )}
+
     <div className="link-container">
-      {urls.map(({ node, link }, i) => (
-        <a key={i} href={link} target="_blank" rel="noreferrer">
+      {urls.map(({ node, link }) => (
+        <StyledA key={link} href={link} target="_blank" rel="noreferrer">
           {node}
-        </a>
+        </StyledA>
       ))}
     </div>
+    {primaryText && <StyledLabel>{primaryText}</StyledLabel>}
   </Container>
 );

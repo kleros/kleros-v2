@@ -17,7 +17,6 @@ const StyledCard = styled(Card)`
   width: 100%;
   height: auto;
   min-height: 100px;
-  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 `;
 
 const Header = styled.h1`

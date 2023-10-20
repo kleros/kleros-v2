@@ -128,7 +128,11 @@ interface IItem {
   id: string;
 }
 
-const getCourtsPath = (node: CourtTreeQuery["court"], id: string | undefined, path: IItem[] = []): IItem[] | null => {
+export const getCourtsPath = (
+  node: CourtTreeQuery["court"],
+  id: string | undefined,
+  path: IItem[] = []
+): IItem[] | null => {
   if (!node || !id) return null;
 
   if (node.id === id) {
