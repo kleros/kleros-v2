@@ -27,16 +27,40 @@ const Container = styled.div`
   )}
 `;
 
-const TitleAndRewardsAndCoherency = styled.div`
+const PlaceAndTitleAndRewardsAndCoherency = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 
   ${landscapeStyle(
     () =>
       css`
         flex-direction: row;
         gap: 32px;
+      `
+  )}
+`;
+
+const JurorPlace = styled.div`
+  width: 100%;
+
+  label {
+    &::before {
+      content: "# Rank";
+      visibility: visible;
+    }
+  }
+
+  ${landscapeStyle(
+    () =>
+      css`
+        width: calc(16px + (24 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+
+        label {
+          &::before {
+            content: "#";
+          }
+        }
       `
   )}
 `;
@@ -56,7 +80,7 @@ const JurorTitle = styled.div`
   ${landscapeStyle(
     () =>
       css`
-        width: calc(160px + (260 - 160) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+        width: calc(40px + (232 - 40) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
         gap: 36px;
       `
   )}
@@ -66,7 +90,7 @@ const Rewards = styled.div`
   ${landscapeStyle(
     () =>
       css`
-        width: calc(80px + (180 - 80) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+        width: calc(60px + (180 - 60) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
       `
   )}
 `;
@@ -104,9 +128,11 @@ const coherentVotesTooltipMsg =
 const TopJurorsHeader: React.FC = () => {
   return (
     <Container>
-      <TitleAndRewardsAndCoherency>
+      <PlaceAndTitleAndRewardsAndCoherency>
+        <JurorPlace>
+          <label></label>
+        </JurorPlace>
         <JurorTitle>
-          <label>#</label>
           <label>Juror</label>
         </JurorTitle>
         <Rewards>
@@ -119,7 +145,7 @@ const TopJurorsHeader: React.FC = () => {
             <label> Coherent Votes </label>
           </WithHelpTooltip>
         </Coherency>
-      </TitleAndRewardsAndCoherency>
+      </PlaceAndTitleAndRewardsAndCoherency>
       <HowItWorks>
         <BookOpenIcon />
         <label> How it works </label>

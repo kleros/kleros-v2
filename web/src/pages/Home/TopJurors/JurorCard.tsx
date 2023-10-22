@@ -45,10 +45,10 @@ const LogoAndAddress = styled.div`
   }
 `;
 
-const TitleAndRewardsAndCoherency = styled.div`
+const PlaceAndTitleAndRewardsAndCoherency = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 
   ${landscapeStyle(
     () =>
@@ -56,6 +56,24 @@ const TitleAndRewardsAndCoherency = styled.div`
         flex-direction: row;
         gap: 32px;
       `
+  )}
+`;
+
+const JurorPlace = styled.div`
+  width: 100%;
+
+  label::before {
+    content: "#";
+    display: inline;
+  }
+
+  ${landscapeStyle(
+    () => css`
+      width: calc(16px + (24 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+      label::before {
+        display: none;
+      }
+    `
   )}
 `;
 
@@ -67,7 +85,7 @@ const JurorTitle = styled.div`
 
   ${landscapeStyle(
     () => css`
-      width: calc(140px + (260 - 140) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+      width: calc(40px + (232 - 40) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
       gap: 36px;
     `
   )}
@@ -86,7 +104,7 @@ const Rewards = styled.div`
   ${landscapeStyle(
     () =>
       css`
-        width: calc(80px + (180 - 80) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+        width: calc(60px + (180 - 60) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
       `
   )}
 `;
@@ -137,9 +155,11 @@ const JurorCard: React.FC<IJurorCard> = ({ id, address }) => {
 
   return (
     <Container id={id}>
-      <TitleAndRewardsAndCoherency>
-        <JurorTitle>
+      <PlaceAndTitleAndRewardsAndCoherency>
+        <JurorPlace>
           <label>{id}</label>
+        </JurorPlace>
+        <JurorTitle>
           <LogoAndAddress>
             <StyledIdenticonOrAvatar address={address} />
             <AddressOrName address={address} />
@@ -155,7 +175,7 @@ const JurorCard: React.FC<IJurorCard> = ({ id, address }) => {
         <Coherency>
           <label>{coherentVotes}</label>
         </Coherency>
-      </TitleAndRewardsAndCoherency>
+      </PlaceAndTitleAndRewardsAndCoherency>
       <HowItWorks>
         <label> Level {userLevelData.level}</label>
         <PixelArt width="32" height="32" level={userLevelData.level} />
