@@ -7,6 +7,7 @@ import JurorRewards from "./JurorRewards";
 import PixelArt from "./PixelArt";
 import { useAccount } from "wagmi";
 import { useUserQuery } from "queries/useUser";
+import { getCoherencyScore, getUserLevelData } from "utils/userLevelCalculation";
 // import StakingRewards from "./StakingRewards";
 
 const Container = styled.div``;
@@ -35,35 +36,20 @@ const Card = styled(_Card)`
   )}
 `;
 
-const levelTitles = [
-  { scoreRange: [0, 20], level: 0, title: "Diogenes" },
-  { scoreRange: [20, 40], level: 1, title: "Pythagoras" },
-  { scoreRange: [40, 60], level: 2, title: "Socrates" },
-  { scoreRange: [60, 80], level: 3, title: "Plato" },
-  { scoreRange: [80, 100], level: 4, title: "Aristotle" },
-];
-
-const calculateCoherencyScore = (totalCoherent: number, totalDisputes: number): number =>
-  totalCoherent / (Math.max(totalDisputes, 1) + 10);
-
 const JurorInfo: React.FC = () => {
   const { address } = useAccount();
   const { data } = useUserQuery(address?.toLowerCase());
   const totalCoherent = data?.user ? parseInt(data?.user?.totalCoherent) : 0;
   const totalResolvedDisputes = data?.user ? parseInt(data?.user?.totalResolvedDisputes) : 1;
 
-  const coherencyScore = calculateCoherencyScore(totalCoherent, totalResolvedDisputes);
-  const roundedCoherencyScore = Math.round(coherencyScore * 100);
-  const userLevelData =
-    levelTitles.find(({ scoreRange }) => {
-      return roundedCoherencyScore >= scoreRange[0] && roundedCoherencyScore < scoreRange[1];
-    }) ?? levelTitles[0];
+  const coherencyScore = getCoherencyScore(totalCoherent, totalResolvedDisputes);
+  const userLevelData = getUserLevelData(totalCoherent, totalResolvedDisputes);
 
   return (
     <Container>
       <Header>Juror Dashboard</Header>
       <Card>
-        <PixelArt level={userLevelData.level} />
+        <PixelArt level={userLevelData.level} width="189" height="189" />
         <Coherency
           userLevelData={userLevelData}
           score={coherencyScore}

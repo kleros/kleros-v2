@@ -19,7 +19,7 @@ const ListContainer = styled.div`
   justify-content: center;
 `;
 
-const TopJurors: React.FC<ITopJurors> = () => {
+const TopJurors: React.FC = () => {
   const jurors = [
     { id: 1, address: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" },
     { id: 2, address: "0x74199ddaC9607A3a694011793f674FA1E0d0Fe2D" },

@@ -3,6 +3,9 @@ import styled from "styled-components";
 import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/AccountDisplay";
 import EthIcon from "assets/svgs/icons/eth.svg";
 import PnkIcon from "assets/svgs/icons/kleros.svg";
+import PixelArt from "pages/Dashboard/JurorInfo/PixelArt";
+import { getUserLevelData } from "utils/userLevelCalculation";
+import { useUserQuery } from "hooks/queries/useUser";
 
 const Container = styled.div`
   display: flex;
@@ -78,6 +81,12 @@ const StyledIcon = styled.div`
   }
 `;
 
+const HowItWorks = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`;
+
 const StyledIdenticonOrAvatar = styled(IdenticonOrAvatar)``;
 
 interface IJurorCard {
@@ -89,6 +98,14 @@ const JurorCard: React.FC<IJurorCard> = ({ id, address }) => {
   const ethReward = "11";
   const pnkReward = "30K";
   const coherentVotes = "10/12";
+
+  const { data } = useUserQuery(address?.toLowerCase());
+  const totalCoherent = data?.user ? parseInt(data?.user?.totalCoherent) : 0;
+  const totalResolvedDisputes = data?.user ? parseInt(data?.user?.totalResolvedDisputes) : 1;
+  // const userLevelData = getUserLevelData(totalCoherent, totalResolvedDisputes);
+  const userLevelData = {
+    level: 4,
+  };
 
   return (
     <Container>
@@ -112,7 +129,10 @@ const JurorCard: React.FC<IJurorCard> = ({ id, address }) => {
             <label>{coherentVotes}</label>
           </Coherency>
         </RewardsAndCoherency>
-        {/*"How it works" section here*/}
+        <HowItWorks>
+          <label> Level {userLevelData.level}</label>
+          <PixelArt width="32" height="32" level={userLevelData.level} />
+        </HowItWorks>
       </JurorData>
     </Container>
   );
