@@ -7,29 +7,45 @@ import BookOpenIcon from "tsx:assets/svgs/icons/book-open.svg";
 const Container = styled.div`
   display: flex;
   justify-content: space-between;
-  
   width: 100%;
   height: 100%;
   background-color: ${({ theme }) => theme.lightBlue};
-  padding: 18.5px 32px;
+  padding: 24px;
   border 1px solid ${({ theme }) => theme.stroke};
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
+  border-bottom: none;
+  flex-wrap: wrap;
+
+  ${landscapeStyle(
+    () =>
+      css`
+        flex-wrap: nowrap;
+        gap: 0px;
+        padding: 18.6px 32px;
+      `
+  )}
 `;
 
-const JurorData = styled.div`
+const TitleAndRewardsAndCoherency = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  flex-wrap: wrap;
-  gap: calc(24px + (48 - 24) * ((100vw - 300px) / (1250 - 300)));
+  flex-direction: column;
+  gap: 12px;
+
+  ${landscapeStyle(
+    () =>
+      css`
+        flex-direction: row;
+        gap: 32px;
+      `
+  )}
 `;
 
 const JurorTitle = styled.div`
-  display: none;
-  gap: 36px;
+  display: flex;
+  gap: 16px;
   align-items: center;
+
   label {
     font-weight: 400;
     font-size: 14px;
@@ -40,20 +56,22 @@ const JurorTitle = styled.div`
   ${landscapeStyle(
     () =>
       css`
-        display: flex;
-        width: 372px;
+        width: calc(160px + (260 - 160) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+        gap: 36px;
       `
   )}
 `;
 
-const RewardsAndCoherency = styled.div`
-  display: flex;
-  gap: calc(52px + (104 - 52) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+const Rewards = styled.div`
+  ${landscapeStyle(
+    () =>
+      css`
+        width: calc(80px + (180 - 80) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+      `
+  )}
 `;
 
-const Rewards = styled.div`
-  width: 132px;
-`;
+const Coherency = styled.div``;
 
 const HowItWorks = styled.div`
   display: flex;
@@ -86,27 +104,26 @@ const coherentVotesTooltipMsg =
 const TopJurorsHeader: React.FC = () => {
   return (
     <Container>
-      <JurorTitle>
-        <label>#</label>
-        <label>Juror</label>
-      </JurorTitle>
-      <JurorData>
-        <RewardsAndCoherency>
-          <Rewards>
-            <WithHelpTooltip place="top" tooltipMsg={totalRewardsTooltipMsg}>
-              <label> Total Rewards </label>
-            </WithHelpTooltip>
-          </Rewards>
-
+      <TitleAndRewardsAndCoherency>
+        <JurorTitle>
+          <label>#</label>
+          <label>Juror</label>
+        </JurorTitle>
+        <Rewards>
+          <WithHelpTooltip place="top" tooltipMsg={totalRewardsTooltipMsg}>
+            <label> Total Rewards </label>
+          </WithHelpTooltip>
+        </Rewards>
+        <Coherency>
           <WithHelpTooltip place="top" tooltipMsg={coherentVotesTooltipMsg}>
             <label> Coherent Votes </label>
           </WithHelpTooltip>
-        </RewardsAndCoherency>
-        <HowItWorks>
-          <BookOpenIcon />
-          <label> How it works </label>
-        </HowItWorks>
-      </JurorData>
+        </Coherency>
+      </TitleAndRewardsAndCoherency>
+      <HowItWorks>
+        <BookOpenIcon />
+        <label> How it works </label>
+      </HowItWorks>
     </Container>
   );
 };
