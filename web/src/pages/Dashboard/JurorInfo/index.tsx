@@ -49,7 +49,7 @@ const JurorInfo: React.FC = () => {
     <Container>
       <Header>Juror Dashboard</Header>
       <Card>
-        <PixelArt level={userLevelData.level} width="189" height="189" />
+        <PixelArt level={userLevelData.level} width="189px" height="189px" />
         <Coherency
           userLevelData={userLevelData}
           score={coherencyScore}

@@ -178,7 +178,7 @@ const JurorCard: React.FC<IJurorCard> = ({ id, address }) => {
       </PlaceAndTitleAndRewardsAndCoherency>
       <HowItWorks>
         <label> Level {userLevelData.level}</label>
-        <PixelArt width="32" height="32" level={userLevelData.level} />
+        <PixelArt width="32px" height="32px" level={userLevelData.level} />
       </HowItWorks>
     </Container>
   );
