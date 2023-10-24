@@ -40,6 +40,8 @@ const JurorInfo: React.FC = () => {
   const { address } = useAccount();
   const { data } = useUserQuery(address?.toLowerCase());
   const coherenceScore = data?.user ? parseInt(data?.user?.coherenceScore) : 0;
+  const totalCoherent = data?.user ? parseInt(data?.user?.totalCoherent) : 0;
+  const totalResolvedDisputes = data?.user ? parseInt(data?.user?.totalResolvedDisputes) : 0;
 
   const userLevelData = getUserLevelData(coherenceScore);
 
@@ -48,7 +50,11 @@ const JurorInfo: React.FC = () => {
       <Header>Juror Dashboard</Header>
       <Card>
         <PixelArt level={userLevelData.level} width="189px" height="189px" />
-        <Coherency userLevelData={userLevelData} score={coherenceScore} />
+        <Coherency
+          userLevelData={userLevelData}
+          totalCoherent={totalCoherent}
+          totalResolvedDisputes={totalResolvedDisputes}
+        />
         <JurorRewards />
       </Card>
     </Container>
