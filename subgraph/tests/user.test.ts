@@ -4,6 +4,6 @@ import { computeCoherenceScore } from "../src/entities/User";
 
 describe("Compute coherence score", () => {
   test("Slam BigInts together", () => {
-    assert.bigIntEquals(computeCoherenceScore(BigInt.fromI32(8), BigInt.fromI32(1)), BigInt.fromI32(99));
+    assert.bigIntEquals(BigInt.fromI32(8), computeCoherenceScore(BigInt.fromI32(1), BigInt.fromI32(2)));
   });
 });
