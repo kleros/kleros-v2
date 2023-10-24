@@ -7,7 +7,7 @@ import JurorRewards from "./JurorRewards";
 import PixelArt from "./PixelArt";
 import { useAccount } from "wagmi";
 import { useUserQuery } from "queries/useUser";
-import { getCoherencyScore, getUserLevelData } from "utils/userLevelCalculation";
+import { getUserLevelData } from "utils/userLevelCalculation";
 // import StakingRewards from "./StakingRewards";
 
 const Container = styled.div``;
@@ -39,23 +39,16 @@ const Card = styled(_Card)`
 const JurorInfo: React.FC = () => {
   const { address } = useAccount();
   const { data } = useUserQuery(address?.toLowerCase());
-  const totalCoherent = data?.user ? parseInt(data?.user?.totalCoherent) : 0;
-  const totalResolvedDisputes = data?.user ? parseInt(data?.user?.totalResolvedDisputes) : 1;
+  const coherenceScore = data?.user ? parseInt(data?.user?.coherenceScore) : 0;
 
-  const coherencyScore = getCoherencyScore(totalCoherent, totalResolvedDisputes);
-  const userLevelData = getUserLevelData(totalCoherent, totalResolvedDisputes);
+  const userLevelData = getUserLevelData(coherenceScore);
 
   return (
     <Container>
       <Header>Juror Dashboard</Header>
       <Card>
         <PixelArt level={userLevelData.level} width="189px" height="189px" />
-        <Coherency
-          userLevelData={userLevelData}
-          score={coherencyScore}
-          totalCoherent={totalCoherent}
-          totalResolvedDisputes={totalResolvedDisputes}
-        />
+        <Coherency userLevelData={userLevelData} score={coherenceScore} />
         <JurorRewards />
       </Card>
     </Container>

@@ -30,18 +30,14 @@ interface ICoherency {
     title: string;
   };
   score: number;
-  totalCoherent: number;
-  totalResolvedDisputes: number;
 }
 
-const Coherency: React.FC<ICoherency> = ({ userLevelData, score, totalCoherent, totalResolvedDisputes }) => {
+const Coherency: React.FC<ICoherency> = ({ userLevelData, score }) => {
   return (
     <Container>
       <small>{userLevelData.title}</small>
       <label>Level {userLevelData.level}</label>
-      <CircularProgress
-        progress={parseFloat(((totalCoherent / Math.max(totalResolvedDisputes, 1)) * 100).toFixed(2))}
-      />
+      <CircularProgress progress={parseFloat(score.toFixed(2))} />
       <WithHelpTooltip place="left" {...{ tooltipMsg }}>
         <label>
           Coherency Score:

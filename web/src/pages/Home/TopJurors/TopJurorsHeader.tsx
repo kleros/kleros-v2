@@ -14,7 +14,6 @@ const Container = styled.div`
   border 1px solid ${({ theme }) => theme.stroke};
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
-  border-bottom: none;
   flex-wrap: wrap;
 
   ${landscapeStyle(
@@ -80,7 +79,7 @@ const JurorTitle = styled.div`
   ${landscapeStyle(
     () =>
       css`
-        width: calc(40px + (232 - 40) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+        width: calc(40px + (220 - 40) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
         gap: 36px;
       `
   )}
@@ -90,7 +89,7 @@ const Rewards = styled.div`
   ${landscapeStyle(
     () =>
       css`
-        width: calc(60px + (180 - 60) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+        width: calc(60px + (240 - 60) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
       `
   )}
 `;

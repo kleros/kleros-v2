@@ -1,6 +1,24 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, BigDecimal } from "@graphprotocol/graph-ts";
 import { User } from "../../generated/schema";
 import { ONE, ZERO } from "../utils";
+
+function computeCoherenceScore(totalCoherent: BigInt, totalResolvedDisputes: BigInt): BigInt {
+  const smoothingFactor = BigInt.fromI32(10);
+  const shiftFactor = BigInt.fromI32(1000);
+  let denominator = totalResolvedDisputes.plus(smoothingFactor);
+  let coherencyRatio = totalCoherent.toBigDecimal().div(denominator.toBigDecimal());
+  const coherencyScore = coherencyRatio.times(BigDecimal.fromString("100"));
+  const shiftedValue = coherencyScore.times(BigDecimal.fromString("1000"));
+  const shiftedBigInt = BigInt.fromString(shiftedValue.toString().split(".")[0]);
+  const halfShiftFactor = shiftFactor.div(BigInt.fromI32(2));
+  const remainder = shiftedBigInt.mod(shiftFactor);
+
+  if (remainder.ge(halfShiftFactor)) {
+    return shiftedBigInt.div(shiftFactor).plus(BigInt.fromI32(1));
+  } else {
+    return shiftedBigInt.div(shiftFactor);
+  }
+}
 
 export function ensureUser(id: string): User {
   const user = User.load(id);
@@ -24,6 +42,7 @@ export function createUserFromAddress(id: string): User {
   user.totalAppealingDisputes = ZERO;
   user.totalDisputes = ZERO;
   user.totalCoherent = ZERO;
+  user.coherenceScore = ZERO;
   user.save();
 
   return user;
@@ -61,5 +80,6 @@ export function resolveUserDispute(id: string, previousFeeAmount: BigInt, feeAmo
     user.totalCoherent = user.totalCoherent.plus(ONE);
   }
   user.activeDisputes = user.activeDisputes.minus(ONE);
+  user.coherenceScore = computeCoherenceScore(user.totalCoherent, user.totalResolvedDisputes);
   user.save();
 }

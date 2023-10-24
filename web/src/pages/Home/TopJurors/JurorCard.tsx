@@ -5,10 +5,11 @@ import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/Accou
 import EthIcon from "assets/svgs/icons/eth.svg";
 import PnkIcon from "assets/svgs/icons/kleros.svg";
 import PixelArt from "pages/Dashboard/JurorInfo/PixelArt";
+import { getFormattedRewards } from "utils/jurorRewardConfig";
 import { getUserLevelData } from "utils/userLevelCalculation";
 import { useUserQuery } from "hooks/queries/useUser";
 
-const Container = styled.div<{ id?: number }>`
+const Container = styled.div`
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -17,7 +18,7 @@ const Container = styled.div<{ id?: number }>`
   background-color: ${({ theme }) => theme.whiteBackground};
   padding: 24px;
   border 1px solid ${({ theme }) => theme.stroke};
-  border-top: ${({ id }) => (id === 1 ? "" : "none")};
+  border-top: none;
   align-items: center;
 
   label {
@@ -85,7 +86,7 @@ const JurorTitle = styled.div`
 
   ${landscapeStyle(
     () => css`
-      width: calc(40px + (232 - 40) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+      width: calc(40px + (220 - 40) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
       gap: 36px;
     `
   )}
@@ -98,13 +99,13 @@ const Rewards = styled.div`
   label {
     font-weight: 600;
   }
-  width: 132px;
+  width: 164px;
   flex-wrap: wrap;
 
   ${landscapeStyle(
     () =>
       css`
-        width: calc(60px + (180 - 60) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+        width: calc(60px + (240 - 60) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
       `
   )}
 `;
@@ -136,28 +137,28 @@ const HowItWorks = styled.div`
 const StyledIdenticonOrAvatar = styled(IdenticonOrAvatar)``;
 
 interface IJurorCard {
-  id: number;
+  rank: number;
   address: `0x${string}`;
+  coherenceScore: number;
+  totalCoherent: number;
+  totalResolvedDisputes: number;
 }
 
-const JurorCard: React.FC<IJurorCard> = ({ id, address }) => {
-  const ethReward = "11";
-  const pnkReward = "30K";
-  const coherentVotes = "10/12";
-
+const JurorCard: React.FC<IJurorCard> = ({ rank, address, coherenceScore, totalCoherent, totalResolvedDisputes }) => {
   const { data } = useUserQuery(address?.toLowerCase());
-  const totalCoherent = data?.user ? parseInt(data?.user?.totalCoherent) : 0;
-  const totalResolvedDisputes = data?.user ? parseInt(data?.user?.totalResolvedDisputes) : 1;
-  // const userLevelData = getUserLevelData(totalCoherent, totalResolvedDisputes);
-  const userLevelData = {
-    level: 4,
-  };
+
+  const coherenceRatio = `${totalCoherent}/${totalResolvedDisputes}`;
+  const userLevelData = getUserLevelData(coherenceScore);
+
+  const formattedRewards = getFormattedRewards(data, {});
+  const ethReward = formattedRewards.find((r) => r.token === "ETH")?.amount;
+  const pnkReward = formattedRewards.find((r) => r.token === "PNK")?.amount;
 
   return (
-    <Container id={id}>
+    <Container>
       <PlaceAndTitleAndRewardsAndCoherency>
         <JurorPlace>
-          <label>{id}</label>
+          <label>{rank}</label>
         </JurorPlace>
         <JurorTitle>
           <LogoAndAddress>
@@ -173,7 +174,7 @@ const JurorCard: React.FC<IJurorCard> = ({ id, address }) => {
           <StyledIcon as={PnkIcon} />
         </Rewards>
         <Coherency>
-          <label>{coherentVotes}</label>
+          <label>{coherenceRatio}</label>
         </Coherency>
       </PlaceAndTitleAndRewardsAndCoherency>
       <HowItWorks>
