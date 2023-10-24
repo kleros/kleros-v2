@@ -3,21 +3,16 @@ import { User } from "../../generated/schema";
 import { ONE, ZERO } from "../utils";
 
 export function computeCoherenceScore(totalCoherent: BigInt, totalResolvedDisputes: BigInt): BigInt {
-  const smoothingFactor = BigInt.fromI32(10);
-  const shiftFactor = BigInt.fromI32(1000);
-  let denominator = totalResolvedDisputes.plus(smoothingFactor);
-  let coherencyRatio = totalCoherent.toBigDecimal().div(denominator.toBigDecimal());
-  const coherencyScore = coherencyRatio.times(BigDecimal.fromString("100"));
-  const shiftedValue = coherencyScore.times(BigDecimal.fromString("1000"));
-  const shiftedBigInt = BigInt.fromString(shiftedValue.toString().split(".")[0]);
-  const halfShiftFactor = shiftFactor.div(BigInt.fromI32(2));
-  const remainder = shiftedBigInt.mod(shiftFactor);
+  const smoothingFactor = BigDecimal.fromString("10");
 
-  if (remainder.ge(halfShiftFactor)) {
-    return shiftedBigInt.div(shiftFactor).plus(BigInt.fromI32(1));
-  } else {
-    return shiftedBigInt.div(shiftFactor);
-  }
+  let denominator = totalResolvedDisputes.toBigDecimal().plus(smoothingFactor);
+  let coherencyRatio = totalCoherent.toBigDecimal().div(denominator);
+
+  const coherencyScore = coherencyRatio.times(BigDecimal.fromString("100"));
+
+  const roundedScore = coherencyScore.plus(BigDecimal.fromString("0.5"));
+
+  return BigInt.fromString(roundedScore.toString().split(".")[0]);
 }
 
 export function ensureUser(id: string): User {
