@@ -2,7 +2,7 @@ import { BigInt, BigDecimal } from "@graphprotocol/graph-ts";
 import { User } from "../../generated/schema";
 import { ONE, ZERO } from "../utils";
 
-function computeCoherenceScore(totalCoherent: BigInt, totalResolvedDisputes: BigInt): BigInt {
+export function computeCoherenceScore(totalCoherent: BigInt, totalResolvedDisputes: BigInt): BigInt {
   const smoothingFactor = BigInt.fromI32(10);
   const shiftFactor = BigInt.fromI32(1000);
   let denominator = totalResolvedDisputes.plus(smoothingFactor);
