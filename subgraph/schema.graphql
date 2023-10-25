@@ -19,6 +19,7 @@ interface DisputeKitDispute {
   coreDispute: Dispute!
   localRounds: [DisputeKitRound!]! @derivedFrom(field: "localDispute")
   currentLocalRoundIndex: BigInt!
+  timestamp: BigInt!
 }
 
 interface DisputeKitRound {
@@ -237,6 +238,7 @@ type ClassicDispute implements DisputeKitDispute @entity {
   coreDispute: Dispute!
   localRounds: [DisputeKitRound!]! @derivedFrom(field: "localDispute")
   currentLocalRoundIndex: BigInt!
+  timestamp: BigInt!
 
   numberOfChoices: BigInt!
   extraData: Bytes!

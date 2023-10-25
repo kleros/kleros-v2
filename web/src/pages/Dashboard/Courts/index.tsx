@@ -1,9 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 import { useAccount } from "wagmi";
+import { useFragment as getFragment } from "src/graphql";
+import { useUserQuery, userFragment } from "queries/useUser";
 import { isUndefined } from "utils/index";
 import CourtCard from "./CourtCard";
-import { useUserQuery } from "queries/useUser";
 
 const Container = styled.div`
   margin-top: 64px;
@@ -22,21 +23,21 @@ const CourtsContainer = styled.div`
 
 const Courts: React.FC = () => {
   const { address } = useAccount();
-  const { data } = useUserQuery(address?.toLowerCase());
+  const { data } = useUserQuery(address?.toLowerCase() as `0x${string}`);
+  const user = getFragment(userFragment, data?.user);
 
   return (
-    <>
-      <Container>
-        <h1> My Courts </h1>
-        {!isUndefined(data) && <hr />}
-        <CourtsContainer>
-          {!isUndefined(data) &&
-            data.user?.tokens?.map(({ court: { id, name } }) => {
+    <Container>
+      <h1> My Courts </h1>
+      {!isUndefined(data) ? <hr /> : null}
+      <CourtsContainer>
+        {!isUndefined(data)
+          ? user?.tokens?.map(({ court: { id, name } }) => {
               return <CourtCard key={id} id={id} name={name ?? ""} />;
-            })}
-        </CourtsContainer>
-      </Container>
-    </>
+            })
+          : null}
+      </CourtsContainer>
+    </Container>
   );
 };
 

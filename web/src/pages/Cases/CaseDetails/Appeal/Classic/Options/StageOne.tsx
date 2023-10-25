@@ -8,6 +8,7 @@ import {
   useOptionsContext,
   useSelectedOptionContext,
 } from "hooks/useClassicAppealContext";
+import { isUndefined } from "utils/index";
 import { formatUnitsWei } from "utils/format";
 
 const Container = styled.div`
@@ -30,14 +31,15 @@ const StageOne: React.FC<IStageOne> = ({ setAmount }) => {
   const options = useOptionsContext();
   const loserSideCountdown = useLoserSideCountdownContext();
   const { selectedOption, setSelectedOption } = useSelectedOptionContext();
+
   return (
     <Container>
       <StageExplainer {...{ loserSideCountdown }} />
       <label> Which option do you want to fund? </label>
       <OptionsContainer>
-        {typeof paidFees !== "undefined" &&
-          typeof winnerRequiredFunding !== "undefined" &&
-          typeof loserRequiredFunding !== "undefined" &&
+        {!isUndefined(paidFees) &&
+          !isUndefined(winnerRequiredFunding) &&
+          !isUndefined(loserRequiredFunding) &&
           options?.map((answer: string, i: number) => {
             const requiredFunding = i.toString() === winningChoice ? winnerRequiredFunding : loserRequiredFunding;
             return (
