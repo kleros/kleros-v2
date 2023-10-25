@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { SkeletonDisputeListItem } from "components/StyledSkeleton";
 import { isUndefined } from "utils/index";
-import TopJurorsHeader from "./TopJurorsHeader";
+import Header from "./Header";
 import JurorCard from "./JurorCard";
 import { useTopUsersByCoherenceScore } from "queries/useTopUsersByCoherenceScore";
 
@@ -32,7 +32,7 @@ const TopJurors: React.FC = () => {
     <Container>
       <Title>Top Jurors</Title>
       <ListContainer>
-        <TopJurorsHeader />
+        <Header />
         {!isUndefined(topJurors)
           ? topJurors.map((juror) => <JurorCard key={juror.rank} address={juror.id} {...juror} />)
           : [...Array(5)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
