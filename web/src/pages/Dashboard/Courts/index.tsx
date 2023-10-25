@@ -25,7 +25,6 @@ const Courts: React.FC = () => {
   const { address } = useAccount();
   const { data } = useUserQuery(address?.toLowerCase() as `0x${string}`);
   const user = getFragment(userFragment, data?.user);
-  console.log(user);
 
   return (
     <Container>
