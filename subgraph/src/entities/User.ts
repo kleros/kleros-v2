@@ -66,6 +66,7 @@ export function resolveUserDispute(id: string, previousFeeAmount: BigInt, feeAmo
         user.totalCoherent = user.totalCoherent.plus(ONE);
       }
     }
+    user.coherenceScore = computeCoherenceScore(user.totalCoherent, user.totalResolvedDisputes);
     user.save();
     return;
   }
