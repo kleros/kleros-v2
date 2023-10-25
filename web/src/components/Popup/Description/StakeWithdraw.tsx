@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { isUndefined } from "utils/index";
+import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
+import { isUndefined } from "utils/index";
 import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
-import { format } from "src/pages/Dashboard/Courts/CourtCard";
 import KlerosLogo from "tsx:svgs/icons/kleros.svg";
 
 const Container = styled.div`
@@ -88,7 +88,7 @@ const StakeWithdraw: React.FC<IStakeWithdraw> = ({ pnkStaked, courtName, isStake
 
       <TotalStakeContainer>
         <StyledKlerosLogo /> <MyStakeContainer>My Stake:</MyStakeContainer>{" "}
-        <AmountContainer>{`${format(jurorBalance?.[0])} PNK`} </AmountContainer>
+        <AmountContainer>{`${formatUnits(jurorBalance?.[0] ?? BigInt(0), 18)} PNK`} </AmountContainer>
       </TotalStakeContainer>
     </Container>
   );
