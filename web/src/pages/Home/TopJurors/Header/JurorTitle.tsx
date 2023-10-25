@@ -1,11 +1,11 @@
 import React from "react";
-import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+import styled from "styled-components";
 
 const Container = styled.div`
   display: flex;
-  gap: 16px;
   align-items: center;
+  width: calc(40px + (220 - 40) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  gap: 36px;
 
   label {
     font-weight: 400;
@@ -13,14 +13,6 @@ const Container = styled.div`
     line-height: 19px;
     color: ${({ theme }) => theme.secondaryText} !important;
   }
-
-  ${landscapeStyle(
-    () =>
-      css`
-        width: calc(40px + (220 - 40) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-        gap: 36px;
-      `
-  )}
 `;
 
 const JurorTitle: React.FC = () => (

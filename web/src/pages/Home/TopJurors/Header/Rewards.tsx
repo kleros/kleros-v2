@@ -4,10 +4,25 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import WithHelpTooltip from "pages/Dashboard/WithHelpTooltip";
 
 const Container = styled.div`
+  label {
+    font-size: 12px !important;
+    &::before {
+      content: "Rewards";
+    }
+  }
+
   ${landscapeStyle(
     () =>
       css`
+        display: flex;
         width: calc(60px + (240 - 60) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+
+        label {
+          font-size: 14px !important;
+          &::before {
+            content: "Total Rewards";
+          }
+        }
       `
   )}
 `;
@@ -21,7 +36,7 @@ const totalRewardsTooltipMsg =
 const Rewards: React.FC = () => (
   <Container>
     <WithHelpTooltip place="top" tooltipMsg={totalRewardsTooltipMsg}>
-      <label> Total Rewards </label>
+      <label></label>
     </WithHelpTooltip>
   </Container>
 );

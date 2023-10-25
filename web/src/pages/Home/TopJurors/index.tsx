@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import { SkeletonDisputeListItem } from "components/StyledSkeleton";
-import { isUndefined } from "utils/index";
 import Header from "./Header";
 import JurorCard from "./JurorCard";
+import { isUndefined } from "utils/index";
 import { useTopUsersByCoherenceScore } from "queries/useTopUsersByCoherenceScore";
 
 const Container = styled.div`

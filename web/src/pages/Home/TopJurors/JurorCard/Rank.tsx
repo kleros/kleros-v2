@@ -3,8 +3,9 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.div`
-  width: 100%;
-
+  label {
+    color: ${({ theme }) => theme.primaryText};
+  }
   label::before {
     content: "#";
     display: inline;

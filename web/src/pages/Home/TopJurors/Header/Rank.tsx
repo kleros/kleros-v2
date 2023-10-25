@@ -1,29 +1,14 @@
 import React from "react";
-import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+import styled from "styled-components";
 
 const Container = styled.div`
-  width: 50%;
+  width: calc(16px + (24 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 
   label {
     &::before {
-      content: "Ranking";
-      visibility: visible;
+      content: "#";
     }
   }
-
-  ${landscapeStyle(
-    () =>
-      css`
-        width: calc(16px + (24 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-
-        label {
-          &::before {
-            content: "#";
-          }
-        }
-      `
-  )}
 `;
 
 const Rank: React.FC = () => (

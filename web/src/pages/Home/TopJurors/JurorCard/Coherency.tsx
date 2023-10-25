@@ -6,6 +6,7 @@ const Container = styled.div`
   align-items: center;
   label {
     font-weight: 600;
+    color: ${({ theme }) => theme.primaryText};
   }
   flex-wrap: wrap;
 `;

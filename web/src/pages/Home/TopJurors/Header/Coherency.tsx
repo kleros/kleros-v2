@@ -1,8 +1,31 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { BREAKPOINT_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
+import { useWindowSize } from "react-use";
 import WithHelpTooltip from "pages/Dashboard/WithHelpTooltip";
 
-const Container = styled.div``;
+const Container = styled.div`
+  label {
+    font-size: 12px !important;
+    &::before {
+      content: "Votes";
+    }
+  }
+
+  ${landscapeStyle(
+    () =>
+      css`
+        display: flex;
+
+        label {
+          font-size: 14px !important;
+          &::before {
+            content: "Coherent Votes";
+          }
+        }
+      `
+  )}
+`;
 
 const coherentVotesTooltipMsg =
   "This is the ratio of coherent votes made by a juror: " +
@@ -10,11 +33,14 @@ const coherentVotesTooltipMsg =
   "voted coherently and the number in the right is the total number of times " +
   "the juror voted";
 
-const Coherency: React.FC = () => (
-  <Container>
-    <WithHelpTooltip place="top" tooltipMsg={coherentVotesTooltipMsg}>
-      <label> Coherent Votes </label>
-    </WithHelpTooltip>
-  </Container>
-);
+const Coherency: React.FC = () => {
+  const { width } = useWindowSize();
+  return (
+    <Container>
+      <WithHelpTooltip place={width > BREAKPOINT_LANDSCAPE ? "top" : "left"} tooltipMsg={coherentVotesTooltipMsg}>
+        <label></label>
+      </WithHelpTooltip>
+    </Container>
+  );
+};
 export default Coherency;

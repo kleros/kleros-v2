@@ -1,12 +1,34 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import PixelArt from "pages/Dashboard/JurorInfo/PixelArt";
 import { getUserLevelData } from "utils/userLevelCalculation";
 
 const Container = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
+
+  label {
+    font-size: 12px !important;
+
+    &::before {
+      content: "Lv. ";
+    }
+  }
+
+  ${landscapeStyle(
+    () => css`
+      gap: 16px;
+      label {
+        font-size: 16px !important;
+
+        &::before {
+          content: "Level ";
+        }
+      }
+    `
+  )}
 `;
 
 interface IHowItWorks {
@@ -19,7 +41,7 @@ const HowItWorks: React.FC<IHowItWorks> = ({ coherenceScore }) => {
 
   return (
     <Container>
-      <label> Level {level}</label>
+      <label>{level}</label>
       <PixelArt width="32px" height="32px" level={level} />
     </Container>
   );

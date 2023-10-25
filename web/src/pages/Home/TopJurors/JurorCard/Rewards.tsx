@@ -4,6 +4,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { getFormattedRewards } from "utils/jurorRewardConfig";
 import EthIcon from "assets/svgs/icons/eth.svg";
 import PnkIcon from "assets/svgs/icons/kleros.svg";
+import { useUserQuery } from "hooks/queries/useUser";
 
 const Container = styled.div`
   display: flex;
@@ -11,8 +12,8 @@ const Container = styled.div`
   align-items: center;
   label {
     font-weight: 600;
+    color: ${({ theme }) => theme.primaryText};
   }
-  width: 164px;
   flex-wrap: wrap;
 
   ${landscapeStyle(
@@ -33,12 +34,12 @@ const StyledIcon = styled.div`
 `;
 
 interface IRewards {
-  data: any;
+  address: string;
 }
 
-const Rewards: React.FC<IRewards> = ({ data }) => {
-  const formattedRewards = getFormattedRewards(data, {});
-  console.log(data);
+const Rewards: React.FC<IRewards> = ({ address }) => {
+  const { data: userData } = useUserQuery(address?.toLowerCase());
+  const formattedRewards = getFormattedRewards(userData, {});
   const ethReward = formattedRewards.find((r) => r.token === "ETH")?.amount;
   const pnkReward = formattedRewards.find((r) => r.token === "PNK")?.amount;
 

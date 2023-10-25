@@ -11,34 +11,41 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   width: 100%;
-  height: 100%;
   background-color: ${({ theme }) => theme.lightBlue};
   padding: 24px;
   border 1px solid ${({ theme }) => theme.stroke};
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
+  border-bottom: none;
   flex-wrap: wrap;
 
   ${landscapeStyle(
     () =>
       css`
-        flex-wrap: nowrap;
-        gap: 0px;
+        border-bottom: 1px solid ${({ theme }) => theme.stroke};
         padding: 18.6px 32px;
       `
   )}
 `;
 
 const PlaceAndTitleAndRewardsAndCoherency = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: none;
 
   ${landscapeStyle(
     () =>
       css`
+        display: flex;
         flex-direction: row;
-        gap: 32px;
+        gap: calc(20px + (28 - 20) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+      `
+  )}
+`;
+
+const StyledLabel = styled.label`
+  ${landscapeStyle(
+    () =>
+      css`
+        display: none;
       `
   )}
 `;
@@ -46,6 +53,7 @@ const PlaceAndTitleAndRewardsAndCoherency = styled.div`
 const Header: React.FC = () => {
   return (
     <Container>
+      <StyledLabel>Ranking</StyledLabel>
       <PlaceAndTitleAndRewardsAndCoherency>
         <Rank />
         <JurorTitle />

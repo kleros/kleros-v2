@@ -5,21 +5,7 @@ import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/Accou
 
 const Container = styled.div`
   display: flex;
-  gap: 16px;
-  align-items: center;
-  justify-content: flex-start;
-
-  ${landscapeStyle(
-    () => css`
-      width: calc(40px + (220 - 40) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-      gap: 36px;
-    `
-  )}
-`;
-
-const LogoAndAddress = styled.div`
-  display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
 
   canvas {
@@ -27,6 +13,12 @@ const LogoAndAddress = styled.div`
     height: 20px;
     border-radius: 10%;
   }
+
+  ${landscapeStyle(
+    () => css`
+      width: calc(40px + (220 - 40) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+    `
+  )}
 `;
 
 interface IJurorTitle {
@@ -36,10 +28,8 @@ interface IJurorTitle {
 const JurorTitle: React.FC<IJurorTitle> = ({ address }) => {
   return (
     <Container>
-      <LogoAndAddress>
-        <IdenticonOrAvatar address={address} />
-        <AddressOrName address={address} />
-      </LogoAndAddress>
+      <IdenticonOrAvatar address={address} />
+      <AddressOrName address={address} />
     </Container>
   );
 };
