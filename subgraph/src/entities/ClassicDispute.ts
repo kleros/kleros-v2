@@ -9,5 +9,6 @@ export function createClassicDisputeFromEvent(event: DisputeCreation): void {
   classicDispute.currentLocalRoundIndex = ZERO;
   classicDispute.numberOfChoices = event.params._numberOfChoices;
   classicDispute.extraData = event.params._extraData;
+  classicDispute.timestamp = event.block.timestamp;
   classicDispute.save();
 }

@@ -8,6 +8,7 @@
     "update:local": "./scripts/update.sh localhost mainnet",
     "codegen": "graph codegen",
     "build": "graph build",
+    "test": "graph test",
     "clean": "graph clean && rm subgraph.yaml.bak.*",
     "deploy:arbitrum-goerli": "graph deploy --product hosted-service kleros/kleros-v2-core-testnet-2",
     "deploy:arbitrum-goerli-devnet": "graph deploy --product hosted-service kleros/kleros-v2-core-devnet",
@@ -30,7 +31,8 @@
     "@graphprotocol/graph-cli": "0.52.0",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
-    "gluegun": "^5.1.2"
+    "gluegun": "^5.1.2",
+    "matchstick-as": "0.6.0-beta.2"
   },
   "dependenciesComments": {
     "@graphprotocol/graph-cli": "pinned because of this issue: https://github.com/graphprotocol/graph-tooling/issues/1399#issuecomment-1676104540"
