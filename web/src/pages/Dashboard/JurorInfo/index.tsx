@@ -54,6 +54,7 @@ const JurorInfo: React.FC = () => {
           userLevelData={userLevelData}
           totalCoherent={totalCoherent}
           totalResolvedDisputes={totalResolvedDisputes}
+          isMiniGuide={false}
         />
         <JurorRewards />
       </Card>
