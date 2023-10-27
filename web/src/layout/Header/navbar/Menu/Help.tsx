@@ -9,6 +9,7 @@ import ETH from "svgs/icons/eth.svg";
 import Faq from "svgs/menu-icons/help.svg";
 import Telegram from "svgs/socialmedia/telegram.svg";
 import { IHelp } from "..";
+import Debug from "../Debug";
 
 const Container = styled.div`
   display: flex;
@@ -32,7 +33,7 @@ const Container = styled.div`
   ${landscapeStyle(
     () => css`
       margin-top: 64px;
-      width: 240px;
+      width: 260px;
       top: 0;
       right: 0;
       left: auto;
@@ -112,6 +113,7 @@ const Help: React.FC<IHelp> = ({ toggleIsHelpOpen }) => {
           <small>{item.text}</small>
         </ListItem>
       ))}
+      <Debug />
     </Container>
   );
 };
