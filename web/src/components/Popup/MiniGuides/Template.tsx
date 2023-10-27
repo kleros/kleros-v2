@@ -1,9 +1,10 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useRef } from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { CompactPagination } from "@kleros/ui-components-library";
 import { Overlay } from "components/Overlay";
 import BookOpenIcon from "tsx:assets/svgs/icons/book-open.svg";
+import { useFocusOutside } from "hooks/useFocusOutside";
 
 const Container = styled.div`
   display: flex;
@@ -123,10 +124,14 @@ const Template: React.FC<ITemplate> = ({
   setCurrentPage,
   numPages,
 }) => {
+  const containerRef = useRef(null);
+  useFocusOutside(containerRef, () => {
+    onClose();
+  });
   return (
     <>
       <Overlay />
-      <Container>
+      <Container ref={containerRef}>
         <LeftContainer>
           <HowItWorks>
             <BookOpenIcon />
