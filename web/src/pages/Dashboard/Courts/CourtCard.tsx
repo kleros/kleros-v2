@@ -1,37 +1,66 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useAccount } from "wagmi";
 import { formatUnits } from "viem";
 import { Card as _Card, Breadcrumb } from "@kleros/ui-components-library";
-import WithHelpTooltip from "../WithHelpTooltip";
 import { isUndefined } from "utils/index";
 import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
 
 const Card = styled(_Card)`
-  height: auto;
-  width: 100%;
-  padding: 12px 24px;
-  border-left: 5px solid ${({ theme }) => theme.secondaryPurple};
-`;
-
-const ValueContainer = styled.div`
-  width: 100%;
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  height: auto;
+  width: 100%;
+  padding: 21.5px 32px 21.5px 27px;
+  border-left: 5px solid ${({ theme }) => theme.secondaryPurple};
+  flex-wrap: wrap;
+`;
+
+const CourtName = styled.div`
+  small {
+    height: 100%;
+  }
+
+  ${landscapeStyle(() => css``)}
 `;
 
 const StyledBreadcrumb = styled(Breadcrumb)`
-  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  height: 100%;
 `;
 
-const tooltipMsg =
-  "When a juror is selected to arbitrate a case, part of their stake (PNK) is " +
-  "locked until the case is resolved. Jurors whose vote is coherent with the " +
-  "final jury decision have their locked stake released. Jurors whose vote " +
-  "is not coherent with the final jury decision, lose their locked stake. " +
-  "The locked stake of incoherent jurors is redistributed as incentives for " +
-  "the coherent jurors.";
+const StakesContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  ${landscapeStyle(() => css``)}
+`;
+
+const Stake = styled.div`
+  display: flex;
+  width: 69px;
+  label {
+    font-weight: 600;
+    color: ${({ theme }) => theme.primaryText};
+  }
+`;
+
+const LockedStake = styled.div`
+  display: flex;
+  gap: 8px;
+  width: 112px;
+  justify-content: flex-end;
+  align-items: flex-end;
+
+  label {
+    color: ${({ theme }) => theme.primaryText};
+  }
+`;
 
 interface ICourtCard {
   id: string;
@@ -53,17 +82,17 @@ const CourtCard: React.FC<ICourtCard> = ({ id, name }) => {
 
   return stake > 0 || lockedStake > 0 ? (
     <Card>
-      <StyledBreadcrumb items={[{ text: name, value: 0 }]} />
-      <ValueContainer>
-        <label> Stake: </label>
-        <small>{`${formatedStake} PNK`}</small>
-      </ValueContainer>
-      <ValueContainer>
-        <WithHelpTooltip {...{ place: "bottom", tooltipMsg }}>
-          <label> Locked Stake: </label>
-        </WithHelpTooltip>
-        <small>{`${formatedLockedStake} PNK`}</small>
-      </ValueContainer>
+      <CourtName>
+        <StyledBreadcrumb items={[{ text: name, value: 0 }]} />
+      </CourtName>
+      <StakesContainer>
+        <Stake>
+          <label>{`${formatedStake} PNK`}</label>
+        </Stake>
+        <LockedStake>
+          <label>{`${formatedLockedStake} PNK`}</label>
+        </LockedStake>
+      </StakesContainer>
     </Card>
   ) : null;
 };
