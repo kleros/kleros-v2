@@ -12,10 +12,13 @@ pragma solidity 0.8.18;
 import "./RNG.sol";
 import "./VRFConsumerBaseV2.sol";
 import "./interfaces/VRFCoordinatorV2Interface.sol";
+import "../proxy/UUPSProxiable.sol";
 
 // Interface to call passPhase in the callback function
 interface ISortitionModule {
     function passPhase() external;
+
+    function rngFallbackTimeout() external view returns (uint256);
 }
 
 /**
@@ -28,7 +31,7 @@ interface ISortitionModule {
  * @dev For SECURITY CONSIDERATIONS, you might also have look to: https://github.com/smartcontractkit/chainlink/blob/develop/contracts/src/v0.8/vrf/VRFConsumerBaseV2.sol
  * @dev For SECURITY CONSIDERATIONS, you might also have look to: https://github.com/smartcontractkit/chainlink/blob/develop/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol
  */
-contract VRFConsumerV2 is VRFConsumerBaseV2, RNG {
+contract VRFConsumerV2 is VRFConsumerBaseV2, RNG, UUPSProxiable {
     // ************************************* //
     // *              Events               * //
     // ************************************* //
@@ -60,8 +63,11 @@ contract VRFConsumerV2 is VRFConsumerBaseV2, RNG {
     uint32 public numWords;
     uint16 public requestConfirmations;
     uint256 public lastRequestId;
+    RNG public randomizerRNG;
+    RNG public blockhashRNG;
 
     mapping(uint256 => uint256) public requestsToRandomWords; // s_requests[requestId] = randomWord
+    mapping(uint256 => uint256) public requestToFallbackBlock; // Maps a Chainlink request ID with the number of the block where fallback RNG was triggered.
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -77,9 +83,10 @@ contract VRFConsumerV2 is VRFConsumerBaseV2, RNG {
         _;
     }
 
-    // ************************************* //
-    // *            Constructor            * //
-    // ************************************* //
+    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    constructor() {
+        _disableInitializers();
+    }
 
     /**
      * @dev Constructs the ChainlinkRNG contract.
@@ -91,9 +98,11 @@ contract VRFConsumerV2 is VRFConsumerBaseV2, RNG {
      * @param _requestConfirmations How many confirmations the Chainlink node should wait before responding.
      * @param _callbackGasLimit The limit for how much gas to use for the callback request to the contract's fulfillRandomWords() function.
      * @param _numWords How many random values to request.
+     * @param _randomizerRNG Address of Randomizer RNG contract.
+     * @param _blockhashRNG Adress of Blockhash RNG contract.
      * @dev https://docs.chain.link/vrf/v2/subscription/examples/get-a-random-number#analyzing-the-contract
      */
-    constructor(
+    function initialize(
         address _governor,
         address _vrfCoordinator,
         address _sortitionModule,
@@ -101,8 +110,11 @@ contract VRFConsumerV2 is VRFConsumerBaseV2, RNG {
         uint64 _subscriptionId,
         uint16 _requestConfirmations,
         uint32 _callbackGasLimit,
-        uint32 _numWords
-    ) VRFConsumerBaseV2(_vrfCoordinator) {
+        uint32 _numWords,
+        RNG _randomizerRNG,
+        RNG _blockhashRNG
+    ) external reinitializer(1) {
+        vrfBase_init(_vrfCoordinator);
         governor = _governor;
         vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinator);
         sortitionModule = ISortitionModule(_sortitionModule);
@@ -111,11 +123,19 @@ contract VRFConsumerV2 is VRFConsumerBaseV2, RNG {
         requestConfirmations = _requestConfirmations;
         callbackGasLimit = _callbackGasLimit;
         numWords = _numWords;
+        randomizerRNG = _randomizerRNG;
+        blockhashRNG = _blockhashRNG;
     }
 
     // ************************************* //
     // *             Governance            * //
     // ************************************* //
+
+    /**
+     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     */
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {}
 
     /**
      * @dev Changes the `vrfCoordinator` storage variable.
@@ -173,6 +193,22 @@ contract VRFConsumerV2 is VRFConsumerBaseV2, RNG {
         numWords = _numWords;
     }
 
+    /**
+     * @dev Changes the `randomizerRNG` storage variable.
+     * @param _randomizerRNG The new value for the `randomizerRNG` storage variable.
+     */
+    function changeRandomizerRNG(RNG _randomizerRNG) external onlyByGovernor {
+        randomizerRNG = _randomizerRNG;
+    }
+
+    /**
+     * @dev Changes the `blockhashRNG` storage variable.
+     * @param _blockhashRNG The new value for the `blockhashRNG` storage variable.
+     */
+    function changeBlockhashRNG(RNG _blockhashRNG) external onlyByGovernor {
+        blockhashRNG = _blockhashRNG;
+    }
+
     // ************************************* //
     // *         State Modifiers           * //
     // ************************************* //
@@ -201,7 +237,7 @@ contract VRFConsumerV2 is VRFConsumerBaseV2, RNG {
 
     /**
      * @dev Callback function used by VRF Coordinator
-     * @dev Stores the random number given by the VRF Coordinator and calls passPhase function on SortitionModule.
+     * @dev Stores the random number given by the VRF Coordinator.
      * @param _requestId The same request Id initially returned by `vrfCoordinator.requestRandomWords` and stored in the `lastRequestId` storage variable.
      * @param _randomWords - array of random results from VRF Coordinator
      */
@@ -219,7 +255,28 @@ contract VRFConsumerV2 is VRFConsumerBaseV2, RNG {
      * @dev Get the random value associated to `lastRequestId`
      * @return randomNumber The random number. If the value is not ready or has not been required it returns 0.
      */
-    function receiveRandomness(uint256 /* _block */) external view returns (uint256 randomNumber) {
-        randomNumber = requestsToRandomWords[lastRequestId];
+    function receiveRandomness(uint256 /* _block */) external returns (uint256 randomNumber) {
+        if (requestsToRandomWords[lastRequestId] == 0) {
+            uint256 fallbackBlock = requestToFallbackBlock[lastRequestId];
+            if (fallbackBlock != 0) {
+                if (block.number <= fallbackBlock + sortitionModule.rngFallbackTimeout()) {
+                    randomNumber = randomizerRNG.receiveRandomness(0);
+                } else {
+                    // We can use fallback block since it already gives enough distance from the block that first requested randomness.
+                    // Note that if RNG fallback timeout is set higher or close than 256 blocks then blockhash will use the hash of the previous block instead.
+                    randomNumber = blockhashRNG.receiveRandomness(fallbackBlock);
+                }
+            }
+        } else {
+            randomNumber = requestsToRandomWords[lastRequestId];
+        }
+    }
+
+    function receiveRandomnessFallback(uint256 _block) external onlyBySortitionModule {
+        if (requestToFallbackBlock[lastRequestId] == 0) {
+            requestToFallbackBlock[lastRequestId] = _block;
+            // Block number is irrelevant for Randomizer.
+            randomizerRNG.requestRandomness(0);
+        }
     }
 }

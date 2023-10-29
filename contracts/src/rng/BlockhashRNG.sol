@@ -41,4 +41,6 @@ contract BlockHashRNG is RNG {
         }
         randomNumbers[_block] = randomNumber;
     }
+
+    function receiveRandomnessFallback(uint256 _block) external {}
 }

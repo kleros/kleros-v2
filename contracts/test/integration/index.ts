@@ -161,7 +161,6 @@ describe("Integration tests", async () => {
     console.log("KC phase: %d", await sortitionModule.phase());
 
     await sortitionModule.passPhase(); // Staking -> Generating
-    await mineBlocks(await sortitionModule.rngLookahead()); // Wait for finality
     expect(await sortitionModule.phase()).to.equal(Phase.generating);
     console.log("KC phase: %d", await sortitionModule.phase());
 
@@ -203,9 +202,8 @@ describe("Integration tests", async () => {
   it("Resolves a dispute on the home chain with no appeal - Chainlink VRF v2", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
     const [bridger, challenger, relayer] = await ethers.getSigners();
-    const RNG_LOOKAHEAD = 20;
 
-    await sortitionModule.changeRandomNumberGenerator(vrfConsumer.address, RNG_LOOKAHEAD);
+    await sortitionModule.changeRandomNumberGenerator(vrfConsumer.address);
 
     await pnk.approve(core.address, ONE_THOUSAND_PNK.mul(100));
 
@@ -291,7 +289,6 @@ describe("Integration tests", async () => {
     console.log("KC phase: %d", await sortitionModule.phase());
 
     await sortitionModule.passPhase(); // Staking -> Generating
-    await mineBlocks(await sortitionModule.rngLookahead()); // Wait for finality
     expect(await sortitionModule.phase()).to.equal(Phase.generating);
     console.log("KC phase: %d", await sortitionModule.phase());
 

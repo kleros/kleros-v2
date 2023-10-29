@@ -42,7 +42,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
   const { deploy, execute } = deployments;
   const { AddressZero } = hre.ethers.constants;
-  const RNG_LOOKAHEAD = 20;
+  const RNG_FALLBACK = 150;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -110,7 +110,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const maxFreezingTime = devnet ? 600 : 1800;
   const sortitionModule = await deployUpgradable(deployments, "SortitionModule", {
     from: deployer,
-    args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rng.address, RNG_LOOKAHEAD],
+    args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rng.address, RNG_FALLBACK],
     log: true,
   }); // nonce (implementation), nonce+1 (proxy)
 
@@ -184,7 +184,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       )) as VRFSubscriptionManagerV2Mock;
       await vrfSubscriptionManagerContract.topUpSubscription(BigNumber.from(10).pow(20)); // 100 LINK
       const subscriptionId = await vrfSubscriptionManagerContract.subscriptionId();
-      const vrfConsumer = await deploy("VRFConsumerV2", {
+      const vrfConsumer = await deployUpgradable(deployments, "VRFConsumerV2", {
         from: deployer,
         args: [
           deployer,
@@ -195,6 +195,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
           requestConfirmations,
           callbackGasLimit,
           numWords,
+          AddressZero,
+          AddressZero,
         ],
         log: true,
       });
@@ -205,7 +207,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       "VRFSubscriptionManagerV2"
     )) as VRFSubscriptionManagerV2;
     const subscriptionId = await vrfSubscriptionManagerContract.subscriptionId();
-    const vrfConsumer = await deploy("VRFConsumerV2", {
+    const vrfConsumer = await deployUpgradable(deployments, "VRFConsumerV2", {
       from: deployer,
       args: [
         deployer,
@@ -216,6 +218,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
         requestConfirmations,
         callbackGasLimit,
         numWords,
+        AddressZero,
+        AddressZero,
       ],
       log: true,
     });

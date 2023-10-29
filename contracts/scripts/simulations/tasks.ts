@@ -406,8 +406,6 @@ task("simulate:to-freezing-and-generating-phase", "Pass phase from 'staking' to 
     if (isNetworkLocal(hre)) {
       const { sortition, randomizerMock, randomizerRng } = await getContracts(hre);
       const { wallet } = await getWallet(hre, walletindex);
-      const numberOfBlocksToMine = Number(await sortition.rngLookahead());
-      await mineBlocks(numberOfBlocksToMine, hre.network);
       await randomizerMock.connect(wallet).relay(randomizerRng.address, 0, utils.randomBytes(32));
     }
   });

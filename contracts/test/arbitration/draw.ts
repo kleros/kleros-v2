@@ -85,7 +85,7 @@ describe("Draw Benchmark", async () => {
       log: true,
     });
 
-    await sortitionModule.changeRandomNumberGenerator(rng.address, 20);
+    await sortitionModule.changeRandomNumberGenerator(rng.address);
 
     // CourtId 2 = CHILD_COURT
     const minStake = BigNumber.from(10).pow(20).mul(3); // 300 PNK
@@ -166,11 +166,6 @@ describe("Draw Benchmark", async () => {
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
     await sortitionModule.passPhase(); // Staking -> Generating
-
-    const lookahead = await sortitionModule.rngLookahead();
-    for (let index = 0; index < lookahead; index++) {
-      await network.provider.send("evm_mine");
-    }
 
     await sortitionModule.passPhase(); // Generating -> Drawing
     await expectFromDraw(core.draw(0, 20, { gasLimit: 1000000 }));
@@ -419,9 +414,8 @@ describe("Draw Benchmark", async () => {
   it("Draw Benchmark - Chainlink VRF v2", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
     const [bridger] = await ethers.getSigners();
-    const RNG_LOOKAHEAD = 20;
 
-    await sortitionModule.changeRandomNumberGenerator(vrfConsumer.address, RNG_LOOKAHEAD);
+    await sortitionModule.changeRandomNumberGenerator(vrfConsumer.address);
 
     // Stake some jurors
     for (let i = 0; i < 16; i++) {
@@ -469,11 +463,6 @@ describe("Draw Benchmark", async () => {
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
     await sortitionModule.passPhase(); // Staking -> Generating
-
-    const lookahead = await sortitionModule.rngLookahead();
-    for (let index = 0; index < lookahead; index++) {
-      await network.provider.send("evm_mine");
-    }
 
     const requestId = await vrfConsumer.lastRequestId(); // Needed as we emulate the vrfCoordinator manually
     await vrfCoordinator.fulfillRandomWords(requestId, vrfConsumer.address); // The callback calls sortitionModule.passPhase(); // Generating -> Drawing

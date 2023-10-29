@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import "../proxy/Initializable.sol";
+
 /** ****************************************************************************
  * @notice Interface for contracts using VRF randomness
  * *****************************************************************************
@@ -94,14 +96,14 @@ pragma solidity ^0.8.4;
  * @dev responding to the request (however this is not enforced in the contract
  * @dev and so remains effective only in the case of unmodified oracle software).
  */
-abstract contract VRFConsumerBaseV2 {
+abstract contract VRFConsumerBaseV2 is Initializable {
     error OnlyCoordinatorCanFulfill(address have, address want);
-    address private immutable vrfCoordinator;
+    address private vrfCoordinator;
 
     /**
      * @param _vrfCoordinator address of VRFCoordinator contract
      */
-    constructor(address _vrfCoordinator) {
+    function vrfBase_init(address _vrfCoordinator) public onlyInitializing {
         vrfCoordinator = _vrfCoordinator;
     }
 

@@ -28,4 +28,6 @@ contract IncrementalNG is RNG {
             return number++;
         }
     }
+
+    function receiveRandomnessFallback(uint256 _block) external {}
 }

@@ -65,11 +65,7 @@ describe("Unstake juror", async () => {
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
 
-    const lookahead = await sortitionModule.rngLookahead();
     await sortitionModule.passPhase(); // Staking -> Generating
-    for (let index = 0; index < lookahead; index++) {
-      await network.provider.send("evm_mine");
-    }
 
     await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
     await sortitionModule.passPhase(); // Generating -> Drawing
@@ -91,9 +87,8 @@ describe("Unstake juror", async () => {
 
   it("Unstake inactive juror - Chainlink VRF v2", async () => {
     const arbitrationCost = ONE_TENTH_ETH.mul(3);
-    const RNG_LOOKAHEAD = 20;
 
-    await sortitionModule.changeRandomNumberGenerator(vrfConsumer.address, RNG_LOOKAHEAD);
+    await sortitionModule.changeRandomNumberGenerator(vrfConsumer.address);
 
     await core.createCourt(1, false, ONE_THOUSAND_PNK, 1000, ONE_TENTH_ETH, 3, [0, 0, 0, 0], 3, [1]); // Parent - general court, Classic dispute kit
 
@@ -108,11 +103,7 @@ describe("Unstake juror", async () => {
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
 
-    const lookahead = await sortitionModule.rngLookahead();
     await sortitionModule.passPhase(); // Staking -> Generating
-    for (let index = 0; index < lookahead; index++) {
-      await network.provider.send("evm_mine");
-    }
 
     const requestId = await vrfConsumer.lastRequestId(); // Needed as we emulate the vrfCoordinator manually
     await vrfCoordinator.fulfillRandomWords(requestId, vrfConsumer.address); // The callback calls sortitionModule.passPhase(); // Generating -> Drawing

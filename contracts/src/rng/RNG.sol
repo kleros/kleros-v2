@@ -11,4 +11,6 @@ interface RNG {
     /// @param _block Block the random number is linked to.
     /// @return randomNumber Random Number. If the number is not ready or has not been required 0 instead.
     function receiveRandomness(uint256 _block) external returns (uint256 randomNumber);
+
+    function receiveRandomnessFallback(uint256 _block) external;
 }

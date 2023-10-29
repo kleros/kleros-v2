@@ -99,6 +99,8 @@ contract RandomizerRNG is RNG, UUPSProxiable, Initializable {
         randomNumbers[_id] = uint256(_value);
     }
 
+    function receiveRandomnessFallback(uint256 _block) external {}
+
     // ************************************* //
     // *           Public Views            * //
     // ************************************* //
