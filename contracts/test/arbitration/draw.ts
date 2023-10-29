@@ -441,7 +441,7 @@ describe("Draw Benchmark", async () => {
     }
 
     // Create a dispute
-    const tx = await arbitrable.createDispute(2, "0x00", 0, {
+    const tx = await arbitrable.functions["createDispute(string)"]("RNG test", {
       value: arbitrationCost,
     });
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
@@ -451,9 +451,20 @@ describe("Draw Benchmark", async () => {
     // Relayer tx
     const tx2 = await homeGateway
       .connect(await ethers.getSigner(relayer))
-      .relayCreateDispute(31337, lastBlock.hash, disputeId, 2, "0x00", arbitrable.address, {
-        value: arbitrationCost,
-      });
+      .functions["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes))"](
+        {
+          foreignBlockHash: lastBlock.hash,
+          foreignChainID: 31337,
+          foreignArbitrable: arbitrable.address,
+          foreignDisputeID: disputeId,
+          externalDisputeID: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("RNG test")),
+          templateId: 0,
+          templateUri: "",
+          choices: 2,
+          extraData: `0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003`, // General Court, 3 jurors
+        },
+        { value: arbitrationCost }
+      );
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");

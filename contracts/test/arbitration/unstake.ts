@@ -103,7 +103,7 @@ describe("Unstake juror", async () => {
 
     expect(await core.getJurorCourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
 
-    await core.createDispute(2, extraData, { value: arbitrationCost });
+    await core.functions["createDispute(uint256,bytes)"](2, extraData, { value: arbitrationCost });
 
     await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
