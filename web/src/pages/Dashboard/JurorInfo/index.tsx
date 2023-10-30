@@ -44,7 +44,12 @@ const JurorInfo: React.FC = () => {
 
   return (
     <Container>
-      <Header />
+      <Header
+        levelTitle={userLevelData.title}
+        levelNumber={userLevelData.level}
+        totalCoherent={totalCoherent}
+        totalResolvedDisputes={totalResolvedDisputes}
+      />
       <Card>
         <PixelArt level={userLevelData.level} width="189px" height="189px" />
         <Coherency
