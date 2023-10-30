@@ -5,23 +5,20 @@ import { useWindowSize } from "react-use";
 import WithHelpTooltip from "pages/Dashboard/WithHelpTooltip";
 
 const Container = styled.div`
-  label {
-    font-size: 12px !important;
-    &::before {
-      content: "Votes";
-    }
+  display: flex;
+  font-size: 12px !important;
+  &::before {
+    content: "Votes";
   }
+  color: ${({ theme }) => theme.secondaryText};
+  align-items: center;
 
   ${landscapeStyle(
     () =>
       css`
-        display: flex;
-
-        label {
-          font-size: 14px !important;
-          &::before {
-            content: "Coherent Votes";
-          }
+        font-size: 14px !important;
+        &::before {
+          content: "Coherent Votes";
         }
       `
   )}
@@ -37,9 +34,10 @@ const Coherency: React.FC = () => {
   const { width } = useWindowSize();
   return (
     <Container>
-      <WithHelpTooltip place={width > BREAKPOINT_LANDSCAPE ? "top" : "left"} tooltipMsg={coherentVotesTooltipMsg}>
-        <label></label>
-      </WithHelpTooltip>
+      <WithHelpTooltip
+        place={width > BREAKPOINT_LANDSCAPE ? "top" : "left"}
+        tooltipMsg={coherentVotesTooltipMsg}
+      ></WithHelpTooltip>
     </Container>
   );
 };

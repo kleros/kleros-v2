@@ -21,10 +21,6 @@ const Container = styled.div`
   align-items: center;
   gap: 20px;
 
-  label {
-    font-size: 16px;
-  }
-
   ${landscapeStyle(
     () => css`
       display: none;

@@ -7,10 +7,6 @@ const Container = styled.div`
   align-items: center;
   gap: 8px;
 
-  label {
-    color: ${({ theme }) => theme.primaryBlue};
-  }
-
   svg {
     path {
       fill: ${({ theme }) => theme.primaryBlue};
@@ -18,10 +14,14 @@ const Container = styled.div`
   }
 `;
 
+const StyledLabel = styled.label`
+  color: ${({ theme }) => theme.primaryBlue};
+`;
+
 const Rewards: React.FC = () => (
   <Container>
     <BookOpenIcon />
-    <label> How it works </label>
+    <StyledLabel>How it works</StyledLabel>
   </Container>
 );
 export default Rewards;
