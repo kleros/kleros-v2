@@ -14,15 +14,15 @@ const Container = styled.div`
     cursor: pointer;
   }
 
-  label {
-    color: ${({ theme }) => theme.primaryBlue};
-  }
-
   svg {
     path {
       fill: ${({ theme }) => theme.primaryBlue};
     }
   }
+`;
+
+const StyledLabel = styled.label`
+  color: ${({ theme }) => theme.primaryBlue};
 `;
 
 const HowItWorks: React.FC = () => {
@@ -31,7 +31,7 @@ const HowItWorks: React.FC = () => {
     <>
       <Container onClick={() => toggleIsLevelMiniGuidesOpen()}>
         <BookOpenIcon />
-        <label> How it works </label>
+        <StyledLabel> How it works </StyledLabel>
       </Container>
       {isLevelMiniGuidesOpen && <Level {...{ toggleIsLevelMiniGuidesOpen }} />}
     </>

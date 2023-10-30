@@ -37,6 +37,7 @@ const PlaceAndTitleAndRewardsAndCoherency = styled.div`
         display: flex;
         flex-direction: row;
         gap: calc(20px + (28 - 20) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+        align-items: center;
       `
   )}
 `;

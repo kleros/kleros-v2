@@ -9,23 +9,26 @@ const Container = styled.div`
   align-items: center;
   gap: 8px;
 
-  label {
-    font-size: 12px !important;
+  ${landscapeStyle(
+    () => css`
+      gap: 16px;
+    `
+  )}
+`;
 
-    &::before {
-      content: "Lv. ";
-    }
+const StyledLabel = styled.label`
+  font-size: 12px !important;
+
+  &::before {
+    content: "Lv. ";
   }
 
   ${landscapeStyle(
     () => css`
-      gap: 16px;
-      label {
-        font-size: 16px !important;
+      font-size: 16px !important;
 
-        &::before {
-          content: "Level ";
-        }
+      &::before {
+        content: "Level ";
       }
     `
   )}
@@ -41,7 +44,7 @@ const HowItWorks: React.FC<IHowItWorks> = ({ coherenceScore }) => {
 
   return (
     <Container>
-      <label>{level}</label>
+      <StyledLabel>{level}</StyledLabel>
       <PixelArt width="32px" height="32px" level={level} />
     </Container>
   );

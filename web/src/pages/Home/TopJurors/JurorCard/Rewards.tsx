@@ -10,10 +10,6 @@ const Container = styled.div`
   display: flex;
   gap: 8px;
   align-items: center;
-  label {
-    font-weight: 600;
-    color: ${({ theme }) => theme.primaryText};
-  }
   flex-wrap: wrap;
 
   ${landscapeStyle(
@@ -33,6 +29,12 @@ const StyledIcon = styled.div`
   }
 `;
 
+const StyledLabel = styled.label`
+  font-size: 16px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.primaryText};
+`;
+
 interface IRewards {
   address: string;
 }
@@ -45,10 +47,10 @@ const Rewards: React.FC<IRewards> = ({ address }) => {
 
   return (
     <Container>
-      <label>{ethReward}</label>
+      <StyledLabel>{ethReward}</StyledLabel>
       <StyledIcon as={EthIcon} />
-      <label>+</label>
-      <label>{pnkReward}</label>
+      <StyledLabel>+</StyledLabel>
+      <StyledLabel>{pnkReward}</StyledLabel>
       <StyledIcon as={PnkIcon} />
     </Container>
   );

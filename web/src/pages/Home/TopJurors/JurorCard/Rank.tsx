@@ -3,10 +3,9 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.div`
-  label {
-    color: ${({ theme }) => theme.primaryText};
-  }
-  label::before {
+  color: ${({ theme }) => theme.primaryText};
+
+  &::before {
     content: "#";
     display: inline;
   }
@@ -14,7 +13,7 @@ const Container = styled.div`
   ${landscapeStyle(
     () => css`
       width: calc(16px + (24 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-      label::before {
+      &::before {
         display: none;
       }
     `
@@ -26,10 +25,6 @@ interface IRank {
 }
 
 const Rank: React.FC<IRank> = ({ rank }) => {
-  return (
-    <Container>
-      <label>{rank}</label>
-    </Container>
-  );
+  return <Container>{rank}</Container>;
 };
 export default Rank;

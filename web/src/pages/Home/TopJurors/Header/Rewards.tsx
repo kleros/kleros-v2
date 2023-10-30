@@ -4,24 +4,22 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import WithHelpTooltip from "pages/Dashboard/WithHelpTooltip";
 
 const Container = styled.div`
-  label {
-    font-size: 12px !important;
-    &::before {
-      content: "Rewards";
-    }
+  display: flex;
+  font-size: 12px !important;
+  &::before {
+    content: "Rewards";
   }
+  color: ${({ theme }) => theme.secondaryText};
+  align-items: center;
 
   ${landscapeStyle(
     () =>
       css`
-        display: flex;
         width: calc(60px + (240 - 60) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 
-        label {
-          font-size: 14px !important;
-          &::before {
-            content: "Total Rewards";
-          }
+        font-size: 14px !important;
+        &::before {
+          content: "Total Rewards";
         }
       `
   )}
@@ -35,9 +33,8 @@ const totalRewardsTooltipMsg =
 
 const Rewards: React.FC = () => (
   <Container>
-    <WithHelpTooltip place="top" tooltipMsg={totalRewardsTooltipMsg}>
-      <label></label>
-    </WithHelpTooltip>
+    <WithHelpTooltip place="top" tooltipMsg={totalRewardsTooltipMsg}></WithHelpTooltip>
   </Container>
 );
+
 export default Rewards;
