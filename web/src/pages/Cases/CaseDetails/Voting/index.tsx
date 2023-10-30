@@ -17,6 +17,10 @@ import { useDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
 import VoteIcon from "assets/svgs/icons/voted.svg";
 import InfoCircle from "tsx:svgs/icons/info-circle.svg";
 
+const Container = styled.div`
+  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+`;
+
 const InfoContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -48,7 +52,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
   const { data: appealCost } = useAppealCost(id);
   const { data: drawData } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
   const roundId = disputeData?.dispute?.currentRoundIndex;
-  const voteId = drawData?.draws?.[0]?.voteID;
+  const voteId = drawData?.draws?.[0]?.voteIDNum;
   const { data: voted } = useDisputeKitClassicIsVoteActive({
     enabled: !isUndefined(roundId) && !isUndefined(voteId),
     args: [BigInt(id ?? 0), roundId, voteId],
@@ -64,7 +68,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
     getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
 
   return (
-    <>
+    <Container>
       {!isUndefined(appealCost) && isLastRound(appealCost) && (
         <>
           <InfoContainer>
@@ -101,12 +105,16 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
       !voted ? (
         <>
           <VotingHistory {...{ arbitrable }} isQuestion={false} />
-          <Classic {...{ arbitrable }} setIsOpen={setIsPopupOpen} voteIDs={drawData.draws.map((draw) => draw.voteID)} />
+          <Classic
+            {...{ arbitrable }}
+            setIsOpen={setIsPopupOpen}
+            voteIDs={drawData.draws.map((draw) => draw.voteIDNum)}
+          />
         </>
       ) : (
         <VotingHistory {...{ arbitrable }} isQuestion={true} />
       )}
-    </>
+    </Container>
   );
 };
 

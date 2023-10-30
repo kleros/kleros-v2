@@ -9,6 +9,7 @@ export function createRoundFromRoundInfo(
 ): void {
   const roundID = `${disputeID.toString()}-${roundIndex.toString()}`;
   const round = new Round(roundID);
+  round.isCurrentRound = true;
   const feeToken = roundInfo.feeToken.toHexString();
   round.feeToken = feeToken === "0x0000000000000000000000000000000000000000" ? null : feeToken;
   round.disputeKit = roundInfo.disputeKitID.toString();

@@ -6,9 +6,9 @@ dataSources:
     name: KlerosCore
     network: arbitrum-goerli
     source:
-      address: "0x813DCc76dbA91DD9f6bDD038aea0877FC95656bE"
+      address: "0xB88643fd1e4351dAF9eA7292db126207FDE42e45"
       abi: KlerosCore
-      startBlock: 43823780
+      startBlock: 49141544
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -56,14 +56,16 @@ dataSources:
           handler: handleRuling
         - event: AcceptedFeeToken(indexed address,indexed bool)
           handler: handleAcceptedFeeToken
+        - event: CourtJump(indexed uint256,indexed uint256,indexed uint96,uint96)
+          handler: handleCourtJump
       file: ./src/KlerosCore.ts
   - kind: ethereum
     name: PolicyRegistry
     network: arbitrum-goerli
     source:
-      address: "0x0d7EeA661C1f9cB1AD389c9Df90B3beDE86a1529"
+      address: "0x37FFaF5506BB16327B4a32191Bb39d739fCE55a3"
       abi: PolicyRegistry
-      startBlock: 43823685
+      startBlock: 48886711
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -81,9 +83,9 @@ dataSources:
     name: DisputeKitClassic
     network: arbitrum-goerli
     source:
-      address: "0x6394A70cADD1376FdE5C38bA331761256DDd03E2"
+      address: "0x67f3b472F345119692d575E59190400E371946f6"
       abi: DisputeKitClassic
-      startBlock: 43823737
+      startBlock: 49141470
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -92,8 +94,6 @@ dataSources:
         - ClassicDispute
         - ClassicRound
         - ClassicVote
-        - ClassicEvidenceGroup
-        - ClassicEvidence
         - ClassicContribution
       abis:
         - name: DisputeKitClassic
@@ -109,10 +109,29 @@ dataSources:
           handler: handleWithdrawal
         - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
           handler: handleChoiceFunded
-        - event: Evidence(indexed uint256,indexed address,string)
-          handler: handleEvidenceEvent
         - event: VoteCast(indexed uint256,indexed address,uint256[],indexed uint256,string)
           handler: handleVoteCast
         - event: CommitCast(indexed uint256,indexed address,uint256[],bytes32)
           handler: handleCommitCast
       file: ./src/DisputeKitClassic.ts
+  - kind: ethereum
+    name: EvidenceModule
+    network: arbitrum-goerli
+    source:
+      address: "0xF679E4a92AE843fd5cD0717A7417C3A773Dfd55F"
+      abi: EvidenceModule
+      startBlock: 49137992
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - ClassicEvidenceGroup
+        - ClassicEvidence
+      abis:
+        - name: EvidenceModule
+          file: ../contracts/deployments/arbitrumGoerliDevnet/EvidenceModule.json
+      eventHandlers:
+        - event: Evidence(indexed uint256,indexed address,string)
+          handler: handleEvidenceEvent
+      file: ./src/EvidenceModule.ts

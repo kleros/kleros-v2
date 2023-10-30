@@ -5,21 +5,22 @@ import SecuredByKlerosLogo from "svgs/footer/secured-by-kleros.svg";
 import { socialmedia } from "consts/socialmedia";
 
 const Container = styled.div`
-  height: 80px;
+  height: 122px;
   width: 100%;
   background-color: ${({ theme }) => theme.primaryPurple};
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 0 32px;
-  gap: 16px;
+  padding: 0 32px 8px 32px;
+  gap: 24px;
 
   ${landscapeStyle(
     () => css`
       height: 64px;
       flex-direction: row;
       justify-content: space-between;
+      padding-bottom: 0;
     `
   )}
 

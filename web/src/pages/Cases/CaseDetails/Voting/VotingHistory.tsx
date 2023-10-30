@@ -9,6 +9,7 @@ import { useVotingHistory } from "queries/useVotingHistory";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { shortenAddress } from "utils/shortenAddress";
 import { isUndefined } from "utils/index";
+import { getLocalRounds } from "utils/getLocalRounds";
 
 const Container = styled.div``;
 
@@ -87,7 +88,7 @@ const AccordionContent: React.FC<{
   );
 };
 
-export const getVoteChoice = (vote, answers) => {
+export const getVoteChoice = (vote: number, answers: { title: string }[]) => {
   const selectedAnswer = answers?.[vote - 1]?.title;
   if (vote === 0) {
     return "Refuse to arbitrate";
@@ -104,7 +105,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
   const [currentTab, setCurrentTab] = useState(0);
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
   const rounds = votingHistory?.dispute?.rounds;
-  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
+  const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const answers = disputeTemplate?.answers;
 
   return (
@@ -115,7 +116,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
           {isQuestion && disputeTemplate.question ? (
             <ReactMarkdown>{disputeTemplate.question}</ReactMarkdown>
           ) : (
-            <ReactMarkdown>The dispute's template is not correct please vote refuse to arbitrate</ReactMarkdown>
+            <ReactMarkdown>{"The dispute's template is not correct please vote refuse to arbitrate"}</ReactMarkdown>
           )}
           <StyledTabs
             currentValue={currentTab}

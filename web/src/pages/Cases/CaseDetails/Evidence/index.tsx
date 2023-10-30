@@ -8,6 +8,7 @@ import { useEvidences } from "queries/useEvidences";
 import SubmitEvidenceModal from "./SubmitEvidenceModal";
 import EvidenceCard from "components/EvidenceCard";
 import { EnsureChain } from "components/EnsureChain";
+import { isUndefined } from "utils/index";
 
 const Container = styled.div`
   width: 100%;
@@ -16,6 +17,7 @@ const Container = styled.div`
   gap: 16px;
 
   align-items: center;
+  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 `;
 
 const StyledButton = styled(Button)`
@@ -28,10 +30,11 @@ const Evidence: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable }) => {
   const { data: evidenceGroup } = useEvidenceGroup(id, arbitrable);
   const { data } = useEvidences(evidenceGroup?.toString());
   const { address } = useAccount();
+
   return (
     <Container>
       <>
-        {evidenceGroup && (
+        {!isUndefined(evidenceGroup) && (
           <SubmitEvidenceModal isOpen={isModalOpen} close={() => setIsModalOpen(false)} {...{ evidenceGroup }} />
         )}
         <Searchbar />
@@ -45,8 +48,8 @@ const Evidence: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable }) => {
           />
         </EnsureChain>
         {data &&
-          data.evidences.map(({ id, evidence, sender }, i) => (
-            <EvidenceCard key={id} index={i + 1} sender={sender?.id} {...{ evidence }} />
+          data.evidences.map(({ key, evidence, sender }, i) => (
+            <EvidenceCard key={key} index={i + 1} sender={sender?.id} {...{ evidence }} />
           ))}
       </>
     </Container>

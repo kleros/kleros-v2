@@ -10,7 +10,6 @@ pragma solidity 0.8.18;
 
 import "../KlerosCore.sol";
 import "../interfaces/IDisputeKit.sol";
-import "../interfaces/IEvidence.sol";
 import "../../proxy/UUPSProxiable.sol";
 import "../../proxy/Initializable.sol";
 
@@ -20,7 +19,7 @@ import "../../proxy/Initializable.sol";
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
-contract DisputeKitClassic is IDisputeKit, IEvidence, Initializable, UUPSProxiable {
+contract DisputeKitClassic is IDisputeKit, Initializable, UUPSProxiable {
     // ************************************* //
     // *             Structs               * //
     // ************************************* //
@@ -307,8 +306,7 @@ contract DisputeKitClassic is IDisputeKit, IEvidence, Initializable, UUPSProxiab
         for (uint256 i = 0; i < _voteIDs.length; i++) {
             require(round.votes[_voteIDs[i]].account == msg.sender, "The caller has to own the vote.");
             require(
-                !hiddenVotes ||
-                    round.votes[_voteIDs[i]].commit == keccak256(abi.encodePacked(_choice, _justification, _salt)),
+                !hiddenVotes || round.votes[_voteIDs[i]].commit == keccak256(abi.encodePacked(_choice, _salt)),
                 "The commit must match the choice in courts with hidden votes."
             );
             require(!round.votes[_voteIDs[i]].voted, "Vote already cast.");
@@ -447,13 +445,6 @@ contract DisputeKitClassic is IDisputeKit, IEvidence, Initializable, UUPSProxiab
             _beneficiary.send(amount); // Deliberate use of send to prevent reverting fallback. It's the user's responsibility to accept ETH.
             emit Withdrawal(_coreDisputeID, _coreRoundID, _choice, _beneficiary, amount);
         }
-    }
-
-    /// @dev Submits evidence for a dispute.
-    /// @param _externalDisputeID Unique identifier for this dispute outside Kleros. It's the submitter responsability to submit the right evidence group ID.
-    /// @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'.
-    function submitEvidence(uint256 _externalDisputeID, string calldata _evidence) external {
-        emit Evidence(_externalDisputeID, msg.sender, _evidence);
     }
 
     // ************************************* //

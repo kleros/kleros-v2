@@ -24,12 +24,15 @@
   "packageManager": "yarn@3.3.1",
   "scripts": {
     "clear": "rm -fr ../.parcel-cache dist/bundle.js",
-    "start": "scripts/runEnv.sh devnet 'yarn generate && parcel'",
-    "start-testnet": "scripts/runEnv.sh testnet 'yarn generate && parcel'",
+    "start": "yarn start-devnet",
     "start-local": "scripts/runEnv.sh local 'yarn generate && parcel'",
-    "build": "node scripts/gitInfo.js && yarn generate && parcel build",
+    "start-devnet": "scripts/runEnv.sh devnet 'yarn generate && parcel'",
+    "start-testnet": "scripts/runEnv.sh testnet 'yarn generate && parcel'",
+    "build": "yarn build-devnet",
+    "build-local": "scripts/runEnv.sh local 'yarn generate && parcel build'",
     "build-devnet": "scripts/runEnv.sh devnet 'yarn generate && parcel build'",
     "build-testnet": "scripts/runEnv.sh testnet 'yarn generate && parcel build'",
+    "build-netlify": "node scripts/gitInfo.js && yarn generate && parcel build",
     "check-style": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "check-types": "tsc --noEmit",
     "generate": "yarn generate:gql && yarn generate:hooks",
@@ -69,7 +72,7 @@
   "dependencies": {
     "@filebase/client": "^0.0.5",
     "@kleros/kleros-v2-contracts": "workspace:^",
-    "@kleros/ui-components-library": "^2.6.2",
+    "@kleros/ui-components-library": "^2.6.3",
     "@sentry/react": "^7.55.2",
     "@sentry/tracing": "^7.55.2",
     "@supabase/supabase-js": "^2.33.1",
@@ -101,7 +104,7 @@
     "react-toastify": "^9.1.3",
     "react-use": "^17.4.0",
     "styled-components": "^5.3.9",
-    "viem": "^1.0.0",
+    "viem": "^1.16.1",
     "wagmi": "^1.4.3"
   },
   "volta": {

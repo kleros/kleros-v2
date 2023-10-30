@@ -25,6 +25,8 @@ export enum Courts {
   GENERAL = 1,
 }
 
+export const isDevnet = (network: Network) => network.name.endsWith("Devnet");
+
 export const isSkipped = async (network: Network, skip: boolean) => {
   if (skip) {
     console.error(`Error: incompatible network ${network.name} for this deployment script`);

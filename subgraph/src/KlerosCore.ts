@@ -10,6 +10,7 @@ import {
   NewPeriod,
   StakeSet,
   TokenAndETHShift as TokenAndETHShiftEvent,
+  CourtJump,
   Ruling,
   StakeDelayed,
   AcceptedFeeToken,
@@ -29,6 +30,7 @@ import { Court, Dispute, User } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { updatePenalty } from "./entities/Penalty";
 import { ensureFeeToken } from "./entities/FeeToken";
+import { getAndIncrementPeriodCounter } from "./entities/PeriodIndexCounter";
 
 function getPeriodName(index: i32): string {
   const periodArray = ["evidence", "commit", "vote", "appeal", "execution"];
@@ -128,6 +130,7 @@ export function handleNewPeriod(event: NewPeriod): void {
   dispute.period = newPeriod;
   dispute.lastPeriodChange = event.block.timestamp;
   dispute.lastPeriodChangeBlockNumber = event.block.number;
+  dispute.periodNotificationIndex = getAndIncrementPeriodCounter(newPeriod);
   if (newPeriod !== "execution") {
     dispute.periodDeadline = event.block.timestamp.plus(court.timesPerPeriod[event.params._period]);
   } else {
@@ -162,6 +165,13 @@ export function handleAppealDecision(event: AppealDecision): void {
   dispute.save();
   const roundInfo = contract.getRoundInfo(disputeID, newRoundIndex);
   createRoundFromRoundInfo(disputeID, newRoundIndex, roundInfo);
+}
+
+export function handleCourtJump(event: CourtJump): void {
+  const dispute = Dispute.load(event.params._disputeID.toString());
+  if (!dispute) return;
+  dispute.court = event.params._toCourtID.toString();
+  dispute.save();
 }
 
 export function handleDraw(event: DrawEvent): void {

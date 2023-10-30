@@ -1,14 +1,10 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { IElement } from "../pages/home/Community/Element";
+import { IElement } from "../pages/Home/Community/Element";
 import PNKIcon from "svgs/icons/pnk.svg";
 import SnapshotIcon from "svgs/icons/snapshot-color.svg";
 import FrenchFlagIcon from "svgs/icons/french-flag.svg";
-import PhoneIcon from "svgs/icons/phone.svg";
-import ChatIcon from "svgs/icons/chat.svg";
-import DiscordIcon from "svgs/socialmedia/discord.svg";
 import TelegramIcon from "svgs/socialmedia/telegram.svg";
-import SlackIcon from "svgs/socialmedia/slack.svg";
 
 const StyledLabel = styled.label`
   color: ${({ theme }) => theme.primaryBlue};
@@ -25,34 +21,17 @@ const StyledPNKIcon = styled(PNKIcon)`
   ${fillWithSecondaryPurple}
 `;
 
-const StyledPhoneIcon = styled(PhoneIcon)`
-  ${fillWithSecondaryPurple}
-`;
-
-const StyledChatIcon = styled(ChatIcon)`
-  ${fillWithSecondaryPurple}
-`;
-
 const fillWithPrimaryBlue = css`
   fill: ${({ theme }) => theme.primaryBlue};
-`;
-
-const StyledDiscordIcon = styled(DiscordIcon)`
-  ${fillWithPrimaryBlue}
 `;
 
 const StyledTelegramIcon = styled(TelegramIcon)`
   ${fillWithPrimaryBlue}
 `;
 
-const StyledSlackIcon = styled(SlackIcon)`
-  ${fillWithPrimaryBlue}
-`;
-
-export const firstSection: IElement[] = [
+export const section: IElement[] = [
   {
     Icon: StyledPNKIcon,
-    primaryText: "Join the discussions",
     urls: [
       {
         node: <StyledLabel>Kleros Forum</StyledLabel>,
@@ -62,11 +41,20 @@ export const firstSection: IElement[] = [
   },
   {
     Icon: SnapshotIcon,
-    primaryText: "Vote on proposals",
     urls: [
       {
-        node: <StyledLabel>Snapshot</StyledLabel>,
+        node: <StyledLabel>Vote on proposals</StyledLabel>,
         link: "https://snapshot.org/#/kleros.eth/",
+      },
+    ],
+  },
+  {
+    Icon: StyledTelegramIcon,
+    primaryText: "Wednesday, 18h UTC",
+    urls: [
+      {
+        node: <StyledLabel>Community Calls</StyledLabel>,
+        link: "https://t.me/kleros",
       },
     ],
   },
@@ -74,39 +62,8 @@ export const firstSection: IElement[] = [
     Icon: FrenchFlagIcon,
     urls: [
       {
-        node: <StyledLabel>Cooperative Kleros</StyledLabel>,
+        node: <StyledLabel>Join the Coopérative</StyledLabel>,
         link: "https://kleros.io/coop/",
-      },
-    ],
-  },
-];
-
-export const secondSection: IElement[] = [
-  {
-    Icon: StyledPhoneIcon,
-    primaryText: "Join the Community Call",
-    urls: [
-      {
-        node: <StyledLabel>Join</StyledLabel>,
-        link: "https://t.me/kleros",
-      },
-    ],
-  },
-  {
-    Icon: StyledChatIcon,
-    primaryText: "Talk with us",
-    urls: [
-      {
-        node: <StyledDiscordIcon />,
-        link: "https://discord.gg/MhXQGCyHd9",
-      },
-      {
-        node: <StyledTelegramIcon />,
-        link: "https://t.me/kleros",
-      },
-      {
-        node: <StyledSlackIcon />,
-        link: "https://kleros.slack.com/join/signup",
       },
     ],
   },

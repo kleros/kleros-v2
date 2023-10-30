@@ -23,7 +23,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const foreignChainName = await hre.companionNetworks.foreignGoerli.deployments.getNetworkName();
   console.log("Using ForeignGateway %s on chainId %s (%s)", foreignGateway.address, foreignChainId, foreignChainName);
 
-  await deployUpgradable(hre, "HomeGatewayToEthereum", {
+  await deployUpgradable(deployments, "HomeGatewayToEthereum", {
     from: deployer,
     contract: "HomeGateway",
     args: [

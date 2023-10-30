@@ -2,15 +2,16 @@ import React, { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import styled, { useTheme } from "styled-components";
 import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
-import { Periods } from "consts/periods";
-import { ClassicRound } from "src/graphql/graphql";
-import { getVoteChoice } from "pages/Cases/CaseDetails/Voting/VotingHistory";
-import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
-import { useVotingHistory } from "queries/useVotingHistory";
 import CalendarIcon from "assets/svgs/icons/calendar.svg";
 import ClosedCaseIcon from "assets/svgs/icons/check-circle-outline.svg";
 import AppealedCaseIcon from "assets/svgs/icons/close-circle.svg";
+import { Periods } from "consts/periods";
+import { ClassicRound } from "src/graphql/graphql";
+import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { useVotingHistory } from "queries/useVotingHistory";
+import { getVoteChoice } from "pages/Cases/CaseDetails/Voting/VotingHistory";
+import { getLocalRounds } from "utils/getLocalRounds";
 
 const Container = styled.div`
   display: flex;
@@ -63,7 +64,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
-  const localRounds: ClassicRound[] = votingHistory?.dispute?.disputeKitDispute?.localRounds as ClassicRound[];
+  const localRounds: ClassicRound[] = getLocalRounds(votingHistory?.dispute?.disputeKitDispute) as ClassicRound[];
 
   const theme = useTheme();
 

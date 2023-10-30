@@ -15,6 +15,7 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 import Verdict from "components/Verdict/index";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
+import { getLocalRounds } from "utils/getLocalRounds";
 
 const Container = styled.div`
   width: 100%;
@@ -22,6 +23,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 
   > h1 {
     margin: 0;
@@ -62,8 +64,9 @@ const ShadeArea = styled.div`
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  margin-top: calc(24px + (48 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: calc(16px + (20 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875)
+    calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-top: 16px;
   background-color: ${({ theme }) => theme.mediumBlue};
   > p {
     margin-top: 0;
@@ -95,14 +98,20 @@ const StyledA = styled.a`
 
 const LinkContainer = styled.div`
   display: flex;
-  justify-content: space-between;
   gap: calc(8px + (24 - 8) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 `;
 
 const Divider = styled.hr`
   display: flex;
-  color: ${({ theme }) => theme.stroke};
+  border: none;
+  height: 1px;
+  background-color: ${({ theme }) => theme.stroke};
   margin: 0;
+`;
+
+const StyledP = styled.p`
+  font-size: 14px;
+  color: ${({ theme }) => theme.primaryBlue};
 `;
 
 interface IOverview {
@@ -117,7 +126,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const { data: courtPolicy } = useCourtPolicy(courtID);
   const { data: votingHistory } = useVotingHistory(id);
-  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
+  const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const courtName = courtPolicy?.name;
   const court = disputeDetails?.dispute?.court;
   const rewards = court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined;
@@ -161,10 +170,17 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
           </>
         )}
 
-        <DisputeInfo courtId={court?.id} court={courtName} round={localRounds?.length} {...{ rewards, category }} />
+        <DisputeInfo
+          isOverview={true}
+          overrideIsList={true}
+          courtId={court?.id}
+          court={courtName}
+          round={localRounds?.length}
+          {...{ rewards, category }}
+        />
       </Container>
       <ShadeArea>
-        <p>Make sure you understand the Policies</p>
+        <StyledP>Make sure you read and understand the Policies</StyledP>
         <LinkContainer>
           {disputeTemplate?.policyURI && (
             <StyledA href={`${IPFS_GATEWAY}${disputeTemplate.policyURI}`} target="_blank" rel="noreferrer">

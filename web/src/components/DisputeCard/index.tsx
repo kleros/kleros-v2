@@ -14,19 +14,21 @@ import { useVotingHistory } from "queries/useVotingHistory";
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
+import { getLocalRounds } from "utils/getLocalRounds";
 
 const StyledCard = styled(Card)`
   width: 100%;
-  height: 260px;
+  height: calc(280px + (296 - 280) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+
   ${landscapeStyle(
     () =>
       css`
         /* Explanation of this formula:
           - The 48px accounts for the total width of gaps: 2 gaps * 24px each.
           - The 0.333 is used to equally distribute width among 3 cards per row.
-          - The 294px ensures the card has a minimum width.
+          - The 348px ensures the card has a minimum width.
         */
-        width: max(calc((100% - 48px) * 0.333), 294px);
+        width: max(calc((100% - 48px) * 0.333), 348px);
       `
   )}
 `;
@@ -39,8 +41,8 @@ const StyledListItem = styled(Card)`
 `;
 
 const CardContainer = styled.div`
-  height: 215px;
-  padding: 24px;
+  height: calc(100% - 45px);
+  padding: calc(20px + (24 - 20) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -104,7 +106,7 @@ const DisputeCard: React.FC<IDisputeCard> = ({ id, arbitrated, period, lastPerio
   const courtName = courtPolicy?.name;
   const category = disputeTemplate ? disputeTemplate.category : undefined;
   const { data: votingHistory } = useVotingHistory(id);
-  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
+  const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const navigate = useNavigate();
   return (
     <>

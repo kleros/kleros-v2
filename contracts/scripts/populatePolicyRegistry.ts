@@ -1,9 +1,10 @@
-import { deployments, getNamedAccounts, getChainId, ethers } from "hardhat";
+import { deployments, getNamedAccounts, getChainId, ethers, network } from "hardhat";
 import { PolicyRegistry } from "../typechain-types";
 import policiesV1Mainnet from "../config/policies.v1.mainnet.json";
 import policiesV1GnosisChain from "../config/policies.v1.gnosischain.json";
 import policiesV2ArbitrumTestnet from "../config/policies.v2.testnet.json";
 import policiesV2ArbitrumDevnet from "../config/policies.v2.devnet.json";
+import { isDevnet } from "../deploy/utils";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
@@ -18,7 +19,7 @@ enum Sources {
   V2_DEVNET,
   V2_TESTNET,
 }
-const from = Sources.V2_TESTNET;
+const from = isDevnet(network) ? Sources.V2_DEVNET : Sources.V2_TESTNET;
 
 async function main() {
   // fallback to hardhat node signers on local network
