@@ -9,6 +9,7 @@ on:
         default: 'arbitrum-goerli'
         type: choice
         options:
+          - arbitrum-goerli-devnet
           - arbitrum-goerli
           - arbitrum
       update:

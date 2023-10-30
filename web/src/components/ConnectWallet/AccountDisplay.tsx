@@ -96,8 +96,15 @@ const StyledAvatar = styled.img<{ size: `${number}` }>`
   height: ${({ size }) => size + "px"};
 `;
 
-export const IdenticonOrAvatar: React.FC<{ size: `${number}` }> = ({ size } = { size: "16" }) => {
-  const { address } = useAccount();
+interface IIdenticonOrAvatar {
+  size?: `${number}`;
+  address?: `0x${string}`;
+}
+
+export const IdenticonOrAvatar: React.FC<IIdenticonOrAvatar> = ({ size = "16", address: propAddress }) => {
+  const { address: defaultAddress } = useAccount();
+  const address = propAddress || defaultAddress;
+
   const { data: name } = useEnsName({
     address,
     chainId: 1,
@@ -106,6 +113,7 @@ export const IdenticonOrAvatar: React.FC<{ size: `${number}` }> = ({ size } = { 
     name,
     chainId: 1,
   });
+
   return avatar ? (
     <StyledAvatar src={avatar} alt="avatar" size={size} />
   ) : (
@@ -113,12 +121,19 @@ export const IdenticonOrAvatar: React.FC<{ size: `${number}` }> = ({ size } = { 
   );
 };
 
-export const AddressOrName: React.FC = () => {
-  const { address } = useAccount();
+interface IAddressOrName {
+  address?: `0x${string}`;
+}
+
+export const AddressOrName: React.FC<IAddressOrName> = ({ address: propAddress }) => {
+  const { address: defaultAddress } = useAccount();
+  const address = propAddress || defaultAddress;
+
   const { data } = useEnsName({
     address,
     chainId: 1,
   });
+
   return <label>{data ?? (address && shortenAddress(address))}</label>;
 };
 
