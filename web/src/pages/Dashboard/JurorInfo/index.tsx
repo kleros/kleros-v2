@@ -2,6 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { Card as _Card } from "@kleros/ui-components-library";
+import Header from "./Header";
 import Coherency from "./Coherency";
 import JurorRewards from "./JurorRewards";
 import PixelArt from "./PixelArt";
@@ -11,10 +12,6 @@ import { getUserLevelData } from "utils/userLevelCalculation";
 // import StakingRewards from "./StakingRewards";
 
 const Container = styled.div``;
-
-const Header = styled.h1`
-  margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-`;
 
 const Card = styled(_Card)`
   display: flex;
@@ -47,13 +44,19 @@ const JurorInfo: React.FC = () => {
 
   return (
     <Container>
-      <Header>Juror Dashboard</Header>
+      <Header
+        levelTitle={userLevelData.title}
+        levelNumber={userLevelData.level}
+        totalCoherent={totalCoherent}
+        totalResolvedDisputes={totalResolvedDisputes}
+      />
       <Card>
         <PixelArt level={userLevelData.level} width="189px" height="189px" />
         <Coherency
           userLevelData={userLevelData}
           totalCoherent={totalCoherent}
           totalResolvedDisputes={totalResolvedDisputes}
+          isMiniGuide={false}
         />
         <JurorRewards />
       </Card>

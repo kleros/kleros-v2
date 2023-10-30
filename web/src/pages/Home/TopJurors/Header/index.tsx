@@ -60,7 +60,7 @@ const Header: React.FC = () => {
         <Rewards />
         <Coherency />
       </PlaceAndTitleAndRewardsAndCoherency>
-      <HowItWorks />
+      <HowItWorks onClick={() => toggleIsLevelMiniGuidesOpen()} />
     </Container>
   );
 };
