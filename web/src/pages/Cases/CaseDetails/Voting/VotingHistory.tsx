@@ -3,36 +3,19 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import Identicon from "react-identicons";
-import { Tabs, Accordion, Box } from "@kleros/ui-components-library";
-import BalanceIcon from "svgs/icons/law-balance.svg";
+import { Tabs, Accordion } from "@kleros/ui-components-library";
 import { useVotingHistory } from "queries/useVotingHistory";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { shortenAddress } from "utils/shortenAddress";
 import { isUndefined } from "utils/index";
 import { getLocalRounds } from "utils/getLocalRounds";
+import PendingVotesBox from "./PendingVotesBox";
 
 const Container = styled.div``;
 
 const StyledTabs = styled(Tabs)`
   width: 100%;
   margin-bottom: 16px;
-`;
-
-const StyledBox = styled(Box)`
-  width: 100%;
-  height: auto;
-  border-radius: 3px;
-  padding: 8px 16px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  > p {
-    margin: 0;
-  }
-  > svg {
-    height: 16px;
-    fill: ${({ theme }) => theme.secondaryPurple};
-  }
 `;
 
 const StyledAccordion = styled(Accordion)`
@@ -126,16 +109,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
             }))}
             callback={(i: number) => setCurrentTab(i)}
           />
-          <StyledBox>
-            <BalanceIcon />
-            <p>
-              {localRounds.at(currentTab)?.totalVoted === rounds.at(currentTab)?.nbVotes
-                ? "All jurors voted"
-                : localRounds.at(currentTab)?.totalVoted.toString() +
-                  ` vote${localRounds.at(currentTab)?.totalVoted.toString() === "1" ? "" : "s"} cast out of ` +
-                  rounds.at(currentTab)?.nbVotes}
-            </p>
-          </StyledBox>
+          <PendingVotesBox current={localRounds.at(currentTab)?.totalVoted} total={rounds.at(currentTab)?.nbVotes} />
           <StyledAccordion
             items={
               localRounds.at(currentTab)?.justifications?.map((justification) => ({
@@ -147,7 +121,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
                     justification={justification.reference || ""}
                   />
                 ),
-              })) || []
+              })) ?? []
             }
           />
         </>
