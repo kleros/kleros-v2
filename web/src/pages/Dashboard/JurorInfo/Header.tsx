@@ -46,7 +46,7 @@ interface IHeader {
 const Header: React.FC<IHeader> = ({ levelTitle, levelNumber, totalCoherent, totalResolvedDisputes }) => {
   const coherencePercentage = parseFloat(((totalCoherent / Math.max(totalResolvedDisputes, 1)) * 100).toFixed(2));
   const courtUrl = window.location.origin;
-  const xPostText = `Hey I've been busy as a Juror on the Kleros court, check out my score: \n\nLevel: ${levelNumber} (${levelTitle})\nCoherent Votes: ${totalCoherent}/${totalResolvedDisputes}\nCoherence Percentage: ${coherencePercentage}%\n\nBe a juror with me -> ${courtUrl}`;
+  const xPostText = `Hey I've been busy as a Juror on the Kleros court, check out my score: \n\nLevel: ${levelNumber} (${levelTitle})\nCoherence Percentage: ${coherencePercentage}%\nCoherent Votes: ${totalCoherent}/${totalResolvedDisputes}\n\nBe a juror with me -> ${courtUrl}`;
   const xShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(xPostText)}`;
 
   return (
