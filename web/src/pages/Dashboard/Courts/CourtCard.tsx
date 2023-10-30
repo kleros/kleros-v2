@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useAccount } from "wagmi";
-import { formatEther } from "viem";
+import { formatUnits } from "viem";
 import { Card as _Card, Breadcrumb } from "@kleros/ui-components-library";
 import WithHelpTooltip from "../WithHelpTooltip";
 import { isUndefined } from "utils/index";
@@ -33,8 +33,6 @@ const tooltipMsg =
   "The locked stake of incoherent jurors is redistributed as incentives for " +
   "the coherent jurors.";
 
-export const format = (value: bigint | undefined): string => (value !== undefined ? formatEther(value) : "0");
-
 interface ICourtCard {
   id: string;
   name: string;
@@ -44,31 +42,30 @@ const CourtCard: React.FC<ICourtCard> = ({ id, name }) => {
   const { address } = useAccount();
   const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
     enabled: !isUndefined(address),
-    args: [address, id],
+    args: [address!, BigInt(id)],
     watch: true,
   });
 
-  const stake = format(jurorBalance?.[0]);
-  const lockedStake = format(jurorBalance?.[1]);
+  const stake = jurorBalance?.[0] ?? BigInt(0);
+  const lockedStake = jurorBalance?.[1] ?? BigInt(0);
+  const formatedStake = formatUnits(stake, 18);
+  const formatedLockedStake = formatUnits(lockedStake, 18);
 
-  return (
-    stake !== "0" ||
-    (lockedStake !== "0" && (
-      <Card>
-        <StyledBreadcrumb items={[{ text: name, value: 0 }]} />
-        <ValueContainer>
-          <label> Stake: </label>
-          <small>{`${stake} PNK`}</small>
-        </ValueContainer>
-        <ValueContainer>
-          <WithHelpTooltip {...{ place: "bottom", tooltipMsg }}>
-            <label> Locked Stake: </label>
-          </WithHelpTooltip>
-          <small>{`${lockedStake} PNK`}</small>
-        </ValueContainer>
-      </Card>
-    ))
-  );
+  return stake > 0 || lockedStake > 0 ? (
+    <Card>
+      <StyledBreadcrumb items={[{ text: name, value: 0 }]} />
+      <ValueContainer>
+        <label> Stake: </label>
+        <small>{`${formatedStake} PNK`}</small>
+      </ValueContainer>
+      <ValueContainer>
+        <WithHelpTooltip {...{ place: "bottom", tooltipMsg }}>
+          <label> Locked Stake: </label>
+        </WithHelpTooltip>
+        <small>{`${formatedLockedStake} PNK`}</small>
+      </ValueContainer>
+    </Card>
+  ) : null;
 };
 
 export default CourtCard;
