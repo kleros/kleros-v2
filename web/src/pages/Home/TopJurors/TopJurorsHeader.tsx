@@ -1,8 +1,10 @@
 import React from "react";
 import styled, { css } from "styled-components";
+import { useToggle } from "react-use";
 import { landscapeStyle } from "styles/landscapeStyle";
 import WithHelpTooltip from "pages/Dashboard/WithHelpTooltip";
 import BookOpenIcon from "tsx:assets/svgs/icons/book-open.svg";
+import Level from "components/Popup/MiniGuides/Level";
 
 const Container = styled.div`
   display: flex;
@@ -101,6 +103,11 @@ const HowItWorks = styled.div`
   align-items: center;
   gap: 8px;
 
+  &,
+  & * {
+    cursor: pointer;
+  }
+
   label {
     color: ${({ theme }) => theme.primaryBlue};
   }
@@ -125,6 +132,8 @@ const coherentVotesTooltipMsg =
   "the juror voted";
 
 const TopJurorsHeader: React.FC = () => {
+  const [isLevelMiniGuidesOpen, toggleIsLevelMiniGuidesOpen] = useToggle(false);
+
   return (
     <Container>
       <PlaceAndTitleAndRewardsAndCoherency>
@@ -145,10 +154,11 @@ const TopJurorsHeader: React.FC = () => {
           </WithHelpTooltip>
         </Coherency>
       </PlaceAndTitleAndRewardsAndCoherency>
-      <HowItWorks>
+      <HowItWorks onClick={() => toggleIsLevelMiniGuidesOpen()}>
         <BookOpenIcon />
         <label> How it works </label>
       </HowItWorks>
+      {isLevelMiniGuidesOpen && <Level {...{ toggleIsLevelMiniGuidesOpen }} />}
     </Container>
   );
 };
