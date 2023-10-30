@@ -9,7 +9,7 @@ import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
 
 const Card = styled(_Card)`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
   height: auto;
@@ -17,6 +17,14 @@ const Card = styled(_Card)`
   padding: 21.5px 32px 21.5px 27px;
   border-left: 5px solid ${({ theme }) => theme.secondaryPurple};
   flex-wrap: wrap;
+  gap: 20px;
+
+  ${landscapeStyle(
+    () =>
+      css`
+        flex-direction: row;
+      `
+  )}
 `;
 
 const CourtName = styled.div`
