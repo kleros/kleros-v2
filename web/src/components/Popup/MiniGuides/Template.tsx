@@ -76,6 +76,10 @@ const Close = styled.label`
   justify-content: flex-end;
   cursor: pointer;
 
+  &:hover {
+    text-decoration: underline;
+  }
+
   color: ${({ theme }) => theme.primaryBlue};
 
   ${landscapeStyle(

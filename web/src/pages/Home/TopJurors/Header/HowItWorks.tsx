@@ -8,10 +8,15 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+  color: ${({ theme }) => theme.primaryBlue};
 
   &,
   & * {
     cursor: pointer;
+  }
+
+  &:hover {
+    text-decoration: underline;
   }
 
   svg {
