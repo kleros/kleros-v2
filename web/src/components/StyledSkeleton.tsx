@@ -31,6 +31,11 @@ const StyledSkeletonDisputeListItem = styled(Skeleton)`
   height: 62px;
 `;
 
+const StyledSkeletonEvidenceCard = styled(Skeleton)`
+  height: 146px;
+  width: 76vw;
+`;
+
 export const SkeletonDisputeCard = () => (
   <SkeletonDisputeCardContainer>
     <StyledSkeletonDisputeCard />
@@ -38,3 +43,5 @@ export const SkeletonDisputeCard = () => (
 );
 
 export const SkeletonDisputeListItem = () => <StyledSkeletonDisputeListItem />;
+
+export const SkeletonEvidenceCard = () => <StyledSkeletonEvidenceCard />;

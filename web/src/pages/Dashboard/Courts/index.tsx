@@ -30,9 +30,7 @@ const CourtCardsContainer = styled.div`
 `;
 
 const StyledLabel = styled.label`
-  display: flex;
   font-size: 16px;
-  color: ${({ theme }) => theme.secondaryText};
 `;
 
 const Courts: React.FC = () => {
