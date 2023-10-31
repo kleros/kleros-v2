@@ -5,12 +5,12 @@ import WithHelpTooltip from "pages/Dashboard/WithHelpTooltip";
 
 const Container = styled.div`
   display: flex;
+  color: ${({ theme }) => theme.secondaryText};
+
   font-size: 12px !important;
   &::before {
     content: "Rewards";
   }
-  color: ${({ theme }) => theme.secondaryText};
-  align-items: center;
 
   ${landscapeStyle(
     () =>
