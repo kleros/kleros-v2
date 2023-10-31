@@ -6,6 +6,7 @@ import WithHelpTooltip from "pages/Dashboard/WithHelpTooltip";
 const Container = styled.div`
   display: flex;
   color: ${({ theme }) => theme.secondaryText};
+  gap: 0px;
 
   font-size: 12px !important;
   &::before {

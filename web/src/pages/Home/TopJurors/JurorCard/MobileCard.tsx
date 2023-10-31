@@ -19,7 +19,7 @@ const Container = styled.div`
   border 1px solid ${({ theme }) => theme.stroke};
   border-top: none;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
 
   ${landscapeStyle(
     () => css`
@@ -47,6 +47,7 @@ const HeaderRewardsAndRewards = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  gap: 5px;
 `;
 
 const BottomSide = styled.div`
@@ -60,6 +61,7 @@ const HeaderCoherencyAndCoherency = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  gap: 3px;
 
   svg {
     margin-right: 0;
