@@ -1,11 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
-import { useAccount } from "wagmi";
 import { formatUnits } from "viem";
 import { Card as _Card, Breadcrumb } from "@kleros/ui-components-library";
-import { isUndefined } from "utils/index";
-import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
 
 const Card = styled(_Card)`
   display: flex;
@@ -71,38 +68,30 @@ const LockedStake = styled.div`
 `;
 
 interface ICourtCard {
-  id: string;
   name: string;
+  stake: bigint;
+  lockedStake: bigint;
 }
 
-const CourtCard: React.FC<ICourtCard> = ({ id, name }) => {
-  const { address } = useAccount();
-  const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
-    enabled: !isUndefined(address),
-    args: [address!, BigInt(id)],
-    watch: true,
-  });
+const CourtCard: React.FC<ICourtCard> = ({ name, stake, lockedStake }) => {
+  const formattedStake = formatUnits(stake, 18);
+  const formattedLockedStake = formatUnits(lockedStake, 18);
 
-  const stake = jurorBalance?.[0] ?? BigInt(0);
-  const lockedStake = jurorBalance?.[1] ?? BigInt(0);
-  const formatedStake = formatUnits(stake, 18);
-  const formatedLockedStake = formatUnits(lockedStake, 18);
-
-  return stake > 0 || lockedStake > 0 ? (
+  return (
     <Card>
       <CourtName>
         <StyledBreadcrumb items={[{ text: name, value: 0 }]} />
       </CourtName>
       <StakesContainer>
         <Stake>
-          <label>{`${formatedStake} PNK`}</label>
+          <label>{`${formattedStake} PNK`}</label>
         </Stake>
         <LockedStake>
-          <label>{`${formatedLockedStake} PNK`}</label>
+          <label>{`${formattedLockedStake} PNK`}</label>
         </LockedStake>
       </StakesContainer>
     </Card>
-  ) : null;
+  );
 };
 
 export default CourtCard;
