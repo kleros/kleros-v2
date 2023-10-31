@@ -71,9 +71,11 @@ const Header: React.FC<IHeader> = ({ levelTitle, levelNumber, totalCoherent, tot
       <StyledTitle>Juror Dashboard</StyledTitle>
       <LinksContainer>
         <HowItWorks />
-        <StyledLink href={xShareUrl} target="_blank" rel="noreferrer">
-          <StyledXIcon /> <span>Share your juror score</span>
-        </StyledLink>
+        {totalResolvedDisputes > 0 ? (
+          <StyledLink href={xShareUrl} target="_blank" rel="noreferrer">
+            <StyledXIcon /> <span>Share your juror score</span>
+          </StyledLink>
+        ) : null}
       </LinksContainer>
     </Container>
   );
