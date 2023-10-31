@@ -1,22 +1,39 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import XIcon from "svgs/socialmedia/x.svg";
+import HowItWorks from "pages/Home/TopJurors/Header/HowItWorks";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
+
+  ${landscapeStyle(
+    () => css`
+      flex-direction: row;
+    `
+  )}
 `;
 
 const StyledTitle = styled.h1`
   margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 `;
 
-const XLinkContainer = styled.div`
+const LinksContainer = styled.div`
   display: flex;
   color: ${({ theme }) => theme.primaryBlue};
   margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+
+  ${landscapeStyle(
+    () => css`
+      gap: 32px;
+    `
+  )}
 `;
 
 const StyledXIcon = styled(XIcon)`
@@ -52,11 +69,12 @@ const Header: React.FC<IHeader> = ({ levelTitle, levelNumber, totalCoherent, tot
   return (
     <Container>
       <StyledTitle>Juror Dashboard</StyledTitle>
-      <XLinkContainer>
+      <LinksContainer>
+        <HowItWorks />
         <StyledLink href={xShareUrl} target="_blank" rel="noreferrer">
           <StyledXIcon /> <span>Share your juror score</span>
         </StyledLink>
-      </XLinkContainer>
+      </LinksContainer>
     </Container>
   );
 };
