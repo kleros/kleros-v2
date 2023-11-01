@@ -34,7 +34,6 @@ const StakesContainer = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  width: 220px;
   gap: 32px;
 `;
 

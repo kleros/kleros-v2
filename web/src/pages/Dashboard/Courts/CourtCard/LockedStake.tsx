@@ -8,6 +8,7 @@ const StyledLabel = styled.label`
   justify-content: flex-end;
   color: ${({ theme }) => theme.primaryText};
   font-size: 16px;
+  text-align: right;
 
   ${landscapeStyle(
     () => css`

@@ -11,7 +11,6 @@ const StyledLabel = styled.label`
 
   ${landscapeStyle(
     () => css`
-      width: 140px;
       justify-content: flex-end;
     `
   )}
