@@ -3,15 +3,16 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { formatUnits } from "viem";
 
-const StyledStakeLabel = styled.label`
+const StyledLabel = styled.label`
   display: flex;
   font-weight: 600;
   color: ${({ theme }) => theme.primaryText};
-  justify-content: flex-end;
+  font-size: 16px;
 
   ${landscapeStyle(
     () => css`
       width: 140px;
+      justify-content: flex-end;
     `
   )}
 `;
@@ -23,6 +24,6 @@ interface IStake {
 const Stake: React.FC<IStake> = ({ stake }) => {
   const formattedStake = formatUnits(stake, 18);
 
-  return <StyledStakeLabel>{`${formattedStake} PNK`}</StyledStakeLabel>;
+  return <StyledLabel>{`${formattedStake} PNK`}</StyledLabel>;
 };
 export default Stake;

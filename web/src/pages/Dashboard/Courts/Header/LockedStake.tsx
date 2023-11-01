@@ -6,14 +6,27 @@ import WithHelpTooltip from "pages/Dashboard/WithHelpTooltip";
 const Container = styled.div`
   display: flex;
   align-items: center;
-  width: 110px;
+  width: 100%;
+  justify-content: flex-end;
 
-  ${landscapeStyle(() => css``)}
+  ${landscapeStyle(
+    () =>
+      css`
+        width: 110px;
+      `
+  )}
 `;
 
 const StyledLockedStakeLabel = styled.label`
   display: flex;
-  flex-wrap: nowrap;
+  font-size: 12px !important;
+
+  ${landscapeStyle(
+    () =>
+      css`
+        font-size: 14px !important;
+      `
+  )}
 `;
 
 const lockedStakeTooltipMsg =

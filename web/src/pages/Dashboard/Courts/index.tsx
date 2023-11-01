@@ -1,10 +1,11 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useAccount } from "wagmi";
-import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 import Skeleton from "react-loading-skeleton";
 import CourtCard from "./CourtCard";
 import Header from "./Header";
+import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 
 const Container = styled.div`
   margin-top: 64px;
@@ -14,19 +15,17 @@ const Container = styled.div`
   }
 `;
 
-const Divider = styled.hr`
-  display: flex;
-  border: none;
-  height: 1px;
-  background-color: ${({ theme }) => theme.stroke};
-  margin: 0;
-`;
-
 const CourtCardsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   z-index: 0;
+
+  ${landscapeStyle(
+    () => css`
+      gap: 16px;
+    `
+  )}
 `;
 
 const StyledLabel = styled.label`
@@ -46,7 +45,6 @@ const Courts: React.FC = () => {
       {!isStaked && !isLoading ? <StyledLabel>You are not staked in any court</StyledLabel> : null}
       {isStaked && !isLoading ? (
         <>
-          <Divider />
           <Header />
           <CourtCardsContainer>
             {stakeData?.jurorTokensPerCourts

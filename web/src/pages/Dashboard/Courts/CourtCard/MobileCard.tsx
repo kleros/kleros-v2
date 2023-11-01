@@ -3,6 +3,8 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { Card as _Card } from "@kleros/ui-components-library";
 import CourtBranch from "./CourtBranch";
+import HeaderStake from "../Header/Stake";
+import HeaderLockedStake from "../Header/LockedStake";
 import Stake from "./Stake";
 import LockedStake from "./LockedStake";
 
@@ -10,13 +12,12 @@ const Container = styled(_Card)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
   height: auto;
   width: 100%;
-  padding: 21.5px 32px 21.5px 27px;
+  padding: 24px;
   border-left: 5px solid ${({ theme }) => theme.secondaryPurple};
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 18px;
 
   ${({ theme }) => (theme.name === "light" ? `box-shadow: 0px 2px 3px 0px ${theme.stroke};` : "")}
 
@@ -28,13 +29,27 @@ const Container = styled(_Card)`
   )}
 `;
 
-const StakesContainer = styled.div`
+const BottomSide = styled.div`
+  width: 100%;
   display: flex;
   flex-direction: row;
-  align-items: center;
   justify-content: space-between;
-  width: 220px;
-  gap: 32px;
+`;
+
+const HeaderStakeAndStake = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 5px;
+  justify-content: flex-start;
+`;
+
+const HeaderLockedStakeAndLockedStake = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 5px;
+  justify-content: flex-end;
 `;
 
 interface IMobileCard {
@@ -47,10 +62,16 @@ const MobileCard: React.FC<IMobileCard> = ({ name, stake, lockedStake }) => {
   return (
     <Container>
       <CourtBranch name={name} />
-      <StakesContainer>
-        <Stake stake={stake} />
-        <LockedStake lockedStake={lockedStake} />
-      </StakesContainer>
+      <BottomSide>
+        <HeaderStakeAndStake>
+          <HeaderStake />
+          <Stake stake={stake} />
+        </HeaderStakeAndStake>
+        <HeaderLockedStakeAndLockedStake>
+          <HeaderLockedStake />
+          <LockedStake lockedStake={lockedStake} />
+        </HeaderLockedStakeAndLockedStake>
+      </BottomSide>
     </Container>
   );
 };

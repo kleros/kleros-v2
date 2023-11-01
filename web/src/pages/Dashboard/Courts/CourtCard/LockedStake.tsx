@@ -3,10 +3,11 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { formatUnits } from "viem";
 
-const StyledLockedStakeLabel = styled.label`
+const StyledLabel = styled.label`
   display: flex;
   justify-content: flex-end;
   color: ${({ theme }) => theme.primaryText};
+  font-size: 16px;
 
   ${landscapeStyle(
     () => css`
@@ -22,6 +23,6 @@ interface ILockedStake {
 const LockedStake: React.FC<ILockedStake> = ({ lockedStake }) => {
   const formattedLockedStake = formatUnits(lockedStake, 18);
 
-  return <StyledLockedStakeLabel>{`${formattedLockedStake} PNK`}</StyledLockedStakeLabel>;
+  return <StyledLabel>{`${formattedLockedStake} PNK`}</StyledLabel>;
 };
 export default LockedStake;
