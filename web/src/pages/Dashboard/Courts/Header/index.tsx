@@ -46,18 +46,16 @@ const Divider = styled.hr`
 
 const Header: React.FC = () => {
   return (
-    <>
-      <Container>
-        <Divider />
-        <CourtBranchAndStakesContainer>
-          <CourtBranch />
-          <StakesContainer>
-            <Stake />
-            <LockedStake />
-          </StakesContainer>
-        </CourtBranchAndStakesContainer>
-      </Container>
-    </>
+    <Container>
+      <Divider />
+      <CourtBranchAndStakesContainer>
+        <CourtBranch />
+        <StakesContainer>
+          <Stake />
+          <LockedStake />
+        </StakesContainer>
+      </CourtBranchAndStakesContainer>
+    </Container>
   );
 };
 
