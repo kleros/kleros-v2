@@ -1,6 +1,7 @@
 import React from "react";
-import styled from "styled-components";
-import PnkIcon from "tsx:assets/svgs/styled/pnk.svg";
+import styled, { useTheme } from "styled-components";
+import DarkModePnkIcon from "tsx:assets/svgs/styled/dark-mode-pnk.svg";
+import LightModePnkIcon from "tsx:assets/svgs/styled/light-mode-pnk.svg";
 
 const Container = styled.div`
   display: flex;
@@ -10,7 +11,7 @@ const Container = styled.div`
   align-items: center;
 `;
 
-const StyledPnkIcon = styled(PnkIcon)`
+const StyledPnkIcon = styled.div`
   width: calc(220px + (280 - 220) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   height: calc(220px + (252 - 220) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 `;
@@ -27,12 +28,16 @@ const StyledCourtLabel = styled.label`
   -webkit-text-fill-color: transparent;
 `;
 
-const PnkLogoAndTitle: React.FC = () => {
+const PnkLogoAndTitle = () => {
+  const theme = useTheme();
+  const PnkIcon = theme.name === "dark" ? DarkModePnkIcon : LightModePnkIcon;
+
   return (
     <Container>
-      <StyledPnkIcon />
+      <StyledPnkIcon as={PnkIcon} />
       <StyledCourtLabel>Court v.2</StyledCourtLabel>
     </Container>
   );
 };
+
 export default PnkLogoAndTitle;
