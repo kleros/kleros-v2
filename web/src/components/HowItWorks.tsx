@@ -1,8 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { useToggle } from "react-use";
 import BookOpenIcon from "tsx:assets/svgs/icons/book-open.svg";
-import Level from "components/Popup/MiniGuides/Level";
 
 const Container = styled.div`
   display: flex;
@@ -30,15 +28,20 @@ const StyledLabel = styled.label`
   color: ${({ theme }) => theme.primaryBlue};
 `;
 
-const HowItWorks: React.FC = () => {
-  const [isLevelMiniGuidesOpen, toggleIsLevelMiniGuidesOpen] = useToggle(false);
+interface IHowItWorks {
+  isMiniGuideOpen: boolean;
+  toggleMiniGuide: () => void;
+  MiniGuideComponent: React.ComponentType<{ toggleMiniGuide: () => void }>;
+}
+
+const HowItWorks: React.FC<IHowItWorks> = ({ isMiniGuideOpen, toggleMiniGuide, MiniGuideComponent }) => {
   return (
     <>
-      <Container onClick={() => toggleIsLevelMiniGuidesOpen()}>
+      <Container onClick={toggleMiniGuide}>
         <BookOpenIcon />
         <StyledLabel> How it works </StyledLabel>
       </Container>
-      {isLevelMiniGuidesOpen && <Level {...{ toggleIsLevelMiniGuidesOpen }} />}
+      {isMiniGuideOpen && <MiniGuideComponent toggleMiniGuide={toggleMiniGuide} />}
     </>
   );
 };

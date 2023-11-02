@@ -86,7 +86,7 @@ const DesktopCompactPagination = styled(CompactPagination)`
 
   ${landscapeStyle(
     () => css`
-      display: flex;
+      display: block;
     `
   )}
 `;

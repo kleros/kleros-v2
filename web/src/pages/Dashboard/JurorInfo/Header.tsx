@@ -1,8 +1,10 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import XIcon from "svgs/socialmedia/x.svg";
-import HowItWorks from "pages/Home/TopJurors/Header/HowItWorks";
 import { landscapeStyle } from "styles/landscapeStyle";
+import { useToggle } from "react-use";
+import XIcon from "svgs/socialmedia/x.svg";
+import HowItWorks from "components/HowItWorks";
+import Level from "components/Popup/MiniGuides/Level";
 
 const Container = styled.div`
   display: flex;
@@ -61,6 +63,8 @@ interface IHeader {
 }
 
 const Header: React.FC<IHeader> = ({ levelTitle, levelNumber, totalCoherent, totalResolvedDisputes }) => {
+  const [isLevelMiniGuideOpen, toggleLevelMiniGuide] = useToggle(false);
+
   const coherencePercentage = parseFloat(((totalCoherent / Math.max(totalResolvedDisputes, 1)) * 100).toFixed(2));
   const courtUrl = window.location.origin;
   const xPostText = `Hey I've been busy as a Juror on the Kleros court, check out my score: \n\nLevel: ${levelNumber} (${levelTitle})\nCoherence Percentage: ${coherencePercentage}%\nCoherent Votes: ${totalCoherent}/${totalResolvedDisputes}\n\nBe a juror with me! ➡️ ${courtUrl}`;
@@ -70,7 +74,11 @@ const Header: React.FC<IHeader> = ({ levelTitle, levelNumber, totalCoherent, tot
     <Container>
       <StyledTitle>Juror Dashboard</StyledTitle>
       <LinksContainer>
-        <HowItWorks />
+        <HowItWorks
+          isMiniGuideOpen={isLevelMiniGuideOpen}
+          toggleMiniGuide={toggleLevelMiniGuide}
+          MiniGuideComponent={Level}
+        />
         {totalResolvedDisputes > 0 ? (
           <StyledLink href={xShareUrl} target="_blank" rel="noreferrer">
             <StyledXIcon /> <span>Share your juror score</span>

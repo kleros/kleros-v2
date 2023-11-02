@@ -106,17 +106,17 @@ const RightContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
 };
 
 interface ILevel {
-  toggleIsLevelMiniGuidesOpen: () => void;
+  toggleMiniGuide: () => void;
 }
 
-const Level: React.FC<ILevel> = ({ toggleIsLevelMiniGuidesOpen }) => {
+const Level: React.FC<ILevel> = ({ toggleMiniGuide }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   return (
     <Template
       LeftContent={<LeftContent currentPage={currentPage} />}
       RightContent={<RightContent currentPage={currentPage} />}
-      onClose={toggleIsLevelMiniGuidesOpen}
+      onClose={toggleMiniGuide}
       currentPage={currentPage}
       setCurrentPage={setCurrentPage}
       numPages={userLevelData.length}

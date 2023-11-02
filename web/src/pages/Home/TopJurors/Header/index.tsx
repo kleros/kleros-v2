@@ -1,11 +1,13 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
+import { useToggle } from "react-use";
 import Rank from "./Rank";
 import JurorTitle from "./JurorTitle";
 import Rewards from "./Rewards";
 import Coherency from "./Coherency";
-import HowItWorks from "./HowItWorks";
+import HowItWorks from "components/HowItWorks";
+import Level from "components/Popup/MiniGuides/Level";
 
 const Container = styled.div`
   display: flex;
@@ -52,6 +54,8 @@ const StyledLabel = styled.label`
 `;
 
 const Header: React.FC = () => {
+  const [isLevelMiniGuideOpen, toggleLevelMiniGuide] = useToggle(false);
+
   return (
     <Container>
       <StyledLabel>Ranking</StyledLabel>
@@ -61,7 +65,11 @@ const Header: React.FC = () => {
         <Rewards />
         <Coherency />
       </PlaceAndTitleAndRewardsAndCoherency>
-      <HowItWorks />
+      <HowItWorks
+        isMiniGuideOpen={isLevelMiniGuideOpen}
+        toggleMiniGuide={toggleLevelMiniGuide}
+        MiniGuideComponent={Level}
+      />
     </Container>
   );
 };

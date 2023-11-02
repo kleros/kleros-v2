@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
+import { useToggle } from "react-use";
 import { useParams } from "react-router-dom";
 import { useAccount, useNetwork, useWalletClient, usePublicClient } from "wagmi";
 import { Card, Breadcrumb, Button } from "@kleros/ui-components-library";
@@ -15,6 +17,8 @@ import LatestCases from "components/LatestCases";
 import Stats from "./Stats";
 import Description from "./Description";
 import StakePanel from "./StakePanel";
+import HowItWorks from "components/HowItWorks";
+import Staking from "components/Popup/MiniGuides/Staking";
 import { usePnkFaucetWithdrewAlready, prepareWritePnkFaucet, usePnkBalanceOf } from "hooks/contracts/generated";
 
 const Container = styled.div``;
@@ -43,6 +47,19 @@ const StyledBreadcrumbSkeleton = styled.div`
   margin-bottom: 12px;
 `;
 
+const CourtHeader = styled.h1`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  ${landscapeStyle(
+    () => css`
+      flex-direction: row;
+      justify-content: space-between;
+    `
+  )}
+`;
+
 const CourtDetails: React.FC = () => {
   const { id } = useParams();
   const [isSending, setIsSending] = useState(false);
@@ -55,6 +72,7 @@ const CourtDetails: React.FC = () => {
     args: [address ?? "0x00"],
     watch: true,
   });
+  const [isStakingMiniGuideOpen, toggleStakingMiniGuide] = useToggle(false);
 
   const faucetAddress = usePNKFaucetAddress();
   const { data: balance } = usePnkBalanceOf({
@@ -89,7 +107,14 @@ const CourtDetails: React.FC = () => {
   return (
     <Container>
       <StyledCard>
-        <h1>{policy ? policy.name : <StyledSkeleton width={200} />}</h1>
+        <CourtHeader>
+          {policy ? policy.name : <StyledSkeleton width={200} />}
+          <HowItWorks
+            isMiniGuideOpen={isStakingMiniGuideOpen}
+            toggleMiniGuide={toggleStakingMiniGuide}
+            MiniGuideComponent={Staking}
+          />
+        </CourtHeader>
         <ButtonContainer>
           {items.length > 1 ? (
             <StyledBreadcrumb items={items} />
