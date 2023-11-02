@@ -37,7 +37,7 @@ const LeftContainer = styled.div`
   grid-template-rows: auto 1fr auto;
   width: 82vw;
   padding: calc(24px + (32 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-bottom: 44px;
+  padding-bottom: 32px;
   background-color: ${({ theme }) => theme.whiteBackground};
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
@@ -47,7 +47,6 @@ const LeftContainer = styled.div`
       overflow-y: hidden;
       width: calc(350px + (450 - 350) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
       height: 500px;
-      padding-bottom: 32px;
     `
   )}
 `;
