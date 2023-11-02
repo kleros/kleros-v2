@@ -72,30 +72,33 @@ const userLevelData = [
     totalCoherent: 3,
     totalResolvedDisputes: 10,
     firstParagraph:
-      "There's a level for the low-performance/lazy jurors. Level 0: Jurors with ≥ 3 cases arbitrated with less than 50% of coherent votes.",
+      "There's a level for the low-performance/lazy jurors. Level 0: Jurors with ≥ 3 cases arbitrated" +
+      " with less than 50% of coherent votes.",
   },
 ];
 
 const LeftContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
+  const userData = userLevelData[currentPage - 1];
   return (
     <LeftContentContainer>
       <Title>
-        Juror Level {userLevelData[currentPage - 1].level}: {userLevelData[currentPage - 1].title}
+        Juror Level {userData.level}: {userData.title}
       </Title>
-      <label>{userLevelData[currentPage - 1].firstParagraph}</label>
-      <label>{userLevelData[currentPage - 1].secondParagraph}</label>
+      <label>{userData.firstParagraph}</label>
+      {userData.secondParagraph ? <label>{userData.secondParagraph}</label> : null}
     </LeftContentContainer>
   );
 };
 
 const RightContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
+  const userData = userLevelData[currentPage - 1];
   return (
     <Card>
-      <PixelArt level={userLevelData[currentPage - 1].level} width="189px" height="189px" />
+      <PixelArt level={userData.level} width="189px" height="189px" />
       <Coherency
-        userLevelData={userLevelData[currentPage - 1]}
-        totalCoherent={userLevelData[currentPage - 1].totalCoherent}
-        totalResolvedDisputes={userLevelData[currentPage - 1].totalResolvedDisputes}
+        userLevelData={userData}
+        totalCoherent={userData.totalCoherent}
+        totalResolvedDisputes={userData.totalResolvedDisputes}
         isMiniGuide={true}
       />
     </Card>
@@ -117,6 +120,7 @@ const Level: React.FC<ILevel> = ({ toggleIsLevelMiniGuidesOpen }) => {
       currentPage={currentPage}
       setCurrentPage={setCurrentPage}
       numPages={userLevelData.length}
+      isOnboarding={false}
     />
   );
 };

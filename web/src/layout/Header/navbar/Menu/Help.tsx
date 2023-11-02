@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
+import { useToggle } from "react-use";
 import { useFocusOutside } from "hooks/useFocusOutside";
 import Book from "svgs/icons/book-open.svg";
 import Guide from "svgs/icons/book.svg";
@@ -10,6 +11,7 @@ import Faq from "svgs/menu-icons/help.svg";
 import Telegram from "svgs/socialmedia/telegram.svg";
 import { IHelp } from "..";
 import Debug from "../Debug";
+import Onboarding from "components/Popup/MiniGuides/Onboarding";
 
 const Container = styled.div`
   display: flex;
@@ -70,7 +72,6 @@ const ITEMS = [
   {
     text: "Onboarding",
     Icon: Book,
-    url: "",
   },
   {
     text: "Get Help",
@@ -100,21 +101,31 @@ const ITEMS = [
 ];
 
 const Help: React.FC<IHelp> = ({ toggleIsHelpOpen }) => {
+  const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
+
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => {
-    toggleIsHelpOpen();
+    if (!isOnboardingMiniGuidesOpen) toggleIsHelpOpen();
   });
 
   return (
-    <Container ref={containerRef}>
-      {ITEMS.map((item) => (
-        <ListItem href={item.url} key={item.text} target="_blank">
-          <Icon as={item.Icon} />
-          <small>{item.text}</small>
-        </ListItem>
-      ))}
-      <Debug />
-    </Container>
+    <>
+      <Container ref={containerRef}>
+        {ITEMS.map((item, index) => (
+          <ListItem
+            href={item.url}
+            key={item.text}
+            target="_blank"
+            onClick={index === 0 ? () => toggleIsOnboardingMiniGuidesOpen() : undefined}
+          >
+            <Icon as={item.Icon} />
+            <small>{item.text}</small>
+          </ListItem>
+        ))}
+        <Debug />
+      </Container>
+      {isOnboardingMiniGuidesOpen && <Onboarding {...{ toggleIsOnboardingMiniGuidesOpen }} />}
+    </>
   );
 };
 export default Help;
