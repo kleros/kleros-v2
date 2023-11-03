@@ -55,6 +55,7 @@ const Staking: React.FC<IStaking> = ({ toggleMiniGuide }) => {
       toggleMiniGuide={toggleMiniGuide}
       leftPageContents={leftPageContents}
       rightPageComponents={rightPageComponents}
+      isOnboarding={false}
       canClose={true}
       isVisible={true}
     />

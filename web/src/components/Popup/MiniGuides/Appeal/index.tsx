@@ -49,6 +49,7 @@ const Appeal: React.FC<IAppeal> = ({ toggleMiniGuide }) => {
       toggleMiniGuide={toggleMiniGuide}
       leftPageContents={leftPageContents}
       rightPageComponents={rightPageComponents}
+      isOnboarding={false}
       canClose={true}
       isVisible={true}
     />

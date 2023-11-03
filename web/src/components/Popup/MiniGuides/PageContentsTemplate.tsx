@@ -81,6 +81,7 @@ interface IPageContentsTemplate {
     links?: string[];
   }[];
   rightPageComponents: () => React.ReactNode[];
+  isOnboarding: boolean;
   canClose: boolean;
   isVisible: boolean;
 }
@@ -92,6 +93,7 @@ const PageContentsTemplate: React.FC<IPageContentsTemplate> = ({
   rightPageComponents,
   canClose,
   isVisible,
+  isOnboarding,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -109,7 +111,7 @@ const PageContentsTemplate: React.FC<IPageContentsTemplate> = ({
       currentPage={currentPage}
       setCurrentPage={setCurrentPage}
       numPages={leftPageContents.length}
-      isOnboarding={false}
+      isOnboarding={isOnboarding}
       canClose={canClose}
       isVisible={isVisible}
     />

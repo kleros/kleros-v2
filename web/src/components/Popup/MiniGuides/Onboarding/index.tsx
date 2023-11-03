@@ -83,6 +83,7 @@ const Onboarding: React.FC<IOnboarding> = ({ toggleMiniGuide }) => {
         toggleMiniGuide={toggleMiniGuide}
         leftPageContents={leftPageContents}
         rightPageComponents={rightPageComponents}
+        isOnboarding={true}
         canClose={canCloseOnboarding}
         isVisible={!isAnyMiniGuideOpen}
         toggleSubMiniGuide={toggleSubMiniGuide}
