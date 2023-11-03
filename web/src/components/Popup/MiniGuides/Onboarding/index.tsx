@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { useToggle } from "react-use";
 import HowItWorks from "./HowItWorks";
 import PnkLogoAndTitle from "./PnkLogoAndTitle";
 import WhatDoINeed from "./WhatDoINeed";
+import Staking from "../Staking";
+import BinaryVoting from "../BinaryVoting";
+import RankedVoting from "../RankedVoting";
+import Appeal from "../Appeal";
+import JurorLevels from "../JurorLevels";
 import Template, { Title, ParagraphsContainer, LeftContentContainer } from "../Template";
 
 const StyledLabel = styled.label`
@@ -44,7 +50,12 @@ const leftPageContents = [
 
 const rightPageComponents = [() => <PnkLogoAndTitle />, () => <WhatDoINeed />, () => <HowItWorks />];
 
-const LeftContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
+const extractGuideName = (linkText) => linkText.split(". ")[1];
+
+const LeftContent: React.FC<{ currentPage: number; toggleMiniGuide: (guideName: string) => void }> = ({
+  currentPage,
+  toggleMiniGuide,
+}) => {
   const { title, paragraphs, links } = leftPageContents[currentPage - 1];
 
   return (
@@ -57,7 +68,9 @@ const LeftContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
       </ParagraphsContainer>
       <LinksContainer>
         {links.map((link, index) => (
-          <StyledLabel key={index}>{link}</StyledLabel>
+          <StyledLabel key={index} onClick={() => toggleMiniGuide(extractGuideName(link))}>
+            {link}
+          </StyledLabel>
         ))}
       </LinksContainer>
     </LeftContentContainer>
@@ -76,17 +89,52 @@ interface IOnboarding {
 
 const Onboarding: React.FC<IOnboarding> = ({ toggleIsOnboardingMiniGuidesOpen }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [isStakingMiniGuideOpen, toggleStakingMiniGuide] = useToggle(false);
+  const [isBinaryVotingMiniGuideOpen, toggleBinaryVotingMiniGuide] = useToggle(false);
+  const [isRankedVotingMiniGuideOpen, toggleRankedVotingMiniGuide] = useToggle(false);
+  const [isAppealMiniGuideOpen, toggleAppealMiniGuide] = useToggle(false);
+  const [isJurorLevelsMiniGuideOpen, toggleJurorLevelsMiniGuide] = useToggle(false);
+
+  const canCloseOnboarding =
+    !isStakingMiniGuideOpen &&
+    !isBinaryVotingMiniGuideOpen &&
+    !isRankedVotingMiniGuideOpen &&
+    !isAppealMiniGuideOpen &&
+    !isJurorLevelsMiniGuideOpen;
+
+  const toggleMiniGuide = (guideName: string) => {
+    if (guideName === "Staking") {
+      toggleStakingMiniGuide();
+    } else if (guideName === "Binary Voting") {
+      toggleBinaryVotingMiniGuide();
+    } else if (guideName === "Ranked Voting") {
+      toggleRankedVotingMiniGuide();
+    } else if (guideName === "Appeal") {
+      toggleAppealMiniGuide();
+    } else if (guideName === "Juror Levels") {
+      toggleJurorLevelsMiniGuide();
+    }
+  };
 
   return (
-    <Template
-      LeftContent={<LeftContent currentPage={currentPage} />}
-      RightContent={<RightContent currentPage={currentPage} />}
-      onClose={toggleIsOnboardingMiniGuidesOpen}
-      currentPage={currentPage}
-      setCurrentPage={setCurrentPage}
-      numPages={leftPageContents.length}
-      isOnboarding={true}
-    />
+    <>
+      <Template
+        LeftContent={<LeftContent currentPage={currentPage} toggleMiniGuide={toggleMiniGuide} />}
+        RightContent={<RightContent currentPage={currentPage} />}
+        onClose={toggleIsOnboardingMiniGuidesOpen}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        numPages={leftPageContents.length}
+        isOnboarding={true}
+        canClose={canCloseOnboarding}
+      />
+
+      {isStakingMiniGuideOpen && <Staking toggleMiniGuide={toggleStakingMiniGuide} />}
+      {isBinaryVotingMiniGuideOpen && <BinaryVoting toggleMiniGuide={toggleBinaryVotingMiniGuide} />}
+      {isRankedVotingMiniGuideOpen && <RankedVoting toggleMiniGuide={toggleRankedVotingMiniGuide} />}
+      {isAppealMiniGuideOpen && <Appeal toggleMiniGuide={toggleAppealMiniGuide} />}
+      {isJurorLevelsMiniGuideOpen && <JurorLevels toggleMiniGuide={toggleJurorLevelsMiniGuide} />}
+    </>
   );
 };
 

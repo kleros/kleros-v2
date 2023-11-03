@@ -87,6 +87,7 @@ const Staking: React.FC<IStaking> = ({ toggleMiniGuide }) => {
       setCurrentPage={setCurrentPage}
       numPages={leftPageContents.length}
       isOnboarding={false}
+      canClose={true}
     />
   );
 };

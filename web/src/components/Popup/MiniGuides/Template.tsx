@@ -160,6 +160,7 @@ interface ITemplate {
   setCurrentPage: Dispatch<SetStateAction<number>>;
   numPages: number;
   isOnboarding: boolean;
+  canClose: boolean;
 }
 
 const Template: React.FC<ITemplate> = ({
@@ -170,10 +171,13 @@ const Template: React.FC<ITemplate> = ({
   setCurrentPage,
   numPages,
   isOnboarding,
+  canClose,
 }) => {
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => {
-    onClose();
+    if (canClose) {
+      onClose();
+    }
   });
   return (
     <>

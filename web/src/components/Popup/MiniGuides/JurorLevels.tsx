@@ -133,6 +133,7 @@ const JurorLevels: React.FC<IJurorLevels> = ({ toggleMiniGuide }) => {
       setCurrentPage={setCurrentPage}
       numPages={leftPageContents.length}
       isOnboarding={false}
+      canClose={true}
     />
   );
 };
