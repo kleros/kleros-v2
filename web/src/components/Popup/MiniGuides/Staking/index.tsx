@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import CourtHeader from "./CourtHeader";
 import JurorRewards from "./JurorRewards";
 import Notifications from "./Notifications";
 import StakingSection from "./StakingSection";
-import Template, { Title, ParagraphsContainer, LeftContentContainer } from "../Template";
+import PageContentsTemplate from "../PageContentsTemplate";
 
 const leftPageContents = [
   {
@@ -43,50 +43,18 @@ const leftPageContents = [
   },
 ];
 
-const rightPageComponents = [
-  () => <CourtHeader />,
-  () => <StakingSection />,
-  () => <JurorRewards />,
-  () => <Notifications />,
-];
-
-const LeftContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
-  const { title, paragraphs } = leftPageContents[currentPage - 1];
-
-  return (
-    <LeftContentContainer>
-      <Title>{title}</Title>
-      <ParagraphsContainer>
-        {paragraphs.map((paragraph, index) => (
-          <label key={index}>{paragraph}</label>
-        ))}
-      </ParagraphsContainer>
-    </LeftContentContainer>
-  );
-};
-
-const RightContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
-  const RightPageComponent = rightPageComponents[currentPage - 1];
-
-  return <RightPageComponent />;
-};
+const rightPageComponents = [CourtHeader, StakingSection, JurorRewards, Notifications];
 
 interface IStaking {
   toggleMiniGuide: () => void;
 }
 
 const Staking: React.FC<IStaking> = ({ toggleMiniGuide }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-
   return (
-    <Template
-      LeftContent={<LeftContent currentPage={currentPage} />}
-      RightContent={<RightContent currentPage={currentPage} />}
-      onClose={toggleMiniGuide}
-      currentPage={currentPage}
-      setCurrentPage={setCurrentPage}
-      numPages={leftPageContents.length}
-      isOnboarding={false}
+    <PageContentsTemplate
+      toggleMiniGuide={toggleMiniGuide}
+      leftPageContents={leftPageContents}
+      rightPageComponents={rightPageComponents}
       canClose={true}
       isVisible={true}
     />

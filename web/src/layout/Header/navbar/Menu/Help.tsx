@@ -124,7 +124,7 @@ const Help: React.FC<IHelp> = ({ toggleIsHelpOpen }) => {
         ))}
         <Debug />
       </Container>
-      {isOnboardingMiniGuidesOpen && <Onboarding {...{ toggleIsOnboardingMiniGuidesOpen }} />}
+      {isOnboardingMiniGuidesOpen && <Onboarding toggleMiniGuide={toggleIsOnboardingMiniGuidesOpen} />}
     </>
   );
 };

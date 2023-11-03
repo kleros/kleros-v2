@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import styled from "styled-components";
+import React from "react";
 import { useToggle } from "react-use";
 import HowItWorks from "./HowItWorks";
 import PnkLogoAndTitle from "./PnkLogoAndTitle";
@@ -9,18 +8,7 @@ import BinaryVoting from "../BinaryVoting";
 import RankedVoting from "../RankedVoting";
 import Appeal from "../Appeal";
 import JurorLevels from "../JurorLevels";
-import Template, { Title, ParagraphsContainer, LeftContentContainer } from "../Template";
-
-const StyledLabel = styled.label`
-  color: ${({ theme }) => theme.primaryBlue};
-  margin: 0;
-  cursor: pointer;
-`;
-
-const LinksContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
+import PageContentsTemplate from "../PageContentsTemplate";
 
 const leftPageContents = [
   {
@@ -48,47 +36,13 @@ const leftPageContents = [
   },
 ];
 
-const rightPageComponents = [() => <PnkLogoAndTitle />, () => <WhatDoINeed />, () => <HowItWorks />];
-
-const extractGuideName = (linkText) => linkText.split(". ")[1];
-
-const LeftContent: React.FC<{ currentPage: number; toggleMiniGuide: (guideName: string) => void }> = ({
-  currentPage,
-  toggleMiniGuide,
-}) => {
-  const { title, paragraphs, links } = leftPageContents[currentPage - 1];
-
-  return (
-    <LeftContentContainer>
-      <Title>{title}</Title>
-      <ParagraphsContainer>
-        {paragraphs.map((paragraph, index) => (
-          <label key={index}>{paragraph}</label>
-        ))}
-      </ParagraphsContainer>
-      <LinksContainer>
-        {links.map((link, index) => (
-          <StyledLabel key={index} onClick={() => toggleMiniGuide(extractGuideName(link))}>
-            {link}
-          </StyledLabel>
-        ))}
-      </LinksContainer>
-    </LeftContentContainer>
-  );
-};
-
-const RightContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
-  const RightPageComponent = rightPageComponents[currentPage - 1];
-
-  return <RightPageComponent />;
-};
+const rightPageComponents = [PnkLogoAndTitle, WhatDoINeed, HowItWorks];
 
 interface IOnboarding {
-  toggleIsOnboardingMiniGuidesOpen: () => void;
+  toggleMiniGuide: () => void;
 }
 
-const Onboarding: React.FC<IOnboarding> = ({ toggleIsOnboardingMiniGuidesOpen }) => {
-  const [currentPage, setCurrentPage] = useState(1);
+const Onboarding: React.FC<IOnboarding> = ({ toggleMiniGuide }) => {
   const [isStakingMiniGuideOpen, toggleStakingMiniGuide] = useToggle(false);
   const [isBinaryVotingMiniGuideOpen, toggleBinaryVotingMiniGuide] = useToggle(false);
   const [isRankedVotingMiniGuideOpen, toggleRankedVotingMiniGuide] = useToggle(false);
@@ -109,7 +63,7 @@ const Onboarding: React.FC<IOnboarding> = ({ toggleIsOnboardingMiniGuidesOpen })
     !isAppealMiniGuideOpen &&
     !isJurorLevelsMiniGuideOpen;
 
-  const toggleMiniGuide = (guideName: string) => {
+  const toggleSubMiniGuide = (guideName: string) => {
     if (guideName === "Staking") {
       toggleStakingMiniGuide();
     } else if (guideName === "Binary Voting") {
@@ -125,16 +79,13 @@ const Onboarding: React.FC<IOnboarding> = ({ toggleIsOnboardingMiniGuidesOpen })
 
   return (
     <>
-      <Template
-        LeftContent={<LeftContent currentPage={currentPage} toggleMiniGuide={toggleMiniGuide} />}
-        RightContent={<RightContent currentPage={currentPage} />}
-        onClose={toggleIsOnboardingMiniGuidesOpen}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        numPages={leftPageContents.length}
-        isOnboarding={true}
+      <PageContentsTemplate
+        toggleMiniGuide={toggleMiniGuide}
+        leftPageContents={leftPageContents}
+        rightPageComponents={rightPageComponents}
         canClose={canCloseOnboarding}
         isVisible={!isAnyMiniGuideOpen}
+        toggleSubMiniGuide={toggleSubMiniGuide}
       />
 
       {isStakingMiniGuideOpen && <Staking toggleMiniGuide={toggleStakingMiniGuide} />}

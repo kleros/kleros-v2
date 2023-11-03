@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import CrowdfundAppeal from "./CrowdfundAppeal";
 import PayoffSimulator from "./PayoffSimulator";
 import StageOne from "./StageOne";
 import StageTwo from "./StageTwo";
-import Template, { Title, ParagraphsContainer, LeftContentContainer } from "../Template";
+import PageContentsTemplate from "../PageContentsTemplate";
 
 const leftPageContents = [
   {
@@ -37,50 +37,18 @@ const leftPageContents = [
   },
 ];
 
-const rightPageComponents = [
-  () => <CrowdfundAppeal />,
-  () => <StageOne />,
-  () => <StageTwo />,
-  () => <PayoffSimulator />,
-];
-
-const LeftContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
-  const { title, paragraphs } = leftPageContents[currentPage - 1];
-
-  return (
-    <LeftContentContainer>
-      <Title>{title}</Title>
-      <ParagraphsContainer>
-        {paragraphs.map((paragraph, index) => (
-          <label key={index}>{paragraph}</label>
-        ))}
-      </ParagraphsContainer>
-    </LeftContentContainer>
-  );
-};
-
-const RightContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
-  const RightPageComponent = rightPageComponents[currentPage - 1];
-
-  return <RightPageComponent />;
-};
+const rightPageComponents = [CrowdfundAppeal, StageOne, StageTwo, PayoffSimulator];
 
 interface IAppeal {
   toggleMiniGuide: () => void;
 }
 
 const Appeal: React.FC<IAppeal> = ({ toggleMiniGuide }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-
   return (
-    <Template
-      LeftContent={<LeftContent currentPage={currentPage} />}
-      RightContent={<RightContent currentPage={currentPage} />}
-      onClose={toggleMiniGuide}
-      currentPage={currentPage}
-      setCurrentPage={setCurrentPage}
-      numPages={leftPageContents.length}
-      isOnboarding={false}
+    <PageContentsTemplate
+      toggleMiniGuide={toggleMiniGuide}
+      leftPageContents={leftPageContents}
+      rightPageComponents={rightPageComponents}
       canClose={true}
       isVisible={true}
     />

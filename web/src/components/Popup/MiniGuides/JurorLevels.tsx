@@ -4,7 +4,8 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { Card as _Card } from "@kleros/ui-components-library";
 import PixelArt from "pages/Dashboard/JurorInfo/PixelArt";
 import Coherency from "pages/Dashboard/JurorInfo/Coherency";
-import Template, { Title, ParagraphsContainer, LeftContentContainer } from "./Template";
+import { Title, ParagraphsContainer, LeftContentContainer } from "./PageContentsTemplate";
+import Template from "./MainStructureTemplate";
 
 const Card = styled(_Card)`
   display: flex;

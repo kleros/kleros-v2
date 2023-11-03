@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
+import PageContentsTemplate from "../PageContentsTemplate";
 import JurorRewards from "../Staking/JurorRewards";
-import Template, { Title, ParagraphsContainer, LeftContentContainer } from "../Template";
 import VotingModule from "./VotingModule";
 
 const leftPageContents = [
@@ -23,45 +23,18 @@ const leftPageContents = [
   },
 ];
 
-const rightPageComponents = [() => <VotingModule />, () => <JurorRewards />];
-
-const LeftContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
-  const { title, paragraphs } = leftPageContents[currentPage - 1];
-
-  return (
-    <LeftContentContainer>
-      <Title>{title}</Title>
-      <ParagraphsContainer>
-        {paragraphs.map((paragraph, index) => (
-          <label key={index}>{paragraph}</label>
-        ))}
-      </ParagraphsContainer>
-    </LeftContentContainer>
-  );
-};
-
-const RightContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
-  const RightPageComponent = rightPageComponents[currentPage - 1];
-
-  return <RightPageComponent />;
-};
+const rightPageComponents = [VotingModule, JurorRewards];
 
 interface IBinaryVoting {
   toggleMiniGuide: () => void;
 }
 
 const BinaryVoting: React.FC<IBinaryVoting> = ({ toggleMiniGuide }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-
   return (
-    <Template
-      LeftContent={<LeftContent currentPage={currentPage} />}
-      RightContent={<RightContent currentPage={currentPage} />}
-      onClose={toggleMiniGuide}
-      currentPage={currentPage}
-      setCurrentPage={setCurrentPage}
-      numPages={leftPageContents.length}
-      isOnboarding={false}
+    <PageContentsTemplate
+      toggleMiniGuide={toggleMiniGuide}
+      leftPageContents={leftPageContents}
+      rightPageComponents={rightPageComponents}
       canClose={true}
       isVisible={true}
     />

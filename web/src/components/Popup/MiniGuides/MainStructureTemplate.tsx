@@ -136,22 +136,6 @@ const RightContainer = styled.div`
   )}
 `;
 
-export const ParagraphsContainer = styled.div`
-  display: flex;
-  gap: 18px;
-  flex-direction: column;
-`;
-
-export const Title = styled.h1`
-  margin-bottom: 0;
-`;
-
-export const LeftContentContainer = styled.div`
-  display: flex;
-  gap: 18px;
-  flex-direction: column;
-`;
-
 interface ITemplate {
   onClose: () => void;
   LeftContent: React.ReactNode;
