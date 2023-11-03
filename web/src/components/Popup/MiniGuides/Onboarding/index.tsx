@@ -1,13 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import Template from "../Template";
 import HowItWorks from "./HowItWorks";
 import PnkLogoAndTitle from "./PnkLogoAndTitle";
 import WhatDoINeed from "./WhatDoINeed";
-
-const Title = styled.h1`
-  margin-bottom: 18px;
-`;
+import Template, { Title, ParagraphsContainer, LeftContentContainer } from "../Template";
 
 const StyledLabel = styled.label`
   color: ${({ theme }) => theme.primaryBlue};
@@ -15,18 +11,7 @@ const StyledLabel = styled.label`
   cursor: pointer;
 `;
 
-const ParagraphsContainer = styled.div`
-  display: flex;
-  gap: 18px;
-  flex-direction: column;
-`;
-
 const LinksContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const LeftContentContainer = styled.div`
   display: flex;
   flex-direction: column;
 `;

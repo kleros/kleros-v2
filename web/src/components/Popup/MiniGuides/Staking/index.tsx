@@ -1,26 +1,9 @@
 import React, { useState } from "react";
-import styled from "styled-components";
-import Template from "../Template";
 import CourtHeader from "./CourtHeader";
 import JurorRewards from "./JurorRewards";
 import Notifications from "./Notifications";
 import StakingSection from "./StakingSection";
-
-const ParagraphsContainer = styled.div`
-  display: flex;
-  gap: 18px;
-  flex-direction: column;
-`;
-
-const Title = styled.h1`
-  margin-bottom: 0;
-`;
-
-const LeftContentContainer = styled.div`
-  display: flex;
-  gap: 18px;
-  flex-direction: column;
-`;
+import Template, { Title, ParagraphsContainer, LeftContentContainer } from "../Template";
 
 const leftPageContents = [
   {

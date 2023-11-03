@@ -1,26 +1,9 @@
 import React, { useState } from "react";
-import styled from "styled-components";
-import Template from "../Template";
 import CrowdfundAppeal from "./CrowdfundAppeal";
 import PayoffSimulator from "./PayoffSimulator";
 import StageOne from "./StageOne";
 import StageTwo from "./StageTwo";
-
-const ParagraphsContainer = styled.div`
-  display: flex;
-  gap: 18px;
-  flex-direction: column;
-`;
-
-const Title = styled.h1`
-  margin-bottom: 0;
-`;
-
-const LeftContentContainer = styled.div`
-  display: flex;
-  gap: 18px;
-  flex-direction: column;
-`;
+import Template, { Title, ParagraphsContainer, LeftContentContainer } from "../Template";
 
 const leftPageContents = [
   {
