@@ -6,8 +6,8 @@ import { Overlay } from "components/Overlay";
 import BookOpenIcon from "tsx:assets/svgs/icons/book-open.svg";
 import { useFocusOutside } from "hooks/useFocusOutside";
 
-const Container = styled.div`
-  display: flex;
+const Container = styled.div<{ isVisible: boolean }>`
+  display: ${({ isVisible }) => (isVisible ? "flex" : "none")};
   margin: 0 auto;
   width: auto;
   z-index: 10;
@@ -161,6 +161,7 @@ interface ITemplate {
   numPages: number;
   isOnboarding: boolean;
   canClose: boolean;
+  isVisible: boolean;
 }
 
 const Template: React.FC<ITemplate> = ({
@@ -172,6 +173,7 @@ const Template: React.FC<ITemplate> = ({
   numPages,
   isOnboarding,
   canClose,
+  isVisible,
 }) => {
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => {
@@ -182,7 +184,7 @@ const Template: React.FC<ITemplate> = ({
   return (
     <>
       <Overlay />
-      <Container ref={containerRef}>
+      <Container ref={containerRef} isVisible={isVisible}>
         <LeftContainer>
           <LeftContainerHeader>
             <HowItWorks>

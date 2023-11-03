@@ -63,6 +63,7 @@ const BinaryVoting: React.FC<IBinaryVoting> = ({ toggleMiniGuide }) => {
       numPages={leftPageContents.length}
       isOnboarding={false}
       canClose={true}
+      isVisible={true}
     />
   );
 };

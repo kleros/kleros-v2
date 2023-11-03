@@ -82,6 +82,7 @@ const Appeal: React.FC<IAppeal> = ({ toggleMiniGuide }) => {
       numPages={leftPageContents.length}
       isOnboarding={false}
       canClose={true}
+      isVisible={true}
     />
   );
 };

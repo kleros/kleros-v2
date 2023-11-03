@@ -65,6 +65,7 @@ const RankedVoting: React.FC<IRankedVoting> = ({ toggleMiniGuide }) => {
       numPages={leftPageContents.length}
       isOnboarding={false}
       canClose={true}
+      isVisible={true}
     />
   );
 };

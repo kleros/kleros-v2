@@ -95,6 +95,13 @@ const Onboarding: React.FC<IOnboarding> = ({ toggleIsOnboardingMiniGuidesOpen })
   const [isAppealMiniGuideOpen, toggleAppealMiniGuide] = useToggle(false);
   const [isJurorLevelsMiniGuideOpen, toggleJurorLevelsMiniGuide] = useToggle(false);
 
+  const isAnyMiniGuideOpen =
+    isStakingMiniGuideOpen ||
+    isBinaryVotingMiniGuideOpen ||
+    isRankedVotingMiniGuideOpen ||
+    isAppealMiniGuideOpen ||
+    isJurorLevelsMiniGuideOpen;
+
   const canCloseOnboarding =
     !isStakingMiniGuideOpen &&
     !isBinaryVotingMiniGuideOpen &&
@@ -127,6 +134,7 @@ const Onboarding: React.FC<IOnboarding> = ({ toggleIsOnboardingMiniGuidesOpen })
         numPages={leftPageContents.length}
         isOnboarding={true}
         canClose={canCloseOnboarding}
+        isVisible={!isAnyMiniGuideOpen}
       />
 
       {isStakingMiniGuideOpen && <Staking toggleMiniGuide={toggleStakingMiniGuide} />}
