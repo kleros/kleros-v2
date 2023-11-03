@@ -117,11 +117,11 @@ const RightContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
   );
 };
 
-interface ILevel {
+interface IJurorLevels {
   toggleMiniGuide: () => void;
 }
 
-const Level: React.FC<ILevel> = ({ toggleMiniGuide }) => {
+const JurorLevels: React.FC<IJurorLevels> = ({ toggleMiniGuide }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   return (
@@ -137,4 +137,4 @@ const Level: React.FC<ILevel> = ({ toggleMiniGuide }) => {
   );
 };
 
-export default Level;
+export default JurorLevels;

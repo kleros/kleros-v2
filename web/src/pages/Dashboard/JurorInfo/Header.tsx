@@ -4,7 +4,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { useToggle } from "react-use";
 import XIcon from "svgs/socialmedia/x.svg";
 import HowItWorks from "components/HowItWorks";
-import Level from "components/Popup/MiniGuides/Level";
+import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
 
 const Container = styled.div`
   display: flex;
@@ -63,7 +63,7 @@ interface IHeader {
 }
 
 const Header: React.FC<IHeader> = ({ levelTitle, levelNumber, totalCoherent, totalResolvedDisputes }) => {
-  const [isLevelMiniGuideOpen, toggleLevelMiniGuide] = useToggle(false);
+  const [isJurorLevelsMiniGuideOpen, toggleJurorLevelsMiniGuide] = useToggle(false);
 
   const coherencePercentage = parseFloat(((totalCoherent / Math.max(totalResolvedDisputes, 1)) * 100).toFixed(2));
   const courtUrl = window.location.origin;
@@ -75,9 +75,9 @@ const Header: React.FC<IHeader> = ({ levelTitle, levelNumber, totalCoherent, tot
       <StyledTitle>Juror Dashboard</StyledTitle>
       <LinksContainer>
         <HowItWorks
-          isMiniGuideOpen={isLevelMiniGuideOpen}
-          toggleMiniGuide={toggleLevelMiniGuide}
-          MiniGuideComponent={Level}
+          isMiniGuideOpen={isJurorLevelsMiniGuideOpen}
+          toggleMiniGuide={toggleJurorLevelsMiniGuide}
+          MiniGuideComponent={JurorLevels}
         />
         {totalResolvedDisputes > 0 ? (
           <StyledLink href={xShareUrl} target="_blank" rel="noreferrer">

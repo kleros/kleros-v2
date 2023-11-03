@@ -7,7 +7,7 @@ import JurorTitle from "./JurorTitle";
 import Rewards from "./Rewards";
 import Coherency from "./Coherency";
 import HowItWorks from "components/HowItWorks";
-import Level from "components/Popup/MiniGuides/Level";
+import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
 
 const Container = styled.div`
   display: flex;
@@ -54,7 +54,7 @@ const StyledLabel = styled.label`
 `;
 
 const Header: React.FC = () => {
-  const [isLevelMiniGuideOpen, toggleLevelMiniGuide] = useToggle(false);
+  const [isJurorLevelsMiniGuideOpen, toggleJurorLevelsMiniGuide] = useToggle(false);
 
   return (
     <Container>
@@ -66,9 +66,9 @@ const Header: React.FC = () => {
         <Coherency />
       </PlaceAndTitleAndRewardsAndCoherency>
       <HowItWorks
-        isMiniGuideOpen={isLevelMiniGuideOpen}
-        toggleMiniGuide={toggleLevelMiniGuide}
-        MiniGuideComponent={Level}
+        isMiniGuideOpen={isJurorLevelsMiniGuideOpen}
+        toggleMiniGuide={toggleJurorLevelsMiniGuide}
+        MiniGuideComponent={JurorLevels}
       />
     </Container>
   );
