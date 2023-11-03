@@ -1,14 +1,10 @@
 import React from "react";
-import { useTheme } from "styled-components";
-import { StyledImage } from "../Template";
 import DarkModeCourtHeaderImage from "tsx:assets/svgs/mini-guides/staking/court-header-dark-mode.svg";
 import LightModeCourtHeaderImage from "tsx:assets/svgs/mini-guides/staking/court-header-light-mode.svg";
+import ImageRenderer from "../ImageRenderer";
 
-const CourtHeader: React.FC = () => {
-  const theme = useTheme();
-  const CourtHeaderImage = theme.name === "dark" ? DarkModeCourtHeaderImage : LightModeCourtHeaderImage;
-
-  return <StyledImage as={CourtHeaderImage} />;
-};
+const CourtHeader: React.FC = () => (
+  <ImageRenderer darkModeImage={DarkModeCourtHeaderImage} lightModeImage={LightModeCourtHeaderImage} />
+);
 
 export default CourtHeader;

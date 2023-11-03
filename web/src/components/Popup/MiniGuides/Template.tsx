@@ -152,16 +152,6 @@ export const LeftContentContainer = styled.div`
   flex-direction: column;
 `;
 
-export const StyledImage = styled.div`
-  width: calc(260px + (340 - 260) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-
-  ${landscapeStyle(
-    () => css`
-      width: 389px;
-    `
-  )}
-`;
-
 interface ITemplate {
   onClose: () => void;
   LeftContent: React.ReactNode;
