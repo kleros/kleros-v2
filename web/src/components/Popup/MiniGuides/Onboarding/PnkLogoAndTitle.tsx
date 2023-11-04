@@ -1,7 +1,6 @@
 import React from "react";
-import styled, { useTheme } from "styled-components";
-import DarkModePnkIcon from "tsx:assets/svgs/styled/dark-mode-pnk.svg";
-import LightModePnkIcon from "tsx:assets/svgs/styled/light-mode-pnk.svg";
+import styled from "styled-components";
+import PnkIcon from "tsx:assets/svgs/styled/pnk.svg";
 
 const Container = styled.div`
   display: flex;
@@ -11,9 +10,16 @@ const Container = styled.div`
   align-items: center;
 `;
 
-const StyledPnkIcon = styled.div`
+const StyledPnkIcon = styled(PnkIcon)`
   width: calc(220px + (280 - 220) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   height: calc(220px + (252 - 220) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+
+  [class$="stop-1"] {
+    stop-color: ${({ theme }) => theme.primaryBlue};
+  }
+  [class$="stop-2"] {
+    stop-color: ${({ theme }) => theme.secondaryPurple};
+  }
 `;
 
 const StyledCourtLabel = styled.label`
@@ -29,12 +35,9 @@ const StyledCourtLabel = styled.label`
 `;
 
 const PnkLogoAndTitle = () => {
-  const theme = useTheme();
-  const PnkIcon = theme.name === "dark" ? DarkModePnkIcon : LightModePnkIcon;
-
   return (
     <Container>
-      <StyledPnkIcon as={PnkIcon} />
+      <StyledPnkIcon />
       <StyledCourtLabel>Court v.2</StyledCourtLabel>
     </Container>
   );
