@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import CourtHeaderSvg from "tsx:assets/svgs/mini-guides/staking/court-header.svg";
-import ImageRenderer from "../ImageRenderer";
+import { StyledImage } from "../PageContentsTemplate";
 
 const StyledCourtHeaderSvg = styled(CourtHeaderSvg)`
   [class$="circle-1"] {
@@ -106,6 +106,6 @@ const StyledCourtHeaderSvg = styled(CourtHeaderSvg)`
   }
 `;
 
-const CourtHeader: React.FC = () => <ImageRenderer image={StyledCourtHeaderSvg} />;
+const CourtHeader: React.FC = () => <StyledImage as={StyledCourtHeaderSvg} />;
 
 export default CourtHeader;

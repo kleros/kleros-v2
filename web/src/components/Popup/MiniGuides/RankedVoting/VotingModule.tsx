@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import VotingModuleSvg from "tsx:assets/svgs/mini-guides/ranked-voting/voting-module.svg";
-import ImageRenderer from "../ImageRenderer";
+import { StyledImage } from "../PageContentsTemplate";
 
 const StyledVotingModuleSvg = styled(VotingModuleSvg)`
   [class$="path-1"],
@@ -49,11 +49,14 @@ const StyledVotingModuleSvg = styled(VotingModuleSvg)`
     fill: ${({ theme }) => theme.primaryBlue};
   }
 
-  [class$="path-9"],
   [class$="path-11"],
   [class$="path-2"],
   [class$="path-6"] {
     fill: ${({ theme }) => theme.primaryText};
+  }
+
+  [class$="path-9"] {
+    fill: ${({ theme }) => theme.secondaryText};
   }
 
   [class$="path-10"] {
@@ -65,6 +68,6 @@ const StyledVotingModuleSvg = styled(VotingModuleSvg)`
   }
 `;
 
-const VotingModule: React.FC = () => <ImageRenderer image={StyledVotingModuleSvg} />;
+const VotingModule: React.FC = () => <StyledImage as={StyledVotingModuleSvg} />;
 
 export default VotingModule;

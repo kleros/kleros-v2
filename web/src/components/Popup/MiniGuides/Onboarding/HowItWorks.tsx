@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import HowItWorksSvg from "tsx:assets/svgs/mini-guides/onboarding/how-it-works.svg";
-import ImageRenderer from "../ImageRenderer";
+import { StyledImage } from "../PageContentsTemplate";
 
 const StyledHowItWorksSvg = styled(HowItWorksSvg)`
   [class$="rect-1"],
@@ -19,6 +19,6 @@ const StyledHowItWorksSvg = styled(HowItWorksSvg)`
   }
 `;
 
-const HowItWorks: React.FC = () => <ImageRenderer image={StyledHowItWorksSvg} />;
+const HowItWorks: React.FC = () => <StyledImage as={StyledHowItWorksSvg} />;
 
 export default HowItWorks;

@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import StageOneSvg from "tsx:assets/svgs/mini-guides/appeal/stage-one.svg";
-import ImageRenderer from "../ImageRenderer";
+import { StyledImage } from "../PageContentsTemplate";
 
 const StyledStageOneSvg = styled(StageOneSvg)`
   [class$="rect-1"],
@@ -69,6 +69,6 @@ const StyledStageOneSvg = styled(StageOneSvg)`
   }
 `;
 
-const StageOne: React.FC = () => <ImageRenderer image={StyledStageOneSvg} />;
+const StageOne: React.FC = () => <StyledImage as={StyledStageOneSvg} />;
 
 export default StageOne;

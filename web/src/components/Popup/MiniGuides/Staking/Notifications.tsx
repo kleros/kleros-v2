@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import NotificationsSvg from "tsx:assets/svgs/mini-guides/staking/notifications.svg";
-import ImageRenderer from "../ImageRenderer";
+import { StyledImage } from "../PageContentsTemplate";
 
 const StyledNotificationsSvg = styled(NotificationsSvg)`
   [class$="rect-1"],
@@ -43,6 +43,6 @@ const StyledNotificationsSvg = styled(NotificationsSvg)`
   }
 `;
 
-const Notifications: React.FC = () => <ImageRenderer image={StyledNotificationsSvg} />;
+const Notifications: React.FC = () => <StyledImage as={StyledNotificationsSvg} />;
 
 export default Notifications;

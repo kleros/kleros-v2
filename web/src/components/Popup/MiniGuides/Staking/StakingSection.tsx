@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import StakingSectionSvg from "tsx:assets/svgs/mini-guides/staking/staking-section.svg";
-import ImageRenderer from "../ImageRenderer";
+import { StyledImage } from "../PageContentsTemplate";
 
 const StyledStakingSectionSvg = styled(StakingSectionSvg)`
   [class$="rect-1"],
@@ -46,6 +46,6 @@ const StyledStakingSectionSvg = styled(StakingSectionSvg)`
   }
 `;
 
-const StakingSection: React.FC = () => <ImageRenderer image={StyledStakingSectionSvg} />;
+const StakingSection: React.FC = () => <StyledImage as={StyledStakingSectionSvg} />;
 
 export default StakingSection;

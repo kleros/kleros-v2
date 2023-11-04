@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import PayoffSimulatorSvg from "tsx:assets/svgs/mini-guides/appeal/payoff-simulator.svg";
-import ImageRenderer from "../ImageRenderer";
+import { StyledImage } from "../PageContentsTemplate";
 
 const StyledPayoffSimulatorSvg = styled(PayoffSimulatorSvg)`
   [class$="circle-1"] {
@@ -72,6 +72,6 @@ const StyledPayoffSimulatorSvg = styled(PayoffSimulatorSvg)`
   }
 `;
 
-const PayoffSimulator: React.FC = () => <ImageRenderer image={StyledPayoffSimulatorSvg} />;
+const PayoffSimulator: React.FC = () => <StyledImage as={StyledPayoffSimulatorSvg} />;
 
 export default PayoffSimulator;

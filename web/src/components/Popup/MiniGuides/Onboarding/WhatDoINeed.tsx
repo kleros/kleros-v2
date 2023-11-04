@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import WhatDoINeedSvg from "tsx:assets/svgs/mini-guides/onboarding/what-do-i-need.svg";
-import ImageRenderer from "../ImageRenderer";
+import { StyledImage } from "../PageContentsTemplate";
 
 const StyledWhatDoINeedSvg = styled(WhatDoINeedSvg)`
   [class$="rect-1"] {
@@ -70,6 +70,6 @@ const StyledWhatDoINeedSvg = styled(WhatDoINeedSvg)`
   }
 `;
 
-const WhatDoINeed: React.FC = () => <ImageRenderer image={StyledWhatDoINeedSvg} />;
+const WhatDoINeed: React.FC = () => <StyledImage as={StyledWhatDoINeedSvg} />;
 
 export default WhatDoINeed;

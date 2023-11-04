@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import JurorRewardsSvg from "tsx:assets/svgs/mini-guides/staking/juror-rewards.svg";
-import ImageRenderer from "../ImageRenderer";
+import { StyledImage } from "../PageContentsTemplate";
 
 const StyledJurorRewardsSvg = styled(JurorRewardsSvg)`
   [class$="rect-1"] {
@@ -48,6 +48,6 @@ const StyledJurorRewardsSvg = styled(JurorRewardsSvg)`
   }
 `;
 
-const JurorRewards: React.FC = () => <ImageRenderer image={StyledJurorRewardsSvg} />;
+const JurorRewards: React.FC = () => <StyledImage as={StyledJurorRewardsSvg} />;
 
 export default JurorRewards;

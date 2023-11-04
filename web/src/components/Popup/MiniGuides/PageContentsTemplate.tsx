@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import MainStructureTemplate from "./MainStructureTemplate";
 
 export const ParagraphsContainer = styled.div`
@@ -16,6 +17,16 @@ export const LeftContentContainer = styled.div`
   display: flex;
   gap: 18px;
   flex-direction: column;
+`;
+
+export const StyledImage = styled.div`
+  width: calc(260px + (460 - 260) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+
+  ${landscapeStyle(
+    () => css`
+      width: 389px;
+    `
+  )}
 `;
 
 const LinksContainer = styled.div`

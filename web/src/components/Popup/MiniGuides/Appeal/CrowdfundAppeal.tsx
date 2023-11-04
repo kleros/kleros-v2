@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import CrowdfundAppealSvg from "tsx:assets/svgs/mini-guides/appeal/crowdfund-appeal.svg";
-import ImageRenderer from "../ImageRenderer";
+import { StyledImage } from "../PageContentsTemplate";
 
 const StyledCrowdfundAppealSvg = styled(CrowdfundAppealSvg)`
   [class$="rect-bg"] {
@@ -33,6 +33,6 @@ const StyledCrowdfundAppealSvg = styled(CrowdfundAppealSvg)`
   }
 `;
 
-const CrowdfundAppeal: React.FC = () => <ImageRenderer image={StyledCrowdfundAppealSvg} />;
+const CrowdfundAppeal: React.FC = () => <StyledImage as={StyledCrowdfundAppealSvg} />;
 
 export default CrowdfundAppeal;
