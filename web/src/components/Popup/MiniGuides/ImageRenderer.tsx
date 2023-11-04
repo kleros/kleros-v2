@@ -1,5 +1,5 @@
 import React, { FC, SVGAttributes } from "react";
-import styled, { useTheme, css } from "styled-components";
+import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 
 const StyledImage = styled.div`
@@ -13,14 +13,10 @@ const StyledImage = styled.div`
 `;
 
 interface IImageRenderer {
-  darkModeImage: FC<SVGAttributes<SVGElement>>;
-  lightModeImage: FC<SVGAttributes<SVGElement>>;
+  image: FC<SVGAttributes<SVGElement>>;
 }
 
-const ImageRenderer: FC<IImageRenderer> = ({ darkModeImage, lightModeImage }) => {
-  const theme = useTheme();
-  const image = theme.name === "dark" ? darkModeImage : lightModeImage;
-
+const ImageRenderer: FC<IImageRenderer> = ({ image }) => {
   return <StyledImage as={image} />;
 };
 

@@ -1,10 +1,38 @@
 import React from "react";
-import DarkModeCrowdfundAppealImage from "tsx:assets/svgs/mini-guides/appeal/crowdfund-appeal-dark-mode.svg";
-import LightModeCrowdfundAppealImage from "tsx:assets/svgs/mini-guides/appeal/crowdfund-appeal-light-mode.svg";
+import styled from "styled-components";
+import CrowdfundAppealSvg from "tsx:assets/svgs/mini-guides/appeal/crowdfund-appeal.svg";
 import ImageRenderer from "../ImageRenderer";
 
-const CrowdfundAppeal: React.FC = () => (
-  <ImageRenderer darkModeImage={DarkModeCrowdfundAppealImage} lightModeImage={LightModeCrowdfundAppealImage} />
-);
+const StyledCrowdfundAppealSvg = styled(CrowdfundAppealSvg)`
+  [class$="rect-bg"] {
+    fill: ${({ theme }) => theme.whiteBackground};
+    stroke: ${({ theme }) => theme.stroke};
+  }
+
+  [class$="path-1"],
+  [class$="path-2"],
+  [class$="path-3"] {
+    fill: ${({ theme }) => theme.primaryText};
+  }
+
+  [class$="rect-fg"] {
+    fill: ${({ theme }) => theme.whiteBackground};
+    stroke: ${({ theme }) => theme.stroke};
+  }
+
+  [class$="rect-accent"] {
+    fill: ${({ theme }) => theme.primaryBlue};
+  }
+
+  [class$="path-4"] {
+    fill: ${({ theme }) => theme.whiteBackground};
+  }
+
+  [class$="path-5"] {
+    fill: ${({ theme }) => theme.secondaryText};
+  }
+`;
+
+const CrowdfundAppeal: React.FC = () => <ImageRenderer image={StyledCrowdfundAppealSvg} />;
 
 export default CrowdfundAppeal;
