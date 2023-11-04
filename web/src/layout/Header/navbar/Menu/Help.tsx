@@ -19,7 +19,7 @@ const Container = styled.div`
   position: absolute;
   max-height: 80vh;
   overflow-y: auto;
-  width: 82%;
+  width: 86vw;
   max-width: 444px;
   top: 5%;
   left: 50%;

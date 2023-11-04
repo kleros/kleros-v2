@@ -9,10 +9,9 @@ import { useFocusOutside } from "hooks/useFocusOutside";
 const Container = styled.div<{ isVisible: boolean }>`
   display: ${({ isVisible }) => (isVisible ? "flex" : "none")};
   margin: 0 auto;
-  width: auto;
   z-index: 10;
   position: fixed;
-  width: 82vw;
+  width: 86vw;
   flex-direction: column;
 
   top: 45%;
@@ -35,7 +34,7 @@ const Container = styled.div<{ isVisible: boolean }>`
 const LeftContainer = styled.div`
   display: grid;
   grid-template-rows: auto 1fr auto;
-  width: 82vw;
+  width: 86vw;
   padding: calc(24px + (32 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   padding-bottom: 32px;
   background-color: ${({ theme }) => theme.whiteBackground};
@@ -116,7 +115,7 @@ const Close = styled.label`
 `;
 
 const RightContainer = styled.div`
-  width: 82vw;
+  width: 86vw;
   position: relative;
   display: flex;
   flex-direction: column;
