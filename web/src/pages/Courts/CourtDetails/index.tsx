@@ -23,10 +23,39 @@ import { usePnkFaucetWithdrewAlready, prepareWritePnkFaucet, usePnkBalanceOf } f
 
 const Container = styled.div``;
 
+const CourtHeader = styled.h1`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+`;
+
+const CourtInfo = styled.div`
+  display: flex:
+  flex-direction: column;
+  gap: 16px;
+
+  ${landscapeStyle(
+    () => css`
+      gap: 32px;
+    `
+  )};
+`;
+
 const ButtonContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+
+  ${landscapeStyle(
+    () => css`
+      align-items: flex-end;
+      gap: 32px;
+    `
+  )};
 `;
 
 const StyledCard = styled(Card)`
@@ -38,26 +67,13 @@ const StyledCard = styled(Card)`
 `;
 
 const StyledBreadcrumb = styled(Breadcrumb)`
-  margin-bottom: 12px;
   display: flex;
-  align-items: flex-start;
+  margin-top: 12px;
+  align-items: center;
 `;
 
 const StyledBreadcrumbSkeleton = styled.div`
-  margin-bottom: 12px;
-`;
-
-const CourtHeader = styled.h1`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-      justify-content: space-between;
-    `
-  )}
+  margin-top: 12px;
 `;
 
 const CourtDetails: React.FC = () => {
@@ -108,31 +124,33 @@ const CourtDetails: React.FC = () => {
     <Container>
       <StyledCard>
         <CourtHeader>
-          {policy ? policy.name : <StyledSkeleton width={200} />}
-          <HowItWorks
-            isMiniGuideOpen={isStakingMiniGuideOpen}
-            toggleMiniGuide={toggleStakingMiniGuide}
-            MiniGuideComponent={Staking}
-          />
-        </CourtHeader>
-        <ButtonContainer>
-          {items.length > 1 ? (
-            <StyledBreadcrumb items={items} />
-          ) : (
-            <StyledBreadcrumbSkeleton>
-              <StyledSkeleton width={100} />
-            </StyledBreadcrumbSkeleton>
-          )}
-          {chain?.id === DEFAULT_CHAIN && !claimed && (
-            <Button
-              variant="primary"
-              text={faucetCheck ? "Claim PNK" : "Empty Faucet"}
-              onClick={handleRequest}
-              isLoading={isSending}
-              disabled={isSending || claimed || !faucetCheck}
+          <CourtInfo>
+            {policy ? policy.name : <StyledSkeleton width={200} />}
+            {items.length > 1 ? (
+              <StyledBreadcrumb items={items} />
+            ) : (
+              <StyledBreadcrumbSkeleton>
+                <StyledSkeleton width={100} />
+              </StyledBreadcrumbSkeleton>
+            )}
+          </CourtInfo>
+          <ButtonContainer>
+            <HowItWorks
+              isMiniGuideOpen={isStakingMiniGuideOpen}
+              toggleMiniGuide={toggleStakingMiniGuide}
+              MiniGuideComponent={Staking}
             />
-          )}
-        </ButtonContainer>
+            {chain?.id === DEFAULT_CHAIN && !claimed && (
+              <Button
+                variant="primary"
+                text={faucetCheck ? "Claim PNK" : "Empty Faucet"}
+                onClick={handleRequest}
+                isLoading={isSending}
+                disabled={isSending || claimed || !faucetCheck}
+              />
+            )}
+          </ButtonContainer>
+        </CourtHeader>
         <hr />
         <Stats />
         <hr />

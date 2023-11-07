@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from "react";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
-import styled from "styled-components";
 import Skeleton from "react-loading-skeleton";
 import { Searchbar, DropdownCascader } from "@kleros/ui-components-library";
 import { rootCourtToItems, useCourtTree } from "queries/useCourtTree";
@@ -9,6 +10,21 @@ import { isUndefined } from "utils/index";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  ${landscapeStyle(
+    () =>
+      css`
+        flex-direction: row;
+        gap: calc(4px + (24 - 4) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+      `
+  )}
+`;
+
+const SearchBarContainer = styled.div`
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -24,6 +40,15 @@ const StyledSearchbar = styled(Searchbar)`
     height: 45px;
     padding-top: 0px;
     padding-bottom: 0px;
+  }
+`;
+
+const StyledDropdownCascader = styled(DropdownCascader)`
+  [class*="dropdown-container"] {
+    width: 240px;
+  }
+  [class*="cascader"] {
+    overflow: auto;
   }
 `;
 
@@ -54,17 +79,17 @@ const Search: React.FC = () => {
   }, [courtTreeData]);
 
   return (
-    <div>
-      <Container>
+    <Container>
+      <SearchBarContainer>
         <StyledSearchbar
           type="text"
           placeholder="Search By ID"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-      </Container>
+      </SearchBarContainer>
       {items ? (
-        <DropdownCascader
+        <StyledDropdownCascader
           items={items}
           placeholder={"Select Court"}
           onSelect={(value) => {
@@ -76,7 +101,7 @@ const Search: React.FC = () => {
       ) : (
         <Skeleton width={240} height={42} />
       )}
-    </div>
+    </Container>
   );
 };
 
