@@ -18,7 +18,7 @@ const Container = styled.div`
     () =>
       css`
         flex-direction: row;
-        gap: calc(4px + (24 - 4) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+        gap: calc(4px + (22 - 4) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
       `
   )}
 `;
@@ -40,15 +40,6 @@ const StyledSearchbar = styled(Searchbar)`
     height: 45px;
     padding-top: 0px;
     padding-bottom: 0px;
-  }
-`;
-
-const StyledDropdownCascader = styled(DropdownCascader)`
-  [class*="dropdown-container"] {
-    width: 240px;
-  }
-  [class*="cascader"] {
-    overflow: auto;
   }
 `;
 
@@ -80,16 +71,8 @@ const Search: React.FC = () => {
 
   return (
     <Container>
-      <SearchBarContainer>
-        <StyledSearchbar
-          type="text"
-          placeholder="Search By ID"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </SearchBarContainer>
       {items ? (
-        <StyledDropdownCascader
+        <DropdownCascader
           items={items}
           placeholder={"Select Court"}
           onSelect={(value) => {
@@ -101,6 +84,14 @@ const Search: React.FC = () => {
       ) : (
         <Skeleton width={240} height={42} />
       )}
+      <SearchBarContainer>
+        <StyledSearchbar
+          type="text"
+          placeholder="Search By ID"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </SearchBarContainer>
     </Container>
   );
 };
