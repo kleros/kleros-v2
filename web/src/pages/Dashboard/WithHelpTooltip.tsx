@@ -10,10 +10,12 @@ const Container = styled.div`
 `;
 
 const HelpIcon = styled(_HelpIcon)`
+  display: flex;
+  align-items: center;
   height: 12px;
   width: 12px;
   fill: ${({ theme }) => theme.secondaryText};
-  margin: 4px 4px 6px 8px;
+  margin: 0 0 0 8px;
 
   ${landscapeStyle(
     () => css`

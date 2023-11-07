@@ -6,16 +6,15 @@ import { Overlay } from "components/Overlay";
 import BookOpenIcon from "tsx:assets/svgs/icons/book-open.svg";
 import { useFocusOutside } from "hooks/useFocusOutside";
 
-const Container = styled.div`
-  display: flex;
+const Container = styled.div<{ isVisible: boolean }>`
+  display: ${({ isVisible }) => (isVisible ? "flex" : "none")};
   margin: 0 auto;
-  width: auto;
   z-index: 10;
   position: fixed;
-  width: 82vw;
+  width: 86vw;
   flex-direction: column;
 
-  top: 50%;
+  top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
   max-height: 80vh;
@@ -24,6 +23,7 @@ const Container = styled.div`
   ${landscapeStyle(
     () => css`
       overflow-y: hidden;
+      top: 50%;
       width: calc(700px + (900 - 700) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
       flex-direction: row;
       height: 500px;
@@ -34,9 +34,9 @@ const Container = styled.div`
 const LeftContainer = styled.div`
   display: grid;
   grid-template-rows: auto 1fr auto;
-  width: 82vw;
-  min-height: 356px;
+  width: 86vw;
   padding: calc(24px + (32 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding-bottom: 32px;
   background-color: ${({ theme }) => theme.whiteBackground};
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
@@ -46,9 +46,14 @@ const LeftContainer = styled.div`
       overflow-y: hidden;
       width: calc(350px + (450 - 350) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
       height: 500px;
-      min-height: auto;
     `
   )}
+`;
+
+const LeftContainerHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 `;
 
 const HowItWorks = styled.div`
@@ -62,31 +67,55 @@ const HowItWorks = styled.div`
   }
 `;
 
-const StyledCompactPagination = styled(CompactPagination)`
-  align-self: end;
-  justify-self: end;
-`;
-
-const Close = styled.label`
-  position: absolute;
-  top: calc(24px + (32 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  right: 17px;
+const MobileCompactPagination = styled(CompactPagination)`
   display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  cursor: pointer;
-
-  color: ${({ theme }) => theme.primaryBlue};
+  align-items: flex-start;
 
   ${landscapeStyle(
     () => css`
+      display: none;
+    `
+  )}
+`;
+
+const DesktopCompactPagination = styled(CompactPagination)`
+  display: none;
+  align-self: end;
+  justify-self: end;
+
+  ${landscapeStyle(
+    () => css`
+      display: block;
+    `
+  )}
+`;
+
+const Close = styled.label`
+  display: none;
+
+  ${landscapeStyle(
+    () => css`
+      display: flex;
+      position: absolute;
+      top: calc(24px + (32 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+      right: 17px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      cursor: pointer;
       z-index: 11;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      color: ${({ theme }) => theme.primaryBlue};
     `
   )}
 `;
 
 const RightContainer = styled.div`
-  width: 82vw;
+  width: 86vw;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -96,7 +125,6 @@ const RightContainer = styled.div`
   background-color: ${({ theme }) => theme.mediumBlue};
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
-  height: 800px;
 
   ${landscapeStyle(
     () => css`
@@ -114,6 +142,9 @@ interface ITemplate {
   currentPage: number;
   setCurrentPage: Dispatch<SetStateAction<number>>;
   numPages: number;
+  isOnboarding: boolean;
+  canClose: boolean;
+  isVisible: boolean;
 }
 
 const Template: React.FC<ITemplate> = ({
@@ -123,30 +154,45 @@ const Template: React.FC<ITemplate> = ({
   currentPage,
   setCurrentPage,
   numPages,
+  isOnboarding,
+  canClose,
+  isVisible,
 }) => {
   const containerRef = useRef(null);
   useFocusOutside(containerRef, () => {
-    onClose();
+    if (canClose) {
+      onClose();
+    }
   });
   return (
     <>
       <Overlay />
-      <Container ref={containerRef}>
+      <Container ref={containerRef} isVisible={isVisible}>
         <LeftContainer>
-          <HowItWorks>
-            <BookOpenIcon />
-            <label> How it works </label>
-          </HowItWorks>
-          <Close onClick={onClose}>Close</Close>
+          <LeftContainerHeader>
+            <HowItWorks>
+              <BookOpenIcon />
+              <label> {isOnboarding ? "Onboarding" : "How it works"} </label>
+            </HowItWorks>
+            <MobileCompactPagination
+              currentPage={currentPage}
+              callback={setCurrentPage}
+              numPages={numPages}
+              label={`${currentPage}/${numPages}`}
+            />
+          </LeftContainerHeader>
           {LeftContent}
-          <StyledCompactPagination
+          <DesktopCompactPagination
             currentPage={currentPage}
             callback={setCurrentPage}
             numPages={numPages}
             label={`${currentPage}/${numPages}`}
           />
         </LeftContainer>
-        <RightContainer>{RightContent}</RightContainer>
+        <RightContainer>
+          <Close onClick={onClose}>Close</Close>
+          {RightContent}
+        </RightContainer>
       </Container>
     </>
   );

@@ -33,7 +33,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
 
-  width: 82%;
+  width: 86vw;
   max-width: 480px;
   min-width: 300px;
   border-radius: 3px;

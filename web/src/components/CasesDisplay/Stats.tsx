@@ -7,13 +7,17 @@ const FieldWrapper = styled.div`
 `;
 
 const SeparatorLabel = styled.label`
-  margin-left: 8px;
-  margin-right: 8px;
+  margin: 0 8px;
+  color: ${({ theme }) => theme.primaryText};
+`;
+
+const StyledLabel = styled.label`
+  color: ${({ theme }) => theme.primaryText};
 `;
 
 const Field: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <FieldWrapper>
-    <label>{label}</label>
+    <StyledLabel>{label}</StyledLabel>
     <small>{value}</small>
   </FieldWrapper>
 );

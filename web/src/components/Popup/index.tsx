@@ -52,7 +52,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 82vw;
+  width: 86vw;
   max-width: 600px;
   border-radius: 3px;
   border: 1px solid ${({ theme }) => theme.stroke};
