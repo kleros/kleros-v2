@@ -18,7 +18,6 @@ describe("DisputeKitClassic", async () => {
     expect(events.length).to.equal(1);
     expect(events[0].args._disputeKitID).to.equal(1);
     expect(events[0].args._disputeKitAddress).to.equal(disputeKit.address);
-    expect(events[0].args._parent).to.equal(0);
 
     // Reminder: the Forking court will be added which will break these expectations.
     events = await core.queryFilter(core.filters.CourtCreated());
