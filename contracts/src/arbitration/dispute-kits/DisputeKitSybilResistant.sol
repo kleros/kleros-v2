@@ -624,8 +624,8 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
         uint256 lockedAmountPerJuror = core
             .getRoundInfo(_coreDisputeID, core.getNumberOfRounds(_coreDisputeID) - 1)
             .pnkAtStakePerJuror;
-        (uint256 totalStaked, uint256 totalLocked, , ) = core.getJurorBalance(_juror, courtID);
-        if (totalStaked < totalLocked + lockedAmountPerJuror) {
+        KlerosCore.JurorBalance memory jurorBalance = core.getJurorBalance(_juror, courtID);
+        if (jurorBalance.totalStaked < jurorBalance.totalLocked + lockedAmountPerJuror) {
             return false;
         } else {
             return _proofOfHumanity(_juror);

@@ -68,9 +68,9 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
       if (isAllowance) {
         return parsedAmount;
       } else if (isStaking) {
-        return jurorBalance[2] + parsedAmount;
+        return jurorBalance.stakedInCourt + parsedAmount;
       } else {
-        return jurorBalance[2] - parsedAmount;
+        return jurorBalance.stakedInCourt - parsedAmount;
       }
     }
     return 0n;
@@ -121,7 +121,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     },
     [ActionType.withdraw]: {
       text: "Withdraw",
-      checkDisabled: () => !jurorBalance || parsedAmount > jurorBalance[2],
+      checkDisabled: () => !jurorBalance || parsedAmount > jurorBalance.stakedInCourt,
       onClick: handleStake,
     },
   };
