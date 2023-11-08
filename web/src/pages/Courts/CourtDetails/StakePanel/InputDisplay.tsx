@@ -83,7 +83,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
     args: [address, id],
     watch: true,
   });
-  const parsedStake = formatPNK(jurorBalance?.[2] || 0n, 0, true);
+  const parsedStake = formatPNK(jurorBalance?.stakedInCourt || 0n, 0, true);
   const isStaking = action === ActionType.stake;
 
   return (

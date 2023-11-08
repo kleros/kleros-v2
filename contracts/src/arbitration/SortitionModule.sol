@@ -212,8 +212,8 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         uint96 _courtID,
         uint256 _stake
     ) external override onlyByCore returns (preStakeHookResult) {
-        (, , uint256 currentStake, uint256 nbCourts) = core.getJurorBalance(_account, _courtID);
-        if (currentStake == 0 && nbCourts >= MAX_STAKE_PATHS) {
+        KlerosCore.JurorBalance memory jurorBalance = core.getJurorBalance(_account, _courtID);
+        if (jurorBalance.stakedInCourt == 0 && jurorBalance.nbCourts >= MAX_STAKE_PATHS) {
             // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
             return preStakeHookResult.failed;
         } else {

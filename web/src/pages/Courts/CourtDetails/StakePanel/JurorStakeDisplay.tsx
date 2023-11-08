@@ -45,7 +45,14 @@ const bigIntRatioToPercentage = (numerator: bigint, denominator: bigint): string
 };
 
 const useCalculateJurorOdds = (
-  jurorBalance: readonly [bigint, bigint, bigint] | undefined,
+  jurorBalance:
+    | {
+        totalStaked: bigint;
+        totalLocked: bigint;
+        stakedInCourt: bigint;
+        nbCourts: bigint;
+      }
+    | undefined,
   stakedByAllJurors: string | undefined,
   loading: boolean
 ): string => {
@@ -58,7 +65,7 @@ const useCalculateJurorOdds = (
       return "0.00%";
     }
 
-    return bigIntRatioToPercentage(jurorBalance[2], BigInt(stakedByAllJurors));
+    return bigIntRatioToPercentage(jurorBalance.stakedInCourt, BigInt(stakedByAllJurors));
   }, [jurorBalance, stakedByAllJurors, loading]);
 };
 
@@ -78,10 +85,10 @@ const JurorBalanceDisplay = () => {
   const [previousStakedByAllJurors, setPreviousStakedByAllJurors] = useState<bigint | undefined>(undefined);
 
   useEffect(() => {
-    if (previousJurorBalance !== undefined && jurorBalance?.[2] !== previousJurorBalance) {
+    if (previousJurorBalance !== undefined && jurorBalance?.stakedInCourt !== previousJurorBalance) {
       setLoading(true);
     }
-    setPreviousJurorBalance(jurorBalance?.[2]);
+    setPreviousJurorBalance(jurorBalance?.stakedInCourt);
   }, [jurorBalance, previousJurorBalance]);
 
   useEffect(() => {
@@ -99,12 +106,12 @@ const JurorBalanceDisplay = () => {
     {
       icon: PNKIcon,
       name: "My Stake",
-      value: `${format(jurorBalance?.[2])} PNK`,
+      value: `${format(jurorBalance?.stakedInCourt)} PNK`,
     },
     {
       icon: LockerIcon,
       name: "Locked Stake",
-      value: `${format(jurorBalance?.[1])} PNK`,
+      value: `${format(jurorBalance?.totalLocked)} PNK`,
     },
     {
       icon: DiceIcon,

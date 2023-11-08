@@ -95,6 +95,13 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 repartition; // The index of the repartition to execute.
     }
 
+    struct JurorBalance {
+        uint256 totalStaked; // The total amount of PNKs staked on the arbitrator.
+        uint256 totalLocked; // The total amount of PNKs locked on the arbitrator.
+        uint256 stakedInCourt; // The amount of PNKs staked in a particular court.
+        uint256 nbCourts; // The number of courts the juror has staked in.
+    }
+
     struct CurrencyRate {
         bool feePaymentAccepted;
         uint64 rateInEth;
@@ -1000,15 +1007,12 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         return disputes[_disputeID].rounds.length;
     }
 
-    function getJurorBalance(
-        address _juror,
-        uint96 _courtID
-    ) external view returns (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts) {
+    function getJurorBalance(address _juror, uint96 _courtID) external view returns (JurorBalance memory balance) {
         Juror storage juror = jurors[_juror];
-        totalStaked = juror.stakedPnk;
-        totalLocked = juror.lockedPnk;
-        stakedInCourt = juror.stakedPnkByCourt[_courtID];
-        nbCourts = juror.courtIDs.length;
+        balance.totalStaked = juror.stakedPnk;
+        balance.totalLocked = juror.lockedPnk;
+        balance.stakedInCourt = juror.stakedPnkByCourt[_courtID];
+        balance.nbCourts = juror.courtIDs.length;
     }
 
     function isSupported(uint96 _courtID, uint256 _disputeKitID) external view returns (bool) {

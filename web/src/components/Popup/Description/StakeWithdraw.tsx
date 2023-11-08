@@ -88,7 +88,7 @@ const StakeWithdraw: React.FC<IStakeWithdraw> = ({ pnkStaked, courtName, isStake
 
       <TotalStakeContainer>
         <StyledKlerosLogo /> <MyStakeContainer>My Stake:</MyStakeContainer>{" "}
-        <AmountContainer>{`${formatUnits(jurorBalance?.[2] ?? BigInt(0), 18)} PNK`} </AmountContainer>
+        <AmountContainer>{`${formatUnits(jurorBalance?.stakedInCourt ?? BigInt(0), 18)} PNK`} </AmountContainer>
       </TotalStakeContainer>
     </Container>
   );
