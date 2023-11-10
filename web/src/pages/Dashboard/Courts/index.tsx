@@ -41,15 +41,13 @@ const Courts: React.FC = () => {
       {isLoading ? <Skeleton /> : null}
       {!isStaked && !isLoading ? <StyledLabel>You are not staked in any court</StyledLabel> : null}
       {isStaked && !isLoading ? (
-        <>
-          <CourtCardsContainer>
-            {stakeData?.jurorTokensPerCourts
-              ?.filter(({ staked }) => staked > 0)
-              .map(({ court: { id, name }, staked }) => (
-                <CourtCard key={id} name={name ?? ""} stake={staked} />
-              ))}
-          </CourtCardsContainer>
-        </>
+        <CourtCardsContainer>
+          {stakeData?.jurorTokensPerCourts
+            ?.filter(({ staked }) => staked > 0)
+            .map(({ court: { id, name }, staked }) => (
+              <CourtCard key={id} name={name ?? ""} stake={staked} />
+            ))}
+        </CourtCardsContainer>
       ) : null}
     </Container>
   );
