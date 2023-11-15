@@ -9,10 +9,6 @@ import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 
 const Container = styled.div`
   margin-top: 64px;
-
-  h1 {
-    margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  }
 `;
 
 const CourtCardsContainer = styled.div`
@@ -35,25 +31,23 @@ const StyledLabel = styled.label`
 const Courts: React.FC = () => {
   const { address } = useAccount();
   const { data: stakeData, isLoading } = useJurorStakeDetailsQuery(address?.toLowerCase() as `0x${string}`);
-  const stakedCourts = stakeData?.jurorTokensPerCourts?.filter(({ staked, locked }) => staked > 0 || locked > 0);
+  const stakedCourts = stakeData?.jurorTokensPerCourts?.filter(({ staked }) => staked > 0);
   const isStaked = stakedCourts && stakedCourts.length > 0;
+  const lockedStake = stakeData?.jurorTokensPerCourts?.[0]?.locked;
 
   return (
     <Container>
-      <h1> My Courts </h1>
+      <Header lockedStake={lockedStake} />
       {isLoading ? <Skeleton /> : null}
       {!isStaked && !isLoading ? <StyledLabel>You are not staked in any court</StyledLabel> : null}
       {isStaked && !isLoading ? (
-        <>
-          <Header />
-          <CourtCardsContainer>
-            {stakeData?.jurorTokensPerCourts
-              ?.filter(({ staked, locked }) => staked > 0 || locked > 0)
-              .map(({ court: { id, name }, staked, locked }) => (
-                <CourtCard key={id} name={name ?? ""} stake={staked} lockedStake={locked} />
-              ))}
-          </CourtCardsContainer>
-        </>
+        <CourtCardsContainer>
+          {stakeData?.jurorTokensPerCourts
+            ?.filter(({ staked }) => staked > 0)
+            .map(({ court: { id, name }, staked }) => (
+              <CourtCard key={id} name={name ?? ""} stake={staked} />
+            ))}
+        </CourtCardsContainer>
       ) : null}
     </Container>
   );

@@ -13,7 +13,7 @@ const Divider = styled.hr`
 `;
 
 const StyledTitle = styled.h1`
-  margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-bottom: calc(32px + (48 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875) !important;
 `;
 
 interface ICasesDisplay extends ICasesGrid {

@@ -9,6 +9,7 @@ const Container = styled.div`
 
   small {
     height: 100%;
+    font-weight: 600;
   }
 
   ${landscapeStyle(
@@ -25,15 +26,15 @@ const StyledBreadcrumb = styled(Breadcrumb)`
   height: 100%;
 `;
 
-interface ICourtBranch {
+interface ICourtName {
   name: string;
 }
 
-const CourtBranch: React.FC<ICourtBranch> = ({ name }) => {
+const CourtName: React.FC<ICourtName> = ({ name }) => {
   return (
     <Container>
       <StyledBreadcrumb items={[{ text: name, value: 0 }]} />
     </Container>
   );
 };
-export default CourtBranch;
+export default CourtName;

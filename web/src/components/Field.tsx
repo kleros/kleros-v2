@@ -18,7 +18,7 @@ const FieldContainer = styled.div<FieldContainerProps>`
   svg {
     fill: ${({ theme }) => theme.secondaryPurple};
     margin-right: 8px;
-    width: 15px;
+    width: 14px;
   }
 
   .link {

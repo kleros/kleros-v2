@@ -7,7 +7,6 @@ import { useAccount } from "wagmi";
 import { isUndefined } from "utils/index";
 import Field from "components/Field";
 import DiceIcon from "svgs/icons/dice.svg";
-import LockerIcon from "svgs/icons/locker.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import { useCourtDetails } from "queries/useCourtDetails";
 import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
@@ -102,13 +101,8 @@ const JurorBalanceDisplay = () => {
       value: `${format(jurorBalance?.[2])} PNK`,
     },
     {
-      icon: LockerIcon,
-      name: "Locked Stake",
-      value: `${format(jurorBalance?.[1])} PNK`,
-    },
-    {
       icon: DiceIcon,
-      name: "Juror odds",
+      name: "Juror Odds",
       value: jurorOdds,
     },
   ];

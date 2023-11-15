@@ -9,24 +9,26 @@ import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  margin-bottom: calc(32px + (48 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  gap: 12px;
 
   ${landscapeStyle(
     () => css`
       flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
     `
   )}
 `;
 
 const StyledTitle = styled.h1`
-  margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-bottom: 0;
 `;
 
 const LinksContainer = styled.div`
   display: flex;
   color: ${({ theme }) => theme.primaryBlue};
-  margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   align-items: center;
   gap: 24px;
   flex-wrap: wrap;
