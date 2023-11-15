@@ -58,6 +58,12 @@ const Container = styled.div`
   )}
 `;
 
+const StyledCourt = styled(Court)`
+  path {
+    fill: ${({ theme }) => theme.secondaryPurple};
+  }
+`;
+
 const ItemsDiv = styled.div`
   display: grid;
   overflow-y: auto;
@@ -74,7 +80,7 @@ const ItemsDiv = styled.div`
 const ITEMS = [
   {
     text: "Court v1",
-    Icon: Court,
+    Icon: StyledCourt,
     url: "https://court.kleros.io/",
   },
   {

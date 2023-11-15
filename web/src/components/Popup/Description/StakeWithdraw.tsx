@@ -13,6 +13,9 @@ const Container = styled.div`
 `;
 
 const StyledKlerosLogo = styled(KlerosLogo)`
+  path {
+    fill: ${({ theme }) => theme.secondaryPurple};
+  }
   width: 14px;
   height: 14px;
 `;
