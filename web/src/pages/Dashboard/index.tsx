@@ -6,6 +6,7 @@ import { OrderDirection } from "src/graphql/graphql";
 import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
 import { useUserQuery } from "queries/useUser";
 import { decodeURIFilter, useRootPath } from "utils/uri";
+import { isUndefined } from "utils/index";
 import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
 import JurorInfo from "./JurorInfo";
@@ -54,6 +55,7 @@ const Dashboard: React.FC = () => {
   );
   const { data: userData } = useUserQuery(address, decodedFilter);
   const totalCases = userData?.user?.disputes.length;
+  const totalPages = !isUndefined(totalCases) ? Math.ceil(totalCases / casesPerPage) : 1;
 
   return (
     <Container>
@@ -66,7 +68,7 @@ const Dashboard: React.FC = () => {
             disputes={disputesData?.user?.disputes as DisputeDetailsFragment[]}
             numberDisputes={totalCases}
             numberClosedDisputes={0}
-            totalPages={10}
+            totalPages={totalPages}
             currentPage={pageNumber}
             setCurrentPage={(newPage: number) => navigate(`${location}/${newPage}/${order}/${filter}`)}
             {...{ casesPerPage }}
