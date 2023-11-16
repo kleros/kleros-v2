@@ -65,7 +65,7 @@ const Dashboard: React.FC = () => {
           <Courts />
           <StyledCasesDisplay
             title="My Cases"
-            disputes={disputesData?.user?.disputes as DisputeDetailsFragment[]}
+            disputes={userData?.user !== null ? (disputesData?.user?.disputes as DisputeDetailsFragment[]) : []}
             numberDisputes={totalCases}
             numberClosedDisputes={0}
             totalPages={totalPages}
