@@ -7,13 +7,13 @@ import { HomeChains, isSkipped, isDevnet } from "./utils";
 
 const pnkByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x330bD769382cFc6d50175903434CCC8D206DCAE5"],
-  [HomeChains.ARBITRUM_GOERLI, "0x3483FA1b87792cd5BE4100822C4eCEC8D3E531ee"],
+  [HomeChains.ARBITRUM_SEPOLIA, "INSERT ARBITRUM SEPOLIA PNK TOKEN ADDRESS HERE"],
 ]);
 
 // https://randomizer.ai/docs#addresses
 const randomizerByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x5b8bB80f2d72D0C85caB8fB169e8170A05C94bAF"],
-  [HomeChains.ARBITRUM_GOERLI, "0x923096Da90a3b60eb7E12723fA2E1547BA9236Bc"],
+  [HomeChains.ARBITRUM_SEPOLIA, "INSERT ARBITRUM SEPOLIA RANDOMIZER ADDRESS HERE"],
 ]);
 
 const daiByChain = new Map<HomeChains, string>([[HomeChains.ARBITRUM_ONE, "??"]]);

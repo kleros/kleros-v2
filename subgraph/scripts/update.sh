@@ -32,10 +32,10 @@ function update() #hardhatNetwork #graphNetwork #dataSourceIndex #contract
 }
 
 # as per ../contracts/hardhat.config.js
-hardhatNetwork=${1:-arbitrumGoerli}
+hardhatNetwork=${1:-arbitrumSepolia}
 
 # as per https://thegraph.com/docs/en/developing/supported-networks/
-graphNetwork=${2:-arbitrum\-goerli}
+graphNetwork=${2:-arbitrum\-sepolia}
 i=0
 
 # backup

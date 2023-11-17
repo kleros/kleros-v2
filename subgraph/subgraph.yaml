@@ -4,7 +4,7 @@ schema:
 dataSources:
   - kind: ethereum
     name: KlerosCore
-    network: arbitrum-goerli
+    network: arbitrum-sepolia
     source:
       address: "0xB88643fd1e4351dAF9eA7292db126207FDE42e45"
       abi: KlerosCore
@@ -26,9 +26,9 @@ dataSources:
         - Counter
       abis:
         - name: DisputeKitClassic
-          file: ../contracts/deployments/arbitrumGoerliDevnet/DisputeKitClassic.json
+          file: ../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../contracts/deployments/arbitrumGoerliDevnet/KlerosCore.json
+          file: ../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -61,7 +61,7 @@ dataSources:
       file: ./src/KlerosCore.ts
   - kind: ethereum
     name: PolicyRegistry
-    network: arbitrum-goerli
+    network: arbitrum-sepolia
     source:
       address: "0x37FFaF5506BB16327B4a32191Bb39d739fCE55a3"
       abi: PolicyRegistry
@@ -74,14 +74,14 @@ dataSources:
         - Court
       abis:
         - name: PolicyRegistry
-          file: ../contracts/deployments/arbitrumGoerliDevnet/PolicyRegistry.json
+          file: ../contracts/deployments/arbitrumSepoliaDevnet/PolicyRegistry.json
       eventHandlers:
         - event: PolicyUpdate(indexed uint256,string,string)
           handler: handlePolicyUpdate
       file: ./src/PolicyRegistry.ts
   - kind: ethereum
     name: DisputeKitClassic
-    network: arbitrum-goerli
+    network: arbitrum-sepolia
     source:
       address: "0x67f3b472F345119692d575E59190400E371946f6"
       abi: DisputeKitClassic
@@ -97,9 +97,9 @@ dataSources:
         - ClassicContribution
       abis:
         - name: DisputeKitClassic
-          file: ../contracts/deployments/arbitrumGoerliDevnet/DisputeKitClassic.json
+          file: ../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../contracts/deployments/arbitrumGoerliDevnet/KlerosCore.json
+          file: ../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -116,7 +116,7 @@ dataSources:
       file: ./src/DisputeKitClassic.ts
   - kind: ethereum
     name: EvidenceModule
-    network: arbitrum-goerli
+    network: arbitrum-sepolia
     source:
       address: "0xF679E4a92AE843fd5cD0717A7417C3A773Dfd55F"
       abi: EvidenceModule
@@ -130,7 +130,7 @@ dataSources:
         - ClassicEvidence
       abis:
         - name: EvidenceModule
-          file: ../contracts/deployments/arbitrumGoerliDevnet/EvidenceModule.json
+          file: ../contracts/deployments/arbitrumSepoliaDevnet/EvidenceModule.json
       eventHandlers:
         - event: Evidence(indexed uint256,indexed address,string)
           handler: handleEvidenceEvent

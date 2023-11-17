@@ -4,7 +4,7 @@ import { HomeChains, isSkipped } from "./utils";
 
 const pnkByChain = new Map<HomeChains, string>([
   [HomeChains.ARBITRUM_ONE, "0x330bD769382cFc6d50175903434CCC8D206DCAE5"],
-  [HomeChains.ARBITRUM_GOERLI, "0x3483FA1b87792cd5BE4100822C4eCEC8D3E531ee"],
+  [HomeChains.ARBITRUM_SEPOLIA, "INSERT ARBITRUM SEPOLIA PNK TOKEN ADDRESS HERE"],
 ]);
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {

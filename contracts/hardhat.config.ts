@@ -75,25 +75,25 @@ const config: HardhatUserConfig = {
         home: "arbitrum",
       },
     },
-    arbitrumGoerliFork: {
-      chainId: 421613,
+    arbitrumSepoliaFork: {
+      chainId: 421614,
       url: `http://127.0.0.1:8545`,
       forking: {
-        url: `https://goerli-rollup.arbitrum.io/rpc`,
+        url: `https://sepolia-rollup.arbitrum.io/rpc`,
       },
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: false,
       saveDeployments: true,
       tags: ["test", "local"],
       companionNetworks: {
-        foreign: "goerli",
+        foreign: "sepolia",
       },
     },
 
     // Home chain ---------------------------------------------------------------------------------
-    arbitrumGoerli: {
-      chainId: 421613,
-      url: "https://goerli-rollup.arbitrum.io/rpc",
+    arbitrumSepolia: {
+      chainId: 421614,
+      url: "https://sepolia-rollup.arbitrum.io/rpc",
       accounts:
         (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 && [
           process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,
@@ -108,7 +108,7 @@ const config: HardhatUserConfig = {
       tags: ["staging", "home", "layer2"],
       companionNetworks: {
         foreignChiado: "chiado",
-        foreignGoerli: "goerli",
+        foreignSepolia: "sepolia",
       },
       verify: {
         etherscan: {
@@ -116,9 +116,9 @@ const config: HardhatUserConfig = {
         },
       },
     },
-    arbitrumGoerliDevnet: {
-      chainId: 421613,
-      url: "https://goerli-rollup.arbitrum.io/rpc",
+    arbitrumSepoliaDevnet: {
+      chainId: 421614,
+      url: "https://sepolia-rollup.arbitrum.io/rpc",
       accounts:
         (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 && [
           process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,
@@ -133,7 +133,7 @@ const config: HardhatUserConfig = {
       tags: ["staging", "home", "layer2"],
       companionNetworks: {
         foreignChiado: "chiadoDevnet",
-        foreignGoerli: "goerliDevnet",
+        foreignSepolia: "sepoliaDevnet",
       },
       verify: {
         etherscan: {
@@ -158,26 +158,26 @@ const config: HardhatUserConfig = {
       },
     },
     // Foreign chain ---------------------------------------------------------------------------------
-    goerli: {
-      chainId: 5,
-      url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
+    sepolia: {
+      chainId: 11155111,
+      url: `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "foreign", "layer1"],
       companionNetworks: {
-        home: "arbitrumGoerli",
+        home: "arbitrumSepolia",
       },
     },
-    goerliDevnet: {
-      chainId: 5,
-      url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
+    sepoliaDevnet: {
+      chainId: 11155111,
+      url: `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["staging", "foreign", "layer1"],
       companionNetworks: {
-        home: "arbitrumGoerliDevnet",
+        home: "arbitrumSepoliaDevnet",
       },
     },
     mainnet: {
@@ -199,7 +199,7 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ["staging", "foreign", "layer1"],
       companionNetworks: {
-        home: "arbitrumGoerli",
+        home: "arbitrumSepolia",
       },
       verify: {
         etherscan: {
@@ -216,7 +216,7 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       tags: ["staging", "foreign", "layer1"],
       companionNetworks: {
-        home: "arbitrumGoerliDevnet",
+        home: "arbitrumSepoliaDevnet",
       },
       verify: {
         etherscan: {
@@ -312,14 +312,14 @@ const config: HardhatUserConfig = {
   external: {
     // https://github.com/wighawag/hardhat-deploy#importing-deployment-from-other-projects-with-truffle-support
     deployments: {
-      arbitrumGoerli: ["../node_modules/@kleros/vea-contracts/deployments/arbitrumGoerli"],
-      arbitrumGoerliDevnet: ["../node_modules/@kleros/vea-contracts/deployments/arbitrumGoerli"],
+      arbitrumSepolia: ["../node_modules/@kleros/vea-contracts/deployments/arbitrumSepolia"],
+      arbitrumSepoliaDevnet: ["../node_modules/@kleros/vea-contracts/deployments/arbitrumSepolia"],
       arbitrum: ["../node_modules/@kleros/vea-contracts/deployments/arbitrum"],
       chiado: ["../node_modules/@kleros/vea-contracts/deployments/chiado"],
       chiadoDevnet: ["../node_modules/@kleros/vea-contracts/deployments/chiado"],
       gnosischain: ["../node_modules/@kleros/vea-contracts/deployments/gnosischain"],
-      goerli: ["../node_modules/@kleros/vea-contracts/deployments/goerli"],
-      goerliDevnet: ["../node_modules/@kleros/vea-contracts/deployments/goerli"],
+      sepolia: ["../node_modules/@kleros/vea-contracts/deployments/sepolia"],
+      sepoliaDevnet: ["../node_modules/@kleros/vea-contracts/deployments/sepolia"],
       mainnet: ["../node_modules/@kleros/vea-contracts/deployments/mainnet"],
     },
   },

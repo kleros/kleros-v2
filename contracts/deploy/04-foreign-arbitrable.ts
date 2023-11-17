@@ -6,7 +6,7 @@ import { ForeignChains, isSkipped } from "./utils";
 
 const foreignGatewayArtifactByChain = new Map<ForeignChains, string>([
   [ForeignChains.ETHEREUM_MAINNET, "ForeignGatewayOnEthereum"],
-  [ForeignChains.ETHEREUM_GOERLI, "ForeignGatewayOnEthereum"],
+  [ForeignChains.ETHEREUM_SEPOLIA, "ForeignGatewayOnEthereum"],
   [ForeignChains.GNOSIS_MAINNET, "ForeignGatewayOnGnosis"],
   [ForeignChains.GNOSIS_CHIADO, "ForeignGatewayOnGnosis"],
 ]);

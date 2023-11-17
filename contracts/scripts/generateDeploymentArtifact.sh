@@ -18,7 +18,7 @@ address=$2
 
 case $network in
 gnosischain)
-  url="https://api.gnosisscan.io"
+  url="https://api.gnosisscan.io/api"
   apiKey="$GNOSISSCAN_API_KEY"
   ;;
 chiado)
@@ -29,19 +29,19 @@ chiado)
   apiKey=""
   ;;
 arbitrum)
-  url="https://api.arbiscan.io"
+  url="https://api.arbiscan.io/api"
   apiKey="$ARBISCAN_API_KEY"
   ;;
-arbitrumGoerli)
-  url="https://api-goerli.arbiscan.io"
+arbitrumSepolia)
+  url="https://api-sepolia.arbiscan.io/api"
   apiKey="$ARBISCAN_API_KEY"
   ;;
 mainnet)
-  url="https://api.etherscan.io"
+  url="https://api.etherscan.io/api"
   apiKey="$ETHERSCAN_API_KEY"
   ;;
-goerli)
-  url="https://api-goerli.etherscan.io"
+sepolia)
+  url="https://api-sepolia.etherscan.io/api"
   apiKey="$ETHERSCAN_API_KEY"
   ;;
 *)

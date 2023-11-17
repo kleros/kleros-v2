@@ -4,7 +4,7 @@ module.exports = {
       name: "relayer-bot-from-chiado-devnet",
       interpreter: "sh",
       script: "yarn",
-      args: "bot:relayer-from-chiado --network arbitrumGoerliDevnet",
+      args: "bot:relayer-from-chiado --network arbitrumSepoliaDevnet",
       restart_delay: 5000,
       autorestart: true,
     },

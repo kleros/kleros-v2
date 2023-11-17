@@ -18,9 +18,9 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const veaInbox = await deployments.get("VeaInboxArbToEthDevnet");
   const klerosCore = await deployments.get("KlerosCore");
 
-  const foreignGateway = await hre.companionNetworks.foreignGoerli.deployments.get("ForeignGatewayOnEthereum");
-  const foreignChainId = Number(await hre.companionNetworks.foreignGoerli.getChainId());
-  const foreignChainName = await hre.companionNetworks.foreignGoerli.deployments.getNetworkName();
+  const foreignGateway = await hre.companionNetworks.foreignSepolia.deployments.get("ForeignGatewayOnEthereum");
+  const foreignChainId = Number(await hre.companionNetworks.foreignSepolia.getChainId());
+  const foreignChainName = await hre.companionNetworks.foreignSepolia.deployments.getNetworkName();
   console.log("Using ForeignGateway %s on chainId %s (%s)", foreignGateway.address, foreignChainId, foreignChainName);
 
   await deployUpgradable(deployments, "HomeGatewayToEthereum", {
