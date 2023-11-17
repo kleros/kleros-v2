@@ -4,7 +4,7 @@ import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
 import { isSkipped } from "./utils";
 
 enum Chains {
-  GOERLI = 5,
+  SEPOLIA = 11155111,
   HARDHAT = 31337,
 }
 

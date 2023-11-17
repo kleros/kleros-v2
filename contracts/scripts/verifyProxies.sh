@@ -22,8 +22,8 @@ function verify() { #deploymentDir #explorerApiUrl #apiKey
 
 . $SCRIPT_DIR/../.env
 
-verify "$SCRIPT_DIR/../deployments/arbitrumGoerliDevnet" "https://api-testnet.arbiscan.io/api" $ARBISCAN_API_KEY
+verify "$SCRIPT_DIR/../deployments/arbitrumSepoliaDevnet" "https://api-testnet.arbiscan.io/api" $ARBISCAN_API_KEY
 echo
-verify "$SCRIPT_DIR/../deployments/arbitrumGoerli" "https://api-testnet.arbiscan.io/api" $ARBISCAN_API_KEY
+verify "$SCRIPT_DIR/../deployments/arbitrumSepolia" "https://api-testnet.arbiscan.io/api" $ARBISCAN_API_KEY
 echo
 verify "$SCRIPT_DIR/../deployments/arbitrum" "https://api.arbiscan.io/api" $ARBISCAN_API_KEY

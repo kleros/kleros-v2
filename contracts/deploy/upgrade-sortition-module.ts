@@ -5,7 +5,7 @@ import { isSkipped } from "./utils";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
-  ARBITRUM_GOERLI = 421613,
+  ARBITRUM_SEPOLIA = 421614,
   HARDHAT = 31337,
 }
 

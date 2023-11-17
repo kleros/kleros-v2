@@ -4,7 +4,7 @@ schema:
 dataSources:
   - kind: ethereum
     name: DisputeTemplateRegistry
-    network: arbitrum-goerli
+    network: arbitrum-sepolia
     source:
       address: "0x8d17Ed667512412D9c194d178699f68159f250A2"
       abi: DisputeTemplateRegistry
@@ -17,7 +17,7 @@ dataSources:
         - DisputeTemplate
       abis:
         - name: DisputeTemplateRegistry
-          file: ../../contracts/deployments/arbitrumGoerli/DisputeTemplateRegistry.json
+          file: ../../contracts/deployments/arbitrumSepolia/DisputeTemplateRegistry.json
       eventHandlers:
         - event: DisputeTemplate(indexed uint256,indexed string,string,string)
           handler: handleDisputeTemplate

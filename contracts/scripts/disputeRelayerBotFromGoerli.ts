@@ -4,8 +4,8 @@ import { HttpNetworkConfig } from "hardhat/types";
 
 async function main() {
   await relayer(
-    hre.config.networks.goerli as HttpNetworkConfig,
-    hre.companionNetworks.foreignGoerli.deployments,
+    hre.config.networks.sepolia as HttpNetworkConfig,
+    hre.companionNetworks.foreignSepolia.deployments,
     "ForeignGatewayOnEthereum",
     "HomeGatewayToEthereum"
   );

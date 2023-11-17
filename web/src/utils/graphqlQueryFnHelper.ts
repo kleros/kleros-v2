@@ -9,19 +9,19 @@ const DEPLOYMENTS_TO_KLEROS_CORE_SUBGRAPHS = {
   DEVNET: process.env.REACT_APP_KLEROS_CORE_SUBGRAPH_DEVNET,
 };
 
-const DEPLOYMENTS_TO_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPHS = {
-  MAINNET: process.env.REACT_APP_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPH_MAINNET,
-  TESTNET: process.env.REACT_APP_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPH_TESTNET,
-  DEVNET: process.env.REACT_APP_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPH_DEVNET,
+const DEPLOYMENTS_TO_DISPUTE_TEMPLATE_ARBSEPOLIA_SUBGRAPHS = {
+  MAINNET: process.env.REACT_APP_DISPUTE_TEMPLATE_ARBSEPOLIA_SUBGRAPH_MAINNET,
+  TESTNET: process.env.REACT_APP_DISPUTE_TEMPLATE_ARBSEPOLIA_SUBGRAPH_TESTNET,
+  DEVNET: process.env.REACT_APP_DISPUTE_TEMPLATE_ARBSEPOLIA_SUBGRAPH_DEVNET,
 };
 
 const CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH = {
-  421613:
-    DEPLOYMENTS_TO_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPHS[DEPLOYMENT] ??
+  421614:
+    DEPLOYMENTS_TO_DISPUTE_TEMPLATE_ARBSEPOLIA_SUBGRAPHS[DEPLOYMENT] ??
     "https://api.thegraph.com/subgraphs/name/alcercu/disputetemplateregistryarbgrli",
 };
 
-export const graphqlUrl = (isDisputeTemplate = false, chainId = 421613) => {
+export const graphqlUrl = (isDisputeTemplate = false, chainId = 421614) => {
   const coreUrl =
     DEPLOYMENTS_TO_KLEROS_CORE_SUBGRAPHS[DEPLOYMENT] ??
     "https://api.thegraph.com/subgraphs/name/alcercu/kleroscoretest";
@@ -32,7 +32,7 @@ export const graphqlQueryFnHelper = async (
   query: TypedDocumentNode<any, any>,
   parametersObject: Record<string, any>,
   isDisputeTemplate = false,
-  chainId = 421613
+  chainId = 421614
 ) => {
   const url = graphqlUrl(isDisputeTemplate, chainId);
   return request(url, query, parametersObject);

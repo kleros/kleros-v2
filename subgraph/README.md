@@ -2,16 +2,16 @@
 
 ## Deployments
 
-### Arbitrum Goerli (hosted service)
+### Arbitrum Sepolia (hosted service)
 
-- [Subgraph explorer](https://thegraph.com/explorer/subgraph/kleros/kleros-v2-core-arbitrum-goerli)
-- [Subgraph endpoints](https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli)
+- [Subgraph explorer](https://thegraph.com/explorer/subgraph/kleros/kleros-v2-core-arbitrum-sepolia)
+- [Subgraph endpoints](https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-sepolia)
 
 ## Build
 
 ```bash
 # update subgraph.yml using the contract deployment artifacts
-$ yarn update:arbitrum-goerli
+$ yarn update:arbitrum-sepolia
 
 $ yarn codegen
 
@@ -33,7 +33,7 @@ $ yarn run graph auth --product hosted-service
 #### Deployment
 
 ```bash
-yarn deploy:arbitrum-goerli
+yarn deploy:arbitrum-sepolia
 ```
 
 ### Using the Kleros organization account
