@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
@@ -55,7 +55,10 @@ const Dashboard: React.FC = () => {
   );
   const { data: userData } = useUserQuery(address, decodedFilter);
   const totalCases = userData?.user?.disputes.length;
-  const totalPages = !isUndefined(totalCases) ? Math.ceil(totalCases / casesPerPage) : 1;
+  const totalPages = useMemo(
+    () => (!isUndefined(totalCases) ? Math.ceil(totalCases / casesPerPage) : 1),
+    [totalCases, casesPerPage]
+  );
 
   return (
     <Container>
