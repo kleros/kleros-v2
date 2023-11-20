@@ -87,7 +87,7 @@ const stats: IStat[] = [
   },
   {
     title: "In Progress",
-    getText: (data) => data?.numberDisputes,
+    getText: (data) => data?.numberDisputes - data?.numberClosedDisputes,
     color: "orange",
     icon: BalanceIcon,
   },

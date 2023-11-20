@@ -61,6 +61,10 @@ const CasesFetcher: React.FC = () => {
     () => calculateStats(isCourtFilter, courtData?.court, counterData?.counter, decodedFilter),
     [isCourtFilter, courtData?.court, counterData?.counter, decodedFilter]
   );
+  const totalPages = useMemo(
+    () => (!isUndefined(totalCases) ? Math.ceil(totalCases / casesPerPage) : 1),
+    [totalCases, casesPerPage]
+  );
 
   return (
     <CasesDisplay
@@ -69,7 +73,7 @@ const CasesFetcher: React.FC = () => {
       numberClosedDisputes={ruledCases}
       currentPage={pageNumber}
       setCurrentPage={(newPage: number) => navigate(`${location}/${newPage}/${order}/${filter}`)}
-      totalPages={!isUndefined(totalCases) ? Math.ceil(totalCases / casesPerPage) : 1}
+      totalPages={totalPages}
       {...{ casesPerPage }}
     />
   );
