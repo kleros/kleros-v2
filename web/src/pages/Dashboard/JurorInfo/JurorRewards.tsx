@@ -13,6 +13,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: flex-start;
   width: auto;
+  gap: calc(8px + (32 - 8) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 `;
 
 const tooltipMsg =

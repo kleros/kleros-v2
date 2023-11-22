@@ -9,7 +9,7 @@ import PixelArt from "./PixelArt";
 import { useAccount } from "wagmi";
 import { useUserQuery } from "queries/useUser";
 import { getUserLevelData } from "utils/userLevelCalculation";
-// import StakingRewards from "./StakingRewards";
+import StakingRewards from "./StakingRewards";
 
 const Container = styled.div``;
 
@@ -17,18 +17,33 @@ const Card = styled(_Card)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
 
-  gap: 40px;
+  gap: 52px;
   width: 100%;
   height: auto;
-  padding: 24px 0;
+  padding: 24px 32px;
 
   ${landscapeStyle(
     () => css`
       flex-direction: row;
-      gap: calc(24px + (64 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-      height: 236px;
+      gap: 68px calc(24px + (96 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+      min-height: 236px;
+    `
+  )}
+`;
+
+const PixelArtAndCoherency = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 16px;
+
+  ${landscapeStyle(
+    () => css`
+      flex-direction: row;
+      gap: 32px;
     `
   )}
 `;
@@ -51,14 +66,17 @@ const JurorInfo: React.FC = () => {
         totalResolvedDisputes={totalResolvedDisputes}
       />
       <Card>
-        <PixelArt level={userLevelData.level} width="189px" height="189px" />
-        <Coherency
-          userLevelData={userLevelData}
-          totalCoherent={totalCoherent}
-          totalResolvedDisputes={totalResolvedDisputes}
-          isMiniGuide={false}
-        />
+        <PixelArtAndCoherency>
+          <PixelArt level={userLevelData.level} width="189px" height="189px" />
+          <Coherency
+            userLevelData={userLevelData}
+            totalCoherent={totalCoherent}
+            totalResolvedDisputes={totalResolvedDisputes}
+            isMiniGuide={false}
+          />
+        </PixelArtAndCoherency>
         <JurorRewards />
+        <StakingRewards />
       </Card>
     </Container>
   );
