@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { IPFS_GATEWAY } from "consts/index";
 import PolicyIcon from "svgs/icons/policy.svg";
+import { isUndefined } from "utils/index";
 
 const ShadeArea = styled.div`
   display: flex;
@@ -13,17 +14,6 @@ const ShadeArea = styled.div`
     calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   margin-top: 16px;
   background-color: ${({ theme }) => theme.mediumBlue};
-  > p {
-    font-size: 14px;
-    margin-top: 0;
-    margin-bottom: 16px;
-    color: ${({ theme }) => theme.primaryBlue};
-    ${landscapeStyle(
-      () => css`
-        margin-bottom: 0;
-      `
-    )};
-  }
 
   ${landscapeStyle(
     () => css`
@@ -33,14 +23,27 @@ const ShadeArea = styled.div`
   )};
 `;
 
+const StyledP = styled.p`
+  font-size: 14px;
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: ${({ theme }) => theme.primaryBlue};
+  ${landscapeStyle(
+    () => css`
+      margin-bottom: 0;
+    `
+  )};
+`;
+
 const StyledA = styled.a`
   display: flex;
   align-items: center;
   gap: 4px;
-  > svg {
-    width: 16px;
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
+`;
+
+const StyledPolicyIcon = styled(PolicyIcon)`
+  width: 16px;
+  fill: ${({ theme }) => theme.primaryBlue};
 `;
 
 const LinkContainer = styled.div`
@@ -50,23 +53,23 @@ const LinkContainer = styled.div`
 
 interface IPolicies {
   disputePolicyURI?: string;
-  courtId?: number;
+  courtId?: string;
 }
 
 export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId }) => {
   return (
     <ShadeArea>
-      <p>Make sure you read and understand the Policies</p>
+      <StyledP>Make sure you read and understand the Policies</StyledP>
       <LinkContainer>
-        {disputePolicyURI && (
+        {isUndefined(disputePolicyURI) ? null : (
           <StyledA href={`${IPFS_GATEWAY}${disputePolicyURI}`} target="_blank" rel="noreferrer">
-            <PolicyIcon />
+            <StyledPolicyIcon />
             Dispute Policy
           </StyledA>
         )}
-        {courtId && (
+        {isUndefined(courtId) ? null : (
           <StyledA href={`#/courts/${courtId}/purpose?section=description`}>
-            <PolicyIcon />
+            <StyledPolicyIcon />
             Court Policy
           </StyledA>
         )}

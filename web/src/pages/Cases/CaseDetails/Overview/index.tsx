@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
@@ -11,7 +11,7 @@ import DisputeInfo from "components/DisputeCard/DisputeInfo";
 import Verdict from "components/Verdict/index";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
 import { getLocalRounds } from "utils/getLocalRounds";
-import { DisputeBasicInfo } from "./DisputeBasicInfo";
+import { DisputeContext } from "./DisputeContext";
 import { Policies } from "./Policies";
 
 const Container = styled.div`
@@ -21,17 +21,10 @@ const Container = styled.div`
   flex-direction: column;
   gap: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-
-  > h1 {
-    margin: 0;
-  }
-
-  > hr {
-    width: 100%;
-  }
 `;
 
 const Divider = styled.hr`
+  width: 100%;
   display: flex;
   border: none;
   height: 1px;
@@ -54,13 +47,13 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
   const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const courtName = courtPolicy?.name;
   const court = disputeDetails?.dispute?.court;
-  const rewards = court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined;
+  const rewards = useMemo(() => (court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined), [court]);
   const category = disputeTemplate?.category ?? undefined;
 
   return (
     <>
       <Container>
-        <DisputeBasicInfo disputeTemplate={disputeTemplate} />
+        <DisputeContext disputeTemplate={disputeTemplate} />
         <Divider />
 
         {currentPeriodIndex !== Periods.evidence && (
@@ -79,7 +72,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
           {...{ rewards, category }}
         />
       </Container>
-      <Policies disputePolicyURI={disputeTemplate?.policyURI} courtId={courtPolicy && court?.id} />
+      <Policies disputePolicyURI={disputeTemplate?.policyURI} courtId={courtID} />
     </>
   );
 };
