@@ -17,6 +17,7 @@ const Container = styled.div`
     () =>
       css`
         font-size: 14px !important;
+        justify-content: center;
         &::before {
           content: "Coherent Votes";
         }

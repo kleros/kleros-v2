@@ -1,15 +1,22 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { getFormattedRewards } from "utils/jurorRewardConfig";
 import EthIcon from "assets/svgs/icons/eth.svg";
 import PnkIcon from "assets/svgs/icons/kleros.svg";
 import { useUserQuery } from "hooks/queries/useUser";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.div`
   display: flex;
   gap: 8px;
   align-items: center;
   flex-wrap: wrap;
+
+  ${landscapeStyle(
+    () => css`
+      justify-content: center;
+    `
+  )}
 `;
 
 const StyledIcon = styled.div`

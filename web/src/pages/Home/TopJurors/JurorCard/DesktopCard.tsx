@@ -20,9 +20,9 @@ const Container = styled.div`
     () => css`
       display: grid;
       grid-template-columns:
-        min-content repeat(2, calc(80px + (200 - 60) * (min(max(100vw, 375px), 1250px) - 375px) / 875))
-        min-content auto;
-      column-gap: calc(16px + (28 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+        min-content repeat(3, calc(160px + (180 - 160) * (min(max(100vw, 900px), 1250px) - 900px) / 350))
+        auto;
+      column-gap: calc(12px + (28 - 12) * (min(max(100vw, 900px), 1250px) - 900px) / 350);
     `
   )}
 `;
