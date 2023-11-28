@@ -16,8 +16,6 @@ const Container = styled.div`
   ${landscapeStyle(
     () =>
       css`
-        width: calc(60px + (240 - 60) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-
         font-size: 14px !important;
         &::before {
           content: "Total Rewards";

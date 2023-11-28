@@ -1,6 +1,5 @@
 import React from "react";
-import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+import styled from "styled-components";
 import { getFormattedRewards } from "utils/jurorRewardConfig";
 import EthIcon from "assets/svgs/icons/eth.svg";
 import PnkIcon from "assets/svgs/icons/kleros.svg";
@@ -11,13 +10,6 @@ const Container = styled.div`
   gap: 8px;
   align-items: center;
   flex-wrap: wrap;
-
-  ${landscapeStyle(
-    () =>
-      css`
-        width: calc(60px + (240 - 60) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-      `
-  )}
 `;
 
 const StyledIcon = styled.div`
