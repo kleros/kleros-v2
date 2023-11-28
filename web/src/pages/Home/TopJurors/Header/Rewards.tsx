@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
-import WithHelpTooltip from "pages/Dashboard/WithHelpTooltip";
+import WithHelpTooltip from "components/WithHelpTooltip";
 
 const Container = styled.div`
   display: flex;
