@@ -4,9 +4,16 @@ import Search from "./Search";
 import StatsAndFilters from "./StatsAndFilters";
 import CasesGrid, { ICasesGrid } from "./CasesGrid";
 
-const StyledHR = styled.hr`
-  margin-top: 24px;
-  margin-bottom: 24px;
+const Divider = styled.hr`
+  display: flex;
+  border: none;
+  height: 1px;
+  background-color: ${({ theme }) => theme.stroke};
+  margin: calc(20px + (24 - 20) * (min(max(100vw, 375px), 1250px) - 375px) / 875) 0;
+`;
+
+const StyledTitle = styled.h1`
+  margin-bottom: calc(32px + (48 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875) !important;
 `;
 
 interface ICasesDisplay extends ICasesGrid {
@@ -29,10 +36,10 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
 }) => {
   return (
     <div {...{ className }}>
-      <h1>{title}</h1>
+      <StyledTitle>{title}</StyledTitle>
       <Search />
       <StatsAndFilters totalDisputes={numberDisputes ?? 0} closedDisputes={numberClosedDisputes ?? 0} />
-      <StyledHR />
+      <Divider />
 
       {disputes?.length === 0 ? (
         <h1>No cases found</h1>

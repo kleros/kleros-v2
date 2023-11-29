@@ -19,22 +19,30 @@ const Container = styled.div`
 
 const tooltipMsg =
   "A Coherent Vote is a vote coherent with the final jury decision" +
-  " (after all the appeal instances). Your coherency score is calculated" +
-  " using the number of times you have been coherent and the total cases you" +
-  " have been in.";
+  " (after all the appeal instances). If the juror vote is the same as " +
+  " the majority of jurors it's considered a Coherent Vote.";
 
 interface ICoherency {
   userLevelData: {
-    scoreRange: number[];
     level: number;
     title: string;
   };
-  score: number;
   totalCoherent: number;
   totalResolvedDisputes: number;
+  isMiniGuide: boolean;
 }
 
-const Coherency: React.FC<ICoherency> = ({ userLevelData, score, totalCoherent, totalResolvedDisputes }) => {
+const Coherency: React.FC<ICoherency> = ({ userLevelData, totalCoherent, totalResolvedDisputes, isMiniGuide }) => {
+  const votesContent = (
+    <label>
+      Coherent Votes:
+      <small>
+        {" "}
+        {totalCoherent}/{totalResolvedDisputes}{" "}
+      </small>
+    </label>
+  );
+
   return (
     <Container>
       <small>{userLevelData.title}</small>
@@ -42,12 +50,13 @@ const Coherency: React.FC<ICoherency> = ({ userLevelData, score, totalCoherent, 
       <CircularProgress
         progress={parseFloat(((totalCoherent / Math.max(totalResolvedDisputes, 1)) * 100).toFixed(2))}
       />
-      <WithHelpTooltip place="left" {...{ tooltipMsg }}>
-        <label>
-          Coherency Score:
-          <small> {score.toFixed(2)} </small>
-        </label>
-      </WithHelpTooltip>
+      {!isMiniGuide ? (
+        <WithHelpTooltip place="left" {...{ tooltipMsg }}>
+          {votesContent}
+        </WithHelpTooltip>
+      ) : (
+        votesContent
+      )}
     </Container>
   );
 };

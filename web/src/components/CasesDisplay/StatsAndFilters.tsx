@@ -7,7 +7,8 @@ const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 11px;
+  justify-content: space-between;
 `;
 
 const StatsAndFilters: React.FC<IStats> = ({ totalDisputes, closedDisputes }) => (
