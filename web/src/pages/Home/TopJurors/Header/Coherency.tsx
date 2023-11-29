@@ -2,7 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 import { BREAKPOINT_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { useWindowSize } from "react-use";
-import WithHelpTooltip from "pages/Dashboard/WithHelpTooltip";
+import WithHelpTooltip from "components/WithHelpTooltip";
 
 const Container = styled.div`
   display: flex;
@@ -17,6 +17,7 @@ const Container = styled.div`
     () =>
       css`
         font-size: 14px !important;
+        justify-content: center;
         &::before {
           content: "Coherent Votes";
         }

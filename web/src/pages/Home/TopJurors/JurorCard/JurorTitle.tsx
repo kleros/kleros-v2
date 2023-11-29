@@ -1,6 +1,5 @@
 import React from "react";
-import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+import styled from "styled-components";
 import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/AccountDisplay";
 
 const Container = styled.div`
@@ -17,12 +16,6 @@ const Container = styled.div`
     height: 20px;
     border-radius: 10%;
   }
-
-  ${landscapeStyle(
-    () => css`
-      width: calc(40px + (220 - 40) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-    `
-  )}
 `;
 
 interface IJurorTitle {

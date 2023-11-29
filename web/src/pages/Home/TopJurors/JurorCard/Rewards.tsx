@@ -1,10 +1,10 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
 import { getFormattedRewards } from "utils/jurorRewardConfig";
 import EthIcon from "assets/svgs/icons/eth.svg";
 import PnkIcon from "assets/svgs/icons/kleros.svg";
 import { useUserQuery } from "hooks/queries/useUser";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.div`
   display: flex;
@@ -13,10 +13,9 @@ const Container = styled.div`
   flex-wrap: wrap;
 
   ${landscapeStyle(
-    () =>
-      css`
-        width: calc(60px + (240 - 60) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-      `
+    () => css`
+      justify-content: center;
+    `
   )}
 `;
 

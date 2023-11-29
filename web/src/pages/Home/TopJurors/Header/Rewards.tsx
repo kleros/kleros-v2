@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
-import WithHelpTooltip from "pages/Dashboard/WithHelpTooltip";
+import WithHelpTooltip from "components/WithHelpTooltip";
 
 const Container = styled.div`
   display: flex;
@@ -16,9 +16,8 @@ const Container = styled.div`
   ${landscapeStyle(
     () =>
       css`
-        width: calc(60px + (240 - 60) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-
         font-size: 14px !important;
+        justify-content: center;
         &::before {
           content: "Total Rewards";
         }

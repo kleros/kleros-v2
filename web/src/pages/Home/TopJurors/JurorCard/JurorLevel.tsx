@@ -12,6 +12,7 @@ const Container = styled.div`
   ${landscapeStyle(
     () => css`
       gap: 16px;
+      justify-content: end;
     `
   )}
 `;
@@ -34,11 +35,11 @@ const StyledLabel = styled.label`
   )}
 `;
 
-interface IHowItWorks {
+interface IJurorLevel {
   coherenceScore: number;
 }
 
-const HowItWorks: React.FC<IHowItWorks> = ({ coherenceScore }) => {
+const JurorLevel: React.FC<IJurorLevel> = ({ coherenceScore }) => {
   const userLevelData = getUserLevelData(coherenceScore);
   const level = userLevelData.level;
 
@@ -49,4 +50,4 @@ const HowItWorks: React.FC<IHowItWorks> = ({ coherenceScore }) => {
     </Container>
   );
 };
-export default HowItWorks;
+export default JurorLevel;

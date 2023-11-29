@@ -5,13 +5,10 @@ import Rank from "./Rank";
 import JurorTitle from "./JurorTitle";
 import Rewards from "./Rewards";
 import Coherency from "./Coherency";
-import HowItWorks from "./HowItWorks";
+import JurorLevel from "./JurorLevel";
 
 const Container = styled.div`
   display: none;
-
-  justify-content: space-between;
-  flex-wrap: wrap;
   width: 100%;
   background-color: ${({ theme }) => theme.whiteBackground};
   border: 1px solid ${({ theme }) => theme.stroke};
@@ -19,21 +16,15 @@ const Container = styled.div`
   align-items: center;
   padding: 15.55px 32px;
 
-  label {
-    font-size: 16px;
-  }
-
   ${landscapeStyle(
     () => css`
-      display: flex;
+      display: grid;
+      grid-template-columns:
+        min-content repeat(3, calc(160px + (180 - 160) * (min(max(100vw, 900px), 1250px) - 900px) / 350))
+        auto;
+      column-gap: calc(12px + (28 - 12) * (min(max(100vw, 900px), 1250px) - 900px) / 350);
     `
   )}
-`;
-
-const PlaceAndTitleAndRewardsAndCoherency = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: calc(20px + (28 - 20) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 `;
 
 interface IDesktopCard {
@@ -53,13 +44,11 @@ const DesktopCard: React.FC<IDesktopCard> = ({
 }) => {
   return (
     <Container>
-      <PlaceAndTitleAndRewardsAndCoherency>
-        <Rank rank={rank} />
-        <JurorTitle address={address} />
-        <Rewards address={address} />
-        <Coherency totalCoherent={totalCoherent} totalResolvedDisputes={totalResolvedDisputes} />
-      </PlaceAndTitleAndRewardsAndCoherency>
-      <HowItWorks coherenceScore={coherenceScore} />
+      <Rank rank={rank} />
+      <JurorTitle address={address} />
+      <Rewards address={address} />
+      <Coherency totalCoherent={totalCoherent} totalResolvedDisputes={totalResolvedDisputes} />
+      <JurorLevel coherenceScore={coherenceScore} />
     </Container>
   );
 };

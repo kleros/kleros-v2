@@ -2,7 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { CircularProgress } from "@kleros/ui-components-library";
-import WithHelpTooltip from "../WithHelpTooltip";
+import WithHelpTooltip from "components/WithHelpTooltip";
 
 const Container = styled.div`
   display: flex;
