@@ -6,7 +6,7 @@ export function updatePenalty(event: TokenAndETHShift): void {
   const disputeID = event.params._disputeID.toString();
   const roundIndex = event.params._roundID.toString();
   const roundID = `${disputeID}-${roundIndex}`;
-  const jurorAddress = event.params._account;
+  const jurorAddress = event.params._account.toHexString();
   const penaltyID = `${roundID}-${jurorAddress}`;
   const penalty = Penalty.load(penaltyID);
   if (penalty) {
