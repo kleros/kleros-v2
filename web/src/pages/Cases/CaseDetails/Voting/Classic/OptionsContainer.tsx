@@ -22,7 +22,12 @@ const OptionsContainer = styled.div`
 `;
 
 const RefuseToArbitrateContainer = styled.div`
-  width: 100%;
+  position: relative;
+  left: 0;
+  right: 0;
+  width: auto;
+  margin: calc(-16px - (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-top: 32px;
   background-color: ${({ theme }) => theme.lightBlue};
   padding: 32px;
   display: flex;
@@ -56,7 +61,7 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
   return id ? (
     <>
       <MainContainer>
-        <ReactMarkdown>{disputeTemplate.question}</ReactMarkdown>
+        <ReactMarkdown>{disputeTemplate?.question}</ReactMarkdown>
         {!isUndefined(justification) && !isUndefined(setJustification) ? (
           <JustificationArea {...{ justification, setJustification }} />
         ) : null}
