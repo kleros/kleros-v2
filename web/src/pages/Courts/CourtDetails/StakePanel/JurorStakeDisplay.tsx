@@ -7,7 +7,6 @@ import { useAccount } from "wagmi";
 import { isUndefined } from "utils/index";
 import Field from "components/Field";
 import DiceIcon from "svgs/icons/dice.svg";
-import LockerIcon from "svgs/icons/locker.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import { useCourtDetails } from "queries/useCourtDetails";
 import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
@@ -58,7 +57,7 @@ const useCalculateJurorOdds = (
       return "0.00%";
     }
 
-    return bigIntRatioToPercentage(jurorBalance[0], BigInt(stakedByAllJurors));
+    return bigIntRatioToPercentage(jurorBalance[2], BigInt(stakedByAllJurors));
   }, [jurorBalance, stakedByAllJurors, loading]);
 };
 
@@ -78,10 +77,10 @@ const JurorBalanceDisplay = () => {
   const [previousStakedByAllJurors, setPreviousStakedByAllJurors] = useState<bigint | undefined>(undefined);
 
   useEffect(() => {
-    if (previousJurorBalance !== undefined && jurorBalance?.[0] !== previousJurorBalance) {
+    if (previousJurorBalance !== undefined && jurorBalance?.[2] !== previousJurorBalance) {
       setLoading(true);
     }
-    setPreviousJurorBalance(jurorBalance?.[0]);
+    setPreviousJurorBalance(jurorBalance?.[2]);
   }, [jurorBalance, previousJurorBalance]);
 
   useEffect(() => {
@@ -99,16 +98,11 @@ const JurorBalanceDisplay = () => {
     {
       icon: PNKIcon,
       name: "My Stake",
-      value: `${format(jurorBalance?.[0])} PNK`,
-    },
-    {
-      icon: LockerIcon,
-      name: "Locked Stake",
-      value: `${format(jurorBalance?.[1])} PNK`,
+      value: `${format(jurorBalance?.[2])} PNK`,
     },
     {
       icon: DiceIcon,
-      name: "Juror odds",
+      name: "Juror Odds",
       value: jurorOdds,
     },
   ];

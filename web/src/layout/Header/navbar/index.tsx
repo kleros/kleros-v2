@@ -11,7 +11,6 @@ import LightButton from "components/LightButton";
 import { Overlay } from "components/Overlay";
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 import Menu from "./Menu";
-import Debug from "./Debug";
 import Help from "./Menu/Help";
 import Settings from "./Menu/Settings";
 import { DisconnectWalletButton } from "./Menu/Settings/General";
@@ -97,7 +96,6 @@ const NavBar: React.FC = () => {
         <hr />
         <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
         <br />
-        <Debug />
       </Container>
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
         <PopupContainer>

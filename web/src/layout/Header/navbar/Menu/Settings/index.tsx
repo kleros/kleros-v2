@@ -45,7 +45,7 @@ const StyledSettingsText = styled.div`
 
 const StyledTabs = styled(Tabs)`
   padding: 0 calc(8px + (32 - 8) * ((100vw - 300px) / (1250 - 300)));
-  width: 82vw;
+  width: 86vw;
   max-width: 660px;
 
   ${landscapeStyle(

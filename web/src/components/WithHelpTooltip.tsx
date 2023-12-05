@@ -1,5 +1,6 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { Tooltip } from "@kleros/ui-components-library";
 import _HelpIcon from "svgs/menu-icons/help.svg";
 
@@ -9,8 +10,19 @@ const Container = styled.div`
 `;
 
 const HelpIcon = styled(_HelpIcon)`
+  display: flex;
+  align-items: center;
+  height: 12px;
+  width: 12px;
   fill: ${({ theme }) => theme.secondaryText};
-  margin: 4px;
+  margin: 0 0 0 8px;
+
+  ${landscapeStyle(
+    () => css`
+      height: 14px;
+      width: 14px;
+    `
+  )}
 `;
 
 interface IWithHelpTooltip {

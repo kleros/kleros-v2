@@ -1,42 +1,54 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useAccount } from "wagmi";
-import { useFragment as getFragment } from "src/graphql";
-import { useUserQuery, userFragment } from "queries/useUser";
-import { isUndefined } from "utils/index";
+import Skeleton from "react-loading-skeleton";
 import CourtCard from "./CourtCard";
+import Header from "./Header";
+import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 
 const Container = styled.div`
   margin-top: 64px;
-
-  h1 {
-    margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  }
 `;
 
-const CourtsContainer = styled.div`
+const CourtCardsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   z-index: 0;
+
+  ${landscapeStyle(
+    () => css`
+      gap: 16px;
+    `
+  )}
+`;
+
+const StyledLabel = styled.label`
+  font-size: 16px;
 `;
 
 const Courts: React.FC = () => {
   const { address } = useAccount();
-  const { data } = useUserQuery(address?.toLowerCase() as `0x${string}`);
-  const user = getFragment(userFragment, data?.user);
+  const { data: stakeData, isLoading } = useJurorStakeDetailsQuery(address?.toLowerCase() as `0x${string}`);
+  const stakedCourts = stakeData?.jurorTokensPerCourts?.filter(({ staked }) => staked > 0);
+  const isStaked = stakedCourts && stakedCourts.length > 0;
+  const lockedStake = stakeData?.jurorTokensPerCourts?.[0]?.locked;
 
   return (
     <Container>
-      <h1> My Courts </h1>
-      {!isUndefined(data) ? <hr /> : null}
-      <CourtsContainer>
-        {!isUndefined(data)
-          ? user?.tokens?.map(({ court: { id, name } }) => {
-              return <CourtCard key={id} id={id} name={name ?? ""} />;
-            })
-          : null}
-      </CourtsContainer>
+      <Header lockedStake={lockedStake} />
+      {isLoading ? <Skeleton /> : null}
+      {!isStaked && !isLoading ? <StyledLabel>You are not staked in any court</StyledLabel> : null}
+      {isStaked && !isLoading ? (
+        <CourtCardsContainer>
+          {stakeData?.jurorTokensPerCourts
+            ?.filter(({ staked }) => staked > 0)
+            .map(({ court: { id, name }, staked }) => (
+              <CourtCard key={id} name={name ?? ""} stake={staked} />
+            ))}
+        </CourtCardsContainer>
+      ) : null}
     </Container>
   );
 };

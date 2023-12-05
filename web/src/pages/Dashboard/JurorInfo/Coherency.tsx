@@ -2,7 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { CircularProgress } from "@kleros/ui-components-library";
-import WithHelpTooltip from "../WithHelpTooltip";
+import WithHelpTooltip from "components/WithHelpTooltip";
 
 const Container = styled.div`
   display: flex;
@@ -24,15 +24,25 @@ const tooltipMsg =
 
 interface ICoherency {
   userLevelData: {
-    scoreRange: number[];
     level: number;
     title: string;
   };
   totalCoherent: number;
   totalResolvedDisputes: number;
+  isMiniGuide: boolean;
 }
 
-const Coherency: React.FC<ICoherency> = ({ userLevelData, totalCoherent, totalResolvedDisputes }) => {
+const Coherency: React.FC<ICoherency> = ({ userLevelData, totalCoherent, totalResolvedDisputes, isMiniGuide }) => {
+  const votesContent = (
+    <label>
+      Coherent Votes:
+      <small>
+        {" "}
+        {totalCoherent}/{totalResolvedDisputes}{" "}
+      </small>
+    </label>
+  );
+
   return (
     <Container>
       <small>{userLevelData.title}</small>
@@ -40,15 +50,13 @@ const Coherency: React.FC<ICoherency> = ({ userLevelData, totalCoherent, totalRe
       <CircularProgress
         progress={parseFloat(((totalCoherent / Math.max(totalResolvedDisputes, 1)) * 100).toFixed(2))}
       />
-      <WithHelpTooltip place="left" {...{ tooltipMsg }}>
-        <label>
-          Coherent Votes:
-          <small>
-            {" "}
-            {totalCoherent}/{totalResolvedDisputes}{" "}
-          </small>
-        </label>
-      </WithHelpTooltip>
+      {!isMiniGuide ? (
+        <WithHelpTooltip place="left" {...{ tooltipMsg }}>
+          {votesContent}
+        </WithHelpTooltip>
+      ) : (
+        votesContent
+      )}
     </Container>
   );
 };
