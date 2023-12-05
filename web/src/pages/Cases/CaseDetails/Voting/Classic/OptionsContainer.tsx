@@ -26,7 +26,7 @@ const RefuseToArbitrateContainer = styled.div`
   left: 0;
   right: 0;
   width: auto;
-  margin: calc(-16px - (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin: calc(-1 * (16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875));
   margin-top: 32px;
   background-color: ${({ theme }) => theme.lightBlue};
   padding: 32px;
