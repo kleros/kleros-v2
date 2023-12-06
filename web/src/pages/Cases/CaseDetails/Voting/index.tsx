@@ -16,9 +16,10 @@ import { getPeriodEndTimestamp } from "components/DisputeCard";
 import { useDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
 import VoteIcon from "assets/svgs/icons/voted.svg";
 import InfoCircle from "tsx:svgs/icons/info-circle.svg";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
-  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  ${responsiveSize("padding", 16, 32)}
 `;
 
 const InfoContainer = styled.div`
@@ -26,7 +27,7 @@ const InfoContainer = styled.div`
   flex-direction: row;
   color: ${({ theme }) => theme.secondaryText};
   align-items: center;
-  gap: calc(4px + (8 - 4) * ((100vw - 300px) / (1250 - 300)));
+  ${responsiveSize("gap", 4, 8, 300)}
 
   svg {
     min-width: 16px;

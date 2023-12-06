@@ -1,13 +1,14 @@
 import React from "react";
 import styled from "styled-components";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
   color: ${({ theme }) => theme.secondaryText};
   text-align: center;
-  margin-left: calc(8px + (44 - 8) * ((100vw - 300px) / (1250 - 300)));
-  margin-right: calc(8px + (44 - 8) * ((100vw - 300px) / (1250 - 300)));
-  margin-top: calc(8px + (24 - 8) * ((100vw - 300px) / (1250 - 300)));
+  ${responsiveSize("marginLeft", 8, 44, 300)}
+  ${responsiveSize("marginRight", 8, 44, 300)}
+  ${responsiveSize("marginTop", 8, 24, 300)}
 `;
 
 const StakeWithdrawExtraInfo: React.FC = () => {

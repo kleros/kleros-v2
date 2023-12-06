@@ -1,6 +1,7 @@
 import React from "react";
 import { landscapeStyle } from "styles/landscapeStyle";
 import styled, { useTheme, css } from "styled-components";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
@@ -10,7 +11,7 @@ const Container = styled.div`
 
   ${landscapeStyle(
     () => css`
-      margin-bottom: calc(16px + (30 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+      ${responsiveSize("marginBottom", 16, 30)}
     `
   )}
 `;

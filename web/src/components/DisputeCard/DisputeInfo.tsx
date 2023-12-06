@@ -11,6 +11,7 @@ import RoundIcon from "svgs/icons/round.svg";
 import Field from "../Field";
 import { getCourtsPath } from "pages/Courts/CourtDetails";
 import { useCourtTree } from "hooks/queries/useCourtTree";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div<{ isList: boolean; isOverview?: boolean }>`
   display: flex;
@@ -56,7 +57,7 @@ const RestOfFieldsContainer = styled.div<{ isList?: boolean; isOverview?: boolea
       ${landscapeStyle(
         () => css`
           flex-direction: row;
-          gap: calc(4px + (24px - 4px) * ((100vw - 300px) / (900 - 300)));
+          ${responsiveSize("gap", 4, 24, 300, 900)}
           justify-content: space-around;
         `
       )}

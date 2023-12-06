@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
@@ -8,17 +9,17 @@ const Container = styled.div`
 
 const StyledAmountFunded = styled.div`
   display: flex;
-  margin-left: calc(8px + (44 - 8) * ((100vw - 300px) / (1250 - 300)));
-  margin-right: calc(8px + (44 - 8) * ((100vw - 300px) / (1250 - 300)));
+  ${responsiveSize("marginLeft", 8, 44, 300)}
+  ${responsiveSize("marginRight", 8, 44, 300)}
   color: ${({ theme }) => theme.secondaryText};
   text-align: center;
 `;
 
 const StyledOptionFunded = styled.div`
   display: flex;
-  margin-bottom: calc(16px + (32 - 16) * ((100vw - 300px) / (1250 - 300)));
-  margin-left: calc(8px + (44 - 8) * ((100vw - 300px) / (1250 - 300)));
-  margin-right: calc(8px + (44 - 8) * ((100vw - 300px) / (1250 - 300)));
+  ${responsiveSize("marginBottom", 16, 32, 300)}
+  ${responsiveSize("marginLeft", 8, 44, 300)}
+  ${responsiveSize("marginRight", 8, 44, 300)}
   color: ${({ theme }) => theme.secondaryText};
   text-align: center;
 `;

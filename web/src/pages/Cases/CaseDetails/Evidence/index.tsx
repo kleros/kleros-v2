@@ -10,6 +10,7 @@ import { SkeletonEvidenceCard } from "components/StyledSkeleton";
 import EvidenceCard from "components/EvidenceCard";
 import { EnsureChain } from "components/EnsureChain";
 import { isUndefined } from "utils/index";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   width: 100%;
@@ -18,7 +19,7 @@ const Container = styled.div`
   gap: 16px;
 
   align-items: center;
-  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  ${responsiveSize("padding", 16, 32)}
 `;
 
 const StyledButton = styled(Button)`

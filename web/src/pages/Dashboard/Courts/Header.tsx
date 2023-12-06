@@ -4,6 +4,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { formatUnits } from "viem";
 import { isUndefined } from "utils/index";
 import LockerIcon from "svgs/icons/locker.svg";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
@@ -12,7 +13,7 @@ const Container = styled.div`
   gap: 12px;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: calc(32px + (48 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  ${responsiveSize("marginBottom", 32, 48)}
 
   ${landscapeStyle(
     () => css`

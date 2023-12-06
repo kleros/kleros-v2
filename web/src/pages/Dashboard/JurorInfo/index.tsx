@@ -9,6 +9,7 @@ import PixelArt from "./PixelArt";
 import { useAccount } from "wagmi";
 import { useUserQuery } from "queries/useUser";
 import { getUserLevelData } from "utils/userLevelCalculation";
+import { responsiveSize } from "styles/responsiveSize";
 // import StakingRewards from "./StakingRewards";
 
 const Container = styled.div``;
@@ -27,7 +28,7 @@ const Card = styled(_Card)`
   ${landscapeStyle(
     () => css`
       flex-direction: row;
-      gap: calc(24px + (64 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+      ${responsiveSize("gap", 24, 64)}
       height: 236px;
     `
   )}

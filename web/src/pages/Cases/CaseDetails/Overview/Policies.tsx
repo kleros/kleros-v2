@@ -4,6 +4,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { IPFS_GATEWAY } from "consts/index";
 import PolicyIcon from "svgs/icons/policy.svg";
 import { isUndefined } from "utils/index";
+import { responsiveSize } from "styles/responsiveSize";
 
 const ShadeArea = styled.div`
   display: flex;
@@ -48,7 +49,7 @@ const StyledPolicyIcon = styled(PolicyIcon)`
 
 const LinkContainer = styled.div`
   display: flex;
-  gap: calc(8px + (24 - 8) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  ${responsiveSize("gap", 8, 24)}
 `;
 
 interface IPolicies {

@@ -5,13 +5,14 @@ import { DisputeDetailsFragment, useCasesQuery } from "queries/useCasesQuery";
 import DisputeCard from "components/DisputeCard";
 import { SkeletonDisputeCard } from "components/StyledSkeleton";
 import { isUndefined } from "utils/index";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
-  margin-top: calc(48px + (80 - 48) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  ${responsiveSize("marginTop", 48, 80)}
 `;
 
 const Title = styled.h1`
-  margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  ${responsiveSize("marginBottom", 16, 48)}
 `;
 
 const DisputeContainer = styled.div`

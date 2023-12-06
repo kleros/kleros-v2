@@ -7,6 +7,7 @@ import NotificationSettings from "./Notifications";
 import { useFocusOutside } from "hooks/useFocusOutside";
 import { Overlay } from "components/Overlay";
 import { ISettings } from "../../index";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
@@ -50,7 +51,7 @@ const StyledTabs = styled(Tabs)`
 
   ${landscapeStyle(
     () => css`
-      width: calc(300px + (424 - 300) * ((100vw - 300px) / (1250 - 300)));
+      ${responsiveSize("width", 300, 424, 300)}
     `
   )}
 `;

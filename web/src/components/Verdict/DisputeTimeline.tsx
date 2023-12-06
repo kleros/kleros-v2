@@ -12,6 +12,7 @@ import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useVotingHistory } from "queries/useVotingHistory";
 import { getVoteChoice } from "pages/Cases/CaseDetails/Voting/VotingHistory";
 import { getLocalRounds } from "utils/getLocalRounds";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
@@ -27,7 +28,7 @@ const StyledTimeline = styled(CustomTimeline)`
 const EnforcementContainer = styled.div`
   display: flex;
   gap: 8px;
-  margin-top: calc(12px + (24 - 12) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  ${responsiveSize("marginTop", 12, 24)}
   fill: ${({ theme }) => theme.secondaryText};
 
   small {

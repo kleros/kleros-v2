@@ -2,11 +2,12 @@ import React from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import WithHelpTooltip from "components/WithHelpTooltip";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
   justify-content: space-between;
-  gap: calc(15vw + (40 - 15) * ((100vw - 300px) / (1250 - 300)));
+  ${responsiveSize("gap", 15, 40, 300, 1250, "vw")}
   width: 100%;
   height: 100%;
 `;
@@ -16,10 +17,10 @@ const CasesData = styled.div`
   align-items: center;
   justify-content: space-around;
   width: 100%;
-  margin-left: calc(0px + (33) * (100vw - 370px) / (1250 - 370));
+  ${responsiveSize("marginLeft", 0, 33, 370)}
   flex-wrap: wrap;
   padding: 0 3%;
-  gap: calc(24px + (48 - 24) * ((100vw - 300px) / (1250 - 300)));
+  ${responsiveSize("gap", 24, 48, 300)}
 `;
 
 const CaseTitle = styled.div`
@@ -42,7 +43,7 @@ const CaseTitle = styled.div`
 `;
 
 const StyledLabel = styled.label`
-  padding-left: calc(4px + (8 - 4) * ((100vw - 300px) / (900 - 300)));
+  ${responsiveSize("marginLeft", 4, 8, 300, 900)}
 `;
 
 const tooltipMsg =

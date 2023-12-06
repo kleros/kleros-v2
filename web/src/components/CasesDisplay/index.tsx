@@ -3,17 +3,18 @@ import styled from "styled-components";
 import Search from "./Search";
 import StatsAndFilters from "./StatsAndFilters";
 import CasesGrid, { ICasesGrid } from "./CasesGrid";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Divider = styled.hr`
   display: flex;
   border: none;
   height: 1px;
   background-color: ${({ theme }) => theme.stroke};
-  margin: calc(20px + (24 - 20) * (min(max(100vw, 375px), 1250px) - 375px) / 875) 0;
+  ${responsiveSize("margin", 20, 24)}
 `;
 
 const StyledTitle = styled.h1`
-  margin-bottom: calc(32px + (48 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875) !important;
+  ${responsiveSize("marginBottom", 32, 48)}
 `;
 
 interface ICasesDisplay extends ICasesGrid {

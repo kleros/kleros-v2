@@ -7,6 +7,7 @@ import AttachmentIcon from "svgs/icons/attachment.svg";
 import { useIPFSQuery } from "hooks/useIPFSQuery";
 import { shortenAddress } from "utils/shortenAddress";
 import { IPFS_GATEWAY } from "consts/index";
+import { responsiveSize } from "styles/responsiveSize";
 
 const StyledCard = styled(Card)`
   width: 100%;
@@ -14,7 +15,7 @@ const StyledCard = styled(Card)`
 `;
 
 const TextContainer = styled.div`
-  padding: calc(8px + (24 - 8) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  ${responsiveSize("padding", 8, 24)}
   > * {
     overflow-wrap: break-word;
     margin: 0;
@@ -45,7 +46,7 @@ const BottomShade = styled.div`
 const StyledA = styled.a`
   display: flex;
   margin-left: auto;
-  gap: calc(5px + (6 - 5) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  ${responsiveSize("gap", 5, 6)}
 
   ${landscapeStyle(
     () => css`

@@ -15,6 +15,7 @@ import Help from "./navbar/Menu/Help";
 import Settings from "./navbar/Menu/Settings";
 import { Overlay } from "components/Overlay";
 import { PopupContainer } from ".";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: none;
@@ -46,7 +47,8 @@ const MiddleSide = styled.div`
 
 const RightSide = styled.div`
   display: flex;
-  gap: calc(8px + (16 - 8) * ((100vw - 300px) / (1024 - 300)));
+  ${responsiveSize("gap", 8, 16, 300, 1024)}
+
   margin-left: 8px;
   canvas {
     width: 20px;
@@ -57,8 +59,8 @@ const LightButtonContainer = styled.div`
   display: flex;
   align-items: center;
   width: 16px;
-  margin-left: calc(4px + (8 - 4) * ((100vw - 375px) / (1250 - 375)));
-  margin-right: calc(12px + (16 - 12) * ((100vw - 375px) / (1250 - 375)));
+  ${responsiveSize("marginLeft", 4, 8)}
+  ${responsiveSize("marginRight", 12, 16)}
 `;
 
 const StyledLink = styled(Link)`

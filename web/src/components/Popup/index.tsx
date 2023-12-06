@@ -9,13 +9,14 @@ import VoteWithoutCommit from "./Description/VoteWithoutCommit";
 import Appeal from "./Description/Appeal";
 import VoteWithCommitExtraInfo from "./ExtraInfo/VoteWithCommitExtraInfo";
 import StakeWithdrawExtraInfo from "./ExtraInfo/StakeWithdrawExtraInfo";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Header = styled.h1`
   display: flex;
-  margin-top: calc(12px + (32 - 12) * ((100vw - 375px) / (1250 - 375)));
-  margin-bottom: calc(12px + (24 - 12) * ((100vw - 375px) / (1250 - 375)));
-  margin-left: calc(8px + (12 - 8) * ((100vw - 375px) / (1250 - 375)));
-  margin-right: calc(8px + (12 - 8) * ((100vw - 375px) / (1250 - 375)));
+  ${responsiveSize("marginTop", 12, 32)}
+  ${responsiveSize("marginBottom", 12, 24)}
+  ${responsiveSize("marginLeft", 8, 12)}
+  ${responsiveSize("marginRight", 8, 12)}
   text-align: center;
   font-size: 24px;
   font-weight: 600;
@@ -23,20 +24,21 @@ const Header = styled.h1`
 `;
 
 const IconContainer = styled.div`
-  width: calc(150px + (228 - 150) * (100vw - 375px) / (1250 - 375));
+  ${responsiveSize("width", 150, 228)}
+
   display: flex;
   align-items: center;
   justify-content: center;
 
   svg {
     display: inline-block;
-    width: calc(150px + (228 - 150) * (100vw - 375px) / (1250 - 375));
-    height: calc(150px + (228 - 150) * (100vw - 375px) / (1250 - 375));
+    ${responsiveSize("width", 150, 228)}
+    ${responsiveSize("height", 150, 228)}
   }
 `;
 
 const StyledButton = styled(Button)`
-  margin: calc(16px + (32 - 16) * ((100vw - 375px) / (1250 - 375)));
+  ${responsiveSize("margin", 16, 32)}
 `;
 
 const Container = styled.div`
@@ -66,7 +68,7 @@ const Container = styled.div`
   ${landscapeStyle(
     () => css`
       overflow-y: hidden;
-      width: calc(300px + (600 - 300) * (100vw - 375px) / (1250 - 375));
+      ${responsiveSize("width", 300, 600)}
     `
   )}
 `;
@@ -74,9 +76,9 @@ const Container = styled.div`
 const VoteDescriptionContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: calc(16px + (32 - 16) * ((100vw - 375px) / (1250 - 375)));
-  margin-left: calc(8px + (32 - 8) * ((100vw - 375px) / (1250 - 375)));
-  margin-right: calc(8px + (32 - 8) * ((100vw - 375px) / (1250 - 375)));
+  ${responsiveSize("marginBottom", 16, 32)}
+  ${responsiveSize("marginLeft", 8, 32)}
+  ${responsiveSize("marginRight", 8, 32)}
   color: ${({ theme }) => theme.secondaryText};
   text-align: center;
   line-height: 21.8px;

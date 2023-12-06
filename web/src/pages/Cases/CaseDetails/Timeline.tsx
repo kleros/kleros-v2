@@ -7,6 +7,7 @@ import { Box, Steps } from "@kleros/ui-components-library";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import { useCountdown } from "hooks/useCountdown";
 import { secondsToDayHourMinute } from "utils/date";
+import { responsiveSize } from "styles/responsiveSize";
 
 const TimeLineContainer = styled(Box)`
   display: block;
@@ -14,8 +15,8 @@ const TimeLineContainer = styled(Box)`
   height: 98px;
   border-radius: 0px;
   padding: 20px 8px 0px 8px;
-  margin-top: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  margin-bottom: calc(12px + (22 - 12) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  ${responsiveSize("marginTop", 16, 48)}
+  ${responsiveSize("marginBottom", 12, 22)}
   background-color: ${({ theme }) => theme.whiteBackground};
 
   ${landscapeStyle(

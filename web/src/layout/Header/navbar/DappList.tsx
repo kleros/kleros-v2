@@ -12,6 +12,7 @@ import POH from "svgs/icons/poh-image.png";
 import Vea from "svgs/icons/vea.svg";
 import Tokens from "svgs/icons/tokens.svg";
 import Product from "./Product";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Header = styled.h1`
   display: flex;
@@ -52,7 +53,7 @@ const Container = styled.div`
       left: 0;
       right: auto;
       transform: none;
-      width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
+      ${responsiveSize("width", 300, 480)}
       max-height: 80vh;
     `
   )}
@@ -67,7 +68,7 @@ const ItemsDiv = styled.div`
   justify-items: center;
   max-width: 480px;
   min-width: 300px;
-  width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
+  ${responsiveSize("width", 300, 480)}
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 `;
 

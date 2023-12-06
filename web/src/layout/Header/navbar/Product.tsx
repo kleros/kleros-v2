@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.a`
   cursor: pointer;
@@ -15,7 +16,7 @@ const Container = styled.a`
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
   gap: 8px;
-  width: calc(100px + (130 - 100) * (100vw - 375px) / (1250 - 375));
+  ${responsiveSize("width", 100, 130)}
   white-space: nowrap;
 
   background-color: ${({ theme }) => theme.lightBackground};

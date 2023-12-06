@@ -5,12 +5,13 @@ import { useToggle } from "react-use";
 import XIcon from "svgs/socialmedia/x.svg";
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  margin-bottom: calc(32px + (48 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  ${responsiveSize("marginBottom", 32, 48)}
   gap: 12px;
 
   ${landscapeStyle(
