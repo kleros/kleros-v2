@@ -14,6 +14,7 @@ import "hardhat-docgen";
 import "hardhat-contract-sizer";
 import "hardhat-tracer";
 require("./scripts/simulations/tasks");
+require("./scripts/creditLink");
 
 dotenv.config();
 

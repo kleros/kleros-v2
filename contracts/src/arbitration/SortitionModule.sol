@@ -58,7 +58,7 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
     RNG public rng; // The random number generator.
     uint256 public randomNumber; // Random number returned by RNG.
-    uint256 public rngLookahead; // Minimal block distance between requesting and obtaining a random number.
+    uint256 public rngFallbackTimeout; // Time after which RNG fallback will be used if no random number was received.
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
     uint256 public delayedStakeReadIndex; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
     mapping(bytes32 => SortitionSumTree) sortitionSumTrees; // The mapping trees by keys.
@@ -92,14 +92,14 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
     /// @param _minStakingTime Minimal time to stake
     /// @param _maxDrawingTime Time after which the drawing phase can be switched
     /// @param _rng The random number generator.
-    /// @param _rngLookahead Lookahead value for rng.
+    /// @param _rngFallbackTimeout RNG fallback timeout in seconds.
     function initialize(
         address _governor,
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         RNG _rng,
-        uint256 _rngLookahead
+        uint256 _rngFallbackTimeout
     ) external reinitializer(1) {
         governor = _governor;
         core = _core;
@@ -107,7 +107,7 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         maxDrawingTime = _maxDrawingTime;
         lastPhaseChange = block.timestamp;
         rng = _rng;
-        rngLookahead = _rngLookahead;
+        rngFallbackTimeout = _rngFallbackTimeout;
         delayedStakeReadIndex = 1;
     }
 
@@ -135,16 +135,20 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         maxDrawingTime = _maxDrawingTime;
     }
 
-    /// @dev Changes the `_rng` and `_rngLookahead` storage variables.
+    /// @dev Changes the `_rng` storage variable.
     /// @param _rng The new value for the `RNGenerator` storage variable.
-    /// @param _rngLookahead The new value for the `rngLookahead` storage variable.
-    function changeRandomNumberGenerator(RNG _rng, uint256 _rngLookahead) external onlyByGovernor {
+    function changeRandomNumberGenerator(RNG _rng) external onlyByGovernor {
         rng = _rng;
-        rngLookahead = _rngLookahead;
         if (phase == Phase.generating) {
-            rng.requestRandomness(block.number + rngLookahead);
+            rng.requestRandomness(block.number);
             randomNumberRequestBlock = block.number;
         }
+    }
+
+    /// @dev Changes the `rngFallbackTimeout` storage variable.
+    /// @param _rngFallbackTimeout The new value for the `rngFallbackTimeout` storage variable.
+    function changeRNGFallbackTimeout(uint256 _rngFallbackTimeout) external onlyByGovernor {
+        rngFallbackTimeout = _rngFallbackTimeout;
     }
 
     // ************************************* //
@@ -158,23 +162,31 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
                 "The minimum staking time has not passed yet."
             );
             require(disputesWithoutJurors > 0, "There are no disputes that need jurors.");
-            rng.requestRandomness(block.number + rngLookahead);
+            rng.requestRandomness(block.number);
             randomNumberRequestBlock = block.number;
             phase = Phase.generating;
+            lastPhaseChange = block.timestamp;
+            emit NewPhase(phase);
         } else if (phase == Phase.generating) {
-            randomNumber = rng.receiveRandomness(randomNumberRequestBlock + rngLookahead);
-            require(randomNumber != 0, "Random number is not ready yet");
-            phase = Phase.drawing;
+            randomNumber = rng.receiveRandomness(randomNumberRequestBlock);
+            if (randomNumber == 0) {
+                if (block.number > randomNumberRequestBlock + rngFallbackTimeout) {
+                    rng.receiveRandomnessFallback(block.number);
+                }
+            } else {
+                phase = Phase.drawing;
+                lastPhaseChange = block.timestamp;
+                emit NewPhase(phase);
+            }
         } else if (phase == Phase.drawing) {
             require(
                 disputesWithoutJurors == 0 || block.timestamp - lastPhaseChange >= maxDrawingTime,
                 "There are still disputes without jurors and the maximum drawing time has not passed yet."
             );
             phase = Phase.staking;
+            lastPhaseChange = block.timestamp;
+            emit NewPhase(phase);
         }
-
-        lastPhaseChange = block.timestamp;
-        emit NewPhase(phase);
     }
 
     /// @dev Create a sortition sum tree at the specified key.

@@ -11,7 +11,7 @@ enum HomeChains {
 
 const deployUpgradeSortitionModule: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts, getChainId } = hre;
-  const RNG_LOOKAHEAD = 20;
+  const RNG_FALLBACK = 150;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -32,7 +32,7 @@ const deployUpgradeSortitionModule: DeployFunction = async (hre: HardhatRuntimeE
         1800, // minStakingTime
         1800, // maxFreezingTime
         rng.address,
-        RNG_LOOKAHEAD,
+        RNG_FALLBACK,
       ],
     });
   } catch (err) {
