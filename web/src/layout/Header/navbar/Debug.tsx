@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useSortitionModulePhase } from "hooks/contracts/generated";
+import { useToggleTheme } from "hooks/useToggleThemeContext";
 import { GIT_BRANCH, GIT_DIRTY, GIT_HASH, GIT_TAGS, GIT_URL, RELEASE_VERSION } from "consts/index";
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
   label,
   a {
     font-family: "Roboto Mono", monospace;
@@ -11,6 +16,13 @@ const Container = styled.div`
     font-size: 10px;
     color: ${({ theme }) => theme.stroke};
   }
+`;
+
+const StyledIframe = styled.iframe`
+  border: none;
+  width: 100%;
+  height: 30px;
+  border-radius: 300px;
 `;
 
 const Version = () => (
@@ -25,6 +37,13 @@ const Version = () => (
   </label>
 );
 
+const ServicesStatus = () => {
+  const [theme] = useToggleTheme();
+  const statusUrlParameters = useMemo(() => (theme === "light" ? "?theme=light" : "?theme=dark"), [theme]);
+  const statusUrl = process.env.REACT_APP_STATUS_URL;
+  return <label>{statusUrl && <StyledIframe src={`${statusUrl + statusUrlParameters}`} />}</label>;
+};
+
 enum Phases {
   staking,
   generating,
@@ -35,21 +54,13 @@ const Phase = () => {
   const { data: phase } = useSortitionModulePhase({
     watch: true,
   });
-  return (
-    <>
-      {phase !== undefined && (
-        <label>
-          <br />
-          phase: {Phases[phase]}
-        </label>
-      )}
-    </>
-  );
+  return <>{phase !== undefined && <label>Phase: {Phases[phase]}</label>}</>;
 };
 
 const Debug: React.FC = () => {
   return (
     <Container>
+      <ServicesStatus />
       <Version />
       <Phase />
     </Container>

@@ -12,7 +12,6 @@ import Telegram from "svgs/socialmedia/telegram.svg";
 import { IHelp } from "..";
 import Debug from "../Debug";
 import Onboarding from "components/Popup/MiniGuides/Onboarding";
-import { StatusBadge } from "./StatusBadge";
 
 const Container = styled.div`
   display: flex;
@@ -123,7 +122,6 @@ const Help: React.FC<IHelp> = ({ toggleIsHelpOpen }) => {
             <small>{item.text}</small>
           </ListItem>
         ))}
-        <StatusBadge />
         <Debug />
       </Container>
       {isOnboardingMiniGuidesOpen && <Onboarding toggleMiniGuide={toggleIsOnboardingMiniGuidesOpen} />}
