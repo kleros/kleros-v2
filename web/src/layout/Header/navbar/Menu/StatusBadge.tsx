@@ -33,8 +33,8 @@ export const StatusBadge: React.FC = () => {
       statusUrl = process.env.REACT_APP_TESTNET_STATUS_URL!;
   }
 
-  //update url on theme toggle
-  statusUrl = useMemo(() => (theme == "light" ? statusUrl + "?theme=light" : statusUrl + "?theme=dark"), [theme]);
+  // update url on theme toggle
+  statusUrl = useMemo(() => (theme === "light" ? statusUrl + "?theme=light" : statusUrl + "?theme=dark"), [theme]);
 
   return (
     <Container>
