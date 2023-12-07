@@ -62,6 +62,7 @@ contract Escrow is IArbitrableV2 {
     IArbitratorV2 public arbitrator; // Address of the arbitrator contract.
     bytes public arbitratorExtraData; // Extra data to set up the arbitration.
     IDisputeTemplateRegistry public templateRegistry; // The dispute template registry.
+    uint256 public templateId; // The current dispute template identifier.
     uint256 public immutable feeTimeout; // Time in seconds a party can take to pay arbitration fees before being considered unresponsive and lose the dispute.
     Transaction[] public transactions; // List of all created transactions.
     mapping(uint256 => uint256) public disputeIDtoTransactionID; // Naps dispute ID to tx ID.
@@ -115,11 +116,15 @@ contract Escrow is IArbitrableV2 {
     /// @dev Constructor.
     /// @param _arbitrator The arbitrator of the contract.
     /// @param _arbitratorExtraData Extra data for the arbitrator.
+    /// @param _templateData The dispute template data.
+    /// @param _templateDataMappings The dispute template data mappings.
     /// @param _templateRegistry The dispute template registry.
     /// @param _feeTimeout Arbitration fee timeout for the parties.
     constructor(
         IArbitratorV2 _arbitrator,
         bytes memory _arbitratorExtraData,
+        string memory _templateData,
+        string memory _templateDataMappings,
         IDisputeTemplateRegistry _templateRegistry,
         uint256 _feeTimeout
     ) {
@@ -128,6 +133,8 @@ contract Escrow is IArbitrableV2 {
         arbitratorExtraData = _arbitratorExtraData;
         templateRegistry = _templateRegistry;
         feeTimeout = _feeTimeout;
+
+        templateId = templateRegistry.setDisputeTemplate("", _templateData, _templateDataMappings);
     }
 
     // ************************************* //
@@ -144,6 +151,13 @@ contract Escrow is IArbitrableV2 {
 
     function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external onlyByGovernor {
         templateRegistry = _templateRegistry;
+    }
+
+    function changeDisputeTemplate(
+        string memory _templateData,
+        string memory _templateDataMappings
+    ) external onlyByGovernor {
+        templateId = templateRegistry.setDisputeTemplate("", _templateData, _templateDataMappings);
     }
 
     // ************************************* //
@@ -233,15 +247,13 @@ contract Escrow is IArbitrableV2 {
         );
         require(msg.sender == transaction.sender, "The caller must be the sender.");
 
-        uint256 arbitrationCost = arbitrator.arbitrationCost(arbitratorExtraData);
         transaction.senderFee += msg.value;
-        // Require that the total paid to be at least the arbitration cost.
+        uint256 arbitrationCost = arbitrator.arbitrationCost(arbitratorExtraData);
         require(transaction.senderFee >= arbitrationCost, "The sender fee must cover arbitration costs.");
 
         transaction.lastInteraction = block.timestamp;
 
-        // The receiver still has to pay. This can also happen if he has paid,
-        // but arbitrationCost has increased.
+        // The receiver still has to pay. This can also happen if he has paid, but arbitrationCost has increased.
         if (transaction.receiverFee < arbitrationCost) {
             transaction.status = Status.WaitingReceiver;
             emit HasToPayFee(_transactionID, Party.Receiver);
@@ -262,9 +274,8 @@ contract Escrow is IArbitrableV2 {
         );
         require(msg.sender == transaction.receiver, "The caller must be the receiver.");
 
-        uint256 arbitrationCost = arbitrator.arbitrationCost(arbitratorExtraData);
         transaction.receiverFee += msg.value;
-        // Require that the total paid to be at least the arbitration cost.
+        uint256 arbitrationCost = arbitrator.arbitrationCost(arbitratorExtraData);
         require(transaction.receiverFee >= arbitrationCost, "The receiver fee must cover arbitration costs.");
 
         transaction.lastInteraction = block.timestamp;
@@ -310,39 +321,6 @@ contract Escrow is IArbitrableV2 {
         emit TransactionResolved(_transactionID, Resolution.TimeoutByReceiver);
     }
 
-    /// @dev Create a dispute.
-    /// @param _transactionID The index of the transaction.
-    /// @param _arbitrationCost Amount to pay the arbitrator.
-    function raiseDispute(uint256 _transactionID, uint256 _arbitrationCost) internal {
-        Transaction storage transaction = transactions[_transactionID];
-        transaction.status = Status.DisputeCreated;
-        transaction.disputeID = arbitrator.createDispute{value: _arbitrationCost}(
-            AMOUNT_OF_CHOICES,
-            arbitratorExtraData
-        );
-        disputeIDtoTransactionID[transaction.disputeID] = _transactionID;
-        uint256 templateId = templateRegistry.setDisputeTemplate(
-            "",
-            transaction.templateData,
-            transaction.templateDataMappings
-        );
-        emit DisputeRequest(arbitrator, transaction.disputeID, _transactionID, templateId, "");
-
-        // Refund sender if he overpaid.
-        if (transaction.senderFee > _arbitrationCost) {
-            uint256 extraFeeSender = transaction.senderFee - _arbitrationCost;
-            transaction.senderFee = _arbitrationCost;
-            transaction.sender.send(extraFeeSender); // It is the user responsibility to accept ETH.
-        }
-
-        // Refund receiver if he overpaid.
-        if (transaction.receiverFee > _arbitrationCost) {
-            uint256 extraFeeReceiver = transaction.receiverFee - _arbitrationCost;
-            transaction.receiverFee = _arbitrationCost;
-            transaction.receiver.send(extraFeeReceiver); // It is the user responsibility to accept ETH.
-        }
-    }
-
     /// @dev Give a ruling for a dispute. Must be called by the arbitrator to enforce the final ruling.
     ///      The purpose of this function is to ensure that the address calling it has the right to rule on the contract.
     /// @param _disputeID ID of the dispute in the Arbitrator contract.
@@ -358,6 +336,38 @@ contract Escrow is IArbitrableV2 {
 
         emit Ruling(arbitrator, _disputeID, _ruling);
         executeRuling(transactionID, _ruling);
+    }
+
+    // ************************************* //
+    // *            Internal               * //
+    // ************************************* //
+
+    /// @dev Create a dispute.
+    /// @param _transactionID The index of the transaction.
+    /// @param _arbitrationCost Amount to pay the arbitrator.
+    function raiseDispute(uint256 _transactionID, uint256 _arbitrationCost) internal {
+        Transaction storage transaction = transactions[_transactionID];
+        transaction.status = Status.DisputeCreated;
+        transaction.disputeID = arbitrator.createDispute{value: _arbitrationCost}(
+            AMOUNT_OF_CHOICES,
+            arbitratorExtraData
+        );
+        disputeIDtoTransactionID[transaction.disputeID] = _transactionID;
+        emit DisputeRequest(arbitrator, transaction.disputeID, _transactionID, templateId, "");
+
+        // Refund sender if he overpaid.
+        if (transaction.senderFee > _arbitrationCost) {
+            uint256 extraFeeSender = transaction.senderFee - _arbitrationCost;
+            transaction.senderFee = _arbitrationCost;
+            transaction.sender.send(extraFeeSender); // It is the user responsibility to accept ETH.
+        }
+
+        // Refund receiver if he overpaid.
+        if (transaction.receiverFee > _arbitrationCost) {
+            uint256 extraFeeReceiver = transaction.receiverFee - _arbitrationCost;
+            transaction.receiverFee = _arbitrationCost;
+            transaction.receiver.send(extraFeeReceiver); // It is the user responsibility to accept ETH.
+        }
     }
 
     /// @dev Execute a ruling of a dispute. It reimburses the fee to the winning party.
