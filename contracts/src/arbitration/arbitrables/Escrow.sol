@@ -10,7 +10,7 @@ pragma solidity 0.8.18;
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
 import "../interfaces/IDisputeTemplateRegistry.sol";
 
-/// @title Escrow
+/// @title Escrow for a sale paid in ETH and no fees.
 /// @dev MultipleArbitrableTransaction contract that is compatible with V2.
 ///      Adapted from https://github.com/kleros/kleros-interaction/blob/master/contracts/standard/arbitration/MultipleArbitrableTransaction.sol
 contract Escrow is IArbitrableV2 {
@@ -20,34 +20,34 @@ contract Escrow is IArbitrableV2 {
 
     enum Party {
         None,
-        Sender,
-        Receiver
+        Buyer, // Makes a purchase in ETH.
+        Seller // Provides a good or service in exchange for ETH.
     }
 
     enum Status {
         NoDispute,
-        WaitingSender,
-        WaitingReceiver,
+        WaitingBuyer,
+        WaitingSeller,
         DisputeCreated,
         TransactionResolved
     }
 
     enum Resolution {
         TransactionExecuted,
-        TimeoutBySender,
-        TimeoutByReceiver,
+        TimeoutByBuyer,
+        TimeoutBySeller,
         RulingEnforced
     }
 
     struct Transaction {
-        address payable sender;
-        address payable receiver;
+        address payable buyer;
+        address payable seller;
         uint256 amount;
         uint256 deadline; // Timestamp at which the transaction can be automatically executed if not disputed.
         uint256 disputeID; // If dispute exists, the ID of the dispute.
-        uint256 senderFee; // Total fees paid by the sender.
-        uint256 receiverFee; // Total fees paid by the receiver.
-        uint256 lastInteraction; // Last interaction for the dispute procedure.
+        uint256 buyerFee; // Total fees paid by the buyer.
+        uint256 sellerFee; // Total fees paid by the seller.
+        uint256 lastFeePaymentTime; // Last time the dispute fees were paid by either party.
         string templateData;
         string templateDataMappings;
         Status status;
@@ -84,13 +84,13 @@ contract Escrow is IArbitrableV2 {
 
     /// @dev Emitted when a transaction is created.
     /// @param _transactionID The index of the transaction.
-    /// @param _sender The address of the sender.
-    /// @param _receiver The address of the receiver.
+    /// @param _buyer The address of the buyer.
+    /// @param _seller The address of the seller.
     /// @param _amount The initial amount in the transaction.
     event TransactionCreated(
         uint256 indexed _transactionID,
-        address indexed _sender,
-        address indexed _receiver,
+        address indexed _buyer,
+        address indexed _seller,
         uint256 _amount
     );
 
@@ -166,19 +166,19 @@ contract Escrow is IArbitrableV2 {
 
     /// @dev Create a transaction.
     /// @param _timeoutPayment Time after which a party can automatically execute the arbitrable transaction.
-    /// @param _receiver The recipient of the transaction.
+    /// @param _seller The recipient of the transaction.
     /// @param _templateData The dispute template data.
     /// @param _templateDataMappings The dispute template data mappings.
     /// @return transactionID The index of the transaction.
     function createTransaction(
         uint256 _timeoutPayment,
-        address payable _receiver,
+        address payable _seller,
         string memory _templateData,
         string memory _templateDataMappings
     ) external payable returns (uint256 transactionID) {
         Transaction storage transaction = transactions.push();
-        transaction.sender = payable(msg.sender);
-        transaction.receiver = _receiver;
+        transaction.buyer = payable(msg.sender);
+        transaction.seller = _seller;
         transaction.amount = msg.value;
         transaction.deadline = block.timestamp + _timeoutPayment;
         transaction.templateData = _templateData;
@@ -186,132 +186,132 @@ contract Escrow is IArbitrableV2 {
 
         transactionID = transactions.length - 1;
 
-        emit TransactionCreated(transactionID, msg.sender, _receiver, msg.value);
+        emit TransactionCreated(transactionID, msg.sender, _seller, msg.value);
     }
 
-    /// @dev Pay receiver. To be called if the good or service is provided.
+    /// @dev Pay seller. To be called if the good or service is provided.
     /// @param _transactionID The index of the transaction.
     /// @param _amount Amount to pay in wei.
     function pay(uint256 _transactionID, uint256 _amount) external {
         Transaction storage transaction = transactions[_transactionID];
-        if (transaction.sender != msg.sender) revert SenderOnly();
+        if (transaction.buyer != msg.sender) revert BuyerOnly();
         if (transaction.status != Status.NoDispute) revert TransactionDisputed();
         if (_amount > transaction.amount) revert MaximumPaymentAmountExceeded();
 
-        transaction.receiver.send(_amount); // It is the user responsibility to accept ETH.
+        transaction.seller.send(_amount); // It is the user responsibility to accept ETH.
         transaction.amount -= _amount;
 
         emit Payment(_transactionID, _amount, msg.sender);
     }
 
-    /// @dev Reimburse sender. To be called if the good or service can't be fully provided.
+    /// @dev Reimburse buyer. To be called if the good or service can't be fully provided.
     /// @param _transactionID The index of the transaction.
     /// @param _amountReimbursed Amount to reimburse in wei.
     function reimburse(uint256 _transactionID, uint256 _amountReimbursed) external {
         Transaction storage transaction = transactions[_transactionID];
-        if (transaction.receiver != msg.sender) revert ReceiverOnly();
+        if (transaction.seller != msg.sender) revert SellerOnly();
         if (transaction.status != Status.NoDispute) revert TransactionDisputed();
         if (_amountReimbursed > transaction.amount) revert MaximumPaymentAmountExceeded();
 
-        transaction.sender.send(_amountReimbursed); // It is the user responsibility to accept ETH.
+        transaction.buyer.send(_amountReimbursed); // It is the user responsibility to accept ETH.
         transaction.amount -= _amountReimbursed;
 
         emit Payment(_transactionID, _amountReimbursed, msg.sender);
     }
 
-    /// @dev Transfer the transaction's amount to the receiver if the timeout has passed.
+    /// @dev Transfer the transaction's amount to the seller if the timeout has passed.
     /// @param _transactionID The index of the transaction.
     function executeTransaction(uint256 _transactionID) external {
         Transaction storage transaction = transactions[_transactionID];
         if (block.timestamp < transaction.deadline) revert DeadlineNotPassed();
         if (transaction.status != Status.NoDispute) revert TransactionDisputed();
 
-        transaction.receiver.send(transaction.amount); // It is the user responsibility to accept ETH.
+        transaction.seller.send(transaction.amount); // It is the user responsibility to accept ETH.
         transaction.amount = 0;
         transaction.status = Status.TransactionResolved;
 
         emit TransactionResolved(_transactionID, Resolution.TransactionExecuted);
     }
 
-    /// @dev Pay the arbitration fee to raise a dispute. To be called by the sender.
+    /// @dev Pay the arbitration fee to raise a dispute. To be called by the buyer.
     /// Note that the arbitrator can have createDispute throw, which will make
     ///      this function throw and therefore lead to a party being timed-out.
     ///      This is not a vulnerability as the arbitrator can rule in favor of one party anyway.
     /// @param _transactionID The index of the transaction.
-    function payArbitrationFeeBySender(uint256 _transactionID) external payable {
+    function payArbitrationFeeByBuyer(uint256 _transactionID) external payable {
         Transaction storage transaction = transactions[_transactionID];
         if (transaction.status >= Status.DisputeCreated) revert DisputeAlreadyCreatedOrTransactionAlreadyExecuted();
-        if (msg.sender != transaction.sender) revert SenderOnly();
+        if (msg.sender != transaction.buyer) revert BuyerOnly();
 
-        transaction.senderFee += msg.value;
+        transaction.buyerFee += msg.value;
         uint256 arbitrationCost = arbitrator.arbitrationCost(arbitratorExtraData);
-        if (transaction.senderFee < arbitrationCost) revert SenderFeeNotCoverArbitrationCosts();
+        if (transaction.buyerFee < arbitrationCost) revert BuyerFeeNotCoverArbitrationCosts();
 
-        transaction.lastInteraction = block.timestamp;
+        transaction.lastFeePaymentTime = block.timestamp;
 
-        if (transaction.receiverFee < arbitrationCost) {
-            // The receiver still has to pay. This can also happen if he has paid, but arbitrationCost has increased.
-            transaction.status = Status.WaitingReceiver;
-            emit HasToPayFee(_transactionID, Party.Receiver);
+        if (transaction.sellerFee < arbitrationCost) {
+            // The seller still has to pay. This can also happen if he has paid, but arbitrationCost has increased.
+            transaction.status = Status.WaitingSeller;
+            emit HasToPayFee(_transactionID, Party.Seller);
         } else {
-            // The receiver has also paid the fee. We create the dispute.
+            // The seller has also paid the fee. We create the dispute.
             raiseDispute(_transactionID, arbitrationCost);
         }
     }
 
-    /// @dev Pay the arbitration fee to raise a dispute. To be called by the receiver.
-    /// Note that this function mirrors payArbitrationFeeBySender.
+    /// @dev Pay the arbitration fee to raise a dispute. To be called by the seller.
+    /// Note that this function mirrors payArbitrationFeeByBuyer.
     /// @param _transactionID The index of the transaction.
-    function payArbitrationFeeByReceiver(uint256 _transactionID) external payable {
+    function payArbitrationFeeBySeller(uint256 _transactionID) external payable {
         Transaction storage transaction = transactions[_transactionID];
         if (transaction.status >= Status.DisputeCreated) revert DisputeAlreadyCreatedOrTransactionAlreadyExecuted();
-        if (msg.sender != transaction.receiver) revert ReceiverOnly();
+        if (msg.sender != transaction.seller) revert SellerOnly();
 
-        transaction.receiverFee += msg.value;
+        transaction.sellerFee += msg.value;
         uint256 arbitrationCost = arbitrator.arbitrationCost(arbitratorExtraData);
-        if (transaction.receiverFee < arbitrationCost) revert ReceiverFeeNotCoverArbitrationCosts();
+        if (transaction.sellerFee < arbitrationCost) revert SellerFeeNotCoverArbitrationCosts();
 
-        transaction.lastInteraction = block.timestamp;
+        transaction.lastFeePaymentTime = block.timestamp;
 
-        if (transaction.senderFee < arbitrationCost) {
-            // The sender still has to pay. This can also happen if he has paid, but arbitrationCost has increased.
-            transaction.status = Status.WaitingSender;
-            emit HasToPayFee(_transactionID, Party.Sender);
+        if (transaction.buyerFee < arbitrationCost) {
+            // The buyer still has to pay. This can also happen if he has paid, but arbitrationCost has increased.
+            transaction.status = Status.WaitingBuyer;
+            emit HasToPayFee(_transactionID, Party.Buyer);
         } else {
-            // The sender has also paid the fee. We create the dispute.
+            // The buyer has also paid the fee. We create the dispute.
             raiseDispute(_transactionID, arbitrationCost);
         }
     }
 
-    /// @dev Reimburse sender if receiver fails to pay the fee.
+    /// @dev Reimburse buyer if seller fails to pay the fee.
     /// @param _transactionID The index of the transaction.
-    function timeOutBySender(uint256 _transactionID) external {
+    function timeOutByBuyer(uint256 _transactionID) external {
         Transaction storage transaction = transactions[_transactionID];
-        if (transaction.status != Status.WaitingReceiver) revert NotWaitingForReceiverFees();
-        if (block.timestamp - transaction.lastInteraction < feeTimeout) revert TimeoutNotPassed();
+        if (transaction.status != Status.WaitingSeller) revert NotWaitingForSellerFees();
+        if (block.timestamp - transaction.lastFeePaymentTime < feeTimeout) revert TimeoutNotPassed();
 
-        if (transaction.receiverFee != 0) {
-            transaction.receiver.send(transaction.receiverFee); // It is the user responsibility to accept ETH.
-            transaction.receiverFee = 0;
+        if (transaction.sellerFee != 0) {
+            transaction.seller.send(transaction.sellerFee); // It is the user responsibility to accept ETH.
+            transaction.sellerFee = 0;
         }
-        executeRuling(_transactionID, uint256(Party.Sender));
-        emit TransactionResolved(_transactionID, Resolution.TimeoutBySender);
+        executeRuling(_transactionID, uint256(Party.Buyer));
+        emit TransactionResolved(_transactionID, Resolution.TimeoutByBuyer);
     }
 
-    /// @dev Pay receiver if sender fails to pay the fee.
+    /// @dev Pay seller if buyer fails to pay the fee.
     /// @param _transactionID The index of the transaction.
-    function timeOutByReceiver(uint256 _transactionID) external {
+    function timeOutBySeller(uint256 _transactionID) external {
         Transaction storage transaction = transactions[_transactionID];
-        if (transaction.status != Status.WaitingSender) revert NotWaitingForSenderFees();
-        if (block.timestamp - transaction.lastInteraction < feeTimeout) revert TimeoutNotPassed();
+        if (transaction.status != Status.WaitingBuyer) revert NotWaitingForBuyerFees();
+        if (block.timestamp - transaction.lastFeePaymentTime < feeTimeout) revert TimeoutNotPassed();
 
-        if (transaction.senderFee != 0) {
-            transaction.sender.send(transaction.senderFee); // It is the user responsibility to accept ETH.
-            transaction.senderFee = 0;
+        if (transaction.buyerFee != 0) {
+            transaction.buyer.send(transaction.buyerFee); // It is the user responsibility to accept ETH.
+            transaction.buyerFee = 0;
         }
 
-        executeRuling(_transactionID, uint256(Party.Receiver));
-        emit TransactionResolved(_transactionID, Resolution.TimeoutByReceiver);
+        executeRuling(_transactionID, uint256(Party.Seller));
+        emit TransactionResolved(_transactionID, Resolution.TimeoutBySeller);
     }
 
     /// @dev Give a ruling for a dispute. Must be called by the arbitrator to enforce the final ruling.
@@ -348,41 +348,41 @@ contract Escrow is IArbitrableV2 {
         disputeIDtoTransactionID[transaction.disputeID] = _transactionID;
         emit DisputeRequest(arbitrator, transaction.disputeID, _transactionID, templateId, "");
 
-        // Refund sender if he overpaid.
-        if (transaction.senderFee > _arbitrationCost) {
-            uint256 extraFeeSender = transaction.senderFee - _arbitrationCost;
-            transaction.senderFee = _arbitrationCost;
-            transaction.sender.send(extraFeeSender); // It is the user responsibility to accept ETH.
+        // Refund buyer if he overpaid.
+        if (transaction.buyerFee > _arbitrationCost) {
+            uint256 extraFeeBuyer = transaction.buyerFee - _arbitrationCost;
+            transaction.buyerFee = _arbitrationCost;
+            transaction.buyer.send(extraFeeBuyer); // It is the user responsibility to accept ETH.
         }
 
-        // Refund receiver if he overpaid.
-        if (transaction.receiverFee > _arbitrationCost) {
-            uint256 extraFeeReceiver = transaction.receiverFee - _arbitrationCost;
-            transaction.receiverFee = _arbitrationCost;
-            transaction.receiver.send(extraFeeReceiver); // It is the user responsibility to accept ETH.
+        // Refund seller if he overpaid.
+        if (transaction.sellerFee > _arbitrationCost) {
+            uint256 extraFeeSeller = transaction.sellerFee - _arbitrationCost;
+            transaction.sellerFee = _arbitrationCost;
+            transaction.seller.send(extraFeeSeller); // It is the user responsibility to accept ETH.
         }
     }
 
     /// @dev Execute a ruling of a dispute. It reimburses the fee to the winning party.
     /// @param _transactionID The index of the transaction.
-    /// @param _ruling Ruling given by the arbitrator. 1 : Reimburse the receiver. 2 : Pay the sender.
+    /// @param _ruling Ruling given by the arbitrator. 1 : Reimburse the seller. 2 : Pay the buyer.
     function executeRuling(uint256 _transactionID, uint256 _ruling) internal {
         Transaction storage transaction = transactions[_transactionID];
         // Give the arbitration fee back.
         // Note that we use send to prevent a party from blocking the execution.
-        if (_ruling == uint256(Party.Sender)) {
-            transaction.sender.send(transaction.senderFee + transaction.amount);
-        } else if (_ruling == uint256(Party.Receiver)) {
-            transaction.receiver.send(transaction.receiverFee + transaction.amount);
+        if (_ruling == uint256(Party.Buyer)) {
+            transaction.buyer.send(transaction.buyerFee + transaction.amount);
+        } else if (_ruling == uint256(Party.Seller)) {
+            transaction.seller.send(transaction.sellerFee + transaction.amount);
         } else {
-            uint256 splitAmount = (transaction.senderFee + transaction.amount) / 2;
-            transaction.sender.send(splitAmount);
-            transaction.receiver.send(splitAmount);
+            uint256 splitAmount = (transaction.buyerFee + transaction.amount) / 2;
+            transaction.buyer.send(splitAmount);
+            transaction.seller.send(splitAmount);
         }
 
         transaction.amount = 0;
-        transaction.senderFee = 0;
-        transaction.receiverFee = 0;
+        transaction.buyerFee = 0;
+        transaction.sellerFee = 0;
         transaction.status = Status.TransactionResolved;
 
         emit TransactionResolved(_transactionID, Resolution.RulingEnforced);
@@ -403,17 +403,17 @@ contract Escrow is IArbitrableV2 {
     // ************************************* //
 
     error GovernorOnly();
-    error SenderOnly();
-    error ReceiverOnly();
+    error BuyerOnly();
+    error SellerOnly();
     error ArbitratorOnly();
     error TransactionDisputed();
     error MaximumPaymentAmountExceeded();
     error DisputeAlreadyCreatedOrTransactionAlreadyExecuted();
     error DeadlineNotPassed();
-    error SenderFeeNotCoverArbitrationCosts();
-    error ReceiverFeeNotCoverArbitrationCosts();
-    error NotWaitingForReceiverFees();
-    error NotWaitingForSenderFees();
+    error BuyerFeeNotCoverArbitrationCosts();
+    error SellerFeeNotCoverArbitrationCosts();
+    error NotWaitingForSellerFees();
+    error NotWaitingForBuyerFees();
     error TimeoutNotPassed();
     error InvalidRuling();
     error DisputeAlreadyResolved();
