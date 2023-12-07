@@ -8,6 +8,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding: 0px 3px;
 
   label,
   a {
@@ -22,11 +23,15 @@ const StyledIframe = styled.iframe`
   border: none;
   width: 100%;
   height: 30px;
-  border-radius: 300px;
+  border-radius: 3px;
+`;
+
+const StyledLabel = styled.label`
+  padding-left: 8px;
 `;
 
 const Version = () => (
-  <label>
+  <StyledLabel>
     v{RELEASE_VERSION}{" "}
     <a href={GIT_URL} target="_blank" rel="noreferrer">
       #{GIT_HASH}
@@ -34,7 +39,7 @@ const Version = () => (
     {GIT_BRANCH && GIT_BRANCH !== "HEAD" && ` ${GIT_BRANCH}`}
     {GIT_TAGS && ` ${GIT_TAGS}`}
     {GIT_DIRTY && ` dirty`}
-  </label>
+  </StyledLabel>
 );
 
 const ServicesStatus = () => {
@@ -54,7 +59,7 @@ const Phase = () => {
   const { data: phase } = useSortitionModulePhase({
     watch: true,
   });
-  return <>{phase !== undefined && <label>Phase: {Phases[phase]}</label>}</>;
+  return <>{phase !== undefined && <StyledLabel>Phase: {Phases[phase]}</StyledLabel>}</>;
 };
 
 const Debug: React.FC = () => {
