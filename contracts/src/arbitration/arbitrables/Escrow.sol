@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-/// @authors: [@unknownunknown1, @fnanni-0, @shalzz]
+/// @authors: [@unknownunknown1, @fnanni-0, @shalzz, @jaybuidl]
 /// @reviewers: []
 /// @auditors: []
 /// @bounties: []
@@ -29,7 +29,7 @@ contract Escrow is IArbitrableV2 {
         WaitingSender,
         WaitingReceiver,
         DisputeCreated,
-        Resolved
+        TransactionResolved
     }
 
     enum Resolution {
@@ -105,7 +105,7 @@ contract Escrow is IArbitrableV2 {
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(address(this) == msg.sender, "Only the governor allowed.");
+        if (governor != msg.sender) revert GovernorOnly();
         _;
     }
 
@@ -194,9 +194,9 @@ contract Escrow is IArbitrableV2 {
     /// @param _amount Amount to pay in wei.
     function pay(uint256 _transactionID, uint256 _amount) external {
         Transaction storage transaction = transactions[_transactionID];
-        require(transaction.sender == msg.sender, "The caller must be the sender.");
-        require(transaction.status == Status.NoDispute, "The transaction must not be disputed.");
-        require(_amount <= transaction.amount, "Maximum amount available for payment exceeded.");
+        if (transaction.sender != msg.sender) revert SenderOnly();
+        if (transaction.status != Status.NoDispute) revert TransactionDisputed();
+        if (_amount > transaction.amount) revert MaximumPaymentAmountExceeded();
 
         transaction.receiver.send(_amount); // It is the user responsibility to accept ETH.
         transaction.amount -= _amount;
@@ -209,9 +209,9 @@ contract Escrow is IArbitrableV2 {
     /// @param _amountReimbursed Amount to reimburse in wei.
     function reimburse(uint256 _transactionID, uint256 _amountReimbursed) external {
         Transaction storage transaction = transactions[_transactionID];
-        require(transaction.receiver == msg.sender, "The caller must be the receiver.");
-        require(transaction.status == Status.NoDispute, "The transaction must not be disputed.");
-        require(_amountReimbursed <= transaction.amount, "Maximum reimbursement available exceeded.");
+        if (transaction.receiver != msg.sender) revert ReceiverOnly();
+        if (transaction.status != Status.NoDispute) revert TransactionDisputed();
+        if (_amountReimbursed > transaction.amount) revert MaximumPaymentAmountExceeded();
 
         transaction.sender.send(_amountReimbursed); // It is the user responsibility to accept ETH.
         transaction.amount -= _amountReimbursed;
@@ -223,13 +223,12 @@ contract Escrow is IArbitrableV2 {
     /// @param _transactionID The index of the transaction.
     function executeTransaction(uint256 _transactionID) external {
         Transaction storage transaction = transactions[_transactionID];
-        require(block.timestamp >= transaction.deadline, "Deadline not passed.");
-        require(transaction.status == Status.NoDispute, "The transaction must not be disputed.");
+        if (block.timestamp < transaction.deadline) revert DeadlineNotPassed();
+        if (transaction.status != Status.NoDispute) revert TransactionDisputed();
 
         transaction.receiver.send(transaction.amount); // It is the user responsibility to accept ETH.
         transaction.amount = 0;
-
-        transaction.status = Status.Resolved;
+        transaction.status = Status.TransactionResolved;
 
         emit TransactionResolved(_transactionID, Resolution.TransactionExecuted);
     }
@@ -241,20 +240,17 @@ contract Escrow is IArbitrableV2 {
     /// @param _transactionID The index of the transaction.
     function payArbitrationFeeBySender(uint256 _transactionID) external payable {
         Transaction storage transaction = transactions[_transactionID];
-        require(
-            transaction.status < Status.DisputeCreated,
-            "Dispute has already been created or because the transaction has been executed."
-        );
-        require(msg.sender == transaction.sender, "The caller must be the sender.");
+        if (transaction.status >= Status.DisputeCreated) revert DisputeAlreadyCreatedOrTransactionAlreadyExecuted();
+        if (msg.sender != transaction.sender) revert SenderOnly();
 
         transaction.senderFee += msg.value;
         uint256 arbitrationCost = arbitrator.arbitrationCost(arbitratorExtraData);
-        require(transaction.senderFee >= arbitrationCost, "The sender fee must cover arbitration costs.");
+        if (transaction.senderFee < arbitrationCost) revert SenderFeeNotCoverArbitrationCosts();
 
         transaction.lastInteraction = block.timestamp;
 
-        // The receiver still has to pay. This can also happen if he has paid, but arbitrationCost has increased.
         if (transaction.receiverFee < arbitrationCost) {
+            // The receiver still has to pay. This can also happen if he has paid, but arbitrationCost has increased.
             transaction.status = Status.WaitingReceiver;
             emit HasToPayFee(_transactionID, Party.Receiver);
         } else {
@@ -268,20 +264,17 @@ contract Escrow is IArbitrableV2 {
     /// @param _transactionID The index of the transaction.
     function payArbitrationFeeByReceiver(uint256 _transactionID) external payable {
         Transaction storage transaction = transactions[_transactionID];
-        require(
-            transaction.status < Status.DisputeCreated,
-            "Dispute has already been created or because the transaction has been executed."
-        );
-        require(msg.sender == transaction.receiver, "The caller must be the receiver.");
+        if (transaction.status >= Status.DisputeCreated) revert DisputeAlreadyCreatedOrTransactionAlreadyExecuted();
+        if (msg.sender != transaction.receiver) revert ReceiverOnly();
 
         transaction.receiverFee += msg.value;
         uint256 arbitrationCost = arbitrator.arbitrationCost(arbitratorExtraData);
-        require(transaction.receiverFee >= arbitrationCost, "The receiver fee must cover arbitration costs.");
+        if (transaction.receiverFee < arbitrationCost) revert ReceiverFeeNotCoverArbitrationCosts();
 
         transaction.lastInteraction = block.timestamp;
-        // The sender still has to pay. This can also happen if he has paid,
-        // but arbitrationCost has increased.
+
         if (transaction.senderFee < arbitrationCost) {
+            // The sender still has to pay. This can also happen if he has paid, but arbitrationCost has increased.
             transaction.status = Status.WaitingSender;
             emit HasToPayFee(_transactionID, Party.Sender);
         } else {
@@ -294,8 +287,8 @@ contract Escrow is IArbitrableV2 {
     /// @param _transactionID The index of the transaction.
     function timeOutBySender(uint256 _transactionID) external {
         Transaction storage transaction = transactions[_transactionID];
-        require(transaction.status == Status.WaitingReceiver, "The transaction is not waiting on the receiver.");
-        require(block.timestamp - transaction.lastInteraction >= feeTimeout, "Timeout time has not passed yet.");
+        if (transaction.status != Status.WaitingReceiver) revert NotWaitingForReceiverFees();
+        if (block.timestamp - transaction.lastInteraction < feeTimeout) revert TimeoutNotPassed();
 
         if (transaction.receiverFee != 0) {
             transaction.receiver.send(transaction.receiverFee); // It is the user responsibility to accept ETH.
@@ -309,8 +302,8 @@ contract Escrow is IArbitrableV2 {
     /// @param _transactionID The index of the transaction.
     function timeOutByReceiver(uint256 _transactionID) external {
         Transaction storage transaction = transactions[_transactionID];
-        require(transaction.status == Status.WaitingSender, "The transaction is not waiting on the sender.");
-        require(block.timestamp - transaction.lastInteraction >= feeTimeout, "Timeout time has not passed yet.");
+        if (transaction.status != Status.WaitingSender) revert NotWaitingForSenderFees();
+        if (block.timestamp - transaction.lastInteraction < feeTimeout) revert TimeoutNotPassed();
 
         if (transaction.senderFee != 0) {
             transaction.sender.send(transaction.senderFee); // It is the user responsibility to accept ETH.
@@ -327,12 +320,12 @@ contract Escrow is IArbitrableV2 {
     /// @param _ruling Ruling given by the arbitrator. Note that 0 is reserved
     /// for "Refuse to arbitrate".
     function rule(uint256 _disputeID, uint256 _ruling) external override {
-        require(msg.sender == address(arbitrator), "The caller must be the arbitrator.");
-        require(_ruling <= AMOUNT_OF_CHOICES, "Invalid ruling.");
+        if (msg.sender != address(arbitrator)) revert ArbitratorOnly();
+        if (_ruling > AMOUNT_OF_CHOICES) revert InvalidRuling();
+
         uint256 transactionID = disputeIDtoTransactionID[_disputeID];
         Transaction storage transaction = transactions[transactionID];
-
-        require(transaction.status == Status.DisputeCreated, "The dispute has already been resolved.");
+        if (transaction.status != Status.DisputeCreated) revert DisputeAlreadyResolved();
 
         emit Ruling(arbitrator, _disputeID, _ruling);
         executeRuling(transactionID, _ruling);
@@ -390,7 +383,7 @@ contract Escrow is IArbitrableV2 {
         transaction.amount = 0;
         transaction.senderFee = 0;
         transaction.receiverFee = 0;
-        transaction.status = Status.Resolved;
+        transaction.status = Status.TransactionResolved;
 
         emit TransactionResolved(_transactionID, Resolution.RulingEnforced);
     }
@@ -404,4 +397,24 @@ contract Escrow is IArbitrableV2 {
     function getCountTransactions() external view returns (uint256) {
         return transactions.length;
     }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error GovernorOnly();
+    error SenderOnly();
+    error ReceiverOnly();
+    error ArbitratorOnly();
+    error TransactionDisputed();
+    error MaximumPaymentAmountExceeded();
+    error DisputeAlreadyCreatedOrTransactionAlreadyExecuted();
+    error DeadlineNotPassed();
+    error SenderFeeNotCoverArbitrationCosts();
+    error ReceiverFeeNotCoverArbitrationCosts();
+    error NotWaitingForReceiverFees();
+    error NotWaitingForSenderFees();
+    error TimeoutNotPassed();
+    error InvalidRuling();
+    error DisputeAlreadyResolved();
 }
