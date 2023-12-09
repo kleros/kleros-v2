@@ -11,6 +11,7 @@ import {
 } from "../../typechain-types";
 import { expect } from "chai";
 import exp from "constants";
+import { it } from "mocha";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */
@@ -81,7 +82,7 @@ describe("Staking", async () => {
       await sortition.passPhase(); // Drawing -> Staking
     };
 
-    describe("When decreasing then increasing back stake", async () => {
+    describe("When stake is decreased then increased back", async () => {
       before("Setup", async () => {
         await deploy();
         await reachDrawingPhase();
@@ -89,74 +90,80 @@ describe("Staking", async () => {
 
       it("Should be outside the Staking phase", async () => {
         expect(await sortition.phase()).to.be.equal(1); // Drawing
-        expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([
-          PNK(4000),
-          BigNumber.from(0),
-          PNK(2000),
-          BigNumber.from(2),
-        ]);
+        expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(4000), 0, PNK(2000), 2]);
       });
 
-      it("Should delay the stake decrease", async () => {
-        expect(await sortition.delayedStakeWriteIndex()).to.be.equal(0);
-        expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-        expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0);
-        await expect(core.setStake(2, PNK(1000)))
-          .to.emit(core, "StakeDelayedNotTransferred")
-          .withArgs(deployer, 2, PNK(1000));
-        expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([
-          PNK(4000),
-          BigNumber.from(0),
-          PNK(2000),
-          BigNumber.from(2),
-        ]); // stake unchanged, delayed
-        expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore); // No PNK transfer yet
-        expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(1);
-        expect(await sortition.delayedStakeWriteIndex()).to.be.equal(1);
-        expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-        expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(1000), false]);
+      describe("When stake is decreased", async () => {
+        it("Should delay the stake decrease", async () => {
+          expect(await sortition.delayedStakeWriteIndex()).to.be.equal(0);
+          expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
+          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0);
+          await expect(core.setStake(2, PNK(1000)))
+            .to.emit(core, "StakeDelayedNotTransferred")
+            .withArgs(deployer, 2, PNK(1000));
+          expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(4000), 0, PNK(2000), 2]); // stake unchanged, delayed
+        });
+
+        it("Should not transfer any PNK", async () => {
+          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore); // No PNK transfer yet
+        });
+
+        it("Should store the delayed stake for later", async () => {
+          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(1);
+          expect(await sortition.delayedStakeWriteIndex()).to.be.equal(1);
+          expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(1000), false]);
+        });
       });
 
-      it("Should delay the stake increase back to the previous amount", async () => {
-        balanceBefore = await pnk.balanceOf(deployer);
-        expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(1);
-        await expect(core.setStake(2, PNK(2000)))
-          .to.emit(core, "StakeDelayedNotTransferred")
-          .withArgs(deployer, 2, PNK(2000));
-        expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([
-          PNK(4000),
-          BigNumber.from(0),
-          PNK(2000),
-          BigNumber.from(2),
-        ]); // stake unchanged, delayed
-        expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore); // No PNK transfer yet
-        expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(2);
-        expect(await sortition.delayedStakeWriteIndex()).to.be.equal(2);
-        expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-        expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 1st delayed stake got deleted
-        expect(await sortition.delayedStakes(2)).to.be.deep.equal([deployer, 2, PNK(2000), false]);
+      describe("When stake is increased back to the previous amount", () => {
+        it("Should delay the stake increase", async () => {
+          balanceBefore = await pnk.balanceOf(deployer);
+          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(1);
+          await expect(core.setStake(2, PNK(2000)))
+            .to.emit(core, "StakeDelayedNotTransferred")
+            .withArgs(deployer, 2, PNK(2000));
+          expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(4000), 0, PNK(2000), 2]); // stake unchanged, delayed
+        });
+
+        it("Should not transfer any PNK", async () => {
+          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore); // No PNK transfer yet
+        });
+
+        it("Should store the delayed stake for later", async () => {
+          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(2);
+          expect(await sortition.delayedStakeWriteIndex()).to.be.equal(2);
+          expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 1st delayed stake got deleted
+          expect(await sortition.delayedStakes(2)).to.be.deep.equal([deployer, 2, PNK(2000), false]);
+        });
       });
 
-      it("Should execute the delayed stakes but the stakes should remain the same", async () => {
-        await reachStakingPhaseAfterDrawing();
-        balanceBefore = await pnk.balanceOf(deployer);
-        await expect(sortition.executeDelayedStakes(10)).to.emit(core, "StakeSet").withArgs(deployer, 2, PNK(2000));
-        expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([
-          PNK(4000),
-          PNK(300), // we're the only juror so we are drawn 3 times
-          PNK(2000),
-          BigNumber.from(2),
-        ]); // stake unchanged, delayed
-        expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore); // No PNK transfer yet
-        expect(await sortition.delayedStakeWriteIndex()).to.be.equal(2);
-        expect(await sortition.delayedStakeReadIndex()).to.be.equal(3);
-        expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 1st delayed stake got deleted
-        expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 2nd delayed stake got deleted
-        expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // no delayed stakes left
+      describe("When the Phase passes back to Staking", () => {
+        it("Should execute the delayed stakes but the stakes should remain the same", async () => {
+          await reachStakingPhaseAfterDrawing();
+          balanceBefore = await pnk.balanceOf(deployer);
+          await expect(sortition.executeDelayedStakes(10)).to.emit(core, "StakeSet").withArgs(deployer, 2, PNK(2000));
+          expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([
+            PNK(4000),
+            PNK(300), // we're the only juror so we are drawn 3 times
+            PNK(2000),
+            2,
+          ]); // stake unchanged, delayed
+          expect(await sortition.delayedStakeWriteIndex()).to.be.equal(2);
+          expect(await sortition.delayedStakeReadIndex()).to.be.equal(3);
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 1st delayed stake got deleted
+          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 2nd delayed stake got deleted
+          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // no delayed stakes left
+        });
+
+        it("Should not transfer any PNK", async () => {
+          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore); // No PNK transfer yet
+        });
       });
     });
 
-    describe("When increasing then decreasing back stake", async () => {
+    describe("When stake is increased then decreased back", async () => {
       before("Setup", async () => {
         await deploy();
         await reachDrawingPhase();
@@ -164,55 +171,58 @@ describe("Staking", async () => {
 
       it("Should be outside the Staking phase", async () => {
         expect(await sortition.phase()).to.be.equal(1); // Drawing
-        expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([
-          PNK(4000),
-          BigNumber.from(0),
-          PNK(2000),
-          BigNumber.from(2),
-        ]);
+        expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(4000), 0, PNK(2000), 2]);
       });
 
-      it("Should transfer PNK but delay the stake increase", async () => {
-        expect(await sortition.delayedStakeWriteIndex()).to.be.equal(0);
-        expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-        await pnk.approve(core.address, PNK(1000));
-        expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0);
-        await expect(core.setStake(2, PNK(3000)))
-          .to.emit(core, "StakeDelayedAlreadyTransferred")
-          .withArgs(deployer, 2, PNK(3000));
-        expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([
-          PNK(5000),
-          BigNumber.from(0),
-          PNK(3000),
-          BigNumber.from(2),
-        ]); // stake has changed immediately, WARNING: this is misleading because it's not actually added to the SortitionSumTree
-        expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore.sub(PNK(1000))); // PNK is transferred out of the juror's account
-        expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(1);
-        expect(await sortition.delayedStakeWriteIndex()).to.be.equal(1);
-        expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-        expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(3000), true]);
+      describe("When stake is increased", () => {
+        it("Should transfer PNK but delay the stake increase", async () => {
+          expect(await sortition.delayedStakeWriteIndex()).to.be.equal(0);
+          expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
+          await pnk.approve(core.address, PNK(1000));
+          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0);
+          await expect(core.setStake(2, PNK(3000)))
+            .to.emit(core, "StakeDelayedAlreadyTransferred")
+            .withArgs(deployer, 2, PNK(3000));
+          expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(5000), 0, PNK(3000), 2]); // stake has changed immediately, WARNING: this is misleading because it's not actually added to the SortitionSumTree
+        });
+
+        it("Should transfer some PNK out of the juror's account", async () => {
+          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore.sub(PNK(1000))); // PNK is transferred out of the juror's account
+        });
+
+        it("Should store the delayed stake for later", async () => {
+          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(1);
+          expect(await sortition.delayedStakeWriteIndex()).to.be.equal(1);
+          expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([deployer, 2, PNK(3000), true]);
+        });
       });
 
-      it("Should cancel out the stake decrease back", async () => {
-        balanceBefore = await pnk.balanceOf(deployer);
-        expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(1);
-        await expect(core.setStake(2, PNK(2000)))
-          .to.emit(core, "StakeDelayedNotTransferred")
-          .withArgs(deployer, 2, PNK(2000));
-        expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([
-          PNK(4000),
-          BigNumber.from(0),
-          PNK(2000),
-          BigNumber.from(2),
-        ]); // stake has changed immediately
-        expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore.add(PNK(1000))); // PNK is sent back to the juror
-        expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(2);
-        expect(await sortition.delayedStakeWriteIndex()).to.be.equal(2);
-        expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-        expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 1st delayed stake got deleted
-        expect(await sortition.delayedStakes(2)).to.be.deep.equal([deployer, 2, PNK(2000), false]);
-      });
+      describe("When stake is decreased back to the previous amount", () => {
+        it("Should cancel out the stake decrease back", async () => {
+          balanceBefore = await pnk.balanceOf(deployer);
+          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(1);
+          await expect(core.setStake(2, PNK(2000)))
+            .to.emit(core, "StakeDelayedNotTransferred")
+            .withArgs(deployer, 2, PNK(2000));
+          expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(4000), 0, PNK(2000), 2]); // stake has changed immediately
+        });
 
+        it("Should transfer back some PNK to the juror", async () => {
+          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore.add(PNK(1000))); // PNK is sent back to the juror
+        });
+
+        it("Should store the delayed stake for later", async () => {
+          expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(2);
+          expect(await sortition.delayedStakeWriteIndex()).to.be.equal(2);
+          expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 1st delayed stake got deleted
+          expect(await sortition.delayedStakes(2)).to.be.deep.equal([deployer, 2, PNK(2000), false]);
+        });
+      });
+    });
+
+    describe("When the Phase passes back to Staking", () => {
       it("Should execute the delayed stakes but the stakes should remain the same", async () => {
         await reachStakingPhaseAfterDrawing();
         balanceBefore = await pnk.balanceOf(deployer);
@@ -221,14 +231,17 @@ describe("Staking", async () => {
           PNK(4000),
           PNK(300), // we're the only juror so we are drawn 3 times
           PNK(2000),
-          BigNumber.from(2),
+          2,
         ]); // stake unchanged, delayed
-        expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore); // No PNK transfer yet
         expect(await sortition.delayedStakeWriteIndex()).to.be.equal(2);
         expect(await sortition.delayedStakeReadIndex()).to.be.equal(3);
         expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 1st delayed stake got deleted
         expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 2nd delayed stake got deleted
         expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // no delayed stakes left
+      });
+
+      it("Should not transfer any PNK", async () => {
+        expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore); // No PNK transfer yet
       });
     });
   });
@@ -247,7 +260,7 @@ describe("Staking", async () => {
       await core.setStake(1, PNK(2000));
       await core.setStake(2, PNK(2000));
 
-      expect(await core.getJurorCourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
+      expect(await core.getJurorCourtIDs(deployer)).to.be.deep.equal([1, 2]);
 
       await core.functions["createDispute(uint256,bytes)"](2, extraData, { value: arbitrationCost });
 
@@ -270,7 +283,7 @@ describe("Staking", async () => {
 
       await sortition.passPhase(); // Drawing -> Staking. Change so we don't deal with delayed stakes
 
-      expect(await core.getJurorCourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
+      expect(await core.getJurorCourtIDs(deployer)).to.be.deep.equal([1, 2]);
 
       await core.execute(0, 0, 1); // 1 iteration should unstake from both courts
 
