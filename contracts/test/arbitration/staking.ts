@@ -94,7 +94,7 @@ describe("Staking", async () => {
         expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
         expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0);
         await expect(core.setStake(2, ONE_THOUSAND_PNK.mul(1)))
-          .to.emit(core, "StakeDelayed")
+          .to.emit(core, "StakeDelayedNotTransferred")
           .withArgs(deployer, 2, ONE_THOUSAND_PNK.mul(1));
         expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(1);
         expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([
@@ -113,7 +113,7 @@ describe("Staking", async () => {
         balanceBefore = await pnk.balanceOf(deployer);
         expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(1);
         await expect(core.setStake(2, ONE_THOUSAND_PNK.mul(2)))
-          .to.emit(core, "StakeDelayed")
+          .to.emit(core, "StakeDelayedNotTransferred")
           .withArgs(deployer, 2, ONE_THOUSAND_PNK.mul(2));
         expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(2);
         expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([
@@ -152,7 +152,7 @@ describe("Staking", async () => {
         await pnk.approve(core.address, ONE_THOUSAND_PNK.mul(1));
         expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0);
         await expect(core.setStake(2, ONE_THOUSAND_PNK.mul(3)))
-          .to.emit(core, "StakePartiallyDelayed")
+          .to.emit(core, "StakeDelayedAlreadyTransferred")
           .withArgs(deployer, 2, ONE_THOUSAND_PNK.mul(3));
         expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(1);
         expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([
@@ -171,7 +171,7 @@ describe("Staking", async () => {
         balanceBefore = await pnk.balanceOf(deployer);
         expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(1);
         await expect(core.setStake(2, ONE_THOUSAND_PNK.mul(2)))
-          .to.emit(core, "StakeDelayed")
+          .to.emit(core, "StakeDelayedNotTransferred")
           .withArgs(deployer, 2, ONE_THOUSAND_PNK.mul(2));
         expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(2);
         expect(await core.getJurorBalance(deployer, 2)).to.be.deep.equal([

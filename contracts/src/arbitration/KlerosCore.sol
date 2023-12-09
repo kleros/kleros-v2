@@ -115,8 +115,13 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     // ************************************* //
 
     event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount);
-    event StakeDelayed(address indexed _address, uint256 _courtID, uint256 _amount);
-    event StakePartiallyDelayed(address indexed _address, uint256 _courtID, uint256 _amount);
+    event StakeDelayedNotTransferred(address indexed _address, uint256 _courtID, uint256 _amount);
+    event StakeDelayedAlreadyTransferred(address indexed _address, uint256 _courtID, uint256 _amount);
+    event StakeDelayedAlreadyTransferredWithdrawn(
+        uint96 indexed _courtID,
+        address indexed _account,
+        uint256 _withdrawnAmount
+    );
     event NewPeriod(uint256 indexed _disputeID, Period _period);
     event AppealPossible(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
     event AppealDecision(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
@@ -171,7 +176,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 _feeAmount,
         IERC20 _feeToken
     );
-    event PartiallyDelayedStakeWithdrawn(uint96 indexed _courtID, address indexed _account, uint256 _withdrawnAmount);
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -460,18 +464,26 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _newStake The new stake.
     /// Note that the existing delayed stake will be nullified as non-relevant.
     function setStake(uint96 _courtID, uint256 _newStake) external {
-        removeDelayedStake(_courtID);
+        _deleteDelayedStake(_courtID);
         if (!_setStakeForAccount(msg.sender, _courtID, _newStake, false)) revert StakingFailed();
     }
 
-    /// @dev Removes the latest delayed stake if there is any.
-    /// @param _courtID The ID of the court.
-    function removeDelayedStake(uint96 _courtID) public {
-        sortitionModule.checkExistingDelayedStake(_courtID, msg.sender);
+    function setStakeBySortitionModule(
+        address _account,
+        uint96 _courtID,
+        uint256 _newStake,
+        bool _alreadyTransferred
+    ) external {
+        if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
+        // Always nullify the latest delayed stake before setting a new value.
+        // Note that we check the delayed stake here too because the check in `setStake` can be bypassed
+        // if the stake was updated automatically during `execute` (e.g. when unstaking inactive juror).
+        _deleteDelayedStake(_courtID);
+        _setStakeForAccount(_account, _courtID, _newStake, _alreadyTransferred);
     }
 
     function withdrawPartiallyDelayedStake(uint96 _courtID, address _juror, uint256 _amountToWithdraw) external {
-        if (msg.sender != address(sortitionModule)) revert WrongCaller();
+        if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
         uint256 actualAmount = _amountToWithdraw;
         Juror storage juror = jurors[_juror];
         if (juror.stakedPnk <= actualAmount) {
@@ -481,7 +493,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         // StakePnk can become lower because of penalty, thus we adjust the amount for it. stakedPnkByCourt can't be penalized so subtract the default amount.
         juror.stakedPnk -= actualAmount;
         juror.stakedPnkByCourt[_courtID] -= _amountToWithdraw;
-        emit PartiallyDelayedStakeWithdrawn(_courtID, _juror, _amountToWithdraw);
+        emit StakeDelayedAlreadyTransferredWithdrawn(_courtID, _juror, _amountToWithdraw);
         // Note that if we don't delete court here it'll be duplicated after staking.
         if (juror.stakedPnkByCourt[_courtID] == 0) {
             for (uint256 i = juror.courtIDs.length; i > 0; i--) {
@@ -492,20 +504,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
                 }
             }
         }
-    }
-
-    function setStakeBySortitionModule(
-        address _account,
-        uint96 _courtID,
-        uint256 _newStake,
-        bool _alreadyTransferred
-    ) external {
-        if (msg.sender != address(sortitionModule)) revert WrongCaller();
-        // Always nullify the latest delayed stake before setting a new value.
-        // Note that we check the delayed stake here too because the check in `setStake` can be bypassed
-        // if the stake was updated automatically during `execute` (e.g. when unstaking inactive juror).
-        removeDelayedStake(_courtID);
-        _setStakeForAccount(_account, _courtID, _newStake, _alreadyTransferred);
     }
 
     /// @inheritdoc IArbitratorV2
@@ -1063,6 +1061,12 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         emit DisputeKitEnabled(_courtID, _disputeKitID, _enable);
     }
 
+    /// @dev Removes the latest delayed stake if there is any.
+    /// @param _courtID The ID of the court.
+    function _deleteDelayedStake(uint96 _courtID) private {
+        sortitionModule.deleteDelayedStake(_courtID, msg.sender);
+    }
+
     /// @dev Sets the specified juror's stake in a court.
     /// `O(n + p * log_k(j))` where
     /// `n` is the number of courts the juror has staked in,
@@ -1091,11 +1095,11 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
             return false;
         }
 
-        ISortitionModule.preStakeHookResult result = sortitionModule.preStakeHook(_account, _courtID, _newStake);
-        if (result == ISortitionModule.preStakeHookResult.failed) {
+        ISortitionModule.PreStakeHookResult result = sortitionModule.preStakeHook(_account, _courtID, _newStake);
+        if (result == ISortitionModule.PreStakeHookResult.failed) {
             return false;
-        } else if (result == ISortitionModule.preStakeHookResult.delayed) {
-            emit StakeDelayed(_account, _courtID, _newStake);
+        } else if (result == ISortitionModule.PreStakeHookResult.stakeDelayedNotTransferred) {
+            emit StakeDelayedNotTransferred(_account, _courtID, _newStake);
             return true;
         }
 
@@ -1153,8 +1157,8 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         }
 
         // Transfer the tokens but don't update sortition module.
-        if (result == ISortitionModule.preStakeHookResult.partiallyDelayed) {
-            emit StakePartiallyDelayed(_account, _courtID, _newStake);
+        if (result == ISortitionModule.PreStakeHookResult.stakeDelayedAlreadyTransferred) {
+            emit StakeDelayedAlreadyTransferred(_account, _courtID, _newStake);
             return true;
         }
 
@@ -1201,6 +1205,8 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     // ************************************* //
 
     error GovernorOnly();
+    error DisputeKitOnly();
+    error SortitionModuleOnly();
     error UnsuccessfulCall();
     error InvalidDisputKitParent();
     error DepthLevelMax();
@@ -1211,7 +1217,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     error CannotDisableClassicDK();
     error ArraysLengthMismatch();
     error StakingFailed();
-    error WrongCaller();
     error ArbitrationFeesNotEnough();
     error DisputeKitNotSupportedByCourt();
     error MustSupportDisputeKitClassic();
@@ -1224,7 +1229,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     error NotEvidencePeriod();
     error AppealFeesNotEnough();
     error DisputeNotAppealable();
-    error DisputeKitOnly();
     error NotExecutionPeriod();
     error RulingAlreadyExecuted();
     error DisputePeriodIsFinal();

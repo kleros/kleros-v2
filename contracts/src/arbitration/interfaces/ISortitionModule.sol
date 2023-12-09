@@ -8,10 +8,10 @@ interface ISortitionModule {
         drawing // Jurors can be drawn. Pass after all disputes have jurors or `maxDrawingTime` passes.
     }
 
-    enum preStakeHookResult {
+    enum PreStakeHookResult {
         ok, // Correct phase. All checks are passed.
-        partiallyDelayed, // Wrong phase but stake is increased, so transfer the tokens without updating the drawing chance.
-        delayed, // Wrong phase and stake is decreased. Delay the token transfer and drawing chance update.
+        stakeDelayedAlreadyTransferred, // Wrong phase but stake is increased, so transfer the tokens without updating the drawing chance.
+        stakeDelayedNotTransferred, // Wrong phase and stake is decreased. Delay the token transfer and drawing chance update.
         failed // Checks didn't pass. Do no changes.
     }
 
@@ -27,11 +27,11 @@ interface ISortitionModule {
 
     function draw(bytes32 _court, uint256 _coreDisputeID, uint256 _nonce) external view returns (address);
 
-    function preStakeHook(address _account, uint96 _courtID, uint256 _stake) external returns (preStakeHookResult);
+    function preStakeHook(address _account, uint96 _courtID, uint256 _stake) external returns (PreStakeHookResult);
 
     function createDisputeHook(uint256 _disputeID, uint256 _roundID) external;
 
     function postDrawHook(uint256 _disputeID, uint256 _roundID) external;
 
-    function checkExistingDelayedStake(uint96 _courtID, address _juror) external;
+    function deleteDelayedStake(uint96 _courtID, address _juror) external;
 }

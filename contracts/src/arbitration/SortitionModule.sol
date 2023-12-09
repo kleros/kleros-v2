@@ -221,7 +221,7 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
     /// @dev Checks if there is already a delayed stake. In this case consider it irrelevant and remove it.
     /// @param _courtID ID of the court.
     /// @param _juror Juror whose stake to check.
-    function checkExistingDelayedStake(uint96 _courtID, address _juror) external override onlyByCore {
+    function deleteDelayedStake(uint96 _courtID, address _juror) external override onlyByCore {
         uint256 latestIndex = latestDelayedStakeIndex[_juror][_courtID];
         if (latestIndex != 0) {
             DelayedStake storage delayedStake = delayedStakes[latestIndex];
@@ -241,28 +241,31 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         address _account,
         uint96 _courtID,
         uint256 _stake
-    ) external override onlyByCore returns (preStakeHookResult) {
+    ) external override onlyByCore returns (PreStakeHookResult) {
         (, , uint256 currentStake, uint256 nbCourts) = core.getJurorBalance(_account, _courtID);
         if (currentStake == 0 && nbCourts >= MAX_STAKE_PATHS) {
             // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
-            return preStakeHookResult.failed;
+            return PreStakeHookResult.failed;
         } else {
             if (phase != Phase.staking) {
+                // Store the stake change as delayed, to be applied when the phase switches back to Staking.
                 DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
                 delayedStake.account = _account;
                 delayedStake.courtID = _courtID;
                 delayedStake.stake = _stake;
                 latestDelayedStakeIndex[_account][_courtID] = delayedStakeWriteIndex;
                 if (_stake > currentStake) {
-                    // Actual token transfer is done right after this hook.
+                    // PNK deposit: tokens to be transferred now (right after this hook),
+                    // but the stake will be added to the sortition sum tree later.
                     delayedStake.alreadyTransferred = true;
-                    return preStakeHookResult.partiallyDelayed;
+                    return PreStakeHookResult.stakeDelayedAlreadyTransferred;
                 } else {
-                    return preStakeHookResult.delayed;
+                    // PNK withdrawal: tokens are not transferred yet.
+                    return PreStakeHookResult.stakeDelayedNotTransferred;
                 }
             }
         }
-        return preStakeHookResult.ok;
+        return PreStakeHookResult.ok;
     }
 
     function createDisputeHook(uint256 /*_disputeID*/, uint256 /*_roundID*/) external override onlyByCore {
@@ -360,6 +363,18 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
             }
         }
         drawnAddress = _stakePathIDToAccount(tree.nodeIndexesToIDs[treeIndex]);
+    }
+
+    /// @dev Get the stake of a juror in a court.
+    /// @param _key The key of the tree, corresponding to a court.
+    /// @param _ID The stake path ID, corresponding to a juror.
+    /// @return value The stake of the juror in the court.
+    function stakeOf(bytes32 _key, bytes32 _ID) public view returns (uint256 value) {
+        SortitionSumTree storage tree = sortitionSumTrees[_key];
+        uint treeIndex = tree.IDsToNodeIndexes[_ID];
+
+        if (treeIndex == 0) value = 0;
+        else value = tree.nodes[treeIndex];
     }
 
     // ************************************* //
@@ -521,13 +536,5 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
             }
             stakePathID := mload(ptr)
         }
-    }
-
-    function stakeOf(bytes32 _key, bytes32 _ID) public view returns (uint256 value) {
-        SortitionSumTree storage tree = sortitionSumTrees[_key];
-        uint treeIndex = tree.IDsToNodeIndexes[_ID];
-
-        if (treeIndex == 0) value = 0;
-        else value = tree.nodes[treeIndex];
     }
 }
