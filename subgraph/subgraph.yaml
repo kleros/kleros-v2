@@ -42,7 +42,7 @@ dataSources:
           handler: handleCourtCreated
         - event: CourtModified(indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4])
           handler: handleCourtModified
-        - event: DisputeKitCreated(indexed uint256,indexed address,indexed uint256)
+        - event: DisputeKitCreated(indexed uint256,indexed address)
           handler: handleDisputeKitCreated
         - event: DisputeKitEnabled(indexed uint96,indexed uint256,indexed bool)
           handler: handleDisputeKitEnabled
