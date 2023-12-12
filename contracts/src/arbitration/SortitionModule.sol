@@ -218,30 +218,13 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         delayedStakeReadIndex = newDelayedStakeReadIndex;
     }
 
-    /// @dev Checks if there is already a delayed stake. In this case consider it irrelevant and remove it.
-    /// @param _courtID ID of the court.
-    /// @param _juror Juror whose stake to check.
-    function deleteDelayedStake(uint96 _courtID, address _juror) external override onlyByCore {
-        uint256 latestIndex = latestDelayedStakeIndex[_juror][_courtID];
-        if (latestIndex != 0) {
-            DelayedStake storage delayedStake = delayedStakes[latestIndex];
-            if (delayedStake.alreadyTransferred) {
-                bytes32 stakePathID = _accountAndCourtIDToStakePathID(_juror, _courtID);
-                // Sortition stake represents the stake value that was last updated during Staking phase.
-                uint256 sortitionStake = stakeOf(bytes32(uint256(_courtID)), stakePathID);
-                // Withdraw the tokens that were added with the latest delayed stake.
-                core.withdrawPartiallyDelayedStake(_courtID, _juror, delayedStake.stake - sortitionStake);
-            }
-            delete delayedStakes[latestIndex];
-            delete latestDelayedStakeIndex[_juror][_courtID];
-        }
-    }
-
     function preStakeHook(
         address _account,
         uint96 _courtID,
         uint256 _stake
     ) external override onlyByCore returns (PreStakeHookResult) {
+        _deleteDelayedStake(_courtID, _account);
+
         (, , uint256 currentStake, uint256 nbCourts) = core.getJurorBalance(_account, _courtID);
         if (currentStake == 0 && nbCourts >= MAX_STAKE_PATHS) {
             // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
@@ -266,6 +249,25 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
             }
         }
         return PreStakeHookResult.ok;
+    }
+
+    /// @dev Checks if there is already a delayed stake. In this case consider it irrelevant and remove it.
+    /// @param _courtID ID of the court.
+    /// @param _juror Juror whose stake to check.
+    function _deleteDelayedStake(uint96 _courtID, address _juror) internal {
+        uint256 latestIndex = latestDelayedStakeIndex[_juror][_courtID];
+        if (latestIndex != 0) {
+            DelayedStake storage delayedStake = delayedStakes[latestIndex];
+            if (delayedStake.alreadyTransferred) {
+                bytes32 stakePathID = _accountAndCourtIDToStakePathID(_juror, _courtID);
+                // Sortition stake represents the stake value that was last updated during Staking phase.
+                uint256 sortitionStake = stakeOf(bytes32(uint256(_courtID)), stakePathID);
+                // Withdraw the tokens that were added with the latest delayed stake.
+                core.withdrawPartiallyDelayedStake(_courtID, _juror, delayedStake.stake - sortitionStake);
+            }
+            delete delayedStakes[latestIndex];
+            delete latestDelayedStakeIndex[_juror][_courtID];
+        }
     }
 
     function createDisputeHook(uint256 /*_disputeID*/, uint256 /*_roundID*/) external override onlyByCore {

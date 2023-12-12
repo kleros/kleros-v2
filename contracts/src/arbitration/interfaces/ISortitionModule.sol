@@ -32,6 +32,4 @@ interface ISortitionModule {
     function createDisputeHook(uint256 _disputeID, uint256 _roundID) external;
 
     function postDrawHook(uint256 _disputeID, uint256 _roundID) external;
-
-    function deleteDelayedStake(uint96 _courtID, address _juror) external;
 }
