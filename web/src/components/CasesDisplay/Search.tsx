@@ -8,6 +8,7 @@ import { Searchbar, DropdownCascader } from "@kleros/ui-components-library";
 import { rootCourtToItems, useCourtTree } from "queries/useCourtTree";
 import { isUndefined } from "utils/index";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
@@ -18,7 +19,7 @@ const Container = styled.div`
     () =>
       css`
         flex-direction: row;
-        gap: calc(4px + (22 - 4) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+        gap: ${responsiveSize(4, 22)};
       `
   )}
 `;

@@ -6,13 +6,14 @@ import JurorCard from "./JurorCard";
 import { isUndefined } from "utils/index";
 import { useTopUsersByCoherenceScore } from "queries/useTopUsersByCoherenceScore";
 import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
-  margin-top: calc(64px + (80 - 64) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-top: ${responsiveSize(64, 80)};
 `;
 
 const Title = styled.h1`
-  margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-bottom: ${responsiveSize(16, 48)};
 `;
 
 const ListContainer = styled.div`

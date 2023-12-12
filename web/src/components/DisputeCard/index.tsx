@@ -15,10 +15,11 @@ import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
 import { getLocalRounds } from "utils/getLocalRounds";
+import { responsiveSize } from "styles/responsiveSize";
 
 const StyledCard = styled(Card)`
   width: 100%;
-  height: calc(280px + (296 - 280) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  height: ${responsiveSize(280, 296)};
 
   ${landscapeStyle(
     () =>
@@ -42,7 +43,7 @@ const StyledListItem = styled(Card)`
 
 const CardContainer = styled.div`
   height: calc(100% - 45px);
-  padding: calc(20px + (24 - 20) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: ${responsiveSize(20, 24)};
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -67,7 +68,7 @@ const ListTitle = styled.div`
   height: 100%;
   justify-content: start;
   align-items: center;
-  width: calc(30vw + (40 - 30) * ((100vw - 300px) / (1250 - 300)));
+  width: calc(30vw + (40 - 30) * (min(max(100vw, 300px), 1250px)- 300px) / 950);
 `;
 
 export const getPeriodEndTimestamp = (
