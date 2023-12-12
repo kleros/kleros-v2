@@ -24,7 +24,7 @@ const StyledP = styled.p`
   margin: 0;
 `;
 
-export const Banner: React.FC = () => {
+export const TestnetBanner: React.FC = () => {
   return (
     <Container>
       <StyledP>
