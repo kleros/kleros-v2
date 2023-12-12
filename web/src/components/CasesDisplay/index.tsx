@@ -10,11 +10,11 @@ const Divider = styled.hr`
   border: none;
   height: 1px;
   background-color: ${({ theme }) => theme.stroke};
-  ${responsiveSize("margin", 20, 24)}
+  margin: ${responsiveSize(20, 24)};
 `;
 
 const StyledTitle = styled.h1`
-  ${responsiveSize("marginBottom", 32, 48)}
+  margin-bottom: ${responsiveSize(32, 48)};
 `;
 
 interface ICasesDisplay extends ICasesGrid {

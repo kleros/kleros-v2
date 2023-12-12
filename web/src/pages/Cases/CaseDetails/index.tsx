@@ -21,7 +21,7 @@ const StyledCard = styled(Card)`
 `;
 
 const Header = styled.h1`
-  ${responsiveSize("marginBottom", 16, 48)}
+  margin-bottom: ${responsiveSize(16, 48)};
 `;
 
 const CaseDetails: React.FC = () => {

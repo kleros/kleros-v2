@@ -11,7 +11,7 @@ const Container = styled.div`
 
   ${landscapeStyle(
     () => css`
-      ${responsiveSize("marginBottom", 16, 30)}
+      margin-bottom: ${responsiveSize(16, 30)};
     `
   )}
 `;

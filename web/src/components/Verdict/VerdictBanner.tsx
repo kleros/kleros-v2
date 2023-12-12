@@ -7,7 +7,7 @@ import { responsiveSize } from "styles/responsiveSize";
 const BannerContainer = styled.div`
   display: flex;
   gap: 8px;
-  ${responsiveSize("marginBottom", 16, 24)}
+  margin-bottom: ${responsiveSize(16, 24)};
   svg {
     width: 16px;
     height: 16px;

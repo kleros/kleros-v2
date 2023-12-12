@@ -16,10 +16,7 @@ import { responsiveSize } from "styles/responsiveSize";
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
-  ${responsiveSize("padding", 24, 136)}
-  ${responsiveSize("paddingTop", 32, 80)}
-  ${responsiveSize("paddingBottom", 76, 96)}
-
+  padding: ${responsiveSize(32, 80)} ${responsiveSize(24, 136)} ${responsiveSize(76, 96)};
   max-width: 1780px;
   margin: 0 auto;
 `;
@@ -28,7 +25,7 @@ const StyledCasesDisplay = styled(CasesDisplay)`
   margin-top: 64px;
 
   h1 {
-    ${responsiveSize("marginBottom", 16, 48)}
+    margin-bottom: ${responsiveSize(16, 48)};
   }
 `;
 

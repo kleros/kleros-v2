@@ -25,7 +25,7 @@ const Container = styled.div<{ isVisible: boolean }>`
     () => css`
       overflow-y: hidden;
       top: 50%;
-      ${responsiveSize("width", 700, 900)}
+      width: ${responsiveSize(700, 900)};
       flex-direction: row;
       height: 500px;
     `
@@ -36,7 +36,7 @@ const LeftContainer = styled.div`
   display: grid;
   grid-template-rows: auto 1fr auto;
   width: 86vw;
-  ${responsiveSize("padding", 24, 32)}
+  padding: ${responsiveSize(24, 32)};
   padding-bottom: 32px;
   background-color: ${({ theme }) => theme.whiteBackground};
   border-top-left-radius: 3px;
@@ -45,7 +45,7 @@ const LeftContainer = styled.div`
   ${landscapeStyle(
     () => css`
       overflow-y: hidden;
-      ${responsiveSize("width", 350, 450)}
+      width: ${responsiveSize(350, 450)};
       height: 500px;
     `
   )}
@@ -61,7 +61,7 @@ const HowItWorks = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  ${responsiveSize("marginBottom", 32, 64)}
+  margin-bottom: ${responsiveSize(32, 64)};
 
   label {
     color: ${({ theme }) => theme.secondaryPurple};
@@ -98,7 +98,7 @@ const Close = styled.label`
     () => css`
       display: flex;
       position: absolute;
-      ${responsiveSize("top", 24, 32)}
+      top: ${responsiveSize(24, 32)};
       right: 17px;
       display: flex;
       align-items: flex-end;
@@ -122,7 +122,7 @@ const RightContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: calc(24px + (32 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875) 17px;
+  padding: ${responsiveSize(24, 32)} 17px;
   background-color: ${({ theme }) => theme.mediumBlue};
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
@@ -130,7 +130,7 @@ const RightContainer = styled.div`
   ${landscapeStyle(
     () => css`
       overflow-y: hidden;
-      ${responsiveSize("width", 350, 450)}
+      width: ${responsiveSize(350, 450)};
       height: 500px;
     `
   )}

@@ -16,7 +16,7 @@ const Container = styled.a`
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
   gap: 8px;
-  ${responsiveSize("width", 100, 130)}
+  width: ${responsiveSize(100, 130)};
   white-space: nowrap;
 
   background-color: ${({ theme }) => theme.lightBackground};

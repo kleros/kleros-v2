@@ -14,9 +14,7 @@ const TimeLineContainer = styled(Box)`
   width: 100%;
   height: 98px;
   border-radius: 0px;
-  padding: 20px 8px 0px 8px;
-  ${responsiveSize("marginTop", 16, 48)}
-  ${responsiveSize("marginBottom", 12, 22)}
+  padding: ${responsiveSize(16, 48)} 8px 0px ${responsiveSize(12, 22)};
   background-color: ${({ theme }) => theme.whiteBackground};
 
   ${landscapeStyle(
@@ -27,7 +25,7 @@ const TimeLineContainer = styled(Box)`
   )}
 `;
 
-const StyledSteps = styled(Steps)`d
+const StyledSteps = styled(Steps)`
   display: flex;
   justify-content: space-between;
   width: 85%;

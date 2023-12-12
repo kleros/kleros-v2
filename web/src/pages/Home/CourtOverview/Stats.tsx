@@ -21,8 +21,8 @@ const StyledCard = styled(Card)`
   width: auto;
   height: fit-content;
   gap: 32px;
-  ${responsiveSize("padding", 16, 30)}
-  ${responsiveSize("paddingLeft", 16, 35)}
+  padding: ${responsiveSize(16, 30)};
+  padding-left: ${responsiveSize(16, 35)};
   padding-bottom: 16px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));

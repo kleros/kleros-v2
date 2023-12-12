@@ -12,9 +12,8 @@ const Container = styled.div`
 `;
 
 const StyledPnkIcon = styled(PnkIcon)`
-  ${responsiveSize("width", 220, 280)}
-  ${responsiveSize("height", 220, 252)}
-
+  width: ${responsiveSize(220, 280)};
+  height: ${responsiveSize(220, 252)};
   [class$="stop-1"] {
     stop-color: ${({ theme }) => theme.primaryBlue};
   }

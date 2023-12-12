@@ -7,8 +7,7 @@ const Container = styled.div`
   display: flex;
   gap: 4px;
   text-align: center;
-  margin: 0 calc(8px + (32 - 8) * ((100vw - 300px) / (1250 - 300)));
-  ${responsiveSize("marginTop", 8, 24, 300)}
+  margin: ${responsiveSize(8, 24, 300)} ${responsiveSize(8, 32, 300)} 0;
   font-size: 14px;
   font-weight: 400;
   line-height: 19px;

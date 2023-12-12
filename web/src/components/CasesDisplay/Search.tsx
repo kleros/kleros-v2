@@ -19,7 +19,7 @@ const Container = styled.div`
     () =>
       css`
         flex-direction: row;
-        ${responsiveSize("gap", 4, 22)}
+        gap: ${responsiveSize(4, 22)};
       `
   )}
 `;

@@ -8,11 +8,11 @@ import { isUndefined } from "utils/index";
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
-  ${responsiveSize("marginTop", 48, 80)}
+  margin-top: ${responsiveSize(48, 80)};
 `;
 
 const Title = styled.h1`
-  ${responsiveSize("marginBottom", 16, 48)}
+  margin-bottom: ${responsiveSize(16, 48)};
 `;
 
 const DisputeContainer = styled.div`

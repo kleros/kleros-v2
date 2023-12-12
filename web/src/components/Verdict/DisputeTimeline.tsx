@@ -28,7 +28,7 @@ const StyledTimeline = styled(CustomTimeline)`
 const EnforcementContainer = styled.div`
   display: flex;
   gap: 8px;
-  ${responsiveSize("marginTop", 12, 24)}
+  margin-top: ${responsiveSize(12, 24)};
   fill: ${({ theme }) => theme.secondaryText};
 
   small {

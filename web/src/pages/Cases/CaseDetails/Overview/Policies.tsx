@@ -11,8 +11,7 @@ const ShadeArea = styled.div`
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  padding: calc(16px + (20 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875)
-    calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: ${responsiveSize(16, 20)} ${responsiveSize(16, 32)};
   margin-top: 16px;
   background-color: ${({ theme }) => theme.mediumBlue};
 
@@ -49,7 +48,7 @@ const StyledPolicyIcon = styled(PolicyIcon)`
 
 const LinkContainer = styled.div`
   display: flex;
-  ${responsiveSize("gap", 8, 24)}
+  gap: ${responsiveSize(8, 24)};
 `;
 
 interface IPolicies {

@@ -11,7 +11,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  ${responsiveSize("marginBottom", 32, 48)}
+  margin-bottom: ${responsiveSize(32, 48)};
   gap: 12px;
 
   ${landscapeStyle(

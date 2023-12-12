@@ -19,7 +19,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 const StyledCard = styled(Card)`
   width: 100%;
-  ${responsiveSize("height", 280, 296)}
+  height: ${responsiveSize(280, 296)};
 
   ${landscapeStyle(
     () =>
@@ -43,7 +43,7 @@ const StyledListItem = styled(Card)`
 
 const CardContainer = styled.div`
   height: calc(100% - 45px);
-  ${responsiveSize("padding", 20, 24)}
+  padding: ${responsiveSize(20, 24)};
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -68,7 +68,7 @@ const ListTitle = styled.div`
   height: 100%;
   justify-content: start;
   align-items: center;
-  ${responsiveSize("width", 30, 40, 300, 1250, "vw")}
+  width: calc(30vw + (40 - 30) * (min(max(100vw, 300px), 1250px)- 300px) / 950);
 `;
 
 export const getPeriodEndTimestamp = (

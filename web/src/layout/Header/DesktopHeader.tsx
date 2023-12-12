@@ -47,7 +47,7 @@ const MiddleSide = styled.div`
 
 const RightSide = styled.div`
   display: flex;
-  ${responsiveSize("gap", 8, 16, 300, 1024)}
+  gap: ${responsiveSize(8, 16, 300, 1024)};
 
   margin-left: 8px;
   canvas {
@@ -59,8 +59,8 @@ const LightButtonContainer = styled.div`
   display: flex;
   align-items: center;
   width: 16px;
-  ${responsiveSize("marginLeft", 4, 8)}
-  ${responsiveSize("marginRight", 12, 16)}
+  margin-left: ${responsiveSize(4, 8)};
+  margin-right: ${responsiveSize(12, 16)};
 `;
 
 const StyledLink = styled(Link)`

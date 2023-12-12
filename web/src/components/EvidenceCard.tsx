@@ -15,7 +15,7 @@ const StyledCard = styled(Card)`
 `;
 
 const TextContainer = styled.div`
-  ${responsiveSize("padding", 8, 24)}
+  padding: ${responsiveSize(8, 24)};
   > * {
     overflow-wrap: break-word;
     margin: 0;
@@ -35,7 +35,7 @@ const BottomShade = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px calc(8px + (24 - 8) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: 12px ${responsiveSize(8, 24)};
   > * {
     flex-basis: 1;
     flex-shrink: 0;
@@ -46,8 +46,7 @@ const BottomShade = styled.div`
 const StyledA = styled.a`
   display: flex;
   margin-left: auto;
-  ${responsiveSize("gap", 5, 6)}
-
+  gap: ${responsiveSize(5, 6)};
   ${landscapeStyle(
     () => css`
       > svg {

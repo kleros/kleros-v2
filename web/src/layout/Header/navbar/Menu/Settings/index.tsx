@@ -45,13 +45,13 @@ const StyledSettingsText = styled.div`
 `;
 
 const StyledTabs = styled(Tabs)`
-  padding: 0 calc(8px + (32 - 8) * ((100vw - 300px) / (1250 - 300)));
+  padding: 0 ${responsiveSize(8, 32, 300)};
   width: 86vw;
   max-width: 660px;
 
   ${landscapeStyle(
     () => css`
-      ${responsiveSize("width", 300, 424, 300)}
+      width: ${responsiveSize(300, 424, 300)};
     `
   )}
 `;

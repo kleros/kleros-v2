@@ -9,17 +9,17 @@ const Container = styled.div`
 
 const StyledAmountFunded = styled.div`
   display: flex;
-  ${responsiveSize("marginLeft", 8, 44, 300)}
-  ${responsiveSize("marginRight", 8, 44, 300)}
+  margin-left: ${responsiveSize(8, 44, 300)};
+  margin-right: ${responsiveSize(8, 44, 300)};
   color: ${({ theme }) => theme.secondaryText};
   text-align: center;
 `;
 
 const StyledOptionFunded = styled.div`
   display: flex;
-  ${responsiveSize("marginBottom", 16, 32, 300)}
-  ${responsiveSize("marginLeft", 8, 44, 300)}
-  ${responsiveSize("marginRight", 8, 44, 300)}
+  margin-bottom: ${responsiveSize(16, 32, 300)};
+  margin-left: ${responsiveSize(8, 44, 300)};
+  margin-right: ${responsiveSize(8, 44, 300)};
   color: ${({ theme }) => theme.secondaryText};
   text-align: center;
 `;

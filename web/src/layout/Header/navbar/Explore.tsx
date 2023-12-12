@@ -13,7 +13,7 @@ const Container = styled.div`
   ${landscapeStyle(
     () => css`
       flex-direction: row;
-      ${responsiveSize("gap", 4, 16)}
+      gap: ${responsiveSize(4, 16)};
     `
   )};
 `;

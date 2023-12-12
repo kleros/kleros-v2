@@ -13,10 +13,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 const Header = styled.h1`
   display: flex;
-  ${responsiveSize("marginTop", 12, 32)}
-  ${responsiveSize("marginBottom", 12, 24)}
-  ${responsiveSize("marginLeft", 8, 12)}
-  ${responsiveSize("marginRight", 8, 12)}
+  margin: ${responsiveSize(12, 32)} ${responsiveSize(8, 12)} ${responsiveSize(12, 24)};
   text-align: center;
   font-size: 24px;
   font-weight: 600;
@@ -24,21 +21,20 @@ const Header = styled.h1`
 `;
 
 const IconContainer = styled.div`
-  ${responsiveSize("width", 150, 228)}
-
+  width: ${responsiveSize(150, 228)};
   display: flex;
   align-items: center;
   justify-content: center;
 
   svg {
     display: inline-block;
-    ${responsiveSize("width", 150, 228)}
-    ${responsiveSize("height", 150, 228)}
+    width: ${responsiveSize(150, 228)};
+    height: ${responsiveSize(150, 228)};
   }
 `;
 
 const StyledButton = styled(Button)`
-  ${responsiveSize("margin", 16, 32)}
+  margin: ${responsiveSize(16, 32)};
 `;
 
 const Container = styled.div`
@@ -68,7 +64,7 @@ const Container = styled.div`
   ${landscapeStyle(
     () => css`
       overflow-y: hidden;
-      ${responsiveSize("width", 300, 600)}
+      width: ${responsiveSize(300, 600)};
     `
   )}
 `;
@@ -76,9 +72,9 @@ const Container = styled.div`
 const VoteDescriptionContainer = styled.div`
   display: flex;
   flex-direction: column;
-  ${responsiveSize("marginBottom", 16, 32)}
-  ${responsiveSize("marginLeft", 8, 32)}
-  ${responsiveSize("marginRight", 8, 32)}
+  margin-bottom: ${responsiveSize(16, 32)};
+  margin-left: ${responsiveSize(8, 12)};
+  margin-right: ${responsiveSize(8, 12)};
   color: ${({ theme }) => theme.secondaryText};
   text-align: center;
   line-height: 21.8px;

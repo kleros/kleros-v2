@@ -21,8 +21,7 @@ export const LeftContentContainer = styled.div`
 `;
 
 export const StyledImage = styled.div`
-  ${responsiveSize("width", 260, 460)}
-
+  width: ${responsiveSize(260, 460)};
   ${landscapeStyle(
     () => css`
       width: 389px;

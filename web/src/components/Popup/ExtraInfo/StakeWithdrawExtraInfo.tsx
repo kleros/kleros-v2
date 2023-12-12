@@ -6,9 +6,9 @@ const Container = styled.div`
   display: flex;
   color: ${({ theme }) => theme.secondaryText};
   text-align: center;
-  ${responsiveSize("marginLeft", 8, 44, 300)}
-  ${responsiveSize("marginRight", 8, 44, 300)}
-  ${responsiveSize("marginTop", 8, 24, 300)}
+  margin-top: ${responsiveSize(8, 24, 300)};
+  margin-right: ${responsiveSize(8, 44, 300)};
+  margin-left: ${responsiveSize(8, 44, 300)};
 `;
 
 const StakeWithdrawExtraInfo: React.FC = () => {

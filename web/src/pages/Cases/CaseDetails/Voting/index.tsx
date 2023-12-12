@@ -19,7 +19,7 @@ import InfoCircle from "tsx:svgs/icons/info-circle.svg";
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
-  ${responsiveSize("padding", 16, 32)}
+  padding: ${responsiveSize(16, 32)};
 `;
 
 const InfoContainer = styled.div`
@@ -27,7 +27,7 @@ const InfoContainer = styled.div`
   flex-direction: row;
   color: ${({ theme }) => theme.secondaryText};
   align-items: center;
-  ${responsiveSize("gap", 4, 8, 300)}
+  gap: ${responsiveSize(4, 8, 300)};
 
   svg {
     min-width: 16px;

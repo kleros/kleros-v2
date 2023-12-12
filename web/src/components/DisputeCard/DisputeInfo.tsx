@@ -57,7 +57,7 @@ const RestOfFieldsContainer = styled.div<{ isList?: boolean; isOverview?: boolea
       ${landscapeStyle(
         () => css`
           flex-direction: row;
-          ${responsiveSize("gap", 4, 24, 300, 900)}
+          gap: ${responsiveSize(4, 24, 300, 900)};
           justify-content: space-around;
         `
       )}

@@ -19,7 +19,7 @@ const Container = styled.div`
   gap: 16px;
 
   align-items: center;
-  ${responsiveSize("padding", 16, 32)}
+  padding: ${responsiveSize(16, 32)};
 `;
 
 const StyledButton = styled(Button)`

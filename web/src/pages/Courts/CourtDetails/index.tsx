@@ -60,8 +60,8 @@ const ButtonContainer = styled.div`
 `;
 
 const StyledCard = styled(Card)`
-  ${responsiveSize("padding", 16, 32)}
-  ${responsiveSize("marginTop", 16, 24)}
+  padding: ${responsiveSize(16, 32)};
+  margin-top: ${responsiveSize(16, 24)};
   width: 100%;
   height: auto;
   min-height: 100px;

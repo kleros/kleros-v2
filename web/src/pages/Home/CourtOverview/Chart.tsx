@@ -8,7 +8,7 @@ import { useHomePageContext } from "hooks/useHomePageContext";
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
-  ${responsiveSize("marginBottom", 32, 48)}
+  margin-bottom: ${responsiveSize(32, 48)};
   display: flex;
   flex-direction: column;
 `;

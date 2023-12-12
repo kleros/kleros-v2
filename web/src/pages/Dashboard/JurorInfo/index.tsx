@@ -28,7 +28,7 @@ const Card = styled(_Card)`
   ${landscapeStyle(
     () => css`
       flex-direction: row;
-      ${responsiveSize("gap", 24, 64)}
+      gap: ${responsiveSize(24, 64)};
       height: 236px;
     `
   )}

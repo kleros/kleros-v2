@@ -53,7 +53,7 @@ const Container = styled.div`
       left: 0;
       right: auto;
       transform: none;
-      ${responsiveSize("width", 300, 480)}
+      width: ${responsiveSize(300, 480)};
       max-height: 80vh;
     `
   )}
@@ -62,13 +62,13 @@ const Container = styled.div`
 const ItemsDiv = styled.div`
   display: grid;
   overflow-y: auto;
-  padding: 16px calc(8px + (24 - 8) * ((100vw - 480px) / (1250 - 480)));
+  padding: 16px ${responsiveSize(8, 24, 480)};
   row-gap: 8px;
   column-gap: 2px;
   justify-items: center;
   max-width: 480px;
   min-width: 300px;
-  ${responsiveSize("width", 300, 480)}
+  width: ${responsiveSize(300, 480)};
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 `;
 

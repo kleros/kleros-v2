@@ -7,10 +7,10 @@ import { section } from "consts/community-elements";
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
-  ${responsiveSize("marginTop", 44, 64)}
+  margin-top: ${responsiveSize(44, 64)};
 
   h1 {
-    ${responsiveSize("marginBottom", 16, 48)}
+    margin-bottom: ${responsiveSize(16, 48)};
   }
 `;
 

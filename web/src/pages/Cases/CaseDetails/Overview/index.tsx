@@ -20,8 +20,8 @@ const Container = styled.div`
   height: auto;
   display: flex;
   flex-direction: column;
-  ${responsiveSize("gap", 16, 32)}
-  ${responsiveSize("padding", 16, 32)}
+  gap: ${responsiveSize(16, 32)};
+  padding: ${responsiveSize(16, 32)};
 `;
 
 const Divider = styled.hr`

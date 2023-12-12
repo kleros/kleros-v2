@@ -7,7 +7,7 @@ import { responsiveSize } from "styles/responsiveSize";
 const Container = styled.div`
   display: flex;
   justify-content: space-between;
-  ${responsiveSize("gap", 15, 40, 300, 1250, "vw")}
+  gap: calc(15vw + (40 - 15) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   width: 100%;
   height: 100%;
 `;
@@ -17,10 +17,10 @@ const CasesData = styled.div`
   align-items: center;
   justify-content: space-around;
   width: 100%;
-  ${responsiveSize("marginLeft", 0, 33, 370)}
+  margin-left: ${responsiveSize(0, 33)};
   flex-wrap: wrap;
   padding: 0 3%;
-  ${responsiveSize("gap", 24, 48, 300)}
+  gap: ${responsiveSize(24, 48, 300)};
 `;
 
 const CaseTitle = styled.div`
@@ -43,7 +43,7 @@ const CaseTitle = styled.div`
 `;
 
 const StyledLabel = styled.label`
-  ${responsiveSize("marginLeft", 4, 8, 300, 900)}
+  margin-left: ${responsiveSize(4, 8, 300, 900)};
 `;
 
 const tooltipMsg =

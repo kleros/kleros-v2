@@ -9,7 +9,7 @@ import { ClassicAppealProvider } from "hooks/useClassicAppealContext";
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
-  ${responsiveSize("padding", 16, 32)}
+  padding: ${responsiveSize(16, 32)};
 `;
 
 export const AppealHeader = styled.div`

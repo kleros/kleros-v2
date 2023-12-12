@@ -25,7 +25,7 @@ const SkeletonDisputeCardContainer = styled.div`
 `;
 
 const StyledSkeletonDisputeCard = styled(Skeleton)`
-  ${responsiveSize("height", 270, 296)}
+  height: ${responsiveSize(270, 296)};
 `;
 
 const StyledSkeletonDisputeListItem = styled(Skeleton)`
