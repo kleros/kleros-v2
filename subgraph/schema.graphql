@@ -198,10 +198,7 @@ type Draw @entity(immutable: true) {
 type DisputeKit @entity {
   id: ID!
   address: Bytes
-  parent: DisputeKit
-  children: [DisputeKit!]! @derivedFrom(field: "parent")
   needsFreezing: Boolean!
-  depthLevel: BigInt!
   rounds: [Round!]! @derivedFrom(field: "disputeKit")
   courts: [Court!]! @derivedFrom(field: "supportedDisputeKits")
 }
