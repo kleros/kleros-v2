@@ -66,28 +66,28 @@ describe("Integration tests", async () => {
     await pnk.approve(core.address, ONE_THOUSAND_PNK.mul(100));
 
     await core.setStake(1, ONE_THOUSAND_PNK);
-    await core.getJurorBalance(deployer, 1).then((result) => {
+    await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
       expect(result.totalStaked).to.equal(ONE_THOUSAND_PNK);
       expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, ONE_HUNDRED_PNK.mul(5));
-    await core.getJurorBalance(deployer, 1).then((result) => {
+    await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
       expect(result.totalStaked).to.equal(ONE_HUNDRED_PNK.mul(5));
       expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, 0);
-    await core.getJurorBalance(deployer, 1).then((result) => {
+    await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
       expect(result.totalStaked).to.equal(0);
       expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
 
     await core.setStake(1, ONE_THOUSAND_PNK.mul(4));
-    await core.getJurorBalance(deployer, 1).then((result) => {
+    await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
       expect(result.totalStaked).to.equal(ONE_THOUSAND_PNK.mul(4));
       expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);

@@ -25,6 +25,13 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
     // *         Enums / Structs           * //
     // ************************************* //
 
+    enum PreStakeHookResult {
+        ok, // Correct phase. All checks are passed.
+        stakeDelayedAlreadyTransferred, // Wrong phase but stake is increased, so transfer the tokens without updating the drawing chance.
+        stakeDelayedNotTransferred, // Wrong phase and stake is decreased. Delay the token transfer and drawing chance update.
+        failed // Checks didn't pass. Do no changes.
+    }
+
     struct SortitionSumTree {
         uint256 K; // The maximum number of children per node.
         // We use this to keep track of vacant positions in the tree after removing a leaf. This is for keeping the tree as balanced as possible without spending gas on moving nodes around.
@@ -40,6 +47,13 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         uint96 courtID; // The ID of the court.
         uint256 stake; // The new stake.
         bool alreadyTransferred; // True if tokens were already transferred before delayed stake's execution.
+    }
+
+    struct Juror {
+        uint96[] courtIDs; // The IDs of courts where the juror's stake path ends. A stake path is a path from the general court to a court the juror directly staked in using `_setStake`.
+        uint256 stakedPnk; // The juror's total amount of tokens staked in subcourts. Reflects actual pnk balance.
+        uint256 lockedPnk; // The juror's total amount of tokens locked in disputes. Can reflect actual pnk balance when stakedPnk are fully withdrawn.
+        mapping(uint96 => uint256) stakedPnkByCourt; // The amount of PNKs the juror has staked in the court in the form `stakedPnkByCourt[courtID]`.
     }
 
     // ************************************* //
@@ -63,8 +77,19 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
     uint256 public delayedStakeReadIndex; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
     mapping(bytes32 => SortitionSumTree) sortitionSumTrees; // The mapping trees by keys.
+    mapping(address => Juror) public jurors; // The jurors.
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Drawing phase, to update them when the phase is switched to Staking.
     mapping(address => mapping(uint96 => uint256)) public latestDelayedStakeIndex; // Maps the juror to its latest delayed stake. If there is already a delayed stake for this juror then it'll be replaced. latestDelayedStakeIndex[juror][courtID].
+
+    // ************************************* //
+    // *              Events               * //
+    // ************************************* //
+
+    event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount);
+    event StakeDelayedNotTransferred(address indexed _address, uint256 _courtID, uint256 _amount);
+    event StakeDelayedAlreadyTransferred(address indexed _address, uint256 _courtID, uint256 _amount);
+    event StakeDelayedAlreadyTransferredWithdrawn(address indexed _address, uint96 indexed _courtID, uint256 _amount);
+    event StakeLocked(address indexed _address, uint256 _relativeAmount, bool _unlock);
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -218,58 +243,6 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         delayedStakeReadIndex = newDelayedStakeReadIndex;
     }
 
-    function preStakeHook(
-        address _account,
-        uint96 _courtID,
-        uint256 _stake
-    ) external override onlyByCore returns (PreStakeHookResult) {
-        _deleteDelayedStake(_courtID, _account);
-
-        (, , uint256 currentStake, uint256 nbCourts) = core.getJurorBalance(_account, _courtID);
-        if (currentStake == 0 && nbCourts >= MAX_STAKE_PATHS) {
-            // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
-            return PreStakeHookResult.failed;
-        } else {
-            if (phase != Phase.staking) {
-                // Store the stake change as delayed, to be applied when the phase switches back to Staking.
-                DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
-                delayedStake.account = _account;
-                delayedStake.courtID = _courtID;
-                delayedStake.stake = _stake;
-                latestDelayedStakeIndex[_account][_courtID] = delayedStakeWriteIndex;
-                if (_stake > currentStake) {
-                    // PNK deposit: tokens to be transferred now (right after this hook),
-                    // but the stake will be added to the sortition sum tree later.
-                    delayedStake.alreadyTransferred = true;
-                    return PreStakeHookResult.stakeDelayedAlreadyTransferred;
-                } else {
-                    // PNK withdrawal: tokens are not transferred yet.
-                    return PreStakeHookResult.stakeDelayedNotTransferred;
-                }
-            }
-        }
-        return PreStakeHookResult.ok;
-    }
-
-    /// @dev Checks if there is already a delayed stake. In this case consider it irrelevant and remove it.
-    /// @param _courtID ID of the court.
-    /// @param _juror Juror whose stake to check.
-    function _deleteDelayedStake(uint96 _courtID, address _juror) internal {
-        uint256 latestIndex = latestDelayedStakeIndex[_juror][_courtID];
-        if (latestIndex != 0) {
-            DelayedStake storage delayedStake = delayedStakes[latestIndex];
-            if (delayedStake.alreadyTransferred) {
-                bytes32 stakePathID = _accountAndCourtIDToStakePathID(_juror, _courtID);
-                // Sortition stake represents the stake value that was last updated during Staking phase.
-                uint256 sortitionStake = stakeOf(bytes32(uint256(_courtID)), stakePathID);
-                // Withdraw the tokens that were added with the latest delayed stake.
-                core.withdrawPartiallyDelayedStake(_courtID, _juror, delayedStake.stake - sortitionStake);
-            }
-            delete delayedStakes[latestIndex];
-            delete latestDelayedStakeIndex[_juror][_courtID];
-        }
-    }
-
     function createDisputeHook(uint256 /*_disputeID*/, uint256 /*_roundID*/) external override onlyByCore {
         disputesWithoutJurors++;
     }
@@ -282,25 +255,183 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
     /// @param _randomNumber Random number returned by RNG contract.
     function notifyRandomNumber(uint256 _randomNumber) public override {}
 
-    /// @dev Sets the value for a particular court and its parent courts.
-    /// @param _courtID ID of the court.
-    /// @param _value The new value.
-    /// @param _account Address of the juror.
-    /// `O(log_k(n))` where
-    /// `k` is the maximum number of children per node in the tree,
-    ///  and `n` is the maximum number of nodes ever appended.
-    function setStake(address _account, uint96 _courtID, uint256 _value) external override onlyByCore {
+    /// @dev Sets the specified juror's stake in a court.
+    /// `O(n + p * log_k(j))` where
+    /// `n` is the number of courts the juror has staked in,
+    /// `p` is the depth of the court tree,
+    /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
+    /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
+    /// @param _account The address of the juror.
+    /// @param _courtID The ID of the court.
+    /// @param _newStake The new stake.
+    /// @param _alreadyTransferred True if the tokens were already transferred from juror. Only relevant for delayed stakes.
+    /// @return pnkDeposit The amount of PNK to be deposited.
+    /// @return pnkWithdrawal The amount of PNK to be withdrawn.
+    /// @return succeeded True if the call succeeded, false otherwise.
+    function setStake(
+        address _account,
+        uint96 _courtID,
+        uint256 _newStake,
+        bool _alreadyTransferred
+    ) external override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, bool succeeded) {
+        Juror storage juror = jurors[_account];
+        uint256 currentStake = juror.stakedPnkByCourt[_courtID];
+
+        uint256 nbCourts = juror.courtIDs.length;
+        if (_newStake == 0 && (nbCourts >= MAX_STAKE_PATHS || currentStake == 0)) {
+            return (0, 0, false); // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
+        }
+
+        pnkWithdrawal = _deleteDelayedStake(_courtID, _account);
+
+        if (phase != Phase.staking) {
+            // Store the stake change as delayed, to be applied when the phase switches back to Staking.
+            DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
+            delayedStake.account = _account;
+            delayedStake.courtID = _courtID;
+            delayedStake.stake = _newStake;
+            latestDelayedStakeIndex[_account][_courtID] = delayedStakeWriteIndex;
+            if (_newStake > currentStake) {
+                // PNK deposit: tokens are transferred now.
+                delayedStake.alreadyTransferred = true;
+                pnkDeposit = _increaseStake(juror, _courtID, _newStake, currentStake);
+                emit StakeDelayedAlreadyTransferred(_account, _courtID, _newStake);
+            } else {
+                // PNK withdrawal: tokens are not transferred yet.
+                emit StakeDelayedNotTransferred(_account, _courtID, _newStake);
+            }
+            return (pnkDeposit, pnkWithdrawal, true);
+        }
+
+        // Staking phase: set normal stakes or delayed stakes (which may have been already transferred).
+        if (_newStake >= currentStake) {
+            if (!_alreadyTransferred) {
+                pnkDeposit = _increaseStake(juror, _courtID, _newStake, currentStake);
+            }
+        } else {
+            pnkWithdrawal += _decreaseStake(juror, _courtID, _newStake, currentStake);
+        }
+
         bytes32 stakePathID = _accountAndCourtIDToStakePathID(_account, _courtID);
         bool finished = false;
         uint96 currenCourtID = _courtID;
         while (!finished) {
             // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
-            _set(bytes32(uint256(currenCourtID)), _value, stakePathID);
+            _set(bytes32(uint256(currenCourtID)), _newStake, stakePathID);
             if (currenCourtID == Constants.GENERAL_COURT) {
                 finished = true;
             } else {
                 (currenCourtID, , , , , , ) = core.courts(currenCourtID);
             }
+        }
+        emit StakeSet(_account, _courtID, _newStake);
+        return (pnkDeposit, pnkWithdrawal, true);
+    }
+
+    /// @dev Checks if there is already a delayed stake. In this case consider it irrelevant and remove it.
+    /// @param _courtID ID of the court.
+    /// @param _juror Juror whose stake to check.
+    function _deleteDelayedStake(uint96 _courtID, address _juror) internal returns (uint256 actualAmountToWithdraw) {
+        uint256 latestIndex = latestDelayedStakeIndex[_juror][_courtID];
+        if (latestIndex != 0) {
+            DelayedStake storage delayedStake = delayedStakes[latestIndex];
+            if (delayedStake.alreadyTransferred) {
+                bytes32 stakePathID = _accountAndCourtIDToStakePathID(_juror, _courtID);
+                // Sortition stake represents the stake value that was last updated during Staking phase.
+                uint256 sortitionStake = stakeOf(bytes32(uint256(_courtID)), stakePathID);
+                // Withdraw the tokens that were added with the latest delayed stake.
+                uint256 amountToWithdraw = delayedStake.stake - sortitionStake;
+                actualAmountToWithdraw = amountToWithdraw;
+                Juror storage juror = jurors[_juror];
+                if (juror.stakedPnk <= actualAmountToWithdraw) {
+                    actualAmountToWithdraw = juror.stakedPnk;
+                }
+                // StakePnk can become lower because of penalty, thus we adjust the amount for it. stakedPnkByCourt can't be penalized so subtract the default amount.
+                juror.stakedPnk -= actualAmountToWithdraw;
+                juror.stakedPnkByCourt[_courtID] -= amountToWithdraw;
+                emit StakeDelayedAlreadyTransferredWithdrawn(_juror, _courtID, amountToWithdraw);
+                // Note that if we don't delete court here it'll be duplicated after staking.
+                if (juror.stakedPnkByCourt[_courtID] == 0) {
+                    for (uint256 i = juror.courtIDs.length; i > 0; i--) {
+                        if (juror.courtIDs[i - 1] == _courtID) {
+                            juror.courtIDs[i - 1] = juror.courtIDs[juror.courtIDs.length - 1];
+                            juror.courtIDs.pop();
+                            break;
+                        }
+                    }
+                }
+            }
+            delete delayedStakes[latestIndex];
+            delete latestDelayedStakeIndex[_juror][_courtID];
+        }
+    }
+
+    function _increaseStake(
+        Juror storage juror,
+        uint96 _courtID,
+        uint256 _newStake,
+        uint256 _currentStake
+    ) internal returns (uint256 transferredAmount) {
+        // Stake increase
+        // When stakedPnk becomes lower than lockedPnk count the locked tokens in when transferring tokens from juror.
+        // (E.g. stakedPnk = 0, lockedPnk = 150) which can happen if the juror unstaked fully while having some tokens locked.
+        uint256 previouslyLocked = (juror.lockedPnk >= juror.stakedPnk) ? juror.lockedPnk - juror.stakedPnk : 0; // underflow guard
+        transferredAmount = (_newStake >= _currentStake + previouslyLocked) // underflow guard
+            ? _newStake - _currentStake - previouslyLocked
+            : 0;
+        if (_currentStake == 0) {
+            juror.courtIDs.push(_courtID);
+        }
+        // stakedPnk can become async with _currentStake (e.g. after penalty).
+        juror.stakedPnk = (juror.stakedPnk >= _currentStake) ? juror.stakedPnk - _currentStake + _newStake : _newStake;
+        juror.stakedPnkByCourt[_courtID] = _newStake;
+    }
+
+    function _decreaseStake(
+        Juror storage juror,
+        uint96 _courtID,
+        uint256 _newStake,
+        uint256 _currentStake
+    ) internal returns (uint256 transferredAmount) {
+        // Stakes can be partially delayed only when stake is increased.
+        // Stake decrease: make sure locked tokens always stay in the contract. They can only be released during Execution.
+        if (juror.stakedPnk >= _currentStake - _newStake + juror.lockedPnk) {
+            // We have enough pnk staked to afford withdrawal while keeping locked tokens.
+            transferredAmount = _currentStake - _newStake;
+        } else if (juror.stakedPnk >= juror.lockedPnk) {
+            // Can't afford withdrawing the current stake fully. Take whatever is available while keeping locked tokens.
+            transferredAmount = juror.stakedPnk - juror.lockedPnk;
+        }
+        if (_newStake == 0) {
+            for (uint256 i = juror.courtIDs.length; i > 0; i--) {
+                if (juror.courtIDs[i - 1] == _courtID) {
+                    juror.courtIDs[i - 1] = juror.courtIDs[juror.courtIDs.length - 1];
+                    juror.courtIDs.pop();
+                    break;
+                }
+            }
+        }
+        // stakedPnk can become async with _currentStake (e.g. after penalty).
+        juror.stakedPnk = (juror.stakedPnk >= _currentStake) ? juror.stakedPnk - _currentStake + _newStake : _newStake;
+        juror.stakedPnkByCourt[_courtID] = _newStake;
+    }
+
+    function lockStake(address _account, uint256 _relativeAmount) external override onlyByCore {
+        jurors[_account].lockedPnk += _relativeAmount;
+        emit StakeLocked(_account, _relativeAmount, false);
+    }
+
+    function unlockStake(address _account, uint256 _relativeAmount) external override onlyByCore {
+        jurors[_account].lockedPnk -= _relativeAmount;
+        emit StakeLocked(_account, _relativeAmount, true);
+    }
+
+    function penalizeStake(address _account, uint256 _relativeAmount) external override onlyByCore {
+        Juror storage juror = jurors[_account];
+        if (juror.stakedPnk >= _relativeAmount) {
+            juror.stakedPnk -= _relativeAmount;
+        } else {
+            juror.stakedPnk = 0; // stakedPnk might become lower after manual unstaking, but lockedPnk will always cover the difference.
         }
     }
 
@@ -312,7 +443,7 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
     /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
     /// @param _account The juror to unstake.
     function setJurorInactive(address _account) external override onlyByCore {
-        uint96[] memory courtIDs = core.getJurorCourtIDs(_account);
+        uint96[] memory courtIDs = getJurorCourtIDs(_account);
         for (uint256 j = courtIDs.length; j > 0; j--) {
             core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0, false);
         }
@@ -377,6 +508,32 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
 
         if (treeIndex == 0) value = 0;
         else value = tree.nodes[treeIndex];
+    }
+
+    function getJurorBalance(
+        address _juror,
+        uint96 _courtID
+    )
+        external
+        view
+        override
+        returns (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts)
+    {
+        Juror storage juror = jurors[_juror];
+        totalStaked = juror.stakedPnk;
+        totalLocked = juror.lockedPnk;
+        stakedInCourt = juror.stakedPnkByCourt[_courtID];
+        nbCourts = juror.courtIDs.length;
+    }
+
+    /// @dev Gets the court identifiers where a specific `_juror` has staked.
+    /// @param _juror The address of the juror.
+    function getJurorCourtIDs(address _juror) public view override returns (uint96[] memory) {
+        return jurors[_juror].courtIDs;
+    }
+
+    function isJurorStaked(address _juror) external view override returns (bool) {
+        return jurors[_juror].stakedPnk > 0;
     }
 
     // ************************************* //
