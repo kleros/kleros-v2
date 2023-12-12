@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useSortitionModulePhase } from "hooks/contracts/generated";
 import { useToggleTheme } from "hooks/useToggleThemeContext";
 import { GIT_BRANCH, GIT_DIRTY, GIT_HASH, GIT_TAGS, GIT_URL, RELEASE_VERSION } from "consts/index";
+import { isUndefined } from "utils/index";
 
 const Container = styled.div`
   display: flex;
@@ -46,7 +47,7 @@ const ServicesStatus = () => {
   const [theme] = useToggleTheme();
   const statusUrlParameters = useMemo(() => (theme === "light" ? "?theme=light" : "?theme=dark"), [theme]);
   const statusUrl = process.env.REACT_APP_STATUS_URL;
-  return <label>{statusUrl && <StyledIframe src={`${statusUrl + statusUrlParameters}`} />}</label>;
+  return <label>{isUndefined(statusUrl) ? null : <StyledIframe src={`${statusUrl + statusUrlParameters}`} />}</label>;
 };
 
 enum Phases {
@@ -59,7 +60,7 @@ const Phase = () => {
   const { data: phase } = useSortitionModulePhase({
     watch: true,
   });
-  return <>{phase !== undefined && <StyledLabel>Phase: {Phases[phase]}</StyledLabel>}</>;
+  return <>{isUndefined(phase) ? null : <StyledLabel>Phase: {Phases[phase]}</StyledLabel>}</>;
 };
 
 const Debug: React.FC = () => {
