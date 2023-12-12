@@ -476,7 +476,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     ) external {
         if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
         // Always nullify the latest delayed stake before setting a new value.
-        // Note that we check the delayed stake here too because the check in `setStake` can be bypassed
+        // Note that we call _deleteDelayedStake() here too because the one in `setStake` can be bypassed
         // if the stake was updated automatically during `execute` (e.g. when unstaking inactive juror).
         _deleteDelayedStake(_courtID);
         _setStakeForAccount(_account, _courtID, _newStake, _alreadyTransferred);
