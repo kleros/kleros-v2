@@ -2,17 +2,22 @@ import React from "react";
 import styled from "styled-components";
 import MobileHeader from "./MobileHeader";
 import DesktopHeader from "./DesktopHeader";
+import { TestnetBanner } from "./TestnetBanner";
 
 const Container = styled.div`
   position: sticky;
   z-index: 1;
   top: 0;
   width: 100%;
-  height: 64px;
   background-color: ${({ theme }) => theme.primaryPurple};
 
-  padding: 0 24px;
   display: flex;
+  flex-wrap: wrap;
+`;
+
+const HeaderContainer = styled.div`
+  width: 100%;
+  padding: 4px 24px 8px;
 `;
 
 export const PopupContainer = styled.div`
@@ -27,8 +32,11 @@ export const PopupContainer = styled.div`
 const Header: React.FC = () => {
   return (
     <Container>
-      <DesktopHeader />
-      <MobileHeader />
+      {process.env.REACT_APP_DEPLOYMENT === "testnet" ? <TestnetBanner /> : null}
+      <HeaderContainer>
+        <DesktopHeader />
+        <MobileHeader />
+      </HeaderContainer>
     </Container>
   );
 };
