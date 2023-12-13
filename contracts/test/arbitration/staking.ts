@@ -233,7 +233,10 @@ describe("Staking", async () => {
         balanceBefore = await pnk.balanceOf(deployer);
         await expect(sortition.executeDelayedStakes(10))
           .to.emit(sortition, "StakeSet")
-          .withArgs(deployer, 2, PNK(2000));
+          .withArgs(deployer, 2, PNK(2000))
+          .to.not.emit(sortition, "StakeDelayedNotTransferred")
+          .to.not.emit(sortition, "StakeDelayedAlreadyTransferred")
+          .to.not.emit(sortition, "StakeDelayedAlreadyTransferredWithdrawn");
         expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([
           PNK(4000),
           PNK(300), // we're the only juror so we are drawn 3 times
