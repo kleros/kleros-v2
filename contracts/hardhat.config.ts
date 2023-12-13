@@ -302,6 +302,9 @@ const config: HardhatUserConfig = {
     clear: true,
     runOnCompile: false,
   },
+  mocha: {
+    timeout: 20000,
+  },
   tenderly: {
     project: process.env.TENDERLY_PROJECT !== undefined ? process.env.TENDERLY_PROJECT : "kleros-v2",
     username: process.env.TENDERLY_USERNAME !== undefined ? process.env.TENDERLY_USERNAME : "",

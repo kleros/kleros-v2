@@ -12,7 +12,7 @@ import {
   TokenAndETHShift as TokenAndETHShiftEvent,
   CourtJump,
   Ruling,
-  StakeDelayed,
+  StakeDelayedNotTransferred,
   AcceptedFeeToken,
 } from "../generated/KlerosCore/KlerosCore";
 import { ZERO, ONE } from "./utils";
@@ -198,7 +198,7 @@ export function handleStakeSet(event: StakeSet): void {
   }
 }
 
-export function handleStakeDelayed(event: StakeDelayed): void {
+export function handleStakeDelayedNotTransferred(event: StakeDelayedNotTransferred): void {
   updateJurorDelayedStake(event.params._address.toHexString(), event.params._courtID.toString(), event.params._amount);
 }
 

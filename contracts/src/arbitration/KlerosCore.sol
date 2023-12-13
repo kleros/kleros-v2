@@ -70,13 +70,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 drawIterations; // The number of iterations passed drawing the jurors for this round.
     }
 
-    struct Juror {
-        uint96[] courtIDs; // The IDs of courts where the juror's stake path ends. A stake path is a path from the general court to a court the juror directly staked in using `_setStake`.
-        uint256 stakedPnk; // The juror's total amount of tokens staked in subcourts. Reflects actual pnk balance.
-        uint256 lockedPnk; // The juror's total amount of tokens locked in disputes. Can reflect actual pnk balance when stakedPnk are fully withdrawn.
-        mapping(uint96 => uint256) stakedPnkByCourt; // The amount of PNKs the juror has staked in the court in the form `stakedPnkByCourt[courtID]`.
-    }
-
     // Workaround "stack too deep" errors
     struct ExecuteParams {
         uint256 disputeID; // The ID of the dispute to execute.
@@ -107,15 +100,12 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     Court[] public courts; // The courts.
     IDisputeKit[] public disputeKits; // Array of dispute kits.
     Dispute[] public disputes; // The disputes.
-    mapping(address => Juror) internal jurors; // The jurors.
     mapping(IERC20 => CurrencyRate) public currencyRates; // The price of each token in ETH.
 
     // ************************************* //
     // *              Events               * //
     // ************************************* //
 
-    event StakeSet(address indexed _address, uint256 _courtID, uint256 _amount);
-    event StakeDelayed(address indexed _address, uint256 _courtID, uint256 _amount);
     event NewPeriod(uint256 indexed _disputeID, Period _period);
     event AppealPossible(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
     event AppealDecision(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
@@ -456,13 +446,19 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     /// @dev Sets the caller's stake in a court.
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake.
+    /// Note that the existing delayed stake will be nullified as non-relevant.
     function setStake(uint96 _courtID, uint256 _newStake) external {
-        if (!_setStakeForAccount(msg.sender, _courtID, _newStake)) revert StakingFailed();
+        _setStake(msg.sender, _courtID, _newStake, false);
     }
 
-    function setStakeBySortitionModule(address _account, uint96 _courtID, uint256 _newStake) external {
-        if (msg.sender != address(sortitionModule)) revert WrongCaller();
-        _setStakeForAccount(_account, _courtID, _newStake);
+    function setStakeBySortitionModule(
+        address _account,
+        uint96 _courtID,
+        uint256 _newStake,
+        bool _alreadyTransferred
+    ) external {
+        if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
+        _setStake(_account, _courtID, _newStake, _alreadyTransferred);
     }
 
     /// @inheritdoc IArbitratorV2
@@ -589,7 +585,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
             if (drawnAddress == address(0)) {
                 continue;
             }
-            jurors[drawnAddress].lockedPnk += round.pnkAtStakePerJuror;
+            sortitionModule.lockStake(drawnAddress, round.pnkAtStakePerJuror);
             emit Draw(drawnAddress, _disputeID, currentRound, round.drawnJurors.length);
             round.drawnJurors.push(drawnAddress);
             if (round.drawnJurors.length == round.nbVotes) {
@@ -728,15 +724,10 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
 
         // Unlock the PNKs affected by the penalty
         address account = round.drawnJurors[_params.repartition];
-        jurors[account].lockedPnk -= penalty;
+        sortitionModule.unlockStake(account, penalty);
 
         // Apply the penalty to the staked PNKs.
-        // Note that lockedPnk will always cover penalty while stakedPnk can become lower after manual unstaking.
-        if (jurors[account].stakedPnk >= penalty) {
-            jurors[account].stakedPnk -= penalty;
-        } else {
-            jurors[account].stakedPnk = 0;
-        }
+        sortitionModule.penalizeStake(account, penalty);
         emit TokenAndETHShift(
             account,
             _params.disputeID,
@@ -795,10 +786,10 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 pnkLocked = (round.pnkAtStakePerJuror * degreeOfCoherence) / ALPHA_DIVISOR;
 
         // Release the rest of the PNKs of the juror for this round.
-        jurors[account].lockedPnk -= pnkLocked;
+        sortitionModule.unlockStake(account, pnkLocked);
 
         // Give back the locked PNKs in case the juror fully unstaked earlier.
-        if (jurors[account].stakedPnk == 0) {
+        if (!sortitionModule.isJurorStaked(account)) {
             pinakion.safeTransfer(account, pnkLocked);
         }
 
@@ -944,17 +935,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         return disputes[_disputeID].rounds.length;
     }
 
-    function getJurorBalance(
-        address _juror,
-        uint96 _courtID
-    ) external view returns (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts) {
-        Juror storage juror = jurors[_juror];
-        totalStaked = juror.stakedPnk;
-        totalLocked = juror.lockedPnk;
-        stakedInCourt = juror.stakedPnkByCourt[_courtID];
-        nbCourts = juror.courtIDs.length;
-    }
-
     function isSupported(uint96 _courtID, uint256 _disputeKitID) external view returns (bool) {
         return courts[_courtID].supportedDisputeKits[_disputeKitID];
     }
@@ -997,12 +977,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         return disputeKits.length;
     }
 
-    /// @dev Gets the court identifiers where a specific `_juror` has staked.
-    /// @param _juror The address of the juror.
-    function getJurorCourtIDs(address _juror) public view returns (uint96[] memory) {
-        return jurors[_juror].courtIDs;
-    }
-
     function convertEthToTokenAmount(IERC20 _toToken, uint256 _amountInEth) public view returns (uint256) {
         return (_amountInEth * 10 ** currencyRates[_toToken].rateDecimals) / currencyRates[_toToken].rateInEth;
     }
@@ -1020,89 +994,34 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         emit DisputeKitEnabled(_courtID, _disputeKitID, _enable);
     }
 
-    /// @dev Sets the specified juror's stake in a court.
-    /// `O(n + p * log_k(j))` where
-    /// `n` is the number of courts the juror has staked in,
-    /// `p` is the depth of the court tree,
-    /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
-    /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
-    /// @param _account The address of the juror.
-    /// @param _courtID The ID of the court.
-    /// @param _newStake The new stake.
-    /// @return succeeded True if the call succeeded, false otherwise.
-    function _setStakeForAccount(
+    function _setStake(
         address _account,
         uint96 _courtID,
-        uint256 _newStake
-    ) internal returns (bool succeeded) {
-        if (_courtID == Constants.FORKING_COURT || _courtID > courts.length) return false;
-
-        Juror storage juror = jurors[_account];
-        uint256 currentStake = juror.stakedPnkByCourt[_courtID];
-
-        if (_newStake != 0) {
-            if (_newStake < courts[_courtID].minStake) return false;
-        } else if (currentStake == 0) {
-            return false;
+        uint256 _newStake,
+        bool _alreadyTransferred
+    ) internal returns (bool success) {
+        if (_courtID == Constants.FORKING_COURT || _courtID > courts.length) {
+            return false; // Staking directly into the forking court is not allowed.
         }
-
-        ISortitionModule.preStakeHookResult result = sortitionModule.preStakeHook(_account, _courtID, _newStake);
-        if (result == ISortitionModule.preStakeHookResult.failed) {
-            return false;
-        } else if (result == ISortitionModule.preStakeHookResult.delayed) {
-            emit StakeDelayed(_account, _courtID, _newStake);
-            return true;
+        if (_newStake != 0 && _newStake < courts[_courtID].minStake) {
+            return false; // Staking less than the minimum stake is not allowed.
         }
-
-        uint256 transferredAmount;
-        if (_newStake >= currentStake) {
-            // Stake increase
-            // When stakedPnk becomes lower than lockedPnk count the locked tokens in when transferring tokens from juror.
-            // (E.g. stakedPnk = 0, lockedPnk = 150) which can happen if the juror unstaked fully while having some tokens locked.
-            uint256 previouslyLocked = (juror.lockedPnk >= juror.stakedPnk) ? juror.lockedPnk - juror.stakedPnk : 0; // underflow guard
-            transferredAmount = (_newStake >= currentStake + previouslyLocked) // underflow guard
-                ? _newStake - currentStake - previouslyLocked
-                : 0;
-            if (transferredAmount > 0) {
-                if (!pinakion.safeTransferFrom(_account, address(this), transferredAmount)) {
-                    return false;
-                }
-            }
-            if (currentStake == 0) {
-                juror.courtIDs.push(_courtID);
-            }
-        } else {
-            // Stake decrease: make sure locked tokens always stay in the contract. They can only be released during Execution.
-            if (juror.stakedPnk >= currentStake - _newStake + juror.lockedPnk) {
-                // We have enough pnk staked to afford withdrawal while keeping locked tokens.
-                transferredAmount = currentStake - _newStake;
-            } else if (juror.stakedPnk >= juror.lockedPnk) {
-                // Can't afford withdrawing the current stake fully. Take whatever is available while keeping locked tokens.
-                transferredAmount = juror.stakedPnk - juror.lockedPnk;
-            }
-            if (transferredAmount > 0) {
-                if (!pinakion.safeTransfer(_account, transferredAmount)) {
-                    return false;
-                }
-            }
-            if (_newStake == 0) {
-                for (uint256 i = juror.courtIDs.length; i > 0; i--) {
-                    if (juror.courtIDs[i - 1] == _courtID) {
-                        juror.courtIDs[i - 1] = juror.courtIDs[juror.courtIDs.length - 1];
-                        juror.courtIDs.pop();
-                        break;
-                    }
-                }
+        (uint256 pnkDeposit, uint256 pnkWithdrawal, bool sortitionSuccess) = sortitionModule.setStake(
+            _account,
+            _courtID,
+            _newStake,
+            _alreadyTransferred
+        );
+        if (pnkDeposit > 0 && pnkWithdrawal > 0) revert StakingFailed();
+        if (pnkDeposit > 0) {
+            // Note we don't return false after incorrect transfer because when stake is increased the transfer is done immediately, thus it can't disrupt delayed stakes' queue.
+            pinakion.safeTransferFrom(_account, address(this), pnkDeposit);
+        } else if (pnkWithdrawal > 0) {
+            if (!pinakion.safeTransfer(_account, pnkWithdrawal)) {
+                return false;
             }
         }
-
-        // Note that stakedPnk can become async with currentStake (e.g. after penalty).
-        juror.stakedPnk = (juror.stakedPnk >= currentStake) ? juror.stakedPnk - currentStake + _newStake : _newStake;
-        juror.stakedPnkByCourt[_courtID] = _newStake;
-
-        sortitionModule.setStake(_account, _courtID, _newStake);
-        emit StakeSet(_account, _courtID, _newStake);
-        return true;
+        return sortitionSuccess;
     }
 
     /// @dev Gets a court ID, the minimum number of jurors and an ID of a dispute kit from a specified extra data bytes array.
@@ -1143,6 +1062,8 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     // ************************************* //
 
     error GovernorOnly();
+    error DisputeKitOnly();
+    error SortitionModuleOnly();
     error UnsuccessfulCall();
     error InvalidDisputKitParent();
     error DepthLevelMax();
@@ -1153,7 +1074,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     error CannotDisableClassicDK();
     error ArraysLengthMismatch();
     error StakingFailed();
-    error WrongCaller();
     error ArbitrationFeesNotEnough();
     error DisputeKitNotSupportedByCourt();
     error MustSupportDisputeKitClassic();
@@ -1166,7 +1086,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     error NotEvidencePeriod();
     error AppealFeesNotEnough();
     error DisputeNotAppealable();
-    error DisputeKitOnly();
     error NotExecutionPeriod();
     error RulingAlreadyExecuted();
     error DisputePeriodIsFinal();
