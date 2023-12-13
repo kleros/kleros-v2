@@ -6,9 +6,10 @@ import Classic from "./Classic";
 import { Periods } from "consts/periods";
 import AppealHistory from "./AppealHistory";
 import { ClassicAppealProvider } from "hooks/useClassicAppealContext";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
-  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: ${responsiveSize(16, 32)};
 `;
 
 export const AppealHeader = styled.div`

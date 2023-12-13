@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import PnkIcon from "tsx:assets/svgs/styled/pnk.svg";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
@@ -11,9 +12,8 @@ const Container = styled.div`
 `;
 
 const StyledPnkIcon = styled(PnkIcon)`
-  width: calc(220px + (280 - 220) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  height: calc(220px + (252 - 220) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-
+  width: ${responsiveSize(220, 280)};
+  height: ${responsiveSize(220, 252)};
   [class$="stop-1"] {
     stop-color: ${({ theme }) => theme.primaryBlue};
   }

@@ -16,6 +16,7 @@ import VoteStake from "svgs/icons/vote-stake.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import EthereumIcon from "svgs/icons/ethereum.svg";
+import { responsiveSize } from "styles/responsiveSize";
 
 const StyledCard = styled.div`
   width: auto;
@@ -23,7 +24,7 @@ const StyledCard = styled.div`
   display: grid;
   gap: 32px;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  padding: calc(0px + (32 - 0) * (min(max(100vw, 375px), 1250px) - 375px) / 875) 0;
+  padding: ${responsiveSize(0, 32)} 0;
   padding-bottom: 0px;
 
   ${landscapeStyle(
