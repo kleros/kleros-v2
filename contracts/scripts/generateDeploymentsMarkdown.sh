@@ -23,25 +23,25 @@ echo "#### Chiado"
 echo
 generate "$SCRIPT_DIR/../deployments/chiado" "https://gnosis-chiado.blockscout.com/address/"
 echo
-echo "#### Goerli"
+echo "#### Sepolia"
 echo
 generate "$SCRIPT_DIR/../deployments/goerli" "https://goerli.etherscan.io/address/"
 echo
-echo "#### Arbitrum Goerli"
+echo "#### Arbitrum Sepolia"
 echo
 echo "- [PNK](https://goerli.arbiscan.io/token/0x3483FA1b87792cd5BE4100822C4eCEC8D3E531ee)"
-generate "$SCRIPT_DIR/../deployments/arbitrumGoerli" "https://goerli.arbiscan.io/address/"
+generate "$SCRIPT_DIR/../deployments/arbitrumSepolia" "https://goerli.arbiscan.io/address/"
 echo
 echo "### Devnet"
 echo "#### Chiado"
 echo
 generate "$SCRIPT_DIR/../deployments/chiadoDevnet" "https://gnosis-chiado.blockscout.com/address/"
 echo
-echo "#### Goerli"
+echo "#### Sepolia"
 echo
 generate "$SCRIPT_DIR/../deployments/goerliDevnet" "https://goerli.etherscan.io/address/"
 echo
-echo "#### Arbitrum Goerli"
+echo "#### Arbitrum Sepolia"
 echo
 echo "- [PNK](https://goerli.arbiscan.io/token/0x3483FA1b87792cd5BE4100822C4eCEC8D3E531ee)"
-generate "$SCRIPT_DIR/../deployments/arbitrumGoerliDevnet" "https://goerli.arbiscan.io/address/"
+generate "$SCRIPT_DIR/../deployments/arbitrumSepoliaDevnet" "https://goerli.arbiscan.io/address/"

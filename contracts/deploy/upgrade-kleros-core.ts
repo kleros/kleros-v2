@@ -2,13 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
 import { deployUpgradable } from "./utils/deployUpgradable";
-import { isSkipped } from "./utils";
-
-enum HomeChains {
-  ARBITRUM_ONE = 42161,
-  ARBITRUM_SEPOLIA = 421614,
-  HARDHAT = 31337,
-}
+import { HomeChains, isSkipped } from "./utils";
 
 const deployUpgradeKlerosCore: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;

@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment, HttpNetworkConfig } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import getContractAddress from "./utils/getContractAddress";
+import { getContractAddress } from "./utils/getContractAddress";
 import { KlerosCore__factory } from "../typechain-types";
 import { Courts, ForeignChains, isSkipped } from "./utils";
 import { deployUpgradable } from "./utils/deployUpgradable";
