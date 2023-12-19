@@ -14,6 +14,10 @@ module.exports = {
     shell.rm("-rf", "./artifacts");
     shell.rm("-rf", "./typechain");
   },
-  providerOptions: {},
   skipFiles: ["mocks", "test"],
+  mocha: {
+    timeout: 20000,
+    grep: "@skip-on-coverage", // Find everything with this tag
+    invert: true, // Run the grep's inverse set.
+  },
 };
