@@ -13,7 +13,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log("Deploying to chainId %s with deployer %s", chainId, deployer);
+  console.log("deploying to chainId %s with deployer %s", chainId, deployer);
 
   const veaInbox = await deployments.get("VeaInboxArbToEthDevnet");
   const klerosCore = await deployments.get("KlerosCore");
@@ -21,7 +21,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const foreignGateway = await hre.companionNetworks.foreignSepolia.deployments.get("ForeignGatewayOnEthereum");
   const foreignChainId = Number(await hre.companionNetworks.foreignSepolia.getChainId());
   const foreignChainName = await hre.companionNetworks.foreignSepolia.deployments.getNetworkName();
-  console.log("Using ForeignGateway %s on chainId %s (%s)", foreignGateway.address, foreignChainId, foreignChainName);
+  console.log("using ForeignGateway %s on chainId %s (%s)", foreignGateway.address, foreignChainId, foreignChainName);
 
   await deployUpgradable(deployments, "HomeGatewayToEthereum", {
     from: deployer,

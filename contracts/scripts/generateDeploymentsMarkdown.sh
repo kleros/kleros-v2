@@ -2,10 +2,19 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
+IGNORED_ARTIFACTS=(
+    "CREATE3Factory.json"
+    "MetaEvidence_*"
+    "PNK.json"
+    "RandomizerOracle.json"
+    "_Implementation.json"
+    "_Proxy.json"
+)
+
 function generate() { #deploymentDir #explorerUrl
     deploymentDir=$1
     explorerUrl=$2
-    for f in $(ls -1 $deploymentDir/*.json 2>/dev/null | grep -v "PNK.json\|MetaEvidence_*\|CREATE3Factory.json\|_Proxy.json\|_Implementation.json" | sort); do
+    for f in $(ls -1 $deploymentDir/*.json 2>/dev/null | grep -v ${IGNORED_ARTIFACTS[@]/#/-e } | sort); do
         contractName=$(basename $f .json)
         address=$(cat $f | jq -r .address)
         implementation=$(cat $f | jq -r .implementation)
@@ -19,29 +28,28 @@ function generate() { #deploymentDir #explorerUrl
 }
 
 echo "### Official Testnet"
+echo "#### Arbitrum Sepolia"
+echo
+generate "$SCRIPT_DIR/../deployments/arbitrumSepolia" "https://sepolia.arbiscan.io/address/"
+echo
+echo "#### Sepolia"
+echo
+generate "$SCRIPT_DIR/../deployments/sepolia" "https://sepolia.etherscan.io/address/"
+echo
 echo "#### Chiado"
 echo
 generate "$SCRIPT_DIR/../deployments/chiado" "https://gnosis-chiado.blockscout.com/address/"
 echo
-echo "#### Sepolia"
-echo
-generate "$SCRIPT_DIR/../deployments/goerli" "https://goerli.etherscan.io/address/"
-echo
+
+echo "### Devnet"
 echo "#### Arbitrum Sepolia"
 echo
-echo "- [PNK](https://goerli.arbiscan.io/token/0x3483FA1b87792cd5BE4100822C4eCEC8D3E531ee)"
-generate "$SCRIPT_DIR/../deployments/arbitrumSepolia" "https://goerli.arbiscan.io/address/"
+generate "$SCRIPT_DIR/../deployments/arbitrumSepoliaDevnet" "https://sepolia.arbiscan.io/address/"
 echo
-echo "### Devnet"
+echo "#### Sepolia"
+echo
+generate "$SCRIPT_DIR/../deployments/sepoliaDevnet" "https://sepolia.etherscan.io/address/"
+echo
 echo "#### Chiado"
 echo
 generate "$SCRIPT_DIR/../deployments/chiadoDevnet" "https://gnosis-chiado.blockscout.com/address/"
-echo
-echo "#### Sepolia"
-echo
-generate "$SCRIPT_DIR/../deployments/goerliDevnet" "https://goerli.etherscan.io/address/"
-echo
-echo "#### Arbitrum Sepolia"
-echo
-echo "- [PNK](https://goerli.arbiscan.io/token/0x3483FA1b87792cd5BE4100822C4eCEC8D3E531ee)"
-generate "$SCRIPT_DIR/../deployments/arbitrumSepoliaDevnet" "https://goerli.arbiscan.io/address/"

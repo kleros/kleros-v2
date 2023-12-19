@@ -11,7 +11,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log("Deploying to %s with deployer %s", HomeChains[chainId], deployer);
+  console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   const klerosCore = await deployments.get("KlerosCore");
   const extraData =
@@ -40,6 +40,19 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await deploy("DisputeResolver", {
     from: deployer,
     args: [klerosCore.address, disputeTemplateRegistry.address],
+    log: true,
+  });
+
+  await deploy("Escrow", {
+    from: deployer,
+    args: [
+      klerosCore.address,
+      extraData,
+      disputeTemplate, // TODO: use an Escrow-specific dispute template
+      "disputeTemplateMapping: TODO",
+      disputeTemplateRegistry.address,
+      600, // feeTimeout: 10 minutes
+    ],
     log: true,
   });
 };

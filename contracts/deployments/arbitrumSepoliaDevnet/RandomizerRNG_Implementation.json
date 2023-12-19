@@ -1,0 +1,533 @@
+{
+  "address": "0xe62B776498F48061ef9425fCEf30F3d1370DB005",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "AlreadyInitialized",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "FailedDelegateCall",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "implementation",
+          "type": "address"
+        }
+      ],
+      "name": "InvalidImplementation",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotInitializing",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "UUPSUnauthorizedCallContext",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "slot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "UUPSUnsupportedProxiableUUID",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "version",
+          "type": "uint64"
+        }
+      ],
+      "name": "Initialized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newImplementation",
+          "type": "address"
+        }
+      ],
+      "name": "Upgraded",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "callbackGasLimit",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_governor",
+          "type": "address"
+        }
+      ],
+      "name": "changeGovernor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "governor",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IRandomizer",
+          "name": "_randomizer",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_governor",
+          "type": "address"
+        }
+      ],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proxiableUUID",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "randomNumbers",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "randomizer",
+      "outputs": [
+        {
+          "internalType": "contract IRandomizer",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_value",
+          "type": "bytes32"
+        }
+      ],
+      "name": "randomizerCallback",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "randomizerWithdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "receiveRandomness",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "randomNumber",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "requestRandomness",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "requesterToID",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_callbackGasLimit",
+          "type": "uint256"
+        }
+      ],
+      "name": "setCallbackGasLimit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_randomizer",
+          "type": "address"
+        }
+      ],
+      "name": "setRandomizer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newImplementation",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "upgradeToAndCall",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xd0495671b6a89573df16c54469800afc1e2c7b143523f906292f51f9efab6014",
+  "receipt": {
+    "to": null,
+    "from": "0xf1C7c037891525E360C59f708739Ac09A7670c59",
+    "contractAddress": "0xe62B776498F48061ef9425fCEf30F3d1370DB005",
+    "transactionIndex": 1,
+    "gasUsed": "699434",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000400000000000000000000000000000100000000000080",
+    "blockHash": "0xf38a5e092f244d67d971ea16f5ef80b728c5767c6cbc2b9a91893eb40cb4d361",
+    "transactionHash": "0xd0495671b6a89573df16c54469800afc1e2c7b143523f906292f51f9efab6014",
+    "logs": [
+      {
+        "transactionIndex": 1,
+        "blockNumber": 3084575,
+        "transactionHash": "0xd0495671b6a89573df16c54469800afc1e2c7b143523f906292f51f9efab6014",
+        "address": "0xe62B776498F48061ef9425fCEf30F3d1370DB005",
+        "topics": [
+          "0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2"
+        ],
+        "data": "0x000000000000000000000000000000000000000000000000ffffffffffffffff",
+        "logIndex": 0,
+        "blockHash": "0xf38a5e092f244d67d971ea16f5ef80b728c5767c6cbc2b9a91893eb40cb4d361"
+      }
+    ],
+    "blockNumber": 3084575,
+    "cumulativeGasUsed": "699434",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "4ee8a1f2013c130bec1668c5304bc76a",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.18+commit.87f61d96\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"AlreadyInitialized\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FailedDelegateCall\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"implementation\",\"type\":\"address\"}],\"name\":\"InvalidImplementation\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotInitializing\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"UUPSUnauthorizedCallContext\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"slot\",\"type\":\"bytes32\"}],\"name\":\"UUPSUnsupportedProxiableUUID\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"version\",\"type\":\"uint64\"}],\"name\":\"Initialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newImplementation\",\"type\":\"address\"}],\"name\":\"Upgraded\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"callbackGasLimit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_governor\",\"type\":\"address\"}],\"name\":\"changeGovernor\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"governor\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IRandomizer\",\"name\":\"_randomizer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_governor\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proxiableUUID\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"randomNumbers\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"randomizer\",\"outputs\":[{\"internalType\":\"contract IRandomizer\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_id\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"_value\",\"type\":\"bytes32\"}],\"name\":\"randomizerCallback\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"randomizerWithdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"receiveRandomness\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"randomNumber\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"requestRandomness\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"requesterToID\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_callbackGasLimit\",\"type\":\"uint256\"}],\"name\":\"setCallbackGasLimit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_randomizer\",\"type\":\"address\"}],\"name\":\"setRandomizer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newImplementation\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"upgradeToAndCall\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"}],\"devdoc\":{\"errors\":{\"AlreadyInitialized()\":[{\"details\":\"The contract is already initialized.\"}],\"NotInitializing()\":[{\"details\":\"The contract is not initializing.\"}],\"UUPSUnauthorizedCallContext()\":[{\"details\":\"The call is from an unauthorized context.\"}],\"UUPSUnsupportedProxiableUUID(bytes32)\":[{\"details\":\"The storage `slot` is unsupported as a UUID.\"}]},\"events\":{\"Initialized(uint64)\":{\"details\":\"Triggered when the contract has been initialized or reinitialized.\"},\"Upgraded(address)\":{\"params\":{\"newImplementation\":\"Address of the new implementation the proxy is now forwarding calls to.\"}}},\"kind\":\"dev\",\"methods\":{\"changeGovernor(address)\":{\"details\":\"Changes the governor of the contract.\",\"params\":{\"_governor\":\"The new governor.\"}},\"constructor\":{\"details\":\"Constructor, initializing the implementation to reduce attack surface.\"},\"initialize(address,address)\":{\"details\":\"Initializer\",\"params\":{\"_governor\":\"Governor of the contract.\",\"_randomizer\":\"Randomizer contract.\"}},\"proxiableUUID()\":{\"details\":\"Implementation of the ERC1822 `proxiableUUID` function. This returns the storage slot used by the implementation. It is used to validate the implementation's compatibility when performing an upgrade. IMPORTANT: A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this function revert if invoked through a proxy. This is guaranteed by the if statement.\"},\"randomizerCallback(uint256,bytes32)\":{\"details\":\"Callback function called by the randomizer contract when the random value is generated.\"},\"randomizerWithdraw(uint256)\":{\"details\":\"Allows the governor to withdraw randomizer funds.\",\"params\":{\"_amount\":\"Amount to withdraw in wei.\"}},\"receiveRandomness(uint256)\":{\"details\":\"Return the random number.\",\"returns\":{\"randomNumber\":\"The random number or 0 if it is not ready or has not been requested.\"}},\"requestRandomness(uint256)\":{\"details\":\"Request a random number. The id of the request is tied to the sender.\"},\"setCallbackGasLimit(uint256)\":{\"details\":\"Change the Randomizer callback gas limit.\",\"params\":{\"_callbackGasLimit\":\"the new limit.\"}},\"setRandomizer(address)\":{\"details\":\"Change the Randomizer address.\",\"params\":{\"_randomizer\":\"the new Randomizer address.\"}},\"upgradeToAndCall(address,bytes)\":{\"details\":\"Upgrade mechanism including access control and UUPS-compliance.Reverts if the execution is not performed via delegatecall or the execution context is not of a proxy with an ERC1967-compliant implementation pointing to self.\",\"params\":{\"data\":\"Data used in a delegate call to `newImplementation` if non-empty. This will typically be an encoded function call, and allows initializing the storage of the proxy like a Solidity constructor.\",\"newImplementation\":\"Address of the new implementation contract.\"}}},\"title\":\"Random Number Generator that uses Randomizer.ai https://randomizer.ai/\",\"version\":1},\"userdoc\":{\"errors\":{\"FailedDelegateCall()\":[{\"notice\":\"Failed Delegated call\"}],\"InvalidImplementation(address)\":[{\"notice\":\"The `implementation` is not UUPS-compliant\"}]},\"events\":{\"Upgraded(address)\":{\"notice\":\"Emitted when the `implementation` has been successfully upgraded.\"}},\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/rng/RandomizerRNG.sol\":\"RandomizerRNG\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"src/proxy/Initializable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.9.0) (proxy/utils/Initializable.sol) <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/utils/Initializable.sol>\\n\\npragma solidity 0.8.18;\\n\\n/**\\n * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed\\n * behind a proxy. Since proxied contracts do not make use of a constructor, it's common to move constructor logic to an\\n * external initializer function, usually called `initialize`. It then becomes necessary to protect this initializer\\n * function so it can only be called once. The {initializer} modifier provided by this contract will have this effect.\\n *\\n * The initialization functions use a version number. Once a version number is used, it is consumed and cannot be\\n * reused. This mechanism prevents re-execution of each \\\"step\\\" but allows the creation of new initialization steps in\\n * case an upgrade adds a module that needs to be initialized.\\n *\\n * For example:\\n *\\n * ```solidity\\n * contract MyToken is ERC20Upgradeable {\\n *     function initialize() initializer public {\\n *         __ERC20_init(\\\"MyToken\\\", \\\"MTK\\\");\\n *     }\\n * }\\n *\\n * contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {\\n *     function initializeV2() reinitializer(2) public {\\n *         __ERC20Permit_init(\\\"MyToken\\\");\\n *     }\\n * }\\n * ```\\n *\\n * TIP: To avoid leaving the proxy in an uninitialized state, the initializer function should be called as early as\\n * possible by providing the encoded function call as the `_data` argument to the proxy constructor\\n *\\n * CAUTION: When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure\\n * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.\\n *\\n * [CAUTION]\\n * ====\\n * Avoid leaving a contract uninitialized.\\n *\\n * An uninitialized contract can be taken over by an attacker. This applies to both a proxy and its implementation\\n * contract, which may impact the proxy. To prevent the implementation contract from being used, you should invoke\\n * the {_disableInitializers} function in the constructor to automatically lock it when it is deployed:\\n *\\n * ```\\n * /// @custom:oz-upgrades-unsafe-allow constructor\\n * constructor() {\\n *     _disableInitializers();\\n * }\\n * ```\\n */\\nabstract contract Initializable {\\n    /**\\n     * @dev Storage of the initializable contract.\\n     *\\n     * It's implemented on a custom ERC-7201 namespace to reduce the risk of storage collisions\\n     * when using with upgradeable contracts.\\n     *\\n     * @custom:storage-location erc7201:openzeppelin.storage.Initializable\\n     */\\n    struct InitializableStorage {\\n        /**\\n         * @dev Indicates that the contract has been initialized.\\n         */\\n        uint64 _initialized;\\n        /**\\n         * @dev Indicates that the contract is in the process of being initialized.\\n         */\\n        bool _initializing;\\n    }\\n\\n    // keccak256(abi.encode(uint256(keccak256(\\\"openzeppelin.storage.Initializable\\\")) - 1))\\n    bytes32 private constant _INITIALIZABLE_STORAGE =\\n        0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e;\\n\\n    /**\\n     * @dev The contract is already initialized.\\n     */\\n    error AlreadyInitialized();\\n\\n    /**\\n     * @dev The contract is not initializing.\\n     */\\n    error NotInitializing();\\n\\n    /**\\n     * @dev Triggered when the contract has been initialized or reinitialized.\\n     */\\n    event Initialized(uint64 version);\\n\\n    /**\\n     * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,\\n     * `onlyInitializing` functions can be used to initialize parent contracts.\\n     *\\n     * Similar to `reinitializer(1)`, except that functions marked with `initializer` can be nested in the context of a\\n     * constructor.\\n     *\\n     * Emits an {Initialized} event.\\n     */\\n    modifier initializer() {\\n        // solhint-disable-next-line var-name-mixedcase\\n        InitializableStorage storage $ = _getInitializableStorage();\\n\\n        bool isTopLevelCall = !$._initializing;\\n        uint64 initialized = $._initialized;\\n        if (!(isTopLevelCall && initialized < 1) && !(address(this).code.length == 0 && initialized == 1)) {\\n            revert AlreadyInitialized();\\n        }\\n        $._initialized = 1;\\n        if (isTopLevelCall) {\\n            $._initializing = true;\\n        }\\n        _;\\n        if (isTopLevelCall) {\\n            $._initializing = false;\\n            emit Initialized(1);\\n        }\\n    }\\n\\n    /**\\n     * @dev A modifier that defines a protected reinitializer function that can be invoked at most once, and only if the\\n     * contract hasn't been initialized to a greater version before. In its scope, `onlyInitializing` functions can be\\n     * used to initialize parent contracts.\\n     *\\n     * A reinitializer may be used after the original initialization step. This is essential to configure modules that\\n     * are added through upgrades and that require initialization.\\n     *\\n     * When `version` is 1, this modifier is similar to `initializer`, except that functions marked with `reinitializer`\\n     * cannot be nested. If one is invoked in the context of another, execution will revert.\\n     *\\n     * Note that versions can jump in increments greater than 1; this implies that if multiple reinitializers coexist in\\n     * a contract, executing them in the right order is up to the developer or operator.\\n     *\\n     * WARNING: setting the version to 255 will prevent any future reinitialization.\\n     *\\n     * Emits an {Initialized} event.\\n     */\\n    modifier reinitializer(uint64 version) {\\n        // solhint-disable-next-line var-name-mixedcase\\n        InitializableStorage storage $ = _getInitializableStorage();\\n\\n        if ($._initializing || $._initialized >= version) {\\n            revert AlreadyInitialized();\\n        }\\n        $._initialized = version;\\n        $._initializing = true;\\n        _;\\n        $._initializing = false;\\n        emit Initialized(version);\\n    }\\n\\n    /**\\n     * @dev Modifier to protect an initialization function so that it can only be invoked by functions with the\\n     * {initializer} and {reinitializer} modifiers, directly or indirectly.\\n     */\\n    modifier onlyInitializing() {\\n        _checkInitializing();\\n        _;\\n    }\\n\\n    /**\\n     * @dev Reverts if the contract is not in an initializing state. See {onlyInitializing}.\\n     */\\n    function _checkInitializing() internal view virtual {\\n        if (!_isInitializing()) {\\n            revert NotInitializing();\\n        }\\n    }\\n\\n    /**\\n     * @dev Locks the contract, preventing any future reinitialization. This cannot be part of an initializer call.\\n     * Calling this in the constructor of a contract will prevent that contract from being initialized or reinitialized\\n     * to any version. It is recommended to use this to lock implementation contracts that are designed to be called\\n     * through proxies.\\n     *\\n     * Emits an {Initialized} event the first time it is successfully executed.\\n     */\\n    function _disableInitializers() internal virtual {\\n        // solhint-disable-next-line var-name-mixedcase\\n        InitializableStorage storage $ = _getInitializableStorage();\\n\\n        if ($._initializing) {\\n            revert AlreadyInitialized();\\n        }\\n        if ($._initialized != type(uint64).max) {\\n            $._initialized = type(uint64).max;\\n            emit Initialized(type(uint64).max);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the highest version that has been initialized. See {reinitializer}.\\n     */\\n    function _getInitializedVersion() internal view returns (uint64) {\\n        return _getInitializableStorage()._initialized;\\n    }\\n\\n    /**\\n     * @dev Returns `true` if the contract is currently initializing. See {onlyInitializing}.\\n     */\\n    function _isInitializing() internal view returns (bool) {\\n        return _getInitializableStorage()._initializing;\\n    }\\n\\n    /**\\n     * @dev Returns a pointer to the storage namespace.\\n     */\\n    // solhint-disable-next-line var-name-mixedcase\\n    function _getInitializableStorage() private pure returns (InitializableStorage storage $) {\\n        assembly {\\n            $.slot := _INITIALIZABLE_STORAGE\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xcfffacf78b92e89a0123aff2c86188abc5327bb59b223f04e1cc1267234bd828\",\"license\":\"MIT\"},\"src/proxy/UUPSProxiable.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\n// Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/utils/UUPSUpgradeable.sol>\\n\\n/**\\n *  @authors: [@malatrax]\\n *  @reviewers: []\\n *  @auditors: []\\n *  @bounties: []\\n *  @deployments: []\\n */\\npragma solidity 0.8.18;\\n\\n/**\\n * @title UUPS Proxiable\\n * @author Simon Malatrait <simon.malatrait@grenoble-inp.org>\\n * @dev This contract implements an upgradeability mechanism designed for UUPS proxies.\\n * The functions included here can perform an upgrade of an UUPS Proxy, when this contract is set as the implementation behind such a proxy.\\n *\\n * IMPORTANT: A UUPS proxy requires its upgradeability functions to be in the implementation as opposed to the transparent proxy.\\n * This means that if the proxy is upgraded to an implementation that does not support this interface, it will no longer be upgradeable.\\n *\\n * A security mechanism ensures that an upgrade does not turn off upgradeability accidentally, although this risk is\\n * reinstated if the upgrade retains upgradeability but removes the security mechanism, e.g. by replacing\\n * `UUPSProxiable` with a custom implementation of upgrades.\\n *\\n * The `_authorizeUpgrade` function must be overridden to include access restriction to the upgrade mechanism.\\n */\\nabstract contract UUPSProxiable {\\n    // ************************************* //\\n    // *             Event                 * //\\n    // ************************************* //\\n\\n    /**\\n     * Emitted when the `implementation` has been successfully upgraded.\\n     * @param newImplementation Address of the new implementation the proxy is now forwarding calls to.\\n     */\\n    event Upgraded(address indexed newImplementation);\\n\\n    // ************************************* //\\n    // *             Error                 * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev The call is from an unauthorized context.\\n     */\\n    error UUPSUnauthorizedCallContext();\\n\\n    /**\\n     * @dev The storage `slot` is unsupported as a UUID.\\n     */\\n    error UUPSUnsupportedProxiableUUID(bytes32 slot);\\n\\n    /// The `implementation` is not UUPS-compliant\\n    error InvalidImplementation(address implementation);\\n\\n    /// Failed Delegated call\\n    error FailedDelegateCall();\\n\\n    // ************************************* //\\n    // *             Storage               * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Storage slot with the address of the current implementation.\\n     * This is the keccak-256 hash of \\\"eip1967.proxy.implementation\\\" subtracted by 1, and is\\n     * validated in the constructor.\\n     * NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)\\n     */\\n    bytes32 private constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;\\n\\n    /**\\n     * @dev Storage variable of the proxiable contract address.\\n     * It is used to check whether or not the current call is from the proxy.\\n     */\\n    address private immutable __self = address(this);\\n\\n    // ************************************* //\\n    // *             Governance            * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Function that should revert when `msg.sender` is not authorized to upgrade the contract.\\n     * @dev Called by {upgradeToAndCall}.\\n     */\\n    function _authorizeUpgrade(address newImplementation) internal virtual;\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Upgrade mechanism including access control and UUPS-compliance.\\n     * @param newImplementation Address of the new implementation contract.\\n     * @param data Data used in a delegate call to `newImplementation` if non-empty. This will typically be an encoded\\n     * function call, and allows initializing the storage of the proxy like a Solidity constructor.\\n     *\\n     * @dev Reverts if the execution is not performed via delegatecall or the execution\\n     * context is not of a proxy with an ERC1967-compliant implementation pointing to self.\\n     */\\n    function upgradeToAndCall(address newImplementation, bytes memory data) public payable virtual {\\n        _authorizeUpgrade(newImplementation);\\n\\n        /* Check that the execution is being performed through a delegatecall call and that the execution context is\\n        a proxy contract with an implementation (as defined in ERC1967) pointing to self. */\\n        if (address(this) == __self || _getImplementation() != __self) {\\n            revert UUPSUnauthorizedCallContext();\\n        }\\n\\n        try UUPSProxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {\\n            if (slot != IMPLEMENTATION_SLOT) {\\n                revert UUPSUnsupportedProxiableUUID(slot);\\n            }\\n            // Store the new implementation address to the implementation storage slot.\\n            assembly {\\n                sstore(IMPLEMENTATION_SLOT, newImplementation)\\n            }\\n            emit Upgraded(newImplementation);\\n\\n            if (data.length != 0) {\\n                // The return data is not checked (checking, in case of success, that the newImplementation code is non-empty if the return data is empty) because the authorized callee is trusted.\\n                (bool success, ) = newImplementation.delegatecall(data);\\n                if (!success) {\\n                    revert FailedDelegateCall();\\n                }\\n            }\\n        } catch {\\n            revert InvalidImplementation(newImplementation);\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Public Views            * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Implementation of the ERC1822 `proxiableUUID` function. This returns the storage slot used by the\\n     * implementation. It is used to validate the implementation's compatibility when performing an upgrade.\\n     *\\n     * IMPORTANT: A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks\\n     * bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this\\n     * function revert if invoked through a proxy. This is guaranteed by the if statement.\\n     */\\n    function proxiableUUID() external view virtual returns (bytes32) {\\n        if (address(this) != __self) {\\n            // Must not be called through delegatecall\\n            revert UUPSUnauthorizedCallContext();\\n        }\\n        return IMPLEMENTATION_SLOT;\\n    }\\n\\n    // ************************************* //\\n    // *           Internal Views          * //\\n    // ************************************* //\\n\\n    function _getImplementation() internal view returns (address implementation) {\\n        assembly {\\n            implementation := sload(IMPLEMENTATION_SLOT)\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xbac7476deeee8ebbfc895a42e8b50a01c7549164a48ee2ddb0e2307946ee35f9\",\"license\":\"MIT\"},\"src/rng/IRandomizer.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\n// Randomizer protocol interface\\ninterface IRandomizer {\\n    function request(uint256 callbackGasLimit) external returns (uint256);\\n\\n    function clientWithdrawTo(address _to, uint256 _amount) external;\\n}\\n\",\"keccak256\":\"0xe71bbdd9470eeb89f5d10aee07fda95b6ccc13aa845c0d8c0bc7a9ec20b6356e\",\"license\":\"MIT\"},\"src/rng/RNG.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\ninterface RNG {\\n    /// @dev Request a random number.\\n    /// @param _block Block linked to the request.\\n    function requestRandomness(uint256 _block) external;\\n\\n    /// @dev Receive the random number.\\n    /// @param _block Block the random number is linked to.\\n    /// @return randomNumber Random Number. If the number is not ready or has not been required 0 instead.\\n    function receiveRandomness(uint256 _block) external returns (uint256 randomNumber);\\n}\\n\",\"keccak256\":\"0x5afe7121f49aebe72218df356bd91b66c2171b9ad15e7945a15a091784291a43\",\"license\":\"MIT\"},\"src/rng/RandomizerRNG.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\nimport \\\"./RNG.sol\\\";\\nimport \\\"./IRandomizer.sol\\\";\\nimport \\\"../proxy/UUPSProxiable.sol\\\";\\nimport \\\"../proxy/Initializable.sol\\\";\\n\\n/// @title Random Number Generator that uses Randomizer.ai\\n/// https://randomizer.ai/\\ncontract RandomizerRNG is RNG, UUPSProxiable, Initializable {\\n    // ************************************* //\\n    // *             Storage               * //\\n    // ************************************* //\\n\\n    address public governor; // The address that can withdraw funds.\\n    uint256 public callbackGasLimit; // Gas limit for the randomizer callback\\n    IRandomizer public randomizer; // Randomizer address.\\n    mapping(uint256 => uint256) public randomNumbers; // randomNumbers[requestID] is the random number for this request id, 0 otherwise.\\n    mapping(address => uint256) public requesterToID; // Maps the requester to his latest request ID.\\n\\n    // ************************************* //\\n    // *        Function Modifiers         * //\\n    // ************************************* //\\n\\n    modifier onlyByGovernor() {\\n        require(governor == msg.sender, \\\"Governor only\\\");\\n        _;\\n    }\\n\\n    // ************************************* //\\n    // *            Constructor            * //\\n    // ************************************* //\\n\\n    /// @dev Constructor, initializing the implementation to reduce attack surface.\\n    constructor() {\\n        _disableInitializers();\\n    }\\n\\n    /// @dev Initializer\\n    /// @param _randomizer Randomizer contract.\\n    /// @param _governor Governor of the contract.\\n    function initialize(IRandomizer _randomizer, address _governor) external reinitializer(1) {\\n        randomizer = _randomizer;\\n        governor = _governor;\\n        callbackGasLimit = 50000;\\n    }\\n\\n    // ************************ //\\n    // *      Governance      * //\\n    // ************************ //\\n\\n    /**\\n     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)\\n     * @dev Only the governor can perform upgrades (`onlyByGovernor`)\\n     */\\n    function _authorizeUpgrade(address) internal view override onlyByGovernor {\\n        // NOP\\n    }\\n\\n    /// @dev Changes the governor of the contract.\\n    /// @param _governor The new governor.\\n    function changeGovernor(address _governor) external onlyByGovernor {\\n        governor = _governor;\\n    }\\n\\n    /// @dev Change the Randomizer callback gas limit.\\n    /// @param _callbackGasLimit the new limit.\\n    function setCallbackGasLimit(uint256 _callbackGasLimit) external onlyByGovernor {\\n        callbackGasLimit = _callbackGasLimit;\\n    }\\n\\n    /// @dev Change the Randomizer address.\\n    /// @param _randomizer the new Randomizer address.\\n    function setRandomizer(address _randomizer) external onlyByGovernor {\\n        randomizer = IRandomizer(_randomizer);\\n    }\\n\\n    /// @dev Allows the governor to withdraw randomizer funds.\\n    /// @param _amount Amount to withdraw in wei.\\n    function randomizerWithdraw(uint256 _amount) external onlyByGovernor {\\n        randomizer.clientWithdrawTo(msg.sender, _amount);\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /// @dev Request a random number. The id of the request is tied to the sender.\\n    function requestRandomness(uint256 /*_block*/) external override {\\n        uint256 id = randomizer.request(callbackGasLimit);\\n        requesterToID[msg.sender] = id;\\n    }\\n\\n    /// @dev Callback function called by the randomizer contract when the random value is generated.\\n    function randomizerCallback(uint256 _id, bytes32 _value) external {\\n        require(msg.sender == address(randomizer), \\\"Randomizer only\\\");\\n        randomNumbers[_id] = uint256(_value);\\n    }\\n\\n    // ************************************* //\\n    // *           Public Views            * //\\n    // ************************************* //\\n\\n    /// @dev Return the random number.\\n    /// @return randomNumber The random number or 0 if it is not ready or has not been requested.\\n    function receiveRandomness(uint256 /*_block*/) external view override returns (uint256 randomNumber) {\\n        // Get the latest request ID for this requester.\\n        uint256 id = requesterToID[msg.sender];\\n        randomNumber = randomNumbers[id];\\n    }\\n}\\n\",\"keccak256\":\"0x4285391be2975df0c7d1fa2fcdcd8abe8458e3228961ba32dec1e97325598df0\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60a06040523060805234801561001457600080fd5b5061001d610022565b6100d3565b7ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e805468010000000000000000900460ff16156100715760405162dc149f60e41b815260040160405180910390fd5b80546001600160401b03908116146100d05780546001600160401b0319166001600160401b0390811782556040519081527fc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d29060200160405180910390a15b50565b608051610b396100fc600039600081816104a1015281816104ca01526106c20152610b396000f3fe6080604052600436106100c85760003560e01c806352d1902d1161007a57806352d1902d146101ec57806371d4b00b146102015780637363ae1f1461022e578063767bcab51461024e5780638a54942f1461026e578063e4c0aaf41461028e578063ebe93caf146102ae578063f10fb584146102ce57600080fd5b80630c340a24146100cd57806313cf90541461010a57806324f7469714610154578063485cc9551461016a5780634e07c9391461018c5780634f1ef286146101ac5780635257cd90146101bf575b600080fd5b3480156100d957600080fd5b506000546100ed906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b34801561011657600080fd5b506101466101253660046108ed565b50336000908152600460209081526040808320548352600390915290205490565b604051908152602001610101565b34801561016057600080fd5b5061014660015481565b34801561017657600080fd5b5061018a61018536600461091b565b6102ee565b005b34801561019857600080fd5b5061018a6101a73660046108ed565b6103f3565b61018a6101ba36600461096a565b61048d565b3480156101cb57600080fd5b506101466101da3660046108ed565b60036020526000908152604090205481565b3480156101f857600080fd5b506101466106b5565b34801561020d57600080fd5b5061014661021c366004610a2e565b60046020526000908152604090205481565b34801561023a57600080fd5b5061018a6102493660046108ed565b610713565b34801561025a57600080fd5b5061018a610269366004610a2e565b61079b565b34801561027a57600080fd5b5061018a6102893660046108ed565b6107e7565b34801561029a57600080fd5b5061018a6102a9366004610a2e565b610816565b3480156102ba57600080fd5b5061018a6102c9366004610a52565b610862565b3480156102da57600080fd5b506002546100ed906001600160a01b031681565b7ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e805460019190600160401b900460ff16806103385750805467ffffffffffffffff808416911610155b156103555760405162dc149f60e41b815260040160405180910390fd5b805468ffffffffffffffffff191667ffffffffffffffff8316908117600160401b178255600280546001600160a01b038781166001600160a01b031992831617909255600080549287169290911691909117905561c350600155815460ff60401b191682556040519081527fc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d29060200160405180910390a150505050565b6000546001600160a01b031633146104265760405162461bcd60e51b815260040161041d90610a74565b60405180910390fd5b600254604051632465f8f560e01b8152336004820152602481018390526001600160a01b0390911690632465f8f590604401600060405180830381600087803b15801561047257600080fd5b505af1158015610486573d6000803e3d6000fd5b5050505050565b610496826108c0565b306001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016148061051457507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316610508600080516020610ae48339815191525490565b6001600160a01b031614155b156105325760405163703e46dd60e11b815260040160405180910390fd5b816001600160a01b03166352d1902d6040518163ffffffff1660e01b8152600401602060405180830381865afa92505050801561058c575060408051601f3d908101601f1916820190925261058991810190610a9b565b60015b6105b457604051630c76093760e01b81526001600160a01b038316600482015260240161041d565b600080516020610ae483398151915281146105e557604051632a87526960e21b81526004810182905260240161041d565b600080516020610ae48339815191528390556040516001600160a01b038416907fbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b90600090a28151156106b0576000836001600160a01b03168360405161064c9190610ab4565b600060405180830381855af49150503d8060008114610687576040519150601f19603f3d011682016040523d82523d6000602084013e61068c565b606091505b50509050806106ae576040516339b21b5d60e11b815260040160405180910390fd5b505b505050565b6000306001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146107005760405163703e46dd60e11b815260040160405180910390fd5b50600080516020610ae483398151915290565b60025460015460405163d845a4b360e01b815260048101919091526000916001600160a01b03169063d845a4b3906024016020604051808303816000875af1158015610763573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906107879190610a9b565b336000908152600460205260409020555050565b6000546001600160a01b031633146107c55760405162461bcd60e51b815260040161041d90610a74565b600280546001600160a01b0319166001600160a01b0392909216919091179055565b6000546001600160a01b031633146108115760405162461bcd60e51b815260040161041d90610a74565b600155565b6000546001600160a01b031633146108405760405162461bcd60e51b815260040161041d90610a74565b600080546001600160a01b0319166001600160a01b0392909216919091179055565b6002546001600160a01b031633146108ae5760405162461bcd60e51b815260206004820152600f60248201526e52616e646f6d697a6572206f6e6c7960881b604482015260640161041d565b60009182526003602052604090912055565b6000546001600160a01b031633146108ea5760405162461bcd60e51b815260040161041d90610a74565b50565b6000602082840312156108ff57600080fd5b5035919050565b6001600160a01b03811681146108ea57600080fd5b6000806040838503121561092e57600080fd5b823561093981610906565b9150602083013561094981610906565b809150509250929050565b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561097d57600080fd5b823561098881610906565b9150602083013567ffffffffffffffff808211156109a557600080fd5b818501915085601f8301126109b957600080fd5b8135818111156109cb576109cb610954565b604051601f8201601f19908116603f011681019083821181831017156109f3576109f3610954565b81604052828152886020848701011115610a0c57600080fd5b8260208601602083013760006020848301015280955050505050509250929050565b600060208284031215610a4057600080fd5b8135610a4b81610906565b9392505050565b60008060408385031215610a6557600080fd5b50508035926020909101359150565b6020808252600d908201526c476f7665726e6f72206f6e6c7960981b604082015260600190565b600060208284031215610aad57600080fd5b5051919050565b6000825160005b81811015610ad55760208186018101518583015201610abb565b50600092019182525091905056fe360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbca2646970667358221220aec03dad51a46b09534bed3ffa73b065bf3cda8ee37f8b3126efdc48f7db06ed64736f6c63430008120033",
+  "deployedBytecode": "0x6080604052600436106100c85760003560e01c806352d1902d1161007a57806352d1902d146101ec57806371d4b00b146102015780637363ae1f1461022e578063767bcab51461024e5780638a54942f1461026e578063e4c0aaf41461028e578063ebe93caf146102ae578063f10fb584146102ce57600080fd5b80630c340a24146100cd57806313cf90541461010a57806324f7469714610154578063485cc9551461016a5780634e07c9391461018c5780634f1ef286146101ac5780635257cd90146101bf575b600080fd5b3480156100d957600080fd5b506000546100ed906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b34801561011657600080fd5b506101466101253660046108ed565b50336000908152600460209081526040808320548352600390915290205490565b604051908152602001610101565b34801561016057600080fd5b5061014660015481565b34801561017657600080fd5b5061018a61018536600461091b565b6102ee565b005b34801561019857600080fd5b5061018a6101a73660046108ed565b6103f3565b61018a6101ba36600461096a565b61048d565b3480156101cb57600080fd5b506101466101da3660046108ed565b60036020526000908152604090205481565b3480156101f857600080fd5b506101466106b5565b34801561020d57600080fd5b5061014661021c366004610a2e565b60046020526000908152604090205481565b34801561023a57600080fd5b5061018a6102493660046108ed565b610713565b34801561025a57600080fd5b5061018a610269366004610a2e565b61079b565b34801561027a57600080fd5b5061018a6102893660046108ed565b6107e7565b34801561029a57600080fd5b5061018a6102a9366004610a2e565b610816565b3480156102ba57600080fd5b5061018a6102c9366004610a52565b610862565b3480156102da57600080fd5b506002546100ed906001600160a01b031681565b7ff0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e805460019190600160401b900460ff16806103385750805467ffffffffffffffff808416911610155b156103555760405162dc149f60e41b815260040160405180910390fd5b805468ffffffffffffffffff191667ffffffffffffffff8316908117600160401b178255600280546001600160a01b038781166001600160a01b031992831617909255600080549287169290911691909117905561c350600155815460ff60401b191682556040519081527fc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d29060200160405180910390a150505050565b6000546001600160a01b031633146104265760405162461bcd60e51b815260040161041d90610a74565b60405180910390fd5b600254604051632465f8f560e01b8152336004820152602481018390526001600160a01b0390911690632465f8f590604401600060405180830381600087803b15801561047257600080fd5b505af1158015610486573d6000803e3d6000fd5b5050505050565b610496826108c0565b306001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016148061051457507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316610508600080516020610ae48339815191525490565b6001600160a01b031614155b156105325760405163703e46dd60e11b815260040160405180910390fd5b816001600160a01b03166352d1902d6040518163ffffffff1660e01b8152600401602060405180830381865afa92505050801561058c575060408051601f3d908101601f1916820190925261058991810190610a9b565b60015b6105b457604051630c76093760e01b81526001600160a01b038316600482015260240161041d565b600080516020610ae483398151915281146105e557604051632a87526960e21b81526004810182905260240161041d565b600080516020610ae48339815191528390556040516001600160a01b038416907fbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b90600090a28151156106b0576000836001600160a01b03168360405161064c9190610ab4565b600060405180830381855af49150503d8060008114610687576040519150601f19603f3d011682016040523d82523d6000602084013e61068c565b606091505b50509050806106ae576040516339b21b5d60e11b815260040160405180910390fd5b505b505050565b6000306001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146107005760405163703e46dd60e11b815260040160405180910390fd5b50600080516020610ae483398151915290565b60025460015460405163d845a4b360e01b815260048101919091526000916001600160a01b03169063d845a4b3906024016020604051808303816000875af1158015610763573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906107879190610a9b565b336000908152600460205260409020555050565b6000546001600160a01b031633146107c55760405162461bcd60e51b815260040161041d90610a74565b600280546001600160a01b0319166001600160a01b0392909216919091179055565b6000546001600160a01b031633146108115760405162461bcd60e51b815260040161041d90610a74565b600155565b6000546001600160a01b031633146108405760405162461bcd60e51b815260040161041d90610a74565b600080546001600160a01b0319166001600160a01b0392909216919091179055565b6002546001600160a01b031633146108ae5760405162461bcd60e51b815260206004820152600f60248201526e52616e646f6d697a6572206f6e6c7960881b604482015260640161041d565b60009182526003602052604090912055565b6000546001600160a01b031633146108ea5760405162461bcd60e51b815260040161041d90610a74565b50565b6000602082840312156108ff57600080fd5b5035919050565b6001600160a01b03811681146108ea57600080fd5b6000806040838503121561092e57600080fd5b823561093981610906565b9150602083013561094981610906565b809150509250929050565b634e487b7160e01b600052604160045260246000fd5b6000806040838503121561097d57600080fd5b823561098881610906565b9150602083013567ffffffffffffffff808211156109a557600080fd5b818501915085601f8301126109b957600080fd5b8135818111156109cb576109cb610954565b604051601f8201601f19908116603f011681019083821181831017156109f3576109f3610954565b81604052828152886020848701011115610a0c57600080fd5b8260208601602083013760006020848301015280955050505050509250929050565b600060208284031215610a4057600080fd5b8135610a4b81610906565b9392505050565b60008060408385031215610a6557600080fd5b50508035926020909101359150565b6020808252600d908201526c476f7665726e6f72206f6e6c7960981b604082015260600190565b600060208284031215610aad57600080fd5b5051919050565b6000825160005b81811015610ad55760208186018101518583015201610abb565b50600092019182525091905056fe360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbca2646970667358221220aec03dad51a46b09534bed3ffa73b065bf3cda8ee37f8b3126efdc48f7db06ed64736f6c63430008120033",
+  "devdoc": {
+    "errors": {
+      "AlreadyInitialized()": [
+        {
+          "details": "The contract is already initialized."
+        }
+      ],
+      "NotInitializing()": [
+        {
+          "details": "The contract is not initializing."
+        }
+      ],
+      "UUPSUnauthorizedCallContext()": [
+        {
+          "details": "The call is from an unauthorized context."
+        }
+      ],
+      "UUPSUnsupportedProxiableUUID(bytes32)": [
+        {
+          "details": "The storage `slot` is unsupported as a UUID."
+        }
+      ]
+    },
+    "events": {
+      "Initialized(uint64)": {
+        "details": "Triggered when the contract has been initialized or reinitialized."
+      },
+      "Upgraded(address)": {
+        "params": {
+          "newImplementation": "Address of the new implementation the proxy is now forwarding calls to."
+        }
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "changeGovernor(address)": {
+        "details": "Changes the governor of the contract.",
+        "params": {
+          "_governor": "The new governor."
+        }
+      },
+      "constructor": {
+        "details": "Constructor, initializing the implementation to reduce attack surface."
+      },
+      "initialize(address,address)": {
+        "details": "Initializer",
+        "params": {
+          "_governor": "Governor of the contract.",
+          "_randomizer": "Randomizer contract."
+        }
+      },
+      "proxiableUUID()": {
+        "details": "Implementation of the ERC1822 `proxiableUUID` function. This returns the storage slot used by the implementation. It is used to validate the implementation's compatibility when performing an upgrade. IMPORTANT: A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this function revert if invoked through a proxy. This is guaranteed by the if statement."
+      },
+      "randomizerCallback(uint256,bytes32)": {
+        "details": "Callback function called by the randomizer contract when the random value is generated."
+      },
+      "randomizerWithdraw(uint256)": {
+        "details": "Allows the governor to withdraw randomizer funds.",
+        "params": {
+          "_amount": "Amount to withdraw in wei."
+        }
+      },
+      "receiveRandomness(uint256)": {
+        "details": "Return the random number.",
+        "returns": {
+          "randomNumber": "The random number or 0 if it is not ready or has not been requested."
+        }
+      },
+      "requestRandomness(uint256)": {
+        "details": "Request a random number. The id of the request is tied to the sender."
+      },
+      "setCallbackGasLimit(uint256)": {
+        "details": "Change the Randomizer callback gas limit.",
+        "params": {
+          "_callbackGasLimit": "the new limit."
+        }
+      },
+      "setRandomizer(address)": {
+        "details": "Change the Randomizer address.",
+        "params": {
+          "_randomizer": "the new Randomizer address."
+        }
+      },
+      "upgradeToAndCall(address,bytes)": {
+        "details": "Upgrade mechanism including access control and UUPS-compliance.Reverts if the execution is not performed via delegatecall or the execution context is not of a proxy with an ERC1967-compliant implementation pointing to self.",
+        "params": {
+          "data": "Data used in a delegate call to `newImplementation` if non-empty. This will typically be an encoded function call, and allows initializing the storage of the proxy like a Solidity constructor.",
+          "newImplementation": "Address of the new implementation contract."
+        }
+      }
+    },
+    "title": "Random Number Generator that uses Randomizer.ai https://randomizer.ai/",
+    "version": 1
+  },
+  "userdoc": {
+    "errors": {
+      "FailedDelegateCall()": [
+        {
+          "notice": "Failed Delegated call"
+        }
+      ],
+      "InvalidImplementation(address)": [
+        {
+          "notice": "The `implementation` is not UUPS-compliant"
+        }
+      ]
+    },
+    "events": {
+      "Upgraded(address)": {
+        "notice": "Emitted when the `implementation` has been successfully upgraded."
+      }
+    },
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 24301,
+        "contract": "src/rng/RandomizerRNG.sol:RandomizerRNG",
+        "label": "governor",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 24303,
+        "contract": "src/rng/RandomizerRNG.sol:RandomizerRNG",
+        "label": "callbackGasLimit",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 24306,
+        "contract": "src/rng/RandomizerRNG.sol:RandomizerRNG",
+        "label": "randomizer",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_contract(IRandomizer)24229"
+      },
+      {
+        "astId": 24310,
+        "contract": "src/rng/RandomizerRNG.sol:RandomizerRNG",
+        "label": "randomNumbers",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_mapping(t_uint256,t_uint256)"
+      },
+      {
+        "astId": 24314,
+        "contract": "src/rng/RandomizerRNG.sol:RandomizerRNG",
+        "label": "requesterToID",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_mapping(t_address,t_uint256)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_contract(IRandomizer)24229": {
+        "encoding": "inplace",
+        "label": "contract IRandomizer",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_address,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_uint256,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

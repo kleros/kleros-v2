@@ -20,11 +20,11 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log("Deploying to chainId %s with deployer %s", chainId, deployer);
+  console.log("deploying to chainId %s with deployer %s", chainId, deployer);
 
   const foreignGatewayArtifact = foreignGatewayArtifactByChain.get(chainId) ?? ethers.constants.AddressZero;
   const foreignGateway = await deployments.get(foreignGatewayArtifact);
-  console.log("Using foreign gateway: %s", foreignGatewayArtifact);
+  console.log("using foreign gateway: %s", foreignGatewayArtifact);
 
   const extraData =
     "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors

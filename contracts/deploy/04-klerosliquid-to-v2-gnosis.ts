@@ -17,7 +17,7 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log("Deploying to chainId %s with deployer %s", chainId, deployer);
+  console.log("deploying to chainId %s with deployer %s", chainId, deployer);
 
   if (!wrappedPNKByChain.get(chainId)) {
     const wPnk = await deploy("WrappedPinakionV2", {
@@ -53,7 +53,7 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
     "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
   const weth = await deployments.get("WETH");
 
-  console.log("Using: \nwPNK at %s, \nForeignGateway at %s", wPnkAddress, foreignGateway.address, weth.address);
+  console.log("using: \nwPNK at %s, \nForeignGateway at %s", wPnkAddress, foreignGateway.address, weth.address);
 
   const sortitionSumTreeLibrary = await deploy("SortitionSumTreeFactory", {
     from: deployer,
