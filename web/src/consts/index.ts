@@ -17,3 +17,5 @@ export const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.
 export const TELEGRAM_REGEX = /^@\w{5,32}$/;
 export const ETH_ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/;
 export const ETH_SIGNATURE_REGEX = /^0x[a-fA-F0-9]{130}$/;
+
+export const isProductionDeployment = () => process.env.REACT_APP_DEPLOYMENT !== "mainnet";
