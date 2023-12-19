@@ -12,7 +12,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log("Deploying to %s with deployer %s", HomeChains[chainId], deployer);
+  console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   const klerosCore = (await ethers.getContract("KlerosCore")) as KlerosCore;
   const oldDisputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;

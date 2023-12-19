@@ -11,7 +11,7 @@ const deployUpgradeKlerosCore: DeployFunction = async (hre: HardhatRuntimeEnviro
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log("Upgrading to %s with deployer %s", HomeChains[chainId], deployer);
+  console.log("upgrading to %s with deployer %s", HomeChains[chainId], deployer);
 
   try {
     const pnk = await deployments.get("PNK");
@@ -21,7 +21,7 @@ const deployUpgradeKlerosCore: DeployFunction = async (hre: HardhatRuntimeEnviro
     const feeForJuror = BigNumber.from(10).pow(17);
     const sortitionModule = await deployments.get("SortitionModule");
 
-    console.log("Upgrading the KlerosCore...");
+    console.log("upgrading the KlerosCore...");
     await deployUpgradable(deployments, "KlerosCore", {
       from: deployer,
       args: [

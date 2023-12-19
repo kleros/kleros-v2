@@ -21,6 +21,7 @@
     "Devnet",
     "DISPUTOR",
     "dockerhost",
+    "ethersproject",
     "Ethfinex",
     "gluegun",
     "graphprotocol",
