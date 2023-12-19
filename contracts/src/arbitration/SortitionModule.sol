@@ -53,7 +53,6 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         uint96[] courtIDs; // The IDs of courts where the juror's stake path ends. A stake path is a path from the general court to a court the juror directly staked in using `_setStake`.
         uint256 stakedPnk; // The juror's total amount of tokens staked in subcourts. Reflects actual pnk balance.
         uint256 lockedPnk; // The juror's total amount of tokens locked in disputes. Can reflect actual pnk balance when stakedPnk are fully withdrawn.
-        mapping(uint96 => uint256) stakedPnkByCourt; // The amount of PNKs the juror has staked in the court in the form `stakedPnkByCourt[courtID]`.
     }
 
     // ************************************* //
@@ -275,7 +274,7 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         bool _alreadyTransferred
     ) external override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, bool succeeded) {
         Juror storage juror = jurors[_account];
-        uint256 currentStake = juror.stakedPnkByCourt[_courtID];
+        uint256 currentStake = stakeOf(_account, _courtID);
 
         uint256 nbCourts = juror.courtIDs.length;
         if (_newStake == 0 && (nbCourts >= MAX_STAKE_PATHS || currentStake == 0)) {
@@ -336,9 +335,9 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         if (latestIndex != 0) {
             DelayedStake storage delayedStake = delayedStakes[latestIndex];
             if (delayedStake.alreadyTransferred) {
-                bytes32 stakePathID = _accountAndCourtIDToStakePathID(_juror, _courtID);
                 // Sortition stake represents the stake value that was last updated during Staking phase.
-                uint256 sortitionStake = stakeOf(bytes32(uint256(_courtID)), stakePathID);
+                uint256 sortitionStake = stakeOf(_juror, _courtID);
+
                 // Withdraw the tokens that were added with the latest delayed stake.
                 uint256 amountToWithdraw = delayedStake.stake - sortitionStake;
                 actualAmountToWithdraw = amountToWithdraw;
@@ -346,12 +345,13 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
                 if (juror.stakedPnk <= actualAmountToWithdraw) {
                     actualAmountToWithdraw = juror.stakedPnk;
                 }
-                // StakePnk can become lower because of penalty, thus we adjust the amount for it. stakedPnkByCourt can't be penalized so subtract the default amount.
+
+                // StakePnk can become lower because of penalty.
                 juror.stakedPnk -= actualAmountToWithdraw;
-                juror.stakedPnkByCourt[_courtID] -= amountToWithdraw;
                 emit StakeDelayedAlreadyTransferredWithdrawn(_juror, _courtID, amountToWithdraw);
-                // Note that if we don't delete court here it'll be duplicated after staking.
-                if (juror.stakedPnkByCourt[_courtID] == 0) {
+
+                if (sortitionStake == 0) {
+                    // Delete the court otherwise it will be duplicated after staking.
                     for (uint256 i = juror.courtIDs.length; i > 0; i--) {
                         if (juror.courtIDs[i - 1] == _courtID) {
                             juror.courtIDs[i - 1] = juror.courtIDs[juror.courtIDs.length - 1];
@@ -384,7 +384,6 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         }
         // stakedPnk can become async with _currentStake (e.g. after penalty).
         juror.stakedPnk = (juror.stakedPnk >= _currentStake) ? juror.stakedPnk - _currentStake + _newStake : _newStake;
-        juror.stakedPnkByCourt[_courtID] = _newStake;
     }
 
     function _decreaseStake(
@@ -413,7 +412,6 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         }
         // stakedPnk can become async with _currentStake (e.g. after penalty).
         juror.stakedPnk = (juror.stakedPnk >= _currentStake) ? juror.stakedPnk - _currentStake + _newStake : _newStake;
-        juror.stakedPnkByCourt[_courtID] = _newStake;
     }
 
     function lockStake(address _account, uint256 _relativeAmount) external override onlyByCore {
@@ -499,15 +497,25 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
     }
 
     /// @dev Get the stake of a juror in a court.
+    /// @param _juror The address of the juror.
+    /// @param _courtID The ID of the court.
+    /// @return value The stake of the juror in the court.
+    function stakeOf(address _juror, uint96 _courtID) public view returns (uint256) {
+        bytes32 stakePathID = _accountAndCourtIDToStakePathID(_juror, _courtID);
+        return stakeOf(bytes32(uint256(_courtID)), stakePathID);
+    }
+
+    /// @dev Get the stake of a juror in a court.
     /// @param _key The key of the tree, corresponding to a court.
     /// @param _ID The stake path ID, corresponding to a juror.
-    /// @return value The stake of the juror in the court.
-    function stakeOf(bytes32 _key, bytes32 _ID) public view returns (uint256 value) {
+    /// @return The stake of the juror in the court.
+    function stakeOf(bytes32 _key, bytes32 _ID) public view returns (uint256) {
         SortitionSumTree storage tree = sortitionSumTrees[_key];
         uint treeIndex = tree.IDsToNodeIndexes[_ID];
-
-        if (treeIndex == 0) value = 0;
-        else value = tree.nodes[treeIndex];
+        if (treeIndex == 0) {
+            return 0;
+        }
+        return tree.nodes[treeIndex];
     }
 
     function getJurorBalance(
@@ -522,7 +530,7 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         Juror storage juror = jurors[_juror];
         totalStaked = juror.stakedPnk;
         totalLocked = juror.lockedPnk;
-        stakedInCourt = juror.stakedPnkByCourt[_courtID];
+        stakedInCourt = stakeOf(_juror, _courtID);
         nbCourts = juror.courtIDs.length;
     }
 
