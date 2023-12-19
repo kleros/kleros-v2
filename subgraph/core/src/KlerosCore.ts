@@ -20,7 +20,7 @@ import { createDisputeFromEvent } from "./entities/Dispute";
 import { createRoundFromRoundInfo } from "./entities/Round";
 import { updateCases, updateCasesAppealing, updateCasesRuled, updateCasesVoting } from "./datapoint";
 import { addUserActiveDispute, ensureUser } from "./entities/User";
-import { updateJurorDelayedStake, updateJurorStake } from "./entities/JurorTokensPerCourt";
+import { updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
 import { updateTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
@@ -29,6 +29,7 @@ import { BigInt } from "@graphprotocol/graph-ts";
 import { updatePenalty } from "./entities/Penalty";
 import { ensureFeeToken } from "./entities/FeeToken";
 import { getAndIncrementPeriodCounter } from "./entities/PeriodIndexCounter";
+import { SortitionModule } from "../generated/SortitionModule/SortitionModule";
 
 function getPeriodName(index: i32): string {
   const periodArray = ["evidence", "commit", "vote", "appeal", "execution"];
@@ -177,30 +178,13 @@ export function handleDraw(event: DrawEvent): void {
   const disputeID = event.params._disputeID.toString();
   const dispute = Dispute.load(disputeID);
   if (!dispute) return;
-  const contract = KlerosCore.bind(event.address);
+  const klerosCore = KlerosCore.bind(event.address);
+  const sortitionModule = SortitionModule.bind(klerosCore.sortitionModule());
+
   const jurorAddress = event.params._address.toHexString();
-  updateJurorStake(jurorAddress, dispute.court, contract, event.block.timestamp);
+  updateJurorStake(jurorAddress, dispute.court, sortitionModule, event.block.timestamp);
   addUserActiveDispute(jurorAddress, disputeID);
 }
-
-// TODO: index the sortition module and handle these events there
-// export function handleStakeSet(event: StakeSet): void {
-//   const jurorAddress = event.params._address.toHexString();
-//   ensureUser(jurorAddress);
-//   const courtID = event.params._courtID.toString();
-
-//   updateJurorStake(jurorAddress, courtID.toString(), KlerosCore.bind(event.address), event.block.timestamp);
-
-//   // Check if the transaction the event comes from is executeDelayedStakes
-//   if (event.transaction.input.toHexString().substring(0, 10) === "0x35975f4a") {
-//     updateJurorDelayedStake(jurorAddress, courtID, ZERO.minus(event.params._amount));
-//   }
-// }
-
-// TODO: index the sortition module and handle these events there
-// export function handleStakeDelayedNotTransferred(event: StakeDelayedNotTransferred): void {
-//   updateJurorDelayedStake(event.params._address.toHexString(), event.params._courtID.toString(), event.params._amount);
-// }
 
 export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   updatePenalty(event);
@@ -211,7 +195,9 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   if (!dispute) return;
   const court = Court.load(dispute.court);
   if (!court) return;
-  updateJurorStake(jurorAddress, court.id, KlerosCore.bind(event.address), event.block.timestamp);
+  const klerosCore = KlerosCore.bind(event.address);
+  const sortitionModule = SortitionModule.bind(klerosCore.sortitionModule());
+  updateJurorStake(jurorAddress, court.id, sortitionModule, event.block.timestamp);
 }
 
 export function handleAcceptedFeeToken(event: AcceptedFeeToken): void {
