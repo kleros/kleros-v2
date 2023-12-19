@@ -10,11 +10,10 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: space-between;
   height: auto;
-  align-items: flex-start;
   gap: 8px;
   align-items: center;
   background-color: ${({ theme }) => theme.whiteBackground};
-  padding: 0px;
+  padding: 0;
 
   ${landscapeStyle(
     () => css`
@@ -56,7 +55,7 @@ const ChainConnectionContainer = styled.div`
   width: fit-content;
   min-height: 32px;
   align-items: center;
-  padding-left: 0px;
+  padding-left: 0;
   > label {
     color: ${({ theme }) => theme.success};
     font-size: 16px;
@@ -81,7 +80,6 @@ const ChainConnectionContainer = styled.div`
 `;
 
 const StyledIdenticon = styled(Identicon)<{ size: `${number}` }>`
-  align-items: center;
   svg {
     width: ${({ size }) => size + "px"};
     height: ${({ size }) => size + "px"};
@@ -89,7 +87,6 @@ const StyledIdenticon = styled(Identicon)<{ size: `${number}` }>`
 `;
 
 const StyledAvatar = styled.img<{ size: `${number}` }>`
-  align-items: center;
   object-fit: cover;
   border-radius: 50%;
   width: ${({ size }) => size + "px"};
@@ -99,42 +96,24 @@ const StyledAvatar = styled.img<{ size: `${number}` }>`
 interface IIdenticonOrAvatar {
   size?: `${number}`;
   address?: `0x${string}`;
+  avatar?: string;
 }
 
-export const IdenticonOrAvatar: React.FC<IIdenticonOrAvatar> = ({ size = "16", address: propAddress }) => {
-  const { address: defaultAddress } = useAccount();
-  const address = propAddress || defaultAddress;
-
-  const { data: name } = useEnsName({
-    address,
-    chainId: 1,
-  });
-  const { data: avatar } = useEnsAvatar({
-    name,
-    chainId: 1,
-  });
-
+export const IdenticonOrAvatar: React.FC<IIdenticonOrAvatar> = ({ size = "16", address, avatar }) => {
   return avatar ? (
     <StyledAvatar src={avatar} alt="avatar" size={size} />
   ) : (
-    <StyledIdenticon size={size} string={address} />
+    <StyledIdenticon size={size} string={address || ""} />
   );
 };
 
 interface IAddressOrName {
   address?: `0x${string}`;
+  ensName?: string;
 }
 
-export const AddressOrName: React.FC<IAddressOrName> = ({ address: propAddress }) => {
-  const { address: defaultAddress } = useAccount();
-  const address = propAddress || defaultAddress;
-
-  const { data } = useEnsName({
-    address,
-    chainId: 1,
-  });
-
-  return <label>{data ?? (address && shortenAddress(address))}</label>;
+export const AddressOrName: React.FC<IAddressOrName> = ({ address, ensName }) => {
+  return <label>{ensName ?? (address && shortenAddress(address))}</label>;
 };
 
 export const ChainDisplay: React.FC = () => {
@@ -143,11 +122,18 @@ export const ChainDisplay: React.FC = () => {
 };
 
 const AccountDisplay: React.FC = () => {
+  const { address: defaultAddress } = useAccount();
+  const { data: ensNameData } = useEnsName({ address: defaultAddress, chainId: 1 });
+  const { data: avatarData } = useEnsAvatar({ name: ensNameData, chainId: 1 });
+
+  const avatar = avatarData !== null ? avatarData : undefined;
+  const ensName = ensNameData !== null ? ensNameData : undefined;
+
   return (
     <Container>
       <AccountContainer>
-        <IdenticonOrAvatar size="32" />
-        <AddressOrName />
+        <IdenticonOrAvatar size="32" address={defaultAddress} avatar={avatar} />
+        <AddressOrName address={defaultAddress} ensName={ensName} />
       </AccountContainer>
       <ChainConnectionContainer>
         <ChainDisplay />
