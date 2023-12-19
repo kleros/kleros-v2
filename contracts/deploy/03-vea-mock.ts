@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import getContractAddress from "./utils/getContractAddress";
+import { getContractAddress } from "./utils/getContractAddress";
 import { KlerosCore__factory } from "../typechain-types";
 import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
 import { Courts, HardhatChain, isSkipped } from "./utils";

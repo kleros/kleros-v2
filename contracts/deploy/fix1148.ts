@@ -2,13 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { DisputeKitClassic, KlerosCore, SortitionModule } from "../typechain-types";
 import assert from "node:assert";
-import { isSkipped } from "./utils";
-
-enum HomeChains {
-  ARBITRUM_ONE = 42161,
-  ARBITRUM_SEPOLIA = 421614,
-  HARDHAT = 31337,
-}
+import { HomeChains, isSkipped } from "./utils";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
@@ -38,11 +32,11 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const newDisputeKitId = 2;
 
   assert(
-    await klerosCore.disputeKitNodes(oldDisputeKitId).then((node) => node.disputeKit === oldDisputeKit.address),
+    await klerosCore.disputeKits(oldDisputeKitId).then((dk) => dk === oldDisputeKit.address),
     `wrong dispute kit id ${oldDisputeKitId}`
   );
   assert(
-    await klerosCore.disputeKitNodes(newDisputeKitId).then((node) => node.disputeKit === newDisputeKit.address),
+    await klerosCore.disputeKits(newDisputeKitId).then((dk) => dk === newDisputeKit.address),
     `wrong dispute kit id ${newDisputeKitId}`
   );
 
