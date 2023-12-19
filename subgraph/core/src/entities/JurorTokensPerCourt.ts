@@ -1,9 +1,9 @@
 import { BigInt, Address } from "@graphprotocol/graph-ts";
-import { KlerosCore } from "../../generated/KlerosCore/KlerosCore";
 import { Court, JurorTokensPerCourt } from "../../generated/schema";
 import { updateActiveJurors, getDelta, updateStakedPNK } from "../datapoint";
 import { ensureUser } from "./User";
 import { ONE, ZERO } from "../utils";
+import { SortitionModule } from "../../generated/SortitionModule/SortitionModule";
 
 export function ensureJurorTokensPerCourt(jurorAddress: string, courtID: string): JurorTokensPerCourt {
   const id = `${jurorAddress}-${courtID}`;
@@ -30,7 +30,12 @@ export function createJurorTokensPerCourt(jurorAddress: string, courtID: string)
   return jurorTokens;
 }
 
-export function updateJurorStake(jurorAddress: string, courtID: string, contract: KlerosCore, timestamp: BigInt): void {
+export function updateJurorStake(
+  jurorAddress: string,
+  courtID: string,
+  contract: SortitionModule,
+  timestamp: BigInt
+): void {
   const juror = ensureUser(jurorAddress);
   const court = Court.load(courtID);
   if (!court) return;
@@ -61,9 +66,12 @@ export function updateJurorDelayedStake(jurorAddress: string, courtID: string, a
   const court = Court.load(courtID);
   if (!court) return;
   const jurorTokens = ensureJurorTokensPerCourt(jurorAddress, courtID);
-  jurorTokens.delayed = jurorTokens.delayed.plus(amount);
-  juror.totalDelayed = juror.totalDelayed.plus(amount);
-  court.delayedStake = court.stake.plus(amount);
+  let lastDelayedAmount = jurorTokens.delayed;
+
+  jurorTokens.delayed = amount;
+  //since we need to track only the latest delay amount now, subtract the previous amount and add the new amount
+  juror.totalDelayed = juror.totalDelayed.plus(amount).minus(lastDelayedAmount);
+  court.delayedStake = court.stake.plus(amount).minus(lastDelayedAmount);
   jurorTokens.save();
   juror.save();
   court.save();

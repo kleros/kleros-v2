@@ -46,11 +46,6 @@ dataSources:
           handler: handleDisputeKitCreated
         - event: DisputeKitEnabled(indexed uint96,indexed uint256,indexed bool)
           handler: handleDisputeKitEnabled
-        # TODO: index the sortition module and handle these events there
-        # - event: StakeSet(indexed address,uint256,uint256)
-        #   handler: handleStakeSet
-        # - event: StakeDelayedNotTransferred(indexed address,uint256,uint256)
-        #   handler: handleStakeDelayedNotTransferred
         - event: TokenAndETHShift(indexed address,indexed uint256,indexed uint256,uint256,int256,int256,address)
           handler: handleTokenAndETHShift
         - event: Ruling(indexed address,indexed uint256,uint256)
@@ -136,3 +131,31 @@ dataSources:
         - event: Evidence(indexed uint256,indexed address,string)
           handler: handleEvidenceEvent
       file: ./src/EvidenceModule.ts
+  - kind: ethereum
+    name: SortitionModule
+    network: mainnet
+    source:
+      address: "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c"
+      abi: SortitionModule
+      startBlock: 20
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - JurorTokensPerCourt
+      abis:
+        - name: SortitionModule
+          file: ../contracts/deployments/localhost/SortitionModule.json
+      eventHandlers:
+        - event: StakeDelayedAlreadyTransferred(indexed address,uint256,uint256)
+          handler: handleStakeDelayedAlreadyTransferred
+        - event: StakeDelayedAlreadyTransferredWithdrawn(indexed address,indexed uint96,uint256)
+          handler: handleStakeDelayedAlreadyTransferredWithdrawn
+        - event: StakeDelayedNotTransferred(indexed address,uint256,uint256)
+          handler: handleStakeDelayedNotTransferred
+        - event: StakeLocked(indexed address,uint256,bool)
+          handler: handleStakeLocked
+        - event: StakeSet(indexed address,uint256,uint256)
+          handler: handleStakeSet
+      file: ./src/SortitionModule.ts
