@@ -1,30 +1,13 @@
 import request from "graphql-request";
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
 
-const DEPLOYMENT = process.env.REACT_APP_DEPLOYMENT?.toUpperCase() ?? "TESTNET";
-
-const DEPLOYMENTS_TO_KLEROS_CORE_SUBGRAPHS = {
-  MAINNET: process.env.REACT_APP_KLEROS_CORE_SUBGRAPH_MAINNET,
-  TESTNET: process.env.REACT_APP_KLEROS_CORE_SUBGRAPH_TESTNET,
-  DEVNET: process.env.REACT_APP_KLEROS_CORE_SUBGRAPH_DEVNET,
-};
-
-const DEPLOYMENTS_TO_DISPUTE_TEMPLATE_ARBSEPOLIA_SUBGRAPHS = {
-  MAINNET: process.env.REACT_APP_DISPUTE_TEMPLATE_ARBSEPOLIA_SUBGRAPH_MAINNET,
-  TESTNET: process.env.REACT_APP_DISPUTE_TEMPLATE_ARBSEPOLIA_SUBGRAPH_TESTNET,
-  DEVNET: process.env.REACT_APP_DISPUTE_TEMPLATE_ARBSEPOLIA_SUBGRAPH_DEVNET,
-};
-
 const CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH = {
   421614:
-    DEPLOYMENTS_TO_DISPUTE_TEMPLATE_ARBSEPOLIA_SUBGRAPHS[DEPLOYMENT] ??
-    "https://api.thegraph.com/subgraphs/name/alcercu/disputetemplateregistryarbgrli",
+    process.env.REACT_APP_DRT_ARBSEPOLIA_SUBGRAPH ?? "Wrong Subgraph URL. Please check the environment variables.",
 };
 
 export const graphqlUrl = (isDisputeTemplate = false, chainId = 421614) => {
-  const coreUrl =
-    DEPLOYMENTS_TO_KLEROS_CORE_SUBGRAPHS[DEPLOYMENT] ??
-    "https://api.thegraph.com/subgraphs/name/alcercu/kleroscoretest";
+  const coreUrl = process.env.REACT_APP_CORE_SUBGRAPH ?? "Wrong Subgraph URL. Please check the environment variables.";
   return isDisputeTemplate ? CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH[chainId] : coreUrl;
 };
 

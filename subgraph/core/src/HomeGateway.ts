@@ -1,10 +1,5 @@
-import {
-  HomeGateway,
-  Dispute as DisputeEvent,
-} from "../generated/HomeGateway/HomeGateway";
-import {
-  GatewayDispute
-} from "../generated/schema";
+import { HomeGateway, Dispute as DisputeEvent } from "../generated/HomeGateway/HomeGateway";
+import { GatewayDispute } from "../generated/schema";
 
 export function handleDisputeEvent(event: DisputeEvent): void {
   const contract = HomeGateway.bind(event.address);
