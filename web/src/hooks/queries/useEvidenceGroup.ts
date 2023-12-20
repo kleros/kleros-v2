@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getIArbitrableV2 } from "hooks/contracts/generated";
 import { usePublicClient } from "wagmi";
 import { isUndefined } from "utils/index";
+import { GENESIS_BLOCK_ARBSEPOLIA } from "consts/index";
 
 export const useEvidenceGroup = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
   const isEnabled = !isUndefined(arbitrableAddress);
@@ -20,7 +21,7 @@ export const useEvidenceGroup = (disputeID?: string, arbitrableAddress?: `0x${st
             _arbitrableDisputeID: BigInt(disputeID),
           },
           {
-            fromBlock: 27808516n,
+            fromBlock: GENESIS_BLOCK_ARBSEPOLIA,
             toBlock: "latest",
           }
         );
