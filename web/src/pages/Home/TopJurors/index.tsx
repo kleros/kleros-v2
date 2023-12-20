@@ -44,22 +44,14 @@ const TopJurors: React.FC = () => {
   return (
     <Container>
       <Title>Top Jurors</Title>
-
-      {!isUndefined(topJurors) && topJurors.length > 0 ? (
-        <ListContainer>
-          <Header />
-          {topJurors.map((juror) => (
-            <JurorCard key={juror.rank} address={juror.id} {...juror} />
-          ))}
-        </ListContainer>
-      ) : !isUndefined(topJurors) && topJurors.length === 0 ? (
+      {!isUndefined(topJurors) && topJurors.length === 0 ? (
         <StyledLabel>There are no jurors staked yet.</StyledLabel>
       ) : (
         <ListContainer>
           <Header />
-          {[...Array(5)].map((_, i) => (
-            <SkeletonDisputeListItem key={i} />
-          ))}
+          {!isUndefined(topJurors)
+            ? topJurors.map((juror) => <JurorCard key={juror.rank} address={juror.id} {...juror} />)
+            : [...Array(5)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
         </ListContainer>
       )}
     </Container>
