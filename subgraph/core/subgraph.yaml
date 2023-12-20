@@ -133,11 +133,11 @@ dataSources:
       file: ./src/EvidenceModule.ts
   - kind: ethereum
     name: SortitionModule
-    network: mainnet
+    network: arbitrum-sepolia
     source:
-      address: "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c"
+      address: "0xf327200420F21BAafce8F1C03B1EEdF926074B95"
       abi: SortitionModule
-      startBlock: 20
+      startBlock: 3084593
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -146,7 +146,7 @@ dataSources:
         - JurorTokensPerCourt
       abis:
         - name: SortitionModule
-          file: ../contracts/deployments/localhost/SortitionModule.json
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/SortitionModule.json
       eventHandlers:
         - event: StakeDelayedAlreadyTransferred(indexed address,uint256,uint256)
           handler: handleStakeDelayedAlreadyTransferred
