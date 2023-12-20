@@ -26,9 +26,9 @@ dataSources:
         - Counter
       abis:
         - name: DisputeKitClassic
-          file: ../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
       eventHandlers:
         - event: AppealDecision(indexed uint256,indexed address)
           handler: handleAppealDecision
@@ -75,7 +75,7 @@ dataSources:
         - Court
       abis:
         - name: PolicyRegistry
-          file: ../contracts/deployments/arbitrumSepoliaDevnet/PolicyRegistry.json
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/PolicyRegistry.json
       eventHandlers:
         - event: PolicyUpdate(indexed uint256,string,string)
           handler: handlePolicyUpdate
@@ -98,9 +98,9 @@ dataSources:
         - ClassicContribution
       abis:
         - name: DisputeKitClassic
-          file: ../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
-          file: ../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
       eventHandlers:
         - event: DisputeCreation(indexed uint256,uint256,bytes)
           handler: handleDisputeCreation
@@ -131,7 +131,7 @@ dataSources:
         - ClassicEvidence
       abis:
         - name: EvidenceModule
-          file: ../contracts/deployments/arbitrumSepoliaDevnet/EvidenceModule.json
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/EvidenceModule.json
       eventHandlers:
         - event: Evidence(indexed uint256,indexed address,string)
           handler: handleEvidenceEvent

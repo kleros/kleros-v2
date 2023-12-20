@@ -1,13 +1,8 @@
 import { ClassicContribution } from "../../generated/schema";
-import {
-  Contribution as ContributionEvent,
-  Withdrawal,
-} from "../../generated/DisputeKitClassic/DisputeKitClassic";
+import { Contribution as ContributionEvent, Withdrawal } from "../../generated/DisputeKitClassic/DisputeKitClassic";
 import { DISPUTEKIT_ID } from "../DisputeKitClassic";
 
-export function ensureClassicContributionFromEvent<T>(
-  event: T
-): ClassicContribution | null {
+export function ensureClassicContributionFromEvent<T>(event: T): ClassicContribution | null {
   if (!(event instanceof ContributionEvent) && !(event instanceof Withdrawal)) {
     return null;
   }
