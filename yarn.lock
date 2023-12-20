@@ -5474,7 +5474,7 @@ __metadata:
     "@web3modal/ethereum": ^2.7.1
     "@web3modal/react": ^2.2.2
     amqplib: ^0.10.3
-    chart.js: ^3.9.1
+    chart.js: ^4.4.1
     chartjs-adapter-moment: ^1.0.1
     core-js: ^3.34.0
     eslint: ^8.55.0
@@ -5540,6 +5540,13 @@ __metadata:
   dependencies:
     "@openzeppelin/contracts": ^4.8.3
   checksum: 72775e9e6a5e00ca1590a260a65c7832fee15f6ead3a2808c05912f4a198a5a0d8bc2a213ef8d2e70e4ba7e811cbd28ec641a50d816aac49d24895994be2f3fd
+  languageName: node
+  linkType: hard
+
+"@kurkle/color@npm:^0.3.0":
+  version: 0.3.2
+  resolution: "@kurkle/color@npm:0.3.2"
+  checksum: 79e97b31f8f6efb28c69d373f94b0c7480226fe8ec95221f518ac998e156444a496727ce47de6d728eb5c3369288e794cba82cae34253deb0d472d3bfe080e49
   languageName: node
   linkType: hard
 
@@ -13272,10 +13279,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chart.js@npm:^3.9.1":
-  version: 3.9.1
-  resolution: "chart.js@npm:3.9.1"
-  checksum: 9ab0c0ac01215af0b3f020f2e313030fd6e347b48ed17d5484ee9c4e8ead45e78ae71bea16c397621c386b409ce0b14bf17f9f6c2492cd15b56c0f433efdfff6
+"chart.js@npm:^4.4.1":
+  version: 4.4.1
+  resolution: "chart.js@npm:4.4.1"
+  dependencies:
+    "@kurkle/color": ^0.3.0
+  checksum: 8c108f137824ea0e3d79914708b409298c12ed7d16da99a40ca3cab51466ef7b0068ad82ac0addeb288b938fe0621d3e5a6a913b60e72a729aa42aa96705fcad
   languageName: node
   linkType: hard
 

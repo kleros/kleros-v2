@@ -81,7 +81,7 @@
     "@web3modal/ethereum": "^2.7.1",
     "@web3modal/react": "^2.2.2",
     "amqplib": "^0.10.3",
-    "chart.js": "^3.9.1",
+    "chart.js": "^4.4.1",
     "chartjs-adapter-moment": "^1.0.1",
     "core-js": "^3.34.0",
     "ethers": "^5.7.2",
