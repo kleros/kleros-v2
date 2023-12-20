@@ -9,7 +9,7 @@ import Field from "components/Field";
 import DiceIcon from "svgs/icons/dice.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import { useCourtDetails } from "queries/useCourtDetails";
-import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
+import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 
 const Container = styled.div`
   display: flex;
@@ -44,7 +44,7 @@ const bigIntRatioToPercentage = (numerator: bigint, denominator: bigint): string
 };
 
 const useCalculateJurorOdds = (
-  jurorBalance: readonly [bigint, bigint, bigint] | undefined,
+  jurorBalance: readonly [bigint, bigint, bigint, bigint] | undefined,
   stakedByAllJurors: string | undefined,
   loading: boolean
 ): string => {
@@ -64,7 +64,7 @@ const useCalculateJurorOdds = (
 const JurorBalanceDisplay = () => {
   const { id } = useParams();
   const { address } = useAccount();
-  const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
+  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
     enabled: !isUndefined(address),
     args: [address ?? "0x", BigInt(id ?? 0)],
     watch: true,

@@ -6,9 +6,9 @@ dataSources:
     name: KlerosCore
     network: arbitrum-sepolia
     source:
-      address: "0xB88643fd1e4351dAF9eA7292db126207FDE42e45"
+      address: "0x4DD8B69958eF1D7d5dA9347E9d9F57ADFC3dc284"
       abi: KlerosCore
-      startBlock: 49141544
+      startBlock: 3084598
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -46,10 +46,11 @@ dataSources:
           handler: handleDisputeKitCreated
         - event: DisputeKitEnabled(indexed uint96,indexed uint256,indexed bool)
           handler: handleDisputeKitEnabled
-        - event: StakeSet(indexed address,uint256,uint256)
-          handler: handleStakeSet
-        - event: StakeDelayedNotTransferred(indexed address,uint256,uint256)
-          handler: handleStakeDelayedNotTransferred
+        # TODO: index the sortition module and handle these events there
+        # - event: StakeSet(indexed address,uint256,uint256)
+        #   handler: handleStakeSet
+        # - event: StakeDelayedNotTransferred(indexed address,uint256,uint256)
+        #   handler: handleStakeDelayedNotTransferred
         - event: TokenAndETHShift(indexed address,indexed uint256,indexed uint256,uint256,int256,int256,address)
           handler: handleTokenAndETHShift
         - event: Ruling(indexed address,indexed uint256,uint256)
@@ -63,9 +64,9 @@ dataSources:
     name: PolicyRegistry
     network: arbitrum-sepolia
     source:
-      address: "0x37FFaF5506BB16327B4a32191Bb39d739fCE55a3"
+      address: "0x2AC2EdFD336732bc6963f1AD03ED98B22dB949da"
       abi: PolicyRegistry
-      startBlock: 48886711
+      startBlock: 3084568
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -83,9 +84,9 @@ dataSources:
     name: DisputeKitClassic
     network: arbitrum-sepolia
     source:
-      address: "0x67f3b472F345119692d575E59190400E371946f6"
+      address: "0x86Ac67e5550F837a650B4B0Cd4778D4293a2bDe3"
       abi: DisputeKitClassic
-      startBlock: 49141470
+      startBlock: 3084586
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -118,9 +119,9 @@ dataSources:
     name: EvidenceModule
     network: arbitrum-sepolia
     source:
-      address: "0xF679E4a92AE843fd5cD0717A7417C3A773Dfd55F"
+      address: "0x827411b3e98bAe8c441efBf26842A1670f8f378F"
       abi: EvidenceModule
-      startBlock: 49137992
+      startBlock: 3084571
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
