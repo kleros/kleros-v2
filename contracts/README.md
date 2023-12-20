@@ -34,11 +34,16 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 #### Arbitrum Sepolia
 
+- [ArbitrableExample](https://sepolia.arbiscan.io/address/0x96a29c421007Ab6d523B1743FA3f177a15063D07)
 - [DAI](https://sepolia.arbiscan.io/address/0x593e89704D285B0c3fbF157c7CF2537456CE64b5)
 - [DAIFaucet](https://sepolia.arbiscan.io/address/0xB5b39A1bcD2D7097A8824B3cC18Ebd2dFb0D9B5E)
 - [DisputeKitClassic: proxy](https://sepolia.arbiscan.io/address/0x86Ac67e5550F837a650B4B0Cd4778D4293a2bDe3), [implementation](https://sepolia.arbiscan.io/address/0xC3dB344755b15c8Edfd834db79af4f8860029FB4)
+- [DisputeResolver](https://sepolia.arbiscan.io/address/0x3E22eBE8c86a58b0BfEd5383aa9DEFB87De85034)
+- [DisputeTemplateRegistry: proxy](https://sepolia.arbiscan.io/address/0xc60e862273c1eAa1F9afBC69b39cee30270A2419), [implementation](https://sepolia.arbiscan.io/address/0xeA44D4710bc804573E7d8653b88A60CaC51E3738)
+- [Escrow](https://sepolia.arbiscan.io/address/0x224E52523354BEdCaFF3e98de463E829f3388f84)
 - [EvidenceModule: proxy](https://sepolia.arbiscan.io/address/0x827411b3e98bAe8c441efBf26842A1670f8f378F), [implementation](https://sepolia.arbiscan.io/address/0x26c1980120F1C82cF611D666CE81D2b54d018547)
 - [KlerosCore: proxy](https://sepolia.arbiscan.io/address/0x4DD8B69958eF1D7d5dA9347E9d9F57ADFC3dc284), [implementation](https://sepolia.arbiscan.io/address/0x614498118850184c62f82d08261109334bFB050f)
+- [PNKFaucet](https://sepolia.arbiscan.io/address/0x7EFE468003Ad6A858b5350CDE0A67bBED58739dD)
 - [PinakionV2](https://sepolia.arbiscan.io/address/0x34B944D42cAcfC8266955D07A80181D2054aa225)
 - [PolicyRegistry: proxy](https://sepolia.arbiscan.io/address/0x2AC2EdFD336732bc6963f1AD03ED98B22dB949da), [implementation](https://sepolia.arbiscan.io/address/0xAA637C9E2831614158d7eB193D03af4a7223C56E)
 - [RandomizerRNG: proxy](https://sepolia.arbiscan.io/address/0xA995C172d286f8F4eE137CC662e2844E59Cf4836), [implementation](https://sepolia.arbiscan.io/address/0xe62B776498F48061ef9425fCEf30F3d1370DB005)

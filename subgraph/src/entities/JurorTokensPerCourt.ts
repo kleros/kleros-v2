@@ -35,21 +35,23 @@ export function updateJurorStake(jurorAddress: string, courtID: string, contract
   const court = Court.load(courtID);
   if (!court) return;
   const jurorTokens = ensureJurorTokensPerCourt(jurorAddress, courtID);
-  const jurorBalance = contract.getJurorBalance(Address.fromString(jurorAddress), BigInt.fromString(courtID));
-  const previousStake = jurorTokens.staked;
-  const previousTotalStake = juror.totalStake;
-  jurorTokens.staked = jurorBalance.value2;
-  jurorTokens.locked = jurorBalance.value1;
-  jurorTokens.save();
-  const stakeDelta = getDelta(previousStake, jurorTokens.staked);
-  const newTotalStake = juror.totalStake.plus(stakeDelta);
-  juror.totalStake = newTotalStake;
-  court.stake = court.stake.plus(stakeDelta);
-  updateStakedPNK(stakeDelta, timestamp);
-  const activeJurorsDelta = getActivityDelta(previousTotalStake, newTotalStake);
-  const stakedJurorsDelta = getActivityDelta(previousStake, jurorBalance.value2);
-  court.numberStakedJurors = court.numberStakedJurors.plus(stakedJurorsDelta);
-  updateActiveJurors(activeJurorsDelta, timestamp);
+
+  // TODO: index the sortition module and handle these events there
+  // const jurorBalance = contract.getJurorBalance(Address.fromString(jurorAddress), BigInt.fromString(courtID));
+  // const previousStake = jurorTokens.staked;
+  // const previousTotalStake = juror.totalStake;
+  // jurorTokens.staked = jurorBalance.value2;
+  // jurorTokens.locked = jurorBalance.value1;
+  // jurorTokens.save();
+  // const stakeDelta = getDelta(previousStake, jurorTokens.staked);
+  // const newTotalStake = juror.totalStake.plus(stakeDelta);
+  // juror.totalStake = newTotalStake;
+  // court.stake = court.stake.plus(stakeDelta);
+  // updateStakedPNK(stakeDelta, timestamp);
+  // const activeJurorsDelta = getActivityDelta(previousTotalStake, newTotalStake);
+  // const stakedJurorsDelta = getActivityDelta(previousStake, jurorBalance.value2);
+  // court.numberStakedJurors = court.numberStakedJurors.plus(stakedJurorsDelta);
+  // updateActiveJurors(activeJurorsDelta, timestamp);
   juror.save();
   court.save();
 }

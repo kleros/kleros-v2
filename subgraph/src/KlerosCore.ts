@@ -8,11 +8,9 @@ import {
   CourtModified,
   Draw as DrawEvent,
   NewPeriod,
-  StakeSet,
   TokenAndETHShift as TokenAndETHShiftEvent,
   CourtJump,
   Ruling,
-  StakeDelayedNotTransferred,
   AcceptedFeeToken,
 } from "../generated/KlerosCore/KlerosCore";
 import { ZERO, ONE } from "./utils";
@@ -185,22 +183,24 @@ export function handleDraw(event: DrawEvent): void {
   addUserActiveDispute(jurorAddress, disputeID);
 }
 
-export function handleStakeSet(event: StakeSet): void {
-  const jurorAddress = event.params._address.toHexString();
-  ensureUser(jurorAddress);
-  const courtID = event.params._courtID.toString();
+// TODO: index the sortition module and handle these events there
+// export function handleStakeSet(event: StakeSet): void {
+//   const jurorAddress = event.params._address.toHexString();
+//   ensureUser(jurorAddress);
+//   const courtID = event.params._courtID.toString();
 
-  updateJurorStake(jurorAddress, courtID.toString(), KlerosCore.bind(event.address), event.block.timestamp);
+//   updateJurorStake(jurorAddress, courtID.toString(), KlerosCore.bind(event.address), event.block.timestamp);
 
-  // Check if the transaction the event comes from is executeDelayedStakes
-  if (event.transaction.input.toHexString().substring(0, 10) === "0x35975f4a") {
-    updateJurorDelayedStake(jurorAddress, courtID, ZERO.minus(event.params._amount));
-  }
-}
+//   // Check if the transaction the event comes from is executeDelayedStakes
+//   if (event.transaction.input.toHexString().substring(0, 10) === "0x35975f4a") {
+//     updateJurorDelayedStake(jurorAddress, courtID, ZERO.minus(event.params._amount));
+//   }
+// }
 
-export function handleStakeDelayedNotTransferred(event: StakeDelayedNotTransferred): void {
-  updateJurorDelayedStake(event.params._address.toHexString(), event.params._courtID.toString(), event.params._amount);
-}
+// TODO: index the sortition module and handle these events there
+// export function handleStakeDelayedNotTransferred(event: StakeDelayedNotTransferred): void {
+//   updateJurorDelayedStake(event.params._address.toHexString(), event.params._courtID.toString(), event.params._amount);
+// }
 
 export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   updatePenalty(event);

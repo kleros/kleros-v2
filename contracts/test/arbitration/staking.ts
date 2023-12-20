@@ -185,7 +185,7 @@ describe("Staking", async () => {
           await expect(core.setStake(2, PNK(3000)))
             .to.emit(sortition, "StakeDelayedAlreadyTransferred")
             .withArgs(deployer, 2, PNK(3000));
-          expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(5000), 0, PNK(2000), 2]); // stake has changed immediately, WARNING: this is misleading because it's not actually added to the SortitionSumTree
+          expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(5000), 0, PNK(2000), 2]); // stake does not change
         });
 
         it("Should transfer some PNK out of the juror's account", async () => {
