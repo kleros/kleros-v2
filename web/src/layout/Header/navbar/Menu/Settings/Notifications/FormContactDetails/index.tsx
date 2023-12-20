@@ -4,9 +4,9 @@ import { useWalletClient, useAccount } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
 import { uploadSettingsToSupabase } from "utils/uploadSettingsToSupabase";
 import FormContact from "./FormContact";
-import messages from "../../../../../../../consts/eip712-messages";
-import { EMAIL_REGEX, TELEGRAM_REGEX } from "../../../../../../../consts/index";
-import { ISettings } from "../../../index";
+import messages from "src/consts/eip712-messages";
+import { EMAIL_REGEX, TELEGRAM_REGEX } from "consts/index";
+import { ISettings } from "../../../../index";
 import { responsiveSize } from "styles/responsiveSize";
 
 const FormContainer = styled.form`

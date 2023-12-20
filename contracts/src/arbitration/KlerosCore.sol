@@ -9,12 +9,13 @@
 pragma solidity 0.8.18;
 
 import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitratorV2.sol";
-import "./interfaces/IDisputeKit.sol";
-import "./interfaces/ISortitionModule.sol";
-import "../libraries/SafeERC20.sol";
-import "../libraries/Constants.sol";
-import "../proxy/UUPSProxiable.sol";
-import "../proxy/Initializable.sol";
+import {IDisputeKit} from "./interfaces/IDisputeKit.sol";
+import {ISortitionModule} from "./interfaces/ISortitionModule.sol";
+import {SafeERC20, IERC20} from "../libraries/SafeERC20.sol";
+import {Constants} from "../libraries/Constants.sol";
+import {OnError} from "../libraries/Types.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {Initializable} from "../proxy/Initializable.sol";
 
 /// @title KlerosCore
 /// Core arbitrator contract for Kleros v2.
@@ -448,9 +449,14 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _newStake The new stake.
     /// Note that the existing delayed stake will be nullified as non-relevant.
     function setStake(uint96 _courtID, uint256 _newStake) external {
-        _setStake(msg.sender, _courtID, _newStake, false);
+        _setStake(msg.sender, _courtID, _newStake, false, OnError.Revert);
     }
 
+    /// @dev Sets the stake of a specified account in a court, typically to apply a delayed stake or unstake inactive jurors.
+    /// @param _account The account whose stake is being set.
+    /// @param _courtID The ID of the court.
+    /// @param _newStake The new stake.
+    /// @param _alreadyTransferred Whether the PNKs have already been transferred to the contract.
     function setStakeBySortitionModule(
         address _account,
         uint96 _courtID,
@@ -458,7 +464,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         bool _alreadyTransferred
     ) external {
         if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
-        _setStake(_account, _courtID, _newStake, _alreadyTransferred);
+        _setStake(_account, _courtID, _newStake, _alreadyTransferred, OnError.Return);
     }
 
     /// @inheritdoc IArbitratorV2
@@ -994,17 +1000,27 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         emit DisputeKitEnabled(_courtID, _disputeKitID, _enable);
     }
 
+    /// @dev If called only once then set _onError to Revert, otherwise set it to Return
+    /// @param _account The account to set the stake for.
+    /// @param _courtID The ID of the court to set the stake for.
+    /// @param _newStake The new stake.
+    /// @param _alreadyTransferred Whether the PNKs were already transferred to/from the staking contract.
+    /// @param _onError Whether to revert or return false on error.
+    /// @return Whether the stake was successfully set or not.
     function _setStake(
         address _account,
         uint96 _courtID,
         uint256 _newStake,
-        bool _alreadyTransferred
-    ) internal returns (bool success) {
+        bool _alreadyTransferred,
+        OnError _onError
+    ) internal returns (bool) {
         if (_courtID == Constants.FORKING_COURT || _courtID > courts.length) {
-            return false; // Staking directly into the forking court is not allowed.
+            _stakingFailed(_onError); // Staking directly into the forking court is not allowed.
+            return false;
         }
         if (_newStake != 0 && _newStake < courts[_courtID].minStake) {
-            return false; // Staking less than the minimum stake is not allowed.
+            _stakingFailed(_onError); // Staking less than the minimum stake is not allowed.
+            return false;
         }
         (uint256 pnkDeposit, uint256 pnkWithdrawal, bool sortitionSuccess) = sortitionModule.setStake(
             _account,
@@ -1012,16 +1028,29 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
             _newStake,
             _alreadyTransferred
         );
-        if (pnkDeposit > 0 && pnkWithdrawal > 0) revert StakingFailed();
+        if (!sortitionSuccess) {
+            _stakingFailed(_onError);
+            return false;
+        }
         if (pnkDeposit > 0) {
-            // Note we don't return false after incorrect transfer because when stake is increased the transfer is done immediately, thus it can't disrupt delayed stakes' queue.
-            pinakion.safeTransferFrom(_account, address(this), pnkDeposit);
-        } else if (pnkWithdrawal > 0) {
-            if (!pinakion.safeTransfer(_account, pnkWithdrawal)) {
+            if (!pinakion.safeTransferFrom(_account, address(this), pnkDeposit)) {
+                _stakingFailed(_onError);
                 return false;
             }
         }
-        return sortitionSuccess;
+        if (pnkWithdrawal > 0) {
+            if (!pinakion.safeTransfer(_account, pnkWithdrawal)) {
+                _stakingFailed(_onError);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /// @dev It may revert depending on the _onError parameter.
+    function _stakingFailed(OnError _onError) internal pure {
+        if (_onError == OnError.Return) return;
+        revert StakingFailed();
     }
 
     /// @dev Gets a court ID, the minimum number of jurors and an ID of a dispute kit from a specified extra data bytes array.

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import MobileHeader from "./MobileHeader";
 import DesktopHeader from "./DesktopHeader";
 import { TestnetBanner } from "./TestnetBanner";
+import { isProductionDeployment } from "consts/index";
 
 const Container = styled.div`
   position: sticky;
@@ -32,7 +33,7 @@ export const PopupContainer = styled.div`
 const Header: React.FC = () => {
   return (
     <Container>
-      {process.env.REACT_APP_DEPLOYMENT === "testnet" ? <TestnetBanner /> : null}
+      {isProductionDeployment() ? <TestnetBanner /> : null}
       <HeaderContainer>
         <DesktopHeader />
         <MobileHeader />
