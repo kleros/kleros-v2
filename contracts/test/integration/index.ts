@@ -48,7 +48,7 @@ describe("Integration tests", async () => {
       keepExistingDeployments: false,
     });
     rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
-    randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
+    randomizer = (await ethers.getContract("RandomizerOracle")) as RandomizerMock;
     disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;

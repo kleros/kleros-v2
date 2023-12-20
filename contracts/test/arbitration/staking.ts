@@ -42,7 +42,7 @@ describe("Staking", async () => {
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
     sortition = (await ethers.getContract("SortitionModule")) as SortitionModule;
     rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
-    randomizer = (await ethers.getContract("RandomizerMock")) as RandomizerMock;
+    randomizer = (await ethers.getContract("RandomizerOracle")) as RandomizerMock;
   };
 
   describe("When outside the Staking phase", async () => {

@@ -6,7 +6,7 @@ import {
   PNK,
   RandomizerRNG,
   ArbitrableExampleEthFee,
-  RandomizerMock,
+  RandomizerOracle,
 } from "../../typechain-types";
 
 export enum Period {
@@ -25,7 +25,7 @@ export const getContracts = async (hre) => {
   const pnk = (await hre.ethers.getContract("PNK")) as PNK;
   const randomizerRng = (await hre.ethers.getContract("RandomizerRNG")) as RandomizerRNG;
   const arbitrable = (await hre.ethers.getContract("ArbitrableExampleEthFee")) as ArbitrableExampleEthFee;
-  const randomizerMock = (await hre.ethers.getContract("RandomizerMock")) as RandomizerMock;
+  const randomizerMock = (await hre.ethers.getContract("RandomizerOracle")) as RandomizerMock;
 
   return {
     core,
