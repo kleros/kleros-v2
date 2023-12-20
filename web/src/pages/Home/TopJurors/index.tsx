@@ -29,6 +29,10 @@ const ListContainer = styled.div`
   )}
 `;
 
+const StyledLabel = styled.label`
+  font-size: 16px;
+`;
+
 const TopJurors: React.FC = () => {
   const { data: queryJurors } = useTopUsersByCoherenceScore();
 
@@ -40,12 +44,16 @@ const TopJurors: React.FC = () => {
   return (
     <Container>
       <Title>Top Jurors</Title>
-      <ListContainer>
-        <Header />
-        {!isUndefined(topJurors)
-          ? topJurors.map((juror) => <JurorCard key={juror.rank} address={juror.id} {...juror} />)
-          : [...Array(5)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
-      </ListContainer>
+      {!isUndefined(topJurors) && topJurors.length === 0 ? (
+        <StyledLabel>There are no jurors staked yet.</StyledLabel>
+      ) : (
+        <ListContainer>
+          <Header />
+          {!isUndefined(topJurors)
+            ? topJurors.map((juror) => <JurorCard key={juror.rank} address={juror.id} {...juror} />)
+            : [...Array(5)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
+        </ListContainer>
+      )}
     </Container>
   );
 };
