@@ -78,7 +78,7 @@ export function handleDisputeCreation(event: DisputeCreation): void {
   court.save();
   createDisputeFromEvent(event);
   const roundInfo = contract.getRoundInfo(disputeID, ZERO);
-  createRoundFromRoundInfo(disputeID, ZERO, roundInfo);
+  createRoundFromRoundInfo(KlerosCore.bind(event.address), disputeID, ZERO, roundInfo);
   const arbitrable = event.params._arbitrable.toHexString();
   updateArbitrableCases(arbitrable, ONE);
   updateCases(ONE, event.block.timestamp);
@@ -163,7 +163,7 @@ export function handleAppealDecision(event: AppealDecision): void {
   dispute.currentRound = roundID;
   dispute.save();
   const roundInfo = contract.getRoundInfo(disputeID, newRoundIndex);
-  createRoundFromRoundInfo(disputeID, newRoundIndex, roundInfo);
+  createRoundFromRoundInfo(KlerosCore.bind(event.address), disputeID, newRoundIndex, roundInfo);
 }
 
 export function handleCourtJump(event: CourtJump): void {

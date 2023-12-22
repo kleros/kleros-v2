@@ -1,8 +1,9 @@
 import { BigInt } from "@graphprotocol/graph-ts";
-import { KlerosCore__getRoundInfoResultValue0Struct } from "../../generated/KlerosCore/KlerosCore";
+import { KlerosCore, KlerosCore__getRoundInfoResultValue0Struct } from "../../generated/KlerosCore/KlerosCore";
 import { Round } from "../../generated/schema";
 
 export function createRoundFromRoundInfo(
+  contract: KlerosCore,
   disputeID: BigInt,
   roundIndex: BigInt,
   roundInfo: KlerosCore__getRoundInfoResultValue0Struct
@@ -19,5 +20,7 @@ export function createRoundFromRoundInfo(
   round.repartitions = roundInfo.repartitions;
   round.penalties = roundInfo.pnkPenalties;
   round.dispute = disputeID.toString();
+  const courtID = contract.disputes(disputeID);
+  round.court = courtID.value0.toString();
   round.save();
 }
