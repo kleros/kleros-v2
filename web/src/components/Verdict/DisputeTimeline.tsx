@@ -87,7 +87,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
           acc.push({
             title: `Jury Decision - Round ${index + 1}`,
             party: isOngoing ? "Voting is ongoing" : getVoteChoice(parsedRoundChoice, answers),
-            subtitle: eventDate,
+            subtitle: `${eventDate} / ${votingHistory?.dispute?.rounds.at(index)?.court.name}`,
             rightSided: true,
             variant: theme.secondaryPurple,
             Icon: icon !== "" ? icon : undefined,

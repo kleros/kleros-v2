@@ -181,6 +181,7 @@ type Round @entity {
   penalties: BigInt!
   drawnJurors: [Draw!]! @derivedFrom(field: "round")
   dispute: Dispute!
+  court: Court!
   feeToken: FeeToken
 }
 

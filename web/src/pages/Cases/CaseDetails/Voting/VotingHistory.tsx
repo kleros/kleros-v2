@@ -133,7 +133,8 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
                 ? "All jurors voted"
                 : localRounds.at(currentTab)?.totalVoted.toString() +
                   ` vote${localRounds.at(currentTab)?.totalVoted.toString() === "1" ? "" : "s"} cast out of ` +
-                  rounds.at(currentTab)?.nbVotes}
+                  rounds.at(currentTab)?.nbVotes}{" "}
+              - {rounds.at(currentTab)?.court.name}
             </p>
           </StyledBox>
           <StyledAccordion
