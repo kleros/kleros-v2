@@ -25,6 +25,8 @@ dataSources:
         - DisputeKit
         - Counter
       abis:
+        - name: SortitionModule
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/SortitionModule.json
         - name: DisputeKitClassic
           file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
         - name: KlerosCore
