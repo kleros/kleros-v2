@@ -5387,7 +5387,7 @@ __metadata:
     solidity-coverage: 0.8.2
     ts-node: ^10.9.2
     typechain: ^8.3.2
-    typescript: ^4.9.5
+    typescript: ^5.3.3
   languageName: unknown
   linkType: soft
 
@@ -5406,7 +5406,7 @@ __metadata:
     eslint-plugin-promise: ^5.2.0
     eslint-plugin-security: ^1.7.1
     eslint-utils: ^3.0.0
-    typescript: ^4.9.5
+    typescript: ^5.3.3
   peerDependencies:
     eslint: 8.x
   languageName: unknown
@@ -5506,8 +5506,8 @@ __metadata:
     react-use: ^17.4.0
     styled-components: ^5.3.9
     supabase: ^1.102.2
-    typescript: ^4.9.5
-    viem: ^1.20.3
+    typescript: ^5.3.3
+    viem: ^1.21.1
     wagmi: ^1.4.12
   languageName: unknown
   linkType: soft
@@ -31730,13 +31730,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.9.5":
-  version: 4.9.5
-  resolution: "typescript@npm:4.9.5"
+"typescript@npm:^5.3.3":
+  version: 5.3.3
+  resolution: "typescript@npm:5.3.3"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: ee000bc26848147ad423b581bd250075662a354d84f0e06eb76d3b892328d8d4440b7487b5a83e851b12b255f55d71835b008a66cbf8f255a11e4400159237db
+  checksum: 2007ccb6e51bbbf6fde0a78099efe04dc1c3dfbdff04ca3b6a8bc717991862b39fd6126c0c3ebf2d2d98ac5e960bcaa873826bb2bb241f14277034148f41f6a2
   languageName: node
   linkType: hard
 
@@ -31750,13 +31750,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.9.5#~builtin<compat/typescript>":
-  version: 4.9.5
-  resolution: "typescript@patch:typescript@npm%3A4.9.5#~builtin<compat/typescript>::version=4.9.5&hash=ad5954"
+"typescript@patch:typescript@^5.3.3#~builtin<compat/typescript>":
+  version: 5.3.3
+  resolution: "typescript@patch:typescript@npm%3A5.3.3#~builtin<compat/typescript>::version=5.3.3&hash=ad5954"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 8f6260acc86b56bfdda6004bc53f32ea548f543e8baef7071c8e34d29d292f3e375c8416556c8de10b24deef6933cd1c16a8233dc84a3dd43a13a13265d0faab
+  checksum: f61375590b3162599f0f0d5b8737877ac0a7bc52761dbb585d67e7b8753a3a4c42d9a554c4cc929f591ffcf3a2b0602f65ae3ce74714fd5652623a816862b610
   languageName: node
   linkType: hard
 
@@ -32469,9 +32469,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:^1.20.3":
-  version: 1.20.3
-  resolution: "viem@npm:1.20.3"
+"viem@npm:^1.21.1":
+  version: 1.21.1
+  resolution: "viem@npm:1.21.1"
   dependencies:
     "@adraffy/ens-normalize": 1.10.0
     "@noble/curves": 1.2.0
@@ -32486,7 +32486,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 92fffbc1715482969b6af7ac6df51cbd4cfe4e6d55226562eb0658a16b9a9b3df743c1ec1aebb63221b5117d4956fb2f71788bc06f6316d054ac402406614b31
+  checksum: ba6d296ce271e8068d0dd3cecfbe254cc046cda4acf9393f36045d1a60aa6c669b259dc82a09a3a100c8cb0930142906280782181f341b43496789239332cd9b
   languageName: node
   linkType: hard
 

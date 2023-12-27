@@ -63,17 +63,17 @@ function merge(arr1: ContractConfig[], arr2: ContractConfig[]) {
 }
 
 const getConfig = async (): Promise<Config> => {
-  const arbitrumGoerliContracts = await readArtifacts("arbitrumGoerli");
-  arbitrumGoerliContracts.forEach((c) => console.log("✔ Found arbitrumGoerli artifact: %s", c.name));
-  let contracts = arbitrumGoerliContracts;
+  const arbitrumSepoliaContracts = await readArtifacts("arbitrumSepolia", "arbitrumSepoliaDevnet");
+  arbitrumSepoliaContracts.forEach((c) => console.log("✔ Found arbitrumSepolia artifact: %s", c.name));
+  let contracts = arbitrumSepoliaContracts;
 
   const chiadoContracts = await readArtifacts("gnosisChiado", "chiado"); // renaming the Hardhat network improves this but breaks many other scripts
   chiadoContracts.forEach((c) => console.log("✔ Found chiado artifact: %s", c.name));
   contracts = merge(contracts, chiadoContracts);
 
-  const goerliContracts = await readArtifacts("goerli");
-  goerliContracts.forEach((c) => console.log("✔ Found goerli artifact: %s", c.name));
-  contracts = merge(contracts, goerliContracts);
+  const sepoliaContracts = await readArtifacts("sepolia");
+  sepoliaContracts.forEach((c) => console.log("✔ Found sepolia artifact: %s", c.name));
+  contracts = merge(contracts, sepoliaContracts);
 
   const arbitrumContracts = await readArtifacts("arbitrum");
   arbitrumContracts.forEach((c) => console.log("✔ Found arbitrum artifact: %s", c.name));

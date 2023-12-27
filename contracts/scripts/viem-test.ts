@@ -1,20 +1,20 @@
 import { createPublicClient, http, getContract } from "viem";
-import { arbitrumGoerli } from "viem/chains";
-import { homeGatewayToGnosisConfig } from "../viem/generated";
+import { arbitrumSepolia } from "viem/chains";
+import { disputeKitClassicConfig } from "../viem/generated";
 
 const main = async () => {
   const client = createPublicClient({
-    chain: arbitrumGoerli,
+    chain: arbitrumSepolia,
     transport: http(),
   });
 
-  const homeGateway = getContract({
-    address: homeGatewayToGnosisConfig.address[arbitrumGoerli.id],
-    abi: homeGatewayToGnosisConfig.abi,
+  const disputeKit = getContract({
+    address: disputeKitClassicConfig.address[arbitrumSepolia.id],
+    abi: disputeKitClassicConfig.abi,
     publicClient: client,
   });
 
-  await homeGateway.read.governor().then(console.log);
+  await disputeKit.read.governor().then(console.log);
 };
 
 main()
