@@ -10,7 +10,6 @@ import {
   RandomizerMock,
 } from "../../typechain-types";
 import { expect } from "chai";
-import { it } from "mocha";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */
