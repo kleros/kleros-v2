@@ -56,7 +56,8 @@
     "node-fetch": "^2.6.7",
     "underscore@npm^3.0.4": "^1.12.1",
     "eth-sig-util@npm:^1.4.2": "3.0.0",
-    "fast-xml-parser": "^4.2.5"
+    "fast-xml-parser": "^4.2.5",
+    "@babel/traverse:^7.22.5": "^7.23.6"
   },
   "scripts": {
     "check-prerequisites": "scripts/check-prerequisites.sh",
