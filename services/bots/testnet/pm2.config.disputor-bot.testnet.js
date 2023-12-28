@@ -5,7 +5,7 @@ module.exports = {
       interpreter: "sh",
       script: "yarn",
       args: "bot:disputor --network arbitrumSepolia",
-      restart_delay: 43200000, // 12 hours
+      restart_delay: 86400000, // 24 hours
       autorestart: true,
     },
   ],

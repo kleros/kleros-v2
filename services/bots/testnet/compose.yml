@@ -9,7 +9,7 @@ services:
       - type: bind
         source: ./pm2.config.keeper-bot.${DEPLOYMENT}.js
         target: /usr/src/app/contracts/ecosystem.config.js
-  
+
   disputor-bot:
     container_name: disputor-bot-${DEPLOYMENT:?error}
     extends:
