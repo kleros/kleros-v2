@@ -48,7 +48,7 @@
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "@kleros/kleros-v2-tsconfig": "workspace:^",
     "@netlify/functions": "^1.6.0",
-    "@parcel/transformer-svg-react": "2.8.3",
+    "@parcel/transformer-svg-react": "2.10.3",
     "@parcel/watcher": "~2.2.0",
     "@types/amqplib": "^0.10.4",
     "@types/busboy": "^1.5.3",
@@ -65,7 +65,7 @@
     "eslint-plugin-react": "^7.33.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "lru-cache": "^7.18.3",
-    "parcel": "2.8.3",
+    "parcel": "2.10.3",
     "supabase": "^1.102.2",
     "typescript": "^5.3.3"
   },
