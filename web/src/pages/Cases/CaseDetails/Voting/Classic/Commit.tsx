@@ -40,14 +40,18 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen }) => {
   const handleCommit = useCallback(
     async (choice: number) => {
       const message = { message: saltKey };
-      const salt = !isUndefined(signingAccount)
-        ? signingAccount.signMessage(message)
+      const rawSalt = !isUndefined(signingAccount)
+        ? await signingAccount.signMessage(message)
         : await (async () => {
             const account = await generateSigningAccount();
-            account!.signMessage(message);
+            return await account?.signMessage(message);
           })();
+
+      if (isUndefined(rawSalt)) return;
+
+      const salt = keccak256(rawSalt);
       setSalt(JSON.stringify({ salt, choice }));
-      const commit = keccak256(encodePacked([BigInt, String], [BigInt(choice), salt]));
+      const commit = keccak256(encodePacked(["uint256", "string"], [BigInt(choice), salt]));
       const { request } = await prepareWriteDisputeKitClassic({
         functionName: "castCommit",
         args: [parsedDisputeID, parsedVoteIDs, commit],
