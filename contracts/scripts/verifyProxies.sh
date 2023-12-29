@@ -20,10 +20,10 @@ function verify() { #deploymentDir #explorerApiUrl #apiKey
     done
 }
 
-. $SCRIPT_DIR/../.env
+apiKey=$($SCRIPT_DIR/dotenv.sh ARBISCAN_API_KEY)
 
-verify "$SCRIPT_DIR/../deployments/arbitrumGoerliDevnet" "https://api-testnet.arbiscan.io/api" $ARBISCAN_API_KEY
+verify "$SCRIPT_DIR/../deployments/arbitrumSepoliaDevnet" "https://api-sepolia.arbiscan.io/api" $apiKey
 echo
-verify "$SCRIPT_DIR/../deployments/arbitrumGoerli" "https://api-testnet.arbiscan.io/api" $ARBISCAN_API_KEY
+verify "$SCRIPT_DIR/../deployments/arbitrumSepolia" "https://api-sepolia.arbiscan.io/api" $apiKey
 echo
-verify "$SCRIPT_DIR/../deployments/arbitrum" "https://api.arbiscan.io/api" $ARBISCAN_API_KEY
+verify "$SCRIPT_DIR/../deployments/arbitrum" "https://api.arbiscan.io/api" $apiKey

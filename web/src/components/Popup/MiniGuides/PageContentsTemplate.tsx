@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import MainStructureTemplate from "./MainStructureTemplate";
+import { responsiveSize } from "styles/responsiveSize";
 
 export const ParagraphsContainer = styled.div`
   display: flex;
@@ -20,8 +21,7 @@ export const LeftContentContainer = styled.div`
 `;
 
 export const StyledImage = styled.div`
-  width: calc(260px + (460 - 260) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-
+  width: ${responsiveSize(260, 460)};
   ${landscapeStyle(
     () => css`
       width: 389px;

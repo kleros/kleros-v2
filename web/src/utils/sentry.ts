@@ -1,7 +1,7 @@
 import React from "react";
 import * as Sentry from "@sentry/react";
 import { Routes, createRoutesFromChildren, matchRoutes, useLocation, useNavigationType } from "react-router-dom";
-import { GIT_DIRTY, GIT_HASH, RELEASE_VERSION } from "../consts";
+import { GIT_DIRTY, GIT_HASH, RELEASE_VERSION } from "consts/index";
 
 Sentry.init({
   dsn: process.env.REACT_APP_SENTRY_ENDPOINT,

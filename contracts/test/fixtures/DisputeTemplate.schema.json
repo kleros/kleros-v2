@@ -324,7 +324,7 @@
       "default": "",
       "title": "The arbitratorChainID Schema",
       "examples": [
-        "421613"
+        "421614"
       ]
     },
     "arbitratorAddress": {

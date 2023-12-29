@@ -9,7 +9,7 @@ import {
   usePnkBalanceOf,
   usePnkIncreaseAllowance,
   usePreparePnkIncreaseAllowance,
-  useKlerosCoreGetJurorBalance,
+  useSortitionModuleGetJurorBalance,
   usePnkAllowance,
 } from "hooks/contracts/generated";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
@@ -48,7 +48,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     args: [address!],
     watch: true,
   });
-  const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
+  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
     enabled: !isUndefined(address),
     args: [address ?? "0x", BigInt(id ?? 0)],
     watch: true,
@@ -138,7 +138,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
           isUndefined(targetStake) ||
           isUndefined(courtDetails) ||
           checkDisabled() ||
-          (targetStake !== 0n && targetStake < BigInt(courtDetails.court.minStake)) ||
+          (targetStake !== 0n && targetStake < BigInt(courtDetails.court?.minStake)) ||
           (isStaking && !isAllowance && isUndefined(setStakeConfig.request))
         }
         onClick={onClick}

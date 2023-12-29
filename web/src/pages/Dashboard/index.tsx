@@ -11,13 +11,12 @@ import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
 import JurorInfo from "./JurorInfo";
 import Courts from "./Courts";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
-  padding: calc(24px + (136 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-top: calc(32px + (80 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-bottom: calc(76px + (96 - 76) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: ${responsiveSize(32, 80)} ${responsiveSize(24, 136)} ${responsiveSize(76, 96)};
   max-width: 1780px;
   margin: 0 auto;
 `;
@@ -26,7 +25,7 @@ const StyledCasesDisplay = styled(CasesDisplay)`
   margin-top: 64px;
 
   h1 {
-    margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+    margin-bottom: ${responsiveSize(16, 48)};
   }
 `;
 

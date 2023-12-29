@@ -6,12 +6,20 @@ on:
       network:
         description: The network to deploy the subgraph to
         required: true
-        default: 'arbitrum-goerli'
+        default: 'arbitrum-sepolia'
         type: choice
         options:
-          - arbitrum-goerli-devnet
-          - arbitrum-goerli
+          - arbitrum-sepolia-devnet
+          - arbitrum-sepolia
           - arbitrum
+      subgraph:
+        description: The name of the subgraph to deploy
+        required: true
+        default: 'core'
+        type: choice
+        options:
+          - core
+          - drt
       update:
         description: Whether to update the subgraph with the current artifacts for the selected network.
         required: true
@@ -58,13 +66,13 @@ jobs:
         if: ${{ inputs.update }}
         run: |
           export PATH=$PWD/../bin:$PATH
-          yarn update:${{ inputs.network }}
+          yarn update:${{ inputs.subgraph }}:${{ inputs.network }}
         working-directory: subgraph
 
       - name: Build the subgraph
         run: |
-          yarn codegen
-          yarn build
+          yarn codegen:${{ inputs.subgraph }}
+          yarn build:${{ inputs.subgraph }}
         working-directory: subgraph
         
       - name: Authenticate with TheGraph
@@ -72,5 +80,5 @@ jobs:
         working-directory: subgraph
 
       - name: Deploy the subgraph
-        run: yarn deploy:${{ inputs.network }}
+        run: yarn deploy:${{ inputs.subgraph }}:${{ inputs.network }}
         working-directory: subgraph

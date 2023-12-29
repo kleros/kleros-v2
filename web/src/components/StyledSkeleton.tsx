@@ -2,6 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import Skeleton from "react-loading-skeleton";
+import { responsiveSize } from "styles/responsiveSize";
 
 export const StyledSkeleton = styled(Skeleton)`
   z-index: 0;
@@ -24,7 +25,7 @@ const SkeletonDisputeCardContainer = styled.div`
 `;
 
 const StyledSkeletonDisputeCard = styled(Skeleton)`
-  height: calc(272px + (296 - 270) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  height: ${responsiveSize(270, 296)};
 `;
 
 const StyledSkeletonDisputeListItem = styled(Skeleton)`

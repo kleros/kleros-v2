@@ -1,30 +1,14 @@
 import request from "graphql-request";
+import { arbitrumSepolia } from "wagmi/chains";
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
 
-const DEPLOYMENT = process.env.REACT_APP_DEPLOYMENT?.toUpperCase() ?? "TESTNET";
-
-const DEPLOYMENTS_TO_KLEROS_CORE_SUBGRAPHS = {
-  MAINNET: process.env.REACT_APP_KLEROS_CORE_SUBGRAPH_MAINNET,
-  TESTNET: process.env.REACT_APP_KLEROS_CORE_SUBGRAPH_TESTNET,
-  DEVNET: process.env.REACT_APP_KLEROS_CORE_SUBGRAPH_DEVNET,
-};
-
-const DEPLOYMENTS_TO_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPHS = {
-  MAINNET: process.env.REACT_APP_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPH_MAINNET,
-  TESTNET: process.env.REACT_APP_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPH_TESTNET,
-  DEVNET: process.env.REACT_APP_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPH_DEVNET,
-};
-
 const CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH = {
-  421613:
-    DEPLOYMENTS_TO_DISPUTE_TEMPLATE_ARBGOERLI_SUBGRAPHS[DEPLOYMENT] ??
-    "https://api.thegraph.com/subgraphs/name/alcercu/disputetemplateregistryarbgrli",
+  [arbitrumSepolia.id]:
+    process.env.REACT_APP_DRT_ARBSEPOLIA_SUBGRAPH ?? "Wrong Subgraph URL. Please check the environment variables.",
 };
 
-export const graphqlUrl = (isDisputeTemplate = false, chainId = 421613) => {
-  const coreUrl =
-    DEPLOYMENTS_TO_KLEROS_CORE_SUBGRAPHS[DEPLOYMENT] ??
-    "https://api.thegraph.com/subgraphs/name/alcercu/kleroscoretest";
+export const graphqlUrl = (isDisputeTemplate = false, chainId = arbitrumSepolia.id) => {
+  const coreUrl = process.env.REACT_APP_CORE_SUBGRAPH ?? "Wrong Subgraph URL. Please check the environment variables.";
   return isDisputeTemplate ? CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH[chainId] : coreUrl;
 };
 
@@ -32,7 +16,7 @@ export const graphqlQueryFnHelper = async (
   query: TypedDocumentNode<any, any>,
   parametersObject: Record<string, any>,
   isDisputeTemplate = false,
-  chainId = 421613
+  chainId = arbitrumSepolia.id
 ) => {
   const url = graphqlUrl(isDisputeTemplate, chainId);
   return request(url, query, parametersObject);

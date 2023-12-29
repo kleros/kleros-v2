@@ -15,7 +15,7 @@
   ],
   "policyURI": "/ipfs/Qmdvk...rSD6cE/policy.pdf",
   "frontendUrl": "https://kleros-v2.netlify.app/#/cases/%s/overview",
-  "arbitratorChainID": "421613",
+  "arbitratorChainID": "421614",
   "arbitratorAddress": "0xD08Ab99480d02bf9C092828043f611BcDFEA917b",
   "category": "Others",
   "specification": "KIP001",

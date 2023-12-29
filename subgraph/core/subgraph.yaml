@@ -1,0 +1,163 @@
+specVersion: 0.0.4
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: KlerosCore
+    network: arbitrum-sepolia
+    source:
+      address: "0xA54e7A16d7460e38a8F324eF46782FB520d58CE8"
+      abi: KlerosCore
+      startBlock: 3638878
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - Arbitrable
+        - TokenAndETHShift
+        - JurorTokensPerCourt
+        - Court
+        - Dispute
+        - Round
+        - Draw
+        - DisputeKit
+        - Counter
+      abis:
+        - name: SortitionModule
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/SortitionModule.json
+        - name: DisputeKitClassic
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
+        - name: KlerosCore
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
+      eventHandlers:
+        - event: AppealDecision(indexed uint256,indexed address)
+          handler: handleAppealDecision
+        - event: DisputeCreation(indexed uint256,indexed address)
+          handler: handleDisputeCreation
+        - event: Draw(indexed address,indexed uint256,uint256,uint256)
+          handler: handleDraw
+        - event: NewPeriod(indexed uint256,uint8)
+          handler: handleNewPeriod
+        - event: CourtCreated(indexed uint256,indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4],uint256[])
+          handler: handleCourtCreated
+        - event: CourtModified(indexed uint96,bool,uint256,uint256,uint256,uint256,uint256[4])
+          handler: handleCourtModified
+        - event: DisputeKitCreated(indexed uint256,indexed address)
+          handler: handleDisputeKitCreated
+        - event: DisputeKitEnabled(indexed uint96,indexed uint256,indexed bool)
+          handler: handleDisputeKitEnabled
+        - event: TokenAndETHShift(indexed address,indexed uint256,indexed uint256,uint256,int256,int256,address)
+          handler: handleTokenAndETHShift
+        - event: Ruling(indexed address,indexed uint256,uint256)
+          handler: handleRuling
+        - event: AcceptedFeeToken(indexed address,indexed bool)
+          handler: handleAcceptedFeeToken
+        - event: CourtJump(indexed uint256,indexed uint256,indexed uint96,uint96)
+          handler: handleCourtJump
+      file: ./src/KlerosCore.ts
+  - kind: ethereum
+    name: PolicyRegistry
+    network: arbitrum-sepolia
+    source:
+      address: "0x2AC2EdFD336732bc6963f1AD03ED98B22dB949da"
+      abi: PolicyRegistry
+      startBlock: 3084568
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Court
+      abis:
+        - name: PolicyRegistry
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/PolicyRegistry.json
+      eventHandlers:
+        - event: PolicyUpdate(indexed uint256,string,string)
+          handler: handlePolicyUpdate
+      file: ./src/PolicyRegistry.ts
+  - kind: ethereum
+    name: DisputeKitClassic
+    network: arbitrum-sepolia
+    source:
+      address: "0x9426F127116C3652A262AE1eA48391AC8F44D35b"
+      abi: DisputeKitClassic
+      startBlock: 3638835
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - ClassicDispute
+        - ClassicRound
+        - ClassicVote
+        - ClassicContribution
+      abis:
+        - name: DisputeKitClassic
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeKitClassic.json
+        - name: KlerosCore
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/KlerosCore.json
+      eventHandlers:
+        - event: DisputeCreation(indexed uint256,uint256,bytes)
+          handler: handleDisputeCreation
+        - event: Contribution(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleContributionEvent
+        - event: Withdrawal(indexed uint256,indexed uint256,uint256,indexed address,uint256)
+          handler: handleWithdrawal
+        - event: ChoiceFunded(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleChoiceFunded
+        - event: VoteCast(indexed uint256,indexed address,uint256[],indexed uint256,string)
+          handler: handleVoteCast
+        - event: CommitCast(indexed uint256,indexed address,uint256[],bytes32)
+          handler: handleCommitCast
+      file: ./src/DisputeKitClassic.ts
+  - kind: ethereum
+    name: EvidenceModule
+    network: arbitrum-sepolia
+    source:
+      address: "0x57fd453FB0d16f8ca174E7386102D7170E17Be09"
+      abi: EvidenceModule
+      startBlock: 3638735
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - ClassicEvidenceGroup
+        - ClassicEvidence
+      abis:
+        - name: EvidenceModule
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/EvidenceModule.json
+      eventHandlers:
+        - event: Evidence(indexed uint256,indexed address,string)
+          handler: handleEvidenceEvent
+      file: ./src/EvidenceModule.ts
+  - kind: ethereum
+    name: SortitionModule
+    network: arbitrum-sepolia
+    source:
+      address: "0x19cb28BAB40C3585955798f5EEabd71Eec14471C"
+      abi: SortitionModule
+      startBlock: 3638850
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - JurorTokensPerCourt
+      abis:
+        - name: SortitionModule
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/SortitionModule.json
+      eventHandlers:
+        - event: StakeDelayedAlreadyTransferred(indexed address,uint256,uint256)
+          handler: handleStakeDelayedAlreadyTransferred
+        - event: StakeDelayedAlreadyTransferredWithdrawn(indexed address,indexed uint96,uint256)
+          handler: handleStakeDelayedAlreadyTransferredWithdrawn
+        - event: StakeDelayedNotTransferred(indexed address,uint256,uint256)
+          handler: handleStakeDelayedNotTransferred
+        - event: StakeLocked(indexed address,uint256,bool)
+          handler: handleStakeLocked
+        - event: StakeSet(indexed address,uint256,uint256)
+          handler: handleStakeSet
+      file: ./src/SortitionModule.ts

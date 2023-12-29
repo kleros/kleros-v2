@@ -12,7 +12,9 @@ const Container = styled.div`
 
   ${landscapeStyle(
     () => css`
-      width: calc(16px + (24 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+      display: flex;
+      align-items: center;
+      justify-content: start;
       &::before {
         display: none;
       }

@@ -1,0 +1,24 @@
+specVersion: 0.0.4
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: DisputeTemplateRegistry
+    network: arbitrum-sepolia
+    source:
+      address: "0x596D3B09E684D62217682216e9b7a0De75933391"
+      abi: DisputeTemplateRegistry
+      startBlock: 3639191
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - DisputeTemplate
+      abis:
+        - name: DisputeTemplateRegistry
+          file: ../../contracts/deployments/arbitrumSepoliaDevnet/DisputeTemplateRegistry.json
+      eventHandlers:
+        - event: DisputeTemplate(indexed uint256,indexed string,string,string)
+          handler: handleDisputeTemplate
+      file: src/DisputeTemplateRegistry.ts

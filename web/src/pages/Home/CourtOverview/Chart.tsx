@@ -5,9 +5,10 @@ import { DropdownSelect } from "@kleros/ui-components-library";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import { formatUnits } from "viem";
 import { useHomePageContext } from "hooks/useHomePageContext";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
-  margin-bottom: calc(32px + (48 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-bottom: ${responsiveSize(32, 48)};
   display: flex;
   flex-direction: column;
 `;

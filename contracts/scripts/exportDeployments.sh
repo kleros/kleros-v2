@@ -8,10 +8,10 @@ function exportJson() { #network
     yarn deploy --tags nop --network $network --export deployments/deployments.${network}.json --no-compile
 }
 
-exportJson arbitrumGoerli
-exportJson arbitrumGoerliDevnet
-exportJson goerli
-exportJson goerliDevnet
+exportJson arbitrumSepolia
+exportJson arbitrumSepoliaDevnet
+exportJson sepolia
+exportJson sepoliaDevnet
 exportJson chiado
 exportJson chiadoDevnet
 exportJson arbitrum

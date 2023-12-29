@@ -1,11 +1,11 @@
 module.exports = {
   apps: [
     {
-      name: "relayer-bot-from-goerli-devnet",
+      name: "relayer-bot-from-sepolia-devnet",
       interpreter: "sh",
       script: "yarn",
-      args: "bot:relayer-from-goerli --network arbitrumGoerliDevnet",
-      restart_delay: 5000,
+      args: "bot:relayer-from-sepolia --network arbitrumSepoliaDevnet",
+      restart_delay: 5000, // 5 seconds
       autorestart: true,
     },
   ],

@@ -1,23 +1,36 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { SkeletonDisputeListItem } from "components/StyledSkeleton";
 import Header from "./Header";
 import JurorCard from "./JurorCard";
 import { isUndefined } from "utils/index";
 import { useTopUsersByCoherenceScore } from "queries/useTopUsersByCoherenceScore";
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
-  margin-top: calc(64px + (80 - 64) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-top: ${responsiveSize(64, 80)};
 `;
 
 const Title = styled.h1`
-  margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-bottom: ${responsiveSize(16, 48)};
 `;
 
 const ListContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
+
+  ${landscapeStyle(
+    () => css`
+      display: grid;
+      grid-template-columns: 1fr;
+    `
+  )}
+`;
+
+const StyledLabel = styled.label`
+  font-size: 16px;
 `;
 
 const TopJurors: React.FC = () => {
@@ -31,12 +44,16 @@ const TopJurors: React.FC = () => {
   return (
     <Container>
       <Title>Top Jurors</Title>
-      <ListContainer>
-        <Header />
-        {!isUndefined(topJurors)
-          ? topJurors.map((juror) => <JurorCard key={juror.rank} address={juror.id} {...juror} />)
-          : [...Array(5)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
-      </ListContainer>
+      {!isUndefined(topJurors) && topJurors.length === 0 ? (
+        <StyledLabel>There are no jurors staked yet.</StyledLabel>
+      ) : (
+        <ListContainer>
+          <Header />
+          {!isUndefined(topJurors)
+            ? topJurors.map((juror) => <JurorCard key={juror.rank} address={juror.id} {...juror} />)
+            : [...Array(5)].map((_, i) => <SkeletonDisputeListItem key={i} />)}
+        </ListContainer>
+      )}
     </Container>
   );
 };

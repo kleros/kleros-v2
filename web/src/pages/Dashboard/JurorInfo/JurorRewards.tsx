@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useAccount } from "wagmi";
 import TokenRewards from "./TokenRewards";
-import WithHelpTooltip from "../WithHelpTooltip";
+import WithHelpTooltip from "components/WithHelpTooltip";
 import { getFormattedRewards } from "utils/jurorRewardConfig";
 import { CoinIds } from "consts/coingecko";
 import { useUserQuery } from "queries/useUser";

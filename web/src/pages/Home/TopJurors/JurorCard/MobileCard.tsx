@@ -2,7 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import Coherency from "./Coherency";
-import HowItWorks from "./HowItWorks";
+import JurorLevel from "./JurorLevel";
 import JurorTitle from "./JurorTitle";
 import Rank from "./Rank";
 import Rewards from "./Rewards";
@@ -61,7 +61,7 @@ const HeaderCoherencyAndCoherency = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 3px;
+  gap: 5px;
 
   svg {
     margin-right: 0;
@@ -84,7 +84,7 @@ const MobileCard: React.FC<IMobileCard> = ({ rank, address, coherenceScore, tota
           <Rank rank={rank} />
           <JurorTitle address={address} />
         </RankAndTitle>
-        <HowItWorks coherenceScore={coherenceScore} />
+        <JurorLevel coherenceScore={coherenceScore} />
       </TopSide>
       <BottomSide>
         <HeaderRewardsAndRewards>

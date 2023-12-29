@@ -1,0 +1,93 @@
+{
+  "address": "0x19cb28BAB40C3585955798f5EEabd71Eec14471C",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_implementation",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_data",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ],
+  "transactionHash": "0x6b82e5e6e508a7995dc9f85efaf52e02cece2d3a3d21d48f09551e33c1f8fd53",
+  "receipt": {
+    "to": null,
+    "from": "0xf1C7c037891525E360C59f708739Ac09A7670c59",
+    "contractAddress": "0x19cb28BAB40C3585955798f5EEabd71Eec14471C",
+    "transactionIndex": 2,
+    "gasUsed": "4675242",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000080000000800000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x857666f5788ef3b02fdc024472ba4f415ecc2b99bfb574382311c73be9c019ae",
+    "transactionHash": "0x6b82e5e6e508a7995dc9f85efaf52e02cece2d3a3d21d48f09551e33c1f8fd53",
+    "logs": [
+      {
+        "transactionIndex": 2,
+        "blockNumber": 3638850,
+        "transactionHash": "0x6b82e5e6e508a7995dc9f85efaf52e02cece2d3a3d21d48f09551e33c1f8fd53",
+        "address": "0x19cb28BAB40C3585955798f5EEabd71Eec14471C",
+        "topics": [
+          "0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "logIndex": 0,
+        "blockHash": "0x857666f5788ef3b02fdc024472ba4f415ecc2b99bfb574382311c73be9c019ae"
+      }
+    ],
+    "blockNumber": 3638850,
+    "cumulativeGasUsed": "5561170",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0xBC82B29e5aE8a749D82b7919118Ab7C0D41fA3D3",
+    "0x54812d17000000000000000000000000f1c7c037891525e360c59f708739ac09a7670c59000000000000000000000000a54e7a16d7460e38a8f324ef46782fb520d58ce800000000000000000000000000000000000000000000000000000000000000b40000000000000000000000000000000000000000000000000000000000000258000000000000000000000000a995c172d286f8f4ee137cc662e2844e59cf48360000000000000000000000000000000000000000000000000000000000000014"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "4ee8a1f2013c130bec1668c5304bc76a",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.18+commit.87f61d96\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_implementation\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"author\":\"Simon Malatrait <simon.malatrait@grenoble-inp.org>\",\"details\":\"This contract implements a UUPS Proxy compliant with ERC-1967 & ERC-1822.This contract delegates all calls to another contract (UUPS Proxiable) through a fallback function and the use of the `delegatecall` EVM instruction.We refer to the Proxiable contract (as per ERC-1822) with `implementation`.\",\"kind\":\"dev\",\"methods\":{\"constructor\":{\"details\":\"Initializes the upgradeable proxy with an initial implementation specified by `_implementation`. If `_data` is nonempty, it's used as data in a delegate call to `_implementation`. This will typically be an encoded function call, and allows initializing the storage of the proxy like a Solidity constructor.\"}},\"stateVariables\":{\"IMPLEMENTATION_SLOT\":{\"details\":\"Storage slot with the address of the current implementation. This is the keccak-256 hash of \\\"eip1967.proxy.implementation\\\" subtracted by 1, and is validated in the constructor. NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)\"}},\"title\":\"UUPS Proxy\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/proxy/UUPSProxy.sol\":\"UUPSProxy\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"src/proxy/UUPSProxy.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\n// Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/ERC1967/ERC1967Proxy.sol>\\n\\n/**\\n *  @authors: [@malatrax]\\n *  @reviewers: []\\n *  @auditors: []\\n *  @bounties: []\\n *  @deployments: []\\n */\\npragma solidity 0.8.18;\\n\\n/**\\n * @title UUPS Proxy\\n * @author Simon Malatrait <simon.malatrait@grenoble-inp.org>\\n * @dev This contract implements a UUPS Proxy compliant with ERC-1967 & ERC-1822.\\n * @dev This contract delegates all calls to another contract (UUPS Proxiable) through a fallback function and the use of the `delegatecall` EVM instruction.\\n * @dev We refer to the Proxiable contract (as per ERC-1822) with `implementation`.\\n */\\ncontract UUPSProxy {\\n    /**\\n     * @dev Storage slot with the address of the current implementation.\\n     * This is the keccak-256 hash of \\\"eip1967.proxy.implementation\\\" subtracted by 1, and is\\n     * validated in the constructor.\\n     * NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)\\n     */\\n    bytes32 private constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;\\n\\n    // ************************************* //\\n    // *            Constructor            * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Initializes the upgradeable proxy with an initial implementation specified by `_implementation`.\\n     *\\n     * If `_data` is nonempty, it's used as data in a delegate call to `_implementation`. This will typically be an encoded\\n     * function call, and allows initializing the storage of the proxy like a Solidity constructor.\\n     */\\n    constructor(address _implementation, bytes memory _data) {\\n        assembly {\\n            sstore(IMPLEMENTATION_SLOT, _implementation)\\n        }\\n\\n        if (_data.length != 0) {\\n            (bool success, ) = _implementation.delegatecall(_data);\\n            require(success, \\\"Proxy Constructor failed\\\");\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Delegates the current call to `implementation`.\\n     *\\n     * NOTE: This function does not return to its internal call site, it will return directly to the external caller.\\n     */\\n    function _delegate(address implementation) internal {\\n        assembly {\\n            // Copy msg.data. We take full control of memory in this inline assembly\\n            // block because it will not return to Solidity code. We overwrite the\\n            // Solidity scratch pad at memory position 0.\\n            calldatacopy(0, 0, calldatasize())\\n\\n            // Call the implementation.\\n            // out and outsize are 0 because we don't know the size yet.\\n            let result := delegatecall(gas(), implementation, 0, calldatasize(), 0, 0)\\n\\n            // Copy the returned data.\\n            returndatacopy(0, 0, returndatasize())\\n\\n            switch result\\n            // delegatecall returns 0 on error.\\n            case 0 {\\n                revert(0, returndatasize())\\n            }\\n            default {\\n                return(0, returndatasize())\\n            }\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Internal Views            * //\\n    // ************************************* //\\n\\n    function _getImplementation() internal view returns (address implementation) {\\n        assembly {\\n            implementation := sload(IMPLEMENTATION_SLOT)\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Fallback                * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if no other\\n     * function in the contract matches the call data.\\n     */\\n    fallback() external payable {\\n        _delegate(_getImplementation());\\n    }\\n\\n    receive() external payable {\\n        _delegate(_getImplementation());\\n    }\\n}\\n\",\"keccak256\":\"0xb42b4da7d7d4de880da62538361fe7ca2aca28577880e53bafa8d07eb9a08c48\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506040516102fe3803806102fe83398101604081905261002f9161014d565b817f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc55805160001461010c576000826001600160a01b031682604051610075919061021b565b600060405180830381855af49150503d80600081146100b0576040519150601f19603f3d011682016040523d82523d6000602084013e6100b5565b606091505b505090508061010a5760405162461bcd60e51b815260206004820152601860248201527f50726f787920436f6e7374727563746f72206661696c65640000000000000000604482015260640160405180910390fd5b505b5050610237565b634e487b7160e01b600052604160045260246000fd5b60005b8381101561014457818101518382015260200161012c565b50506000910152565b6000806040838503121561016057600080fd5b82516001600160a01b038116811461017757600080fd5b60208401519092506001600160401b038082111561019457600080fd5b818501915085601f8301126101a857600080fd5b8151818111156101ba576101ba610113565b604051601f8201601f19908116603f011681019083821181831017156101e2576101e2610113565b816040528281528860208487010111156101fb57600080fd5b61020c836020830160208801610129565b80955050505050509250929050565b6000825161022d818460208701610129565b9190910192915050565b60b9806102456000396000f3fe608060405236603757603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b6060565b005b603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b3660008037600080366000845af43d6000803e808015607e573d6000f35b3d6000fdfea26469706673582212207d50a904496089f6052d7370a78231ed4755a18daf824e0c243ac9c9c2a3b9ae64736f6c63430008120033",
+  "deployedBytecode": "0x608060405236603757603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b6060565b005b603560317f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b3660008037600080366000845af43d6000803e808015607e573d6000f35b3d6000fdfea26469706673582212207d50a904496089f6052d7370a78231ed4755a18daf824e0c243ac9c9c2a3b9ae64736f6c63430008120033",
+  "devdoc": {
+    "author": "Simon Malatrait <simon.malatrait@grenoble-inp.org>",
+    "details": "This contract implements a UUPS Proxy compliant with ERC-1967 & ERC-1822.This contract delegates all calls to another contract (UUPS Proxiable) through a fallback function and the use of the `delegatecall` EVM instruction.We refer to the Proxiable contract (as per ERC-1822) with `implementation`.",
+    "kind": "dev",
+    "methods": {
+      "constructor": {
+        "details": "Initializes the upgradeable proxy with an initial implementation specified by `_implementation`. If `_data` is nonempty, it's used as data in a delegate call to `_implementation`. This will typically be an encoded function call, and allows initializing the storage of the proxy like a Solidity constructor."
+      }
+    },
+    "stateVariables": {
+      "IMPLEMENTATION_SLOT": {
+        "details": "Storage slot with the address of the current implementation. This is the keccak-256 hash of \"eip1967.proxy.implementation\" subtracted by 1, and is validated in the constructor. NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)"
+      }
+    },
+    "title": "UUPS Proxy",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
