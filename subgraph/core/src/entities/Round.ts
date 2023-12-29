@@ -20,7 +20,7 @@ export function createRoundFromRoundInfo(
   round.repartitions = roundInfo.repartitions;
   round.penalties = roundInfo.pnkPenalties;
   round.dispute = disputeID.toString();
-  const courtID = contract.disputes(disputeID);
-  round.court = courtID.value0.toString();
+  const courtID = contract.disputes(disputeID).value0.toString();
+  round.court = courtID;
   round.save();
 }
