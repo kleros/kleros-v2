@@ -14,6 +14,7 @@ import Cases from "./pages/Cases";
 import Dashboard from "./pages/Dashboard";
 import Courts from "./pages/Courts";
 import DisputeTemplateView from "./pages/DisputeTemplateView";
+import DisputeResolver from "./pages/Resolver";
 
 const App: React.FC = () => {
   return (
@@ -29,6 +30,7 @@ const App: React.FC = () => {
                 <Route path="courts/*" element={<Courts />} />
                 <Route path="dashboard/:page/:order/:filter" element={<Dashboard />} />
                 <Route path="disputeTemplate" element={<DisputeTemplateView />} />
+                <Route path="resolver/*" element={<DisputeResolver />} />
                 <Route path="*" element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>} />
               </Route>
             </SentryRoutes>

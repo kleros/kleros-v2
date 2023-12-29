@@ -43,10 +43,10 @@ interface IAnswer {
 
 interface IDisputeTemplate {
   answers: IAnswer[];
-  arbitrableAddress: string;
-  arbitrableChainID: string;
-  arbitratorAddress: string;
-  arbitratorChainID: string;
+  arbitrableAddress?: string;
+  arbitrableChainID?: string;
+  arbitratorAddress?: string;
+  arbitratorChainID?: string;
   category?: string;
   description: string;
   frontendUrl?: string;
