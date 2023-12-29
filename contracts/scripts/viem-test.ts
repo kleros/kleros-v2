@@ -1,6 +1,6 @@
 import { createPublicClient, http, getContract } from "viem";
 import { arbitrumSepolia } from "viem/chains";
-import { disputeKitClassicConfig } from "../deployments/arbitrumSepoliaDevnet.viem";
+import { disputeKitClassicConfig } from "../deployments/devnet.viem";
 
 const main = async () => {
   const client = createPublicClient({

@@ -16,7 +16,7 @@ const getConfig = async (): Promise<Config> => {
   contracts = merge(contracts, sepoliaContracts);
 
   return {
-    out: "deployments/arbitrumSepolia.viem.ts",
+    out: "deployments/testnet.viem.ts",
     contracts: [
       ...contracts,
       {
