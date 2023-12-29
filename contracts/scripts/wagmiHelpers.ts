@@ -30,7 +30,7 @@ export const readArtifacts = async (viemChainName: string, hardhatChainName?: st
       const fileContent = await readFile(filePath, "utf-8");
       const jsonContent = JSON.parse(fileContent);
       results.push({
-        name: name,
+        name,
         address: {
           [chain.id]: jsonContent.address as `0x{string}`,
         },
