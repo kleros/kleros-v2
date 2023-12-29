@@ -3,7 +3,7 @@ import { hardhat } from "@wagmi/cli/plugins";
 
 // Useful for contracts which are not deployed yet
 export default defineConfig({
-  out: "viem/generated.hardhat.ts",
+  out: "deployments/hardhat.viem.ts",
   plugins: [
     hardhat({
       project: ".",

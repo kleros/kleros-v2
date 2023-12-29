@@ -14,6 +14,10 @@
     "node": "16.20.2",
     "yarn": "3.7.0"
   },
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
   "scripts": {
     "build": "hardhat compile",
     "clean": "hardhat clean",
@@ -29,6 +33,9 @@
     "viem:generate-testnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.testnet.ts",
     "viem:generate-mainnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.mainnet.ts",
     "viem:generate-hardhat": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.hardhat.ts",
+    "export:devnet": "yarn hardhat export --export deployments/arbitrumSepoliaDevnet.ts --network arbitrumSepoliaDevnet",
+    "export:testnet": "yarn hardhat export --export deployments/arbitrumSepolia.ts --network arbitrumSepolia",
+    "export:mainnet": "yarn hardhat export --export deployments/arbitrum.ts --network arbitrum",
     "viem:test": "NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-fetch ts-node ./scripts/viem-test.ts",
     "bot:keeper": "NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-fetch hardhat run ./scripts/keeperBot.ts",
     "bot:relayer-from-chiado": "NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-fetch hardhat run ./scripts/disputeRelayerBotFromChiado.ts",
@@ -43,7 +50,9 @@
     "docgen": "hardhat docgen",
     "docserve": "scripts/docPreprocess.sh && forge doc --serve",
     "docbuild": "scripts/docPreprocess.sh && forge doc --build --out dist && scripts/docPostprocess.sh",
-    "publish": "yarn npm publish --access public --tag $(cat package.json | jq .version)",
+    "release:patch": "scripts/publish.sh patch",
+    "release:minor": "scripts/publish.sh minor",
+    "release:major": "scripts/publish.sh major",
     "tenderly-verify": "hardhat tenderly:verify"
   },
   "devDependencies": {

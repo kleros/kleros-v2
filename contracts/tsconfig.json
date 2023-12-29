@@ -5,8 +5,7 @@
     "./scripts",
     "./test",
     "./typechain-types",
-    "./deploy",
-    "./viem"
+    "./deploy"
   ],
   "files": [
     "./hardhat.config.ts"
