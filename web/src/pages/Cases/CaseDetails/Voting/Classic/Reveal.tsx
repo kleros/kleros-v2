@@ -31,8 +31,9 @@ const getSaltAndChoice = async (
     ? await signingAccount.signMessage(message)
     : await (async () => {
         const account = await generateSigningAccount();
-        return await account!.signMessage(message);
+        return await account?.signMessage(message);
       })();
+  if (isUndefined(rawSalt)) return;
   const salt = keccak256(rawSalt);
   const { choice } = answers.reduce<{ found: boolean; choice: number }>(
     (acc, _, i) => {
@@ -76,6 +77,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit }) =
     const { salt, choice } = isUndefined(storedSaltAndChoice)
       ? await getSaltAndChoice(signingAccount, generateSigningAccount, saltKey, disputeTemplate.answers, commit)
       : JSON.parse(storedSaltAndChoice);
+    if (isUndefined(choice)) return;
     const { request } = await prepareWriteDisputeKitClassic({
       functionName: "castVote",
       args: [parsedDisputeID, parsedVoteIDs, BigInt(choice), BigInt(salt), justification],
