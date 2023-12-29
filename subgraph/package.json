@@ -41,8 +41,8 @@
     "stop-local-indexer": "docker compose -f ../services/graph-node/docker-compose.yml down && rm -rf ../services/graph-node/data"
   },
   "volta": {
-    "node": "16.20.1",
-    "yarn": "3.3.1"
+    "node": "16.20.2",
+    "yarn": "3.7.0"
   },
   "dependencies": {
     "@graphprotocol/graph-ts": "^0.32.0"

@@ -21,7 +21,7 @@
     "styles": "./src/styles",
     "svgs": "./src/assets/svgs"
   },
-  "packageManager": "yarn@3.3.1",
+  "packageManager": "yarn@3.7.0",
   "scripts": {
     "clear": "rm -fr ../.parcel-cache dist/bundle.js",
     "start": "yarn start-devnet",
@@ -108,7 +108,7 @@
     "wagmi": "^1.4.12"
   },
   "volta": {
-    "node": "16.20.1",
-    "yarn": "3.3.1"
+    "node": "16.20.2",
+    "yarn": "3.7.0"
   }
 }
