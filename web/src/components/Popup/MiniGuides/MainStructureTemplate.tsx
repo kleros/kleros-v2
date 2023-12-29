@@ -5,6 +5,7 @@ import { CompactPagination } from "@kleros/ui-components-library";
 import { Overlay } from "components/Overlay";
 import BookOpenIcon from "tsx:assets/svgs/icons/book-open.svg";
 import { useFocusOutside } from "hooks/useFocusOutside";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div<{ isVisible: boolean }>`
   display: ${({ isVisible }) => (isVisible ? "flex" : "none")};
@@ -24,7 +25,7 @@ const Container = styled.div<{ isVisible: boolean }>`
     () => css`
       overflow-y: hidden;
       top: 50%;
-      width: calc(700px + (900 - 700) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+      width: ${responsiveSize(700, 900)};
       flex-direction: row;
       height: 500px;
     `
@@ -35,7 +36,7 @@ const LeftContainer = styled.div`
   display: grid;
   grid-template-rows: auto 1fr auto;
   width: 86vw;
-  padding: calc(24px + (32 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: ${responsiveSize(24, 32)};
   padding-bottom: 32px;
   background-color: ${({ theme }) => theme.whiteBackground};
   border-top-left-radius: 3px;
@@ -44,7 +45,7 @@ const LeftContainer = styled.div`
   ${landscapeStyle(
     () => css`
       overflow-y: hidden;
-      width: calc(350px + (450 - 350) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+      width: ${responsiveSize(350, 450)};
       height: 500px;
     `
   )}
@@ -60,7 +61,7 @@ const HowItWorks = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: calc(32px + (64 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-bottom: ${responsiveSize(32, 64)};
 
   label {
     color: ${({ theme }) => theme.secondaryPurple};
@@ -97,7 +98,7 @@ const Close = styled.label`
     () => css`
       display: flex;
       position: absolute;
-      top: calc(24px + (32 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+      top: ${responsiveSize(24, 32)};
       right: 17px;
       display: flex;
       align-items: flex-end;
@@ -121,7 +122,7 @@ const RightContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: calc(24px + (32 - 24) * (min(max(100vw, 375px), 1250px) - 375px) / 875) 17px;
+  padding: ${responsiveSize(24, 32)} 17px;
   background-color: ${({ theme }) => theme.mediumBlue};
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
@@ -129,7 +130,7 @@ const RightContainer = styled.div`
   ${landscapeStyle(
     () => css`
       overflow-y: hidden;
-      width: calc(350px + (450 - 350) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+      width: ${responsiveSize(350, 450)};
       height: 500px;
     `
   )}

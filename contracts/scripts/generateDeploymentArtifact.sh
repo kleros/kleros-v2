@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-source $SCRIPT_DIR/../.env
 
 if [[ $# < 2 ]]
 then
@@ -19,7 +18,7 @@ address=$2
 case $network in
 gnosischain)
   url="https://api.gnosisscan.io"
-  apiKey="$GNOSISSCAN_API_KEY"
+  apiKey=$($SCRIPT_DIR/dotenv.sh GNOSISSCAN_API_KEY)
   ;;
 chiado)
   # Warning: these are distinct instances!
@@ -30,19 +29,19 @@ chiado)
   ;;
 arbitrum)
   url="https://api.arbiscan.io"
-  apiKey="$ARBISCAN_API_KEY"
+  apiKey=$($SCRIPT_DIR/dotenv.sh ARBISCAN_API_KEY)
   ;;
-arbitrumGoerli)
-  url="https://api-goerli.arbiscan.io"
-  apiKey="$ARBISCAN_API_KEY"
+arbitrumSepolia)
+  url="https://api-sepolia.arbiscan.io"
+  apiKey=$($SCRIPT_DIR/dotenv.sh ARBISCAN_API_KEY)
   ;;
 mainnet)
   url="https://api.etherscan.io"
-  apiKey="$ETHERSCAN_API_KEY"
+  apiKey=$($SCRIPT_DIR/dotenv.sh ETHERSCAN_API_KEY)
   ;;
-goerli)
-  url="https://api-goerli.etherscan.io"
-  apiKey="$ETHERSCAN_API_KEY"
+sepolia)
+  url="https://api-sepolia.etherscan.io"
+  apiKey=$($SCRIPT_DIR/dotenv.sh ETHERSCAN_API_KEY)
   ;;
 *)
   echo "error: unknown network $network"

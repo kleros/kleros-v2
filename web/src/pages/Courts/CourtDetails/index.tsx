@@ -20,6 +20,7 @@ import StakePanel from "./StakePanel";
 import HowItWorks from "components/HowItWorks";
 import Staking from "components/Popup/MiniGuides/Staking";
 import { usePnkFaucetWithdrewAlready, prepareWritePnkFaucet, usePnkBalanceOf } from "hooks/contracts/generated";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div``;
 
@@ -59,10 +60,10 @@ const ButtonContainer = styled.div`
 `;
 
 const StyledCard = styled(Card)`
-  margin-top: calc(16px + (24 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: ${responsiveSize(16, 32)};
+  margin-top: ${responsiveSize(16, 24)};
   width: 100%;
   height: auto;
-  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   min-height: 100px;
 `;
 

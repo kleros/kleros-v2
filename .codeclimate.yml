@@ -6,3 +6,4 @@ engines:
         enabled: false
 exclude_paths:
   - "web/src/graphql/generated.ts"
+  - "contracts/deployments/"

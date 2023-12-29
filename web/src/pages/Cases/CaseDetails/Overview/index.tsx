@@ -13,14 +13,15 @@ import { useVotingHistory } from "hooks/queries/useVotingHistory";
 import { getLocalRounds } from "utils/getLocalRounds";
 import { DisputeContext } from "./DisputeContext";
 import { Policies } from "./Policies";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   width: 100%;
   height: auto;
   display: flex;
   flex-direction: column;
-  gap: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  gap: ${responsiveSize(16, 32)};
+  padding: ${responsiveSize(16, 32)};
 `;
 
 const Divider = styled.hr`

@@ -24,7 +24,7 @@ const deployResolver: DeployFunction = async (hre: HardhatRuntimeEnvironment) =>
     "frontendUrl": "https://app.proofofhumanity.id/profile/%s",
     "arbitrableChainID": "1",
     "arbitrableAddress": "0xc5e9ddebb09cd64dfacab4011a0d5cedaf7c9bdb",
-    "arbitratorChainID": "421613",
+    "arbitratorChainID": "421614",
     "arbitratorAddress": "0xD08Ab99480d02bf9C092828043f611BcDFEA917b",
     "category": "Curated Lists",
     "specification": "KIP88"

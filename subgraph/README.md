@@ -2,23 +2,30 @@
 
 ## Deployments
 
-### Arbitrum Goerli (hosted service)
+### Testnet
 
-- [Subgraph explorer](https://thegraph.com/explorer/subgraph/kleros/kleros-v2-core-arbitrum-goerli)
-- [Subgraph endpoints](https://api.thegraph.com/subgraphs/name/kleros/kleros-v2-core-arbitrum-goerli)
+- [Core](https://thegraph.com/studio/subgraph/kleros-v2-core-testnet/)
+- [Dispute Registry Template - Arbitrum Sepolia](https://thegraph.com/studio/subgraph/kleros-v2-drt-arbisep-testnet/)
+
+### Devnet
+
+- [Core](https://thegraph.com/studio/subgraph/kleros-v2-core-devnet/)
+- [Dispute Registry Template - Arbitrum Sepolia](https://thegraph.com/studio/subgraph/kleros-v2-drt-arbisep-devnet/)
+- [Dispute Registry Template - Gnosis]()
+- [Dispute Registry Template - Sepolia]()
 
 ## Build
 
 ```bash
 # update subgraph.yml using the contract deployment artifacts
-$ yarn update:arbitrum-goerli
+$ yarn update:arbitrum-sepolia-devnet
 
 $ yarn codegen
 
 $ yarn build
 ```
 
-## Deployment to The Graph (hosted service)
+## Deployment to The Graph Studio
 
 ### Using a personal account for development
 
@@ -27,13 +34,13 @@ $ yarn build
 Get an API key from the thegraph.com, then authenticate.
 
 ```bash
-$ yarn run graph auth --product hosted-service
+$ yarn run graph auth --studio
 ```
 
 #### Deployment
 
 ```bash
-yarn deploy:arbitrum-goerli
+yarn deploy:arbitrum-sepolia-devnet
 ```
 
 ### Using the Kleros organization account

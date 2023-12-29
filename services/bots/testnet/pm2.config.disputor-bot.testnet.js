@@ -4,8 +4,8 @@ module.exports = {
       name: "disputor-bot-testnet",
       interpreter: "sh",
       script: "yarn",
-      args: "bot:disputor --network arbitrumGoerli",
-      restart_delay: 43200000, // 12 hours
+      args: "bot:disputor --network arbitrumSepolia",
+      restart_delay: 86400000, // 24 hours
       autorestart: true,
     },
   ],

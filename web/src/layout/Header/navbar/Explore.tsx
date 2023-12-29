@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { Link, useLocation } from "react-router-dom";
 import { useOpenContext } from "../MobileHeader";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
@@ -12,7 +13,7 @@ const Container = styled.div`
   ${landscapeStyle(
     () => css`
       flex-direction: row;
-      gap: calc(4px + (16 - 4) * ((100vw - 375px) / (1250 - 375)));
+      gap: ${responsiveSize(4, 16)};
     `
   )};
 `;

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { usePublicClient } from "wagmi";
 import { getIHomeGateway } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
+import { GENESIS_BLOCK_ARBSEPOLIA } from "consts";
 
 interface IIsCrossChainDispute {
   isCrossChainDispute: boolean;
@@ -27,7 +28,7 @@ export const useIsCrossChainDispute = (disputeID?: string, arbitrableAddress?: `
             _arbitratorDisputeID: BigInt(disputeID),
           },
           {
-            fromBlock: 27808516n,
+            fromBlock: GENESIS_BLOCK_ARBSEPOLIA,
             toBlock: "latest",
           }
         );

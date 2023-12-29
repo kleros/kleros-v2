@@ -54,12 +54,12 @@ const getConfig = async (): Promise<Config> => {
   let hardhatNetwork: string;
   switch (deployment) {
     case "devnet":
-      viemNetwork = "arbitrumGoerli";
-      hardhatNetwork = "arbitrumGoerliDevnet";
+      viemNetwork = "arbitrumSepolia";
+      hardhatNetwork = "arbitrumSepoliaDevnet";
       break;
     case "testnet":
-      viemNetwork = "arbitrumGoerli";
-      hardhatNetwork = "arbitrumGoerli";
+      viemNetwork = "arbitrumSepolia";
+      hardhatNetwork = "arbitrumSepolia";
       break;
     case "mainnet":
       viemNetwork = "arbitrum";

@@ -6,6 +6,7 @@ import Rewards from "./Rewards";
 import Coherency from "./Coherency";
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: none;
@@ -22,9 +23,9 @@ const Container = styled.div`
       css`
         display: grid;
         grid-template-columns:
-          min-content repeat(3, calc(160px + (180 - 160) * (min(max(100vw, 900px), 1250px) - 900px) / 350))
+          min-content repeat(3, ${responsiveSize(160, 180, 900)})
           auto;
-        column-gap: calc(12px + (28 - 12) * (min(max(100vw, 900px), 1250px) - 900px) / 350);
+        column-gap: ${responsiveSize(12, 28, 900)};
         align-items: center;
       `
   )}

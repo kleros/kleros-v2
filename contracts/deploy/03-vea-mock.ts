@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import getContractAddress from "./utils/getContractAddress";
+import { getContractAddress } from "./utils/getContractAddress";
 import { KlerosCore__factory } from "../typechain-types";
 import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
 import { Courts, HardhatChain, isSkipped } from "./utils";
@@ -15,7 +15,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
-  console.log("Deploying to chainId %s with deployer %s", HardhatChain.HARDHAT, deployer);
+  console.log("deploying to chainId %s with deployer %s", HardhatChain.HARDHAT, deployer);
 
   const klerosCore = await deployments.get("KlerosCore");
 
@@ -27,7 +27,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   let nonce = await ethers.provider.getTransactionCount(deployer);
   nonce += 3; // deployed on the 4th tx (nonce+3): SortitionModule Impl tx, SortitionModule Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
   const homeGatewayAddress = getContractAddress(deployer, nonce);
-  console.log("Calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
+  console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
   const homeChainIdAsBytes32 = hexZeroPad(hexlify(HardhatChain.HARDHAT), 32);
   const foreignGateway = await deployUpgradable(deployments, "ForeignGatewayOnEthereum", {

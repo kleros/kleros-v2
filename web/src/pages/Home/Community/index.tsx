@@ -4,12 +4,13 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { Card } from "@kleros/ui-components-library";
 import { Element } from "./Element";
 import { section } from "consts/community-elements";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
-  margin-top: calc(44px + (64 - 44) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-top: ${responsiveSize(44, 64)};
 
   h1 {
-    margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+    margin-bottom: ${responsiveSize(16, 48)};
   }
 `;
 

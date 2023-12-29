@@ -3,8 +3,9 @@ import styled from "styled-components";
 import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 import { isUndefined } from "utils/index";
-import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
+import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 import KlerosLogo from "tsx:svgs/icons/kleros.svg";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
@@ -19,9 +20,9 @@ const StyledKlerosLogo = styled(KlerosLogo)`
 
 const StyledTitle = styled.div`
   display: flex;
-  margin-bottom: calc(16px + (32 - 16) * ((100vw - 300px) / (1250 - 300)));
-  margin-left: calc(8px + (44 - 8) * ((100vw - 300px) / (1250 - 300)));
-  margin-right: calc(8px + (44 - 8) * ((100vw - 300px) / (1250 - 300)));
+  margin-bottom: ${responsiveSize(16, 32, 300)};
+  margin-left: ${responsiveSize(8, 44, 300)};
+  margin-right: ${responsiveSize(8, 44, 300)};
   color: ${({ theme }) => theme.secondaryText};
   text-align: center;
 `;
@@ -30,7 +31,7 @@ const AmountStakedOrWithdrawnContainer = styled.div`
   font-size: 24px;
   font-weight: 600;
   color: ${({ theme }) => theme.secondaryPurple};
-  margin-bottom: calc(0px + (4 - 0) * ((100vw - 300px) / (1250 - 300)));
+  margin-bottom: ${responsiveSize(0, 4, 300)};
 `;
 
 const TotalStakeContainer = styled.div`
@@ -38,12 +39,12 @@ const TotalStakeContainer = styled.div`
   font-size: 14px;
   align-items: center;
   justify-content: center;
-  margin-bottom: calc(8px + (32 - 8) * ((100vw - 300px) / (1250 - 300)));
+  margin-bottom: ${responsiveSize(8, 32, 300)};
 `;
 
 const MyStakeContainer = styled.div`
   display: flex;
-  margin: 0px calc(4px + (8 - 4) * ((100vw - 300px) / (1250 - 300)));
+  margin: 0px ${responsiveSize(4, 8, 300)};
   color: ${({ theme }) => theme.secondaryText};
 `;
 
@@ -71,7 +72,7 @@ const AmountStakedOrWithdrawn: React.FC<IAmountStakedOrWithdrawn> = ({ pnkStaked
 const StakeWithdraw: React.FC<IStakeWithdraw> = ({ pnkStaked, courtName, isStake, courtId }) => {
   const { address } = useAccount();
 
-  const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
+  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
     enabled: !isUndefined(address) && !isUndefined(courtId),
     args: [address, BigInt(courtId)],
     watch: true,
