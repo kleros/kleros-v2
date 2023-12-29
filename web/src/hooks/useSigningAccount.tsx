@@ -1,5 +1,5 @@
 import { useLocalStorage } from "react-use";
-import { Hex, WalletClient } from "viem";
+import { Hex, WalletClient, keccak256 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { useWalletClient } from "wagmi";
 import messages from "consts/eip712-messages";
@@ -11,14 +11,15 @@ const useSigningAccount = () => {
   const key = `signingAccount-${address}`;
   const [signingKey, setSigningKey] = useLocalStorage<Hex>(key);
   return {
-    signingAccount: !isUndefined(signingKey) ? privateKeyToAccount(signingKey) : null,
-    generateSigningAccount: () => (!isUndefined(wallet) ? generateSigningAccount(wallet, setSigningKey) : null),
+    signingAccount: !isUndefined(signingKey) ? privateKeyToAccount(signingKey) : undefined,
+    generateSigningAccount: () => (!isUndefined(wallet) ? generateSigningAccount(wallet, setSigningKey) : undefined),
   };
 };
 
 const generateSigningAccount = async (wallet: WalletClient, setSigningKey: (signingKey: `0x${string}`) => void) => {
   if (isUndefined(wallet.account)) return;
-  const signingKey = await wallet.signTypedData(messages.signingAccount(wallet.account.address));
+  const signature = await wallet.signTypedData(messages.signingAccount(wallet.account.address));
+  const signingKey = keccak256(signature);
   setSigningKey(signingKey);
   return privateKeyToAccount(signingKey);
 };
