@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
+import { encodePacked, keccak256, PrivateKeyAccount } from "viem";
 import { useWalletClient, usePublicClient } from "wagmi";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@kleros/ui-components-library";
@@ -18,17 +19,42 @@ const Container = styled.div`
   height: auto;
 `;
 
-const getSaltAndChoice = (signingAccount, generateSigningAccount, saltKey) => {
-  return { salt: "0x", choice: "1" };
+const getSaltAndChoice = async (
+  signingAccount: PrivateKeyAccount | undefined,
+  generateSigningAccount: () => Promise<PrivateKeyAccount | undefined> | undefined,
+  saltKey: string,
+  answers: { title: string; description: string }[],
+  commit: string
+) => {
+  const message = { message: saltKey };
+  const rawSalt = !isUndefined(signingAccount)
+    ? await signingAccount.signMessage(message)
+    : await (async () => {
+        const account = await generateSigningAccount();
+        return await account!.signMessage(message);
+      })();
+  const salt = keccak256(rawSalt);
+  const { choice } = answers.reduce<{ found: boolean; choice: number }>(
+    (acc, _, i) => {
+      if (acc.found) return acc;
+      const innerCommit = keccak256(encodePacked(["uint256", "string"], [BigInt(i), salt]));
+      if (innerCommit === commit) {
+        return { found: true, choice: i };
+      } else return acc;
+    },
+    { found: false, choice: -1 }
+  );
+  return { salt, choice };
 };
 
 interface IReveal {
   arbitrable: `0x${string}`;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
+  commit: string;
 }
 
-const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen }) => {
+const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit }) => {
   const { id } = useParams();
   const [isSending, setIsSending] = useState(false);
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
@@ -48,7 +74,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen }) => {
 
   const handleReveal = useCallback(async () => {
     const { salt, choice } = isUndefined(storedSaltAndChoice)
-      ? getSaltAndChoice(signingAccount, generateSigningAccount, saltKey)
+      ? await getSaltAndChoice(signingAccount, generateSigningAccount, saltKey, disputeTemplate.answers, commit)
       : JSON.parse(storedSaltAndChoice);
     const { request } = await prepareWriteDisputeKitClassic({
       functionName: "castVote",
@@ -60,11 +86,12 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen }) => {
       });
     }
   }, [
+    commit,
+    disputeTemplate?.answers,
     storedSaltAndChoice,
     generateSigningAccount,
     signingAccount,
     saltKey,
-    disputeData?.dispute?.currentRoundIndex,
     justification,
     parsedVoteIDs,
     parsedDisputeID,
