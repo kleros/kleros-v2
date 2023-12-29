@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
@@ -34,15 +34,22 @@ const InfoContainer = styled.div`
   }
 `;
 
-function formatDate(unixTimestamp: number): string {
+const useFinalDate = (lastPeriodChange: string, currentPeriodIndex?: number, timesPerPeriod?: string[]) =>
+  useMemo(() => {
+    if (!isUndefined(currentPeriodIndex) && !isUndefined(timesPerPeriod))
+      return getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
+    else return undefined;
+  }, [lastPeriodChange, currentPeriodIndex, timesPerPeriod]);
+
+const formatDate = (unixTimestamp: number): string => {
   const date = new Date(unixTimestamp * 1000);
   const options: Intl.DateTimeFormatOptions = { month: "long", day: "2-digit", year: "numeric" };
   return date.toLocaleDateString("en-US", options);
-}
+};
 
 interface IVoting {
   arbitrable?: `0x${string}`;
-  currentPeriodIndex?: number;
+  currentPeriodIndex: number;
 }
 
 const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
@@ -62,14 +69,17 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
   useLockOverlayScroll(isPopupOpen);
   const lastPeriodChange = disputeData?.dispute?.lastPeriodChange;
   const timesPerPeriod = disputeData?.dispute?.court?.timesPerPeriod;
-  const finalDate =
-    !isUndefined(currentPeriodIndex) &&
-    !isUndefined(timesPerPeriod) &&
-    getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
+  const finalDate = useFinalDate(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
+
+  const userWasDrawn = useMemo(() => !isUndefined(drawData) && drawData.draws.length > 0, [drawData]);
+  const isCommitOrVotePeriod = useMemo(
+    () => [Periods.vote, Periods.commit].includes(currentPeriodIndex),
+    [currentPeriodIndex]
+  );
 
   return (
     <Container>
-      {!isUndefined(appealCost) && isLastRound(appealCost) && (
+      {isLastRound(appealCost) && (
         <>
           <InfoContainer>
             <InfoCircle />
@@ -78,7 +88,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
           <br></br>
         </>
       )}
-      {drawData?.draws.length === 0 && (
+      {!userWasDrawn ? (
         <>
           <InfoContainer>
             <InfoCircle />
@@ -86,7 +96,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
           </InfoContainer>
           <br></br>
         </>
-      )}
+      ) : null}
 
       {isPopupOpen && (
         <Popup
@@ -98,18 +108,10 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
           setIsOpen={setIsPopupOpen}
         />
       )}
-      {drawData &&
-      !isUndefined(arbitrable) &&
-      currentPeriodIndex === Periods.vote &&
-      drawData.draws?.length > 0 &&
-      !voted ? (
+      {userWasDrawn && isCommitOrVotePeriod && !voted ? (
         <>
           <VotingHistory {...{ arbitrable }} isQuestion={false} />
-          <Classic
-            {...{ arbitrable }}
-            setIsOpen={setIsPopupOpen}
-            voteIDs={drawData.draws.map((draw) => draw.voteIDNum)}
-          />
+          <Classic arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} />
         </>
       ) : (
         <VotingHistory {...{ arbitrable }} isQuestion={true} />
