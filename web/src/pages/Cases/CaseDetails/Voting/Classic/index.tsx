@@ -9,7 +9,6 @@ import Reveal from "./Reveal";
 
 interface IClassic {
   arbitrable: `0x${string}`;
-  voteIDs: string[];
   setIsOpen: (val: boolean) => void;
 }
 
@@ -20,12 +19,13 @@ const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen }) => {
   const { data: drawData } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
   const isCommitReveal = useMemo(() => disputeData?.dispute?.court.hiddenVotes, [disputeData]);
   const commited = useMemo(() => drawData?.draws[0].vote?.commited, [drawData]);
+  const commit = useMemo(() => drawData?.draws[0].vote?.commit, [drawData]);
   const voteIDs = useMemo(() => drawData?.draws?.map((draw) => draw.voteIDNum) as string[], [drawData]);
   return id && isCommitReveal ? (
     !commited ? (
       <Commit {...{ arbitrable, setIsOpen, voteIDs }} />
     ) : (
-      <Reveal {...{ arbitrable, setIsOpen, voteIDs }} />
+      <Reveal {...{ arbitrable, setIsOpen, voteIDs, commit }} />
     )
   ) : (
     <Vote {...{ arbitrable, setIsOpen, voteIDs }} />
