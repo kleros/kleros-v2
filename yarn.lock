@@ -5466,7 +5466,7 @@ __metadata:
     "@typechain/hardhat": ^7.0.0
     "@types/chai": ^4.3.11
     "@types/mocha": ^10.0.6
-    "@types/node": ^16.18.68
+    "@types/node": ^16.18.69
     "@wagmi/cli": ^1.5.2
     chai: ^4.3.10
     dotenv: ^16.3.1
@@ -9743,10 +9743,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^16.18.68":
-  version: 16.18.68
-  resolution: "@types/node@npm:16.18.68"
-  checksum: 094ae9ed80eed2af4bd34d551467e307f2ecb6efb0f8b872feebfb9da5ea4b446c5883c9abe2349f8ea2b78bdacd8726a946c27c2a246676c4c330e41ccb9284
+"@types/node@npm:^16.18.69":
+  version: 16.18.69
+  resolution: "@types/node@npm:16.18.69"
+  checksum: ac7076062e59169ac1907e9347d939ed5f79c6a3ec2a531fe7186caf2fcf8d66de9b87ad42d92c4dfa6cb44b1018ab89fef1e054a82af36deea04ba32a5a670a
   languageName: node
   linkType: hard
 
