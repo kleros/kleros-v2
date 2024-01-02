@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "pages/Resolver/Header";
 import styled from "styled-components";
-import { DropdownSelect, Field } from "@kleros/ui-components-library";
+import { DisplaySmall, Field } from "@kleros/ui-components-library";
 import NavigationButtons from "../NavigationButtons";
 import { responsiveSize } from "styles/responsiveSize";
+import { useNewDisputeContext } from "context/NewDisputeContext";
+import { useKlerosCoreArbitrationCost } from "hooks/contracts/generated";
+import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
+import { formatETH } from "utils/format";
+import ETH from "svgs/icons/eth.svg";
+import { isUndefined } from "utils/index";
 
 const Container = styled.div`
   display: flex;
@@ -11,41 +17,42 @@ const Container = styled.div`
   align-items: center;
 `;
 
-const StyledDropdownSelect = styled(DropdownSelect)`
-  width: 290px;
-  margin-bottom: 32px;
-  button {
-    width: 100%;
-  }
-  div {
-    width: 100%;
-  }
-`;
-
 const StyledField = styled(Field)`
   width: 290px;
   margin-bottom: ${responsiveSize(20, 48)};
 `;
 
-const StyledLabel = styled.label`
+const StyledDisplay = styled(DisplaySmall)`
   width: 290px;
-  margin-bottom: 12px;
+  margin-bottom: ${responsiveSize(20, 48)};
+  h2::after {
+    content: "ETH";
+    margin-left: 4px;
+  }
 `;
 
 const Jurors: React.FC = () => {
+  const { disputeData, setDisputeData } = useNewDisputeContext();
+  const { data } = useKlerosCoreArbitrationCost({
+    enabled: !isUndefined(disputeData.numberOfJurors),
+    args: [prepareArbitratorExtradata(disputeData.courtId, disputeData.numberOfJurors)],
+  });
+
+  const arbitrationFee = formatETH(data ?? BigInt(0), 5);
+
+  useEffect(() => setDisputeData({ ...disputeData, arbitrationCost: data?.toString() ?? "0" }), [data]);
+
+  const handleJurorsWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDisputeData({ ...disputeData, numberOfJurors: parseInt(event.target.value.replace(/\D/g, ""), 10) });
+  };
+
+  const noOfVotes = Number.isNaN(disputeData.numberOfJurors) ? "" : disputeData.numberOfJurors;
+
   return (
     <Container>
       <Header text="Select the number of jurors" />
-      <StyledDropdownSelect
-        items={[
-          { value: 1, text: "3" },
-          { value: 2, text: "7" },
-        ]}
-        placeholder={{ text: "3" }}
-        callback={() => {}}
-      />
-      <StyledLabel id="fee">Arbitration Fee</StyledLabel>
-      <StyledField placeholder="0.0X ETH" id="fee" />
+      <StyledField placeholder="Select the number of jurors" value={noOfVotes} onChange={handleJurorsWrite} />
+      <StyledDisplay text={arbitrationFee} Icon={ETH} label="Arbitration Cost" />
       <NavigationButtons prevRoute="/resolver/category" nextRoute="/resolver/votingoptions" />
     </Container>
   );

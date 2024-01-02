@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Header from "pages/Resolver/Header";
 import styled, { css } from "styled-components";
-import { AlertMessage, DropdownSelect } from "@kleros/ui-components-library";
+import { AlertMessage, DropdownCascader } from "@kleros/ui-components-library";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 import NavigationButtons from "../NavigationButtons";
+import { useNewDisputeContext } from "context/NewDisputeContext";
+import { rootCourtToItems, useCourtTree } from "hooks/queries/useCourtTree";
+import { isUndefined } from "utils/index";
+import { StyledSkeleton } from "components/StyledSkeleton";
 
 const Container = styled.div`
   display: flex;
@@ -12,17 +16,14 @@ const Container = styled.div`
   align-items: center;
 `;
 
-const StyledDropdownSelect = styled(DropdownSelect)`
+const StyledDropdownCascader = styled(DropdownCascader)`
   width: 84vw;
   ${landscapeStyle(
     () => css`
       width: ${responsiveSize(442, 700, 900)};
     `
   )}
-  button {
-    width: 100%;
-  }
-  div {
+  > button {
     width: 100%;
   }
 `;
@@ -38,17 +39,26 @@ const AlertMessageContainer = styled.div`
 `;
 
 const Court: React.FC = () => {
+  const { disputeData, setDisputeData } = useNewDisputeContext();
+  const { data } = useCourtTree();
+  const items = useMemo(() => !isUndefined(data) && [rootCourtToItems(data.court)], [data]);
+
+  const handleWrite = (courtId: string) => {
+    setDisputeData({ ...disputeData, courtId: courtId });
+  };
+
   return (
     <Container>
       <Header text="Select a court to arbitrate the case" />
-      <StyledDropdownSelect
-        items={[
-          { value: 1, text: "General court" },
-          { value: 2, text: "Curation court" },
-        ]}
-        placeholder={{ text: "Select a court" }}
-        callback={() => {}}
-      />
+      {items ? (
+        <StyledDropdownCascader
+          items={items}
+          onSelect={(path: string | number) => typeof path === "string" && handleWrite(path.split("/").pop()!)}
+          placeholder="Select Court"
+        />
+      ) : (
+        <StyledSkeleton width={240} height={42} />
+      )}
       <AlertMessageContainer>
         <AlertMessage
           title="Check the courts available beforehand"

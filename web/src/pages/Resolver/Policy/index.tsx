@@ -5,6 +5,7 @@ import NavigationButtons from "../NavigationButtons";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 import { FileUploader } from "@kleros/ui-components-library";
+import { useNewDisputeContext } from "context/NewDisputeContext";
 
 const Container = styled.div`
   display: flex;
@@ -32,8 +33,10 @@ const StyledFileUploader = styled(FileUploader)`
     `
   )}
 `;
-
+//TODO: upload policy file to IPFS, also decide when to upload : 1. on select 2. on submit case
 const Policy: React.FC = () => {
+  const { disputeData, setDisputeData } = useNewDisputeContext();
+
   return (
     <Container>
       <Header text="Submit the Policy File" />
@@ -43,7 +46,7 @@ const Policy: React.FC = () => {
         relevant to jurors' decision-making.
       </StyledLabel>
       <StyledFileUploader
-        callback={(file: File) => console.log}
+        callback={(file: File) => setDisputeData({ ...disputeData, policyFile: file })}
         variant="info"
         msg="Additionally, you can add an external file in PDF or add multiple files in a single .zip file."
       />

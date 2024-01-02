@@ -15,6 +15,7 @@ import Dashboard from "./pages/Dashboard";
 import Courts from "./pages/Courts";
 import DisputeTemplateView from "./pages/DisputeTemplateView";
 import DisputeResolver from "./pages/Resolver";
+import { NewDisputeProvider } from "./context/NewDisputeContext";
 
 const App: React.FC = () => {
   return (
@@ -23,17 +24,19 @@ const App: React.FC = () => {
         <RefetchOnBlock />
         <Web3Provider>
           <IsListProvider>
-            <SentryRoutes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Home />} />
-                <Route path="cases/*" element={<Cases />} />
-                <Route path="courts/*" element={<Courts />} />
-                <Route path="dashboard/:page/:order/:filter" element={<Dashboard />} />
-                <Route path="disputeTemplate" element={<DisputeTemplateView />} />
-                <Route path="resolver/*" element={<DisputeResolver />} />
-                <Route path="*" element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>} />
-              </Route>
-            </SentryRoutes>
+            <NewDisputeProvider>
+              <SentryRoutes>
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<Home />} />
+                  <Route path="cases/*" element={<Cases />} />
+                  <Route path="courts/*" element={<Courts />} />
+                  <Route path="dashboard/:page/:order/:filter" element={<Dashboard />} />
+                  <Route path="disputeTemplate" element={<DisputeTemplateView />} />
+                  <Route path="resolver/*" element={<DisputeResolver />} />
+                  <Route path="*" element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>} />
+                </Route>
+              </SentryRoutes>
+            </NewDisputeProvider>
           </IsListProvider>
         </Web3Provider>
       </QueryClientProvider>

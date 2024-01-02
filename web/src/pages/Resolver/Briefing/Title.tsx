@@ -5,12 +5,14 @@ import { Field } from "@kleros/ui-components-library";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 import NavigationButtons from "../NavigationButtons";
+import { useNewDisputeContext } from "context/NewDisputeContext";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
 `;
+
 const StyledField = styled(Field)`
   width: 84vw;
 
@@ -21,11 +23,17 @@ const StyledField = styled(Field)`
   )}
 `;
 const Title: React.FC = () => {
+  const { disputeData, setDisputeData } = useNewDisputeContext();
+
+  const handleWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDisputeData({ ...disputeData, title: event.target.value });
+  };
+
   return (
     <Container>
       <Header text="Choose a title" />
-      <StyledField placeholder="eg. Freelance work disagreement between Alice and Bob" />
-      <NavigationButtons prevRoute="/resolver/title" nextRoute="/resolver/description" />
+      <StyledField onChange={handleWrite} placeholder="eg. Freelance work disagreement between Alice and Bob" />
+      <NavigationButtons prevRoute="" nextRoute="/resolver/description" />
     </Container>
   );
 };

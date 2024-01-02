@@ -3,6 +3,7 @@ import ReactMarkdown from "components/ReactMarkdown";
 import styled from "styled-components";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import { isUndefined } from "utils/index";
+import { Answer, IDisputeTemplate } from "context/NewDisputeContext";
 
 const StyledH1 = styled.h1`
   margin: 0;
@@ -11,6 +12,10 @@ const StyledH1 = styled.h1`
 const QuestionAndDescription = styled.div`
   display: flex;
   flex-direction: column;
+  div:first-child p:first-of-type {
+    font-size: 16px;
+    font-weight: 600;
+  }
 `;
 
 const StyledReactMarkDown = styled(ReactMarkdown)`
@@ -33,29 +38,6 @@ const Answer = styled.div`
   display: flex;
   gap: 8px;
 `;
-
-interface IAnswer {
-  id?: string;
-  title: string;
-  description?: string;
-  reserved?: boolean;
-}
-
-interface IDisputeTemplate {
-  answers: IAnswer[];
-  arbitrableAddress?: string;
-  arbitrableChainID?: string;
-  arbitratorAddress?: string;
-  arbitratorChainID?: string;
-  category?: string;
-  description: string;
-  frontendUrl?: string;
-  lang?: string;
-  policyURI?: string;
-  question: string;
-  specification?: string;
-  title: string;
-}
 
 interface IDisputeContext {
   disputeTemplate: IDisputeTemplate;
@@ -85,7 +67,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeTemplate }) =
       <VotingOptions>
         {isUndefined(disputeTemplate) ? null : <h3>Voting Options</h3>}
         <AnswersContainer>
-          {disputeTemplate?.answers?.map((answer: IAnswer, i: number) => (
+          {disputeTemplate?.answers?.map((answer: Answer, i: number) => (
             <Answer key={i}>
               <small>Option {i + 1}:</small>
               <label>{answer.title}</label>

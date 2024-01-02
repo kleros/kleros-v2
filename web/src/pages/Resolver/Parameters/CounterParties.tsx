@@ -4,7 +4,10 @@ import styled, { css } from "styled-components";
 import NavigationButtons from "../NavigationButtons";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
-import LabeledInput from "~src/components/LabeledInput";
+import LabeledInput from "components/LabeledInput";
+import PlusMinusField from "components/PlusMinusField";
+import { useNewDisputeContext } from "context/NewDisputeContext";
+import { isUndefined } from "utils/index";
 
 const Container = styled.div`
   display: flex;
@@ -12,12 +15,19 @@ const Container = styled.div`
   align-items: center;
 `;
 
-const PartyOneContainer = styled.div`
+const AliasContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 30px;
+  width: 100%;
+`;
+
+const MiddleContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
   width: 84vw;
-  margin-bottom: 48px;
+
   ${landscapeStyle(
     () => css`
       width: ${responsiveSize(442, 700, 900)};
@@ -25,34 +35,59 @@ const PartyOneContainer = styled.div`
   )}
 `;
 
-const PartyTwoContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  width: 84vw;
-
-  ${landscapeStyle(
-    () => css`
-      width: ${responsiveSize(442, 700, 900)};
-    `
-  )}
+const StyledPlusMinusField = styled(PlusMinusField)`
+  align-self: start;
 `;
 
 const CounterParties: React.FC = () => {
+  const { disputeData, setDisputeData } = useNewDisputeContext();
+
+  //value here is the total number of fields-
+  const updateAliases = (value: number) => {
+    let defaultAlias = { name: "", address: "" };
+    let aliases = disputeData.aliases;
+
+    if (isUndefined(aliases)) {
+      return setDisputeData({ ...disputeData, aliases: [defaultAlias] });
+    }
+    if (value < aliases?.length) return setDisputeData({ ...disputeData, aliases: aliases.splice(0, value) });
+    if (value > aliases?.length) return setDisputeData({ ...disputeData, aliases: [...aliases, defaultAlias] });
+  };
+
+  const handleAliasesWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const key = parseInt(event.target.id.replace(/\D/g, ""), 10) - 1;
+    let aliases = disputeData.aliases;
+    if (isUndefined(aliases)) return;
+
+    aliases[key] = { ...aliases[key], [event.target.name]: event.target.value };
+    setDisputeData({ ...disputeData, aliases });
+  };
+
   return (
     <Container>
       <Header text="Counterparties" />
+      <MiddleContainer>
+        {disputeData.aliases?.map((alias, index) => (
+          <AliasContainer key={index}>
+            <LabeledInput
+              name="name"
+              label={`Party ${index + 1}`}
+              placeholder="eg. Alice (Developer)"
+              value={alias.name}
+              onChange={handleAliasesWrite}
+            />
+            <LabeledInput
+              name="address"
+              label={`Party ${index + 1} Address`}
+              placeholder="eg. Alice.eth"
+              value={alias.address}
+              onChange={handleAliasesWrite}
+            />
+          </AliasContainer>
+        ))}
+      </MiddleContainer>
 
-      <PartyOneContainer>
-        <LabeledInput label="Party 1" placeholder="eg. Alice (Developer)" />
-        <LabeledInput label="Party 1 Address" placeholder="eg. Alice.eth" />
-      </PartyOneContainer>
-
-      <PartyTwoContainer>
-        <LabeledInput label="Party 2" placeholder="eg. Bob (Client)" />
-        <LabeledInput label="Party 2 Address" placeholder="eg. 0x123456789a123456789b123456789123456789cd" />
-      </PartyTwoContainer>
-
+      <StyledPlusMinusField currentValue={disputeData.aliases?.length ?? 2} updateValue={updateAliases} minValue={2} />
       <NavigationButtons prevRoute="/resolver/votingoptions" nextRoute="/resolver/policy" />
     </Container>
   );

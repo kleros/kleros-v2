@@ -9,6 +9,7 @@ import { Card } from "@kleros/ui-components-library";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { css } from "styled-components";
 import NavigationButtons from "../NavigationButtons";
+import { useNewDisputeContext } from "context/NewDisputeContext";
 
 const Container = styled.div`
   width: 100%;
@@ -54,15 +55,9 @@ const Header = styled.h2`
   )}
 `;
 
-const disputeTemplate = {
-  title: "Freelance work disagreement between Alice and Bob",
-  question: "How much should Alice receive?",
-  description:
-    "Bob hired Alice to develop a website for him. Bob claims the contract was not fully respected, and the website was delivered incomplete. For that reason, he wants to pay part of the agreed payment: 150 DAI. On the other hand, Alice claims she should receive the full payment: 250 DAI.",
-  answers: [{ title: "Pay 250 DAI" }, { title: "Pay 150 DAI" }],
-};
 const Preview: React.FC = () => {
-  const { data: courtPolicy } = useCourtPolicy("1");
+  const { disputeData, disputeTemplate } = useNewDisputeContext();
+  const { data: courtPolicy } = useCourtPolicy(disputeData.courtId);
   const courtName = courtPolicy?.name;
 
   return (
@@ -76,10 +71,10 @@ const Preview: React.FC = () => {
           <DisputeInfo
             isOverview={true}
             overrideIsList={true}
-            courtId={"1"}
-            court={"General court"}
+            courtId={disputeData.courtId}
+            court={courtName}
             round={1}
-            {...{ category: "Freelancing" }}
+            {...{ category: disputeData.category }}
           />
         </PreviewContainer>
         <Policies disputePolicyURI={""} courtId={"1"} />

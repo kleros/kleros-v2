@@ -5,6 +5,7 @@ import { Textarea } from "@kleros/ui-components-library";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 import NavigationButtons from "../NavigationButtons";
+import { useNewDisputeContext } from "context/NewDisputeContext";
 
 const Container = styled.div`
   display: flex;
@@ -21,10 +22,19 @@ const StyledTextArea = styled(Textarea)`
   )}
 `;
 const Description: React.FC = () => {
+  const { disputeData, setDisputeData } = useNewDisputeContext();
+
+  const handleWrite = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setDisputeData({ ...disputeData, description: event.target.value });
+  };
+
   return (
     <Container>
       <Header text="Describe the case" />
-      <StyledTextArea placeholder="eg. Bob hired Alice to develop a website for him. Bob claims the contract was not fully respected, and the website was delivered incomplete. For that reason, he wants to pay part of the agreed payment: 150 DAI. On the other hand, Alice claims she should receive the full payment: 250 DAI." />
+      <StyledTextArea
+        onChange={handleWrite}
+        placeholder="eg. Bob hired Alice to develop a website for him. Bob claims the contract was not fully respected, and the website was delivered incomplete. For that reason, he wants to pay part of the agreed payment: 150 DAI. On the other hand, Alice claims she should receive the full payment: 250 DAI."
+      />
       <NavigationButtons prevRoute="/resolver/title" nextRoute="/resolver/court" />
     </Container>
   );
