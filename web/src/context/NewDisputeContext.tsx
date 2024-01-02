@@ -84,13 +84,17 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   //keep updating disputeTemplate
   const disputeTemplate = useMemo(() => disputeData as IDisputeTemplate, [disputeData]);
 
+  const resetDisputeData = () => {
+    localStorage.removeItem("disputeData");
+    setDisputeData(initialDisputeData);
+  };
   return (
     <NewDisputeContext.Provider
       value={{
         disputeData,
         setDisputeData,
         disputeTemplate,
-        resetDisputeData: () => setDisputeData(initialDisputeData),
+        resetDisputeData,
       }}
     >
       {children}
