@@ -3,6 +3,8 @@ import { version, gitCommitHash, gitCommitShortHash, gitBranch, gitTags, clean }
 export const ONE_BASIS_POINT = 10000n;
 
 export const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY || "https://cdn.kleros.link";
+export const HERMES_TELEGRAM_BOT_URL =
+  process.env.REACT_APP_HERMES_TELEGRAM_BOT_URL || "https://t.me/HermesTheKlerosV2MessengerBot";
 
 export const GIT_BRANCH = gitBranch;
 export const GIT_TAGS = gitTags;

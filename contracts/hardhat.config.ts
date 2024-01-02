@@ -79,7 +79,7 @@ const config: HardhatUserConfig = {
       chainId: 421614,
       url: `http://127.0.0.1:8545`,
       forking: {
-        url: `https://sepolia-rollup.arbitrum.io/rpc`,
+        url: process.env.ARBITRUM_SEPOLIA_RPC ?? "https://sepolia-rollup.arbitrum.io/rpc",
       },
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: false,
@@ -93,7 +93,7 @@ const config: HardhatUserConfig = {
     // Home chain ---------------------------------------------------------------------------------
     arbitrumSepolia: {
       chainId: 421614,
-      url: "https://sepolia-rollup.arbitrum.io/rpc",
+      url: process.env.ARBITRUM_SEPOLIA_RPC ?? "https://sepolia-rollup.arbitrum.io/rpc",
       accounts:
         (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 && [
           process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,
@@ -119,7 +119,7 @@ const config: HardhatUserConfig = {
     },
     arbitrumSepoliaDevnet: {
       chainId: 421614,
-      url: "https://sepolia-rollup.arbitrum.io/rpc",
+      url: process.env.ARBITRUM_SEPOLIA_RPC ?? "https://sepolia-rollup.arbitrum.io/rpc",
       accounts:
         (process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 && [
           process.env.ARB_GOERLI_PRIVATE_KEY_WALLET_1 as string,

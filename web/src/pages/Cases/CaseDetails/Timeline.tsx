@@ -15,6 +15,8 @@ const TimeLineContainer = styled(Box)`
   height: 98px;
   border-radius: 0px;
   padding: ${responsiveSize(16, 48)} 8px 0px ${responsiveSize(12, 22)};
+  margin-top: ${responsiveSize(16, 48)};
+  margin-bottom: ${responsiveSize(12, 22)};
   background-color: ${({ theme }) => theme.whiteBackground};
 
   ${landscapeStyle(

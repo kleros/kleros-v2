@@ -73,8 +73,8 @@ const VoteDescriptionContainer = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: ${responsiveSize(16, 32)};
-  margin-left: ${responsiveSize(8, 12)};
-  margin-right: ${responsiveSize(8, 12)};
+  margin-left: ${responsiveSize(8, 32)};
+  margin-right: ${responsiveSize(8, 32)};
   color: ${({ theme }) => theme.secondaryText};
   text-align: center;
   line-height: 21.8px;

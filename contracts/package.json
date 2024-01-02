@@ -1,18 +1,22 @@
 {
   "name": "@kleros/kleros-v2-contracts",
-  "version": "0.1.1",
+  "version": "0.3.1",
   "description": "Smart contracts for Kleros version 2",
   "main": "typechain-types/index.ts",
   "repository": "git@github.com:kleros/kleros-v2.git",
   "author": "Kleros",
   "license": "MIT",
-  "packageManager": "yarn@3.3.1",
+  "packageManager": "yarn@3.7.0",
   "engines": {
     "node": ">=16.0.0"
   },
   "volta": {
-    "node": "16.20.1",
-    "yarn": "3.3.1"
+    "node": "16.20.2",
+    "yarn": "3.7.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
   },
   "scripts": {
     "build": "hardhat compile",
@@ -25,6 +29,14 @@
     "deploy-local": "hardhat deploy --tags Arbitration,HomeArbitrable --network localhost",
     "simulate": "hardhat simulate:all",
     "simulate-local": "hardhat simulate:all --network localhost",
+    "viem:generate-devnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.devnet.ts",
+    "viem:generate-testnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.testnet.ts",
+    "viem:generate-mainnet": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.mainnet.ts",
+    "viem:generate-hardhat": "NODE_NO_WARNINGS=1 wagmi generate -c wagmi.config.hardhat.ts",
+    "export:devnet": "yarn hardhat export --export deployments/arbitrumSepoliaDevnet.ts --network arbitrumSepoliaDevnet",
+    "export:testnet": "yarn hardhat export --export deployments/arbitrumSepolia.ts --network arbitrumSepolia",
+    "export:mainnet": "yarn hardhat export --export deployments/arbitrum.ts --network arbitrum",
+    "viem:test": "NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-fetch ts-node ./scripts/viem-test.ts",
     "bot:keeper": "NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-fetch hardhat run ./scripts/keeperBot.ts",
     "bot:relayer-from-chiado": "NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-fetch hardhat run ./scripts/disputeRelayerBotFromChiado.ts",
     "bot:relayer-from-sepolia": "NODE_NO_WARNINGS=1 NODE_OPTIONS=--experimental-fetch hardhat run ./scripts/disputeRelayerBotFromSepolia.ts",
@@ -38,7 +50,9 @@
     "docgen": "hardhat docgen",
     "docserve": "scripts/docPreprocess.sh && forge doc --serve",
     "docbuild": "scripts/docPreprocess.sh && forge doc --build --out dist && scripts/docPostprocess.sh",
-    "publish": "yarn npm publish --access public --tag $(cat package.json | jq .version)",
+    "release:patch": "scripts/publish.sh patch",
+    "release:minor": "scripts/publish.sh minor",
+    "release:major": "scripts/publish.sh major",
     "tenderly-verify": "hardhat tenderly:verify"
   },
   "devDependencies": {
@@ -55,6 +69,7 @@
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",
     "@types/node": "^16.18.68",
+    "@wagmi/cli": "^1.5.2",
     "chai": "^4.3.10",
     "dotenv": "^16.3.1",
     "ethereumjs-util": "^7.1.5",
@@ -78,7 +93,7 @@
     "solidity-coverage": "0.8.2",
     "ts-node": "^10.9.2",
     "typechain": "^8.3.2",
-    "typescript": "^4.9.5"
+    "typescript": "^5.3.3"
   },
   "dependencies": {
     "@kleros/vea-contracts": "^0.3.2"

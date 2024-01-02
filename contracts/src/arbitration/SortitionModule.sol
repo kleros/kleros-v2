@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- *  @custom:authors: [@epiqueras, @unknownunknown1, @shotaronowhere]
+ *  @custom:authors: [@epiqueras, @unknownunknown1, @jaybuidl, @shotaronowhere]
  *  @custom:reviewers: []
  *  @custom:auditors: []
  *  @custom:bounties: []
@@ -281,9 +281,9 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
             return (0, 0, false); // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
         }
 
-        pnkWithdrawal = _deleteDelayedStake(_courtID, _account);
-
         if (phase != Phase.staking) {
+            pnkWithdrawal = _deleteDelayedStake(_courtID, _account);
+
             // Store the stake change as delayed, to be applied when the phase switches back to Staking.
             DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
             delayedStake.account = _account;
@@ -302,7 +302,7 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
             return (pnkDeposit, pnkWithdrawal, true);
         }
 
-        // Staking phase: set normal stakes or delayed stakes (which may have been already transferred).
+        // Current phase is Staking: set normal stakes or delayed stakes (which may have been already transferred).
         if (_newStake >= currentStake) {
             if (!_alreadyTransferred) {
                 pnkDeposit = _increaseStake(juror, _courtID, _newStake, currentStake);

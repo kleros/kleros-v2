@@ -1,0 +1,522 @@
+{
+  "address": "0x48e052B4A6dC4F30e90930F1CeaAFd83b3981EB3",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IArbitratorV2",
+          "name": "_arbitrator",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IDisputeTemplateRegistry",
+          "name": "_templateRegistry",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "contract IArbitratorV2",
+          "name": "_arbitrator",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_arbitrableDisputeID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_externalDisputeID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_templateId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "_templateUri",
+          "type": "string"
+        }
+      ],
+      "name": "DisputeRequest",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "contract IArbitratorV2",
+          "name": "_arbitrator",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_disputeID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_ruling",
+          "type": "uint256"
+        }
+      ],
+      "name": "Ruling",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "arbitrator",
+      "outputs": [
+        {
+          "internalType": "contract IArbitratorV2",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "arbitratorDisputeIDToLocalID",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IArbitratorV2",
+          "name": "_arbitrator",
+          "type": "address"
+        }
+      ],
+      "name": "changeArbitrator",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_governor",
+          "type": "address"
+        }
+      ],
+      "name": "changeGovernor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IDisputeTemplateRegistry",
+          "name": "_templateRegistry",
+          "type": "address"
+        }
+      ],
+      "name": "changeTemplateRegistry",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "_arbitratorExtraData",
+          "type": "bytes"
+        },
+        {
+          "internalType": "string",
+          "name": "_disputeTemplate",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_disputeTemplateDataMappings",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_numberOfRulingOptions",
+          "type": "uint256"
+        }
+      ],
+      "name": "createDisputeForTemplate",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "disputeID",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "_arbitratorExtraData",
+          "type": "bytes"
+        },
+        {
+          "internalType": "string",
+          "name": "_disputeTemplateUri",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_numberOfRulingOptions",
+          "type": "uint256"
+        }
+      ],
+      "name": "createDisputeForTemplateUri",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "disputeID",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "disputes",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "arbitratorExtraData",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bool",
+          "name": "isRuled",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "ruling",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "numberOfRulingOptions",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "governor",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_externalDisputeID",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_ruling",
+          "type": "uint256"
+        }
+      ],
+      "name": "rule",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "templateRegistry",
+      "outputs": [
+        {
+          "internalType": "contract IDisputeTemplateRegistry",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xf79a6965dfd667d6de2ada1a6cf3726a9fa43f47cc96b1b37e6ccd298d00875e",
+  "receipt": {
+    "to": null,
+    "from": "0xf1C7c037891525E360C59f708739Ac09A7670c59",
+    "contractAddress": "0x48e052B4A6dC4F30e90930F1CeaAFd83b3981EB3",
+    "transactionIndex": 1,
+    "gasUsed": "5973778",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x131ceb74d45d3044f40e28fa3785d17f1b04723f82bb41669d083f06f5e2ca5a",
+    "transactionHash": "0xf79a6965dfd667d6de2ada1a6cf3726a9fa43f47cc96b1b37e6ccd298d00875e",
+    "logs": [],
+    "blockNumber": 3842882,
+    "cumulativeGasUsed": "5973778",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x33d0b8879368acD8ca868e656Ade97bB97b90468",
+    "0x553dcbF6aB3aE06a1064b5200Df1B5A9fB403d3c"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "4ee8a1f2013c130bec1668c5304bc76a",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.18+commit.87f61d96\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IArbitratorV2\",\"name\":\"_arbitrator\",\"type\":\"address\"},{\"internalType\":\"contract IDisputeTemplateRegistry\",\"name\":\"_templateRegistry\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"contract IArbitratorV2\",\"name\":\"_arbitrator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_arbitrableDisputeID\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_externalDisputeID\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_templateId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"_templateUri\",\"type\":\"string\"}],\"name\":\"DisputeRequest\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"contract IArbitratorV2\",\"name\":\"_arbitrator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_disputeID\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_ruling\",\"type\":\"uint256\"}],\"name\":\"Ruling\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"arbitrator\",\"outputs\":[{\"internalType\":\"contract IArbitratorV2\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"arbitratorDisputeIDToLocalID\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IArbitratorV2\",\"name\":\"_arbitrator\",\"type\":\"address\"}],\"name\":\"changeArbitrator\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_governor\",\"type\":\"address\"}],\"name\":\"changeGovernor\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IDisputeTemplateRegistry\",\"name\":\"_templateRegistry\",\"type\":\"address\"}],\"name\":\"changeTemplateRegistry\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"_arbitratorExtraData\",\"type\":\"bytes\"},{\"internalType\":\"string\",\"name\":\"_disputeTemplate\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_disputeTemplateDataMappings\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"_numberOfRulingOptions\",\"type\":\"uint256\"}],\"name\":\"createDisputeForTemplate\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"disputeID\",\"type\":\"uint256\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"_arbitratorExtraData\",\"type\":\"bytes\"},{\"internalType\":\"string\",\"name\":\"_disputeTemplateUri\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"_numberOfRulingOptions\",\"type\":\"uint256\"}],\"name\":\"createDisputeForTemplateUri\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"disputeID\",\"type\":\"uint256\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"disputes\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"arbitratorExtraData\",\"type\":\"bytes\"},{\"internalType\":\"bool\",\"name\":\"isRuled\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"ruling\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"numberOfRulingOptions\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"governor\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_externalDisputeID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_ruling\",\"type\":\"uint256\"}],\"name\":\"rule\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"templateRegistry\",\"outputs\":[{\"internalType\":\"contract IDisputeTemplateRegistry\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"events\":{\"DisputeRequest(address,uint256,uint256,uint256,string)\":{\"details\":\"To be emitted when a dispute is created to link the correct meta-evidence to the disputeID.\",\"params\":{\"_arbitrableDisputeID\":\"The identifier of the dispute in the Arbitrable contract.\",\"_arbitrator\":\"The arbitrator of the contract.\",\"_externalDisputeID\":\"An identifier created outside Kleros by the protocol requesting arbitration.\",\"_templateId\":\"The identifier of the dispute template. Should not be used with _templateUri.\",\"_templateUri\":\"The URI to the dispute template. For example on IPFS: starting with '/ipfs/'. Should not be used with _templateId.\"}},\"Ruling(address,uint256,uint256)\":{\"details\":\"To be raised when a ruling is given.\",\"params\":{\"_arbitrator\":\"The arbitrator giving the ruling.\",\"_disputeID\":\"The identifier of the dispute in the Arbitrator contract.\",\"_ruling\":\"The ruling which was given.\"}}},\"kind\":\"dev\",\"methods\":{\"changeGovernor(address)\":{\"details\":\"Changes the governor.\",\"params\":{\"_governor\":\"The address of the new governor.\"}},\"constructor\":{\"details\":\"Constructor\",\"params\":{\"_arbitrator\":\"Target global arbitrator for any disputes.\"}},\"createDisputeForTemplate(bytes,string,string,uint256)\":{\"details\":\"Calls createDispute function of the specified arbitrator to create a dispute. Note that we don\\u2019t need to check that msg.value is enough to pay arbitration fees as it\\u2019s the responsibility of the arbitrator contract.\",\"params\":{\"_arbitratorExtraData\":\"Extra data for the arbitrator of the dispute.\",\"_disputeTemplate\":\"Dispute template.\",\"_disputeTemplateDataMappings\":\"The data mappings.\",\"_numberOfRulingOptions\":\"Number of ruling options.\"},\"returns\":{\"disputeID\":\"Dispute id (on arbitrator side) of the created dispute.\"}},\"createDisputeForTemplateUri(bytes,string,uint256)\":{\"details\":\"Calls createDispute function of the specified arbitrator to create a dispute. Note that we don\\u2019t need to check that msg.value is enough to pay arbitration fees as it\\u2019s the responsibility of the arbitrator contract.\",\"params\":{\"_arbitratorExtraData\":\"Extra data for the arbitrator of the dispute.\",\"_disputeTemplateUri\":\"The URI to the dispute template. For example on IPFS: starting with '/ipfs/'.\",\"_numberOfRulingOptions\":\"Number of ruling options.\"},\"returns\":{\"disputeID\":\"Dispute id (on arbitrator side) of the created dispute.\"}},\"rule(uint256,uint256)\":{\"details\":\"To be called by the arbitrator of the dispute, to declare the winning ruling.\",\"params\":{\"_externalDisputeID\":\"ID of the dispute in arbitrator contract.\",\"_ruling\":\"The ruling choice of the arbitration.\"}}},\"title\":\"DisputeResolver DisputeResolver contract adapted for V2 from https://github.com/kleros/arbitrable-proxy-contracts/blob/master/contracts/ArbitrableProxy.sol.\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/arbitration/arbitrables/DisputeResolver.sol\":\"DisputeResolver\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the amount of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the amount of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves `amount` tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Moves `amount` tokens from `from` to `to` using the\\n     * allowance mechanism. `amount` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(address from, address to, uint256 amount) external returns (bool);\\n}\\n\",\"keccak256\":\"0x287b55befed2961a7eabd7d7b1b2839cbca8a5b80ef8dcbb25ed3d4c2002c305\",\"license\":\"MIT\"},\"src/arbitration/arbitrables/DisputeResolver.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\n/// @custom:authors: [@ferittuncer, @unknownunknown1, @jaybuidl]\\n/// @custom:reviewers: []\\n/// @custom:auditors: []\\n/// @custom:bounties: []\\n\\nimport {IArbitrableV2, IArbitratorV2} from \\\"../interfaces/IArbitrableV2.sol\\\";\\nimport \\\"../interfaces/IDisputeTemplateRegistry.sol\\\";\\n\\npragma solidity 0.8.18;\\n\\n/// @title DisputeResolver\\n/// DisputeResolver contract adapted for V2 from https://github.com/kleros/arbitrable-proxy-contracts/blob/master/contracts/ArbitrableProxy.sol.\\ncontract DisputeResolver is IArbitrableV2 {\\n    // ************************************* //\\n    // *         Enums / Structs           * //\\n    // ************************************* //\\n\\n    struct DisputeStruct {\\n        bytes arbitratorExtraData; // Extra data for the dispute.\\n        bool isRuled; // True if the dispute has been ruled.\\n        uint256 ruling; // Ruling given to the dispute.\\n        uint256 numberOfRulingOptions; // The number of choices the arbitrator can give.\\n    }\\n\\n    // ************************************* //\\n    // *             Storage               * //\\n    // ************************************* //\\n\\n    address public governor; // The governor.\\n    IArbitratorV2 public arbitrator; // The arbitrator.\\n    IDisputeTemplateRegistry public templateRegistry; // The dispute template registry.\\n    DisputeStruct[] public disputes; // Local disputes.\\n    mapping(uint256 => uint256) public arbitratorDisputeIDToLocalID; // Maps arbitrator-side dispute IDs to local dispute IDs.\\n\\n    // ************************************* //\\n    // *            Constructor            * //\\n    // ************************************* //\\n\\n    /// @dev Constructor\\n    /// @param _arbitrator Target global arbitrator for any disputes.\\n    constructor(IArbitratorV2 _arbitrator, IDisputeTemplateRegistry _templateRegistry) {\\n        governor = msg.sender;\\n        arbitrator = _arbitrator;\\n        templateRegistry = _templateRegistry;\\n    }\\n\\n    // ************************************* //\\n    // *           Governance              * //\\n    // ************************************* //\\n\\n    /// @dev Changes the governor.\\n    /// @param _governor The address of the new governor.\\n    function changeGovernor(address _governor) external {\\n        require(governor == msg.sender, \\\"Access not allowed: Governor only.\\\");\\n        governor = _governor;\\n    }\\n\\n    function changeArbitrator(IArbitratorV2 _arbitrator) external {\\n        require(governor == msg.sender, \\\"Access not allowed: Governor only.\\\");\\n        arbitrator = _arbitrator;\\n    }\\n\\n    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external {\\n        require(governor == msg.sender, \\\"Access not allowed: Governor only.\\\");\\n        templateRegistry = _templateRegistry;\\n    }\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /// @dev Calls createDispute function of the specified arbitrator to create a dispute.\\n    /// Note that we don\\u2019t need to check that msg.value is enough to pay arbitration fees as it\\u2019s the responsibility of the arbitrator contract.\\n    /// @param _arbitratorExtraData Extra data for the arbitrator of the dispute.\\n    /// @param _disputeTemplate Dispute template.\\n    /// @param _disputeTemplateDataMappings The data mappings.\\n    /// @param _numberOfRulingOptions Number of ruling options.\\n    /// @return disputeID Dispute id (on arbitrator side) of the created dispute.\\n    function createDisputeForTemplate(\\n        bytes calldata _arbitratorExtraData,\\n        string calldata _disputeTemplate,\\n        string memory _disputeTemplateDataMappings,\\n        uint256 _numberOfRulingOptions\\n    ) external payable returns (uint256 disputeID) {\\n        return\\n            _createDispute(\\n                _arbitratorExtraData,\\n                _disputeTemplate,\\n                _disputeTemplateDataMappings,\\n                \\\"\\\",\\n                _numberOfRulingOptions\\n            );\\n    }\\n\\n    /// @dev Calls createDispute function of the specified arbitrator to create a dispute.\\n    /// Note that we don\\u2019t need to check that msg.value is enough to pay arbitration fees as it\\u2019s the responsibility of the arbitrator contract.\\n    /// @param _arbitratorExtraData Extra data for the arbitrator of the dispute.\\n    /// @param _disputeTemplateUri The URI to the dispute template. For example on IPFS: starting with '/ipfs/'.\\n    /// @param _numberOfRulingOptions Number of ruling options.\\n    /// @return disputeID Dispute id (on arbitrator side) of the created dispute.\\n    function createDisputeForTemplateUri(\\n        bytes calldata _arbitratorExtraData,\\n        string calldata _disputeTemplateUri,\\n        uint256 _numberOfRulingOptions\\n    ) external payable returns (uint256 disputeID) {\\n        return _createDispute(_arbitratorExtraData, \\\"\\\", \\\"\\\", _disputeTemplateUri, _numberOfRulingOptions);\\n    }\\n\\n    /// @dev To be called by the arbitrator of the dispute, to declare the winning ruling.\\n    /// @param _externalDisputeID ID of the dispute in arbitrator contract.\\n    /// @param _ruling The ruling choice of the arbitration.\\n    function rule(uint256 _externalDisputeID, uint256 _ruling) external override {\\n        uint256 localDisputeID = arbitratorDisputeIDToLocalID[_externalDisputeID];\\n        DisputeStruct storage dispute = disputes[localDisputeID];\\n        require(msg.sender == address(arbitrator), \\\"Only the arbitrator can execute this.\\\");\\n        require(_ruling <= dispute.numberOfRulingOptions, \\\"Invalid ruling.\\\");\\n        require(!dispute.isRuled, \\\"This dispute has been ruled already.\\\");\\n\\n        dispute.isRuled = true;\\n        dispute.ruling = _ruling;\\n\\n        emit Ruling(IArbitratorV2(msg.sender), _externalDisputeID, dispute.ruling);\\n    }\\n\\n    // ************************************* //\\n    // *            Internal               * //\\n    // ************************************* //\\n\\n    function _createDispute(\\n        bytes calldata _arbitratorExtraData,\\n        string memory _disputeTemplate,\\n        string memory _disputeTemplateDataMappings,\\n        string memory _disputeTemplateUri,\\n        uint256 _numberOfRulingOptions\\n    ) internal returns (uint256 disputeID) {\\n        require(_numberOfRulingOptions > 1, \\\"Should be at least 2 ruling options.\\\");\\n\\n        disputeID = arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);\\n        uint256 localDisputeID = disputes.length;\\n        disputes.push(\\n            DisputeStruct({\\n                arbitratorExtraData: _arbitratorExtraData,\\n                isRuled: false,\\n                ruling: 0,\\n                numberOfRulingOptions: _numberOfRulingOptions\\n            })\\n        );\\n        arbitratorDisputeIDToLocalID[disputeID] = localDisputeID;\\n        uint256 templateId = templateRegistry.setDisputeTemplate(\\\"\\\", _disputeTemplate, _disputeTemplateDataMappings);\\n        emit DisputeRequest(arbitrator, disputeID, localDisputeID, templateId, _disputeTemplateUri);\\n    }\\n}\\n\",\"keccak256\":\"0x6a73611696ae6b6f128c1c3d6f355f691f93b374243f41e6a9b0795bbfb8fb13\",\"license\":\"MIT\"},\"src/arbitration/interfaces/IArbitrableV2.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\nimport \\\"./IArbitratorV2.sol\\\";\\n\\n/// @title IArbitrableV2\\n/// @notice Arbitrable interface.\\n/// When developing arbitrable contracts, we need to:\\n/// - Define the action taken when a ruling is received by the contract.\\n/// - Allow dispute creation. For this a function must call arbitrator.createDispute{value: _fee}(_choices,_extraData);\\ninterface IArbitrableV2 {\\n    /// @dev To be emitted when a dispute is created to link the correct meta-evidence to the disputeID.\\n    /// @param _arbitrator The arbitrator of the contract.\\n    /// @param _arbitrableDisputeID The identifier of the dispute in the Arbitrable contract.\\n    /// @param _externalDisputeID An identifier created outside Kleros by the protocol requesting arbitration.\\n    /// @param _templateId The identifier of the dispute template. Should not be used with _templateUri.\\n    /// @param _templateUri The URI to the dispute template. For example on IPFS: starting with '/ipfs/'. Should not be used with _templateId.\\n    event DisputeRequest(\\n        IArbitratorV2 indexed _arbitrator,\\n        uint256 indexed _arbitrableDisputeID,\\n        uint256 _externalDisputeID,\\n        uint256 _templateId,\\n        string _templateUri\\n    );\\n\\n    /// @dev To be raised when a ruling is given.\\n    /// @param _arbitrator The arbitrator giving the ruling.\\n    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.\\n    /// @param _ruling The ruling which was given.\\n    event Ruling(IArbitratorV2 indexed _arbitrator, uint256 indexed _disputeID, uint256 _ruling);\\n\\n    /// @dev Give a ruling for a dispute.\\n    ///      Must be called by the arbitrator.\\n    ///      The purpose of this function is to ensure that the address calling it has the right to rule on the contract.\\n    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.\\n    /// @param _ruling Ruling given by the arbitrator.\\n    /// Note that 0 is reserved for \\\"Not able/wanting to make a decision\\\".\\n    function rule(uint256 _disputeID, uint256 _ruling) external;\\n}\\n\",\"keccak256\":\"0x389326b1f749454ed179bdac2f9d6ce24a1ef944bbce976ca78b93f4e173354a\",\"license\":\"MIT\"},\"src/arbitration/interfaces/IArbitratorV2.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport \\\"./IArbitrableV2.sol\\\";\\n\\n/// @title Arbitrator\\n/// Arbitrator interface that implements the new arbitration standard.\\n/// Unlike the ERC-792 this standard is not concerned with appeals, so each arbitrator can implement an appeal system that suits it the most.\\n/// When developing arbitrator contracts we need to:\\n/// - Define the functions for dispute creation (createDispute). Don't forget to store the arbitrated contract and the disputeID (which should be unique, may nbDisputes).\\n/// - Define the functions for cost display (arbitrationCost).\\n/// - Allow giving rulings. For this a function must call arbitrable.rule(disputeID, ruling).\\ninterface IArbitratorV2 {\\n    /// @dev To be emitted when a dispute is created.\\n    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.\\n    /// @param _arbitrable The contract which created the dispute.\\n    event DisputeCreation(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);\\n\\n    /// @dev To be raised when a ruling is given.\\n    /// @param _arbitrable The arbitrable receiving the ruling.\\n    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.\\n    /// @param _ruling The ruling which was given.\\n    event Ruling(IArbitrableV2 indexed _arbitrable, uint256 indexed _disputeID, uint256 _ruling);\\n\\n    /// @dev To be emitted when an ERC20 token is added or removed as a method to pay fees.\\n    /// @param _token The ERC20 token.\\n    /// @param _accepted Whether the token is accepted or not.\\n    event AcceptedFeeToken(IERC20 indexed _token, bool indexed _accepted);\\n\\n    /// @dev To be emitted when the fee for a particular ERC20 token is updated.\\n    /// @param _feeToken The ERC20 token.\\n    /// @param _rateInEth The new rate of the fee token in ETH.\\n    /// @param _rateDecimals The new decimals of the fee token rate.\\n    event NewCurrencyRate(IERC20 indexed _feeToken, uint64 _rateInEth, uint8 _rateDecimals);\\n\\n    /// @dev Create a dispute and pay for the fees in the native currency, typically ETH.\\n    ///      Must be called by the arbitrable contract.\\n    ///      Must pay at least arbitrationCost(_extraData).\\n    /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.\\n    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).\\n    /// @return disputeID The identifier of the dispute created.\\n    function createDispute(\\n        uint256 _numberOfChoices,\\n        bytes calldata _extraData\\n    ) external payable returns (uint256 disputeID);\\n\\n    /// @dev Create a dispute and pay for the fees in a supported ERC20 token.\\n    ///      Must be called by the arbitrable contract.\\n    ///      Must pay at least arbitrationCost(_extraData).\\n    /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.\\n    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).\\n    /// @param _feeToken The ERC20 token used to pay fees.\\n    /// @param _feeAmount Amount of the ERC20 token used to pay fees.\\n    /// @return disputeID The identifier of the dispute created.\\n    function createDispute(\\n        uint256 _numberOfChoices,\\n        bytes calldata _extraData,\\n        IERC20 _feeToken,\\n        uint256 _feeAmount\\n    ) external returns (uint256 disputeID);\\n\\n    /// @dev Compute the cost of arbitration denominated in the native currency, typically ETH.\\n    ///      It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.\\n    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).\\n    /// @return cost The arbitration cost in ETH.\\n    function arbitrationCost(bytes calldata _extraData) external view returns (uint256 cost);\\n\\n    /// @dev Compute the cost of arbitration denominated in `_feeToken`.\\n    ///      It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.\\n    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).\\n    /// @param _feeToken The ERC20 token used to pay fees.\\n    /// @return cost The arbitration cost in `_feeToken`.\\n    function arbitrationCost(bytes calldata _extraData, IERC20 _feeToken) external view returns (uint256 cost);\\n\\n    /// @dev Gets the current ruling of a specified dispute.\\n    /// @param _disputeID The ID of the dispute.\\n    /// @return ruling The current ruling.\\n    /// @return tied Whether it's a tie or not.\\n    /// @return overridden Whether the ruling was overridden by appeal funding or not.\\n    function currentRuling(uint256 _disputeID) external view returns (uint256 ruling, bool tied, bool overridden);\\n}\\n\",\"keccak256\":\"0x453943ba5ccc94b9b9cdfd4afd3678682d62d8b90fe16b43e90215387d2f6a51\",\"license\":\"MIT\"},\"src/arbitration/interfaces/IDisputeTemplateRegistry.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\n/// @title IDisputeTemplate\\n/// @notice Dispute Template interface.\\ninterface IDisputeTemplateRegistry {\\n    /// @dev To be emitted when a new dispute template is created.\\n    /// @param _templateId The identifier of the dispute template.\\n    /// @param _templateTag An optional tag for the dispute template, such as \\\"registration\\\" or \\\"removal\\\".\\n    /// @param _templateData The template data.\\n    /// @param _templateDataMappings The data mappings.\\n    event DisputeTemplate(\\n        uint256 indexed _templateId,\\n        string indexed _templateTag,\\n        string _templateData,\\n        string _templateDataMappings\\n    );\\n\\n    function setDisputeTemplate(\\n        string memory _templateTag,\\n        string memory _templateData,\\n        string memory _templateDataMappings\\n    ) external returns (uint256 templateId);\\n}\\n\",\"keccak256\":\"0x88b0038d226532e6cf862a485d162f7bca61ac3d361d6801146b55a240f091ac\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50604051610ed5380380610ed583398101604081905261002f91610083565b600080546001600160a01b03199081163317909155600180546001600160a01b03948516908316179055600280549290931691161790556100bd565b6001600160a01b038116811461008057600080fd5b50565b6000806040838503121561009657600080fd5b82516100a18161006b565b60208401519092506100b28161006b565b809150509250929050565b610e09806100cc6000396000f3fe60806040526004361061009c5760003560e01c8063908bb29511610064578063908bb29514610170578063a0af81f014610191578063dc653511146101b1578063e09997d9146101c4578063e4c0aaf4146101f1578063fc548f081461021157600080fd5b80630c340a24146100a1578063311a6c56146100de5780634660ebbe14610100578063564a565d146101205780636cc6cde114610150575b600080fd5b3480156100ad57600080fd5b506000546100c1906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b3480156100ea57600080fd5b506100fe6100f93660046108bb565b610231565b005b34801561010c57600080fd5b506100fe61011b3660046108f5565b6103d1565b34801561012c57600080fd5b5061014061013b366004610919565b61041d565b6040516100d59493929190610978565b34801561015c57600080fd5b506001546100c1906001600160a01b031681565b61018361017e3660046109f0565b6104eb565b6040519081526020016100d5565b34801561019d57600080fd5b506002546100c1906001600160a01b031681565b6101836101bf366004610a7a565b61055a565b3480156101d057600080fd5b506101836101df366004610919565b60046020526000908152604090205481565b3480156101fd57600080fd5b506100fe61020c3660046108f5565b6105b9565b34801561021d57600080fd5b506100fe61022c3660046108f5565b610605565b600082815260046020526040812054600380549192918390811061025757610257610b88565b6000918252602090912060015460049092020191506001600160a01b031633146102d65760405162461bcd60e51b815260206004820152602560248201527f4f6e6c79207468652061726269747261746f722063616e2065786563757465206044820152643a3434b99760d91b60648201526084015b60405180910390fd5b806003015483111561031c5760405162461bcd60e51b815260206004820152600f60248201526e24b73b30b634b210393ab634b7339760891b60448201526064016102cd565b600181015460ff161561037d5760405162461bcd60e51b8152602060048201526024808201527f54686973206469737075746520686173206265656e2072756c656420616c726560448201526330b23c9760e11b60648201526084016102cd565b6001818101805460ff1916909117905560028101839055604051838152849033907f394027a5fa6e098a1191094d1719d6929b9abc535fcc0c8f448d6a4e756222769060200160405180910390a350505050565b6000546001600160a01b031633146103fb5760405162461bcd60e51b81526004016102cd90610b9e565b600280546001600160a01b0319166001600160a01b0392909216919091179055565b6003818154811061042d57600080fd5b906000526020600020906004020160009150905080600001805461045090610be0565b80601f016020809104026020016040519081016040528092919081815260200182805461047c90610be0565b80156104c95780601f1061049e576101008083540402835291602001916104c9565b820191906000526020600020905b8154815290600101906020018083116104ac57829003601f168201915b5050505060018301546002840154600390940154929360ff9091169290915084565b60006105508686604051806020016040528060008152506040518060200160405280600081525088888080601f0160208091040260200160405190810160405280939291908181526020018383808284376000920191909152508a9250610651915050565b9695505050505050565b60006105ae878787878080601f016020809104026020016040519081016040528093929190818152602001838380828437600092018290525060408051602081019091529081528a93509150889050610651565b979650505050505050565b6000546001600160a01b031633146105e35760405162461bcd60e51b81526004016102cd90610b9e565b600080546001600160a01b0319166001600160a01b0392909216919091179055565b6000546001600160a01b0316331461062f5760405162461bcd60e51b81526004016102cd90610b9e565b600180546001600160a01b0319166001600160a01b0392909216919091179055565b6000600182116106af5760405162461bcd60e51b8152602060048201526024808201527f53686f756c64206265206174206c6561737420322072756c696e67206f70746960448201526337b7399760e11b60648201526084016102cd565b60015460405163c13517e160e01b81526001600160a01b039091169063c13517e19034906106e59086908c908c90600401610c1a565b60206040518083038185885af1158015610703573d6000803e3d6000fd5b50505050506040513d601f19601f820116820180604052508101906107289190610c50565b600380546040805160a06020601f8d018190040282018101909252608081018b8152949550919382918c908c90819085018382808284376000920182905250938552505050602080830182905260408301829052606090920187905283546001810185559381522081519192600402019081906107a59082610cb8565b5060208281015160018301805460ff19169115159190911790556040808401516002808501919091556060909401516003909301929092556000858152600491829052828120859055925491516312a6505d60e21b81526001600160a01b0390921691634a9941749161081c918b918b9101610d78565b6020604051808303816000875af115801561083b573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061085f9190610c50565b60015460405191925084916001600160a01b03909116907f8bd32f430ff060e6bd204709b3790c9807987263d3230c580dc80b5f89e27186906108a790869086908b90610db4565b60405180910390a350509695505050505050565b600080604083850312156108ce57600080fd5b50508035926020909101359150565b6001600160a01b03811681146108f257600080fd5b50565b60006020828403121561090757600080fd5b8135610912816108dd565b9392505050565b60006020828403121561092b57600080fd5b5035919050565b6000815180845260005b818110156109585760208185018101518683018201520161093c565b506000602082860101526020601f19601f83011685010191505092915050565b60808152600061098b6080830187610932565b9415156020830152506040810192909252606090910152919050565b60008083601f8401126109b957600080fd5b50813567ffffffffffffffff8111156109d157600080fd5b6020830191508360208285010111156109e957600080fd5b9250929050565b600080600080600060608688031215610a0857600080fd5b853567ffffffffffffffff80821115610a2057600080fd5b610a2c89838a016109a7565b90975095506020880135915080821115610a4557600080fd5b50610a52888289016109a7565b96999598509660400135949350505050565b634e487b7160e01b600052604160045260246000fd5b60008060008060008060808789031215610a9357600080fd5b863567ffffffffffffffff80821115610aab57600080fd5b610ab78a838b016109a7565b90985096506020890135915080821115610ad057600080fd5b610adc8a838b016109a7565b90965094506040890135915080821115610af557600080fd5b818901915089601f830112610b0957600080fd5b813581811115610b1b57610b1b610a64565b604051601f8201601f19908116603f01168101908382118183101715610b4357610b43610a64565b816040528281528c6020848701011115610b5c57600080fd5b826020860160208301376000602084830101528096505050505050606087013590509295509295509295565b634e487b7160e01b600052603260045260246000fd5b60208082526022908201527f416363657373206e6f7420616c6c6f7765643a20476f7665726e6f72206f6e6c6040820152613c9760f11b606082015260800190565b600181811c90821680610bf457607f821691505b602082108103610c1457634e487b7160e01b600052602260045260246000fd5b50919050565b83815260406020820152816040820152818360608301376000818301606090810191909152601f909201601f1916010192915050565b600060208284031215610c6257600080fd5b5051919050565b601f821115610cb357600081815260208120601f850160051c81016020861015610c905750805b601f850160051c820191505b81811015610caf57828155600101610c9c565b5050505b505050565b815167ffffffffffffffff811115610cd257610cd2610a64565b610ce681610ce08454610be0565b84610c69565b602080601f831160018114610d1b5760008415610d035750858301515b600019600386901b1c1916600185901b178555610caf565b600085815260208120601f198616915b82811015610d4a57888601518255948401946001909101908401610d2b565b5085821015610d685787850151600019600388901b60f8161c191681555b5050505050600190811b01905550565b6060815260006060820152608060208201526000610d996080830185610932565b8281036040840152610dab8185610932565b95945050505050565b838152826020820152606060408201526000610dab606083018461093256fea2646970667358221220877ae0e909997117f80796c7abc2192eb434ddbaf0b29b8c6a7ca73e306f53b964736f6c63430008120033",
+  "deployedBytecode": "0x60806040526004361061009c5760003560e01c8063908bb29511610064578063908bb29514610170578063a0af81f014610191578063dc653511146101b1578063e09997d9146101c4578063e4c0aaf4146101f1578063fc548f081461021157600080fd5b80630c340a24146100a1578063311a6c56146100de5780634660ebbe14610100578063564a565d146101205780636cc6cde114610150575b600080fd5b3480156100ad57600080fd5b506000546100c1906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b3480156100ea57600080fd5b506100fe6100f93660046108bb565b610231565b005b34801561010c57600080fd5b506100fe61011b3660046108f5565b6103d1565b34801561012c57600080fd5b5061014061013b366004610919565b61041d565b6040516100d59493929190610978565b34801561015c57600080fd5b506001546100c1906001600160a01b031681565b61018361017e3660046109f0565b6104eb565b6040519081526020016100d5565b34801561019d57600080fd5b506002546100c1906001600160a01b031681565b6101836101bf366004610a7a565b61055a565b3480156101d057600080fd5b506101836101df366004610919565b60046020526000908152604090205481565b3480156101fd57600080fd5b506100fe61020c3660046108f5565b6105b9565b34801561021d57600080fd5b506100fe61022c3660046108f5565b610605565b600082815260046020526040812054600380549192918390811061025757610257610b88565b6000918252602090912060015460049092020191506001600160a01b031633146102d65760405162461bcd60e51b815260206004820152602560248201527f4f6e6c79207468652061726269747261746f722063616e2065786563757465206044820152643a3434b99760d91b60648201526084015b60405180910390fd5b806003015483111561031c5760405162461bcd60e51b815260206004820152600f60248201526e24b73b30b634b210393ab634b7339760891b60448201526064016102cd565b600181015460ff161561037d5760405162461bcd60e51b8152602060048201526024808201527f54686973206469737075746520686173206265656e2072756c656420616c726560448201526330b23c9760e11b60648201526084016102cd565b6001818101805460ff1916909117905560028101839055604051838152849033907f394027a5fa6e098a1191094d1719d6929b9abc535fcc0c8f448d6a4e756222769060200160405180910390a350505050565b6000546001600160a01b031633146103fb5760405162461bcd60e51b81526004016102cd90610b9e565b600280546001600160a01b0319166001600160a01b0392909216919091179055565b6003818154811061042d57600080fd5b906000526020600020906004020160009150905080600001805461045090610be0565b80601f016020809104026020016040519081016040528092919081815260200182805461047c90610be0565b80156104c95780601f1061049e576101008083540402835291602001916104c9565b820191906000526020600020905b8154815290600101906020018083116104ac57829003601f168201915b5050505060018301546002840154600390940154929360ff9091169290915084565b60006105508686604051806020016040528060008152506040518060200160405280600081525088888080601f0160208091040260200160405190810160405280939291908181526020018383808284376000920191909152508a9250610651915050565b9695505050505050565b60006105ae878787878080601f016020809104026020016040519081016040528093929190818152602001838380828437600092018290525060408051602081019091529081528a93509150889050610651565b979650505050505050565b6000546001600160a01b031633146105e35760405162461bcd60e51b81526004016102cd90610b9e565b600080546001600160a01b0319166001600160a01b0392909216919091179055565b6000546001600160a01b0316331461062f5760405162461bcd60e51b81526004016102cd90610b9e565b600180546001600160a01b0319166001600160a01b0392909216919091179055565b6000600182116106af5760405162461bcd60e51b8152602060048201526024808201527f53686f756c64206265206174206c6561737420322072756c696e67206f70746960448201526337b7399760e11b60648201526084016102cd565b60015460405163c13517e160e01b81526001600160a01b039091169063c13517e19034906106e59086908c908c90600401610c1a565b60206040518083038185885af1158015610703573d6000803e3d6000fd5b50505050506040513d601f19601f820116820180604052508101906107289190610c50565b600380546040805160a06020601f8d018190040282018101909252608081018b8152949550919382918c908c90819085018382808284376000920182905250938552505050602080830182905260408301829052606090920187905283546001810185559381522081519192600402019081906107a59082610cb8565b5060208281015160018301805460ff19169115159190911790556040808401516002808501919091556060909401516003909301929092556000858152600491829052828120859055925491516312a6505d60e21b81526001600160a01b0390921691634a9941749161081c918b918b9101610d78565b6020604051808303816000875af115801561083b573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061085f9190610c50565b60015460405191925084916001600160a01b03909116907f8bd32f430ff060e6bd204709b3790c9807987263d3230c580dc80b5f89e27186906108a790869086908b90610db4565b60405180910390a350509695505050505050565b600080604083850312156108ce57600080fd5b50508035926020909101359150565b6001600160a01b03811681146108f257600080fd5b50565b60006020828403121561090757600080fd5b8135610912816108dd565b9392505050565b60006020828403121561092b57600080fd5b5035919050565b6000815180845260005b818110156109585760208185018101518683018201520161093c565b506000602082860101526020601f19601f83011685010191505092915050565b60808152600061098b6080830187610932565b9415156020830152506040810192909252606090910152919050565b60008083601f8401126109b957600080fd5b50813567ffffffffffffffff8111156109d157600080fd5b6020830191508360208285010111156109e957600080fd5b9250929050565b600080600080600060608688031215610a0857600080fd5b853567ffffffffffffffff80821115610a2057600080fd5b610a2c89838a016109a7565b90975095506020880135915080821115610a4557600080fd5b50610a52888289016109a7565b96999598509660400135949350505050565b634e487b7160e01b600052604160045260246000fd5b60008060008060008060808789031215610a9357600080fd5b863567ffffffffffffffff80821115610aab57600080fd5b610ab78a838b016109a7565b90985096506020890135915080821115610ad057600080fd5b610adc8a838b016109a7565b90965094506040890135915080821115610af557600080fd5b818901915089601f830112610b0957600080fd5b813581811115610b1b57610b1b610a64565b604051601f8201601f19908116603f01168101908382118183101715610b4357610b43610a64565b816040528281528c6020848701011115610b5c57600080fd5b826020860160208301376000602084830101528096505050505050606087013590509295509295509295565b634e487b7160e01b600052603260045260246000fd5b60208082526022908201527f416363657373206e6f7420616c6c6f7765643a20476f7665726e6f72206f6e6c6040820152613c9760f11b606082015260800190565b600181811c90821680610bf457607f821691505b602082108103610c1457634e487b7160e01b600052602260045260246000fd5b50919050565b83815260406020820152816040820152818360608301376000818301606090810191909152601f909201601f1916010192915050565b600060208284031215610c6257600080fd5b5051919050565b601f821115610cb357600081815260208120601f850160051c81016020861015610c905750805b601f850160051c820191505b81811015610caf57828155600101610c9c565b5050505b505050565b815167ffffffffffffffff811115610cd257610cd2610a64565b610ce681610ce08454610be0565b84610c69565b602080601f831160018114610d1b5760008415610d035750858301515b600019600386901b1c1916600185901b178555610caf565b600085815260208120601f198616915b82811015610d4a57888601518255948401946001909101908401610d2b565b5085821015610d685787850151600019600388901b60f8161c191681555b5050505050600190811b01905550565b6060815260006060820152608060208201526000610d996080830185610932565b8281036040840152610dab8185610932565b95945050505050565b838152826020820152606060408201526000610dab606083018461093256fea2646970667358221220877ae0e909997117f80796c7abc2192eb434ddbaf0b29b8c6a7ca73e306f53b964736f6c63430008120033",
+  "devdoc": {
+    "events": {
+      "DisputeRequest(address,uint256,uint256,uint256,string)": {
+        "details": "To be emitted when a dispute is created to link the correct meta-evidence to the disputeID.",
+        "params": {
+          "_arbitrableDisputeID": "The identifier of the dispute in the Arbitrable contract.",
+          "_arbitrator": "The arbitrator of the contract.",
+          "_externalDisputeID": "An identifier created outside Kleros by the protocol requesting arbitration.",
+          "_templateId": "The identifier of the dispute template. Should not be used with _templateUri.",
+          "_templateUri": "The URI to the dispute template. For example on IPFS: starting with '/ipfs/'. Should not be used with _templateId."
+        }
+      },
+      "Ruling(address,uint256,uint256)": {
+        "details": "To be raised when a ruling is given.",
+        "params": {
+          "_arbitrator": "The arbitrator giving the ruling.",
+          "_disputeID": "The identifier of the dispute in the Arbitrator contract.",
+          "_ruling": "The ruling which was given."
+        }
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "changeGovernor(address)": {
+        "details": "Changes the governor.",
+        "params": {
+          "_governor": "The address of the new governor."
+        }
+      },
+      "constructor": {
+        "details": "Constructor",
+        "params": {
+          "_arbitrator": "Target global arbitrator for any disputes."
+        }
+      },
+      "createDisputeForTemplate(bytes,string,string,uint256)": {
+        "details": "Calls createDispute function of the specified arbitrator to create a dispute. Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.",
+        "params": {
+          "_arbitratorExtraData": "Extra data for the arbitrator of the dispute.",
+          "_disputeTemplate": "Dispute template.",
+          "_disputeTemplateDataMappings": "The data mappings.",
+          "_numberOfRulingOptions": "Number of ruling options."
+        },
+        "returns": {
+          "disputeID": "Dispute id (on arbitrator side) of the created dispute."
+        }
+      },
+      "createDisputeForTemplateUri(bytes,string,uint256)": {
+        "details": "Calls createDispute function of the specified arbitrator to create a dispute. Note that we don’t need to check that msg.value is enough to pay arbitration fees as it’s the responsibility of the arbitrator contract.",
+        "params": {
+          "_arbitratorExtraData": "Extra data for the arbitrator of the dispute.",
+          "_disputeTemplateUri": "The URI to the dispute template. For example on IPFS: starting with '/ipfs/'.",
+          "_numberOfRulingOptions": "Number of ruling options."
+        },
+        "returns": {
+          "disputeID": "Dispute id (on arbitrator side) of the created dispute."
+        }
+      },
+      "rule(uint256,uint256)": {
+        "details": "To be called by the arbitrator of the dispute, to declare the winning ruling.",
+        "params": {
+          "_externalDisputeID": "ID of the dispute in arbitrator contract.",
+          "_ruling": "The ruling choice of the arbitration."
+        }
+      }
+    },
+    "title": "DisputeResolver DisputeResolver contract adapted for V2 from https://github.com/kleros/arbitrable-proxy-contracts/blob/master/contracts/ArbitrableProxy.sol.",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 10260,
+        "contract": "src/arbitration/arbitrables/DisputeResolver.sol:DisputeResolver",
+        "label": "governor",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 10263,
+        "contract": "src/arbitration/arbitrables/DisputeResolver.sol:DisputeResolver",
+        "label": "arbitrator",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_contract(IArbitratorV2)17049"
+      },
+      {
+        "astId": 10266,
+        "contract": "src/arbitration/arbitrables/DisputeResolver.sol:DisputeResolver",
+        "label": "templateRegistry",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_contract(IDisputeTemplateRegistry)17216"
+      },
+      {
+        "astId": 10270,
+        "contract": "src/arbitration/arbitrables/DisputeResolver.sol:DisputeResolver",
+        "label": "disputes",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_array(t_struct(DisputeStruct)10258_storage)dyn_storage"
+      },
+      {
+        "astId": 10274,
+        "contract": "src/arbitration/arbitrables/DisputeResolver.sol:DisputeResolver",
+        "label": "arbitratorDisputeIDToLocalID",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_mapping(t_uint256,t_uint256)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_struct(DisputeStruct)10258_storage)dyn_storage": {
+        "base": "t_struct(DisputeStruct)10258_storage",
+        "encoding": "dynamic_array",
+        "label": "struct DisputeResolver.DisputeStruct[]",
+        "numberOfBytes": "32"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes_storage": {
+        "encoding": "bytes",
+        "label": "bytes",
+        "numberOfBytes": "32"
+      },
+      "t_contract(IArbitratorV2)17049": {
+        "encoding": "inplace",
+        "label": "contract IArbitratorV2",
+        "numberOfBytes": "20"
+      },
+      "t_contract(IDisputeTemplateRegistry)17216": {
+        "encoding": "inplace",
+        "label": "contract IDisputeTemplateRegistry",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_uint256,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_struct(DisputeStruct)10258_storage": {
+        "encoding": "inplace",
+        "label": "struct DisputeResolver.DisputeStruct",
+        "members": [
+          {
+            "astId": 10251,
+            "contract": "src/arbitration/arbitrables/DisputeResolver.sol:DisputeResolver",
+            "label": "arbitratorExtraData",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bytes_storage"
+          },
+          {
+            "astId": 10253,
+            "contract": "src/arbitration/arbitrables/DisputeResolver.sol:DisputeResolver",
+            "label": "isRuled",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_bool"
+          },
+          {
+            "astId": 10255,
+            "contract": "src/arbitration/arbitrables/DisputeResolver.sol:DisputeResolver",
+            "label": "ruling",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 10257,
+            "contract": "src/arbitration/arbitrables/DisputeResolver.sol:DisputeResolver",
+            "label": "numberOfRulingOptions",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
