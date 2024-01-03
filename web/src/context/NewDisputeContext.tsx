@@ -41,9 +41,11 @@ interface IDisputeData extends IDisputeTemplate {
 
 interface INewDisputeContext {
   disputeData: IDisputeData;
-  setDisputeData: (disputeTemplate: IDisputeData) => void;
+  setDisputeData: (disputeData: IDisputeData) => void;
   disputeTemplate: IDisputeTemplate;
   resetDisputeData: () => void;
+  isSubmittingCase: boolean;
+  setIsSubmittingCase: (isSubmittingCase: boolean) => void;
 }
 
 //TODO: iterate on a better initial state
@@ -67,6 +69,8 @@ const NewDisputeContext = createContext<INewDisputeContext>({
   setDisputeData: () => {},
   disputeTemplate: initialDisputeTemplate,
   resetDisputeData: () => {},
+  isSubmittingCase: false,
+  setIsSubmittingCase: () => {},
 });
 
 export const useNewDisputeContext = () => useContext(NewDisputeContext);
@@ -75,6 +79,7 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const localDisputeTemplate = localStorage.getItem("disputeData") ?? undefined;
   const initialState = isUndefined(localDisputeTemplate) ? initialDisputeData : JSON.parse(localDisputeTemplate);
   const [disputeData, setDisputeData] = useState<IDisputeData>(initialState);
+  const [isSubmittingCase, setIsSubmittingCase] = useState<boolean>(false);
 
   //TODO: reset data on submit or maybe page leave?
   useEffect(() => {
@@ -95,6 +100,8 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setDisputeData,
         disputeTemplate,
         resetDisputeData,
+        isSubmittingCase,
+        setIsSubmittingCase,
       }}
     >
       {children}

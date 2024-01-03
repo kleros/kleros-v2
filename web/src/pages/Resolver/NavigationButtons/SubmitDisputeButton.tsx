@@ -19,7 +19,8 @@ const SubmitDisputeButton: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [disputeId, setDisputeID] = useState<number>();
 
-  const { disputeTemplate, disputeData, resetDisputeData } = useNewDisputeContext();
+  const { disputeTemplate, disputeData, resetDisputeData, isSubmittingCase, setIsSubmittingCase } =
+    useNewDisputeContext();
 
   const { config: submitCaseConfig } = usePrepareDisputeResolverCreateDisputeForTemplate({
     enabled: true, //TODO : decide better condition for enabled
@@ -39,8 +40,10 @@ const SubmitDisputeButton: React.FC = () => {
       {" "}
       <StyledButton
         text="Submit the case"
+        disabled={isSubmittingCase}
         onClick={() => {
           if (submitCase) {
+            setIsSubmittingCase(true);
             wrapWithToast(async () => await submitCase().then((response) => response.hash), publicClient)
               .then((res) => {
                 if (res.status === "success") {
@@ -52,7 +55,9 @@ const SubmitDisputeButton: React.FC = () => {
 
                 resetDisputeData();
               })
-              .finally(() => {});
+              .finally(() => {
+                setIsSubmittingCase(false);
+              });
           }
         }}
       />
