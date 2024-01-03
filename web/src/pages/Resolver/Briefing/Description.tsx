@@ -33,6 +33,7 @@ const Description: React.FC = () => {
       <Header text="Describe the case" />
       <StyledTextArea
         onChange={handleWrite}
+        value={disputeData.description}
         placeholder="eg. Bob hired Alice to develop a website for him. Bob claims the contract was not fully respected, and the website was delivered incomplete. For that reason, he wants to pay part of the agreed payment: 150 DAI. On the other hand, Alice claims she should receive the full payment: 250 DAI."
       />
       <NavigationButtons prevRoute="/resolver/title" nextRoute="/resolver/court" />

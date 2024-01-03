@@ -32,7 +32,11 @@ const Title: React.FC = () => {
   return (
     <Container>
       <Header text="Choose a title" />
-      <StyledField onChange={handleWrite} placeholder="eg. Freelance work disagreement between Alice and Bob" />
+      <StyledField
+        onChange={handleWrite}
+        placeholder="eg. Freelance work disagreement between Alice and Bob"
+        value={disputeData.title}
+      />
       <NavigationButtons prevRoute="" nextRoute="/resolver/description" />
     </Container>
   );

@@ -38,6 +38,7 @@ const Category: React.FC = () => {
       <Header text="Choose a category" />
       <StyledField
         onChange={handleWrite}
+        value={disputeData.category}
         placeholder="eg. Freelance"
         variant="info"
         message="Type the category tag that you think best represents the case. eg. General, Curation, Freelancing, Listing, Insurance, Translation, Oracle, Identity, E-Commerce, etc."
