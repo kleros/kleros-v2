@@ -9,7 +9,7 @@ interface INextButton {
 
 const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
   const navigate = useNavigate();
-  const { disputeData } = useNewDisputeContext();
+  const { disputeData, isPolicyUploading } = useNewDisputeContext();
   const location = useLocation();
 
   //checks if each answer is filled in
@@ -25,7 +25,7 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
     (location.pathname.includes("/resolver/jurors") && !disputeData.numberOfJurors) ||
     (location.pathname.includes("/resolver/votingoptions") && !areVotingOptionsFilled) ||
     (location.pathname.includes("/resolver/counterparties") && !disputeData.aliases) ||
-    (location.pathname.includes("/resolver/policy") && !disputeData.policyFile);
+    (location.pathname.includes("/resolver/policy") && !isPolicyUploading && !disputeData.policyURI);
 
   return <Button disabled={isButtonDisabled} onClick={() => navigate(nextRoute)} text="Next" />;
 };

@@ -6,6 +6,9 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 import { FileUploader } from "@kleros/ui-components-library";
 import { useNewDisputeContext } from "context/NewDisputeContext";
+import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
+import { OPTIONS as toastOptions } from "utils/wrapWithToast";
+import { toast } from "react-toastify";
 
 const Container = styled.div`
   display: flex;
@@ -33,9 +36,26 @@ const StyledFileUploader = styled(FileUploader)`
     `
   )}
 `;
-//TODO: upload policy file to IPFS, also decide when to upload : 1. on select 2. on submit case
+
 const Policy: React.FC = () => {
-  const { disputeData, setDisputeData } = useNewDisputeContext();
+  const { disputeData, setDisputeData, setIsPolicyUploading } = useNewDisputeContext();
+
+  const handleFileUpload = (file: File) => {
+    setIsPolicyUploading(true);
+    toast.info("Uploading Policy to IPFS", toastOptions);
+
+    const fileFormData = new FormData();
+    fileFormData.append("data", file, file.name);
+
+    uploadFormDataToIPFS(fileFormData)
+      .then(async (res) => {
+        const response = await res.json();
+        const policyURI = response["cids"][0];
+        setDisputeData({ ...disputeData, policyURI });
+      })
+      .catch((err) => console.log(err))
+      .finally(() => setIsPolicyUploading(false));
+  };
 
   return (
     <Container>
@@ -46,7 +66,7 @@ const Policy: React.FC = () => {
         relevant to jurors' decision-making.
       </StyledLabel>
       <StyledFileUploader
-        callback={(file: File) => setDisputeData({ ...disputeData, policyFile: file })}
+        callback={handleFileUpload}
         variant="info"
         msg="Additionally, you can add an external file in PDF or add multiple files in a single .zip file."
       />
