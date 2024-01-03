@@ -82,7 +82,7 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, [disputeData]);
 
   //keep updating disputeTemplate
-  const disputeTemplate = useMemo(() => disputeData as IDisputeTemplate, [disputeData]);
+  const disputeTemplate = useMemo(() => constructDisputeTemplate(disputeData), [disputeData]);
 
   const resetDisputeData = () => {
     localStorage.removeItem("disputeData");
@@ -100,4 +100,16 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       {children}
     </NewDisputeContext.Provider>
   );
+};
+
+const constructDisputeTemplate = (disputeData: IDisputeData) => {
+  const baseTemplate = { ...disputeData } as IDisputeTemplate;
+
+  if (!isUndefined(baseTemplate.aliases)) {
+    baseTemplate.aliases = baseTemplate.aliases.filter((item) => item.name !== "" && item.address !== "");
+    if (baseTemplate.aliases.length === 0) delete baseTemplate.aliases;
+  }
+  if (!isUndefined(baseTemplate.policyURI) && baseTemplate.policyURI === "") delete baseTemplate.policyURI;
+
+  return baseTemplate;
 };
