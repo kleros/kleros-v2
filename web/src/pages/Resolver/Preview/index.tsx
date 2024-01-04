@@ -77,7 +77,7 @@ const Preview: React.FC = () => {
             {...{ category: disputeData.category }}
           />
         </PreviewContainer>
-        <Policies disputePolicyURI={disputeTemplate.policyURI} courtId={"1"} />
+        <Policies disputePolicyURI={disputeTemplate.policyURI} courtId={disputeData.courtId} />
       </StyledCard>
       <NavigationButtons prevRoute="/resolver/policy" />
     </Container>
