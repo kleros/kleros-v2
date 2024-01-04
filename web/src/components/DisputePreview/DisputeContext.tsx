@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import { isUndefined } from "utils/index";
 import { Answer, IDisputeTemplate } from "context/NewDisputeContext";
+import Alias from "./Alias";
 
 const StyledH1 = styled.h1`
   margin: 0;
@@ -39,6 +40,19 @@ const Answer = styled.div`
   gap: 8px;
 `;
 
+const AliasesContainer = styled.div`
+  display: flex;
+  gap: 20px;
+`;
+
+const Divider = styled.hr`
+  width: 100%;
+  display: flex;
+  border: none;
+  height: 1px;
+  background-color: ${({ theme }) => theme.stroke};
+  margin: 0;
+`;
 interface IDisputeContext {
   disputeTemplate: IDisputeTemplate;
 }
@@ -75,6 +89,17 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeTemplate }) =
           ))}
         </AnswersContainer>
       </VotingOptions>
+
+      {isUndefined(disputeTemplate?.aliases) ? null : (
+        <>
+          <Divider />
+          <AliasesContainer>
+            {disputeTemplate.aliases.map((alias, index) => (
+              <Alias alias={alias} key={index} />
+            ))}
+          </AliasesContainer>
+        </>
+      )}
     </>
   );
 };
