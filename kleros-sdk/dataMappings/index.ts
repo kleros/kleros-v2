@@ -2,9 +2,23 @@ import { createPublicClient, parseAbiItem, webSocket } from "viem";
 import { arbitrumGoerli } from "viem/chains";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
-import { AbiCallMapping, AbiEventMapping, ActionMapping, JsonMapping, SubgraphMapping } from "./utils/actionTypes";
-import { isAbiCallMapping, isAbiEventMapping, isJsonMapping, isSubgraphMapping } from "./utils/actionTypeDetectors";
+import {
+  AbiCallMapping,
+  AbiEventMapping,
+  ActionMapping,
+  FetchIpfsJsonMapping,
+  JsonMapping,
+  SubgraphMapping,
+} from "./utils/actionTypes";
+import {
+  isAbiCallMapping,
+  isAbiEventMapping,
+  isFetchIpfsJsonMapping,
+  isJsonMapping,
+  isSubgraphMapping,
+} from "./utils/actionTypeDetectors";
 import { findNestedKey } from "./utils/findNestedKey";
+import { MAX_BYTE_SIZE } from "./utils/maxByteSize";
 
 dotenv.config();
 
@@ -23,16 +37,33 @@ export const configureSDK = (config: { apiKey?: string }) => {
   }
 };
 
+const createResultObject = (sourceData, seek, populate) => {
+  let result = {};
+  seek.forEach((key, idx) => {
+    const foundValue = findNestedKey(sourceData, key);
+    console.log(`Seek key: ${key}, Found value:`, foundValue);
+    if (foundValue !== undefined) {
+      result[populate[idx]] = foundValue;
+      console.log(`Populate key: ${populate[idx]}, Value to add:`, foundValue);
+    }
+  });
+  console.log("Result object:", result);
+  return result;
+};
+
+const replacePlaceholdersWithValues = (mapping, context) => {
+  let newMapping = { ...mapping };
+  for (const key of Object.keys(newMapping)) {
+    if (typeof newMapping[key] === "string" && context.hasOwnProperty(newMapping[key])) {
+      newMapping[key] = context[newMapping[key]];
+    }
+  }
+  return newMapping;
+};
+
 export const jsonAction = (mapping: JsonMapping) => {
   const { value: source, seek, populate } = mapping;
-
-  let jsonData = {};
-  seek.forEach((key, idx) => {
-    const foundValue = findNestedKey(source, key);
-    jsonData[populate[idx]] = foundValue;
-  });
-
-  return jsonData;
+  return createResultObject(source, seek, populate);
 };
 
 export const subgraphAction = async (mapping: SubgraphMapping) => {
@@ -49,13 +80,7 @@ export const subgraphAction = async (mapping: SubgraphMapping) => {
 
   const { data } = await response.json();
 
-  let populatedData = {};
-  seek.forEach((key, idx) => {
-    const foundValue = findNestedKey(data, key);
-    populatedData[populate[idx]] = foundValue;
-  });
-
-  return populatedData;
+  return createResultObject(data, seek, populate);
 };
 
 export const callAction = async (mapping: AbiCallMapping) => {
@@ -73,12 +98,7 @@ export const callAction = async (mapping: AbiCallMapping) => {
     args: args,
   });
 
-  let populatedData = {};
-  seek.map((item, index) => {
-    populatedData[populate[index]] = data[item];
-  });
-
-  return populatedData;
+  return createResultObject(data, seek, populate);
 };
 
 export const eventAction = async (mapping: AbiEventMapping) => {
@@ -101,15 +121,40 @@ export const eventAction = async (mapping: AbiEventMapping) => {
   const contractEvent = await publicClient.getFilterLogs({ filter: filter as any });
   const eventData = contractEvent[0].args;
 
-  let populatedData = {};
-  seek.map((item, index) => {
-    populatedData[populate[index]] = eventData[item];
-  });
-
-  return populatedData;
+  return createResultObject(eventData, seek, populate);
 };
 
-export const executeAction = async (mapping: ActionMapping) => {
+export const fetchIpfsJsonAction = async (mapping: FetchIpfsJsonMapping) => {
+  const { ipfsUri, seek, populate } = mapping;
+
+  let httpUri;
+  if (ipfsUri.startsWith("/ipfs/")) {
+    httpUri = `https://ipfs.io${ipfsUri}`;
+  } else if (ipfsUri.startsWith("ipfs://")) {
+    httpUri = ipfsUri.replace("ipfs://", "https://ipfs.io/ipfs/");
+  } else if (!ipfsUri.startsWith("http")) {
+    httpUri = `https://ipfs.io/ipfs/${ipfsUri}`;
+  }
+  const response = await fetch(httpUri, { method: "GET" });
+
+  if (response.headers.get("content-length") > MAX_BYTE_SIZE) {
+    throw new Error("Response size is too large");
+  }
+
+  const contentType = response.headers.get("content-type");
+
+  if (!contentType || !contentType.includes("application/json")) {
+    throw new Error("Fetched data is not JSON");
+  }
+
+  const data = await response.json();
+
+  return createResultObject(data, seek, populate);
+};
+
+export const executeAction = async (mapping: ActionMapping, context = {}) => {
+  mapping = replacePlaceholdersWithValues(mapping, context);
+
   switch (mapping.type) {
     case "graphql":
       if (!isSubgraphMapping(mapping)) {
@@ -131,9 +176,29 @@ export const executeAction = async (mapping: ActionMapping) => {
         throw new Error("Invalid mapping for abi/event action.");
       }
       return await eventAction(mapping);
+    case "fetch/ipfs/json":
+      if (!isFetchIpfsJsonMapping(mapping)) {
+        throw new Error("Invalid mapping for fetch/ipfs/json action.");
+      }
+      return await fetchIpfsJsonAction(mapping);
     default:
       throw new Error(`Unsupported action type: ${mapping.type}`);
   }
+};
+
+export const executeActions = async (mappings) => {
+  let context = {};
+
+  for (const mapping of mappings) {
+    const actionResult = await executeAction(mapping, context);
+    if (actionResult) {
+      Object.keys(actionResult).forEach((key) => {
+        context[key] = actionResult[key];
+      });
+    }
+  }
+
+  return context;
 };
 
 export const retrieveRealityData = async (realityQuestionID: string) => {

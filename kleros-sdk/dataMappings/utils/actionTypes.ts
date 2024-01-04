@@ -35,4 +35,11 @@ export type AbiEventMapping = {
   populate: string[];
 };
 
-export type ActionMapping = SubgraphMapping | AbiEventMapping | AbiCallMapping | JsonMapping;
+export type FetchIpfsJsonMapping = {
+  type: string;
+  ipfsUri: string;
+  seek: string[];
+  populate: string[];
+};
+
+export type ActionMapping = SubgraphMapping | AbiEventMapping | AbiCallMapping | JsonMapping | FetchIpfsJsonMapping;

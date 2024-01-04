@@ -4,7 +4,7 @@ import { Textarea } from "@kleros/ui-components-library";
 import PolicyIcon from "svgs/icons/policy.svg";
 import ReactMarkdown from "components/ReactMarkdown";
 import { INVALID_DISPUTE_DATA_ERROR, IPFS_GATEWAY } from "consts/index";
-import { executeAction, configureSDK, retrieveRealityData } from "@kleros/kleros-sdk/dataMappings";
+import { configureSDK, retrieveRealityData, executeActions } from "@kleros/kleros-sdk/dataMappings";
 import { populateTemplate } from "@kleros/kleros-sdk/dataMappings/utils/populateTemplate";
 import { Answer, DisputeDetails } from "@kleros/kleros-sdk/dataMappings/utils/disputeDetailsTypes";
 import { alchemyApiKey } from "context/Web3Provider";
@@ -91,36 +91,38 @@ const DisputeTemplateView: React.FC = () => {
     if (!disputeTemplateInput || !dataMappingsInput) return;
 
     const fetchData = async () => {
-      let parsedMapping;
+      let parsedMappings;
       try {
-        parsedMapping = JSON.parse(dataMappingsInput);
+        parsedMappings = JSON.parse(dataMappingsInput);
       } catch (e) {
         console.error(e);
         setDisputeDetails(undefined);
         return;
       }
+
       try {
         let data = {};
-        for (const action of parsedMapping) {
+        for (const action of parsedMappings) {
           if (action.type === "reality") {
             const realityData = await retrieveRealityData(action.realityQuestionID);
             data = { ...data, ...realityData };
           } else {
-            console.log("Parsed Mapping:", parsedMapping);
-
-            const result = await executeAction(action);
-            data = { ...data, ...result };
+            const results = await executeActions(parsedMappings);
+            data = { ...data, ...results };
           }
         }
+
         console.log("disputeTemplateInput: ", disputeTemplateInput);
         console.log("data: ", data);
         const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
-        console.log("finalTemplate: ", finalDisputeDetails);
         setDisputeDetails(finalDisputeDetails);
+        console.log("finalTemplate: ", finalDisputeDetails);
       } catch (e) {
         console.error(e);
+        setDisputeDetails(undefined);
       }
     };
+
     fetchData();
   }, [disputeTemplateInput, dataMappingsInput]);
 

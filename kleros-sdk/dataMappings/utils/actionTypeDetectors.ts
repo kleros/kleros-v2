@@ -1,4 +1,11 @@
-import { SubgraphMapping, AbiEventMapping, AbiCallMapping, JsonMapping, ActionMapping } from "./actionTypes";
+import {
+  SubgraphMapping,
+  AbiEventMapping,
+  AbiCallMapping,
+  JsonMapping,
+  ActionMapping,
+  FetchIpfsJsonMapping,
+} from "./actionTypes";
 
 export const isSubgraphMapping = (mapping: ActionMapping): mapping is SubgraphMapping =>
   (mapping as SubgraphMapping).endpoint !== undefined;
@@ -11,3 +18,6 @@ export const isAbiCallMapping = (mapping: ActionMapping): mapping is AbiCallMapp
 
 export const isJsonMapping = (mapping: ActionMapping): mapping is JsonMapping =>
   (mapping as JsonMapping).value !== undefined;
+
+export const isFetchIpfsJsonMapping = (mapping: ActionMapping): mapping is FetchIpfsJsonMapping =>
+  (mapping as FetchIpfsJsonMapping).ipfsUri !== undefined;
