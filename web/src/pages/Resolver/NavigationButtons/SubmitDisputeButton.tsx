@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { Button } from "@kleros/ui-components-library";
-import { useNewDisputeContext } from "context/NewDisputeContext";
+import { IDisputeTemplate, useNewDisputeContext } from "context/NewDisputeContext";
 import { wrapWithToast } from "utils/wrapWithToast";
 import {
   useDisputeResolverCreateDisputeForTemplate,
@@ -23,7 +23,7 @@ const SubmitDisputeButton: React.FC = () => {
     useNewDisputeContext();
 
   const { config: submitCaseConfig } = usePrepareDisputeResolverCreateDisputeForTemplate({
-    enabled: true, //TODO : decide better condition for enabled
+    enabled: isTemplateValid(disputeTemplate),
     args: [
       prepareArbitratorExtradata(disputeData.courtId, disputeData.numberOfJurors, 1), //TODO: decide which dispute kit to use
       JSON.stringify(disputeTemplate),
@@ -35,12 +35,17 @@ const SubmitDisputeButton: React.FC = () => {
 
   const { writeAsync: submitCase } = useDisputeResolverCreateDisputeForTemplate(submitCaseConfig);
 
+  const isButtonDisabled = useMemo(
+    () => isSubmittingCase || !isTemplateValid(disputeTemplate),
+    [isSubmittingCase, disputeTemplate]
+  );
+
   return (
     <>
       {" "}
       <StyledButton
         text="Submit the case"
-        disabled={isSubmittingCase}
+        disabled={isButtonDisabled}
         onClick={() => {
           if (submitCase) {
             setIsSubmittingCase(true);
@@ -72,6 +77,16 @@ const SubmitDisputeButton: React.FC = () => {
       )}
     </>
   );
+};
+
+const isTemplateValid = (disputeTemplate: IDisputeTemplate) => {
+  const areVotingOptionsFilled =
+    disputeTemplate.question !== "" && disputeTemplate.answers.every((answer) => answer.title !== "");
+
+  return (disputeTemplate.title &&
+    disputeTemplate.description &&
+    disputeTemplate.policyURI &&
+    areVotingOptionsFilled) as boolean;
 };
 
 export default SubmitDisputeButton;
