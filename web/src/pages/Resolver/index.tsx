@@ -7,7 +7,7 @@ import ConnectWallet from "components/ConnectWallet";
 import Timeline from "./Timeline";
 import HeroImage from "components/HeroImage";
 import Title from "./Briefing/Title";
-import { landscapeStyle } from "~src/styles/landscapeStyle";
+import { landscapeStyle } from "styles/landscapeStyle";
 import Description from "./Briefing/Description";
 import Court from "./Parameters/Court";
 import Category from "./Parameters/Category";

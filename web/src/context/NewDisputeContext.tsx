@@ -34,7 +34,6 @@ export interface IDisputeTemplate {
 interface IDisputeData extends IDisputeTemplate {
   courtId: string;
   numberOfJurors: number;
-  numberOfRulingOptions: number;
   arbitrationCost?: string;
 }
 
@@ -53,7 +52,6 @@ interface INewDisputeContext {
 const initialDisputeData: IDisputeData = {
   courtId: "1",
   numberOfJurors: 3,
-  numberOfRulingOptions: 2,
   title: "",
   description: "",
   question: "",
@@ -85,7 +83,6 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [isSubmittingCase, setIsSubmittingCase] = useState<boolean>(false);
   const [isPolicyUploading, setIsPolicyUploading] = useState<boolean>(false);
 
-  //TODO: reset data on submit or maybe page leave?
   useEffect(() => {
     localStorage.setItem("disputeData", JSON.stringify(disputeData));
   }, [disputeData]);

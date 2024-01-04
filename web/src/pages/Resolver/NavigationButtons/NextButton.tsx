@@ -14,9 +14,7 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
 
   //checks if each answer is filled in
   const areVotingOptionsFilled =
-    disputeData.question !== "" &&
-    disputeData.answers.every((answer) => answer.title !== "") &&
-    disputeData.answers.length === disputeData.numberOfRulingOptions;
+    disputeData.question !== "" && disputeData.answers.every((answer) => answer.title !== "");
 
   const isButtonDisabled =
     (location.pathname.includes("/resolver/title") && !disputeData.title) ||
