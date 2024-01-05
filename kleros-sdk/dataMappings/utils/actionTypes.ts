@@ -9,6 +9,7 @@ export type SubgraphMapping = {
   type: string;
   endpoint: string;
   query: string;
+  variables?: string[];
   seek: string[];
   populate: string[];
 };
