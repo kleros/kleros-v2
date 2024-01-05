@@ -10,6 +10,10 @@ const votingHistoryQuery = graphql(`
       id
       rounds {
         nbVotes
+        court {
+          id
+          name
+        }
       }
       disputeKitDispute {
         localRounds {

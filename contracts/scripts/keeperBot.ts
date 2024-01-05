@@ -1,4 +1,4 @@
-import { DisputeKitClassic, KlerosCore, PNK, RandomizerRNG, SortitionModule } from "../typechain-types";
+import { DisputeKitClassic, KlerosCore, PNK, RandomizerRNG, BlockHashRNG, SortitionModule } from "../typechain-types";
 import request from "graphql-request";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
@@ -36,9 +36,10 @@ const getContracts = async () => {
   const core = (await ethers.getContract("KlerosCore")) as KlerosCore;
   const sortition = (await ethers.getContract("SortitionModule")) as SortitionModule;
   const randomizerRng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
+  const blockHashRNG = (await ethers.getContract("BlockHashRNG")) as BlockHashRNG;
   const disputeKitClassic = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
   const pnk = (await ethers.getContract("PNK")) as PNK;
-  return { core, sortition, randomizerRng, disputeKitClassic, pnk };
+  return { core, sortition, randomizerRng, blockHashRNG, disputeKitClassic, pnk };
 };
 
 type Contribution = {
@@ -150,15 +151,32 @@ const handleError = (e: any) => {
 };
 
 const isRngReady = async () => {
-  const { randomizerRng, sortition } = await getContracts();
-  const requesterID = await randomizerRng.requesterToID(sortition.address);
-  const n = await randomizerRng.randomNumbers(requesterID);
-  if (Number(n) === 0) {
-    logger.info("RandomizerRNG is NOT ready yet");
-    return false;
+  const { randomizerRng, blockHashRNG, sortition } = await getContracts();
+  const currentRng = await sortition.rng();
+  if (currentRng === randomizerRng.address) {
+    const requesterID = await randomizerRng.requesterToID(sortition.address);
+    const n = await randomizerRng.randomNumbers(requesterID);
+    if (Number(n) === 0) {
+      logger.info("RandomizerRNG is NOT ready yet");
+      return false;
+    } else {
+      logger.info(`RandomizerRNG is ready: ${n.toString()}`);
+      return true;
+    }
+  } else if (currentRng === blockHashRNG.address) {
+    const requestBlock = await sortition.randomNumberRequestBlock();
+    const lookahead = await sortition.rngLookahead();
+    const n = await blockHashRNG.callStatic.receiveRandomness(requestBlock.add(lookahead));
+    if (Number(n) === 0) {
+      logger.info("BlockHashRNG is NOT ready yet");
+      return false;
+    } else {
+      logger.info(`BlockHashRNG is ready: ${n.toString()}`);
+      return true;
+    }
   } else {
-    logger.info(`RandomizerRNG is ready: ${n.toString()}`);
-    return true;
+    logger.error("Unknown RNG at ", currentRng);
+    return false;
   }
 };
 

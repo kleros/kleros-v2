@@ -5,6 +5,7 @@ import { IPFS_GATEWAY } from "consts/index";
 import PolicyIcon from "svgs/icons/policy.svg";
 import { isUndefined } from "utils/index";
 import { responsiveSize } from "styles/responsiveSize";
+import PaperclipIcon from "svgs/icons/paperclip.svg";
 
 const ShadeArea = styled.div`
   display: flex;
@@ -46,21 +47,38 @@ const StyledPolicyIcon = styled(PolicyIcon)`
   fill: ${({ theme }) => theme.primaryBlue};
 `;
 
-const LinkContainer = styled.div`
-  display: flex;
-  gap: ${responsiveSize(8, 24)};
+const StyledPaperclipIcon = styled(PaperclipIcon)`
+  width: 16px;
+  fill: ${({ theme }) => theme.primaryBlue};
 `;
 
+const LinkContainer = styled.div`
+  display: flex;
+  gap: ${responsiveSize(16, 24)};
+  flex-wrap: wrap;
+`;
+
+type Attachment = {
+  label?: string;
+  uri: string;
+};
 interface IPolicies {
   disputePolicyURI?: string;
   courtId?: string;
+  attachment?: Attachment;
 }
 
-export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId }) => {
+export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attachment }) => {
   return (
     <ShadeArea>
       <StyledP>Make sure you read and understand the Policies</StyledP>
       <LinkContainer>
+        {!isUndefined(attachment) && !isUndefined(attachment.uri) ? (
+          <StyledA href={`${IPFS_GATEWAY}${attachment.uri}`} target="_blank" rel="noreferrer">
+            <StyledPaperclipIcon />
+            {attachment.label ?? "Attachment"}
+          </StyledA>
+        ) : null}
         {isUndefined(disputePolicyURI) ? null : (
           <StyledA href={`${IPFS_GATEWAY}${disputePolicyURI}`} target="_blank" rel="noreferrer">
             <StyledPolicyIcon />
