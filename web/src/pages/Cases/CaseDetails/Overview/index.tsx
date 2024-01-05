@@ -73,7 +73,11 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
           {...{ rewards, category }}
         />
       </Container>
-      <Policies disputePolicyURI={disputeTemplate?.policyURI} courtId={courtID} />
+      <Policies
+        disputePolicyURI={disputeTemplate?.policyURI}
+        courtId={courtID}
+        attachment={disputeTemplate?.attachment}
+      />
     </>
   );
 };
