@@ -82,7 +82,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeTemplate }) =
         {isUndefined(disputeTemplate) ? null : <h3>Voting Options</h3>}
         <AnswersContainer>
           {disputeTemplate?.answers?.map((answer: IAnswer, i: number) => (
-            <Answer key={`${answer.title}-${i}`}>
+            <Answer key={answer.title}>
               <small>Option {i + 1}:</small>
               <label>{answer.title}</label>
             </Answer>
@@ -94,8 +94,8 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeTemplate }) =
         <>
           <Divider />
           <AliasesContainer>
-            {disputeTemplate.aliases.map((alias, index) => (
-              <AliasDisplay alias={alias} key={`${alias.address}-${index}`} />
+            {disputeTemplate.aliases.map((alias) => (
+              <AliasDisplay alias={alias} key={alias.address} />
             ))}
           </AliasesContainer>
         </>

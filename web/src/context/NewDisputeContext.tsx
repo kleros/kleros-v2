@@ -10,6 +10,7 @@ export type Answer = {
 };
 
 export type Alias = {
+  id?: string;
   name: string;
   address: string | Address;
 };
@@ -55,10 +56,13 @@ const initialDisputeData: IDisputeData = {
   title: "",
   description: "",
   question: "",
-  answers: [{ title: "" }, { title: "" }],
+  answers: [
+    { title: "", id: "1" },
+    { title: "", id: "2" },
+  ],
   aliases: [
-    { name: "", address: "" },
-    { name: "", address: "" },
+    { name: "", address: "", id: "1" },
+    { name: "", address: "", id: "2" },
   ],
 };
 const initialDisputeTemplate = initialDisputeData as IDisputeTemplate;

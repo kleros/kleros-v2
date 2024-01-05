@@ -44,7 +44,7 @@ const CounterParties: React.FC = () => {
 
   //value here is the total number of fields-
   const updateAliases = (value: number) => {
-    let defaultAlias = { name: "", address: "" };
+    let defaultAlias = { name: "", address: "", id: value.toString() };
     let aliases = disputeData.aliases;
 
     if (isUndefined(aliases)) {
@@ -68,7 +68,7 @@ const CounterParties: React.FC = () => {
       <Header text="Counterparties" />
       <MiddleContainer>
         {disputeData.aliases?.map((alias, index) => (
-          <AliasContainer key={index}>
+          <AliasContainer key={alias?.id}>
             <LabeledInput
               name="name"
               label={`Party ${index + 1}`}

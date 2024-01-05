@@ -28,7 +28,7 @@ const OptionsFields: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
 
   const updateOptions = (value: number) => {
-    let defaultAnswer: Answer = { title: "" };
+    let defaultAnswer: Answer = { title: "", id: value.toString() };
     let answers = disputeData.answers;
 
     if (value < answers?.length) return setDisputeData({ ...disputeData, answers: answers.splice(0, value) });
@@ -48,7 +48,7 @@ const OptionsFields: React.FC = () => {
             name="title"
             label={`Voting Option ${index + 1}`}
             placeholder="eg. Pay 150 DAI"
-            key={index}
+            key={answer?.id}
             value={answer.title ?? ""}
             onChange={(event) => handleOptionWrite(event, index)}
           />
