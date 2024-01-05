@@ -151,7 +151,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
       try {
         let data = {};
         for (const action of parsedMapping) {
-          const result = await executeAction(action);
+          const result = await executeAction(action, arbitrable);
           data = { ...data, ...result };
         }
         setDisputeDetails(populateTemplate(disputeTemplateInput, data));
@@ -160,7 +160,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
       }
     };
     fetchData();
-  }, [disputeTemplateInput, dataMappingsInput]);
+  }, [disputeTemplateInput, dataMappingsInput, arbitrable]);
 
   return (
     <>

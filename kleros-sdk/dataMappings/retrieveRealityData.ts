@@ -1,17 +1,19 @@
 import { executeAction } from "./executeActions";
 import { AbiEventMapping } from "./utils/actionTypes";
 
-export const retrieveRealityData = async (realityQuestionID: string) => {
+export const retrieveRealityData = async (realityQuestionID: string, arbitrable?: `0x${string}`) => {
+  if (!arbitrable) {
+    throw new Error("No arbitrable address provided");
+  }
   const questionMapping: AbiEventMapping = {
     type: "abi/event",
     abi: "event LogNewQuestion(bytes32 indexed question_id, address indexed user, uint256 template_id, string question, bytes32 indexed content_hash, address arbitrator, uint32 timeout, uint32 opening_ts, uint256 nonce, uint256 created)",
-    address: "INSERT REALITY'S CONTRACT ADDRESS IN ARBITRUM SEPOLIA HERE",
+    address: arbitrable,
     eventFilter: {
       args: [realityQuestionID],
       fromBlock: "0x1",
       toBlock: "latest",
     },
-
     seek: [
       "question_id",
       "user",
@@ -44,7 +46,7 @@ export const retrieveRealityData = async (realityQuestionID: string) => {
   const templateMapping: AbiEventMapping = {
     type: "abi/event",
     abi: "event LogNewTemplate(uint256 indexed template_id, address indexed user, string question_text)",
-    address: "INSERT REALITY'S CONTRACT ADDRESS IN ARBITRUM SEPOLIA HERE",
+    address: arbitrable,
     eventFilter: {
       args: [0],
       fromBlock: "0x1",

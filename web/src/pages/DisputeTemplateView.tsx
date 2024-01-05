@@ -87,6 +87,11 @@ const DisputeTemplateView: React.FC = () => {
   const [disputeTemplateInput, setDisputeTemplateInput] = useState<string>("");
   const [dataMappingsInput, setDataMappingsInput] = useState<string>("");
 
+  // TODO: add some input fields for the IArbitrableV2.DisputeRequest event which is available to the SDK in a real case
+  // - arbitrable (= the address which emitted DisputeRequest)
+  // - the DisputeRequest event params: arbitrator, arbitrableDisputeID, externalDisputeID, templateId, templateUri
+  const arbitrable = "0xdaf749DABE7be6C6894950AE69af35c20a00ABd9";
+
   useEffect(() => {
     configureSDK({ apiKey: alchemyApiKey });
 
@@ -106,10 +111,10 @@ const DisputeTemplateView: React.FC = () => {
         let data = {};
         for (const action of parsedMappings) {
           if (action.type === "reality") {
-            const realityData = await retrieveRealityData(action.realityQuestionID);
+            const realityData = await retrieveRealityData(action.realityQuestionID, arbitrable);
             data = { ...data, ...realityData };
           } else {
-            const results = await executeActions(parsedMappings);
+            const results = await executeActions(parsedMappings, arbitrable);
             data = { ...data, ...results };
           }
         }

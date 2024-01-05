@@ -13,7 +13,7 @@ import {
 import { ActionMapping } from "./utils/actionTypes";
 import { replacePlaceholdersWithValues } from "./utils/replacePlaceholdersWithValues";
 
-export const executeAction = async (mapping: ActionMapping, context = {}) => {
+export const executeAction = async (mapping: ActionMapping, arbitrable?: `0x${string}`, context = {}) => {
   mapping = replacePlaceholdersWithValues(mapping, context);
 
   switch (mapping.type) {
@@ -47,11 +47,11 @@ export const executeAction = async (mapping: ActionMapping, context = {}) => {
   }
 };
 
-export const executeActions = async (mappings) => {
+export const executeActions = async (mappings, arbitrable?: `0x${string}`) => {
   let context = {};
 
   for (const mapping of mappings) {
-    const actionResult = await executeAction(mapping, context);
+    const actionResult = await executeAction(mapping, arbitrable, context);
     if (actionResult) {
       Object.keys(actionResult).forEach((key) => {
         context[key] = actionResult[key];
