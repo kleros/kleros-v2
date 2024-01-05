@@ -40,7 +40,14 @@ $ yarn run graph auth --studio
 #### Deployment
 
 ```bash
+# bump the package version number
+yarn version patch
+
+# deploy the new version
 yarn deploy:arbitrum-sepolia-devnet
+
+# commit the new version number
+git commit -m "chore: subgraph deployment"
 ```
 
 ### Using the Kleros organization account
