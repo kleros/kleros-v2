@@ -17,7 +17,7 @@ const StyledButton = styled(Button)``;
 const SubmitDisputeButton: React.FC = () => {
   const publicClient = usePublicClient();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [disputeId, setDisputeID] = useState<number>();
+  const [disputeId, setDisputeId] = useState<number>();
 
   const { disputeTemplate, disputeData, resetDisputeData, isSubmittingCase, setIsSubmittingCase } =
     useNewDisputeContext();
@@ -54,7 +54,7 @@ const SubmitDisputeButton: React.FC = () => {
                 if (res.status === "success") {
                   //TODO: better way or maybe log decoding to get the disputeID
                   const id = parseInt(res.logs[0].topics[1], 16);
-                  setDisputeID(id);
+                  setDisputeId(id);
                   setIsPopupOpen(true);
                 }
 

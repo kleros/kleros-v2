@@ -25,8 +25,8 @@ interface IAlias {
   alias: Alias;
 }
 
-const Alias: React.FC<IAlias> = ({ alias }) => {
-  let address: string | `0x${string}`;
+const AliasDisplay: React.FC<IAlias> = ({ alias }) => {
+  let address: string;
 
   const { data: addressFromENS, isLoading } = useEnsAddress({
     enabled: !isAddress(alias.address), //if alias.address is not an Address, we treat it as ENS and try to fetch address from there
@@ -49,4 +49,4 @@ const Alias: React.FC<IAlias> = ({ alias }) => {
   );
 };
 
-export default Alias;
+export default AliasDisplay;

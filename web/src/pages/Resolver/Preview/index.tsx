@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 import { responsiveSize } from "styles/responsiveSize";
@@ -7,7 +7,6 @@ import { DisputeContext } from "components/DisputePreview/DisputeContext";
 import { Policies } from "components/DisputePreview/Policies";
 import { Card } from "@kleros/ui-components-library";
 import { landscapeStyle } from "styles/landscapeStyle";
-import { css } from "styled-components";
 import NavigationButtons from "../NavigationButtons";
 import { useNewDisputeContext } from "context/NewDisputeContext";
 

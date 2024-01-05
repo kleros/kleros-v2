@@ -3,8 +3,8 @@ import ReactMarkdown from "components/ReactMarkdown";
 import styled from "styled-components";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import { isUndefined } from "utils/index";
-import { Answer, IDisputeTemplate } from "context/NewDisputeContext";
-import Alias from "./Alias";
+import { Answer as IAnswer, IDisputeTemplate } from "context/NewDisputeContext";
+import AliasDisplay from "./Alias";
 
 const StyledH1 = styled.h1`
   margin: 0;
@@ -81,8 +81,8 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeTemplate }) =
       <VotingOptions>
         {isUndefined(disputeTemplate) ? null : <h3>Voting Options</h3>}
         <AnswersContainer>
-          {disputeTemplate?.answers?.map((answer: Answer, i: number) => (
-            <Answer key={i}>
+          {disputeTemplate?.answers?.map((answer: IAnswer, i: number) => (
+            <Answer key={`${answer.title}-${i}`}>
               <small>Option {i + 1}:</small>
               <label>{answer.title}</label>
             </Answer>
@@ -95,7 +95,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeTemplate }) =
           <Divider />
           <AliasesContainer>
             {disputeTemplate.aliases.map((alias, index) => (
-              <Alias alias={alias} key={index} />
+              <AliasDisplay alias={alias} key={`${alias.address}-${index}`} />
             ))}
           </AliasesContainer>
         </>
