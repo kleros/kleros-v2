@@ -1,9 +1,13 @@
-export const replacePlaceholdersWithValues = (mapping, context) => {
-  let newMapping = { ...mapping };
-  for (const key of Object.keys(newMapping)) {
-    if (typeof newMapping[key] === "string" && context.hasOwnProperty(newMapping[key])) {
-      newMapping[key] = context[newMapping[key]];
+export const replacePlaceholdersWithValues = (mapping: any, results: any) => {
+  let mappingAsString = JSON.stringify(mapping);
+
+  const replacedMapping = mappingAsString.replace(/results\.([A-Za-z0-9_]+)/g, (_, variableName) => {
+    if (results.hasOwnProperty(variableName)) {
+      return results[variableName];
+    } else {
+      throw new Error(`Variable '${variableName}' not found in results.`);
     }
-  }
-  return newMapping;
+  });
+
+  return JSON.parse(replacedMapping);
 };
