@@ -9,11 +9,7 @@ export const deployERC20AndFaucet = async (
   ticker: string,
   faucetFundingAmount: BigNumber = hre.ethers.utils.parseUnits("100000")
 ): Promise<Contract> => {
-  let erc20 = await hre.ethers.getContractOrNull(ticker);
-  if (erc20) {
-    return erc20;
-  }
-  erc20 = await getContractOrDeploy(hre, ticker, {
+  const erc20 = await getContractOrDeploy(hre, ticker, {
     from: deployer,
     contract: "TestERC20",
     args: [ticker, ticker],
@@ -27,7 +23,8 @@ export const deployERC20AndFaucet = async (
   });
   const faucetBalance = await erc20.balanceOf(faucet.address);
   const deployerBalance = await erc20.balanceOf(deployer);
-  if (deployerBalance.gte(faucetFundingAmount) && faucetBalance.isZero()) {
+  if (deployerBalance.gte(faucetFundingAmount) && faucetBalance.lt(faucetFundingAmount.div(5))) {
+    // Fund the faucet if deployer has enough tokens and  if the faucet has less than 20% of the faucetFundingAmount
     console.log(`funding ${ticker}Faucet with ${faucetFundingAmount}`);
     await erc20.transfer(faucet.address, faucetFundingAmount);
   }

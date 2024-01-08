@@ -109,7 +109,11 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
             }))}
             callback={(i: number) => setCurrentTab(i)}
           />
-          <PendingVotesBox current={localRounds.at(currentTab)?.totalVoted} total={rounds.at(currentTab)?.nbVotes} />
+          <PendingVotesBox
+            current={localRounds.at(currentTab)?.totalVoted}
+            total={rounds.at(currentTab)?.nbVotes}
+            court={rounds.at(currentTab)?.court.name}
+          />
           <StyledAccordion
             items={
               localRounds.at(currentTab)?.justifications?.map((justification) => ({
