@@ -29,7 +29,7 @@ const SubmitDisputeButton: React.FC = () => {
     args: [
       prepareArbitratorExtradata(disputeData.courtId, disputeData.numberOfJurors, 1), //TODO: decide which dispute kit to use
       JSON.stringify(disputeTemplate),
-      "TODO: mappings",
+      "",
       BigInt(disputeTemplate.answers.length),
     ],
     value: BigInt(disputeData.arbitrationCost ?? 0),
