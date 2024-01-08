@@ -52,7 +52,6 @@ const links = [
   { to: "/cases/display/1/desc/all", text: "Cases" },
   { to: "/courts", text: "Courts" },
   { to: "/dashboard/1/desc/all", text: "Dashboard" },
-  { to: "/resolver", text: "Resolver" },
 ];
 
 const Explore: React.FC = () => {

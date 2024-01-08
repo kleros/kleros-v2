@@ -106,7 +106,8 @@ const ITEMS = [
   {
     text: "Resolver",
     Icon: Resolver,
-    url: "https://resolve.kleros.io",
+    url: "#/resolver",
+    newTab: false,
   },
   {
     text: "Linguo",
