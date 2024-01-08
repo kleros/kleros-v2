@@ -51,7 +51,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen }) => {
 
       const salt = keccak256(rawSalt);
       setSalt(JSON.stringify({ salt, choice }));
-      const commit = keccak256(encodePacked(["uint256", "string"], [BigInt(choice), salt]));
+      const commit = keccak256(encodePacked(["uint256", "uint256"], [BigInt(choice), BigInt(salt)]));
       const { request } = await prepareWriteDisputeKitClassic({
         functionName: "castCommit",
         args: [parsedDisputeID, parsedVoteIDs, commit],

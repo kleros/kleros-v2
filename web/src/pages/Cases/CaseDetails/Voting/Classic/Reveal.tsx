@@ -38,7 +38,7 @@ const getSaltAndChoice = async (
   const { choice } = answers.reduce<{ found: boolean; choice: number }>(
     (acc, _, i) => {
       if (acc.found) return acc;
-      const innerCommit = keccak256(encodePacked(["uint256", "string"], [BigInt(i), salt]));
+      const innerCommit = keccak256(encodePacked(["uint256", "uint256"], [BigInt(i), BigInt(salt)]));
       if (innerCommit === commit) {
         return { found: true, choice: i };
       } else return acc;
