@@ -1,6 +1,7 @@
-import React, { createContext, useState, useContext, useEffect, useMemo } from "react";
+import React, { createContext, useState, useContext, useMemo } from "react";
 import { isUndefined } from "utils/index";
 import { Address } from "viem";
+import { useLocalStorage } from "hooks/useLocalStorage";
 
 export type Answer = {
   id?: string;
@@ -49,7 +50,6 @@ interface INewDisputeContext {
   setIsPolicyUploading: (isPolicyUploading: boolean) => void;
 }
 
-//TODO: iterate on a better initial state
 const initialDisputeData: IDisputeData = {
   courtId: "1",
   numberOfJurors: 3,
@@ -81,23 +81,16 @@ const NewDisputeContext = createContext<INewDisputeContext>({
 export const useNewDisputeContext = () => useContext(NewDisputeContext);
 
 export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const localDisputeTemplate = localStorage.getItem("disputeData") ?? undefined;
-  const initialState = isUndefined(localDisputeTemplate) ? initialDisputeData : JSON.parse(localDisputeTemplate);
-  const [disputeData, setDisputeData] = useState<IDisputeData>(initialState);
+  const [disputeData, setDisputeData] = useLocalStorage<IDisputeData>("disputeData", initialDisputeData);
   const [isSubmittingCase, setIsSubmittingCase] = useState<boolean>(false);
   const [isPolicyUploading, setIsPolicyUploading] = useState<boolean>(false);
 
-  useEffect(() => {
-    localStorage.setItem("disputeData", JSON.stringify(disputeData));
-  }, [disputeData]);
-
-  //keep updating disputeTemplate
   const disputeTemplate = useMemo(() => constructDisputeTemplate(disputeData), [disputeData]);
 
   const resetDisputeData = () => {
-    localStorage.removeItem("disputeData");
     setDisputeData(initialDisputeData);
   };
+
   return (
     <NewDisputeContext.Provider
       value={{
