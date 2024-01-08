@@ -11,6 +11,7 @@ import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
 import { usePublicClient } from "wagmi";
 import Popup, { PopupType } from "components/Popup";
 import DisputeIcon from "assets/svgs/icons/dispute.svg";
+import { DecodeEventLogParameters, decodeEventLog, parseAbi } from "viem";
 
 const StyledButton = styled(Button)``;
 
@@ -52,9 +53,8 @@ const SubmitDisputeButton: React.FC = () => {
             wrapWithToast(async () => await submitCase().then((response) => response.hash), publicClient)
               .then((res) => {
                 if (res.status === "success") {
-                  //TODO: better way or maybe log decoding to get the disputeID
-                  const id = parseInt(res.logs[0].topics[1], 16);
-                  setDisputeId(id);
+                  const id = retrieveDisputeId(res.logs[1]);
+                  setDisputeId(Number(id));
                   setIsPopupOpen(true);
                 }
 
@@ -88,5 +88,12 @@ const isTemplateValid = (disputeTemplate: IDisputeTemplate) => {
     disputeTemplate.policyURI &&
     areVotingOptionsFilled) as boolean;
 };
+
+const retrieveDisputeId = (eventLog: DecodeEventLogParameters) =>
+  decodeEventLog({
+    abi: parseAbi(["event DisputeCreation(uint256 indexed, address indexed)"]),
+    data: eventLog.data,
+    topics: eventLog.topics,
+  }).args[0];
 
 export default SubmitDisputeButton;
