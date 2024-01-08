@@ -12,6 +12,7 @@ import { usePublicClient } from "wagmi";
 import Popup, { PopupType } from "components/Popup";
 import DisputeIcon from "assets/svgs/icons/dispute.svg";
 import { DecodeEventLogParameters, decodeEventLog, parseAbi } from "viem";
+import { EnsureChain } from "~src/components/EnsureChain";
 
 const StyledButton = styled(Button)``;
 
@@ -44,28 +45,31 @@ const SubmitDisputeButton: React.FC = () => {
   return (
     <>
       {" "}
-      <StyledButton
-        text="Submit the case"
-        disabled={isButtonDisabled}
-        onClick={() => {
-          if (submitCase) {
-            setIsSubmittingCase(true);
-            wrapWithToast(async () => await submitCase().then((response) => response.hash), publicClient)
-              .then((res) => {
-                if (res.status === "success") {
-                  const id = retrieveDisputeId(res.logs[1]);
-                  setDisputeId(Number(id));
-                  setIsPopupOpen(true);
-                }
+      <EnsureChain>
+        <StyledButton
+          text="Submit the case"
+          disabled={isButtonDisabled}
+          isLoading={isSubmittingCase}
+          onClick={() => {
+            if (submitCase) {
+              setIsSubmittingCase(true);
+              wrapWithToast(async () => await submitCase().then((response) => response.hash), publicClient)
+                .then((res) => {
+                  if (res.status === "success") {
+                    const id = retrieveDisputeId(res.logs[1]);
+                    setDisputeId(Number(id));
+                    setIsPopupOpen(true);
+                  }
 
-                resetDisputeData();
-              })
-              .finally(() => {
-                setIsSubmittingCase(false);
-              });
-          }
-        }}
-      />
+                  resetDisputeData();
+                })
+                .finally(() => {
+                  setIsSubmittingCase(false);
+                });
+            }
+          }}
+        />
+      </EnsureChain>
       {isPopupOpen && disputeId && (
         <Popup
           title={`Case #${disputeId} submitted`}
