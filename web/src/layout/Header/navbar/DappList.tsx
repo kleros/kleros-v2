@@ -107,7 +107,7 @@ const ITEMS = [
     text: "Resolver",
     Icon: Resolver,
     url: "#/resolver",
-    newTab: false,
+    isNewTab: false,
   },
   {
     text: "Linguo",
