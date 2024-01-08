@@ -20,7 +20,7 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
     (location.pathname.includes("/resolver/title") && !disputeData.title) ||
     (location.pathname.includes("/resolver/description") && !disputeData.description) ||
     (location.pathname.includes("/resolver/court") && !disputeData.courtId) ||
-    (location.pathname.includes("/resolver/jurors") && !disputeData.numberOfJurors) ||
+    (location.pathname.includes("/resolver/jurors") && (!disputeData.numberOfJurors || !disputeData.arbitrationCost)) ||
     (location.pathname.includes("/resolver/votingoptions") && !areVotingOptionsFilled) ||
     (location.pathname.includes("/resolver/counterparties") && !disputeData.aliases) ||
     (location.pathname.includes("/resolver/policy") && !isPolicyUploading && !disputeData.policyURI);

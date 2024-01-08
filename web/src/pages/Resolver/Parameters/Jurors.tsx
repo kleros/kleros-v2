@@ -36,11 +36,12 @@ const Jurors: React.FC = () => {
   const { data } = useKlerosCoreArbitrationCost({
     enabled: !isUndefined(disputeData.numberOfJurors),
     args: [prepareArbitratorExtradata(disputeData.courtId, disputeData.numberOfJurors)],
+    watch: true,
   });
 
   const arbitrationFee = formatETH(data ?? BigInt(0), 5);
 
-  useEffect(() => setDisputeData({ ...disputeData, arbitrationCost: data?.toString() ?? "0" }), [data]);
+  useEffect(() => setDisputeData({ ...disputeData, arbitrationCost: data?.toString() }), [data]);
 
   const handleJurorsWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDisputeData({ ...disputeData, numberOfJurors: parseInt(event.target.value.replace(/\D/g, ""), 10) });
