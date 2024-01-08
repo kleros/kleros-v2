@@ -89,9 +89,11 @@ contract Escrow is IArbitrableV2 {
     /// @param _amount The initial amount in the transaction.
     event TransactionCreated(
         uint256 indexed _transactionID,
+        string _transactionUri,
         address indexed _buyer,
         address indexed _seller,
-        uint256 _amount
+        uint256 _amount,
+        uint256 _deadline
     );
 
     /// @dev To be emitted when a transaction is resolved, either by its
@@ -172,6 +174,7 @@ contract Escrow is IArbitrableV2 {
     /// @return transactionID The index of the transaction.
     function createTransaction(
         uint256 _timeoutPayment,
+        string memory _transactionUri,
         address payable _seller,
         string memory _templateData,
         string memory _templateDataMappings
@@ -186,7 +189,7 @@ contract Escrow is IArbitrableV2 {
 
         transactionID = transactions.length - 1;
 
-        emit TransactionCreated(transactionID, msg.sender, _seller, msg.value);
+        emit TransactionCreated(transactionID, _transactionUri, msg.sender, _seller, msg.value, transaction.deadline);
     }
 
     /// @dev Pay seller. To be called if the good or service is provided.
