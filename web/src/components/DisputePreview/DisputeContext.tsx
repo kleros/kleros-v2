@@ -5,6 +5,7 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 import { isUndefined } from "utils/index";
 import { Answer as IAnswer, IDisputeTemplate } from "context/NewDisputeContext";
 import AliasDisplay from "./Alias";
+import { responsiveSize } from "styles/responsiveSize";
 
 const StyledH1 = styled.h1`
   margin: 0;
@@ -37,12 +38,14 @@ const AnswersContainer = styled.div`
 const Answer = styled.div`
   margin: 0px;
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: ${responsiveSize(2, 8)};
 `;
 
 const AliasesContainer = styled.div`
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: ${responsiveSize(8, 20)};
 `;
 
 const Divider = styled.hr`
@@ -84,7 +87,10 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeTemplate }) =
           {disputeTemplate?.answers?.map((answer: IAnswer, i: number) => (
             <Answer key={answer.title}>
               <small>Option {i + 1}:</small>
-              <label>{answer.title}</label>
+              <label>
+                {answer.title}
+                {answer.description ? ` - ${answer.description}` : null}
+              </label>
             </Answer>
           ))}
         </AnswersContainer>
