@@ -84,7 +84,11 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
         <Popup
           title="Thanks for Voting"
           icon={VoteIcon}
-          popupType={disputeData?.court?.hiddenVotes ? PopupType.VOTE_WITH_COMMIT : PopupType.VOTE_WITHOUT_COMMIT}
+          popupType={
+            disputeData?.dispute?.court?.hiddenVotes && currentPeriodIndex === Periods.commit
+              ? PopupType.VOTE_WITH_COMMIT
+              : PopupType.VOTE_WITHOUT_COMMIT
+          }
           date={finalDate ? formatDate(finalDate) : ""}
           isCommit={false}
           setIsOpen={setIsPopupOpen}
