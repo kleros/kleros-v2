@@ -2,37 +2,24 @@ import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
+import { responsiveSize } from "styles/responsiveSize";
+import VoteIcon from "assets/svgs/icons/voted.svg";
+import { Periods } from "consts/periods";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
+import { useDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "queries/useDrawQuery";
 import { useAppealCost } from "queries/useAppealCost";
-import Classic from "./Classic";
-import VotingHistory from "./VotingHistory";
-import Popup, { PopupType } from "components/Popup";
-import { Periods } from "consts/periods";
 import { isUndefined } from "utils/index";
 import { isLastRound } from "utils/isLastRound";
+import Popup, { PopupType } from "components/Popup";
 import { getPeriodEndTimestamp } from "components/DisputeCard";
-import { useDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
-import VoteIcon from "assets/svgs/icons/voted.svg";
-import InfoCircle from "tsx:svgs/icons/info-circle.svg";
-import { responsiveSize } from "styles/responsiveSize";
+import InfoCard from "components/InfoCard";
+import Classic from "./Classic";
+import VotingHistory from "./VotingHistory";
 
 const Container = styled.div`
   padding: ${responsiveSize(16, 32)};
-`;
-
-const InfoContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  color: ${({ theme }) => theme.secondaryText};
-  align-items: center;
-  gap: ${responsiveSize(4, 8, 300)};
-
-  svg {
-    min-width: 16px;
-    min-height: 16px;
-  }
 `;
 
 const useFinalDate = (lastPeriodChange: string, currentPeriodIndex?: number, timesPerPeriod?: string[]) =>
@@ -82,20 +69,14 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
     <Container>
       {isLastRound(appealCost) && (
         <>
-          <InfoContainer>
-            <InfoCircle />
-            This dispute is on its last round. Vote wisely, It cannot be appealed any further.
-          </InfoContainer>
-          <br></br>
+          <InfoCard msg="This dispute is on its last round. Vote wisely, It cannot be appealed any further." />
+          <br />
         </>
       )}
       {!userWasDrawn ? (
         <>
-          <InfoContainer>
-            <InfoCircle />
-            You were not drawn in current round.
-          </InfoContainer>
-          <br></br>
+          <InfoCard msg="You were not drawn in current round." />
+          <br />
         </>
       ) : null}
 
