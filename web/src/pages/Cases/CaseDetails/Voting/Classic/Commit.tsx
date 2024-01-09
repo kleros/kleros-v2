@@ -57,8 +57,8 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen }) => {
         args: [parsedDisputeID, parsedVoteIDs, commit],
       });
       if (walletClient) {
-        wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(() => {
-          setIsOpen(true);
+        await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then((result) => {
+          setIsOpen(result);
         });
       }
     },

@@ -74,6 +74,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit }) =
   const [storedSaltAndChoice, _] = useLocalStorage<string>(saltKey);
 
   const handleReveal = useCallback(async () => {
+    setIsSending(true);
     const { salt, choice } = isUndefined(storedSaltAndChoice)
       ? await getSaltAndChoice(signingAccount, generateSigningAccount, saltKey, disputeTemplate.answers, commit)
       : JSON.parse(storedSaltAndChoice);
@@ -82,11 +83,12 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit }) =
       functionName: "castVote",
       args: [parsedDisputeID, parsedVoteIDs, BigInt(choice), BigInt(salt), justification],
     });
-    if (walletClient) {
-      wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(() => {
-        setIsOpen(true);
+    if (request && walletClient) {
+      await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then((result) => {
+        setIsOpen(result);
       });
     }
+    setIsSending(false);
   }, [
     commit,
     disputeTemplate?.answers,
@@ -112,7 +114,6 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit }) =
         disabled={isSending}
         isLoading={isSending}
         onClick={async () => {
-          setIsSending(true);
           handleReveal();
         }}
       />

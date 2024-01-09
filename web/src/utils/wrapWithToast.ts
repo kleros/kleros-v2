@@ -13,13 +13,20 @@ export const OPTIONS = {
 
 export async function wrapWithToast(contractWrite: () => Promise<`0x${string}`>, publicClient: any) {
   toast.info("Transaction initiated", OPTIONS);
-  const hash = await contractWrite();
-  await publicClient
-    .waitForTransactionReceipt({ hash, confirmations: 2 })
-    .then(() => {
-      toast.success("Transaction mined!", OPTIONS);
-    })
+  return await contractWrite()
+    .then(
+      async (hash) =>
+        await publicClient.waitForTransactionReceipt({ hash, confirmations: 2 }).then(() => {
+          toast.success("Transaction mined!", OPTIONS);
+          return true;
+        })
+    )
     .catch((error) => {
-      toast.error(error.message, OPTIONS);
+      toast.error(error.shortMessage ?? error.message, OPTIONS);
+      return false;
     });
+}
+
+export async function catchShortMessage(promise: Promise<any>) {
+  return await promise.catch((error) => toast.error(error.shortMessage ?? error.message, OPTIONS));
 }
