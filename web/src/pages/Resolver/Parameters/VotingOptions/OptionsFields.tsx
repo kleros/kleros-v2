@@ -9,7 +9,7 @@ import { Answer, useNewDisputeContext } from "context/NewDisputeContext";
 const OptionsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 48px;
   width: 84vw;
 
   ${landscapeStyle(
@@ -19,9 +19,15 @@ const OptionsContainer = styled.div`
   )}
 `;
 
+const InputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+`;
 const StyledPlusMinusField = styled(PlusMinusField)`
   align-self: start;
-  margin: 24px 0px;
+  margin: 32px 0px 48px;
 `;
 
 const OptionsFields: React.FC = () => {
@@ -44,14 +50,22 @@ const OptionsFields: React.FC = () => {
     <>
       <OptionsContainer>
         {disputeData.answers.map((answer, index) => (
-          <LabeledInput
-            name="title"
-            label={`Voting Option ${index + 1}`}
-            placeholder="eg. Pay 150 DAI"
-            key={answer?.id}
-            value={answer.title ?? ""}
-            onChange={(event) => handleOptionWrite(event, index)}
-          />
+          <InputContainer key={answer.id}>
+            <LabeledInput
+              name="title"
+              label={`Voting Option ${index + 1}`}
+              placeholder="eg. Pay 150 DAI"
+              value={answer.title ?? ""}
+              onChange={(event) => handleOptionWrite(event, index)}
+            />
+            <LabeledInput
+              name="description"
+              label="Option Description (Optional)"
+              placeholder={`Description for Option ${index + 1}`}
+              value={answer.description ?? ""}
+              onChange={(event) => handleOptionWrite(event, index)}
+            />
+          </InputContainer>
         ))}
       </OptionsContainer>
       <StyledPlusMinusField currentValue={disputeData.answers?.length ?? 2} updateValue={updateOptions} minValue={2} />

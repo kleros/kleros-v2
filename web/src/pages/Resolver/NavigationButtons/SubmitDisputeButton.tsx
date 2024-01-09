@@ -12,7 +12,7 @@ import { usePublicClient } from "wagmi";
 import Popup, { PopupType } from "components/Popup";
 import DisputeIcon from "assets/svgs/icons/dispute.svg";
 import { DecodeEventLogParameters, decodeEventLog, parseAbi } from "viem";
-import { EnsureChain } from "~src/components/EnsureChain";
+import { EnsureChain } from "components/EnsureChain";
 
 const StyledButton = styled(Button)``;
 

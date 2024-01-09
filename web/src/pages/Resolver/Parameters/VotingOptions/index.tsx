@@ -16,7 +16,7 @@ const Container = styled.div`
 `;
 
 const QuestionField = styled(LabeledInput)`
-  margin-bottom: 58px;
+  margin-bottom: 78px;
 `;
 
 const AlertMessageContainer = styled.div`
@@ -26,7 +26,6 @@ const AlertMessageContainer = styled.div`
       width: ${responsiveSize(442, 700, 900)};
     `
   )}
-  margin-top: 16px;
   > div {
     width: 100%;
   }
