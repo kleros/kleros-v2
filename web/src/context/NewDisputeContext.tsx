@@ -34,7 +34,7 @@ export interface IDisputeTemplate {
 }
 
 interface IDisputeData extends IDisputeTemplate {
-  courtId: string;
+  courtId?: string;
   numberOfJurors: number;
   arbitrationCost?: string;
 }
@@ -51,7 +51,6 @@ interface INewDisputeContext {
 }
 
 const initialDisputeData: IDisputeData = {
-  courtId: "1",
   numberOfJurors: 3,
   title: "",
   description: "",
