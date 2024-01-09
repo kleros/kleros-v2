@@ -24,6 +24,12 @@ const InputContainer = styled.div`
   flex-direction: column;
   gap: 24px;
   width: 100%;
+  ${landscapeStyle(
+    () => css`
+      display: grid;
+      grid-template-columns: 160px auto;
+    `
+  )}
 `;
 const StyledPlusMinusField = styled(PlusMinusField)`
   align-self: start;

@@ -20,6 +20,12 @@ const AliasContainer = styled.div`
   flex-direction: column;
   gap: 30px;
   width: 100%;
+  ${landscapeStyle(
+    () => css`
+      display: grid;
+      grid-template-columns: 190px auto;
+    `
+  )}
 `;
 
 const MiddleContainer = styled.div`
