@@ -12,7 +12,7 @@ const chains = [arbitrumSepolia, mainnet, gnosisChiado];
 const projectId = process.env.WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf9281e218217";
 
 const { publicClient, webSocketPublicClient } = configureChains(chains, [
-  alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY ?? "-oL5ZwI1SeQyu9_SaOF83pv10U5mw_k4" }),
+  alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY ?? "" }),
   jsonRpcProvider({
     rpc: () => ({
       http: `https://rpc.chiadochain.net`,
