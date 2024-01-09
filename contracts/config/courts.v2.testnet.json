@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "parent": "0",
+    "parent": 0,
     "hiddenVotes": false,
     "minStake": "150000000000000000000",
     "alpha": "5000",
@@ -16,7 +16,7 @@
   },
   {
     "id": 2,
-    "parent": "1",
+    "parent": 1,
     "hiddenVotes": false,
     "minStake": "200000000000000000000",
     "alpha": "3100",
@@ -31,7 +31,7 @@
   },
   {
     "id": 3,
-    "parent": "1",
+    "parent": 1,
     "hiddenVotes": false,
     "minStake": "200000000000000000000",
     "alpha": "5000",
