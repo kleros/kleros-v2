@@ -17,6 +17,7 @@ const courtDetailsQuery = graphql(`
       stake
       paidETH
       paidPNK
+      timesPerPeriod
     }
   }
 `);

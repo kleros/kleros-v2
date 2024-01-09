@@ -19,6 +19,7 @@ const StyledButton = styled(Button)``;
 const SubmitDisputeButton: React.FC = () => {
   const publicClient = usePublicClient();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [courtId, setCourtId] = useState("");
   const [disputeId, setDisputeId] = useState<number>();
 
   const { disputeTemplate, disputeData, resetDisputeData, isSubmittingCase, setIsSubmittingCase } =
@@ -27,7 +28,7 @@ const SubmitDisputeButton: React.FC = () => {
   const { config: submitCaseConfig } = usePrepareDisputeResolverCreateDisputeForTemplate({
     enabled: isTemplateValid(disputeTemplate),
     args: [
-      prepareArbitratorExtradata(disputeData.courtId, disputeData.numberOfJurors, 1), //TODO: decide which dispute kit to use
+      prepareArbitratorExtradata(disputeData.courtId ?? "1", disputeData.numberOfJurors, 1), //TODO: decide which dispute kit to use
       JSON.stringify(disputeTemplate),
       "",
       BigInt(disputeTemplate.answers.length),
@@ -58,6 +59,7 @@ const SubmitDisputeButton: React.FC = () => {
                   if (res.status === "success") {
                     const id = retrieveDisputeId(res.logs[1]);
                     setDisputeId(Number(id));
+                    setCourtId(disputeData.courtId ?? "1");
                     setIsPopupOpen(true);
                   }
 
@@ -77,6 +79,7 @@ const SubmitDisputeButton: React.FC = () => {
           popupType={PopupType.DISPUTE_CREATED}
           setIsOpen={setIsPopupOpen}
           disputeId={disputeId}
+          courtId={courtId}
         />
       )}
     </>

@@ -17,6 +17,7 @@ import { useDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
 import VoteIcon from "assets/svgs/icons/voted.svg";
 import InfoCircle from "tsx:svgs/icons/info-circle.svg";
 import { responsiveSize } from "styles/responsiveSize";
+import { formatDate } from "utils/date";
 
 const Container = styled.div`
   padding: ${responsiveSize(16, 32)};
@@ -34,12 +35,6 @@ const InfoContainer = styled.div`
     min-height: 16px;
   }
 `;
-
-function formatDate(unixTimestamp: number): string {
-  const date = new Date(unixTimestamp * 1000);
-  const options: Intl.DateTimeFormatOptions = { month: "long", day: "2-digit", year: "numeric" };
-  return date.toLocaleDateString("en-US", options);
-}
 
 interface IVoting {
   arbitrable?: `0x${string}`;

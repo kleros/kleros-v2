@@ -124,6 +124,7 @@ interface IAppeal {
 interface IDisputeCreated {
   popupType: PopupType.DISPUTE_CREATED;
   disputeId: number;
+  courtId: string;
 }
 interface IPopup {
   title: string;
@@ -188,8 +189,8 @@ const Popup: React.FC<PopupProps & IPopup> = ({
       break;
     }
     case PopupType.DISPUTE_CREATED: {
-      const { disputeId } = props as IDisputeCreated;
-      PopupComponent = <DisputeCreated disputeId={disputeId} />;
+      const { courtId } = props as IDisputeCreated;
+      PopupComponent = <DisputeCreated courtId={courtId} />;
       break;
     }
     default:

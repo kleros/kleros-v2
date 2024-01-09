@@ -19,3 +19,9 @@ export function getOneYearAgoTimestamp(): number {
   const currentTime = new Date().getTime() / 1000;
   return currentTime - 31536000; // One year in seconds
 }
+
+export function formatDate(unixTimestamp: number): string {
+  const date = new Date(unixTimestamp * 1000);
+  const options: Intl.DateTimeFormatOptions = { month: "long", day: "2-digit", year: "numeric" };
+  return date.toLocaleDateString("en-US", options);
+}
