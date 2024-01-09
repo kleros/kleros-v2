@@ -214,6 +214,8 @@ yarn sourcify --network <arbitrumSepolia|arbitrum|chiado|gnosischain|sepolia|mai
 
 ### Populating the policy registry and courts
 
+The policy registry and courts configuration can be found in `config/policies.*.json` and `config/courts.*.json`.
+
 #### 1/ Export the registry data from V1
 
 ```bash
@@ -225,10 +227,6 @@ done
 ```
 
 #### 2/ Import the data to V2 - Local Network
-
-:warning: By default this script populates from `*.mainnet.json`. To populate from `*.gnosischain.json`, set the variable `USE_GNOSIS` to true inside [scripts/populateCourts.ts](scripts/populateCourts.ts).
-
-:warning: It is possible to switch to testnet-friendly court parameters by setting the variable `TESTING_PARAMETERS` to true inside [scripts/populateCourts.ts](scripts/populateCourts.ts).
 
 Shell 1:
 
