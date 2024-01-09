@@ -75,8 +75,8 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: 
         return ["Time's up!"];
       } else if (index < currentItemIndex) {
         return [];
-      } else if (index === titles.length) {
-        return dispute?.ruled ? [] : ["Pending"];
+      } else if (index === titles.length - 1) {
+        return [];
       } else if (index === currentItemIndex) {
         return [secondsToDayHourMinute(countdown)];
       } else {
