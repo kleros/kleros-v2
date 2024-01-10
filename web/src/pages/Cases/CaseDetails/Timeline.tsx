@@ -71,11 +71,11 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: 
   const countdown = useCountdown(deadlineCurrentPeriod);
   const getSubitems = (index: number): string[] | React.ReactNode[] => {
     if (typeof countdown !== "undefined" && dispute) {
-      if (index === currentItemIndex && countdown === 0) {
+      if (index === titles.length - 1) {
+        return [];
+      } else if (index === currentItemIndex && countdown === 0) {
         return ["Time's up!"];
       } else if (index < currentItemIndex) {
-        return [];
-      } else if (index === titles.length - 1) {
         return [];
       } else if (index === currentItemIndex) {
         return [secondsToDayHourMinute(countdown)];
