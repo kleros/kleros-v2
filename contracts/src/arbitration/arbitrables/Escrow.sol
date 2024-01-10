@@ -93,6 +93,7 @@ contract Escrow is IArbitrableV2 {
         address indexed _buyer,
         address indexed _seller,
         uint256 _amount,
+        string _asset,
         uint256 _deadline
     );
 
@@ -189,7 +190,15 @@ contract Escrow is IArbitrableV2 {
 
         transactionID = transactions.length - 1;
 
-        emit TransactionCreated(transactionID, _transactionUri, msg.sender, _seller, msg.value, transaction.deadline);
+        emit TransactionCreated(
+            transactionID,
+            _transactionUri,
+            msg.sender,
+            _seller,
+            msg.value,
+            "native",
+            transaction.deadline
+        );
     }
 
     /// @dev Pay seller. To be called if the good or service is provided.
