@@ -98,29 +98,9 @@ const DisputeTemplateView: React.FC = () => {
     if (!disputeTemplateInput || !dataMappingsInput) return;
 
     const fetchData = async () => {
-      let parsedMappings;
       try {
-        parsedMappings = JSON.parse(dataMappingsInput);
-      } catch (e) {
-        console.error(e);
-        setDisputeDetails(undefined);
-        return;
-      }
-
-      try {
-        let data = {};
-        for (const action of parsedMappings) {
-          if (action.type === "reality") {
-            const realityData = await retrieveRealityData(action.realityQuestionID, arbitrable);
-            data = { ...data, ...realityData };
-          } else {
-            const results = await executeActions(parsedMappings, arbitrable);
-            data = { ...data, ...results };
-          }
-        }
-
-        console.log("disputeTemplateInput: ", disputeTemplateInput);
-        console.log("data: ", data);
+        const parsedMappings = JSON.parse(dataMappingsInput);
+        const data = await executeActions(parsedMappings, arbitrable);
         const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
         setDisputeDetails(finalDisputeDetails);
         console.log("finalTemplate: ", finalDisputeDetails);
@@ -131,7 +111,7 @@ const DisputeTemplateView: React.FC = () => {
     };
 
     fetchData();
-  }, [disputeTemplateInput, dataMappingsInput]);
+  }, [disputeTemplateInput, dataMappingsInput, arbitrable]);
 
   return (
     <Wrapper>

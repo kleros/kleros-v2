@@ -9,7 +9,7 @@ import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { isUndefined } from "utils/index";
 import { populateTemplate } from "@kleros/kleros-sdk/dataMappings/utils/populateTemplate";
-import { executeAction } from "@kleros/kleros-sdk/dataMappings/executeActions";
+import { executeActions } from "@kleros/kleros-sdk/dataMappings/executeActions";
 import { configureSDK } from "@kleros/kleros-sdk/dataMappings/utils/configureSDK";
 import { alchemyApiKey } from "context/Web3Provider";
 import { Answer, DisputeDetails } from "@kleros/kleros-sdk/dataMappings/utils/disputeDetailsTypes";
@@ -135,32 +135,26 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
 
   useEffect(() => {
     configureSDK({ apiKey: alchemyApiKey });
+    const initialState = {
+      disputeID: id,
+    };
 
     if (!disputeTemplateInput || !dataMappingsInput) return;
 
     const fetchData = async () => {
-      let parsedMapping;
       try {
-        parsedMapping = JSON.parse(dataMappingsInput);
+        const parsedMappings = JSON.parse(dataMappingsInput);
+        const data = await executeActions(parsedMappings, arbitrable, initialState);
+        const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
+        setDisputeDetails(finalDisputeDetails);
       } catch (e) {
         console.error(e);
         setDisputeDetails(undefined);
-        // return;
-        parsedMapping = JSON.parse("[]");
-      }
-      try {
-        let data = {};
-        for (const action of parsedMapping) {
-          const result = await executeAction(action, arbitrable);
-          data = { ...data, ...result };
-        }
-        setDisputeDetails(populateTemplate(disputeTemplateInput, data));
-      } catch (e) {
-        console.error(e);
       }
     };
+
     fetchData();
-  }, [disputeTemplateInput, dataMappingsInput, arbitrable]);
+  }, [disputeTemplateInput, dataMappingsInput, arbitrable, id]);
 
   return (
     <>

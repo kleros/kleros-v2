@@ -3,6 +3,7 @@ import { eventAction } from "./actions/eventAction";
 import { fetchIpfsJsonAction } from "./actions/fetchIpfsJsonAction";
 import { jsonAction } from "./actions/jsonAction";
 import { subgraphAction } from "./actions/subgraphAction";
+import { retrieveRealityData } from "./retrieveRealityData";
 import {
   isAbiCallMapping,
   isAbiEventMapping,
@@ -17,6 +18,8 @@ export const executeAction = async (mapping: ActionMapping, arbitrable?: `0x${st
   mapping = replacePlaceholdersWithValues(mapping, context);
 
   switch (mapping.type) {
+    case "reality":
+      return await retrieveRealityData(mapping.realityQuestionID, arbitrable);
     case "graphql":
       if (!isSubgraphMapping(mapping)) {
         throw new Error("Invalid mapping for graphql action.");
@@ -47,8 +50,8 @@ export const executeAction = async (mapping: ActionMapping, arbitrable?: `0x${st
   }
 };
 
-export const executeActions = async (mappings, arbitrable?: `0x${string}`) => {
-  let context = {};
+export const executeActions = async (mappings, arbitrable?: `0x${string}`, initialState = {}) => {
+  let context = { ...initialState };
 
   for (const mapping of mappings) {
     const actionResult = await executeAction(mapping, arbitrable, context);
