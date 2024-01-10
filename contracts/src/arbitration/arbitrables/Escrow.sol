@@ -84,14 +84,20 @@ contract Escrow is IArbitrableV2 {
 
     /// @dev Emitted when a transaction is created.
     /// @param _transactionID The index of the transaction.
+    /// @param _transactionUri The IPFS Uri Hash of the transaction.
     /// @param _buyer The address of the buyer.
     /// @param _seller The address of the seller.
     /// @param _amount The initial amount in the transaction.
+    /// @param _asset The asset used ("native" for native chain token).
+    /// @param _deadline The deadline of the transaction.
     event TransactionCreated(
         uint256 indexed _transactionID,
+        string _transactionUri,
         address indexed _buyer,
         address indexed _seller,
-        uint256 _amount
+        uint256 _amount,
+        string _asset,
+        uint256 _deadline
     );
 
     /// @dev To be emitted when a transaction is resolved, either by its
@@ -166,12 +172,14 @@ contract Escrow is IArbitrableV2 {
 
     /// @dev Create a transaction.
     /// @param _timeoutPayment Time after which a party can automatically execute the arbitrable transaction.
+    /// @param _transactionUri The IPFS Uri Hash of the transaction.
     /// @param _seller The recipient of the transaction.
     /// @param _templateData The dispute template data.
     /// @param _templateDataMappings The dispute template data mappings.
     /// @return transactionID The index of the transaction.
     function createTransaction(
         uint256 _timeoutPayment,
+        string memory _transactionUri,
         address payable _seller,
         string memory _templateData,
         string memory _templateDataMappings
@@ -186,7 +194,15 @@ contract Escrow is IArbitrableV2 {
 
         transactionID = transactions.length - 1;
 
-        emit TransactionCreated(transactionID, msg.sender, _seller, msg.value);
+        emit TransactionCreated(
+            transactionID,
+            _transactionUri,
+            msg.sender,
+            _seller,
+            msg.value,
+            "native",
+            transaction.deadline
+        );
     }
 
     /// @dev Pay seller. To be called if the good or service is provided.

@@ -10,6 +10,9 @@ import Appeal from "./Description/Appeal";
 import VoteWithCommitExtraInfo from "./ExtraInfo/VoteWithCommitExtraInfo";
 import StakeWithdrawExtraInfo from "./ExtraInfo/StakeWithdrawExtraInfo";
 import { responsiveSize } from "styles/responsiveSize";
+import DisputeCreated from "./Description/DisputeCreated";
+import DisputeCreatedExtraInfo from "./ExtraInfo/DisputeCreatedExtraInfo";
+import { useNavigate } from "react-router-dom";
 
 const Header = styled.h1`
   display: flex;
@@ -92,6 +95,7 @@ export enum PopupType {
   APPEAL = "APPEAL",
   VOTE_WITHOUT_COMMIT = "VOTE_WITHOUT_COMMIT",
   VOTE_WITH_COMMIT = "VOTE_WITH_COMMIT",
+  DISPUTE_CREATED = "DISPUTE_CREATED",
 }
 
 interface IStakeWithdraw {
@@ -117,6 +121,11 @@ interface IAppeal {
   amount: string;
   option: string;
 }
+interface IDisputeCreated {
+  popupType: PopupType.DISPUTE_CREATED;
+  disputeId: number;
+  courtId: string;
+}
 interface IPopup {
   title: string;
   icon: React.FC<React.SVGAttributes<SVGElement>>;
@@ -126,7 +135,7 @@ interface IPopup {
   isCommit?: boolean;
 }
 
-type PopupProps = IStakeWithdraw | IVoteWithoutCommit | IVoteWithCommit | IAppeal;
+type PopupProps = IStakeWithdraw | IVoteWithoutCommit | IVoteWithCommit | IAppeal | IDisputeCreated;
 
 const Popup: React.FC<PopupProps & IPopup> = ({
   title,
@@ -138,6 +147,7 @@ const Popup: React.FC<PopupProps & IPopup> = ({
   ...props
 }) => {
   const containerRef = useRef(null);
+  const navigate = useNavigate();
 
   const resetValue = () => {
     if (setAmount) {
@@ -178,6 +188,11 @@ const Popup: React.FC<PopupProps & IPopup> = ({
       PopupComponent = <Appeal amount={amount} option={option} />;
       break;
     }
+    case PopupType.DISPUTE_CREATED: {
+      const { courtId } = props as IDisputeCreated;
+      PopupComponent = <DisputeCreated courtId={courtId} />;
+      break;
+    }
     default:
       break;
   }
@@ -193,12 +208,17 @@ const Popup: React.FC<PopupProps & IPopup> = ({
         </IconContainer>
         {popupType === PopupType.STAKE_WITHDRAW && <StakeWithdrawExtraInfo />}
         {popupType === PopupType.VOTE_WITH_COMMIT && <VoteWithCommitExtraInfo />}
+        {popupType === PopupType.DISPUTE_CREATED && <DisputeCreatedExtraInfo />}
         <StyledButton
           variant="secondary"
-          text="Close"
+          text={popupType === PopupType.DISPUTE_CREATED ? "Check the case" : "Close"}
           onClick={() => {
             setIsOpen(false);
             resetValue();
+            if (popupType === PopupType.DISPUTE_CREATED) {
+              const { disputeId } = props as IDisputeCreated;
+              navigate(`/cases/${disputeId}`);
+            }
           }}
         />
       </Container>

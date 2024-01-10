@@ -12,6 +12,7 @@ import { useDrawQuery } from "queries/useDrawQuery";
 import { useAppealCost } from "queries/useAppealCost";
 import { isUndefined } from "utils/index";
 import { isLastRound } from "utils/isLastRound";
+import { formatDate } from "utils/date";
 import Popup, { PopupType } from "components/Popup";
 import { getPeriodEndTimestamp } from "components/DisputeCard";
 import InfoCard from "components/InfoCard";
@@ -28,12 +29,6 @@ const useFinalDate = (lastPeriodChange: string, currentPeriodIndex?: number, tim
       return getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
     else return undefined;
   }, [lastPeriodChange, currentPeriodIndex, timesPerPeriod]);
-
-const formatDate = (unixTimestamp: number): string => {
-  const date = new Date(unixTimestamp * 1000);
-  const options: Intl.DateTimeFormatOptions = { month: "long", day: "2-digit", year: "numeric" };
-  return date.toLocaleDateString("en-US", options);
-};
 
 interface IVoting {
   arbitrable?: `0x${string}`;

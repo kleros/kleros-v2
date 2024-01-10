@@ -67,8 +67,8 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
       })
     );
     if (request && walletClient) {
-      await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then((result) => {
-        setIsOpen(result);
+      await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
+        setIsOpen(status);
       });
     }
     setIsSending(false);

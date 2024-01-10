@@ -58,8 +58,8 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
         args: [parsedDisputeID, parsedVoteIDs, commit],
       });
       if (walletClient) {
-        await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then((result) => {
-          setIsOpen(result);
+        await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
+          setIsOpen(status);
         });
       }
       refetch();
