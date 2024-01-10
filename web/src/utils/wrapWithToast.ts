@@ -12,16 +12,30 @@ export const OPTIONS = {
   theme: "colored" as Theme,
 };
 
-export async function wrapWithToast(contractWrite: () => Promise<`0x${string}`>, publicClient: any) {
+type WrapWithToastReturnType = {
+  status: boolean;
+  result?: TransactionReceipt;
+};
+
+export async function wrapWithToast(
+  contractWrite: () => Promise<`0x${string}`>,
+  publicClient: any
+): Promise<WrapWithToastReturnType> {
   toast.info("Transaction initiated", OPTIONS);
-  const hash = await contractWrite();
-  return await publicClient
-    .waitForTransactionReceipt({ hash, confirmations: 2 })
-    .then((response: TransactionReceipt) => {
-      toast.success("Transaction mined!", OPTIONS);
-      return response;
-    })
+  return await contractWrite()
+    .then(
+      async (hash) =>
+        await publicClient.waitForTransactionReceipt({ hash, confirmations: 2 }).then((res: TransactionReceipt) => {
+          const status = res.status === "success";
+
+          if (status) toast.success("Transaction mined!", OPTIONS);
+          else toast.error("Transaction reverted!", OPTIONS);
+
+          return { status, result: res };
+        })
+    )
     .catch((error) => {
-      toast.error(error.message, OPTIONS);
+      toast.error(error.shortMessage ?? error.message, OPTIONS);
+      return { status: false };
     });
 }
