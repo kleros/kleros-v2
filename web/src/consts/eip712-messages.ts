@@ -1,11 +1,19 @@
+import { arbitrumSepolia } from "viem/chains";
+
 export default {
-  contactDetails: (address: `0x${string}`, nonce: string, telegram = "", email = "") =>
+  contactDetails: (
+    address: `0x${string}`,
+    nonce: string,
+    telegram = "",
+    email = "",
+    chainId: number = arbitrumSepolia.id
+  ) =>
     ({
       address: address.toLowerCase() as `0x${string}`,
       domain: {
         name: "Kleros v2",
         version: "1",
-        chainId: 421_613,
+        chainId,
       },
       types: {
         ContactDetails: [
@@ -21,13 +29,13 @@ export default {
         nonce,
       },
     } as const),
-  signingAccount: (address: `0x${string}`) =>
+  signingAccount: (address: `0x${string}`, chainId: number = arbitrumSepolia.id) =>
     ({
       account: address.toLowerCase() as `0x${string}`,
       domain: {
         name: "Kleros v2",
         version: "1",
-        chainId: 421_613,
+        chainId,
       },
       types: {
         SigningAccount: [{ name: "body", type: "string" }],
