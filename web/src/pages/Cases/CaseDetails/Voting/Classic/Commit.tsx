@@ -20,9 +20,10 @@ interface ICommit {
   arbitrable: `0x${string}`;
   voteIDs: string[];
   setIsOpen: (val: boolean) => void;
+  refetch: () => void;
 }
 
-const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen }) => {
+const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) => {
   const { id } = useParams();
   const parsedDisputeID = useMemo(() => BigInt(id ?? 0), [id]);
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
@@ -61,6 +62,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen }) => {
           setIsOpen(result);
         });
       }
+      refetch();
     },
     [
       saltKey,
@@ -72,6 +74,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen }) => {
       walletClient,
       generateSigningAccount,
       signingAccount,
+      refetch,
     ]
   );
 

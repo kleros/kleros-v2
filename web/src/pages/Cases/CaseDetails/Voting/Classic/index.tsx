@@ -16,7 +16,7 @@ const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen }) => {
   const { id } = useParams();
   const { address } = useAccount();
   const { data: disputeData } = useDisputeDetailsQuery(id);
-  const { data: drawData } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
+  const { data: drawData, refetch } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
   const isHiddenVotes = useMemo(() => disputeData?.dispute?.court.hiddenVotes, [disputeData]);
   const isCommitPeriod = useMemo(() => disputeData?.dispute?.period === "commit", [disputeData]);
   const commited = useMemo(() => drawData?.draws[0].vote?.commited, [drawData]);
@@ -24,7 +24,7 @@ const Classic: React.FC<IClassic> = ({ arbitrable, setIsOpen }) => {
   const voteIDs = useMemo(() => drawData?.draws?.map((draw) => draw.voteIDNum) as string[], [drawData]);
   return id && isHiddenVotes ? (
     isCommitPeriod && !commited ? (
-      <Commit {...{ arbitrable, setIsOpen, voteIDs }} />
+      <Commit {...{ arbitrable, setIsOpen, voteIDs, refetch }} />
     ) : (
       <Reveal {...{ arbitrable, setIsOpen, voteIDs, commit, isRevealPeriod: !isCommitPeriod }} />
     )
