@@ -14,12 +14,12 @@ import {
 import { ActionMapping } from "./utils/actionTypes";
 import { replacePlaceholdersWithValues } from "./utils/replacePlaceholdersWithValues";
 
-export const executeAction = async (mapping: ActionMapping, arbitrable?: `0x${string}`, context = {}) => {
+export const executeAction = async (mapping: ActionMapping, context = {}) => {
   mapping = replacePlaceholdersWithValues(mapping, context);
 
   switch (mapping.type) {
     case "reality":
-      return await retrieveRealityData(mapping.realityQuestionID, arbitrable);
+      return await retrieveRealityData(mapping.realityQuestionID, context.arbitrable);
     case "graphql":
       if (!isSubgraphMapping(mapping)) {
         throw new Error("Invalid mapping for graphql action.");
@@ -50,11 +50,11 @@ export const executeAction = async (mapping: ActionMapping, arbitrable?: `0x${st
   }
 };
 
-export const executeActions = async (mappings, arbitrable?: `0x${string}`, initialState = {}) => {
-  let context = { ...initialState };
+export const executeActions = async (mappings, initialContext = {}) => {
+  let context = { ...initialContext };
 
   for (const mapping of mappings) {
-    const actionResult = await executeAction(mapping, arbitrable, context);
+    const actionResult = await executeAction(mapping, context);
     if (actionResult) {
       Object.keys(actionResult).forEach((key) => {
         context[key] = actionResult[key];

@@ -135,8 +135,9 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
 
   useEffect(() => {
     configureSDK({ apiKey: alchemyApiKey });
-    const initialState = {
+    const initialContext = {
       disputeID: id,
+      arbitrable: arbitrable,
     };
 
     if (!disputeTemplateInput || !dataMappingsInput) return;
@@ -144,7 +145,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
     const fetchData = async () => {
       try {
         const parsedMappings = JSON.parse(dataMappingsInput);
-        const data = await executeActions(parsedMappings, arbitrable, initialState);
+        const data = await executeActions(parsedMappings, initialContext);
         const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
         setDisputeDetails(finalDisputeDetails);
       } catch (e) {

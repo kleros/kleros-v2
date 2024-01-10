@@ -94,13 +94,16 @@ const DisputeTemplateView: React.FC = () => {
 
   useEffect(() => {
     configureSDK({ apiKey: alchemyApiKey });
+    const initialContext = {
+      arbitrable: arbitrable,
+    };
 
     if (!disputeTemplateInput || !dataMappingsInput) return;
 
     const fetchData = async () => {
       try {
         const parsedMappings = JSON.parse(dataMappingsInput);
-        const data = await executeActions(parsedMappings, arbitrable);
+        const data = await executeActions(parsedMappings, initialContext);
         const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
         setDisputeDetails(finalDisputeDetails);
         console.log("finalTemplate: ", finalDisputeDetails);
