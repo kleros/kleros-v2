@@ -1,5 +1,5 @@
 import { toast, ToastPosition, Theme } from "react-toastify";
-import { TransactionReceipt } from "viem";
+import { PublicClient, TransactionReceipt } from "viem";
 
 export const OPTIONS = {
   position: "top-center" as ToastPosition,
@@ -19,7 +19,7 @@ type WrapWithToastReturnType = {
 
 export async function wrapWithToast(
   contractWrite: () => Promise<`0x${string}`>,
-  publicClient: any
+  publicClient: PublicClient
 ): Promise<WrapWithToastReturnType> {
   toast.info("Transaction initiated", OPTIONS);
   return await contractWrite()

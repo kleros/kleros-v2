@@ -13,6 +13,7 @@ const AliasContainer = styled.div`
   gap: 8px;
   align-items: center;
 `;
+
 const TextContainer = styled.div`
   display: flex;
   > label {
@@ -26,17 +27,14 @@ interface IAlias {
 }
 
 const AliasDisplay: React.FC<IAlias> = ({ alias }) => {
-  let address: string;
-
   const { data: addressFromENS, isLoading } = useEnsAddress({
-    enabled: !isAddress(alias.address), //if alias.address is not an Address, we treat it as ENS and try to fetch address from there
+    enabled: !isAddress(alias.address), // if alias.address is not an Address, we treat it as ENS and try to fetch address from there
     name: alias.address,
     chainId: 1,
   });
 
-  //try fetching ens name, else go with address
-  if (addressFromENS) address = addressFromENS;
-  else address = alias.address;
+  // try fetching ens name, else go with address
+  const address = addressFromENS ?? alias.address;
 
   return (
     <AliasContainer>
