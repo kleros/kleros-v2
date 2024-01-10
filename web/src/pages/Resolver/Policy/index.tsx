@@ -68,7 +68,7 @@ const Policy: React.FC = () => {
       <StyledFileUploader
         callback={handleFileUpload}
         variant="info"
-        msg="Additionally, you can add an external file in PDF or add multiple files in a single .zip file."
+        msg="You can attach additional information as a PDF file. Important: the above description must reference the relevant parts of the file content."
       />
 
       <NavigationButtons prevRoute="/resolver/counterparties" nextRoute="/resolver/preview" />
