@@ -5,7 +5,6 @@ import PolicyIcon from "svgs/icons/policy.svg";
 import ReactMarkdown from "components/ReactMarkdown";
 import { INVALID_DISPUTE_DATA_ERROR, IPFS_GATEWAY } from "consts/index";
 import { configureSDK } from "@kleros/kleros-sdk/dataMappings/utils/configureSDK";
-import { retrieveRealityData } from "@kleros/kleros-sdk/dataMappings/retrieveRealityData";
 import { executeActions } from "@kleros/kleros-sdk/dataMappings/executeActions";
 import { populateTemplate } from "@kleros/kleros-sdk/dataMappings/utils/populateTemplate";
 import { Answer, DisputeDetails } from "@kleros/kleros-sdk/dataMappings/utils/disputeDetailsTypes";

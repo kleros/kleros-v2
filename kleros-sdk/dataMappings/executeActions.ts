@@ -9,6 +9,7 @@ import {
   isAbiEventMapping,
   isFetchIpfsJsonMapping,
   isJsonMapping,
+  isRealityMapping,
   isSubgraphMapping,
 } from "./utils/actionTypeDetectors";
 import { ActionMapping } from "./utils/actionTypes";
@@ -18,8 +19,6 @@ export const executeAction = async (mapping: ActionMapping, context = {}) => {
   mapping = replacePlaceholdersWithValues(mapping, context);
 
   switch (mapping.type) {
-    case "reality":
-      return await retrieveRealityData(mapping.realityQuestionID, context.arbitrable);
     case "graphql":
       if (!isSubgraphMapping(mapping)) {
         throw new Error("Invalid mapping for graphql action.");
@@ -45,6 +44,11 @@ export const executeAction = async (mapping: ActionMapping, context = {}) => {
         throw new Error("Invalid mapping for fetch/ipfs/json action.");
       }
       return await fetchIpfsJsonAction(mapping);
+    case "reality":
+      if (!isRealityMapping(mapping)) {
+        throw new Error("Invalid mapping for reality action.");
+      }
+      return await retrieveRealityData(mapping.realityQuestionID, context.arbitrable);
     default:
       throw new Error(`Unsupported action type: ${mapping.type}`);
   }

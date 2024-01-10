@@ -43,4 +43,15 @@ export type FetchIpfsJsonMapping = {
   populate: string[];
 };
 
-export type ActionMapping = SubgraphMapping | AbiEventMapping | AbiCallMapping | JsonMapping | FetchIpfsJsonMapping;
+export type RealityMapping = {
+  type: "reality";
+  realityQuestionID: string;
+};
+
+export type ActionMapping =
+  | SubgraphMapping
+  | AbiEventMapping
+  | AbiCallMapping
+  | JsonMapping
+  | FetchIpfsJsonMapping
+  | RealityMapping;

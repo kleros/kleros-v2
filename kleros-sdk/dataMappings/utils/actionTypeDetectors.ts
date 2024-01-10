@@ -5,6 +5,7 @@ import {
   JsonMapping,
   ActionMapping,
   FetchIpfsJsonMapping,
+  RealityMapping,
 } from "./actionTypes";
 
 export const isSubgraphMapping = (mapping: ActionMapping): mapping is SubgraphMapping =>
@@ -21,3 +22,6 @@ export const isJsonMapping = (mapping: ActionMapping): mapping is JsonMapping =>
 
 export const isFetchIpfsJsonMapping = (mapping: ActionMapping): mapping is FetchIpfsJsonMapping =>
   (mapping as FetchIpfsJsonMapping).ipfsUri !== undefined;
+
+export const isRealityMapping = (mapping: ActionMapping): mapping is RealityMapping =>
+  mapping.type === "reality" && typeof (mapping as RealityMapping).realityQuestionID === "string";
