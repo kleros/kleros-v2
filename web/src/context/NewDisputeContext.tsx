@@ -90,22 +90,21 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setDisputeData(initialDisputeData);
   };
 
-  return (
-    <NewDisputeContext.Provider
-      value={{
-        disputeData,
-        setDisputeData,
-        disputeTemplate,
-        resetDisputeData,
-        isSubmittingCase,
-        setIsSubmittingCase,
-        isPolicyUploading,
-        setIsPolicyUploading,
-      }}
-    >
-      {children}
-    </NewDisputeContext.Provider>
+  const contextValues = useMemo(
+    () => ({
+      disputeData,
+      setDisputeData,
+      disputeTemplate,
+      resetDisputeData,
+      isSubmittingCase,
+      setIsSubmittingCase,
+      isPolicyUploading,
+      setIsPolicyUploading,
+    }),
+    [disputeData, disputeTemplate, resetDisputeData, isSubmittingCase, isPolicyUploading]
   );
+
+  return <NewDisputeContext.Provider value={contextValues}>{children}</NewDisputeContext.Provider>;
 };
 
 const constructDisputeTemplate = (disputeData: IDisputeData) => {
