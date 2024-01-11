@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import Stats from "./Stats";
 import Chart from "./Chart";
+import Header from "./Header";
 
 const Container = styled.div`
   width: 100%;
@@ -10,7 +11,7 @@ const Container = styled.div`
 
 const CourtOverview: React.FC = () => (
   <Container>
-    <h1>Court Overview</h1>
+    <Header />
     <Chart />
     <Stats />
   </Container>

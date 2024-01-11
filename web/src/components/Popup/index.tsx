@@ -9,13 +9,14 @@ import VoteWithoutCommit from "./Description/VoteWithoutCommit";
 import Appeal from "./Description/Appeal";
 import VoteWithCommitExtraInfo from "./ExtraInfo/VoteWithCommitExtraInfo";
 import StakeWithdrawExtraInfo from "./ExtraInfo/StakeWithdrawExtraInfo";
+import { responsiveSize } from "styles/responsiveSize";
+import DisputeCreated from "./Description/DisputeCreated";
+import DisputeCreatedExtraInfo from "./ExtraInfo/DisputeCreatedExtraInfo";
+import { useNavigate } from "react-router-dom";
 
 const Header = styled.h1`
   display: flex;
-  margin-top: calc(12px + (32 - 12) * ((100vw - 375px) / (1250 - 375)));
-  margin-bottom: calc(12px + (24 - 12) * ((100vw - 375px) / (1250 - 375)));
-  margin-left: calc(8px + (12 - 8) * ((100vw - 375px) / (1250 - 375)));
-  margin-right: calc(8px + (12 - 8) * ((100vw - 375px) / (1250 - 375)));
+  margin: ${responsiveSize(12, 32)} ${responsiveSize(8, 12)} ${responsiveSize(12, 24)};
   text-align: center;
   font-size: 24px;
   font-weight: 600;
@@ -23,20 +24,20 @@ const Header = styled.h1`
 `;
 
 const IconContainer = styled.div`
-  width: calc(150px + (228 - 150) * (100vw - 375px) / (1250 - 375));
+  width: ${responsiveSize(150, 228)};
   display: flex;
   align-items: center;
   justify-content: center;
 
   svg {
     display: inline-block;
-    width: calc(150px + (228 - 150) * (100vw - 375px) / (1250 - 375));
-    height: calc(150px + (228 - 150) * (100vw - 375px) / (1250 - 375));
+    width: ${responsiveSize(150, 228)};
+    height: ${responsiveSize(150, 228)};
   }
 `;
 
 const StyledButton = styled(Button)`
-  margin: calc(16px + (32 - 16) * ((100vw - 375px) / (1250 - 375)));
+  margin: ${responsiveSize(16, 32)};
 `;
 
 const Container = styled.div`
@@ -52,7 +53,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 82vw;
+  width: 86vw;
   max-width: 600px;
   border-radius: 3px;
   border: 1px solid ${({ theme }) => theme.stroke};
@@ -66,7 +67,7 @@ const Container = styled.div`
   ${landscapeStyle(
     () => css`
       overflow-y: hidden;
-      width: calc(300px + (600 - 300) * (100vw - 375px) / (1250 - 375));
+      width: ${responsiveSize(300, 600)};
     `
   )}
 `;
@@ -74,9 +75,9 @@ const Container = styled.div`
 const VoteDescriptionContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: calc(16px + (32 - 16) * ((100vw - 375px) / (1250 - 375)));
-  margin-left: calc(8px + (32 - 8) * ((100vw - 375px) / (1250 - 375)));
-  margin-right: calc(8px + (32 - 8) * ((100vw - 375px) / (1250 - 375)));
+  margin-bottom: ${responsiveSize(16, 32)};
+  margin-left: ${responsiveSize(8, 32)};
+  margin-right: ${responsiveSize(8, 32)};
   color: ${({ theme }) => theme.secondaryText};
   text-align: center;
   line-height: 21.8px;
@@ -94,6 +95,7 @@ export enum PopupType {
   APPEAL = "APPEAL",
   VOTE_WITHOUT_COMMIT = "VOTE_WITHOUT_COMMIT",
   VOTE_WITH_COMMIT = "VOTE_WITH_COMMIT",
+  DISPUTE_CREATED = "DISPUTE_CREATED",
 }
 
 interface IStakeWithdraw {
@@ -119,6 +121,11 @@ interface IAppeal {
   amount: string;
   option: string;
 }
+interface IDisputeCreated {
+  popupType: PopupType.DISPUTE_CREATED;
+  disputeId: number;
+  courtId: string;
+}
 interface IPopup {
   title: string;
   icon: React.FC<React.SVGAttributes<SVGElement>>;
@@ -128,7 +135,7 @@ interface IPopup {
   isCommit?: boolean;
 }
 
-type PopupProps = IStakeWithdraw | IVoteWithoutCommit | IVoteWithCommit | IAppeal;
+type PopupProps = IStakeWithdraw | IVoteWithoutCommit | IVoteWithCommit | IAppeal | IDisputeCreated;
 
 const Popup: React.FC<PopupProps & IPopup> = ({
   title,
@@ -140,6 +147,7 @@ const Popup: React.FC<PopupProps & IPopup> = ({
   ...props
 }) => {
   const containerRef = useRef(null);
+  const navigate = useNavigate();
 
   const resetValue = () => {
     if (setAmount) {
@@ -180,6 +188,11 @@ const Popup: React.FC<PopupProps & IPopup> = ({
       PopupComponent = <Appeal amount={amount} option={option} />;
       break;
     }
+    case PopupType.DISPUTE_CREATED: {
+      const { courtId } = props as IDisputeCreated;
+      PopupComponent = <DisputeCreated courtId={courtId} />;
+      break;
+    }
     default:
       break;
   }
@@ -195,12 +208,17 @@ const Popup: React.FC<PopupProps & IPopup> = ({
         </IconContainer>
         {popupType === PopupType.STAKE_WITHDRAW && <StakeWithdrawExtraInfo />}
         {popupType === PopupType.VOTE_WITH_COMMIT && <VoteWithCommitExtraInfo />}
+        {popupType === PopupType.DISPUTE_CREATED && <DisputeCreatedExtraInfo />}
         <StyledButton
           variant="secondary"
-          text="Close"
+          text={popupType === PopupType.DISPUTE_CREATED ? "Check the case" : "Close"}
           onClick={() => {
             setIsOpen(false);
             resetValue();
+            if (popupType === PopupType.DISPUTE_CREATED) {
+              const { disputeId } = props as IDisputeCreated;
+              navigate(`/cases/${disputeId}`);
+            }
           }}
         />
       </Container>

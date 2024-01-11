@@ -3,13 +3,12 @@ import styled from "styled-components";
 import { Routes, Route } from "react-router-dom";
 import CaseDetails from "./CaseDetails";
 import CasesFetcher from "./CasesFetcher";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
-  padding: calc(32px + (136 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-top: calc(32px + (80 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-bottom: calc(64px + (96 - 64) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: ${responsiveSize(32, 80)} ${responsiveSize(24, 136)} ${responsiveSize(76, 96)};
   max-width: 1780px;
   margin: 0 auto;
 `;

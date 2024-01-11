@@ -5,6 +5,7 @@ export type DisputeDetails = {
   type: QuestionType;
   answers: Answer[];
   policyURI: string;
+  attachment: Attachment;
   frontendUrl: string;
   arbitrableChainID: string;
   arbitrableAddress: `0x${string}`;
@@ -13,14 +14,8 @@ export type DisputeDetails = {
   category: string;
   lang: string;
   specification: string;
+  aliases?: Alias[];
   version: string;
-};
-
-export type Answer = {
-  title: string;
-  description: string;
-  id: `0x${string}`;
-  reserved: boolean;
 };
 
 export enum QuestionType {
@@ -30,3 +25,20 @@ export enum QuestionType {
   SingleSelect = "single-select",
   Uint = "uint",
 }
+
+export type Answer = {
+  title: string;
+  description: string;
+  id: `0x${string}`;
+  reserved: boolean;
+};
+
+export type Alias = {
+  name: string;
+  address: `0x${string}` | `${string}.eth`;
+};
+
+export type Attachment = {
+  label: string;
+  uri: string;
+};

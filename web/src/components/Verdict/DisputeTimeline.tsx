@@ -2,15 +2,17 @@ import React, { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import styled, { useTheme } from "styled-components";
 import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
-import { Periods } from "consts/periods";
-import { ClassicRound } from "src/graphql/graphql";
-import { getVoteChoice } from "pages/Cases/CaseDetails/Voting/VotingHistory";
-import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
-import { useVotingHistory } from "queries/useVotingHistory";
 import CalendarIcon from "assets/svgs/icons/calendar.svg";
 import ClosedCaseIcon from "assets/svgs/icons/check-circle-outline.svg";
 import AppealedCaseIcon from "assets/svgs/icons/close-circle.svg";
+import { Periods } from "consts/periods";
+import { ClassicRound } from "src/graphql/graphql";
+import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { useVotingHistory } from "queries/useVotingHistory";
+import { getVoteChoice } from "pages/Cases/CaseDetails/Voting/VotingHistory";
+import { getLocalRounds } from "utils/getLocalRounds";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
@@ -26,7 +28,7 @@ const StyledTimeline = styled(CustomTimeline)`
 const EnforcementContainer = styled.div`
   display: flex;
   gap: 8px;
-  margin-top: calc(12px + (24 - 12) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-top: ${responsiveSize(12, 24)};
   fill: ${({ theme }) => theme.secondaryText};
 
   small {
@@ -63,7 +65,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
-  const localRounds: ClassicRound[] = votingHistory?.dispute?.disputeKitDispute?.localRounds as ClassicRound[];
+  const localRounds: ClassicRound[] = getLocalRounds(votingHistory?.dispute?.disputeKitDispute) as ClassicRound[];
 
   const theme = useTheme();
 
@@ -85,7 +87,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
           acc.push({
             title: `Jury Decision - Round ${index + 1}`,
             party: isOngoing ? "Voting is ongoing" : getVoteChoice(parsedRoundChoice, answers),
-            subtitle: eventDate,
+            subtitle: `${eventDate} / ${votingHistory?.dispute?.rounds.at(index)?.court.name}`,
             rightSided: true,
             variant: theme.secondaryPurple,
             Icon: icon !== "" ? icon : undefined,

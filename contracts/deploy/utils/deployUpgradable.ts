@@ -29,7 +29,7 @@ export const deployUpgradable = async (
   options: DeployUpgradableOptions
 ): Promise<DeployResult> => {
   const { deploy } = deployments;
-  const { newImplementation, initializer, args: initializerArgs, ...otherOptions } = options;
+  const { newImplementation, initializer, args: initializerArgs, proxy: proxyOverrides, ...otherOptions } = options;
 
   const methodName = initializer ?? "initialize";
   const args = initializerArgs ?? [];
@@ -52,6 +52,7 @@ export const deployUpgradable = async (
     proxy: {
       ...PROXY_OPTIONS,
       ...implementationName,
+      ...((proxyOverrides as ProxyOptions) ?? {}),
       execute: {
         init: {
           methodName,

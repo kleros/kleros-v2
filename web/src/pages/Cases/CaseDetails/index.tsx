@@ -10,6 +10,7 @@ import Overview from "./Overview";
 import Tabs from "./Tabs";
 import Timeline from "./Timeline";
 import Voting from "./Voting";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div``;
 
@@ -17,11 +18,10 @@ const StyledCard = styled(Card)`
   width: 100%;
   height: auto;
   min-height: 100px;
-  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
 `;
 
 const Header = styled.h1`
-  margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  margin-bottom: ${responsiveSize(16, 48)};
 `;
 
 const CaseDetails: React.FC = () => {

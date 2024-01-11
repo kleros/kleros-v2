@@ -1,7 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import { useOptionsContext, useFundingContext } from "hooks/useClassicAppealContext";
 import OptionCard from "./OptionCard";
+import HowItWorks from "components/HowItWorks";
+import Appeal from "components/Popup/MiniGuides/Appeal";
+import { AppealHeader, StyledTitle } from ".";
+import { useOptionsContext, useFundingContext } from "hooks/useClassicAppealContext";
 
 const OptionsContainer = styled.div`
   display: flex;
@@ -10,13 +13,25 @@ const OptionsContainer = styled.div`
   margin-top: 12px;
 `;
 
-const AppealHistory: React.FC = () => {
+interface IAppealHistory {
+  isAppealMiniGuideOpen: boolean;
+  toggleAppealMiniGuide: () => void;
+}
+
+const AppealHistory: React.FC<IAppealHistory> = ({ isAppealMiniGuideOpen, toggleAppealMiniGuide }) => {
   const options = useOptionsContext();
   const { winningChoice, paidFees, fundedChoices } = useFundingContext();
 
   return (
     <div>
-      <h1>Appeal Results - Last Round</h1>
+      <AppealHeader>
+        <StyledTitle>Appeal Results - Last Round</StyledTitle>
+        <HowItWorks
+          isMiniGuideOpen={isAppealMiniGuideOpen}
+          toggleMiniGuide={toggleAppealMiniGuide}
+          MiniGuideComponent={Appeal}
+        />
+      </AppealHeader>
       <OptionsContainer>
         {options ? (
           options.map((option, index) => {

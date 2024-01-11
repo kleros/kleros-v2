@@ -5,7 +5,7 @@ import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { ClassicAppealQuery };
 
 const classicAppealQuery = graphql(`
-  query ClassicAppeal($disputeID: ID!) {
+  query ClassicAppeal($disputeID: ID!, $orderBy: DisputeKitDispute_orderBy, $orderDirection: OrderDirection) {
     dispute(id: $disputeID) {
       period
       court {
@@ -16,7 +16,7 @@ const classicAppealQuery = graphql(`
         id
       }
       lastPeriodChange
-      disputeKitDispute {
+      disputeKitDispute(orderBy: $orderBy, orderDirection: $orderDirection) {
         id
         currentLocalRoundIndex
         localRounds {
@@ -34,9 +34,16 @@ const classicAppealQuery = graphql(`
 export const useClassicAppealQuery = (id?: string | number) => {
   const isEnabled = id !== undefined;
 
-  return useQuery({
+  return useQuery<ClassicAppealQuery>({
     queryKey: ["refetchOnBlock", `classicAppealQuery${id}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(classicAppealQuery, { disputeID: id?.toString() }),
+    queryFn: async () =>
+      isEnabled
+        ? await graphqlQueryFnHelper(classicAppealQuery, {
+            disputeID: id?.toString(),
+            orderBy: "timestamp",
+            orderDirection: "asc",
+          })
+        : undefined,
   });
 };

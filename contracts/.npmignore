@@ -1,11 +1,7 @@
-# Exclude everything by default from the package
-**/*
+# NOP, just force npm to disregard .gitignore
+# https://docs.npmjs.com/cli/v9/using-npm/developers#keeping-files-out-of-your-package
 
-# Include this
-!/artifacts/**
-!/typechain-types/**
-!/deployments/**
-
-# Except this
-/deployments/localhost/
-**/.DS_Store
+.env*
+.flaskenv*
+!.env.project
+!.env.vault

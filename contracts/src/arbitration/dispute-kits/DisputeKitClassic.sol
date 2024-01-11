@@ -10,7 +10,6 @@ pragma solidity 0.8.18;
 
 import "../KlerosCore.sol";
 import "../interfaces/IDisputeKit.sol";
-import "../interfaces/IEvidence.sol";
 import "../../proxy/UUPSProxiable.sol";
 import "../../proxy/Initializable.sol";
 
@@ -20,7 +19,7 @@ import "../../proxy/Initializable.sol";
 /// - a vote aggregation system: plurality,
 /// - an incentive system: equal split between coherent votes,
 /// - an appeal system: fund 2 choices only, vote on any choice.
-contract DisputeKitClassic is IDisputeKit, IEvidence, Initializable, UUPSProxiable {
+contract DisputeKitClassic is IDisputeKit, Initializable, UUPSProxiable {
     // ************************************* //
     // *             Structs               * //
     // ************************************* //
@@ -448,13 +447,6 @@ contract DisputeKitClassic is IDisputeKit, IEvidence, Initializable, UUPSProxiab
         }
     }
 
-    /// @dev Submits evidence for a dispute.
-    /// @param _externalDisputeID Unique identifier for this dispute outside Kleros. It's the submitter responsability to submit the right evidence group ID.
-    /// @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'.
-    function submitEvidence(uint256 _externalDisputeID, string calldata _evidence) external {
-        emit Evidence(_externalDisputeID, msg.sender, _evidence);
-    }
-
     // ************************************* //
     // *           Public Views            * //
     // ************************************* //
@@ -614,7 +606,7 @@ contract DisputeKitClassic is IDisputeKit, IEvidence, Initializable, UUPSProxiab
         uint256 lockedAmountPerJuror = core
             .getRoundInfo(_coreDisputeID, core.getNumberOfRounds(_coreDisputeID) - 1)
             .pnkAtStakePerJuror;
-        (uint256 totalStaked, uint256 totalLocked, , ) = core.getJurorBalance(_juror, courtID);
+        (uint256 totalStaked, uint256 totalLocked, , ) = core.sortitionModule().getJurorBalance(_juror, courtID);
         return totalStaked >= totalLocked + lockedAmountPerJuror;
     }
 }

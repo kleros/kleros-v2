@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.a`
   cursor: pointer;
@@ -15,7 +16,7 @@ const Container = styled.a`
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
   gap: 8px;
-  width: calc(100px + (130 - 100) * (100vw - 375px) / (1250 - 375));
+  width: ${responsiveSize(100, 130)};
   white-space: nowrap;
 
   background-color: ${({ theme }) => theme.lightBackground};
@@ -37,11 +38,12 @@ interface IProduct {
   text: string;
   url: string;
   Icon: React.FC<React.SVGAttributes<SVGElement>> | string;
+  isNewTab?: boolean;
 }
 
-const Product: React.FC<IProduct> = ({ text, url, Icon }) => {
+const Product: React.FC<IProduct> = ({ text, url, Icon, isNewTab = true }) => {
   return (
-    <Container href={url} target="_blank">
+    <Container href={url} target={isNewTab ? "_blank" : "_self"}>
       {typeof Icon === "string" ? <StyledImg alt={Icon} src={Icon} /> : <StyledIcon as={Icon} />}
       <small>{text}</small>
     </Container>

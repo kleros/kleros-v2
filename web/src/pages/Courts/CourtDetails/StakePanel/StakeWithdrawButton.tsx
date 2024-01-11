@@ -9,7 +9,7 @@ import {
   usePnkBalanceOf,
   usePnkIncreaseAllowance,
   usePreparePnkIncreaseAllowance,
-  useKlerosCoreGetJurorBalance,
+  useSortitionModuleGetJurorBalance,
   usePnkAllowance,
 } from "hooks/contracts/generated";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
@@ -48,7 +48,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     args: [address!],
     watch: true,
   });
-  const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
+  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
     enabled: !isUndefined(address),
     args: [address ?? "0x", BigInt(id ?? 0)],
     watch: true,
@@ -68,9 +68,9 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
       if (isAllowance) {
         return parsedAmount;
       } else if (isStaking) {
-        return jurorBalance[0] + parsedAmount;
+        return jurorBalance[2] + parsedAmount;
       } else {
-        return jurorBalance[0] - parsedAmount;
+        return jurorBalance[2] - parsedAmount;
       }
     }
     return 0n;
@@ -121,7 +121,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     },
     [ActionType.withdraw]: {
       text: "Withdraw",
-      checkDisabled: () => !jurorBalance || parsedAmount > jurorBalance[0],
+      checkDisabled: () => !jurorBalance || parsedAmount > jurorBalance[2],
       onClick: handleStake,
     },
   };
@@ -138,7 +138,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
           isUndefined(targetStake) ||
           isUndefined(courtDetails) ||
           checkDisabled() ||
-          (targetStake !== 0n && targetStake < BigInt(courtDetails.court.minStake)) ||
+          (targetStake !== 0n && targetStake < BigInt(courtDetails.court?.minStake)) ||
           (isStaking && !isAllowance && isUndefined(setStakeConfig.request))
         }
         onClick={onClick}

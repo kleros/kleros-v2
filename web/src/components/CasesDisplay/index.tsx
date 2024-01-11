@@ -3,10 +3,18 @@ import styled from "styled-components";
 import Search from "./Search";
 import StatsAndFilters from "./StatsAndFilters";
 import CasesGrid, { ICasesGrid } from "./CasesGrid";
+import { responsiveSize } from "styles/responsiveSize";
 
-const StyledHR = styled.hr`
-  margin-top: 24px;
-  margin-bottom: 24px;
+const Divider = styled.hr`
+  display: flex;
+  border: none;
+  height: 1px;
+  background-color: ${({ theme }) => theme.stroke};
+  margin: ${responsiveSize(20, 24)};
+`;
+
+const StyledTitle = styled.h1`
+  margin-bottom: ${responsiveSize(32, 48)};
 `;
 
 interface ICasesDisplay extends ICasesGrid {
@@ -29,10 +37,10 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
 }) => {
   return (
     <div {...{ className }}>
-      <h1>{title}</h1>
+      <StyledTitle>{title}</StyledTitle>
       <Search />
       <StatsAndFilters totalDisputes={numberDisputes ?? 0} closedDisputes={numberClosedDisputes ?? 0} />
-      <StyledHR />
+      <Divider />
 
       {disputes?.length === 0 ? (
         <h1>No cases found</h1>

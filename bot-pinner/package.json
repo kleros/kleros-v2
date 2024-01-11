@@ -4,9 +4,10 @@
   "description": "Pinning of the court data to decentralized storage.",
   "author": "Kleros",
   "license": "MIT",
-  "packageManager": "yarn@3.3.1",
+  "packageManager": "yarn@3.7.0",
   "volta": {
-    "node": "16.20.1"
+    "node": "16.20.2",
+    "yarn": "3.7.0"
   },
   "scripts": {
     "build:local": "docker compose build",

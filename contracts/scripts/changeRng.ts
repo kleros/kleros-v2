@@ -3,8 +3,7 @@ const { deploy, execute } = deployments;
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
-  ARBITRUM_RINKEBY = 421611,
-  ARBITRUM_GOERLI = 421613,
+  ARBITRUM_SEPOLIA = 421614,
   HARDHAT = 31337,
 }
 

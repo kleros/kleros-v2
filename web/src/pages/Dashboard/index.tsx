@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
@@ -6,17 +6,17 @@ import { OrderDirection } from "src/graphql/graphql";
 import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
 import { useUserQuery } from "queries/useUser";
 import { decodeURIFilter, useRootPath } from "utils/uri";
+import { isUndefined } from "utils/index";
 import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
 import JurorInfo from "./JurorInfo";
 import Courts from "./Courts";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
-  padding: calc(32px + (136 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-top: calc(32px + (80 - 32) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-bottom: calc(64px + (96 - 64) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: ${responsiveSize(32, 80)} ${responsiveSize(24, 136)} ${responsiveSize(76, 96)};
   max-width: 1780px;
   margin: 0 auto;
 `;
@@ -25,7 +25,7 @@ const StyledCasesDisplay = styled(CasesDisplay)`
   margin-top: 64px;
 
   h1 {
-    margin-bottom: calc(16px + (48 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+    margin-bottom: ${responsiveSize(16, 48)};
   }
 `;
 
@@ -54,6 +54,10 @@ const Dashboard: React.FC = () => {
   );
   const { data: userData } = useUserQuery(address, decodedFilter);
   const totalCases = userData?.user?.disputes.length;
+  const totalPages = useMemo(
+    () => (!isUndefined(totalCases) ? Math.ceil(totalCases / casesPerPage) : 1),
+    [totalCases, casesPerPage]
+  );
 
   return (
     <Container>
@@ -63,10 +67,10 @@ const Dashboard: React.FC = () => {
           <Courts />
           <StyledCasesDisplay
             title="My Cases"
-            disputes={disputesData?.user?.disputes as DisputeDetailsFragment[]}
+            disputes={userData?.user !== null ? (disputesData?.user?.disputes as DisputeDetailsFragment[]) : []}
             numberDisputes={totalCases}
             numberClosedDisputes={0}
-            totalPages={10}
+            totalPages={totalPages}
             currentPage={pageNumber}
             setCurrentPage={(newPage: number) => navigate(`${location}/${newPage}/${order}/${filter}`)}
             {...{ casesPerPage }}

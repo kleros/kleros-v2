@@ -15,13 +15,14 @@ import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import { CoinIds } from "consts/coingecko";
 import { useHomePageContext, HomePageQuery, HomePageQueryDataPoints } from "hooks/useHomePageContext";
 import { useCoinPrice } from "hooks/useCoinPrice";
+import { responsiveSize } from "styles/responsiveSize";
 
 const StyledCard = styled(Card)`
   width: auto;
   height: fit-content;
   gap: 32px;
-  padding: calc(16px + (30 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
-  padding-left: calc(16px + (35 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: ${responsiveSize(16, 30)};
+  padding-left: ${responsiveSize(16, 35)};
   padding-bottom: 16px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));

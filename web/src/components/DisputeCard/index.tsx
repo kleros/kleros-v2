@@ -14,22 +14,25 @@ import { useVotingHistory } from "queries/useVotingHistory";
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
+import { getLocalRounds } from "utils/getLocalRounds";
+import { responsiveSize } from "styles/responsiveSize";
 import { populateTemplate } from "@kleros/kleros-sdk/dataMappings/utils/populateTemplate";
 import { DisputeDetails } from "@kleros/kleros-sdk/dataMappings/utils/disputeDetailsTypes";
 import { INVALID_DISPUTE_DATA_ERROR } from "consts/index";
 
 const StyledCard = styled(Card)`
   width: 100%;
-  height: 260px;
+  height: ${responsiveSize(280, 296)};
+
   ${landscapeStyle(
     () =>
       css`
         /* Explanation of this formula:
           - The 48px accounts for the total width of gaps: 2 gaps * 24px each.
           - The 0.333 is used to equally distribute width among 3 cards per row.
-          - The 294px ensures the card has a minimum width.
+          - The 348px ensures the card has a minimum width.
         */
-        width: max(calc((100% - 48px) * 0.333), 294px);
+        width: max(calc((100% - 48px) * 0.333), 348px);
       `
   )}
 `;
@@ -42,8 +45,8 @@ const StyledListItem = styled(Card)`
 `;
 
 const CardContainer = styled.div`
-  height: 215px;
-  padding: 24px;
+  height: calc(100% - 45px);
+  padding: ${responsiveSize(20, 24)};
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -68,7 +71,7 @@ const ListTitle = styled.div`
   height: 100%;
   justify-content: start;
   align-items: center;
-  width: calc(30vw + (40 - 30) * ((100vw - 300px) / (1250 - 300)));
+  width: calc(30vw + (40 - 30) * (min(max(100vw, 300px), 1250px)- 300px) / 950);
 `;
 
 export const getPeriodEndTimestamp = (
@@ -111,7 +114,7 @@ const DisputeCard: React.FC<IDisputeCard> = ({ id, arbitrated, period, lastPerio
   const courtName = courtPolicy?.name;
   const category = disputeTemplate?.category;
   const { data: votingHistory } = useVotingHistory(id);
-  const localRounds = votingHistory?.dispute?.disputeKitDispute?.localRounds;
+  const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const navigate = useNavigate();
   return (
     <>

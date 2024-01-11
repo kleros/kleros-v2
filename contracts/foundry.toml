@@ -5,8 +5,10 @@ out = 'out'
 libs = ['../node_modules', 'lib']
 
 [rpc_endpoints]
+arbitrumSepolia = "https://sepolia-rollup.arbitrum.io/rpc"
 arbitrumGoerli = "https://goerli-rollup.arbitrum.io/rpc"
 arbitrum = "https://arb1.arbitrum.io/rpc"
+sepolia = "https://sepolia.infura.io/v3/${INFURA_API_KEY}"
 goerli = "https://goerli.infura.io/v3/${INFURA_API_KEY}"
 mainnet = "https://mainnet.infura.io/v3/${INFURA_API_KEY}"
 chiado = "https://rpc.chiadochain.net"

@@ -1,11 +1,10 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
-import { isSkipped } from "./utils";
+import { ForeignChains, HardhatChain, isSkipped } from "./utils";
 
 enum Chains {
-  GOERLI = 5,
-  HARDHAT = 31337,
+  SEPOLIA = ForeignChains.ETHEREUM_SEPOLIA,
+  HARDHAT = HardhatChain.HARDHAT,
 }
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -15,7 +14,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log("Deploying to %s with deployer %s", Chains[chainId], deployer);
+  console.log("deploying to %s with deployer %s", Chains[chainId], deployer);
 
   await deploy("PinakionV2", {
     from: deployer,

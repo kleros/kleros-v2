@@ -3,14 +3,23 @@ name: Deploy the Subgraph
 on:
   workflow_dispatch:
     inputs:
-      network:
-        description: The network to deploy the subgraph to
+      graph_environment:
+        description: The Graph environment to deploy to
         required: true
-        default: 'arbitrum-goerli'
+        default: 'graph-studio-devnet'
         type: choice
         options:
-          - arbitrum-goerli
-          - arbitrum
+          - graph-studio-devnet
+          - graph-studio-testnet
+          - graph-studio-mainnet
+      subgraph:
+        description: The name of the subgraph to deploy
+        required: true
+        default: 'core'
+        type: choice
+        options:
+          - core
+          - drt
       update:
         description: Whether to update the subgraph with the current artifacts for the selected network.
         required: true
@@ -23,12 +32,16 @@ permissions:
 jobs:
   buildAndDeploy:
     runs-on: ubuntu-latest
-    environment: kleros-org-subgraph
+    environment: ${{ inputs.graph_environment }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.5.0
         with:
           egress-policy: audit
+
+      - name: Validate Network environment variable
+        if:   ${{!startsWith(vars.NETWORK, 'arbitrum')}}
+        run:  echo ${{vars.NETWORK}} && exit 1
 
       - name: Checkout code
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
@@ -57,19 +70,19 @@ jobs:
         if: ${{ inputs.update }}
         run: |
           export PATH=$PWD/../bin:$PATH
-          yarn update:${{ inputs.network }}
+          yarn update:${{ inputs.subgraph }}:${{ vars.NETWORK }}
         working-directory: subgraph
 
       - name: Build the subgraph
         run: |
-          yarn codegen
-          yarn build
+          yarn codegen:${{ inputs.subgraph }}
+          yarn build:${{ inputs.subgraph }}
         working-directory: subgraph
         
-      - name: Authenticate with TheGraph
-        run: yarn graph auth "${{ secrets.SUBGRAPH_AUTH_TOKEN }}" --product hosted-service
+      - name: Authenticate with TheGraph Studio
+        run: yarn graph auth "${{ secrets.SUBGRAPH_AUTH_TOKEN }}" --studio
         working-directory: subgraph
 
       - name: Deploy the subgraph
-        run: yarn deploy:${{ inputs.network }}
+        run: yarn deploy:${{ inputs.subgraph }}:${{ vars.NETWORK }}
         working-directory: subgraph

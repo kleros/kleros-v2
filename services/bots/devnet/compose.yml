@@ -10,6 +10,16 @@ services:
         source: ./pm2.config.keeper-bot.${DEPLOYMENT}.js
         target: /usr/src/app/contracts/ecosystem.config.js
 
+  disputor-bot:
+    container_name: disputor-bot-${DEPLOYMENT:?error}
+    extends:
+      file: ../base/bot-pm2.yml
+      service: bot-pm2
+    volumes:
+      - type: bind
+        source: ./pm2.config.disputor-bot.${DEPLOYMENT}.js
+        target: /usr/src/app/contracts/ecosystem.config.js
+
   relayer-bot-from-chiado:
     container_name: relayer-bot-from-chiado-${DEPLOYMENT:?error}
     extends:
@@ -22,17 +32,17 @@ services:
     profiles:
       - chiado
 
-  relayer-bot-from-goerli:
-    container_name: relayer-bot-from-goerli-${DEPLOYMENT:?error}
+  relayer-bot-from-sepolia:
+    container_name: relayer-bot-from-sepolia-${DEPLOYMENT:?error}
     extends:
       file: ../base/bot-pm2.yml
       service: bot-pm2
     volumes:
       - type: bind
-        source: ./pm2.config.relayer-bot-from-goerli.${DEPLOYMENT}.js
+        source: ./pm2.config.relayer-bot-from-sepolia.${DEPLOYMENT}.js
         target: /usr/src/app/contracts/ecosystem.config.js
     profiles:
-      - goerli
+      - sepolia
 
   relayer-bot-from-hardhat-host:
     container_name: relayer-bot-from-hardhat-host-${DEPLOYMENT:?error}

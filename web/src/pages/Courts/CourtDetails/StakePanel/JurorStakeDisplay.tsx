@@ -1,22 +1,33 @@
 import React, { useState, useEffect, useMemo } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import { isUndefined } from "utils/index";
 import Field from "components/Field";
 import DiceIcon from "svgs/icons/dice.svg";
-import LockerIcon from "svgs/icons/locker.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import { useCourtDetails } from "queries/useCourtDetails";
-import { useKlerosCoreGetJurorBalance } from "hooks/contracts/generated";
+import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 
 const Container = styled.div`
   display: flex;
+  width: 100%;
   flex-direction: column;
   justify-content: space-between;
   gap: 8px;
   margin-top: 12px;
+
+  ${landscapeStyle(
+    () => css`
+      margin-top: 32px;
+      gap: 32px;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    `
+  )}
 `;
 
 const format = (value: bigint | undefined): string => (value !== undefined ? formatEther(value) : "0");
@@ -33,7 +44,7 @@ const bigIntRatioToPercentage = (numerator: bigint, denominator: bigint): string
 };
 
 const useCalculateJurorOdds = (
-  jurorBalance: readonly [bigint, bigint, bigint] | undefined,
+  jurorBalance: readonly [bigint, bigint, bigint, bigint] | undefined,
   stakedByAllJurors: string | undefined,
   loading: boolean
 ): string => {
@@ -46,14 +57,14 @@ const useCalculateJurorOdds = (
       return "0.00%";
     }
 
-    return bigIntRatioToPercentage(jurorBalance[0], BigInt(stakedByAllJurors));
+    return bigIntRatioToPercentage(jurorBalance[2], BigInt(stakedByAllJurors));
   }, [jurorBalance, stakedByAllJurors, loading]);
 };
 
 const JurorBalanceDisplay = () => {
   const { id } = useParams();
   const { address } = useAccount();
-  const { data: jurorBalance } = useKlerosCoreGetJurorBalance({
+  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
     enabled: !isUndefined(address),
     args: [address ?? "0x", BigInt(id ?? 0)],
     watch: true,
@@ -66,10 +77,10 @@ const JurorBalanceDisplay = () => {
   const [previousStakedByAllJurors, setPreviousStakedByAllJurors] = useState<bigint | undefined>(undefined);
 
   useEffect(() => {
-    if (previousJurorBalance !== undefined && jurorBalance?.[0] !== previousJurorBalance) {
+    if (previousJurorBalance !== undefined && jurorBalance?.[2] !== previousJurorBalance) {
       setLoading(true);
     }
-    setPreviousJurorBalance(jurorBalance?.[0]);
+    setPreviousJurorBalance(jurorBalance?.[2]);
   }, [jurorBalance, previousJurorBalance]);
 
   useEffect(() => {
@@ -87,16 +98,11 @@ const JurorBalanceDisplay = () => {
     {
       icon: PNKIcon,
       name: "My Stake",
-      value: `${format(jurorBalance?.[0])} PNK`,
-    },
-    {
-      icon: LockerIcon,
-      name: "Locked Stake",
-      value: `${format(jurorBalance?.[1])} PNK`,
+      value: `${format(jurorBalance?.[2])} PNK`,
     },
     {
       icon: DiceIcon,
-      name: "Juror odds",
+      name: "Juror Odds",
       value: jurorOdds,
     },
   ];
@@ -104,7 +110,7 @@ const JurorBalanceDisplay = () => {
   return (
     <Container>
       {data.map(({ icon, name, value }) => (
-        <Field key={name} {...{ icon, name, value }} />
+        <Field isJurorBalance={true} key={name} {...{ icon, name, value }} />
       ))}
     </Container>
   );

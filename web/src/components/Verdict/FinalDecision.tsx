@@ -8,6 +8,7 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import LightButton from "../LightButton";
 import VerdictBanner from "./VerdictBanner";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   width: 100%;
@@ -71,8 +72,10 @@ const AnswerTitle = styled.h3`
 
 const Divider = styled.hr`
   display: flex;
-  color: ${({ theme }) => theme.stroke};
-  margin: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875) 0px;
+  border: none;
+  height: 1px;
+  background-color: ${({ theme }) => theme.stroke};
+  margin: ${responsiveSize(16, 32)} 0px;
 `;
 
 interface IFinalDecision {

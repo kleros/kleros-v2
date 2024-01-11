@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
+import { useToggle } from "react-use";
 import { useParams } from "react-router-dom";
 import { useAccount, useNetwork, useWalletClient, usePublicClient } from "wagmi";
 import { Card, Breadcrumb, Button } from "@kleros/ui-components-library";
@@ -15,32 +17,64 @@ import LatestCases from "components/LatestCases";
 import Stats from "./Stats";
 import Description from "./Description";
 import StakePanel from "./StakePanel";
+import HowItWorks from "components/HowItWorks";
+import Staking from "components/Popup/MiniGuides/Staking";
 import { usePnkFaucetWithdrewAlready, prepareWritePnkFaucet, usePnkBalanceOf } from "hooks/contracts/generated";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div``;
+
+const CourtHeader = styled.h1`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+`;
+
+const CourtInfo = styled.div`
+  display: flex:
+  flex-direction: column;
+  gap: 16px;
+
+  ${landscapeStyle(
+    () => css`
+      gap: 32px;
+    `
+  )};
+`;
 
 const ButtonContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+
+  ${landscapeStyle(
+    () => css`
+      align-items: flex-end;
+      gap: 32px;
+    `
+  )};
 `;
 
 const StyledCard = styled(Card)`
-  margin-top: calc(16px + (24 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
+  padding: ${responsiveSize(16, 32)};
+  margin-top: ${responsiveSize(16, 24)};
   width: 100%;
   height: auto;
-  padding: calc(16px + (32 - 16) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   min-height: 100px;
 `;
 
 const StyledBreadcrumb = styled(Breadcrumb)`
-  margin-bottom: 12px;
   display: flex;
-  align-items: flex-start;
+  margin-top: 12px;
+  align-items: center;
 `;
 
 const StyledBreadcrumbSkeleton = styled.div`
-  margin-bottom: 12px;
+  margin-top: 12px;
 `;
 
 const CourtDetails: React.FC = () => {
@@ -55,6 +89,7 @@ const CourtDetails: React.FC = () => {
     args: [address ?? "0x00"],
     watch: true,
   });
+  const [isStakingMiniGuideOpen, toggleStakingMiniGuide] = useToggle(false);
 
   const faucetAddress = usePNKFaucetAddress();
   const { data: balance } = usePnkBalanceOf({
@@ -89,25 +124,34 @@ const CourtDetails: React.FC = () => {
   return (
     <Container>
       <StyledCard>
-        <h1>{policy ? policy.name : <StyledSkeleton width={200} />}</h1>
-        <ButtonContainer>
-          {items.length > 1 ? (
-            <StyledBreadcrumb items={items} />
-          ) : (
-            <StyledBreadcrumbSkeleton>
-              <StyledSkeleton width={100} />
-            </StyledBreadcrumbSkeleton>
-          )}
-          {chain?.id === DEFAULT_CHAIN && !claimed && (
-            <Button
-              variant="primary"
-              text={faucetCheck ? "Claim PNK" : "Empty Faucet"}
-              onClick={handleRequest}
-              isLoading={isSending}
-              disabled={isSending || claimed || !faucetCheck}
+        <CourtHeader>
+          <CourtInfo>
+            {policy ? policy.name : <StyledSkeleton width={200} />}
+            {items.length > 1 ? (
+              <StyledBreadcrumb items={items} />
+            ) : (
+              <StyledBreadcrumbSkeleton>
+                <StyledSkeleton width={100} />
+              </StyledBreadcrumbSkeleton>
+            )}
+          </CourtInfo>
+          <ButtonContainer>
+            <HowItWorks
+              isMiniGuideOpen={isStakingMiniGuideOpen}
+              toggleMiniGuide={toggleStakingMiniGuide}
+              MiniGuideComponent={Staking}
             />
-          )}
-        </ButtonContainer>
+            {chain?.id === DEFAULT_CHAIN && !claimed && (
+              <Button
+                variant="primary"
+                text={faucetCheck ? "Claim PNK" : "Empty Faucet"}
+                onClick={handleRequest}
+                isLoading={isSending}
+                disabled={isSending || claimed || !faucetCheck}
+              />
+            )}
+          </ButtonContainer>
+        </CourtHeader>
         <hr />
         <Stats />
         <hr />
@@ -128,7 +172,11 @@ interface IItem {
   id: string;
 }
 
-const getCourtsPath = (node: CourtTreeQuery["court"], id: string | undefined, path: IItem[] = []): IItem[] | null => {
+export const getCourtsPath = (
+  node: CourtTreeQuery["court"],
+  id: string | undefined,
+  path: IItem[] = []
+): IItem[] | null => {
   if (!node || !id) return null;
 
   if (node.id === id) {

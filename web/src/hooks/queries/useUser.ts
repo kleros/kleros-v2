@@ -11,6 +11,7 @@ export const userFragment = graphql(`
     totalResolvedDisputes
     totalAppealingDisputes
     totalCoherent
+    coherenceScore
     tokens {
       court {
         id

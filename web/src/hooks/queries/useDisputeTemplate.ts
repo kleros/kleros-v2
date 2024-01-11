@@ -3,10 +3,10 @@ import { graphql } from "src/graphql";
 import { PublicClient } from "viem";
 import { usePublicClient } from "wagmi";
 import { getIArbitrableV2 } from "hooks/contracts/generated";
-import { DisputeTemplateQuery } from "src/graphql/graphql";
 import { isUndefined } from "utils/index";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
+import { graphqlQueryFnHelper, graphqlUrl } from "utils/graphqlQueryFnHelper";
 import { useIsCrossChainDispute } from "../useIsCrossChainDispute";
+import { GENESIS_BLOCK_ARBSEPOLIA } from "consts/index";
 
 const disputeTemplateQuery = graphql(`
   query DisputeTemplate($id: ID!) {
@@ -39,7 +39,7 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
             { id: templateId.toString() },
             true
           );
-          console.log("🚀 ~ file: useDisputeTemplate.ts:38 ~ queryFn: ~ disputeTemplate:", disputeTemplate);
+          console.log("useDisputeTemplate:", disputeTemplate);
 
           return disputeTemplate;
         } catch {
@@ -63,7 +63,7 @@ const getTemplateId = async (
       _arbitrableDisputeID: BigInt(disputeID),
     },
     {
-      fromBlock: 27808516n,
+      fromBlock: GENESIS_BLOCK_ARBSEPOLIA,
       toBlock: "latest",
     }
   );

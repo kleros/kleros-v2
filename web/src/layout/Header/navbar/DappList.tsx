@@ -12,6 +12,7 @@ import POH from "svgs/icons/poh-image.png";
 import Vea from "svgs/icons/vea.svg";
 import Tokens from "svgs/icons/tokens.svg";
 import Product from "./Product";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Header = styled.h1`
   display: flex;
@@ -33,7 +34,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
 
-  width: 82%;
+  width: 86vw;
   max-width: 480px;
   min-width: 300px;
   border-radius: 3px;
@@ -52,7 +53,7 @@ const Container = styled.div`
       left: 0;
       right: auto;
       transform: none;
-      width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
+      width: ${responsiveSize(300, 480)};
       max-height: 80vh;
     `
   )}
@@ -61,13 +62,13 @@ const Container = styled.div`
 const ItemsDiv = styled.div`
   display: grid;
   overflow-y: auto;
-  padding: 16px calc(8px + (24 - 8) * ((100vw - 480px) / (1250 - 480)));
+  padding: 16px ${responsiveSize(8, 24, 480)};
   row-gap: 8px;
   column-gap: 2px;
   justify-items: center;
   max-width: 480px;
   min-width: 300px;
-  width: calc(300px + (480 - 300) * (100vw - 375px) / (1250 - 375));
+  width: ${responsiveSize(300, 480)};
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 `;
 
@@ -105,7 +106,8 @@ const ITEMS = [
   {
     text: "Resolver",
     Icon: Resolver,
-    url: "https://resolve.kleros.io",
+    url: "#/resolver",
+    isNewTab: false,
   },
   {
     text: "Linguo",

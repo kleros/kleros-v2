@@ -1,7 +1,7 @@
 import { parseUnits } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment, HttpNetworkConfig } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import getContractAddress from "./utils/getContractAddress";
+import { getContractAddress } from "./utils/getContractAddress";
 import { KlerosCore__factory } from "../typechain-types";
 import { Courts, ForeignChains, isSkipped } from "./utils";
 import { deployUpgradable } from "./utils/deployUpgradable";
@@ -16,7 +16,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
   const chainId = Number(await getChainId());
-  console.log("Deploying to chainId %s with deployer %s", chainId, deployer);
+  console.log("deploying to chainId %s with deployer %s", chainId, deployer);
 
   // Hack to predict the deployment address on the home chain.
   // TODO: use deterministic deployments
@@ -26,10 +26,10 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   let nonce = await homeChainProvider.getTransactionCount(deployer);
   nonce += 1; // HomeGatewayToEthereum Proxy deploy tx will be the 2nd tx after this on its home network, so we add 1 to the current nonce.
   const homeGatewayAddress = getContractAddress(deployer, nonce); // HomeGateway deploy tx will be the next tx home network
-  console.log("Calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
+  console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
   const veaOutbox = await deployments.get("VeaOutboxArbToGnosisDevnet");
-  console.log("Using VeaOutboxArbToGnosisDevnet at %s", veaOutbox.address);
+  console.log("using VeaOutboxArbToGnosisDevnet at %s", veaOutbox.address);
 
   const homeChainId = (await homeChainProvider.getNetwork()).chainId;
   const homeChainIdAsBytes32 = hexZeroPad(hexlify(homeChainId), 32);

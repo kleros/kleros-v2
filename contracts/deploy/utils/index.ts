@@ -8,13 +8,13 @@ export enum HardhatChain {
 
 export enum HomeChains {
   ARBITRUM_ONE = 42161,
-  ARBITRUM_GOERLI = 421613,
+  ARBITRUM_SEPOLIA = 421614,
   HARDHAT = HardhatChain.HARDHAT,
 }
 
 export enum ForeignChains {
   ETHEREUM_MAINNET = 1,
-  ETHEREUM_GOERLI = 5,
+  ETHEREUM_SEPOLIA = 11155111,
   GNOSIS_MAINNET = 100,
   GNOSIS_CHIADO = 10200,
   HARDHAT = HardhatChain.HARDHAT,

@@ -1,15 +1,15 @@
-import { deployments, getNamedAccounts, getChainId, ethers } from "hardhat";
+import { deployments, getNamedAccounts, getChainId, ethers, network } from "hardhat";
 import { KlerosCore } from "../typechain-types";
-import { BigNumber } from "ethers";
+import { BigNumber, BigNumberish } from "ethers";
 import courtsV1Mainnet from "../config/courts.v1.mainnet.json";
 import courtsV1GnosisChain from "../config/courts.v1.gnosischain.json";
 import courtsV2ArbitrumTestnet from "../config/courts.v2.testnet.json";
 import courtsV2ArbitrumDevnet from "../config/courts.v2.devnet.json";
+import { isDevnet } from "../deploy/utils";
 
 enum HomeChains {
   ARBITRUM_ONE = 42161,
-  ARBITRUM_RINKEBY = 421611,
-  ARBITRUM_GOERLI = 421613,
+  ARBITRUM_SEPOLIA = 421614,
   HARDHAT = 31337,
 }
 
@@ -20,8 +20,20 @@ enum Sources {
   V2_TESTNET,
 }
 
-const from = Sources.V2_TESTNET;
-const TESTING_PARAMETERS = false;
+type Court = {
+  id: number;
+  parent: number;
+  hiddenVotes: boolean;
+  minStake: BigNumberish;
+  alpha: BigNumberish;
+  feeForJuror: BigNumberish;
+  jurorsForCourtJump: BigNumberish;
+  timesPerPeriod: BigNumberish[];
+  supportedDisputeKits?: BigNumberish[];
+};
+
+const from = isDevnet(network) ? Sources.V2_DEVNET : Sources.V2_TESTNET;
+const V1_DEV_PARAMETERS = false; // rename to V1_DEV_PARAMETERS
 const ETH_USD = BigNumber.from(1800);
 const DISPUTE_KIT_CLASSIC = BigNumber.from(1);
 const TEN_THOUSAND_GWEI = BigNumber.from(10).pow(13);
@@ -40,54 +52,50 @@ async function main() {
 
   const truncateWei = (x: BigNumber) => x.div(TEN_THOUSAND_GWEI).mul(TEN_THOUSAND_GWEI);
 
-  const parametersUsdToEth = (court) => ({
+  const parametersUsdToEth = (court: Court): Court => ({
     ...court,
     minStake: truncateWei(BigNumber.from(court.minStake).div(ETH_USD)),
     feeForJuror: truncateWei(BigNumber.from(court.feeForJuror).div(ETH_USD)),
   });
 
-  // TODO: rename this to Devnet instead of Testing
-  const parametersProductionToTesting = (court) => ({
+  const parametersProductionToDev = (court: Court): Court => ({
     ...court,
-    hiddenVotes: false,
     minStake: truncateWei(BigNumber.from(court.minStake).div(10000)),
     feeForJuror: truncateWei(ethers.utils.parseEther("0.00001")),
     timesPerPeriod: [120, 120, 120, 240],
   });
 
   // WARNING: skip the Forking court at id 0, so the v1 courts are shifted by 1
-  const parametersV1ToV2 = (court) => ({
+  const parametersV1ToV2 = (court: Court): Court => ({
     ...court,
-    id: BigNumber.from(court.id).add(1),
-    parent: BigNumber.from(court.parent).add(1),
+    id: court.id++,
+    parent: court.parent++,
   });
 
   let courtsV2;
   switch (+from) {
     case Sources.V1_MAINNET: {
-      let courtsV1 = courtsV1Mainnet;
-      courtsV1 = TESTING_PARAMETERS ? courtsV1.map(parametersProductionToTesting) : courtsV1;
+      let courtsV1: Court[] = courtsV1Mainnet;
+      courtsV1 = V1_DEV_PARAMETERS ? courtsV1.map(parametersProductionToDev) : courtsV1;
       courtsV2 = courtsV1.map(parametersV1ToV2);
       break;
     }
     case Sources.V1_GNOSIS: {
-      let courtsV1 = courtsV1GnosisChain.map(parametersUsdToEth);
-      courtsV1 = TESTING_PARAMETERS ? courtsV1.map(parametersProductionToTesting) : courtsV1;
+      let courtsV1: Court[] = courtsV1GnosisChain.map(parametersUsdToEth);
+      courtsV1 = V1_DEV_PARAMETERS ? courtsV1.map(parametersProductionToDev) : courtsV1;
       courtsV2 = courtsV1.map(parametersV1ToV2);
       break;
     }
     case Sources.V2_DEVNET: {
-      courtsV2 = courtsV2ArbitrumDevnet.map(parametersProductionToTesting);
+      courtsV2 = courtsV2ArbitrumDevnet.map(parametersProductionToDev);
       break;
     }
     case Sources.V2_TESTNET: {
-      courtsV2 = TESTING_PARAMETERS
-        ? courtsV2ArbitrumTestnet.map(parametersProductionToTesting)
-        : courtsV2ArbitrumTestnet;
+      courtsV2 = courtsV2ArbitrumTestnet;
       break;
     }
     default:
-      return;
+      throw new Error("Unknown source");
   }
 
   console.log("courtsV2 = %O", courtsV2);

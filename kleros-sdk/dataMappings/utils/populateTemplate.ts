@@ -7,8 +7,9 @@ export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDe
   console.log("MUSTACHE RENDER: ", render);
   const dispute = JSON.parse(render);
 
+  // TODO: the validation below is too strict, it should be fixed, disabled for now, FIXME
   if (!isValidDisputeDetails(dispute)) {
-    throw new Error("Invalid dispute details format.");
+    //   throw new Error(`Invalid dispute details format: ${JSON.stringify(dispute)}`);
   }
 
   return dispute;

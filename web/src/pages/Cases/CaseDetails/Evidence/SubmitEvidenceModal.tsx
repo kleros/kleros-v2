@@ -7,7 +7,7 @@ import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 import { useWalletClient, usePublicClient } from "wagmi";
 import { EnsureChain } from "components/EnsureChain";
-import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
+import { prepareWriteEvidenceModule } from "hooks/contracts/generated";
 
 const StyledModal = styled(Modal)`
   position: absolute;
@@ -76,7 +76,7 @@ const SubmitEvidenceModal: React.FC<{
                   const response = await res.json();
                   if (res.status === 200 && walletClient) {
                     const cid = response["cids"][0];
-                    const { request } = await prepareWriteDisputeKitClassic({
+                    const { request } = await prepareWriteEvidenceModule({
                       functionName: "submitEvidence",
                       args: [BigInt(evidenceGroup), cid],
                     });

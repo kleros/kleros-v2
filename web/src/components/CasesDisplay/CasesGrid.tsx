@@ -1,21 +1,19 @@
-import React, { useMemo } from "react";
+import React from "react";
 import styled from "styled-components";
-import { useWindowSize } from "react-use";
 import { useParams } from "react-router-dom";
 import { SkeletonDisputeCard, SkeletonDisputeListItem } from "../StyledSkeleton";
 import { StandardPagination } from "@kleros/ui-components-library";
-import { BREAKPOINT_LANDSCAPE } from "styles/landscapeStyle";
 import { useIsList } from "context/IsListProvider";
 import { isUndefined } from "utils/index";
 import { decodeURIFilter } from "utils/uri";
 import { DisputeDetailsFragment } from "queries/useCasesQuery";
+import useIsDesktop from "hooks/useIsDesktop";
 import DisputeCard from "components/DisputeCard";
 import CasesListHeader from "./CasesListHeader";
 
 const GridContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   align-items: center;
   gap: 24px;
 `;
@@ -47,12 +45,11 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, casesPerPage, totalPages, c
   const decodedFilter = decodeURIFilter(filter ?? "all");
   const { id: searchValue } = decodedFilter;
   const { isList } = useIsList();
-  const { width } = useWindowSize();
-  const screenIsBig = useMemo(() => width > BREAKPOINT_LANDSCAPE, [width]);
+  const isDesktop = useIsDesktop();
 
   return (
     <>
-      {isList && screenIsBig ? (
+      {isList && isDesktop ? (
         <ListContainer>
           <CasesListHeader />
           {isUndefined(disputes)
