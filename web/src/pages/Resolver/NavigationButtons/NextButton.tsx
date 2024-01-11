@@ -18,8 +18,7 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
     disputeData.question !== "" && disputeData.answers.every((answer) => answer.title !== "");
 
   //check if any filled address or ens is invalid
-  const areFilledAddressesValid =
-    !isUndefined(disputeData.aliases) && disputeData.aliases.every((alias) => alias.address === "" || alias.isValid);
+  const areFilledAddressesValid = disputeData?.aliases?.every((alias) => alias.address === "" || alias.isValid);
 
   const isButtonDisabled =
     (location.pathname.includes("/resolver/title") && !disputeData.title) ||

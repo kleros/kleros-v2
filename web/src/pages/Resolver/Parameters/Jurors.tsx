@@ -35,7 +35,7 @@ const Jurors: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
   const { data } = useKlerosCoreArbitrationCost({
     enabled: !isUndefined(disputeData.numberOfJurors) && !Number.isNaN(disputeData.numberOfJurors),
-    args: [prepareArbitratorExtradata(disputeData.courtId, disputeData.numberOfJurors ?? "1")],
+    args: [prepareArbitratorExtradata(disputeData.courtId, disputeData.numberOfJurors ?? "")],
     watch: true,
   });
 
