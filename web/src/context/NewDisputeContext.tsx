@@ -14,6 +14,7 @@ export type Alias = {
   id?: string;
   name: string;
   address: string | Address;
+  isValid?: boolean;
 };
 
 export interface IDisputeTemplate {
@@ -111,7 +112,7 @@ const constructDisputeTemplate = (disputeData: IDisputeData) => {
   const baseTemplate = { ...disputeData } as IDisputeTemplate;
 
   if (!isUndefined(baseTemplate.aliases)) {
-    baseTemplate.aliases = baseTemplate.aliases.filter((item) => item.name !== "" && item.address !== "");
+    baseTemplate.aliases = baseTemplate.aliases.filter((item) => item.address !== "" && item.isValid);
     if (baseTemplate.aliases.length === 0) delete baseTemplate.aliases;
   }
   if (!isUndefined(baseTemplate.policyURI) && baseTemplate.policyURI === "") delete baseTemplate.policyURI;

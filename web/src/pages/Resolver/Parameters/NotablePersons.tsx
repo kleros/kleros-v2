@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import Header from "pages/Resolver/Header";
 import styled, { css } from "styled-components";
 import NavigationButtons from "../NavigationButtons";
@@ -6,8 +6,9 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 import LabeledInput from "components/LabeledInput";
 import PlusMinusField from "components/PlusMinusField";
-import { useNewDisputeContext } from "context/NewDisputeContext";
+import { Alias, useNewDisputeContext } from "context/NewDisputeContext";
 import { isUndefined } from "utils/index";
+import { validateAddress } from "~src/utils/validateAddressOrEns";
 
 const Container = styled.div`
   display: flex;
@@ -47,9 +48,27 @@ const StyledPlusMinusField = styled(PlusMinusField)`
 
 const NotablePersons: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
+  const validationTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const debounceValidateAddress = (address: string, key: number) => {
+    // Clear the existing timer
+    if (validationTimerRef.current) {
+      clearTimeout(validationTimerRef.current);
+    }
+
+    // Set a new timer for validation after 500 milliseconds
+    validationTimerRef.current = setTimeout(async () => {
+      const isValid = await validateAddress(address);
+      const updatedAliases = disputeData.aliases;
+      if (isUndefined(updatedAliases)) return;
+      updatedAliases[key].isValid = isValid;
+
+      setDisputeData({ ...disputeData, aliases: updatedAliases });
+    }, 300);
+  };
 
   //value here is the total number of fields-
-  const updateAliases = (value: number) => {
+  const updateNumberOfAliases = (value: number) => {
     let defaultAlias = { name: "", address: "", id: value.toString() };
     let aliases = disputeData.aliases;
 
@@ -67,6 +86,13 @@ const NotablePersons: React.FC = () => {
 
     aliases[key] = { ...aliases[key], [event.target.name]: event.target.value };
     setDisputeData({ ...disputeData, aliases });
+
+    //since resolving ens is async, we update asynchronously too with debounce
+    event.target.name === "address" && debounceValidateAddress(event.target.value, key);
+  };
+
+  const showError = (alias: Alias) => {
+    return alias.address !== "" && !alias.isValid;
   };
 
   return (
@@ -85,6 +111,8 @@ const NotablePersons: React.FC = () => {
             <LabeledInput
               name="address"
               label={`Person ${index + 1} Address`}
+              variant={showError(alias) ? "error" : ""}
+              message={showError(alias) ? "Invalid Address or ENS" : ""}
               placeholder="eg. Alice.eth"
               value={alias.address}
               onChange={handleAliasesWrite}
@@ -93,7 +121,11 @@ const NotablePersons: React.FC = () => {
         ))}
       </MiddleContainer>
 
-      <StyledPlusMinusField currentValue={disputeData.aliases?.length ?? 2} updateValue={updateAliases} minValue={2} />
+      <StyledPlusMinusField
+        currentValue={disputeData.aliases?.length ?? 2}
+        updateValue={updateNumberOfAliases}
+        minValue={2}
+      />
       <NavigationButtons prevRoute="/resolver/votingoptions" nextRoute="/resolver/policy" />
     </Container>
   );
