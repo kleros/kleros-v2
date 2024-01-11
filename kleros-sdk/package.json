@@ -20,15 +20,15 @@
     "test-data-mappings": "mocha -r ts-node/register/transpile-only dataMappings/test.ts"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.6",
-    "@types/mocha": "^10.0.1",
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
     "chai": "^4.3.8",
     "dotenv": "^16.3.1",
     "mocha": "^10.2.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@reality.eth/reality-eth-lib": "^3.2.29"
+    "@reality.eth/reality-eth-lib": "^3.2.30"
   }
 }
