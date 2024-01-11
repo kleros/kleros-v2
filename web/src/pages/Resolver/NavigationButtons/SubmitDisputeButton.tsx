@@ -29,7 +29,7 @@ const SubmitDisputeButton: React.FC = () => {
   const { config: submitCaseConfig } = usePrepareDisputeResolverCreateDisputeForTemplate({
     enabled: isTemplateValid(disputeTemplate),
     args: [
-      prepareArbitratorExtradata(disputeData.courtId ?? "1", disputeData.numberOfJurors, 1), //TODO: decide which dispute kit to use
+      prepareArbitratorExtradata(disputeData.courtId ?? "1", disputeData.numberOfJurors ?? "", 1), //TODO: decide which dispute kit to use
       JSON.stringify(disputeTemplate),
       "",
       BigInt(disputeTemplate.answers.length),
