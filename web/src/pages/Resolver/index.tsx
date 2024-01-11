@@ -13,7 +13,7 @@ import Court from "./Parameters/Court";
 import Category from "./Parameters/Category";
 import Jurors from "./Parameters/Jurors";
 import VotingOptions from "./Parameters/VotingOptions";
-import CounterParties from "./Parameters/CounterParties";
+import NotablePerons from "./Parameters/NotablePersons";
 import Policy from "./Policy";
 import Preview from "./Preview";
 
@@ -77,7 +77,7 @@ const DisputeResolver: React.FC = () => {
               <Route path="/category/*" element={<Category />} />
               <Route path="/jurors/*" element={<Jurors />} />
               <Route path="/votingoptions/*" element={<VotingOptions />} />
-              <Route path="/counterparties/*" element={<CounterParties />} />
+              <Route path="/notablepersons/*" element={<NotablePerons />} />
               <Route path="/policy/*" element={<Policy />} />
               <Route path="/preview/*" element={<Preview />} />
             </Routes>

@@ -57,7 +57,7 @@ const VotingOptions: React.FC = () => {
           variant="info"
         />
       </AlertMessageContainer>
-      <NavigationButtons prevRoute="/resolver/jurors" nextRoute="/resolver/counterparties" />
+      <NavigationButtons prevRoute="/resolver/jurors" nextRoute="/resolver/notablepersons" />
     </Container>
   );
 };

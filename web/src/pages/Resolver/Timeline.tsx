@@ -19,7 +19,7 @@ const StyledSteps = styled(Steps)`
 
 const items = [
   { title: "Briefing", subitems: ["Title", "Description"] },
-  { title: "Parameters", subitems: ["Court", "Category", "Jurors", "Voting Options", "Counterparties"] },
+  { title: "Parameters", subitems: ["Court", "Category", "Jurors", "Voting Options", "Notable Persons"] },
   { title: "Policy" },
   { title: "Preview" },
 ];
@@ -34,7 +34,7 @@ const Timeline: React.FC = () => {
     "/resolver/category": 1,
     "/resolver/jurors": 1,
     "/resolver/votingoptions": 1,
-    "/resolver/counterparties": 1,
+    "/resolver/notablepersons": 1,
     "/resolver/policy": 2,
     "/resolver/preview": 3,
   };

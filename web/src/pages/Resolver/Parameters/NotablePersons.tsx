@@ -45,7 +45,7 @@ const StyledPlusMinusField = styled(PlusMinusField)`
   align-self: start;
 `;
 
-const CounterParties: React.FC = () => {
+const NotablePersons: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
 
   //value here is the total number of fields-
@@ -71,20 +71,20 @@ const CounterParties: React.FC = () => {
 
   return (
     <Container>
-      <Header text="Counterparties" />
+      <Header text="Notable Persons" />
       <MiddleContainer>
         {disputeData.aliases?.map((alias, index) => (
           <AliasContainer key={alias?.id}>
             <LabeledInput
               name="name"
-              label={`Party ${index + 1}`}
+              label={`Person ${index + 1}`}
               placeholder="eg. Alice (Developer)"
               value={alias.name}
               onChange={handleAliasesWrite}
             />
             <LabeledInput
               name="address"
-              label={`Party ${index + 1} Address`}
+              label={`Person ${index + 1} Address`}
               placeholder="eg. Alice.eth"
               value={alias.address}
               onChange={handleAliasesWrite}
@@ -98,4 +98,4 @@ const CounterParties: React.FC = () => {
     </Container>
   );
 };
-export default CounterParties;
+export default NotablePersons;

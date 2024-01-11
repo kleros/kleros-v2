@@ -22,7 +22,7 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
     (location.pathname.includes("/resolver/court") && !disputeData.courtId) ||
     (location.pathname.includes("/resolver/jurors") && (!disputeData.numberOfJurors || !disputeData.arbitrationCost)) ||
     (location.pathname.includes("/resolver/votingoptions") && !areVotingOptionsFilled) ||
-    (location.pathname.includes("/resolver/counterparties") && !disputeData.aliases) ||
+    (location.pathname.includes("/resolver/notablepersons") && !disputeData.aliases) ||
     (location.pathname.includes("/resolver/policy") && (isPolicyUploading || !disputeData.policyURI));
 
   return <Button disabled={isButtonDisabled} onClick={() => navigate(nextRoute)} text="Next" />;
