@@ -7978,20 +7978,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reality.eth/contracts@npm:^3.0.45":
-  version: 3.0.45
-  resolution: "@reality.eth/contracts@npm:3.0.45"
+"@reality.eth/contracts@npm:^3.0.46":
+  version: 3.0.46
+  resolution: "@reality.eth/contracts@npm:3.0.46"
   dependencies:
     ethers: ^5.6.8
-  checksum: e6e802fdf78d4bf1a6459bd78febddd6190fe3bc6448cc4dbc08203ebdccc25c99bf873951dd5f4c4523ff84e8f936981b0ef932377ae9ca7b884780904f9c15
+  checksum: bd20adad520a3189bd484218232c40be4f5019047fabff590b3dc54061f498009fa6ffb94033108fcebbd68210eff7bc884544569bfb1124773fd11e3846a8d3
   languageName: node
   linkType: hard
 
 "@reality.eth/reality-eth-lib@npm:^3.2.29":
-  version: 3.2.29
-  resolution: "@reality.eth/reality-eth-lib@npm:3.2.29"
+  version: 3.2.30
+  resolution: "@reality.eth/reality-eth-lib@npm:3.2.30"
   dependencies:
-    "@reality.eth/contracts": ^3.0.45
+    "@reality.eth/contracts": ^3.0.46
     bignumber.js: ^7.2.1
     bn.js: ^5.2.1
     ethereumjs-abi: ^0.6.5
@@ -7999,7 +7999,7 @@ __metadata:
     isomorphic-dompurify: ^0.23.0
     marked: ^4.1.1
     sprintf-js: ^1.1.1
-  checksum: 2142e90b048b8f0f2b1228e8549880cb6ce306af22bdbb5ec174fe1285611e747680165b4fd82f4feb900a42a3465f8d76302cf3e38899f907a7cf1a58999b10
+  checksum: c8d1324979d0f2713970b6c4e757c6fdf3d164b89e4732e8a231d1d3d664d8f51aecf959770770d829101dae404a600f49002ae32855c640ae853ebecd1e51c3
   languageName: node
   linkType: hard
 
@@ -9772,9 +9772,9 @@ __metadata:
   linkType: hard
 
 "@types/mustache@npm:^4.2.3":
-  version: 4.2.3
-  resolution: "@types/mustache@npm:4.2.3"
-  checksum: c2c7cf749a84a622648c7088fb10350b84ea935145514b6c51d17e808a4b4972fb137273339f4d93160a3c496a3943dab3be93251d74c185730daa300a299e2f
+  version: 4.2.5
+  resolution: "@types/mustache@npm:4.2.5"
+  checksum: 0ff1d52022fd3ab0db1c97964ca0c24b45ad74e81ec62e05d27eab5b66ef1d78ff257f4cfb481c72b8b511f15520ca48717e000dc5fa8c3fdf732790b28f05cb
   languageName: node
   linkType: hard
 
@@ -10061,9 +10061,9 @@ __metadata:
   linkType: hard
 
 "@types/trusted-types@npm:*":
-  version: 2.0.4
-  resolution: "@types/trusted-types@npm:2.0.4"
-  checksum: 5256c4576cd1c90d33ddd9cc9cbd4f202b39c98cbe8b7f74963298f9eb2159c285ea5c25a6181b4c594d8d75641765bff85d72c2d251ad076e6529ce0eeedd1c
+  version: 2.0.7
+  resolution: "@types/trusted-types@npm:2.0.7"
+  checksum: 8e4202766a65877efcf5d5a41b7dd458480b36195e580a3b1085ad21e948bc417d55d6f8af1fd2a7ad008015d4117d5fdfe432731157da3c68678487174e4ba3
   languageName: node
   linkType: hard
 
@@ -11514,7 +11514,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn-walk@npm:^8.0.2, acorn-walk@npm:^8.1.1":
+"acorn-walk@npm:^8.0.2":
+  version: 8.3.2
+  resolution: "acorn-walk@npm:8.3.2"
+  checksum: 3626b9d26a37b1b427796feaa5261faf712307a8920392c8dce9a5739fb31077667f4ad2ec71c7ac6aaf9f61f04a9d3d67ff56f459587206fc04aa31c27ef392
+  languageName: node
+  linkType: hard
+
+"acorn-walk@npm:^8.1.1":
   version: 8.2.0
   resolution: "acorn-walk@npm:8.2.0"
   checksum: 1715e76c01dd7b2d4ca472f9c58968516a4899378a63ad5b6c2d668bba8da21a71976c14ec5f5b75f887b6317c4ae0b897ab141c831d741dc76024d8745f1ad1
@@ -13136,7 +13143,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browserify-rsa@npm:^4.0.0, browserify-rsa@npm:^4.0.1":
+"browserify-rsa@npm:^4.0.0, browserify-rsa@npm:^4.1.0":
   version: 4.1.0
   resolution: "browserify-rsa@npm:4.1.0"
   dependencies:
@@ -13147,19 +13154,19 @@ __metadata:
   linkType: hard
 
 "browserify-sign@npm:^4.0.0":
-  version: 4.2.1
-  resolution: "browserify-sign@npm:4.2.1"
+  version: 4.2.2
+  resolution: "browserify-sign@npm:4.2.2"
   dependencies:
-    bn.js: ^5.1.1
-    browserify-rsa: ^4.0.1
+    bn.js: ^5.2.1
+    browserify-rsa: ^4.1.0
     create-hash: ^1.2.0
     create-hmac: ^1.1.7
-    elliptic: ^6.5.3
+    elliptic: ^6.5.4
     inherits: ^2.0.4
-    parse-asn1: ^5.1.5
-    readable-stream: ^3.6.0
-    safe-buffer: ^5.2.0
-  checksum: 0221f190e3f5b2d40183fa51621be7e838d9caa329fe1ba773406b7637855f37b30f5d83e52ff8f244ed12ffe6278dd9983638609ed88c841ce547e603855707
+    parse-asn1: ^5.1.6
+    readable-stream: ^3.6.2
+    safe-buffer: ^5.2.1
+  checksum: b622730c0fc183328c3a1c9fdaaaa5118821ed6822b266fa6b0375db7e20061ebec87301d61931d79b9da9a96ada1cab317fce3c68f233e5e93ed02dbb35544c
   languageName: node
   linkType: hard
 
@@ -26327,7 +26334,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"parse-asn1@npm:^5.0.0, parse-asn1@npm:^5.1.5":
+"parse-asn1@npm:^5.0.0, parse-asn1@npm:^5.1.6":
   version: 5.1.6
   resolution: "parse-asn1@npm:5.1.6"
   dependencies:
@@ -28753,7 +28760,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"readable-stream@npm:3, readable-stream@npm:^3.0.0, readable-stream@npm:^3.0.6, readable-stream@npm:^3.1.1, readable-stream@npm:^3.4.0, readable-stream@npm:^3.5.0, readable-stream@npm:^3.6.0":
+"readable-stream@npm:3, readable-stream@npm:^3.0.0, readable-stream@npm:^3.0.6, readable-stream@npm:^3.1.1, readable-stream@npm:^3.4.0, readable-stream@npm:^3.5.0, readable-stream@npm:^3.6.0, readable-stream@npm:^3.6.2":
   version: 3.6.2
   resolution: "readable-stream@npm:3.6.2"
   dependencies:
@@ -29640,7 +29647,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"safe-buffer@npm:5.2.1, safe-buffer@npm:>=5.1.0, safe-buffer@npm:^5.0.1, safe-buffer@npm:^5.1.0, safe-buffer@npm:^5.1.1, safe-buffer@npm:^5.1.2, safe-buffer@npm:^5.2.0, safe-buffer@npm:~5.2.0":
+"safe-buffer@npm:5.2.1, safe-buffer@npm:>=5.1.0, safe-buffer@npm:^5.0.1, safe-buffer@npm:^5.1.0, safe-buffer@npm:^5.1.1, safe-buffer@npm:^5.1.2, safe-buffer@npm:^5.2.0, safe-buffer@npm:^5.2.1, safe-buffer@npm:~5.2.0":
   version: 5.2.1
   resolution: "safe-buffer@npm:5.2.1"
   checksum: b99c4b41fdd67a6aaf280fcd05e9ffb0813654894223afb78a31f14a19ad220bba8aba1cb14eddce1fcfb037155fe6de4e861784eb434f7d11ed58d1e70dd491
@@ -34354,8 +34361,8 @@ __metadata:
   linkType: hard
 
 "ws@npm:^8.11.0":
-  version: 8.14.2
-  resolution: "ws@npm:8.14.2"
+  version: 8.16.0
+  resolution: "ws@npm:8.16.0"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ">=5.0.2"
@@ -34364,7 +34371,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 3ca0dad26e8cc6515ff392b622a1467430814c463b3368b0258e33696b1d4bed7510bc7030f7b72838b9fdeb8dbd8839cbf808367d6aae2e1d668ce741d4308b
+  checksum: feb3eecd2bae82fa8a8beef800290ce437d8b8063bdc69712725f21aef77c49cb2ff45c6e5e7fce622248f9c7abaee506bae0a9064067ffd6935460c7357321b
   languageName: node
   linkType: hard
 
