@@ -47,7 +47,7 @@ const PersonFields: React.FC = () => {
     validationTimerRef.current = setTimeout(async () => {
       const isValid = await validateAddress(address);
       const updatedAliases = disputeData.aliases;
-      if (isUndefined(updatedAliases)) return;
+      if (isUndefined(updatedAliases) || isUndefined(updatedAliases[key])) return;
       updatedAliases[key].isValid = isValid;
 
       setDisputeData({ ...disputeData, aliases: updatedAliases });
