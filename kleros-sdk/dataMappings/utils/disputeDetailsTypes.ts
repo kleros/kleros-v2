@@ -1,44 +1,8 @@
-export type DisputeDetails = {
-  title: string;
-  description: string;
-  question: string;
-  type: QuestionType;
-  answers: Answer[];
-  policyURI: string;
-  attachment: Attachment;
-  frontendUrl: string;
-  arbitrableChainID: string;
-  arbitrableAddress: `0x${string}`;
-  arbitratorChainID: string;
-  arbitratorAddress: `0x${string}`;
-  category: string;
-  lang: string;
-  specification: string;
-  aliases?: Alias[];
-  version: string;
-};
+import { z } from "zod";
+import DisputeDetailsSchema, { AliasSchema, AnswerSchema, AttachmentSchema } from "./disputeDetailsSchema";
 
-export enum QuestionType {
-  Bool = "bool",
-  Datetime = "datetime",
-  MultipleSelect = "multiple-select",
-  SingleSelect = "single-select",
-  Uint = "uint",
-}
-
-export type Answer = {
-  title: string;
-  description: string;
-  id: `0x${string}`;
-  reserved: boolean;
-};
-
-export type Alias = {
-  name: string;
-  address: `0x${string}` | `${string}.eth`;
-};
-
-export type Attachment = {
-  label: string;
-  uri: string;
-};
+export { QuestionType } from "./disputeDetailsSchema";
+export type DisputeDetails = z.infer<typeof DisputeDetailsSchema>;
+export type Answer = z.infer<typeof AnswerSchema>;
+export type Alias = z.infer<typeof AliasSchema>;
+export type Attachment = z.infer<typeof AttachmentSchema>;

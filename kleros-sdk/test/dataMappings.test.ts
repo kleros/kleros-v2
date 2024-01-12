@@ -1,10 +1,10 @@
-import { expect } from "chai";
-import { populateTemplate } from "./utils/populateTemplate";
-import { jsonAction } from "./actions/jsonAction";
-import { subgraphAction } from "./actions/subgraphAction";
-import { callAction } from "./actions/callAction";
-import { eventAction } from "./actions/eventAction";
-import { fetchIpfsJsonAction } from "./actions/fetchIpfsJsonAction";
+import { describe, expect, it } from "vitest";
+import { populateTemplate } from "dataMappings/utils/populateTemplate";
+import { jsonAction } from "dataMappings/actions/jsonAction";
+import { subgraphAction } from "dataMappings/actions/subgraphAction";
+import { callAction } from "dataMappings/actions/callAction";
+import { eventAction } from "dataMappings/actions/eventAction";
+import { fetchIpfsJsonAction } from "dataMappings/actions/fetchIpfsJsonAction";
 
 const exampleObject = {
   evidence: {
