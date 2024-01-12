@@ -1,3 +1,4 @@
+// Replace by Mustache ?
 export const replacePlaceholdersWithValues = (mapping: any, context: any) => {
   let mappingAsString = JSON.stringify(mapping);
 

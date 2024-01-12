@@ -1,3 +1,4 @@
+// Can this be replaced by Mustache ?
 export const createResultObject = (sourceData, seek, populate) => {
   let result = {};
   seek.forEach((key, idx) => {

@@ -5,13 +5,13 @@ import { jsonAction } from "./actions/jsonAction";
 import { subgraphAction } from "./actions/subgraphAction";
 import { retrieveRealityData } from "./retrieveRealityData";
 import {
-  isAbiCallMapping,
-  isAbiEventMapping,
-  isFetchIpfsJsonMapping,
-  isJsonMapping,
-  isRealityMapping,
-  isSubgraphMapping,
-} from "./utils/actionTypeDetectors";
+  validateAbiCallMapping,
+  validateAbiEventMapping,
+  validateFetchIpfsJsonMapping,
+  validateJsonMapping,
+  validateRealityMapping,
+  validateSubgraphMapping,
+} from "./utils/actionTypeValidators";
 import { ActionMapping } from "./utils/actionTypes";
 import { replacePlaceholdersWithValues } from "./utils/replacePlaceholdersWithValues";
 
@@ -20,34 +20,17 @@ export const executeAction = async (mapping: ActionMapping, context = {}) => {
 
   switch (mapping.type) {
     case "graphql":
-      if (!isSubgraphMapping(mapping)) {
-        throw new Error("Invalid mapping for graphql action.");
-      }
-      return await subgraphAction(mapping);
+      return await subgraphAction(validateSubgraphMapping(mapping));
     case "json":
-      if (!isJsonMapping(mapping)) {
-        throw new Error("Invalid mapping for json action.");
-      }
-      return jsonAction(mapping);
+      return jsonAction(validateJsonMapping(mapping));
     case "abi/call":
-      if (!isAbiCallMapping(mapping)) {
-        throw new Error("Invalid mapping for abi/call action.");
-      }
-      return await callAction(mapping);
+      return await callAction(validateAbiCallMapping(mapping));
     case "abi/event":
-      if (!isAbiEventMapping(mapping)) {
-        throw new Error("Invalid mapping for abi/event action.");
-      }
-      return await eventAction(mapping);
+      return await eventAction(validateAbiEventMapping(mapping));
     case "fetch/ipfs/json":
-      if (!isFetchIpfsJsonMapping(mapping)) {
-        throw new Error("Invalid mapping for fetch/ipfs/json action.");
-      }
-      return await fetchIpfsJsonAction(mapping);
+      return await fetchIpfsJsonAction(validateFetchIpfsJsonMapping(mapping));
     case "reality":
-      if (!isRealityMapping(mapping)) {
-        throw new Error("Invalid mapping for reality action.");
-      }
+      mapping = validateRealityMapping(mapping);
       return await retrieveRealityData(mapping.realityQuestionID, context.arbitrable);
     default:
       throw new Error(`Unsupported action type: ${mapping.type}`);

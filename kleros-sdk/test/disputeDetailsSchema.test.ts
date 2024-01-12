@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { ethAddressSchema, ensNameSchema, ethAddressOrEnsNameSchema } from "dataMappings/utils/disputeDetailsSchema";
+import {
+  ethAddressSchema,
+  ensNameSchema,
+  ethAddressOrEnsNameSchema,
+} from "src/dataMappings/utils/disputeDetailsSchema";
 
 describe("Dispute Details Schema", () => {
   it("snapshot", () => {
@@ -91,7 +95,7 @@ describe("Dispute Details Schema", () => {
     });
   });
 
-  describe("disputeDetailsSchema", () => {
+  describe.skip("disputeDetailsSchema", () => {
     // TODO: add tests
   });
 });

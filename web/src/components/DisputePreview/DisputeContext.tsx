@@ -6,7 +6,7 @@ import { isUndefined } from "utils/index";
 import { Answer as IAnswer } from "context/NewDisputeContext";
 import AliasDisplay from "./Alias";
 import { responsiveSize } from "styles/responsiveSize";
-import { DisputeDetails } from "@kleros/kleros-sdk/dataMappings/utils/disputeDetailsTypes";
+import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 
 const StyledH1 = styled.h1`
   margin: 0;

@@ -1,6 +1,6 @@
 import mustache from "mustache";
 import { DisputeDetails } from "./disputeDetailsTypes";
-import { isValidDisputeDetails } from "./isValidDisputeDetails";
+import { validate } from "./DisputeDetailsValidator";
 
 export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDetails => {
   const render = mustache.render(mustacheTemplate, data);
@@ -8,7 +8,7 @@ export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDe
   const dispute = JSON.parse(render);
 
   // TODO: the validation below is too strict, it should be fixed, disabled for now, FIXME
-  if (!isValidDisputeDetails(dispute)) {
+  if (!validate(dispute)) {
     //   throw new Error(`Invalid dispute details format: ${JSON.stringify(dispute)}`);
   }
 

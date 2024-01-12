@@ -4,10 +4,10 @@ import { Textarea } from "@kleros/ui-components-library";
 import PolicyIcon from "svgs/icons/policy.svg";
 import ReactMarkdown from "components/ReactMarkdown";
 import { INVALID_DISPUTE_DATA_ERROR, IPFS_GATEWAY } from "consts/index";
-import { configureSDK } from "@kleros/kleros-sdk/dataMappings/utils/configureSDK";
-import { executeActions } from "@kleros/kleros-sdk/dataMappings/executeActions";
-import { populateTemplate } from "@kleros/kleros-sdk/dataMappings/utils/populateTemplate";
-import { Answer, DisputeDetails } from "@kleros/kleros-sdk/dataMappings/utils/disputeDetailsTypes";
+import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
+import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
+import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
+import { Answer, DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 import { alchemyApiKey } from "context/Web3Provider";
 
 const Container = styled.div`

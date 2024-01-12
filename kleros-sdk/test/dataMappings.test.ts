@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { populateTemplate } from "dataMappings/utils/populateTemplate";
-import { jsonAction } from "dataMappings/actions/jsonAction";
-import { subgraphAction } from "dataMappings/actions/subgraphAction";
-import { callAction } from "dataMappings/actions/callAction";
-import { eventAction } from "dataMappings/actions/eventAction";
-import { fetchIpfsJsonAction } from "dataMappings/actions/fetchIpfsJsonAction";
+import { populateTemplate } from "src/dataMappings/utils/populateTemplate";
+import { jsonAction } from "src/dataMappings/actions/jsonAction";
+import { subgraphAction } from "src/dataMappings/actions/subgraphAction";
+import { callAction } from "../src/dataMappings/actions/callAction";
+import { eventAction } from "src/dataMappings/actions/eventAction";
+import { fetchIpfsJsonAction } from "src/dataMappings/actions/fetchIpfsJsonAction";
 
 const exampleObject = {
   evidence: {
@@ -18,6 +18,7 @@ const exampleObject = {
 describe("jsonAction", () => {
   it("should extract and map data correctly", () => {
     const mapping = {
+      type: "json",
       value: exampleObject.evidence.fileURI,
       seek: ["photo", "video"],
       populate: ["photoUrl", "videoUrl"],
@@ -49,6 +50,7 @@ describe("subgraphAction with variables", () => {
     const populate = ["escrowsData"];
 
     const mapping = {
+      type: "graphql",
       endpoint: endpoint,
       query: query,
       variables: variables,
@@ -75,6 +77,7 @@ describe("callAction", () => {
     const knownAddress = "0x0000000000000000000000000000000000000000";
 
     const mapping = {
+      type: "abi/call",
       abi: abi,
       address: contractAddress,
       args: [knownAddress],
@@ -97,6 +100,7 @@ describe("eventAction", () => {
     const toBlock = "latest";
 
     const mapping = {
+      type: "abi/event",
       abi: eventAbi,
       address: contractAddress,
       eventFilter: {
@@ -123,6 +127,7 @@ describe("fetchIpfsJsonAction", () => {
     const populate = ["name", "firstName", "lastName", "anotherFile"];
 
     const mapping = {
+      type: "fetch/ipfs/json",
       ipfsUri: ipfsUri,
       seek: seek,
       populate: populate,

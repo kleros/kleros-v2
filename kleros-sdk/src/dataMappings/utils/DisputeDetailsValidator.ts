@@ -1,8 +1,10 @@
 import { DisputeDetails, QuestionType } from "./disputeDetailsTypes";
-import { isHexAddress } from "./isHexAddress";
-import { isHexId } from "./isHexId";
 
-export const isValidDisputeDetails = (data: any): data is DisputeDetails => {
+const isHexAddress = (str: string): boolean => /^0x[a-fA-F0-9]{40}$/.test(str);
+
+const isHexId = (str: string): boolean => /^0x[a-fA-F0-9]{1,64}$/.test(str);
+
+export const validate = (data: any): data is DisputeDetails => {
   return (
     typeof data.title === "string" &&
     typeof data.description === "string" &&

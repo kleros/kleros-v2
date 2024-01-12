@@ -16,8 +16,8 @@ import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
 import { getLocalRounds } from "utils/getLocalRounds";
 import { responsiveSize } from "styles/responsiveSize";
-import { populateTemplate } from "@kleros/kleros-sdk/dataMappings/utils/populateTemplate";
-import { DisputeDetails } from "@kleros/kleros-sdk/dataMappings/utils/disputeDetailsTypes";
+import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
+import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 import { INVALID_DISPUTE_DATA_ERROR } from "consts/index";
 
 const StyledCard = styled(Card)`
