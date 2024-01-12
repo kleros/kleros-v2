@@ -18,6 +18,7 @@ import { getPeriodEndTimestamp } from "components/DisputeCard";
 import InfoCard from "components/InfoCard";
 import Classic from "./Classic";
 import VotingHistory from "./VotingHistory";
+import Skeleton from "react-loading-skeleton";
 
 const Container = styled.div`
   padding: ${responsiveSize(16, 32)};
@@ -40,7 +41,11 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
   const { id } = useParams();
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const { data: appealCost } = useAppealCost(id);
-  const { data: drawData } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
+  const { data: drawData, isLoading: isDrawDataLoading } = useDrawQuery(
+    address?.toLowerCase(),
+    id,
+    disputeData?.dispute?.currentRound.id
+  );
   const roundId = disputeData?.dispute?.currentRoundIndex;
   const voteId = drawData?.draws?.[0]?.voteIDNum;
   const { data: voted } = useDisputeKitClassicIsVoteActive({
@@ -68,7 +73,12 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
           <br />
         </>
       )}
-      {!userWasDrawn ? (
+      {isDrawDataLoading ? (
+        <>
+          <Skeleton width={300} height={20} />
+          <br />
+        </>
+      ) : !userWasDrawn ? (
         <>
           <InfoCard msg="You were not drawn in current round." />
           <br />
