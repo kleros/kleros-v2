@@ -73,17 +73,17 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
           <br />
         </>
       )}
-      {isDrawDataLoading ? (
+
+      {userWasDrawn ? null : (
         <>
-          <Skeleton width={300} height={20} />
+          {isDrawDataLoading ? (
+            <Skeleton width={300} height={20} />
+          ) : (
+            <InfoCard msg="You were not drawn in current round." />
+          )}
           <br />
         </>
-      ) : !userWasDrawn ? (
-        <>
-          <InfoCard msg="You were not drawn in current round." />
-          <br />
-        </>
-      ) : null}
+      )}
 
       {isPopupOpen && (
         <Popup
