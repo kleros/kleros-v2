@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import Identicon from "react-identicons";
 import ArrowIcon from "assets/svgs/icons/arrow.svg";
 import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -27,32 +26,6 @@ const JuryContainer = styled.div`
 const JuryDecisionTag = styled.small`
   font-weight: 400;
   line-height: 19px;
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
-const UserContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin: 22px 0px;
-  gap: 10px;
-`;
-
-const AliasTag = styled.div`
-  display: flex;
-  flex-direction: column;
-  small {
-    font-weight: 400;
-    line-height: 19px;
-  }
-`;
-
-const StyledIdenticon = styled(Identicon)`
-  width: 24px;
-  height: 24px;
-  border-radius: 100%;
-`;
-
-const Title = styled.small`
   color: ${({ theme }) => theme.secondaryText};
 `;
 
