@@ -4,9 +4,13 @@ import OptionCard from "../../OptionCard";
 import { useFundingContext, useOptionsContext, useSelectedOptionContext } from "hooks/useClassicAppealContext";
 import { isUndefined } from "utils/index";
 import { formatUnitsWei } from "utils/format";
+import Skeleton from "react-loading-skeleton";
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
   margin: 24px 0;
+  justify-content: center;
 `;
 
 const OptionsContainer = styled.div`
@@ -16,6 +20,9 @@ const OptionsContainer = styled.div`
   margin-top: 12px;
 `;
 
+const StyledLabel = styled.label`
+  margin-bottom: 6px;
+`;
 interface IStageTwo {
   setAmount: (val: string) => void;
 }
@@ -28,15 +35,25 @@ const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
     if (!isUndefined(winningChoice)) setSelectedOption(parseInt(winningChoice));
     if (!isUndefined(winnerRequiredFunding)) setAmount(formatUnitsWei(winnerRequiredFunding));
   });
+
   return (
     <Container>
       {!isUndefined(winningChoice) &&
       !isUndefined(fundedChoices) &&
       !isUndefined(paidFees) &&
+      !isUndefined(options) &&
       fundedChoices.length > 0 &&
       !fundedChoices.includes(winningChoice) ? (
         <>
-          <label>Loser deadline has finalized, you can only fund the current winner.</label>
+          <StyledLabel>Loser deadline has finalized, you can only fund the current winner.</StyledLabel>
+          <StyledLabel>
+            Following choice was funded in the stage one :{" "}
+            <small>
+              {fundedChoices.map((choice) =>
+                isUndefined(options[choice]) ? <Skeleton width={50} height={18} /> : options[choice]
+              )}
+            </small>
+          </StyledLabel>
           <OptionsContainer>
             <OptionCard
               text={options![winningChoice!]}
