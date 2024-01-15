@@ -68,7 +68,7 @@
     "@typechain/hardhat": "^7.0.0",
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^16.18.68",
+    "@types/node": "^16.18.71",
     "@wagmi/cli": "^1.5.2",
     "abitype": "^0.10.3",
     "chai": "^4.3.10",
