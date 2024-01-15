@@ -57,12 +57,8 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
         <DisputeContext disputeTemplate={disputeTemplate} />
         <Divider />
 
-        {currentPeriodIndex !== Periods.evidence && (
-          <>
-            <Verdict arbitrable={arbitrable} />
-            <Divider />
-          </>
-        )}
+        <Verdict arbitrable={arbitrable} />
+        <Divider />
 
         <DisputeInfo
           isOverview={true}

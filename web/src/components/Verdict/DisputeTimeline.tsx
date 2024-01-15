@@ -50,7 +50,9 @@ const getCaseEventTimes = (
   isCreation: boolean
 ) => {
   const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
-  const durationCurrentPeriod = parseInt(timesPerPeriod[currentPeriodIndex - 1]);
+  const durationCurrentPeriod = parseInt(
+    timesPerPeriod[(currentPeriodIndex - 1 + timesPerPeriod.length) % timesPerPeriod.length]
+  );
   const startingDate = new Date(
     (parseInt(lastPeriodChange) + (isCreation ? -durationCurrentPeriod : durationCurrentPeriod)) * 1000
   );
