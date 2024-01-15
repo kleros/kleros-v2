@@ -112,18 +112,6 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
         )}
       </JuryContainer>
       <Divider />
-      {disputeTemplate?.aliases && (
-        <>
-          <UserContainer>
-            <StyledIdenticon size="24" />
-            <AliasTag>
-              {disputeTemplate?.aliases?.challenger && <small>Alice.eth</small>}
-              <Title>Claimant</Title>
-            </AliasTag>
-          </UserContainer>
-          <Divider />
-        </>
-      )}
       <StyledButton
         onClick={() => navigate(`/cases/${id?.toString()}/voting`)}
         text={"Check how the jury voted"}
