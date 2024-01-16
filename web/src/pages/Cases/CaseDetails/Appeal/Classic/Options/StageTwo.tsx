@@ -34,7 +34,7 @@ const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
   useEffect(() => {
     if (!isUndefined(winningChoice)) setSelectedOption(parseInt(winningChoice));
     if (!isUndefined(winnerRequiredFunding)) setAmount(formatUnitsWei(winnerRequiredFunding));
-  });
+  }, [winnerRequiredFunding, winningChoice]);
 
   return (
     <Container>
@@ -57,7 +57,7 @@ const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
           <OptionsContainer>
             <OptionCard
               text={options![winningChoice!]}
-              selected={winningChoice === selectedOption}
+              selected={parseInt(winningChoice) === selectedOption}
               winner={true}
               funding={paidFees![winningChoice!] ? BigInt(paidFees![winningChoice!]) : 0n}
               required={winnerRequiredFunding!}
