@@ -6,7 +6,7 @@
   "license": "MIT",
   "packageManager": "yarn@3.7.0",
   "volta": {
-    "node": "16.20.2",
+    "node": "20.11.0",
     "yarn": "3.7.0"
   },
   "scripts": {
@@ -20,6 +20,6 @@
     "node": ">=16.13.0"
   },
   "devDependencies": {
-    "@dappnode/dappnodesdk": "^0.3.8"
+    "@dappnode/dappnodesdk": "^0.3.11"
   }
 }

@@ -11,7 +11,7 @@
     "node": ">=16.0.0"
   },
   "volta": {
-    "node": "16.20.2",
+    "node": "18.19.0",
     "yarn": "3.7.0"
   },
   "publishConfig": {
@@ -59,7 +59,7 @@
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "@kleros/kleros-v2-tsconfig": "workspace:^",
-    "@logtail/pino": "^0.4.0",
+    "@logtail/pino": "^0.4.19",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-solhint": "^3.0.1",
@@ -68,10 +68,10 @@
     "@typechain/hardhat": "^7.0.0",
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^16.18.68",
+    "@types/node": "^20.11.3",
     "@wagmi/cli": "^1.5.2",
     "abitype": "^0.10.3",
-    "chai": "^4.3.10",
+    "chai": "^4.4.1",
     "dotenv": "^16.3.1",
     "ethereumjs-util": "^7.1.5",
     "ethers": "^5.7.2",
@@ -87,11 +87,11 @@
     "hardhat-tracer": "^2.7.0",
     "hardhat-watcher": "^2.5.0",
     "node-fetch": "^3.3.2",
-    "pino": "^8.17.0",
-    "pino-pretty": "^10.2.3",
+    "pino": "^8.17.2",
+    "pino-pretty": "^10.3.1",
     "shelljs": "^0.8.5",
     "solhint-plugin-prettier": "^0.1.0",
-    "solidity-coverage": "0.8.2",
+    "solidity-coverage": "0.8.5",
     "ts-node": "^10.9.2",
     "typechain": "^8.3.2",
     "typescript": "^5.3.3"

@@ -42,17 +42,17 @@
     "stop-local-indexer": "docker compose -f ../services/graph-node/docker-compose.yml down && rm -rf ../services/graph-node/data"
   },
   "volta": {
-    "node": "16.20.2",
+    "node": "20.11.0",
     "yarn": "3.7.0"
   },
   "dependencies": {
     "@graphprotocol/graph-ts": "^0.32.0"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "0.64.0",
+    "@graphprotocol/graph-cli": "0.64.1",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
-    "gluegun": "^5.1.2",
+    "gluegun": "^5.1.6",
     "matchstick-as": "0.6.0"
   },
   "dependenciesComments": {

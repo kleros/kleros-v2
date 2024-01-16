@@ -19,8 +19,6 @@
     "bots",
     "bot-pinner",
     "contracts",
-    "dynamic-script",
-    "evidence-display",
     "kleros-sdk",
     "subgraph",
     "web",
@@ -28,15 +26,15 @@
     "prettier-config",
     "tsconfig"
   ],
-  "packageManager": "yarn@3.7.0",
+  "packageManager": "yarn@4.0.2+sha256.825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186",
   "volta": {
-    "node": "16.20.2",
+    "node": "20.11.0",
     "yarn": "3.7.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.7.2",
-    "@commitlint/config-conventional": "^17.6.7",
-    "buffer": "^5.5.0",
+    "@commitlint/cli": "^17.8.1",
+    "@commitlint/config-conventional": "^17.8.1",
+    "buffer": "^5.7.1",
     "conventional-changelog-cli": "^2.2.2",
     "husky": "^8.0.3",
     "lint-staged": "^13.3.0",
