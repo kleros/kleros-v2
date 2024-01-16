@@ -32,9 +32,13 @@ const StyledSkeletonDisputeListItem = styled(Skeleton)`
   height: 62px;
 `;
 
-const StyledSkeletonEvidenceCard = styled(Skeleton)`
-  height: 146px;
-  width: 76vw;
+const StyledSkeletonEvidenceContainer = styled.div`
+  width: 100%;
+  span {
+    width: 100%;
+    height: 146px;
+    display: flex;
+  }
 `;
 
 export const SkeletonDisputeCard = () => (
@@ -45,4 +49,8 @@ export const SkeletonDisputeCard = () => (
 
 export const SkeletonDisputeListItem = () => <StyledSkeletonDisputeListItem />;
 
-export const SkeletonEvidenceCard = () => <StyledSkeletonEvidenceCard />;
+export const SkeletonEvidenceCard = () => (
+  <StyledSkeletonEvidenceContainer>
+    <Skeleton />
+  </StyledSkeletonEvidenceContainer>
+);
