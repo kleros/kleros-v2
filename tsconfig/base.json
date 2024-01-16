@@ -1,18 +1,27 @@
 {
+  "comment": "adapted from https://github.com/PaulRBerg/hardhat-template/blob/main/tsconfig.json",
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "target": "es2021",
+    "target": "es2020",
+    "lib": [
+      "es2020"
+    ],
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "dist",
+    "types": [
+      "bun-types"
+    ],
     "strict": true,
     "esModuleInterop": true,
     "declaration": true,
+    "declarationMap": true,
     "sourceMap": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
+    "emitDecoratorMetadata": true,
     "experimentalDecorators": true
   },
   "exclude": [

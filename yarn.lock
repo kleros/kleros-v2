@@ -5466,7 +5466,6 @@ __metadata:
     "@typechain/hardhat": ^7.0.0
     "@types/chai": ^4.3.11
     "@types/mocha": ^10.0.6
-    "@types/node": ^20.11.3
     "@wagmi/cli": ^1.5.2
     abitype: ^0.10.3
     chai: ^4.4.1
@@ -9759,15 +9758,6 @@ __metadata:
   version: 18.16.18
   resolution: "@types/node@npm:18.16.18"
   checksum: d32d8a0a04cd3f5ecb361bcb42f3a07623881ac90d680e06bf626defb3c663a94860d11690babe607cfe67265eceeb8a59ba5fe40c0e49f5a1b01e0088640469
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^20.11.3":
-  version: 20.11.3
-  resolution: "@types/node@npm:20.11.3"
-  dependencies:
-    undici-types: ~5.26.4
-  checksum: 56d58fec1352af4fddcf07b6f003e427b34c9bdd936ef895f8c3db4dccf7606662a8c536865532a7b58f1208712744cce777ba23767325e66d6beaa5c772219f
   languageName: node
   linkType: hard
 
@@ -32158,13 +32148,6 @@ __metadata:
   version: 0.1.3
   resolution: "uncrypto@npm:0.1.3"
   checksum: 07160e08806dd6cea16bb96c3fd54cd70fc801e02fc3c6f86980144d15c9ebbd1c55587f7280a207b3af6cd34901c0d0b77ada5a02c2f7081a033a05acf409e2
-  languageName: node
-  linkType: hard
-
-"undici-types@npm:~5.26.4":
-  version: 5.26.5
-  resolution: "undici-types@npm:5.26.5"
-  checksum: 3192ef6f3fd5df652f2dc1cd782b49d6ff14dc98e5dced492aa8a8c65425227da5da6aafe22523c67f035a272c599bb89cfe803c1db6311e44bed3042fc25487
   languageName: node
   linkType: hard
 

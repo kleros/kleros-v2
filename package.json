@@ -16,10 +16,8 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "bots",
     "bot-pinner",
     "contracts",
-    "kleros-sdk",
     "subgraph",
     "web",
     "eslint-config",
@@ -32,8 +30,8 @@
     "yarn": "3.7.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.8.1",
-    "@commitlint/config-conventional": "^17.8.1",
+    "@commitlint/cli": "^18.4.2",
+    "@commitlint/config-conventional": "^18.4.2",
     "buffer": "^5.7.1",
     "conventional-changelog-cli": "^2.2.2",
     "husky": "^8.0.3",

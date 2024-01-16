@@ -1,7 +1,13 @@
 module.exports = {
+  extends: [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended",
+    "plugin:import/recommended",
+  ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    ecmaVersion: 2020,
+    project: "@kleros/kleros-v2-tsconfig/base.json",
   },
   env: {
     browser: true,
@@ -10,19 +16,13 @@ module.exports = {
     mocha: true,
     es2020: true,
   },
-  extends: [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended",
-    "plugin:import/recommended",
-  ],
   plugins: ["@typescript-eslint", "prettier", "import"],
   rules: {
     "no-unused-vars": [
       "error",
       {
-        varsIgnorePattern: "(^_+[0-9]*$)|([iI]gnored$)|(^ignored)",
-        argsIgnorePattern: "(^_+[0-9]*$)|([iI]gnored$)|(^ignored)",
+        varsIgnorePattern: "_",
+        argsIgnorePattern: "_",
       },
     ],
     "prettier/prettier": "error",
@@ -44,5 +44,13 @@ module.exports = {
         tryExtensions: [".js", ".ts", ".json", ".node"],
       },
     ],
+    "@typescript-eslint/no-floating-promises": [
+      "error",
+      {
+        ignoreIIFE: true,
+        ignoreVoid: true,
+      },
+    ],
+    "@typescript-eslint/no-inferrable-types": "off",
   },
 };

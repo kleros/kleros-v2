@@ -1,19 +1,21 @@
 /* eslint-disable node/no-missing-require */
-import * as dotenv from "dotenv";
-import { HardhatUserConfig } from "hardhat/config";
+
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@nomiclabs/hardhat-solhint";
 import "@typechain/hardhat";
-import "hardhat-deploy-tenderly";
-import "hardhat-gas-reporter";
-import "solidity-coverage";
+import * as dotenv from "dotenv";
+import "hardhat-contract-sizer";
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
-import "hardhat-watcher";
+import "hardhat-deploy-tenderly";
 import "hardhat-docgen";
-import "hardhat-contract-sizer";
+import "hardhat-gas-reporter";
 import "hardhat-tracer";
-require("./scripts/simulations/tasks");
+import "hardhat-watcher";
+import { HardhatUserConfig } from "hardhat/config";
+import "solidity-coverage";
+
+import "./scripts/simulations/tasks";
 
 dotenv.config();
 
