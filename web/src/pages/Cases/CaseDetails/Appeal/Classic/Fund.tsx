@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useAccount, useBalance, usePublicClient } from "wagmi";
@@ -57,7 +57,7 @@ const useNeedFund = () => {
 const useFundAppeal = (parsedAmount) => {
   const { id } = useParams();
   const { selectedOption } = useSelectedOptionContext();
-  const { config: fundAppealConfig } = usePrepareDisputeKitClassicFundAppeal({
+  const { config: fundAppealConfig, isError } = usePrepareDisputeKitClassicFundAppeal({
     enabled: !isUndefined(id) && !isUndefined(selectedOption),
     args: [BigInt(id ?? 0), BigInt(selectedOption ?? 0)],
     value: parsedAmount,
@@ -65,7 +65,7 @@ const useFundAppeal = (parsedAmount) => {
 
   const { writeAsync: fundAppeal } = useDisputeKitClassicFundAppeal(fundAppealConfig);
 
-  return fundAppeal;
+  return { fundAppeal, isError };
 };
 
 interface IFund {
@@ -89,7 +89,13 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
   const parsedAmount = useParsedAmount(debouncedAmount);
 
   const [isSending, setIsSending] = useState(false);
-  const fundAppeal = useFundAppeal(parsedAmount);
+  const { fundAppeal, isError } = useFundAppeal(parsedAmount);
+
+  const isFundDisabled = useMemo(
+    () =>
+      isDisconnected || isSending || !balance || parsedAmount > balance.value || Number(parsedAmount) <= 0 || isError,
+    [isDisconnected, isSending, balance, parsedAmount, isError]
+  );
 
   return needFund ? (
     <Container>
@@ -105,7 +111,8 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
         />
         <EnsureChain>
           <StyledButton
-            disabled={isDisconnected || isSending || !balance || parsedAmount > balance.value}
+            disabled={isFundDisabled}
+            isLoading={isSending}
             text={isDisconnected ? "Connect to Fund" : "Fund"}
             onClick={() => {
               if (fundAppeal) {
