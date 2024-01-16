@@ -54,6 +54,8 @@ const Dashboard: React.FC = () => {
   );
   const { data: userData } = useUserQuery(address, decodedFilter);
   const totalCases = userData?.user?.disputes.length;
+  const totalResolvedCases = parseInt(userData?.user?.totalResolvedDisputes);
+
   const totalPages = useMemo(
     () => (!isUndefined(totalCases) ? Math.ceil(totalCases / casesPerPage) : 1),
     [totalCases, casesPerPage]
@@ -69,7 +71,7 @@ const Dashboard: React.FC = () => {
             title="My Cases"
             disputes={userData?.user !== null ? (disputesData?.user?.disputes as DisputeDetailsFragment[]) : []}
             numberDisputes={totalCases}
-            numberClosedDisputes={0}
+            numberClosedDisputes={totalResolvedCases}
             totalPages={totalPages}
             currentPage={pageNumber}
             setCurrentPage={(newPage: number) => navigate(`${location}/${newPage}/${order}/${filter}`)}
