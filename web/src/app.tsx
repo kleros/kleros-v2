@@ -20,9 +20,9 @@ import { NewDisputeProvider } from "./context/NewDisputeContext";
 const App: React.FC = () => {
   return (
     <StyledComponentsProvider>
-      <QueryClientProvider>
-        <RefetchOnBlock />
-        <Web3Provider>
+      <Web3Provider>
+        <QueryClientProvider>
+          <RefetchOnBlock />
           <IsListProvider>
             <NewDisputeProvider>
               <SentryRoutes>
@@ -38,8 +38,8 @@ const App: React.FC = () => {
               </SentryRoutes>
             </NewDisputeProvider>
           </IsListProvider>
-        </Web3Provider>
-      </QueryClientProvider>
+        </QueryClientProvider>
+      </Web3Provider>
     </StyledComponentsProvider>
   );
 };

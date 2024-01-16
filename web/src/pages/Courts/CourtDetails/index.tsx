@@ -1,26 +1,31 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { useToggle } from "react-use";
 import { useParams } from "react-router-dom";
-import { useAccount, useNetwork, useWalletClient, usePublicClient } from "wagmi";
-import { Card, Breadcrumb, Button } from "@kleros/ui-components-library";
+import { useToggle } from "react-use";
 import { formatEther } from "viem";
+import { useAccount, useChainId, usePublicClient } from "wagmi";
+import { Card, Breadcrumb, Button } from "@kleros/ui-components-library";
+import {
+  useReadPnkFaucetWithdrewAlready,
+  useSimulatePnkFaucetRequest,
+  useReadPnkBalanceOf,
+  useWritePnkFaucetRequest,
+  pnkFaucetAddress,
+} from "hooks/contracts/generated";
+import { DEFAULT_CHAIN } from "consts/chains";
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
-import { DEFAULT_CHAIN } from "consts/chains";
-import { usePNKFaucetAddress } from "hooks/useContractAddress";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
 import { StyledSkeleton } from "components/StyledSkeleton";
+import HowItWorks from "components/HowItWorks";
+import Staking from "components/Popup/MiniGuides/Staking";
 import LatestCases from "components/LatestCases";
 import Stats from "./Stats";
 import Description from "./Description";
 import StakePanel from "./StakePanel";
-import HowItWorks from "components/HowItWorks";
-import Staking from "components/Popup/MiniGuides/Staking";
-import { usePnkFaucetWithdrewAlready, prepareWritePnkFaucet, usePnkBalanceOf } from "hooks/contracts/generated";
-import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div``;
 
@@ -82,34 +87,36 @@ const CourtDetails: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
   const { data: policy } = useCourtPolicy(id);
   const { data } = useCourtTree();
-  const { chain } = useNetwork();
+  const chainId = useChainId();
   const { address } = useAccount();
-  const { data: claimed } = usePnkFaucetWithdrewAlready({
-    enabled: !isUndefined(address),
+  // TODO refetch on block
+  const { data: claimed } = useReadPnkFaucetWithdrewAlready({
+    query: {
+      enabled: !isUndefined(address),
+    },
     args: [address ?? "0x00"],
-    watch: true,
+    // watch: true,
   });
   const [isStakingMiniGuideOpen, toggleStakingMiniGuide] = useToggle(false);
 
-  const faucetAddress = usePNKFaucetAddress();
-  const { data: balance } = usePnkBalanceOf({
+  // TODO maybe not needed since the simulation would revert
+  const faucetAddress = pnkFaucetAddress[421614];
+  const { data: balance } = useReadPnkBalanceOf({
     args: [faucetAddress],
-    watch: true,
+    // watch: true,
   });
-  const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
 
-  const handleRequest = async () => {
+  const { data: faucetRequestConfig } = useSimulatePnkFaucetRequest();
+  const { writeContractAsync: faucetRequest } = useWritePnkFaucetRequest();
+
+  const handleRequest = useCallback(async () => {
     setIsSending(true);
-    const { request } = await prepareWritePnkFaucet({
-      functionName: "request",
+    wrapWithToast(async () => await faucetRequest(faucetRequestConfig!.request), publicClient).finally(() => {
+      setIsSending(false);
     });
-    if (walletClient) {
-      wrapWithToast(async () => await walletClient.writeContract(request), publicClient).finally(() => {
-        setIsSending(false);
-      });
-    }
-  };
+  }, [setIsSending, faucetRequestConfig, faucetRequest, publicClient]);
+
   const faucetCheck = !isUndefined(balance) && parseInt(formatEther(balance)) > 200;
   const courtPath = getCourtsPath(data?.court, id);
 
@@ -141,7 +148,7 @@ const CourtDetails: React.FC = () => {
               toggleMiniGuide={toggleStakingMiniGuide}
               MiniGuideComponent={Staking}
             />
-            {chain?.id === DEFAULT_CHAIN && !claimed && (
+            {chainId === DEFAULT_CHAIN && !claimed && (
               <Button
                 variant="primary"
                 text={faucetCheck ? "Claim PNK" : "Empty Faucet"}

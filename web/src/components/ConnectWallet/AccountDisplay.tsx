@@ -1,10 +1,12 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
-import { useAccount, useNetwork, useEnsAvatar, useEnsName } from "wagmi";
-import Identicon from "react-identicons";
-import { shortenAddress } from "utils/shortenAddress";
 import { isAddress } from "viem";
+import { normalize } from "viem/ens";
+import { useAccount, useChainId, useEnsAvatar, useEnsName } from "wagmi";
+import Identicon from "react-identicons";
+import { getChain } from "consts/chains";
+import { shortenAddress } from "utils/shortenAddress";
 
 const Container = styled.div`
   display: flex;
@@ -111,7 +113,7 @@ export const IdenticonOrAvatar: React.FC<IIdenticonOrAvatar> = ({ size = "16", a
     chainId: 1,
   });
   const { data: avatar } = useEnsAvatar({
-    name,
+    name: normalize(name ?? ""),
     chainId: 1,
   });
 
@@ -135,11 +137,12 @@ export const AddressOrName: React.FC<IAddressOrName> = ({ address: propAddress }
     chainId: 1,
   });
 
-  return <label>{data ?? (isAddress(address) ? shortenAddress(address) : address)}</label>;
+  return <label>{data ?? (isAddress(address!) ? shortenAddress(address) : address)}</label>;
 };
 
 export const ChainDisplay: React.FC = () => {
-  const { chain } = useNetwork();
+  const chainId = useChainId();
+  const chain = getChain(chainId);
   return <label>{chain?.name}</label>;
 };
 

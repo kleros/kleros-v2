@@ -3,10 +3,10 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import { encodePacked, keccak256, PrivateKeyAccount } from "viem";
-import { useWalletClient, usePublicClient } from "wagmi";
+import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@kleros/ui-components-library";
-import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
+import { simulateDisputeKitClassicCastVote } from "hooks/contracts/generated";
 import useSigningAccount from "hooks/useSigningAccount";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
@@ -46,6 +46,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
+  const wagmiConfig = useConfig();
   const { signingAccount, generateSigningAccount } = useSigningAccount();
   const currentRoundIndex = disputeData?.dispute?.currentRoundIndex;
   const saltKey = useMemo(
@@ -61,8 +62,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
       : JSON.parse(storedSaltAndChoice);
     if (isUndefined(choice)) return;
     const { request } = await catchShortMessage(
-      prepareWriteDisputeKitClassic({
-        functionName: "castVote",
+      simulateDisputeKitClassicCastVote(wagmiConfig, {
         args: [parsedDisputeID, parsedVoteIDs, BigInt(choice), BigInt(salt), justification],
       })
     );
@@ -73,6 +73,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
     }
     setIsSending(false);
   }, [
+    wagmiConfig,
     commit,
     disputeTemplate?.answers,
     storedSaltAndChoice,

@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useWebSocketPublicClient } from "wagmi";
+import { usePublicClient } from "wagmi";
 
 const useRefetchOnBlock = () => {
   const queryClient = useQueryClient();
-  const publicClient = useWebSocketPublicClient();
+  const publicClient = usePublicClient();
 
   useEffect(() => {
     const unwatch = publicClient?.watchBlocks({

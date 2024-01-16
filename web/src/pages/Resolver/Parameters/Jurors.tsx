@@ -5,7 +5,7 @@ import { DisplaySmall, Field } from "@kleros/ui-components-library";
 import NavigationButtons from "../NavigationButtons";
 import { responsiveSize } from "styles/responsiveSize";
 import { useNewDisputeContext } from "context/NewDisputeContext";
-import { useKlerosCoreArbitrationCost } from "hooks/contracts/generated";
+import { useReadKlerosCoreArbitrationCost } from "hooks/contracts/generated";
 import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
 import { formatETH } from "utils/format";
 import ETH from "svgs/icons/eth.svg";
@@ -33,10 +33,13 @@ const StyledDisplay = styled(DisplaySmall)`
 
 const Jurors: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
-  const { data } = useKlerosCoreArbitrationCost({
-    enabled: !isUndefined(disputeData.numberOfJurors) && !Number.isNaN(disputeData.numberOfJurors),
-    args: [prepareArbitratorExtradata(disputeData.courtId, disputeData.numberOfJurors ?? "")],
-    watch: true,
+  // TODO refetch on block
+  const { data } = useReadKlerosCoreArbitrationCost({
+    query: {
+      enabled: !isUndefined(disputeData.numberOfJurors) && !Number.isNaN(disputeData.numberOfJurors),
+    },
+    args: [prepareArbitratorExtradata(disputeData.courtId ?? "", disputeData.numberOfJurors ?? "")],
+    // watch: true,
   });
 
   const arbitrationFee = formatETH(data ?? BigInt(0), 5);

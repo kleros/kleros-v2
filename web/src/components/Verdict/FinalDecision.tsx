@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Identicon from "react-identicons";
 import ArrowIcon from "assets/svgs/icons/arrow.svg";
-import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
+import { useReadKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import LightButton from "../LightButton";
@@ -88,7 +88,8 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const ruled = disputeDetails?.dispute?.ruled ?? false;
   const navigate = useNavigate();
-  const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id ?? 0)], watch: true });
+  // TODO block
+  const { data: currentRulingArray } = useReadKlerosCoreCurrentRuling({ args: [BigInt(id ?? 0)] });
   const currentRuling = Number(currentRulingArray?.[0]);
   const answer = disputeTemplate?.answers?.[currentRuling! - 1];
 

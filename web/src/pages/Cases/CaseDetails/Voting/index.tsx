@@ -6,7 +6,7 @@ import { responsiveSize } from "styles/responsiveSize";
 import VoteIcon from "assets/svgs/icons/voted.svg";
 import { Periods } from "consts/periods";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
-import { useDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
+import { useReadDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "queries/useDrawQuery";
 import { useAppealCost } from "queries/useAppealCost";
@@ -43,8 +43,11 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
   const { data: drawData } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
   const roundId = disputeData?.dispute?.currentRoundIndex;
   const voteId = drawData?.draws?.[0]?.voteIDNum;
-  const { data: voted } = useDisputeKitClassicIsVoteActive({
-    enabled: !isUndefined(roundId) && !isUndefined(voteId),
+  // TODO refetch on block
+  const { data: voted } = useReadDisputeKitClassicIsVoteActive({
+    query: {
+      enabled: !isUndefined(roundId) && !isUndefined(voteId),
+    },
     args: [BigInt(id ?? 0), roundId, voteId],
     watch: true,
   });
