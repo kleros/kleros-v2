@@ -1,10 +1,11 @@
 import React from "react";
 import styled, { Theme } from "styled-components";
 import { Periods } from "consts/periods";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div<Omit<IPeriodBanner, "id">>`
   height: ${({ isCard }) => (isCard ? "45px" : "100%")};
-  width: auto;
+  width: ${({ isCard }) => (isCard ? "auto" : responsiveSize(60, 80, 900))};
   border-top-right-radius: 3px;
   border-top-left-radius: 3px;
   display: flex;
