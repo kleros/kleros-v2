@@ -1,16 +1,18 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import OptionCard from "../../OptionCard";
-import { useFundingContext, useOptionsContext, useSelectedOptionContext } from "hooks/useClassicAppealContext";
+import {
+  useCountdownContext,
+  useFundingContext,
+  useOptionsContext,
+  useSelectedOptionContext,
+} from "hooks/useClassicAppealContext";
 import { isUndefined } from "utils/index";
 import { formatUnitsWei } from "utils/format";
-import Skeleton from "react-loading-skeleton";
+import StageExplainer from "../StageExplainer";
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
   margin: 24px 0;
-  justify-content: center;
 `;
 
 const OptionsContainer = styled.div`
@@ -20,15 +22,13 @@ const OptionsContainer = styled.div`
   margin-top: 12px;
 `;
 
-const StyledLabel = styled.label`
-  margin-bottom: 6px;
-`;
 interface IStageTwo {
   setAmount: (val: string) => void;
 }
 
 const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
   const { paidFees, winningChoice, winnerRequiredFunding, fundedChoices } = useFundingContext();
+  const { winnerSideCountdown } = useCountdownContext();
   const options = useOptionsContext();
   const { selectedOption, setSelectedOption } = useSelectedOptionContext();
   useEffect(() => {
@@ -45,15 +45,7 @@ const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
       fundedChoices.length > 0 &&
       !fundedChoices.includes(winningChoice) ? (
         <>
-          <StyledLabel>Loser deadline has finalized, you can only fund the current winner.</StyledLabel>
-          <StyledLabel>
-            Following choice was funded in the stage one :{" "}
-            <small>
-              {fundedChoices.map((choice) =>
-                isUndefined(options[choice]) ? <Skeleton width={50} height={18} /> : options[choice]
-              )}
-            </small>
-          </StyledLabel>
+          <StageExplainer stage={2} countdown={winnerSideCountdown} />
           <OptionsContainer>
             <OptionCard
               text={options![winningChoice!]}

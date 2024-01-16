@@ -9,11 +9,7 @@ import { isUndefined } from "utils/index";
 import { EnsureChain } from "components/EnsureChain";
 import { usePrepareDisputeKitClassicFundAppeal, useDisputeKitClassicFundAppeal } from "hooks/contracts/generated";
 import { useParsedAmount } from "hooks/useParsedAmount";
-import {
-  useLoserSideCountdownContext,
-  useSelectedOptionContext,
-  useFundingContext,
-} from "hooks/useClassicAppealContext";
+import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
 
 const Container = styled.div`
   display: flex;
@@ -42,7 +38,7 @@ const StyledButton = styled(Button)`
 `;
 
 const useNeedFund = () => {
-  const loserSideCountdown = useLoserSideCountdownContext();
+  const { loserSideCountdown } = useCountdownContext();
   const { fundedChoices, winningChoice } = useFundingContext();
   const needFund =
     (loserSideCountdown ?? 0) > 0 ||
