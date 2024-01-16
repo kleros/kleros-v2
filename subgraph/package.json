@@ -41,9 +41,9 @@
     "start-local-indexer": "docker compose -f ../services/graph-node/docker-compose.yml up -d && docker compose -f ../services/graph-node/docker-compose.yml logs -f",
     "stop-local-indexer": "docker compose -f ../services/graph-node/docker-compose.yml down && rm -rf ../services/graph-node/data"
   },
+  "packageManager": "yarn@4.0.2+sha256.825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186",
   "volta": {
-    "node": "20.11.0",
-    "yarn": "3.7.0"
+    "node": "20.11.0"
   },
   "dependencies": {
     "@graphprotocol/graph-ts": "^0.32.0"
