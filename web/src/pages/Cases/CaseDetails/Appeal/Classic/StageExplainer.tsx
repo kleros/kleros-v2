@@ -60,8 +60,8 @@ const StageTwoExplanation: React.FC = () => {
         Loser deadline has <small>finalized</small>, you can only fund the current winner.
       </label>
       <label>
-        The sum of funds must reach 100%. If it's not fully funded in time the option fully funded at{" "}
-        <small>stage 1</small> is declared the winner of the case.{" "}
+        If the current winner is not fully funded in time, the option funded during the previous stage will be declared
+        as the final winner.
       </label>
       <label>
         {" "}
