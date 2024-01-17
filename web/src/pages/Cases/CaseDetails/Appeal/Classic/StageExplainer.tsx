@@ -35,7 +35,7 @@ const CountdownLabel = styled.label`
 `;
 
 interface IStageExplainer {
-  countdown?: number | undefined;
+  countdown: number | undefined;
   stage: 1 | 2;
 }
 
@@ -67,7 +67,7 @@ const StageTwoExplanation: React.FC = () => {
         <small>
           {!isUndefined(fundedChoices) && !isUndefined(options)
             ? fundedChoices.map((choice) =>
-                isUndefined(options[choice]) ? <Skeleton width={50} height={18} /> : options[choice]
+                isUndefined(options[choice]) ? <Skeleton key={choice} width={50} height={18} /> : options[choice]
               )
             : null}
         </small>
@@ -83,7 +83,7 @@ const StageExplainer: React.FC<IStageExplainer> = ({ countdown, stage }) => {
         {!isUndefined(countdown) ? (
           <>
             <HourglassIcon />
-            {countdown > 0 ? secondsToDayHourMinute(countdown) : <label>Time's up</label>}
+            {countdown > 0 ? secondsToDayHourMinute(countdown) : <span>Time's up</span>}
           </>
         ) : null}
       </CountdownLabel>

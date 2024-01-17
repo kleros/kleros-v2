@@ -10,8 +10,8 @@ import { useCountdown } from "hooks/useCountdown";
 import { getLocalRounds } from "utils/getLocalRounds";
 
 interface ICountdownContext {
-  loserSideCountdown?: number | undefined;
-  winnerSideCountdown?: number | undefined;
+  loserSideCountdown?: number;
+  winnerSideCountdown?: number;
 }
 const CountdownContext = createContext<ICountdownContext>({});
 
@@ -79,8 +79,11 @@ export const ClassicAppealProvider: React.FC<{
   );
   const fundedChoices = getFundedChoices(data?.dispute);
   const [selectedOption, setSelectedOption] = useState<number | undefined>();
+
   return (
-    <CountdownContext.Provider value={{ loserSideCountdown, winnerSideCountdown }}>
+    <CountdownContext.Provider
+      value={useMemo(() => ({ loserSideCountdown, winnerSideCountdown }), [loserSideCountdown, winnerSideCountdown])}
+    >
       <SelectedOptionContext.Provider
         value={useMemo(() => ({ selectedOption, setSelectedOption }), [selectedOption, setSelectedOption])}
       >

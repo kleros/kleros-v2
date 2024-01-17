@@ -40,24 +40,26 @@ const StageTwo: React.FC<IStageTwo> = ({ setAmount }) => {
   return (
     <Container>
       {!isUndefined(winningChoice) && !isUndefined(fundedChoices) && !isUndefined(paidFees) ? (
-        fundedChoices.length > 0 && !fundedChoices.includes(winningChoice) ? (
-          <>
-            <StageExplainer stage={2} countdown={winnerSideCountdown} />
-            <OptionsContainer>
-              <OptionCard
-                text={options![winningChoice!]}
-                selected={parseInt(winningChoice) === selectedOption}
-                winner={true}
-                funding={paidFees![winningChoice!] ? BigInt(paidFees![winningChoice!]) : 0n}
-                required={winnerRequiredFunding!}
-                canBeSelected={false}
-                onClick={() => setSelectedOption(parseInt(winningChoice!, 10))}
-              />
-            </OptionsContainer>
-          </>
-        ) : (
-          <label>No losing option has been funded in time, winner is maintained.</label>
-        )
+        <>
+          {fundedChoices.length > 0 && !fundedChoices.includes(winningChoice) ? (
+            <>
+              <StageExplainer stage={2} countdown={winnerSideCountdown} />
+              <OptionsContainer>
+                <OptionCard
+                  text={options![winningChoice!]}
+                  selected={parseInt(winningChoice) === selectedOption}
+                  winner={true}
+                  funding={paidFees![winningChoice!] ? BigInt(paidFees![winningChoice!]) : 0n}
+                  required={winnerRequiredFunding!}
+                  canBeSelected={false}
+                  onClick={() => setSelectedOption(parseInt(winningChoice!, 10))}
+                />
+              </OptionsContainer>
+            </>
+          ) : (
+            <label>No losing option has been funded in time, winner is maintained.</label>
+          )}
+        </>
       ) : (
         <Skeleton height={140} />
       )}
