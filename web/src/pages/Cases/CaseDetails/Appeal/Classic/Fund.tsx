@@ -14,6 +14,7 @@ import { useSelectedOptionContext, useFundingContext, useCountdownContext } from
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 8px;
 `;
 
@@ -34,9 +35,12 @@ const StyledField = styled(Field)`
 
 const StyledButton = styled(Button)`
   margin: auto;
-  margin-top: 12px;
+  margin-top: 4px;
 `;
 
+const StyledLabel = styled.label`
+  align-self: flex-start;
+`;
 const useNeedFund = () => {
   const { loserSideCountdown } = useCountdownContext();
   const { fundedChoices, winningChoice } = useFundingContext();
@@ -95,36 +99,34 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
 
   return needFund ? (
     <Container>
-      <label>How much ETH do you want to contribute?</label>
-      <div>
-        <StyledField
-          type="number"
-          value={amount}
-          onChange={(e) => {
-            setAmount(e.target.value);
+      <StyledLabel>How much ETH do you want to contribute?</StyledLabel>
+      <StyledField
+        type="number"
+        value={amount}
+        onChange={(e) => {
+          setAmount(e.target.value);
+        }}
+        placeholder="Amount to fund"
+      />
+      <EnsureChain>
+        <StyledButton
+          disabled={isFundDisabled}
+          isLoading={isSending}
+          text={isDisconnected ? "Connect to Fund" : "Fund"}
+          onClick={() => {
+            if (fundAppeal) {
+              setIsSending(true);
+              wrapWithToast(async () => await fundAppeal().then((response) => response.hash), publicClient)
+                .then((res) => {
+                  res.status && setIsOpen(true);
+                })
+                .finally(() => {
+                  setIsSending(false);
+                });
+            }
           }}
-          placeholder="Amount to fund"
         />
-        <EnsureChain>
-          <StyledButton
-            disabled={isFundDisabled}
-            isLoading={isSending}
-            text={isDisconnected ? "Connect to Fund" : "Fund"}
-            onClick={() => {
-              if (fundAppeal) {
-                setIsSending(true);
-                wrapWithToast(async () => await fundAppeal().then((response) => response.hash), publicClient)
-                  .then((res) => {
-                    res.status && setIsOpen(true);
-                  })
-                  .finally(() => {
-                    setIsSending(false);
-                  });
-              }
-            }}
-          />
-        </EnsureChain>
-      </div>
+      </EnsureChain>
     </Container>
   ) : (
     <></>

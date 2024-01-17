@@ -40,7 +40,7 @@ interface IStageExplainer {
 }
 
 const StageOneExplanation: React.FC = () => (
-  <>
+  <div>
     {" "}
     <label>
       Losing options can only be funded <small>before</small> the deadline.
@@ -48,18 +48,20 @@ const StageOneExplanation: React.FC = () => (
     <label>
       If no losing option is <small>fully funded</small> in time, the jury decision is maintained.
     </label>
-  </>
+  </div>
 );
 
 const StageTwoExplanation: React.FC = () => {
   const { fundedChoices } = useFundingContext();
   const options = useOptionsContext();
   return (
-    <>
-      <label>Loser deadline has finalized, you can only fund the current winner.</label>
+    <div>
       <label>
-        The sum of funds must reach 100%. If it's not fully funded in time the option fully funded at stage 1 is
-        declared the winner of the case.{" "}
+        Loser deadline has <small>finalized</small>, you can only fund the current winner.
+      </label>
+      <label>
+        The sum of funds must reach 100%. If it's not fully funded in time the option fully funded at{" "}
+        <small>stage 1</small> is declared the winner of the case.{" "}
       </label>
       <label>
         {" "}
@@ -72,7 +74,7 @@ const StageTwoExplanation: React.FC = () => {
             : null}
         </small>
       </label>
-    </>
+    </div>
   );
 };
 
@@ -87,7 +89,7 @@ const StageExplainer: React.FC<IStageExplainer> = ({ countdown, stage }) => {
           </>
         ) : null}
       </CountdownLabel>
-      <div>{stage === 1 ? <StageOneExplanation /> : <StageTwoExplanation />}</div>
+      {stage === 1 ? <StageOneExplanation /> : <StageTwoExplanation />}
     </StyledBox>
   );
 };
