@@ -37,11 +37,11 @@ const Courts: React.FC = () => {
   });
   const stakedCourts = stakeData?.jurorTokensPerCourts?.filter(({ staked }) => staked > 0);
   const isStaked = stakedCourts && stakedCourts.length > 0;
-  const lockedStake = jurorBalance?.[1].toString();
+  const lockedStake = jurorBalance?.[1];
 
   return (
     <Container>
-      <Header lockedStake={lockedStake ?? ""} />
+      <Header lockedStake={lockedStake ?? BigInt(0)} />
       {isLoading ? <Skeleton /> : null}
       {!isStaked && !isLoading ? <StyledLabel>You are not staked in any court</StyledLabel> : null}
       {isStaked && !isLoading ? (
