@@ -80,8 +80,12 @@ const StageExplainer: React.FC<IStageExplainer> = ({ countdown, stage }) => {
   return (
     <StyledBox>
       <CountdownLabel>
-        <HourglassIcon />
-        {!isUndefined(countdown) ? secondsToDayHourMinute(countdown) : null}
+        {!isUndefined(countdown) ? (
+          <>
+            <HourglassIcon />
+            {countdown > 0 ? secondsToDayHourMinute(countdown) : <label>Time's up</label>}
+          </>
+        ) : null}
       </CountdownLabel>
       <div>{stage === 1 ? <StageOneExplanation /> : <StageTwoExplanation />}</div>
     </StyledBox>
