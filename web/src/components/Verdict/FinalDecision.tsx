@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Identicon from "react-identicons";
@@ -9,6 +9,8 @@ import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import LightButton from "../LightButton";
 import VerdictBanner from "./VerdictBanner";
 import { responsiveSize } from "styles/responsiveSize";
+import { useVotingContext } from "hooks/useVotingContext";
+import Skeleton from "react-loading-skeleton";
 
 const Container = styled.div`
   width: 100%;
@@ -86,12 +88,16 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const { id } = useParams();
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
+  const { wasDrawn, hasVoted, isLoading } = useVotingContext();
   const ruled = disputeDetails?.dispute?.ruled ?? false;
   const navigate = useNavigate();
   const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id ?? 0)], watch: true });
   const currentRuling = Number(currentRulingArray?.[0]);
   const answer = disputeTemplate?.answers?.[currentRuling! - 1];
-
+  const buttonText = useMemo(
+    () => (wasDrawn ? (hasVoted ? "You have voted" : "Cast your vote") : "Check how the jury voted"),
+    [wasDrawn, hasVoted]
+  );
   return (
     <Container>
       <VerdictBanner ruled={ruled} />
@@ -124,12 +130,16 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
           <Divider />
         </>
       )}
-      <StyledButton
-        onClick={() => navigate(`/cases/${id?.toString()}/voting`)}
-        text={"Check how the jury voted"}
-        Icon={ArrowIcon}
-        className="reverse-button"
-      />
+      {isLoading ? (
+        <Skeleton width={250} height={20} />
+      ) : (
+        <StyledButton
+          onClick={() => navigate(`/cases/${id?.toString()}/voting`)}
+          text={buttonText}
+          Icon={ArrowIcon}
+          className="reverse-button"
+        />
+      )}
     </Container>
   );
 };
