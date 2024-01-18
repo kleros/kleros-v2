@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Tabs as TabsComponent } from "@kleros/ui-components-library";
@@ -67,16 +67,19 @@ const Tabs: React.FC = () => {
     setCurrentTab(TABS.findIndex(({ path }) => path === currentPathName));
   }, [currentPathName]);
 
-  useEffect(() => {
-    TABS[3].disabled =
+  const tabs = useMemo(() => {
+    const updatedTabs = [...TABS];
+    updatedTabs[3].disabled =
       (parseInt(currentPeriodIndex) < 3 && rounds.length === 1) ||
       (!isUndefined(appealCost) && isLastRound(appealCost) && parseInt(currentPeriodIndex) === 3);
-  }, [currentPeriodIndex, id, currentTab, rounds.length, appealCost]);
+
+    return updatedTabs;
+  }, [currentPeriodIndex, id, rounds.length, appealCost]);
 
   return (
     <StyledTabs
       currentValue={currentTab}
-      items={TABS}
+      items={tabs}
       callback={(n: number) => {
         setCurrentTab(n);
         navigate(TABS[n].path);
