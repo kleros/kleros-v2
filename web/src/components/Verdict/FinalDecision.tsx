@@ -94,10 +94,10 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id ?? 0)], watch: true });
   const currentRuling = Number(currentRulingArray?.[0]);
   const answer = disputeTemplate?.answers?.[currentRuling! - 1];
-  const buttonText = useMemo(
-    () => (wasDrawn ? (hasVoted ? "You have voted" : "Cast your vote") : "Check how the jury voted"),
-    [wasDrawn, hasVoted]
-  );
+  const buttonText = useMemo(() => {
+    if (!wasDrawn) return "Check how the jury voted";
+    return hasVoted ? "You have voted" : "Cast you vote";
+  }, [wasDrawn, hasVoted]);
   return (
     <Container>
       <VerdictBanner ruled={ruled} />
