@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
-import { useWeb3Modal } from "@web3modal/react";
+import { useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react";
 import { Button } from "@kleros/ui-components-library";
 import { SUPPORTED_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 import AccountDisplay from "./AccountDisplay";
@@ -30,8 +30,9 @@ export const SwitchChainButton: React.FC = () => {
 };
 
 const ConnectButton: React.FC = () => {
-  const { open, isOpen } = useWeb3Modal();
-  return <Button disabled={isOpen} small text={"Connect"} onClick={async () => open({ route: "ConnectWallet" })} />;
+  const { open } = useWeb3Modal();
+  const { open: isOpen } = useWeb3ModalState();
+  return <Button disabled={isOpen} small text={"Connect"} onClick={async () => open({ view: "Connect" })} />;
 };
 
 const ConnectWallet: React.FC = () => {

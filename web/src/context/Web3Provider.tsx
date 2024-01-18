@@ -1,11 +1,10 @@
-import React from "react";
-import { EthereumClient } from "@web3modal/ethereum";
-import { Web3Modal } from "@web3modal/react";
+import React, { useEffect } from "react";
+import { useTheme } from "styled-components";
+import { Chain } from "viem";
 import { createConfig, fallback, http, WagmiProvider, webSocket } from "wagmi";
 import { mainnet, arbitrumSepolia, gnosisChiado } from "wagmi/chains";
 import { walletConnect } from "wagmi/connectors";
-import { useToggleTheme } from "hooks/useToggleThemeContext";
-import { useTheme } from "styled-components";
+import { createWeb3Modal } from "@web3modal/wagmi/react";
 
 const projectId = process.env.WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf9281e218217";
 const alchemyKey = process.env.ALCHEMY_API_KEY ?? "";
@@ -17,7 +16,7 @@ const alchemyURL = (protocol: AlchemyProtocol, chain: AlchemyChain) =>
 const alchemyTransport = (chain: AlchemyChain) =>
   fallback([webSocket(alchemyURL("wss", chain)), http(alchemyURL("https", chain))]);
 
-const chains = [arbitrumSepolia, mainnet, gnosisChiado];
+const chains: [Chain, ...Chain[]] = [arbitrumSepolia, mainnet, gnosisChiado];
 const wagmiConfig = createConfig({
   chains: [arbitrumSepolia, mainnet, gnosisChiado],
   transports: {
@@ -28,24 +27,23 @@ const wagmiConfig = createConfig({
   connectors: [walletConnect({ projectId })],
 });
 
-const ethereumClient = new EthereumClient(wagmiConfig, chains);
-
 const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [themeToggle] = useToggleTheme();
   const theme = useTheme();
+  useEffect(() => {
+    createWeb3Modal({
+      wagmiConfig,
+      projectId,
+      chains,
+      themeVariables: {
+        "--w3m-accent": theme.primaryPurple,
+        "--w3m-color-mix": theme.primaryPurple,
+        "--w3m-color-mix-strength": 100,
+      },
+    });
+  }, [theme]);
+
   return (
     <>
-      <Web3Modal
-        themeMode={themeToggle as "light" | "dark"}
-        themeVariables={{
-          "--w3m-accent-color": theme.primaryPurple,
-          "--w3m-background-color": theme.primaryPurple,
-          "--w3m-overlay-background-color": "rgba(0, 0, 0, 0.6)",
-          "--w3m-overlay-backdrop-filter": "blur(3px)",
-          "--w3m-logo-image-url": "https://github.com/kleros/kleros-v2/blob/dev/docs/kleros-logo-white.png?raw=true",
-        }}
-        {...{ projectId, ethereumClient }}
-      />
       <WagmiProvider config={wagmiConfig}> {children} </WagmiProvider>
     </>
   );
