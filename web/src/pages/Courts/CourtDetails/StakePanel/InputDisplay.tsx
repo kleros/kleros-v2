@@ -3,15 +3,13 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
-import { NumberInputField } from "components/NumberInputField";
 import { useParsedAmount } from "hooks/useParsedAmount";
-import { useCourtDetails } from "hooks/queries/useCourtDetails";
-import { useSortitionModuleGetJurorBalance, usePnkBalanceOf } from "hooks/contracts/generated";
-import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
+import { NumberInputField } from "components/NumberInputField";
 import { formatPNK, roundNumberDown } from "utils/format";
 import { isUndefined } from "utils/index";
 import { commify, uncommify } from "utils/commify";
-import { EnsureChain } from "components/EnsureChain";
+import { useReadSortitionModuleGetJurorBalance, useReadPnkBalanceOf } from "hooks/contracts/generated";
+import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
 
 const StyledField = styled(NumberInputField)`
   height: fit-content;
@@ -67,21 +65,25 @@ const InputDisplay: React.FC<IInputDisplay> = ({
 }) => {
   const [debouncedAmount, setDebouncedAmount] = useState("");
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
-  const parsedAmount = useParsedAmount(uncommify(debouncedAmount));
+  const parsedAmount = useParsedAmount(uncommify(debouncedAmount) as `${number}`);
 
   const { id } = useParams();
-  const { data: courtDetails } = useCourtDetails(id);
   const { address } = useAccount();
-  const { data: balance } = usePnkBalanceOf({
-    enabled: !isUndefined(address),
+  // TODO refetch on block
+  const { data: balance } = useReadPnkBalanceOf({
+    query: {
+      enabled: !isUndefined(address),
+    },
     args: [address ?? "0x"],
-    watch: true,
+    // watch: true,
   });
   const parsedBalance = formatPNK(balance ?? 0n, 0, true);
-  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
-    enabled: !isUndefined(address),
-    args: [address, id],
-    watch: true,
+  const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
+    query: {
+      enabled: !isUndefined(address),
+    },
+    args: [address ?? "0x", BigInt(id ?? "0")],
+    // watch: true,
   });
   const parsedStake = formatPNK(jurorBalance?.[2] || 0n, 0, true);
   const isStaking = action === ActionType.stake;
@@ -107,6 +109,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
               setAmount(e);
             }}
             placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
+            // TODO why was the message that you may need two transactions commented?
             // message={
             //   isStaking
             //     ? `You need to stake at least ${formatPNK(courtDetails?.court.minStake ?? 0n, 3)} PNK. ` +

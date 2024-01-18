@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { graphql } from "src/graphql";
-import { PublicClient } from "viem";
+import { PublicClient, getContract } from "viem";
 import { usePublicClient } from "wagmi";
-import { getIArbitrableV2 } from "hooks/contracts/generated";
+import { iArbitrableV2Abi } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
-import { graphqlQueryFnHelper, graphqlUrl } from "utils/graphqlQueryFnHelper";
+import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 import { useIsCrossChainDispute } from "../useIsCrossChainDispute";
 import { GENESIS_BLOCK_ARBSEPOLIA } from "consts/index";
 
@@ -30,7 +30,7 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
     queryFn: async () => {
       if (isEnabled) {
         try {
-          const { isCrossChainDispute, crossChainId, crossChainTemplateId } = crossChainData;
+          const { isCrossChainDispute, crossChainTemplateId } = crossChainData;
           const templateId = isCrossChainDispute
             ? crossChainTemplateId
             : await getTemplateId(arbitrableAddress, disputeID, publicClient);
@@ -54,8 +54,12 @@ const getTemplateId = async (
   disputeID: string,
   publicClient: PublicClient
 ): Promise<bigint> => {
-  const arbitrable = getIArbitrableV2({
+  const arbitrable = getContract({
+    abi: iArbitrableV2Abi,
     address: arbitrableAddress,
+    client: {
+      public: publicClient,
+    },
   });
   const disputeFilter = await arbitrable.createEventFilter.DisputeRequest(
     {

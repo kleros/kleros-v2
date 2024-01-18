@@ -7,7 +7,7 @@ import { Field, Button } from "@kleros/ui-components-library";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
 import { EnsureChain } from "components/EnsureChain";
-import { usePrepareDisputeKitClassicFundAppeal, useDisputeKitClassicFundAppeal } from "hooks/contracts/generated";
+import { useSimulateDisputeKitClassicFundAppeal, useWriteDisputeKitClassicFundAppeal } from "hooks/contracts/generated";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import {
   useLoserSideCountdownContext,
@@ -54,22 +54,8 @@ const useNeedFund = () => {
   return needFund;
 };
 
-const useFundAppeal = (parsedAmount) => {
-  const { id } = useParams();
-  const { selectedOption } = useSelectedOptionContext();
-  const { config: fundAppealConfig } = usePrepareDisputeKitClassicFundAppeal({
-    enabled: !isUndefined(id) && !isUndefined(selectedOption),
-    args: [BigInt(id ?? 0), BigInt(selectedOption ?? 0)],
-    value: parsedAmount,
-  });
-
-  const { writeAsync: fundAppeal } = useDisputeKitClassicFundAppeal(fundAppealConfig);
-
-  return fundAppeal;
-};
-
 interface IFund {
-  amount: string;
+  amount: `${number}`;
   setAmount: (val: string) => void;
   setIsOpen: (val: boolean) => void;
 }
@@ -77,19 +63,29 @@ interface IFund {
 const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
   const needFund = useNeedFund();
   const { address, isDisconnected } = useAccount();
+  // TODO refetch on block
   const { data: balance } = useBalance({
     address,
-    watch: true,
   });
   const publicClient = usePublicClient();
 
-  const [debouncedAmount, setDebouncedAmount] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [debouncedAmount, setDebouncedAmount] = useState<`${number}` | "">("");
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
 
-  const parsedAmount = useParsedAmount(debouncedAmount);
+  const parsedAmount = useParsedAmount(debouncedAmount as `${number}`);
 
-  const [isSending, setIsSending] = useState(false);
-  const fundAppeal = useFundAppeal(parsedAmount);
+  const { id } = useParams();
+  const { selectedOption } = useSelectedOptionContext();
+  const { data: fundAppealConfig } = useSimulateDisputeKitClassicFundAppeal({
+    query: {
+      enabled: !isUndefined(id) && !isUndefined(selectedOption),
+    },
+    args: [BigInt(id ?? 0), BigInt(selectedOption ?? 0)],
+    value: parsedAmount,
+  });
+
+  const { writeContractAsync: fundAppeal } = useWriteDisputeKitClassicFundAppeal();
 
   return needFund ? (
     <Container>
@@ -108,9 +104,9 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
             disabled={isDisconnected || isSending || !balance || parsedAmount > balance.value}
             text={isDisconnected ? "Connect to Fund" : "Fund"}
             onClick={() => {
-              if (fundAppeal) {
+              if (fundAppealConfig) {
                 setIsSending(true);
-                wrapWithToast(async () => await fundAppeal().then((response) => response.hash), publicClient)
+                wrapWithToast(async () => await fundAppeal(fundAppealConfig.request), publicClient)
                   .then(() => {
                     setIsOpen(true);
                   })
