@@ -68,7 +68,7 @@ const ListTitle = styled.div`
   height: 100%;
   justify-content: start;
   align-items: center;
-  width: calc(30vw + (40 - 30) * (min(max(100vw, 300px), 1250px)- 300px) / 950);
+  width: ${responsiveSize(240, 300, 900)};
 `;
 
 export const getPeriodEndTimestamp = (
