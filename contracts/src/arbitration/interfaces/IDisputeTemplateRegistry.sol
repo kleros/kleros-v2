@@ -17,6 +17,11 @@ interface IDisputeTemplateRegistry {
         string _templateDataMappings
     );
 
+    /// @dev Creates a new dispute template.
+    /// @param _templateTag An optional tag for the dispute template, such as "registration" or "removal".
+    /// @param _templateData The template data.
+    /// @param _templateDataMappings The data mappings.
+    /// @return templateId The identifier of the dispute template.
     function setDisputeTemplate(
         string memory _templateTag,
         string memory _templateData,

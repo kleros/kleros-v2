@@ -54,7 +54,7 @@ describe("Integration tests", async () => {
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
     vea = (await ethers.getContract("VeaMock")) as VeaMock;
     foreignGateway = (await ethers.getContract("ForeignGatewayOnEthereum")) as ForeignGateway;
-    arbitrable = (await ethers.getContract("ArbitrableExample")) as ArbitrableExample;
+    arbitrable = (await ethers.getContract("ArbitrableExampleToRouter")) as ArbitrableExample;
     homeGateway = (await ethers.getContract("HomeGatewayToEthereum")) as HomeGateway;
     sortitionModule = (await ethers.getContract("SortitionModule")) as SortitionModule;
   });

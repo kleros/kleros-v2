@@ -68,20 +68,25 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
+  const evidenceModule = await deployUpgradable(deployments, "EvidenceModule", {
+    from: deployer,
+    args: [deployer],
+    log: true,
+  });
+
+  const router = await deploy("ArbitrationRouter", {
+    from: deployer,
+    args: [foreignGateway.address, disputeTemplateRegistry.address, evidenceModule.address],
+    log: true,
+  });
+
   // TODO: debug why this extraData fails but "0x00" works
   // const extraData =
   //   "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
   const extraData = "0x00";
-  await deploy("ArbitrableExample", {
+  await deploy("ArbitrableExampleToRouter", {
     from: deployer,
-    args: [
-      foreignGateway.address,
-      disputeTemplate,
-      "disputeTemplateMapping: TODO",
-      extraData,
-      disputeTemplateRegistry.address,
-      ethers.constants.AddressZero,
-    ],
+    args: [router.address, disputeTemplate, "disputeTemplateMapping: TODO", extraData, ethers.constants.AddressZero],
     log: true,
   });
 };

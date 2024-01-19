@@ -39,9 +39,9 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
         governor = _governor;
     }
 
-    // ************************ //
-    // *      Governance      * //
-    // ************************ //
+    // ************************************* //
+    // *             Governance            * //
+    // ************************************* //
 
     /**
      * @dev Access Control to perform implementation upgrades (UUPS Proxiable)

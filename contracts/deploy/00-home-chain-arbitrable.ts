@@ -13,6 +13,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const chainId = Number(await getChainId());
   console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
+  const evidenceModule = await deployments.get("EvidenceModule");
   const klerosCore = await deployments.get("KlerosCore");
   const extraData =
     "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
@@ -24,14 +25,23 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  await deploy("ArbitrableExample", {
+  const router = await deploy("ArbitrationRouter", {
     from: deployer,
     args: [
       klerosCore.address,
+      disputeTemplateRegistry.address,
+      evidenceModule.address,
+    ],
+    log: true,
+  });
+
+  await deploy("ArbitrableExampleToRouter", {
+    from: deployer,
+    args: [
+      router.address,
       disputeTemplate,
       "disputeTemplateMapping: TODO",
       extraData,
-      disputeTemplateRegistry.address,
       weth.address,
     ],
     log: true,

@@ -9,4 +9,9 @@ interface IEvidence {
     /// @param _party The address of the party submiting the evidence. Note that 0x0 refers to evidence not submitted by any party.
     /// @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'
     event Evidence(uint256 indexed _externalDisputeID, address indexed _party, string _evidence);
+
+    /// @dev Submits evidence for a dispute.
+    /// @param _externalDisputeID Unique identifier for this dispute outside Kleros. It's the submitter responsability to submit the right evidence group ID.
+    /// @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'.
+    function submitEvidence(uint256 _externalDisputeID, string calldata _evidence) external;
 }
