@@ -90,7 +90,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const { isDisconnected } = useAccount();
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
-  const { wasDrawn, hasVoted, isLoading, isCommitPeriod, isVotingPeriod, commited } = useVotingContext();
+  const { wasDrawn, hasVoted, isLoading, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes } = useVotingContext();
   const ruled = disputeDetails?.dispute?.ruled ?? false;
   const navigate = useNavigate();
   const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id ?? 0)], watch: true });
@@ -98,12 +98,11 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const answer = disputeTemplate?.answers?.[currentRuling! - 1];
   const buttonText = useMemo(() => {
     if (!wasDrawn || isDisconnected) return "Check how the jury voted";
-    if (disputeDetails?.dispute?.period === "evidence") return "You were drawn";
-    if (isCommitPeriod) return commited ? "You have committed" : "Commit your vote";
-    if (isVotingPeriod && !commited) return "You failed to commit";
-    if (isVotingPeriod && !hasVoted) return "Cast your vote";
-    return hasVoted ? "You have voted" : "You have not appeared for juror duty";
-  }, [wasDrawn, hasVoted, isCommitPeriod, isVotingPeriod, commited]);
+    if (isCommitPeriod && !commited) return "Commit your vote";
+    if (isVotingPeriod && isHiddenVotes && commited && !hasVoted) return "Reveal your vote";
+    if (isVotingPeriod && !isHiddenVotes && !hasVoted) return "Cast your vote";
+    return "Check how the jury voted";
+  }, [wasDrawn, hasVoted, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes]);
 
   return (
     <Container>
