@@ -8,7 +8,7 @@ const votingHistoryQuery = graphql(`
   query VotingHistory($disputeID: ID!) {
     dispute(id: $disputeID) {
       id
-      createdOn
+      createdAt
       rounds {
         nbVotes
         court {

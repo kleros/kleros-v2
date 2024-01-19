@@ -73,19 +73,17 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
           const parsedRoundChoice = parseInt(winningChoice);
           const isOngoing = index === localRounds.length - 1 && currentPeriodIndex < 3;
           const roundTimeline = rounds?.[index].timeline;
-          const previousRoundEnd =
-            index > 0 ? rounds?.[index - 1].timeline?.[Periods.appeal] : votingHistory?.dispute?.createdOn;
-          console.log(previousRoundEnd, index, roundTimeline);
 
           const icon = dispute.ruled && !rulingOverride && index === localRounds.length - 1 ? ClosedCaseIcon : "";
           const answers = disputeTemplate?.answers;
           acc.push({
             title: `Jury Decision - Round ${index + 1}`,
             party: isOngoing ? "Voting is ongoing" : getVoteChoice(parsedRoundChoice, answers),
-            //previous rounds endtime (appeal end) or dispute creation time if round 1 , if not ongoing the voteEnd time
-            subtitle: `${formatDate(isOngoing ? previousRoundEnd : roundTimeline?.[Periods.vote])} / ${
-              votingHistory?.dispute?.rounds.at(index)?.court.name
-            }`,
+            subtitle: isOngoing
+              ? ""
+              : `${formatDate(roundTimeline?.[Periods.vote])} / ${
+                  votingHistory?.dispute?.rounds.at(index)?.court.name
+                }`,
             rightSided: true,
             variant: theme.secondaryPurple,
             Icon: icon !== "" ? icon : undefined,
@@ -115,7 +113,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
           {
             title: "Dispute created",
             party: "",
-            subtitle: formatDate(votingHistory?.dispute?.createdOn),
+            subtitle: formatDate(votingHistory?.dispute?.createdAt),
             rightSided: true,
             variant: theme.secondaryPurple,
           },

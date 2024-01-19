@@ -147,7 +147,7 @@ type Dispute @entity {
   id: ID!
   disputeID: BigInt!
   court: Court!
-  createdOn: BigInt
+  createdAt: BigInt
   arbitrated: Arbitrable!
   period: Period!
   ruled: Boolean!
