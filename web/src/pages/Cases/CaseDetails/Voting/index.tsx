@@ -17,6 +17,7 @@ import Classic from "./Classic";
 import VotingHistory from "./VotingHistory";
 import Skeleton from "react-loading-skeleton";
 import { useVotingContext } from "hooks/useVotingContext";
+import { useAccount } from "wagmi";
 
 const Container = styled.div`
   padding: ${responsiveSize(16, 32)};
@@ -36,6 +37,7 @@ interface IVoting {
 
 const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
   const { id } = useParams();
+  const { isDisconnected } = useAccount();
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const { data: appealCost } = useAppealCost(id);
   const { wasDrawn: userWasDrawn, hasVoted: voted, isLoading: isDrawDataLoading } = useVotingContext();
@@ -59,7 +61,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
         </>
       )}
 
-      {userWasDrawn ? null : (
+      {userWasDrawn || isDisconnected ? null : (
         <>
           {isDrawDataLoading ? (
             <Skeleton width={300} height={20} />

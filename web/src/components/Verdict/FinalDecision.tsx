@@ -88,7 +88,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const { id } = useParams();
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
-  const { wasDrawn, hasVoted, isLoading } = useVotingContext();
+  const { wasDrawn, hasVoted, isLoading, isCommitPeriod, isVotingPeriod, commited } = useVotingContext();
   const ruled = disputeDetails?.dispute?.ruled ?? false;
   const navigate = useNavigate();
   const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id ?? 0)], watch: true });
@@ -96,8 +96,13 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const answer = disputeTemplate?.answers?.[currentRuling! - 1];
   const buttonText = useMemo(() => {
     if (!wasDrawn) return "Check how the jury voted";
-    return hasVoted ? "You have voted" : "Cast you vote";
-  }, [wasDrawn, hasVoted]);
+    if (disputeDetails?.dispute?.period === "evidence") return "You were drawn";
+    if (isCommitPeriod) return commited ? "You have committed" : "Commit your vote";
+    if (isVotingPeriod && !commited) return "You failed to commit";
+    if (isVotingPeriod && !hasVoted) return "Cast your vote";
+    return hasVoted ? "You have voted" : "You failed to vote";
+  }, [wasDrawn, hasVoted, isCommitPeriod, isVotingPeriod, commited]);
+
   return (
     <Container>
       <VerdictBanner ruled={ruled} />
