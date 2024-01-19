@@ -10,6 +10,7 @@ export function createDisputeFromEvent(event: DisputeCreation): void {
   const courtID = disputeContractState.value0.toString();
   dispute.court = courtID;
   dispute.disputeID = disputeID;
+  dispute.createdOn = event.block.timestamp;
   dispute.arbitrated = event.params._arbitrable.toHexString();
   dispute.period = "evidence";
   dispute.ruled = false;
