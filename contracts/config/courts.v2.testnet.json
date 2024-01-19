@@ -2,7 +2,7 @@
   {
     "id": 1,
     "parent": 0,
-    "hiddenVotes": false,
+    "hiddenVotes": true,
     "minStake": "150000000000000000000",
     "alpha": "5000",
     "feeForJuror": "10000000000000",
