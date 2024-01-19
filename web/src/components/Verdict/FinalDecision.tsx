@@ -11,6 +11,7 @@ import VerdictBanner from "./VerdictBanner";
 import { responsiveSize } from "styles/responsiveSize";
 import { useVotingContext } from "hooks/useVotingContext";
 import Skeleton from "react-loading-skeleton";
+import { useAccount } from "wagmi";
 
 const Container = styled.div`
   width: 100%;
@@ -86,6 +87,7 @@ interface IFinalDecision {
 
 const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const { id } = useParams();
+  const { isDisconnected } = useAccount();
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const { wasDrawn, hasVoted, isLoading, isCommitPeriod, isVotingPeriod, commited } = useVotingContext();
@@ -95,7 +97,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const currentRuling = Number(currentRulingArray?.[0]);
   const answer = disputeTemplate?.answers?.[currentRuling! - 1];
   const buttonText = useMemo(() => {
-    if (!wasDrawn) return "Check how the jury voted";
+    if (!wasDrawn || isDisconnected) return "Check how the jury voted";
     if (disputeDetails?.dispute?.period === "evidence") return "You were drawn";
     if (isCommitPeriod) return commited ? "You have committed" : "Commit your vote";
     if (isVotingPeriod && !commited) return "You failed to commit";
@@ -135,7 +137,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
           <Divider />
         </>
       )}
-      {isLoading ? (
+      {isLoading && !isDisconnected ? (
         <Skeleton width={250} height={20} />
       ) : (
         <StyledButton
