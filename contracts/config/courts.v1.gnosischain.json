@@ -1,7 +1,7 @@
 [
   {
     "id": 0,
-    "parent": "0",
+    "parent": 0,
     "hiddenVotes": true,
     "minStake": "1600000000000000000000",
     "alpha": "10000",
@@ -16,7 +16,7 @@
   },
   {
     "id": 1,
-    "parent": "0",
+    "parent": 0,
     "hiddenVotes": false,
     "minStake": "1600000000000000000000",
     "alpha": "5000",
@@ -31,7 +31,7 @@
   },
   {
     "id": 2,
-    "parent": "0",
+    "parent": 0,
     "hiddenVotes": false,
     "minStake": "5800000000000000000000",
     "alpha": "5000",
@@ -46,7 +46,7 @@
   },
   {
     "id": 3,
-    "parent": "2",
+    "parent": 2,
     "hiddenVotes": false,
     "minStake": "5800000000000000000000",
     "alpha": "1800",
@@ -61,7 +61,7 @@
   },
   {
     "id": 4,
-    "parent": "2",
+    "parent": 2,
     "hiddenVotes": false,
     "minStake": "5800000000000000000000",
     "alpha": "1800",
@@ -76,7 +76,7 @@
   },
   {
     "id": 5,
-    "parent": "2",
+    "parent": 2,
     "hiddenVotes": false,
     "minStake": "5800000000000000000000",
     "alpha": "1800",
@@ -91,7 +91,7 @@
   },
   {
     "id": 6,
-    "parent": "2",
+    "parent": 2,
     "hiddenVotes": false,
     "minStake": "5800000000000000000000",
     "alpha": "2200",
@@ -106,7 +106,7 @@
   },
   {
     "id": 7,
-    "parent": "2",
+    "parent": 2,
     "hiddenVotes": false,
     "minStake": "5800000000000000000000",
     "alpha": "2200",
@@ -121,7 +121,7 @@
   },
   {
     "id": 8,
-    "parent": "2",
+    "parent": 2,
     "hiddenVotes": false,
     "minStake": "5800000000000000000000",
     "alpha": "2800",
@@ -136,7 +136,7 @@
   },
   {
     "id": 9,
-    "parent": "2",
+    "parent": 2,
     "hiddenVotes": false,
     "minStake": "5800000000000000000000",
     "alpha": "2800",
@@ -151,7 +151,7 @@
   },
   {
     "id": 10,
-    "parent": "2",
+    "parent": 2,
     "hiddenVotes": false,
     "minStake": "5800000000000000000000",
     "alpha": "2800",
@@ -166,7 +166,7 @@
   },
   {
     "id": 11,
-    "parent": "2",
+    "parent": 2,
     "hiddenVotes": false,
     "minStake": "5800000000000000000000",
     "alpha": "2800",
@@ -181,7 +181,7 @@
   },
   {
     "id": 12,
-    "parent": "0",
+    "parent": 0,
     "hiddenVotes": false,
     "minStake": "7400000000000000000000",
     "alpha": "5000",
@@ -196,7 +196,7 @@
   },
   {
     "id": 13,
-    "parent": "12",
+    "parent": 12,
     "hiddenVotes": false,
     "minStake": "7400000000000000000000",
     "alpha": "5000",
@@ -211,7 +211,7 @@
   },
   {
     "id": 14,
-    "parent": "12",
+    "parent": 12,
     "hiddenVotes": false,
     "minStake": "7400000000000000000000",
     "alpha": "5000",
@@ -226,7 +226,7 @@
   },
   {
     "id": 15,
-    "parent": "0",
+    "parent": 0,
     "hiddenVotes": true,
     "minStake": "3300000000000000000000",
     "alpha": "5000",
@@ -241,7 +241,7 @@
   },
   {
     "id": 16,
-    "parent": "15",
+    "parent": 15,
     "hiddenVotes": false,
     "minStake": "3300000000000000000000",
     "alpha": "2400",
@@ -256,7 +256,7 @@
   },
   {
     "id": 17,
-    "parent": "15",
+    "parent": 15,
     "hiddenVotes": false,
     "minStake": "3300000000000000000000",
     "alpha": "4250",

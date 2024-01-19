@@ -8,6 +8,12 @@ const drawQuery = graphql(`
   query Draw($address: String, $disputeID: String, $roundID: String) {
     draws(first: 1000, where: { dispute: $disputeID, juror: $address, round: $roundID }) {
       voteIDNum
+      vote {
+        ... on ClassicVote {
+          commit
+          commited
+        }
+      }
     }
   }
 `);

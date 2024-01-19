@@ -4,6 +4,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { useAccount, useNetwork, useEnsAvatar, useEnsName } from "wagmi";
 import Identicon from "react-identicons";
 import { shortenAddress } from "utils/shortenAddress";
+import { isAddress } from "viem";
 
 const Container = styled.div`
   display: flex;
@@ -134,7 +135,7 @@ export const AddressOrName: React.FC<IAddressOrName> = ({ address: propAddress }
     chainId: 1,
   });
 
-  return <label>{data ?? (address && shortenAddress(address))}</label>;
+  return <label>{data ?? (isAddress(address) ? shortenAddress(address) : address)}</label>;
 };
 
 export const ChainDisplay: React.FC = () => {

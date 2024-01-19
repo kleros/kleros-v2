@@ -47,7 +47,7 @@ async function main() {
       (result) =>
         ({
           id: courtId,
-          parent: result.parent.toString(),
+          parent: result.parent.toNumber(),
           hiddenVotes: result.hiddenVotes,
           minStake: result.minStake.toString(),
           alpha: result.alpha.toString(),

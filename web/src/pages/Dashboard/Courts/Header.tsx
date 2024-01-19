@@ -45,11 +45,11 @@ const StyledLockerIcon = styled(LockerIcon)`
 `;
 
 interface IHeader {
-  lockedStake: string;
+  lockedStake: bigint;
 }
 
 const Header: React.FC<IHeader> = ({ lockedStake }) => {
-  const formattedLockedStake = !isUndefined(lockedStake) && formatUnits(lockedStake, 18);
+  const formattedLockedStake = !isUndefined(lockedStake) && parseFloat(formatUnits(lockedStake, 18)).toFixed(2);
 
   return (
     <Container>

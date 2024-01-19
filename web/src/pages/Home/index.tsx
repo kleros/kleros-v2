@@ -3,7 +3,7 @@ import styled from "styled-components";
 import LatestCases from "components/LatestCases";
 import CourtOverview from "./CourtOverview";
 import Community from "./Community";
-import HeroImage from "./HeroImage";
+import HeroImage from "components/HeroImage";
 import { HomePageProvider } from "hooks/useHomePageContext";
 import { getOneYearAgoTimestamp } from "utils/date";
 import TopJurors from "./TopJurors";

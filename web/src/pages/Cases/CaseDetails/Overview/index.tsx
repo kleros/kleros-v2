@@ -11,8 +11,8 @@ import DisputeInfo from "components/DisputeCard/DisputeInfo";
 import Verdict from "components/Verdict/index";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
 import { getLocalRounds } from "utils/getLocalRounds";
-import { DisputeContext } from "./DisputeContext";
-import { Policies } from "./Policies";
+import { DisputeContext } from "components/DisputePreview/DisputeContext";
+import { Policies } from "components/DisputePreview/Policies";
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`

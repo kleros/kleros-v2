@@ -38,11 +38,12 @@ interface IProduct {
   text: string;
   url: string;
   Icon: React.FC<React.SVGAttributes<SVGElement>> | string;
+  isNewTab?: boolean;
 }
 
-const Product: React.FC<IProduct> = ({ text, url, Icon }) => {
+const Product: React.FC<IProduct> = ({ text, url, Icon, isNewTab = true }) => {
   return (
-    <Container href={url} target="_blank">
+    <Container href={url} target={isNewTab ? "_blank" : "_self"}>
       {typeof Icon === "string" ? <StyledImg alt={Icon} src={Icon} /> : <StyledIcon as={Icon} />}
       <small>{text}</small>
     </Container>

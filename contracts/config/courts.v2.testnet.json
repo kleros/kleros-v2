@@ -1,47 +1,47 @@
 [
   {
     "id": 1,
-    "parent": "0",
+    "parent": 0,
     "hiddenVotes": false,
     "minStake": "150000000000000000000",
     "alpha": "5000",
     "feeForJuror": "10000000000000",
     "jurorsForCourtJump": "511",
     "timesPerPeriod": [
-      28800,
-      28800,
-      28800,
-      28800
+      43200,
+      43200,
+      43200,
+      43200
     ]
   },
   {
     "id": 2,
-    "parent": "1",
+    "parent": 1,
     "hiddenVotes": false,
     "minStake": "200000000000000000000",
     "alpha": "3100",
     "feeForJuror": "10000000000000",
     "jurorsForCourtJump": "30",
     "timesPerPeriod": [
-      28800,
-      28800,
-      28800,
-      28800
+      43200,
+      43200,
+      43200,
+      43200
     ]
   },
   {
     "id": 3,
-    "parent": "1",
+    "parent": 1,
     "hiddenVotes": false,
     "minStake": "200000000000000000000",
     "alpha": "5000",
     "feeForJuror": "10000000000000",
     "jurorsForCourtJump": "63",
     "timesPerPeriod": [
-      28800,
-      28800,
-      28800,
-      28800
+      43200,
+      43200,
+      43200,
+      43200
     ]
   }
 ]

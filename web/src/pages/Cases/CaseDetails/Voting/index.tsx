@@ -1,49 +1,39 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
+import { responsiveSize } from "styles/responsiveSize";
+import VoteIcon from "assets/svgs/icons/voted.svg";
+import { Periods } from "consts/periods";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
+import { useDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "queries/useDrawQuery";
 import { useAppealCost } from "queries/useAppealCost";
-import Classic from "./Classic";
-import VotingHistory from "./VotingHistory";
-import Popup, { PopupType } from "components/Popup";
-import { Periods } from "consts/periods";
 import { isUndefined } from "utils/index";
 import { isLastRound } from "utils/isLastRound";
+import { formatDate } from "utils/date";
+import Popup, { PopupType } from "components/Popup";
 import { getPeriodEndTimestamp } from "components/DisputeCard";
-import { useDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
-import VoteIcon from "assets/svgs/icons/voted.svg";
-import InfoCircle from "tsx:svgs/icons/info-circle.svg";
-import { responsiveSize } from "styles/responsiveSize";
+import InfoCard from "components/InfoCard";
+import Classic from "./Classic";
+import VotingHistory from "./VotingHistory";
+import Skeleton from "react-loading-skeleton";
 
 const Container = styled.div`
   padding: ${responsiveSize(16, 32)};
 `;
 
-const InfoContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  color: ${({ theme }) => theme.secondaryText};
-  align-items: center;
-  gap: ${responsiveSize(4, 8, 300)};
-
-  svg {
-    min-width: 16px;
-    min-height: 16px;
-  }
-`;
-
-function formatDate(unixTimestamp: number): string {
-  const date = new Date(unixTimestamp * 1000);
-  const options: Intl.DateTimeFormatOptions = { month: "long", day: "2-digit", year: "numeric" };
-  return date.toLocaleDateString("en-US", options);
-}
+const useFinalDate = (lastPeriodChange: string, currentPeriodIndex?: number, timesPerPeriod?: string[]) =>
+  useMemo(() => {
+    if (!isUndefined(currentPeriodIndex) && !isUndefined(timesPerPeriod))
+      return getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
+    else return undefined;
+  }, [lastPeriodChange, currentPeriodIndex, timesPerPeriod]);
 
 interface IVoting {
   arbitrable?: `0x${string}`;
-  currentPeriodIndex?: number;
+  currentPeriodIndex: number;
 }
 
 const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
@@ -51,7 +41,11 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
   const { id } = useParams();
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const { data: appealCost } = useAppealCost(id);
-  const { data: drawData } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
+  const { data: drawData, isLoading: isDrawDataLoading } = useDrawQuery(
+    address?.toLowerCase(),
+    id,
+    disputeData?.dispute?.currentRound.id
+  );
   const roundId = disputeData?.dispute?.currentRoundIndex;
   const voteId = drawData?.draws?.[0]?.voteIDNum;
   const { data: voted } = useDisputeKitClassicIsVoteActive({
@@ -63,29 +57,31 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
   useLockOverlayScroll(isPopupOpen);
   const lastPeriodChange = disputeData?.dispute?.lastPeriodChange;
   const timesPerPeriod = disputeData?.dispute?.court?.timesPerPeriod;
-  const finalDate =
-    !isUndefined(currentPeriodIndex) &&
-    !isUndefined(timesPerPeriod) &&
-    getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
+  const finalDate = useFinalDate(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
+
+  const userWasDrawn = useMemo(() => !isUndefined(drawData) && drawData.draws.length > 0, [drawData]);
+  const isCommitOrVotePeriod = useMemo(
+    () => [Periods.vote, Periods.commit].includes(currentPeriodIndex),
+    [currentPeriodIndex]
+  );
 
   return (
     <Container>
-      {!isUndefined(appealCost) && isLastRound(appealCost) && (
+      {isLastRound(appealCost) && (
         <>
-          <InfoContainer>
-            <InfoCircle />
-            This dispute is on its last round. Vote wisely, It cannot be appealed any further.
-          </InfoContainer>
-          <br></br>
+          <InfoCard msg="This dispute is on its last round. Vote wisely, It cannot be appealed any further." />
+          <br />
         </>
       )}
-      {drawData?.draws.length === 0 && (
+
+      {userWasDrawn ? null : (
         <>
-          <InfoContainer>
-            <InfoCircle />
-            You were not drawn in current round.
-          </InfoContainer>
-          <br></br>
+          {isDrawDataLoading ? (
+            <Skeleton width={300} height={20} />
+          ) : (
+            <InfoCard msg="You were not drawn in current round." />
+          )}
+          <br />
         </>
       )}
 
@@ -93,24 +89,20 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
         <Popup
           title="Thanks for Voting"
           icon={VoteIcon}
-          popupType={disputeData?.court?.hiddenVotes ? PopupType.VOTE_WITH_COMMIT : PopupType.VOTE_WITHOUT_COMMIT}
+          popupType={
+            disputeData?.dispute?.court?.hiddenVotes && currentPeriodIndex === Periods.commit
+              ? PopupType.VOTE_WITH_COMMIT
+              : PopupType.VOTE_WITHOUT_COMMIT
+          }
           date={finalDate ? formatDate(finalDate) : ""}
           isCommit={false}
           setIsOpen={setIsPopupOpen}
         />
       )}
-      {drawData &&
-      !isUndefined(arbitrable) &&
-      currentPeriodIndex === Periods.vote &&
-      drawData.draws?.length > 0 &&
-      !voted ? (
+      {userWasDrawn && isCommitOrVotePeriod && !voted ? (
         <>
           <VotingHistory {...{ arbitrable }} isQuestion={false} />
-          <Classic
-            {...{ arbitrable }}
-            setIsOpen={setIsPopupOpen}
-            voteIDs={drawData.draws.map((draw) => draw.voteIDNum)}
-          />
+          <Classic arbitrable={arbitrable ?? "0x0"} setIsOpen={setIsPopupOpen} />
         </>
       ) : (
         <VotingHistory {...{ arbitrable }} isQuestion={true} />

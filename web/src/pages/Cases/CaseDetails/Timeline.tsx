@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { Periods } from "consts/periods";
@@ -6,6 +6,7 @@ import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { Box, Steps } from "@kleros/ui-components-library";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import { useCountdown } from "hooks/useCountdown";
+import useIsDesktop from "hooks/useIsDesktop";
 import { secondsToDayHourMinute } from "utils/date";
 import { responsiveSize } from "styles/responsiveSize";
 
@@ -34,29 +35,11 @@ const StyledSteps = styled(Steps)`
   margin: auto;
 `;
 
-const TitleMobile = styled.span`
-  ${landscapeStyle(
-    () => css`
-      display: none;
-    `
-  )}
-`;
-
-const TitleDesktop = styled(TitleMobile)`
-  display: none;
-
-  ${landscapeStyle(
-    () => css`
-      display: inline-block;
-    `
-  )}
-`;
-
 const Timeline: React.FC<{
   dispute: DisputeDetailsQuery["dispute"];
   currentPeriodIndex: number;
 }> = ({ currentPeriodIndex, dispute }) => {
-  const currentItemIndex = currentPeriodToCurrentItem(currentPeriodIndex, dispute?.ruled);
+  const currentItemIndex = currentPeriodToCurrentItem(currentPeriodIndex, dispute?.court.hiddenVotes);
   const items = useTimeline(dispute, currentItemIndex, currentItemIndex);
   return (
     <TimeLineContainer>
@@ -65,19 +48,21 @@ const Timeline: React.FC<{
   );
 };
 
-const currentPeriodToCurrentItem = (currentPeriodIndex: number, ruled?: boolean): number => {
+const currentPeriodToCurrentItem = (currentPeriodIndex: number, hiddenVotes?: boolean): number => {
+  if (hiddenVotes) return currentPeriodIndex;
   if (currentPeriodIndex <= Periods.commit) return currentPeriodIndex;
-  else if (currentPeriodIndex < Periods.execution) return currentPeriodIndex - 1;
-  else return ruled ? 5 : currentPeriodIndex - 1;
+  else return currentPeriodIndex - 1;
 };
 
 const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: number, currentPeriodIndex: number) => {
-  const titles = [
-    { mobile: "Evidence", desktop: "Evidence Period" },
-    { mobile: "Voting", desktop: "Voting Period" },
-    { mobile: "Appeal", desktop: "Appeal Period" },
-    { mobile: "Executed", desktop: "Executed" },
-  ];
+  const isDesktop = useIsDesktop();
+  const titles = useMemo(() => {
+    const titles = ["Evidence", "Voting", "Appeal", "Executed"];
+    if (dispute?.court.hiddenVotes) {
+      titles.splice(1, 0, "Commit");
+    }
+    return titles;
+  }, [dispute]);
   const deadlineCurrentPeriod = getDeadline(
     currentPeriodIndex,
     dispute?.lastPeriodChange,
@@ -86,12 +71,12 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: 
   const countdown = useCountdown(deadlineCurrentPeriod);
   const getSubitems = (index: number): string[] | React.ReactNode[] => {
     if (typeof countdown !== "undefined" && dispute) {
-      if (index === currentItemIndex && countdown === 0) {
+      if (index === titles.length - 1) {
+        return [];
+      } else if (index === currentItemIndex && countdown === 0) {
         return ["Time's up!"];
       } else if (index < currentItemIndex) {
         return [];
-      } else if (index === 3) {
-        return currentItemIndex === 3 ? ["Pending"] : [];
       } else if (index === currentItemIndex) {
         return [secondsToDayHourMinute(countdown)];
       } else {
@@ -101,12 +86,7 @@ const useTimeline = (dispute: DisputeDetailsQuery["dispute"], currentItemIndex: 
     return [<StyledSkeleton key={index} width={60} />];
   };
   return titles.map((title, i) => ({
-    title: (
-      <>
-        <TitleMobile>{title.mobile}</TitleMobile>
-        <TitleDesktop>{title.desktop}</TitleDesktop>
-      </>
-    ),
+    title: i + 1 < titles.length && isDesktop ? `${title} Period` : title,
     subitems: getSubitems(i),
   }));
 };
