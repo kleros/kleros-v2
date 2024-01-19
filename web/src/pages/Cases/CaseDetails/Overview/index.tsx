@@ -5,7 +5,6 @@ import { formatEther } from "viem";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useCourtPolicy } from "queries/useCourtPolicy";
-import { Periods } from "consts/periods";
 
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 import Verdict from "components/Verdict/index";
