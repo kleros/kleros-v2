@@ -1,13 +1,10 @@
 import { CustomAccordion } from "@kleros/ui-components-library";
 import React from "react";
 import styled from "styled-components";
-import { responsiveSize } from "styles/responsiveSize";
 import { Answer } from "context/NewDisputeContext";
-import { isUndefined } from "utils/index";
-import { shortenAddress } from "utils/shortenAddress";
 import { DrawnJuror } from "utils/getDrawnJurorsWithCount";
-import Identicon from "react-identicons";
 import InfoCard from "components/InfoCard";
+import AccordionTitle from "./AccordionTitle";
 
 const StyledAccordion = styled(CustomAccordion)`
   width: 100%;
@@ -30,57 +27,16 @@ const JustificationContainer = styled.div`
     margin: 0px;
   }
 `;
-const TitleContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${responsiveSize(8, 12)};
-  flex-wrap: wrap;
-`;
 
-const StyledLabel = styled.label<{ variant?: string }>`
-  color: ${({ theme, variant }) => (variant ? theme[variant] : theme.primaryText)};
+const StyledLabel = styled.label`
+  color: ${({ theme }) => theme.primaryText};
 `;
-
-const AccordionTitle: React.FC<{
-  juror: string;
-  choice?: string;
-  voteCount: number;
-  period: string;
-  answers: Answer[];
-  isActiveRound: boolean;
-}> = ({ juror, choice, voteCount, period, answers, isActiveRound }) => {
-  const VoteStatus = () => {
-    if (isUndefined(choice) && (isActiveRound ? ["appeal", "execution"].includes(period) : true))
-      return <StyledLabel>Forgot to vote</StyledLabel>;
-    return (
-      <StyledLabel>
-        {isUndefined(choice) ? (
-          "Pending Vote"
-        ) : (
-          <>
-            Voted : <small>{getVoteChoice(parseInt(choice), answers)}</small>
-          </>
-        )}
-      </StyledLabel>
-    );
-  };
-  return (
-    <TitleContainer>
-      <Identicon size="20" string={juror} />
-      <StyledLabel variant="secondaryText">{shortenAddress(juror)}</StyledLabel>
-      <VoteStatus />
-      <StyledLabel variant="secondaryPurple">
-        {voteCount} vote{voteCount > 1 && "s"}
-      </StyledLabel>
-    </TitleContainer>
-  );
-};
 
 const AccordionContent: React.FC<{
   justification: string;
 }> = ({ justification }) => (
   <JustificationContainer>
-    <label>Justification:</label>
+    <StyledLabel>Justification:</StyledLabel>
     <p>{justification}</p>
   </JustificationContainer>
 );
@@ -119,16 +75,6 @@ const VotesAccordion: React.FC<VotesAccordion> = ({ drawnJurors, period, answers
       <InfoCard msg="Jurors have not been drawn yet." />
     </>
   );
-};
-export const getVoteChoice = (vote: number, answers: { title: string }[]) => {
-  const selectedAnswer = answers?.[vote - 1]?.title;
-  if (vote === 0) {
-    return "Refuse to arbitrate";
-  } else if (!isUndefined(selectedAnswer)) {
-    return selectedAnswer;
-  } else {
-    return `Answer 0x${vote}`;
-  }
 };
 
 export default VotesAccordion;

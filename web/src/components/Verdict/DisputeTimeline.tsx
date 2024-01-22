@@ -10,9 +10,9 @@ import { ClassicRound } from "src/graphql/graphql";
 import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useVotingHistory } from "queries/useVotingHistory";
-import { getVoteChoice } from "pages/Cases/CaseDetails/Voting/VotesAccordion";
 import { getLocalRounds } from "utils/getLocalRounds";
 import { responsiveSize } from "styles/responsiveSize";
+import { getVoteChoice } from "utils/getVoteChoice";
 
 const Container = styled.div`
   display: flex;

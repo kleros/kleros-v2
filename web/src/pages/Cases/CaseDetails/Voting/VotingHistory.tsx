@@ -9,7 +9,7 @@ import { getLocalRounds } from "utils/getLocalRounds";
 import PendingVotesBox from "./PendingVotesBox";
 import { getDrawnJurorsWithCount } from "utils/getDrawnJurorsWithCount";
 import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
-import VotesAccordion from "./VotesAccordion";
+import VotesAccordion from "./VotesDetails";
 import Skeleton from "react-loading-skeleton";
 
 const Container = styled.div``;
