@@ -47,9 +47,10 @@ const AccordionTitle: React.FC<{
   voteCount: number;
   period: string;
   answers: Answer[];
-}> = ({ juror, choice, voteCount, period, answers }) => {
+  isActiveRound: boolean;
+}> = ({ juror, choice, voteCount, period, answers, isActiveRound }) => {
   const VoteStatus = () => {
-    if (isUndefined(choice) && ["appeal", "execution"].includes(period))
+    if (isUndefined(choice) && (isActiveRound ? ["appeal", "execution"].includes(period) : true))
       return <StyledLabel>Forgot to vote</StyledLabel>;
     return (
       <StyledLabel>
@@ -88,9 +89,10 @@ interface VotesAccordion {
   drawnJurors: DrawnJuror[];
   period: string;
   answers: Answer[];
+  isActiveRound: boolean;
 }
 
-const VotesAccordion: React.FC<VotesAccordion> = ({ drawnJurors, period, answers }) => {
+const VotesAccordion: React.FC<VotesAccordion> = ({ drawnJurors, period, answers, isActiveRound }) => {
   return drawnJurors.length ? (
     <StyledAccordion
       items={
@@ -102,6 +104,7 @@ const VotesAccordion: React.FC<VotesAccordion> = ({ drawnJurors, period, answers
               choice={drawnJuror.vote?.justification?.choice}
               period={period}
               answers={answers}
+              isActiveRound={isActiveRound}
             />
           ),
           body: drawnJuror.vote?.justification?.choice ? (

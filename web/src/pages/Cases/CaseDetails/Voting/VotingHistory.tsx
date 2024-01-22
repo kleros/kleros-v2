@@ -60,7 +60,12 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
             total={rounds.at(currentTab)?.nbVotes}
             court={rounds.at(currentTab)?.court.name ?? ""}
           />
-          <VotesAccordion drawnJurors={drawnJurors} period={disputeData?.dispute?.period} answers={answers} />
+          <VotesAccordion
+            drawnJurors={drawnJurors}
+            period={disputeData?.dispute?.period}
+            answers={answers}
+            isActiveRound={localRounds?.length - 1 === currentTab}
+          />
         </>
       ) : (
         <Skeleton height={140} />
