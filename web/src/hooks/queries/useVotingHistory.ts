@@ -14,20 +14,25 @@ const votingHistoryQuery = graphql(`
           id
           name
         }
+        drawnJurors {
+          juror {
+            id
+          }
+          vote {
+            ... on ClassicVote {
+              justification {
+                choice
+                reference
+              }
+            }
+          }
+        }
       }
       disputeKitDispute {
         localRounds {
           ... on ClassicRound {
             winningChoice
             totalVoted
-            justifications {
-              id
-              juror {
-                id
-              }
-              choice
-              reference
-            }
           }
         }
       }
