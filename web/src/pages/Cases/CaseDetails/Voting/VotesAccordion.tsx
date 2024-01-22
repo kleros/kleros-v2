@@ -7,6 +7,7 @@ import { isUndefined } from "utils/index";
 import { shortenAddress } from "utils/shortenAddress";
 import { DrawnJuror } from "utils/getDrawnJurorsWithCount";
 import Identicon from "react-identicons";
+import InfoCard from "components/InfoCard";
 
 const StyledAccordion = styled(CustomAccordion)`
   width: 100%;
@@ -90,7 +91,7 @@ interface VotesAccordion {
 }
 
 const VotesAccordion: React.FC<VotesAccordion> = ({ drawnJurors, period, answers }) => {
-  return (
+  return drawnJurors.length ? (
     <StyledAccordion
       items={
         drawnJurors?.map((drawnJuror) => ({
@@ -109,6 +110,11 @@ const VotesAccordion: React.FC<VotesAccordion> = ({ drawnJurors, period, answers
         })) ?? []
       }
     />
+  ) : (
+    <>
+      <br />
+      <InfoCard msg="Jurors have not been drawn yet." />
+    </>
   );
 };
 export const getVoteChoice = (vote: number, answers: { title: string }[]) => {
