@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
@@ -28,6 +28,9 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
   const rounds = votingHistory?.dispute?.rounds;
 
   const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
+  //set current tab to latest round
+  useEffect(() => setCurrentTab((rounds?.length && rounds?.length - 1) ?? 0), [rounds]);
+
   const answers = disputeTemplate?.answers;
   const drawnJurors = useMemo(
     () => getDrawnJurorsWithCount(votingHistory?.dispute?.rounds.at(currentTab)?.drawnJurors ?? []),
