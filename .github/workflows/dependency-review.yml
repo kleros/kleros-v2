@@ -30,7 +30,7 @@ jobs:
             acghubeus1.actions.githubusercontent.com:443
 
       - name: 'Checkout Repository'
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: 'Dependency Review'
         uses: actions/dependency-review-action@f6fff72a3217f580d5afd49a46826795305b63c7 # v3.0.8

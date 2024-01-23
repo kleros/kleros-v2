@@ -44,7 +44,7 @@ jobs:
       with:
         node-version: 18.x   
         
-    - uses: actions/checkout@7739b9ba2efcda9dde65ad1e3c2dbe65b41dfba7
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
     
     - name: Cache node modules
       uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84
