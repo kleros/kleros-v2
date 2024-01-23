@@ -42,19 +42,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     args: [klerosCore.address, disputeTemplateRegistry.address],
     log: true,
   });
-
-  await deploy("Escrow", {
-    from: deployer,
-    args: [
-      klerosCore.address,
-      extraData,
-      disputeTemplate, // TODO: use an Escrow-specific dispute template
-      "disputeTemplateMapping: TODO",
-      disputeTemplateRegistry.address,
-      600, // feeTimeout: 10 minutes
-    ],
-    log: true,
-  });
 };
 
 deployArbitration.tags = ["HomeArbitrable"];

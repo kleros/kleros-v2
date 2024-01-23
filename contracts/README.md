@@ -57,7 +57,6 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [DisputeKitClassic: proxy](https://sepolia.arbiscan.io/address/0x9426F127116C3652A262AE1eA48391AC8F44D35b), [implementation](https://sepolia.arbiscan.io/address/0x692CC78F2570181FFB99297965FeAA8352ab12E8)
 - [DisputeResolver](https://sepolia.arbiscan.io/address/0xB8B36CC43f852f9F0484f53Eb38CaBBA28a81bF6)
 - [DisputeTemplateRegistry: proxy](https://sepolia.arbiscan.io/address/0x596D3B09E684D62217682216e9b7a0De75933391), [implementation](https://sepolia.arbiscan.io/address/0xc53b813ed94AaEb6F5518D60bf6a8109954bE3f6)
-- [Escrow](https://sepolia.arbiscan.io/address/0x10f7A6f42Af606553883415bc8862643A6e63fdA)
 - [EvidenceModule: proxy](https://sepolia.arbiscan.io/address/0x57fd453FB0d16f8ca174E7386102D7170E17Be09), [implementation](https://sepolia.arbiscan.io/address/0x05AD81f245209b7f91885fd96e57c9da90554824)
 - [KlerosCore: proxy](https://sepolia.arbiscan.io/address/0xA54e7A16d7460e38a8F324eF46782FB520d58CE8), [implementation](https://sepolia.arbiscan.io/address/0x91a373BBdE0532F86410682F362e2Cf685e95085)
 - [PNKFaucet](https://sepolia.arbiscan.io/address/0x7EFE468003Ad6A858b5350CDE0A67bBED58739dD)
