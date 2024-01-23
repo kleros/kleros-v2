@@ -90,7 +90,7 @@
     "pino-pretty": "^10.3.1",
     "shelljs": "^0.8.5",
     "solhint-plugin-prettier": "^0.1.0",
-    "solidity-coverage": "0.8.5",
+    "solidity-coverage": "0.8.2",
     "ts-node": "^10.9.2",
     "typechain": "^8.3.2",
     "typescript": "^5.3.3"
