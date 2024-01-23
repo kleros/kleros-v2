@@ -4437,9 +4437,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-cli@npm:0.64.0":
-  version: 0.64.0
-  resolution: "@graphprotocol/graph-cli@npm:0.64.0"
+"@graphprotocol/graph-cli@npm:0.64.1":
+  version: 0.64.1
+  resolution: "@graphprotocol/graph-cli@npm:0.64.1"
   dependencies:
     "@float-capital/float-subgraph-uncrashable": ^0.0.0-alpha.4
     "@oclif/core": 2.8.6
@@ -4461,7 +4461,7 @@ __metadata:
     ipfs-http-client: 55.0.0
     jayson: 4.0.0
     js-yaml: 3.14.1
-    prettier: 1.19.1
+    prettier: 3.0.3
     request: 2.88.2
     semver: 7.4.0
     sync-request: 6.1.0
@@ -4471,7 +4471,7 @@ __metadata:
     yaml: 1.10.2
   bin:
     graph: bin/run
-  checksum: f4abd1fac20e235e4d8e459ce3495fe4910064fc6d53e725dacb67d8814c95ce0eb38c8f8ec6b92db33b371ae5f59ebda86164bd437b48a82bee3729c030bcc0
+  checksum: cb390037538cf79576a13673b6848930fd01bd0c5ac521092f7425caafb37b051cf86e6bb3b92457b632c5933aa19b27eb93740fe3fd895b8050c9b575329600
   languageName: node
   linkType: hard
 
@@ -5717,7 +5717,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-subgraph@workspace:subgraph"
   dependencies:
-    "@graphprotocol/graph-cli": 0.64.0
+    "@graphprotocol/graph-cli": 0.64.1
     "@graphprotocol/graph-ts": ^0.32.0
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
@@ -28265,12 +28265,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:1.19.1":
-  version: 1.19.1
-  resolution: "prettier@npm:1.19.1"
+"prettier@npm:3.0.3":
+  version: 3.0.3
+  resolution: "prettier@npm:3.0.3"
   bin:
-    prettier: ./bin-prettier.js
-  checksum: bc78219e0f8173a808f4c6c8e0a137dd8ebd4fbe013e63fe1a37a82b48612f17b8ae8e18a992adf802ee2cf7428f14f084e7c2846ca5759cf4013c6e54810e1f
+    prettier: bin/prettier.cjs
+  checksum: e10b9af02b281f6c617362ebd2571b1d7fc9fb8a3bd17e371754428cda992e5e8d8b7a046e8f7d3e2da1dcd21aa001e2e3c797402ebb6111b5cd19609dd228e0
   languageName: node
   linkType: hard
 

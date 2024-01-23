@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { useLoserSideCountdownContext } from "hooks/useClassicAppealContext";
+import { useCountdownContext } from "hooks/useClassicAppealContext";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import StageOne from "./StageOne";
 import StageTwo from "./StageTwo";
@@ -15,7 +15,7 @@ interface IOptions {
 }
 
 const Options: React.FC<IOptions> = ({ setAmount }) => {
-  const loserSideCountdown = useLoserSideCountdownContext();
+  const { loserSideCountdown } = useCountdownContext();
   return !isUndefined(loserSideCountdown) ? (
     <Container>
       {loserSideCountdown > 0 ? <StageOne setAmount={setAmount} /> : <StageTwo setAmount={setAmount} />}

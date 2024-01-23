@@ -71,7 +71,7 @@ const ListTitle = styled.div`
   height: 100%;
   justify-content: start;
   align-items: center;
-  width: calc(30vw + (40 - 30) * (min(max(100vw, 300px), 1250px)- 300px) / 950);
+  width: ${responsiveSize(240, 300, 900)};
 `;
 
 export const getPeriodEndTimestamp = (
@@ -122,7 +122,14 @@ const DisputeCard: React.FC<IDisputeCard> = ({ id, arbitrated, period, lastPerio
         <StyledCard hover onClick={() => navigate(`/cases/${id.toString()}`)}>
           <PeriodBanner id={parseInt(id)} period={currentPeriodIndex} />
           <CardContainer>
-            <h3>{title}</h3>
+            {isUndefined(disputeTemplate) ? (
+              <StyledSkeleton />
+            ) : (
+              <TruncatedTitle
+                text={disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"}
+                maxLength={100}
+              />
+            )}
             <DisputeInfo
               courtId={court?.id}
               court={courtName}

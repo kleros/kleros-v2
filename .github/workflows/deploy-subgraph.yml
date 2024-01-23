@@ -84,5 +84,16 @@ jobs:
         working-directory: subgraph
 
       - name: Deploy the subgraph
-        run: yarn deploy:${{ inputs.subgraph }}:${{ vars.NETWORK }}
+        run: |
+          # working around a graph bug which doesn't exit 1 on error: https://github.com/graphprotocol/graph-tooling/issues/1570
+          error=$(yarn deploy:${{ inputs.subgraph }}:${{ vars.NETWORK }})
+          echo "$error"
+          if [[ $error == *"Error"* ]]
+          then
+            echo "exiting..."
+            exit 1 
+          else
+            echo "deployed successfully"
+            exit 0
+          fi
         working-directory: subgraph

@@ -11,6 +11,7 @@ import Tabs from "./Tabs";
 import Timeline from "./Timeline";
 import Voting from "./Voting";
 import { responsiveSize } from "styles/responsiveSize";
+import { VotingContextProvider } from "hooks/useVotingContext";
 
 const Container = styled.div``;
 
@@ -32,25 +33,27 @@ const CaseDetails: React.FC = () => {
   const arbitrable = dispute?.arbitrated.id as `0x${string}`;
 
   return (
-    <Container>
-      <Header>Case #{id}</Header>
-      <Tabs />
-      <Timeline {...{ currentPeriodIndex, dispute }} />
-      <StyledCard>
-        <Routes>
-          <Route
-            path="overview"
-            element={
-              <Overview currentPeriodIndex={currentPeriodIndex} courtID={dispute?.court.id} {...{ arbitrable }} />
-            }
-          />
-          <Route path="evidence" element={<Evidence {...{ arbitrable }} />} />
-          <Route path="voting" element={<Voting {...{ arbitrable, currentPeriodIndex }} />} />
-          <Route path="appeal" element={<Appeal {...{ currentPeriodIndex }} />} />
-          <Route path="*" element={<Navigate to="overview" replace />} />
-        </Routes>
-      </StyledCard>
-    </Container>
+    <VotingContextProvider>
+      <Container>
+        <Header>Case #{id}</Header>
+        <Tabs />
+        <Timeline {...{ currentPeriodIndex, dispute }} />
+        <StyledCard>
+          <Routes>
+            <Route
+              path="overview"
+              element={
+                <Overview currentPeriodIndex={currentPeriodIndex} courtID={dispute?.court.id} {...{ arbitrable }} />
+              }
+            />
+            <Route path="evidence" element={<Evidence {...{ arbitrable }} />} />
+            <Route path="voting" element={<Voting {...{ arbitrable, currentPeriodIndex }} />} />
+            <Route path="appeal" element={<Appeal {...{ currentPeriodIndex }} />} />
+            <Route path="*" element={<Navigate to="overview" replace />} />
+          </Routes>
+        </StyledCard>
+      </Container>
+    </VotingContextProvider>
   );
 };
 

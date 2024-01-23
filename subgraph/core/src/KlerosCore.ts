@@ -17,7 +17,7 @@ import { ZERO, ONE } from "./utils";
 import { createCourtFromEvent } from "./entities/Court";
 import { createDisputeKitFromEvent, filterSupportedDisputeKits } from "./entities/DisputeKit";
 import { createDisputeFromEvent } from "./entities/Dispute";
-import { createRoundFromRoundInfo } from "./entities/Round";
+import { createRoundFromRoundInfo, updateRoundTimeline } from "./entities/Round";
 import { updateCases, updateCasesAppealing, updateCasesRuled, updateCasesVoting } from "./datapoint";
 import { addUserActiveDispute, ensureUser } from "./entities/User";
 import { updateJurorStake } from "./entities/JurorTokensPerCourt";
@@ -135,6 +135,7 @@ export function handleNewPeriod(event: NewPeriod): void {
   } else {
     dispute.periodDeadline = BigInt.fromU64(U64.MAX_VALUE);
   }
+  updateRoundTimeline(disputeID.toString(), newPeriod, event.block.timestamp);
   dispute.save();
   court.save();
 }

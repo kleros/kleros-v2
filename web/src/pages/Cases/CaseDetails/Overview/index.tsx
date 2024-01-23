@@ -10,7 +10,6 @@ import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActio
 import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
 import { alchemyApiKey } from "context/Web3Provider";
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
-import { Periods } from "consts/periods";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 import Verdict from "components/Verdict/index";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
@@ -94,12 +93,8 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
         <DisputeContext disputeDetails={disputeDetails} />
         <Divider />
 
-        {currentPeriodIndex !== Periods.evidence && (
-          <>
-            <Verdict arbitrable={arbitrable} />
-            <Divider />
-          </>
-        )}
+        <Verdict arbitrable={arbitrable} />
+        <Divider />
 
         <DisputeInfo
           isOverview={true}
