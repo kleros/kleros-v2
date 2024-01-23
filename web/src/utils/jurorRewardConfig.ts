@@ -13,14 +13,14 @@ export const rewards: IReward[] = [
   {
     token: "ETH",
     coinId: 1,
-    getAmount: (amount) => Number(formatEther(amount)).toFixed(3).toString(),
-    getValue: (amount, coinPrice) => (Number(formatEther(amount)) * (coinPrice ?? 0)).toFixed(2).toString(),
+    getAmount: (amount) => formatEther(amount),
+    getValue: (amount, coinPrice) => (Number(formatEther(amount)) * (coinPrice ?? 0)).toString(),
   },
   {
     token: "PNK",
     coinId: 0,
-    getAmount: (amount) => Number(formatUnits(amount, 18)).toFixed(3).toString(),
-    getValue: (amount, coinPrice) => (Number(formatUnits(amount, 18)) * (coinPrice ?? 0)).toFixed(2).toString(),
+    getAmount: (amount) => formatUnits(amount, 18),
+    getValue: (amount, coinPrice) => (Number(formatUnits(amount, 18)) * (coinPrice ?? 0)).toString(),
   },
 ];
 
