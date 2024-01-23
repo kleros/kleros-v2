@@ -9,7 +9,11 @@ import { useClassicAppealQuery, ClassicAppealQuery } from "queries/useClassicApp
 import { useCountdown } from "hooks/useCountdown";
 import { getLocalRounds } from "utils/getLocalRounds";
 
-const LoserSideCountdownContext = createContext<number | undefined>(undefined);
+interface ICountdownContext {
+  loserSideCountdown?: number;
+  winnerSideCountdown?: number;
+}
+const CountdownContext = createContext<ICountdownContext>({});
 
 const OptionsContext = createContext<string[] | undefined>(undefined);
 
@@ -60,6 +64,12 @@ export const ClassicAppealProvider: React.FC<{
     dispute?.court.timesPerPeriod[Periods.appeal],
     multipliers?.loser_appeal_period_multiplier.toString()
   );
+
+  const winnerSideCountdown = useWinnerSideCountdown(
+    dispute?.lastPeriodChange,
+    dispute?.court.timesPerPeriod[Periods.appeal]
+  );
+
   const { loserRequiredFunding, winnerRequiredFunding } = useMemo(
     () => ({
       loserRequiredFunding: getRequiredFunding(appealCost, multipliers?.loser_stake_multiplier),
@@ -69,8 +79,11 @@ export const ClassicAppealProvider: React.FC<{
   );
   const fundedChoices = getFundedChoices(data?.dispute);
   const [selectedOption, setSelectedOption] = useState<number | undefined>();
+
   return (
-    <LoserSideCountdownContext.Provider value={loserSideCountdown}>
+    <CountdownContext.Provider
+      value={useMemo(() => ({ loserSideCountdown, winnerSideCountdown }), [loserSideCountdown, winnerSideCountdown])}
+    >
       <SelectedOptionContext.Provider
         value={useMemo(() => ({ selectedOption, setSelectedOption }), [selectedOption, setSelectedOption])}
       >
@@ -89,11 +102,11 @@ export const ClassicAppealProvider: React.FC<{
           <OptionsContext.Provider value={options}>{children}</OptionsContext.Provider>
         </FundingContext.Provider>
       </SelectedOptionContext.Provider>
-    </LoserSideCountdownContext.Provider>
+    </CountdownContext.Provider>
   );
 };
 
-export const useLoserSideCountdownContext = () => useContext(LoserSideCountdownContext);
+export const useCountdownContext = () => useContext(CountdownContext);
 export const useSelectedOptionContext = () => useContext(SelectedOptionContext);
 export const useFundingContext = () => useContext(FundingContext);
 export const useOptionsContext = () => useContext(OptionsContext);
@@ -132,6 +145,14 @@ function useLoserSideCountdown(lastPeriodChange = "0", appealPeriodDuration = "0
   const deadline = useMemo(
     () => getDeadline(lastPeriodChange, appealPeriodDuration, loserTimeMultiplier),
     [lastPeriodChange, appealPeriodDuration, loserTimeMultiplier]
+  );
+  return useCountdown(deadline);
+}
+
+function useWinnerSideCountdown(lastPeriodChange = "0", appealPeriodDuration = "0") {
+  const deadline = useMemo(
+    () => Number(BigInt(lastPeriodChange) + BigInt(appealPeriodDuration)),
+    [lastPeriodChange, appealPeriodDuration]
   );
   return useCountdown(deadline);
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import ArrowIcon from "assets/svgs/icons/arrow.svg";
@@ -8,6 +8,9 @@ import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import LightButton from "../LightButton";
 import VerdictBanner from "./VerdictBanner";
 import { responsiveSize } from "styles/responsiveSize";
+import { useVotingContext } from "hooks/useVotingContext";
+import Skeleton from "react-loading-skeleton";
+import { useAccount } from "wagmi";
 
 const Container = styled.div`
   width: 100%;
@@ -57,13 +60,22 @@ interface IFinalDecision {
 
 const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const { id } = useParams();
+  const { isDisconnected } = useAccount();
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
+  const { wasDrawn, hasVoted, isLoading, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes } = useVotingContext();
   const ruled = disputeDetails?.dispute?.ruled ?? false;
   const navigate = useNavigate();
   const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id ?? 0)], watch: true });
   const currentRuling = Number(currentRulingArray?.[0]);
   const answer = disputeTemplate?.answers?.[currentRuling! - 1];
+  const buttonText = useMemo(() => {
+    if (!wasDrawn || isDisconnected) return "Check how the jury voted";
+    if (isCommitPeriod && !commited) return "Commit your vote";
+    if (isVotingPeriod && isHiddenVotes && commited && !hasVoted) return "Reveal your vote";
+    if (isVotingPeriod && !isHiddenVotes && !hasVoted) return "Cast your vote";
+    return "Check how the jury voted";
+  }, [wasDrawn, hasVoted, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes]);
 
   return (
     <Container>
@@ -85,12 +97,16 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
         )}
       </JuryContainer>
       <Divider />
-      <StyledButton
-        onClick={() => navigate(`/cases/${id?.toString()}/voting`)}
-        text={"Check how the jury voted"}
-        Icon={ArrowIcon}
-        className="reverse-button"
-      />
+      {isLoading && !isDisconnected ? (
+        <Skeleton width={250} height={20} />
+      ) : (
+        <StyledButton
+          onClick={() => navigate(`/cases/${id?.toString()}/voting`)}
+          text={buttonText}
+          Icon={ArrowIcon}
+          className="reverse-button"
+        />
+      )}
     </Container>
   );
 };

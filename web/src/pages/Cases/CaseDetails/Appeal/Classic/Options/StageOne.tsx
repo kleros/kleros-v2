@@ -3,8 +3,8 @@ import styled from "styled-components";
 import StageExplainer from "../StageExplainer";
 import OptionCard from "../../OptionCard";
 import {
+  useCountdownContext,
   useFundingContext,
-  useLoserSideCountdownContext,
   useOptionsContext,
   useSelectedOptionContext,
 } from "hooks/useClassicAppealContext";
@@ -27,14 +27,14 @@ interface IStageOne {
 }
 
 const StageOne: React.FC<IStageOne> = ({ setAmount }) => {
-  const { paidFees, winningChoice, loserRequiredFunding, winnerRequiredFunding } = useFundingContext();
+  const { paidFees, winningChoice, loserRequiredFunding, winnerRequiredFunding, fundedChoices } = useFundingContext();
   const options = useOptionsContext();
-  const loserSideCountdown = useLoserSideCountdownContext();
+  const { loserSideCountdown } = useCountdownContext();
   const { selectedOption, setSelectedOption } = useSelectedOptionContext();
 
   return (
     <Container>
-      <StageExplainer {...{ loserSideCountdown }} />
+      <StageExplainer countdown={loserSideCountdown} stage={1} />
       <label> Which option do you want to fund? </label>
       <OptionsContainer>
         {!isUndefined(paidFees) &&
@@ -50,6 +50,7 @@ const StageOne: React.FC<IStageOne> = ({ setAmount }) => {
                 winner={i.toString() === winningChoice}
                 funding={paidFees[i] ? BigInt(paidFees[i]) : 0n}
                 required={requiredFunding}
+                canBeSelected={!fundedChoices?.includes(i.toString())}
                 onClick={() => {
                   setSelectedOption(i);
                   setAmount(formatUnitsWei(requiredFunding));

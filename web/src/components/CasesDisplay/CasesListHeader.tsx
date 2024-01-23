@@ -6,25 +6,23 @@ import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
-  justify-content: space-between;
-  gap: calc(15vw + (40 - 15) * (min(max(100vw, 375px), 1250px) - 375px) / 875);
   width: 100%;
   height: 100%;
+  justify-content: space-between;
 `;
 
 const CasesData = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  width: 100%;
-  margin-left: ${responsiveSize(0, 33)};
-  flex-wrap: wrap;
-  padding: 0 3%;
-  gap: ${responsiveSize(24, 48, 300)};
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(4, ${responsiveSize(100, 130, 900)});
+  column-gap: ${responsiveSize(2, 12, 900)};
+  justify-content: space-between;
+  margin-right: 8px;
 `;
 
 const CaseTitle = styled.div`
   display: none;
+  width: ${responsiveSize(270, 345, 900)};
   margin-left: 32px;
   gap: 36px;
   label {
@@ -42,9 +40,7 @@ const CaseTitle = styled.div`
   )}
 `;
 
-const StyledLabel = styled.label`
-  margin-left: ${responsiveSize(4, 8, 300, 900)};
-`;
+const StyledLabel = styled.label``;
 
 const tooltipMsg =
   "Users have an economic interest in serving as jurors in Kleros: " +
