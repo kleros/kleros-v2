@@ -22,22 +22,6 @@
       "type": "string",
       "default": "NewDisputeTemplate.schema.json"
     },
-    "category": {
-      "type": "string",
-      "default": "",
-      "title": "The category Schema",
-      "examples": [
-        "Oracle"
-      ]
-    },
-    "lang": {
-      "type": "string",
-      "default": "",
-      "title": "The lang Schema",
-      "examples": [
-        "en_US"
-      ]
-    },
     "title": {
       "type": "string",
       "default": "",
@@ -302,6 +286,32 @@
         "/ipfs/QmeTBY7jZe2ut5WjifNASADo3E4zBxkMd62WwBpXtwP9pg"
       ]
     },
+    "attachment": {
+      "type": "object",
+      "default": {},
+      "title": "The attachment Schema",
+      "required": [
+        "uri"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "default": "",
+          "title": "The label Schema",
+          "examples": [
+            "Terms"
+          ]
+        },
+        "uri": {
+          "type": "string",
+          "default": "",
+          "title": "The uri Schema",
+          "examples": [
+            "/ipfs//QmZ7R..7889/terms.json"
+          ]
+        }
+      }
+    },
     "arbitrableChainID": {
       "type": "string",
       "default": "",
@@ -335,6 +345,55 @@
         "0xD08Ab99480d02bf9C092828043f611BcDFEA917b"
       ]
     },
+    "metadata": {
+      "type": "object",
+      "default": {},
+      "title": "The metadata Schema",
+      "required": [],
+      "properties": {},
+      "examples": [
+        {}
+      ]
+    },
+    "aliases": {
+      "type": "object",
+      "default": {},
+      "title": "The aliases Schema",
+      "properties": {
+        "Party1": {
+          "type": "string",
+          "default": "",
+          "title": "The Party1 Schema",
+          "examples": [
+            "0x1234...CDEF"
+          ]
+        },
+        "Party2": {
+          "type": "string",
+          "default": "",
+          "title": "The Party2 Schema",
+          "examples": [
+            "0xFEDC...4321"
+          ]
+        }
+      }
+    },
+    "category": {
+      "type": "string",
+      "default": "",
+      "title": "The category Schema",
+      "examples": [
+        "Oracle"
+      ]
+    },
+    "lang": {
+      "type": "string",
+      "default": "",
+      "title": "The lang Schema",
+      "examples": [
+        "en_US"
+      ]
+    },
     "specification": {
       "type": "string",
       "default": "",
@@ -342,6 +401,14 @@
       "examples": [
         "KIP00",
         "KIP99"
+      ]
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0",
+      "title": "The version Schema",
+      "examples": [
+        "1.0"
       ]
     }
   }

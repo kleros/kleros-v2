@@ -7,7 +7,7 @@ module.exports = {
     {
       files: ["*.json"],
       options: {
-        parser: "json-stringify-safe",
+        parser: "json-stringify",
       },
     },
     {

@@ -5,6 +5,7 @@ import EthIcon from "assets/svgs/icons/eth.svg";
 import PnkIcon from "assets/svgs/icons/kleros.svg";
 import { useUserQuery } from "hooks/queries/useUser";
 import { landscapeStyle } from "styles/landscapeStyle";
+import NumberDisplay from "components/NumberDisplay";
 
 const Container = styled.div`
   display: flex;
@@ -46,10 +47,14 @@ const Rewards: React.FC<IRewards> = ({ address }) => {
 
   return (
     <Container>
-      <StyledLabel>{ethReward}</StyledLabel>
+      <StyledLabel>
+        <NumberDisplay value={ethReward ?? ""} unit="ETH" showUnitInDisplay={false} />
+      </StyledLabel>
       <StyledIcon as={EthIcon} />
       <StyledLabel>+</StyledLabel>
-      <StyledLabel>{pnkReward}</StyledLabel>
+      <StyledLabel>
+        <NumberDisplay value={pnkReward ?? ""} unit="PNK" showUnitInDisplay={false} />
+      </StyledLabel>
       <StyledIcon as={PnkIcon} />
     </Container>
   );
