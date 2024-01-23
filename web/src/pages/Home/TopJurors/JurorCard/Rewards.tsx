@@ -48,12 +48,12 @@ const Rewards: React.FC<IRewards> = ({ address }) => {
   return (
     <Container>
       <StyledLabel>
-        <NumberDisplay value={ethReward ?? ""} />
+        <NumberDisplay value={ethReward ?? ""} unit="ETH" showUnitInDisplay={false} />
       </StyledLabel>
       <StyledIcon as={EthIcon} />
       <StyledLabel>+</StyledLabel>
       <StyledLabel>
-        <NumberDisplay value={pnkReward ?? ""} />
+        <NumberDisplay value={pnkReward ?? ""} unit="PNK" showUnitInDisplay={false} />
       </StyledLabel>
       <StyledIcon as={PnkIcon} />
     </Container>

@@ -39,8 +39,7 @@ const Stake: React.FC<IStake> = ({ stake }) => {
     <Container>
       <label>Stake</label>
       <StyledLabel>
-        <NumberDisplay value={formattedStake} />
-        PNK
+        <NumberDisplay value={formattedStake} unit="PNK" />
       </StyledLabel>
     </Container>
   );

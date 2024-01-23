@@ -60,7 +60,7 @@ const Header: React.FC<IHeader> = ({ lockedStake }) => {
           <StyledLockerIcon />
           <label> Locked Stake: </label>
           <small>
-            <NumberDisplay value={formattedLockedStake.toString()} /> PNK
+            <NumberDisplay value={formattedLockedStake.toString()} unit="PNK" />
           </small>
         </LockedPnk>
       ) : null}

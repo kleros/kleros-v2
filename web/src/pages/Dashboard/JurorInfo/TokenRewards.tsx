@@ -25,10 +25,12 @@ const TokenRewards: React.FC<ITokenRewards> = ({ token, amount, value }) => {
   return (
     <RewardContainer>
       {token && <GradientTokenIcons icon={token} />}
-      <StyledH1>{amount ? <NumberDisplay value={amount} place="left" /> : <StyledSkeleton width={76} />}</StyledH1>
-      <StyledH1>{token}</StyledH1>
-      <label>$ </label>
-      <label>{value ? <NumberDisplay value={value} place="right" /> : <StyledSkeleton width={32} />}</label>
+      <StyledH1>
+        {amount ? <NumberDisplay value={amount} unit={token} place="left" /> : <StyledSkeleton width={76} />}
+      </StyledH1>
+      <label>
+        {value ? <NumberDisplay value={value} place="right" unit="$" isCurrency /> : <StyledSkeleton width={32} />}
+      </label>
     </RewardContainer>
   );
 };
