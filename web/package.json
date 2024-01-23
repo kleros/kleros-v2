@@ -55,7 +55,6 @@
     "@parcel/watcher": "~2.2.0",
     "@types/amqplib": "^0.10.4",
     "@types/busboy": "^1.5.3",
-    "@types/mustache": "^4.2.5",
     "@types/react": "18.2.0",
     "@types/react-dom": "^18.2.18",
     "@types/styled-components": "^5.1.34",

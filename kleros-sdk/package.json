@@ -10,14 +10,13 @@
     "src": "./src",
     "dataMappings": "./src/dataMappings"
   },
-  "packageManager": "yarn@3.3.1",
+  "packageManager": "yarn@4.0.2+sha256.825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186",
   "engines": {
     "node": ">=16.0.0"
   },
   "type": "commonjs",
   "volta": {
-    "node": "16.20.1",
-    "yarn": "3.3.1"
+    "node": "20.11.0"
   },
   "scripts": {
     "build": "your-build-script",
@@ -26,6 +25,7 @@
     "test:run": "vitest run"
   },
   "devDependencies": {
+    "@types/mustache": "^4.2.5",
     "@vitest/ui": "^1.1.3",
     "dotenv": "^16.3.1",
     "mocha": "^10.2.0",
@@ -36,6 +36,7 @@
   "dependencies": {
     "@kleros/kleros-v2-contracts": "workspace:^",
     "@reality.eth/reality-eth-lib": "^3.2.30",
+    "mustache": "^4.2.0",
     "zod": "^3.22.4"
   }
 }
