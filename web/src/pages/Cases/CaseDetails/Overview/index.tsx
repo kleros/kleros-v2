@@ -5,7 +5,6 @@ import { formatEther } from "viem";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
 import { useCourtPolicy } from "queries/useCourtPolicy";
-import { Periods } from "consts/periods";
 
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 import Verdict from "components/Verdict/index";
@@ -57,12 +56,8 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
         <DisputeContext disputeTemplate={disputeTemplate} />
         <Divider />
 
-        {currentPeriodIndex !== Periods.evidence && (
-          <>
-            <Verdict arbitrable={arbitrable} />
-            <Divider />
-          </>
-        )}
+        <Verdict arbitrable={arbitrable} />
+        <Divider />
 
         <DisputeInfo
           isOverview={true}

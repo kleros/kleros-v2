@@ -8,12 +8,14 @@ const votingHistoryQuery = graphql(`
   query VotingHistory($disputeID: ID!) {
     dispute(id: $disputeID) {
       id
+      createdAt
       rounds {
         nbVotes
         court {
           id
           name
         }
+        timeline
       }
       disputeKitDispute {
         localRounds {
