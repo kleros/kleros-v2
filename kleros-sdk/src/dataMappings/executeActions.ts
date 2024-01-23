@@ -38,7 +38,7 @@ export const executeAction = async (mapping: ActionMapping, context = {}) => {
 };
 
 export const executeActions = async (mappings, initialContext = {}) => {
-  let context = { ...initialContext };
+  const context = { ...initialContext };
 
   for (const mapping of mappings) {
     const actionResult = await executeAction(mapping, context);

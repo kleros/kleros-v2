@@ -1,6 +1,6 @@
 // Can this be replaced by Mustache ?
 export const createResultObject = (sourceData, seek, populate) => {
-  let result = {};
+  const result = {};
   seek.forEach((key, idx) => {
     let foundValue;
     if (typeof sourceData !== "object" || key === "0") {

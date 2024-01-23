@@ -51,11 +51,11 @@ describe("subgraphAction with variables", () => {
 
     const mapping = {
       type: "graphql",
-      endpoint: endpoint,
-      query: query,
-      variables: variables,
-      seek: seek,
-      populate: populate,
+      endpoint,
+      query,
+      variables,
+      seek,
+      populate,
     };
 
     const result = await subgraphAction(mapping);
@@ -78,7 +78,7 @@ describe("callAction", () => {
 
     const mapping = {
       type: "abi/call",
-      abi: abi,
+      abi,
       address: contractAddress,
       args: [knownAddress],
       seek: [""],
@@ -104,8 +104,8 @@ describe("eventAction", () => {
       abi: eventAbi,
       address: contractAddress,
       eventFilter: {
-        fromBlock: fromBlock,
-        toBlock: toBlock,
+        fromBlock,
+        toBlock,
       },
       seek: ["from", "to", "value"],
       populate: ["fromAddress", "toAddress", "transferValue"],
@@ -128,9 +128,9 @@ describe("fetchIpfsJsonAction", () => {
 
     const mapping = {
       type: "fetch/ipfs/json",
-      ipfsUri: ipfsUri,
-      seek: seek,
-      populate: populate,
+      ipfsUri,
+      seek,
+      populate,
     };
 
     const result = await fetchIpfsJsonAction(mapping);

@@ -8,12 +8,12 @@ export const callAction = async (mapping: AbiCallMapping) => {
   const publicClient = getPublicClient();
 
   const { abi: source, address, args, seek, populate } = mapping;
-  let parsedAbi = typeof source === "string" ? parseAbiItem(source) : source;
+  const parsedAbi = typeof source === "string" ? parseAbiItem(source) : source;
 
   const data = await publicClient.readContract({
-    address: address,
+    address,
     abi: [parsedAbi],
-    args: args,
+    args,
   });
 
   return createResultObject(data, seek, populate);

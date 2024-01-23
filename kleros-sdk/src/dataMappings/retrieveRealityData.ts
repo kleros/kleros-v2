@@ -102,6 +102,6 @@ export const retrieveRealityData = async (realityQuestionID: string, arbitrable?
     realityAddress: questionData.arbitrator,
     questionId: questionData.realityQuestionID,
     realityUser: questionData.realityUser,
-    answers: answers,
+    answers,
   };
 };

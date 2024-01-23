@@ -8,10 +8,10 @@ export const eventAction = async (mapping: AbiEventMapping) => {
   const publicClient = getPublicClient();
 
   const { abi: source, address, eventFilter, seek, populate } = mapping;
-  let parsedAbi = typeof source === "string" ? parseAbiItem(source) : source;
+  const parsedAbi = typeof source === "string" ? parseAbiItem(source) : source;
 
   const filter = await publicClient.createEventFilter({
-    address: address,
+    address,
     event: parsedAbi,
     args: eventFilter.args,
     fromBlock: eventFilter.fromBlock,
