@@ -20,9 +20,8 @@ const NumberDisplay: React.FC<INumberDisplay> = ({
   const parsedValue = Number(value);
   const formattedValue = parsedValue % 1 !== 0 ? parsedValue.toFixed(decimals) : parsedValue.toFixed(0);
   const tooltipValue = isCurrency ? `${unit} ${value}` : `${value} ${unit}`;
-  const displayValue = isCurrency
-    ? `${showUnitInDisplay ? unit : ""} ${formattedValue}`
-    : `${formattedValue} ${showUnitInDisplay ? unit : ""}`;
+  const displayUnit = showUnitInDisplay ? unit : "";
+  const displayValue = isCurrency ? `${displayUnit} ${formattedValue}` : `${formattedValue} ${displayUnit}`;
   return (
     <Tooltip small text={tooltipValue} place={place}>
       {displayValue}
