@@ -1,14 +1,11 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { useAccount } from "wagmi";
 import { responsiveSize } from "styles/responsiveSize";
 import VoteIcon from "assets/svgs/icons/voted.svg";
 import { Periods } from "consts/periods";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
-import { useDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import { useDrawQuery } from "queries/useDrawQuery";
 import { useAppealCost } from "queries/useAppealCost";
 import { isUndefined } from "utils/index";
 import { isLastRound } from "utils/isLastRound";
@@ -19,6 +16,8 @@ import InfoCard from "components/InfoCard";
 import Classic from "./Classic";
 import VotingHistory from "./VotingHistory";
 import Skeleton from "react-loading-skeleton";
+import { useVotingContext } from "hooks/useVotingContext";
+import { useAccount } from "wagmi";
 
 const Container = styled.div`
   padding: ${responsiveSize(16, 32)};
@@ -37,29 +36,17 @@ interface IVoting {
 }
 
 const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
-  const { address } = useAccount();
   const { id } = useParams();
+  const { isDisconnected } = useAccount();
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const { data: appealCost } = useAppealCost(id);
-  const { data: drawData, isLoading: isDrawDataLoading } = useDrawQuery(
-    address?.toLowerCase(),
-    id,
-    disputeData?.dispute?.currentRound.id
-  );
-  const roundId = disputeData?.dispute?.currentRoundIndex;
-  const voteId = drawData?.draws?.[0]?.voteIDNum;
-  const { data: voted } = useDisputeKitClassicIsVoteActive({
-    enabled: !isUndefined(roundId) && !isUndefined(voteId),
-    args: [BigInt(id ?? 0), roundId, voteId],
-    watch: true,
-  });
+  const { wasDrawn: userWasDrawn, hasVoted: voted, isLoading: isDrawDataLoading } = useVotingContext();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   useLockOverlayScroll(isPopupOpen);
   const lastPeriodChange = disputeData?.dispute?.lastPeriodChange;
   const timesPerPeriod = disputeData?.dispute?.court?.timesPerPeriod;
   const finalDate = useFinalDate(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
 
-  const userWasDrawn = useMemo(() => !isUndefined(drawData) && drawData.draws.length > 0, [drawData]);
   const isCommitOrVotePeriod = useMemo(
     () => [Periods.vote, Periods.commit].includes(currentPeriodIndex),
     [currentPeriodIndex]
@@ -74,7 +61,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
         </>
       )}
 
-      {userWasDrawn ? null : (
+      {userWasDrawn || isDisconnected ? null : (
         <>
           {isDrawDataLoading ? (
             <Skeleton width={300} height={20} />

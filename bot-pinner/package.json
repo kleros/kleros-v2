@@ -20,6 +20,6 @@
     "node": ">=16.13.0"
   },
   "devDependencies": {
-    "@dappnode/dappnodesdk": "^0.3.8"
+    "@dappnode/dappnodesdk": "^0.3.11"
   }
 }

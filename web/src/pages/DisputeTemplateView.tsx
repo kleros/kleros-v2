@@ -1,11 +1,14 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Textarea } from "@kleros/ui-components-library";
 import PolicyIcon from "svgs/icons/policy.svg";
-import { StyledSkeleton } from "components/StyledSkeleton";
 import ReactMarkdown from "components/ReactMarkdown";
-import { isUndefined } from "utils/index";
-import { IPFS_GATEWAY } from "consts/index";
+import { INVALID_DISPUTE_DATA_ERROR, IPFS_GATEWAY } from "consts/index";
+import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
+import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
+import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
+import { Answer, DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
+import { alchemyApiKey } from "context/Web3Provider";
 
 const Container = styled.div`
   width: 50%;
@@ -79,67 +82,85 @@ const StyledTextArea = styled(Textarea)`
 `;
 
 const DisputeTemplateView: React.FC = () => {
-  const [disputeTemplate, setDisputeTemplate] = useState<string>("");
-  const [errorMsg, setErrorMessage] = useState<string>("");
-  const parsedDisputeTemplate = useMemo(() => {
-    try {
-      const parsed = JSON.parse(disputeTemplate);
-      setErrorMessage("");
-      return parsed;
-    } catch (e) {
-      setErrorMessage((e as SyntaxError).message);
-      return undefined;
-    }
-  }, [disputeTemplate]);
-  const isThereInput = useMemo(() => disputeTemplate !== "", [disputeTemplate]);
+  const [disputeDetails, setDisputeDetails] = useState<DisputeDetails | undefined>(undefined);
+  const [disputeTemplateInput, setDisputeTemplateInput] = useState<string>("");
+  const [dataMappingsInput, setDataMappingsInput] = useState<string>("");
+
+  // TODO: add some input fields for the IArbitrableV2.DisputeRequest event which is available to the SDK in a real case
+  // - arbitrable (= the address which emitted DisputeRequest)
+  // - the DisputeRequest event params: arbitrator, arbitrableDisputeID, externalDisputeID, templateId, templateUri
+  const arbitrable = "0xdaf749DABE7be6C6894950AE69af35c20a00ABd9";
+
+  useEffect(() => {
+    configureSDK({ apiKey: alchemyApiKey });
+    const initialContext = {
+      arbitrable: arbitrable,
+    };
+
+    if (!disputeTemplateInput || !dataMappingsInput) return;
+
+    const fetchData = async () => {
+      try {
+        const parsedMappings = JSON.parse(dataMappingsInput);
+        const data = await executeActions(parsedMappings, initialContext);
+        const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
+        setDisputeDetails(finalDisputeDetails);
+        console.log("finalTemplate: ", finalDisputeDetails);
+      } catch (e) {
+        console.error(e);
+        setDisputeDetails(undefined);
+      }
+    };
+
+    fetchData();
+  }, [disputeTemplateInput, dataMappingsInput, arbitrable]);
+
   return (
     <Wrapper>
       <StyledTextArea
-        value={disputeTemplate}
-        onChange={(e) => setDisputeTemplate(e.target.value)}
+        value={disputeTemplateInput}
+        onChange={(e) => setDisputeTemplateInput(e.target.value)}
         placeholder="Enter dispute template"
-        variant={isThereInput && errorMsg !== "" ? "error" : ""}
-        message={isThereInput ? errorMsg : ""}
       />
-      <Overview disputeTemplate={parsedDisputeTemplate} />
+      <StyledTextArea
+        value={dataMappingsInput}
+        onChange={(e) => setDataMappingsInput(e.target.value)}
+        placeholder="Enter data mappings"
+      />
+      <Overview disputeDetails={disputeDetails} />
     </Wrapper>
   );
 };
 
-const Overview: React.FC<{ disputeTemplate: any }> = ({ disputeTemplate }) => {
+const Overview: React.FC<{ disputeDetails: DisputeDetails | undefined }> = ({ disputeDetails }) => {
   return (
     <>
       <Container>
-        <h1>
-          {isUndefined(disputeTemplate) ? (
-            <StyledSkeleton />
-          ) : (
-            disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"
-          )}
-        </h1>
+        <h1>{disputeDetails?.title ?? INVALID_DISPUTE_DATA_ERROR}</h1>
         <QuestionAndDescription>
-          <ReactMarkdown>{disputeTemplate?.question}</ReactMarkdown>
-          <ReactMarkdown>{disputeTemplate?.description}</ReactMarkdown>
+          <ReactMarkdown>{disputeDetails?.question ?? INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
+          <ReactMarkdown>{disputeDetails?.description ?? INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
         </QuestionAndDescription>
-        {disputeTemplate?.frontendUrl && (
-          <a href={disputeTemplate?.frontendUrl} target="_blank" rel="noreferrer">
+        {disputeDetails?.frontendUrl && (
+          <a href={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
             Go to arbitrable
           </a>
         )}
         <VotingOptions>
-          {disputeTemplate && <h3>Voting Options</h3>}
-          {disputeTemplate?.answers?.map((answer: { title: string; description: string }, i: number) => (
-            <span key={i}>
+          {disputeDetails && <h3>Voting Options</h3>}
+          {disputeDetails?.answers?.map((answer: Answer, i: number) => (
+            <span key={answer.id}>
               <small>Option {i + 1}:</small>
-              <label>{answer.title}</label>
+              <label>{answer.title}. </label>
+              <label>{answer.description}</label>
             </span>
           ))}
         </VotingOptions>
         <ShadeArea>
           <p>Make sure you read and understand the Policies</p>
           <LinkContainer>
-            {disputeTemplate?.policyURI && (
-              <StyledA href={`${IPFS_GATEWAY}${disputeTemplate.policyURI}`} target="_blank" rel="noreferrer">
+            {disputeDetails?.policyURI && (
+              <StyledA href={`${IPFS_GATEWAY}${disputeDetails.policyURI}`} target="_blank" rel="noreferrer">
                 <PolicyIcon />
                 Dispute Policy
               </StyledA>

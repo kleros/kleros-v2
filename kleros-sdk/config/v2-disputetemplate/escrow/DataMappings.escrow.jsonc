@@ -1,0 +1,34 @@
+[
+  {
+    "type": "abi/event",
+    "abi": "event TransactionCreated(uint256 indexed _transactionID, string _transactionUri, address indexed _buyer, address indexed _seller, uint256 _amount, string _asset, uint256 _deadline)",
+    "address": "[FIX AFTER DEPLOY]",
+    "eventFilter": {
+      "fromBlock": "[FIX AFTER DEPLOY]",
+      "toBlock": "latest",
+      "args": {
+        "_transactionID": "[FROM EXTERNAL DISPUTE ID]"
+      }
+    },
+    "seek": [
+      "transactionUri",
+      "buyer",
+      "seller",
+      "amount",
+      "asset",
+      "deadline"
+    ],
+    "populate": [
+      "_transactionUri",
+      "_buyer",
+      "_seller",
+      "_amount",
+      "_asset",
+      "_deadline"
+    ]
+  },
+  {
+    "type":"fetch/ipfsJson",
+    "todo": "get title, description, extraDescriptionUri from _transactionUri"
+  }
+]

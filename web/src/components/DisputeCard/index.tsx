@@ -16,6 +16,9 @@ import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
 import { getLocalRounds } from "utils/getLocalRounds";
 import { responsiveSize } from "styles/responsiveSize";
+import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
+import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
+import { INVALID_DISPUTE_DATA_ERROR } from "consts/index";
 
 const StyledCard = styled(Card)`
   width: 100%;
@@ -98,14 +101,18 @@ const DisputeCard: React.FC<IDisputeCard> = ({ id, arbitrated, period, lastPerio
       ? lastPeriodChange
       : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, court.timesPerPeriod);
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrated.id as `0x${string}`);
-  const title = isUndefined(disputeTemplate) ? (
-    <StyledSkeleton />
-  ) : (
-    disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"
-  );
+  let disputeDetails: DisputeDetails | undefined;
+  try {
+    if (disputeTemplate) {
+      disputeDetails = populateTemplate(disputeTemplate.templateData, {});
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  const title = isUndefined(disputeDetails) ? <StyledSkeleton /> : disputeDetails?.title ?? INVALID_DISPUTE_DATA_ERROR;
   const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
-  const category = disputeTemplate ? disputeTemplate.category : undefined;
+  const category = disputeTemplate?.category;
   const { data: votingHistory } = useVotingHistory(id);
   const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const navigate = useNavigate();
@@ -115,7 +122,14 @@ const DisputeCard: React.FC<IDisputeCard> = ({ id, arbitrated, period, lastPerio
         <StyledCard hover onClick={() => navigate(`/cases/${id.toString()}`)}>
           <PeriodBanner id={parseInt(id)} period={currentPeriodIndex} />
           <CardContainer>
-            <h3>{title}</h3>
+            {isUndefined(disputeTemplate) ? (
+              <StyledSkeleton />
+            ) : (
+              <TruncatedTitle
+                text={disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"}
+                maxLength={100}
+              />
+            )}
             <DisputeInfo
               courtId={court?.id}
               court={courtName}
@@ -130,10 +144,7 @@ const DisputeCard: React.FC<IDisputeCard> = ({ id, arbitrated, period, lastPerio
           <PeriodBanner isCard={false} id={parseInt(id)} period={currentPeriodIndex} />
           <ListContainer>
             <ListTitle>
-              <TruncatedTitle
-                text={disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"}
-                maxLength={50}
-              />
+              <TruncatedTitle text={disputeDetails?.title ?? INVALID_DISPUTE_DATA_ERROR} maxLength={50} />
             </ListTitle>
             <DisputeInfo
               courtId={court?.id}
