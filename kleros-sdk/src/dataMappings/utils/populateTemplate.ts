@@ -1,6 +1,6 @@
 import mustache from "mustache";
 import { DisputeDetails } from "./disputeDetailsTypes";
-import { validate } from "./DisputeDetailsValidator";
+import { validate } from "./disputeDetailsValidator";
 
 export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDetails => {
   const render = mustache.render(mustacheTemplate, data);

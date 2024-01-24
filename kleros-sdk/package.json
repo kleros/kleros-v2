@@ -1,11 +1,20 @@
 {
   "name": "@kleros/kleros-sdk",
-  "version": "0.1.0",
+  "version": "2.0.1-2",
   "description": "SDK for Kleros version 2",
-  "main": "index.ts",
-  "repository": "git@github.com:kleros/kleros-v2.git",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/kleros/kleros-v2.git"
+  },
   "author": "Kleros",
   "license": "MIT",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "module": "./lib/index.js",
+  "files": [
+    "lib/**/*",
+    "!lib/**/test/*"
+  ],
   "alias": {
     "src": "./src",
     "dataMappings": "./src/dataMappings"
@@ -18,17 +27,24 @@
   "volta": {
     "node": "20.11.0"
   },
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
   "scripts": {
-    "build": "your-build-script",
+    "clean": "rimraf lib",
+    "build": "yarn clean && tsc",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "publish:dev": "yarn npm publish --tag dev"
   },
   "devDependencies": {
     "@types/mustache": "^4.2.5",
     "@vitest/ui": "^1.1.3",
     "dotenv": "^16.3.1",
     "mocha": "^10.2.0",
+    "rimraf": "^5.0.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
     "vitest": "^1.1.3"

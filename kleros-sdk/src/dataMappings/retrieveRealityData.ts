@@ -1,11 +1,12 @@
 import { executeAction } from "./executeActions";
-import { AbiEventMapping } from "./utils/actionTypes";
+import { AbiEventMapping, DataMapping } from "./utils/dataMappingTypes";
+import { Answer } from "./utils/disputeDetailsTypes";
 
 export const retrieveRealityData = async (realityQuestionID: string, arbitrable?: `0x${string}`) => {
   if (!arbitrable) {
     throw new Error("No arbitrable address provided");
   }
-  const questionMapping: AbiEventMapping = {
+  const questionMapping: DataMapping<AbiEventMapping> = {
     type: "abi/event",
     abi: "event LogNewQuestion(bytes32 indexed question_id, address indexed user, uint256 template_id, string question, bytes32 indexed content_hash, address arbitrator, uint32 timeout, uint32 opening_ts, uint256 nonce, uint256 created)",
     address: arbitrable,
@@ -43,7 +44,7 @@ export const retrieveRealityData = async (realityQuestionID: string, arbitrable?
   const questionData = await executeAction(questionMapping);
   console.log("questionData", questionData);
 
-  const templateMapping: AbiEventMapping = {
+  const templateMapping: DataMapping<AbiEventMapping> = {
     type: "abi/event",
     abi: "event LogNewTemplate(uint256 indexed template_id, address indexed user, string question_text)",
     address: arbitrable,
@@ -67,7 +68,7 @@ export const retrieveRealityData = async (realityQuestionID: string, arbitrable?
 
   console.log("populatedTemplate", populatedTemplate);
 
-  let answers = [];
+  let answers: Answer[] = [];
   if (populatedTemplate.type === "bool") {
     answers = [
       {
@@ -91,10 +92,6 @@ export const retrieveRealityData = async (realityQuestionID: string, arbitrable?
     description: "",
     reserved: true,
   });
-
-  for (let i = 0; i < answers.length; i++) {
-    answers[i].last = i === answers.length - 1;
-  }
 
   return {
     question: questionData.realityQuestion,

@@ -1,20 +1,14 @@
-export type SubgraphMapping = {
-  endpoint: string; // Subgraph endpoint
-  query: string; // Subgraph query
-  seek: string[]; // Subgraph query parameters value used to populate the template variables
+export type JsonMapping = {
+  value: object; // Hardcoded object, to be stringified.
+  seek: string[]; // JSON keys used to populate the template variables
   populate: string[]; // Populated template variables
 };
 
-export type AbiEventMapping = {
-  abi: string; // ABI of the contract emitting the event
-  address: string; // Address of the contract emitting the event
-  eventFilter: {
-    // Event filter (eg. specific parameter value, block number range, event index)
-    fromBlock: BigInt | string; // Block number range start
-    toBlock: BigInt | string; // Block number range end
-    args: any; // Event parameter value to filter on
-  };
-  seek: string[]; // Event parameters value used to populate the template variables
+export type SubgraphMapping = {
+  endpoint: string; // Subgraph endpoint
+  query: string; // Subgraph query
+  variables?: { [k: string]: any }; // Subgraph query variables
+  seek: string[]; // Subgraph query parameters value used to populate the template variables
   populate: string[]; // Populated template variables
 };
 
@@ -26,9 +20,16 @@ export type AbiCallMapping = {
   populate: string[]; // Populated template variables
 };
 
-export type JsonMapping = {
-  value: object; // Hardcoded object, to be stringified.
-  seek: string[]; // JSON keys used to populate the template variables
+export type AbiEventMapping = {
+  abi: string; // ABI of the contract emitting the event
+  address: string; // Address of the contract emitting the event
+  eventFilter: {
+    // Event filter (eg. specific parameter value, block number range, event index)
+    fromBlock: BigInt | string; // Block number range start
+    toBlock: BigInt | string; // Block number range end
+    args?: any; // Event parameter value to filter on
+  };
+  seek: string[]; // Event parameters value used to populate the template variables
   populate: string[]; // Populated template variables
 };
 
@@ -37,6 +38,16 @@ export type FetchIpfsJsonMapping = {
   seek: string[]; // JSON keys used to populate the template variables
   populate: string[]; // Populated template variables
 };
+
+export type RealityMapping = {
+  realityQuestionID: string;
+};
+
+export type DataMapping<
+  T extends SubgraphMapping | AbiEventMapping | AbiCallMapping | JsonMapping | FetchIpfsJsonMapping | RealityMapping
+> = {
+  type: string;
+} & T;
 
 const subgraphMappingExample: SubgraphMapping = {
   endpoint: "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2",

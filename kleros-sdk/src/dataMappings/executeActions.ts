@@ -11,11 +11,12 @@ import {
   validateJsonMapping,
   validateRealityMapping,
   validateSubgraphMapping,
-} from "./utils/actionTypeValidators";
-import { ActionMapping } from "./utils/actionTypes";
+} from "./utils/dataMappingValidators";
+import { DataMapping } from "./utils/dataMappingTypes";
 import { replacePlaceholdersWithValues } from "./utils/replacePlaceholdersWithValues";
+import { DisputeRequest } from "./utils/disputeRequest";
 
-export const executeAction = async (mapping: ActionMapping, context = {}) => {
+export const executeAction = async (mapping: DataMapping<any>, context?: DisputeRequest) => {
   mapping = replacePlaceholdersWithValues(mapping, context);
 
   switch (mapping.type) {
@@ -31,15 +32,17 @@ export const executeAction = async (mapping: ActionMapping, context = {}) => {
       return await fetchIpfsJsonAction(validateFetchIpfsJsonMapping(mapping));
     case "reality":
       mapping = validateRealityMapping(mapping);
+      if (!context?.arbitrable) {
+        throw new Error("Arbitrable address is required for reality action");
+      }
       return await retrieveRealityData(mapping.realityQuestionID, context.arbitrable);
     default:
       throw new Error(`Unsupported action type: ${mapping.type}`);
   }
 };
 
-export const executeActions = async (mappings, initialContext = {}) => {
-  const context = { ...initialContext };
-
+export const executeActions = async (mappings, initialContext?: DisputeRequest) => {
+  const context = Object.assign({}, initialContext);
   for (const mapping of mappings) {
     const actionResult = await executeAction(mapping, context);
     if (actionResult) {
