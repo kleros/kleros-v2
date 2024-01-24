@@ -49,6 +49,7 @@ const StyledLink = styled(Link)<{ isActive: boolean }>`
 `;
 
 const links = [
+  { to: "/", text: "Home" },
   { to: "/cases/display/1/desc/all", text: "Cases" },
   { to: "/courts", text: "Courts" },
   { to: "/dashboard/1/desc/all", text: "Dashboard" },
@@ -63,7 +64,11 @@ const Explore: React.FC = () => {
       <Title>Explore</Title>
       {links.map(({ to, text }) => (
         <LinkContainer key={text}>
-          <StyledLink to={to} onClick={toggleIsOpen} isActive={location.pathname.startsWith(to)}>
+          <StyledLink
+            to={to}
+            onClick={toggleIsOpen}
+            isActive={to === "/" ? location.pathname === "/" : location.pathname.startsWith(to)}
+          >
             {text}
           </StyledLink>
         </LinkContainer>
