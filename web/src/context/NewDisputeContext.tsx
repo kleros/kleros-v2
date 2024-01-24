@@ -32,6 +32,8 @@ export interface IDisputeTemplate {
   question: string;
   specification?: string;
   title: string;
+  // attachment: Attachment;
+  // type: string;
 }
 
 interface IDisputeData extends IDisputeTemplate {

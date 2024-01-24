@@ -43,17 +43,9 @@ const StyledCalendarIcon = styled(CalendarIcon)`
   height: 14px;
 `;
 
-const getCaseEventTimes = (
-  lastPeriodChange: string,
-  currentPeriodIndex: number,
-  timesPerPeriod: string[],
-  isCreation: boolean
-) => {
+const formatDate = (date: string) => {
   const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
-  const durationCurrentPeriod = parseInt(timesPerPeriod[currentPeriodIndex - 1]);
-  const startingDate = new Date(
-    (parseInt(lastPeriodChange) + (isCreation ? -durationCurrentPeriod : durationCurrentPeriod)) * 1000
-  );
+  const startingDate = new Date(parseInt(date) * 1000);
 
   const formattedDate = startingDate.toLocaleDateString("en-US", options);
   return formattedDate;
@@ -66,7 +58,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
   const { data: votingHistory } = useVotingHistory(id);
   const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
   const localRounds: ClassicRound[] = getLocalRounds(votingHistory?.dispute?.disputeKitDispute) as ClassicRound[];
-
+  const rounds = votingHistory?.dispute?.rounds;
   const theme = useTheme();
 
   return useMemo<TimelineItems | undefined>(() => {
@@ -75,19 +67,23 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
       const rulingOverride = dispute.overridden;
       const parsedDisputeFinalRuling = parseInt(dispute.currentRuling);
       const currentPeriodIndex = Periods[dispute.period];
-      const lastPeriodChange = dispute.lastPeriodChange;
-      const courtTimePeriods = dispute.court.timesPerPeriod;
+
       return localRounds?.reduce<TimelineItems>(
         (acc, { winningChoice }, index) => {
           const parsedRoundChoice = parseInt(winningChoice);
           const isOngoing = index === localRounds.length - 1 && currentPeriodIndex < 3;
-          const eventDate = getCaseEventTimes(lastPeriodChange, currentPeriodIndex, courtTimePeriods, false);
+          const roundTimeline = rounds?.[index].timeline;
+
           const icon = dispute.ruled && !rulingOverride && index === localRounds.length - 1 ? ClosedCaseIcon : "";
           const answers = disputeTemplate?.answers;
           acc.push({
             title: `Jury Decision - Round ${index + 1}`,
             party: isOngoing ? "Voting is ongoing" : getVoteChoice(parsedRoundChoice, answers),
-            subtitle: `${eventDate} / ${votingHistory?.dispute?.rounds.at(index)?.court.name}`,
+            subtitle: isOngoing
+              ? ""
+              : `${formatDate(roundTimeline?.[Periods.vote])} / ${
+                  votingHistory?.dispute?.rounds.at(index)?.court.name
+                }`,
             rightSided: true,
             variant: theme.secondaryPurple,
             Icon: icon !== "" ? icon : undefined,
@@ -97,7 +93,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
             acc.push({
               title: "Appealed",
               party: "",
-              subtitle: eventDate,
+              subtitle: formatDate(roundTimeline?.[Periods.appeal]),
               rightSided: true,
               Icon: AppealedCaseIcon,
             });
@@ -105,7 +101,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
             acc.push({
               title: "Won by Appeal",
               party: getVoteChoice(parsedDisputeFinalRuling, answers),
-              subtitle: eventDate,
+              subtitle: formatDate(roundTimeline?.[Periods.appeal]),
               rightSided: true,
               Icon: ClosedCaseIcon,
             });
@@ -117,7 +113,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
           {
             title: "Dispute created",
             party: "",
-            subtitle: getCaseEventTimes(lastPeriodChange, currentPeriodIndex, courtTimePeriods, true),
+            subtitle: formatDate(votingHistory?.dispute?.createdAt),
             rightSided: true,
             variant: theme.secondaryPurple,
           },

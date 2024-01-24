@@ -147,6 +147,7 @@ type Dispute @entity {
   id: ID!
   disputeID: BigInt!
   court: Court!
+  createdAt: BigInt
   arbitrated: Arbitrable!
   period: Period!
   ruled: Boolean!
@@ -183,6 +184,7 @@ type Round @entity {
   dispute: Dispute!
   court: Court!
   feeToken: FeeToken
+  timeline: [BigInt!]!
 }
 
 type Draw @entity(immutable: true) {

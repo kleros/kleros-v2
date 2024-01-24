@@ -1,0 +1,39 @@
+{
+  "subCategory": "General Service",
+  "arbitrableAddress": "0x0d67440946949fe293b45c52efd8a9b3d51e2522",
+  "title": "Liquidity Withdrawal Transfer Ownership Agreement ",
+  "description": "PARTIES:\nParty 1 (hereinafter referred to as the \"Seller\"):\n* Ethereum Address: 0xc4c4e8144823000d97310756d3237B305E967a09\n\nParty 2 (hereinafter referred to as the \"Buyer\"):\n* Ethereum Address: 0x213fea050A0dA676E97B4dc40e37E985008EA1a0\n\nRECITALS\n\nA. The Seller is the owner of an ERC-20 token contract, whose liquidity is locked on the UNCX.network platform.\nB. The \"Rights'' herein refer to the ability to demand liquidity withdrawal of the aforementioned ERC-20 token through the UNCX.network service by having the designated rights-holder's address assigned to the Gudetama in the contract 0x257EeF05f232B566cD0aF298Ec0B45C2C18d16c7 on the Ethereum chain.\n\nAGREEMENT\n\nTransfer of Rights:\n1.1. The transfer shall be completed by 12:00, Wednesday 20, December 2023 EDT, to the Buyer at the ETH wallet address: 0x8e6f7b23Cdf06db96FD96F4aF8369c0131FAf0F6.\n\nPayment:\n2.1. Upon successful fulfillment of 1.1, the Buyer shall transfer the full amount of 1,4 ETH to the Seller.\n\nNo Partial Payment:\n3.1. There shall be no conditions under which partial payment can be demanded by the Seller, unless the Buyer chooses to do so voluntarily through the Escrow contract.\n\nKleros Escrow:\n4.1. Any disputes arising from this Agreement shall be automatically escalated to the Court of Kleros after both parties fund the dispute resolution deposit. Should one side fail to do so in full, the other party will automatically win the dispute.",
+  "sender": "0x213fea050A0dA676E97B4dc40e37E985008EA1a0",
+  "receiver": "0xc4c4e8144823000d97310756d3237B305E967a09",
+  "amount": "1.4",
+  "timeout": 8640000000000000,
+  "token": {
+    "name": "Ethereum",
+    "ticker": "ETH",
+    "symbolURI": "/static/media/eth.33901ab6.png",
+    "address": null,
+    "decimals": 18
+  },
+  "extraData": {
+    "Contract Information": "PARTIES:\nParty 1 (hereinafter referred to as the \"Seller\"):\n* Ethereum Address: 0xc4c4e8144823000d97310756d3237B305E967a09\n\nParty 2 (hereinafter referred to as the \"Buyer\"):\n* Ethereum Address: 0x213fea050A0dA676E97B4dc40e37E985008EA1a0\n\nRECITALS\n\nA. The Seller is the owner of an ERC-20 token contract, whose liquidity is locked on the UNCX.network platform.\nB. The \"Rights'' herein refer to the ability to demand liquidity withdrawal of the aforementioned ERC-20 token through the UNCX.network service by having the designated rights-holder's address assigned to the Gudetama in the contract 0x257EeF05f232B566cD0aF298Ec0B45C2C18d16c7 on the Ethereum chain.\n\nAGREEMENT\n\nTransfer of Rights:\n1.1. The transfer shall be completed by 12:00, Wednesday 20, December 2023 EDT, to the Buyer at the ETH wallet address: 0x8e6f7b23Cdf06db96FD96F4aF8369c0131FAf0F6.\n\nPayment:\n2.1. Upon successful fulfillment of 1.1, the Buyer shall transfer the full amount of 1,4 ETH to the Seller.\n\nNo Partial Payment:\n3.1. There shall be no conditions under which partial payment can be demanded by the Seller, unless the Buyer chooses to do so voluntarily through the Escrow contract.\n\nKleros Escrow:\n4.1. Any disputes arising from this Agreement shall be automatically escalated to the Court of Kleros after both parties fund the dispute resolution deposit. Should one side fail to do so in full, the other party will automatically win the dispute."
+  },
+  "invoice": false,
+  "category": "Escrow",
+  "question": "Which party abided by terms of the contract?",
+  "rulingOptions": {
+    "type": "single-select",
+    "titles": [
+      "Refund Sender",
+      "Pay Receiver"
+    ],
+    "descriptions": [
+      "Select to return funds to the Sender",
+      "Select to release funds to the Receiver"
+    ]
+  },
+  "evidenceDisplayInterfaceURI": "/ipfs/QmfPnVdcCjApHdiCC8wAmyg5iR246JvVuQGQjQYgtF8gZU/index.html",
+  "aliases": {
+    "0x213fea050A0dA676E97B4dc40e37E985008EA1a0": "sender",
+    "0xc4c4e8144823000d97310756d3237B305E967a09": "receiver"
+  }
+}
