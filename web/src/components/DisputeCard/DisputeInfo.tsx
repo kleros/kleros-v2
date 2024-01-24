@@ -12,6 +12,7 @@ import Field from "../Field";
 import { getCourtsPath } from "pages/Courts/CourtDetails";
 import { useCourtTree } from "hooks/queries/useCourtTree";
 import { responsiveSize } from "styles/responsiveSize";
+import CardLabel from "./CardLabels";
 
 const Container = styled.div<{ isList: boolean; isOverview?: boolean }>`
   display: flex;
@@ -206,6 +207,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
             isOverview={isOverview}
           />
         )}
+        <CardLabel disputeId="1" round="1" />
       </RestOfFieldsContainer>
     </Container>
   );
