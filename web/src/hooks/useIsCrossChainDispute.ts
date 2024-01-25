@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { usePublicClient } from "wagmi";
 import { getIHomeGateway } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
-import { GENESIS_BLOCK_ARBSEPOLIA } from "consts";
+import { GENESIS_BLOCK_ARBSEPOLIA } from "src/consts";
 
 interface IIsCrossChainDispute {
   isCrossChainDispute: boolean;
