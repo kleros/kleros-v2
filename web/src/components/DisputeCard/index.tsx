@@ -10,11 +10,9 @@ import { DisputeDetailsFragment } from "queries/useCasesQuery";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
-import { useVotingHistory } from "queries/useVotingHistory";
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
-import { getLocalRounds } from "utils/getLocalRounds";
 import { responsiveSize } from "styles/responsiveSize";
 import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
@@ -92,7 +90,15 @@ interface IDisputeCard extends DisputeDetailsFragment {
   overrideIsList?: boolean;
 }
 
-const DisputeCard: React.FC<IDisputeCard> = ({ id, arbitrated, period, lastPeriodChange, court, overrideIsList }) => {
+const DisputeCard: React.FC<IDisputeCard> = ({
+  id,
+  currentRoundIndex,
+  arbitrated,
+  period,
+  lastPeriodChange,
+  court,
+  overrideIsList,
+}) => {
   const { isList } = useIsList();
   const currentPeriodIndex = Periods[period];
   const rewards = `≥ ${formatEther(court.feeForJuror)} ETH`;
@@ -109,12 +115,9 @@ const DisputeCard: React.FC<IDisputeCard> = ({ id, arbitrated, period, lastPerio
   } catch (e) {
     console.error(e);
   }
-  const title = isUndefined(disputeDetails) ? <StyledSkeleton /> : disputeDetails?.title ?? INVALID_DISPUTE_DATA_ERROR;
   const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
   const category = disputeTemplate?.category;
-  const { data: votingHistory } = useVotingHistory(id);
-  const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const navigate = useNavigate();
   return (
     <>
@@ -125,16 +128,13 @@ const DisputeCard: React.FC<IDisputeCard> = ({ id, arbitrated, period, lastPerio
             {isUndefined(disputeTemplate) ? (
               <StyledSkeleton />
             ) : (
-              <TruncatedTitle
-                text={disputeTemplate?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"}
-                maxLength={100}
-              />
+              <TruncatedTitle text={disputeDetails?.title ?? INVALID_DISPUTE_DATA_ERROR} maxLength={100} />
             )}
             <DisputeInfo
               courtId={court?.id}
               court={courtName}
               period={currentPeriodIndex}
-              round={localRounds?.length}
+              round={parseInt(currentRoundIndex) + 1}
               {...{ category, rewards, date, overrideIsList }}
             />
           </CardContainer>
