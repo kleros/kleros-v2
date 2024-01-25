@@ -3,6 +3,9 @@ name: Add PR labels
 on:
   pull_request:
     types: [opened, edited]
+    branches-ignore: 
+      - /^dependabot\/.*$/
+      - /^renovate\/.*$/
 
 permissions: # added using https://github.com/step-security/secure-workflows
   contents: read
