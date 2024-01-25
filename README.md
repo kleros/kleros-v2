@@ -137,7 +137,7 @@ graph-node-graph-node-1  | INFO Connected to Ethereum, capabilities: archive, tr
 :warning: This step modifies `subgraph.yaml` and creates a backup file. See further down on how to restore it.
 
 ```bash
-$ yarn workspace @kleros/kleros-v2-subgraph rebuild-deploy-local
+$ yarn workspace @kleros/kleros-v2-subgraph rebuild-deploy:local
 ...
 ✔ Upload subgraph to IPFS
 
@@ -172,7 +172,7 @@ Server running at http://localhost:1234
 $ yarn workspace @kleros/kleros-v2-contracts deploy-local
 
 # Subgraph
-$ yarn workspace @kleros/kleros-v2-subgraph rebuild-deploy-local
+$ yarn workspace @kleros/kleros-v2-subgraph rebuild-deploy:local
 
 ```
 
