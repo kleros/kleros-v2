@@ -18,6 +18,7 @@ export const disputeFragment = graphql(`
     arbitrated {
       id
     }
+    currentRoundIndex
     court {
       id
       policy
