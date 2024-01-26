@@ -4,7 +4,7 @@ import { PublicClient } from "viem";
 import { usePublicClient } from "wagmi";
 import { getIArbitrableV2 } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
-import { graphqlQueryFnHelper, graphqlUrl } from "utils/graphqlQueryFnHelper";
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
 import { useIsCrossChainDispute } from "../useIsCrossChainDispute";
 import { GENESIS_BLOCK_ARBSEPOLIA } from "consts/index";
 
@@ -23,6 +23,8 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
   const publicClient = usePublicClient();
   const { data: crossChainData } = useIsCrossChainDispute(disputeID, arbitrableAddress);
   const isEnabled = !isUndefined(disputeID) && !isUndefined(crossChainData) && !isUndefined(arbitrableAddress);
+  const { graphqlBatcher } = useGraphqlBatcher();
+
   return useQuery({
     queryKey: [`DisputeTemplate${disputeID}${arbitrableAddress}`],
     enabled: isEnabled,
@@ -30,16 +32,15 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
     queryFn: async () => {
       if (isEnabled) {
         try {
-          const { isCrossChainDispute, crossChainId, crossChainTemplateId } = crossChainData;
+          const { isCrossChainDispute, crossChainTemplateId } = crossChainData;
           const templateId = isCrossChainDispute
             ? crossChainTemplateId
             : await getTemplateId(arbitrableAddress, disputeID, publicClient);
-          const { disputeTemplate } = await graphqlQueryFnHelper(
-            disputeTemplateQuery,
-            { id: templateId.toString() },
-            true
-          );
-          console.log("useDisputeTemplate:", disputeTemplate);
+          const { disputeTemplate } = await graphqlBatcher.fetch({
+            document: disputeTemplateQuery,
+            variables: { id: templateId.toString() },
+            isDisputeTemplate: true,
+          });
 
           return disputeTemplate;
         } catch {

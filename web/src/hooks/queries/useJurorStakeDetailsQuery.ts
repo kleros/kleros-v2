@@ -1,7 +1,7 @@
 import { graphql } from "src/graphql";
 import { JurorStakeDetailsQuery } from "src/graphql/graphql";
 import { useQuery } from "@tanstack/react-query";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
 export type { JurorStakeDetailsQuery };
 
 const jurorStakeDetailsQuery = graphql(`
@@ -19,10 +19,11 @@ const jurorStakeDetailsQuery = graphql(`
 
 export const useJurorStakeDetailsQuery = (userId?: string) => {
   const isEnabled = userId !== undefined;
+  const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<JurorStakeDetailsQuery>({
     queryKey: ["refetchOnBlock", `jurorStakeDetails${userId}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(jurorStakeDetailsQuery, { userId }),
+    queryFn: async () => await graphqlBatcher.fetch({ document: jurorStakeDetailsQuery, variables: { userId } }),
   });
 };

@@ -5767,6 +5767,7 @@ __metadata:
     "@wagmi/cli": "npm:^1.5.2"
     "@web3modal/ethereum": "npm:^2.7.1"
     "@web3modal/react": "npm:^2.7.1"
+    "@yornaath/batshit": "npm:^0.9.0"
     amqplib: "npm:^0.10.3"
     chart.js: "npm:^3.9.1"
     chartjs-adapter-moment: "npm:^1.0.1"
@@ -11642,6 +11643,22 @@ __metadata:
   version: 4.2.2
   resolution: "@xtuc/long@npm:4.2.2"
   checksum: 7217bae9fe240e0d804969e7b2af11cb04ec608837c78b56ca88831991b287e232a0b7fce8d548beaff42aaf0197ffa471d81be6ac4c4e53b0148025a2c076ec
+  languageName: node
+  linkType: hard
+
+"@yornaath/batshit-devtools@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "@yornaath/batshit-devtools@npm:1.6.0"
+  checksum: 33632d225f60cb60b2ccff038215540ad47b50cf879aa759a588037b11d3ee81c468d60e91f2d8512a132269c7702fe6f4f5bab643ef1ea7d80e03e8581678df
+  languageName: node
+  linkType: hard
+
+"@yornaath/batshit@npm:^0.9.0":
+  version: 0.9.0
+  resolution: "@yornaath/batshit@npm:0.9.0"
+  dependencies:
+    "@yornaath/batshit-devtools": "npm:^1.6.0"
+  checksum: 74d8af35f24a1f009a0d151b599ac4f7d04314f82a62eeb1fc16e0852ece766b76a1fe052638f37c5932b58488b6e0272420784002de4f46ae69bcf71508d20a
   languageName: node
   linkType: hard
 
