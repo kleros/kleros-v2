@@ -36,15 +36,17 @@ const createPair = (contentColor: string, backgroundColor: string) => ({
 interface ILabelProps {
   text: string;
   icon: React.FC<React.SVGAttributes<SVGElement>>;
-  color: "red" | "green" | "blue" | "purple" | "grey";
+  color: "red" | "green" | "blue" | "purple" | "grey" | "lightPurple";
 }
 const Label: React.FC<ILabelProps> = ({ text, icon: Icon, color }) => {
   const theme = useTheme();
+
   const COLORS = {
     red: createPair(theme.error, theme.errorLight),
     green: createPair(theme.success, theme.successLight),
     blue: createPair(theme.primaryBlue, theme.mediumBlue),
     purple: createPair(theme.secondaryPurple, theme.mediumPurple),
+    lightPurple: createPair(theme.tint, theme.mediumPurple),
     grey: createPair(theme.secondaryText, theme.lightGrey),
   };
   return (

@@ -95,6 +95,7 @@ const getPeriodPhrase = (period: Periods): string => {
 };
 
 export interface IDisputeInfo {
+  disputeID?: string;
   courtId?: string;
   court?: string;
   category?: string;
@@ -102,8 +103,10 @@ export interface IDisputeInfo {
   period?: Periods;
   date?: number;
   round?: number;
+  disputeKitId?: string;
   overrideIsList?: boolean;
   isOverview?: boolean;
+  showLabels?: boolean;
 }
 
 const formatDate = (date: number) => {
@@ -114,6 +117,7 @@ const formatDate = (date: number) => {
 };
 
 const DisputeInfo: React.FC<IDisputeInfo> = ({
+  disputeID,
   courtId,
   court,
   category,
@@ -121,8 +125,10 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
   period,
   date,
   round,
+  disputeKitId,
   overrideIsList,
   isOverview,
+  showLabels = false,
 }) => {
   const { isList } = useIsList();
   const displayAsList = isList && !overrideIsList;
@@ -136,7 +142,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
     })) ?? [])
   );
   const courtBranchValue = items.map((item) => item.text).join(" / ");
-
+  const localRoundID = `${disputeKitId}-${disputeID}-${round! - 1}`;
   return (
     <Container isList={displayAsList} isOverview={isOverview}>
       <CourtBranchFieldContainer isOverview={isOverview}>
@@ -207,7 +213,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
             isOverview={isOverview}
           />
         )}
-        <CardLabel disputeId="1" round="1" />
+        {showLabels && <CardLabel disputeId={disputeID!} localRoundId={localRoundID} />}
       </RestOfFieldsContainer>
     </Container>
   );
