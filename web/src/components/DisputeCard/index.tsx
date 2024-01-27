@@ -97,7 +97,6 @@ const DisputeCard: React.FC<IDisputeCard> = ({
   period,
   lastPeriodChange,
   court,
-  currentRound,
   overrideIsList,
 }) => {
   const { isList } = useIsList();
@@ -137,7 +136,6 @@ const DisputeCard: React.FC<IDisputeCard> = ({
               court={courtName}
               period={currentPeriodIndex}
               round={parseInt(currentRoundIndex) + 1}
-              disputeKitId={currentRound.disputeKit.id}
               showLabels
               {...{ category, rewards, date, overrideIsList }}
             />

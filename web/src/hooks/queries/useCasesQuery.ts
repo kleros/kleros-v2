@@ -19,11 +19,6 @@ export const disputeFragment = graphql(`
       id
     }
     currentRoundIndex
-    currentRound {
-      disputeKit {
-        id
-      }
-    }
     court {
       id
       policy
