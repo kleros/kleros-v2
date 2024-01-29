@@ -25,7 +25,10 @@ export function ensureClassicContributionFromEvent<T>(event: T): ClassicContribu
     classicContribution.rewardWithdrawn = false;
   } else {
     const currentAmount = classicContribution.amount;
-    classicContribution.amount = currentAmount.plus(event.params._amount);
+    //we dont want to increase amount on withdraw event, the amount in that event is reward/reimburse amount
+    if (event instanceof ContributionEvent) {
+      classicContribution.amount = currentAmount.plus(event.params._amount);
+    }
   }
 
   classicContribution.save();
