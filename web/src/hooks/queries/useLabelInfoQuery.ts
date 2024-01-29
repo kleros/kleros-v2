@@ -16,7 +16,9 @@ const labelQuery = graphql(`
       rounds {
         drawnJurors(where: { juror: $address }, first: 1) {
           vote {
-            id
+            ... on ClassicVote {
+              choice
+            }
           }
         }
       }

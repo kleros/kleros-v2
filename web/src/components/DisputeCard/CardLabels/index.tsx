@@ -60,12 +60,12 @@ const CardLabel: React.FC<ICardLabels> = ({ disputeId, round }) => {
   const currentRound = rounds?.[round];
 
   const period = labelInfo?.dispute?.period!;
-  const hasVotedCurrentRound = !isUndefined(currentRound?.drawnJurors?.[0]?.vote);
+  const hasVotedCurrentRound = !isUndefined(currentRound?.drawnJurors?.[0]?.vote?.choice);
   const isDrawnCurrentRound = currentRound?.drawnJurors.length !== 0;
-  const hasVotedInDispute = rounds?.some((item) => !isUndefined(item.drawnJurors?.[0]?.vote));
+  const hasVotedInDispute = rounds?.some((item) => !isUndefined(item.drawnJurors?.[0]?.vote?.choice));
   const isDrawnInDispute = rounds?.some((item) => item?.drawnJurors.length);
-  const hasFundedCurrentRound = localRounds?.[round]?.contributions.length !== 0; //if hasFundedCurrentRound in current round
-  const currentRoundFund = getFundingRewards(localRounds?.[round]?.contributions, period === "execution"); //current round's fund amount
+  const hasFundedCurrentRound = localRounds?.[round]?.contributions.length !== 0; // if hasFundedCurrentRound in current round
+  const currentRoundFund = getFundingRewards(localRounds?.[round]?.contributions, period === "execution"); // current round's fund amount
   const shifts = labelInfo?.dispute?.shifts;
 
   const contributions = useMemo(
@@ -78,22 +78,21 @@ const CardLabel: React.FC<ICardLabels> = ({ disputeId, round }) => {
   );
 
   const contributionRewards = useMemo(() => getFundingRewards(contributions, true), [contributions]);
-  const hasFundedDispute = contributions?.length !== 0; //if ever funded the dispute in any round
+  const hasFundedDispute = contributions?.length !== 0; // if ever funded the dispute in any round
 
   const labelData = useMemo(() => {
     if (period === "evidence") return LabelArgs.EvidenceTime;
-    if (!isDrawnCurrentRound && period === "appeal" && !hasFundedCurrentRound) return LabelArgs.CanFund;
+    if (!isDrawnCurrentRound && period === "appeal")
+      return hasFundedCurrentRound ? LabelArgs.Funded : LabelArgs.CanFund;
 
     if (!isDrawnCurrentRound && period === "execution" && hasFundedDispute) return LabelArgs.Funded;
-    if (!isDrawnCurrentRound && period === "appeal" && hasFundedCurrentRound) return LabelArgs.Funded; //plus amount
-    if (period === "execution" && isDrawnInDispute && hasVotedInDispute) return LabelArgs.Voted;
+    if (period === "execution" && hasVotedInDispute) return LabelArgs.Voted;
     if (period === "execution" && isDrawnInDispute && !hasVotedInDispute) return LabelArgs.DidNotVote;
     if (!isDrawnCurrentRound) return LabelArgs.NotDrawn;
 
     if (["commit", "vote"].includes(period) && !hasVotedCurrentRound) return LabelArgs.CanVote;
-    if (["vote", "appeal", "execution"].includes(period) && hasVotedCurrentRound) return LabelArgs.Voted; //plus rewards if execution
-    if (["appeal", "execution"].includes(period) && !hasVotedCurrentRound) return LabelArgs.DidNotVote; //plus rewards if execution
-    return LabelArgs.NotDrawn;
+    if (hasVotedCurrentRound) return LabelArgs.Voted; // plus rewards if execution
+    return LabelArgs.DidNotVote; // plus rewards if execution
   }, [labelInfo]);
 
   const rewardsData = useMemo(() => {
