@@ -213,7 +213,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
             isOverview={isOverview}
           />
         )}
-        {showLabels && !isDisconnected ? <CardLabel disputeId={disputeID!} round={round! - 1} /> : null}
+        {showLabels && !isDisconnected ? <CardLabel disputeId={disputeID} round={round - 1} /> : null}
       </RestOfFieldsContainer>
     </Container>
   );
