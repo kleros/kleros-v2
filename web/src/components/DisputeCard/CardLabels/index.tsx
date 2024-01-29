@@ -8,8 +8,6 @@ import VotedIcon from "svgs/label-icons/voted.svg";
 import ForgotToVoteIcon from "svgs/label-icons/forgot-vote.svg";
 import AppealIcon from "svgs/label-icons/appeal.svg";
 import FundedIcon from "svgs/label-icons/funded.svg";
-import WonIcon from "svgs/label-icons/rewards-won.svg";
-import LostIcon from "svgs/label-icons/rewards-lost.svg";
 import { useAccount } from "wagmi";
 import { useLabelInfoQuery } from "hooks/queries/useLabelInfoQuery";
 import { isUndefined } from "utils/index";
@@ -37,8 +35,6 @@ const LabelArgs = {
   DidNotVote: { text: "Forgot to vote", icon: ForgotToVoteIcon, color: "purple" },
   CanFund: { text: "I can fund the appeal", icon: AppealIcon, color: "lightPurple" },
   Funded: { text: "I funded", icon: FundedIcon, color: "lightPurple" },
-  Won: { text: "Won", icon: WonIcon, color: "green" },
-  Lost: { text: "Lost", icon: LostIcon, color: "red" },
 };
 const CardLabel: React.FC<ICardLabels> = ({ disputeId, round }) => {
   const { address } = useAccount();
@@ -90,7 +86,6 @@ const CardLabel: React.FC<ICardLabels> = ({ disputeId, round }) => {
       { ethShift: 0, pnkShift: 0 }
     );
   }, [labelData, labelInfo]);
-  const isWon = Number(rewardsData?.pnkShift) > 0;
 
   return isLoading ? (
     <Skeleton width={180} height={14} />
@@ -98,7 +93,6 @@ const CardLabel: React.FC<ICardLabels> = ({ disputeId, round }) => {
     <Container>
       {" "}
       <Label {...labelData} />
-      {/* {!isUndefined(rewardsData) ? <>{isWon ? <Label {...LabelArgs.Won} /> : <Label {...LabelArgs.Lost} />}</> : null} */}
       {!isUndefined(rewardsData) ? (
         <>
           <RewardsAndFundLabel value={rewardsData.ethShift.toString()} unit="ETH" />
