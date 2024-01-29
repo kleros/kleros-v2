@@ -5779,7 +5779,7 @@ __metadata:
     ethers: "npm:^5.7.2"
     graphql: "npm:^16.8.1"
     graphql-request: "npm:~6.1.0"
-    lru-cache: "npm:^7.18.3"
+    lru-cache: "npm:^10.2.0"
     moment: "npm:^2.30.1"
     overlayscrollbars: "npm:^2.4.6"
     overlayscrollbars-react: "npm:^0.5.3"
@@ -24501,6 +24501,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lru-cache@npm:^10.2.0":
+  version: 10.2.0
+  resolution: "lru-cache@npm:10.2.0"
+  checksum: 502ec42c3309c0eae1ce41afca471f831c278566d45a5273a0c51102dee31e0e250a62fa9029c3370988df33a14188a38e682c16143b794de78668de3643e302
+  languageName: node
+  linkType: hard
+
 "lru-cache@npm:^4.1.2":
   version: 4.1.5
   resolution: "lru-cache@npm:4.1.5"
@@ -24529,7 +24536,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lru-cache@npm:^7.18.3, lru-cache@npm:^7.7.1":
+"lru-cache@npm:^7.7.1":
   version: 7.18.3
   resolution: "lru-cache@npm:7.18.3"
   checksum: 6029ca5aba3aacb554e919d7ef804fffd4adfc4c83db00fac8248c7c78811fb6d4b6f70f7fd9d55032b3823446546a007edaa66ad1f2377ae833bd983fac5d98

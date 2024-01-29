@@ -67,7 +67,7 @@
     "eslint-import-resolver-parcel": "^1.10.6",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "lru-cache": "^7.18.3",
+    "lru-cache": "^10.2.0",
     "parcel": "2.11.0",
     "supabase": "^1.133.3",
     "typescript": "^5.3.3"
