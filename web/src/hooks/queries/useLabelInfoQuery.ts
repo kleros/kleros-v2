@@ -39,7 +39,7 @@ export const useLabelInfoQuery = (address?: string | null, disputeID?: string) =
   return useQuery<LabelInfoQuery>({
     queryKey: [`labelQuery${[address, disputeID]}`],
     enabled: isEnabled,
-    staleTime: Infinity,
+    staleTime: 60000,
     queryFn: async () => await graphqlQueryFnHelper(labelQuery, { address, disputeID }),
   });
 };
