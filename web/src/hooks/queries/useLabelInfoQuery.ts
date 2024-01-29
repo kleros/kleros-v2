@@ -7,7 +7,6 @@ export type { LabelInfoQuery };
 const labelQuery = graphql(`
   query LabelInfo($address: String, $disputeID: ID!) {
     dispute(id: $disputeID) {
-      currentRuling
       period
 
       shifts(where: { juror: $address }) {
@@ -24,11 +23,9 @@ const labelQuery = graphql(`
       disputeKitDispute {
         localRounds {
           ... on ClassicRound {
-            feeRewards
-            paidFees
             contributions(where: { contributor: $address }) {
               amount
-              choice
+              rewardAmount
             }
           }
         }
