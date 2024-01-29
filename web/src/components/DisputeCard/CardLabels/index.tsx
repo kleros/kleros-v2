@@ -110,21 +110,24 @@ const CardLabel: React.FC<ICardLabels> = ({ disputeId, round }) => {
     return shift;
   }, [labelData, labelInfo, contributionRewards]);
 
-  return isLoading ? (
-    <Skeleton width={180} height={14} />
-  ) : (
+  return (
     <Container>
-      {" "}
-      <Label {...labelData} />
-      {!isUndefined(rewardsData) && period === "execution" ? (
+      {isLoading ? (
+        <Skeleton width={180} height={14} />
+      ) : (
         <>
-          <RewardsAndFundLabel value={rewardsData.ethShift.toString()} unit="ETH" />
-          <RewardsAndFundLabel value={rewardsData.pnkShift.toString()} unit="PNK" />
+          <Label {...labelData} />
+          {!isUndefined(rewardsData) && period === "execution" ? (
+            <>
+              <RewardsAndFundLabel value={rewardsData.ethShift.toString()} unit="ETH" />
+              <RewardsAndFundLabel value={rewardsData.pnkShift.toString()} unit="PNK" />
+            </>
+          ) : null}
+          {!isUndefined(currentRoundFund) && period === "appeal" ? (
+            <RewardsAndFundLabel value={currentRoundFund.toString()} unit="ETH" isFund />
+          ) : null}
         </>
-      ) : null}
-      {!isUndefined(currentRoundFund) && period === "appeal" ? (
-        <RewardsAndFundLabel value={currentRoundFund.toString()} unit="ETH" isFund />
-      ) : null}
+      )}
     </Container>
   );
 };
