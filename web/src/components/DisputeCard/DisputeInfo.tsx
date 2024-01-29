@@ -13,6 +13,7 @@ import { getCourtsPath } from "pages/Courts/CourtDetails";
 import { useCourtTree } from "hooks/queries/useCourtTree";
 import { responsiveSize } from "styles/responsiveSize";
 import CardLabel from "./CardLabels";
+import { useAccount } from "wagmi";
 
 const Container = styled.div<{ isList: boolean; isOverview?: boolean }>`
   display: flex;
@@ -129,6 +130,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
   showLabels = false,
 }) => {
   const { isList } = useIsList();
+  const { isDisconnected } = useAccount();
   const displayAsList = isList && !overrideIsList;
   const { data } = useCourtTree();
   const courtPath = getCourtsPath(data?.court, courtId);
@@ -211,7 +213,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
             isOverview={isOverview}
           />
         )}
-        {showLabels && <CardLabel disputeId={disputeID!} round={round! - 1} />}
+        {showLabels && !isDisconnected ? <CardLabel disputeId={disputeID!} round={round! - 1} /> : null}
       </RestOfFieldsContainer>
     </Container>
   );
