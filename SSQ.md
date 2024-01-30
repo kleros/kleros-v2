@@ -1,5 +1,5 @@
 # SimpleSquanch (SSQ)
-
+ 
 The squanchy alternative to SSQ inspired by the [Varint serializer of Protocol Buffer](https://developers.google.com/protocol-buffers/docs/encoding#varints) and @metachris's [minimalistic approach](https://github.com/metachris/binary-serializer#base-128-varints). It is also an alternative to [Solidity's encodePacked()](https://docs.soliditylang.org/en/latest/abi-spec.html?highlight=encode#non-standard-packed-mode) which requires fixed-length fields and at most 1 variable-length field to decode without ambiguity.
 
 ## What is it?
