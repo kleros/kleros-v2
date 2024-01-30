@@ -1,6 +1,7 @@
 import request from "graphql-request";
 import { arbitrumSepolia } from "wagmi/chains";
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
+import { debounceErrorToast } from "./debounceErrorToast";
 
 const CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH = {
   [arbitrumSepolia.id]:
@@ -18,6 +19,11 @@ export const graphqlQueryFnHelper = async (
   isDisputeTemplate = false,
   chainId = arbitrumSepolia.id
 ) => {
-  const url = graphqlUrl(isDisputeTemplate, chainId);
-  return request(url, query, parametersObject);
+  try {
+    const url = graphqlUrl(isDisputeTemplate, chainId);
+    return await request(url, query, parametersObject);
+  } catch (error) {
+    console.log("Graph error : ", { error });
+    debounceErrorToast("Graph failed : failed to fetch data");
+  }
 };

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { graphql } from "src/graphql";
-import { PublicClient } from "viem";
+import { HttpRequestError, PublicClient } from "viem";
 import { usePublicClient } from "wagmi";
 import { getIArbitrableV2 } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
@@ -12,6 +12,7 @@ import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActio
 import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
 import { alchemyApiKey } from "context/Web3Provider";
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
+import { debounceErrorToast } from "utils/debounceErrorToast";
 
 const disputeTemplateQuery = graphql(`
   query DisputeTemplate($id: ID!) {
@@ -66,7 +67,10 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
           const disputeDetailes = populateTemplate(disputeTemplateInput, data);
 
           return disputeDetailes;
-        } catch {
+        } catch (error) {
+          if (error instanceof HttpRequestError) {
+            debounceErrorToast("RPC failed!, Please avoid voting.");
+          }
           return {} as DisputeDetails;
         }
       } else throw Error;
