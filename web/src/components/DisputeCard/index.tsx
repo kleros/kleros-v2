@@ -14,8 +14,6 @@ import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
 import { responsiveSize } from "styles/responsiveSize";
-import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
-import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 import { INVALID_DISPUTE_DATA_ERROR } from "consts/index";
 
 const StyledCard = styled(Card)`
@@ -106,18 +104,11 @@ const DisputeCard: React.FC<IDisputeCard> = ({
     currentPeriodIndex === 4
       ? lastPeriodChange
       : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, court.timesPerPeriod);
-  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrated.id as `0x${string}`);
-  let disputeDetails: DisputeDetails | undefined;
-  try {
-    if (disputeTemplate) {
-      disputeDetails = populateTemplate(disputeTemplate.templateData, {});
-    }
-  } catch (e) {
-    console.error(e);
-  }
+  const { data: disputeDetails } = useDisputeTemplate(id, arbitrated.id as `0x${string}`);
+
   const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
-  const category = disputeTemplate?.category;
+  const category = disputeDetails?.category;
   const navigate = useNavigate();
   return (
     <>
@@ -125,7 +116,7 @@ const DisputeCard: React.FC<IDisputeCard> = ({
         <StyledCard hover onClick={() => navigate(`/cases/${id.toString()}`)}>
           <PeriodBanner id={parseInt(id)} period={currentPeriodIndex} />
           <CardContainer>
-            {isUndefined(disputeTemplate) ? (
+            {isUndefined(disputeDetails) ? (
               <StyledSkeleton />
             ) : (
               <TruncatedTitle text={disputeDetails?.title ?? INVALID_DISPUTE_DATA_ERROR} maxLength={100} />

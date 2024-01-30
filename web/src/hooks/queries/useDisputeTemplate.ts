@@ -4,9 +4,14 @@ import { PublicClient } from "viem";
 import { usePublicClient } from "wagmi";
 import { getIArbitrableV2 } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
-import { graphqlQueryFnHelper, graphqlUrl } from "utils/graphqlQueryFnHelper";
+import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 import { useIsCrossChainDispute } from "../useIsCrossChainDispute";
 import { GENESIS_BLOCK_ARBSEPOLIA } from "consts/index";
+import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
+import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
+import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
+import { alchemyApiKey } from "context/Web3Provider";
+import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 
 const disputeTemplateQuery = graphql(`
   query DisputeTemplate($id: ID!) {
@@ -23,7 +28,7 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
   const publicClient = usePublicClient();
   const { data: crossChainData } = useIsCrossChainDispute(disputeID, arbitrableAddress);
   const isEnabled = !isUndefined(disputeID) && !isUndefined(crossChainData) && !isUndefined(arbitrableAddress);
-  return useQuery({
+  return useQuery<DisputeDetails>({
     queryKey: [`DisputeTemplate${disputeID}${arbitrableAddress}`],
     enabled: isEnabled,
     staleTime: Infinity,
@@ -40,10 +45,29 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
             true
           );
           console.log("useDisputeTemplate:", disputeTemplate);
+          const disputeTemplateInput = disputeTemplate?.templateData;
+          const dataMappingsInput = disputeTemplate?.templateDataMappings;
 
-          return disputeTemplate;
+          configureSDK({ apiKey: alchemyApiKey });
+
+          const initialContext = {
+            disputeID: disputeID,
+            arbitrable: arbitrableAddress,
+          };
+
+          console.log("dataMappingsInput", dataMappingsInput);
+          let data = {};
+          if (dataMappingsInput) {
+            const parsedMappings = JSON.parse(dataMappingsInput);
+            console.log("parsedMappings", parsedMappings);
+            data = await executeActions(parsedMappings, initialContext);
+          }
+          console.log("data", data);
+          const disputeDetailes = populateTemplate(disputeTemplateInput, data);
+
+          return disputeDetailes;
         } catch {
-          return {};
+          return {} as DisputeDetails;
         }
       } else throw Error;
     },
