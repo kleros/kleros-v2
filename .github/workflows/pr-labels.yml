@@ -9,6 +9,8 @@ on:
 
 permissions: # added using https://github.com/step-security/secure-workflows
   contents: read
+  issues: read
+  pull-requests: write
 
 jobs:
   copy-labels:
@@ -34,6 +36,4 @@ jobs:
         uses: michalvankodev/copy-issue-labels@f54e957e58fc976eba5ffa36e1a1030572dbb78d # v1.3.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-        permissions:
-          issues: read
-          pull-requests: write
+        
