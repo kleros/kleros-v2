@@ -4,7 +4,7 @@ import { getIHomeGateway } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
 import { GENESIS_BLOCK_ARBSEPOLIA } from "src/consts";
 import { debounceErrorToast } from "utils/debounceErrorToast";
-import { HttpRequestError } from "viem";
+import { HttpRequestError, RpcError } from "viem";
 
 interface IIsCrossChainDispute {
   isCrossChainDispute: boolean;
@@ -54,8 +54,8 @@ export const useIsCrossChainDispute = (disputeID?: string, arbitrableAddress?: `
               crossChainArbitrableAddress: "0x",
             };
           }
-        } catch (error: any) {
-          if (error instanceof HttpRequestError) {
+        } catch (error) {
+          if (error instanceof HttpRequestError || error instanceof RpcError) {
             debounceErrorToast("RPC failed!, Please avoid voting.");
           }
           throw Error;

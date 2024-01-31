@@ -39,7 +39,7 @@ interface IOverview {
 
 const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex }) => {
   const { id } = useParams();
-  const { data: disputeDetails } = useDisputeTemplate(id, arbitrable);
+  const { data: disputeDetails, isError } = useDisputeTemplate(id, arbitrable);
   const { data: dispute } = useDisputeDetailsQuery(id);
   const { data: courtPolicy } = useCourtPolicy(courtID);
   const { data: votingHistory } = useVotingHistory(id);
@@ -52,7 +52,7 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
   return (
     <>
       <Container>
-        <DisputeContext disputeDetails={disputeDetails} />
+        <DisputeContext disputeDetails={disputeDetails} isRpcError={isError} />
         <Divider />
 
         <Verdict arbitrable={arbitrable} />

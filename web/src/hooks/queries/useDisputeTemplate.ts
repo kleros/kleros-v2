@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { graphql } from "src/graphql";
-import { HttpRequestError, PublicClient } from "viem";
+import { HttpRequestError, PublicClient, RpcError } from "viem";
 import { usePublicClient } from "wagmi";
 import { getIArbitrableV2 } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
@@ -27,14 +27,14 @@ const disputeTemplateQuery = graphql(`
 
 export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
   const publicClient = usePublicClient();
-  const { data: crossChainData } = useIsCrossChainDispute(disputeID, arbitrableAddress);
+  const { data: crossChainData, isError } = useIsCrossChainDispute(disputeID, arbitrableAddress);
   const isEnabled = !isUndefined(disputeID) && !isUndefined(crossChainData) && !isUndefined(arbitrableAddress);
   return useQuery<DisputeDetails>({
     queryKey: [`DisputeTemplate${disputeID}${arbitrableAddress}`],
     enabled: isEnabled,
     staleTime: Infinity,
     queryFn: async () => {
-      if (isEnabled) {
+      if (isEnabled && !isError) {
         try {
           const { isCrossChainDispute, crossChainId, crossChainTemplateId } = crossChainData;
           const templateId = isCrossChainDispute
@@ -68,9 +68,11 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
 
           return disputeDetailes;
         } catch (error) {
-          if (error instanceof HttpRequestError) {
+          if (error instanceof HttpRequestError || error instanceof RpcError) {
             debounceErrorToast("RPC failed!, Please avoid voting.");
+            throw Error;
           }
+
           return {} as DisputeDetails;
         }
       } else throw Error;
