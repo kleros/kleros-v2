@@ -9,8 +9,6 @@ import { useIsCrossChainDispute } from "../useIsCrossChainDispute";
 import { GENESIS_BLOCK_ARBSEPOLIA } from "consts/index";
 import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
 import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
-import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
-import { alchemyApiKey } from "context/Web3Provider";
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 
 const disputeTemplateQuery = graphql(`
@@ -39,31 +37,22 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
           const templateId = isCrossChainDispute
             ? crossChainTemplateId
             : await getTemplateId(arbitrableAddress, disputeID, publicClient);
+
           const { disputeTemplate } = await graphqlQueryFnHelper(
             disputeTemplateQuery,
             { id: templateId.toString() },
             true
           );
-          console.log("useDisputeTemplate:", disputeTemplate);
-          const disputeTemplateInput = disputeTemplate?.templateData;
-          const dataMappingsInput = disputeTemplate?.templateDataMappings;
-
-          configureSDK({ apiKey: alchemyApiKey });
+          const templateData = disputeTemplate?.templateData;
+          const dataMappings = disputeTemplate?.templateDataMappings;
 
           const initialContext = {
             disputeID: disputeID,
             arbitrable: arbitrableAddress,
           };
 
-          console.log("dataMappingsInput", dataMappingsInput);
-          let data = {};
-          if (dataMappingsInput) {
-            const parsedMappings = JSON.parse(dataMappingsInput);
-            console.log("parsedMappings", parsedMappings);
-            data = await executeActions(parsedMappings, initialContext);
-          }
-          console.log("data", data);
-          const disputeDetailes = populateTemplate(disputeTemplateInput, data);
+          const data = dataMappings ? await executeActions(JSON.parse(dataMappings), initialContext) : {};
+          const disputeDetailes = populateTemplate(templateData, data);
 
           return disputeDetailes;
         } catch {
