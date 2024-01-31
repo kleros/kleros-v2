@@ -23,7 +23,7 @@ export const graphqlQueryFnHelper = async (
     const url = graphqlUrl(isDisputeTemplate, chainId);
     return await request(url, query, parametersObject);
   } catch (error) {
-    console.log("Graph error : ", { error });
-    debounceErrorToast("Graph failed : failed to fetch data");
+    console.log("Graph error: ", { error });
+    debounceErrorToast("Graph query error: failed to fetch data.");
   }
 };
