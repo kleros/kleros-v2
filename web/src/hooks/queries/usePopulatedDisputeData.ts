@@ -22,7 +22,7 @@ const disputeTemplateQuery = graphql(`
   }
 `);
 
-export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
+export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
   const publicClient = usePublicClient();
   const { data: crossChainData } = useIsCrossChainDispute(disputeID, arbitrableAddress);
   const isEnabled = !isUndefined(disputeID) && !isUndefined(crossChainData) && !isUndefined(arbitrableAddress);
