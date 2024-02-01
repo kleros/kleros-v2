@@ -3,12 +3,13 @@ import styled from "styled-components";
 import { Textarea } from "@kleros/ui-components-library";
 import PolicyIcon from "svgs/icons/policy.svg";
 import ReactMarkdown from "components/ReactMarkdown";
-import { INVALID_DISPUTE_DATA_ERROR, IPFS_GATEWAY } from "consts/index";
+import { INVALID_DISPUTE_DATA_ERROR } from "consts/index";
 import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
 import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
 import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
 import { Answer, DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 import { alchemyApiKey } from "context/Web3Provider";
+import { getIpfsUrl } from "utils/getIpfsUrl";
 
 const Container = styled.div`
   width: 50%;
@@ -160,7 +161,11 @@ const Overview: React.FC<{ disputeDetails: DisputeDetails | undefined }> = ({ di
           <p>Make sure you read and understand the Policies</p>
           <LinkContainer>
             {disputeDetails?.policyURI && (
-              <StyledA href={`${IPFS_GATEWAY}${disputeDetails.policyURI}`} target="_blank" rel="noreferrer">
+              <StyledA
+                href={getIpfsUrl(disputeDetails?.policyURI)}
+                target={disputeDetails?.policyURI.startsWith("ipfs://") ? "_self" : "_blank"}
+                rel="noreferrer"
+              >
                 <PolicyIcon />
                 Dispute Policy
               </StyledA>
