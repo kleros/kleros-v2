@@ -33,7 +33,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
     queryFn: async () => {
       if (isEnabled) {
         try {
-          const { isCrossChainDispute, crossChainId, crossChainTemplateId } = crossChainData;
+          const { isCrossChainDispute, crossChainTemplateId } = crossChainData;
           const templateId = isCrossChainDispute
             ? crossChainTemplateId
             : await getTemplateId(arbitrableAddress, disputeID, publicClient);
