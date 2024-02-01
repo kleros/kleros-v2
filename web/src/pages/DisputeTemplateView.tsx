@@ -9,6 +9,8 @@ import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActio
 import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
 import { Answer, DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 import { alchemyApiKey } from "context/Web3Provider";
+import { useDebounce } from "react-use";
+import Skeleton from "react-loading-skeleton";
 
 const Container = styled.div`
   width: 50%;
@@ -110,11 +112,10 @@ const LongText = styled.div`
   width: auto;
 `;
 
-const DisputeTemplateView: React.FC = () => {
+const DisputeTemplateView = () => {
   const [disputeDetails, setDisputeDetails] = useState<DisputeDetails | undefined>(undefined);
   const [disputeTemplateInput, setDisputeTemplateInput] = useState<string>("");
   const [dataMappingsInput, setDataMappingsInput] = useState<string>("");
-
   const [arbitrator, setArbitrator] = useState("");
   const [arbitrable, setArbitrable] = useState("");
   const [arbitrableDisputeID, setArbitrableDisputeID] = useState("");
@@ -122,45 +123,85 @@ const DisputeTemplateView: React.FC = () => {
   const [templateID, setTemplateID] = useState("");
   const [templateUri, setTemplateUri] = useState("");
 
+  const [debouncedArbitrator, setDebouncedArbitrator] = useState(arbitrator);
+  const [debouncedArbitrable, setDebouncedArbitrable] = useState(arbitrable);
+  const [debouncedArbitrableDisputeID, setDebouncedArbitrableDisputeID] = useState(arbitrableDisputeID);
+  const [debouncedExternalDisputeID, setDebouncedExternalDisputeID] = useState(externalDisputeID);
+  const [debouncedTemplateID, setDebouncedTemplateID] = useState(templateID);
+  const [debouncedTemplateUri, setDebouncedTemplateUri] = useState(templateUri);
+  const [loading, setLoading] = useState(false);
+
+  useDebounce(() => setDebouncedArbitrator(arbitrator), 350, [arbitrator]);
+  useDebounce(() => setDebouncedArbitrable(arbitrable), 350, [arbitrable]);
+  useDebounce(() => setDebouncedArbitrableDisputeID(arbitrableDisputeID), 350, [arbitrableDisputeID]);
+  useDebounce(() => setDebouncedExternalDisputeID(externalDisputeID), 350, [externalDisputeID]);
+  useDebounce(() => setDebouncedTemplateID(templateID), 350, [templateID]);
+  useDebounce(() => setDebouncedTemplateUri(templateUri), 350, [templateUri]);
+
   useEffect(() => {
     configureSDK({ apiKey: alchemyApiKey });
 
-    const initialContext = {
-      arbitrator: arbitrator,
-      arbitrable: arbitrable,
-      arbitrableDisputeID: parseInt(arbitrableDisputeID),
-      externalDisputeID: parseInt(externalDisputeID),
-      templateID: parseInt(templateID),
-      templateUri: templateUri,
-    };
+    let isFetchDataScheduled = false;
 
-    if (!disputeTemplateInput || !dataMappingsInput) return;
+    const scheduleFetchData = () => {
+      if (!isFetchDataScheduled) {
+        isFetchDataScheduled = true;
 
-    const fetchData = async () => {
-      try {
-        const parsedMappings = JSON.parse(dataMappingsInput);
-        const data = await executeActions(parsedMappings, initialContext);
-        const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
-        setDisputeDetails(finalDisputeDetails);
-        console.log("finalTemplate: ", finalDisputeDetails);
-      } catch (e) {
-        console.error(e);
-        setDisputeDetails(undefined);
+        setLoading(true);
+
+        setTimeout(() => {
+          const initialContext = {
+            arbitrator: debouncedArbitrator,
+            arbitrable: debouncedArbitrable,
+            arbitrableDisputeID: debouncedArbitrableDisputeID,
+            externalDisputeID: debouncedExternalDisputeID,
+            templateID: debouncedTemplateID,
+            templateUri: debouncedTemplateUri,
+          };
+
+          const fetchData = async () => {
+            try {
+              const parsedMappings = JSON.parse(dataMappingsInput);
+              const data = await executeActions(parsedMappings, initialContext);
+              const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
+              setDisputeDetails(finalDisputeDetails);
+            } catch (e) {
+              console.error(e);
+              setDisputeDetails(undefined);
+            } finally {
+              setLoading(false);
+            }
+          };
+
+          fetchData();
+
+          isFetchDataScheduled = false;
+        }, 350);
       }
     };
 
-    fetchData();
+    if (
+      disputeTemplateInput ||
+      dataMappingsInput ||
+      debouncedArbitrator ||
+      debouncedArbitrable ||
+      debouncedArbitrableDisputeID ||
+      debouncedExternalDisputeID ||
+      debouncedTemplateID ||
+      debouncedTemplateUri
+    ) {
+      scheduleFetchData();
+    }
   }, [
     disputeTemplateInput,
     dataMappingsInput,
-    arbitrable,
-    arbitrator,
-    arbitrableDisputeID,
-    externalDisputeID,
-    templateID,
-    templateUri,
+    debouncedArbitrator,
+    debouncedArbitrable,
+    debouncedArbitrableDisputeID,
+    debouncedExternalDisputeID,
+    debouncedTemplateID,
+    debouncedTemplateUri,
   ]);
-
   return (
     <>
       <StyledHeader>Dispute Preview</StyledHeader>
@@ -238,7 +279,7 @@ const DisputeTemplateView: React.FC = () => {
             placeholder="Enter data mappings"
           />
         </LongText>
-        <Overview disputeDetails={disputeDetails} />
+        {loading ? <Skeleton width={300} /> : <Overview disputeDetails={disputeDetails} />}
       </LongTextSections>
     </>
   );
