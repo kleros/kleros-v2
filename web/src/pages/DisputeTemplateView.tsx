@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Textarea } from "@kleros/ui-components-library";
+import { Field, Textarea } from "@kleros/ui-components-library";
 import PolicyIcon from "svgs/icons/policy.svg";
 import ReactMarkdown from "components/ReactMarkdown";
 import { INVALID_DISPUTE_DATA_ERROR, IPFS_GATEWAY } from "consts/index";
@@ -69,7 +69,7 @@ const LinkContainer = styled.div`
   justify-content: space-between;
 `;
 
-const Wrapper = styled.div`
+const LongTextSections = styled.div`
   min-height: calc(100vh - 144px);
   margin: 24px;
   display: flex;
@@ -77,8 +77,37 @@ const Wrapper = styled.div`
 `;
 
 const StyledTextArea = styled(Textarea)`
-  width: 50%;
+  width: 30vw;
   height: calc(100vh - 300px);
+`;
+
+const StyledForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 24px;
+  margin-left: 24px;
+`;
+
+const StyledRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+`;
+
+const StyledP = styled.p`
+  font-style: italic;
+`;
+
+const StyledHeader = styled.h1`
+  margin-left: 24px;
+  margin-top 24px;
+`;
+
+const LongText = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: auto;
 `;
 
 const DisputeTemplateView: React.FC = () => {
@@ -86,15 +115,23 @@ const DisputeTemplateView: React.FC = () => {
   const [disputeTemplateInput, setDisputeTemplateInput] = useState<string>("");
   const [dataMappingsInput, setDataMappingsInput] = useState<string>("");
 
-  // TODO: add some input fields for the IArbitrableV2.DisputeRequest event which is available to the SDK in a real case
-  // - arbitrable (= the address which emitted DisputeRequest)
-  // - the DisputeRequest event params: arbitrator, arbitrableDisputeID, externalDisputeID, templateId, templateUri
-  const arbitrable = "0xdaf749DABE7be6C6894950AE69af35c20a00ABd9";
+  const [arbitrator, setArbitrator] = useState("");
+  const [arbitrable, setArbitrable] = useState("");
+  const [arbitrableDisputeID, setArbitrableDisputeID] = useState("");
+  const [externalDisputeID, setExternalDisputeID] = useState("");
+  const [templateID, setTemplateID] = useState("");
+  const [templateUri, setTemplateUri] = useState("");
 
   useEffect(() => {
     configureSDK({ apiKey: alchemyApiKey });
+
     const initialContext = {
+      arbitrator: arbitrator,
       arbitrable: arbitrable,
+      arbitrableDisputeID: parseInt(arbitrableDisputeID),
+      externalDisputeID: parseInt(externalDisputeID),
+      templateID: parseInt(templateID),
+      templateUri: templateUri,
     };
 
     if (!disputeTemplateInput || !dataMappingsInput) return;
@@ -113,22 +150,97 @@ const DisputeTemplateView: React.FC = () => {
     };
 
     fetchData();
-  }, [disputeTemplateInput, dataMappingsInput, arbitrable]);
+  }, [
+    disputeTemplateInput,
+    dataMappingsInput,
+    arbitrable,
+    arbitrator,
+    arbitrableDisputeID,
+    externalDisputeID,
+    templateID,
+    templateUri,
+  ]);
 
   return (
-    <Wrapper>
-      <StyledTextArea
-        value={disputeTemplateInput}
-        onChange={(e) => setDisputeTemplateInput(e.target.value)}
-        placeholder="Enter dispute template"
-      />
-      <StyledTextArea
-        value={dataMappingsInput}
-        onChange={(e) => setDataMappingsInput(e.target.value)}
-        placeholder="Enter data mappings"
-      />
-      <Overview disputeDetails={disputeDetails} />
-    </Wrapper>
+    <>
+      <StyledHeader>Dispute Preview</StyledHeader>
+      <StyledForm>
+        <StyledP>Dispute Request event parameters</StyledP>
+        <StyledRow>
+          <p>Arbitrator</p>
+          <Field
+            type="text"
+            value={arbitrator}
+            onChange={(e) => setArbitrator(e.target.value)}
+            placeholder="Enter arbitrator address"
+          />
+        </StyledRow>
+        <StyledRow>
+          <p>Arbitrable</p>
+          <Field
+            type="text"
+            value={arbitrable}
+            onChange={(e) => setArbitrable(e.target.value)}
+            placeholder="Enter arbitrable address"
+          />
+        </StyledRow>
+        <StyledRow>
+          <p>ArbitrableDisputeID</p>
+          <Field
+            type="text"
+            value={arbitrableDisputeID}
+            onChange={(e) => setArbitrableDisputeID(e.target.value)}
+            placeholder="Enter arbitrableDisputeID"
+          />
+        </StyledRow>
+        <StyledRow>
+          <p>ExternalDisputeID</p>
+          <Field
+            type="text"
+            value={externalDisputeID}
+            onChange={(e) => setExternalDisputeID(e.target.value)}
+            placeholder="Enter externalDisputeID"
+          />
+        </StyledRow>
+        <StyledRow>
+          <p>TemplateID</p>
+          <Field
+            type="text"
+            value={templateID}
+            onChange={(e) => setTemplateID(e.target.value)}
+            placeholder="Enter templateID"
+          />
+        </StyledRow>
+        <StyledRow>
+          <p>TemplateUri</p>
+          <Field
+            type="text"
+            value={templateUri}
+            onChange={(e) => setTemplateUri(e.target.value)}
+            placeholder="Enter templateUri"
+          />
+        </StyledRow>
+      </StyledForm>
+      <LongTextSections>
+        <LongText>
+          <p>Template</p>
+          <StyledTextArea
+            value={disputeTemplateInput}
+            onChange={(e) => setDisputeTemplateInput(e.target.value)}
+            placeholder="Enter dispute template"
+          />
+        </LongText>
+        <LongText>
+          <p>Data Mapping</p>
+          <StyledTextArea
+            value={dataMappingsInput}
+            onChange={(e) => setDataMappingsInput(e.target.value)}
+            placeholder="Enter data mappings"
+          />
+        </LongText>
+        <Overview disputeDetails={disputeDetails} />
+      </LongTextSections>
+    </>
   );
 };
 
