@@ -52,9 +52,9 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
           };
 
           const data = dataMappings ? await executeActions(JSON.parse(dataMappings), initialContext) : {};
-          const disputeDetailes = populateTemplate(templateData, data);
+          const disputeDetails = populateTemplate(templateData, data);
 
-          return disputeDetailes;
+          return disputeDetails;
         } catch {
           return {} as DisputeDetails;
         }
