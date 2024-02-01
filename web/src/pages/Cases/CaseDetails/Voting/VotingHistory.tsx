@@ -1,22 +1,27 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
+import { responsiveSize } from "styles/responsiveSize";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import Skeleton from "react-loading-skeleton";
 import { Tabs } from "@kleros/ui-components-library";
 import { useVotingHistory } from "queries/useVotingHistory";
 import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { getLocalRounds } from "utils/getLocalRounds";
-import PendingVotesBox from "./PendingVotesBox";
 import { getDrawnJurorsWithCount } from "utils/getDrawnJurorsWithCount";
-import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
 import VotesAccordion from "./VotesDetails";
-import Skeleton from "react-loading-skeleton";
+import PendingVotesBox from "./PendingVotesBox";
 
 const Container = styled.div``;
 
 const StyledTabs = styled(Tabs)`
   width: 100%;
   margin-bottom: 16px;
+`;
+
+const StyledTitle = styled.h1`
+  margin-bottom: ${responsiveSize(16, 32)};
 `;
 
 const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean }> = ({ arbitrable, isQuestion }) => {
@@ -39,7 +44,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
 
   return (
     <Container>
-      <h1>Voting History</h1>
+      <StyledTitle>Voting History</StyledTitle>
       {rounds && localRounds && disputeTemplate ? (
         <>
           {isQuestion && disputeTemplate.question ? (

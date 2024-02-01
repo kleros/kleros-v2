@@ -1,7 +1,10 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
-import { useParams } from "react-router-dom";
 import { responsiveSize } from "styles/responsiveSize";
+import { useParams } from "react-router-dom";
+import { useToggle } from "react-use";
+import Skeleton from "react-loading-skeleton";
+import { useAccount } from "wagmi";
 import VoteIcon from "assets/svgs/icons/voted.svg";
 import { Periods } from "consts/periods";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
@@ -13,14 +16,24 @@ import { formatDate } from "utils/date";
 import Popup, { PopupType } from "components/Popup";
 import { getPeriodEndTimestamp } from "components/DisputeCard";
 import InfoCard from "components/InfoCard";
+import BinaryVoting from "components/Popup/MiniGuides/BinaryVoting";
+import HowItWorks from "components/HowItWorks";
 import Classic from "./Classic";
 import VotingHistory from "./VotingHistory";
-import Skeleton from "react-loading-skeleton";
 import { useVotingContext } from "hooks/useVotingContext";
-import { useAccount } from "wagmi";
 
 const Container = styled.div`
   padding: ${responsiveSize(16, 32)};
+`;
+
+const Header = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: ${responsiveSize(16, 20)};
 `;
 
 const useFinalDate = (lastPeriodChange: string, currentPeriodIndex?: number, timesPerPeriod?: string[]) =>
@@ -46,6 +59,7 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
   const lastPeriodChange = disputeData?.dispute?.lastPeriodChange;
   const timesPerPeriod = disputeData?.dispute?.court?.timesPerPeriod;
   const finalDate = useFinalDate(lastPeriodChange, currentPeriodIndex, timesPerPeriod);
+  const [isBinaryVotingMiniGuideOpen, toggleBinaryVotingMiniGuide] = useToggle(false);
 
   const isCommitOrVotePeriod = useMemo(
     () => [Periods.vote, Periods.commit].includes(currentPeriodIndex),
@@ -54,23 +68,28 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
 
   return (
     <Container>
-      {isLastRound(appealCost) && (
-        <>
-          <InfoCard msg="This dispute is on its last round. Vote wisely, It cannot be appealed any further." />
-          <br />
-        </>
-      )}
+      <Header>
+        {isLastRound(appealCost) && (
+          <>
+            <InfoCard msg="This dispute is on its last round. Vote wisely, It cannot be appealed any further." />
+          </>
+        )}
 
-      {userWasDrawn || isDisconnected ? null : (
-        <>
-          {isDrawDataLoading ? (
-            <Skeleton width={300} height={20} />
-          ) : (
-            <InfoCard msg="You were not drawn in current round." />
-          )}
-          <br />
-        </>
-      )}
+        {userWasDrawn || isDisconnected ? null : (
+          <>
+            {isDrawDataLoading ? (
+              <Skeleton width={300} height={20} />
+            ) : (
+              <InfoCard msg="You were not drawn in current round." />
+            )}
+          </>
+        )}
+        <HowItWorks
+          isMiniGuideOpen={isBinaryVotingMiniGuideOpen}
+          toggleMiniGuide={toggleBinaryVotingMiniGuide}
+          MiniGuideComponent={BinaryVoting}
+        />
+      </Header>
 
       {isPopupOpen && (
         <Popup
