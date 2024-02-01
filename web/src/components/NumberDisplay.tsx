@@ -11,8 +11,12 @@ interface INumberDisplay {
 
 const getFormattedValue = (value: number, decimals: number) => {
   const withFixedDecimals = value % 1 !== 0 ? value.toFixed(decimals) : value.toFixed(0);
-  if (withFixedDecimals === `0.${"0".repeat(decimals)}` && value > 0) {
-    return `< 0.${"0".repeat(decimals - 1)}1`;
+  if (value !== 0) {
+    if (withFixedDecimals === `0.${"0".repeat(decimals)}`) {
+      return `< 0.${"0".repeat(decimals - 1)}1`;
+    } else if (withFixedDecimals === `-0.${"0".repeat(decimals)}`) {
+      return `> -0.${"0".repeat(decimals - 1)}1`;
+    }
   }
   return withFixedDecimals;
 };
