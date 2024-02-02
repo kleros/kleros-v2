@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { isUndefined } from "utils/index";
-import { IPFS_GATEWAY } from "consts/index";
+import { getIpfsUrl } from "utils/getIpfsUrl";
 
 export const useIPFSQuery = (ipfsPath?: string) => {
   const isEnabled = !isUndefined(ipfsPath);
@@ -10,8 +10,7 @@ export const useIPFSQuery = (ipfsPath?: string) => {
     staleTime: Infinity,
     queryFn: async () => {
       if (isEnabled) {
-        const formatedIPFSPath = ipfsPath.startsWith("/") ? ipfsPath : "/" + ipfsPath;
-        return fetch(`${IPFS_GATEWAY}${formatedIPFSPath}`).then(async (res) => await res.json());
+        return fetch(getIpfsUrl(ipfsPath)).then(async (res) => await res.json());
       }
       return undefined;
     },

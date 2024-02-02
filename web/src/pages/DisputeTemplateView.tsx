@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { useDebounce } from "react-use";
+import Skeleton from "react-loading-skeleton";
 import { Field, Textarea } from "@kleros/ui-components-library";
-import PolicyIcon from "svgs/icons/policy.svg";
-import ReactMarkdown from "components/ReactMarkdown";
-import { INVALID_DISPUTE_DATA_ERROR, IPFS_GATEWAY } from "consts/index";
 import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
 import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
 import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
 import { Answer, DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
+import PolicyIcon from "svgs/icons/policy.svg";
+import { INVALID_DISPUTE_DATA_ERROR } from "consts/index";
 import { useKlerosCoreAddress } from "hooks/useContractAddress";
-import { alchemyApiKey } from "context/Web3Provider";
-import { useDebounce } from "react-use";
-import Skeleton from "react-loading-skeleton";
+import { getIpfsUrl } from "utils/getIpfsUrl";
+import ReactMarkdown from "components/ReactMarkdown";
+
 
 const Container = styled.div`
   height: auto;
@@ -140,8 +141,6 @@ const DisputeTemplateView = () => {
   useDebounce(() => setDebouncedTemplateUri(templateUri), 350, [templateUri]);
 
   useEffect(() => {
-    configureSDK({ apiKey: alchemyApiKey });
-
     let isFetchDataScheduled = false;
 
     const scheduleFetchData = () => {
@@ -302,7 +301,7 @@ const Overview: React.FC<{ disputeDetails: DisputeDetails | undefined }> = ({ di
           <p>Make sure you read and understand the Policies</p>
           <LinkContainer>
             {disputeDetails?.policyURI && (
-              <StyledA href={`${IPFS_GATEWAY}${disputeDetails.policyURI}`} target="_blank" rel="noreferrer">
+              <StyledA href={getIpfsUrl(disputeDetails?.policyURI)} target="_blank" rel="noreferrer">
                 <PolicyIcon />
                 Dispute Policy
               </StyledA>
