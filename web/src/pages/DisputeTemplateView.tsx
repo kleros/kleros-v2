@@ -8,12 +8,12 @@ import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
 import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
 import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
 import { Answer, DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
+import { useKlerosCoreAddress } from "hooks/useContractAddress";
 import { alchemyApiKey } from "context/Web3Provider";
 import { useDebounce } from "react-use";
 import Skeleton from "react-loading-skeleton";
 
 const Container = styled.div`
-  width: 50%;
   height: auto;
   display: flex;
   flex-direction: column;
@@ -81,6 +81,7 @@ const LongTextSections = styled.div`
 const StyledTextArea = styled(Textarea)`
   width: 30vw;
   height: calc(100vh - 300px);
+  font-family: "Roboto Mono", monospace;
 `;
 
 const StyledForm = styled.form`
@@ -98,11 +99,10 @@ const StyledRow = styled.div`
 `;
 
 const StyledP = styled.p`
-  font-style: italic;
+  font-family: "Roboto Mono", monospace;
 `;
 
-const StyledHeader = styled.h1`
-  margin-left: 24px;
+const StyledHeader = styled.h2`
   margin-top 24px;
 `;
 
@@ -113,14 +113,15 @@ const LongText = styled.div`
 `;
 
 const DisputeTemplateView = () => {
+  const klerosCoreAddress = useKlerosCoreAddress();
   const [disputeDetails, setDisputeDetails] = useState<DisputeDetails | undefined>(undefined);
   const [disputeTemplateInput, setDisputeTemplateInput] = useState<string>("");
   const [dataMappingsInput, setDataMappingsInput] = useState<string>("");
-  const [arbitrator, setArbitrator] = useState("");
-  const [arbitrable, setArbitrable] = useState("");
-  const [arbitrableDisputeID, setArbitrableDisputeID] = useState("");
-  const [externalDisputeID, setExternalDisputeID] = useState("");
-  const [templateID, setTemplateID] = useState("");
+  const [arbitrator, setArbitrator] = useState(klerosCoreAddress as string);
+  const [arbitrable, setArbitrable] = useState("0x10f7A6f42Af606553883415bc8862643A6e63fdA"); // Escrow devnet
+  const [arbitrableDisputeID, setArbitrableDisputeID] = useState("0");
+  const [externalDisputeID, setExternalDisputeID] = useState("0");
+  const [templateID, setTemplateID] = useState("0");
   const [templateUri, setTemplateUri] = useState("");
 
   const [debouncedArbitrator, setDebouncedArbitrator] = useState(arbitrator);
@@ -204,67 +205,51 @@ const DisputeTemplateView = () => {
   ]);
   return (
     <>
-      <StyledHeader>Dispute Preview</StyledHeader>
       <StyledForm>
-        <StyledP>Dispute Request event parameters</StyledP>
+        <StyledHeader>Dispute Request event parameters</StyledHeader>
         <StyledRow>
-          <p>Arbitrator</p>
-          <Field
-            type="text"
-            value={arbitrator}
-            onChange={(e) => setArbitrator(e.target.value)}
-            placeholder="Enter arbitrator address"
-          />
+          <StyledP>{"{{ arbitrator }}"}</StyledP>
+          <Field type="text" value={arbitrator} onChange={(e) => setArbitrator(e.target.value)} placeholder="0x..." />
         </StyledRow>
         <StyledRow>
-          <p>Arbitrable</p>
-          <Field
-            type="text"
-            value={arbitrable}
-            onChange={(e) => setArbitrable(e.target.value)}
-            placeholder="Enter arbitrable address"
-          />
+          <StyledP>{"{{ arbitrable }}"}</StyledP>
+          <Field type="text" value={arbitrable} onChange={(e) => setArbitrable(e.target.value)} placeholder="0x..." />
         </StyledRow>
         <StyledRow>
-          <p>ArbitrableDisputeID</p>
+          <StyledP>{"{{ arbitrableDisputeID }}"}</StyledP>
           <Field
             type="text"
             value={arbitrableDisputeID}
             onChange={(e) => setArbitrableDisputeID(e.target.value)}
-            placeholder="Enter arbitrableDisputeID"
+            placeholder="0"
           />
         </StyledRow>
         <StyledRow>
-          <p>ExternalDisputeID</p>
+          <StyledP>{"{{ externalDisputeID }}"}</StyledP>
           <Field
             type="text"
             value={externalDisputeID}
             onChange={(e) => setExternalDisputeID(e.target.value)}
-            placeholder="Enter externalDisputeID"
+            placeholder="0"
           />
         </StyledRow>
         <StyledRow>
-          <p>TemplateID</p>
-          <Field
-            type="text"
-            value={templateID}
-            onChange={(e) => setTemplateID(e.target.value)}
-            placeholder="Enter templateID"
-          />
+          <StyledP>{"{{ templateID }}"}</StyledP>
+          <Field type="text" value={templateID} onChange={(e) => setTemplateID(e.target.value)} placeholder="0" />
         </StyledRow>
         <StyledRow>
-          <p>TemplateUri</p>
+          <StyledP>{"{{ templateUri }}"}</StyledP>
           <Field
             type="text"
             value={templateUri}
             onChange={(e) => setTemplateUri(e.target.value)}
-            placeholder="Enter templateUri"
+            placeholder="ipfs://... (optional)"
           />
         </StyledRow>
       </StyledForm>
       <LongTextSections>
         <LongText>
-          <p>Template</p>
+          <StyledHeader>Template</StyledHeader>
           <StyledTextArea
             value={disputeTemplateInput}
             onChange={(e) => setDisputeTemplateInput(e.target.value)}
@@ -272,14 +257,18 @@ const DisputeTemplateView = () => {
           />
         </LongText>
         <LongText>
-          <p>Data Mapping</p>
+          <StyledHeader>Data Mapping</StyledHeader>
           <StyledTextArea
             value={dataMappingsInput}
             onChange={(e) => setDataMappingsInput(e.target.value)}
             placeholder="Enter data mappings"
           />
         </LongText>
-        {loading ? <Skeleton width={300} /> : <Overview disputeDetails={disputeDetails} />}
+        <LongText>
+          <StyledHeader>Dispute Preview</StyledHeader>
+          <br />
+          {loading ? <Skeleton /> : <Overview disputeDetails={disputeDetails} />}
+        </LongText>
       </LongTextSections>
     </>
   );
