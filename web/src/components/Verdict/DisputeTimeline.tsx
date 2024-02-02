@@ -8,7 +8,7 @@ import AppealedCaseIcon from "assets/svgs/icons/close-circle.svg";
 import { Periods } from "consts/periods";
 import { ClassicRound } from "src/graphql/graphql";
 import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useVotingHistory } from "queries/useVotingHistory";
 import { getLocalRounds } from "utils/getLocalRounds";
 import { responsiveSize } from "styles/responsiveSize";
@@ -56,7 +56,7 @@ type TimelineItems = [_TimelineItem1, ..._TimelineItem1[]];
 const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string}`) => {
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
-  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
+  const { data: disputeData } = usePopulatedDisputeData(id, arbitrable);
   const localRounds: ClassicRound[] = getLocalRounds(votingHistory?.dispute?.disputeKitDispute) as ClassicRound[];
   const rounds = votingHistory?.dispute?.rounds;
   const theme = useTheme();
@@ -75,7 +75,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
           const roundTimeline = rounds?.[index].timeline;
 
           const icon = dispute.ruled && !rulingOverride && index === localRounds.length - 1 ? ClosedCaseIcon : "";
-          const answers = disputeTemplate?.answers;
+          const answers = disputeData?.answers;
           acc.push({
             title: `Jury Decision - Round ${index + 1}`,
             party: isOngoing ? "Voting is ongoing" : getVoteChoice(parsedRoundChoice, answers),
@@ -121,7 +121,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
       );
     }
     return;
-  }, [disputeDetails, disputeTemplate, localRounds, theme]);
+  }, [disputeDetails, disputeData, localRounds, theme]);
 };
 
 interface IDisputeTimeline {

@@ -20,14 +20,18 @@ const StyledBox = styled(Box)`
   }
 `;
 
+const StyledP = styled.p`
+  font-weight: 400;
+`;
+
 const PendingVotesBox: React.FC<{ current: number; total: number; court: string }> = ({ current, total, court }) => (
   <StyledBox>
     <BalanceIcon />
-    <p>
+    <StyledP>
       {current === total
         ? "All jurors voted"
         : `${current} vote${current === 1 ? "" : "s"} cast out of ${total} - ${court}`}
-    </p>
+    </StyledP>
   </StyledBox>
 );
 

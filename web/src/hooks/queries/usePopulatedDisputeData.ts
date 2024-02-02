@@ -4,9 +4,12 @@ import { PublicClient } from "viem";
 import { usePublicClient } from "wagmi";
 import { getIArbitrableV2 } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
-import { graphqlQueryFnHelper, graphqlUrl } from "utils/graphqlQueryFnHelper";
+import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 import { useIsCrossChainDispute } from "../useIsCrossChainDispute";
 import { GENESIS_BLOCK_ARBSEPOLIA } from "consts/index";
+import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
+import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
+import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 
 const disputeTemplateQuery = graphql(`
   query DisputeTemplate($id: ID!) {
@@ -19,31 +22,41 @@ const disputeTemplateQuery = graphql(`
   }
 `);
 
-export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
+export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
   const publicClient = usePublicClient();
   const { data: crossChainData } = useIsCrossChainDispute(disputeID, arbitrableAddress);
   const isEnabled = !isUndefined(disputeID) && !isUndefined(crossChainData) && !isUndefined(arbitrableAddress);
-  return useQuery({
+  return useQuery<DisputeDetails>({
     queryKey: [`DisputeTemplate${disputeID}${arbitrableAddress}`],
     enabled: isEnabled,
     staleTime: Infinity,
     queryFn: async () => {
       if (isEnabled) {
         try {
-          const { isCrossChainDispute, crossChainId, crossChainTemplateId } = crossChainData;
+          const { isCrossChainDispute, crossChainTemplateId } = crossChainData;
           const templateId = isCrossChainDispute
             ? crossChainTemplateId
             : await getTemplateId(arbitrableAddress, disputeID, publicClient);
+
           const { disputeTemplate } = await graphqlQueryFnHelper(
             disputeTemplateQuery,
             { id: templateId.toString() },
             true
           );
-          console.log("useDisputeTemplate:", disputeTemplate);
+          const templateData = disputeTemplate?.templateData;
+          const dataMappings = disputeTemplate?.templateDataMappings;
 
-          return disputeTemplate;
+          const initialContext = {
+            disputeID: disputeID,
+            arbitrable: arbitrableAddress,
+          };
+
+          const data = dataMappings ? await executeActions(JSON.parse(dataMappings), initialContext) : {};
+          const disputeDetails = populateTemplate(templateData, data);
+
+          return disputeDetails;
         } catch {
-          return {};
+          return {} as DisputeDetails;
         }
       } else throw Error;
     },

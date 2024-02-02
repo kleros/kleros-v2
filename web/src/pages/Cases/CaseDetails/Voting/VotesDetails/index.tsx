@@ -22,20 +22,34 @@ const StyledAccordion = styled(CustomAccordion)`
   }
   //adds padding to body container
   > * > div > div {
-    padding: 8px ${responsiveSize(8, 16)};
+    padding: ${responsiveSize(8, 24)} ${responsiveSize(8, 16)};
   }
 `;
-const JustificationContainer = styled.div`
+
+const AccordionContentContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  > p {
-    margin: 0px;
+  gap: 16px;
+`;
+
+const JustificationText = styled.div`
+  color: ${({ theme }) => theme.secondaryText};
+  font-size: 16px;
+  line-height: 1.2;
+  &:before {
+    content: "Justification: ";
+    color: ${({ theme }) => theme.primaryText};
   }
 `;
 
 const StyledLabel = styled.label`
   color: ${({ theme }) => theme.primaryText};
+  font-size: 16px;
+`;
+
+const SecondaryTextLabel = styled.label`
+  color: ${({ theme }) => theme.secondaryText};
+  font-size: 16px;
 `;
 
 const AccordionContent: React.FC<{
@@ -43,15 +57,19 @@ const AccordionContent: React.FC<{
   answers: Answer[];
   justification: string;
 }> = ({ justification, choice, answers }) => (
-  <JustificationContainer>
-    {!isUndefined(choice) ? (
-      <StyledLabel>
-        Voted : <small>{getVoteChoice(parseInt(choice), answers)}</small>
-      </StyledLabel>
-    ) : null}
-    <StyledLabel>Justification:</StyledLabel>
-    <p>{justification}</p>
-  </JustificationContainer>
+  <AccordionContentContainer>
+    {!isUndefined(choice) && (
+      <div>
+        <StyledLabel>Voted:&nbsp;</StyledLabel>
+        <SecondaryTextLabel>{getVoteChoice(parseInt(choice), answers)}</SecondaryTextLabel>
+      </div>
+    )}
+    {justification ? (
+      <JustificationText>{justification}</JustificationText>
+    ) : (
+      <SecondaryTextLabel>No justification provided</SecondaryTextLabel>
+    )}
+  </AccordionContentContainer>
 );
 
 interface VotesAccordion {
