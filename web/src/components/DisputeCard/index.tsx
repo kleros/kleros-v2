@@ -18,7 +18,7 @@ import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 
 const StyledCard = styled(Card)`
   width: 100%;
-  height: ${responsiveSize(280, 296)};
+  height: ${responsiveSize(280, 335)};
 
   ${landscapeStyle(
     () =>
@@ -123,10 +123,12 @@ const DisputeCard: React.FC<IDisputeCard> = ({
               <TruncatedTitle text={disputeDetails?.title ?? errMsg} maxLength={100} />
             )}
             <DisputeInfo
+              disputeID={id}
               courtId={court?.id}
               court={courtName}
               period={currentPeriodIndex}
               round={parseInt(currentRoundIndex) + 1}
+              showLabels
               {...{ category, rewards, date, overrideIsList }}
             />
           </CardContainer>
