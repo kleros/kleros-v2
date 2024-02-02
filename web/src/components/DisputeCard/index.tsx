@@ -14,7 +14,7 @@ import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
 import { responsiveSize } from "styles/responsiveSize";
-import { INVALID_DISPUTE_DATA_ERROR } from "consts/index";
+import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 
 const StyledCard = styled(Card)`
   width: 100%;
@@ -104,12 +104,13 @@ const DisputeCard: React.FC<IDisputeCard> = ({
     currentPeriodIndex === 4
       ? lastPeriodChange
       : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, court.timesPerPeriod);
-  const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrated.id as `0x${string}`);
+  const { data: disputeDetails, isError } = usePopulatedDisputeData(id, arbitrated.id as `0x${string}`);
 
   const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
   const category = disputeDetails?.category;
   const navigate = useNavigate();
+  const errMsg = isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR;
   return (
     <>
       {!isList || overrideIsList ? (
@@ -119,7 +120,7 @@ const DisputeCard: React.FC<IDisputeCard> = ({
             {isUndefined(disputeDetails) ? (
               <StyledSkeleton />
             ) : (
-              <TruncatedTitle text={disputeDetails?.title ?? INVALID_DISPUTE_DATA_ERROR} maxLength={100} />
+              <TruncatedTitle text={disputeDetails?.title ?? errMsg} maxLength={100} />
             )}
             <DisputeInfo
               disputeID={id}
@@ -137,7 +138,7 @@ const DisputeCard: React.FC<IDisputeCard> = ({
           <PeriodBanner isCard={false} id={parseInt(id)} period={currentPeriodIndex} />
           <ListContainer>
             <ListTitle>
-              <TruncatedTitle text={disputeDetails?.title ?? INVALID_DISPUTE_DATA_ERROR} maxLength={50} />
+              <TruncatedTitle text={disputeDetails?.title ?? errMsg} maxLength={50} />
             </ListTitle>
             <DisputeInfo
               courtId={court?.id}
