@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
-import { useParams } from "react-router-dom";
 import { responsiveSize } from "styles/responsiveSize";
+import { useParams } from "react-router-dom";
+import Skeleton from "react-loading-skeleton";
+import { useAccount } from "wagmi";
 import VoteIcon from "assets/svgs/icons/voted.svg";
 import { Periods } from "consts/periods";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
@@ -15,9 +17,7 @@ import { getPeriodEndTimestamp } from "components/DisputeCard";
 import InfoCard from "components/InfoCard";
 import Classic from "./Classic";
 import VotingHistory from "./VotingHistory";
-import Skeleton from "react-loading-skeleton";
 import { useVotingContext } from "hooks/useVotingContext";
-import { useAccount } from "wagmi";
 
 const Container = styled.div`
   padding: ${responsiveSize(16, 32)};
