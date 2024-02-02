@@ -305,6 +305,7 @@ type ClassicContribution implements Contribution @entity {
 
   localRound: ClassicRound!
   amount: BigInt!
+  rewardAmount: BigInt
   choice: BigInt!
   rewardWithdrawn: Boolean!
 }

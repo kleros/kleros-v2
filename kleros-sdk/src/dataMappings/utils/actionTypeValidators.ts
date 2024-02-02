@@ -9,7 +9,7 @@ import {
 } from "./actionTypes";
 
 export const validateSubgraphMapping = (mapping: ActionMapping) => {
-  if ((mapping as SubgraphMapping).endpoint !== undefined) {
+  if ((mapping as SubgraphMapping).endpoint === undefined) {
     throw new Error("Invalid mapping for graphql action.");
   }
   return mapping as SubgraphMapping;

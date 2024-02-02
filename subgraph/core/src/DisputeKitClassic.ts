@@ -126,5 +126,6 @@ export function handleWithdrawal(event: Withdrawal): void {
   const contribution = ensureClassicContributionFromEvent(event);
   if (!contribution) return;
   contribution.rewardWithdrawn = true;
+  contribution.rewardAmount = event.params._amount;
   contribution.save();
 }

@@ -12,6 +12,8 @@ import Field from "../Field";
 import { getCourtsPath } from "pages/Courts/CourtDetails";
 import { useCourtTree } from "hooks/queries/useCourtTree";
 import { responsiveSize } from "styles/responsiveSize";
+import CardLabel from "./CardLabels";
+import { useAccount } from "wagmi";
 
 const Container = styled.div<{ isList: boolean; isOverview?: boolean }>`
   display: flex;
@@ -94,6 +96,7 @@ const getPeriodPhrase = (period: Periods): string => {
 };
 
 export interface IDisputeInfo {
+  disputeID?: string;
   courtId?: string;
   court?: string;
   category?: string;
@@ -103,6 +106,7 @@ export interface IDisputeInfo {
   round?: number;
   overrideIsList?: boolean;
   isOverview?: boolean;
+  showLabels?: boolean;
 }
 
 const formatDate = (date: number) => {
@@ -113,6 +117,7 @@ const formatDate = (date: number) => {
 };
 
 const DisputeInfo: React.FC<IDisputeInfo> = ({
+  disputeID,
   courtId,
   court,
   category,
@@ -122,8 +127,10 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
   round,
   overrideIsList,
   isOverview,
+  showLabels = false,
 }) => {
   const { isList } = useIsList();
+  const { isDisconnected } = useAccount();
   const displayAsList = isList && !overrideIsList;
   const { data } = useCourtTree();
   const courtPath = getCourtsPath(data?.court, courtId);
@@ -206,6 +213,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
             isOverview={isOverview}
           />
         )}
+        {showLabels && !isDisconnected ? <CardLabel disputeId={disputeID} round={round - 1} /> : null}
       </RestOfFieldsContainer>
     </Container>
   );

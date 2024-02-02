@@ -48,6 +48,10 @@ const StyledLink = styled(Link)<{ isActive: boolean }>`
   )};
 `;
 
+const HiddenLink = styled(StyledLink)<{ isActive: boolean }>`
+  color: ${({ isActive, theme }) => (isActive ? theme.primaryText : theme.primaryPurple)};
+`;
+
 const links = [
   { to: "/", text: "Home" },
   { to: "/cases/display/1/desc/all", text: "Cases" },
@@ -73,6 +77,15 @@ const Explore: React.FC = () => {
           </StyledLink>
         </LinkContainer>
       ))}
+      <LinkContainer>
+        <HiddenLink
+          to="/disputeTemplate"
+          onClick={toggleIsOpen}
+          isActive={location.pathname.startsWith("/disputeTemplate")}
+        >
+          Dev
+        </HiddenLink>
+      </LinkContainer>
     </Container>
   );
 };

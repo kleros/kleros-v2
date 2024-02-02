@@ -9,12 +9,13 @@ import { Tabs } from "@kleros/ui-components-library";
 import { useVotingHistory } from "queries/useVotingHistory";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "queries/usePopulatedDisputeData";
+import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 import { getLocalRounds } from "utils/getLocalRounds";
 import { getDrawnJurorsWithCount } from "utils/getDrawnJurorsWithCount";
-import VotesAccordion from "./VotesDetails";
-import PendingVotesBox from "./PendingVotesBox";
 import HowItWorks from "components/HowItWorks";
 import BinaryVoting from "components/Popup/MiniGuides/BinaryVoting";
+import VotesAccordion from "./VotesDetails";
+import PendingVotesBox from "./PendingVotesBox";
 
 const Container = styled.div``;
 
@@ -42,7 +43,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
   const { data: votingHistory } = useVotingHistory(id);
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const [currentTab, setCurrentTab] = useState(0);
-  const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
+  const { data: disputeDetails, isError } = usePopulatedDisputeData(id, arbitrable);
   const rounds = votingHistory?.dispute?.rounds;
   const [isBinaryVotingMiniGuideOpen, toggleBinaryVotingMiniGuide] = useToggle(false);
 
@@ -71,7 +72,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
           {isQuestion && disputeDetails.question ? (
             <ReactMarkdown>{disputeDetails.question}</ReactMarkdown>
           ) : (
-            <ReactMarkdown>{"The dispute's template is not correct please vote refuse to arbitrate"}</ReactMarkdown>
+            <ReactMarkdown>{isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
           )}
           <StyledTabs
             currentValue={currentTab}

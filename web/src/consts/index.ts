@@ -25,3 +25,4 @@ export const GENESIS_BLOCK_ARBSEPOLIA = BigInt(process.env.REACT_APP_GENESIS_BLO
 export const isProductionDeployment = () => process.env.REACT_APP_DEPLOYMENT !== "mainnet";
 
 export const INVALID_DISPUTE_DATA_ERROR = `The dispute data is not valid, please vote "Refuse to arbitrate"`;
+export const RPC_ERROR = `RPC Error: Unable to fetch dispute data. Please avoid voting.`;
