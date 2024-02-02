@@ -126,11 +126,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
           <p>{shortenAddress(sender)}</p>
         </AccountContainer>
         {data && typeof data.fileURI !== "undefined" && (
-          <StyledA
-            href={getIpfsUrl(data.fileURI)}
-            target={data.fileURI.startsWith("ipfs://") ? "_self" : "_blank"}
-            rel="noreferrer"
-          >
+          <StyledA href={getIpfsUrl(data.fileURI)} target="_blank" rel="noreferrer">
             <AttachmentIcon />
             <AttachedFileText />
           </StyledA>

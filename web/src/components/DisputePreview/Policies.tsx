@@ -74,21 +74,13 @@ export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attac
       <StyledP>Make sure you read and understand the Policies</StyledP>
       <LinkContainer>
         {!isUndefined(attachment) && !isUndefined(attachment.uri) ? (
-          <StyledA
-            href={getIpfsUrl(attachment.uri)}
-            target={attachment.uri.startsWith("ipfs://") ? "_self" : "_blank"}
-            rel="noreferrer"
-          >
+          <StyledA href={getIpfsUrl(attachment.uri)} target="_blank" rel="noreferrer">
             <StyledPaperclipIcon />
             {attachment.label ?? "Attachment"}
           </StyledA>
         ) : null}
         {isUndefined(disputePolicyURI) ? null : (
-          <StyledA
-            href={getIpfsUrl(disputePolicyURI)}
-            target={disputePolicyURI.startsWith("ipfs://") ? "_self" : "_blank"}
-            rel="noreferrer"
-          >
+          <StyledA href={getIpfsUrl(disputePolicyURI)} target="_blank" rel="noreferrer">
             <StyledPolicyIcon />
             Dispute Policy
           </StyledA>

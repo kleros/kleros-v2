@@ -161,11 +161,7 @@ const Overview: React.FC<{ disputeDetails: DisputeDetails | undefined }> = ({ di
           <p>Make sure you read and understand the Policies</p>
           <LinkContainer>
             {disputeDetails?.policyURI && (
-              <StyledA
-                href={getIpfsUrl(disputeDetails?.policyURI)}
-                target={disputeDetails?.policyURI.startsWith("ipfs://") ? "_self" : "_blank"}
-                rel="noreferrer"
-              >
+              <StyledA href={getIpfsUrl(disputeDetails?.policyURI)} target="_blank" rel="noreferrer">
                 <PolicyIcon />
                 Dispute Policy
               </StyledA>
