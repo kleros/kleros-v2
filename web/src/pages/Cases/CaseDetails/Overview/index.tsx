@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 import Verdict from "components/Verdict/index";
@@ -39,7 +39,7 @@ interface IOverview {
 
 const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex }) => {
   const { id } = useParams();
-  const { data: disputeDetails, isError } = useDisputeTemplate(id, arbitrable);
+  const { data: disputeDetails, isError } = usePopulatedDisputeData(id, arbitrable);
   const { data: dispute } = useDisputeDetailsQuery(id);
   const { data: courtPolicy } = useCourtPolicy(courtID);
   const { data: votingHistory } = useVotingHistory(id);

@@ -9,7 +9,7 @@ import { useIsList } from "context/IsListProvider";
 import { DisputeDetailsFragment } from "queries/useCasesQuery";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { useCourtPolicy } from "queries/useCourtPolicy";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
@@ -104,7 +104,7 @@ const DisputeCard: React.FC<IDisputeCard> = ({
     currentPeriodIndex === 4
       ? lastPeriodChange
       : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, court.timesPerPeriod);
-  const { data: disputeDetails, isError } = useDisputeTemplate(id, arbitrated.id as `0x${string}`);
+  const { data: disputeDetails, isError } = usePopulatedDisputeData(id, arbitrated.id as `0x${string}`);
 
   const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;

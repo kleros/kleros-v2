@@ -23,7 +23,7 @@ const disputeTemplateQuery = graphql(`
   }
 `);
 
-export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
+export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
   const publicClient = usePublicClient();
   const { data: crossChainData, isError } = useIsCrossChainDispute(disputeID, arbitrableAddress);
   const isEnabled = !isUndefined(disputeID) && !isUndefined(crossChainData) && !isUndefined(arbitrableAddress);
@@ -34,7 +34,7 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
     queryFn: async () => {
       if (isEnabled && !isError) {
         try {
-          const { isCrossChainDispute, crossChainId, crossChainTemplateId } = crossChainData;
+          const { isCrossChainDispute, crossChainTemplateId } = crossChainData;
           const templateId = isCrossChainDispute
             ? crossChainTemplateId
             : await getTemplateId(arbitrableAddress, disputeID, publicClient);
@@ -44,7 +44,6 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
             { id: templateId.toString() },
             true
           );
-
           const templateData = disputeTemplate?.templateData;
           const dataMappings = disputeTemplate?.templateDataMappings;
 
@@ -54,9 +53,9 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
           };
 
           const data = dataMappings ? await executeActions(JSON.parse(dataMappings), initialContext) : {};
-          const disputeDetailes = populateTemplate(templateData, data);
+          const disputeDetails = populateTemplate(templateData, data);
 
-          return disputeDetailes;
+          return disputeDetails;
         } catch (error) {
           if (error instanceof HttpRequestError || error instanceof RpcError) {
             debounceErrorToast("RPC failed!, Please avoid voting.");

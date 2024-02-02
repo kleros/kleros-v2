@@ -23,11 +23,16 @@ const TitleContainer = styled.div`
 `;
 const AddressContainer = styled.div`
   display: flex;
-  gap: 4px;
+  gap: 8px;
   align-items: center;
 `;
 const StyledLabel = styled.label<{ variant?: string }>`
   color: ${({ theme, variant }) => (variant ? theme[variant] : theme.primaryText)};
+  font-size: 16px;
+`;
+
+const StyledSmall = styled.small`
+  font-size: 16px;
 `;
 
 const VoteStatus: React.FC<{
@@ -40,7 +45,7 @@ const VoteStatus: React.FC<{
     return <StyledLabel>Didn't cast a vote</StyledLabel>;
   return (
     <StyledLabel>
-      {isUndefined(choice) ? "Pending Vote" : <small>{getVoteChoice(parseInt(choice), answers)}</small>}
+      {isUndefined(choice) ? "Pending Vote" : <StyledSmall>{getVoteChoice(parseInt(choice), answers)}</StyledSmall>}
     </StyledLabel>
   );
 };
