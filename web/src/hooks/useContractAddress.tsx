@@ -1,7 +1,16 @@
 import { Abi, PublicClient } from "viem";
 import { usePublicClient } from "wagmi";
 import { GetContractArgs, GetContractResult } from "wagmi/actions";
-import { getPinakionV2, pinakionV2ABI, getWeth, getPnkFaucet, wethABI, pnkFaucetABI } from "./contracts/generated";
+import {
+  getPinakionV2,
+  pinakionV2ABI,
+  getWeth,
+  getPnkFaucet,
+  wethABI,
+  pnkFaucetABI,
+  klerosCoreABI,
+  getKlerosCore,
+} from "./contracts/generated";
 
 type Config = Omit<GetContractArgs<Abi, unknown>, "abi" | "address"> & {
   chainId?: any;
@@ -24,4 +33,8 @@ export const useWETHAddress = () => {
 
 export const usePNKFaucetAddress = () => {
   return useContractAddress<typeof pnkFaucetABI>(getPnkFaucet)?.address;
+};
+
+export const useKlerosCoreAddress = () => {
+  return useContractAddress<typeof klerosCoreABI>(getKlerosCore)?.address;
 };

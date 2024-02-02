@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Textarea } from "@kleros/ui-components-library";
+import { Field, Textarea } from "@kleros/ui-components-library";
 import PolicyIcon from "svgs/icons/policy.svg";
 import ReactMarkdown from "components/ReactMarkdown";
 import { INVALID_DISPUTE_DATA_ERROR, IPFS_GATEWAY } from "consts/index";
@@ -8,10 +8,12 @@ import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
 import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
 import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
 import { Answer, DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
+import { useKlerosCoreAddress } from "hooks/useContractAddress";
 import { alchemyApiKey } from "context/Web3Provider";
+import { useDebounce } from "react-use";
+import Skeleton from "react-loading-skeleton";
 
 const Container = styled.div`
-  width: 50%;
   height: auto;
   display: flex;
   flex-direction: column;
@@ -69,7 +71,7 @@ const LinkContainer = styled.div`
   justify-content: space-between;
 `;
 
-const Wrapper = styled.div`
+const LongTextSections = styled.div`
   min-height: calc(100vh - 144px);
   margin: 24px;
   display: flex;
@@ -77,58 +79,198 @@ const Wrapper = styled.div`
 `;
 
 const StyledTextArea = styled(Textarea)`
-  width: 50%;
+  width: 30vw;
   height: calc(100vh - 300px);
+  font-family: "Roboto Mono", monospace;
 `;
 
-const DisputeTemplateView: React.FC = () => {
+const StyledForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 24px;
+  margin-left: 24px;
+`;
+
+const StyledRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+`;
+
+const StyledP = styled.p`
+  font-family: "Roboto Mono", monospace;
+`;
+
+const StyledHeader = styled.h2`
+  margin-top 24px;
+`;
+
+const LongText = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: auto;
+`;
+
+const DisputeTemplateView = () => {
+  const klerosCoreAddress = useKlerosCoreAddress();
   const [disputeDetails, setDisputeDetails] = useState<DisputeDetails | undefined>(undefined);
   const [disputeTemplateInput, setDisputeTemplateInput] = useState<string>("");
   const [dataMappingsInput, setDataMappingsInput] = useState<string>("");
+  const [arbitrator, setArbitrator] = useState(klerosCoreAddress as string);
+  const [arbitrable, setArbitrable] = useState("0x10f7A6f42Af606553883415bc8862643A6e63fdA"); // Escrow devnet
+  const [arbitrableDisputeID, setArbitrableDisputeID] = useState("0");
+  const [externalDisputeID, setExternalDisputeID] = useState("0");
+  const [templateID, setTemplateID] = useState("0");
+  const [templateUri, setTemplateUri] = useState("");
 
-  // TODO: add some input fields for the IArbitrableV2.DisputeRequest event which is available to the SDK in a real case
-  // - arbitrable (= the address which emitted DisputeRequest)
-  // - the DisputeRequest event params: arbitrator, arbitrableDisputeID, externalDisputeID, templateId, templateUri
-  const arbitrable = "0xdaf749DABE7be6C6894950AE69af35c20a00ABd9";
+  const [debouncedArbitrator, setDebouncedArbitrator] = useState(arbitrator);
+  const [debouncedArbitrable, setDebouncedArbitrable] = useState(arbitrable);
+  const [debouncedArbitrableDisputeID, setDebouncedArbitrableDisputeID] = useState(arbitrableDisputeID);
+  const [debouncedExternalDisputeID, setDebouncedExternalDisputeID] = useState(externalDisputeID);
+  const [debouncedTemplateID, setDebouncedTemplateID] = useState(templateID);
+  const [debouncedTemplateUri, setDebouncedTemplateUri] = useState(templateUri);
+  const [loading, setLoading] = useState(false);
+
+  useDebounce(() => setDebouncedArbitrator(arbitrator), 350, [arbitrator]);
+  useDebounce(() => setDebouncedArbitrable(arbitrable), 350, [arbitrable]);
+  useDebounce(() => setDebouncedArbitrableDisputeID(arbitrableDisputeID), 350, [arbitrableDisputeID]);
+  useDebounce(() => setDebouncedExternalDisputeID(externalDisputeID), 350, [externalDisputeID]);
+  useDebounce(() => setDebouncedTemplateID(templateID), 350, [templateID]);
+  useDebounce(() => setDebouncedTemplateUri(templateUri), 350, [templateUri]);
 
   useEffect(() => {
     configureSDK({ apiKey: alchemyApiKey });
-    const initialContext = {
-      arbitrable: arbitrable,
-    };
 
-    if (!disputeTemplateInput || !dataMappingsInput) return;
+    let isFetchDataScheduled = false;
 
-    const fetchData = async () => {
-      try {
-        const parsedMappings = JSON.parse(dataMappingsInput);
-        const data = await executeActions(parsedMappings, initialContext);
-        const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
-        setDisputeDetails(finalDisputeDetails);
-        console.log("finalTemplate: ", finalDisputeDetails);
-      } catch (e) {
-        console.error(e);
-        setDisputeDetails(undefined);
+    const scheduleFetchData = () => {
+      if (!isFetchDataScheduled) {
+        isFetchDataScheduled = true;
+
+        setLoading(true);
+
+        setTimeout(() => {
+          const initialContext = {
+            arbitrator: debouncedArbitrator,
+            arbitrable: debouncedArbitrable,
+            arbitrableDisputeID: debouncedArbitrableDisputeID,
+            externalDisputeID: debouncedExternalDisputeID,
+            templateID: debouncedTemplateID,
+            templateUri: debouncedTemplateUri,
+          };
+
+          const fetchData = async () => {
+            try {
+              const parsedMappings = JSON.parse(dataMappingsInput);
+              const data = await executeActions(parsedMappings, initialContext);
+              const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
+              setDisputeDetails(finalDisputeDetails);
+            } catch (e) {
+              console.error(e);
+              setDisputeDetails(undefined);
+            } finally {
+              setLoading(false);
+            }
+          };
+
+          fetchData();
+
+          isFetchDataScheduled = false;
+        }, 350);
       }
     };
 
-    fetchData();
-  }, [disputeTemplateInput, dataMappingsInput, arbitrable]);
-
+    if (
+      disputeTemplateInput ||
+      dataMappingsInput ||
+      debouncedArbitrator ||
+      debouncedArbitrable ||
+      debouncedArbitrableDisputeID ||
+      debouncedExternalDisputeID ||
+      debouncedTemplateID ||
+      debouncedTemplateUri
+    ) {
+      scheduleFetchData();
+    }
+  }, [
+    disputeTemplateInput,
+    dataMappingsInput,
+    debouncedArbitrator,
+    debouncedArbitrable,
+    debouncedArbitrableDisputeID,
+    debouncedExternalDisputeID,
+    debouncedTemplateID,
+    debouncedTemplateUri,
+  ]);
   return (
-    <Wrapper>
-      <StyledTextArea
-        value={disputeTemplateInput}
-        onChange={(e) => setDisputeTemplateInput(e.target.value)}
-        placeholder="Enter dispute template"
-      />
-      <StyledTextArea
-        value={dataMappingsInput}
-        onChange={(e) => setDataMappingsInput(e.target.value)}
-        placeholder="Enter data mappings"
-      />
-      <Overview disputeDetails={disputeDetails} />
-    </Wrapper>
+    <>
+      <StyledForm>
+        <StyledHeader>Dispute Request event parameters</StyledHeader>
+        <StyledRow>
+          <StyledP>{"{{ arbitrator }}"}</StyledP>
+          <Field type="text" value={arbitrator} onChange={(e) => setArbitrator(e.target.value)} placeholder="0x..." />
+        </StyledRow>
+        <StyledRow>
+          <StyledP>{"{{ arbitrable }}"}</StyledP>
+          <Field type="text" value={arbitrable} onChange={(e) => setArbitrable(e.target.value)} placeholder="0x..." />
+        </StyledRow>
+        <StyledRow>
+          <StyledP>{"{{ arbitrableDisputeID }}"}</StyledP>
+          <Field
+            type="text"
+            value={arbitrableDisputeID}
+            onChange={(e) => setArbitrableDisputeID(e.target.value)}
+            placeholder="0"
+          />
+        </StyledRow>
+        <StyledRow>
+          <StyledP>{"{{ externalDisputeID }}"}</StyledP>
+          <Field
+            type="text"
+            value={externalDisputeID}
+            onChange={(e) => setExternalDisputeID(e.target.value)}
+            placeholder="0"
+          />
+        </StyledRow>
+        <StyledRow>
+          <StyledP>{"{{ templateID }}"}</StyledP>
+          <Field type="text" value={templateID} onChange={(e) => setTemplateID(e.target.value)} placeholder="0" />
+        </StyledRow>
+        <StyledRow>
+          <StyledP>{"{{ templateUri }}"}</StyledP>
+          <Field
+            type="text"
+            value={templateUri}
+            onChange={(e) => setTemplateUri(e.target.value)}
+            placeholder="ipfs://... (optional)"
+          />
+        </StyledRow>
+      </StyledForm>
+      <LongTextSections>
+        <LongText>
+          <StyledHeader>Template</StyledHeader>
+          <StyledTextArea
+            value={disputeTemplateInput}
+            onChange={(e) => setDisputeTemplateInput(e.target.value)}
+            placeholder="Enter dispute template"
+          />
+        </LongText>
+        <LongText>
+          <StyledHeader>Data Mapping</StyledHeader>
+          <StyledTextArea
+            value={dataMappingsInput}
+            onChange={(e) => setDataMappingsInput(e.target.value)}
+            placeholder="Enter data mappings"
+          />
+        </LongText>
+        <LongText>
+          <StyledHeader>Dispute Preview</StyledHeader>
+          <br />
+          {loading ? <Skeleton /> : <Overview disputeDetails={disputeDetails} />}
+        </LongText>
+      </LongTextSections>
+    </>
   );
 };
 

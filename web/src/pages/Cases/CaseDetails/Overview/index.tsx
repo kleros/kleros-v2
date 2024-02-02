@@ -1,15 +1,10 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useCourtPolicy } from "queries/useCourtPolicy";
-import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
-import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
-import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
-import { alchemyApiKey } from "context/Web3Provider";
-import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 import DisputeInfo from "components/DisputeCard/DisputeInfo";
 import Verdict from "components/Verdict/index";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
@@ -44,48 +39,15 @@ interface IOverview {
 
 const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex }) => {
   const { id } = useParams();
-  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
+  const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
   const { data: dispute } = useDisputeDetailsQuery(id);
   const { data: courtPolicy } = useCourtPolicy(courtID);
   const { data: votingHistory } = useVotingHistory(id);
-  const [disputeDetails, setDisputeDetails] = useState<DisputeDetails | undefined>(undefined);
   const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const courtName = courtPolicy?.name;
   const court = dispute?.dispute?.court;
   const rewards = useMemo(() => (court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined), [court]);
-  const category = disputeTemplate?.category ?? undefined;
-  const disputeTemplateInput = disputeTemplate?.templateData;
-  const dataMappingsInput = disputeTemplate?.templateDataMappings;
-
-  useEffect(() => {
-    configureSDK({ apiKey: alchemyApiKey });
-    const initialContext = {
-      disputeID: id,
-      arbitrable: arbitrable,
-    };
-
-    if (!disputeTemplateInput) return;
-
-    const fetchData = async () => {
-      try {
-        console.log("dataMappingsInput", dataMappingsInput);
-        let data = {};
-        if (dataMappingsInput) {
-          const parsedMappings = JSON.parse(dataMappingsInput);
-          console.log("parsedMappings", parsedMappings);
-          data = await executeActions(parsedMappings, initialContext);
-        }
-        console.log("data", data);
-        const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
-        setDisputeDetails(finalDisputeDetails);
-      } catch (e) {
-        console.error(e);
-        setDisputeDetails(undefined);
-      }
-    };
-
-    fetchData();
-  }, [disputeTemplateInput, dataMappingsInput, arbitrable, id]);
+  const category = disputeDetails?.category;
 
   return (
     <>

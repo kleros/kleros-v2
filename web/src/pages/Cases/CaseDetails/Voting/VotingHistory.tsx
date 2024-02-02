@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { Tabs } from "@kleros/ui-components-library";
 import { useVotingHistory } from "queries/useVotingHistory";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { getLocalRounds } from "utils/getLocalRounds";
 import PendingVotesBox from "./PendingVotesBox";
 import { getDrawnJurorsWithCount } from "utils/getDrawnJurorsWithCount";
@@ -24,14 +24,14 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
   const { data: votingHistory } = useVotingHistory(id);
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const [currentTab, setCurrentTab] = useState(0);
-  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
+  const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
   const rounds = votingHistory?.dispute?.rounds;
 
   const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   //set current tab to latest round
   useEffect(() => setCurrentTab((rounds?.length && rounds?.length - 1) ?? 0), [rounds]);
 
-  const answers = disputeTemplate?.answers;
+  const answers = disputeDetails?.answers;
   const drawnJurors = useMemo(
     () => getDrawnJurorsWithCount(votingHistory?.dispute?.rounds.at(currentTab)?.drawnJurors ?? []),
     [votingHistory, currentTab]
@@ -40,10 +40,10 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
   return (
     <Container>
       <h1>Voting History</h1>
-      {rounds && localRounds && disputeTemplate ? (
+      {rounds && localRounds && disputeDetails ? (
         <>
-          {isQuestion && disputeTemplate.question ? (
-            <ReactMarkdown>{disputeTemplate.question}</ReactMarkdown>
+          {isQuestion && disputeDetails.question ? (
+            <ReactMarkdown>{disputeDetails.question}</ReactMarkdown>
           ) : (
             <ReactMarkdown>{"The dispute's template is not correct please vote refuse to arbitrate"}</ReactMarkdown>
           )}
