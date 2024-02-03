@@ -28,7 +28,7 @@ const StyledAccordion = styled(CustomAccordion)`
   }
   //adds padding to body container
   > * > div > div {
-    padding: ${responsiveSize(8, 24)} ${responsiveSize(8, 16)};
+    padding: ${responsiveSize(16, 24)} ${responsiveSize(8, 16)};
   }
 `;
 
@@ -107,13 +107,13 @@ const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answer
                 isActiveRound={isActiveRound}
               />
             ),
-            body: drawnJuror.vote?.justification?.choice ? (
+            body: (
               <AccordionContent
                 justification={drawnJuror?.vote?.justification.reference ?? ""}
                 choice={drawnJuror.vote?.justification?.choice}
                 answers={answers}
               />
-            ) : null,
+            ),
           }
         : null
     )
