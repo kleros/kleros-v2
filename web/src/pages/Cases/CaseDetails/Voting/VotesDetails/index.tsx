@@ -12,8 +12,7 @@ import { isUndefined } from "utils/index";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 20px;
-  gap: 16px;
+  margin-top: 8px;
 `;
 
 const StyledAccordion = styled(CustomAccordion)`
@@ -37,6 +36,7 @@ const StyledCard = styled(Card)`
   width: 100%;
   height: auto;
   padding: 11.5px ${responsiveSize(8, 18)};
+  margin: 8px 0;
 `;
 
 const AccordionContentContainer = styled.div`
