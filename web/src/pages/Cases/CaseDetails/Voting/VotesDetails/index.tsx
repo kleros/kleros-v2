@@ -1,4 +1,4 @@
-import { CustomAccordion } from "@kleros/ui-components-library";
+import { Card, CustomAccordion } from "@kleros/ui-components-library";
 import React from "react";
 import styled from "styled-components";
 import { Answer } from "context/NewDisputeContext";
@@ -8,6 +8,13 @@ import AccordionTitle from "./AccordionTitle";
 import { responsiveSize } from "styles/responsiveSize";
 import { getVoteChoice } from "utils/getVoteChoice";
 import { isUndefined } from "utils/index";
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  gap: 16px;
+`;
 
 const StyledAccordion = styled(CustomAccordion)`
   width: 100%;
@@ -24,6 +31,12 @@ const StyledAccordion = styled(CustomAccordion)`
   > * > div > div {
     padding: ${responsiveSize(8, 24)} ${responsiveSize(8, 16)};
   }
+`;
+
+const StyledCard = styled(Card)`
+  width: 100%;
+  height: auto;
+  padding: 11.5px ${responsiveSize(8, 18)};
 `;
 
 const AccordionContentContainer = styled.div`
@@ -72,42 +85,65 @@ const AccordionContent: React.FC<{
   </AccordionContentContainer>
 );
 
-interface VotesAccordion {
+interface IVotesAccordion {
   drawnJurors: DrawnJuror[];
   period: string;
   answers: Answer[];
   isActiveRound: boolean;
 }
 
-const VotesAccordion: React.FC<VotesAccordion> = ({ drawnJurors, period, answers, isActiveRound }) => {
-  return drawnJurors.length ? (
-    <StyledAccordion
-      items={
-        drawnJurors?.map((drawnJuror) => ({
-          title: (
-            <AccordionTitle
-              juror={drawnJuror.juror.id}
-              voteCount={drawnJuror.voteCount}
-              choice={drawnJuror.vote?.justification?.choice}
-              period={period}
-              answers={answers}
-              isActiveRound={isActiveRound}
-            />
-          ),
-          body: drawnJuror.vote?.justification?.choice ? (
-            <AccordionContent
-              justification={drawnJuror?.vote?.justification.reference ?? ""}
-              choice={drawnJuror.vote?.justification?.choice}
-              answers={answers}
-            />
-          ) : null,
-        })) ?? []
-      }
-    />
-  ) : (
+const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answers, isActiveRound }) => {
+  const accordionItems = drawnJurors
+    .map((drawnJuror) =>
+      !isUndefined(drawnJuror.vote?.justification?.choice)
+        ? {
+            title: (
+              <AccordionTitle
+                juror={drawnJuror.juror.id}
+                voteCount={drawnJuror.voteCount}
+                choice={drawnJuror.vote?.justification?.choice}
+                period={period}
+                answers={answers}
+                isActiveRound={isActiveRound}
+              />
+            ),
+            body: drawnJuror.vote?.justification?.choice ? (
+              <AccordionContent
+                justification={drawnJuror?.vote?.justification.reference ?? ""}
+                choice={drawnJuror.vote?.justification?.choice}
+                answers={answers}
+              />
+            ) : null,
+          }
+        : null
+    )
+    .filter((item) => item !== null);
+
+  return (
     <>
-      <br />
-      <InfoCard msg="Jurors have not been drawn yet." />
+      {drawnJurors.length === 0 ? (
+        <>
+          <br />
+          <InfoCard msg="Jurors have not been drawn yet." />
+        </>
+      ) : null}
+      <Container>
+        {accordionItems.length > 0 ? <StyledAccordion items={accordionItems} /> : null}
+        {drawnJurors.map(
+          (drawnJuror) =>
+            isUndefined(drawnJuror.vote?.justification?.choice) && (
+              <StyledCard key={drawnJuror.juror.id}>
+                <AccordionTitle
+                  juror={drawnJuror.juror.id}
+                  voteCount={drawnJuror.voteCount}
+                  period={period}
+                  answers={answers}
+                  isActiveRound={isActiveRound}
+                />
+              </StyledCard>
+            )
+        )}
+      </Container>
     </>
   );
 };
