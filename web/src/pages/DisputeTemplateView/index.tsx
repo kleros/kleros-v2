@@ -11,10 +11,11 @@ import { INVALID_DISPUTE_DATA_ERROR } from "consts/index";
 import { useKlerosCoreAddress } from "hooks/useContractAddress";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import ReactMarkdown from "components/ReactMarkdown";
-
-import SvelteJSONEditor from "components/JSONEditor";
+import JSONEditor from "components/JSONEditor";
 import { Mode } from "vanilla-jsoneditor";
 import { landscapeStyle } from "styles/landscapeStyle";
+import FetchFromIDInput from "./FetchFromIdInput";
+
 const Container = styled.div`
   height: auto;
   display: flex;
@@ -85,7 +86,15 @@ const LongTextSections = styled.div`
     `
   )}
 `;
-
+const UpperContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  ${landscapeStyle(
+    () => css`
+      grid-template-columns: 1fr 1fr;
+    `
+  )}
+`;
 const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
@@ -105,7 +114,7 @@ const StyledP = styled.p`
 `;
 
 const StyledHeader = styled.h2`
-  margin-top 24px;
+  margin-top: 24px;
 `;
 
 const LongText = styled.div`
@@ -205,52 +214,56 @@ const DisputeTemplateView = () => {
   ]);
   return (
     <>
-      <StyledForm>
-        <StyledHeader>Dispute Request event parameters</StyledHeader>
-        <StyledRow>
-          <StyledP>{"{{ arbitrator }}"}</StyledP>
-          <Field type="text" value={arbitrator} onChange={(e) => setArbitrator(e.target.value)} placeholder="0x..." />
-        </StyledRow>
-        <StyledRow>
-          <StyledP>{"{{ arbitrable }}"}</StyledP>
-          <Field type="text" value={arbitrable} onChange={(e) => setArbitrable(e.target.value)} placeholder="0x..." />
-        </StyledRow>
-        <StyledRow>
-          <StyledP>{"{{ arbitrableDisputeID }}"}</StyledP>
-          <Field
-            type="text"
-            value={arbitrableDisputeID}
-            onChange={(e) => setArbitrableDisputeID(e.target.value)}
-            placeholder="0"
-          />
-        </StyledRow>
-        <StyledRow>
-          <StyledP>{"{{ externalDisputeID }}"}</StyledP>
-          <Field
-            type="text"
-            value={externalDisputeID}
-            onChange={(e) => setExternalDisputeID(e.target.value)}
-            placeholder="0"
-          />
-        </StyledRow>
-        <StyledRow>
-          <StyledP>{"{{ templateID }}"}</StyledP>
-          <Field type="text" value={templateID} onChange={(e) => setTemplateID(e.target.value)} placeholder="0" />
-        </StyledRow>
-        <StyledRow>
-          <StyledP>{"{{ templateUri }}"}</StyledP>
-          <Field
-            type="text"
-            value={templateUri}
-            onChange={(e) => setTemplateUri(e.target.value)}
-            placeholder="ipfs://... (optional)"
-          />
-        </StyledRow>
-      </StyledForm>
+      <UpperContainer>
+        <StyledForm>
+          <StyledHeader>Dispute Request event parameters</StyledHeader>
+          <StyledRow>
+            <StyledP>{"{{ arbitrator }}"}</StyledP>
+            <Field type="text" value={arbitrator} onChange={(e) => setArbitrator(e.target.value)} placeholder="0x..." />
+          </StyledRow>
+          <StyledRow>
+            <StyledP>{"{{ arbitrable }}"}</StyledP>
+            <Field type="text" value={arbitrable} onChange={(e) => setArbitrable(e.target.value)} placeholder="0x..." />
+          </StyledRow>
+          <StyledRow>
+            <StyledP>{"{{ arbitrableDisputeID }}"}</StyledP>
+            <Field
+              type="text"
+              value={arbitrableDisputeID}
+              onChange={(e) => setArbitrableDisputeID(e.target.value)}
+              placeholder="0"
+            />
+          </StyledRow>
+          <StyledRow>
+            <StyledP>{"{{ externalDisputeID }}"}</StyledP>
+            <Field
+              type="text"
+              value={externalDisputeID}
+              onChange={(e) => setExternalDisputeID(e.target.value)}
+              placeholder="0"
+            />
+          </StyledRow>
+          <StyledRow>
+            <StyledP>{"{{ templateID }}"}</StyledP>
+            <Field type="text" value={templateID} onChange={(e) => setTemplateID(e.target.value)} placeholder="0" />
+          </StyledRow>
+          <StyledRow>
+            <StyledP>{"{{ templateUri }}"}</StyledP>
+            <Field
+              type="text"
+              value={templateUri}
+              onChange={(e) => setTemplateUri(e.target.value)}
+              placeholder="ipfs://... (optional)"
+            />
+          </StyledRow>
+        </StyledForm>
+        <FetchFromIDInput {...{ setDataMappingsInput, setDisputeTemplateInput }} />
+      </UpperContainer>
+
       <LongTextSections>
         <LongText>
           <StyledHeader>Template</StyledHeader>
-          <SvelteJSONEditor
+          <JSONEditor
             content={{ text: disputeTemplateInput }}
             mode={Mode.text}
             onChange={(val) => {
@@ -260,7 +273,7 @@ const DisputeTemplateView = () => {
         </LongText>
         <LongText>
           <StyledHeader>Data Mapping</StyledHeader>
-          <SvelteJSONEditor
+          <JSONEditor
             content={{ text: dataMappingsInput }}
             mode={Mode.text}
             onChange={(val) => {
