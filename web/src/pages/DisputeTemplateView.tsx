@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { useDebounce } from "react-use";
 import Skeleton from "react-loading-skeleton";
-import { Field, Textarea } from "@kleros/ui-components-library";
-import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
+import { Field } from "@kleros/ui-components-library";
 import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
 import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
 import { Answer, DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
@@ -13,7 +12,9 @@ import { useKlerosCoreAddress } from "hooks/useContractAddress";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import ReactMarkdown from "components/ReactMarkdown";
 
-
+import SvelteJSONEditor from "components/JSONEditor";
+import { Mode } from "vanilla-jsoneditor";
+import { landscapeStyle } from "styles/landscapeStyle";
 const Container = styled.div`
   height: auto;
   display: flex;
@@ -77,12 +78,12 @@ const LongTextSections = styled.div`
   margin: 24px;
   display: flex;
   gap: 12px;
-`;
-
-const StyledTextArea = styled(Textarea)`
-  width: 30vw;
-  height: calc(100vh - 300px);
-  font-family: "Roboto Mono", monospace;
+  flex-direction: column;
+  ${landscapeStyle(
+    () => css`
+      flex-direction: row;
+    `
+  )}
 `;
 
 const StyledForm = styled.form`
@@ -161,9 +162,9 @@ const DisputeTemplateView = () => {
 
           const fetchData = async () => {
             try {
-              const parsedMappings = JSON.parse(dataMappingsInput);
-              const data = await executeActions(parsedMappings, initialContext);
+              const data = dataMappingsInput ? await executeActions(JSON.parse(dataMappingsInput), initialContext) : {};
               const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
+
               setDisputeDetails(finalDisputeDetails);
             } catch (e) {
               console.error(e);
@@ -249,18 +250,22 @@ const DisputeTemplateView = () => {
       <LongTextSections>
         <LongText>
           <StyledHeader>Template</StyledHeader>
-          <StyledTextArea
-            value={disputeTemplateInput}
-            onChange={(e) => setDisputeTemplateInput(e.target.value)}
-            placeholder="Enter dispute template"
+          <SvelteJSONEditor
+            content={{ text: disputeTemplateInput }}
+            mode={Mode.text}
+            onChange={(val) => {
+              setDisputeTemplateInput(val.text);
+            }}
           />
         </LongText>
         <LongText>
           <StyledHeader>Data Mapping</StyledHeader>
-          <StyledTextArea
-            value={dataMappingsInput}
-            onChange={(e) => setDataMappingsInput(e.target.value)}
-            placeholder="Enter data mappings"
+          <SvelteJSONEditor
+            content={{ text: dataMappingsInput }}
+            mode={Mode.text}
+            onChange={(val) => {
+              setDataMappingsInput(val.text);
+            }}
           />
         </LongText>
         <LongText>
