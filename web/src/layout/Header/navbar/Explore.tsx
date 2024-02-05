@@ -49,7 +49,7 @@ const StyledLink = styled(Link)<{ isActive: boolean }>`
 `;
 
 const HiddenLink = styled(StyledLink)<{ isActive: boolean }>`
-  color: ${({ isActive, theme }) => (isActive ? theme.primaryText : theme.primaryPurple)};
+  color: ${({ isActive, theme }) => (isActive ? theme.primaryText : "transparent")};
 `;
 
 const links = [
