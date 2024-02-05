@@ -20,9 +20,14 @@ const StyledHeader = styled.h2`
 interface IFetchFromID {
   setDisputeTemplateInput: (templateData: string) => void;
   setDataMappingsInput: (dataMappings: string) => void;
+  defaultTemplateID: string;
 }
 
-const FetchFromIDInput: React.FC<IFetchFromID> = ({ setDisputeTemplateInput, setDataMappingsInput }) => {
+const FetchFromIDInput: React.FC<IFetchFromID> = ({
+  setDisputeTemplateInput,
+  setDataMappingsInput,
+  defaultTemplateID = "",
+}) => {
   const [templateId, setTemplateId] = useState<string>("");
   const [debouncedTemplateId, setDebouncedTemplateId] = useState<string>("");
   useDebounce(
@@ -32,6 +37,7 @@ const FetchFromIDInput: React.FC<IFetchFromID> = ({ setDisputeTemplateInput, set
     1000,
     [templateId]
   );
+  useEffect(() => setTemplateId(defaultTemplateID), [defaultTemplateID]);
   const { data: templateFromId, isLoading } = useDisputeTemplateFromId(debouncedTemplateId);
 
   useEffect(() => {
@@ -45,6 +51,7 @@ const FetchFromIDInput: React.FC<IFetchFromID> = ({ setDisputeTemplateInput, set
     <Container>
       <StyledHeader>Fetch dispute template from template ID</StyledHeader>
       <StyledInput
+        value={templateId}
         placeholder="Enter template Id"
         message={isLoading ? "fetching ..." : ""}
         onChange={(e) => setTemplateId(e.target.value)}

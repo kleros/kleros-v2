@@ -259,7 +259,10 @@ const DisputeTemplateView = () => {
           </StyledRow>
         </StyledForm>
         <div>
-          <FetchFromIDInput {...{ setDataMappingsInput, setDisputeTemplateInput }} />
+          <FetchFromIDInput
+            {...{ setDataMappingsInput, setDisputeTemplateInput }}
+            defaultTemplateID={debouncedParams._templateId?.toString()}
+          />
           <FetchDisputeRequestInput setParams={setParams} />
         </div>
       </UpperContainer>
