@@ -300,41 +300,39 @@ const DisputeTemplateView = () => {
 
 const Overview: React.FC<{ disputeDetails: DisputeDetails | undefined }> = ({ disputeDetails }) => {
   return (
-    <>
-      <Container>
-        <h1>{disputeDetails?.title ?? INVALID_DISPUTE_DATA_ERROR}</h1>
-        <QuestionAndDescription>
-          <ReactMarkdown>{disputeDetails?.question ?? INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
-          <ReactMarkdown>{disputeDetails?.description ?? INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
-        </QuestionAndDescription>
-        {disputeDetails?.frontendUrl && (
-          <a href={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
-            Go to arbitrable
-          </a>
-        )}
-        <VotingOptions>
-          {disputeDetails && <h3>Voting Options</h3>}
-          {disputeDetails?.answers?.map((answer: Answer, i: number) => (
-            <span key={answer.id}>
-              <small>Option {i + 1}:</small>
-              <label>{answer.title}. </label>
-              <label>{answer.description}</label>
-            </span>
-          ))}
-        </VotingOptions>
-        <ShadeArea>
-          <p>Make sure you read and understand the Policies</p>
-          <LinkContainer>
-            {disputeDetails?.policyURI && (
-              <StyledA href={getIpfsUrl(disputeDetails?.policyURI)} target="_blank" rel="noreferrer">
-                <PolicyIcon />
-                Dispute Policy
-              </StyledA>
-            )}
-          </LinkContainer>
-        </ShadeArea>
-      </Container>
-    </>
+    <Container>
+      <h1>{disputeDetails?.title ?? INVALID_DISPUTE_DATA_ERROR}</h1>
+      <QuestionAndDescription>
+        <ReactMarkdown>{disputeDetails?.question ?? INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
+        <ReactMarkdown>{disputeDetails?.description ?? INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
+      </QuestionAndDescription>
+      {disputeDetails?.frontendUrl && (
+        <a href={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
+          Go to arbitrable
+        </a>
+      )}
+      <VotingOptions>
+        {disputeDetails && <h3>Voting Options</h3>}
+        {disputeDetails?.answers?.map((answer: Answer, i: number) => (
+          <span key={answer.id}>
+            <small>Option {i + 1}:</small>
+            <label>{answer.title}. </label>
+            <label>{answer.description}</label>
+          </span>
+        ))}
+      </VotingOptions>
+      <ShadeArea>
+        <p>Make sure you read and understand the Policies</p>
+        <LinkContainer>
+          {disputeDetails?.policyURI && (
+            <StyledA href={getIpfsUrl(disputeDetails?.policyURI)} target="_blank" rel="noreferrer">
+              <PolicyIcon />
+              Dispute Policy
+            </StyledA>
+          )}
+        </LinkContainer>
+      </ShadeArea>
+    </Container>
   );
 };
 
