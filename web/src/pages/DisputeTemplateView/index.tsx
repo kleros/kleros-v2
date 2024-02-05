@@ -15,6 +15,7 @@ import JSONEditor from "components/JSONEditor";
 import { Mode } from "vanilla-jsoneditor";
 import { landscapeStyle } from "styles/landscapeStyle";
 import FetchFromIDInput from "./FetchFromIdInput";
+import FetchDisputeRequestInput, { DisputeRequest } from "./FetchDisputeRequestInput";
 
 const Container = styled.div`
   height: auto;
@@ -128,27 +129,23 @@ const DisputeTemplateView = () => {
   const [disputeDetails, setDisputeDetails] = useState<DisputeDetails | undefined>(undefined);
   const [disputeTemplateInput, setDisputeTemplateInput] = useState<string>("");
   const [dataMappingsInput, setDataMappingsInput] = useState<string>("");
-  const [arbitrator, setArbitrator] = useState(klerosCoreAddress as string);
-  const [arbitrable, setArbitrable] = useState("0x10f7A6f42Af606553883415bc8862643A6e63fdA"); // Escrow devnet
-  const [arbitrableDisputeID, setArbitrableDisputeID] = useState("0");
-  const [externalDisputeID, setExternalDisputeID] = useState("0");
-  const [templateID, setTemplateID] = useState("0");
-  const [templateUri, setTemplateUri] = useState("");
 
-  const [debouncedArbitrator, setDebouncedArbitrator] = useState(arbitrator);
-  const [debouncedArbitrable, setDebouncedArbitrable] = useState(arbitrable);
-  const [debouncedArbitrableDisputeID, setDebouncedArbitrableDisputeID] = useState(arbitrableDisputeID);
-  const [debouncedExternalDisputeID, setDebouncedExternalDisputeID] = useState(externalDisputeID);
-  const [debouncedTemplateID, setDebouncedTemplateID] = useState(templateID);
-  const [debouncedTemplateUri, setDebouncedTemplateUri] = useState(templateUri);
+  const [params, setParams] = useState<DisputeRequest>({
+    _arbitrable: "0x10f7A6f42Af606553883415bc8862643A6e63fdA",
+    _arbitrator: klerosCoreAddress as `0x${string}`,
+  });
+  const [debouncedParams, setDebouncedParams] = useState(params);
   const [loading, setLoading] = useState(false);
 
-  useDebounce(() => setDebouncedArbitrator(arbitrator), 350, [arbitrator]);
-  useDebounce(() => setDebouncedArbitrable(arbitrable), 350, [arbitrable]);
-  useDebounce(() => setDebouncedArbitrableDisputeID(arbitrableDisputeID), 350, [arbitrableDisputeID]);
-  useDebounce(() => setDebouncedExternalDisputeID(externalDisputeID), 350, [externalDisputeID]);
-  useDebounce(() => setDebouncedTemplateID(templateID), 350, [templateID]);
-  useDebounce(() => setDebouncedTemplateUri(templateUri), 350, [templateUri]);
+  useDebounce(() => setDebouncedParams(params), 350, [params]);
+
+  const handleFormUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = ["_arbitrator", "_arbitrable", "_templateUri"].includes(event.target.name)
+      ? event.target.value
+      : BigInt(event.target.value);
+
+    setParams({ ...params, [event.target.name]: value });
+  };
 
   useEffect(() => {
     let isFetchDataScheduled = false;
@@ -161,12 +158,12 @@ const DisputeTemplateView = () => {
 
         setTimeout(() => {
           const initialContext = {
-            arbitrator: debouncedArbitrator,
-            arbitrable: debouncedArbitrable,
-            arbitrableDisputeID: debouncedArbitrableDisputeID,
-            externalDisputeID: debouncedExternalDisputeID,
-            templateID: debouncedTemplateID,
-            templateUri: debouncedTemplateUri,
+            arbitrator: debouncedParams._arbitrator,
+            arbitrable: debouncedParams._arbitrable,
+            arbitrableDisputeID: debouncedParams._arbitrableDisputeID,
+            externalDisputeID: debouncedParams._externalDisputeID,
+            templateID: debouncedParams._templateId,
+            templateUri: debouncedParams._templateUri,
           };
 
           const fetchData = async () => {
@@ -190,28 +187,11 @@ const DisputeTemplateView = () => {
       }
     };
 
-    if (
-      disputeTemplateInput ||
-      dataMappingsInput ||
-      debouncedArbitrator ||
-      debouncedArbitrable ||
-      debouncedArbitrableDisputeID ||
-      debouncedExternalDisputeID ||
-      debouncedTemplateID ||
-      debouncedTemplateUri
-    ) {
+    if (disputeTemplateInput || dataMappingsInput || debouncedParams) {
       scheduleFetchData();
     }
-  }, [
-    disputeTemplateInput,
-    dataMappingsInput,
-    debouncedArbitrator,
-    debouncedArbitrable,
-    debouncedArbitrableDisputeID,
-    debouncedExternalDisputeID,
-    debouncedTemplateID,
-    debouncedTemplateUri,
-  ]);
+  }, [disputeTemplateInput, dataMappingsInput, debouncedParams]);
+
   return (
     <>
       <UpperContainer>
@@ -219,18 +199,31 @@ const DisputeTemplateView = () => {
           <StyledHeader>Dispute Request event parameters</StyledHeader>
           <StyledRow>
             <StyledP>{"{{ arbitrator }}"}</StyledP>
-            <Field type="text" value={arbitrator} onChange={(e) => setArbitrator(e.target.value)} placeholder="0x..." />
+            <Field
+              type="text"
+              name="_arbitrator"
+              value={params._arbitrator}
+              onChange={handleFormUpdate}
+              placeholder="0x..."
+            />
           </StyledRow>
           <StyledRow>
             <StyledP>{"{{ arbitrable }}"}</StyledP>
-            <Field type="text" value={arbitrable} onChange={(e) => setArbitrable(e.target.value)} placeholder="0x..." />
+            <Field
+              type="text"
+              name="_arbitrable"
+              value={params._arbitrable}
+              onChange={handleFormUpdate}
+              placeholder="0x..."
+            />
           </StyledRow>
           <StyledRow>
             <StyledP>{"{{ arbitrableDisputeID }}"}</StyledP>
             <Field
               type="text"
-              value={arbitrableDisputeID}
-              onChange={(e) => setArbitrableDisputeID(e.target.value)}
+              name="_arbitrableDisputeID"
+              value={params._arbitrableDisputeID?.toString()}
+              onChange={handleFormUpdate}
               placeholder="0"
             />
           </StyledRow>
@@ -238,26 +231,37 @@ const DisputeTemplateView = () => {
             <StyledP>{"{{ externalDisputeID }}"}</StyledP>
             <Field
               type="text"
-              value={externalDisputeID}
-              onChange={(e) => setExternalDisputeID(e.target.value)}
+              name="_externalDisputeID"
+              value={params._externalDisputeID?.toString()}
+              onChange={handleFormUpdate}
               placeholder="0"
             />
           </StyledRow>
           <StyledRow>
             <StyledP>{"{{ templateID }}"}</StyledP>
-            <Field type="text" value={templateID} onChange={(e) => setTemplateID(e.target.value)} placeholder="0" />
+            <Field
+              type="text"
+              name="_templateId"
+              value={params._templateId?.toString()}
+              onChange={handleFormUpdate}
+              placeholder="0"
+            />
           </StyledRow>
           <StyledRow>
             <StyledP>{"{{ templateUri }}"}</StyledP>
             <Field
               type="text"
-              value={templateUri}
-              onChange={(e) => setTemplateUri(e.target.value)}
+              name="_templateUri"
+              value={params._templateUri}
+              onChange={handleFormUpdate}
               placeholder="ipfs://... (optional)"
             />
           </StyledRow>
         </StyledForm>
-        <FetchFromIDInput {...{ setDataMappingsInput, setDisputeTemplateInput }} />
+        <div>
+          <FetchFromIDInput {...{ setDataMappingsInput, setDisputeTemplateInput }} />
+          <FetchDisputeRequestInput setParams={setParams} />
+        </div>
       </UpperContainer>
 
       <LongTextSections>
