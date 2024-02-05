@@ -37,8 +37,8 @@ const FetchFromIDInput: React.FC<IFetchFromID> = ({ setDisputeTemplateInput, set
   useEffect(() => {
     const templateData = templateFromId?.disputeTemplate?.templateData;
     const templateDataMappings = templateFromId?.disputeTemplate?.templateDataMappings;
-    if (!isUndefined(templateData)) setDisputeTemplateInput(templateData);
-    if (!isUndefined(templateDataMappings)) setDataMappingsInput(templateDataMappings);
+    if (!isUndefined(templateData)) setDisputeTemplateInput(tryPrettify(templateData));
+    if (!isUndefined(templateDataMappings)) setDataMappingsInput(tryPrettify(templateDataMappings));
   }, [templateFromId]);
 
   return (
@@ -52,5 +52,12 @@ const FetchFromIDInput: React.FC<IFetchFromID> = ({ setDisputeTemplateInput, set
     </Container>
   );
 };
-
+// will try to format else will be repaired in editor
+const tryPrettify = (text: string) => {
+  try {
+    return JSON.stringify(JSON.parse(text), null, 2);
+  } catch {
+    return text;
+  }
+};
 export default FetchFromIDInput;
