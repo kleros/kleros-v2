@@ -1,5 +1,5 @@
 import { Card, CustomAccordion } from "@kleros/ui-components-library";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { Answer } from "context/NewDisputeContext";
 import { DrawnJuror } from "utils/getDrawnJurorsWithCount";
@@ -93,31 +93,33 @@ interface IVotesAccordion {
 }
 
 const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answers, isActiveRound }) => {
-  const accordionItems = drawnJurors
-    .map((drawnJuror) =>
-      !isUndefined(drawnJuror.vote?.justification?.choice)
-        ? {
-            title: (
-              <AccordionTitle
-                juror={drawnJuror.juror.id}
-                voteCount={drawnJuror.voteCount}
-                choice={drawnJuror.vote?.justification?.choice}
-                period={period}
-                answers={answers}
-                isActiveRound={isActiveRound}
-              />
-            ),
-            body: (
-              <AccordionContent
-                justification={drawnJuror?.vote?.justification.reference ?? ""}
-                choice={drawnJuror.vote?.justification?.choice}
-                answers={answers}
-              />
-            ),
-          }
-        : null
-    )
-    .filter((item) => item !== null);
+  const accordionItems = useMemo(() => {
+    return drawnJurors
+      .map((drawnJuror) =>
+        !isUndefined(drawnJuror.vote?.justification?.choice)
+          ? {
+              title: (
+                <AccordionTitle
+                  juror={drawnJuror.juror.id}
+                  voteCount={drawnJuror.voteCount}
+                  choice={drawnJuror.vote?.justification?.choice}
+                  period={period}
+                  answers={answers}
+                  isActiveRound={isActiveRound}
+                />
+              ),
+              body: (
+                <AccordionContent
+                  justification={drawnJuror?.vote?.justification.reference ?? ""}
+                  choice={drawnJuror.vote?.justification?.choice}
+                  answers={answers}
+                />
+              ),
+            }
+          : null
+      )
+      .filter((item) => item !== null);
+  }, [drawnJurors, period, answers, isActiveRound]);
 
   return (
     <>
