@@ -50,7 +50,9 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 #### Arbitrum Sepolia
 
+- [ArbitrableDummy](https://sepolia.arbiscan.io/address/0x13aC429B61E1224E69275f161f0c6dafb2facAb8)
 - [ArbitrableExample](https://sepolia.arbiscan.io/address/0xe48488AE09022a4F32c528d7EbfF92870225AcBf)
+- [ArbitratorDummy](https://sepolia.arbiscan.io/address/0x7932fb9ccF576D02270B9A12E5718b3a9C760843)
 - [BlockHashRNG](https://sepolia.arbiscan.io/address/0x56d6d65Fe202232714794B5D5e4ed9894466Ee01)
 - [DAI](https://sepolia.arbiscan.io/address/0x593e89704D285B0c3fbF157c7CF2537456CE64b5)
 - [DAIFaucet](https://sepolia.arbiscan.io/address/0xB5b39A1bcD2D7097A8824B3cC18Ebd2dFb0D9B5E)

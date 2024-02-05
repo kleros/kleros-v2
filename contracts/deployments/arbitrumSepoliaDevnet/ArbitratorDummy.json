@@ -1,0 +1,362 @@
+{
+  "address": "0x7932fb9ccF576D02270B9A12E5718b3a9C760843",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "NotImplemented",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "contract IERC20",
+          "name": "_token",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bool",
+          "name": "_accepted",
+          "type": "bool"
+        }
+      ],
+      "name": "AcceptedFeeToken",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_arbitrable",
+          "type": "address"
+        }
+      ],
+      "name": "ArbitrableRegisteration",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_disputeID",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "contract IArbitrableV2",
+          "name": "_arbitrable",
+          "type": "address"
+        }
+      ],
+      "name": "DisputeCreation",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "contract IERC20",
+          "name": "_feeToken",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "_rateInEth",
+          "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "_rateDecimals",
+          "type": "uint8"
+        }
+      ],
+      "name": "NewCurrencyRate",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "contract IArbitrableV2",
+          "name": "_arbitrable",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "_disputeID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_ruling",
+          "type": "uint256"
+        }
+      ],
+      "name": "Ruling",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        },
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "arbitrationCost",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "arbitrationCost",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "createDispute",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        },
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "createDispute",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "currentRuling",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "disputeID",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "executeRuling",
+      "outputs": [],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "register",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x88459e7776fea179ddb319903692b63e83f70fa6eedf5c48152a11c474fc7809",
+  "receipt": {
+    "to": null,
+    "from": "0xf1C7c037891525E360C59f708739Ac09A7670c59",
+    "contractAddress": "0x7932fb9ccF576D02270B9A12E5718b3a9C760843",
+    "transactionIndex": 1,
+    "gasUsed": "4094317",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x558462d0b1ff07f148c0ca40c12e59d92d04d3ebb75f837d026c92dc9ea122d4",
+    "transactionHash": "0x88459e7776fea179ddb319903692b63e83f70fa6eedf5c48152a11c474fc7809",
+    "logs": [],
+    "blockNumber": 11973207,
+    "cumulativeGasUsed": "4094317",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "1be9897ce71baf97383d6f7882968cfe",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.18+commit.87f61d96\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"NotImplemented\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"contract IERC20\",\"name\":\"_token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bool\",\"name\":\"_accepted\",\"type\":\"bool\"}],\"name\":\"AcceptedFeeToken\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_arbitrable\",\"type\":\"address\"}],\"name\":\"ArbitrableRegisteration\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_disputeID\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"contract IArbitrableV2\",\"name\":\"_arbitrable\",\"type\":\"address\"}],\"name\":\"DisputeCreation\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"contract IERC20\",\"name\":\"_feeToken\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"_rateInEth\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"_rateDecimals\",\"type\":\"uint8\"}],\"name\":\"NewCurrencyRate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"contract IArbitrableV2\",\"name\":\"_arbitrable\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"_disputeID\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_ruling\",\"type\":\"uint256\"}],\"name\":\"Ruling\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"arbitrationCost\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"arbitrationCost\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"createDispute\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"createDispute\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"currentRuling\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"disputeID\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"executeRuling\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"register\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"events\":{\"AcceptedFeeToken(address,bool)\":{\"details\":\"To be emitted when an ERC20 token is added or removed as a method to pay fees.\",\"params\":{\"_accepted\":\"Whether the token is accepted or not.\",\"_token\":\"The ERC20 token.\"}},\"DisputeCreation(uint256,address)\":{\"details\":\"To be emitted when a dispute is created.\",\"params\":{\"_arbitrable\":\"The contract which created the dispute.\",\"_disputeID\":\"The identifier of the dispute in the Arbitrator contract.\"}},\"NewCurrencyRate(address,uint64,uint8)\":{\"details\":\"To be emitted when the fee for a particular ERC20 token is updated.\",\"params\":{\"_feeToken\":\"The ERC20 token.\",\"_rateDecimals\":\"The new decimals of the fee token rate.\",\"_rateInEth\":\"The new rate of the fee token in ETH.\"}},\"Ruling(address,uint256,uint256)\":{\"details\":\"To be raised when a ruling is given.\",\"params\":{\"_arbitrable\":\"The arbitrable receiving the ruling.\",\"_disputeID\":\"The identifier of the dispute in the Arbitrator contract.\",\"_ruling\":\"The ruling which was given.\"}}},\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/arbitration/ArbitratorDummy.sol\":\"ArbitratorDummy\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":100},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the amount of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the amount of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves `amount` tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Moves `amount` tokens from `from` to `to` using the\\n     * allowance mechanism. `amount` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(address from, address to, uint256 amount) external returns (bool);\\n}\\n\",\"keccak256\":\"0x287b55befed2961a7eabd7d7b1b2839cbca8a5b80ef8dcbb25ed3d4c2002c305\",\"license\":\"MIT\"},\"src/arbitration/ArbitratorDummy.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\nimport {IArbitrableV2, IArbitratorV2} from \\\"./interfaces/IArbitratorV2.sol\\\";\\nimport {IDisputeKit} from \\\"./interfaces/IDisputeKit.sol\\\";\\nimport {ISortitionModule} from \\\"./interfaces/ISortitionModule.sol\\\";\\nimport {SafeERC20, IERC20} from \\\"../libraries/SafeERC20.sol\\\";\\nimport {Constants} from \\\"../libraries/Constants.sol\\\";\\nimport {OnError} from \\\"../libraries/Types.sol\\\";\\nimport {UUPSProxiable} from \\\"../proxy/UUPSProxiable.sol\\\";\\nimport {Initializable} from \\\"../proxy/Initializable.sol\\\";\\n\\ncontract ArbitratorDummy is IArbitratorV2 {\\n    \\n    event ArbitrableRegisteration(address indexed _arbitrable);\\n\\n    uint256 public disputeID;\\n\\n    constructor() {}\\n\\n    function register() external {\\n        // Warning: could be abused by EOAs and non-arbitrable contracts.\\n        emit ArbitrableRegisteration(msg.sender);\\n    }\\n\\n    function createDispute(uint256, bytes memory) external payable override returns (uint256) {\\n        return ++disputeID;\\n    }\\n\\n    function createDispute(uint256, bytes calldata, IERC20, uint256) external override returns (uint256) {\\n        return ++disputeID;\\n    }\\n\\n    function executeRuling(uint256) external pure {\\n        revert NotImplemented();\\n    }\\n\\n    function arbitrationCost(bytes memory) public pure override returns (uint256) {\\n        return 0;\\n    }\\n\\n    function arbitrationCost(bytes calldata, IERC20) public pure override returns (uint256) {\\n        return 0;\\n    }\\n\\n    function currentRuling(uint256) external pure override returns (uint256, bool, bool) {\\n        revert NotImplemented();\\n    }\\n\\n    error NotImplemented();\\n}\\n\",\"keccak256\":\"0x18deb744b32d32adb09841237ecd66a09493d5659d91f7bda4be564ddb8ac4cc\",\"license\":\"MIT\"},\"src/arbitration/interfaces/IArbitrableV2.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\nimport \\\"./IArbitratorV2.sol\\\";\\n\\n/// @title IArbitrableV2\\n/// @notice Arbitrable interface.\\n/// When developing arbitrable contracts, we need to:\\n/// - Define the action taken when a ruling is received by the contract.\\n/// - Allow dispute creation. For this a function must call arbitrator.createDispute{value: _fee}(_choices,_extraData);\\ninterface IArbitrableV2 {\\n    /// @dev To be emitted when a dispute is created to link the correct meta-evidence to the disputeID.\\n    /// @param _arbitrator The arbitrator of the contract.\\n    /// @param _arbitrableDisputeID The identifier of the dispute in the Arbitrable contract.\\n    /// @param _externalDisputeID An identifier created outside Kleros by the protocol requesting arbitration.\\n    /// @param _templateId The identifier of the dispute template. Should not be used with _templateUri.\\n    /// @param _templateUri The URI to the dispute template. For example on IPFS: starting with '/ipfs/'. Should not be used with _templateId.\\n    event DisputeRequest(\\n        IArbitratorV2 indexed _arbitrator,\\n        uint256 indexed _arbitrableDisputeID,\\n        uint256 _externalDisputeID,\\n        uint256 _templateId,\\n        string _templateUri\\n    );\\n\\n    /// @dev To be raised when a ruling is given.\\n    /// @param _arbitrator The arbitrator giving the ruling.\\n    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.\\n    /// @param _ruling The ruling which was given.\\n    event Ruling(IArbitratorV2 indexed _arbitrator, uint256 indexed _disputeID, uint256 _ruling);\\n\\n    /// @dev Give a ruling for a dispute.\\n    ///      Must be called by the arbitrator.\\n    ///      The purpose of this function is to ensure that the address calling it has the right to rule on the contract.\\n    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.\\n    /// @param _ruling Ruling given by the arbitrator.\\n    /// Note that 0 is reserved for \\\"Not able/wanting to make a decision\\\".\\n    function rule(uint256 _disputeID, uint256 _ruling) external;\\n}\\n\",\"keccak256\":\"0x389326b1f749454ed179bdac2f9d6ce24a1ef944bbce976ca78b93f4e173354a\",\"license\":\"MIT\"},\"src/arbitration/interfaces/IArbitratorV2.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport \\\"./IArbitrableV2.sol\\\";\\n\\n/// @title Arbitrator\\n/// Arbitrator interface that implements the new arbitration standard.\\n/// Unlike the ERC-792 this standard is not concerned with appeals, so each arbitrator can implement an appeal system that suits it the most.\\n/// When developing arbitrator contracts we need to:\\n/// - Define the functions for dispute creation (createDispute). Don't forget to store the arbitrated contract and the disputeID (which should be unique, may nbDisputes).\\n/// - Define the functions for cost display (arbitrationCost).\\n/// - Allow giving rulings. For this a function must call arbitrable.rule(disputeID, ruling).\\ninterface IArbitratorV2 {\\n    /// @dev To be emitted when a dispute is created.\\n    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.\\n    /// @param _arbitrable The contract which created the dispute.\\n    event DisputeCreation(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);\\n\\n    /// @dev To be raised when a ruling is given.\\n    /// @param _arbitrable The arbitrable receiving the ruling.\\n    /// @param _disputeID The identifier of the dispute in the Arbitrator contract.\\n    /// @param _ruling The ruling which was given.\\n    event Ruling(IArbitrableV2 indexed _arbitrable, uint256 indexed _disputeID, uint256 _ruling);\\n\\n    /// @dev To be emitted when an ERC20 token is added or removed as a method to pay fees.\\n    /// @param _token The ERC20 token.\\n    /// @param _accepted Whether the token is accepted or not.\\n    event AcceptedFeeToken(IERC20 indexed _token, bool indexed _accepted);\\n\\n    /// @dev To be emitted when the fee for a particular ERC20 token is updated.\\n    /// @param _feeToken The ERC20 token.\\n    /// @param _rateInEth The new rate of the fee token in ETH.\\n    /// @param _rateDecimals The new decimals of the fee token rate.\\n    event NewCurrencyRate(IERC20 indexed _feeToken, uint64 _rateInEth, uint8 _rateDecimals);\\n\\n    /// @dev Create a dispute and pay for the fees in the native currency, typically ETH.\\n    ///      Must be called by the arbitrable contract.\\n    ///      Must pay at least arbitrationCost(_extraData).\\n    /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.\\n    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).\\n    /// @return disputeID The identifier of the dispute created.\\n    function createDispute(\\n        uint256 _numberOfChoices,\\n        bytes calldata _extraData\\n    ) external payable returns (uint256 disputeID);\\n\\n    /// @dev Create a dispute and pay for the fees in a supported ERC20 token.\\n    ///      Must be called by the arbitrable contract.\\n    ///      Must pay at least arbitrationCost(_extraData).\\n    /// @param _numberOfChoices The number of choices the arbitrator can choose from in this dispute.\\n    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).\\n    /// @param _feeToken The ERC20 token used to pay fees.\\n    /// @param _feeAmount Amount of the ERC20 token used to pay fees.\\n    /// @return disputeID The identifier of the dispute created.\\n    function createDispute(\\n        uint256 _numberOfChoices,\\n        bytes calldata _extraData,\\n        IERC20 _feeToken,\\n        uint256 _feeAmount\\n    ) external returns (uint256 disputeID);\\n\\n    /// @dev Compute the cost of arbitration denominated in the native currency, typically ETH.\\n    ///      It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.\\n    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).\\n    /// @return cost The arbitration cost in ETH.\\n    function arbitrationCost(bytes calldata _extraData) external view returns (uint256 cost);\\n\\n    /// @dev Compute the cost of arbitration denominated in `_feeToken`.\\n    ///      It is recommended not to increase it often, as it can be highly time and gas consuming for the arbitrated contracts to cope with fee augmentation.\\n    /// @param _extraData Additional info about the dispute. We use it to pass the ID of the dispute's court (first 32 bytes), the minimum number of jurors required (next 32 bytes) and the ID of the specific dispute kit (last 32 bytes).\\n    /// @param _feeToken The ERC20 token used to pay fees.\\n    /// @return cost The arbitration cost in `_feeToken`.\\n    function arbitrationCost(bytes calldata _extraData, IERC20 _feeToken) external view returns (uint256 cost);\\n\\n    /// @dev Gets the current ruling of a specified dispute.\\n    /// @param _disputeID The ID of the dispute.\\n    /// @return ruling The current ruling.\\n    /// @return tied Whether it's a tie or not.\\n    /// @return overridden Whether the ruling was overridden by appeal funding or not.\\n    function currentRuling(uint256 _disputeID) external view returns (uint256 ruling, bool tied, bool overridden);\\n}\\n\",\"keccak256\":\"0x453943ba5ccc94b9b9cdfd4afd3678682d62d8b90fe16b43e90215387d2f6a51\",\"license\":\"MIT\"},\"src/arbitration/interfaces/IDisputeKit.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\n/// @custom:authors: [@unknownunknown1, @jaybuidl]\\n/// @custom:reviewers: []\\n/// @custom:auditors: []\\n/// @custom:bounties: []\\n/// @custom:deployments: []\\n\\npragma solidity 0.8.18;\\n\\nimport \\\"./IArbitratorV2.sol\\\";\\n\\n/// @title IDisputeKit\\n/// An abstraction of the Dispute Kits intended for interfacing with KlerosCore.\\n/// It does not intend to abstract the interactions with the user (such as voting or appeal funding) to allow for implementation-specific parameters.\\ninterface IDisputeKit {\\n    // ************************************ //\\n    // *             Events               * //\\n    // ************************************ //\\n\\n    /// @dev Emitted when casting a vote to provide the justification of juror's choice.\\n    /// @param _coreDisputeID The identifier of the dispute in the Arbitrator contract.\\n    /// @param _juror Address of the juror.\\n    /// @param _voteIDs The identifiers of the votes in the dispute.\\n    /// @param _choice The choice juror voted for.\\n    /// @param _justification Justification of the choice.\\n    event VoteCast(\\n        uint256 indexed _coreDisputeID,\\n        address indexed _juror,\\n        uint256[] _voteIDs,\\n        uint256 indexed _choice,\\n        string _justification\\n    );\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /// @dev Creates a local dispute and maps it to the dispute ID in the Core contract.\\n    /// Note: Access restricted to Kleros Core only.\\n    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.\\n    /// @param _numberOfChoices Number of choices of the dispute\\n    /// @param _extraData Additional info about the dispute, for possible use in future dispute kits.\\n    function createDispute(\\n        uint256 _coreDisputeID,\\n        uint256 _numberOfChoices,\\n        bytes calldata _extraData,\\n        uint256 _nbVotes\\n    ) external;\\n\\n    /// @dev Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.\\n    /// Note: Access restricted to Kleros Core only.\\n    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.\\n    /// @param _nonce Nonce.\\n    /// @return drawnAddress The drawn address.\\n    function draw(uint256 _coreDisputeID, uint256 _nonce) external returns (address drawnAddress);\\n\\n    // ************************************* //\\n    // *           Public Views            * //\\n    // ************************************* //\\n\\n    /// @dev Gets the current ruling of a specified dispute.\\n    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.\\n    /// @return ruling The current ruling.\\n    /// @return tied Whether it's a tie or not.\\n    /// @return overridden Whether the ruling was overridden by appeal funding or not.\\n    function currentRuling(uint256 _coreDisputeID) external view returns (uint256 ruling, bool tied, bool overridden);\\n\\n    /// @dev Gets the degree of coherence of a particular voter. This function is called by Kleros Core in order to determine the amount of the reward.\\n    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.\\n    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.\\n    /// @param _voteID The ID of the vote.\\n    /// @return The degree of coherence in basis points.\\n    function getDegreeOfCoherence(\\n        uint256 _coreDisputeID,\\n        uint256 _coreRoundID,\\n        uint256 _voteID\\n    ) external view returns (uint256);\\n\\n    /// @dev Gets the number of jurors who are eligible to a reward in this round.\\n    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.\\n    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.\\n    /// @return The number of coherent jurors.\\n    function getCoherentCount(uint256 _coreDisputeID, uint256 _coreRoundID) external view returns (uint256);\\n\\n    /// @dev Returns true if all of the jurors have cast their commits for the last round.\\n    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.\\n    /// @return Whether all of the jurors have cast their commits for the last round.\\n    function areCommitsAllCast(uint256 _coreDisputeID) external view returns (bool);\\n\\n    /// @dev Returns true if all of the jurors have cast their votes for the last round.\\n    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.\\n    /// @return Whether all of the jurors have cast their votes for the last round.\\n    function areVotesAllCast(uint256 _coreDisputeID) external view returns (bool);\\n\\n    /// @dev Returns true if the specified voter was active in this round.\\n    /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.\\n    /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.\\n    /// @param _voteID The ID of the voter.\\n    /// @return Whether the voter was active or not.\\n    function isVoteActive(uint256 _coreDisputeID, uint256 _coreRoundID, uint256 _voteID) external view returns (bool);\\n\\n    function getRoundInfo(\\n        uint256 _coreDisputeID,\\n        uint256 _coreRoundID,\\n        uint256 _choice\\n    )\\n        external\\n        view\\n        returns (\\n            uint256 winningChoice,\\n            bool tied,\\n            uint256 totalVoted,\\n            uint256 totalCommited,\\n            uint256 nbVoters,\\n            uint256 choiceCount\\n        );\\n\\n    function getVoteInfo(\\n        uint256 _coreDisputeID,\\n        uint256 _coreRoundID,\\n        uint256 _voteID\\n    ) external view returns (address account, bytes32 commit, uint256 choice, bool voted);\\n}\\n\",\"keccak256\":\"0x7fe6b1d9b991cc327cc5895f34208a7b1e3b6ebf8efb20fcb9f3ff0f40d2d209\",\"license\":\"MIT\"},\"src/arbitration/interfaces/ISortitionModule.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.18;\\n\\ninterface ISortitionModule {\\n    enum Phase {\\n        staking, // Stake sum trees can be updated. Pass after `minStakingTime` passes and there is at least one dispute without jurors.\\n        generating, // Waiting for a random number. Pass as soon as it is ready.\\n        drawing // Jurors can be drawn. Pass after all disputes have jurors or `maxDrawingTime` passes.\\n    }\\n\\n    event NewPhase(Phase _phase);\\n\\n    function createTree(bytes32 _key, bytes memory _extraData) external;\\n\\n    function setStake(\\n        address _account,\\n        uint96 _courtID,\\n        uint256 _newStake,\\n        bool _alreadyTransferred\\n    ) external returns (uint256 pnkDeposit, uint256 pnkWithdrawal, bool succeeded);\\n\\n    function setJurorInactive(address _account) external;\\n\\n    function lockStake(address _account, uint256 _relativeAmount) external;\\n\\n    function unlockStake(address _account, uint256 _relativeAmount) external;\\n\\n    function penalizeStake(address _account, uint256 _relativeAmount) external;\\n\\n    function notifyRandomNumber(uint256 _drawnNumber) external;\\n\\n    function draw(bytes32 _court, uint256 _coreDisputeID, uint256 _nonce) external view returns (address);\\n\\n    function getJurorBalance(\\n        address _juror,\\n        uint96 _courtID\\n    ) external view returns (uint256 totalStaked, uint256 totalLocked, uint256 stakedInCourt, uint256 nbCourts);\\n\\n    function getJurorCourtIDs(address _juror) external view returns (uint96[] memory);\\n\\n    function isJurorStaked(address _juror) external view returns (bool);\\n\\n    function createDisputeHook(uint256 _disputeID, uint256 _roundID) external;\\n\\n    function postDrawHook(uint256 _disputeID, uint256 _roundID) external;\\n}\\n\",\"keccak256\":\"0xa6d79053edfe04f7d3c8ad9b9ce3f182e45f2f74be40a77a304a93168549c474\",\"license\":\"MIT\"},\"src/libraries/Constants.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\n\\n/// @title Constants\\nlibrary Constants {\\n    // Courts\\n    uint96 internal constant FORKING_COURT = 0; // Index of the forking court.\\n    uint96 internal constant GENERAL_COURT = 1; // Index of the default (general) court.\\n\\n    // Dispute Kits\\n    uint256 internal constant NULL_DISPUTE_KIT = 0; // Null pattern to indicate a top-level DK which has no parent.\\n    uint256 internal constant DISPUTE_KIT_CLASSIC = 1; // Index of the default DK. 0 index is skipped.\\n\\n    // Defaults\\n    uint256 internal constant DEFAULT_NB_OF_JURORS = 3; // The default number of jurors in a dispute.\\n    IERC20 internal constant NATIVE_CURRENCY = IERC20(address(0)); // The native currency, such as ETH on Arbitrum, Optimism and Ethereum L1.\\n}\\n\",\"keccak256\":\"0xc1dc3005bd8de9e68b6c8723db40e98c4c9d5e0c4ca444aa8f314866ebd9e73b\",\"license\":\"MIT\"},\"src/libraries/SafeERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// Adapted from https://github.com/OpenZeppelin/openzeppelin-contracts/blob/a7a94c77463acea95d979aae1580fb0ddc3b6a1e/contracts/token/ERC20/utils/SafeERC20.sol\\n\\npragma solidity ^0.8.18;\\n\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\n\\n/// @title SafeERC20\\n/// @dev Wrappers around ERC20 operations that throw on failure (when the token\\n/// contract returns false). Tokens that return no value (and instead revert or\\n/// throw on failure) are also supported, non-reverting calls are assumed to be\\n/// successful.\\n/// To use this library you can add a `using SafeERC20 for IERC20;` statement to your contract,\\n/// which allows you to call the safe operations as `token.safeTransfer(...)`, etc.\\nlibrary SafeERC20 {\\n    /// @dev Increases the allowance granted to `spender` by the caller.\\n    /// @param _token Token to transfer.\\n    /// @param _spender The address which will spend the funds.\\n    /// @param _addedValue The amount of tokens to increase the allowance by.\\n    function increaseAllowance(IERC20 _token, address _spender, uint256 _addedValue) internal returns (bool) {\\n        _token.approve(_spender, _token.allowance(address(this), _spender) + _addedValue);\\n        return true;\\n    }\\n\\n    /// @dev Calls transfer() without reverting.\\n    /// @param _token Token to transfer.\\n    /// @param _to Recepient address.\\n    /// @param _value Amount transferred.\\n    /// @return Whether transfer succeeded or not.\\n    function safeTransfer(IERC20 _token, address _to, uint256 _value) internal returns (bool) {\\n        (bool success, bytes memory data) = address(_token).call(abi.encodeCall(IERC20.transfer, (_to, _value)));\\n        return (success && (data.length == 0 || abi.decode(data, (bool))));\\n    }\\n\\n    /// @dev Calls transferFrom() without reverting.\\n    /// @param _token Token to transfer.\\n    /// @param _from Sender address.\\n    /// @param _to Recepient address.\\n    /// @param _value Amount transferred.\\n    /// @return Whether transfer succeeded or not.\\n    function safeTransferFrom(IERC20 _token, address _from, address _to, uint256 _value) internal returns (bool) {\\n        (bool success, bytes memory data) = address(_token).call(\\n            abi.encodeCall(IERC20.transferFrom, (_from, _to, _value))\\n        );\\n        return (success && (data.length == 0 || abi.decode(data, (bool))));\\n    }\\n}\\n\",\"keccak256\":\"0x37a19df56a98cd466fb6e70b8c56e13bfc439221bfabd8c5108d36d0e3ffc0e5\",\"license\":\"MIT\"},\"src/libraries/Types.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity 0.8.18;\\n\\nenum OnError {\\n    Revert,\\n    Return\\n}\\n\",\"keccak256\":\"0xc7deebd8227dfaa46a36ae8d2c24fe1b5d5c776ab963b44943829ab4058b5701\",\"license\":\"MIT\"},\"src/proxy/Initializable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.9.0) (proxy/utils/Initializable.sol) <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/utils/Initializable.sol>\\n\\npragma solidity 0.8.18;\\n\\n/**\\n * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed\\n * behind a proxy. Since proxied contracts do not make use of a constructor, it's common to move constructor logic to an\\n * external initializer function, usually called `initialize`. It then becomes necessary to protect this initializer\\n * function so it can only be called once. The {initializer} modifier provided by this contract will have this effect.\\n *\\n * The initialization functions use a version number. Once a version number is used, it is consumed and cannot be\\n * reused. This mechanism prevents re-execution of each \\\"step\\\" but allows the creation of new initialization steps in\\n * case an upgrade adds a module that needs to be initialized.\\n *\\n * For example:\\n *\\n * ```solidity\\n * contract MyToken is ERC20Upgradeable {\\n *     function initialize() initializer public {\\n *         __ERC20_init(\\\"MyToken\\\", \\\"MTK\\\");\\n *     }\\n * }\\n *\\n * contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {\\n *     function initializeV2() reinitializer(2) public {\\n *         __ERC20Permit_init(\\\"MyToken\\\");\\n *     }\\n * }\\n * ```\\n *\\n * TIP: To avoid leaving the proxy in an uninitialized state, the initializer function should be called as early as\\n * possible by providing the encoded function call as the `_data` argument to the proxy constructor\\n *\\n * CAUTION: When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure\\n * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.\\n *\\n * [CAUTION]\\n * ====\\n * Avoid leaving a contract uninitialized.\\n *\\n * An uninitialized contract can be taken over by an attacker. This applies to both a proxy and its implementation\\n * contract, which may impact the proxy. To prevent the implementation contract from being used, you should invoke\\n * the {_disableInitializers} function in the constructor to automatically lock it when it is deployed:\\n *\\n * ```\\n * /// @custom:oz-upgrades-unsafe-allow constructor\\n * constructor() {\\n *     _disableInitializers();\\n * }\\n * ```\\n */\\nabstract contract Initializable {\\n    /**\\n     * @dev Storage of the initializable contract.\\n     *\\n     * It's implemented on a custom ERC-7201 namespace to reduce the risk of storage collisions\\n     * when using with upgradeable contracts.\\n     *\\n     * @custom:storage-location erc7201:openzeppelin.storage.Initializable\\n     */\\n    struct InitializableStorage {\\n        /**\\n         * @dev Indicates that the contract has been initialized.\\n         */\\n        uint64 _initialized;\\n        /**\\n         * @dev Indicates that the contract is in the process of being initialized.\\n         */\\n        bool _initializing;\\n    }\\n\\n    // keccak256(abi.encode(uint256(keccak256(\\\"openzeppelin.storage.Initializable\\\")) - 1))\\n    bytes32 private constant _INITIALIZABLE_STORAGE =\\n        0xf0c57e16840df040f15088dc2f81fe391c3923bec73e23a9662efc9c229c6a0e;\\n\\n    /**\\n     * @dev The contract is already initialized.\\n     */\\n    error AlreadyInitialized();\\n\\n    /**\\n     * @dev The contract is not initializing.\\n     */\\n    error NotInitializing();\\n\\n    /**\\n     * @dev Triggered when the contract has been initialized or reinitialized.\\n     */\\n    event Initialized(uint64 version);\\n\\n    /**\\n     * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,\\n     * `onlyInitializing` functions can be used to initialize parent contracts.\\n     *\\n     * Similar to `reinitializer(1)`, except that functions marked with `initializer` can be nested in the context of a\\n     * constructor.\\n     *\\n     * Emits an {Initialized} event.\\n     */\\n    modifier initializer() {\\n        // solhint-disable-next-line var-name-mixedcase\\n        InitializableStorage storage $ = _getInitializableStorage();\\n\\n        bool isTopLevelCall = !$._initializing;\\n        uint64 initialized = $._initialized;\\n        if (!(isTopLevelCall && initialized < 1) && !(address(this).code.length == 0 && initialized == 1)) {\\n            revert AlreadyInitialized();\\n        }\\n        $._initialized = 1;\\n        if (isTopLevelCall) {\\n            $._initializing = true;\\n        }\\n        _;\\n        if (isTopLevelCall) {\\n            $._initializing = false;\\n            emit Initialized(1);\\n        }\\n    }\\n\\n    /**\\n     * @dev A modifier that defines a protected reinitializer function that can be invoked at most once, and only if the\\n     * contract hasn't been initialized to a greater version before. In its scope, `onlyInitializing` functions can be\\n     * used to initialize parent contracts.\\n     *\\n     * A reinitializer may be used after the original initialization step. This is essential to configure modules that\\n     * are added through upgrades and that require initialization.\\n     *\\n     * When `version` is 1, this modifier is similar to `initializer`, except that functions marked with `reinitializer`\\n     * cannot be nested. If one is invoked in the context of another, execution will revert.\\n     *\\n     * Note that versions can jump in increments greater than 1; this implies that if multiple reinitializers coexist in\\n     * a contract, executing them in the right order is up to the developer or operator.\\n     *\\n     * WARNING: setting the version to 255 will prevent any future reinitialization.\\n     *\\n     * Emits an {Initialized} event.\\n     */\\n    modifier reinitializer(uint64 version) {\\n        // solhint-disable-next-line var-name-mixedcase\\n        InitializableStorage storage $ = _getInitializableStorage();\\n\\n        if ($._initializing || $._initialized >= version) {\\n            revert AlreadyInitialized();\\n        }\\n        $._initialized = version;\\n        $._initializing = true;\\n        _;\\n        $._initializing = false;\\n        emit Initialized(version);\\n    }\\n\\n    /**\\n     * @dev Modifier to protect an initialization function so that it can only be invoked by functions with the\\n     * {initializer} and {reinitializer} modifiers, directly or indirectly.\\n     */\\n    modifier onlyInitializing() {\\n        _checkInitializing();\\n        _;\\n    }\\n\\n    /**\\n     * @dev Reverts if the contract is not in an initializing state. See {onlyInitializing}.\\n     */\\n    function _checkInitializing() internal view virtual {\\n        if (!_isInitializing()) {\\n            revert NotInitializing();\\n        }\\n    }\\n\\n    /**\\n     * @dev Locks the contract, preventing any future reinitialization. This cannot be part of an initializer call.\\n     * Calling this in the constructor of a contract will prevent that contract from being initialized or reinitialized\\n     * to any version. It is recommended to use this to lock implementation contracts that are designed to be called\\n     * through proxies.\\n     *\\n     * Emits an {Initialized} event the first time it is successfully executed.\\n     */\\n    function _disableInitializers() internal virtual {\\n        // solhint-disable-next-line var-name-mixedcase\\n        InitializableStorage storage $ = _getInitializableStorage();\\n\\n        if ($._initializing) {\\n            revert AlreadyInitialized();\\n        }\\n        if ($._initialized != type(uint64).max) {\\n            $._initialized = type(uint64).max;\\n            emit Initialized(type(uint64).max);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the highest version that has been initialized. See {reinitializer}.\\n     */\\n    function _getInitializedVersion() internal view returns (uint64) {\\n        return _getInitializableStorage()._initialized;\\n    }\\n\\n    /**\\n     * @dev Returns `true` if the contract is currently initializing. See {onlyInitializing}.\\n     */\\n    function _isInitializing() internal view returns (bool) {\\n        return _getInitializableStorage()._initializing;\\n    }\\n\\n    /**\\n     * @dev Returns a pointer to the storage namespace.\\n     */\\n    // solhint-disable-next-line var-name-mixedcase\\n    function _getInitializableStorage() private pure returns (InitializableStorage storage $) {\\n        assembly {\\n            $.slot := _INITIALIZABLE_STORAGE\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xcfffacf78b92e89a0123aff2c86188abc5327bb59b223f04e1cc1267234bd828\",\"license\":\"MIT\"},\"src/proxy/UUPSProxiable.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\n// Adapted from <https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/proxy/utils/UUPSUpgradeable.sol>\\n\\n/**\\n *  @authors: [@malatrax]\\n *  @reviewers: []\\n *  @auditors: []\\n *  @bounties: []\\n *  @deployments: []\\n */\\npragma solidity 0.8.18;\\n\\n/**\\n * @title UUPS Proxiable\\n * @author Simon Malatrait <simon.malatrait@grenoble-inp.org>\\n * @dev This contract implements an upgradeability mechanism designed for UUPS proxies.\\n * The functions included here can perform an upgrade of an UUPS Proxy, when this contract is set as the implementation behind such a proxy.\\n *\\n * IMPORTANT: A UUPS proxy requires its upgradeability functions to be in the implementation as opposed to the transparent proxy.\\n * This means that if the proxy is upgraded to an implementation that does not support this interface, it will no longer be upgradeable.\\n *\\n * A security mechanism ensures that an upgrade does not turn off upgradeability accidentally, although this risk is\\n * reinstated if the upgrade retains upgradeability but removes the security mechanism, e.g. by replacing\\n * `UUPSProxiable` with a custom implementation of upgrades.\\n *\\n * The `_authorizeUpgrade` function must be overridden to include access restriction to the upgrade mechanism.\\n */\\nabstract contract UUPSProxiable {\\n    // ************************************* //\\n    // *             Event                 * //\\n    // ************************************* //\\n\\n    /**\\n     * Emitted when the `implementation` has been successfully upgraded.\\n     * @param newImplementation Address of the new implementation the proxy is now forwarding calls to.\\n     */\\n    event Upgraded(address indexed newImplementation);\\n\\n    // ************************************* //\\n    // *             Error                 * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev The call is from an unauthorized context.\\n     */\\n    error UUPSUnauthorizedCallContext();\\n\\n    /**\\n     * @dev The storage `slot` is unsupported as a UUID.\\n     */\\n    error UUPSUnsupportedProxiableUUID(bytes32 slot);\\n\\n    /// The `implementation` is not UUPS-compliant\\n    error InvalidImplementation(address implementation);\\n\\n    /// Failed Delegated call\\n    error FailedDelegateCall();\\n\\n    // ************************************* //\\n    // *             Storage               * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Storage slot with the address of the current implementation.\\n     * This is the keccak-256 hash of \\\"eip1967.proxy.implementation\\\" subtracted by 1, and is\\n     * validated in the constructor.\\n     * NOTE: bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1)\\n     */\\n    bytes32 private constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;\\n\\n    /**\\n     * @dev Storage variable of the proxiable contract address.\\n     * It is used to check whether or not the current call is from the proxy.\\n     */\\n    address private immutable __self = address(this);\\n\\n    // ************************************* //\\n    // *             Governance            * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Function that should revert when `msg.sender` is not authorized to upgrade the contract.\\n     * @dev Called by {upgradeToAndCall}.\\n     */\\n    function _authorizeUpgrade(address newImplementation) internal virtual;\\n\\n    // ************************************* //\\n    // *         State Modifiers           * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Upgrade mechanism including access control and UUPS-compliance.\\n     * @param newImplementation Address of the new implementation contract.\\n     * @param data Data used in a delegate call to `newImplementation` if non-empty. This will typically be an encoded\\n     * function call, and allows initializing the storage of the proxy like a Solidity constructor.\\n     *\\n     * @dev Reverts if the execution is not performed via delegatecall or the execution\\n     * context is not of a proxy with an ERC1967-compliant implementation pointing to self.\\n     */\\n    function upgradeToAndCall(address newImplementation, bytes memory data) public payable virtual {\\n        _authorizeUpgrade(newImplementation);\\n\\n        /* Check that the execution is being performed through a delegatecall call and that the execution context is\\n        a proxy contract with an implementation (as defined in ERC1967) pointing to self. */\\n        if (address(this) == __self || _getImplementation() != __self) {\\n            revert UUPSUnauthorizedCallContext();\\n        }\\n\\n        try UUPSProxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {\\n            if (slot != IMPLEMENTATION_SLOT) {\\n                revert UUPSUnsupportedProxiableUUID(slot);\\n            }\\n            // Store the new implementation address to the implementation storage slot.\\n            assembly {\\n                sstore(IMPLEMENTATION_SLOT, newImplementation)\\n            }\\n            emit Upgraded(newImplementation);\\n\\n            if (data.length != 0) {\\n                // The return data is not checked (checking, in case of success, that the newImplementation code is non-empty if the return data is empty) because the authorized callee is trusted.\\n                (bool success, ) = newImplementation.delegatecall(data);\\n                if (!success) {\\n                    revert FailedDelegateCall();\\n                }\\n            }\\n        } catch {\\n            revert InvalidImplementation(newImplementation);\\n        }\\n    }\\n\\n    // ************************************* //\\n    // *           Public Views            * //\\n    // ************************************* //\\n\\n    /**\\n     * @dev Implementation of the ERC1822 `proxiableUUID` function. This returns the storage slot used by the\\n     * implementation. It is used to validate the implementation's compatibility when performing an upgrade.\\n     *\\n     * IMPORTANT: A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks\\n     * bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this\\n     * function revert if invoked through a proxy. This is guaranteed by the if statement.\\n     */\\n    function proxiableUUID() external view virtual returns (bytes32) {\\n        if (address(this) != __self) {\\n            // Must not be called through delegatecall\\n            revert UUPSUnauthorizedCallContext();\\n        }\\n        return IMPLEMENTATION_SLOT;\\n    }\\n\\n    // ************************************* //\\n    // *           Internal Views          * //\\n    // ************************************* //\\n\\n    function _getImplementation() internal view returns (address implementation) {\\n        assembly {\\n            implementation := sload(IMPLEMENTATION_SLOT)\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xbac7476deeee8ebbfc895a42e8b50a01c7549164a48ee2ddb0e2307946ee35f9\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506104e0806100206000396000f3fe60806040526004361061006b5760003560e01c80631aa3a008146100705780631c3db16d146100875780638bb04875146100c9578063b0a1e2b4146100e9578063c13517e11461010d578063d98493f614610120578063f6506db414610144578063f7434ea914610164575b600080fd5b34801561007c57600080fd5b50610085610185565b005b34801561009357600080fd5b506100a76100a2366004610224565b6101b2565b6040805193845291151560208401521515908201526060015b60405180910390f35b3480156100d557600080fd5b506100856100e4366004610224565b6101d0565b3480156100f557600080fd5b506100ff60005481565b6040519081526020016100c0565b6100ff61011b3660046102e0565b6101e9565b34801561012c57600080fd5b506100ff61013b36600461038c565b60009392505050565b34801561015057600080fd5b506100ff61015f3660046103e0565b610205565b34801561017057600080fd5b506100ff61017f366004610446565b50600090565b60405133907ff60902c1418250c0f496ab2de285f03c06db731ad0cff532f53a1f9640c1d67290600090a2565b600080600060405163d623472560e01b815260040160405180910390fd5b60405163d623472560e01b815260040160405180910390fd5b600080600081546101f990610483565b91829055509392505050565b6000806000815461021590610483565b91829055509695505050505050565b60006020828403121561023657600080fd5b5035919050565b634e487b7160e01b600052604160045260246000fd5b600082601f83011261026457600080fd5b813567ffffffffffffffff8082111561027f5761027f61023d565b604051601f8301601f19908116603f011681019082821181831017156102a7576102a761023d565b816040528381528660208588010111156102c057600080fd5b836020870160208301376000602085830101528094505050505092915050565b600080604083850312156102f357600080fd5b82359150602083013567ffffffffffffffff81111561031157600080fd5b61031d85828601610253565b9150509250929050565b60008083601f84011261033957600080fd5b50813567ffffffffffffffff81111561035157600080fd5b60208301915083602082850101111561036957600080fd5b9250929050565b80356001600160a01b038116811461038757600080fd5b919050565b6000806000604084860312156103a157600080fd5b833567ffffffffffffffff8111156103b857600080fd5b6103c486828701610327565b90945092506103d7905060208501610370565b90509250925092565b6000806000806000608086880312156103f857600080fd5b85359450602086013567ffffffffffffffff81111561041657600080fd5b61042288828901610327565b9095509350610435905060408701610370565b949793965091946060013592915050565b60006020828403121561045857600080fd5b813567ffffffffffffffff81111561046f57600080fd5b61047b84828501610253565b949350505050565b6000600182016104a357634e487b7160e01b600052601160045260246000fd5b506001019056fea2646970667358221220d69200a24ceb03273d07fd1267dc9355b85fa484c97703fdab5a97537e9d887864736f6c63430008120033",
+  "deployedBytecode": "0x60806040526004361061006b5760003560e01c80631aa3a008146100705780631c3db16d146100875780638bb04875146100c9578063b0a1e2b4146100e9578063c13517e11461010d578063d98493f614610120578063f6506db414610144578063f7434ea914610164575b600080fd5b34801561007c57600080fd5b50610085610185565b005b34801561009357600080fd5b506100a76100a2366004610224565b6101b2565b6040805193845291151560208401521515908201526060015b60405180910390f35b3480156100d557600080fd5b506100856100e4366004610224565b6101d0565b3480156100f557600080fd5b506100ff60005481565b6040519081526020016100c0565b6100ff61011b3660046102e0565b6101e9565b34801561012c57600080fd5b506100ff61013b36600461038c565b60009392505050565b34801561015057600080fd5b506100ff61015f3660046103e0565b610205565b34801561017057600080fd5b506100ff61017f366004610446565b50600090565b60405133907ff60902c1418250c0f496ab2de285f03c06db731ad0cff532f53a1f9640c1d67290600090a2565b600080600060405163d623472560e01b815260040160405180910390fd5b60405163d623472560e01b815260040160405180910390fd5b600080600081546101f990610483565b91829055509392505050565b6000806000815461021590610483565b91829055509695505050505050565b60006020828403121561023657600080fd5b5035919050565b634e487b7160e01b600052604160045260246000fd5b600082601f83011261026457600080fd5b813567ffffffffffffffff8082111561027f5761027f61023d565b604051601f8301601f19908116603f011681019082821181831017156102a7576102a761023d565b816040528381528660208588010111156102c057600080fd5b836020870160208301376000602085830101528094505050505092915050565b600080604083850312156102f357600080fd5b82359150602083013567ffffffffffffffff81111561031157600080fd5b61031d85828601610253565b9150509250929050565b60008083601f84011261033957600080fd5b50813567ffffffffffffffff81111561035157600080fd5b60208301915083602082850101111561036957600080fd5b9250929050565b80356001600160a01b038116811461038757600080fd5b919050565b6000806000604084860312156103a157600080fd5b833567ffffffffffffffff8111156103b857600080fd5b6103c486828701610327565b90945092506103d7905060208501610370565b90509250925092565b6000806000806000608086880312156103f857600080fd5b85359450602086013567ffffffffffffffff81111561041657600080fd5b61042288828901610327565b9095509350610435905060408701610370565b949793965091946060013592915050565b60006020828403121561045857600080fd5b813567ffffffffffffffff81111561046f57600080fd5b61047b84828501610253565b949350505050565b6000600182016104a357634e487b7160e01b600052601160045260246000fd5b506001019056fea2646970667358221220d69200a24ceb03273d07fd1267dc9355b85fa484c97703fdab5a97537e9d887864736f6c63430008120033",
+  "devdoc": {
+    "events": {
+      "AcceptedFeeToken(address,bool)": {
+        "details": "To be emitted when an ERC20 token is added or removed as a method to pay fees.",
+        "params": {
+          "_accepted": "Whether the token is accepted or not.",
+          "_token": "The ERC20 token."
+        }
+      },
+      "DisputeCreation(uint256,address)": {
+        "details": "To be emitted when a dispute is created.",
+        "params": {
+          "_arbitrable": "The contract which created the dispute.",
+          "_disputeID": "The identifier of the dispute in the Arbitrator contract."
+        }
+      },
+      "NewCurrencyRate(address,uint64,uint8)": {
+        "details": "To be emitted when the fee for a particular ERC20 token is updated.",
+        "params": {
+          "_feeToken": "The ERC20 token.",
+          "_rateDecimals": "The new decimals of the fee token rate.",
+          "_rateInEth": "The new rate of the fee token in ETH."
+        }
+      },
+      "Ruling(address,uint256,uint256)": {
+        "details": "To be raised when a ruling is given.",
+        "params": {
+          "_arbitrable": "The arbitrable receiving the ruling.",
+          "_disputeID": "The identifier of the dispute in the Arbitrator contract.",
+          "_ruling": "The ruling which was given."
+        }
+      }
+    },
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 1811,
+        "contract": "src/arbitration/ArbitratorDummy.sol:ArbitratorDummy",
+        "label": "disputeID",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_uint256"
+      }
+    ],
+    "types": {
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
