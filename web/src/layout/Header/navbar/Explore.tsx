@@ -49,7 +49,7 @@ const StyledLink = styled(Link)<{ isActive: boolean }>`
 `;
 
 const HiddenLink = styled(StyledLink)<{ isActive: boolean }>`
-  color: ${({ isActive, theme }) => (isActive ? theme.primaryText : theme.primaryPurple)};
+  color: ${({ isActive, theme }) => (isActive ? theme.primaryText : "transparent")};
 `;
 
 const links = [
@@ -61,7 +61,7 @@ const links = [
 
 const Explore: React.FC = () => {
   const location = useLocation();
-  const { toggleIsOpen } = useOpenContext();
+  const { isOpen, toggleIsOpen } = useOpenContext();
 
   return (
     <Container>
@@ -77,15 +77,17 @@ const Explore: React.FC = () => {
           </StyledLink>
         </LinkContainer>
       ))}
-      <LinkContainer>
-        <HiddenLink
-          to="/disputeTemplate"
-          onClick={toggleIsOpen}
-          isActive={location.pathname.startsWith("/disputeTemplate")}
-        >
-          Dev
-        </HiddenLink>
-      </LinkContainer>
+      {!isOpen && (
+        <LinkContainer>
+          <HiddenLink
+            to="/disputeTemplate"
+            onClick={toggleIsOpen}
+            isActive={location.pathname.startsWith("/disputeTemplate")}
+          >
+            Dev
+          </HiddenLink>
+        </LinkContainer>
+      )}
     </Container>
   );
 };
