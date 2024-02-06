@@ -5,9 +5,10 @@ import BalanceIcon from "svgs/icons/law-balance.svg";
 
 const StyledBox = styled(Box)`
   width: 100%;
+  background-color: ${({ theme }) => theme.lightBlue};
   height: auto;
   border-radius: 3px;
-  padding: 8px 16px;
+  padding: 16px;
   display: flex;
   gap: 8px;
   align-items: center;
