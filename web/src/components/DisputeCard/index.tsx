@@ -9,18 +9,16 @@ import { useIsList } from "context/IsListProvider";
 import { DisputeDetailsFragment } from "queries/useCasesQuery";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { useCourtPolicy } from "queries/useCourtPolicy";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
 import { responsiveSize } from "styles/responsiveSize";
-import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
-import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
-import { INVALID_DISPUTE_DATA_ERROR } from "consts/index";
+import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 
 const StyledCard = styled(Card)`
   width: 100%;
-  height: ${responsiveSize(280, 296)};
+  height: ${responsiveSize(280, 335)};
 
   ${landscapeStyle(
     () =>
@@ -106,35 +104,31 @@ const DisputeCard: React.FC<IDisputeCard> = ({
     currentPeriodIndex === 4
       ? lastPeriodChange
       : getPeriodEndTimestamp(lastPeriodChange, currentPeriodIndex, court.timesPerPeriod);
-  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrated.id as `0x${string}`);
-  let disputeDetails: DisputeDetails | undefined;
-  try {
-    if (disputeTemplate) {
-      disputeDetails = populateTemplate(disputeTemplate.templateData, {});
-    }
-  } catch (e) {
-    console.error(e);
-  }
+  const { data: disputeDetails, isError } = usePopulatedDisputeData(id, arbitrated.id as `0x${string}`);
+
   const { data: courtPolicy } = useCourtPolicy(court.id);
   const courtName = courtPolicy?.name;
-  const category = disputeTemplate?.category;
+  const category = disputeDetails?.category;
   const navigate = useNavigate();
+  const errMsg = isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR;
   return (
     <>
       {!isList || overrideIsList ? (
         <StyledCard hover onClick={() => navigate(`/cases/${id.toString()}`)}>
           <PeriodBanner id={parseInt(id)} period={currentPeriodIndex} />
           <CardContainer>
-            {isUndefined(disputeTemplate) ? (
+            {isUndefined(disputeDetails) ? (
               <StyledSkeleton />
             ) : (
-              <TruncatedTitle text={disputeDetails?.title ?? INVALID_DISPUTE_DATA_ERROR} maxLength={100} />
+              <TruncatedTitle text={disputeDetails?.title ?? errMsg} maxLength={100} />
             )}
             <DisputeInfo
+              disputeID={id}
               courtId={court?.id}
               court={courtName}
               period={currentPeriodIndex}
               round={parseInt(currentRoundIndex) + 1}
+              showLabels
               {...{ category, rewards, date, overrideIsList }}
             />
           </CardContainer>
@@ -144,7 +138,7 @@ const DisputeCard: React.FC<IDisputeCard> = ({
           <PeriodBanner isCard={false} id={parseInt(id)} period={currentPeriodIndex} />
           <ListContainer>
             <ListTitle>
-              <TruncatedTitle text={disputeDetails?.title ?? INVALID_DISPUTE_DATA_ERROR} maxLength={50} />
+              <TruncatedTitle text={disputeDetails?.title ?? errMsg} maxLength={50} />
             </ListTitle>
             <DisputeInfo
               courtId={court?.id}

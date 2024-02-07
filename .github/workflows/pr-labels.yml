@@ -3,9 +3,14 @@ name: Add PR labels
 on:
   pull_request:
     types: [opened, edited]
+    branches-ignore:
+      - 'dependabot/**'
+      - 'renovate/**'
 
 permissions: # added using https://github.com/step-security/secure-workflows
   contents: read
+  issues: read
+  pull-requests: write
 
 jobs:
   copy-labels:
@@ -25,8 +30,10 @@ jobs:
             objects.githubusercontent.com:443
             registry.yarnpkg.com:443
             registry.npmjs.org:443
+            54.185.253.63:443
 
       - name: copy-labels
-        uses: michalvankodev/copy-issue-labels@v1.3.0
+        uses: michalvankodev/copy-issue-labels@f54e957e58fc976eba5ffa36e1a1030572dbb78d # v1.3.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+        

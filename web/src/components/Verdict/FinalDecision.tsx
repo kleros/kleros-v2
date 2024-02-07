@@ -4,7 +4,7 @@ import styled from "styled-components";
 import ArrowIcon from "assets/svgs/icons/arrow.svg";
 import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import LightButton from "../LightButton";
 import VerdictBanner from "./VerdictBanner";
 import { responsiveSize } from "styles/responsiveSize";
@@ -61,14 +61,14 @@ interface IFinalDecision {
 const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const { id } = useParams();
   const { isDisconnected } = useAccount();
-  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
+  const { data: populatedDisputeData } = usePopulatedDisputeData(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const { wasDrawn, hasVoted, isLoading, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes } = useVotingContext();
   const ruled = disputeDetails?.dispute?.ruled ?? false;
   const navigate = useNavigate();
   const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id ?? 0)], watch: true });
   const currentRuling = Number(currentRulingArray?.[0]);
-  const answer = disputeTemplate?.answers?.[currentRuling! - 1];
+  const answer = populatedDisputeData?.answers?.[currentRuling! - 1];
   const buttonText = useMemo(() => {
     if (!wasDrawn || isDisconnected) return "Check how the jury voted";
     if (isCommitPeriod && !commited) return "Commit your vote";

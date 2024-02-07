@@ -7,6 +7,7 @@ import { Answer as IAnswer } from "context/NewDisputeContext";
 import AliasDisplay from "./Alias";
 import { responsiveSize } from "styles/responsiveSize";
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
+import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 
 const StyledH1 = styled.h1`
   margin: 0;
@@ -59,18 +60,14 @@ const Divider = styled.hr`
 `;
 interface IDisputeContext {
   disputeDetails?: DisputeDetails;
+  isRpcError?: boolean;
 }
 
-export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails }) => {
+export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRpcError = false }) => {
+  const errMsg = isRpcError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR;
   return (
     <>
-      <StyledH1>
-        {isUndefined(disputeDetails) ? (
-          <StyledSkeleton />
-        ) : (
-          disputeDetails?.title ?? "The dispute's template is not correct please vote refuse to arbitrate"
-        )}
-      </StyledH1>
+      <StyledH1>{isUndefined(disputeDetails) ? <StyledSkeleton /> : disputeDetails?.title ?? errMsg}</StyledH1>
       {!isUndefined(disputeDetails) && (
         <QuestionAndDescription>
           <StyledReactMarkDown>{disputeDetails?.question}</StyledReactMarkDown>

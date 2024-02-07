@@ -64,7 +64,7 @@ const Preview: React.FC = () => {
       <Header>Preview</Header>
       <StyledCard>
         <PreviewContainer>
-          <DisputeContext disputeTemplate={disputeTemplate} />
+          <DisputeContext disputeDetails={disputeTemplate} />
           <Divider />
 
           <DisputeInfo

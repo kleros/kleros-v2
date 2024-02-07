@@ -1,16 +1,21 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
+import { responsiveSize } from "styles/responsiveSize";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import { useToggle } from "react-use";
+import Skeleton from "react-loading-skeleton";
 import { Tabs } from "@kleros/ui-components-library";
 import { useVotingHistory } from "queries/useVotingHistory";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { usePopulatedDisputeData } from "queries/usePopulatedDisputeData";
+import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 import { getLocalRounds } from "utils/getLocalRounds";
-import PendingVotesBox from "./PendingVotesBox";
 import { getDrawnJurorsWithCount } from "utils/getDrawnJurorsWithCount";
-import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
+import HowItWorks from "components/HowItWorks";
+import BinaryVoting from "components/Popup/MiniGuides/BinaryVoting";
 import VotesAccordion from "./VotesDetails";
-import Skeleton from "react-loading-skeleton";
+import PendingVotesBox from "./PendingVotesBox";
 
 const Container = styled.div``;
 
@@ -19,19 +24,34 @@ const StyledTabs = styled(Tabs)`
   margin-bottom: 16px;
 `;
 
+const Header = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: ${responsiveSize(16, 32)};
+`;
+
+const StyledTitle = styled.h1`
+  margin-bottom: 0;
+`;
+
 const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean }> = ({ arbitrable, isQuestion }) => {
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const [currentTab, setCurrentTab] = useState(0);
-  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
+  const { data: disputeDetails, isError } = usePopulatedDisputeData(id, arbitrable);
   const rounds = votingHistory?.dispute?.rounds;
+  const [isBinaryVotingMiniGuideOpen, toggleBinaryVotingMiniGuide] = useToggle(false);
 
   const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   //set current tab to latest round
   useEffect(() => setCurrentTab((rounds?.length && rounds?.length - 1) ?? 0), [rounds]);
 
-  const answers = disputeTemplate?.answers;
+  const answers = disputeDetails?.answers;
   const drawnJurors = useMemo(
     () => getDrawnJurorsWithCount(votingHistory?.dispute?.rounds.at(currentTab)?.drawnJurors ?? []),
     [votingHistory, currentTab]
@@ -39,13 +59,20 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
 
   return (
     <Container>
-      <h1>Voting History</h1>
-      {rounds && localRounds && disputeTemplate ? (
+      <Header>
+        <StyledTitle>Voting History</StyledTitle>
+        <HowItWorks
+          isMiniGuideOpen={isBinaryVotingMiniGuideOpen}
+          toggleMiniGuide={toggleBinaryVotingMiniGuide}
+          MiniGuideComponent={BinaryVoting}
+        />
+      </Header>
+      {rounds && localRounds && disputeDetails ? (
         <>
-          {isQuestion && disputeTemplate.question ? (
-            <ReactMarkdown>{disputeTemplate.question}</ReactMarkdown>
+          {isQuestion && disputeDetails.question ? (
+            <ReactMarkdown>{disputeDetails.question}</ReactMarkdown>
           ) : (
-            <ReactMarkdown>{"The dispute's template is not correct please vote refuse to arbitrate"}</ReactMarkdown>
+            <ReactMarkdown>{isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
           )}
           <StyledTabs
             currentValue={currentTab}

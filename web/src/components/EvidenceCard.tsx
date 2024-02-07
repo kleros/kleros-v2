@@ -6,8 +6,8 @@ import { Card } from "@kleros/ui-components-library";
 import AttachmentIcon from "svgs/icons/attachment.svg";
 import { useIPFSQuery } from "hooks/useIPFSQuery";
 import { shortenAddress } from "utils/shortenAddress";
-import { IPFS_GATEWAY } from "consts/index";
 import { responsiveSize } from "styles/responsiveSize";
+import { getIpfsUrl } from "utils/getIpfsUrl";
 
 const StyledCard = styled(Card)`
   width: 100%;
@@ -106,7 +106,7 @@ interface IEvidenceCard {
 }
 
 const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
-  const { data } = useIPFSQuery(evidence.at(0) === "/" ? evidence : undefined);
+  const { data } = useIPFSQuery(evidence);
   return (
     <StyledCard>
       <TextContainer>
@@ -126,7 +126,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
           <p>{shortenAddress(sender)}</p>
         </AccountContainer>
         {data && typeof data.fileURI !== "undefined" && (
-          <StyledA href={`${IPFS_GATEWAY}${data.fileURI}`} target="_blank" rel="noreferrer">
+          <StyledA href={getIpfsUrl(data.fileURI)} target="_blank" rel="noreferrer">
             <AttachmentIcon />
             <AttachedFileText />
           </StyledA>

@@ -34,7 +34,7 @@ export const useDisputeDetailsQuery = (id?: string | number) => {
   const isEnabled = id !== undefined;
   const { graphqlBatcher } = useGraphqlBatcher();
 
-  return useQuery({
+  return useQuery<DisputeDetailsQuery>({
     queryKey: ["refetchOnBlock", `disputeDetailsQuery${id}`],
     enabled: isEnabled,
     queryFn: async () =>
