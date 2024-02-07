@@ -1,5 +1,5 @@
 import { deployments, getNamedAccounts, getChainId, ethers, network } from "hardhat";
-import { KlerosCore } from "../typechain-types";
+import { KlerosCore, KlerosCoreUniversity } from "../typechain-types";
 import { BigNumber, BigNumberish } from "ethers";
 import courtsV1Mainnet from "../config/courts.v1.mainnet.json";
 import courtsV1GnosisChain from "../config/courts.v1.gnosischain.json";
@@ -33,6 +33,7 @@ type Court = {
 };
 
 const from = isDevnet(network) ? Sources.V2_DEVNET : Sources.V2_TESTNET;
+const UNIVERSITY = true;
 const V1_DEV_PARAMETERS = false; // rename to V1_DEV_PARAMETERS
 const ETH_USD = BigNumber.from(1800);
 const DISPUTE_KIT_CLASSIC = BigNumber.from(1);
@@ -100,8 +101,9 @@ async function main() {
 
   console.log("courtsV2 = %O", courtsV2);
 
-  const klerosCoreDeployment = await deployments.get("KlerosCore");
-  const core = (await ethers.getContractAt("KlerosCore", klerosCoreDeployment.address)) as KlerosCore;
+  const core = UNIVERSITY
+    ? ((await ethers.getContract("KlerosCoreUniversity")) as KlerosCoreUniversity)
+    : ((await ethers.getContract("KlerosCore")) as KlerosCore);
 
   for (const court of courtsV2) {
     const courtPresent = await core.courts(court.id).catch(() => {});
@@ -179,17 +181,30 @@ async function main() {
       );
     } else {
       console.log("Court %d not found, creating it with", court.id, court);
-      await core.createCourt(
-        court.parent,
-        court.hiddenVotes,
-        court.minStake,
-        court.alpha,
-        court.feeForJuror,
-        court.jurorsForCourtJump,
-        [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
-        ethers.utils.hexlify(5), // Not accessible on-chain, but has always been set to the same value so far.
-        [DISPUTE_KIT_CLASSIC]
-      );
+      if (UNIVERSITY) {
+        await (core as KlerosCoreUniversity).createCourt(
+          court.parent,
+          court.hiddenVotes,
+          court.minStake,
+          court.alpha,
+          court.feeForJuror,
+          court.jurorsForCourtJump,
+          [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
+          [DISPUTE_KIT_CLASSIC]
+        );
+      } else {
+        await (core as KlerosCore).createCourt(
+          court.parent,
+          court.hiddenVotes,
+          court.minStake,
+          court.alpha,
+          court.feeForJuror,
+          court.jurorsForCourtJump,
+          [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
+          ethers.utils.hexlify(5), // Not accessible on-chain, but has always been set to the same value so far.
+          [DISPUTE_KIT_CLASSIC]
+        );
+      }
     }
 
     await new Promise((resolve) => setTimeout(resolve, 100));
