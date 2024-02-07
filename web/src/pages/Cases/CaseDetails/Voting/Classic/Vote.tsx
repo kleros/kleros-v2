@@ -40,8 +40,8 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
         ],
       });
       if (walletClient) {
-        await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(() => {
-          setIsOpen(true);
+        await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(({ status }) => {
+          setIsOpen(status);
         });
       }
     },

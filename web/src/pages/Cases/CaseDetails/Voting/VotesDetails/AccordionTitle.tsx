@@ -42,7 +42,7 @@ const VoteStatus: React.FC<{
   isActiveRound: boolean;
 }> = ({ choice, period, answers, isActiveRound }) => {
   if (isUndefined(choice) && (isActiveRound ? ["appeal", "execution"].includes(period) : true))
-    return <StyledLabel>Didn't cast a vote</StyledLabel>;
+    return <StyledLabel>Did not vote</StyledLabel>;
   return (
     <StyledLabel>
       {isUndefined(choice) ? "Pending Vote" : <StyledSmall>{getVoteChoice(parseInt(choice), answers)}</StyledSmall>}
