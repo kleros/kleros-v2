@@ -1,6 +1,7 @@
 import { graphql } from "src/graphql";
 import { LabelInfoQuery } from "src/graphql/graphql";
 import { useQuery } from "@tanstack/react-query";
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
 import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 
 const labelQuery = graphql(`
@@ -37,10 +38,17 @@ const labelQuery = graphql(`
 
 export const useLabelInfoQuery = (address?: string | null, disputeID?: string) => {
   const isEnabled = !!(address && disputeID);
+  const { graphqlBatcher } = useGraphqlBatcher();
+
   return useQuery<LabelInfoQuery>({
     queryKey: [`labelQuery${[address, disputeID]}`],
     enabled: isEnabled,
     staleTime: 60000,
-    queryFn: async () => await graphqlQueryFnHelper(labelQuery, { address, disputeID }),
+    queryFn: async () =>
+      await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: labelQuery,
+        variables: { address, disputeID },
+      }),
   });
 };
