@@ -29,6 +29,7 @@ export const useCourtDetails = (id?: string) => {
   return useQuery<CourtDetailsQuery>({
     queryKey: ["refetchOnBlock", `courtDetails${id}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlBatcher.fetch({ document: courtDetailsQuery, variables: { id } }),
+    queryFn: async () =>
+      await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: courtDetailsQuery, variables: { id } }),
   });
 };

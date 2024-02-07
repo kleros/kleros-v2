@@ -73,6 +73,7 @@ export const useCasesQuery = (skip = 0, first = 3, where?: Dispute_Filter, sortO
     queryKey: [`useCasesQuery`, skip, where, sortOrder, first],
     queryFn: async () =>
       await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
         document: isUndefined(where) ? casesQuery : casesQueryWhere,
         variables: {
           first,
@@ -93,6 +94,7 @@ export const useMyCasesQuery = (user?: Address, skip = 0, where?: Dispute_Filter
     enabled: isEnabled,
     queryFn: async () =>
       await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
         document: isUndefined(where) ? myCasesQuery : myCasesQueryWhere,
         variables: {
           skip,

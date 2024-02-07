@@ -25,6 +25,6 @@ export const useCounterQuery = () => {
 
   return useQuery<CounterQuery>({
     queryKey: [`useCounterQuery`],
-    queryFn: async () => await graphqlBatcher.fetch({ document: counterQuery, variables: {} }),
+    queryFn: async () => await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: counterQuery, variables: {} }),
   });
 };

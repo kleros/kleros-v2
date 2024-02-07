@@ -27,7 +27,13 @@ export const useHomePageQuery = (timeframe: number) => {
   return useQuery({
     queryKey: [`homePageQuery${timeframe}`],
     enabled: isEnabled,
-    queryFn: async () =>
-      await graphqlBatcher.fetch({ document: homePageQuery, variables: { timeframe: timeframe.toString() } }),
+    queryFn: async () => {
+      const data = await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: homePageQuery,
+        variables: { timeframe: timeframe.toString() },
+      });
+      return data;
+    },
   });
 };

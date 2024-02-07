@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from "react";
 import { arbitrumSepolia } from "wagmi/chains";
-import { batchRequests } from "graphql-request";
-import { create, indexedResolver, windowScheduler, Batcher } from "@yornaath/batshit";
+import { request } from "graphql-request";
+import { create, windowedFiniteBatchScheduler, Batcher } from "@yornaath/batshit";
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
 
 const CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH = {
@@ -14,6 +14,7 @@ interface IGraphqlBatcher {
 }
 
 interface IQuery {
+  id: string;
   document: TypedDocumentNode<any, any>;
   variables: Record<string, any>;
   isDisputeTemplate?: boolean;
@@ -25,21 +26,18 @@ const Context = createContext<IGraphqlBatcher | undefined>(undefined);
 const GraphqlBatcherProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const graphqlBatcher = create({
     fetcher: async (queries: IQuery[]) => {
-      const groups = queries.reduce((acc, { document, variables, isDisputeTemplate, chainId }, i) => {
+      const promises = queries.map(async ({ id, document, variables, isDisputeTemplate, chainId }) => {
         const url = graphqlUrl(isDisputeTemplate ?? false, chainId ?? arbitrumSepolia.id);
-        if (typeof acc[url] !== "undefined") {
-          acc[url] = acc[url].push({ document, variables });
-        } else {
-          acc[url] = [{ document, variables }];
-        }
-        return acc;
-      }, {});
-      const data = await Promise.all(Object.keys(groups).map((url) => batchRequests(url, groups[url])));
-      console.log(data);
+        return request(url, document, variables).then((result) => ({ id, result }));
+      });
+      const data = await Promise.all(promises);
       return data;
     },
-    resolver: indexedResolver(),
-    scheduler: windowScheduler(100),
+    resolver: (results, query) => results.find((result) => result.id === query.id)!["result"],
+    scheduler: windowedFiniteBatchScheduler({
+      windowMs: 100,
+      maxBatchSize: 5,
+    }),
   });
   return <Context.Provider value={{ graphqlBatcher }}>{children}</Context.Provider>;
 };

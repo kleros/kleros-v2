@@ -56,6 +56,10 @@ export const useUserQuery = (address?: Address, where?: Dispute_Filter) => {
     queryKey: [`userQuery${address?.toLowerCase()}`],
     enabled: isEnabled,
     queryFn: async () =>
-      await graphqlBatcher.fetch({ document: query, variables: { address: address?.toLowerCase(), where } }),
+      await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: query,
+        variables: { address: address?.toLowerCase(), where },
+      }),
   });
 };

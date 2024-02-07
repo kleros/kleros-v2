@@ -26,6 +26,10 @@ export const useDrawQuery = (address?: string | null, disputeID?: string, roundI
     queryKey: [`drawQuery${[address, disputeID, roundID]}`],
     enabled: isEnabled,
     queryFn: async () =>
-      await graphqlBatcher.fetch({ document: drawQuery, variables: { address, disputeID, roundID } }),
+      await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: drawQuery,
+        variables: { address, disputeID, roundID },
+      }),
   });
 };

@@ -27,6 +27,7 @@ export const useTopUsersByCoherenceScore = (first = 5) => {
     queryFn: async () =>
       isEnabled
         ? await graphqlBatcher.fetch({
+            id: crypto.randomUUID(),
             document: topUsersByCoherenceScoreQuery,
             variables: {
               first: first,

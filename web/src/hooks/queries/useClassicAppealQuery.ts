@@ -41,6 +41,7 @@ export const useClassicAppealQuery = (id?: string | number) => {
     queryFn: async () =>
       isEnabled
         ? await graphqlBatcher.fetch({
+            id: crypto.randomUUID(),
             document: classicAppealQuery,
             variables: {
               disputeID: id?.toString(),

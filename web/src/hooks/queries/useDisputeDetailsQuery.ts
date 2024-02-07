@@ -38,6 +38,10 @@ export const useDisputeDetailsQuery = (id?: string | number) => {
     queryKey: ["refetchOnBlock", `disputeDetailsQuery${id}`],
     enabled: isEnabled,
     queryFn: async () =>
-      await graphqlBatcher.fetch({ document: disputeDetailsQuery, variables: { disputeID: id?.toString() } }),
+      await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: disputeDetailsQuery,
+        variables: { disputeID: id?.toString() },
+      }),
   });
 };

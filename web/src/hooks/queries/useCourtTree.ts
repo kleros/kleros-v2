@@ -37,7 +37,8 @@ export const useCourtTree = () => {
   const { graphqlBatcher } = useGraphqlBatcher();
   return useQuery<CourtTreeQuery>({
     queryKey: ["courtTreeQuery"],
-    queryFn: async () => await graphqlBatcher.fetch({ document: courtTreeQuery, variables: {} }),
+    queryFn: async () =>
+      await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: courtTreeQuery, variables: {} }),
   });
 };
 

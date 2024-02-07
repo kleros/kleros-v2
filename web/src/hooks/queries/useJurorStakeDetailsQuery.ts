@@ -24,6 +24,7 @@ export const useJurorStakeDetailsQuery = (userId?: string) => {
   return useQuery<JurorStakeDetailsQuery>({
     queryKey: ["refetchOnBlock", `jurorStakeDetails${userId}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlBatcher.fetch({ document: jurorStakeDetailsQuery, variables: { userId } }),
+    queryFn: async () =>
+      await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: jurorStakeDetailsQuery, variables: { userId } }),
   });
 };

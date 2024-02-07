@@ -25,6 +25,7 @@ export const useEvidences = (evidenceGroup?: string) => {
     enabled: isEnabled,
     queryFn: async () =>
       await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
         document: evidencesQuery,
         variables: { evidenceGroupID: evidenceGroup?.toString() },
       }),

@@ -17,6 +17,7 @@ export const useAllCasesQuery = () => {
   const { graphqlBatcher } = useGraphqlBatcher();
   return useQuery({
     queryKey: [`allCasesQuery`],
-    queryFn: async () => await graphqlBatcher.fetch({ document: allCasesQuery, variables: {} }),
+    queryFn: async () =>
+      await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: allCasesQuery, variables: {} }),
   });
 };

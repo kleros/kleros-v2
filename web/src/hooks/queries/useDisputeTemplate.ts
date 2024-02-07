@@ -37,6 +37,7 @@ export const useDisputeTemplate = (disputeID?: string, arbitrableAddress?: `0x${
             ? crossChainTemplateId
             : await getTemplateId(arbitrableAddress, disputeID, publicClient);
           const { disputeTemplate } = await graphqlBatcher.fetch({
+            id: crypto.randomUUID(),
             document: disputeTemplateQuery,
             variables: { id: templateId.toString() },
             isDisputeTemplate: true,

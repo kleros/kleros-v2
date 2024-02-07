@@ -23,7 +23,11 @@ export const useCourtPolicyURI = (id?: string | number) => {
     staleTime: Infinity,
     queryFn: async () =>
       isEnabled
-        ? await graphqlBatcher.fetch({ document: courtPolicyURIQuery, variables: { courtID: id.toString() } })
+        ? await graphqlBatcher.fetch({
+            id: crypto.randomUUID(),
+            document: courtPolicyURIQuery,
+            variables: { courtID: id.toString() },
+          })
         : undefined,
   });
 };
