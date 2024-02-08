@@ -5852,7 +5852,7 @@ __metadata:
   resolution: "@kleros/kleros-v2-prettier-config@workspace:prettier-config"
   dependencies:
     eslint: "npm:^8.56.0"
-    prettier: "npm:^2.8.8"
+    prettier: "npm:^3.2.5"
     prettier-plugin-solidity: "npm:^1.3.1"
   languageName: unknown
   linkType: soft
@@ -28918,12 +28918,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^1.18.2 || ^2.0.0, prettier@npm:^2.1.2, prettier@npm:^2.3.1, prettier@npm:^2.8.1, prettier@npm:^2.8.3, prettier@npm:^2.8.8":
+"prettier@npm:^1.18.2 || ^2.0.0, prettier@npm:^2.1.2, prettier@npm:^2.3.1, prettier@npm:^2.8.1, prettier@npm:^2.8.3":
   version: 2.8.8
   resolution: "prettier@npm:2.8.8"
   bin:
     prettier: bin-prettier.js
   checksum: 00cdb6ab0281f98306cd1847425c24cbaaa48a5ff03633945ab4c701901b8e96ad558eb0777364ffc312f437af9b5a07d0f45346266e8245beaf6247b9c62b24
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^3.2.5":
+  version: 3.2.5
+  resolution: "prettier@npm:3.2.5"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: d509f9da0b70e8cacc561a1911c0d99ec75117faed27b95cc8534cb2349667dee6351b0ca83fa9d5703f14127faa52b798de40f5705f02d843da133fc3aa416a
   languageName: node
   linkType: hard
 
