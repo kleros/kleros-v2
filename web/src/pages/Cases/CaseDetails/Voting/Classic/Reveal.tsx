@@ -6,7 +6,7 @@ import { encodePacked, keccak256, PrivateKeyAccount } from "viem";
 import { useWalletClient, usePublicClient } from "wagmi";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@kleros/ui-components-library";
-import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
+import { prepareWriteDisputeKitClassicUniversity } from "hooks/contracts/generated";
 import useSigningAccount from "hooks/useSigningAccount";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
@@ -61,7 +61,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
       : JSON.parse(storedSaltAndChoice);
     if (isUndefined(choice)) return;
     const { request } = await catchShortMessage(
-      prepareWriteDisputeKitClassic({
+      prepareWriteDisputeKitClassicUniversity({
         functionName: "castVote",
         args: [parsedDisputeID, parsedVoteIDs, BigInt(choice), BigInt(salt), justification],
       })

@@ -6,7 +6,7 @@ import { useAccount } from "wagmi";
 import { NumberInputField } from "components/NumberInputField";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
-import { useSortitionModuleGetJurorBalance, usePnkBalanceOf } from "hooks/contracts/generated";
+import { useSortitionModuleUniversityGetJurorBalance, usePnkBalanceOf } from "hooks/contracts/generated";
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
 import { formatPNK, roundNumberDown } from "utils/format";
 import { isUndefined } from "utils/index";
@@ -78,7 +78,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
     watch: true,
   });
   const parsedBalance = formatPNK(balance ?? 0n, 0, true);
-  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
+  const { data: jurorBalance } = useSortitionModuleUniversityGetJurorBalance({
     enabled: !isUndefined(address),
     args: [address, id],
     watch: true,

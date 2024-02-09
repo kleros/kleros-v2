@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import ArrowIcon from "assets/svgs/icons/arrow.svg";
-import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
+import { useKlerosCoreUniversityCurrentRuling } from "hooks/contracts/generated";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import LightButton from "../LightButton";
@@ -69,7 +69,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const ruled = disputeDetails?.dispute?.ruled ?? false;
   const periodIndex = Periods[disputeDetails?.dispute?.period ?? "evidence"];
   const navigate = useNavigate();
-  const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id ?? 0)], watch: true });
+  const { data: currentRulingArray } = useKlerosCoreUniversityCurrentRuling({ args: [BigInt(id ?? 0)], watch: true });
   const currentRuling = Number(currentRulingArray?.[0]);
   const answer = populatedDisputeData?.answers?.[currentRuling! - 1];
   const buttonText = useMemo(() => {

@@ -3,13 +3,13 @@ import { useParams } from "react-router-dom";
 import { useAccount, usePublicClient } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
 import {
-  getKlerosCore,
-  useKlerosCoreSetStake,
-  usePrepareKlerosCoreSetStake,
+  getKlerosCoreUniversity,
+  useKlerosCoreUniversitySetStake,
+  usePrepareKlerosCoreUniversitySetStake,
   usePnkBalanceOf,
   usePnkIncreaseAllowance,
   usePreparePnkIncreaseAllowance,
-  useSortitionModuleGetJurorBalance,
+  useSortitionModuleUniversityGetJurorBalance,
   usePnkAllowance,
 } from "hooks/contracts/generated";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
@@ -41,14 +41,14 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
 }) => {
   const { id } = useParams();
   const { address } = useAccount();
-  const klerosCore = getKlerosCore({});
+  const klerosCore = getKlerosCoreUniversity({});
   const { data: courtDetails } = useCourtDetails(id);
   const { data: balance } = usePnkBalanceOf({
     enabled: !isUndefined(address),
     args: [address!],
     watch: true,
   });
-  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
+  const { data: jurorBalance } = useSortitionModuleUniversityGetJurorBalance({
     enabled: !isUndefined(address),
     args: [address ?? "0x", BigInt(id ?? 0)],
     watch: true,
@@ -92,11 +92,11 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     }
   };
 
-  const { config: setStakeConfig } = usePrepareKlerosCoreSetStake({
+  const { config: setStakeConfig } = usePrepareKlerosCoreUniversitySetStake({
     enabled: !isUndefined(targetStake) && !isUndefined(id) && !isAllowance,
     args: [BigInt(id ?? 0), targetStake],
   });
-  const { writeAsync: setStake } = useKlerosCoreSetStake(setStakeConfig);
+  const { writeAsync: setStake } = useKlerosCoreUniversitySetStake(setStakeConfig);
   const handleStake = () => {
     if (typeof setStake !== "undefined") {
       setIsSending(true);

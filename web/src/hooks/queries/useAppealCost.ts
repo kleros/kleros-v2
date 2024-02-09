@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { getKlerosCore } from "hooks/contracts/generated";
+import { getKlerosCoreUniversity } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
 
 export const useAppealCost = (disputeID?: string) => {
-  const klerosCore = getKlerosCore({});
+  const klerosCore = getKlerosCoreUniversity({});
   const isEnabled = !isUndefined(klerosCore) && !isUndefined(disputeID);
   return useQuery({
     queryKey: [`AppealCost${disputeID}`],

@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import { useSortitionModulePhase } from "hooks/contracts/generated";
 import { useToggleTheme } from "hooks/useToggleThemeContext";
 import { GIT_BRANCH, GIT_DIRTY, GIT_HASH, GIT_TAGS, GIT_URL, RELEASE_VERSION } from "consts/index";
 import { isUndefined } from "utils/index";
@@ -50,25 +49,11 @@ const ServicesStatus = () => {
   return <label>{isUndefined(statusUrl) ? null : <StyledIframe src={`${statusUrl + statusUrlParameters}`} />}</label>;
 };
 
-enum Phases {
-  staking,
-  generating,
-  drawing,
-}
-
-const Phase = () => {
-  const { data: phase } = useSortitionModulePhase({
-    watch: true,
-  });
-  return <>{isUndefined(phase) ? null : <StyledLabel>Phase: {Phases[phase]}</StyledLabel>}</>;
-};
-
 const Debug: React.FC = () => {
   return (
     <Container>
       <ServicesStatus />
       <Version />
-      <Phase />
     </Container>
   );
 };

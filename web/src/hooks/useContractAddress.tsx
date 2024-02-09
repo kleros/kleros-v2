@@ -8,8 +8,8 @@ import {
   getPnkFaucet,
   wethABI,
   pnkFaucetABI,
-  klerosCoreABI,
-  getKlerosCore,
+  klerosCoreUniversityABI,
+  getKlerosCoreUniversity,
 } from "./contracts/generated";
 
 type Config = Omit<GetContractArgs<Abi, unknown>, "abi" | "address"> & {
@@ -36,5 +36,5 @@ export const usePNKFaucetAddress = () => {
 };
 
 export const useKlerosCoreAddress = () => {
-  return useContractAddress<typeof klerosCoreABI>(getKlerosCore)?.address;
+  return useContractAddress<typeof klerosCoreUniversityABI>(getKlerosCoreUniversity)?.address;
 };

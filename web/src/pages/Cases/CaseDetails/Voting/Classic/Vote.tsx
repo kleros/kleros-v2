@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useWalletClient, usePublicClient } from "wagmi";
-import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
+import { prepareWriteDisputeKitClassicUniversity } from "hooks/contracts/generated";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import OptionsContainer from "./OptionsContainer";
@@ -29,7 +29,7 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
 
   const handleVote = useCallback(
     async (voteOption: number) => {
-      const { request } = await prepareWriteDisputeKitClassic({
+      const { request } = await prepareWriteDisputeKitClassicUniversity({
         functionName: "castVote",
         args: [
           parsedDisputeID,

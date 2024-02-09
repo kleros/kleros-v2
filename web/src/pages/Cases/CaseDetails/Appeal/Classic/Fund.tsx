@@ -7,7 +7,10 @@ import { Field, Button } from "@kleros/ui-components-library";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
 import { EnsureChain } from "components/EnsureChain";
-import { usePrepareDisputeKitClassicFundAppeal, useDisputeKitClassicFundAppeal } from "hooks/contracts/generated";
+import {
+  usePrepareDisputeKitClassicUniversityFundAppeal,
+  useDisputeKitClassicUniversityFundAppeal,
+} from "hooks/contracts/generated";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
 
@@ -57,13 +60,13 @@ const useNeedFund = () => {
 const useFundAppeal = (parsedAmount) => {
   const { id } = useParams();
   const { selectedOption } = useSelectedOptionContext();
-  const { config: fundAppealConfig, isError } = usePrepareDisputeKitClassicFundAppeal({
+  const { config: fundAppealConfig, isError } = usePrepareDisputeKitClassicUniversityFundAppeal({
     enabled: !isUndefined(id) && !isUndefined(selectedOption),
     args: [BigInt(id ?? 0), BigInt(selectedOption ?? 0)],
     value: parsedAmount,
   });
 
-  const { writeAsync: fundAppeal } = useDisputeKitClassicFundAppeal(fundAppealConfig);
+  const { writeAsync: fundAppeal } = useDisputeKitClassicUniversityFundAppeal(fundAppealConfig);
 
   return { fundAppeal, isError };
 };
