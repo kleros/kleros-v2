@@ -36,8 +36,10 @@ const SubmitDisputeButton: React.FC = () => {
     ],
     value: BigInt(disputeData.arbitrationCost ?? 0),
   });
+  console.log("submitCaseConfig", submitCaseConfig);
 
   const { writeAsync: submitCase } = useDisputeResolverUniversityCreateDisputeForTemplate(submitCaseConfig);
+  console.log("submitCase", submitCase);
 
   const isButtonDisabled = useMemo(
     () => isSubmittingCase || !isTemplateValid(disputeTemplate),
