@@ -1,11 +1,13 @@
 import { Card } from "@kleros/ui-components-library";
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { responsiveSize } from "styles/responsiveSize";
 import HeroImage from "components/HeroImage";
 import Header from "./Header";
 import Swap from "./Swap";
 import Settings from "./Settings";
+import { useToggle } from "react-use";
+import ClaimPnkButton from "components/ClaimPnkButton";
 
 const Container = styled.div`
   width: 100%;
@@ -14,7 +16,10 @@ const Container = styled.div`
   max-width: 1780px;
   margin: 0 auto;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  gap: 24px;
 `;
 const StyledCard = styled(Card)`
   width: ${responsiveSize(300, 500)};
@@ -23,13 +28,14 @@ const StyledCard = styled(Card)`
 `;
 
 const GetPnk: React.FC = () => {
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsOpen, toggleSettings] = useToggle(false);
   return (
     <>
       <HeroImage />
       <Container>
+        <ClaimPnkButton />
         <StyledCard>
-          <Header isSettings={settingsOpen} openSettings={setSettingsOpen} />
+          <Header isSettings={settingsOpen} toggleSettings={toggleSettings} />
           {settingsOpen ? <Settings /> : <Swap />}
         </StyledCard>
       </Container>

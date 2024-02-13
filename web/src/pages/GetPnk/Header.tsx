@@ -28,26 +28,23 @@ const SVGContainer = styled.div`
 
 interface IHeader {
   isSettings: boolean;
-  openSettings: React.Dispatch<React.SetStateAction<boolean>>;
+  toggleSettings: () => void;
 }
 
-const Header: React.FC<IHeader> = ({ isSettings, openSettings }) => {
-  const toggle = () => {
-    openSettings((prev) => !prev);
-  };
+const Header: React.FC<IHeader> = ({ isSettings, toggleSettings }) => {
   return (
     <Container>
       {isSettings ? (
         <>
           <Title>Settings</Title>
-          <SVGContainer onClick={toggle}>
+          <SVGContainer onClick={toggleSettings}>
             <CloseIcon />
           </SVGContainer>
         </>
       ) : (
         <>
           <Title>Swap</Title>
-          <SVGContainer onClick={toggle}>
+          <SVGContainer onClick={toggleSettings}>
             <SettingsIcon />
           </SVGContainer>
         </>
