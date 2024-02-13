@@ -17,9 +17,10 @@ const Container = styled.div`
 `;
 const StyledCard = styled(Card)`
   width: ${responsiveSize(300, 500)};
-  height: 420px;
+  height: fit-content;
   padding: 27px;
 `;
+
 const GetPnk: React.FC = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   return (

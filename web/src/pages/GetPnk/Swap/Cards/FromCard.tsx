@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import { Button, Card } from "@kleros/ui-components-library";
 import styled from "styled-components";
-import ChainSelect from "./ChainSelect";
-import TokenSelect from "./TokenSelect";
+import ChainSelect from "../ChainSelect";
+import TokenSelect from "../TokenSelect";
 import { responsiveSize } from "styles/responsiveSize";
-import NumberField from "./NumberInput";
+import NumberField from "../NumberInput";
+import DownArrow from "tsx:svgs/icons/down-arrow.svg";
 
 const Container = styled(Card)`
   width: 100%;
   display: flex;
+  height: fit-content;
   flex-direction: column;
   gap: 19px;
   padding: 16px 16px 32px;
@@ -32,6 +34,17 @@ const StyledButton = styled(Button)`
   background-color: transparent;
   padding: 0;
 `;
+
+const SVGContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -28px;
+  z-index: 100;
+`;
+
 const FromCard: React.FC = () => {
   const [fromChain, setFromChain] = useState(421614);
   const [fromToken, setFromToken] = useState("PNK");
@@ -49,6 +62,9 @@ const FromCard: React.FC = () => {
         <TokenSelect token={fromToken} setToken={setFromToken} />
         <NumberField placeholder="Enter amount" value="0.0" />
       </InnerContainer>
+      <SVGContainer>
+        <DownArrow />
+      </SVGContainer>
     </Container>
   );
 };
