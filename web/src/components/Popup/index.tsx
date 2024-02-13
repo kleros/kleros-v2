@@ -13,6 +13,9 @@ import { responsiveSize } from "styles/responsiveSize";
 import DisputeCreated from "./Description/DisputeCreated";
 import DisputeCreatedExtraInfo from "./ExtraInfo/DisputeCreatedExtraInfo";
 import { useNavigate } from "react-router-dom";
+import SwapSuccess from "./Description/SwapSuccess";
+import CloseIcon from "svgs/icons/close.svg";
+import { Token } from "pages/GetPnk/Swap/TokenSelect";
 
 const Header = styled.h1`
   display: flex;
@@ -83,6 +86,22 @@ const VoteDescriptionContainer = styled.div`
   line-height: 21.8px;
 `;
 
+const SVGContainer = styled.div`
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+  position: absolute;
+  top: 18px;
+  right: 24px;
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: ${({ theme }) => theme.stroke};
+  }
+`;
+
 export const VoteDescriptionEmphasizedDate = styled.span`
   font-size: 16px;
   font-weight: 400;
@@ -96,6 +115,7 @@ export enum PopupType {
   VOTE_WITHOUT_COMMIT = "VOTE_WITHOUT_COMMIT",
   VOTE_WITH_COMMIT = "VOTE_WITH_COMMIT",
   DISPUTE_CREATED = "DISPUTE_CREATED",
+  SWAP_SUCCESS = "SWAP_SUCCESS",
 }
 
 interface IStakeWithdraw {
@@ -126,16 +146,25 @@ interface IDisputeCreated {
   disputeId: number;
   courtId: string;
 }
+
+interface ISwapSuccess {
+  popupType: PopupType.SWAP_SUCCESS;
+  hash: string;
+  amount: string;
+  from?: Token;
+  to?: Token;
+  isClaim?: boolean;
+}
 interface IPopup {
   title: string;
-  icon: React.FC<React.SVGAttributes<SVGElement>>;
+  icon?: React.FC<React.SVGAttributes<SVGElement>>;
   popupType: PopupType;
   setIsOpen: (val: boolean) => void;
   setAmount?: (val: string) => void;
   isCommit?: boolean;
 }
 
-type PopupProps = IStakeWithdraw | IVoteWithoutCommit | IVoteWithCommit | IAppeal | IDisputeCreated;
+type PopupProps = IStakeWithdraw | IVoteWithoutCommit | IVoteWithCommit | IAppeal | IDisputeCreated | ISwapSuccess;
 
 const Popup: React.FC<PopupProps & IPopup> = ({
   title,
@@ -193,6 +222,10 @@ const Popup: React.FC<PopupProps & IPopup> = ({
       PopupComponent = <DisputeCreated courtId={courtId} />;
       break;
     }
+    case PopupType.SWAP_SUCCESS: {
+      PopupComponent = <SwapSuccess {...(props as ISwapSuccess)} />;
+      break;
+    }
     default:
       break;
   }
@@ -201,26 +234,35 @@ const Popup: React.FC<PopupProps & IPopup> = ({
     <>
       <Overlay />
       <Container ref={containerRef}>
+        {popupType === PopupType.SWAP_SUCCESS && (
+          <SVGContainer>
+            <CloseIcon onClick={() => setIsOpen(false)} />
+          </SVGContainer>
+        )}
         <Header>{title}</Header>
         {PopupComponent}
-        <IconContainer>
-          <Icon />
-        </IconContainer>
+        {Icon && (
+          <IconContainer>
+            <Icon />
+          </IconContainer>
+        )}
         {popupType === PopupType.STAKE_WITHDRAW && <StakeWithdrawExtraInfo />}
         {popupType === PopupType.VOTE_WITH_COMMIT && <VoteWithCommitExtraInfo />}
         {popupType === PopupType.DISPUTE_CREATED && <DisputeCreatedExtraInfo />}
-        <StyledButton
-          variant="secondary"
-          text={popupType === PopupType.DISPUTE_CREATED ? "Check the case" : "Close"}
-          onClick={() => {
-            setIsOpen(false);
-            resetValue();
-            if (popupType === PopupType.DISPUTE_CREATED) {
-              const { disputeId } = props as IDisputeCreated;
-              navigate(`/cases/${disputeId}`);
-            }
-          }}
-        />
+        {popupType !== PopupType.SWAP_SUCCESS && (
+          <StyledButton
+            variant="secondary"
+            text={popupType === PopupType.DISPUTE_CREATED ? "Check the case" : "Close"}
+            onClick={() => {
+              setIsOpen(false);
+              resetValue();
+              if (popupType === PopupType.DISPUTE_CREATED) {
+                const { disputeId } = props as IDisputeCreated;
+                navigate(`/cases/${disputeId}`);
+              }
+            }}
+          />
+        )}
       </Container>
     </>
   );

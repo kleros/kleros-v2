@@ -25,6 +25,8 @@ const StyledDropdown = styled(DropdownSelect)`
   .item-icon {
     max-height: 24px;
     max-width: 24px;
+    width: 24px;
+    height: 24px;
     margin-right: 8px;
   }
 `;

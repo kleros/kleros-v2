@@ -13,6 +13,12 @@ const supportedTokens = [
   { value: "USDC", text: "USDC", Icon: UsdcIcon },
 ];
 
+// get this from aggregator sdk
+export type Token = {
+  token: string;
+  chainId: number;
+  logoUri: string;
+};
 interface ITokenSelect {
   token: string;
   setToken: React.Dispatch<React.SetStateAction<string>>;

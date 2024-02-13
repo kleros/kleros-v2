@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import FromCard from "./Cards/FromCard";
 import ToCard from "./Cards/ToCard";
 import { EnsureChain } from "components/EnsureChain";
 import SwapDetails from "./Cards/SwapDetails";
 import { Button } from "@kleros/ui-components-library";
+import Popup, { PopupType } from "components/Popup";
 
 const Container = styled.div`
   display: flex;
@@ -21,6 +22,7 @@ const StyledButton = styled(Button)`
   width: 100%;
 `;
 const Swap: React.FC = () => {
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   return (
     <Container>
       <FromCard />
@@ -28,9 +30,18 @@ const Swap: React.FC = () => {
       <StyledEnsureChain>
         <>
           <SwapDetails />
-          <StyledButton text="Swap" />
+          <StyledButton text="Swap" onClick={() => setIsPopupOpen(true)} />
         </>
       </StyledEnsureChain>
+      {isPopupOpen && (
+        <Popup
+          title="Success!"
+          popupType={PopupType.SWAP_SUCCESS}
+          hash="0xx"
+          amount="1000 PNK"
+          setIsOpen={setIsPopupOpen}
+        />
+      )}
     </Container>
   );
 };

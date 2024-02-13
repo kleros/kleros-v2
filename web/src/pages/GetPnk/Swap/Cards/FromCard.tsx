@@ -42,7 +42,7 @@ const SVGContainer = styled.div`
   left: 0;
   right: 0;
   bottom: -28px;
-  z-index: 100;
+  z-index: 9;
 `;
 
 const FromCard: React.FC = () => {
@@ -56,7 +56,7 @@ const FromCard: React.FC = () => {
           <label>From</label>
           <ChainSelect chainId={fromChain} setChainId={setFromChain} />
         </ChainContainer>
-        <StyledButton variant="secondary" text="MAX" />
+        <StyledButton variant="secondary" text="Max" />
       </InnerContainer>
       <InnerContainer>
         <TokenSelect token={fromToken} setToken={setFromToken} />
