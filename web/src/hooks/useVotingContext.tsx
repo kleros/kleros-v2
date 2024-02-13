@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 import { useDisputeDetailsQuery } from "./queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "./queries/useDrawQuery";
-import { useDisputeKitClassicIsVoteActive } from "./contracts/generated";
+import { useDisputeKitClassicUniversityIsVoteActive } from "./contracts/generated";
 import { isUndefined } from "utils/index";
 
 interface IVotingContext {
@@ -32,7 +32,7 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const { data: drawData, isLoading } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
   const roundId = disputeData?.dispute?.currentRoundIndex;
   const voteId = drawData?.draws?.[0]?.voteIDNum;
-  const { data: hasVoted } = useDisputeKitClassicIsVoteActive({
+  const { data: hasVoted } = useDisputeKitClassicUniversityIsVoteActive({
     enabled: !isUndefined(roundId) && !isUndefined(voteId),
     args: [BigInt(id ?? 0), roundId, voteId],
     watch: true,
