@@ -33,9 +33,17 @@ interface INumberInputField {
   value?: string;
   onChange?: (value: string) => void;
   formatter?: (value: string) => string;
+  className?: string;
 }
 
-export const NumberInputField: React.FC<INumberInputField> = ({ placeholder, message, value, onChange, formatter }) => {
+export const NumberInputField: React.FC<INumberInputField> = ({
+  placeholder,
+  message,
+  value,
+  onChange,
+  formatter,
+  className,
+}) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const toggleEditing = () => {
@@ -43,7 +51,7 @@ export const NumberInputField: React.FC<INumberInputField> = ({ placeholder, mes
   };
 
   return (
-    <Container>
+    <Container {...{ className }}>
       {isEditing ? (
         <StyledField
           type="number"
