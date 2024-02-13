@@ -5,6 +5,7 @@ import { responsiveSize } from "styles/responsiveSize";
 import HeroImage from "components/HeroImage";
 import Header from "./Header";
 import Swap from "./Swap";
+import Settings from "./Settings";
 
 const Container = styled.div`
   width: 100%;
@@ -29,7 +30,7 @@ const GetPnk: React.FC = () => {
       <Container>
         <StyledCard>
           <Header isSettings={settingsOpen} openSettings={setSettingsOpen} />
-          {settingsOpen ? <></> : <Swap />}
+          {settingsOpen ? <Settings /> : <Swap />}
         </StyledCard>
       </Container>
     </>

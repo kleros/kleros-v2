@@ -11,7 +11,6 @@ const Container = styled.div`
   flex-direction: column;
   height: fit-content;
   gap: 16px;
-  margin-top: 35px;
 `;
 
 const StyledEnsureChain = styled(EnsureChain)`
