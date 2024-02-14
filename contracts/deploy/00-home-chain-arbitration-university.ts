@@ -5,7 +5,7 @@ import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped } from "./utils";
 import { deployERC20AndFaucet } from "./utils/deployERC20AndFaucet";
-import { DisputeKitClassic, KlerosCore, KlerosCoreUniversity } from "../typechain-types";
+import { DisputeKitClassic, KlerosCore } from "../typechain-types";
 import { getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -61,11 +61,11 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   }); // nonce+2 (implementation), nonce+3 (proxy)
 
   // changeCore() only if necessary
-  const currentCore = (await ethers.getContract("KlerosCoreUniversity")) as KlerosCoreUniversity;
-  if (currentCore.address !== klerosCore.address) {
-    await ethers
-      .getContract("DisputeKitClassicUniversity")
-      .then((disputeKit) => (disputeKit as DisputeKitClassic).changeCore(klerosCore.address));
+  const disputeKitContract = (await ethers.getContract("DisputeKitClassicUniversity")) as DisputeKitClassic;
+  const currentCore = await disputeKitContract.core();
+  if (currentCore !== klerosCore.address) {
+    console.log("changing DisputeKitClassicUniversity.core to %s", klerosCore.address);
+    await disputeKitContract.changeCore(klerosCore.address);
   }
 
   const changeCurrencyRate = async (
