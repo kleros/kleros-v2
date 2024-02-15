@@ -33,10 +33,11 @@ const SVGContainer = styled.div`
   }
 `;
 
-const StyledLabel = styled.label`
+const StyledSpan = styled.span`
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 14px;
   color: ${({ theme }) => theme.primaryText};
 `;
 
@@ -60,31 +61,33 @@ const MiddleContainer = styled.div`
   gap: 8px;
 `;
 
+const StyledLabel = styled.label``;
+
 const SwapDetails: React.FC = () => {
   return (
     <Container>
       <InnerContainer>
-        <label>
+        <StyledLabel>
           Bridge from <small>Ethereum</small> to <small>Arbitrum</small>
-        </label>{" "}
+        </StyledLabel>{" "}
         <SVGContainer>
           <SpinnerIcon />
         </SVGContainer>
       </InnerContainer>
       <InnerContainer>
-        <StyledLabel>
+        <StyledSpan>
           1000 ETH <Icon as={ArrowIcon} />
           999 PNK &nbsp;~ $18.11
-        </StyledLabel>
+        </StyledSpan>
       </InnerContainer>
       <GasAndTimeContainer>
         <MiddleContainer>
           <GasIcon />
-          <label>Gas Fees:</label> <StyledLabel>~ $1.09 (estimated)</StyledLabel>
+          <StyledLabel>Gas Fees:</StyledLabel> <StyledSpan>~ $1.09 (estimated)</StyledSpan>
         </MiddleContainer>
         <MiddleContainer>
           <ClockIcon />
-          <StyledLabel>~ 2 min</StyledLabel>
+          <StyledSpan>~ 2 min</StyledSpan>
         </MiddleContainer>
       </GasAndTimeContainer>
     </Container>

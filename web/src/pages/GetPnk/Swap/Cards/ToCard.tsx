@@ -28,6 +28,8 @@ const ChainContainer = styled.div`
 const StyledText = styled.h1`
   margin: 0px;
 `;
+const StyledLabel = styled.label``;
+
 const ToCard: React.FC = () => {
   const [toChain, setToChain] = useState(421614);
   const [toToken, setToToken] = useState("PNK");
@@ -36,7 +38,7 @@ const ToCard: React.FC = () => {
     <Container>
       <InnerContainer>
         <ChainContainer>
-          <label>To</label>
+          <StyledLabel>To</StyledLabel>
           <ChainSelect chainId={toChain} setChainId={setToChain} />
         </ChainContainer>
       </InnerContainer>

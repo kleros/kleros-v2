@@ -44,6 +44,7 @@ const SVGContainer = styled.div`
   bottom: -28px;
   z-index: 9;
 `;
+const StyledLabel = styled.label``;
 
 const FromCard: React.FC = () => {
   const [fromChain, setFromChain] = useState(421614);
@@ -53,7 +54,7 @@ const FromCard: React.FC = () => {
     <Container>
       <InnerContainer>
         <ChainContainer>
-          <label>From</label>
+          <StyledLabel>From</StyledLabel>
           <ChainSelect chainId={fromChain} setChainId={setFromChain} />
         </ChainContainer>
         <StyledButton variant="secondary" text="Max" />
