@@ -33,7 +33,7 @@ export const PopupContainer = styled.div`
 const Header: React.FC = () => {
   return (
     <Container>
-      {isProductionDeployment() ? <TestnetBanner /> : null}
+      {!isProductionDeployment() ? <TestnetBanner /> : null}
       <HeaderContainer>
         <DesktopHeader />
         <MobileHeader />

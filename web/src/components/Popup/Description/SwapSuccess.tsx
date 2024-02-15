@@ -23,13 +23,13 @@ const AmountContainer = styled.div`
 `;
 
 const SVGContainer = styled.div`
-  width: 50px;
-  height: 50px;
+  width: ${responsiveSize(30, 50)};
+  height: ${responsiveSize(30, 50)};
 `;
 
 const Amount = styled.h1`
   color: ${({ theme }) => theme.secondaryPurple};
-  font-size: 64px;
+  font-size: ${responsiveSize(32, 64)};
   margin: 0px;
 `;
 
@@ -64,17 +64,17 @@ interface ISwapSuccess {
 }
 
 const SwapSuccess: React.FC<ISwapSuccess> = ({ hash, amount, isClaim, from, to }) => {
-  const baseUrl = "https://etherscan.io/tx/0x015921dd855ea5b1fe19ea027f97e221b5c8f0362bdc267a3e4ce6ffd6c191ab";
+  const baseUrl = `https://sepolia.arbiscan.io/tx/${hash}`;
   return (
     <Container>
       <AmountContainer>
-        <Amount>1000 PNK</Amount>
+        <Amount>{amount} PNK</Amount>
         <SVGContainer>
           <PnkIcon />
         </SVGContainer>
       </AmountContainer>
       {isClaim ? (
-        <Subtitle>Claimed: 1000 PNK (Testnet)</Subtitle>
+        <Subtitle>Claimed: {amount} PNK (Testnet)</Subtitle>
       ) : (
         <Subtitle>
           Bridge from &nbsp;<small>Ethereum</small>&nbsp; to &nbsp;<small>Arbitrum</small>

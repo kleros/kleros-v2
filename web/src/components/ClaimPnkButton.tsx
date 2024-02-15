@@ -3,13 +3,23 @@ import React, { useState } from "react";
 import { formatEther } from "viem";
 import { useAccount, useNetwork, usePublicClient, useWalletClient } from "wagmi";
 import { DEFAULT_CHAIN } from "consts/chains";
-import { prepareWritePnkFaucet, usePnkBalanceOf, usePnkFaucetWithdrewAlready } from "hooks/contracts/generated";
+import {
+  prepareWritePnkFaucet,
+  usePnkBalanceOf,
+  usePnkFaucetAmount,
+  usePnkFaucetWithdrewAlready,
+} from "hooks/contracts/generated";
 import { usePNKFaucetAddress } from "hooks/useContractAddress";
 import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
+import Popup, { PopupType } from "./Popup";
+import { formatPNK } from "utils/format";
 
 const ClaimPnkButton: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [hash, setHash] = useState<`0x${string}` | undefined>();
+
   const { chain } = useNetwork();
   const { address } = useAccount();
   const { data: claimed } = usePnkFaucetWithdrewAlready({
@@ -23,6 +33,7 @@ const ClaimPnkButton: React.FC = () => {
     args: [faucetAddress],
     watch: true,
   });
+  const { data: dripAmount } = usePnkFaucetAmount();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
 
@@ -32,20 +43,39 @@ const ClaimPnkButton: React.FC = () => {
       functionName: "request",
     });
     if (walletClient) {
-      wrapWithToast(async () => await walletClient.writeContract(request), publicClient).finally(() => {
-        setIsSending(false);
-      });
+      wrapWithToast(async () => await walletClient.writeContract(request), publicClient)
+        .finally(() => {
+          setIsSending(false);
+        })
+        .then(({ result, status }) => {
+          setIsPopupOpen(status);
+          status && setHash(result?.transactionHash);
+        });
     }
   };
   const faucetCheck = !isUndefined(balance) && parseInt(formatEther(balance)) > 200;
-  return chain?.id === DEFAULT_CHAIN && !claimed ? (
-    <Button
-      variant="primary"
-      text={faucetCheck ? "Claim PNK" : "Empty Faucet"}
-      onClick={handleRequest}
-      isLoading={isSending}
-      disabled={isSending || claimed || !faucetCheck}
-    />
-  ) : null;
+  return (
+    <>
+      {chain?.id === DEFAULT_CHAIN && !claimed ? (
+        <Button
+          variant="primary"
+          text={faucetCheck ? "Claim PNK" : "Empty Faucet"}
+          onClick={handleRequest}
+          isLoading={isSending}
+          disabled={isSending || claimed || !faucetCheck}
+        />
+      ) : null}
+      {isPopupOpen && (
+        <Popup
+          title="Success!"
+          popupType={PopupType.SWAP_SUCCESS}
+          hash={hash}
+          amount={formatPNK(dripAmount ?? BigInt(0))}
+          isClaim
+          setIsOpen={setIsPopupOpen}
+        />
+      )}
+    </>
+  );
 };
 export default ClaimPnkButton;

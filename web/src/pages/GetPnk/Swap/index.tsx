@@ -6,6 +6,7 @@ import { EnsureChain } from "components/EnsureChain";
 import SwapDetails from "./Cards/SwapDetails";
 import { Button } from "@kleros/ui-components-library";
 import Popup, { PopupType } from "components/Popup";
+import { isProductionDeployment } from "consts/index";
 
 const Container = styled.div`
   display: flex;
@@ -30,7 +31,7 @@ const Swap: React.FC = () => {
       <StyledEnsureChain>
         <>
           <SwapDetails />
-          <StyledButton text="Swap" onClick={() => setIsPopupOpen(true)} />
+          <StyledButton text="Swap" onClick={() => setIsPopupOpen(true)} disabled={!isProductionDeployment()} />
         </>
       </StyledEnsureChain>
       {isPopupOpen && (
