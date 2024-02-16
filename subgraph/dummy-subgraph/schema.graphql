@@ -1,0 +1,23 @@
+type Arbitrable @entity {
+  id: Bytes! #Address
+  registrationDate: BigInt!
+  disputeTemplates: [DisputeTemplate!]! @derivedFrom(field: "arbitrable")
+  disputes: [Dispute!]! @derivedFrom(field: "arbitrable")
+}
+
+type DisputeTemplate @entity {
+  id: String!
+  arbitrable: Arbitrable!
+  templateData: String!
+  templateDataMappings: String!
+  disputes: [Dispute!]! @derivedFrom(field: "template")
+}
+
+type Dispute @entity {
+  id: String!
+  arbitrable: Arbitrable!
+  disputeID: BigInt!
+  externalDisputeID: BigInt!
+  templateId: BigInt!
+  template: DisputeTemplate!
+}
