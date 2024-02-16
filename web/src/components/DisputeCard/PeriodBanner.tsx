@@ -11,13 +11,13 @@ interface IContainer {
 
 const Container = styled.div<IContainer>`
   height: ${({ isCard }) => (isCard ? "45px" : "100%")};
-  width: ${({ isCard }) => (isCard ? "auto" : responsiveSize(160, 200, 900))};
+  width: ${({ isCard }) => (isCard ? "auto" : responsiveSize(140, 200, 900))};
   border-top-right-radius: 3px;
   border-top-left-radius: 3px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  justify-content: ${({ isCard }) => (isCard ? "space-between" : "start")};
+  gap: 8px;
+  justify-content: space-between;
   padding: 0 ${({ isCard }) => (isCard ? "24px" : responsiveSize(8, 24, 900))};
   flex-shrink: 0;
   ${({ frontColor, backgroundColor, isCard }) => {

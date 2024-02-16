@@ -34,8 +34,9 @@ const Container = styled.div<{ isList: boolean }>`
 `;
 const RewardsContainer = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 4px 8px;
   flex-wrap: wrap;
+  justify-content: end;
 `;
 interface ICardLabels {
   disputeId: string;

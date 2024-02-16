@@ -11,10 +11,11 @@ import useIsDesktop from "hooks/useIsDesktop";
 import DisputeCard from "components/DisputeCard";
 
 const GridContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
+  --gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, max(274px, (100% - var(--gap) * 2)/3)), 1fr));
   align-items: center;
-  gap: 24px;
+  gap: var(--gap);
 `;
 
 const ListContainer = styled.div`

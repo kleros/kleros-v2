@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { formatEther } from "viem";
 import { StyledSkeleton } from "components/StyledSkeleton";
@@ -7,7 +7,6 @@ import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 import { useIsList } from "context/IsListProvider";
 import { DisputeDetailsFragment } from "queries/useCasesQuery";
-import { landscapeStyle } from "styles/landscapeStyle";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import DisputeInfo from "./DisputeInfo";
@@ -15,22 +14,11 @@ import PeriodBanner from "./PeriodBanner";
 import { isUndefined } from "utils/index";
 import { responsiveSize } from "styles/responsiveSize";
 import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
+import { useAccount } from "wagmi";
 
 const StyledCard = styled(Card)`
   width: 100%;
   height: ${responsiveSize(280, 335)};
-
-  ${landscapeStyle(
-    () =>
-      css`
-        /* Explanation of this formula:
-          - The 48px accounts for the total width of gaps: 2 gaps * 24px each.
-          - The 0.333 is used to equally distribute width among 3 cards per row.
-          - The 348px ensures the card has a minimum width.
-        */
-        width: max(calc((100% - 48px) * 0.333), 348px);
-      `
-  )}
 `;
 
 const StyledListItem = styled(Card)`
@@ -54,20 +42,19 @@ const ListContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  width: 100%;
   margin-right: 8px;
-
+  flex-grow: 1;
   h3 {
     margin: 0;
   }
 `;
 
-const ListTitle = styled.div`
+const ListTitle = styled.div<{ isLabel?: boolean }>`
   display: flex;
   height: 100%;
   justify-content: start;
   align-items: center;
-  width: ${responsiveSize(240, 420, 900)};
+  width: ${({ isLabel }) => (isLabel ? responsiveSize(150, 340, 900) : "fit-content")};
 `;
 
 export const getPeriodEndTimestamp = (
@@ -98,6 +85,7 @@ const DisputeCard: React.FC<IDisputeCard> = ({
   overrideIsList,
 }) => {
   const { isList } = useIsList();
+  const { isDisconnected } = useAccount();
   const currentPeriodIndex = Periods[period];
   const rewards = `≥ ${formatEther(court.feeForJuror)} ETH`;
   const date =
@@ -137,7 +125,7 @@ const DisputeCard: React.FC<IDisputeCard> = ({
         <StyledListItem hover onClick={() => navigate(`/cases/${id.toString()}`)}>
           <PeriodBanner isCard={false} id={parseInt(id)} period={currentPeriodIndex} />
           <ListContainer>
-            <ListTitle>
+            <ListTitle isLabel={!isDisconnected}>
               <TruncatedTitle text={disputeDetails?.title ?? errMsg} maxLength={50} />
             </ListTitle>
             <DisputeInfo

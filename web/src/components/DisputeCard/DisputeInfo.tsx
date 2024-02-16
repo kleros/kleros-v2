@@ -15,20 +15,20 @@ import { responsiveSize } from "styles/responsiveSize";
 import CardLabel from "./CardLabels";
 import { useAccount } from "wagmi";
 
-const Container = styled.div<{ isList: boolean; isOverview?: boolean }>`
+const Container = styled.div<{ isList: boolean; isOverview?: boolean; isLabel?: boolean }>`
   display: flex;
   width: 100%;
   gap: 8px;
   flex-direction: column;
   justify-content: flex-end;
-  ${({ isList }) =>
+  ${({ isList, isLabel }) =>
     isList &&
     css`
       ${landscapeStyle(
         () => css`
           height: 100%;
           flex-direction: row;
-          justify-content: space-between;
+          justify-content: ${isLabel ? "space-between" : "flex-end"};
           flex: 0 1 450px;
           align-items: center;
           margin-right: ${responsiveSize(7, 15, 900)};
@@ -56,19 +56,16 @@ const RestOfFieldsContainer = styled.div<{ isList?: boolean; isOverview?: boolea
   align-items: center;
   width: 100%;
   height: 100%;
-
   ${({ isList }) =>
     isList &&
     css`
       ${landscapeStyle(
         () => css`
-          flex-direction: row;
-          flex-wrap: wrap;
-          justify-content: start;
           height: min-content;
-          gap: 8px ${responsiveSize(8, 32)};
-          align-items: center;
-          flex: 0 0 ${responsiveSize(220, 280, 900)}; // analogy: *don't grow* *shrink* *try to maintain this width*
+          width: max-content;
+          display: grid;
+          grid-template-columns: min-content 80px min-content;
+          justify-content: start;
         `
       )}
     `};
@@ -149,7 +146,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
   const courtBranchValue = items.map((item) => item.text).join(" / ");
 
   return (
-    <Container isList={displayAsList} isOverview={isOverview}>
+    <Container isList={displayAsList} isOverview={isOverview} isLabel={!isDisconnected}>
       <CourtBranchFieldContainer isOverview={isOverview}>
         {court && courtId && isOverview && (
           <Field
