@@ -46,6 +46,7 @@
     "sourcify": "hardhat sourcify --write-failing-metadata",
     "size": "hardhat size-contracts --no-compile",
     "watch": "hardhat watch",
+    "natspec-smells": "natspec-smells",
     "docgen": "hardhat docgen",
     "docserve": "scripts/docPreprocess.sh && forge doc --serve",
     "docbuild": "scripts/docPreprocess.sh && forge doc --build --out dist && scripts/docPostprocess.sh",
@@ -55,6 +56,7 @@
     "tenderly-verify": "hardhat tenderly:verify"
   },
   "devDependencies": {
+    "@defi-wonderland/natspec-smells": "^1.0.3",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "@kleros/kleros-v2-tsconfig": "workspace:^",

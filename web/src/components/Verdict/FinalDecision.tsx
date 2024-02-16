@@ -11,6 +11,10 @@ import { responsiveSize } from "styles/responsiveSize";
 import { useVotingContext } from "hooks/useVotingContext";
 import Skeleton from "react-loading-skeleton";
 import { useAccount } from "wagmi";
+import AnswerDisplay from "./Answer";
+import { useVotingHistory } from "hooks/queries/useVotingHistory";
+import { getLocalRounds } from "utils/getLocalRounds";
+import { Periods } from "consts/periods";
 
 const Container = styled.div`
   width: 100%;
@@ -42,10 +46,6 @@ const StyledButton = styled(LightButton)`
   padding-top: 0px;
 `;
 
-const AnswerTitle = styled.h3`
-  margin: 0;
-`;
-
 const Divider = styled.hr`
   display: flex;
   border: none;
@@ -64,7 +64,10 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const { data: populatedDisputeData } = usePopulatedDisputeData(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
   const { wasDrawn, hasVoted, isLoading, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes } = useVotingContext();
+  const { data: votingHistory } = useVotingHistory(id);
+  const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const ruled = disputeDetails?.dispute?.ruled ?? false;
+  const periodIndex = Periods[disputeDetails?.dispute?.period ?? "evidence"];
   const navigate = useNavigate();
   const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id ?? 0)], watch: true });
   const currentRuling = Number(currentRulingArray?.[0]);
@@ -81,21 +84,18 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
     <Container>
       <VerdictBanner ruled={ruled} />
 
-      <JuryContainer>
-        {ruled ? (
+      {ruled && (
+        <JuryContainer>
           <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
-        ) : (
+          <AnswerDisplay {...{ answer, currentRuling }} />
+        </JuryContainer>
+      )}
+      {!ruled && periodIndex > 1 && localRounds?.at(localRounds.length - 1)?.totalVoted > 0 && (
+        <JuryContainer>
           <JuryDecisionTag>This option is winning:</JuryDecisionTag>
-        )}
-        {answer ? (
-          <div>
-            <AnswerTitle>{answer.title}</AnswerTitle>
-            <small>{answer.description}</small>
-          </div>
-        ) : (
-          <>{currentRuling !== 0 ? <h3>Answer 0x{currentRuling}</h3> : <h3>Refuse to Arbitrate</h3>}</>
-        )}
-      </JuryContainer>
+          <AnswerDisplay {...{ answer, currentRuling }} />
+        </JuryContainer>
+      )}
       <Divider />
       {isLoading && !isDisconnected ? (
         <Skeleton width={250} height={20} />

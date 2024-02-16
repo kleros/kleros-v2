@@ -21,6 +21,7 @@ import { useVotingContext } from "hooks/useVotingContext";
 
 const Container = styled.div`
   padding: ${responsiveSize(16, 32)};
+  padding-bottom: ${responsiveSize(8, 16)};
 `;
 
 const useFinalDate = (lastPeriodChange: string, currentPeriodIndex?: number, timesPerPeriod?: string[]) =>

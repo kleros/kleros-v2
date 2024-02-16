@@ -69,10 +69,14 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
       </Header>
       {rounds && localRounds && disputeDetails ? (
         <>
-          {isQuestion && disputeDetails.question ? (
-            <ReactMarkdown>{disputeDetails.question}</ReactMarkdown>
-          ) : (
-            <ReactMarkdown>{isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
+          {isQuestion && (
+            <>
+              {disputeDetails.question ? (
+                <ReactMarkdown>{disputeDetails.question}</ReactMarkdown>
+              ) : (
+                <ReactMarkdown>{isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
+              )}
+            </>
           )}
           <StyledTabs
             currentValue={currentTab}
