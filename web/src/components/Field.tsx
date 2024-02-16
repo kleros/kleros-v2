@@ -90,12 +90,8 @@ const Field: React.FC<IField> = ({
 }) => {
   return (
     <FieldContainer isList={displayAsList} isOverview={isOverview} isJurorBalance={isJurorBalance} width={width}>
-      {(!displayAsList || isOverview || isJurorBalance) && (
-        <>
-          <Icon />
-          <label>{name}:</label>
-        </>
-      )}
+      <Icon />
+      {(!displayAsList || isOverview || isJurorBalance) && <label>{name}:</label>}
       {link ? (
         <Link className="link value" to={link}>
           {value}

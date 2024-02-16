@@ -21,21 +21,24 @@ const Container = styled.div<{ isList: boolean; isOverview?: boolean }>`
   gap: 8px;
   flex-direction: column;
   justify-content: flex-end;
-
   ${({ isList }) =>
     isList &&
     css`
       ${landscapeStyle(
         () => css`
-          gap: 0;
           height: 100%;
-          flex: 1;
+          flex-direction: row;
+          justify-content: space-between;
+          flex: 0 1 450px;
+          align-items: center;
+          margin-right: ${responsiveSize(7, 15, 900)};
         `
       )}
     `};
 `;
 
 const CourtBranchFieldContainer = styled.div<{ isList?: boolean; isOverview?: boolean }>`
+  display: none;
   ${({ isOverview }) =>
     isOverview &&
     css`
@@ -59,11 +62,13 @@ const RestOfFieldsContainer = styled.div<{ isList?: boolean; isOverview?: boolea
     css`
       ${landscapeStyle(
         () => css`
-          display: grid;
-          grid-template-columns: repeat(4, ${responsiveSize(100, 130, 900)});
-          column-gap: ${responsiveSize(2, 12, 900)};
-          justify-content: space-between;
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: start;
+          height: min-content;
+          gap: 8px ${responsiveSize(8, 32)};
           align-items: center;
+          flex: 0 0 ${responsiveSize(220, 280, 900)}; // analogy: *don't grow* *shrink* *try to maintain this width*
         `
       )}
     `};
@@ -213,8 +218,10 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
             isOverview={isOverview}
           />
         )}
-        {showLabels && !isDisconnected ? <CardLabel disputeId={disputeID} round={round - 1} /> : null}
       </RestOfFieldsContainer>
+      {showLabels && !isDisconnected ? (
+        <CardLabel disputeId={disputeID} round={round - 1} isList={displayAsList} />
+      ) : null}
     </Container>
   );
 };

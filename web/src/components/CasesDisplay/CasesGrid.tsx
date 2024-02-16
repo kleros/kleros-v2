@@ -9,7 +9,6 @@ import { decodeURIFilter } from "utils/uri";
 import { DisputeDetailsFragment } from "queries/useCasesQuery";
 import useIsDesktop from "hooks/useIsDesktop";
 import DisputeCard from "components/DisputeCard";
-import CasesListHeader from "./CasesListHeader";
 
 const GridContainer = styled.div`
   display: flex;
@@ -51,7 +50,6 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, casesPerPage, totalPages, c
     <>
       {isList && isDesktop ? (
         <ListContainer>
-          <CasesListHeader />
           {isUndefined(disputes)
             ? [...Array(casesPerPage)].map((_, i) => <SkeletonDisputeListItem key={i} />)
             : disputes.map((dispute) => {

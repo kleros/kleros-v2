@@ -1,44 +1,54 @@
-import React from "react";
-import styled, { Theme } from "styled-components";
+import React, { useMemo } from "react";
+import styled, { Theme, css, useTheme } from "styled-components";
 import { Periods } from "consts/periods";
 import { responsiveSize } from "styles/responsiveSize";
 
-const Container = styled.div<Omit<IPeriodBanner, "id">>`
+interface IContainer {
+  isCard: boolean;
+  frontColor: string;
+  backgroundColor: string;
+}
+
+const Container = styled.div<IContainer>`
   height: ${({ isCard }) => (isCard ? "45px" : "100%")};
-  width: ${({ isCard }) => (isCard ? "auto" : responsiveSize(60, 80, 900))};
+  width: ${({ isCard }) => (isCard ? "auto" : responsiveSize(160, 200, 900))};
   border-top-right-radius: 3px;
   border-top-left-radius: 3px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  .dot {
-    ::before {
-      content: "";
-      display: inline-block;
-      height: 8px;
-      width: 8px;
-      border-radius: 50%;
-      margin-right: 8px;
-    }
-  }
-  ${({ theme, period, isCard }) => {
-    const [frontColor, backgroundColor] = getPeriodColors(period, theme);
+  gap: 16px;
+  justify-content: ${({ isCard }) => (isCard ? "space-between" : "start")};
+  padding: 0 ${({ isCard }) => (isCard ? "24px" : responsiveSize(8, 24, 900))};
+  flex-shrink: 0;
+  ${({ frontColor, backgroundColor, isCard }) => {
     return `
       ${isCard ? `border-top: 5px solid ${frontColor}` : `border-left: 5px solid ${frontColor}`};
-      ${isCard && `background-color: ${backgroundColor}`};
-      .front-color {
-        color: ${frontColor};
-      }
-      .dot {
-        ::before {
-          background-color: ${frontColor};
-        }
-      }
+      ${isCard && `background-color: ${backgroundColor};`};
     `;
   }};
 `;
 
+const StyledLabel = styled.label<{ frontColor: string; withDot?: boolean; isCard?: boolean }>`
+  display: flex;
+  align-items: center;
+  width: ${({ isCard }) => (isCard ? "auto" : "min-content")};
+  color: ${({ frontColor }) => frontColor};
+  ${({ withDot, frontColor }) =>
+    withDot
+      ? css`
+          ::before {
+            content: "";
+            display: inline-block;
+            height: 8px;
+            width: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background-color: ${frontColor};
+            flex-shrink: 0;
+          }
+        `
+      : null}
+`;
 export interface IPeriodBanner {
   id: number;
   period: Periods;
@@ -56,14 +66,14 @@ const getPeriodColors = (period: Periods, theme: Theme): [string, string] => {
   }
 };
 
-const getPeriodLabel = (period: Periods): string => {
+const getPeriodLabel = (period: Periods, isCard: boolean): string => {
   switch (period) {
     case Periods.evidence:
-      return "In Progress - Submitting Evidence";
+      return `${isCard ? "In Progress - " : ""}Submitting Evidence`;
     case Periods.commit:
-      return "In Progress - Committing Vote";
+      return `${isCard ? "In Progress - " : ""}Committing Vote`;
     case Periods.vote:
-      return "In Progress - Voting";
+      return `${isCard ? "In Progress - " : ""}Voting`;
     case Periods.appeal:
       return "Crowdfunding Appeal";
     case Periods.execution:
@@ -73,11 +83,17 @@ const getPeriodLabel = (period: Periods): string => {
   }
 };
 
-const PeriodBanner: React.FC<IPeriodBanner> = ({ id, period, isCard = true }) => (
-  <Container period={period} isCard={isCard}>
-    {isCard && <label className="front-color dot">{getPeriodLabel(period)}</label>}
-    <label className="front-color">#{id}</label>
-  </Container>
-);
+const PeriodBanner: React.FC<IPeriodBanner> = ({ id, period, isCard = true }) => {
+  const theme = useTheme();
+  const [frontColor, backgroundColor] = useMemo(() => getPeriodColors(period, theme), [theme, period]);
+  return (
+    <Container {...{ isCard, frontColor, backgroundColor }}>
+      <StyledLabel frontColor={frontColor} isCard={isCard} withDot>
+        {getPeriodLabel(period, isCard)}
+      </StyledLabel>
+      <StyledLabel frontColor={frontColor}>#{id}</StyledLabel>
+    </Container>
+  );
+};
 
 export default PeriodBanner;

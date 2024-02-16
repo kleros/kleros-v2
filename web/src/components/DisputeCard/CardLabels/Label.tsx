@@ -14,6 +14,7 @@ export type IColors = keyof typeof COLORS;
 
 const LabelContainer = styled.div<{ backgroundColor: string }>`
   display: inline-flex;
+  width: max-content;
   padding: 4px 8px;
   align-items: center;
   gap: 10px;

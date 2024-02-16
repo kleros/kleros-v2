@@ -37,7 +37,7 @@ const StyledListItem = styled(Card)`
   display: flex;
   flex-grow: 1;
   width: 100%;
-  height: 64px;
+  height: 82px;
 `;
 
 const CardContainer = styled.div`
@@ -67,7 +67,7 @@ const ListTitle = styled.div`
   height: 100%;
   justify-content: start;
   align-items: center;
-  width: ${responsiveSize(240, 300, 900)};
+  width: ${responsiveSize(240, 420, 900)};
 `;
 
 export const getPeriodEndTimestamp = (
@@ -141,10 +141,13 @@ const DisputeCard: React.FC<IDisputeCard> = ({
               <TruncatedTitle text={disputeDetails?.title ?? errMsg} maxLength={50} />
             </ListTitle>
             <DisputeInfo
+              disputeID={id}
               courtId={court?.id}
               court={courtName}
               period={currentPeriodIndex}
+              round={parseInt(currentRoundIndex) + 1}
               {...{ category, rewards, date }}
+              showLabels
             />
           </ListContainer>
         </StyledListItem>
