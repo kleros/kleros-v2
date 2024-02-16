@@ -14,6 +14,7 @@ import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
 import Popup, { PopupType } from "./Popup";
 import { formatPNK } from "utils/format";
+import FaucetIcon from "svgs/icons/faucet.svg";
 
 const ClaimPnkButton: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
@@ -63,6 +64,7 @@ const ClaimPnkButton: React.FC = () => {
           onClick={handleRequest}
           isLoading={isSending}
           disabled={isSending || claimed || !faucetCheck}
+          Icon={faucetCheck ? FaucetIcon : undefined}
         />
       ) : null}
       {isPopupOpen && (
