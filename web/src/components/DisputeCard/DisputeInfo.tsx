@@ -8,12 +8,14 @@ import CalendarIcon from "svgs/icons/calendar.svg";
 import LawBalanceIcon from "svgs/icons/law-balance.svg";
 import PileCoinsIcon from "svgs/icons/pile-coins.svg";
 import RoundIcon from "svgs/icons/round.svg";
-import Field from "../Field";
+import Field, { IField } from "../Field";
 import { getCourtsPath } from "pages/Courts/CourtDetails";
 import { useCourtTree } from "hooks/queries/useCourtTree";
 import { responsiveSize } from "styles/responsiveSize";
 import CardLabel from "./CardLabels";
 import { useAccount } from "wagmi";
+import { formatDate } from "utils/date";
+import { isUndefined } from "utils/index";
 
 const Container = styled.div<{ isList: boolean; isOverview?: boolean; isLabel?: boolean }>`
   display: flex;
@@ -37,15 +39,10 @@ const Container = styled.div<{ isList: boolean; isOverview?: boolean; isLabel?: 
     `};
 `;
 
-const CourtBranchFieldContainer = styled.div<{ isList?: boolean; isOverview?: boolean }>`
-  display: none;
-  ${({ isOverview }) =>
-    isOverview &&
-    css`
-      display: flex;
-      margin-top: 16px;
-      flex-wrap: wrap;
-    `};
+const CourtBranchFieldContainer = styled.div`
+  display: flex;
+  margin-top: 16px;
+  flex-wrap: wrap;
 `;
 
 const RestOfFieldsContainer = styled.div<{ isList?: boolean; isOverview?: boolean }>`
@@ -111,13 +108,6 @@ export interface IDisputeInfo {
   showLabels?: boolean;
 }
 
-const formatDate = (date: number) => {
-  const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
-  const startingDate = new Date(date * 1000);
-  const formattedDate = startingDate.toLocaleDateString("en-US", options);
-  return formattedDate;
-};
-
 const DisputeInfo: React.FC<IDisputeInfo> = ({
   disputeID,
   courtId,
@@ -144,76 +134,39 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
     })) ?? [])
   );
   const courtBranchValue = items.map((item) => item.text).join(" / ");
-
+  const fieldItems = [
+    {
+      icon: LawBalanceIcon,
+      name: "Court",
+      value: court,
+      link: `/courts/${courtId}`,
+      display: court && courtId && !isOverview,
+    },
+    { icon: BookmarkIcon, name: "Category", value: category ?? "General", display: true },
+    { icon: RoundIcon, name: "Round", value: round?.toString(), display: round },
+    { icon: PileCoinsIcon, name: "Juror Rewards", value: rewards, display: rewards },
+    {
+      icon: CalendarIcon,
+      name: getPeriodPhrase(period ?? 0),
+      value: !displayAsList ? new Date(date * 1000).toLocaleString() : formatDate(date),
+      display: !isUndefined(period) && date,
+    },
+  ];
   return (
     <Container isList={displayAsList} isOverview={isOverview} isLabel={!isDisconnected}>
-      <CourtBranchFieldContainer isOverview={isOverview}>
-        {court && courtId && isOverview && (
+      {court && courtId && isOverview && (
+        <CourtBranchFieldContainer>
           <Field
             icon={LawBalanceIcon}
             name="Court Branch"
             value={courtBranchValue}
-            displayAsList={displayAsList}
-            isOverview={isOverview}
+            {...{ displayAsList, isOverview }}
           />
-        )}
-      </CourtBranchFieldContainer>
+        </CourtBranchFieldContainer>
+      )}
       <RestOfFieldsContainer isOverview={isOverview} isList={displayAsList}>
-        {court && courtId && !isOverview && (
-          <Field
-            icon={LawBalanceIcon}
-            name="Court"
-            value={court}
-            link={`/courts/${courtId}`}
-            displayAsList={displayAsList}
-            isOverview={isOverview}
-          />
-        )}
-
-        {category && (
-          <Field
-            icon={BookmarkIcon}
-            name="Category"
-            value={category}
-            displayAsList={displayAsList}
-            isOverview={isOverview}
-          />
-        )}
-        {!category && displayAsList && (
-          <Field
-            icon={BookmarkIcon}
-            name="Category"
-            value="General"
-            displayAsList={displayAsList}
-            isOverview={isOverview}
-          />
-        )}
-        {round && (
-          <Field
-            icon={RoundIcon}
-            name="Round"
-            value={round.toString()}
-            displayAsList={displayAsList}
-            isOverview={isOverview}
-          />
-        )}
-        {rewards && (
-          <Field
-            icon={PileCoinsIcon}
-            name="Juror Rewards"
-            value={rewards}
-            displayAsList={displayAsList}
-            isOverview={isOverview}
-          />
-        )}
-        {typeof period !== "undefined" && date && (
-          <Field
-            icon={CalendarIcon}
-            name={getPeriodPhrase(period)}
-            value={!displayAsList ? new Date(date * 1000).toLocaleString() : formatDate(date)}
-            displayAsList={displayAsList}
-            isOverview={isOverview}
-          />
+        {fieldItems.map(
+          (item) => item.display && <Field key={item.name} {...(item as IField)} {...{ displayAsList, isOverview }} />
         )}
       </RestOfFieldsContainer>
       {showLabels && !isDisconnected ? (

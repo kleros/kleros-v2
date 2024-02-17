@@ -67,7 +67,7 @@ type FieldContainerProps = {
   isJurorBalance?: boolean;
 };
 
-interface IField {
+export interface IField {
   icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
   name: string;
   value: string;
