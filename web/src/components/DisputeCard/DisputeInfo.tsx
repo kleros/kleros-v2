@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { Periods } from "consts/periods";
@@ -81,6 +81,10 @@ const RestOfFieldsContainer = styled.div<{ isList?: boolean; isOverview?: boolea
     `};
 `;
 
+const StyledField = styled(Field)<{ style?: string }>`
+  ${({ style }) => (style ? style : "")}
+`;
+
 const getPeriodPhrase = (period: Periods): string => {
   switch (period) {
     case Periods.evidence:
@@ -126,32 +130,34 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
   const displayAsList = isList && !overrideIsList;
   const { data } = useCourtTree();
   const courtPath = getCourtsPath(data?.court, courtId);
-  const items = [];
-  items.push(
-    ...(courtPath?.map((node) => ({
-      text: node.name,
-      value: node.id,
-    })) ?? [])
+  const items = useMemo(
+    () => [...(courtPath?.map((node) => ({ text: node.name, value: node.id })) ?? [])],
+    [courtPath]
   );
+
   const courtBranchValue = items.map((item) => item.text).join(" / ");
-  const fieldItems = [
-    {
-      icon: LawBalanceIcon,
-      name: "Court",
-      value: court,
-      link: `/courts/${courtId}`,
-      display: court && courtId && !isOverview,
-    },
-    { icon: BookmarkIcon, name: "Category", value: category ?? "General", display: true },
-    { icon: RoundIcon, name: "Round", value: round?.toString(), display: round },
-    { icon: PileCoinsIcon, name: "Juror Rewards", value: rewards, display: rewards },
-    {
-      icon: CalendarIcon,
-      name: getPeriodPhrase(period ?? 0),
-      value: !displayAsList ? new Date(date * 1000).toLocaleString() : formatDate(date),
-      display: !isUndefined(period) && date,
-    },
-  ];
+  const fieldItems = useMemo(
+    () => [
+      {
+        icon: LawBalanceIcon,
+        name: "Court",
+        value: court,
+        link: `/courts/${courtId}`,
+        display: court && courtId && !isOverview,
+      },
+      { icon: BookmarkIcon, name: "Category", value: category ?? "General", display: true },
+      { icon: RoundIcon, name: "Round", value: round?.toString(), display: round, style: "justify-self: end;" },
+      { icon: PileCoinsIcon, name: "Juror Rewards", value: rewards, display: rewards },
+      {
+        icon: CalendarIcon,
+        name: getPeriodPhrase(period ?? 0),
+        value: !displayAsList ? new Date(date * 1000).toLocaleString() : formatDate(date),
+        display: !isUndefined(period) && date,
+        style: "grid-column: 2 / 4;",
+      },
+    ],
+    [category, court, courtId, date, displayAsList, isOverview, period, rewards, round]
+  );
   return (
     <Container isList={displayAsList} isOverview={isOverview} isLabel={!isDisconnected}>
       {court && courtId && isOverview && (
@@ -165,8 +171,8 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
         </CourtBranchFieldContainer>
       )}
       <RestOfFieldsContainer isOverview={isOverview} isList={displayAsList}>
-        {fieldItems.map(
-          (item) => item.display && <Field key={item.name} {...(item as IField)} {...{ displayAsList, isOverview }} />
+        {fieldItems.map((item) =>
+          item.display ? <StyledField key={item.name} {...(item as IField)} {...{ displayAsList, isOverview }} /> : null
         )}
       </RestOfFieldsContainer>
       {showLabels && !isDisconnected ? (

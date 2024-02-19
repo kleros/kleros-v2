@@ -76,6 +76,7 @@ export interface IField {
   displayAsList?: boolean;
   isOverview?: boolean;
   isJurorBalance?: boolean;
+  className?: string;
 }
 
 const Field: React.FC<IField> = ({
@@ -87,9 +88,10 @@ const Field: React.FC<IField> = ({
   displayAsList,
   isOverview,
   isJurorBalance,
+  className,
 }) => {
   return (
-    <FieldContainer isList={displayAsList} isOverview={isOverview} isJurorBalance={isJurorBalance} width={width}>
+    <FieldContainer isList={displayAsList} {...{ isOverview, isJurorBalance, width, className }}>
       <Icon />
       {(!displayAsList || isOverview || isJurorBalance) && <label>{name}:</label>}
       {link ? (
