@@ -5,7 +5,7 @@ import { Button } from "@kleros/ui-components-library";
 import { SUPPORTED_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 import AccountDisplay from "./AccountDisplay";
 
-export const SwitchChainButton: React.FC = () => {
+export const SwitchChainButton: React.FC<{ className?: string }> = ({ className }) => {
   const { switchNetwork, isLoading } = useSwitchNetwork();
   const handleSwitch = () => {
     if (!switchNetwork) {
@@ -20,6 +20,7 @@ export const SwitchChainButton: React.FC = () => {
   };
   return (
     <Button
+      {...{ className }}
       isLoading={isLoading}
       disabled={isLoading}
       text={`Switch to ${SUPPORTED_CHAINS[DEFAULT_CHAIN].name}`}
@@ -28,19 +29,27 @@ export const SwitchChainButton: React.FC = () => {
   );
 };
 
-const ConnectButton: React.FC = () => {
+const ConnectButton: React.FC<{ className?: string }> = ({ className }) => {
   const { open, isOpen } = useWeb3Modal();
-  return <Button disabled={isOpen} small text={"Connect"} onClick={async () => open({ route: "ConnectWallet" })} />;
+  return (
+    <Button
+      {...{ className }}
+      disabled={isOpen}
+      small
+      text={"Connect"}
+      onClick={async () => open({ route: "ConnectWallet" })}
+    />
+  );
 };
 
-const ConnectWallet: React.FC = () => {
+const ConnectWallet: React.FC<{ className?: string }> = ({ className }) => {
   const { chain } = useNetwork();
   const { isConnected } = useAccount();
   if (isConnected) {
     if (chain && chain.id !== DEFAULT_CHAIN) {
-      return <SwitchChainButton />;
+      return <SwitchChainButton {...{ className }} />;
     } else return <AccountDisplay />;
-  } else return <ConnectButton />;
+  } else return <ConnectButton {...{ className }} />;
 };
 
 export default ConnectWallet;
