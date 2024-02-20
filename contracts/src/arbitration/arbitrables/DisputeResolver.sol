@@ -137,16 +137,12 @@ contract DisputeResolver is IArbitrableV2 {
     ) internal returns (uint256 disputeID) {
         require(_numberOfRulingOptions > 1, "Should be at least 2 ruling options.");
 
+        DisputeStruct storage dispute = disputes.push();
+        dispute.arbitratorExtraData = _arbitratorExtraData;
+        dispute.numberOfRulingOptions = _numberOfRulingOptions;
+
         disputeID = arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
         uint256 localDisputeID = disputes.length;
-        disputes.push(
-            DisputeStruct({
-                arbitratorExtraData: _arbitratorExtraData,
-                isRuled: false,
-                ruling: 0,
-                numberOfRulingOptions: _numberOfRulingOptions
-            })
-        );
         arbitratorDisputeIDToLocalID[disputeID] = localDisputeID;
         uint256 templateId = templateRegistry.setDisputeTemplate("", _disputeTemplate, _disputeTemplateDataMappings);
         emit DisputeRequest(arbitrator, disputeID, localDisputeID, templateId, _disputeTemplateUri);
