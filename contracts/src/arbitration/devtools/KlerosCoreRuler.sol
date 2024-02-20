@@ -341,6 +341,8 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
 
     function changeRulingModeToManual(IArbitrableV2 _arbitrable) external onlyByGovernor {
         if (rulers[_arbitrable] != msg.sender && rulers[_arbitrable] != address(0)) revert RulerOnly();
+
+        delete settings[_arbitrable];
         RulerSettings storage arbitratedSettings = settings[_arbitrable];
         arbitratedSettings.rulingMode = RulingMode.manual;
         emit RulerSettingsChanged(_arbitrable, arbitratedSettings);
@@ -348,6 +350,8 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
 
     function changeRulingModeToAutomaticRandom(IArbitrableV2 _arbitrable) external onlyByGovernor {
         if (rulers[_arbitrable] != msg.sender && rulers[_arbitrable] != address(0)) revert RulerOnly();
+
+        delete settings[_arbitrable];
         RulerSettings storage arbitratedSettings = settings[_arbitrable];
         arbitratedSettings.rulingMode = RulingMode.automaticRandom;
         emit RulerSettingsChanged(_arbitrable, arbitratedSettings);
@@ -360,6 +364,8 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         bool _presetOverridden
     ) external onlyByGovernor {
         if (rulers[_arbitrable] != msg.sender && rulers[_arbitrable] != address(0)) revert RulerOnly();
+
+        delete settings[_arbitrable];
         RulerSettings storage arbitratedSettings = settings[_arbitrable];
         arbitratedSettings.rulingMode = RulingMode.automaticPreset;
         arbitratedSettings.presetRuling = _presetRuling;
@@ -599,6 +605,10 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
 
     function getTimesPerPeriod(uint96 _courtID) external view returns (uint256[4] memory timesPerPeriod) {
         timesPerPeriod = courts[_courtID].timesPerPeriod;
+    }
+
+    function getNextDisputeID() external view returns (uint256) {
+        return disputes.length;
     }
 
     // ************************************* //
