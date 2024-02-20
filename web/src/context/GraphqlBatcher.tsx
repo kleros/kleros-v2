@@ -3,6 +3,7 @@ import { arbitrumSepolia } from "wagmi/chains";
 import { request } from "graphql-request";
 import { create, windowedFiniteBatchScheduler, Batcher } from "@yornaath/batshit";
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
+import { debounceErrorToast } from "utils/debounceErrorToast";
 
 const CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH = {
   [arbitrumSepolia.id]:
@@ -28,7 +29,13 @@ const GraphqlBatcherProvider: React.FC<{ children?: React.ReactNode }> = ({ chil
     fetcher: async (queries: IQuery[]) => {
       const promises = queries.map(async ({ id, document, variables, isDisputeTemplate, chainId }) => {
         const url = graphqlUrl(isDisputeTemplate ?? false, chainId ?? arbitrumSepolia.id);
-        return request(url, document, variables).then((result) => ({ id, result }));
+        try {
+          return request(url, document, variables).then((result) => ({ id, result }));
+        } catch (error) {
+          console.error("Graph error: ", { error });
+          debounceErrorToast("Graph query error: failed to fetch data.");
+          return { id, result: {} };
+        }
       });
       const data = await Promise.all(promises);
       return data;
