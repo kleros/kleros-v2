@@ -4,11 +4,7 @@ import { request } from "graphql-request";
 import { create, windowedFiniteBatchScheduler, Batcher } from "@yornaath/batshit";
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { debounceErrorToast } from "utils/debounceErrorToast";
-
-const CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH = {
-  [arbitrumSepolia.id]:
-    process.env.REACT_APP_DRT_ARBSEPOLIA_SUBGRAPH ?? "Wrong Subgraph URL. Please check the environment variables.",
-};
+import { getGraphqlUrl } from "utils/getGraphqlUrl";
 
 interface IGraphqlBatcher {
   graphqlBatcher: Batcher<any, IQuery>;
@@ -28,7 +24,7 @@ const GraphqlBatcherProvider: React.FC<{ children?: React.ReactNode }> = ({ chil
   const graphqlBatcher = create({
     fetcher: async (queries: IQuery[]) => {
       const promises = queries.map(async ({ id, document, variables, isDisputeTemplate, chainId }) => {
-        const url = graphqlUrl(isDisputeTemplate ?? false, chainId ?? arbitrumSepolia.id);
+        const url = getGraphqlUrl(isDisputeTemplate ?? false, chainId ?? arbitrumSepolia.id);
         try {
           return request(url, document, variables).then((result) => ({ id, result }));
         } catch (error) {
@@ -55,11 +51,6 @@ export const useGraphqlBatcher = () => {
     throw new Error("Context Provider not found.");
   }
   return context;
-};
-
-export const graphqlUrl = (isDisputeTemplate = false, chainId: number = arbitrumSepolia.id) => {
-  const coreUrl = process.env.REACT_APP_CORE_SUBGRAPH ?? "Wrong Subgraph URL. Please check the environment variables.";
-  return isDisputeTemplate ? CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH[chainId] : coreUrl;
 };
 
 export default GraphqlBatcherProvider;

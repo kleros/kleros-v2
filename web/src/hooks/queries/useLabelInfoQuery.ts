@@ -2,7 +2,6 @@ import { graphql } from "src/graphql";
 import { LabelInfoQuery } from "src/graphql/graphql";
 import { useQuery } from "@tanstack/react-query";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 
 const labelQuery = graphql(`
   query LabelInfo($address: String, $disputeID: ID!) {
