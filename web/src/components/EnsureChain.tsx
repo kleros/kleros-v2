@@ -5,10 +5,11 @@ import ConnectWallet from "components/ConnectWallet";
 
 interface IEnsureChain {
   children: React.ReactElement;
+  className?: string;
 }
 
-export const EnsureChain: React.FC<IEnsureChain> = ({ children }) => {
+export const EnsureChain: React.FC<IEnsureChain> = ({ children, className }) => {
   const { chain } = useNetwork();
 
-  return chain && chain.id === DEFAULT_CHAIN ? children : <ConnectWallet />;
+  return chain && chain.id === DEFAULT_CHAIN ? children : <ConnectWallet {...{ className }} />;
 };
