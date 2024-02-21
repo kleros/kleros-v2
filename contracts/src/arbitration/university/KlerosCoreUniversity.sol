@@ -70,6 +70,8 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 round; // The round to execute.
         uint256 coherentCount; // The number of coherent votes in the round.
         uint256 numberOfVotesInRound; // The number of votes in the round.
+        uint256 feePerJurorInRound; // The fee per juror in the round.
+        uint256 pnkAtStakePerJurorInRound; // The amount of PNKs at stake for each juror in the round.
         uint256 pnkPenaltiesInRound; // The amount of PNKs collected from penalties in the round.
         uint256 repartition; // The index of the repartition to execute.
     }
@@ -511,7 +513,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         dispute.lastPeriodChange = block.timestamp;
 
         IDisputeKit disputeKit = disputeKits[disputeKitID];
-        Court storage court = courts[dispute.courtID];
+        Court storage court = courts[courtID];
         Round storage round = dispute.rounds.push();
 
         // Obtain the feeForJuror in the same currency as the _feeAmount
@@ -672,18 +674,26 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _round The appeal round.
     /// @param _iterations The number of iterations to run.
     function execute(uint256 _disputeID, uint256 _round, uint256 _iterations) external {
-        Dispute storage dispute = disputes[_disputeID];
-        if (dispute.period != Period.execution) revert NotExecutionPeriod();
+        Round storage round;
+        {
+            Dispute storage dispute = disputes[_disputeID];
+            if (dispute.period != Period.execution) revert NotExecutionPeriod();
 
-        Round storage round = dispute.rounds[_round];
-        IDisputeKit disputeKit = disputeKits[round.disputeKitID];
+            round = dispute.rounds[_round];
+        } // stack too deep workaround
 
         uint256 start = round.repartitions;
         uint256 end = round.repartitions + _iterations;
 
-        uint256 pnkPenaltiesInRoundCache = round.pnkPenalties; // For saving gas.
+        uint256 pnkPenaltiesInRound = round.pnkPenalties; // Keep in memory to save gas.
         uint256 numberOfVotesInRound = round.drawnJurors.length;
-        uint256 coherentCount = disputeKit.getCoherentCount(_disputeID, _round); // Total number of jurors that are eligible to a reward in this round.
+        uint256 feePerJurorInRound = round.totalFeesForJurors / numberOfVotesInRound;
+        uint256 pnkAtStakePerJurorInRound = round.pnkAtStakePerJuror;
+        uint256 coherentCount;
+        {
+            IDisputeKit disputeKit = disputeKits[round.disputeKitID];
+            coherentCount = disputeKit.getCoherentCount(_disputeID, _round); // Total number of jurors that are eligible to a reward in this round.
+        } // stack too deep workaround
 
         if (coherentCount == 0) {
             // We loop over the votes once as there are no rewards because it is not a tie and no one in this round is coherent with the final outcome.
@@ -696,17 +706,35 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
 
         for (uint256 i = start; i < end; i++) {
             if (i < numberOfVotesInRound) {
-                pnkPenaltiesInRoundCache = _executePenalties(
-                    ExecuteParams(_disputeID, _round, coherentCount, numberOfVotesInRound, pnkPenaltiesInRoundCache, i)
+                pnkPenaltiesInRound = _executePenalties(
+                    ExecuteParams({
+                        disputeID: _disputeID,
+                        round: _round,
+                        coherentCount: coherentCount,
+                        numberOfVotesInRound: numberOfVotesInRound,
+                        feePerJurorInRound: feePerJurorInRound,
+                        pnkAtStakePerJurorInRound: pnkAtStakePerJurorInRound,
+                        pnkPenaltiesInRound: pnkPenaltiesInRound,
+                        repartition: i
+                    })
                 );
             } else {
                 _executeRewards(
-                    ExecuteParams(_disputeID, _round, coherentCount, numberOfVotesInRound, pnkPenaltiesInRoundCache, i)
+                    ExecuteParams({
+                        disputeID: _disputeID,
+                        round: _round,
+                        coherentCount: coherentCount,
+                        numberOfVotesInRound: numberOfVotesInRound,
+                        feePerJurorInRound: feePerJurorInRound,
+                        pnkAtStakePerJurorInRound: pnkAtStakePerJurorInRound,
+                        pnkPenaltiesInRound: pnkPenaltiesInRound,
+                        repartition: i
+                    })
                 );
             }
         }
-        if (round.pnkPenalties != pnkPenaltiesInRoundCache) {
-            round.pnkPenalties = pnkPenaltiesInRoundCache; // Reentrancy risk: breaks Check-Effect-Interact
+        if (round.pnkPenalties != pnkPenaltiesInRound) {
+            round.pnkPenalties = pnkPenaltiesInRound; // Reentrancy risk: breaks Check-Effect-Interact
         }
     }
 
@@ -722,7 +750,9 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 degreeOfCoherence = disputeKit.getDegreeOfCoherence(
             _params.disputeID,
             _params.round,
-            _params.repartition
+            _params.repartition,
+            _params.feePerJurorInRound,
+            _params.pnkAtStakePerJurorInRound
         );
         if (degreeOfCoherence > ALPHA_DIVISOR) {
             // Make sure the degree doesn't exceed 1, though it should be ensured by the dispute kit.
@@ -785,7 +815,9 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 degreeOfCoherence = disputeKit.getDegreeOfCoherence(
             _params.disputeID,
             _params.round,
-            _params.repartition % _params.numberOfVotesInRound
+            _params.repartition % _params.numberOfVotesInRound,
+            _params.feePerJurorInRound,
+            _params.pnkAtStakePerJurorInRound
         );
 
         // Make sure the degree doesn't exceed 1, though it should be ensured by the dispute kit.
