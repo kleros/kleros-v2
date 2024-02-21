@@ -20,33 +20,31 @@ interface IQuery {
 
 const Context = createContext<IGraphqlBatcher | undefined>(undefined);
 
+const fetcher = async (queries: IQuery[]) => {
+  const promises = queries.map(async ({ id, document, variables, isDisputeTemplate, chainId }) => {
+    const url = getGraphqlUrl(isDisputeTemplate ?? false, chainId ?? arbitrumSepolia.id);
+    try {
+      return request(url, document, variables).then((result) => ({ id, result }));
+    } catch (error) {
+      console.error("Graph error: ", { error });
+      debounceErrorToast("Graph query error: failed to fetch data.");
+      return { id, result: {} };
+    }
+  });
+  const data = await Promise.all(promises);
+  return data;
+};
+
 const GraphqlBatcherProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
-  const graphqlBatcher = useMemo(
-    () =>
-      create({
-        fetcher: async (queries: IQuery[]) => {
-          const promises = queries.map(async ({ id, document, variables, isDisputeTemplate, chainId }) => {
-            const url = getGraphqlUrl(isDisputeTemplate ?? false, chainId ?? arbitrumSepolia.id);
-            try {
-              return request(url, document, variables).then((result) => ({ id, result }));
-            } catch (error) {
-              console.error("Graph error: ", { error });
-              debounceErrorToast("Graph query error: failed to fetch data.");
-              return { id, result: {} };
-            }
-          });
-          const data = await Promise.all(promises);
-          return data;
-        },
-        resolver: (results, query) => results.find((result) => result.id === query.id)!["result"],
-        scheduler: windowedFiniteBatchScheduler({
-          windowMs: 100,
-          maxBatchSize: 5,
-        }),
-      }),
-    []
-  );
-  return <Context.Provider value={{ graphqlBatcher }}>{children}</Context.Provider>;
+  const graphqlBatcher = create({
+    fetcher,
+    resolver: (results, query) => results.find((result) => result.id === query.id)!["result"],
+    scheduler: windowedFiniteBatchScheduler({
+      windowMs: 100,
+      maxBatchSize: 5,
+    }),
+  });
+  return <Context.Provider value={useMemo(() => ({ graphqlBatcher }), [graphqlBatcher])}>{children}</Context.Provider>;
 };
 
 export const useGraphqlBatcher = () => {
