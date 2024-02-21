@@ -9,7 +9,7 @@ import Field from "components/Field";
 import DiceIcon from "svgs/icons/dice.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import { useCourtDetails } from "queries/useCourtDetails";
-import { useSortitionModuleUniversityGetJurorBalance } from "hooks/contracts/generated";
+import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generatedProvider";
 
 const Container = styled.div`
   display: flex;
@@ -64,7 +64,7 @@ const useCalculateJurorOdds = (
 const JurorBalanceDisplay = () => {
   const { id } = useParams();
   const { address } = useAccount();
-  const { data: jurorBalance } = useSortitionModuleUniversityGetJurorBalance({
+  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
     enabled: !isUndefined(address),
     args: [address ?? "0x", BigInt(id ?? 0)],
     watch: true,

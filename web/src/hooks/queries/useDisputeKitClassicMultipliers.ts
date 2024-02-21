@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { getDisputeKitClassicUniversity } from "hooks/contracts/generated";
+import { getDisputeKitClassic } from "hooks/contracts/generatedProvider";
 import { isUndefined } from "utils/index";
 
 export const useDisputeKitClassicMultipliers = () => {
-  const disputeKitClassic = getDisputeKitClassicUniversity({});
+  const disputeKitClassic = getDisputeKitClassic({});
   const isEnabled = !isUndefined(disputeKitClassic);
   return useQuery({
     queryKey: [`DisputeKitClassicMultipliers`],

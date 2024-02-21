@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 import { isUndefined } from "utils/index";
-import { useSortitionModuleUniversityGetJurorBalance } from "hooks/contracts/generated";
+import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generatedProvider";
 import KlerosLogo from "tsx:svgs/icons/kleros.svg";
 import { responsiveSize } from "styles/responsiveSize";
 
@@ -72,7 +72,7 @@ const AmountStakedOrWithdrawn: React.FC<IAmountStakedOrWithdrawn> = ({ pnkStaked
 const StakeWithdraw: React.FC<IStakeWithdraw> = ({ pnkStaked, courtName, isStake, courtId }) => {
   const { address } = useAccount();
 
-  const { data: jurorBalance } = useSortitionModuleUniversityGetJurorBalance({
+  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
     enabled: !isUndefined(address) && !isUndefined(courtId),
     args: [address, BigInt(courtId)],
     watch: true,

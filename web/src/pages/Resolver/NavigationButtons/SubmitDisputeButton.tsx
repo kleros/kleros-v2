@@ -4,9 +4,9 @@ import { Button } from "@kleros/ui-components-library";
 import { IDisputeTemplate, useNewDisputeContext } from "context/NewDisputeContext";
 import { wrapWithToast } from "utils/wrapWithToast";
 import {
-  useDisputeResolverUniversityCreateDisputeForTemplate,
-  usePrepareDisputeResolverUniversityCreateDisputeForTemplate,
-} from "hooks/contracts/generated";
+  useDisputeResolverCreateDisputeForTemplate,
+  usePrepareDisputeResolverCreateDisputeForTemplate,
+} from "hooks/contracts/generatedProvider";
 import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
 import { usePublicClient } from "wagmi";
 import Popup, { PopupType } from "components/Popup";
@@ -26,7 +26,7 @@ const SubmitDisputeButton: React.FC = () => {
   const { disputeTemplate, disputeData, resetDisputeData, isSubmittingCase, setIsSubmittingCase } =
     useNewDisputeContext();
 
-  const { config: submitCaseConfig } = usePrepareDisputeResolverUniversityCreateDisputeForTemplate({
+  const { config: submitCaseConfig } = usePrepareDisputeResolverCreateDisputeForTemplate({
     enabled: isTemplateValid(disputeTemplate),
     args: [
       prepareArbitratorExtradata(disputeData.courtId ?? "1", disputeData.numberOfJurors ?? "", 1), //TODO: decide which dispute kit to use
@@ -37,7 +37,7 @@ const SubmitDisputeButton: React.FC = () => {
     value: BigInt(disputeData.arbitrationCost ?? 0),
   });
 
-  const { writeAsync: submitCase } = useDisputeResolverUniversityCreateDisputeForTemplate(submitCaseConfig);
+  const { writeAsync: submitCase } = useDisputeResolverCreateDisputeForTemplate(submitCaseConfig);
 
   const isButtonDisabled = useMemo(
     () => isSubmittingCase || !isTemplateValid(disputeTemplate),

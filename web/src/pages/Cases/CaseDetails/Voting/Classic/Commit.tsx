@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import { keccak256, encodePacked } from "viem";
 import { useWalletClient, usePublicClient } from "wagmi";
-import { prepareWriteDisputeKitClassicUniversity } from "hooks/contracts/generated";
+import { prepareWriteDisputeKitClassic } from "hooks/contracts/generatedProvider";
 import useSigningAccount from "hooks/useSigningAccount";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
@@ -53,7 +53,7 @@ const Commit: React.FC<ICommit> = ({ arbitrable, voteIDs, setIsOpen, refetch }) 
       const salt = keccak256(rawSalt);
       setSalt(JSON.stringify({ salt, choice }));
       const commit = keccak256(encodePacked(["uint256", "uint256"], [BigInt(choice), BigInt(salt)]));
-      const { request } = await prepareWriteDisputeKitClassicUniversity({
+      const { request } = await prepareWriteDisputeKitClassic({
         functionName: "castCommit",
         args: [parsedDisputeID, parsedVoteIDs, commit],
       });

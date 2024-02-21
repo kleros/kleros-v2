@@ -30,6 +30,7 @@
     "start": "yarn start-devnet",
     "start-local": "scripts/runEnv.sh local 'yarn generate && parcel'",
     "start-devnet": "scripts/runEnv.sh devnet 'yarn generate && parcel'",
+    "start-devnet-university": "scripts/runEnv.sh devnet-university 'yarn generate && parcel'",
     "start-testnet": "scripts/runEnv.sh testnet 'yarn generate && parcel'",
     "build": "yarn build-devnet",
     "build-local": "scripts/runEnv.sh local 'yarn generate && parcel build'",

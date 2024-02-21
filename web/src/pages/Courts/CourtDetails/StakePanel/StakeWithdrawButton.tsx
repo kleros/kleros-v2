@@ -3,15 +3,17 @@ import { useParams } from "react-router-dom";
 import { useAccount, usePublicClient } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
 import {
-  getKlerosCoreUniversity,
-  useKlerosCoreUniversitySetStake,
-  usePrepareKlerosCoreUniversitySetStake,
   usePnkBalanceOf,
   usePnkIncreaseAllowance,
   usePreparePnkIncreaseAllowance,
-  useSortitionModuleUniversityGetJurorBalance,
   usePnkAllowance,
 } from "hooks/contracts/generated";
+import {
+  getKlerosCore,
+  useKlerosCoreSetStake,
+  usePrepareKlerosCoreSetStake,
+  useSortitionModuleGetJurorBalance,
+} from "hooks/contracts/generatedProvider";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
@@ -41,14 +43,14 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
 }) => {
   const { id } = useParams();
   const { address } = useAccount();
-  const klerosCore = getKlerosCoreUniversity({});
+  const klerosCore = getKlerosCore({});
   const { data: courtDetails } = useCourtDetails(id);
   const { data: balance } = usePnkBalanceOf({
     enabled: !isUndefined(address),
     args: [address!],
     watch: true,
   });
-  const { data: jurorBalance } = useSortitionModuleUniversityGetJurorBalance({
+  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
     enabled: !isUndefined(address),
     args: [address ?? "0x", BigInt(id ?? 0)],
     watch: true,
@@ -92,11 +94,11 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     }
   };
 
-  const { config: setStakeConfig } = usePrepareKlerosCoreUniversitySetStake({
+  const { config: setStakeConfig } = usePrepareKlerosCoreSetStake({
     enabled: !isUndefined(targetStake) && !isUndefined(id) && !isAllowance,
     args: [BigInt(id ?? 0), targetStake],
   });
-  const { writeAsync: setStake } = useKlerosCoreUniversitySetStake(setStakeConfig);
+  const { writeAsync: setStake } = useKlerosCoreSetStake(setStakeConfig);
   const handleStake = () => {
     if (typeof setStake !== "undefined") {
       setIsSending(true);
