@@ -98,7 +98,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
           <StyledButton
             variant="secondary"
             text="Justify & Reveal"
-            disabled={isSending}
+            disabled={isSending || isUndefined(disputeDetails)}
             isLoading={isSending}
             onClick={handleReveal}
           />
@@ -126,6 +126,8 @@ const getSaltAndChoice = async (
       })();
   if (isUndefined(rawSalt)) return;
   const salt = keccak256(rawSalt);
+
+  answers.unshift({ title: "Refuse To Arbitrate", description: "Refuse To Arbitrate" });
   const { choice } = answers.reduce<{ found: boolean; choice: number }>(
     (acc, _, i) => {
       if (acc.found) return acc;

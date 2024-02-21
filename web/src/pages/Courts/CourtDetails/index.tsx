@@ -1,16 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { useToggle } from "react-use";
 import { useParams } from "react-router-dom";
-import { useAccount, useNetwork, useWalletClient, usePublicClient } from "wagmi";
-import { Card, Breadcrumb, Button } from "@kleros/ui-components-library";
-import { formatEther } from "viem";
+import { Card, Breadcrumb } from "@kleros/ui-components-library";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
-import { DEFAULT_CHAIN } from "consts/chains";
-import { usePNKFaucetAddress } from "hooks/useContractAddress";
-import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import LatestCases from "components/LatestCases";
@@ -19,8 +14,8 @@ import Description from "./Description";
 import StakePanel from "./StakePanel";
 import HowItWorks from "components/HowItWorks";
 import Staking from "components/Popup/MiniGuides/Staking";
-import { usePnkFaucetWithdrewAlready, prepareWritePnkFaucet, usePnkBalanceOf } from "hooks/contracts/generated";
 import { responsiveSize } from "styles/responsiveSize";
+import ClaimPnkButton from "components/ClaimPnkButton";
 
 const Container = styled.div``;
 
@@ -79,38 +74,10 @@ const StyledBreadcrumbSkeleton = styled.div`
 
 const CourtDetails: React.FC = () => {
   const { id } = useParams();
-  const [isSending, setIsSending] = useState(false);
   const { data: policy } = useCourtPolicy(id);
   const { data } = useCourtTree();
-  const { chain } = useNetwork();
-  const { address } = useAccount();
-  const { data: claimed } = usePnkFaucetWithdrewAlready({
-    enabled: !isUndefined(address),
-    args: [address ?? "0x00"],
-    watch: true,
-  });
   const [isStakingMiniGuideOpen, toggleStakingMiniGuide] = useToggle(false);
 
-  const faucetAddress = usePNKFaucetAddress();
-  const { data: balance } = usePnkBalanceOf({
-    args: [faucetAddress],
-    watch: true,
-  });
-  const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
-
-  const handleRequest = async () => {
-    setIsSending(true);
-    const { request } = await prepareWritePnkFaucet({
-      functionName: "request",
-    });
-    if (walletClient) {
-      wrapWithToast(async () => await walletClient.writeContract(request), publicClient).finally(() => {
-        setIsSending(false);
-      });
-    }
-  };
-  const faucetCheck = !isUndefined(balance) && parseInt(formatEther(balance)) > 200;
   const courtPath = getCourtsPath(data?.court, id);
 
   const items = [{ text: "🏛️", value: "0" }];
@@ -141,15 +108,7 @@ const CourtDetails: React.FC = () => {
               toggleMiniGuide={toggleStakingMiniGuide}
               MiniGuideComponent={Staking}
             />
-            {chain?.id === DEFAULT_CHAIN && !claimed && (
-              <Button
-                variant="primary"
-                text={faucetCheck ? "Claim PNK" : "Empty Faucet"}
-                onClick={handleRequest}
-                isLoading={isSending}
-                disabled={isSending || claimed || !faucetCheck}
-              />
-            )}
+            <ClaimPnkButton />
           </ButtonContainer>
         </CourtHeader>
         <hr />
