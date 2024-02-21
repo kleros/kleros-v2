@@ -14,14 +14,14 @@ function update() #hardhatNetwork #graphNetwork #subgraphConfig #dataSourceIndex
     # Set the address
     address=$(cat "$artifact" | jq '.address')
     yq -i ".dataSources[$dataSourceIndex].source.address=$address" "$subgraphConfig"
-    
+
     # Set the start block
     blockNumber="$(cat "$artifact" | jq '.receipt.blockNumber')"
     yq -i ".dataSources[$dataSourceIndex].source.startBlock=$blockNumber" "$subgraphConfig"
 
     # Set the Graph network
     graphNetwork=$graphNetwork yq -i  ".dataSources[$dataSourceIndex].network=env(graphNetwork)" "$subgraphConfig"
-    
+
     # Set the ABIs path for this Hardhat network
     abiIndex=0
     for f in $(yq e .dataSources[$dataSourceIndex].mapping.abis[].file "$subgraphConfig" -o json -I 0 | jq -sr '.[]')
@@ -38,7 +38,7 @@ hardhatNetwork=${1:-arbitrumSepolia}
 # as per https://thegraph.com/docs/en/developing/supported-networks/
 graphNetwork=${2:-arbitrum\-sepolia}
 
-subgraphConfig="$SCRIPT_DIR/../${3:-core\/subgraph.yaml}"
+subgraphConfig="$SCRIPT_DIR/../${3:-core/subgraph.yaml}"
 echo "Updating $subgraphConfig"
 
 # backup

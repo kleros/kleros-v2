@@ -320,7 +320,7 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
             if (currenCourtID == Constants.GENERAL_COURT) {
                 finished = true;
             } else {
-                (currenCourtID, , , , , , ) = core.courts(currenCourtID);
+                (currenCourtID, , , , , , ) = core.courts(currenCourtID); // Get the parent court.
             }
         }
         emit StakeSet(_account, _courtID, _newStake);
