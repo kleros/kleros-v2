@@ -1,7 +1,7 @@
 import { graphql } from "src/graphql";
 import { ClassicAppealQuery } from "src/graphql/graphql";
 import { useQuery } from "@tanstack/react-query";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
 export type { ClassicAppealQuery };
 
 const classicAppealQuery = graphql(`
@@ -33,16 +33,21 @@ const classicAppealQuery = graphql(`
 
 export const useClassicAppealQuery = (id?: string | number) => {
   const isEnabled = id !== undefined;
+  const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<ClassicAppealQuery>({
     queryKey: ["refetchOnBlock", `classicAppealQuery${id}`],
     enabled: isEnabled,
     queryFn: async () =>
       isEnabled
-        ? await graphqlQueryFnHelper(classicAppealQuery, {
-            disputeID: id?.toString(),
-            orderBy: "timestamp",
-            orderDirection: "asc",
+        ? await graphqlBatcher.fetch({
+            id: crypto.randomUUID(),
+            document: classicAppealQuery,
+            variables: {
+              disputeID: id?.toString(),
+              orderBy: "timestamp",
+              orderDirection: "asc",
+            },
           })
         : undefined,
   });

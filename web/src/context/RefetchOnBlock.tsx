@@ -8,8 +8,8 @@ const useRefetchOnBlock = () => {
 
   useEffect(() => {
     const unwatch = publicClient?.watchBlocks({
-      onBlock: () => {
-        queryClient.invalidateQueries(["refetchOnBlock"]);
+      onBlock: (block) => {
+        if (block.number % BigInt(10) === BigInt(0)) queryClient.invalidateQueries(["refetchOnBlock"]);
       },
     });
     return () => unwatch?.();
