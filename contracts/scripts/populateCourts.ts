@@ -1,4 +1,4 @@
-import { deployments, getNamedAccounts, getChainId, ethers, network } from "hardhat";
+import { getNamedAccounts, getChainId, ethers, network } from "hardhat";
 import { KlerosCore, KlerosCoreUniversity } from "../typechain-types";
 import { BigNumber, BigNumberish } from "ethers";
 import courtsV1Mainnet from "../config/courts.v1.mainnet.json";
@@ -33,7 +33,7 @@ type Court = {
 };
 
 const from = isDevnet(network) ? Sources.V2_DEVNET : Sources.V2_TESTNET;
-const UNIVERSITY = true;
+const UNIVERSITY = false;
 const V1_DEV_PARAMETERS = false; // rename to V1_DEV_PARAMETERS
 const ETH_USD = BigNumber.from(1800);
 const DISPUTE_KIT_CLASSIC = BigNumber.from(1);

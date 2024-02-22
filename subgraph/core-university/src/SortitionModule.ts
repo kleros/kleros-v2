@@ -13,4 +13,6 @@ export function handleStakeSet(event: StakeSet): void {
   //stake is updated instantly so no delayed amount, set delay amount to zero
   updateJurorDelayedStake(jurorAddress, courtID, ZERO);
 }
-export function handleStakeLocked(event: StakeLocked): void {}
+export function handleStakeLocked(event: StakeLocked): void {
+  // NOP
+}
