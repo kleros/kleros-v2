@@ -13,7 +13,7 @@ import { isUndefined } from "utils/index";
 import { isLastRound } from "utils/isLastRound";
 import { formatDate } from "utils/date";
 import Popup, { PopupType } from "components/Popup";
-import { getPeriodEndTimestamp } from "components/DisputeCard";
+import { getPeriodEndTimestamp } from "components/DisputeView";
 import InfoCard from "components/InfoCard";
 import Classic from "./Classic";
 import VotingHistory from "./VotingHistory";
