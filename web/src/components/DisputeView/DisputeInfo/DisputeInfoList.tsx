@@ -20,7 +20,7 @@ const RestOfFieldsContainer = styled.div`
   height: min-content;
   width: max-content;
   display: grid;
-  grid-template-columns: min-content 80px min-content;
+  grid-template-columns: repeat(3, min-content);
   justify-content: start;
 `;
 const StyledField = styled(Field)<{ style?: string }>`

@@ -74,12 +74,17 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
         link: `/courts/${courtId}`,
         display: !isUndefined(court) && !isUndefined(courtId) && !isOverview,
       },
-      { icon: BookmarkIcon, name: "Category", value: category ?? "General", display: true },
       {
         icon: RoundIcon,
         name: "Round",
         value: round?.toString(),
         display: !isUndefined(round),
+      },
+      {
+        icon: BookmarkIcon,
+        name: "Category",
+        value: category ?? "General",
+        display: true,
         style: "justify-self: end;",
       },
       { icon: PileCoinsIcon, name: "Juror Rewards", value: rewards, display: !isUndefined(rewards) },
