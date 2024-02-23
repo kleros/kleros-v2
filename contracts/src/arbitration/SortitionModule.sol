@@ -149,6 +149,13 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         // NOP
     }
 
+    /// @dev Changes the governor.
+    /// @param _governor The address of the new governor.
+    function changeGovernor(address _governor) external {
+        require(governor == msg.sender, "Access not allowed: Governor only.");
+        governor = _governor;
+    }
+
     /// @dev Changes the `minStakingTime` storage variable.
     /// @param _minStakingTime The new value for the `minStakingTime` storage variable.
     function changeMinStakingTime(uint256 _minStakingTime) external onlyByGovernor {
