@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import ArrowIcon from "assets/svgs/icons/arrow.svg";
-import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
+import { useKlerosCoreCurrentRuling } from "hooks/contracts/generatedProvider";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import LightButton from "../LightButton";

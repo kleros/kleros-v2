@@ -1,7 +1,7 @@
 import { graphql } from "src/graphql";
 import { HomePageQuery } from "src/graphql/graphql";
 import { useQuery } from "@tanstack/react-query";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
 export type { HomePageQuery };
 
 const homePageQuery = graphql(`
@@ -22,10 +22,18 @@ const homePageQuery = graphql(`
 
 export const useHomePageQuery = (timeframe: number) => {
   const isEnabled = timeframe !== undefined;
+  const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery({
     queryKey: [`homePageQuery${timeframe}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(homePageQuery, { timeframe: timeframe.toString() }),
+    queryFn: async () => {
+      const data = await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: homePageQuery,
+        variables: { timeframe: timeframe.toString() },
+      });
+      return data;
+    },
   });
 };

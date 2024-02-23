@@ -5,7 +5,7 @@ import { DisplaySmall, Field } from "@kleros/ui-components-library";
 import NavigationButtons from "../NavigationButtons";
 import { responsiveSize } from "styles/responsiveSize";
 import { useNewDisputeContext } from "context/NewDisputeContext";
-import { useKlerosCoreArbitrationCost } from "hooks/contracts/generated";
+import { useKlerosCoreArbitrationCost } from "hooks/contracts/generatedProvider";
 import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
 import { formatETH } from "utils/format";
 import ETH from "svgs/icons/eth.svg";

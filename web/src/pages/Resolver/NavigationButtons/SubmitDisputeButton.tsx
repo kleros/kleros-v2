@@ -6,7 +6,7 @@ import { wrapWithToast } from "utils/wrapWithToast";
 import {
   useDisputeResolverCreateDisputeForTemplate,
   usePrepareDisputeResolverCreateDisputeForTemplate,
-} from "hooks/contracts/generated";
+} from "hooks/contracts/generatedProvider";
 import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
 import { usePublicClient } from "wagmi";
 import Popup, { PopupType } from "components/Popup";

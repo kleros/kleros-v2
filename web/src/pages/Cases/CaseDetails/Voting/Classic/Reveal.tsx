@@ -6,7 +6,7 @@ import { encodePacked, keccak256, PrivateKeyAccount } from "viem";
 import { useWalletClient, usePublicClient } from "wagmi";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@kleros/ui-components-library";
-import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
+import { prepareWriteDisputeKitClassic } from "hooks/contracts/generatedProvider";
 import useSigningAccount from "hooks/useSigningAccount";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";

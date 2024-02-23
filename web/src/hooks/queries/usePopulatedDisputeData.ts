@@ -4,7 +4,7 @@ import { HttpRequestError, PublicClient, RpcError } from "viem";
 import { usePublicClient } from "wagmi";
 import { getIArbitrableV2 } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
 import { useIsCrossChainDispute } from "../useIsCrossChainDispute";
 import { GENESIS_BLOCK_ARBSEPOLIA } from "consts/index";
 import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
@@ -27,6 +27,8 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
   const publicClient = usePublicClient();
   const { data: crossChainData, isError } = useIsCrossChainDispute(disputeID, arbitrableAddress);
   const isEnabled = !isUndefined(disputeID) && !isUndefined(crossChainData) && !isUndefined(arbitrableAddress);
+  const { graphqlBatcher } = useGraphqlBatcher();
+
   return useQuery<DisputeDetails>({
     queryKey: [`DisputeTemplate${disputeID}${arbitrableAddress}`],
     enabled: isEnabled,
@@ -35,15 +37,18 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
       if (isEnabled && !isError) {
         try {
           const { isCrossChainDispute, crossChainTemplateId } = crossChainData;
+
           const templateId = isCrossChainDispute
             ? crossChainTemplateId
             : await getTemplateId(arbitrableAddress, disputeID, publicClient);
 
-          const { disputeTemplate } = await graphqlQueryFnHelper(
-            disputeTemplateQuery,
-            { id: templateId.toString() },
-            true
-          );
+          const { disputeTemplate } = await graphqlBatcher.fetch({
+            id: crypto.randomUUID(),
+            document: disputeTemplateQuery,
+            variables: { id: templateId.toString() },
+            isDisputeTemplate: true,
+          });
+
           const templateData = disputeTemplate?.templateData;
           const dataMappings = disputeTemplate?.templateDataMappings;
 

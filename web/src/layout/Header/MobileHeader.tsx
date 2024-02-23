@@ -4,10 +4,13 @@ import { useToggle } from "react-use";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { Link } from "react-router-dom";
 import KlerosCourtLogo from "svgs/header/kleros-court.svg";
+import KlerosCourtUniversityLogo from "svgs/header/kleros-court-university.svg";
 import HamburgerIcon from "svgs/header/hamburger.svg";
 import LightButton from "components/LightButton";
 import NavBar from "./navbar";
 import { useFocusOutside } from "hooks/useFocusOutside";
+
+const IS_UNIVERSITY = process.env.REACT_APP_UNIVERSITY_COURT === "true";
 
 const Container = styled.div`
   display: flex;
@@ -57,9 +60,7 @@ const MobileHeader = () => {
   return (
     <Container ref={containerRef}>
       <OpenContext.Provider value={memoizedContext}>
-        <StyledLink to={"/"}>
-          <KlerosCourtLogo />
-        </StyledLink>
+        <StyledLink to={"/"}>{IS_UNIVERSITY ? <KlerosCourtUniversityLogo /> : <KlerosCourtLogo />}</StyledLink>
         <NavBar />
         <StyledLightButton text="" Icon={HamburgerIcon} onClick={toggleIsOpen} />
       </OpenContext.Provider>
