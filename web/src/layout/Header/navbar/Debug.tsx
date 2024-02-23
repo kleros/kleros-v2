@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import { useSortitionModulePhase } from "hooks/contracts/generated";
+import { useSortitionModulePhase } from "hooks/contracts/generatedProvider";
 import { useToggleTheme } from "hooks/useToggleThemeContext";
 import { GIT_BRANCH, GIT_DIRTY, GIT_HASH, GIT_TAGS, GIT_URL, RELEASE_VERSION } from "consts/index";
 import { isUndefined } from "utils/index";
@@ -57,6 +57,7 @@ enum Phases {
 }
 
 const Phase = () => {
+  if (isUndefined(useSortitionModulePhase)) return <></>;
   const { data: phase } = useSortitionModulePhase({
     watch: true,
   });

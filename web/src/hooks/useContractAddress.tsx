@@ -1,16 +1,8 @@
 import { Abi, PublicClient } from "viem";
 import { usePublicClient } from "wagmi";
 import { GetContractArgs, GetContractResult } from "wagmi/actions";
-import {
-  getPinakionV2,
-  pinakionV2ABI,
-  getWeth,
-  getPnkFaucet,
-  wethABI,
-  pnkFaucetABI,
-  klerosCoreABI,
-  getKlerosCore,
-} from "./contracts/generated";
+import { getPinakionV2, pinakionV2ABI, getWeth, getPnkFaucet, wethABI, pnkFaucetABI } from "./contracts/generated";
+import { klerosCoreABI, getKlerosCore } from "./contracts/generatedProvider";
 
 type Config = Omit<GetContractArgs<Abi, unknown>, "abi" | "address"> & {
   chainId?: any;

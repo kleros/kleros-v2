@@ -3,15 +3,17 @@ import { useParams } from "react-router-dom";
 import { useAccount, usePublicClient } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
 import {
-  getKlerosCore,
-  useKlerosCoreSetStake,
-  usePrepareKlerosCoreSetStake,
   usePnkBalanceOf,
   usePnkIncreaseAllowance,
   usePreparePnkIncreaseAllowance,
-  useSortitionModuleGetJurorBalance,
   usePnkAllowance,
 } from "hooks/contracts/generated";
+import {
+  getKlerosCore,
+  useKlerosCoreSetStake,
+  usePrepareKlerosCoreSetStake,
+  useSortitionModuleGetJurorBalance,
+} from "hooks/contracts/generatedProvider";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
