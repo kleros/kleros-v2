@@ -33,6 +33,8 @@
   "devDependencies": {
     "@commitlint/cli": "^17.8.1",
     "@commitlint/config-conventional": "^17.8.1",
+    "@lavamoat/allow-scripts": "^3.0.2",
+    "@lavamoat/preinstall-always-fail": "^2.0.0",
     "assert": "^2.0.0",
     "buffer": "^5.7.1",
     "conventional-changelog-cli": "^2.2.2",
@@ -67,10 +69,27 @@
     "local-stack": "scripts/tmux-local-stack.sh",
     "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 && prettier --write CHANGELOG.md",
     "postinstall": "yarn check-prerequisites; husky install",
-    "reinstall": "YARN_CHECKSUM_BEHAVIOR=update yarn install --no-immutable"
+    "reinstall": "YARN_CHECKSUM_BEHAVIOR=update yarn install --no-immutable",
+    "allow-scripts": "node ./node_modules/@lavamoat/allow-scripts/src/cli.js --experimental-bins"
   },
   "alias": {
     "process": "process/browser.js",
     "buffer": "buffer"
+  },
+  "lavamoat": {
+    "allowScripts": {
+      "$root$": false,
+      "@commitlint/cli>@commitlint/load>ts-node>@swc/core": false,
+      "@lavamoat/preinstall-always-fail": false,
+      "supabase": true
+    },
+    "allowBins": {
+      "commitlint": "node_modules/@commitlint/cli/cli.js",
+      "allow-scripts": "node_modules/@lavamoat/allow-scripts/src/cli.js",
+      "conventional-changelog": "node_modules/conventional-changelog-cli/cli.js",
+      "husky": "node_modules/husky/lib/bin.js",
+      "lint-staged": "node_modules/lint-staged/bin/lint-staged.js",
+      "supabase": "node_modules/supabase/scripts/postinstall.js"
+    }
   }
 }
