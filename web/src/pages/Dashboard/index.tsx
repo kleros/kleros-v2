@@ -24,7 +24,7 @@ const Container = styled.div`
 const StyledCasesDisplay = styled(CasesDisplay)`
   margin-top: 64px;
 
-  h1 {
+  .title {
     margin-bottom: ${responsiveSize(16, 48)};
   }
 `;
