@@ -67,7 +67,7 @@ type FieldContainerProps = {
   isJurorBalance?: boolean;
 };
 
-interface IField {
+export interface IField {
   icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
   name: string;
   value: string;
@@ -76,6 +76,7 @@ interface IField {
   displayAsList?: boolean;
   isOverview?: boolean;
   isJurorBalance?: boolean;
+  className?: string;
 }
 
 const Field: React.FC<IField> = ({
@@ -87,15 +88,12 @@ const Field: React.FC<IField> = ({
   displayAsList,
   isOverview,
   isJurorBalance,
+  className,
 }) => {
   return (
-    <FieldContainer isList={displayAsList} isOverview={isOverview} isJurorBalance={isJurorBalance} width={width}>
-      {(!displayAsList || isOverview || isJurorBalance) && (
-        <>
-          <Icon />
-          <label>{name}:</label>
-        </>
-      )}
+    <FieldContainer isList={displayAsList} {...{ isOverview, isJurorBalance, width, className }}>
+      <Icon />
+      {(!displayAsList || isOverview || isJurorBalance) && <label>{name}:</label>}
       {link ? (
         <Link className="link value" to={link}>
           {value}

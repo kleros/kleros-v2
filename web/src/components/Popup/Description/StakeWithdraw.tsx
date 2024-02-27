@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 import { isUndefined } from "utils/index";
-import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
+import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generatedProvider";
 import KlerosLogo from "tsx:svgs/icons/kleros.svg";
 import { responsiveSize } from "styles/responsiveSize";
 

@@ -6,12 +6,12 @@ import { useAccount } from "wagmi";
 import { NumberInputField } from "components/NumberInputField";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
-import { useSortitionModuleGetJurorBalance, usePnkBalanceOf } from "hooks/contracts/generated";
+import { usePnkBalanceOf } from "hooks/contracts/generated";
+import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generatedProvider";
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
 import { formatPNK, roundNumberDown } from "utils/format";
 import { isUndefined } from "utils/index";
 import { commify, uncommify } from "utils/commify";
-import { EnsureChain } from "components/EnsureChain";
 
 const StyledField = styled(NumberInputField)`
   height: fit-content;

@@ -507,7 +507,9 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
     function getDegreeOfCoherence(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
-        uint256 _voteID
+        uint256 _voteID,
+        uint256 /* _feePerJuror */,
+        uint256 /* _pnkAtStakePerJuror */
     ) external view override returns (uint256) {
         // In this contract this degree can be either 0 or 1, but in other dispute kits this value can be something in between.
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];

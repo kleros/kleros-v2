@@ -5,7 +5,7 @@ import { formatEther } from "viem";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useCourtPolicy } from "queries/useCourtPolicy";
-import DisputeInfo from "components/DisputeCard/DisputeInfo";
+import DisputeInfo from "components/DisputeView/DisputeInfo";
 import Verdict from "components/Verdict/index";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
 import { getLocalRounds } from "utils/getLocalRounds";

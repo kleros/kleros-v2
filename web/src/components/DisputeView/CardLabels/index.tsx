@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { formatEther, formatUnits } from "viem";
 import { useAccount } from "wagmi";
 import Skeleton from "react-loading-skeleton";
@@ -17,17 +17,31 @@ import { getLocalRounds } from "utils/getLocalRounds";
 import Label, { IColors } from "./Label";
 import RewardsAndFundLabel from "./RewardsAndFundLabel";
 
-const Container = styled.div`
-  width: 100%;
+const Container = styled.div<{ isList: boolean }>`
   display: flex;
-  flex-wrap: wrap;
   gap: 8px;
-  margin-top: 16px;
+  flex-direction: column;
+  align-items: end;
+  ${({ isList }) =>
+    !isList &&
+    css`
+      margin-top: 16px;
+      width: 100%;
+      flex-wrap: wrap;
+      flex-direction: row;
+      align-items: center;
+    `}
 `;
-
+const RewardsContainer = styled.div`
+  display: flex;
+  gap: 4px 8px;
+  flex-wrap: wrap;
+  justify-content: end;
+`;
 interface ICardLabels {
   disputeId: string;
   round: number;
+  isList: boolean;
 }
 
 const LabelArgs: Record<string, { text: string; icon: React.FC<React.SVGAttributes<SVGElement>>; color: IColors }> = {
@@ -54,7 +68,7 @@ const getFundingRewards = (contributions: ClassicContribution[], closed: boolean
   return Number(formatUnits(BigInt(contribution), 18));
 };
 
-const CardLabel: React.FC<ICardLabels> = ({ disputeId, round }) => {
+const CardLabel: React.FC<ICardLabels> = ({ disputeId, round, isList }) => {
   const { address } = useAccount();
   const { data: labelInfo, isLoading } = useLabelInfoQuery(address?.toLowerCase(), disputeId);
   const localRounds = getLocalRounds(labelInfo?.dispute?.disputeKitDispute);
@@ -120,21 +134,24 @@ const CardLabel: React.FC<ICardLabels> = ({ disputeId, round }) => {
   }, [contributionRewards, shifts]);
 
   return (
-    <Container>
+    <Container {...{ isList }}>
       {isLoading ? (
-        <Skeleton width={180} height={14} />
+        <Skeleton width={130} height={14} />
       ) : (
         <>
           <Label {...labelData} />
-          {!isUndefined(rewardsData) && period === "execution" ? (
-            <>
-              <RewardsAndFundLabel value={rewardsData.ethShift.toString()} unit="ETH" />
-              <RewardsAndFundLabel value={rewardsData.pnkShift.toString()} unit="PNK" />
-            </>
-          ) : null}
-          {!isUndefined(currentRoundFund) && period === "appeal" ? (
-            <RewardsAndFundLabel value={currentRoundFund.toString()} unit="ETH" isFund />
-          ) : null}
+          <RewardsContainer>
+            {" "}
+            {!isUndefined(rewardsData) && period === "execution" ? (
+              <>
+                <RewardsAndFundLabel value={rewardsData.ethShift.toString()} unit="ETH" />
+                <RewardsAndFundLabel value={rewardsData.pnkShift.toString()} unit="PNK" />
+              </>
+            ) : null}
+            {!isUndefined(currentRoundFund) && period === "appeal" ? (
+              <RewardsAndFundLabel value={currentRoundFund.toString()} unit="ETH" isFund />
+            ) : null}
+          </RewardsContainer>
         </>
       )}
     </Container>

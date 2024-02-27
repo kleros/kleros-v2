@@ -1,7 +1,7 @@
 import { graphql } from "src/graphql";
 import { CourtTreeQuery } from "src/graphql/graphql";
 import { useQuery } from "@tanstack/react-query";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
 export type { CourtTreeQuery };
 
 const courtTreeQuery = graphql(`
@@ -34,9 +34,11 @@ const courtTreeQuery = graphql(`
 `);
 
 export const useCourtTree = () => {
+  const { graphqlBatcher } = useGraphqlBatcher();
   return useQuery<CourtTreeQuery>({
     queryKey: ["courtTreeQuery"],
-    queryFn: async () => await graphqlQueryFnHelper(courtTreeQuery, {}),
+    queryFn: async () =>
+      await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: courtTreeQuery, variables: {} }),
   });
 };
 

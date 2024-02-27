@@ -47,7 +47,7 @@ const Policy: React.FC = () => {
     const fileFormData = new FormData();
     fileFormData.append("data", file, file.name);
 
-    uploadFormDataToIPFS(fileFormData)
+    uploadFormDataToIPFS(fileFormData, "policy")
       .then(async (res) => {
         const response = await res.json();
         const policyURI = response["cids"][0];

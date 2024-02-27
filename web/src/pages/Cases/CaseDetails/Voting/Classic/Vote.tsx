@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useWalletClient, usePublicClient } from "wagmi";
-import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
+import { prepareWriteDisputeKitClassic } from "hooks/contracts/generatedProvider";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import OptionsContainer from "./OptionsContainer";
