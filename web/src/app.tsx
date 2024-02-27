@@ -10,6 +10,7 @@ import StyledComponentsProvider from "context/StyledComponentsProvider";
 import RefetchOnBlock from "context/RefetchOnBlock";
 import { NewDisputeProvider } from "./context/NewDisputeContext";
 import Layout from "layout/index";
+import Loading from "./Loading";
 
 const Home = lazy(() => import("./pages/Home"));
 const Cases = lazy(() => import("./pages/Cases"));
@@ -31,7 +32,7 @@ const App: React.FC = () => {
                   <Route
                     index
                     element={
-                      <Suspense>
+                      <Suspense fallback={<Loading />}>
                         <Home />
                       </Suspense>
                     }
@@ -39,7 +40,7 @@ const App: React.FC = () => {
                   <Route
                     path="cases/*"
                     element={
-                      <Suspense>
+                      <Suspense fallback={<Loading />}>
                         <Cases />
                       </Suspense>
                     }
@@ -47,7 +48,7 @@ const App: React.FC = () => {
                   <Route
                     path="courts/*"
                     element={
-                      <Suspense>
+                      <Suspense fallback={<Loading />}>
                         <Courts />
                       </Suspense>
                     }
@@ -55,7 +56,7 @@ const App: React.FC = () => {
                   <Route
                     path="dashboard/:page/:order/:filter"
                     element={
-                      <Suspense>
+                      <Suspense fallback={<Loading />}>
                         <Dashboard />
                       </Suspense>
                     }
@@ -63,7 +64,7 @@ const App: React.FC = () => {
                   <Route
                     path="disputeTemplate"
                     element={
-                      <Suspense>
+                      <Suspense fallback={<Loading />}>
                         <DisputeTemplateView />
                       </Suspense>
                     }
@@ -71,7 +72,7 @@ const App: React.FC = () => {
                   <Route
                     path="resolver/*"
                     element={
-                      <Suspense>
+                      <Suspense fallback={<Loading />}>
                         <DisputeResolver />
                       </Suspense>
                     }
