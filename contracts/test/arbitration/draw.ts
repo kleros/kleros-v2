@@ -83,6 +83,7 @@ describe("Draw Benchmark", async () => {
 
     // CourtId 2 = CHILD_COURT
     const minStake = BigNumber.from(10).pow(20).mul(3); // 300 PNK
+    const maxStake = BigNumber.from(10).pow(21).mul(3); // 3000 PNK
     const alpha = 10000;
     const feeForJuror = BigNumber.from(10).pow(17);
     await core.createCourt(
@@ -95,7 +96,7 @@ describe("Draw Benchmark", async () => {
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
       ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K)
       [1],
-      false
+      maxStake
     );
   });
 

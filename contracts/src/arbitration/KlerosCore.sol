@@ -46,7 +46,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         uint256[4] timesPerPeriod; // The time allotted to each dispute period in the form `timesPerPeriod[period]`.
         mapping(uint256 => bool) supportedDisputeKits; // True if DK with this ID is supported by the court. Note that each court must support classic dispute kit.
         bool disabled; // True if the court is disabled. Unused for now, will be implemented later.
-        bool minStakeOnly; // If active, only allows to stake minimal amount.
+        uint256 maxStake; // Maximum PNKs allowed to stake in the court.
     }
 
     struct Dispute {
@@ -109,6 +109,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     IDisputeKit[] public disputeKits; // Array of dispute kits.
     Dispute[] public disputes; // The disputes.
     mapping(IERC20 => CurrencyRate) public currencyRates; // The price of each token in ETH.
+    mapping(address => bool) public whitelist; // Arbitrable whitelist.
 
     // ************************************* //
     // *              Events               * //
@@ -293,6 +294,13 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         emit Unpause();
     }
 
+    /// @dev Adds or removes an address from whitelist.
+    /// @param _arbitrable Arbitrable address.
+    /// @param _allowed Whether add or remove permission.
+    function manageWhitelist(address _arbitrable, bool _allowed) external onlyByGovernor {
+        whitelist[_arbitrable] = _allowed;
+    }
+
     /// @dev Allows the governor to call anything on behalf of the contract.
     /// @param _destination The destination of the call.
     /// @param _amount The value sent with the call.
@@ -355,7 +363,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the court.
     /// @param _sortitionExtraData Extra data for sortition module.
     /// @param _supportedDisputeKits Indexes of dispute kits that this court will support.
-    /// @param _minStakeOnly True if ony min stake is allowed.
+    /// @param _maxStake Max PNK allowed to stake.
     function createCourt(
         uint96 _parent,
         bool _hiddenVotes,
@@ -366,7 +374,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
         uint256[] memory _supportedDisputeKits,
-        bool _minStakeOnly
+        uint256 _maxStake
     ) external onlyByGovernor {
         if (courts[_parent].minStake > _minStake) revert MinStakeLowerThanParentCourt();
         if (_supportedDisputeKits.length == 0) revert UnsupportedDisputeKit();
@@ -392,7 +400,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         court.feeForJuror = _feeForJuror;
         court.jurorsForCourtJump = _jurorsForCourtJump;
         court.timesPerPeriod = _timesPerPeriod;
-        court.minStakeOnly = _minStakeOnly;
+        court.maxStake = _maxStake;
 
         sortitionModule.createTree(bytes32(courtID), _sortitionExtraData);
 
@@ -419,7 +427,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 _feeForJuror,
         uint256 _jurorsForCourtJump,
         uint256[4] memory _timesPerPeriod,
-        bool _minStakeOnly
+        uint256 _maxStake
     ) external onlyByGovernor {
         Court storage court = courts[_courtID];
         if (_courtID != Constants.GENERAL_COURT && courts[court.parent].minStake > _minStake) {
@@ -436,7 +444,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         court.feeForJuror = _feeForJuror;
         court.jurorsForCourtJump = _jurorsForCourtJump;
         court.timesPerPeriod = _timesPerPeriod;
-        court.minStakeOnly = _minStakeOnly;
+        court.maxStake = _maxStake;
         emit CourtModified(
             _courtID,
             _hiddenVotes,
@@ -545,6 +553,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         IERC20 _feeToken,
         uint256 _feeAmount
     ) internal returns (uint256 disputeID) {
+        if (!whitelist[msg.sender]) revert ArbitrableNotWhitelisted();
         (uint96 courtID, , uint256 disputeKitID) = _extraDataToCourtIDMinJurorsDisputeKit(_extraData);
         if (!courts[courtID].supportedDisputeKits[disputeKitID]) revert DisputeKitNotSupportedByCourt();
 
@@ -1101,8 +1110,8 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
             _stakingFailed(_onError); // Staking less than the minimum stake is not allowed.
             return false;
         }
-        if (courts[_courtID].minStakeOnly && _newStake > courts[_courtID].minStake) {
-            _stakingFailed(_onError); // Can't stake more than minimal in this court.
+        if (courts[_courtID].maxStake != 0 && _newStake > courts[_courtID].maxStake) {
+            _stakingFailed(_onError); // Can't stake more than allowed in this court.
             return false;
         }
         (uint256 pnkDeposit, uint256 pnkWithdrawal, bool sortitionSuccess) = sortitionModule.setStake(
@@ -1205,4 +1214,5 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     error TransferFailed();
     error WhenNotPausedOnly();
     error WhenPausedOnly();
+    error ArbitrableNotWhitelisted();
 }

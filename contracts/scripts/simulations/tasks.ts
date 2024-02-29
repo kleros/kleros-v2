@@ -82,7 +82,7 @@ task("simulate:create-court", "callable by Governor only. Create a new Court")
     const timesPerPeriod = [300, 300, 300, 300] as any;
     const sortitionSumTreeK = 3;
     const supportedDisputeKits = [1]; // IDs of supported dispute kits
-    const minStakeOnly = false;
+    const maxStake = BigNumber.from(10).pow(21).mul(2);
     let courtID;
     try {
       const tx = await (
@@ -98,7 +98,7 @@ task("simulate:create-court", "callable by Governor only. Create a new Court")
             timesPerPeriod,
             sortitionSumTreeK,
             supportedDisputeKits,
-            minStakeOnly
+            maxStake
           )
       ).wait();
       console.log("createCourt txID: %s", tx?.transactionHash);
