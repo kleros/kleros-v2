@@ -318,7 +318,7 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        (, bool hiddenVotes, , , , , ) = core.courts(courtID);
+        (, bool hiddenVotes, , , , , , ) = core.courts(courtID);
 
         //  Save the votes.
         for (uint256 i = 0; i < _voteIDs.length; i++) {
@@ -422,6 +422,7 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
     }
 
     /// @dev Allows those contributors who attempted to fund an appeal round to withdraw any reimbursable fees or rewards after the dispute gets resolved.
+    /// Note that withdrawals are not possible if the core contract is paused.
     /// @param _coreDisputeID Index of the dispute in Kleros Core contract.
     /// @param _beneficiary The address whose rewards to withdraw.
     /// @param _coreRoundID The round in the Kleros Core contract the caller wants to withdraw from.
@@ -435,6 +436,7 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
     ) external returns (uint256 amount) {
         (, , , bool isRuled, ) = core.disputes(_coreDisputeID);
         require(isRuled, "Dispute should be resolved.");
+        require(!core.paused(), "Core is paused");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]];

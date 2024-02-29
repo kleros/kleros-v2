@@ -82,6 +82,7 @@ task("simulate:create-court", "callable by Governor only. Create a new Court")
     const timesPerPeriod = [300, 300, 300, 300] as any;
     const sortitionSumTreeK = 3;
     const supportedDisputeKits = [1]; // IDs of supported dispute kits
+    const minStakeOnly = false;
     let courtID;
     try {
       const tx = await (
@@ -96,7 +97,8 @@ task("simulate:create-court", "callable by Governor only. Create a new Court")
             jurorsForCourtJump,
             timesPerPeriod,
             sortitionSumTreeK,
-            supportedDisputeKits
+            supportedDisputeKits,
+            minStakeOnly
           )
       ).wait();
       console.log("createCourt txID: %s", tx?.transactionHash);

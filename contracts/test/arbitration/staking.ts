@@ -42,7 +42,7 @@ describe("Staking", async () => {
       expect(await sortition.phase()).to.be.equal(0); // Staking
       const arbitrationCost = ETH(0.1).mul(3);
 
-      await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], 3, [1]); // Parent - general court, Classic dispute kit
+      await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], 3, [1], false); // Parent - general court, Classic dispute kit
 
       await pnk.approve(core.address, PNK(4000));
       await core.setStake(1, PNK(2000));
@@ -389,7 +389,7 @@ describe("Staking", async () => {
     it("Should unstake from all courts", async () => {
       const arbitrationCost = ETH(0.1).mul(3);
 
-      await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], 3, [1]); // Parent - general court, Classic dispute kit
+      await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], 3, [1], false); // Parent - general court, Classic dispute kit
 
       await pnk.approve(core.address, PNK(4000));
       await core.setStake(1, PNK(2000));

@@ -46,6 +46,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         uint256[4] timesPerPeriod; // The time allotted to each dispute period in the form `timesPerPeriod[period]`.
         mapping(uint256 => bool) supportedDisputeKits; // True if DK with this ID is supported by the court. Note that each court must support classic dispute kit.
         bool disabled; // True if the court is disabled. Unused for now, will be implemented later.
+        bool minStakeOnly; // If active, only allows to stake minimal amount.
     }
 
     struct Dispute {
@@ -98,6 +99,10 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
 
     address public governor; // The governor of the contract.
     IERC20 public pinakion; // The Pinakion token contract.
+
+    address public guardian; // The address that is capable to pause the asset withdrawals.
+    bool public paused;
+
     address public jurorProsecutionModule; // The module for juror's prosecution.
     ISortitionModule public sortitionModule; // Sortition module for drawing.
     Court[] public courts; // The courts.
@@ -163,6 +168,8 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 _feeAmount,
         IERC20 _feeToken
     );
+    event Pause();
+    event Unpause();
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -170,6 +177,16 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
 
     modifier onlyByGovernor() {
         if (governor != msg.sender) revert GovernorOnly();
+        _;
+    }
+
+    modifier whenPaused() {
+        if (!paused) revert WhenPausedOnly();
+        _;
+    }
+
+    modifier whenNotPaused() {
+        if (paused) revert WhenNotPausedOnly();
         _;
     }
 
@@ -184,6 +201,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
 
     /// @dev Initializer (constructor equivalent for upgradable contracts).
     /// @param _governor The governor's address.
+    /// @param _guardian The guardian's address.
     /// @param _pinakion The address of the token contract.
     /// @param _jurorProsecutionModule The address of the juror prosecution module.
     /// @param _disputeKit The address of the default dispute kit.
@@ -194,6 +212,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _sortitionModuleAddress The sortition module responsible for sortition of the jurors.
     function initialize(
         address _governor,
+        address _guardian,
         IERC20 _pinakion,
         address _jurorProsecutionModule,
         IDisputeKit _disputeKit,
@@ -204,6 +223,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         ISortitionModule _sortitionModuleAddress
     ) external reinitializer(1) {
         governor = _governor;
+        guardian = _guardian;
         pinakion = _pinakion;
         jurorProsecutionModule = _jurorProsecutionModule;
         sortitionModule = _sortitionModuleAddress;
@@ -259,6 +279,20 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         // NOP
     }
 
+    /// @dev Pause staking and reward execution. Can only be done by guardian.
+    /// Note that pausing isn't done by governor to avoid going through KlerosGovernor flow in case of urgency.
+    function pause() external whenNotPaused {
+        if (guardian != msg.sender) revert GuardianOnly();
+        paused = true;
+        emit Pause();
+    }
+
+    /// @dev Unpause staking and reward execution. Can only be done by governor.
+    function unpause() external onlyByGovernor whenPaused {
+        paused = false;
+        emit Unpause();
+    }
+
     /// @dev Allows the governor to call anything on behalf of the contract.
     /// @param _destination The destination of the call.
     /// @param _amount The value sent with the call.
@@ -276,6 +310,12 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _governor The new value for the `governor` storage variable.
     function changeGovernor(address payable _governor) external onlyByGovernor {
         governor = _governor;
+    }
+
+    /// @dev Changes the `guardian` storage variable.
+    /// @param _guardian The new value for the `guardian` storage variable.
+    function changeGuardian(address _guardian) external onlyByGovernor {
+        guardian = _guardian;
     }
 
     /// @dev Changes the `pinakion` storage variable.
@@ -315,6 +355,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the court.
     /// @param _sortitionExtraData Extra data for sortition module.
     /// @param _supportedDisputeKits Indexes of dispute kits that this court will support.
+    /// @param _minStakeOnly True if ony min stake is allowed.
     function createCourt(
         uint96 _parent,
         bool _hiddenVotes,
@@ -324,7 +365,8 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 _jurorsForCourtJump,
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
-        uint256[] memory _supportedDisputeKits
+        uint256[] memory _supportedDisputeKits,
+        bool _minStakeOnly
     ) external onlyByGovernor {
         if (courts[_parent].minStake > _minStake) revert MinStakeLowerThanParentCourt();
         if (_supportedDisputeKits.length == 0) revert UnsupportedDisputeKit();
@@ -350,6 +392,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         court.feeForJuror = _feeForJuror;
         court.jurorsForCourtJump = _jurorsForCourtJump;
         court.timesPerPeriod = _timesPerPeriod;
+        court.minStakeOnly = _minStakeOnly;
 
         sortitionModule.createTree(bytes32(courtID), _sortitionExtraData);
 
@@ -375,7 +418,8 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 _alpha,
         uint256 _feeForJuror,
         uint256 _jurorsForCourtJump,
-        uint256[4] memory _timesPerPeriod
+        uint256[4] memory _timesPerPeriod,
+        bool _minStakeOnly
     ) external onlyByGovernor {
         Court storage court = courts[_courtID];
         if (_courtID != Constants.GENERAL_COURT && courts[court.parent].minStake > _minStake) {
@@ -392,6 +436,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         court.feeForJuror = _feeForJuror;
         court.jurorsForCourtJump = _jurorsForCourtJump;
         court.timesPerPeriod = _timesPerPeriod;
+        court.minStakeOnly = _minStakeOnly;
         emit CourtModified(
             _courtID,
             _hiddenVotes,
@@ -447,10 +492,11 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     // ************************************* //
 
     /// @dev Sets the caller's stake in a court.
+    /// Note: Staking and unstaking is forbidden during pause.
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake.
     /// Note that the existing delayed stake will be nullified as non-relevant.
-    function setStake(uint96 _courtID, uint256 _newStake) external {
+    function setStake(uint96 _courtID, uint256 _newStake) external whenNotPaused {
         _setStake(msg.sender, _courtID, _newStake, false, OnError.Revert);
     }
 
@@ -665,10 +711,11 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     }
 
     /// @dev Distribute the PNKs at stake and the dispute fees for the specific round of the dispute. Can be called in parts.
+    /// Note: Reward distributions are forbidden during pause.
     /// @param _disputeID The ID of the dispute.
     /// @param _round The appeal round.
     /// @param _iterations The number of iterations to run.
-    function execute(uint256 _disputeID, uint256 _round, uint256 _iterations) external {
+    function execute(uint256 _disputeID, uint256 _round, uint256 _iterations) external whenNotPaused {
         Round storage round;
         {
             Dispute storage dispute = disputes[_disputeID];
@@ -1054,6 +1101,10 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
             _stakingFailed(_onError); // Staking less than the minimum stake is not allowed.
             return false;
         }
+        if (courts[_courtID].minStakeOnly && _newStake > courts[_courtID].minStake) {
+            _stakingFailed(_onError); // Can't stake more than minimal in this court.
+            return false;
+        }
         (uint256 pnkDeposit, uint256 pnkWithdrawal, bool sortitionSuccess) = sortitionModule.setStake(
             _account,
             _courtID,
@@ -1123,6 +1174,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     // ************************************* //
 
     error GovernorOnly();
+    error GuardianOnly();
     error DisputeKitOnly();
     error SortitionModuleOnly();
     error UnsuccessfulCall();
@@ -1151,4 +1203,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     error RulingAlreadyExecuted();
     error DisputePeriodIsFinal();
     error TransferFailed();
+    error WhenNotPausedOnly();
+    error WhenPausedOnly();
 }

@@ -68,6 +68,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     from: deployer,
     args: [
       deployer,
+      deployer,
       pnk.address,
       AddressZero,
       disputeKit.address,
