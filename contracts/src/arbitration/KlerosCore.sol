@@ -16,6 +16,7 @@ import {Constants} from "../libraries/Constants.sol";
 import {OnError} from "../libraries/Types.sol";
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
 import {Initializable} from "../proxy/Initializable.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /// @title KlerosCore
 /// Core arbitrator contract for Kleros v2.
@@ -102,6 +103,8 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
 
     address public guardian; // The address that is capable to pause the asset withdrawals.
     bool public paused;
+    uint256 public maxTotalStaked;
+    IERC721 public nftContract;
 
     address public jurorProsecutionModule; // The module for juror's prosecution.
     ISortitionModule public sortitionModule; // Sortition module for drawing.
@@ -211,6 +214,8 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the general court.
     /// @param _sortitionExtraData The extra data for sortition module.
     /// @param _sortitionModuleAddress The sortition module responsible for sortition of the jurors.
+    /// @param _maxTotalStaked Maximal amount of PNK that can be staked in all courts combined.
+    /// @param _nftContract NFT contract to vet the jurors.
     function initialize(
         address _governor,
         address _guardian,
@@ -221,7 +226,9 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
         bytes memory _sortitionExtraData,
-        ISortitionModule _sortitionModuleAddress
+        ISortitionModule _sortitionModuleAddress,
+        uint256 _maxTotalStaked,
+        IERC721 _nftContract
     ) external reinitializer(1) {
         governor = _governor;
         guardian = _guardian;
@@ -254,6 +261,8 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         court.timesPerPeriod = _timesPerPeriod;
 
         sortitionModule.createTree(bytes32(uint256(Constants.GENERAL_COURT)), _sortitionExtraData);
+        maxTotalStaked = _maxTotalStaked;
+        nftContract = _nftContract;
 
         emit CourtCreated(
             1,
@@ -330,6 +339,18 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _pinakion The new value for the `pinakion` storage variable.
     function changePinakion(IERC20 _pinakion) external onlyByGovernor {
         pinakion = _pinakion;
+    }
+
+    /// @dev Changes the `maxTotalStaked` storage variable.
+    /// @param _maxTotalStaked The new value for the `maxTotalStaked` storage variable.
+    function changeMaxTotalStaked(uint256 _maxTotalStaked) external onlyByGovernor {
+        maxTotalStaked = _maxTotalStaked;
+    }
+
+    /// @dev Changes the `nftContract` storage variable.
+    /// @param _nftContract The new value for the `nftContract` storage variable.
+    function changeNFT(IERC721 _nftContract) external onlyByGovernor {
+        nftContract = _nftContract;
     }
 
     /// @dev Changes the `jurorProsecutionModule` storage variable.
@@ -505,6 +526,7 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _newStake The new stake.
     /// Note that the existing delayed stake will be nullified as non-relevant.
     function setStake(uint96 _courtID, uint256 _newStake) external whenNotPaused {
+        if (nftContract.balanceOf(msg.sender) == 0) revert NotEligibleForStaking();
         _setStake(msg.sender, _courtID, _newStake, false, OnError.Revert);
     }
 
@@ -1129,12 +1151,14 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
                 _stakingFailed(_onError);
                 return false;
             }
+            maxTotalStaked += pnkDeposit;
         }
         if (pnkWithdrawal > 0) {
             if (!pinakion.safeTransfer(_account, pnkWithdrawal)) {
                 _stakingFailed(_onError);
                 return false;
             }
+            maxTotalStaked -= pnkWithdrawal;
         }
         return true;
     }
@@ -1215,4 +1239,5 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     error WhenNotPausedOnly();
     error WhenPausedOnly();
     error ArbitrableNotWhitelisted();
+    error NotEligibleForStaking();
 }

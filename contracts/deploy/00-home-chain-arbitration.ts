@@ -62,6 +62,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   }); // nonce (implementation), nonce+1 (proxy)
 
   const minStake = BigNumber.from(10).pow(20).mul(2);
+  const maxTotalStake = BigNumber.from(10).pow(25).mul(2);
   const alpha = 10000;
   const feeForJuror = BigNumber.from(10).pow(17);
   const klerosCore = await deployUpgradable(deployments, "KlerosCore", {
@@ -77,6 +78,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
       ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
+      maxTotalStake,
+      AddressZero, // TODO:
     ],
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
