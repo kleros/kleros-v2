@@ -8,6 +8,7 @@ import Swap from "./Swap";
 import Settings from "./Settings";
 import { useToggle } from "react-use";
 import ClaimPnkButton from "components/ClaimPnkButton";
+import { LifiProvider } from "context/LiFiProvider";
 
 const Container = styled.div`
   width: 100%;
@@ -30,7 +31,7 @@ const StyledCard = styled(Card)`
 const GetPnk: React.FC = () => {
   const [settingsOpen, toggleSettings] = useToggle(false);
   return (
-    <>
+    <LifiProvider>
       <HeroImage />
       <Container>
         <ClaimPnkButton />
@@ -39,7 +40,7 @@ const GetPnk: React.FC = () => {
           {settingsOpen ? <Settings /> : <Swap />}
         </StyledCard>
       </Container>
-    </>
+    </LifiProvider>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button, Card } from "@kleros/ui-components-library";
 import styled from "styled-components";
 import ChainSelect from "../ChainSelect";
@@ -6,6 +6,7 @@ import TokenSelect from "../TokenSelect";
 import { responsiveSize } from "styles/responsiveSize";
 import NumberField from "../NumberInput";
 import DownArrow from "tsx:svgs/icons/down-arrow.svg";
+import { useLifiSDK } from "context/LiFiProvider";
 
 const Container = styled(Card)`
   width: 100%;
@@ -47,21 +48,38 @@ const SVGContainer = styled.div`
 const StyledLabel = styled.label``;
 
 const FromCard: React.FC = () => {
-  const [fromChain, setFromChain] = useState(421614);
-  const [fromToken, setFromToken] = useState("PNK");
+  const { swapData, setSwapData } = useLifiSDK();
 
+  const handleMax = () => {
+    if (!swapData.tokenBalance) return;
+    console.log({ swapData });
+
+    setSwapData({
+      ...swapData,
+      fromAmount: swapData.tokenBalance,
+    });
+  };
   return (
     <Container>
       <InnerContainer>
         <ChainContainer>
           <StyledLabel>From</StyledLabel>
-          <ChainSelect chainId={fromChain} setChainId={setFromChain} />
+          <ChainSelect />
         </ChainContainer>
-        <StyledButton variant="secondary" text="Max" />
+        <StyledButton variant="secondary" text="Max" onClick={handleMax} />
       </InnerContainer>
       <InnerContainer>
-        <TokenSelect token={fromToken} setToken={setFromToken} />
-        <NumberField placeholder="Enter amount" value="0.0" />
+        <TokenSelect />
+        <NumberField
+          placeholder="Enter amount"
+          value={swapData.fromAmount}
+          onChange={(val) =>
+            setSwapData({
+              ...swapData,
+              fromAmount: val,
+            })
+          }
+        />
       </InnerContainer>
       <SVGContainer>
         <DownArrow />

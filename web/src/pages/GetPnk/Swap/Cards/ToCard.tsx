@@ -1,9 +1,12 @@
-import React, { useState } from "react";
-import { Card } from "@kleros/ui-components-library";
+import React from "react";
+import { Card, DisplaySmall } from "@kleros/ui-components-library";
 import styled from "styled-components";
-import ChainSelect from "../ChainSelect";
-import TokenSelect from "../TokenSelect";
 import { responsiveSize } from "styles/responsiveSize";
+import PNKIcon from "tsx:svgs/tokens/pnk.svg";
+import ArbIcon from "tsx:svgs/tokens/arbitrum.svg";
+import { useLifiSDK } from "~src/context/LiFiProvider";
+import { formatUnits } from "viem";
+import { formatValue } from "utils/format";
 
 const Container = styled(Card)`
   width: 100%;
@@ -30,21 +33,34 @@ const StyledText = styled.h1`
 `;
 const StyledLabel = styled.label``;
 
+const StyledDisplay = styled(DisplaySmall)`
+  > div {
+    height: auto;
+    margin: 0px;
+    padding: 0px;
+    border: none;
+  }
+  .display-icon {
+    max-width: 24px;
+    max-height: 24px;
+  }
+`;
 const ToCard: React.FC = () => {
-  const [toChain, setToChain] = useState(421614);
-  const [toToken, setToToken] = useState("PNK");
-
+  const { routes } = useLifiSDK();
+  const route = routes?.[0];
   return (
     <Container>
       <InnerContainer>
         <ChainContainer>
           <StyledLabel>To</StyledLabel>
-          <ChainSelect chainId={toChain} setChainId={setToChain} />
+          <StyledDisplay Icon={ArbIcon} text="Arbitrum" />
         </ChainContainer>
       </InnerContainer>
       <InnerContainer>
-        <TokenSelect token={toToken} setToken={setToToken} />
-        <StyledText>0.0</StyledText>
+        <StyledDisplay Icon={PNKIcon} text="PNK" />
+        <StyledText>
+          {route ? formatValue(formatUnits(BigInt(route.toAmount), route.toToken.decimals), 2, false) : "0.0"}
+        </StyledText>
       </InnerContainer>
     </Container>
   );

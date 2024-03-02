@@ -25,3 +25,16 @@ export function formatDate(unixTimestamp: number): string {
   const options: Intl.DateTimeFormatOptions = { month: "long", day: "2-digit", year: "numeric" };
   return date.toLocaleDateString("en-US", options);
 }
+
+export function formatTimeApprox(seconds: number) {
+  if (isNaN(seconds)) {
+    return "Invalid input";
+  }
+
+  if (seconds < 60) {
+    return seconds + " sec";
+  } else {
+    var minutes = Math.floor(seconds / 60);
+    return "~" + minutes + `${minutes > 1 ? "min" : "mins"}`;
+  }
+}

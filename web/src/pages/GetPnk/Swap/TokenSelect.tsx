@@ -1,35 +1,64 @@
-import React from "react";
-import EthIcon from "tsx:svgs/tokens/eth.svg";
-import PnkIcon from "tsx:svgs/tokens/pnk.svg";
-import UsdcIcon from "tsx:svgs/tokens/usdc.svg";
-import DaiIcon from "tsx:svgs/tokens/dai.svg";
+import React, { useMemo } from "react";
 import StyledDropdown from "../StyledDropdown";
+import { useLifiSDK } from "context/LiFiProvider";
+import { _IItem1 } from "@kleros/ui-components-library";
+import styled from "styled-components";
+import EthIcon from "assets/svgs/tokens/eth.svg";
 
-// get these from the aggregator sdk we will use ?
-const supportedTokens = [
-  { value: "PNK", text: "PNK", Icon: PnkIcon },
-  { value: "ETH", text: "ETH", Icon: EthIcon },
-  { value: "DAI", text: "DAI", Icon: DaiIcon },
-  { value: "USDC", text: "USDC", Icon: UsdcIcon },
-];
+const StyledSVGContainer = styled.div`
+  margin-right: 8px;
+  border-radius: 50%;
+  overflow: hidden;
+`;
 
-// get this from aggregator sdk
-export type Token = {
-  token: string;
-  chainId: number;
-  logoUri: string;
+const Icon: React.FC<{ img?: string }> = ({ img }) => {
+  return (
+    <StyledSVGContainer>
+      {img ? (
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+          <image width="24" height="24" href={img} />
+        </svg>
+      ) : (
+        <EthIcon />
+      )}
+    </StyledSVGContainer>
+  );
 };
-interface ITokenSelect {
-  token: string;
-  setToken: React.Dispatch<React.SetStateAction<string>>;
-}
-const TokenSelect: React.FC<ITokenSelect> = ({ token, setToken }) => (
-  <StyledDropdown
-    smallButton
-    defaultValue={token}
-    callback={(val) => setToken(val.toString())}
-    items={supportedTokens}
-  />
-);
+
+const TokenSelect: React.FC = () => {
+  const { tokens, swapData, setSwapData } = useLifiSDK();
+
+  const supportedTokens = useMemo(
+    () =>
+      tokens.reduce<_IItem1[]>((acc, current) => {
+        acc.push({
+          text: current.symbol,
+          value: current.address,
+          icon: <Icon img={current.logoURI} />,
+        });
+        return acc;
+      }, []),
+    [tokens]
+  );
+
+  const handleTokenChange = (val: string | number) => {
+    const selectedAddress = val.toString();
+    const selectedToken = tokens.find((token) => token.address === selectedAddress);
+
+    setSwapData({
+      ...swapData,
+      fromTokenAddress: selectedAddress,
+      fromToken: selectedToken,
+    });
+  };
+  return (
+    <StyledDropdown
+      smallButton
+      defaultValue={swapData.fromTokenAddress}
+      callback={handleTokenChange}
+      items={supportedTokens}
+    />
+  );
+};
 
 export default TokenSelect;
