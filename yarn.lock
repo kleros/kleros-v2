@@ -5889,7 +5889,9 @@ __metadata:
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
-    "@kleros/ui-components-library": "npm:^2.6.3"
+    "@kleros/ui-components-library": "npm:^2.7.2"
+    "@lifi/sdk": "npm:^2.5.0"
+    "@lifi/types": "npm:^11.3.0"
     "@netlify/functions": "npm:^1.6.0"
     "@parcel/transformer-svg-react": "npm:2.11.0"
     "@parcel/watcher": "npm:~2.2.0"
@@ -5949,9 +5951,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kleros/ui-components-library@npm:^2.6.3":
-  version: 2.6.3
-  resolution: "@kleros/ui-components-library@npm:2.6.3"
+"@kleros/ui-components-library@npm:^2.7.2":
+  version: 2.7.2
+  resolution: "@kleros/ui-components-library@npm:2.7.2"
   dependencies:
     "@datepicker-react/hooks": "npm:^2.8.4"
     "@swc/helpers": "npm:^0.3.2"
@@ -5968,7 +5970,7 @@ __metadata:
     react-dom: ^18.0.0
     react-is: ^18.0.0
     styled-components: ^5.3.3
-  checksum: bc79976ade4487e563b85e0275674e50d24a4a321cce0abf01c525ca8f72fde3abd4a7d2ed6bc02c50dc401126d698ef547f8d6afda05fc3e1452c99999ae448
+  checksum: 9bae45549d2fae326ba3799455456434c935b5926e42a3061571e3c43f5c8c56ee17e7798065736bd91f479657a9ea29d5bda105f63bc603b61cd456b4e3c532
   languageName: node
   linkType: hard
 
@@ -6148,6 +6150,36 @@ __metadata:
     multiformats: "npm:^11.0.0"
     uint8arrays: "npm:^4.0.2"
   checksum: 36ce2ef7d76f382067da885863d256e83b26fede396f568b0578e5b2216525cb28f618a3f10e5ba55b6399eb08b3a5f42e58bc3f30278d5011385bd8af524e78
+  languageName: node
+  linkType: hard
+
+"@lifi/sdk@npm:^2.5.0":
+  version: 2.5.0
+  resolution: "@lifi/sdk@npm:2.5.0"
+  dependencies:
+    "@ethersproject/abi": "npm:^5.7.0"
+    "@ethersproject/contracts": "npm:^5.7.0"
+    "@lifi/types": "npm:^9.3.0"
+    bignumber.js: "npm:^9.1.2"
+    eth-rpc-errors: "npm:^4.0.3"
+    ethers: "npm:^5.7.2"
+  checksum: 7a68a9cebe01e4692babc350e0532b0ace72a241ae04e0f3c2aa0c339216cf4dedd7a33c911b3816389de321ba8ef911be142f1dbd7535aa5e5727026910d3db
+  languageName: node
+  linkType: hard
+
+"@lifi/types@npm:^11.3.0":
+  version: 11.3.0
+  resolution: "@lifi/types@npm:11.3.0"
+  checksum: 93d521e31891e756f0eb85e5ac443a8ca8c570ee2bc81a3134cbd3cc26846751ce4fa715f444fa2d1ae150773e3b3281146a6b4ff42c07015d7b835ecfe07484
+  languageName: node
+  linkType: hard
+
+"@lifi/types@npm:^9.3.0":
+  version: 9.3.3
+  resolution: "@lifi/types@npm:9.3.3"
+  dependencies:
+    ethers: "npm:^5.7.2"
+  checksum: 7f8ebcf71151889ae7d6d43e541cc910282957bcade6bc137cd2103668aa74936c7152547028ab0c9aa511ca0c8531d5f83199e08f6c66449cbe9ac51308ebcb
   languageName: node
   linkType: hard
 
@@ -13430,6 +13462,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bignumber.js@npm:^9.1.2":
+  version: 9.1.2
+  resolution: "bignumber.js@npm:9.1.2"
+  checksum: d89b8800a987225d2c00dcbf8a69dc08e92aa0880157c851c287b307d31ceb2fc2acb0c62c3e3a3d42b6c5fcae9b004035f13eb4386e56d529d7edac18d5c9d8
+  languageName: node
+  linkType: hard
+
 "bin-links@npm:^4.0.3":
   version: 4.0.3
   resolution: "bin-links@npm:4.0.3"
@@ -18240,7 +18279,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eth-rpc-errors@npm:^4.0.2":
+"eth-rpc-errors@npm:^4.0.2, eth-rpc-errors@npm:^4.0.3":
   version: 4.0.3
   resolution: "eth-rpc-errors@npm:4.0.3"
   dependencies:
