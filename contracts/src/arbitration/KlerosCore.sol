@@ -1152,11 +1152,11 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
                 _stakingFailed(_onError);
                 return false;
             }
-            totalStaked += pnkDeposit;
-            if (totalStaked > maxTotalStaked) {
+            if (totalStaked + pnkDeposit > maxTotalStaked) {
                 _stakingFailed(_onError);
                 return false;
             }
+            totalStaked += pnkDeposit;
         }
         if (pnkWithdrawal > 0) {
             if (!pinakion.safeTransfer(_account, pnkWithdrawal)) {
