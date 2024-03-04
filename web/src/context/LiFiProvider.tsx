@@ -11,6 +11,8 @@ import { switchChainHook, updateRouteHook } from "utils/lifiUtils";
 interface SwapData extends RoutesRequest {
   fromToken?: Token;
   tokenBalance?: string;
+  slippage: number;
+  gasPrice: "slow" | "normal" | "fast";
 }
 
 interface ILifiProvider {
@@ -29,7 +31,8 @@ const initialSwapData: SwapData = {
   fromChainId: 5,
   fromAmount: "1", // 1
   fromTokenAddress: "0x0000000000000000000000000000000000000000", // ETH
-
+  slippage: 0.03, // "3%"
+  gasPrice: "normal",
   // these are hardcoded, set to PNK on production deploy
   toChainId: 5,
   toTokenAddress: "0xd87ba7a50b2e7e660f678a895e4b72e7cb4ccd9c", // USDC
@@ -115,14 +118,10 @@ export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateRouteHook,
         switchChainHook,
         updateTransactionRequestHook: async (req) => {
-          // TODO: update gas price here
-          //   const updatedTxRequest = {
-          //     ...req,
-          //     gasPrice: "10000000000000000000",
-          //     gasLimit: "1",
-          //   };
-
-          return req;
+          return {
+            ...req,
+            gasPrice: await fetchGasPrice(swapData.fromChainId, swapData.gasPrice ?? "normal"),
+          };
         },
       })
       .then((res) => {
@@ -161,6 +160,27 @@ export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children
 const constructRouteRequest = (data: SwapData) => {
   const request = { ...(data as RoutesRequest) };
   request.fromAmount = parseUnits(data.fromAmount, data?.fromToken?.decimals ?? 18).toString();
-
+  request.options = {
+    slippage: data.slippage,
+  };
   return request;
+};
+
+const fetchGasPrice = async (chainId: number, gasSetting: string) => {
+  try {
+    const response = await fetch(`https://staging.li.quest/v1/gas/prices/${chainId}`);
+    const data = await response.json();
+    switch (gasSetting) {
+      case "slow":
+        return data.standard;
+      case "normal":
+        return data.fast;
+      case "fast":
+        return data.fastest;
+      default:
+        return data.normal;
+    }
+  } catch (err) {
+    console.log("Error fetching gas prices :", { err });
+  }
 };
