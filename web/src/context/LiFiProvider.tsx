@@ -22,7 +22,7 @@ interface ILifiProvider {
   setSwapData: (swapData: SwapData) => void;
   routesLoading?: boolean;
   isExecuting?: boolean;
-  execute: () => void;
+  execute: () => Promise<{ status: boolean; route?: Route }> | undefined;
 }
 
 const initialSwapData: SwapData = {
@@ -41,7 +41,7 @@ const LifiContext = createContext<ILifiProvider>({
   swapData: initialSwapData,
   setSwapData: () => {},
   setSelectedRoute: () => {},
-  execute: () => {},
+  execute: () => undefined,
 });
 
 export const useLifiSDK = () => {
@@ -110,7 +110,7 @@ export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const execute = useCallback(() => {
     if (!signer) return;
     setIsExecuting(true);
-    lifi
+    return lifi
       .executeRoute(signer, routes?.[0], {
         updateRouteHook,
         switchChainHook,
@@ -126,10 +126,12 @@ export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
       })
       .then((res) => {
-        console.log({ result: res }), resetRoutes();
+        console.log({ result: res });
+        return { status: true, route: res };
       })
       .catch((err) => {
         console.log("Swap execution failed :", { err });
+        return { status: false };
       })
       .finally(() => setIsExecuting(false));
   }, [routes, signer]);

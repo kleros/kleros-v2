@@ -2,9 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import { responsiveSize } from "styles/responsiveSize";
 import PnkIcon from "svgs/tokens/pnk.svg";
-import { Token } from "pages/GetPnk/Swap/TokenSelect";
 import LightButton from "components/LightButton";
 import ArrowIcon from "tsx:svgs/icons/arrow.svg";
+import type { Route } from "@lifi/sdk";
+import { getChain } from "pages/GetPnk/Swap/Cards/Routes/RouteDetails";
 
 const Container = styled.div`
   display: flex;
@@ -29,7 +30,7 @@ const SVGContainer = styled.div`
 
 const Amount = styled.h1`
   color: ${({ theme }) => theme.secondaryPurple};
-  font-size: ${responsiveSize(32, 64)};
+  font-size: ${responsiveSize(32, 44)};
   margin: 0px;
 `;
 
@@ -56,15 +57,14 @@ const Divider = styled.hr`
   margin: ${responsiveSize(32, 64)} 0px 0px;
 `;
 interface ISwapSuccess {
-  hash: string;
+  hash?: string;
   amount: string;
-  from?: Token;
-  to?: Token;
   isClaim?: boolean;
+  route?: Route;
 }
 
-const SwapSuccess: React.FC<ISwapSuccess> = ({ hash, amount, isClaim, from, to }) => {
-  const baseUrl = `https://sepolia.arbiscan.io/tx/${hash}`;
+const SwapSuccess: React.FC<ISwapSuccess> = ({ hash, amount, isClaim, route }) => {
+  const baseUrl = isClaim ? `https://sepolia.arbiscan.io/tx/${hash}` : route?.steps[0].execution?.process[0].txLink;
   return (
     <Container>
       <AmountContainer>
@@ -77,7 +77,8 @@ const SwapSuccess: React.FC<ISwapSuccess> = ({ hash, amount, isClaim, from, to }
         <Subtitle>Claimed: {amount} PNK (Testnet)</Subtitle>
       ) : (
         <Subtitle>
-          Bridge from &nbsp;<small>Ethereum</small>&nbsp; to &nbsp;<small>Arbitrum</small>
+          Bridge from &nbsp;<small>{getChain(route?.fromChainId ?? 1).name}</small>&nbsp; to &nbsp;
+          <small>{getChain(route?.toChainId ?? 1).name}</small>
         </Subtitle>
       )}
       <Divider />

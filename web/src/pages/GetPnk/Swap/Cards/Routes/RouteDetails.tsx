@@ -15,7 +15,7 @@ import type { Route } from "@lifi/sdk";
 import { useLifiSDK } from "context/LiFiProvider";
 const { ...chains } = all;
 
-function getChain(chainId: number) {
+export function getChain(chainId: number) {
   for (const chain of Object.values(chains)) {
     if (chain.id === chainId) {
       return chain;
