@@ -103,7 +103,8 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
 
     address public guardian; // The address that is capable to pause the asset withdrawals.
     bool public paused;
-    uint256 public maxTotalStaked;
+    uint256 public maxTotalStaked; // Max total allowed.
+    uint256 public totalStaked; // Total pnk staked in all courts.
     IERC721 public nftContract;
 
     address public jurorProsecutionModule; // The module for juror's prosecution.
@@ -1151,14 +1152,18 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
                 _stakingFailed(_onError);
                 return false;
             }
-            maxTotalStaked += pnkDeposit;
+            totalStaked += pnkDeposit;
+            if (totalStaked > maxTotalStaked) {
+                _stakingFailed(_onError);
+                return false;
+            }
         }
         if (pnkWithdrawal > 0) {
             if (!pinakion.safeTransfer(_account, pnkWithdrawal)) {
                 _stakingFailed(_onError);
                 return false;
             }
-            maxTotalStaked -= pnkWithdrawal;
+            totalStaked -= pnkWithdrawal;
         }
         return true;
     }
