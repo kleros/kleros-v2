@@ -1,5 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import React from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { LiFi, Token, RoutesResponse, RoutesRequest, Route } from "@lifi/sdk";
 import { useAccount } from "wagmi";
 import { useLocalStorage } from "hooks/useLocalStorage";
@@ -84,16 +83,21 @@ export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   }, [swapData.fromChainId]);
 
-  // get token balance for the chain. TODO: get all chains balance to determine end chain gas sufficiency
+  // get token balance for the chain. get all chains balance to determine end chain gas sufficiency
   useEffect(() => {
     if (!address || tokens.length === 0) return;
     const fromToken = swapData?.fromToken ?? tokens.find((token) => token.address === swapData.fromTokenAddress)!;
 
-    lifi.getTokenBalance(address, fromToken).then((res) => setSwapData({ ...swapData, tokenBalance: res?.amount }));
-  }, [swapData.fromToken, address, tokens, swapData.fromTokenAddress]);
+    lifi
+      .getTokenBalance(address, fromToken)
+      .then((res) => setSwapData({ ...swapData, tokenBalance: res?.amount }))
+      .catch((err) => console.log("Error fetching token balance: ", { err }));
+  }, [swapData.fromToken, address, tokens, swapData.fromTokenAddress, lifi]);
 
   useDebounce(
     () => {
+      if (Number(swapData.fromAmount) <= 0) return;
+
       setRoutesLoading(true);
       lifi
         .getRoutes(routeRequest)
@@ -133,7 +137,7 @@ export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { status: false };
       })
       .finally(() => setIsExecuting(false));
-  }, [routes, signer]);
+  }, [routes, signer, lifi]);
 
   return (
     <LifiContext.Provider

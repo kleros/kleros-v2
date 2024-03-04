@@ -18,16 +18,15 @@ const isRouteFailed = (route: Route) => {
 
 export const updateRouteHook = (route: Route) => {
   if (isExecutionStarted(route)) {
-    return toast.info("Confirmation pending", toastOptions);
+    toast.info("Confirmation pending", toastOptions);
   }
   if (isRouteFailed(route)) {
-    return toast.error(route.containsSwitchChain ? "Bridging failed" : "Swap failed", toastOptions);
+    toast.error(route.containsSwitchChain ? "Bridging failed" : "Swap failed", toastOptions);
   }
 
   if (isRouteDone(route)) {
-    return toast.success(route.containsSwitchChain ? "Bridging Success" : "Swap Success", toastOptions);
+    toast.success(route.containsSwitchChain ? "Bridging Success" : "Swap Success", toastOptions);
   }
-  return;
 };
 
 /** Gives the estimated time for the route to execute */

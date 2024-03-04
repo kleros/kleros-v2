@@ -30,7 +30,7 @@ const SVGContainer = styled.div`
 
 const Amount = styled.h1`
   color: ${({ theme }) => theme.secondaryPurple};
-  font-size: ${responsiveSize(32, 44)};
+  font-size: ${responsiveSize(32, 38)};
   margin: 0px;
 `;
 
@@ -77,7 +77,7 @@ const SwapSuccess: React.FC<ISwapSuccess> = ({ hash, amount, isClaim, route }) =
         <Subtitle>Claimed: {amount} PNK (Testnet)</Subtitle>
       ) : (
         <Subtitle>
-          Bridge from &nbsp;<small>{getChain(route?.fromChainId ?? 1).name}</small>&nbsp; to &nbsp;
+          Bridge from &nbsp;<small>{getChain(route?.fromChainId ?? 1).name}</small>&nbsp; to &nbsp;{" "}
           <small>{getChain(route?.toChainId ?? 1).name}</small>
         </Subtitle>
       )}

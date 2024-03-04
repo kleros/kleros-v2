@@ -20,8 +20,8 @@ const SwapButton: React.FC = () => {
   const [executedRoute, setExecutedRoute] = useState<Route | undefined>();
 
   const handleSwap = () => {
-    if (chain && swapData.fromChainId !== chain.id) {
-      switchNetwork && switchNetwork(swapData.fromChainId);
+    if (chain && swapData.fromChainId !== chain.id && switchNetwork) {
+      switchNetwork(swapData.fromChainId);
       return;
     }
     execute()?.then(({ status, route }) => {
