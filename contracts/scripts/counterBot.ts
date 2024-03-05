@@ -60,6 +60,7 @@ export default async function main() {
       .then((maxDrawingTime) => maxDrawingTime.sub(durationInPhase).toNumber());
   }
   logger.info({ phase, durationInPhase, remainingTimeInPhase }, "data");
+  await delay(1000);
 }
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
