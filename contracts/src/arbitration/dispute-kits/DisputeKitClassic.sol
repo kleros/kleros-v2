@@ -300,7 +300,7 @@ contract DisputeKitClassic is IDisputeKit, Initializable, UUPSProxiable {
 
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        (, bool hiddenVotes, , , , , , ) = core.courts(courtID);
+        (, bool hiddenVotes, , , , , ) = core.courts(courtID);
 
         //  Save the votes.
         for (uint256 i = 0; i < _voteIDs.length; i++) {

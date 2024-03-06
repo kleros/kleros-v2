@@ -127,6 +127,17 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         RNG _rng,
         uint256 _rngLookahead
     ) external reinitializer(1) {
+        _initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng, _rngLookahead);
+    }
+
+    function _initialize(
+        address _governor,
+        KlerosCore _core,
+        uint256 _minStakingTime,
+        uint256 _maxDrawingTime,
+        RNG _rng,
+        uint256 _rngLookahead
+    ) internal {
         governor = _governor;
         core = _core;
         minStakingTime = _minStakingTime;
@@ -272,7 +283,18 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
         uint96 _courtID,
         uint256 _newStake,
         bool _alreadyTransferred
-    ) external override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, bool succeeded) {
+    ) external virtual override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, bool succeeded) {
+        (pnkDeposit, pnkWithdrawal, succeeded) = _setStake(_account, _courtID, _newStake, _alreadyTransferred);
+    }
+
+    /// @dev Sets the specified juror's stake in a court.
+    /// Note: no state changes should be made when returning `succeeded` = false, otherwise delayed stakes might break invariants.
+    function _setStake(
+        address _account,
+        uint96 _courtID,
+        uint256 _newStake,
+        bool _alreadyTransferred
+    ) internal returns (uint256 pnkDeposit, uint256 pnkWithdrawal, bool succeeded) {
         Juror storage juror = jurors[_account];
         uint256 currentStake = stakeOf(_account, _courtID);
 
@@ -320,7 +342,7 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
             if (currenCourtID == Constants.GENERAL_COURT) {
                 finished = true;
             } else {
-                (currenCourtID, , , , , , , ) = core.courts(currenCourtID); // Get the parent court.
+                (currenCourtID, , , , , , ) = core.courts(currenCourtID); // Get the parent court.
             }
         }
         emit StakeSet(_account, _courtID, _newStake);

@@ -95,8 +95,7 @@ describe("Draw Benchmark", async () => {
       256,
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
       ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K)
-      [1],
-      maxStake
+      [1]
     );
   });
 

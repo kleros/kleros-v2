@@ -78,8 +78,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
       ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
-      maxTotalStake,
-      AddressZero, // TODO:
     ],
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
