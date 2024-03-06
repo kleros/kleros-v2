@@ -177,8 +177,7 @@ async function main() {
         court.alpha,
         court.feeForJuror,
         court.jurorsForCourtJump,
-        court.timesPerPeriod,
-        court.maxStake
+        court.timesPerPeriod
       );
     } else {
       console.log("Court %d not found, creating it with", court.id, court);
@@ -191,8 +190,7 @@ async function main() {
           court.feeForJuror,
           court.jurorsForCourtJump,
           [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
-          [DISPUTE_KIT_CLASSIC],
-          court.maxStake
+          [DISPUTE_KIT_CLASSIC]
         );
       } else {
         await (core as KlerosCore).createCourt(
@@ -204,8 +202,7 @@ async function main() {
           court.jurorsForCourtJump,
           [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
           ethers.utils.hexlify(5), // Not accessible on-chain, but has always been set to the same value so far.
-          [DISPUTE_KIT_CLASSIC],
-          court.maxStake
+          [DISPUTE_KIT_CLASSIC]
         );
       }
     }
