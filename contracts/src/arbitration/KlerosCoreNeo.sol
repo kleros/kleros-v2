@@ -123,4 +123,17 @@ contract KlerosCoreNeo is KlerosCoreBase, UUPSProxiable, Initializable {
         if (!arbitrableWhitelist[msg.sender]) revert ArbitrableNotWhitelisted();
         return super._createDispute(_numberOfChoices, _extraData, _feeToken, _feeAmount);
     }
+
+    function _stakingFailed(OnError _onError, StakingResult _result) internal pure override {
+        super._stakingFailed(_onError, _result);
+        if (_result == StakingResult.CannotStakeMoreThanMaxStake) revert StakingMoreThanCourtMaxStake();
+        if (_result == StakingResult.CannotStakeMoreThanMaxTotalStaked) revert StakingMoreThanMaxTotalStaked();
+    }
+
+    // ************************************* //
+    // *              Errors               * //
+    // ************************************* //
+
+    error StakingMoreThanCourtMaxStake();
+    error StakingMoreThanMaxTotalStaked();
 }

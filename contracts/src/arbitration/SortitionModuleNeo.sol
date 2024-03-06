@@ -80,38 +80,36 @@ contract SortitionModuleNeo is SortitionModuleBase, UUPSProxiable, Initializable
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Sets the specified juror's stake in a court.
-    /// `O(n + p * log_k(j))` where
-    /// `n` is the number of courts the juror has staked in,
-    /// `p` is the depth of the court tree,
-    /// `k` is the minimum number of children per node of one of these courts' sortition sum tree,
-    /// and `j` is the maximum number of jurors that ever staked in one of these courts simultaneously.
-    /// @param _account The address of the juror.
-    /// @param _courtID The ID of the court.
-    /// @param _newStake The new stake.
-    /// @param _alreadyTransferred True if the tokens were already transferred from juror. Only relevant for delayed stakes.
-    /// @return pnkDeposit The amount of PNK to be deposited.
-    /// @return pnkWithdrawal The amount of PNK to be withdrawn.
-    /// @return succeeded True if the call succeeded, false otherwise.
-    function setStake(
+    function _setStake(
         address _account,
         uint96 _courtID,
         uint256 _newStake,
         bool _alreadyTransferred
-    ) external override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, bool succeeded) {
+    ) internal override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
         uint256 currentStake = stakeOf(_account, _courtID);
-        uint256 stakeIncrease = _newStake - currentStake;
+        bool stakeIncrease = _newStake > currentStake;
+        uint256 stakeChange = stakeIncrease ? _newStake - currentStake : currentStake - _newStake;
+
         Juror storage juror = jurors[_account];
-        if (juror.stakedPnk + stakeIncrease > maxStakePerJuror) {
-            return (0, 0, false);
-        }
-        if (totalStaked + stakeIncrease > maxTotalStaked) {
-            return (0, 0, false);
-        }
-        if (phase == Phase.staking) {
-            totalStaked += stakeIncrease;
+        if (stakeIncrease && !_alreadyTransferred) {
+            if (juror.stakedPnk + stakeChange > maxStakePerJuror) {
+                return (0, 0, StakingResult.CannotStakeMoreThanMaxStake);
+            }
+            if (totalStaked + stakeChange > maxTotalStaked) {
+                return (0, 0, StakingResult.CannotStakeMoreThanMaxTotalStaked);
+            }
+            totalStaked += stakeChange;
         }
 
-        (pnkDeposit, pnkWithdrawal, succeeded) = super._setStake(_account, _courtID, _newStake, _alreadyTransferred);
+        if (!stakeIncrease && phase == Phase.staking) {
+            totalStaked -= stakeChange;
+        }
+
+        (pnkDeposit, pnkWithdrawal, stakingResult) = super._setStake(
+            _account,
+            _courtID,
+            _newStake,
+            _alreadyTransferred
+        );
     }
 }

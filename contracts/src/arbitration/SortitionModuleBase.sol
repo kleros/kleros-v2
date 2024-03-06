@@ -57,9 +57,6 @@ abstract contract SortitionModuleBase is ISortitionModule {
     // *             Storage               * //
     // ************************************* //
 
-    uint256 public constant MAX_STAKE_PATHS = 4; // The maximum number of stake paths a juror can have.
-    uint256 public constant DEFAULT_K = 6; // Default number of children per node.
-
     address public governor; // The governor of the contract.
     KlerosCore public core; // The core arbitrator contract.
     Phase public phase; // The current phase.
@@ -245,14 +242,14 @@ abstract contract SortitionModuleBase is ISortitionModule {
     /// @param _alreadyTransferred True if the tokens were already transferred from juror. Only relevant for delayed stakes.
     /// @return pnkDeposit The amount of PNK to be deposited.
     /// @return pnkWithdrawal The amount of PNK to be withdrawn.
-    /// @return succeeded True if the call succeeded, false otherwise.
+    /// @return stakingResult The result of the staking operation.
     function setStake(
         address _account,
         uint96 _courtID,
         uint256 _newStake,
         bool _alreadyTransferred
-    ) external virtual override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, bool succeeded) {
-        (pnkDeposit, pnkWithdrawal, succeeded) = _setStake(_account, _courtID, _newStake, _alreadyTransferred);
+    ) external override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
+        (pnkDeposit, pnkWithdrawal, stakingResult) = _setStake(_account, _courtID, _newStake, _alreadyTransferred);
     }
 
     /// @dev Sets the specified juror's stake in a court.
@@ -262,13 +259,13 @@ abstract contract SortitionModuleBase is ISortitionModule {
         uint96 _courtID,
         uint256 _newStake,
         bool _alreadyTransferred
-    ) internal returns (uint256 pnkDeposit, uint256 pnkWithdrawal, bool succeeded) {
+    ) internal virtual returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
         Juror storage juror = jurors[_account];
         uint256 currentStake = stakeOf(_account, _courtID);
 
         uint256 nbCourts = juror.courtIDs.length;
         if (_newStake == 0 && (nbCourts >= MAX_STAKE_PATHS || currentStake == 0)) {
-            return (0, 0, false); // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
+            return (0, 0, StakingResult.CannotStakeInMoreCourts); // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
         }
 
         if (phase != Phase.staking) {
@@ -289,7 +286,7 @@ abstract contract SortitionModuleBase is ISortitionModule {
                 // PNK withdrawal: tokens are not transferred yet.
                 emit StakeDelayedNotTransferred(_account, _courtID, _newStake);
             }
-            return (pnkDeposit, pnkWithdrawal, true);
+            return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
         }
 
         // Current phase is Staking: set normal stakes or delayed stakes (which may have been already transferred).
@@ -307,14 +304,14 @@ abstract contract SortitionModuleBase is ISortitionModule {
         while (!finished) {
             // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
             _set(bytes32(uint256(currenCourtID)), _newStake, stakePathID);
-            if (currenCourtID == Constants.GENERAL_COURT) {
+            if (currenCourtID == GENERAL_COURT) {
                 finished = true;
             } else {
                 (currenCourtID, , , , , , ) = core.courts(currenCourtID); // Get the parent court.
             }
         }
         emit StakeSet(_account, _courtID, _newStake);
-        return (pnkDeposit, pnkWithdrawal, true);
+        return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
     }
 
     /// @dev Checks if there is already a delayed stake. In this case consider it irrelevant and remove it.
