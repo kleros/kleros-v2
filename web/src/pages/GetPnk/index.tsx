@@ -13,7 +13,7 @@ import { LifiProvider } from "context/LiFiProvider";
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
-  padding: ${responsiveSize(32, 72)} ${responsiveSize(24, 132)} ${responsiveSize(76, 96)};
+  padding: ${responsiveSize(32, 72)} ${responsiveSize(12, 132)} ${responsiveSize(76, 96)};
   max-width: 1780px;
   margin: 0 auto;
   display: flex;
@@ -23,7 +23,7 @@ const Container = styled.div`
   gap: 24px;
 `;
 const StyledCard = styled(Card)`
-  width: ${responsiveSize(300, 500)};
+  width: ${responsiveSize(360, 500)};
   height: fit-content;
   padding: 27px;
 `;

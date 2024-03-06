@@ -35,6 +35,6 @@ export function formatTimeApprox(seconds: number) {
     return seconds + " sec";
   } else {
     let minutes = Math.floor(seconds / 60);
-    return "~" + minutes + `${minutes > 1 ? "min" : "mins"}`;
+    return "~" + minutes + `${minutes > 1 ? " min" : " mins"}`;
   }
 }

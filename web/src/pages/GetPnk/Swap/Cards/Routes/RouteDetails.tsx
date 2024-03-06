@@ -12,6 +12,7 @@ import { formatTimeApprox } from "utils/date";
 import { getRouteEstimateTime } from "utils/lifiUtils";
 import type { Route } from "@lifi/sdk";
 import { useLifiSDK } from "context/LiFiProvider";
+import ToolsInfo from "./ToolsInfo";
 const { ...chains } = all;
 
 export function getChain(chainId: number) {
@@ -79,11 +80,14 @@ interface IRouteDetails {
 const RouteDetails: React.FC<IRouteDetails> = ({ route }) => {
   const { selectedRoute, setSelectedRoute } = useLifiSDK();
   const isSelected = selectedRoute?.id === route.id;
+  console.log({ route });
+
   return (
     <Container {...{ isSelected }} onClick={() => setSelectedRoute(route)}>
       <StyledLabel>
         Bridge from <small>{getChain(route.fromChainId).name}</small> to <small>{getChain(route.toChainId).name}</small>
       </StyledLabel>{" "}
+      <ToolsInfo steps={route.steps} />
       <StyledSpan>
         <NumberDisplay
           value={formatUnits(BigInt(route.fromAmount), route.fromToken.decimals)}
