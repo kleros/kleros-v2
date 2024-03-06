@@ -8,13 +8,15 @@
 
 pragma solidity 0.8.18;
 
-import "./KlerosCore.sol";
+import "./KlerosCoreBase.sol";
+import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
+import {Initializable} from "../proxy/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /// @title KlerosCoreNeo
 /// Core arbitrator contract for Kleros v2.
 /// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
-contract KlerosCoreNeo is KlerosCore {
+contract KlerosCoreNeo is KlerosCoreBase, UUPSProxiable, Initializable {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -74,6 +76,12 @@ contract KlerosCoreNeo is KlerosCore {
     // ************************************* //
     // *             Governance            * //
     // ************************************* //
+
+    /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+    ///      Only the governor can perform upgrades (`onlyByGovernor`)
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+        // NOP
+    }
 
     /// @dev Changes the `jurorNft` storage variable.
     /// @param _jurorNft The new value for the `jurorNft` storage variable.

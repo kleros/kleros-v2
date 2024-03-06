@@ -30,3 +30,16 @@ export const deployERC20AndFaucet = async (
   }
   return erc20;
 };
+
+export const deployERC721 = async (
+  hre: HardhatRuntimeEnvironment,
+  deployer: string,
+  ticker: string
+): Promise<Contract> => {
+  return getContractOrDeploy(hre, ticker, {
+    from: deployer,
+    contract: "TestERC721",
+    args: [ticker, ticker],
+    log: true,
+  });
+};

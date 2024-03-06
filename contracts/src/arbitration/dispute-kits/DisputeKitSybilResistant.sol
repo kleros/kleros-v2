@@ -170,10 +170,8 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
     // *      Governance      * //
     // ************************ //
 
-    /**
-     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
-     */
+    /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+    ///      Only the governor can perform upgrades (`onlyByGovernor`)
     function _authorizeUpgrade(address) internal view override onlyByGovernor {
         // NOP
     }
@@ -281,7 +279,7 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
         bytes32 _commit
     ) external notJumped(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
-        require(period == KlerosCore.Period.commit, "The dispute should be in Commit period.");
+        require(period == KlerosCoreBase.Period.commit, "The dispute should be in Commit period.");
         require(_commit != bytes32(0), "Empty commit.");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
@@ -310,7 +308,7 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
         string memory _justification
     ) external notJumped(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
-        require(period == KlerosCore.Period.vote, "The dispute should be in Vote period.");
+        require(period == KlerosCoreBase.Period.vote, "The dispute should be in Vote period.");
         require(_voteIDs.length > 0, "No voteID provided");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
@@ -491,7 +489,7 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
         ruling = tied ? 0 : round.winningChoice;
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         // Override the final ruling if only one side funded the appeals.
-        if (period == KlerosCore.Period.execution) {
+        if (period == KlerosCoreBase.Period.execution) {
             uint256[] memory fundedChoices = getFundedChoices(_coreDisputeID);
             if (fundedChoices.length == 1) {
                 ruling = fundedChoices[0];

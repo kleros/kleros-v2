@@ -3,9 +3,10 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber, BigNumberish } from "ethers";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
+import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 import { HomeChains, isSkipped } from "./utils";
-import { deployERC20AndFaucet } from "./utils/deployERC20AndFaucet";
-import { DisputeKitClassic, KlerosCore } from "../typechain-types";
+import { deployERC20AndFaucet } from "./utils/deployTokens";
+import { DisputeKitClassic, KlerosCore, KlerosCoreUniversity } from "../typechain-types";
 import { getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -64,32 +65,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const disputeKitContract = (await ethers.getContract("DisputeKitClassicUniversity")) as DisputeKitClassic;
   const currentCore = await disputeKitContract.core();
   if (currentCore !== klerosCore.address) {
-    console.log("changing DisputeKitClassicUniversity.core to %s", klerosCore.address);
+    console.log(`disputeKit.changeCore(${klerosCore.address})`);
     await disputeKitContract.changeCore(klerosCore.address);
   }
 
-  const changeCurrencyRate = async (
-    erc20: string,
-    accepted: boolean,
-    rateInEth: BigNumberish,
-    rateDecimals: BigNumberish
-  ) => {
-    const core = (await ethers.getContract("KlerosCoreUniversity")) as KlerosCore;
-    const pnkRate = await core.currencyRates(erc20);
-    if (pnkRate.feePaymentAccepted !== accepted) {
-      console.log(`core.changeAcceptedFeeTokens(${erc20}, ${accepted})`);
-      await core.changeAcceptedFeeTokens(erc20, accepted);
-    }
-    if (!pnkRate.rateInEth.eq(rateInEth) || pnkRate.rateDecimals !== rateDecimals) {
-      console.log(`core.changeCurrencyRates(${erc20}, ${rateInEth}, ${rateDecimals})`);
-      await core.changeCurrencyRates(erc20, rateInEth, rateDecimals);
-    }
-  };
-
+  const core = (await hre.ethers.getContract("KlerosCoreUniversity")) as KlerosCoreUniversity;
   try {
-    await changeCurrencyRate(pnk.address, true, 12225583, 12);
-    await changeCurrencyRate(dai.address, true, 60327783, 11);
-    await changeCurrencyRate(weth.address, true, 1, 1);
+    await changeCurrencyRate(core, pnk.address, true, 12225583, 12);
+    await changeCurrencyRate(core, dai.address, true, 60327783, 11);
+    await changeCurrencyRate(core, weth.address, true, 1, 1);
   } catch (e) {
     console.error("failed to change currency rates:", e);
   }
@@ -103,7 +87,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await deploy("DisputeResolverUniversity", {
     from: deployer,
     contract: "DisputeResolver",
-    args: [klerosCore.address, disputeTemplateRegistry.address],
+    args: [core.address, disputeTemplateRegistry.address],
     log: true,
   });
 };

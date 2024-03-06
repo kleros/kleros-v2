@@ -10,11 +10,13 @@
 
 pragma solidity 0.8.18;
 
-import "./SortitionModule.sol";
+import "./SortitionModuleBase.sol";
+import "../proxy/UUPSProxiable.sol";
+import "../proxy/Initializable.sol";
 
-/// @title SortitionModule
+/// @title SortitionModuleNeo
 /// @dev A factory of trees that keeps track of staked values for sortition.
-contract SortitionModuleNeo is SortitionModule {
+contract SortitionModuleNeo is SortitionModuleBase, UUPSProxiable, Initializable {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -33,6 +35,7 @@ contract SortitionModuleNeo is SortitionModule {
     }
 
     /// @dev Initializer (constructor equivalent for upgradable contracts).
+    /// @param _governor The governor.
     /// @param _core The KlerosCore.
     /// @param _minStakingTime Minimal time to stake
     /// @param _maxDrawingTime Time after which the drawing phase can be switched
@@ -58,6 +61,12 @@ contract SortitionModuleNeo is SortitionModule {
     // ************************************* //
     // *             Governance            * //
     // ************************************* //
+
+    /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+    ///      Only the governor can perform upgrades (`onlyByGovernor`)
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+        // NOP
+    }
 
     function changeMaxStakePerJuror(uint256 _maxStakePerJuror) external onlyByGovernor {
         maxStakePerJuror = _maxStakePerJuror;
