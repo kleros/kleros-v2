@@ -5,6 +5,7 @@ import ToCard from "./Cards/ToCard";
 import { isProductionDeployment } from "consts/index";
 import SwapButton from "./SwapButton";
 import Routes from "./Cards/Routes";
+import { useAccount } from "wagmi";
 
 const Container = styled.div`
   display: flex;
@@ -14,11 +15,12 @@ const Container = styled.div`
 `;
 
 const Swap: React.FC = () => {
+  const { isDisconnected } = useAccount();
   return (
     <Container>
       <FromCard />
       <ToCard />
-      <Routes />
+      {isDisconnected ? null : <Routes />}
       <SwapButton />
     </Container>
   );

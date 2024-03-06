@@ -60,7 +60,7 @@ const lifi = new LiFi({
 });
 
 export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { address } = useAccount();
+  const { address, isDisconnected } = useAccount();
   const [tokens, setTokens] = useState<Token[]>([]);
   const [routes, setRoutes] = useState<RoutesResponse["routes"]>([]);
   const [selectedRoute, setSelectedRoute] = useState<Route>();
@@ -96,7 +96,7 @@ export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useDebounce(
     () => {
-      if (Number(swapData.fromAmount) <= 0) return;
+      if (Number(swapData.fromAmount) <= 0 || isDisconnected) return;
 
       setRoutesLoading(true);
       lifi

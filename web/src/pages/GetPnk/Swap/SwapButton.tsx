@@ -1,18 +1,22 @@
 import { Button } from "@kleros/ui-components-library";
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
-import { useNetwork, useSwitchNetwork } from "wagmi";
+import { useAccount, useNetwork, useSwitchNetwork } from "wagmi";
 import { useLifiSDK } from "context/LiFiProvider";
 import Popup, { PopupType } from "components/Popup";
 import type { Route } from "@lifi/sdk";
 import { formatValue } from "utils/format";
 import { formatUnits } from "viem";
+import ConnectWallet from "components/ConnectWallet";
 
 const StyledButton = styled(Button)`
   width: 100%;
 `;
-
+const StyledConnectButton = styled(ConnectWallet)`
+  width: 100%;
+`;
 const SwapButton: React.FC = () => {
+  const { isDisconnected } = useAccount();
   const { execute, swapData, routesLoading, routes, isExecuting, selectedRoute } = useLifiSDK();
   const { switchNetwork } = useSwitchNetwork();
   const { chain } = useNetwork();
@@ -41,7 +45,11 @@ const SwapButton: React.FC = () => {
   );
   return (
     <>
-      <StyledButton text={buttonText} onClick={handleSwap} disabled={isSwapDisabled} isLoading={isExecuting} />;
+      {isDisconnected ? (
+        <StyledConnectButton />
+      ) : (
+        <StyledButton text={buttonText} onClick={handleSwap} disabled={isSwapDisabled} isLoading={isExecuting} />
+      )}
       {isPopupOpen && (
         <Popup
           title="Success!"

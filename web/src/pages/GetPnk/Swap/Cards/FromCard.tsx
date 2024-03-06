@@ -10,6 +10,7 @@ import WalletIcon from "tsx:svgs/icons/wallet.svg";
 import { useLifiSDK } from "context/LiFiProvider";
 import NumberDisplay from "components/NumberDisplay";
 import Skeleton from "react-loading-skeleton";
+import { useAccount } from "wagmi";
 
 const Container = styled(Card)`
   width: 100%;
@@ -71,6 +72,7 @@ const BalanceLabel = styled.label`
 
 const FromCard: React.FC = () => {
   const { swapData, setSwapData } = useLifiSDK();
+  const { isConnected } = useAccount();
 
   const handleMax = () => {
     if (!swapData.tokenBalance) return;
@@ -88,20 +90,22 @@ const FromCard: React.FC = () => {
           <ChainSelect />
         </ChainContainer>
         <BalanceContainer>
-          <BalanceDisplay>
-            <WalletIcon />
-            <BalanceLabel>
-              {swapData?.tokenBalance ? (
-                <NumberDisplay
-                  value={swapData.tokenBalance}
-                  showUnitInDisplay={false}
-                  unit={swapData?.fromToken?.symbol ?? "ETH"}
-                />
-              ) : (
-                <Skeleton width={50} height={12} />
-              )}
-            </BalanceLabel>
-          </BalanceDisplay>
+          {isConnected ? (
+            <BalanceDisplay>
+              <WalletIcon />
+              <BalanceLabel>
+                {swapData?.tokenBalance ? (
+                  <NumberDisplay
+                    value={swapData.tokenBalance}
+                    showUnitInDisplay={false}
+                    unit={swapData?.fromToken?.symbol ?? "ETH"}
+                  />
+                ) : (
+                  <Skeleton width={50} height={12} />
+                )}
+              </BalanceLabel>
+            </BalanceDisplay>
+          ) : null}
           <StyledButton variant="secondary" text="Max" onClick={handleMax} />
         </BalanceContainer>
       </InnerContainer>
