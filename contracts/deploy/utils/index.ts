@@ -1,3 +1,4 @@
+import { ethers } from "ethers";
 import { Network } from "hardhat/types";
 
 // TODO: derive this from hardhat.config and make it rely on viem/chains
@@ -34,3 +35,6 @@ export const isSkipped = async (network: Network, skip: boolean) => {
   }
   return false;
 };
+
+export const PNK = (n: number) => ethers.utils.parseUnits(String(n));
+export const ETH = (n: number) => ethers.utils.parseUnits(String(n));

@@ -4,7 +4,7 @@ import { BigNumber, BigNumberish } from "ethers";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
-import { HomeChains, isSkipped } from "./utils";
+import { ETH, HomeChains, PNK, isSkipped } from "./utils";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
 import { DisputeKitClassic, KlerosCore, KlerosCoreUniversity } from "../typechain-types";
 import { getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
@@ -42,9 +42,10 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   }); // nonce (implementation), nonce+1 (proxy)
 
-  const minStake = BigNumber.from(10).pow(20).mul(2);
+  const minStake = PNK(200);
   const alpha = 10000;
-  const feeForJuror = BigNumber.from(10).pow(17);
+  const feeForJuror = ETH(0.1);
+  const jurorsForCourtJump = 256;
   const klerosCore = await deployUpgradable(deployments, "KlerosCoreUniversity", {
     from: deployer,
     args: [
@@ -54,7 +55,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       AddressZero,
       disputeKit.address,
       false,
-      [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
+      [minStake, alpha, feeForJuror, jurorsForCourtJump],
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
       sortitionModule.address,
     ],

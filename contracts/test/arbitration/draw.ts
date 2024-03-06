@@ -83,7 +83,6 @@ describe("Draw Benchmark", async () => {
 
     // CourtId 2 = CHILD_COURT
     const minStake = BigNumber.from(10).pow(20).mul(3); // 300 PNK
-    const maxStake = BigNumber.from(10).pow(21).mul(3); // 3000 PNK
     const alpha = 10000;
     const feeForJuror = BigNumber.from(10).pow(17);
     await core.createCourt(

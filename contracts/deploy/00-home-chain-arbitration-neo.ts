@@ -4,7 +4,7 @@ import { BigNumber, BigNumberish } from "ethers";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
-import { HomeChains, isSkipped, isDevnet } from "./utils";
+import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
 import { getContractOrDeploy } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet, deployERC721 } from "./utils/deployTokens";
 import { DisputeKitClassic, KlerosCoreNeo } from "../typechain-types";
@@ -14,7 +14,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const { deploy, execute } = deployments;
   const { AddressZero } = hre.ethers.constants;
   const RNG_LOOKAHEAD = 20;
-  const PNK = (n: number) => ethers.utils.parseUnits(String(n));
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -76,7 +75,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const minStake = PNK(200);
   const alpha = 10000;
-  const feeForJuror = BigNumber.from(10).pow(17);
+  const feeForJuror = ETH(0.1);
+  const jurorsForCourtJump = 256;
   const klerosCore = await deployUpgradable(deployments, "KlerosCoreNeo", {
     from: deployer,
     args: [
@@ -86,7 +86,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       AddressZero,
       disputeKit.address,
       false,
-      [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
+      [minStake, alpha, feeForJuror, jurorsForCourtJump],
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
       ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
