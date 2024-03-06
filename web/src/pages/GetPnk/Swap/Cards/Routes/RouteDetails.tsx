@@ -1,7 +1,6 @@
 import React from "react";
 import { Card } from "@kleros/ui-components-library";
 import styled, { css } from "styled-components";
-import SpinnerIcon from "tsx:svgs/icons/spinner.svg";
 import ArrowIcon from "tsx:svgs/icons/arrow.svg";
 import GasIcon from "tsx:svgs/icons/gas.svg";
 import ClockIcon from "tsx:svgs/icons/clock.svg";
@@ -43,22 +42,6 @@ const Container = styled(Card)<{ isSelected?: boolean }>`
     `}
 `;
 
-const InnerContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const SVGContainer = styled.div`
-  display: flex;
-  animation: rotate 2s infinite;
-  @keyframes rotate {
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-`;
-
 const StyledSpan = styled.span`
   display: flex;
   align-items: center;
@@ -98,30 +81,19 @@ const RouteDetails: React.FC<IRouteDetails> = ({ route }) => {
   const isSelected = selectedRoute?.id === route.id;
   return (
     <Container {...{ isSelected }} onClick={() => setSelectedRoute(route)}>
-      <InnerContainer>
-        <StyledLabel>
-          Bridge from <small>{getChain(route.fromChainId).name}</small> to{" "}
-          <small>{getChain(route.toChainId).name}</small>
-        </StyledLabel>{" "}
-        <SVGContainer>
-          <SpinnerIcon />
-        </SVGContainer>
-      </InnerContainer>
-      <InnerContainer>
-        <StyledSpan>
-          <NumberDisplay
-            value={formatUnits(BigInt(route.fromAmount), route.fromToken.decimals)}
-            unit={route.fromToken.name}
-          />
-          <Icon as={ArrowIcon} />
-          <NumberDisplay
-            value={formatUnits(BigInt(route.toAmount), route.toToken.decimals)}
-            unit={route.toToken.name}
-          />
-          &nbsp;~
-          <NumberDisplay value={route.toAmountUSD} isCurrency unit="$" />
-        </StyledSpan>
-      </InnerContainer>
+      <StyledLabel>
+        Bridge from <small>{getChain(route.fromChainId).name}</small> to <small>{getChain(route.toChainId).name}</small>
+      </StyledLabel>{" "}
+      <StyledSpan>
+        <NumberDisplay
+          value={formatUnits(BigInt(route.fromAmount), route.fromToken.decimals)}
+          unit={route.fromToken.name}
+        />
+        <Icon as={ArrowIcon} />
+        <NumberDisplay value={formatUnits(BigInt(route.toAmount), route.toToken.decimals)} unit={route.toToken.name} />
+        &nbsp;~
+        <NumberDisplay value={route.toAmountUSD} isCurrency unit="$" />
+      </StyledSpan>
       <GasAndTimeContainer>
         <MiddleContainer>
           <GasIcon />

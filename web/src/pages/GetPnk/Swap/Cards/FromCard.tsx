@@ -6,7 +6,10 @@ import TokenSelect from "../TokenSelect";
 import { responsiveSize } from "styles/responsiveSize";
 import NumberField from "../NumberInput";
 import DownArrow from "tsx:svgs/icons/down-arrow.svg";
+import WalletIcon from "tsx:svgs/icons/wallet.svg";
 import { useLifiSDK } from "context/LiFiProvider";
+import NumberDisplay from "components/NumberDisplay";
+import Skeleton from "react-loading-skeleton";
 
 const Container = styled(Card)`
   width: 100%;
@@ -19,17 +22,20 @@ const Container = styled(Card)`
   border-color: ${({ theme }) => theme.primaryBlue};
   position: relative;
 `;
+
 const InnerContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
 `;
+
 const ChainContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   gap: ${responsiveSize(8, 16)};
 `;
+
 const StyledButton = styled(Button)`
   border: none;
   background-color: transparent;
@@ -47,18 +53,33 @@ const SVGContainer = styled.div`
 `;
 const StyledLabel = styled.label``;
 
+const BalanceContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`;
+
+const BalanceDisplay = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+`;
+
+const BalanceLabel = styled.label`
+  font-size: 12px;
+`;
+
 const FromCard: React.FC = () => {
   const { swapData, setSwapData } = useLifiSDK();
 
   const handleMax = () => {
     if (!swapData.tokenBalance) return;
-    console.log({ swapData });
-
     setSwapData({
       ...swapData,
       fromAmount: swapData.tokenBalance,
     });
   };
+
   return (
     <Container>
       <InnerContainer>
@@ -66,7 +87,23 @@ const FromCard: React.FC = () => {
           <StyledLabel>From</StyledLabel>
           <ChainSelect />
         </ChainContainer>
-        <StyledButton variant="secondary" text="Max" onClick={handleMax} />
+        <BalanceContainer>
+          <BalanceDisplay>
+            <WalletIcon />
+            <BalanceLabel>
+              {swapData?.tokenBalance ? (
+                <NumberDisplay
+                  value={swapData.tokenBalance}
+                  showUnitInDisplay={false}
+                  unit={swapData?.fromToken?.symbol ?? "ETH"}
+                />
+              ) : (
+                <Skeleton width={50} height={12} />
+              )}
+            </BalanceLabel>
+          </BalanceDisplay>
+          <StyledButton variant="secondary" text="Max" onClick={handleMax} />
+        </BalanceContainer>
       </InnerContainer>
       <InnerContainer>
         <TokenSelect />
