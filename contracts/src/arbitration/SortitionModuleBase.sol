@@ -195,6 +195,7 @@ abstract contract SortitionModuleBase is ISortitionModule {
     /// @param _iterations The number of delayed stakes to execute.
     function executeDelayedStakes(uint256 _iterations) external {
         require(phase == Phase.staking, "Should be in Staking phase.");
+        require(delayedStakeWriteIndex >= delayedStakeReadIndex, "No delayed stake to execute.");
 
         uint256 actualIterations = (delayedStakeReadIndex + _iterations) - 1 > delayedStakeWriteIndex
             ? (delayedStakeWriteIndex - delayedStakeReadIndex) + 1
