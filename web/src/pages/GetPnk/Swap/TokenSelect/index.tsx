@@ -1,14 +1,25 @@
 import React, { useMemo } from "react";
-import StyledDropdown from "../StyledDropdown";
+import StyledDropdown from "../../StyledDropdown";
 import { useLifiSDK } from "context/LiFiProvider";
-import { _IItem1 } from "@kleros/ui-components-library";
+import { Card, _IItem1 } from "@kleros/ui-components-library";
 import styled from "styled-components";
 import EthIcon from "assets/svgs/tokens/eth.svg";
+import { responsiveSize } from "styles/responsiveSize";
+import { useTokenSelectContext } from "./TokenSelectProvider";
+import Header from "./Header";
+import SearchableSelect from "components/SearchableSelect";
 
 const StyledSVGContainer = styled.div`
   margin-right: 8px;
   border-radius: 50%;
   overflow: hidden;
+`;
+
+const SelectContainer = styled(Card)`
+  display: flex;
+  flex-direction: column;
+  width: ${responsiveSize(360, 500)};
+  height: fit-content;
 `;
 
 const Icon: React.FC<{ img?: string }> = ({ img }) => {
@@ -26,6 +37,7 @@ const Icon: React.FC<{ img?: string }> = ({ img }) => {
 };
 
 const TokenSelect: React.FC = () => {
+  const { selectingToken, toggleTokenSelect } = useTokenSelectContext();
   const { tokens, swapData, setSwapData } = useLifiSDK();
 
   const supportedTokens = useMemo(
@@ -50,14 +62,27 @@ const TokenSelect: React.FC = () => {
       fromTokenAddress: selectedAddress,
       fromToken: selectedToken,
     });
+    toggleTokenSelect();
   };
-  return (
-    <StyledDropdown
-      smallButton
-      defaultValue={swapData.fromTokenAddress}
-      callback={handleTokenChange}
-      items={supportedTokens}
-    />
+  return selectingToken ? (
+    <SelectContainer>
+      <Header />
+      <SearchableSelect
+        defaultValue={swapData.fromTokenAddress}
+        callback={handleTokenChange}
+        items={supportedTokens}
+        highlightedItems={supportedTokens.slice(0, 5)}
+      />
+    </SelectContainer>
+  ) : (
+    <div onClick={toggleTokenSelect}>
+      <StyledDropdown
+        smallButton
+        defaultValue={swapData.fromTokenAddress}
+        items={supportedTokens}
+        callback={handleTokenChange}
+      />
+    </div>
   );
 };
 

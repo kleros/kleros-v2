@@ -9,6 +9,8 @@ import Settings from "./Settings";
 import { useToggle } from "react-use";
 import ClaimPnkButton from "components/ClaimPnkButton";
 import { LifiProvider } from "context/LiFiProvider";
+import TokenSelect from "./Swap/TokenSelect";
+import { useTokenSelectContext } from "./Swap/TokenSelect/TokenSelectProvider";
 
 const Container = styled.div`
   width: 100%;
@@ -30,15 +32,21 @@ const StyledCard = styled(Card)`
 
 const GetPnk: React.FC = () => {
   const [settingsOpen, toggleSettings] = useToggle(false);
+  const { selectingToken } = useTokenSelectContext();
+
   return (
     <LifiProvider>
       <HeroImage />
       <Container>
         <ClaimPnkButton />
-        <StyledCard>
-          <Header isSettings={settingsOpen} toggleSettings={toggleSettings} />
-          {settingsOpen ? <Settings /> : <Swap />}
-        </StyledCard>
+        {selectingToken ? (
+          <TokenSelect />
+        ) : (
+          <StyledCard>
+            <Header isSettings={settingsOpen} toggleSettings={toggleSettings} />
+            {settingsOpen ? <Settings /> : <Swap />}
+          </StyledCard>
+        )}
       </Container>
     </LifiProvider>
   );

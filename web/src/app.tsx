@@ -18,6 +18,7 @@ import Courts from "./pages/Courts";
 import DisputeTemplateView from "./pages/DisputeTemplateView";
 import DisputeResolver from "./pages/Resolver";
 import GetPnk from "./pages/GetPnk";
+import { TokenSelectProvider } from "./pages/GetPnk/Swap/TokenSelect/TokenSelectProvider";
 
 const App: React.FC = () => {
   return (
@@ -28,18 +29,20 @@ const App: React.FC = () => {
           <Web3Provider>
             <IsListProvider>
               <NewDisputeProvider>
-                <SentryRoutes>
-                  <Route path="/" element={<Layout />}>
-                    <Route index element={<Home />} />
-                    <Route path="cases/*" element={<Cases />} />
-                    <Route path="courts/*" element={<Courts />} />
-                    <Route path="dashboard/:page/:order/:filter" element={<Dashboard />} />
-                    <Route path="disputeTemplate" element={<DisputeTemplateView />} />
-                    <Route path="resolver/*" element={<DisputeResolver />} />
-                    <Route path="getPnk/*" element={<GetPnk />} />
-                    <Route path="*" element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>} />
-                  </Route>
-                </SentryRoutes>
+                <TokenSelectProvider>
+                  <SentryRoutes>
+                    <Route path="/" element={<Layout />}>
+                      <Route index element={<Home />} />
+                      <Route path="cases/*" element={<Cases />} />
+                      <Route path="courts/*" element={<Courts />} />
+                      <Route path="dashboard/:page/:order/:filter" element={<Dashboard />} />
+                      <Route path="disputeTemplate" element={<DisputeTemplateView />} />
+                      <Route path="resolver/*" element={<DisputeResolver />} />
+                      <Route path="getPnk/*" element={<GetPnk />} />
+                      <Route path="*" element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>} />
+                    </Route>
+                  </SentryRoutes>
+                </TokenSelectProvider>
               </NewDisputeProvider>
             </IsListProvider>
           </Web3Provider>
