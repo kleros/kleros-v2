@@ -1177,6 +1177,4 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
     error TransferFailed();
     error WhenNotPausedOnly();
     error WhenPausedOnly();
-    error ArbitrableNotWhitelisted();
-    error NotEligibleForStaking();
 }

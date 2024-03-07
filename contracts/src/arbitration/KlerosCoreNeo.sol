@@ -126,7 +126,7 @@ contract KlerosCoreNeo is KlerosCoreBase, UUPSProxiable, Initializable {
 
     function _stakingFailed(OnError _onError, StakingResult _result) internal pure override {
         super._stakingFailed(_onError, _result);
-        if (_result == StakingResult.CannotStakeMoreThanMaxStake) revert StakingMoreThanCourtMaxStake();
+        if (_result == StakingResult.CannotStakeMoreThanMaxStakePerJuror) revert StakingMoreThanMaxStakePerJuror();
         if (_result == StakingResult.CannotStakeMoreThanMaxTotalStaked) revert StakingMoreThanMaxTotalStaked();
     }
 
@@ -134,6 +134,8 @@ contract KlerosCoreNeo is KlerosCoreBase, UUPSProxiable, Initializable {
     // *              Errors               * //
     // ************************************* //
 
-    error StakingMoreThanCourtMaxStake();
+    error NotEligibleForStaking();
+    error StakingMoreThanMaxStakePerJuror();
     error StakingMoreThanMaxTotalStaked();
+    error ArbitrableNotWhitelisted();
 }

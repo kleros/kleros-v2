@@ -15,6 +15,16 @@ import { expect } from "chai";
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */
 
+/************************************************************************************************
+Neo should behave like an arbitrator when all the following conditions are met:
+- maxStake is high enough, 
+- totalMaxStaked is high enough, 
+- the juror has a NFT
+- the arbitrable is whitelisted
+
+Otherwise it should behave like a Neo arbitrator.
+************************************************************************************************/
+
 describe("Staking", async () => {
   const ETH = (amount: number) => ethers.utils.parseUnits(amount.toString());
   const PNK = ETH;
@@ -24,6 +34,7 @@ describe("Staking", async () => {
     "0x000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000001";
 
   let deployer;
+  let juror;
   let pnk;
   let core;
   let sortition;
@@ -32,7 +43,7 @@ describe("Staking", async () => {
   let nft;
   let resolver;
 
-  const deploy = async () => {
+  const deployUnhappy = async () => {
     ({ deployer } = await getNamedAccounts());
     await deployments.fixture(["ArbitrationNeo"], {
       fallbackToGlobal: true,
@@ -46,9 +57,118 @@ describe("Staking", async () => {
     resolver = (await ethers.getContract("DisputeResolver")) as DisputeResolver;
     nft = (await ethers.getContract("Kleros V2 Neo Early User")) as TestERC721;
 
+    // Juror signer setup and funding
+    const { firstWallet } = await getNamedAccounts();
+    juror = await ethers.getSigner(firstWallet);
+    await pnk.transfer(juror.address, PNK(100_000));
+    await ethers.getSigner(deployer).then((signer) => signer.sendTransaction({ to: juror.address, value: ETH(1) }));
+  };
+
+  const deploy = async () => {
+    await deployUnhappy();
+
+    // Sets up the happy path for Neo
     await nft.safeMint(deployer);
     await sortition.changeMaxStakePerJuror(PNK(10_000));
+    await sortition.changeMaxTotalStaked(PNK(20_000));
   };
+
+  describe("When arbitrable is not whitelisted", () => {
+    before("Setup", async () => {
+      await deployUnhappy();
+      await core.changeArbitrableWhitelist(resolver.address, false);
+    });
+
+    it("Should fail to create a dispute", async () => {
+      const arbitrationCost = ETH(0.5);
+      await expect(
+        resolver.createDisputeForTemplate(extraData, "", "", 2, { value: arbitrationCost })
+      ).to.be.revertedWithCustomError(core, "ArbitrableNotWhitelisted");
+    });
+  });
+
+  describe("When arbitrable is whitelisted", () => {
+    before("Setup", async () => {
+      await deployUnhappy();
+      await core.changeArbitrableWhitelist(resolver.address, true);
+    });
+
+    it("Should create a dispute", async () => {
+      const arbitrationCost = ETH(0.5);
+      expect(await resolver.createDisputeForTemplate(extraData, "", "", 2, { value: arbitrationCost }))
+        .to.emit(core, "DisputeCreation")
+        .withArgs(1, resolver.address);
+    });
+  });
+
+  describe("When juror has no NFT", async () => {
+    before("Setup", async () => {
+      await deployUnhappy();
+    });
+
+    it("Should not be able to stake", async () => {
+      await pnk.connect(juror).approve(core.address, PNK(1000));
+      await expect(core.connect(juror).setStake(1, PNK(1000))).to.be.revertedWithCustomError(
+        core,
+        "NotEligibleForStaking"
+      );
+    });
+  });
+
+  describe("When juror does have a NFT", async () => {
+    before("Setup", async () => {
+      await deployUnhappy();
+      await nft.safeMint(juror.address);
+    });
+
+    it("Should not be able to stake", async () => {
+      await pnk.connect(juror).approve(core.address, PNK(1000));
+      expect(await core.connect(juror).setStake(1, PNK(1000)))
+        .to.emit(core, "StakeSet")
+        .withArgs(juror.address, 1, PNK(1000));
+    });
+  });
+
+  describe("When juror stakes more", async () => {
+    beforeEach("Setup", async () => {
+      await deployUnhappy();
+      await nft.safeMint(juror.address);
+    });
+
+    it("Should not be able to stake more than maxStakePerJuror", async () => {
+      await pnk.connect(juror).approve(core.address, PNK(5000));
+      await expect(core.connect(juror).setStake(1, PNK(5000))).to.be.revertedWithCustomError(
+        core,
+        "StakingMoreThanMaxStakePerJuror"
+      );
+    });
+
+    describe("When totalStaked is close to maxTotalStaked", async () => {
+      beforeEach("Setup", async () => {
+        await sortition.changeMaxTotalStaked(PNK(3000));
+
+        // deployer increases totalStaked to 2000
+        await nft.safeMint(deployer);
+        await pnk.approve(core.address, PNK(2000));
+        await core.setStake(1, PNK(2000));
+      });
+
+      it("Should not be able to stake more than maxTotalStaked", async () => {
+        await pnk.connect(juror).approve(core.address, PNK(2000));
+        await expect(core.connect(juror).setStake(1, PNK(2000))).to.be.revertedWithCustomError(
+          core,
+          "StakingMoreThanMaxTotalStaked"
+        );
+      });
+
+      it("Should be able to stake exactly maxTotalStaked", async () => {
+        await pnk.connect(juror).approve(core.address, PNK(1000));
+        expect(await core.connect(juror).setStake(1, PNK(1000)))
+          .to.emit(core, "StakeSet")
+          .withArgs(juror.address, 1, PNK(1000));
+      });
+    });
+  });
 
   describe("When outside the Staking phase", async () => {
     let balanceBefore;

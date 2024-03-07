@@ -32,6 +32,6 @@ enum StakingResult {
     CannotStakeInMoreCourts,
     CannotStakeInThisCourt,
     CannotStakeLessThanMinStake,
-    CannotStakeMoreThanMaxStake,
+    CannotStakeMoreThanMaxStakePerJuror,
     CannotStakeMoreThanMaxTotalStaked
 }
