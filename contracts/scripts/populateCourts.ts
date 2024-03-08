@@ -1,5 +1,5 @@
 import { getNamedAccounts, getChainId, ethers, network } from "hardhat";
-import { KlerosCore, KlerosCoreUniversity } from "../typechain-types";
+import { KlerosCore, KlerosCoreNeo, KlerosCoreUniversity } from "../typechain-types";
 import { BigNumber, BigNumberish } from "ethers";
 import courtsV1Mainnet from "../config/courts.v1.mainnet.json";
 import courtsV1GnosisChain from "../config/courts.v1.gnosischain.json";
@@ -20,6 +20,12 @@ enum Sources {
   V2_TESTNET,
 }
 
+enum Cores {
+  Base,
+  Neo,
+  University,
+}
+
 type Court = {
   id: number;
   parent: number;
@@ -33,7 +39,8 @@ type Court = {
 };
 
 const from = isDevnet(network) ? Sources.V2_DEVNET : Sources.V2_TESTNET;
-const UNIVERSITY = false;
+const coreType: Cores = Cores.Base;
+const maxNumberOfCourts = undefined; // set to undefined for all the courts
 const V1_DEV_PARAMETERS = false; // rename to V1_DEV_PARAMETERS
 const ETH_USD = BigNumber.from(1800);
 const DISPUTE_KIT_CLASSIC = BigNumber.from(1);
@@ -99,11 +106,26 @@ async function main() {
       throw new Error("Unknown source");
   }
 
+  console.log("Keeping only the first %d courts", maxNumberOfCourts ?? courtsV2.length);
+  courtsV2 = courtsV2.slice(0, maxNumberOfCourts);
+
   console.log("courtsV2 = %O", courtsV2);
 
-  const core = UNIVERSITY
-    ? ((await ethers.getContract("KlerosCoreUniversity")) as KlerosCoreUniversity)
-    : ((await ethers.getContract("KlerosCore")) as KlerosCore);
+  let core: KlerosCore | KlerosCoreNeo | KlerosCoreUniversity;
+  switch (coreType) {
+    case Cores.University:
+      console.log("Using KlerosCoreUniversity");
+      core = (await ethers.getContract("KlerosCoreUniversity")) as KlerosCoreUniversity;
+      break;
+    case Cores.Neo:
+      console.log("Using KlerosCoreNeo");
+      core = (await ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;
+      break;
+    default:
+      console.log("Using KlerosCore");
+      core = (await ethers.getContract("KlerosCore")) as KlerosCore;
+      break;
+  }
 
   for (const court of courtsV2) {
     const courtPresent = await core.courts(court.id).catch(() => {});
@@ -181,7 +203,7 @@ async function main() {
       );
     } else {
       console.log("Court %d not found, creating it with", court.id, court);
-      if (UNIVERSITY) {
+      if (coreType === Cores.University) {
         await (core as KlerosCoreUniversity).createCourt(
           court.parent,
           court.hiddenVotes,

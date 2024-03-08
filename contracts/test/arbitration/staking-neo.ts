@@ -58,7 +58,7 @@ describe("Staking", async () => {
     rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
     randomizer = (await ethers.getContract("RandomizerOracle")) as RandomizerMock;
     resolver = (await ethers.getContract("DisputeResolverNeo")) as DisputeResolver;
-    nft = (await ethers.getContract("Kleros V2 Neo Early User")) as TestERC721;
+    nft = (await ethers.getContract("KlerosV2NeoEarlyUser")) as TestERC721;
 
     // Juror signer setup and funding
     const { firstWallet } = await getNamedAccounts();

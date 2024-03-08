@@ -22,7 +22,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const pnk = await deployERC20AndFaucet(hre, deployer, "PNK");
   const weth = await deployERC20AndFaucet(hre, deployer, "WETH");
-  const nft = await deployERC721(hre, deployer, "Kleros V2 Neo Early User");
+  const nft = await deployERC721(hre, deployer, "Kleros V2 Neo Early User", "KlerosV2NeoEarlyUser");
 
   const randomizerOracle = await getContractOrDeploy(hre, "RandomizerOracle", {
     from: deployer,
@@ -101,7 +101,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const currentCore = await disputeKitContract.core();
   if (currentCore !== klerosCore.address) {
     console.log(`disputeKit.changeCore(${klerosCore.address})`);
-    disputeKitContract.changeCore(klerosCore.address);
+    await disputeKitContract.changeCore(klerosCore.address);
   }
 
   const core = (await hre.ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;

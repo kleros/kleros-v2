@@ -19,6 +19,7 @@ enum Sources {
   V2_TESTNET,
 }
 const from = isDevnet(network) ? Sources.V2_DEVNET : Sources.V2_TESTNET;
+const maxNumberOfCourts = undefined; // set to undefined for all the courts
 
 async function main() {
   // fallback to hardhat node signers on local network
@@ -62,6 +63,9 @@ async function main() {
     default:
       return;
   }
+
+  console.log("Keeping only the first %d courts", maxNumberOfCourts ?? policiesV2.length);
+  policiesV2 = policiesV2.slice(0, maxNumberOfCourts);
 
   const policyRegistryDeployment = await deployments.get("PolicyRegistry");
   const policyRegistry = (await ethers.getContractAt(
