@@ -89,22 +89,20 @@ contract SortitionModuleNeo is SortitionModuleBase, UUPSProxiable, Initializable
         uint256 currentStake = stakeOf(_account, _courtID);
         bool stakeIncrease = _newStake > currentStake;
         uint256 stakeChange = stakeIncrease ? _newStake - currentStake : currentStake - _newStake;
-
         Juror storage juror = jurors[_account];
-        if (stakeIncrease && !_alreadyTransferred) {
-            if (juror.stakedPnk + stakeChange > maxStakePerJuror) {
-                return (0, 0, StakingResult.CannotStakeMoreThanMaxStakePerJuror);
-            }
-            if (totalStaked + stakeChange > maxTotalStaked) {
-                return (0, 0, StakingResult.CannotStakeMoreThanMaxTotalStaked);
-            }
-            totalStaked += stakeChange;
+        if (juror.stakedPnk + stakeChange > maxStakePerJuror) {
+            return (0, 0, StakingResult.CannotStakeMoreThanMaxStakePerJuror);
         }
-
-        if (!stakeIncrease && phase == Phase.staking) {
-            totalStaked -= stakeChange;
+        if (totalStaked + stakeChange > maxTotalStaked) {
+            return (0, 0, StakingResult.CannotStakeMoreThanMaxTotalStaked);
         }
-
+        if (phase == Phase.staking) {
+            if (stakeIncrease) {
+                totalStaked += stakeChange;
+            } else {
+                totalStaked -= stakeChange;
+            }
+        }
         (pnkDeposit, pnkWithdrawal, stakingResult) = super._setStake(
             _account,
             _courtID,

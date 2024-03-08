@@ -173,7 +173,7 @@ describe("Staking", async () => {
       await nft.safeMint(juror.address);
     });
 
-    it("Should not be able to stake", async () => {
+    it("Should be able to stake", async () => {
       await pnk.connect(juror).approve(core.address, PNK(1000));
       await expect(await core.connect(juror).setStake(1, PNK(1000)))
         .to.emit(sortition, "StakeSet")
@@ -187,29 +187,31 @@ describe("Staking", async () => {
       await nft.safeMint(juror.address);
     });
 
-    describe("When stakes are NOT delayed", () => {
-      it("Should not be able to stake more than maxStakePerJuror", async () => {
-        await pnk.connect(juror).approve(core.address, PNK(5000));
-        await expect(core.connect(juror).setStake(1, PNK(5000))).to.be.revertedWithCustomError(
-          core,
-          "StakingMoreThanMaxStakePerJuror"
-        );
-      });
-    });
-
-    describe("When stakes are delayed", () => {
-      beforeEach("Setup", async () => {
-        await reachGeneratingPhaseFromStaking();
+    describe("When totalStaked is low", async () => {
+      describe("When stakes are NOT delayed", () => {
+        it("Should not be able to stake more than maxStakePerJuror", async () => {
+          await pnk.connect(juror).approve(core.address, PNK(5000));
+          await expect(core.connect(juror).setStake(1, PNK(5000))).to.be.revertedWithCustomError(
+            core,
+            "StakingMoreThanMaxStakePerJuror"
+          );
+        });
       });
 
-      it("Should not be able to stake more than maxStakePerJuror", async () => {
-        await pnk.connect(juror).approve(core.address, PNK(5000));
-        await expect(core.connect(juror).setStake(1, PNK(5000))).to.be.revertedWithCustomError(
-          core,
-          "StakingMoreThanMaxStakePerJuror"
-        );
-        await reachStakingPhaseAfterDrawing();
-        await expect(sortition.executeDelayedStakes(10)).to.revertedWith("No delayed stake to execute.");
+      describe("When stakes are delayed", () => {
+        beforeEach("Setup", async () => {
+          await reachGeneratingPhaseFromStaking();
+        });
+
+        it("Should not be able to stake more than maxStakePerJuror", async () => {
+          await pnk.connect(juror).approve(core.address, PNK(5000));
+          await expect(core.connect(juror).setStake(1, PNK(5000))).to.be.revertedWithCustomError(
+            core,
+            "StakingMoreThanMaxStakePerJuror"
+          );
+          await reachStakingPhaseAfterDrawing();
+          await expect(sortition.executeDelayedStakes(10)).to.revertedWith("No delayed stake to execute.");
+        });
       });
     });
 

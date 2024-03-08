@@ -299,6 +299,7 @@ abstract contract SortitionModuleBase is ISortitionModule {
             pnkWithdrawal += _decreaseStake(juror, _courtID, _newStake, currentStake);
         }
 
+        // Update the sortition sum tree.
         bytes32 stakePathID = _accountAndCourtIDToStakePathID(_account, _courtID);
         bool finished = false;
         uint96 currenCourtID = _courtID;
@@ -339,7 +340,7 @@ abstract contract SortitionModuleBase is ISortitionModule {
                 emit StakeDelayedAlreadyTransferredWithdrawn(_juror, _courtID, amountToWithdraw);
 
                 if (sortitionStake == 0) {
-                    // Delete the court otherwise it will be duplicated after staking.
+                    // Cleanup: delete the court otherwise it will be duplicated after staking.
                     for (uint256 i = juror.courtIDs.length; i > 0; i--) {
                         if (juror.courtIDs[i - 1] == _courtID) {
                             juror.courtIDs[i - 1] = juror.courtIDs[juror.courtIDs.length - 1];
@@ -390,6 +391,7 @@ abstract contract SortitionModuleBase is ISortitionModule {
             transferredAmount = juror.stakedPnk - juror.lockedPnk;
         }
         if (_newStake == 0) {
+            // Cleanup
             for (uint256 i = juror.courtIDs.length; i > 0; i--) {
                 if (juror.courtIDs[i - 1] == _courtID) {
                     juror.courtIDs[i - 1] = juror.courtIDs[juror.courtIDs.length - 1];
