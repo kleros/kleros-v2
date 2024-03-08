@@ -80,7 +80,6 @@ interface IRouteDetails {
 const RouteDetails: React.FC<IRouteDetails> = ({ route }) => {
   const { selectedRoute, setSelectedRoute } = useLifiSDK();
   const isSelected = selectedRoute?.id === route.id;
-  console.log({ route });
 
   return (
     <Container {...{ isSelected }} onClick={() => setSelectedRoute(route)}>

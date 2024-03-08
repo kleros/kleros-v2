@@ -1,10 +1,14 @@
-import React from "react";
-import styled from "styled-components";
+import React, { useMemo } from "react";
+import styled, { css } from "styled-components";
 import { useLifiSDK } from "context/LiFiProvider";
 import Skeleton from "react-loading-skeleton";
 import RouteDetails from "./RouteDetails";
 import NoRouteInfo from "./NoRouteInfo";
 import SpinnerIcon from "tsx:svgs/icons/spinner.svg";
+import InfoCard from "components/InfoCard";
+import { useGasSufficiency } from "hooks/useGasSufficiency";
+import { isUndefined } from "utils/index";
+import { formatUnits, parseUnits } from "viem";
 
 const Container = styled.div`
   width: 100%;
@@ -25,34 +29,85 @@ const StyledHeading = styled.h3`
   margin: 0px;
 `;
 
-const SVGContainer = styled.div`
+const SVGContainer = styled.div<{ isLoading?: boolean }>`
   display: flex;
-  animation: rotate 2s infinite;
-  @keyframes rotate {
-    100% {
-      transform: rotate(360deg);
-    }
+  cursor: pointer;
+
+  ${({ isLoading }) =>
+    isLoading &&
+    css`
+      cursor: default;
+      animation: rotate 2s infinite;
+      @keyframes rotate {
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    `}
+`;
+
+const StyledInfo = styled(InfoCard)`
+  color: ${({ theme }) => theme.warning};
+  margin-bottom: 16px;
+  font-size: 12px;
+  line-height: 16px;
+  white-space: pre-line;
+  path {
+    fill: ${({ theme }) => theme.warning};
   }
 `;
 
 const Routes: React.FC = () => {
-  const { routes, routesLoading } = useLifiSDK();
+  const { routes, routesLoading, selectedRoute, swapData, refetch } = useLifiSDK();
+  const { insufficientGas } = useGasSufficiency(selectedRoute);
 
-  if (routesLoading) return <Skeleton height={100} />;
+  const msg = useMemo(() => {
+    if (
+      swapData.fromToken &&
+      swapData.tokenBalance &&
+      parseUnits(swapData.fromAmount, swapData.fromToken?.decimals) >
+        parseUnits(swapData.tokenBalance, swapData.fromToken?.decimals)
+    )
+      return "You don't have enough funds to complete the transaction.";
+    if (isUndefined(insufficientGas) || insufficientGas.length === 0 || routesLoading) return undefined;
+
+    const baseGasMsg = "You don't have enough gas to complete the transaction. You need atleast :\n";
+    const requiredGasMsg = insufficientGas.reduce((msg, gasCost) => {
+      msg += `${formatUnits(gasCost.insufficientAmount ?? 0n, gasCost.token.decimals)} ${gasCost.token.symbol} on ${
+        gasCost.chain?.name
+      } \n`;
+      return msg;
+    }, "");
+
+    return baseGasMsg + requiredGasMsg;
+  }, [insufficientGas, swapData, routesLoading]);
+
   return (
     <Container>
+      {msg && <StyledInfo {...{ msg }} />}
       <HeadingContainer>
         <StyledHeading>Routes</StyledHeading>
-        <SVGContainer>
+        <SVGContainer
+          isLoading={routesLoading}
+          onClick={() => {
+            if (!routesLoading) refetch();
+          }}
+        >
           <SpinnerIcon />
         </SVGContainer>
       </HeadingContainer>
-      {routes.length !== 0 ? (
-        routes.map((route) => {
-          return <RouteDetails key={route.id} route={route} />;
-        })
+      {routesLoading ? (
+        <Skeleton height={100} />
       ) : (
-        <NoRouteInfo />
+        <>
+          {routes.length !== 0 ? (
+            routes.map((route) => {
+              return <RouteDetails key={route.id} route={route} />;
+            })
+          ) : (
+            <NoRouteInfo />
+          )}
+        </>
       )}
     </Container>
   );

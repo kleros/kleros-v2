@@ -2,12 +2,11 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { LiFi, Token, RoutesResponse, RoutesRequest, Route } from "@lifi/sdk";
 import { useAccount } from "wagmi";
 import { useLocalStorage } from "hooks/useLocalStorage";
-import { useDebounce } from "react-use";
-import { parseUnits } from "viem";
 import { useEthersSigner } from "utils/getSigner";
 import { switchChainHook, updateRouteHook } from "utils/lifiUtils";
+import { useRoutesFetch } from "hooks/useRoutesFetch";
 
-interface SwapData extends RoutesRequest {
+export interface SwapData extends RoutesRequest {
   fromToken?: Token;
   tokenBalance?: string;
   slippage: number;
@@ -18,6 +17,7 @@ interface ILifiProvider {
   tokens: Token[];
   routes: RoutesResponse["routes"];
   selectedRoute?: Route;
+  refetch: () => void;
   setSelectedRoute: (route: Route) => void;
   swapData: SwapData;
   setSwapData: (swapData: SwapData) => void;
@@ -44,6 +44,7 @@ const LifiContext = createContext<ILifiProvider>({
   setSwapData: () => {},
   setSelectedRoute: () => {},
   execute: () => undefined,
+  refetch: () => {},
 });
 
 export const useLifiSDK = () => {
@@ -54,36 +55,30 @@ export const useLifiSDK = () => {
   return context;
 };
 
-const lifi = new LiFi({
+export const lifi = new LiFi({
   integrator: "Kleros",
   apiUrl: "https://li.quest/v1",
 });
 
 export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { address, isDisconnected } = useAccount();
+  const { address } = useAccount();
   const [tokens, setTokens] = useState<Token[]>([]);
-  const [routes, setRoutes] = useState<RoutesResponse["routes"]>([]);
   const [selectedRoute, setSelectedRoute] = useState<Route>();
-  const [routesLoading, setRoutesLoading] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
   const [swapData, setSwapData] = useLocalStorage<SwapData>("swapData", { ...initialSwapData, fromAddress: address });
 
   const signer = useEthersSigner({ chainId: swapData.fromChainId });
-  const routeRequest = useMemo(() => constructRouteRequest(swapData), [swapData]);
 
-  const resetRoutes = () => {
-    setSelectedRoute(undefined);
-    setRoutes([]);
-  };
+  const { routes, isLoading: routesLoading, refetch } = useRoutesFetch(swapData);
+
   // update tokens for the chain
   useEffect(() => {
-    resetRoutes();
     lifi.getTokens({ chains: [swapData.fromChainId] }).then((res) => {
       setTokens(res.tokens[swapData.fromChainId].slice(0, 100));
     });
   }, [swapData.fromChainId]);
 
-  // get token balance for the chain. get all chains balance to determine end chain gas sufficiency
+  // get token balance for the chain.
   useEffect(() => {
     if (!address || tokens.length === 0) return;
     const fromToken = swapData?.fromToken ?? tokens.find((token) => token.address === swapData.fromTokenAddress)!;
@@ -94,31 +89,12 @@ export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .catch((err) => console.log("Error fetching token balance: ", { err }));
   }, [swapData.fromToken, address, tokens, swapData.fromTokenAddress, lifi]);
 
-  useDebounce(
-    () => {
-      if (Number(swapData.fromAmount) <= 0 || isDisconnected) return;
-
-      setRoutesLoading(true);
-      lifi
-        .getRoutes(routeRequest)
-        .then((res) => {
-          setRoutes(res.routes);
-        })
-        .catch((err) => {
-          console.log("Error fetching routes :", { err });
-          resetRoutes();
-        })
-        .finally(() => setRoutesLoading(false));
-    },
-    1000,
-    [routeRequest]
-  );
-
+  // execute the selected route
   const execute = useCallback(() => {
-    if (!signer) return;
+    if (!signer || !selectedRoute) return;
     setIsExecuting(true);
     return lifi
-      .executeRoute(signer, routes?.[0], {
+      .executeRoute(signer, selectedRoute, {
         updateRouteHook,
         switchChainHook,
         updateTransactionRequestHook: async (req) => {
@@ -137,7 +113,7 @@ export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { status: false };
       })
       .finally(() => setIsExecuting(false));
-  }, [routes, signer, lifi]);
+  }, [selectedRoute, signer, lifi]);
 
   return (
     <LifiContext.Provider
@@ -152,22 +128,25 @@ export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setSelectedRoute,
           execute,
           isExecuting,
+          refetch,
         }),
-        [tokens, routes, swapData, setSwapData, routesLoading, selectedRoute, setSelectedRoute, execute, isExecuting]
+        [
+          tokens,
+          routes,
+          swapData,
+          setSwapData,
+          routesLoading,
+          selectedRoute,
+          setSelectedRoute,
+          execute,
+          isExecuting,
+          refetch,
+        ]
       )}
     >
       {children}
     </LifiContext.Provider>
   );
-};
-
-const constructRouteRequest = (data: SwapData) => {
-  const request = { ...(data as RoutesRequest) };
-  request.fromAmount = parseUnits(data.fromAmount, data?.fromToken?.decimals ?? 18).toString();
-  request.options = {
-    slippage: data.slippage,
-  };
-  return request;
 };
 
 const fetchGasPrice = async (chainId: number, gasSetting: string) => {

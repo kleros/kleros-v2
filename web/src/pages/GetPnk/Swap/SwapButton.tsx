@@ -6,8 +6,9 @@ import { useLifiSDK } from "context/LiFiProvider";
 import Popup, { PopupType } from "components/Popup";
 import type { Route } from "@lifi/sdk";
 import { formatValue } from "utils/format";
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import ConnectWallet from "components/ConnectWallet";
+import { useGasSufficiency } from "hooks/useGasSufficiency";
 
 const StyledButton = styled(Button)`
   width: 100%;
@@ -18,6 +19,8 @@ const StyledConnectButton = styled(ConnectWallet)`
 const SwapButton: React.FC = () => {
   const { isDisconnected } = useAccount();
   const { execute, swapData, routesLoading, routes, isExecuting, selectedRoute } = useLifiSDK();
+  const { insufficientGas, isLoading } = useGasSufficiency(selectedRoute);
+
   const { switchNetwork } = useSwitchNetwork();
   const { chain } = useNetwork();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -39,10 +42,26 @@ const SwapButton: React.FC = () => {
     [chain, swapData]
   );
 
-  const isSwapDisabled = useMemo(
-    () => routesLoading || routes.length === 0 || isExecuting || !selectedRoute,
-    [routesLoading, routes, isExecuting, selectedRoute]
-  );
+  const isSwapDisabled = useMemo(() => {
+    if (
+      routesLoading ||
+      routes.length === 0 ||
+      isExecuting ||
+      !selectedRoute ||
+      insufficientGas?.[0].insufficient ||
+      isLoading
+    )
+      return true;
+    if (
+      swapData.fromToken &&
+      swapData.tokenBalance &&
+      parseUnits(swapData.fromAmount, swapData.fromToken?.decimals) >
+        parseUnits(swapData.tokenBalance, swapData.fromToken?.decimals)
+    )
+      return true;
+    return false;
+  }, [routesLoading, routes, isExecuting, selectedRoute, swapData, insufficientGas, isLoading]);
+
   return (
     <>
       {isDisconnected ? (
