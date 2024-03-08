@@ -5,7 +5,7 @@ import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
-import { getContractOrDeploy } from "./utils/getContractOrDeploy";
+import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet, deployERC721 } from "./utils/deployTokens";
 import { DisputeKitClassic, KlerosCoreNeo } from "../typechain-types";
 
@@ -41,8 +41,9 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const disputeKit = await deployUpgradable(deployments, "DisputeKitClassic", {
+  const disputeKit = await deployUpgradable(deployments, "DisputeKitClassicNeo", {
     from: deployer,
+    contract: "DisputeKitClassic",
     args: [deployer, AddressZero],
     log: true,
   });
@@ -96,11 +97,11 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   }); // nonce+2 (implementation), nonce+3 (proxy)
 
   // execute DisputeKitClassic.changeCore() only if necessary
-  const currentCore = await hre.ethers.getContractAt("DisputeKitClassic", disputeKit.address).then((dk) => dk.core());
+  const disputeKitContract = (await hre.ethers.getContract("DisputeKitClassicNeo")) as DisputeKitClassic;
+  const currentCore = await disputeKitContract.core();
   if (currentCore !== klerosCore.address) {
-    const dk = (await hre.ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
     console.log(`disputeKit.changeCore(${klerosCore.address})`);
-    dk.changeCore(klerosCore.address);
+    disputeKitContract.changeCore(klerosCore.address);
   }
 
   const core = (await hre.ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;
@@ -110,14 +111,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     console.error("failed to change currency rates:", e);
   }
 
-  const disputeTemplateRegistry = await deployUpgradable(deployments, "DisputeTemplateRegistry", {
+  const disputeTemplateRegistry = await getContractOrDeployUpgradable(hre, "DisputeTemplateRegistry", {
     from: deployer,
     args: [deployer],
     log: true,
   });
 
-  const resolver = await deploy("DisputeResolver", {
+  const resolver = await deploy("DisputeResolverNeo", {
     from: deployer,
+    contract: "DisputeResolver",
     args: [core.address, disputeTemplateRegistry.address],
     log: true,
   });
