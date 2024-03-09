@@ -52,7 +52,7 @@ contract SortitionModuleNeo is SortitionModuleBase, UUPSProxiable, Initializable
         uint256 _rngLookahead,
         uint256 _maxStakePerJuror,
         uint256 _maxTotalStaked
-    ) external reinitializer(1) {
+    ) external reinitializer(2) {
         super._initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng, _rngLookahead);
         maxStakePerJuror = _maxStakePerJuror;
         maxTotalStaked = _maxTotalStaked;

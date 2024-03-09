@@ -71,7 +71,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [PolicyRegistry: proxy](https://sepolia.arbiscan.io/address/0x2AC2EdFD336732bc6963f1AD03ED98B22dB949da), [implementation](https://sepolia.arbiscan.io/address/0xAA637C9E2831614158d7eB193D03af4a7223C56E)
 - [RandomizerRNG: proxy](https://sepolia.arbiscan.io/address/0xA995C172d286f8F4eE137CC662e2844E59Cf4836), [implementation](https://sepolia.arbiscan.io/address/0xe62B776498F48061ef9425fCEf30F3d1370DB005)
 - [SortitionModule: proxy](https://sepolia.arbiscan.io/address/0x19cb28BAB40C3585955798f5EEabd71Eec14471C), [implementation](https://sepolia.arbiscan.io/address/0xBC82B29e5aE8a749D82b7919118Ab7C0D41fA3D3)
-- [SortitionModuleNeo: proxy](https://sepolia.arbiscan.io/address/0x809533c303c10915BB5c0585f2d8D738e2a4fB64), [implementation](https://sepolia.arbiscan.io/address/0x109E569f39945ea0843cF82E4E44553089AB779D)
+- [SortitionModuleNeo: proxy](https://sepolia.arbiscan.io/address/0x809533c303c10915BB5c0585f2d8D738e2a4fB64), [implementation](https://sepolia.arbiscan.io/address/0xD9ddceb7C399518F23b69D155a67C6AFF13f9fF0)
 - [SortitionModuleUniversity: proxy](https://sepolia.arbiscan.io/address/0xBEEb15EF1DEf96c569c97A703E649B0251ceFB04), [implementation](https://sepolia.arbiscan.io/address/0xaA2833b174D4e29ae2aFc0b11dF9160EDB28BF9d)
 - [WETH](https://sepolia.arbiscan.io/address/0x3829A2486d53ee984a0ca2D76552715726b77138)
 - [WETHFaucet](https://sepolia.arbiscan.io/address/0x6F8C10E0030aDf5B8030a5E282F026ADdB6525fd)
