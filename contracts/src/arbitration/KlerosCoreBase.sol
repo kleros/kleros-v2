@@ -162,8 +162,8 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
         uint256 _feeAmount,
         IERC20 _feeToken
     );
-    event Pause();
-    event Unpause();
+    event Paused();
+    event Unpaused();
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -258,13 +258,13 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
     /// @dev Pause staking and reward execution. Can only be done by guardian or governor.
     function pause() external onlyByGuardianOrGovernor whenNotPaused {
         paused = true;
-        emit Pause();
+        emit Paused();
     }
 
     /// @dev Unpause staking and reward execution. Can only be done by governor.
     function unpause() external onlyByGovernor whenPaused {
         paused = false;
-        emit Unpause();
+        emit Unpaused();
     }
 
     /// @dev Allows the governor to call anything on behalf of the contract.
