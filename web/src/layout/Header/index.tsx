@@ -7,7 +7,7 @@ import { isProductionDeployment } from "consts/index";
 
 const Container = styled.div`
   position: sticky;
-  z-index: 1;
+  z-index: 11;
   top: 0;
   width: 100%;
   background-color: ${({ theme }) => theme.primaryPurple};

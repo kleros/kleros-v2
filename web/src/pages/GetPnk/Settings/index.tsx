@@ -2,6 +2,7 @@ import { Button } from "@kleros/ui-components-library";
 import React from "react";
 import styled from "styled-components";
 import GasIcon from "tsx:svgs/icons/gas.svg";
+import { useLifiSDK } from "context/LiFiProvider";
 
 const Container = styled.div`
   display: flex;
@@ -45,8 +46,10 @@ const StyledButton = styled(Button)<{ selected?: boolean }>`
 `;
 
 const Settings: React.FC = () => {
-  const slippageOptions = [0.5, 1, 3];
+  const slippageOptions = [0.03, 0.05, 0.1];
   const gasOptions = ["Slow", "Normal", "Fast"];
+  const { swapData, setSwapData } = useLifiSDK();
+
   return (
     <Container>
       <InnerContainer>
@@ -55,7 +58,13 @@ const Settings: React.FC = () => {
         </Header>
         <GridContainer>
           {slippageOptions.map((val, i) => (
-            <StyledButton key={val} text={`${val}%`} variant="secondary" selected={i === 0} />
+            <StyledButton
+              key={val}
+              text={`${val * 100}%`}
+              variant="secondary"
+              selected={val === swapData.slippage}
+              onClick={() => setSwapData({ ...swapData, slippage: val })}
+            />
           ))}
         </GridContainer>
       </InnerContainer>
@@ -66,7 +75,13 @@ const Settings: React.FC = () => {
         </Header>
         <GridContainer>
           {gasOptions.map((val, i) => (
-            <StyledButton key={val} text={val} variant="secondary" selected={i === 1} />
+            <StyledButton
+              key={val}
+              text={val}
+              variant="secondary"
+              selected={val.toLowerCase() === swapData.gasPrice}
+              onClick={() => setSwapData({ ...swapData, gasPrice: val.toLowerCase() })}
+            />
           ))}
         </GridContainer>
       </InnerContainer>

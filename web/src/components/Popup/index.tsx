@@ -15,7 +15,7 @@ import DisputeCreatedExtraInfo from "./ExtraInfo/DisputeCreatedExtraInfo";
 import { useNavigate } from "react-router-dom";
 import SwapSuccess from "./Description/SwapSuccess";
 import CloseIcon from "svgs/icons/close.svg";
-import { Token } from "pages/GetPnk/Swap/TokenSelect";
+import type { Route } from "@lifi/sdk";
 
 const Header = styled.h1`
   display: flex;
@@ -149,10 +149,9 @@ interface IDisputeCreated {
 
 interface ISwapSuccess {
   popupType: PopupType.SWAP_SUCCESS;
-  hash: string;
+  hash?: string;
   amount: string;
-  from?: Token;
-  to?: Token;
+  route?: Route;
   isClaim?: boolean;
 }
 interface IPopup {
