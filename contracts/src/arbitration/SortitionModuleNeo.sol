@@ -90,7 +90,7 @@ contract SortitionModuleNeo is SortitionModuleBase, UUPSProxiable, Initializable
         bool stakeIncrease = _newStake > currentStake;
         uint256 stakeChange = stakeIncrease ? _newStake - currentStake : currentStake - _newStake;
         Juror storage juror = jurors[_account];
-        if (stakeIncrease) {
+        if (stakeIncrease && !_alreadyTransferred) {
             if (juror.stakedPnk + stakeChange > maxStakePerJuror) {
                 return (0, 0, StakingResult.CannotStakeMoreThanMaxStakePerJuror);
             }
