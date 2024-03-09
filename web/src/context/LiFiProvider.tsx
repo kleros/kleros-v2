@@ -5,6 +5,7 @@ import { useLocalStorage } from "hooks/useLocalStorage";
 import { useEthersSigner } from "utils/getSigner";
 import { switchChainHook, updateRouteHook } from "utils/lifiUtils";
 import { useRoutesFetch } from "hooks/useRoutesFetch";
+import { useDebounce } from "react-use";
 
 export interface SwapData extends RoutesRequest {
   fromToken?: Token;
@@ -66,10 +67,19 @@ export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [selectedRoute, setSelectedRoute] = useState<Route>();
   const [isExecuting, setIsExecuting] = useState(false);
   const [swapData, setSwapData] = useLocalStorage<SwapData>("swapData", { ...initialSwapData, fromAddress: address });
+  const [debouncedSwapData, setDebouncedSwapData] = useState<SwapData>(swapData);
+
+  useDebounce(
+    () => {
+      setDebouncedSwapData(swapData);
+    },
+    1000,
+    [swapData]
+  );
 
   const signer = useEthersSigner({ chainId: swapData.fromChainId });
 
-  const { routes, isLoading: routesLoading, refetch } = useRoutesFetch(swapData);
+  const { routes, isLoading: routesLoading, refetch } = useRoutesFetch(debouncedSwapData);
 
   // update tokens for the chain
   useEffect(() => {

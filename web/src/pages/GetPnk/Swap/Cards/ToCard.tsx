@@ -21,6 +21,7 @@ const InnerContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
 `;
 const ChainContainer = styled.div`
   display: flex;
