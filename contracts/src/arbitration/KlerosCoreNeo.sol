@@ -57,7 +57,7 @@ contract KlerosCoreNeo is KlerosCoreBase, UUPSProxiable, Initializable {
         bytes memory _sortitionExtraData,
         ISortitionModule _sortitionModuleAddress,
         IERC721 _jurorNft
-    ) external reinitializer(1) {
+    ) external reinitializer(2) {
         super._initialize(
             _governor,
             _guardian,
