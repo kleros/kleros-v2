@@ -4,7 +4,7 @@ import { BigNumber, BigNumberish } from "ethers";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
-import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
+import { HomeChains, isSkipped, isDevnet, PNK, ETH, isMainnet } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet, deployERC721 } from "./utils/deployTokens";
 import { DisputeKitClassic, KlerosCoreNeo } from "../typechain-types";

@@ -26,6 +26,7 @@ export enum Courts {
   GENERAL = 1,
 }
 
+export const isMainnet = (network: Network) => network.tags.production ?? false;
 export const isDevnet = (network: Network) => network.name.endsWith("Devnet");
 
 export const isSkipped = async (network: Network, skip: boolean) => {
