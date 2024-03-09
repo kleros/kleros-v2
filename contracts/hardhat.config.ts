@@ -14,6 +14,8 @@ import "hardhat-docgen";
 import "hardhat-contract-sizer";
 import "hardhat-tracer";
 require("./scripts/simulations/tasks");
+require("./scripts/populatePolicyRegistry");
+require("./scripts/populateCourts");
 
 dotenv.config();
 
