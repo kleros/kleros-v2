@@ -7,7 +7,7 @@ import PolygonIcon from "tsx:svgs/tokens/polygon.svg";
 import StyledDropdown from "../StyledDropdown";
 import { useLifiSDK } from "context/LiFiProvider";
 
-const supportedChains = false
+const supportedChains = true
   ? [
       { value: goerli.id, text: mainnet.name, Icon: EthIcon },
       { value: arbitrumSepolia.id, text: "Arbitrum", Icon: ArbitrumIcon },
@@ -27,7 +27,13 @@ const ChainSelect: React.FC = () => {
     <StyledDropdown
       smallButton
       defaultValue={swapData.fromChainId}
-      callback={(val) => setSwapData({ ...swapData, fromChainId: Number(val) })}
+      callback={(val) =>
+        setSwapData({
+          ...swapData,
+          fromChainId: Number(val),
+          fromTokenAddress: "0x0000000000000000000000000000000000000000", // set to native token on chain change
+        })
+      }
       items={supportedChains}
     />
   );

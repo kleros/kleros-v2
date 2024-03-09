@@ -19,7 +19,6 @@ const refetchInterval = 60_000;
 export const useRoutesFetch = (swapData?: SwapData) => {
   const { isConnected } = useAccount();
   const isEnabled = !isUndefined(swapData) && Number(swapData.fromAmount) >= 0 && isConnected;
-  console.log("here", swapData);
 
   const {
     data: routes,
@@ -30,7 +29,6 @@ export const useRoutesFetch = (swapData?: SwapData) => {
     queryKey: ["lifi-routes-fetch", swapData],
     queryFn: async () => {
       try {
-        console.log("fetching");
         if (isUndefined(swapData)) return [];
 
         const routeRequest = constructRouteRequest(swapData);

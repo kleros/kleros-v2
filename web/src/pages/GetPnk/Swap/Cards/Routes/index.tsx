@@ -8,7 +8,7 @@ import SpinnerIcon from "tsx:svgs/icons/spinner.svg";
 import InfoCard from "components/InfoCard";
 import { useGasSufficiency } from "hooks/useGasSufficiency";
 import { isUndefined } from "utils/index";
-import { formatUnits, parseUnits } from "viem";
+import { formatUnits } from "viem";
 
 const Container = styled.div`
   width: 100%;
@@ -62,14 +62,12 @@ const Routes: React.FC = () => {
   const { insufficientGas } = useGasSufficiency(selectedRoute);
 
   const msg = useMemo(() => {
-    if (
-      swapData.fromToken &&
-      swapData.tokenBalance &&
-      parseUnits(swapData.fromAmount, swapData.fromToken?.decimals) >
-        parseUnits(swapData.tokenBalance, swapData.fromToken?.decimals)
-    )
+    // both are alrd parsed
+    if (Number(swapData.fromAmount) > Number(swapData.tokenBalance))
       return "You don't have enough funds to complete the transaction.";
-    if (isUndefined(insufficientGas) || insufficientGas.length === 0 || routesLoading) return undefined;
+
+    if (isUndefined(insufficientGas) || insufficientGas.length === 0 || routesLoading || routes.length === 0)
+      return undefined;
 
     const baseGasMsg = "You don't have enough gas to complete the transaction. You need atleast :\n";
     const requiredGasMsg = insufficientGas.reduce((msg, gasCost) => {

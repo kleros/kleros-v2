@@ -48,7 +48,7 @@ const SwapButton: React.FC = () => {
       routes.length === 0 ||
       isExecuting ||
       !selectedRoute ||
-      insufficientGas?.[0].insufficient ||
+      insufficientGas?.[0]?.insufficient ||
       isLoading
     )
       return true;

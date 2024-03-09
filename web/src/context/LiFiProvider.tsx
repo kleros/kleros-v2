@@ -27,14 +27,14 @@ interface ILifiProvider {
 }
 
 const initialSwapData: SwapData = {
-  fromChainId: 42161,
+  fromChainId: 5,
   fromAmount: "1", // 1
   fromTokenAddress: "0x0000000000000000000000000000000000000000", // ETH
   slippage: 0.03, // "3%"
   gasPrice: "normal",
   // these are hardcoded, set to PNK on production deploy
-  toChainId: 42161,
-  toTokenAddress: "0x330bD769382cFc6d50175903434CCC8D206DCAE5", // PNK
+  toChainId: 5,
+  toTokenAddress: "0xd87ba7a50b2e7e660f678a895e4b72e7cb4ccd9c", // PNK
 };
 
 const LifiContext = createContext<ILifiProvider>({
@@ -57,7 +57,7 @@ export const useLifiSDK = () => {
 
 export const lifi = new LiFi({
   integrator: "Kleros",
-  apiUrl: "https://li.quest/v1",
+  apiUrl: "https://staging.li.quest/v1",
 });
 
 export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -74,7 +74,7 @@ export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // update tokens for the chain
   useEffect(() => {
     lifi.getTokens({ chains: [swapData.fromChainId] }).then((res) => {
-      setTokens(res.tokens[swapData.fromChainId].slice(0, 100));
+      setTokens(res.tokens[swapData.fromChainId].slice(0, 1000));
     });
   }, [swapData.fromChainId]);
 
@@ -87,7 +87,7 @@ export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .getTokenBalance(address, fromToken)
       .then((res) => setSwapData({ ...swapData, tokenBalance: res?.amount }))
       .catch((err) => console.log("Error fetching token balance: ", { err }));
-  }, [swapData.fromToken, address, tokens, swapData.fromTokenAddress, lifi]);
+  }, [swapData?.fromToken, address, tokens, swapData.fromTokenAddress, lifi]);
 
   // execute the selected route
   const execute = useCallback(() => {
@@ -103,6 +103,7 @@ export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children
             gasPrice: await fetchGasPrice(swapData.fromChainId, swapData.gasPrice ?? "normal"),
           };
         },
+        acceptExchangeRateUpdateHook: async () => true,
       })
       .then((res) => {
         console.log({ result: res });
@@ -151,7 +152,7 @@ export const LifiProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 const fetchGasPrice = async (chainId: number, gasSetting: string) => {
   try {
-    const response = await fetch(`https://li.quest/v1/gas/prices/${chainId}`);
+    const response = await fetch(`https://staging.li.quest/v1/gas/prices/${chainId}`);
     const data = await response.json();
     switch (gasSetting) {
       case "slow":
