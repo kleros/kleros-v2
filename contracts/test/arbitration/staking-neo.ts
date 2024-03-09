@@ -178,6 +178,54 @@ describe("Staking", async () => {
       await expect(await core.connect(juror).setStake(1, PNK(1000)))
         .to.emit(sortition, "StakeSet")
         .withArgs(juror.address, 1, PNK(1000));
+      expect(await sortition.totalStaked()).to.be.equal(PNK(1000));
+    });
+  });
+
+  describe("When juror stakes less", async () => {
+    beforeEach("Setup", async () => {
+      await deployUnhappy();
+      await nft.safeMint(juror.address);
+
+      await pnk.connect(juror).approve(core.address, PNK(10_000));
+      await core.connect(juror).setStake(1, PNK(1000));
+    });
+
+    describe("When stakes are NOT delayed", () => {
+      it("Should be able to unstake", async () => {
+        expect(await core.connect(juror).setStake(1, PNK(500)))
+          .to.emit(sortition, "StakeSet")
+          .withArgs(juror.address, 1, PNK(500));
+        expect(await sortition.totalStaked()).to.be.equal(PNK(500));
+
+        expect(await core.connect(juror).setStake(1, PNK(1001)))
+          .to.emit(sortition, "StakeSet")
+          .withArgs(juror.address, 1, PNK(1001));
+        expect(await sortition.totalStaked()).to.be.equal(PNK(1001));
+
+        expect(await core.connect(juror).setStake(1, PNK(0)))
+          .to.emit(sortition, "StakeSet")
+          .withArgs(juror.address, 1, PNK(0));
+        expect(await sortition.totalStaked()).to.be.equal(PNK(0));
+      });
+    });
+
+    describe("When stakes are delayed", () => {
+      beforeEach("Setup", async () => {
+        await reachGeneratingPhaseFromStaking();
+      });
+
+      it("Should be able to unstake", async () => {
+        expect(await core.connect(juror).setStake(1, PNK(0)))
+          .to.emit(sortition, "StakeDelayedNotTransferred")
+          .withArgs(juror.address, 1, PNK(0))
+          .to.not.emit(sortition, "StakeSet");
+        expect(await sortition.totalStaked()).to.be.equal(PNK(1000));
+        await reachStakingPhaseAfterDrawing();
+        expect(await sortition.executeDelayedStakes(10))
+          .to.emit(sortition, "StakeSet")
+          .withArgs(juror.address, 1, PNK(0));
+      });
     });
   });
 
@@ -195,6 +243,7 @@ describe("Staking", async () => {
             core,
             "StakingMoreThanMaxStakePerJuror"
           );
+          expect(await sortition.totalStaked()).to.be.equal(PNK(0));
         });
       });
 
@@ -209,8 +258,10 @@ describe("Staking", async () => {
             core,
             "StakingMoreThanMaxStakePerJuror"
           );
+          expect(await sortition.totalStaked()).to.be.equal(PNK(0));
           await reachStakingPhaseAfterDrawing();
           await expect(sortition.executeDelayedStakes(10)).to.revertedWith("No delayed stake to execute.");
+          expect(await sortition.totalStaked()).to.be.equal(PNK(0));
         });
       });
     });
@@ -232,6 +283,7 @@ describe("Staking", async () => {
             core,
             "StakingMoreThanMaxTotalStaked"
           );
+          expect(await sortition.totalStaked()).to.be.equal(PNK(2000));
         });
 
         it("Should be able to stake exactly maxTotalStaked", async () => {
@@ -239,6 +291,7 @@ describe("Staking", async () => {
           await expect(await core.connect(juror).setStake(1, PNK(1000)))
             .to.emit(sortition, "StakeSet")
             .withArgs(juror.address, 1, PNK(1000));
+          expect(await sortition.totalStaked()).to.be.equal(PNK(3000));
         });
       });
 
@@ -253,8 +306,10 @@ describe("Staking", async () => {
             core,
             "StakingMoreThanMaxTotalStaked"
           );
+          expect(await sortition.totalStaked()).to.be.equal(PNK(2000));
           await reachStakingPhaseAfterDrawing();
           await expect(sortition.executeDelayedStakes(10)).to.revertedWith("No delayed stake to execute.");
+          expect(await sortition.totalStaked()).to.be.equal(PNK(2000));
         });
 
         it("Should be able to stake exactly maxTotalStaked", async () => {
@@ -262,12 +317,12 @@ describe("Staking", async () => {
           await expect(await core.connect(juror).setStake(1, PNK(1000)))
             .to.emit(sortition, "StakeDelayedAlreadyTransferred")
             .withArgs(juror.address, 1, PNK(1000));
-
+          expect(await sortition.totalStaked()).to.be.equal(PNK(2000)); // Not updated until the delayed stake is executed
           await reachStakingPhaseAfterDrawing();
-
           await expect(await sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
             .withArgs(juror.address, 1, PNK(1000));
+          expect(await sortition.totalStaked()).to.be.equal(PNK(3000));
         });
       });
     });
