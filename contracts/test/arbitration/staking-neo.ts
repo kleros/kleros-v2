@@ -79,51 +79,47 @@ describe("Staking", async () => {
 
     // Sets up the happy path for Neo
     await nft.safeMint(deployer);
+    await nft.safeMint(juror.address);
     await sortition.changeMaxStakePerJuror(PNK(10_000));
     await sortition.changeMaxTotalStaked(PNK(20_000));
   };
 
-  const reachGeneratingPhaseFromStaking = async () => {
+  const createDisputeAndReachGeneratingPhaseFromStaking = async () => {
     const arbitrationCost = ETH(0.5);
     await resolver.createDisputeForTemplate(extraData, "", "", 2, { value: arbitrationCost });
-    await network.provider.send("evm_increaseTime", [3600]);
+    await reachGeneratingPhaseFromStaking();
+  };
+
+  const reachGeneratingPhaseFromStaking = async () => {
+    await network.provider.send("evm_increaseTime", [3600]); // Wait for minStakingTime
     await network.provider.send("evm_mine");
+
+    expect(await sortition.phase()).to.be.equal(0); // Staking
     await sortition.passPhase(); // Staking -> Generating
     expect(await sortition.phase()).to.be.equal(1); // Generating
   };
 
-  const reachDrawingPhase = async () => {
-    expect(await sortition.phase()).to.be.equal(0); // Staking
-    const arbitrationCost = ETH(0.1).mul(3);
-
-    await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], 3, [1]); // Parent - general court, Classic dispute kit
-
-    await pnk.approve(core.address, PNK(4000));
-    await core.setStake(1, PNK(2000));
-    await core.setStake(2, PNK(2000));
-
-    expect(await sortition.getJurorCourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
-
-    await resolver.createDisputeForTemplate(extraData, "", "", 2, { value: arbitrationCost });
-
-    await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
-    await network.provider.send("evm_mine");
+  const drawFromGeneratingPhase = async () => {
+    expect(await sortition.phase()).to.be.equal(1); // Generating
 
     const lookahead = await sortition.rngLookahead();
-    await sortition.passPhase(); // Staking -> Generating
     for (let index = 0; index < lookahead; index++) {
       await network.provider.send("evm_mine");
     }
 
-    balanceBefore = await pnk.balanceOf(deployer);
-  };
-
-  const reachStakingPhaseAfterDrawing = async () => {
     await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
     await sortition.passPhase(); // Generating -> Drawing
+    expect(await sortition.phase()).to.be.equal(2); // Drawing
+
     await core.draw(0, 10);
+  };
+
+  const drawAndReachStakingPhaseFromGenerating = async () => {
+    await drawFromGeneratingPhase();
+
     await network.provider.send("evm_increaseTime", [3600]); // Ensures that maxDrawingTime has passed
     await network.provider.send("evm_mine");
+
     await sortition.passPhase(); // Drawing -> Staking
     expect(await sortition.phase()).to.be.equal(0); // Staking
   };
@@ -219,7 +215,7 @@ describe("Staking", async () => {
 
     describe("When stakes are delayed", () => {
       beforeEach("Setup", async () => {
-        await reachGeneratingPhaseFromStaking();
+        await createDisputeAndReachGeneratingPhaseFromStaking();
       });
 
       it("Should be able to unstake", async () => {
@@ -228,7 +224,7 @@ describe("Staking", async () => {
           .withArgs(juror.address, 1, PNK(0))
           .to.not.emit(sortition, "StakeSet");
         expect(await sortition.totalStaked()).to.be.equal(PNK(1000));
-        await reachStakingPhaseAfterDrawing();
+        await drawAndReachStakingPhaseFromGenerating();
         expect(await sortition.executeDelayedStakes(10))
           .to.emit(sortition, "StakeSet")
           .withArgs(juror.address, 1, PNK(0));
@@ -256,14 +252,14 @@ describe("Staking", async () => {
 
       describe("When stakes are delayed", () => {
         it("Should not be able to stake more than maxStakePerJuror", async () => {
-          await reachGeneratingPhaseFromStaking();
+          await createDisputeAndReachGeneratingPhaseFromStaking();
           await pnk.connect(juror).approve(core.address, PNK(5000));
           await expect(core.connect(juror).setStake(1, PNK(5000))).to.be.revertedWithCustomError(
             core,
             "StakingMoreThanMaxStakePerJuror"
           );
           expect(await sortition.totalStaked()).to.be.equal(PNK(0));
-          await reachStakingPhaseAfterDrawing();
+          await drawAndReachStakingPhaseFromGenerating();
           await expect(sortition.executeDelayedStakes(10)).to.revertedWith("No delayed stake to execute.");
           expect(await sortition.totalStaked()).to.be.equal(PNK(0));
         });
@@ -271,13 +267,13 @@ describe("Staking", async () => {
         it("Should be able to stake exactly maxStakePerJuror", async () => {
           await pnk.connect(juror).approve(core.address, PNK(5000));
           await core.connect(juror).setStake(1, PNK(1000));
-          await reachGeneratingPhaseFromStaking();
+          await createDisputeAndReachGeneratingPhaseFromStaking();
           expect(await core.connect(juror).setStake(1, PNK(2000)))
             .to.emit(sortition, "StakeDelayedAlreadyTransferred")
             .withArgs(juror.address, 1, PNK(2000))
             .to.not.emit(sortition, "StakeSet");
           expect(await sortition.totalStaked()).to.be.equal(PNK(1000));
-          await reachStakingPhaseAfterDrawing();
+          await drawAndReachStakingPhaseFromGenerating();
           expect(await sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
             .withArgs(juror.address, 1, PNK(2000));
@@ -317,7 +313,7 @@ describe("Staking", async () => {
 
       describe("When stakes are delayed", () => {
         beforeEach("Setup", async () => {
-          await reachGeneratingPhaseFromStaking();
+          await createDisputeAndReachGeneratingPhaseFromStaking();
         });
 
         it("Should not be able to stake more than maxTotalStaked", async () => {
@@ -327,7 +323,7 @@ describe("Staking", async () => {
             "StakingMoreThanMaxTotalStaked"
           );
           expect(await sortition.totalStaked()).to.be.equal(PNK(2000));
-          await reachStakingPhaseAfterDrawing();
+          await drawAndReachStakingPhaseFromGenerating();
           await expect(sortition.executeDelayedStakes(10)).to.revertedWith("No delayed stake to execute.");
           expect(await sortition.totalStaked()).to.be.equal(PNK(2000));
         });
@@ -338,7 +334,7 @@ describe("Staking", async () => {
             .to.emit(sortition, "StakeDelayedAlreadyTransferred")
             .withArgs(juror.address, 1, PNK(1000));
           expect(await sortition.totalStaked()).to.be.equal(PNK(2000)); // Not updated until the delayed stake is executed
-          await reachStakingPhaseAfterDrawing();
+          await drawAndReachStakingPhaseFromGenerating();
           await expect(await sortition.executeDelayedStakes(10))
             .to.emit(sortition, "StakeSet")
             .withArgs(juror.address, 1, PNK(1000));
@@ -398,14 +394,29 @@ describe("Staking", async () => {
   });
 
   describe("When outside the Staking phase", async () => {
+    const createSubcourtStakeAndCreateDispute = async () => {
+      expect(await sortition.phase()).to.be.equal(0); // Staking
+      await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], 3, [1]); // Parent - general court, Classic dispute kit
+
+      await pnk.approve(core.address, PNK(4000));
+      await core.setStake(1, PNK(2000));
+      await core.setStake(2, PNK(2000));
+      expect(await sortition.getJurorCourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
+
+      const arbitrationCost = ETH(0.1).mul(3);
+      await resolver.createDisputeForTemplate(extraData, "", "", 2, { value: arbitrationCost });
+    };
+
     describe("When stake is increased once", async () => {
       before("Setup", async () => {
         await deploy();
-        await reachDrawingPhase();
+        await createSubcourtStakeAndCreateDispute();
+        await reachGeneratingPhaseFromStaking();
+        balanceBefore = await pnk.balanceOf(deployer);
       });
 
       it("Should be outside the Staking phase", async () => {
-        expect(await sortition.phase()).to.be.equal(1); // Drawing
+        expect(await sortition.phase()).to.be.equal(1); // Generating
         expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(4000), 0, PNK(2000), 2]);
       });
 
@@ -435,7 +446,7 @@ describe("Staking", async () => {
 
       describe("When the Phase passes back to Staking", () => {
         before("Setup", async () => {
-          await reachStakingPhaseAfterDrawing();
+          await drawAndReachStakingPhaseFromGenerating();
           balanceBefore = await pnk.balanceOf(deployer);
         });
 
@@ -468,11 +479,13 @@ describe("Staking", async () => {
     describe("When stake is decreased once", async () => {
       before("Setup", async () => {
         await deploy();
-        await reachDrawingPhase();
+        await createSubcourtStakeAndCreateDispute();
+        await reachGeneratingPhaseFromStaking();
+        balanceBefore = await pnk.balanceOf(deployer);
       });
 
       it("Should be outside the Staking phase", async () => {
-        expect(await sortition.phase()).to.be.equal(1); // Drawing
+        expect(await sortition.phase()).to.be.equal(1); // Generating
         expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(4000), 0, PNK(2000), 2]);
       });
 
@@ -501,7 +514,7 @@ describe("Staking", async () => {
 
       describe("When the Phase passes back to Staking", () => {
         before("Setup", async () => {
-          await reachStakingPhaseAfterDrawing();
+          await drawAndReachStakingPhaseFromGenerating();
           balanceBefore = await pnk.balanceOf(deployer);
         });
 
@@ -531,11 +544,13 @@ describe("Staking", async () => {
     describe("When stake is decreased then increased back", async () => {
       before("Setup", async () => {
         await deploy();
-        await reachDrawingPhase();
+        await createSubcourtStakeAndCreateDispute();
+        await reachGeneratingPhaseFromStaking();
+        balanceBefore = await pnk.balanceOf(deployer);
       });
 
       it("Should be outside the Staking phase", async () => {
-        expect(await sortition.phase()).to.be.equal(1); // Drawing
+        expect(await sortition.phase()).to.be.equal(1); // Generating
         expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(4000), 0, PNK(2000), 2]);
       });
 
@@ -588,7 +603,7 @@ describe("Staking", async () => {
 
       describe("When the Phase passes back to Staking", () => {
         before("Setup", async () => {
-          await reachStakingPhaseAfterDrawing();
+          await drawAndReachStakingPhaseFromGenerating();
           balanceBefore = await pnk.balanceOf(deployer);
         });
 
@@ -618,11 +633,13 @@ describe("Staking", async () => {
     describe("When stake is increased then decreased back", async () => {
       before("Setup", async () => {
         await deploy();
-        await reachDrawingPhase();
+        await createSubcourtStakeAndCreateDispute();
+        await reachGeneratingPhaseFromStaking();
+        balanceBefore = await pnk.balanceOf(deployer);
       });
 
       it("Should be outside the Staking phase", async () => {
-        expect(await sortition.phase()).to.be.equal(1); // Drawing
+        expect(await sortition.phase()).to.be.equal(1); // Generating
         expect(await sortition.getJurorBalance(deployer, 2)).to.be.deep.equal([PNK(4000), 0, PNK(2000), 2]);
       });
 
@@ -677,7 +694,7 @@ describe("Staking", async () => {
 
       describe("When the Phase passes back to Staking", () => {
         before("Setup", async () => {
-          await reachStakingPhaseAfterDrawing();
+          await drawAndReachStakingPhaseFromGenerating();
           balanceBefore = await pnk.balanceOf(deployer);
         });
 
@@ -714,41 +731,22 @@ describe("Staking", async () => {
     });
 
     it("Should unstake from all courts", async () => {
-      const arbitrationCost = ETH(0.1).mul(3);
-
       await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], 3, [1]); // Parent - general court, Classic dispute kit
 
       await pnk.approve(core.address, PNK(4000));
       await core.setStake(1, PNK(2000));
       await core.setStake(2, PNK(2000));
-
       expect(await sortition.getJurorCourtIDs(deployer)).to.be.deep.equal([1, 2]);
 
-      await resolver.createDisputeForTemplate(extraData, "", "", 2, { value: arbitrationCost });
-
-      await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
-      await network.provider.send("evm_mine");
-
-      const lookahead = await sortition.rngLookahead();
-      await sortition.passPhase(); // Staking -> Generating
-      for (let index = 0; index < lookahead; index++) {
-        await network.provider.send("evm_mine");
-      }
-      await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
-      await sortition.passPhase(); // Generating -> Drawing
-
-      await core.draw(0, 5000);
+      await createDisputeAndReachGeneratingPhaseFromStaking();
+      await drawAndReachStakingPhaseFromGenerating();
 
       await core.passPeriod(0); // Evidence -> Voting
       await core.passPeriod(0); // Voting -> Appeal
       await core.passPeriod(0); // Appeal -> Execution
 
-      await sortition.passPhase(); // Drawing -> Staking. Change so we don't deal with delayed stakes
-
       expect(await sortition.getJurorCourtIDs(deployer)).to.be.deep.equal([1, 2]);
-
       await core.execute(0, 0, 1); // 1 iteration should unstake from both courts
-
       expect(await sortition.getJurorCourtIDs(deployer)).to.be.deep.equal([]);
     });
   });
