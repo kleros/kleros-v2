@@ -1,10 +1,10 @@
 import React, { useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
+import { useClickAway } from "react-use";
 import { Tabs } from "@kleros/ui-components-library";
 import General from "./General";
 import NotificationSettings from "./Notifications";
-import { useFocusOutside } from "hooks/useFocusOutside";
 import { Overlay } from "components/Overlay";
 import { ISettings } from "../../index";
 import { responsiveSize } from "styles/responsiveSize";
@@ -70,7 +70,7 @@ const TABS = [
 const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const [currentTab, setCurrentTab] = useState<number>(0);
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => toggleIsSettingsOpen());
+  useClickAway(containerRef, () => toggleIsSettingsOpen());
 
   return (
     <>

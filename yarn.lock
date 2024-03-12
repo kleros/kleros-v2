@@ -5889,7 +5889,7 @@ __metadata:
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
-    "@kleros/ui-components-library": "npm:^2.6.3"
+    "@kleros/ui-components-library": "npm:^2.8.1"
     "@netlify/functions": "npm:^1.6.0"
     "@parcel/transformer-svg-react": "npm:2.11.0"
     "@parcel/watcher": "npm:~2.2.0"
@@ -5949,9 +5949,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kleros/ui-components-library@npm:^2.6.3":
-  version: 2.6.3
-  resolution: "@kleros/ui-components-library@npm:2.6.3"
+"@kleros/ui-components-library@npm:^2.8.1":
+  version: 2.8.1
+  resolution: "@kleros/ui-components-library@npm:2.8.1"
   dependencies:
     "@datepicker-react/hooks": "npm:^2.8.4"
     "@swc/helpers": "npm:^0.3.2"
@@ -5968,7 +5968,7 @@ __metadata:
     react-dom: ^18.0.0
     react-is: ^18.0.0
     styled-components: ^5.3.3
-  checksum: bc79976ade4487e563b85e0275674e50d24a4a321cce0abf01c525ca8f72fde3abd4a7d2ed6bc02c50dc401126d698ef547f8d6afda05fc3e1452c99999ae448
+  checksum: 78c05b2217a4d04d554a81cee6fbcdb6c6d2a1ccb92a42118d75b477e076b0c21682916e65a8495c8d70e0763ab7a9062080d4c2f29fb49fc55536879b65f446
   languageName: node
   linkType: hard
 

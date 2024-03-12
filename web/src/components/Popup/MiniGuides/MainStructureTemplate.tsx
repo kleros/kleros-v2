@@ -1,11 +1,11 @@
 import React, { Dispatch, SetStateAction, useRef } from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+import { useClickAway } from "react-use";
 import { CompactPagination } from "@kleros/ui-components-library";
 import { Overlay } from "components/Overlay";
 import BookOpenIcon from "tsx:assets/svgs/icons/book-open.svg";
-import { useFocusOutside } from "hooks/useFocusOutside";
-import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div<{ isVisible: boolean }>`
   display: ${({ isVisible }) => (isVisible ? "flex" : "none")};
@@ -160,11 +160,12 @@ const Template: React.FC<ITemplate> = ({
   isVisible,
 }) => {
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => {
+  useClickAway(containerRef, () => {
     if (canClose) {
       onClose();
     }
   });
+
   return (
     <>
       <Overlay />
