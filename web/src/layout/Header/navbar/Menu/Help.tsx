@@ -1,8 +1,7 @@
 import React, { useRef } from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
-import { useToggle } from "react-use";
-import { useFocusOutside } from "hooks/useFocusOutside";
+import { useClickAway, useToggle } from "react-use";
 import Book from "svgs/icons/book-open.svg";
 import Guide from "svgs/icons/book.svg";
 import Bug from "svgs/icons/bug.svg";
@@ -104,7 +103,7 @@ const Help: React.FC<IHelp> = ({ toggleIsHelpOpen }) => {
   const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
 
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => {
+  useClickAway(containerRef, () => {
     if (!isOnboardingMiniGuidesOpen) toggleIsHelpOpen();
   });
 
