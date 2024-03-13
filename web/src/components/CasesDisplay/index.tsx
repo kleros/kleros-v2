@@ -1,12 +1,17 @@
 import React from "react";
 import styled from "styled-components";
+
+import { useLocation, useNavigate } from "react-router-dom";
+
+import ArrowIcon from "assets/svgs/icons/arrow.svg";
+
+import { responsiveSize } from "styles/responsiveSize";
+
+import LightButton from "../LightButton";
+
+import CasesGrid, { ICasesGrid } from "./CasesGrid";
 import Search from "./Search";
 import StatsAndFilters from "./StatsAndFilters";
-import CasesGrid, { ICasesGrid } from "./CasesGrid";
-import { responsiveSize } from "styles/responsiveSize";
-import LightButton from "../LightButton";
-import ArrowIcon from "assets/svgs/icons/arrow.svg";
-import { useLocation, useNavigate } from "react-router-dom";
 
 const Divider = styled.hr`
   display: flex;

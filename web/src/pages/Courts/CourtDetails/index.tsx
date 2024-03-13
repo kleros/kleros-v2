@@ -1,21 +1,28 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { useToggle } from "react-use";
+
 import { useParams } from "react-router-dom";
+import { useToggle } from "react-use";
+
 import { Card, Breadcrumb } from "@kleros/ui-components-library";
+
+import { isUndefined } from "utils/index";
+
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
-import { isUndefined } from "utils/index";
-import { StyledSkeleton } from "components/StyledSkeleton";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
+import ClaimPnkButton from "components/ClaimPnkButton";
+import HowItWorks from "components/HowItWorks";
 import LatestCases from "components/LatestCases";
-import Stats from "./Stats";
+import Staking from "components/Popup/MiniGuides/Staking";
+import { StyledSkeleton } from "components/StyledSkeleton";
+
 import Description from "./Description";
 import StakePanel from "./StakePanel";
-import HowItWorks from "components/HowItWorks";
-import Staking from "components/Popup/MiniGuides/Staking";
-import { responsiveSize } from "styles/responsiveSize";
-import ClaimPnkButton from "components/ClaimPnkButton";
+import Stats from "./Stats";
 
 const Container = styled.div``;
 

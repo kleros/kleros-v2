@@ -1,8 +1,10 @@
 import React, { useMemo, createContext, useContext } from "react";
-import { arbitrumSepolia } from "wagmi/chains";
-import { request } from "graphql-request";
-import { create, windowedFiniteBatchScheduler, Batcher } from "@yornaath/batshit";
+
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
+import { create, windowedFiniteBatchScheduler, Batcher } from "@yornaath/batshit";
+import { request } from "graphql-request";
+import { arbitrumSepolia } from "wagmi/chains";
+
 import { debounceErrorToast } from "utils/debounceErrorToast";
 import { getGraphqlUrl } from "utils/getGraphqlUrl";
 

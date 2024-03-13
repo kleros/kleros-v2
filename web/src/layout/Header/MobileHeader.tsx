@@ -1,12 +1,17 @@
 import React, { useContext, useMemo, useRef } from "react";
 import styled, { css } from "styled-components";
-import { useClickAway, useToggle } from "react-use";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { Link } from "react-router-dom";
-import KlerosCourtLogo from "svgs/header/kleros-court.svg";
-import KlerosCourtUniversityLogo from "svgs/header/kleros-court-university.svg";
+import { useClickAway, useToggle } from "react-use";
+
 import HamburgerIcon from "svgs/header/hamburger.svg";
+import KlerosCourtUniversityLogo from "svgs/header/kleros-court-university.svg";
+import KlerosCourtLogo from "svgs/header/kleros-court.svg";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import LightButton from "components/LightButton";
+
 import NavBar from "./navbar";
 
 const IS_UNIVERSITY = process.env.REACT_APP_UNIVERSITY_COURT === "true";

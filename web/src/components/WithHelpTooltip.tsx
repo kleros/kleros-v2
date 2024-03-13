@@ -1,8 +1,11 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { Tooltip } from "@kleros/ui-components-library";
+
 import _HelpIcon from "svgs/menu-icons/help.svg";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.div`
   display: flex;

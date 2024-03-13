@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { Card as _Card } from "@kleros/ui-components-library";
-import PixelArt from "pages/Dashboard/JurorInfo/PixelArt";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import Coherency from "pages/Dashboard/JurorInfo/Coherency";
-import { Title, ParagraphsContainer, LeftContentContainer } from "./PageContentsTemplate";
+import PixelArt from "pages/Dashboard/JurorInfo/PixelArt";
+
 import Template from "./MainStructureTemplate";
+import { Title, ParagraphsContainer, LeftContentContainer } from "./PageContentsTemplate";
 
 const Card = styled(_Card)`
   display: flex;

@@ -1,17 +1,21 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
-import { NumberInputField } from "components/NumberInputField";
-import { useParsedAmount } from "hooks/useParsedAmount";
-import { useCourtDetails } from "hooks/queries/useCourtDetails";
+
 import { usePnkBalanceOf } from "hooks/contracts/generated";
 import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generatedProvider";
-import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
+import { useCourtDetails } from "hooks/queries/useCourtDetails";
+import { useParsedAmount } from "hooks/useParsedAmount";
+import { commify, uncommify } from "utils/commify";
 import { formatPNK, roundNumberDown } from "utils/format";
 import { isUndefined } from "utils/index";
-import { commify, uncommify } from "utils/commify";
+
+import { NumberInputField } from "components/NumberInputField";
+
+import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
 
 const StyledField = styled(NumberInputField)`
   height: fit-content;

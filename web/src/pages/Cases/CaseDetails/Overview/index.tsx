@@ -1,17 +1,22 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
+
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
-import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
-import { useCourtPolicy } from "queries/useCourtPolicy";
-import DisputeInfo from "components/DisputeView/DisputeInfo";
-import Verdict from "components/Verdict/index";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
 import { getLocalRounds } from "utils/getLocalRounds";
+
+import { useCourtPolicy } from "queries/useCourtPolicy";
+import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import { responsiveSize } from "styles/responsiveSize";
+
 import { DisputeContext } from "components/DisputePreview/DisputeContext";
 import { Policies } from "components/DisputePreview/Policies";
-import { responsiveSize } from "styles/responsiveSize";
+import DisputeInfo from "components/DisputeView/DisputeInfo";
+import Verdict from "components/Verdict/index";
 
 const Container = styled.div`
   width: 100%;

@@ -1,9 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import MobileHeader from "./MobileHeader";
-import DesktopHeader from "./DesktopHeader";
-import { TestnetBanner } from "./TestnetBanner";
+
 import { isProductionDeployment } from "consts/index";
+
+import DesktopHeader from "./DesktopHeader";
+import MobileHeader from "./MobileHeader";
+import { TestnetBanner } from "./TestnetBanner";
 
 const Container = styled.div`
   position: sticky;

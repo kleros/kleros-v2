@@ -1,12 +1,18 @@
 import React from "react";
-import { Card } from "@kleros/ui-components-library";
 import styled from "styled-components";
-import { responsiveSize } from "styles/responsiveSize";
-import PeriodBanner from "./PeriodBanner";
-import { StyledSkeleton } from "components/StyledSkeleton";
-import DisputeInfo from "./DisputeInfo";
+
 import { useNavigate } from "react-router-dom";
+
+import { Card } from "@kleros/ui-components-library";
+
 import { Periods } from "consts/periods";
+
+import { responsiveSize } from "styles/responsiveSize";
+
+import { StyledSkeleton } from "components/StyledSkeleton";
+
+import DisputeInfo from "./DisputeInfo";
+import PeriodBanner from "./PeriodBanner";
 
 const StyledCard = styled(Card)`
   width: 100%;

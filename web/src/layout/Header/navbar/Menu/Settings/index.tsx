@@ -1,13 +1,19 @@
 import React, { useRef, useState } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { useClickAway } from "react-use";
+
 import { Tabs } from "@kleros/ui-components-library";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
+import { Overlay } from "components/Overlay";
+
+import { ISettings } from "../../index";
+
 import General from "./General";
 import NotificationSettings from "./Notifications";
-import { Overlay } from "components/Overlay";
-import { ISettings } from "../../index";
-import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;

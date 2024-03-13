@@ -1,8 +1,9 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
+
+import { GIT_BRANCH, GIT_DIRTY, GIT_HASH, GIT_TAGS, GIT_URL, RELEASE_VERSION } from "consts/index";
 import { useSortitionModulePhase } from "hooks/contracts/generatedProvider";
 import { useToggleTheme } from "hooks/useToggleThemeContext";
-import { GIT_BRANCH, GIT_DIRTY, GIT_HASH, GIT_TAGS, GIT_URL, RELEASE_VERSION } from "consts/index";
 import { isUndefined } from "utils/index";
 
 const Container = styled.div`

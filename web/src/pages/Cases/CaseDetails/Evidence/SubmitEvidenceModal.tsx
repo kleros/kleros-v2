@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { toast } from "react-toastify";
+
 import Modal from "react-modal";
-import { Textarea, Button, FileUploader } from "@kleros/ui-components-library";
-import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
-import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
+import { toast } from "react-toastify";
 import { useWalletClient, usePublicClient } from "wagmi";
-import { EnsureChain } from "components/EnsureChain";
+
+import { Textarea, Button, FileUploader } from "@kleros/ui-components-library";
+
 import { prepareWriteEvidenceModule } from "hooks/contracts/generated";
+import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
+import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
+
+import { EnsureChain } from "components/EnsureChain";
 
 const StyledModal = styled(Modal)`
   position: absolute;

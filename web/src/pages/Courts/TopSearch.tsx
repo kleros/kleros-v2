@@ -1,9 +1,14 @@
 import React, { useMemo } from "react";
+
 import { useNavigate } from "react-router-dom";
+
 import { DropdownCascader } from "@kleros/ui-components-library";
-import { StyledSkeleton } from "components/StyledSkeleton";
+
 import { isUndefined } from "utils/index";
+
 import { useCourtTree, rootCourtToItems } from "queries/useCourtTree";
+
+import { StyledSkeleton } from "components/StyledSkeleton";
 
 const TopSearch: React.FC = () => {
   const { data } = useCourtTree();

@@ -1,21 +1,27 @@
 import React, { useRef } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
+import { useNavigate } from "react-router-dom";
+
 import { Button } from "@kleros/ui-components-library";
+
+import CloseIcon from "svgs/icons/close.svg";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import { Overlay } from "components/Overlay";
+import { Token } from "pages/GetPnk/Swap/TokenSelect";
+
+import Appeal from "./Description/Appeal";
+import DisputeCreated from "./Description/DisputeCreated";
 import StakeWithdraw from "./Description/StakeWithdraw";
+import SwapSuccess from "./Description/SwapSuccess";
 import VoteWithCommit from "./Description/VoteWithCommit";
 import VoteWithoutCommit from "./Description/VoteWithoutCommit";
-import Appeal from "./Description/Appeal";
-import VoteWithCommitExtraInfo from "./ExtraInfo/VoteWithCommitExtraInfo";
-import StakeWithdrawExtraInfo from "./ExtraInfo/StakeWithdrawExtraInfo";
-import { responsiveSize } from "styles/responsiveSize";
-import DisputeCreated from "./Description/DisputeCreated";
 import DisputeCreatedExtraInfo from "./ExtraInfo/DisputeCreatedExtraInfo";
-import { useNavigate } from "react-router-dom";
-import SwapSuccess from "./Description/SwapSuccess";
-import CloseIcon from "svgs/icons/close.svg";
-import { Token } from "pages/GetPnk/Swap/TokenSelect";
+import StakeWithdrawExtraInfo from "./ExtraInfo/StakeWithdrawExtraInfo";
+import VoteWithCommitExtraInfo from "./ExtraInfo/VoteWithCommitExtraInfo";
 
 const Header = styled.h1`
   display: flex;

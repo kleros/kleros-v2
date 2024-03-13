@@ -1,7 +1,10 @@
 import React, { useMemo } from "react";
+
 import { useParams } from "react-router-dom";
 import { useAccount, usePublicClient } from "wagmi";
+
 import { Button } from "@kleros/ui-components-library";
+
 import {
   usePnkBalanceOf,
   usePnkIncreaseAllowance,
@@ -15,8 +18,9 @@ import {
   useSortitionModuleGetJurorBalance,
 } from "hooks/contracts/generatedProvider";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
-import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
+import { wrapWithToast } from "utils/wrapWithToast";
+
 import { EnsureChain } from "components/EnsureChain";
 
 export enum ActionType {

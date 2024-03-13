@@ -1,7 +1,9 @@
-import { graphql } from "src/graphql";
 import { useQuery } from "@tanstack/react-query";
-import { isUndefined } from "utils/index";
+
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { isUndefined } from "utils/index";
+
+import { graphql } from "src/graphql";
 import { DisputeTemplateQuery } from "src/graphql/graphql";
 
 const disputeTemplateQuery = graphql(`

@@ -1,8 +1,11 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { Steps } from "@kleros/ui-components-library";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { useLocation } from "react-router-dom";
+
+import { Steps } from "@kleros/ui-components-library";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 
 const StyledSteps = styled(Steps)`
   display: none;

@@ -1,16 +1,19 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import OptionCard from "../../OptionCard";
+
+import Skeleton from "react-loading-skeleton";
+
 import {
   useCountdownContext,
   useFundingContext,
   useOptionsContext,
   useSelectedOptionContext,
 } from "hooks/useClassicAppealContext";
-import { isUndefined } from "utils/index";
 import { formatUnitsWei } from "utils/format";
+import { isUndefined } from "utils/index";
+
+import OptionCard from "../../OptionCard";
 import StageExplainer from "../StageExplainer";
-import Skeleton from "react-loading-skeleton";
 
 const Container = styled.div`
   margin: 24px 0;

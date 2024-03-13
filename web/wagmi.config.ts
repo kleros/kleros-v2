@@ -1,12 +1,14 @@
-import { type Config, type ContractConfig, defineConfig } from "@wagmi/cli";
-import { react, actions } from "@wagmi/cli/plugins";
 import { readdir, readFile } from "fs/promises";
 import { parse, join } from "path";
-import { Abi } from "viem";
+
 import { Chain } from "@wagmi/chains";
+import { type Config, type ContractConfig, defineConfig } from "@wagmi/cli";
+import { react, actions } from "@wagmi/cli/plugins";
 import dotenv from "dotenv";
-import IHomeGateway from "@kleros/kleros-v2-contracts/artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" assert { type: "json" };
+import { Abi } from "viem";
+
 import IArbitrableV2 from "@kleros/kleros-v2-contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" assert { type: "json" };
+import IHomeGateway from "@kleros/kleros-v2-contracts/artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" assert { type: "json" };
 
 dotenv.config();
 

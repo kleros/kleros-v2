@@ -1,12 +1,15 @@
-import { Field } from "@kleros/ui-components-library";
 import React, { useEffect, useState } from "react";
-import { useDebounce } from "react-use";
 import styled from "styled-components";
+
+import { useDebounce } from "react-use";
+import { GetEventArgs } from "viem/_types/types/contract";
+
+import { Field } from "@kleros/ui-components-library";
+
 import { DEFAULT_CHAIN } from "consts/chains";
+import { iArbitrableV2ABI } from "hooks/contracts/generated";
 import { getDisputeRequestParamsFromTxn } from "utils/getDisputeRequestParamsFromTxn";
 import { isUndefined } from "utils/index";
-import { GetEventArgs } from "viem/_types/types/contract";
-import { iArbitrableV2ABI } from "hooks/contracts/generated";
 
 const Container = styled.div`
   display: flex;

@@ -1,20 +1,26 @@
 import React from "react";
 import styled from "styled-components";
+
 import { useToggle } from "react-use";
 import { useAccount } from "wagmi";
+
+import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
+
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
-import { useOpenContext } from "../MobileHeader";
-import DappList from "./DappList";
-import Explore from "./Explore";
+
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
 import { Overlay } from "components/Overlay";
-import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
+
+import { PopupContainer } from "..";
+import { useOpenContext } from "../MobileHeader";
+
+import DappList from "./DappList";
+import Explore from "./Explore";
 import Menu from "./Menu";
 import Help from "./Menu/Help";
 import Settings from "./Menu/Settings";
 import { DisconnectWalletButton } from "./Menu/Settings/General";
-import { PopupContainer } from "..";
 
 const Wrapper = styled.div<{ isOpen: boolean }>`
   visibility: ${({ isOpen }) => (isOpen ? "visible" : "hidden")};

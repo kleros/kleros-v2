@@ -1,10 +1,15 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { formatUnits } from "viem";
-import { isUndefined } from "utils/index";
+
 import LockerIcon from "svgs/icons/locker.svg";
+
+import { isUndefined } from "utils/index";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
 import NumberDisplay from "components/NumberDisplay";
 
 const Container = styled.div`

@@ -1,11 +1,15 @@
 import React, { useState } from "react";
-import { Button, Card } from "@kleros/ui-components-library";
 import styled from "styled-components";
-import ChainSelect from "../ChainSelect";
-import TokenSelect from "../TokenSelect";
-import { responsiveSize } from "styles/responsiveSize";
-import NumberField from "../NumberInput";
+
 import DownArrow from "tsx:svgs/icons/down-arrow.svg";
+
+import { Button, Card } from "@kleros/ui-components-library";
+
+import { responsiveSize } from "styles/responsiveSize";
+
+import ChainSelect from "../ChainSelect";
+import NumberField from "../NumberInput";
+import TokenSelect from "../TokenSelect";
 
 const Container = styled(Card)`
   width: 100%;

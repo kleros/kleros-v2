@@ -1,4 +1,5 @@
 import { toast } from "react-toastify";
+
 import { OPTIONS } from "utils/wrapWithToast";
 
 type SettingsToSupabaseData = {

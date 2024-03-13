@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { graphql } from "src/graphql";
-import { TopUsersByCoherenceScoreQuery } from "src/graphql/graphql";
+
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 import { isUndefined } from "utils/index";
+
+import { graphql } from "src/graphql";
+import { TopUsersByCoherenceScoreQuery } from "src/graphql/graphql";
 export type { TopUsersByCoherenceScoreQuery };
 
 const topUsersByCoherenceScoreQuery = graphql(`

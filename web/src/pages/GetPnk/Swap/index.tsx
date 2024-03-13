@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import FromCard from "./Cards/FromCard";
-import ToCard from "./Cards/ToCard";
-import { EnsureChain } from "components/EnsureChain";
-import SwapDetails from "./Cards/SwapDetails";
+
 import { Button } from "@kleros/ui-components-library";
-import Popup, { PopupType } from "components/Popup";
+
 import { isProductionDeployment } from "consts/index";
+
+import { EnsureChain } from "components/EnsureChain";
+import Popup, { PopupType } from "components/Popup";
+
+import FromCard from "./Cards/FromCard";
+import SwapDetails from "./Cards/SwapDetails";
+import ToCard from "./Cards/ToCard";
 
 const Container = styled.div`
   display: flex;

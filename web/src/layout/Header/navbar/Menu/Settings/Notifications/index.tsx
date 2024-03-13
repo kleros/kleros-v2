@@ -1,10 +1,14 @@
 import React from "react";
 import styled from "styled-components";
-import { ISettings } from "layout/Header/navbar/index";
-import FormContactDetails from "./FormContactDetails";
-import { EnsureChain } from "components/EnsureChain";
+
 import TelegramLogo from "svgs/socialmedia/telegram.svg";
+
 import { HERMES_TELEGRAM_BOT_URL } from "consts/index";
+
+import { EnsureChain } from "components/EnsureChain";
+import { ISettings } from "layout/Header/navbar/index";
+
+import FormContactDetails from "./FormContactDetails";
 
 const Container = styled.div`
   display: flex;

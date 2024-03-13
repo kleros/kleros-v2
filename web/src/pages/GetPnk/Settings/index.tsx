@@ -1,7 +1,9 @@
-import { Button } from "@kleros/ui-components-library";
 import React from "react";
 import styled from "styled-components";
+
 import GasIcon from "tsx:svgs/icons/gas.svg";
+
+import { Button } from "@kleros/ui-components-library";
 
 const Container = styled.div`
   display: flex;
