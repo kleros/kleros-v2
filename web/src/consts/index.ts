@@ -1,5 +1,11 @@
 import { version, gitCommitHash, gitCommitShortHash, gitBranch, gitTags, clean } from "../generatedGitInfo.json";
 
+export const enum COURTS {
+  vainilla,
+  university,
+  neo,
+}
+
 export const ONE_BASIS_POINT = 10000n;
 
 export const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY || "https://cdn.kleros.link";
@@ -24,6 +30,8 @@ export const GENESIS_BLOCK_ARBSEPOLIA = BigInt(process.env.REACT_APP_GENESIS_BLO
 
 export const isProductionDeployment = () => process.env.REACT_APP_DEPLOYMENT === "mainnet";
 export const isUniversityCourt = () => process.env.REACT_APP_UNIVERSITY_COURT?.toLowerCase() === "true";
+export const isNeoCourt = () => process.env.REACT_APP_NEO_COURT?.toLowerCase() === "true";
+export const whichCourt = () => (isUniversityCourt() ? COURTS.university : isNeoCourt() ? COURTS.neo : COURTS.vainilla);
 
 export const INVALID_DISPUTE_DATA_ERROR = `The dispute data is not valid, please vote "Refuse to arbitrate"`;
 export const RPC_ERROR = `RPC Error: Unable to fetch dispute data. Please avoid voting.`;

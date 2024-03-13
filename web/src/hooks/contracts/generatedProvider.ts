@@ -1,94 +1,135 @@
-import { isUniversityCourt } from "consts/index";
+import { COURTS, whichCourt } from "consts/index";
 import {
   klerosCoreABI as klerosCoreVanillaABI,
   klerosCoreUniversityABI,
+  klerosCoreNeoABI,
   getKlerosCore as getKlerosCoreVanilla,
   getKlerosCoreUniversity,
+  getKlerosCoreNeo,
   getDisputeKitClassic as getDisputeKitClassicVanilla,
   getDisputeKitClassicUniversity,
+  getDisputeKitClassicNeo,
   usePrepareKlerosCoreSetStake as usePrepareKlerosCoreVanillaSetStake,
   usePrepareKlerosCoreUniversitySetStake,
+  usePrepareKlerosCoreNeoSetStake,
   useKlerosCoreSetStake as useKlerosCoreVanillaSetStake,
   useKlerosCoreUniversitySetStake,
+  useKlerosCoreNeoSetStake,
   useKlerosCoreArbitrationCost as useKlerosCoreVanillaArbitrationCost,
   useKlerosCoreUniversityArbitrationCost,
+  useKlerosCoreNeoArbitrationCost,
   useSortitionModulePhase as useSortitionModuleVanillaPhase,
   useSortitionModuleGetJurorBalance as useSortitionModuleVanillaGetJurorBalance,
   useSortitionModuleUniversityGetJurorBalance,
+  useSortitionModuleNeoGetJurorBalance,
   useKlerosCoreCurrentRuling as useKlerosCoreVanillaCurrentRuling,
   useKlerosCoreUniversityCurrentRuling,
+  useKlerosCoreNeoCurrentRuling,
   useDisputeKitClassicIsVoteActive as useDisputeKitClassicVanillaIsVoteActive,
   useDisputeKitClassicUniversityIsVoteActive,
+  useDisputeKitClassicNeoIsVoteActive,
   usePrepareDisputeKitClassicFundAppeal as usePrepareDisputeKitClassicVanillaFundAppeal,
   usePrepareDisputeKitClassicUniversityFundAppeal,
+  usePrepareDisputeKitClassicNeoFundAppeal,
   useDisputeKitClassicFundAppeal as useDisputeKitClassicVanillaFundAppeal,
   useDisputeKitClassicUniversityFundAppeal,
+  useDisputeKitClassicNeoFundAppeal,
   prepareWriteDisputeKitClassic as prepareWriteDisputeKitClassicVanilla,
   prepareWriteDisputeKitClassicUniversity,
+  prepareWriteDisputeKitClassicNeo,
   usePrepareDisputeResolverCreateDisputeForTemplate as usePrepareDisputeResolverVanillaCreateDisputeForTemplate,
   usePrepareDisputeResolverUniversityCreateDisputeForTemplate,
+  usePrepareDisputeResolverNeoCreateDisputeForTemplate,
   useDisputeResolverCreateDisputeForTemplate as useDisputeResolverVanillaCreateDisputeForTemplate,
   useDisputeResolverUniversityCreateDisputeForTemplate,
+  useDisputeResolverNeoCreateDisputeForTemplate,
 } from "hooks/contracts/generated";
 
-const provide = (vanillaVersion, universityVersion) => (isUniversityCourt() ? universityVersion : vanillaVersion);
+const provide = (vanillaVersion, universityVersion, neoVersion) => {
+  switch (whichCourt()) {
+    case COURTS.vainilla:
+      return vanillaVersion;
+    case COURTS.university:
+      return universityVersion;
+    case COURTS.neo:
+      return neoVersion;
+  }
+};
 
-export const klerosCoreABI = provide(klerosCoreVanillaABI, klerosCoreUniversityABI);
+export const klerosCoreABI = provide(klerosCoreVanillaABI, klerosCoreUniversityABI, klerosCoreNeoABI);
 
-export const getKlerosCore = provide(getKlerosCoreVanilla, getKlerosCoreUniversity);
+export const getKlerosCore = provide(getKlerosCoreVanilla, getKlerosCoreUniversity, getKlerosCoreNeo);
 
-export const getDisputeKitClassic = provide(getDisputeKitClassicVanilla, getDisputeKitClassicUniversity);
+export const getDisputeKitClassic = provide(
+  getDisputeKitClassicVanilla,
+  getDisputeKitClassicUniversity,
+  getDisputeKitClassicNeo
+);
 
 export const usePrepareKlerosCoreSetStake = provide(
   usePrepareKlerosCoreVanillaSetStake,
-  usePrepareKlerosCoreUniversitySetStake
+  usePrepareKlerosCoreUniversitySetStake,
+  usePrepareKlerosCoreNeoSetStake
 );
 
-export const useKlerosCoreSetStake = provide(useKlerosCoreVanillaSetStake, useKlerosCoreUniversitySetStake);
+export const useKlerosCoreSetStake = provide(
+  useKlerosCoreVanillaSetStake,
+  useKlerosCoreUniversitySetStake,
+  useKlerosCoreNeoSetStake
+);
 
 export const useKlerosCoreArbitrationCost = provide(
   useKlerosCoreVanillaArbitrationCost,
-  useKlerosCoreUniversityArbitrationCost
+  useKlerosCoreUniversityArbitrationCost,
+  useKlerosCoreNeoArbitrationCost
 );
 
-export const useSortitionModulePhase = provide(useSortitionModuleVanillaPhase, undefined);
+export const useSortitionModulePhase = provide(useSortitionModuleVanillaPhase, undefined, undefined);
 
 export const useSortitionModuleGetJurorBalance = provide(
   useSortitionModuleVanillaGetJurorBalance,
-  useSortitionModuleUniversityGetJurorBalance
+  useSortitionModuleUniversityGetJurorBalance,
+  useSortitionModuleNeoGetJurorBalance
 );
 
 export const useKlerosCoreCurrentRuling = provide(
   useKlerosCoreVanillaCurrentRuling,
-  useKlerosCoreUniversityCurrentRuling
+  useKlerosCoreUniversityCurrentRuling,
+  useKlerosCoreNeoCurrentRuling
 );
 
 export const useDisputeKitClassicIsVoteActive = provide(
   useDisputeKitClassicVanillaIsVoteActive,
-  useDisputeKitClassicUniversityIsVoteActive
+  useDisputeKitClassicUniversityIsVoteActive,
+  useDisputeKitClassicNeoIsVoteActive
 );
 
 export const usePrepareDisputeKitClassicFundAppeal = provide(
   usePrepareDisputeKitClassicVanillaFundAppeal,
-  usePrepareDisputeKitClassicUniversityFundAppeal
+  usePrepareDisputeKitClassicUniversityFundAppeal,
+  usePrepareDisputeKitClassicNeoFundAppeal
 );
 
 export const useDisputeKitClassicFundAppeal = provide(
   useDisputeKitClassicVanillaFundAppeal,
-  useDisputeKitClassicUniversityFundAppeal
+  useDisputeKitClassicUniversityFundAppeal,
+  useDisputeKitClassicNeoFundAppeal
 );
 
 export const prepareWriteDisputeKitClassic = provide(
   prepareWriteDisputeKitClassicVanilla,
-  prepareWriteDisputeKitClassicUniversity
+  prepareWriteDisputeKitClassicUniversity,
+  prepareWriteDisputeKitClassicNeo
 );
 
 export const usePrepareDisputeResolverCreateDisputeForTemplate = provide(
   usePrepareDisputeResolverVanillaCreateDisputeForTemplate,
-  usePrepareDisputeResolverUniversityCreateDisputeForTemplate
+  usePrepareDisputeResolverUniversityCreateDisputeForTemplate,
+  usePrepareDisputeResolverNeoCreateDisputeForTemplate
 );
 
 export const useDisputeResolverCreateDisputeForTemplate = provide(
   useDisputeResolverVanillaCreateDisputeForTemplate,
-  useDisputeResolverUniversityCreateDisputeForTemplate
+  useDisputeResolverUniversityCreateDisputeForTemplate,
+  useDisputeResolverNeoCreateDisputeForTemplate
 );
