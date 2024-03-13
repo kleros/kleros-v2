@@ -19,6 +19,7 @@ import {
   useKlerosCoreUniversityArbitrationCost,
   useKlerosCoreNeoArbitrationCost,
   useSortitionModulePhase as useSortitionModuleVanillaPhase,
+  useSortitionModuleNeoPhase,
   useSortitionModuleGetJurorBalance as useSortitionModuleVanillaGetJurorBalance,
   useSortitionModuleUniversityGetJurorBalance,
   useSortitionModuleNeoGetJurorBalance,
@@ -84,7 +85,7 @@ export const useKlerosCoreArbitrationCost = provide(
   useKlerosCoreNeoArbitrationCost
 );
 
-export const useSortitionModulePhase = provide(useSortitionModuleVanillaPhase, undefined, undefined);
+export const useSortitionModulePhase = provide(useSortitionModuleVanillaPhase, undefined, useSortitionModuleNeoPhase);
 
 export const useSortitionModuleGetJurorBalance = provide(
   useSortitionModuleVanillaGetJurorBalance,
