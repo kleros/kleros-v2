@@ -10,7 +10,6 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 #### Arbitrum One
 
-- [DAI](https://arbiscan.io/address/0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1)
 - [DisputeKitClassicNeo: proxy](https://arbiscan.io/address/0xb7c292cD9Fd3d20De84a71AE1caF054eEB6374A9), [implementation](https://arbiscan.io/address/0x86Ac67e5550F837a650B4B0Cd4778D4293a2bDe3)
 - [DisputeResolverNeo](https://arbiscan.io/address/0x95eCE455bD817D6adB92F2383617d36eBE10D6EB)
 - [DisputeTemplateRegistry: proxy](https://arbiscan.io/address/0x52c9f5634361eD3641016e5d9783310f9EFf9e25), [implementation](https://arbiscan.io/address/0x4Ce87329d40f15509D5F9bF4D9Ce1A081A80CeFb)
@@ -21,7 +20,6 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [PolicyRegistry: proxy](https://arbiscan.io/address/0x26c1980120F1C82cF611D666CE81D2b54d018547), [implementation](https://arbiscan.io/address/0x2AC2EdFD336732bc6963f1AD03ED98B22dB949da)
 - [RandomizerRNG: proxy](https://arbiscan.io/address/0xC3dB344755b15c8Edfd834db79af4f8860029FB4), [implementation](https://arbiscan.io/address/0xA995C172d286f8F4eE137CC662e2844E59Cf4836)
 - [SortitionModuleNeo: proxy](https://arbiscan.io/address/0x614498118850184c62f82d08261109334bFB050f), [implementation](https://arbiscan.io/address/0xf327200420F21BAafce8F1C03B1EEdF926074B95)
-- [WETH](https://arbiscan.io/address/0x82aF49447D8a07e3bd95BD0d56f35241523fBab1)
 
 ### Official Testnet
 
