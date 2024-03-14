@@ -26,14 +26,14 @@ export const TELEGRAM_REGEX = /^@\w{5,32}$/;
 export const ETH_ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/;
 export const ETH_SIGNATURE_REGEX = /^0x[a-fA-F0-9]{130}$/;
 
-export const GENESIS_BLOCK_ARBSEPOLIA = BigInt(process.env.REACT_APP_GENESIS_BLOCK_ARBSEPOLIA ?? 0);
-export const GENESIS_BLOCK_ARBMAINNET = BigInt(process.env.REACT_APP_GENESIS_BLOCK_ARBMAINNET ?? 0);
-export const genesisBlock = () => (isProductionDeployment() ? GENESIS_BLOCK_ARBMAINNET : GENESIS_BLOCK_ARBSEPOLIA);
-
 export const isProductionDeployment = () => process.env.REACT_APP_DEPLOYMENT === "mainnet";
 export const isUniversityCourt = () => process.env.REACT_APP_UNIVERSITY_COURT?.toLowerCase() === "true";
 export const isNeoCourt = () => process.env.REACT_APP_NEO_COURT?.toLowerCase() === "true";
 export const whichCourt = () => (isUniversityCourt() ? COURTS.university : isNeoCourt() ? COURTS.neo : COURTS.vanilla);
+
+export const GENESIS_BLOCK_ARBSEPOLIA = BigInt(process.env.REACT_APP_GENESIS_BLOCK_ARBSEPOLIA ?? 0);
+export const GENESIS_BLOCK_ARBMAINNET = BigInt(process.env.REACT_APP_GENESIS_BLOCK_ARBMAINNET ?? 0);
+export const genesisBlock = () => (isProductionDeployment() ? GENESIS_BLOCK_ARBMAINNET : GENESIS_BLOCK_ARBSEPOLIA);
 
 export const INVALID_DISPUTE_DATA_ERROR = `The dispute data is not valid, please vote "Refuse to arbitrate"`;
 export const RPC_ERROR = `RPC Error: Unable to fetch dispute data. Please avoid voting.`;
