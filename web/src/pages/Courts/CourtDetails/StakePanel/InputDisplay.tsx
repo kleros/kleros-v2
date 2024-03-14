@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
 import { NumberInputField } from "components/NumberInputField";
 import { useParsedAmount } from "hooks/useParsedAmount";
-import { useCourtDetails } from "hooks/queries/useCourtDetails";
 import { usePnkBalanceOf } from "hooks/contracts/generated";
 import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generatedProvider";
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
@@ -67,10 +66,11 @@ const InputDisplay: React.FC<IInputDisplay> = ({
 }) => {
   const [debouncedAmount, setDebouncedAmount] = useState("");
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
-  const parsedAmount = useParsedAmount(uncommify(debouncedAmount));
+  const parsedAmount = useParsedAmount(uncommify(debouncedAmount) as `${number}`);
+
+  const [errorMsg, setErrorMsg] = useState<string | undefined>();
 
   const { id } = useParams();
-  const { data: courtDetails } = useCourtDetails(id);
   const { address } = useAccount();
   const { data: balance } = usePnkBalanceOf({
     enabled: !isUndefined(address),
@@ -80,11 +80,11 @@ const InputDisplay: React.FC<IInputDisplay> = ({
   const parsedBalance = formatPNK(balance ?? 0n, 0, true);
   const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
     enabled: !isUndefined(address),
-    args: [address, id],
+    args: [address!, BigInt(id!)],
     watch: true,
   });
   const parsedStake = formatPNK(jurorBalance?.[2] || 0n, 0, true);
-  const isStaking = action === ActionType.stake;
+  const isStaking = useMemo(() => action === ActionType.stake, [action]);
 
   return (
     <>
@@ -107,15 +107,8 @@ const InputDisplay: React.FC<IInputDisplay> = ({
               setAmount(e);
             }}
             placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
-            // message={
-            //   isStaking
-            //     ? `You need to stake at least ${formatPNK(courtDetails?.court.minStake ?? 0n, 3)} PNK. ` +
-            //       "You may need two transactions, one to increase allowance, the other to stake."
-            //     : `You need to either withdraw all or keep at least ${formatPNK(
-            //         courtDetails?.court.minStake ?? 0n,
-            //         3
-            //       )} PNK.`
-            // }
+            message={errorMsg ?? undefined}
+            variant={!isUndefined(errorMsg) ? "error" : "info"}
             formatter={(number: string) => commify(roundNumberDown(Number(number)))}
           />
           <EnsureChainContainer>
@@ -127,6 +120,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
                 isSending,
                 setIsSending,
                 setIsPopupOpen,
+                setErrorMsg,
               }}
             />
           </EnsureChainContainer>

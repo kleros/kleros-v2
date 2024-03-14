@@ -46,7 +46,7 @@ import {
   useDisputeResolverNeoCreateDisputeForTemplate,
 } from "hooks/contracts/generated";
 
-const provide = (vanillaVersion, universityVersion, neoVersion) => {
+const provide = <T>(vanillaVersion, universityVersion, neoVersion): T => {
   switch (whichCourt()) {
     case COURTS.vainilla:
       return vanillaVersion;
@@ -57,79 +57,95 @@ const provide = (vanillaVersion, universityVersion, neoVersion) => {
   }
 };
 
-export const klerosCoreABI = provide(klerosCoreVanillaABI, klerosCoreUniversityABI, klerosCoreNeoABI);
+export const klerosCoreABI = provide<typeof klerosCoreVanillaABI>(
+  klerosCoreVanillaABI,
+  klerosCoreUniversityABI,
+  klerosCoreNeoABI
+);
 
-export const getKlerosCore = provide(getKlerosCoreVanilla, getKlerosCoreUniversity, getKlerosCoreNeo);
+export const getKlerosCore = provide<typeof getKlerosCoreVanilla>(
+  getKlerosCoreVanilla,
+  getKlerosCoreUniversity,
+  getKlerosCoreNeo
+);
 
-export const getDisputeKitClassic = provide(
+export const getDisputeKitClassic = provide<typeof getDisputeKitClassicVanilla>(
   getDisputeKitClassicVanilla,
   getDisputeKitClassicUniversity,
   getDisputeKitClassicNeo
 );
 
-export const usePrepareKlerosCoreSetStake = provide(
+export const usePrepareKlerosCoreSetStake = provide<typeof usePrepareKlerosCoreVanillaSetStake>(
   usePrepareKlerosCoreVanillaSetStake,
   usePrepareKlerosCoreUniversitySetStake,
   usePrepareKlerosCoreNeoSetStake
 );
 
-export const useKlerosCoreSetStake = provide(
+export const useKlerosCoreSetStake = provide<typeof useKlerosCoreVanillaSetStake>(
   useKlerosCoreVanillaSetStake,
   useKlerosCoreUniversitySetStake,
   useKlerosCoreNeoSetStake
 );
 
-export const useKlerosCoreArbitrationCost = provide(
+export const useKlerosCoreArbitrationCost = provide<typeof useKlerosCoreVanillaArbitrationCost>(
   useKlerosCoreVanillaArbitrationCost,
   useKlerosCoreUniversityArbitrationCost,
   useKlerosCoreNeoArbitrationCost
 );
 
-export const useSortitionModulePhase = provide(useSortitionModuleVanillaPhase, undefined, useSortitionModuleNeoPhase);
+export const useSortitionModulePhase = provide<typeof useSortitionModuleVanillaPhase>(
+  useSortitionModuleVanillaPhase,
+  undefined,
+  useSortitionModuleNeoPhase
+);
 
-export const useSortitionModuleGetJurorBalance = provide(
+export const useSortitionModuleGetJurorBalance = provide<typeof useSortitionModuleVanillaGetJurorBalance>(
   useSortitionModuleVanillaGetJurorBalance,
   useSortitionModuleUniversityGetJurorBalance,
   useSortitionModuleNeoGetJurorBalance
 );
 
-export const useKlerosCoreCurrentRuling = provide(
+export const useKlerosCoreCurrentRuling = provide<typeof useKlerosCoreVanillaCurrentRuling>(
   useKlerosCoreVanillaCurrentRuling,
   useKlerosCoreUniversityCurrentRuling,
   useKlerosCoreNeoCurrentRuling
 );
 
-export const useDisputeKitClassicIsVoteActive = provide(
+export const useDisputeKitClassicIsVoteActive = provide<typeof useDisputeKitClassicVanillaIsVoteActive>(
   useDisputeKitClassicVanillaIsVoteActive,
   useDisputeKitClassicUniversityIsVoteActive,
   useDisputeKitClassicNeoIsVoteActive
 );
 
-export const usePrepareDisputeKitClassicFundAppeal = provide(
+export const usePrepareDisputeKitClassicFundAppeal = provide<typeof usePrepareDisputeKitClassicVanillaFundAppeal>(
   usePrepareDisputeKitClassicVanillaFundAppeal,
   usePrepareDisputeKitClassicUniversityFundAppeal,
   usePrepareDisputeKitClassicNeoFundAppeal
 );
 
-export const useDisputeKitClassicFundAppeal = provide(
+export const useDisputeKitClassicFundAppeal = provide<typeof useDisputeKitClassicVanillaFundAppeal>(
   useDisputeKitClassicVanillaFundAppeal,
   useDisputeKitClassicUniversityFundAppeal,
   useDisputeKitClassicNeoFundAppeal
 );
 
-export const prepareWriteDisputeKitClassic = provide(
+export const prepareWriteDisputeKitClassic = provide<typeof prepareWriteDisputeKitClassicVanilla>(
   prepareWriteDisputeKitClassicVanilla,
   prepareWriteDisputeKitClassicUniversity,
   prepareWriteDisputeKitClassicNeo
 );
 
-export const usePrepareDisputeResolverCreateDisputeForTemplate = provide(
+export const usePrepareDisputeResolverCreateDisputeForTemplate = provide<
+  typeof usePrepareDisputeResolverVanillaCreateDisputeForTemplate
+>(
   usePrepareDisputeResolverVanillaCreateDisputeForTemplate,
   usePrepareDisputeResolverUniversityCreateDisputeForTemplate,
   usePrepareDisputeResolverNeoCreateDisputeForTemplate
 );
 
-export const useDisputeResolverCreateDisputeForTemplate = provide(
+export const useDisputeResolverCreateDisputeForTemplate = provide<
+  typeof useDisputeResolverVanillaCreateDisputeForTemplate
+>(
   useDisputeResolverVanillaCreateDisputeForTemplate,
   useDisputeResolverUniversityCreateDisputeForTemplate,
   useDisputeResolverNeoCreateDisputeForTemplate
