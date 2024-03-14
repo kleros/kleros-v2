@@ -7,6 +7,7 @@ import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 import KlerosCourtLogo from "svgs/header/kleros-court.svg";
 import KlerosCourtUniversityLogo from "svgs/header/kleros-court-university.svg";
+import { isKlerosUniversity } from "src/consts";
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
 import DappList from "./navbar/DappList";
@@ -17,8 +18,6 @@ import Settings from "./navbar/Menu/Settings";
 import { Overlay } from "components/Overlay";
 import { PopupContainer } from ".";
 import { responsiveSize } from "styles/responsiveSize";
-
-const IS_UNIVERSITY = process.env.REACT_APP_UNIVERSITY_COURT === "true";
 
 const Container = styled.div`
   display: none;
@@ -99,7 +98,7 @@ const DesktopHeader = () => {
               Icon={StyledKlerosSolutionsIcon}
             />
           </LightButtonContainer>
-          <StyledLink to={"/"}>{IS_UNIVERSITY ? <KlerosCourtUniversityLogo /> : <KlerosCourtLogo />}</StyledLink>
+          <StyledLink to={"/"}>{isKlerosUniversity() ? <KlerosCourtUniversityLogo /> : <KlerosCourtLogo />}</StyledLink>
         </LeftSide>
 
         <MiddleSide>

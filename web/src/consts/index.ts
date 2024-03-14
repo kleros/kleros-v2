@@ -1,6 +1,6 @@
 import { version, gitCommitHash, gitCommitShortHash, gitBranch, gitTags, clean } from "../generatedGitInfo.json";
 
-export const enum COURTS {
+export enum ArbitratorTypes {
   vanilla,
   university,
   neo,
@@ -27,9 +27,11 @@ export const ETH_ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/;
 export const ETH_SIGNATURE_REGEX = /^0x[a-fA-F0-9]{130}$/;
 
 export const isProductionDeployment = () => process.env.REACT_APP_DEPLOYMENT === "mainnet";
-export const isUniversityCourt = () => process.env.REACT_APP_UNIVERSITY_COURT?.toLowerCase() === "true";
-export const isNeoCourt = () => process.env.REACT_APP_NEO_COURT?.toLowerCase() === "true";
-export const whichCourt = () => (isUniversityCourt() ? COURTS.university : isNeoCourt() ? COURTS.neo : COURTS.vanilla);
+
+export const isKlerosUniversity = () => arbitratorType() === ArbitratorTypes.university;
+export const isKlerosNeo = () => arbitratorType() === ArbitratorTypes.neo;
+export const arbitratorType = (): ArbitratorTypes =>
+  ArbitratorTypes[process.env.REACT_APP_ARBITRATOR_TYPE?.toLowerCase() ?? "vanilla"];
 
 export const GENESIS_BLOCK_ARBSEPOLIA = BigInt(process.env.REACT_APP_GENESIS_BLOCK_ARBSEPOLIA ?? 0);
 export const GENESIS_BLOCK_ARBMAINNET = BigInt(process.env.REACT_APP_GENESIS_BLOCK_ARBMAINNET ?? 0);

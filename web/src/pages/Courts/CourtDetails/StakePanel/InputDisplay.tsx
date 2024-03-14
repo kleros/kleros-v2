@@ -6,7 +6,7 @@ import { useAccount } from "wagmi";
 import { NumberInputField } from "components/NumberInputField";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { usePnkBalanceOf } from "hooks/contracts/generated";
-import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generatedProvider";
+import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
 import { formatPNK, roundNumberDown } from "utils/format";
 import { isUndefined } from "utils/index";

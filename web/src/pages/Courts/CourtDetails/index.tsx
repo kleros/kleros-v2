@@ -16,6 +16,7 @@ import HowItWorks from "components/HowItWorks";
 import Staking from "components/Popup/MiniGuides/Staking";
 import { responsiveSize } from "styles/responsiveSize";
 import ClaimPnkButton from "components/ClaimPnkButton";
+import { isProductionDeployment } from "src/consts";
 
 const Container = styled.div``;
 
@@ -108,7 +109,7 @@ const CourtDetails: React.FC = () => {
               toggleMiniGuide={toggleStakingMiniGuide}
               MiniGuideComponent={Staking}
             />
-            <ClaimPnkButton />
+            {!isProductionDeployment() && <ClaimPnkButton />}
           </ButtonContainer>
         </CourtHeader>
         <hr />

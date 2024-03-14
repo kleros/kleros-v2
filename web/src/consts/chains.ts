@@ -5,6 +5,7 @@ export const DEFAULT_CHAIN = isProductionDeployment() ? arbitrum.id : arbitrumSe
 
 export const SUPPORTED_CHAINS: Record<number, Chain> = {
   [arbitrumSepolia.id]: arbitrumSepolia,
+  [arbitrum.id]: arbitrum,
 };
 export const SUPPORTED_CHAIN_IDS = Object.keys(SUPPORTED_CHAINS);
 

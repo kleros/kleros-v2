@@ -13,7 +13,7 @@ import {
   useKlerosCoreSetStake,
   usePrepareKlerosCoreSetStake,
   useSortitionModuleGetJurorBalance,
-} from "hooks/contracts/generatedProvider";
+} from "hooks/contracts/generated";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";

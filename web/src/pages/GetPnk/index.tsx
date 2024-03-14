@@ -8,6 +8,7 @@ import Swap from "./Swap";
 import Settings from "./Settings";
 import { useToggle } from "react-use";
 import ClaimPnkButton from "components/ClaimPnkButton";
+import { isProductionDeployment } from "src/consts";
 
 const Container = styled.div`
   width: 100%;
@@ -33,7 +34,7 @@ const GetPnk: React.FC = () => {
     <>
       <HeroImage />
       <Container>
-        <ClaimPnkButton />
+        {!isProductionDeployment() && <ClaimPnkButton />}
         <StyledCard>
           <Header isSettings={settingsOpen} toggleSettings={toggleSettings} />
           {settingsOpen ? <Settings /> : <Swap />}
