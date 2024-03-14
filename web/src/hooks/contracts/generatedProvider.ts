@@ -48,7 +48,7 @@ import {
 
 const provide = <T>(vanillaVersion, universityVersion, neoVersion): T => {
   switch (whichCourt()) {
-    case COURTS.vainilla:
+    case COURTS.vanilla:
       return vanillaVersion;
     case COURTS.university:
       return universityVersion;
