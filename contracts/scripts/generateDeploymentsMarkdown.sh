@@ -27,6 +27,11 @@ function generate() { #deploymentDir #explorerUrl
     done
 }
 
+echo "### V2 Neo (prelaunch)"
+echo "#### Arbitrum One"
+echo
+generate "$SCRIPT_DIR/../deployments/arbitrum" "https://arbiscan.io/address/" | grep -v -- "- DAI\|- WETH"
+echo
 echo "### Official Testnet"
 echo "#### Arbitrum Sepolia"
 echo
