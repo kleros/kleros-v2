@@ -7,6 +7,7 @@ import { Chain } from "@wagmi/chains";
 import dotenv from "dotenv";
 import IHomeGateway from "@kleros/kleros-v2-contracts/artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" assert { type: "json" };
 import IArbitrableV2 from "@kleros/kleros-v2-contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" assert { type: "json" };
+import { ArbitratorTypes, arbitratorType } from "src/consts";
 
 dotenv.config();
 
@@ -18,7 +19,14 @@ const getAbi = (artifact: any) => {
   return (artifact as ArtifactPartial).abi;
 };
 
-const readArtifacts = async (viemChainName: string, hardhatChainName?: string) => {
+const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardhatChainName?: string) => {
+  const artifactSuffix =
+    type === ArbitratorTypes.vanilla
+      ? ""
+      : ArbitratorTypes[type].toString().charAt(0).toUpperCase() + ArbitratorTypes[type].toString().slice(1);
+  const vanillaArtifacts = ["KlerosCore", "DisputeKitClassic", "SortitionModule", "DisputeResolver"];
+  const typeSpecificArtifacts = vanillaArtifacts.map((artifact) => `${artifact}${artifactSuffix}`);
+
   const chains = await import("wagmi/chains");
   const chain = chains[viemChainName] as Chain;
   if (!chain) {
@@ -32,11 +40,22 @@ const readArtifacts = async (viemChainName: string, hardhatChainName?: string) =
   for (const file of files) {
     const { name, ext } = parse(file);
     if (ext === ".json") {
+      let nameWithoutSuffix = name;
+      if (vanillaArtifacts.some((artifact) => name.startsWith(artifact))) {
+        if (!typeSpecificArtifacts.includes(name)) {
+          // console.debug(`Skipping ${name} for deployment type ${ArbitratorTypes[type]}`);
+          continue;
+        }
+        if (type !== ArbitratorTypes.vanilla) {
+          nameWithoutSuffix = name.slice(0, -artifactSuffix.length);
+          // console.debug(`Using ${nameWithoutSuffix} instead of ${name}`);
+        }
+      }
       const filePath = join(directoryPath, file);
       const fileContent = await readFile(filePath, "utf-8");
       const jsonContent = JSON.parse(fileContent);
       results.push({
-        name,
+        name: nameWithoutSuffix,
         address: {
           [chain.id]: jsonContent.address as `0x{string}`,
         },
@@ -49,6 +68,7 @@ const readArtifacts = async (viemChainName: string, hardhatChainName?: string) =
 
 const getConfig = async (): Promise<Config> => {
   const deployment = process.env.REACT_APP_DEPLOYMENT ?? "testnet";
+  const type = arbitratorType();
 
   let viemNetwork: string;
   let hardhatNetwork: string;
@@ -69,7 +89,7 @@ const getConfig = async (): Promise<Config> => {
       throw new Error(`Unknown deployment ${deployment}`);
   }
 
-  const deploymentContracts = await readArtifacts(viemNetwork, hardhatNetwork);
+  const deploymentContracts = await readArtifacts(type, viemNetwork, hardhatNetwork);
 
   return {
     out: "src/hooks/contracts/generated.ts",

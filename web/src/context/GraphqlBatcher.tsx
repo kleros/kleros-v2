@@ -1,5 +1,4 @@
 import React, { useMemo, createContext, useContext } from "react";
-import { arbitrumSepolia } from "wagmi/chains";
 import { request } from "graphql-request";
 import { create, windowedFiniteBatchScheduler, Batcher } from "@yornaath/batshit";
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
@@ -22,7 +21,7 @@ const Context = createContext<IGraphqlBatcher | undefined>(undefined);
 
 const fetcher = async (queries: IQuery[]) => {
   const promises = queries.map(async ({ id, document, variables, isDisputeTemplate, chainId }) => {
-    const url = getGraphqlUrl(isDisputeTemplate ?? false, chainId ?? arbitrumSepolia.id);
+    const url = getGraphqlUrl(isDisputeTemplate ?? false, chainId);
     try {
       return request(url, document, variables).then((result) => ({ id, result }));
     } catch (error) {

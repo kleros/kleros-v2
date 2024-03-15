@@ -7,10 +7,7 @@ import { Field, Button } from "@kleros/ui-components-library";
 import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
 import { EnsureChain } from "components/EnsureChain";
-import {
-  usePrepareDisputeKitClassicFundAppeal,
-  useDisputeKitClassicFundAppeal,
-} from "hooks/contracts/generatedProvider";
+import { usePrepareDisputeKitClassicFundAppeal, useDisputeKitClassicFundAppeal } from "hooks/contracts/generated";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
 

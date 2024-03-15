@@ -6,7 +6,7 @@ import Skeleton from "react-loading-skeleton";
 import CourtCard from "./CourtCard";
 import Header from "./Header";
 import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
-import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generatedProvider";
+import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 
 const Container = styled.div`
   margin-top: 64px;
