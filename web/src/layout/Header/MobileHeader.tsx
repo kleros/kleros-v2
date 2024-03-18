@@ -8,13 +8,13 @@ import HamburgerIcon from "svgs/header/hamburger.svg";
 import KlerosCourtUniversityLogo from "svgs/header/kleros-court-university.svg";
 import KlerosCourtLogo from "svgs/header/kleros-court.svg";
 
+import { isKlerosUniversity } from "src/consts";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import LightButton from "components/LightButton";
 
 import NavBar from "./navbar";
-
-const IS_UNIVERSITY = process.env.REACT_APP_UNIVERSITY_COURT === "true";
 
 const Container = styled.div`
   display: flex;
@@ -64,7 +64,7 @@ const MobileHeader = () => {
   return (
     <Container ref={containerRef}>
       <OpenContext.Provider value={memoizedContext}>
-        <StyledLink to={"/"}>{IS_UNIVERSITY ? <KlerosCourtUniversityLogo /> : <KlerosCourtLogo />}</StyledLink>
+        <StyledLink to={"/"}>{isKlerosUniversity() ? <KlerosCourtUniversityLogo /> : <KlerosCourtLogo />}</StyledLink>
         <NavBar />
         <StyledLightButton text="" Icon={HamburgerIcon} onClick={toggleIsOpen} />
       </OpenContext.Provider>

@@ -12,7 +12,7 @@ import { IDisputeTemplate, useNewDisputeContext } from "context/NewDisputeContex
 import {
   useDisputeResolverCreateDisputeForTemplate,
   usePrepareDisputeResolverCreateDisputeForTemplate,
-} from "hooks/contracts/generatedProvider";
+} from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
 import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
 import { wrapWithToast } from "utils/wrapWithToast";

@@ -6,6 +6,7 @@ import { useToggle } from "react-use";
 
 import { Card, Breadcrumb } from "@kleros/ui-components-library";
 
+import { isProductionDeployment } from "consts/index";
 import { isUndefined } from "utils/index";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
@@ -115,7 +116,7 @@ const CourtDetails: React.FC = () => {
               toggleMiniGuide={toggleStakingMiniGuide}
               MiniGuideComponent={Staking}
             />
-            <ClaimPnkButton />
+            {!isProductionDeployment() && <ClaimPnkButton />}
           </ButtonContainer>
         </CourtHeader>
         <hr />

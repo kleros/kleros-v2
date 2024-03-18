@@ -7,10 +7,7 @@ import { useAccount, useBalance, usePublicClient } from "wagmi";
 
 import { Field, Button } from "@kleros/ui-components-library";
 
-import {
-  usePrepareDisputeKitClassicFundAppeal,
-  useDisputeKitClassicFundAppeal,
-} from "hooks/contracts/generatedProvider";
+import { usePrepareDisputeKitClassicFundAppeal, useDisputeKitClassicFundAppeal } from "hooks/contracts/generated";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { isUndefined } from "utils/index";

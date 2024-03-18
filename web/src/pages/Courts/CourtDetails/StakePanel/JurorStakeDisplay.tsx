@@ -8,7 +8,7 @@ import { useAccount } from "wagmi";
 import DiceIcon from "svgs/icons/dice.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 
-import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generatedProvider";
+import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
 
 import { useCourtDetails } from "queries/useCourtDetails";

@@ -5,7 +5,7 @@ import { useAccount } from "wagmi";
 
 import { isUndefined } from "utils/index";
 
-import { useDisputeKitClassicIsVoteActive } from "./contracts/generatedProvider";
+import { useDisputeKitClassicIsVoteActive } from "./contracts/generated";
 import { useDisputeDetailsQuery } from "./queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "./queries/useDrawQuery";
 

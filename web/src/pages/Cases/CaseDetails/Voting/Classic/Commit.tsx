@@ -6,7 +6,7 @@ import { useLocalStorage } from "react-use";
 import { keccak256, encodePacked } from "viem";
 import { useWalletClient, usePublicClient } from "wagmi";
 
-import { prepareWriteDisputeKitClassic } from "hooks/contracts/generatedProvider";
+import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 import useSigningAccount from "hooks/useSigningAccount";
 import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";

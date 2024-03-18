@@ -10,6 +10,8 @@ import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 
+import { isKlerosUniversity } from "src/consts";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
@@ -24,8 +26,6 @@ import Help from "./navbar/Menu/Help";
 import Settings from "./navbar/Menu/Settings";
 
 import { PopupContainer } from ".";
-
-const IS_UNIVERSITY = process.env.REACT_APP_UNIVERSITY_COURT === "true";
 
 const Container = styled.div`
   display: none;
@@ -106,7 +106,7 @@ const DesktopHeader = () => {
               Icon={StyledKlerosSolutionsIcon}
             />
           </LightButtonContainer>
-          <StyledLink to={"/"}>{IS_UNIVERSITY ? <KlerosCourtUniversityLogo /> : <KlerosCourtLogo />}</StyledLink>
+          <StyledLink to={"/"}>{isKlerosUniversity() ? <KlerosCourtUniversityLogo /> : <KlerosCourtLogo />}</StyledLink>
         </LeftSide>
 
         <MiddleSide>

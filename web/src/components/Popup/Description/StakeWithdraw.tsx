@@ -5,7 +5,7 @@ import KlerosLogo from "tsx:svgs/icons/kleros.svg";
 import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 
-import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generatedProvider";
+import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
 
 import { responsiveSize } from "styles/responsiveSize";

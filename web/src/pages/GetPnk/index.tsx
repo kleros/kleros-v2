@@ -5,6 +5,8 @@ import { useToggle } from "react-use";
 
 import { Card } from "@kleros/ui-components-library";
 
+import { isProductionDeployment } from "consts/index";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 import ClaimPnkButton from "components/ClaimPnkButton";
@@ -38,7 +40,7 @@ const GetPnk: React.FC = () => {
     <>
       <HeroImage />
       <Container>
-        <ClaimPnkButton />
+        {!isProductionDeployment() && <ClaimPnkButton />}
         <StyledCard>
           <Header isSettings={settingsOpen} toggleSettings={toggleSettings} />
           {settingsOpen ? <Settings /> : <Swap />}

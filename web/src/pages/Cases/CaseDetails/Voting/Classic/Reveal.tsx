@@ -9,7 +9,7 @@ import { useWalletClient, usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
-import { prepareWriteDisputeKitClassic } from "hooks/contracts/generatedProvider";
+import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import useSigningAccount from "hooks/useSigningAccount";
 import { isUndefined } from "utils/index";

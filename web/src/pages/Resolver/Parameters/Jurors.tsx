@@ -6,7 +6,7 @@ import { DisplaySmall, Field } from "@kleros/ui-components-library";
 import ETH from "svgs/icons/eth.svg";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
-import { useKlerosCoreArbitrationCost } from "hooks/contracts/generatedProvider";
+import { useKlerosCoreArbitrationCost } from "hooks/contracts/generated";
 import { formatETH } from "utils/format";
 import { isUndefined } from "utils/index";
 import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";

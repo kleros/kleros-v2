@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import Skeleton from "react-loading-skeleton";
 import { useAccount } from "wagmi";
 
-import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generatedProvider";
+import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 
 import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 

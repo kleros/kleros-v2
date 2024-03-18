@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 
 import { useParams } from "react-router-dom";
 import { useAccount, usePublicClient } from "wagmi";
@@ -10,13 +10,11 @@ import {
   usePnkIncreaseAllowance,
   usePreparePnkIncreaseAllowance,
   usePnkAllowance,
-} from "hooks/contracts/generated";
-import {
   getKlerosCore,
   useKlerosCoreSetStake,
   usePrepareKlerosCoreSetStake,
   useSortitionModuleGetJurorBalance,
-} from "hooks/contracts/generatedProvider";
+} from "hooks/contracts/generated";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
 import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
@@ -36,6 +34,7 @@ interface IActionButton {
   setIsSending: (arg0: boolean) => void;
   setAmount: (arg0: string) => void;
   setIsPopupOpen: (arg0: boolean) => void;
+  setErrorMsg: (arg0: string | undefined) => void;
 }
 
 const StakeWithdrawButton: React.FC<IActionButton> = ({
@@ -44,6 +43,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   isSending,
   setIsSending,
   setIsPopupOpen,
+  setErrorMsg,
 }) => {
   const { id } = useParams();
   const { address } = useAccount();
@@ -82,7 +82,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     return 0n;
   }, [jurorBalance, parsedAmount, isAllowance, isStaking]);
 
-  const { config: increaseAllowanceConfig } = usePreparePnkIncreaseAllowance({
+  const { config: increaseAllowanceConfig, error: allowanceError } = usePreparePnkIncreaseAllowance({
     enabled: isAllowance && !isUndefined(klerosCore) && !isUndefined(targetStake) && !isUndefined(allowance),
     args: [klerosCore?.address, BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
   });
@@ -98,7 +98,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     }
   };
 
-  const { config: setStakeConfig } = usePrepareKlerosCoreSetStake({
+  const { config: setStakeConfig, error: setStakeError } = usePrepareKlerosCoreSetStake({
     enabled: !isUndefined(targetStake) && !isUndefined(id) && !isAllowance,
     args: [BigInt(id ?? 0), targetStake],
   });
@@ -107,12 +107,20 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     if (typeof setStake !== "undefined") {
       setIsSending(true);
       wrapWithToast(async () => await setStake().then((response) => response.hash), publicClient)
-        .then(() => setIsPopupOpen(true))
+        .then((res) => res.status && setIsPopupOpen(true))
         .finally(() => {
           setIsSending(false);
         });
     }
   };
+
+  useEffect(() => {
+    if (isAllowance) {
+      setErrorMsg(allowanceError?.shortMessage);
+    } else {
+      setErrorMsg(setStakeError?.shortMessage);
+    }
+  }, [allowanceError, setStakeError, isAllowance, isStaking, setErrorMsg]);
 
   const buttonProps = {
     [ActionType.allowance]: {
@@ -122,7 +130,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     },
     [ActionType.stake]: {
       text: "Stake",
-      checkDisabled: () => false,
+      checkDisabled: () => !isUndefined(setStakeError),
       onClick: handleStake,
     },
     [ActionType.withdraw]: {

@@ -266,10 +266,10 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
                 minJurors := mload(add(_extraData, 0x40))
             }
             if (feeForJuror[courtID] == 0) courtID = 0;
-            if (minJurors == 0) minJurors = Constants.DEFAULT_NB_OF_JURORS;
+            if (minJurors == 0) minJurors = DEFAULT_NB_OF_JURORS;
         } else {
             courtID = 0;
-            minJurors = Constants.DEFAULT_NB_OF_JURORS;
+            minJurors = DEFAULT_NB_OF_JURORS;
         }
     }
 }

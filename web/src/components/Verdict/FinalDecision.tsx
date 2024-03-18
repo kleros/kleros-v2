@@ -8,7 +8,7 @@ import { useAccount } from "wagmi";
 import ArrowIcon from "assets/svgs/icons/arrow.svg";
 
 import { Periods } from "consts/periods";
-import { useKlerosCoreCurrentRuling } from "hooks/contracts/generatedProvider";
+import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
 import { useVotingContext } from "hooks/useVotingContext";
