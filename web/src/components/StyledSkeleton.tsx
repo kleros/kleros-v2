@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+
 import Skeleton from "react-loading-skeleton";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 export const StyledSkeleton = styled(Skeleton)`

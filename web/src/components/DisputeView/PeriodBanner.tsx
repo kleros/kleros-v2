@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import styled, { Theme, css, useTheme } from "styled-components";
+
 import { Periods } from "consts/periods";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 interface IContainer {

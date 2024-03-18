@@ -1,10 +1,14 @@
 import React from "react";
-import Header from "pages/Resolver/Header";
 import styled from "styled-components";
-import NavigationButtons from "../../NavigationButtons";
-import PlusMinusField from "components/PlusMinusField";
+
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import { isUndefined } from "utils/index";
+
+import PlusMinusField from "components/PlusMinusField";
+import Header from "pages/Resolver/Header";
+
+import NavigationButtons from "../../NavigationButtons";
+
 import PersonFields from "./PersonFields";
 
 const Container = styled.div`

@@ -1,9 +1,12 @@
 import React from "react";
 import styled from "styled-components";
+
 import { Routes, Route } from "react-router-dom";
+
+import { responsiveSize } from "styles/responsiveSize";
+
 import CaseDetails from "./CaseDetails";
 import CasesFetcher from "./CasesFetcher";
-import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   width: 100%;

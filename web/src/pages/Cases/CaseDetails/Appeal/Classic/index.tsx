@@ -1,13 +1,18 @@
 import React, { useState } from "react";
+
+import AppealIcon from "svgs/icons/appeal.svg";
+
 import { useOptionsContext, useSelectedOptionContext } from "hooks/useClassicAppealContext";
-import Options from "./Options";
-import Fund from "./Fund";
+import { isUndefined } from "utils/index";
+
+import HowItWorks from "components/HowItWorks";
 import Popup, { PopupType } from "components/Popup";
 import Appeal from "components/Popup/MiniGuides/Appeal";
-import HowItWorks from "components/HowItWorks";
-import AppealIcon from "svgs/icons/appeal.svg";
-import { isUndefined } from "utils/index";
+
 import { AppealHeader, StyledTitle } from "..";
+
+import Fund from "./Fund";
+import Options from "./Options";
 
 interface IClassic {
   isAppealMiniGuideOpen: boolean;

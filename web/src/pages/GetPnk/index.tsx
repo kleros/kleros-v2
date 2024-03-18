@@ -1,14 +1,20 @@
-import { Card } from "@kleros/ui-components-library";
 import React from "react";
 import styled from "styled-components";
-import { responsiveSize } from "styles/responsiveSize";
-import HeroImage from "components/HeroImage";
-import Header from "./Header";
-import Swap from "./Swap";
-import Settings from "./Settings";
+
 import { useToggle } from "react-use";
+
+import { Card } from "@kleros/ui-components-library";
+
+import { isProductionDeployment } from "consts/index";
+
+import { responsiveSize } from "styles/responsiveSize";
+
 import ClaimPnkButton from "components/ClaimPnkButton";
-import { isProductionDeployment } from "src/consts";
+import HeroImage from "components/HeroImage";
+
+import Header from "./Header";
+import Settings from "./Settings";
+import Swap from "./Swap";
 
 const Container = styled.div`
   width: 100%;

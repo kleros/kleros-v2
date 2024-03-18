@@ -1,10 +1,14 @@
 import React from "react";
 import styled from "styled-components";
-import { responsiveSize } from "styles/responsiveSize";
-import PnkIcon from "svgs/tokens/pnk.svg";
-import { Token } from "pages/GetPnk/Swap/TokenSelect";
-import LightButton from "components/LightButton";
+
 import ArrowIcon from "tsx:svgs/icons/arrow.svg";
+
+import PnkIcon from "svgs/tokens/pnk.svg";
+
+import { responsiveSize } from "styles/responsiveSize";
+
+import LightButton from "components/LightButton";
+import { Token } from "pages/GetPnk/Swap/TokenSelect";
 
 const Container = styled.div`
   display: flex;

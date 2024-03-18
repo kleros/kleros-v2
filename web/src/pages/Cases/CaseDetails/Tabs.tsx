@@ -1,17 +1,22 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
+
 import { useNavigate, useLocation, useParams } from "react-router-dom";
+
 import { Tabs as TabsComponent } from "@kleros/ui-components-library";
-import { Periods } from "consts/periods";
-import { useVotingHistory } from "hooks/queries/useVotingHistory";
-import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
-import { useAppealCost } from "queries/useAppealCost";
-import { isLastRound } from "utils/isLastRound";
-import { isUndefined } from "utils/index";
-import EyeIcon from "assets/svgs/icons/eye.svg";
-import DocIcon from "assets/svgs/icons/doc.svg";
-import BalanceIcon from "assets/svgs/icons/law-balance.svg";
+
 import BullhornIcon from "assets/svgs/icons/bullhorn.svg";
+import DocIcon from "assets/svgs/icons/doc.svg";
+import EyeIcon from "assets/svgs/icons/eye.svg";
+import BalanceIcon from "assets/svgs/icons/law-balance.svg";
+
+import { Periods } from "consts/periods";
+import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
+import { useVotingHistory } from "hooks/queries/useVotingHistory";
+import { isUndefined } from "utils/index";
+import { isLastRound } from "utils/isLastRound";
+
+import { useAppealCost } from "queries/useAppealCost";
 
 const StyledTabs = styled(TabsComponent)`
   width: 100%;

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { usePublicClient } from "wagmi";
+
 import { getPolicyRegistry } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
 

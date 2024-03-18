@@ -1,22 +1,24 @@
 import React, { useMemo, useEffect } from "react";
+
 import { useParams } from "react-router-dom";
 import { useAccount, usePublicClient } from "wagmi";
+
 import { Button } from "@kleros/ui-components-library";
+
 import {
   usePnkBalanceOf,
   usePnkIncreaseAllowance,
   usePreparePnkIncreaseAllowance,
   usePnkAllowance,
-} from "hooks/contracts/generated";
-import {
   getKlerosCore,
   useKlerosCoreSetStake,
   usePrepareKlerosCoreSetStake,
   useSortitionModuleGetJurorBalance,
 } from "hooks/contracts/generated";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
-import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
+import { wrapWithToast } from "utils/wrapWithToast";
+
 import { EnsureChain } from "components/EnsureChain";
 
 export enum ActionType {

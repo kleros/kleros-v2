@@ -1,7 +1,9 @@
+import { useQuery } from "@tanstack/react-query";
+
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
+
 import { graphql } from "src/graphql";
 import { ClassicAppealQuery } from "src/graphql/graphql";
-import { useQuery } from "@tanstack/react-query";
-import { useGraphqlBatcher } from "context/GraphqlBatcher";
 export type { ClassicAppealQuery };
 
 const classicAppealQuery = graphql(`

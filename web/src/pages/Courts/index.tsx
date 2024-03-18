@@ -1,9 +1,12 @@
 import React from "react";
 import styled from "styled-components";
+
 import { Routes, Route, Navigate } from "react-router-dom";
-import TopSearch from "./TopSearch";
-import CourtDetails from "./CourtDetails";
+
 import { responsiveSize } from "styles/responsiveSize";
+
+import CourtDetails from "./CourtDetails";
+import TopSearch from "./TopSearch";
 
 const Container = styled.div`
   width: 100%;

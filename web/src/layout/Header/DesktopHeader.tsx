@@ -1,23 +1,31 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { useToggle } from "react-use";
+
 import { Link } from "react-router-dom";
-import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
-import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
-import KlerosCourtLogo from "svgs/header/kleros-court.svg";
+import { useToggle } from "react-use";
+
 import KlerosCourtUniversityLogo from "svgs/header/kleros-court-university.svg";
+import KlerosCourtLogo from "svgs/header/kleros-court.svg";
+import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
+
+import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
+
 import { isKlerosUniversity } from "src/consts";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
+import { Overlay } from "components/Overlay";
+
 import DappList from "./navbar/DappList";
 import Explore from "./navbar/Explore";
 import Menu from "./navbar/Menu";
 import Help from "./navbar/Menu/Help";
 import Settings from "./navbar/Menu/Settings";
-import { Overlay } from "components/Overlay";
+
 import { PopupContainer } from ".";
-import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: none;

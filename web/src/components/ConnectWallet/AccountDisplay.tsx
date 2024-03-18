@@ -1,10 +1,13 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { useAccount, useNetwork, useEnsAvatar, useEnsName } from "wagmi";
+
 import Identicon from "react-identicons";
-import { shortenAddress } from "utils/shortenAddress";
 import { isAddress } from "viem";
+import { useAccount, useNetwork, useEnsAvatar, useEnsName } from "wagmi";
+
+import { shortenAddress } from "utils/shortenAddress";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.div`
   display: flex;

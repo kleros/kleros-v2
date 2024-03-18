@@ -1,12 +1,16 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { useToggle } from "react-use";
-import Classic from "./Classic";
+
 import { Periods } from "consts/periods";
-import AppealHistory from "./AppealHistory";
 import { ClassicAppealProvider } from "hooks/useClassicAppealContext";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import AppealHistory from "./AppealHistory";
+import Classic from "./Classic";
 
 const Container = styled.div`
   padding: ${responsiveSize(16, 32)};

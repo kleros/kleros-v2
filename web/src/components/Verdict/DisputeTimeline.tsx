@@ -1,18 +1,25 @@
 import React, { useMemo } from "react";
-import { useParams } from "react-router-dom";
 import styled, { useTheme } from "styled-components";
+
+import { useParams } from "react-router-dom";
+
 import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
+
 import CalendarIcon from "assets/svgs/icons/calendar.svg";
 import ClosedCaseIcon from "assets/svgs/icons/check-circle-outline.svg";
 import AppealedCaseIcon from "assets/svgs/icons/close-circle.svg";
+
 import { Periods } from "consts/periods";
-import { ClassicRound } from "src/graphql/graphql";
-import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
-import { useVotingHistory } from "queries/useVotingHistory";
 import { getLocalRounds } from "utils/getLocalRounds";
-import { responsiveSize } from "styles/responsiveSize";
 import { getVoteChoice } from "utils/getVoteChoice";
+
+import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+import { useVotingHistory } from "queries/useVotingHistory";
+
+import { ClassicRound } from "src/graphql/graphql";
+
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;

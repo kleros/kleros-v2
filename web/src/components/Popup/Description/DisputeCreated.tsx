@@ -1,10 +1,13 @@
 import React, { useMemo } from "react";
-import Skeleton from "react-loading-skeleton";
 import styled from "styled-components";
-import { responsiveSize } from "styles/responsiveSize";
-import { isUndefined } from "utils/index";
-import { formatDate, getCurrentTime } from "utils/date";
+
+import Skeleton from "react-loading-skeleton";
+
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
+import { formatDate, getCurrentTime } from "utils/date";
+import { isUndefined } from "utils/index";
+
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;

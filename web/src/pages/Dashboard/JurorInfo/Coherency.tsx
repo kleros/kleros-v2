@@ -1,7 +1,10 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { CircularProgress } from "@kleros/ui-components-library";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import WithHelpTooltip from "components/WithHelpTooltip";
 
 const Container = styled.div`

@@ -1,9 +1,10 @@
 import { Handler } from "@netlify/functions";
-import { verifyTypedData } from "viem";
 import { createClient } from "@supabase/supabase-js";
-import { Database } from "../../src/types/supabase-notification";
+import { verifyTypedData } from "viem";
+
 import messages from "../../src/consts/eip712-messages";
 import { EMAIL_REGEX, TELEGRAM_REGEX, ETH_ADDRESS_REGEX, ETH_SIGNATURE_REGEX } from "../../src/consts/index";
+import { Database } from "../../src/types/supabase-notification";
 
 type NotificationSettings = {
   email?: string;

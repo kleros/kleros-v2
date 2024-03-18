@@ -1,11 +1,17 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import TimeSeriesChart from "./TimeSeriesChart";
-import { DropdownSelect } from "@kleros/ui-components-library";
-import { StyledSkeleton } from "components/StyledSkeleton";
+
 import { formatUnits } from "viem";
+
+import { DropdownSelect } from "@kleros/ui-components-library";
+
 import { useHomePageContext } from "hooks/useHomePageContext";
+
 import { responsiveSize } from "styles/responsiveSize";
+
+import { StyledSkeleton } from "components/StyledSkeleton";
+
+import TimeSeriesChart from "./TimeSeriesChart";
 
 const Container = styled.div`
   margin-bottom: ${responsiveSize(32, 48)};

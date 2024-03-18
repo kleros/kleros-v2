@@ -1,9 +1,13 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
+
 import { useMeasure } from "react-use";
-import { Card, Radio, LinearProgress } from "@kleros/ui-components-library";
-import Gavel from "svgs/icons/gavel.svg";
 import { formatEther } from "viem";
+
+import { Card, Radio, LinearProgress } from "@kleros/ui-components-library";
+
+import Gavel from "svgs/icons/gavel.svg";
+
 import { isUndefined } from "utils/index";
 
 const StyledCard = styled(Card)`

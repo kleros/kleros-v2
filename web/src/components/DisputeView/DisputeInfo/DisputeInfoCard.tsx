@@ -1,12 +1,18 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import Field, { IField } from "components/Field";
-import { FieldItem, IDisputeInfo } from ".";
-import { getCourtsPath } from "pages/Courts/CourtDetails";
-import { useCourtTree } from "hooks/queries/useCourtTree";
+
 import LawBalanceIcon from "svgs/icons/law-balance.svg";
+
+import { useCourtTree } from "hooks/queries/useCourtTree";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
+import Field, { IField } from "components/Field";
+import { getCourtsPath } from "pages/Courts/CourtDetails";
+
 import CardLabel from "../CardLabels";
+
+import { FieldItem, IDisputeInfo } from ".";
 
 const Container = styled.div`
   display: flex;

@@ -1,6 +1,10 @@
-import { graphql } from "src/graphql";
-import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
+import { Address } from "viem";
+
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { isUndefined } from "utils/index";
+
+import { graphql } from "src/graphql";
 import {
   CasesPageQuery,
   Dispute_Filter,
@@ -8,8 +12,6 @@ import {
   MyCasesQuery,
   DisputeDetailsFragment,
 } from "src/graphql/graphql";
-import { useGraphqlBatcher } from "context/GraphqlBatcher";
-import { isUndefined } from "utils/index";
 export type { CasesPageQuery, DisputeDetailsFragment };
 
 export const disputeFragment = graphql(`

@@ -1,12 +1,15 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { Answer } from "context/NewDisputeContext";
-import { responsiveSize } from "styles/responsiveSize";
-import { isUndefined } from "utils/index";
+
 import Identicon from "react-identicons";
+
+import { Answer } from "context/NewDisputeContext";
 import { getVoteChoice } from "utils/getVoteChoice";
+import { isUndefined } from "utils/index";
 import { shortenAddress } from "utils/shortenAddress";
+
 import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 const TitleContainer = styled.div`
   display: flex;

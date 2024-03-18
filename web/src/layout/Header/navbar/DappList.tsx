@@ -1,8 +1,8 @@
 import React, { useRef } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
+
 import { useClickAway } from "react-use";
+
 import Curate from "svgs/icons/curate-image.png";
 import Resolver from "svgs/icons/dispute-resolver.svg";
 import Escrow from "svgs/icons/escrow.svg";
@@ -10,6 +10,10 @@ import Governor from "svgs/icons/governor.svg";
 import Court from "svgs/icons/kleros.svg";
 import POH from "svgs/icons/poh-image.png";
 import Vea from "svgs/icons/vea.svg";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import Product from "./Product";
 
 const Header = styled.h1`

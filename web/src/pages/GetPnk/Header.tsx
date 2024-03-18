@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+
 import CloseIcon from "svgs/icons/close.svg";
 import SettingsIcon from "svgs/menu-icons/settings.svg";
 

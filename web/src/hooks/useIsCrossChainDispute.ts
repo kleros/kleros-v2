@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { usePublicClient } from "wagmi";
-import { getIHomeGateway } from "hooks/contracts/generated";
-import { isUndefined } from "utils/index";
-import { GENESIS_BLOCK_ARBSEPOLIA } from "src/consts";
-import { debounceErrorToast } from "utils/debounceErrorToast";
 import { HttpRequestError, RpcError } from "viem";
+import { usePublicClient } from "wagmi";
+
+import { getIHomeGateway } from "hooks/contracts/generated";
+import { debounceErrorToast } from "utils/debounceErrorToast";
+import { isUndefined } from "utils/index";
+
+import { GENESIS_BLOCK_ARBSEPOLIA } from "src/consts";
 
 interface IIsCrossChainDispute {
   isCrossChainDispute: boolean;

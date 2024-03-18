@@ -1,11 +1,14 @@
 import React from "react";
 import styled from "styled-components";
-import { AddressOrName, IdenticonOrAvatar } from "../ConnectWallet/AccountDisplay";
+
+import Skeleton from "react-loading-skeleton";
+import { isAddress } from "viem";
+import { useEnsAddress } from "wagmi";
+
 import { Alias } from "context/NewDisputeContext";
 import { isUndefined } from "utils/index";
-import { useEnsAddress } from "wagmi";
-import { isAddress } from "viem";
-import Skeleton from "react-loading-skeleton";
+
+import { AddressOrName, IdenticonOrAvatar } from "../ConnectWallet/AccountDisplay";
 
 const AliasContainer = styled.div`
   min-height: 32px;

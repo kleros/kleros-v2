@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
+
 import { landscapeStyle } from "styles/landscapeStyle";
-import MainStructureTemplate from "./MainStructureTemplate";
 import { responsiveSize } from "styles/responsiveSize";
+
+import MainStructureTemplate from "./MainStructureTemplate";
 
 export const ParagraphsContainer = styled.div`
   display: flex;

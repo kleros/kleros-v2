@@ -1,13 +1,18 @@
 import React from "react";
-import ReactMarkdown from "components/ReactMarkdown";
 import styled from "styled-components";
-import { StyledSkeleton } from "components/StyledSkeleton";
-import { isUndefined } from "utils/index";
-import { Answer as IAnswer } from "context/NewDisputeContext";
-import AliasDisplay from "./Alias";
-import { responsiveSize } from "styles/responsiveSize";
+
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
+
 import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
+import { Answer as IAnswer } from "context/NewDisputeContext";
+import { isUndefined } from "utils/index";
+
+import { responsiveSize } from "styles/responsiveSize";
+
+import ReactMarkdown from "components/ReactMarkdown";
+import { StyledSkeleton } from "components/StyledSkeleton";
+
+import AliasDisplay from "./Alias";
 
 const StyledH1 = styled.h1`
   margin: 0;

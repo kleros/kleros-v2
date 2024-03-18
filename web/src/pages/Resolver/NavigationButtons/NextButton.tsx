@@ -1,6 +1,9 @@
 import React from "react";
-import { Button } from "@kleros/ui-components-library";
+
 import { useLocation, useNavigate } from "react-router-dom";
+
+import { Button } from "@kleros/ui-components-library";
+
 import { useNewDisputeContext } from "context/NewDisputeContext";
 
 interface INextButton {

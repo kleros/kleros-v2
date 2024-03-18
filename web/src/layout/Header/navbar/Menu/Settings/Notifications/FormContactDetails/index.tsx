@@ -1,13 +1,20 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+
 import { useWalletClient, useAccount } from "wagmi";
+
 import { Button } from "@kleros/ui-components-library";
-import { uploadSettingsToSupabase } from "utils/uploadSettingsToSupabase";
-import FormContact from "./FormContact";
-import messages from "src/consts/eip712-messages";
+
 import { EMAIL_REGEX, TELEGRAM_REGEX } from "consts/index";
-import { ISettings } from "../../../../index";
+import { uploadSettingsToSupabase } from "utils/uploadSettingsToSupabase";
+
+import messages from "src/consts/eip712-messages";
+
 import { responsiveSize } from "styles/responsiveSize";
+
+import { ISettings } from "../../../../index";
+
+import FormContact from "./FormContact";
 
 const FormContainer = styled.form`
   position: relative;

@@ -1,14 +1,18 @@
 import React from "react";
+
 import { formatEther } from "viem";
+
+import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
 import { Periods } from "consts/periods";
 import { useIsList } from "context/IsListProvider";
-import { DisputeDetailsFragment } from "queries/useCasesQuery";
-import { useCourtPolicy } from "queries/useCourtPolicy";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { isUndefined } from "utils/index";
-import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
-import DisputeListView from "./DisputeListView";
+
+import { DisputeDetailsFragment } from "queries/useCasesQuery";
+import { useCourtPolicy } from "queries/useCourtPolicy";
+
 import DisputeCardView from "./DisputeCardView";
+import DisputeListView from "./DisputeListView";
 
 export const getPeriodEndTimestamp = (
   lastPeriodChange: string,

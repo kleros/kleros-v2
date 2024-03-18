@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+
 import PnkIcon from "tsx:assets/svgs/styled/pnk.svg";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`

@@ -1,12 +1,16 @@
 import React, { useMemo } from "react";
+
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
-import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
-import Vote from "./Vote";
+import { useVotingContext } from "hooks/useVotingContext";
+
+import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
 import Commit from "./Commit";
 import Reveal from "./Reveal";
-import { useVotingContext } from "hooks/useVotingContext";
+import Vote from "./Vote";
 
 interface IClassic {
   arbitrable: `0x${string}`;

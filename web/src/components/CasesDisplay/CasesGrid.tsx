@@ -1,14 +1,20 @@
 import React from "react";
 import styled from "styled-components";
+
 import { useParams } from "react-router-dom";
-import { SkeletonDisputeCard, SkeletonDisputeListItem } from "../StyledSkeleton";
+
 import { StandardPagination } from "@kleros/ui-components-library";
+
 import { useIsList } from "context/IsListProvider";
+import useIsDesktop from "hooks/useIsDesktop";
 import { isUndefined } from "utils/index";
 import { decodeURIFilter } from "utils/uri";
+
 import { DisputeDetailsFragment } from "queries/useCasesQuery";
-import useIsDesktop from "hooks/useIsDesktop";
+
 import DisputeView from "components/DisputeView";
+
+import { SkeletonDisputeCard, SkeletonDisputeListItem } from "../StyledSkeleton";
 
 const GridContainer = styled.div`
   --gap: 24px;

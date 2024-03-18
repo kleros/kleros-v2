@@ -1,9 +1,12 @@
-import { Field } from "@kleros/ui-components-library";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+
+import { useDebounce } from "react-use";
+
+import { Field } from "@kleros/ui-components-library";
+
 import { useDisputeTemplateFromId } from "hooks/queries/useDisputeTemplateFromId";
 import { isUndefined } from "utils/index";
-import { useDebounce } from "react-use";
 
 const Container = styled.div`
   display: flex;
