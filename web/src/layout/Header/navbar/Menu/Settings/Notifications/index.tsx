@@ -4,6 +4,7 @@ import styled from "styled-components";
 import TelegramLogo from "svgs/socialmedia/telegram.svg";
 
 import { HERMES_TELEGRAM_BOT_URL } from "consts/index";
+import { EnsureAuth } from "components/EnsureAuth";
 
 import { EnsureChain } from "components/EnsureChain";
 import { ISettings } from "layout/Header/navbar/index";
@@ -13,6 +14,7 @@ import FormContactDetails from "./FormContactDetails";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
   width: 100%;
   height: 100%;
 `;
@@ -59,7 +61,6 @@ const StyledA = styled.a`
 `;
 
 const NotificationSettings: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
-  const FEATURE_TOGGLE_TELEGRAM_FORM = false; // Disabled until the backend is ready
   return (
     <EnsureChainContainer>
       <EnsureChain>
@@ -68,12 +69,12 @@ const NotificationSettings: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => 
             Subscribe to the Hermes Messenger Bot
             <StyledSvg as={TelegramLogo} />
           </StyledA>
-          {FEATURE_TOGGLE_TELEGRAM_FORM && (
+          <EnsureAuth>
             <>
               <HeaderNotifs />
               <FormContactDetails toggleIsSettingsOpen={toggleIsSettingsOpen} />
             </>
-          )}
+          </EnsureAuth>
         </Container>
       </EnsureChain>
     </EnsureChainContainer>

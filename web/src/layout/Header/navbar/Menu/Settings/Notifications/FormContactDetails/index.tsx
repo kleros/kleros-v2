@@ -1,20 +1,14 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-
-import { useWalletClient, useAccount } from "wagmi";
-
+import { useAccount } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
-
-import { EMAIL_REGEX, TELEGRAM_REGEX } from "consts/index";
 import { uploadSettingsToSupabase } from "utils/uploadSettingsToSupabase";
-
-import messages from "src/consts/eip712-messages";
+import FormContact from "./FormContact";
+import { EMAIL_REGEX, TELEGRAM_REGEX } from "consts/index";
 
 import { responsiveSize } from "styles/responsiveSize";
 
 import { ISettings } from "../../../../index";
-
-import FormContact from "./FormContact";
 
 const FormContainer = styled.form`
   position: relative;
@@ -40,7 +34,6 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const [emailInput, setEmailInput] = useState<string>("");
   const [telegramIsValid, setTelegramIsValid] = useState<boolean>(false);
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
-  const { data: walletClient } = useWalletClient();
   const { address } = useAccount();
 
   // TODO: after the user is authenticated, retrieve the current email/telegram from the database and populate the form
@@ -50,24 +43,18 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
     if (!address) {
       throw new Error("Missing address");
     }
-    const nonce = new Date().getTime().toString();
-    const signature = await walletClient?.signTypedData(
-      messages.contactDetails(address, nonce, telegramInput, emailInput)
-    );
-    if (!signature) {
-      throw new Error("Missing signature");
-    }
+
     const data = {
       email: emailInput,
       telegram: telegramInput,
-      nonce,
       address,
-      signature,
     };
-    const response = await uploadSettingsToSupabase(data);
-    if (response.ok) {
-      toggleIsSettingsOpen();
-    }
+
+    uploadSettingsToSupabase(data)
+      .then(async (res) => {
+        if (res.ok) toggleIsSettingsOpen();
+      })
+      .catch((err) => console.log(err));
   };
   return (
     <FormContainer onSubmit={handleSubmit}>
