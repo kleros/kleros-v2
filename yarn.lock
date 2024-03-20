@@ -5920,7 +5920,6 @@ __metadata:
     eslint-import-resolver-parcel: "npm:^1.10.6"
     eslint-plugin-react: "npm:^7.33.2"
     eslint-plugin-react-hooks: "npm:^4.6.0"
-    ethers: "npm:^5.7.2"
     graphql: "npm:^16.8.1"
     graphql-request: "npm:~6.1.0"
     jose: "npm:^5.2.3"
