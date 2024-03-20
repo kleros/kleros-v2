@@ -12,7 +12,9 @@ interface IEnsureAuth {
 }
 
 export const EnsureAuth: React.FC<IEnsureAuth> = ({ children, className }) => {
-  const [authToken, setAuthToken] = useSessionStorage<string | undefined>("auth-token", undefined);
+  const localToken = window.sessionStorage.getItem("auth-token");
+
+  const [authToken, setAuthToken] = useSessionStorage<string | null>("auth-token", localToken);
   const { address } = useAccount();
   const { chain } = useNetwork();
 
