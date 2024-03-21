@@ -5792,6 +5792,7 @@ __metadata:
     "@nomiclabs/hardhat-ethers": "npm:^2.2.3"
     "@nomiclabs/hardhat-solhint": "npm:^3.0.1"
     "@openzeppelin/contracts": "npm:^4.9.5"
+    "@sendgrid/mail": "npm:^8.1.1"
     "@typechain/ethers-v5": "npm:^11.1.2"
     "@typechain/hardhat": "npm:^7.0.0"
     "@types/chai": "npm:^4.3.11"
@@ -8722,6 +8723,35 @@ __metadata:
     domhandler: "npm:^4.2.0"
     selderee: "npm:^0.6.0"
   checksum: a4f1a5412f0fe7d61a80f0fb5ee465948321ab7b85050d4a02f77d2bda59046d4c360f36c5ff08c1eb9879438389dfa3aed44dfd7c922be0e4e0fbaada43f2d4
+  languageName: node
+  linkType: hard
+
+"@sendgrid/client@npm:^8.1.1":
+  version: 8.1.1
+  resolution: "@sendgrid/client@npm:8.1.1"
+  dependencies:
+    "@sendgrid/helpers": "npm:^8.0.0"
+    axios: "npm:^1.6.4"
+  checksum: 59fe3e2d4d1ca935784586d0f76dbd61f01289b9e054b8ba867bb74cf00849d326b8402c5b81e694437fdef5db431f9743a118623e3c7d3ccba42b9c73d7e4c2
+  languageName: node
+  linkType: hard
+
+"@sendgrid/helpers@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "@sendgrid/helpers@npm:8.0.0"
+  dependencies:
+    deepmerge: "npm:^4.2.2"
+  checksum: 23ff86dd7dcdcc6aec45a387978f9dcb31a7c2ec6f8450ca89542ecb63b6f7df7a2ce3ff6e5c9b003d9c6a7923fb74b00d8c58e70e6737ba0810360f0a074592
+  languageName: node
+  linkType: hard
+
+"@sendgrid/mail@npm:^8.1.1":
+  version: 8.1.1
+  resolution: "@sendgrid/mail@npm:8.1.1"
+  dependencies:
+    "@sendgrid/client": "npm:^8.1.1"
+    "@sendgrid/helpers": "npm:^8.0.0"
+  checksum: 8e77bba8ff7ae24ffc7afe2786c496dfc2936379f50e001a65e255294d0cf6b7810e1c1d27bb5aa2b69f79e8463f522908323f4b8f18c97fcdc4a7f20b9393c1
   languageName: node
   linkType: hard
 
@@ -13061,6 +13091,17 @@ __metadata:
     form-data: "npm:^4.0.0"
     proxy-from-env: "npm:^1.1.0"
   checksum: a1932b089ece759cd261f175d9ebf4d41c8994cf0c0767cda86055c7a19bcfdade8ae3464bf4cec4c8b142f4a657dc664fb77a41855e8376cf38b86d7a86518f
+  languageName: node
+  linkType: hard
+
+"axios@npm:^1.6.4":
+  version: 1.6.8
+  resolution: "axios@npm:1.6.8"
+  dependencies:
+    follow-redirects: "npm:^1.15.6"
+    form-data: "npm:^4.0.0"
+    proxy-from-env: "npm:^1.1.0"
+  checksum: 3f9a79eaf1d159544fca9576261ff867cbbff64ed30017848e4210e49f3b01e97cf416390150e6fdf6633f336cd43dc1151f890bbd09c3c01ad60bb0891eee63
   languageName: node
   linkType: hard
 
@@ -19150,6 +19191,16 @@ __metadata:
     debug:
       optional: true
   checksum: d467f13c1c6aa734599b8b369cd7a625b20081af358f6204ff515f6f4116eb440de9c4e0c49f10798eeb0df26c95dd05d5e0d9ddc5786ab1a8a8abefe92929b4
+  languageName: node
+  linkType: hard
+
+"follow-redirects@npm:^1.15.6":
+  version: 1.15.6
+  resolution: "follow-redirects@npm:1.15.6"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: 70c7612c4cab18e546e36b991bbf8009a1a41cf85354afe04b113d1117569abf760269409cb3eb842d9f7b03d62826687086b081c566ea7b1e6613cf29030bf7
   languageName: node
   linkType: hard
 

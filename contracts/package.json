@@ -65,6 +65,7 @@
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-solhint": "^3.0.1",
     "@openzeppelin/contracts": "^4.9.5",
+    "@sendgrid/mail": "^8.1.1",
     "@typechain/ethers-v5": "^11.1.2",
     "@typechain/hardhat": "^7.0.0",
     "@types/chai": "^4.3.11",
