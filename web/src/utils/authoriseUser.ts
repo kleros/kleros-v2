@@ -1,13 +1,13 @@
 import { toast } from "react-toastify";
 import { OPTIONS } from "utils/wrapWithToast";
 
-type authoriseUserData = {
+type AuthoriseUserData = {
   address: `0x${string}`;
   signature: `0x${string}`;
   message: string;
 };
 
-export function authoriseUser(authData: authoriseUserData): Promise<Response> {
+export function authoriseUser(authData: AuthoriseUserData): Promise<Response> {
   return toast.promise<Response, Error>(
     fetch(`/.netlify/functions/authUser`, {
       method: "POST",

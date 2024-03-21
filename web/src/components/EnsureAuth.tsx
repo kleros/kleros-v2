@@ -5,6 +5,7 @@ import { useAccount, useNetwork, useSignMessage } from "wagmi";
 import * as jwt from "jose";
 import { authoriseUser } from "utils/authoriseUser";
 import { useSessionStorage } from "hooks/useSessionStorage";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 interface IEnsureAuth {
   children: React.ReactElement;
@@ -59,7 +60,7 @@ export const EnsureAuth: React.FC<IEnsureAuth> = ({ children, className }) => {
   return isVerified ? children : <Button text="Sign In" onClick={handleSignIn} {...{ className }} />;
 };
 
-function createSiweMessage(address: `0x${string}`, statement: string, chainId: number = 421614) {
+function createSiweMessage(address: `0x${string}`, statement: string, chainId: number = DEFAULT_CHAIN) {
   const domain = window.location.host;
   const origin = window.location.origin;
   const message = new SiweMessage({
