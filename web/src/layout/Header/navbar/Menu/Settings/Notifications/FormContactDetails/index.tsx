@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useAccount } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
@@ -9,8 +9,10 @@ import { EMAIL_REGEX, TELEGRAM_REGEX } from "consts/index";
 import { responsiveSize } from "styles/responsiveSize";
 
 import { ISettings } from "../../../../index";
+import { useUserSettings } from "hooks/queries/useUserSettings";
 
 const FormContainer = styled.form`
+  width: 100%;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -35,8 +37,28 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const [telegramIsValid, setTelegramIsValid] = useState<boolean>(false);
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
   const { address } = useAccount();
+  const { data: userSettings, refetch: refetchUserSettings } = useUserSettings();
 
-  // TODO: after the user is authenticated, retrieve the current email/telegram from the database and populate the form
+  const isEditingEmail = useMemo(() => {
+    if (!userSettings?.email && emailInput === "") return false;
+    return userSettings?.email !== emailInput;
+  }, [userSettings, emailInput]);
+
+  const isEditingTelegram = useMemo(() => {
+    if (!userSettings?.telegram && telegramInput === "") return false;
+    return userSettings?.telegram !== telegramInput;
+  }, [userSettings, telegramInput]);
+
+  useEffect(() => {
+    refetchUserSettings();
+  }, [address]);
+
+  useEffect(() => {
+    if (!userSettings) return;
+
+    setEmailInput(userSettings.email ?? "");
+    setTelegramInput(userSettings.telegram ?? "");
+  }, [userSettings]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,7 +74,10 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
 
     uploadSettingsToSupabase(data)
       .then(async (res) => {
-        if (res.ok) toggleIsSettingsOpen();
+        if (res.ok) {
+          toggleIsSettingsOpen();
+          refetchUserSettings();
+        }
       })
       .catch((err) => console.log(err));
   };
@@ -67,6 +92,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           setContactInput={setTelegramInput}
           setContactIsValid={setTelegramIsValid}
           validator={TELEGRAM_REGEX}
+          isEditing={isEditingTelegram}
         />
       </FormContactContainer>
       <FormContactContainer>
@@ -78,11 +104,12 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           setContactInput={setEmailInput}
           setContactIsValid={setEmailIsValid}
           validator={EMAIL_REGEX}
+          isEditing={isEditingEmail}
         />
       </FormContactContainer>
 
       <ButtonContainer>
-        <Button text="Save" disabled={!emailIsValid && !telegramIsValid} />
+        <Button text="Save" disabled={(!isEditingEmail && !isEditingTelegram) || !emailIsValid || !telegramIsValid} />
       </ButtonContainer>
     </FormContainer>
   );
