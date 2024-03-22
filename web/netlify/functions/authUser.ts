@@ -1,5 +1,5 @@
-import middy from "middy";
-import { jsonBodyParser } from "middy/middlewares";
+import middy from "@middy/core";
+import jsonBodyParser from "@middy/http-json-body-parser";
 import { ETH_SIGNATURE_REGEX } from "src/consts";
 import { SiweMessage } from "siwe";
 import * as jwt from "jose";

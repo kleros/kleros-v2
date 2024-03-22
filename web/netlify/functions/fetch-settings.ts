@@ -1,7 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "../../src/types/supabase-notification";
-import middy from "middy";
-import { jsonBodyParser } from "middy/middlewares";
+import middy from "@middy/core";
 import { authMiddleware } from "../middleware/authMiddleware";
 
 const fetchSettings = async (event) => {
@@ -16,15 +15,18 @@ const fetchSettings = async (event) => {
       .select("address, email, telegram")
       .eq("address", lowerCaseAddress)
       .single();
-    console.log({ error, data });
 
-    if (error || !data) {
+    if (!data) {
+      return { statusCode: 404, message: `Error : User not found` };
+    }
+
+    if (error) {
       throw error;
     }
     return { statusCode: 200, body: JSON.stringify({ data }) };
   } catch (err) {
-    return { statusCode: 404, message: `Error ${err?.message ?? err}` };
+    return { statusCode: 500, message: `Error ${err?.message ?? err}` };
   }
 };
 
-export const handler = middy(fetchSettings).use(jsonBodyParser()).use(authMiddleware());
+export const handler = middy(fetchSettings).use(authMiddleware());
