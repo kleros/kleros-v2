@@ -39,7 +39,7 @@ const authUser = async (event) => {
       // TODO: Ideally we would want to check domain and origin here too, have not added yet since we would need to change the env for each deploy preview
       // on production :-
       // await siweMessage.verify({signature, domain :"kleros", origin :"https://kleros.io"})
-      await siweMessage.verify({ signature });
+      await siweMessage.verify({ signature, domain: event.headers.host });
     } catch (err) {
       throw new Error("Invalid signer");
     }
