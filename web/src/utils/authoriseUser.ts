@@ -34,3 +34,25 @@ export function authoriseUser(authData: AuthoriseUserData): Promise<Response> {
     OPTIONS
   );
 }
+
+export function getNonce(address: string): Promise<Response> {
+  return toast.promise<Response, Error>(
+    fetch(`/.netlify/functions/getNonce?address=${address}`, {
+      method: "GET",
+    }).then(async (response) => {
+      if (response.status !== 200) {
+        const error = await response.json().catch(() => ({ message: "Error getting nonce" }));
+        throw new Error(error.message);
+      }
+      return response;
+    }),
+    {
+      error: {
+        render({ data: error }) {
+          return `${error?.message}`;
+        },
+      },
+    },
+    OPTIONS
+  );
+}

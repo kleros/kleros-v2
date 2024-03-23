@@ -3,6 +3,8 @@ import jsonBodyParser from "@middy/http-json-body-parser";
 import { ETH_SIGNATURE_REGEX } from "src/consts";
 import { SiweMessage } from "siwe";
 import * as jwt from "jose";
+import { createClient } from "@supabase/supabase-js";
+import { Database } from "../../src/types/supabase-notification";
 
 const authUser = async (event) => {
   try {
@@ -30,18 +32,35 @@ const authUser = async (event) => {
     }
 
     const siweMessage = new SiweMessage(message);
+    const lowerCaseAddress = siweMessage.address.toLowerCase();
 
     if (siweMessage.address.toLowerCase() !== address.toLowerCase()) {
-      throw new Error("Address mismtach in provided address and message");
+      throw new Error("Address mismatch in provided address and message");
+    }
+
+    const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_CLIENT_API_KEY!);
+
+    // get nonce from db, if its null that means it was alrd used
+    const { error: nonceError, data: nonceData } = await supabase
+      .from("user-nonce")
+      .select("nonce")
+      .eq("address", lowerCaseAddress)
+      .single();
+
+    if (nonceError || !nonceData?.nonce) {
+      throw new Error("Unable to fetch nonce from DB");
     }
 
     try {
-      // TODO: Ideally we would want to check domain and origin here too, have not added yet since we would need to change the env for each deploy preview
-      // on production :-
-      // await siweMessage.verify({signature, domain :"kleros", origin :"https://kleros.io"})
-      await siweMessage.verify({ signature, domain: event.headers.host });
+      await siweMessage.verify({ signature, nonce: nonceData.nonce, time: new Date().toISOString() });
     } catch (err) {
       throw new Error("Invalid signer");
+    }
+
+    const { error } = await supabase.from("user-nonce").delete().match({ address: lowerCaseAddress });
+
+    if (error) {
+      throw new Error("Error updating nonce in DB");
     }
 
     const issuer = process.env.JWT_ISSUER ?? "Kleros"; // ex :- Kleros
@@ -52,7 +71,7 @@ const authUser = async (event) => {
     if (!secret) {
       throw new Error("Secret not set in environment");
     }
-
+    // user verified, generate auth token
     const encodedSecret = new TextEncoder().encode(secret);
 
     const token = await new jwt.SignJWT({ id: address.toLowerCase() })
@@ -64,7 +83,7 @@ const authUser = async (event) => {
 
     return { statusCode: 200, body: JSON.stringify({ message: "User authorised", token }) };
   } catch (err) {
-    return { statusCode: 500, body: JSON.stringify({ message: `Error: ${err}` }) };
+    return { statusCode: 500, body: JSON.stringify({ message: `${err}` }) };
   }
 };
 
