@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { isUndefined } from "utils/index";
 
 export const useUserSettings = () => {
-  const authToken = sessionStorage.getItem("auth-token")?.replace(/\"/g, "");
+  const authToken = sessionStorage.getItem("auth-token")?.replace(/"/g, "");
   const isEnabled = !isUndefined(authToken);
 
   return useQuery({

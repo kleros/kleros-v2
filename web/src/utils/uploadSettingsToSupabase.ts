@@ -10,7 +10,7 @@ type SettingsToSupabaseData = {
 
 export function uploadSettingsToSupabase(formData: SettingsToSupabaseData): Promise<Response> {
   // storing token in storage adds double quotes to it, so when its passed as header it becomes `"token"`, so we remove double quotes
-  const authToken = sessionStorage.getItem("auth-token")?.replace(/\"/g, "");
+  const authToken = sessionStorage.getItem("auth-token")?.replace(/"/g, "");
 
   return toast.promise<Response, Error>(
     fetch("/.netlify/functions/update-settings", {

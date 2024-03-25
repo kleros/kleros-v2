@@ -83,7 +83,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   };
   return (
     <FormContainer onSubmit={handleSubmit}>
-      <FormContactContainer>
+      {/* <FormContactContainer>
         <FormContact
           contactLabel="Telegram"
           contactPlaceholder="@my_handle"
@@ -94,7 +94,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           validator={TELEGRAM_REGEX}
           isEditing={isEditingTelegram}
         />
-      </FormContactContainer>
+      </FormContactContainer> */}
       <FormContactContainer>
         <FormContact
           contactLabel="Email"
@@ -109,7 +109,8 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
       </FormContactContainer>
 
       <ButtonContainer>
-        <Button text="Save" disabled={(!isEditingEmail && !isEditingTelegram) || !emailIsValid || !telegramIsValid} />
+        {/* <Button text="Save" disabled={(!isEditingEmail && !isEditingTelegram) || !emailIsValid || !telegramIsValid} /> */}
+        <Button text="Save" disabled={!isEditingEmail || !emailIsValid} />
       </ButtonContainer>
     </FormContainer>
   );

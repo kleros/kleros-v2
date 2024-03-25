@@ -8,7 +8,7 @@ const getNonce = async (event) => {
   try {
     const { queryStringParameters } = event;
 
-    if (!queryStringParameters || !queryStringParameters.address) {
+    if (!queryStringParameters?.address) {
       return {
         statusCode: 400,
         body: JSON.stringify({ message: "Invalid query parameters" }),

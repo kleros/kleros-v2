@@ -65,10 +65,10 @@ const NotificationSettings: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => 
     <EnsureChainContainer>
       <EnsureChain>
         <Container>
-          <StyledA href={HERMES_TELEGRAM_BOT_URL} target="_blank" rel="noreferrer">
+          {/* <StyledA href={HERMES_TELEGRAM_BOT_URL} target="_blank" rel="noreferrer">
             Subscribe to the Hermes Messenger Bot
             <StyledSvg as={TelegramLogo} />
-          </StyledA>
+          </StyledA> */}
           <EnsureAuth>
             <>
               <HeaderNotifs />
