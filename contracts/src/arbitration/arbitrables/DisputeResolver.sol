@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-/// @custom:authors: [@ferittuncer, @unknownunknown1, @jaybuidl]
+/// @custom:authors: [@unknownunknown1, @jaybuidl]
 /// @custom:reviewers: []
 /// @custom:auditors: []
 /// @custom:bounties: []
@@ -134,7 +134,7 @@ contract DisputeResolver is IArbitrableV2 {
         string memory _disputeTemplateDataMappings,
         string memory _disputeTemplateUri,
         uint256 _numberOfRulingOptions
-    ) internal returns (uint256 disputeID) {
+    ) internal virtual returns (uint256 disputeID) {
         require(_numberOfRulingOptions > 1, "Should be at least 2 ruling options.");
 
         disputeID = arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
@@ -149,6 +149,6 @@ contract DisputeResolver is IArbitrableV2 {
         );
         arbitratorDisputeIDToLocalID[disputeID] = localDisputeID;
         uint256 templateId = templateRegistry.setDisputeTemplate("", _disputeTemplate, _disputeTemplateDataMappings);
-        emit DisputeRequest(arbitrator, disputeID, localDisputeID, templateId, _disputeTemplateUri);
+        emit DisputeRequest(arbitrator, localDisputeID, localDisputeID, templateId, _disputeTemplateUri);
     }
 }
