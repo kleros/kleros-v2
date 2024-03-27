@@ -67,7 +67,7 @@ const updateSettings = async (event) => {
 
     // If the message is empty, delete the user record
     if (email === "" && telegram === "") {
-      const { error } = await supabase.from("users").delete().match({ address: lowerCaseAddress });
+      const { error } = await supabase.from("user-settings").delete().match({ address: lowerCaseAddress });
       if (error) throw error;
       return { statusCode: 200, body: JSON.stringify({ message: "Record deleted successfully." }) };
     }
