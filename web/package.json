@@ -40,7 +40,7 @@
     "build-devnet-neo": "scripts/runEnv.sh devnet-neo 'yarn generate && parcel build'",
     "build-testnet": "scripts/runEnv.sh testnet 'yarn generate && parcel build'",
     "build-mainnet-neo": "scripts/runEnv.sh mainnet-neo 'yarn generate && parcel build'",
-    "build-netlify": "node scripts/gitInfo.js && yarn generate && parcel build",
+    "build-netlify": "scripts/generateBuildInfo.sh && yarn generate && parcel build",
     "check-style": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "check-types": "tsc --noEmit",
     "generate": "yarn generate:gql && yarn generate:hooks",

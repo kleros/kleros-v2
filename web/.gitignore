@@ -29,6 +29,7 @@ parcel-bundle-reports
 src/hooks/contracts/generated.ts
 src/graphql
 generatedGitInfo.json
+generatedNetlifyInfo.json
 
 # logs
 npm-debug.log*

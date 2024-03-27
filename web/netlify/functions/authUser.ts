@@ -1,10 +1,12 @@
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
-import { ETH_SIGNATURE_REGEX } from "src/consts";
+import { ETH_SIGNATURE_REGEX } from "consts/index";
+import { DEFAULT_CHAIN } from "consts/chains";
 import { SiweMessage } from "siwe";
 import * as jwt from "jose";
 import { createClient } from "@supabase/supabase-js";
-import { Database } from "../../src/types/supabase-notification";
+import { netlifyUri } from "src/generatedNetlifyInfo.json";
+import { Database } from "src/types/supabase-notification";
 
 const authUser = async (event) => {
   try {
@@ -32,15 +34,30 @@ const authUser = async (event) => {
     }
 
     const siweMessage = new SiweMessage(message);
-    const lowerCaseAddress = siweMessage.address.toLowerCase();
 
-    if (siweMessage.address.toLowerCase() !== address.toLowerCase()) {
+    if (netlifyUri && netlifyUri !== siweMessage.uri) {
+      console.debug(`Invalid URI: expected ${netlifyUri} but got ${siweMessage.uri}`);
+      throw new Error(`Invalid URI`);
+    }
+
+    if (siweMessage.chainId !== DEFAULT_CHAIN) {
+      console.debug(`Invalid chain ID: expected ${DEFAULT_CHAIN} but got ${siweMessage.chainId}`);
+      throw new Error(`Invalid chain ID`);
+    }
+
+    if (!siweMessage.expirationTime || Date.parse(siweMessage.expirationTime) < Date.now()) {
+      console.debug(`Message expired: ${siweMessage.expirationTime} < ${new Date().toISOString()}`);
+      throw new Error("Message expired");
+    }
+
+    const lowerCaseAddress = siweMessage.address.toLowerCase();
+    if (lowerCaseAddress !== address.toLowerCase()) {
       throw new Error("Address mismatch in provided address and message");
     }
 
     const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_CLIENT_API_KEY!);
 
-    // get nonce from db, if its null that means it was alrd used
+    // get nonce from db, if its null that means it was already used
     const { error: nonceError, data: nonceData } = await supabase
       .from("user-nonce")
       .select("nonce")
