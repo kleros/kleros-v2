@@ -6,6 +6,7 @@ import Field, { IField } from "components/Field";
 import CardLabel from "../CardLabels";
 
 import { FieldItem, IDisputeInfo } from ".";
+import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div<{ isLabel?: boolean }>`
   display: flex;
@@ -13,12 +14,14 @@ const Container = styled.div<{ isLabel?: boolean }>`
   height: 100%;
   flex-direction: row;
   justify-content: ${({ isLabel }) => (isLabel ? "space-between" : "flex-end")};
-  flex: 0 1 450px;
+  flex: 0 1 ${responsiveSize(400, 450, 900)};
   align-items: center;
+  padding-right: ${responsiveSize(12, 24, 900)};
+  gap: 8px;
 `;
 
 const RestOfFieldsContainer = styled.div`
-  gap: 8px;
+  gap: 8px ${responsiveSize(8, 32, 900)};
   align-items: center;
   height: min-content;
   width: max-content;
