@@ -100,7 +100,6 @@ const Field: React.FC<IField> = ({
         <Link
           className="link value"
           to={link}
-          // when inside aa clickable parent, stop event bubbling, so only the click on this link will be registered
           onClick={(event) => {
             event.stopPropagation();
           }}

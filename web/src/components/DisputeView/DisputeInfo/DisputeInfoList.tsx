@@ -1,12 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-
-import Field, { IField } from "components/Field";
-
-import CardLabel from "../CardLabels";
-
-import { FieldItem, IDisputeInfo } from ".";
 import { responsiveSize } from "styles/responsiveSize";
+import Field, { IField } from "components/Field";
+import CardLabel from "../CardLabels";
+import { FieldItem, IDisputeInfo } from ".";
 
 const Container = styled.div<{ isLabel?: boolean }>`
   display: flex;
