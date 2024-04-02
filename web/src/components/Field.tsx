@@ -97,7 +97,13 @@ const Field: React.FC<IField> = ({
       <Icon />
       {(!displayAsList || isOverview || isJurorBalance) && <label>{name}:</label>}
       {link ? (
-        <Link className="link value" to={link}>
+        <Link
+          className="link value"
+          to={link}
+          onClick={(event) => {
+            event.stopPropagation();
+          }}
+        >
           {value}
         </Link>
       ) : (

@@ -13,13 +13,6 @@ import CasesGrid, { ICasesGrid } from "./CasesGrid";
 import Search from "./Search";
 import StatsAndFilters from "./StatsAndFilters";
 
-const Divider = styled.hr`
-  display: flex;
-  border: none;
-  height: 1px;
-  background-color: ${({ theme }) => theme.stroke};
-  margin: ${responsiveSize(20, 24)};
-`;
 const TitleContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -72,7 +65,6 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
       </TitleContainer>
       <Search />
       <StatsAndFilters totalDisputes={numberDisputes ?? 0} closedDisputes={numberClosedDisputes ?? 0} />
-      <Divider />
 
       {disputes?.length === 0 ? (
         <h1>No cases found</h1>
