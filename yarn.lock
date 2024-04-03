@@ -5890,7 +5890,7 @@ __metadata:
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
     "@kleros/ui-components-library": "npm:^2.7.2"
-    "@lifi/sdk": "npm:^2.5.0"
+    "@lifi/sdk": "npm:^2.5.1"
     "@lifi/types": "npm:^11.3.0"
     "@netlify/functions": "npm:^1.6.0"
     "@parcel/transformer-svg-react": "npm:2.11.0"
@@ -6153,9 +6153,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lifi/sdk@npm:^2.5.0":
-  version: 2.5.0
-  resolution: "@lifi/sdk@npm:2.5.0"
+"@lifi/sdk@npm:^2.5.1":
+  version: 2.5.1
+  resolution: "@lifi/sdk@npm:2.5.1"
   dependencies:
     "@ethersproject/abi": "npm:^5.7.0"
     "@ethersproject/contracts": "npm:^5.7.0"
@@ -6163,7 +6163,7 @@ __metadata:
     bignumber.js: "npm:^9.1.2"
     eth-rpc-errors: "npm:^4.0.3"
     ethers: "npm:^5.7.2"
-  checksum: 7a68a9cebe01e4692babc350e0532b0ace72a241ae04e0f3c2aa0c339216cf4dedd7a33c911b3816389de321ba8ef911be142f1dbd7535aa5e5727026910d3db
+  checksum: 383dc775664780dae7236b74ab5ac1429ac79f22bdf2cdf2b1cef3040c144b7d45b8d8fdc7e2a75b56459dfa6ffdc2e0b42fa4b63a04189c5c7d8e87e6235675
   languageName: node
   linkType: hard
 
