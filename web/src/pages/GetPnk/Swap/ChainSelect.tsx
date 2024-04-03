@@ -7,7 +7,7 @@ import PolygonIcon from "tsx:svgs/tokens/polygon.svg";
 import StyledDropdown from "../StyledDropdown";
 import { useLifiSDK } from "context/LiFiProvider";
 
-const supportedChains = true
+const supportedChains = false
   ? [
       { value: goerli.id, text: mainnet.name, Icon: EthIcon },
       { value: arbitrumSepolia.id, text: "Arbitrum", Icon: ArbitrumIcon },

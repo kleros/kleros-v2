@@ -77,7 +77,7 @@
     "@filebase/client": "^0.0.5",
     "@kleros/kleros-sdk": "workspace:^",
     "@kleros/ui-components-library": "^2.7.2",
-    "@lifi/sdk": "^2.5.0",
+    "@lifi/sdk": "^2.5.1",
     "@lifi/types": "^11.3.0",
     "@sentry/react": "^7.93.0",
     "@sentry/tracing": "^7.93.0",

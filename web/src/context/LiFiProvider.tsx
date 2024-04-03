@@ -28,14 +28,14 @@ interface ILifiProvider {
 }
 
 const initialSwapData: SwapData = {
-  fromChainId: 5,
+  fromChainId: 1,
   fromAmount: "1", // 1
-  fromTokenAddress: "0x0000000000000000000000000000000000000000", // ETH
+  fromTokenAddress: "0x93ED3FBe21207Ec2E8f2d3c3de6e058Cb73Bc04d",
   slippage: 0.03, // "3%"
   gasPrice: "normal",
   // these are hardcoded, set to PNK on production deploy
-  toChainId: 5,
-  toTokenAddress: "0xd87ba7a50b2e7e660f678a895e4b72e7cb4ccd9c", // PNK
+  toChainId: 42161,
+  toTokenAddress: "0x330bD769382cFc6d50175903434CCC8D206DCAE5", // PNK
 };
 
 const LifiContext = createContext<ILifiProvider>({
