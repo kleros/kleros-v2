@@ -41,6 +41,9 @@ export const lightTheme = {
 
   skeletonBackground: "#EBEBEB",
   skeletonHighlight: "#F5F5F5",
+
+  paleCyan: "#ACFFFF",
+  limeGreen: "#F3FFD9",
 };
 
 export const darkTheme = {
@@ -84,4 +87,7 @@ export const darkTheme = {
 
   skeletonBackground: "#3A2270",
   skeletonHighlight: "#3E307C",
+
+  paleCyan: "#ACFFFF",
+  limeGreen: "#F3FFD9",
 };

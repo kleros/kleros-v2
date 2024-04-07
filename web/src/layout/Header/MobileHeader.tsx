@@ -1,20 +1,12 @@
 import React, { useContext, useMemo, useRef } from "react";
 import styled, { css } from "styled-components";
-
-import { Link } from "react-router-dom";
 import { useClickAway, useToggle } from "react-use";
-
-import HamburgerIcon from "svgs/header/hamburger.svg";
-import KlerosCourtUniversityLogo from "svgs/header/kleros-court-university.svg";
-import KlerosCourtLogo from "svgs/header/kleros-court.svg";
-
-import { isKlerosUniversity } from "src/consts";
-
 import { landscapeStyle } from "styles/landscapeStyle";
-
+import HamburgerIcon from "svgs/header/hamburger.svg";
 import LightButton from "components/LightButton";
 
 import NavBar from "./navbar";
+import Logo from "./Logo";
 
 const Container = styled.div`
   display: flex;
@@ -41,10 +33,6 @@ const StyledLightButton = styled(LightButton)`
   }
 `;
 
-const StyledLink = styled(Link)`
-  min-height: 48px;
-`;
-
 const OpenContext = React.createContext({
   isOpen: false,
   toggleIsOpen: () => {
@@ -64,7 +52,7 @@ const MobileHeader = () => {
   return (
     <Container ref={containerRef}>
       <OpenContext.Provider value={memoizedContext}>
-        <StyledLink to={"/"}>{isKlerosUniversity() ? <KlerosCourtUniversityLogo /> : <KlerosCourtLogo />}</StyledLink>
+        <Logo />
         <NavBar />
         <StyledLightButton text="" Icon={HamburgerIcon} onClick={toggleIsOpen} />
       </OpenContext.Provider>

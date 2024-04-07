@@ -1,20 +1,9 @@
 import React from "react";
 import styled, { css } from "styled-components";
-
-import { Link } from "react-router-dom";
-import { useToggle } from "react-use";
-
-import KlerosCourtUniversityLogo from "svgs/header/kleros-court-university.svg";
-import KlerosCourtLogo from "svgs/header/kleros-court.svg";
-import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
-
-import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
-
-import { isKlerosUniversity } from "src/consts";
-
 import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
+import { useToggle } from "react-use";
+import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
+import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
 import { Overlay } from "components/Overlay";
@@ -26,6 +15,8 @@ import Help from "./navbar/Menu/Help";
 import Settings from "./navbar/Menu/Settings";
 
 import { PopupContainer } from ".";
+import { responsiveSize } from "styles/responsiveSize";
+import Logo from "./Logo";
 
 const Container = styled.div`
   display: none;
@@ -73,10 +64,6 @@ const LightButtonContainer = styled.div`
   margin-right: ${responsiveSize(12, 16)};
 `;
 
-const StyledLink = styled(Link)`
-  min-height: 48px;
-`;
-
 const StyledKlerosSolutionsIcon = styled(KlerosSolutionsIcon)`
   fill: ${({ theme }) => theme.white} !important;
 `;
@@ -106,7 +93,7 @@ const DesktopHeader = () => {
               Icon={StyledKlerosSolutionsIcon}
             />
           </LightButtonContainer>
-          <StyledLink to={"/"}>{isKlerosUniversity() ? <KlerosCourtUniversityLogo /> : <KlerosCourtLogo />}</StyledLink>
+          <Logo />
         </LeftSide>
 
         <MiddleSide>
