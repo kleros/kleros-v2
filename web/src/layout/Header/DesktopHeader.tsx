@@ -1,13 +1,20 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { useToggle } from "react-use";
-import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
+
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
+
+import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
 import { Overlay } from "components/Overlay";
 
+import Logo from "./Logo";
 import DappList from "./navbar/DappList";
 import Explore from "./navbar/Explore";
 import Menu from "./navbar/Menu";
@@ -15,8 +22,6 @@ import Help from "./navbar/Menu/Help";
 import Settings from "./navbar/Menu/Settings";
 
 import { PopupContainer } from ".";
-import { responsiveSize } from "styles/responsiveSize";
-import Logo from "./Logo";
 
 const Container = styled.div`
   display: none;

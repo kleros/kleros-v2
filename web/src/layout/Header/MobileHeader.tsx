@@ -1,12 +1,16 @@
 import React, { useContext, useMemo, useRef } from "react";
 import styled, { css } from "styled-components";
+
 import { useClickAway, useToggle } from "react-use";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import HamburgerIcon from "svgs/header/hamburger.svg";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import LightButton from "components/LightButton";
 
-import NavBar from "./navbar";
 import Logo from "./Logo";
+import NavBar from "./navbar";
 
 const Container = styled.div`
   display: flex;
