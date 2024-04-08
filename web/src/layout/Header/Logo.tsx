@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useMemo } from "react";
+import styled, { Theme } from "styled-components";
+
 import { Link } from "react-router-dom";
-import styled, { Theme, useTheme } from "styled-components";
+
 import KlerosCourtLogo from "svgs/header/kleros-court.svg";
 
-const arbitratorType = process.env.REACT_APP_ARBITRATOR_TYPE;
+import { arbitratorType, ArbitratorTypes } from "consts/index";
+import { isUndefined } from "utils/index";
 
 const Container = styled.div`
   display: flex;
@@ -16,9 +19,9 @@ const StyledLink = styled(Link)`
   min-height: 48px;
 `;
 
-const BadgeContainer = styled.div<{ backgroundColor: string }>`
+const BadgeContainer = styled.div<{ backgroundColor: keyof Theme }>`
   transform: skewX(-15deg);
-  background-color: ${({ backgroundColor }) => backgroundColor};
+  background-color: ${({ theme, backgroundColor }) => theme[backgroundColor]};
   border-radius: 3px;
   padding: 1px 8px;
   height: fit-content;
@@ -28,37 +31,32 @@ const BadgeText = styled.label`
   color: #220050;
 `;
 
-const Badge: React.FC<{ text: string; color: keyof Theme }> = ({ text, color }) => {
-  const theme = useTheme();
-  return (
-    <BadgeContainer {...{ backgroundColor: theme[color] }}>
+const CourtBadge: React.FC = () => {
+  const { text, color } = useMemo<{ text?: string; color?: keyof Theme }>(() => {
+    switch (arbitratorType()) {
+      case ArbitratorTypes["neo"]:
+        return { text: "Neo", color: "paleCyan" };
+      case ArbitratorTypes["university"]:
+        return { text: "Uni", color: "limeGreen" };
+    }
+    return {};
+  }, []);
+
+  return !isUndefined(color) ? (
+    <BadgeContainer {...{ backgroundColor: color }}>
       <BadgeText>{text}</BadgeText>
     </BadgeContainer>
-  );
+  ) : null;
 };
 
-const Logo: React.FC = () => {
-  let CourtBadge: JSX.Element | null = null;
-  switch (arbitratorType) {
-    case "neo":
-      CourtBadge = <Badge text="Neo" color="paleCyan" />;
-      break;
-    case "university":
-      CourtBadge = <Badge text="Uni" color="limeGreen" />;
-      break;
-    default:
-      break;
-  }
-
-  return (
-    <Container>
-      {" "}
-      <StyledLink to={"/"}>
-        <KlerosCourtLogo />
-      </StyledLink>
-      {CourtBadge}
-    </Container>
-  );
-};
+const Logo: React.FC = () => (
+  <Container>
+    {" "}
+    <StyledLink to={"/"}>
+      <KlerosCourtLogo />
+    </StyledLink>
+    <CourtBadge />
+  </Container>
+);
 
 export default Logo;
