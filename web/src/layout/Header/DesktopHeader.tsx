@@ -21,8 +21,6 @@ import Menu from "./navbar/Menu";
 import Help from "./navbar/Menu/Help";
 import Settings from "./navbar/Menu/Settings";
 
-import { PopupContainer } from ".";
-
 const Container = styled.div`
   display: none;
   position: absolute;
@@ -77,6 +75,15 @@ const ConnectWalletContainer = styled.div`
   label {
     color: ${({ theme }) => theme.white};
   }
+`;
+
+const PopupContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 30;
 `;
 
 const DesktopHeader = () => {

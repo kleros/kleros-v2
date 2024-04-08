@@ -12,7 +12,6 @@ import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
 import { Overlay } from "components/Overlay";
 
-import { PopupContainer } from "..";
 import { useOpenContext } from "../MobileHeader";
 
 import DappList from "./DappList";
@@ -70,6 +69,15 @@ const WalletContainer = styled.div`
 const DisconnectWalletButtonContainer = styled.div`
   display: flex;
   align-items: center;
+`;
+
+const PopupContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 30;
 `;
 
 export interface ISettings {
