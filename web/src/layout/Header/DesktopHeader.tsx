@@ -1,16 +1,11 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { Link } from "react-router-dom";
 import { useToggle } from "react-use";
 
-import KlerosCourtUniversityLogo from "svgs/header/kleros-court-university.svg";
-import KlerosCourtLogo from "svgs/header/kleros-court.svg";
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
-
-import { isKlerosUniversity } from "src/consts";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -19,13 +14,12 @@ import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
 import { Overlay } from "components/Overlay";
 
+import Logo from "./Logo";
 import DappList from "./navbar/DappList";
 import Explore from "./navbar/Explore";
 import Menu from "./navbar/Menu";
 import Help from "./navbar/Menu/Help";
 import Settings from "./navbar/Menu/Settings";
-
-import { PopupContainer } from ".";
 
 const Container = styled.div`
   display: none;
@@ -73,10 +67,6 @@ const LightButtonContainer = styled.div`
   margin-right: ${responsiveSize(12, 16)};
 `;
 
-const StyledLink = styled(Link)`
-  min-height: 48px;
-`;
-
 const StyledKlerosSolutionsIcon = styled(KlerosSolutionsIcon)`
   fill: ${({ theme }) => theme.white} !important;
 `;
@@ -85,6 +75,15 @@ const ConnectWalletContainer = styled.div`
   label {
     color: ${({ theme }) => theme.white};
   }
+`;
+
+const PopupContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 30;
 `;
 
 const DesktopHeader = () => {
@@ -106,7 +105,7 @@ const DesktopHeader = () => {
               Icon={StyledKlerosSolutionsIcon}
             />
           </LightButtonContainer>
-          <StyledLink to={"/"}>{isKlerosUniversity() ? <KlerosCourtUniversityLogo /> : <KlerosCourtLogo />}</StyledLink>
+          <Logo />
         </LeftSide>
 
         <MiddleSide>
