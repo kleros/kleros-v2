@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 import KlerosCourtLogo from "svgs/header/kleros-court.svg";
 
-import { arbitratorType, ArbitratorTypes } from "consts/index";
+import { ArbitratorTypes, getArbitratorType } from "consts/index";
 import { isUndefined } from "utils/index";
 
 const Container = styled.div`
@@ -33,10 +33,10 @@ const BadgeText = styled.label`
 
 const CourtBadge: React.FC = () => {
   const { text, color } = useMemo<{ text?: string; color?: keyof Theme }>(() => {
-    switch (arbitratorType()) {
-      case ArbitratorTypes["neo"]:
+    switch (getArbitratorType()) {
+      case ArbitratorTypes.neo:
         return { text: "Neo", color: "paleCyan" };
-      case ArbitratorTypes["university"]:
+      case ArbitratorTypes.university:
         return { text: "Uni", color: "limeGreen" };
     }
     return {};
