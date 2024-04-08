@@ -28,7 +28,7 @@ const BadgeContainer = styled.div<{ backgroundColor: keyof Theme }>`
 `;
 
 const BadgeText = styled.label`
-  color: #220050;
+  color: ${({ theme }) => theme.darkPurple};
 `;
 
 const CourtBadge: React.FC = () => {
