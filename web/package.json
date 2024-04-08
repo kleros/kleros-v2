@@ -81,6 +81,7 @@
     "@filebase/client": "^0.0.5",
     "@kleros/kleros-sdk": "workspace:^",
     "@kleros/ui-components-library": "^2.10.0",
+    "@lifi/widget": "^2.10.1",
     "@middy/core": "^5.3.2",
     "@middy/http-json-body-parser": "^5.3.2",
     "@sentry/react": "^7.93.0",
