@@ -48,6 +48,11 @@ contract UUPSUpgradeableMock is UUPSProxiable, NonUpgradeableMock {
     // keccak256(abi.encode(uint256(keccak256("kleros.storage.UUPSUpgradeableMock")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant INITIALIZABLE_STORAGE = 0x30d370aa3c43b12c906d59e729739fe781988b5aeb55fa9fb184b45129d6f900;
 
+    constructor() {
+        UUPSUpgradeableMockStorage storage $ = _getInitializableStorage();
+        $.initialized = true;
+    }
+
     function initialize(address _governor) external {
         UUPSUpgradeableMockStorage storage $ = _getInitializableStorage();
         require(!$.initialized, "Contract instance has already been initialized");

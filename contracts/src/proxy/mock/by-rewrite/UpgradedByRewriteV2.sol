@@ -7,36 +7,43 @@ import "../../UUPSProxiable.sol";
 import "../../Initializable.sol";
 
 contract UpgradedByRewrite is UUPSProxiable, Initializable {
-    //------------------------
-    // V1 State
-    //------------------------
-    address public governor;
-    uint256 public counter;
-    uint256[50] __gap;
+    /// @custom:storage-location erc7201:kleros.storage.UpgradedByRewriteStorage
+    struct UpgradedByRewriteV2 {
+        address governor;
+        uint256 counter;
+        string newVariable;
+    }
 
-    //------------------------
-    // V2 State
-    //------------------------
-    string public newVariable;
+    // keccak256(abi.encode(uint256(keccak256("kleros.storage.UpgradedByRewriteStorage")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant INITIALIZABLE_STORAGE = 0xbe8e07ee0d0f4fb183890b4b70057ae173e7270304bf720861e275e28be01e00;
 
     constructor() {
         _disableInitializers();
     }
 
     function initialize(string memory _newVariable) external reinitializer(2) {
-        newVariable = _newVariable;
+        UpgradedByRewriteV2 storage $ = _getStorageUpgradedByRewrite();
+        $.newVariable = _newVariable;
         this.increment();
     }
 
     function _authorizeUpgrade(address) internal view override {
-        require(governor == msg.sender, "No privilege to upgrade");
+        UpgradedByRewriteV2 storage $ = _getStorageUpgradedByRewrite();
+        require($.governor == msg.sender, "No privilege to upgrade");
     }
 
     function increment() external {
-        ++counter;
+        UpgradedByRewriteV2 storage $ = _getStorageUpgradedByRewrite();
+        ++$.counter;
     }
 
     function version() external pure virtual returns (string memory) {
         return "V2";
+    }
+
+    function _getStorageUpgradedByRewrite() private pure returns (UpgradedByRewriteV2 storage $) {
+        assembly {
+            $.slot := INITIALIZABLE_STORAGE
+        }
     }
 }
