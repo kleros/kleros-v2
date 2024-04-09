@@ -7,47 +7,70 @@ import "../../UUPSProxiable.sol";
 import "../../Initializable.sol";
 
 contract UpgradedByInheritanceV1 is UUPSProxiable, Initializable {
-    address public governor;
-    uint256 public counter;
-    uint256[50] __gap;
+    /// @custom:storage-location erc7201:kleros.storage.UpgradedByInheritance
+    struct UpgradedByInheritanceV1Storage {
+        address governor;
+        uint256 counter;
+    }
+
+    // keccak256(abi.encode(uint256(keccak256("kleros.storage.UpgradedByInheritance")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 internal constant INITIALIZABLE_STORAGE =
+        0xc17f29fd370bc39e93d9cb5467cf50e6788d12416f3c204ddea24c4b47412a00;
 
     constructor() {
         _disableInitializers();
     }
 
     function initialize(address _governor) external virtual reinitializer(1) {
-        governor = _governor;
-        counter = 1;
+        UpgradedByInheritanceV1Storage storage $ = _getInheritanceV1Storage();
+        $.governor = _governor;
+        $.counter = 1;
     }
 
     function _authorizeUpgrade(address) internal view override {
-        require(governor == msg.sender, "No privilege to upgrade");
+        UpgradedByInheritanceV1Storage storage $ = _getInheritanceV1Storage();
+        require($.governor == msg.sender, "No privilege to upgrade");
     }
 
     function increment() external {
-        ++counter;
+        UpgradedByInheritanceV1Storage storage $ = _getInheritanceV1Storage();
+        ++$.counter;
     }
 
     function version() external pure virtual returns (string memory) {
         return "V1";
     }
+    function _getInheritanceV1Storage() private pure returns (UpgradedByInheritanceV1Storage storage $) {
+        assembly {
+            $.slot := INITIALIZABLE_STORAGE
+        }
+    }
 }
 
 contract UpgradedByInheritanceV2 is UpgradedByInheritanceV1 {
-    string public newVariable;
-    uint256[50] __gap2;
-
+    /// @custom:storage-location erc7201:kleros.storage.UpgradedByInheritance
+    struct UpgradedByInheritanceV2Storage {
+        address governor;
+        uint256 counter;
+        string newVariable;
+    }
     constructor() {
         _disableInitializers();
     }
 
     function initializeV2(string memory _newVariable) external reinitializer(2) {
-        newVariable = _newVariable;
+        UpgradedByInheritanceV2Storage storage $ = _getInheritanceV2Storage();
+        $.newVariable = _newVariable;
         this.increment();
     }
 
     function version() external pure virtual override returns (string memory) {
         return "V2";
+    }
+    function _getInheritanceV2Storage() private pure returns (UpgradedByInheritanceV2Storage storage $) {
+        assembly {
+            $.slot := INITIALIZABLE_STORAGE
+        }
     }
 }
 
