@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
-import { LiFiWidget, WidgetConfig } from "@lifi/widget";
 import { Theme, useTheme } from "styled-components";
+
+import { LiFiWidget, WidgetConfig } from "@lifi/widget";
 
 const getWidgetConfig = (theme: Theme): WidgetConfig => ({
   fromChain: 1,
