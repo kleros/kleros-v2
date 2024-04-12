@@ -1,22 +1,28 @@
-import * as chains from "viem/chains";
+import { extractChain } from "viem";
+import { Chain, arbitrum, mainnet, arbitrumSepolia, gnosisChiado } from "viem/chains";
 
-export const DEFAULT_CHAIN = chains.arbitrumSepolia.id;
+import { isProductionDeployment } from "./index";
 
-export const SUPPORTED_CHAINS: Record<number, chains.Chain> = {
-  [chains.arbitrumSepolia.id]: chains.arbitrumSepolia,
+export const DEFAULT_CHAIN = isProductionDeployment() ? arbitrum.id : arbitrumSepolia.id;
+
+export const SUPPORTED_CHAINS: Record<number, Chain> = {
+  [arbitrumSepolia.id]: arbitrumSepolia,
+  [arbitrum.id]: arbitrum,
 };
+
+export const QUERY_CHAINS: Record<number, Chain> = {
+  [gnosisChiado.id]: gnosisChiado,
+  [mainnet.id]: mainnet,
+};
+
+export const ALL_CHAINS = [...Object.values(SUPPORTED_CHAINS), ...Object.values(QUERY_CHAINS)];
+
 export const SUPPORTED_CHAIN_IDS = Object.keys(SUPPORTED_CHAINS);
 
-export const QUERY_CHAINS: Record<number, chains.Chain> = {
-  [chains.gnosisChiado.id]: chains.gnosisChiado,
-};
 export const QUERY_CHAIN_IDS = Object.keys(QUERY_CHAINS);
 
-export const getChain = (chainId: number): chains.Chain | null => {
-  for (const chain of Object.values(chains)) {
-    if (chain.id === chainId) {
-      return chain;
-    }
-  }
-  return null;
-};
+export const getChain = (chainId: number): Chain | null =>
+  extractChain({
+    chains: ALL_CHAINS,
+    id: chainId,
+  });

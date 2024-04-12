@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider as _QueryClientProvider } from "@tanst
 const queryClient = new QueryClient();
 
 const QueryClientProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <_QueryClientProvider client={queryClient}> {children} </_QueryClientProvider>
+  <_QueryClientProvider client={queryClient} children={children} />
 );
 
 export default QueryClientProvider;

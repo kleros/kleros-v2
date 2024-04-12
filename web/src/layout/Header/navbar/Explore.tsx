@@ -48,26 +48,47 @@ const StyledLink = styled(Link)<{ isActive: boolean }>`
   )};
 `;
 
+const HiddenLink = styled(StyledLink)<{ isActive: boolean }>`
+  color: ${({ isActive, theme }) => (isActive ? theme.primaryText : "transparent")};
+`;
+
 const links = [
+  { to: "/", text: "Home" },
   { to: "/cases/display/1/desc/all", text: "Cases" },
   { to: "/courts", text: "Courts" },
   { to: "/dashboard/1/desc/all", text: "Dashboard" },
+  { to: "/getPnk", text: "Get PNK" },
 ];
 
 const Explore: React.FC = () => {
   const location = useLocation();
-  const { toggleIsOpen } = useOpenContext();
+  const { isOpen, toggleIsOpen } = useOpenContext();
 
   return (
     <Container>
       <Title>Explore</Title>
       {links.map(({ to, text }) => (
         <LinkContainer key={text}>
-          <StyledLink to={to} onClick={toggleIsOpen} isActive={location.pathname.startsWith(to)}>
+          <StyledLink
+            to={to}
+            onClick={toggleIsOpen}
+            isActive={to === "/" ? location.pathname === "/" : location.pathname.startsWith(to)}
+          >
             {text}
           </StyledLink>
         </LinkContainer>
       ))}
+      {!isOpen && (
+        <LinkContainer>
+          <HiddenLink
+            to="/disputeTemplate"
+            onClick={toggleIsOpen}
+            isActive={location.pathname.startsWith("/disputeTemplate")}
+          >
+            Dev
+          </HiddenLink>
+        </LinkContainer>
+      )}
     </Container>
   );
 };

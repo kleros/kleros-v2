@@ -1,13 +1,14 @@
 import React, { useContext, useMemo, useRef } from "react";
 import styled, { css } from "styled-components";
-import { useToggle } from "react-use";
+import { useClickAway, useToggle } from "react-use";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { Link } from "react-router-dom";
 import KlerosCourtLogo from "svgs/header/kleros-court.svg";
+import KlerosCourtUniversityLogo from "svgs/header/kleros-court-university.svg";
 import HamburgerIcon from "svgs/header/hamburger.svg";
+import { isKlerosUniversity } from "src/consts";
 import LightButton from "components/LightButton";
 import NavBar from "./navbar";
-import { useFocusOutside } from "hooks/useFocusOutside";
 
 const Container = styled.div`
   display: flex;
@@ -52,14 +53,12 @@ export function useOpenContext() {
 const MobileHeader = () => {
   const [isOpen, toggleIsOpen] = useToggle(false);
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => toggleIsOpen(false));
+  useClickAway(containerRef, () => toggleIsOpen(false));
   const memoizedContext = useMemo(() => ({ isOpen, toggleIsOpen }), [isOpen, toggleIsOpen]);
   return (
     <Container ref={containerRef}>
       <OpenContext.Provider value={memoizedContext}>
-        <StyledLink to={"/"}>
-          <KlerosCourtLogo />
-        </StyledLink>
+        <StyledLink to={"/"}>{isKlerosUniversity() ? <KlerosCourtUniversityLogo /> : <KlerosCourtLogo />}</StyledLink>
         <NavBar />
         <StyledLightButton text="" Icon={HamburgerIcon} onClick={toggleIsOpen} />
       </OpenContext.Provider>

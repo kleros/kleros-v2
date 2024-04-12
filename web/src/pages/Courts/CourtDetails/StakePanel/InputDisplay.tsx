@@ -1,14 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import styled from "styled-components";
+
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
+
+import { useReadSortitionModuleGetJurorBalance, useReadPnkBalanceOf } from "hooks/contracts/generated";
 import { useParsedAmount } from "hooks/useParsedAmount";
-import { NumberInputField } from "components/NumberInputField";
+import { commify, uncommify } from "utils/commify";
 import { formatPNK, roundNumberDown } from "utils/format";
 import { isUndefined } from "utils/index";
-import { commify, uncommify } from "utils/commify";
-import { useReadSortitionModuleGetJurorBalance, useReadPnkBalanceOf } from "hooks/contracts/generated";
+
+import { NumberInputField } from "components/NumberInputField";
+
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
 
 const StyledField = styled(NumberInputField)`
@@ -66,6 +70,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
   const [debouncedAmount, setDebouncedAmount] = useState("");
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
   const parsedAmount = useParsedAmount(uncommify(debouncedAmount) as `${number}`);
+  const [errorMsg, setErrorMsg] = useState<string | undefined>();
 
   const { id } = useParams();
   const { address } = useAccount();
@@ -86,7 +91,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
     // watch: true,
   });
   const parsedStake = formatPNK(jurorBalance?.[2] || 0n, 0, true);
-  const isStaking = action === ActionType.stake;
+  const isStaking = useMemo(() => action === ActionType.stake, [action]);
 
   return (
     <>
@@ -109,16 +114,8 @@ const InputDisplay: React.FC<IInputDisplay> = ({
               setAmount(e);
             }}
             placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
-            // TODO why was the message that you may need two transactions commented?
-            // message={
-            //   isStaking
-            //     ? `You need to stake at least ${formatPNK(courtDetails?.court.minStake ?? 0n, 3)} PNK. ` +
-            //       "You may need two transactions, one to increase allowance, the other to stake."
-            //     : `You need to either withdraw all or keep at least ${formatPNK(
-            //         courtDetails?.court.minStake ?? 0n,
-            //         3
-            //       )} PNK.`
-            // }
+            message={errorMsg ?? undefined}
+            variant={!isUndefined(errorMsg) ? "error" : "info"}
             formatter={(number: string) => commify(roundNumberDown(Number(number)))}
           />
           <EnsureChainContainer>
@@ -130,6 +127,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
                 isSending,
                 setIsSending,
                 setIsPopupOpen,
+                setErrorMsg,
               }}
             />
           </EnsureChainContainer>

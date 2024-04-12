@@ -1,31 +1,30 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
 import styled, { css } from "styled-components";
+
 import { useParams } from "react-router-dom";
 import { useToggle } from "react-use";
-import { formatEther } from "viem";
-import { useAccount, useChainId, usePublicClient } from "wagmi";
-import { Card, Breadcrumb, Button } from "@kleros/ui-components-library";
-import {
-  useReadPnkFaucetWithdrewAlready,
-  useSimulatePnkFaucetRequest,
-  useReadPnkBalanceOf,
-  useWritePnkFaucetRequest,
-  pnkFaucetAddress,
-} from "hooks/contracts/generated";
-import { DEFAULT_CHAIN } from "consts/chains";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
+
+import { Card, Breadcrumb } from "@kleros/ui-components-library";
+
+import { isUndefined } from "utils/index";
+
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
-import { wrapWithToast } from "utils/wrapWithToast";
-import { isUndefined } from "utils/index";
-import { StyledSkeleton } from "components/StyledSkeleton";
+
+import { isProductionDeployment } from "src/consts";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
+import ClaimPnkButton from "components/ClaimPnkButton";
 import HowItWorks from "components/HowItWorks";
-import Staking from "components/Popup/MiniGuides/Staking";
 import LatestCases from "components/LatestCases";
-import Stats from "./Stats";
+import Staking from "components/Popup/MiniGuides/Staking";
+import { StyledSkeleton } from "components/StyledSkeleton";
+
 import Description from "./Description";
 import StakePanel from "./StakePanel";
+import Stats from "./Stats";
 
 const Container = styled.div``;
 
@@ -84,40 +83,10 @@ const StyledBreadcrumbSkeleton = styled.div`
 
 const CourtDetails: React.FC = () => {
   const { id } = useParams();
-  const [isSending, setIsSending] = useState(false);
   const { data: policy } = useCourtPolicy(id);
   const { data } = useCourtTree();
-  const chainId = useChainId();
-  const { address } = useAccount();
-  // TODO refetch on block
-  const { data: claimed } = useReadPnkFaucetWithdrewAlready({
-    query: {
-      enabled: !isUndefined(address),
-    },
-    args: [address ?? "0x00"],
-    // watch: true,
-  });
   const [isStakingMiniGuideOpen, toggleStakingMiniGuide] = useToggle(false);
 
-  // TODO maybe not needed since the simulation would revert
-  const faucetAddress = pnkFaucetAddress[421614];
-  const { data: balance } = useReadPnkBalanceOf({
-    args: [faucetAddress],
-    // watch: true,
-  });
-  const publicClient = usePublicClient();
-
-  const { data: faucetRequestConfig } = useSimulatePnkFaucetRequest();
-  const { writeContractAsync: faucetRequest } = useWritePnkFaucetRequest();
-
-  const handleRequest = useCallback(async () => {
-    setIsSending(true);
-    wrapWithToast(async () => await faucetRequest(faucetRequestConfig!.request), publicClient).finally(() => {
-      setIsSending(false);
-    });
-  }, [setIsSending, faucetRequestConfig, faucetRequest, publicClient]);
-
-  const faucetCheck = !isUndefined(balance) && parseInt(formatEther(balance)) > 200;
   const courtPath = getCourtsPath(data?.court, id);
 
   const items = [{ text: "🏛️", value: "0" }];
@@ -148,15 +117,7 @@ const CourtDetails: React.FC = () => {
               toggleMiniGuide={toggleStakingMiniGuide}
               MiniGuideComponent={Staking}
             />
-            {chainId === DEFAULT_CHAIN && !claimed && (
-              <Button
-                variant="primary"
-                text={faucetCheck ? "Claim PNK" : "Empty Faucet"}
-                onClick={handleRequest}
-                isLoading={isSending}
-                disabled={isSending || claimed || !faucetCheck}
-              />
-            )}
+            {!isProductionDeployment() && <ClaimPnkButton />}
           </ButtonContainer>
         </CourtHeader>
         <hr />

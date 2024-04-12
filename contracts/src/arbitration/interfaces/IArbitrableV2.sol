@@ -6,7 +6,7 @@ import "./IArbitratorV2.sol";
 
 /// @title IArbitrableV2
 /// @notice Arbitrable interface.
-/// When developing arbitrable contracts, we need to:
+/// @dev When developing arbitrable contracts, we need to:
 /// - Define the action taken when a ruling is received by the contract.
 /// - Allow dispute creation. For this a function must call arbitrator.createDispute{value: _fee}(_choices,_extraData);
 interface IArbitrableV2 {

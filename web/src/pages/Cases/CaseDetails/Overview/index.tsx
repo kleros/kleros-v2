@@ -3,11 +3,9 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useCourtPolicy } from "queries/useCourtPolicy";
-import { Periods } from "consts/periods";
-
-import DisputeInfo from "components/DisputeCard/DisputeInfo";
+import DisputeInfo from "components/DisputeView/DisputeInfo";
 import Verdict from "components/Verdict/index";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
 import { getLocalRounds } from "utils/getLocalRounds";
@@ -41,28 +39,24 @@ interface IOverview {
 
 const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex }) => {
   const { id } = useParams();
-  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
-  const { data: disputeDetails } = useDisputeDetailsQuery(id);
+  const { data: disputeDetails, isError } = usePopulatedDisputeData(id, arbitrable);
+  const { data: dispute } = useDisputeDetailsQuery(id);
   const { data: courtPolicy } = useCourtPolicy(courtID);
   const { data: votingHistory } = useVotingHistory(id);
   const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const courtName = courtPolicy?.name;
-  const court = disputeDetails?.dispute?.court;
+  const court = dispute?.dispute?.court;
   const rewards = useMemo(() => (court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined), [court]);
-  const category = disputeTemplate?.category ?? undefined;
+  const category = disputeDetails?.category;
 
   return (
     <>
       <Container>
-        <DisputeContext disputeTemplate={disputeTemplate} />
+        <DisputeContext disputeDetails={disputeDetails} isRpcError={isError} />
         <Divider />
 
-        {currentPeriodIndex !== Periods.evidence && (
-          <>
-            <Verdict arbitrable={arbitrable} />
-            <Divider />
-          </>
-        )}
+        <Verdict arbitrable={arbitrable} />
+        <Divider />
 
         <DisputeInfo
           isOverview={true}
@@ -74,9 +68,9 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
         />
       </Container>
       <Policies
-        disputePolicyURI={disputeTemplate?.policyURI}
+        disputePolicyURI={disputeDetails?.policyURI}
         courtId={courtID}
-        attachment={disputeTemplate?.attachment}
+        attachment={disputeDetails?.attachment}
       />
     </>
   );

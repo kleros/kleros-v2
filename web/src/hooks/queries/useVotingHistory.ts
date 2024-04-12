@@ -1,18 +1,33 @@
 import { graphql } from "src/graphql";
 import { VotingHistoryQuery } from "src/graphql/graphql";
 import { useQuery } from "@tanstack/react-query";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
 export type { VotingHistoryQuery };
 
 const votingHistoryQuery = graphql(`
   query VotingHistory($disputeID: ID!) {
     dispute(id: $disputeID) {
       id
+      createdAt
       rounds {
         nbVotes
         court {
           id
           name
+        }
+        timeline
+        drawnJurors {
+          juror {
+            id
+          }
+          vote {
+            ... on ClassicVote {
+              justification {
+                choice
+                reference
+              }
+            }
+          }
         }
       }
       disputeKitDispute {
@@ -20,14 +35,6 @@ const votingHistoryQuery = graphql(`
           ... on ClassicRound {
             winningChoice
             totalVoted
-            justifications {
-              id
-              juror {
-                id
-              }
-              choice
-              reference
-            }
           }
         }
       }
@@ -37,10 +44,12 @@ const votingHistoryQuery = graphql(`
 
 export const useVotingHistory = (disputeID?: string) => {
   const isEnabled = disputeID !== undefined;
+  const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<VotingHistoryQuery>({
     queryKey: ["refetchOnBlock", `VotingHistory${disputeID}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(votingHistoryQuery, { disputeID }),
+    queryFn: async () =>
+      await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: votingHistoryQuery, variables: { disputeID } }),
   });
 };

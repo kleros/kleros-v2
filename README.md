@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="https://app.netlify.com/sites/kleros-v2/deploys"><img src="https://api.netlify.com/api/v1/badges/86d94ae8-f655-46a4-a859-d68696173f3a/deploy-status" alt="Netlify Build Status"></a>
+  <a href="https://app.netlify.com/sites/kleros-v2-university/deploys"><img src="https://api.netlify.com/api/v1/badges/085e1305-e434-4d36-91a4-88e8cbc3aa46/deploy-status" alt="Netlify Build Status"></a>
   <a href="https://www.gitpoap.io/gh/kleros/kleros-v2"><img src="https://public-api.gitpoap.io/v1/repo/kleros/kleros-v2/badge" alt="GitPoap badge"></a>
   </br>
   <a href="https://api.securityscorecards.dev/projects/github.com/kleros/kleros-v2"><img src="https://api.securityscorecards.dev/projects/github.com/kleros/kleros-v2/badge" alt="OpenSSF Scorecard"></a>
@@ -137,7 +138,7 @@ graph-node-graph-node-1  | INFO Connected to Ethereum, capabilities: archive, tr
 :warning: This step modifies `subgraph.yaml` and creates a backup file. See further down on how to restore it.
 
 ```bash
-$ yarn workspace @kleros/kleros-v2-subgraph rebuild-deploy-local
+$ yarn workspace @kleros/kleros-v2-subgraph rebuild-deploy:local
 ...
 ✔ Upload subgraph to IPFS
 
@@ -172,7 +173,7 @@ Server running at http://localhost:1234
 $ yarn workspace @kleros/kleros-v2-contracts deploy-local
 
 # Subgraph
-$ yarn workspace @kleros/kleros-v2-subgraph rebuild-deploy-local
+$ yarn workspace @kleros/kleros-v2-subgraph rebuild-deploy:local
 
 ```
 

@@ -5,11 +5,11 @@ import InfoCircle from "tsx:svgs/icons/info-circle.svg";
 
 const InfoContainer = styled.div`
   display: grid;
-  grid-template-columns: 16px max-content;
-  gap: ${responsiveSize(4, 8, 300)};
+  grid-template-columns: 16px auto;
+  gap: ${responsiveSize(6, 8, 300)};
   align-items: center;
-  justify-items: center;
-  text-align: center;
+  justify-items: start;
+  text-align: start;
   color: ${({ theme }) => theme.secondaryText};
 `;
 

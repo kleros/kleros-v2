@@ -8,22 +8,27 @@ function update() #hardhatNetwork #graphNetwork #subgraphConfig #dataSourceIndex
     local graphNetwork="$2"
     local subgraphConfig="$3"
     local dataSourceIndex="$4"
-    local contract="$5"
-    local artifact="$SCRIPT_DIR/../../contracts/deployments/$hardhatNetwork/$contract.json"
+    local dataSourceName="$5"
+
+    # Get the deployment artifact
+    local contractName=$(basename $(yq '.dataSources['$dataSourceIndex'].mapping.abis[] | select(.name == "'$dataSourceName'") | .file' "$subgraphConfig") .json)
+    local artifact="$SCRIPT_DIR/../../contracts/deployments/$hardhatNetwork/$contractName.json"
+
+    echo "Updating $dataSourceName with $artifact"
 
     # Set the address
-    address=$(cat "$artifact" | jq '.address')
+    local address=$(cat "$artifact" | jq '.address')
     yq -i ".dataSources[$dataSourceIndex].source.address=$address" "$subgraphConfig"
-    
+
     # Set the start block
-    blockNumber="$(cat "$artifact" | jq '.receipt.blockNumber')"
+    local blockNumber="$(cat "$artifact" | jq '.receipt.blockNumber')"
     yq -i ".dataSources[$dataSourceIndex].source.startBlock=$blockNumber" "$subgraphConfig"
 
     # Set the Graph network
     graphNetwork=$graphNetwork yq -i  ".dataSources[$dataSourceIndex].network=env(graphNetwork)" "$subgraphConfig"
-    
+
     # Set the ABIs path for this Hardhat network
-    abiIndex=0
+    local abiIndex=0
     for f in $(yq e .dataSources[$dataSourceIndex].mapping.abis[].file "$subgraphConfig" -o json -I 0 | jq -sr '.[]')
     do
         f2=$(echo $f | sed "s|\(.*\/deployments\/\).*\/|\1$hardhatNetwork\/|")
@@ -38,7 +43,7 @@ hardhatNetwork=${1:-arbitrumSepolia}
 # as per https://thegraph.com/docs/en/developing/supported-networks/
 graphNetwork=${2:-arbitrum\-sepolia}
 
-subgraphConfig="$SCRIPT_DIR/../${3:-core\/subgraph.yaml}"
+subgraphConfig="$SCRIPT_DIR/../${3:-core/subgraph.yaml}"
 echo "Updating $subgraphConfig"
 
 # backup

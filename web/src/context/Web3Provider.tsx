@@ -1,24 +1,28 @@
 import React, { useEffect } from "react";
 import { useTheme } from "styled-components";
+
+import { createWeb3Modal } from "@web3modal/wagmi/react";
 import { Chain } from "viem";
 import { createConfig, fallback, http, WagmiProvider, webSocket } from "wagmi";
 import { mainnet, arbitrumSepolia, gnosisChiado } from "wagmi/chains";
 import { walletConnect } from "wagmi/connectors";
-import { createWeb3Modal } from "@web3modal/wagmi/react";
+
+import { ALL_CHAINS } from "consts/chains";
 
 const projectId = process.env.WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf9281e218217";
-const alchemyKey = process.env.ALCHEMY_API_KEY ?? "";
+export const alchemyApiKey = process.env.ALCHEMY_API_KEY ?? "";
+
+const chains = ALL_CHAINS as [Chain, ...Chain[]];
 
 type AlchemyProtocol = "https" | "wss";
 type AlchemyChain = "arb-sepolia" | "eth-mainnet";
 const alchemyURL = (protocol: AlchemyProtocol, chain: AlchemyChain) =>
-  `${protocol}://${chain}.g.alchemy.com/v2/${alchemyKey}`;
+  `${protocol}://${chain}.g.alchemy.com/v2/${alchemyApiKey}`;
 const alchemyTransport = (chain: AlchemyChain) =>
   fallback([webSocket(alchemyURL("wss", chain)), http(alchemyURL("https", chain))]);
 
-const chains: [Chain, ...Chain[]] = [arbitrumSepolia, mainnet, gnosisChiado];
 const wagmiConfig = createConfig({
-  chains: [arbitrumSepolia, mainnet, gnosisChiado],
+  chains,
   transports: {
     [arbitrumSepolia.id]: alchemyTransport("arb-sepolia"),
     [mainnet.id]: alchemyTransport("eth-mainnet"),

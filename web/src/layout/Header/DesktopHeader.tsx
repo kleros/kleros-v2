@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 import KlerosCourtLogo from "svgs/header/kleros-court.svg";
+import KlerosCourtUniversityLogo from "svgs/header/kleros-court-university.svg";
+import { isKlerosUniversity } from "src/consts";
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
 import DappList from "./navbar/DappList";
@@ -96,9 +98,7 @@ const DesktopHeader = () => {
               Icon={StyledKlerosSolutionsIcon}
             />
           </LightButtonContainer>
-          <StyledLink to={"/"}>
-            <KlerosCourtLogo />
-          </StyledLink>
+          <StyledLink to={"/"}>{isKlerosUniversity() ? <KlerosCourtUniversityLogo /> : <KlerosCourtLogo />}</StyledLink>
         </LeftSide>
 
         <MiddleSide>

@@ -8,14 +8,14 @@ import { isUndefined } from "utils/index";
 import { decodeURIFilter } from "utils/uri";
 import { DisputeDetailsFragment } from "queries/useCasesQuery";
 import useIsDesktop from "hooks/useIsDesktop";
-import DisputeCard from "components/DisputeCard";
-import CasesListHeader from "./CasesListHeader";
+import DisputeView from "components/DisputeView";
 
 const GridContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
+  --gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, max(350px, (100% - var(--gap) * 2)/3)), 1fr));
   align-items: center;
-  gap: 24px;
+  gap: var(--gap);
 `;
 
 const ListContainer = styled.div`
@@ -51,11 +51,10 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, casesPerPage, totalPages, c
     <>
       {isList && isDesktop ? (
         <ListContainer>
-          <CasesListHeader />
           {isUndefined(disputes)
             ? [...Array(casesPerPage)].map((_, i) => <SkeletonDisputeListItem key={i} />)
             : disputes.map((dispute) => {
-                return <DisputeCard key={dispute.id} {...dispute} />;
+                return <DisputeView key={dispute.id} {...dispute} />;
               })}
         </ListContainer>
       ) : (
@@ -63,7 +62,7 @@ const CasesGrid: React.FC<ICasesGrid> = ({ disputes, casesPerPage, totalPages, c
           {isUndefined(disputes)
             ? [...Array(casesPerPage)].map((_, i) => <SkeletonDisputeCard key={i} />)
             : disputes.map((dispute) => {
-                return <DisputeCard key={dispute.id} {...dispute} overrideIsList />;
+                return <DisputeView key={dispute.id} {...dispute} overrideIsList />;
               })}
         </GridContainer>
       )}

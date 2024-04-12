@@ -9,7 +9,7 @@ import { Button } from "@kleros/ui-components-library";
 import { simulateDisputeKitClassicCastVote } from "hooks/contracts/generated";
 import useSigningAccount from "hooks/useSigningAccount";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { isUndefined } from "utils/index";
 import { wrapWithToast, catchShortMessage } from "utils/wrapWithToast";
 import InfoCard from "components/InfoCard";
@@ -43,7 +43,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   const parsedVoteIDs = useMemo(() => voteIDs.map((voteID) => BigInt(voteID)), [voteIDs]);
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const [justification, setJustification] = useState("");
-  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
+  const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
   const wagmiConfig = useConfig();
@@ -58,7 +58,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   const handleReveal = useCallback(async () => {
     setIsSending(true);
     const { salt, choice } = isUndefined(storedSaltAndChoice)
-      ? await getSaltAndChoice(signingAccount, generateSigningAccount, saltKey, disputeTemplate.answers, commit)
+      ? await getSaltAndChoice(signingAccount, generateSigningAccount, saltKey, disputeDetails.answers, commit)
       : JSON.parse(storedSaltAndChoice);
     if (isUndefined(choice)) return;
     const { request } = await catchShortMessage(
@@ -75,7 +75,7 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
   }, [
     wagmiConfig,
     commit,
-    disputeTemplate?.answers,
+    disputeDetails?.answers,
     storedSaltAndChoice,
     generateSigningAccount,
     signingAccount,
@@ -94,12 +94,12 @@ const Reveal: React.FC<IReveal> = ({ arbitrable, voteIDs, setIsOpen, commit, isR
         <StyledInfoCard msg="Failed to commit on time." />
       ) : isRevealPeriod ? (
         <>
-          <ReactMarkdown>{disputeTemplate?.question}</ReactMarkdown>
+          <ReactMarkdown>{disputeDetails?.question}</ReactMarkdown>
           <JustificationArea {...{ justification, setJustification }} />
           <StyledButton
             variant="secondary"
             text="Justify & Reveal"
-            disabled={isSending}
+            disabled={isSending || isUndefined(disputeDetails)}
             isLoading={isSending}
             onClick={handleReveal}
           />
@@ -127,6 +127,8 @@ const getSaltAndChoice = async (
       })();
   if (isUndefined(rawSalt)) return;
   const salt = keccak256(rawSalt);
+
+  answers.unshift({ title: "Refuse To Arbitrate", description: "Refuse To Arbitrate" });
   const { choice } = answers.reduce<{ found: boolean; choice: number }>(
     (acc, _, i) => {
       if (acc.found) return acc;

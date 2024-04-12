@@ -2,14 +2,18 @@ import React, { useMemo, useState, createContext, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { ONE_BASIS_POINT } from "consts/index";
 import { Periods } from "consts/periods";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
+import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useAppealCost } from "queries/useAppealCost";
 import { useDisputeKitClassicMultipliers } from "queries/useDisputeKitClassicMultipliers";
 import { useClassicAppealQuery, ClassicAppealQuery } from "queries/useClassicAppealQuery";
 import { useCountdown } from "hooks/useCountdown";
 import { getLocalRounds } from "utils/getLocalRounds";
 
-const LoserSideCountdownContext = createContext<number | undefined>(undefined);
+interface ICountdownContext {
+  loserSideCountdown?: number;
+  winnerSideCountdown?: number;
+}
+const CountdownContext = createContext<ICountdownContext>({});
 
 const OptionsContext = createContext<string[] | undefined>(undefined);
 
@@ -48,10 +52,10 @@ export const ClassicAppealProvider: React.FC<{
   const winningChoice = getWinningChoice(data?.dispute);
   const { data: appealCost } = useAppealCost(id);
   const arbitrable = data?.dispute?.arbitrated.id;
-  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
+  const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
   const { data: multipliers } = useDisputeKitClassicMultipliers();
   const options = ["Refuse to Arbitrate"].concat(
-    disputeTemplate?.answers?.map((answer: { title: string; description: string }) => {
+    disputeDetails?.answers?.map((answer: { title: string; description: string }) => {
       return answer.title;
     })
   );
@@ -60,6 +64,12 @@ export const ClassicAppealProvider: React.FC<{
     dispute?.court.timesPerPeriod[Periods.appeal],
     multipliers?.loser_appeal_period_multiplier.toString()
   );
+
+  const winnerSideCountdown = useWinnerSideCountdown(
+    dispute?.lastPeriodChange,
+    dispute?.court.timesPerPeriod[Periods.appeal]
+  );
+
   const { loserRequiredFunding, winnerRequiredFunding } = useMemo(
     () => ({
       loserRequiredFunding: getRequiredFunding(appealCost, multipliers?.loser_stake_multiplier),
@@ -69,8 +79,11 @@ export const ClassicAppealProvider: React.FC<{
   );
   const fundedChoices = getFundedChoices(data?.dispute);
   const [selectedOption, setSelectedOption] = useState<number | undefined>();
+
   return (
-    <LoserSideCountdownContext.Provider value={loserSideCountdown}>
+    <CountdownContext.Provider
+      value={useMemo(() => ({ loserSideCountdown, winnerSideCountdown }), [loserSideCountdown, winnerSideCountdown])}
+    >
       <SelectedOptionContext.Provider
         value={useMemo(() => ({ selectedOption, setSelectedOption }), [selectedOption, setSelectedOption])}
       >
@@ -89,11 +102,11 @@ export const ClassicAppealProvider: React.FC<{
           <OptionsContext.Provider value={options}>{children}</OptionsContext.Provider>
         </FundingContext.Provider>
       </SelectedOptionContext.Provider>
-    </LoserSideCountdownContext.Provider>
+    </CountdownContext.Provider>
   );
 };
 
-export const useLoserSideCountdownContext = () => useContext(LoserSideCountdownContext);
+export const useCountdownContext = () => useContext(CountdownContext);
 export const useSelectedOptionContext = () => useContext(SelectedOptionContext);
 export const useFundingContext = () => useContext(FundingContext);
 export const useOptionsContext = () => useContext(OptionsContext);
@@ -132,6 +145,14 @@ function useLoserSideCountdown(lastPeriodChange = "0", appealPeriodDuration = "0
   const deadline = useMemo(
     () => getDeadline(lastPeriodChange, appealPeriodDuration, loserTimeMultiplier),
     [lastPeriodChange, appealPeriodDuration, loserTimeMultiplier]
+  );
+  return useCountdown(deadline);
+}
+
+function useWinnerSideCountdown(lastPeriodChange = "0", appealPeriodDuration = "0") {
+  const deadline = useMemo(
+    () => Number(BigInt(lastPeriodChange) + BigInt(appealPeriodDuration)),
+    [lastPeriodChange, appealPeriodDuration]
   );
   return useCountdown(deadline);
 }

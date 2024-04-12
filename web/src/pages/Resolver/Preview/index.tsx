@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import { useCourtPolicy } from "queries/useCourtPolicy";
-import DisputeInfo from "components/DisputeCard/DisputeInfo";
+import DisputeInfo from "components/DisputeView/DisputeInfo";
 import { responsiveSize } from "styles/responsiveSize";
 import { DisputeContext } from "components/DisputePreview/DisputeContext";
 import { Policies } from "components/DisputePreview/Policies";
@@ -64,7 +64,7 @@ const Preview: React.FC = () => {
       <Header>Preview</Header>
       <StyledCard>
         <PreviewContainer>
-          <DisputeContext disputeTemplate={disputeTemplate} />
+          <DisputeContext disputeDetails={disputeTemplate} />
           <Divider />
 
           <DisputeInfo
