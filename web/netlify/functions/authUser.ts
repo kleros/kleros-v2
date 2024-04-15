@@ -1,10 +1,12 @@
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
-import { ETH_SIGNATURE_REGEX } from "consts/index";
-import { DEFAULT_CHAIN } from "consts/chains";
-import { SiweMessage } from "siwe";
-import * as jwt from "jose";
 import { createClient } from "@supabase/supabase-js";
+import * as jwt from "jose";
+import { SiweMessage } from "siwe";
+
+import { DEFAULT_CHAIN } from "consts/chains";
+import { ETH_SIGNATURE_REGEX } from "consts/index";
+
 import { netlifyUri } from "src/generatedNetlifyInfo.json";
 import { Database } from "src/types/supabase-notification";
 
