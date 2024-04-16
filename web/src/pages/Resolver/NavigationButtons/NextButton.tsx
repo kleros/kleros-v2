@@ -27,8 +27,8 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
     (location.pathname.includes("/resolver/description") && !disputeData.description) ||
     (location.pathname.includes("/resolver/court") && !disputeData.courtId) ||
     (location.pathname.includes("/resolver/jurors") && !disputeData.arbitrationCost) ||
-    (location.pathname.includes("/resolver/votingoptions") && !areVotingOptionsFilled) ||
-    (location.pathname.includes("/resolver/notablepersons") && !areFilledAddressesValid) ||
+    (location.pathname.includes("/resolver/voting-options") && !areVotingOptionsFilled) ||
+    (location.pathname.includes("/resolver/notable-persons") && !areFilledAddressesValid) ||
     (location.pathname.includes("/resolver/policy") && (isPolicyUploading || !disputeData.policyURI));
 
   return <Button disabled={isButtonDisabled} onClick={() => navigate(nextRoute)} text="Next" />;

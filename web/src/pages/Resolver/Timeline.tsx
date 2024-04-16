@@ -36,8 +36,8 @@ const Timeline: React.FC = () => {
     "/resolver/court": 1,
     "/resolver/category": 1,
     "/resolver/jurors": 1,
-    "/resolver/votingoptions": 1,
-    "/resolver/notablepersons": 1,
+    "/resolver/voting-options": 1,
+    "/resolver/notable-persons": 1,
     "/resolver/policy": 2,
     "/resolver/preview": 3,
   };

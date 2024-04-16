@@ -60,7 +60,7 @@ const Jurors: React.FC = () => {
       <Header text="Select the number of jurors" />
       <StyledField placeholder="Select the number of jurors" value={noOfVotes} onChange={handleJurorsWrite} />
       <StyledDisplay text={arbitrationFee} Icon={ETH} label="Arbitration Cost" />
-      <NavigationButtons prevRoute="/resolver/category" nextRoute="/resolver/votingoptions" />
+      <NavigationButtons prevRoute="/resolver/category" nextRoute="/resolver/voting-options" />
     </Container>
   );
 };
