@@ -3,6 +3,8 @@ import { Theme, useTheme } from "styled-components";
 
 import { LiFiWidget, WidgetConfig } from "@lifi/widget";
 
+import { responsiveSize } from "styles/responsiveSize";
+
 const getWidgetConfig = (theme: Theme): WidgetConfig => ({
   fromChain: 1,
   toChain: 42161,
@@ -12,6 +14,8 @@ const getWidgetConfig = (theme: Theme): WidgetConfig => ({
     border: `1px solid ${theme.stroke}`,
     borderRadius: "3px",
     background: theme.whiteBackground,
+    width: responsiveSize(350, 500),
+    maxWidth: "600px",
   },
   hiddenUI: ["appearance", "language"],
   theme: {
