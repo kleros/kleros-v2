@@ -6206,6 +6206,7 @@ __metadata:
     "@sentry/tracing": "npm:^7.93.0"
     "@supabase/supabase-js": "npm:^2.39.3"
     "@tanstack/react-query": "npm:^4.28.0"
+    "@tractors/lifi-sdk-parcel": "npm:^2.5.2"
     "@types/amqplib": "npm:^0.10.4"
     "@types/busboy": "npm:^1.5.3"
     "@types/react": "npm:18.2.0"
@@ -10553,6 +10554,20 @@ __metadata:
   version: 2.0.0
   resolution: "@tootallnate/once@npm:2.0.0"
   checksum: ad87447820dd3f24825d2d947ebc03072b20a42bfc96cbafec16bff8bbda6c1a81fcb0be56d5b21968560c5359a0af4038a68ba150c3e1694fe4c109a063bed8
+  languageName: node
+  linkType: hard
+
+"@tractors/lifi-sdk-parcel@npm:^2.5.2":
+  version: 2.5.2
+  resolution: "@tractors/lifi-sdk-parcel@npm:2.5.2"
+  dependencies:
+    "@ethersproject/abi": "npm:^5.7.0"
+    "@ethersproject/contracts": "npm:^5.7.0"
+    "@lifi/types": "npm:^9.3.0"
+    bignumber.js: "npm:^9.1.2"
+    eth-rpc-errors: "npm:^4.0.3"
+    ethers: "npm:^5.7.2"
+  checksum: 90c00d6e4d4e4d290e8bfca0ef0b346d53afd7f453e54f74bd16eab25d9fe513e1b77cd0099a11cf7b5e93a23062b89c0e8678029ca79a9b7bb669f687ade10a
   languageName: node
   linkType: hard
 
