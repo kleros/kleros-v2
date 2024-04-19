@@ -45,7 +45,7 @@ const NotablePersons: React.FC = () => {
         updateValue={updateNumberOfAliases}
         minValue={2}
       />
-      <NavigationButtons prevRoute="/resolver/votingoptions" nextRoute="/resolver/policy" />
+      <NavigationButtons prevRoute="/resolver/voting-options" nextRoute="/resolver/policy" />
     </Container>
   );
 };

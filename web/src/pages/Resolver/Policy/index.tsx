@@ -77,7 +77,7 @@ const Policy: React.FC = () => {
         msg="You can attach additional information as a PDF file. Important: the above description must reference the relevant parts of the file content."
       />
 
-      <NavigationButtons prevRoute="/resolver/notablepersons" nextRoute="/resolver/preview" />
+      <NavigationButtons prevRoute="/resolver/notable-persons" nextRoute="/resolver/preview" />
     </Container>
   );
 };

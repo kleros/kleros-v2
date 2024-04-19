@@ -80,8 +80,8 @@ const DisputeResolver: React.FC = () => {
               <Route path="/court/*" element={<Court />} />
               <Route path="/category/*" element={<Category />} />
               <Route path="/jurors/*" element={<Jurors />} />
-              <Route path="/votingoptions/*" element={<VotingOptions />} />
-              <Route path="/notablepersons/*" element={<NotablePersons />} />
+              <Route path="/voting-options/*" element={<VotingOptions />} />
+              <Route path="/notable-persons/*" element={<NotablePersons />} />
               <Route path="/policy/*" element={<Policy />} />
               <Route path="/preview/*" element={<Preview />} />
             </Routes>

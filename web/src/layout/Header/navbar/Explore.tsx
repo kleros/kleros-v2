@@ -60,7 +60,7 @@ const links = [
   { to: "/cases/display/1/desc/all", text: "Cases" },
   { to: "/courts", text: "Courts" },
   { to: "/dashboard/1/desc/all", text: "Dashboard" },
-  { to: "/getPnk", text: "Get PNK" },
+  { to: "/get-pnk", text: "Get PNK" },
 ];
 
 const Explore: React.FC = () => {
@@ -84,9 +84,9 @@ const Explore: React.FC = () => {
       {!isOpen && (
         <LinkContainer>
           <HiddenLink
-            to="/disputeTemplate"
+            to="/dispute-template"
             onClick={toggleIsOpen}
-            isActive={location.pathname.startsWith("/disputeTemplate")}
+            isActive={location.pathname.startsWith("/dispute-template")}
           >
             Dev
           </HiddenLink>
