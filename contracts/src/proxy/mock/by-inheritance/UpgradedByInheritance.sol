@@ -45,6 +45,12 @@ contract UpgradedByInheritanceV1 is UUPSProxiable, Initializable {
             $.slot := INITIALIZABLE_STORAGE
         }
     }
+    function governor() external view virtual returns (address) {
+        return _getInheritanceV1Storage().governor;
+    }
+    function counter() external view virtual returns (uint256) {
+        return _getInheritanceV1Storage().counter;
+    }
 }
 
 contract UpgradedByInheritanceV2 is UpgradedByInheritanceV1 {
@@ -71,6 +77,15 @@ contract UpgradedByInheritanceV2 is UpgradedByInheritanceV1 {
         assembly {
             $.slot := INITIALIZABLE_STORAGE
         }
+    }
+    function governor() external view virtual override returns (address) {
+        return _getInheritanceV2Storage().governor;
+    }
+    function counter() external view virtual override returns (uint256) {
+        return _getInheritanceV2Storage().counter;
+    }
+    function newVariable() external view returns (string memory) {
+        return _getInheritanceV2Storage().newVariable;
     }
 }
 

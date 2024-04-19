@@ -44,4 +44,11 @@ contract UpgradedByRewrite is UUPSProxiable, Initializable {
             $.slot := INITIALIZABLE_STORAGE
         }
     }
+
+    function governor() external view returns (address) {
+        return _getUpgradedByRewriteStorage().governor;
+    }
+    function counter() external view returns (uint256) {
+        return _getUpgradedByRewriteStorage().counter;
+    }
 }
