@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 
-import { useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react";
+import { useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/dist/esm/exports/react/index.js";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";

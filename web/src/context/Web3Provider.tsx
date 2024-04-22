@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useTheme } from "styled-components";
 
-import { createWeb3Modal } from "@web3modal/wagmi/react";
+import { createWeb3Modal } from "@web3modal/wagmi/dist/esm/exports/react/index.js";
 import { Chain } from "viem";
 import { createConfig, fallback, http, WagmiProvider, webSocket } from "wagmi";
 import { mainnet, arbitrumSepolia, gnosisChiado } from "wagmi/chains";
