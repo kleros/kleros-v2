@@ -6,7 +6,7 @@
 /// @custom:bounties: []
 /// @custom:deployments: []
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "../../arbitration/interfaces/IArbitratorV2.sol";
 import "@kleros/vea-contracts/src/interfaces/gateways/IReceiverGateway.sol";

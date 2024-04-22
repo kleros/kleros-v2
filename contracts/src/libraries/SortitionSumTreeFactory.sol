@@ -6,7 +6,7 @@
 /// @custom:bounties: []
 /// @custom:deployments: []
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 /// @title SortitionSumTreeFactory
 /// @author Enrique Piqueras - <epiquerass@gmail.com>
@@ -20,8 +20,8 @@ library SortitionSumTreeFactory {
         uint[] stack;
         uint[] nodes;
         // Two-way mapping of IDs to node indexes. Note that node index 0 is reserved for the root node, and means the ID does not have a node.
-        mapping(bytes32 => uint) IDsToNodeIndexes;
-        mapping(uint => bytes32) nodeIndexesToIDs;
+        mapping(bytes32 id => uint index) IDsToNodeIndexes;
+        mapping(uint index => bytes32 id) nodeIndexesToIDs;
     }
 
     /// Storage
