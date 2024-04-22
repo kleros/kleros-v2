@@ -1,5 +1,5 @@
 import {} from "styled-components";
-import { lightTheme } from "./src/styles/themes";
+import { lightTheme } from "styles/themes";
 
 declare global {
   module "*.svg" {

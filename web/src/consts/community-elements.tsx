@@ -1,10 +1,12 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { IElement } from "../pages/Home/Community/Element";
+
+import FrenchFlagIcon from "svgs/icons/french-flag.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import SnapshotIcon from "svgs/icons/snapshot-color.svg";
-import FrenchFlagIcon from "svgs/icons/french-flag.svg";
 import TelegramIcon from "svgs/socialmedia/telegram.svg";
+
+import { IElement } from "../pages/Home/Community/Element";
 
 const StyledLabel = styled.label`
   color: ${({ theme }) => theme.primaryBlue};

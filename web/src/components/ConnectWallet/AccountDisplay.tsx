@@ -1,12 +1,15 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
+import Identicon from "react-identicons";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
 import { useAccount, useChainId, useEnsAvatar, useEnsName } from "wagmi";
-import Identicon from "react-identicons";
+
 import { getChain } from "consts/chains";
 import { shortenAddress } from "utils/shortenAddress";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.div`
   display: flex;

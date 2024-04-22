@@ -1,10 +1,14 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
+
 import { useParams } from "react-router-dom";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
+
 import { simulateDisputeKitClassicCastVote } from "hooks/contracts/generated";
 import { wrapWithToast } from "utils/wrapWithToast";
+
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
 import OptionsContainer from "./OptionsContainer";
 
 const Container = styled.div`

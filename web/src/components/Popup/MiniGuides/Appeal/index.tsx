@@ -1,9 +1,11 @@
 import React from "react";
+
+import PageContentsTemplate from "../PageContentsTemplate";
+
 import CrowdfundAppeal from "./CrowdfundAppeal";
 import PayoffSimulator from "./PayoffSimulator";
 import StageOne from "./StageOne";
 import StageTwo from "./StageTwo";
-import PageContentsTemplate from "../PageContentsTemplate";
 import WhoWinsRewards from "./WhoWinsRewards";
 
 const leftPageContents = [

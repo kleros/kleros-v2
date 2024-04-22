@@ -1,21 +1,25 @@
 import React from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import styled, { css } from "styled-components";
-import { responsiveSize } from "styles/responsiveSize";
+
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAccount } from "wagmi";
-import ConnectWallet from "components/ConnectWallet";
-import Timeline from "./Timeline";
-import HeroImage from "components/HeroImage";
-import Title from "./Briefing/Title";
+
 import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
+import ConnectWallet from "components/ConnectWallet";
+import HeroImage from "components/HeroImage";
+
 import Description from "./Briefing/Description";
-import Court from "./Parameters/Court";
+import Title from "./Briefing/Title";
 import Category from "./Parameters/Category";
+import Court from "./Parameters/Court";
 import Jurors from "./Parameters/Jurors";
-import VotingOptions from "./Parameters/VotingOptions";
 import NotablePersons from "./Parameters/NotablePersons";
+import VotingOptions from "./Parameters/VotingOptions";
 import Policy from "./Policy";
 import Preview from "./Preview";
+import Timeline from "./Timeline";
 
 const Container = styled.div`
   display: flex;
@@ -76,8 +80,8 @@ const DisputeResolver: React.FC = () => {
               <Route path="/court/*" element={<Court />} />
               <Route path="/category/*" element={<Category />} />
               <Route path="/jurors/*" element={<Jurors />} />
-              <Route path="/votingoptions/*" element={<VotingOptions />} />
-              <Route path="/notablepersons/*" element={<NotablePersons />} />
+              <Route path="/voting-options/*" element={<VotingOptions />} />
+              <Route path="/notable-persons/*" element={<NotablePersons />} />
               <Route path="/policy/*" element={<Policy />} />
               <Route path="/preview/*" element={<Preview />} />
             </Routes>

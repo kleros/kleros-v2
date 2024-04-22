@@ -1,14 +1,20 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useParams } from "react-router-dom";
 import styled, { css } from "styled-components";
+
+import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import DiceIcon from "svgs/icons/dice.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
-import { useCourtDetails } from "queries/useCourtDetails";
+
 import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
+
+import { useCourtDetails } from "queries/useCourtDetails";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import Field from "components/Field";
 
 const Container = styled.div`

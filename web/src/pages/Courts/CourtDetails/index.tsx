@@ -6,12 +6,11 @@ import { useToggle } from "react-use";
 
 import { Card, Breadcrumb } from "@kleros/ui-components-library";
 
+import { isProductionDeployment } from "consts/index";
 import { isUndefined } from "utils/index";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
-
-import { isProductionDeployment } from "src/consts";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";

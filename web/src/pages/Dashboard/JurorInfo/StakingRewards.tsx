@@ -1,9 +1,12 @@
 import React from "react";
 import styled from "styled-components";
+
 import { Box as _Box, Button } from "@kleros/ui-components-library";
-import TokenRewards from "./TokenRewards";
-import WithHelpTooltip from "components/WithHelpTooltip";
+
 import { EnsureChain } from "components/EnsureChain";
+import WithHelpTooltip from "components/WithHelpTooltip";
+
+import TokenRewards from "./TokenRewards";
 
 const Container = styled.div`
   display: flex;

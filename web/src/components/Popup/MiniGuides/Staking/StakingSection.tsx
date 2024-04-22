@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+
 import StakingSectionSvg from "tsx:assets/svgs/mini-guides/staking/staking-section.svg";
+
 import { StyledImage } from "../PageContentsTemplate";
 
 const StyledStakingSectionSvg = styled(StakingSectionSvg)`

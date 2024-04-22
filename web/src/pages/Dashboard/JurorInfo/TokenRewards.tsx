@@ -1,8 +1,9 @@
 import React from "react";
 import styled from "styled-components";
+
 import GradientTokenIcons from "components/GradientTokenIcons";
-import { StyledSkeleton } from "components/StyledSkeleton";
 import NumberDisplay from "components/NumberDisplay";
+import { StyledSkeleton } from "components/StyledSkeleton";
 
 const RewardContainer = styled.div`
   display: flex;

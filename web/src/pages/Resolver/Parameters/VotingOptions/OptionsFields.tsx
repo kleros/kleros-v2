@@ -1,10 +1,13 @@
 import React from "react";
 import styled, { css } from "styled-components";
+
+import { Answer, useNewDisputeContext } from "context/NewDisputeContext";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
-import PlusMinusField from "components/PlusMinusField";
+
 import LabeledInput from "components/LabeledInput";
-import { Answer, useNewDisputeContext } from "context/NewDisputeContext";
+import PlusMinusField from "components/PlusMinusField";
 
 const OptionsContainer = styled.div`
   display: flex;

@@ -1,10 +1,13 @@
 import React from "react";
-import { Card } from "@kleros/ui-components-library";
 import styled from "styled-components";
-import SpinnerIcon from "tsx:svgs/icons/spinner.svg";
+
 import ArrowIcon from "tsx:svgs/icons/arrow.svg";
-import GasIcon from "tsx:svgs/icons/gas.svg";
 import ClockIcon from "tsx:svgs/icons/clock.svg";
+import GasIcon from "tsx:svgs/icons/gas.svg";
+import SpinnerIcon from "tsx:svgs/icons/spinner.svg";
+
+import { Card } from "@kleros/ui-components-library";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled(Card)`

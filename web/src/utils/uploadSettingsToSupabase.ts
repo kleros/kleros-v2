@@ -1,18 +1,24 @@
 import { toast } from "react-toastify";
+
 import { OPTIONS } from "utils/wrapWithToast";
 
 type SettingsToSupabaseData = {
   email: string;
   telegram: string;
-  nonce: string;
   address: `0x${string}`;
-  signature: `0x${string}`;
 };
 
 export function uploadSettingsToSupabase(formData: SettingsToSupabaseData): Promise<Response> {
+  // storing token in storage adds double quotes to it, so when its passed as header it becomes `"token"`, so we remove double quotes
+  const authToken = sessionStorage.getItem("auth-token")?.replace(/"/g, "");
+
   return toast.promise<Response, Error>(
     fetch("/.netlify/functions/update-settings", {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-auth-token": authToken ?? "",
+      },
       body: JSON.stringify(formData),
     }).then(async (response) => {
       if (response.status !== 200) {

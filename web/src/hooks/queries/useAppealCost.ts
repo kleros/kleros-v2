@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getContract } from "viem";
 import { usePublicClient } from "wagmi";
+
 import { klerosCoreConfig } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
 

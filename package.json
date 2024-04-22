@@ -71,6 +71,7 @@
   },
   "alias": {
     "process": "process/browser.js",
-    "buffer": "buffer"
+    "buffer": "buffer",
+    "ethers": "./web/src/utils/ethersShim.ts"
   }
 }

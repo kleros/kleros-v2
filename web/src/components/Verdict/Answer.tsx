@@ -1,6 +1,7 @@
 import React from "react";
-import { Answer } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 import styled from "styled-components";
+
+import { Answer } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 
 const AnswerTitle = styled.h3`
   margin: 0;

@@ -1,19 +1,24 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
+
+import Skeleton from "react-loading-skeleton";
 import { formatEther, formatUnits } from "viem";
 import { useAccount } from "wagmi";
-import Skeleton from "react-loading-skeleton";
+
+import AppealIcon from "svgs/label-icons/appeal.svg";
 import EvidenceIcon from "svgs/label-icons/evidence.svg";
+import ForgotToVoteIcon from "svgs/label-icons/forgot-vote.svg";
+import FundedIcon from "svgs/label-icons/funded.svg";
 import NotDrawnIcon from "svgs/label-icons/minus-circle.svg";
 import CanVoteIcon from "svgs/label-icons/vote.svg";
 import VotedIcon from "svgs/label-icons/voted.svg";
-import ForgotToVoteIcon from "svgs/label-icons/forgot-vote.svg";
-import AppealIcon from "svgs/label-icons/appeal.svg";
-import FundedIcon from "svgs/label-icons/funded.svg";
-import { ClassicContribution } from "src/graphql/graphql";
+
 import { useLabelInfoQuery } from "hooks/queries/useLabelInfoQuery";
-import { isUndefined } from "utils/index";
 import { getLocalRounds } from "utils/getLocalRounds";
+import { isUndefined } from "utils/index";
+
+import { ClassicContribution } from "src/graphql/graphql";
+
 import Label, { IColors } from "./Label";
 import RewardsAndFundLabel from "./RewardsAndFundLabel";
 

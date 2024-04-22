@@ -1,16 +1,20 @@
 import React, { useMemo } from "react";
-import { Periods } from "consts/periods";
-import { useIsList } from "context/IsListProvider";
+
+import { useAccount } from "wagmi";
+
 import BookmarkIcon from "svgs/icons/bookmark.svg";
 import CalendarIcon from "svgs/icons/calendar.svg";
+import LawBalanceIcon from "svgs/icons/law-balance.svg";
 import PileCoinsIcon from "svgs/icons/pile-coins.svg";
 import RoundIcon from "svgs/icons/round.svg";
-import LawBalanceIcon from "svgs/icons/law-balance.svg";
-import { useAccount } from "wagmi";
+
+import { Periods } from "consts/periods";
+import { useIsList } from "context/IsListProvider";
 import { formatDate } from "utils/date";
 import { isUndefined } from "utils/index";
-import DisputeInfoList from "./DisputeInfoList";
+
 import DisputeInfoCard from "./DisputeInfoCard";
+import DisputeInfoList from "./DisputeInfoList";
 
 const getPeriodPhrase = (period: Periods): string => {
   switch (period) {

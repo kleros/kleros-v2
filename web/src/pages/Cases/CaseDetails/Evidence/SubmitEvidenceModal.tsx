@@ -1,11 +1,15 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
+
 import Modal from "react-modal";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
-import { simulateEvidenceModuleSubmitEvidence } from "hooks/contracts/generated";
+
 import { Textarea, Button, FileUploader } from "@kleros/ui-components-library";
-import { wrapWithToast } from "utils/wrapWithToast";
+
+import { simulateEvidenceModuleSubmitEvidence } from "hooks/contracts/generated";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
+import { wrapWithToast } from "utils/wrapWithToast";
+
 import { EnsureChain } from "components/EnsureChain";
 
 const StyledModal = styled(Modal)`

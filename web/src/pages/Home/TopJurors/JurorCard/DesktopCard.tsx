@@ -1,12 +1,14 @@
 import React from "react";
-import { landscapeStyle } from "styles/landscapeStyle";
 import styled, { css } from "styled-components";
-import Rank from "./Rank";
-import JurorTitle from "./JurorTitle";
-import Rewards from "./Rewards";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import Coherency from "./Coherency";
 import JurorLevel from "./JurorLevel";
-import { responsiveSize } from "styles/responsiveSize";
+import JurorTitle from "./JurorTitle";
+import Rank from "./Rank";
+import Rewards from "./Rewards";
 
 const Container = styled.div`
   display: none;

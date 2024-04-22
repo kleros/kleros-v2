@@ -1,5 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.div`

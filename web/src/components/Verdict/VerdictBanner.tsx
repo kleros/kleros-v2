@@ -1,7 +1,9 @@
 import React from "react";
 import styled from "styled-components";
+
 import ClosedCaseIcon from "assets/svgs/icons/check-circle-outline.svg";
 import HourglassIcon from "assets/svgs/icons/hourglass.svg";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 const BannerContainer = styled.div`

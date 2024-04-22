@@ -28,9 +28,9 @@ export const ETH_SIGNATURE_REGEX = /^0x[a-fA-F0-9]{130}$/;
 
 export const isProductionDeployment = () => process.env.REACT_APP_DEPLOYMENT === "mainnet";
 
-export const isKlerosUniversity = () => arbitratorType() === ArbitratorTypes.university;
-export const isKlerosNeo = () => arbitratorType() === ArbitratorTypes.neo;
-export const arbitratorType = (): ArbitratorTypes =>
+export const isKlerosUniversity = () => getArbitratorType() === ArbitratorTypes.university;
+export const isKlerosNeo = () => getArbitratorType() === ArbitratorTypes.neo;
+export const getArbitratorType = (): ArbitratorTypes =>
   ArbitratorTypes[process.env.REACT_APP_ARBITRATOR_TYPE?.toLowerCase() ?? "vanilla"];
 
 export const GENESIS_BLOCK_ARBSEPOLIA = BigInt(process.env.REACT_APP_GENESIS_BLOCK_ARBSEPOLIA ?? 0);

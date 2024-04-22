@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import FinalDecision from "./FinalDecision";
+
 import DisputeTimeline from "./DisputeTimeline";
+import FinalDecision from "./FinalDecision";
 
 const Container = styled.div`
   display: flex;

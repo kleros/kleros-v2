@@ -1,13 +1,16 @@
-import { type Config, type ContractConfig, defineConfig } from "@wagmi/cli";
-import { react, actions } from "@wagmi/cli/plugins";
 import { readdir, readFile } from "fs/promises";
 import { parse, join } from "path";
-import { Abi } from "viem";
+
 import { Chain } from "@wagmi/chains";
+import { type Config, type ContractConfig, defineConfig } from "@wagmi/cli";
+import { react, actions } from "@wagmi/cli/plugins";
 import dotenv from "dotenv";
-import IHomeGateway from "@kleros/kleros-v2-contracts/artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" assert { type: "json" };
+import { Abi } from "viem";
+
 import IArbitrableV2 from "@kleros/kleros-v2-contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" assert { type: "json" };
-import { ArbitratorTypes, arbitratorType } from "src/consts";
+import IHomeGateway from "@kleros/kleros-v2-contracts/artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" assert { type: "json" };
+
+import { ArbitratorTypes, getArbitratorType } from "src/consts";
 
 dotenv.config();
 
@@ -68,7 +71,7 @@ const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardh
 
 const getConfig = async (): Promise<Config> => {
   const deployment = process.env.REACT_APP_DEPLOYMENT ?? "testnet";
-  const type = arbitratorType();
+  const type = getArbitratorType();
 
   let viemNetwork: string;
   let hardhatNetwork: string;

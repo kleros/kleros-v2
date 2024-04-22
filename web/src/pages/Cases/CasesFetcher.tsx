@@ -1,12 +1,17 @@
 import React, { useMemo } from "react";
+
 import { useParams, useNavigate } from "react-router-dom";
-import { DisputeDetailsFragment, Dispute_Filter, OrderDirection } from "src/graphql/graphql";
-import { useCasesQuery } from "queries/useCasesQuery";
-import { useCounterQuery, CounterQuery } from "queries/useCounter";
-import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
+
 import useIsDesktop from "hooks/useIsDesktop";
 import { isUndefined } from "utils/index";
 import { decodeURIFilter, useRootPath } from "utils/uri";
+
+import { useCasesQuery } from "queries/useCasesQuery";
+import { useCounterQuery, CounterQuery } from "queries/useCounter";
+import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
+
+import { DisputeDetailsFragment, Dispute_Filter, OrderDirection } from "src/graphql/graphql";
+
 import CasesDisplay from "components/CasesDisplay";
 
 const calculateStats = (

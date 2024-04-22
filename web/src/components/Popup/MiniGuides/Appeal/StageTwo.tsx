@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+
 import StageTwoSvg from "tsx:assets/svgs/mini-guides/appeal/stage-two.svg";
+
 import { StyledImage } from "../PageContentsTemplate";
 
 const StyledStageTwoSvg = styled(StageTwoSvg)`

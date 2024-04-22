@@ -1,21 +1,28 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { responsiveSize } from "styles/responsiveSize";
-import { useParams } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
-import { useToggle } from "react-use";
+
 import Skeleton from "react-loading-skeleton";
+import ReactMarkdown from "react-markdown";
+import { useParams } from "react-router-dom";
+import { useToggle } from "react-use";
+
 import { Tabs } from "@kleros/ui-components-library";
-import { useVotingHistory } from "queries/useVotingHistory";
+
+import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
+import { getDrawnJurorsWithCount } from "utils/getDrawnJurorsWithCount";
+import { getLocalRounds } from "utils/getLocalRounds";
+
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { usePopulatedDisputeData } from "queries/usePopulatedDisputeData";
-import { INVALID_DISPUTE_DATA_ERROR, RPC_ERROR } from "consts/index";
-import { getLocalRounds } from "utils/getLocalRounds";
-import { getDrawnJurorsWithCount } from "utils/getDrawnJurorsWithCount";
+import { useVotingHistory } from "queries/useVotingHistory";
+
+import { responsiveSize } from "styles/responsiveSize";
+
 import HowItWorks from "components/HowItWorks";
 import BinaryVoting from "components/Popup/MiniGuides/BinaryVoting";
-import VotesAccordion from "./VotesDetails";
+
 import PendingVotesBox from "./PendingVotesBox";
+import VotesAccordion from "./VotesDetails";
 
 const Container = styled.div``;
 

@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+
 import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/AccountDisplay";
 
 const Container = styled.div`

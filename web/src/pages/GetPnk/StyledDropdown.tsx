@@ -1,5 +1,6 @@
-import { DropdownSelect } from "@kleros/ui-components-library";
 import styled from "styled-components";
+
+import { DropdownSelect } from "@kleros/ui-components-library";
 
 const StyledDropdown = styled(DropdownSelect)`
   button {

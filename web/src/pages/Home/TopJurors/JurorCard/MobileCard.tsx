@@ -1,13 +1,16 @@
 import React from "react";
 import styled, { css } from "styled-components";
+
 import { landscapeStyle } from "styles/landscapeStyle";
+
+import HeaderCoherency from "../Header/Coherency";
+import HeaderRewards from "../Header/Rewards";
+
 import Coherency from "./Coherency";
 import JurorLevel from "./JurorLevel";
 import JurorTitle from "./JurorTitle";
 import Rank from "./Rank";
 import Rewards from "./Rewards";
-import HeaderRewards from "../Header/Rewards";
-import HeaderCoherency from "../Header/Coherency";
 
 const Container = styled.div`
   display: flex;

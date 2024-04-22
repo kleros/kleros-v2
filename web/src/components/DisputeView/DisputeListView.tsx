@@ -1,12 +1,17 @@
-import { Card } from "@kleros/ui-components-library";
 import React from "react";
 import styled from "styled-components";
-import { responsiveSize } from "styles/responsiveSize";
-import PeriodBanner from "./PeriodBanner";
-import DisputeInfo from "./DisputeInfo";
-import { Periods } from "consts/periods";
-import { useAccount } from "wagmi";
+
 import { useNavigate } from "react-router-dom";
+import { useAccount } from "wagmi";
+
+import { Card } from "@kleros/ui-components-library";
+
+import { Periods } from "consts/periods";
+
+import { responsiveSize } from "styles/responsiveSize";
+
+import DisputeInfo from "./DisputeInfo";
+import PeriodBanner from "./PeriodBanner";
 
 const StyledListItem = styled(Card)`
   display: flex;
@@ -18,7 +23,6 @@ const ListContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-right: 8px;
   flex-grow: 1;
 `;
 
