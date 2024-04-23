@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { HttpRequestError, PublicClient, RpcError } from "viem";
+import { getContract, HttpRequestError, PublicClient, RpcError } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
@@ -8,7 +8,7 @@ import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/popu
 
 import { GENESIS_BLOCK_ARBSEPOLIA } from "consts/index";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
-import { getIArbitrableV2 } from "hooks/contracts/generated";
+import { iArbitrableV2Abi } from "hooks/contracts/generated";
 import { debounceErrorToast } from "utils/debounceErrorToast";
 import { isUndefined } from "utils/index";
 
@@ -83,8 +83,10 @@ const getTemplateId = async (
   disputeID: string,
   publicClient: PublicClient
 ): Promise<bigint> => {
-  const arbitrable = getIArbitrableV2({
+  const arbitrable = getContract({
+    abi: iArbitrableV2Abi,
     address: arbitrableAddress,
+    client: { public: publicClient },
   });
   const disputeFilter = await arbitrable.createEventFilter.DisputeRequest(
     {
