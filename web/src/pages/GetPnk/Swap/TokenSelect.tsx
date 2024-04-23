@@ -1,9 +1,9 @@
 import React from "react";
 
-import DaiIcon from "tsx:svgs/tokens/dai.svg";
-import EthIcon from "tsx:svgs/tokens/eth.svg";
-import PnkIcon from "tsx:svgs/tokens/pnk.svg";
-import UsdcIcon from "tsx:svgs/tokens/usdc.svg";
+import DaiIcon from "svgs/tokens/dai.svg";
+import EthIcon from "svgs/tokens/eth.svg";
+import PnkIcon from "svgs/tokens/pnk.svg";
+import UsdcIcon from "svgs/tokens/usdc.svg";
 
 import StyledDropdown from "../StyledDropdown";
 

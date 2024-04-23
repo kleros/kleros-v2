@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import DownArrow from "tsx:svgs/icons/down-arrow.svg";
-
 import { Button, Card } from "@kleros/ui-components-library";
+
+import DownArrow from "svgs/icons/down-arrow.svg";
 
 import { responsiveSize } from "styles/responsiveSize";
 

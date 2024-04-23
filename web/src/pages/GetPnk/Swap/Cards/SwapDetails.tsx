@@ -1,12 +1,12 @@
 import React from "react";
 import styled from "styled-components";
 
-import ArrowIcon from "tsx:svgs/icons/arrow.svg";
-import ClockIcon from "tsx:svgs/icons/clock.svg";
-import GasIcon from "tsx:svgs/icons/gas.svg";
-import SpinnerIcon from "tsx:svgs/icons/spinner.svg";
-
 import { Card } from "@kleros/ui-components-library";
+
+import ArrowIcon from "svgs/icons/arrow.svg";
+import ClockIcon from "svgs/icons/clock.svg";
+import GasIcon from "svgs/icons/gas.svg";
+import SpinnerIcon from "svgs/icons/spinner.svg";
 
 import { responsiveSize } from "styles/responsiveSize";
 
