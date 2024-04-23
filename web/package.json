@@ -6,6 +6,7 @@
   "repository": "",
   "author": "",
   "license": "MIT",
+  "type": "module",
   "alias": {
     "src": "./src",
     "utils": "./src/utils",
