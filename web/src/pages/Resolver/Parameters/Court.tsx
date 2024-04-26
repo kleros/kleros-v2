@@ -60,6 +60,7 @@ const Court: React.FC = () => {
           items={items}
           onSelect={(path: string | number) => typeof path === "string" && handleWrite(path.split("/").pop()!)}
           placeholder="Select Court"
+          value={`/courts/${disputeData.courtId}`}
         />
       ) : (
         <StyledSkeleton width={240} height={42} />
