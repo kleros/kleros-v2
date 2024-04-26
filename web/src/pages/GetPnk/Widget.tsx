@@ -1,10 +1,19 @@
 import React, { useMemo } from "react";
-import { Theme, useTheme } from "styled-components";
+import styled, { Theme, useTheme } from "styled-components";
 
 import { LiFiWidget, WidgetConfig } from "@lifi/widget";
 
 import { responsiveSize } from "styles/responsiveSize";
 
+const WidgetContainer = styled.div`
+  width: 100%;
+  > div {
+    height: auto;
+    > div > div {
+      max-height: none;
+    }
+  }
+`;
 const getWidgetConfig = (theme: Theme): WidgetConfig => ({
   fromChain: 1,
   toChain: 42161,
@@ -16,6 +25,9 @@ const getWidgetConfig = (theme: Theme): WidgetConfig => ({
     background: theme.whiteBackground,
     width: responsiveSize(350, 500),
     maxWidth: "600px",
+    height: "fit-content",
+    maxHeight: "none",
+    minWidth: "300px",
   },
   hiddenUI: ["appearance", "language"],
   theme: {
@@ -55,5 +67,9 @@ export const Widget = () => {
 
   const widgetConfig = useMemo(() => getWidgetConfig(theme), [theme]);
 
-  return <LiFiWidget config={widgetConfig} integrator="Kleros" />;
+  return (
+    <WidgetContainer>
+      <LiFiWidget config={widgetConfig} integrator="Kleros" />
+    </WidgetContainer>
+  );
 };
