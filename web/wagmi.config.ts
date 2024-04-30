@@ -70,10 +70,8 @@ const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardh
 };
 
 const getConfig = async (): Promise<Config> => {
-  const deployment = process.env.VITE_REACT_APP_DEPLOYMENT ?? "testnet";
-  const type = getArbitratorType(
-    process.env.VITE_REACT_APP_ARBITRATOR_TYPE?.toLowerCase() as keyof typeof ArbitratorTypes
-  );
+  const deployment = process.env.REACT_APP_DEPLOYMENT ?? "testnet";
+  const type = getArbitratorType(process.env.REACT_APP_ARBITRATOR_TYPE?.toLowerCase() as keyof typeof ArbitratorTypes);
 
   let viemNetwork: string;
   let hardhatNetwork: string;

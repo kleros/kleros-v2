@@ -5,6 +5,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   root: "src",
+  envPrefix: ["REACT_APP", "ALCHEMY"],
   plugins: [
     svgr({
       include: ["**/*.svg", "tsx:**/*.svg"],

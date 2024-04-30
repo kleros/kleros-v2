@@ -10,8 +10,8 @@ import { ALL_CHAINS } from "consts/chains";
 
 import { lightTheme } from "styles/themes";
 
-const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf9281e218217";
-export const alchemyApiKey = import.meta.env.VITE_ALCHEMY_API_KEY ?? "";
+const projectId = import.meta.env.WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf9281e218217";
+export const alchemyApiKey = import.meta.env.ALCHEMY_API_KEY ?? "";
 
 const chains = ALL_CHAINS as [Chain, ...Chain[]];
 
