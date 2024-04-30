@@ -5,6 +5,9 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   root: "src",
+  build: {
+    outDir: "../dist",
+  },
   envPrefix: ["REACT_APP", "ALCHEMY"],
   plugins: [
     svgr({
