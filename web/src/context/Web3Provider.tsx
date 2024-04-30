@@ -7,6 +7,7 @@ import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado } from "wagmi/chains";
 import { walletConnect } from "wagmi/connectors";
 
 import { ALL_CHAINS } from "consts/chains";
+import { isProductionDeployment } from "consts/index";
 
 import { lightTheme } from "styles/themes";
 
@@ -25,8 +26,9 @@ const alchemyTransport = (chain: AlchemyChain) =>
 const wagmiConfig = createConfig({
   chains,
   transports: {
-    [arbitrum.id]: alchemyTransport("arb"),
-    [arbitrumSepolia.id]: alchemyTransport("arb-sepolia"),
+    [isProductionDeployment() ? arbitrum.id : arbitrumSepolia.id]: isProductionDeployment()
+      ? alchemyTransport("arb")
+      : alchemyTransport("arb-sepolia"),
     [mainnet.id]: alchemyTransport("eth-mainnet"),
     [gnosisChiado.id]: fallback([webSocket("wss://rpc.chiadochain.net/wss"), http("https://rpc.chiadochain.net")]),
   },
