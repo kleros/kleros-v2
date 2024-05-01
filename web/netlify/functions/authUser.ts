@@ -7,7 +7,7 @@ import { SiweMessage } from "siwe";
 import { DEFAULT_CHAIN } from "consts/chains";
 import { ETH_SIGNATURE_REGEX } from "consts/index";
 
-import { netlifyUri } from "src/generatedNetlifyInfo.json";
+import { netlifyUri, netlifyDeployUri } from "src/generatedNetlifyInfo.json";
 import { Database } from "src/types/supabase-notification";
 
 const authUser = async (event) => {
@@ -37,7 +37,9 @@ const authUser = async (event) => {
 
     const siweMessage = new SiweMessage(message);
 
-    if (netlifyUri && netlifyUri !== siweMessage.uri) {
+    console.log({ netlifyUri, netlifyDeployUri });
+
+    if (netlifyUri && netlifyUri !== siweMessage.uri && netlifyDeployUri && netlifyDeployUri !== siweMessage.uri) {
       console.debug(`Invalid URI: expected ${netlifyUri} but got ${siweMessage.uri}`);
       throw new Error(`Invalid URI`);
     }
@@ -45,11 +47,6 @@ const authUser = async (event) => {
     if (siweMessage.chainId !== DEFAULT_CHAIN) {
       console.debug(`Invalid chain ID: expected ${DEFAULT_CHAIN} but got ${siweMessage.chainId}`);
       throw new Error(`Invalid chain ID`);
-    }
-
-    if (!siweMessage.expirationTime || Date.parse(siweMessage.expirationTime) < Date.now()) {
-      console.debug(`Message expired: ${siweMessage.expirationTime} < ${new Date().toISOString()}`);
-      throw new Error("Message expired");
     }
 
     const lowerCaseAddress = siweMessage.address.toLowerCase();
