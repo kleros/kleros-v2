@@ -37,8 +37,6 @@ const authUser = async (event) => {
 
     const siweMessage = new SiweMessage(message);
 
-    console.log({ netlifyUri, netlifyDeployUri });
-
     if (netlifyUri && netlifyUri !== siweMessage.uri && netlifyDeployUri && netlifyDeployUri !== siweMessage.uri) {
       console.debug(`Invalid URI: expected ${netlifyUri} but got ${siweMessage.uri}`);
       throw new Error(`Invalid URI`);
