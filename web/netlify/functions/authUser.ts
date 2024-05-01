@@ -7,7 +7,7 @@ import { SiweMessage } from "siwe";
 import { DEFAULT_CHAIN } from "consts/chains";
 import { ETH_SIGNATURE_REGEX } from "consts/index";
 
-import { netlifyUri, netlifyDeployUri } from "src/generatedNetlifyInfo.json";
+import { netlifyUri, netlifyDeployUri, netlifyDeployPrimeUri } from "src/generatedNetlifyInfo.json";
 import { Database } from "src/types/supabase-notification";
 
 const authUser = async (event) => {
@@ -37,8 +37,16 @@ const authUser = async (event) => {
 
     const siweMessage = new SiweMessage(message);
 
-    if (netlifyUri && netlifyUri !== siweMessage.uri && netlifyDeployUri && netlifyDeployUri !== siweMessage.uri) {
-      console.debug(`Invalid URI: expected ${netlifyUri} but got ${siweMessage.uri}`);
+    if (
+      !(
+        (netlifyUri && netlifyUri === siweMessage.uri) ||
+        (netlifyDeployUri && netlifyDeployUri === siweMessage.uri) ||
+        (netlifyDeployPrimeUri && netlifyDeployPrimeUri === siweMessage.uri)
+      )
+    ) {
+      console.debug(
+        `Invalid URI: expected one of [${netlifyUri} ${netlifyDeployUri} ${netlifyDeployPrimeUri}] but got ${siweMessage.uri}`
+      );
       throw new Error(`Invalid URI`);
     }
 
