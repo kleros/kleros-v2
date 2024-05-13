@@ -7,6 +7,7 @@ export const deployERC20AndFaucet = async (
   hre: HardhatRuntimeEnvironment,
   deployer: string,
   ticker: string,
+  deterministic?: boolean | string,
   faucetFundingAmount: BigNumber = hre.ethers.utils.parseUnits("100000")
 ): Promise<Contract> => {
   const erc20 = await getContractOrDeploy(hre, ticker, {
@@ -14,12 +15,14 @@ export const deployERC20AndFaucet = async (
     contract: "TestERC20",
     args: [ticker, ticker],
     log: true,
+    deterministicDeployment: deterministic,
   });
   const faucet = await getContractOrDeploy(hre, `${ticker}Faucet`, {
     from: deployer,
     contract: "Faucet",
     args: [erc20.address],
     log: true,
+    deterministicDeployment: deterministic,
   });
   const faucetBalance = await erc20.balanceOf(faucet.address);
   const deployerBalance = await erc20.balanceOf(deployer);

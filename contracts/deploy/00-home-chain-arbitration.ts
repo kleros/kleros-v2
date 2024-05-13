@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber, BigNumberish } from "ethers";
 import { getContractAddress } from "./utils/getContractAddress";
-import { deployUpgradable } from "./utils/deployUpgradable";
+import { deployUpgradable, deployUpgradableDeterministic } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped, isDevnet } from "./utils";
 import { getContractOrDeploy } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet } from "./utils/deployERC20AndFaucet";
@@ -19,44 +19,39 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const chainId = Number(await getChainId());
   console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
-  const pnk = await deployERC20AndFaucet(hre, deployer, "PNK");
-  const dai = await deployERC20AndFaucet(hre, deployer, "DAI");
-  const weth = await deployERC20AndFaucet(hre, deployer, "WETH");
+  const pnk = await deployERC20AndFaucet(hre, deployer, "PNK", ethers.utils.formatBytes32String("Just use Kleros!"));
+  const dai = await deployERC20AndFaucet(hre, deployer, "DAI", ethers.utils.formatBytes32String("Just use Kleros!"));
+  const weth = await deployERC20AndFaucet(hre, deployer, "WETH", ethers.utils.formatBytes32String("Just use Kleros!"));
 
   const randomizerOracle = await getContractOrDeploy(hre, "RandomizerOracle", {
     from: deployer,
     contract: "RandomizerMock",
     args: [],
     log: true,
+    deterministicDeployment: ethers.utils.formatBytes32String("Just use Kleros!"),
   });
 
-  await deployUpgradable(deployments, "PolicyRegistry", { from: deployer, args: [deployer], log: true });
+  await deployUpgradableDeterministic(deployments, "PolicyRegistry", { from: deployer, args: [deployer], log: true });
 
-  await deployUpgradable(deployments, "EvidenceModule", { from: deployer, args: [deployer], log: true });
+  await deployUpgradableDeterministic(deployments, "EvidenceModule", { from: deployer, args: [deployer], log: true });
 
-  const rng = await deployUpgradable(deployments, "RandomizerRNG", {
+  const rng = await deployUpgradableDeterministic(deployments, "RandomizerRNG", {
     from: deployer,
     args: [randomizerOracle.address, deployer],
     log: true,
   });
 
-  const disputeKit = await deployUpgradable(deployments, "DisputeKitClassic", {
+  const disputeKit = await deployUpgradableDeterministic(deployments, "DisputeKitClassic", {
     from: deployer,
     args: [deployer, AddressZero],
     log: true,
   });
 
-  let klerosCoreAddress = await deployments.getOrNull("KlerosCore").then((deployment) => deployment?.address);
-  if (!klerosCoreAddress) {
-    const nonce = await ethers.provider.getTransactionCount(deployer);
-    klerosCoreAddress = getContractAddress(deployer, nonce + 3); // deployed on the 4th tx (nonce+3): SortitionModule Impl tx, SortitionModule Proxy tx, KlerosCore Impl tx, KlerosCore Proxy tx
-    console.log("calculated future KlerosCore address for nonce %d: %s", nonce + 3, klerosCoreAddress);
-  }
   const devnet = isDevnet(hre.network);
   const minStakingTime = devnet ? 180 : 1800;
   const maxFreezingTime = devnet ? 600 : 1800;
 
-  const sortitionModule = await deployUpgradable(deployments, "SortitionModule", {
+  const sortitionModule = await deployUpgradableDeterministic(deployments, "SortitionModule", {
     from: deployer,
     args: [deployer, minStakingTime, maxFreezingTime, rng.address, RNG_LOOKAHEAD],
     log: true,
@@ -65,7 +60,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const minStake = BigNumber.from(10).pow(20).mul(2);
   const alpha = 10000;
   const feeForJuror = BigNumber.from(10).pow(17);
-  const klerosCore = await deployUpgradable(deployments, "KlerosCore", {
+  const klerosCore = await deployUpgradableDeterministic(deployments, "KlerosCore", {
     from: deployer,
     args: [
       deployer,
