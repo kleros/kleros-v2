@@ -2,9 +2,9 @@ import { toast } from "react-toastify";
 
 import { OPTIONS } from "utils/wrapWithToast";
 
-export function uploadFormDataToIPFS(formData: FormData, operation: string = "evidence"): Promise<Response> {
+export function uploadFormDataToIPFS(formData: FormData, operation = "evidence"): Promise<Response> {
   return toast.promise<Response, Error>(
-    fetch(`/.netlify/functions/uploadToIPFS?dapp=court&key=kleros-v2&operation=${operation}`, {
+    fetch(`/.netlify/functions/uploadToIPFS?key=kleros-v2&operation=${operation}`, {
       method: "POST",
       body: formData,
     }).then(async (response) => {
