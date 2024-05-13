@@ -114,21 +114,18 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
     }
 
     /// @dev Initializer (constructor equivalent for upgradable contracts).
-    /// @param _core The KlerosCore.
     /// @param _minStakingTime Minimal time to stake
     /// @param _maxDrawingTime Time after which the drawing phase can be switched
     /// @param _rng The random number generator.
     /// @param _rngLookahead Lookahead value for rng.
     function initialize(
         address _governor,
-        KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         RNG _rng,
         uint256 _rngLookahead
     ) external reinitializer(1) {
         governor = _governor;
-        core = _core;
         minStakingTime = _minStakingTime;
         maxDrawingTime = _maxDrawingTime;
         lastPhaseChange = block.timestamp;
@@ -147,6 +144,12 @@ contract SortitionModule is ISortitionModule, UUPSProxiable, Initializable {
      */
     function _authorizeUpgrade(address) internal view override onlyByGovernor {
         // NOP
+    }
+
+    /// @dev Changes the KlerosCore.
+    /// @param _core The address of the new KlerosCore.
+    function changeCore(KlerosCore _core) external onlyByGovernor {
+        core = _core;
     }
 
     /// @dev Changes the governor.

@@ -55,9 +55,10 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const devnet = isDevnet(hre.network);
   const minStakingTime = devnet ? 180 : 1800;
   const maxFreezingTime = devnet ? 600 : 1800;
+
   const sortitionModule = await deployUpgradable(deployments, "SortitionModule", {
     from: deployer,
-    args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rng.address, RNG_LOOKAHEAD],
+    args: [deployer, minStakingTime, maxFreezingTime, rng.address, RNG_LOOKAHEAD],
     log: true,
   }); // nonce (implementation), nonce+1 (proxy)
 
@@ -74,12 +75,14 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       false,
       [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
+      // ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
     ],
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
 
+  await execute("SortitionModule", { from: deployer, log: true }, "changeCore", klerosCore.address);
+  await execute("KlerosCore", { from: deployer, log: true }, "creatSortitionTree", ethers.utils.hexlify(5));
   // execute DisputeKitClassic.changeCore() only if necessary
   const currentCore = await hre.ethers.getContractAt("DisputeKitClassic", disputeKit.address).then((dk) => dk.core());
   if (currentCore !== klerosCore.address) {

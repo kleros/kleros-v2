@@ -190,7 +190,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
     /// @param _hiddenVotes The `hiddenVotes` property value of the general court.
     /// @param _courtParameters Numeric parameters of General court (minStake, alpha, feeForJuror and jurorsForCourtJump respectively).
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the general court.
-    /// @param _sortitionExtraData The extra data for sortition module.
     /// @param _sortitionModuleAddress The sortition module responsible for sortition of the jurors.
     function initialize(
         address _governor,
@@ -200,7 +199,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         bool _hiddenVotes,
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
-        bytes memory _sortitionExtraData,
         ISortitionModule _sortitionModuleAddress
     ) external reinitializer(1) {
         governor = _governor;
@@ -219,7 +217,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         // FORKING_COURT
         // TODO: Fill the properties for the Forking court, emit CourtCreated.
         courts.push();
-        sortitionModule.createTree(bytes32(uint256(Constants.FORKING_COURT)), _sortitionExtraData);
 
         // GENERAL_COURT
         Court storage court = courts.push();
@@ -231,8 +228,6 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
         court.feeForJuror = _courtParameters[2];
         court.jurorsForCourtJump = _courtParameters[3];
         court.timesPerPeriod = _timesPerPeriod;
-
-        sortitionModule.createTree(bytes32(uint256(Constants.GENERAL_COURT)), _sortitionExtraData);
 
         emit CourtCreated(
             1,
@@ -257,6 +252,11 @@ contract KlerosCore is IArbitratorV2, UUPSProxiable, Initializable {
      */
     function _authorizeUpgrade(address) internal view override onlyByGovernor {
         // NOP
+    }
+
+    function creatSortitionTree(bytes memory _sortitionExtraData) external onlyByGovernor {
+        sortitionModule.createTree(bytes32(uint256(Constants.FORKING_COURT)), _sortitionExtraData);
+        sortitionModule.createTree(bytes32(uint256(Constants.GENERAL_COURT)), _sortitionExtraData);
     }
 
     /// @dev Allows the governor to call anything on behalf of the contract.
