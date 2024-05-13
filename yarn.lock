@@ -6065,6 +6065,7 @@ __metadata:
     "@kleros/kleros-v2-contracts": "workspace:^"
     "@reality.eth/reality-eth-lib": "npm:^3.2.30"
     "@types/mustache": "npm:^4.2.5"
+    "@types/node": "npm:^20.5.1"
     "@vitest/ui": "npm:^1.1.3"
     dotenv: "npm:^16.3.1"
     mocha: "npm:^10.2.0"
@@ -11155,6 +11156,15 @@ __metadata:
   dependencies:
     undici-types: "npm:~5.26.4"
   checksum: 207e17fa3aa7047ba729e0faf0eae5ae547132fd189eb64feb4427bcaa58d4f00354409008df305f84da49007d850890df8826548d5989f1a914eb182f77346d
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^20.5.1":
+  version: 20.12.11
+  resolution: "@types/node@npm:20.12.11"
+  dependencies:
+    undici-types: "npm:~5.26.4"
+  checksum: c6afe7c2c4504a4f488814d7b306ebad16bf42cbb43bf9db9fe1aed8c5fb99235593c3be5088979a64526b106cf022256688e2f002811be8273d87dc2e0d484f
   languageName: node
   linkType: hard
 
