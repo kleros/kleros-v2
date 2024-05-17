@@ -6184,6 +6184,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@kleros/kleros-v2-web-devtools@workspace:web-devtools":
+  version: 0.0.0-use.local
+  resolution: "@kleros/kleros-v2-web-devtools@workspace:web-devtools"
+  dependencies:
+    "@kleros/kleros-sdk": "workspace:^"
+    "@kleros/ui-components-library": "npm:^2.10.0"
+    typescript: "npm:^5.3.3"
+    viem: "npm:^1.21.4"
+    wagmi: "npm:^1.4.13"
+  languageName: unknown
+  linkType: soft
+
 "@kleros/kleros-v2-web@workspace:web":
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-web@workspace:web"

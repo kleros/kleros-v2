@@ -1,0 +1,26 @@
+{
+  "name": "@kleros/kleros-v2-web-devtools",
+  "version": "0.1.0",
+  "source": "src/index.html",
+  "browserslist": "> 0.5%, not dead",
+  "repository": "",
+  "author": "",
+  "license": "MIT",
+  "packageManager": "yarn@4.0.2+sha256.825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186",
+  "volta": {
+    "node": "20.11.0"
+  },
+  "scripts": {
+    "hi": "echo hello world"
+  },
+  "prettier": "@kleros/kleros-v2-prettier-config",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@kleros/kleros-sdk": "workspace:^",
+    "@kleros/ui-components-library": "^2.10.0",
+    "viem": "^1.21.4",
+    "wagmi": "^1.4.13"
+  }
+}

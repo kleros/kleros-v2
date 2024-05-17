@@ -22,6 +22,7 @@
     "kleros-sdk",
     "subgraph",
     "web",
+    "web-devtools",
     "eslint-config",
     "prettier-config",
     "tsconfig"
