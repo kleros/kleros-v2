@@ -11,7 +11,7 @@ import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { useToggleTheme } from "hooks/useToggleThemeContext";
 
 const chains = [arbitrumSepolia, mainnet, gnosisChiado];
-const projectId = process.env.WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf9281e218217";
+const projectId = process.env.WALLETCONNECT_PROJECT_ID ?? "";
 
 export const alchemyApiKey = process.env.ALCHEMY_API_KEY ?? "";
 

@@ -1,11 +1,13 @@
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
-import { ETH_SIGNATURE_REGEX } from "consts/index";
-import { DEFAULT_CHAIN } from "consts/chains";
-import { SiweMessage } from "siwe";
-import * as jwt from "jose";
 import { createClient } from "@supabase/supabase-js";
-import { netlifyUri } from "src/generatedNetlifyInfo.json";
+import * as jwt from "jose";
+import { SiweMessage } from "siwe";
+
+import { DEFAULT_CHAIN } from "consts/chains";
+import { ETH_SIGNATURE_REGEX } from "consts/index";
+
+import { netlifyUri, netlifyDeployUri, netlifyDeployPrimeUri } from "src/generatedNetlifyInfo.json";
 import { Database } from "src/types/supabase-notification";
 
 const authUser = async (event) => {
@@ -35,19 +37,22 @@ const authUser = async (event) => {
 
     const siweMessage = new SiweMessage(message);
 
-    if (netlifyUri && netlifyUri !== siweMessage.uri) {
-      console.debug(`Invalid URI: expected ${netlifyUri} but got ${siweMessage.uri}`);
+    if (
+      !(
+        (netlifyUri && netlifyUri === siweMessage.uri) ||
+        (netlifyDeployUri && netlifyDeployUri === siweMessage.uri) ||
+        (netlifyDeployPrimeUri && netlifyDeployPrimeUri === siweMessage.uri)
+      )
+    ) {
+      console.debug(
+        `Invalid URI: expected one of [${netlifyUri} ${netlifyDeployUri} ${netlifyDeployPrimeUri}] but got ${siweMessage.uri}`
+      );
       throw new Error(`Invalid URI`);
     }
 
     if (siweMessage.chainId !== DEFAULT_CHAIN) {
       console.debug(`Invalid chain ID: expected ${DEFAULT_CHAIN} but got ${siweMessage.chainId}`);
       throw new Error(`Invalid chain ID`);
-    }
-
-    if (!siweMessage.expirationTime || Date.parse(siweMessage.expirationTime) < Date.now()) {
-      console.debug(`Message expired: ${siweMessage.expirationTime} < ${new Date().toISOString()}`);
-      throw new Error("Message expired");
     }
 
     const lowerCaseAddress = siweMessage.address.toLowerCase();

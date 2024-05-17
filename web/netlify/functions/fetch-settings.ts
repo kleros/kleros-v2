@@ -1,6 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
-import { Database } from "../../src/types/supabase-notification";
 import middy from "@middy/core";
+import { createClient } from "@supabase/supabase-js";
+
+import { Database } from "../../src/types/supabase-notification";
 import { authMiddleware } from "../middleware/authMiddleware";
 
 const fetchSettings = async (event) => {
