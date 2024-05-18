@@ -114,13 +114,18 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     }
   };
 
-  useEffect(() => {
-    if (isAllowance) {
-      setErrorMsg(allowanceError?.shortMessage);
-    } else {
-      setErrorMsg(setStakeError?.shortMessage);
-    }
-  }, [allowanceError, setStakeError, isAllowance, isStaking, setErrorMsg]);
+useEffect(() => {
+  let errorMessage = parsedAmount === 0n
+    ? "Please enter a valid amount to stake or withdraw."
+    : "There was an error processing your request. Please try again later.";
+
+  if (isAllowance && allowanceError?.shortMessage) {
+    setErrorMsg(errorMessage);
+  } else if (!isAllowance && setStakeError?.shortMessage) {
+    setErrorMsg(errorMessage);
+  }
+}, [allowanceError, setStakeError, isAllowance, isStaking, parsedAmount, setErrorMsg]);
+
 
   const buttonProps = {
     [ActionType.allowance]: {
