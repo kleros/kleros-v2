@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
@@ -68,10 +68,10 @@ const InputDisplay: React.FC<IInputDisplay> = ({
   setAmount,
 }) => {
   const [debouncedAmount, setDebouncedAmount] = useState("");
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | undefined>();
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
   const parsedAmount = useParsedAmount(uncommify(debouncedAmount) as `${number}`);
-
-  const [errorMsg, setErrorMsg] = useState<string | undefined>();
 
   const { id } = useParams();
   const { address } = useAccount();
@@ -89,6 +89,18 @@ const InputDisplay: React.FC<IInputDisplay> = ({
   const parsedStake = formatPNK(jurorBalance?.[2] || 0n, 0, true);
   const isStaking = useMemo(() => action === ActionType.stake, [action]);
 
+  useEffect(() => {
+    if (!hasInteracted || parsedAmount === 0n) {
+      setErrorMsg(undefined);
+    } else if (isStaking && balance && parsedAmount > balance) {
+      setErrorMsg("Insufficient balance to stake this amount");
+    } else if (!isStaking && jurorBalance && parsedAmount > jurorBalance[2]) {
+      setErrorMsg("Insufficient staked amount to withdraw this amount");
+    } else {
+      setErrorMsg(undefined);
+    }
+  }, [hasInteracted, parsedAmount, isStaking, balance, jurorBalance]);
+
   return (
     <>
       <LabelArea>
@@ -97,6 +109,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
           onClick={() => {
             const amount = isStaking ? parsedBalance : parsedStake;
             setAmount(amount);
+            setHasInteracted(true);
           }}
         >
           {isStaking ? "Stake" : "Withdraw"} all
@@ -108,6 +121,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
             value={uncommify(amount)}
             onChange={(e) => {
               setAmount(e);
+              setHasInteracted(true);
             }}
             placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
             message={errorMsg ?? undefined}
@@ -124,6 +138,8 @@ const InputDisplay: React.FC<IInputDisplay> = ({
                 setIsSending,
                 setIsPopupOpen,
                 setErrorMsg,
+                hasInteracted,
+                setHasInteracted,
               }}
             />
           </EnsureChainContainer>

@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo } from "react";
 
 import { useParams } from "react-router-dom";
 import { useAccount, usePublicClient } from "wagmi";
@@ -35,6 +35,8 @@ interface IActionButton {
   setAmount: (arg0: string) => void;
   setIsPopupOpen: (arg0: boolean) => void;
   setErrorMsg: (arg0: string | undefined) => void;
+  hasInteracted: boolean;
+  setHasInteracted: (arg0: boolean) => void;
 }
 
 const StakeWithdrawButton: React.FC<IActionButton> = ({
@@ -43,7 +45,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   isSending,
   setIsSending,
   setIsPopupOpen,
-  setErrorMsg,
+  setHasInteracted,
 }) => {
   const { id } = useParams();
   const { address } = useAccount();
@@ -82,7 +84,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     return 0n;
   }, [jurorBalance, parsedAmount, isAllowance, isStaking]);
 
-  const { config: increaseAllowanceConfig, error: allowanceError } = usePreparePnkIncreaseAllowance({
+  const { config: increaseAllowanceConfig } = usePreparePnkIncreaseAllowance({
     enabled: isAllowance && !isUndefined(klerosCore) && !isUndefined(targetStake) && !isUndefined(allowance),
     args: [klerosCore?.address, BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
   });
@@ -99,7 +101,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   };
 
   const { config: setStakeConfig, error: setStakeError } = usePrepareKlerosCoreSetStake({
-    enabled: !isUndefined(targetStake) && !isUndefined(id) && !isAllowance,
+    enabled: !isUndefined(targetStake) && !isUndefined(id) && !isAllowance && parsedAmount !== 0n,
     args: [BigInt(id ?? 0), targetStake],
   });
   const { writeAsync: setStake } = useKlerosCoreSetStake(setStakeConfig);
@@ -113,19 +115,6 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
         });
     }
   };
-
-useEffect(() => {
-  let errorMessage = parsedAmount === 0n
-    ? "Please enter a valid amount to stake or withdraw."
-    : "There was an error processing your request. Please try again later.";
-
-  if (isAllowance && allowanceError?.shortMessage) {
-    setErrorMsg(errorMessage);
-  } else if (!isAllowance && setStakeError?.shortMessage) {
-    setErrorMsg(errorMessage);
-  }
-}, [allowanceError, setStakeError, isAllowance, isStaking, parsedAmount, setErrorMsg]);
-
 
   const buttonProps = {
     [ActionType.allowance]: {
@@ -160,7 +149,10 @@ useEffect(() => {
           (targetStake !== 0n && targetStake < BigInt(courtDetails.court?.minStake)) ||
           (isStaking && !isAllowance && isUndefined(setStakeConfig.request))
         }
-        onClick={onClick}
+        onClick={() => {
+          setHasInteracted(true);
+          onClick();
+        }}
       />
     </EnsureChain>
   );
