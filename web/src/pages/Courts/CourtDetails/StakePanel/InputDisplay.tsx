@@ -68,7 +68,6 @@ const InputDisplay: React.FC<IInputDisplay> = ({
   setAmount,
 }) => {
   const [debouncedAmount, setDebouncedAmount] = useState("");
-  const [hasInteracted, setHasInteracted] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
   const parsedAmount = useParsedAmount(uncommify(debouncedAmount) as `${number}`);
@@ -90,7 +89,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
   const isStaking = useMemo(() => action === ActionType.stake, [action]);
 
   useEffect(() => {
-    if (!hasInteracted || parsedAmount === 0n) {
+    if (parsedAmount === 0n) {
       setErrorMsg(undefined);
     } else if (isStaking && balance && parsedAmount > balance) {
       setErrorMsg("Insufficient balance to stake this amount");
@@ -99,7 +98,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
     } else {
       setErrorMsg(undefined);
     }
-  }, [hasInteracted, parsedAmount, isStaking, balance, jurorBalance]);
+  }, [parsedAmount, isStaking, balance, jurorBalance]);
 
   return (
     <>
@@ -109,7 +108,6 @@ const InputDisplay: React.FC<IInputDisplay> = ({
           onClick={() => {
             const amount = isStaking ? parsedBalance : parsedStake;
             setAmount(amount);
-            setHasInteracted(true);
           }}
         >
           {isStaking ? "Stake" : "Withdraw"} all
@@ -121,7 +119,6 @@ const InputDisplay: React.FC<IInputDisplay> = ({
             value={uncommify(amount)}
             onChange={(e) => {
               setAmount(e);
-              setHasInteracted(true);
             }}
             placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
             message={errorMsg ?? undefined}
@@ -137,9 +134,6 @@ const InputDisplay: React.FC<IInputDisplay> = ({
                 isSending,
                 setIsSending,
                 setIsPopupOpen,
-                setErrorMsg,
-                hasInteracted,
-                setHasInteracted,
               }}
             />
           </EnsureChainContainer>

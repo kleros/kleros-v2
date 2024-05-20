@@ -34,9 +34,6 @@ interface IActionButton {
   setIsSending: (arg0: boolean) => void;
   setAmount: (arg0: string) => void;
   setIsPopupOpen: (arg0: boolean) => void;
-  setErrorMsg: (arg0: string | undefined) => void;
-  hasInteracted: boolean;
-  setHasInteracted: (arg0: boolean) => void;
 }
 
 const StakeWithdrawButton: React.FC<IActionButton> = ({
@@ -45,7 +42,6 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   isSending,
   setIsSending,
   setIsPopupOpen,
-  setHasInteracted,
 }) => {
   const { id } = useParams();
   const { address } = useAccount();
@@ -149,10 +145,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
           (targetStake !== 0n && targetStake < BigInt(courtDetails.court?.minStake)) ||
           (isStaking && !isAllowance && isUndefined(setStakeConfig.request))
         }
-        onClick={() => {
-          setHasInteracted(true);
-          onClick();
-        }}
+        onClick={onClick}
       />
     </EnsureChain>
   );
