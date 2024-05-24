@@ -89,7 +89,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
   const isStaking = useMemo(() => action === ActionType.stake, [action]);
 
   useEffect(() => {
-    if (parsedAmount === 0n && balance === 0n && isStaking) {
+    if (parsedAmount > 0n && balance === 0n && isStaking) {
       setErrorMsg("You need a non-zero PNK balance to stake");
     } else if (isStaking && balance && parsedAmount > balance) {
       setErrorMsg("Insufficient balance to stake this amount");
@@ -123,8 +123,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
             placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
             message={errorMsg ?? undefined}
             variant={!isUndefined(errorMsg) ? "error" : "info"}
-            formatter={(number: string) => commify(roundNumberDown(Number(number)))}
-            min="0"
+            formatter={(number: string) => (number !== "" ? commify(roundNumberDown(Number(number))) : "")}
           />
           <EnsureChainContainer>
             <StakeWithdrawButton

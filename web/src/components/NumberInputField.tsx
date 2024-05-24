@@ -35,7 +35,6 @@ interface INumberInputField extends Omit<React.ComponentProps<typeof Field>, "on
   onChange?: (value: string) => void;
   formatter?: (value: string) => string;
   className?: string;
-  min?: number;
 }
 
 export const NumberInputField: React.FC<INumberInputField> = ({
@@ -46,7 +45,6 @@ export const NumberInputField: React.FC<INumberInputField> = ({
   formatter,
   className,
   variant = "info",
-  min,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -58,19 +56,26 @@ export const NumberInputField: React.FC<INumberInputField> = ({
     <Container {...{ className }}>
       {isEditing ? (
         <StyledField
-          type="number"
+          type="text"
+          onInput={(e) => {
+            const value = e.currentTarget.value.replace(/[^0-9.]/g, "");
+
+            e.currentTarget.value = formatter ? formatter(value) : value;
+            return e;
+          }}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             onChange?.(event.target.value);
           }}
           onBlur={toggleEditing}
-          {...{ value, placeholder, message, variant, min }}
+          value={formatter ? formatter(value ?? "0") : value}
+          {...{ placeholder, message, variant }}
         />
       ) : (
         <StyledField
           type="text"
           value={formatter ? formatter(value ?? "0") : value}
           onFocus={toggleEditing}
-          {...{ placeholder, message, variant, min }}
+          {...{ placeholder, message, variant }}
           readOnly
         />
       )}
