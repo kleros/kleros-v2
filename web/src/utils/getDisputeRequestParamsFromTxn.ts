@@ -1,9 +1,8 @@
+import { getPublicClient } from "@wagmi/core";
 import { GetTransactionReceiptReturnType, decodeEventLog, getEventSelector } from "viem";
-import { getPublicClient } from "wagmi/dist/actions";
 
 import { iArbitrableV2Abi } from "hooks/contracts/generated";
-
-import { isUndefined } from ".";
+import { isUndefined } from "utils/index";
 
 export const getDisputeRequestParamsFromTxn = async (hash: `0x${string}`, chainId: number) => {
   try {

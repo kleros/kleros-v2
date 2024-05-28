@@ -8,7 +8,7 @@ import GraphqlBatcherProvider from "context/GraphqlBatcher";
 import IsListProvider from "context/IsListProvider";
 import { NewDisputeProvider } from "context/NewDisputeContext";
 import QueryClientProvider from "context/QueryClientProvider";
-import RefetchOnBlock from "context/RefetchOnBlock";
+// import RefetchOnBlock from "context/RefetchOnBlock";
 import StyledComponentsProvider from "context/StyledComponentsProvider";
 import Web3Provider from "context/Web3Provider";
 
@@ -28,7 +28,6 @@ const App: React.FC = () => {
     <StyledComponentsProvider>
       <Web3Provider>
         <QueryClientProvider>
-          <RefetchOnBlock />
           <GraphqlBatcherProvider>
             <IsListProvider>
               <NewDisputeProvider>

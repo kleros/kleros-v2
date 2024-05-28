@@ -7,6 +7,7 @@ import { useAccount, useBalance, usePublicClient } from "wagmi";
 
 import { Field, Button } from "@kleros/ui-components-library";
 
+import { REFETCH_INTERVAL } from "consts/index";
 import { useSimulateDisputeKitClassicFundAppeal, useWriteDisputeKitClassicFundAppeal } from "hooks/contracts/generated";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
 import { useParsedAmount } from "hooks/useParsedAmount";
@@ -83,8 +84,10 @@ interface IFund {
 const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
   const needFund = useNeedFund();
   const { address, isDisconnected } = useAccount();
-  // TODO refetch on block
   const { data: balance } = useBalance({
+    query: {
+      refetchInterval: REFETCH_INTERVAL,
+    },
     address,
   });
   const publicClient = usePublicClient();

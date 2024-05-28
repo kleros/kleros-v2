@@ -47,7 +47,7 @@ const Version = () => (
 const ServicesStatus = () => {
   const [theme] = useToggleTheme();
   const statusUrlParameters = useMemo(() => (theme === "light" ? "?theme=light" : "?theme=dark"), [theme]);
-  const statusUrl = process.env.REACT_APP_STATUS_URL;
+  const statusUrl = import.meta.env.REACT_APP_STATUS_URL;
   return <label>{isUndefined(statusUrl) ? null : <StyledIframe src={`${statusUrl + statusUrlParameters}`} />}</label>;
 };
 

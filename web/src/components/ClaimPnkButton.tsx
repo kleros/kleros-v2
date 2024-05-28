@@ -8,6 +8,7 @@ import { Button } from "@kleros/ui-components-library";
 import FaucetIcon from "svgs/icons/faucet.svg";
 
 import { DEFAULT_CHAIN } from "consts/chains";
+import { REFETCH_INTERVAL } from "consts/index";
 import {
   simulatePnkFaucet,
   useReadPnkBalanceOf,
@@ -26,12 +27,12 @@ const ClaimPnkButton: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [hash, setHash] = useState<`0x${string}` | undefined>();
 
-  // TODO watch
   const chainId = useChainId();
   const { address } = useAccount();
   const { data: claimed } = useReadPnkFaucetWithdrewAlready({
     query: {
       enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
     },
     args: [address ?? "0x00"],
   });

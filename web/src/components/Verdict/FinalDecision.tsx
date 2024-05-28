@@ -7,6 +7,7 @@ import { useAccount } from "wagmi";
 
 import ArrowIcon from "assets/svgs/icons/arrow.svg";
 
+import { REFETCH_INTERVAL } from "consts/index";
 import { Periods } from "consts/periods";
 import { useReadKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
@@ -76,8 +77,10 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const ruled = disputeDetails?.dispute?.ruled ?? false;
   const periodIndex = Periods[disputeDetails?.dispute?.period ?? "evidence"];
   const navigate = useNavigate();
-  // TODO block
-  const { data: currentRulingArray } = useReadKlerosCoreCurrentRuling({ args: [BigInt(id ?? 0)] });
+  const { data: currentRulingArray } = useReadKlerosCoreCurrentRuling({
+    query: { refetchInterval: REFETCH_INTERVAL },
+    args: [BigInt(id ?? 0)],
+  });
   const currentRuling = Number(currentRulingArray?.[0]);
   const answer = populatedDisputeData?.answers?.[currentRuling! - 1];
   const buttonText = useMemo(() => {

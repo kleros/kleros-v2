@@ -1,10 +1,11 @@
 import React from "react";
 
-import ArbitrumIcon from "tsx:svgs/tokens/arbitrum.svg";
-import EthIcon from "tsx:svgs/tokens/eth.svg";
-import GnosisIcon from "tsx:svgs/tokens/gnosis.svg";
-import PolygonIcon from "tsx:svgs/tokens/polygon.svg";
 import { arbitrum, arbitrumSepolia, gnosis, gnosisChiado, mainnet, polygon, polygonMumbai, sepolia } from "viem/chains";
+
+import ArbitrumIcon from "svgs/tokens/arbitrum.svg";
+import EthIcon from "svgs/tokens/eth.svg";
+import GnosisIcon from "svgs/tokens/gnosis.svg";
+import PolygonIcon from "svgs/tokens/polygon.svg";
 
 import StyledDropdown from "../StyledDropdown";
 

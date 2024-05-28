@@ -16,19 +16,19 @@
 </g>
 <defs>
 <clipPath id="clip0_13762_38788">
-<rect transform="translate(13.5 13.5)"/>
+<rect width="36" height="36" transform="translate(13.5 13.5)"/>
 </clipPath>
 <clipPath id="clip1_13762_38788">
-<rect transform="translate(6 26) rotate(-90)"/>
+<rect width="36" height="36" transform="translate(6 26) rotate(-90)"/>
 </clipPath>
 <clipPath id="clip2_13762_38788">
-<rect transform="translate(42 22) rotate(90)"/>
+<rect width="36" height="36" transform="translate(42 22) rotate(90)"/>
 </clipPath>
 <clipPath id="clip3_13762_38788">
-<rect transform="translate(22 6)"/>
+<rect width="36" height="36" transform="translate(22 6)"/>
 </clipPath>
 <clipPath id="clip4_13762_38788">
-<rect transform="translate(26 42) rotate(-180)"/>
+<rect width="36" height="36" transform="translate(26 42) rotate(-180)"/>
 </clipPath>
 </defs>
 </svg>

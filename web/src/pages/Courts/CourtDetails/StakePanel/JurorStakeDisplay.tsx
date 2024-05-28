@@ -8,6 +8,7 @@ import { useAccount } from "wagmi";
 import DiceIcon from "svgs/icons/dice.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 
+import { REFETCH_INTERVAL } from "consts/index";
 import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
 
@@ -70,13 +71,12 @@ const useCalculateJurorOdds = (
 const JurorBalanceDisplay = () => {
   const { id } = useParams();
   const { address } = useAccount();
-  // TODO refetch on block
   const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
     query: {
       enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
     },
     args: [address ?? "0x", BigInt(id ?? 0)],
-    // watch: true,
   });
   const { data: courtDetails } = useCourtDetails(id);
   const stakedByAllJurors = courtDetails?.court?.stake;
