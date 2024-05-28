@@ -42,6 +42,10 @@ const ConnectWalletContainer = styled.div`
   color: ${({ theme }) => theme.primaryText};
 `;
 
+const StyledEnsureAuth = styled(EnsureAuth)`
+  align-self: center;
+`;
+
 const MiddleContentContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -72,7 +76,7 @@ const DisputeResolver: React.FC = () => {
       <Container>
         {isConnected && !isPreviewPage ? <StyledLabel>Start a case</StyledLabel> : null}
         {isConnected ? (
-          <EnsureAuth>
+          <StyledEnsureAuth>
             <MiddleContentContainer>
               {isConnected && !isPreviewPage ? <Timeline /> : null}
               <Routes>
@@ -88,7 +92,7 @@ const DisputeResolver: React.FC = () => {
                 <Route path="/preview/*" element={<Preview />} />
               </Routes>
             </MiddleContentContainer>
-          </EnsureAuth>
+          </StyledEnsureAuth>
         ) : (
           <ConnectWalletContainer>
             To create a new dispute, connect first
