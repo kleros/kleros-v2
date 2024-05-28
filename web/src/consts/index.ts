@@ -6,6 +6,8 @@ export { ArbitratorTypes };
 
 export const ONE_BASIS_POINT = 10000n;
 
+export const REFETCH_INTERVAL = 10000;
+
 export const IPFS_GATEWAY = import.meta.env.REACT_APP_IPFS_GATEWAY || "https://cdn.kleros.link";
 export const HERMES_TELEGRAM_BOT_URL =
   import.meta.env.REACT_APP_HERMES_TELEGRAM_BOT_URL || "https://t.me/HermesTheKlerosV2MessengerBot";

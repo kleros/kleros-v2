@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
 
+import { REFETCH_INTERVAL } from "consts/index";
 import { useReadSortitionModuleGetJurorBalance, useReadPnkBalanceOf } from "hooks/contracts/generated";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { commify, uncommify } from "utils/commify";
@@ -74,21 +75,21 @@ const InputDisplay: React.FC<IInputDisplay> = ({
 
   const { id } = useParams();
   const { address } = useAccount();
-  // TODO refetch on block
+
   const { data: balance } = useReadPnkBalanceOf({
     query: {
       enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
     },
     args: [address ?? "0x"],
-    // watch: true,
   });
   const parsedBalance = formatPNK(balance ?? 0n, 0, true);
   const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
     query: {
       enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
     },
     args: [address ?? "0x", BigInt(id ?? "0")],
-    // watch: true,
   });
   const parsedStake = formatPNK(jurorBalance?.[2] || 0n, 0, true);
   const isStaking = useMemo(() => action === ActionType.stake, [action]);

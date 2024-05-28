@@ -6,6 +6,7 @@ import { useAccount } from "wagmi";
 
 import KlerosLogo from "svgs/icons/kleros.svg";
 
+import { REFETCH_INTERVAL } from "consts/index";
 import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
 
@@ -76,10 +77,10 @@ const AmountStakedOrWithdrawn: React.FC<IAmountStakedOrWithdrawn> = ({ pnkStaked
 const StakeWithdraw: React.FC<IStakeWithdraw> = ({ pnkStaked, courtName, isStake, courtId }) => {
   const { address } = useAccount();
 
-  // TODO refetch
   const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
     query: {
       enabled: !isUndefined(address) && !isUndefined(courtId),
+      refetchInterval: REFETCH_INTERVAL,
     },
     args: [address ?? "0x", BigInt(courtId)],
   });
