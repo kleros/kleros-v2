@@ -3,6 +3,7 @@ import React, { useContext, createContext, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
+import { REFETCH_INTERVAL } from "consts/index";
 import { useReadDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
 import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "hooks/queries/useDrawQuery";
@@ -34,10 +35,10 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const { data: drawData, isLoading } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
   const roundId = disputeData?.dispute?.currentRoundIndex;
   const voteId = drawData?.draws?.[0]?.voteIDNum;
-  // TODO watch
   const { data: hasVoted } = useReadDisputeKitClassicIsVoteActive({
     query: {
       enabled: !isUndefined(roundId) && !isUndefined(voteId),
+      refetchInterval: REFETCH_INTERVAL,
     },
     args: [BigInt(id ?? 0), roundId, voteId],
   });

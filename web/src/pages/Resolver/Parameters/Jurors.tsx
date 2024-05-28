@@ -40,7 +40,6 @@ const StyledDisplay = styled(DisplaySmall)`
 
 const Jurors: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
-
   const { data } = useReadKlerosCoreArbitrationCost({
     query: {
       enabled: !isUndefined(disputeData.numberOfJurors) && !Number.isNaN(disputeData.numberOfJurors),
