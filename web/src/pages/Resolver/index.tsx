@@ -8,6 +8,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import ConnectWallet from "components/ConnectWallet";
+import { EnsureAuth } from "components/EnsureAuth";
 import HeroImage from "components/HeroImage";
 
 import Description from "./Briefing/Description";
@@ -71,21 +72,23 @@ const DisputeResolver: React.FC = () => {
       <Container>
         {isConnected && !isPreviewPage ? <StyledLabel>Start a case</StyledLabel> : null}
         {isConnected ? (
-          <MiddleContentContainer>
-            {isConnected && !isPreviewPage ? <Timeline /> : null}
-            <Routes>
-              <Route index element={<Navigate to="title" replace />} />
-              <Route path="/title/*" element={<Title />} />
-              <Route path="/description/*" element={<Description />} />
-              <Route path="/court/*" element={<Court />} />
-              <Route path="/category/*" element={<Category />} />
-              <Route path="/jurors/*" element={<Jurors />} />
-              <Route path="/voting-options/*" element={<VotingOptions />} />
-              <Route path="/notable-persons/*" element={<NotablePersons />} />
-              <Route path="/policy/*" element={<Policy />} />
-              <Route path="/preview/*" element={<Preview />} />
-            </Routes>
-          </MiddleContentContainer>
+          <EnsureAuth>
+            <MiddleContentContainer>
+              {isConnected && !isPreviewPage ? <Timeline /> : null}
+              <Routes>
+                <Route index element={<Navigate to="title" replace />} />
+                <Route path="/title/*" element={<Title />} />
+                <Route path="/description/*" element={<Description />} />
+                <Route path="/court/*" element={<Court />} />
+                <Route path="/category/*" element={<Category />} />
+                <Route path="/jurors/*" element={<Jurors />} />
+                <Route path="/voting-options/*" element={<VotingOptions />} />
+                <Route path="/notable-persons/*" element={<NotablePersons />} />
+                <Route path="/policy/*" element={<Policy />} />
+                <Route path="/preview/*" element={<Preview />} />
+              </Routes>
+            </MiddleContentContainer>
+          </EnsureAuth>
         ) : (
           <ConnectWalletContainer>
             To create a new dispute, connect first
