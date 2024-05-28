@@ -71,7 +71,6 @@ const useCalculateJurorOdds = (
 const JurorBalanceDisplay = () => {
   const { id } = useParams();
   const { address } = useAccount();
-
   const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
     query: {
       enabled: !isUndefined(address),

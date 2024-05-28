@@ -75,7 +75,6 @@ const InputDisplay: React.FC<IInputDisplay> = ({
 
   const { id } = useParams();
   const { address } = useAccount();
-
   const { data: balance } = useReadPnkBalanceOf({
     query: {
       enabled: !isUndefined(address),

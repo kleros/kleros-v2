@@ -49,7 +49,6 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const { id } = useParams();
   const { address } = useAccount();
   const { data: courtDetails } = useCourtDetails(id);
-
   const { data: balance } = useReadPnkBalanceOf({
     query: {
       enabled: !isUndefined(address),
