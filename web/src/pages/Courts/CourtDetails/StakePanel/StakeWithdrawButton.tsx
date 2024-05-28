@@ -5,6 +5,7 @@ import { useAccount, usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
+import { REFETCH_INTERVAL } from "consts/index";
 import {
   klerosCoreAddress,
   useSimulateKlerosCoreSetStake,
@@ -48,27 +49,26 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const { id } = useParams();
   const { address } = useAccount();
   const { data: courtDetails } = useCourtDetails(id);
-  // TODO refetch on block
   const { data: balance } = useReadPnkBalanceOf({
     query: {
       enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
     },
     args: [address!],
-    // watch: true,
   });
   const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
     query: {
       enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
     },
     args: [address ?? "0x", BigInt(id ?? 0)],
-    // watch: true,
   });
   const { data: allowance } = useReadPnkAllowance({
     query: {
       enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
     },
     args: [address ?? "0x", klerosCoreAddress[421614]],
-    // watch: true,
   });
   const publicClient = usePublicClient();
 
