@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 
 import { useParams } from "react-router-dom";
 import { useAccount, usePublicClient } from "wagmi";
@@ -35,7 +35,6 @@ interface IActionButton {
   setIsSending: (arg0: boolean) => void;
   setAmount: (arg0: string) => void;
   setIsPopupOpen: (arg0: boolean) => void;
-  setErrorMsg: (arg0: string | undefined) => void;
 }
 
 const StakeWithdrawButton: React.FC<IActionButton> = ({
@@ -44,7 +43,6 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   isSending,
   setIsSending,
   setIsPopupOpen,
-  setErrorMsg,
 }) => {
   const { id } = useParams();
   const { address } = useAccount();
@@ -88,7 +86,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     return 0n;
   }, [jurorBalance, parsedAmount, isAllowance, isStaking]);
 
-  const { data: increaseAllowanceConfig, error: allowanceError } = useSimulatePnkIncreaseAllowance({
+  const { data: increaseAllowanceConfig } = useSimulatePnkIncreaseAllowance({
     query: {
       enabled: isAllowance && !isUndefined(targetStake) && !isUndefined(allowance),
     },
@@ -106,7 +104,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
 
   const { data: setStakeConfig, error: setStakeError } = useSimulateKlerosCoreSetStake({
     query: {
-      enabled: !isUndefined(targetStake) && !isUndefined(id) && !isAllowance,
+      enabled: !isUndefined(targetStake) && !isUndefined(id) && !isAllowance && parsedAmount !== 0n,
     },
     args: [BigInt(id ?? 0), targetStake],
   });
@@ -114,21 +112,13 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const handleStake = useCallback(() => {
     if (setStakeConfig) {
       setIsSending(true);
-      wrapWithToast(async () => await setStake(setStakeConfig.request).then(({ hash }) => hash), publicClient)
+      wrapWithToast(async () => await setStake(setStakeConfig.request), publicClient)
         .then((res) => res.status && setIsPopupOpen(true))
         .finally(() => {
           setIsSending(false);
         });
     }
   }, [setIsSending, setStake, setStakeConfig, publicClient, setIsPopupOpen]);
-
-  useEffect(() => {
-    if (isAllowance) {
-      setErrorMsg(allowanceError?.shortMessage);
-    } else {
-      setErrorMsg(setStakeError?.shortMessage);
-    }
-  }, [allowanceError, setStakeError, isAllowance, isStaking, setErrorMsg]);
 
   const buttonProps = {
     [ActionType.allowance]: {

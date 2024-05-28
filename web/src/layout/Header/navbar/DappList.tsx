@@ -120,9 +120,9 @@ const ITEMS = [
     url: "https://veascan.io",
   },
   {
-    text: "Perma Curate",
+    text: "Kleros Scout",
     Icon: Curate,
-    url: "https://perma-curate.eth.limo/",
+    url: "https://klerosscout.eth.limo",
   },
   {
     text: "POH V1",
