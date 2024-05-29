@@ -23,15 +23,19 @@ const alchemyURL = (protocol: AlchemyProtocol, chain: AlchemyChain) =>
 const alchemyTransport = (chain: AlchemyChain) =>
   fallback([webSocket(alchemyURL("wss", chain)), http(alchemyURL("https", chain))]);
 
+const transports = {
+  [isProductionDeployment() ? arbitrum.id : arbitrumSepolia.id]: isProductionDeployment()
+    ? alchemyTransport("arb")
+    : alchemyTransport("arb-sepolia"),
+  [mainnet.id]: alchemyTransport("eth-mainnet"),
+  [gnosisChiado.id]: fallback([webSocket("wss://rpc.chiadochain.net/wss"), http("https://rpc.chiadochain.net")]),
+};
+
+console.log("transports", transports);
+
 const wagmiConfig = createConfig({
   chains,
-  transports: {
-    [isProductionDeployment() ? arbitrum.id : arbitrumSepolia.id]: isProductionDeployment()
-      ? alchemyTransport("arb")
-      : alchemyTransport("arb-sepolia"),
-    [mainnet.id]: alchemyTransport("eth-mainnet"),
-    [gnosisChiado.id]: fallback([webSocket("wss://rpc.chiadochain.net/wss"), http("https://rpc.chiadochain.net")]),
-  },
+  transports,
   connectors: [walletConnect({ projectId })],
 });
 
