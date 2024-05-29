@@ -7,6 +7,14 @@ export default defineConfig({
   root: "src",
   build: {
     outDir: "../dist",
+    rollupOptions: {
+      onwarn: (warning, warn) => {
+        if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
+          return;
+        }
+        warn(warning);
+      },
+    },
   },
   envPrefix: ["REACT_APP", "ALCHEMY"],
   plugins: [
