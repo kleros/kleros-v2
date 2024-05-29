@@ -31,8 +31,6 @@ const transports = {
   [gnosisChiado.id]: fallback([webSocket("wss://rpc.chiadochain.net/wss"), http("https://rpc.chiadochain.net")]),
 };
 
-console.log("transports", transports);
-
 const wagmiConfig = createConfig({
   chains,
   transports,
@@ -42,6 +40,7 @@ const wagmiConfig = createConfig({
 createWeb3Modal({
   wagmiConfig,
   projectId,
+  defaultChain: isProductionDeployment() ? arbitrum : arbitrumSepolia,
   themeVariables: {
     "--w3m-color-mix": lightTheme.primaryPurple,
     "--w3m-color-mix-strength": 20,
@@ -49,11 +48,7 @@ createWeb3Modal({
 });
 
 const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <>
-      <WagmiProvider config={wagmiConfig}> {children} </WagmiProvider>
-    </>
-  );
+  return <WagmiProvider config={wagmiConfig}> {children} </WagmiProvider>;
 };
 
 export default Web3Provider;

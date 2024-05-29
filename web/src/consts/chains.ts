@@ -6,8 +6,7 @@ import { isProductionDeployment } from "./index";
 export const DEFAULT_CHAIN = isProductionDeployment() ? arbitrum.id : arbitrumSepolia.id;
 
 export const SUPPORTED_CHAINS: Record<number, Chain> = {
-  [arbitrumSepolia.id]: arbitrumSepolia,
-  [arbitrum.id]: arbitrum,
+  [isProductionDeployment() ? arbitrum.id : arbitrumSepolia.id]: isProductionDeployment() ? arbitrum : arbitrumSepolia,
 };
 
 export const QUERY_CHAINS: Record<number, Chain> = {
