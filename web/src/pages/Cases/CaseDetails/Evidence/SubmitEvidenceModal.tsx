@@ -2,14 +2,16 @@ import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
 import Modal from "react-modal";
+import { toast } from "react-toastify";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
 import { Textarea, Button, FileUploader } from "@kleros/ui-components-library";
 
 import { simulateEvidenceModuleSubmitEvidence } from "hooks/contracts/generated";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
-import { wrapWithToast } from "utils/wrapWithToast";
+import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 
+import { EnsureAuth } from "components/EnsureAuth";
 import { EnsureChain } from "components/EnsureChain";
 
 const StyledModal = styled(Modal)`
@@ -62,6 +64,7 @@ const SubmitEvidenceModal: React.FC<{
 
   const submitEvidence = useCallback(async () => {
     setIsSending(true);
+    toast.info("Uploading to IPFS", toastOptions);
     const formData = await constructEvidence(message, file);
     uploadFormDataToIPFS(formData)
       .then(async (res) => {
@@ -89,7 +92,9 @@ const SubmitEvidenceModal: React.FC<{
       <ButtonArea>
         <Button variant="secondary" disabled={isSending} text="Return" onClick={close} />
         <EnsureChain>
-          <Button text="Submit" isLoading={isSending} disabled={isSending} onClick={submitEvidence} />
+          <EnsureAuth>
+            <Button text="Submit" isLoading={isSending} disabled={isSending} onClick={submitEvidence} />
+          </EnsureAuth>
         </EnsureChain>
       </ButtonArea>
     </StyledModal>
