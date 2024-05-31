@@ -5,10 +5,10 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 
 import { Tabs as TabsComponent } from "@kleros/ui-components-library";
 
-import BullhornIcon from "assets/svgs/icons/bullhorn.svg";
-import DocIcon from "assets/svgs/icons/doc.svg";
-import EyeIcon from "assets/svgs/icons/eye.svg";
-import BalanceIcon from "assets/svgs/icons/law-balance.svg";
+import BullhornIcon from "svgs/icons/bullhorn.svg";
+import DocIcon from "svgs/icons/doc.svg";
+import EyeIcon from "svgs/icons/eye.svg";
+import BalanceIcon from "svgs/icons/law-balance.svg";
 
 import { Periods } from "consts/periods";
 import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";

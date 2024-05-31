@@ -5,7 +5,7 @@ import Skeleton from "react-loading-skeleton";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
-import ArrowIcon from "assets/svgs/icons/arrow.svg";
+import ArrowIcon from "svgs/icons/arrow.svg";
 
 import { REFETCH_INTERVAL } from "consts/index";
 import { Periods } from "consts/periods";
