@@ -5,9 +5,9 @@ import { useParams } from "react-router-dom";
 
 import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
 
-import CalendarIcon from "assets/svgs/icons/calendar.svg";
-import ClosedCaseIcon from "assets/svgs/icons/check-circle-outline.svg";
-import AppealedCaseIcon from "assets/svgs/icons/close-circle.svg";
+import CalendarIcon from "svgs/icons/calendar.svg";
+import ClosedCaseIcon from "svgs/icons/check-circle-outline.svg";
+import AppealedCaseIcon from "svgs/icons/close-circle.svg";
 
 import { Periods } from "consts/periods";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";

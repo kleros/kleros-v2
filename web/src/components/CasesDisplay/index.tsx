@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { useLocation, useNavigate } from "react-router-dom";
 
-import ArrowIcon from "assets/svgs/icons/arrow.svg";
+import ArrowIcon from "svgs/icons/arrow.svg";
 
 import { responsiveSize } from "styles/responsiveSize";
 
