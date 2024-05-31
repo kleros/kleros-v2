@@ -5,7 +5,7 @@ import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
-import VoteIcon from "assets/svgs/icons/voted.svg";
+import VoteIcon from "svgs/icons/voted.svg";
 
 import { Periods } from "consts/periods";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
