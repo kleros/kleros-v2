@@ -132,7 +132,7 @@ const LongText = styled.div`
 `;
 
 const DisputeTemplateView = () => {
-  const klerosCoreAddress = klerosCoreConfig.address[421614];
+  const klerosCoreAddress = Object.values(klerosCoreConfig.address)[0];
   const [disputeDetails, setDisputeDetails] = useState<DisputeDetails | undefined>(undefined);
   const [disputeTemplateInput, setDisputeTemplateInput] = useState<string>("");
   const [dataMappingsInput, setDataMappingsInput] = useState<string>("");

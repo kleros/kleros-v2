@@ -9,7 +9,7 @@ export const useAppealCost = (disputeID?: string) => {
   const publicClient = usePublicClient();
   const klerosCore = getContract({
     abi: klerosCoreConfig.abi,
-    address: klerosCoreConfig.address[421614],
+    address: Object.values(klerosCoreConfig.address)[0],
     client: {
       public: publicClient,
     },

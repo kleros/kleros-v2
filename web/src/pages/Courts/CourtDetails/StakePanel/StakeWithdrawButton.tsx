@@ -66,7 +66,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
       enabled: !isUndefined(address),
       refetchInterval: REFETCH_INTERVAL,
     },
-    args: [address ?? "0x", klerosCoreAddress[421614]],
+    args: [address ?? "0x", Object.values(klerosCoreAddress)[0]],
   });
   const publicClient = usePublicClient();
 
@@ -90,7 +90,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     query: {
       enabled: isAllowance && !isUndefined(targetStake) && !isUndefined(allowance),
     },
-    args: [klerosCoreAddress[421614], BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
+    args: [Object.values(klerosCoreAddress)[0], BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
   });
   const { writeContractAsync: increaseAllowance } = useWritePnkIncreaseAllowance();
   const handleAllowance = useCallback(() => {

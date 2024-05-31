@@ -9,7 +9,7 @@ export const usePolicyRegistryEvent = (courtID?: string | number) => {
   const publicClient = usePublicClient();
   const policyRegistry = getContract({
     abi: policyRegistryConfig.abi,
-    address: policyRegistryConfig.address[421614],
+    address: Object.values(policyRegistryConfig.address)[0],
     client: {
       public: publicClient,
     },

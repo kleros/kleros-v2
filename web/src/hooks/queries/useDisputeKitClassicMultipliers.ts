@@ -9,7 +9,7 @@ export const useDisputeKitClassicMultipliers = () => {
   const publicClient = usePublicClient();
   const disputeKitClassic = getContract({
     abi: disputeKitClassicConfig.abi,
-    address: disputeKitClassicConfig.address[421614],
+    address: Object.values(disputeKitClassicConfig.address)[0],
     client: {
       public: publicClient,
     },
