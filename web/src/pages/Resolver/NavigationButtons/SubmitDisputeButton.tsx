@@ -6,7 +6,7 @@ import { usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
-import DisputeIcon from "assets/svgs/icons/dispute.svg";
+import DisputeIcon from "svgs/icons/dispute.svg";
 
 import { IDisputeTemplate, useNewDisputeContext } from "context/NewDisputeContext";
 import {
