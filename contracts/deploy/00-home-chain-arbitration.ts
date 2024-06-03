@@ -1,8 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber, BigNumberish } from "ethers";
-import { getContractAddress } from "./utils/getContractAddress";
-import { deployUpgradable, deployUpgradableDeterministic } from "./utils/deployUpgradable";
+import { deployUpgradableDeterministic } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped, isDevnet } from "./utils";
 import { getContractOrDeploy } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet } from "./utils/deployERC20AndFaucet";
@@ -10,7 +9,7 @@ import { KlerosCore } from "../typechain-types";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
-  const { deploy, execute } = deployments;
+  const { execute } = deployments;
   const { AddressZero } = hre.ethers.constants;
   const RNG_LOOKAHEAD = 20;
 
@@ -20,8 +19,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
   const pnk = await deployERC20AndFaucet(hre, deployer, "PNK", ethers.utils.formatBytes32String("Just use Kleros!"));
-  const dai = await deployERC20AndFaucet(hre, deployer, "DAI", ethers.utils.formatBytes32String("Just use Kleros!"));
-  const weth = await deployERC20AndFaucet(hre, deployer, "WETH", ethers.utils.formatBytes32String("Just use Kleros!"));
+  const dai = await deployERC20AndFaucet(hre, deployer, "DAI");
+  const weth = await deployERC20AndFaucet(hre, deployer, "WETH");
 
   const randomizerOracle = await getContractOrDeploy(hre, "RandomizerOracle", {
     from: deployer,
