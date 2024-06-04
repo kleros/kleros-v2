@@ -10,7 +10,7 @@ import { type Abi } from "viem";
 import IArbitrableV2 from "@kleros/kleros-v2-contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" assert { type: "json" };
 import IHomeGateway from "@kleros/kleros-v2-contracts/artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" assert { type: "json" };
 
-import { ArbitratorTypes, getArbitratorType } from "src/consts/arbitratorTypes";
+import { ArbitratorTypes, getArbitratorType } from "consts/arbitratorTypes";
 
 dotenv.config();
 

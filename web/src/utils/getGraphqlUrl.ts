@@ -1,6 +1,6 @@
 import { arbitrumSepolia, arbitrum } from "wagmi/chains";
 
-import { DEFAULT_CHAIN } from "src/consts/chains";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 export const getGraphqlUrl = (isDisputeTemplate = false, chainId: number = DEFAULT_CHAIN) => {
   const CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH = {
