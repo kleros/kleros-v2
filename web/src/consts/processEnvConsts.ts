@@ -1,3 +1,5 @@
+import { arbitrum, arbitrumSepolia } from "viem/chains";
+
 import { ArbitratorTypes, getArbitratorType as _getArbitratorType } from "consts/arbitratorTypes";
 
 export { ArbitratorTypes };
@@ -30,3 +32,5 @@ export const genesisBlock = () => (isProductionDeployment() ? GENESIS_BLOCK_ARBM
 
 export const INVALID_DISPUTE_DATA_ERROR = `The dispute data is not valid, please vote "Refuse to arbitrate"`;
 export const RPC_ERROR = `RPC Error: Unable to fetch dispute data. Please avoid voting.`;
+
+export const DEFAULT_CHAIN = isProductionDeployment() ? arbitrum.id : arbitrumSepolia.id;
