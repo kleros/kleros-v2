@@ -1,8 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
-import { Database } from "../../src/types/supabase-notification";
-import { EMAIL_REGEX, TELEGRAM_REGEX, ETH_ADDRESS_REGEX } from "../../src/consts/index";
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
+import { createClient } from "@supabase/supabase-js";
+
+import { EMAIL_REGEX, TELEGRAM_REGEX, ETH_ADDRESS_REGEX } from "../../src/consts/index";
+import { Database } from "../../src/types/supabase-notification";
 import { authMiddleware } from "../middleware/authMiddleware";
 
 type NotificationSettings = {

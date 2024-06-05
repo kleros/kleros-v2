@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo } from "react";
 
 import { useParams } from "react-router-dom";
 import { useAccount, usePublicClient } from "wagmi";
@@ -34,7 +34,6 @@ interface IActionButton {
   setIsSending: (arg0: boolean) => void;
   setAmount: (arg0: string) => void;
   setIsPopupOpen: (arg0: boolean) => void;
-  setErrorMsg: (arg0: string | undefined) => void;
 }
 
 const StakeWithdrawButton: React.FC<IActionButton> = ({
@@ -43,7 +42,6 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   isSending,
   setIsSending,
   setIsPopupOpen,
-  setErrorMsg,
 }) => {
   const { id } = useParams();
   const { address } = useAccount();
@@ -82,7 +80,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     return 0n;
   }, [jurorBalance, parsedAmount, isAllowance, isStaking]);
 
-  const { config: increaseAllowanceConfig, error: allowanceError } = usePreparePnkIncreaseAllowance({
+  const { config: increaseAllowanceConfig } = usePreparePnkIncreaseAllowance({
     enabled: isAllowance && !isUndefined(klerosCore) && !isUndefined(targetStake) && !isUndefined(allowance),
     args: [klerosCore?.address, BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
   });
@@ -99,7 +97,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   };
 
   const { config: setStakeConfig, error: setStakeError } = usePrepareKlerosCoreSetStake({
-    enabled: !isUndefined(targetStake) && !isUndefined(id) && !isAllowance,
+    enabled: !isUndefined(targetStake) && !isUndefined(id) && !isAllowance && parsedAmount !== 0n,
     args: [BigInt(id ?? 0), targetStake],
   });
   const { writeAsync: setStake } = useKlerosCoreSetStake(setStakeConfig);
@@ -113,14 +111,6 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
         });
     }
   };
-
-  useEffect(() => {
-    if (isAllowance) {
-      setErrorMsg(allowanceError?.shortMessage);
-    } else {
-      setErrorMsg(setStakeError?.shortMessage);
-    }
-  }, [allowanceError, setStakeError, isAllowance, isStaking, setErrorMsg]);
 
   const buttonProps = {
     [ActionType.allowance]: {

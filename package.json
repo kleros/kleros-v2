@@ -72,6 +72,6 @@
   "alias": {
     "process": "process/browser.js",
     "buffer": "buffer",
-    "ethers": "./web/src/utils/ethersShim.ts"
+    "@lifi/sdk": "@tractors/lifi-sdk-parcel"
   }
 }
