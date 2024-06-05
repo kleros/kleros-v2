@@ -2,8 +2,8 @@
 
 pragma solidity 0.8.24;
 
-import "@kleros/vea-contracts/src/interfaces/inboxes/IVeaInbox.sol";
-import "@kleros/vea-contracts/src/interfaces/outboxes/IVeaOutboxOnL1.sol";
+import "@kleros/vea-contracts/interfaces/inboxes/IVeaInbox.sol";
+import "@kleros/vea-contracts/interfaces/outboxes/IVeaOutboxOnL1.sol";
 
 contract VeaMock is IVeaOutboxOnL1, IVeaInbox {
     /* solhint-disable */
