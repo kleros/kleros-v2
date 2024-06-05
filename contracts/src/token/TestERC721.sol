@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
@@ -59,12 +59,19 @@ contract TestERC721 is ERC721, ERC721Enumerable {
     // *            Internal               * //
     // ************************************* //
 
-    function _beforeTokenTransfer(
-        address from,
+    function _increaseBalance(address account, uint128 value) internal virtual override(ERC721, ERC721Enumerable) {
+        super._increaseBalance(account, value);
+    }
+
+    // ************************************* //
+    // *            Internal               * //
+    // ************************************* //
+
+    function _update(
         address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual override(ERC721, ERC721Enumerable) {
-        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
+        uint256 tokenId,
+        address auth
+    ) internal virtual override(ERC721, ERC721Enumerable) returns (address) {
+        super._update(to, tokenId, auth);
     }
 }
