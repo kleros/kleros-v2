@@ -36,7 +36,7 @@ const CourtHeader = styled.h1`
 `;
 
 const CourtInfo = styled.div`
-  display: flex:
+  display: flex;
   flex-direction: column;
   gap: 16px;
 
@@ -71,13 +71,10 @@ const StyledCard = styled(Card)`
 `;
 
 const StyledBreadcrumb = styled(Breadcrumb)`
-  display: flex;
-  margin-top: 12px;
   align-items: center;
-`;
-
-const StyledBreadcrumbSkeleton = styled.div`
-  margin-top: 12px;
+  button {
+    font-size: 16px;
+  }
 `;
 
 const CourtDetails: React.FC = () => {
@@ -102,13 +99,7 @@ const CourtDetails: React.FC = () => {
         <CourtHeader>
           <CourtInfo>
             {policy ? policy.name : <StyledSkeleton width={200} />}
-            {items.length > 1 ? (
-              <StyledBreadcrumb items={items} />
-            ) : (
-              <StyledBreadcrumbSkeleton>
-                <StyledSkeleton width={100} />
-              </StyledBreadcrumbSkeleton>
-            )}
+            {items.length > 1 ? <StyledBreadcrumb items={items} /> : <StyledSkeleton width={100} />}
           </CourtInfo>
           <ButtonContainer>
             <HowItWorks

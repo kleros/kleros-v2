@@ -6195,7 +6195,7 @@ __metadata:
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
-    "@kleros/ui-components-library": "npm:^2.10.0"
+    "@kleros/ui-components-library": "npm:^2.12.0"
     "@lifi/widget": "npm:^2.10.1"
     "@middy/core": "npm:^5.3.2"
     "@middy/http-json-body-parser": "npm:^5.3.2"
@@ -6261,9 +6261,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kleros/ui-components-library@npm:^2.10.0":
-  version: 2.10.0
-  resolution: "@kleros/ui-components-library@npm:2.10.0"
+"@kleros/ui-components-library@npm:^2.12.0":
+  version: 2.12.0
+  resolution: "@kleros/ui-components-library@npm:2.12.0"
   dependencies:
     "@datepicker-react/hooks": "npm:^2.8.4"
     "@swc/helpers": "npm:^0.3.2"
@@ -6280,7 +6280,7 @@ __metadata:
     react-dom: ^18.0.0
     react-is: ^18.0.0
     styled-components: ^5.3.3
-  checksum: 5a66d497644f192cbdf4abb0a344dbc48c786946c461894225370d038bb8f69a80d3f93684b51ce3db616d6d5f0064ccd1f1000c5db1d3d5312f38090b6565aa
+  checksum: 9c53e9ce217a5dd6c0f5dc1b19c8c14fb6f4843f5cf7a0eb1b1ae9561ead583c1bcf5bc2687e7f678007363768be3de95f5d573298b00b965d13a563c4b59495
   languageName: node
   linkType: hard
 
