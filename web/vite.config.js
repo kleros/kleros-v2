@@ -20,6 +20,7 @@ export default defineConfig({
   plugins: [
     svgr({
       include: ["**/*.svg", "tsx:**/*.svg"],
+      exclude: ["../node_modules/**/*"],
     }),
     tsconfigPaths({
       ignoreConfigErrors: true,
