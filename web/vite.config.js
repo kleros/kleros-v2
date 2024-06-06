@@ -25,6 +25,8 @@ export default defineConfig({
     tsconfigPaths({
       ignoreConfigErrors: true,
     }),
-    nodePolyfills(),
+    nodePolyfills({
+      include: ["fs", "stream"],
+    }),
   ],
 });
