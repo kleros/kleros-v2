@@ -6505,12 +6505,12 @@ __metadata:
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
-    "@kleros/vea-contracts": "npm:^0.3.2"
+    "@kleros/vea-contracts": "npm:^0.4.0"
     "@logtail/pino": "npm:^0.4.19"
     "@nomicfoundation/hardhat-chai-matchers": "npm:^1.0.6"
     "@nomiclabs/hardhat-ethers": "npm:^2.2.3"
     "@nomiclabs/hardhat-solhint": "npm:^3.0.1"
-    "@openzeppelin/contracts": "npm:^4.9.5"
+    "@openzeppelin/contracts": "npm:^5.0.2"
     "@typechain/ethers-v5": "npm:^11.1.2"
     "@typechain/hardhat": "npm:^7.0.0"
     "@types/chai": "npm:^4.3.11"
@@ -6696,12 +6696,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kleros/vea-contracts@npm:^0.3.2":
-  version: 0.3.2
-  resolution: "@kleros/vea-contracts@npm:0.3.2"
-  dependencies:
-    "@openzeppelin/contracts": "npm:^4.8.3"
-  checksum: c91655c100f6623e230e5b7c1cb4308e9e382edfac5a63d2147a4a4ca83569418ca5f3e32a237a97c9668363cc2ce5e8a7d7133c9db7007e459a44e72ca37a2d
+"@kleros/vea-contracts@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "@kleros/vea-contracts@npm:0.4.0"
+  checksum: 6e60eddf4f0bc9e687ddb83d634d800c75dc6bdd41be9f8904876f977dce2f661e183c4b3fc19d773d61b4b1d94fd4639c63d355d30e91f16f42d931a46dcbd5
   languageName: node
   linkType: hard
 
@@ -8320,17 +8318,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts@npm:^4.8.3":
-  version: 4.9.3
-  resolution: "@openzeppelin/contracts@npm:4.9.3"
-  checksum: ce0a16a56a39b62d72370ac702bce1917096492442ff05de88521beda2c3f3935b93ee2b9a184614dd543a6181f2f0be10243f5a629be87aab284ade68c18320
-  languageName: node
-  linkType: hard
-
-"@openzeppelin/contracts@npm:^4.9.5":
-  version: 4.9.5
-  resolution: "@openzeppelin/contracts@npm:4.9.5"
-  checksum: f221d91a7dd96f9187aa832f8a160d673feb2904711bd210fab56ccfd8b8351b8150b4f0bd247701f7d4adddceba83943c049c6da11d126e07164b9abff767e0
+"@openzeppelin/contracts@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "@openzeppelin/contracts@npm:5.0.2"
+  checksum: 938ebffbdade7dc59ea3df5b562c0e457bbefde9d82be8fa2acfd11da887df11653ac07922f41746b80cdbc106430e1e6978ce244fe99b00a7d9dc1418fc7670
   languageName: node
   linkType: hard
 
