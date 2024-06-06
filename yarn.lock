@@ -6616,7 +6616,7 @@ __metadata:
     "@sentry/react": "npm:^7.93.0"
     "@sentry/tracing": "npm:^7.93.0"
     "@supabase/supabase-js": "npm:^2.39.3"
-    "@tanstack/react-query": "npm:^4.28.0"
+    "@tanstack/react-query": "npm:^5.40.1"
     "@tractors/lifi-sdk-parcel": "npm:^2.5.3"
     "@types/amqplib": "npm:^0.10.4"
     "@types/busboy": "npm:^1.5.3"
@@ -10054,6 +10054,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/query-core@npm:5.40.0":
+  version: 5.40.0
+  resolution: "@tanstack/query-core@npm:5.40.0"
+  checksum: d7f022295aa392c2f8903f56b87039b925e4bfe26c5e8efdc482f2615d830f02f1b49ffda35838ff682d4546de87817f445db260f225ed1caf8c24eb8c197cf9
+  languageName: node
+  linkType: hard
+
 "@tanstack/query-persist-client-core@npm:4.29.15":
   version: 4.29.15
   resolution: "@tanstack/query-persist-client-core@npm:4.29.15"
@@ -10118,6 +10125,17 @@ __metadata:
     react-native:
       optional: true
   checksum: 764b860c3ac8d254fc6b07e01054a0f58058644d59626c724b213293fbf1e31c198cbb26e4c32c0d16dcaec0353c0ae19147d9c667675b31f8cea1d64f1ff4ac
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query@npm:^5.40.1":
+  version: 5.40.1
+  resolution: "@tanstack/react-query@npm:5.40.1"
+  dependencies:
+    "@tanstack/query-core": "npm:5.40.0"
+  peerDependencies:
+    react: ^18.0.0
+  checksum: 2677657573ef4c3c73bb2b54ee03bc48e2cbb97c989937a6823be6a4fb799fbf32518b2f612fcc6390b76612608cd7601a03091007c71a716da546b1eb25007c
   languageName: node
   linkType: hard
 
