@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
 import { useToggle } from "react-use";
@@ -90,6 +90,18 @@ const DesktopHeader = () => {
   const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
   const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
   const [isSettingsOpen, toggleIsSettingsOpen] = useToggle(false);
+  const [initialTab, setInitialTab] = useState<number>(0);
+
+  const initializeNotifications = () => {
+    const hasNotifications = window.location.hash.includes("#notifications");
+    toggleIsSettingsOpen(hasNotifications);
+    setInitialTab(hasNotifications ? 1 : 0);
+  };
+
+  useEffect(() => {
+    initializeNotifications();
+  }, []);
+
   useLockOverlayScroll(isDappListOpen || isHelpOpen || isSettingsOpen);
 
   return (
@@ -124,7 +136,7 @@ const DesktopHeader = () => {
           <Overlay />
           {isDappListOpen && <DappList {...{ toggleIsDappListOpen, isDappListOpen }} />}
           {isHelpOpen && <Help {...{ toggleIsHelpOpen, isHelpOpen }} />}
-          {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen }} />}
+          {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen, initialTab }} />}
         </PopupContainer>
       )}
     </>
