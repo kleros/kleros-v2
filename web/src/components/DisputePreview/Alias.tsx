@@ -30,7 +30,7 @@ interface IAlias {
 }
 
 const AliasDisplay: React.FC<IAlias> = ({ alias }) => {
-  const { data: addressFromENS, isFetching } = useEnsAddress({
+  const { data: addressFromENS, isLoading } = useEnsAddress({
     query: {
       // if alias.address is not an Address, we treat it as ENS and try to fetch address from there
       enabled: !isAddress(alias.address),
@@ -44,9 +44,9 @@ const AliasDisplay: React.FC<IAlias> = ({ alias }) => {
 
   return (
     <AliasContainer>
-      {isFetching ? <Skeleton width={30} height={24} /> : <IdenticonOrAvatar address={address} size="24" />}
+      {isLoading ? <Skeleton width={30} height={24} /> : <IdenticonOrAvatar address={address} size="24" />}
       <TextContainer>
-        {isFetching ? <Skeleton width={30} height={24} /> : <AddressOrName address={address} />}&nbsp;
+        {isLoading ? <Skeleton width={30} height={24} /> : <AddressOrName address={address} />}&nbsp;
         {!isUndefined(alias.name) && alias.name !== "" ? <label>({alias.name})</label> : null}
       </TextContainer>
     </AliasContainer>
