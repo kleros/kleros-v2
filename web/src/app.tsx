@@ -35,8 +35,6 @@ const App: React.FC = () => {
                 <SentryRoutes>
                   <Route path="/" element={<Layout />}>
                     <Route index element={<Home />} />
-                    <Route path="onboarding" element={<Home />} />
-                    <Route path="notifications" element={<Home />} />
                     <Route path="cases/*" element={<Cases />} />
                     <Route path="courts/*" element={<Courts />} />
                     <Route path="dashboard/:page/:order/:filter" element={<Dashboard />} />
