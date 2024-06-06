@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
-import { useToggle } from "react-use";
+import { useLocation, useToggle } from "react-use";
 
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 
@@ -91,16 +91,17 @@ const DesktopHeader = () => {
   const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
   const [isSettingsOpen, toggleIsSettingsOpen] = useToggle(false);
   const [initialTab, setInitialTab] = useState<number>(0);
+  const location = useLocation();
 
   const initializeNotifications = () => {
-    const hasNotifications = window.location.hash.includes("#notifications");
-    toggleIsSettingsOpen(hasNotifications);
-    setInitialTab(hasNotifications ? 1 : 0);
+    const hasNotificationsPath: boolean = location.hash.includes("#notifications");
+    toggleIsSettingsOpen(hasNotificationsPath);
+    setInitialTab(hasNotificationsPath ? 1 : 0);
   };
 
   useEffect(() => {
     initializeNotifications();
-  }, []);
+  }, [location.hash]);
 
   useLockOverlayScroll(isDappListOpen || isHelpOpen || isSettingsOpen);
 

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 
-import { useToggle } from "react-use";
+import { useLocation, useToggle } from "react-use";
 
 import { HomePageProvider } from "hooks/useHomePageContext";
 import { getOneYearAgoTimestamp } from "utils/date";
@@ -26,9 +26,11 @@ const Container = styled.div`
 
 const Home: React.FC = () => {
   const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
+  const location = useLocation();
+
   useEffect(() => {
-    toggleIsOnboardingMiniGuidesOpen(window.location.hash.includes("#onboarding"));
-  }, []);
+    toggleIsOnboardingMiniGuidesOpen(location.hash.includes("#onboarding"));
+  }, [location.hash]);
 
   return (
     <HomePageProvider timeframe={getOneYearAgoTimestamp()}>
