@@ -36,6 +36,12 @@ const Index = styled.p`
   display: inline-block;
 `;
 
+const StyledReactMarkdown = styled(ReactMarkdown)`
+  a {
+    font-size: 16px;
+  }
+`;
+
 const BottomShade = styled.div`
   background-color: ${({ theme }) => theme.lightBlue};
   display: flex;
@@ -120,7 +126,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
         {data ? (
           <>
             <h3>{data.name}</h3>
-            <ReactMarkdown>{data.description}</ReactMarkdown>
+            <StyledReactMarkdown>{data.description}</StyledReactMarkdown>
           </>
         ) : (
           <p>{evidence}</p>
