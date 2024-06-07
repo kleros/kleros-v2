@@ -2,6 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import Identicon from "react-identicons";
+import ReactMarkdown from "react-markdown";
 
 import { Card } from "@kleros/ui-components-library";
 
@@ -119,7 +120,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
         {data ? (
           <>
             <h3>{data.name}</h3>
-            <p>{data.description}</p>
+            <ReactMarkdown>{data.description}</ReactMarkdown>
           </>
         ) : (
           <p>{evidence}</p>
