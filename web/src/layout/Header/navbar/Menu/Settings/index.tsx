@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
+import { useLocation, useNavigate } from "react-router-dom";
 import { useClickAway } from "react-use";
 
 import { Tabs } from "@kleros/ui-components-library";
@@ -76,7 +77,12 @@ const TABS = [
 const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen, initialTab }) => {
   const [currentTab, setCurrentTab] = useState<number>(initialTab || 0);
   const containerRef = useRef(null);
-  useClickAway(containerRef, () => toggleIsSettingsOpen());
+  const location = useLocation();
+  const navigate = useNavigate();
+  useClickAway(containerRef, () => {
+    toggleIsSettingsOpen();
+    if (location.hash.includes("#notifications")) navigate("#", { replace: true });
+  });
 
   return (
     <>

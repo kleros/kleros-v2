@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
-import { useLocation, useToggle } from "react-use";
+import { useLocation } from "react-router-dom";
+import { useToggle } from "react-use";
 
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 
@@ -13,6 +14,7 @@ import { responsiveSize } from "styles/responsiveSize";
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
 import { Overlay } from "components/Overlay";
+import Onboarding from "components/Popup/MiniGuides/Onboarding";
 
 import Logo from "./Logo";
 import DappList from "./navbar/DappList";
@@ -86,22 +88,24 @@ const PopupContainer = styled.div`
   z-index: 30;
 `;
 
-const DesktopHeader = () => {
+const DesktopHeader: React.FC = () => {
   const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
   const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
   const [isSettingsOpen, toggleIsSettingsOpen] = useToggle(false);
+  const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
   const [initialTab, setInitialTab] = useState<number>(0);
   const location = useLocation();
 
-  const initializeNotifications = () => {
-    const hasNotificationsPath: boolean = location.hash.includes("#notifications");
+  const initializeFragmentURL = useCallback(() => {
+    const hash = location.hash;
+    const hasOnboardingPath = hash.includes("#onboarding");
+    const hasNotificationsPath = hash.includes("#notifications");
+    toggleIsOnboardingMiniGuidesOpen(hasOnboardingPath);
     toggleIsSettingsOpen(hasNotificationsPath);
     setInitialTab(hasNotificationsPath ? 1 : 0);
-  };
+  }, [location.hash, toggleIsSettingsOpen, toggleIsOnboardingMiniGuidesOpen]);
 
-  useEffect(() => {
-    initializeNotifications();
-  }, [location.hash]);
+  useEffect(initializeFragmentURL, [initializeFragmentURL]);
 
   useLockOverlayScroll(isDappListOpen || isHelpOpen || isSettingsOpen);
 
@@ -140,6 +144,7 @@ const DesktopHeader = () => {
           {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen, initialTab }} />}
         </PopupContainer>
       )}
+      {isOnboardingMiniGuidesOpen && <Onboarding toggleMiniGuide={toggleIsOnboardingMiniGuidesOpen} />}
     </>
   );
 };
