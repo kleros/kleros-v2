@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, useRef } from "react";
 import styled, { css } from "styled-components";
 
 import { useClickAway } from "react-use";
-import BookOpenIcon from "tsx:assets/svgs/icons/book-open.svg";
+import BookOpenIcon from "svgs/icons/book-open.svg";
 
 import { CompactPagination } from "@kleros/ui-components-library";
 

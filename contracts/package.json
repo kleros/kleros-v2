@@ -70,7 +70,7 @@
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.11.3",
-    "@wagmi/cli": "^1.5.2",
+    "@wagmi/cli": "^2.0.3",
     "abitype": "^0.10.3",
     "chai": "^4.4.1",
     "dotenv": "^16.3.1",
