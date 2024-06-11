@@ -11,7 +11,7 @@ import { isProductionDeployment } from "consts/index";
 
 import { lightTheme } from "styles/themes";
 
-const projectId = import.meta.env.WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf9281e218217";
+const projectId = import.meta.env.WALLETCONNECT_PROJECT_ID ?? "";
 export const alchemyApiKey = import.meta.env.ALCHEMY_API_KEY ?? "";
 
 const chains = ALL_CHAINS as [Chain, ...Chain[]];
