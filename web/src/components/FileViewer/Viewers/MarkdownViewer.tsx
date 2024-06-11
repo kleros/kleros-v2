@@ -3,6 +3,8 @@ import styled from "styled-components";
 
 import { type DocRenderer } from "@cyntler/react-doc-viewer";
 import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { dark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const Container = styled.div`
   padding: 16px;
@@ -24,7 +26,25 @@ const MarkdownRenderer: DocRenderer = ({ mainState: { currentDocument } }) => {
 
   return (
     <Container id="md-renderer">
-      <StyledMarkdown>{decodedData}</StyledMarkdown>
+      <StyledMarkdown
+        components={{
+          code(props) {
+            const { children, className, node, ...rest } = props;
+            const match = /language-(\w+)/.exec(className || "");
+            return match ? (
+              <SyntaxHighlighter {...rest} PreTag="div" language={match[1]} style={dark}>
+                {String(children).replace(/\n$/, "")}
+              </SyntaxHighlighter>
+            ) : (
+              <code {...rest} className={className}>
+                {children}
+              </code>
+            );
+          },
+        }}
+      >
+        {decodedData}
+      </StyledMarkdown>
     </Container>
   );
 };
