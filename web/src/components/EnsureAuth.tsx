@@ -67,7 +67,13 @@ export const EnsureAuth: React.FC<IEnsureAuth> = ({ children, className }) => {
   return isVerified ? (
     children
   ) : (
-    <Button text="Sign In" onClick={handleSignIn} disabled={isLoading} isLoading={isLoading} {...{ className }} />
+    <Button
+      text="Sign In"
+      onClick={handleSignIn}
+      disabled={isLoading || !address}
+      isLoading={isLoading}
+      {...{ className }}
+    />
   );
 };
 
