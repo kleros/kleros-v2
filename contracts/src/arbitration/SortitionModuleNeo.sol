@@ -36,7 +36,6 @@ contract SortitionModuleNeo is SortitionModuleBase, UUPSProxiable, Initializable
 
     /// @dev Initializer (constructor equivalent for upgradable contracts).
     /// @param _governor The governor.
-    /// @param _core The KlerosCore.
     /// @param _minStakingTime Minimal time to stake
     /// @param _maxDrawingTime Time after which the drawing phase can be switched
     /// @param _rng The random number generator.
@@ -45,7 +44,6 @@ contract SortitionModuleNeo is SortitionModuleBase, UUPSProxiable, Initializable
     /// @param _maxTotalStaked The maximum amount of PNK that can be staked in all courts.
     function initialize(
         address _governor,
-        KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         RNG _rng,
@@ -53,7 +51,7 @@ contract SortitionModuleNeo is SortitionModuleBase, UUPSProxiable, Initializable
         uint256 _maxStakePerJuror,
         uint256 _maxTotalStaked
     ) external reinitializer(2) {
-        super._initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng, _rngLookahead);
+        super._initialize(_governor, _minStakingTime, _maxDrawingTime, _rng, _rngLookahead);
         maxStakePerJuror = _maxStakePerJuror;
         maxTotalStaked = _maxTotalStaked;
     }

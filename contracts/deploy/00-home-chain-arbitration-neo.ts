@@ -1,6 +1,5 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { BigNumber, BigNumberish } from "ethers";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
@@ -61,16 +60,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const maxTotalStaked = PNK(2_000_000);
   const sortitionModule = await deployUpgradable(deployments, "SortitionModuleNeo", {
     from: deployer,
-    args: [
-      deployer,
-      klerosCoreAddress,
-      minStakingTime,
-      maxFreezingTime,
-      rng.address,
-      RNG_LOOKAHEAD,
-      maxStakePerJuror,
-      maxTotalStaked,
-    ],
+    args: [deployer, minStakingTime, maxFreezingTime, rng.address, RNG_LOOKAHEAD, maxStakePerJuror, maxTotalStaked],
     log: true,
   }); // nonce (implementation), nonce+1 (proxy)
 
@@ -89,12 +79,13 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       false,
       [minStake, alpha, feeForJuror, jurorsForCourtJump],
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
       nft.address,
     ],
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
+  await execute("SortitionModuleNeo", { from: deployer, log: true }, "changeCore", klerosCore.address);
+  await execute("KlerosCoreNeo", { from: deployer, log: true }, "creatSortitionTree", ethers.utils.hexlify(5));
 
   // execute DisputeKitClassic.changeCore() only if necessary
   const disputeKitContract = (await hre.ethers.getContract("DisputeKitClassicNeo")) as DisputeKitClassic;
@@ -117,7 +108,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const resolver = await deploy("DisputeResolverNeo", {
+  const resolver = await deployUpgradable(deployments, "DisputeResolverNeo", {
     from: deployer,
     contract: "DisputeResolver",
     args: [core.address, disputeTemplateRegistry.address],

@@ -8,11 +8,12 @@ export const deployERC20AndFaucet = async (
   hre: HardhatRuntimeEnvironment,
   deployer: string,
   ticker: string,
+  deterministic?: boolean | string,
   faucetFundingAmount: BigNumber = hre.ethers.utils.parseUnits("100000")
 ): Promise<Contract> => {
-  const erc20 = await deployERC20(hre, deployer, ticker);
+  const erc20 = await deployERC20(hre, deployer, ticker, deterministic);
   if (!isMainnet(hre.network)) {
-    await deployFaucet(hre, deployer, ticker, erc20, faucetFundingAmount);
+    await deployFaucet(hre, deployer, ticker, erc20, faucetFundingAmount, deterministic);
   }
   return erc20;
 };
@@ -20,13 +21,15 @@ export const deployERC20AndFaucet = async (
 export const deployERC20 = async (
   hre: HardhatRuntimeEnvironment,
   deployer: string,
-  ticker: string
+  ticker: string,
+  deterministic?: boolean | string
 ): Promise<Contract> => {
   return await getContractOrDeploy(hre, ticker, {
     from: deployer,
     contract: "TestERC20",
-    args: [ticker, ticker],
+    args: [ticker, ticker, deployer],
     log: true,
+    deterministicDeployment: deterministic,
   });
 };
 
@@ -35,13 +38,15 @@ export const deployFaucet = async (
   deployer: string,
   ticker: string,
   erc20: Contract,
-  faucetFundingAmount: BigNumber
+  faucetFundingAmount: BigNumber,
+  deterministic?: boolean | string
 ): Promise<void> => {
   const faucet = await getContractOrDeploy(hre, `${ticker}Faucet`, {
     from: deployer,
     contract: "Faucet",
     args: [erc20.address],
     log: true,
+    deterministicDeployment: deterministic,
   });
   const faucetBalance = await erc20.balanceOf(faucet.address);
   const deployerBalance = await erc20.balanceOf(deployer);

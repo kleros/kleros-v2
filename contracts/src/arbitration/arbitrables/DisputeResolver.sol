@@ -7,12 +7,14 @@
 
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
 import "../interfaces/IDisputeTemplateRegistry.sol";
+import "../../proxy/UUPSProxiable.sol";
+import "../../proxy/Initializable.sol";
 
 pragma solidity 0.8.24;
 
 /// @title DisputeResolver
 /// DisputeResolver contract adapted for V2 from https://github.com/kleros/arbitrable-proxy-contracts/blob/master/contracts/ArbitrableProxy.sol.
-contract DisputeResolver is IArbitrableV2 {
+contract DisputeResolver is IArbitrableV2, UUPSProxiable, Initializable {
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -35,12 +37,29 @@ contract DisputeResolver is IArbitrableV2 {
     mapping(uint256 => uint256) public arbitratorDisputeIDToLocalID; // Maps arbitrator-side dispute IDs to local dispute IDs.
 
     // ************************************* //
+    // *        Function Modifiers         * //
+    // ************************************* //
+
+    modifier onlyByGovernor() {
+        require(address(governor) == msg.sender, "Access not allowed: Governor only.");
+        _;
+    }
+
+    // ************************************* //
     // *            Constructor            * //
     // ************************************* //
 
+    /// @dev Constructor, initializing the implementation to reduce attack surface.
+    constructor() {
+        _disableInitializers();
+    }
+
     /// @dev Constructor
     /// @param _arbitrator Target global arbitrator for any disputes.
-    constructor(IArbitratorV2 _arbitrator, IDisputeTemplateRegistry _templateRegistry) {
+    function initialize(
+        IArbitratorV2 _arbitrator,
+        IDisputeTemplateRegistry _templateRegistry
+    ) external reinitializer(1) {
         governor = msg.sender;
         arbitrator = _arbitrator;
         templateRegistry = _templateRegistry;
@@ -50,20 +69,25 @@ contract DisputeResolver is IArbitrableV2 {
     // *           Governance              * //
     // ************************************* //
 
+    /**
+     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
+     */
+    function _authorizeUpgrade(address) internal view override onlyByGovernor {
+        // NOP
+    }
+
     /// @dev Changes the governor.
     /// @param _governor The address of the new governor.
-    function changeGovernor(address _governor) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+    function changeGovernor(address _governor) external onlyByGovernor {
         governor = _governor;
     }
 
-    function changeArbitrator(IArbitratorV2 _arbitrator) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+    function changeArbitrator(IArbitratorV2 _arbitrator) external onlyByGovernor {
         arbitrator = _arbitrator;
     }
 
-    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external {
-        require(governor == msg.sender, "Access not allowed: Governor only.");
+    function changeTemplateRegistry(IDisputeTemplateRegistry _templateRegistry) external onlyByGovernor {
         templateRegistry = _templateRegistry;
     }
 

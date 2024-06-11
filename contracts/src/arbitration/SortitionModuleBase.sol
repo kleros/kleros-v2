@@ -91,14 +91,12 @@ abstract contract SortitionModuleBase is ISortitionModule {
 
     function _initialize(
         address _governor,
-        KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         RNG _rng,
         uint256 _rngLookahead
     ) internal {
         governor = _governor;
-        core = _core;
         minStakingTime = _minStakingTime;
         maxDrawingTime = _maxDrawingTime;
         lastPhaseChange = block.timestamp;
@@ -147,6 +145,11 @@ abstract contract SortitionModuleBase is ISortitionModule {
             rng.requestRandomness(block.number + rngLookahead);
             randomNumberRequestBlock = block.number;
         }
+    }
+    /// @dev Changes the `core` storage variables.
+    /// @param _core The KlerosCore.
+    function changeCore(KlerosCore _core) external onlyByGovernor {
+        core = _core;
     }
 
     // ************************************* //

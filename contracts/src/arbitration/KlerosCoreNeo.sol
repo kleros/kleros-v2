@@ -42,7 +42,6 @@ contract KlerosCoreNeo is KlerosCoreBase, UUPSProxiable, Initializable {
     /// @param _hiddenVotes The `hiddenVotes` property value of the general court.
     /// @param _courtParameters Numeric parameters of General court (minStake, alpha, feeForJuror and jurorsForCourtJump respectively).
     /// @param _timesPerPeriod The `timesPerPeriod` property value of the general court.
-    /// @param _sortitionExtraData The extra data for sortition module.
     /// @param _sortitionModuleAddress The sortition module responsible for sortition of the jurors.
     /// @param _jurorNft NFT contract to vet the jurors.
     function initialize(
@@ -54,7 +53,6 @@ contract KlerosCoreNeo is KlerosCoreBase, UUPSProxiable, Initializable {
         bool _hiddenVotes,
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
-        bytes memory _sortitionExtraData,
         ISortitionModule _sortitionModuleAddress,
         IERC721 _jurorNft
     ) external reinitializer(2) {
@@ -67,7 +65,6 @@ contract KlerosCoreNeo is KlerosCoreBase, UUPSProxiable, Initializable {
             _hiddenVotes,
             _courtParameters,
             _timesPerPeriod,
-            _sortitionExtraData,
             _sortitionModuleAddress
         );
         jurorNft = _jurorNft;

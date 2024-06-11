@@ -43,6 +43,7 @@ describe("Integration tests", async () => {
 
   beforeEach("Setup", async () => {
     ({ deployer } = await getNamedAccounts());
+    await ethers.provider.send("hardhat_reset", []);
     await deployments.fixture(["Arbitration", "VeaMock"], {
       fallbackToGlobal: true,
       keepExistingDeployments: false,

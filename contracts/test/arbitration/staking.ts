@@ -24,6 +24,7 @@ describe("Staking", async () => {
 
   const deploy = async () => {
     ({ deployer } = await getNamedAccounts());
+    await ethers.provider.send("hardhat_reset", []);
     await deployments.fixture(["Arbitration"], {
       fallbackToGlobal: true,
       keepExistingDeployments: false,

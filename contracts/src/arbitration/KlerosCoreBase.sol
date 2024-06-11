@@ -202,7 +202,6 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
         bool _hiddenVotes,
         uint256[4] memory _courtParameters,
         uint256[4] memory _timesPerPeriod,
-        bytes memory _sortitionExtraData,
         ISortitionModule _sortitionModuleAddress
     ) internal {
         governor = _governor;
@@ -222,7 +221,6 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
         // FORKING_COURT
         // TODO: Fill the properties for the Forking court, emit CourtCreated.
         courts.push();
-        sortitionModule.createTree(bytes32(uint256(FORKING_COURT)), _sortitionExtraData);
 
         // GENERAL_COURT
         Court storage court = courts.push();
@@ -234,8 +232,6 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
         court.feeForJuror = _courtParameters[2];
         court.jurorsForCourtJump = _courtParameters[3];
         court.timesPerPeriod = _timesPerPeriod;
-
-        sortitionModule.createTree(bytes32(uint256(GENERAL_COURT)), _sortitionExtraData);
 
         emit CourtCreated(
             1,
@@ -278,6 +274,14 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
     ) external onlyByGovernor {
         (bool success, ) = _destination.call{value: _amount}(_data);
         if (!success) revert UnsuccessfulCall();
+    }
+
+    /// @dev Allow governor to create sotrtition Tree.
+    /// @notice To implement deterministic deployment this need to be created separately from _initialize function.
+    /// @param _sortitionExtraData The extra data for sortition module.
+    function creatSortitionTree(bytes memory _sortitionExtraData) external onlyByGovernor {
+        sortitionModule.createTree(bytes32(uint256(FORKING_COURT)), _sortitionExtraData);
+        sortitionModule.createTree(bytes32(uint256(GENERAL_COURT)), _sortitionExtraData);
     }
 
     /// @dev Changes the `governor` storage variable.

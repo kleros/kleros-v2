@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
 import { HomeChains, isSkipped } from "./utils";
-import { deployUpgradable } from "./utils/deployUpgradable";
+import { deployUpgradable, deployUpgradableDeterministic } from "./utils/deployUpgradable";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts, getChainId } = hre;
@@ -18,7 +18,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     "0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003"; // General court, 3 jurors
   const weth = await deployments.get("WETH");
 
-  const disputeTemplateRegistry = await deployUpgradable(deployments, "DisputeTemplateRegistry", {
+  const disputeTemplateRegistry = await deployUpgradableDeterministic(deployments, "DisputeTemplateRegistry", {
     from: deployer,
     args: [deployer],
     log: true,
@@ -37,7 +37,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  await deploy("DisputeResolver", {
+  await deployUpgradableDeterministic(deployments, "DisputeResolver", {
     from: deployer,
     args: [klerosCore.address, disputeTemplateRegistry.address],
     log: true,

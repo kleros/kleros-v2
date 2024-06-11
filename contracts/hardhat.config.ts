@@ -35,7 +35,13 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {
-      live: false,
+      // hardhat-deploy cannot run a fork on a non-harhat network
+      // cf. https://github.com/nomiclabs/hardhat/issues/1139 and https://github.com/wighawag/hardhat-deploy/issues/63
+      forking: process.env.HARDHAT_FORK
+        ? {
+            url: process.env.ARBITRUM_SEPOLIA_RPC ?? "https://sepolia-rollup.arbitrum.io/rpc",
+          }
+        : undefined,
       saveDeployments: true,
       allowUnlimitedContractSize: true,
       tags: ["test", "local"],
