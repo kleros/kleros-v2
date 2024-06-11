@@ -78,6 +78,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@cyntler/react-doc-viewer": "^1.16.3",
     "@filebase/client": "^0.0.5",
     "@kleros/kleros-sdk": "workspace:^",
     "@kleros/ui-components-library": "^2.12.0",

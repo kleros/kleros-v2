@@ -2,6 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import Identicon from "react-identicons";
+import { Link } from "react-router-dom";
 
 import { Card } from "@kleros/ui-components-library";
 
@@ -97,6 +98,21 @@ const MobileText = styled.span`
   )}
 `;
 
+const StyledLink = styled(Link)`
+  height: fit-content;
+  display: flex;
+  margin-left: auto;
+  gap: ${responsiveSize(5, 6)};
+  ${landscapeStyle(
+    () => css`
+      > svg {
+        width: 16px;
+        fill: ${({ theme }) => theme.primaryBlue};
+      }
+    `
+  )}
+`;
+
 const AttachedFileText: React.FC = () => (
   <>
     <DesktopText>View attached file</DesktopText>
@@ -112,6 +128,7 @@ interface IEvidenceCard {
 
 const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
   const { data } = useIPFSQuery(evidence);
+
   return (
     <StyledCard>
       <TextContainer>
@@ -131,10 +148,10 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
           <p>{shortenAddress(sender)}</p>
         </AccountContainer>
         {data && typeof data.fileURI !== "undefined" && (
-          <StyledA href={getIpfsUrl(data.fileURI)} target="_blank" rel="noreferrer">
+          <StyledLink to={`attachment/?url=${getIpfsUrl(data.fileURI)}`}>
             <AttachmentIcon />
             <AttachedFileText />
-          </StyledA>
+          </StyledLink>
         )}
       </BottomShade>
     </StyledCard>
