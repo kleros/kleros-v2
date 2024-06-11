@@ -1,14 +1,20 @@
 import React from "react";
 import styled, { css } from "styled-components";
+
+import { Card } from "@kleros/ui-components-library";
+
+import { useNewDisputeContext } from "context/NewDisputeContext";
+
 import { useCourtPolicy } from "queries/useCourtPolicy";
-import DisputeInfo from "components/DisputeCard/DisputeInfo";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
 import { DisputeContext } from "components/DisputePreview/DisputeContext";
 import { Policies } from "components/DisputePreview/Policies";
-import { Card } from "@kleros/ui-components-library";
-import { landscapeStyle } from "styles/landscapeStyle";
+import DisputeInfo from "components/DisputeView/DisputeInfo";
+
 import NavigationButtons from "../NavigationButtons";
-import { useNewDisputeContext } from "context/NewDisputeContext";
 
 const Container = styled.div`
   width: 100%;

@@ -1,13 +1,18 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import Identicon from "react-identicons";
+
 import { Card } from "@kleros/ui-components-library";
+
 import AttachmentIcon from "svgs/icons/attachment.svg";
+
 import { useIPFSQuery } from "hooks/useIPFSQuery";
-import { shortenAddress } from "utils/shortenAddress";
-import { responsiveSize } from "styles/responsiveSize";
 import { getIpfsUrl } from "utils/getIpfsUrl";
+import { shortenAddress } from "utils/shortenAddress";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 const StyledCard = styled(Card)`
   width: 100%;

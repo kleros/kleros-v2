@@ -1,15 +1,22 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
+import { useAccount } from "wagmi";
+
 import { Card as _Card } from "@kleros/ui-components-library";
-import Header from "./Header";
+
+import { getUserLevelData } from "utils/userLevelCalculation";
+
+import { useUserQuery } from "queries/useUser";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import Coherency from "./Coherency";
+import Header from "./Header";
 import JurorRewards from "./JurorRewards";
 import PixelArt from "./PixelArt";
-import { useAccount } from "wagmi";
-import { useUserQuery } from "queries/useUser";
-import { getUserLevelData } from "utils/userLevelCalculation";
-import { responsiveSize } from "styles/responsiveSize";
+
 // import StakingRewards from "./StakingRewards";
 
 const Container = styled.div``;

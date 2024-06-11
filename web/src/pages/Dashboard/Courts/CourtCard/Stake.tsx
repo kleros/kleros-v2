@@ -1,7 +1,10 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { formatUnits } from "viem";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import NumberDisplay from "components/NumberDisplay";
 
 const Container = styled.div`

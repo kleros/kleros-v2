@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
+
+import "../../libraries/Constants.sol";
 
 interface ISortitionModule {
     enum Phase {
@@ -17,7 +19,7 @@ interface ISortitionModule {
         uint96 _courtID,
         uint256 _newStake,
         bool _alreadyTransferred
-    ) external returns (uint256 pnkDeposit, uint256 pnkWithdrawal, bool succeeded);
+    ) external returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult);
 
     function setJurorInactive(address _account) external;
 

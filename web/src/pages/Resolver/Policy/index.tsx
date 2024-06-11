@@ -1,14 +1,20 @@
 import React from "react";
-import Header from "pages/Resolver/Header";
 import styled, { css } from "styled-components";
-import NavigationButtons from "../NavigationButtons";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
+
+import { toast } from "react-toastify";
+
 import { FileUploader } from "@kleros/ui-components-library";
+
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 import { OPTIONS as toastOptions } from "utils/wrapWithToast";
-import { toast } from "react-toastify";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
+import Header from "pages/Resolver/Header";
+
+import NavigationButtons from "../NavigationButtons";
 
 const Container = styled.div`
   display: flex;
@@ -47,7 +53,7 @@ const Policy: React.FC = () => {
     const fileFormData = new FormData();
     fileFormData.append("data", file, file.name);
 
-    uploadFormDataToIPFS(fileFormData)
+    uploadFormDataToIPFS(fileFormData, "policy")
       .then(async (res) => {
         const response = await res.json();
         const policyURI = response["cids"][0];
@@ -71,7 +77,7 @@ const Policy: React.FC = () => {
         msg="You can attach additional information as a PDF file. Important: the above description must reference the relevant parts of the file content."
       />
 
-      <NavigationButtons prevRoute="/resolver/notablepersons" nextRoute="/resolver/preview" />
+      <NavigationButtons prevRoute="/resolver/notable-persons" nextRoute="/resolver/preview" />
     </Container>
   );
 };

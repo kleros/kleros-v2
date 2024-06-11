@@ -1,18 +1,24 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
+
+import ReactMarkdown from "react-markdown";
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import { encodePacked, keccak256, PrivateKeyAccount } from "viem";
 import { useWalletClient, usePublicClient } from "wagmi";
-import ReactMarkdown from "react-markdown";
+
 import { Button } from "@kleros/ui-components-library";
-import { prepareWriteDisputeKitClassic } from "hooks/contracts/generatedProvider";
-import useSigningAccount from "hooks/useSigningAccount";
-import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
+import useSigningAccount from "hooks/useSigningAccount";
 import { isUndefined } from "utils/index";
 import { wrapWithToast, catchShortMessage } from "utils/wrapWithToast";
+
+import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
 import InfoCard from "components/InfoCard";
+
 import JustificationArea from "./JustificationArea";
 
 const Container = styled.div`

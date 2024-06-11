@@ -8,7 +8,7 @@
  *  @custom:deployments: []
  */
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "./KlerosCoreUniversity.sol";
 import "./ISortitionModuleUniversity.sol";
@@ -38,7 +38,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     address public governor; // The governor of the contract.
     KlerosCoreUniversity public core; // The core arbitrator contract.
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
-    mapping(address => Juror) public jurors; // The jurors.
+    mapping(address account => Juror) public jurors; // The jurors.
     address private transientJuror; // The juror address used between calls within the same transaction.
 
     // ************************************* //
@@ -126,18 +126,19 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     /// @param _alreadyTransferred True if the tokens were already transferred from juror. Only relevant for delayed stakes.
     /// @return pnkDeposit The amount of PNK to be deposited.
     /// @return pnkWithdrawal The amount of PNK to be withdrawn.
-    /// @return succeeded True if the call succeeded, false otherwise.
+    /// @return stakingResult The result of the staking operation.
     function setStake(
         address _account,
         uint96 _courtID,
         uint256 _newStake,
         bool _alreadyTransferred
-    ) external override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, bool succeeded) {
+    ) external override onlyByCore returns (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) {
         Juror storage juror = jurors[_account];
         uint256 currentStake = _stakeOf(_account, _courtID);
 
-        if (_newStake == 0 && currentStake == 0) {
-            return (0, 0, false);
+        uint256 nbCourts = juror.courtIDs.length;
+        if (_newStake == 0 && (nbCourts >= MAX_STAKE_PATHS || currentStake == 0)) {
+            return (0, 0, StakingResult.CannotStakeInMoreCourts); // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
         }
 
         if (_newStake >= currentStake) {
@@ -154,14 +155,14 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
             // Tokens are also implicitly staked in parent courts through sortition module to increase the chance of being drawn.
             juror.stakesByCourtID[currentCourtID] += _newStake;
             juror.stakesByCourtID[currentCourtID] -= currentStake;
-            if (currentCourtID == Constants.GENERAL_COURT) {
+            if (currentCourtID == GENERAL_COURT) {
                 finished = true;
             } else {
                 (currentCourtID, , , , , , ) = core.courts(currentCourtID);
             }
         }
         emit StakeSet(_account, _courtID, _newStake);
-        return (pnkDeposit, pnkWithdrawal, true);
+        return (pnkDeposit, pnkWithdrawal, StakingResult.Successful);
     }
 
     function _increaseStake(

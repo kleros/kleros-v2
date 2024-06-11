@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { isUndefined } from "utils/index";
+
 import { getIpfsUrl } from "utils/getIpfsUrl";
+import { isUndefined } from "utils/index";
 
 export const useIPFSQuery = (ipfsPath?: string) => {
   const isEnabled = !isUndefined(ipfsPath);

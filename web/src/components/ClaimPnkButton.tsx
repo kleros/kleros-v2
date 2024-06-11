@@ -1,7 +1,12 @@
-import { Button } from "@kleros/ui-components-library";
 import React, { useState } from "react";
+
 import { formatEther } from "viem";
 import { useAccount, useNetwork, usePublicClient, useWalletClient } from "wagmi";
+
+import { Button } from "@kleros/ui-components-library";
+
+import FaucetIcon from "svgs/icons/faucet.svg";
+
 import { DEFAULT_CHAIN } from "consts/chains";
 import {
   prepareWritePnkFaucet,
@@ -10,11 +15,11 @@ import {
   usePnkFaucetWithdrewAlready,
 } from "hooks/contracts/generated";
 import { usePNKFaucetAddress } from "hooks/useContractAddress";
+import { formatPNK } from "utils/format";
 import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
+
 import Popup, { PopupType } from "./Popup";
-import { formatPNK } from "utils/format";
-import FaucetIcon from "svgs/icons/faucet.svg";
 
 const ClaimPnkButton: React.FC = () => {
   const [isSending, setIsSending] = useState(false);

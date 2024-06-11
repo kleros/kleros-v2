@@ -1,15 +1,17 @@
 import React from "react";
-import { EthereumClient, w3mConnectors } from "@web3modal/ethereum";
+import { useTheme } from "styled-components";
+
 import { alchemyProvider } from "@wagmi/core/providers/alchemy";
+import { EthereumClient, w3mConnectors } from "@web3modal/ethereum";
 import { Web3Modal } from "@web3modal/react";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { mainnet, arbitrumSepolia, gnosisChiado } from "wagmi/chains";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
+
 import { useToggleTheme } from "hooks/useToggleThemeContext";
-import { useTheme } from "styled-components";
 
 const chains = [arbitrumSepolia, mainnet, gnosisChiado];
-const projectId = process.env.WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf9281e218217";
+const projectId = process.env.WALLETCONNECT_PROJECT_ID ?? "";
 
 export const alchemyApiKey = process.env.ALCHEMY_API_KEY ?? "";
 

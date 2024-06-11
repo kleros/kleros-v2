@@ -1,7 +1,9 @@
 import { formatUnits, formatEther } from "viem";
-import { isUndefined } from "utils/index";
-import { UserQuery } from "queries/useUser";
+
 import { CoinIds } from "consts/coingecko";
+import { isUndefined } from "utils/index";
+
+import { UserQuery } from "queries/useUser";
 
 export interface IReward {
   token: "ETH" | "PNK";

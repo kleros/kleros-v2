@@ -1,10 +1,13 @@
 import React from "react";
 import styled from "styled-components";
+
+import KlerosLogo from "tsx:svgs/icons/kleros.svg";
 import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
+
+import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
-import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generatedProvider";
-import KlerosLogo from "tsx:svgs/icons/kleros.svg";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`

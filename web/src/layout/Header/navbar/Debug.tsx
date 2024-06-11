@@ -1,8 +1,9 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import { useSortitionModulePhase } from "hooks/contracts/generatedProvider";
-import { useToggleTheme } from "hooks/useToggleThemeContext";
+
 import { GIT_BRANCH, GIT_DIRTY, GIT_HASH, GIT_TAGS, GIT_URL, RELEASE_VERSION } from "consts/index";
+import { useSortitionModulePhase } from "hooks/useSortitionModulePhase";
+import { useToggleTheme } from "hooks/useToggleThemeContext";
 import { isUndefined } from "utils/index";
 
 const Container = styled.div`
@@ -57,11 +58,8 @@ enum Phases {
 }
 
 const Phase = () => {
-  if (isUndefined(useSortitionModulePhase)) return <></>;
-  const { data: phase } = useSortitionModulePhase({
-    watch: true,
-  });
-  return <>{isUndefined(phase) ? null : <StyledLabel>Phase: {Phases[phase]}</StyledLabel>}</>;
+  const { data: phase } = useSortitionModulePhase();
+  return <>{isUndefined(phase) ? null : <StyledLabel>Phase: {Phases[phase as number]}</StyledLabel>}</>;
 };
 
 const Debug: React.FC = () => {

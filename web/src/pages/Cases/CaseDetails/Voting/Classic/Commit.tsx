@@ -1,15 +1,19 @@
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
+
 import { useParams } from "react-router-dom";
 import { useLocalStorage } from "react-use";
 import { keccak256, encodePacked } from "viem";
 import { useWalletClient, usePublicClient } from "wagmi";
-import { prepareWriteDisputeKitClassic } from "hooks/contracts/generatedProvider";
+
+import { prepareWriteDisputeKitClassic } from "hooks/contracts/generated";
 import useSigningAccount from "hooks/useSigningAccount";
-import { wrapWithToast } from "utils/wrapWithToast";
-import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import OptionsContainer from "./OptionsContainer";
 import { isUndefined } from "utils/index";
+import { wrapWithToast } from "utils/wrapWithToast";
+
+import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import OptionsContainer from "./OptionsContainer";
 
 const Container = styled.div`
   width: 100%;

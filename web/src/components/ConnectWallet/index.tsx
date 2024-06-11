@@ -1,8 +1,12 @@
 import React from "react";
-import { useAccount, useNetwork, useSwitchNetwork } from "wagmi";
+
 import { useWeb3Modal } from "@web3modal/react";
+import { useAccount, useNetwork, useSwitchNetwork } from "wagmi";
+
 import { Button } from "@kleros/ui-components-library";
+
 import { SUPPORTED_CHAINS, DEFAULT_CHAIN } from "consts/chains";
+
 import AccountDisplay from "./AccountDisplay";
 
 export const SwitchChainButton: React.FC<{ className?: string }> = ({ className }) => {

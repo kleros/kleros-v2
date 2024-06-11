@@ -1,19 +1,24 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
+
+import { Log, decodeEventLog, parseAbi } from "viem";
+import { usePublicClient } from "wagmi";
+
 import { Button } from "@kleros/ui-components-library";
+
+import DisputeIcon from "assets/svgs/icons/dispute.svg";
+
 import { IDisputeTemplate, useNewDisputeContext } from "context/NewDisputeContext";
-import { wrapWithToast } from "utils/wrapWithToast";
 import {
   useDisputeResolverCreateDisputeForTemplate,
   usePrepareDisputeResolverCreateDisputeForTemplate,
-} from "hooks/contracts/generatedProvider";
-import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
-import { usePublicClient } from "wagmi";
-import Popup, { PopupType } from "components/Popup";
-import DisputeIcon from "assets/svgs/icons/dispute.svg";
-import { Log, decodeEventLog, parseAbi } from "viem";
-import { EnsureChain } from "components/EnsureChain";
+} from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
+import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
+import { wrapWithToast } from "utils/wrapWithToast";
+
+import { EnsureChain } from "components/EnsureChain";
+import Popup, { PopupType } from "components/Popup";
 
 const StyledButton = styled(Button)``;
 

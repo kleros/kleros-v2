@@ -1,14 +1,7 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  TimeScale,
-  Tooltip,
-} from "chart.js";
+
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, TimeScale, Tooltip } from "chart.js";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-moment";
 
@@ -17,14 +10,7 @@ const LineContainer = styled.div`
   margin-top: 16px;
 `;
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  TimeScale,
-  Tooltip
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, TimeScale, Tooltip);
 
 interface ITimeSeriesChart {
   data: { x: number; y: number }[];

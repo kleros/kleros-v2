@@ -1,6 +1,9 @@
 import React from "react";
-import { DEFAULT_CHAIN } from "consts/chains";
+
 import { useNetwork } from "wagmi";
+
+import { DEFAULT_CHAIN } from "consts/chains";
+
 import ConnectWallet from "components/ConnectWallet";
 
 interface IEnsureChain {

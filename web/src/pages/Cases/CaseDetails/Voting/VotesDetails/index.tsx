@@ -1,13 +1,18 @@
-import { Card, CustomAccordion } from "@kleros/ui-components-library";
 import React, { useMemo } from "react";
 import styled from "styled-components";
+
+import { Card, CustomAccordion } from "@kleros/ui-components-library";
+
 import { Answer } from "context/NewDisputeContext";
 import { DrawnJuror } from "utils/getDrawnJurorsWithCount";
-import InfoCard from "components/InfoCard";
-import AccordionTitle from "./AccordionTitle";
-import { responsiveSize } from "styles/responsiveSize";
 import { getVoteChoice } from "utils/getVoteChoice";
 import { isUndefined } from "utils/index";
+
+import { responsiveSize } from "styles/responsiveSize";
+
+import InfoCard from "components/InfoCard";
+
+import AccordionTitle from "./AccordionTitle";
 
 const Container = styled.div`
   display: flex;

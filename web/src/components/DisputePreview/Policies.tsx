@@ -1,11 +1,14 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import PolicyIcon from "svgs/icons/policy.svg";
-import { isUndefined } from "utils/index";
-import { responsiveSize } from "styles/responsiveSize";
+
 import PaperclipIcon from "svgs/icons/paperclip.svg";
+import PolicyIcon from "svgs/icons/policy.svg";
+
 import { getIpfsUrl } from "utils/getIpfsUrl";
+import { isUndefined } from "utils/index";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 const ShadeArea = styled.div`
   display: flex;

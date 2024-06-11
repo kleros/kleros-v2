@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {IDisputeKit} from "../interfaces/IDisputeKit.sol";
 import {ISortitionModuleUniversity} from "./ISortitionModuleUniversity.sol";
 import {SafeERC20, IERC20} from "../../libraries/SafeERC20.sol";
-import {Constants} from "../../libraries/Constants.sol";
-import {OnError} from "../../libraries/Types.sol";
+import "../../libraries/Constants.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
 
@@ -37,7 +36,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 feeForJuror; // Arbitration fee paid per juror.
         uint256 jurorsForCourtJump; // The appeal after the one that reaches this number of jurors will go to the parent court if any.
         uint256[4] timesPerPeriod; // The time allotted to each dispute period in the form `timesPerPeriod[period]`.
-        mapping(uint256 => bool) supportedDisputeKits; // True if DK with this ID is supported by the court. Note that each court must support classic dispute kit.
+        mapping(uint256 disputeKitId => bool) supportedDisputeKits; // True if DK with this ID is supported by the court. Note that each court must support classic dispute kit.
         bool disabled; // True if the court is disabled. Unused for now, will be implemented later.
     }
 
@@ -219,7 +218,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         // DISPUTE_KIT_CLASSIC
         disputeKits.push(_disputeKit);
 
-        emit DisputeKitCreated(Constants.DISPUTE_KIT_CLASSIC, _disputeKit);
+        emit DisputeKitCreated(DISPUTE_KIT_CLASSIC, _disputeKit);
 
         // FORKING_COURT
         // TODO: Fill the properties for the Forking court, emit CourtCreated.
@@ -227,7 +226,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
 
         // GENERAL_COURT
         Court storage court = courts.push();
-        court.parent = Constants.FORKING_COURT;
+        court.parent = FORKING_COURT;
         court.children = new uint256[](0);
         court.hiddenVotes = _hiddenVotes;
         court.minStake = _courtParameters[0];
@@ -247,7 +246,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             _timesPerPeriod,
             new uint256[](0)
         );
-        _enableDisputeKit(Constants.GENERAL_COURT, Constants.DISPUTE_KIT_CLASSIC, true);
+        _enableDisputeKit(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
     }
 
     // ************************************* //
@@ -334,7 +333,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     ) external onlyByGovernor {
         if (courts[_parent].minStake > _minStake) revert MinStakeLowerThanParentCourt();
         if (_supportedDisputeKits.length == 0) revert UnsupportedDisputeKit();
-        if (_parent == Constants.FORKING_COURT) revert InvalidForkingCourtAsParent();
+        if (_parent == FORKING_COURT) revert InvalidForkingCourtAsParent();
 
         uint256 courtID = courts.length;
         Court storage court = courts.push();
@@ -346,7 +345,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             court.supportedDisputeKits[_supportedDisputeKits[i]] = true;
         }
         // Check that Classic DK support was added.
-        if (!court.supportedDisputeKits[Constants.DISPUTE_KIT_CLASSIC]) revert MustSupportDisputeKitClassic();
+        if (!court.supportedDisputeKits[DISPUTE_KIT_CLASSIC]) revert MustSupportDisputeKitClassic();
 
         court.parent = _parent;
         court.children = new uint256[](0);
@@ -382,7 +381,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         uint256[4] memory _timesPerPeriod
     ) external onlyByGovernor {
         Court storage court = courts[_courtID];
-        if (_courtID != Constants.GENERAL_COURT && courts[court.parent].minStake > _minStake) {
+        if (_courtID != GENERAL_COURT && courts[court.parent].minStake > _minStake) {
             revert MinStakeLowerThanParentCourt();
         }
         for (uint256 i = 0; i < court.children.length; i++) {
@@ -420,7 +419,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
                 _enableDisputeKit(_courtID, _disputeKitIDs[i], true);
             } else {
                 // Classic dispute kit must be supported by all courts.
-                if (_disputeKitIDs[i] == Constants.DISPUTE_KIT_CLASSIC) {
+                if (_disputeKitIDs[i] == DISPUTE_KIT_CLASSIC) {
                     revert CannotDisableClassicDK();
                 }
                 _enableDisputeKit(_courtID, _disputeKitIDs[i], false);
@@ -480,7 +479,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     ) external payable override returns (uint256 disputeID) {
         if (msg.value < arbitrationCost(_extraData)) revert ArbitrationFeesNotEnough();
 
-        return _createDispute(_numberOfChoices, _extraData, Constants.NATIVE_CURRENCY, msg.value);
+        return _createDispute(_numberOfChoices, _extraData, NATIVE_CURRENCY, msg.value);
     }
 
     /// @inheritdoc IArbitratorV2
@@ -517,7 +516,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         Round storage round = dispute.rounds.push();
 
         // Obtain the feeForJuror in the same currency as the _feeAmount
-        uint256 feeForJuror = (_feeToken == Constants.NATIVE_CURRENCY)
+        uint256 feeForJuror = (_feeToken == NATIVE_CURRENCY)
             ? court.feeForJuror
             : convertEthToTokenAmount(_feeToken, court.feeForJuror);
         round.nbVotes = _feeAmount / feeForJuror;
@@ -634,7 +633,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
 
             if (!courts[newCourtID].supportedDisputeKits[newDisputeKitID]) {
                 // Switch to classic dispute kit if parent court doesn't support the current one.
-                newDisputeKitID = Constants.DISPUTE_KIT_CLASSIC;
+                newDisputeKitID = DISPUTE_KIT_CLASSIC;
             }
 
             if (newCourtID != dispute.courtID) {
@@ -785,7 +784,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         }
         if (_params.repartition == _params.numberOfVotesInRound - 1 && _params.coherentCount == 0) {
             // No one was coherent, send the rewards to the governor.
-            if (round.feeToken == Constants.NATIVE_CURRENCY) {
+            if (round.feeToken == NATIVE_CURRENCY) {
                 // The dispute fees were paid in ETH
                 payable(governor).send(round.totalFeesForJurors);
             } else {
@@ -842,7 +841,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 feeReward = ((round.totalFeesForJurors / _params.coherentCount) * degreeOfCoherence) / ALPHA_DIVISOR;
         round.sumFeeRewardPaid += feeReward;
         pinakion.safeTransfer(account, pnkReward);
-        if (round.feeToken == Constants.NATIVE_CURRENCY) {
+        if (round.feeToken == NATIVE_CURRENCY) {
             // The dispute fees were paid in ETH
             payable(account).send(feeReward);
         } else {
@@ -868,7 +867,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
                     pinakion.safeTransfer(governor, leftoverPnkReward);
                 }
                 if (leftoverFeeReward != 0) {
-                    if (round.feeToken == Constants.NATIVE_CURRENCY) {
+                    if (round.feeToken == NATIVE_CURRENCY) {
                         // The dispute fees were paid in ETH
                         payable(governor).send(leftoverFeeReward);
                     } else {
@@ -931,7 +930,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         Court storage court = courts[dispute.courtID];
         if (round.nbVotes >= court.jurorsForCourtJump) {
             // Jump to parent court.
-            if (dispute.courtID == Constants.GENERAL_COURT) {
+            if (dispute.courtID == GENERAL_COURT) {
                 // TODO: Handle the forking when appealed in General court.
                 cost = NON_PAYABLE_AMOUNT; // Get the cost of the parent court.
             } else {
@@ -1051,33 +1050,33 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         bool _alreadyTransferred,
         OnError _onError
     ) internal returns (bool) {
-        if (_courtID == Constants.FORKING_COURT || _courtID > courts.length) {
-            _stakingFailed(_onError); // Staking directly into the forking court is not allowed.
+        if (_courtID == FORKING_COURT || _courtID > courts.length) {
+            _stakingFailed(_onError, StakingResult.CannotStakeInThisCourt); // Staking directly into the forking court is not allowed.
             return false;
         }
         if (_newStake != 0 && _newStake < courts[_courtID].minStake) {
-            _stakingFailed(_onError); // Staking less than the minimum stake is not allowed.
+            _stakingFailed(_onError, StakingResult.CannotStakeLessThanMinStake); // Staking less than the minimum stake is not allowed.
             return false;
         }
-        (uint256 pnkDeposit, uint256 pnkWithdrawal, bool sortitionSuccess) = sortitionModule.setStake(
+        (uint256 pnkDeposit, uint256 pnkWithdrawal, StakingResult stakingResult) = sortitionModule.setStake(
             _account,
             _courtID,
             _newStake,
             _alreadyTransferred
         );
-        if (!sortitionSuccess) {
-            _stakingFailed(_onError);
+        if (stakingResult != StakingResult.Successful) {
+            _stakingFailed(_onError, stakingResult);
             return false;
         }
         if (pnkDeposit > 0) {
             if (!pinakion.safeTransferFrom(_account, address(this), pnkDeposit)) {
-                _stakingFailed(_onError);
+                _stakingFailed(_onError, StakingResult.StakingTransferFailed);
                 return false;
             }
         }
         if (pnkWithdrawal > 0) {
             if (!pinakion.safeTransfer(_account, pnkWithdrawal)) {
-                _stakingFailed(_onError);
+                _stakingFailed(_onError, StakingResult.UnstakingTransferFailed);
                 return false;
             }
         }
@@ -1085,9 +1084,13 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     }
 
     /// @dev It may revert depending on the _onError parameter.
-    function _stakingFailed(OnError _onError) internal pure {
+    function _stakingFailed(OnError _onError, StakingResult _result) internal pure virtual {
         if (_onError == OnError.Return) return;
-        revert StakingFailed();
+        if (_result == StakingResult.StakingTransferFailed) revert StakingTransferFailed();
+        if (_result == StakingResult.UnstakingTransferFailed) revert UnstakingTransferFailed();
+        if (_result == StakingResult.CannotStakeInMoreCourts) revert StakingInTooManyCourts();
+        if (_result == StakingResult.CannotStakeInThisCourt) revert StakingNotPossibeInThisCourt();
+        if (_result == StakingResult.CannotStakeLessThanMinStake) revert StakingLessThanCourtMinStake();
     }
 
     /// @dev Gets a court ID, the minimum number of jurors and an ID of a dispute kit from a specified extra data bytes array.
@@ -1107,19 +1110,19 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
                 minJurors := mload(add(_extraData, 0x40))
                 disputeKitID := mload(add(_extraData, 0x60))
             }
-            if (courtID == Constants.FORKING_COURT || courtID >= courts.length) {
-                courtID = Constants.GENERAL_COURT;
+            if (courtID == FORKING_COURT || courtID >= courts.length) {
+                courtID = GENERAL_COURT;
             }
             if (minJurors == 0) {
-                minJurors = Constants.DEFAULT_NB_OF_JURORS;
+                minJurors = DEFAULT_NB_OF_JURORS;
             }
-            if (disputeKitID == Constants.NULL_DISPUTE_KIT || disputeKitID >= disputeKits.length) {
-                disputeKitID = Constants.DISPUTE_KIT_CLASSIC; // 0 index is not used.
+            if (disputeKitID == NULL_DISPUTE_KIT || disputeKitID >= disputeKits.length) {
+                disputeKitID = DISPUTE_KIT_CLASSIC; // 0 index is not used.
             }
         } else {
-            courtID = Constants.GENERAL_COURT;
-            minJurors = Constants.DEFAULT_NB_OF_JURORS;
-            disputeKitID = Constants.DISPUTE_KIT_CLASSIC;
+            courtID = GENERAL_COURT;
+            minJurors = DEFAULT_NB_OF_JURORS;
+            disputeKitID = DISPUTE_KIT_CLASSIC;
         }
     }
 
@@ -1141,7 +1144,11 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
     error WrongDisputeKitIndex();
     error CannotDisableClassicDK();
     error ArraysLengthMismatch();
-    error StakingFailed();
+    error StakingInTooManyCourts();
+    error StakingNotPossibeInThisCourt();
+    error StakingLessThanCourtMinStake();
+    error StakingTransferFailed();
+    error UnstakingTransferFailed();
     error ArbitrationFeesNotEnough();
     error DisputeKitNotSupportedByCourt();
     error MustSupportDisputeKitClassic();

@@ -1,4 +1,5 @@
 import { useLocation } from "react-router-dom";
+
 import { Dispute_Filter } from "src/graphql/graphql";
 
 export const encodeURIFilter = (filter: Dispute_Filter): string => {

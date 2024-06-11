@@ -1,18 +1,19 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
+
 import { useParams } from "react-router-dom";
-import { useAccount, useBalance, usePublicClient } from "wagmi";
 import { useDebounce } from "react-use";
+import { useAccount, useBalance, usePublicClient } from "wagmi";
+
 import { Field, Button } from "@kleros/ui-components-library";
-import { wrapWithToast } from "utils/wrapWithToast";
-import { isUndefined } from "utils/index";
-import { EnsureChain } from "components/EnsureChain";
-import {
-  usePrepareDisputeKitClassicFundAppeal,
-  useDisputeKitClassicFundAppeal,
-} from "hooks/contracts/generatedProvider";
-import { useParsedAmount } from "hooks/useParsedAmount";
+
+import { usePrepareDisputeKitClassicFundAppeal, useDisputeKitClassicFundAppeal } from "hooks/contracts/generated";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
+import { useParsedAmount } from "hooks/useParsedAmount";
+import { isUndefined } from "utils/index";
+import { wrapWithToast } from "utils/wrapWithToast";
+
+import { EnsureChain } from "components/EnsureChain";
 
 const Container = styled.div`
   display: flex;

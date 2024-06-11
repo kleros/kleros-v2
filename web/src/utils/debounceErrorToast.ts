@@ -1,4 +1,5 @@
 import { toast } from "react-toastify";
+
 import { OPTIONS as toastOptions } from "utils/wrapWithToast";
 
 let timeoutId: NodeJS.Timeout;

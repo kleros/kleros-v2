@@ -1,8 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import Stats from "./Stats";
+
 import Chart from "./Chart";
 import Header from "./Header";
+import Stats from "./Stats";
 
 const Container = styled.div`
   width: 100%;

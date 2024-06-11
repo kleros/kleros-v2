@@ -1,12 +1,17 @@
 import React from "react";
 import styled from "styled-components";
+
 import { useAccount } from "wagmi";
-import TokenRewards from "./TokenRewards";
-import WithHelpTooltip from "components/WithHelpTooltip";
-import { getFormattedRewards } from "utils/jurorRewardConfig";
+
 import { CoinIds } from "consts/coingecko";
-import { useUserQuery } from "queries/useUser";
 import { useCoinPrice } from "hooks/useCoinPrice";
+import { getFormattedRewards } from "utils/jurorRewardConfig";
+
+import { useUserQuery } from "queries/useUser";
+
+import WithHelpTooltip from "components/WithHelpTooltip";
+
+import TokenRewards from "./TokenRewards";
 
 const Container = styled.div`
   display: flex;

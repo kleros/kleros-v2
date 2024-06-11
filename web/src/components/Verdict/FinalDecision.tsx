@@ -1,20 +1,27 @@
 import React, { useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import ArrowIcon from "assets/svgs/icons/arrow.svg";
-import { useKlerosCoreCurrentRuling } from "hooks/contracts/generatedProvider";
-import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
-import LightButton from "../LightButton";
-import VerdictBanner from "./VerdictBanner";
-import { responsiveSize } from "styles/responsiveSize";
-import { useVotingContext } from "hooks/useVotingContext";
+
 import Skeleton from "react-loading-skeleton";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
-import AnswerDisplay from "./Answer";
-import { useVotingHistory } from "hooks/queries/useVotingHistory";
-import { getLocalRounds } from "utils/getLocalRounds";
+
+import ArrowIcon from "assets/svgs/icons/arrow.svg";
+
 import { Periods } from "consts/periods";
+import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
+import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
+import { useVotingHistory } from "hooks/queries/useVotingHistory";
+import { useVotingContext } from "hooks/useVotingContext";
+import { getLocalRounds } from "utils/getLocalRounds";
+
+import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import { responsiveSize } from "styles/responsiveSize";
+
+import LightButton from "../LightButton";
+
+import AnswerDisplay from "./Answer";
+import VerdictBanner from "./VerdictBanner";
 
 const Container = styled.div`
   width: 100%;

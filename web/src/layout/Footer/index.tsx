@@ -1,8 +1,11 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import SecuredByKlerosLogo from "svgs/footer/secured-by-kleros.svg";
+
 import { socialmedia } from "consts/socialmedia";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.div`
   height: 122px;

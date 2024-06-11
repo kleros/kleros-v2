@@ -1,22 +1,24 @@
 import React, { useMemo } from "react";
+
 import { useParams } from "react-router-dom";
 import { useAccount, usePublicClient } from "wagmi";
+
 import { Button } from "@kleros/ui-components-library";
+
 import {
   usePnkBalanceOf,
   usePnkIncreaseAllowance,
   usePreparePnkIncreaseAllowance,
   usePnkAllowance,
-} from "hooks/contracts/generated";
-import {
   getKlerosCore,
   useKlerosCoreSetStake,
   usePrepareKlerosCoreSetStake,
   useSortitionModuleGetJurorBalance,
-} from "hooks/contracts/generatedProvider";
+} from "hooks/contracts/generated";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
-import { wrapWithToast } from "utils/wrapWithToast";
 import { isUndefined } from "utils/index";
+import { wrapWithToast } from "utils/wrapWithToast";
+
 import { EnsureChain } from "components/EnsureChain";
 
 export enum ActionType {
@@ -94,8 +96,8 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     }
   };
 
-  const { config: setStakeConfig } = usePrepareKlerosCoreSetStake({
-    enabled: !isUndefined(targetStake) && !isUndefined(id) && !isAllowance,
+  const { config: setStakeConfig, error: setStakeError } = usePrepareKlerosCoreSetStake({
+    enabled: !isUndefined(targetStake) && !isUndefined(id) && !isAllowance && parsedAmount !== 0n,
     args: [BigInt(id ?? 0), targetStake],
   });
   const { writeAsync: setStake } = useKlerosCoreSetStake(setStakeConfig);
@@ -103,7 +105,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     if (typeof setStake !== "undefined") {
       setIsSending(true);
       wrapWithToast(async () => await setStake().then((response) => response.hash), publicClient)
-        .then(() => setIsPopupOpen(true))
+        .then((res) => res.status && setIsPopupOpen(true))
         .finally(() => {
           setIsSending(false);
         });
@@ -118,7 +120,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     },
     [ActionType.stake]: {
       text: "Stake",
-      checkDisabled: () => false,
+      checkDisabled: () => !isUndefined(setStakeError),
       onClick: handleStake,
     },
     [ActionType.withdraw]: {

@@ -104,7 +104,7 @@ export const GlobalStyle = createGlobalStyle`
 
   }
 
-  ul {
+  ul, ol {
     li {
       color: ${({ theme }) => theme.primaryText};
     }

@@ -1,13 +1,18 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import LightButton from "components/LightButton";
+
 import DarkModeIcon from "svgs/menu-icons/dark-mode.svg";
 import HelpIcon from "svgs/menu-icons/help.svg";
 import LightModeIcon from "svgs/menu-icons/light-mode.svg";
 import NotificationsIcon from "svgs/menu-icons/notifications.svg";
 import SettingsIcon from "svgs/menu-icons/settings.svg";
+
 import { useToggleTheme } from "hooks/useToggleThemeContext";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
+import LightButton from "components/LightButton";
+
 import { IHelp, ISettings } from "..";
 
 const Container = styled.div`

@@ -1,11 +1,14 @@
 import React, { useRef } from "react";
 import styled, { css } from "styled-components";
-import { responsiveSize } from "styles/responsiveSize";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { Alias, useNewDisputeContext } from "context/NewDisputeContext";
-import LabeledInput from "components/LabeledInput";
-import { validateAddress } from "utils/validateAddressOrEns";
 import { isUndefined } from "utils/index";
+import { validateAddress } from "utils/validateAddressOrEns";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
+import LabeledInput from "components/LabeledInput";
 
 const Container = styled.div`
   display: flex;

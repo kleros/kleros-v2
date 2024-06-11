@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
+
 import { JSONEditor as Editor, JSONEditorPropsOptional } from "vanilla-jsoneditor";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.div`

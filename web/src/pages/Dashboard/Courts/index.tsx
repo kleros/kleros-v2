@@ -1,12 +1,17 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { useAccount } from "wagmi";
+
 import Skeleton from "react-loading-skeleton";
+import { useAccount } from "wagmi";
+
+import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
+
+import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import CourtCard from "./CourtCard";
 import Header from "./Header";
-import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
-import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generatedProvider";
 
 const Container = styled.div`
   margin-top: 64px;

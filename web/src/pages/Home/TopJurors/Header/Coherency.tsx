@@ -1,7 +1,10 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { BREAKPOINT_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
+
 import { useWindowSize } from "react-use";
+
+import { BREAKPOINT_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
+
 import WithHelpTooltip from "components/WithHelpTooltip";
 
 const Container = styled.div`

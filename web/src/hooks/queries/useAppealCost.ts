@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { getKlerosCore } from "hooks/contracts/generatedProvider";
+
+import { getKlerosCore } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
 
 export const useAppealCost = (disputeID?: string) => {

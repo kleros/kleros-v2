@@ -1,10 +1,13 @@
 import React, { useContext, createContext, useMemo } from "react";
+
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
+
+import { isUndefined } from "utils/index";
+
+import { useDisputeKitClassicIsVoteActive } from "./contracts/generated";
 import { useDisputeDetailsQuery } from "./queries/useDisputeDetailsQuery";
 import { useDrawQuery } from "./queries/useDrawQuery";
-import { useDisputeKitClassicIsVoteActive } from "./contracts/generatedProvider";
-import { isUndefined } from "utils/index";
 
 interface IVotingContext {
   wasDrawn: boolean;

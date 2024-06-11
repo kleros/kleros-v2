@@ -1,11 +1,15 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
+
 import { useNavigate, useParams } from "react-router-dom";
+
 import { DropdownSelect } from "@kleros/ui-components-library";
+
+import GridIcon from "svgs/icons/grid.svg";
+import ListIcon from "svgs/icons/list.svg";
+
 import { useIsList } from "context/IsListProvider";
 import useIsDesktop from "hooks/useIsDesktop";
-import ListIcon from "svgs/icons/list.svg";
-import GridIcon from "svgs/icons/grid.svg";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
 const Container = styled.div`
