@@ -27,7 +27,7 @@ Otherwise it should behave like a Neo arbitrator.
 
 // TODO: assert on sortition.totalStaked in happy case
 
-describe("Staking", async () => {
+describe("Staking Neo", async () => {
   const ETH = (amount: number) => ethers.utils.parseUnits(amount.toString());
   const PNK = ETH;
 

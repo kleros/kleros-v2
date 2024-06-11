@@ -108,7 +108,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const resolver = await deploy("DisputeResolverNeo", {
+  const resolver = await deployUpgradable(deployments, "DisputeResolverNeo", {
     from: deployer,
     contract: "DisputeResolver",
     args: [core.address, disputeTemplateRegistry.address],
