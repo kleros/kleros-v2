@@ -1,11 +1,13 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import styled from "styled-components";
 
 import { useSearchParams } from "react-router-dom";
 
-import FileViewer from "components/FileViewer";
+import Loader from "components/Loader";
 
 import Header from "./Header";
+
+const FileViewer = lazy(() => import("components/FileViewer"));
 
 const Container = styled.div`
   width: 100%;
@@ -21,6 +23,12 @@ const DisplayContainer = styled.div`
   overflow: scroll hidden;
 `;
 
+const LoaderContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+`;
+
 const EvidenceAttachmentDisplay: React.FC = () => {
   const [searchParams] = useSearchParams();
 
@@ -28,7 +36,19 @@ const EvidenceAttachmentDisplay: React.FC = () => {
   return (
     <Container>
       <Header />
-      <DisplayContainer>{url ? <FileViewer url={url} /> : null}</DisplayContainer>
+      {url ? (
+        <Suspense
+          fallback={
+            <LoaderContainer>
+              <Loader width={"48px"} height={"48px"} />
+            </LoaderContainer>
+          }
+        >
+          <DisplayContainer>
+            <FileViewer url={url} />
+          </DisplayContainer>
+        </Suspense>
+      ) : null}
     </Container>
   );
 };
