@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useCallback } from "react";
 
-import { useWeb3Modal } from "@web3modal/react";
-import { useAccount, useNetwork, useSwitchNetwork } from "wagmi";
+import { useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react";
+import { useAccount, useChainId, useSwitchChain } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -10,18 +10,19 @@ import { SUPPORTED_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 import AccountDisplay from "./AccountDisplay";
 
 export const SwitchChainButton: React.FC<{ className?: string }> = ({ className }) => {
-  const { switchNetwork, isLoading } = useSwitchNetwork();
-  const handleSwitch = () => {
-    if (!switchNetwork) {
+  // TODO isLoading is not documented, but exists in the type, might have changed to isPending
+  const { switchChain, isLoading } = useSwitchChain();
+  const handleSwitch = useCallback(() => {
+    if (!switchChain) {
       console.error("Cannot switch network. Please do it manually.");
       return;
     }
     try {
-      switchNetwork(DEFAULT_CHAIN);
+      switchChain({ chainId: DEFAULT_CHAIN });
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [switchChain]);
   return (
     <Button
       {...{ className }}
@@ -34,23 +35,24 @@ export const SwitchChainButton: React.FC<{ className?: string }> = ({ className 
 };
 
 const ConnectButton: React.FC<{ className?: string }> = ({ className }) => {
-  const { open, isOpen } = useWeb3Modal();
+  const { open } = useWeb3Modal();
+  const { open: isOpen } = useWeb3ModalState();
   return (
     <Button
       {...{ className }}
       disabled={isOpen}
       small
       text={"Connect"}
-      onClick={async () => open({ route: "ConnectWallet" })}
+      onClick={async () => open({ view: "Connect" })}
     />
   );
 };
 
 const ConnectWallet: React.FC<{ className?: string }> = ({ className }) => {
-  const { chain } = useNetwork();
+  const chainId = useChainId();
   const { isConnected } = useAccount();
   if (isConnected) {
-    if (chain && chain.id !== DEFAULT_CHAIN) {
+    if (chainId !== DEFAULT_CHAIN) {
       return <SwitchChainButton {...{ className }} />;
     } else return <AccountDisplay />;
   } else return <ConnectButton {...{ className }} />;

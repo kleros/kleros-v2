@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import Skeleton from "react-loading-skeleton";
 import { useAccount } from "wagmi";
 
-import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
+import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 
 import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 
@@ -37,7 +37,7 @@ const StyledLabel = styled.label`
 const Courts: React.FC = () => {
   const { address } = useAccount();
   const { data: stakeData, isLoading } = useJurorStakeDetailsQuery(address?.toLowerCase() as `0x${string}`);
-  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
+  const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
     args: [address as `0x${string}`, BigInt(1)],
   });
   const stakedCourts = stakeData?.jurorTokensPerCourts?.filter(({ staked }) => staked > 0);
