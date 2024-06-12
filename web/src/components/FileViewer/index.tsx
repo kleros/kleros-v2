@@ -7,12 +7,7 @@ import "@cyntler/react-doc-viewer/dist/index.css";
 import MarkdownRenderer from "./Viewers/MarkdownViewer";
 
 const StyledDocViewer = styled(DocViewer)`
-  padding: 0px 8px;
   background-color: ${({ theme }) => theme.whiteBackground} !important;
-
-  #pdf-controls {
-    z-index: 0;
-  }
 `;
 
 /**
@@ -32,8 +27,8 @@ const FileViewer: React.FC<{ url: string }> = ({ url }) => {
           disableFileName: true,
         },
         pdfZoom: {
-          defaultZoom: 1.1, // 1 as default,
-          zoomJump: 0.2, // 0.1 as default,
+          defaultZoom: 0.8,
+          zoomJump: 0.1,
         },
         pdfVerticalScrollByDefault: true, // false as default
       }}
