@@ -5,7 +5,8 @@ import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
 
-import { useSortitionModuleGetJurorBalance, usePnkBalanceOf } from "hooks/contracts/generated";
+import { REFETCH_INTERVAL } from "consts/index";
+import { useReadSortitionModuleGetJurorBalance, useReadPnkBalanceOf } from "hooks/contracts/generated";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { commify, uncommify } from "utils/commify";
 import { formatPNK, roundNumberDown } from "utils/format";
@@ -74,16 +75,20 @@ const InputDisplay: React.FC<IInputDisplay> = ({
 
   const { id } = useParams();
   const { address } = useAccount();
-  const { data: balance } = usePnkBalanceOf({
-    enabled: !isUndefined(address),
+  const { data: balance } = useReadPnkBalanceOf({
+    query: {
+      enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
+    },
     args: [address ?? "0x"],
-    watch: true,
   });
   const parsedBalance = formatPNK(balance ?? 0n, 0, true);
-  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
-    enabled: !isUndefined(address),
-    args: [address!, BigInt(id!)],
-    watch: true,
+  const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
+    query: {
+      enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
+    },
+    args: [address ?? "0x", BigInt(id ?? "0")],
   });
   const parsedStake = formatPNK(jurorBalance?.[2] || 0n, 0, true);
   const isStaking = useMemo(() => action === ActionType.stake, [action]);

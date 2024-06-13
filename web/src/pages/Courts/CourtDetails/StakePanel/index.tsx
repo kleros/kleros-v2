@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 
-import ThreePnksIcon from "tsx:assets/svgs/styled/three-pnks.svg";
-
-import BalanceIcon from "assets/svgs/icons/balance.svg";
+import BalanceIcon from "svgs/icons/balance.svg";
+import ThreePnksIcon from "svgs/styled/three-pnks.svg";
 
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 

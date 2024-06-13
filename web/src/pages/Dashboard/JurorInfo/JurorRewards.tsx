@@ -28,7 +28,7 @@ const tooltipMsg =
 
 const JurorRewards: React.FC = () => {
   const { address } = useAccount();
-  const { data } = useUserQuery(address?.toLowerCase());
+  const { data } = useUserQuery(address?.toLowerCase() as `0x${string}`);
   const coinIds = [CoinIds.PNK, CoinIds.ETH];
   const { prices: pricesData } = useCoinPrice(coinIds);
 

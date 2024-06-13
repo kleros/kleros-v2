@@ -2,9 +2,9 @@ import middy from "@middy/core";
 import { createClient } from "@supabase/supabase-js";
 import { generateNonce } from "siwe";
 
-import { ETH_ADDRESS_REGEX } from "src/consts";
+import { ETH_ADDRESS_REGEX } from "consts/processEnvConsts";
 
-import { Database } from "../../src/types/supabase-notification";
+import { Database } from "src/types/supabase-notification";
 
 const getNonce = async (event) => {
   try {

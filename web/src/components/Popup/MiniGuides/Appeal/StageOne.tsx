@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import StageOneSvg from "tsx:assets/svgs/mini-guides/appeal/stage-one.svg";
+import StageOneSvg from "svgs/mini-guides/appeal/stage-one.svg";
 
 import { StyledImage } from "../PageContentsTemplate";
 

@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import { SubgraphMapping } from "../utils/actionTypes";
 import { createResultObject } from "src/dataMappings/utils/createResultObject";
 

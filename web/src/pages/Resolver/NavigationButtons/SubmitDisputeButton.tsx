@@ -6,12 +6,12 @@ import { usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
-import DisputeIcon from "assets/svgs/icons/dispute.svg";
+import DisputeIcon from "svgs/icons/dispute.svg";
 
 import { IDisputeTemplate, useNewDisputeContext } from "context/NewDisputeContext";
 import {
-  useDisputeResolverCreateDisputeForTemplate,
-  usePrepareDisputeResolverCreateDisputeForTemplate,
+  useWriteDisputeResolverCreateDisputeForTemplate,
+  useSimulateDisputeResolverCreateDisputeForTemplate,
 } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
 import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
@@ -31,10 +31,13 @@ const SubmitDisputeButton: React.FC = () => {
   const { disputeTemplate, disputeData, resetDisputeData, isSubmittingCase, setIsSubmittingCase } =
     useNewDisputeContext();
 
-  const { config: submitCaseConfig } = usePrepareDisputeResolverCreateDisputeForTemplate({
-    enabled: isTemplateValid(disputeTemplate),
+  // TODO: decide which dispute kit to use
+  const { data: submitCaseConfig } = useSimulateDisputeResolverCreateDisputeForTemplate({
+    query: {
+      enabled: isTemplateValid(disputeTemplate),
+    },
     args: [
-      prepareArbitratorExtradata(disputeData.courtId ?? "1", disputeData.numberOfJurors ?? "", 1), //TODO: decide which dispute kit to use
+      prepareArbitratorExtradata(disputeData.courtId ?? "1", disputeData.numberOfJurors ?? "", 1),
       JSON.stringify(disputeTemplate),
       "",
       BigInt(disputeTemplate.answers.length),
@@ -42,7 +45,7 @@ const SubmitDisputeButton: React.FC = () => {
     value: BigInt(disputeData.arbitrationCost ?? 0),
   });
 
-  const { writeAsync: submitCase } = useDisputeResolverCreateDisputeForTemplate(submitCaseConfig);
+  const { writeContractAsync: submitCase } = useWriteDisputeResolverCreateDisputeForTemplate();
 
   const isButtonDisabled = useMemo(
     () => isSubmittingCase || !isTemplateValid(disputeTemplate),
@@ -58,9 +61,9 @@ const SubmitDisputeButton: React.FC = () => {
           disabled={isButtonDisabled}
           isLoading={isSubmittingCase}
           onClick={() => {
-            if (submitCase) {
+            if (submitCaseConfig) {
               setIsSubmittingCase(true);
-              wrapWithToast(async () => await submitCase().then((response) => response.hash), publicClient)
+              wrapWithToast(async () => await submitCase(submitCaseConfig.request), publicClient)
                 .then((res) => {
                   if (res.status && !isUndefined(res.result)) {
                     const id = retrieveDisputeId(res.result.logs[1]);

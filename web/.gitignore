@@ -6,12 +6,10 @@
 /.pnp.*
 node_modules
 
-# Parcel
-.parcel-cache
+# vite
 development
 build
 dist
-parcel-bundle-reports
 
 # misc
 .eslintcache
