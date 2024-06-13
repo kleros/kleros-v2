@@ -115,9 +115,10 @@ interface IEvidenceCard {
   evidence: string;
   sender: string;
   index: number;
+  timestamp: BigInt;
 }
 
-const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
+const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timestamp }) => {
   const { data } = useIPFSQuery(evidence);
   return (
     <StyledCard>
@@ -137,6 +138,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
           <Identicon size="24" string={sender} />
           <p>{shortenAddress(sender)}</p>
         </AccountContainer>
+        <p>{new Date(timestamp).toLocaleString()}</p>
         {data && typeof data.fileURI !== "undefined" && (
           <StyledA href={getIpfsUrl(data.fileURI)} target="_blank" rel="noreferrer">
             <AttachmentIcon />
