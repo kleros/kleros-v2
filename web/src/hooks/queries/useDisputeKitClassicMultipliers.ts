@@ -1,10 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
+import { getContract } from "viem";
+import { usePublicClient } from "wagmi";
 
-import { getDisputeKitClassic } from "hooks/contracts/generated";
+import { DEFAULT_CHAIN } from "consts/chains";
+import { disputeKitClassicConfig } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
 
 export const useDisputeKitClassicMultipliers = () => {
-  const disputeKitClassic = getDisputeKitClassic({});
+  const publicClient = usePublicClient();
+  const disputeKitClassic = getContract({
+    abi: disputeKitClassicConfig.abi,
+    address: disputeKitClassicConfig.address[DEFAULT_CHAIN],
+    client: {
+      public: publicClient,
+    },
+  });
   const isEnabled = !isUndefined(disputeKitClassic);
   return useQuery({
     queryKey: [`DisputeKitClassicMultipliers`],

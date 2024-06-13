@@ -82,6 +82,7 @@ const PopupContainer = styled.div`
 
 export interface ISettings {
   toggleIsSettingsOpen: () => void;
+  initialTab?: number;
 }
 
 export interface IHelp {

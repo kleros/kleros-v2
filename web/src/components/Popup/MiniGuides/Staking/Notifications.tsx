@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import NotificationsSvg from "tsx:assets/svgs/mini-guides/staking/notifications.svg";
+import NotificationsSvg from "svgs/mini-guides/staking/notifications.svg";
 
 import { StyledImage } from "../PageContentsTemplate";
 

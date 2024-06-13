@@ -12,8 +12,9 @@ import { Field } from "@kleros/ui-components-library";
 
 import PolicyIcon from "svgs/icons/policy.svg";
 
+import { DEFAULT_CHAIN } from "consts/chains";
 import { INVALID_DISPUTE_DATA_ERROR } from "consts/index";
-import { useKlerosCoreAddress } from "hooks/useContractAddress";
+import { klerosCoreConfig } from "hooks/contracts/generated";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -132,7 +133,7 @@ const LongText = styled.div`
 `;
 
 const DisputeTemplateView = () => {
-  const klerosCoreAddress = useKlerosCoreAddress();
+  const klerosCoreAddress = klerosCoreConfig.address[DEFAULT_CHAIN];
   const [disputeDetails, setDisputeDetails] = useState<DisputeDetails | undefined>(undefined);
   const [disputeTemplateInput, setDisputeTemplateInput] = useState<string>("");
   const [dataMappingsInput, setDataMappingsInput] = useState<string>("");

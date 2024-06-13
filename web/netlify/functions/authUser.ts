@@ -4,8 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import * as jwt from "jose";
 import { SiweMessage } from "siwe";
 
-import { DEFAULT_CHAIN } from "consts/chains";
-import { ETH_SIGNATURE_REGEX } from "consts/index";
+import { ETH_SIGNATURE_REGEX, DEFAULT_CHAIN } from "consts/processEnvConsts";
 
 import { netlifyUri, netlifyDeployUri, netlifyDeployPrimeUri } from "src/generatedNetlifyInfo.json";
 import { Database } from "src/types/supabase-notification";

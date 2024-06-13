@@ -1,8 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import ArrowIcon from "tsx:svgs/icons/arrow.svg";
-
+import ArrowIcon from "svgs/icons/arrow.svg";
 import PnkIcon from "svgs/tokens/pnk.svg";
 
 import { responsiveSize } from "styles/responsiveSize";
