@@ -18,14 +18,6 @@ const Container = styled.div`
   gap: 8px;
 `;
 
-const DisplayContainer = styled.div`
-  background-color: ${({ theme }) => theme.whiteBackground};
-  border-radius: 3px;
-  box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.06);
-  overflow: scroll;
-  max-height: 750px;
-`;
-
 const LoaderContainer = styled.div`
   width: 100%;
   display: flex;
@@ -64,9 +56,7 @@ const EvidenceAttachmentDisplay: React.FC = () => {
               </LoaderContainer>
             }
           >
-            <DisplayContainer>
-              <FileViewer url={url} />
-            </DisplayContainer>
+            <FileViewer url={url} />
           </Suspense>
         </>
       ) : null}

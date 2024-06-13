@@ -2,9 +2,20 @@ import React from "react";
 import styled from "styled-components";
 
 import DocViewer, { DocViewerRenderers } from "@cyntler/react-doc-viewer";
-
 import "@cyntler/react-doc-viewer/dist/index.css";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+
 import MarkdownRenderer from "./Viewers/MarkdownViewer";
+
+import "overlayscrollbars/styles/overlayscrollbars.css";
+
+const Wrapper = styled.div`
+  background-color: ${({ theme }) => theme.whiteBackground};
+  border-radius: 3px;
+  box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.06);
+  max-height: 750px;
+  overflow: scroll;
+`;
 
 const StyledDocViewer = styled(DocViewer)`
   background-color: ${({ theme }) => theme.whiteBackground} !important;
@@ -18,21 +29,25 @@ const StyledDocViewer = styled(DocViewer)`
 const FileViewer: React.FC<{ url: string }> = ({ url }) => {
   const docs = [{ uri: url }];
   return (
-    <StyledDocViewer
-      documents={docs}
-      pluginRenderers={[...DocViewerRenderers, MarkdownRenderer]}
-      config={{
-        header: {
-          disableHeader: true,
-          disableFileName: true,
-        },
-        pdfZoom: {
-          defaultZoom: 0.8,
-          zoomJump: 0.1,
-        },
-        pdfVerticalScrollByDefault: true, // false as default
-      }}
-    />
+    <OverlayScrollbarsComponent options={{ showNativeOverlaidScrollbars: true }}>
+      <Wrapper className="file-viewer-wrapper">
+        <StyledDocViewer
+          documents={docs}
+          pluginRenderers={[...DocViewerRenderers, MarkdownRenderer]}
+          config={{
+            header: {
+              disableHeader: true,
+              disableFileName: true,
+            },
+            pdfZoom: {
+              defaultZoom: 0.8,
+              zoomJump: 0.1,
+            },
+            pdfVerticalScrollByDefault: true, // false as default
+          }}
+        />
+      </Wrapper>
+    </OverlayScrollbarsComponent>
   );
 };
 
