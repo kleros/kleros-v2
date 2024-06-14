@@ -96,6 +96,10 @@ const DesktopText = styled.span`
   )}
 `;
 
+const Timestamp = styled.p`
+  color: #BECCE5;
+`;
+
 const MobileText = styled.span`
   ${landscapeStyle(
     () => css`
@@ -138,11 +142,11 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timest
           <Identicon size="24" string={sender} />
           <p>{shortenAddress(sender)}</p>
         </AccountContainer>
-        <p>{new Date(parseInt(timestamp) * 1000).toLocaleDateString(undefined, {
+        <Timestamp>{new Date(parseInt(timestamp) * 1000).toLocaleDateString('en-US', {
           year: 'numeric',
           month: 'long',
           day: 'numeric',
-        })}</p>
+        })}</Timestamp>
         {data && typeof data.fileURI !== "undefined" && (
           <StyledA href={getIpfsUrl(data.fileURI)} target="_blank" rel="noreferrer">
             <AttachmentIcon />
