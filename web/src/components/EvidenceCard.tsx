@@ -45,6 +45,7 @@ const StyledReactMarkdown = styled(ReactMarkdown)`
 const BottomShade = styled.div`
   background-color: ${({ theme }) => theme.lightBlue};
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 16px;
   padding: 12px ${responsiveSize(8, 24)};

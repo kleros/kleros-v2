@@ -63,7 +63,7 @@ const Evidence: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable }) => {
       </EnsureChain>
       {data ? (
         data.evidences.map(({ key, evidence, sender, timestamp }, i) => (
-          <EvidenceCard key={key} index={i + 1} sender={sender?.id} timestamp={timestamp} {...{ evidence }} />
+          <EvidenceCard key={key} index={i + 1} sender={sender?.id} {...{ evidence, timestamp }} />
         ))
       ) : (
         <SkeletonEvidenceCard />
