@@ -115,7 +115,7 @@ interface IEvidenceCard {
   evidence: string;
   sender: string;
   index: number;
-  timestamp: BigInt;
+  timestamp: string;
 }
 
 const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timestamp }) => {
@@ -138,7 +138,11 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timest
           <Identicon size="24" string={sender} />
           <p>{shortenAddress(sender)}</p>
         </AccountContainer>
-        <p>{new Date(timestamp).toLocaleString()}</p>
+        <p>{new Date(parseInt(timestamp) * 1000).toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })}</p>
         {data && typeof data.fileURI !== "undefined" && (
           <StyledA href={getIpfsUrl(data.fileURI)} target="_blank" rel="noreferrer">
             <AttachmentIcon />
