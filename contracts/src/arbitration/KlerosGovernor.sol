@@ -194,7 +194,6 @@ contract KlerosGovernor is IArbitrableV2 {
     // ************************************* //
 
     /// @dev Creates transaction list based on input parameters and submits it for potential approval and execution.
-    /// Transactions must be ordered by their hash.
     /// @param _target List of addresses to call.
     /// @param _value List of values required for respective addresses.
     /// @param _data Concatenated calldata of all transactions of this list.
@@ -215,11 +214,9 @@ contract KlerosGovernor is IArbitrableV2 {
         // Do the assignment first to avoid creating a new variable and bypass a 'stack too deep' error.
         submission.deposit = submissionBaseDeposit + arbitrator.arbitrationCost(arbitratorExtraData);
         require(msg.value >= submission.deposit, "Not enough ETH to cover deposit");
-        // Using an array to get around the stack limit.
-        // 0 - List hash.
-        // 1 - Previous transaction hash.
-        // 2 - Current transaction hash.
-        bytes32[3] memory hashes;
+
+        bytes32 listHash;
+        bytes32 currentTxHash;
         uint256 readingPosition;
         for (uint256 i = 0; i < _target.length; i++) {
             bytes memory readData = new bytes(_dataSize[i]);
@@ -231,14 +228,12 @@ contract KlerosGovernor is IArbitrableV2 {
             }
             transaction.data = readData;
             readingPosition += _dataSize[i];
-            hashes[2] = keccak256(abi.encodePacked(transaction.target, transaction.value, transaction.data));
-            require(uint256(hashes[2]) >= uint256(hashes[1]), "Incorrect tx order");
-            hashes[0] = keccak256(abi.encodePacked(hashes[2], hashes[0]));
-            hashes[1] = hashes[2];
+            currentTxHash = keccak256(abi.encodePacked(transaction.target, transaction.value, transaction.data));
+            listHash = keccak256(abi.encodePacked(currentTxHash, listHash));
         }
-        require(!session.alreadySubmitted[hashes[0]], "List already submitted");
-        session.alreadySubmitted[hashes[0]] = true;
-        submission.listHash = hashes[0];
+        require(!session.alreadySubmitted[listHash], "List already submitted");
+        session.alreadySubmitted[listHash] = true;
+        submission.listHash = listHash;
         submission.submissionTime = block.timestamp;
         session.sumDeposit += submission.deposit;
         session.submittedLists.push(submissions.length - 1);
