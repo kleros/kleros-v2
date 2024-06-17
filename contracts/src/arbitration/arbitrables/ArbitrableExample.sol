@@ -37,7 +37,7 @@ contract ArbitrableExample is IArbitrableV2 {
     // ************************************* //
 
     modifier onlyByGovernor() {
-        require(address(this) == msg.sender, "Only the governor allowed.");
+        require(msg.sender == governor, "Only the governor allowed.");
         _;
     }
 

@@ -40,15 +40,16 @@ export const deployFaucet = async (
   const faucet = await getContractOrDeploy(hre, `${ticker}Faucet`, {
     from: deployer,
     contract: "Faucet",
-    args: [erc20.address],
+    args: [erc20.target],
     log: true,
   });
-  const faucetBalance = await erc20.balanceOf(faucet.address);
+
+  const faucetBalance = await erc20.balanceOf(faucet.target);
   const deployerBalance = await erc20.balanceOf(deployer);
-  if (deployerBalance.gte(faucetFundingAmount) && faucetBalance.lt(faucetFundingAmount / toBigInt(5))) {
+  if (deployerBalance >= faucetFundingAmount && faucetBalance < faucetFundingAmount / toBigInt(5)) {
     // Fund the faucet if deployer has enough tokens and if the faucet has less than 20% of the faucetFundingAmount
     console.log(`funding ${ticker}Faucet with ${faucetFundingAmount}`);
-    await erc20.transfer(faucet.address, faucetFundingAmount);
+    await erc20.transfer(faucet.target, faucetFundingAmount);
   }
 };
 

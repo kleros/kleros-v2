@@ -7,8 +7,8 @@ import { deployUpgradable } from "./utils/deployUpgradable";
 
 const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId, config } = hre;
-  const { deploy, execute } = deployments;
-  const { hexZeroPad, hexlify } = ethers.utils;
+  const { execute } = deployments;
+  const { zeroPadValue, toBeHex } = ethers;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -19,7 +19,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   // TODO: use deterministic deployments
   const network = config.networks[hre.network.name];
   const homeNetwork = config.networks[network.companionNetworks.home] as HttpNetworkConfig;
-  const homeChainProvider = new ethers.providers.JsonRpcProvider(homeNetwork.url);
+  const homeChainProvider = new ethers.JsonRpcProvider(homeNetwork.url);
   let nonce = await homeChainProvider.getTransactionCount(deployer);
   nonce += 1; // HomeGatewayToEthereum Proxy deploy tx will be the 2nd tx after this on its home network, so we add 1 to the current nonce.
   const homeGatewayAddress = getContractAddress(deployer, nonce);
@@ -29,7 +29,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   console.log("using VeaOutboxArbToEthDevnet at %s", veaOutbox.address);
 
   const homeChainId = (await homeChainProvider.getNetwork()).chainId;
-  const homeChainIdAsBytes32 = hexZeroPad(hexlify(homeChainId), 32);
+  const homeChainIdAsBytes32 = zeroPadValue(toBeHex(homeChainId), 32);
   await deployUpgradable(deployments, "ForeignGatewayOnEthereum", {
     from: deployer,
     contract: "ForeignGateway",

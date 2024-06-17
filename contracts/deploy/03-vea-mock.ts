@@ -11,7 +11,7 @@ import { deployUpgradable } from "./utils/deployUpgradable";
 const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts } = hre;
   const { deploy, execute } = deployments;
-  const { hexZeroPad, hexlify } = ethers.utils;
+  const { zeroPadValue, toBeHex } = ethers;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -29,7 +29,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const homeGatewayAddress = getContractAddress(deployer, nonce);
   console.log("calculated future HomeGatewayToEthereum address for nonce %d: %s", nonce, homeGatewayAddress);
 
-  const homeChainIdAsBytes32 = hexZeroPad(hexlify(HardhatChain.HARDHAT), 32);
+  const homeChainIdAsBytes32 = zeroPadValue(toBeHex(HardhatChain.HARDHAT), 32);
   const foreignGateway = await deployUpgradable(deployments, "ForeignGatewayOnEthereum", {
     from: deployer,
     contract: "ForeignGateway",
@@ -48,7 +48,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       vea.address,
       HardhatChain.HARDHAT,
       foreignGateway.address,
-      ethers.constants.AddressZero, // feeToken
+      ethers.ZeroAddress, // feeToken
     ],
     gasLimit: 4000000,
     log: true,
@@ -80,7 +80,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       "disputeTemplateMapping: TODO",
       extraData,
       disputeTemplateRegistry.address,
-      ethers.constants.AddressZero,
+      ethers.ZeroAddress,
     ],
     log: true,
   });
