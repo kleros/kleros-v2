@@ -11,6 +11,7 @@ import AttachmentIcon from "svgs/icons/attachment.svg";
 import { useIPFSQuery } from "hooks/useIPFSQuery";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import { shortenAddress } from "utils/shortenAddress";
+import { formatDate } from "~src/utils/date";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -40,6 +41,9 @@ const StyledReactMarkdown = styled(ReactMarkdown)`
   a {
     font-size: 16px;
   }
+  code {
+    color: ${({ theme }) => theme.secondaryText};
+  }
 `;
 
 const BottomShade = styled.div`
@@ -61,13 +65,13 @@ const StyledA = styled.a`
   margin-left: auto;
   gap: ${responsiveSize(5, 6)};
   ${landscapeStyle(
-    () => css`
+  () => css`
       > svg {
         width: 16px;
         fill: ${({ theme }) => theme.primaryBlue};
       }
     `
-  )}
+)}
 `;
 
 const AccountContainer = styled.div`
@@ -91,22 +95,22 @@ const AccountContainer = styled.div`
 const DesktopText = styled.span`
   display: none;
   ${landscapeStyle(
-    () => css`
+  () => css`
       display: inline;
     `
-  )}
+)}
 `;
 
 const Timestamp = styled.p`
-  color: #BECCE5;
+color: ${({ theme }) => theme.secondaryText};
 `;
 
 const MobileText = styled.span`
   ${landscapeStyle(
-    () => css`
+  () => css`
       display: none;
     `
-  )}
+)}
 `;
 
 const AttachedFileText: React.FC = () => (
@@ -143,11 +147,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timest
           <Identicon size="24" string={sender} />
           <p>{shortenAddress(sender)}</p>
         </AccountContainer>
-        <Timestamp>{new Date(parseInt(timestamp) * 1000).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        })}</Timestamp>
+        <Timestamp>{formatDate(Number(timestamp))}</Timestamp>
         {data && typeof data.fileURI !== "undefined" && (
           <StyledA href={getIpfsUrl(data.fileURI)} target="_blank" rel="noreferrer">
             <AttachmentIcon />
