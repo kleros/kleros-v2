@@ -8,7 +8,6 @@ import GraphqlBatcherProvider from "context/GraphqlBatcher";
 import IsListProvider from "context/IsListProvider";
 import { NewDisputeProvider } from "context/NewDisputeContext";
 import QueryClientProvider from "context/QueryClientProvider";
-import RefetchOnBlock from "context/RefetchOnBlock";
 import StyledComponentsProvider from "context/StyledComponentsProvider";
 import Web3Provider from "context/Web3Provider";
 
@@ -26,10 +25,9 @@ import { SentryRoutes } from "./utils/sentry";
 const App: React.FC = () => {
   return (
     <StyledComponentsProvider>
-      <QueryClientProvider>
-        <RefetchOnBlock />
-        <GraphqlBatcherProvider>
-          <Web3Provider>
+      <Web3Provider>
+        <QueryClientProvider>
+          <GraphqlBatcherProvider>
             <IsListProvider>
               <NewDisputeProvider>
                 <SentryRoutes>
@@ -46,9 +44,9 @@ const App: React.FC = () => {
                 </SentryRoutes>
               </NewDisputeProvider>
             </IsListProvider>
-          </Web3Provider>
-        </GraphqlBatcherProvider>
-      </QueryClientProvider>
+          </GraphqlBatcherProvider>
+        </QueryClientProvider>
+      </Web3Provider>
     </StyledComponentsProvider>
   );
 };

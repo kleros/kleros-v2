@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import HowItWorksSvg from "tsx:assets/svgs/mini-guides/onboarding/how-it-works.svg";
+import HowItWorksSvg from "svgs/mini-guides/onboarding/how-it-works.svg";
 
 import { StyledImage } from "../PageContentsTemplate";
 

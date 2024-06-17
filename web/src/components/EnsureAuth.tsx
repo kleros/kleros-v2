@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 
 import * as jwt from "jose";
 import { SiweMessage } from "siwe";
-import { useAccount, useNetwork, useSignMessage } from "wagmi";
+import { useAccount, useChainId, useSignMessage } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -21,7 +21,7 @@ export const EnsureAuth: React.FC<IEnsureAuth> = ({ children, className }) => {
 
   const [authToken, setAuthToken] = useSessionStorage<string | null>("auth-token", localToken);
   const { address } = useAccount();
-  const { chain } = useNetwork();
+  const chainId = useChainId();
 
   const { signMessageAsync } = useSignMessage();
 
@@ -41,7 +41,7 @@ export const EnsureAuth: React.FC<IEnsureAuth> = ({ children, className }) => {
       setIsLoading(true);
       if (!address) return;
 
-      const message = await createSiweMessage(address, "Sign In to Kleros with Ethereum.", chain?.id);
+      const message = await createSiweMessage(address, "Sign In to Kleros with Ethereum.", chainId);
 
       const signature = await signMessageAsync({ message });
 
@@ -67,7 +67,13 @@ export const EnsureAuth: React.FC<IEnsureAuth> = ({ children, className }) => {
   return isVerified ? (
     children
   ) : (
-    <Button text="Sign In" onClick={handleSignIn} disabled={isLoading} isLoading={isLoading} {...{ className }} />
+    <Button
+      text="Sign In"
+      onClick={handleSignIn}
+      disabled={isLoading || !address}
+      isLoading={isLoading}
+      {...{ className }}
+    />
   );
 };
 

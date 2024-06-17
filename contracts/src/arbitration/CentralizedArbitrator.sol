@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import {IArbitrableV2, IArbitratorV2, IERC20} from "./interfaces/IArbitratorV2.sol";
 
@@ -29,9 +29,9 @@ contract CentralizedArbitrator is IArbitratorV2 {
     }
 
     struct Round {
-        mapping(uint256 => uint256) paidFees; // Tracks the fees paid for each choice in this round.
-        mapping(uint256 => bool) hasPaid; // True if this choice was fully funded, false otherwise.
-        mapping(address => mapping(uint256 => uint256)) contributions; // Maps contributors to their contributions for each choice.
+        mapping(uint256 choiceId => uint256) paidFees; // Tracks the fees paid for each choice in this round.
+        mapping(uint256 choiceId => bool) hasPaid; // True if this choice was fully funded, false otherwise.
+        mapping(address account => mapping(uint256 choiceId => uint256)) contributions; // Maps contributors to their contributions for each choice.
         uint256 feeRewards; // Sum of reimbursable appeal fees available to the parties that made contributions to the ruling that ultimately wins a dispute.
         uint256[] fundedChoices; // Stores the choices that are fully funded.
     }

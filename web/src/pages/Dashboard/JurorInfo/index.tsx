@@ -17,8 +17,6 @@ import Header from "./Header";
 import JurorRewards from "./JurorRewards";
 import PixelArt from "./PixelArt";
 
-// import StakingRewards from "./StakingRewards";
-
 const Container = styled.div``;
 
 const Card = styled(_Card)`
@@ -43,7 +41,8 @@ const Card = styled(_Card)`
 
 const JurorInfo: React.FC = () => {
   const { address } = useAccount();
-  const { data } = useUserQuery(address?.toLowerCase());
+  const { data } = useUserQuery(address?.toLowerCase() as `0x${string}`);
+  // TODO check graph schema
   const coherenceScore = data?.user ? parseInt(data?.user?.coherenceScore) : 0;
   const totalCoherent = data?.user ? parseInt(data?.user?.totalCoherent) : 0;
   const totalResolvedDisputes = data?.user ? parseInt(data?.user?.totalResolvedDisputes) : 0;
