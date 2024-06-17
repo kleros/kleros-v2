@@ -16,7 +16,12 @@ import { ActionMapping } from "./utils/actionTypes";
 import { replacePlaceholdersWithValues } from "./utils/replacePlaceholdersWithValues";
 
 export const executeAction = async (mapping: ActionMapping, context = {}) => {
+  console.log("Executing action with mapping:", mapping);
+  console.log("Context before replacement:", context);
+
   mapping = replacePlaceholdersWithValues(mapping, context);
+
+  console.log("Mapping after replacement:", mapping);
 
   switch (mapping.type) {
     case "graphql":
@@ -39,9 +44,13 @@ export const executeAction = async (mapping: ActionMapping, context = {}) => {
 
 export const executeActions = async (mappings, initialContext = {}) => {
   const context = { ...initialContext };
+  console.log("Initial context:", context);
 
   for (const mapping of mappings) {
+    console.log("Processing mapping:", mapping);
     const actionResult = await executeAction(mapping, context);
+    console.log("Action result:", actionResult);
+
     if (actionResult) {
       Object.keys(actionResult).forEach((key) => {
         context[key] = actionResult[key];
@@ -49,5 +58,6 @@ export const executeActions = async (mappings, initialContext = {}) => {
     }
   }
 
+  console.log("Final context:", context);
   return context;
 };
