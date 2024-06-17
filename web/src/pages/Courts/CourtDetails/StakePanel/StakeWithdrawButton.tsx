@@ -1,19 +1,21 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useCallback, useMemo } from "react";
 
 import { useParams } from "react-router-dom";
 import { useAccount, usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
+import { DEFAULT_CHAIN } from "consts/chains";
+import { REFETCH_INTERVAL } from "consts/index";
 import {
-  usePnkBalanceOf,
-  usePnkIncreaseAllowance,
-  usePreparePnkIncreaseAllowance,
-  usePnkAllowance,
-  getKlerosCore,
-  useKlerosCoreSetStake,
-  usePrepareKlerosCoreSetStake,
-  useSortitionModuleGetJurorBalance,
+  klerosCoreAddress,
+  useSimulateKlerosCoreSetStake,
+  useWriteKlerosCoreSetStake,
+  useReadPnkBalanceOf,
+  useSimulatePnkIncreaseAllowance,
+  useWritePnkIncreaseAllowance,
+  useReadSortitionModuleGetJurorBalance,
+  useReadPnkAllowance,
 } from "hooks/contracts/generated";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
 import { isUndefined } from "utils/index";
@@ -34,7 +36,6 @@ interface IActionButton {
   setIsSending: (arg0: boolean) => void;
   setAmount: (arg0: string) => void;
   setIsPopupOpen: (arg0: boolean) => void;
-  setErrorMsg: (arg0: string | undefined) => void;
 }
 
 const StakeWithdrawButton: React.FC<IActionButton> = ({
@@ -43,26 +44,30 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   isSending,
   setIsSending,
   setIsPopupOpen,
-  setErrorMsg,
 }) => {
   const { id } = useParams();
   const { address } = useAccount();
-  const klerosCore = getKlerosCore({});
   const { data: courtDetails } = useCourtDetails(id);
-  const { data: balance } = usePnkBalanceOf({
-    enabled: !isUndefined(address),
+  const { data: balance } = useReadPnkBalanceOf({
+    query: {
+      enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
+    },
     args: [address!],
-    watch: true,
   });
-  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
-    enabled: !isUndefined(address),
+  const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
+    query: {
+      enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
+    },
     args: [address ?? "0x", BigInt(id ?? 0)],
-    watch: true,
   });
-  const { data: allowance } = usePnkAllowance({
-    enabled: !isUndefined(address),
-    args: [address ?? "0x", klerosCore.address],
-    watch: true,
+  const { data: allowance } = useReadPnkAllowance({
+    query: {
+      enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
+    },
+    args: [address ?? "0x", klerosCoreAddress[DEFAULT_CHAIN]],
   });
   const publicClient = usePublicClient();
 
@@ -82,45 +87,39 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     return 0n;
   }, [jurorBalance, parsedAmount, isAllowance, isStaking]);
 
-  const { config: increaseAllowanceConfig, error: allowanceError } = usePreparePnkIncreaseAllowance({
-    enabled: isAllowance && !isUndefined(klerosCore) && !isUndefined(targetStake) && !isUndefined(allowance),
-    args: [klerosCore?.address, BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
+  const { data: increaseAllowanceConfig } = useSimulatePnkIncreaseAllowance({
+    query: {
+      enabled: isAllowance && !isUndefined(targetStake) && !isUndefined(allowance),
+    },
+    args: [klerosCoreAddress[DEFAULT_CHAIN], BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
   });
-  const { writeAsync: increaseAllowance } = usePnkIncreaseAllowance(increaseAllowanceConfig);
-  const handleAllowance = () => {
-    if (!isUndefined(increaseAllowance)) {
+  const { writeContractAsync: increaseAllowance } = useWritePnkIncreaseAllowance();
+  const handleAllowance = useCallback(() => {
+    if (increaseAllowanceConfig) {
       setIsSending(true);
-      wrapWithToast(async () => await increaseAllowance().then((response) => response.hash), publicClient).finally(
-        () => {
-          setIsSending(false);
-        }
-      );
+      wrapWithToast(async () => await increaseAllowance(increaseAllowanceConfig.request), publicClient).finally(() => {
+        setIsSending(false);
+      });
     }
-  };
+  }, [setIsSending, increaseAllowance, increaseAllowanceConfig, publicClient]);
 
-  const { config: setStakeConfig, error: setStakeError } = usePrepareKlerosCoreSetStake({
-    enabled: !isUndefined(targetStake) && !isUndefined(id) && !isAllowance,
+  const { data: setStakeConfig, error: setStakeError } = useSimulateKlerosCoreSetStake({
+    query: {
+      enabled: !isUndefined(targetStake) && !isUndefined(id) && !isAllowance && parsedAmount !== 0n,
+    },
     args: [BigInt(id ?? 0), targetStake],
   });
-  const { writeAsync: setStake } = useKlerosCoreSetStake(setStakeConfig);
-  const handleStake = () => {
-    if (typeof setStake !== "undefined") {
+  const { writeContractAsync: setStake } = useWriteKlerosCoreSetStake();
+  const handleStake = useCallback(() => {
+    if (setStakeConfig) {
       setIsSending(true);
-      wrapWithToast(async () => await setStake().then((response) => response.hash), publicClient)
+      wrapWithToast(async () => await setStake(setStakeConfig.request), publicClient)
         .then((res) => res.status && setIsPopupOpen(true))
         .finally(() => {
           setIsSending(false);
         });
     }
-  };
-
-  useEffect(() => {
-    if (isAllowance) {
-      setErrorMsg(allowanceError?.shortMessage);
-    } else {
-      setErrorMsg(setStakeError?.shortMessage);
-    }
-  }, [allowanceError, setStakeError, isAllowance, isStaking, setErrorMsg]);
+  }, [setIsSending, setStake, setStakeConfig, publicClient, setIsPopupOpen]);
 
   const buttonProps = {
     [ActionType.allowance]: {
@@ -153,7 +152,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
           isUndefined(courtDetails) ||
           checkDisabled() ||
           (targetStake !== 0n && targetStake < BigInt(courtDetails.court?.minStake)) ||
-          (isStaking && !isAllowance && isUndefined(setStakeConfig.request))
+          (isStaking && !isAllowance && isUndefined(setStakeConfig))
         }
         onClick={onClick}
       />

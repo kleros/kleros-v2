@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "./RNG.sol";
 import "./IRandomizer.sol";
@@ -17,8 +17,8 @@ contract RandomizerRNG is RNG, UUPSProxiable, Initializable {
     address public governor; // The address that can withdraw funds.
     uint256 public callbackGasLimit; // Gas limit for the randomizer callback
     IRandomizer public randomizer; // Randomizer address.
-    mapping(uint256 => uint256) public randomNumbers; // randomNumbers[requestID] is the random number for this request id, 0 otherwise.
-    mapping(address => uint256) public requesterToID; // Maps the requester to his latest request ID.
+    mapping(uint256 requestId => uint256 number) public randomNumbers; // randomNumbers[requestID] is the random number for this request id, 0 otherwise.
+    mapping(address requester => uint256 requestId) public requesterToID; // Maps the requester to his latest request ID.
 
     // ************************************* //
     // *        Function Modifiers         * //

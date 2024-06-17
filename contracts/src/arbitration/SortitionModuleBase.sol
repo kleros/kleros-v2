@@ -8,7 +8,7 @@
  *  @custom:deployments: []
  */
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "./KlerosCore.sol";
 import "./interfaces/ISortitionModule.sol";
@@ -70,10 +70,10 @@ abstract contract SortitionModuleBase is ISortitionModule {
     uint256 public rngLookahead; // Minimal block distance between requesting and obtaining a random number.
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
     uint256 public delayedStakeReadIndex; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
-    mapping(bytes32 => SortitionSumTree) sortitionSumTrees; // The mapping trees by keys.
-    mapping(address => Juror) public jurors; // The jurors.
+    mapping(bytes32 treeHash => SortitionSumTree) sortitionSumTrees; // The mapping trees by keys.
+    mapping(address account => Juror) public jurors; // The jurors.
     mapping(uint256 => DelayedStake) public delayedStakes; // Stores the stakes that were changed during Drawing phase, to update them when the phase is switched to Staking.
-    mapping(address => mapping(uint96 => uint256)) public latestDelayedStakeIndex; // Maps the juror to its latest delayed stake. If there is already a delayed stake for this juror then it'll be replaced. latestDelayedStakeIndex[juror][courtID].
+    mapping(address jurorAccount => mapping(uint96 courtId => uint256)) public latestDelayedStakeIndex; // Maps the juror to its latest delayed stake. If there is already a delayed stake for this juror then it'll be replaced. latestDelayedStakeIndex[juror][courtID].
 
     // ************************************* //
     // *              Events               * //

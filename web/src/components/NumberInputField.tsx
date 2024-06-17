@@ -56,12 +56,19 @@ export const NumberInputField: React.FC<INumberInputField> = ({
     <Container {...{ className }}>
       {isEditing ? (
         <StyledField
-          type="number"
+          type="text"
+          onInput={(e) => {
+            const value = e.currentTarget.value.replace(/[^0-9.]/g, "");
+
+            e.currentTarget.value = formatter ? formatter(value) : value;
+            return e;
+          }}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             onChange?.(event.target.value);
           }}
           onBlur={toggleEditing}
-          {...{ value, placeholder, message, variant }}
+          value={formatter ? formatter(value ?? "0") : value}
+          {...{ placeholder, message, variant }}
         />
       ) : (
         <StyledField

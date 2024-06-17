@@ -2,6 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import Identicon from "react-identicons";
+import ReactMarkdown from "react-markdown";
 
 import { Card } from "@kleros/ui-components-library";
 
@@ -33,6 +34,12 @@ const TextContainer = styled.div`
 
 const Index = styled.p`
   display: inline-block;
+`;
+
+const StyledReactMarkdown = styled(ReactMarkdown)`
+  a {
+    font-size: 16px;
+  }
 `;
 
 const BottomShade = styled.div`
@@ -119,7 +126,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
         {data ? (
           <>
             <h3>{data.name}</h3>
-            <p>{data.description}</p>
+            <StyledReactMarkdown>{data.description}</StyledReactMarkdown>
           </>
         ) : (
           <p>{evidence}</p>

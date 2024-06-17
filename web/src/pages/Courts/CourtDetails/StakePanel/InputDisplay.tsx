@@ -1,11 +1,12 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
 
-import { useSortitionModuleGetJurorBalance, usePnkBalanceOf } from "hooks/contracts/generated";
+import { REFETCH_INTERVAL } from "consts/index";
+import { useReadSortitionModuleGetJurorBalance, useReadPnkBalanceOf } from "hooks/contracts/generated";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { commify, uncommify } from "utils/commify";
 import { formatPNK, roundNumberDown } from "utils/format";
@@ -68,26 +69,41 @@ const InputDisplay: React.FC<IInputDisplay> = ({
   setAmount,
 }) => {
   const [debouncedAmount, setDebouncedAmount] = useState("");
+  const [errorMsg, setErrorMsg] = useState<string | undefined>();
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
   const parsedAmount = useParsedAmount(uncommify(debouncedAmount) as `${number}`);
 
-  const [errorMsg, setErrorMsg] = useState<string | undefined>();
-
   const { id } = useParams();
   const { address } = useAccount();
-  const { data: balance } = usePnkBalanceOf({
-    enabled: !isUndefined(address),
+  const { data: balance } = useReadPnkBalanceOf({
+    query: {
+      enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
+    },
     args: [address ?? "0x"],
-    watch: true,
   });
   const parsedBalance = formatPNK(balance ?? 0n, 0, true);
-  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
-    enabled: !isUndefined(address),
-    args: [address!, BigInt(id!)],
-    watch: true,
+  const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
+    query: {
+      enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
+    },
+    args: [address ?? "0x", BigInt(id ?? "0")],
   });
   const parsedStake = formatPNK(jurorBalance?.[2] || 0n, 0, true);
   const isStaking = useMemo(() => action === ActionType.stake, [action]);
+
+  useEffect(() => {
+    if (parsedAmount > 0n && balance === 0n && isStaking) {
+      setErrorMsg("You need a non-zero PNK balance to stake");
+    } else if (isStaking && balance && parsedAmount > balance) {
+      setErrorMsg("Insufficient balance to stake this amount");
+    } else if (!isStaking && jurorBalance && parsedAmount > jurorBalance[2]) {
+      setErrorMsg("Insufficient staked amount to withdraw this amount");
+    } else {
+      setErrorMsg(undefined);
+    }
+  }, [parsedAmount, isStaking, balance, jurorBalance]);
 
   return (
     <>
@@ -112,7 +128,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
             placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
             message={errorMsg ?? undefined}
             variant={!isUndefined(errorMsg) ? "error" : "info"}
-            formatter={(number: string) => commify(roundNumberDown(Number(number)))}
+            formatter={(number: string) => (number !== "" ? commify(roundNumberDown(Number(number))) : "")}
           />
           <EnsureChainContainer>
             <StakeWithdrawButton
@@ -123,7 +139,6 @@ const InputDisplay: React.FC<IInputDisplay> = ({
                 isSending,
                 setIsSending,
                 setIsPopupOpen,
-                setErrorMsg,
               }}
             />
           </EnsureChainContainer>

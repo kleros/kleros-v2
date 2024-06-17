@@ -6,7 +6,7 @@
 /// @custom:bounties: []
 /// @custom:deployments: []
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "./interfaces/IForeignGateway.sol";
 import "../proxy/UUPSProxiable.sol";
@@ -39,14 +39,14 @@ contract ForeignGateway is IForeignGateway, UUPSProxiable, Initializable {
     // ************************************* //
 
     uint256 internal localDisputeID; // The disputeID must start from 1 as the KlerosV1 proxy governor depends on this implementation. We now also depend on localDisputeID not ever being zero.
-    mapping(uint96 => uint256) public feeForJuror; // feeForJuror[v2CourtID], it mirrors the value on KlerosCore.
+    mapping(uint96 courtId => uint256) public feeForJuror; // feeForJuror[v2CourtID], it mirrors the value on KlerosCore.
     address public governor;
     address public veaOutbox;
     uint256 public override homeChainID;
     address public override homeGateway;
     address public deprecatedVeaOutbox;
     uint256 public deprecatedVeaOutboxExpiration;
-    mapping(bytes32 => DisputeData) public disputeHashtoDisputeData;
+    mapping(bytes32 disputeHash => DisputeData) public disputeHashtoDisputeData;
 
     // ************************************* //
     // *        Function Modifiers         * //

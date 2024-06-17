@@ -31,13 +31,16 @@ interface IAlias {
 
 const AliasDisplay: React.FC<IAlias> = ({ alias }) => {
   const { data: addressFromENS, isLoading } = useEnsAddress({
-    enabled: !isAddress(alias.address), // if alias.address is not an Address, we treat it as ENS and try to fetch address from there
+    query: {
+      // if alias.address is not an Address, we treat it as ENS and try to fetch address from there
+      enabled: !isAddress(alias.address),
+    },
     name: alias.address,
     chainId: 1,
   });
 
   // try fetching ens name, else go with address
-  const address = addressFromENS ?? alias.address;
+  const address = addressFromENS ?? (alias.address as `0x${string}`);
 
   return (
     <AliasContainer>

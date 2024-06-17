@@ -1,8 +1,8 @@
 import React from "react";
 import styled, { useTheme } from "styled-components";
 
-import EthIcon from "assets/svgs/icons/eth.svg";
-import PnkIcon from "assets/svgs/icons/kleros.svg";
+import EthIcon from "svgs/icons/eth.svg";
+import PnkIcon from "svgs/icons/kleros.svg";
 
 import NumberDisplay from "components/NumberDisplay";
 

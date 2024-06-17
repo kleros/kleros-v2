@@ -1,9 +1,11 @@
 import { File, FilebaseClient } from "@filebase/client";
-import { Handler } from "@netlify/functions";
+import middy from "@middy/core";
 import amqp, { Connection } from "amqplib";
 import busboy from "busboy";
 
-const { FILEBASE_TOKEN, RABBITMQ_URL, FILEBASE_API_WRAPPER } = process.env;
+import { authMiddleware } from "../middleware/authMiddleware";
+
+const { FILEBASE_TOKEN, RABBITMQ_URL } = process.env;
 const filebase = new FilebaseClient({ token: FILEBASE_TOKEN ?? "" });
 
 type FormElement =
@@ -65,24 +67,17 @@ const pinToFilebase = async (data: FormData, operation: string): Promise<Array<s
   return cids;
 };
 
-export const handler: Handler = async (event) => {
+export const uploadToIPFS = async (event) => {
   const { queryStringParameters } = event;
 
-  if (!queryStringParameters || !queryStringParameters.key || !queryStringParameters.operation) {
+  if (!queryStringParameters?.operation) {
     return {
       statusCode: 400,
       body: JSON.stringify({ message: "Invalid query parameters" }),
     };
   }
 
-  const { key, operation } = queryStringParameters;
-
-  if (key !== FILEBASE_API_WRAPPER) {
-    return {
-      statusCode: 403,
-      body: JSON.stringify({ message: "Invalid API key" }),
-    };
-  }
+  const { operation } = queryStringParameters;
 
   try {
     const parsed = await parseMultipart(event);
@@ -102,3 +97,5 @@ export const handler: Handler = async (event) => {
     };
   }
 };
+
+export const handler = middy(uploadToIPFS).use(authMiddleware());
