@@ -11,7 +11,7 @@ import AttachmentIcon from "svgs/icons/attachment.svg";
 import { useIPFSQuery } from "hooks/useIPFSQuery";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import { shortenAddress } from "utils/shortenAddress";
-import { formatDate } from "~src/utils/date";
+import { formatDate } from "utils/date";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
