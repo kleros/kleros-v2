@@ -1,5 +1,5 @@
 import { KlerosCore, KlerosCoreNeo, KlerosCoreUniversity } from "../../typechain-types";
-import { BigNumberish } from "ethers";
+import { BigNumberish, toBigInt } from "ethers";
 
 export const changeCurrencyRate = async (
   core: KlerosCore | KlerosCoreNeo | KlerosCoreUniversity,
@@ -13,7 +13,7 @@ export const changeCurrencyRate = async (
     console.log(`core.changeAcceptedFeeTokens(${erc20}, ${accepted})`);
     await core.changeAcceptedFeeTokens(erc20, accepted);
   }
-  if (!pnkRate.rateInEth.eq(rateInEth) || pnkRate.rateDecimals !== rateDecimals) {
+  if (!(pnkRate.rateInEth === toBigInt(rateInEth)) || pnkRate.rateDecimals !== rateDecimals) {
     console.log(`core.changeCurrencyRates(${erc20}, ${rateInEth}, ${rateDecimals})`);
     await core.changeCurrencyRates(erc20, rateInEth, rateDecimals);
   }

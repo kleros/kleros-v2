@@ -1,6 +1,6 @@
-import { Contract } from "@ethersproject/contracts";
+import { Contract } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { BigNumber } from "ethers";
+import { toBigInt } from "ethers";
 import { getContractOrDeploy } from "./getContractOrDeploy";
 import { isMainnet } from ".";
 
@@ -8,7 +8,7 @@ export const deployERC20AndFaucet = async (
   hre: HardhatRuntimeEnvironment,
   deployer: string,
   ticker: string,
-  faucetFundingAmount: BigNumber = hre.ethers.utils.parseUnits("100000")
+  faucetFundingAmount: bigint = hre.ethers.parseUnits("100000")
 ): Promise<Contract> => {
   const erc20 = await deployERC20(hre, deployer, ticker);
   if (!isMainnet(hre.network)) {
@@ -35,7 +35,7 @@ export const deployFaucet = async (
   deployer: string,
   ticker: string,
   erc20: Contract,
-  faucetFundingAmount: BigNumber
+  faucetFundingAmount: bigint
 ): Promise<void> => {
   const faucet = await getContractOrDeploy(hre, `${ticker}Faucet`, {
     from: deployer,
@@ -45,7 +45,7 @@ export const deployFaucet = async (
   });
   const faucetBalance = await erc20.balanceOf(faucet.address);
   const deployerBalance = await erc20.balanceOf(deployer);
-  if (deployerBalance.gte(faucetFundingAmount) && faucetBalance.lt(faucetFundingAmount.div(5))) {
+  if (deployerBalance.gte(faucetFundingAmount) && faucetBalance.lt(faucetFundingAmount / toBigInt(5))) {
     // Fund the faucet if deployer has enough tokens and if the faucet has less than 20% of the faucetFundingAmount
     console.log(`funding ${ticker}Faucet with ${faucetFundingAmount}`);
     await erc20.transfer(faucet.address, faucetFundingAmount);
