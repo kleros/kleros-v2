@@ -43,7 +43,6 @@ const Evidence: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { id } = useParams();
   const { data: evidenceGroup } = useEvidenceGroup(id, arbitrable);
-  console.log({ evidenceGroup }, "evidenceGroup is the externalDisputeID");
   const { data } = useEvidences(evidenceGroup?.toString());
   const { address } = useAccount();
 
