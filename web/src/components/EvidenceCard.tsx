@@ -2,6 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import Identicon from "react-identicons";
+import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 
 import { Card } from "@kleros/ui-components-library";
@@ -9,6 +10,7 @@ import { Card } from "@kleros/ui-components-library";
 import AttachmentIcon from "svgs/icons/attachment.svg";
 
 import { useIPFSQuery } from "hooks/useIPFSQuery";
+import { formatDate } from "utils/date";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import { shortenAddress } from "utils/shortenAddress";
 
@@ -36,9 +38,19 @@ const Index = styled.p`
   display: inline-block;
 `;
 
+const StyledReactMarkdown = styled(ReactMarkdown)`
+  a {
+    font-size: 16px;
+  }
+  code {
+    color: ${({ theme }) => theme.secondaryText};
+  }
+`;
+
 const BottomShade = styled.div`
   background-color: ${({ theme }) => theme.lightBlue};
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 16px;
   padding: 12px ${responsiveSize(8, 24)};
@@ -90,6 +102,10 @@ const DesktopText = styled.span`
   )}
 `;
 
+const Timestamp = styled.p`
+  color: ${({ theme }) => theme.secondaryText};
+`;
+
 const MobileText = styled.span`
   ${landscapeStyle(
     () => css`
@@ -124,9 +140,10 @@ interface IEvidenceCard {
   evidence: string;
   sender: string;
   index: number;
+  timestamp: string;
 }
 
-const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
+const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timestamp }) => {
   const { data } = useIPFSQuery(evidence);
 
   return (
@@ -136,7 +153,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
         {data ? (
           <>
             <h3>{data.name}</h3>
-            <p>{data.description}</p>
+            <StyledReactMarkdown>{data.description}</StyledReactMarkdown>
           </>
         ) : (
           <p>{evidence}</p>
@@ -147,6 +164,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
           <Identicon size="24" string={sender} />
           <p>{shortenAddress(sender)}</p>
         </AccountContainer>
+        <Timestamp>{formatDate(Number(timestamp))}</Timestamp>
         {data && typeof data.fileURI !== "undefined" && (
           <StyledLink to={`attachment/?url=${getIpfsUrl(data.fileURI)}`}>
             <AttachmentIcon />

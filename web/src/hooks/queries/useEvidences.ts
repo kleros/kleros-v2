@@ -14,6 +14,7 @@ const evidencesQuery = graphql(`
       sender {
         id
       }
+      timestamp
     }
   }
 `);

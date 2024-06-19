@@ -1,6 +1,7 @@
-import React, { Dispatch, SetStateAction, useRef } from "react";
+import React, { Dispatch, SetStateAction, useCallback, useRef } from "react";
 import styled, { css } from "styled-components";
 
+import { useLocation, useNavigate } from "react-router-dom";
 import { useClickAway } from "react-use";
 import BookOpenIcon from "svgs/icons/book-open.svg";
 
@@ -164,9 +165,16 @@ const Template: React.FC<ITemplate> = ({
   isVisible,
 }) => {
   const containerRef = useRef(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const removeOnboardingHashPath = useCallback(() => {
+    if (isOnboarding && location.hash.includes("#onboarding")) navigate("#", { replace: true });
+  }, [location.hash, navigate, isOnboarding]);
+
   useClickAway(containerRef, () => {
     if (canClose) {
       onClose();
+      removeOnboardingHashPath();
     }
   });
 
@@ -196,7 +204,14 @@ const Template: React.FC<ITemplate> = ({
           />
         </LeftContainer>
         <RightContainer>
-          <Close onClick={onClose}>Close</Close>
+          <Close
+            onClick={() => {
+              onClose();
+              removeOnboardingHashPath();
+            }}
+          >
+            Close
+          </Close>
           {RightContent}
         </RightContainer>
       </Container>
