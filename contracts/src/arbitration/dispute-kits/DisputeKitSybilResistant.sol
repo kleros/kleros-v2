@@ -617,11 +617,7 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
     /// @param _juror Chosen address.
     /// @return Whether the address can be drawn or not.
     function _postDrawCheck(uint256 _coreDisputeID, address _juror) internal view returns (bool) {
-        if (core.isJurorSolvent(_coreDisputeID, _juror)) {
-            return false;
-        } else {
-            return _proofOfHumanity(_juror);
-        }
+        return core.isJurorSolvent(_coreDisputeID, _juror) && _proofOfHumanity(_juror);
     }
 
     /// @dev Checks if an address belongs to the Proof of Humanity registry.
