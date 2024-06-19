@@ -8,7 +8,7 @@
  *  @custom:deployments: []
  */
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "./SortitionModuleBase.sol";
 import "../proxy/UUPSProxiable.sol";

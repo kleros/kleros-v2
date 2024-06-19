@@ -8,7 +8,7 @@
  *  @custom:deployments: []
  */
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "./KlerosCoreUniversity.sol";
 import "./ISortitionModuleUniversity.sol";
@@ -38,7 +38,7 @@ contract SortitionModuleUniversity is ISortitionModuleUniversity, UUPSProxiable,
     address public governor; // The governor of the contract.
     KlerosCoreUniversity public core; // The core arbitrator contract.
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
-    mapping(address => Juror) public jurors; // The jurors.
+    mapping(address account => Juror) public jurors; // The jurors.
     address private transientJuror; // The juror address used between calls within the same transaction.
 
     // ************************************* //

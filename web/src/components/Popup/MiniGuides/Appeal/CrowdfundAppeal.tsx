@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import CrowdfundAppealSvg from "tsx:assets/svgs/mini-guides/appeal/crowdfund-appeal.svg";
+import CrowdfundAppealSvg from "svgs/mini-guides/appeal/crowdfund-appeal.svg";
 
 import { StyledImage } from "../PageContentsTemplate";
 

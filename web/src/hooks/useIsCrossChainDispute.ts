@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { HttpRequestError, RpcError } from "viem";
+import { HttpRequestError, RpcError, getContract } from "viem";
 import { usePublicClient } from "wagmi";
 
-import { getIHomeGateway } from "hooks/contracts/generated";
+import { GENESIS_BLOCK_ARBSEPOLIA } from "consts/index";
+import { iHomeGatewayAbi } from "hooks/contracts/generated";
 import { debounceErrorToast } from "utils/debounceErrorToast";
 import { isUndefined } from "utils/index";
-
-import { GENESIS_BLOCK_ARBSEPOLIA } from "src/consts";
 
 interface IIsCrossChainDispute {
   isCrossChainDispute: boolean;
@@ -25,8 +24,10 @@ export const useIsCrossChainDispute = (disputeID?: string, arbitrableAddress?: `
     queryFn: async () => {
       if (isEnabled) {
         try {
-          const arbitrable = getIHomeGateway({
+          const arbitrable = getContract({
+            abi: iHomeGatewayAbi,
             address: arbitrableAddress,
+            client: { public: publicClient },
           });
           const crossChainDisputeFilter = await arbitrable.createEventFilter.CrossChainDisputeIncoming(
             {

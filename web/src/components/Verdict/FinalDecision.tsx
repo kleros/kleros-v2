@@ -5,10 +5,11 @@ import Skeleton from "react-loading-skeleton";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
-import ArrowIcon from "assets/svgs/icons/arrow.svg";
+import ArrowIcon from "svgs/icons/arrow.svg";
 
+import { REFETCH_INTERVAL } from "consts/index";
 import { Periods } from "consts/periods";
-import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
+import { useReadKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
 import { useVotingContext } from "hooks/useVotingContext";
@@ -76,7 +77,10 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const ruled = disputeDetails?.dispute?.ruled ?? false;
   const periodIndex = Periods[disputeDetails?.dispute?.period ?? "evidence"];
   const navigate = useNavigate();
-  const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id ?? 0)], watch: true });
+  const { data: currentRulingArray } = useReadKlerosCoreCurrentRuling({
+    query: { refetchInterval: REFETCH_INTERVAL },
+    args: [BigInt(id ?? 0)],
+  });
   const currentRuling = Number(currentRulingArray?.[0]);
   const answer = populatedDisputeData?.answers?.[currentRuling! - 1];
   const buttonText = useMemo(() => {

@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import VotingModuleSvg from "tsx:assets/svgs/mini-guides/binary-voting/voting-module.svg";
+import VotingModuleSvg from "svgs/mini-guides/binary-voting/voting-module.svg";
 
 import { StyledImage } from "../PageContentsTemplate";
 
