@@ -2,7 +2,7 @@ import { DisputeKitClassic, KlerosCore, PNK, RandomizerRNG, BlockHashRNG, Sortit
 import request from "graphql-request";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
-import { BigNumber } from "ethers";
+import { toBigInt, BigNumberish, getNumber } from "ethers";
 import hre = require("hardhat");
 
 const { ethers } = hre;
@@ -153,8 +153,8 @@ const handleError = (e: any) => {
 const isRngReady = async () => {
   const { randomizerRng, blockHashRNG, sortition } = await getContracts();
   const currentRng = await sortition.rng();
-  if (currentRng === randomizerRng.address) {
-    const requesterID = await randomizerRng.requesterToID(sortition.address);
+  if (currentRng === randomizerRng.target) {
+    const requesterID = await randomizerRng.requesterToID(sortition.target);
     const n = await randomizerRng.randomNumbers(requesterID);
     if (Number(n) === 0) {
       logger.info("RandomizerRNG is NOT ready yet");
@@ -163,10 +163,10 @@ const isRngReady = async () => {
       logger.info(`RandomizerRNG is ready: ${n.toString()}`);
       return true;
     }
-  } else if (currentRng === blockHashRNG.address) {
+  } else if (currentRng === blockHashRNG.target) {
     const requestBlock = await sortition.randomNumberRequestBlock();
     const lookahead = await sortition.rngLookahead();
-    const n = await blockHashRNG.callStatic.receiveRandomness(requestBlock.add(lookahead));
+    const n = await blockHashRNG.receiveRandomness.staticCall(requestBlock + lookahead);
     if (Number(n) === 0) {
       logger.info("BlockHashRNG is NOT ready yet");
       return false;
@@ -184,21 +184,21 @@ const passPhase = async () => {
   const { sortition } = await getContracts();
   let success = false;
   try {
-    await sortition.callStatic.passPhase();
+    await sortition.passPhase.staticCall();
   } catch (e) {
     const error = e as CustomError;
     logger.info(`passPhase: not ready yet because of ${error?.reason ?? error?.errorName ?? error?.code}`);
     return success;
   }
-  const before = await sortition.phase();
+  const before = getNumber(await sortition.phase());
   try {
-    const gas = (await sortition.estimateGas.passPhase()).mul(150).div(100); // 50% extra gas
+    const gas = ((await sortition.passPhase.estimateGas()) * toBigInt(150)) / toBigInt(100); // 50% extra gas
     const tx = await (await sortition.passPhase({ gasLimit: gas })).wait();
-    logger.info(`passPhase txID: ${tx?.transactionHash}`);
+    logger.info(`passPhase txID: ${tx?.hash}`);
   } catch (e) {
     handleError(e);
   } finally {
-    const after = await sortition.phase();
+    const after = getNumber(await sortition.phase());
     logger.info(`passPhase: ${PHASES[before]} -> ${PHASES[after]}`);
     success = before !== after; // true if successful
   }
@@ -209,7 +209,7 @@ const passPeriod = async (dispute: { id: string }) => {
   const { core } = await getContracts();
   let success = false;
   try {
-    await core.callStatic.passPeriod(dispute.id);
+    await core.passPeriod.staticCall(dispute.id);
   } catch (e) {
     const error = e as CustomError;
     logger.info(
@@ -221,9 +221,9 @@ const passPeriod = async (dispute: { id: string }) => {
   }
   const before = (await core.disputes(dispute.id)).period;
   try {
-    const gas = (await core.estimateGas.passPeriod(dispute.id)).mul(150).div(100); // 50% extra gas
+    const gas = ((await core.passPeriod.estimateGas(dispute.id)) * toBigInt(150)) / toBigInt(100); // 50% extra gas
     const tx = await (await core.passPeriod(dispute.id, { gasLimit: gas })).wait();
-    logger.info(`passPeriod txID: ${tx?.transactionHash}`);
+    logger.info(`passPeriod txID: ${tx?.hash}`);
   } catch (e) {
     handleError(e);
   } finally {
@@ -238,14 +238,14 @@ const drawJurors = async (dispute: { id: string; currentRoundIndex: string }, it
   const { core } = await getContracts();
   let success = false;
   try {
-    await core.callStatic.draw(dispute.id, iterations, HIGH_GAS_LIMIT);
+    await core.draw.staticCall(dispute.id, iterations, HIGH_GAS_LIMIT);
   } catch (e) {
     logger.error(`Draw: will fail for ${dispute.id}, skipping`);
     return success;
   }
   try {
     const tx = await (await core.draw(dispute.id, iterations, HIGH_GAS_LIMIT)).wait();
-    logger.info(`Draw txID: ${tx?.transactionHash}`);
+    logger.info(`Draw txID: ${tx?.hash}`);
     success = true;
   } catch (e) {
     handleError(e);
@@ -260,14 +260,14 @@ const executeRepartitions = async (dispute: { id: string; currentRoundIndex: str
   const { core } = await getContracts();
   let success = false;
   try {
-    await core.callStatic.execute(dispute.id, dispute.currentRoundIndex, iterations, HIGH_GAS_LIMIT);
+    await core.execute.staticCall(dispute.id, dispute.currentRoundIndex, iterations, HIGH_GAS_LIMIT);
   } catch (e) {
     logger.error(`Execute: will fail for ${dispute.id}, skipping`);
     return success;
   }
   try {
     const tx = await (await core.execute(dispute.id, dispute.currentRoundIndex, iterations, HIGH_GAS_LIMIT)).wait();
-    logger.info(`Execute txID: ${tx?.transactionHash}`);
+    logger.info(`Execute txID: ${tx?.hash}`);
     success = true;
   } catch (e) {
     handleError(e);
@@ -279,15 +279,15 @@ const executeRuling = async (dispute: { id: string }) => {
   const { core } = await getContracts();
   let success = false;
   try {
-    await core.callStatic.executeRuling(dispute.id);
+    await core.executeRuling.staticCall(dispute.id);
   } catch (e) {
     logger.error(`ExecuteRuling: will fail for ${dispute.id}, skipping`);
     return success;
   }
   try {
-    const gas = (await core.estimateGas.executeRuling(dispute.id)).mul(150).div(100); // 50% extra gas
+    const gas = ((await core.executeRuling.estimateGas(dispute.id)) * toBigInt(150)) / toBigInt(100); // 50% extra gas
     const tx = await (await core.executeRuling(dispute.id, { gasLimit: gas })).wait();
-    logger.info(`ExecuteRuling txID: ${tx?.transactionHash}`);
+    logger.info(`ExecuteRuling txID: ${tx?.hash}`);
     success = true;
   } catch (e) {
     handleError(e);
@@ -302,9 +302,9 @@ const withdrawAppealContribution = async (
 ): Promise<boolean> => {
   const { disputeKitClassic: kit } = await getContracts();
   let success = false;
-  let amountWithdrawn = BigNumber.from(0);
+  let amountWithdrawn = toBigInt(0);
   try {
-    amountWithdrawn = await kit.callStatic.withdrawFeesAndRewards(
+    amountWithdrawn = await kit.withdrawFeesAndRewards.staticCall(
       disputeId,
       contribution.contributor.id,
       roundId,
@@ -316,7 +316,7 @@ const withdrawAppealContribution = async (
     );
     return success;
   }
-  if (amountWithdrawn.isZero()) {
+  if (amountWithdrawn === toBigInt(0)) {
     logger.debug(
       `WithdrawFeesAndRewards: no fees or rewards to withdraw for dispute #${disputeId}, round #${roundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}, skipping`
     );
@@ -326,17 +326,21 @@ const withdrawAppealContribution = async (
     logger.info(
       `WithdrawFeesAndRewards: appeal contribution for dispute #${disputeId}, round #${roundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}`
     );
-    const gas = (
-      await kit.estimateGas.withdrawFeesAndRewards(disputeId, contribution.contributor.id, roundId, contribution.choice)
-    )
-      .mul(150)
-      .div(100); // 50% extra gas
+    const gas =
+      ((await kit.withdrawFeesAndRewards.estimateGas(
+        disputeId,
+        contribution.contributor.id,
+        roundId,
+        contribution.choice
+      )) *
+        toBigInt(150)) /
+      toBigInt(100); // 50% extra gas
     const tx = await (
       await kit.withdrawFeesAndRewards(disputeId, contribution.contributor.id, roundId, contribution.choice, {
         gasLimit: gas,
       })
     ).wait();
-    logger.info(`WithdrawFeesAndRewards txID: ${tx?.transactionHash}`);
+    logger.info(`WithdrawFeesAndRewards txID: ${tx?.hash}`);
     success = true;
   } catch (e) {
     handleError(e);
@@ -348,30 +352,30 @@ const executeDelayedStakes = async () => {
   const { sortition } = await getContracts();
 
   // delayedStakes = 1 + delayedStakeWriteIndex - delayedStakeReadIndex
-  const delayedStakesRemaining = BigNumber.from(1)
-    .add(await sortition.delayedStakeWriteIndex())
-    .sub(await sortition.delayedStakeReadIndex());
+  const delayedStakesRemaining =
+    toBigInt(1) + (await sortition.delayedStakeWriteIndex()) - (await sortition.delayedStakeReadIndex());
 
-  const delayedStakes = delayedStakesRemaining.lt(MAX_DELAYED_STAKES_ITERATIONS)
-    ? delayedStakesRemaining
-    : BigNumber.from(MAX_DELAYED_STAKES_ITERATIONS);
+  const delayedStakes =
+    delayedStakesRemaining < MAX_DELAYED_STAKES_ITERATIONS
+      ? delayedStakesRemaining
+      : toBigInt(MAX_DELAYED_STAKES_ITERATIONS);
 
-  if (delayedStakes.eq(0)) {
+  if (delayedStakes === toBigInt(0)) {
     logger.info("No delayed stakes to execute");
     return true;
   }
   logger.info(`Executing ${delayedStakes} delayed stakes, ${delayedStakesRemaining} remaining`);
   let success = false;
   try {
-    await sortition.callStatic.executeDelayedStakes(delayedStakes);
+    await sortition.executeDelayedStakes.staticCall(delayedStakes);
   } catch (e) {
     logger.error(`executeDelayedStakes: will fail because of ${JSON.stringify(e)}`);
     return success;
   }
   try {
-    const gas = (await sortition.estimateGas.executeDelayedStakes(delayedStakes)).mul(150).div(100); // 50% extra gas
+    const gas = ((await sortition.executeDelayedStakes.estimateGas(delayedStakes)) * toBigInt(150)) / toBigInt(100); // 50% extra gas
     const tx = await (await sortition.executeDelayedStakes(delayedStakes, { gasLimit: gas })).wait();
-    logger.info(`executeDelayedStakes txID: ${tx?.transactionHash}`);
+    logger.info(`executeDelayedStakes txID: ${tx?.hash}`);
   } catch (e) {
     handleError(e);
   }
@@ -381,22 +385,22 @@ const executeDelayedStakes = async () => {
 const getMissingJurors = async (dispute: { id: string; currentRoundIndex: string }) => {
   const { core } = await getContracts();
   const { nbVotes, drawnJurors } = await core.getRoundInfo(dispute.id, dispute.currentRoundIndex);
-  return nbVotes.sub(drawnJurors.length);
+  return nbVotes - toBigInt(drawnJurors.length);
 };
 
 const isDisputeFullyDrawn = async (dispute: { id: string; currentRoundIndex: string }): Promise<boolean> => {
-  return (await getMissingJurors(dispute)).eq(0);
+  return (await getMissingJurors(dispute)) === toBigInt(0);
 };
 
 const getNumberOfMissingRepartitions = async (
   dispute: { id: string; currentRoundIndex: string },
-  coherentCount: BigNumber
+  coherentCount: BigNumberish
 ) => {
   const { core } = await getContracts();
   const { repartitions, drawnJurors } = await core.getRoundInfo(dispute.id, dispute.currentRoundIndex);
-  return coherentCount.eq(0)
-    ? drawnJurors.length - repartitions.toNumber()
-    : 2 * drawnJurors.length - repartitions.toNumber();
+  return coherentCount === toBigInt(0)
+    ? drawnJurors.length - getNumber(repartitions)
+    : 2 * drawnJurors.length - getNumber(repartitions);
 };
 
 const filterDisputesToSkip = (disputes: Dispute[]) => {
@@ -436,7 +440,8 @@ async function main() {
 
   const getBlockTime = async () => {
     return await ethers.provider.getBlock("latest").then((block) => {
-      return BigNumber.from(block.timestamp);
+      if (block?.timestamp === undefined) return 0;
+      return block?.timestamp;
     });
   };
 
@@ -444,7 +449,7 @@ async function main() {
     const minStakingTime = await sortition.minStakingTime();
     const blockTime = await getBlockTime();
     return await sortition.lastPhaseChange().then((lastPhaseChange) => {
-      return blockTime.sub(lastPhaseChange).gt(minStakingTime);
+      return toBigInt(blockTime) - lastPhaseChange > minStakingTime;
     });
   };
 
@@ -452,27 +457,27 @@ async function main() {
     const maxDrawingTime = await sortition.maxDrawingTime();
     const blockTime = await getBlockTime();
     return await sortition.lastPhaseChange().then((lastPhaseChange) => {
-      return blockTime.sub(lastPhaseChange).gt(maxDrawingTime);
+      return toBigInt(blockTime) - lastPhaseChange > maxDrawingTime;
     });
   };
 
   const isPhaseStaking = async (): Promise<boolean> => {
-    return PHASES[await sortition.phase()] === Phase.STAKING;
+    return PHASES[getNumber(await sortition.phase())] === Phase.STAKING;
   };
 
   const isPhaseGenerating = async (): Promise<boolean> => {
-    return PHASES[await sortition.phase()] === Phase.GENERATING;
+    return PHASES[getNumber(await sortition.phase())] === Phase.GENERATING;
   };
 
   const isPhaseDrawing = async (): Promise<boolean> => {
-    return PHASES[await sortition.phase()] === Phase.DRAWING;
+    return PHASES[getNumber(await sortition.phase())] === Phase.DRAWING;
   };
 
   logger.info("Starting up");
 
   await sendHeartbeat();
 
-  logger.info(`Current phase: ${PHASES[await sortition.phase()]}`);
+  logger.info(`Current phase: ${PHASES[getNumber(await sortition.phase())]}`);
 
   // Retrieve the disputes which are in a non-final period
   let disputes = await getNonFinalDisputes().catch((e) => handleError(e));
@@ -485,7 +490,7 @@ async function main() {
 
   // Just a sanity check
   const numberOfDisputesWithoutJurors = await sortition.disputesWithoutJurors();
-  if (!numberOfDisputesWithoutJurors.eq(disputesWithoutJurors.length)) {
+  if (!(numberOfDisputesWithoutJurors === toBigInt(disputesWithoutJurors.length))) {
     logger.error("Discrepancy between SortitionModule.disputesWithoutJurors and KlerosCore.disputes");
     logger.error(`KlerosCore.disputes without jurors = ${disputesWithoutJurors.length}`);
     logger.error(`SortitionModule.disputesWithoutJurors = ${numberOfDisputesWithoutJurors}`);
@@ -523,12 +528,12 @@ async function main() {
           break;
         }
         let numberOfMissingJurors = await getMissingJurors(dispute);
-        if (numberOfMissingJurors.gt(MAX_JURORS_PER_DISPUTE)) {
+        if (numberOfMissingJurors > MAX_JURORS_PER_DISPUTE) {
           logger.warn(`Skipping dispute #${dispute.id} with too many jurors to draw`);
           continue;
         }
         do {
-          const drawIterations = Math.min(MAX_DRAW_ITERATIONS, numberOfMissingJurors.toNumber());
+          const drawIterations = Math.min(MAX_DRAW_ITERATIONS, getNumber(numberOfMissingJurors));
           logger.info(
             `Drawing ${drawIterations} out of ${numberOfMissingJurors} jurors needed for dispute #${dispute.id}`
           );
@@ -539,7 +544,7 @@ async function main() {
           await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
           maxDrawingTimePassed = await hasMaxDrawingTimePassed();
           numberOfMissingJurors = await getMissingJurors(dispute);
-        } while (!numberOfMissingJurors.eq(0) && !maxDrawingTimePassed);
+        } while (!(numberOfMissingJurors === toBigInt(0)) && !maxDrawingTimePassed);
       }
       // At this point, either all disputes are fully drawn or max drawing time has passed
     }
@@ -554,7 +559,7 @@ async function main() {
 
   await sendHeartbeat();
 
-  logger.info(`Current phase: ${PHASES[await sortition.phase()]}`);
+  logger.info(`Current phase: ${PHASES[getNumber(await sortition.phase())]}`);
 
   for (var dispute of disputes) {
     // ----------------------------------------------- //
@@ -583,7 +588,7 @@ async function main() {
 
   for (var dispute of unprocessedDisputesInExecution) {
     const { period } = await core.disputes(dispute.id);
-    if (period !== 4) {
+    if (period !== toBigInt(4)) {
       logger.info(`Skipping dispute #${dispute.id} because it is not in the execution period`);
       continue;
     }
@@ -636,14 +641,14 @@ async function main() {
     contributions = [...new Set(contributions)];
     for (let contribution of contributions) {
       // Could be improved by pinpointing exactly which round requires a withdrawal, just try all of them for now.
-      for (let round = BigNumber.from(dispute.currentRoundIndex); round.gte(0); round = round.sub(1)) {
+      for (let round = toBigInt(dispute.currentRoundIndex); round >= 0; round = round - toBigInt(1)) {
         await withdrawAppealContribution(dispute.id, round.toString(), contribution);
         await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
       }
     }
   }
 
-  logger.info(`Current phase: ${PHASES[await sortition.phase()]}`);
+  logger.info(`Current phase: ${PHASES[getNumber(await sortition.phase())]}`);
 
   // ----------------------------------------------- //
   //             EXECUTE DELAYED STAKES              //
