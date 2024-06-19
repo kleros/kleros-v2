@@ -6,7 +6,7 @@ export const encodeURIFilter = (filter: Dispute_Filter): string => {
   if (Object.keys(filter).length === 0) {
     return "all";
   } else {
-    return encodeURI(JSON.stringify(filter));
+    return encodeURIComponent(JSON.stringify(filter));
   }
 };
 
