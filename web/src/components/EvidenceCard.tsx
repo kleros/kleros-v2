@@ -102,7 +102,7 @@ const DesktopText = styled.span`
   )}
 `;
 
-const Timestamp = styled.p`
+const Timestamp = styled.label`
   color: ${({ theme }) => theme.secondaryText};
 `;
 
@@ -164,7 +164,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timest
           <Identicon size="24" string={sender} />
           <p>{shortenAddress(sender)}</p>
         </AccountContainer>
-        <Timestamp>{formatDate(Number(timestamp))}</Timestamp>
+        <Timestamp>{formatDate(Number(timestamp), true)}</Timestamp>
         {data && typeof data.fileURI !== "undefined" && (
           <StyledLink to={`attachment/?url=${getIpfsUrl(data.fileURI)}`}>
             <AttachmentIcon />
