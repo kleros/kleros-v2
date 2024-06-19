@@ -239,24 +239,19 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
         emit DisputeCreation(_coreDisputeID, _numberOfChoices, _extraData);
     }
 
-    /// @dev Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
+    /// @dev Draws one juror. The drawn address is picked up by Kleros Core.
     /// Note: Access restricted to Kleros Core only.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core.
     /// @param _nonce Nonce of the drawing iteration.
     /// @return drawnAddress The drawn address.
-    function draw(
+    function drawOne(
         uint256 _coreDisputeID,
         uint256 _nonce
     ) external override onlyByCore notJumped(_coreDisputeID) returns (address drawnAddress) {
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.rounds.length - 1];
 
-        ISortitionModule sortitionModule = core.sortitionModule();
-        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        bytes32 key = bytes32(uint256(courtID)); // Get the ID of the tree.
-
-        // TODO: Handle the situation when no one has staked yet.
-        drawnAddress = sortitionModule.draw(key, _coreDisputeID, _nonce);
+        drawnAddress = core.drawOne(_coreDisputeID, _nonce);
 
         if (_postDrawCheck(_coreDisputeID, drawnAddress) && !round.alreadyDrawn[drawnAddress]) {
             round.votes.push(Vote({account: drawnAddress, commit: bytes32(0), choice: 0, voted: false}));
@@ -622,12 +617,7 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
     /// @param _juror Chosen address.
     /// @return Whether the address can be drawn or not.
     function _postDrawCheck(uint256 _coreDisputeID, address _juror) internal view returns (bool) {
-        (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
-        uint256 lockedAmountPerJuror = core
-            .getRoundInfo(_coreDisputeID, core.getNumberOfRounds(_coreDisputeID) - 1)
-            .pnkAtStakePerJuror;
-        (uint256 totalStaked, uint256 totalLocked, , ) = core.sortitionModule().getJurorBalance(_juror, courtID);
-        if (totalStaked < totalLocked + lockedAmountPerJuror) {
+        if (core.isJurorSolvent(_coreDisputeID, _juror)) {
             return false;
         } else {
             return _proofOfHumanity(_juror);
