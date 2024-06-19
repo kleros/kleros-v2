@@ -48,7 +48,7 @@ interface IDisputeKit {
         uint256 _nbVotes
     ) external;
 
-    /// @dev Draws the juror from the sortition tree. The drawn address is picked up by Kleros Core.
+    /// @dev Draws one juror. The drawn address is picked up by Kleros Core.
     /// Note: Access restricted to Kleros Core only.
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @param _nonce Nonce.
