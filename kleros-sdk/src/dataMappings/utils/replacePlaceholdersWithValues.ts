@@ -9,5 +9,6 @@ export const replacePlaceholdersWithValues = (mapping: any, context: any) => {
     }
   });
 
-  return JSON.parse(replacedMapping);
+  const parsedReplacedMapping = JSON.parse(replacedMapping.replace(/"(\{.*?\})"/g, "$1"));
+  return parsedReplacedMapping;
 };
