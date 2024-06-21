@@ -1,7 +1,7 @@
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
-import { toBigInt, BytesLike } from "ethers";
+import { toBigInt } from "ethers";
 import {
   PNK,
   KlerosCore,
@@ -105,6 +105,7 @@ describe("Integration tests", async () => {
     const tx = await arbitrable["createDispute(string)"]("future of france", {
       value: arbitrationCost,
     });
+
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
     const [disputeId] = abiCoder.decode(["uint"], `0x${trace.returnValue}`); // get returned value from createDispute()
     console.log("Dispute Created with disputeId: %d", disputeId);
@@ -120,20 +121,23 @@ describe("Integration tests", async () => {
         0,
         ""
       );
-
-    const lastBlock = await ethers.provider.getBlock(tx.blockNumber ?? 0 - 1);
+    if (tx.blockNumber === null) throw new Error("tx.blockNumber is null");
+    const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
+    if (lastBlock === null) throw new Error("lastBlock is null");
     const disputeHash = ethers.solidityPackedKeccak256(
       ["bytes", "bytes32", "uint256", "address", "uint256", "uint256", "bytes"],
-      [ethers.toUtf8Bytes("createDispute"), lastBlock?.hash, 31337, arbitrable.target, disputeId, 2, "0x00"]
+      [ethers.toUtf8Bytes("createDispute"), lastBlock.hash, 31337, arbitrable.target, disputeId, 2, "0x00"]
     );
     console.log("dispute hash: ", disputeHash);
-
+    if (lastBlock.hash === null) {
+      process.exit();
+    }
     // Relayer tx
     const tx2 = await homeGateway
       .connect(relayer)
       ["relayCreateDispute((bytes32,uint256,address,uint256,uint256,uint256,string,uint256,bytes))"](
         {
-          foreignBlockHash: lastBlock?.hash as BytesLike,
+          foreignBlockHash: ethers.toBeHex(lastBlock.hash),
           foreignChainID: 31337,
           foreignArbitrable: arbitrable.target,
           foreignDisputeID: disputeId,
@@ -202,5 +206,5 @@ describe("Integration tests", async () => {
 });
 
 const logJurorBalance = async (result) => {
-  console.log("staked=%s, locked=%s", ethers.formatUnits(result.totalLocked), ethers.formatUnits(result.totalStaked));
+  console.log("staked=%s, locked=%s", ethers.formatUnits(result.totalStaked), ethers.formatUnits(result.totalLocked));
 };

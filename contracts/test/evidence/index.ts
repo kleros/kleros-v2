@@ -13,7 +13,7 @@ const Party = {
 function getEmittedEvent(eventName: any, receipt: ContractTransactionReceipt): EventLog {
   const logs = receipt.logs as Array<EventLog>;
   const event = logs.find((log) => log.eventName === eventName);
-  if (event === undefined) process.exit();
+  if (event === undefined) throw new Error(`Event ${eventName} not found`);
   return event;
 }
 
@@ -139,7 +139,7 @@ describe("Home Evidence contract", async () => {
         value: minRequiredDeposit,
       }); // id: 0
       const receipt = await tx.wait();
-      if (receipt === null) return;
+      if (receipt === null) throw new Error("Receipt is null");
       const evidenceID = ethers.solidityPackedKeccak256(["uint", "string"], [1234, newEvidence]);
 
       const [_arbitrator, _externalDisputeID, _party, _evidence] = getEmittedEvent("ModeratedEvidence", receipt).args;
@@ -248,7 +248,7 @@ describe("Home Evidence contract", async () => {
         value: depositRequired, // Less is actually needed. Overpaid fees are reimbursed
       });
       let receipt = await tx.wait();
-      if (receipt === null) return;
+      if (receipt === null) throw new Error("Receipt is null");
       let [_arbitrator, _arbitrableDisputeID, _externalDisputeID, _templateId, _templateUri] = getEmittedEvent(
         "DisputeRequest",
         receipt

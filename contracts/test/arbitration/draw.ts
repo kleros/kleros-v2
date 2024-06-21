@@ -137,11 +137,11 @@ describe("Draw Benchmark", async () => {
     const tx = await arbitrable["createDispute(string)"]("future of france", {
       value: arbitrationCost,
     });
-    if (tx.blockNumber === null) return;
+    if (tx.blockNumber === null) throw new Error("tx.blockNumber is null");
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
     const [disputeId] = abiCoder.decode(["uint"], `0x${trace.returnValue}`);
     const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
-    if (lastBlock?.hash === null || lastBlock?.hash === undefined) return;
+    if (lastBlock?.hash === null || lastBlock?.hash === undefined) throw new Error("lastBlock is null || undefined");
     // Relayer tx
     await homeGateway
       .connect(await ethers.getSigner(relayer))
@@ -215,7 +215,7 @@ describe("Draw Benchmark", async () => {
         .withArgs(anyValue, 0, 0, 1)
         .to.emit(core, "Draw")
         .withArgs(anyValue, 0, 0, 2);
-      if (tx?.blockNumber === undefined) return;
+      if (tx?.blockNumber === undefined) throw new Error("txBlockNumber is null");
       countedDraws = await countDraws(tx.blockNumber);
       for (const [address, draws] of Object.entries(countedDraws)) {
         expect(await sortitionModule.getJurorBalance(address, PARENT_COURT)).to.deep.equal([
@@ -306,7 +306,7 @@ describe("Draw Benchmark", async () => {
       expect(await core.getRoundInfo(0, 0).then((round) => round.drawIterations)).to.equal(3);
 
       const tx = await (await drawTx).wait();
-      if (tx === null) return;
+      if (tx === null) throw new Error("tx is null");
       expect(tx)
         .to.emit(core, "Draw")
         .withArgs(anyValue, 0, 0, 0)
@@ -368,7 +368,7 @@ describe("Draw Benchmark", async () => {
       expect(await core.getRoundInfo(0, 0).then((round) => round.drawIterations)).to.equal(3);
 
       const tx = await (await drawTx).wait();
-      if (tx === null) return;
+      if (tx === null) throw new Error("tx is null");
       expect(tx)
         .to.emit(core, "Draw")
         .withArgs(anyValue, 0, 0, 0)
