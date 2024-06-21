@@ -1,14 +1,17 @@
+import mustache from "mustache";
+
 export const replacePlaceholdersWithValues = (mapping: any, context: any) => {
-  let mappingAsString = JSON.stringify(mapping);
-
-  const replacedMapping = mappingAsString.replace(/\{\{(\w+)\}\}/g, (_, variableName) => {
-    if (context.hasOwnProperty(variableName)) {
-      return context[variableName];
+  const replace = (obj) => {
+    if (typeof obj === "string") {
+      return mustache.render(obj, context);
+    } else if (Array.isArray(obj)) {
+      return obj.map(replace);
+    } else if (typeof obj === "object" && obj !== null) {
+      return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, replace(value)]));
     } else {
-      throw new Error(`Variable '${variableName}' not found in context.`);
+      return obj;
     }
-  });
+  };
 
-  const parsedReplacedMapping = JSON.parse(replacedMapping.replace(/"(\{.*?\})"/g, "$1"));
-  return parsedReplacedMapping;
+  return replace(mapping);
 };

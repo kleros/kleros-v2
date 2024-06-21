@@ -1,4 +1,3 @@
-// Can this be replaced by Mustache?
 export const createResultObject = (sourceData, seek: string[], populate: string[]) => {
   const result = {};
 
