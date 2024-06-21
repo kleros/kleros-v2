@@ -56,7 +56,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   // TODO: disable the gateway until fully initialized with the correct fees OR allow disputeCreators to add funds again if necessary.
   const signer = (await hre.ethers.getSigners())[0];
-  const core = await KlerosCore__factory.connect(klerosCore.address, signer);
+  const core = KlerosCore__factory.connect(klerosCore.address, signer);
   // TODO: set up the correct fees for the FORKING_COURT
   const fee = (await core.courts(Courts.GENERAL)).feeForJuror;
   await execute("ForeignGatewayOnEthereum", { from: deployer, log: true }, "changeCourtJurorFee", Courts.GENERAL, fee);

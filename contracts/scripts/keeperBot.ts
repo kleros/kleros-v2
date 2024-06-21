@@ -484,7 +484,10 @@ async function main() {
   if (!disputes) {
     return;
   }
+
   let disputesWithoutJurors = await filterAsync(disputes, async (dispute) => {
+    console.log(dispute.id);
+    console.log(dispute.currentRoundIndex);
     return !(await isDisputeFullyDrawn(dispute));
   });
 
