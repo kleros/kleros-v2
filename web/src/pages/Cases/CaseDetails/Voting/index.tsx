@@ -1,23 +1,30 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
-import { responsiveSize } from "styles/responsiveSize";
-import { useParams } from "react-router-dom";
+
 import Skeleton from "react-loading-skeleton";
+import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
-import VoteIcon from "assets/svgs/icons/voted.svg";
+
+import VoteIcon from "svgs/icons/voted.svg";
+
 import { Periods } from "consts/periods";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
-import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import { useAppealCost } from "queries/useAppealCost";
+import { useVotingContext } from "hooks/useVotingContext";
+import { formatDate } from "utils/date";
 import { isUndefined } from "utils/index";
 import { isLastRound } from "utils/isLastRound";
-import { formatDate } from "utils/date";
-import Popup, { PopupType } from "components/Popup";
+
+import { useAppealCost } from "queries/useAppealCost";
+import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import { responsiveSize } from "styles/responsiveSize";
+
 import { getPeriodEndTimestamp } from "components/DisputeView";
 import InfoCard from "components/InfoCard";
+import Popup, { PopupType } from "components/Popup";
+
 import Classic from "./Classic";
 import VotingHistory from "./VotingHistory";
-import { useVotingContext } from "hooks/useVotingContext";
 
 const Container = styled.div`
   padding: ${responsiveSize(16, 32)};

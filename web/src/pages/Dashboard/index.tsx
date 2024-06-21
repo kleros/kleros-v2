@@ -1,17 +1,24 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
-import { OrderDirection } from "src/graphql/graphql";
+
+import { isUndefined } from "utils/index";
+import { decodeURIFilter, useRootPath } from "utils/uri";
+
 import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
 import { useUserQuery } from "queries/useUser";
-import { decodeURIFilter, useRootPath } from "utils/uri";
-import { isUndefined } from "utils/index";
+
+import { OrderDirection } from "src/graphql/graphql";
+
+import { responsiveSize } from "styles/responsiveSize";
+
 import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
-import JurorInfo from "./JurorInfo";
+
 import Courts from "./Courts";
-import { responsiveSize } from "styles/responsiveSize";
+import JurorInfo from "./JurorInfo";
 
 const Container = styled.div`
   width: 100%;

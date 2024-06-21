@@ -1,16 +1,23 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
+
 import { Button, Searchbar } from "@kleros/ui-components-library";
+
+import { isUndefined } from "utils/index";
+
 import { useEvidenceGroup } from "queries/useEvidenceGroup";
 import { useEvidences } from "queries/useEvidences";
-import SubmitEvidenceModal from "./SubmitEvidenceModal";
-import { SkeletonEvidenceCard } from "components/StyledSkeleton";
-import EvidenceCard from "components/EvidenceCard";
-import { EnsureChain } from "components/EnsureChain";
-import { isUndefined } from "utils/index";
+
 import { responsiveSize } from "styles/responsiveSize";
+
+import { EnsureChain } from "components/EnsureChain";
+import EvidenceCard from "components/EvidenceCard";
+import { SkeletonEvidenceCard } from "components/StyledSkeleton";
+
+import SubmitEvidenceModal from "./SubmitEvidenceModal";
 
 const Container = styled.div`
   width: 100%;
@@ -55,8 +62,8 @@ const Evidence: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable }) => {
         />
       </EnsureChain>
       {data ? (
-        data.evidences.map(({ key, evidence, sender }, i) => (
-          <EvidenceCard key={key} index={i + 1} sender={sender?.id} {...{ evidence }} />
+        data.evidences.map(({ key, evidence, sender, timestamp }, i) => (
+          <EvidenceCard key={key} index={i + 1} sender={sender?.id} {...{ evidence, timestamp }} />
         ))
       ) : (
         <SkeletonEvidenceCard />

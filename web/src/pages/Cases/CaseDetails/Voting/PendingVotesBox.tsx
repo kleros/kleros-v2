@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+
 import { Box } from "@kleros/ui-components-library";
+
 import BalanceIcon from "svgs/icons/law-balance.svg";
 
 const StyledBox = styled(Box)`

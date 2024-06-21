@@ -1,10 +1,14 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
+
 import { useParams } from "react-router-dom";
-import { useWalletClient, usePublicClient } from "wagmi";
-import { prepareWriteDisputeKitClassic } from "hooks/contracts/generatedProvider";
+import { useWalletClient, usePublicClient, useConfig } from "wagmi";
+
+import { simulateDisputeKitClassicCastVote } from "hooks/contracts/generated";
 import { wrapWithToast } from "utils/wrapWithToast";
+
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
 import OptionsContainer from "./OptionsContainer";
 
 const Container = styled.div`
@@ -26,11 +30,11 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
   const [justification, setJustification] = useState("");
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
+  const wagmiConfig = useConfig();
 
   const handleVote = useCallback(
     async (voteOption: number) => {
-      const { request } = await prepareWriteDisputeKitClassic({
-        functionName: "castVote",
+      const { request } = await simulateDisputeKitClassicCastVote(wagmiConfig, {
         args: [
           parsedDisputeID,
           parsedVoteIDs,
@@ -46,6 +50,7 @@ const Vote: React.FC<IVote> = ({ arbitrable, voteIDs, setIsOpen }) => {
       }
     },
     [
+      wagmiConfig,
       disputeData?.dispute?.currentRoundIndex,
       justification,
       parsedVoteIDs,

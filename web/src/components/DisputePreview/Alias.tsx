@@ -1,11 +1,14 @@
 import React from "react";
 import styled from "styled-components";
-import { AddressOrName, IdenticonOrAvatar } from "../ConnectWallet/AccountDisplay";
+
+import Skeleton from "react-loading-skeleton";
+import { isAddress } from "viem";
+import { useEnsAddress } from "wagmi";
+
 import { Alias } from "context/NewDisputeContext";
 import { isUndefined } from "utils/index";
-import { useEnsAddress } from "wagmi";
-import { isAddress } from "viem";
-import Skeleton from "react-loading-skeleton";
+
+import { AddressOrName, IdenticonOrAvatar } from "../ConnectWallet/AccountDisplay";
 
 const AliasContainer = styled.div`
   min-height: 32px;
@@ -28,13 +31,16 @@ interface IAlias {
 
 const AliasDisplay: React.FC<IAlias> = ({ alias }) => {
   const { data: addressFromENS, isLoading } = useEnsAddress({
-    enabled: !isAddress(alias.address), // if alias.address is not an Address, we treat it as ENS and try to fetch address from there
+    query: {
+      // if alias.address is not an Address, we treat it as ENS and try to fetch address from there
+      enabled: !isAddress(alias.address),
+    },
     name: alias.address,
     chainId: 1,
   });
 
   // try fetching ens name, else go with address
-  const address = addressFromENS ?? alias.address;
+  const address = addressFromENS ?? (alias.address as `0x${string}`);
 
   return (
     <AliasContainer>

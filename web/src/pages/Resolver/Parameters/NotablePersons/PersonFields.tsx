@@ -1,11 +1,16 @@
 import React, { useRef } from "react";
 import styled, { css } from "styled-components";
-import { responsiveSize } from "styles/responsiveSize";
-import { landscapeStyle } from "styles/landscapeStyle";
+
+import { usePublicClient } from "wagmi";
+
 import { Alias, useNewDisputeContext } from "context/NewDisputeContext";
-import LabeledInput from "components/LabeledInput";
-import { validateAddress } from "utils/validateAddressOrEns";
 import { isUndefined } from "utils/index";
+import { validateAddress } from "utils/validateAddressOrEns";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
+import LabeledInput from "components/LabeledInput";
 
 const Container = styled.div`
   display: flex;
@@ -36,6 +41,7 @@ const AliasContainer = styled.div`
 const PersonFields: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
   const validationTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const publicClient = usePublicClient();
 
   const debounceValidateAddress = (address: string, key: number) => {
     // Clear the existing timer
@@ -45,17 +51,17 @@ const PersonFields: React.FC = () => {
 
     // Set a new timer for validation after 500 milliseconds
     validationTimerRef.current = setTimeout(async () => {
-      const isValid = await validateAddress(address);
+      const isValid = await validateAddress(address, publicClient);
       const updatedAliases = disputeData.aliases;
       if (isUndefined(updatedAliases) || isUndefined(updatedAliases[key])) return;
       updatedAliases[key].isValid = isValid;
 
       setDisputeData({ ...disputeData, aliases: updatedAliases });
-    }, 300);
+    }, 500);
   };
   const handleAliasesWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
     const key = parseInt(event.target.id.replace(/\D/g, ""), 10) - 1;
-    let aliases = disputeData.aliases;
+    const aliases = disputeData.aliases;
     if (isUndefined(aliases)) return;
 
     aliases[key] = { ...aliases[key], [event.target.name]: event.target.value };

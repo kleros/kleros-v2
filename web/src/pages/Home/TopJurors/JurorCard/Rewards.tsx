@@ -1,10 +1,14 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { getFormattedRewards } from "utils/jurorRewardConfig";
-import EthIcon from "assets/svgs/icons/eth.svg";
-import PnkIcon from "assets/svgs/icons/kleros.svg";
+
+import EthIcon from "svgs/icons/eth.svg";
+import PnkIcon from "svgs/icons/kleros.svg";
+
 import { useUserQuery } from "hooks/queries/useUser";
+import { getFormattedRewards } from "utils/jurorRewardConfig";
+
 import { landscapeStyle } from "styles/landscapeStyle";
+
 import NumberDisplay from "components/NumberDisplay";
 
 const Container = styled.div`

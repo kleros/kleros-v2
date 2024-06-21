@@ -1,24 +1,27 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
+import { useLocation } from "react-router-dom";
 import { useToggle } from "react-use";
-import { Link } from "react-router-dom";
-import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
+
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
-import KlerosCourtLogo from "svgs/header/kleros-court.svg";
-import KlerosCourtUniversityLogo from "svgs/header/kleros-court-university.svg";
+
+import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
+import { Overlay } from "components/Overlay";
+import Onboarding from "components/Popup/MiniGuides/Onboarding";
+
+import Logo from "./Logo";
 import DappList from "./navbar/DappList";
 import Explore from "./navbar/Explore";
 import Menu from "./navbar/Menu";
 import Help from "./navbar/Menu/Help";
 import Settings from "./navbar/Menu/Settings";
-import { Overlay } from "components/Overlay";
-import { PopupContainer } from ".";
-import { responsiveSize } from "styles/responsiveSize";
-
-const IS_UNIVERSITY = process.env.REACT_APP_UNIVERSITY_COURT === "true";
 
 const Container = styled.div`
   display: none;
@@ -66,10 +69,6 @@ const LightButtonContainer = styled.div`
   margin-right: ${responsiveSize(12, 16)};
 `;
 
-const StyledLink = styled(Link)`
-  min-height: 48px;
-`;
-
 const StyledKlerosSolutionsIcon = styled(KlerosSolutionsIcon)`
   fill: ${({ theme }) => theme.white} !important;
 `;
@@ -80,10 +79,34 @@ const ConnectWalletContainer = styled.div`
   }
 `;
 
-const DesktopHeader = () => {
+const PopupContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 30;
+`;
+
+const DesktopHeader: React.FC = () => {
   const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
   const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
   const [isSettingsOpen, toggleIsSettingsOpen] = useToggle(false);
+  const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
+  const [initialTab, setInitialTab] = useState<number>(0);
+  const location = useLocation();
+
+  const initializeFragmentURL = useCallback(() => {
+    const hash = location.hash;
+    const hasOnboardingPath = hash.includes("#onboarding");
+    const hasNotificationsPath = hash.includes("#notifications");
+    toggleIsOnboardingMiniGuidesOpen(hasOnboardingPath);
+    toggleIsSettingsOpen(hasNotificationsPath);
+    setInitialTab(hasNotificationsPath ? 1 : 0);
+  }, [location.hash, toggleIsSettingsOpen, toggleIsOnboardingMiniGuidesOpen]);
+
+  useEffect(initializeFragmentURL, [initializeFragmentURL]);
+
   useLockOverlayScroll(isDappListOpen || isHelpOpen || isSettingsOpen);
 
   return (
@@ -99,7 +122,7 @@ const DesktopHeader = () => {
               Icon={StyledKlerosSolutionsIcon}
             />
           </LightButtonContainer>
-          <StyledLink to={"/"}>{IS_UNIVERSITY ? <KlerosCourtUniversityLogo /> : <KlerosCourtLogo />}</StyledLink>
+          <Logo />
         </LeftSide>
 
         <MiddleSide>
@@ -118,9 +141,10 @@ const DesktopHeader = () => {
           <Overlay />
           {isDappListOpen && <DappList {...{ toggleIsDappListOpen, isDappListOpen }} />}
           {isHelpOpen && <Help {...{ toggleIsHelpOpen, isHelpOpen }} />}
-          {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen }} />}
+          {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen, initialTab }} />}
         </PopupContainer>
       )}
+      {isOnboardingMiniGuidesOpen && <Onboarding toggleMiniGuide={toggleIsOnboardingMiniGuidesOpen} />}
     </>
   );
 };

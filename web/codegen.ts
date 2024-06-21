@@ -1,4 +1,5 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
+
 import { getGraphqlUrl } from "utils/getGraphqlUrl";
 
 const config: CodegenConfig = {

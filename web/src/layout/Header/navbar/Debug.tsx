@@ -1,8 +1,9 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import { useSortitionModulePhase } from "hooks/contracts/generatedProvider";
-import { useToggleTheme } from "hooks/useToggleThemeContext";
+
 import { GIT_BRANCH, GIT_DIRTY, GIT_HASH, GIT_TAGS, GIT_URL, RELEASE_VERSION } from "consts/index";
+import { useSortitionModulePhase } from "hooks/useSortitionModulePhase";
+import { useToggleTheme } from "hooks/useToggleThemeContext";
 import { isUndefined } from "utils/index";
 
 const Container = styled.div`
@@ -46,7 +47,7 @@ const Version = () => (
 const ServicesStatus = () => {
   const [theme] = useToggleTheme();
   const statusUrlParameters = useMemo(() => (theme === "light" ? "?theme=light" : "?theme=dark"), [theme]);
-  const statusUrl = process.env.REACT_APP_STATUS_URL;
+  const statusUrl = import.meta.env.REACT_APP_STATUS_URL;
   return <label>{isUndefined(statusUrl) ? null : <StyledIframe src={`${statusUrl + statusUrlParameters}`} />}</label>;
 };
 
@@ -57,11 +58,8 @@ enum Phases {
 }
 
 const Phase = () => {
-  if (isUndefined(useSortitionModulePhase)) return <></>;
-  const { data: phase } = useSortitionModulePhase({
-    watch: true,
-  });
-  return <>{isUndefined(phase) ? null : <StyledLabel>Phase: {Phases[phase]}</StyledLabel>}</>;
+  const { data: phase } = useSortitionModulePhase();
+  return <>{isUndefined(phase) ? null : <StyledLabel>Phase: {Phases[phase as number]}</StyledLabel>}</>;
 };
 
 const Debug: React.FC = () => {

@@ -1,21 +1,26 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { Card } from "@kleros/ui-components-library";
-import StatDisplay, { IStatDisplay } from "components/StatDisplay";
-import { StyledSkeleton } from "components/StyledSkeleton";
-import PNKIcon from "svgs/icons/pnk.svg";
+
 import EthereumIcon from "svgs/icons/ethereum.svg";
+import BalanceIcon from "svgs/icons/law-balance.svg";
+import PNKIcon from "svgs/icons/pnk.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import JurorIcon from "svgs/icons/user.svg";
-import BalanceIcon from "svgs/icons/law-balance.svg";
+
+import { CoinIds } from "consts/coingecko";
+import { useCoinPrice } from "hooks/useCoinPrice";
+import { useHomePageContext, HomePageQuery, HomePageQueryDataPoints } from "hooks/useHomePageContext";
+import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
 import { isUndefined } from "utils/index";
-import { calculateSubtextRender } from "utils/calculateSubtextRender";
-import { CoinIds } from "consts/coingecko";
-import { useHomePageContext, HomePageQuery, HomePageQueryDataPoints } from "hooks/useHomePageContext";
-import { useCoinPrice } from "hooks/useCoinPrice";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import StatDisplay, { IStatDisplay } from "components/StatDisplay";
+import { StyledSkeleton } from "components/StyledSkeleton";
 
 const StyledCard = styled(Card)`
   width: auto;

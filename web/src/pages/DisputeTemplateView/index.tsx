@@ -1,21 +1,29 @@
 import React, { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
-import { useDebounce } from "react-use";
+
 import Skeleton from "react-loading-skeleton";
-import { Field } from "@kleros/ui-components-library";
-import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
-import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
-import { Answer, DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
-import PolicyIcon from "svgs/icons/policy.svg";
-import { INVALID_DISPUTE_DATA_ERROR } from "consts/index";
-import { useKlerosCoreAddress } from "hooks/useContractAddress";
-import { getIpfsUrl } from "utils/getIpfsUrl";
-import ReactMarkdown from "components/ReactMarkdown";
-import JSONEditor from "components/JSONEditor";
+import { useDebounce } from "react-use";
 import { Mode } from "vanilla-jsoneditor";
+
+import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
+import { Answer, DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
+import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
+import { Field } from "@kleros/ui-components-library";
+
+import PolicyIcon from "svgs/icons/policy.svg";
+
+import { DEFAULT_CHAIN } from "consts/chains";
+import { INVALID_DISPUTE_DATA_ERROR } from "consts/index";
+import { klerosCoreConfig } from "hooks/contracts/generated";
+import { getIpfsUrl } from "utils/getIpfsUrl";
+
 import { landscapeStyle } from "styles/landscapeStyle";
-import FetchFromIDInput from "./FetchFromIdInput";
+
+import JSONEditor from "components/JSONEditor";
+import ReactMarkdown from "components/ReactMarkdown";
+
 import FetchDisputeRequestInput, { DisputeRequest } from "./FetchDisputeRequestInput";
+import FetchFromIDInput from "./FetchFromIdInput";
 
 const Container = styled.div`
   height: auto;
@@ -125,7 +133,7 @@ const LongText = styled.div`
 `;
 
 const DisputeTemplateView = () => {
-  const klerosCoreAddress = useKlerosCoreAddress();
+  const klerosCoreAddress = klerosCoreConfig.address[DEFAULT_CHAIN];
   const [disputeDetails, setDisputeDetails] = useState<DisputeDetails | undefined>(undefined);
   const [disputeTemplateInput, setDisputeTemplateInput] = useState<string>("");
   const [dataMappingsInput, setDataMappingsInput] = useState<string>("");

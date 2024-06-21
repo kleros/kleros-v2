@@ -1,46 +1,54 @@
-import { Button } from "@kleros/ui-components-library";
 import React, { useState } from "react";
+
 import { formatEther } from "viem";
-import { useAccount, useNetwork, usePublicClient, useWalletClient } from "wagmi";
+import { useAccount, useChainId, usePublicClient, useWalletClient, useConfig } from "wagmi";
+
+import { Button } from "@kleros/ui-components-library";
+
+import FaucetIcon from "svgs/icons/faucet.svg";
+
 import { DEFAULT_CHAIN } from "consts/chains";
+import { REFETCH_INTERVAL } from "consts/index";
 import {
-  prepareWritePnkFaucet,
-  usePnkBalanceOf,
-  usePnkFaucetAmount,
-  usePnkFaucetWithdrewAlready,
+  simulatePnkFaucet,
+  useReadPnkBalanceOf,
+  useReadPnkFaucetAmount,
+  useReadPnkFaucetWithdrewAlready,
+  pnkFaucetAddress,
 } from "hooks/contracts/generated";
-import { usePNKFaucetAddress } from "hooks/useContractAddress";
+import { formatPNK } from "utils/format";
 import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
+
 import Popup, { PopupType } from "./Popup";
-import { formatPNK } from "utils/format";
-import FaucetIcon from "svgs/icons/faucet.svg";
 
 const ClaimPnkButton: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [hash, setHash] = useState<`0x${string}` | undefined>();
 
-  const { chain } = useNetwork();
+  const chainId = useChainId();
   const { address } = useAccount();
-  const { data: claimed } = usePnkFaucetWithdrewAlready({
-    enabled: !isUndefined(address),
+  const { data: claimed } = useReadPnkFaucetWithdrewAlready({
+    query: {
+      enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
+    },
     args: [address ?? "0x00"],
-    watch: true,
   });
 
-  const faucetAddress = usePNKFaucetAddress();
-  const { data: balance } = usePnkBalanceOf({
+  const faucetAddress = pnkFaucetAddress[chainId];
+  const { data: balance } = useReadPnkBalanceOf({
     args: [faucetAddress],
-    watch: true,
   });
-  const { data: dripAmount } = usePnkFaucetAmount();
+  const { data: dripAmount } = useReadPnkFaucetAmount();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
+  const wagmiConfig = useConfig();
 
   const handleRequest = async () => {
     setIsSending(true);
-    const { request } = await prepareWritePnkFaucet({
+    const { request } = await simulatePnkFaucet(wagmiConfig, {
       functionName: "request",
     });
     if (walletClient) {
@@ -57,13 +65,13 @@ const ClaimPnkButton: React.FC = () => {
   const faucetCheck = !isUndefined(balance) && parseInt(formatEther(balance)) > 200;
   return (
     <>
-      {chain?.id === DEFAULT_CHAIN && !claimed ? (
+      {chainId === DEFAULT_CHAIN && !claimed ? (
         <Button
           variant="primary"
           text={faucetCheck ? "Claim PNK" : "Empty Faucet"}
           onClick={handleRequest}
           isLoading={isSending}
-          disabled={isSending || claimed || !faucetCheck}
+          disabled={isSending || claimed || !faucetCheck || isUndefined(address)}
           Icon={faucetCheck ? FaucetIcon : undefined}
         />
       ) : null}

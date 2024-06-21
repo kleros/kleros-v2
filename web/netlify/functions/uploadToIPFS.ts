@@ -1,9 +1,11 @@
-import { Handler } from "@netlify/functions";
 import { File, FilebaseClient } from "@filebase/client";
+import middy from "@middy/core";
 import amqp, { Connection } from "amqplib";
 import busboy from "busboy";
 
-const { FILEBASE_TOKEN, RABBITMQ_URL, FILEBASE_API_WRAPPER } = process.env;
+import { authMiddleware } from "../middleware/authMiddleware";
+
+const { FILEBASE_TOKEN, RABBITMQ_URL } = process.env;
 const filebase = new FilebaseClient({ token: FILEBASE_TOKEN ?? "" });
 
 type FormElement =
@@ -50,7 +52,7 @@ const parseMultipart = ({ headers, body, isBase64Encoded }) =>
     bb.end();
   });
 
-const pinToFilebase = async (data: FormData, dapp: string, operation: string): Promise<Array<string>> => {
+const pinToFilebase = async (data: FormData, operation: string): Promise<Array<string>> => {
   const cids = new Array<string>();
   for (const [_, dataElement] of Object.entries(data)) {
     if (dataElement.isFile) {
@@ -65,33 +67,21 @@ const pinToFilebase = async (data: FormData, dapp: string, operation: string): P
   return cids;
 };
 
-export const handler: Handler = async (event) => {
+export const uploadToIPFS = async (event) => {
   const { queryStringParameters } = event;
 
-  if (
-    !queryStringParameters ||
-    !queryStringParameters.dapp ||
-    !queryStringParameters.key ||
-    !queryStringParameters.operation
-  ) {
+  if (!queryStringParameters?.operation) {
     return {
       statusCode: 400,
       body: JSON.stringify({ message: "Invalid query parameters" }),
     };
   }
 
-  const { dapp, key, operation } = queryStringParameters;
-
-  if (key !== FILEBASE_API_WRAPPER) {
-    return {
-      statusCode: 403,
-      body: JSON.stringify({ message: "Invalid API key" }),
-    };
-  }
+  const { operation } = queryStringParameters;
 
   try {
     const parsed = await parseMultipart(event);
-    const cids = await pinToFilebase(parsed, dapp, operation);
+    const cids = await pinToFilebase(parsed, operation);
 
     return {
       statusCode: 200,
@@ -107,3 +97,5 @@ export const handler: Handler = async (event) => {
     };
   }
 };
+
+export const handler = middy(uploadToIPFS).use(authMiddleware());

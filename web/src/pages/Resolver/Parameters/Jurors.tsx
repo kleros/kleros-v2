@@ -1,15 +1,22 @@
 import React, { useEffect } from "react";
-import Header from "pages/Resolver/Header";
 import styled from "styled-components";
+
 import { DisplaySmall, Field } from "@kleros/ui-components-library";
-import NavigationButtons from "../NavigationButtons";
-import { responsiveSize } from "styles/responsiveSize";
-import { useNewDisputeContext } from "context/NewDisputeContext";
-import { useKlerosCoreArbitrationCost } from "hooks/contracts/generatedProvider";
-import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
-import { formatETH } from "utils/format";
+
 import ETH from "svgs/icons/eth.svg";
+
+import { REFETCH_INTERVAL } from "consts/index";
+import { useNewDisputeContext } from "context/NewDisputeContext";
+import { useReadKlerosCoreArbitrationCost } from "hooks/contracts/generated";
+import { formatETH } from "utils/format";
 import { isUndefined } from "utils/index";
+import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
+
+import { responsiveSize } from "styles/responsiveSize";
+
+import Header from "pages/Resolver/Header";
+
+import NavigationButtons from "../NavigationButtons";
 
 const Container = styled.div`
   display: flex;
@@ -33,10 +40,12 @@ const StyledDisplay = styled(DisplaySmall)`
 
 const Jurors: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
-  const { data } = useKlerosCoreArbitrationCost({
-    enabled: !isUndefined(disputeData.numberOfJurors) && !Number.isNaN(disputeData.numberOfJurors),
-    args: [prepareArbitratorExtradata(disputeData.courtId, disputeData.numberOfJurors ?? "")],
-    watch: true,
+  const { data } = useReadKlerosCoreArbitrationCost({
+    query: {
+      enabled: !isUndefined(disputeData.numberOfJurors) && !Number.isNaN(disputeData.numberOfJurors),
+      refetchInterval: REFETCH_INTERVAL,
+    },
+    args: [prepareArbitratorExtradata(disputeData.courtId ?? "", disputeData.numberOfJurors ?? "")],
   });
 
   const arbitrationFee = formatETH(data ?? BigInt(0), 5);
@@ -54,7 +63,7 @@ const Jurors: React.FC = () => {
       <Header text="Select the number of jurors" />
       <StyledField placeholder="Select the number of jurors" value={noOfVotes} onChange={handleJurorsWrite} />
       <StyledDisplay text={arbitrationFee} Icon={ETH} label="Arbitration Cost" />
-      <NavigationButtons prevRoute="/resolver/category" nextRoute="/resolver/votingoptions" />
+      <NavigationButtons prevRoute="/resolver/category" nextRoute="/resolver/voting-options" />
     </Container>
   );
 };

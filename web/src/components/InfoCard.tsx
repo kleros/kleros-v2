@@ -1,7 +1,9 @@
 import React from "react";
 import styled from "styled-components";
+
+import InfoCircle from "svgs/icons/info-circle.svg";
+
 import { responsiveSize } from "styles/responsiveSize";
-import InfoCircle from "tsx:svgs/icons/info-circle.svg";
 
 const InfoContainer = styled.div`
   display: grid;

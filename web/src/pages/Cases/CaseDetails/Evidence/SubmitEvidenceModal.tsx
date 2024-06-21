@@ -1,13 +1,18 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import { toast } from "react-toastify";
+
 import Modal from "react-modal";
+import { toast } from "react-toastify";
+import { useWalletClient, usePublicClient, useConfig } from "wagmi";
+
 import { Textarea, Button, FileUploader } from "@kleros/ui-components-library";
-import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
+
+import { simulateEvidenceModuleSubmitEvidence } from "hooks/contracts/generated";
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
-import { useWalletClient, usePublicClient } from "wagmi";
+import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
+
+import { EnsureAuth } from "components/EnsureAuth";
 import { EnsureChain } from "components/EnsureChain";
-import { prepareWriteEvidenceModule } from "hooks/contracts/generated";
 
 const StyledModal = styled(Modal)`
   position: absolute;
@@ -52,9 +57,33 @@ const SubmitEvidenceModal: React.FC<{
 }> = ({ isOpen, evidenceGroup, close }) => {
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
+  const wagmiConfig = useConfig();
   const [isSending, setIsSending] = useState(false);
   const [message, setMessage] = useState("");
   const [file, setFile] = useState<File>();
+
+  const submitEvidence = useCallback(async () => {
+    setIsSending(true);
+    toast.info("Uploading to IPFS", toastOptions);
+    const formData = await constructEvidence(message, file);
+    uploadFormDataToIPFS(formData)
+      .then(async (res) => {
+        const response = await res.json();
+        if (res.status === 200 && walletClient) {
+          const cid = response["cids"][0];
+          const { request } = await simulateEvidenceModuleSubmitEvidence(wagmiConfig, {
+            args: [BigInt(evidenceGroup), cid],
+          });
+          await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(() => {
+            setMessage("");
+            close();
+          });
+        }
+      })
+      .catch()
+      .finally(() => setIsSending(false));
+  }, [publicClient, wagmiConfig, walletClient, close, evidenceGroup, file, message, setIsSending]);
+
   return (
     <StyledModal {...{ isOpen }}>
       <h1>Submit New Evidence</h1>
@@ -63,35 +92,9 @@ const SubmitEvidenceModal: React.FC<{
       <ButtonArea>
         <Button variant="secondary" disabled={isSending} text="Return" onClick={close} />
         <EnsureChain>
-          <Button
-            text="Submit"
-            isLoading={isSending}
-            disabled={isSending}
-            onClick={async () => {
-              setIsSending(true);
-              toast.info("Uploading to IPFS", toastOptions);
-              const formData = await constructEvidence(message, file);
-              uploadFormDataToIPFS(formData)
-                .then(async (res) => {
-                  const response = await res.json();
-                  if (res.status === 200 && walletClient) {
-                    const cid = response["cids"][0];
-                    const { request } = await prepareWriteEvidenceModule({
-                      functionName: "submitEvidence",
-                      args: [BigInt(evidenceGroup), cid],
-                    });
-                    await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(
-                      () => {
-                        setMessage("");
-                        close();
-                      }
-                    );
-                  }
-                })
-                .catch()
-                .finally(() => setIsSending(false));
-            }}
-          />
+          <EnsureAuth>
+            <Button text="Submit" isLoading={isSending} disabled={isSending} onClick={submitEvidence} />
+          </EnsureAuth>
         </EnsureChain>
       </ButtonArea>
     </StyledModal>

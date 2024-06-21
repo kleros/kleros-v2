@@ -1,16 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
-import { graphql } from "src/graphql";
-import { HttpRequestError, PublicClient, RpcError } from "viem";
+import { getContract, HttpRequestError, PublicClient, RpcError } from "viem";
 import { usePublicClient } from "wagmi";
-import { getIArbitrableV2 } from "hooks/contracts/generated";
-import { isUndefined } from "utils/index";
-import { useGraphqlBatcher } from "context/GraphqlBatcher";
-import { useIsCrossChainDispute } from "../useIsCrossChainDispute";
-import { GENESIS_BLOCK_ARBSEPOLIA } from "consts/index";
-import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
+
 import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
+import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
+
+import { GENESIS_BLOCK_ARBSEPOLIA } from "consts/index";
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { iArbitrableV2Abi } from "hooks/contracts/generated";
 import { debounceErrorToast } from "utils/debounceErrorToast";
+import { isUndefined } from "utils/index";
+
+import { graphql } from "src/graphql";
+
+import { useIsCrossChainDispute } from "../useIsCrossChainDispute";
 
 const disputeTemplateQuery = graphql(`
   query DisputeTemplate($id: ID!) {
@@ -79,8 +83,10 @@ const getTemplateId = async (
   disputeID: string,
   publicClient: PublicClient
 ): Promise<bigint> => {
-  const arbitrable = getIArbitrableV2({
+  const arbitrable = getContract({
+    abi: iArbitrableV2Abi,
     address: arbitrableAddress,
+    client: { public: publicClient },
   });
   const disputeFilter = await arbitrable.createEventFilter.DisputeRequest(
     {

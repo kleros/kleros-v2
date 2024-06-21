@@ -1,9 +1,12 @@
 import React, { useContext, createContext, useMemo } from "react";
+
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
-import { useDisputeDetailsQuery } from "./queries/useDisputeDetailsQuery";
-import { useDrawQuery } from "./queries/useDrawQuery";
-import { useDisputeKitClassicIsVoteActive } from "./contracts/generatedProvider";
+
+import { REFETCH_INTERVAL } from "consts/index";
+import { useReadDisputeKitClassicIsVoteActive } from "hooks/contracts/generated";
+import { useDisputeDetailsQuery } from "hooks/queries/useDisputeDetailsQuery";
+import { useDrawQuery } from "hooks/queries/useDrawQuery";
 import { isUndefined } from "utils/index";
 
 interface IVotingContext {
@@ -32,10 +35,12 @@ export const VotingContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const { data: drawData, isLoading } = useDrawQuery(address?.toLowerCase(), id, disputeData?.dispute?.currentRound.id);
   const roundId = disputeData?.dispute?.currentRoundIndex;
   const voteId = drawData?.draws?.[0]?.voteIDNum;
-  const { data: hasVoted } = useDisputeKitClassicIsVoteActive({
-    enabled: !isUndefined(roundId) && !isUndefined(voteId),
+  const { data: hasVoted } = useReadDisputeKitClassicIsVoteActive({
+    query: {
+      enabled: !isUndefined(roundId) && !isUndefined(voteId),
+      refetchInterval: REFETCH_INTERVAL,
+    },
     args: [BigInt(id ?? 0), roundId, voteId],
-    watch: true,
   });
 
   const wasDrawn = useMemo(() => !isUndefined(drawData) && drawData.draws.length > 0, [drawData]);

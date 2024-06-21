@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { getIArbitrableV2 } from "hooks/contracts/generated";
+import { getContract } from "viem";
 import { usePublicClient } from "wagmi";
-import { isUndefined } from "utils/index";
+
 import { GENESIS_BLOCK_ARBSEPOLIA } from "consts/index";
+import { iArbitrableV2Abi } from "hooks/contracts/generated";
+import { isUndefined } from "utils/index";
 
 export const useEvidenceGroup = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
   const isEnabled = !isUndefined(arbitrableAddress);
@@ -13,8 +15,10 @@ export const useEvidenceGroup = (disputeID?: string, arbitrableAddress?: `0x${st
     staleTime: Infinity,
     queryFn: async () => {
       if (arbitrableAddress && !isUndefined(disputeID)) {
-        const arbitrable = getIArbitrableV2({
+        const arbitrable = getContract({
+          abi: iArbitrableV2Abi,
           address: arbitrableAddress,
+          client: { public: publicClient },
         });
         const disputeFilter = await arbitrable.createEventFilter.DisputeRequest(
           {

@@ -1,20 +1,18 @@
 import React from "react";
 import styled from "styled-components";
-import Search from "./Search";
-import StatsAndFilters from "./StatsAndFilters";
-import CasesGrid, { ICasesGrid } from "./CasesGrid";
-import { responsiveSize } from "styles/responsiveSize";
-import LightButton from "../LightButton";
-import ArrowIcon from "assets/svgs/icons/arrow.svg";
+
 import { useLocation, useNavigate } from "react-router-dom";
 
-const Divider = styled.hr`
-  display: flex;
-  border: none;
-  height: 1px;
-  background-color: ${({ theme }) => theme.stroke};
-  margin: ${responsiveSize(20, 24)};
-`;
+import ArrowIcon from "svgs/icons/arrow.svg";
+
+import { responsiveSize } from "styles/responsiveSize";
+
+import LightButton from "../LightButton";
+
+import CasesGrid, { ICasesGrid } from "./CasesGrid";
+import Search from "./Search";
+import StatsAndFilters from "./StatsAndFilters";
+
 const TitleContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -67,7 +65,6 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
       </TitleContainer>
       <Search />
       <StatsAndFilters totalDisputes={numberDisputes ?? 0} closedDisputes={numberClosedDisputes ?? 0} />
-      <Divider />
 
       {disputes?.length === 0 ? (
         <h1>No cases found</h1>

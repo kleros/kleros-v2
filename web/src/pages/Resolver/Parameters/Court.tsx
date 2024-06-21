@@ -1,14 +1,19 @@
 import React, { useMemo } from "react";
-import Header from "pages/Resolver/Header";
 import styled, { css } from "styled-components";
+
 import { AlertMessage, DropdownCascader } from "@kleros/ui-components-library";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-import NavigationButtons from "../NavigationButtons";
+
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import { rootCourtToItems, useCourtTree } from "hooks/queries/useCourtTree";
 import { isUndefined } from "utils/index";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import { StyledSkeleton } from "components/StyledSkeleton";
+import Header from "pages/Resolver/Header";
+
+import NavigationButtons from "../NavigationButtons";
 
 const Container = styled.div`
   display: flex;
@@ -55,6 +60,7 @@ const Court: React.FC = () => {
           items={items}
           onSelect={(path: string | number) => typeof path === "string" && handleWrite(path.split("/").pop()!)}
           placeholder="Select Court"
+          value={`/courts/${disputeData.courtId}`}
         />
       ) : (
         <StyledSkeleton width={240} height={42} />

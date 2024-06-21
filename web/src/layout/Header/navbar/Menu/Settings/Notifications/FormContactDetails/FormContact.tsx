@@ -24,6 +24,7 @@ interface IForm {
   setContactInput: Dispatch<SetStateAction<string>>;
   setContactIsValid: Dispatch<SetStateAction<boolean>>;
   validator: RegExp;
+  isEditing?: boolean;
 }
 
 const FormContact: React.FC<IForm> = ({
@@ -34,9 +35,10 @@ const FormContact: React.FC<IForm> = ({
   setContactInput,
   setContactIsValid,
   validator,
+  isEditing,
 }) => {
   useEffect(() => {
-    setContactIsValid(validator.test(contactInput));
+    setContactIsValid(contactInput === "" ? true : validator.test(contactInput));
   }, [contactInput, setContactIsValid, validator]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,7 +47,7 @@ const FormContact: React.FC<IForm> = ({
   };
 
   const fieldVariant = useMemo(() => {
-    if (contactInput === "") {
+    if (contactInput === "" || !isEditing) {
       return undefined;
     }
     return contactIsValid ? "success" : "error";

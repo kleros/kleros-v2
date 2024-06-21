@@ -1,11 +1,16 @@
-import React, { Dispatch, SetStateAction, useRef } from "react";
+import React, { Dispatch, SetStateAction, useCallback, useRef } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
+import { useLocation, useNavigate } from "react-router-dom";
+import { useClickAway } from "react-use";
+import BookOpenIcon from "svgs/icons/book-open.svg";
+
 import { CompactPagination } from "@kleros/ui-components-library";
-import { Overlay } from "components/Overlay";
-import BookOpenIcon from "tsx:assets/svgs/icons/book-open.svg";
-import { useFocusOutside } from "hooks/useFocusOutside";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import { Overlay } from "components/Overlay";
 
 const Container = styled.div<{ isVisible: boolean }>`
   display: ${({ isVisible }) => (isVisible ? "flex" : "none")};
@@ -160,11 +165,19 @@ const Template: React.FC<ITemplate> = ({
   isVisible,
 }) => {
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const removeOnboardingHashPath = useCallback(() => {
+    if (isOnboarding && location.hash.includes("#onboarding")) navigate("#", { replace: true });
+  }, [location.hash, navigate, isOnboarding]);
+
+  useClickAway(containerRef, () => {
     if (canClose) {
       onClose();
+      removeOnboardingHashPath();
     }
   });
+
   return (
     <>
       <Overlay />
@@ -191,7 +204,14 @@ const Template: React.FC<ITemplate> = ({
           />
         </LeftContainer>
         <RightContainer>
-          <Close onClick={onClose}>Close</Close>
+          <Close
+            onClick={() => {
+              onClose();
+              removeOnboardingHashPath();
+            }}
+          >
+            Close
+          </Close>
           {RightContent}
         </RightContainer>
       </Container>

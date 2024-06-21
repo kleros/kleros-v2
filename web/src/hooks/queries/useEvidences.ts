@@ -1,17 +1,20 @@
+import { useQuery } from "@tanstack/react-query";
+
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
+
 import { graphql } from "src/graphql";
 import { EvidencesQuery } from "src/graphql/graphql";
-import { useQuery } from "@tanstack/react-query";
-import { useGraphqlBatcher } from "context/GraphqlBatcher";
 export type { EvidencesQuery };
 
 const evidencesQuery = graphql(`
   query Evidences($evidenceGroupID: String) {
-    evidences(where: { evidenceGroup: $evidenceGroupID }, orderBy: id, orderDirection: asc) {
+    evidences(where: { evidenceGroup: $evidenceGroupID }, orderBy: timestamp, orderDirection: desc) {
       id
       evidence
       sender {
         id
       }
+      timestamp
     }
   }
 `);

@@ -1,15 +1,22 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
-import { isUndefined } from "utils/index";
-import Field from "components/Field";
+
 import DiceIcon from "svgs/icons/dice.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
+
+import { REFETCH_INTERVAL } from "consts/index";
+import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
+import { isUndefined } from "utils/index";
+
 import { useCourtDetails } from "queries/useCourtDetails";
-import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generatedProvider";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
+import Field from "components/Field";
 
 const Container = styled.div`
   display: flex;
@@ -64,10 +71,12 @@ const useCalculateJurorOdds = (
 const JurorBalanceDisplay = () => {
   const { id } = useParams();
   const { address } = useAccount();
-  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
-    enabled: !isUndefined(address),
+  const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
+    query: {
+      enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
+    },
     args: [address ?? "0x", BigInt(id ?? 0)],
-    watch: true,
   });
   const { data: courtDetails } = useCourtDetails(id);
   const stakedByAllJurors = courtDetails?.court?.stake;

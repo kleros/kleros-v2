@@ -1,8 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { graphql } from "src/graphql";
+
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
-import { CourtPolicyUriQuery } from "src/graphql/graphql";
 import { isUndefined } from "utils/index";
+
+import { graphql } from "src/graphql";
+import { CourtPolicyUriQuery } from "src/graphql/graphql";
+
 export type { CourtPolicyUriQuery };
 
 const courtPolicyURIQuery = graphql(`

@@ -1,17 +1,23 @@
 import React from "react";
 import styled from "styled-components";
+
 import { Route, Routes, useParams, Navigate } from "react-router-dom";
+
 import { Card } from "@kleros/ui-components-library";
+
 import { Periods } from "consts/periods";
+import { VotingContextProvider } from "hooks/useVotingContext";
+
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import { responsiveSize } from "styles/responsiveSize";
+
 import Appeal from "./Appeal";
 import Evidence from "./Evidence";
 import Overview from "./Overview";
 import Tabs from "./Tabs";
 import Timeline from "./Timeline";
 import Voting from "./Voting";
-import { responsiveSize } from "styles/responsiveSize";
-import { VotingContextProvider } from "hooks/useVotingContext";
 
 const Container = styled.div``;
 

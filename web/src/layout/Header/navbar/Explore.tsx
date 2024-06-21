@@ -1,9 +1,12 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { Link, useLocation } from "react-router-dom";
-import { useOpenContext } from "../MobileHeader";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import { useOpenContext } from "../MobileHeader";
 
 const Container = styled.div`
   display: flex;
@@ -57,7 +60,7 @@ const links = [
   { to: "/cases/display/1/desc/all", text: "Cases" },
   { to: "/courts", text: "Courts" },
   { to: "/dashboard/1/desc/all", text: "Dashboard" },
-  { to: "/getPnk", text: "Get PNK" },
+  { to: "/get-pnk", text: "Get PNK" },
 ];
 
 const Explore: React.FC = () => {
@@ -81,9 +84,9 @@ const Explore: React.FC = () => {
       {!isOpen && (
         <LinkContainer>
           <HiddenLink
-            to="/disputeTemplate"
+            to="/dispute-template"
             onClick={toggleIsOpen}
-            isActive={location.pathname.startsWith("/disputeTemplate")}
+            isActive={location.pathname.startsWith("/dispute-template")}
           >
             Dev
           </HiddenLink>

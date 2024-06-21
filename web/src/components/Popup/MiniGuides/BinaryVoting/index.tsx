@@ -1,8 +1,10 @@
 import React from "react";
+
 import PageContentsTemplate from "../PageContentsTemplate";
 import JurorRewards from "../Staking/JurorRewards";
-import VotingModule from "./VotingModule";
+
 import PrivateVoting from "./PrivateVoting";
+import VotingModule from "./VotingModule";
 
 const leftPageContents = [
   {

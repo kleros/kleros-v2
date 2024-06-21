@@ -1,5 +1,5 @@
-import { VotingHistoryQuery } from "queries/useVotingHistory";
 import { ClassicAppealQuery } from "queries/useClassicAppealQuery";
+import { VotingHistoryQuery } from "queries/useVotingHistory";
 
 type IVotingHistoryLocalRounds = NonNullable<
   NonNullable<VotingHistoryQuery["dispute"]>["disputeKitDispute"]

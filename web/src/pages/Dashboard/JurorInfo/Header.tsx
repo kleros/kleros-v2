@@ -1,11 +1,15 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { useToggle } from "react-use";
+
 import XIcon from "svgs/socialmedia/x.svg";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
-import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;

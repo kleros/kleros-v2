@@ -1,9 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
-import { getKlerosCore } from "hooks/contracts/generatedProvider";
+import { getContract } from "viem";
+import { usePublicClient } from "wagmi";
+
+import { DEFAULT_CHAIN } from "consts/chains";
+import { klerosCoreConfig } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
 
 export const useAppealCost = (disputeID?: string) => {
-  const klerosCore = getKlerosCore({});
+  const publicClient = usePublicClient();
+  const klerosCore = getContract({
+    abi: klerosCoreConfig.abi,
+    address: klerosCoreConfig.address[DEFAULT_CHAIN],
+    client: {
+      public: publicClient,
+    },
+  });
   const isEnabled = !isUndefined(klerosCore) && !isUndefined(disputeID);
   return useQuery({
     queryKey: [`AppealCost${disputeID}`],

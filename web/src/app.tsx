@@ -1,18 +1,14 @@
 import React, { lazy, Suspense } from "react";
+
 import { Route } from "react-router-dom";
-import { SentryRoutes } from "./utils/sentry";
+
 import "react-loading-skeleton/dist/skeleton.css";
 import "react-toastify/dist/ReactToastify.css";
-import Web3Provider from "context/Web3Provider";
+import GraphqlBatcherProvider from "context/GraphqlBatcher";
 import IsListProvider from "context/IsListProvider";
+import { NewDisputeProvider } from "context/NewDisputeContext";
 import QueryClientProvider from "context/QueryClientProvider";
 import StyledComponentsProvider from "context/StyledComponentsProvider";
-import RefetchOnBlock from "context/RefetchOnBlock";
-import GraphqlBatcherProvider from "context/GraphqlBatcher";
-import { NewDisputeProvider } from "./context/NewDisputeContext";
-import Layout from "layout/index";
-import Loading from "./Loading";
-
 const Home = lazy(() => import("./pages/Home"));
 const Cases = lazy(() => import("./pages/Cases"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -20,14 +16,18 @@ const Courts = lazy(() => import("./pages/Courts"));
 const DisputeTemplateView = lazy(() => import("./pages/DisputeTemplateView"));
 const DisputeResolver = lazy(() => import("./pages/Resolver"));
 const GetPnk = lazy(() => import("./pages/GetPnk"));
+import Web3Provider from "context/Web3Provider";
+
+import Layout from "layout/index";
+
+import { SentryRoutes } from "./utils/sentry";
 
 const App: React.FC = () => {
   return (
     <StyledComponentsProvider>
-      <QueryClientProvider>
-        <RefetchOnBlock />
-        <GraphqlBatcherProvider>
-          <Web3Provider>
+      <Web3Provider>
+        <QueryClientProvider>
+          <GraphqlBatcherProvider>
             <IsListProvider>
               <NewDisputeProvider>
                 <SentryRoutes>
@@ -35,7 +35,7 @@ const App: React.FC = () => {
                     <Route
                       index
                       element={
-                        <Suspense fallback={<Loading />}>
+                        <Suspense>
                           <Home />
                         </Suspense>
                       }
@@ -43,7 +43,7 @@ const App: React.FC = () => {
                     <Route
                       path="cases/*"
                       element={
-                        <Suspense fallback={<Loading />}>
+                        <Suspense>
                           <Cases />
                         </Suspense>
                       }
@@ -51,7 +51,7 @@ const App: React.FC = () => {
                     <Route
                       path="courts/*"
                       element={
-                        <Suspense fallback={<Loading />}>
+                        <Suspense>
                           <Courts />
                         </Suspense>
                       }
@@ -59,15 +59,15 @@ const App: React.FC = () => {
                     <Route
                       path="dashboard/:page/:order/:filter"
                       element={
-                        <Suspense fallback={<Loading />}>
+                        <Suspense>
                           <Dashboard />
                         </Suspense>
                       }
                     />
                     <Route
-                      path="disputeTemplate"
+                      path="dispute-template"
                       element={
-                        <Suspense fallback={<Loading />}>
+                        <Suspense>
                           <DisputeTemplateView />
                         </Suspense>
                       }
@@ -75,15 +75,15 @@ const App: React.FC = () => {
                     <Route
                       path="resolver/*"
                       element={
-                        <Suspense fallback={<Loading />}>
+                        <Suspense>
                           <DisputeResolver />
                         </Suspense>
                       }
                     />
                     <Route
-                      path="getPnk/*"
+                      path="get-pnk/*"
                       element={
-                        <Suspense fallback={<Loading />}>
+                        <Suspense>
                           <GetPnk />
                         </Suspense>
                       }
@@ -93,9 +93,9 @@ const App: React.FC = () => {
                 </SentryRoutes>
               </NewDisputeProvider>
             </IsListProvider>
-          </Web3Provider>
-        </GraphqlBatcherProvider>
-      </QueryClientProvider>
+          </GraphqlBatcherProvider>
+        </QueryClientProvider>
+      </Web3Provider>
     </StyledComponentsProvider>
   );
 };

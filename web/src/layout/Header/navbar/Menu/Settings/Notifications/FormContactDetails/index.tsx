@@ -1,15 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { useWalletClient, useAccount } from "wagmi";
+import { useAccount } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
 import { uploadSettingsToSupabase } from "utils/uploadSettingsToSupabase";
 import FormContact from "./FormContact";
-import messages from "src/consts/eip712-messages";
 import { EMAIL_REGEX, TELEGRAM_REGEX } from "consts/index";
-import { ISettings } from "../../../../index";
+
 import { responsiveSize } from "styles/responsiveSize";
 
+import { ISettings } from "../../../../index";
+import { useUserSettings } from "hooks/queries/useUserSettings";
+
 const FormContainer = styled.form`
+  width: 100%;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -33,38 +36,54 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const [emailInput, setEmailInput] = useState<string>("");
   const [telegramIsValid, setTelegramIsValid] = useState<boolean>(false);
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
-  const { data: walletClient } = useWalletClient();
   const { address } = useAccount();
+  const { data: userSettings, refetch: refetchUserSettings } = useUserSettings();
 
-  // TODO: after the user is authenticated, retrieve the current email/telegram from the database and populate the form
+  const isEditingEmail = useMemo(() => {
+    if (!userSettings?.email && emailInput === "") return false;
+    return userSettings?.email !== emailInput;
+  }, [userSettings, emailInput]);
+
+  const isEditingTelegram = useMemo(() => {
+    if (!userSettings?.telegram && telegramInput === "") return false;
+    return userSettings?.telegram !== telegramInput;
+  }, [userSettings, telegramInput]);
+
+  useEffect(() => {
+    refetchUserSettings();
+  }, [address]);
+
+  useEffect(() => {
+    if (!userSettings) return;
+
+    setEmailInput(userSettings.email ?? "");
+    setTelegramInput(userSettings.telegram ?? "");
+  }, [userSettings]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!address) {
       throw new Error("Missing address");
     }
-    const nonce = new Date().getTime().toString();
-    const signature = await walletClient?.signTypedData(
-      messages.contactDetails(address, nonce, telegramInput, emailInput)
-    );
-    if (!signature) {
-      throw new Error("Missing signature");
-    }
+
     const data = {
       email: emailInput,
       telegram: telegramInput,
-      nonce,
       address,
-      signature,
     };
-    const response = await uploadSettingsToSupabase(data);
-    if (response.ok) {
-      toggleIsSettingsOpen();
-    }
+
+    uploadSettingsToSupabase(data)
+      .then(async (res) => {
+        if (res.ok) {
+          toggleIsSettingsOpen();
+          refetchUserSettings();
+        }
+      })
+      .catch((err) => console.log(err));
   };
   return (
     <FormContainer onSubmit={handleSubmit}>
-      <FormContactContainer>
+      {/* <FormContactContainer>
         <FormContact
           contactLabel="Telegram"
           contactPlaceholder="@my_handle"
@@ -73,8 +92,9 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           setContactInput={setTelegramInput}
           setContactIsValid={setTelegramIsValid}
           validator={TELEGRAM_REGEX}
+          isEditing={isEditingTelegram}
         />
-      </FormContactContainer>
+      </FormContactContainer> */}
       <FormContactContainer>
         <FormContact
           contactLabel="Email"
@@ -84,11 +104,13 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           setContactInput={setEmailInput}
           setContactIsValid={setEmailIsValid}
           validator={EMAIL_REGEX}
+          isEditing={isEditingEmail}
         />
       </FormContactContainer>
 
       <ButtonContainer>
-        <Button text="Save" disabled={!emailIsValid && !telegramIsValid} />
+        {/* <Button text="Save" disabled={(!isEditingEmail && !isEditingTelegram) || !emailIsValid || !telegramIsValid} /> */}
+        <Button text="Save" disabled={!isEditingEmail || !emailIsValid} />
       </ButtonContainer>
     </FormContainer>
   );

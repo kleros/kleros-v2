@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import WhoWinsRewardsSvg from "tsx:assets/svgs/mini-guides/appeal/who-wins-rewards.svg";
+
+import WhoWinsRewardsSvg from "svgs/mini-guides/appeal/who-wins-rewards.svg";
+
 import { StyledImage } from "../PageContentsTemplate";
 
 const StyledWhoWinsRewardsSvg = styled(WhoWinsRewardsSvg)`

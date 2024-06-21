@@ -1,11 +1,16 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import { useParams } from "react-router-dom";
+
 import ReactMarkdown from "react-markdown";
+import { useParams } from "react-router-dom";
+
 import { Button } from "@kleros/ui-components-library";
-import { isUndefined } from "utils/index";
+
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
+import { isUndefined } from "utils/index";
+
 import { EnsureChain } from "components/EnsureChain";
+
 import JustificationArea from "./JustificationArea";
 
 const MainContainer = styled.div`

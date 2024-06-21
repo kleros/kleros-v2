@@ -1,11 +1,16 @@
-import { arbitrumSepolia } from "wagmi/chains";
+import { arbitrumSepolia, arbitrum } from "wagmi/chains";
 
-const CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH = {
-  [arbitrumSepolia.id]:
-    process.env.REACT_APP_DRT_ARBSEPOLIA_SUBGRAPH ?? "Wrong Subgraph URL. Please check the environment variables.",
-};
+import { DEFAULT_CHAIN } from "consts/chains";
 
-export const getGraphqlUrl = (isDisputeTemplate = false, chainId: number = arbitrumSepolia.id) => {
-  const coreUrl = process.env.REACT_APP_CORE_SUBGRAPH ?? "Wrong Subgraph URL. Please check the environment variables.";
+export const getGraphqlUrl = (isDisputeTemplate = false, chainId: number = DEFAULT_CHAIN) => {
+  const CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH = {
+    [arbitrumSepolia.id]:
+      import.meta.env.REACT_APP_DRT_ARBSEPOLIA_SUBGRAPH ??
+      "Environment variable REACT_APP_DRT_ARBSEPOLIA_SUBGRAPH not set.",
+    [arbitrum.id]:
+      import.meta.env.REACT_APP_DRT_ARBMAINNET_SUBGRAPH ??
+      "Environment variable REACT_APP_DRT_ARBMAINNET_SUBGRAPH not set.",
+  };
+  const coreUrl = import.meta.env.REACT_APP_CORE_SUBGRAPH ?? "Environment variables REACT_APP_CORE_SUBGRAPH not set.";
   return isDisputeTemplate ? CHAINID_TO_DISPUTE_TEMPLATE_SUBGRAPH[chainId] : coreUrl;
 };

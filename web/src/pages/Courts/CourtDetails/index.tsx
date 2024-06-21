@@ -1,21 +1,29 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { useToggle } from "react-use";
+
 import { useParams } from "react-router-dom";
+import { useToggle } from "react-use";
+
 import { Card, Breadcrumb } from "@kleros/ui-components-library";
+
+import { isProductionDeployment } from "consts/index";
+import { isUndefined } from "utils/index";
+
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
-import { isUndefined } from "utils/index";
-import { StyledSkeleton } from "components/StyledSkeleton";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
+import ClaimPnkButton from "components/ClaimPnkButton";
+import HowItWorks from "components/HowItWorks";
 import LatestCases from "components/LatestCases";
-import Stats from "./Stats";
+import Staking from "components/Popup/MiniGuides/Staking";
+import { StyledSkeleton } from "components/StyledSkeleton";
+
 import Description from "./Description";
 import StakePanel from "./StakePanel";
-import HowItWorks from "components/HowItWorks";
-import Staking from "components/Popup/MiniGuides/Staking";
-import { responsiveSize } from "styles/responsiveSize";
-import ClaimPnkButton from "components/ClaimPnkButton";
+import Stats from "./Stats";
 
 const Container = styled.div``;
 
@@ -28,7 +36,7 @@ const CourtHeader = styled.h1`
 `;
 
 const CourtInfo = styled.div`
-  display: flex:
+  display: flex;
   flex-direction: column;
   gap: 16px;
 
@@ -63,13 +71,10 @@ const StyledCard = styled(Card)`
 `;
 
 const StyledBreadcrumb = styled(Breadcrumb)`
-  display: flex;
-  margin-top: 12px;
   align-items: center;
-`;
-
-const StyledBreadcrumbSkeleton = styled.div`
-  margin-top: 12px;
+  button {
+    font-size: 16px;
+  }
 `;
 
 const CourtDetails: React.FC = () => {
@@ -94,13 +99,7 @@ const CourtDetails: React.FC = () => {
         <CourtHeader>
           <CourtInfo>
             {policy ? policy.name : <StyledSkeleton width={200} />}
-            {items.length > 1 ? (
-              <StyledBreadcrumb items={items} />
-            ) : (
-              <StyledBreadcrumbSkeleton>
-                <StyledSkeleton width={100} />
-              </StyledBreadcrumbSkeleton>
-            )}
+            {items.length > 1 ? <StyledBreadcrumb items={items} /> : <StyledSkeleton width={100} />}
           </CourtInfo>
           <ButtonContainer>
             <HowItWorks
@@ -108,7 +107,7 @@ const CourtDetails: React.FC = () => {
               toggleMiniGuide={toggleStakingMiniGuide}
               MiniGuideComponent={Staking}
             />
-            <ClaimPnkButton />
+            {!isProductionDeployment() && <ClaimPnkButton />}
           </ButtonContainer>
         </CourtHeader>
         <hr />

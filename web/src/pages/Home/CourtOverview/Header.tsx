@@ -1,8 +1,12 @@
 import React from "react";
 import styled from "styled-components";
-import { Button } from "@kleros/ui-components-library";
-import Bookmark from "svgs/icons/bookmark.svg";
+
 import { useNavigate } from "react-router-dom";
+
+import { Button } from "@kleros/ui-components-library";
+
+import Bookmark from "svgs/icons/bookmark.svg";
+
 import { responsiveSize } from "styles/responsiveSize";
 
 const StyledHeader = styled.div`

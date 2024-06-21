@@ -1,13 +1,17 @@
 import React from "react";
 import styled from "styled-components";
-import LatestCases from "components/LatestCases";
-import CourtOverview from "./CourtOverview";
-import Community from "./Community";
-import HeroImage from "components/HeroImage";
+
 import { HomePageProvider } from "hooks/useHomePageContext";
 import { getOneYearAgoTimestamp } from "utils/date";
-import TopJurors from "./TopJurors";
+
 import { responsiveSize } from "styles/responsiveSize";
+
+import HeroImage from "components/HeroImage";
+import LatestCases from "components/LatestCases";
+
+import Community from "./Community";
+import CourtOverview from "./CourtOverview";
+import TopJurors from "./TopJurors";
 
 const Container = styled.div`
   width: 100%;

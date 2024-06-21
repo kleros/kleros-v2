@@ -64,13 +64,13 @@
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-solhint": "^3.0.1",
-    "@openzeppelin/contracts": "^4.9.5",
+    "@openzeppelin/contracts": "^5.0.2",
     "@typechain/ethers-v5": "^11.1.2",
     "@typechain/hardhat": "^7.0.0",
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.11.3",
-    "@wagmi/cli": "^1.5.2",
+    "@wagmi/cli": "^2.0.3",
     "abitype": "^0.10.3",
     "chai": "^4.4.1",
     "dotenv": "^16.3.1",
@@ -98,6 +98,6 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@kleros/vea-contracts": "^0.3.2"
+    "@kleros/vea-contracts": "^0.4.0"
   }
 }

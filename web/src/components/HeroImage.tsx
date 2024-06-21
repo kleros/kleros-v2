@@ -1,9 +1,11 @@
 import React from "react";
 import { useTheme } from "styled-components";
-import HeroLightMobile from "tsx:svgs/hero/hero-lightmode-mobile.svg";
-import HeroDarkMobile from "tsx:svgs/hero/hero-darkmode-mobile.svg";
-import HeroLightDesktop from "tsx:svgs/hero/hero-lightmode-desktop.svg";
-import HeroDarkDesktop from "tsx:svgs/hero/hero-darkmode-desktop.svg";
+
+import HeroDarkDesktop from "svgs/hero/hero-darkmode-desktop.svg";
+import HeroDarkMobile from "svgs/hero/hero-darkmode-mobile.svg";
+import HeroLightDesktop from "svgs/hero/hero-lightmode-desktop.svg";
+import HeroLightMobile from "svgs/hero/hero-lightmode-mobile.svg";
+
 import useIsDesktop from "hooks/useIsDesktop";
 
 const HeroImage = () => {

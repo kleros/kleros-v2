@@ -6,7 +6,7 @@
 /// @custom:bounties: []
 /// @custom:deployments: []
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "../KlerosCore.sol";
 import "../interfaces/IDisputeKit.sol";
@@ -46,13 +46,13 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
         bool tied; // True if there is a tie, false otherwise.
         uint256 totalVoted; // Former uint[_appeal] votesInEachRound.
         uint256 totalCommitted; // Former commitsInRound.
-        mapping(uint256 => uint256) paidFees; // Tracks the fees paid for each choice in this round.
-        mapping(uint256 => bool) hasPaid; // True if this choice was fully funded, false otherwise.
-        mapping(address => mapping(uint256 => uint256)) contributions; // Maps contributors to their contributions for each choice.
+        mapping(uint256 choiceId => uint256) paidFees; // Tracks the fees paid for each choice in this round.
+        mapping(uint256 choiceId => bool) hasPaid; // True if this choice was fully funded, false otherwise.
+        mapping(address account => mapping(uint256 choiceId => uint256)) contributions; // Maps contributors to their contributions for each choice.
         uint256 feeRewards; // Sum of reimbursable appeal fees available to the parties that made contributions to the ruling that ultimately wins a dispute.
         uint256[] fundedChoices; // Stores the choices that are fully funded.
         uint256 nbVotes; // Maximal number of votes this dispute can get.
-        mapping(address => bool) alreadyDrawn; // Set to 'true' if the address has already been drawn, so it can't be drawn more than once.
+        mapping(address drawnAddress => bool) alreadyDrawn; // Set to 'true' if the address has already been drawn, so it can't be drawn more than once.
     }
 
     struct Vote {
@@ -170,10 +170,8 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
     // *      Governance      * //
     // ************************ //
 
-    /**
-     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
-     */
+    /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+    ///      Only the governor can perform upgrades (`onlyByGovernor`)
     function _authorizeUpgrade(address) internal view override onlyByGovernor {
         // NOP
     }
@@ -281,7 +279,7 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
         bytes32 _commit
     ) external notJumped(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
-        require(period == KlerosCore.Period.commit, "The dispute should be in Commit period.");
+        require(period == KlerosCoreBase.Period.commit, "The dispute should be in Commit period.");
         require(_commit != bytes32(0), "Empty commit.");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
@@ -310,7 +308,7 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
         string memory _justification
     ) external notJumped(_coreDisputeID) {
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
-        require(period == KlerosCore.Period.vote, "The dispute should be in Vote period.");
+        require(period == KlerosCoreBase.Period.vote, "The dispute should be in Vote period.");
         require(_voteIDs.length > 0, "No voteID provided");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
@@ -422,6 +420,7 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
     }
 
     /// @dev Allows those contributors who attempted to fund an appeal round to withdraw any reimbursable fees or rewards after the dispute gets resolved.
+    /// Note that withdrawals are not possible if the core contract is paused.
     /// @param _coreDisputeID Index of the dispute in Kleros Core contract.
     /// @param _beneficiary The address whose rewards to withdraw.
     /// @param _coreRoundID The round in the Kleros Core contract the caller wants to withdraw from.
@@ -435,6 +434,7 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
     ) external returns (uint256 amount) {
         (, , , bool isRuled, ) = core.disputes(_coreDisputeID);
         require(isRuled, "Dispute should be resolved.");
+        require(!core.paused(), "Core is paused");
 
         Dispute storage dispute = disputes[coreDisputeIDToLocal[_coreDisputeID]];
         Round storage round = dispute.rounds[dispute.coreRoundIDToLocal[_coreRoundID]];
@@ -489,7 +489,7 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
         ruling = tied ? 0 : round.winningChoice;
         (, , KlerosCore.Period period, , ) = core.disputes(_coreDisputeID);
         // Override the final ruling if only one side funded the appeals.
-        if (period == KlerosCore.Period.execution) {
+        if (period == KlerosCoreBase.Period.execution) {
             uint256[] memory fundedChoices = getFundedChoices(_coreDisputeID);
             if (fundedChoices.length == 1) {
                 ruling = fundedChoices[0];

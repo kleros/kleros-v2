@@ -1,13 +1,14 @@
 import React from "react";
-import EtherscanLogo from "svgs/socialmedia/etherscan.svg";
-import GithubLogo from "svgs/socialmedia/github.svg";
-import SnapshotLogo from "svgs/socialmedia/snapshot.svg";
+
 import DiscordLogo from "svgs/socialmedia/discord.svg";
-import XLogo from "svgs/socialmedia/x.svg";
-import RedditLogo from "svgs/socialmedia/reddit.svg";
-import TelegramLogo from "svgs/socialmedia/telegram.svg";
+import EtherscanLogo from "svgs/socialmedia/etherscan.svg";
 import GhostBlogLogo from "svgs/socialmedia/ghost-blog.svg";
+import GithubLogo from "svgs/socialmedia/github.svg";
 import LinkedinLogo from "svgs/socialmedia/linkedin.svg";
+import RedditLogo from "svgs/socialmedia/reddit.svg";
+import SnapshotLogo from "svgs/socialmedia/snapshot.svg";
+import TelegramLogo from "svgs/socialmedia/telegram.svg";
+import XLogo from "svgs/socialmedia/x.svg";
 
 export const socialmedia = {
   etherscan: {

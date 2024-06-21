@@ -1,14 +1,17 @@
 import React from "react";
+
 import { useToggle } from "react-use";
+
+import Appeal from "../Appeal";
+import BinaryVoting from "../BinaryVoting";
+import JurorLevels from "../JurorLevels";
+import PageContentsTemplate from "../PageContentsTemplate";
+import RankedVoting from "../RankedVoting";
+import Staking from "../Staking";
+
 import HowItWorks from "./HowItWorks";
 import PnkLogoAndTitle from "./PnkLogoAndTitle";
 import WhatDoINeed from "./WhatDoINeed";
-import Staking from "../Staking";
-import BinaryVoting from "../BinaryVoting";
-import RankedVoting from "../RankedVoting";
-import Appeal from "../Appeal";
-import JurorLevels from "../JurorLevels";
-import PageContentsTemplate from "../PageContentsTemplate";
 
 const leftPageContents = [
   {

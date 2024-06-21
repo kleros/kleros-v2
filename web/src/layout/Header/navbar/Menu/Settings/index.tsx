@@ -1,13 +1,20 @@
 import React, { useRef, useState } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
+import { useLocation, useNavigate } from "react-router-dom";
+import { useClickAway } from "react-use";
+
 import { Tabs } from "@kleros/ui-components-library";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
+import { Overlay } from "components/Overlay";
+
+import { ISettings } from "../../index";
+
 import General from "./General";
 import NotificationSettings from "./Notifications";
-import { useFocusOutside } from "hooks/useFocusOutside";
-import { Overlay } from "components/Overlay";
-import { ISettings } from "../../index";
-import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
@@ -67,10 +74,15 @@ const TABS = [
   },
 ];
 
-const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
-  const [currentTab, setCurrentTab] = useState<number>(0);
+const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen, initialTab }) => {
+  const [currentTab, setCurrentTab] = useState<number>(initialTab || 0);
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => toggleIsSettingsOpen());
+  const location = useLocation();
+  const navigate = useNavigate();
+  useClickAway(containerRef, () => {
+    toggleIsSettingsOpen();
+    if (location.hash.includes("#notifications")) navigate("#", { replace: true });
+  });
 
   return (
     <>

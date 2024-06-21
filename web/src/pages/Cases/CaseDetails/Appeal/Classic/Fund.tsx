@@ -1,18 +1,20 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
+
 import { useParams } from "react-router-dom";
-import { useAccount, useBalance, usePublicClient } from "wagmi";
 import { useDebounce } from "react-use";
+import { useAccount, useBalance, usePublicClient } from "wagmi";
+
 import { Field, Button } from "@kleros/ui-components-library";
-import { wrapWithToast } from "utils/wrapWithToast";
-import { isUndefined } from "utils/index";
-import { EnsureChain } from "components/EnsureChain";
-import {
-  usePrepareDisputeKitClassicFundAppeal,
-  useDisputeKitClassicFundAppeal,
-} from "hooks/contracts/generatedProvider";
-import { useParsedAmount } from "hooks/useParsedAmount";
+
+import { REFETCH_INTERVAL } from "consts/index";
+import { useSimulateDisputeKitClassicFundAppeal, useWriteDisputeKitClassicFundAppeal } from "hooks/contracts/generated";
 import { useSelectedOptionContext, useFundingContext, useCountdownContext } from "hooks/useClassicAppealContext";
+import { useParsedAmount } from "hooks/useParsedAmount";
+import { isUndefined } from "utils/index";
+import { wrapWithToast } from "utils/wrapWithToast";
+
+import { EnsureChain } from "components/EnsureChain";
 
 const Container = styled.div`
   display: flex;
@@ -60,19 +62,21 @@ const useNeedFund = () => {
 const useFundAppeal = (parsedAmount) => {
   const { id } = useParams();
   const { selectedOption } = useSelectedOptionContext();
-  const { config: fundAppealConfig, isError } = usePrepareDisputeKitClassicFundAppeal({
-    enabled: !isUndefined(id) && !isUndefined(selectedOption),
+  const { data: fundAppealConfig, isError } = useSimulateDisputeKitClassicFundAppeal({
+    query: {
+      enabled: !isUndefined(id) && !isUndefined(selectedOption),
+    },
     args: [BigInt(id ?? 0), BigInt(selectedOption ?? 0)],
     value: parsedAmount,
   });
 
-  const { writeAsync: fundAppeal } = useDisputeKitClassicFundAppeal(fundAppealConfig);
+  const { writeContractAsync } = useWriteDisputeKitClassicFundAppeal();
 
-  return { fundAppeal, isError };
+  return { fundAppeal: async () => await writeContractAsync(fundAppealConfig.request), isError };
 };
 
 interface IFund {
-  amount: string;
+  amount: `${number}`;
   setAmount: (val: string) => void;
   setIsOpen: (val: boolean) => void;
 }
@@ -81,17 +85,19 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
   const needFund = useNeedFund();
   const { address, isDisconnected } = useAccount();
   const { data: balance } = useBalance({
+    query: {
+      refetchInterval: REFETCH_INTERVAL,
+    },
     address,
-    watch: true,
   });
   const publicClient = usePublicClient();
 
-  const [debouncedAmount, setDebouncedAmount] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [debouncedAmount, setDebouncedAmount] = useState<`${number}` | "">("");
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
 
-  const parsedAmount = useParsedAmount(debouncedAmount);
+  const parsedAmount = useParsedAmount(debouncedAmount as `${number}`);
 
-  const [isSending, setIsSending] = useState(false);
   const { fundAppeal, isError } = useFundAppeal(parsedAmount);
 
   const isFundDisabled = useMemo(
