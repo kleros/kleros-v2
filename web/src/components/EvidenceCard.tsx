@@ -3,15 +3,16 @@ import styled, { css } from "styled-components";
 
 import Identicon from "react-identicons";
 import ReactMarkdown from "react-markdown";
+import { Link } from "react-router-dom";
 
 import { Card } from "@kleros/ui-components-library";
 
 import AttachmentIcon from "svgs/icons/attachment.svg";
 
 import { useIPFSQuery } from "hooks/useIPFSQuery";
+import { formatDate } from "utils/date";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import { shortenAddress } from "utils/shortenAddress";
-import { formatDate } from "utils/date";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -113,6 +114,21 @@ const MobileText = styled.span`
   )}
 `;
 
+const StyledLink = styled(Link)`
+  height: fit-content;
+  display: flex;
+  margin-left: auto;
+  gap: ${responsiveSize(5, 6)};
+  ${landscapeStyle(
+    () => css`
+      > svg {
+        width: 16px;
+        fill: ${({ theme }) => theme.primaryBlue};
+      }
+    `
+  )}
+`;
+
 const AttachedFileText: React.FC = () => (
   <>
     <DesktopText>View attached file</DesktopText>
@@ -129,6 +145,7 @@ interface IEvidenceCard {
 
 const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timestamp }) => {
   const { data } = useIPFSQuery(evidence);
+
   return (
     <StyledCard>
       <TextContainer>
@@ -147,12 +164,12 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timest
           <Identicon size="24" string={sender} />
           <p>{shortenAddress(sender)}</p>
         </AccountContainer>
-        <Timestamp>{formatDate(Number(timestamp))}</Timestamp>
+        <Timestamp>{formatDate(Number(timestamp), true)}</Timestamp>
         {data && typeof data.fileURI !== "undefined" && (
-          <StyledA href={getIpfsUrl(data.fileURI)} target="_blank" rel="noreferrer">
+          <StyledLink to={`attachment/?url=${getIpfsUrl(data.fileURI)}`}>
             <AttachmentIcon />
             <AttachedFileText />
-          </StyledA>
+          </StyledLink>
         )}
       </BottomShade>
     </StyledCard>

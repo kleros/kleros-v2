@@ -8,7 +8,7 @@ export type { EvidencesQuery };
 
 const evidencesQuery = graphql(`
   query Evidences($evidenceGroupID: String) {
-    evidences(where: { evidenceGroup: $evidenceGroupID }, orderBy: id, orderDirection: asc) {
+    evidences(where: { evidenceGroup: $evidenceGroupID }, orderBy: timestamp, orderDirection: desc) {
       id
       evidence
       sender {
