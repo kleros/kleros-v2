@@ -75,7 +75,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     await changeCurrencyRate(core, await dai.getAddress(), true, 60327783, 11);
     await changeCurrencyRate(core, await weth.getAddress(), true, 1, 1);
   } catch (e) {
-    console.error("failed to change currency rates:", e);
+    console.error("Failed to change currency rates for token, with error:", e);
   }
 
   const disputeTemplateRegistry = await getContractOrDeployUpgradable(hre, "DisputeTemplateRegistry", {

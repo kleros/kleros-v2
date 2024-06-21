@@ -40,16 +40,16 @@ describe("Integration tests", async () => {
   }
 
   let deployer;
-  let rng: RandomizerRNG,
-    randomizer: RandomizerMock,
-    disputeKit: DisputeKitClassic,
-    pnk: PNK,
-    core: KlerosCore,
-    vea: VeaMock,
-    foreignGateway: ForeignGateway,
-    arbitrable: ArbitrableExample,
-    homeGateway: HomeGateway,
-    sortitionModule: SortitionModule;
+  let rng: RandomizerRNG;
+  let randomizer: RandomizerMock;
+  let disputeKit: DisputeKitClassic;
+  let pnk: PNK;
+  let core: KlerosCore;
+  let vea: VeaMock;
+  let foreignGateway: ForeignGateway;
+  let arbitrable: ArbitrableExample;
+  let homeGateway: HomeGateway;
+  let sortitionModule: SortitionModule;
 
   beforeEach("Setup", async () => {
     ({ deployer } = await getNamedAccounts());

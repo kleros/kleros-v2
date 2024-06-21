@@ -49,6 +49,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       HardhatChain.HARDHAT,
       foreignGateway.address,
       ethers.ZeroAddress, // feeToken
+      // Confirm that using ZeroAddress here is intentional and safe for the intended use case.
     ],
     gasLimit: 4000000,
     log: true,

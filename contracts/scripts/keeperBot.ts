@@ -564,11 +564,11 @@ async function main() {
 
   logger.info(`Current phase: ${PHASES[getNumber(await sortition.phase())]}`);
 
-  for (var dispute of disputes) {
+  for (var disputeDetails of disputes) {
     // ----------------------------------------------- //
     //                  PASS PERIOD                    //
     // ----------------------------------------------- //
-    await passPeriod(dispute);
+    await passPeriod(disputeDetails);
   }
 
   // Get all the disputes whose ruling is not yet executed

@@ -77,11 +77,11 @@ task("simulate:create-court", "callable by Governor only. Create a new Court")
 
     const { wallet } = await getWallet(hre, walletindex);
 
-    const parent = toBigInt(1) as BigNumberish;
-    const minStake = (toBigInt(10) ** toBigInt(20) * toBigInt(2)) as BigNumberish;
-    const alpha = toBigInt(10000) as BigNumberish;
-    const feeForJuror = (toBigInt(10) ** toBigInt(17)) as BigNumberish;
-    const jurorsForCourtJump = toBigInt(3) as BigNumberish;
+    const parent = toBigInt(1);
+    const minStake = toBigInt(10) ** toBigInt(20) * toBigInt(2);
+    const alpha = toBigInt(10000);
+    const feeForJuror = toBigInt(10) ** toBigInt(17);
+    const jurorsForCourtJump = toBigInt(3);
     const hiddenVotes = false as boolean;
     const timesPerPeriod = [300, 300, 300, 300] as [BigNumberish, BigNumberish, BigNumberish, BigNumberish];
     const sortitionSumTreeK = ethers.toBeHex(3);
@@ -254,7 +254,7 @@ task("simulate:cast-commit", "Casts a commit for a drawn juror")
     const salt = "123";
     console.log("salt used on juror %s is: %s", walletindex, salt);
     const generateCommit = (choice: number, justification: string) => {
-      const hash = ethers.solidityPackedKeccak256(["string", "string", "string"], [choice, justification, salt]);
+      const hash = ethers.solidityPackedKeccak256(["uint256", "string", "string"], [choice, justification, salt]);
       return ethers.toBeHex(hash);
     };
     const commitHash = generateCommit(choice, taskArgs.justification);
