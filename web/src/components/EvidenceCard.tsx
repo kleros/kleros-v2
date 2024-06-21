@@ -11,6 +11,7 @@ import AttachmentIcon from "svgs/icons/attachment.svg";
 import { useIPFSQuery } from "hooks/useIPFSQuery";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import { shortenAddress } from "utils/shortenAddress";
+import { formatDate } from "utils/date";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -40,11 +41,15 @@ const StyledReactMarkdown = styled(ReactMarkdown)`
   a {
     font-size: 16px;
   }
+  code {
+    color: ${({ theme }) => theme.secondaryText};
+  }
 `;
 
 const BottomShade = styled.div`
   background-color: ${({ theme }) => theme.lightBlue};
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 16px;
   padding: 12px ${responsiveSize(8, 24)};
@@ -96,6 +101,10 @@ const DesktopText = styled.span`
   )}
 `;
 
+const Timestamp = styled.p`
+  color: ${({ theme }) => theme.secondaryText};
+`;
+
 const MobileText = styled.span`
   ${landscapeStyle(
     () => css`
@@ -115,9 +124,10 @@ interface IEvidenceCard {
   evidence: string;
   sender: string;
   index: number;
+  timestamp: string;
 }
 
-const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
+const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timestamp }) => {
   const { data } = useIPFSQuery(evidence);
   return (
     <StyledCard>
@@ -137,6 +147,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
           <Identicon size="24" string={sender} />
           <p>{shortenAddress(sender)}</p>
         </AccountContainer>
+        <Timestamp>{formatDate(Number(timestamp))}</Timestamp>
         {data && typeof data.fileURI !== "undefined" && (
           <StyledA href={getIpfsUrl(data.fileURI)} target="_blank" rel="noreferrer">
             <AttachmentIcon />

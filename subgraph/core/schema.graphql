@@ -53,6 +53,7 @@ interface Evidence {
   evidence: String!
   evidenceGroup: EvidenceGroup!
   sender: User!
+  timestamp: BigInt!
 }
 
 ############
@@ -296,6 +297,7 @@ type ClassicEvidence implements Evidence @entity {
   evidence: String!
   evidenceGroup: EvidenceGroup!
   sender: User!
+  timestamp: BigInt!
 }
 
 type ClassicContribution implements Contribution @entity {
