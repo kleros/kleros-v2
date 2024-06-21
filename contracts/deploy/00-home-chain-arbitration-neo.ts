@@ -36,7 +36,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const rng = await deployUpgradable(deployments, "RandomizerRNG", {
     from: deployer,
-    args: [randomizerOracle.address, deployer],
+    args: [randomizerOracle.target, deployer],
     log: true,
   });
 
