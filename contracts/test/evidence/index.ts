@@ -1,7 +1,8 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { BigNumber } from "ethers";
+import { toBigInt, ContractTransactionReceipt, EventLog } from "ethers";
 const hre = require("hardhat");
+import { ModeratedEvidenceModule, CentralizedArbitrator, DisputeTemplateRegistry } from "../../typechain-types";
 
 const Party = {
   None: 0,
@@ -9,8 +10,11 @@ const Party = {
   Moderator: 2,
 };
 
-function getEmittedEvent(eventName: any, receipt: any) {
-  return receipt.events.find(({ event }) => event === eventName);
+function getEmittedEvent(eventName: any, receipt: ContractTransactionReceipt): EventLog {
+  const logs = receipt.logs as Array<EventLog>;
+  const event = logs.find((log) => log.eventName === eventName);
+  if (event === undefined) process.exit();
+  return event;
 }
 
 describe("Home Evidence contract", async () => {
@@ -22,10 +26,10 @@ describe("Home Evidence contract", async () => {
   const totalCostMultiplier = 15000;
   const initialDepositMultiplier = 625;
   const disputeTemplate = '{ "disputeTemplate": "foo"}';
-  const MULTIPLIER_DIVISOR = BigNumber.from(10000);
-  const totalCost = BigNumber.from(arbitrationFee).mul(BigNumber.from(totalCostMultiplier)).div(MULTIPLIER_DIVISOR);
-  const minRequiredDeposit = totalCost.mul(BigNumber.from(initialDepositMultiplier)).div(MULTIPLIER_DIVISOR);
-  const ZERO = BigNumber.from(0);
+  const MULTIPLIER_DIVISOR = toBigInt(10000);
+  const totalCost = (toBigInt(arbitrationFee) * toBigInt(toBigInt(totalCostMultiplier))) / toBigInt(MULTIPLIER_DIVISOR);
+  const minRequiredDeposit = (totalCost * toBigInt(toBigInt(initialDepositMultiplier))) / toBigInt(MULTIPLIER_DIVISOR);
+  const ZERO = toBigInt(0);
 
   let deployer;
   let user1;
@@ -34,9 +38,9 @@ describe("Home Evidence contract", async () => {
   let user4;
   let evidenceID;
 
-  let arbitrator;
-  let evidenceModule;
-  let disputeTemplateRegistry;
+  let arbitrator: CentralizedArbitrator;
+  let evidenceModule: ModeratedEvidenceModule;
+  let disputeTemplateRegistry: DisputeTemplateRegistry;
 
   beforeEach("Setup contracts", async () => {
     [deployer, user1, user2, user3, user4] = await ethers.getSigners();
@@ -49,9 +53,9 @@ describe("Home Evidence contract", async () => {
 
     const EvidenceModule = await ethers.getContractFactory("ModeratedEvidenceModule");
     evidenceModule = await EvidenceModule.deploy(
-      arbitrator.address,
+      arbitrator.target,
       deployer.address, // governor
-      disputeTemplateRegistry.address,
+      disputeTemplateRegistry.target,
       totalCostMultiplier,
       initialDepositMultiplier,
       bondTimeout,
@@ -82,14 +86,14 @@ describe("Home Evidence contract", async () => {
       let receipt = await tx.wait();
       let lastArbitratorIndex = await evidenceModule.getCurrentArbitratorIndex();
       let newArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex);
-      let oldArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex.sub(BigNumber.from(1)));
+      let oldArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex - toBigInt(toBigInt(1)));
 
-      expect(newArbitratorData.disputeTemplateId).to.equal(oldArbitratorData.disputeTemplateId.add(BigNumber.from(1)));
+      expect(newArbitratorData.disputeTemplateId).to.equal(oldArbitratorData.disputeTemplateId + toBigInt(1));
       expect(newArbitratorData.arbitratorExtraData).to.equal(oldArbitratorData.arbitratorExtraData);
       const disputeTemplateEvents = await disputeTemplateRegistry.queryFilter(
         disputeTemplateRegistry.filters.DisputeTemplate(),
-        receipt.blockNumber,
-        receipt.blockNumber
+        receipt?.blockNumber,
+        receipt?.blockNumber
       );
       const [_templateId, _, _templateData] = disputeTemplateEvents[0].args;
       expect(_templateData).to.equal(newDisputeTemplate, "Wrong Template Data.");
@@ -97,7 +101,7 @@ describe("Home Evidence contract", async () => {
 
       const newArbitratorExtraData = "0x86";
       await evidenceModule.changeArbitratorExtraData(newArbitratorExtraData);
-      newArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex.add(BigNumber.from(1)));
+      newArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex + toBigInt(1));
       expect(newArbitratorData.arbitratorExtraData).to.equal(newArbitratorExtraData, "Wrong extraData");
     });
 
@@ -135,17 +139,18 @@ describe("Home Evidence contract", async () => {
         value: minRequiredDeposit,
       }); // id: 0
       const receipt = await tx.wait();
-      const evidenceID = ethers.utils.solidityKeccak256(["uint", "string"], [1234, newEvidence]);
+      if (receipt === null) return;
+      const evidenceID = ethers.solidityPackedKeccak256(["uint", "string"], [1234, newEvidence]);
 
       const [_arbitrator, _externalDisputeID, _party, _evidence] = getEmittedEvent("ModeratedEvidence", receipt).args;
-      expect(_arbitrator).to.equal(arbitrator.address, "Wrong arbitrator.");
+      expect(_arbitrator).to.equal(arbitrator.target, "Wrong arbitrator.");
       expect(_externalDisputeID).to.equal(1234, "Wrong external dispute ID.");
       expect(_party).to.equal(user1.address, "Wrong submitter.");
       expect(_evidence).to.equal(newEvidence, "Wrong evidence message.");
 
       let contributions = await evidenceModule.getContributions(evidenceID, 0, user1.address);
       expect(contributions[0]).to.equal(ZERO); // it's 1am and to.deep.equal() won't work, can't be bothered
-      expect(contributions[1]).to.equal(BigNumber.from("93"));
+      expect(contributions[1]).to.equal(toBigInt("93"));
       expect(contributions[2]).to.equal(ZERO);
       expect(contributions.length).to.equal(3);
     });
@@ -166,7 +171,7 @@ describe("Home Evidence contract", async () => {
       const newEvidence = "Irrefutable evidence";
       await expect(
         evidenceModule.submitEvidence(1234, newEvidence, {
-          value: minRequiredDeposit.sub(BigNumber.from(1)),
+          value: minRequiredDeposit - toBigInt(1),
         })
       ).to.be.revertedWith("Insufficient funding.");
     });
@@ -178,7 +183,7 @@ describe("Home Evidence contract", async () => {
       await evidenceModule.connect(user1).submitEvidence(1234, newEvidence, {
         value: minRequiredDeposit,
       });
-      evidenceID = ethers.utils.solidityKeccak256(["uint", "string"], [1234, newEvidence]);
+      evidenceID = ethers.solidityPackedKeccak256(["uint", "string"], [1234, newEvidence]);
     });
 
     it("Should not allow moderation after bond timeout passed.", async () => {
@@ -205,50 +210,50 @@ describe("Home Evidence contract", async () => {
 
     it("Should create dispute after moderation escalation is complete.", async () => {
       await evidenceModule.connect(user2).moderate(evidenceID, Party.Moderator, {
-        value: minRequiredDeposit.mul(2),
+        value: minRequiredDeposit * toBigInt(2),
       });
 
       let moderationInfo = await evidenceModule.getModerationInfo(evidenceID, 0);
       let paidFees = moderationInfo.paidFees;
-      let depositRequired = paidFees[Party.Moderator].mul(2).sub(paidFees[Party.Submitter]);
+      let depositRequired = paidFees[Party.Moderator] * toBigInt(2) - toBigInt(paidFees[Party.Submitter]);
       await evidenceModule.connect(user4).moderate(evidenceID, Party.Submitter, {
         value: depositRequired,
       });
 
       moderationInfo = await evidenceModule.getModerationInfo(evidenceID, 0);
       paidFees = moderationInfo.paidFees;
-      depositRequired = paidFees[Party.Submitter].mul(2).sub(paidFees[Party.Moderator]);
+      depositRequired = paidFees[Party.Submitter] * toBigInt(2) - toBigInt(paidFees[Party.Moderator]);
       await evidenceModule.connect(user2).moderate(evidenceID, Party.Moderator, {
         value: depositRequired,
       });
 
       moderationInfo = await evidenceModule.getModerationInfo(evidenceID, 0);
       paidFees = moderationInfo.paidFees;
-      depositRequired = paidFees[Party.Moderator].mul(2).sub(paidFees[Party.Submitter]);
+      depositRequired = paidFees[Party.Moderator] * toBigInt(2) - toBigInt(paidFees[Party.Submitter]);
       await evidenceModule.connect(user4).moderate(evidenceID, Party.Submitter, {
         value: depositRequired,
       });
 
       moderationInfo = await evidenceModule.getModerationInfo(evidenceID, 0);
       paidFees = moderationInfo.paidFees;
-      depositRequired = paidFees[Party.Submitter].mul(2).sub(paidFees[Party.Moderator]);
+      depositRequired = paidFees[Party.Submitter] * toBigInt(2) - toBigInt(paidFees[Party.Moderator]);
       await evidenceModule.connect(user2).moderate(evidenceID, Party.Moderator, {
         value: depositRequired,
       });
 
       moderationInfo = await evidenceModule.getModerationInfo(evidenceID, 0);
       paidFees = moderationInfo.paidFees;
-      depositRequired = paidFees[Party.Moderator].mul(2).sub(paidFees[Party.Submitter]);
+      depositRequired = paidFees[Party.Moderator] * toBigInt(2) - toBigInt(paidFees[Party.Submitter]);
       let tx = await evidenceModule.connect(user4).moderate(evidenceID, Party.Submitter, {
         value: depositRequired, // Less is actually needed. Overpaid fees are reimbursed
       });
       let receipt = await tx.wait();
-
+      if (receipt === null) return;
       let [_arbitrator, _arbitrableDisputeID, _externalDisputeID, _templateId, _templateUri] = getEmittedEvent(
         "DisputeRequest",
         receipt
       ).args;
-      expect(_arbitrator).to.equal(arbitrator.address, "Wrong arbitrator.");
+      expect(_arbitrator).to.equal(arbitrator.target, "Wrong arbitrator.");
       expect(_arbitrableDisputeID).to.equal(0, "Wrong dispute ID.");
       expect(_templateId).to.equal(0, "Wrong template ID.");
       expect(_externalDisputeID).to.equal(evidenceID, "Wrong external dispute ID.");
