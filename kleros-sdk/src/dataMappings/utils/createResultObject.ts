@@ -4,7 +4,7 @@ export const createResultObject = (sourceData, seek: string[], populate: string[
   const getNestedValue = (obj: any, path: string) => {
     return path.split(".").reduce((acc, part) => {
       if (acc && part.includes("[")) {
-        const [key, index] = part.replace("]", "").split("[");
+        const [key, index] = part.replace(/\]/g, "").split("[");
         return acc[key]?.[index];
       }
       return acc ? acc[part] : undefined;
