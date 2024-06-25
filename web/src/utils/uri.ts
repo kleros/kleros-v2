@@ -5,17 +5,15 @@ import { Dispute_Filter } from "src/graphql/graphql";
 export const encodeURIFilter = (filter: Dispute_Filter): string => {
   if (Object.keys(filter).length === 0) {
     return "all";
-  } else {
-    return encodeURIComponent(JSON.stringify(filter));
   }
+  return encodeURIComponent(JSON.stringify(filter));
 };
 
 export const decodeURIFilter = (filter: string): Dispute_Filter => {
   if (filter === "all") {
     return {};
-  } else {
-    return JSON.parse(decodeURI(filter));
   }
+  return JSON.parse(decodeURI(filter));
 };
 
 export const useRootPath = () => {
