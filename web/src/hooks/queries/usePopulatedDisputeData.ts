@@ -33,7 +33,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
   const { data: crossChainData, isError } = useIsCrossChainDispute(disputeID, arbitrableAddress);
   const isEnabled = !isUndefined(disputeID) && !isUndefined(crossChainData) && !isUndefined(arbitrableAddress);
   const { graphqlBatcher } = useGraphqlBatcher();
-  const externalDisputeID = useEvidenceGroup(disputeID, arbitrableAddress);
+  const { data: externalDisputeID } = useEvidenceGroup(disputeID, arbitrableAddress);
 
   return useQuery<DisputeDetails>({
     queryKey: [`DisputeTemplate${disputeID}${arbitrableAddress}`],
@@ -61,7 +61,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
           const initialContext = {
             disputeID: disputeID,
             arbitrable: arbitrableAddress,
-            graphApiKey: process.env.GRAPH_API_KEY,
+            graphApiKey: import.meta.env.GRAPH_API_KEY,
             externalDisputeID: externalDisputeID,
           };
 
