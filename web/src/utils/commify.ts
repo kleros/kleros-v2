@@ -8,7 +8,7 @@ export function commify(value: string | number): string {
     value === "." ||
     value === "-."
   ) {
-    return value.toString();
+    return "0";
   }
 
   // Make sure we have at least one whole digit (0 if none)
