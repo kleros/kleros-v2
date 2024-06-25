@@ -59,6 +59,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
           const initialContext = {
             disputeID: disputeID,
             arbitrable: arbitrableAddress,
+            graphApiKey: process.env.GRAPH_API_KEY,
           };
 
           const data = dataMappings ? await executeActions(JSON.parse(dataMappings), initialContext) : {};
