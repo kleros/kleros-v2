@@ -1,13 +1,7 @@
 export function commify(value: string | number): string {
   const comps = String(value).split(".");
 
-  if (
-    comps.length > 2 ||
-    !comps[0].match(/^-?[0-9]*$/) ||
-    (comps[1] && !comps[1].match(/^[0-9]*$/)) ||
-    value === "." ||
-    value === "-."
-  ) {
+  if (!String(value).match(/^-?[0-9]*\.?[0-9]*$/)) {
     return "0";
   }
 
