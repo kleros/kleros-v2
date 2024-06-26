@@ -41,7 +41,7 @@ const AliasContainer = styled.div`
 const PersonFields: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
   const validationTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const publicClient = usePublicClient();
+  const publicClient = usePublicClient({ chainId: 1 });
 
   const debounceValidateAddress = (address: string, key: number) => {
     // Clear the existing timer
