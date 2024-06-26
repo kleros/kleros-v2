@@ -5,9 +5,6 @@ import Skeleton from "react-loading-skeleton";
 import { isAddress } from "viem";
 import { useEnsAddress } from "wagmi";
 
-import { Alias } from "context/NewDisputeContext";
-import { isUndefined } from "utils/index";
-
 import { AddressOrName, IdenticonOrAvatar } from "../ConnectWallet/AccountDisplay";
 
 const AliasContainer = styled.div`
