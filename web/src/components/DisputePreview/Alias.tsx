@@ -26,28 +26,29 @@ const TextContainer = styled.div`
 `;
 
 interface IAlias {
-  alias: Alias;
+  name: string;
+  address: `0x${string}`;
 }
 
-const AliasDisplay: React.FC<IAlias> = ({ alias }) => {
+const AliasDisplay: React.FC<IAlias> = ({ name, address }) => {
   const { data: addressFromENS, isLoading } = useEnsAddress({
     query: {
       // if alias.address is not an Address, we treat it as ENS and try to fetch address from there
-      enabled: !isAddress(alias.address),
+      enabled: !isAddress(address),
     },
-    name: alias.address,
+    name: address,
     chainId: 1,
   });
 
   // try fetching ens name, else go with address
-  const address = addressFromENS ?? (alias.address as `0x${string}`);
+  const resolvedAddress = addressFromENS ?? (address as `0x${string}`);
 
   return (
     <AliasContainer>
-      {isLoading ? <Skeleton width={30} height={24} /> : <IdenticonOrAvatar address={address} size="24" />}
+      {isLoading ? <Skeleton width={30} height={24} /> : <IdenticonOrAvatar address={resolvedAddress} size="24" />}
       <TextContainer>
-        {isLoading ? <Skeleton width={30} height={24} /> : <AddressOrName address={address} />}&nbsp;
-        {!isUndefined(alias.name) && alias.name !== "" ? <label>({alias.name})</label> : null}
+        {isLoading ? <Skeleton width={30} height={24} /> : <AddressOrName address={resolvedAddress} />}&nbsp;
+        <label>({name})</label>
       </TextContainer>
     </AliasContainer>
   );

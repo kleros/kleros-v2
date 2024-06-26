@@ -76,24 +76,24 @@ const DisputeResolver: React.FC = () => {
       <Container>
         {isConnected && !isPreviewPage ? <StyledLabel>Start a case</StyledLabel> : null}
         {isConnected ? (
-          <StyledEnsureAuth>
-            <MiddleContentContainer>
-              {isConnected && !isPreviewPage ? <Timeline /> : null}
-              <Routes>
-                <Route index element={<Navigate to="title" replace />} />
-                <Route path="/title/*" element={<Title />} />
-                <Route path="/description/*" element={<Description />} />
-                <Route path="/court/*" element={<Court />} />
-                <Route path="/category/*" element={<Category />} />
-                <Route path="/jurors/*" element={<Jurors />} />
-                <Route path="/voting-options/*" element={<VotingOptions />} />
-                <Route path="/notable-persons/*" element={<NotablePersons />} />
-                <Route path="/policy/*" element={<Policy />} />
-                <Route path="/preview/*" element={<Preview />} />
-              </Routes>
-            </MiddleContentContainer>
-          </StyledEnsureAuth>
+          // <StyledEnsureAuth>
+          <MiddleContentContainer>
+            {isConnected && !isPreviewPage ? <Timeline /> : null}
+            <Routes>
+              <Route index element={<Navigate to="title" replace />} />
+              <Route path="/title/*" element={<Title />} />
+              <Route path="/description/*" element={<Description />} />
+              <Route path="/court/*" element={<Court />} />
+              <Route path="/category/*" element={<Category />} />
+              <Route path="/jurors/*" element={<Jurors />} />
+              <Route path="/voting-options/*" element={<VotingOptions />} />
+              <Route path="/notable-persons/*" element={<NotablePersons />} />
+              <Route path="/policy/*" element={<Policy />} />
+              <Route path="/preview/*" element={<Preview />} />
+            </Routes>
+          </MiddleContentContainer>
         ) : (
+          // </StyledEnsureAuth>
           <ConnectWalletContainer>
             To create a new dispute, connect first
             <hr />

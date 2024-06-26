@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import { usePublicClient } from "wagmi";
 
-import { Alias, useNewDisputeContext } from "context/NewDisputeContext";
+import { AliasArray, useNewDisputeContext } from "context/NewDisputeContext";
 import { isUndefined } from "utils/index";
 import { validateAddress } from "utils/validateAddressOrEns";
 
@@ -52,32 +52,32 @@ const PersonFields: React.FC = () => {
     // Set a new timer for validation after 500 milliseconds
     validationTimerRef.current = setTimeout(async () => {
       const isValid = await validateAddress(address, publicClient);
-      const updatedAliases = disputeData.aliases;
+      const updatedAliases = disputeData.aliasesArray;
       if (isUndefined(updatedAliases) || isUndefined(updatedAliases[key])) return;
       updatedAliases[key].isValid = isValid;
 
-      setDisputeData({ ...disputeData, aliases: updatedAliases });
+      setDisputeData({ ...disputeData, aliasesArray: updatedAliases });
     }, 500);
   };
   const handleAliasesWrite = (event: React.ChangeEvent<HTMLInputElement>) => {
     const key = parseInt(event.target.id.replace(/\D/g, ""), 10) - 1;
-    const aliases = disputeData.aliases;
+    const aliases = disputeData.aliasesArray;
     if (isUndefined(aliases)) return;
 
     aliases[key] = { ...aliases[key], [event.target.name]: event.target.value };
-    setDisputeData({ ...disputeData, aliases });
+    setDisputeData({ ...disputeData, aliasesArray: aliases });
 
     //since resolving ens is async, we update asynchronously too with debounce
     event.target.name === "address" && debounceValidateAddress(event.target.value, key);
   };
 
-  const showError = (alias: Alias) => {
+  const showError = (alias: AliasArray) => {
     return alias.address !== "" && !alias.isValid;
   };
 
   return (
     <Container>
-      {disputeData.aliases?.map((alias, index) => (
+      {disputeData.aliasesArray?.map((alias, index) => (
         <AliasContainer key={alias?.id}>
           <LabeledInput
             name="name"
