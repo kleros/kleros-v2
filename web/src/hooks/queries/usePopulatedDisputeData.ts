@@ -61,7 +61,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
           const initialContext = {
             disputeID: disputeID,
             arbitrable: arbitrableAddress,
-            graphApiKey: import.meta.env.GRAPH_API_KEY,
+            graphApiKey: import.meta.env.REACT_APP_GRAPH_API_KEY,
             externalDisputeID: externalDisputeID,
           };
 
