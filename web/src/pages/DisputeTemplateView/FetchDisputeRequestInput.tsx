@@ -51,7 +51,7 @@ const presets = [
   },
   {
     title: "Curated Lists",
-    txnHash: "0x9da51a432a61b539e76f12e681ca6ac865090ebc024a80931c25640b970ae9a3",
+    txnHash: "0x6e5ad6f7436ef8570b50b0fbec76a11ccedbed85030c670e59d8f6617a499108",
     chainId: 421614,
   },
   {
