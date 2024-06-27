@@ -56,10 +56,7 @@ const FieldContainer = styled.div<FieldContainerProps>`
     `};
 `;
 
-const LinkContainer = styled.div`
-  display: flex;
-  justify-content: end;
-`;
+const LinkContainer = styled.div``;
 
 const StyledLink = styled(Link)`
   color: ${({ theme }) => theme.primaryBlue};
