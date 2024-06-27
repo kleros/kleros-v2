@@ -21,6 +21,7 @@ const FieldContainer = styled.div<FieldContainerProps>`
     fill: ${({ theme }) => theme.secondaryPurple};
     margin-right: 8px;
     width: 14px;
+    flex-shrink: 0;
   }
 
   .link {

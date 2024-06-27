@@ -52,6 +52,17 @@ const RestOfFieldsContainer = styled.div<{ isOverview?: boolean }>`
     `};
 `;
 
+const StyledFeild = styled(Field)`
+  max-width: 100%;
+  label {
+    &.value {
+      margin-left: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+`;
+
 type IDisputeInfoCard = { fieldItems: FieldItem[] } & IDisputeInfo;
 
 const DisputeInfoCard: React.FC<IDisputeInfoCard> = ({
@@ -75,12 +86,12 @@ const DisputeInfoCard: React.FC<IDisputeInfoCard> = ({
     <Container>
       {court && courtId && isOverview && (
         <CourtBranchFieldContainer>
-          <Field icon={LawBalanceIcon} name="Court Branch" value={courtBranchValue} {...{ isOverview }} />
+          <StyledFeild icon={LawBalanceIcon} name="Court Branch" value={courtBranchValue} {...{ isOverview }} />
         </CourtBranchFieldContainer>
       )}
       <RestOfFieldsContainer {...{ isOverview }}>
         {fieldItems.map((item) =>
-          item.display ? <Field key={item.name} {...(item as IField)} {...{ isOverview }} /> : null
+          item.display ? <StyledFeild key={item.name} {...(item as IField)} {...{ isOverview }} /> : null
         )}
       </RestOfFieldsContainer>
       {showLabels ? <CardLabel disputeId={disputeID} round={round - 1} /> : null}

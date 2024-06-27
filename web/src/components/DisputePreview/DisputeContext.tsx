@@ -16,11 +16,13 @@ import AliasDisplay from "./Alias";
 
 const StyledH1 = styled.h1`
   margin: 0;
+  word-wrap: break-word;
 `;
 
 const QuestionAndDescription = styled.div`
   display: flex;
   flex-direction: column;
+  word-wrap: break-word;
   div:first-child p:first-of-type {
     font-size: 16px;
     font-weight: 600;
@@ -47,6 +49,9 @@ const Answer = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: ${responsiveSize(2, 8)};
+  > label {
+    max-width: 100%;
+  }
 `;
 
 const AliasesContainer = styled.div`

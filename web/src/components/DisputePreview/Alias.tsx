@@ -12,13 +12,18 @@ const AliasContainer = styled.div`
   display: flex;
   gap: 8px;
   align-items: center;
+  max-width: 100%;
 `;
 
 const TextContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
   > label {
     color: ${({ theme }) => theme.primaryText};
     font-size: 14px;
+    word-wrap: break-word;
+    max-width: 100%;
   }
 `;
 

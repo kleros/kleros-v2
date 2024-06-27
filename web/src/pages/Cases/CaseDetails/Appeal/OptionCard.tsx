@@ -38,9 +38,22 @@ const TopContainer = styled.div`
   display: flex;
   justify-content: space-between;
   height: 50%;
-  .block {
-    display: block;
-  }
+`;
+
+const TextContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 0;
+`;
+
+const BlockLabel = styled.label`
+  display: block;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 `;
 
 const LabelContainer = styled.div`
@@ -82,13 +95,13 @@ const OptionCard: React.FC<IOptionCard> = ({
   return (
     <StyledCard ref={ref} hover {...props}>
       <TopContainer>
-        <div>
-          <small className="block">{text}</small>
+        <TextContainer>
+          <BlockLabel>{text}</BlockLabel>
           <WinnerLabel winner={winner ? true : false}>
             <Gavel />
             Jury decision - {winner ? "Winner" : "Loser"}
           </WinnerLabel>
-        </div>
+        </TextContainer>
         {canBeSelected && <StyledRadio label="" checked={selected} />}
       </TopContainer>
       <LabelContainer>
