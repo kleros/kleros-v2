@@ -52,7 +52,7 @@ const RestOfFieldsContainer = styled.div<{ isOverview?: boolean }>`
     `};
 `;
 
-const StyledFeild = styled(Field)`
+const StyledField = styled(Field)`
   max-width: 100%;
   label {
     &.value {
@@ -86,12 +86,12 @@ const DisputeInfoCard: React.FC<IDisputeInfoCard> = ({
     <Container>
       {court && courtId && isOverview && (
         <CourtBranchFieldContainer>
-          <StyledFeild icon={LawBalanceIcon} name="Court Branch" value={courtBranchValue} {...{ isOverview }} />
+          <StyledField icon={LawBalanceIcon} name="Court Branch" value={courtBranchValue} {...{ isOverview }} />
         </CourtBranchFieldContainer>
       )}
       <RestOfFieldsContainer {...{ isOverview }}>
         {fieldItems.map((item) =>
-          item.display ? <StyledFeild key={item.name} {...(item as IField)} {...{ isOverview }} /> : null
+          item.display ? <StyledField key={item.name} {...(item as IField)} {...{ isOverview }} /> : null
         )}
       </RestOfFieldsContainer>
       {showLabels ? <CardLabel disputeId={disputeID} round={round - 1} /> : null}
