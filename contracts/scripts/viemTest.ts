@@ -12,7 +12,7 @@ const main = async () => {
   const disputeKit = getContract({
     address: disputeKitClassicConfig.address[arbitrumSepolia.id],
     abi: disputeKitClassicConfig.abi,
-    publicClient: client,
+    client: client,
   });
 
   await disputeKit.read.governor().then(console.log);

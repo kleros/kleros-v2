@@ -1,8 +1,9 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { parseUnits } from "ethers/lib/utils";
+import { parseUnits } from "ethers";
 import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
 import { ForeignChains, isSkipped } from "./utils";
+import { BigNumber } from "@ethersproject/bignumber";
 
 const foreignGatewayArtifactByChain = new Map<ForeignChains, string>([
   [ForeignChains.ETHEREUM_MAINNET, "ForeignGatewayOnEthereum"],
@@ -11,7 +12,7 @@ const foreignGatewayArtifactByChain = new Map<ForeignChains, string>([
   [ForeignChains.GNOSIS_CHIADO, "ForeignGatewayOnGnosis"],
 ]);
 
-const ONE_GWEI = parseUnits("1", "gwei");
+const ONE_GWEI = BigNumber.from(parseUnits("1", "gwei"));
 
 const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId, config } = hre;
@@ -22,7 +23,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   const chainId = Number(await getChainId());
   console.log("deploying to chainId %s with deployer %s", chainId, deployer);
 
-  const foreignGatewayArtifact = foreignGatewayArtifactByChain.get(chainId) ?? ethers.constants.AddressZero;
+  const foreignGatewayArtifact = foreignGatewayArtifactByChain.get(chainId) ?? ethers.ZeroAddress;
   const foreignGateway = await deployments.get(foreignGatewayArtifact);
   console.log("using foreign gateway: %s", foreignGatewayArtifact);
 

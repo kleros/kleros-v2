@@ -37,7 +37,7 @@ const configByChain = new Map<number, Config>([
 
 async function main() {
   const chainId = Number(await hre.getChainId());
-  const courtAddress = configByChain.get(chainId)?.courtAddress ?? hre.ethers.constants.AddressZero;
+  const courtAddress = configByChain.get(chainId)?.courtAddress ?? hre.ethers.ZeroAddress;
   const courtsV1 = (await ethers.getContractAt("IKlerosLiquid", courtAddress)) as IKlerosLiquid;
 
   const courts: Court[] = [];
@@ -47,7 +47,7 @@ async function main() {
       (result) =>
         ({
           id: courtId,
-          parent: result.parent.toNumber(),
+          parent: ethers.getNumber(result.parent),
           hiddenVotes: result.hiddenVotes,
           minStake: result.minStake.toString(),
           alpha: result.alpha.toString(),
@@ -58,7 +58,7 @@ async function main() {
     );
 
     court.timesPerPeriod = await courtsV1.getSubcourt(courtId).then((result) => {
-      return result.timesPerPeriod.map((bn) => bn.toNumber());
+      return result.timesPerPeriod.map((bn) => ethers.getNumber(bn));
     });
 
     court.id = courtId;

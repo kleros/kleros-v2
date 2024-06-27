@@ -8,7 +8,7 @@ const pnkByChain = new Map<HomeChains, string>([
 ]);
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  const { ethers, deployments, getNamedAccounts, getChainId } = hre;
+  const { deployments, getNamedAccounts, getChainId } = hre;
   const { deploy, execute } = deployments;
 
   // fallback to hardhat node signers on local network
@@ -24,12 +24,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       args: [pnkAddress],
       log: true,
     });
-    await execute(
-      "PNKFaucet",
-      { from: deployer, log: true },
-      "changeAmount",
-      hre.ethers.utils.parseUnits("10000", "ether")
-    );
+    await execute("PNKFaucet", { from: deployer, log: true }, "changeAmount", hre.ethers.parseUnits("10000", "ether"));
   }
 };
 

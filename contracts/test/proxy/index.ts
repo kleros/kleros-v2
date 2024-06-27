@@ -68,22 +68,22 @@ describe("Upgradability", async () => {
           const UUPSUnsupportedProxiableUUIDFactory = await ethers.getContractFactory("UUPSUnsupportedProxiableUUID");
           const uupsUnsupportedUUID = await UUPSUnsupportedProxiableUUIDFactory.deploy();
           await expect(
-            proxy.connect(deployer).upgradeToAndCall(uupsUnsupportedUUID.address, "0x")
+            proxy.connect(deployer).upgradeToAndCall(uupsUnsupportedUUID.target, "0x")
           ).to.be.revertedWithCustomError(proxy, "UUPSUnsupportedProxiableUUID");
         });
         it("Should revert on upgrades to non UUPS-compliant implementation", async () => {
           const NonUpgradeableMockFactory = await ethers.getContractFactory("NonUpgradeableMock");
           const nonUpgradeableMock = await NonUpgradeableMockFactory.deploy();
-          await expect(proxy.upgradeToAndCall(nonUpgradeableMock.address, "0x"))
+          await expect(proxy.upgradeToAndCall(nonUpgradeableMock.target, "0x"))
             .to.be.revertedWithCustomError(proxy, "InvalidImplementation")
-            .withArgs(nonUpgradeableMock.address);
+            .withArgs(nonUpgradeableMock.target);
         });
         it("Should revert if upgrade is performed directly through the implementation", async () => {
           // In the implementation, the `governor` storage slot is not initialized so `governor === address(0)`, which fails _authorizeUpgrade()
           const UUPSUpgradeableMockV2Factory = await ethers.getContractFactory("UUPSUpgradeableMockV2");
           const newImplementation = await UUPSUpgradeableMockV2Factory.connect(deployer).deploy();
           await expect(
-            implementation.connect(deployer).upgradeToAndCall(newImplementation.address, "0x")
+            implementation.connect(deployer).upgradeToAndCall(newImplementation.target, "0x")
           ).to.be.revertedWith("No privilege to upgrade");
         });
       });
@@ -93,15 +93,15 @@ describe("Upgradability", async () => {
           // Unauthorized user try to upgrade the implementation
           const UUPSUpgradeableMockV2Factory = await ethers.getContractFactory("UUPSUpgradeableMockV2");
           let upgradable = await UUPSUpgradeableMockV2Factory.connect(user1).deploy();
-          await expect(proxy.connect(user1).upgradeToAndCall(upgradable.address, "0x")).to.be.revertedWith(
+          await expect(proxy.connect(user1).upgradeToAndCall(upgradable.target, "0x")).to.be.revertedWith(
             "No privilege to upgrade"
           );
 
           // Governor updates the implementation
           upgradable = await UUPSUpgradeableMockV2Factory.connect(deployer).deploy();
-          await expect(proxy.connect(deployer).upgradeToAndCall(upgradable.address, "0x"))
+          await expect(proxy.connect(deployer).upgradeToAndCall(upgradable.target, "0x"))
             .to.emit(proxy, "Upgraded")
-            .withArgs(upgradable.address);
+            .withArgs(upgradable.target);
         });
       });
     });

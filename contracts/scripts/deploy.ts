@@ -17,9 +17,9 @@ async function main() {
   const ConstantRNG = await ethers.getContractFactory("ConstantNG");
   const constantRNG = await ConstantRNG.deploy(42);
 
-  await constantRNG.deployed();
+  await constantRNG.deploymentTransaction();
 
-  console.log("ConstantRNG deployed to:", constantRNG.address);
+  console.log("ConstantRNG deployed to:", constantRNG.target);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

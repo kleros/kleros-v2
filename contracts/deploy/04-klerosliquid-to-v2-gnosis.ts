@@ -1,14 +1,15 @@
-import { parseUnits, parseEther } from "ethers/lib/utils";
+import { parseUnits, parseEther } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
 import { ForeignChains, isSkipped } from "./utils";
+import { BigNumber } from "@ethersproject/bignumber";
 
 const wrappedPNKByChain = new Map<ForeignChains, string>([
   [ForeignChains.GNOSIS_MAINNET, "0xcb3231aBA3b451343e0Fddfc45883c842f223846"],
 ]);
 
-const ONE_GWEI = parseUnits("1", "gwei");
+const ONE_GWEI = BigNumber.from(parseUnits("1", "gwei"));
 
 const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
@@ -40,7 +41,7 @@ const deployKlerosLiquid: DeployFunction = async (hre: HardhatRuntimeEnvironment
   }
 
   const wPnkAddress = wrappedPNKByChain.get(ForeignChains[ForeignChains[chainId]]);
-  const rng = ethers.constants.AddressZero;
+  const rng = ethers.ZeroAddress;
   const minStakingTime = 99999999;
   const maxFreezingTime = 0;
   const minStake = parseEther("9999999");

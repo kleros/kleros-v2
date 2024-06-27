@@ -32,7 +32,7 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       veaInbox.address,
       foreignChainId,
       foreignGateway.address,
-      ethers.constants.AddressZero, // feeToken is ETH
+      ethers.ZeroAddress, // feeToken is ETH
     ],
     log: true,
   }); // nonce+0

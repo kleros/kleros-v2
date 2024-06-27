@@ -1,4 +1,5 @@
-import { parseUnits } from "ethers/lib/utils";
+import { parseUnits } from "ethers";
+import { BigNumber } from "@ethersproject/bignumber";
 import { HardhatRuntimeEnvironment, HttpNetworkConfig } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { getContractAddress } from "./utils/getContractAddress";
@@ -6,12 +7,12 @@ import { KlerosCore__factory } from "../typechain-types";
 import { Courts, ForeignChains, isSkipped } from "./utils";
 import { deployUpgradable } from "./utils/deployUpgradable";
 
-const ONE_GWEI = parseUnits("1", "gwei");
+const ONE_GWEI = BigNumber.from(parseUnits("1", "gwei"));
 
 const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId, config } = hre;
   const { deploy, execute } = deployments;
-  const { hexZeroPad, hexlify } = ethers.utils;
+  const { zeroPadValue, toBeHex } = ethers;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -22,7 +23,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   // TODO: use deterministic deployments
   const network = config.networks[hre.network.name];
   const homeNetwork = config.networks[network.companionNetworks.home] as HttpNetworkConfig;
-  const homeChainProvider = new ethers.providers.JsonRpcProvider(homeNetwork.url);
+  const homeChainProvider = new ethers.JsonRpcProvider(homeNetwork.url);
   let nonce = await homeChainProvider.getTransactionCount(deployer);
   nonce += 1; // HomeGatewayToEthereum Proxy deploy tx will be the 2nd tx after this on its home network, so we add 1 to the current nonce.
   const homeGatewayAddress = getContractAddress(deployer, nonce); // HomeGateway deploy tx will be the next tx home network
@@ -32,7 +33,7 @@ const deployForeignGateway: DeployFunction = async (hre: HardhatRuntimeEnvironme
   console.log("using VeaOutboxArbToGnosisDevnet at %s", veaOutbox.address);
 
   const homeChainId = (await homeChainProvider.getNetwork()).chainId;
-  const homeChainIdAsBytes32 = hexZeroPad(hexlify(homeChainId), 32);
+  const homeChainIdAsBytes32 = zeroPadValue(toBeHex(homeChainId), 32);
   await deployUpgradable(deployments, "ForeignGatewayOnGnosis", {
     from: deployer,
     contract: "ForeignGateway",
