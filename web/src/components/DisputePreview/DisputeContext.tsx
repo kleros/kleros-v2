@@ -103,8 +103,8 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRp
         <>
           <Divider />
           <AliasesContainer>
-            {disputeDetails.aliases.map((alias) => (
-              <AliasDisplay alias={alias} key={alias.address} />
+            {Object.keys(disputeDetails.aliases).map((key) => (
+              <AliasDisplay name={key} key={key} address={disputeDetails.aliases[key]} />
             ))}
           </AliasesContainer>
         </>

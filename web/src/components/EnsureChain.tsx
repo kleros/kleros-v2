@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 
 import { DEFAULT_CHAIN } from "consts/chains";
 
@@ -12,7 +12,7 @@ interface IEnsureChain {
 }
 
 export const EnsureChain: React.FC<IEnsureChain> = ({ children, className }) => {
-  const chainId = useChainId();
+  const { chainId } = useAccount();
 
   return chainId === DEFAULT_CHAIN ? children : <ConnectWallet {...{ className }} />;
 };

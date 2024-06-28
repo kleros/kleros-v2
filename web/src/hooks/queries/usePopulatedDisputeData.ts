@@ -9,6 +9,7 @@ import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/popu
 import { GENESIS_BLOCK_ARBSEPOLIA } from "consts/index";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 import { iArbitrableV2Abi } from "hooks/contracts/generated";
+import { useEvidenceGroup } from "queries/useEvidenceGroup";
 import { debounceErrorToast } from "utils/debounceErrorToast";
 import { isUndefined } from "utils/index";
 
@@ -32,6 +33,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
   const { data: crossChainData, isError } = useIsCrossChainDispute(disputeID, arbitrableAddress);
   const isEnabled = !isUndefined(disputeID) && !isUndefined(crossChainData) && !isUndefined(arbitrableAddress);
   const { graphqlBatcher } = useGraphqlBatcher();
+  const { data: externalDisputeID } = useEvidenceGroup(disputeID, arbitrableAddress);
 
   return useQuery<DisputeDetails>({
     queryKey: [`DisputeTemplate${disputeID}${arbitrableAddress}`],
@@ -59,6 +61,8 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
           const initialContext = {
             disputeID: disputeID,
             arbitrable: arbitrableAddress,
+            graphApiKey: import.meta.env.REACT_APP_GRAPH_API_KEY,
+            externalDisputeID: externalDisputeID,
           };
 
           const data = dataMappings ? await executeActions(JSON.parse(dataMappings), initialContext) : {};
