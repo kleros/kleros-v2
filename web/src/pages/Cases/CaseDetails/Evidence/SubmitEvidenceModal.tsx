@@ -64,23 +64,18 @@ const SubmitEvidenceModal: React.FC<{
 
   const submitEvidence = useCallback(async () => {
     setIsSending(true);
-    toast.info("Uploading to IPFS", toastOptions);
-    const formData = await constructEvidence(message, file);
-    uploadFormDataToIPFS(formData)
-      .then(async (res) => {
-        const response = await res.json();
-        if (res.status === 200 && walletClient) {
-          const cid = response["cids"][0];
-          const { request } = await simulateEvidenceModuleSubmitEvidence(wagmiConfig, {
-            args: [BigInt(evidenceGroup), cid],
-          });
-          await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(() => {
-            setMessage("");
-            close();
-          });
-        }
+    const evidenceJSON = await constructEvidence(message, file);
+
+    const { request } = await simulateEvidenceModuleSubmitEvidence(wagmiConfig, {
+      args: [BigInt(evidenceGroup), JSON.stringify(evidenceJSON)],
+    });
+
+    if (!walletClient) return;
+    await wrapWithToast(async () => await walletClient.writeContract(request), publicClient)
+      .then(() => {
+        setMessage("");
+        close();
       })
-      .catch()
       .finally(() => setIsSending(false));
   }, [publicClient, wagmiConfig, walletClient, close, evidenceGroup, file, message, setIsSending]);
 
@@ -101,9 +96,10 @@ const SubmitEvidenceModal: React.FC<{
   );
 };
 
-const constructEvidence = async (msg: string, file?: File): Promise<FormData> => {
+const constructEvidence = async (msg: string, file?: File) => {
   let fileURI: string | undefined = undefined;
   if (file) {
+    toast.info("Uploading to IPFS", toastOptions);
     const fileFormData = new FormData();
     fileFormData.append("data", file, file.name);
     fileURI = await uploadFormDataToIPFS(fileFormData).then(async (res) => {
@@ -111,12 +107,7 @@ const constructEvidence = async (msg: string, file?: File): Promise<FormData> =>
       return response["cids"][0];
     });
   }
-  const formData = new FormData();
-  const evidenceFile = new File([JSON.stringify({ name: "Evidence", description: msg, fileURI })], "evidence.json", {
-    type: "text/plain",
-  });
-  formData.append("data", evidenceFile, evidenceFile.name);
-  return formData;
+  return { name: "Evidence", description: msg, fileURI };
 };
 
 export default SubmitEvidenceModal;

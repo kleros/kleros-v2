@@ -15,6 +15,10 @@ const evidencesQuery = graphql(`
         id
       }
       timestamp
+      name
+      description
+      fileURI
+      fileTypeExtension
     }
   }
 `);
@@ -23,7 +27,7 @@ export const useEvidences = (evidenceGroup?: string) => {
   const isEnabled = evidenceGroup !== undefined;
   const { graphqlBatcher } = useGraphqlBatcher();
 
-  return useQuery({
+  return useQuery<EvidencesQuery>({
     queryKey: ["refetchOnBlock", `evidencesQuery${evidenceGroup}`],
     enabled: isEnabled,
     queryFn: async () =>
