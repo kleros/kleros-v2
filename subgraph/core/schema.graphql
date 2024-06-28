@@ -54,6 +54,10 @@ interface Evidence {
   evidenceGroup: EvidenceGroup!
   sender: User!
   timestamp: BigInt!
+  name: String
+  description: String
+  fileURI: String
+  fileTypeExtension: String
 }
 
 ############
@@ -292,12 +296,16 @@ type ClassicEvidenceGroup implements EvidenceGroup @entity {
   nextEvidenceIndex: BigInt!
 }
 
-type ClassicEvidence implements Evidence @entity {
+type ClassicEvidence implements Evidence @entity(immutable: true) {
   id: ID! # classicEvidenceGroup.id-nextEvidenceIndex
   evidence: String!
   evidenceGroup: EvidenceGroup!
   sender: User!
   timestamp: BigInt!
+  name: String
+  description: String
+  fileURI: String
+  fileTypeExtension: String
 }
 
 type ClassicContribution implements Contribution @entity {
