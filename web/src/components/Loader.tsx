@@ -27,20 +27,22 @@ const StyledKlerosIcon = styled(KlerosIcon)`
   animation: ${breathing} 2s ease-out infinite normal;
 `;
 
-const Container = styled.div<{ width?: Width; height?: Height }>`
+const Container = styled.div<{ width?: Width; height?: Height; center?: boolean }>`
   width: ${({ width }) => width ?? "100%"};
   height: ${({ height }) => height ?? "100%"};
+  ${({ center }) => (center ? "margin: auto" : "")};
 `;
 
 interface ILoader {
   width?: Width;
   height?: Height;
+  center?: boolean;
   className?: string;
 }
 
-const Loader: React.FC<ILoader> = ({ width, height, className }) => {
+const Loader: React.FC<ILoader> = ({ width, height, center, className }) => {
   return (
-    <Container {...{ width, height, className }}>
+    <Container {...{ width, height, center, className }}>
       <StyledKlerosIcon />
     </Container>
   );
