@@ -18,6 +18,7 @@ const DisputeResolver = lazy(() => import("./pages/Resolver"));
 const GetPnk = lazy(() => import("./pages/GetPnk"));
 import Web3Provider from "context/Web3Provider";
 
+import Loader from "components/Loader";
 import Layout from "layout/index";
 
 import { SentryRoutes } from "./utils/sentry";
@@ -35,7 +36,7 @@ const App: React.FC = () => {
                     <Route
                       index
                       element={
-                        <Suspense>
+                        <Suspense fallback={<Loader width={"48px"} height={"48px"} center />}>
                           <Home />
                         </Suspense>
                       }
@@ -43,7 +44,7 @@ const App: React.FC = () => {
                     <Route
                       path="cases/*"
                       element={
-                        <Suspense>
+                        <Suspense fallback={<Loader width={"48px"} height={"48px"} center />}>
                           <Cases />
                         </Suspense>
                       }
@@ -51,7 +52,7 @@ const App: React.FC = () => {
                     <Route
                       path="courts/*"
                       element={
-                        <Suspense>
+                        <Suspense fallback={<Loader width={"48px"} height={"48px"} center />}>
                           <Courts />
                         </Suspense>
                       }
@@ -59,7 +60,7 @@ const App: React.FC = () => {
                     <Route
                       path="dashboard/:page/:order/:filter"
                       element={
-                        <Suspense>
+                        <Suspense fallback={<Loader width={"48px"} height={"48px"} center />}>
                           <Dashboard />
                         </Suspense>
                       }
@@ -67,7 +68,7 @@ const App: React.FC = () => {
                     <Route
                       path="dispute-template"
                       element={
-                        <Suspense>
+                        <Suspense fallback={<Loader width={"48px"} height={"48px"} center />}>
                           <DisputeTemplateView />
                         </Suspense>
                       }
@@ -75,7 +76,7 @@ const App: React.FC = () => {
                     <Route
                       path="resolver/*"
                       element={
-                        <Suspense>
+                        <Suspense fallback={<Loader width={"48px"} height={"48px"} center />}>
                           <DisputeResolver />
                         </Suspense>
                       }
@@ -83,7 +84,7 @@ const App: React.FC = () => {
                     <Route
                       path="get-pnk/*"
                       element={
-                        <Suspense>
+                        <Suspense fallback={<Loader width={"48px"} height={"48px"} center />}>
                           <GetPnk />
                         </Suspense>
                       }
