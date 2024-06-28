@@ -45,6 +45,11 @@ const StyledTitle = styled.h1`
   margin-bottom: 0;
 `;
 
+const StyledReactMarkDown = styled(ReactMarkdown)`
+  max-width: inherit;
+  word-wrap: break-word;
+`;
+
 const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean }> = ({ arbitrable, isQuestion }) => {
   const { id } = useParams();
   const { data: votingHistory } = useVotingHistory(id);
@@ -79,9 +84,9 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
           {isQuestion && (
             <>
               {disputeDetails.question ? (
-                <ReactMarkdown>{disputeDetails.question}</ReactMarkdown>
+                <StyledReactMarkDown>{disputeDetails.question}</StyledReactMarkDown>
               ) : (
-                <ReactMarkdown>{isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
+                <StyledReactMarkDown>{isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR}</StyledReactMarkDown>
               )}
             </>
           )}
