@@ -2,6 +2,10 @@ import { z } from "zod";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
 
+const isHexAddress = (str: string): boolean => /^0x[a-fA-F0-9]{40}$/.test(str);
+
+const isHexId = (str: string): boolean => /^0x[a-fA-F0-9]{1,64}$/.test(str);
+
 export const ethAddressSchema = z.string().refine((value) => isAddress(value), {
   message: "Provided address is invalid.",
 });
@@ -26,10 +30,13 @@ export enum QuestionType {
 export const QuestionTypeSchema = z.nativeEnum(QuestionType);
 
 export const AnswerSchema = z.object({
-  id: z.string().regex(/^0x[0-9a-fA-F]+$/), // should be a bigint
+  id: z
+    .string()
+    .regex(/^0x[0-9a-fA-F]+$/)
+    .optional(), // should be a bigint
   title: z.string(),
   description: z.string(),
-  reserved: z.boolean(),
+  reserved: z.boolean().optional(),
 });
 
 export const AttachmentSchema = z.object({
@@ -37,29 +44,27 @@ export const AttachmentSchema = z.object({
   uri: z.string(),
 });
 
-export const AliasSchema = z.object({
-  id: z.string().optional(),
-  name: z.string(),
-  address: ethAddressOrEnsNameSchema,
-});
+export const AliasSchema = z.record(ethAddressOrEnsNameSchema);
+
+const MetadataSchema = z.record(z.any());
 
 const DisputeDetailsSchema = z.object({
   title: z.string(),
   description: z.string(),
   question: z.string(),
-  type: QuestionTypeSchema,
   answers: z.array(AnswerSchema),
   policyURI: z.string(),
-  attachment: AttachmentSchema,
+  attachment: AttachmentSchema.optional(),
   frontendUrl: z.string(),
+  metadata: MetadataSchema.optional(),
   arbitrableChainID: z.string(),
-  arbitrableAddress: ethAddressSchema,
+  arbitrableAddress: z.string(), // should be changed for ethAddressSchema eventually
   arbitratorChainID: z.string(),
-  arbitratorAddress: ethAddressSchema,
+  arbitratorAddress: z.string(), // should be changed for ethAddressSchema eventually
   category: z.string(),
-  lang: z.string(),
-  specification: z.string(),
-  aliases: z.array(AliasSchema).optional(),
+  lang: z.string().optional(),
+  specification: z.string().optional(),
+  aliases: AliasSchema.optional(),
   version: z.string(),
 });
 
