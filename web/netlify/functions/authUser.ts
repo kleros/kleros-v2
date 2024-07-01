@@ -1,10 +1,11 @@
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
 import { createClient } from "@supabase/supabase-js";
+import { ethers } from "ethers";
 import * as jwt from "jose";
 import { SiweMessage } from "siwe";
 
-import { ETH_SIGNATURE_REGEX, DEFAULT_CHAIN } from "consts/processEnvConsts";
+import { ETH_SIGNATURE_REGEX, DEFAULT_CHAIN, isProductionDeployment } from "consts/processEnvConsts";
 
 import { netlifyUri, netlifyDeployUri, netlifyDeployPrimeUri } from "src/generatedNetlifyInfo.json";
 import { Database } from "src/types/supabase-notification";
@@ -73,9 +74,12 @@ const authUser = async (event) => {
     }
 
     try {
-      await siweMessage.verify({ signature, nonce: nonceData.nonce, time: new Date().toISOString() });
+      const alchemyChain = isProductionDeployment() ? "arb-mainnet" : "arb-sepolia";
+      const alchemyRpcURL = `https://${alchemyChain}.g.alchemy.com/v2/${process.env.ALCHEMY_FUNCTIONS_API_KEY}`;
+      const provider = new ethers.providers.JsonRpcProvider(alchemyRpcURL);
+      await siweMessage.verify({ signature, nonce: nonceData.nonce, time: new Date().toISOString() }, { provider });
     } catch (err) {
-      throw new Error("Invalid signer");
+      throw new Error("Invalid signer: " + JSON.stringify(err));
     }
 
     const { error } = await supabase.from("user-nonce").delete().match({ address: lowerCaseAddress });
