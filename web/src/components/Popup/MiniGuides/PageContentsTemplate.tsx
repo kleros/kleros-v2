@@ -42,6 +42,14 @@ const StyledLabel = styled.label`
   cursor: pointer;
 `;
 
+const StyledParagraph = styled.p`
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 18px;
+  color: ${({ theme }) => theme.secondaryText};
+  margin: 0;
+`;
+
 const extractGuideName = (linkText) => linkText.split(". ")[1];
 
 const LeftContent: React.FC<{
@@ -60,7 +68,7 @@ const LeftContent: React.FC<{
       <Title>{title}</Title>
       <ParagraphsContainer>
         {paragraphs.map((paragraph, index) => (
-          <label key={index}>{paragraph}</label>
+          <StyledParagraph key={index} dangerouslySetInnerHTML={{ __html: paragraph }} />
         ))}
       </ParagraphsContainer>
       {links && links.length > 0 && toggleSubMiniGuide ? (
