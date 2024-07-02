@@ -92,7 +92,6 @@ const DisputeResolver: React.FC = () => {
     <>
       <HeroImage />
       <Container>
-        {isConnected && !isPreviewPage ? <StyledLabel>Start a case</StyledLabel> : null}
         {isConnected ? (
           <StyledEnsureAuth>
             <MiddleContentContainer>
