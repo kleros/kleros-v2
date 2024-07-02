@@ -76,8 +76,8 @@ const LeftContent: React.FC<{
     <LeftContentContainer>
       <Title>{title}</Title>
       <ParagraphsContainer>
-        {paragraphs.map((paragraph, index) => (
-          <StyledParagraph key={index}>{processNewLineInParagraph(paragraph)}</StyledParagraph>
+        {paragraphs.map((paragraph) => (
+          <StyledParagraph key={paragraph}>{processNewLineInParagraph(paragraph)}</StyledParagraph>
         ))}
       </ParagraphsContainer>
       {links && links.length > 0 && toggleSubMiniGuide ? (
