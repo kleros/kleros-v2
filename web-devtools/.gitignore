@@ -1,3 +1,4 @@
+# dependencies
 /.yarn/*
 !/.yarn/versions
 !/.yarn/plugins
@@ -6,14 +7,15 @@
 /.pnp.*
 node_modules
 
-# Parcel
-.parcel-cache
+# next.js
+/.next/
+/out/
 development
 build
 dist
-parcel-bundle-reports
 
 # misc
+*.pem
 .eslintcache
 .DS_Store
 .env
@@ -35,3 +37,10 @@ generatedNetlifyInfo.json
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# testing
+/coverage
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
