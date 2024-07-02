@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import Link from "next/link";
 
-import KlerosCourtLogo from "svgs/header/kleros-court.svg";
+import KlerosCourtLogo from "svgs/header/devtools-logo.svg";
 
 const Container = styled.div`
   position: sticky;
