@@ -54,7 +54,7 @@ const extractGuideName = (linkText) => linkText.split(". ")[1];
 
 const processNewLineInParagraph = (paragraph: string) => {
   return paragraph.split("\n").map((text, index) => (
-    <React.Fragment key={index}>
+    <React.Fragment key={text}>
       {index > 0 && <br />}
       {text}
     </React.Fragment>
