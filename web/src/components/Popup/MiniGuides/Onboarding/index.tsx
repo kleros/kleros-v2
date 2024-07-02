@@ -69,14 +69,6 @@ const Onboarding: React.FC<IOnboarding> = ({ toggleMiniGuide }) => {
     isJurorLevelsMiniGuideOpen ||
     isDisputeResolverMiniGuideOpen;
 
-  const canCloseOnboarding =
-    !isStakingMiniGuideOpen &&
-    !isBinaryVotingMiniGuideOpen &&
-    !isRankedVotingMiniGuideOpen &&
-    !isAppealMiniGuideOpen &&
-    !isJurorLevelsMiniGuideOpen &&
-    !isDisputeResolverMiniGuideOpen;
-
   const toggleSubMiniGuide = (guideName: string) => {
     if (guideName === "Staking") {
       toggleStakingMiniGuide();
@@ -100,7 +92,7 @@ const Onboarding: React.FC<IOnboarding> = ({ toggleMiniGuide }) => {
         leftPageContents={leftPageContents}
         rightPageComponents={rightPageComponents}
         isOnboarding={true}
-        canClose={canCloseOnboarding}
+        canClose={!isAnyMiniGuideOpen}
         isVisible={!isAnyMiniGuideOpen}
         toggleSubMiniGuide={toggleSubMiniGuide}
       />
