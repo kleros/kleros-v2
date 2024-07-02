@@ -8,18 +8,30 @@
   "license": "MIT",
   "packageManager": "yarn@4.0.2+sha256.825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186",
   "volta": {
-    "node": "20.11.0"
+    "node": "20.11.0",
+    "yarn": "4.3.1"
   },
   "scripts": {
-    "hi": "echo hello world"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "prettier": "@kleros/kleros-v2-prettier-config",
   "devDependencies": {
+    "@svgr/webpack": "^8.1.0",
+    "@types/node": "^20",
+    "@types/react": "18.2.0",
+    "@types/react-dom": "^18.2.18",
     "typescript": "^5.3.3"
   },
   "dependencies": {
     "@kleros/kleros-sdk": "workspace:^",
     "@kleros/ui-components-library": "^2.10.0",
+    "next": "14.2.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "styled-components": "^6.1.11",
     "viem": "^1.21.4",
     "wagmi": "^1.4.13"
   }
