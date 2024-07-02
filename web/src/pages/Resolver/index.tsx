@@ -25,6 +25,10 @@ import Policy from "./Policy";
 import Preview from "./Preview";
 import Timeline from "./Timeline";
 
+const Wrapper = styled.div`
+  width: 100%;
+`;
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -89,7 +93,7 @@ const DisputeResolver: React.FC = () => {
   const isPreviewPage = location.pathname.includes("/preview");
 
   return (
-    <>
+    <Wrapper>
       <HeroImage />
       <Container>
         {isConnected ? (
@@ -127,7 +131,7 @@ const DisputeResolver: React.FC = () => {
           </ConnectWalletContainer>
         )}
       </Container>
-    </>
+    </Wrapper>
   );
 };
 
