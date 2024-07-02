@@ -1,23 +1,12 @@
 import React from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import { useLocation } from "react-router-dom";
 
 import { Steps } from "@kleros/ui-components-library";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 const StyledSteps = styled(Steps)`
-  display: none;
-
-  ${landscapeStyle(
-    () => css`
-      display: flex;
-      position: absolute;
-      left: 2%;
-      height: 360px;
-    `
-  )}
+  height: 360px;
 `;
 
 const items = [

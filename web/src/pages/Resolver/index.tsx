@@ -49,6 +49,20 @@ const StyledEnsureAuth = styled(EnsureAuth)`
   align-self: center;
 `;
 
+const HowItWorksAndTimeline = styled.div`
+  display: none;
+
+  ${landscapeStyle(
+    () => css`
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      left: 2%;
+      gap: 40px;
+    `
+  )}
+`;
+
 const MiddleContentContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -82,12 +96,16 @@ const DisputeResolver: React.FC = () => {
         {isConnected ? (
           <StyledEnsureAuth>
             <MiddleContentContainer>
-              {isConnected && !isPreviewPage ? <Timeline /> : null}
-              <HowItWorks
-                isMiniGuideOpen={isDisputeResolverMiniGuideOpen}
-                toggleMiniGuide={toggleDisputeResolverMiniGuide}
-                MiniGuideComponent={Resolver}
-              />
+              {isConnected && !isPreviewPage ? (
+                <HowItWorksAndTimeline>
+                  <HowItWorks
+                    isMiniGuideOpen={isDisputeResolverMiniGuideOpen}
+                    toggleMiniGuide={toggleDisputeResolverMiniGuide}
+                    MiniGuideComponent={Resolver}
+                  />
+                  <Timeline />
+                </HowItWorksAndTimeline>
+              ) : null}
               <Routes>
                 <Route index element={<Navigate to="title" replace />} />
                 <Route path="/title/*" element={<Title />} />

@@ -22,6 +22,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-bottom: ${responsiveSize(70, 79)};
 `;
 
 const StyledField = styled(Field)`
