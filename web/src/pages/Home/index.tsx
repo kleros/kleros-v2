@@ -13,6 +13,10 @@ import Community from "./Community";
 import CourtOverview from "./CourtOverview";
 import TopJurors from "./TopJurors";
 
+const Wrapper = styled.div`
+  width: 100%;
+`;
+
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
@@ -24,13 +28,15 @@ const Container = styled.div`
 const Home: React.FC = () => {
   return (
     <HomePageProvider timeframe={getOneYearAgoTimestamp()}>
-      <HeroImage />
-      <Container>
-        <CourtOverview />
-        <LatestCases />
-        <TopJurors />
-        <Community />
-      </Container>
+      <Wrapper>
+        <HeroImage />
+        <Container>
+          <CourtOverview />
+          <LatestCases />
+          <TopJurors />
+          <Community />
+        </Container>
+      </Wrapper>
     </HomePageProvider>
   );
 };
