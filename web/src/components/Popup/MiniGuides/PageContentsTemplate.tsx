@@ -52,6 +52,15 @@ const StyledParagraph = styled.p`
 
 const extractGuideName = (linkText) => linkText.split(". ")[1];
 
+const processNewLineInParagraph = (paragraph: string) => {
+  return paragraph.split("\n").map((text, index) => (
+    <React.Fragment key={index}>
+      {index > 0 && <br />}
+      {text}
+    </React.Fragment>
+  ));
+};
+
 const LeftContent: React.FC<{
   currentPage: number;
   leftPageContents: {
@@ -68,7 +77,7 @@ const LeftContent: React.FC<{
       <Title>{title}</Title>
       <ParagraphsContainer>
         {paragraphs.map((paragraph, index) => (
-          <StyledParagraph key={index} dangerouslySetInnerHTML={{ __html: paragraph }} />
+          <StyledParagraph key={index}>{processNewLineInParagraph(paragraph)}</StyledParagraph>
         ))}
       </ParagraphsContainer>
       {links && links.length > 0 && toggleSubMiniGuide ? (

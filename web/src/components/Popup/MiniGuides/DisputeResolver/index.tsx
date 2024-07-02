@@ -20,7 +20,7 @@ const leftPageContents = [
     title: "Parameters",
     paragraphs: [
       "Define some parameters:",
-      "• Choose a court to arbitrate the case.<br/>• Select a category.<br/>• Select the number of jurors.",
+      "• Choose a court to arbitrate the case.\n• Select a category.\n• Select the number of jurors.",
       "The more jurors you select, higher the arbitration cost will be. By default we use 3 jurors for the first " +
         "round. The arbitration cost is the value used to pay the jurors for their work.",
     ],
