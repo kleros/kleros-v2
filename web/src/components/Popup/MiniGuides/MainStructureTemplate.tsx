@@ -162,12 +162,13 @@ const Template: React.FC<ITemplate> = ({
           <LeftContainerHeader>
             <HowItWorks>
               <BookOpenIcon />
-              <label> {isOnboarding ? "Onboarding" : "How it works"} </label>
+              <label>{isOnboarding ? "Onboarding" : "How it works"}</label>
             </HowItWorks>
             <MobileCompactPagination
               currentPage={currentPage}
               callback={setCurrentPage}
               numPages={numPages}
+              onCloseOnLastPage={onClose}
               label={`${currentPage}/${numPages}`}
             />
           </LeftContainerHeader>
@@ -176,6 +177,7 @@ const Template: React.FC<ITemplate> = ({
             currentPage={currentPage}
             callback={setCurrentPage}
             numPages={numPages}
+            onCloseOnLastPage={onClose}
             label={`${currentPage}/${numPages}`}
           />
         </LeftContainer>
