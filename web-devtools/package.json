@@ -31,7 +31,7 @@
     "next": "14.2.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "styled-components": "^6.1.11",
+    "styled-components": "^5.3.11",
     "viem": "^1.21.4",
     "wagmi": "^1.4.13"
   }
