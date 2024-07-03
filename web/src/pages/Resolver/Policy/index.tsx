@@ -20,7 +20,12 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-bottom: ${responsiveSize(70, 82)};
+
+  ${landscapeStyle(
+    () => css`
+      padding-bottom: 82px;
+    `
+  )}
 `;
 
 const StyledLabel = styled.label`
