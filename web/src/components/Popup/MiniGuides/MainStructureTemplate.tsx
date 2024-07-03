@@ -147,10 +147,14 @@ const Template: React.FC<ITemplate> = ({
     if (isOnboarding && location.hash.includes("#onboarding")) navigate("#", { replace: true });
   }, [location.hash, navigate, isOnboarding]);
 
+  const onCloseAndRemoveOnboardingHashPath = () => {
+    onClose();
+    removeOnboardingHashPath();
+  };
+
   useClickAway(containerRef, () => {
     if (canClose) {
-      onClose();
-      removeOnboardingHashPath();
+      onCloseAndRemoveOnboardingHashPath();
     }
   });
 
@@ -168,7 +172,7 @@ const Template: React.FC<ITemplate> = ({
               currentPage={currentPage}
               callback={setCurrentPage}
               numPages={numPages}
-              onCloseOnLastPage={onClose}
+              onCloseOnLastPage={onCloseAndRemoveOnboardingHashPath}
               label={`${currentPage}/${numPages}`}
             />
           </LeftContainerHeader>
@@ -177,7 +181,7 @@ const Template: React.FC<ITemplate> = ({
             currentPage={currentPage}
             callback={setCurrentPage}
             numPages={numPages}
-            onCloseOnLastPage={onClose}
+            onCloseOnLastPage={onCloseAndRemoveOnboardingHashPath}
             label={`${currentPage}/${numPages}`}
           />
         </LeftContainer>
