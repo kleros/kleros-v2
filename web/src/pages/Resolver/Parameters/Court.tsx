@@ -19,6 +19,12 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  ${landscapeStyle(
+    () => css`
+      padding-bottom: 115px;
+    `
+  )}
 `;
 
 const StyledDropdownCascader = styled(DropdownCascader)`

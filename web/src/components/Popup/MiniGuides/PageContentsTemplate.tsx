@@ -42,7 +42,24 @@ const StyledLabel = styled.label`
   cursor: pointer;
 `;
 
+const StyledParagraph = styled.p`
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 18px;
+  color: ${({ theme }) => theme.secondaryText};
+  margin: 0;
+`;
+
 const extractGuideName = (linkText) => linkText.split(". ")[1];
+
+const processNewLineInParagraph = (paragraph: string) => {
+  return paragraph.split("\n").map((text, index) => (
+    <React.Fragment key={text}>
+      {index > 0 && <br />}
+      {text}
+    </React.Fragment>
+  ));
+};
 
 const LeftContent: React.FC<{
   currentPage: number;
@@ -59,8 +76,8 @@ const LeftContent: React.FC<{
     <LeftContentContainer>
       <Title>{title}</Title>
       <ParagraphsContainer>
-        {paragraphs.map((paragraph, index) => (
-          <label key={index}>{paragraph}</label>
+        {paragraphs.map((paragraph) => (
+          <StyledParagraph key={paragraph}>{processNewLineInParagraph(paragraph)}</StyledParagraph>
         ))}
       </ParagraphsContainer>
       {links && links.length > 0 && toggleSubMiniGuide ? (
