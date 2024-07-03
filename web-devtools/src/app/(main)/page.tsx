@@ -4,9 +4,7 @@ import styled from "styled-components";
 
 import { DropdownCascader, Field } from "@kleros/ui-components-library";
 
-import { SelectArbitrable } from "utils/dumyData";
-
-import LightButton from "components/LightButton";
+import { SelectArbitrable } from "utils/dummyData";
 
 import ChangeRuler from "./ChangeRuler";
 import RulingModes from "./RulingModes";
@@ -31,27 +29,8 @@ const SettingsPane = styled.div`
   gap: 16px;
   margin: 16px 0;
 `;
-const RulingSettings = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 16px 0;
-`;
 
-const FieldContainer = styled.div`
-  display: flex;
-  align-items: center;
-  width: fit-content;
-  height: fit-content;
-  padding-left: 8px;
-  gap: 8px;
-  font-size: 14px;
-  border-radius: 4px;
-  border: ${({ theme }) => theme.klerosUIComponentsStroke} 1px solid;
-  color: ${({ theme }) => theme.klerosUIComponentsPrimaryText};
-`;
-
-export default function Home() {
+const Home: React.FC = () => {
   const [selectedArbitrable, setSelectedArbitrable] = useState<string | number>("");
 
   return (
@@ -81,4 +60,5 @@ export default function Home() {
       </SettingsPane>
     </Container>
   );
-}
+};
+export default Home;

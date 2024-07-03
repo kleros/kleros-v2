@@ -33,8 +33,9 @@ const FieldContainer = styled.div`
   color: ${({ theme }) => theme.klerosUIComponentsPrimaryText};
 `;
 
-const RulingModes: React.FC = (arbitrable) => {
-  const [checked, setChecked] = useState(false);
+const RulingModes: React.FC = () => {
+  const [tie, setTie] = useState<boolean>(false);
+  const [overriden, setOverriden] = useState<boolean>(false);
 
   return (
     <div>
@@ -53,12 +54,12 @@ const RulingModes: React.FC = (arbitrable) => {
             ruling <Field placeholder={"1"}></Field>
           </FieldContainer>
           <FieldContainer>
-            <Checkbox label="" small checked={checked} onChange={() => setChecked((old) => !old)} />
-            <Field placeholder={"0x00[dev address]"}></Field>
+            <Checkbox label="" small checked={tie} onChange={() => setTie((old) => !old)} />
+            <Field placeholder={"tie"}></Field>
           </FieldContainer>
           <FieldContainer>
-            <Checkbox label="" small checked={checked} onChange={() => setChecked((old) => !old)} />
-            <Field placeholder={"0x00[dev address]"}></Field>
+            <Checkbox label="" small checked={overriden} onChange={() => setOverriden((old) => !old)} />
+            <Field placeholder={"overriden"}></Field>
           </FieldContainer>
         </RulingSettings>
 

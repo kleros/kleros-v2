@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import styled, { css } from "styled-components";
 
@@ -42,7 +41,7 @@ const Container = styled.div`
       svg {
         height: 16px;
         width: 16px;
-        max-heigth: 16px;
+        max-height: 16px;
         max-width: 16px;
         fill: white;
       }

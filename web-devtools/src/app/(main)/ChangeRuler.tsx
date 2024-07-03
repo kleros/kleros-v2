@@ -30,7 +30,7 @@ const FieldContainer = styled.div`
   color: ${({ theme }) => theme.klerosUIComponentsPrimaryText};
 `;
 
-const ChangeRuler = () => {
+const ChangeRuler: React.FC = () => {
   return (
     <div>
       <h3>Change Ruler</h3>
