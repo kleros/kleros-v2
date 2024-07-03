@@ -10,6 +10,10 @@ import HeroImage from "components/HeroImage";
 
 import { Widget } from "./Widget";
 
+const Wrapper = styled.div`
+  width: 100%;
+`;
+
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
@@ -25,13 +29,13 @@ const Container = styled.div`
 
 const GetPnk: React.FC = () => {
   return (
-    <>
+    <Wrapper>
       <HeroImage />
       <Container>
         {!isProductionDeployment() && <ClaimPnkButton />}
         <Widget />
       </Container>
-    </>
+    </Wrapper>
   );
 };
 

@@ -28,6 +28,7 @@ const StyledKlerosIcon = styled(KlerosIcon)`
 `;
 
 const Container = styled.div<{ width?: Width; height?: Height }>`
+  margin: auto;
   width: ${({ width }) => width ?? "100%"};
   height: ${({ height }) => height ?? "100%"};
 `;
