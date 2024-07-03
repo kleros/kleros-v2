@@ -12,6 +12,7 @@ export function handleEvidenceEvent(event: EvidenceEvent): void {
   evidenceGroup.save();
   const evidence = new ClassicEvidence(`${evidenceGroupID}-${evidenceIndex.toString()}`);
   const userId = event.params._party.toHexString();
+  evidence.timestamp = event.block.timestamp;
   evidence.evidence = event.params._evidence;
   evidence.evidenceGroup = evidenceGroupID.toString();
   evidence.sender = userId;

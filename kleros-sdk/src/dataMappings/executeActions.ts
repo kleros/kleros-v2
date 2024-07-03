@@ -42,6 +42,7 @@ export const executeActions = async (mappings, initialContext = {}) => {
 
   for (const mapping of mappings) {
     const actionResult = await executeAction(mapping, context);
+
     if (actionResult) {
       Object.keys(actionResult).forEach((key) => {
         context[key] = actionResult[key];
