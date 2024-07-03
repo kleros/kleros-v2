@@ -12,16 +12,16 @@ export type Answer = {
   reserved?: boolean;
 };
 
-export type Alias = {
+export type AliasArray = {
   id?: string;
   name: string;
   address: string | Address;
   isValid?: boolean;
 };
 
+export type Alias = Record<string, string>;
 export interface IDisputeTemplate {
   answers: Answer[];
-  aliases?: Alias[];
   arbitrableAddress?: string;
   arbitrableChainID?: string;
   arbitratorAddress?: string;
@@ -34,6 +34,7 @@ export interface IDisputeTemplate {
   question: string;
   specification?: string;
   title: string;
+  aliases?: Alias;
   // attachment: Attachment;
   // type: string;
 }
@@ -42,6 +43,7 @@ interface IDisputeData extends IDisputeTemplate {
   courtId?: string;
   numberOfJurors: number;
   arbitrationCost?: string;
+  aliasesArray?: AliasArray[];
 }
 
 interface INewDisputeContext {
@@ -64,7 +66,7 @@ const initialDisputeData: IDisputeData = {
     { title: "", id: "1" },
     { title: "", id: "2" },
   ],
-  aliases: [
+  aliasesArray: [
     { name: "", address: "", id: "1" },
     { name: "", address: "", id: "2" },
   ],
@@ -113,13 +115,22 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 };
 
 const constructDisputeTemplate = (disputeData: IDisputeData) => {
-  const baseTemplate = { ...disputeData } as IDisputeTemplate;
+  const baseTemplate = { ...disputeData };
 
-  if (!isUndefined(baseTemplate.aliases)) {
-    baseTemplate.aliases = baseTemplate.aliases.filter((item) => item.address !== "" && item.isValid);
-    if (baseTemplate.aliases.length === 0) delete baseTemplate.aliases;
+  if (!isUndefined(baseTemplate.aliasesArray)) {
+    baseTemplate.aliasesArray = baseTemplate.aliasesArray.filter((item) => item.address !== "" && item.isValid);
+    if (baseTemplate.aliasesArray.length === 0) delete baseTemplate.aliasesArray;
+    else {
+      const aliases: Alias = {};
+
+      for (const alias of baseTemplate.aliasesArray) {
+        aliases[alias.name] = alias.address;
+      }
+
+      baseTemplate.aliases = aliases;
+    }
   }
   if (!isUndefined(baseTemplate.policyURI) && baseTemplate.policyURI === "") delete baseTemplate.policyURI;
 
-  return baseTemplate;
+  return baseTemplate as IDisputeTemplate;
 };

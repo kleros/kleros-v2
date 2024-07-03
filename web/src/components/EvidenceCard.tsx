@@ -3,12 +3,14 @@ import styled, { css } from "styled-components";
 
 import Identicon from "react-identicons";
 import ReactMarkdown from "react-markdown";
+import { Link } from "react-router-dom";
 
 import { Card } from "@kleros/ui-components-library";
 
 import AttachmentIcon from "svgs/icons/attachment.svg";
 
 import { useIPFSQuery } from "hooks/useIPFSQuery";
+import { formatDate } from "utils/date";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import { shortenAddress } from "utils/shortenAddress";
 
@@ -40,11 +42,15 @@ const StyledReactMarkdown = styled(ReactMarkdown)`
   a {
     font-size: 16px;
   }
+  code {
+    color: ${({ theme }) => theme.secondaryText};
+  }
 `;
 
 const BottomShade = styled.div`
   background-color: ${({ theme }) => theme.lightBlue};
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 16px;
   padding: 12px ${responsiveSize(8, 24)};
@@ -96,10 +102,29 @@ const DesktopText = styled.span`
   )}
 `;
 
+const Timestamp = styled.label`
+  color: ${({ theme }) => theme.secondaryText};
+`;
+
 const MobileText = styled.span`
   ${landscapeStyle(
     () => css`
       display: none;
+    `
+  )}
+`;
+
+const StyledLink = styled(Link)`
+  height: fit-content;
+  display: flex;
+  margin-left: auto;
+  gap: ${responsiveSize(5, 6)};
+  ${landscapeStyle(
+    () => css`
+      > svg {
+        width: 16px;
+        fill: ${({ theme }) => theme.primaryBlue};
+      }
     `
   )}
 `;
@@ -115,10 +140,12 @@ interface IEvidenceCard {
   evidence: string;
   sender: string;
   index: number;
+  timestamp: string;
 }
 
-const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
+const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timestamp }) => {
   const { data } = useIPFSQuery(evidence);
+
   return (
     <StyledCard>
       <TextContainer>
@@ -137,11 +164,12 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
           <Identicon size="24" string={sender} />
           <p>{shortenAddress(sender)}</p>
         </AccountContainer>
+        <Timestamp>{formatDate(Number(timestamp), true)}</Timestamp>
         {data && typeof data.fileURI !== "undefined" && (
-          <StyledA href={getIpfsUrl(data.fileURI)} target="_blank" rel="noreferrer">
+          <StyledLink to={`attachment/?url=${getIpfsUrl(data.fileURI)}`}>
             <AttachmentIcon />
             <AttachedFileText />
-          </StyledA>
+          </StyledLink>
         )}
       </BottomShade>
     </StyledCard>
