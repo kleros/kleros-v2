@@ -17,7 +17,7 @@ export const alchemyApiKey = import.meta.env.ALCHEMY_API_KEY ?? "";
 const chains = ALL_CHAINS as [Chain, ...Chain[]];
 
 type AlchemyProtocol = "https" | "wss";
-type AlchemyChain = "arb-sepolia" | "eth-mainnet" | "arb";
+type AlchemyChain = "arb-sepolia" | "eth-mainnet" | "arb-mainnet";
 const alchemyURL = (protocol: AlchemyProtocol, chain: AlchemyChain) =>
   `${protocol}://${chain}.g.alchemy.com/v2/${alchemyApiKey}`;
 const alchemyTransport = (chain: AlchemyChain) =>
@@ -25,7 +25,7 @@ const alchemyTransport = (chain: AlchemyChain) =>
 
 const transports = {
   [isProductionDeployment() ? arbitrum.id : arbitrumSepolia.id]: isProductionDeployment()
-    ? alchemyTransport("arb")
+    ? alchemyTransport("arb-mainnet")
     : alchemyTransport("arb-sepolia"),
   [mainnet.id]: alchemyTransport("eth-mainnet"),
   [gnosisChiado.id]: fallback([webSocket("wss://rpc.chiadochain.net/wss"), http("https://rpc.chiadochain.net")]),
