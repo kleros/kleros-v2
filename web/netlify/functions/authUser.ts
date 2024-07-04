@@ -74,8 +74,10 @@ const authUser = async (event) => {
     }
 
     try {
+      // If the main Alchemy API key is permissioned, it won't work in a Netlify Function so we use a dedicated API key
+      const alchemyApiKey = process.env.ALCHEMY_FUNCTIONS_API_KEY ?? process.env.ALCHEMY_API_KEY;
       const alchemyChain = isProductionDeployment() ? "arb-mainnet" : "arb-sepolia";
-      const alchemyRpcURL = `https://${alchemyChain}.g.alchemy.com/v2/${process.env.ALCHEMY_FUNCTIONS_API_KEY}`;
+      const alchemyRpcURL = `https://${alchemyChain}.g.alchemy.com/v2/${alchemyApiKey}`;
       const provider = new ethers.providers.JsonRpcProvider(alchemyRpcURL);
       await siweMessage.verify({ signature, nonce: nonceData.nonce, time: new Date().toISOString() }, { provider });
     } catch (err) {
