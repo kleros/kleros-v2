@@ -68,15 +68,15 @@ const StyledDottedMenu = styled(DottedMenu)`
 `;
 
 interface IMenuButton {
-  setIsOpen: (open: boolean) => void;
+  toggle: () => void;
   displayRipple: boolean;
 }
 
-const MenuButton: React.FC<IMenuButton> = ({ setIsOpen, displayRipple }) => {
+const MenuButton: React.FC<IMenuButton> = ({ toggle, displayRipple }) => {
   return (
     <Container {...{ displayRipple }}>
       <ButtonContainer>
-        <StyledDottedMenu onClick={() => setIsOpen(true)} />
+        <StyledDottedMenu onClick={toggle} />
       </ButtonContainer>
     </Container>
   );

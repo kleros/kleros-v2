@@ -8,9 +8,10 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { Periods } from "src/consts/periods";
 import { Period } from "src/graphql/graphql";
 
+import { EnsureChain } from "components/EnsureChain";
 import { Overlay } from "components/Overlay";
 
-import DistributeRewards from "./DistributeRewads";
+import DistributeRewards from "./DistributeRewards";
 import DrawButton from "./DrawButton";
 import ExecuteRulingButton from "./ExecuteRuling";
 import MenuButton from "./MenuButton";
@@ -86,24 +87,29 @@ const MaintenanceButtons: React.FC = () => {
     return () => clearInterval(intervalId);
   }, [dispute]);
 
+  const toggle = () => setIsOpen((prevValue) => !prevValue);
   return (
     <Container>
       {isOpen ? (
         <>
           <Overlay onClick={() => setIsOpen(false)} />
           <PopupContainer>
-            <DrawButton {...{ id, setIsOpen }} numberOfVotes={dispute?.currentRound.nbVotes} />
-            <PassPeriodButton {...{ id, setIsOpen }} />
-            <DistributeRewards
-              {...{ id, setIsOpen }}
-              roundIndex={dispute?.currentRoundIndex}
-              numberOfVotes={dispute?.currentRound.nbVotes}
-            />
-            <ExecuteRulingButton {...{ id, setIsOpen }} />
+            <EnsureChain>
+              <>
+                <DrawButton {...{ id, setIsOpen }} numberOfVotes={dispute?.currentRound.nbVotes} />
+                <PassPeriodButton {...{ id, setIsOpen }} />
+                <DistributeRewards
+                  {...{ id, setIsOpen }}
+                  roundIndex={dispute?.currentRoundIndex}
+                  numberOfVotes={dispute?.currentRound.nbVotes}
+                />
+                <ExecuteRulingButton {...{ id, setIsOpen }} />
+              </>
+            </EnsureChain>
           </PopupContainer>
         </>
       ) : null}
-      <MenuButton {...{ setIsOpen, displayRipple }} />
+      <MenuButton {...{ toggle, displayRipple }} />
     </Container>
   );
 };
