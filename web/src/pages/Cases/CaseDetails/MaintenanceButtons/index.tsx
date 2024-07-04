@@ -72,12 +72,10 @@ const MaintenanceButtons: React.FC = () => {
       const now = Date.now() / 1000;
 
       if (
-        dispute.period !== Period.Execution &&
-        now > parseInt(dispute.lastPeriodChange) + parseInt(dispute.court.timesPerPeriod[period])
+        (dispute.period !== Period.Execution &&
+          now > parseInt(dispute.lastPeriodChange) + parseInt(dispute.court.timesPerPeriod[period])) ||
+        (dispute.period === Period.Execution && !dispute.ruled)
       ) {
-        setDisplayRipple(true);
-        return;
-      } else if (dispute.period === Period.Execution && !dispute.ruled) {
         setDisplayRipple(true);
         return;
       }
