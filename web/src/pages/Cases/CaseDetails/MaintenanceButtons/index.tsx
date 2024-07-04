@@ -61,13 +61,8 @@ const MaintenanceButtons: React.FC = () => {
   // using interval here instead of useMemo with dispute, since we can't tell when period has timed out,
   // we can use useCountdown, but that would trigger the update every 1 sec. so this is ideal.
   useEffect(() => {
-    const intervalId = setInterval(() => {
+    const rippleCheck = () => {
       if (!dispute) return;
-
-      if (dispute.ruled) {
-        clearInterval(intervalId);
-        return;
-      }
 
       const period = Periods[dispute?.period] ?? 0;
       const now = Date.now() / 1000;
@@ -82,6 +77,19 @@ const MaintenanceButtons: React.FC = () => {
       }
 
       setDisplayRipple(false);
+    };
+
+    // initial check
+    rippleCheck();
+
+    const intervalId = setInterval(() => {
+      if (!dispute) return;
+
+      if (dispute.ruled) {
+        clearInterval(intervalId);
+        return;
+      }
+      rippleCheck();
     }, 5000);
 
     return () => clearInterval(intervalId);
