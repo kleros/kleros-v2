@@ -12,8 +12,7 @@ export const SUPPORTED_CHAINS: Record<number, Chain> = {
 
 // Read Only
 export const QUERY_CHAINS: Record<number, Chain> = {
-  [gnosisChiado.id]: gnosisChiado,
-  [gnosis.id]: gnosis,
+  [isProductionDeployment() ? gnosis.id : gnosisChiado.id]: isProductionDeployment() ? gnosis : gnosisChiado,
   [mainnet.id]: mainnet,
 };
 
