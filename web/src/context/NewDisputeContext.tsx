@@ -2,13 +2,15 @@ import React, { createContext, useState, useContext, useMemo } from "react";
 
 import { Address } from "viem";
 
+import { DEFAULT_CHAIN } from "consts/chains";
+import { disputeResolverAddress, klerosCoreAddress } from "hooks/contracts/generated";
 import { useLocalStorage } from "hooks/useLocalStorage";
 import { isUndefined } from "utils/index";
 
 export type Answer = {
-  id?: string;
+  id: string;
   title: string;
-  description?: string;
+  description: string;
   reserved?: boolean;
 };
 
@@ -26,7 +28,7 @@ export interface IDisputeTemplate {
   arbitrableChainID?: string;
   arbitratorAddress?: string;
   arbitratorChainID?: string;
-  category?: string;
+  category: string;
   description: string;
   frontendUrl?: string;
   lang?: string;
@@ -35,6 +37,7 @@ export interface IDisputeTemplate {
   specification?: string;
   title: string;
   aliases?: Alias;
+  version: string;
   // attachment: Attachment;
   // type: string;
 }
@@ -62,11 +65,13 @@ const initialDisputeData: IDisputeData = {
   title: "",
   description: "",
   question: "",
+  category: "",
   answers: [
-    { title: "", id: "1" },
-    { title: "", id: "2" },
+    { title: "", id: "1", description: "" },
+    { title: "", id: "2", description: "" },
   ],
   aliasesArray: [{ name: "", address: "", id: "1" }],
+  version: "1.0",
 };
 const initialDisputeTemplate = initialDisputeData as IDisputeTemplate;
 
@@ -127,7 +132,17 @@ const constructDisputeTemplate = (disputeData: IDisputeData) => {
       baseTemplate.aliases = aliases;
     }
   }
+
+  for (const answer of baseTemplate.answers) {
+    answer.id = "0x" + BigInt(answer.id).toString(16);
+  }
   if (!isUndefined(baseTemplate.policyURI) && baseTemplate.policyURI === "") delete baseTemplate.policyURI;
+
+  // in future if we support chain switching these would need to be calculated from connected 'chainId'
+  baseTemplate.arbitrableAddress = disputeResolverAddress[DEFAULT_CHAIN];
+  baseTemplate.arbitrableChainID = DEFAULT_CHAIN.toString();
+  baseTemplate.arbitratorAddress = klerosCoreAddress[DEFAULT_CHAIN];
+  baseTemplate.arbitratorChainID = DEFAULT_CHAIN.toString();
 
   return baseTemplate as IDisputeTemplate;
 };

@@ -17,7 +17,8 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
 
   //checks if each answer is filled in
   const areVotingOptionsFilled =
-    disputeData.question !== "" && disputeData.answers.every((answer) => answer.title !== "");
+    disputeData.question !== "" &&
+    disputeData.answers.every((answer) => answer.title !== "" && answer.description !== "");
 
   //check if any filled address or ens is invalid
   const areFilledAddressesValid = disputeData?.aliasesArray?.every((alias) =>
@@ -28,6 +29,7 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
     (location.pathname.includes("/resolver/title") && !disputeData.title) ||
     (location.pathname.includes("/resolver/description") && !disputeData.description) ||
     (location.pathname.includes("/resolver/court") && !disputeData.courtId) ||
+    (location.pathname.includes("/resolver/category") && !disputeData.category) ||
     (location.pathname.includes("/resolver/jurors") && !disputeData.arbitrationCost) ||
     (location.pathname.includes("/resolver/voting-options") && !areVotingOptionsFilled) ||
     (location.pathname.includes("/resolver/notable-persons") && !areFilledAddressesValid) ||
