@@ -20,8 +20,8 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
     disputeData.question !== "" && disputeData.answers.every((answer) => answer.title !== "");
 
   //check if any filled address or ens is invalid
-  const areFilledAddressesValid = disputeData?.aliasesArray?.every(
-    (alias) => alias.address !== "" && alias.isValid && alias.name !== ""
+  const areFilledAddressesValid = disputeData?.aliasesArray?.every((alias) =>
+    alias.address === "" && alias.name === "" ? true : alias.isValid
   );
 
   const isButtonDisabled =

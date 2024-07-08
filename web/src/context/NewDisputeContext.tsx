@@ -66,10 +66,7 @@ const initialDisputeData: IDisputeData = {
     { title: "", id: "1" },
     { title: "", id: "2" },
   ],
-  aliasesArray: [
-    { name: "", address: "", id: "1" },
-    { name: "", address: "", id: "2" },
-  ],
+  aliasesArray: [{ name: "", address: "", id: "1" }],
 };
 const initialDisputeTemplate = initialDisputeData as IDisputeTemplate;
 
