@@ -16,6 +16,12 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  ${landscapeStyle(
+    () => css`
+      padding-bottom: 240px;
+    `
+  )}
 `;
 
 const StyledField = styled(Field)`

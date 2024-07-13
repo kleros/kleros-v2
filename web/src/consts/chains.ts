@@ -1,16 +1,18 @@
 import { extractChain } from "viem";
-import { Chain, arbitrum, mainnet, arbitrumSepolia, gnosisChiado } from "viem/chains";
+import { Chain, arbitrum, mainnet, arbitrumSepolia, gnosis, gnosisChiado } from "viem/chains";
 
 import { isProductionDeployment } from "./index";
 
 export const DEFAULT_CHAIN = isProductionDeployment() ? arbitrum.id : arbitrumSepolia.id;
 
+// Read/Write
 export const SUPPORTED_CHAINS: Record<number, Chain> = {
   [isProductionDeployment() ? arbitrum.id : arbitrumSepolia.id]: isProductionDeployment() ? arbitrum : arbitrumSepolia,
 };
 
+// Read Only
 export const QUERY_CHAINS: Record<number, Chain> = {
-  [gnosisChiado.id]: gnosisChiado,
+  [isProductionDeployment() ? gnosis.id : gnosisChiado.id]: isProductionDeployment() ? gnosis : gnosisChiado,
   [mainnet.id]: mainnet,
 };
 
