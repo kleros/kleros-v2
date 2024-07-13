@@ -22,6 +22,7 @@ import Explore from "./navbar/Explore";
 import Menu from "./navbar/Menu";
 import Help from "./navbar/Menu/Help";
 import Settings from "./navbar/Menu/Settings";
+import { useAccount } from "wagmi";
 
 const Container = styled.div`
   display: none;
@@ -76,6 +77,7 @@ const StyledKlerosSolutionsIcon = styled(KlerosSolutionsIcon)`
 const ConnectWalletContainer = styled.div`
   label {
     color: ${({ theme }) => theme.white};
+    cursor: pointer;
   }
 `;
 
@@ -95,6 +97,7 @@ const DesktopHeader: React.FC = () => {
   const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
   const [initialTab, setInitialTab] = useState<number>(0);
   const location = useLocation();
+  const { isConnected } = useAccount();
 
   const initializeFragmentURL = useCallback(() => {
     const hash = location.hash;
@@ -130,7 +133,7 @@ const DesktopHeader: React.FC = () => {
         </MiddleSide>
 
         <RightSide>
-          <ConnectWalletContainer>
+          <ConnectWalletContainer onClick={isConnected ? toggleIsSettingsOpen : undefined}>
             <ConnectWallet />
           </ConnectWalletContainer>
           <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
