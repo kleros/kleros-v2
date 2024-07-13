@@ -3,34 +3,59 @@ import React from "react";
 import { createWeb3Modal } from "@web3modal/wagmi/react";
 import { type Chain } from "viem";
 import { createConfig, fallback, http, WagmiProvider, webSocket } from "wagmi";
-import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado } from "wagmi/chains";
+import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado, gnosis, sepolia } from "wagmi/chains";
 import { walletConnect } from "wagmi/connectors";
 
-import { ALL_CHAINS } from "consts/chains";
+import { ALL_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 import { isProductionDeployment } from "consts/index";
 
 import { lightTheme } from "styles/themes";
 
-const projectId = import.meta.env.WALLETCONNECT_PROJECT_ID ?? "";
-export const alchemyApiKey = import.meta.env.ALCHEMY_API_KEY ?? "";
+const alchemyApiKey = import.meta.env.ALCHEMY_API_KEY ?? "";
+const isProduction = isProductionDeployment();
 
-const chains = ALL_CHAINS as [Chain, ...Chain[]];
-
-type AlchemyProtocol = "https" | "wss";
-type AlchemyChain = "arb-sepolia" | "eth-mainnet" | "arb";
-const alchemyURL = (protocol: AlchemyProtocol, chain: AlchemyChain) =>
-  `${protocol}://${chain}.g.alchemy.com/v2/${alchemyApiKey}`;
-const alchemyTransport = (chain: AlchemyChain) =>
-  fallback([webSocket(alchemyURL("wss", chain)), http(alchemyURL("https", chain))]);
-
-const transports = {
-  [isProductionDeployment() ? arbitrum.id : arbitrumSepolia.id]: isProductionDeployment()
-    ? alchemyTransport("arb")
-    : alchemyTransport("arb-sepolia"),
-  [mainnet.id]: alchemyTransport("eth-mainnet"),
-  [gnosisChiado.id]: fallback([webSocket("wss://rpc.chiadochain.net/wss"), http("https://rpc.chiadochain.net")]),
+// https://github.com/alchemyplatform/alchemy-sdk-js/blob/96b3f62/src/types/types.ts#L98-L119
+const alchemyToViemChain = {
+  [arbitrum.id]: "arb-mainnet",
+  [arbitrumSepolia.id]: "arb-sepolia",
+  [mainnet.id]: "eth-mainnet",
+  [sepolia.id]: "eth-sepolia",
 };
 
+type AlchemyProtocol = "https" | "wss";
+
+// https://github.com/alchemyplatform/alchemy-sdk-js/blob/96b3f62/src/util/const.ts#L16-L18
+const alchemyURL = (protocol: AlchemyProtocol, chainId: number) =>
+  `${protocol}://${alchemyToViemChain[chainId]}.g.alchemy.com/v2/${alchemyApiKey}`;
+
+export const getChainRpcUrl = (protocol: AlchemyProtocol, chainId: number) => {
+  return alchemyURL(protocol, chainId);
+};
+
+export const getDefaultChainRpcUrl = (protocol: AlchemyProtocol) => {
+  return getChainRpcUrl(protocol, DEFAULT_CHAIN);
+};
+
+export const getTransports = () => {
+  const alchemyTransport = (chain: Chain) =>
+    fallback([http(alchemyURL("https", chain.id)), webSocket(alchemyURL("wss", chain.id))]);
+  const defaultTransport = (chain: Chain) =>
+    fallback([http(chain.rpcUrls.default?.http?.[0]), webSocket(chain.rpcUrls.default?.webSocket?.[0])]);
+
+  return {
+    [isProduction ? arbitrum.id : arbitrumSepolia.id]: isProduction
+      ? alchemyTransport(arbitrum)
+      : alchemyTransport(arbitrumSepolia),
+    [isProduction ? gnosis.id : gnosisChiado.id]: isProduction
+      ? defaultTransport(gnosis)
+      : defaultTransport(gnosisChiado),
+    [mainnet.id]: alchemyTransport(mainnet), // Always enabled for ENS resolution
+  };
+};
+
+const chains = ALL_CHAINS as [Chain, ...Chain[]];
+const transports = getTransports();
+const projectId = import.meta.env.WALLETCONNECT_PROJECT_ID ?? "";
 const wagmiConfig = createConfig({
   chains,
   transports,
