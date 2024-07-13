@@ -49,7 +49,7 @@ const Container = styled.div`
 
   ${landscapeStyle(
     () => css`
-      margin-top: 64px;
+      margin-top: 94px;
       top: 0;
       left: 0;
       right: auto;

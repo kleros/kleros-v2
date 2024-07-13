@@ -38,7 +38,7 @@ const Container = styled.div`
 
   ${landscapeStyle(
     () => css`
-      margin-top: 64px;
+      margin-top: 94px;
       width: 260px;
       top: 0;
       right: 0;

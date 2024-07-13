@@ -51,7 +51,7 @@ const StyledA = styled.a`
   display: flex;
   justify-content: center;
   gap: 4px;
-  margin-top: 90px;
+  margin-top: 94px;
   margin-bottom: 110px;
   font-size: 16px;
 
