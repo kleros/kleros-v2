@@ -9,8 +9,6 @@ import { Tabs } from "@kleros/ui-components-library";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
-import { Overlay } from "components/Overlay";
-
 import { ISettings } from "../../index";
 
 import General from "./General";
@@ -27,7 +25,6 @@ const Container = styled.div`
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
-  background-color: ${({ theme }) => theme.whiteBackground};
   border: 1px solid ${({ theme }) => theme.stroke};
   border-radius: 3px;
   overflow-y: auto;
@@ -85,20 +82,17 @@ const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen, initialTab }) => 
   });
 
   return (
-    <>
-      <Overlay />
-      <Container ref={containerRef}>
-        <StyledSettingsText>Settings</StyledSettingsText>
-        <StyledTabs
-          currentValue={currentTab}
-          items={TABS}
-          callback={(n: number) => {
-            setCurrentTab(n);
-          }}
-        />
-        {currentTab === 0 ? <General /> : <NotificationSettings toggleIsSettingsOpen={toggleIsSettingsOpen} />}
-      </Container>
-    </>
+    <Container ref={containerRef}>
+      <StyledSettingsText>Settings</StyledSettingsText>
+      <StyledTabs
+        currentValue={currentTab}
+        items={TABS}
+        callback={(n: number) => {
+          setCurrentTab(n);
+        }}
+      />
+      {currentTab === 0 ? <General /> : <NotificationSettings toggleIsSettingsOpen={toggleIsSettingsOpen} />}
+    </Container>
   );
 };
 
