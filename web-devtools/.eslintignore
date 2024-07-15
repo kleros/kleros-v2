@@ -1,0 +1,3 @@
+# .eslintignore
+src/hooks/contracts/generated.ts
+src/graphql/**/*.ts
