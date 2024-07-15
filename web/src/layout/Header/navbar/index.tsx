@@ -28,7 +28,7 @@ const Wrapper = styled.div<{ isOpen: boolean }>`
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 30;
+  z-index: 1;
 `;
 
 const StyledOverlay = styled(Overlay)`
