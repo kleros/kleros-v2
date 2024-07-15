@@ -12,27 +12,37 @@
     "yarn": "4.3.1"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "yarn generate && next dev",
+    "build": "yarn generate && next build",
+    "start": "yarn generate && next start",
+    "lint": "next lint",
+    "generate": "yarn generate:gql && yarn generate:hooks",
+    "generate:gql": "graphql-codegen",
+    "generate:hooks": "NODE_NO_WARNINGS=1 wagmi generate"
   },
   "prettier": "@kleros/kleros-v2-prettier-config",
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/client-preset": "^4.3.2",
     "@svgr/webpack": "^8.1.0",
     "@types/node": "^20",
     "@types/react": "18.2.0",
     "@types/react-dom": "^18.2.18",
-    "typescript": "^5.3.3"
+    "@wagmi/cli": "^2.0.3",
+    "eslint-config-next": "^14.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3"
   },
   "dependencies": {
     "@kleros/kleros-sdk": "workspace:^",
     "@kleros/ui-components-library": "^2.10.0",
+    "graphql": "^16.9.0",
     "next": "14.2.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "styled-components": "^5.3.11",
-    "viem": "^1.21.4",
-    "wagmi": "^1.4.13"
+    "react-markdown": "^8.0.7",
+    "vanilla-jsoneditor": "^0.23.7",
+    "viem": "^2.1.0",
+    "wagmi": "^2.2.1"
   }
 }
