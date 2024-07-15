@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 
 import * as jwt from "jose";
-import { SiweMessage } from "siwe";
+import { createSiweMessage } from "viem/siwe";
 import { useAccount, useChainId, useSignMessage } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
@@ -41,7 +41,7 @@ export const EnsureAuth: React.FC<IEnsureAuth> = ({ children, className }) => {
       setIsLoading(true);
       if (!address) return;
 
-      const message = await createSiweMessage(address, "Sign In to Kleros with Ethereum.", chainId);
+      const message = await createMessage(address, "Sign In to Kleros with Ethereum.", chainId);
 
       const signature = await signMessageAsync({ message });
 
@@ -52,9 +52,8 @@ export const EnsureAuth: React.FC<IEnsureAuth> = ({ children, className }) => {
         signature,
         message,
       })
-        .then(async (res) => {
-          const response = await res.json();
-          setAuthToken(response["token"]);
+        .then(async (token) => {
+          setAuthToken(token);
         })
         .catch((err) => console.log({ err }))
         .finally(() => setIsLoading(false));
@@ -77,16 +76,15 @@ export const EnsureAuth: React.FC<IEnsureAuth> = ({ children, className }) => {
   );
 };
 
-async function createSiweMessage(address: `0x${string}`, statement: string, chainId: number = DEFAULT_CHAIN) {
+async function createMessage(address: `0x${string}`, statement: string, chainId: number = DEFAULT_CHAIN) {
   const domain = window.location.host;
   const origin = window.location.origin;
-  const response = await getNonce(address);
-  const nonce = (await response.json()).nonce;
+  const nonce = await getNonce(address);
 
   // signature is valid only for 10 mins
-  const expirationTime = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  const expirationTime = new Date(Date.now() + 10 * 60 * 1000);
 
-  const message = new SiweMessage({
+  const message = createSiweMessage({
     domain,
     address,
     statement,
@@ -96,5 +94,5 @@ async function createSiweMessage(address: `0x${string}`, statement: string, chai
     nonce,
     expirationTime,
   });
-  return message.prepareMessage();
+  return message;
 }

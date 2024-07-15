@@ -1,4 +1,5 @@
 import { toast } from "react-toastify";
+
 import { OPTIONS } from "utils/wrapWithToast";
 
 type AuthoriseUserData = {
@@ -7,20 +8,25 @@ type AuthoriseUserData = {
   message: string;
 };
 
-export function authoriseUser(authData: AuthoriseUserData): Promise<Response> {
-  return toast.promise<Response, Error>(
+export function authoriseUser(authData: AuthoriseUserData): Promise<string> {
+  const query = `mutation Login {
+    login(message: "${authData.message}", signature: "${authData.signature}")
+  }
+  `;
+
+  return toast.promise<string, Error>(
     fetch(`/.netlify/functions/authUser`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(authData),
+      body: JSON.stringify({ query }),
     }).then(async (response) => {
       if (response.status !== 200) {
         const error = await response.json().catch(() => ({ message: "Error signing in" }));
         throw new Error(error.message);
       }
-      return response;
+      return (await response.json()).data.login.access_token;
     }),
     {
       pending: `Signing in User...`,
@@ -35,16 +41,24 @@ export function authoriseUser(authData: AuthoriseUserData): Promise<Response> {
   );
 }
 
-export function getNonce(address: string): Promise<Response> {
-  return toast.promise<Response, Error>(
+export function getNonce(address: string): Promise<string> {
+  const query = `mutation GetNonce {
+    nonce(address: "${address}")
+}`;
+
+  return toast.promise<string, Error>(
     fetch(`/.netlify/functions/getNonce?address=${address}`, {
-      method: "GET",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query }),
     }).then(async (response) => {
       if (response.status !== 200) {
         const error = await response.json().catch(() => ({ message: "Error getting nonce" }));
         throw new Error(error.message);
       }
-      return response;
+      return (await response.json()).data.nonce;
     }),
     {
       error: {

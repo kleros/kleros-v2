@@ -118,7 +118,7 @@
     "siwe": "^2.3.1",
     "styled-components": "^5.3.11",
     "vanilla-jsoneditor": "^0.21.4",
-    "viem": "^2.1.0",
+    "viem": "^2.17.3",
     "vite": "^5.2.10",
     "wagmi": "^2.11.3"
   }
