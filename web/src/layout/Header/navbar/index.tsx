@@ -77,7 +77,8 @@ const PopupContainer = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 30;
+  z-index: 1;
+  background-color: ${({ theme }) => theme.blackLowOpacity};
 `;
 
 export interface ISettings {
@@ -131,7 +132,6 @@ const NavBar: React.FC = () => {
       </Wrapper>
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
         <PopupContainer>
-          <Overlay />
           {isDappListOpen && <DappList {...{ toggleIsDappListOpen }} />}
           {isHelpOpen && <Help {...{ toggleIsHelpOpen }} />}
           {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen }} />}

@@ -13,7 +13,6 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
-import { Overlay } from "components/Overlay";
 import Onboarding from "components/Popup/MiniGuides/Onboarding";
 
 import Logo from "./Logo";
@@ -95,7 +94,8 @@ const PopupContainer = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 30;
+  z-index: 1;
+  background-color: ${({ theme }) => theme.blackLowOpacity};
 `;
 
 const DesktopHeader: React.FC = () => {
@@ -149,7 +149,6 @@ const DesktopHeader: React.FC = () => {
       </Container>
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
         <PopupContainer>
-          <Overlay />
           {isDappListOpen && <DappList {...{ toggleIsDappListOpen, isDappListOpen }} />}
           {isHelpOpen && <Help {...{ toggleIsHelpOpen, isHelpOpen }} />}
           {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen, initialTab }} />}
