@@ -21,48 +21,16 @@
         "name": "next"
       }
     ],
+    "baseUrl": "./src",
     "paths": {
       "~*": [
         "./*"
       ],
       "src*": [
-        "./src*"
-      ],
-      "utils*": [
-        "./src/utils*"
-      ],
-      "assets*": [
-        "./src/assets*"
-      ],
-      "components*": [
-        "./src/components*"
-      ],
-      "connectors*": [
-        "./src/connectors*"
-      ],
-      "context*": [
-        "./src/context*"
-      ],
-      "layout*": [
-        "./src/layout*"
-      ],
-      "consts*": [
-        "./src/consts*"
-      ],
-      "hooks*": [
-        "./src/hooks*"
-      ],
-      "queries*": [
-        "./src/hooks/queries*"
-      ],
-      "pages*": [
-        "./src/pages*"
-      ],
-      "styles*": [
-        "./src/styles*"
+        "./*"
       ],
       "svgs*": [
-        "./src/assets/svgs*"
+        "assets/svgs*"
       ]
     }
   },
