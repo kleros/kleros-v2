@@ -6,6 +6,7 @@
   "repository": "",
   "author": "",
   "license": "MIT",
+  "type": "module",
   "packageManager": "yarn@4.0.2+sha256.825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186",
   "volta": {
     "node": "20.11.0",
@@ -41,7 +42,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^8.0.7",
-    "vanilla-jsoneditor": "^0.23.7",
+    "vanilla-jsoneditor": "^0.21.4",
     "viem": "^2.1.0",
     "wagmi": "^2.2.1"
   }
