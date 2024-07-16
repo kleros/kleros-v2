@@ -2,8 +2,9 @@
 import React from "react";
 import { ThemeProvider } from "styled-components";
 
-import { GlobalStyle } from "styles/global-style";
 import { theme } from "styles/Theme";
+
+import { GlobalStyle } from "styles/global-style";
 
 const StyledComponentsProvider: React.FC<{
   children: React.ReactNode;
