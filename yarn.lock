@@ -6653,6 +6653,7 @@ __metadata:
     amqplib: "npm:^0.10.3"
     chart.js: "npm:^3.9.1"
     chartjs-adapter-moment: "npm:^1.0.1"
+    chartjs-plugin-datalabels: "npm:^2.2.0"
     core-js: "npm:^3.35.0"
     eslint: "npm:^8.56.0"
     eslint-config-prettier: "npm:^8.10.0"
@@ -15306,6 +15307,15 @@ __metadata:
     chart.js: ">=3.0.0"
     moment: ^2.10.2
   checksum: 98e3726e3d049d1e206e20adbf22da86ba16bd69a7570b8ea8ea945bba3645c44a012b638b06d765e1a6564121cb8bb3fd0b233014b5a40ca4910b79985ee180
+  languageName: node
+  linkType: hard
+
+"chartjs-plugin-datalabels@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "chartjs-plugin-datalabels@npm:2.2.0"
+  peerDependencies:
+    chart.js: ">=3.0.0"
+  checksum: e87c2f30d4f6f84b4b1a28c00d1b032d0100f87f8f296a498507047bd2f7fe98eced583a2c09f30e55806e79a0ca7e0db027cc3bed9b27688980e55701a6945f
   languageName: node
   linkType: hard
 
