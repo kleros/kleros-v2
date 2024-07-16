@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useMemo } from "react";
+import React, { createContext, useState, useContext, useMemo, useCallback } from "react";
 
 import { Address } from "viem";
 
@@ -73,20 +73,16 @@ const initialDisputeData: IDisputeData = {
   aliasesArray: [{ name: "", address: "", id: "1" }],
   version: "1.0",
 };
-const initialDisputeTemplate = initialDisputeData as IDisputeTemplate;
 
-const NewDisputeContext = createContext<INewDisputeContext>({
-  disputeData: initialDisputeData,
-  setDisputeData: () => {},
-  disputeTemplate: initialDisputeTemplate,
-  resetDisputeData: () => {},
-  isSubmittingCase: false,
-  setIsSubmittingCase: () => {},
-  isPolicyUploading: false,
-  setIsPolicyUploading: () => {},
-});
+const NewDisputeContext = createContext<INewDisputeContext | undefined>(undefined);
 
-export const useNewDisputeContext = () => useContext(NewDisputeContext);
+export const useNewDisputeContext = () => {
+  const context = useContext(NewDisputeContext);
+  if (!context) {
+    throw new Error("Context Provider not found.");
+  }
+  return context;
+};
 
 export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [disputeData, setDisputeData] = useLocalStorage<IDisputeData>("disputeData", initialDisputeData);
@@ -95,9 +91,9 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const disputeTemplate = useMemo(() => constructDisputeTemplate(disputeData), [disputeData]);
 
-  const resetDisputeData = () => {
+  const resetDisputeData = useCallback(() => {
     setDisputeData(initialDisputeData);
-  };
+  }, [setDisputeData]);
 
   const contextValues = useMemo(
     () => ({
@@ -110,7 +106,7 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       isPolicyUploading,
       setIsPolicyUploading,
     }),
-    [disputeData, disputeTemplate, resetDisputeData, isSubmittingCase, isPolicyUploading]
+    [disputeData, disputeTemplate, resetDisputeData, isSubmittingCase, isPolicyUploading, setDisputeData]
   );
 
   return <NewDisputeContext.Provider value={contextValues}>{children}</NewDisputeContext.Provider>;
