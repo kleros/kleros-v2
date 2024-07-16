@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { formatUnits } from "viem";
@@ -11,6 +11,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
 
+import CasesByCourtsChart, { CasesByCourtsChartData } from "./CasesByCourtsChart";
 import TimeSeriesChart from "./TimeSeriesChart";
 
 const Container = styled.div`
@@ -27,7 +28,7 @@ const StyledDropdown = styled(DropdownSelect)`
 const CHART_OPTIONS = [
   { text: "Staked PNK", value: "stakedPNK" },
   { text: "Cases", value: "cases" },
-  { text: "Cases per court", value: 2 },
+  { text: "Cases per court", value: "casesPerCourt" },
 ];
 
 const ChartOptionsDropdown: React.FC<{
@@ -56,6 +57,8 @@ const Chart: React.FC = () => {
   const [chartOption, setChartOption] = useState("stakedPNK");
   const { data } = useHomePageContext();
   const chartData = data?.counters;
+  const courtsChartData = data?.courts;
+
   const processedData = chartData?.reduce((accData: IChartData[], counter) => {
     return [
       ...accData,
@@ -66,10 +69,34 @@ const Chart: React.FC = () => {
     ];
   }, []);
 
+  const processedCourtsData = courtsChartData?.reduce(
+    (accData: CasesByCourtsChartData, current) => {
+      return {
+        labels: [...accData.labels, current.name ?? ""],
+        cases: [...accData.cases, current.numberDisputes],
+        totalCases: accData.totalCases + parseInt(current.numberDisputes, 10),
+      };
+    },
+    { labels: [], cases: [], totalCases: 0 }
+  );
+
+  const ChartComponent = useMemo(() => {
+    switch (chartOption) {
+      case "casesPerCourt":
+        return processedCourtsData ? (
+          <CasesByCourtsChart data={processedCourtsData} />
+        ) : (
+          <StyledSkeleton height={233} />
+        );
+      default:
+        return processedData ? <TimeSeriesChart data={processedData} /> : <StyledSkeleton height={233} />;
+    }
+  }, [processedCourtsData, processedData, chartOption]);
+
   return (
     <Container>
       <ChartOptionsDropdown {...{ setChartOption }} />
-      {processedData ? <TimeSeriesChart data={processedData} /> : <StyledSkeleton height={233} />}
+      {ChartComponent}
     </Container>
   );
 };
