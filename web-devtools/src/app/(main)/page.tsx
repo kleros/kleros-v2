@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import { DropdownCascader, Field } from "@kleros/ui-components-library";
@@ -31,8 +31,6 @@ const SettingsPane = styled.div`
 `;
 
 const Home: React.FC = () => {
-  const [selectedArbitrable, setSelectedArbitrable] = useState<string | number>("");
-
   return (
     <Container>
       <h1>Ruler</h1>
@@ -42,8 +40,8 @@ const Home: React.FC = () => {
           <label>Select Arbitrable</label>
           <DropdownCascader
             placeholder={"Select Arbitrable"}
-            onSelect={(value) => {
-              setSelectedArbitrable(value);
+            onSelect={() => {
+              //todo;
             }}
             items={SelectArbitrable}
           />
