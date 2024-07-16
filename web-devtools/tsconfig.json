@@ -1,4 +1,5 @@
 {
+  "extends": "@kleros/kleros-v2-tsconfig/react-library.json",
   "compilerOptions": {
     "lib": [
       "dom",
