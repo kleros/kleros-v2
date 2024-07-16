@@ -5,10 +5,11 @@ import { useToggle } from "react-use";
 import Appeal from "../Appeal";
 import BinaryVoting from "../BinaryVoting";
 import JurorLevels from "../JurorLevels";
-import PageContentsTemplate from "../PageContentsTemplate";
 import RankedVoting from "../RankedVoting";
 import Staking from "../Staking";
+import DisputeResolver from "../DisputeResolver";
 
+import PageContentsTemplate from "../PageContentsTemplate";
 import HowItWorks from "./HowItWorks";
 import PnkLogoAndTitle from "./PnkLogoAndTitle";
 import WhatDoINeed from "./WhatDoINeed";
@@ -35,7 +36,14 @@ const leftPageContents = [
   {
     title: "Access the Mini Guides",
     paragraphs: [],
-    links: ["1. Staking", "2. Binary Voting", "3. Ranked Voting", "4. Appeal", "5. Juror Levels"],
+    links: [
+      "1. Staking",
+      "2. Binary Voting",
+      "3. Ranked Voting",
+      "4. Appeal",
+      "5. Juror Levels",
+      "6. Dispute Resolver",
+    ],
   },
 ];
 
@@ -51,20 +59,15 @@ const Onboarding: React.FC<IOnboarding> = ({ toggleMiniGuide }) => {
   const [isRankedVotingMiniGuideOpen, toggleRankedVotingMiniGuide] = useToggle(false);
   const [isAppealMiniGuideOpen, toggleAppealMiniGuide] = useToggle(false);
   const [isJurorLevelsMiniGuideOpen, toggleJurorLevelsMiniGuide] = useToggle(false);
+  const [isDisputeResolverMiniGuideOpen, toggleDisputeResolverMiniGuide] = useToggle(false);
 
   const isAnyMiniGuideOpen =
     isStakingMiniGuideOpen ||
     isBinaryVotingMiniGuideOpen ||
     isRankedVotingMiniGuideOpen ||
     isAppealMiniGuideOpen ||
-    isJurorLevelsMiniGuideOpen;
-
-  const canCloseOnboarding =
-    !isStakingMiniGuideOpen &&
-    !isBinaryVotingMiniGuideOpen &&
-    !isRankedVotingMiniGuideOpen &&
-    !isAppealMiniGuideOpen &&
-    !isJurorLevelsMiniGuideOpen;
+    isJurorLevelsMiniGuideOpen ||
+    isDisputeResolverMiniGuideOpen;
 
   const toggleSubMiniGuide = (guideName: string) => {
     if (guideName === "Staking") {
@@ -77,6 +80,8 @@ const Onboarding: React.FC<IOnboarding> = ({ toggleMiniGuide }) => {
       toggleAppealMiniGuide();
     } else if (guideName === "Juror Levels") {
       toggleJurorLevelsMiniGuide();
+    } else if (guideName === "Dispute Resolver") {
+      toggleDisputeResolverMiniGuide();
     }
   };
 
@@ -87,7 +92,7 @@ const Onboarding: React.FC<IOnboarding> = ({ toggleMiniGuide }) => {
         leftPageContents={leftPageContents}
         rightPageComponents={rightPageComponents}
         isOnboarding={true}
-        canClose={canCloseOnboarding}
+        canClose={!isAnyMiniGuideOpen}
         isVisible={!isAnyMiniGuideOpen}
         toggleSubMiniGuide={toggleSubMiniGuide}
       />
@@ -97,6 +102,7 @@ const Onboarding: React.FC<IOnboarding> = ({ toggleMiniGuide }) => {
       {isRankedVotingMiniGuideOpen && <RankedVoting toggleMiniGuide={toggleRankedVotingMiniGuide} />}
       {isAppealMiniGuideOpen && <Appeal toggleMiniGuide={toggleAppealMiniGuide} />}
       {isJurorLevelsMiniGuideOpen && <JurorLevels toggleMiniGuide={toggleJurorLevelsMiniGuide} />}
+      {isDisputeResolverMiniGuideOpen && <DisputeResolver toggleMiniGuide={toggleDisputeResolverMiniGuide} />}
     </>
   );
 };

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { REFETCH_INTERVAL } from "consts/index";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 
 import { graphql } from "src/graphql";
@@ -38,8 +39,9 @@ export const useClassicAppealQuery = (id?: string | number) => {
   const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<ClassicAppealQuery>({
-    queryKey: ["refetchOnBlock", `classicAppealQuery${id}`],
+    queryKey: [`classicAppealQuery${id}`],
     enabled: isEnabled,
+    refetchInterval: REFETCH_INTERVAL,
     queryFn: async () =>
       isEnabled
         ? await graphqlBatcher.fetch({
