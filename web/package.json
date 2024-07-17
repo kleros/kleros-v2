@@ -93,6 +93,7 @@
     "amqplib": "^0.10.3",
     "chart.js": "^3.9.1",
     "chartjs-adapter-moment": "^1.0.1",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "core-js": "^3.35.0",
     "ethers": "^5.7.2",
     "graphql": "^16.8.1",

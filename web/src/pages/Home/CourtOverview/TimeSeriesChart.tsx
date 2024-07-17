@@ -49,6 +49,18 @@ const TimeSeriesChart: React.FC<ITimeSeriesChart> = ({ data }) => {
         suggestedMin: 0,
       },
     },
+    plugins: {
+      tooltip: {
+        backgroundColor: theme.whiteBackground,
+        titleColor: theme.primaryText,
+        borderColor: theme.stroke,
+        borderWidth: 1,
+        displayColors: false,
+        callbacks: {
+          labelTextColor: () => theme.primaryText,
+        },
+      },
+    },
   };
 
   return (
