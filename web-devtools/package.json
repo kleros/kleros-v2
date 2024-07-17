@@ -13,9 +13,9 @@
     "yarn": "4.3.1"
   },
   "scripts": {
-    "dev": "yarn generate && next dev",
-    "build": "yarn generate && next build",
-    "start": "yarn generate && next start",
+    "dev": "scripts/runEnv.sh local 'yarn generate && next dev'",
+    "build": "scripts/runEnv.sh local 'yarn generate && next build'",
+    "start": "scripts/runEnv.sh local 'yarn generate && next start'",
     "lint": "next lint",
     "generate": "yarn generate:gql && yarn generate:hooks",
     "generate:gql": "graphql-codegen",
