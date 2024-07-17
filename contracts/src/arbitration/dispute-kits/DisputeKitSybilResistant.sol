@@ -465,6 +465,21 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
         }
     }
 
+    /// @dev Unstakes the jurors who are not eligible for drawing, so they don't interfere with the drawing process.
+    /// Can be called by anyone. The juror will be unstaked if he doesn't pass the check specific to this DK.
+    /// @param _juror The juror to unstake.
+    /// @param _courts The courts to unstake from. Note that each court must support this DK.
+    function flush(address _juror, uint96[] memory _courts) external {
+        require(!_proofOfHumanity(_juror), "The juror is eligible");
+        uint256 disputeKitID = core.disputeKitIDs(this);
+        for (uint256 i = 0; i < _courts.length; i++) {
+            uint96 courtID = _courts[i];
+            require(core.isSupported(courtID, disputeKitID), "DK not supported by court");
+            // TODO: generalize the function name and its permission.
+            core.setStakeBySortitionModule(_juror, courtID, 0, false);
+        }
+    }
+
     // ************************************* //
     // *           Public Views            * //
     // ************************************* //

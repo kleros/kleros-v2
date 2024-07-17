@@ -101,6 +101,7 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
     Court[] public courts; // The courts.
     IDisputeKit[] public disputeKits; // Array of dispute kits.
     Dispute[] public disputes; // The disputes.
+    mapping(IDisputeKit => uint256) public disputeKitIDs; // Maps dispute kit's address to its index.
     mapping(IERC20 => CurrencyRate) public currencyRates; // The price of each token in ETH.
     bool public paused; // Whether asset withdrawals are paused.
 
@@ -216,6 +217,7 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
 
         // DISPUTE_KIT_CLASSIC
         disputeKits.push(_disputeKit);
+        disputeKitIDs[_disputeKit] = DISPUTE_KIT_CLASSIC;
 
         emit DisputeKitCreated(DISPUTE_KIT_CLASSIC, _disputeKit);
 
@@ -316,6 +318,7 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
     function addNewDisputeKit(IDisputeKit _disputeKitAddress) external onlyByGovernor {
         uint256 disputeKitID = disputeKits.length;
         disputeKits.push(_disputeKitAddress);
+        disputeKitIDs[_disputeKitAddress] = disputeKitID;
         emit DisputeKitCreated(disputeKitID, _disputeKitAddress);
     }
 
@@ -479,6 +482,7 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
         uint256 _newStake,
         bool _alreadyTransferred
     ) external {
+        // TODO: generalize this function so it can be used by DK too. Rename to setStakeWhitelist or something. So it can be done for someone not just for sender.
         if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
         _setStake(_account, _courtID, _newStake, _alreadyTransferred, OnError.Return);
     }
