@@ -105,30 +105,31 @@ const NavBar: React.FC = () => {
   return (
     <>
       <Wrapper {...{ isOpen }}>
-        <StyledOverlay />
-        <Container {...{ isOpen }}>
-          <LightButton
-            text="Kleros Solutions"
-            onClick={() => {
-              toggleIsDappListOpen();
-            }}
-            Icon={KlerosSolutionsIcon}
-          />
-          <hr />
-          <Explore />
-          <hr />
-          <WalletContainer>
-            <ConnectWallet />
-            {isConnected && (
-              <DisconnectWalletButtonContainer>
-                <DisconnectWalletButton />
-              </DisconnectWalletButtonContainer>
-            )}
-          </WalletContainer>
-          <hr />
-          <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
-          <br />
-        </Container>
+        <StyledOverlay>
+          <Container {...{ isOpen }}>
+            <LightButton
+              text="Kleros Solutions"
+              onClick={() => {
+                toggleIsDappListOpen();
+              }}
+              Icon={KlerosSolutionsIcon}
+            />
+            <hr />
+            <Explore />
+            <hr />
+            <WalletContainer>
+              <ConnectWallet />
+              {isConnected && (
+                <DisconnectWalletButtonContainer>
+                  <DisconnectWalletButton />
+                </DisconnectWalletButtonContainer>
+              )}
+            </WalletContainer>
+            <hr />
+            <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
+            <br />
+          </Container>
+        </StyledOverlay>
       </Wrapper>
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
         <PopupContainer>
