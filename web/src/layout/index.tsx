@@ -29,6 +29,7 @@ const StyledToastContainer = styled(ToastContainer)`
 `;
 
 const OutletContainer = styled.div`
+  display: flex;
   flex: 1;
   background-color: ${({ theme }) => theme.lightBackground};
 `;
