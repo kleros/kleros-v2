@@ -6,7 +6,7 @@ import Skeleton from "react-loading-skeleton";
 import { useDebounce } from "react-use";
 import { Mode } from "vanilla-jsoneditor";
 
-// import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
+import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
 import { Answer, DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
 import { Field } from "@kleros/ui-components-library";
