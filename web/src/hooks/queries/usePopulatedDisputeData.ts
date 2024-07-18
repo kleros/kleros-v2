@@ -31,12 +31,16 @@ const disputeTemplateQuery = graphql(`
 export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
   const publicClient = usePublicClient();
   const { data: crossChainData, isError } = useIsCrossChainDispute(disputeID, arbitrableAddress);
-  const isEnabled = !isUndefined(disputeID) && !isUndefined(crossChainData) && !isUndefined(arbitrableAddress);
   const { graphqlBatcher } = useGraphqlBatcher();
   const { data: externalDisputeID } = useEvidenceGroup(disputeID, arbitrableAddress);
+  const isEnabled =
+    !isUndefined(disputeID) &&
+    !isUndefined(crossChainData) &&
+    !isUndefined(arbitrableAddress) &&
+    !isUndefined(externalDisputeID);
 
   return useQuery<DisputeDetails>({
-    queryKey: [`DisputeTemplate${disputeID}${arbitrableAddress}`],
+    queryKey: [`DisputeTemplate${disputeID}${arbitrableAddress}${externalDisputeID}`],
     enabled: isEnabled,
     staleTime: Infinity,
     queryFn: async () => {

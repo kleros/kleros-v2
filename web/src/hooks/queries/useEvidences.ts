@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { REFETCH_INTERVAL } from "consts/index";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 
 import { graphql } from "src/graphql";
@@ -45,10 +46,10 @@ export const useEvidences = (evidenceGroup?: string, keywords?: string) => {
   const document = keywords ? evidenceSearchQuery : evidencesQuery;
   return useQuery<{ evidences: EvidenceDetailsFragment[] }>({
     queryKey: [
-      "refetchOnBlock",
       keywords ? `evidenceSearchQuery${evidenceGroup}-${keywords}` : `evidencesQuery${evidenceGroup}`,
     ],
     enabled: isEnabled,
+    refetchInterval: REFETCH_INTERVAL,
     queryFn: async () => {
       const result = await graphqlBatcher.fetch({
         id: crypto.randomUUID(),

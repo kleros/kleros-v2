@@ -19,6 +19,10 @@ const homePageQuery = graphql(`
       activeJurors
       cases
     }
+    courts {
+      name
+      numberDisputes
+    }
   }
 `);
 

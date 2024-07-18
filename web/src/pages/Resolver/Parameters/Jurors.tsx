@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { DisplaySmall, Field } from "@kleros/ui-components-library";
 
@@ -13,6 +13,7 @@ import { isUndefined } from "utils/index";
 import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
 
 import { responsiveSize } from "styles/responsiveSize";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import Header from "pages/Resolver/Header";
 
@@ -22,6 +23,12 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  ${landscapeStyle(
+    () => css`
+      padding-bottom: 79px;
+    `
+  )}
 `;
 
 const StyledField = styled(Field)`
