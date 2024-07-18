@@ -52,7 +52,9 @@ interface Evidence {
   id: ID!
   evidence: String!
   evidenceGroup: EvidenceGroup!
+  evidenceIndex: String!
   sender: User!
+  senderAddress: String!
   timestamp: BigInt!
   name: String
   description: String
@@ -300,7 +302,9 @@ type ClassicEvidence implements Evidence @entity(immutable: true) {
   id: ID! # classicEvidenceGroup.id-nextEvidenceIndex
   evidence: String!
   evidenceGroup: EvidenceGroup!
+  evidenceIndex: String!
   sender: User!
+  senderAddress: String!
   timestamp: BigInt!
   name: String
   description: String
@@ -319,3 +323,11 @@ type ClassicContribution implements Contribution @entity {
   choice: BigInt!
   rewardWithdrawn: Boolean!
 }
+
+type _Schema_
+  @fulltext(
+    name: "evidenceSearch"
+    language: en
+    algorithm: rank
+    include: [{ entity: "ClassicEvidence", fields: [{ name: "name" }, { name: "description" },{ name: "senderAddress"},{ name: "evidenceIndex"}] }]
+  )

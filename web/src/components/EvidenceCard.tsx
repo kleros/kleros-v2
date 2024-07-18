@@ -62,20 +62,6 @@ const BottomShade = styled.div`
   }
 `;
 
-const StyledA = styled.a`
-  display: flex;
-  margin-left: auto;
-  gap: ${responsiveSize(5, 6)};
-  ${landscapeStyle(
-    () => css`
-      > svg {
-        width: 16px;
-        fill: ${({ theme }) => theme.primaryBlue};
-      }
-    `
-  )}
-`;
-
 const AccountContainer = styled.div`
   display: flex;
   flex-direction: row;

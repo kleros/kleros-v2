@@ -14,11 +14,13 @@ export function handleEvidenceEvent(event: EvidenceEvent): void {
   evidenceGroup.save();
   const evidenceId = `${evidenceGroupID}-${evidenceIndex.toString()}`;
   const evidence = new ClassicEvidence(evidenceId);
+  evidence.evidenceIndex = evidenceIndex.plus(ONE).toString();
   const userId = event.params._party.toHexString();
   evidence.timestamp = event.block.timestamp;
   evidence.evidence = event.params._evidence;
   evidence.evidenceGroup = evidenceGroupID.toString();
   evidence.sender = userId;
+  evidence.senderAddress = userId;
   ensureUser(userId);
 
   let jsonObjValueAndSuccess = json.try_fromString(event.params._evidence);
