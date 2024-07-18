@@ -1,8 +1,6 @@
-import { DefaultTheme } from "styled-components";
-
 import { darkTheme } from "@kleros/ui-components-library";
 
-export const theme: DefaultTheme = {
+export const theme = {
   ...darkTheme,
   klerosUIComponentsSkeletonBackground: "#EBEBEB",
   klerosUIComponentsSkeletonHighlight: "#F5F5F5",

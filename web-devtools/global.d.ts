@@ -1,13 +1,6 @@
 import { DefaultTheme } from "styled-components";
-
-import { darkTheme } from "@kleros/ui-components-library";
-
+import { theme } from "styles/Theme";
 declare module "styled-components" {
-  type Theme = typeof darkTheme;
-  export interface DefaultTheme extends Theme {
-    klerosUIComponentsSkeletonBackground: string;
-    klerosUIComponentsSkeletonHighlight: string;
-    klerosUIComponentsVioletPurple: string;
-    klerosUIComponentsLavenderPurple: string;
-  }
+  type Theme = typeof theme;
+  export interface DefaultTheme extends Theme {}
 }
