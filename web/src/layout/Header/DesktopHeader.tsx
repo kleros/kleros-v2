@@ -141,7 +141,7 @@ const DesktopHeader: React.FC = () => {
         </MiddleSide>
 
         <RightSide>
-          <ConnectWalletContainer isConnected={isConnected} onClick={isConnected ? toggleIsSettingsOpen : undefined}>
+          <ConnectWalletContainer {...{ isConnected }} onClick={isConnected ? toggleIsSettingsOpen : undefined}>
             <ConnectWallet />
           </ConnectWalletContainer>
           <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
