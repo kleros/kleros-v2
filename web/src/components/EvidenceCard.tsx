@@ -9,10 +9,11 @@ import { Card } from "@kleros/ui-components-library";
 
 import AttachmentIcon from "svgs/icons/attachment.svg";
 
-import { useIPFSQuery } from "hooks/useIPFSQuery";
 import { formatDate } from "utils/date";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import { shortenAddress } from "utils/shortenAddress";
+
+import { type Evidence } from "src/graphql/graphql";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -59,20 +60,6 @@ const BottomShade = styled.div`
     flex-shrink: 0;
     margin: 0;
   }
-`;
-
-const StyledA = styled.a`
-  display: flex;
-  margin-left: auto;
-  gap: ${responsiveSize(5, 6)};
-  ${landscapeStyle(
-    () => css`
-      > svg {
-        width: 16px;
-        fill: ${({ theme }) => theme.primaryBlue};
-      }
-    `
-  )}
 `;
 
 const AccountContainer = styled.div`
@@ -136,24 +123,20 @@ const AttachedFileText: React.FC = () => (
   </>
 );
 
-interface IEvidenceCard {
-  evidence: string;
+interface IEvidenceCard extends Pick<Evidence, "evidence" | "timestamp" | "name" | "description" | "fileURI"> {
   sender: string;
   index: number;
-  timestamp: string;
 }
 
-const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timestamp }) => {
-  const { data } = useIPFSQuery(evidence);
-
+const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timestamp, name, description, fileURI }) => {
   return (
     <StyledCard>
       <TextContainer>
         <Index>#{index}:</Index>
-        {data ? (
+        {name && description ? (
           <>
-            <h3>{data.name}</h3>
-            <StyledReactMarkdown>{data.description}</StyledReactMarkdown>
+            <h3>{name}</h3>
+            <StyledReactMarkdown>{description}</StyledReactMarkdown>
           </>
         ) : (
           <p>{evidence}</p>
@@ -165,8 +148,8 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timest
           <p>{shortenAddress(sender)}</p>
         </AccountContainer>
         <Timestamp>{formatDate(Number(timestamp), true)}</Timestamp>
-        {data && typeof data.fileURI !== "undefined" && (
-          <StyledLink to={`attachment/?url=${getIpfsUrl(data.fileURI)}`}>
+        {fileURI && (
+          <StyledLink to={`attachment/?url=${getIpfsUrl(fileURI)}`}>
             <AttachmentIcon />
             <AttachedFileText />
           </StyledLink>
