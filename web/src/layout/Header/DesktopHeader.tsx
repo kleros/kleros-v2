@@ -13,7 +13,6 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
-import { Overlay } from "components/Overlay";
 import Onboarding from "components/Popup/MiniGuides/Onboarding";
 
 import Logo from "./Logo";
@@ -22,6 +21,7 @@ import Explore from "./navbar/Explore";
 import Menu from "./navbar/Menu";
 import Help from "./navbar/Menu/Help";
 import Settings from "./navbar/Menu/Settings";
+import { useAccount } from "wagmi";
 
 const Container = styled.div`
   display: none;
@@ -73,10 +73,19 @@ const StyledKlerosSolutionsIcon = styled(KlerosSolutionsIcon)`
   fill: ${({ theme }) => theme.white} !important;
 `;
 
-const ConnectWalletContainer = styled.div`
+const ConnectWalletContainer = styled.div<{ isConnected: boolean }>`
   label {
     color: ${({ theme }) => theme.white};
   }
+
+  ${({ isConnected }) =>
+    isConnected &&
+    css`
+      cursor: pointer;
+      & > * {
+        pointer-events: none;
+      }
+    `}
 `;
 
 const PopupContainer = styled.div`
@@ -85,7 +94,8 @@ const PopupContainer = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 30;
+  z-index: 1;
+  background-color: ${({ theme }) => theme.blackLowOpacity};
 `;
 
 const DesktopHeader: React.FC = () => {
@@ -95,6 +105,7 @@ const DesktopHeader: React.FC = () => {
   const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
   const [initialTab, setInitialTab] = useState<number>(0);
   const location = useLocation();
+  const { isConnected } = useAccount();
 
   const initializeFragmentURL = useCallback(() => {
     const hash = location.hash;
@@ -130,7 +141,7 @@ const DesktopHeader: React.FC = () => {
         </MiddleSide>
 
         <RightSide>
-          <ConnectWalletContainer>
+          <ConnectWalletContainer isConnected={isConnected} onClick={isConnected ? toggleIsSettingsOpen : undefined}>
             <ConnectWallet />
           </ConnectWalletContainer>
           <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
@@ -138,7 +149,6 @@ const DesktopHeader: React.FC = () => {
       </Container>
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
         <PopupContainer>
-          <Overlay />
           {isDappListOpen && <DappList {...{ toggleIsDappListOpen, isDappListOpen }} />}
           {isHelpOpen && <Help {...{ toggleIsHelpOpen, isHelpOpen }} />}
           {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen, initialTab }} />}

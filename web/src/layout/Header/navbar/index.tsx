@@ -28,7 +28,7 @@ const Wrapper = styled.div<{ isOpen: boolean }>`
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 30;
+  z-index: 1;
 `;
 
 const StyledOverlay = styled(Overlay)`
@@ -77,7 +77,8 @@ const PopupContainer = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 30;
+  z-index: 1;
+  background-color: ${({ theme }) => theme.blackLowOpacity};
 `;
 
 export interface ISettings {
@@ -104,34 +105,34 @@ const NavBar: React.FC = () => {
   return (
     <>
       <Wrapper {...{ isOpen }}>
-        <StyledOverlay />
-        <Container {...{ isOpen }}>
-          <LightButton
-            text="Kleros Solutions"
-            onClick={() => {
-              toggleIsDappListOpen();
-            }}
-            Icon={KlerosSolutionsIcon}
-          />
-          <hr />
-          <Explore />
-          <hr />
-          <WalletContainer>
-            <ConnectWallet />
-            {isConnected && (
-              <DisconnectWalletButtonContainer>
-                <DisconnectWalletButton />
-              </DisconnectWalletButtonContainer>
-            )}
-          </WalletContainer>
-          <hr />
-          <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
-          <br />
-        </Container>
+        <StyledOverlay>
+          <Container {...{ isOpen }}>
+            <LightButton
+              text="Kleros Solutions"
+              onClick={() => {
+                toggleIsDappListOpen();
+              }}
+              Icon={KlerosSolutionsIcon}
+            />
+            <hr />
+            <Explore />
+            <hr />
+            <WalletContainer>
+              <ConnectWallet />
+              {isConnected && (
+                <DisconnectWalletButtonContainer>
+                  <DisconnectWalletButton />
+                </DisconnectWalletButtonContainer>
+              )}
+            </WalletContainer>
+            <hr />
+            <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
+            <br />
+          </Container>
+        </StyledOverlay>
       </Wrapper>
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
         <PopupContainer>
-          <Overlay />
           {isDappListOpen && <DappList {...{ toggleIsDappListOpen }} />}
           {isHelpOpen && <Help {...{ toggleIsHelpOpen }} />}
           {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen }} />}

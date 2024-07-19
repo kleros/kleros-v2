@@ -159,8 +159,7 @@ const Template: React.FC<ITemplate> = ({
   });
 
   return (
-    <>
-      <Overlay />
+    <Overlay>
       <Container ref={containerRef} isVisible={isVisible}>
         <LeftContainer>
           <LeftContainerHeader>
@@ -187,7 +186,7 @@ const Template: React.FC<ITemplate> = ({
         </LeftContainer>
         <RightContainer>{RightContent}</RightContainer>
       </Container>
-    </>
+    </Overlay>
   );
 };
 
