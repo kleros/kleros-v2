@@ -28,7 +28,7 @@ export interface IDisputeTemplate {
   arbitrableChainID?: string;
   arbitratorAddress?: string;
   arbitratorChainID?: string;
-  category: string;
+  category?: string;
   description: string;
   frontendUrl?: string;
   lang?: string;
