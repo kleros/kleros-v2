@@ -27,8 +27,8 @@
         "./*"
       ],
       "src*": [
-        "./*",
-        "../../kleros-sdk/src/*"
+        "../../kleros-sdk/src/*",
+        "./*"
       ],
       "svgs*": [
         "assets/svgs*"
