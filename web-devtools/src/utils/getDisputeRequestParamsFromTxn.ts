@@ -29,6 +29,7 @@ export const getDisputeRequestParamsFromTxn = async (hash: `0x${string}`, chainI
       _arbitrable: disputeRequestEvent.address,
     };
   } catch (e) {
+    console.error(e);
     return undefined;
   }
 };
