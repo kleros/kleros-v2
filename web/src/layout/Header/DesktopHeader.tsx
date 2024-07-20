@@ -3,10 +3,13 @@ import styled, { css } from "styled-components";
 
 import { useLocation } from "react-router-dom";
 import { useToggle } from "react-use";
+import { useAccount, useChainId } from "wagmi";
 
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
+
+import { DEFAULT_CHAIN } from "consts/chains";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -21,7 +24,6 @@ import Explore from "./navbar/Explore";
 import Menu from "./navbar/Menu";
 import Help from "./navbar/Menu/Help";
 import Settings from "./navbar/Menu/Settings";
-import { useAccount } from "wagmi";
 
 const Container = styled.div`
   display: none;
@@ -73,13 +75,14 @@ const StyledKlerosSolutionsIcon = styled(KlerosSolutionsIcon)`
   fill: ${({ theme }) => theme.white} !important;
 `;
 
-const ConnectWalletContainer = styled.div<{ isConnected: boolean }>`
+const ConnectWalletContainer = styled.div<{ isConnected: boolean; isCorrectChain: boolean }>`
   label {
     color: ${({ theme }) => theme.white};
   }
 
-  ${({ isConnected }) =>
+  ${({ isConnected, isCorrectChain }) =>
     isConnected &&
+    isCorrectChain &&
     css`
       cursor: pointer;
       & > * {
@@ -105,7 +108,9 @@ const DesktopHeader: React.FC = () => {
   const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
   const [initialTab, setInitialTab] = useState<number>(0);
   const location = useLocation();
+  const chainId = useChainId();
   const { isConnected } = useAccount();
+  const isCorrectChain = chainId === DEFAULT_CHAIN;
 
   const initializeFragmentURL = useCallback(() => {
     const hash = location.hash;
@@ -141,7 +146,10 @@ const DesktopHeader: React.FC = () => {
         </MiddleSide>
 
         <RightSide>
-          <ConnectWalletContainer {...{ isConnected }} onClick={isConnected ? toggleIsSettingsOpen : undefined}>
+          <ConnectWalletContainer
+            {...{ isConnected, isCorrectChain }}
+            onClick={isConnected && isCorrectChain ? toggleIsSettingsOpen : undefined}
+          >
             <ConnectWallet />
           </ConnectWalletContainer>
           <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
