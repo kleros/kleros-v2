@@ -49,8 +49,8 @@ const ConnectButton: React.FC<{ className?: string }> = ({ className }) => {
 };
 
 const ConnectWallet: React.FC<{ className?: string }> = ({ className }) => {
-  const chainId = useChainId();
-  const { isConnected } = useAccount();
+  const { isConnected, chainId } = useAccount();
+
   if (isConnected) {
     if (chainId !== DEFAULT_CHAIN) {
       return <SwitchChainButton {...{ className }} />;
