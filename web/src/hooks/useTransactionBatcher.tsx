@@ -44,6 +44,8 @@ export const useBatchWrite = createUseWriteContract({
 
 const batcherAddress = {
   421614: "0xe8061d185D865ce2B2FbCfDa628b5F147d8eB8Ab",
+  42161: "0xE8f028aAc4d4B6A07E62c2C2f7B8818876a0CF2F",
+  100: "0x5ACD2B61ad3d25fa3422f29B0636C69c70f6588f",
 };
 
 export type TransactionBatcherConfig = SimulateContractParameters[];
