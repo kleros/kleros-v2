@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import { useLocation } from "react-router-dom";
 import { useToggle } from "react-use";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 
@@ -75,14 +75,14 @@ const StyledKlerosSolutionsIcon = styled(KlerosSolutionsIcon)`
   fill: ${({ theme }) => theme.white} !important;
 `;
 
-const ConnectWalletContainer = styled.div<{ isConnected: boolean; isCorrectChain: boolean }>`
+const ConnectWalletContainer = styled.div<{ isConnected: boolean; isDefaultChain: boolean }>`
   label {
     color: ${({ theme }) => theme.white};
   }
 
-  ${({ isConnected, isCorrectChain }) =>
+  ${({ isConnected, isDefaultChain }) =>
     isConnected &&
-    isCorrectChain &&
+    isDefaultChain &&
     css`
       cursor: pointer;
       & > * {
@@ -108,9 +108,8 @@ const DesktopHeader: React.FC = () => {
   const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
   const [initialTab, setInitialTab] = useState<number>(0);
   const location = useLocation();
-  const chainId = useChainId();
-  const { isConnected } = useAccount();
-  const isCorrectChain = chainId === DEFAULT_CHAIN;
+  const { isConnected, chainId } = useAccount();
+  const isDefaultChain = chainId === DEFAULT_CHAIN;
 
   const initializeFragmentURL = useCallback(() => {
     const hash = location.hash;
@@ -147,8 +146,8 @@ const DesktopHeader: React.FC = () => {
 
         <RightSide>
           <ConnectWalletContainer
-            {...{ isConnected, isCorrectChain }}
-            onClick={isConnected && isCorrectChain ? toggleIsSettingsOpen : undefined}
+            {...{ isConnected, isDefaultChain }}
+            onClick={isConnected && isDefaultChain ? toggleIsSettingsOpen : undefined}
           >
             <ConnectWallet />
           </ConnectWalletContainer>
