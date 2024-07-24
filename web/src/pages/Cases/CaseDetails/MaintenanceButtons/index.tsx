@@ -32,7 +32,7 @@ const PopupContainer = styled.div`
   position: absolute;
   height: fit-content;
   overflow-y: auto;
-  z-index: 1;
+  z-index: 31;
   padding: 27px;
   gap: 16px;
   border: 1px solid ${({ theme }) => theme.stroke};
