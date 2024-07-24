@@ -10,13 +10,13 @@ import { wrapWithToast } from "utils/wrapWithToast";
 
 import { isUndefined } from "src/utils";
 
-import { IBaseMaintenaceButton } from ".";
+import { IBaseMaintenanceButton } from ".";
 
 const StyledButton = styled(Button)`
   width: 100%;
 `;
 
-type IPassPeriodButton = IBaseMaintenaceButton;
+type IPassPeriodButton = IBaseMaintenanceButton;
 
 const PassPeriodButton: React.FC<IPassPeriodButton> = ({ id, setIsOpen }) => {
   const [isSending, setIsSending] = useState(false);

@@ -12,13 +12,13 @@ import { wrapWithToast } from "utils/wrapWithToast";
 
 import { isUndefined } from "src/utils";
 
-import { IBaseMaintenaceButton } from ".";
+import { IBaseMaintenanceButton } from ".";
 
 const StyledButton = styled(Button)`
   width: 100%;
 `;
 
-interface IDistributeRewards extends IBaseMaintenaceButton {
+interface IDistributeRewards extends IBaseMaintenanceButton {
   numberOfVotes?: string;
   roundIndex?: string;
 }

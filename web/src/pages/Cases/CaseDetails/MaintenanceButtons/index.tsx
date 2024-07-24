@@ -45,7 +45,7 @@ const PopupContainer = styled.div`
   transform: translate(-100%, 100%);
 `;
 
-export interface IBaseMaintenaceButton {
+export interface IBaseMaintenanceButton {
   setIsOpen: (open: boolean) => void;
   id?: string;
 }
