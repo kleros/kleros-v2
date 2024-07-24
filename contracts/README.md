@@ -20,6 +20,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [PolicyRegistry: proxy](https://arbiscan.io/address/0x26c1980120F1C82cF611D666CE81D2b54d018547), [implementation](https://arbiscan.io/address/0x2AC2EdFD336732bc6963f1AD03ED98B22dB949da)
 - [RandomizerRNG: proxy](https://arbiscan.io/address/0xC3dB344755b15c8Edfd834db79af4f8860029FB4), [implementation](https://arbiscan.io/address/0xA995C172d286f8F4eE137CC662e2844E59Cf4836)
 - [SortitionModuleNeo: proxy](https://arbiscan.io/address/0x614498118850184c62f82d08261109334bFB050f), [implementation](https://arbiscan.io/address/0xf327200420F21BAafce8F1C03B1EEdF926074B95)
+- [TransactionBatcher](https://arbiscan.io/address/0xBC5ef8d9ad307154447AE148c088f083d2dEa4eF)
 
 ### Official Testnet
 
@@ -88,6 +89,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [SortitionModule: proxy](https://sepolia.arbiscan.io/address/0x19cb28BAB40C3585955798f5EEabd71Eec14471C), [implementation](https://sepolia.arbiscan.io/address/0xBC82B29e5aE8a749D82b7919118Ab7C0D41fA3D3)
 - [SortitionModuleNeo: proxy](https://sepolia.arbiscan.io/address/0x809533c303c10915BB5c0585f2d8D738e2a4fB64), [implementation](https://sepolia.arbiscan.io/address/0xD9ddceb7C399518F23b69D155a67C6AFF13f9fF0)
 - [SortitionModuleUniversity: proxy](https://sepolia.arbiscan.io/address/0xBEEb15EF1DEf96c569c97A703E649B0251ceFB04), [implementation](https://sepolia.arbiscan.io/address/0xaA2833b174D4e29ae2aFc0b11dF9160EDB28BF9d)
+- [TransactionBatcher](https://sepolia.arbiscan.io/address/0x35f93986950804ac1F93519BF68C2a7Dd776db0E)
 - [WETH](https://sepolia.arbiscan.io/address/0x3829A2486d53ee984a0ca2D76552715726b77138)
 - [WETHFaucet](https://sepolia.arbiscan.io/address/0x6F8C10E0030aDf5B8030a5E282F026ADdB6525fd)
 
