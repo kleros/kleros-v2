@@ -5,6 +5,8 @@ import { LiFiWidget, WidgetConfig } from "@lifi/widget";
 
 import { responsiveSize } from "styles/responsiveSize";
 
+import { WalletProvider } from "./WalletProvider";
+
 const WidgetContainer = styled.div`
   width: 100%;
   > div {
@@ -19,18 +21,18 @@ const getWidgetConfig = (theme: Theme): WidgetConfig => ({
   toChain: 42161,
   fromToken: "0x93ED3FBe21207Ec2E8f2d3c3de6e058Cb73Bc04d",
   toToken: "0x330bD769382cFc6d50175903434CCC8D206DCAE5",
-  containerStyle: {
-    border: `1px solid ${theme.stroke}`,
-    borderRadius: "3px",
-    background: theme.whiteBackground,
-    width: responsiveSize(350, 500),
-    maxWidth: "600px",
-    height: "fit-content",
-    maxHeight: "none",
-    minWidth: "300px",
-  },
   hiddenUI: ["appearance", "language"],
   theme: {
+    container: {
+      border: `1px solid ${theme.stroke}`,
+      borderRadius: "3px",
+      background: theme.whiteBackground,
+      width: responsiveSize(350, 500),
+      maxWidth: "600px",
+      height: "fit-content",
+      maxHeight: "none",
+      minWidth: "300px",
+    },
     palette: {
       primary: {
         main: theme.primaryBlue,
@@ -40,7 +42,7 @@ const getWidgetConfig = (theme: Theme): WidgetConfig => ({
       },
       background: {
         paper: theme.whiteBackground, // bg color for cards
-        default: theme.whiteBackground, // bg color container
+        default: theme.lightBackground, // bg color container
       },
       grey: {
         300: theme.stroke, // border light theme
@@ -49,6 +51,21 @@ const getWidgetConfig = (theme: Theme): WidgetConfig => ({
       text: {
         primary: theme.primaryText,
         secondary: theme.secondaryText,
+      },
+      common: {
+        white: theme.primaryText,
+      },
+      warning: {
+        main: theme.warning,
+      },
+      error: {
+        main: theme.error,
+      },
+      info: {
+        main: theme.primaryBlue,
+      },
+      success: {
+        main: theme.success,
       },
     },
     shape: {
@@ -68,8 +85,10 @@ export const Widget = () => {
   const widgetConfig = useMemo(() => getWidgetConfig(theme), [theme]);
 
   return (
-    <WidgetContainer>
-      <LiFiWidget config={widgetConfig} integrator="Kleros" />
-    </WidgetContainer>
+    <WalletProvider>
+      <WidgetContainer>
+        <LiFiWidget config={widgetConfig} integrator="Kleros" />
+      </WidgetContainer>
+    </WalletProvider>
   );
 };
