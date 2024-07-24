@@ -3,7 +3,7 @@ import React, { createContext, useState, useContext, useMemo, useCallback } from
 import { Address } from "viem";
 
 import { DEFAULT_CHAIN } from "consts/chains";
-import { disputeResolverAddress, klerosCoreAddress } from "hooks/contracts/generated";
+import { klerosCoreAddress } from "hooks/contracts/generated";
 import { useLocalStorage } from "hooks/useLocalStorage";
 import { isUndefined } from "utils/index";
 
@@ -113,7 +113,8 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 };
 
 const constructDisputeTemplate = (disputeData: IDisputeData) => {
-  const baseTemplate = { ...disputeData };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { courtId, numberOfJurors, arbitrationCost, ...baseTemplate } = disputeData;
 
   if (!isUndefined(baseTemplate.aliasesArray)) {
     baseTemplate.aliasesArray = baseTemplate.aliasesArray.filter((item) => item.address !== "" && item.isValid);
@@ -134,9 +135,6 @@ const constructDisputeTemplate = (disputeData: IDisputeData) => {
   }
   if (!isUndefined(baseTemplate.policyURI) && baseTemplate.policyURI === "") delete baseTemplate.policyURI;
 
-  // in future if we support chain switching these would need to be calculated from connected 'chainId'
-  baseTemplate.arbitrableAddress = disputeResolverAddress[DEFAULT_CHAIN];
-  baseTemplate.arbitrableChainID = DEFAULT_CHAIN.toString();
   baseTemplate.arbitratorAddress = klerosCoreAddress[DEFAULT_CHAIN];
   baseTemplate.arbitratorChainID = DEFAULT_CHAIN.toString();
 
