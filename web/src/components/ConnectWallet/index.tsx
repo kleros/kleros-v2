@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 
 import { useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react";
-import { useAccount, useChainId, useSwitchChain } from "wagmi";
+import { useAccount, useSwitchChain } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -49,8 +49,8 @@ const ConnectButton: React.FC<{ className?: string }> = ({ className }) => {
 };
 
 const ConnectWallet: React.FC<{ className?: string }> = ({ className }) => {
-  const chainId = useChainId();
-  const { isConnected } = useAccount();
+  const { isConnected, chainId } = useAccount();
+
   if (isConnected) {
     if (chainId !== DEFAULT_CHAIN) {
       return <SwitchChainButton {...{ className }} />;

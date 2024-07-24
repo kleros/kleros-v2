@@ -1,23 +1,22 @@
-import React, { useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
-import { useAccount } from "wagmi";
+import { useDebounce } from "react-use";
 
-import { Button, Searchbar } from "@kleros/ui-components-library";
+import { Button } from "@kleros/ui-components-library";
 
-import { isUndefined } from "utils/index";
+import DownArrow from "svgs/icons/arrow-down.svg";
 
 import { useEvidenceGroup } from "queries/useEvidenceGroup";
 import { useEvidences } from "queries/useEvidences";
 
 import { responsiveSize } from "styles/responsiveSize";
 
-import { EnsureChain } from "components/EnsureChain";
 import EvidenceCard from "components/EvidenceCard";
 import { SkeletonEvidenceCard } from "components/StyledSkeleton";
 
-import SubmitEvidenceModal from "./SubmitEvidenceModal";
+import EvidenceSearch from "./EvidenceSearch";
 
 const Container = styled.div`
   width: 100%;
@@ -29,41 +28,64 @@ const Container = styled.div`
   padding: ${responsiveSize(16, 32)};
 `;
 
-const StyledButton = styled(Button)`
-  align-self: flex-end;
-`;
-
 const StyledLabel = styled.label`
   display: flex;
   margin-top: 16px;
   font-size: 16px;
 `;
 
+const ScrollButton = styled(Button)`
+  align-self: flex-end;
+  background-color: transparent;
+  padding: 0;
+  flex-direction: row-reverse;
+  margin: 0 0 18px;
+  gap: 8px;
+  .button-text {
+    color: ${({ theme }) => theme.primaryBlue};
+    font-weight: 400;
+  }
+  .button-svg {
+    margin: 0;
+  }
+  :focus,
+  :hover {
+    background-color: transparent;
+  }
+`;
+
 const Evidence: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const { id } = useParams();
   const { data: evidenceGroup } = useEvidenceGroup(id, arbitrable);
-  const { data } = useEvidences(evidenceGroup?.toString());
-  const { address } = useAccount();
+  const ref = useRef<HTMLDivElement>(null);
+  const [search, setSearch] = useState<string>();
+  const [debouncedSearch, setDebouncedSearch] = useState<string>();
+
+  const { data } = useEvidences(evidenceGroup?.toString(), debouncedSearch);
+
+  useDebounce(() => setDebouncedSearch(search), 500, [search]);
+
+  const scrollToLatest = useCallback(() => {
+    if (!ref.current) return;
+    const latestEvidence = ref.current.lastElementChild;
+
+    if (!latestEvidence) return;
+
+    latestEvidence.scrollIntoView({ behavior: "smooth" });
+  }, [ref]);
 
   return (
-    <Container>
-      {!isUndefined(evidenceGroup) && (
-        <SubmitEvidenceModal isOpen={isModalOpen} close={() => setIsModalOpen(false)} {...{ evidenceGroup }} />
-      )}
-      <Searchbar />
-      <EnsureChain>
-        <StyledButton
-          small
-          text="Submit Evidence"
-          disabled={typeof address === "undefined" || isModalOpen}
-          isLoading={isModalOpen}
-          onClick={() => setIsModalOpen(true)}
-        />
-      </EnsureChain>
+    <Container ref={ref}>
+      <EvidenceSearch {...{ search, setSearch, evidenceGroup }} />
+      <ScrollButton small Icon={DownArrow} text="Scroll to latest" onClick={scrollToLatest} />
       {data ? (
-        data.evidences.map(({ key, evidence, sender, timestamp }, i) => (
-          <EvidenceCard key={key} index={i + 1} sender={sender?.id} {...{ evidence, timestamp }} />
+        data.evidences.map(({ evidence, sender, timestamp, name, description, fileURI, evidenceIndex }) => (
+          <EvidenceCard
+            key={timestamp}
+            index={parseInt(evidenceIndex)}
+            sender={sender?.id}
+            {...{ evidence, timestamp, name, description, fileURI }}
+          />
         ))
       ) : (
         <SkeletonEvidenceCard />
