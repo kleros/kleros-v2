@@ -10,6 +10,7 @@ import { klerosCoreAbi, klerosCoreAddress } from "hooks/contracts/generated";
 import useTransactionBatcher, { type TransactionBatcherConfig } from "hooks/useTransactionBatcher";
 import { wrapWithToast } from "utils/wrapWithToast";
 
+import { Period } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
 import { IBaseMaintenanceButton } from ".";
@@ -21,9 +22,10 @@ const StyledButton = styled(Button)`
 interface IDistributeRewards extends IBaseMaintenanceButton {
   numberOfVotes?: string;
   roundIndex?: string;
+  period?: string;
 }
 
-const DistributeRewards: React.FC<IDistributeRewards> = ({ id, numberOfVotes, roundIndex, setIsOpen }) => {
+const DistributeRewards: React.FC<IDistributeRewards> = ({ id, numberOfVotes, roundIndex, setIsOpen, period }) => {
   const [isSending, setIsSending] = useState(false);
   const [contractConfigs, setContractConfigs] = useState<TransactionBatcherConfig>();
   const publicClient = usePublicClient();
@@ -51,12 +53,18 @@ const DistributeRewards: React.FC<IDistributeRewards> = ({ id, numberOfVotes, ro
     setContractConfigs(argsArr);
   }, [id, roundIndex, numberOfVotes, chainId]);
 
-  const { executeBatch, isLoading: isLoadingConfig, isError } = useTransactionBatcher(contractConfigs);
+  const {
+    executeBatch,
+    isLoading: isLoadingConfig,
+    isError,
+  } = useTransactionBatcher(contractConfigs, {
+    enabled: !isUndefined(period) && period === Period.Execution,
+  });
 
   const isLoading = useMemo(() => isLoadingConfig || isSending, [isLoadingConfig, isSending]);
   const isDisabled = useMemo(
-    () => isUndefined(id) || isUndefined(numberOfVotes) || isError || isLoading,
-    [id, numberOfVotes, isError, isLoading]
+    () => isUndefined(id) || isUndefined(numberOfVotes) || isError || isLoading || period !== Period.Execution,
+    [id, numberOfVotes, isError, isLoading, period]
   );
 
   const handleClick = () => {

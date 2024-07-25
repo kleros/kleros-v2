@@ -8,6 +8,7 @@ import { Button } from "@kleros/ui-components-library";
 import { useSimulateKlerosCoreDraw, useWriteKlerosCoreDraw } from "hooks/contracts/generated";
 import { wrapWithToast } from "utils/wrapWithToast";
 
+import { Period } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
 import { IBaseMaintenanceButton } from ".";
@@ -18,9 +19,10 @@ const StyledButton = styled(Button)`
 
 interface IDrawButton extends IBaseMaintenanceButton {
   numberOfVotes?: string;
+  period?: string;
 }
 
-const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen }) => {
+const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, period }) => {
   const [isSending, setIsSending] = useState(false);
   const publicClient = usePublicClient();
 
@@ -30,7 +32,7 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen }) => 
     isError,
   } = useSimulateKlerosCoreDraw({
     query: {
-      enabled: !isUndefined(id) && !isUndefined(numberOfVotes),
+      enabled: !isUndefined(id) && !isUndefined(numberOfVotes) && !isUndefined(period) && period === Period.Evidence,
     },
     args: [BigInt(id ?? 0), BigInt(numberOfVotes ?? 0)],
   });
@@ -39,8 +41,8 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen }) => 
 
   const isLoading = useMemo(() => isLoadingConfig || isSending, [isLoadingConfig, isSending]);
   const isDisabled = useMemo(
-    () => isUndefined(id) || isUndefined(numberOfVotes) || isError || isLoading,
-    [id, numberOfVotes, isError, isLoading]
+    () => isUndefined(id) || isUndefined(numberOfVotes) || isError || isLoading || period !== Period.Evidence,
+    [id, numberOfVotes, isError, isLoading, period]
   );
   const handleClick = () => {
     if (!drawConfig) return;

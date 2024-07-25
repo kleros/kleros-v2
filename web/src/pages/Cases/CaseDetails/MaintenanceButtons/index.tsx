@@ -104,14 +104,19 @@ const MaintenanceButtons: React.FC = () => {
           <PopupContainer>
             <EnsureChain>
               <>
-                <DrawButton {...{ id, setIsOpen }} numberOfVotes={dispute?.currentRound.nbVotes} />
-                <PassPeriodButton {...{ id, setIsOpen }} />
+                <DrawButton
+                  {...{ id, setIsOpen }}
+                  numberOfVotes={dispute?.currentRound.nbVotes}
+                  period={dispute?.period}
+                />
+                <PassPeriodButton {...{ id, setIsOpen }} period={dispute?.period} />
                 <DistributeRewards
                   {...{ id, setIsOpen }}
                   roundIndex={dispute?.currentRoundIndex}
                   numberOfVotes={dispute?.currentRound.nbVotes}
+                  period={dispute?.period}
                 />
-                <ExecuteRulingButton {...{ id, setIsOpen }} />
+                <ExecuteRulingButton {...{ id, setIsOpen }} period={dispute?.period} ruled={dispute?.ruled} />
               </>
             </EnsureChain>
           </PopupContainer>

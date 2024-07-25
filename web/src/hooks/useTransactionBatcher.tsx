@@ -8,8 +8,14 @@ import { useSimulateTransactionBatcherBatchSend, useWriteTransactionBatcherBatch
 
 export type TransactionBatcherConfig = SimulateContractParameters[];
 
+type TransactionBatcherOptions = {
+  // determines if simulation query is enabled
+  enabled: boolean;
+};
+
 /**
  * @param configs SimulateContractParameters[] - an array of useWriteContract Parameters
+ * @param options TransactionBatcherOptions - an object containing options to apply to hook behaviour
  * @description This takes in multiple write calls and batches them into a single transaction
  * @example useTransactionBatcher([
  *                 { address : "contract one address",
@@ -26,7 +32,10 @@ export type TransactionBatcherConfig = SimulateContractParameters[];
  *                 },
  *                ])
  */
-const useTransactionBatcher = (configs?: TransactionBatcherConfig) => {
+const useTransactionBatcher = (
+  configs?: TransactionBatcherConfig,
+  options: TransactionBatcherOptions = { enabled: true }
+) => {
   const validatedConfigs = configs ?? [];
   const {
     data: batchConfig,
@@ -34,7 +43,7 @@ const useTransactionBatcher = (configs?: TransactionBatcherConfig) => {
     isError,
   } = useSimulateTransactionBatcherBatchSend({
     query: {
-      enabled: !isUndefined(configs),
+      enabled: !isUndefined(configs) && options.enabled,
     },
     args: [
       validatedConfigs.map((config) => config?.address),
