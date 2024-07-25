@@ -48,7 +48,7 @@ const Home: React.FC = () => {
         </div>
         <div>
           <label>Current Ruling Mode</label>
-          <Field value={"auto random"}></Field>
+          <Field value={"auto mode"}></Field>
         </div>
       </Arbitrables>
 
