@@ -7,7 +7,7 @@ import { Button } from "@kleros/ui-components-library";
 
 import { DEFAULT_CHAIN } from "consts/chains";
 import { klerosCoreAbi, klerosCoreAddress } from "hooks/contracts/generated";
-import useTransactionBatcher, { type TransactionBatcherConfig, useBatchWrite } from "hooks/useTransactionBatcher";
+import useTransactionBatcher, { type TransactionBatcherConfig } from "hooks/useTransactionBatcher";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { isUndefined } from "src/utils";
@@ -51,9 +51,7 @@ const DistributeRewards: React.FC<IDistributeRewards> = ({ id, numberOfVotes, ro
     setContractConfigs(argsArr);
   }, [id, roundIndex, numberOfVotes, chainId]);
 
-  const { batchConfig, isLoading: isLoadingConfig, isError } = useTransactionBatcher(contractConfigs);
-
-  const { writeContractAsync: executeBatch } = useBatchWrite();
+  const { executeBatch, isLoading: isLoadingConfig, isError } = useTransactionBatcher(contractConfigs);
 
   const isLoading = useMemo(() => isLoadingConfig || isSending, [isLoadingConfig, isSending]);
   const isDisabled = useMemo(
@@ -62,11 +60,9 @@ const DistributeRewards: React.FC<IDistributeRewards> = ({ id, numberOfVotes, ro
   );
 
   const handleClick = () => {
-    if (!batchConfig) return;
-
     setIsSending(true);
 
-    wrapWithToast(async () => await executeBatch(batchConfig.request), publicClient).finally(() => {
+    wrapWithToast(async () => await executeBatch(), publicClient).finally(() => {
       setIsOpen(false);
     });
   };
