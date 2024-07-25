@@ -43,7 +43,7 @@ const NotablePersons: React.FC = () => {
       <StyledPlusMinusField
         currentValue={disputeData.aliasesArray?.length ?? 2}
         updateValue={updateNumberOfAliases}
-        minValue={2}
+        minValue={1}
       />
       <NavigationButtons prevRoute="/resolver/voting-options" nextRoute="/resolver/policy" />
     </Container>
