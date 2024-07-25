@@ -14,8 +14,9 @@
   },
   "scripts": {
     "dev": "scripts/runEnv.sh local 'yarn generate && next dev'",
-    "build": "scripts/runEnv.sh local 'yarn generate && next build'",
     "start": "scripts/runEnv.sh local 'yarn generate && next start'",
+    "build": "scripts/runEnv.sh local 'yarn generate && next build'",
+    "build-netlify": "yarn generate && next build",
     "lint": "next lint",
     "generate": "yarn generate:gql && yarn generate:hooks",
     "generate:gql": "graphql-codegen",
