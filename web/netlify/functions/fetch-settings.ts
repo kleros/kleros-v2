@@ -6,7 +6,7 @@ import { authMiddleware } from "../middleware/authMiddleware";
 
 const fetchSettings = async (event) => {
   try {
-    const address = event.auth.id;
+    const address = event.auth.sub;
     const lowerCaseAddress = address.toLowerCase() as `0x${string}`;
 
     const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_CLIENT_API_KEY!);

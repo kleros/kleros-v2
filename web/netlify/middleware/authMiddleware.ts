@@ -14,9 +14,7 @@ export const authMiddleware = () => {
       }
 
       try {
-        // const secret = process.env.JWT_SECRET;
-        // TODO testing purpose
-        const secret = "u03tzA7Un9w+fetret343t6U2YaOlINle1E4avjc=";
+        const secret = process.env.JWT_SECRET;
 
         if (!secret) {
           throw new Error("Secret not set in environment");

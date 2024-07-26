@@ -63,7 +63,7 @@ const updateSettings = async (event) => {
     const lowerCaseAddress = address.toLowerCase() as `0x${string}`;
 
     // Prevent using someone else's token
-    if (event?.auth?.id.toLowerCase() !== lowerCaseAddress) {
+    if (event?.auth?.sub.toLowerCase() !== lowerCaseAddress) {
       throw new Error("Unauthorised user");
     }
     const supabase = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_CLIENT_API_KEY!);
