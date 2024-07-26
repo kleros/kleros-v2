@@ -14,9 +14,9 @@ export const authMiddleware = () => {
       }
 
       try {
-        const issuer = process.env.JWT_ISSUER ?? "Kleros"; // ex :- Kleros
-        const audience = process.env.JWT_AUDIENCE ?? "Court"; // ex :- Court, Curate, Escrow
-        const secret = process.env.JWT_SECRET;
+        // const secret = process.env.JWT_SECRET;
+        // TODO testing purpose
+        const secret = "u03tzA7Un9w+fetret343t6U2YaOlINle1E4avjc=";
 
         if (!secret) {
           throw new Error("Secret not set in environment");
@@ -24,7 +24,7 @@ export const authMiddleware = () => {
 
         const encodedSecret = new TextEncoder().encode(secret);
 
-        const { payload } = await jwt.jwtVerify(authToken, encodedSecret, { issuer, audience });
+        const { payload } = await jwt.jwtVerify(authToken, encodedSecret);
 
         // add auth details to event
         request.event.auth = payload;
