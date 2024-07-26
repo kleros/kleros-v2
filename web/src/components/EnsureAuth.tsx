@@ -15,7 +15,7 @@ interface IEnsureAuth {
   className?: string;
 }
 
-export const EnsureAuth: React.FC<IEnsureAuth> = ({ children, className }) => {
+const EnsureAuth: React.FC<IEnsureAuth> = ({ children, className }) => {
   const localToken = window.sessionStorage.getItem("auth-token");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -96,3 +96,5 @@ async function createMessage(address: `0x${string}`, statement: string, chainId:
   });
   return message;
 }
+
+export default EnsureAuth;

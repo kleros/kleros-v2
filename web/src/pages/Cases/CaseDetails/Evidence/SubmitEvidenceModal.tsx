@@ -11,7 +11,7 @@ import { simulateEvidenceModuleSubmitEvidence } from "hooks/contracts/generated"
 import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 
-import { EnsureAuth } from "components/EnsureAuth";
+import EnsureAuth from "components/EnsureAuth";
 import { EnsureChain } from "components/EnsureChain";
 
 const StyledModal = styled(Modal)`
