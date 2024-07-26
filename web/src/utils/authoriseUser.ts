@@ -7,26 +7,41 @@ type AuthoriseUserData = {
   signature: `0x${string}`;
   message: string;
 };
+const atlasUri = import.meta.env.REACT_APP_ATLAS_URI ?? "";
 
 export function authoriseUser(authData: AuthoriseUserData): Promise<string> {
-  const query = `mutation Login {
-    login(message: "${authData.message}", signature: "${authData.signature}")
+  const query = `mutation Login($message: String!, $signature: String!) {
+    login(message: $message, signature: $signature)
   }
   `;
+  const variables = {
+    message: authData.message,
+    signature: authData.signature,
+  };
 
   return toast.promise<string, Error>(
-    fetch(`/.netlify/functions/authUser`, {
+    fetch(atlasUri, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ query, variables }),
     }).then(async (response) => {
-      if (response.status !== 200) {
+      if (!response.ok) {
         const error = await response.json().catch(() => ({ message: "Error signing in" }));
         throw new Error(error.message);
       }
-      return (await response.json()).data.login.access_token;
+
+      const result = await response.json();
+
+      const token = result.data.login.accessToken;
+
+      // TODO ugly fix until a more standard return type in decided upon in atlas
+      if (token) {
+        return token;
+      } else {
+        throw new Error(result.data);
+      }
     }),
     {
       pending: `Signing in User...`,
@@ -47,18 +62,27 @@ export function getNonce(address: string): Promise<string> {
 }`;
 
   return toast.promise<string, Error>(
-    fetch(`/.netlify/functions/getNonce?address=${address}`, {
+    fetch(atlasUri, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ query }),
     }).then(async (response) => {
-      if (response.status !== 200) {
+      if (!response.ok) {
         const error = await response.json().catch(() => ({ message: "Error getting nonce" }));
         throw new Error(error.message);
       }
-      return (await response.json()).data.nonce;
+      const result = await response.json();
+
+      const nonce = result.data.nonce;
+
+      // TODO ugly fix until a more standard return type in decided upon in atlas
+      if (nonce) {
+        return nonce;
+      } else {
+        throw new Error(result.data);
+      }
     }),
     {
       error: {

@@ -30,7 +30,7 @@ export const EnsureAuth: React.FC<IEnsureAuth> = ({ children, className }) => {
 
     const payload = jwt.decodeJwt(authToken);
 
-    if ((payload?.id as string).toLowerCase() !== address.toLowerCase()) return false;
+    if ((payload?.sub as string)?.toLowerCase() !== address.toLowerCase()) return false;
     if (payload.exp && payload.exp < Date.now() / 1000) return false;
 
     return true;
