@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-v2-contracts",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Smart contracts for Kleros version 2",
   "main": "typechain-types/index.ts",
   "repository": "git@github.com:kleros/kleros-v2.git",
@@ -53,7 +53,11 @@
     "release:patch": "scripts/publish.sh patch",
     "release:minor": "scripts/publish.sh minor",
     "release:major": "scripts/publish.sh major",
-    "tenderly-verify": "hardhat tenderly:verify"
+    "tenderly-verify": "hardhat tenderly:verify",
+    "build:all": "yarn rimraf ./dist && yarn build:cjs && yarn build:esm && yarn build:types",
+    "build:cjs": "tsc --project tsconfig.json --module commonjs --outDir ./dist/cjs && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
+    "build:esm": "tsc --project tsconfig.json --module es2020 --outDir ./dist/esm && echo '{\"type\": \"module\"}' > ./dist/esm/package.json",
+    "build:types": "tsc --project tsconfig.json --module esnext --declarationDir ./dist/types --emitDeclarationOnly --declaration --declarationMap"
   },
   "devDependencies": {
     "@defi-wonderland/natspec-smells": "^1.0.3",
