@@ -66,8 +66,8 @@ const ToolName = styled.span`
 const tools = [
   { name: "Dispute Templates Preview", route: "/dispute-template" },
   { name: "Configure Ruler", route: "/ruler" },
-  { name: "Courts Manager (comming soon)", route: "/" },
-  { name: "Arbitrable Explorer (comming soon)", route: "/" },
+  { name: "Courts Manager (coming soon)", route: "/" },
+  { name: "Arbitrable Explorer (coming soon)", route: "/" },
 ];
 
 const Tools: React.FC = () => {
