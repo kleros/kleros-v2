@@ -2,6 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { useToggle } from "react-use";
 import { useAccount } from "wagmi";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -10,6 +11,8 @@ import { responsiveSize } from "styles/responsiveSize";
 import ConnectWallet from "components/ConnectWallet";
 import { EnsureAuth } from "components/EnsureAuth";
 import HeroImage from "components/HeroImage";
+import HowItWorks from "components/HowItWorks";
+import Resolver from "components/Popup/MiniGuides/DisputeResolver";
 
 import Description from "./Briefing/Description";
 import Title from "./Briefing/Title";
@@ -50,39 +53,49 @@ const StyledEnsureAuth = styled(EnsureAuth)`
   align-self: center;
 `;
 
+const HowItWorksAndTimeline = styled.div`
+  display: none;
+
+  ${landscapeStyle(
+    () => css`
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      left: 2%;
+      gap: 40px;
+    `
+  )}
+`;
+
 const MiddleContentContainer = styled.div`
   display: flex;
   justify-content: center;
   position: relative;
 `;
 
-const StyledLabel = styled.label`
-  display: none;
-
-  ${landscapeStyle(
-    () => css`
-      display: flex;
-      color: ${({ theme }) => theme.secondaryPurple};
-      margin-bottom: 20px;
-      padding-left: ${responsiveSize(25, 65)};
-    `
-  )}
-`;
-
 const DisputeResolver: React.FC = () => {
   const location = useLocation();
-
+  const [isDisputeResolverMiniGuideOpen, toggleDisputeResolverMiniGuide] = useToggle(false);
   const { isConnected } = useAccount();
   const isPreviewPage = location.pathname.includes("/preview");
+
   return (
     <Wrapper>
       <HeroImage />
       <Container>
-        {isConnected && !isPreviewPage ? <StyledLabel>Start a case</StyledLabel> : null}
         {isConnected ? (
           <StyledEnsureAuth>
             <MiddleContentContainer>
-              {isConnected && !isPreviewPage ? <Timeline /> : null}
+              {isConnected && !isPreviewPage ? (
+                <HowItWorksAndTimeline>
+                  <HowItWorks
+                    isMiniGuideOpen={isDisputeResolverMiniGuideOpen}
+                    toggleMiniGuide={toggleDisputeResolverMiniGuide}
+                    MiniGuideComponent={Resolver}
+                  />
+                  <Timeline />
+                </HowItWorksAndTimeline>
+              ) : null}
               <Routes>
                 <Route index element={<Navigate to="title" replace />} />
                 <Route path="/title/*" element={<Title />} />

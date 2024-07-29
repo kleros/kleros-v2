@@ -96,30 +96,6 @@ const DesktopCompactPagination = styled(CompactPagination)`
   )}
 `;
 
-const Close = styled.label`
-  display: none;
-
-  ${landscapeStyle(
-    () => css`
-      display: flex;
-      position: absolute;
-      top: ${responsiveSize(24, 32)};
-      right: 17px;
-      display: flex;
-      align-items: flex-end;
-      justify-content: flex-end;
-      cursor: pointer;
-      z-index: 11;
-
-      &:hover {
-        text-decoration: underline;
-      }
-
-      color: ${({ theme }) => theme.primaryBlue};
-    `
-  )}
-`;
-
 const RightContainer = styled.div`
   width: 86vw;
   position: relative;
@@ -171,27 +147,31 @@ const Template: React.FC<ITemplate> = ({
     if (isOnboarding && location.hash.includes("#onboarding")) navigate("#", { replace: true });
   }, [location.hash, navigate, isOnboarding]);
 
+  const onCloseAndRemoveOnboardingHashPath = () => {
+    onClose();
+    removeOnboardingHashPath();
+  };
+
   useClickAway(containerRef, () => {
     if (canClose) {
-      onClose();
-      removeOnboardingHashPath();
+      onCloseAndRemoveOnboardingHashPath();
     }
   });
 
   return (
-    <>
-      <Overlay />
+    <Overlay>
       <Container ref={containerRef} isVisible={isVisible}>
         <LeftContainer>
           <LeftContainerHeader>
             <HowItWorks>
               <BookOpenIcon />
-              <label> {isOnboarding ? "Onboarding" : "How it works"} </label>
+              <label>{isOnboarding ? "Onboarding" : "How it works"}</label>
             </HowItWorks>
             <MobileCompactPagination
               currentPage={currentPage}
               callback={setCurrentPage}
               numPages={numPages}
+              onCloseOnLastPage={onCloseAndRemoveOnboardingHashPath}
               label={`${currentPage}/${numPages}`}
             />
           </LeftContainerHeader>
@@ -200,22 +180,13 @@ const Template: React.FC<ITemplate> = ({
             currentPage={currentPage}
             callback={setCurrentPage}
             numPages={numPages}
+            onCloseOnLastPage={onCloseAndRemoveOnboardingHashPath}
             label={`${currentPage}/${numPages}`}
           />
         </LeftContainer>
-        <RightContainer>
-          <Close
-            onClick={() => {
-              onClose();
-              removeOnboardingHashPath();
-            }}
-          >
-            Close
-          </Close>
-          {RightContent}
-        </RightContainer>
+        <RightContainer>{RightContent}</RightContainer>
       </Container>
-    </>
+    </Overlay>
   );
 };
 

@@ -1,14 +1,16 @@
-import React, { createContext, useState, useContext, useMemo } from "react";
+import React, { createContext, useState, useContext, useMemo, useCallback } from "react";
 
 import { Address } from "viem";
 
+import { DEFAULT_CHAIN } from "consts/chains";
+import { klerosCoreAddress } from "hooks/contracts/generated";
 import { useLocalStorage } from "hooks/useLocalStorage";
 import { isUndefined } from "utils/index";
 
 export type Answer = {
-  id?: string;
+  id: string;
   title: string;
-  description?: string;
+  description: string;
   reserved?: boolean;
 };
 
@@ -35,6 +37,7 @@ export interface IDisputeTemplate {
   specification?: string;
   title: string;
   aliases?: Alias;
+  version: string;
   // attachment: Attachment;
   // type: string;
 }
@@ -62,29 +65,24 @@ const initialDisputeData: IDisputeData = {
   title: "",
   description: "",
   question: "",
+  category: "",
   answers: [
-    { title: "", id: "1" },
-    { title: "", id: "2" },
+    { title: "", id: "1", description: "" },
+    { title: "", id: "2", description: "" },
   ],
-  aliasesArray: [
-    { name: "", address: "", id: "1" },
-    { name: "", address: "", id: "2" },
-  ],
+  aliasesArray: [{ name: "", address: "", id: "1" }],
+  version: "1.0",
 };
-const initialDisputeTemplate = initialDisputeData as IDisputeTemplate;
 
-const NewDisputeContext = createContext<INewDisputeContext>({
-  disputeData: initialDisputeData,
-  setDisputeData: () => {},
-  disputeTemplate: initialDisputeTemplate,
-  resetDisputeData: () => {},
-  isSubmittingCase: false,
-  setIsSubmittingCase: () => {},
-  isPolicyUploading: false,
-  setIsPolicyUploading: () => {},
-});
+const NewDisputeContext = createContext<INewDisputeContext | undefined>(undefined);
 
-export const useNewDisputeContext = () => useContext(NewDisputeContext);
+export const useNewDisputeContext = () => {
+  const context = useContext(NewDisputeContext);
+  if (!context) {
+    throw new Error("Context Provider not found.");
+  }
+  return context;
+};
 
 export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [disputeData, setDisputeData] = useLocalStorage<IDisputeData>("disputeData", initialDisputeData);
@@ -93,9 +91,9 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const disputeTemplate = useMemo(() => constructDisputeTemplate(disputeData), [disputeData]);
 
-  const resetDisputeData = () => {
+  const resetDisputeData = useCallback(() => {
     setDisputeData(initialDisputeData);
-  };
+  }, [setDisputeData]);
 
   const contextValues = useMemo(
     () => ({
@@ -108,14 +106,15 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       isPolicyUploading,
       setIsPolicyUploading,
     }),
-    [disputeData, disputeTemplate, resetDisputeData, isSubmittingCase, isPolicyUploading]
+    [disputeData, disputeTemplate, resetDisputeData, isSubmittingCase, isPolicyUploading, setDisputeData]
   );
 
   return <NewDisputeContext.Provider value={contextValues}>{children}</NewDisputeContext.Provider>;
 };
 
 const constructDisputeTemplate = (disputeData: IDisputeData) => {
-  const baseTemplate = { ...disputeData };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { courtId, numberOfJurors, arbitrationCost, ...baseTemplate } = disputeData;
 
   if (!isUndefined(baseTemplate.aliasesArray)) {
     baseTemplate.aliasesArray = baseTemplate.aliasesArray.filter((item) => item.address !== "" && item.isValid);
@@ -130,7 +129,14 @@ const constructDisputeTemplate = (disputeData: IDisputeData) => {
       baseTemplate.aliases = aliases;
     }
   }
+
+  for (const answer of baseTemplate.answers) {
+    answer.id = "0x" + BigInt(answer.id).toString(16);
+  }
   if (!isUndefined(baseTemplate.policyURI) && baseTemplate.policyURI === "") delete baseTemplate.policyURI;
+
+  baseTemplate.arbitratorAddress = klerosCoreAddress[DEFAULT_CHAIN];
+  baseTemplate.arbitratorChainID = DEFAULT_CHAIN.toString();
 
   return baseTemplate as IDisputeTemplate;
 };
