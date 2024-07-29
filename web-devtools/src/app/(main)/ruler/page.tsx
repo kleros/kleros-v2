@@ -30,7 +30,7 @@ const SettingsPane = styled.div`
   margin: 16px 0;
 `;
 
-const Home: React.FC = () => {
+const Ruler: React.FC = () => {
   return (
     <Container>
       <h1>Ruler</h1>
@@ -59,4 +59,4 @@ const Home: React.FC = () => {
     </Container>
   );
 };
-export default Home;
+export default Ruler;

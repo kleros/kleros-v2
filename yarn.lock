@@ -8065,6 +8065,7 @@ __metadata:
     react-markdown: "npm:^8.0.7"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.5.3"
+    typewriter-effect: "npm:^2.21.0"
     vanilla-jsoneditor: "npm:^0.21.4"
     viem: "npm:^2.1.0"
     wagmi: "npm:^2.2.1"
@@ -38416,6 +38417,19 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: b61b8bb4b4d6a8a00f9d5f931f8c67070eed6ad11feabf4c41744a326987080bfc806a621596c70fbf2e5974eca3ed65bafeeeb22a078071bdfb51d8abd7c013
+  languageName: node
+  linkType: hard
+
+"typewriter-effect@npm:^2.21.0":
+  version: 2.21.0
+  resolution: "typewriter-effect@npm:2.21.0"
+  dependencies:
+    prop-types: "npm:^15.8.1"
+    raf: "npm:^3.4.1"
+  peerDependencies:
+    react: ^17.x || ^18.x
+    react-dom: ^17.x || ^18.x
+  checksum: eaefe01da5ecfc866a1031efa34ad365f4f52fc57be9acf67d4877e01361844a2798f1aba035845fc9f60edaa56bdbb6f7597341ae8e4015793795e1d7b6763d
   languageName: node
   linkType: hard
 
