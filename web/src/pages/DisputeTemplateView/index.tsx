@@ -172,6 +172,7 @@ const DisputeTemplateView = () => {
             externalDisputeID: debouncedParams._externalDisputeID,
             templateID: debouncedParams._templateId,
             templateUri: debouncedParams._templateUri,
+            alchemyApiKey: import.meta.env.ALCHEMY_API_KEY,
           };
 
           const fetchData = async () => {

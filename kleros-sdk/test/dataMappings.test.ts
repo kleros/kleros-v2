@@ -33,7 +33,7 @@ describe("jsonAction", () => {
 
 describe("subgraphAction with variables", () => {
   it("should fetch GraphQL data with variables and return in expected format", async () => {
-    const endpoint = "https://api.thegraph.com/subgraphs/name/kemuru/escrow-v2-devnet";
+    const endpoint = "https://api.studio.thegraph.com/query/61738/escrow-v2-devnet/version/latest";
     const query = `
       query GetEscrows($buyer: Bytes!) {
         escrows(where: {buyer: $buyer}) {
@@ -72,23 +72,28 @@ describe("subgraphAction with variables", () => {
 
 describe("callAction", () => {
   it("should call the contract and return token balance", async () => {
-    const abi = "function balanceOf(address account) public view returns (uint256)";
-    const contractAddress = "0xa8e4235129258404A2ed3D36DAd20708CcB2d0b7";
-    const knownAddress = "0x0000000000000000000000000000000000000000";
+    const abi =
+      "function currentRuling(uint256 _disputeID) public view returns (uint256 ruling, bool tied, bool overridden)";
+    const contractAddress = "0xA54e7A16d7460e38a8F324eF46782FB520d58CE8";
+    const disputeId = "0";
 
     const mapping = {
       type: "abi/call",
       abi,
       address: contractAddress,
-      args: [knownAddress],
-      seek: [""],
-      populate: ["tokenBalance"],
+      args: [disputeId],
+      seek: ["0", "1", "2"],
+      populate: ["ruling", "tied", "overriden"],
     };
 
-    const result = await callAction(mapping);
+    const result = await callAction(mapping, "insertAlchemyApiKeyHere");
 
-    expect(result).to.have.property("tokenBalance");
-    expect(result.tokenBalance).to.be.a("bigint");
+    expect(result).to.have.property("ruling");
+    expect(result.ruling).to.be.a("bigint");
+    expect(result).to.have.property("tied");
+    expect(result.tied).to.be.a("boolean");
+    expect(result).to.have.property("overriden");
+    expect(result.overriden).to.be.a("boolean");
   });
 });
 
@@ -111,7 +116,7 @@ describe("eventAction", () => {
       populate: ["fromAddress", "toAddress", "transferValue"],
     };
 
-    const result = await eventAction(mapping);
+    const result = await eventAction(mapping, "insertAlchemyApiKeyHere");
 
     expect(result).to.have.property("fromAddress");
     expect(result).to.have.property("toAddress");
