@@ -71,7 +71,7 @@ describe("subgraphAction with variables", () => {
 });
 
 describe("callAction", () => {
-  it("should call the contract and return token balance", async () => {
+  it("should call the contract and return in expected format", async () => {
     const abi =
       "function currentRuling(uint256 _disputeID) public view returns (uint256 ruling, bool tied, bool overridden)";
     const contractAddress = "0xA54e7A16d7460e38a8F324eF46782FB520d58CE8";
