@@ -1,7 +1,9 @@
 "use client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React from "react";
 import styled from "styled-components";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import GraphqlBatcherProvider from "context/GraphqlBatcher";
 
 const Main = styled.main`

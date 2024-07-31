@@ -115,8 +115,13 @@ const StyledForm = styled.form`
 
 const StyledRow = styled.div`
   display: flex;
-  flex-direction: row;
-  gap: 24px;
+  flex-direction: column;
+  ${landscapeStyle(
+    () => css`
+      flex-direction: row;
+      gap: 24px;
+    `
+  )}
 `;
 
 const StyledP = styled.p`
@@ -125,6 +130,13 @@ const StyledP = styled.p`
 
 const StyledHeader = styled.h2`
   margin-top: 24px;
+`;
+
+const StyledTitle = styled.div`
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const LongText = styled.div`
@@ -202,11 +214,14 @@ const DisputeTemplateView = () => {
 
   return (
     <>
+      <StyledTitle>
+        <h1>Dispute Preview</h1>
+      </StyledTitle>
       <UpperContainer>
         <StyledForm>
           <StyledHeader>Dispute Request event parameters</StyledHeader>
           <StyledRow>
-            <StyledP>{"{{ arbitrator }}"}</StyledP>
+            <StyledP>{"arbitrator :"}</StyledP>
             <Field
               type="text"
               name="_arbitrator"
@@ -216,7 +231,7 @@ const DisputeTemplateView = () => {
             />
           </StyledRow>
           <StyledRow>
-            <StyledP>{"{{ arbitrable }}"}</StyledP>
+            <StyledP>{"arbitrable :"}</StyledP>
             <Field
               type="text"
               name="_arbitrable"
@@ -226,7 +241,7 @@ const DisputeTemplateView = () => {
             />
           </StyledRow>
           <StyledRow>
-            <StyledP>{"{{ arbitrableDisputeID }}"}</StyledP>
+            <StyledP>{"arbitrableDisputeID :"}</StyledP>
             <Field
               type="text"
               name="_arbitrableDisputeID"
@@ -236,7 +251,7 @@ const DisputeTemplateView = () => {
             />
           </StyledRow>
           <StyledRow>
-            <StyledP>{"{{ externalDisputeID }}"}</StyledP>
+            <StyledP>{"externalDisputeID :"}</StyledP>
             <Field
               type="text"
               name="_externalDisputeID"
@@ -246,7 +261,7 @@ const DisputeTemplateView = () => {
             />
           </StyledRow>
           <StyledRow>
-            <StyledP>{"{{ templateID }}"}</StyledP>
+            <StyledP>{"templateID :"}</StyledP>
             <Field
               type="text"
               name="_templateId"
@@ -256,7 +271,7 @@ const DisputeTemplateView = () => {
             />
           </StyledRow>
           <StyledRow>
-            <StyledP>{"{{ templateUri }}"}</StyledP>
+            <StyledP>{"templateUri :"}</StyledP>
             <Field
               type="text"
               name="_templateUri"
