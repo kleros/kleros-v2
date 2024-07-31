@@ -6,4 +6,5 @@ export const theme = {
   klerosUIComponentsSkeletonHighlight: "#F5F5F5",
   klerosUIComponentsVioletPurple: "#6A1DCD",
   klerosUIComponentsLavenderPurple: "#BB72FF",
+  klerosUIComponentsWhite: "#FFFFFF",
 };

@@ -2,9 +2,8 @@
 import React from "react";
 import styled from "styled-components";
 
-import Link from "next/link";
-
-import KlerosCourtLogo from "svgs/header/devtools-logo.svg";
+import DesktopHeader from "./DesktopHeader";
+import MobileHeader from "./MobileHeader";
 
 const Container = styled.div`
   position: sticky;
@@ -25,9 +24,8 @@ const Header: React.FC = () => {
   return (
     <Container>
       <HeaderContainer>
-        <Link href="/">
-          <KlerosCourtLogo />
-        </Link>
+        <DesktopHeader />
+        <MobileHeader />
       </HeaderContainer>
     </Container>
   );
