@@ -475,8 +475,7 @@ contract DisputeKitSybilResistant is IDisputeKit, Initializable, UUPSProxiable {
         for (uint256 i = 0; i < _courts.length; i++) {
             uint96 courtID = _courts[i];
             require(core.isSupported(courtID, disputeKitID), "DK not supported by court");
-            // TODO: generalize the function name and its permission.
-            core.setStakeBySortitionModule(_juror, courtID, 0, false);
+            core.setStakeBySortitionModuleOrDK(_juror, courtID, 0, false);
         }
     }
 

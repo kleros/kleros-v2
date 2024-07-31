@@ -471,19 +471,19 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
         _setStake(msg.sender, _courtID, _newStake, false, OnError.Revert);
     }
 
-    /// @dev Sets the stake of a specified account in a court, typically to apply a delayed stake or unstake inactive jurors.
+    /// @dev Sets the stake of a specified account in a court, typically to apply a delayed stake or unstake inactive/ineligible jurors.
     /// @param _account The account whose stake is being set.
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake.
     /// @param _alreadyTransferred Whether the PNKs have already been transferred to the contract.
-    function setStakeBySortitionModule(
+    function setStakeBySortitionModuleOrDK(
         address _account,
         uint96 _courtID,
         uint256 _newStake,
         bool _alreadyTransferred
     ) external {
-        // TODO: generalize this function so it can be used by DK too. Rename to setStakeWhitelist or something. So it can be done for someone not just for sender.
-        if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
+        if (msg.sender != address(sortitionModule) && disputeKitIDs[IDisputeKit(msg.sender)] == 0)
+            revert SortitionModuleOrDKOnly();
         _setStake(_account, _courtID, _newStake, _alreadyTransferred, OnError.Return);
     }
 
@@ -1148,7 +1148,7 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
     error GovernorOnly();
     error GuardianOrGovernorOnly();
     error DisputeKitOnly();
-    error SortitionModuleOnly();
+    error SortitionModuleOrDKOnly();
     error UnsuccessfulCall();
     error InvalidDisputKitParent();
     error DepthLevelMax();
