@@ -33,7 +33,8 @@ describe("jsonAction", () => {
 
 describe("subgraphAction with variables", () => {
   it("should fetch GraphQL data with variables and return in expected format", async () => {
-    const endpoint = "https://api.studio.thegraph.com/query/61738/escrow-v2-devnet/version/latest";
+    const endpoint =
+      "https://gateway-arbitrum.network.thegraph.com/api/insertGraphApiKeyHere/subgraphs/id/3aZxYcZpZL5BuVhuUupqVrCV8VeNyZEvjmPXibyPHDFQ";
     const query = `
       query GetEscrows($buyer: Bytes!) {
         escrows(where: {buyer: $buyer}) {
