@@ -55,13 +55,11 @@ const DisputeDetailsSchema = z.object({
   answers: z.array(AnswerSchema),
   policyURI: z.string(),
   attachment: AttachmentSchema.optional(),
-  frontendUrl: z.string(),
+  frontendUrl: z.string().optional(),
   metadata: MetadataSchema.optional(),
-  arbitrableChainID: z.string(),
-  arbitrableAddress: z.string(), // should be changed for ethAddressSchema eventually
   arbitratorChainID: z.string(),
-  arbitratorAddress: z.string(), // should be changed for ethAddressSchema eventually
-  category: z.string(),
+  arbitratorAddress: z.string(), // should be changed for ethAddressSchema eventually, but some
+  category: z.string().optional(),
   lang: z.string().optional(),
   specification: z.string().optional(),
   aliases: AliasSchema.optional(),

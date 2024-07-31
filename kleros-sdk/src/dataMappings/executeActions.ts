@@ -31,7 +31,7 @@ export const executeAction = async (mapping: ActionMapping, context = {}) => {
       return await fetchIpfsJsonAction(validateFetchIpfsJsonMapping(mapping));
     case "reality":
       mapping = validateRealityMapping(mapping);
-      return await retrieveRealityData(mapping.realityQuestionID, context.arbitrable);
+      return await retrieveRealityData(mapping.realityQuestionID, context.arbitrableAddress);
     default:
       throw new Error(`Unsupported action type: ${mapping.type}`);
   }

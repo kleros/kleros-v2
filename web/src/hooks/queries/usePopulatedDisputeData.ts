@@ -47,6 +47,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
       if (isEnabled && !isError) {
         try {
           const { isCrossChainDispute, crossChainTemplateId } = crossChainData;
+          console.log({ crossChainData }); //crosschaindata's chainId is 0 here 🤔
 
           const templateId = isCrossChainDispute
             ? crossChainTemplateId
@@ -64,7 +65,8 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
 
           const initialContext = {
             disputeID: disputeID,
-            arbitrable: arbitrableAddress,
+            arbitrableAddress: arbitrableAddress,
+            arbitrableChainID: "whereDoWeGetThisValueFrom?",
             graphApiKey: import.meta.env.REACT_APP_GRAPH_API_KEY,
             externalDisputeID: externalDisputeID,
           };
