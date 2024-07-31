@@ -46,12 +46,12 @@ const StyledA = styled.a`
 const presets = [
   {
     title: "Escrow",
-    txnHash: "0xfa24d589a0c26c71d06f6e0a151460783f70b51c174a08c04768f458c7817cd1",
+    txnHash: "0x85e60cb407c9a38e625263cc762ff4283d01f38201825e1d20109d8664cfa7d4",
     chainId: 421614,
   },
   {
     title: "Curated Lists",
-    txnHash: "0xd9ab4908fc5447d532bc287f49e2f2beb754fc62024b806f05a9abf706be7c06",
+    txnHash: "0x6e5ad6f7436ef8570b50b0fbec76a11ccedbed85030c670e59d8f6617a499108",
     chainId: 421614,
   },
   {

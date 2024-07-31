@@ -5,6 +5,7 @@ import { Routes, Route } from "react-router-dom";
 
 import { responsiveSize } from "styles/responsiveSize";
 
+import EvidenceAttachmentDisplay from "./AttachmentDisplay";
 import CaseDetails from "./CaseDetails";
 import CasesFetcher from "./CasesFetcher";
 
@@ -20,6 +21,7 @@ const Cases: React.FC = () => (
   <Container>
     <Routes>
       <Route path="/display/:page/:order/:filter" element={<CasesFetcher />} />
+      <Route path="/:id/evidence/attachment/*" element={<EvidenceAttachmentDisplay />} />
       <Route path="/:id/*" element={<CaseDetails />} />
     </Routes>
   </Container>

@@ -17,10 +17,13 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
 
   //checks if each answer is filled in
   const areVotingOptionsFilled =
-    disputeData.question !== "" && disputeData.answers.every((answer) => answer.title !== "");
+    disputeData.question !== "" &&
+    disputeData.answers.every((answer) => answer.title !== "" && answer.description !== "");
 
   //check if any filled address or ens is invalid
-  const areFilledAddressesValid = disputeData?.aliases?.every((alias) => alias.address === "" || alias.isValid);
+  const areFilledAddressesValid = disputeData?.aliasesArray?.every((alias) =>
+    alias.address === "" && alias.name === "" ? true : alias.isValid
+  );
 
   const isButtonDisabled =
     (location.pathname.includes("/resolver/title") && !disputeData.title) ||

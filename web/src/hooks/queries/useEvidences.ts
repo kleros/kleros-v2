@@ -1,36 +1,63 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { REFETCH_INTERVAL } from "consts/index";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 
 import { graphql } from "src/graphql";
-import { EvidencesQuery } from "src/graphql/graphql";
+import { EvidenceDetailsFragment, EvidencesQuery } from "src/graphql/graphql";
 export type { EvidencesQuery };
+
+export const evidenceFragment = graphql(`
+  fragment EvidenceDetails on ClassicEvidence {
+    id
+    evidence
+    sender {
+      id
+    }
+    timestamp
+    name
+    description
+    fileURI
+    fileTypeExtension
+    evidenceIndex
+  }
+`);
 
 const evidencesQuery = graphql(`
   query Evidences($evidenceGroupID: String) {
-    evidences(where: { evidenceGroup: $evidenceGroupID }, orderBy: id, orderDirection: asc) {
-      id
-      evidence
-      sender {
-        id
-      }
-      timestamp
+    evidences(where: { evidenceGroup: $evidenceGroupID }, orderBy: timestamp, orderDirection: asc) {
+      ...EvidenceDetails
     }
   }
 `);
 
-export const useEvidences = (evidenceGroup?: string) => {
+const evidenceSearchQuery = graphql(`
+  query EvidenceSearch($keywords: String!, $evidenceGroupID: String) {
+    evidenceSearch(text: $keywords, where: { evidenceGroup: $evidenceGroupID }) {
+      ...EvidenceDetails
+    }
+  }
+`);
+
+export const useEvidences = (evidenceGroup?: string, keywords?: string) => {
   const isEnabled = evidenceGroup !== undefined;
   const { graphqlBatcher } = useGraphqlBatcher();
 
-  return useQuery({
-    queryKey: ["refetchOnBlock", `evidencesQuery${evidenceGroup}`],
+  const document = keywords ? evidenceSearchQuery : evidencesQuery;
+  return useQuery<{ evidences: EvidenceDetailsFragment[] }>({
+    queryKey: [
+      keywords ? `evidenceSearchQuery${evidenceGroup}-${keywords}` : `evidencesQuery${evidenceGroup}`,
+    ],
     enabled: isEnabled,
-    queryFn: async () =>
-      await graphqlBatcher.fetch({
+    refetchInterval: REFETCH_INTERVAL,
+    queryFn: async () => {
+      const result = await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
-        document: evidencesQuery,
-        variables: { evidenceGroupID: evidenceGroup?.toString() },
-      }),
+        document: document,
+        variables: { evidenceGroupID: evidenceGroup?.toString(), keywords: keywords },
+      });
+
+      return keywords ? { evidences: [...result.evidenceSearch] } : result;
+    },
   });
 };

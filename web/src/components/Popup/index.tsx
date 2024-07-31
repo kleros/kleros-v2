@@ -237,8 +237,7 @@ const Popup: React.FC<PopupProps & IPopup> = ({
   }
 
   return (
-    <>
-      <Overlay />
+    <Overlay>
       <Container ref={containerRef}>
         {popupType === PopupType.SWAP_SUCCESS && (
           <SVGContainer>
@@ -270,7 +269,7 @@ const Popup: React.FC<PopupProps & IPopup> = ({
           />
         )}
       </Container>
-    </>
+    </Overlay>
   );
 };
 export default Popup;
