@@ -49,7 +49,7 @@ export const AttachmentSchema = z.object({
 
 export const AliasSchema = z.record(ethAddressOrEnsNameSchema);
 
-const MetadataSchema = z.record(z.any());
+const MetadataSchema = z.record(z.unknown());
 
 const DisputeDetailsSchema = z.object({
   title: z.string(),
