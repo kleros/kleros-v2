@@ -12,6 +12,7 @@ import { iArbitrableV2Abi } from "hooks/contracts/generated";
 import { useEvidenceGroup } from "queries/useEvidenceGroup";
 import { debounceErrorToast } from "utils/debounceErrorToast";
 import { isUndefined } from "utils/index";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 import { graphql } from "src/graphql";
 
@@ -47,7 +48,6 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
       if (isEnabled && !isError) {
         try {
           const { isCrossChainDispute, crossChainTemplateId } = crossChainData;
-          console.log({ crossChainData }); //crosschaindata's chainId is 0 here 🤔
 
           const templateId = isCrossChainDispute
             ? crossChainTemplateId
@@ -66,7 +66,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
           const initialContext = {
             disputeID: disputeID,
             arbitrableAddress: arbitrableAddress,
-            arbitrableChainID: "whereDoWeGetThisValueFrom?",
+            arbitrableChainID: isCrossChainDispute ? crossChainData.crossChainId.toString() : DEFAULT_CHAIN.toString(),
             graphApiKey: import.meta.env.REACT_APP_GRAPH_API_KEY,
             externalDisputeID: externalDisputeID,
           };

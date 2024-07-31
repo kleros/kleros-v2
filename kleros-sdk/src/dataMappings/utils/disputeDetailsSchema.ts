@@ -5,7 +5,7 @@ import { normalize } from "viem/ens";
 const isHexAddress = (str: string): boolean => /^0x[a-fA-F0-9]{40}$/.test(str);
 const isHexId = (str: string): boolean => /^0x[a-fA-F0-9]{1,64}$/.test(str);
 const isMultiaddr = (str: string): boolean =>
-  /^\/(?:ip4|ip6|dns4|dns6|dnsaddr|tcp|udp|utp|tls|ws|wss|ipfs|p2p-circuit|p2p-webrtc-star|p2p-webrtc-direct|p2p-websocket-star|onion)(\/[^\s\/]+)*$/.test(
+  /^\/(?:ip4|ip6|dns4|dns6|dnsaddr|tcp|udp|utp|tls|ws|wss|p2p-circuit|p2p-webrtc-star|p2p-webrtc-direct|p2p-websocket-star|onion|ipfs)(\/[^\s\/]+)+$|^ipfs:\/\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)?$/.test(
     str
   );
 
