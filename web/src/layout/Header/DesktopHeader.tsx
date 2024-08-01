@@ -15,6 +15,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
+import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
 import Appeal from "components/Popup/MiniGuides/Appeal";
 import BinaryVoting from "components/Popup/MiniGuides/BinaryVoting";
 import DisputeResolver from "components/Popup/MiniGuides/DisputeResolver";
@@ -110,6 +111,7 @@ const DesktopHeader: React.FC = () => {
   const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
   const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
   const [isSettingsOpen, toggleIsSettingsOpen] = useToggle(false);
+  const [isJurorLevelsMiniGuideOpen, toggleIsJurorLevelsMiniGuideOpen] = useToggle(false);
   const [isAppealMiniGuideOpen, toggleIsAppealMiniGuideOpen] = useToggle(false);
   const [isBinaryVotingMiniGuideOpen, toggleIsBinaryVotingMiniGuideOpen] = useToggle(false);
   const [isDisputeResolverMiniGuideOpen, toggleIsDisputeResolverMiniGuideOpen] = useToggle(false);
@@ -122,6 +124,7 @@ const DesktopHeader: React.FC = () => {
   const isDefaultChain = chainId === DEFAULT_CHAIN;
   const initializeFragmentURL = useCallback(() => {
     const hashIncludes = (hash: MiniguideHashesType | "#notifications") => location.hash.includes(hash);
+    const hasJurorLevelsMiniGuidePath = hashIncludes("#jurorlevels-miniguide");
     const hasAppealMiniGuidePath = hashIncludes("#appeal-miniguide");
     const hasBinaryVotingMiniGuidePath = hashIncludes("#binaryvoting-miniguide");
     const hasDisputeResolverMiniGuidePath = hashIncludes("#disputeresolver-miniguide");
@@ -129,6 +132,7 @@ const DesktopHeader: React.FC = () => {
     const hasStakingMiniGuidePath = hashIncludes("#staking-miniguide");
     const hasOnboardingMiniGuidePath = hashIncludes("#onboarding-miniguide");
     const hasNotificationsPath = hashIncludes("#notifications");
+    toggleIsJurorLevelsMiniGuideOpen(hasJurorLevelsMiniGuidePath);
     toggleIsAppealMiniGuideOpen(hasAppealMiniGuidePath);
     toggleIsBinaryVotingMiniGuideOpen(hasBinaryVotingMiniGuidePath);
     toggleIsDisputeResolverMiniGuideOpen(hasDisputeResolverMiniGuidePath);
@@ -139,6 +143,7 @@ const DesktopHeader: React.FC = () => {
     toggleIsSettingsOpen(hasNotificationsPath);
     setInitialTab(hasNotificationsPath ? 1 : 0);
   }, [
+    toggleIsJurorLevelsMiniGuideOpen,
     toggleIsAppealMiniGuideOpen,
     toggleIsBinaryVotingMiniGuideOpen,
     toggleIsDisputeResolverMiniGuideOpen,
@@ -190,6 +195,7 @@ const DesktopHeader: React.FC = () => {
           {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen, initialTab }} />}
         </PopupContainer>
       )}
+      {isJurorLevelsMiniGuideOpen && <JurorLevels toggleMiniGuide={toggleIsJurorLevelsMiniGuideOpen} />}
       {isAppealMiniGuideOpen && <Appeal toggleMiniGuide={toggleIsAppealMiniGuideOpen} />}
       {isBinaryVotingMiniGuideOpen && <BinaryVoting toggleMiniGuide={toggleIsBinaryVotingMiniGuideOpen} />}
       {isDisputeResolverMiniGuideOpen && <DisputeResolver toggleMiniGuide={toggleIsDisputeResolverMiniGuideOpen} />}

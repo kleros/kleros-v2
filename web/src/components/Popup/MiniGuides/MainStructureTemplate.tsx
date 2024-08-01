@@ -131,6 +131,7 @@ interface ITemplate {
 }
 
 export const miniGuideHashes = [
+  "#jurorlevels-miniguide",
   "#appeal-miniguide",
   "#binaryvoting-miniguide",
   "#disputeresolver-miniguide",
