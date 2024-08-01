@@ -20,6 +20,11 @@ export function getOneYearAgoTimestamp(): number {
   return currentTime - 31536000; // One year in seconds
 }
 
+export function getOneWeekAgoTimestamp(): number {
+  const currentTime = new Date().getTime();
+  return currentTime - 604800000; // One week in milliseconds
+}
+
 export function formatDate(unixTimestamp: number, withTime = false): string {
   const date = new Date(unixTimestamp * 1000);
   const options: Intl.DateTimeFormatOptions = withTime
