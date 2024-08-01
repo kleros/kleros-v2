@@ -10,6 +10,8 @@ import { klerosCoreAbi, klerosCoreAddress } from "hooks/contracts/generated";
 import useTransactionBatcher, { type TransactionBatcherConfig } from "hooks/useTransactionBatcher";
 import { wrapWithToast } from "utils/wrapWithToast";
 
+import useDisputeMaintenanceQuery from "queries/useDisputeMaintenanceQuery";
+
 import { Period } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
@@ -20,19 +22,26 @@ const StyledButton = styled(Button)`
 `;
 
 interface IDistributeRewards extends IBaseMaintenanceButton {
-  numberOfVotes?: string;
   roundIndex?: string;
   period?: string;
 }
 
-const DistributeRewards: React.FC<IDistributeRewards> = ({ id, numberOfVotes, roundIndex, setIsOpen, period }) => {
+const DistributeRewards: React.FC<IDistributeRewards> = ({ id, roundIndex, setIsOpen, period }) => {
   const [isSending, setIsSending] = useState(false);
   const [contractConfigs, setContractConfigs] = useState<TransactionBatcherConfig>();
   const publicClient = usePublicClient();
   const { chainId } = useAccount();
 
+  const { data: maintenanceData } = useDisputeMaintenanceQuery(id);
+
+  const rewardsDispersed = useMemo(
+    () => maintenanceData?.dispute?.rounds.every((round) => round.jurorRewardsDispersed),
+    [maintenanceData]
+  );
+
   useEffect(() => {
-    if (!id || !roundIndex || !numberOfVotes) return;
+    const rounds = maintenanceData?.dispute?.rounds;
+    if (!id || !roundIndex || !rounds) return;
 
     const baseArgs = {
       abi: klerosCoreAbi,
@@ -41,40 +50,37 @@ const DistributeRewards: React.FC<IDistributeRewards> = ({ id, numberOfVotes, ro
     };
 
     const argsArr: TransactionBatcherConfig = [];
-    let nbVotes = parseInt(numberOfVotes);
 
-    // each previous round has (n - 1)/2 jurors
-    for (let i = parseInt(roundIndex); i >= 0; i--) {
-      argsArr.push({ ...baseArgs, args: [BigInt(id), BigInt(i), BigInt(nbVotes)] });
-
-      nbVotes = (nbVotes - 1) / 2;
+    for (const round of rounds) {
+      argsArr.push({ ...baseArgs, args: [BigInt(id), BigInt(round.id.split("-")[1]), BigInt(round.nbVotes)] });
     }
 
     setContractConfigs(argsArr);
-  }, [id, roundIndex, numberOfVotes, chainId]);
+  }, [id, roundIndex, chainId, maintenanceData]);
 
   const {
     executeBatch,
     isLoading: isLoadingConfig,
     isError,
   } = useTransactionBatcher(contractConfigs, {
-    enabled: !isUndefined(period) && period === Period.Execution,
+    enabled: !isUndefined(period) && period === Period.Execution && !rewardsDispersed,
   });
 
   const isLoading = useMemo(() => isLoadingConfig || isSending, [isLoadingConfig, isSending]);
   const isDisabled = useMemo(
-    () => isUndefined(id) || isUndefined(numberOfVotes) || isError || isLoading || period !== Period.Execution,
-    [id, numberOfVotes, isError, isLoading, period]
+    () => isUndefined(id) || isError || isLoading || period !== Period.Execution || rewardsDispersed,
+    [id, isError, isLoading, period, rewardsDispersed]
   );
 
   const handleClick = () => {
+    if (!publicClient) return;
     setIsSending(true);
 
     wrapWithToast(async () => await executeBatch(), publicClient).finally(() => {
       setIsOpen(false);
     });
   };
-  return <StyledButton text="Rewards" small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />;
+  return <StyledButton text="Juror Rewards" small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />;
 };
 
 export default DistributeRewards;

@@ -13,6 +13,7 @@ const disputeMaintenance = graphql(`
         jurorsDrawn
       }
       rounds {
+        id
         jurorRewardsDispersed
         nbVotes
       }

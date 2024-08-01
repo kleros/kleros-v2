@@ -113,7 +113,6 @@ const MaintenanceButtons: React.FC = () => {
                 <DistributeRewards
                   {...{ id, setIsOpen }}
                   roundIndex={dispute?.currentRoundIndex}
-                  numberOfVotes={dispute?.currentRound.nbVotes}
                   period={dispute?.period}
                 />
                 <ExecuteRulingButton {...{ id, setIsOpen }} period={dispute?.period} ruled={dispute?.ruled} />
