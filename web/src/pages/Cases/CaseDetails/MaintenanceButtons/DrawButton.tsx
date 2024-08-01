@@ -8,6 +8,8 @@ import { Button } from "@kleros/ui-components-library";
 import { useSimulateKlerosCoreDraw, useWriteKlerosCoreDraw } from "hooks/contracts/generated";
 import { wrapWithToast } from "utils/wrapWithToast";
 
+import useDisputeMaintenanceQuery from "queries/useDisputeMaintenanceQuery";
+
 import { Period } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
@@ -25,6 +27,9 @@ interface IDrawButton extends IBaseMaintenanceButton {
 const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, period }) => {
   const [isSending, setIsSending] = useState(false);
   const publicClient = usePublicClient();
+  const { data: maintenanceData } = useDisputeMaintenanceQuery(id);
+
+  const isDrawn = useMemo(() => maintenanceData?.dispute?.currentRound.jurorsDrawn, [maintenanceData]);
 
   const {
     data: drawConfig,
@@ -32,7 +37,12 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
     isError,
   } = useSimulateKlerosCoreDraw({
     query: {
-      enabled: !isUndefined(id) && !isUndefined(numberOfVotes) && !isUndefined(period) && period === Period.Evidence,
+      enabled:
+        !isUndefined(id) &&
+        !isUndefined(numberOfVotes) &&
+        !isUndefined(period) &&
+        period === Period.Evidence &&
+        !isDrawn,
     },
     args: [BigInt(id ?? 0), BigInt(numberOfVotes ?? 0)],
   });
@@ -41,11 +51,12 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
 
   const isLoading = useMemo(() => isLoadingConfig || isSending, [isLoadingConfig, isSending]);
   const isDisabled = useMemo(
-    () => isUndefined(id) || isUndefined(numberOfVotes) || isError || isLoading || period !== Period.Evidence,
-    [id, numberOfVotes, isError, isLoading, period]
+    () =>
+      isUndefined(id) || isUndefined(numberOfVotes) || isError || isLoading || period !== Period.Evidence || isDrawn,
+    [id, numberOfVotes, isError, isLoading, period, isDrawn]
   );
   const handleClick = () => {
-    if (!drawConfig) return;
+    if (!drawConfig || !publicClient) return;
 
     setIsSending(true);
 

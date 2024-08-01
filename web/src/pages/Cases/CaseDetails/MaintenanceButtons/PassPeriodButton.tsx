@@ -8,6 +8,8 @@ import { Button } from "@kleros/ui-components-library";
 import { useSimulateKlerosCorePassPeriod, useWriteKlerosCorePassPeriod } from "hooks/contracts/generated";
 import { wrapWithToast } from "utils/wrapWithToast";
 
+import useDisputeMaintenanceQuery from "queries/useDisputeMaintenanceQuery";
+
 import { Period } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
@@ -24,6 +26,9 @@ interface IPassPeriodButton extends IBaseMaintenanceButton {
 const PassPeriodButton: React.FC<IPassPeriodButton> = ({ id, setIsOpen, period }) => {
   const [isSending, setIsSending] = useState(false);
   const publicClient = usePublicClient();
+  const { data: maintenanceData } = useDisputeMaintenanceQuery(id);
+
+  const isDrawn = useMemo(() => maintenanceData?.dispute?.currentRound.jurorsDrawn, [maintenanceData]);
 
   const {
     data: passPeriodConfig,
@@ -31,7 +36,11 @@ const PassPeriodButton: React.FC<IPassPeriodButton> = ({ id, setIsOpen, period }
     isError,
   } = useSimulateKlerosCorePassPeriod({
     query: {
-      enabled: !isUndefined(id) && !isUndefined(period) && period !== Period.Execution,
+      enabled:
+        !isUndefined(id) &&
+        !isUndefined(period) &&
+        period !== Period.Execution &&
+        !(period === Period.Evidence && !isDrawn),
     },
     args: [BigInt(id ?? 0)],
   });
@@ -40,11 +49,12 @@ const PassPeriodButton: React.FC<IPassPeriodButton> = ({ id, setIsOpen, period }
 
   const isLoading = useMemo(() => isLoadingConfig || isSending, [isLoadingConfig, isSending]);
   const isDisabled = useMemo(
-    () => isUndefined(id) || isError || isLoading || period === Period.Execution,
-    [id, isError, isLoading, period]
+    () =>
+      isUndefined(id) || isError || isLoading || period === Period.Execution || (period === Period.Evidence && isDrawn),
+    [id, isError, isLoading, period, isDrawn]
   );
   const handleClick = () => {
-    if (!passPeriodConfig) return;
+    if (!passPeriodConfig || !publicClient) return;
 
     setIsSending(true);
 
