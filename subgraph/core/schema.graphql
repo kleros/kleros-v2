@@ -192,6 +192,8 @@ type Round @entity {
   court: Court!
   feeToken: FeeToken
   timeline: [BigInt!]!
+  jurorsDrawn: Boolean!
+  jurorRewardsDispersed: Boolean!
 }
 
 type Draw @entity(immutable: true) {
