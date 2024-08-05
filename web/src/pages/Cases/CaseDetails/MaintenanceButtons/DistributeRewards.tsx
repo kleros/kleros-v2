@@ -41,7 +41,7 @@ const DistributeRewards: React.FC<IDistributeRewards> = ({ id, roundIndex, setIs
 
   useEffect(() => {
     const rounds = maintenanceData?.dispute?.rounds;
-    if (!id || !roundIndex || !rounds) return;
+    if (isUndefined(id) || isUndefined(roundIndex) || isUndefined(rounds)) return;
 
     const baseArgs = {
       abi: klerosCoreAbi,
@@ -60,6 +60,7 @@ const DistributeRewards: React.FC<IDistributeRewards> = ({ id, roundIndex, setIs
 
   const {
     executeBatch,
+    batchConfig,
     isLoading: isLoadingConfig,
     isError,
   } = useTransactionBatcher(contractConfigs, {
@@ -73,10 +74,11 @@ const DistributeRewards: React.FC<IDistributeRewards> = ({ id, roundIndex, setIs
   );
 
   const handleClick = () => {
-    if (!publicClient) return;
+    if (!publicClient || !batchConfig) return;
     setIsSending(true);
 
-    wrapWithToast(async () => await executeBatch(), publicClient).finally(() => {
+    wrapWithToast(async () => await executeBatch(batchConfig), publicClient).finally(() => {
+      setIsSending(false);
       setIsOpen(false);
     });
   };

@@ -16,6 +16,7 @@ import DrawButton from "./DrawButton";
 import ExecuteRulingButton from "./ExecuteRuling";
 import MenuButton from "./MenuButton";
 import PassPeriodButton from "./PassPeriodButton";
+import WithdrawAppealFees from "./WithdrawAppealFees";
 
 const Container = styled.div`
   width: 36px;
@@ -110,12 +111,18 @@ const MaintenanceButtons: React.FC = () => {
                   period={dispute?.period}
                 />
                 <PassPeriodButton {...{ id, setIsOpen }} period={dispute?.period} />
+                <ExecuteRulingButton {...{ id, setIsOpen }} period={dispute?.period} ruled={dispute?.ruled} />
                 <DistributeRewards
                   {...{ id, setIsOpen }}
                   roundIndex={dispute?.currentRoundIndex}
                   period={dispute?.period}
                 />
-                <ExecuteRulingButton {...{ id, setIsOpen }} period={dispute?.period} ruled={dispute?.ruled} />
+                <WithdrawAppealFees
+                  {...{ id, setIsOpen }}
+                  roundIndex={parseInt(dispute?.currentRoundIndex, 10)}
+                  period={dispute?.period}
+                  ruled={dispute?.ruled}
+                />
               </>
             </EnsureChain>
           </PopupContainer>

@@ -53,7 +53,11 @@ const useTransactionBatcher = (
   });
   const { writeContractAsync } = useWriteTransactionBatcherBatchSend();
 
-  const executeBatch = useCallback(() => writeContractAsync(batchConfig.request), [batchConfig, writeContractAsync]);
+  const executeBatch = useCallback(
+    (config: NonNullable<typeof batchConfig>) => writeContractAsync(config?.request),
+    [writeContractAsync]
+  );
+
   return { executeBatch, batchConfig, isError, isLoading };
 };
 

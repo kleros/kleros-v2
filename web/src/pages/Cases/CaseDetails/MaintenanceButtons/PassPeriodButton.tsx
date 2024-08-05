@@ -50,7 +50,11 @@ const PassPeriodButton: React.FC<IPassPeriodButton> = ({ id, setIsOpen, period }
   const isLoading = useMemo(() => isLoadingConfig || isSending, [isLoadingConfig, isSending]);
   const isDisabled = useMemo(
     () =>
-      isUndefined(id) || isError || isLoading || period === Period.Execution || (period === Period.Evidence && isDrawn),
+      isUndefined(id) ||
+      isError ||
+      isLoading ||
+      period === Period.Execution ||
+      (period === Period.Evidence && !isDrawn),
     [id, isError, isLoading, period, isDrawn]
   );
   const handleClick = () => {
