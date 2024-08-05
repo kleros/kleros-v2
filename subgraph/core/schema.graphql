@@ -266,6 +266,8 @@ type ClassicRound implements DisputeKitRound @entity {
   paidFees: [BigInt!]!
   contributions: [ClassicContribution!]! @derivedFrom(field: "localRound")
   feeRewards: BigInt!
+  totalFeeDispersed: BigInt!
+  appealFeesDispersed: Boolean!
   fundedChoices: [BigInt!]!
   justifications: [ClassicJustification!] @derivedFrom(field: "localRound")
 }
