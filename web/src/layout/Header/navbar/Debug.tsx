@@ -57,7 +57,7 @@ enum Phases {
   drawing,
 }
 
-const Phase = () => {
+export const Phase = () => {
   const { data: phase } = useSortitionModulePhase();
   return <>{isUndefined(phase) ? null : <StyledLabel>Phase: {Phases[phase as number]}</StyledLabel>}</>;
 };

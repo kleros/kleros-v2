@@ -11,6 +11,8 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import Popup, { PopupType } from "components/Popup/index";
 import Tag from "components/Tag";
 
+import StakeMaintenanceButtons from "../StakeMaintenanceButton";
+
 import InputDisplay from "./InputDisplay";
 import JurorBalanceDisplay from "./JurorStakeDisplay";
 import { ActionType } from "./StakeWithdrawButton";
@@ -73,6 +75,12 @@ const ThreePnksIconContainer = styled.div`
   )};
 `;
 
+const StyledStakeMtnceButtons = styled(StakeMaintenanceButtons)`
+  position: absolute;
+  right: 0;
+  top: -4px;
+`;
+
 const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "General Court", id }) => {
   const [amount, setAmount] = useState("");
   const [isSending, setIsSending] = useState<boolean>(false);
@@ -90,6 +98,7 @@ const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "
   const isStaking = action === ActionType.stake;
   return (
     <Container>
+      <StyledStakeMtnceButtons />
       <LeftArea>
         <TagArea>
           <Tag text="Stake" active={isActive} onClick={() => handleClick(ActionType.stake)} />
