@@ -27,6 +27,7 @@ const disputeDetailsQuery = graphql(`
       tied
       currentRound {
         id
+        nbVotes
       }
       currentRoundIndex
     }

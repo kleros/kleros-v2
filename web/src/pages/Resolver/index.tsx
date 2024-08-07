@@ -73,19 +73,6 @@ const MiddleContentContainer = styled.div`
   position: relative;
 `;
 
-const StyledLabel = styled.label`
-  display: none;
-
-  ${landscapeStyle(
-    () => css`
-      display: flex;
-      color: ${({ theme }) => theme.secondaryPurple};
-      margin-bottom: 20px;
-      padding-left: ${responsiveSize(25, 65)};
-    `
-  )}
-`;
-
 const DisputeResolver: React.FC = () => {
   const location = useLocation();
   const [isDisputeResolverMiniGuideOpen, toggleDisputeResolverMiniGuide] = useToggle(false);

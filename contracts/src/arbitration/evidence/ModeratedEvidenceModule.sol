@@ -84,7 +84,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     /// @param _arbitrator The arbitrator of the contract.
     /// @param _externalDisputeID Unique identifier for this dispute outside Kleros. It's the submitter responsability to submit the right evidence group ID.
     /// @param _party The address of the party submiting the evidence. Note that 0x0 refers to evidence not submitted by any party.
-    /// @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'
+    /// @param _evidence Stringified evidence object, example: '{"name" : "Justification", "description" : "Description", "fileURI" : "/ipfs/QmWQV5ZFFhEJiW8Lm7ay2zLxC2XS4wx1b2W7FfdrLMyQQc"}'.
     event ModeratedEvidence(
         IArbitratorV2 indexed _arbitrator,
         uint256 indexed _externalDisputeID,
@@ -201,7 +201,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
 
     /// @dev Submits evidence.
     /// @param _evidenceGroupID Unique identifier of the evidence group the evidence belongs to. It's the submitter responsability to submit the right evidence group ID.
-    /// @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'.
+    /// @param _evidence Stringified evidence object, example: '{"name" : "Justification", "description" : "Description", "fileURI" : "/ipfs/QmWQV5ZFFhEJiW8Lm7ay2zLxC2XS4wx1b2W7FfdrLMyQQc"}'.
     function submitEvidence(uint256 _evidenceGroupID, string calldata _evidence) external payable {
         // Optimization opportunity: map evidenceID to an incremental index that can be safely assumed to be less than a small uint.
         bytes32 evidenceID = keccak256(abi.encodePacked(_evidenceGroupID, _evidence));

@@ -73,7 +73,6 @@
   },
   "alias": {
     "process": "process/browser.js",
-    "buffer": "buffer",
-    "@lifi/sdk": "@tractors/lifi-sdk-parcel"
+    "buffer": "buffer"
   }
 }

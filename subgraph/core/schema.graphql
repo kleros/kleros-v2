@@ -52,8 +52,14 @@ interface Evidence {
   id: ID!
   evidence: String!
   evidenceGroup: EvidenceGroup!
+  evidenceIndex: String!
   sender: User!
+  senderAddress: String!
   timestamp: BigInt!
+  name: String
+  description: String
+  fileURI: String
+  fileTypeExtension: String
 }
 
 ############
@@ -186,6 +192,8 @@ type Round @entity {
   court: Court!
   feeToken: FeeToken
   timeline: [BigInt!]!
+  jurorsDrawn: Boolean!
+  jurorRewardsDispersed: Boolean!
 }
 
 type Draw @entity(immutable: true) {
@@ -258,6 +266,8 @@ type ClassicRound implements DisputeKitRound @entity {
   paidFees: [BigInt!]!
   contributions: [ClassicContribution!]! @derivedFrom(field: "localRound")
   feeRewards: BigInt!
+  totalFeeDispersed: BigInt!
+  appealFeesDispersed: Boolean!
   fundedChoices: [BigInt!]!
   justifications: [ClassicJustification!] @derivedFrom(field: "localRound")
 }
@@ -292,12 +302,18 @@ type ClassicEvidenceGroup implements EvidenceGroup @entity {
   nextEvidenceIndex: BigInt!
 }
 
-type ClassicEvidence implements Evidence @entity {
+type ClassicEvidence implements Evidence @entity(immutable: true) {
   id: ID! # classicEvidenceGroup.id-nextEvidenceIndex
   evidence: String!
   evidenceGroup: EvidenceGroup!
+  evidenceIndex: String!
   sender: User!
+  senderAddress: String!
   timestamp: BigInt!
+  name: String
+  description: String
+  fileURI: String
+  fileTypeExtension: String
 }
 
 type ClassicContribution implements Contribution @entity {
@@ -311,3 +327,11 @@ type ClassicContribution implements Contribution @entity {
   choice: BigInt!
   rewardWithdrawn: Boolean!
 }
+
+type _Schema_
+  @fulltext(
+    name: "evidenceSearch"
+    language: en
+    algorithm: rank
+    include: [{ entity: "ClassicEvidence", fields: [{ name: "name" }, { name: "description" },{ name: "senderAddress"},{ name: "evidenceIndex"}] }]
+  )
