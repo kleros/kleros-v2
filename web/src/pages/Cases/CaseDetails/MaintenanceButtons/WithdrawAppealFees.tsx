@@ -39,7 +39,6 @@ const WithdrawAppealFees: React.FC<IWithdrawAppealFees> = ({ id, roundIndex, set
   const { data: appealData } = useClassicAppealQuery(id);
 
   const localRounds = useMemo(() => getLocalRounds(appealData?.dispute?.disputeKitDispute), [appealData]);
-  console.log({ localRounds });
 
   const feeDispersed = useMemo(
     () =>
