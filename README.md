@@ -9,10 +9,6 @@
 </p>
 
 <p align="center">
-  <a href="https://app.netlify.com/sites/kleros-v2/deploys"><img src="https://api.netlify.com/api/v1/badges/86d94ae8-f655-46a4-a859-d68696173f3a/deploy-status" alt="Netlify Build Status"></a>
-  <a href="https://app.netlify.com/sites/kleros-v2-university/deploys"><img src="https://api.netlify.com/api/v1/badges/085e1305-e434-4d36-91a4-88e8cbc3aa46/deploy-status" alt="Netlify Build Status"></a>
-  <a href="https://www.gitpoap.io/gh/kleros/kleros-v2"><img src="https://public-api.gitpoap.io/v1/repo/kleros/kleros-v2/badge" alt="GitPoap badge"></a>
-  </br>
   <a href="https://api.securityscorecards.dev/projects/github.com/kleros/kleros-v2"><img src="https://api.securityscorecards.dev/projects/github.com/kleros/kleros-v2/badge" alt="OpenSSF Scorecard"></a>
   <a href="https://sonarcloud.io/summary/new_code?id=kleros_kleros-v2"><img src="https://sonarcloud.io/api/project_badges/measure?project=kleros_kleros-v2&metric=security_rating" alt="Security Rating"></a>
   <a href="https://sonarcloud.io/summary/new_code?id=kleros_kleros-v2"><img src="https://sonarcloud.io/api/project_badges/measure?project=kleros_kleros-v2&metric=alert_status" alt="Quality Gate Status"></a>
@@ -24,6 +20,8 @@
   <a href="https://conventionalcommits.org"><img src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg" alt="Conventional Commits"></a>
   <a href="http://commitizen.github.io/cz-cli/"><img src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg" alt="Commitizen Friendly"></a>
   <a href="https://github.com/prettier/prettier"><img src="https://img.shields.io/badge/styled_with-prettier-ff69b4.svg" alt="Styled with Prettier"></a>
+  </br>
+  <a href="https://www.gitpoap.io/gh/kleros/kleros-v2"><img src="https://public-api.gitpoap.io/v1/repo/kleros/kleros-v2/badge" alt="GitPoap badge"></a>
 </p>
 
 ---
@@ -34,7 +32,7 @@
 
 ##### 🗃️ [Subgraph endpoints](subgraph/README.md#deployments)
 
-##### ⚖️ [Web frontend](https://app.netlify.com/sites/kleros-v2/deploys)
+##### ⚖️ [Web frontend](web/README.md#court-deployments)
 
 ## Content
 
