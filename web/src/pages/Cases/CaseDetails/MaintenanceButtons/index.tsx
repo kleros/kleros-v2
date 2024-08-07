@@ -8,13 +8,13 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { Periods } from "src/consts/periods";
 import { Period } from "src/graphql/graphql";
 
+import DottedMenuButton from "components/DottedMenuButton";
 import { EnsureChain } from "components/EnsureChain";
 import { Overlay } from "components/Overlay";
 
 import DistributeRewards from "./DistributeRewards";
 import DrawButton from "./DrawButton";
 import ExecuteRulingButton from "./ExecuteRuling";
-import MenuButton from "./MenuButton";
 import PassPeriodButton from "./PassPeriodButton";
 import WithdrawAppealFees from "./WithdrawAppealFees";
 
@@ -128,7 +128,7 @@ const MaintenanceButtons: React.FC = () => {
           </PopupContainer>
         </>
       ) : null}
-      <MenuButton {...{ toggle, displayRipple }} />
+      <DottedMenuButton {...{ toggle, displayRipple }} />
     </Container>
   );
 };

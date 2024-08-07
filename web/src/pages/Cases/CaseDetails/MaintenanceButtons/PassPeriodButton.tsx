@@ -28,7 +28,7 @@ const PassPeriodButton: React.FC<IPassPeriodButton> = ({ id, setIsOpen, period }
   const publicClient = usePublicClient();
   const { data: maintenanceData } = useDisputeMaintenanceQuery(id);
 
-  const isDrawn = useMemo(() => maintenanceData?.dispute?.currentRound.jurorsDrawn, [maintenanceData]);
+  const isDrawn = useMemo(() => maintenanceData?.dispute?.currentRound.jurorsDrawn ?? false, [maintenanceData]);
 
   const {
     data: passPeriodConfig,
