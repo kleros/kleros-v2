@@ -2,11 +2,10 @@
 
 _Archon's successor_
 
-Make sure to set the environment variables first by copying the file `.env.example`, pasting it, renaming it to `.env`, and then setting the variables.
-To run the data mappings tests:
+To run the data mappings tests, at the root folder level, do:
 
 ```bash
-yarn run test-data-mappings
+yarn test
 ```
 
 🚧 ⚖️ 🚧

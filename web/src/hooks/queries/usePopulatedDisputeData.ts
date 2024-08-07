@@ -66,6 +66,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
             disputeID: disputeID,
             arbitrable: arbitrableAddress,
             graphApiKey: import.meta.env.REACT_APP_GRAPH_API_KEY,
+            alchemyApiKey: import.meta.env.ALCHEMY_API_KEY,
             externalDisputeID: externalDisputeID,
           };
 
