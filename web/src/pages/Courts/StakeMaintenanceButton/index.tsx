@@ -37,12 +37,6 @@ const PopupContainer = styled.div`
   transform: translate(-100%, 100%);
 `;
 
-const StyledDottedMenu = styled(DottedMenuButton)`
-  .button-container {
-    background-color: ${({ theme }) => theme.whiteBackground};
-  }
-`;
-
 export enum Phases {
   staking,
   generating,
@@ -76,7 +70,7 @@ const StakeMaintenanceButtons: React.FC<IStakeMaintenanceButtons> = ({ className
           </PopupContainer>
         </>
       ) : null}
-      <StyledDottedMenu {...{ toggle }} displayRipple={false} />
+      <DottedMenuButton {...{ toggle }} displayRipple={false} />
     </Container>
   );
 };
