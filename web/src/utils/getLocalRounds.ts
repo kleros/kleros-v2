@@ -1,20 +1,12 @@
-import { ClassicAppealQuery } from "queries/useClassicAppealQuery";
-import { VotingHistoryQuery } from "queries/useVotingHistory";
-
-type IVotingHistoryLocalRounds = NonNullable<
-  NonNullable<VotingHistoryQuery["dispute"]>["disputeKitDispute"]
->["localRounds"];
-
-type IClassicAppealQueryLocalRounds = NonNullable<
-  NonNullable<ClassicAppealQuery["dispute"]>["disputeKitDispute"]
->["localRounds"];
-
-type ILocalRounds = IClassicAppealQueryLocalRounds | IVotingHistoryLocalRounds;
-
-interface IDisputeKitDisputes {
-  localRounds: ILocalRounds;
+interface DisputeKitDispute<T> {
+  localRounds: T[];
 }
 
-export const getLocalRounds = (disputeKitDisputes: IDisputeKitDisputes | undefined | null) => {
-  return disputeKitDisputes?.reduce<ILocalRounds>((acc: ILocalRounds, { localRounds }) => acc.concat(localRounds), []);
+/**
+ * @param disputeKitDisputes an array of dispute kit disputes with field localRounds
+ * @returns a flattened array of localRounds
+ */
+export const getLocalRounds = <T>(disputeKitDisputes: DisputeKitDispute<T>[] | undefined | null): T[] => {
+  if (!disputeKitDisputes) return [];
+  return disputeKitDisputes.flatMap(({ localRounds }) => localRounds);
 };

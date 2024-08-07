@@ -24,7 +24,7 @@ import { updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
 import { updateTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
-import { Court, Dispute, User } from "../generated/schema";
+import { Court, Dispute, Round, User } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { updatePenalty } from "./entities/Penalty";
 import { ensureFeeToken } from "./entities/FeeToken";
@@ -185,6 +185,17 @@ export function handleDraw(event: DrawEvent): void {
   const jurorAddress = event.params._address.toHexString();
   updateJurorStake(jurorAddress, dispute.court, sortitionModule, event.block.timestamp);
   addUserActiveDispute(jurorAddress, disputeID);
+
+  const roundIndex = event.params._roundID;
+  const roundID = `${disputeID}-${roundIndex.toString()}`;
+
+  const currentRound = Round.load(roundID);
+  if (!currentRound) return;
+
+  if (currentRound.nbVotes.toI32() === currentRound.drawnJurors.load().length) {
+    currentRound.jurorsDrawn = true;
+    currentRound.save();
+  }
 }
 
 export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
@@ -199,6 +210,21 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   const klerosCore = KlerosCore.bind(event.address);
   const sortitionModule = SortitionModule.bind(klerosCore.sortitionModule());
   updateJurorStake(jurorAddress, court.id, sortitionModule, event.block.timestamp);
+
+  const roundIndex = event.params._roundID;
+  const roundID = `${disputeID}-${roundIndex.toString()}`;
+
+  const round = Round.load(roundID);
+  if (!round) return;
+
+  const roundInfo = klerosCore.getRoundInfo(event.params._disputeID, roundIndex);
+  const repartitions = roundInfo.repartitions;
+  const nbVotes = roundInfo.nbVotes;
+
+  if (repartitions >= nbVotes) {
+    round.jurorRewardsDispersed = true;
+    round.save();
+  }
 }
 
 export function handleAcceptedFeeToken(event: AcceptedFeeToken): void {

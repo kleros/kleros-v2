@@ -24,6 +24,8 @@ export function createRoundFromRoundInfo(
   const courtID = contract.disputes(disputeID).value0.toString();
   round.court = courtID;
   round.timeline = new Array<BigInt>(4).fill(new BigInt(0));
+  round.jurorsDrawn = false;
+  round.jurorRewardsDispersed = false;
   round.save();
 }
 
