@@ -2,6 +2,13 @@ import { z } from "zod";
 import { isAddress } from "viem";
 import { normalize } from "viem/ens";
 
+const isHexAddress = (str: string): boolean => /^0x[a-fA-F0-9]{40}$/.test(str);
+const isHexId = (str: string): boolean => /^0x[a-fA-F0-9]{1,64}$/.test(str);
+const isMultiaddr = (str: string): boolean =>
+  /^\/(?:ip4|ip6|dns4|dns6|dnsaddr|tcp|udp|utp|tls|ws|wss|p2p-circuit|p2p-webrtc-star|p2p-webrtc-direct|p2p-websocket-star|onion|ipfs)(\/[^\s\/]+)+$|^ipfs:\/\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)?$/.test(
+    str
+  );
+
 export const ethAddressSchema = z.string().refine((value) => isAddress(value), {
   message: "Provided address is invalid.",
 });
@@ -26,10 +33,13 @@ export enum QuestionType {
 export const QuestionTypeSchema = z.nativeEnum(QuestionType);
 
 export const AnswerSchema = z.object({
-  id: z.string().regex(/^0x[0-9a-fA-F]+$/), // should be a bigint
+  id: z
+    .string()
+    .regex(/^0x[0-9a-fA-F]+$/)
+    .optional(),
   title: z.string(),
   description: z.string(),
-  reserved: z.boolean(),
+  reserved: z.boolean().optional(),
 });
 
 export const AttachmentSchema = z.object({
@@ -37,29 +47,27 @@ export const AttachmentSchema = z.object({
   uri: z.string(),
 });
 
-export const AliasSchema = z.object({
-  id: z.string().optional(),
-  name: z.string(),
-  address: ethAddressOrEnsNameSchema,
-});
+export const AliasSchema = z.record(ethAddressOrEnsNameSchema);
+
+const MetadataSchema = z.record(z.unknown());
 
 const DisputeDetailsSchema = z.object({
   title: z.string(),
   description: z.string(),
   question: z.string(),
-  type: QuestionTypeSchema,
   answers: z.array(AnswerSchema),
-  policyURI: z.string(),
-  attachment: AttachmentSchema,
-  frontendUrl: z.string(),
-  arbitrableChainID: z.string(),
-  arbitrableAddress: ethAddressSchema,
+  policyURI: z.string().refine((value) => isMultiaddr(value), {
+    message: "Provided policy URI is not a valid multiaddr.",
+  }),
+  attachment: AttachmentSchema.optional(),
+  frontendUrl: z.string().optional(),
+  metadata: MetadataSchema.optional(),
   arbitratorChainID: z.string(),
   arbitratorAddress: ethAddressSchema,
-  category: z.string(),
-  lang: z.string(),
-  specification: z.string(),
-  aliases: z.array(AliasSchema).optional(),
+  category: z.string().optional(),
+  lang: z.string().optional(),
+  specification: z.string().optional(),
+  aliases: AliasSchema.optional(),
   version: z.string(),
 });
 

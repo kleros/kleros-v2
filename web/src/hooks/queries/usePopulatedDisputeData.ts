@@ -12,6 +12,7 @@ import { iArbitrableV2Abi } from "hooks/contracts/generated";
 import { useEvidenceGroup } from "queries/useEvidenceGroup";
 import { debounceErrorToast } from "utils/debounceErrorToast";
 import { isUndefined } from "utils/index";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 import { graphql } from "src/graphql";
 
@@ -64,7 +65,8 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
 
           const initialContext = {
             disputeID: disputeID,
-            arbitrable: arbitrableAddress,
+            arbitrableAddress: arbitrableAddress,
+            arbitrableChainID: isCrossChainDispute ? crossChainData.crossChainId.toString() : DEFAULT_CHAIN.toString(),
             graphApiKey: import.meta.env.REACT_APP_GRAPH_API_KEY,
             alchemyApiKey: import.meta.env.ALCHEMY_API_KEY,
             externalDisputeID: externalDisputeID,
