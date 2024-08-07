@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import LawBalance from "svgs/icons/law-balance.svg";
 import LongArrowUp from "svgs/icons/long-arrow-up.svg";
 
-import { useHomePageExtraStats } from "hooks/queries/useHomePageExtraStats";
+import { useHomePageExtraStats, HomePageExtraStatsType } from "hooks/queries/useHomePageExtraStats";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -28,7 +28,7 @@ const StyledCard = styled.div`
 
 interface IStat {
   title: string;
-  getText: (data) => string;
+  getText: (data: HomePageExtraStatsType) => string | null;
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
 

@@ -31,13 +31,13 @@ const getCourtWithMaxChance = (courts: Court[]): Court => {
   return courts.reduce((a, b) => (Number(a.stake) > Number(b.feeForJuror) ? b : a));
 };
 
-interface HomePageExtraStats {
-  MostActiveCourt: string | null | undefined;
-  HighestDrawingChance: string | null | undefined;
-  HighestRewardChance: string | null | undefined;
+export interface HomePageExtraStatsType {
+  MostActiveCourt: string | null;
+  HighestDrawingChance: string | null;
+  HighestRewardChance: string | null;
 }
 
-export const useHomePageExtraStats = (): HomePageExtraStats => {
+export const useHomePageExtraStats = (): HomePageExtraStatsType => {
   const { data } = useHomePageContext();
   const { blockNumber } = useBlockByTimestamp(
     DEFAULT_CHAIN,
@@ -47,18 +47,18 @@ export const useHomePageExtraStats = (): HomePageExtraStats => {
   const { data: relData } = useHomePageBlockQuery(blockNumber!);
 
   const HighestDrawingChance = useMemo(() => {
-    return data ? getCourtWithMaxChance(data.courts).name : null;
+    return data ? getCourtWithMaxChance(data.courts).name ?? null : null;
   }, [data]);
 
   const HighestRewardChance = useMemo(() => {
-    return data ? getCourtWithMaxReward(data.courts).name : null;
+    return data ? getCourtWithMaxReward(data.courts).name ?? null : null;
   }, [data]);
 
   const MostActiveCourt = useMemo(() => {
     if (isUndefined(relData) || isUndefined(data)) {
       return null;
     }
-    return getCourtWithMaxDifference(relData.courts, data.courts).name;
+    return getCourtWithMaxDifference(relData.courts, data.courts).name ?? null;
   }, [relData, data]);
 
   return { MostActiveCourt, HighestDrawingChance, HighestRewardChance };
