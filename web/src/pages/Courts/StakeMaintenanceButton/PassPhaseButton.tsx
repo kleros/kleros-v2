@@ -18,7 +18,9 @@ import { wrapWithToast } from "utils/wrapWithToast";
 
 import { isUndefined } from "src/utils";
 
-import { IBaseStakeMaintenanceButton, Phases } from ".";
+import { Phases } from "components/Phase";
+
+import { IBaseStakeMaintenanceButton } from ".";
 
 const StyledButton = styled(Button)`
   width: 100%;

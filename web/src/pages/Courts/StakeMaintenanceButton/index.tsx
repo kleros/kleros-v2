@@ -4,7 +4,7 @@ import styled from "styled-components";
 import DottedMenuButton from "components/DottedMenuButton";
 import { EnsureChain } from "components/EnsureChain";
 import { Overlay } from "components/Overlay";
-import { Phase } from "layout/Header/navbar/Debug";
+import Phase from "components/Phase";
 
 import ExecuteDelayedStakeButton from "./ExecuteDelayedStakeButton";
 import PassPhaseButton from "./PassPhaseButton";
@@ -36,12 +36,6 @@ const PopupContainer = styled.div`
   left: 0;
   transform: translate(-100%, 100%);
 `;
-
-export enum Phases {
-  staking,
-  generating,
-  drawing,
-}
 
 export interface IBaseStakeMaintenanceButton {
   setIsOpen: (open: boolean) => void;
