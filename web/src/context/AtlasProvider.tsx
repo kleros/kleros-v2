@@ -7,8 +7,6 @@ import { useAccount, useChainId, useSignMessage } from "wagmi";
 import { useSessionStorage } from "hooks/useSessionStorage";
 import { createMessage, getNonce, loginUser } from "utils/atlas";
 
-import { isUndefined } from "src/utils";
-
 interface IAtlasProvider {
   isVerified: boolean;
   isSigningIn: boolean;
@@ -81,10 +79,10 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
       if (!address || !chainId) return;
       setIsSigningIn(true);
       const nonce = await getNonce(atlasGqlClient, address);
+
       const message = createMessage(address, nonce, chainId);
       const signature = await signMessageAsync({ message });
 
-      if (!signature) return;
       const token = await loginUser(atlasGqlClient, { message, signature });
 
       setAuthToken(token);
