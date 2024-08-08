@@ -32,8 +32,12 @@ export function loginUser(client: GraphQLClient, authData: AuthoriseUserData): P
       .then(async (response) => response.login.accessToken)
       .catch((errors) => {
         // eslint-disable-next-line no-console
-        console.log("authorise user error : ", { errors });
-        throw Error(`${errors?.response?.errors?.[0]?.message}`);
+        console.log("Authorization error:", { errors });
+
+        const errorMessage = Array.isArray(errors?.response?.errors)
+          ? errors.response.errors[0]?.message
+          : "Unknown error";
+        throw new Error(errorMessage);
       }),
     {
       pending: `Signing in User...`,

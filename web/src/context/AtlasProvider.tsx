@@ -18,9 +18,10 @@ interface IAtlasProvider {
 
 const Context = createContext<IAtlasProvider | undefined>(undefined);
 
-// eslint-disable-next-line
-// @ts-ignore
-const atlasUri = import.meta.env.REACT_APP_ATLAS_URI ?? "";
+const atlasUri: string = import.meta.env.REACT_APP_ATLAS_URI ?? "";
+if (!atlasUri) {
+  console.warn("REACT_APP_ATLAS_URI is not defined. Please check your environment variables.");
+}
 
 const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const { address } = useAccount();
@@ -75,27 +76,24 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
   /**
    * @description authorise user and enable authorised calls
    */
-  const authoriseUser = useCallback(() => {
-    if (!address) return;
-    setIsSigningIn(true);
-    getNonce(atlasGqlClient, address)
-      .then((nonce) => {
-        const message = createMessage(address, chainId, nonce);
-        signMessageAsync({ message }).then((signature) => {
-          if (!isUndefined(signature)) {
-            loginUser(atlasGqlClient, { signature, message })
-              .then((token) => {
-                setAuthToken(token);
-              })
-              .finally(() => setIsSigningIn(false));
-          }
-        });
-      })
-      .catch((err) => {
-        // eslint-disable-next-line no-console
-        console.log(`authorise user error : ${err?.message}`);
-        setIsSigningIn(false);
-      });
+  const authoriseUser = useCallback(async () => {
+    try {
+      if (!address || !chainId) return;
+      setIsSigningIn(true);
+      const nonce = await getNonce(atlasGqlClient, address);
+      const message = createMessage(address, nonce, chainId);
+      const signature = await signMessageAsync({ message });
+
+      if (!signature) return;
+      const token = await loginUser(atlasGqlClient, { message, signature });
+
+      setAuthToken(token);
+    } catch (err: any) {
+      // eslint-disable-next-line
+      console.log("Authorize User Error : ", err?.message);
+    } finally {
+      setIsSigningIn(false);
+    }
   }, [address, chainId, setAuthToken, signMessageAsync, atlasGqlClient]);
 
   return (

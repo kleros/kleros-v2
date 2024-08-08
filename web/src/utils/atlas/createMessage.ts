@@ -2,7 +2,7 @@ import { createSiweMessage } from "viem/siwe";
 
 import { DEFAULT_CHAIN } from "consts/chains";
 
-export const createMessage = (address: `0x${string}`, chainId: number = DEFAULT_CHAIN, nonce: string) => {
+export const createMessage = (address: `0x${string}`, nonce: string, chainId: number = DEFAULT_CHAIN) => {
   const domain = window.location.host;
   const origin = window.location.origin;
 
