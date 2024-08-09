@@ -1,17 +1,36 @@
 import React, { useMemo, createContext, useContext, useState, useCallback, useEffect } from "react";
 
+import { useQuery } from "@tanstack/react-query";
 import { GraphQLClient } from "graphql-request";
 import { decodeJwt } from "jose";
 import { useAccount, useChainId, useSignMessage } from "wagmi";
 
 import { useSessionStorage } from "hooks/useSessionStorage";
-import { createMessage, getNonce, loginUser } from "utils/atlas";
+import {
+  createMessage,
+  getNonce,
+  loginUser,
+  addUser as addUserToAtlas,
+  fetchUser,
+  updateUser as updateUserInAtlas,
+  type User,
+  type AddUserData,
+  type UpdateUserData,
+} from "utils/atlas";
+
+import { isUndefined } from "src/utils";
 
 interface IAtlasProvider {
   isVerified: boolean;
   isSigningIn: boolean;
-
+  isAddingUser: boolean;
+  isFetchingUser: boolean;
+  isUpdatingUser: boolean;
+  user: User | undefined;
+  userExists: boolean;
   authoriseUser: () => void;
+  addUser: (userSettings: AddUserData) => Promise<boolean>;
+  updateUser: (userSettings: UpdateUserData) => Promise<boolean>;
 }
 
 const Context = createContext<IAtlasProvider | undefined>(undefined);
@@ -26,13 +45,15 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
   const chainId = useChainId();
   const [authToken, setAuthToken] = useSessionStorage<string | undefined>("authToken", undefined);
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isAddingUser, setIsAddingUser] = useState(false);
+  const [isUpdatingUser, setIsUpdatingUser] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const { signMessageAsync } = useSignMessage();
 
   const atlasGqlClient = useMemo(() => {
     const headers = authToken
       ? {
-          authorization: authToken,
+          authorization: `Bearer ${authToken}`,
         }
       : undefined;
     return new GraphQLClient(atlasUri, { headers });
@@ -71,6 +92,30 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
     };
   }, [authToken, verifySession]);
 
+  const {
+    data: user,
+    isLoading: isFetchingUser,
+    refetch: refetchUser,
+  } = useQuery({
+    queryKey: [`UserSettings`],
+    enabled: isVerified && !isUndefined(address),
+    staleTime: Infinity,
+    queryFn: async () => {
+      try {
+        if (!isVerified || isUndefined(address)) return undefined;
+        return await fetchUser(atlasGqlClient, address);
+      } catch {
+        return undefined;
+      }
+    },
+  });
+
+  // this would change based on the fields we have and what defines a user to be existing
+  const userExists = useMemo(() => {
+    if (!user) return false;
+    return user.email ? true : false;
+  }, [user]);
+
   /**
    * @description authorise user and enable authorised calls
    */
@@ -94,9 +139,86 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
     }
   }, [address, chainId, setAuthToken, signMessageAsync, atlasGqlClient]);
 
+  /**
+   * @description adds a new user to atlas
+   * @param {AddUserData} userSettings - object containing data to be added
+   * @returns {Promise<boolean>} A promise that resolves to true if the user was added successfully
+   */
+  const addUser = useCallback(
+    async (userSettings: AddUserData) => {
+      try {
+        if (!address || !isVerified) return false;
+        setIsAddingUser(true);
+
+        const userAdded = await addUserToAtlas(atlasGqlClient, { address, ...userSettings });
+        refetchUser();
+
+        return userAdded;
+      } catch (err: any) {
+        // eslint-disable-next-line
+        console.log("Add User Error : ", err?.message);
+        return false;
+      } finally {
+        setIsAddingUser(false);
+      }
+    },
+    [address, isVerified, setIsAddingUser, atlasGqlClient, refetchUser]
+  );
+
+  /**
+   * @description updates user settings in atlas
+   * @param {UpdateUserData} userSettings - object containing data to be updated
+   * @returns {Promise<boolean>} A promise that resolves to true if settings were updated successfully
+   */
+  const updateUser = useCallback(
+    async (userSettings: UpdateUserData) => {
+      try {
+        if (!address || !isVerified) return false;
+        setIsUpdatingUser(true);
+
+        const userUpdated = await updateUserInAtlas(atlasGqlClient, userSettings);
+        refetchUser();
+
+        return userUpdated;
+      } catch (err: any) {
+        // eslint-disable-next-line
+        console.log("Update User Error : ", err?.message);
+        return false;
+      } finally {
+        setIsUpdatingUser(false);
+      }
+    },
+    [address, isVerified, setIsUpdatingUser, atlasGqlClient, refetchUser]
+  );
+
   return (
     <Context.Provider
-      value={useMemo(() => ({ isVerified, isSigningIn, authoriseUser }), [isVerified, isSigningIn, authoriseUser])}
+      value={useMemo(
+        () => ({
+          isVerified,
+          isSigningIn,
+          isAddingUser,
+          authoriseUser,
+          addUser,
+          user,
+          isFetchingUser,
+          updateUser,
+          isUpdatingUser,
+          userExists,
+        }),
+        [
+          isVerified,
+          isSigningIn,
+          isAddingUser,
+          authoriseUser,
+          addUser,
+          user,
+          isFetchingUser,
+          updateUser,
+          isUpdatingUser,
+          userExists,
+        ]
+      )}
     >
       {children}
     </Context.Provider>

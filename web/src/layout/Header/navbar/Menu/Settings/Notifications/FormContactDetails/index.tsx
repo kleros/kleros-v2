@@ -1,15 +1,18 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
+
 import { useAccount } from "wagmi";
+
 import { Button } from "@kleros/ui-components-library";
-import { uploadSettingsToSupabase } from "utils/uploadSettingsToSupabase";
-import FormContact from "./FormContact";
-import { EMAIL_REGEX, TELEGRAM_REGEX } from "consts/index";
+
+import { EMAIL_REGEX } from "consts/index";
+import { useAtlasProvider } from "context/AtlasProvider";
 
 import { responsiveSize } from "styles/responsiveSize";
 
 import { ISettings } from "../../../../index";
-import { useUserSettings } from "hooks/queries/useUserSettings";
+
+import FormContact from "./FormContact";
 
 const FormContainer = styled.form`
   width: 100%;
@@ -32,33 +35,21 @@ const FormContactContainer = styled.div`
 `;
 
 const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
-  const [telegramInput, setTelegramInput] = useState<string>("");
   const [emailInput, setEmailInput] = useState<string>("");
-  const [telegramIsValid, setTelegramIsValid] = useState<boolean>(false);
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
   const { address } = useAccount();
-  const { data: userSettings, refetch: refetchUserSettings } = useUserSettings();
+  const { user, isAddingUser, isFetchingUser, addUser, updateUser, isUpdatingUser, userExists } = useAtlasProvider();
 
   const isEditingEmail = useMemo(() => {
-    if (!userSettings?.email && emailInput === "") return false;
-    return userSettings?.email !== emailInput;
-  }, [userSettings, emailInput]);
-
-  const isEditingTelegram = useMemo(() => {
-    if (!userSettings?.telegram && telegramInput === "") return false;
-    return userSettings?.telegram !== telegramInput;
-  }, [userSettings, telegramInput]);
+    if (!user?.email && emailInput === "") return false;
+    return user?.email !== emailInput;
+  }, [user, emailInput]);
 
   useEffect(() => {
-    refetchUserSettings();
-  }, [address]);
+    if (!user) return;
 
-  useEffect(() => {
-    if (!userSettings) return;
-
-    setEmailInput(userSettings.email ?? "");
-    setTelegramInput(userSettings.telegram ?? "");
-  }, [userSettings]);
+    setEmailInput(user.email);
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -68,18 +59,26 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
 
     const data = {
       email: emailInput,
-      telegram: telegramInput,
-      address,
     };
 
-    uploadSettingsToSupabase(data)
-      .then(async (res) => {
-        if (res.ok) {
-          toggleIsSettingsOpen();
-          refetchUserSettings();
-        }
-      })
-      .catch((err) => console.log(err));
+    // if user exists then update
+    if (userExists) {
+      updateUser(data)
+        .then(async (res) => {
+          if (res) {
+            toggleIsSettingsOpen();
+          }
+        })
+        .catch((err) => console.log(err));
+    } else {
+      addUser(data)
+        .then(async (res) => {
+          if (res) {
+            toggleIsSettingsOpen();
+          }
+        })
+        .catch((err) => console.log(err));
+    }
   };
   return (
     <FormContainer onSubmit={handleSubmit}>
@@ -109,8 +108,10 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
       </FormContactContainer>
 
       <ButtonContainer>
-        {/* <Button text="Save" disabled={(!isEditingEmail && !isEditingTelegram) || !emailIsValid || !telegramIsValid} /> */}
-        <Button text="Save" disabled={!isEditingEmail || !emailIsValid} />
+        <Button
+          text="Save"
+          disabled={!isEditingEmail || !emailIsValid || isAddingUser || isFetchingUser || isUpdatingUser}
+        />
       </ButtonContainer>
     </FormContainer>
   );
