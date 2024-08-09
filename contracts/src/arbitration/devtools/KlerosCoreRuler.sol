@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitratorV2.sol";
 import {SafeERC20, IERC20} from "../../libraries/SafeERC20.sol";
-import {Constants} from "../../libraries/Constants.sol";
-import {OnError} from "../../libraries/Types.sol";
 import {UUPSProxiable} from "../../proxy/UUPSProxiable.sol";
 import {Initializable} from "../../proxy/Initializable.sol";
+import "../../libraries/Constants.sol";
 
 /// @title KlerosCoreRuler
 /// Core arbitrator contract for development and testing purposes.
@@ -188,7 +187,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
 
         // GENERAL_COURT
         Court storage court = courts.push();
-        court.parent = Constants.FORKING_COURT;
+        court.parent = FORKING_COURT;
         court.children = new uint256[](0);
         court.hiddenVotes = false;
         court.minStake = _courtParameters[0];
@@ -262,7 +261,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 _jurorsForCourtJump,
         uint256[4] memory _timesPerPeriod
     ) external onlyByGovernor {
-        if (_parent == Constants.FORKING_COURT) revert InvalidForkingCourtAsParent();
+        if (_parent == FORKING_COURT) revert InvalidForkingCourtAsParent();
 
         uint256 courtID = courts.length;
         Court storage court = courts.push();
@@ -387,7 +386,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     ) external payable override returns (uint256 disputeID) {
         if (msg.value < arbitrationCost(_extraData)) revert ArbitrationFeesNotEnough();
 
-        return _createDispute(_numberOfChoices, _extraData, Constants.NATIVE_CURRENCY, msg.value);
+        return _createDispute(_numberOfChoices, _extraData, NATIVE_CURRENCY, msg.value);
     }
 
     /// @inheritdoc IArbitratorV2
@@ -516,7 +515,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         Round storage round = dispute.rounds[_round];
         uint256 feeReward = round.totalFeesForJurors;
         round.sumFeeRewardPaid += feeReward;
-        if (round.feeToken == Constants.NATIVE_CURRENCY) {
+        if (round.feeToken == NATIVE_CURRENCY) {
             // The dispute fees were paid in ETH
             payable(account).send(feeReward);
         } else {
@@ -573,7 +572,7 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 nbVotes = round.totalFeesForJurors / court.feeForJuror;
         if (_jump) {
             // Jump to parent court.
-            if (dispute.courtID == Constants.GENERAL_COURT) {
+            if (dispute.courtID == GENERAL_COURT) {
                 // TODO: Handle the forking when appealed in General court.
                 cost = NON_PAYABLE_AMOUNT; // Get the cost of the parent court.
             } else {
@@ -648,19 +647,19 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
                 minJurors := mload(add(_extraData, 0x40))
                 disputeKitID := mload(add(_extraData, 0x60))
             }
-            if (courtID == Constants.FORKING_COURT || courtID >= courts.length) {
-                courtID = Constants.GENERAL_COURT;
+            if (courtID == FORKING_COURT || courtID >= courts.length) {
+                courtID = GENERAL_COURT;
             }
             if (minJurors == 0) {
-                minJurors = Constants.DEFAULT_NB_OF_JURORS;
+                minJurors = DEFAULT_NB_OF_JURORS;
             }
-            if (disputeKitID == Constants.NULL_DISPUTE_KIT) {
-                disputeKitID = Constants.DISPUTE_KIT_CLASSIC; // 0 index is not used.
+            if (disputeKitID == NULL_DISPUTE_KIT) {
+                disputeKitID = DISPUTE_KIT_CLASSIC; // 0 index is not used.
             }
         } else {
-            courtID = Constants.GENERAL_COURT;
-            minJurors = Constants.DEFAULT_NB_OF_JURORS;
-            disputeKitID = Constants.DISPUTE_KIT_CLASSIC;
+            courtID = GENERAL_COURT;
+            minJurors = DEFAULT_NB_OF_JURORS;
+            disputeKitID = DISPUTE_KIT_CLASSIC;
         }
     }
 
