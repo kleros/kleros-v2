@@ -38,7 +38,7 @@ const FormContact: React.FC<IForm> = ({
   isEditing,
 }) => {
   useEffect(() => {
-    setContactIsValid(contactInput === "" ? true : validator.test(contactInput));
+    setContactIsValid(validator.test(contactInput));
   }, [contactInput, setContactIsValid, validator]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,7 +51,7 @@ const FormContact: React.FC<IForm> = ({
       return undefined;
     }
     return contactIsValid ? "success" : "error";
-  }, [contactInput, contactIsValid]);
+  }, [contactInput, contactIsValid, isEditing]);
 
   return (
     <>

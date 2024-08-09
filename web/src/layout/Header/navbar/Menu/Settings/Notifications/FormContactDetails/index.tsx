@@ -41,15 +41,14 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const { user, isAddingUser, isFetchingUser, addUser, updateUser, isUpdatingUser, userExists } = useAtlasProvider();
 
   const isEditingEmail = useMemo(() => {
-    if (!user?.email && emailInput === "") return false;
     return user?.email !== emailInput;
   }, [user, emailInput]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !userExists) return;
 
     setEmailInput(user.email);
-  }, [user]);
+  }, [user, userExists]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -5,7 +5,7 @@ import { OPTIONS } from "utils/wrapWithToast";
 
 const query = gql`
   mutation UpdateUser($settings: UpdateUserDto!) {
-    updateUser(updatedUserSettings: $settings)
+    updateUser(updateUserSettings: $settings)
   }
 `;
 

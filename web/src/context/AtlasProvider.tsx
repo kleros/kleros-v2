@@ -90,7 +90,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
     return () => {
       clearInterval(intervalId);
     };
-  }, [authToken, verifySession]);
+  }, [authToken, verifySession, address]);
 
   const {
     data: user,
@@ -109,6 +109,11 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
       }
     },
   });
+
+  useEffect(() => {
+    if (!isVerified) return;
+    refetchUser();
+  }, [isVerified, refetchUser]);
 
   // this would change based on the fields we have and what defines a user to be existing
   const userExists = useMemo(() => {
@@ -129,7 +134,6 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
       const signature = await signMessageAsync({ message });
 
       const token = await loginUser(atlasGqlClient, { message, signature });
-
       setAuthToken(token);
     } catch (err: any) {
       // eslint-disable-next-line
