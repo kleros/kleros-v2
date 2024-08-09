@@ -1,6 +1,6 @@
 import React, { useMemo, createContext, useContext, useState, useCallback, useEffect } from "react";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { GraphQLClient } from "graphql-request";
 import { decodeJwt } from "jose";
 import { useAccount, useChainId, useSignMessage } from "wagmi";
@@ -43,6 +43,7 @@ if (!atlasUri) {
 const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const { address } = useAccount();
   const chainId = useChainId();
+  const queryClient = useQueryClient();
   const [authToken, setAuthToken] = useSessionStorage<string | undefined>("authToken", undefined);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isAddingUser, setIsAddingUser] = useState(false);
@@ -99,7 +100,6 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
   } = useQuery({
     queryKey: [`UserSettings`],
     enabled: isVerified && !isUndefined(address),
-    staleTime: Infinity,
     queryFn: async () => {
       try {
         if (!isVerified || isUndefined(address)) return undefined;
@@ -114,6 +114,11 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
     if (!isVerified) return;
     refetchUser();
   }, [isVerified, refetchUser]);
+
+  // remove old user's data on address change
+  useEffect(() => {
+    queryClient.removeQueries({ queryKey: ["UserSettings"] });
+  }, [address, queryClient]);
 
   // this would change based on the fields we have and what defines a user to be existing
   const userExists = useMemo(() => {
