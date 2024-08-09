@@ -166,12 +166,13 @@ const DisputeTemplateView = () => {
 
         setTimeout(() => {
           const initialContext = {
-            arbitrator: debouncedParams._arbitrator,
-            arbitrable: debouncedParams._arbitrable,
+            arbitratorAddress: debouncedParams._arbitrator,
+            arbitrableAddress: debouncedParams._arbitrable,
             arbitrableDisputeID: debouncedParams._arbitrableDisputeID,
             externalDisputeID: debouncedParams._externalDisputeID,
             templateID: debouncedParams._templateId,
             templateUri: debouncedParams._templateUri,
+            alchemyApiKey: import.meta.env.ALCHEMY_API_KEY,
           };
 
           const fetchData = async () => {

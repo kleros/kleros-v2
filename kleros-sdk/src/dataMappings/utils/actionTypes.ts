@@ -5,14 +5,14 @@ export type JsonMapping = {
   populate: string[];
 };
 
-export type SubgraphMapping = {
+export interface SubgraphMapping {
   type: string;
   endpoint: string;
   query: string;
-  variables?: string[];
+  variables: { [key: string]: unknown };
   seek: string[];
   populate: string[];
-};
+}
 
 export type AbiCallMapping = {
   type: string;

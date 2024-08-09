@@ -3,9 +3,10 @@ import styled, { css } from "styled-components";
 
 import { useLocation, useNavigate } from "react-router-dom";
 import { useClickAway } from "react-use";
-import BookOpenIcon from "svgs/icons/book-open.svg";
 
 import { CompactPagination } from "@kleros/ui-components-library";
+
+import BookOpenIcon from "svgs/icons/book-open.svg";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -129,6 +130,17 @@ interface ITemplate {
   isVisible: boolean;
 }
 
+export const miniGuideHashes = [
+  "#jurorlevels-miniguide",
+  "#appeal-miniguide",
+  "#binaryvoting-miniguide",
+  "#disputeresolver-miniguide",
+  "#rankedvoting-miniguide",
+  "#staking-miniguide",
+  "#onboarding-miniguide",
+] as const;
+export type MiniguideHashesType = (typeof miniGuideHashes)[number];
+
 const Template: React.FC<ITemplate> = ({
   onClose,
   LeftContent,
@@ -143,13 +155,15 @@ const Template: React.FC<ITemplate> = ({
   const containerRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const removeOnboardingHashPath = useCallback(() => {
-    if (isOnboarding && location.hash.includes("#onboarding")) navigate("#", { replace: true });
-  }, [location.hash, navigate, isOnboarding]);
+  const removeMiniGuideHashPath = useCallback(() => {
+    if (miniGuideHashes.some((hash) => location.hash.includes(hash))) {
+      navigate("#", { replace: true });
+    }
+  }, [location.hash, navigate]);
 
   const onCloseAndRemoveOnboardingHashPath = () => {
     onClose();
-    removeOnboardingHashPath();
+    removeMiniGuideHashPath();
   };
 
   useClickAway(containerRef, () => {

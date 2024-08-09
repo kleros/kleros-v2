@@ -7,16 +7,22 @@ import { useAccount } from "wagmi";
 
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 
-import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
-
 import { DEFAULT_CHAIN } from "consts/chains";
+import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
+import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
+import Appeal from "components/Popup/MiniGuides/Appeal";
+import BinaryVoting from "components/Popup/MiniGuides/BinaryVoting";
+import DisputeResolver from "components/Popup/MiniGuides/DisputeResolver";
+import { MiniguideHashesType } from "components/Popup/MiniGuides/MainStructureTemplate";
 import Onboarding from "components/Popup/MiniGuides/Onboarding";
+import RankedVoting from "components/Popup/MiniGuides/RankedVoting";
+import Staking from "components/Popup/MiniGuides/Staking";
 
 import Logo from "./Logo";
 import DappList from "./navbar/DappList";
@@ -105,20 +111,48 @@ const DesktopHeader: React.FC = () => {
   const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
   const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
   const [isSettingsOpen, toggleIsSettingsOpen] = useToggle(false);
+  const [isJurorLevelsMiniGuideOpen, toggleIsJurorLevelsMiniGuideOpen] = useToggle(false);
+  const [isAppealMiniGuideOpen, toggleIsAppealMiniGuideOpen] = useToggle(false);
+  const [isBinaryVotingMiniGuideOpen, toggleIsBinaryVotingMiniGuideOpen] = useToggle(false);
+  const [isDisputeResolverMiniGuideOpen, toggleIsDisputeResolverMiniGuideOpen] = useToggle(false);
+  const [isRankedVotingMiniGuideOpen, toggleIsRankedVotingMiniGuideOpen] = useToggle(false);
+  const [isStakingMiniGuideOpen, toggleIsStakingMiniGuideOpen] = useToggle(false);
   const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
   const [initialTab, setInitialTab] = useState<number>(0);
   const location = useLocation();
   const { isConnected, chainId } = useAccount();
   const isDefaultChain = chainId === DEFAULT_CHAIN;
-
   const initializeFragmentURL = useCallback(() => {
-    const hash = location.hash;
-    const hasOnboardingPath = hash.includes("#onboarding");
-    const hasNotificationsPath = hash.includes("#notifications");
-    toggleIsOnboardingMiniGuidesOpen(hasOnboardingPath);
+    const hashIncludes = (hash: MiniguideHashesType | "#notifications") => location.hash.includes(hash);
+    const hasJurorLevelsMiniGuidePath = hashIncludes("#jurorlevels-miniguide");
+    const hasAppealMiniGuidePath = hashIncludes("#appeal-miniguide");
+    const hasBinaryVotingMiniGuidePath = hashIncludes("#binaryvoting-miniguide");
+    const hasDisputeResolverMiniGuidePath = hashIncludes("#disputeresolver-miniguide");
+    const hasRankedVotingMiniGuidePath = hashIncludes("#rankedvoting-miniguide");
+    const hasStakingMiniGuidePath = hashIncludes("#staking-miniguide");
+    const hasOnboardingMiniGuidePath = hashIncludes("#onboarding-miniguide");
+    const hasNotificationsPath = hashIncludes("#notifications");
+    toggleIsJurorLevelsMiniGuideOpen(hasJurorLevelsMiniGuidePath);
+    toggleIsAppealMiniGuideOpen(hasAppealMiniGuidePath);
+    toggleIsBinaryVotingMiniGuideOpen(hasBinaryVotingMiniGuidePath);
+    toggleIsDisputeResolverMiniGuideOpen(hasDisputeResolverMiniGuidePath);
+    toggleIsRankedVotingMiniGuideOpen(hasRankedVotingMiniGuidePath);
+    toggleIsStakingMiniGuideOpen(hasStakingMiniGuidePath);
+    toggleIsOnboardingMiniGuidesOpen(hasOnboardingMiniGuidePath);
+    toggleIsAppealMiniGuideOpen(hasAppealMiniGuidePath);
     toggleIsSettingsOpen(hasNotificationsPath);
     setInitialTab(hasNotificationsPath ? 1 : 0);
-  }, [location.hash, toggleIsSettingsOpen, toggleIsOnboardingMiniGuidesOpen]);
+  }, [
+    toggleIsJurorLevelsMiniGuideOpen,
+    toggleIsAppealMiniGuideOpen,
+    toggleIsBinaryVotingMiniGuideOpen,
+    toggleIsDisputeResolverMiniGuideOpen,
+    toggleIsRankedVotingMiniGuideOpen,
+    toggleIsStakingMiniGuideOpen,
+    toggleIsOnboardingMiniGuidesOpen,
+    toggleIsSettingsOpen,
+    location.hash,
+  ]);
 
   useEffect(initializeFragmentURL, [initializeFragmentURL]);
 
@@ -161,6 +195,12 @@ const DesktopHeader: React.FC = () => {
           {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen, initialTab }} />}
         </PopupContainer>
       )}
+      {isJurorLevelsMiniGuideOpen && <JurorLevels toggleMiniGuide={toggleIsJurorLevelsMiniGuideOpen} />}
+      {isAppealMiniGuideOpen && <Appeal toggleMiniGuide={toggleIsAppealMiniGuideOpen} />}
+      {isBinaryVotingMiniGuideOpen && <BinaryVoting toggleMiniGuide={toggleIsBinaryVotingMiniGuideOpen} />}
+      {isDisputeResolverMiniGuideOpen && <DisputeResolver toggleMiniGuide={toggleIsDisputeResolverMiniGuideOpen} />}
+      {isRankedVotingMiniGuideOpen && <RankedVoting toggleMiniGuide={toggleIsRankedVotingMiniGuideOpen} />}
+      {isStakingMiniGuideOpen && <Staking toggleMiniGuide={toggleIsStakingMiniGuideOpen} />}
       {isOnboardingMiniGuidesOpen && <Onboarding toggleMiniGuide={toggleIsOnboardingMiniGuidesOpen} />}
     </>
   );

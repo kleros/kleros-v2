@@ -2,9 +2,10 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { GIT_BRANCH, GIT_DIRTY, GIT_HASH, GIT_TAGS, GIT_URL, RELEASE_VERSION } from "consts/index";
-import { useSortitionModulePhase } from "hooks/useSortitionModulePhase";
 import { useToggleTheme } from "hooks/useToggleThemeContext";
 import { isUndefined } from "utils/index";
+
+import Phase from "components/Phase";
 
 const Container = styled.div`
   display: flex;
@@ -32,6 +33,10 @@ const StyledLabel = styled.label`
   padding-left: 8px;
 `;
 
+const StyledPhase = styled(Phase)`
+  padding-left: 8px;
+`;
+
 const Version = () => (
   <StyledLabel>
     v{RELEASE_VERSION}{" "}
@@ -51,23 +56,12 @@ const ServicesStatus = () => {
   return <label>{isUndefined(statusUrl) ? null : <StyledIframe src={`${statusUrl + statusUrlParameters}`} />}</label>;
 };
 
-enum Phases {
-  staking,
-  generating,
-  drawing,
-}
-
-const Phase = () => {
-  const { data: phase } = useSortitionModulePhase();
-  return <>{isUndefined(phase) ? null : <StyledLabel>Phase: {Phases[phase as number]}</StyledLabel>}</>;
-};
-
 const Debug: React.FC = () => {
   return (
     <Container>
       <ServicesStatus />
       <Version />
-      <Phase />
+      <StyledPhase />
     </Container>
   );
 };

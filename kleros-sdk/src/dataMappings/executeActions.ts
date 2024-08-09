@@ -15,7 +15,7 @@ import {
 import { ActionMapping } from "./utils/actionTypes";
 import { replacePlaceholdersWithValues } from "./utils/replacePlaceholdersWithValues";
 
-export const executeAction = async (mapping: ActionMapping, context = {}) => {
+export const executeAction = async (mapping: ActionMapping, context: Record<string, unknown> = {}) => {
   mapping = replacePlaceholdersWithValues(mapping, context);
 
   switch (mapping.type) {
@@ -24,14 +24,14 @@ export const executeAction = async (mapping: ActionMapping, context = {}) => {
     case "json":
       return jsonAction(validateJsonMapping(mapping));
     case "abi/call":
-      return await callAction(validateAbiCallMapping(mapping));
+      return await callAction(validateAbiCallMapping(mapping), context.alchemyApiKey);
     case "abi/event":
-      return await eventAction(validateAbiEventMapping(mapping));
+      return await eventAction(validateAbiEventMapping(mapping), context.alchemyApiKey);
     case "fetch/ipfs/json":
       return await fetchIpfsJsonAction(validateFetchIpfsJsonMapping(mapping));
     case "reality":
       mapping = validateRealityMapping(mapping);
-      return await retrieveRealityData(mapping.realityQuestionID, context.arbitrable);
+      return await retrieveRealityData(mapping.realityQuestionID, context.arbitrableAddress);
     default:
       throw new Error(`Unsupported action type: ${mapping.type}`);
   }
