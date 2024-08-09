@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber, BigNumberish } from "ethers";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped } from "./utils";
-import { deployERC20AndFaucet } from "./utils/deployERC20AndFaucet";
+import { deployERC20AndFaucet } from "./utils/deployTokens";
 import { KlerosCore } from "../typechain-types";
 import { getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 
