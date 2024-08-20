@@ -22,6 +22,7 @@ import HowItWorks from "components/HowItWorks";
 import BinaryVoting from "components/Popup/MiniGuides/BinaryVoting";
 
 import PendingVotesBox from "./PendingVotesBox";
+import RulingAndRewardsIndicators from "./RulingAndRewardsIndicators";
 import VotesAccordion from "./VotesDetails";
 
 const Container = styled.div``;
@@ -29,6 +30,7 @@ const Container = styled.div``;
 const StyledTabs = styled(Tabs)`
   width: 100%;
   margin-bottom: 16px;
+  margin-top: 48px;
 `;
 
 const Header = styled.div`
@@ -69,6 +71,8 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
     [votingHistory, currentTab]
   );
 
+  const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
+
   return (
     <Container>
       <Header>
@@ -90,6 +94,10 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
               )}
             </>
           )}
+          <RulingAndRewardsIndicators
+            ruled={Boolean(disputeData?.dispute?.ruled)}
+            jurorRewardsDispersed={jurorRewardsDispersed}
+          />
           <StyledTabs
             currentValue={currentTab}
             items={rounds.map((_, i) => ({
