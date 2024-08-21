@@ -27,6 +27,7 @@ const votingHistoryQuery = graphql(`
           }
           vote {
             ... on ClassicVote {
+              commited
               justification {
                 choice
                 reference

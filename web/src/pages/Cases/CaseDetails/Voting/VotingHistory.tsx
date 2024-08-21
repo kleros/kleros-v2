@@ -116,6 +116,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
             period={disputeData?.dispute?.period}
             answers={answers}
             isActiveRound={localRounds?.length - 1 === currentTab}
+            hiddenVotes={Boolean(disputeData?.dispute?.court.hiddenVotes)}
           />
         </>
       ) : (
