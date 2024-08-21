@@ -103,7 +103,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
     queryFn: async () => {
       try {
         if (!isVerified || isUndefined(address)) return undefined;
-        return await fetchUser(atlasGqlClient, address);
+        return await fetchUser(atlasGqlClient);
       } catch {
         return undefined;
       }
@@ -159,7 +159,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
         if (!address || !isVerified) return false;
         setIsAddingUser(true);
 
-        const userAdded = await addUserToAtlas(atlasGqlClient, { address, ...userSettings });
+        const userAdded = await addUserToAtlas(atlasGqlClient, userSettings);
         refetchUser();
 
         return userAdded;

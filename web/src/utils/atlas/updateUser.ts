@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { OPTIONS } from "utils/wrapWithToast";
 
 const query = gql`
-  mutation UpdateUser($settings: UpdateUserDto!) {
+  mutation UpdateUser($settings: UpdateUserSettingsDto!) {
     updateUser(updateUserSettings: $settings)
   }
 `;

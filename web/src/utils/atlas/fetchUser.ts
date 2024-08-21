@@ -14,25 +14,21 @@ export type User = {
 };
 
 const query = gql`
-  query GetUser($address: String!) {
-    user(address: $address) {
+  query GetUser {
+    user {
       email
     }
   }
 `;
 
-export function fetchUser(client: GraphQLClient, address: string): Promise<User> {
-  const variables = {
-    address,
-  };
-
+export function fetchUser(client: GraphQLClient): Promise<User> {
   return toast.promise<User, Error>(
     client
-      .request<GetUserResponse>(query, variables)
+      .request<GetUserResponse>(query)
       .then((response) => response.user)
       .catch((errors) => {
         // eslint-disable-next-line no-console
-        console.log("Error fetching user :", address, { errors });
+        console.log("Error fetching user :", { errors });
         const errorMessage = Array.isArray(errors?.response?.errors)
           ? errors.response.errors[0]?.message
           : "Error user nonce";

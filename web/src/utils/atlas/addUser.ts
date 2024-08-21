@@ -1,6 +1,5 @@
 import { gql, type GraphQLClient } from "graphql-request";
 import { toast } from "react-toastify";
-import { Address } from "viem";
 
 import { OPTIONS } from "utils/wrapWithToast";
 
@@ -11,7 +10,6 @@ const query = gql`
 `;
 
 export type AddUserData = {
-  address?: Address;
   email: string;
 };
 
