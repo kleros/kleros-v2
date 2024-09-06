@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { useAccount, useDisconnect } from "wagmi";
@@ -67,13 +67,30 @@ const UserContainer = styled.div`
   gap: 12px;
 `;
 
+const StyledA = styled.a`
+  text-decoration: none;
+  label {
+    cursor: pointer;
+    color: ${({ theme }) => theme.primaryBlue};
+  }
+
+  :hover {
+    text-decoration: underline;
+  }
+`;
+
 export const DisconnectWalletButton: React.FC = () => {
   const { disconnect } = useDisconnect();
   return <Button text={`Disconnect`} onClick={() => disconnect()} />;
 };
 
 const General: React.FC = () => {
-  const { address } = useAccount();
+  const { address, chain } = useAccount();
+
+  const addressExplorerLink = useMemo(() => {
+    return `${chain?.blockExplorers?.default.url}/address/${address}`;
+  }, [address, chain]);
+
   return (
     <EnsureChainContainer>
       <EnsureChain>
@@ -84,7 +101,9 @@ const General: React.FC = () => {
                 <IdenticonOrAvatar size="48" />
               </StyledAvatarContainer>
               <StyledAddressContainer>
-                <AddressOrName />
+                <StyledA href={addressExplorerLink} rel="noreferrer" target="_blank">
+                  <AddressOrName />
+                </StyledA>
               </StyledAddressContainer>
               <StyledChainContainer>
                 <ChainDisplay />
