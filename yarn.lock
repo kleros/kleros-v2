@@ -6574,7 +6574,6 @@ __metadata:
     "@netlify/functions": "npm:^1.6.0"
     "@sentry/react": "npm:^7.93.0"
     "@sentry/tracing": "npm:^7.93.0"
-    "@supabase/supabase-js": "npm:^2.39.3"
     "@tanstack/react-query": "npm:^5.40.1"
     "@types/amqplib": "npm:^0.10.4"
     "@types/busboy": "npm:^1.5.3"
@@ -6621,7 +6620,6 @@ __metadata:
     react-use: "npm:^17.4.3"
     siwe: "npm:^2.3.1"
     styled-components: "npm:^5.3.11"
-    supabase: "npm:^1.133.3"
     typescript: "npm:^5.3.3"
     vanilla-jsoneditor: "npm:^0.21.4"
     viem: "npm:^2.17.3"
@@ -9934,77 +9932,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@supabase/functions-js@npm:^2.1.5":
-  version: 2.1.5
-  resolution: "@supabase/functions-js@npm:2.1.5"
-  dependencies:
-    "@supabase/node-fetch": "npm:^2.6.14"
-  checksum: 2cd85898c7a89512bc54f2aac24817a487e0f9aff4c867e458d83b37bbc59b0acd9d2beccb0fc13ae09991d632b321cae264401a6b31fe8383da2810b42d5440
-  languageName: node
-  linkType: hard
-
-"@supabase/gotrue-js@npm:^2.60.0":
-  version: 2.62.0
-  resolution: "@supabase/gotrue-js@npm:2.62.0"
-  dependencies:
-    "@supabase/node-fetch": "npm:^2.6.14"
-  checksum: b5ad6851f8b14cf26023e0fd75d9b0d053ed318f8553f5473c5663a54a6826443490ad974675df5b163265b6efa4fcf7c80406bbf9a0aa06715e15641d4c61b0
-  languageName: node
-  linkType: hard
-
-"@supabase/node-fetch@npm:^2.6.14":
-  version: 2.6.14
-  resolution: "@supabase/node-fetch@npm:2.6.14"
-  dependencies:
-    whatwg-url: "npm:^5.0.0"
-  checksum: d593c3e6c82abf1f76fbedac462bee1687b908493a7ebf81d8854776b68713d5453222829a04f30d6bb99acf13242be3d715ee2b89af1e043ee1ac640607088f
-  languageName: node
-  linkType: hard
-
-"@supabase/postgrest-js@npm:^1.9.0":
-  version: 1.9.2
-  resolution: "@supabase/postgrest-js@npm:1.9.2"
-  dependencies:
-    "@supabase/node-fetch": "npm:^2.6.14"
-  checksum: 1cd251432ebbb780fdeea4570e1d86ae294e224b6a29d106d590132fd1e455d3823f798f14217f2e3dbc22443d2d8ac47f68fce95f319eb7263abce8c5be9ac8
-  languageName: node
-  linkType: hard
-
-"@supabase/realtime-js@npm:^2.9.3":
-  version: 2.9.3
-  resolution: "@supabase/realtime-js@npm:2.9.3"
-  dependencies:
-    "@supabase/node-fetch": "npm:^2.6.14"
-    "@types/phoenix": "npm:^1.5.4"
-    "@types/ws": "npm:^8.5.10"
-    ws: "npm:^8.14.2"
-  checksum: 40c14a366b0835bc9c476d9b569008cb52ca684905cfa19a9d0c50ade97351d23609f4d326460610addce5b78a2685fc90deea00c548c63177f1e9a067caa1bf
-  languageName: node
-  linkType: hard
-
-"@supabase/storage-js@npm:^2.5.4":
-  version: 2.5.5
-  resolution: "@supabase/storage-js@npm:2.5.5"
-  dependencies:
-    "@supabase/node-fetch": "npm:^2.6.14"
-  checksum: 2da744e95b782f07f16d1685063b57f180cd731a28ff14980b8845a9d3f6f5fd9f9b6bbc818a2b6f3690d4fe8de9692863ff1eb7bae6e2d54dd65c95fdbe458c
-  languageName: node
-  linkType: hard
-
-"@supabase/supabase-js@npm:^2.39.3":
-  version: 2.39.3
-  resolution: "@supabase/supabase-js@npm:2.39.3"
-  dependencies:
-    "@supabase/functions-js": "npm:^2.1.5"
-    "@supabase/gotrue-js": "npm:^2.60.0"
-    "@supabase/node-fetch": "npm:^2.6.14"
-    "@supabase/postgrest-js": "npm:^1.9.0"
-    "@supabase/realtime-js": "npm:^2.9.3"
-    "@supabase/storage-js": "npm:^2.5.4"
-  checksum: 602ff6987de94e0a1e7798025ea9a5bb62925e1ca75740622a8da2b56bf6b62bf018a20e1e120b8e69297c5034bd50442afe07ecf6443457497b8dc194437540
-  languageName: node
-  linkType: hard
-
 "@surma/rollup-plugin-off-main-thread@npm:^2.2.3":
   version: 2.2.3
   resolution: "@surma/rollup-plugin-off-main-thread@npm:2.2.3"
@@ -11004,13 +10931,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/phoenix@npm:^1.5.4":
-  version: 1.6.1
-  resolution: "@types/phoenix@npm:1.6.1"
-  checksum: 8fa5b46518199b8d128062720d553230a03eaac63bdd51d34a73d8be1372708686a39ead9d23566a98553a76e52ea6ef5009c46f0e278ae5733a711c58bc530c
-  languageName: node
-  linkType: hard
-
 "@types/prettier@npm:^2.1.1, @types/prettier@npm:^2.1.5":
   version: 2.7.3
   resolution: "@types/prettier@npm:2.7.3"
@@ -11298,15 +11218,6 @@ __metadata:
   dependencies:
     "@types/node": "npm:*"
   checksum: 950d13b762fc7c092a0fc1450c41229a1d41abb93cb72251068885bd46fa4bbcf461c00df2e77de3f7a547371998b650a720ed90417562af0772b14a8a009dec
-  languageName: node
-  linkType: hard
-
-"@types/ws@npm:^8.5.10":
-  version: 8.5.10
-  resolution: "@types/ws@npm:8.5.10"
-  dependencies:
-    "@types/node": "npm:*"
-  checksum: 9b414dc5e0b6c6f1ea4b1635b3568c58707357f68076df9e7cd33194747b7d1716d5189c0dbdd68c8d2521b148e88184cf881bac7429eb0e5c989b001539ed31
   languageName: node
   linkType: hard
 
@@ -14180,18 +14091,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bin-links@npm:^4.0.3":
-  version: 4.0.3
-  resolution: "bin-links@npm:4.0.3"
-  dependencies:
-    cmd-shim: "npm:^6.0.0"
-    npm-normalize-package-bin: "npm:^3.0.0"
-    read-cmd-shim: "npm:^4.0.0"
-    write-file-atomic: "npm:^5.0.0"
-  checksum: 8b4eec67e5d000768cc5a8cd4399d3af55eab059b2b6f864f96ad69bd73d8c4702a9f002a54747d11643cbd3e2a043d91f12bceedcfdcd96321cf186cfb33802
-  languageName: node
-  linkType: hard
-
 "binary-extensions@npm:^2.0.0":
   version: 2.2.0
   resolution: "binary-extensions@npm:2.2.0"
@@ -15637,13 +15536,6 @@ __metadata:
   version: 1.1.2
   resolution: "cluster-key-slot@npm:1.1.2"
   checksum: 516ed8b5e1a14d9c3a9c96c72ef6de2d70dfcdbaa0ec3a90bc7b9216c5457e39c09a5775750c272369070308542e671146120153062ab5f2f481bed5de2c925f
-  languageName: node
-  linkType: hard
-
-"cmd-shim@npm:^6.0.0":
-  version: 6.0.1
-  resolution: "cmd-shim@npm:6.0.1"
-  checksum: d0718e4a49265a9195ced19f662a77569ce5939145451125bdc8bb302781f15564ade92f6c49e231f9d0bb6f3d71db1a2d0a50af940490eb324e152325039541
   languageName: node
   linkType: hard
 
@@ -22210,16 +22102,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"https-proxy-agent@npm:^7.0.2":
-  version: 7.0.2
-  resolution: "https-proxy-agent@npm:7.0.2"
-  dependencies:
-    agent-base: "npm:^7.0.2"
-    debug: "npm:4"
-  checksum: 9ec844f78fd643608239c9c3f6819918631df5cd3e17d104cc507226a39b5d4adda9d790fc9fd63ac0d2bb8a761b2f9f60faa80584a9bf9d7f2e8c5ed0acd330
-  languageName: node
-  linkType: hard
-
 "human-signals@npm:^2.1.0":
   version: 2.1.0
   resolution: "human-signals@npm:2.1.0"
@@ -27871,13 +27753,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"npm-normalize-package-bin@npm:^3.0.0":
-  version: 3.0.1
-  resolution: "npm-normalize-package-bin@npm:3.0.1"
-  checksum: de416d720ab22137a36292ff8a333af499ea0933ef2320a8c6f56a73b0f0448227fec4db5c890d702e26d21d04f271415eab6580b5546456861cc0c19498a4bf
-  languageName: node
-  linkType: hard
-
 "npm-run-path@npm:^4.0.1":
   version: 4.0.1
   resolution: "npm-run-path@npm:4.0.1"
@@ -31207,13 +31082,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"read-cmd-shim@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "read-cmd-shim@npm:4.0.0"
-  checksum: 69a83acf0a3e2357762d5944a6f4a3f3c5527d0f9fe8a5c9362225aaf702ccfa580ff3bc0b84809c99e88861a5e5be147629717f02ff9befdac68fca1ccc7664
-  languageName: node
-  linkType: hard
-
 "read-pkg-up@npm:^3.0.0":
   version: 3.0.0
   resolution: "read-pkg-up@npm:3.0.0"
@@ -34338,20 +34206,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"supabase@npm:^1.133.3":
-  version: 1.134.3
-  resolution: "supabase@npm:1.134.3"
-  dependencies:
-    bin-links: "npm:^4.0.3"
-    https-proxy-agent: "npm:^7.0.2"
-    node-fetch: "npm:^3.3.2"
-    tar: "npm:6.2.0"
-  bin:
-    supabase: bin/supabase
-  checksum: 5f759496f84a0a7320492dc0d10913482d1c2b5eb3ce8b431f57a2c8e6617935e207e1ef3c5fa516df538412e6dd0d2cd4552141aed9c8ce3ad2c8d62e62d998
-  languageName: node
-  linkType: hard
-
 "superstruct@npm:^1.0.3":
   version: 1.0.3
   resolution: "superstruct@npm:1.0.3"
@@ -34681,20 +34535,6 @@ __metadata:
     inherits: "npm:^2.0.3"
     readable-stream: "npm:^3.1.1"
   checksum: 1a52a51d240c118cbcd30f7368ea5e5baef1eac3e6b793fb1a41e6cd7319296c79c0264ccc5859f5294aa80f8f00b9239d519e627b9aade80038de6f966fec6a
-  languageName: node
-  linkType: hard
-
-"tar@npm:6.2.0":
-  version: 6.2.0
-  resolution: "tar@npm:6.2.0"
-  dependencies:
-    chownr: "npm:^2.0.0"
-    fs-minipass: "npm:^2.0.0"
-    minipass: "npm:^5.0.0"
-    minizlib: "npm:^2.1.1"
-    mkdirp: "npm:^1.0.3"
-    yallist: "npm:^4.0.0"
-  checksum: 2042bbb14830b5cd0d584007db0eb0a7e933e66d1397e72a4293768d2332449bc3e312c266a0887ec20156dea388d8965e53b4fc5097f42d78593549016da089
   languageName: node
   linkType: hard
 
@@ -37717,16 +37557,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"write-file-atomic@npm:^5.0.0":
-  version: 5.0.1
-  resolution: "write-file-atomic@npm:5.0.1"
-  dependencies:
-    imurmurhash: "npm:^0.1.4"
-    signal-exit: "npm:^4.0.1"
-  checksum: 648efddba54d478d0e4330ab6f239976df3b9752b123db5dc9405d9b5af768fa9d70ce60c52fdbe61d1200d24350bc4fbcbaf09288496c2be050de126bd95b7e
-  languageName: node
-  linkType: hard
-
 "ws@npm:7.4.6":
   version: 7.4.6
   resolution: "ws@npm:7.4.6"
@@ -37817,7 +37647,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^8.11.0, ws@npm:^8.14.2":
+"ws@npm:^8.11.0":
   version: 8.16.0
   resolution: "ws@npm:8.16.0"
   peerDependencies:
