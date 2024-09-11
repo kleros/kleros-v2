@@ -8,7 +8,7 @@ import { SelectArbitrable } from "utils/dummyData";
 
 import { responsiveSize } from "styles/responsiveSize";
 
-import ChangeRuler from "./ChangeRuler";
+import ChangeDeveloper from "./ChangeDeveloper";
 import ManualRuling from "./ManualRuling";
 import RulingModes from "./RulingModes";
 
@@ -36,13 +36,15 @@ const Arbitrables = styled.div`
   border-radius: 3px;
 `;
 
+const StyledLabel = styled.label``;
+
 const Ruler: React.FC = () => {
   return (
     <Container>
       <h1>Ruler</h1>
 
       <Arbitrables>
-        <label>Arbitrable:</label>
+        <StyledLabel>Arbitrable:</StyledLabel>
         <DropdownCascader
           placeholder={"Select Arbitrable"}
           onSelect={() => {
@@ -54,7 +56,7 @@ const Ruler: React.FC = () => {
 
       <RulingModes />
       <ManualRuling />
-      <ChangeRuler />
+      <ChangeDeveloper />
     </Container>
   );
 };

@@ -24,12 +24,12 @@ const StyledLabel = styled.label`
   word-wrap: break-word;
 `;
 
-const ChangeRuler: React.FC = () => {
+const ChangeDeveloper: React.FC = () => {
   return (
     <Container>
       <Header text="Developer" />
       <InputContainer>
-        <StyledLabel>Current Ruler : 0xbe8d95497E53aB41d5A45CC8def90d0e59b49f99</StyledLabel>
+        <StyledLabel>Current Developer : 0xbe8d95497E53aB41d5A45CC8def90d0e59b49f99</StyledLabel>
         <LabeledInput label="New Developer" />
       </InputContainer>
       <Button text="Update" />
@@ -37,4 +37,4 @@ const ChangeRuler: React.FC = () => {
   );
 };
 
-export default ChangeRuler;
+export default ChangeDeveloper;
