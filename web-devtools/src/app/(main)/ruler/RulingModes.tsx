@@ -1,73 +1,89 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import { Checkbox, Field } from "@kleros/ui-components-library";
+import { RULING_MODE } from "consts";
 
-import LightButton from "components/LightButton";
+import { Button, Radio } from "@kleros/ui-components-library";
+
+import LabeledInput from "components/LabeledInput";
+
+import Header from "./Header";
 
 const Container = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 16px 0;
-  border: ${({ theme }) => theme.klerosUIComponentsPrimaryBlue} 1px solid;
-  border-radius: 4px;
-  padding: 16px;
-`;
-const RulingSettings = styled.div`
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 16px 0;
+  gap: 32px;
 `;
-const FieldContainer = styled.div`
+
+const SelectContainer = styled.div`
+  width: 100%;
   display: flex;
-  align-items: center;
-  width: fit-content;
-  height: fit-content;
-  padding-left: 8px;
-  gap: 8px;
-  font-size: 14px;
-  border-radius: 4px;
-  border: ${({ theme }) => theme.klerosUIComponentsStroke} 1px solid;
-  color: ${({ theme }) => theme.klerosUIComponentsPrimaryText};
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 16px;
+`;
+
+const AutomaticPresetInputsContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  justify-content: space-around;
+  flex-wrap: wrap;
 `;
 
 const RulingModes: React.FC = () => {
   const [tie, setTie] = useState<boolean>(false);
   const [overriden, setOverriden] = useState<boolean>(false);
+  const [ruling, setRuling] = useState<number>();
+  const [rulingMode, setRulingMode] = useState<RULING_MODE | null>(null);
 
   return (
-    <div>
-      <h3>Ruling Mode</h3>
-      <Container>
-        <RulingSettings>
-          <LightButton text={"Rule Now Manually"} />
-          <FieldContainer>
-            ruling <Field placeholder={"1"}></Field>
-          </FieldContainer>
-        </RulingSettings>
+    <Container>
+      <Header text="Ruling Mode" />
+      <SelectContainer>
+        <Radio
+          small
+          label="Manual"
+          checked={rulingMode === RULING_MODE.Manual}
+          onChange={() => {
+            setRulingMode(RULING_MODE.Manual);
+          }}
+        />
+        <Radio
+          small
+          label="Random Preset"
+          checked={rulingMode === RULING_MODE.RandomPreset}
+          onChange={() => {
+            setRulingMode(RULING_MODE.RandomPreset);
+          }}
+        />
+        <Radio
+          small
+          label="Automatic Preset"
+          checked={rulingMode === RULING_MODE.AutomaticPreset}
+          onChange={() => {
+            setRulingMode(RULING_MODE.AutomaticPreset);
+          }}
+        />
+        <AutomaticPresetInputsContainer>
+          <LabeledInput
+            label="Ruling"
+            type="number"
+            value={ruling}
+            onChange={(e) => setRuling(Number(e.target.value))}
+          />
+          <LabeledInput label="Tie" inputType="checkbox" checked={tie} onChange={() => setTie((prev) => !prev)} />
+          <LabeledInput
+            label="Overidden"
+            inputType="checkbox"
+            checked={overriden}
+            onChange={() => setOverriden((prev) => !prev)}
+          />
+        </AutomaticPresetInputsContainer>
+      </SelectContainer>
 
-        <RulingSettings>
-          <LightButton text={"Run Automatically with a Preset"} />
-          <FieldContainer>
-            ruling <Field placeholder={"1"}></Field>
-          </FieldContainer>
-          <FieldContainer>
-            <Checkbox label="" small checked={tie} onChange={() => setTie((old) => !old)} />
-            <Field placeholder={"tie"}></Field>
-          </FieldContainer>
-          <FieldContainer>
-            <Checkbox label="" small checked={overriden} onChange={() => setOverriden((old) => !old)} />
-            <Field placeholder={"overriden"}></Field>
-          </FieldContainer>
-        </RulingSettings>
-
-        <RulingSettings>
-          <LightButton text={"Run Automatically Randomly"} />
-        </RulingSettings>
-      </Container>
-    </div>
+      <Button text="Update" />
+    </Container>
   );
 };
 

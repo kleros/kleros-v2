@@ -1,50 +1,39 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Field } from "@kleros/ui-components-library";
+import { Button } from "@kleros/ui-components-library";
 
-import LightButton from "components/LightButton";
+import LabeledInput from "components/LabeledInput";
+
+import Header from "./Header";
 
 const Container = styled.div`
-  border: ${({ theme }) => theme.klerosUIComponentsPrimaryBlue} 1px solid;
-  border-radius: 4px;
-  padding: 16px;
-`;
-
-const RulingSettings = styled.div`
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 16px 0;
+  gap: 32px;
 `;
-const FieldContainer = styled.div`
+
+const InputContainer = styled.div`
   display: flex;
-  align-items: center;
-  width: fit-content;
-  height: fit-content;
-  padding-left: 8px;
-  gap: 8px;
-  font-size: 14px;
-  border-radius: 4px;
-  border: ${({ theme }) => theme.klerosUIComponentsStroke} 1px solid;
-  color: ${({ theme }) => theme.klerosUIComponentsPrimaryText};
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const StyledLabel = styled.label`
+  word-wrap: break-word;
 `;
 
 const ChangeRuler: React.FC = () => {
   return (
-    <div>
-      <h3>Change Ruler</h3>
-      <Container>
-        <label>Current Ruler</label>
-        <Field value={"0xb78......09e441"}></Field>
-        <RulingSettings>
-          <LightButton text={"Change Ruler"} />
-          <FieldContainer>
-            address <Field placeholder={"0x00[dev address]"}></Field>
-          </FieldContainer>
-        </RulingSettings>
-      </Container>
-    </div>
+    <Container>
+      <Header text="Developer" />
+      <InputContainer>
+        <StyledLabel>Current Ruler : 0xbe8d95497E53aB41d5A45CC8def90d0e59b49f99</StyledLabel>
+        <LabeledInput label="New Developer" />
+      </InputContainer>
+      <Button text="Update" />
+    </Container>
   );
 };
 
