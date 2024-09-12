@@ -13,6 +13,7 @@ import {
   addUser as addUserToAtlas,
   fetchUser,
   updateUser as updateUserInAtlas,
+  uploadToIpfs,
   type User,
   type AddUserData,
   type UpdateUserData,
@@ -26,11 +27,13 @@ interface IAtlasProvider {
   isAddingUser: boolean;
   isFetchingUser: boolean;
   isUpdatingUser: boolean;
+  isUploadingFile: boolean;
   user: User | undefined;
   userExists: boolean;
   authoriseUser: () => void;
   addUser: (userSettings: AddUserData) => Promise<boolean>;
   updateUser: (userSettings: UpdateUserData) => Promise<boolean>;
+  uploadFile: (file: File) => Promise<string | null>;
 }
 
 const Context = createContext<IAtlasProvider | undefined>(undefined);
@@ -49,6 +52,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
   const { signMessageAsync } = useSignMessage();
 
   const atlasGqlClient = useMemo(() => {
@@ -123,7 +127,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
   // this would change based on the fields we have and what defines a user to be existing
   const userExists = useMemo(() => {
     if (!user) return false;
-    return user.email ? true : false;
+    return !isUndefined(user.email);
   }, [user]);
 
   /**
@@ -200,6 +204,32 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
     [address, isVerified, setIsUpdatingUser, atlasGqlClient, refetchUser]
   );
 
+  /**
+   * @description upload file to ipfs
+   * @param {File} file - file to be uploaded
+   * @returns {Promise<string | null>} A promise that resolves to the ipfs cid if file was uploaded successfully else
+   *                                   null
+   */
+  const uploadFile = useCallback(
+    async (file: File) => {
+      try {
+        if (!address || !isVerified) return null;
+        setIsUploadingFile(true);
+
+        const hash = await uploadToIpfs(atlasGqlClient, file);
+
+        return hash ? `/ipfs/${hash}` : null;
+      } catch (err: any) {
+        // eslint-disable-next-line
+        console.log("Upload File Error : ", err?.message);
+        return null;
+      } finally {
+        setIsUploadingFile(false);
+      }
+    },
+    [address, isVerified, setIsUploadingFile, atlasGqlClient]
+  );
+
   return (
     <Context.Provider
       value={useMemo(
@@ -214,6 +244,8 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
           updateUser,
           isUpdatingUser,
           userExists,
+          isUploadingFile,
+          uploadFile,
         }),
         [
           isVerified,
@@ -226,6 +258,8 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
           updateUser,
           isUpdatingUser,
           userExists,
+          isUploadingFile,
+          uploadFile,
         ]
       )}
     >

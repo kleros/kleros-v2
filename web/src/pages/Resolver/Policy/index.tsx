@@ -5,8 +5,8 @@ import { toast } from "react-toastify";
 
 import { FileUploader } from "@kleros/ui-components-library";
 
+import { useAtlasProvider } from "context/AtlasProvider";
 import { useNewDisputeContext } from "context/NewDisputeContext";
-import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
 import { OPTIONS as toastOptions } from "utils/wrapWithToast";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -51,19 +51,16 @@ const StyledFileUploader = styled(FileUploader)`
 
 const Policy: React.FC = () => {
   const { disputeData, setDisputeData, setIsPolicyUploading } = useNewDisputeContext();
+  const { uploadFile } = useAtlasProvider();
 
   const handleFileUpload = (file: File) => {
     setIsPolicyUploading(true);
     toast.info("Uploading Policy to IPFS", toastOptions);
 
-    const fileFormData = new FormData();
-    fileFormData.append("data", file, file.name);
-
-    uploadFormDataToIPFS(fileFormData, "policy")
-      .then(async (res) => {
-        const response = await res.json();
-        const policyURI = response["cids"][0];
-        setDisputeData({ ...disputeData, policyURI });
+    uploadFile(file)
+      .then(async (cid) => {
+        if (!cid) return;
+        setDisputeData({ ...disputeData, policyURI: cid });
       })
       .catch((err) => console.log(err))
       .finally(() => setIsPolicyUploading(false));
