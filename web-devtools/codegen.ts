@@ -1,6 +1,6 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
 
-import { getGraphqlUrl } from "./src/utils/getGraphqlUrl";
+import { getGraphqlUrl } from "./src/actions/getGraphqlUrl";
 
 const config: CodegenConfig = {
   overwrite: true,

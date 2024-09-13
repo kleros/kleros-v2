@@ -2,10 +2,9 @@ import React, { useMemo, createContext, useContext } from "react";
 
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { create, windowedFiniteBatchScheduler, Batcher } from "@yornaath/batshit";
-import { request } from "graphql-request";
+import { gqlRequest } from "actions/gqlFetcher";
 
 import { debounceErrorToast } from "utils/debounceErrorToast";
-import { getGraphqlUrl } from "utils/getGraphqlUrl";
 
 interface IGraphqlBatcher {
   graphqlBatcher: Batcher<any, IQuery>;
@@ -23,9 +22,8 @@ const Context = createContext<IGraphqlBatcher | undefined>(undefined);
 
 const fetcher = async (queries: IQuery[]) => {
   const promises = queries.map(async ({ id, document, variables, isDisputeTemplate, chainId }) => {
-    const url = getGraphqlUrl(isDisputeTemplate ?? false, chainId);
     try {
-      return request(url, document, variables).then((result) => ({ id, result }));
+      return await gqlRequest(document, variables, chainId, isDisputeTemplate).then((result) => ({ id, result }));
     } catch (error) {
       console.error("Graph error: ", { error });
       debounceErrorToast("Graph query error: failed to fetch data.");
