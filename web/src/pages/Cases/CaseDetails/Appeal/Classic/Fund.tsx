@@ -70,9 +70,9 @@ const useFundAppeal = (parsedAmount) => {
     value: parsedAmount,
   });
 
-  const { writeContractAsync } = useWriteDisputeKitClassicFundAppeal();
+  const { writeContractAsync: fundAppeal } = useWriteDisputeKitClassicFundAppeal();
 
-  return { fundAppeal: async () => await writeContractAsync(fundAppealConfig.request), isError };
+  return { fundAppeal, fundAppealConfig, isError };
 };
 
 interface IFund {
@@ -98,7 +98,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
 
   const parsedAmount = useParsedAmount(debouncedAmount as `${number}`);
 
-  const { fundAppeal, isError } = useFundAppeal(parsedAmount);
+  const { fundAppealConfig, fundAppeal, isError } = useFundAppeal(parsedAmount);
 
   const isFundDisabled = useMemo(
     () =>
@@ -123,9 +123,9 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
           isLoading={isSending}
           text={isDisconnected ? "Connect to Fund" : "Fund"}
           onClick={() => {
-            if (fundAppeal) {
+            if (fundAppeal && fundAppealConfig && publicClient) {
               setIsSending(true);
-              wrapWithToast(async () => await fundAppeal().then((response) => response.hash), publicClient)
+              wrapWithToast(async () => await fundAppeal(fundAppealConfig.request), publicClient)
                 .then((res) => {
                   res.status && setIsOpen(true);
                 })

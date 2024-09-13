@@ -16,6 +16,8 @@ export function createClassicRound(disputeID: string, numberOfChoices: BigInt, r
   classicRound.totalCommited = ZERO;
   classicRound.paidFees = new Array<BigInt>(choicesLength.toI32()).fill(ZERO);
   classicRound.feeRewards = ZERO;
+  classicRound.appealFeesDispersed = false;
+  classicRound.totalFeeDispersed = ZERO;
   classicRound.fundedChoices = [];
   classicRound.save();
 }

@@ -95,9 +95,10 @@ interface IVotesAccordion {
   period: string;
   answers: Answer[];
   isActiveRound: boolean;
+  hiddenVotes: boolean;
 }
 
-const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answers, isActiveRound }) => {
+const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answers, isActiveRound, hiddenVotes }) => {
   const accordionItems = useMemo(() => {
     return drawnJurors
       .map((drawnJuror) =>
@@ -111,6 +112,8 @@ const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answer
                   period={period}
                   answers={answers}
                   isActiveRound={isActiveRound}
+                  commited={Boolean(drawnJuror.vote.commited)}
+                  hiddenVotes={hiddenVotes}
                 />
               ),
               body: (
@@ -124,7 +127,7 @@ const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answer
           : null
       )
       .filter((item) => item !== null);
-  }, [drawnJurors, period, answers, isActiveRound]);
+  }, [drawnJurors, period, answers, isActiveRound, hiddenVotes]);
 
   return (
     <>
@@ -146,6 +149,8 @@ const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answer
                   period={period}
                   answers={answers}
                   isActiveRound={isActiveRound}
+                  hiddenVotes={hiddenVotes}
+                  commited={Boolean(drawnJuror.vote?.commited)}
                 />
               </StyledCard>
             )

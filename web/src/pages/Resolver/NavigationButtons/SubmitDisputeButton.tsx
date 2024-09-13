@@ -96,7 +96,8 @@ const SubmitDisputeButton: React.FC = () => {
 
 const isTemplateValid = (disputeTemplate: IDisputeTemplate) => {
   const areVotingOptionsFilled =
-    disputeTemplate.question !== "" && disputeTemplate.answers.every((answer) => answer.title !== "");
+    disputeTemplate.question !== "" &&
+    disputeTemplate.answers.every((answer) => answer.title !== "" && answer.description !== "");
 
   return (disputeTemplate.title &&
     disputeTemplate.description &&

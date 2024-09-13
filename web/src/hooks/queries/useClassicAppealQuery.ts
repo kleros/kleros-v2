@@ -27,6 +27,8 @@ const classicAppealQuery = graphql(`
             winningChoice
             paidFees
             fundedChoices
+            appealFeesDispersed
+            totalFeeDispersed
           }
         }
       }
