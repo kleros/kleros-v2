@@ -2,33 +2,41 @@
 import React from "react";
 import styled from "styled-components";
 
-import { DropdownCascader, Field } from "@kleros/ui-components-library";
+import { DropdownCascader } from "@kleros/ui-components-library";
 
 import { SelectArbitrable } from "utils/dummyData";
 
-import ChangeRuler from "./ChangeRuler";
+import { responsiveSize } from "styles/responsiveSize";
+
+import ChangeDeveloper from "./ChangeDeveloper";
+import ManualRuling from "./ManualRuling";
 import RulingModes from "./RulingModes";
 
 const Container = styled.div`
   min-height: calc(100vh - 160px);
   display: flex;
   flex-direction: column;
+  gap: 48px;
   margin: 16px 32px;
   align-items: center;
-`;
-const Arbitrables = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 16px 0;
+  padding: ${responsiveSize(32, 72)} ${responsiveSize(16, 132)} ${responsiveSize(76, 96)};
 `;
 
-const SettingsPane = styled.div`
+const Arbitrables = styled.div`
+  width: 100%;
+  background-color: ${({ theme }) => theme.klerosUIComponentsWhiteBackground};
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
-  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
   margin: 16px 0;
+  padding: 8px 16px;
+  border-radius: 3px;
 `;
+
+const StyledLabel = styled.label``;
 
 const Ruler: React.FC = () => {
   return (
@@ -36,26 +44,19 @@ const Ruler: React.FC = () => {
       <h1>Ruler</h1>
 
       <Arbitrables>
-        <div>
-          <label>Select Arbitrable</label>
-          <DropdownCascader
-            placeholder={"Select Arbitrable"}
-            onSelect={() => {
-              //todo;
-            }}
-            items={SelectArbitrable}
-          />
-        </div>
-        <div>
-          <label>Current Ruling Mode</label>
-          <Field value={"auto mode"}></Field>
-        </div>
+        <StyledLabel>Arbitrable:</StyledLabel>
+        <DropdownCascader
+          placeholder={"Select Arbitrable"}
+          onSelect={() => {
+            //todo;
+          }}
+          items={SelectArbitrable}
+        />
       </Arbitrables>
 
-      <SettingsPane>
-        <RulingModes />
-        <ChangeRuler />
-      </SettingsPane>
+      <RulingModes />
+      <ManualRuling />
+      <ChangeDeveloper />
     </Container>
   );
 };
