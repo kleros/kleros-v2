@@ -13,8 +13,9 @@ interface IKlerosCoreRulerFragment {
     function getNextDisputeID() external view returns (uint256);
 }
 
-/// @title DisputeResolver
-/// DisputeResolver contract adapted for V2 from https://github.com/kleros/arbitrable-proxy-contracts/blob/master/contracts/ArbitrableProxy.sol.
+/// @title DisputeResolverRuler
+/// It extends DisputeResolver for testing purposes of the automatic ruling modes.
+/// The arbitrator disputeID must be known before dispute creation, otherwise the dispute cannot be retrieved during the immediate call to rule().
 contract DisputeResolverRuler is DisputeResolver {
     // ************************************* //
     // *            Constructor            * //
@@ -47,6 +48,7 @@ contract DisputeResolverRuler is DisputeResolver {
         dispute.arbitratorExtraData = _arbitratorExtraData;
         dispute.numberOfRulingOptions = _numberOfRulingOptions;
 
+        // Keep track of the upcoming dispute ID before dispute creation, so rule() can be called immediately after.
         disputeID = IKlerosCoreRulerFragment(address(arbitrator)).getNextDisputeID();
         arbitratorDisputeIDToLocalID[disputeID] = localDisputeID;
         uint256 templateId = templateRegistry.setDisputeTemplate("", _disputeTemplate, _disputeTemplateDataMappings);
