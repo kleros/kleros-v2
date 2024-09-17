@@ -1,15 +1,15 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { DEFAULT_CHAIN } from "consts/chains";
-import { getOneWeekAgoTimestamp } from "utils/date";
 
 import { HomePageBlockQuery } from "src/graphql/graphql";
 import { isUndefined } from "src/utils";
 
-import { useBlockByTimestamp } from "../useBlockByTimestamp";
 import { useHomePageContext } from "../useHomePageContext";
 
 import { useHomePageBlockQuery } from "./useHomePageBlockQuery";
+import { useBlockNumber } from "wagmi";
+import { averageBlockTimeInSeconds } from "consts/averageBlockTimeInSeconds";
 
 type Court = HomePageBlockQuery["courts"][number];
 
@@ -39,12 +39,17 @@ export interface HomePageExtraStatsType {
 
 export const useHomePageExtraStats = (): HomePageExtraStatsType => {
   const { data } = useHomePageContext();
-  const { blockNumber } = useBlockByTimestamp(
-    DEFAULT_CHAIN,
-    useMemo(() => getOneWeekAgoTimestamp(), [])
-  );
+  const [oneWeekAgoBlockNumber, setOneWeekAgoBlockNumber] = useState<number>();
+  const currentBlockNumber = useBlockNumber({ chainId: DEFAULT_CHAIN });
 
-  const { data: relData } = useHomePageBlockQuery(blockNumber!);
+  useEffect(() => {
+    if (currentBlockNumber?.data) {
+      const oneWeekInBlocks = Math.floor((7 * 24 * 3600) / averageBlockTimeInSeconds[DEFAULT_CHAIN]);
+      setOneWeekAgoBlockNumber(Number(currentBlockNumber.data) - oneWeekInBlocks);
+    }
+  }, [DEFAULT_CHAIN, currentBlockNumber]);
+
+  const { data: relData } = useHomePageBlockQuery(oneWeekAgoBlockNumber!);
 
   const HighestDrawingChance = useMemo(() => {
     return data ? getCourtWithMaxChance(data.courts).name ?? null : null;

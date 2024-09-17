@@ -26,6 +26,7 @@ const TextContainer = styled.div`
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  justify-content: center;
 `;
 
 const StyledP = styled.p`

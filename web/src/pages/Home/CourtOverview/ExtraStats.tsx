@@ -23,7 +23,7 @@ interface IStat {
 
 const stats: IStat[] = [
   {
-    title: "More Cases",
+    title: "Most Cases",
     getText: (data) => data.MostActiveCourt,
     icon: LongArrowUp,
   },
