@@ -1,29 +1,18 @@
 import React from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import LawBalance from "svgs/icons/law-balance.svg";
 import LongArrowUp from "svgs/icons/long-arrow-up.svg";
 
 import { useHomePageExtraStats, HomePageExtraStatsType } from "hooks/queries/useHomePageExtraStats";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import ExtraStatsDisplay from "components/ExtraStatsDisplay";
 
 const StyledCard = styled.div`
-  padding-left: ${responsiveSize(16, 64)};
-  padding-right: ${responsiveSize(16, 64)};
   display: flex;
-  justify-content: space-between;
   flex-wrap: wrap;
-
-  ${landscapeStyle(
-    () => css`
-      padding-bottom: 0px;
-      gap: 8px;
-    `
-  )}
+  gap: 0 32px;
+  justify-content: center;
 `;
 
 interface IStat {

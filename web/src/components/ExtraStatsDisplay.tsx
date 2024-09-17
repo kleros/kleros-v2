@@ -5,15 +5,15 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 
 const Container = styled.div`
   display: flex;
-  max-width: 380px;
-  align-items: center;
   gap: 8px;
+  align-items: center;
+  margin-top: 24px;
 `;
 
 const SVGContainer = styled.div`
+  display: flex;
   height: 14px;
   width: 14px;
-  display: flex;
   align-items: center;
   justify-content: center;
   svg {
@@ -24,10 +24,14 @@ const SVGContainer = styled.div`
 const TextContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 4px;
-  p {
-    min-width: 60px;
-  }
+  gap: 8px;
+  flex-wrap: wrap;
+`;
+
+const StyledP = styled.p`
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
 `;
 
 export interface IExtraStatsDisplay {
@@ -42,7 +46,7 @@ const ExtraStatsDisplay: React.FC<IExtraStatsDisplay> = ({ title, text, icon: Ic
       <SVGContainer>{<Icon />}</SVGContainer>
       <TextContainer>
         <label>{title}:</label>
-        <p>{text !== null ? text : <StyledSkeleton />}</p>
+        <StyledP>{text !== null ? text : <StyledSkeleton />}</StyledP>
       </TextContainer>
     </Container>
   );
