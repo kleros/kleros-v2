@@ -6,7 +6,7 @@ import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 
 describe("KlerosCoreRuler", async () => {
   // eslint-disable-next-line no-unused-vars
-  let deployer;
+  let deployer, dev, dev2;
   let core: KlerosCoreRuler;
   let resolver: DisputeResolver;
 
@@ -23,7 +23,7 @@ describe("KlerosCoreRuler", async () => {
     "0000000000000000000000000000000000000000000000000000000000000003"; // minJurors 3
 
   before("Deploying", async () => {
-    [deployer] = await ethers.getSigners();
+    [deployer, dev, dev2] = await ethers.getSigners();
     [core, resolver] = await deployContracts(deployer);
   });
 
@@ -44,8 +44,34 @@ describe("KlerosCoreRuler", async () => {
     ).to.be.revertedWithCustomError(core, "RulingModeNotSet");
   });
 
+  it("Should allow anyone to set the RulingMode for an uninitialized arbitrable", async () => {
+    expect(await core.rulers(resolver.address)).to.equal(ethers.constants.AddressZero);
+
+    await expect(core.connect(dev).changeRulingModeToAutomaticRandom(resolver.address))
+      .to.emit(core, "RulerSettingsChanged")
+      .withArgs(resolver.address, [RulingMode.automaticRandom, 0, false, false]);
+
+    expect(await core.rulers(resolver.address)).to.equal(dev.address);
+  });
+
+  it("Should only allow the arbitrable's ruler to set the RulingMode", async () => {
+    expect(await core.rulers(resolver.address)).to.equal(dev.address);
+
+    await expect(core.connect(dev2).changeRulingModeToManual(resolver.address)).revertedWithCustomError(
+      core,
+      "RulerOnly"
+    );
+
+    await expect(core.connect(deployer).changeRulingModeToManual(resolver.address)).revertedWithCustomError(
+      core,
+      "RulerOnly"
+    );
+
+    expect(await core.rulers(resolver.address)).to.equal(dev.address);
+  });
+
   it("Should create a dispute and automatically execute a random ruling", async () => {
-    await expect(core.changeRulingModeToAutomaticRandom(resolver.address))
+    await expect(core.connect(dev).changeRulingModeToAutomaticRandom(resolver.address))
       .to.emit(core, "RulerSettingsChanged")
       .withArgs(resolver.address, [RulingMode.automaticRandom, 0, false, false]);
 
@@ -59,7 +85,7 @@ describe("KlerosCoreRuler", async () => {
       .and.to.emit(core, "Ruling")
       .withArgs(resolver.address, disputeID, anyValue)
       .and.to.emit(core, "TokenAndETHShift")
-      .withArgs(deployer.address, disputeID, 0, 1, 0, anyValue, ethers.constants.AddressZero)
+      .withArgs(dev.address, disputeID, 0, 1, 0, anyValue, ethers.constants.AddressZero)
       .and.to.emit(resolver, "DisputeRequest")
       .withArgs(core.address, disputeID, disputeID, disputeID, "")
       .and.to.emit(resolver, "Ruling")
@@ -67,7 +93,7 @@ describe("KlerosCoreRuler", async () => {
   });
 
   it("Should create a dispute and automatically execute a preset ruling", async () => {
-    await expect(core.changeRulingModeToAutomaticPreset(resolver.address, 2, true, false))
+    await expect(core.connect(dev).changeRulingModeToAutomaticPreset(resolver.address, 2, true, false))
       .to.emit(core, "RulerSettingsChanged")
       .withArgs(resolver.address, [RulingMode.automaticPreset, 2, true, false]);
 
@@ -81,7 +107,7 @@ describe("KlerosCoreRuler", async () => {
       .and.to.emit(core, "Ruling")
       .withArgs(resolver.address, disputeID, 2)
       .and.to.emit(core, "TokenAndETHShift")
-      .withArgs(deployer.address, disputeID, 0, 1, 0, anyValue, ethers.constants.AddressZero)
+      .withArgs(dev.address, disputeID, 0, 1, 0, anyValue, ethers.constants.AddressZero)
       .and.to.emit(resolver, "DisputeRequest")
       .withArgs(core.address, disputeID, disputeID, disputeID, "")
       .and.to.emit(resolver, "Ruling")
@@ -89,7 +115,7 @@ describe("KlerosCoreRuler", async () => {
   });
 
   it("Should create a dispute and manually execute a ruling", async () => {
-    await expect(core.changeRulingModeToManual(resolver.address))
+    await expect(core.connect(dev).changeRulingModeToManual(resolver.address))
       .to.emit(core, "RulerSettingsChanged")
       .withArgs(resolver.address, [RulingMode.manual, 0, false, false]);
 
@@ -101,7 +127,12 @@ describe("KlerosCoreRuler", async () => {
       .and.to.emit(resolver, "DisputeRequest")
       .withArgs(core.address, disputeID, disputeID, disputeID, "");
 
-    await expect(core.executeRuling(disputeID, 3, true, true))
+    await expect(core.connect(deployer).executeRuling(disputeID, 3, true, true)).revertedWithCustomError(
+      core,
+      "RulerOnly"
+    );
+
+    await expect(core.connect(dev).executeRuling(disputeID, 3, true, true))
       .and.to.emit(core, "Ruling")
       .withArgs(resolver.address, disputeID, 3)
       .and.to.emit(resolver, "Ruling")
@@ -109,7 +140,7 @@ describe("KlerosCoreRuler", async () => {
 
     await expect(core.execute(disputeID, 0))
       .and.to.emit(core, "TokenAndETHShift")
-      .withArgs(deployer.address, disputeID, 0, 1, 0, anyValue, ethers.constants.AddressZero);
+      .withArgs(dev.address, disputeID, 0, 1, 0, anyValue, ethers.constants.AddressZero);
   });
 });
 
