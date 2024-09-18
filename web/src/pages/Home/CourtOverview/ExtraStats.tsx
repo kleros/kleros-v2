@@ -43,7 +43,7 @@ const ExtraStats = () => {
   const data = useHomePageExtraStats();
   return (
     <StyledCard>
-      <ExtraStatsDisplay title="Activity (Last 7 days)" icon={LawBalance} />
+      <ExtraStatsDisplay title="Activity (Last 7 days)" text="" icon={LawBalance} />
       {stats.map(({ title, getText, icon }, i) => {
         return <ExtraStatsDisplay key={i} {...{ title, icon }} text={getText(data)} />;
       })}

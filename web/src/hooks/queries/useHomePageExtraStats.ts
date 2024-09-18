@@ -13,22 +13,22 @@ import { averageBlockTimeInSeconds } from "consts/averageBlockTimeInSeconds";
 
 type Court = HomePageBlockQuery["courts"][number];
 
-const getCourtWithMaxDifference = (initialCourts: Court[], endCourts: Court[]): Court => {
-  const diffs = initialCourts.map((court, idx) => {
-    return Number(endCourts[idx].numberDisputes) - Number(court.numberDisputes);
+const getCourtWithMaxDifference = (lastWeekCourts: Court[], currentCourts: Court[]): Court => {
+  const diffs = lastWeekCourts.map((court, idx) => {
+    return Number(currentCourts[idx].numberDisputes) - Number(court.numberDisputes);
   });
 
   const maxDiffCourtId = diffs.reduce((a, b) => (a > b ? a : b));
 
-  return initialCourts[diffs.indexOf(maxDiffCourtId)];
+  return lastWeekCourts[diffs.indexOf(maxDiffCourtId)];
 };
 
-const getCourtWithMaxReward = (courts: Court[]): Court => {
-  return courts.reduce((a, b) => (Number(a.feeForJuror) > Number(b.feeForJuror) ? a : b));
+const getCourtWithMaxDrawingChance = (currentCourts: Court[]): Court => {
+  return currentCourts.reduce((a, b) => (Number(a.stake) > Number(b.feeForJuror) ? b : a));
 };
 
-const getCourtWithMaxChance = (courts: Court[]): Court => {
-  return courts.reduce((a, b) => (Number(a.stake) > Number(b.feeForJuror) ? b : a));
+const getCourtWithMaxRewardChance = (currentCourts: Court[]): Court => {
+  return currentCourts.reduce((a, b) => (Number(a.feeForJuror) > Number(b.feeForJuror) ? a : b));
 };
 
 export interface HomePageExtraStatsType {
@@ -51,20 +51,20 @@ export const useHomePageExtraStats = (): HomePageExtraStatsType => {
 
   const { data: relData } = useHomePageBlockQuery(oneWeekAgoBlockNumber!);
 
-  const HighestDrawingChance = useMemo(() => {
-    return data ? getCourtWithMaxChance(data.courts).name ?? null : null;
-  }, [data]);
-
-  const HighestRewardChance = useMemo(() => {
-    return data ? getCourtWithMaxReward(data.courts).name ?? null : null;
-  }, [data]);
-
   const MostActiveCourt = useMemo(() => {
     if (isUndefined(relData) || isUndefined(data)) {
       return null;
     }
     return getCourtWithMaxDifference(relData.courts, data.courts).name ?? null;
   }, [relData, data]);
+
+  const HighestDrawingChance = useMemo(() => {
+    return data ? getCourtWithMaxDrawingChance(data.courts).name ?? null : null;
+  }, [data]);
+
+  const HighestRewardChance = useMemo(() => {
+    return data ? getCourtWithMaxRewardChance(data.courts).name ?? null : null;
+  }, [data]);
 
   return { MostActiveCourt, HighestDrawingChance, HighestRewardChance };
 };
