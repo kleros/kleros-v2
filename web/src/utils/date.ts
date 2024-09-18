@@ -22,7 +22,7 @@ export function getOneYearAgoTimestamp(): number {
 
 export function getOneWeekAgoTimestamp(): number {
   const currentTime = new Date().getTime();
-  return currentTime - 604800000; // One week in milliseconds
+  return currentTime - 604800; // One week in seconds
 }
 
 export function formatDate(unixTimestamp: number, withTime = false): string {
