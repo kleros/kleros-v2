@@ -16,6 +16,7 @@ const homePageBlockQuery = graphql(`
       }
       name
       numberDisputes
+      numberVotes
       feeForJuror
       stake
     }
@@ -26,6 +27,7 @@ const homePageBlockQuery = graphql(`
       }
       name
       numberDisputes
+      numberVotes
       feeForJuror
       stake
     }
@@ -70,7 +72,7 @@ export const useHomePageBlockQuery = (blockNumber: number) => {
       for (const parent of diffCourts) {
         for (const child of diffCourts) {
           if (parent.id === child.parent?.id) {
-            child.treeNumberDisputes = String(Number(parent.treeNumberDisputes) + Number(child.treeNumberDisputes));
+            child.treeNumberVotes = String(Number(parent.treeNumberVotes) + Number(child.treeNumberVotes));
           }
         }
       }
@@ -83,26 +85,25 @@ export const useHomePageBlockQuery = (blockNumber: number) => {
         }
       }
       diffCourts.reverse();
-      //
       for (const c of diffCourts) {
-        c.disputesPerPnk = Number(c.numberDisputes) / (Number(c.stake) / 1e18);
-        c.treeDisputesPerPnk = c.disputesPerPnk;
+        c.votesPerPnk = Number(c.numberVotes) / (Number(c.stake) / 1e18);
+        c.treeVotesPerPnk = c.votesPerPnk;
       }
       for (const parent of diffCourts) {
         for (const child of diffCourts) {
           if (parent.id === child.parent?.id) {
-            child.treeDisputesPerPnk += parent.disputesPerPnk;
+            child.treeVotesPerPnk += parent.votesPerPnk;
           }
         }
       }
-      const bestDrawingChancesCourt = diffCourts.sort((a, b) => b.treeDisputesPerPnk - a.treeDisputesPerPnk)[0];
+      const bestDrawingChancesCourt = diffCourts.sort((a, b) => b.treeVotesPerPnk - a.treeVotesPerPnk)[0];
       // 3. expected reward
       // since we isolated the exclusive disputes from the cumulative disputes
       // we can calculate the "isolated reward" of every court
       // after that's done, then just trickle the rewards down
 
       for (const c of diffCourts) {
-        c.expectedRewardPerPnk = c.disputesPerPnk * c.feeForJuror;
+        c.expectedRewardPerPnk = c.votesPerPnk * c.feeForJuror;
         c.treeExpectedRewardPerPnk = c.expectedRewardPerPnk;
       }
       for (const parent of diffCourts) {

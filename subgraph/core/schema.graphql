@@ -142,6 +142,7 @@ type Court @entity {
   numberClosedDisputes: BigInt!
   numberVotingDisputes: BigInt!
   numberAppealingDisputes: BigInt!
+  numberVotes: BigInt!
   stakedJurors: [JurorTokensPerCourt!]! @derivedFrom(field: "court")
   numberStakedJurors: BigInt!
   stake: BigInt!

@@ -17,6 +17,7 @@ export function createCourtFromEvent(event: CourtCreated): void {
   court.numberClosedDisputes = ZERO;
   court.numberVotingDisputes = ZERO;
   court.numberAppealingDisputes = ZERO;
+  court.numberVotes = ZERO;
   court.numberStakedJurors = ZERO;
   court.stake = ZERO;
   court.delayedStake = ZERO;
