@@ -61,6 +61,8 @@ export const useHomePageBlockQuery = (blockNumber: number) => {
         ...c,
         numberDisputes: usedQuery.data.presentCourts[i].numberDisputes - c.numberDisputes,
         treeNumberDisputes: usedQuery.data.presentCourts[i].numberDisputes - c.numberDisputes,
+        numberVotes: usedQuery.data.presentCourts[i].numberVotes - c.numberVotes,
+        treeNumberVotes: usedQuery.data.presentCourts[i].numberVotes - c.numberVotes,
         stake: (BigInt(usedQuery.data.presentCourts[i].stake) + BigInt(c.stake)) / 2n,
       }));
       const mostDisputedCourt = diffCourts.sort((a, b) => b.numberDisputes - a.numberDisputes)[0];
