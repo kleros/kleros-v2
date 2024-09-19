@@ -9,7 +9,7 @@ import { Periods } from "consts/periods";
 
 import { responsiveSize } from "styles/responsiveSize";
 
-import { StyledSkeleton } from "components/StyledSkeleton";
+import { StyledCaseCardTitleSkeleton } from "components/StyledSkeleton";
 
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
@@ -54,7 +54,7 @@ const DisputeCardView: React.FC<IDisputeCardView> = ({ isLoading, ...props }) =>
     <StyledCard hover onClick={() => navigate(`/cases/${props?.disputeID?.toString()}`)}>
       <PeriodBanner id={parseInt(props?.disputeID)} period={props?.period} />
       <CardContainer>
-        {isLoading ? <StyledSkeleton /> : <TruncatedTitle text={props?.title} maxLength={100} />}
+        {isLoading ? <StyledCaseCardTitleSkeleton /> : <TruncatedTitle text={props?.title} maxLength={100} />}
         <DisputeInfo {...props} />
       </CardContainer>
     </StyledCard>

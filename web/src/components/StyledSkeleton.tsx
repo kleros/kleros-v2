@@ -9,6 +9,10 @@ export const StyledSkeleton = styled(Skeleton)`
   z-index: 0;
 `;
 
+export const StyledCaseCardTitleSkeleton = styled(StyledSkeleton)`
+  margin-bottom: 16px;
+`;
+
 const SkeletonDisputeCardContainer = styled.div`
   width: 100%;
 `;
