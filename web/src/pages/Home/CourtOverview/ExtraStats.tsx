@@ -4,7 +4,7 @@ import styled from "styled-components";
 import LawBalance from "svgs/icons/law-balance.svg";
 import LongArrowUp from "svgs/icons/long-arrow-up.svg";
 
-import { useHomePageExtraStats, HomePageExtraStatsType } from "hooks/queries/useHomePageExtraStats";
+import { useHomePageExtraStats } from "hooks/queries/useHomePageExtraStats";
 
 import ExtraStatsDisplay from "components/ExtraStatsDisplay";
 
@@ -17,24 +17,24 @@ const StyledCard = styled.div`
 
 interface IStat {
   title: string;
-  getText: (data: HomePageExtraStatsType) => string | null;
+  getText: (data) => string | null;
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
 
 const stats: IStat[] = [
   {
     title: "Most Cases",
-    getText: (data) => data.MostActiveCourt,
+    getText: (data) => data?.mostDisputedCourt?.name,
     icon: LongArrowUp,
   },
   {
     title: "Highest drawing chance",
-    getText: (data) => data.HighestDrawingChance,
+    getText: (data) => data?.bestDrawingChancesCourt?.name,
     icon: LongArrowUp,
   },
   {
     title: "Highest rewards chance",
-    getText: (data) => data.HighestRewardChance,
+    getText: (data) => data?.bestExpectedRewardCourt?.name,
     icon: LongArrowUp,
   },
 ];
