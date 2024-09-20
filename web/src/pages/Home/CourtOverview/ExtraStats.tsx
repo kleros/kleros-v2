@@ -75,8 +75,8 @@ const ExtraStats = () => {
         }
         icon={LawBalance}
       />
-      {stats.map(({ title, getText, icon }, i) => (
-        <ExtraStatsDisplay key={i} {...{ title, icon }} text={getText(data)} />
+      {stats.map(({ title, getText, icon }) => (
+        <ExtraStatsDisplay key={title} {...{ title, icon }} text={getText(data)} />
       ))}
     </StyledCard>
   );

@@ -15,7 +15,7 @@ export const useHomePageExtraStats = (days: number | string) => {
     }
   }, [DEFAULT_CHAIN, currentBlockNumber, days]);
 
-  const data = useHomePageBlockQuery(pastBlockNumber!, days === "allTime");
+  const data = useHomePageBlockQuery(pastBlockNumber, days === "allTime");
 
   return data;
 };
