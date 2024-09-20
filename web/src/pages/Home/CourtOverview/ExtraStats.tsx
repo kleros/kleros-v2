@@ -43,8 +43,9 @@ const timeRanges = [
   { value: 7, text: "Last 7 days" },
   { value: 30, text: "Last 30 days" },
   { value: 90, text: "Last 90 days" },
-  { value: 180, text: "Last 180 days" },
-  { value: 365, text: "Last 365 days" },
+  // we can uncomment these as the contract deployment time increases
+  // { value: 180, text: "Last 180 days" },
+  // { value: 365, text: "Last 365 days" },
   { value: "allTime", text: "All Time" },
 ];
 

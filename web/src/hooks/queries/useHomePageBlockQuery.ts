@@ -34,13 +34,14 @@ const homePageBlockQuery = graphql(`
   }
 `);
 
-export const useHomePageBlockQuery = (blockNumber: number, allTime: boolean) => {
-  const isEnabled = blockNumber != null;
+export const useHomePageBlockQuery = (blockNumber: number | null, allTime: boolean) => {
+  const isEnabled = blockNumber !== null || allTime;
   const { graphqlBatcher } = useGraphqlBatcher();
 
   const usedQuery = useQuery({
-    queryKey: [`homePageBlockQuery${blockNumber}`],
+    queryKey: [`homePageBlockQuery${blockNumber}-${allTime}`],
     enabled: isEnabled,
+    staleTime: Infinity,
     queryFn: async () => {
       const data = await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
