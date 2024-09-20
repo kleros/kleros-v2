@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import LawBalance from "svgs/icons/law-balance.svg";
 import LongArrowUp from "svgs/icons/long-arrow-up.svg";
 
 import { useHomePageExtraStats } from "hooks/queries/useHomePageExtraStats";
-
 import ExtraStatsDisplay from "components/ExtraStatsDisplay";
+import { DropdownSelect } from "@kleros/ui-components-library";
 
 const StyledCard = styled.div`
   display: flex;
@@ -39,14 +39,43 @@ const stats: IStat[] = [
   },
 ];
 
+const timeRanges = [
+  { value: 7, text: "Last 7 days" },
+  { value: 30, text: "Last 30 days" },
+  { value: 90, text: "Last 90 days" },
+  { value: 180, text: "Last 180 days" },
+  { value: 365, text: "Last 365 days" },
+];
+
 const ExtraStats = () => {
-  const data = useHomePageExtraStats();
+  const [selectedRange, setSelectedRange] = useState(timeRanges[0].value); // Default to 7 days
+  const data = useHomePageExtraStats(selectedRange);
+
+  const handleTimeRangeChange = (value: number) => {
+    setSelectedRange(value);
+  };
+
   return (
     <StyledCard>
-      <ExtraStatsDisplay title="Activity (Last 7 days)" text="" icon={LawBalance} />
-      {stats.map(({ title, getText, icon }, i) => {
-        return <ExtraStatsDisplay key={i} {...{ title, icon }} text={getText(data)} />;
-      })}
+      <ExtraStatsDisplay
+        title="Activity"
+        text={
+          <DropdownSelect
+            smallButton
+            simpleButton
+            items={timeRanges.map((range) => ({
+              value: range.value,
+              text: range.text,
+            }))}
+            defaultValue={selectedRange}
+            callback={handleTimeRangeChange}
+          />
+        }
+        icon={LawBalance}
+      />
+      {stats.map(({ title, getText, icon }, i) => (
+        <ExtraStatsDisplay key={i} {...{ title, icon }} text={getText(data)} />
+      ))}
     </StyledCard>
   );
 };
