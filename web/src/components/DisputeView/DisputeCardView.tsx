@@ -9,7 +9,7 @@ import { Periods } from "consts/periods";
 
 import { responsiveSize } from "styles/responsiveSize";
 
-import { StyledCaseCardTitleSkeleton } from "components/StyledSkeleton";
+import { StyledSkeleton } from "components/StyledSkeleton";
 
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
@@ -28,6 +28,11 @@ const CardContainer = styled.div`
   flex-direction: column;
   justify-content: space-between;
 `;
+
+const StyledCaseCardTitleSkeleton = styled(StyledSkeleton)`
+  margin-bottom: 16px;
+`;
+
 const TruncatedTitle = ({ text, maxLength }) => {
   const truncatedText = text.length <= maxLength ? text : text.slice(0, maxLength) + "…";
   return <h3>{truncatedText}</h3>;

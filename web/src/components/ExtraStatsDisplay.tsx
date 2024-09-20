@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
+import { isUndefined } from "utils/index";
 
 const Container = styled.div`
   display: flex;
@@ -35,6 +36,10 @@ const StyledP = styled.p`
   margin: 0;
 `;
 
+const StyledExtraStatTitleSkeleton = styled(StyledSkeleton)`
+  width: 100px;
+`;
+
 export interface IExtraStatsDisplay {
   title: string;
   text: string;
@@ -47,7 +52,7 @@ const ExtraStatsDisplay: React.FC<IExtraStatsDisplay> = ({ title, text, icon: Ic
       <SVGContainer>{<Icon />}</SVGContainer>
       <TextContainer>
         <label>{title}:</label>
-        <StyledP>{text !== null ? text : <StyledSkeleton />}</StyledP>
+        <StyledP>{!isUndefined(text) ? text : <StyledExtraStatTitleSkeleton />}</StyledP>
       </TextContainer>
     </Container>
   );

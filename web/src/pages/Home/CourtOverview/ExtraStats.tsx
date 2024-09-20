@@ -45,13 +45,14 @@ const timeRanges = [
   { value: 90, text: "Last 90 days" },
   { value: 180, text: "Last 180 days" },
   { value: 365, text: "Last 365 days" },
+  { value: "allTime", text: "All Time" },
 ];
 
 const ExtraStats = () => {
-  const [selectedRange, setSelectedRange] = useState(timeRanges[0].value); // Default to 7 days
+  const [selectedRange, setSelectedRange] = useState(timeRanges[0].value);
   const data = useHomePageExtraStats(selectedRange);
 
-  const handleTimeRangeChange = (value: number) => {
+  const handleTimeRangeChange = (value: string | number) => {
     setSelectedRange(value);
   };
 

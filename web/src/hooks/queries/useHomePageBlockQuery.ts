@@ -34,7 +34,7 @@ const homePageBlockQuery = graphql(`
   }
 `);
 
-export const useHomePageBlockQuery = (blockNumber: number) => {
+export const useHomePageBlockQuery = (blockNumber: number, allTime: boolean) => {
   const isEnabled = blockNumber != null;
   const { graphqlBatcher } = useGraphqlBatcher();
 
@@ -56,15 +56,23 @@ export const useHomePageBlockQuery = (blockNumber: number) => {
       // 1. court with most disputes
       // we only iterate through past courts, since more courts might exist at the present
       // these diffCourts have: average stakes, and dispute diff
-
-      const diffCourts = usedQuery.data.pastCourts.map((c, i) => ({
-        ...c,
-        numberDisputes: usedQuery.data.presentCourts[i].numberDisputes - c.numberDisputes,
-        treeNumberDisputes: usedQuery.data.presentCourts[i].numberDisputes - c.numberDisputes,
-        numberVotes: usedQuery.data.presentCourts[i].numberVotes - c.numberVotes,
-        treeNumberVotes: usedQuery.data.presentCourts[i].numberVotes - c.numberVotes,
-        stake: (BigInt(usedQuery.data.presentCourts[i].stake) + BigInt(c.stake)) / 2n,
-      }));
+      const diffCourts = allTime
+        ? usedQuery.data.presentCourts.map((c) => ({
+            ...c,
+            numberDisputes: c.numberDisputes,
+            treeNumberDisputes: c.numberDisputes,
+            numberVotes: c.numberVotes,
+            treeNumberVotes: c.numberVotes,
+            stake: c.stake,
+          }))
+        : usedQuery.data.pastCourts.map((c, i) => ({
+            ...c,
+            numberDisputes: usedQuery.data.presentCourts[i].numberDisputes - c.numberDisputes,
+            treeNumberDisputes: usedQuery.data.presentCourts[i].numberDisputes - c.numberDisputes,
+            numberVotes: usedQuery.data.presentCourts[i].numberVotes - c.numberVotes,
+            treeNumberVotes: usedQuery.data.presentCourts[i].numberVotes - c.numberVotes,
+            stake: (BigInt(usedQuery.data.presentCourts[i].stake) + BigInt(c.stake)) / 2n,
+          }));
       const mostDisputedCourt = diffCourts.sort((a, b) => b.numberDisputes - a.numberDisputes)[0];
       // 2. biggest chances of getting drawn
       // fact a: getting drawn in a parent court also subjects you to its rewards
