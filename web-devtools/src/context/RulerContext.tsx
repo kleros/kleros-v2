@@ -13,7 +13,7 @@ type ArbitrableSettings = {
   rulingMode: RULING_MODE;
   ruling: number;
   tied: boolean;
-  overidden: boolean;
+  overridden: boolean;
 };
 
 interface IRulerContext {
@@ -53,7 +53,7 @@ const RulerContextProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       rulingMode: arbitrableSettingsData[0],
       ruling: Number(arbitrableSettingsData[1]),
       tied: arbitrableSettingsData[2],
-      overidden: arbitrableSettingsData[3],
+      overridden: arbitrableSettingsData[3],
     });
   }, [arbitrableSettingsData]);
 

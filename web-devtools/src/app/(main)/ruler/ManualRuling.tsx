@@ -38,7 +38,7 @@ const ManualRuling: React.FC = () => {
   const [isSending, setIsSending] = useState<boolean>(false);
   const { arbitrable, arbitrableSettings } = useRulerContext();
   const [tie, setTie] = useState(arbitrableSettings?.tied ?? false);
-  const [overriden, setOverriden] = useState(arbitrableSettings?.overidden ?? false);
+  const [overriden, setOverriden] = useState(arbitrableSettings?.overridden ?? false);
   const [ruling, setRuling] = useState(arbitrableSettings?.ruling);
   const [disputeId, setDisputeId] = useState<number>();
 
@@ -71,9 +71,10 @@ const ManualRuling: React.FC = () => {
 
   const handleRuling = useCallback(async () => {
     if (!publicClient) return;
-    setIsSending(true);
     if (arbitrableSettings?.rulingMode !== RULING_MODE.Manual) {
       if (!manualModeConfig) return;
+      setIsSending(true);
+
       wrapWithToast(async () => await changeToManualMode(manualModeConfig.request), publicClient)
         .then(async (res) => {
           if (res.status && executeConfig) {
@@ -82,6 +83,8 @@ const ManualRuling: React.FC = () => {
         })
         .finally(() => setIsSending(false));
     } else if (executeConfig) {
+      setIsSending(true);
+
       wrapWithToast(async () => await executeRuling(executeConfig.request), publicClient).finally(() =>
         setIsSending(false)
       );

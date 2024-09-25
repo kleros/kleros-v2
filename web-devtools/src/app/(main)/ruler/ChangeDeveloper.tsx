@@ -34,14 +34,11 @@ const StyledLabel = styled.label`
 
 const ChangeDeveloper: React.FC = () => {
   const { arbitrable, currentDeveloper, refetchData, isRulerOfArbitrable } = useRulerContext();
-  const [newDeveloper, setNewDeveloper] = useState<Address>("" as `0x${string}`);
+  const [newDeveloper, setNewDeveloper] = useState("");
   const [isChanging, setIsChanging] = useState(false);
   const publicClient = usePublicClient();
 
-  const isValid = useMemo(
-    () => !isUndefined(newDeveloper) && (newDeveloper === ("" as `0x${string}`) || isAddress(newDeveloper)),
-    [newDeveloper]
-  );
+  const isValid = useMemo(() => newDeveloper === "" || isAddress(newDeveloper), [newDeveloper]);
 
   const {
     data: changeRulerConfig,
@@ -49,9 +46,9 @@ const ChangeDeveloper: React.FC = () => {
     isError,
   } = useSimulateKlerosCoreRulerChangeRuler({
     query: {
-      enabled: !isUndefined(arbitrable) && !isUndefined(newDeveloper) && isRulerOfArbitrable,
+      enabled: !isUndefined(arbitrable) && !isUndefined(newDeveloper) && isRulerOfArbitrable && isAddress(newDeveloper),
     },
-    args: [(arbitrable ?? "") as Address, (newDeveloper ?? "") as Address],
+    args: [(arbitrable ?? "") as Address, newDeveloper as Address],
   });
 
   const { writeContractAsync: changeRuler } = useWriteKlerosCoreRulerChangeRuler();
@@ -71,7 +68,7 @@ const ChangeDeveloper: React.FC = () => {
         <StyledLabel>Current Developer : {currentDeveloper ?? "None"}</StyledLabel>
         <LabeledInput
           label="New Developer"
-          onChange={(e) => setNewDeveloper(e.target.value as Address)}
+          onChange={(e) => setNewDeveloper(e.target.value)}
           message={isValid ? "" : "Invalid Address"}
           variant={isValid ? "" : "error"}
         />
@@ -80,7 +77,7 @@ const ChangeDeveloper: React.FC = () => {
         text="Update"
         onClick={handleClick}
         isLoading={isLoading || isChanging}
-        disabled={isError || isLoading || isChanging || isUndefined(arbitrable) || !isRulerOfArbitrable}
+        disabled={isError || isLoading || isChanging || isUndefined(arbitrable) || !isRulerOfArbitrable || !isValid}
       />
     </Container>
   );

@@ -12,6 +12,7 @@ import {
   useSimulateKlerosCoreRulerChangeRulingModeToAutomaticRandom,
   useSimulateKlerosCoreRulerChangeRulingModeToManual,
   useWriteKlerosCoreRulerChangeRulingModeToAutomaticPreset,
+  useWriteKlerosCoreRulerChangeRulingModeToAutomaticRandom,
   useWriteKlerosCoreRulerChangeRulingModeToManual,
 } from "hooks/contracts/generated";
 import { isUndefined } from "utils/isUndefined";
@@ -58,7 +59,7 @@ const RulingModes: React.FC = () => {
     if (!isUndefined(rulingMode) || !arbitrableSettings) return;
 
     setRulingMode(arbitrableSettings.rulingMode);
-    setOverriden(arbitrableSettings.overidden);
+    setOverriden(arbitrableSettings.overridden);
     setRuling(arbitrableSettings.ruling);
     setTie(arbitrableSettings.tied);
   }, [rulingMode, arbitrableSettings]);
@@ -91,7 +92,7 @@ const RulingModes: React.FC = () => {
         (arbitrableSettings?.rulingMode !== RULING_MODE.AutomaticPreset ||
           arbitrableSettings?.ruling !== ruling ||
           arbitrableSettings?.tied !== tie ||
-          arbitrableSettings?.overidden !== overriden),
+          arbitrableSettings?.overridden !== overriden),
     },
     args: [arbitrable as `0x${string}`, BigInt(ruling), tie, overriden],
   });
@@ -112,7 +113,7 @@ const RulingModes: React.FC = () => {
     args: [arbitrable as `0x${string}`],
   });
   const { writeContractAsync: changeToAutomaticRandom, isPending: isChangingToAutomaticRandom } =
-    useWriteKlerosCoreRulerChangeRulingModeToManual();
+    useWriteKlerosCoreRulerChangeRulingModeToAutomaticRandom();
 
   const isDisabled = useMemo(() => {
     if (!arbitrable || !isRulerOfArbitrable) return true;
@@ -132,7 +133,7 @@ const RulingModes: React.FC = () => {
           (rulingMode === arbitrableSettings?.rulingMode &&
             arbitrableSettings?.ruling === ruling &&
             arbitrableSettings?.tied === tie &&
-            arbitrableSettings?.overidden === overriden)
+            arbitrableSettings?.overridden === overriden)
         );
       default:
         return (
