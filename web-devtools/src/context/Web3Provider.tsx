@@ -36,7 +36,7 @@ export const getTransports = () => {
 
 const chains = ALL_CHAINS as [Chain, ...Chain[]];
 const transports = getTransports();
-const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "";
+const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID ?? "";
 const wagmiConfig = createConfig({
   chains,
   transports,
