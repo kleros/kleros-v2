@@ -1,3 +1,4 @@
+"use client";
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -16,6 +17,7 @@ import {
 import { isUndefined } from "utils/isUndefined";
 import { wrapWithToast } from "utils/wrapWithToast";
 
+import { EnsureChain } from "components/EnsureChain";
 import LabeledInput from "components/LabeledInput";
 
 import Header from "./Header";
@@ -111,13 +113,14 @@ const ManualRuling: React.FC = () => {
           onChange={() => setOverriden((prev) => !prev)}
         />
       </SelectContainer>
-
-      <Button
-        text="Rule"
-        onClick={handleRuling}
-        isLoading={isLoadingExecuteConfig || isSending}
-        disabled={isDisabled || isError || isSending || isLoadingExecuteConfig}
-      />
+      <EnsureChain>
+        <Button
+          text="Rule"
+          onClick={handleRuling}
+          isLoading={isLoadingExecuteConfig || isSending}
+          disabled={isDisabled || isError || isSending || isLoadingExecuteConfig}
+        />
+      </EnsureChain>
     </Container>
   );
 };

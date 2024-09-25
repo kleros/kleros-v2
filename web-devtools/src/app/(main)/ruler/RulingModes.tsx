@@ -18,6 +18,7 @@ import {
 import { isUndefined } from "utils/isUndefined";
 import { wrapWithToast } from "utils/wrapWithToast";
 
+import { EnsureChain } from "components/EnsureChain";
 import LabeledInput from "components/LabeledInput";
 
 import Header from "./Header";
@@ -269,13 +270,14 @@ const RulingModes: React.FC = () => {
           />
         </AutomaticPresetInputsContainer>
       </SelectContainer>
-
-      <Button
-        text="Update"
-        onClick={handleUpdate}
-        isLoading={isLoading || isSending}
-        disabled={isDisabled || isSending}
-      />
+      <EnsureChain>
+        <Button
+          text="Update"
+          onClick={handleUpdate}
+          isLoading={isLoading || isSending}
+          disabled={isDisabled || isSending}
+        />
+      </EnsureChain>
     </Container>
   );
 };

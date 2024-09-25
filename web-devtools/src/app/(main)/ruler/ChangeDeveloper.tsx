@@ -11,6 +11,7 @@ import { useSimulateKlerosCoreRulerChangeRuler, useWriteKlerosCoreRulerChangeRul
 import { isUndefined } from "utils/isUndefined";
 import { wrapWithToast } from "utils/wrapWithToast";
 
+import { EnsureChain } from "components/EnsureChain";
 import LabeledInput from "components/LabeledInput";
 
 import Header from "./Header";
@@ -73,12 +74,14 @@ const ChangeDeveloper: React.FC = () => {
           variant={isValid ? "" : "error"}
         />
       </InputContainer>
-      <Button
-        text="Update"
-        onClick={handleClick}
-        isLoading={isLoading || isChanging}
-        disabled={!changeRulerConfig || isError || isLoading || isChanging || isUndefined(arbitrable) || !isValid}
-      />
+      <EnsureChain>
+        <Button
+          text="Update"
+          onClick={handleClick}
+          isLoading={isLoading || isChanging}
+          disabled={!changeRulerConfig || isError || isLoading || isChanging || isUndefined(arbitrable) || !isValid}
+        />
+      </EnsureChain>
     </Container>
   );
 };
