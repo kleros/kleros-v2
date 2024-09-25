@@ -21,7 +21,6 @@ interface IRulerContext {
   setArbitrable: (arbitrable: Address) => void;
   arbitrableSettings?: ArbitrableSettings;
   currentDeveloper?: Address;
-  isRulerOfArbitrable: boolean;
   refetchData: () => void;
 }
 const RulerContext = createContext<IRulerContext | undefined>(undefined);
@@ -62,8 +61,6 @@ const RulerContextProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     refetchDeveloper();
   }, [refetchArbitrableSettings, refetchDeveloper]);
 
-  const isRulerOfArbitrable = useMemo(() => address === currentDeveloper, [address, currentDeveloper]);
-
   return (
     <RulerContext.Provider
       value={useMemo(
@@ -73,9 +70,8 @@ const RulerContextProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           arbitrableSettings,
           currentDeveloper,
           refetchData,
-          isRulerOfArbitrable,
         }),
-        [arbitrable, setArbitrable, arbitrableSettings, currentDeveloper, refetchData, isRulerOfArbitrable]
+        [arbitrable, setArbitrable, arbitrableSettings, currentDeveloper, refetchData]
       )}
     >
       {children}

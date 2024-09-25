@@ -33,7 +33,7 @@ const StyledLabel = styled.label`
 `;
 
 const ChangeDeveloper: React.FC = () => {
-  const { arbitrable, currentDeveloper, refetchData, isRulerOfArbitrable } = useRulerContext();
+  const { arbitrable, currentDeveloper, refetchData } = useRulerContext();
   const [newDeveloper, setNewDeveloper] = useState("");
   const [isChanging, setIsChanging] = useState(false);
   const publicClient = usePublicClient();
@@ -46,7 +46,7 @@ const ChangeDeveloper: React.FC = () => {
     isError,
   } = useSimulateKlerosCoreRulerChangeRuler({
     query: {
-      enabled: !isUndefined(arbitrable) && !isUndefined(newDeveloper) && isRulerOfArbitrable && isAddress(newDeveloper),
+      enabled: !isUndefined(arbitrable) && !isUndefined(newDeveloper) && isAddress(newDeveloper),
     },
     args: [(arbitrable ?? "") as Address, newDeveloper as Address],
   });
@@ -77,7 +77,7 @@ const ChangeDeveloper: React.FC = () => {
         text="Update"
         onClick={handleClick}
         isLoading={isLoading || isChanging}
-        disabled={isError || isLoading || isChanging || isUndefined(arbitrable) || !isRulerOfArbitrable || !isValid}
+        disabled={!changeRulerConfig || isError || isLoading || isChanging || isUndefined(arbitrable) || !isValid}
       />
     </Container>
   );

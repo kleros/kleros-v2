@@ -45,7 +45,7 @@ const AutomaticPresetInputsContainer = styled.div`
 `;
 
 const RulingModes: React.FC = () => {
-  const { arbitrable, arbitrableSettings, isRulerOfArbitrable } = useRulerContext();
+  const { arbitrable, arbitrableSettings } = useRulerContext();
   const [rulingMode, setRulingMode] = useState<RULING_MODE>();
   const [tie, setTie] = useState(false);
   const [overriden, setOverriden] = useState(false);
@@ -116,7 +116,7 @@ const RulingModes: React.FC = () => {
     useWriteKlerosCoreRulerChangeRulingModeToAutomaticRandom();
 
   const isDisabled = useMemo(() => {
-    if (!arbitrable || !isRulerOfArbitrable) return true;
+    if (!arbitrable) return true;
     switch (rulingMode) {
       case RULING_MODE.Manual:
         return (
@@ -155,7 +155,6 @@ const RulingModes: React.FC = () => {
     isLoadingManualConfig,
     isLoadingAutomaticRandomConfig,
     isLoadingAutomaticPresetConfig,
-    isRulerOfArbitrable,
     arbitrableSettings,
     tie,
     overriden,

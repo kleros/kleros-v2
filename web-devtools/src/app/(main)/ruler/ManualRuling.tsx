@@ -116,7 +116,7 @@ const ManualRuling: React.FC = () => {
         text="Rule"
         onClick={handleRuling}
         isLoading={isLoadingExecuteConfig || isSending}
-        disabled={isDisabled || isError || isSending}
+        disabled={isDisabled || isError || isSending || isLoadingExecuteConfig}
       />
     </Container>
   );
