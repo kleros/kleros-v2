@@ -8001,6 +8001,7 @@ __metadata:
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
     react-markdown: "npm:^8.0.7"
+    react-toastify: "npm:^10.0.5"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.5.3"
     typewriter-effect: "npm:^2.21.0"
@@ -33787,6 +33788,18 @@ __metadata:
   bin:
     react-scripts: bin/react-scripts.js
   checksum: 1727f9b4606bedefd8e36c754b44181842ce81b9b6e961bcd21e8de44d5848fb5fa30790f4c45e5085f2365c7a37bff637fccc1b20096dc5cdd625d085fc117e
+  languageName: node
+  linkType: hard
+
+"react-toastify@npm:^10.0.5":
+  version: 10.0.5
+  resolution: "react-toastify@npm:10.0.5"
+  dependencies:
+    clsx: "npm:^2.1.0"
+  peerDependencies:
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 6630f4b6d6902d827efd5e66c09df693c7ab8abeeb6ef24d880080f47b636614ef9cc251dd5e6564d49fe2f6f25f720ce0f7ef72cd4b0cd58a65b7c4b8052fac
   languageName: node
   linkType: hard
 
