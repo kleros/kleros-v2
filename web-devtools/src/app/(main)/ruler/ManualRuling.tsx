@@ -1,7 +1,20 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { RULING_MODE } from "consts";
+import { usePublicClient } from "wagmi";
+
 import { Button } from "@kleros/ui-components-library";
+
+import { useRulerContext } from "context/RulerContext";
+import {
+  useSimulateKlerosCoreRulerChangeRulingModeToManual,
+  useSimulateKlerosCoreRulerExecuteRuling,
+  useWriteKlerosCoreRulerChangeRulingModeToManual,
+  useWriteKlerosCoreRulerExecuteRuling,
+} from "hooks/contracts/generated";
+import { isUndefined } from "utils/isUndefined";
+import { wrapWithToast } from "utils/wrapWithToast";
 
 import LabeledInput from "components/LabeledInput";
 
@@ -22,10 +35,58 @@ const SelectContainer = styled.div`
 `;
 
 const ManualRuling: React.FC = () => {
-  const [tie, setTie] = useState<boolean>(false);
-  const [overriden, setOverriden] = useState<boolean>(false);
+  const [isSending, setIsSending] = useState<boolean>(false);
+  const { arbitrable, arbitrableSettings } = useRulerContext();
+  const [tie, setTie] = useState(arbitrableSettings?.tied ?? false);
+  const [overriden, setOverriden] = useState(arbitrableSettings?.overidden ?? false);
+  const [ruling, setRuling] = useState(arbitrableSettings?.ruling);
   const [disputeId, setDisputeId] = useState<number>();
-  const [ruling, setRuling] = useState<number>();
+
+  const publicClient = usePublicClient();
+
+  const { data: manualModeConfig } = useSimulateKlerosCoreRulerChangeRulingModeToManual({
+    query: {
+      enabled: arbitrableSettings?.rulingMode !== RULING_MODE.Manual && !isUndefined(arbitrable),
+    },
+    args: [arbitrable as `0x${string}`],
+  });
+  const { writeContractAsync: changeToManualMode } = useWriteKlerosCoreRulerChangeRulingModeToManual();
+
+  const isDisabled = useMemo(() => {
+    return isUndefined(disputeId) || isUndefined(ruling) || isUndefined(arbitrable);
+  }, [disputeId, ruling, arbitrable]);
+
+  const {
+    data: executeConfig,
+    isLoading: isLoadingExecuteConfig,
+    isError,
+  } = useSimulateKlerosCoreRulerExecuteRuling({
+    query: {
+      enabled: arbitrableSettings?.rulingMode === RULING_MODE.Manual && !isUndefined(arbitrable) && !isDisabled,
+    },
+    args: [BigInt(disputeId ?? 0), BigInt(ruling ?? 0), tie, overriden],
+  });
+
+  const { writeContractAsync: executeRuling } = useWriteKlerosCoreRulerExecuteRuling();
+
+  const handleRuling = useCallback(async () => {
+    if (!publicClient) return;
+    setIsSending(true);
+    if (arbitrableSettings?.rulingMode !== RULING_MODE.Manual) {
+      if (!manualModeConfig) return;
+      wrapWithToast(async () => await changeToManualMode(manualModeConfig.request), publicClient)
+        .then(async (res) => {
+          if (res.status && executeConfig) {
+            wrapWithToast(async () => await executeRuling(executeConfig.request), publicClient);
+          }
+        })
+        .finally(() => setIsSending(false));
+    } else if (executeConfig) {
+      wrapWithToast(async () => await executeRuling(executeConfig.request), publicClient).finally(() =>
+        setIsSending(false)
+      );
+    }
+  }, [publicClient, executeConfig, manualModeConfig, arbitrableSettings, changeToManualMode, executeRuling]);
 
   return (
     <Container>
@@ -48,7 +109,12 @@ const ManualRuling: React.FC = () => {
         />
       </SelectContainer>
 
-      <Button text="Rule" />
+      <Button
+        text="Rule"
+        onClick={handleRuling}
+        isLoading={isLoadingExecuteConfig || isSending}
+        disabled={isDisabled || isError || isSending}
+      />
     </Container>
   );
 };

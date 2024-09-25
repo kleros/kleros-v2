@@ -8,5 +8,5 @@ export const RPC_ERROR = `RPC Error: Unable to fetch dispute data. Please avoid 
 export enum RULING_MODE {
   Manual,
   AutomaticPreset,
-  RandomPreset,
+  AutomaticRandom,
 }
