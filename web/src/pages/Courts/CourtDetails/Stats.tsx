@@ -1,14 +1,17 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import { useParams } from "react-router-dom";
 
 import EthereumIcon from "svgs/icons/ethereum.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
+import BalanceWithPNKIcon from "svgs/icons/law-balance-with-pnk.svg";
 import MinStake from "svgs/icons/min-stake.svg";
+import VotesPerPNKIcon from "svgs/icons/votes-per-pnk.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import VoteStake from "svgs/icons/vote-stake.svg";
+import RewardsPerPnk from "svgs/icons/rewards-per-pnk.svg";
 
 import { CoinIds } from "consts/coingecko";
 import { useCoinPrice } from "hooks/useCoinPrice";
@@ -23,6 +26,26 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
+// import { useHomePageBlockQuery } from "queries/useHomePageBlockQuery";
+import { useCourtAllTimeQuery } from "queries/useCourtAllTimeQuery";
+import { commify } from "utils/commify";
+
+function beautifyStatNumber(value: number): string {
+  const absValue = Math.abs(value);
+
+  if (absValue >= 1e9) {
+    return `${commify((value / 1e9).toFixed(1))}B`;
+  } else if (absValue >= 1e6) {
+    return `${commify((value / 1e6).toFixed(1))}M`;
+  } else if (absValue >= 1e3) {
+    return `${commify((value / 1e3).toFixed(1))}K`;
+  } else if (absValue < 1 && absValue !== 0) {
+    const inverseValue = 1 / absValue;
+    return `1 per ${commify(inverseValue.toFixed(0))}`;
+  }
+
+  return commify(value.toFixed(0));
+}
 
 const StyledCard = styled.div`
   width: auto;
@@ -116,26 +139,93 @@ const stats: IStat[] = [
   },
 ];
 
+interface IStats {
+  title: string;
+  coinId?: number;
+  getText: any; //(data: CourtDetailsQuery["court"]) => string;
+  getSubtext?: any; // (data: CourtDetailsQuery["court"], coinPrice?: number) => string;
+  color: IStatDisplay["color"];
+  icon: React.FC<React.SVGAttributes<SVGElement>>;
+}
+
+const timeframedStats: IStats[] = [
+  {
+    title: "ETH Rewards per PNK Staked",
+    getText: (data) => {
+      const treeExpectedRewardPerPnk = data?.treeExpectedRewardPerPnk;
+      return beautifyStatNumber(treeExpectedRewardPerPnk / 1e18);
+    },
+    color: "orange",
+    icon: RewardsPerPnk,
+  },
+  {
+    title: "Cases per PNK Staked",
+    getText: (data) => {
+      const treeDisputesPerPnk = data?.treeDisputesPerPnk;
+      return beautifyStatNumber(treeDisputesPerPnk);
+    },
+    color: "orange",
+    icon: BalanceWithPNKIcon,
+  },
+  {
+    title: "Votes per PNK Staked",
+    getText: (data) => {
+      const treeVotesPerPnk = data?.treeVotesPerPnk;
+      return beautifyStatNumber(treeVotesPerPnk);
+    },
+    color: "orange",
+    icon: VotesPerPNKIcon,
+  },
+];
+
 const Stats = () => {
   const { id } = useParams();
   const { data } = useCourtDetails(id);
+  const courtData = useCourtAllTimeQuery();
   const coinIds = [CoinIds.PNK, CoinIds.ETH];
   const { prices: pricesData } = useCoinPrice(coinIds);
 
+  const foundCourt = useMemo(() => {
+    if (courtData?.diffCourts) {
+      const foundCourt = courtData?.diffCourts.find((c) => c.id === id);
+      console.log({ foundCourt });
+      return foundCourt;
+    } else {
+      console.log("Court not found or diffCourts not available");
+      return undefined;
+    }
+  }, [courtData, id]);
+
   return (
-    <StyledCard>
-      {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
-        const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
-        return (
-          <StatDisplay
-            key={i}
-            {...{ title, color, icon }}
-            text={data ? getText(data.court) : <StyledSkeleton />}
-            subtext={calculateSubtextRender(data ? data.court : undefined, getSubtext, coinPrice)}
-          />
-        );
-      })}
-    </StyledCard>
+    <>
+      <StyledCard>
+        {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
+          const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
+          return (
+            <StatDisplay
+              key={i}
+              {...{ title, color, icon }}
+              text={data ? getText(data.court) : <StyledSkeleton />}
+              subtext={calculateSubtextRender(data?.court, getSubtext, coinPrice)}
+            />
+          );
+        })}
+      </StyledCard>
+      <hr />
+      <StyledCard>
+        {timeframedStats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
+          const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
+          return (
+            <StatDisplay
+              key={i}
+              {...{ title, color, icon }}
+              text={foundCourt ? getText(foundCourt) : <StyledSkeleton />}
+              subtext={calculateSubtextRender(foundCourt, getSubtext, coinPrice)}
+            />
+          );
+        })}
+      </StyledCard>
+    </>
   );
 };
 

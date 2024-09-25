@@ -27,8 +27,6 @@ const SVGContainer = styled.div<{ iconColor: string; backgroundColor: string }>`
   justify-content: center;
   svg {
     fill: ${({ iconColor }) => iconColor};
-    height: ${({ iconColor, theme }) => (iconColor === theme.success ? "24px" : "32px")};
-    width: ${({ iconColor, theme }) => (iconColor === theme.success ? "24px" : "32px")};
   }
 `;
 
