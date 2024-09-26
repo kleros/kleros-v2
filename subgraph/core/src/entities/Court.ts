@@ -3,6 +3,35 @@ import { CourtCreated } from "../../generated/KlerosCore/KlerosCore";
 import { Court } from "../../generated/schema";
 import { ZERO } from "../utils";
 
+// This function calculates the "effective" stake, which is the specific stake
+// of the current court + the specific stake of all of its children courts
+export function updateEffectiveStake(courtID: string): void {
+  let court = Court.load(courtID);
+  if (!court) return;
+
+  while (court) {
+    let totalStake = court.stake;
+
+    const childrenCourts = court.children.load();
+
+    for (let i = 0; i < childrenCourts.length; i++) {
+      const childCourt = Court.load(childrenCourts[i].id);
+      if (childCourt) {
+        totalStake = totalStake.plus(childCourt.effectiveStake);
+      }
+    }
+
+    court.effectiveStake = totalStake;
+    court.save();
+
+    if (court.parent && court.parent !== null) {
+      court = Court.load(court.parent as string);
+    } else {
+      break;
+    }
+  }
+}
+
 export function createCourtFromEvent(event: CourtCreated): void {
   const court = new Court(event.params._courtID.toString());
   court.hiddenVotes = event.params._hiddenVotes;
@@ -20,6 +49,7 @@ export function createCourtFromEvent(event: CourtCreated): void {
   court.numberVotes = ZERO;
   court.numberStakedJurors = ZERO;
   court.stake = ZERO;
+  court.effectiveStake = ZERO;
   court.delayedStake = ZERO;
   court.paidETH = ZERO;
   court.paidPNK = ZERO;

@@ -4,6 +4,7 @@ import { updateActiveJurors, getDelta, updateStakedPNK } from "../datapoint";
 import { ensureUser } from "./User";
 import { ONE, ZERO } from "../utils";
 import { SortitionModule } from "../../generated/SortitionModule/SortitionModule";
+import { updateEffectiveStake } from "./Court";
 
 export function ensureJurorTokensPerCourt(jurorAddress: string, courtID: string): JurorTokensPerCourt {
   const id = `${jurorAddress}-${courtID}`;
@@ -59,6 +60,7 @@ export function updateJurorStake(
   updateActiveJurors(activeJurorsDelta, timestamp);
   juror.save();
   court.save();
+  updateEffectiveStake(courtID);
 }
 
 export function updateJurorDelayedStake(jurorAddress: string, courtID: string, amount: BigInt): void {

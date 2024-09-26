@@ -18,7 +18,7 @@ const homePageBlockQuery = graphql(`
       numberDisputes
       numberVotes
       feeForJuror
-      stake
+      effectiveStake
     }
     pastCourts: courts(orderBy: id, orderDirection: asc, block: { number: $blockNumber }) {
       id
@@ -29,7 +29,7 @@ const homePageBlockQuery = graphql(`
       numberDisputes
       numberVotes
       feeForJuror
-      stake
+      effectiveStake
     }
   }
 `);
@@ -64,7 +64,7 @@ export const useHomePageBlockQuery = (blockNumber: number | null, allTime: boole
             treeNumberDisputes: c.numberDisputes,
             numberVotes: c.numberVotes,
             treeNumberVotes: c.numberVotes,
-            stake: c.stake,
+            effectiveStake: c.effectiveStake,
           }))
         : usedQuery.data.pastCourts.map((c, i) => ({
             ...c,
@@ -72,13 +72,12 @@ export const useHomePageBlockQuery = (blockNumber: number | null, allTime: boole
             treeNumberDisputes: usedQuery.data.presentCourts[i].numberDisputes - c.numberDisputes,
             numberVotes: usedQuery.data.presentCourts[i].numberVotes - c.numberVotes,
             treeNumberVotes: usedQuery.data.presentCourts[i].numberVotes - c.numberVotes,
-            stake: (BigInt(usedQuery.data.presentCourts[i].stake) + BigInt(c.stake)) / 2n,
+            effectiveStake: (BigInt(usedQuery.data.presentCourts[i].effectiveStake) + BigInt(c.effectiveStake)) / 2n,
           }));
       const mostDisputedCourt = diffCourts.sort((a, b) => b.numberDisputes - a.numberDisputes)[0];
       // 2. biggest chances of getting drawn
-      // fact a: getting drawn in a parent court also subjects you to its rewards
-      // fact b: staking in children, stakes in parents. but subgraph at this date doesn't reflect this
-      // so, stakes trickle up, rewards/disputes trickle down
+      // fact: getting drawn in a parent court also subjects you to its rewards
+      // so, rewards/disputes trickle down
 
       for (const parent of diffCourts) {
         for (const child of diffCourts) {
@@ -87,17 +86,8 @@ export const useHomePageBlockQuery = (blockNumber: number | null, allTime: boole
           }
         }
       }
-      diffCourts.reverse();
-      for (const child of diffCourts) {
-        for (const parent of diffCourts) {
-          if (parent.id === child.parent?.id) {
-            parent.stake = String(BigInt(parent.stake) + BigInt(child.stake));
-          }
-        }
-      }
-      diffCourts.reverse();
       for (const c of diffCourts) {
-        c.votesPerPnk = Number(c.numberVotes) / (Number(c.stake) / 1e18);
+        c.votesPerPnk = Number(c.numberVotes) / (Number(c.effectiveStake) / 1e18);
         c.treeVotesPerPnk = c.votesPerPnk;
       }
       for (const parent of diffCourts) {
@@ -128,7 +118,7 @@ export const useHomePageBlockQuery = (blockNumber: number | null, allTime: boole
         (a, b) => b.treeExpectedRewardPerPnk - a.treeExpectedRewardPerPnk
       )[0];
 
-      return { mostDisputedCourt, bestDrawingChancesCourt, bestExpectedRewardCourt };
+      return { mostDisputedCourt, bestDrawingChancesCourt, bestExpectedRewardCourt, diffCourts };
     } else {
       return undefined;
     }
