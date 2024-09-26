@@ -74,7 +74,7 @@ export const useHomePageBlockQuery = (blockNumber: number | null, allTime: boole
             treeNumberVotes: usedQuery.data.presentCourts[i].numberVotes - c.numberVotes,
             effectiveStake: (BigInt(usedQuery.data.presentCourts[i].effectiveStake) + BigInt(c.effectiveStake)) / 2n,
           }));
-      const mostDisputedCourt = diffCourts.sort((a, b) => b.numberDisputes - a.numberDisputes)[0];
+      const mostDisputedCourt = diffCourts.toSorted((a, b) => b.numberDisputes - a.numberDisputes)[0];
       // 2. biggest chances of getting drawn
       // fact: getting drawn in a parent court also subjects you to its rewards
       // so, rewards/disputes trickle down
@@ -97,7 +97,7 @@ export const useHomePageBlockQuery = (blockNumber: number | null, allTime: boole
           }
         }
       }
-      const bestDrawingChancesCourt = diffCourts.sort((a, b) => b.treeVotesPerPnk - a.treeVotesPerPnk)[0];
+      const bestDrawingChancesCourt = diffCourts.toSorted((a, b) => b.treeVotesPerPnk - a.treeVotesPerPnk)[0];
       // 3. expected reward
       // since we isolated the exclusive disputes from the cumulative disputes
       // we can calculate the "isolated reward" of every court
@@ -114,7 +114,7 @@ export const useHomePageBlockQuery = (blockNumber: number | null, allTime: boole
           }
         }
       }
-      const bestExpectedRewardCourt = diffCourts.sort(
+      const bestExpectedRewardCourt = diffCourts.toSorted(
         (a, b) => b.treeExpectedRewardPerPnk - a.treeExpectedRewardPerPnk
       )[0];
 
