@@ -1,10 +1,10 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { RULING_MODE } from "consts";
-import { Address } from "viem";
-import { useAccount } from "wagmi";
+import { Address, isAddress } from "viem";
 
 import { useReadKlerosCoreRulerRulers, useReadKlerosCoreRulerSettings } from "hooks/contracts/generated";
+import { useLocalStorage } from "hooks/useLocalStorage";
 import { isUndefined } from "utils/isUndefined";
 
 const REFETCH_INTERVAL = 5000;
@@ -22,13 +22,14 @@ interface IRulerContext {
   arbitrableSettings?: ArbitrableSettings;
   currentDeveloper?: Address;
   refetchData: () => void;
+  knownArbitrables: string[];
 }
 const RulerContext = createContext<IRulerContext | undefined>(undefined);
 
 const RulerContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [arbitrable, setArbitrable] = useState<Address>();
   const [arbitrableSettings, setArbitrableSettings] = useState<ArbitrableSettings>();
-  const { address } = useAccount();
+  const [knownArbitrables, setKnownArbitrables] = useLocalStorage<string[]>("knownArbitrables", []);
 
   const { data: currentDeveloper, refetch: refetchDeveloper } = useReadKlerosCoreRulerRulers({
     query: {
@@ -56,6 +57,13 @@ const RulerContextProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   }, [arbitrableSettingsData]);
 
+  useEffect(() => {
+    if (isUndefined(arbitrable) || !isAddress(arbitrable) || knownArbitrables.includes(arbitrable?.toLowerCase()))
+      return;
+
+    setKnownArbitrables([...knownArbitrables, arbitrable?.toLowerCase()]);
+  }, [arbitrable, knownArbitrables, setKnownArbitrables]);
+
   const refetchData = useCallback(() => {
     refetchArbitrableSettings();
     refetchDeveloper();
@@ -70,8 +78,9 @@ const RulerContextProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           arbitrableSettings,
           currentDeveloper,
           refetchData,
+          knownArbitrables,
         }),
-        [arbitrable, setArbitrable, arbitrableSettings, currentDeveloper, refetchData]
+        [arbitrable, setArbitrable, arbitrableSettings, currentDeveloper, refetchData, knownArbitrables]
       )}
     >
       {children}
