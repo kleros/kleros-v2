@@ -1,31 +1,60 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { Address } from "viem";
 
-import { DropdownSelect, Field } from "@kleros/ui-components-library";
+import { Copiable, DropdownSelect, Field } from "@kleros/ui-components-library";
 
 import { useRulerContext } from "context/RulerContext";
 import { shortenAddress } from "utils/shortenAddress";
+import { klerosCoreAddress } from "hooks/contracts/generated";
+import { DEFAULT_CHAIN } from "consts/chains";
+import { landscapeStyle } from "styles/landscapeStyle";
+
+const Container = styled.div`
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 16px;
+  align-items: center;
+  margin: 16px 0;
+  padding: 8px 16px;
+  border-radius: 3px;
+  background-color: ${({ theme }) => theme.klerosUIComponentsWhiteBackground};
+`;
+
+const AddressContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+`;
 
 const Arbitrables = styled.div`
-  width: 100%;
-  background-color: ${({ theme }) => theme.klerosUIComponentsWhiteBackground};
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: 8px;
-  margin: 16px 0;
-  padding: 8px 16px;
-  border-radius: 3px;
 `;
 const StyledLabel = styled.label``;
 
 const SelectContainer = styled.div`
   position: relative;
 `;
+
+const StyledField = styled(Field)`
+  width: auto;
+  ${landscapeStyle(
+    () => css`
+      min-width: 250px;
+    `
+  )}
+`;
+
 const StyledDropdown = styled(DropdownSelect)`
   position: absolute;
   z-index: 0;
@@ -74,20 +103,28 @@ const SelectArbitrable: React.FC = () => {
   }, [knownArbitrables, ref]);
 
   return (
-    <Arbitrables suppressHydrationWarning={true}>
-      <StyledLabel>Arbitrable:</StyledLabel>
-      <SelectContainer ref={ref}>
-        <StyledDropdown defaultValue={arbitrable} items={items} callback={(val) => setArbitrable(val as Address)} />
-        <Field
-          value={arbitrable}
-          placeholder="Enter Arbitrable"
-          onChange={(e) => {
-            setArbitrable(e.target.value as Address);
-          }}
-          onClick={openDropdown}
-        />
-      </SelectContainer>
-    </Arbitrables>
+    <Container>
+      <AddressContainer>
+        <StyledLabel>Ruler Address:</StyledLabel>
+        <Copiable copiableContent={klerosCoreAddress[DEFAULT_CHAIN]} info="Ruler Address">
+          <StyledLabel>{shortenAddress(klerosCoreAddress[DEFAULT_CHAIN])}</StyledLabel>
+        </Copiable>
+      </AddressContainer>
+      <Arbitrables suppressHydrationWarning={true}>
+        <StyledLabel>Arbitrable:</StyledLabel>
+        <SelectContainer ref={ref}>
+          <StyledDropdown defaultValue={arbitrable} items={items} callback={(val) => setArbitrable(val as Address)} />
+          <StyledField
+            value={arbitrable}
+            placeholder="Enter Arbitrable"
+            onChange={(e) => {
+              setArbitrable(e.target.value as Address);
+            }}
+            onClick={openDropdown}
+          />
+        </SelectContainer>
+      </Arbitrables>
+    </Container>
   );
 };
 
