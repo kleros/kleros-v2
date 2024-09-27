@@ -62,9 +62,12 @@ export const useHomePageBlockQuery = (blockNumber: number | null, allTime: boole
             numberVotes: presentCourt.numberVotes,
             treeNumberVotes: presentCourt.numberVotes,
             effectiveStake: presentCourt.effectiveStake,
+            votesPerPnk: Number(presentCourt.numberVotes) / (Number(presentCourt.effectiveStake) / 1e18),
+            treeVotesPerPnk: Number(presentCourt.numberVotes) / (Number(presentCourt.effectiveStake) / 1e18),
           }))
         : usedQuery.data.presentCourts.map((presentCourt) => {
             const pastCourt = usedQuery.data.pastCourts.find((pastCourt) => pastCourt.id === presentCourt.id);
+
             return {
               ...presentCourt,
               numberDisputes: pastCourt
@@ -78,6 +81,22 @@ export const useHomePageBlockQuery = (blockNumber: number | null, allTime: boole
               effectiveStake: pastCourt
                 ? (BigInt(presentCourt.effectiveStake) + BigInt(pastCourt.effectiveStake)) / 2n
                 : presentCourt.effectiveStake,
+              votesPerPnk:
+                Number(pastCourt ? presentCourt.numberVotes - pastCourt.numberVotes : presentCourt.numberVotes) /
+                (Number(
+                  pastCourt
+                    ? (BigInt(presentCourt.effectiveStake) + BigInt(pastCourt.effectiveStake)) / 2n
+                    : presentCourt.effectiveStake
+                ) /
+                  1e18),
+              treeVotesPerPnk:
+                Number(pastCourt ? presentCourt.numberVotes - pastCourt.numberVotes : presentCourt.numberVotes) /
+                (Number(
+                  pastCourt
+                    ? (BigInt(presentCourt.effectiveStake) + BigInt(pastCourt.effectiveStake)) / 2n
+                    : presentCourt.effectiveStake
+                ) /
+                  1e18),
             };
           });
 
@@ -93,10 +112,7 @@ export const useHomePageBlockQuery = (blockNumber: number | null, allTime: boole
           }
         }
       }
-      for (const c of diffCourts) {
-        c.votesPerPnk = Number(c.numberVotes) / (Number(c.effectiveStake) / 1e18);
-        c.treeVotesPerPnk = c.votesPerPnk;
-      }
+
       for (const parent of diffCourts) {
         for (const child of diffCourts) {
           if (parent.id === child.parent?.id) {
