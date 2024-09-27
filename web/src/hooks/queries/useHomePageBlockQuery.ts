@@ -18,7 +18,7 @@ const homePageBlockQuery = graphql(`
       numberDisputes
       numberVotes
       feeForJuror
-      stake
+      effectiveStake
     }
     pastCourts: courts(orderBy: id, orderDirection: asc, block: { number: $blockNumber }) {
       id
@@ -29,7 +29,7 @@ const homePageBlockQuery = graphql(`
       numberDisputes
       numberVotes
       feeForJuror
-      stake
+      effectiveStake
     }
   }
 `);
@@ -54,31 +54,78 @@ export const useHomePageBlockQuery = (blockNumber: number | null, allTime: boole
 
   const courtActivityStats = useMemo(() => {
     if (usedQuery.data && !usedQuery.isFetching) {
-      // 1. court with most disputes
-      // we only iterate through past courts, since more courts might exist at the present
-      // these diffCourts have: average stakes, and dispute diff
       const diffCourts = allTime
-        ? usedQuery.data.presentCourts.map((c) => ({
-            ...c,
-            numberDisputes: c.numberDisputes,
-            treeNumberDisputes: c.numberDisputes,
-            numberVotes: c.numberVotes,
-            treeNumberVotes: c.numberVotes,
-            stake: c.stake,
+        ? usedQuery.data.presentCourts.map((presentCourt) => ({
+            ...presentCourt,
+            numberDisputes: presentCourt.numberDisputes,
+            treeNumberDisputes: presentCourt.numberDisputes,
+            numberVotes: presentCourt.numberVotes,
+            treeNumberVotes: presentCourt.numberVotes,
+            effectiveStake: presentCourt.effectiveStake,
+            votesPerPnk: Number(presentCourt.numberVotes) / (Number(presentCourt.effectiveStake) / 1e18),
+            treeVotesPerPnk: Number(presentCourt.numberVotes) / (Number(presentCourt.effectiveStake) / 1e18),
+            disputesPerPnk: Number(presentCourt.numberDisputes) / (Number(presentCourt.effectiveStake) / 1e18),
+            treeDisputesPerPnk: Number(presentCourt.numberDisputes) / (Number(presentCourt.effectiveStake) / 1e18),
           }))
-        : usedQuery.data.pastCourts.map((c, i) => ({
-            ...c,
-            numberDisputes: usedQuery.data.presentCourts[i].numberDisputes - c.numberDisputes,
-            treeNumberDisputes: usedQuery.data.presentCourts[i].numberDisputes - c.numberDisputes,
-            numberVotes: usedQuery.data.presentCourts[i].numberVotes - c.numberVotes,
-            treeNumberVotes: usedQuery.data.presentCourts[i].numberVotes - c.numberVotes,
-            stake: (BigInt(usedQuery.data.presentCourts[i].stake) + BigInt(c.stake)) / 2n,
-          }));
-      const mostDisputedCourt = diffCourts.sort((a, b) => b.numberDisputes - a.numberDisputes)[0];
-      // 2. biggest chances of getting drawn
-      // fact a: getting drawn in a parent court also subjects you to its rewards
-      // fact b: staking in children, stakes in parents. but subgraph at this date doesn't reflect this
-      // so, stakes trickle up, rewards/disputes trickle down
+        : usedQuery.data.presentCourts.map((presentCourt) => {
+            const pastCourt = usedQuery.data.pastCourts.find((pastCourt) => pastCourt.id === presentCourt.id);
+
+            return {
+              ...presentCourt,
+              numberDisputes: pastCourt
+                ? presentCourt.numberDisputes - pastCourt.numberDisputes
+                : presentCourt.numberDisputes,
+              treeNumberDisputes: pastCourt
+                ? presentCourt.numberDisputes - pastCourt.numberDisputes
+                : presentCourt.numberDisputes,
+              numberVotes: pastCourt ? presentCourt.numberVotes - pastCourt.numberVotes : presentCourt.numberVotes,
+              treeNumberVotes: pastCourt ? presentCourt.numberVotes - pastCourt.numberVotes : presentCourt.numberVotes,
+              effectiveStake: pastCourt
+                ? (BigInt(presentCourt.effectiveStake) + BigInt(pastCourt.effectiveStake)) / 2n
+                : presentCourt.effectiveStake,
+              votesPerPnk:
+                Number(pastCourt ? presentCourt.numberVotes - pastCourt.numberVotes : presentCourt.numberVotes) /
+                (Number(
+                  pastCourt
+                    ? (BigInt(presentCourt.effectiveStake) + BigInt(pastCourt.effectiveStake)) / 2n
+                    : presentCourt.effectiveStake
+                ) /
+                  1e18),
+              treeVotesPerPnk:
+                Number(pastCourt ? presentCourt.numberVotes - pastCourt.numberVotes : presentCourt.numberVotes) /
+                (Number(
+                  pastCourt
+                    ? (BigInt(presentCourt.effectiveStake) + BigInt(pastCourt.effectiveStake)) / 2n
+                    : presentCourt.effectiveStake
+                ) /
+                  1e18),
+              disputesPerPnk:
+                Number(
+                  pastCourt ? presentCourt.numberDisputes - pastCourt.numberDisputes : presentCourt.numberDisputes
+                ) /
+                (Number(
+                  pastCourt
+                    ? (BigInt(presentCourt.effectiveStake) + BigInt(pastCourt.effectiveStake)) / 2n
+                    : presentCourt.effectiveStake
+                ) /
+                  1e18),
+              treeDisputesPerPnk:
+                Number(
+                  pastCourt ? presentCourt.numberDisputes - pastCourt.numberDisputes : presentCourt.numberDisputes
+                ) /
+                (Number(
+                  pastCourt
+                    ? (BigInt(presentCourt.effectiveStake) + BigInt(pastCourt.effectiveStake)) / 2n
+                    : presentCourt.effectiveStake
+                ) /
+                  1e18),
+            };
+          });
+
+      const mostDisputedCourt = diffCourts.toSorted((a, b) => b.numberDisputes - a.numberDisputes)[0];
+      // 1. biggest chances of getting drawn
+      // fact: getting drawn in a parent court also subjects you to its rewards
+      // so, rewards/disputes trickle down
 
       for (const parent of diffCourts) {
         for (const child of diffCourts) {
@@ -88,21 +135,7 @@ export const useHomePageBlockQuery = (blockNumber: number | null, allTime: boole
           }
         }
       }
-      diffCourts.reverse();
-      for (const child of diffCourts) {
-        for (const parent of diffCourts) {
-          if (parent.id === child.parent?.id) {
-            parent.stake = String(BigInt(parent.stake) + BigInt(child.stake));
-          }
-        }
-      }
-      diffCourts.reverse();
-      for (const c of diffCourts) {
-        c.votesPerPnk = Number(c.numberVotes) / (Number(c.stake) / 1e18);
-        c.treeVotesPerPnk = c.votesPerPnk;
-        c.disputesPerPnk = Number(c.numberDisputes) / (Number(c.stake) / 1e18);
-        c.treeDisputesPerPnk = c.disputesPerPnk;
-      }
+
       for (const parent of diffCourts) {
         for (const child of diffCourts) {
           if (parent.id === child.parent?.id) {
@@ -111,8 +144,8 @@ export const useHomePageBlockQuery = (blockNumber: number | null, allTime: boole
           }
         }
       }
-      const bestDrawingChancesCourt = diffCourts.sort((a, b) => b.treeVotesPerPnk - a.treeVotesPerPnk)[0];
-      // 3. expected reward
+      const bestDrawingChancesCourt = diffCourts.toSorted((a, b) => b.treeVotesPerPnk - a.treeVotesPerPnk)[0];
+      // 2. expected reward
       // since we isolated the exclusive disputes from the cumulative disputes
       // we can calculate the "isolated reward" of every court
       // after that's done, then just trickle the rewards down
@@ -128,11 +161,11 @@ export const useHomePageBlockQuery = (blockNumber: number | null, allTime: boole
           }
         }
       }
-      const bestExpectedRewardCourt = diffCourts.sort(
+      const bestExpectedRewardCourt = diffCourts.toSorted(
         (a, b) => b.treeExpectedRewardPerPnk - a.treeExpectedRewardPerPnk
       )[0];
 
-      return { mostDisputedCourt, bestDrawingChancesCourt, bestExpectedRewardCourt };
+      return { mostDisputedCourt, bestDrawingChancesCourt, bestExpectedRewardCourt, diffCourts };
     } else {
       return undefined;
     }

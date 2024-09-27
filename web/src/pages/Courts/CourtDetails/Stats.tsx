@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 
 import { useParams } from "react-router-dom";
@@ -12,6 +12,7 @@ import PNKIcon from "svgs/icons/pnk.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import VoteStake from "svgs/icons/vote-stake.svg";
 import RewardsPerPnk from "svgs/icons/rewards-per-pnk.svg";
+import ChartIcon from "svgs/icons/chart.svg";
 
 import { CoinIds } from "consts/coingecko";
 import { useCoinPrice } from "hooks/useCoinPrice";
@@ -27,25 +28,53 @@ import { responsiveSize } from "styles/responsiveSize";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
 // import { useHomePageBlockQuery } from "queries/useHomePageBlockQuery";
-import { useCourtAllTimeQuery } from "queries/useCourtAllTimeQuery";
 import { commify } from "utils/commify";
+import { DropdownSelect } from "@kleros/ui-components-library";
+import { useHomePageExtraStats } from "queries/useHomePageExtraStats";
 
 function beautifyStatNumber(value: number): string {
   const absValue = Math.abs(value);
 
   if (absValue >= 1e9) {
-    return `${commify((value / 1e9).toFixed(1))}B`;
+    return `${commify((value / 1e9).toFixed(2))}B`;
   } else if (absValue >= 1e6) {
-    return `${commify((value / 1e6).toFixed(1))}M`;
+    return `${commify((value / 1e6).toFixed(2))}M`;
   } else if (absValue >= 1e3) {
-    return `${commify((value / 1e3).toFixed(1))}K`;
+    return `${commify((value / 1e3).toFixed(0))}K`;
   } else if (absValue < 1 && absValue !== 0) {
     const inverseValue = 1 / absValue;
-    return `1 per ${commify(inverseValue.toFixed(0))}`;
+    return commify(inverseValue.toFixed(0));
   }
 
   return commify(value.toFixed(0));
 }
+
+const TimeDisplayContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+`;
+
+const AllTimeContainer = styled(TimeDisplayContainer)`
+  padding-top: ${responsiveSize(12, 20)};
+`;
+
+const TimeSelectorContainer = styled(TimeDisplayContainer)`
+  padding-top: 12px;
+`;
+
+const StyledAllTimeText = styled.p`
+  color: ${({ theme }) => theme.secondaryText};
+  margin: 0;
+  font-size: 14px;
+`;
+
+const StyledChartIcon = styled(ChartIcon)`
+  path {
+    fill: ${({ theme }) => theme.primaryText};
+  }
+`;
 
 const StyledCard = styled.div`
   width: auto;
@@ -53,8 +82,8 @@ const StyledCard = styled.div`
   display: grid;
   gap: 32px;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  padding: ${responsiveSize(0, 32)} 0;
-  padding-bottom: 0px;
+  padding-top: ${responsiveSize(28, 32)};
+  padding-bottom: ${responsiveSize(20, 0)};
 
   ${landscapeStyle(
     () => css`
@@ -150,7 +179,7 @@ interface IStats {
 
 const timeframedStats: IStats[] = [
   {
-    title: "ETH Rewards per PNK Staked",
+    title: "PNK for 1 ETH",
     getText: (data) => {
       const treeExpectedRewardPerPnk = data?.treeExpectedRewardPerPnk;
       return beautifyStatNumber(treeExpectedRewardPerPnk / 1e18);
@@ -159,16 +188,7 @@ const timeframedStats: IStats[] = [
     icon: RewardsPerPnk,
   },
   {
-    title: "Cases per PNK Staked",
-    getText: (data) => {
-      const treeDisputesPerPnk = data?.treeDisputesPerPnk;
-      return beautifyStatNumber(treeDisputesPerPnk);
-    },
-    color: "orange",
-    icon: BalanceWithPNKIcon,
-  },
-  {
-    title: "Votes per PNK Staked",
+    title: "PNK for 1 Vote",
     getText: (data) => {
       const treeVotesPerPnk = data?.treeVotesPerPnk;
       return beautifyStatNumber(treeVotesPerPnk);
@@ -176,28 +196,57 @@ const timeframedStats: IStats[] = [
     color: "orange",
     icon: VotesPerPNKIcon,
   },
+  {
+    title: "PNK for 1 Case",
+    getText: (data) => {
+      const treeDisputesPerPnk = data?.treeDisputesPerPnk;
+      return beautifyStatNumber(treeDisputesPerPnk);
+    },
+    color: "orange",
+    icon: BalanceWithPNKIcon,
+  },
+];
+
+const timeRanges = [
+  { value: 7, text: "Last 7 days" },
+  { value: 30, text: "Last 30 days" },
+  { value: 90, text: "Last 90 days" },
+  /* we can uncomment as court creation time increases,
+  but it's a bit tricky because this affects every court */
+  // { value: 180, text: "Last 180 days" },
+  // { value: 365, text: "Last 365 days" },
+  { value: "allTime", text: "All Time" },
 ];
 
 const Stats = () => {
   const { id } = useParams();
   const { data } = useCourtDetails(id);
-  const courtData = useCourtAllTimeQuery();
+  const [selectedRange, setSelectedRange] = useState(timeRanges[0].value);
+  const timeframedCourtData = useHomePageExtraStats(selectedRange);
   const coinIds = [CoinIds.PNK, CoinIds.ETH];
   const { prices: pricesData } = useCoinPrice(coinIds);
 
   const foundCourt = useMemo(() => {
-    if (courtData?.diffCourts) {
-      const foundCourt = courtData?.diffCourts.find((c) => c.id === id);
+    if (timeframedCourtData?.diffCourts) {
+      const foundCourt = timeframedCourtData?.diffCourts.find((c) => c.id === id);
       console.log({ foundCourt });
       return foundCourt;
     } else {
       console.log("Court not found or diffCourts not available");
       return undefined;
     }
-  }, [courtData, id]);
+  }, [timeframedCourtData, id]);
+
+  const handleTimeRangeChange = (value: string | number) => {
+    setSelectedRange(value);
+  };
 
   return (
     <>
+      <AllTimeContainer>
+        <StyledChartIcon />
+        <StyledAllTimeText>All time</StyledAllTimeText>
+      </AllTimeContainer>
       <StyledCard>
         {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
           const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
@@ -211,16 +260,29 @@ const Stats = () => {
           );
         })}
       </StyledCard>
-      <hr />
+      <TimeSelectorContainer>
+        <StyledChartIcon />
+        <StyledAllTimeText>
+          <DropdownSelect
+            smallButton
+            simpleButton
+            items={timeRanges.map((range) => ({
+              value: range.value,
+              text: range.text,
+            }))}
+            defaultValue={selectedRange}
+            callback={handleTimeRangeChange}
+          />
+        </StyledAllTimeText>
+      </TimeSelectorContainer>
       <StyledCard>
-        {timeframedStats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
-          const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
+        {timeframedStats.map(({ title, getText, getSubtext, color, icon }, i) => {
           return (
             <StatDisplay
               key={i}
               {...{ title, color, icon }}
               text={foundCourt ? getText(foundCourt) : <StyledSkeleton />}
-              subtext={calculateSubtextRender(foundCourt, getSubtext, coinPrice)}
+              subtext={calculateSubtextRender(foundCourt, getSubtext)}
             />
           );
         })}
