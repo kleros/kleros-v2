@@ -240,7 +240,6 @@ const RulingModes: React.FC = () => {
         <Radio
           small
           label="Automatic Preset"
-          defaultChecked={arbitrableSettings?.rulingMode === RULING_MODE.AutomaticRandom}
           checked={rulingMode === RULING_MODE.AutomaticPreset}
           onChange={() => {
             setRulingMode(RULING_MODE.AutomaticPreset);
