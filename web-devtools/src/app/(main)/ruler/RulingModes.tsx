@@ -222,7 +222,6 @@ const RulingModes: React.FC = () => {
         <Radio
           small
           label="Manual"
-          defaultChecked={true}
           checked={rulingMode === RULING_MODE.Manual}
           onChange={() => {
             setRulingMode(RULING_MODE.Manual);
