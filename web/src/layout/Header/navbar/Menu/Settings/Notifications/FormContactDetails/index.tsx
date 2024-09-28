@@ -38,7 +38,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const [emailInput, setEmailInput] = useState<string>("");
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
   const { address } = useAccount();
-  const { user, isAddingUser, isFetchingUser, addUser, updateUser, isUpdatingUser, userExists } = useAtlasProvider();
+  const { user, isAddingUser, isFetchingUser, addUser, updateEmail, isUpdatingUser, userExists } = useAtlasProvider();
 
   const isEditingEmail = useMemo(() => {
     return user?.email !== emailInput;
@@ -56,13 +56,12 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
       throw new Error("Missing address");
     }
 
-    const data = {
-      email: emailInput,
-    };
-
-    // if user exists then update
+    // if user exists then update email
     if (userExists) {
-      updateUser(data)
+      const data = {
+        newEmail: emailInput,
+      };
+      updateEmail(data)
         .then(async (res) => {
           if (res) {
             toggleIsSettingsOpen();
@@ -70,6 +69,9 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
         })
         .catch((err) => console.log(err));
     } else {
+      const data = {
+        email: emailInput,
+      };
       addUser(data)
         .then(async (res) => {
           if (res) {
