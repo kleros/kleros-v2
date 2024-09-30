@@ -77,6 +77,15 @@ const StyledBreadcrumb = styled(Breadcrumb)`
   }
 `;
 
+const Divider = styled.hr`
+  width: 100%;
+  display: flex;
+  border: none;
+  height: 1px;
+  background-color: ${({ theme }) => theme.stroke};
+  margin: 0;
+`;
+
 const CourtDetails: React.FC = () => {
   const { id } = useParams();
   const { data: policy } = useCourtPolicy(id);
@@ -110,9 +119,8 @@ const CourtDetails: React.FC = () => {
             {!isProductionDeployment() && <ClaimPnkButton />}
           </ButtonContainer>
         </CourtHeader>
-        <hr />
         <Stats />
-        <hr />
+        <Divider />
         <StakePanel id={!isUndefined(id) ? id : ""} courtName={policy?.name} />
       </StyledCard>
       <StyledCard>

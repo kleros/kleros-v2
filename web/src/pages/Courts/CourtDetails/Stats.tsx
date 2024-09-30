@@ -27,10 +27,27 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
-// import { useHomePageBlockQuery } from "queries/useHomePageBlockQuery";
 import { commify } from "utils/commify";
-import { DropdownSelect } from "@kleros/ui-components-library";
+import { CustomAccordion, DropdownSelect } from "@kleros/ui-components-library";
 import { useHomePageExtraStats } from "queries/useHomePageExtraStats";
+
+const StyledAccordion = styled(CustomAccordion)`
+  width: 100%;
+  margin-bottom: 12px;
+  > * > button {
+    justify-content: unset;
+    background-color: ${({ theme }) => theme.whiteBackground} !important;
+    border: 1px solid ${({ theme }) => theme.stroke} !important;
+    color: ${({ theme }) => theme.primaryText} !important;
+    > svg {
+      fill: ${({ theme }) => theme.primaryText} !important;
+    }
+  }
+  //adds padding to body container
+  > * > div > div {
+    padding: 0;
+  }
+`;
 
 function beautifyStatNumber(value: number): string {
   const absValue = Math.abs(value);
@@ -242,52 +259,61 @@ const Stats = () => {
   };
 
   return (
-    <>
-      <AllTimeContainer>
-        <StyledChartIcon />
-        <StyledAllTimeText>All time</StyledAllTimeText>
-      </AllTimeContainer>
-      <StyledCard>
-        {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
-          const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
-          return (
-            <StatDisplay
-              key={i}
-              {...{ title, color, icon }}
-              text={data ? getText(data.court) : <StyledSkeleton />}
-              subtext={calculateSubtextRender(data?.court, getSubtext, coinPrice)}
-            />
-          );
-        })}
-      </StyledCard>
-      <TimeSelectorContainer>
-        <StyledChartIcon />
-        <StyledAllTimeText>
-          <DropdownSelect
-            smallButton
-            simpleButton
-            items={timeRanges.map((range) => ({
-              value: range.value,
-              text: range.text,
-            }))}
-            defaultValue={selectedRange}
-            callback={handleTimeRangeChange}
-          />
-        </StyledAllTimeText>
-      </TimeSelectorContainer>
-      <StyledCard>
-        {timeframedStats.map(({ title, getText, getSubtext, color, icon }, i) => {
-          return (
-            <StatDisplay
-              key={i}
-              {...{ title, color, icon }}
-              text={foundCourt ? getText(foundCourt) : <StyledSkeleton />}
-              subtext={calculateSubtextRender(foundCourt, getSubtext)}
-            />
-          );
-        })}
-      </StyledCard>
-    </>
+    <StyledAccordion
+      items={[
+        {
+          title: "Statistics",
+          body: (
+            <>
+              <AllTimeContainer>
+                <StyledChartIcon />
+                <StyledAllTimeText>All time</StyledAllTimeText>
+              </AllTimeContainer>
+              <StyledCard>
+                {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
+                  const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
+                  return (
+                    <StatDisplay
+                      key={i}
+                      {...{ title, color, icon }}
+                      text={data ? getText(data.court) : <StyledSkeleton />}
+                      subtext={calculateSubtextRender(data?.court, getSubtext, coinPrice)}
+                    />
+                  );
+                })}
+              </StyledCard>
+              <TimeSelectorContainer>
+                <StyledChartIcon />
+                <StyledAllTimeText>
+                  <DropdownSelect
+                    smallButton
+                    simpleButton
+                    items={timeRanges.map((range) => ({
+                      value: range.value,
+                      text: range.text,
+                    }))}
+                    defaultValue={selectedRange}
+                    callback={handleTimeRangeChange}
+                  />
+                </StyledAllTimeText>
+              </TimeSelectorContainer>
+              <StyledCard>
+                {timeframedStats.map(({ title, getText, getSubtext, color, icon }, i) => {
+                  return (
+                    <StatDisplay
+                      key={i}
+                      {...{ title, color, icon }}
+                      text={foundCourt ? getText(foundCourt) : <StyledSkeleton />}
+                      subtext={calculateSubtextRender(foundCourt, getSubtext)}
+                    />
+                  );
+                })}
+              </StyledCard>
+            </>
+          ),
+        },
+      ]}
+    ></StyledAccordion>
   );
 };
 
