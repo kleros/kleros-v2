@@ -42,9 +42,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const { address } = useAccount();
   const { user, isAddingUser, isFetchingUser, addUser, updateEmail, isUpdatingUser, userExists } = useAtlasProvider();
 
-  const isEditingEmail = useMemo(() => {
-    return user?.email !== emailInput;
-  }, [user, emailInput]);
+  const isEditingEmail = user?.email !== emailInput;
 
   useEffect(() => {
     if (!user || !userExists) return;
