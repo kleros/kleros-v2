@@ -17,6 +17,7 @@ const Courts = lazy(() => import("./pages/Courts"));
 const DisputeTemplateView = lazy(() => import("./pages/DisputeTemplateView"));
 const DisputeResolver = lazy(() => import("./pages/Resolver"));
 const GetPnk = lazy(() => import("./pages/GetPnk"));
+const Settings = lazy(() => import("./pages/Settings"));
 import Web3Provider from "context/Web3Provider";
 
 import Loader from "components/Loader";
@@ -88,6 +89,14 @@ const App: React.FC = () => {
                         element={
                           <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
                             <GetPnk />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="settings/*"
+                        element={
+                          <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                            <Settings />
                           </Suspense>
                         }
                       />

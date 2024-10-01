@@ -13,9 +13,11 @@ import {
   addUser as addUserToAtlas,
   fetchUser,
   updateEmail as updateEmailInAtlas,
+  confirmEmail as confirmEmailInAtlas,
   type User,
   type AddUserData,
-  UpdateEmailData,
+  type UpdateEmailData,
+  type ConfirmEmailData,
 } from "utils/atlas";
 
 import { isUndefined } from "src/utils";
@@ -31,6 +33,10 @@ interface IAtlasProvider {
   authoriseUser: () => void;
   addUser: (userSettings: AddUserData) => Promise<boolean>;
   updateEmail: (userSettings: UpdateEmailData) => Promise<boolean>;
+  confirmEmail: (userSettings: ConfirmEmailData) => Promise<{
+    confirmed: boolean;
+    isError: boolean;
+  }>;
 }
 
 const Context = createContext<IAtlasProvider | undefined>(undefined);
@@ -200,6 +206,28 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
     [address, isVerified, setIsUpdatingUser, atlasGqlClient, refetchUser]
   );
 
+  /**
+   * @description confirms user email in atlas
+   * @param {ConfirmEmailData} userSettings - object containing data to be sent
+   * @returns {Promise<boolean>} A promise that resolves to true if email was confirmed successfully
+   */
+  const confirmEmail = useCallback(
+    async (userSettings: ConfirmEmailData) => {
+      try {
+        setIsUpdatingUser(true);
+
+        const emailConfirmed = await confirmEmailInAtlas(atlasGqlClient, userSettings);
+
+        return { confirmed: emailConfirmed, isError: false };
+      } catch (err: any) {
+        // eslint-disable-next-line
+        console.log("Confirm Email Error : ", err?.message);
+        return { confirmed: false, isError: true };
+      }
+    },
+    [atlasGqlClient]
+  );
+
   return (
     <Context.Provider
       value={useMemo(
@@ -214,6 +242,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
           updateEmail,
           isUpdatingUser,
           userExists,
+          confirmEmail,
         }),
         [
           isVerified,
@@ -226,6 +255,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
           updateEmail,
           isUpdatingUser,
           userExists,
+          confirmEmail,
         ]
       )}
     >
