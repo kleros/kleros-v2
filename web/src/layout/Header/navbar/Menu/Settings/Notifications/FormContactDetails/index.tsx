@@ -1,12 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
-import { Link } from "react-router-dom";
 import { useAccount } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
-
-import CloseIcon from "svgs/icons/close-circle.svg";
 
 import { EMAIL_REGEX } from "consts/index";
 import { useAtlasProvider } from "context/AtlasProvider";
@@ -15,6 +12,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import { ISettings } from "../../../../index";
 
+import EmailVerificationInfo from "./EmailVerificationInfo";
 import FormContact from "./FormContact";
 
 const FormContainer = styled.form`
@@ -36,20 +34,6 @@ const FormContactContainer = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: 8px;
-`;
-
-const VerifyContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const VerifyLabel = styled.label``;
-
-const StyledCloseIcon = styled(CloseIcon)`
-  path {
-    fill: ${({ theme }) => theme.error};
-  }
 `;
 
 const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
@@ -99,6 +83,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
         .catch((err) => console.log(err));
     }
   };
+
   return (
     <FormContainer onSubmit={handleSubmit}>
       {/* <FormContactContainer>
@@ -125,18 +110,14 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           isEditing={isEditingEmail}
         />
       </FormContactContainer>
-      {userExists && !user?.isEmailVerified ? (
-        <VerifyContainer>
-          {/* TODO: add functionality to verfiy */}
-          <StyledCloseIcon /> <VerifyLabel>Email not verified.</VerifyLabel> <Link to={"/"}>Verify Now.</Link>
-        </VerifyContainer>
-      ) : null}
+
       <ButtonContainer>
         <Button
           text="Save"
           disabled={!isEditingEmail || !emailIsValid || isAddingUser || isFetchingUser || isUpdatingUser}
         />
       </ButtonContainer>
+      <EmailVerificationInfo />
     </FormContainer>
   );
 };
