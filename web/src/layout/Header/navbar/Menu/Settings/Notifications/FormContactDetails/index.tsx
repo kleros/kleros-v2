@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { Link } from "react-router-dom";
 import { useAccount } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
+
+import CloseIcon from "svgs/icons/close-circle.svg";
 
 import { EMAIL_REGEX } from "consts/index";
 import { useAtlasProvider } from "context/AtlasProvider";
@@ -21,6 +24,7 @@ const FormContainer = styled.form`
   flex-direction: column;
   padding: 0 ${responsiveSize(12, 32, 300)};
   padding-bottom: 16px;
+  gap: 16px;
 `;
 
 const ButtonContainer = styled.div`
@@ -31,7 +35,21 @@ const ButtonContainer = styled.div`
 const FormContactContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
+`;
+
+const VerifyContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const VerifyLabel = styled.label``;
+
+const StyledCloseIcon = styled(CloseIcon)`
+  path {
+    fill: ${({ theme }) => theme.error};
+  }
 `;
 
 const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
@@ -107,7 +125,12 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           isEditing={isEditingEmail}
         />
       </FormContactContainer>
-
+      {userExists && !user?.isEmailVerified ? (
+        <VerifyContainer>
+          {/* TODO: add functionality to verfiy */}
+          <StyledCloseIcon /> <VerifyLabel>Email not verified.</VerifyLabel> <Link to={"/"}>Verify Now.</Link>
+        </VerifyContainer>
+      ) : null}
       <ButtonContainer>
         <Button
           text="Save"

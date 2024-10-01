@@ -6,17 +6,20 @@ import { OPTIONS } from "utils/wrapWithToast";
 type GetUserResponse = {
   user: {
     email: string;
+    isEmailVerified: string;
   };
 };
 
 export type User = {
   email: string;
+  isEmailVerified: string;
 };
 
 const query = gql`
   query GetUser {
     user {
       email
+      isEmailVerified
     }
   }
 `;
