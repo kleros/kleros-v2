@@ -117,7 +117,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           disabled={!isEditingEmail || !emailIsValid || isAddingUser || isFetchingUser || isUpdatingUser}
         />
       </ButtonContainer>
-      <EmailVerificationInfo />
+      <EmailVerificationInfo toggleIsSettingsOpen={toggleIsSettingsOpen} />
     </FormContainer>
   );
 };
