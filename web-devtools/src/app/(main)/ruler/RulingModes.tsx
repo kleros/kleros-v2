@@ -244,29 +244,31 @@ const RulingModes: React.FC = () => {
             setRulingMode(RULING_MODE.AutomaticPreset);
           }}
         />
-        <AutomaticPresetInputsContainer>
-          <LabeledInput
-            label="Ruling"
-            type="number"
-            value={ruling}
-            onChange={(e) => setRuling(Number(e.target.value))}
-            disabled={rulingMode !== RULING_MODE.AutomaticPreset}
-          />
-          <LabeledInput
-            label="Tie"
-            inputType="checkbox"
-            checked={tie}
-            onChange={() => setTie((prev) => !prev)}
-            disabled={rulingMode !== RULING_MODE.AutomaticPreset}
-          />
-          <LabeledInput
-            label="Overidden"
-            inputType="checkbox"
-            checked={overriden}
-            onChange={() => setOverriden((prev) => !prev)}
-            disabled={rulingMode !== RULING_MODE.AutomaticPreset}
-          />
-        </AutomaticPresetInputsContainer>
+        {rulingMode === RULING_MODE.AutomaticPreset && (
+          <AutomaticPresetInputsContainer>
+            <LabeledInput
+              label="Ruling"
+              type="number"
+              value={ruling}
+              onChange={(e) => setRuling(Number(e.target.value))}
+              disabled={rulingMode !== RULING_MODE.AutomaticPreset}
+            />
+            <LabeledInput
+              label="Tie"
+              inputType="checkbox"
+              checked={tie}
+              onChange={() => setTie((prev) => !prev)}
+              disabled={rulingMode !== RULING_MODE.AutomaticPreset}
+            />
+            <LabeledInput
+              label="Overidden"
+              inputType="checkbox"
+              checked={overriden}
+              onChange={() => setOverriden((prev) => !prev)}
+              disabled={rulingMode !== RULING_MODE.AutomaticPreset}
+            />
+          </AutomaticPresetInputsContainer>
+        )}
       </SelectContainer>
       <EnsureChain>
         <Button
