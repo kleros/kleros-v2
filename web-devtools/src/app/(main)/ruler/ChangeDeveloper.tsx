@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { Address, isAddress } from "viem";
-import { usePublicClient } from "wagmi";
+import { useAccount, usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -11,10 +11,10 @@ import { useSimulateKlerosCoreRulerChangeRuler, useWriteKlerosCoreRulerChangeRul
 import { isUndefined } from "utils/isUndefined";
 import { wrapWithToast } from "utils/wrapWithToast";
 
-import { EnsureChain } from "components/EnsureChain";
 import LabeledInput from "components/LabeledInput";
 
 import Header from "./Header";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 const Container = styled.div`
   width: 100%;
@@ -34,6 +34,7 @@ const StyledLabel = styled.label`
 `;
 
 const ChangeDeveloper: React.FC = () => {
+  const { isConnected, chainId } = useAccount();
   const { arbitrable, currentDeveloper, refetchData } = useRulerContext();
   const [newDeveloper, setNewDeveloper] = useState("");
   const [isChanging, setIsChanging] = useState(false);
@@ -62,6 +63,18 @@ const ChangeDeveloper: React.FC = () => {
       .finally(() => setIsChanging(false));
   }, [publicClient, changeRulerConfig, changeRuler, refetchData]);
 
+  const isDisabled = useMemo(
+    () =>
+      !isConnected ||
+      chainId !== DEFAULT_CHAIN ||
+      !changeRulerConfig ||
+      isError ||
+      isLoading ||
+      isChanging ||
+      isUndefined(arbitrable) ||
+      !isValid,
+    [changeRulerConfig, isError, isLoading, isChanging, arbitrable, isValid, isConnected, chainId]
+  );
   return (
     <Container>
       <Header text="Developer" />
@@ -74,14 +87,7 @@ const ChangeDeveloper: React.FC = () => {
           variant={isValid ? "" : "error"}
         />
       </InputContainer>
-      <EnsureChain>
-        <Button
-          text="Update"
-          onClick={handleClick}
-          isLoading={isLoading || isChanging}
-          disabled={!changeRulerConfig || isError || isLoading || isChanging || isUndefined(arbitrable) || !isValid}
-        />
-      </EnsureChain>
+      <Button text="Update" onClick={handleClick} isLoading={isLoading || isChanging} disabled={isDisabled} />
     </Container>
   );
 };

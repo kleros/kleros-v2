@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { RULING_MODE } from "consts";
-import { usePublicClient } from "wagmi";
+import { useAccount, usePublicClient } from "wagmi";
 
 import { Button, Radio } from "@kleros/ui-components-library";
 
@@ -18,10 +18,10 @@ import {
 import { isUndefined } from "utils/isUndefined";
 import { wrapWithToast } from "utils/wrapWithToast";
 
-import { EnsureChain } from "components/EnsureChain";
 import LabeledInput from "components/LabeledInput";
 
 import Header from "./Header";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 const Container = styled.div`
   width: 100%;
@@ -46,6 +46,7 @@ const AutomaticPresetInputsContainer = styled.div`
 `;
 
 const RulingModes: React.FC = () => {
+  const { isConnected, chainId } = useAccount();
   const { arbitrable, arbitrableSettings } = useRulerContext();
   const [rulingMode, setRulingMode] = useState<RULING_MODE>();
   const [tie, setTie] = useState(false);
@@ -54,7 +55,6 @@ const RulingModes: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
 
   const publicClient = usePublicClient();
-
   useEffect(() => {
     // only update once the arbitrable settings are fetched and only update initially, not updated on refetch
     if (!isUndefined(rulingMode) || !arbitrableSettings) return;
@@ -117,7 +117,7 @@ const RulingModes: React.FC = () => {
     useWriteKlerosCoreRulerChangeRulingModeToAutomaticRandom();
 
   const isDisabled = useMemo(() => {
-    if (!arbitrable) return true;
+    if (!arbitrable || !isConnected || chainId !== DEFAULT_CHAIN) return true;
     switch (rulingMode) {
       case RULING_MODE.Manual:
         return (
@@ -160,6 +160,8 @@ const RulingModes: React.FC = () => {
     tie,
     overriden,
     ruling,
+    isConnected,
+    chainId,
   ]);
 
   const isLoading = useMemo(() => {
@@ -270,14 +272,12 @@ const RulingModes: React.FC = () => {
           </AutomaticPresetInputsContainer>
         )}
       </SelectContainer>
-      <EnsureChain>
-        <Button
-          text="Update"
-          onClick={handleUpdate}
-          isLoading={isLoading || isSending}
-          disabled={isDisabled || isSending}
-        />
-      </EnsureChain>
+      <Button
+        text="Update"
+        onClick={handleUpdate}
+        isLoading={isLoading || isSending}
+        disabled={isDisabled || isSending}
+      />
     </Container>
   );
 };

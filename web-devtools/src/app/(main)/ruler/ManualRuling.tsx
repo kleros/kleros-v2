@@ -3,7 +3,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { RULING_MODE } from "consts";
-import { usePublicClient } from "wagmi";
+import { useAccount, usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -17,10 +17,10 @@ import {
 import { isUndefined } from "utils/isUndefined";
 import { wrapWithToast } from "utils/wrapWithToast";
 
-import { EnsureChain } from "components/EnsureChain";
 import LabeledInput from "components/LabeledInput";
 
 import Header from "./Header";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 const Container = styled.div`
   width: 100%;
@@ -37,8 +37,9 @@ const SelectContainer = styled.div`
 `;
 
 const ManualRuling: React.FC = () => {
-  const [isSending, setIsSending] = useState<boolean>(false);
+  const { isConnected, chainId } = useAccount();
   const { arbitrable, arbitrableSettings } = useRulerContext();
+  const [isSending, setIsSending] = useState<boolean>(false);
   const [tie, setTie] = useState(arbitrableSettings?.tied ?? false);
   const [overriden, setOverriden] = useState(arbitrableSettings?.overridden ?? false);
   const [ruling, setRuling] = useState(arbitrableSettings?.ruling);
@@ -55,8 +56,14 @@ const ManualRuling: React.FC = () => {
   const { writeContractAsync: changeToManualMode } = useWriteKlerosCoreRulerChangeRulingModeToManual();
 
   const isDisabled = useMemo(() => {
-    return isUndefined(disputeId) || isUndefined(ruling) || isUndefined(arbitrable);
-  }, [disputeId, ruling, arbitrable]);
+    return (
+      !isConnected ||
+      chainId !== DEFAULT_CHAIN ||
+      isUndefined(disputeId) ||
+      isUndefined(ruling) ||
+      isUndefined(arbitrable)
+    );
+  }, [disputeId, ruling, arbitrable, isConnected, chainId]);
 
   const {
     data: executeConfig,
@@ -113,14 +120,12 @@ const ManualRuling: React.FC = () => {
           onChange={() => setOverriden((prev) => !prev)}
         />
       </SelectContainer>
-      <EnsureChain>
-        <Button
-          text="Rule"
-          onClick={handleRuling}
-          isLoading={isLoadingExecuteConfig || isSending}
-          disabled={isDisabled || isError || isSending || isLoadingExecuteConfig}
-        />
-      </EnsureChain>
+      <Button
+        text="Rule"
+        onClick={handleRuling}
+        isLoading={isLoadingExecuteConfig || isSending}
+        disabled={isDisabled || isError || isSending || isLoadingExecuteConfig}
+      />
     </Container>
   );
 };
