@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { RULING_MODE } from "consts";
@@ -45,25 +45,18 @@ const AutomaticPresetInputsContainer = styled.div`
   flex-wrap: wrap;
 `;
 
+const StyledLabel = styled.label``;
+
 const RulingModes: React.FC = () => {
   const { isConnected, chainId } = useAccount();
   const { arbitrable, arbitrableSettings } = useRulerContext();
-  const [rulingMode, setRulingMode] = useState<RULING_MODE>();
+  const [rulingMode, setRulingMode] = useState<RULING_MODE>(RULING_MODE.Uninitialized);
   const [tie, setTie] = useState(false);
   const [overriden, setOverriden] = useState(false);
   const [ruling, setRuling] = useState(0);
   const [isSending, setIsSending] = useState(false);
 
   const publicClient = usePublicClient();
-  useEffect(() => {
-    // only update once the arbitrable settings are fetched and only update initially, not updated on refetch
-    if (!isUndefined(rulingMode) || !arbitrableSettings) return;
-
-    setRulingMode(arbitrableSettings.rulingMode);
-    setOverriden(arbitrableSettings.overridden);
-    setRuling(arbitrableSettings.ruling);
-    setTie(arbitrableSettings.tied);
-  }, [rulingMode, arbitrableSettings]);
 
   const {
     data: manualModeConfig,
@@ -220,6 +213,9 @@ const RulingModes: React.FC = () => {
   return (
     <Container>
       <Header text="Ruling Mode" />
+      <StyledLabel>
+        Current mode: <small>{getRulingModeText(arbitrableSettings?.rulingMode)}</small>
+      </StyledLabel>
       <SelectContainer>
         <Radio
           small
@@ -280,6 +276,20 @@ const RulingModes: React.FC = () => {
       />
     </Container>
   );
+};
+
+const getRulingModeText = (mode?: RULING_MODE) => {
+  if (!mode) return "Uninitialized";
+  switch (mode) {
+    case RULING_MODE.Manual:
+      return "Manual";
+    case RULING_MODE.AutomaticRandom:
+      return "Automatic Random";
+    case RULING_MODE.AutomaticPreset:
+      return "Automatic Preset";
+    default:
+      return "Uninitialized";
+  }
 };
 
 export default RulingModes;
