@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
+import { DropdownSelect } from "@kleros/ui-components-library";
+
 import LawBalance from "svgs/icons/law-balance.svg";
 import LongArrowUp from "svgs/icons/long-arrow-up.svg";
 
 import { useHomePageExtraStats } from "hooks/queries/useHomePageExtraStats";
+
 import ExtraStatsDisplay from "components/ExtraStatsDisplay";
-import { DropdownSelect } from "@kleros/ui-components-library";
 
 const StyledCard = styled.div`
   display: flex;
@@ -17,24 +19,24 @@ const StyledCard = styled.div`
 
 interface IStat {
   title: string;
-  getText: (data) => string | null;
+  getText: (data) => string;
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
 
 const stats: IStat[] = [
   {
     title: "Most Cases",
-    getText: (data) => data?.mostDisputedCourt?.name,
+    getText: ({ data }) => data?.mostDisputedCourt?.name,
     icon: LongArrowUp,
   },
   {
     title: "Highest drawing chance",
-    getText: (data) => data?.bestDrawingChancesCourt?.name,
+    getText: ({ data }) => data?.bestDrawingChancesCourt?.name,
     icon: LongArrowUp,
   },
   {
     title: "Highest rewards chance",
-    getText: (data) => data?.bestExpectedRewardCourt?.name,
+    getText: ({ data }) => data?.bestExpectedRewardCourt?.name,
     icon: LongArrowUp,
   },
 ];
@@ -61,7 +63,7 @@ const ExtraStats = () => {
     <StyledCard>
       <ExtraStatsDisplay
         title="Activity"
-        text={
+        content={
           <DropdownSelect
             smallButton
             simpleButton

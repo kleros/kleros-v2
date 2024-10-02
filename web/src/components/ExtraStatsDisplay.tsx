@@ -42,17 +42,18 @@ const StyledExtraStatTitleSkeleton = styled(StyledSkeleton)`
 
 export interface IExtraStatsDisplay {
   title: string;
-  text: string;
   icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
+  content?: React.ReactNode;
+  text?: string;
 }
 
-const ExtraStatsDisplay: React.FC<IExtraStatsDisplay> = ({ title, text, icon: Icon, ...props }) => {
+const ExtraStatsDisplay: React.FC<IExtraStatsDisplay> = ({ title, text, content, icon: Icon, ...props }) => {
   return (
     <Container {...props}>
       <SVGContainer>{<Icon />}</SVGContainer>
       <TextContainer>
         <label>{title}:</label>
-        <StyledP>{!isUndefined(text) ? text : <StyledExtraStatTitleSkeleton />}</StyledP>
+        {content ? content : <StyledP>{!isUndefined(text) ? text : <StyledExtraStatTitleSkeleton />}</StyledP>}
       </TextContainer>
     </Container>
   );
