@@ -48,6 +48,8 @@ const InfoWrapper = styled.div`
 const textCss = css`
   margin: 0;
   text-align: center;
+  white-space: pre-line;
+
   ${landscapeStyle(
     () => css`
       text-align: left;
@@ -57,15 +59,15 @@ const textCss = css`
 
 const Header = styled.h1<{ fontColor: string }>`
   ${textCss}
-  white-space: pre-line;
   ${({ fontColor }) =>
     css`
-      color: ${fontColor};
+      color: ${({ theme }) => theme[fontColor]};
     `};
 `;
 
 const Subtitle = styled.h3`
   ${textCss}
+  max-width: 735px;
 `;
 
 const HeaderIconContainer = styled.div<{ iconColor: string }>`
@@ -75,7 +77,7 @@ const HeaderIconContainer = styled.div<{ iconColor: string }>`
     ${({ iconColor }) =>
       css`
         path {
-          fill: ${iconColor};
+          fill: ${({ theme }) => theme[iconColor]};
         }
       `}
   }
