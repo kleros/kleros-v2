@@ -53,6 +53,8 @@ const EmailConfirmation: React.FC = () => {
 
   const [isConfirming, setIsConfirming] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isTokenExpired, setIsTokenExpired] = useState(false);
+  const [isTokenInvalid, setIsTokenInvalid] = useState(false);
   const [isError, setIsError] = useState(false);
   const [searchParams, _] = useSearchParams();
   const address = searchParams.get("address");
@@ -66,7 +68,9 @@ const EmailConfirmation: React.FC = () => {
 
       confirmEmail({ address, token })
         .then((res) => {
-          setIsConfirmed(res.confirmed);
+          setIsConfirmed(res.isConfirmed);
+          setIsTokenExpired(res.isTokenExpired);
+          setIsTokenInvalid(res.isTokenInvalid);
           setIsError(res.isError);
         })
         .finally(() => setIsConfirming(false));
@@ -74,18 +78,19 @@ const EmailConfirmation: React.FC = () => {
   }, [address, token, confirmEmail]);
 
   const [headerMsg, subtitleMsg, buttonMsg] = useMemo(() => {
-    if (!address || !isAddress(address) || !token)
+    if (!address || !isAddress(address) || !token || isTokenInvalid)
       return ["Invalid Link!", "Oops, seems like you followed an invalid link.", "Contact Support"];
     else if (isError) return ["Verification Failed", "Oops, could not verify your email.", "Contact Support"];
     else if (isConfirmed)
       return ["Verification Successful 🎉", "Hooray! , your email has been verified.", "Go to dashboard"];
-    else
+    else if (isTokenExpired)
       return [
         "Link Expired",
         "Oops, seems like this email verification link has expired. \n No worries we can send the link again.",
         "Generate new link",
       ];
-  }, [address, token, isError, isConfirmed]);
+    else return ["Something went wrong", "Oops, seems like something went wrong in our systems", "Contact Support"];
+  }, [address, token, isError, isConfirmed, isTokenExpired, isTokenInvalid]);
 
   const handleButtonClick = useCallback(() => {
     // TODO: send to support?

@@ -18,6 +18,7 @@ import {
   type AddUserData,
   type UpdateEmailData,
   type ConfirmEmailData,
+  type ConfirmEmailResponse,
 } from "utils/atlas";
 
 import { isUndefined } from "src/utils";
@@ -33,10 +34,11 @@ interface IAtlasProvider {
   authoriseUser: () => void;
   addUser: (userSettings: AddUserData) => Promise<boolean>;
   updateEmail: (userSettings: UpdateEmailData) => Promise<boolean>;
-  confirmEmail: (userSettings: ConfirmEmailData) => Promise<{
-    confirmed: boolean;
-    isError: boolean;
-  }>;
+  confirmEmail: (userSettings: ConfirmEmailData) => Promise<
+    ConfirmEmailResponse & {
+      isError: boolean;
+    }
+  >;
 }
 
 const Context = createContext<IAtlasProvider | undefined>(undefined);
@@ -212,17 +214,17 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
    * @returns {Promise<boolean>} A promise that resolves to true if email was confirmed successfully
    */
   const confirmEmail = useCallback(
-    async (userSettings: ConfirmEmailData) => {
+    async (userSettings: ConfirmEmailData): Promise<ConfirmEmailResponse & { isError: boolean }> => {
       try {
         setIsUpdatingUser(true);
 
         const emailConfirmed = await confirmEmailInAtlas(atlasGqlClient, userSettings);
 
-        return { confirmed: emailConfirmed, isError: false };
+        return { ...emailConfirmed, isError: false };
       } catch (err: any) {
         // eslint-disable-next-line
         console.log("Confirm Email Error : ", err?.message);
-        return { confirmed: false, isError: true };
+        return { isConfirmed: false, isTokenExpired: false, isTokenInvalid: false, isError: true };
       }
     },
     [atlasGqlClient]
