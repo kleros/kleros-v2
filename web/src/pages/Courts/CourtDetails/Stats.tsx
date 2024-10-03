@@ -28,10 +28,10 @@ import { responsiveSize } from "styles/responsiveSize";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import { commify } from "utils/commify";
-import { CustomAccordion, DropdownSelect } from "@kleros/ui-components-library";
+import { Accordion, DropdownSelect } from "@kleros/ui-components-library";
 import { useHomePageExtraStats } from "queries/useHomePageExtraStats";
 
-const StyledAccordion = styled(CustomAccordion)`
+const StyledAccordion = styled(Accordion)`
   width: 100%;
   margin-bottom: 12px;
   > * > button {
@@ -260,6 +260,7 @@ const Stats = () => {
 
   return (
     <StyledAccordion
+      defaultExpanded={0}
       items={[
         {
           title: "Statistics",
