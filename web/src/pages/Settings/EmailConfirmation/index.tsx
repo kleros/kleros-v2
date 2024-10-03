@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import styled, { css, useTheme } from "styled-components";
+import styled, { css } from "styled-components";
 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { isAddress } from "viem";
@@ -57,6 +57,7 @@ const textCss = css`
 
 const Header = styled.h1<{ fontColor: string }>`
   ${textCss}
+  white-space: pre-line;
   ${({ fontColor }) =>
     css`
       color: ${fontColor};
@@ -90,8 +91,44 @@ const IconContainer = styled.div`
   }
 `;
 
+const messageConfigs = {
+  invalid: {
+    headerMsg: "Invalid Link!",
+    subtitleMsg: "Oops, seems like you followed an invalid link.",
+    buttonMsg: "Contact Support",
+    buttonTo: "/",
+    Icon: InvalidIcon,
+    color: "primaryText",
+  },
+  error: {
+    headerMsg: "Something went wrong",
+    subtitleMsg: "Oops, seems like something went wrong in our systems",
+    buttonMsg: "Contact Support",
+    buttonTo: "/",
+    Icon: WarningIcon,
+    color: "error",
+  },
+  confirmed: {
+    headerMsg: "Congratulations! \nYour email has been verified!",
+    subtitleMsg:
+      "We'll remind you when your actions are required on Court, and send you notifications on key moments to help you achieve the best of Kleros.",
+    buttonMsg: "Let's start!",
+    buttonTo: "/",
+    Icon: CheckIcon,
+    color: "success",
+  },
+  expired: {
+    headerMsg: "Verification link expired...",
+    subtitleMsg:
+      "Oops, the email verification link has expired. No worries! Go to settings and click on Resend it to receive another verification email.",
+    buttonMsg: "Open Settings",
+    buttonTo: "/#notifications",
+    Icon: WarningIcon,
+    color: "warning",
+  },
+};
+
 const EmailConfirmation: React.FC = () => {
-  const theme = useTheme();
   const { confirmEmail } = useAtlasProvider();
 
   const [isConfirming, setIsConfirming] = useState(false);
@@ -118,44 +155,12 @@ const EmailConfirmation: React.FC = () => {
     }
   }, [address, token, confirmEmail]);
 
-  const [headerMsg, subtitleMsg, buttonMsg, buttonTo, Icon, color] = useMemo(() => {
-    if (!address || !isAddress(address) || !token || isTokenInvalid)
-      return [
-        "Invalid Link!",
-        "Oops, seems like you followed an invalid link.",
-        "Contact Support",
-        "/",
-        InvalidIcon,
-        theme.primaryText,
-      ];
-    else if (isError)
-      return [
-        "Something went wrong",
-        "Oops, seems like something went wrong in our systems",
-        "Contact Support",
-        "/",
-        WarningIcon,
-        theme.error,
-      ];
-    else if (isConfirmed)
-      return [
-        "Congratulations! Your email has been verified!",
-        "We'll remind you when your actions are required on Court, and send you notifications on key moments to help you achieve the best of Kleros.",
-        "Let's start!",
-        "/",
-        CheckIcon,
-        theme.success,
-      ];
-    else
-      return [
-        "Verification link expired...",
-        "Oops, the email verification link has expired. No worries! Go to settings and click on Resend it to receive another verification email.",
-        "Open Settings",
-        "/#notifications",
-        WarningIcon,
-        theme.warning,
-      ];
-  }, [address, token, isError, isConfirmed, isTokenInvalid, theme]);
+  const { headerMsg, subtitleMsg, buttonMsg, buttonTo, Icon, color } = useMemo(() => {
+    if (!address || !isAddress(address) || !token || isTokenInvalid) return messageConfigs.invalid;
+    if (isError) return messageConfigs.error;
+    if (isConfirmed) return messageConfigs.confirmed;
+    return messageConfigs.expired;
+  }, [address, token, isError, isConfirmed, isTokenInvalid]);
 
   return (
     <Container>
