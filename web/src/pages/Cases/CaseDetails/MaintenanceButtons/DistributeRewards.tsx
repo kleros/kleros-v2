@@ -52,7 +52,10 @@ const DistributeRewards: React.FC<IDistributeRewards> = ({ id, roundIndex, setIs
     const argsArr: TransactionBatcherConfig = [];
 
     for (const round of rounds) {
-      argsArr.push({ ...baseArgs, args: [BigInt(id), BigInt(round.id.split("-")[1]), BigInt(round.nbVotes)] });
+      argsArr.push({
+        ...baseArgs,
+        args: [BigInt(id), BigInt(round.id.split("-")[1]), BigInt(round.nbVotes) * BigInt(2)],
+      });
     }
 
     setContractConfigs(argsArr);
