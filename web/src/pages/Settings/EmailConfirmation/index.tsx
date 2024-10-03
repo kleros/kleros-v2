@@ -1,12 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import styled, { css } from "styled-components";
+import React, { useEffect, useMemo, useState } from "react";
+import styled, { css, useTheme } from "styled-components";
 
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { isAddress } from "viem";
 
 import { Button } from "@kleros/ui-components-library";
 
-import ThreePnksIcon from "svgs/styled/three-pnks.svg";
+import CheckIcon from "svgs/icons/check-circle-outline.svg";
+import WarningIcon from "svgs/icons/warning-outline.svg";
+import InvalidIcon from "svgs/label-icons/minus-circle.svg";
 
 import { useAtlasProvider } from "context/AtlasProvider";
 
@@ -16,44 +18,84 @@ import Loader from "components/Loader";
 
 const Container = styled.div`
   display: flex;
-  justify-content: center;
   width: 100%;
+  gap: 48px 16px;
   flex-direction: column;
-  gap: 16px;
-  position: relative;
+  justify-content: center;
+  align-items: center;
+  margin-top: 80px;
   ${landscapeStyle(
     () => css`
-      margin-top: 48px;
+      flex-direction: row;
+      justify-content: space-between;
     `
   )}
 `;
 
-const Header = styled.h1`
-  color: ${({ theme }) => theme.secondaryPurple};
-`;
-
-const Subtitle = styled.h3``;
-
-const ThreePnksIconContainer = styled.div`
+const InfoWrapper = styled.div`
   display: flex;
-  width: 100%;
-  position: absolute;
-  right: 0;
-  top: 0;
-  justify-content: end;
+  flex-direction: column;
+  gap: 32px;
+  align-items: center;
+  flex: 1;
+  ${landscapeStyle(
+    () => css`
+      align-items: start;
+    `
+  )}
 `;
 
-const StyledThreePnksIcon = styled(ThreePnksIcon)`
-  width: 200px;
-  height: 200px;
+const textCss = css`
+  margin: 0;
+  text-align: center;
+  ${landscapeStyle(
+    () => css`
+      text-align: left;
+    `
+  )}
+`;
+
+const Header = styled.h1<{ fontColor: string }>`
+  ${textCss}
+  ${({ fontColor }) =>
+    css`
+      color: ${fontColor};
+    `};
+`;
+
+const Subtitle = styled.h3`
+  ${textCss}
+`;
+
+const HeaderIconContainer = styled.div<{ iconColor: string }>`
+  svg {
+    width: 64px;
+    height: 64px;
+    ${({ iconColor }) =>
+      css`
+        path {
+          fill: ${iconColor};
+        }
+      `}
+  }
+`;
+
+const IconContainer = styled.div`
+  svg {
+    width: 250px;
+    height: 250px;
+    path {
+      fill: ${({ theme }) => theme.whiteBackground};
+    }
+  }
 `;
 
 const EmailConfirmation: React.FC = () => {
+  const theme = useTheme();
   const { confirmEmail } = useAtlasProvider();
 
   const [isConfirming, setIsConfirming] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const [isTokenExpired, setIsTokenExpired] = useState(false);
   const [isTokenInvalid, setIsTokenInvalid] = useState(false);
   const [isError, setIsError] = useState(false);
   const [searchParams, _] = useSearchParams();
@@ -69,7 +111,6 @@ const EmailConfirmation: React.FC = () => {
       confirmEmail({ address, token })
         .then((res) => {
           setIsConfirmed(res.isConfirmed);
-          setIsTokenExpired(res.isTokenExpired);
           setIsTokenInvalid(res.isTokenInvalid);
           setIsError(res.isError);
         })
@@ -77,39 +118,62 @@ const EmailConfirmation: React.FC = () => {
     }
   }, [address, token, confirmEmail]);
 
-  const [headerMsg, subtitleMsg, buttonMsg] = useMemo(() => {
+  const [headerMsg, subtitleMsg, buttonMsg, buttonTo, Icon, color] = useMemo(() => {
     if (!address || !isAddress(address) || !token || isTokenInvalid)
-      return ["Invalid Link!", "Oops, seems like you followed an invalid link.", "Contact Support"];
-    else if (isError) return ["Verification Failed", "Oops, could not verify your email.", "Contact Support"];
-    else if (isConfirmed)
-      return ["Verification Successful 🎉", "Hooray! , your email has been verified.", "Go to dashboard"];
-    else if (isTokenExpired)
       return [
-        "Link Expired",
-        "Oops, seems like this email verification link has expired. \n No worries we can send the link again.",
-        "Generate new link",
+        "Invalid Link!",
+        "Oops, seems like you followed an invalid link.",
+        "Contact Support",
+        "/",
+        InvalidIcon,
+        theme.primaryText,
       ];
-    else return ["Something went wrong", "Oops, seems like something went wrong in our systems", "Contact Support"];
-  }, [address, token, isError, isConfirmed, isTokenExpired, isTokenInvalid]);
-
-  const handleButtonClick = useCallback(() => {
-    // TODO: send to support?
-    if (!address || !isAddress(address) || !token || isError) return navigate("/");
-    navigate("/#notifications");
-  }, [address, token, isError, navigate]);
+    else if (isError)
+      return [
+        "Something went wrong",
+        "Oops, seems like something went wrong in our systems",
+        "Contact Support",
+        "/",
+        WarningIcon,
+        theme.error,
+      ];
+    else if (isConfirmed)
+      return [
+        "Congratulations! Your email has been verified!",
+        "We'll remind you when your actions are required on Court, and send you notifications on key moments to help you achieve the best of Kleros.",
+        "Let's start!",
+        "/",
+        CheckIcon,
+        theme.success,
+      ];
+    else
+      return [
+        "Verification link expired...",
+        "Oops, the email verification link has expired. No worries! Go to settings and click on Resend it to receive another verification email.",
+        "Open Settings",
+        "/#notifications",
+        WarningIcon,
+        theme.warning,
+      ];
+  }, [address, token, isError, isConfirmed, isTokenInvalid, theme]);
 
   return (
     <Container>
-      <ThreePnksIconContainer>
-        <StyledThreePnksIcon />
-      </ThreePnksIconContainer>
       {isConfirming ? (
         <Loader width={"148px"} height={"148px"} />
       ) : (
         <>
-          <Header>{headerMsg}</Header>
-          <Subtitle>{subtitleMsg}</Subtitle>
-          <Button text={buttonMsg} onClick={handleButtonClick} />
+          <InfoWrapper>
+            <HeaderIconContainer iconColor={color}>
+              <Icon />
+            </HeaderIconContainer>
+            <Header fontColor={color}>{headerMsg}</Header>
+            <Subtitle>{subtitleMsg}</Subtitle>
+            <Button text={buttonMsg} onClick={() => navigate(buttonTo)} />
+          </InfoWrapper>
+          <IconContainer>
+            <Icon />
+          </IconContainer>
         </>
       )}
     </Container>

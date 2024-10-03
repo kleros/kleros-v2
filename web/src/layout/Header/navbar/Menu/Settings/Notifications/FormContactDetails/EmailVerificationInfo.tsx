@@ -37,6 +37,7 @@ const StyledHourglassIcon = styled(HourglassIcon)`
 `;
 
 const StyledButton = styled(Button)`
+  display: inline-block;
   background-color: transparent;
   padding: 0;
   .button-text {
@@ -84,7 +85,8 @@ const EmailVerificationInfo: React.FC<IEmailInfo> = ({ toggleIsSettingsOpen }) =
       <InfoInnerContainer>
         <InfoTitle>Email Verification Pending</InfoTitle>
         <InfoSubtitle>
-          We have sent you a confirmation email. <StyledButton text="Resend email" onClick={resendEmail} />
+          We sent you a verification email. Please, verify it.
+          <br /> Didn’t receive the email? <StyledButton text="Resend it" onClick={resendEmail} />
         </InfoSubtitle>
       </InfoInnerContainer>
     </InfoContainer>
