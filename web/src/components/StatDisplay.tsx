@@ -44,7 +44,7 @@ const createPair = (iconColor: string, backgroundColor: string) => ({
 export interface IStatDisplay {
   title: string;
   text: string | React.ReactNode;
-  subtext: string | React.ReactNode;
+  subtext?: string | React.ReactNode;
   icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
   color: "red" | "orange" | "green" | "blue" | "purple";
 }

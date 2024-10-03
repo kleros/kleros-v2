@@ -185,16 +185,15 @@ const stats: IStat[] = [
   },
 ];
 
-interface IStats {
+interface ITimeframedStat {
   title: string;
   coinId?: number;
-  getText: any; //(data: CourtDetailsQuery["court"]) => string;
-  getSubtext?: any; // (data: CourtDetailsQuery["court"], coinPrice?: number) => string;
+  getText: (data: { treeExpectedRewardPerPnk: number; treeVotesPerPnk: number; treeDisputesPerPnk: number }) => string;
   color: IStatDisplay["color"];
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
 
-const timeframedStats: IStats[] = [
+const timeframedStats: ITimeframedStat[] = [
   {
     title: "PNK for 1 ETH",
     getText: (data) => {
@@ -299,13 +298,12 @@ const Stats = () => {
                 </StyledAllTimeText>
               </TimeSelectorContainer>
               <StyledCard>
-                {timeframedStats.map(({ title, getText, getSubtext, color, icon }, i) => {
+                {timeframedStats.map(({ title, getText, color, icon }, i) => {
                   return (
                     <StatDisplay
                       key={i}
                       {...{ title, color, icon }}
                       text={foundCourt ? getText(foundCourt) : <StyledSkeleton />}
-                      subtext={calculateSubtextRender(foundCourt, getSubtext)}
                     />
                   );
                 })}
