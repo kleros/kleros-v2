@@ -274,7 +274,7 @@ const Stats = () => {
                   const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
                   return (
                     <StatDisplay
-                      key={i}
+                      key={title}
                       {...{ title, color, icon }}
                       text={data ? getText(data.court) : <StyledSkeleton />}
                       subtext={calculateSubtextRender(data?.court, getSubtext, coinPrice)}
@@ -301,7 +301,7 @@ const Stats = () => {
                 {timeframedStats.map(({ title, getText, color, icon }, i) => {
                   return (
                     <StatDisplay
-                      key={i}
+                      key={title}
                       {...{ title, color, icon }}
                       text={foundCourt ? getText(foundCourt) : <StyledSkeleton />}
                     />

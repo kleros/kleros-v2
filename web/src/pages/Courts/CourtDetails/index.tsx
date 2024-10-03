@@ -79,7 +79,6 @@ const StyledBreadcrumb = styled(Breadcrumb)`
 
 const Divider = styled.hr`
   width: 100%;
-  display: flex;
   border: none;
   height: 1px;
   background-color: ${({ theme }) => theme.stroke};
