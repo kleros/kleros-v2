@@ -77,7 +77,7 @@ const ChangeDeveloper: React.FC = () => {
   );
   return (
     <Container>
-      <Header text="Developer" />
+      <Header text="Developer" tooltipMsg="Address of the current ruler of the selected arbitrable" />
       <InputContainer>
         <StyledLabel>Current Developer : {currentDeveloper ?? "None"}</StyledLabel>
         <LabeledInput

@@ -212,7 +212,10 @@ const RulingModes: React.FC = () => {
 
   return (
     <Container>
-      <Header text="Ruling Mode" />
+      <Header
+        text="Ruling Mode"
+        tooltipMsg="Current Ruling mode of the arbitrator. Learn more about ruling modes here."
+      />
       <StyledLabel>
         Current mode: <small>{getRulingModeText(arbitrableSettings?.rulingMode)}</small>
       </StyledLabel>
