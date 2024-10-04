@@ -24,7 +24,7 @@ import { updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
 import { updateTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
-import { Court, Dispute, Round, User } from "../generated/schema";
+import { ClassicVote, Court, Dispute, Draw, Round, User } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { updatePenalty } from "./entities/Penalty";
 import { ensureFeeToken } from "./entities/FeeToken";
@@ -124,6 +124,43 @@ export function handleNewPeriod(event: NewPeriod): void {
     dispute.currentRuling = currentRulingInfo.getRuling();
     dispute.overridden = currentRulingInfo.getOverridden();
     dispute.tied = currentRulingInfo.getTied();
+    dispute.save();
+
+    const rounds = dispute.rounds.load();
+    for (let i = 0; i < rounds.length; i++) {
+      const round = Round.load(rounds[i].id);
+      if (!round) continue;
+
+      const draws = round.drawnJurors.load();
+      // Iterate over all draws in the round
+      for (let j = 0; j < draws.length; j++) {
+        const draw = Draw.load(draws[j].id);
+        if (!draw) continue;
+
+        // This will only work for Classic DisputeKit ("1-").
+        const vote = ClassicVote.load(`1-${draw.id}`);
+
+        if (!vote) continue;
+
+        const juror = ensureUser(draw.juror);
+        juror.totalResolvedVotes = juror.totalResolvedVotes.plus(ONE);
+
+        if (vote.choice === null) continue;
+
+        // Check if the vote choice matches the final ruling
+        if (vote.choice!.equals(dispute.currentRuling)) {
+          juror.totalCoherentVotes = juror.totalCoherentVotes.plus(ONE);
+        }
+
+        // Recalculate coherenceScore
+        if (juror.totalResolvedVotes.gt(ZERO)) {
+          const coherenceScore = juror.totalCoherentVotes.times(BigInt.fromI32(100)).div(juror.totalResolvedVotes);
+          juror.coherenceScore = coherenceScore;
+        }
+
+        juror.save();
+      }
+    }
   }
 
   dispute.period = newPeriod;

@@ -7,12 +7,12 @@ interface IJurorCard {
   rank: number;
   address: `0x${string}`;
   coherenceScore: number;
-  totalCoherent: number;
-  totalResolvedDisputes: number;
+  totalCoherentVotes: number;
+  totalResolvedVotes: number;
 }
 
-const JurorCard: React.FC<IJurorCard> = ({ rank, address, coherenceScore, totalCoherent, totalResolvedDisputes }) => {
-  const allProps = { rank, address, coherenceScore, totalCoherent, totalResolvedDisputes };
+const JurorCard: React.FC<IJurorCard> = ({ rank, address, coherenceScore, totalCoherentVotes, totalResolvedVotes }) => {
+  const allProps = { rank, address, coherenceScore, totalCoherentVotes, totalResolvedVotes };
 
   return (
     <>

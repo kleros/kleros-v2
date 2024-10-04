@@ -36,7 +36,8 @@ export function createUserFromAddress(id: string): User {
   user.totalResolvedDisputes = ZERO;
   user.totalAppealingDisputes = ZERO;
   user.totalDisputes = ZERO;
-  user.totalCoherent = ZERO;
+  user.totalCoherentVotes = ZERO;
+  user.totalResolvedVotes = ZERO;
   user.coherenceScore = ZERO;
   user.save();
 
@@ -54,28 +55,13 @@ export function addUserActiveDispute(id: string, disputeID: string): void {
   user.save();
 }
 
-export function resolveUserDispute(id: string, previousFeeAmount: BigInt, feeAmount: BigInt, disputeID: string): void {
+export function resolveUserDispute(id: string, disputeID: string): void {
   const user = ensureUser(id);
   if (user.resolvedDisputes.includes(disputeID)) {
-    if (previousFeeAmount.gt(ZERO)) {
-      if (feeAmount.le(ZERO)) {
-        user.totalCoherent = user.totalCoherent.minus(ONE);
-      }
-    } else if (previousFeeAmount.le(ZERO)) {
-      if (feeAmount.gt(ZERO)) {
-        user.totalCoherent = user.totalCoherent.plus(ONE);
-      }
-    }
-    user.coherenceScore = computeCoherenceScore(user.totalCoherent, user.totalResolvedDisputes);
-    user.save();
     return;
   }
   user.resolvedDisputes = user.resolvedDisputes.concat([disputeID]);
   user.totalResolvedDisputes = user.totalResolvedDisputes.plus(ONE);
-  if (feeAmount.gt(ZERO)) {
-    user.totalCoherent = user.totalCoherent.plus(ONE);
-  }
   user.activeDisputes = user.activeDisputes.minus(ONE);
-  user.coherenceScore = computeCoherenceScore(user.totalCoherent, user.totalResolvedDisputes);
   user.save();
 }

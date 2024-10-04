@@ -44,8 +44,8 @@ const JurorInfo: React.FC = () => {
   const { data } = useUserQuery(address?.toLowerCase() as `0x${string}`);
   // TODO check graph schema
   const coherenceScore = data?.user ? parseInt(data?.user?.coherenceScore) : 0;
-  const totalCoherent = data?.user ? parseInt(data?.user?.totalCoherent) : 0;
-  const totalResolvedDisputes = data?.user ? parseInt(data?.user?.totalResolvedDisputes) : 0;
+  const totalCoherentVotes = data?.user ? parseInt(data?.user?.totalCoherentVotes) : 0;
+  const totalResolvedVotes = data?.user ? parseInt(data?.user?.totalResolvedVotes) : 0;
 
   const userLevelData = getUserLevelData(coherenceScore);
 
@@ -54,17 +54,11 @@ const JurorInfo: React.FC = () => {
       <Header
         levelTitle={userLevelData.title}
         levelNumber={userLevelData.level}
-        totalCoherent={totalCoherent}
-        totalResolvedDisputes={totalResolvedDisputes}
+        {...{ totalCoherentVotes, totalResolvedVotes }}
       />
       <Card>
         <PixelArt level={userLevelData.level} width="189px" height="189px" />
-        <Coherency
-          userLevelData={userLevelData}
-          totalCoherent={totalCoherent}
-          totalResolvedDisputes={totalResolvedDisputes}
-          isMiniGuide={false}
-        />
+        <Coherency userLevelData={userLevelData} isMiniGuide={false} {...{ totalCoherentVotes, totalResolvedVotes }} />
         <JurorRewards />
       </Card>
     </Container>

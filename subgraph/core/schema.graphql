@@ -79,13 +79,14 @@ type User @entity {
   resolvedDisputes: [Dispute!]!
   totalResolvedDisputes: BigInt!
   totalDisputes: BigInt!
-  totalCoherent: BigInt!
-  coherenceScore: BigInt!
   totalAppealingDisputes: BigInt!
   votes: [Vote!]! @derivedFrom(field: "juror")
   contributions: [Contribution!]! @derivedFrom(field: "contributor")
   evidences: [Evidence!]! @derivedFrom(field: "sender")
   penalties: [Penalty!]! @derivedFrom(field: "juror")
+  totalCoherentVotes: BigInt!
+  totalResolvedVotes: BigInt!
+  coherenceScore: BigInt!
 }
 
 type Penalty @entity {
