@@ -11,7 +11,9 @@ import { responsiveSize } from "styles/responsiveSize";
 
 const StyledHeader = styled.div`
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
+  gap: 0 12px;
 `;
 
 const StyledH1 = styled.h1`

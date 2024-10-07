@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-v2-subgraph",
-  "version": "0.7.2",
+  "version": "0.7.4",
   "license": "MIT",
   "scripts": {
     "update:core:arbitrum-sepolia-devnet": "./scripts/update.sh arbitrumSepoliaDevnet arbitrum-sepolia core/subgraph.yaml",
