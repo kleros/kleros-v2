@@ -137,8 +137,8 @@ export function handleNewPeriod(event: NewPeriod): void {
         const draw = Draw.load(draws[j].id);
         if (!draw) continue;
 
-        // This will only work for Classic DisputeKit ("1-").
-        const vote = ClassicVote.load(`1-${draw.id}`);
+        // Since this is a ClassicVote entity, this will only work for the Classic DisputeKit (which has ID "1").
+        const vote = ClassicVote.load(`${round.disputeKit}-${draw.id}`);
 
         if (!vote) continue;
 
