@@ -124,7 +124,6 @@ export function handleNewPeriod(event: NewPeriod): void {
     dispute.currentRuling = currentRulingInfo.getRuling();
     dispute.overridden = currentRulingInfo.getOverridden();
     dispute.tied = currentRulingInfo.getTied();
-    dispute.save();
 
     const rounds = dispute.rounds.load();
     for (let i = 0; i < rounds.length; i++) {
