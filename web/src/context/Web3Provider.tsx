@@ -3,13 +3,14 @@ import React from "react";
 import { createWeb3Modal } from "@web3modal/wagmi/react";
 import { type Chain } from "viem";
 import { createConfig, fallback, http, WagmiProvider, webSocket } from "wagmi";
-import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado, gnosis, sepolia } from "wagmi/chains";
+import { arbitrum, arbitrumSepolia, gnosis, gnosisChiado, mainnet, sepolia } from "wagmi/chains";
 import { walletConnect } from "wagmi/connectors";
 
 import { ALL_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 import { isProductionDeployment } from "consts/index";
 
 import { lightTheme } from "styles/themes";
+import { Web3AuthConnectorInstance, Web3AuthInstance } from "~src/utils/Web3AuthInstance";
 
 const alchemyApiKey = import.meta.env.ALCHEMY_API_KEY ?? "";
 const isProduction = isProductionDeployment();
@@ -56,10 +57,14 @@ export const getTransports = () => {
 const chains = ALL_CHAINS as [Chain, ...Chain[]];
 const transports = getTransports();
 const projectId = import.meta.env.WALLETCONNECT_PROJECT_ID ?? "";
+
+// Create Web3Auth Instance
+const web3AuthInstance = Web3AuthInstance(chains, "Kleros-V2");
+
 const wagmiConfig = createConfig({
   chains,
   transports,
-  connectors: [walletConnect({ projectId })],
+  connectors: [walletConnect({ projectId }), Web3AuthConnectorInstance(web3AuthInstance)],
 });
 
 createWeb3Modal({
