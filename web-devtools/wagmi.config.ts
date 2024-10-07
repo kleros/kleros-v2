@@ -27,7 +27,7 @@ const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardh
     type === ArbitratorTypes.vanilla
       ? ""
       : ArbitratorTypes[type].toString().charAt(0).toUpperCase() + ArbitratorTypes[type].toString().slice(1);
-  const vanillaArtifacts = ["KlerosCore", "DisputeKitClassic", "SortitionModule", "DisputeResolver"];
+  const vanillaArtifacts = ["KlerosCore", "DisputeKitClassic", "SortitionModule", "DisputeResolver", "KlerosCoreRuler"];
   const typeSpecificArtifacts = vanillaArtifacts.map((artifact) => `${artifact}${artifactSuffix}`);
 
   const chains = await import("wagmi/chains");

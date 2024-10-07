@@ -7989,18 +7989,27 @@ __metadata:
     "@graphql-codegen/cli": "npm:^5.0.2"
     "@graphql-codegen/client-preset": "npm:^4.3.2"
     "@kleros/kleros-sdk": "workspace:^"
-    "@kleros/ui-components-library": "npm:^2.10.0"
+    "@kleros/ui-components-library": "npm:^2.15.0"
     "@svgr/webpack": "npm:^8.1.0"
     "@types/node": "npm:^20"
     "@types/react": "npm:18.2.0"
     "@types/react-dom": "npm:^18.2.18"
+    "@typescript-eslint/eslint-plugin": "npm:^5.62.0"
+    "@typescript-eslint/parser": "npm:^5.62.0"
+    "@typescript-eslint/utils": "npm:^5.62.0"
     "@wagmi/cli": "npm:^2.0.3"
+    eslint: "npm:^8.56.0"
     eslint-config-next: "npm:^14.2.5"
+    eslint-config-prettier: "npm:^8.10.0"
+    eslint-import-resolver-typescript: "npm:^3.6.1"
+    eslint-plugin-react: "npm:^7.33.2"
+    eslint-plugin-react-hooks: "npm:^4.6.0"
     graphql: "npm:^16.9.0"
     next: "npm:14.2.4"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
     react-markdown: "npm:^8.0.7"
+    react-toastify: "npm:^10.0.5"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.5.3"
     typewriter-effect: "npm:^2.21.0"
@@ -8089,29 +8098,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kleros/ui-components-library@npm:^2.10.0":
-  version: 2.13.1
-  resolution: "@kleros/ui-components-library@npm:2.13.1"
-  dependencies:
-    "@datepicker-react/hooks": "npm:^2.8.4"
-    "@swc/helpers": "npm:^0.3.2"
-    rc-slider: "npm:^9.7.5"
-    react: "npm:^18.0.0"
-    react-dom: "npm:^18.0.0"
-    react-is: "npm:^18.0.0"
-    simplebar: "npm:^5.3.6"
-    simplebar-react: "npm:^2.3.6"
-    smooth-scroll-into-view-if-needed: "npm:^1.1.33"
-    usehooks-ts: "npm:^2.9.1"
-  peerDependencies:
-    react: ^18.0.0
-    react-dom: ^18.0.0
-    react-is: ^18.0.0
-    styled-components: ^5.3.3
-  checksum: db710e97b09a291ad5b6ff7a7a046cd3945e0403fda66ce6b33e501609ad2b712f924e84df2cba273d4ee936d274a6b7f210ff269d27d504bc81bcb712bc9da1
-  languageName: node
-  linkType: hard
-
 "@kleros/ui-components-library@npm:^2.14.0":
   version: 2.14.0
   resolution: "@kleros/ui-components-library@npm:2.14.0"
@@ -8132,6 +8118,29 @@ __metadata:
     react-is: ^18.0.0
     styled-components: ^5.3.3
   checksum: ea5d9689562a6aa963eda44ad94336d4152c5d0f46c81e70a0c271a09fb93e9c9fd7b4ee609b1f6e1eb6e18f557f1cc0b132c3ac10d9f5af6ffc911ecb71d9da
+  languageName: node
+  linkType: hard
+
+"@kleros/ui-components-library@npm:^2.15.0":
+  version: 2.15.0
+  resolution: "@kleros/ui-components-library@npm:2.15.0"
+  dependencies:
+    "@datepicker-react/hooks": "npm:^2.8.4"
+    "@swc/helpers": "npm:^0.3.2"
+    rc-slider: "npm:^9.7.5"
+    react: "npm:^18.0.0"
+    react-dom: "npm:^18.0.0"
+    react-is: "npm:^18.0.0"
+    simplebar: "npm:^5.3.6"
+    simplebar-react: "npm:^2.3.6"
+    smooth-scroll-into-view-if-needed: "npm:^1.1.33"
+    usehooks-ts: "npm:^2.9.1"
+  peerDependencies:
+    react: ^18.0.0
+    react-dom: ^18.0.0
+    react-is: ^18.0.0
+    styled-components: ^5.3.3
+  checksum: 7c97e8fe45b1cd002a0aaf7fe4670b8c668a3abbbab82fac9261ef9a8382ccaf7d4a974ee54b8f299f1e8e7b68e58dab1f3f31d7c8b3b60c58a5af8abdf4a783
   languageName: node
   linkType: hard
 
@@ -33787,6 +33796,18 @@ __metadata:
   bin:
     react-scripts: bin/react-scripts.js
   checksum: 1727f9b4606bedefd8e36c754b44181842ce81b9b6e961bcd21e8de44d5848fb5fa30790f4c45e5085f2365c7a37bff637fccc1b20096dc5cdd625d085fc117e
+  languageName: node
+  linkType: hard
+
+"react-toastify@npm:^10.0.5":
+  version: 10.0.5
+  resolution: "react-toastify@npm:10.0.5"
+  dependencies:
+    clsx: "npm:^2.1.0"
+  peerDependencies:
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 6630f4b6d6902d827efd5e66c09df693c7ab8abeeb6ef24d880080f47b636614ef9cc251dd5e6564d49fe2f6f25f720ce0f7ef72cd4b0cd58a65b7c4b8052fac
   languageName: node
   linkType: hard
 

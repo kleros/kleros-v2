@@ -6,7 +6,8 @@ export const INVALID_DISPUTE_DATA_ERROR = `The dispute data is not valid, please
 export const RPC_ERROR = `RPC Error: Unable to fetch dispute data. Please avoid voting.`;
 
 export enum RULING_MODE {
+  Uninitialized,
   Manual,
+  AutomaticRandom,
   AutomaticPreset,
-  RandomPreset,
 }
