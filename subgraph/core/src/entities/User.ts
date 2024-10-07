@@ -1,5 +1,19 @@
+import { BigInt, BigDecimal } from "@graphprotocol/graph-ts";
 import { User } from "../../generated/schema";
 import { ONE, ZERO } from "../utils";
+
+export function computeCoherenceScore(totalCoherentVotes: BigInt, totalResolvedVotes: BigInt): BigInt {
+  const smoothingFactor = BigDecimal.fromString("10");
+
+  let denominator = totalResolvedVotes.toBigDecimal().plus(smoothingFactor);
+  let coherencyRatio = totalCoherentVotes.toBigDecimal().div(denominator);
+
+  const coherencyScore = coherencyRatio.times(BigDecimal.fromString("100"));
+
+  const roundedScore = coherencyScore.plus(BigDecimal.fromString("0.5"));
+
+  return BigInt.fromString(roundedScore.toString().split(".")[0]);
+}
 
 export function ensureUser(id: string): User {
   const user = User.load(id);

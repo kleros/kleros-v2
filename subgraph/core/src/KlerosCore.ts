@@ -19,7 +19,7 @@ import { createDisputeKitFromEvent, filterSupportedDisputeKits } from "./entitie
 import { createDisputeFromEvent } from "./entities/Dispute";
 import { createRoundFromRoundInfo, updateRoundTimeline } from "./entities/Round";
 import { updateCases, updateCasesAppealing, updateCasesRuled, updateCasesVoting } from "./datapoint";
-import { addUserActiveDispute, ensureUser } from "./entities/User";
+import { addUserActiveDispute, computeCoherenceScore, ensureUser } from "./entities/User";
 import { updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
 import { updateTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
@@ -156,8 +156,7 @@ export function handleNewPeriod(event: NewPeriod): void {
 
         // Recalculate coherenceScore
         if (juror.totalResolvedVotes.gt(ZERO)) {
-          const coherenceScore = juror.totalCoherentVotes.times(BigInt.fromI32(100)).div(juror.totalResolvedVotes);
-          juror.coherenceScore = coherenceScore;
+          juror.coherenceScore = computeCoherenceScore(juror.totalCoherentVotes, juror.totalResolvedVotes);
         }
 
         juror.save();
