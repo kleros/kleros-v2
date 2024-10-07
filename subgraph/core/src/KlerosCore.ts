@@ -19,12 +19,12 @@ import { createDisputeKitFromEvent, filterSupportedDisputeKits } from "./entitie
 import { createDisputeFromEvent } from "./entities/Dispute";
 import { createRoundFromRoundInfo, updateRoundTimeline } from "./entities/Round";
 import { updateCases, updateCasesAppealing, updateCasesRuled, updateCasesVoting } from "./datapoint";
-import { addUserActiveDispute, ensureUser } from "./entities/User";
+import { addUserActiveDispute, computeCoherenceScore, ensureUser } from "./entities/User";
 import { updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
 import { updateTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
-import { Court, Dispute, Round, User } from "../generated/schema";
+import { ClassicVote, Court, Dispute, Draw, Round, User } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { updatePenalty } from "./entities/Penalty";
 import { ensureFeeToken } from "./entities/FeeToken";
@@ -127,6 +127,41 @@ export function handleNewPeriod(event: NewPeriod): void {
     dispute.currentRuling = currentRulingInfo.getRuling();
     dispute.overridden = currentRulingInfo.getOverridden();
     dispute.tied = currentRulingInfo.getTied();
+
+    const rounds = dispute.rounds.load();
+    for (let i = 0; i < rounds.length; i++) {
+      const round = Round.load(rounds[i].id);
+      if (!round) continue;
+
+      const draws = round.drawnJurors.load();
+      // Iterate over all draws in the round
+      for (let j = 0; j < draws.length; j++) {
+        const draw = Draw.load(draws[j].id);
+        if (!draw) continue;
+
+        // Since this is a ClassicVote entity, this will only work for the Classic DisputeKit (which has ID "1").
+        const vote = ClassicVote.load(`${round.disputeKit}-${draw.id}`);
+
+        if (!vote) continue;
+
+        const juror = ensureUser(draw.juror);
+        juror.totalResolvedVotes = juror.totalResolvedVotes.plus(ONE);
+
+        if (vote.choice === null) continue;
+
+        // Check if the vote choice matches the final ruling
+        if (vote.choice!.equals(dispute.currentRuling)) {
+          juror.totalCoherentVotes = juror.totalCoherentVotes.plus(ONE);
+        }
+
+        // Recalculate coherenceScore
+        if (juror.totalResolvedVotes.gt(ZERO)) {
+          juror.coherenceScore = computeCoherenceScore(juror.totalCoherentVotes, juror.totalResolvedVotes);
+        }
+
+        juror.save();
+      }
+    }
   }
 
   dispute.period = newPeriod;
