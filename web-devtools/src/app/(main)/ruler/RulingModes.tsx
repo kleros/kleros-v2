@@ -52,7 +52,7 @@ const RulingModes: React.FC = () => {
   const { arbitrable, arbitrableSettings } = useRulerContext();
   const [rulingMode, setRulingMode] = useState<RULING_MODE>(RULING_MODE.Uninitialized);
   const [tie, setTie] = useState(false);
-  const [overriden, setOverriden] = useState(false);
+  const [overridden, setOverridden] = useState(false);
   const [ruling, setRuling] = useState(0);
   const [isSending, setIsSending] = useState(false);
 
@@ -86,9 +86,9 @@ const RulingModes: React.FC = () => {
         (arbitrableSettings?.rulingMode !== RULING_MODE.AutomaticPreset ||
           arbitrableSettings?.ruling !== ruling ||
           arbitrableSettings?.tied !== tie ||
-          arbitrableSettings?.overridden !== overriden),
+          arbitrableSettings?.overridden !== overridden),
     },
-    args: [arbitrable as `0x${string}`, BigInt(ruling), tie, overriden],
+    args: [arbitrable as `0x${string}`, BigInt(ruling), tie, overridden],
   });
   const { writeContractAsync: changeToAutomaticPreset, isPending: isChangingToAutomaticPreset } =
     useWriteKlerosCoreRulerChangeRulingModeToAutomaticPreset();
@@ -127,7 +127,7 @@ const RulingModes: React.FC = () => {
           (rulingMode === arbitrableSettings?.rulingMode &&
             arbitrableSettings?.ruling === ruling &&
             arbitrableSettings?.tied === tie &&
-            arbitrableSettings?.overridden === overriden)
+            arbitrableSettings?.overridden === overridden)
         );
       default:
         return (
@@ -151,7 +151,7 @@ const RulingModes: React.FC = () => {
     isLoadingAutomaticPresetConfig,
     arbitrableSettings,
     tie,
-    overriden,
+    overridden,
     ruling,
     isConnected,
     chainId,
@@ -264,8 +264,8 @@ const RulingModes: React.FC = () => {
             <LabeledInput
               label="Overidden"
               inputType="checkbox"
-              checked={overriden}
-              onChange={() => setOverriden((prev) => !prev)}
+              checked={overridden}
+              onChange={() => setOverridden((prev) => !prev)}
               disabled={rulingMode !== RULING_MODE.AutomaticPreset}
             />
           </AutomaticPresetInputsContainer>

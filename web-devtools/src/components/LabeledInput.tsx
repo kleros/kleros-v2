@@ -62,7 +62,7 @@ const StyledField = styled(Field)<{ paddingLeft?: number }>`
   > input {
     border: none;
     box-sizing: border-box;
-    ${({ paddingLeft }) =>
+    ${({ paddingLeft = 0 }) =>
       paddingLeft &&
       css`
         padding-left: ${paddingLeft + 8}px;

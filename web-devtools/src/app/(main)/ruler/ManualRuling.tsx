@@ -41,7 +41,7 @@ const ManualRuling: React.FC = () => {
   const { arbitrable, arbitrableSettings } = useRulerContext();
   const [isSending, setIsSending] = useState<boolean>(false);
   const [tie, setTie] = useState(arbitrableSettings?.tied ?? false);
-  const [overriden, setOverriden] = useState(arbitrableSettings?.overridden ?? false);
+  const [overridden, setOverridden] = useState(arbitrableSettings?.overridden ?? false);
   const [ruling, setRuling] = useState(arbitrableSettings?.ruling);
   const [disputeId, setDisputeId] = useState<number>();
 
@@ -73,7 +73,7 @@ const ManualRuling: React.FC = () => {
     query: {
       enabled: arbitrableSettings?.rulingMode === RULING_MODE.Manual && !isUndefined(arbitrable) && !isDisabled,
     },
-    args: [BigInt(disputeId ?? 0), BigInt(ruling ?? 0), tie, overriden],
+    args: [BigInt(disputeId ?? 0), BigInt(ruling ?? 0), tie, overridden],
   });
 
   const { writeContractAsync: executeRuling } = useWriteKlerosCoreRulerExecuteRuling();
@@ -119,8 +119,8 @@ const ManualRuling: React.FC = () => {
         <LabeledInput
           label="Overidden"
           inputType="checkbox"
-          checked={overriden}
-          onChange={() => setOverriden((prev) => !prev)}
+          checked={overridden}
+          onChange={() => setOverridden((prev) => !prev)}
         />
       </SelectContainer>
       <Button
