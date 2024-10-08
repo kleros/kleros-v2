@@ -78,7 +78,7 @@
     "@cyntler/react-doc-viewer": "^1.16.3",
     "@filebase/client": "^0.0.5",
     "@kleros/kleros-sdk": "workspace:^",
-    "@kleros/ui-components-library": "^2.14.0",
+    "@kleros/ui-components-library": "^2.15.0",
     "@lifi/wallet-management": "^3.0.3",
     "@lifi/widget": "^3.2.0",
     "@middy/core": "^5.3.2",
