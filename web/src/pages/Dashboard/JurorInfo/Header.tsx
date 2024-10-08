@@ -65,16 +65,16 @@ const StyledLink = styled.a`
 interface IHeader {
   levelTitle: string;
   levelNumber: number;
-  totalCoherent: number;
-  totalResolvedDisputes: number;
+  totalCoherentVotes: number;
+  totalResolvedVotes: number;
 }
 
-const Header: React.FC<IHeader> = ({ levelTitle, levelNumber, totalCoherent, totalResolvedDisputes }) => {
+const Header: React.FC<IHeader> = ({ levelTitle, levelNumber, totalCoherentVotes, totalResolvedVotes }) => {
   const [isJurorLevelsMiniGuideOpen, toggleJurorLevelsMiniGuide] = useToggle(false);
 
-  const coherencePercentage = parseFloat(((totalCoherent / Math.max(totalResolvedDisputes, 1)) * 100).toFixed(2));
+  const coherencePercentage = parseFloat(((totalCoherentVotes / Math.max(totalResolvedVotes, 1)) * 100).toFixed(2));
   const courtUrl = window.location.origin;
-  const xPostText = `Hey I've been busy as a Juror on the Kleros court, check out my score: \n\nLevel: ${levelNumber} (${levelTitle})\nCoherence Percentage: ${coherencePercentage}%\nCoherent Votes: ${totalCoherent}/${totalResolvedDisputes}\n\nBe a juror with me! ➡️ ${courtUrl}`;
+  const xPostText = `Hey I've been busy as a Juror on the Kleros court, check out my score: \n\nLevel: ${levelNumber} (${levelTitle})\nCoherence Percentage: ${coherencePercentage}%\nCoherent Votes: ${totalCoherentVotes}/${totalResolvedVotes}\n\nBe a juror with me! ➡️ ${courtUrl}`;
   const xShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(xPostText)}`;
 
   return (
@@ -86,7 +86,7 @@ const Header: React.FC<IHeader> = ({ levelTitle, levelNumber, totalCoherent, tot
           toggleMiniGuide={toggleJurorLevelsMiniGuide}
           MiniGuideComponent={JurorLevels}
         />
-        {totalResolvedDisputes > 0 ? (
+        {totalResolvedVotes > 0 ? (
           <StyledLink href={xShareUrl} target="_blank" rel="noreferrer">
             <StyledXIcon /> <span>Share your juror score</span>
           </StyledLink>

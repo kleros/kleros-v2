@@ -40,10 +40,11 @@ const StyledLabel = styled.label`
 
 interface IJurorLevel {
   coherenceScore: number;
+  totalResolvedDisputes: number;
 }
 
-const JurorLevel: React.FC<IJurorLevel> = ({ coherenceScore }) => {
-  const userLevelData = getUserLevelData(coherenceScore);
+const JurorLevel: React.FC<IJurorLevel> = ({ coherenceScore, totalResolvedDisputes }) => {
+  const userLevelData = getUserLevelData(coherenceScore, totalResolvedDisputes);
   const level = userLevelData.level;
 
   return (
