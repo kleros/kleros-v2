@@ -30,18 +30,18 @@ interface ICoherency {
     level: number;
     title: string;
   };
-  totalCoherent: number;
-  totalResolvedDisputes: number;
+  totalCoherentVotes: number;
+  totalResolvedVotes: number;
   isMiniGuide: boolean;
 }
 
-const Coherency: React.FC<ICoherency> = ({ userLevelData, totalCoherent, totalResolvedDisputes, isMiniGuide }) => {
+const Coherency: React.FC<ICoherency> = ({ userLevelData, totalCoherentVotes, totalResolvedVotes, isMiniGuide }) => {
   const votesContent = (
     <label>
       Coherent Votes:
       <small>
         {" "}
-        {totalCoherent}/{totalResolvedDisputes}{" "}
+        {totalCoherentVotes}/{totalResolvedVotes}{" "}
       </small>
     </label>
   );
@@ -51,7 +51,7 @@ const Coherency: React.FC<ICoherency> = ({ userLevelData, totalCoherent, totalRe
       <small>{userLevelData.title}</small>
       <label>Level {userLevelData.level}</label>
       <CircularProgress
-        progress={parseFloat(((totalCoherent / Math.max(totalResolvedDisputes, 1)) * 100).toFixed(2))}
+        progress={parseFloat(((totalCoherentVotes / Math.max(totalResolvedVotes, 1)) * 100).toFixed(2))}
       />
       {!isMiniGuide ? (
         <WithHelpTooltip place="left" {...{ tooltipMsg }}>
