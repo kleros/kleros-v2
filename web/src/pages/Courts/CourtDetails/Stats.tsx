@@ -229,23 +229,23 @@ const Stats = () => {
 
   const timeframedStats: ITimeframedStat[] = [
     {
-      title: "PNK for 1 ETH",
-      getText: (data) => {
-        const treeExpectedRewardPerPnk = data?.treeExpectedRewardPerPnk;
-        if (!treeExpectedRewardPerPnk) return "N/A";
-        const pnkNeeded = treeExpectedRewardPerPnk;
-        return beautifyStatNumber(pnkNeeded);
-      },
-      color: "orange",
-      icon: RewardsPerPnk,
-    },
-    {
       title: "PNK for 1 USD",
       getText: (data) => {
         const treeExpectedRewardPerPnk = data?.treeExpectedRewardPerPnk;
         const ethPriceUSD = pricesData ? pricesData[CoinIds.ETH]?.price : undefined;
         if (!ethPriceUSD || !treeExpectedRewardPerPnk) return "N/A";
         const pnkNeeded = treeExpectedRewardPerPnk * ethPriceUSD;
+        return beautifyStatNumber(pnkNeeded);
+      },
+      color: "orange",
+      icon: RewardsPerPnk,
+    },
+    {
+      title: "PNK for 1 ETH",
+      getText: (data) => {
+        const treeExpectedRewardPerPnk = data?.treeExpectedRewardPerPnk;
+        if (!treeExpectedRewardPerPnk) return "N/A";
+        const pnkNeeded = treeExpectedRewardPerPnk;
         return beautifyStatNumber(pnkNeeded);
       },
       color: "orange",
