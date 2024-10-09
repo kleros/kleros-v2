@@ -48,9 +48,10 @@ const ChangeDeveloper: React.FC = () => {
     isError,
   } = useSimulateKlerosCoreRulerChangeRuler({
     query: {
-      enabled: !isUndefined(arbitrable) && !isUndefined(newDeveloper) && isAddress(newDeveloper),
+      enabled:
+        !isUndefined(arbitrable) && !isUndefined(newDeveloper) && isAddress(arbitrable) && isAddress(newDeveloper),
     },
-    args: [(arbitrable ?? "") as Address, newDeveloper as Address],
+    args: [arbitrable as Address, newDeveloper as Address],
   });
 
   const { writeContractAsync: changeRuler } = useWriteKlerosCoreRulerChangeRuler();

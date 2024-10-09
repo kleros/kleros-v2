@@ -17,10 +17,10 @@ function getEmittedEvent(eventName: any, receipt: any) {
 describe("Home Evidence contract", async () => {
   const arbitrationFee = 1000;
   const appealFee = arbitrationFee;
-  const arbitratorExtraData =
-    "0x" +
-    "0000000000000000000000000000000000000000000000000000000000000001" + // courtId 1
-    "0000000000000000000000000000000000000000000000000000000000000001"; // minJurors 1
+  const arbitratorExtraData = ethers.utils.defaultAbiCoder.encode(
+    ["uint256", "uint256"],
+    [1, 1] // courtId 1, minJurors 1
+  );
   const appealTimeout = 100;
   const bondTimeout = 60 * 10;
   const totalCostMultiplier = 15000;

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 
 import { useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react";
 import { useAccount, useSwitchChain } from "wagmi";
@@ -10,17 +10,18 @@ import { SUPPORTED_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 export const SwitchChainButton: React.FC<{ className?: string }> = ({ className }) => {
   // TODO isLoading is not documented, but exists in the type, might have changed to isPending
   const { switchChain, isLoading } = useSwitchChain();
+  const [, setError] = useState<string | null>(null);
   const handleSwitch = useCallback(() => {
     if (!switchChain) {
-      console.error("Cannot switch network. Please do it manually.");
+      setError("Cannot switch network. Please do it manually.");
       return;
     }
     try {
       switchChain({ chainId: DEFAULT_CHAIN });
     } catch (err) {
-      console.error(err);
+      setError(err as string);
     }
-  }, [switchChain]);
+  }, [switchChain, setError]);
   return (
     <Button
       {...{ className }}

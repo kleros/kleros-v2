@@ -86,9 +86,14 @@ const FetchDisputeRequestInput: React.FC<IFetchDisputeRequestInput> = ({ setPara
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const params = await getDisputeRequestParamsFromTxn(debouncedTxnHash as `0x${string}`, chainId);
-      setLoading(false);
-      if (!isUndefined(params)) setParams(params);
+      try {
+        const params = await getDisputeRequestParamsFromTxn(debouncedTxnHash as `0x${string}`, chainId);
+        if (!isUndefined(params)) setParams(params);
+      } catch (error) {
+        console.error("Error fetching dispute request params:", error);
+      } finally {
+        setLoading(false);
+      }
     };
     if (debouncedTxnHash && chainId) fetchData();
   }, [debouncedTxnHash]);

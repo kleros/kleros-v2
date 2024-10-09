@@ -41,14 +41,17 @@ const FetchFromIDInput: React.FC<IFetchFromID> = ({
     [templateId]
   );
   useEffect(() => setTemplateId(defaultTemplateID), [defaultTemplateID]);
-  const { data: templateFromId, isLoading } = useDisputeTemplateFromId(debouncedTemplateId);
+  const { data: templateFromId, isLoading, error } = useDisputeTemplateFromId(debouncedTemplateId);
 
   useEffect(() => {
     const templateData = templateFromId?.disputeTemplate?.templateData;
     const templateDataMappings = templateFromId?.disputeTemplate?.templateDataMappings;
     if (!isUndefined(templateData)) setDisputeTemplateInput(tryPrettify(templateData));
     if (!isUndefined(templateDataMappings)) setDataMappingsInput(tryPrettify(templateDataMappings));
-  }, [templateFromId]);
+    if (error) {
+      console.error("Error fetching template:", error);
+    }
+  }, [templateFromId, error]);
 
   return (
     <Container>
