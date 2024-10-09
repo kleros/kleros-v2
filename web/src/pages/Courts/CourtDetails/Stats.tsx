@@ -193,36 +193,6 @@ interface ITimeframedStat {
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
 
-const timeframedStats: ITimeframedStat[] = [
-  {
-    title: "PNK for 1 ETH",
-    getText: (data) => {
-      const treeExpectedRewardPerPnk = data?.treeExpectedRewardPerPnk;
-      return beautifyStatNumber(treeExpectedRewardPerPnk / 1e18);
-    },
-    color: "orange",
-    icon: RewardsPerPnk,
-  },
-  {
-    title: "PNK for 1 Vote",
-    getText: (data) => {
-      const treeVotesPerPnk = data?.treeVotesPerPnk;
-      return beautifyStatNumber(treeVotesPerPnk);
-    },
-    color: "orange",
-    icon: VotesPerPNKIcon,
-  },
-  {
-    title: "PNK for 1 Case",
-    getText: (data) => {
-      const treeDisputesPerPnk = data?.treeDisputesPerPnk;
-      return beautifyStatNumber(treeDisputesPerPnk);
-    },
-    color: "orange",
-    icon: BalanceWithPNKIcon,
-  },
-];
-
 const timeRanges = [
   { value: 7, text: "Last 7 days" },
   { value: 30, text: "Last 30 days" },
@@ -243,8 +213,8 @@ const Stats = () => {
   const { prices: pricesData } = useCoinPrice(coinIds);
 
   const foundCourt = useMemo(() => {
-    if (timeframedCourtData?.diffCourts) {
-      const foundCourt = timeframedCourtData?.diffCourts.find((c) => c.id === id);
+    if (timeframedCourtData?.data?.courts) {
+      const foundCourt = timeframedCourtData?.data?.courts.find((c) => c.id === id);
       console.log({ foundCourt });
       return foundCourt;
     } else {
@@ -256,6 +226,50 @@ const Stats = () => {
   const handleTimeRangeChange = (value: string | number) => {
     setSelectedRange(value);
   };
+
+  const timeframedStats: ITimeframedStat[] = [
+    {
+      title: "PNK for 1 ETH",
+      getText: (data) => {
+        const treeExpectedRewardPerPnk = data?.treeExpectedRewardPerPnk;
+        if (!treeExpectedRewardPerPnk) return "N/A";
+        const pnkNeeded = treeExpectedRewardPerPnk;
+        return beautifyStatNumber(pnkNeeded);
+      },
+      color: "orange",
+      icon: RewardsPerPnk,
+    },
+    {
+      title: "PNK for 1 USD",
+      getText: (data) => {
+        const treeExpectedRewardPerPnk = data?.treeExpectedRewardPerPnk;
+        const ethPriceUSD = pricesData ? pricesData[CoinIds.ETH]?.price : undefined;
+        if (!ethPriceUSD || !treeExpectedRewardPerPnk) return "N/A";
+        const pnkNeeded = treeExpectedRewardPerPnk * ethPriceUSD;
+        return beautifyStatNumber(pnkNeeded);
+      },
+      color: "orange",
+      icon: RewardsPerPnk,
+    },
+    {
+      title: "PNK for 1 Vote",
+      getText: (data) => {
+        const treeVotesPerPnk = data?.treeVotesPerPnk;
+        return beautifyStatNumber(treeVotesPerPnk);
+      },
+      color: "orange",
+      icon: VotesPerPNKIcon,
+    },
+    {
+      title: "PNK for 1 Case",
+      getText: (data) => {
+        const treeDisputesPerPnk = data?.treeDisputesPerPnk;
+        return beautifyStatNumber(treeDisputesPerPnk);
+      },
+      color: "orange",
+      icon: BalanceWithPNKIcon,
+    },
+  ];
 
   return (
     <StyledAccordion
