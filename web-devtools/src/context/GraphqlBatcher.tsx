@@ -27,7 +27,7 @@ const fetcher = async (queries: IQuery[]) => {
     try {
       return request(url, document, variables).then((result) => ({ id, result }));
     } catch (error) {
-      console.error("Graph error: ", { error });
+      console.error("Graph error: ", { error, query: { id, document, variables, isDisputeTemplate, chainId } });
       debounceErrorToast("Graph query error: failed to fetch data.");
       return { id, result: {} };
     }

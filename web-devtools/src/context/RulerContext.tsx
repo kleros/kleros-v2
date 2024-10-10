@@ -49,11 +49,12 @@ const RulerContextProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     if (!arbitrableSettingsData) return;
+    const [rulingMode, rulingRaw, tied, overridden] = arbitrableSettingsData;
     setArbitrableSettings({
-      rulingMode: arbitrableSettingsData[0],
-      ruling: Number(arbitrableSettingsData[1]),
-      tied: arbitrableSettingsData[2],
-      overridden: arbitrableSettingsData[3],
+      rulingMode,
+      ruling: Number(rulingRaw),
+      tied,
+      overridden,
     });
   }, [arbitrableSettingsData]);
 
@@ -62,7 +63,7 @@ const RulerContextProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
 
     setKnownArbitrables([...knownArbitrables, arbitrable?.toLowerCase()]);
-  }, [arbitrable, knownArbitrables, setKnownArbitrables]);
+  }, [arbitrable, knownArbitrables]);
 
   const refetchData = useCallback(() => {
     refetchArbitrableSettings();
@@ -80,7 +81,7 @@ const RulerContextProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           refetchData,
           knownArbitrables,
         }),
-        [arbitrable, setArbitrable, arbitrableSettings, currentDeveloper, refetchData, knownArbitrables]
+        [arbitrable, arbitrableSettings, currentDeveloper, refetchData, knownArbitrables]
       )}
     >
       {children}

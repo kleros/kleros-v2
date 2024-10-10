@@ -4,4 +4,5 @@ export enum ArbitratorTypes {
   neo,
 }
 
-export const getArbitratorType = (id: keyof typeof ArbitratorTypes = "vanilla"): ArbitratorTypes => ArbitratorTypes[id];
+export const getArbitratorType = (id: keyof typeof ArbitratorTypes = "vanilla" as const): ArbitratorTypes =>
+  ArbitratorTypes[id];

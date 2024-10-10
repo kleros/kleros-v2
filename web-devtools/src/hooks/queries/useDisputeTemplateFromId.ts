@@ -25,12 +25,17 @@ export const useDisputeTemplateFromId = (templateId?: string) => {
     queryKey: [`disputeTemplate${templateId}`],
     enabled: isEnabled,
     staleTime: Infinity,
-    queryFn: async () =>
-      await graphqlBatcher.fetch({
+    queryFn: async () => {
+      const response = await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: disputeTemplateQuery,
         variables: { id: templateId?.toString() },
         isDisputeTemplate: true,
-      }),
+      });
+      if (!response || response.errors) {
+        throw new Error("Failed to fetch dispute template: " + response?.errors?.[0]?.message);
+      }
+      return response.data;
+    },
   });
 };

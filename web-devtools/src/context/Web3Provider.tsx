@@ -3,26 +3,38 @@ import React from "react";
 import { createWeb3Modal } from "@web3modal/wagmi/react";
 import { type Chain } from "viem";
 import { createConfig, fallback, http, WagmiProvider, webSocket } from "wagmi";
-import { mainnet, arbitrumSepolia } from "wagmi/chains";
+import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado, sepolia, gnosis } from "wagmi/chains";
 import { walletConnect } from "wagmi/connectors";
 
 import { ALL_CHAINS } from "consts/chains";
 
 import { theme } from "styles/Theme";
 
-const alchemyApiKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY ?? "";
+const alchemyApiKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
+if (!alchemyApiKey) {
+  throw new Error("Alchemy API key is not set in NEXT_PUBLIC_ALCHEMY_API_KEY environment variable.");
+}
 
-// https://github.com/alchemyplatform/alchemy-sdk-js/blob/96b3f62/src/types/types.ts#L98-L119
-const alchemyToViemChain = {
+// https://github.com/alchemyplatform/alchemy-sdk-js/blob/c4440cb/src/types/types.ts#L98-L153
+const alchemyToViemChain: Record<number, string> = {
   [arbitrumSepolia.id]: "arb-sepolia",
+  [arbitrum.id]: "arb-mainnet",
   [mainnet.id]: "eth-mainnet",
+  [sepolia.id]: "eth-sepolia",
+  [gnosis.id]: "gnosis-mainnet",
+  [gnosisChiado.id]: "gnosis-chiado",
 };
 
 type AlchemyProtocol = "https" | "wss";
 
-// https://github.com/alchemyplatform/alchemy-sdk-js/blob/96b3f62/src/util/const.ts#L16-L18
-const alchemyURL = (protocol: AlchemyProtocol, chainId: number) =>
-  `${protocol}://${alchemyToViemChain[chainId]}.g.alchemy.com/v2/${alchemyApiKey}`;
+// https://github.com/alchemyplatform/alchemy-sdk-js/blob/c4440cb/src/util/const.ts#L16-L18
+function alchemyURL(protocol: AlchemyProtocol, chainId: number): string {
+  const network = alchemyToViemChain[chainId];
+  if (!network) {
+    throw new Error(`Unsupported chain ID: ${chainId}`);
+  }
+  return `${protocol}://${network}.g.alchemy.com/v2/${alchemyApiKey}`;
+}
 
 export const getTransports = () => {
   const alchemyTransport = (chain: Chain) =>
@@ -36,7 +48,12 @@ export const getTransports = () => {
 
 const chains = ALL_CHAINS as [Chain, ...Chain[]];
 const transports = getTransports();
-const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID ?? "";
+
+const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
+if (!projectId) {
+  throw new Error("WalletConnect project ID is not set in NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID environment variable.");
+}
+
 const wagmiConfig = createConfig({
   chains,
   transports,

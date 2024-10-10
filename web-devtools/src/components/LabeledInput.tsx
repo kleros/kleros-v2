@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
 import { Checkbox, Field, type CheckboxProps, type FieldProps } from "@kleros/ui-components-library";
@@ -88,13 +88,19 @@ type LabeledInputProps = BaseProps & (CheckboxInputProps | DefaultInputProps);
 
 const LabeledInput: React.FC<LabeledInputProps> = ({ inputType = "field", label, ...props }) => {
   const labelRef = useRef<HTMLDivElement>(null);
+  const [labelWidth, setLabelWidth] = useState(0);
+  useLayoutEffect(() => {
+    if (labelRef.current) {
+      setLabelWidth(labelRef.current.offsetWidth);
+    }
+  }, []);
   return (
     <Container>
       <LabelContainer ref={labelRef} isField={inputType === "field"}>
         <Label>{label}</Label>
       </LabelContainer>
       <InputContainer isField={inputType === "field"}>
-        {inputType === "field" && <StyledField {...props} paddingLeft={labelRef.current?.offsetWidth} />}
+        {inputType === "field" && <StyledField {...props} paddingLeft={labelWidth} />}
         {inputType === "checkbox" && <StyledCheckbox label="&nbsp;" {...props} />}
       </InputContainer>
     </Container>

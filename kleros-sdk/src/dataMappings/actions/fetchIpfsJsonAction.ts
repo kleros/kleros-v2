@@ -18,7 +18,7 @@ export const fetchIpfsJsonAction = async (mapping: FetchIpfsJsonMapping) => {
 
   const response = await fetch(httpUri, { method: "GET" });
 
-  if (!response) {
+  if (!response.ok) {
     throw new Error("Failed to fetch data from IPFS");
   }
 
