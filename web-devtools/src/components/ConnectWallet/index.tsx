@@ -8,8 +8,7 @@ import { Button } from "@kleros/ui-components-library";
 import { SUPPORTED_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 
 export const SwitchChainButton: React.FC<{ className?: string }> = ({ className }) => {
-  // TODO isLoading is not documented, but exists in the type, might have changed to isPending
-  const { switchChain, isLoading } = useSwitchChain();
+  const { switchChain, isPending } = useSwitchChain();
   const [, setError] = useState<string | null>(null);
   const handleSwitch = useCallback(() => {
     if (!switchChain) {
@@ -25,8 +24,8 @@ export const SwitchChainButton: React.FC<{ className?: string }> = ({ className 
   return (
     <Button
       {...{ className }}
-      isLoading={isLoading}
-      disabled={isLoading}
+      isLoading={isPending}
+      disabled={isPending}
       text={`Switch to ${SUPPORTED_CHAINS[DEFAULT_CHAIN].name}`}
       onClick={handleSwitch}
     />
