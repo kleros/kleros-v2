@@ -59,7 +59,7 @@ const projectId = import.meta.env.WALLETCONNECT_PROJECT_ID ?? "";
 const wagmiConfig = createConfig({
   chains,
   transports,
-  connectors: [walletConnect({ projectId })],
+  connectors: [walletConnect({ projectId, showQrModal: false })],
 });
 
 createWeb3Modal({

@@ -28,6 +28,11 @@ const CardContainer = styled.div`
   flex-direction: column;
   justify-content: space-between;
 `;
+
+const StyledCaseCardTitleSkeleton = styled(StyledSkeleton)`
+  margin-bottom: 16px;
+`;
+
 const TruncatedTitle = ({ text, maxLength }) => {
   const truncatedText = text.length <= maxLength ? text : text.slice(0, maxLength) + "…";
   return <h3>{truncatedText}</h3>;
@@ -54,7 +59,7 @@ const DisputeCardView: React.FC<IDisputeCardView> = ({ isLoading, ...props }) =>
     <StyledCard hover onClick={() => navigate(`/cases/${props?.disputeID?.toString()}`)}>
       <PeriodBanner id={parseInt(props?.disputeID)} period={props?.period} />
       <CardContainer>
-        {isLoading ? <StyledSkeleton /> : <TruncatedTitle text={props?.title} maxLength={100} />}
+        {isLoading ? <StyledCaseCardTitleSkeleton /> : <TruncatedTitle text={props?.title} maxLength={100} />}
         <DisputeInfo {...props} />
       </CardContainer>
     </StyledCard>

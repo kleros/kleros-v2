@@ -12,7 +12,8 @@ const topUsersByCoherenceScoreQuery = graphql(`
     users(first: $first, orderBy: $orderBy, orderDirection: $orderDirection) {
       id
       coherenceScore
-      totalCoherent
+      totalCoherentVotes
+      totalResolvedVotes
       totalResolvedDisputes
     }
   }
