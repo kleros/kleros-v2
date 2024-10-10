@@ -1,3 +1,5 @@
+import { type Address } from "viem";
+
 export type JsonMapping = {
   type: string;
   value: object;
@@ -17,7 +19,7 @@ export interface SubgraphMapping {
 export type AbiCallMapping = {
   type: string;
   abi: string;
-  address: string;
+  address: Address;
   args: any[];
   seek: string[];
   populate: string[];
@@ -26,7 +28,7 @@ export type AbiCallMapping = {
 export type AbiEventMapping = {
   type: string;
   abi: string;
-  address: string;
+  address: Address;
   eventFilter: {
     fromBlock: BigInt | string;
     toBlock: BigInt | string;

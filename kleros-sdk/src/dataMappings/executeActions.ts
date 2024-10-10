@@ -24,7 +24,7 @@ export const executeAction = async (
   mapping: ActionMapping,
   context: Record<string, unknown> = {}
 ): Promise<ActionResult> => {
-  mapping = replacePlaceholdersWithValues(mapping, context);
+  mapping = replacePlaceholdersWithValues(mapping, context) as ActionMapping;
 
   switch (mapping.type) {
     case "graphql":

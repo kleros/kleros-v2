@@ -1,7 +1,7 @@
-import { createPublicClient, webSocket } from "viem";
+import { createPublicClient, webSocket, type PublicClient } from "viem";
 import { arbitrumSepolia } from "viem/chains";
 
-let publicClient;
+let publicClient: PublicClient | undefined;
 
 export const configureSDK = (config: { apiKey?: string }) => {
   if (config.apiKey) {
@@ -14,7 +14,7 @@ export const configureSDK = (config: { apiKey?: string }) => {
   }
 };
 
-export const getPublicClient = () => {
+export const getPublicClient = (): PublicClient => {
   if (!publicClient) {
     throw new Error("SDK not configured. Please call `configureSDK` before using.");
   }
