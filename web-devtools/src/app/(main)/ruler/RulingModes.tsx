@@ -262,7 +262,7 @@ const RulingModes: React.FC = () => {
               disabled={rulingMode !== RULING_MODE.AutomaticPreset}
             />
             <LabeledInput
-              label="Overidden"
+              label="Overridden"
               inputType="checkbox"
               checked={overridden}
               onChange={() => setOverridden((prev) => !prev)}

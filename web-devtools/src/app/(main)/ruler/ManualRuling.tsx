@@ -117,7 +117,7 @@ const ManualRuling: React.FC = () => {
         <LabeledInput label="Ruling" type="number" value={ruling} onChange={(e) => setRuling(Number(e.target.value))} />
         <LabeledInput label="Tie" inputType="checkbox" checked={tie} onChange={() => setTie((prev) => !prev)} />
         <LabeledInput
-          label="Overidden"
+          label="Overridden"
           inputType="checkbox"
           checked={overridden}
           onChange={() => setOverridden((prev) => !prev)}

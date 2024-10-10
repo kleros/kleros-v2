@@ -74,6 +74,7 @@ const FetchDisputeRequestInput: React.FC<IFetchDisputeRequestInput> = ({ setPara
   const [txnHash, setTxnHash] = useState<string>("");
   const [debouncedTxnHash, setDebouncedTxnHash] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useDebounce(
     () => {
@@ -89,14 +90,16 @@ const FetchDisputeRequestInput: React.FC<IFetchDisputeRequestInput> = ({ setPara
       try {
         const params = await getDisputeRequestParamsFromTxn(debouncedTxnHash as `0x${string}`, chainId);
         if (!isUndefined(params)) setParams(params);
+        setError(null);
       } catch (error) {
         console.error("Error fetching dispute request params:", error);
+        setError("Failed to fetch dispute request parameters");
       } finally {
         setLoading(false);
       }
     };
     if (debouncedTxnHash && chainId) fetchData();
-  }, [debouncedTxnHash]);
+  }, [debouncedTxnHash, chainId]);
 
   return (
     <Container>
@@ -106,7 +109,7 @@ const FetchDisputeRequestInput: React.FC<IFetchDisputeRequestInput> = ({ setPara
           value={txnHash}
           placeholder="Enter transaction hash"
           onChange={(e) => setTxnHash(e.target.value)}
-          message={loading ? "fetching ..." : ""}
+          message={loading ? "fetching ..." : error || ""}
         />
         <StyledChainInput
           value={chainId}

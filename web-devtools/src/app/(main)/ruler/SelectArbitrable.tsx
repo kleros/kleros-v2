@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
-import { Address } from "viem";
+import { Address, PublicClient } from "viem";
+import { usePublicClient } from "wagmi";
 
 import { Copiable, DropdownSelect, Field } from "@kleros/ui-components-library";
 
@@ -10,6 +11,7 @@ import { shortenAddress } from "utils/shortenAddress";
 import { klerosCoreAddress } from "hooks/contracts/generated";
 import { DEFAULT_CHAIN } from "consts/chains";
 import { landscapeStyle } from "styles/landscapeStyle";
+import { validateAddress } from "utils/validateAddressOrEns";
 
 const Container = styled.div`
   width: 100%;
@@ -78,10 +80,19 @@ const StyledDropdown = styled(DropdownSelect)`
   }
 `;
 
+const ErrorMessage = styled.div`
+  color: red;
+  font-size: 14px;
+  margin-top: 4px;
+`;
+
 const SelectArbitrable: React.FC = () => {
   const { arbitrable, setArbitrable, knownArbitrables } = useRulerContext();
+  const publicClient = usePublicClient({ chainId: 1 }) as PublicClient;
   const ref = useRef<HTMLDivElement>(null);
   const [isClient, setIsClient] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   // hydration workaround, local storage is inevitably going to be different, so knownArbitrables will be different
   // server and client side
@@ -102,6 +113,25 @@ const SelectArbitrable: React.FC = () => {
     child.click();
   }, [knownArbitrables, ref]);
 
+  const handleInputChange = useCallback(
+    async (value: string) => {
+      setInputValue(value);
+      setError(null);
+
+      if (value) {
+        const isValid = await validateAddress(value, publicClient);
+        if (isValid) {
+          setArbitrable(value as Address);
+        } else {
+          setError("Invalid address or ENS name");
+        }
+      } else {
+        setArbitrable("" as Address);
+      }
+    },
+    [publicClient, setArbitrable]
+  );
+
   return (
     <Container>
       <AddressContainer>
@@ -113,15 +143,18 @@ const SelectArbitrable: React.FC = () => {
       <Arbitrables suppressHydrationWarning={true}>
         <StyledLabel>Arbitrable:</StyledLabel>
         <SelectContainer ref={ref}>
-          <StyledDropdown defaultValue={arbitrable} items={items} callback={(val) => setArbitrable(val as Address)} />
+          <StyledDropdown
+            defaultValue={arbitrable}
+            items={items}
+            callback={(val) => handleInputChange(val.toString())}
+          />
           <StyledField
-            value={arbitrable}
+            value={inputValue}
             placeholder="Enter Arbitrable"
-            onChange={(e) => {
-              setArbitrable(e.target.value as Address);
-            }}
+            onChange={(e) => handleInputChange(e.target.value)}
             onClick={openDropdown}
           />
+          {error && <ErrorMessage>{error}</ErrorMessage>}
         </SelectContainer>
       </Arbitrables>
     </Container>

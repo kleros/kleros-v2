@@ -14,8 +14,16 @@ import {
 } from "./utils/actionTypeValidators";
 import { ActionMapping } from "./utils/actionTypes";
 import { replacePlaceholdersWithValues } from "./utils/replacePlaceholdersWithValues";
+import { Address } from "viem";
 
-export const executeAction = async (mapping: ActionMapping, context: Record<string, unknown> = {}) => {
+// Add these type definitions at the top of the file
+type ActionResult = Record<string, unknown> | null | undefined;
+
+// Update the function signature
+export const executeAction = async (
+  mapping: ActionMapping,
+  context: Record<string, unknown> = {}
+): Promise<ActionResult> => {
   mapping = replacePlaceholdersWithValues(mapping, context);
 
   switch (mapping.type) {
@@ -24,21 +32,24 @@ export const executeAction = async (mapping: ActionMapping, context: Record<stri
     case "json":
       return jsonAction(validateJsonMapping(mapping));
     case "abi/call":
-      return await callAction(validateAbiCallMapping(mapping), context.alchemyApiKey);
+      return await callAction(validateAbiCallMapping(mapping), context.alchemyApiKey as string);
     case "abi/event":
-      return await eventAction(validateAbiEventMapping(mapping), context.alchemyApiKey);
+      return await eventAction(validateAbiEventMapping(mapping), context.alchemyApiKey as string);
     case "fetch/ipfs/json":
       return await fetchIpfsJsonAction(validateFetchIpfsJsonMapping(mapping));
     case "reality":
       mapping = validateRealityMapping(mapping);
-      return await retrieveRealityData(mapping.realityQuestionID, context.arbitrableAddress);
+      return await retrieveRealityData(mapping.realityQuestionID, context.arbitrableAddress as Address);
     default:
       throw new Error(`Unsupported action type: ${mapping.type}`);
   }
 };
 
-export const executeActions = async (mappings, initialContext = {}) => {
-  const context = { ...initialContext };
+export const executeActions = async (
+  mappings: ActionMapping[],
+  initialContext: Record<string, unknown> = {}
+): Promise<Record<string, unknown>> => {
+  const context: Record<string, unknown> = { ...initialContext };
 
   for (const mapping of mappings) {
     const actionResult = await executeAction(mapping, context);

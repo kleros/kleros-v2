@@ -1,26 +1,15 @@
 import { readdir, readFile } from "fs/promises";
 import { parse, join } from "path";
 
-import { Chain } from "@wagmi/chains";
 import { type Config, type ContractConfig, defineConfig } from "@wagmi/cli";
 import { react, actions } from "@wagmi/cli/plugins";
 import dotenv from "dotenv";
-import { type Abi } from "viem";
-
-import IArbitrableV2 from "@kleros/kleros-v2-contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" assert { type: "json" };
-import IHomeGateway from "@kleros/kleros-v2-contracts/artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" assert { type: "json" };
+import { Chain } from "viem";
 
 import { ArbitratorTypes, getArbitratorType } from "./src/consts/arbitratorTypes";
+import { arbitrum, arbitrumSepolia, gnosis, gnosisChiado, mainnet, sepolia } from "viem/chains";
 
 dotenv.config();
-
-type ArtifactPartial = {
-  abi: Abi;
-};
-
-const getAbi = (artifact: any) => {
-  return (artifact as ArtifactPartial).abi;
-};
 
 const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardhatChainName?: string) => {
   const artifactSuffix =
@@ -30,8 +19,16 @@ const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardh
   const vanillaArtifacts = ["KlerosCore", "DisputeKitClassic", "SortitionModule", "DisputeResolver", "KlerosCoreRuler"];
   const typeSpecificArtifacts = vanillaArtifacts.map((artifact) => `${artifact}${artifactSuffix}`);
 
-  const chains = await import("wagmi/chains");
-  const chain = (chains as any)[viemChainName] as Chain;
+  const chainMap: Record<string, Chain> = {
+    arbitrum,
+    arbitrumSepolia,
+    sepolia,
+    mainnet,
+    gnosisChiado,
+    gnosis,
+  };
+
+  const chain = chainMap[viemChainName];
   if (!chain) {
     throw new Error(`Viem chain ${viemChainName} not found`);
   }
@@ -98,17 +95,7 @@ const getConfig = async (): Promise<Config> => {
 
   return {
     out: "src/hooks/contracts/generated.ts",
-    contracts: [
-      ...deploymentContracts,
-      {
-        name: "IHomeGateway",
-        abi: getAbi(IHomeGateway),
-      },
-      {
-        name: "IArbitrableV2",
-        abi: getAbi(IArbitrableV2),
-      },
-    ],
+    contracts: [...deploymentContracts],
     plugins: [react(), actions()],
   };
 };
