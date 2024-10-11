@@ -5,6 +5,8 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Bar } from "react-chartjs-2";
 import "chartjs-adapter-moment";
 
+const formatter = new Intl.NumberFormat("en", { notation: "compact" });
+
 const BarContainer = styled.div`
   height: 220px;
   margin-top: 16px;
@@ -28,6 +30,9 @@ const BarChart: React.FC<IBarChartProps> = ({ chartData }) => {
     (value: number) => `${Math.floor((value * 100) / chartData.total)} %`,
     [chartData]
   );
+
+  const formatPNKValue = useCallback((value: number) => formatter.format(value), []);
+
   const tickSize = 5; // suggested, if that many labels can't fit, chart will use even labels
 
   const options = {
@@ -62,6 +67,7 @@ const BarChart: React.FC<IBarChartProps> = ({ chartData }) => {
         font: {
           weight: "bold",
         },
+        formatter: formatPNKValue,
       },
       tooltip: {
         backgroundColor: theme.whiteBackground,
