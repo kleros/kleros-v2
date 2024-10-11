@@ -7,7 +7,7 @@ const config: CodegenConfig = {
   schema: [getGraphqlUrl(false), getGraphqlUrl(true)],
   documents: "./src/hooks/queries/*.ts",
   generates: {
-    "./src/graphql/": {
+    "./src/graphql-generated/": {
       preset: "client",
     },
   },

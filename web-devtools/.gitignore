@@ -29,7 +29,7 @@ dist
 
 # generated code
 src/hooks/contracts/generated.ts
-src/graphql
+src/graphql-generated
 generatedGitInfo.json
 generatedNetlifyInfo.json
 

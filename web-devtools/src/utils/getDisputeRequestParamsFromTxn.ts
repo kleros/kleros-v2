@@ -8,7 +8,7 @@ import { wagmiConfig } from "utils/wagmiConfig";
 export const getDisputeRequestParamsFromTxn = async (hash: `0x${string}`, chainId: number) => {
   try {
     const publicClient = getPublicClient(wagmiConfig, { chainId });
-
+    if (!publicClient) return;
     const txn: GetTransactionReceiptReturnType = await publicClient.getTransactionReceipt({
       hash,
     });

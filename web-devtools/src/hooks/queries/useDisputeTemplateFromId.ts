@@ -3,8 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 import { isUndefined } from "utils/isUndefined";
 
-import { graphql } from "src/graphql";
-import { DisputeTemplateQuery } from "src/graphql/graphql";
+import { graphql } from "src/graphql-generated";
+import { DisputeTemplateQuery } from "src/graphql-generated/graphql";
 
 const disputeTemplateQuery = graphql(`
   query DisputeTemplate($id: ID!) {

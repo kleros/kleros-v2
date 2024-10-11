@@ -63,6 +63,7 @@ const wagmiConfig = createConfig({
 createWeb3Modal({
   wagmiConfig,
   projectId,
+  // @ts-ignore
   defaultChain: arbitrumSepolia,
   themeVariables: {
     "--w3m-color-mix": theme.klerosUIComponentsPrimaryPurple,
