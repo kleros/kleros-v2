@@ -9,6 +9,7 @@ import {
   PointElement,
   LineElement,
   TimeScale,
+  ChartOptions,
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Bar } from "react-chartjs-2";
@@ -45,12 +46,9 @@ const BarChart: React.FC<IBarChartProps> = ({ chartData }) => {
 
   const tickSize = 5; // suggested, if that many labels can't fit, chart will use even labels
 
-  const options = {
+  const options: ChartOptions<"bar"> = {
     responsive: true,
     maintainAspectRatio: false,
-    tooltips: {
-      position: "nearest",
-    },
     scales: {
       x: {
         grid: { display: false },
