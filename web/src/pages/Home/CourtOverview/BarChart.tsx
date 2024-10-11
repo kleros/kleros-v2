@@ -1,10 +1,20 @@
 import React, { useCallback } from "react";
 import styled, { useTheme } from "styled-components";
-import { Chart as ChartJS, BarElement } from "chart.js";
+import {
+  Chart as ChartJS,
+  BarElement,
+  Tooltip,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  TimeScale,
+} from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Bar } from "react-chartjs-2";
 import "chartjs-adapter-moment";
 
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, TimeScale, Tooltip);
 const formatter = new Intl.NumberFormat("en", { notation: "compact" });
 
 const BarContainer = styled.div`
