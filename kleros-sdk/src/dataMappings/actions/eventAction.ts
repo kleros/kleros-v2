@@ -1,10 +1,9 @@
 import { parseAbiItem } from "viem";
 import { AbiEventMapping } from "src/dataMappings/utils/actionTypes";
 import { createResultObject } from "src/dataMappings/utils/createResultObject";
-import { configureSDK, getPublicClient } from "src/sdk";
+import { getPublicClient } from "src/sdk";
 
-export const eventAction = async (mapping: AbiEventMapping, alchemyApiKey: string) => {
-  configureSDK({ apiKey: alchemyApiKey });
+export const eventAction = async (mapping: AbiEventMapping) => {
   const publicClient = getPublicClient();
 
   const { abi: source, address, eventFilter, seek, populate } = mapping;

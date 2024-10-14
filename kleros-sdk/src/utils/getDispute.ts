@@ -23,7 +23,7 @@ export const getDispute = async (disputeParameters: GetDisputeParameters): Promi
 
   const disputeDetails = await fetchDisputeDetails(coreSubgraph, disputeId);
 
-  if (!disputeDetails || !disputeDetails.dispute) return;
+  if (!disputeDetails?.dispute) return;
 
   const template = await fetchDisputeTemplateFromId(dtrSubgraph, disputeDetails.dispute.templateId);
 
