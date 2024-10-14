@@ -33,8 +33,7 @@ export const isKlerosNeo = () => getArbitratorType() === ArbitratorTypes.neo;
 export const getArbitratorType = (): ArbitratorTypes =>
   _getArbitratorType(import.meta.env.REACT_APP_ARBITRATOR_TYPE?.toLowerCase());
 
-export const getDevToolsUrl = () =>
-  import.meta.env.URL?.replace(/^https:\/\//, "https://devtools.") || "https://devtools.v2-testnet.kleros.builders";
+export const getDevToolsUrl = () => import.meta.env.REACT_APP_DEVTOOLS_URL || "https://devtools.v2.kleros.builders";
 
 export const GENESIS_BLOCK_ARBSEPOLIA = BigInt(import.meta.env.REACT_APP_GENESIS_BLOCK_ARBSEPOLIA ?? 0);
 export const GENESIS_BLOCK_ARBMAINNET = BigInt(import.meta.env.REACT_APP_GENESIS_BLOCK_ARBMAINNET ?? 0);
