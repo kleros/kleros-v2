@@ -1,19 +1,27 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
+
+import { useAccount } from "wagmi";
+import { formatEther } from "viem";
 
 import BalanceIcon from "svgs/icons/balance.svg";
 import ThreePnksIcon from "svgs/styled/three-pnks.svg";
 
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
-
-import { landscapeStyle } from "styles/landscapeStyle";
+import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 
 import Popup, { PopupType } from "components/Popup/index";
 import Tag from "components/Tag";
 
+import { uncommify } from "utils/commify";
+import { isUndefined } from "utils/index";
+import { REFETCH_INTERVAL } from "consts/index";
+
 import InputDisplay from "./InputDisplay";
 import JurorBalanceDisplay from "./JurorStakeDisplay";
 import { ActionType } from "./StakeWithdrawButton";
+import SimulatorPopup from "./SimulatorPopup";
 
 const Container = styled.div`
   position: relative;
@@ -79,6 +87,14 @@ const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isActive, setIsActive] = useState<boolean>(true);
   const [action, setAction] = useState<ActionType>(ActionType.stake);
+  const { address } = useAccount();
+  const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
+    query: {
+      enabled: !isUndefined(address),
+      refetchInterval: REFETCH_INTERVAL,
+    },
+    args: [address ?? "0x", BigInt(id ?? 0)],
+  });
 
   useLockOverlayScroll(isPopupOpen);
 
@@ -101,8 +117,17 @@ const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "
         </TextArea>
         <StakeArea>
           <InputDisplay {...{ action, isSending, setIsSending, setIsPopupOpen, amount, setAmount }} />
-          <JurorBalanceDisplay />
+          <JurorBalanceDisplay {...{ jurorBalance }} />
         </StakeArea>
+        {isStaking && Number(uncommify(amount)) > 0 ? (
+          <SimulatorPopup
+            stakingAmount={
+              !isUndefined(jurorBalance)
+                ? Number(formatEther(jurorBalance?.[2])) + Number(uncommify(amount))
+                : Number(uncommify(amount))
+            }
+          />
+        ) : null}
         {isPopupOpen && (
           <Popup
             title={isStaking ? "Stake Confirmed" : "Withdraw Confirmed"}
