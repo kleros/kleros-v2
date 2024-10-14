@@ -338,8 +338,9 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
     // *         State Modifiers           * //
     // ************************************* //
 
-    function changeRulingModeToManual(IArbitrableV2 _arbitrable) external onlyByGovernor {
-        if (rulers[_arbitrable] != msg.sender && rulers[_arbitrable] != address(0)) revert RulerOnly();
+    function changeRulingModeToManual(IArbitrableV2 _arbitrable) external {
+        if (rulers[_arbitrable] == address(0)) rulers[_arbitrable] = msg.sender;
+        if (rulers[_arbitrable] != msg.sender) revert RulerOnly();
 
         delete settings[_arbitrable];
         RulerSettings storage arbitratedSettings = settings[_arbitrable];
@@ -347,8 +348,9 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         emit RulerSettingsChanged(_arbitrable, arbitratedSettings);
     }
 
-    function changeRulingModeToAutomaticRandom(IArbitrableV2 _arbitrable) external onlyByGovernor {
-        if (rulers[_arbitrable] != msg.sender && rulers[_arbitrable] != address(0)) revert RulerOnly();
+    function changeRulingModeToAutomaticRandom(IArbitrableV2 _arbitrable) external {
+        if (rulers[_arbitrable] == address(0)) rulers[_arbitrable] = msg.sender;
+        if (rulers[_arbitrable] != msg.sender) revert RulerOnly();
 
         delete settings[_arbitrable];
         RulerSettings storage arbitratedSettings = settings[_arbitrable];
@@ -361,8 +363,9 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         uint256 _presetRuling,
         bool _presetTied,
         bool _presetOverridden
-    ) external onlyByGovernor {
-        if (rulers[_arbitrable] != msg.sender && rulers[_arbitrable] != address(0)) revert RulerOnly();
+    ) external {
+        if (rulers[_arbitrable] == address(0)) rulers[_arbitrable] = msg.sender;
+        if (rulers[_arbitrable] != msg.sender) revert RulerOnly();
 
         delete settings[_arbitrable];
         RulerSettings storage arbitratedSettings = settings[_arbitrable];
@@ -419,7 +422,6 @@ contract KlerosCoreRuler is IArbitratorV2, UUPSProxiable, Initializable {
         round.totalFeesForJurors = _feeAmount;
         round.feeToken = IERC20(_feeToken);
 
-        rulers[dispute.arbitrated] = tx.origin;
         _autoRule(disputeID, _numberOfChoices);
 
         emit DisputeCreation(disputeID, IArbitrableV2(msg.sender));

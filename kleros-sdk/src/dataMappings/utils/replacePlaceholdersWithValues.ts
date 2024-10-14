@@ -1,17 +1,23 @@
 import mustache from "mustache";
+import { ActionMapping } from "./actionTypes";
 
-export const replacePlaceholdersWithValues = (mapping: any, context: Record<string, unknown>) => {
-  const replace = (obj) => {
+export function replacePlaceholdersWithValues(
+  mapping: ActionMapping,
+  context: Record<string, unknown>
+): ActionMapping | ActionMapping[] {
+  function replace(obj: ActionMapping): ActionMapping | ActionMapping[] {
     if (typeof obj === "string") {
-      return mustache.render(obj, context);
+      return mustache.render(obj, context) as unknown as ActionMapping;
     } else if (Array.isArray(obj)) {
-      return obj.map(replace);
+      return obj.map(replace) as unknown as ActionMapping[];
     } else if (typeof obj === "object" && obj !== null) {
-      return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, replace(value)]));
+      return Object.fromEntries(
+        Object.entries(obj).map(([key, value]) => [key, replace(value)])
+      ) as unknown as ActionMapping[];
     } else {
       return obj;
     }
-  };
+  }
 
   return replace(mapping);
-};
+}

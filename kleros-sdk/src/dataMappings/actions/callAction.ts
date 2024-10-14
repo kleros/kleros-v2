@@ -13,6 +13,7 @@ export const callAction = async (mapping: AbiCallMapping, alchemyApiKey: string)
   const data = await publicClient.readContract({
     address,
     abi: [parsedAbi],
+    functionName: "TODO: FIX ME",
     args,
   });
 
