@@ -23,11 +23,15 @@ export const getDispute = async (disputeParameters: GetDisputeParameters): Promi
 
   const disputeDetails = await fetchDisputeDetails(coreSubgraph, disputeId);
 
-  if (!disputeDetails?.dispute) return;
+  if (!disputeDetails?.dispute) {
+    throw new Error(`Dispute details not found for disputeId: ${disputeId}`);
+  }
 
   const template = await fetchDisputeTemplateFromId(dtrSubgraph, disputeDetails.dispute.templateId);
 
-  if (!template) return;
+  if (!template) {
+    throw new Error(`Template not found for template ID: ${disputeDetails.dispute.templateId}`);
+  }
 
   const { templateData, templateDataMappings } = template.disputeTemplate;
 
@@ -38,7 +42,14 @@ export const getDispute = async (disputeParameters: GetDisputeParameters): Promi
     ...options?.additionalContext,
   };
 
-  const data = templateDataMappings ? await executeActions(JSON.parse(templateDataMappings), initialContext) : {};
+  let data = {};
+  if (templateDataMappings) {
+    try {
+      data = await executeActions(JSON.parse(templateDataMappings), initialContext);
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  }
 
   const populatedTemplate = populateTemplate(templateData, data);
 

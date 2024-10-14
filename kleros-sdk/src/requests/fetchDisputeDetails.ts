@@ -11,7 +11,7 @@ type DisputeDetailsQueryResponse = {
   };
 };
 
-const fetchDisputeDetails = (endpoint: string, id: number) => {
+const fetchDisputeDetails = async (endpoint: string, id: number) => {
   const query = `
     query DisputeDetails {
     dispute(id: ${id}) {
@@ -26,14 +26,9 @@ const fetchDisputeDetails = (endpoint: string, id: number) => {
 `;
 
   try {
-    return request<DisputeDetailsQueryResponse>(endpoint, query)
-      .then((res) => res)
-      .catch((err) => {
-        throw new Error(`Error querying Dispute Details , endpoint : ${endpoint}, message : ${err?.message}`);
-      });
+    return await request<DisputeDetailsQueryResponse>(endpoint, query);
   } catch (error: any) {
-    console.log(`Query Error : ${error?.message}`);
-    return undefined;
+    throw new Error(`Error querying Dispute Details , endpoint : ${endpoint}, message : ${error?.message}`);
   }
 };
 

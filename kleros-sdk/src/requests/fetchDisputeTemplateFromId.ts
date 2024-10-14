@@ -7,7 +7,7 @@ type DisputeTemplateQueryResponse = {
   };
 };
 
-const fetchDisputeTemplateFromId = (endpoint: string, id: number) => {
+const fetchDisputeTemplateFromId = async (endpoint: string, id: number) => {
   const query = `
     query DisputeTemplate {
         disputeTemplate(id: ${id}) {
@@ -18,14 +18,9 @@ const fetchDisputeTemplateFromId = (endpoint: string, id: number) => {
 `;
 
   try {
-    return request<DisputeTemplateQueryResponse>(endpoint, query)
-      .then((res) => res)
-      .catch((err) => {
-        throw new Error(`Error querying Dispute Template Registry , endpoint : ${endpoint}, message : ${err?.message}`);
-      });
+    return await request<DisputeTemplateQueryResponse>(endpoint, query);
   } catch (error: any) {
-    console.log(`Query Error : ${error?.message}`);
-    return undefined;
+    throw new Error(`Error querying Dispute Template Registry , endpoint : ${endpoint}, message : ${error?.message}`);
   }
 };
 
