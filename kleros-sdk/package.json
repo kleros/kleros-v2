@@ -35,6 +35,7 @@
   "dependencies": {
     "@kleros/kleros-v2-contracts": "workspace:^",
     "@reality.eth/reality-eth-lib": "^3.2.30",
+    "graphql-request": "^7.1.0",
     "mustache": "^4.2.0",
     "zod": "^3.22.4"
   }

@@ -37,7 +37,7 @@ export const executeAction = async (mapping: ActionMapping, context: Record<stri
   }
 };
 
-export const executeActions = async (mappings, initialContext = {}) => {
+export const executeActions = async (mappings, initialContext: Record<string, any> = {}) => {
   const context = { ...initialContext };
 
   for (const mapping of mappings) {
