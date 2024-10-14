@@ -21,7 +21,7 @@ if [[ ! " ${valid_deployments[*]} " =~ ${deployment} ]]; then
 fi
 
 function sourceEnvFile() { #envFile
-    envFile="$1"
+    local envFile="$1"
     if [ -f "$envFile" ]; then
         echo -e "${GREEN}✔${NC} $(basename "$envFile")"
         # shellcheck source=SCRIPTDIR/../.env.devnet
@@ -32,7 +32,7 @@ function sourceEnvFile() { #envFile
 }
 
 envFile="$SCRIPT_DIR/../.env.${deployment}"
-sourceEnvFile "$envFile"
 sourceEnvFile "$envFile.public"
+sourceEnvFile "$envFile"
 
 eval "$commands"

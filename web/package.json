@@ -118,7 +118,6 @@
     "react-use": "^17.4.3",
     "siwe": "^2.3.1",
     "styled-components": "^5.3.11",
-    "vanilla-jsoneditor": "^0.21.4",
     "viem": "^2.1.0",
     "wagmi": "^2.12.8"
   }
