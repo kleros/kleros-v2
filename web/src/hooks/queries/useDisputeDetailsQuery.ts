@@ -30,6 +30,10 @@ const disputeDetailsQuery = graphql(`
         nbVotes
       }
       currentRoundIndex
+      isCrossChain
+      arbitrableChainId
+      externalDisputeId
+      templateId
     }
   }
 `);
