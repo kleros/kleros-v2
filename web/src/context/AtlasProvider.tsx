@@ -20,6 +20,8 @@ import {
   type UpdateEmailData,
   type ConfirmEmailData,
   type ConfirmEmailResponse,
+  Roles,
+  Products,
 } from "utils/atlas";
 
 import { isUndefined } from "src/utils";
@@ -36,7 +38,7 @@ interface IAtlasProvider {
   authoriseUser: () => void;
   addUser: (userSettings: AddUserData) => Promise<boolean>;
   updateEmail: (userSettings: UpdateEmailData) => Promise<boolean>;
-  uploadFile: (file: File) => Promise<string | null>;
+  uploadFile: (file: File, role: Roles) => Promise<string | null>;
   confirmEmail: (userSettings: ConfirmEmailData) => Promise<
     ConfirmEmailResponse & {
       isError: boolean;
@@ -69,7 +71,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
           authorization: `Bearer ${authToken}`,
         }
       : undefined;
-    return new GraphQLClient(atlasUri, { headers });
+    return new GraphQLClient(`${atlasUri}/graphql`, { headers });
   }, [authToken]);
 
   /**
@@ -215,17 +217,20 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
   /**
    * @description upload file to ipfs
    * @param {File} file - file to be uploaded
+   * @param {Roles} role - role for which file is being uploaded
    * @returns {Promise<string | null>} A promise that resolves to the ipfs cid if file was uploaded successfully else
    *                                   null
    */
   const uploadFile = useCallback(
-    async (file: File) => {
+    async (file: File, role: Roles) => {
       try {
-        if (!address || !isVerified) return null;
+        if (!address || !isVerified || !atlasUri || !authToken) return null;
         setIsUploadingFile(true);
 
-        const hash = await uploadToIpfs(atlasGqlClient, file);
-
+        const hash = await uploadToIpfs(
+          { baseUrl: atlasUri, authToken },
+          { file, name: file.name, role, product: Products.CourtV2 }
+        );
         return hash ? `/ipfs/${hash}` : null;
       } catch (err: any) {
         // eslint-disable-next-line
@@ -235,7 +240,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
         setIsUploadingFile(false);
       }
     },
-    [address, isVerified, setIsUploadingFile, atlasGqlClient]
+    [address, isVerified, setIsUploadingFile, authToken]
   );
 
   /**

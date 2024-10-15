@@ -1,21 +1,51 @@
-import { gql, type GraphQLClient } from "graphql-request";
 import { toast } from "react-toastify";
 
 import { OPTIONS } from "utils/wrapWithToast";
 
-export async function uploadToIpfs(client: GraphQLClient, file: File): Promise<string | null> {
-  const presignedUrl = await getPreSignedUrl(client, file.name);
+export enum Products {
+  CourtV2 = "CourtV2",
+}
+
+export enum Roles {
+  Photo = "photo",
+  Evidence = "evidence",
+  Policy = "policy",
+  Generic = "generic",
+}
+
+export type IpfsUploadPayload = {
+  file: File;
+  name: string;
+  product: Products;
+  role: Roles;
+};
+
+type Config = {
+  baseUrl: string;
+  authToken: string;
+};
+
+export async function uploadToIpfs(config: Config, payload: IpfsUploadPayload): Promise<string | null> {
+  const formData = new FormData();
+  formData.append("file", payload.file, payload.name);
+  formData.append("name", payload.name);
+  formData.append("product", payload.product);
+  formData.append("role", payload.role);
 
   return toast.promise<string | null, Error>(
-    fetch(presignedUrl, {
-      method: "PUT",
-      body: file,
+    fetch(`${config.baseUrl}/ipfs/file`, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${config.authToken}`,
+      },
+      body: formData,
     }).then(async (response) => {
-      if (response.status !== 200) {
+      if (!response.ok) {
         const error = await response.json().catch(() => ({ message: "Error uploading to IPFS" }));
         throw new Error(error.message);
       }
-      return response.headers.get("x-amz-meta-cid");
+
+      return await response.text();
     }),
     {
       pending: `Uploading to IPFS...`,
@@ -29,42 +59,3 @@ export async function uploadToIpfs(client: GraphQLClient, file: File): Promise<s
     OPTIONS
   );
 }
-
-const presignedUrlQuery = gql`
-  mutation GetPresignedUrl($filename: String!) {
-    getPresignedUrl(filename: $filename, appname: KlerosCourt)
-  }
-`;
-
-type GetPresignedUrlResponse = {
-  getPresignedUrl: string;
-};
-
-const getPreSignedUrl = (client: GraphQLClient, filename: string) => {
-  const variables = {
-    filename,
-  };
-
-  return toast.promise<string, Error>(
-    client
-      .request<GetPresignedUrlResponse>(presignedUrlQuery, variables)
-      .then(async (response) => response.getPresignedUrl)
-      .catch((errors) => {
-        // eslint-disable-next-line no-console
-        console.log("Get Presigned Url error:", { errors });
-
-        const errorMessage = Array.isArray(errors?.response?.errors)
-          ? errors.response.errors[0]?.message
-          : "Unknown error";
-        throw new Error(errorMessage);
-      }),
-    {
-      error: {
-        render({ data: error }) {
-          return `Getting Presigned Url failed: ${error?.message}`;
-        },
-      },
-    },
-    OPTIONS
-  );
-};

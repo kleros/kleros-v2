@@ -9,6 +9,7 @@ import { Textarea, Button, FileUploader } from "@kleros/ui-components-library";
 
 import { useAtlasProvider } from "context/AtlasProvider";
 import { simulateEvidenceModuleSubmitEvidence } from "hooks/contracts/generated";
+import { Roles } from "utils/atlas";
 import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 
 import EnsureAuth from "components/EnsureAuth";
@@ -101,11 +102,15 @@ const SubmitEvidenceModal: React.FC<{
   );
 };
 
-const constructEvidence = async (uploadFile: (file: File) => Promise<string | null>, msg: string, file?: File) => {
+const constructEvidence = async (
+  uploadFile: (file: File, role: Roles) => Promise<string | null>,
+  msg: string,
+  file?: File
+) => {
   let fileURI: string | null = null;
   if (file) {
     toast.info("Uploading to IPFS", toastOptions);
-    fileURI = await uploadFile(file);
+    fileURI = await uploadFile(file, Roles.Evidence);
     if (!fileURI) throw new Error("Error uploading evidence file");
   }
   return { name: "Evidence", description: msg, fileURI };
