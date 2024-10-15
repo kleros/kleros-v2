@@ -174,6 +174,7 @@ describe("full flow test", () => {
         { title: "Yes", description: "User is responsible", id: "0x01" },
         { title: "No", description: "User is not responsible", id: "0x02" },
       ],
+      policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
       details: {
         ruling: "{{ruling}}",
         tied: "{{tied}}",
@@ -182,6 +183,9 @@ describe("full flow test", () => {
         toAddress: "{{toAddress}}",
         transferValue: "{{transferValue}}",
       },
+      arbitratorChainID: "421613",
+      arbitratorAddress: "0x0987654321098765432109876543210987654321",
+      version: "1.0",
     });
 
     const initialContext = { alchemyApiKey: "mocked_api_key" };
@@ -199,6 +203,7 @@ describe("full flow test", () => {
         { title: "Yes", description: "User is responsible", id: "0x01" },
         { title: "No", description: "User is not responsible", id: "0x02" },
       ],
+      policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
       details: {
         ruling: "1",
         tied: "false",
@@ -207,6 +212,9 @@ describe("full flow test", () => {
         toAddress: "0x0987654321098765432109876543210987654321",
         transferValue: "100",
       },
+      arbitratorChainID: "421613",
+      arbitratorAddress: "0x0987654321098765432109876543210987654321",
+      version: "1.0",
     });
   });
 });
@@ -345,10 +353,7 @@ describe("populateTemplate", () => {
           reserved: false,
         },
       ],
-      policyURI: "https://example.com/policy",
-      frontendUrl: "https://example.com",
-      arbitrableChainID: "100",
-      arbitrableAddress: "0x1234567890123456789012345678901234567890",
+      policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
       arbitratorChainID: "421613",
       arbitratorAddress: "0x0987654321098765432109876543210987654321",
       category: "General",
@@ -376,10 +381,7 @@ describe("populateTemplate", () => {
           reserved: false,
         },
       ],
-      policyURI: "https://example.com/policy",
-      frontendUrl: "https://example.com",
-      arbitrableChainID: "100",
-      arbitrableAddress: "0x1234567890123456789012345678901234567890",
+      policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
       arbitratorChainID: "421613",
       arbitratorAddress: "0x0987654321098765432109876543210987654321",
       category: "General",
@@ -394,6 +396,22 @@ describe("populateTemplate", () => {
       title: "Test Title",
       description: "Test Description",
       question: "{{missingQuestion}}",
+      type: "single-select",
+      answers: [
+        {
+          title: "Yes",
+          description: "Affirmative",
+          id: "0x01",
+          reserved: false,
+        },
+      ],
+      policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
+      arbitratorChainID: "421613",
+      arbitratorAddress: "0x0987654321098765432109876543210987654321",
+      category: "General",
+      lang: "en_US",
+      specification: "Spec",
+      version: "1.0",
     });
 
     const data = {
@@ -406,6 +424,22 @@ describe("populateTemplate", () => {
       title: "Test Title",
       description: "Test Description",
       question: "",
+      type: "single-select",
+      answers: [
+        {
+          title: "Yes",
+          description: "Affirmative",
+          id: "0x01",
+          reserved: false,
+        },
+      ],
+      policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
+      arbitratorChainID: "421613",
+      arbitratorAddress: "0x0987654321098765432109876543210987654321",
+      category: "General",
+      lang: "en_US",
+      specification: "Spec",
+      version: "1.0",
     });
   });
 

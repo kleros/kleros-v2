@@ -32,27 +32,24 @@ export function createDisputeFromEvent(event: DisputeCreation): void {
   updateDisputeRequestData(event);
 }
 
+// source: contracts/src/arbitration/interfaces/IArbitrableV2.sol
 const DisputeRequest = "DisputeRequest(address,uint256,uint256,uint256,string)";
-
 const DisputeRequestSignature = crypto.keccak256(ByteArray.fromUTF8(DisputeRequest));
 
 // note : we are using bytes32 in place of string as strings cannot be decoded and it breaks the function.
-// It is okay for us, as we are interested in the uint256 in front
-// _externalDisputeId,_templateId,_tenplateUri
-const DisputeRequestTypestring = "(uint256,uint256,bytes32)";
+// It is okay for us, as we are only interested in the uint256 in frontend.
+const DisputeRequestTypestring = "(uint256,uint256,bytes32)"; // _externalDisputeId,_templateId,_templateUri
 
+// source: contracts/src/gateway/interfaces/IHomeGateway.sol
 const CrossChainDisputeIncoming =
   "CrossChainDisputeIncoming(address,uint256,address,uint256,uint256,uint256,uint256,string)";
-
 const CrossChainDisputeIncomingSignature = crypto.keccak256(ByteArray.fromUTF8(CrossChainDisputeIncoming));
 
-// arbitrator, _arbitrableChainId, _externalDisputeId, _templateId, _templateUri
 // note : arbitrable is an indexed arg, so it will topic[1]
-const CrossChainDisputeIncomingTypestring = "(address,uint256,uint256,uint256,string)";
+const CrossChainDisputeIncomingTypestring = "(address,uint256,uint256,uint256,string)"; // arbitrator, _arbitrableChainId, _externalDisputeId, _templateId, _templateUri
 
 export const updateDisputeRequestData = (event: DisputeCreation): void => {
   const dispute = Dispute.load(event.params._disputeID.toString());
-
   if (!dispute) return;
 
   const receipt = event.receipt;
@@ -62,16 +59,13 @@ export const updateDisputeRequestData = (event: DisputeCreation): void => {
 
   // note that the topic at 0th index is always the event signature
   const disputeRequestEventIndex = logs.findIndex((log) => log.topics[0] == DisputeRequestSignature);
-
   const crossChainDisputeEventIndex = logs.findIndex((log) => log.topics[0] == CrossChainDisputeIncomingSignature);
 
   if (crossChainDisputeEventIndex !== -1) {
     const crossChainDisputeEvent = logs[crossChainDisputeEventIndex];
 
     const decoded = ethereum.decode(CrossChainDisputeIncomingTypestring, crossChainDisputeEvent.data);
-
     if (!decoded) return;
-
     dispute.isCrossChain = true;
     dispute.arbitrableChainId = decoded.toTuple()[1].toBigInt();
     dispute.externalDisputeId = decoded.toTuple()[2].toBigInt();
@@ -84,7 +78,7 @@ export const updateDisputeRequestData = (event: DisputeCreation): void => {
     const decoded = ethereum.decode(DisputeRequestTypestring, disputeRequestEvent.data);
     if (!decoded) return;
     dispute.isCrossChain = false;
-    dispute.arbitrableChainId = getChainId(dataSource.network());
+    dispute.arbitrableChainId = getHomeChainId(dataSource.network());
     dispute.externalDisputeId = decoded.toTuple()[0].toBigInt();
     dispute.templateId = decoded.toTuple()[1].toBigInt();
     dispute.save();
@@ -92,8 +86,9 @@ export const updateDisputeRequestData = (event: DisputeCreation): void => {
   }
 };
 
-// workaround, since hashmap don't work in subgraphs
-function getChainId(name: string): BigInt {
+// workaround, since hashmap don't work in subgraphs.
+// https://thegraph.com/docs/en/developing/supported-networks/
+function getHomeChainId(name: string): BigInt {
   if (name == "arbitrum-one") return BigInt.fromI32(42161);
   else if (name == "arbitrum-sepolia") return BigInt.fromI32(421614);
   else return BigInt.fromI32(1);
