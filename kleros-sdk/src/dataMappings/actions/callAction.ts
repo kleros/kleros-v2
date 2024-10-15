@@ -6,6 +6,10 @@ import { getPublicClient } from "src/sdk";
 export const callAction = async (mapping: AbiCallMapping) => {
   const publicClient = getPublicClient();
 
+  if (!publicClient) {
+    throw new Error("SDK not configured. Please call `configureSDK` before using.");
+  }
+
   const { abi: source, address, args, seek, populate } = mapping;
   const parsedAbi = typeof source === "string" ? parseAbiItem(source) : source;
 

@@ -7,6 +7,10 @@ import { getPublicClient } from "src/sdk";
 export const eventAction = async (mapping: AbiEventMapping) => {
   const publicClient = getPublicClient();
 
+  if (!publicClient) {
+    throw new Error("SDK not configured. Please call `configureSDK` before using.");
+  }
+
   const { abi: source, address, eventFilter, seek, populate } = mapping;
   const parsedAbi = parseAbiItem(source) as AbiEvent;
 
