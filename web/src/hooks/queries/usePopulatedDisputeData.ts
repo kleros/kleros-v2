@@ -1,22 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
-import { getContract, HttpRequestError, PublicClient, RpcError } from "viem";
-import { usePublicClient } from "wagmi";
+import { HttpRequestError, RpcError } from "viem";
 
 import { executeActions } from "@kleros/kleros-sdk/src/dataMappings/executeActions";
 import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
 
-import { GENESIS_BLOCK_ARBSEPOLIA } from "consts/index";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
-import { iArbitrableV2Abi } from "hooks/contracts/generated";
-import { useEvidenceGroup } from "queries/useEvidenceGroup";
 import { debounceErrorToast } from "utils/debounceErrorToast";
 import { isUndefined } from "utils/index";
-import { DEFAULT_CHAIN } from "consts/chains";
 
 import { graphql } from "src/graphql";
 
-import { useIsCrossChainDispute } from "../useIsCrossChainDispute";
+import { useDisputeDetailsQuery } from "./useDisputeDetailsQuery";
 
 const disputeTemplateQuery = graphql(`
   query DisputeTemplate($id: ID!) {
@@ -30,33 +25,27 @@ const disputeTemplateQuery = graphql(`
 `);
 
 export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
-  const publicClient = usePublicClient();
-  const { data: crossChainData, isError } = useIsCrossChainDispute(disputeID, arbitrableAddress);
+  const { data: disputeData } = useDisputeDetailsQuery(disputeID);
   const { graphqlBatcher } = useGraphqlBatcher();
-  const { data: externalDisputeID } = useEvidenceGroup(disputeID, arbitrableAddress);
   const isEnabled =
     !isUndefined(disputeID) &&
-    !isUndefined(crossChainData) &&
-    !isUndefined(arbitrableAddress) &&
-    !isUndefined(externalDisputeID);
+    !isUndefined(disputeData) &&
+    !isUndefined(disputeData?.dispute) &&
+    !isUndefined(disputeData.dispute?.arbitrableChainId) &&
+    !isUndefined(disputeData.dispute?.externalDisputeId) &&
+    !isUndefined(disputeData.dispute?.templateId);
 
   return useQuery<DisputeDetails>({
-    queryKey: [`DisputeTemplate${disputeID}${arbitrableAddress}${externalDisputeID}`],
+    queryKey: [`DisputeTemplate${disputeID}${arbitrableAddress}${disputeData?.dispute?.externalDisputeId}`],
     enabled: isEnabled,
     staleTime: Infinity,
     queryFn: async () => {
-      if (isEnabled && !isError) {
+      if (isEnabled) {
         try {
-          const { isCrossChainDispute, crossChainTemplateId } = crossChainData;
-
-          const templateId = isCrossChainDispute
-            ? crossChainTemplateId
-            : await getTemplateId(arbitrableAddress, disputeID, publicClient);
-
           const { disputeTemplate } = await graphqlBatcher.fetch({
             id: crypto.randomUUID(),
             document: disputeTemplateQuery,
-            variables: { id: templateId.toString() },
+            variables: { id: disputeData.dispute?.templateId.toString() },
             isDisputeTemplate: true,
           });
 
@@ -66,10 +55,10 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
           const initialContext = {
             disputeID: disputeID,
             arbitrableAddress: arbitrableAddress,
-            arbitrableChainID: isCrossChainDispute ? crossChainData.crossChainId.toString() : DEFAULT_CHAIN.toString(),
+            arbitrableChainID: disputeData.dispute?.arbitrableChainId,
             graphApiKey: import.meta.env.REACT_APP_GRAPH_API_KEY,
             alchemyApiKey: import.meta.env.ALCHEMY_API_KEY,
-            externalDisputeID: externalDisputeID,
+            externalDisputeID: disputeData.dispute?.externalDisputeId,
           };
 
           const data = dataMappings ? await executeActions(JSON.parse(dataMappings), initialContext) : {};
@@ -87,29 +76,4 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
       } else throw Error;
     },
   });
-};
-
-const getTemplateId = async (
-  arbitrableAddress: `0x${string}`,
-  disputeID: string,
-  publicClient: PublicClient
-): Promise<bigint> => {
-  const arbitrable = getContract({
-    abi: iArbitrableV2Abi,
-    address: arbitrableAddress,
-    client: { public: publicClient },
-  });
-  const disputeFilter = await arbitrable.createEventFilter.DisputeRequest(
-    {
-      _arbitrableDisputeID: BigInt(disputeID),
-    },
-    {
-      fromBlock: GENESIS_BLOCK_ARBSEPOLIA,
-      toBlock: "latest",
-    }
-  );
-  const disputeEvents = await publicClient.getFilterLogs({
-    filter: disputeFilter,
-  });
-  return disputeEvents[0].args._templateId ?? 0n;
 };

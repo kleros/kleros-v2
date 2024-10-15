@@ -8,7 +8,7 @@ import { Button } from "@kleros/ui-components-library";
 
 import DownArrow from "svgs/icons/arrow-down.svg";
 
-import { useEvidenceGroup } from "queries/useEvidenceGroup";
+import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useEvidences } from "queries/useEvidences";
 
 import { responsiveSize } from "styles/responsiveSize";
@@ -54,14 +54,14 @@ const ScrollButton = styled(Button)`
   }
 `;
 
-const Evidence: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable }) => {
+const Evidence: React.FC = () => {
   const { id } = useParams();
-  const { data: evidenceGroup } = useEvidenceGroup(id, arbitrable);
+  const { data: disputeData } = useDisputeDetailsQuery(id);
   const ref = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState<string>();
   const [debouncedSearch, setDebouncedSearch] = useState<string>();
 
-  const { data } = useEvidences(evidenceGroup?.toString(), debouncedSearch);
+  const { data } = useEvidences(disputeData?.dispute?.externalDisputeId?.toString(), debouncedSearch);
 
   useDebounce(() => setDebouncedSearch(search), 500, [search]);
 
@@ -76,7 +76,7 @@ const Evidence: React.FC<{ arbitrable?: `0x${string}` }> = ({ arbitrable }) => {
 
   return (
     <Container ref={ref}>
-      <EvidenceSearch {...{ search, setSearch, evidenceGroup }} />
+      <EvidenceSearch {...{ search, setSearch, evidenceGroup: disputeData?.dispute?.externalDisputeId }} />
       <ScrollButton small Icon={DownArrow} text="Scroll to latest" onClick={scrollToLatest} />
       {data ? (
         data.evidences.map(({ evidence, sender, timestamp, name, description, fileURI, evidenceIndex }) => (

@@ -6,6 +6,8 @@ import { createConfig, fallback, http, WagmiProvider, webSocket } from "wagmi";
 import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado, gnosis, sepolia } from "wagmi/chains";
 import { walletConnect } from "wagmi/connectors";
 
+import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
+
 import { ALL_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 import { isProductionDeployment } from "consts/index";
 
@@ -36,9 +38,10 @@ export const getDefaultChainRpcUrl = (protocol: AlchemyProtocol) => {
   return getChainRpcUrl(protocol, DEFAULT_CHAIN);
 };
 
+const alchemyTransport = (chain: Chain) =>
+  fallback([http(alchemyURL("https", chain.id)), webSocket(alchemyURL("wss", chain.id))]);
+
 export const getTransports = () => {
-  const alchemyTransport = (chain: Chain) =>
-    fallback([http(alchemyURL("https", chain.id)), webSocket(alchemyURL("wss", chain.id))]);
   const defaultTransport = (chain: Chain) =>
     fallback([http(chain.rpcUrls.default?.http?.[0]), webSocket(chain.rpcUrls.default?.webSocket?.[0])]);
 
@@ -60,6 +63,13 @@ const wagmiConfig = createConfig({
   chains,
   transports,
   connectors: [walletConnect({ projectId, showQrModal: false })],
+});
+
+configureSDK({
+  client: {
+    chain: isProduction ? arbitrum : arbitrumSepolia,
+    transport: isProduction ? alchemyTransport(arbitrum) : alchemyTransport(arbitrumSepolia),
+  },
 });
 
 createWeb3Modal({

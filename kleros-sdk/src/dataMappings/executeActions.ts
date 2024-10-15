@@ -32,9 +32,9 @@ export const executeAction = async (
     case "json":
       return jsonAction(validateJsonMapping(mapping));
     case "abi/call":
-      return await callAction(validateAbiCallMapping(mapping), context.alchemyApiKey as string);
+      return await callAction(validateAbiCallMapping(mapping));
     case "abi/event":
-      return await eventAction(validateAbiEventMapping(mapping), context.alchemyApiKey as string);
+      return await eventAction(validateAbiEventMapping(mapping));
     case "fetch/ipfs/json":
       return await fetchIpfsJsonAction(validateFetchIpfsJsonMapping(mapping));
     case "reality":
