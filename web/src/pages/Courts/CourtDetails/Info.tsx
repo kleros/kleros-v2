@@ -3,11 +3,9 @@ import styled from "styled-components";
 import InfoCircle from "svgs/icons/info-circle.svg";
 
 const Container = styled.div`
-  display: inline-flex;
+  display: flex;
   align-items: flex-start;
   gap: 8px;
-  width: 100%;
-  margin-top: 32px;
 `;
 
 const StyledSpan = styled.span`

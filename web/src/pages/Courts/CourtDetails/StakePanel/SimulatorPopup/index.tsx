@@ -19,7 +19,7 @@ import PileCoinsIcon from "svgs/icons/pile-coins.svg";
 import DiceIcon from "svgs/icons/dice.svg";
 
 import Header from "./Header";
-import Info from "./Info";
+import Info from "../../Info";
 
 const SimulatorPopupContainer = styled.div`
   position: absolute;
@@ -47,6 +47,7 @@ const ItemsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px 0;
+  margin-bottom: 32px;
 `;
 
 const SimulatorItem = styled.div`
@@ -130,10 +131,10 @@ const SimulatorPopup: React.FC<{ stakingAmount: number }> = ({ stakingAmount }) 
   const jurorOdds = calculateJurorOdds(stakingAmount, effectiveStakeAsNumber + stakingAmount);
 
   const simulatorItems = [
-    { icon: <LawBalanceIcon />, description: "You would have been selected in", value: `${expectedCases} cases` },
-    { icon: <PNKIcon />, description: "You would have", value: `${expectedVotes} votes` },
+    { icon: <LawBalanceIcon />, description: "You would have been selected in", value: `${expectedCases} case(s)` },
+    { icon: <PNKIcon />, description: "You would have had", value: `${expectedVotes} vote(s)` },
     { icon: <PileCoinsIcon />, description: "You would have earned", value: `${expectedRewardsUSD}` },
-    { icon: <DiceIcon />, description: "Your juror odds would be", value: `${jurorOdds}` },
+    { icon: <DiceIcon />, description: "Your juror odds would have been", value: `${jurorOdds}` },
   ];
 
   return (

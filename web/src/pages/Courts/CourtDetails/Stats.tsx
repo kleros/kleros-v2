@@ -1,7 +1,10 @@
 import React, { useMemo, useState } from "react";
 import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import { useParams } from "react-router-dom";
+import { Accordion, DropdownSelect } from "@kleros/ui-components-library";
 
 import EthereumIcon from "svgs/icons/ethereum.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
@@ -11,25 +14,24 @@ import VotesPerPNKIcon from "svgs/icons/votes-per-pnk.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
 import VoteStake from "svgs/icons/vote-stake.svg";
-import RewardsPerPnk from "svgs/icons/rewards-per-pnk.svg";
+import PNKUSDIcon from "svgs/icons/pnk-usd.svg";
+import PNKETHIcon from "svgs/icons/pnk-eth.svg";
 import ChartIcon from "svgs/icons/chart.svg";
 
 import { CoinIds } from "consts/coingecko";
+
 import { useCoinPrice } from "hooks/useCoinPrice";
+import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
+import { useHomePageExtraStats } from "queries/useHomePageExtraStats";
+
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
 import { isUndefined } from "utils/index";
-
-import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
-
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
+import { commify } from "utils/commify";
 
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
-import { commify } from "utils/commify";
-import { Accordion, DropdownSelect } from "@kleros/ui-components-library";
-import { useHomePageExtraStats } from "queries/useHomePageExtraStats";
+import Info from "./Info";
 
 const StyledAccordion = styled(Accordion)`
   width: 100%;
@@ -49,23 +51,6 @@ const StyledAccordion = styled(Accordion)`
   }
 `;
 
-function beautifyStatNumber(value: number): string {
-  const absValue = Math.abs(value);
-
-  if (absValue >= 1e9) {
-    return `${commify((value / 1e9).toFixed(2))}B`;
-  } else if (absValue >= 1e6) {
-    return `${commify((value / 1e6).toFixed(2))}M`;
-  } else if (absValue >= 1e3) {
-    return `${commify((value / 1e3).toFixed(0))}K`;
-  } else if (absValue < 1 && absValue !== 0) {
-    const inverseValue = 1 / absValue;
-    return commify(inverseValue.toFixed(0));
-  }
-
-  return commify(value.toFixed(0));
-}
-
 const TimeDisplayContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -79,6 +64,7 @@ const AllTimeContainer = styled(TimeDisplayContainer)`
 
 const TimeSelectorContainer = styled(TimeDisplayContainer)`
   padding-top: 12px;
+  flex-wrap: wrap;
 `;
 
 const StyledAllTimeText = styled.p`
@@ -108,6 +94,27 @@ const StyledCard = styled.div`
     `
   )}
 `;
+
+const StyledDropdownSelect = styled(DropdownSelect)`
+  margin-right: 16px;
+`;
+
+function beautifyStatNumber(value: number): string {
+  const absValue = Math.abs(value);
+
+  if (absValue >= 1e9) {
+    return `${commify((value / 1e9).toFixed(2))}B`;
+  } else if (absValue >= 1e6) {
+    return `${commify((value / 1e6).toFixed(2))}M`;
+  } else if (absValue >= 1e3) {
+    return `${commify((value / 1e3).toFixed(0))}K`;
+  } else if (absValue < 1 && absValue !== 0) {
+    const inverseValue = 1 / absValue;
+    return commify(inverseValue.toFixed(0));
+  }
+
+  return commify(value.toFixed(0));
+}
 
 interface IStat {
   title: string;
@@ -237,8 +244,8 @@ const Stats = () => {
         const pnkNeeded = treeExpectedRewardPerPnk * ethPriceUSD;
         return beautifyStatNumber(pnkNeeded);
       },
-      color: "orange",
-      icon: RewardsPerPnk,
+      color: "purple",
+      icon: PNKUSDIcon,
     },
     {
       title: "PNK for 1 ETH",
@@ -248,8 +255,8 @@ const Stats = () => {
         const pnkNeeded = treeExpectedRewardPerPnk;
         return beautifyStatNumber(pnkNeeded);
       },
-      color: "orange",
-      icon: RewardsPerPnk,
+      color: "blue",
+      icon: PNKETHIcon,
     },
     {
       title: "PNK for 1 Vote",
@@ -298,18 +305,17 @@ const Stats = () => {
               </StyledCard>
               <TimeSelectorContainer>
                 <StyledChartIcon />
-                <StyledAllTimeText>
-                  <DropdownSelect
-                    smallButton
-                    simpleButton
-                    items={timeRanges.map((range) => ({
-                      value: range.value,
-                      text: range.text,
-                    }))}
-                    defaultValue={selectedRange}
-                    callback={handleTimeRangeChange}
-                  />
-                </StyledAllTimeText>
+                <StyledDropdownSelect
+                  smallButton
+                  simpleButton
+                  items={timeRanges.map((range) => ({
+                    value: range.value,
+                    text: range.text,
+                  }))}
+                  defaultValue={selectedRange}
+                  callback={handleTimeRangeChange}
+                />
+                <Info />
               </TimeSelectorContainer>
               <StyledCard>
                 {timeframedStats.map(({ title, getText, color, icon }, i) => {
