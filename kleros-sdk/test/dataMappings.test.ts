@@ -7,6 +7,13 @@ import { eventAction } from "src/dataMappings/actions/eventAction";
 import { fetchIpfsJsonAction } from "src/dataMappings/actions/fetchIpfsJsonAction";
 import { createResultObject } from "src/dataMappings/utils/createResultObject";
 import { executeActions } from "src/dataMappings/executeActions";
+import {
+  AbiCallMapping,
+  AbiEventMapping,
+  FetchIpfsJsonMapping,
+  JsonMapping,
+  SubgraphMapping,
+} from "src/dataMappings/utils/actionTypes";
 
 global.fetch = vi.fn().mockResolvedValue({
   json: async () => ({
@@ -136,6 +143,7 @@ describe("full flow test", () => {
         type: "abi/call",
         abi: "function currentRuling(uint256 _disputeID) public view returns (uint256 ruling, bool tied, bool overridden)",
         address: "0xA54e7A16d7460e38a8F324eF46782FB520d58CE8",
+        functionName: "currentRuling",
         args: ["0"],
         seek: ["0", "1", "2"],
         populate: ["ruling", "tied", "overridden"],
@@ -145,7 +153,7 @@ describe("full flow test", () => {
         abi: "event Transfer(address indexed from, address indexed to, uint256 value)",
         address: "0xa8e4235129258404A2ed3D36DAd20708CcB2d0b7",
         eventFilter: {
-          fromBlock: "earliest",
+          fromBlock: "123",
           toBlock: "latest",
           args: [],
         },
@@ -183,7 +191,7 @@ describe("full flow test", () => {
         toAddress: "{{toAddress}}",
         transferValue: "{{transferValue}}",
       },
-      arbitratorChainID: "421613",
+      arbitratorChainID: "421614",
       arbitratorAddress: "0x0987654321098765432109876543210987654321",
       version: "1.0",
     });
@@ -212,7 +220,7 @@ describe("full flow test", () => {
         toAddress: "0x0987654321098765432109876543210987654321",
         transferValue: "100",
       },
-      arbitratorChainID: "421613",
+      arbitratorChainID: "421614",
       arbitratorAddress: "0x0987654321098765432109876543210987654321",
       version: "1.0",
     });
@@ -221,7 +229,7 @@ describe("full flow test", () => {
 
 describe("jsonAction", () => {
   it("should extract and map data correctly", () => {
-    const mapping = {
+    const mapping: JsonMapping = {
       type: "json",
       value: exampleObject.evidence.fileURI,
       seek: ["photo", "video"],
@@ -235,7 +243,7 @@ describe("jsonAction", () => {
   });
 
   it("should handle empty JSON object gracefully", () => {
-    const mapping = {
+    const mapping: JsonMapping = {
       type: "json",
       value: {},
       seek: ["nonexistentField"],
@@ -248,7 +256,7 @@ describe("jsonAction", () => {
 
 describe("subgraphAction with variables", () => {
   it("should fetch GraphQL data with variables and return in expected format", async () => {
-    const mapping = {
+    const mapping: SubgraphMapping = {
       type: "graphql",
       endpoint: "mocked_endpoint",
       query: `query GetEscrows($buyer: Bytes!) {
@@ -277,16 +285,17 @@ describe("subgraphAction with variables", () => {
 
 describe("callAction", () => {
   it("should call the contract and return in expected format", async () => {
-    const mapping = {
+    const mapping: AbiCallMapping = {
       type: "abi/call",
       abi: "function currentRuling(uint256 _disputeID) public view returns (uint256 ruling, bool tied, bool overridden)",
+      functionName: "currentRuling",
       address: "0xA54e7A16d7460e38a8F324eF46782FB520d58CE8",
       args: ["0"],
       seek: ["0", "1", "2"],
       populate: ["ruling", "tied", "overridden"],
     };
 
-    const result = (await callAction(mapping, "")) as CallActionResult;
+    const result = (await callAction(mapping)) as CallActionResult;
 
     expect(result).to.have.property("ruling");
     expect(result.ruling).to.be.a("bigint");
@@ -299,7 +308,7 @@ describe("callAction", () => {
 
 describe("eventAction", () => {
   it("should fetch event data and return populated data", async () => {
-    const mapping = {
+    const mapping: AbiEventMapping = {
       type: "abi/event",
       abi: "event Transfer(address indexed from, address indexed to, uint256 value)",
       address: "0xa8e4235129258404A2ed3D36DAd20708CcB2d0b7",
@@ -312,7 +321,7 @@ describe("eventAction", () => {
       populate: ["fromAddress", "toAddress", "transferValue"],
     };
 
-    const result = (await eventAction(mapping, "")) as EventActionResult;
+    const result = (await eventAction(mapping)) as EventActionResult;
 
     expect(result).to.have.property("fromAddress", "0x1234567890123456789012345678901234567890");
     expect(result).to.have.property("toAddress", "0x0987654321098765432109876543210987654321");
@@ -322,7 +331,7 @@ describe("eventAction", () => {
 
 describe("fetchIpfsJsonAction", () => {
   it("should fetch JSON data from IPFS and return the expected result", async () => {
-    const mapping = {
+    const mapping: FetchIpfsJsonMapping = {
       type: "fetch/ipfs/json",
       ipfsUri: "/ipfs/QmQ2XoA25HmnPUEWDduxj6LYwMwp6jtXPFRMHcNF2EvJfU/file.json",
       seek: ["name", "firstName", "lastName", "anotherFile"],
@@ -354,7 +363,7 @@ describe("populateTemplate", () => {
         },
       ],
       policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
-      arbitratorChainID: "421613",
+      arbitratorChainID: "421614",
       arbitratorAddress: "0x0987654321098765432109876543210987654321",
       category: "General",
       lang: "en_US",
@@ -382,7 +391,7 @@ describe("populateTemplate", () => {
         },
       ],
       policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
-      arbitratorChainID: "421613",
+      arbitratorChainID: "421614",
       arbitratorAddress: "0x0987654321098765432109876543210987654321",
       category: "General",
       lang: "en_US",
@@ -406,7 +415,7 @@ describe("populateTemplate", () => {
         },
       ],
       policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
-      arbitratorChainID: "421613",
+      arbitratorChainID: "421614",
       arbitratorAddress: "0x0987654321098765432109876543210987654321",
       category: "General",
       lang: "en_US",
@@ -434,7 +443,7 @@ describe("populateTemplate", () => {
         },
       ],
       policyURI: "/ipfs/QmUnPyGi31RoF4DRR8vT3u13YsppxtsbBKbdQAbcP8be4M/file.json",
-      arbitratorChainID: "421613",
+      arbitratorChainID: "421614",
       arbitratorAddress: "0x0987654321098765432109876543210987654321",
       category: "General",
       lang: "en_US",

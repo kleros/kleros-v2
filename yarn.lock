@@ -7899,6 +7899,7 @@ __metadata:
     graphql-request: "npm:^7.1.0"
     mocha: "npm:^10.2.0"
     mustache: "npm:^4.2.0"
+    rimraf: "npm:^6.0.1"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.3.3"
     vitest: "npm:^1.1.3"

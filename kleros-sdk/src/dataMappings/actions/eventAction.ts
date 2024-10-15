@@ -18,8 +18,8 @@ export const eventAction = async (mapping: AbiEventMapping) => {
     address,
     event: parsedAbi,
     args: eventFilter.args,
-    fromBlock: eventFilter.fromBlock ? BigInt(eventFilter.fromBlock.toString()) : undefined,
-    toBlock: eventFilter.toBlock ? BigInt(eventFilter.toBlock.toString()) : undefined,
+    fromBlock: eventFilter.fromBlock,
+    toBlock: eventFilter.toBlock,
   });
 
   const contractEvent = await publicClient.getFilterLogs({ filter });

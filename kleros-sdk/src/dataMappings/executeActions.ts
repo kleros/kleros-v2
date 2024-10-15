@@ -41,7 +41,7 @@ export const executeAction = async (
       mapping = validateRealityMapping(mapping);
       return await retrieveRealityData(mapping.realityQuestionID, context.arbitrableAddress as Address);
     default:
-      throw new Error(`Unsupported action type: ${mapping.type}`);
+      throw new Error(`Unsupported action type: ${JSON.stringify(mapping)}`);
   }
 };
 

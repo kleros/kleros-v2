@@ -10,13 +10,13 @@ export const callAction = async (mapping: AbiCallMapping) => {
     throw new Error("SDK not configured. Please call `configureSDK` before using.");
   }
 
-  const { abi: source, address, args, seek, populate } = mapping;
+  const { abi: source, address, functionName, args, seek, populate } = mapping;
   const parsedAbi = typeof source === "string" ? parseAbiItem(source) : source;
 
   const data = await publicClient.readContract({
     address,
     abi: [parsedAbi],
-    functionName: "TODO: FIX ME",
+    functionName,
     args,
   });
 

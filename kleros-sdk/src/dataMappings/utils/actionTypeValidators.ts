@@ -23,7 +23,7 @@ export const validateAbiEventMapping = (mapping: ActionMapping) => {
 };
 
 export const validateAbiCallMapping = (mapping: ActionMapping) => {
-  if ((mapping as AbiCallMapping).abi === undefined || (mapping as AbiCallMapping).args === undefined) {
+  if ((mapping as AbiCallMapping).abi === undefined || (mapping as AbiCallMapping).functionName === undefined) {
     throw new Error("Invalid mapping for abi/call action.");
   }
   return mapping as AbiCallMapping;
