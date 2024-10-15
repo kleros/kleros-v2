@@ -181,7 +181,7 @@ const DisputeTemplateView = () => {
           const initialContext = {
             arbitrator: debouncedParams._arbitrator,
             arbitrable: debouncedParams._arbitrable,
-            arbitrableDisputeID: debouncedParams._arbitrableDisputeID,
+            arbitratorDisputeID: debouncedParams._arbitratorDisputeID,
             externalDisputeID: debouncedParams._externalDisputeID,
             templateID: debouncedParams._templateId,
             templateUri: debouncedParams._templateUri,
@@ -241,11 +241,11 @@ const DisputeTemplateView = () => {
             />
           </StyledRow>
           <StyledRow>
-            <StyledP>{"arbitrableDisputeID :"}</StyledP>
+            <StyledP>{"arbitratorDisputeID :"}</StyledP>
             <Field
               type="text"
-              name="_arbitrableDisputeID"
-              value={params._arbitrableDisputeID?.toString()}
+              name="_arbitratorDisputeID"
+              value={params._arbitratorDisputeID?.toString()}
               onChange={handleFormUpdate}
               placeholder="0"
             />
