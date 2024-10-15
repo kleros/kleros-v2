@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { useAccount } from "wagmi";
@@ -12,6 +12,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import { ISettings } from "../../../../index";
 
+import EmailVerificationInfo from "./EmailVerificationInfo";
 import FormContact from "./FormContact";
 
 const FormContainer = styled.form`
@@ -21,6 +22,7 @@ const FormContainer = styled.form`
   flex-direction: column;
   padding: 0 ${responsiveSize(12, 32, 300)};
   padding-bottom: 16px;
+  gap: 16px;
 `;
 
 const ButtonContainer = styled.div`
@@ -31,18 +33,16 @@ const ButtonContainer = styled.div`
 const FormContactContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
 `;
 
 const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const [emailInput, setEmailInput] = useState<string>("");
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
   const { address } = useAccount();
-  const { user, isAddingUser, isFetchingUser, addUser, updateUser, isUpdatingUser, userExists } = useAtlasProvider();
+  const { user, isAddingUser, isFetchingUser, addUser, updateEmail, isUpdatingUser, userExists } = useAtlasProvider();
 
-  const isEditingEmail = useMemo(() => {
-    return user?.email !== emailInput;
-  }, [user, emailInput]);
+  const isEditingEmail = user?.email !== emailInput;
 
   useEffect(() => {
     if (!user || !userExists) return;
@@ -56,13 +56,12 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
       throw new Error("Missing address");
     }
 
-    const data = {
-      email: emailInput,
-    };
-
-    // if user exists then update
+    // if user exists then update email
     if (userExists) {
-      updateUser(data)
+      const data = {
+        newEmail: emailInput,
+      };
+      updateEmail(data)
         .then(async (res) => {
           if (res) {
             toggleIsSettingsOpen();
@@ -70,6 +69,9 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
         })
         .catch((err) => console.log(err));
     } else {
+      const data = {
+        email: emailInput,
+      };
       addUser(data)
         .then(async (res) => {
           if (res) {
@@ -79,6 +81,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
         .catch((err) => console.log(err));
     }
   };
+
   return (
     <FormContainer onSubmit={handleSubmit}>
       {/* <FormContactContainer>
@@ -112,6 +115,7 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           disabled={!isEditingEmail || !emailIsValid || isAddingUser || isFetchingUser || isUpdatingUser}
         />
       </ButtonContainer>
+      <EmailVerificationInfo toggleIsSettingsOpen={toggleIsSettingsOpen} />
     </FormContainer>
   );
 };

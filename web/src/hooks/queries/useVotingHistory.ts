@@ -12,8 +12,10 @@ const votingHistoryQuery = graphql(`
     dispute(id: $disputeID) {
       id
       createdAt
+      ruled
       rounds {
         nbVotes
+        jurorRewardsDispersed
         court {
           id
           name
@@ -25,6 +27,7 @@ const votingHistoryQuery = graphql(`
           }
           vote {
             ... on ClassicVote {
+              commited
               justification {
                 choice
                 reference

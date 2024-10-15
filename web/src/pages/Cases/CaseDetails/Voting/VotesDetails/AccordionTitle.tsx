@@ -42,10 +42,22 @@ const VoteStatus: React.FC<{
   choice?: string;
   period: string;
   answers: Answer[];
+  commited: boolean;
   isActiveRound: boolean;
-}> = ({ choice, period, answers, isActiveRound }) => {
+  hiddenVotes: boolean;
+}> = ({ choice, period, answers, isActiveRound, commited, hiddenVotes }) => {
+  if (hiddenVotes) {
+    if (!commited && (isActiveRound ? ["vote", "appeal", "execution"].includes(period) : true))
+      return <StyledLabel>Did not commit vote </StyledLabel>;
+
+    if (["evidence", "commit"].includes(period))
+      return <StyledLabel>{commited ? "Vote committed" : "Pending vote commitment"}</StyledLabel>;
+  }
+
+  // not voted
   if (isUndefined(choice) && (isActiveRound ? ["appeal", "execution"].includes(period) : true))
     return <StyledLabel>Did not vote</StyledLabel>;
+
   return (
     <StyledLabel>
       {isUndefined(choice) ? "Pending Vote" : <StyledSmall>{getVoteChoice(parseInt(choice), answers)}</StyledSmall>}
@@ -60,14 +72,16 @@ const AccordionTitle: React.FC<{
   period: string;
   answers: Answer[];
   isActiveRound: boolean;
-}> = ({ juror, choice, voteCount, period, answers, isActiveRound }) => {
+  commited: boolean;
+  hiddenVotes: boolean;
+}> = ({ juror, choice, voteCount, period, answers, isActiveRound, commited, hiddenVotes }) => {
   return (
     <TitleContainer>
       <AddressContainer>
         <Identicon size="20" string={juror} />
         <StyledLabel variant="secondaryText">{shortenAddress(juror)}</StyledLabel>
       </AddressContainer>
-      <VoteStatus {...{ choice, period, answers, isActiveRound }} />
+      <VoteStatus {...{ choice, period, answers, isActiveRound, commited, hiddenVotes }} />
       <StyledLabel variant="secondaryPurple">
         {voteCount} vote{voteCount > 1 && "s"}
       </StyledLabel>

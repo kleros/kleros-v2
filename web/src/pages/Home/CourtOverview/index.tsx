@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import Chart from "./Chart";
+import ExtraStats from "./ExtraStats";
 import Header from "./Header";
 import Stats from "./Stats";
 
@@ -15,6 +16,7 @@ const CourtOverview: React.FC = () => (
     <Header />
     <Chart />
     <Stats />
+    <ExtraStats />
   </Container>
 );
 

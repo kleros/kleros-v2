@@ -6,17 +6,20 @@ import { OPTIONS } from "utils/wrapWithToast";
 type GetUserResponse = {
   user: {
     email: string;
+    isEmailVerified: string;
   };
 };
 
 export type User = {
   email: string;
+  isEmailVerified: string;
 };
 
 const query = gql`
   query GetUser {
     user {
       email
+      isEmailVerified
     }
   }
 `;
@@ -31,7 +34,7 @@ export function fetchUser(client: GraphQLClient): Promise<User> {
         console.log("Error fetching user :", { errors });
         const errorMessage = Array.isArray(errors?.response?.errors)
           ? errors.response.errors[0]?.message
-          : "Error user nonce";
+          : "Error fetching user";
         throw Error(errorMessage);
       }),
     {

@@ -12,11 +12,14 @@ import {
   loginUser,
   addUser as addUserToAtlas,
   fetchUser,
-  updateUser as updateUserInAtlas,
+  updateEmail as updateEmailInAtlas,
+  confirmEmail as confirmEmailInAtlas,
   uploadToIpfs,
   type User,
   type AddUserData,
-  type UpdateUserData,
+  type UpdateEmailData,
+  type ConfirmEmailData,
+  type ConfirmEmailResponse,
 } from "utils/atlas";
 
 import { isUndefined } from "src/utils";
@@ -32,8 +35,13 @@ interface IAtlasProvider {
   userExists: boolean;
   authoriseUser: () => void;
   addUser: (userSettings: AddUserData) => Promise<boolean>;
-  updateUser: (userSettings: UpdateUserData) => Promise<boolean>;
+  updateEmail: (userSettings: UpdateEmailData) => Promise<boolean>;
   uploadFile: (file: File) => Promise<string | null>;
+  confirmEmail: (userSettings: ConfirmEmailData) => Promise<
+    ConfirmEmailResponse & {
+      isError: boolean;
+    }
+  >;
 }
 
 const Context = createContext<IAtlasProvider | undefined>(undefined);
@@ -179,23 +187,23 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
   );
 
   /**
-   * @description updates user settings in atlas
-   * @param {UpdateUserData} userSettings - object containing data to be updated
-   * @returns {Promise<boolean>} A promise that resolves to true if settings were updated successfully
+   * @description updates user email in atlas
+   * @param {UpdateEmailData} userSettings - object containing data to be updated
+   * @returns {Promise<boolean>} A promise that resolves to true if email was updated successfully
    */
-  const updateUser = useCallback(
-    async (userSettings: UpdateUserData) => {
+  const updateEmail = useCallback(
+    async (userSettings: UpdateEmailData) => {
       try {
         if (!address || !isVerified) return false;
         setIsUpdatingUser(true);
 
-        const userUpdated = await updateUserInAtlas(atlasGqlClient, userSettings);
+        const emailUpdated = await updateEmailInAtlas(atlasGqlClient, userSettings);
         refetchUser();
 
-        return userUpdated;
+        return emailUpdated;
       } catch (err: any) {
         // eslint-disable-next-line
-        console.log("Update User Error : ", err?.message);
+        console.log("Update User Email Error : ", err?.message);
         return false;
       } finally {
         setIsUpdatingUser(false);
@@ -230,6 +238,28 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
     [address, isVerified, setIsUploadingFile, atlasGqlClient]
   );
 
+  /**
+   * @description confirms user email in atlas
+   * @param {ConfirmEmailData} userSettings - object containing data to be sent
+   * @returns {Promise<boolean>} A promise that resolves to true if email was confirmed successfully
+   */
+  const confirmEmail = useCallback(
+    async (userSettings: ConfirmEmailData): Promise<ConfirmEmailResponse & { isError: boolean }> => {
+      try {
+        setIsUpdatingUser(true);
+
+        const emailConfirmed = await confirmEmailInAtlas(atlasGqlClient, userSettings);
+
+        return { ...emailConfirmed, isError: false };
+      } catch (err: any) {
+        // eslint-disable-next-line
+        console.log("Confirm Email Error : ", err?.message);
+        return { isConfirmed: false, isTokenExpired: false, isTokenInvalid: false, isError: true };
+      }
+    },
+    [atlasGqlClient]
+  );
+
   return (
     <Context.Provider
       value={useMemo(
@@ -241,11 +271,12 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
           addUser,
           user,
           isFetchingUser,
-          updateUser,
+          updateEmail,
           isUpdatingUser,
           userExists,
           isUploadingFile,
           uploadFile,
+          confirmEmail,
         }),
         [
           isVerified,
@@ -255,11 +286,12 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
           addUser,
           user,
           isFetchingUser,
-          updateUser,
+          updateEmail,
           isUpdatingUser,
           userExists,
           isUploadingFile,
           uploadFile,
+          confirmEmail,
         ]
       )}
     >
