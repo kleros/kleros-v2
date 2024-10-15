@@ -45,9 +45,7 @@ export const useEvidences = (evidenceGroup?: string, keywords?: string) => {
 
   const document = keywords ? evidenceSearchQuery : evidencesQuery;
   return useQuery<{ evidences: EvidenceDetailsFragment[] }>({
-    queryKey: [
-      keywords ? `evidenceSearchQuery${evidenceGroup}-${keywords}` : `evidencesQuery${evidenceGroup}`,
-    ],
+    queryKey: [keywords ? `evidenceSearchQuery${evidenceGroup}-${keywords}` : `evidencesQuery${evidenceGroup}`],
     enabled: isEnabled,
     refetchInterval: REFETCH_INTERVAL,
     queryFn: async () => {

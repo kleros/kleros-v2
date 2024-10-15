@@ -59,6 +59,10 @@ export const retrieveRealityData = async (realityQuestionID: string, arbitrable?
   const templateData = await executeAction(templateMapping);
   console.log("templateData", templateData);
 
+  if (!templateData || !questionData) {
+    throw new Error("Failed to retrieve template or question data");
+  }
+
   const rc_question = require("@reality.eth/reality-eth-lib/formatters/question.js");
   const populatedTemplate = rc_question.populatedJSONForTemplate(
     templateData.questionText,
@@ -67,7 +71,15 @@ export const retrieveRealityData = async (realityQuestionID: string, arbitrable?
 
   console.log("populatedTemplate", populatedTemplate);
 
-  let answers = [];
+  interface RealityAnswer {
+    title: string;
+    description: string;
+    id: string;
+    reserved: boolean;
+    last?: boolean;
+  }
+
+  let answers: RealityAnswer[] = [];
   if (populatedTemplate.type === "bool") {
     answers = [
       {

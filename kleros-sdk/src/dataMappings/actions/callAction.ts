@@ -12,6 +12,7 @@ export const callAction = async (mapping: AbiCallMapping) => {
   const data = await publicClient.readContract({
     address,
     abi: [parsedAbi],
+    functionName: "TODO: FIX ME",
     args,
   });
 
