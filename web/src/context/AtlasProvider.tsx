@@ -14,11 +14,14 @@ import {
   fetchUser,
   updateEmail as updateEmailInAtlas,
   confirmEmail as confirmEmailInAtlas,
+  uploadToIpfs,
   type User,
   type AddUserData,
   type UpdateEmailData,
   type ConfirmEmailData,
   type ConfirmEmailResponse,
+  Roles,
+  Products,
 } from "utils/atlas";
 
 import { isUndefined } from "src/utils";
@@ -29,11 +32,13 @@ interface IAtlasProvider {
   isAddingUser: boolean;
   isFetchingUser: boolean;
   isUpdatingUser: boolean;
+  isUploadingFile: boolean;
   user: User | undefined;
   userExists: boolean;
   authoriseUser: () => void;
   addUser: (userSettings: AddUserData) => Promise<boolean>;
   updateEmail: (userSettings: UpdateEmailData) => Promise<boolean>;
+  uploadFile: (file: File, role: Roles) => Promise<string | null>;
   confirmEmail: (userSettings: ConfirmEmailData) => Promise<
     ConfirmEmailResponse & {
       isError: boolean;
@@ -57,6 +62,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
   const { signMessageAsync } = useSignMessage();
 
   const atlasGqlClient = useMemo(() => {
@@ -65,7 +71,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
           authorization: `Bearer ${authToken}`,
         }
       : undefined;
-    return new GraphQLClient(atlasUri, { headers });
+    return new GraphQLClient(`${atlasUri}/graphql`, { headers });
   }, [authToken]);
 
   /**
@@ -131,7 +137,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
   // this would change based on the fields we have and what defines a user to be existing
   const userExists = useMemo(() => {
     if (!user) return false;
-    return user.email ? true : false;
+    return !isUndefined(user.email);
   }, [user]);
 
   /**
@@ -209,6 +215,35 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
   );
 
   /**
+   * @description upload file to ipfs
+   * @param {File} file - file to be uploaded
+   * @param {Roles} role - role for which file is being uploaded
+   * @returns {Promise<string | null>} A promise that resolves to the ipfs cid if file was uploaded successfully else
+   *                                   null
+   */
+  const uploadFile = useCallback(
+    async (file: File, role: Roles) => {
+      try {
+        if (!address || !isVerified || !atlasUri || !authToken) return null;
+        setIsUploadingFile(true);
+
+        const hash = await uploadToIpfs(
+          { baseUrl: atlasUri, authToken },
+          { file, name: file.name, role, product: Products.CourtV2 }
+        );
+        return hash ? `/ipfs/${hash}` : null;
+      } catch (err: any) {
+        // eslint-disable-next-line
+        console.log("Upload File Error : ", err?.message);
+        return null;
+      } finally {
+        setIsUploadingFile(false);
+      }
+    },
+    [address, isVerified, setIsUploadingFile, authToken]
+  );
+
+  /**
    * @description confirms user email in atlas
    * @param {ConfirmEmailData} userSettings - object containing data to be sent
    * @returns {Promise<boolean>} A promise that resolves to true if email was confirmed successfully
@@ -244,6 +279,8 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
           updateEmail,
           isUpdatingUser,
           userExists,
+          isUploadingFile,
+          uploadFile,
           confirmEmail,
         }),
         [
@@ -257,6 +294,8 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
           updateEmail,
           isUpdatingUser,
           userExists,
+          isUploadingFile,
+          uploadFile,
           confirmEmail,
         ]
       )}
