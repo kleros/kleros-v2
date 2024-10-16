@@ -69,9 +69,10 @@ const TimeSelectorContainer = styled(TimeDisplayContainer)`
 `;
 
 const StyledAllTimeText = styled.p`
-  color: ${({ theme }) => theme.secondaryText};
+  color: ${({ theme }) => theme.primaryText};
   margin: 0;
   font-size: 14px;
+  font-weight: 600;
 `;
 
 const StyledChartIcon = styled(ChartIcon)`
@@ -98,6 +99,12 @@ const StyledCard = styled.div`
 
 const StyledDropdownSelect = styled(DropdownSelect)`
   margin-right: 16px;
+  small {
+    color: ${({ theme }) => theme.primaryText};
+  }
+  svg {
+    fill: ${({ theme }) => theme.primaryText};
+  }
 `;
 
 function beautifyStatNumber(value: number): string {
