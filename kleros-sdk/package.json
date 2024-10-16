@@ -1,11 +1,17 @@
 {
   "name": "@kleros/kleros-sdk",
-  "version": "0.1.0",
+  "version": "2.1.0",
   "description": "SDK for Kleros version 2",
-  "main": "index.ts",
   "repository": "git@github.com:kleros/kleros-v2.git",
   "author": "Kleros",
   "license": "MIT",
+  "main": "./lib/src/index.js",
+  "types": "./lib/src/index.d.ts",
+  "module": "./lib/src/index.js",
+  "files": [
+    "lib/**/*",
+    "!lib/**/test/*"
+  ],
   "alias": {
     "src": "./src",
     "dataMappings": "./src/dataMappings"
@@ -18,12 +24,17 @@
   "volta": {
     "node": "20.11.0"
   },
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
   "scripts": {
     "clean": "rimraf lib",
     "build": "yarn clean && tsc",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "publish": "yarn npm publish"
   },
   "devDependencies": {
     "@types/mustache": "^4.2.5",
@@ -39,6 +50,7 @@
     "@reality.eth/reality-eth-lib": "^3.2.30",
     "graphql-request": "^7.1.0",
     "mustache": "^4.2.0",
+    "viem": "^2.21.26",
     "zod": "^3.22.4"
   }
 }

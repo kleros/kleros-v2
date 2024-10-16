@@ -1,7 +1,7 @@
 {
-  "extends": "@kleros/kleros-v2-tsconfig/react-library.json",
+  "extends": "@kleros/kleros-v2-tsconfig/base20.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    "outDir": "lib",
     "paths": {
       "~*": [
         "./*"
@@ -13,31 +13,26 @@
         "./src/dataMappings*"
       ]
     },
-    "target": "ES6",
-    "module": "CommonJS",
-    "outDir": "build/dist",
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
-    "strictNullChecks": true,
-    "noUnusedLocals": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "removeComments": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "noEmit": false,
+    "declaration": true
   },
   "include": [
     "src",
     "test"
   ],
   "exclude": [
-    "node_modules",
     "build",
-    "scripts",
-    "acceptance-tests",
-    "webpack",
-    "jest",
-    "src/setupTests.ts",
     "dist",
-    "commitlint.config.js"
+    "lib",
+    "node_modules",
+    "scripts",
+    "webpack"
   ]
 }

@@ -1,5 +1,5 @@
 import { callAction } from "./actions/callAction";
-import { eventAction } from "./actions/eventAction";
+import { eventAction } from "./actions/eventAction.js";
 import { fetchIpfsJsonAction } from "./actions/fetchIpfsJsonAction";
 import { jsonAction } from "./actions/jsonAction";
 import { subgraphAction } from "./actions/subgraphAction";

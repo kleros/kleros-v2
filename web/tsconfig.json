@@ -46,7 +46,6 @@
         "./src/assets/svgs*"
       ]
     },
-    "target": "es2020",
     "rootDir": "src",
     "outDir": "build/dist",
     "allowJs": true,

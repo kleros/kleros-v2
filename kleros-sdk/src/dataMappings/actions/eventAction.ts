@@ -1,5 +1,4 @@
-import { parseAbiItem } from "viem";
-import { type AbiEvent } from "abitype";
+import { parseAbiItem, type AbiEvent } from "viem";
 import { AbiEventMapping } from "src/dataMappings/utils/actionTypes";
 import { createResultObject } from "src/dataMappings/utils/createResultObject";
 import { getPublicClient } from "src/sdk";
