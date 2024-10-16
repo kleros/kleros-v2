@@ -193,10 +193,16 @@ const stats: IStat[] = [
   },
 ];
 
+interface ITimeframedStatData {
+  treeExpectedRewardPerPnk: number;
+  treeVotesPerPnk: number;
+  treeDisputesPerPnk: number;
+}
+
 interface ITimeframedStat {
   title: string | React.ReactNode;
   coinId?: number;
-  getText: (data: { treeExpectedRewardPerPnk: number; treeVotesPerPnk: number; treeDisputesPerPnk: number }) => string;
+  getText: (data: ITimeframedStatData) => string;
   color: IStatDisplay["color"];
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
@@ -221,14 +227,7 @@ const Stats = () => {
   const { prices: pricesData } = useCoinPrice(coinIds);
 
   const foundCourt = useMemo(() => {
-    if (timeframedCourtData?.data?.courts) {
-      const foundCourt = timeframedCourtData?.data?.courts.find((c) => c.id === id);
-      console.log({ foundCourt });
-      return foundCourt;
-    } else {
-      console.log("Court not found or diffCourts not available");
-      return undefined;
-    }
+    return timeframedCourtData?.data?.courts?.find((c) => c.id === id);
   }, [timeframedCourtData, id]);
 
   const handleTimeRangeChange = (value: string | number) => {
@@ -311,7 +310,7 @@ const Stats = () => {
                 <StyledAllTimeText>All time</StyledAllTimeText>
               </AllTimeContainer>
               <StyledCard>
-                {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
+                {stats.map(({ title, coinId, getText, getSubtext, color, icon }) => {
                   const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
                   return (
                     <StatDisplay
@@ -338,7 +337,7 @@ const Stats = () => {
                 <Info />
               </TimeSelectorContainer>
               <StyledCard>
-                {timeframedStats.map(({ title, getText, color, icon }, i) => {
+                {timeframedStats.map(({ title, getText, color, icon }) => {
                   return (
                     <StatDisplay
                       key={title}

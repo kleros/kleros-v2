@@ -122,7 +122,7 @@ const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "
         {isStaking && Number(uncommify(amount)) > 0 ? (
           <SimulatorPopup
             stakingAmount={
-              !isUndefined(jurorBalance)
+              !isUndefined(jurorBalance?.[2])
                 ? Number(formatEther(jurorBalance?.[2])) + Number(uncommify(amount))
                 : Number(uncommify(amount))
             }

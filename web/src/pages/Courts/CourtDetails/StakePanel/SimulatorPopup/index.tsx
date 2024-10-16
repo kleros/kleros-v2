@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import { useParams } from "react-router-dom";
+import Skeleton from "react-loading-skeleton";
 
 import { CoinIds } from "consts/coingecko";
 
@@ -101,34 +102,26 @@ function beautifyStatNumber(value: number): string {
 }
 
 const calculateJurorOdds = (stakingAmount: number, totalStake: number): string => {
-  const odds = (stakingAmount * 100) / totalStake;
+  const odds = totalStake !== 0 ? (stakingAmount * 100) / totalStake : 0;
   return `${odds.toFixed(2)}%`;
 };
 
 const SimulatorPopup: React.FC<{ stakingAmount: number }> = ({ stakingAmount }) => {
-  const [courtData, setCourtData] = useState<any>(null);
   const { id } = useParams();
 
   const timeframedCourtData = useHomePageExtraStats(30);
   const { prices: pricesData } = useCoinPrice([CoinIds.ETH]);
   const ethPriceUSD = pricesData ? pricesData[CoinIds.ETH]?.price : undefined;
 
-  useEffect(() => {
-    if (timeframedCourtData?.data?.courts) {
-      const foundCourt = timeframedCourtData?.data?.courts.find((c) => c.id === id);
-      if (foundCourt) {
-        setCourtData(foundCourt);
-      }
-    }
+  const foundCourt = useMemo(() => {
+    return timeframedCourtData?.data?.courts?.find((c) => c.id === id);
   }, [timeframedCourtData, id]);
 
-  if (!courtData) return null;
-
-  const effectiveStakeAsNumber = Number(courtData.effectiveStake) / 1e18;
-  const expectedCases = beautifyStatNumber(stakingAmount * courtData.treeDisputesPerPnk);
-  const expectedVotes = beautifyStatNumber(stakingAmount * courtData.treeVotesPerPnk);
-  const expectedRewardsUSD = formatUSD(courtData.treeExpectedRewardPerPnk * stakingAmount * ethPriceUSD);
-  const jurorOdds = calculateJurorOdds(stakingAmount, effectiveStakeAsNumber + stakingAmount);
+  const effectiveStakeAsNumber = foundCourt && Number(foundCourt.effectiveStake) / 1e18;
+  const expectedCases = foundCourt && beautifyStatNumber(stakingAmount * foundCourt.treeDisputesPerPnk);
+  const expectedVotes = foundCourt && beautifyStatNumber(stakingAmount * foundCourt.treeVotesPerPnk);
+  const expectedRewardsUSD = foundCourt && formatUSD(foundCourt.treeExpectedRewardPerPnk * stakingAmount * ethPriceUSD);
+  const jurorOdds = effectiveStakeAsNumber && calculateJurorOdds(stakingAmount, effectiveStakeAsNumber + stakingAmount);
 
   const simulatorItems = [
     { icon: <LawBalanceIcon />, description: "You would have been selected in", value: `${expectedCases} cases` },
@@ -146,7 +139,7 @@ const SimulatorPopup: React.FC<{ stakingAmount: number }> = ({ stakingAmount }) 
           <SimulatorItem key={index}>
             <IconWrapper>{item.icon}</IconWrapper>
             <StyledDescription>{item.description} </StyledDescription>
-            <StyledValue>{item.value}</StyledValue>
+            <StyledValue>{!item.value.includes("undefined") ? item.value : <Skeleton width={48} />}</StyledValue>
           </SimulatorItem>
         ))}
       </ItemsContainer>
