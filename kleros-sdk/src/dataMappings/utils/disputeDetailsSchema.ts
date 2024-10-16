@@ -5,7 +5,7 @@ import { normalize } from "viem/ens";
 export const isHexAddress = (str: string): boolean => /^0x[a-fA-F0-9]{40}$/.test(str);
 export const isHexId = (str: string): boolean => /^0x[a-fA-F0-9]{1,64}$/.test(str);
 export const isMultiaddr = (str: string): boolean =>
-  /^\/(?:ip4|ip6|dns4|dns6|dnsaddr|tcp|udp|utp|tls|ws|wss|p2p-circuit|p2p-webrtc-star|p2p-webrtc-direct|p2p-websocket-star|onion|ipfs)(\/[^\s\/]+)+$|^ipfs:\/\/[a-zA-Z0-9]+\/[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)?$/.test(
+  /^\/(?:ip4|ip6|dns4|dns6|dnsaddr|tcp|udp|utp|tls|ws|wss|p2p-circuit|p2p-webrtc-star|p2p-webrtc-direct|p2p-websocket-star|onion)(\/[^\s\/]+)+$|^ipfs:\/\/[a-zA-Z0-9]+(\/[^\s]*)?$/.test(
     str
   );
 
@@ -56,9 +56,7 @@ const DisputeDetailsSchema = z.object({
   description: z.string(),
   question: z.string(),
   answers: z.array(AnswerSchema),
-  policyURI: z.string().refine((value) => isMultiaddr(value), {
-    message: "Provided policy URI is not a valid multiaddr.",
-  }),
+  policyURI: z.string(),
   attachment: AttachmentSchema.optional(),
   frontendUrl: z.string().optional(),
   metadata: MetadataSchema.optional(),
