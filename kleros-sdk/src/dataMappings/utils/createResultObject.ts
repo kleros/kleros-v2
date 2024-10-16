@@ -1,5 +1,9 @@
-export const createResultObject = (sourceData, seek: string[], populate: string[]) => {
-  const result = {};
+export const createResultObject = (
+  sourceData: Record<string, any>,
+  seek: string[],
+  populate: string[]
+): Record<string, any> => {
+  const result: Record<string, any> = {};
 
   const getNestedValue = (obj: any, path: string) => {
     return path.split(".").reduce((acc, part) => {

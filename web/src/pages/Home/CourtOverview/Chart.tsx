@@ -12,6 +12,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
 
+import StakedPNKByCourtsChart, { StakedPNKByCourtsChartData } from "./StakedPNKByCourtsChart";
 import CasesByCourtsChart, { CasesByCourtsChartData } from "./CasesByCourtsChart";
 import TimeSeriesChart from "./TimeSeriesChart";
 
@@ -28,6 +29,7 @@ const StyledDropdown = styled(DropdownSelect)`
 
 const CHART_OPTIONS = [
   { text: "Staked PNK", value: "stakedPNK" },
+  { text: "Staked PNK per court", value: "stakedPNKPerCourt" },
   { text: "Cases", value: "cases" },
   { text: "Cases per court", value: "casesPerCourt" },
 ];
@@ -81,18 +83,35 @@ const Chart: React.FC = () => {
     { labels: [], cases: [], totalCases: 0 }
   );
 
+  const processedStakedPNKData = courtsChartData?.reduce(
+    (accData: StakedPNKByCourtsChartData, current) => {
+      return {
+        labels: [...accData.labels, current.name ?? ""],
+        stakes: [...accData.stakes, parseFloat(formatUnits(current.stake, 18))],
+        totalStake: accData.totalStake + parseFloat(formatUnits(current.stake, 18)),
+      };
+    },
+    { labels: [], stakes: [], totalStake: 0 }
+  );
+
   const ChartComponent = useMemo(() => {
     switch (chartOption) {
       case "casesPerCourt":
         return processedCourtsData ? (
           <CasesByCourtsChart data={processedCourtsData} />
         ) : (
-          <StyledSkeleton height={233} />
+          <StyledSkeleton height={234} />
+        );
+      case "stakedPNKPerCourt":
+        return processedStakedPNKData ? (
+          <StakedPNKByCourtsChart data={processedStakedPNKData} />
+        ) : (
+          <StyledSkeleton height={234} />
         );
       default:
-        return processedData ? <TimeSeriesChart data={processedData} /> : <StyledSkeleton height={233} />;
+        return processedData ? <TimeSeriesChart data={processedData} /> : <StyledSkeleton height={234} />;
     }
-  }, [processedCourtsData, processedData, chartOption]);
+  }, [processedCourtsData, processedStakedPNKData, processedData, chartOption]);
 
   return (
     <Container>

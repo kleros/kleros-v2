@@ -22,7 +22,7 @@ export const useEvidenceGroup = (disputeID?: string, arbitrableAddress?: `0x${st
         });
         const disputeFilter = await arbitrable.createEventFilter.DisputeRequest(
           {
-            _arbitrableDisputeID: BigInt(disputeID),
+            _arbitratorDisputeID: BigInt(disputeID),
           },
           {
             fromBlock: GENESIS_BLOCK_ARBSEPOLIA,

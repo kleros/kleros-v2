@@ -14,7 +14,6 @@ const Home = lazy(() => import("./pages/Home"));
 const Cases = lazy(() => import("./pages/Cases"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Courts = lazy(() => import("./pages/Courts"));
-const DisputeTemplateView = lazy(() => import("./pages/DisputeTemplateView"));
 const DisputeResolver = lazy(() => import("./pages/Resolver"));
 const GetPnk = lazy(() => import("./pages/GetPnk"));
 const Settings = lazy(() => import("./pages/Settings"));
@@ -65,14 +64,6 @@ const App: React.FC = () => {
                         element={
                           <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
                             <Dashboard />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="dispute-template"
-                        element={
-                          <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                            <DisputeTemplateView />
                           </Suspense>
                         }
                       />

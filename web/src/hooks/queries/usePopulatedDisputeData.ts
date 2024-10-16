@@ -101,7 +101,7 @@ const getTemplateId = async (
   });
   const disputeFilter = await arbitrable.createEventFilter.DisputeRequest(
     {
-      _arbitrableDisputeID: BigInt(disputeID),
+      _arbitratorDisputeID: BigInt(disputeID),
     },
     {
       fromBlock: GENESIS_BLOCK_ARBSEPOLIA,

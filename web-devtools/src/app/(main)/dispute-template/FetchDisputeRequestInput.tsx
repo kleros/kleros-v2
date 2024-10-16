@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { useDebounce } from "react-use";
-import { GetEventArgs } from "viem/_types/types/contract";
+import { GetEventArgs } from "viem";
 
 import { Field } from "@kleros/ui-components-library";
 
 import { DEFAULT_CHAIN } from "consts/chains";
-import { iArbitrableV2ABI } from "hooks/contracts/generated";
+import { iArbitrableV2Abi } from "hooks/contracts/generated";
 import { getDisputeRequestParamsFromTxn } from "utils/getDisputeRequestParamsFromTxn";
-import { isUndefined } from "utils/index";
+import { isUndefined } from "utils/isUndefined";
 
 const Container = styled.div`
   display: flex;
@@ -61,7 +61,7 @@ const presets = [
   },
 ];
 
-export type DisputeRequest = GetEventArgs<typeof iArbitrableV2ABI, "DisputeRequest", { IndexedOnly: false }> & {
+export type DisputeRequest = GetEventArgs<typeof iArbitrableV2Abi, "DisputeRequest", { IndexedOnly: false }> & {
   _arbitrable: `0x${string}`;
 };
 
@@ -74,6 +74,7 @@ const FetchDisputeRequestInput: React.FC<IFetchDisputeRequestInput> = ({ setPara
   const [txnHash, setTxnHash] = useState<string>("");
   const [debouncedTxnHash, setDebouncedTxnHash] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useDebounce(
     () => {
@@ -86,12 +87,19 @@ const FetchDisputeRequestInput: React.FC<IFetchDisputeRequestInput> = ({ setPara
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const params = await getDisputeRequestParamsFromTxn(debouncedTxnHash as `0x${string}`, chainId);
-      setLoading(false);
-      if (!isUndefined(params)) setParams(params);
+      try {
+        const params = await getDisputeRequestParamsFromTxn(debouncedTxnHash as `0x${string}`, chainId);
+        if (!isUndefined(params)) setParams(params);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching dispute request params:", error);
+        setError("Failed to fetch dispute request parameters");
+      } finally {
+        setLoading(false);
+      }
     };
     if (debouncedTxnHash && chainId) fetchData();
-  }, [debouncedTxnHash]);
+  }, [debouncedTxnHash, chainId]);
 
   return (
     <Container>
@@ -101,7 +109,7 @@ const FetchDisputeRequestInput: React.FC<IFetchDisputeRequestInput> = ({ setPara
           value={txnHash}
           placeholder="Enter transaction hash"
           onChange={(e) => setTxnHash(e.target.value)}
-          message={loading ? "fetching ..." : ""}
+          message={loading ? "fetching ..." : error || ""}
         />
         <StyledChainInput
           value={chainId}

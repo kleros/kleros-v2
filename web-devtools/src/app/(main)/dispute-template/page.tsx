@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
@@ -62,7 +63,7 @@ const ShadeArea = styled.div`
   width: 100%;
   padding: 16px;
   margin-top: 16px;
-  background-color: ${({ theme }) => theme.mediumBlue};
+  background-color: ${({ theme }) => theme.klerosUIComponentsMediumBlue};
   > p {
     margin-top: 0;
   }
@@ -74,7 +75,7 @@ const StyledA = styled.a`
   gap: 4px;
   > svg {
     width: 16px;
-    fill: ${({ theme }) => theme.primaryBlue};
+    fill: ${({ theme }) => theme.klerosUIComponentsPrimaryBlue};
   }
 `;
 
@@ -114,8 +115,13 @@ const StyledForm = styled.form`
 
 const StyledRow = styled.div`
   display: flex;
-  flex-direction: row;
-  gap: 24px;
+  flex-direction: column;
+  ${landscapeStyle(
+    () => css`
+      flex-direction: row;
+      gap: 24px;
+    `
+  )}
 `;
 
 const StyledP = styled.p`
@@ -126,6 +132,13 @@ const StyledHeader = styled.h2`
   margin-top: 24px;
 `;
 
+const StyledTitle = styled.div`
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 const LongText = styled.div`
   display: flex;
   flex-direction: column;
@@ -133,7 +146,7 @@ const LongText = styled.div`
 `;
 
 const DisputeTemplateView = () => {
-  const klerosCoreAddress = klerosCoreConfig.address[DEFAULT_CHAIN];
+  const klerosCoreAddress = klerosCoreConfig.address[DEFAULT_CHAIN as keyof typeof klerosCoreConfig.address];
   const [disputeDetails, setDisputeDetails] = useState<DisputeDetails | undefined>(undefined);
   const [disputeTemplateInput, setDisputeTemplateInput] = useState<string>("");
   const [dataMappingsInput, setDataMappingsInput] = useState<string>("");
@@ -166,20 +179,18 @@ const DisputeTemplateView = () => {
 
         setTimeout(() => {
           const initialContext = {
-            arbitratorAddress: debouncedParams._arbitrator,
-            arbitrableAddress: debouncedParams._arbitrable,
-            arbitrableDisputeID: debouncedParams._arbitrableDisputeID,
+            arbitrator: debouncedParams._arbitrator,
+            arbitrable: debouncedParams._arbitrable,
+            arbitratorDisputeID: debouncedParams._arbitratorDisputeID,
             externalDisputeID: debouncedParams._externalDisputeID,
             templateID: debouncedParams._templateId,
             templateUri: debouncedParams._templateUri,
-            alchemyApiKey: import.meta.env.ALCHEMY_API_KEY,
           };
 
           const fetchData = async () => {
             try {
               const data = dataMappingsInput ? await executeActions(JSON.parse(dataMappingsInput), initialContext) : {};
               const finalDisputeDetails = populateTemplate(disputeTemplateInput, data);
-
               setDisputeDetails(finalDisputeDetails);
             } catch (e) {
               console.error(e);
@@ -203,11 +214,14 @@ const DisputeTemplateView = () => {
 
   return (
     <>
+      <StyledTitle>
+        <h1>Dispute Preview</h1>
+      </StyledTitle>
       <UpperContainer>
         <StyledForm>
           <StyledHeader>Dispute Request event parameters</StyledHeader>
           <StyledRow>
-            <StyledP>{"{{ arbitrator }}"}</StyledP>
+            <StyledP>{"arbitrator :"}</StyledP>
             <Field
               type="text"
               name="_arbitrator"
@@ -217,7 +231,7 @@ const DisputeTemplateView = () => {
             />
           </StyledRow>
           <StyledRow>
-            <StyledP>{"{{ arbitrable }}"}</StyledP>
+            <StyledP>{"arbitrable :"}</StyledP>
             <Field
               type="text"
               name="_arbitrable"
@@ -227,17 +241,17 @@ const DisputeTemplateView = () => {
             />
           </StyledRow>
           <StyledRow>
-            <StyledP>{"{{ arbitrableDisputeID }}"}</StyledP>
+            <StyledP>{"arbitratorDisputeID :"}</StyledP>
             <Field
               type="text"
-              name="_arbitrableDisputeID"
-              value={params._arbitrableDisputeID?.toString()}
+              name="_arbitratorDisputeID"
+              value={params._arbitratorDisputeID?.toString()}
               onChange={handleFormUpdate}
               placeholder="0"
             />
           </StyledRow>
           <StyledRow>
-            <StyledP>{"{{ externalDisputeID }}"}</StyledP>
+            <StyledP>{"externalDisputeID :"}</StyledP>
             <Field
               type="text"
               name="_externalDisputeID"
@@ -247,7 +261,7 @@ const DisputeTemplateView = () => {
             />
           </StyledRow>
           <StyledRow>
-            <StyledP>{"{{ templateID }}"}</StyledP>
+            <StyledP>{"templateID :"}</StyledP>
             <Field
               type="text"
               name="_templateId"
@@ -257,7 +271,7 @@ const DisputeTemplateView = () => {
             />
           </StyledRow>
           <StyledRow>
-            <StyledP>{"{{ templateUri }}"}</StyledP>
+            <StyledP>{"templateUri :"}</StyledP>
             <Field
               type="text"
               name="_templateUri"
@@ -270,7 +284,7 @@ const DisputeTemplateView = () => {
         <div>
           <FetchFromIDInput
             {...{ setDataMappingsInput, setDisputeTemplateInput }}
-            defaultTemplateID={debouncedParams._templateId?.toString()}
+            defaultTemplateID={debouncedParams._templateId?.toString() ?? ""}
           />
           <FetchDisputeRequestInput setParams={setParams} />
         </div>
@@ -282,7 +296,7 @@ const DisputeTemplateView = () => {
           <JSONEditor
             content={{ text: disputeTemplateInput }}
             mode={Mode.text}
-            onChange={(val) => {
+            onChange={(val: any) => {
               setDisputeTemplateInput(val.text);
             }}
           />
@@ -292,7 +306,7 @@ const DisputeTemplateView = () => {
           <JSONEditor
             content={{ text: dataMappingsInput }}
             mode={Mode.text}
-            onChange={(val) => {
+            onChange={(val: any) => {
               setDataMappingsInput(val.text);
             }}
           />

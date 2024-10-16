@@ -6,7 +6,7 @@ import { useDebounce } from "react-use";
 import { Field } from "@kleros/ui-components-library";
 
 import { useDisputeTemplateFromId } from "hooks/queries/useDisputeTemplateFromId";
-import { isUndefined } from "utils/index";
+import { isUndefined } from "utils/isUndefined";
 
 const Container = styled.div`
   display: flex;
@@ -41,14 +41,17 @@ const FetchFromIDInput: React.FC<IFetchFromID> = ({
     [templateId]
   );
   useEffect(() => setTemplateId(defaultTemplateID), [defaultTemplateID]);
-  const { data: templateFromId, isLoading } = useDisputeTemplateFromId(debouncedTemplateId);
+  const { data: templateFromId, isLoading, error } = useDisputeTemplateFromId(debouncedTemplateId);
 
   useEffect(() => {
     const templateData = templateFromId?.disputeTemplate?.templateData;
     const templateDataMappings = templateFromId?.disputeTemplate?.templateDataMappings;
     if (!isUndefined(templateData)) setDisputeTemplateInput(tryPrettify(templateData));
     if (!isUndefined(templateDataMappings)) setDataMappingsInput(tryPrettify(templateDataMappings));
-  }, [templateFromId]);
+    if (error) {
+      console.error("Error fetching template:", error);
+    }
+  }, [templateFromId, error]);
 
   return (
     <Container>

@@ -1,6 +1,7 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { deployments, ethers } from "hardhat";
 import { BigNumber } from "ethers";
+import { DisputeTemplateRegistry, KlerosCore, KlerosCoreRuler, ModeratedEvidenceModule } from "../../typechain-types";
 const hre = require("hardhat");
 
 const Party = {
@@ -16,7 +17,10 @@ function getEmittedEvent(eventName: any, receipt: any) {
 describe("Home Evidence contract", async () => {
   const arbitrationFee = 1000;
   const appealFee = arbitrationFee;
-  const arbitratorExtraData = "0x85";
+  const arbitratorExtraData = ethers.utils.defaultAbiCoder.encode(
+    ["uint256", "uint256"],
+    [1, 1] // courtId 1, minJurors 1
+  );
   const appealTimeout = 100;
   const bondTimeout = 60 * 10;
   const totalCostMultiplier = 15000;
@@ -34,18 +38,30 @@ describe("Home Evidence contract", async () => {
   let user4;
   let evidenceID;
 
-  let arbitrator;
-  let evidenceModule;
-  let disputeTemplateRegistry;
+  let arbitrator: KlerosCore;
+  let evidenceModule: ModeratedEvidenceModule;
+  let disputeTemplateRegistry: DisputeTemplateRegistry;
 
   beforeEach("Setup contracts", async () => {
     [deployer, user1, user2, user3, user4] = await ethers.getSigners();
 
-    const Arbitrator = await ethers.getContractFactory("CentralizedArbitrator");
-    arbitrator = await Arbitrator.deploy(String(arbitrationFee), appealTimeout, String(appealFee));
+    await deployments.fixture(["Arbitration", "VeaMock"], {
+      fallbackToGlobal: true,
+      keepExistingDeployments: false,
+    });
+    arbitrator = (await ethers.getContract("KlerosCore")) as KlerosCore;
+    disputeTemplateRegistry = (await ethers.getContract("DisputeTemplateRegistry")) as DisputeTemplateRegistry;
 
-    const DisputeTemplateRegistry = await ethers.getContractFactory("DisputeTemplateRegistry");
-    disputeTemplateRegistry = await DisputeTemplateRegistry.deploy();
+    const court = await arbitrator.courts(1);
+    await arbitrator.changeCourtParameters(
+      1,
+      court.hiddenVotes,
+      court.minStake,
+      court.alpha,
+      arbitrationFee,
+      court.jurorsForCourtJump,
+      [0, 0, 0, appealTimeout]
+    );
 
     const EvidenceModule = await ethers.getContractFactory("ModeratedEvidenceModule");
     evidenceModule = await EvidenceModule.deploy(
@@ -84,7 +100,6 @@ describe("Home Evidence contract", async () => {
       let newArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex);
       let oldArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex.sub(BigNumber.from(1)));
 
-      expect(newArbitratorData.disputeTemplateId).to.equal(oldArbitratorData.disputeTemplateId.add(BigNumber.from(1)));
       expect(newArbitratorData.arbitratorExtraData).to.equal(oldArbitratorData.arbitratorExtraData);
       const disputeTemplateEvents = await disputeTemplateRegistry.queryFilter(
         disputeTemplateRegistry.filters.DisputeTemplate(),
@@ -244,13 +259,13 @@ describe("Home Evidence contract", async () => {
       });
       let receipt = await tx.wait();
 
-      let [_arbitrator, _arbitrableDisputeID, _externalDisputeID, _templateId, _templateUri] = getEmittedEvent(
+      let [_arbitrator, _arbitratorDisputeID, _externalDisputeID, _templateId, _templateUri] = getEmittedEvent(
         "DisputeRequest",
         receipt
       ).args;
       expect(_arbitrator).to.equal(arbitrator.address, "Wrong arbitrator.");
-      expect(_arbitrableDisputeID).to.equal(0, "Wrong dispute ID.");
-      expect(_templateId).to.equal(0, "Wrong template ID.");
+      expect(_arbitratorDisputeID).to.equal(0, "Wrong dispute ID.");
+      expect(_templateId).to.equal(1, "Wrong template ID.");
       expect(_externalDisputeID).to.equal(evidenceID, "Wrong external dispute ID.");
 
       await expect(
