@@ -131,8 +131,8 @@ const SimulatorPopup: React.FC<{ stakingAmount: number }> = ({ stakingAmount }) 
   const jurorOdds = calculateJurorOdds(stakingAmount, effectiveStakeAsNumber + stakingAmount);
 
   const simulatorItems = [
-    { icon: <LawBalanceIcon />, description: "You would have been selected in", value: `${expectedCases} case(s)` },
-    { icon: <PNKIcon />, description: "You would have had", value: `${expectedVotes} vote(s)` },
+    { icon: <LawBalanceIcon />, description: "You would have been selected in", value: `${expectedCases} cases` },
+    { icon: <PNKIcon />, description: "You would have had", value: `${expectedVotes} votes` },
     { icon: <PileCoinsIcon />, description: "You would have earned", value: `${expectedRewardsUSD}` },
     { icon: <DiceIcon />, description: "Your juror odds would have been", value: `${jurorOdds}` },
   ];

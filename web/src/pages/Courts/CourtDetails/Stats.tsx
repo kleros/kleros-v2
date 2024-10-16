@@ -31,6 +31,7 @@ import { commify } from "utils/commify";
 
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
+import WithHelpTooltip from "components/WithHelpTooltip";
 import Info from "./Info";
 
 const StyledAccordion = styled(Accordion)`
@@ -193,7 +194,7 @@ const stats: IStat[] = [
 ];
 
 interface ITimeframedStat {
-  title: string;
+  title: string | React.ReactNode;
   coinId?: number;
   getText: (data: { treeExpectedRewardPerPnk: number; treeVotesPerPnk: number; treeDisputesPerPnk: number }) => string;
   color: IStatDisplay["color"];
@@ -236,7 +237,11 @@ const Stats = () => {
 
   const timeframedStats: ITimeframedStat[] = [
     {
-      title: "PNK for 1 USD",
+      title: (
+        <WithHelpTooltip place="top" tooltipMsg="Amount of PNK you need to stake to earn 1 USD in rewards.">
+          PNK for 1 USD
+        </WithHelpTooltip>
+      ),
       getText: (data) => {
         const treeExpectedRewardPerPnk = data?.treeExpectedRewardPerPnk;
         const ethPriceUSD = pricesData ? pricesData[CoinIds.ETH]?.price : undefined;
@@ -248,7 +253,11 @@ const Stats = () => {
       icon: PNKUSDIcon,
     },
     {
-      title: "PNK for 1 ETH",
+      title: (
+        <WithHelpTooltip place="top" tooltipMsg="Amount of PNK you need to stake to earn 1 ETH in rewards.">
+          PNK for 1 ETH
+        </WithHelpTooltip>
+      ),
       getText: (data) => {
         const treeExpectedRewardPerPnk = data?.treeExpectedRewardPerPnk;
         if (!treeExpectedRewardPerPnk) return "N/A";
@@ -259,7 +268,11 @@ const Stats = () => {
       icon: PNKETHIcon,
     },
     {
-      title: "PNK for 1 Vote",
+      title: (
+        <WithHelpTooltip place="top" tooltipMsg="Amount of PNK you need to stake to get 1 vote.">
+          PNK for 1 Vote
+        </WithHelpTooltip>
+      ),
       getText: (data) => {
         const treeVotesPerPnk = data?.treeVotesPerPnk;
         return beautifyStatNumber(treeVotesPerPnk);
@@ -268,7 +281,14 @@ const Stats = () => {
       icon: VotesPerPNKIcon,
     },
     {
-      title: "PNK for 1 Case",
+      title: (
+        <WithHelpTooltip
+          place="top"
+          tooltipMsg="Amount of PNK you need to stake to be drawn in 1 case (which may involve one or more votes)."
+        >
+          PNK for 1 Case
+        </WithHelpTooltip>
+      ),
       getText: (data) => {
         const treeDisputesPerPnk = data?.treeDisputesPerPnk;
         return beautifyStatNumber(treeDisputesPerPnk);

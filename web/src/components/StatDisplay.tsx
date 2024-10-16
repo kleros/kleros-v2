@@ -42,7 +42,7 @@ const createPair = (iconColor: string, backgroundColor: string) => ({
 });
 
 export interface IStatDisplay {
-  title: string;
+  title: string | React.ReactNode;
   text: string | React.ReactNode;
   subtext?: string | React.ReactNode;
   icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
