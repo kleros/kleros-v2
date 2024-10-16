@@ -7899,7 +7899,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-sdk@workspace:kleros-sdk"
   dependencies:
-    "@kleros/kleros-v2-contracts": "workspace:^"
     "@reality.eth/reality-eth-lib": "npm:^3.2.30"
     "@types/mustache": "npm:^4.2.5"
     "@vitest/ui": "npm:^1.1.3"
@@ -7923,7 +7922,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kleros/kleros-v2-contracts@workspace:^, @kleros/kleros-v2-contracts@workspace:contracts":
+"@kleros/kleros-v2-contracts@workspace:contracts":
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-contracts@workspace:contracts"
   dependencies:
