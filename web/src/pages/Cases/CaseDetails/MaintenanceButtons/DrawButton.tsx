@@ -17,11 +17,13 @@ import { isUndefined } from "src/utils";
 import { Phases } from "components/Phase";
 
 import { IBaseMaintenanceButton } from ".";
+import { Link } from "react-router-dom";
 
 const StyledButton = styled(Button)`
   width: 100%;
 `;
 
+const StyledLabel = styled.label``;
 interface IDrawButton extends IBaseMaintenanceButton {
   numberOfVotes?: string;
   period?: string;
@@ -37,6 +39,11 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
 
   const canDraw = useMemo(
     () => !isUndefined(maintenanceData) && !isDrawn && period === Period.Evidence && phase === Phases.drawing,
+    [maintenanceData, isDrawn, phase, period]
+  );
+
+  const needToPassPhase = useMemo(
+    () => !isUndefined(maintenanceData) && !isDrawn && period === Period.Evidence && phase !== Phases.drawing,
     [maintenanceData, isDrawn, phase, period]
   );
 
@@ -68,7 +75,17 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
       setIsOpen(false);
     });
   };
-  return <StyledButton text="Draw" small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />;
+  return (
+    <>
+      {needToPassPhase ? (
+        <StyledLabel>
+          Jurors can be drawn in <small>drawing</small> phase.
+          <br /> Pass phase <Link to="/courts/1/purpose/#maintenance">here</Link>.
+        </StyledLabel>
+      ) : null}
+      <StyledButton text="Draw" small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />
+    </>
+  );
 };
 
 export default DrawButton;
