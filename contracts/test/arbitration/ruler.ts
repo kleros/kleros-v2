@@ -17,14 +17,21 @@ describe("KlerosCoreRuler", async () => {
     automaticPreset, // The ruling is given automatically with a preset value.
   }
 
-  const extraData =
-    "0x" +
-    "0000000000000000000000000000000000000000000000000000000000000001" + // courtId 1
-    "0000000000000000000000000000000000000000000000000000000000000003"; // minJurors 3
+  const courtId = 1;
+  const minJurors = 3;
+  const disputeKitId = 1;
+  const extraData = ethers.utils.defaultAbiCoder.encode(
+    ["uint96", "uint96", "uint256"],
+    [courtId, minJurors, disputeKitId]
+  );
 
   before("Deploying", async () => {
     [deployer, dev, dev2] = await ethers.getSigners();
     [core, resolver] = await deployContracts(deployer);
+
+    // Create dummy disputes to distinguish between arbitrable-level and arbitrator-level disputeIDs
+    await core.changeRulingModeToManual(deployer.address);
+    await core["createDispute(uint256,bytes)"](2, extraData, { value: ethers.utils.parseEther("0.3") });
   });
 
   it("Should have initialized the Arbitrator", async () => {
@@ -75,7 +82,9 @@ describe("KlerosCoreRuler", async () => {
       .to.emit(core, "RulerSettingsChanged")
       .withArgs(resolver.address, [RulingMode.automaticRandom, 0, false, false]);
 
-    const disputeID = 0;
+    const disputeID = 1;
+    const localDisputeID = disputeID - 1;
+    const templateId = disputeID - 1;
 
     await expect(resolver.createDisputeForTemplate(extraData, "", "", 3, { value: ethers.utils.parseEther("0.3") }))
       .to.emit(core, "DisputeCreation")
@@ -87,7 +96,7 @@ describe("KlerosCoreRuler", async () => {
       .and.to.emit(core, "TokenAndETHShift")
       .withArgs(dev.address, disputeID, 0, 1, 0, anyValue, ethers.constants.AddressZero)
       .and.to.emit(resolver, "DisputeRequest")
-      .withArgs(core.address, disputeID, disputeID, disputeID, "")
+      .withArgs(core.address, disputeID, localDisputeID, templateId, "")
       .and.to.emit(resolver, "Ruling")
       .withArgs(core.address, disputeID, anyValue);
   });
@@ -97,7 +106,9 @@ describe("KlerosCoreRuler", async () => {
       .to.emit(core, "RulerSettingsChanged")
       .withArgs(resolver.address, [RulingMode.automaticPreset, 2, true, false]);
 
-    const disputeID = 1;
+    const disputeID = 2;
+    const localDisputeID = disputeID - 1;
+    const templateId = disputeID - 1;
 
     await expect(resolver.createDisputeForTemplate(extraData, "", "", 3, { value: ethers.utils.parseEther("0.3") }))
       .to.emit(core, "DisputeCreation")
@@ -109,7 +120,7 @@ describe("KlerosCoreRuler", async () => {
       .and.to.emit(core, "TokenAndETHShift")
       .withArgs(dev.address, disputeID, 0, 1, 0, anyValue, ethers.constants.AddressZero)
       .and.to.emit(resolver, "DisputeRequest")
-      .withArgs(core.address, disputeID, disputeID, disputeID, "")
+      .withArgs(core.address, disputeID, localDisputeID, templateId, "")
       .and.to.emit(resolver, "Ruling")
       .withArgs(core.address, disputeID, 2);
   });
@@ -119,13 +130,15 @@ describe("KlerosCoreRuler", async () => {
       .to.emit(core, "RulerSettingsChanged")
       .withArgs(resolver.address, [RulingMode.manual, 0, false, false]);
 
-    const disputeID = 2;
+    const disputeID = 3;
+    const localDisputeID = disputeID - 1;
+    const templateId = disputeID - 1;
 
     await expect(resolver.createDisputeForTemplate(extraData, "", "", 3, { value: ethers.utils.parseEther("0.3") }))
       .to.emit(core, "DisputeCreation")
       .withArgs(disputeID, resolver.address)
       .and.to.emit(resolver, "DisputeRequest")
-      .withArgs(core.address, disputeID, disputeID, disputeID, "");
+      .withArgs(core.address, disputeID, localDisputeID, templateId, "");
 
     await expect(core.connect(deployer).executeRuling(disputeID, 3, true, true)).revertedWithCustomError(
       core,

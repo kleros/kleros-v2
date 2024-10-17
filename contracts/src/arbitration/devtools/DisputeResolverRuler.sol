@@ -40,7 +40,7 @@ contract DisputeResolverRuler is DisputeResolver {
         string memory _disputeTemplateDataMappings,
         string memory _disputeTemplateUri,
         uint256 _numberOfRulingOptions
-    ) internal override returns (uint256 disputeID) {
+    ) internal override returns (uint256 arbitratorDisputeID) {
         require(_numberOfRulingOptions > 1, "Should be at least 2 ruling options.");
 
         uint256 localDisputeID = disputes.length;
@@ -49,10 +49,10 @@ contract DisputeResolverRuler is DisputeResolver {
         dispute.numberOfRulingOptions = _numberOfRulingOptions;
 
         // Keep track of the upcoming dispute ID before dispute creation, so rule() can be called immediately after.
-        disputeID = IKlerosCoreRulerFragment(address(arbitrator)).getNextDisputeID();
-        arbitratorDisputeIDToLocalID[disputeID] = localDisputeID;
+        arbitratorDisputeID = IKlerosCoreRulerFragment(address(arbitrator)).getNextDisputeID();
+        arbitratorDisputeIDToLocalID[arbitratorDisputeID] = localDisputeID;
         uint256 templateId = templateRegistry.setDisputeTemplate("", _disputeTemplate, _disputeTemplateDataMappings);
-        emit DisputeRequest(arbitrator, localDisputeID, localDisputeID, templateId, _disputeTemplateUri);
+        emit DisputeRequest(arbitrator, arbitratorDisputeID, localDisputeID, templateId, _disputeTemplateUri);
 
         arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
     }
