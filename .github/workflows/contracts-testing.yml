@@ -78,7 +78,7 @@ jobs:
       working-directory: contracts
 
     - name: Upload a build artifact
-      uses: actions/upload-artifact@65d862660abb392b8c4a3d1195a2108db131dd05
+      uses: actions/upload-artifact@184d73b71b93c222403b2e7f1ffebe4508014249
       with:    
         name: code-coverage-report    
         path: contracts/coverage
