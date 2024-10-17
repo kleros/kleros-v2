@@ -67,15 +67,15 @@
     "start-local-indexer": "docker compose -f ../services/graph-node/docker-compose.yml up -d && docker compose -f ../services/graph-node/docker-compose.yml logs -f",
     "stop-local-indexer": "docker compose -f ../services/graph-node/docker-compose.yml down && rm -rf ../services/graph-node/data"
   },
-  "packageManager": "yarn@4.0.2+sha256.825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186",
+  "packageManager": "yarn@4.5.0+sha512.837566d24eec14ec0f5f1411adb544e892b3454255e61fdef8fd05f3429480102806bac7446bc9daff3896b01ae4b62d00096c7e989f1596f2af10b927532f39",
   "volta": {
-    "node": "20.11.0"
+    "node": "20.18.0"
   },
   "dependencies": {
-    "@graphprotocol/graph-ts": "^0.32.0"
+    "@graphprotocol/graph-ts": "^0.35.0"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "0.64.1",
+    "@graphprotocol/graph-cli": "0.86.0",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "gluegun": "^5.1.6",
