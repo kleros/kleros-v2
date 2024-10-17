@@ -17,6 +17,8 @@ interface IIsCrossChainDispute {
 export const useIsCrossChainDispute = (disputeID?: string, arbitrableAddress?: `0x${string}`) => {
   const isEnabled = !isUndefined(arbitrableAddress) && !isUndefined(disputeID);
   const publicClient = usePublicClient();
+  console.log("Cross chain query:", { isEnabled, publicClient, arbitrableAddress, disputeID });
+
   return useQuery<IIsCrossChainDispute | undefined>({
     queryKey: [`IsCrossChainDispute${disputeID}`],
     enabled: isEnabled,
