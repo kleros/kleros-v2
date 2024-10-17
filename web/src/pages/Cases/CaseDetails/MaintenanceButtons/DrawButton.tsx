@@ -6,7 +6,7 @@ import { usePublicClient } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
 
 import { useSimulateKlerosCoreDraw, useWriteKlerosCoreDraw } from "hooks/contracts/generated";
-import { useSortitionModulePhase } from "hooks/useSortitionModulePhase";
+import { useSortitionModulePhase } from "hooks/useSortitionModule";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import useDisputeMaintenanceQuery from "queries/useDisputeMaintenanceQuery";

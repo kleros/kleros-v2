@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { useSortitionModulePhase } from "hooks/useSortitionModulePhase";
+import { useSortitionModulePhase } from "hooks/useSortitionModule";
 
 import { isUndefined } from "src/utils";
 

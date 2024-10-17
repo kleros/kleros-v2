@@ -5,13 +5,12 @@ import { usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
+import { useSimulateSortitionModule, useWriteSortitionModule } from "hooks/contracts/generated";
 import {
   useReadSortitionModuleDelayedStakeReadIndex,
   useReadSortitionModuleDelayedStakeWriteIndex,
-  useSimulateSortitionModuleExecuteDelayedStakes,
-  useWriteSortitionModuleExecuteDelayedStakes,
-} from "hooks/contracts/generated";
-import { useSortitionModulePhase } from "hooks/useSortitionModulePhase";
+  useSortitionModulePhase,
+} from "hooks/useSortitionModule";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { isUndefined } from "src/utils";
@@ -42,14 +41,19 @@ const ExecuteDelayedStakeButton: React.FC<IExecuteStakeDelayedButton> = ({ setIs
     data: executeDelayedStakeConfig,
     isLoading: isLoadingConfig,
     isError,
-  } = useSimulateSortitionModuleExecuteDelayedStakes({
+  } = useSimulateSortitionModule({
     query: {
       enabled: canExecute,
     },
+    // eslint-disable-next-line
+    // @ts-ignore
+    functionName: "executeDelayedStakes",
+    // eslint-disable-next-line
+    // @ts-ignore
     args: [1n + (delayedStakeWriteIndex ?? 0n) - (delayedStakeReadIndex ?? 0n)],
   });
 
-  const { writeContractAsync: executeDelayedStake } = useWriteSortitionModuleExecuteDelayedStakes();
+  const { writeContractAsync: executeDelayedStake } = useWriteSortitionModule();
 
   const isLoading = useMemo(() => isLoadingConfig || isSending, [isLoadingConfig, isSending]);
   const isDisabled = useMemo(() => isError || isLoading || !canExecute, [isError, isLoading, canExecute]);
