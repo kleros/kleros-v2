@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import Modal from "react-modal";
@@ -14,6 +14,7 @@ import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 
 import EnsureAuth from "components/EnsureAuth";
 import { EnsureChain } from "components/EnsureChain";
+import { isUndefined } from "src/utils";
 
 const StyledModal = styled(Modal)`
   position: absolute;
@@ -64,6 +65,8 @@ const SubmitEvidenceModal: React.FC<{
   const [file, setFile] = useState<File>();
   const { uploadFile } = useAtlasProvider();
 
+  const isDisabled = useMemo(() => isSending || message.trim() === "" || isUndefined(message), [isSending, message]);
+
   const submitEvidence = useCallback(async () => {
     try {
       setIsSending(true);
@@ -94,7 +97,7 @@ const SubmitEvidenceModal: React.FC<{
         <Button variant="secondary" disabled={isSending} text="Return" onClick={close} />
         <EnsureChain>
           <EnsureAuth>
-            <Button text="Submit" isLoading={isSending} disabled={isSending} onClick={submitEvidence} />
+            <Button text="Submit" isLoading={isSending} disabled={isDisabled} onClick={submitEvidence} />
           </EnsureAuth>
         </EnsureChain>
       </ButtonArea>
