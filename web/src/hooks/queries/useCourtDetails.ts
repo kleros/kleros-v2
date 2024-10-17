@@ -17,10 +17,12 @@ const courtDetailsQuery = graphql(`
       numberClosedDisputes
       numberAppealingDisputes
       numberStakedJurors
+      numberVotes
       stake
       paidETH
       paidPNK
       timesPerPeriod
+      feeForJuror
     }
   }
 `);

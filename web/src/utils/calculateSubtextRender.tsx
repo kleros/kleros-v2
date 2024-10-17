@@ -9,8 +9,8 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 
 export const calculateSubtextRender = (
   countersOrCourtData: CourtDetailsQuery["court"] | HomePageQuery["counters"],
-  getSubtext: ((data: any, coinPrice: number) => string) | undefined,
-  coinPrice: number
+  getSubtext: ((data: any, coinPrice?: number) => string) | undefined,
+  coinPrice?: number
 ) => {
   if (!isUndefined(countersOrCourtData) && !isUndefined(getSubtext)) {
     return getSubtext(countersOrCourtData, coinPrice);

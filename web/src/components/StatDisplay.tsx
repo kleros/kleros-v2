@@ -27,8 +27,6 @@ const SVGContainer = styled.div<{ iconColor: string; backgroundColor: string }>`
   justify-content: center;
   svg {
     fill: ${({ iconColor }) => iconColor};
-    height: ${({ iconColor, theme }) => (iconColor === theme.success ? "24px" : "32px")};
-    width: ${({ iconColor, theme }) => (iconColor === theme.success ? "24px" : "32px")};
   }
 `;
 
@@ -44,9 +42,9 @@ const createPair = (iconColor: string, backgroundColor: string) => ({
 });
 
 export interface IStatDisplay {
-  title: string;
+  title: string | React.ReactNode;
   text: string | React.ReactNode;
-  subtext: string | React.ReactNode;
+  subtext?: string | React.ReactNode;
   icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
   color: "red" | "orange" | "green" | "blue" | "purple";
 }
