@@ -31,7 +31,7 @@ if [ $? != 0 ]; then
   (( ++index ))
   tmux select-pane -t $index -T "SUBGRAPH DEPLOY"
   tmux send-keys -t $index 'cd subgraph' Enter
-  tmux send-keys -t $index 'yarn rebuild-deploy-local'
+  tmux send-keys -t $index 'yarn rebuild-deploy:local'
 
   (( ++index ))
   tmux select-pane -t $index -T "WEB"

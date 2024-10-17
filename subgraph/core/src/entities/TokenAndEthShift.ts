@@ -29,7 +29,7 @@ export function updateTokenAndEthShiftFromEvent(event: TokenAndETHShiftEvent): v
   const previousEthAmount = shift.ethAmount;
   const newEthAmount = previousEthAmount.plus(ethAmount);
   shift.ethAmount = newEthAmount;
-  resolveUserDispute(jurorAddress.toHexString(), previousEthAmount, newEthAmount, disputeID.toString());
+  resolveUserDispute(jurorAddress.toHexString(), disputeID.toString());
   court.paidETH = court.paidETH.plus(ethAmount);
   updatePaidETH(ethAmount, event.block.timestamp);
   if (pnkAmount.gt(ZERO)) {

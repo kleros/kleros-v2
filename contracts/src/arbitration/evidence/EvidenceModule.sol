@@ -7,7 +7,7 @@
 /// @custom:deployments: []
 /// @custom:tools: []
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "../interfaces/IArbitratorV2.sol";
 import "../interfaces/IEvidence.sol";
@@ -64,7 +64,7 @@ contract EvidenceModule is IEvidence, Initializable, UUPSProxiable {
 
     /// @dev Submits evidence for a dispute.
     /// @param _externalDisputeID Unique identifier for this dispute outside Kleros. It's the submitter responsability to submit the right evidence group ID.
-    /// @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'.
+    /// @param _evidence Stringified evidence object, example: '{"name" : "Justification", "description" : "Description", "fileURI" : "/ipfs/QmWQV5ZFFhEJiW8Lm7ay2zLxC2XS4wx1b2W7FfdrLMyQQc"}'.
     function submitEvidence(uint256 _externalDisputeID, string calldata _evidence) external {
         emit Evidence(_externalDisputeID, msg.sender, _evidence);
     }

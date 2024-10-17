@@ -1,12 +1,15 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
+
 import "overlayscrollbars/styles/overlayscrollbars.css";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
+
 import { OverlayScrollContext } from "context/OverlayScrollContext";
-import Header from "./Header";
+
 import Footer from "./Footer";
+import Header from "./Header";
 
 const Container = styled.div`
   display: flex;
@@ -26,6 +29,7 @@ const StyledToastContainer = styled(ToastContainer)`
 `;
 
 const OutletContainer = styled.div`
+  display: flex;
   flex: 1;
   background-color: ${({ theme }) => theme.lightBackground};
 `;

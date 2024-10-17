@@ -1,3 +1,4 @@
+import { ethers } from "ethers";
 import { Network } from "hardhat/types";
 
 // TODO: derive this from hardhat.config and make it rely on viem/chains
@@ -25,6 +26,7 @@ export enum Courts {
   GENERAL = 1,
 }
 
+export const isMainnet = (network: Network) => network.tags.production ?? false;
 export const isDevnet = (network: Network) => network.name.endsWith("Devnet");
 
 export const isSkipped = async (network: Network, skip: boolean) => {
@@ -34,3 +36,6 @@ export const isSkipped = async (network: Network, skip: boolean) => {
   }
   return false;
 };
+
+export const PNK = (n: number) => ethers.utils.parseUnits(String(n));
+export const ETH = (n: number) => ethers.utils.parseUnits(String(n));

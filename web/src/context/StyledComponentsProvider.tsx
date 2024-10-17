@@ -1,7 +1,9 @@
 import React from "react";
 import { ThemeProvider } from "styled-components";
+
 import { useLocalStorage } from "hooks/useLocalStorage";
 import { ToggleThemeProvider } from "hooks/useToggleThemeContext";
+
 import { GlobalStyle } from "styles/global-style";
 import { lightTheme, darkTheme } from "styles/themes";
 

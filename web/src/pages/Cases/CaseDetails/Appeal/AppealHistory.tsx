@@ -1,10 +1,14 @@
 import React from "react";
 import styled from "styled-components";
-import OptionCard from "./OptionCard";
+
+import { useOptionsContext, useFundingContext } from "hooks/useClassicAppealContext";
+
 import HowItWorks from "components/HowItWorks";
 import Appeal from "components/Popup/MiniGuides/Appeal";
+
+import OptionCard from "./OptionCard";
+
 import { AppealHeader, StyledTitle } from ".";
-import { useOptionsContext, useFundingContext } from "hooks/useClassicAppealContext";
 
 const OptionsContainer = styled.div`
   display: flex;

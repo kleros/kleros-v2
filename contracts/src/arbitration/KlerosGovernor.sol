@@ -5,7 +5,7 @@
 /// @custom:auditors: []
 /// @custom:deployments: []
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitrableV2.sol";
 import "./interfaces/IDisputeTemplateRegistry.sol";
@@ -31,7 +31,7 @@ contract KlerosGovernor is IArbitrableV2 {
         uint256[] submittedLists; // Tracks all lists that were submitted in a session in the form submittedLists[submissionID].
         uint256 sumDeposit; // Sum of all submission deposits in a session (minus arbitration fees). This is used to calculate the reward.
         Status status; // Status of a session.
-        mapping(bytes32 => bool) alreadySubmitted; // Indicates whether or not the transaction list was already submitted in order to catch duplicates in the form alreadySubmitted[listHash].
+        mapping(bytes32 listHash => bool) alreadySubmitted; // Indicates whether or not the transaction list was already submitted in order to catch duplicates in the form alreadySubmitted[listHash].
         uint256 durationOffset; // Time in seconds that prolongs the submission period after the first submission, to give other submitters time to react.
     }
 

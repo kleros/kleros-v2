@@ -1,7 +1,10 @@
 import React from "react";
-import { useToggle } from "react-use";
 import styled, { css } from "styled-components";
+
+import { useToggle } from "react-use";
+
 import { landscapeStyle } from "styles/landscapeStyle";
+
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
 

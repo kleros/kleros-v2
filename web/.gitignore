@@ -6,12 +6,10 @@
 /.pnp.*
 node_modules
 
-# Parcel
-.parcel-cache
+# vite
 development
 build
 dist
-parcel-bundle-reports
 
 # misc
 .eslintcache
@@ -26,9 +24,10 @@ parcel-bundle-reports
 .env.production.local
 
 # generated code
-src/hooks/contracts
+src/hooks/contracts/generated.ts
 src/graphql
 generatedGitInfo.json
+generatedNetlifyInfo.json
 
 # logs
 npm-debug.log*

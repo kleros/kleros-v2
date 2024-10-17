@@ -1,7 +1,11 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { formatUnits } from "viem";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
+import NumberDisplay from "components/NumberDisplay";
 
 const Container = styled.div`
   display: flex;
@@ -24,7 +28,7 @@ const StyledLabel = styled.label`
   color: ${({ theme }) => theme.primaryText};
   font-size: 16px;
   align-items: center;
-  gap: 32px;
+  gap: 4px;
 `;
 
 interface IStake {
@@ -37,7 +41,9 @@ const Stake: React.FC<IStake> = ({ stake }) => {
   return (
     <Container>
       <label>Stake</label>
-      <StyledLabel>{`${formattedStake} PNK`}</StyledLabel>
+      <StyledLabel>
+        <NumberDisplay value={formattedStake} unit="PNK" />
+      </StyledLabel>
     </Container>
   );
 };

@@ -1,18 +1,39 @@
+import { useQuery } from "@tanstack/react-query";
+
+import { REFETCH_INTERVAL } from "consts/index";
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
+
 import { graphql } from "src/graphql";
 import { VotingHistoryQuery } from "src/graphql/graphql";
-import { useQuery } from "@tanstack/react-query";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { VotingHistoryQuery };
 
 const votingHistoryQuery = graphql(`
   query VotingHistory($disputeID: ID!) {
     dispute(id: $disputeID) {
       id
+      createdAt
+      ruled
       rounds {
         nbVotes
+        jurorRewardsDispersed
         court {
           id
           name
+        }
+        timeline
+        drawnJurors {
+          juror {
+            id
+          }
+          vote {
+            ... on ClassicVote {
+              commited
+              justification {
+                choice
+                reference
+              }
+            }
+          }
         }
       }
       disputeKitDispute {
@@ -20,14 +41,6 @@ const votingHistoryQuery = graphql(`
           ... on ClassicRound {
             winningChoice
             totalVoted
-            justifications {
-              id
-              juror {
-                id
-              }
-              choice
-              reference
-            }
           }
         }
       }
@@ -37,10 +50,13 @@ const votingHistoryQuery = graphql(`
 
 export const useVotingHistory = (disputeID?: string) => {
   const isEnabled = disputeID !== undefined;
+  const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<VotingHistoryQuery>({
-    queryKey: ["refetchOnBlock", `VotingHistory${disputeID}`],
+    queryKey: [`VotingHistory${disputeID}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(votingHistoryQuery, { disputeID }),
+    refetchInterval: REFETCH_INTERVAL,
+    queryFn: async () =>
+      await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: votingHistoryQuery, variables: { disputeID } }),
   });
 };

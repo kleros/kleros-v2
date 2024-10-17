@@ -12,6 +12,6 @@ fi
 
 for subgraph in core drt
 do
-    echo "Running for $subgraph"
+    echo "Running for ${cmdPrefix}:${subgraph}${cmdPostfix:+:}${cmdPostfix}"
     yarn "${cmdPrefix}:${subgraph}${cmdPostfix:+:}${cmdPostfix}"
 done

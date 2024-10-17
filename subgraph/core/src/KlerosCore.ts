@@ -17,14 +17,14 @@ import { ZERO, ONE } from "./utils";
 import { createCourtFromEvent } from "./entities/Court";
 import { createDisputeKitFromEvent, filterSupportedDisputeKits } from "./entities/DisputeKit";
 import { createDisputeFromEvent } from "./entities/Dispute";
-import { createRoundFromRoundInfo } from "./entities/Round";
+import { createRoundFromRoundInfo, updateRoundTimeline } from "./entities/Round";
 import { updateCases, updateCasesAppealing, updateCasesRuled, updateCasesVoting } from "./datapoint";
-import { addUserActiveDispute, ensureUser } from "./entities/User";
+import { addUserActiveDispute, computeCoherenceScore, ensureUser } from "./entities/User";
 import { updateJurorStake } from "./entities/JurorTokensPerCourt";
 import { createDrawFromEvent } from "./entities/Draw";
 import { updateTokenAndEthShiftFromEvent } from "./entities/TokenAndEthShift";
 import { updateArbitrableCases } from "./entities/Arbitrable";
-import { Court, Dispute, User } from "../generated/schema";
+import { ClassicVote, Court, Dispute, Draw, Round, User } from "../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { updatePenalty } from "./entities/Penalty";
 import { ensureFeeToken } from "./entities/FeeToken";
@@ -75,9 +75,12 @@ export function handleDisputeCreation(event: DisputeCreation): void {
   const court = Court.load(courtID);
   if (!court) return;
   court.numberDisputes = court.numberDisputes.plus(ONE);
+
+  const roundInfo = contract.getRoundInfo(disputeID, ZERO);
+  court.numberVotes = court.numberVotes.plus(roundInfo.nbVotes);
+
   court.save();
   createDisputeFromEvent(event);
-  const roundInfo = contract.getRoundInfo(disputeID, ZERO);
   createRoundFromRoundInfo(KlerosCore.bind(event.address), disputeID, ZERO, roundInfo);
   const arbitrable = event.params._arbitrable.toHexString();
   updateArbitrableCases(arbitrable, ONE);
@@ -124,6 +127,41 @@ export function handleNewPeriod(event: NewPeriod): void {
     dispute.currentRuling = currentRulingInfo.getRuling();
     dispute.overridden = currentRulingInfo.getOverridden();
     dispute.tied = currentRulingInfo.getTied();
+
+    const rounds = dispute.rounds.load();
+    for (let i = 0; i < rounds.length; i++) {
+      const round = Round.load(rounds[i].id);
+      if (!round) continue;
+
+      const draws = round.drawnJurors.load();
+      // Iterate over all draws in the round
+      for (let j = 0; j < draws.length; j++) {
+        const draw = Draw.load(draws[j].id);
+        if (!draw) continue;
+
+        // Since this is a ClassicVote entity, this will only work for the Classic DisputeKit (which has ID "1").
+        const vote = ClassicVote.load(`${round.disputeKit}-${draw.id}`);
+
+        if (!vote) continue;
+
+        const juror = ensureUser(draw.juror);
+        juror.totalResolvedVotes = juror.totalResolvedVotes.plus(ONE);
+
+        if (vote.choice === null) continue;
+
+        // Check if the vote choice matches the final ruling
+        if (vote.choice!.equals(dispute.currentRuling)) {
+          juror.totalCoherentVotes = juror.totalCoherentVotes.plus(ONE);
+        }
+
+        // Recalculate coherenceScore
+        if (juror.totalResolvedVotes.gt(ZERO)) {
+          juror.coherenceScore = computeCoherenceScore(juror.totalCoherentVotes, juror.totalResolvedVotes);
+        }
+
+        juror.save();
+      }
+    }
   }
 
   dispute.period = newPeriod;
@@ -135,6 +173,7 @@ export function handleNewPeriod(event: NewPeriod): void {
   } else {
     dispute.periodDeadline = BigInt.fromU64(U64.MAX_VALUE);
   }
+  updateRoundTimeline(disputeID.toString(), newPeriod, event.block.timestamp);
   dispute.save();
   court.save();
 }
@@ -163,6 +202,15 @@ export function handleAppealDecision(event: AppealDecision): void {
   dispute.currentRound = roundID;
   dispute.save();
   const roundInfo = contract.getRoundInfo(disputeID, newRoundIndex);
+
+  const disputeStorage = contract.disputes(disputeID);
+  const courtID = disputeStorage.value0.toString();
+  const court = Court.load(courtID);
+  if (!court) return;
+
+  court.numberVotes = court.numberVotes.plus(roundInfo.nbVotes);
+  court.save();
+
   createRoundFromRoundInfo(KlerosCore.bind(event.address), disputeID, newRoundIndex, roundInfo);
 }
 
@@ -184,6 +232,17 @@ export function handleDraw(event: DrawEvent): void {
   const jurorAddress = event.params._address.toHexString();
   updateJurorStake(jurorAddress, dispute.court, sortitionModule, event.block.timestamp);
   addUserActiveDispute(jurorAddress, disputeID);
+
+  const roundIndex = event.params._roundID;
+  const roundID = `${disputeID}-${roundIndex.toString()}`;
+
+  const currentRound = Round.load(roundID);
+  if (!currentRound) return;
+
+  if (currentRound.nbVotes.toI32() === currentRound.drawnJurors.load().length) {
+    currentRound.jurorsDrawn = true;
+    currentRound.save();
+  }
 }
 
 export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
@@ -198,6 +257,21 @@ export function handleTokenAndETHShift(event: TokenAndETHShiftEvent): void {
   const klerosCore = KlerosCore.bind(event.address);
   const sortitionModule = SortitionModule.bind(klerosCore.sortitionModule());
   updateJurorStake(jurorAddress, court.id, sortitionModule, event.block.timestamp);
+
+  const roundIndex = event.params._roundID;
+  const roundID = `${disputeID}-${roundIndex.toString()}`;
+
+  const round = Round.load(roundID);
+  if (!round) return;
+
+  const roundInfo = klerosCore.getRoundInfo(event.params._disputeID, roundIndex);
+  const repartitions = roundInfo.repartitions;
+  const nbVotes = roundInfo.nbVotes;
+
+  if (repartitions >= nbVotes) {
+    round.jurorRewardsDispersed = true;
+    round.save();
+  }
 }
 
 export function handleAcceptedFeeToken(event: AcceptedFeeToken): void {

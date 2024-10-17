@@ -1,16 +1,27 @@
 import React from "react";
-import Header from "pages/Resolver/Header";
 import styled, { css } from "styled-components";
+
 import { Field } from "@kleros/ui-components-library";
+
+import { useNewDisputeContext } from "context/NewDisputeContext";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import Header from "pages/Resolver/Header";
+
 import NavigationButtons from "../NavigationButtons";
-import { useNewDisputeContext } from "context/NewDisputeContext";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  ${landscapeStyle(
+    () => css`
+      padding-bottom: 240px;
+    `
+  )}
 `;
 
 const StyledField = styled(Field)`

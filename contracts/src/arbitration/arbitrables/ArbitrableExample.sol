@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
 import "../interfaces/IDisputeTemplateRegistry.sol";
@@ -137,10 +137,10 @@ contract ArbitrableExample is IArbitrableV2 {
     }
 
     /// @dev To be called by the arbitrator of the dispute, to declare the winning ruling.
-    /// @param _externalDisputeID ID of the dispute in arbitrator contract.
+    /// @param _arbitratorDisputeID ID of the dispute in arbitrator contract.
     /// @param _ruling The ruling choice of the arbitration.
-    function rule(uint256 _externalDisputeID, uint256 _ruling) external override {
-        uint256 localDisputeID = externalIDtoLocalID[_externalDisputeID];
+    function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external override {
+        uint256 localDisputeID = externalIDtoLocalID[_arbitratorDisputeID];
         DisputeStruct storage dispute = disputes[localDisputeID];
         require(msg.sender == address(arbitrator), "Only the arbitrator can execute this.");
         require(_ruling <= dispute.numberOfRulingOptions, "Invalid ruling.");
@@ -149,6 +149,6 @@ contract ArbitrableExample is IArbitrableV2 {
         dispute.isRuled = true;
         dispute.ruling = _ruling;
 
-        emit Ruling(IArbitratorV2(msg.sender), _externalDisputeID, dispute.ruling);
+        emit Ruling(IArbitratorV2(msg.sender), _arbitratorDisputeID, dispute.ruling);
     }
 }

@@ -1,15 +1,13 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { SortitionModule, RandomizerRNG } from "../typechain-types";
+import { SortitionModule } from "../typechain-types";
 import { HomeChains, isSkipped } from "./utils";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { getContractOrDeploy } from "./utils/getContractOrDeploy";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts, getChainId, ethers } = hre;
-  const { deploy, execute } = deployments;
-  const { getContract } = ethers;
-  const { AddressZero } = ethers.constants;
+  const { deploy } = deployments;
   const RNG_LOOKAHEAD = 20;
 
   // fallback to hardhat node signers on local network
@@ -36,7 +34,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const sortitionModule = (await hre.ethers.getContract("SortitionModule")) as SortitionModule;
+  const sortitionModule = (await ethers.getContract("SortitionModuleNeo")) as SortitionModule;
   await sortitionModule.changeRandomNumberGenerator(rng2.address, RNG_LOOKAHEAD);
 };
 

@@ -1,13 +1,16 @@
 import React, { useMemo, useState, createContext, useContext } from "react";
+
 import { useParams } from "react-router-dom";
+
 import { ONE_BASIS_POINT } from "consts/index";
 import { Periods } from "consts/periods";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
-import { useAppealCost } from "queries/useAppealCost";
-import { useDisputeKitClassicMultipliers } from "queries/useDisputeKitClassicMultipliers";
-import { useClassicAppealQuery, ClassicAppealQuery } from "queries/useClassicAppealQuery";
+import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useCountdown } from "hooks/useCountdown";
 import { getLocalRounds } from "utils/getLocalRounds";
+
+import { useAppealCost } from "queries/useAppealCost";
+import { useClassicAppealQuery, ClassicAppealQuery } from "queries/useClassicAppealQuery";
+import { useDisputeKitClassicMultipliers } from "queries/useDisputeKitClassicMultipliers";
 
 interface ICountdownContext {
   loserSideCountdown?: number;
@@ -52,10 +55,10 @@ export const ClassicAppealProvider: React.FC<{
   const winningChoice = getWinningChoice(data?.dispute);
   const { data: appealCost } = useAppealCost(id);
   const arbitrable = data?.dispute?.arbitrated.id;
-  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
+  const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
   const { data: multipliers } = useDisputeKitClassicMultipliers();
   const options = ["Refuse to Arbitrate"].concat(
-    disputeTemplate?.answers?.map((answer: { title: string; description: string }) => {
+    disputeDetails?.answers?.map((answer: { title: string; description: string }) => {
       return answer.title;
     })
   );

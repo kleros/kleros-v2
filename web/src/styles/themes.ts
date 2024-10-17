@@ -6,6 +6,7 @@ export const lightTheme = {
   white: "#FFFFFF",
   primaryPurple: "#4D00B4",
   secondaryPurple: "#9013FE",
+  darkPurple: "#220050",
   mediumPurple: "#F8F1FF",
   lightPurple: "#FBF9FE",
   violetPurple: "#6A1DCD",
@@ -41,6 +42,9 @@ export const lightTheme = {
 
   skeletonBackground: "#EBEBEB",
   skeletonHighlight: "#F5F5F5",
+
+  paleCyan: "#ACFFFF",
+  limeGreen: "#F3FFD9",
 };
 
 export const darkTheme = {
@@ -49,6 +53,7 @@ export const darkTheme = {
   white: "#FFFFFF",
   primaryPurple: "#7E1BD4",
   secondaryPurple: "#B45FFF",
+  darkPurple: "#220050",
   mediumPurple: "#390F6C",
   lightPurple: "#FCFBFF",
   violetPurple: "#6A1DCD",
@@ -84,4 +89,7 @@ export const darkTheme = {
 
   skeletonBackground: "#3A2270",
   skeletonHighlight: "#3E307C",
+
+  paleCyan: "#ACFFFF",
+  limeGreen: "#F3FFD9",
 };

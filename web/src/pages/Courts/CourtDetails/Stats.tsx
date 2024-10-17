@@ -1,22 +1,28 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { useParams } from "react-router-dom";
-import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
-import { useCoinPrice } from "hooks/useCoinPrice";
-import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
-import { isUndefined } from "utils/index";
-import { calculateSubtextRender } from "utils/calculateSubtextRender";
-import { CoinIds } from "consts/coingecko";
-import StatDisplay, { IStatDisplay } from "components/StatDisplay";
-import { StyledSkeleton } from "components/StyledSkeleton";
+
+import EthereumIcon from "svgs/icons/ethereum.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
 import MinStake from "svgs/icons/min-stake.svg";
-import VoteStake from "svgs/icons/vote-stake.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
-import EthereumIcon from "svgs/icons/ethereum.svg";
+import VoteStake from "svgs/icons/vote-stake.svg";
+
+import { CoinIds } from "consts/coingecko";
+import { useCoinPrice } from "hooks/useCoinPrice";
+import { calculateSubtextRender } from "utils/calculateSubtextRender";
+import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
+import { isUndefined } from "utils/index";
+
+import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import StatDisplay, { IStatDisplay } from "components/StatDisplay";
+import { StyledSkeleton } from "components/StyledSkeleton";
 
 const StyledCard = styled.div`
   width: auto;

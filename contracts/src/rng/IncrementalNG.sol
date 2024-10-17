@@ -4,7 +4,7 @@
 /// @author JayBuidl <jb@kleros.io>
 /// @dev A Random Number Generator which returns a number incremented by 1 each time. Useful as a fallback method.
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 import "./RNG.sol";
 
 contract IncrementalNG is RNG {

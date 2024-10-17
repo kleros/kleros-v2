@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import JurorRewardsSvg from "tsx:assets/svgs/mini-guides/staking/juror-rewards.svg";
+
+import JurorRewardsSvg from "svgs/mini-guides/staking/juror-rewards.svg";
+
 import { StyledImage } from "../PageContentsTemplate";
 
 const StyledJurorRewardsSvg = styled(JurorRewardsSvg)`
