@@ -3,7 +3,8 @@ import { useState } from "react";
 export function useSessionStorage<T>(keyName: string, defaultValue: T) {
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
-      const value = window.localStorage.getItem(keyName);
+      const value = window.sessionStorage.getItem(keyName);
+
       return value ? JSON.parse(value) : defaultValue;
     } catch (err) {
       return defaultValue;
