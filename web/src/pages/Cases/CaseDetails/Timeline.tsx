@@ -1,14 +1,19 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { Periods } from "consts/periods";
-import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
 import { Box, Steps } from "@kleros/ui-components-library";
-import { StyledSkeleton } from "components/StyledSkeleton";
+
+import { Periods } from "consts/periods";
 import { useCountdown } from "hooks/useCountdown";
 import useIsDesktop from "hooks/useIsDesktop";
 import { secondsToDayHourMinute } from "utils/date";
+
+import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import { StyledSkeleton } from "components/StyledSkeleton";
 
 const TimeLineContainer = styled(Box)`
   display: block;

@@ -1,10 +1,14 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { Card } from "@kleros/ui-components-library";
-import { Element } from "./Element";
+
 import { section } from "consts/community-elements";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import { Element } from "./Element";
 
 const Container = styled.div`
   margin-top: ${responsiveSize(44, 64)};

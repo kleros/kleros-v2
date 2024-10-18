@@ -1,6 +1,10 @@
-import { graphql } from "src/graphql";
-import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
+import { Address } from "viem";
+
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { isUndefined } from "utils/index";
+
+import { graphql } from "src/graphql";
 import {
   CasesPageQuery,
   Dispute_Filter,
@@ -8,8 +12,6 @@ import {
   MyCasesQuery,
   DisputeDetailsFragment,
 } from "src/graphql/graphql";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
-import { isUndefined } from "utils/index";
 export type { CasesPageQuery, DisputeDetailsFragment };
 
 export const disputeFragment = graphql(`
@@ -18,6 +20,7 @@ export const disputeFragment = graphql(`
     arbitrated {
       id
     }
+    currentRoundIndex
     court {
       id
       policy
@@ -66,30 +69,41 @@ const myCasesQueryWhere = graphql(`
 `);
 
 export const useCasesQuery = (skip = 0, first = 3, where?: Dispute_Filter, sortOrder?: OrderDirection) => {
+  const { graphqlBatcher } = useGraphqlBatcher();
+
   return useQuery<CasesPageQuery>({
     queryKey: [`useCasesQuery`, skip, where, sortOrder, first],
     queryFn: async () =>
-      await graphqlQueryFnHelper(isUndefined(where) ? casesQuery : casesQueryWhere, {
-        first,
-        skip,
-        where,
-        orderDirection: sortOrder ?? "desc",
+      await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: isUndefined(where) ? casesQuery : casesQueryWhere,
+        variables: {
+          first,
+          skip,
+          where,
+          orderDirection: sortOrder ?? "desc",
+        },
       }),
   });
 };
 
 export const useMyCasesQuery = (user?: Address, skip = 0, where?: Dispute_Filter, sortOrder?: OrderDirection) => {
   const isEnabled = !isUndefined(user);
+  const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<MyCasesQuery>({
     queryKey: [`useMyCasesQuery`, user, skip, where, sortOrder],
     enabled: isEnabled,
     queryFn: async () =>
-      await graphqlQueryFnHelper(isUndefined(where) ? myCasesQuery : myCasesQueryWhere, {
-        skip,
-        id: user?.toLowerCase(),
-        where,
-        orderDirection: sortOrder ?? "desc",
+      await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: isUndefined(where) ? myCasesQuery : myCasesQueryWhere,
+        variables: {
+          skip,
+          id: user?.toLowerCase(),
+          where,
+          orderDirection: sortOrder ?? "desc",
+        },
       }),
   });
 };

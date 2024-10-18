@@ -42,17 +42,8 @@
       "version": "^16.12.0"
     },
     "import/resolver": {
-      "parcel": {
-        "rootDir": "src",
-        "extensions": [
-          ".js",
-          ".jsx",
-          ".ts",
-          ".tsx",
-          ".svg",
-          ".png",
-          ".jpeg"
-        ]
+      "typescript": {
+        "project": "./tsconfig.json"
       }
     }
   },
@@ -97,6 +88,69 @@
         "tsx": "never"
       }
     ],
-    "import/no-unresolved": "off"
+    "import/no-unresolved": "off",
+    "import/order": [
+      "warn",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "parent",
+          "sibling",
+          "index"
+        ],
+        "pathGroups": [
+          {
+            "pattern": "{react,styled-components}",
+            "group": "external",
+            "position": "before"
+          },
+          {
+            "pattern": "@kleros/**",
+            "group": "external",
+            "position": "after"
+          },
+          {
+            "pattern": "{svgs/**,assets/**}",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "{hooks/**,utils/**,consts/**,types/**,context/**,connectors/**,}",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "{queries/**,}",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "{src/**,}",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "{styles/**,}",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "{layout/**,pages/**,components/**,}",
+            "group": "internal",
+            "position": "after"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": [
+          "builtin"
+        ],
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ]
   }
 }

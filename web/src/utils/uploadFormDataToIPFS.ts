@@ -1,10 +1,16 @@
 import { toast } from "react-toastify";
+
 import { OPTIONS } from "utils/wrapWithToast";
 
-export function uploadFormDataToIPFS(formData: FormData, operation: string = "evidence"): Promise<Response> {
+export function uploadFormDataToIPFS(formData: FormData, operation = "evidence"): Promise<Response> {
+  const authToken = sessionStorage.getItem("authToken")?.replace(/"/g, "");
+
   return toast.promise<Response, Error>(
-    fetch(`/.netlify/functions/uploadToIPFS?dapp=court&key=kleros-v2&operation=${operation}`, {
+    fetch(`/.netlify/functions/uploadToIPFS?key=kleros-v2&operation=${operation}`, {
       method: "POST",
+      headers: {
+        "x-auth-token": authToken ?? "",
+      },
       body: formData,
     }).then(async (response) => {
       if (response.status !== 200) {

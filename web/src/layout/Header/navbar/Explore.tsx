@@ -1,9 +1,12 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { Link, useLocation } from "react-router-dom";
-import { useOpenContext } from "../MobileHeader";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import { useOpenContext } from "../MobileHeader";
 
 const Container = styled.div`
   display: flex;
@@ -49,9 +52,11 @@ const StyledLink = styled(Link)<{ isActive: boolean }>`
 `;
 
 const links = [
+  { to: "/", text: "Home" },
   { to: "/cases/display/1/desc/all", text: "Cases" },
   { to: "/courts", text: "Courts" },
   { to: "/dashboard/1/desc/all", text: "Dashboard" },
+  { to: "/get-pnk", text: "Get PNK" },
 ];
 
 const Explore: React.FC = () => {
@@ -63,7 +68,11 @@ const Explore: React.FC = () => {
       <Title>Explore</Title>
       {links.map(({ to, text }) => (
         <LinkContainer key={text}>
-          <StyledLink to={to} onClick={toggleIsOpen} isActive={location.pathname.startsWith(to)}>
+          <StyledLink
+            to={to}
+            onClick={toggleIsOpen}
+            isActive={to === "/" ? location.pathname === "/" : location.pathname.startsWith(to)}
+          >
             {text}
           </StyledLink>
         </LinkContainer>

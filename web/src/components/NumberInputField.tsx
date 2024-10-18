@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+
 import { Field } from "@kleros/ui-components-library";
 
 const Container = styled.div`
@@ -27,15 +28,24 @@ const StyledField = styled(Field)`
   }
 `;
 
-interface INumberInputField {
+interface INumberInputField extends Omit<React.ComponentProps<typeof Field>, "onChange"> {
   placeholder?: string;
   message?: string;
   value?: string;
   onChange?: (value: string) => void;
   formatter?: (value: string) => string;
+  className?: string;
 }
 
-export const NumberInputField: React.FC<INumberInputField> = ({ placeholder, message, value, onChange, formatter }) => {
+export const NumberInputField: React.FC<INumberInputField> = ({
+  placeholder,
+  message,
+  value,
+  onChange,
+  formatter,
+  className,
+  variant = "info",
+}) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const toggleEditing = () => {
@@ -43,27 +53,29 @@ export const NumberInputField: React.FC<INumberInputField> = ({ placeholder, mes
   };
 
   return (
-    <Container>
+    <Container {...{ className }}>
       {isEditing ? (
         <StyledField
-          type="number"
-          value={value}
+          type="text"
+          onInput={(e) => {
+            const value = e.currentTarget.value.replace(/[^0-9.]/g, "");
+
+            e.currentTarget.value = formatter ? formatter(value) : value;
+            return e;
+          }}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             onChange?.(event.target.value);
           }}
-          placeholder={placeholder}
-          message={message}
-          variant="info"
           onBlur={toggleEditing}
+          value={formatter ? formatter(value ?? "0") : value}
+          {...{ placeholder, message, variant }}
         />
       ) : (
         <StyledField
           type="text"
           value={formatter ? formatter(value ?? "0") : value}
-          placeholder={placeholder}
-          message={message}
-          variant="info"
           onFocus={toggleEditing}
+          {...{ placeholder, message, variant }}
           readOnly
         />
       )}

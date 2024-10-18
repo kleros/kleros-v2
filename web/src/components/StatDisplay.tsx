@@ -1,6 +1,7 @@
 import React from "react";
-import { landscapeStyle } from "styles/landscapeStyle";
 import styled, { useTheme, css } from "styled-components";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`

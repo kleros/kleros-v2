@@ -1,11 +1,16 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import { Dispute_Filter } from "../graphql/graphql";
-import { DisputeDetailsFragment, useCasesQuery } from "queries/useCasesQuery";
-import DisputeCard from "components/DisputeCard";
-import { SkeletonDisputeCard } from "components/StyledSkeleton";
+
 import { isUndefined } from "utils/index";
+
+import { DisputeDetailsFragment, useCasesQuery } from "queries/useCasesQuery";
+
 import { responsiveSize } from "styles/responsiveSize";
+
+import DisputeView from "components/DisputeView";
+import { SkeletonDisputeCard } from "components/StyledSkeleton";
+
+import { Dispute_Filter } from "../graphql/graphql";
 
 const Container = styled.div`
   margin-top: ${responsiveSize(48, 80)};
@@ -16,9 +21,11 @@ const Title = styled.h1`
 `;
 
 const DisputeContainer = styled.div`
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
+  --gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, max(350px, (100% - var(--gap) * 2)/3)), 1fr));
+  align-items: center;
+  gap: var(--gap);
 `;
 
 const LatestCases: React.FC<{ filters?: Dispute_Filter }> = ({ filters }) => {
@@ -31,7 +38,7 @@ const LatestCases: React.FC<{ filters?: Dispute_Filter }> = ({ filters }) => {
       <DisputeContainer>
         {isUndefined(disputes)
           ? Array.from({ length: 3 }).map((_, index) => <SkeletonDisputeCard key={index} />)
-          : disputes.map((dispute) => <DisputeCard key={dispute.id} {...dispute} overrideIsList />)}
+          : disputes.map((dispute) => <DisputeView key={dispute.id} {...dispute} overrideIsList />)}
       </DisputeContainer>
     </Container>
   ) : null;

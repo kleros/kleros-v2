@@ -1,9 +1,11 @@
 import React from "react";
+
+import PageContentsTemplate from "../PageContentsTemplate";
+
 import CourtHeader from "./CourtHeader";
 import JurorRewards from "./JurorRewards";
 import Notifications from "./Notifications";
 import StakingSection from "./StakingSection";
-import PageContentsTemplate from "../PageContentsTemplate";
 
 const leftPageContents = [
   {

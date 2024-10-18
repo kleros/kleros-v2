@@ -32,6 +32,7 @@
   "category": "Curated Lists",
   "lang": "en_US",
   "specification": "KIP77",
+  "version": "1.0",
   "metadata": {    
   },
   "externalDisputeID": "0x306000938609016839401998194416306598562578921596", // hash(itemID, requestID)

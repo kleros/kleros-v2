@@ -1,11 +1,16 @@
 import React from "react";
-import Header from "pages/Resolver/Header";
 import styled, { css } from "styled-components";
+
 import { Textarea } from "@kleros/ui-components-library";
+
+import { useNewDisputeContext } from "context/NewDisputeContext";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import Header from "pages/Resolver/Header";
+
 import NavigationButtons from "../NavigationButtons";
-import { useNewDisputeContext } from "context/NewDisputeContext";
 
 const Container = styled.div`
   display: flex;

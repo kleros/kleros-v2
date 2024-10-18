@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+
 import Skeleton from "react-loading-skeleton";
+
+import aristotelesImage from "assets/pngs/dashboard/aristoteles.png";
 import diogenesImage from "assets/pngs/dashboard/diogenes.png";
+import platoImage from "assets/pngs/dashboard/plato.png";
 import pythagorasImage from "assets/pngs/dashboard/pythagoras.png";
 import socratesImage from "assets/pngs/dashboard/socrates.png";
-import platoImage from "assets/pngs/dashboard/plato.png";
-import aristotelesImage from "assets/pngs/dashboard/aristoteles.png";
 
 interface IStyledImage {
   show: boolean;

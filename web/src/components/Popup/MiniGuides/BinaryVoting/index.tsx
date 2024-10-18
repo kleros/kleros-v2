@@ -1,6 +1,9 @@
 import React from "react";
+
 import PageContentsTemplate from "../PageContentsTemplate";
 import JurorRewards from "../Staking/JurorRewards";
+
+import PrivateVoting from "./PrivateVoting";
 import VotingModule from "./VotingModule";
 
 const leftPageContents = [
@@ -14,6 +17,17 @@ const leftPageContents = [
     ],
   },
   {
+    title: "Private Voting",
+    paragraphs: [
+      "This feature introduces the commit and reveal mechanism, enhancing the secrecy and integrity of votes.",
+      "What’s different? In courts with private voting, jurors cast their votes in two parts: Firstly, they" +
+        " vote on a chosen option. The vote is kept secret from other jurors. (Commit period). Finally, they reveal" +
+        " their votes adding a justification (Voting Period).",
+      "Note that jurors who miss the Commit period, cannot progress to the Voting period, not being able to conclude" +
+        " the voting. Make sure not to miss the Commit, and the Voting periods.",
+    ],
+  },
+  {
     title: "Juror Rewards",
     paragraphs: [
       "Jurors whose vote is coherent with the final jury decision (after all the appeal instances) receive the" +
@@ -23,7 +37,7 @@ const leftPageContents = [
   },
 ];
 
-const rightPageComponents = [VotingModule, JurorRewards];
+const rightPageComponents = [VotingModule, PrivateVoting, JurorRewards];
 
 interface IBinaryVoting {
   toggleMiniGuide: () => void;

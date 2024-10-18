@@ -18,7 +18,7 @@ function generate() { #deploymentDir #explorerUrl
         contractName=$(basename $f .json)
         address=$(cat $f | jq -r .address)
         implementation=$(cat $f | jq -r .implementation)
-        
+
         if [ "$implementation" != "null" ]; then
             echo "- [$contractName: proxy]($explorerUrl$address), [implementation]($explorerUrl$implementation)"
         else
@@ -27,6 +27,11 @@ function generate() { #deploymentDir #explorerUrl
     done
 }
 
+echo "### V2 Neo (prelaunch)"
+echo "#### Arbitrum One"
+echo
+generate "$SCRIPT_DIR/../deployments/arbitrum" "https://arbiscan.io/address/" | grep -v 'DAI\|WETH\|PNKFaucet'
+echo
 echo "### Official Testnet"
 echo "#### Arbitrum Sepolia"
 echo

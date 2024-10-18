@@ -19,5 +19,6 @@
   "arbitratorChainID": "421614",
   "arbitratorAddress": "0xD08Ab99480d02bf9C092828043f611BcDFEA917b", // KlerosCore
   "category": "Oracle",
-  "specification": "KIP99"
+  "specification": "KIP99",
+  "version": "1.0"
 }

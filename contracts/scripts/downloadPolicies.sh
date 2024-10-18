@@ -6,7 +6,7 @@ function download() #policies
 {
     for p in $(cat ${policies}.json | jq -r .[].uri)
     do 
-        wget -P $SCRIPT_DIR/../config/$policies https://ipfs.kleros.io${p}
+        wget -P $SCRIPT_DIR/../config/$policies https://cdn.kleros.link${p}
     done
 }
 

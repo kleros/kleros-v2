@@ -1,12 +1,21 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import Identicon from "react-identicons";
+import ReactMarkdown from "react-markdown";
+import { Link } from "react-router-dom";
+
 import { Card } from "@kleros/ui-components-library";
+
 import AttachmentIcon from "svgs/icons/attachment.svg";
-import { useIPFSQuery } from "hooks/useIPFSQuery";
+
+import { formatDate } from "utils/date";
+import { getIpfsUrl } from "utils/getIpfsUrl";
 import { shortenAddress } from "utils/shortenAddress";
-import { IPFS_GATEWAY } from "consts/index";
+
+import { type Evidence } from "src/graphql/graphql";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 const StyledCard = styled(Card)`
@@ -30,9 +39,19 @@ const Index = styled.p`
   display: inline-block;
 `;
 
+const StyledReactMarkdown = styled(ReactMarkdown)`
+  a {
+    font-size: 16px;
+  }
+  code {
+    color: ${({ theme }) => theme.secondaryText};
+  }
+`;
+
 const BottomShade = styled.div`
   background-color: ${({ theme }) => theme.lightBlue};
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 16px;
   padding: 12px ${responsiveSize(8, 24)};
@@ -41,20 +60,6 @@ const BottomShade = styled.div`
     flex-shrink: 0;
     margin: 0;
   }
-`;
-
-const StyledA = styled.a`
-  display: flex;
-  margin-left: auto;
-  gap: ${responsiveSize(5, 6)};
-  ${landscapeStyle(
-    () => css`
-      > svg {
-        width: 16px;
-        fill: ${({ theme }) => theme.primaryBlue};
-      }
-    `
-  )}
 `;
 
 const AccountContainer = styled.div`
@@ -84,10 +89,29 @@ const DesktopText = styled.span`
   )}
 `;
 
+const Timestamp = styled.label`
+  color: ${({ theme }) => theme.secondaryText};
+`;
+
 const MobileText = styled.span`
   ${landscapeStyle(
     () => css`
       display: none;
+    `
+  )}
+`;
+
+const StyledLink = styled(Link)`
+  height: fit-content;
+  display: flex;
+  margin-left: auto;
+  gap: ${responsiveSize(5, 6)};
+  ${landscapeStyle(
+    () => css`
+      > svg {
+        width: 16px;
+        fill: ${({ theme }) => theme.primaryBlue};
+      }
     `
   )}
 `;
@@ -99,22 +123,20 @@ const AttachedFileText: React.FC = () => (
   </>
 );
 
-interface IEvidenceCard {
-  evidence: string;
+interface IEvidenceCard extends Pick<Evidence, "evidence" | "timestamp" | "name" | "description" | "fileURI"> {
   sender: string;
   index: number;
 }
 
-const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
-  const { data } = useIPFSQuery(evidence.at(0) === "/" ? evidence : undefined);
+const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timestamp, name, description, fileURI }) => {
   return (
     <StyledCard>
       <TextContainer>
         <Index>#{index}:</Index>
-        {data ? (
+        {name && description ? (
           <>
-            <h3>{data.name}</h3>
-            <p>{data.description}</p>
+            <h3>{name}</h3>
+            <StyledReactMarkdown>{description}</StyledReactMarkdown>
           </>
         ) : (
           <p>{evidence}</p>
@@ -125,11 +147,12 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index }) => {
           <Identicon size="24" string={sender} />
           <p>{shortenAddress(sender)}</p>
         </AccountContainer>
-        {data && typeof data.fileURI !== "undefined" && (
-          <StyledA href={`${IPFS_GATEWAY}${data.fileURI}`} target="_blank" rel="noreferrer">
+        <Timestamp>{formatDate(Number(timestamp), true)}</Timestamp>
+        {fileURI && (
+          <StyledLink to={`attachment/?url=${getIpfsUrl(fileURI)}`}>
             <AttachmentIcon />
             <AttachedFileText />
-          </StyledA>
+          </StyledLink>
         )}
       </BottomShade>
     </StyledCard>

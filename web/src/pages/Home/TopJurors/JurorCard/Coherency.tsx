@@ -11,12 +11,12 @@ const Container = styled.div`
 `;
 
 interface ICoherency {
-  totalCoherent: number;
-  totalResolvedDisputes: number;
+  totalCoherentVotes: number;
+  totalResolvedVotes: number;
 }
 
-const Coherency: React.FC<ICoherency> = ({ totalCoherent, totalResolvedDisputes }) => {
-  const coherenceRatio = `${totalCoherent}/${totalResolvedDisputes}`;
+const Coherency: React.FC<ICoherency> = ({ totalCoherentVotes, totalResolvedVotes }) => {
+  const coherenceRatio = `${totalCoherentVotes}/${totalResolvedVotes}`;
 
   return <Container>{coherenceRatio}</Container>;
 };

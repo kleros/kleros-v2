@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import CourtHeaderSvg from "tsx:assets/svgs/mini-guides/staking/court-header.svg";
+
+import CourtHeaderSvg from "svgs/mini-guides/staking/court-header.svg";
+
 import { StyledImage } from "../PageContentsTemplate";
 
 const StyledCourtHeaderSvg = styled(CourtHeaderSvg)`

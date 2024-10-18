@@ -1,7 +1,10 @@
-import { graphql } from "src/graphql";
 import { useQuery } from "@tanstack/react-query";
+
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
+
+import { graphql } from "src/graphql";
 import { CounterQuery } from "src/graphql/graphql";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
+
 export type { CounterQuery };
 
 const counterQuery = graphql(`
@@ -21,8 +24,10 @@ const counterQuery = graphql(`
 `);
 
 export const useCounterQuery = () => {
+  const { graphqlBatcher } = useGraphqlBatcher();
+
   return useQuery<CounterQuery>({
     queryKey: [`useCounterQuery`],
-    queryFn: async () => await graphqlQueryFnHelper(counterQuery, {}),
+    queryFn: async () => await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: counterQuery, variables: {} }),
   });
 };

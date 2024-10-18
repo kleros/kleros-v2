@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import WhatDoINeedSvg from "tsx:assets/svgs/mini-guides/onboarding/what-do-i-need.svg";
+
+import WhatDoINeedSvg from "svgs/mini-guides/onboarding/what-do-i-need.svg";
+
 import { StyledImage } from "../PageContentsTemplate";
 
 const StyledWhatDoINeedSvg = styled(WhatDoINeedSvg)`

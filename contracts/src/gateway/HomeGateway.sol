@@ -6,7 +6,7 @@
 /// @custom:bounties: []
 /// @custom:deployments: []
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "./interfaces/IForeignGateway.sol";
 import "./interfaces/IHomeGateway.sol";
@@ -133,7 +133,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
 
     /// @inheritdoc IHomeGateway
     function relayCreateDispute(RelayCreateDisputeParams memory _params) external payable override {
-        require(feeToken == Constants.NATIVE_CURRENCY, "Fees paid in ERC20 only");
+        require(feeToken == NATIVE_CURRENCY, "Fees paid in ERC20 only");
         require(_params.foreignChainID == foreignChainID, "Foreign chain ID not supported");
 
         bytes32 disputeHash = keccak256(
@@ -171,7 +171,7 @@ contract HomeGateway is IHomeGateway, UUPSProxiable, Initializable {
 
     /// @inheritdoc IHomeGateway
     function relayCreateDispute(RelayCreateDisputeParams memory _params, uint256 _feeAmount) external {
-        require(feeToken != Constants.NATIVE_CURRENCY, "Fees paid in native currency only");
+        require(feeToken != NATIVE_CURRENCY, "Fees paid in native currency only");
         require(_params.foreignChainID == foreignChainID, "Foreign chain ID not supported");
 
         bytes32 disputeHash = keccak256(

@@ -12342,5 +12342,277 @@ export default {
         },
       ],
     },
+    VeaInboxArbToEthDevnet: {
+      address: "0x77e95F54032f467eC45c48C6affc203f93858783",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_epochPeriod",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "_veaOutboxArbToEth",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "bytes",
+              name: "_nodeData",
+              type: "bytes",
+            },
+          ],
+          name: "MessageSent",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_snapshot",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_epoch",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "_count",
+              type: "uint64",
+            },
+          ],
+          name: "SnapshotSaved",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_epochSent",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "_ticketId",
+              type: "bytes32",
+            },
+          ],
+          name: "SnapshotSent",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "count",
+          outputs: [
+            {
+              internalType: "uint64",
+              name: "",
+              type: "uint64",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_timestamp",
+              type: "uint256",
+            },
+          ],
+          name: "epochAt",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "epoch",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "epochFinalized",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "epoch",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "epochNow",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "epoch",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "epochPeriod",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "saveSnapshot",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_to",
+              type: "address",
+            },
+            {
+              internalType: "bytes4",
+              name: "_fnSelector",
+              type: "bytes4",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          name: "sendMessage",
+          outputs: [
+            {
+              internalType: "uint64",
+              name: "",
+              type: "uint64",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_epoch",
+              type: "uint256",
+            },
+            {
+              components: [
+                {
+                  internalType: "bytes32",
+                  name: "stateRoot",
+                  type: "bytes32",
+                },
+                {
+                  internalType: "address",
+                  name: "claimer",
+                  type: "address",
+                },
+                {
+                  internalType: "uint32",
+                  name: "timestampClaimed",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "timestampVerification",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "blocknumberVerification",
+                  type: "uint32",
+                },
+                {
+                  internalType: "enum Party",
+                  name: "honest",
+                  type: "uint8",
+                },
+                {
+                  internalType: "address",
+                  name: "challenger",
+                  type: "address",
+                },
+              ],
+              internalType: "struct Claim",
+              name: "_claim",
+              type: "tuple",
+            },
+          ],
+          name: "sendSnapshot",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "snapshots",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "veaOutboxArbToEth",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+    },
   },
 } as const;

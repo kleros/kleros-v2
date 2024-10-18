@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+
 import ReactMarkdown from "react-markdown";
 import { Routes, Route, Navigate, useParams, useNavigate, useLocation } from "react-router-dom";
+
 import { Tabs } from "@kleros/ui-components-library";
-import { StyledSkeleton } from "components/StyledSkeleton";
+
 import { useCourtPolicy } from "queries/useCourtPolicy";
+
+import { StyledSkeleton } from "components/StyledSkeleton";
 
 const Container = styled.div`
   width: 100%;

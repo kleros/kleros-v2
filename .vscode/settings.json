@@ -12,5 +12,8 @@
   "sonarlint.connectedMode.project": {
     "connectionId": "kleros",
     "projectKey": "kleros_kleros-v2"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
   }
 }

@@ -1,11 +1,15 @@
 import React from "react";
 import styled from "styled-components";
-import { Box } from "@kleros/ui-components-library";
-import { secondsToDayHourMinute } from "utils/date";
-import HourglassIcon from "svgs/icons/hourglass.svg";
-import { isUndefined } from "utils/index";
-import { useFundingContext, useOptionsContext } from "hooks/useClassicAppealContext";
+
 import Skeleton from "react-loading-skeleton";
+
+import { Box } from "@kleros/ui-components-library";
+
+import HourglassIcon from "svgs/icons/hourglass.svg";
+
+import { useFundingContext, useOptionsContext } from "hooks/useClassicAppealContext";
+import { secondsToDayHourMinute } from "utils/date";
+import { isUndefined } from "utils/index";
 
 const StyledBox = styled(Box)`
   border-radius: 3px;

@@ -1,21 +1,35 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
+import { useLocation } from "react-router-dom";
 import { useToggle } from "react-use";
-import { Link } from "react-router-dom";
-import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
+import { useAccount } from "wagmi";
+
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
-import KlerosCourtLogo from "svgs/header/kleros-court.svg";
+
+import { DEFAULT_CHAIN } from "consts/chains";
+import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
+import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
+import Appeal from "components/Popup/MiniGuides/Appeal";
+import BinaryVoting from "components/Popup/MiniGuides/BinaryVoting";
+import DisputeResolver from "components/Popup/MiniGuides/DisputeResolver";
+import { MiniguideHashesType } from "components/Popup/MiniGuides/MainStructureTemplate";
+import Onboarding from "components/Popup/MiniGuides/Onboarding";
+import RankedVoting from "components/Popup/MiniGuides/RankedVoting";
+import Staking from "components/Popup/MiniGuides/Staking";
+
+import Logo from "./Logo";
 import DappList from "./navbar/DappList";
 import Explore from "./navbar/Explore";
 import Menu from "./navbar/Menu";
 import Help from "./navbar/Menu/Help";
 import Settings from "./navbar/Menu/Settings";
-import { Overlay } from "components/Overlay";
-import { PopupContainer } from ".";
-import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: none;
@@ -63,24 +77,85 @@ const LightButtonContainer = styled.div`
   margin-right: ${responsiveSize(12, 16)};
 `;
 
-const StyledLink = styled(Link)`
-  min-height: 48px;
-`;
-
 const StyledKlerosSolutionsIcon = styled(KlerosSolutionsIcon)`
   fill: ${({ theme }) => theme.white} !important;
 `;
 
-const ConnectWalletContainer = styled.div`
+const ConnectWalletContainer = styled.div<{ isConnected: boolean; isDefaultChain: boolean }>`
   label {
     color: ${({ theme }) => theme.white};
   }
+
+  ${({ isConnected, isDefaultChain }) =>
+    isConnected &&
+    isDefaultChain &&
+    css`
+      cursor: pointer;
+      & > * {
+        pointer-events: none;
+      }
+    `}
 `;
 
-const DesktopHeader = () => {
+const PopupContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background-color: ${({ theme }) => theme.blackLowOpacity};
+`;
+
+const DesktopHeader: React.FC = () => {
   const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
   const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
   const [isSettingsOpen, toggleIsSettingsOpen] = useToggle(false);
+  const [isJurorLevelsMiniGuideOpen, toggleIsJurorLevelsMiniGuideOpen] = useToggle(false);
+  const [isAppealMiniGuideOpen, toggleIsAppealMiniGuideOpen] = useToggle(false);
+  const [isBinaryVotingMiniGuideOpen, toggleIsBinaryVotingMiniGuideOpen] = useToggle(false);
+  const [isDisputeResolverMiniGuideOpen, toggleIsDisputeResolverMiniGuideOpen] = useToggle(false);
+  const [isRankedVotingMiniGuideOpen, toggleIsRankedVotingMiniGuideOpen] = useToggle(false);
+  const [isStakingMiniGuideOpen, toggleIsStakingMiniGuideOpen] = useToggle(false);
+  const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
+  const [initialTab, setInitialTab] = useState<number>(0);
+  const location = useLocation();
+  const { isConnected, chainId } = useAccount();
+  const isDefaultChain = chainId === DEFAULT_CHAIN;
+  const initializeFragmentURL = useCallback(() => {
+    const hashIncludes = (hash: MiniguideHashesType | "#notifications") => location.hash.includes(hash);
+    const hasJurorLevelsMiniGuidePath = hashIncludes("#jurorlevels-miniguide");
+    const hasAppealMiniGuidePath = hashIncludes("#appeal-miniguide");
+    const hasBinaryVotingMiniGuidePath = hashIncludes("#binaryvoting-miniguide");
+    const hasDisputeResolverMiniGuidePath = hashIncludes("#disputeresolver-miniguide");
+    const hasRankedVotingMiniGuidePath = hashIncludes("#rankedvoting-miniguide");
+    const hasStakingMiniGuidePath = hashIncludes("#staking-miniguide");
+    const hasOnboardingMiniGuidePath = hashIncludes("#onboarding-miniguide");
+    const hasNotificationsPath = hashIncludes("#notifications");
+    toggleIsJurorLevelsMiniGuideOpen(hasJurorLevelsMiniGuidePath);
+    toggleIsAppealMiniGuideOpen(hasAppealMiniGuidePath);
+    toggleIsBinaryVotingMiniGuideOpen(hasBinaryVotingMiniGuidePath);
+    toggleIsDisputeResolverMiniGuideOpen(hasDisputeResolverMiniGuidePath);
+    toggleIsRankedVotingMiniGuideOpen(hasRankedVotingMiniGuidePath);
+    toggleIsStakingMiniGuideOpen(hasStakingMiniGuidePath);
+    toggleIsOnboardingMiniGuidesOpen(hasOnboardingMiniGuidePath);
+    toggleIsAppealMiniGuideOpen(hasAppealMiniGuidePath);
+    toggleIsSettingsOpen(hasNotificationsPath);
+    setInitialTab(hasNotificationsPath ? 1 : 0);
+  }, [
+    toggleIsJurorLevelsMiniGuideOpen,
+    toggleIsAppealMiniGuideOpen,
+    toggleIsBinaryVotingMiniGuideOpen,
+    toggleIsDisputeResolverMiniGuideOpen,
+    toggleIsRankedVotingMiniGuideOpen,
+    toggleIsStakingMiniGuideOpen,
+    toggleIsOnboardingMiniGuidesOpen,
+    toggleIsSettingsOpen,
+    location.hash,
+  ]);
+
+  useEffect(initializeFragmentURL, [initializeFragmentURL]);
+
   useLockOverlayScroll(isDappListOpen || isHelpOpen || isSettingsOpen);
 
   return (
@@ -96,9 +171,7 @@ const DesktopHeader = () => {
               Icon={StyledKlerosSolutionsIcon}
             />
           </LightButtonContainer>
-          <StyledLink to={"/"}>
-            <KlerosCourtLogo />
-          </StyledLink>
+          <Logo />
         </LeftSide>
 
         <MiddleSide>
@@ -106,7 +179,10 @@ const DesktopHeader = () => {
         </MiddleSide>
 
         <RightSide>
-          <ConnectWalletContainer>
+          <ConnectWalletContainer
+            {...{ isConnected, isDefaultChain }}
+            onClick={isConnected && isDefaultChain ? toggleIsSettingsOpen : undefined}
+          >
             <ConnectWallet />
           </ConnectWalletContainer>
           <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
@@ -114,12 +190,18 @@ const DesktopHeader = () => {
       </Container>
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
         <PopupContainer>
-          <Overlay />
           {isDappListOpen && <DappList {...{ toggleIsDappListOpen, isDappListOpen }} />}
           {isHelpOpen && <Help {...{ toggleIsHelpOpen, isHelpOpen }} />}
-          {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen }} />}
+          {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen, initialTab }} />}
         </PopupContainer>
       )}
+      {isJurorLevelsMiniGuideOpen && <JurorLevels toggleMiniGuide={toggleIsJurorLevelsMiniGuideOpen} />}
+      {isAppealMiniGuideOpen && <Appeal toggleMiniGuide={toggleIsAppealMiniGuideOpen} />}
+      {isBinaryVotingMiniGuideOpen && <BinaryVoting toggleMiniGuide={toggleIsBinaryVotingMiniGuideOpen} />}
+      {isDisputeResolverMiniGuideOpen && <DisputeResolver toggleMiniGuide={toggleIsDisputeResolverMiniGuideOpen} />}
+      {isRankedVotingMiniGuideOpen && <RankedVoting toggleMiniGuide={toggleIsRankedVotingMiniGuideOpen} />}
+      {isStakingMiniGuideOpen && <Staking toggleMiniGuide={toggleIsStakingMiniGuideOpen} />}
+      {isOnboardingMiniGuidesOpen && <Onboarding toggleMiniGuide={toggleIsOnboardingMiniGuidesOpen} />}
     </>
   );
 };
