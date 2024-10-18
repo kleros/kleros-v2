@@ -1,10 +1,9 @@
-import { type GetDisputeParameters } from "src/types";
-import { configureSDK } from "src/sdk";
-import fetchDisputeDetails from "src/requests/fetchDisputeDetails";
-import fetchDisputeTemplateFromId from "src/requests/fetchDisputeTemplateFromId";
-import { executeActions } from "dataMappings/executeActions";
-import { populateTemplate } from "dataMappings/utils/populateTemplate";
-import { DisputeDetails } from "dataMappings/utils/disputeDetailsTypes";
+import { executeActions } from "../dataMappings";
+import { DisputeDetails, populateTemplate } from "../dataMappings/utils";
+import fetchDisputeDetails from "../requests/fetchDisputeDetails";
+import fetchDisputeTemplateFromId from "../requests/fetchDisputeTemplateFromId";
+import { configureSDK } from "../sdk";
+import { GetDisputeParameters } from "../types";
 
 /**
  * Retrieves dispute parameters based on the provided dispute ID and subgraph endpoints.

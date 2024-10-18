@@ -1,7 +1,7 @@
 import { parseAbiItem, type AbiEvent } from "viem";
-import { AbiEventMapping } from "src/dataMappings/utils/actionTypes";
-import { createResultObject } from "src/dataMappings/utils/createResultObject";
-import { getPublicClient } from "src/sdk";
+import { AbiEventMapping } from "../utils/actionTypes";
+import { createResultObject } from "../utils/createResultObject";
+import { getPublicClient } from "../../sdk";
 
 export const eventAction = async (mapping: AbiEventMapping) => {
   const publicClient = getPublicClient();

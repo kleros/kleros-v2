@@ -2,17 +2,6 @@
   "extends": "@kleros/kleros-v2-tsconfig/base20.json",
   "compilerOptions": {
     "outDir": "lib",
-    "paths": {
-      "~*": [
-        "./*"
-      ],
-      "src*": [
-        "./src*"
-      ],
-      "dataMappings*": [
-        "./src/dataMappings*"
-      ]
-    },
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,

@@ -12,10 +12,6 @@
     "lib/**/*",
     "!lib/**/test/*"
   ],
-  "alias": {
-    "src": "./src",
-    "dataMappings": "./src/dataMappings"
-  },
   "packageManager": "yarn@4.0.2+sha256.825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186",
   "engines": {
     "node": ">=16.0.0"

@@ -1,19 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
-import { populateTemplate } from "src/dataMappings/utils/populateTemplate";
-import { jsonAction } from "src/dataMappings/actions/jsonAction";
-import { subgraphAction } from "src/dataMappings/actions/subgraphAction";
-import { callAction } from "src/dataMappings/actions/callAction";
-import { eventAction } from "src/dataMappings/actions/eventAction";
-import { fetchIpfsJsonAction } from "src/dataMappings/actions/fetchIpfsJsonAction";
-import { createResultObject } from "src/dataMappings/utils/createResultObject";
-import { executeActions } from "src/dataMappings/executeActions";
+import { createResultObject } from "../src/dataMappings/utils/createResultObject";
+import { executeActions, populateTemplate } from "../src";
 import {
   AbiCallMapping,
   AbiEventMapping,
   FetchIpfsJsonMapping,
   JsonMapping,
   SubgraphMapping,
-} from "src/dataMappings/utils/actionTypes";
+} from "../src/dataMappings/utils/actionTypes";
+import { jsonAction } from "../src/dataMappings/actions/jsonAction";
+import { subgraphAction } from "../src/dataMappings/actions/subgraphAction";
+import { callAction } from "../src/dataMappings/actions/callAction";
+import { eventAction } from "../src/dataMappings/actions/eventAction";
+import { fetchIpfsJsonAction } from "../src/dataMappings/actions/fetchIpfsJsonAction";
 
 global.fetch = vi.fn().mockResolvedValue({
   json: async () => ({

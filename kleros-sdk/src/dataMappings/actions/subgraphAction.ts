@@ -1,5 +1,5 @@
 import { SubgraphMapping } from "../utils/actionTypes";
-import { createResultObject } from "src/dataMappings/utils/createResultObject";
+import { createResultObject } from "../utils/createResultObject";
 
 export const subgraphAction = async (mapping: SubgraphMapping) => {
   const { endpoint, query, variables, seek, populate } = mapping;
