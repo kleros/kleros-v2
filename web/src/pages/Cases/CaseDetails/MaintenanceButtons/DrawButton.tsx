@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { usePublicClient } from "wagmi";
 
-import { Button } from "@kleros/ui-components-library";
+import { Button, Field } from "@kleros/ui-components-library";
 
 import { useSimulateKlerosCoreDraw, useWriteKlerosCoreDraw } from "hooks/contracts/generated";
 import { useSortitionModulePhase } from "hooks/useSortitionModule";
@@ -18,6 +18,8 @@ import { Phases } from "components/Phase";
 
 import { IBaseMaintenanceButton } from ".";
 import { Link } from "react-router-dom";
+import { isKlerosUniversity } from "src/consts";
+import { isAddress } from "viem";
 
 const StyledButton = styled(Button)`
   width: 100%;
@@ -29,17 +31,24 @@ interface IDrawButton extends IBaseMaintenanceButton {
   period?: string;
 }
 
+const isUniversity = isKlerosUniversity();
+
 const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, period }) => {
-  const [isSending, setIsSending] = useState(false);
   const publicClient = usePublicClient();
   const { data: maintenanceData } = useDisputeMaintenanceQuery(id);
   const { data: phase } = useSortitionModulePhase();
+  const [isSending, setIsSending] = useState(false);
+  const [drawJuror, setDrawJuror] = useState("");
 
   const isDrawn = useMemo(() => maintenanceData?.dispute?.currentRound.jurorsDrawn, [maintenanceData]);
 
   const canDraw = useMemo(
-    () => !isUndefined(maintenanceData) && !isDrawn && period === Period.Evidence && phase === Phases.drawing,
-    [maintenanceData, isDrawn, phase, period]
+    () =>
+      !isUndefined(maintenanceData) &&
+      !isDrawn &&
+      period === Period.Evidence &&
+      (isUniversity ? true : phase === Phases.drawing),
+    [maintenanceData, isDrawn, phase, period, isUniversity]
   );
 
   const needToPassPhase = useMemo(
@@ -53,17 +62,30 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
     isError,
   } = useSimulateKlerosCoreDraw({
     query: {
-      enabled: !isUndefined(id) && !isUndefined(numberOfVotes) && !isUndefined(period) && canDraw,
+      enabled:
+        !isUndefined(id) &&
+        !isUndefined(numberOfVotes) &&
+        !isUndefined(period) &&
+        canDraw &&
+        (isUniversity ? isAddress(drawJuror) : true),
     },
-    args: [BigInt(id ?? 0), BigInt(numberOfVotes ?? 0)],
+    // eslint-disable-next-line
+    // @ts-ignore
+    args: [BigInt(id ?? 0), isUniversity ? drawJuror : BigInt(numberOfVotes ?? 0)],
   });
 
   const { writeContractAsync: draw } = useWriteKlerosCoreDraw();
 
   const isLoading = useMemo(() => isLoadingConfig || isSending, [isLoadingConfig, isSending]);
   const isDisabled = useMemo(
-    () => isUndefined(id) || isUndefined(numberOfVotes) || isError || isLoading || !canDraw,
-    [id, numberOfVotes, isError, isLoading, canDraw]
+    () =>
+      isUndefined(id) ||
+      isUndefined(numberOfVotes) ||
+      isError ||
+      isLoading ||
+      !canDraw ||
+      (isUniversity && !isAddress(drawJuror)),
+    [id, numberOfVotes, isError, isLoading, canDraw, isUniversity, drawJuror]
   );
   const handleClick = () => {
     if (!drawConfig || !publicClient) return;
@@ -77,11 +99,14 @@ const DrawButton: React.FC<IDrawButton> = ({ id, numberOfVotes, setIsOpen, perio
   };
   return (
     <>
-      {needToPassPhase ? (
+      {needToPassPhase && !isUniversity ? (
         <StyledLabel>
           Jurors can be drawn in <small>drawing</small> phase.
           <br /> Pass phase <Link to="/courts/1/purpose/#maintenance">here</Link>.
         </StyledLabel>
+      ) : null}
+      {isUniversity && canDraw ? (
+        <Field placeholder="Juror Address" onChange={(e) => setDrawJuror(e.target.value)} value={drawJuror} />
       ) : null}
       <StyledButton text="Draw" small isLoading={isLoading} disabled={isDisabled} onClick={handleClick} />
     </>
