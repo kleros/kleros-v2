@@ -9,7 +9,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import ConnectWallet from "components/ConnectWallet";
-import { EnsureAuth } from "components/EnsureAuth";
+import EnsureAuth from "components/EnsureAuth";
 import HeroImage from "components/HeroImage";
 import HowItWorks from "components/HowItWorks";
 import Resolver from "components/Popup/MiniGuides/DisputeResolver";

@@ -4,8 +4,8 @@ import styled from "styled-components";
 import TelegramLogo from "svgs/socialmedia/telegram.svg";
 
 import { HERMES_TELEGRAM_BOT_URL } from "consts/index";
-import { EnsureAuth } from "components/EnsureAuth";
 
+import EnsureAuth from "components/EnsureAuth";
 import { EnsureChain } from "components/EnsureChain";
 import { ISettings } from "layout/Header/navbar/index";
 

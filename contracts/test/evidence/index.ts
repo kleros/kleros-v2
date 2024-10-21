@@ -259,12 +259,12 @@ describe("Home Evidence contract", async () => {
       });
       let receipt = await tx.wait();
 
-      let [_arbitrator, _arbitrableDisputeID, _externalDisputeID, _templateId, _templateUri] = getEmittedEvent(
+      let [_arbitrator, _arbitratorDisputeID, _externalDisputeID, _templateId, _templateUri] = getEmittedEvent(
         "DisputeRequest",
         receipt
       ).args;
       expect(_arbitrator).to.equal(arbitrator.address, "Wrong arbitrator.");
-      expect(_arbitrableDisputeID).to.equal(0, "Wrong dispute ID.");
+      expect(_arbitratorDisputeID).to.equal(0, "Wrong dispute ID.");
       expect(_templateId).to.equal(1, "Wrong template ID.");
       expect(_externalDisputeID).to.equal(evidenceID, "Wrong external dispute ID.");
 

@@ -134,10 +134,10 @@ contract DisputeResolver is IArbitrableV2 {
         string memory _disputeTemplateDataMappings,
         string memory _disputeTemplateUri,
         uint256 _numberOfRulingOptions
-    ) internal virtual returns (uint256 disputeID) {
+    ) internal virtual returns (uint256 arbitratorDisputeID) {
         require(_numberOfRulingOptions > 1, "Should be at least 2 ruling options.");
 
-        disputeID = arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
+        arbitratorDisputeID = arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
         uint256 localDisputeID = disputes.length;
         disputes.push(
             DisputeStruct({
@@ -147,8 +147,8 @@ contract DisputeResolver is IArbitrableV2 {
                 numberOfRulingOptions: _numberOfRulingOptions
             })
         );
-        arbitratorDisputeIDToLocalID[disputeID] = localDisputeID;
+        arbitratorDisputeIDToLocalID[arbitratorDisputeID] = localDisputeID;
         uint256 templateId = templateRegistry.setDisputeTemplate("", _disputeTemplate, _disputeTemplateDataMappings);
-        emit DisputeRequest(arbitrator, localDisputeID, localDisputeID, templateId, _disputeTemplateUri);
+        emit DisputeRequest(arbitrator, arbitratorDisputeID, localDisputeID, templateId, _disputeTemplateUri);
     }
 }

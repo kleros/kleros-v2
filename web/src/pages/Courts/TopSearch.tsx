@@ -14,6 +14,7 @@ import { responsiveSize } from "styles/responsiveSize";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 import StakeMaintenanceButtons from "./StakeMaintenanceButton";
+import { isKlerosUniversity } from "src/consts";
 
 const Container = styled.div`
   width: 100%;
@@ -33,6 +34,7 @@ const TopSearch: React.FC = () => {
   const { data } = useCourtTree();
   const navigate = useNavigate();
   const items = useMemo(() => !isUndefined(data) && [rootCourtToItems(data.court)], [data]);
+  const isUniversity = isKlerosUniversity();
   return (
     <Container>
       {items ? (
@@ -44,7 +46,7 @@ const TopSearch: React.FC = () => {
       ) : (
         <StyledSkeleton width={240} height={42} />
       )}
-      <StakeMaintenanceButtons />
+      {isUniversity ? null : <StakeMaintenanceButtons />}
     </Container>
   );
 };

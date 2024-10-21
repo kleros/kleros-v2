@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import DottedMenuButton from "components/DottedMenuButton";
@@ -46,6 +46,11 @@ interface IStakeMaintenanceButtons {
 }
 const StakeMaintenanceButtons: React.FC<IStakeMaintenanceButtons> = ({ className }) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const openDefault = location.hash.includes("#maintenance");
+    if (openDefault) setIsOpen(true);
+  }, []);
 
   const toggle = () => setIsOpen((prevValue) => !prevValue);
   return (

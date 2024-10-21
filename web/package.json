@@ -35,6 +35,7 @@
     "build-local": "scripts/runEnv.sh local 'yarn generate && vite build'",
     "build-devnet": "scripts/runEnv.sh devnet 'yarn generate && vite build'",
     "build-devnet-neo": "scripts/runEnv.sh devnet-neo 'yarn generate && vite build'",
+    "build-devnet-university": "scripts/runEnv.sh devnet-university 'yarn generate && vite build'",
     "build-testnet": "scripts/runEnv.sh testnet 'yarn generate && vite build'",
     "build-mainnet-neo": "scripts/runEnv.sh mainnet-neo 'yarn generate && vite build'",
     "build-netlify": "scripts/generateBuildInfo.sh && yarn generate && vite build",
@@ -42,8 +43,7 @@
     "check-types": "tsc --noEmit",
     "generate": "yarn generate:gql && yarn generate:hooks",
     "generate:gql": "graphql-codegen --require tsconfig-paths/register",
-    "generate:hooks": "NODE_NO_WARNINGS=1 wagmi generate",
-    "generate:supabase": "scripts/generateSupabaseTypes.sh"
+    "generate:hooks": "NODE_NO_WARNINGS=1 wagmi generate"
   },
   "prettier": "@kleros/kleros-v2-prettier-config",
   "devDependencies": {
@@ -68,7 +68,6 @@
     "eslint-plugin-react": "^7.37.1",
     "eslint-plugin-react-hooks": "^4.6.2",
     "lru-cache": "^7.18.3",
-    "supabase": "^1.133.3",
     "typescript": "^5.3.3",
     "vite": "^5.4.2",
     "vite-plugin-node-polyfills": "^0.21.0",
@@ -86,7 +85,6 @@
     "@middy/http-json-body-parser": "^5.3.2",
     "@sentry/react": "^7.93.0",
     "@sentry/tracing": "^7.93.0",
-    "@supabase/supabase-js": "^2.39.3",
     "@tanstack/react-query": "^5.40.1",
     "@types/react-modal": "^3.16.3",
     "@web3modal/wagmi": "^4.1.10",
@@ -118,8 +116,7 @@
     "react-use": "^17.4.3",
     "siwe": "^2.3.1",
     "styled-components": "^5.3.11",
-    "vanilla-jsoneditor": "^0.21.4",
-    "viem": "^2.1.0",
+    "viem": "^2.17.3",
     "wagmi": "^2.12.8"
   }
 }

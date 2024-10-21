@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { OPTIONS } from "utils/wrapWithToast";
 
 export function uploadFormDataToIPFS(formData: FormData, operation = "evidence"): Promise<Response> {
-  const authToken = sessionStorage.getItem("auth-token")?.replace(/"/g, "");
+  const authToken = sessionStorage.getItem("authToken")?.replace(/"/g, "");
 
   return toast.promise<Response, Error>(
     fetch(`/.netlify/functions/uploadToIPFS?key=kleros-v2&operation=${operation}`, {
