@@ -57,6 +57,14 @@
     "allowSyntheticDefaultImports": true,
     "removeComments": true,
     "isolatedModules": true,
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "declaration": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": false,
+    "resolveJsonModule": true,
     "lib": [
       "ESNext.Array"
     ],
