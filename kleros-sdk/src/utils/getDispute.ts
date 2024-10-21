@@ -9,7 +9,7 @@ import { GetDisputeParameters } from "../types";
  * Retrieves dispute parameters based on the provided dispute ID and subgraph endpoints.
  *
  * @param {GetDisputeParameters} disputeParameters - The parameters required to get the dispute.
- * @param {number} disputeParameters.disputeId - A unique numeric identifier of the dispute in the Kleros Core contract.
+ * @param {bigint} disputeParameters.disputeId - A unique numeric identifier of the dispute in the Kleros Core contract.
  * @param {string} disputeParameters.coreSubgraph - Endpoint for the Kleros core subgraph to use.
  * @param {string} disputeParameters.dtrSubgraph - Endpoint for the Kleros dispute template registry subgraph.
  * @param {GetDisputeParametersOptions | undefined} disputeParameters.options - Optional parameters to configure the SDK and provide additional context, if not configured already.
