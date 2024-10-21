@@ -40250,28 +40250,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:^2.21.26":
-  version: 2.21.26
-  resolution: "viem@npm:2.21.26"
-  dependencies:
-    "@adraffy/ens-normalize": "npm:1.11.0"
-    "@noble/curves": "npm:1.6.0"
-    "@noble/hashes": "npm:1.5.0"
-    "@scure/bip32": "npm:1.5.0"
-    "@scure/bip39": "npm:1.4.0"
-    abitype: "npm:1.0.6"
-    isows: "npm:1.0.6"
-    webauthn-p256: "npm:0.0.10"
-    ws: "npm:8.18.0"
-  peerDependencies:
-    typescript: ">=5.0.4"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 5233c9b34207c71b24a2d47abeefc9bf36b48f73b1601b2e4dfd5b71425f32902b11f85c14b00fd8b7f122469f584b21a49dc2f70a3068315182b487a42b31eb
-  languageName: node
-  linkType: hard
-
 "vite-node@npm:1.2.1":
   version: 1.2.1
   resolution: "vite-node@npm:1.2.1"
