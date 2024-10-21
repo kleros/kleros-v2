@@ -11,10 +11,10 @@ type DisputeDetailsQueryResponse = {
   };
 };
 
-const fetchDisputeDetails = async (endpoint: string, id: number) => {
+const fetchDisputeDetails = async (endpoint: string, id: bigint) => {
   const query = `
     query DisputeDetails {
-    dispute(id: ${id}) {
+    dispute(id: ${Number(id)}) {
         arbitrated {
             id
         }

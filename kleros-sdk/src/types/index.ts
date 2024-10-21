@@ -5,13 +5,13 @@ export type SdkConfig = {
 };
 
 type GetDisputeParametersOptions = {
-  sdkConfig: SdkConfig;
-  additionalContext: Record<string, any>;
+  sdkConfig?: SdkConfig;
+  additionalContext?: Record<string, any>;
 };
 
 export type GetDisputeParameters = {
-  disputeId: number;
+  disputeId: bigint;
   coreSubgraph: string;
   dtrSubgraph: string;
-  options: GetDisputeParametersOptions | undefined;
+  options?: GetDisputeParametersOptions;
 };
