@@ -1,5 +1,6 @@
 import { createPublicClient, type PublicClient } from "viem";
 import { SdkConfig } from "./types";
+import { SdkNotConfiguredError } from "./errors";
 
 let publicClient: PublicClient | undefined;
 
@@ -11,7 +12,7 @@ export const configureSDK = (config: SdkConfig) => {
 
 export const getPublicClient = (): PublicClient | undefined => {
   if (!publicClient) {
-    throw new Error("SDK not configured. Please call `configureSDK` before using.");
+    throw new SdkNotConfiguredError();
   }
   return publicClient;
 };

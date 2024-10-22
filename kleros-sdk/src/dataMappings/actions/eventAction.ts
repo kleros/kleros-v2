@@ -2,12 +2,13 @@ import { parseAbiItem, type AbiEvent } from "viem";
 import { AbiEventMapping } from "../utils/actionTypes";
 import { createResultObject } from "../utils/createResultObject";
 import { getPublicClient } from "../../sdk";
+import { SdkNotConfiguredError } from "../../errors";
 
 export const eventAction = async (mapping: AbiEventMapping) => {
   const publicClient = getPublicClient();
 
   if (!publicClient) {
-    throw new Error("SDK not configured. Please call `configureSDK` before using.");
+    throw new SdkNotConfiguredError();
   }
 
   const { abi: source, address, eventFilter, seek, populate } = mapping;

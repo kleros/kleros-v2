@@ -1,5 +1,6 @@
 import { executeActions } from "../dataMappings";
 import { DisputeDetails, populateTemplate } from "../dataMappings/utils";
+import { NotFoundError } from "../errors";
 import fetchDisputeDetails from "../requests/fetchDisputeDetails";
 import fetchDisputeTemplateFromId from "../requests/fetchDisputeTemplateFromId";
 import { configureSDK } from "../sdk";
@@ -23,13 +24,16 @@ export const getDispute = async (disputeParameters: GetDisputeParameters): Promi
   const disputeDetails = await fetchDisputeDetails(coreSubgraph, disputeId);
 
   if (!disputeDetails?.dispute) {
-    throw new Error(`Dispute details not found for disputeId: ${disputeId}`);
+    throw new NotFoundError("Dispute Details", `Dispute details not found for disputeId: ${disputeId}`);
   }
 
   const template = await fetchDisputeTemplateFromId(dtrSubgraph, disputeDetails.dispute.templateId);
 
   if (!template) {
-    throw new Error(`Template not found for template ID: ${disputeDetails.dispute.templateId}`);
+    throw new NotFoundError(
+      "Dispute Template",
+      `Template not found for template ID: ${disputeDetails.dispute.templateId}`
+    );
   }
 
   const { templateData, templateDataMappings } = template.disputeTemplate;
@@ -46,7 +50,7 @@ export const getDispute = async (disputeParameters: GetDisputeParameters): Promi
     try {
       data = await executeActions(JSON.parse(templateDataMappings), initialContext);
     } catch (err: any) {
-      throw new Error(err);
+      throw err;
     }
   }
 

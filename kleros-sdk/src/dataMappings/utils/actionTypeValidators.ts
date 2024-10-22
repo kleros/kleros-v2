@@ -1,3 +1,4 @@
+import { InvalidMappingError } from "../../errors";
 import {
   SubgraphMapping,
   AbiEventMapping,
@@ -9,43 +10,37 @@ import {
 } from "./actionTypes";
 
 export const validateSubgraphMapping = (mapping: ActionMapping) => {
-  if ((mapping as SubgraphMapping).endpoint === undefined) {
-    throw new Error("Invalid mapping for graphql action.");
-  }
-  return mapping as SubgraphMapping;
+  return validateMapping(mapping as SubgraphMapping, ["endpoint"]);
 };
 
 export const validateAbiEventMapping = (mapping: ActionMapping) => {
-  if ((mapping as AbiEventMapping).abi === undefined || (mapping as AbiEventMapping).eventFilter === undefined) {
-    throw new Error("Invalid mapping for abi/event action.");
-  }
-  return mapping as AbiEventMapping;
+  return validateMapping(mapping as AbiEventMapping, ["abi", "eventFilter"]);
 };
 
 export const validateAbiCallMapping = (mapping: ActionMapping) => {
-  if ((mapping as AbiCallMapping).abi === undefined || (mapping as AbiCallMapping).functionName === undefined) {
-    throw new Error("Invalid mapping for abi/call action.");
-  }
-  return mapping as AbiCallMapping;
+  return validateMapping(mapping as AbiCallMapping, ["abi", "functionName"]);
 };
 
 export const validateJsonMapping = (mapping: ActionMapping) => {
-  if ((mapping as JsonMapping).value === undefined) {
-    throw new Error("Invalid mapping for json action.");
-  }
-  return mapping as JsonMapping;
+  return validateMapping(mapping as JsonMapping, ["value"]);
 };
 
 export const validateFetchIpfsJsonMapping = (mapping: ActionMapping) => {
-  if ((mapping as FetchIpfsJsonMapping).ipfsUri === undefined) {
-    throw new Error("Invalid mapping for fetch/ipfs/json action.");
-  }
-  return mapping as FetchIpfsJsonMapping;
+  return validateMapping(mapping as FetchIpfsJsonMapping, ["ipfsUri"]);
 };
 
 export const validateRealityMapping = (mapping: ActionMapping) => {
   if (mapping.type !== "reality" || typeof (mapping as RealityMapping).realityQuestionID !== "string") {
-    throw new Error("Invalid mapping for reality action.");
+    throw new InvalidMappingError("Expected field 'realityQuestionID' to be a string.");
   }
   return mapping as RealityMapping;
+};
+
+const validateMapping = <T extends ActionMapping>(mapping: T, requiredFields: (keyof T)[]) => {
+  for (const field of requiredFields) {
+    if (mapping[field] === undefined) {
+      throw new InvalidMappingError(`${field.toString()} is required for ${mapping.type}`);
+    }
+  }
+  return mapping;
 };

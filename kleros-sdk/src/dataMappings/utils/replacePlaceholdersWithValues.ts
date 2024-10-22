@@ -1,6 +1,7 @@
 import mustache from "mustache";
 import retrieveVariables from "./retrieveVariables";
 import { ActionMapping } from "./actionTypes";
+import { InvalidContextError } from "../../errors";
 
 export function replacePlaceholdersWithValues(
   mapping: ActionMapping,
@@ -34,7 +35,7 @@ const validateContext = (template: string, context: Record<string, unknown>) => 
   const variables = retrieveVariables(template);
 
   variables.forEach((variable) => {
-    if (!context[variable]) throw new Error(`Expected key :  "${variable}" to be provided in context.`);
+    if (!context[variable]) throw new InvalidContextError(`Expected key "${variable}" to be provided in context.`);
   });
   return true;
 };

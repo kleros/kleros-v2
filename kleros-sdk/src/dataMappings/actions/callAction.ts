@@ -2,12 +2,13 @@ import { parseAbiItem } from "viem";
 import { AbiCallMapping } from "../utils/actionTypes";
 import { createResultObject } from "../utils/createResultObject";
 import { getPublicClient } from "../../sdk";
+import { SdkNotConfiguredError } from "../../errors";
 
 export const callAction = async (mapping: AbiCallMapping) => {
   const publicClient = getPublicClient();
 
   if (!publicClient) {
-    throw new Error("SDK not configured. Please call `configureSDK` before using.");
+    throw new SdkNotConfiguredError();
   }
 
   const { abi: source, address, functionName, args, seek, populate } = mapping;

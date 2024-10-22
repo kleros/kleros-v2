@@ -1,4 +1,5 @@
 import { request } from "graphql-request";
+import { RequestError } from "../errors";
 
 type DisputeTemplateQueryResponse = {
   disputeTemplate: {
@@ -9,18 +10,22 @@ type DisputeTemplateQueryResponse = {
 
 const fetchDisputeTemplateFromId = async (endpoint: string, id: number) => {
   const query = `
-    query DisputeTemplate {
-        disputeTemplate(id: ${id}) {
+    query DisputeTemplate ($id: ID!) {
+        disputeTemplate(id: $id) {
             templateData
             templateDataMappings
         }
     }
 `;
 
+  const variables = { id: id.toString() };
   try {
-    return await request<DisputeTemplateQueryResponse>(endpoint, query);
+    return await request<DisputeTemplateQueryResponse>(endpoint, query, variables);
   } catch (error: any) {
-    throw new Error(`Error querying Dispute Template Registry , endpoint : ${endpoint}, message : ${error?.message}`);
+    if (error instanceof Error) {
+      throw new RequestError(`Error querying Dispute Template: ${error.message}`, endpoint);
+    }
+    throw new RequestError("An unknown error occurred while querying Dispute Template", endpoint);
   }
 };
 

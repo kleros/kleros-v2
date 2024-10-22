@@ -1,3 +1,4 @@
+import { InvalidContextError, NotFoundError } from "../errors";
 import { executeAction } from "./executeActions";
 import { AbiEventMapping } from "./utils/actionTypes";
 
@@ -11,7 +12,7 @@ export type RealityAnswer = {
 
 export const retrieveRealityData = async (realityQuestionID: string, arbitrable?: `0x${string}`) => {
   if (!arbitrable) {
-    throw new Error("No arbitrable address provided");
+    throw new InvalidContextError("No arbitrable address provided");
   }
   const questionMapping: AbiEventMapping = {
     type: "abi/event",
@@ -67,8 +68,12 @@ export const retrieveRealityData = async (realityQuestionID: string, arbitrable?
   const templateData = await executeAction(templateMapping);
   console.log("templateData", templateData);
 
-  if (!templateData || !questionData) {
-    throw new Error("Failed to retrieve template or question data");
+  if (!templateData) {
+    throw new NotFoundError("Template Data", "Failed to retrieve template data");
+  }
+
+  if (!questionData) {
+    throw new NotFoundError("Question Data", "Failed to retrieve question data");
   }
 
   const rc_question = require("@reality.eth/reality-eth-lib/formatters/question.js");
