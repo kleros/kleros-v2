@@ -6,7 +6,6 @@ import {
   JsonMapping,
   ActionMapping,
   FetchIpfsJsonMapping,
-  RealityMapping,
 } from "./actionTypes";
 
 export const validateSubgraphMapping = (mapping: ActionMapping) => {
