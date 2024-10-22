@@ -21,31 +21,20 @@ export class InvalidMappingError extends CustomError {
   }
 }
 
-export class NotFoundError extends Error {
+export class NotFoundError extends CustomError {
   public resourceName: string;
 
   constructor(resourceName: string, message: string) {
-    super(message);
-    this.name = "NotFoundError";
+    super("NotFoundError", message);
     this.resourceName = resourceName;
-
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
   }
 }
-
-export class RequestError extends Error {
+export class RequestError extends CustomError {
   public endpoint: string | undefined;
 
   constructor(message: string, endpoint?: string) {
-    super(message);
-    this.name = "RequestError";
+    super("RequestError", message);
     this.endpoint = endpoint;
-
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
   }
 }
 
@@ -55,24 +44,14 @@ export class UnsupportedActionError extends CustomError {
   }
 }
 
-export class InvalidFormatError extends Error {
+export class InvalidFormatError extends CustomError {
   constructor(message: string) {
-    super(message);
-    this.name = "InvalidFormatError";
-
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
+    super("InvalidFormatError", message);
   }
 }
 
-export class SdkNotConfiguredError extends Error {
+export class SdkNotConfiguredError extends CustomError {
   constructor() {
-    super("SDK not configured. Please call `configureSDK` before using.");
-    this.name = "SdkNotConfiguredError";
-
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
+    super("SdkNotConfiguredError", "SDK not configured. Please call `configureSDK` before using.");
   }
 }

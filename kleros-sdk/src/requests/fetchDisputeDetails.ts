@@ -25,7 +25,7 @@ const fetchDisputeDetails = async (endpoint: string, id: bigint) => {
       }
     }
   `;
-  const variables = { id: Number(id) };
+  const variables = { id: id.toString() };
 
   try {
     return await request<DisputeDetailsQueryResponse>(endpoint, query, variables);
