@@ -1,4 +1,4 @@
-import { request } from "graphql-request";
+import { request, gql } from "graphql-request";
 import { RequestError } from "../errors";
 
 type DisputeTemplateQueryResponse = {
@@ -9,14 +9,14 @@ type DisputeTemplateQueryResponse = {
 };
 
 const fetchDisputeTemplateFromId = async (endpoint: string, id: number) => {
-  const query = `
-    query DisputeTemplate ($id: ID!) {
-        disputeTemplate(id: $id) {
-            templateData
-            templateDataMappings
-        }
+  const query = gql`
+    query DisputeTemplate($id: ID!) {
+      disputeTemplate(id: $id) {
+        templateData
+        templateDataMappings
+      }
     }
-`;
+  `;
 
   const variables = { id: id.toString() };
   try {

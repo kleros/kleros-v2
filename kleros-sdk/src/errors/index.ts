@@ -1,7 +1,7 @@
-export class InvalidContextError extends Error {
-  constructor(message: string) {
+export class CustomError extends Error {
+  constructor(name: string, message: string) {
     super(message);
-    this.name = "InvalidContextError";
+    this.name = name;
 
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, this.constructor);
@@ -9,14 +9,15 @@ export class InvalidContextError extends Error {
   }
 }
 
-export class InvalidMappingError extends Error {
+export class InvalidContextError extends CustomError {
   constructor(message: string) {
-    super(message);
-    this.name = "InvalidMappingError";
+    super("InvalidContextError", message);
+  }
+}
 
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
+export class InvalidMappingError extends CustomError {
+  constructor(message: string) {
+    super("InvalidMappingError", message);
   }
 }
 
@@ -48,14 +49,9 @@ export class RequestError extends Error {
   }
 }
 
-export class UnsupportedActionError extends Error {
+export class UnsupportedActionError extends CustomError {
   constructor(message: string) {
-    super(message);
-    this.name = "UnsupportedActionError";
-
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
+    super("UnsupportedActionError", message);
   }
 }
 

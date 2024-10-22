@@ -1,4 +1,4 @@
-import { request } from "graphql-request";
+import { request, gql } from "graphql-request";
 import { RequestError } from "../errors";
 
 type DisputeDetailsQueryResponse = {
@@ -13,18 +13,18 @@ type DisputeDetailsQueryResponse = {
 };
 
 const fetchDisputeDetails = async (endpoint: string, id: bigint) => {
-  const query = `
-    query DisputeDetails($id: ID!)  {
-    dispute(id: $id) {
+  const query = gql`
+    query DisputeDetails($id: ID!) {
+      dispute(id: $id) {
         arbitrated {
-            id
+          id
         }
         arbitrableChainId
         externalDisputeId
         templateId
+      }
     }
-  }
-`;
+  `;
   const variables = { id: Number(id) };
 
   try {
