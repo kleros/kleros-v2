@@ -30,10 +30,10 @@ export const validateFetchIpfsJsonMapping = (mapping: ActionMapping) => {
 };
 
 export const validateRealityMapping = (mapping: ActionMapping) => {
-  if (mapping.type !== "reality" || typeof (mapping as RealityMapping).realityQuestionID !== "string") {
+  if (mapping.type !== "reality" || typeof mapping.realityQuestionID !== "string") {
     throw new InvalidMappingError("Expected field 'realityQuestionID' to be a string.");
   }
-  return mapping as RealityMapping;
+  return mapping;
 };
 
 const validateMapping = <T extends ActionMapping>(mapping: T, requiredFields: (keyof T)[]) => {
