@@ -48,7 +48,7 @@ const FormContact: React.FC<IForm> = ({
   };
 
   const fieldVariant = useMemo(() => {
-    if (isEmpty(contactInput) || !isEditing) {
+    if (!isEditing || isEmpty(contactInput)) {
       return undefined;
     }
     return contactIsValid ? "success" : "error";

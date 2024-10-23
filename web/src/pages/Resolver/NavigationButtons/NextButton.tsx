@@ -22,17 +22,17 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
     disputeData.answers.every((answer) => answer.title !== "" && answer.description !== "");
 
   //check if any filled address or ens is invalid
-  const areFilledAddressesValid = disputeData?.aliasesArray?.every((alias) =>
-    isEmpty(alias.address) && isEmpty(alias.name) ? true : alias.isValid
-  );
-
+  const areAliasesValidOrEmpty = disputeData?.aliasesArray?.every((alias) => {
+    const isAliasEmpty = isEmpty(alias.address) && isEmpty(alias.name);
+    return isAliasEmpty || alias.isValid;
+  });
   const isButtonDisabled =
     (location.pathname.includes("/resolver/title") && !disputeData.title) ||
     (location.pathname.includes("/resolver/description") && !disputeData.description) ||
     (location.pathname.includes("/resolver/court") && !disputeData.courtId) ||
     (location.pathname.includes("/resolver/jurors") && !disputeData.arbitrationCost) ||
     (location.pathname.includes("/resolver/voting-options") && !areVotingOptionsFilled) ||
-    (location.pathname.includes("/resolver/notable-persons") && !areFilledAddressesValid) ||
+    (location.pathname.includes("/resolver/notable-persons") && !areAliasesValidOrEmpty) ||
     (location.pathname.includes("/resolver/policy") && (isPolicyUploading || !disputeData.policyURI));
 
   return <Button disabled={isButtonDisabled} onClick={() => navigate(nextRoute)} text="Next" />;
