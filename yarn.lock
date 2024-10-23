@@ -7902,7 +7902,6 @@ __metadata:
     "@reality.eth/reality-eth-lib": "npm:^3.2.30"
     "@types/mustache": "npm:^4.2.5"
     "@vitest/ui": "npm:^1.1.3"
-    graphql-request: "npm:^7.1.0"
     mocha: "npm:^10.2.0"
     mustache: "npm:^4.2.0"
     rimraf: "npm:^6.0.1"

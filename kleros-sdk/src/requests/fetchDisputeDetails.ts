@@ -1,4 +1,3 @@
-import { request, gql } from "graphql-request";
 import { RequestError } from "../errors";
 
 type DisputeDetailsQueryResponse = {
@@ -12,8 +11,8 @@ type DisputeDetailsQueryResponse = {
   };
 };
 
-const fetchDisputeDetails = async (endpoint: string, id: bigint) => {
-  const query = gql`
+const fetchDisputeDetails = async (endpoint: string, id: bigint): Promise<DisputeDetailsQueryResponse> => {
+  const query = `
     query DisputeDetails($id: ID!) {
       dispute(id: $id) {
         arbitrated {
@@ -28,7 +27,24 @@ const fetchDisputeDetails = async (endpoint: string, id: bigint) => {
   const variables = { id: id.toString() };
 
   try {
-    return await request<DisputeDetailsQueryResponse>(endpoint, query, variables);
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query, variables }),
+    });
+
+    if (!response.ok) {
+      const errorData = (await response.json()) as any;
+      throw new RequestError(
+        `Error querying Dispute Details: ${errorData?.errors?.[0]?.message || "Unknown error"}`,
+        endpoint
+      );
+    }
+
+    const json = (await response.json()) as { data: DisputeDetailsQueryResponse };
+    return json.data;
   } catch (error: any) {
     if (error instanceof Error) {
       throw new RequestError(`Error querying Dispute Details: ${error.message}`, endpoint);
