@@ -1,0 +1,33 @@
+{
+  "$schema": "./DisputeDetails.reality.schema.json",
+  "title": "A reality.eth question",
+  "description": "A reality.eth question has been raised to arbitration.",
+  "question": "**Kleros Moderate:** Did the user, **degenape6** (ID: 1554345080), break the Telegram group, ***[Kleros Trading Group]()*** (ID: -1001151472172), ***[rules](https://cdn.kleros.link/ipfs/Qme3Qbj9rKUNHUe9vj9rqCLnTVUCWKy2YfveQF8HiuWQSu/Kleros%20Moderate%20Community%20Rules.pdf)*** due to conduct related to the ***[message](https://t.me/c/1151472172/116662)*** (***[backup](https://cdn.kleros.link/ipfs/QmVbFrZR1bcyQzZjvLyXwL9ekDxrqHERykdreRxXrw4nqg/animations_file_23.mp4)***)?",
+  "answers": [
+    {
+      "id": "0x01",
+      "title": "Yes",
+      "reserved": false
+    },
+    {
+      "id": "0x02",
+      "title": "No",
+      "reserved": false
+    },
+    {
+      "id": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+      "title": "Answered Too Soon",
+      "reserved": true
+    }
+  ],
+  "policyURI": "/ipfs/QmZ5XaV2RVgBADq5qMpbuEwgCuPZdRgCeu8rhGtJWLV6yz",
+  "frontendUrl": "https://reality.eth.limo/app/#!/question/0xe78996a233895be74a66f451f1019ca9734205cc-0xe2a3bd38e3ad4e22336ac35b221bbbdd808d716209f84014c7bc3bf62f8e3b39",
+  "arbitrableChainID": "100",
+  "arbitrableAddress": "0x2e39b8f43d0870ba896f516f78f57cde773cf805",
+  "arbitratorChainID": "421613",
+  "arbitratorAddress": "0xD08Ab99480d02bf9C092828043f611BcDFEA917b",
+  "category": "Oracle",
+  "lang": "en_US",
+  "specification": "KIP99",
+  "version": "1.0"
+}

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -168,15 +168,15 @@ contract xKlerosLiquidV2 is Initializable, ITokenController, IArbitratorV2 {
 
     // Dispute
     // Use a mapping instead of an array so that upgrading (appending variables to) the Dispute struct is possible without big layout changes.
-    mapping(uint256 => Dispute) public disputes; // The disputes.
+    mapping(uint256 disputeId => Dispute) public disputes; // The disputes.
     uint256 public totalDisputes;
 
     // Juror
-    mapping(address => Juror) public jurors; // The jurors.
+    mapping(address account => Juror) public jurors; // The jurors.
 
     IForeignGateway public foreignGateway; // Foreign gateway contract.
 
-    mapping(uint256 => uint256) public disputesRuling;
+    mapping(uint256 disputeId => uint256 rulingId) public disputesRuling;
 
     // ************************************* //
     // *        Function Modifiers         * //

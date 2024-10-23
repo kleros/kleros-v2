@@ -1,8 +1,9 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import Ellipse from "assets/svgs/icons/ellipse.svg";
-import Plus from "assets/svgs/icons/plus.svg";
-import Minus from "assets/svgs/icons/minus.svg";
+
+import Ellipse from "svgs/icons/ellipse.svg";
+import Minus from "svgs/icons/minus.svg";
+import Plus from "svgs/icons/plus.svg";
 
 const Container = styled.div`
   display: flex;

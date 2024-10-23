@@ -1,13 +1,16 @@
 import React from "react";
 import styled, { css } from "styled-components";
+
 import { landscapeStyle } from "styles/landscapeStyle";
+
+import HeaderCoherency from "../Header/Coherency";
+import HeaderRewards from "../Header/Rewards";
+
 import Coherency from "./Coherency";
 import JurorLevel from "./JurorLevel";
 import JurorTitle from "./JurorTitle";
 import Rank from "./Rank";
 import Rewards from "./Rewards";
-import HeaderRewards from "../Header/Rewards";
-import HeaderCoherency from "../Header/Coherency";
 
 const Container = styled.div`
   display: flex;
@@ -72,11 +75,19 @@ interface IMobileCard {
   rank: number;
   address: string;
   coherenceScore: number;
-  totalCoherent: number;
+  totalCoherentVotes: number;
+  totalResolvedVotes: number;
   totalResolvedDisputes: number;
 }
 
-const MobileCard: React.FC<IMobileCard> = ({ rank, address, coherenceScore, totalCoherent, totalResolvedDisputes }) => {
+const MobileCard: React.FC<IMobileCard> = ({
+  rank,
+  address,
+  coherenceScore,
+  totalCoherentVotes,
+  totalResolvedVotes,
+  totalResolvedDisputes,
+}) => {
   return (
     <Container>
       <TopSide>
@@ -84,7 +95,7 @@ const MobileCard: React.FC<IMobileCard> = ({ rank, address, coherenceScore, tota
           <Rank rank={rank} />
           <JurorTitle address={address} />
         </RankAndTitle>
-        <JurorLevel coherenceScore={coherenceScore} />
+        <JurorLevel {...{ coherenceScore, totalResolvedDisputes }} />
       </TopSide>
       <BottomSide>
         <HeaderRewardsAndRewards>
@@ -93,7 +104,7 @@ const MobileCard: React.FC<IMobileCard> = ({ rank, address, coherenceScore, tota
         </HeaderRewardsAndRewards>
         <HeaderCoherencyAndCoherency>
           <HeaderCoherency />
-          <Coherency totalCoherent={totalCoherent} totalResolvedDisputes={totalResolvedDisputes} />
+          <Coherency {...{ totalCoherentVotes, totalResolvedVotes }} />
         </HeaderCoherencyAndCoherency>
       </BottomSide>
     </Container>

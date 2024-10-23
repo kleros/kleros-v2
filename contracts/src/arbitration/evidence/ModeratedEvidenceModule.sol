@@ -7,7 +7,7 @@
 /// @custom:deployments: []
 /// @custom:tools: []
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 // TODO: standard interfaces should be placed in a separated repo (?)
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
@@ -39,7 +39,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     struct Moderation {
         uint256[3] paidFees; // Tracks the fees paid by each side in this moderation.
         uint256 feeRewards; // Sum of reimbursable fees and stake rewards available to the parties that made contributions to the side that ultimately wins a dispute.
-        mapping(address => uint256[3]) contributions; // Maps contributors to their contributions for each side.
+        mapping(address contributor => uint256[3]) contributions; // Maps contributors to their contributions for each side.
         bool closed; // Moderation happens over a bounded period of time after which it is considered closed. If so, a new moderation round should be opened.
         Party currentWinner; // The current winner of this moderation round.
         uint256 bondDeadline; // The deadline until which the loser party can stake to overturn the current status.
@@ -57,7 +57,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
 
     uint256 public constant AMOUNT_OF_CHOICES = 2;
     uint256 public constant MULTIPLIER_DIVISOR = 10000; // Divisor parameter for multipliers.
-    mapping(bytes32 => EvidenceData) evidences; // Maps the evidence ID to its data. evidences[evidenceID].
+    mapping(bytes32 evidenceId => EvidenceData) evidences; // Maps the evidence ID to its data. evidences[evidenceID].
     mapping(uint256 => bytes32) public disputeIDtoEvidenceID; // One-to-one relationship between the dispute and the evidence.
     ArbitratorData[] public arbitratorDataList; // Stores the arbitrator data of the contract. Updated each time the data is changed.
     IArbitratorV2 public immutable arbitrator; // The trusted arbitrator to resolve potential disputes. If it needs to be changed, a new contract can be deployed.
@@ -84,7 +84,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
     /// @param _arbitrator The arbitrator of the contract.
     /// @param _externalDisputeID Unique identifier for this dispute outside Kleros. It's the submitter responsability to submit the right evidence group ID.
     /// @param _party The address of the party submiting the evidence. Note that 0x0 refers to evidence not submitted by any party.
-    /// @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'
+    /// @param _evidence Stringified evidence object, example: '{"name" : "Justification", "description" : "Description", "fileURI" : "/ipfs/QmWQV5ZFFhEJiW8Lm7ay2zLxC2XS4wx1b2W7FfdrLMyQQc"}'.
     event ModeratedEvidence(
         IArbitratorV2 indexed _arbitrator,
         uint256 indexed _externalDisputeID,
@@ -201,7 +201,7 @@ contract ModeratedEvidenceModule is IArbitrableV2 {
 
     /// @dev Submits evidence.
     /// @param _evidenceGroupID Unique identifier of the evidence group the evidence belongs to. It's the submitter responsability to submit the right evidence group ID.
-    /// @param _evidence IPFS path to evidence, example: '/ipfs/Qmarwkf7C9RuzDEJNnarT3WZ7kem5bk8DZAzx78acJjMFH/evidence.json'.
+    /// @param _evidence Stringified evidence object, example: '{"name" : "Justification", "description" : "Description", "fileURI" : "/ipfs/QmWQV5ZFFhEJiW8Lm7ay2zLxC2XS4wx1b2W7FfdrLMyQQc"}'.
     function submitEvidence(uint256 _evidenceGroupID, string calldata _evidence) external payable {
         // Optimization opportunity: map evidenceID to an incremental index that can be safely assumed to be less than a small uint.
         bytes32 evidenceID = keccak256(abi.encodePacked(_evidenceGroupID, _evidence));

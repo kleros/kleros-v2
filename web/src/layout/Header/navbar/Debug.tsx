@@ -1,9 +1,11 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import { useSortitionModulePhase } from "hooks/contracts/generated";
-import { useToggleTheme } from "hooks/useToggleThemeContext";
+
 import { GIT_BRANCH, GIT_DIRTY, GIT_HASH, GIT_TAGS, GIT_URL, RELEASE_VERSION } from "consts/index";
+import { useToggleTheme } from "hooks/useToggleThemeContext";
 import { isUndefined } from "utils/index";
+
+import Phase from "components/Phase";
 
 const Container = styled.div`
   display: flex;
@@ -31,6 +33,10 @@ const StyledLabel = styled.label`
   padding-left: 8px;
 `;
 
+const StyledPhase = styled(Phase)`
+  padding-left: 8px;
+`;
+
 const Version = () => (
   <StyledLabel>
     v{RELEASE_VERSION}{" "}
@@ -46,21 +52,8 @@ const Version = () => (
 const ServicesStatus = () => {
   const [theme] = useToggleTheme();
   const statusUrlParameters = useMemo(() => (theme === "light" ? "?theme=light" : "?theme=dark"), [theme]);
-  const statusUrl = process.env.REACT_APP_STATUS_URL;
+  const statusUrl = import.meta.env.REACT_APP_STATUS_URL;
   return <label>{isUndefined(statusUrl) ? null : <StyledIframe src={`${statusUrl + statusUrlParameters}`} />}</label>;
-};
-
-enum Phases {
-  staking,
-  generating,
-  drawing,
-}
-
-const Phase = () => {
-  const { data: phase } = useSortitionModulePhase({
-    watch: true,
-  });
-  return <>{isUndefined(phase) ? null : <StyledLabel>Phase: {Phases[phase]}</StyledLabel>}</>;
 };
 
 const Debug: React.FC = () => {
@@ -68,7 +61,7 @@ const Debug: React.FC = () => {
     <Container>
       <ServicesStatus />
       <Version />
-      <Phase />
+      <StyledPhase />
     </Container>
   );
 };

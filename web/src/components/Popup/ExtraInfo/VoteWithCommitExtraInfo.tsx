@@ -1,7 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import InfoCard from "components/InfoCard";
+
 import { responsiveSize } from "styles/responsiveSize";
+
+import InfoCard from "components/InfoCard";
 
 const StyledInfoCard = styled(InfoCard)`
   margin: ${responsiveSize(8, 24, 300)} ${responsiveSize(8, 32, 300)} 0;

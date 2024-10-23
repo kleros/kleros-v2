@@ -34,7 +34,7 @@ async function main() {
     const uri = await fetchPolicyUri(court);
     if (!uri) break;
 
-    const policy = await fetchPolicy("https://ipfs.kleros.io" + uri);
+    const policy = await fetchPolicy("https://cdn.kleros.link" + uri);
     policy.court = court;
     policy.uri = uri;
     policies.push(policy);

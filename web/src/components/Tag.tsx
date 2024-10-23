@@ -1,6 +1,7 @@
 import React from "react";
-import { Tag as BaseTag } from "@kleros/ui-components-library";
 import styled from "styled-components";
+
+import { Tag as BaseTag } from "@kleros/ui-components-library";
 
 interface ITag {
   text: string;

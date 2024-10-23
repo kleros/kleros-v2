@@ -1,7 +1,10 @@
+import { useQuery } from "@tanstack/react-query";
+
+import { REFETCH_INTERVAL } from "consts/index";
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
+
 import { graphql } from "src/graphql";
 import { CourtDetailsQuery } from "src/graphql/graphql";
-import { useQuery } from "@tanstack/react-query";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { CourtDetailsQuery };
 
 const courtDetailsQuery = graphql(`
@@ -24,10 +27,13 @@ const courtDetailsQuery = graphql(`
 
 export const useCourtDetails = (id?: string) => {
   const isEnabled = id !== undefined;
+  const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<CourtDetailsQuery>({
-    queryKey: ["refetchOnBlock", `courtDetails${id}`],
+    queryKey: [`courtDetails${id}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(courtDetailsQuery, { id }),
+    refetchInterval: REFETCH_INTERVAL,
+    queryFn: async () =>
+      await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: courtDetailsQuery, variables: { id } }),
   });
 };

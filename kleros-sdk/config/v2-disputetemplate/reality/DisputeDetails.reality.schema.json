@@ -19,6 +19,7 @@
     "category",
     "lang",
     "specification",
+    "version",
     "metadata",
     "externalDisputeID",
     "arbitrableDisputeID",
@@ -69,6 +70,9 @@
     },
     "specification": {
       "$ref": "../NewDisputeTemplate.schema.json#/properties/specification"
+    },
+    "version": {
+      "$ref": "../NewDisputeTemplate.schema.json#/properties/version"
     },
     "metadata": {
       "type": "object",

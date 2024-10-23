@@ -104,7 +104,7 @@ export const GlobalStyle = createGlobalStyle`
 
   }
 
-  ul {
+  ul, ol {
     li {
       color: ${({ theme }) => theme.primaryText};
     }
@@ -114,5 +114,10 @@ export const GlobalStyle = createGlobalStyle`
     --os-handle-bg: ${({ theme }) => theme.violetPurple};
     --os-handle-bg-hover: ${({ theme }) => theme.secondaryPurple};
     --os-handle-bg-active: ${({ theme }) => theme.lavenderPurple};
+  }
+
+  // @cyntler/react-doc-viewer injects a canvas to load pdf, this is alters the height of body tag, so set to hidden
+  .hiddenCanvasElement{
+    display: none;
   }
 `;

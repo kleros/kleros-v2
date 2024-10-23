@@ -1,12 +1,17 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { SkeletonDisputeListItem } from "components/StyledSkeleton";
-import Header from "./Header";
-import JurorCard from "./JurorCard";
+
 import { isUndefined } from "utils/index";
+
 import { useTopUsersByCoherenceScore } from "queries/useTopUsersByCoherenceScore";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import { SkeletonDisputeListItem } from "components/StyledSkeleton";
+
+import Header from "./Header";
+import JurorCard from "./JurorCard";
 
 const Container = styled.div`
   margin-top: ${responsiveSize(64, 80)};

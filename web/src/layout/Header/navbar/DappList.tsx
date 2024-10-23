@@ -1,21 +1,22 @@
 import React, { useRef } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { useFocusOutside } from "hooks/useFocusOutside";
+
+import { useClickAway } from "react-use";
+
 import Curate from "svgs/icons/curate-image.png";
 import Resolver from "svgs/icons/dispute-resolver.svg";
 import Escrow from "svgs/icons/escrow.svg";
 import Governor from "svgs/icons/governor.svg";
 import Court from "svgs/icons/kleros.svg";
-import Linguo from "svgs/icons/linguo.svg";
 import POH from "svgs/icons/poh-image.png";
 import Vea from "svgs/icons/vea.svg";
-import Tokens from "svgs/icons/tokens.svg";
-import Product from "./Product";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
+import Product from "./Product";
+
 const Header = styled.h1`
-  display: flex;
   padding-top: 32px;
   padding-bottom: 20px;
   font-size: 24px;
@@ -74,9 +75,44 @@ const ItemsDiv = styled.div`
 
 const ITEMS = [
   {
-    text: "Court v1",
+    text: "Court V2",
+    Icon: Court,
+    url: "https://v2.kleros.builders/",
+  },
+  {
+    text: "Curate V2",
+    Icon: Curate,
+    url: "https://curate-v2.netlify.app/",
+  },
+  {
+    text: "Resolver V2",
+    Icon: Resolver,
+    url: "https://v2.kleros.builders/#/resolver",
+  },
+  {
+    text: "Escrow V2",
+    Icon: Escrow,
+    url: "https://escrow-v2.kleros.builders/",
+  },
+  {
+    text: "Court V1",
     Icon: Court,
     url: "https://court.kleros.io/",
+  },
+  {
+    text: "Curate V1",
+    Icon: Curate,
+    url: "https://curate.kleros.io",
+  },
+  {
+    text: "Resolver V1",
+    Icon: Resolver,
+    url: "https://resolve.kleros.io",
+  },
+  {
+    text: "Escrow V1",
+    Icon: Escrow,
+    url: "https://escrow.kleros.io",
   },
   {
     text: "Vea",
@@ -84,35 +120,14 @@ const ITEMS = [
     url: "https://veascan.io",
   },
   {
-    text: "Escrow",
-    Icon: Escrow,
-    url: "https://escrow.kleros.io",
+    text: "Kleros Scout",
+    Icon: Curate,
+    url: "https://klerosscout.eth.limo",
   },
   {
-    text: "POH",
+    text: "POH V1",
     Icon: POH,
     url: "https://app.proofofhumanity.id",
-  },
-  {
-    text: "Curate",
-    Icon: Curate,
-    url: "https://curate.kleros.io",
-  },
-  {
-    text: "Tokens",
-    Icon: Tokens,
-    url: "https://tokens.kleros.io",
-  },
-  {
-    text: "Resolver",
-    Icon: Resolver,
-    url: "#/resolver",
-    isNewTab: false,
-  },
-  {
-    text: "Linguo",
-    Icon: Linguo,
-    url: "https://linguo.kleros.io",
   },
   {
     text: "Governor",
@@ -127,9 +142,7 @@ interface IDappList {
 
 const DappList: React.FC<IDappList> = ({ toggleIsDappListOpen }) => {
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => {
-    toggleIsDappListOpen();
-  });
+  useClickAway(containerRef, () => toggleIsDappListOpen());
 
   return (
     <Container ref={containerRef}>

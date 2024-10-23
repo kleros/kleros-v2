@@ -1,4 +1,5 @@
 import { formatEther } from "viem";
+
 import { isUndefined } from "utils/index";
 
 export const isLastRound = (appealCost?: bigint) => {

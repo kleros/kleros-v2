@@ -1,10 +1,13 @@
 import React from "react";
 import styled, { css } from "styled-components";
+
+import { Answer, useNewDisputeContext } from "context/NewDisputeContext";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
-import PlusMinusField from "components/PlusMinusField";
+
 import LabeledInput from "components/LabeledInput";
-import { Answer, useNewDisputeContext } from "context/NewDisputeContext";
+import PlusMinusField from "components/PlusMinusField";
 
 const OptionsContainer = styled.div`
   display: flex;
@@ -40,15 +43,15 @@ const OptionsFields: React.FC = () => {
   const { disputeData, setDisputeData } = useNewDisputeContext();
 
   const updateOptions = (value: number) => {
-    let defaultAnswer: Answer = { title: "", id: value.toString() };
-    let answers = disputeData.answers;
+    const defaultAnswer: Answer = { title: "", id: value.toString(), description: "" };
+    const answers = disputeData.answers;
 
     if (value < answers?.length) return setDisputeData({ ...disputeData, answers: answers.splice(0, value) });
     if (value > answers?.length) return setDisputeData({ ...disputeData, answers: [...answers, defaultAnswer] });
   };
 
   const handleOptionWrite = (event: React.ChangeEvent<HTMLInputElement>, key: number) => {
-    let answers = disputeData.answers;
+    const answers = disputeData.answers;
     answers[key] = { ...answers[key], [event.target.name]: event.target.value };
     setDisputeData({ ...disputeData, answers });
   };
@@ -66,7 +69,7 @@ const OptionsFields: React.FC = () => {
             />
             <LabeledInput
               name="description"
-              label="Option Description (Optional)"
+              label="Option Description"
               placeholder={`Description for Option ${index + 1}`}
               value={answer.description ?? ""}
               onChange={(event) => handleOptionWrite(event, index)}

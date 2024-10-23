@@ -1,8 +1,11 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import PixelArt from "pages/Dashboard/JurorInfo/PixelArt";
+
 import { getUserLevelData } from "utils/userLevelCalculation";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
+import PixelArt from "pages/Dashboard/JurorInfo/PixelArt";
 
 const Container = styled.div`
   display: flex;
@@ -37,10 +40,11 @@ const StyledLabel = styled.label`
 
 interface IJurorLevel {
   coherenceScore: number;
+  totalResolvedDisputes: number;
 }
 
-const JurorLevel: React.FC<IJurorLevel> = ({ coherenceScore }) => {
-  const userLevelData = getUserLevelData(coherenceScore);
+const JurorLevel: React.FC<IJurorLevel> = ({ coherenceScore, totalResolvedDisputes }) => {
+  const userLevelData = getUserLevelData(coherenceScore, totalResolvedDisputes);
   const level = userLevelData.level;
 
   return (

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "../interfaces/IKlerosLiquid.sol";
 import "../interfaces/ITokenController.sol";
@@ -27,10 +27,10 @@ contract KlerosLiquidToV2Governor is IArbitrableV2, ITokenController {
     IArbitratorV2 public immutable foreignGateway;
     IKlerosLiquid public immutable klerosLiquid;
     address public governor;
-    mapping(uint256 => uint256) public klerosLiquidDisputeIDtoGatewayDisputeID;
-    mapping(uint256 => DisputeData) public disputes; // disputes[gatewayDisputeID]
-    mapping(address => uint256) public frozenTokens; // frozenTokens[account] locked token which shouldn't have been blocked.
-    mapping(uint256 => mapping(uint256 => bool)) public isDisputeNotified; // isDisputeNotified[disputeID][roundID] used to track the notification of frozen tokens.
+    mapping(uint256 disputeId => uint256 gatewayDisputeId) public klerosLiquidDisputeIDtoGatewayDisputeID;
+    mapping(uint256 gatewayDisputeId => DisputeData) public disputes; // disputes[gatewayDisputeID]
+    mapping(address account => uint256 tokenAmount) public frozenTokens; // frozenTokens[account] locked token which shouldn't have been blocked.
+    mapping(uint256 disputeId => mapping(uint256 roundId => bool)) public isDisputeNotified; // isDisputeNotified[disputeID][roundID] used to track the notification of frozen tokens.
 
     // ************************************* //
     // *        Function Modifiers         * //

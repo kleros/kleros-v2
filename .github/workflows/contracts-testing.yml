@@ -42,7 +42,7 @@ jobs:
     - name: Setup Node.js environment
       uses: actions/setup-node@2a017f350dbf6c4b6bb4508cc83809719115162e
       with:
-        node-version: 16.x   
+        node-version: 18.x   
         
     - uses: actions/checkout@7739b9ba2efcda9dde65ad1e3c2dbe65b41dfba7
     

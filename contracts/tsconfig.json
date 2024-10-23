@@ -5,7 +5,11 @@
     "./scripts",
     "./test",
     "./typechain-types",
-    "./deploy"
+    "./deploy",
+    "./deployments"
+  ],
+  "exclude": [
+    "./scripts/**/console*.ts"
   ],
   "files": [
     "./hardhat.config.ts"

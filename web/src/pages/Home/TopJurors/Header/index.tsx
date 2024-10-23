@@ -1,6 +1,7 @@
 import React from "react";
-import { MobileHeader } from "./MobileHeader";
+
 import { DesktopHeader } from "./DesktopHeader";
+import { MobileHeader } from "./MobileHeader";
 
 const Header: React.FC = () => {
   return (

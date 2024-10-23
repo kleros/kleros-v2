@@ -1,14 +1,19 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
+import BalanceIcon from "svgs/icons/balance.svg";
+import ThreePnksIcon from "svgs/styled/three-pnks.svg";
+
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
-import Tag from "components/Tag";
-import JurorBalanceDisplay from "./JurorStakeDisplay";
-import InputDisplay from "./InputDisplay";
-import { ActionType } from "./StakeWithdrawButton";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import Popup, { PopupType } from "components/Popup/index";
-import BalanceIcon from "assets/svgs/icons/balance.svg";
-import ThreePnksIcon from "tsx:assets/svgs/styled/three-pnks.svg";
+import Tag from "components/Tag";
+
+import InputDisplay from "./InputDisplay";
+import JurorBalanceDisplay from "./JurorStakeDisplay";
+import { ActionType } from "./StakeWithdrawButton";
 
 const Container = styled.div`
   position: relative;

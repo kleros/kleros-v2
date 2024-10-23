@@ -2,6 +2,7 @@ import React, { Dispatch, SetStateAction, useMemo, useEffect } from "react";
 import styled from "styled-components";
 
 import { Field } from "@kleros/ui-components-library";
+import { isEmpty } from "src/utils";
 
 const StyledLabel = styled.label`
   display: flex;
@@ -24,6 +25,7 @@ interface IForm {
   setContactInput: Dispatch<SetStateAction<string>>;
   setContactIsValid: Dispatch<SetStateAction<boolean>>;
   validator: RegExp;
+  isEditing?: boolean;
 }
 
 const FormContact: React.FC<IForm> = ({
@@ -34,6 +36,7 @@ const FormContact: React.FC<IForm> = ({
   setContactInput,
   setContactIsValid,
   validator,
+  isEditing,
 }) => {
   useEffect(() => {
     setContactIsValid(validator.test(contactInput));
@@ -45,11 +48,11 @@ const FormContact: React.FC<IForm> = ({
   };
 
   const fieldVariant = useMemo(() => {
-    if (contactInput === "") {
+    if (!isEditing || isEmpty(contactInput)) {
       return undefined;
     }
     return contactIsValid ? "success" : "error";
-  }, [contactInput, contactIsValid]);
+  }, [contactInput, contactIsValid, isEditing]);
 
   return (
     <>

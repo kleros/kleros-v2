@@ -1,5 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.div`
@@ -9,11 +10,11 @@ const Container = styled.div`
   background-color: ${({ theme }) => theme.tintPurple};
   color: ${({ theme }) => theme.primaryText};
 
-  padding: 6px 2px;
+  padding: 5px 2px;
 
   ${landscapeStyle(
     () => css`
-      padding: 8px 10px;
+      padding: 5px 10px;
     `
   )}
 `;

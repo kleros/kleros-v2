@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { Address } from "viem";
+
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
+
 import { graphql } from "src/graphql";
 import { UserQuery, Dispute_Filter, UserDisputeFilterQuery, UserDetailsFragment } from "src/graphql/graphql";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { UserQuery, UserDetailsFragment };
 
 export const userFragment = graphql(`
@@ -10,7 +12,8 @@ export const userFragment = graphql(`
     totalDisputes
     totalResolvedDisputes
     totalAppealingDisputes
-    totalCoherent
+    totalCoherentVotes
+    totalResolvedVotes
     coherenceScore
     tokens {
       court {
@@ -50,9 +53,16 @@ const userQueryDisputeFilter = graphql(`
 export const useUserQuery = (address?: Address, where?: Dispute_Filter) => {
   const isEnabled = address !== undefined;
   const query = where ? userQueryDisputeFilter : userQuery;
+  const { graphqlBatcher } = useGraphqlBatcher();
+
   return useQuery<UserQuery | UserDisputeFilterQuery>({
     queryKey: [`userQuery${address?.toLowerCase()}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(query, { address: address?.toLowerCase(), where }),
+    queryFn: async () =>
+      await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: query,
+        variables: { address: address?.toLowerCase(), where },
+      }),
   });
 };

@@ -1,10 +1,16 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { formatUnits } from "viem";
-import { isUndefined } from "utils/index";
+
 import LockerIcon from "svgs/icons/locker.svg";
+
+import { isUndefined } from "utils/index";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import NumberDisplay from "components/NumberDisplay";
 
 const Container = styled.div`
   display: flex;
@@ -49,7 +55,7 @@ interface IHeader {
 }
 
 const Header: React.FC<IHeader> = ({ lockedStake }) => {
-  const formattedLockedStake = !isUndefined(lockedStake) && parseFloat(formatUnits(lockedStake, 18)).toFixed(2);
+  const formattedLockedStake = !isUndefined(lockedStake) && formatUnits(lockedStake, 18);
 
   return (
     <Container>
@@ -58,7 +64,9 @@ const Header: React.FC<IHeader> = ({ lockedStake }) => {
         <LockedPnk>
           <StyledLockerIcon />
           <label> Locked Stake: </label>
-          <small>{`${formattedLockedStake} PNK`}</small>
+          <small>
+            <NumberDisplay value={formattedLockedStake.toString()} unit="PNK" />
+          </small>
         </LockedPnk>
       ) : null}
     </Container>

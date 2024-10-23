@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import PayoffSimulatorSvg from "tsx:assets/svgs/mini-guides/appeal/payoff-simulator.svg";
+
+import PayoffSimulatorSvg from "svgs/mini-guides/appeal/payoff-simulator.svg";
+
 import { StyledImage } from "../PageContentsTemplate";
 
 const StyledPayoffSimulatorSvg = styled(PayoffSimulatorSvg)`

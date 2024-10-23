@@ -1,5 +1,8 @@
 import { formatUnits, formatEther } from "viem";
+
+import { CoinIds } from "consts/coingecko";
 import { isUndefined } from "utils/index";
+
 import { UserQuery } from "queries/useUser";
 
 export interface IReward {
@@ -13,14 +16,14 @@ export const rewards: IReward[] = [
   {
     token: "ETH",
     coinId: 1,
-    getAmount: (amount) => Number(formatEther(amount)).toFixed(3).toString(),
-    getValue: (amount, coinPrice) => (Number(formatEther(amount)) * (coinPrice ?? 0)).toFixed(2).toString(),
+    getAmount: (amount) => formatEther(amount),
+    getValue: (amount, coinPrice) => (Number(formatEther(amount)) * (coinPrice ?? 0)).toString(),
   },
   {
     token: "PNK",
     coinId: 0,
-    getAmount: (amount) => Number(formatUnits(amount, 18)).toFixed(3).toString(),
-    getValue: (amount, coinPrice) => (Number(formatUnits(amount, 18)) * (coinPrice ?? 0)).toFixed(2).toString(),
+    getAmount: (amount) => formatUnits(amount, 18),
+    getValue: (amount, coinPrice) => (Number(formatUnits(amount, 18)) * (coinPrice ?? 0)).toString(),
   },
 ];
 
@@ -34,7 +37,8 @@ export const calculateTotalJurorReward = (coinId: number, data: UserQuery): bigi
 
 export const getFormattedRewards = (data: any, pricesData: any) => {
   return rewards.map(({ token, coinId, getValue, getAmount }) => {
-    const coinPrice = !isUndefined(pricesData) ? pricesData[coinId]?.price : undefined;
+    const coinPrice = !isUndefined(pricesData) ? pricesData[CoinIds[token]]?.price : undefined;
+
     const totalReward = data && calculateTotalJurorReward(coinId, data);
     return {
       token,

@@ -1,13 +1,20 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
-import { toast } from "react-toastify";
+
 import Modal from "react-modal";
+import { toast } from "react-toastify";
+import { useWalletClient, usePublicClient, useConfig } from "wagmi";
+
 import { Textarea, Button, FileUploader } from "@kleros/ui-components-library";
+
+import { useAtlasProvider } from "context/AtlasProvider";
+import { simulateEvidenceModuleSubmitEvidence } from "hooks/contracts/generated";
+import { Roles } from "utils/atlas";
 import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
-import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
-import { useWalletClient, usePublicClient } from "wagmi";
+
+import EnsureAuth from "components/EnsureAuth";
 import { EnsureChain } from "components/EnsureChain";
-import { prepareWriteEvidenceModule } from "hooks/contracts/generated";
+import { isEmpty } from "src/utils";
 
 const StyledModal = styled(Modal)`
   position: absolute;
@@ -52,9 +59,37 @@ const SubmitEvidenceModal: React.FC<{
 }> = ({ isOpen, evidenceGroup, close }) => {
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
+  const wagmiConfig = useConfig();
   const [isSending, setIsSending] = useState(false);
   const [message, setMessage] = useState("");
   const [file, setFile] = useState<File>();
+  const { uploadFile } = useAtlasProvider();
+
+  const isDisabled = useMemo(() => isSending || isEmpty(message), [isSending, message]);
+
+  const submitEvidence = useCallback(async () => {
+    try {
+      setIsSending(true);
+      const evidenceJSON = await constructEvidence(uploadFile, message, file);
+
+      const { request } = await simulateEvidenceModuleSubmitEvidence(wagmiConfig, {
+        args: [BigInt(evidenceGroup), JSON.stringify(evidenceJSON)],
+      });
+
+      if (!walletClient || !publicClient) return;
+      await wrapWithToast(async () => await walletClient.writeContract(request), publicClient)
+        .then(() => {
+          setMessage("");
+          close();
+        })
+        .finally(() => setIsSending(false));
+    } catch (error) {
+      setIsSending(false);
+      toast.error("Failed to submit evidence.", toastOptions);
+      console.error("Error in submitEvidence:", error);
+    }
+  }, [publicClient, wagmiConfig, walletClient, close, evidenceGroup, file, message, setIsSending, uploadFile]);
+
   return (
     <StyledModal {...{ isOpen }}>
       <h1>Submit New Evidence</h1>
@@ -63,57 +98,27 @@ const SubmitEvidenceModal: React.FC<{
       <ButtonArea>
         <Button variant="secondary" disabled={isSending} text="Return" onClick={close} />
         <EnsureChain>
-          <Button
-            text="Submit"
-            isLoading={isSending}
-            disabled={isSending}
-            onClick={async () => {
-              setIsSending(true);
-              toast.info("Uploading to IPFS", toastOptions);
-              const formData = await constructEvidence(message, file);
-              uploadFormDataToIPFS(formData)
-                .then(async (res) => {
-                  const response = await res.json();
-                  if (res.status === 200 && walletClient) {
-                    const cid = response["cids"][0];
-                    const { request } = await prepareWriteEvidenceModule({
-                      functionName: "submitEvidence",
-                      args: [BigInt(evidenceGroup), cid],
-                    });
-                    await wrapWithToast(async () => await walletClient.writeContract(request), publicClient).then(
-                      () => {
-                        setMessage("");
-                        close();
-                      }
-                    );
-                  }
-                })
-                .catch()
-                .finally(() => setIsSending(false));
-            }}
-          />
+          <EnsureAuth>
+            <Button text="Submit" isLoading={isSending} disabled={isDisabled} onClick={submitEvidence} />
+          </EnsureAuth>
         </EnsureChain>
       </ButtonArea>
     </StyledModal>
   );
 };
 
-const constructEvidence = async (msg: string, file?: File): Promise<FormData> => {
-  let fileURI: string | undefined = undefined;
+const constructEvidence = async (
+  uploadFile: (file: File, role: Roles) => Promise<string | null>,
+  msg: string,
+  file?: File
+) => {
+  let fileURI: string | null = null;
   if (file) {
-    const fileFormData = new FormData();
-    fileFormData.append("data", file, file.name);
-    fileURI = await uploadFormDataToIPFS(fileFormData).then(async (res) => {
-      const response = await res.json();
-      return response["cids"][0];
-    });
+    toast.info("Uploading to IPFS", toastOptions);
+    fileURI = await uploadFile(file, Roles.Evidence);
+    if (!fileURI) throw new Error("Error uploading evidence file");
   }
-  const formData = new FormData();
-  const evidenceFile = new File([JSON.stringify({ name: "Evidence", description: msg, fileURI })], "evidence.json", {
-    type: "text/plain",
-  });
-  formData.append("data", evidenceFile, evidenceFile.name);
-  return formData;
+  return { name: "Evidence", description: msg, fileURI };
 };
 
 export default SubmitEvidenceModal;

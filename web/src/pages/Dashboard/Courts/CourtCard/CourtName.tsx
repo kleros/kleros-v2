@@ -1,7 +1,9 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { Breadcrumb } from "@kleros/ui-components-library";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.div`
   width: 100%;

@@ -1,16 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../interfaces/ITokenController.sol";
 import "./interfaces/ITokenBridge.sol";
 import "./interfaces/IERC677.sol";
 
 contract WrappedPinakion is Initializable {
-    using SafeMath for uint256;
-
     // ************************************* //
     // *              Events               * //
     // ************************************* //
@@ -158,8 +155,8 @@ contract WrappedPinakion is Initializable {
                 "Token controller rejects transfer."
             );
         }
-        balances[msg.sender] = balances[msg.sender].sub(_amount); // ERC20: transfer amount exceeds balance
-        balances[_recipient] = balances[_recipient].add(_amount);
+        balances[msg.sender] = balances[msg.sender] - _amount; // ERC20: transfer amount exceeds balance
+        balances[_recipient] = balances[_recipient] + _amount;
         emit Transfer(msg.sender, _recipient, _amount);
         return true;
     }
@@ -183,11 +180,11 @@ contract WrappedPinakion is Initializable {
         // controller of this contract, which in most situations should be
         // another open source smart contract or 0x0.
         if (msg.sender != controller) {
-            allowance[_sender][msg.sender] = allowance[_sender][msg.sender].sub(_amount); // ERC20: transfer amount exceeds allowance.
+            allowance[_sender][msg.sender] = allowance[_sender][msg.sender] - _amount; // ERC20: transfer amount exceeds allowance.
         }
 
-        balances[_sender] = balances[_sender].sub(_amount); // ERC20: transfer amount exceeds balance
-        balances[_recipient] = balances[_recipient].add(_amount);
+        balances[_sender] = balances[_sender] - _amount; // ERC20: transfer amount exceeds balance
+        balances[_recipient] = balances[_recipient] + _amount;
         emit Transfer(_sender, _recipient, _amount);
         return true;
     }
@@ -215,7 +212,7 @@ contract WrappedPinakion is Initializable {
     /// @param _addedValue The amount of extra base units the entity will be allowed to spend.
     /// @return True on success.
     function increaseAllowance(address _spender, uint256 _addedValue) public returns (bool) {
-        uint256 newAllowance = allowance[msg.sender][_spender].add(_addedValue);
+        uint256 newAllowance = allowance[msg.sender][_spender] + _addedValue;
         // Alerts the token controller of the approve function call
         if (isContract(controller)) {
             require(
@@ -234,7 +231,7 @@ contract WrappedPinakion is Initializable {
     /// @param _subtractedValue The reduction of spending allocation in base units.
     /// @return True on success.
     function decreaseAllowance(address _spender, uint256 _subtractedValue) public returns (bool) {
-        uint256 newAllowance = allowance[msg.sender][_spender].sub(_subtractedValue); // ERC20: decreased allowance below zero
+        uint256 newAllowance = allowance[msg.sender][_spender] - _subtractedValue; // ERC20: decreased allowance below zero
         // Alerts the token controller of the approve function call
         if (isContract(controller)) {
             require(
@@ -258,8 +255,8 @@ contract WrappedPinakion is Initializable {
     /// @param _recipient The address which will receive the minted tokens.
     /// @param _amount The amount that will be created.
     function _mint(address _recipient, uint256 _amount) internal {
-        totalSupply = totalSupply.add(_amount);
-        balances[_recipient] = balances[_recipient].add(_amount);
+        totalSupply = totalSupply + _amount;
+        balances[_recipient] = balances[_recipient] + _amount;
         emit Transfer(address(0x0), _recipient, _amount);
     }
 
@@ -272,8 +269,8 @@ contract WrappedPinakion is Initializable {
                 "Token controller rejects transfer."
             );
         }
-        balances[msg.sender] = balances[msg.sender].sub(_amount); // ERC20: burn amount exceeds balance
-        totalSupply = totalSupply.sub(_amount);
+        balances[msg.sender] = balances[msg.sender] - _amount; // ERC20: burn amount exceeds balance
+        totalSupply = totalSupply - _amount;
         emit Transfer(msg.sender, address(0x0), _amount);
     }
 

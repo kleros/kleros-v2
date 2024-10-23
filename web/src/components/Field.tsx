@@ -1,7 +1,9 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { Link } from "react-router-dom";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 
 const FieldContainer = styled.div<FieldContainerProps>`
   display: flex;
@@ -19,14 +21,9 @@ const FieldContainer = styled.div<FieldContainerProps>`
     fill: ${({ theme }) => theme.secondaryPurple};
     margin-right: 8px;
     width: 14px;
+    flex-shrink: 0;
   }
 
-  .link {
-    color: ${({ theme }) => theme.primaryBlue};
-    :hover {
-      cursor: pointer;
-    }
-  }
   ${({ isList }) =>
     isList &&
     css`
@@ -60,6 +57,12 @@ const FieldContainer = styled.div<FieldContainerProps>`
     `};
 `;
 
+const LinkContainer = styled.div``;
+
+const StyledLink = styled(Link)`
+  color: ${({ theme }) => theme.primaryBlue};
+`;
+
 type FieldContainerProps = {
   width?: string;
   isList?: boolean;
@@ -67,7 +70,7 @@ type FieldContainerProps = {
   isJurorBalance?: boolean;
 };
 
-interface IField {
+export interface IField {
   icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
   name: string;
   value: string;
@@ -76,6 +79,7 @@ interface IField {
   displayAsList?: boolean;
   isOverview?: boolean;
   isJurorBalance?: boolean;
+  className?: string;
 }
 
 const Field: React.FC<IField> = ({
@@ -87,19 +91,23 @@ const Field: React.FC<IField> = ({
   displayAsList,
   isOverview,
   isJurorBalance,
+  className,
 }) => {
   return (
-    <FieldContainer isList={displayAsList} isOverview={isOverview} isJurorBalance={isJurorBalance} width={width}>
-      {(!displayAsList || isOverview || isJurorBalance) && (
-        <>
-          <Icon />
-          <label>{name}:</label>
-        </>
-      )}
+    <FieldContainer isList={displayAsList} {...{ isOverview, isJurorBalance, width, className }}>
+      <Icon />
+      {(!displayAsList || isOverview || isJurorBalance) && <label>{name}:</label>}
       {link ? (
-        <Link className="link value" to={link}>
-          {value}
-        </Link>
+        <LinkContainer className="value">
+          <StyledLink
+            to={link}
+            onClick={(event) => {
+              event.stopPropagation();
+            }}
+          >
+            {value}
+          </StyledLink>
+        </LinkContainer>
       ) : (
         <label className="value">{value}</label>
       )}
