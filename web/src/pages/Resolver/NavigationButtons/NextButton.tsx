@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@kleros/ui-components-library";
 
 import { useNewDisputeContext } from "context/NewDisputeContext";
+import { isEmpty } from "src/utils";
 
 interface INextButton {
   nextRoute: string;
@@ -22,7 +23,7 @@ const NextButton: React.FC<INextButton> = ({ nextRoute }) => {
 
   //check if any filled address or ens is invalid
   const areFilledAddressesValid = disputeData?.aliasesArray?.every((alias) =>
-    alias.address === "" && alias.name === "" ? true : alias.isValid
+    isEmpty(alias.address) && isEmpty(alias.name) ? true : alias.isValid
   );
 
   const isButtonDisabled =

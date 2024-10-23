@@ -2,6 +2,7 @@ import React, { Dispatch, SetStateAction, useMemo, useEffect } from "react";
 import styled from "styled-components";
 
 import { Field } from "@kleros/ui-components-library";
+import { isEmpty } from "src/utils";
 
 const StyledLabel = styled.label`
   display: flex;
@@ -47,7 +48,7 @@ const FormContact: React.FC<IForm> = ({
   };
 
   const fieldVariant = useMemo(() => {
-    if (contactInput === "" || !isEditing) {
+    if (isEmpty(contactInput) || !isEditing) {
       return undefined;
     }
     return contactIsValid ? "success" : "error";
