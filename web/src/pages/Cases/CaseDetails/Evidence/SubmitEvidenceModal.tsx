@@ -83,8 +83,10 @@ const SubmitEvidenceModal: React.FC<{
           close();
         })
         .finally(() => setIsSending(false));
-    } catch {
+    } catch (error) {
       setIsSending(false);
+      toast.error("Failed to submit evidence.", toastOptions);
+      console.error("Error in submitEvidence:", error);
     }
   }, [publicClient, wagmiConfig, walletClient, close, evidenceGroup, file, message, setIsSending, uploadFile]);
 
