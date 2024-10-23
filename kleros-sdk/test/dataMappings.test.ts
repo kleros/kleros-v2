@@ -25,7 +25,7 @@ global.fetch = vi.fn().mockResolvedValue({
   }),
 });
 
-vi.mock("src/sdk", () => ({
+vi.mock("../src/sdk", () => ({
   configureSDK: vi.fn(),
   getPublicClient: vi.fn().mockReturnValue({
     readContract: vi.fn().mockResolvedValue([BigInt(1), false, false]),
@@ -106,7 +106,7 @@ vi.mock("src/dataMappings/actions/eventAction", () => ({
   }),
 }));
 
-vi.mock("src/dataMappings/actions/fetchIpfsJsonAction", () => ({
+vi.mock("../src/dataMappings/actions/fetchIpfsJsonAction", () => ({
   fetchIpfsJsonAction: vi.fn(async (mapping) => {
     return createResultObject(
       {
