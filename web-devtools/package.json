@@ -7,10 +7,10 @@
   "author": "",
   "license": "MIT",
   "type": "module",
-  "packageManager": "yarn@4.0.2+sha256.825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186",
+  "packageManager": "yarn@4.5.1+sha512.341db9396b6e289fecc30cd7ab3af65060e05ebff4b3b47547b278b9e67b08f485ecd8c79006b405446262142c7a38154445ef7f17c1d5d1de7d90bf9ce7054d",
   "volta": {
-    "node": "20.11.0",
-    "yarn": "4.3.1"
+    "node": "20.18.0",
+    "yarn": "4.5.1"
   },
   "scripts": {
     "clean": "rimraf .next src/graphql-generated src/hooks/contracts/generated.ts",
@@ -29,7 +29,7 @@
     "@graphql-codegen/client-preset": "^4.3.2",
     "@svgr/webpack": "^8.1.0",
     "@types/node": "^20",
-    "@types/react": "18.2.0",
+    "@types/react": "18.3.11",
     "@types/react-dom": "^18.2.18",
     "@typescript-eslint/eslint-plugin": "^8.8.1",
     "@typescript-eslint/parser": "^8.8.1",
@@ -51,13 +51,13 @@
     "@web3modal/wagmi": "^5.1.11",
     "graphql": "^16.8.1",
     "graphql-request": "^7.1.0",
-    "next": "14.2.14",
+    "next": "14.2.15",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^8.0.7",
     "react-toastify": "^10.0.5",
     "typewriter-effect": "^2.21.0",
-    "vanilla-jsoneditor": "^0.21.4",
+    "vanilla-jsoneditor": "^0.23.0",
     "viem": "^2.1.0",
     "wagmi": "^2.2.1"
   }
