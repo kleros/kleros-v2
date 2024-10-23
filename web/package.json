@@ -35,6 +35,7 @@
     "build-local": "scripts/runEnv.sh local 'yarn generate && vite build'",
     "build-devnet": "scripts/runEnv.sh devnet 'yarn generate && vite build'",
     "build-devnet-neo": "scripts/runEnv.sh devnet-neo 'yarn generate && vite build'",
+    "build-devnet-university": "scripts/runEnv.sh devnet-university 'yarn generate && vite build'",
     "build-testnet": "scripts/runEnv.sh testnet 'yarn generate && vite build'",
     "build-mainnet-neo": "scripts/runEnv.sh mainnet-neo 'yarn generate && vite build'",
     "build-netlify": "scripts/generateBuildInfo.sh && yarn generate && vite build",

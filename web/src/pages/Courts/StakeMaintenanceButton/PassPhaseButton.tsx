@@ -7,13 +7,15 @@ import { Button } from "@kleros/ui-components-library";
 
 import {
   useReadSortitionModuleDisputesWithoutJurors,
+  useSimulateSortitionModule,
+  useWriteSortitionModule,
+} from "hooks/contracts/generated";
+import {
   useReadSortitionModuleLastPhaseChange,
   useReadSortitionModuleMaxDrawingTime,
   useReadSortitionModuleMinStakingTime,
-  useSimulateSortitionModulePassPhase,
-  useWriteSortitionModulePassPhase,
-} from "hooks/contracts/generated";
-import { useSortitionModulePhase } from "hooks/useSortitionModulePhase";
+  useSortitionModulePhase,
+} from "hooks/useSortitionModule";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { isUndefined } from "src/utils";
@@ -62,13 +64,16 @@ const PassPhaseButton: React.FC<IPassPhaseButton> = ({ setIsOpen }) => {
     data: passPhaseConfig,
     isLoading: isLoadingConfig,
     isError,
-  } = useSimulateSortitionModulePassPhase({
+  } = useSimulateSortitionModule({
     query: {
       enabled: canChangePhase,
     },
+    // eslint-disable-next-line
+    // @ts-ignore
+    functionName: "passPhase",
   });
 
-  const { writeContractAsync: passPhase } = useWriteSortitionModulePassPhase();
+  const { writeContractAsync: passPhase } = useWriteSortitionModule();
 
   const isLoading = useMemo(() => isLoadingConfig || isSending, [isLoadingConfig, isSending]);
   const isDisabled = useMemo(() => isError || isLoading || !canChangePhase, [isError, isLoading, canChangePhase]);
