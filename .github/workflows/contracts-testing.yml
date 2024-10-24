@@ -40,7 +40,7 @@ jobs:
           54.185.253.63:443
 
     - name: Setup Node.js environment
-      uses: actions/setup-node@2a017f350dbf6c4b6bb4508cc83809719115162e
+      uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af
       with:
         node-version: 18.x   
         
