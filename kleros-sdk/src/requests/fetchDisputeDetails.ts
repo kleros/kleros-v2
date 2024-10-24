@@ -1,5 +1,6 @@
 import { RequestError } from "../errors";
-import { cacheExchange, Client, CombinedError, fetchExchange, gql } from "@urql/core";
+import { CombinedError, gql } from "@urql/core";
+import getClient from "./gqlClient";
 
 type DisputeDetailsQueryResponse = {
   dispute: {
@@ -29,11 +30,7 @@ const fetchDisputeDetails = async (endpoint: string, id: bigint) => {
   const variables = { id: id.toString() };
 
   try {
-    const client = new Client({
-      url: endpoint,
-      exchanges: [cacheExchange, fetchExchange],
-    });
-
+    const client = getClient(endpoint);
     return client
       .query<DisputeDetailsQueryResponse>(query, variables)
       .toPromise()
