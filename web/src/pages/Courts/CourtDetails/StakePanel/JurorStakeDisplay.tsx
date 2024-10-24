@@ -1,16 +1,13 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, FC } from "react";
 import styled, { css } from "styled-components";
 
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
-import { useAccount } from "wagmi";
 
 import DiceIcon from "svgs/icons/dice.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 
-import { REFETCH_INTERVAL } from "consts/index";
-import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
-import { isUndefined } from "utils/index";
+import { commify } from "utils/commify";
 
 import { useCourtDetails } from "queries/useCourtDetails";
 
@@ -68,16 +65,12 @@ const useCalculateJurorOdds = (
   }, [jurorBalance, stakedByAllJurors, loading]);
 };
 
-const JurorBalanceDisplay = () => {
+interface IJurorBalanceDisplay {
+  jurorBalance: readonly [bigint, bigint, bigint, bigint] | undefined;
+}
+
+const JurorBalanceDisplay: FC<IJurorBalanceDisplay> = ({ jurorBalance }) => {
   const { id } = useParams();
-  const { address } = useAccount();
-  const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
-    query: {
-      enabled: !isUndefined(address),
-      refetchInterval: REFETCH_INTERVAL,
-    },
-    args: [address ?? "0x", BigInt(id ?? 0)],
-  });
   const { data: courtDetails } = useCourtDetails(id);
   const stakedByAllJurors = courtDetails?.court?.stake;
 
@@ -107,7 +100,7 @@ const JurorBalanceDisplay = () => {
     {
       icon: PNKIcon,
       name: "My Stake",
-      value: `${format(jurorBalance?.[2])} PNK`,
+      value: `${commify(format(jurorBalance?.[2]))} PNK`,
     },
     {
       icon: DiceIcon,
