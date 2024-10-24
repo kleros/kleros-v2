@@ -1,4 +1,4 @@
-# @kleros/kleros-v2-sdk
+# @kleros/kleros-sdk
 
 _Archon's successor_
 

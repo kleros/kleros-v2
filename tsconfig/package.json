@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "files": [
-    "base.json"
+    "base18.json",
+    "base20.json"
   ],
   "devDependencies": {
-    "@kleros/kleros-v2-eslint-config": "*"
+    "@kleros/kleros-v2-eslint-config": "*",
+    "@tsconfig/node18": "^18.2.4",
+    "@tsconfig/node20": "^20.1.4"
   }
 }

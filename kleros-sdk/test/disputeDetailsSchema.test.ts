@@ -3,7 +3,7 @@ import {
   ethAddressSchema,
   ensNameSchema,
   ethAddressOrEnsNameSchema,
-} from "src/dataMappings/utils/disputeDetailsSchema";
+} from "../src/dataMappings/utils/disputeDetailsSchema";
 
 describe("Dispute Details Schema", () => {
   it("snapshot", () => {

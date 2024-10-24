@@ -1,9 +1,8 @@
-specVersion: 0.0.4
+specVersion: 0.0.5
 schema:
   file: ./schema.graphql
 features:
   - fullTextSearch
-
 dataSources:
   - kind: ethereum
     name: KlerosCore
@@ -14,7 +13,7 @@ dataSources:
       startBlock: 3638878
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - User
@@ -39,6 +38,7 @@ dataSources:
           handler: handleAppealDecision
         - event: DisputeCreation(indexed uint256,indexed address)
           handler: handleDisputeCreation
+          receipt: true
         - event: Draw(indexed address,indexed uint256,uint256,uint256)
           handler: handleDraw
         - event: NewPeriod(indexed uint256,uint8)
@@ -69,7 +69,7 @@ dataSources:
       startBlock: 3084568
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Court
@@ -89,7 +89,7 @@ dataSources:
       startBlock: 3638835
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - ClassicDispute
@@ -124,7 +124,7 @@ dataSources:
       startBlock: 3638735
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - ClassicEvidenceGroup
@@ -145,7 +145,7 @@ dataSources:
       startBlock: 3638850
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - JurorTokensPerCourt

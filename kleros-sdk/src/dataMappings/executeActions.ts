@@ -1,3 +1,4 @@
+import { UnsupportedActionError } from "../errors";
 import { callAction } from "./actions/callAction";
 import { eventAction } from "./actions/eventAction";
 import { fetchIpfsJsonAction } from "./actions/fetchIpfsJsonAction";
@@ -32,16 +33,16 @@ export const executeAction = async (
     case "json":
       return jsonAction(validateJsonMapping(mapping));
     case "abi/call":
-      return await callAction(validateAbiCallMapping(mapping), context.alchemyApiKey as string);
+      return await callAction(validateAbiCallMapping(mapping));
     case "abi/event":
-      return await eventAction(validateAbiEventMapping(mapping), context.alchemyApiKey as string);
+      return await eventAction(validateAbiEventMapping(mapping));
     case "fetch/ipfs/json":
       return await fetchIpfsJsonAction(validateFetchIpfsJsonMapping(mapping));
     case "reality":
       mapping = validateRealityMapping(mapping);
       return await retrieveRealityData(mapping.realityQuestionID, context.arbitrableAddress as Address);
     default:
-      throw new Error(`Unsupported action type: ${mapping.type}`);
+      throw new UnsupportedActionError(`Unsupported action type: ${JSON.stringify(mapping)}`);
   }
 };
 

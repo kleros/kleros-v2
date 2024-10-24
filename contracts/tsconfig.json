@@ -1,5 +1,5 @@
 {
-  "extends": "@kleros/kleros-v2-tsconfig/base.json",
+  "extends": "@kleros/kleros-v2-tsconfig/base18.json",
   "include": [
     "./src",
     "./scripts",

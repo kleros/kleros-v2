@@ -6,6 +6,8 @@ import { createConfig, fallback, http, WagmiProvider, webSocket } from "wagmi";
 import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado, gnosis, sepolia } from "wagmi/chains";
 import { walletConnect } from "wagmi/connectors";
 
+import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
+
 import { ALL_CHAINS, DEFAULT_CHAIN } from "consts/chains";
 import { isProductionDeployment } from "consts/index";
 
@@ -60,6 +62,13 @@ const wagmiConfig = createConfig({
   chains,
   transports,
   connectors: [walletConnect({ projectId, showQrModal: false })],
+});
+
+configureSDK({
+  client: {
+    chain: isProduction ? arbitrum : arbitrumSepolia,
+    transport: transports[isProduction ? arbitrum.id : arbitrumSepolia.id],
+  },
 });
 
 createWeb3Modal({

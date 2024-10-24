@@ -1,5 +1,5 @@
 import { JsonMapping } from "../utils/actionTypes";
-import { createResultObject } from "src/dataMappings/utils/createResultObject";
+import { createResultObject } from "../utils/createResultObject";
 
 export const jsonAction = (mapping: JsonMapping) => {
   const { value, seek, populate } = mapping;
