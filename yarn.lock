@@ -5,6 +5,18 @@ __metadata:
   version: 8
   cacheKey: 10
 
+"@0no-co/graphql.web@npm:^1.0.5":
+  version: 1.0.9
+  resolution: "@0no-co/graphql.web@npm:1.0.9"
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
+  peerDependenciesMeta:
+    graphql:
+      optional: true
+  checksum: 3caf39263323ba2a51255035e92582573822d213117879e6d1b732e222a8d14fdc703828d46b4a46f86d2027ee08568196f1d64376ee74250fb58dc465698930
+  languageName: node
+  linkType: hard
+
 "@aashutoshrathi/word-wrap@npm:^1.2.3":
   version: 1.2.6
   resolution: "@aashutoshrathi/word-wrap@npm:1.2.6"
@@ -7901,6 +7913,7 @@ __metadata:
   dependencies:
     "@reality.eth/reality-eth-lib": "npm:^3.2.30"
     "@types/mustache": "npm:^4.2.5"
+    "@urql/core": "npm:^5.0.8"
     "@vitest/ui": "npm:^1.1.3"
     mocha: "npm:^10.2.0"
     mustache: "npm:^4.2.0"
@@ -13351,6 +13364,16 @@ __metadata:
   version: 1.2.0
   resolution: "@ungap/structured-clone@npm:1.2.0"
   checksum: c6fe89a505e513a7592e1438280db1c075764793a2397877ff1351721fe8792a966a5359769e30242b3cd023f2efb9e63ca2ca88019d73b564488cc20e3eab12
+  languageName: node
+  linkType: hard
+
+"@urql/core@npm:^5.0.8":
+  version: 5.0.8
+  resolution: "@urql/core@npm:5.0.8"
+  dependencies:
+    "@0no-co/graphql.web": "npm:^1.0.5"
+    wonka: "npm:^6.3.2"
+  checksum: c973e6e89785ae45ef447726557143ce7bc9d9f5b887297f0b315b2ff546d20bdfb814a4c899644bd5c5814761fc8d75a8ac66f67f3d57a3c2eadd3ec88adb60
   languageName: node
   linkType: hard
 
@@ -41236,6 +41259,13 @@ __metadata:
   dependencies:
     string-width: "npm:^4.0.0"
   checksum: 03db6c9d0af9329c37d74378ff1d91972b12553c7d72a6f4e8525fe61563fa7adb0b9d6e8d546b7e059688712ea874edd5ded475999abdeedf708de9849310e0
+  languageName: node
+  linkType: hard
+
+"wonka@npm:^6.3.2":
+  version: 6.3.4
+  resolution: "wonka@npm:6.3.4"
+  checksum: 0f102630182828268b57b54102003449b97abbc2483392239baf856a2fca7b72ae9be67c208415124a3d26a320674ed64387e9bf07a8d0badedb5f607d2ccfdc
   languageName: node
   linkType: hard
 

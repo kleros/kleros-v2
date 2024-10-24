@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@reality.eth/reality-eth-lib": "^3.2.30",
+    "@urql/core": "^5.0.8",
     "mustache": "^4.2.0",
     "viem": "^2.21.26",
     "zod": "^3.22.4"

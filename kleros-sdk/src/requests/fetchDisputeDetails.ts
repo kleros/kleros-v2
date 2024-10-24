@@ -1,4 +1,5 @@
 import { RequestError } from "../errors";
+import { cacheExchange, Client, CombinedError, fetchExchange, gql } from "@urql/core";
 
 type DisputeDetailsQueryResponse = {
   dispute: {
@@ -11,42 +12,41 @@ type DisputeDetailsQueryResponse = {
   };
 };
 
-const fetchDisputeDetails = async (endpoint: string, id: bigint): Promise<DisputeDetailsQueryResponse> => {
-  const query = `
-    query DisputeDetails($id: ID!) {
-      dispute(id: $id) {
-        arbitrated {
-          id
-        }
-        arbitrableChainId
-        externalDisputeId
-        templateId
+const query = gql`
+  query DisputeDetails($id: ID!) {
+    dispute(id: $id) {
+      arbitrated {
+        id
       }
+      arbitrableChainId
+      externalDisputeId
+      templateId
     }
-  `;
+  }
+`;
+
+const fetchDisputeDetails = async (endpoint: string, id: bigint) => {
   const variables = { id: id.toString() };
 
   try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query, variables }),
+    const client = new Client({
+      url: endpoint,
+      exchanges: [cacheExchange, fetchExchange],
     });
 
-    if (!response.ok) {
-      const errorData = (await response.json()) as any;
-      throw new RequestError(
-        `Error querying Dispute Details: ${errorData?.errors?.[0]?.message || "Unknown error"}`,
-        endpoint
-      );
-    }
-
-    const json = (await response.json()) as { data: DisputeDetailsQueryResponse };
-    return json.data;
-  } catch (error: any) {
-    if (error instanceof Error) {
+    return client
+      .query<DisputeDetailsQueryResponse>(query, variables)
+      .toPromise()
+      .then((res) => {
+        if (res?.error) {
+          throw res.error;
+        }
+        return res?.data;
+      });
+  } catch (error: unknown) {
+    if (error instanceof CombinedError) {
+      throw error;
+    } else if (error instanceof Error) {
       throw new RequestError(`Error querying Dispute Details: ${error.message}`, endpoint);
     }
     throw new RequestError("An unknown error occurred while querying Dispute Details", endpoint);
