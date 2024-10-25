@@ -5,7 +5,7 @@ import { Address } from "viem";
 import { DEFAULT_CHAIN } from "consts/chains";
 import { klerosCoreAddress } from "hooks/contracts/generated";
 import { useLocalStorage } from "hooks/useLocalStorage";
-import { isUndefined } from "utils/index";
+import { isEmpty, isUndefined } from "utils/index";
 
 export type Answer = {
   id: string;
@@ -133,7 +133,7 @@ const constructDisputeTemplate = (disputeData: IDisputeData) => {
   for (const answer of baseTemplate.answers) {
     answer.id = "0x" + BigInt(answer.id).toString(16);
   }
-  if (!isUndefined(baseTemplate.policyURI) && baseTemplate.policyURI === "") delete baseTemplate.policyURI;
+  if (!isUndefined(baseTemplate.policyURI) && isEmpty(baseTemplate.policyURI)) delete baseTemplate.policyURI;
 
   baseTemplate.arbitratorAddress = klerosCoreAddress[DEFAULT_CHAIN];
   baseTemplate.arbitratorChainID = DEFAULT_CHAIN.toString();

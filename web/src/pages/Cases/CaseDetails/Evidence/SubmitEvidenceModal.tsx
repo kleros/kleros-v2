@@ -14,7 +14,7 @@ import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 
 import EnsureAuth from "components/EnsureAuth";
 import { EnsureChain } from "components/EnsureChain";
-import { isUndefined } from "src/utils";
+import { isEmpty } from "src/utils";
 
 const StyledModal = styled(Modal)`
   position: absolute;
@@ -65,7 +65,7 @@ const SubmitEvidenceModal: React.FC<{
   const [file, setFile] = useState<File>();
   const { uploadFile } = useAtlasProvider();
 
-  const isDisabled = useMemo(() => isSending || message.trim() === "" || isUndefined(message), [isSending, message]);
+  const isDisabled = useMemo(() => isSending || isEmpty(message), [isSending, message]);
 
   const submitEvidence = useCallback(async () => {
     try {
@@ -83,8 +83,10 @@ const SubmitEvidenceModal: React.FC<{
           close();
         })
         .finally(() => setIsSending(false));
-    } catch {
+    } catch (error) {
       setIsSending(false);
+      toast.error("Failed to submit evidence.", toastOptions);
+      console.error("Error in submitEvidence:", error);
     }
   }, [publicClient, wagmiConfig, walletClient, close, evidenceGroup, file, message, setIsSending, uploadFile]);
 
