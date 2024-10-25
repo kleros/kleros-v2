@@ -6,6 +6,7 @@ const Container = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 8px;
+  padding-top: 4px;
 `;
 
 const StyledSpan = styled.span`
@@ -14,11 +15,9 @@ const StyledSpan = styled.span`
 `;
 
 const StyledInfoCircle = styled(InfoCircle)`
-  display: inline-block;
   width: 16px;
   height: 16px;
   flex-shrink: 0;
-  vertical-align: top;
 `;
 
 const Info: React.FC = () => {

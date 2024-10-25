@@ -120,6 +120,7 @@ type JurorTokensPerCourt @entity {
   id: ID! # user.id-court.id
   juror: User!
   court: Court!
+  effectiveStake: BigInt!
   staked: BigInt!
   locked: BigInt!
   delayed: BigInt!

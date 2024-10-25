@@ -2,24 +2,16 @@ import React, { useState } from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 
-import { useAccount } from "wagmi";
-import { formatEther } from "viem";
-
 import BalanceIcon from "svgs/icons/balance.svg";
-import ThreePnksIcon from "svgs/styled/three-pnks.svg";
 
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
-import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 
 import Popup, { PopupType } from "components/Popup/index";
 import Tag from "components/Tag";
 
 import { uncommify } from "utils/commify";
-import { isUndefined } from "utils/index";
-import { REFETCH_INTERVAL } from "consts/index";
 
 import InputDisplay from "./InputDisplay";
-import JurorBalanceDisplay from "./JurorStakeDisplay";
 import { ActionType } from "./StakeWithdrawButton";
 import SimulatorPopup from "./SimulatorPopup";
 
@@ -34,6 +26,7 @@ const Container = styled.div`
   ${landscapeStyle(
     () => css`
       flex-direction: row;
+      justify-content: space-between;
     `
   )};
 `;
@@ -64,37 +57,12 @@ const TextArea = styled.div`
   color: ${({ theme }) => theme.primaryText};
 `;
 
-const ThreePnksIconContainer = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: flex-start;
-  align-items: center;
-
-  ${landscapeStyle(
-    () => css`
-      width: 50%;
-      justify-content: flex-end;
-      align-items: flex-end;
-      margin-bottom: 42px;
-      margin-right: 52px;
-    `
-  )};
-`;
-
 const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "General Court", id }) => {
   const [amount, setAmount] = useState("");
   const [isSending, setIsSending] = useState<boolean>(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isActive, setIsActive] = useState<boolean>(true);
   const [action, setAction] = useState<ActionType>(ActionType.stake);
-  const { address } = useAccount();
-  const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
-    query: {
-      enabled: !isUndefined(address),
-      refetchInterval: REFETCH_INTERVAL,
-    },
-    args: [address ?? "0x", BigInt(id ?? 0)],
-  });
 
   useLockOverlayScroll(isPopupOpen);
 
@@ -117,17 +85,7 @@ const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "
         </TextArea>
         <StakeArea>
           <InputDisplay {...{ action, isSending, setIsSending, setIsPopupOpen, amount, setAmount }} />
-          <JurorBalanceDisplay {...{ jurorBalance }} />
         </StakeArea>
-        {isStaking && Number(uncommify(amount)) > 0 ? (
-          <SimulatorPopup
-            stakingAmount={
-              !isUndefined(jurorBalance?.[2])
-                ? Number(formatEther(jurorBalance?.[2])) + Number(uncommify(amount))
-                : Number(uncommify(amount))
-            }
-          />
-        ) : null}
         {isPopupOpen && (
           <Popup
             title={isStaking ? "Stake Confirmed" : "Withdraw Confirmed"}
@@ -142,9 +100,7 @@ const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "
           />
         )}
       </LeftArea>
-      <ThreePnksIconContainer>
-        <ThreePnksIcon />
-      </ThreePnksIconContainer>
+      <SimulatorPopup amountToStake={amount ? Number(uncommify(amount)) : 0} {...{ isStaking }} />
     </Container>
   );
 };

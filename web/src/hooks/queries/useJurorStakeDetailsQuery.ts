@@ -14,6 +14,7 @@ const jurorStakeDetailsQuery = graphql(`
         id
         name
       }
+      effectiveStake
       staked
       locked
     }
