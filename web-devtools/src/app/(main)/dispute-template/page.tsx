@@ -25,6 +25,7 @@ import ReactMarkdown from "components/ReactMarkdown";
 
 import FetchDisputeRequestInput, { DisputeRequest } from "./FetchDisputeRequestInput";
 import FetchFromIDInput from "./FetchFromIdInput";
+import CustomContextInputs from "./CustomContextInputs";
 
 const Container = styled.div`
   height: auto;
@@ -106,10 +107,6 @@ const UpperContainer = styled.div`
   )}
 `;
 
-const StyledJSONEditor = styled(JSONEditor)`
-  height: 300px;
-  width: 100%;
-`;
 const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
@@ -155,7 +152,7 @@ const DisputeTemplateView = () => {
   const [disputeDetails, setDisputeDetails] = useState<DisputeDetails | undefined>(undefined);
   const [disputeTemplateInput, setDisputeTemplateInput] = useState<string>("");
   const [dataMappingsInput, setDataMappingsInput] = useState<string>("");
-  const [customContextInput, setCustomContextInput] = useState<string>("{}");
+  const [customContext, setCustomContext] = useState<Record<string, string>>();
 
   const [params, setParams] = useState<DisputeRequest>({
     _arbitrable: "0x10f7A6f42Af606553883415bc8862643A6e63fdA",
@@ -184,12 +181,6 @@ const DisputeTemplateView = () => {
         setLoading(true);
 
         setTimeout(() => {
-          let customContext = null;
-          try {
-            customContext = JSON.parse(customContextInput);
-          } catch (error) {
-            console.log("Error parsing custom context", error);
-          }
           let initialContext = {
             arbitrator: debouncedParams._arbitrator,
             arbitrable: debouncedParams._arbitrable,
@@ -224,7 +215,7 @@ const DisputeTemplateView = () => {
     if (disputeTemplateInput || dataMappingsInput || debouncedParams) {
       scheduleFetchData();
     }
-  }, [disputeTemplateInput, dataMappingsInput, debouncedParams, customContextInput]);
+  }, [disputeTemplateInput, dataMappingsInput, debouncedParams, customContext]);
 
   return (
     <>
@@ -291,18 +282,11 @@ const DisputeTemplateView = () => {
               name="_templateUri"
               value={params._templateUri}
               onChange={handleFormUpdate}
-              placeholder="ipfs://... (optional)"
+              placeholder="/ipfs/... (optional)"
             />
           </StyledRow>
           <StyledRow>
-            <StyledP>{"Custom Context :"}</StyledP>
-            <StyledJSONEditor
-              content={{ text: customContextInput }}
-              mode={Mode.text}
-              onChange={(val: any) => {
-                setCustomContextInput(val.text);
-              }}
-            />
+            <CustomContextInputs dataMapping={dataMappingsInput} setCustomContext={setCustomContext} />
           </StyledRow>
         </StyledForm>
         <div>

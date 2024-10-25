@@ -55,8 +55,8 @@ const presets = [
     chainId: 421614,
   },
   {
-    title: "Trump-Biden",
-    txnHash: "0x83934c07f6476b2fd8c43cf856819134a58c007cb6938c6990fb3058b243ba0c",
+    title: "Trump-Harris",
+    txnHash: "0x86db91678cf3f8c4503e37340cf2cd93bffcba84f9c43a98c090f6a4c76d8793",
     chainId: 421614,
   },
 ];
