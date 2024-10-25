@@ -1,9 +1,18 @@
+import { InvalidContextError, NotFoundError } from "../errors";
 import { executeAction } from "./executeActions";
 import { AbiEventMapping } from "./utils/actionTypes";
 
+export type RealityAnswer = {
+  title: string;
+  description: string;
+  id: string;
+  reserved: boolean;
+  last?: boolean;
+};
+
 export const retrieveRealityData = async (realityQuestionID: string, arbitrable?: `0x${string}`) => {
   if (!arbitrable) {
-    throw new Error("No arbitrable address provided");
+    throw new InvalidContextError("No arbitrable address provided");
   }
   const questionMapping: AbiEventMapping = {
     type: "abi/event",
@@ -11,7 +20,7 @@ export const retrieveRealityData = async (realityQuestionID: string, arbitrable?
     address: arbitrable,
     eventFilter: {
       args: [realityQuestionID],
-      fromBlock: "0x1",
+      fromBlock: "earliest",
       toBlock: "latest",
     },
     seek: [
@@ -49,7 +58,7 @@ export const retrieveRealityData = async (realityQuestionID: string, arbitrable?
     address: arbitrable,
     eventFilter: {
       args: [0],
-      fromBlock: "0x1",
+      fromBlock: "earliest",
       toBlock: "latest",
     },
     seek: ["template_id", "question_text"],
@@ -59,8 +68,12 @@ export const retrieveRealityData = async (realityQuestionID: string, arbitrable?
   const templateData = await executeAction(templateMapping);
   console.log("templateData", templateData);
 
-  if (!templateData || !questionData) {
-    throw new Error("Failed to retrieve template or question data");
+  if (!templateData) {
+    throw new NotFoundError("Template Data", "Failed to retrieve template data");
+  }
+
+  if (!questionData) {
+    throw new NotFoundError("Question Data", "Failed to retrieve question data");
   }
 
   const rc_question = require("@reality.eth/reality-eth-lib/formatters/question.js");
@@ -70,14 +83,6 @@ export const retrieveRealityData = async (realityQuestionID: string, arbitrable?
   );
 
   console.log("populatedTemplate", populatedTemplate);
-
-  interface RealityAnswer {
-    title: string;
-    description: string;
-    id: string;
-    reserved: boolean;
-    last?: boolean;
-  }
 
   let answers: RealityAnswer[] = [];
   if (populatedTemplate.type === "bool") {

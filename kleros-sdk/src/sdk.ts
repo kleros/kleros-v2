@@ -1,22 +1,18 @@
-import { createPublicClient, webSocket, type PublicClient } from "viem";
-import { arbitrumSepolia } from "viem/chains";
+import { createPublicClient, type PublicClient } from "viem";
+import { SdkConfig } from "./types";
+import { SdkNotConfiguredError } from "./errors";
 
 let publicClient: PublicClient | undefined;
 
-export const configureSDK = (config: { apiKey?: string }) => {
-  if (config.apiKey) {
-    const ALCHEMY_API_KEY = config.apiKey;
-    const transport = webSocket(`wss://arb-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
-    publicClient = createPublicClient({
-      chain: arbitrumSepolia,
-      transport,
-    });
+export const configureSDK = (config: SdkConfig) => {
+  if (config.client) {
+    publicClient = createPublicClient(config.client);
   }
 };
 
-export const getPublicClient = (): PublicClient => {
+export const getPublicClient = (): PublicClient | undefined => {
   if (!publicClient) {
-    throw new Error("SDK not configured. Please call `configureSDK` before using.");
+    throw new SdkNotConfiguredError();
   }
   return publicClient;
 };

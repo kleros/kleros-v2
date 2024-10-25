@@ -1,12 +1,15 @@
-import { parseAbiItem } from "viem";
-import { type AbiEvent } from "abitype";
-import { AbiEventMapping } from "src/dataMappings/utils/actionTypes";
-import { createResultObject } from "src/dataMappings/utils/createResultObject";
-import { configureSDK, getPublicClient } from "src/sdk";
+import { parseAbiItem, type AbiEvent } from "viem";
+import { AbiEventMapping } from "../utils/actionTypes";
+import { createResultObject } from "../utils/createResultObject";
+import { getPublicClient } from "../../sdk";
+import { SdkNotConfiguredError } from "../../errors";
 
-export const eventAction = async (mapping: AbiEventMapping, alchemyApiKey: string) => {
-  configureSDK({ apiKey: alchemyApiKey });
+export const eventAction = async (mapping: AbiEventMapping) => {
   const publicClient = getPublicClient();
+
+  if (!publicClient) {
+    throw new SdkNotConfiguredError();
+  }
 
   const { abi: source, address, eventFilter, seek, populate } = mapping;
   const parsedAbi = parseAbiItem(source) as AbiEvent;
@@ -15,8 +18,8 @@ export const eventAction = async (mapping: AbiEventMapping, alchemyApiKey: strin
     address,
     event: parsedAbi,
     args: eventFilter.args,
-    fromBlock: eventFilter.fromBlock ? BigInt(eventFilter.fromBlock.toString()) : undefined,
-    toBlock: eventFilter.toBlock ? BigInt(eventFilter.toBlock.toString()) : undefined,
+    fromBlock: eventFilter.fromBlock,
+    toBlock: eventFilter.toBlock,
   });
 
   const contractEvent = await publicClient.getFilterLogs({ filter });

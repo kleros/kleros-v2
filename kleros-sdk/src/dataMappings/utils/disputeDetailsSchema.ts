@@ -9,7 +9,7 @@ export const isMultiaddr = (str: string): boolean =>
     str
   );
 
-export const ethAddressSchema = z.string().refine((value) => isAddress(value), {
+export const ethAddressSchema = z.string().refine((value) => isAddress(value, { strict: false }), {
   message: "Provided address is invalid.",
 });
 

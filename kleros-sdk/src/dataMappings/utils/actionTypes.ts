@@ -1,52 +1,45 @@
-import { type Address } from "viem";
+import { type Address, type BlockNumber, type BlockTag } from "viem";
 
-export type JsonMapping = {
-  type: string;
-  value: object;
+type MappingType = "graphql" | "abi/call" | "abi/event" | "json" | "fetch/ipfs/json" | "reality";
+
+type AbstractMapping<T extends MappingType> = {
+  type: T;
   seek: string[];
   populate: string[];
 };
 
-export interface SubgraphMapping {
-  type: string;
+export type JsonMapping = AbstractMapping<"json"> & {
+  value: object;
+};
+
+export type SubgraphMapping = AbstractMapping<"graphql"> & {
   endpoint: string;
   query: string;
   variables: { [key: string]: unknown };
-  seek: string[];
-  populate: string[];
-}
-
-export type AbiCallMapping = {
-  type: string;
-  abi: string;
-  address: Address;
-  args: any[];
-  seek: string[];
-  populate: string[];
 };
 
-export type AbiEventMapping = {
-  type: string;
+export type AbiCallMapping = AbstractMapping<"abi/call"> & {
+  abi: string;
+  address: Address;
+  functionName: string;
+  args: any[];
+};
+
+export type AbiEventMapping = AbstractMapping<"abi/event"> & {
   abi: string;
   address: Address;
   eventFilter: {
-    fromBlock: BigInt | string;
-    toBlock: BigInt | string;
+    fromBlock: BlockNumber | BlockTag;
+    toBlock: BlockNumber | BlockTag;
     args: any;
   };
-  seek: string[];
-  populate: string[];
 };
 
-export type FetchIpfsJsonMapping = {
-  type: string;
+export type FetchIpfsJsonMapping = AbstractMapping<"fetch/ipfs/json"> & {
   ipfsUri: string;
-  seek: string[];
-  populate: string[];
 };
 
-export type RealityMapping = {
-  type: "reality";
+export type RealityMapping = AbstractMapping<"reality"> & {
   realityQuestionID: string;
 };
 
