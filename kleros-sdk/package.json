@@ -30,7 +30,9 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "publish": "yarn npm publish"
+    "release:patch": "scripts/publish.sh patch",
+    "release:minor": "scripts/publish.sh minor",
+    "release:major": "scripts/publish.sh major"
   },
   "devDependencies": {
     "@types/mustache": "^4.2.5",
