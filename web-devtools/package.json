@@ -10,7 +10,7 @@
   "packageManager": "yarn@4.0.2+sha256.825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186",
   "volta": {
     "node": "20.11.0",
-    "yarn": "4.3.1"
+    "yarn": "4.5.1"
   },
   "scripts": {
     "clean": "rimraf .next src/graphql-generated src/hooks/contracts/generated.ts",

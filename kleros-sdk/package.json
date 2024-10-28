@@ -44,7 +44,7 @@
     "vitest": "^1.1.3"
   },
   "dependencies": {
-    "@reality.eth/reality-eth-lib": "^3.2.30",
+    "@reality.eth/reality-eth-lib": "^3.2.43",
     "@urql/core": "^5.0.8",
     "mustache": "^4.2.0",
     "viem": "^2.21.26",
