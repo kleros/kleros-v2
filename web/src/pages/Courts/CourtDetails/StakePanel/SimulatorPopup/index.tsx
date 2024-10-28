@@ -27,6 +27,7 @@ import Header from "./Header";
 import QuantityToSimulate from "./QuantityToSimulate";
 import Info from "../../Info";
 import WithHelpTooltip from "components/WithHelpTooltip";
+import { Divider } from "components/Divider";
 
 const Container = styled.div`
   display: flex;
@@ -62,10 +63,7 @@ const IconWrapper = styled.div`
   }
 `;
 
-const Divider = styled.hr`
-  display: flex;
-  border: none;
-  height: 1px;
+const StyledDivider = styled(Divider)`
   background-color: ${({ theme }) => theme.mediumBlue};
   margin: 12px 0 8px 0;
 `;
@@ -106,6 +104,10 @@ const StyledFutureValue = styled.span`
 
 const StyledArrowRightIcon = styled(ArrowRightIcon)<{ isStaking: boolean }>`
   fill: ${({ theme, isStaking }) => (isStaking ? theme.success : theme.warning)};
+`;
+
+const InfoContainer = styled.div`
+  padding-top: 4px;
 `;
 
 function beautifyStatNumber(value: number): string {
@@ -268,7 +270,7 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
   return (
     <Container>
       <Header />
-      <Divider />
+      <StyledDivider />
       <QuantityToSimulate {...{ jurorCurrentEffectiveStake, jurorCurrentSpecificStake, isStaking, amountToStake }} />
       <ItemsContainer>
         {simulatorItems.map((item, index) => (
@@ -298,8 +300,10 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
           </SimulatorItem>
         ))}
       </ItemsContainer>
-      <Divider />
-      <Info />
+      <StyledDivider />
+      <InfoContainer>
+        <Info />
+      </InfoContainer>
     </Container>
   );
 };

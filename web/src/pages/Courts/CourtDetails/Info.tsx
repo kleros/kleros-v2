@@ -6,7 +6,6 @@ const Container = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding-top: 4px;
 `;
 
 const StyledSpan = styled.span`

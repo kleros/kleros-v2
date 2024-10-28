@@ -20,6 +20,7 @@ import HowItWorks from "components/HowItWorks";
 import LatestCases from "components/LatestCases";
 import Staking from "components/Popup/MiniGuides/Staking";
 import { StyledSkeleton } from "components/StyledSkeleton";
+import { Divider } from "components/Divider";
 
 import Description from "./Description";
 import StakePanel from "./StakePanel";
@@ -75,14 +76,6 @@ const StyledBreadcrumb = styled(Breadcrumb)`
   button {
     font-size: 16px;
   }
-`;
-
-const Divider = styled.hr`
-  width: 100%;
-  border: none;
-  height: 1px;
-  background-color: ${({ theme }) => theme.stroke};
-  margin: 0;
 `;
 
 const CourtDetails: React.FC = () => {
