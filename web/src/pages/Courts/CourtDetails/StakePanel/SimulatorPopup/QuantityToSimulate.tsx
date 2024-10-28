@@ -1,7 +1,9 @@
 import React from "react";
 import styled from "styled-components";
+import Skeleton from "react-loading-skeleton";
 
 import { commify } from "utils/commify";
+import { isUndefined } from "utils/index";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
@@ -42,28 +44,52 @@ const StyledMathematicalOperation = styled.p`
 `;
 
 interface IQuantityToSimulate {
+  jurorCurrentEffectiveStake: number | undefined;
+  jurorCurrentSpecificStake: number | undefined;
   isStaking: boolean;
-  currentEffectiveStake: number;
-  currentSpecificStake: number;
   amountToStake: number;
 }
 
 const QuantityToSimulate: React.FC<IQuantityToSimulate> = ({
   isStaking,
-  currentEffectiveStake,
-  currentSpecificStake,
+  jurorCurrentEffectiveStake,
+  jurorCurrentSpecificStake,
   amountToStake,
 }) => {
+  const effectiveStakeDisplay = !isUndefined(jurorCurrentEffectiveStake) ? (
+    `${commify(jurorCurrentEffectiveStake)} PNK`
+  ) : (
+    <Skeleton width={50} />
+  );
+
+  const amountStakedInThisCourt = !isUndefined(jurorCurrentSpecificStake)
+    ? `${commify(jurorCurrentSpecificStake)} PNK`
+    : "...";
+
+  const amountStakedInSubCourts =
+    !isUndefined(jurorCurrentEffectiveStake) && !isUndefined(jurorCurrentSpecificStake)
+      ? `${commify(jurorCurrentEffectiveStake - jurorCurrentSpecificStake)} PNK`
+      : "...";
+
+  const finalQuantityValue =
+    !isUndefined(jurorCurrentEffectiveStake) && !isUndefined(amountToStake)
+      ? isStaking
+        ? jurorCurrentEffectiveStake + amountToStake
+        : jurorCurrentEffectiveStake - amountToStake
+      : undefined;
+
+  const finalQuantityDisplay = !isUndefined(finalQuantityValue) ? (
+    `${commify(finalQuantityValue)} PNK`
+  ) : (
+    <Skeleton width={50} />
+  );
+
   return (
     <Container>
-      <Quantity>{commify(currentEffectiveStake)} PNK</Quantity>
+      <Quantity>{effectiveStakeDisplay}</Quantity>
       <TextWithTooltipContainer>
         <WithHelpTooltip
-          tooltipMsg={`Current Stake (Sum of): Amount of PNK staked in this court (${commify(
-            currentSpecificStake
-          )} PNK); Amount of PNK staked on its sub-courts (${commify(
-            currentEffectiveStake - currentSpecificStake
-          )} PNK)`}
+          tooltipMsg={`Current Stake (Sum of): Amount of PNK staked in this court (${amountStakedInThisCourt}); Amount of PNK staked on its sub-courts (${amountStakedInSubCourts})`}
         >
           Current Stake
         </WithHelpTooltip>
@@ -71,11 +97,9 @@ const QuantityToSimulate: React.FC<IQuantityToSimulate> = ({
       <StyledMathematicalOperation>{isStaking ? "+" : "-"}</StyledMathematicalOperation>
       <Quantity>{commify(amountToStake)} PNK</Quantity>
       <StyledMathematicalOperation>=</StyledMathematicalOperation>
-      <FinalQuantity>
-        {isStaking ? commify(currentEffectiveStake + amountToStake) : commify(currentEffectiveStake - amountToStake)}{" "}
-        PNK
-      </FinalQuantity>
+      <FinalQuantity>{finalQuantityDisplay}</FinalQuantity>
     </Container>
   );
 };
+
 export default QuantityToSimulate;

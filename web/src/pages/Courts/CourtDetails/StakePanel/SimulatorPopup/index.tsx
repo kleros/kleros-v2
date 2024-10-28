@@ -139,8 +139,12 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
   const { address } = useAccount();
   const { data: stakeData } = useJurorStakeDetailsQuery(address?.toLowerCase() as `0x${string}`);
   const courtStakeData = stakeData?.jurorTokensPerCourts?.find(({ court }) => court.id === id);
-  const currentEffectiveStake = !isUndefined(courtStakeData) ? Number(formatEther(courtStakeData.effectiveStake)) : 0;
-  const currentSpecificStake = !isUndefined(courtStakeData) ? Number(formatEther(courtStakeData.staked)) : 0;
+  const jurorCurrentEffectiveStake = !isUndefined(courtStakeData)
+    ? Number(formatEther(courtStakeData.effectiveStake))
+    : undefined;
+  const jurorCurrentSpecificStake = !isUndefined(courtStakeData)
+    ? Number(formatEther(courtStakeData.staked))
+    : undefined;
 
   const timeframedCourtData = useHomePageExtraStats(30);
   const { prices: pricesData } = useCoinPrice([CoinIds.ETH, CoinIds.PNK]);
@@ -150,72 +154,108 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
     return timeframedCourtData?.data?.courts?.find((c) => c.id === id);
   }, [timeframedCourtData, id]);
 
-  const effectiveStakeAsNumber = foundCourt ? Number(foundCourt.effectiveStake) / 1e18 : 0;
+  const courtCurrentEffectiveStake = foundCourt ? Number(foundCourt.effectiveStake) / 1e18 : undefined;
 
-  const currentTreeVotesPerPnk = foundCourt ? foundCourt.treeVotesPerPnk : 0;
-  const currentTreeDisputesPerPnk = foundCourt ? foundCourt.treeDisputesPerPnk : 0;
-  const currentTreeExpectedRewardPerPnk = foundCourt ? foundCourt.treeExpectedRewardPerPnk : 0;
+  const currentTreeVotesPerPnk = foundCourt?.treeVotesPerPnk;
+  const currentTreeDisputesPerPnk = foundCourt?.treeDisputesPerPnk;
+  const currentTreeExpectedRewardPerPnk = foundCourt?.treeExpectedRewardPerPnk;
 
-  const totalVotes = effectiveStakeAsNumber * currentTreeVotesPerPnk;
-  const totalCases = effectiveStakeAsNumber * currentTreeDisputesPerPnk;
-  const totalRewards = effectiveStakeAsNumber * currentTreeExpectedRewardPerPnk;
+  const totalVotes =
+    !isUndefined(courtCurrentEffectiveStake) && !isUndefined(currentTreeVotesPerPnk)
+      ? courtCurrentEffectiveStake * currentTreeVotesPerPnk
+      : undefined;
+  const totalCases =
+    !isUndefined(courtCurrentEffectiveStake) && !isUndefined(currentTreeDisputesPerPnk)
+      ? courtCurrentEffectiveStake * currentTreeDisputesPerPnk
+      : undefined;
+  const totalRewards =
+    !isUndefined(courtCurrentEffectiveStake) && !isUndefined(currentTreeExpectedRewardPerPnk)
+      ? courtCurrentEffectiveStake * currentTreeExpectedRewardPerPnk
+      : undefined;
 
-  const futureTotalEffectiveStake = Math.max(
-    isStaking ? effectiveStakeAsNumber + amountToStake : effectiveStakeAsNumber - amountToStake,
-    0
-  );
+  const courtFutureEffectiveStake = !isUndefined(courtCurrentEffectiveStake)
+    ? Math.max(isStaking ? courtCurrentEffectiveStake + amountToStake : courtCurrentEffectiveStake - amountToStake, 0)
+    : undefined;
 
-  const futureTreeVotesPerPnk = futureTotalEffectiveStake !== 0 ? totalVotes / futureTotalEffectiveStake : 0;
-  const futureTreeDisputesPerPnk = futureTotalEffectiveStake !== 0 ? totalCases / futureTotalEffectiveStake : 0;
-  const futureTreeExpectedRewardPerPnk = futureTotalEffectiveStake !== 0 ? totalRewards / futureTotalEffectiveStake : 0;
+  const futureTreeVotesPerPnk =
+    !isUndefined(courtFutureEffectiveStake) && !isUndefined(totalVotes)
+      ? totalVotes / courtFutureEffectiveStake
+      : undefined;
+  const futureTreeDisputesPerPnk =
+    !isUndefined(courtFutureEffectiveStake) && !isUndefined(totalCases)
+      ? totalCases / courtFutureEffectiveStake
+      : undefined;
+  const futureTreeExpectedRewardPerPnk =
+    !isUndefined(courtFutureEffectiveStake) && !isUndefined(totalRewards)
+      ? totalRewards / courtFutureEffectiveStake
+      : undefined;
 
-  const futureEffectiveStake = Math.max(
-    isStaking ? currentEffectiveStake + amountToStake : currentEffectiveStake - amountToStake,
-    0
-  );
+  const jurorFutureEffectiveStake = !isUndefined(jurorCurrentEffectiveStake)
+    ? Math.max(isStaking ? jurorCurrentEffectiveStake + amountToStake : jurorCurrentEffectiveStake - amountToStake, 0)
+    : undefined;
 
-  const currentExpectedVotes = beautifyStatNumber(currentEffectiveStake * currentTreeVotesPerPnk);
-  const futureExpectedVotes = beautifyStatNumber(futureEffectiveStake * futureTreeVotesPerPnk);
+  const currentExpectedVotes =
+    !isUndefined(jurorCurrentEffectiveStake) && !isUndefined(currentTreeVotesPerPnk)
+      ? beautifyStatNumber(jurorCurrentEffectiveStake * currentTreeVotesPerPnk)
+      : undefined;
+  const futureExpectedVotes =
+    !isUndefined(jurorFutureEffectiveStake) && !isUndefined(futureTreeVotesPerPnk)
+      ? beautifyStatNumber(jurorFutureEffectiveStake * futureTreeVotesPerPnk)
+      : undefined;
 
-  const currentExpectedCases = beautifyStatNumber(currentEffectiveStake * currentTreeDisputesPerPnk);
-  const futureExpectedCases = beautifyStatNumber(futureEffectiveStake * futureTreeDisputesPerPnk);
+  const currentExpectedCases =
+    !isUndefined(jurorCurrentEffectiveStake) && !isUndefined(currentTreeDisputesPerPnk)
+      ? beautifyStatNumber(jurorCurrentEffectiveStake * currentTreeDisputesPerPnk)
+      : undefined;
+  const futureExpectedCases =
+    !isUndefined(jurorFutureEffectiveStake) && !isUndefined(futureTreeDisputesPerPnk)
+      ? beautifyStatNumber(jurorFutureEffectiveStake * futureTreeDisputesPerPnk)
+      : undefined;
 
   const currentDrawingOdds =
-    effectiveStakeAsNumber && calculateJurorOdds(currentEffectiveStake, effectiveStakeAsNumber);
+    !isUndefined(jurorCurrentEffectiveStake) && !isUndefined(courtCurrentEffectiveStake)
+      ? calculateJurorOdds(jurorCurrentEffectiveStake, courtCurrentEffectiveStake)
+      : undefined;
   const futureDrawingOdds =
-    effectiveStakeAsNumber && calculateJurorOdds(futureEffectiveStake, futureTotalEffectiveStake);
+    !isUndefined(jurorFutureEffectiveStake) && !isUndefined(courtFutureEffectiveStake)
+      ? calculateJurorOdds(jurorFutureEffectiveStake, courtFutureEffectiveStake)
+      : undefined;
 
-  const currentExpectedRewardsUSD = formatUSD(
-    currentEffectiveStake * currentTreeExpectedRewardPerPnk * (ethPriceUSD || 0)
-  );
-  const futureExpectedRewardsUSD = formatUSD(
-    futureEffectiveStake * futureTreeExpectedRewardPerPnk * (ethPriceUSD || 0)
-  );
+  const currentExpectedRewardsUSD =
+    !isUndefined(jurorCurrentEffectiveStake) &&
+    !isUndefined(currentTreeExpectedRewardPerPnk) &&
+    !isUndefined(ethPriceUSD)
+      ? formatUSD(jurorCurrentEffectiveStake * currentTreeExpectedRewardPerPnk * ethPriceUSD)
+      : undefined;
+  const futureExpectedRewardsUSD =
+    !isUndefined(jurorFutureEffectiveStake) && !isUndefined(futureTreeExpectedRewardPerPnk) && !isUndefined(ethPriceUSD)
+      ? formatUSD(jurorFutureEffectiveStake * futureTreeExpectedRewardPerPnk * ethPriceUSD)
+      : undefined;
 
   const simulatorItems = [
     {
       title: "Votes",
       icon: <GavelIcon />,
-      currentValue: `${currentExpectedVotes}`,
-      futureValue: `${futureExpectedVotes}`,
+      currentValue: currentExpectedVotes,
+      futureValue: futureExpectedVotes,
     },
     {
       title: "Cases",
       icon: <LawBalanceIcon />,
-      currentValue: `${currentExpectedCases}`,
-      futureValue: `${futureExpectedCases}`,
+      currentValue: currentExpectedCases,
+      futureValue: futureExpectedCases,
     },
     {
       title: "Drawing Odds",
       icon: <DiceIcon />,
-      currentValue: `${currentDrawingOdds}`,
-      futureValue: `${futureDrawingOdds}`,
+      currentValue: currentDrawingOdds,
+      futureValue: futureDrawingOdds,
     },
     {
       title: "Rewards",
       icon: <DollarIcon />,
-      currentValue: `${currentExpectedRewardsUSD}`,
-      futureValue: `${futureExpectedRewardsUSD}`,
+      currentValue: currentExpectedRewardsUSD,
+      futureValue: futureExpectedRewardsUSD,
       tooltipMsg:
         "Estimated rewards in USD, assuming 100% coherent voting. If other jurors vote incoherently, additional rewards in the form of PNK tokens may be earned beyond this estimate.",
     },
@@ -225,7 +265,7 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
     <Container>
       <Header />
       <Divider />
-      <QuantityToSimulate {...{ currentEffectiveStake, currentSpecificStake, isStaking, amountToStake }} />
+      <QuantityToSimulate {...{ jurorCurrentEffectiveStake, jurorCurrentSpecificStake, isStaking, amountToStake }} />
       <ItemsContainer>
         {simulatorItems.map((item, index) => (
           <SimulatorItem key={index}>
@@ -241,14 +281,14 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
             </LeftContent>
             <RightContent>
               <StyledCurrentValue>
-                {!item.currentValue.includes("undefined") ? item.currentValue : <Skeleton width={32} />}
+                {!isUndefined(item.currentValue) ? item.currentValue : <Skeleton width={32} />}
               </StyledCurrentValue>
               <StyledArrowRightIcon {...{ isStaking }} />
               <StyledFutureValue>
                 {!amountToStake || amountToStake === 0 ? "Enter amount" : null}
                 {!isUndefined(amountToStake) &&
                   amountToStake > 0 &&
-                  (!item.futureValue.includes("undefined") ? item.futureValue : <Skeleton width={32} />)}
+                  (!isUndefined(item.futureValue) ? item.futureValue : <Skeleton width={32} />)}
               </StyledFutureValue>
             </RightContent>
           </SimulatorItem>
