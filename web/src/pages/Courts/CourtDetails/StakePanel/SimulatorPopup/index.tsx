@@ -21,7 +21,6 @@ import GavelIcon from "svgs/icons/gavel.svg";
 import LawBalanceIcon from "svgs/icons/law-balance.svg";
 import DiceIcon from "svgs/icons/dice.svg";
 import DollarIcon from "svgs/icons/dollar.svg";
-import ClockIcon from "svgs/icons/clock.svg";
 import ArrowRightIcon from "svgs/icons/arrow-right.svg";
 
 import Header from "./Header";
@@ -45,7 +44,7 @@ const ItemsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px 0;
-  margin: 24px 0;
+  margin: 24px 0 12px 0;
 `;
 
 const SimulatorItem = styled.div`
@@ -146,7 +145,6 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
   const timeframedCourtData = useHomePageExtraStats(30);
   const { prices: pricesData } = useCoinPrice([CoinIds.ETH, CoinIds.PNK]);
   const ethPriceUSD = pricesData ? pricesData[CoinIds.ETH]?.price : undefined;
-  const pnkPriceUSD = pricesData ? pricesData[CoinIds.PNK]?.price : undefined;
 
   const foundCourt = useMemo(() => {
     return timeframedCourtData?.data?.courts?.find((c) => c.id === id);
@@ -204,32 +202,6 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
       )
     );
 
-  // const monthlyRewardUSD =
-  //   foundCourt && ethPriceUSD && currentEffectiveStake
-  //     ? currentEffectiveStake * foundCourt.treeExpectedRewardPerPnk * ethPriceUSD
-  //     : undefined;
-
-  // const currentPayback =
-  //   foundCourt && pnkPriceUSD && monthlyRewardUSD
-  //     ? Math.max((currentEffectiveStake * pnkPriceUSD) / monthlyRewardUSD, 0)
-  //     : undefined;
-
-  // const futureMonthlyRewardUSD =
-  //   foundCourt && ethPriceUSD && currentEffectiveStake
-  //     ? isStaking
-  //       ? (currentEffectiveStake + amountToStake) * foundCourt.treeExpectedRewardPerPnk * ethPriceUSD
-  //       : (currentEffectiveStake - amountToStake) * foundCourt.treeExpectedRewardPerPnk * ethPriceUSD
-  //     : undefined;
-
-  // const futurePayback =
-  //   foundCourt && pnkPriceUSD && futureMonthlyRewardUSD
-  //     ? Math.max(
-  //         ((isStaking ? currentEffectiveStake + amountToStake : currentEffectiveStake - amountToStake) * pnkPriceUSD) /
-  //           futureMonthlyRewardUSD,
-  //         0
-  //       )
-  //     : undefined;
-
   const simulatorItems = [
     {
       title: "Votes",
@@ -256,14 +228,6 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
       futureValue: `${futureExpectedRewardsUSD}`,
       tooltipMsg:
         "Estimated rewards in USD, assuming 100% coherent voting. If other jurors vote incoherently, additional rewards in the form of PNK tokens may be earned beyond this estimate.",
-    },
-    {
-      title: "Payback",
-      icon: <ClockIcon />,
-      currentValue: `32 months`,
-      futureValue: `24 months`,
-      tooltipMsg:
-        "Estimated time to recover your PNK investment, assuming 100% coherent voting. If other jurors vote incoherently, the payback period may be shorter due to additional rewards in the form of PNK tokens.",
     },
   ];
 
