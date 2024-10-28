@@ -41,17 +41,24 @@ interface ICustomContextInputs {
   setCustomContext: (context: Record<string, string>) => void;
 }
 const CustomContextInputs: React.FC<ICustomContextInputs> = ({ dataMapping, setCustomContext }) => {
-  const [customContext, setCustomContextInputs] = useState<Record<string, string>>();
+  const [customContextInputs, setCustomContextInputs] = useState<Record<string, string>>();
 
-  const requiredVariables = useMemo(() => retrieveVariables(dataMapping), [dataMapping]);
+  const requiredVariables = useMemo(() => {
+    try {
+      return retrieveVariables(dataMapping);
+    } catch (error) {
+      console.error("Failed to parse dataMapping:", error);
+      return [];
+    }
+  }, [dataMapping]);
 
   useDebounce(
     () => {
-      if (!customContext) return;
-      setCustomContext(customContext);
+      if (!customContextInputs) return;
+      setCustomContext(customContextInputs);
     },
     300,
-    [customContext]
+    [customContextInputs]
   );
 
   return requiredVariables.length ? (
@@ -61,12 +68,12 @@ const CustomContextInputs: React.FC<ICustomContextInputs> = ({ dataMapping, setC
       </WithHelpTooltip>
       {requiredVariables.map((variable, index) =>
         DisputeRequestParams.includes(variable) ? null : (
-          <InputContainer id={`${variable}-${index}`}>
+          <InputContainer key={`${variable}-${index}`}>
             <VariableName>{variable}:</VariableName>
             <Field
               type="text"
               name={variable}
-              value={customContext?.[variable]}
+              value={customContextInputs?.[variable]}
               onChange={(e) => {
                 setCustomContextInputs((prev) => ({ ...prev, [variable]: e.target.value }));
               }}
