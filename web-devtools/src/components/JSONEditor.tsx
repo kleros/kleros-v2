@@ -59,6 +59,6 @@ const JSONEditor = (props: any) => {
     }
   }, [props]);
 
-  return <Container ref={refContainer}></Container>;
+  return <Container ref={refContainer} className={props.className}></Container>;
 };
 export default JSONEditor;
