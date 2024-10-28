@@ -99,8 +99,6 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
     let timeoutId: NodeJS.Timeout;
 
     const verifyAndSchedule = () => {
-      console.log("checking");
-
       // initial verfiy check
       const isValid = verifySession();
       setIsVerified(isValid);
@@ -167,7 +165,6 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
         (error instanceof GraphQLError && error.extensions["code"] === "UNAUTHENTICATED")
       ) {
         setIsVerified(false);
-        throw error;
       }
       throw error;
     }
