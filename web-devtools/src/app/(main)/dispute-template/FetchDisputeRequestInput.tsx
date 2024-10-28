@@ -46,17 +46,17 @@ const StyledA = styled.a`
 const presets = [
   {
     title: "Escrow",
-    txnHash: "0x85e60cb407c9a38e625263cc762ff4283d01f38201825e1d20109d8664cfa7d4",
+    txnHash: "0x2565b756e500240544f7fc36f938462c7efbbd2e343c57979f81fecdf1054e23",
     chainId: 421614,
   },
   {
     title: "Curated Lists",
-    txnHash: "0x6e5ad6f7436ef8570b50b0fbec76a11ccedbed85030c670e59d8f6617a499108",
+    txnHash: "0xa7981830bf8144ab2070f3a639bd36b204c4c48ee1fafef66abaf60272418ed4",
     chainId: 421614,
   },
   {
-    title: "Trump-Biden",
-    txnHash: "0x9a3a420174f3c55c2b3eb2e77266777b74028b845e528a90142b5b57aafbdb90",
+    title: "Trump-Harris",
+    txnHash: "0x86db91678cf3f8c4503e37340cf2cd93bffcba84f9c43a98c090f6a4c76d8793",
     chainId: 421614,
   },
 ];

@@ -25,6 +25,7 @@ import ReactMarkdown from "components/ReactMarkdown";
 
 import FetchDisputeRequestInput, { DisputeRequest } from "./FetchDisputeRequestInput";
 import FetchFromIDInput from "./FetchFromIdInput";
+import CustomContextInputs from "./CustomContextInputs";
 
 const Container = styled.div`
   height: auto;
@@ -105,6 +106,7 @@ const UpperContainer = styled.div`
     `
   )}
 `;
+
 const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
@@ -150,6 +152,7 @@ const DisputeTemplateView = () => {
   const [disputeDetails, setDisputeDetails] = useState<DisputeDetails | undefined>(undefined);
   const [disputeTemplateInput, setDisputeTemplateInput] = useState<string>("");
   const [dataMappingsInput, setDataMappingsInput] = useState<string>("");
+  const [customContext, setCustomContext] = useState<Record<string, string>>();
 
   const [params, setParams] = useState<DisputeRequest>({
     _arbitrable: "0x10f7A6f42Af606553883415bc8862643A6e63fdA",
@@ -178,7 +181,7 @@ const DisputeTemplateView = () => {
         setLoading(true);
 
         setTimeout(() => {
-          const initialContext = {
+          let initialContext = {
             arbitrator: debouncedParams._arbitrator,
             arbitrable: debouncedParams._arbitrable,
             arbitratorDisputeID: debouncedParams._arbitratorDisputeID,
@@ -186,6 +189,8 @@ const DisputeTemplateView = () => {
             templateID: debouncedParams._templateId,
             templateUri: debouncedParams._templateUri,
           };
+
+          if (customContext) initialContext = { ...initialContext, ...customContext };
 
           const fetchData = async () => {
             try {
@@ -210,7 +215,7 @@ const DisputeTemplateView = () => {
     if (disputeTemplateInput || dataMappingsInput || debouncedParams) {
       scheduleFetchData();
     }
-  }, [disputeTemplateInput, dataMappingsInput, debouncedParams]);
+  }, [disputeTemplateInput, dataMappingsInput, debouncedParams, customContext]);
 
   return (
     <>
@@ -277,8 +282,11 @@ const DisputeTemplateView = () => {
               name="_templateUri"
               value={params._templateUri}
               onChange={handleFormUpdate}
-              placeholder="ipfs://... (optional)"
+              placeholder="/ipfs/... (optional)"
             />
+          </StyledRow>
+          <StyledRow>
+            <CustomContextInputs dataMapping={dataMappingsInput} setCustomContext={setCustomContext} />
           </StyledRow>
         </StyledForm>
         <div>
