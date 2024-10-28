@@ -96,7 +96,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
   }, [authToken, address]);
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     const verifyAndSchedule = () => {
       // initial verfiy check
@@ -162,7 +162,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
     } catch (error) {
       if (
         error instanceof AuthorizationError ||
-        (error instanceof GraphQLError && error.extensions["code"] === "UNAUTHENTICATED")
+        (error instanceof GraphQLError && error?.extensions["code"] === "UNAUTHENTICATED")
       ) {
         setIsVerified(false);
       }
