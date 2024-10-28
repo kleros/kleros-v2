@@ -156,9 +156,9 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
     return !isUndefined(user.email);
   }, [user]);
 
-  function fetchWithAuthErrorHandling<T>(request: () => Promise<T>): Promise<T> {
+  async function fetchWithAuthErrorHandling<T>(request: () => Promise<T>): Promise<T> {
     try {
-      return request();
+      return await request();
     } catch (error) {
       if (
         error instanceof AuthorizationError ||
