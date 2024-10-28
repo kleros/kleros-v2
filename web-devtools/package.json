@@ -28,13 +28,13 @@
     "@graphql-codegen/cli": "^5.0.2",
     "@graphql-codegen/client-preset": "^4.3.2",
     "@svgr/webpack": "^8.1.0",
-    "@types/node": "^20",
+    "@types/node": "^20.17.1",
     "@types/react": "18.2.0",
     "@types/react-dom": "^18.2.18",
     "@typescript-eslint/eslint-plugin": "^8.8.1",
     "@typescript-eslint/parser": "^8.8.1",
     "@typescript-eslint/utils": "^8.8.1",
-    "@wagmi/cli": "^2.0.3",
+    "@wagmi/cli": "^2.1.16",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.15",
     "eslint-config-prettier": "^9.1.0",
@@ -49,7 +49,7 @@
     "@kleros/kleros-sdk": "workspace:^",
     "@kleros/ui-components-library": "^2.15.0",
     "@web3modal/wagmi": "^5.1.11",
-    "graphql": "^16.8.1",
+    "graphql": "^16.9.0",
     "graphql-request": "^7.1.0",
     "next": "14.2.14",
     "react": "^18.2.0",
@@ -58,7 +58,7 @@
     "react-toastify": "^10.0.5",
     "typewriter-effect": "^2.21.0",
     "vanilla-jsoneditor": "^0.21.4",
-    "viem": "^2.1.0",
-    "wagmi": "^2.2.1"
+    "viem": "^2.21.35",
+    "wagmi": "^2.12.25"
   }
 }

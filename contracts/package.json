@@ -64,7 +64,7 @@
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "@kleros/kleros-v2-tsconfig": "workspace:^",
-    "@logtail/pino": "^0.4.19",
+    "@logtail/pino": "^0.4.22",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-solhint": "^3.0.1",
@@ -73,14 +73,14 @@
     "@typechain/hardhat": "^7.0.0",
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.11.3",
-    "@wagmi/cli": "^2.0.3",
+    "@types/node": "^20.17.1",
+    "@wagmi/cli": "^2.1.16",
     "abitype": "^0.10.3",
     "chai": "^4.4.1",
     "dotenv": "^16.3.1",
     "ethereumjs-util": "^7.1.5",
     "ethers": "^5.7.2",
-    "graphql": "^16.8.1",
+    "graphql": "^16.9.0",
     "graphql-request": "^6.1.0",
     "hardhat": "2.15.0",
     "hardhat-contract-sizer": "^2.10.0",
@@ -92,7 +92,7 @@
     "hardhat-tracer": "^2.7.0",
     "hardhat-watcher": "^2.5.0",
     "node-fetch": "^3.3.2",
-    "pino": "^8.17.2",
+    "pino": "^8.21.0",
     "pino-pretty": "^10.3.1",
     "shelljs": "^0.8.5",
     "solhint-plugin-prettier": "^0.1.0",
@@ -103,6 +103,6 @@
   },
   "dependencies": {
     "@kleros/vea-contracts": "^0.4.0",
-    "viem": "^2.21.26"
+    "viem": "^2.21.35"
   }
 }
