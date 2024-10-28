@@ -8,11 +8,11 @@ export function beautifyStatNumber(value: number, invertValue: boolean = false):
   } else if (absValue >= 1e6) {
     return `${commify((value / 1e6).toFixed(2))}M`;
   } else if (absValue >= 1e3) {
-    return `${commify((value / 1e3).toFixed(0))}K`;
+    return `${commify((value / 1e3).toFixed(2))}K`;
   } else if (absValue > 0 && absValue < 1) {
     if (invertValue) {
       const inverseValue = 1 / absValue;
-      return commify(inverseValue.toFixed(0));
+      return beautifyStatNumber(Number(inverseValue));
     } else {
       return value.toFixed(2);
     }
