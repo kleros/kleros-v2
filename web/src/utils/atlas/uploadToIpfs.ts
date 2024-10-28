@@ -42,6 +42,9 @@ export async function uploadToIpfs(config: Config, payload: IpfsUploadPayload): 
     }).then(async (response) => {
       if (!response.ok) {
         const error = await response.json().catch(() => ({ message: "Error uploading to IPFS" }));
+
+        if (response.status === 401) throw new AuthorizationError(error.message);
+
         throw new Error(error.message);
       }
 
@@ -58,4 +61,15 @@ export async function uploadToIpfs(config: Config, payload: IpfsUploadPayload): 
     },
     OPTIONS
   );
+}
+
+export class AuthorizationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AuthorizationError";
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+  }
 }
