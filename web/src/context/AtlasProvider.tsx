@@ -99,7 +99,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const verifyAndSchedule = () => {
-      // initial verfiy check
+      // initial verify check
       const isValid = verifySession();
       setIsVerified(isValid);
 
@@ -156,13 +156,13 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
     return !isUndefined(user.email);
   }, [user]);
 
-  async function fetchWithAuthErrorHandling<T>(request: () => Promise<T>): Promise<T> {
+  function fetchWithAuthErrorHandling<T>(request: () => Promise<T>): Promise<T> {
     try {
-      return await request();
+      return request();
     } catch (error) {
       if (
         error instanceof AuthorizationError ||
-        (error instanceof GraphQLError && error?.extensions["code"] === "UNAUTHENTICATED")
+        (error instanceof GraphQLError && error?.extensions?.["code"] === "UNAUTHENTICATED")
       ) {
         setIsVerified(false);
       }
