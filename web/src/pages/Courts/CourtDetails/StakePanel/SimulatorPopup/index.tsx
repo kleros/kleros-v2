@@ -150,57 +150,47 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
     return timeframedCourtData?.data?.courts?.find((c) => c.id === id);
   }, [timeframedCourtData, id]);
 
-  const effectiveStakeAsNumber = foundCourt && Number(foundCourt.effectiveStake) / 1e18;
+  const effectiveStakeAsNumber = foundCourt ? Number(foundCourt.effectiveStake) / 1e18 : 0;
 
-  const currentExpectedVotes = foundCourt && beautifyStatNumber(currentEffectiveStake * foundCourt.treeVotesPerPnk);
-  const futureExpectedVotes =
-    foundCourt &&
-    beautifyStatNumber(
-      Math.max(
-        isStaking
-          ? (currentEffectiveStake + amountToStake) * foundCourt.treeVotesPerPnk
-          : (currentEffectiveStake - amountToStake) * foundCourt.treeVotesPerPnk,
-        0
-      )
-    );
+  const currentTreeVotesPerPnk = foundCourt ? foundCourt.treeVotesPerPnk : 0;
+  const currentTreeDisputesPerPnk = foundCourt ? foundCourt.treeDisputesPerPnk : 0;
+  const currentTreeExpectedRewardPerPnk = foundCourt ? foundCourt.treeExpectedRewardPerPnk : 0;
 
-  const currentExpectedCases = foundCourt && beautifyStatNumber(currentEffectiveStake * foundCourt.treeDisputesPerPnk);
-  const futureExpectedCases =
-    foundCourt &&
-    beautifyStatNumber(
-      Math.max(
-        isStaking
-          ? (currentEffectiveStake + amountToStake) * foundCourt.treeDisputesPerPnk
-          : (currentEffectiveStake - amountToStake) * foundCourt.treeDisputesPerPnk,
-        0
-      )
-    );
+  const totalVotes = effectiveStakeAsNumber * currentTreeVotesPerPnk;
+  const totalCases = effectiveStakeAsNumber * currentTreeDisputesPerPnk;
+  const totalRewards = effectiveStakeAsNumber * currentTreeExpectedRewardPerPnk;
+
+  const futureTotalEffectiveStake = Math.max(
+    isStaking ? effectiveStakeAsNumber + amountToStake : effectiveStakeAsNumber - amountToStake,
+    0
+  );
+
+  const futureTreeVotesPerPnk = futureTotalEffectiveStake !== 0 ? totalVotes / futureTotalEffectiveStake : 0;
+  const futureTreeDisputesPerPnk = futureTotalEffectiveStake !== 0 ? totalCases / futureTotalEffectiveStake : 0;
+  const futureTreeExpectedRewardPerPnk = futureTotalEffectiveStake !== 0 ? totalRewards / futureTotalEffectiveStake : 0;
+
+  const futureEffectiveStake = Math.max(
+    isStaking ? currentEffectiveStake + amountToStake : currentEffectiveStake - amountToStake,
+    0
+  );
+
+  const currentExpectedVotes = beautifyStatNumber(currentEffectiveStake * currentTreeVotesPerPnk);
+  const futureExpectedVotes = beautifyStatNumber(futureEffectiveStake * futureTreeVotesPerPnk);
+
+  const currentExpectedCases = beautifyStatNumber(currentEffectiveStake * currentTreeDisputesPerPnk);
+  const futureExpectedCases = beautifyStatNumber(futureEffectiveStake * futureTreeDisputesPerPnk);
 
   const currentDrawingOdds =
-    effectiveStakeAsNumber && calculateJurorOdds(currentEffectiveStake, effectiveStakeAsNumber + currentEffectiveStake);
+    effectiveStakeAsNumber && calculateJurorOdds(currentEffectiveStake, effectiveStakeAsNumber);
   const futureDrawingOdds =
-    effectiveStakeAsNumber &&
-    calculateJurorOdds(
-      Math.max(isStaking ? currentEffectiveStake + amountToStake : currentEffectiveStake - amountToStake, 0),
-      Math.max(
-        effectiveStakeAsNumber +
-          (isStaking ? currentEffectiveStake + amountToStake : currentEffectiveStake - amountToStake),
-        0
-      )
-    );
+    effectiveStakeAsNumber && calculateJurorOdds(futureEffectiveStake, futureTotalEffectiveStake);
 
-  const currentExpectedRewardsUSD =
-    foundCourt && formatUSD(foundCourt.treeExpectedRewardPerPnk * currentEffectiveStake * ethPriceUSD);
-  const futureExpectedRewardsUSD =
-    foundCourt &&
-    formatUSD(
-      Math.max(
-        foundCourt.treeExpectedRewardPerPnk *
-          (isStaking ? currentEffectiveStake + amountToStake : currentEffectiveStake - amountToStake) *
-          ethPriceUSD,
-        0
-      )
-    );
+  const currentExpectedRewardsUSD = formatUSD(
+    currentEffectiveStake * currentTreeExpectedRewardPerPnk * (ethPriceUSD || 0)
+  );
+  const futureExpectedRewardsUSD = formatUSD(
+    futureEffectiveStake * futureTreeExpectedRewardPerPnk * (ethPriceUSD || 0)
+  );
 
   const simulatorItems = [
     {
