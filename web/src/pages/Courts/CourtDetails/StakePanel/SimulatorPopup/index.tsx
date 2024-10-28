@@ -10,8 +10,8 @@ import { formatEther } from "viem";
 import { CoinIds } from "consts/coingecko";
 
 import { formatUSD } from "utils/format";
-import { commify } from "utils/commify";
 import { isUndefined } from "utils/index";
+import { beautifyStatNumber } from "utils/beautifyStatNumber";
 
 import { useCoinPrice } from "hooks/useCoinPrice";
 import { useHomePageExtraStats } from "queries/useHomePageExtraStats";
@@ -109,22 +109,6 @@ const StyledArrowRightIcon = styled(ArrowRightIcon)<{ isStaking: boolean }>`
 const InfoContainer = styled.div`
   padding-top: 4px;
 `;
-
-function beautifyStatNumber(value: number): string {
-  const absValue = Math.abs(value);
-
-  if (absValue >= 1e9) {
-    return `${commify((value / 1e9).toFixed(2))}B`;
-  } else if (absValue >= 1e6) {
-    return `${commify((value / 1e6).toFixed(2))}M`;
-  } else if (absValue >= 1e3) {
-    return `${commify((value / 1e3).toFixed(0))}K`;
-  } else if (absValue > 0 && absValue < 1) {
-    return value.toFixed(2);
-  }
-
-  return commify(value.toFixed(0));
-}
 
 const calculateJurorOdds = (newStake: number, totalStake: number): string => {
   const odds = totalStake !== 0 ? (newStake * 100) / totalStake : 0;

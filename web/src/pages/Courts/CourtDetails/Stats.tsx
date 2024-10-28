@@ -27,7 +27,7 @@ import { useHomePageExtraStats } from "queries/useHomePageExtraStats";
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
 import { isUndefined } from "utils/index";
-import { commify } from "utils/commify";
+import { beautifyStatNumber } from "utils/beautifyStatNumber";
 
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
@@ -108,23 +108,6 @@ const StyledDropdownSelect = styled(DropdownSelect)`
     fill: ${({ theme }) => theme.primaryText};
   }
 `;
-
-function beautifyStatNumber(value: number): string {
-  const absValue = Math.abs(value);
-
-  if (absValue >= 1e9) {
-    return `${commify((value / 1e9).toFixed(2))}B`;
-  } else if (absValue >= 1e6) {
-    return `${commify((value / 1e6).toFixed(2))}M`;
-  } else if (absValue >= 1e3) {
-    return `${commify((value / 1e3).toFixed(0))}K`;
-  } else if (absValue < 1 && absValue !== 0) {
-    const inverseValue = 1 / absValue;
-    return commify(inverseValue.toFixed(0));
-  }
-
-  return commify(value.toFixed(0));
-}
 
 interface IStat {
   title: string;
@@ -255,7 +238,7 @@ const Stats = () => {
         const ethPriceUSD = pricesData ? pricesData[CoinIds.ETH]?.price : undefined;
         if (!ethPriceUSD || !treeExpectedRewardPerPnk) return "N/A";
         const pnkNeeded = treeExpectedRewardPerPnk * ethPriceUSD;
-        return beautifyStatNumber(pnkNeeded);
+        return beautifyStatNumber(pnkNeeded, true);
       },
       color: "purple",
       icon: PNKUSDIcon,
@@ -270,7 +253,7 @@ const Stats = () => {
         const treeExpectedRewardPerPnk = data?.treeExpectedRewardPerPnk;
         if (!treeExpectedRewardPerPnk) return "N/A";
         const pnkNeeded = treeExpectedRewardPerPnk;
-        return beautifyStatNumber(pnkNeeded);
+        return beautifyStatNumber(pnkNeeded, true);
       },
       color: "blue",
       icon: PNKETHIcon,
@@ -283,7 +266,7 @@ const Stats = () => {
       ),
       getText: (data) => {
         const treeVotesPerPnk = data?.treeVotesPerPnk;
-        return beautifyStatNumber(treeVotesPerPnk);
+        return beautifyStatNumber(treeVotesPerPnk, true);
       },
       color: "orange",
       icon: VotesPerPNKIcon,
@@ -299,7 +282,7 @@ const Stats = () => {
       ),
       getText: (data) => {
         const treeDisputesPerPnk = data?.treeDisputesPerPnk;
-        return beautifyStatNumber(treeDisputesPerPnk);
+        return beautifyStatNumber(treeDisputesPerPnk, true);
       },
       color: "orange",
       icon: BalanceWithPNKIcon,
