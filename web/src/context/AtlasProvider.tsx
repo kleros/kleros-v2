@@ -229,7 +229,6 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
         if (!address || !isVerified) return false;
         setIsUpdatingUser(true);
 
-        // const emailUpdated = await updateEmailInAtlas(atlasGqlClient, userSettings);
         const emailUpdated = await fetchWithAuthErrorHandling(() => updateEmailInAtlas(atlasGqlClient, userSettings));
         refetchUser();
 
