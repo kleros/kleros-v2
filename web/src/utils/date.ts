@@ -60,13 +60,13 @@ export function timeLeftUntil(isoString: string): string {
   const daysLeft = Math.floor(hoursLeft / 24);
 
   if (secondsLeft < 60) {
-    return `in ${secondsLeft} secs`;
+    return `in ${secondsLeft} sec${secondsLeft > 1 ? "s" : ""}`;
   } else if (minutesLeft < 60) {
-    return `in ${minutesLeft} mins`;
+    return `in ${minutesLeft} min${minutesLeft > 1 ? "s" : ""}`;
   } else if (hoursLeft < 24) {
-    return `in ${hoursLeft} hrs`;
+    return `in ${hoursLeft} hr${hoursLeft > 1 ? "s" : ""}`;
   } else if (daysLeft < 2) {
-    return `in ${daysLeft} days`;
+    return `in ${daysLeft} day${daysLeft > 1 ? "s" : ""}`;
   } else {
     const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
     return `after ${targetDate.toLocaleDateString("en-US", options)}`;
