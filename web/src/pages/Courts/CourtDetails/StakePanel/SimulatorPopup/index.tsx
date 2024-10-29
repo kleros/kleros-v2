@@ -150,18 +150,20 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
   const currentTreeDisputesPerPnk = foundCourt?.treeDisputesPerPnk;
   const currentTreeExpectedRewardPerPnk = foundCourt?.treeExpectedRewardPerPnk;
 
-  const totalVotes =
-    !isUndefined(courtCurrentEffectiveStake) && !isUndefined(currentTreeVotesPerPnk)
-      ? courtCurrentEffectiveStake * currentTreeVotesPerPnk
-      : undefined;
-  const totalCases =
-    !isUndefined(courtCurrentEffectiveStake) && !isUndefined(currentTreeDisputesPerPnk)
-      ? courtCurrentEffectiveStake * currentTreeDisputesPerPnk
-      : undefined;
-  const totalRewards =
-    !isUndefined(courtCurrentEffectiveStake) && !isUndefined(currentTreeExpectedRewardPerPnk)
-      ? courtCurrentEffectiveStake * currentTreeExpectedRewardPerPnk
-      : undefined;
+  const totals = useMemo(() => {
+    if (isUndefined(courtCurrentEffectiveStake)) return {};
+    return {
+      votes: !isUndefined(currentTreeVotesPerPnk) ? courtCurrentEffectiveStake * currentTreeVotesPerPnk : undefined,
+      cases: !isUndefined(currentTreeDisputesPerPnk)
+        ? courtCurrentEffectiveStake * currentTreeDisputesPerPnk
+        : undefined,
+      rewards: !isUndefined(currentTreeExpectedRewardPerPnk)
+        ? courtCurrentEffectiveStake * currentTreeExpectedRewardPerPnk
+        : undefined,
+    };
+  }, [courtCurrentEffectiveStake, currentTreeVotesPerPnk, currentTreeDisputesPerPnk, currentTreeExpectedRewardPerPnk]);
+
+  const { votes: totalVotes, cases: totalCases, rewards: totalRewards } = totals;
 
   const courtFutureEffectiveStake = !isUndefined(courtCurrentEffectiveStake)
     ? Math.max(isStaking ? courtCurrentEffectiveStake + amountToStake : courtCurrentEffectiveStake - amountToStake, 0)
