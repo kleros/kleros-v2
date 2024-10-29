@@ -3,23 +3,21 @@ import { toast } from "react-toastify";
 
 import { OPTIONS } from "utils/wrapWithToast";
 
-type GetUserResponse = {
-  user: {
-    email: string;
-    isEmailVerified: string;
-  };
-};
-
 export type User = {
   email: string;
   isEmailVerified: string;
+  emailUpdateableAt: string | null;
 };
 
+type GetUserResponse = {
+  user: User;
+};
 const query = gql`
   query GetUser {
     user {
       email
       isEmailVerified
+      emailUpdateableAt
     }
   }
 `;

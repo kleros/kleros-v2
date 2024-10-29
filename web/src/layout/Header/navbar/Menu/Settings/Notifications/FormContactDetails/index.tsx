@@ -14,6 +14,9 @@ import { ISettings } from "../../../../index";
 
 import EmailVerificationInfo from "./EmailVerificationInfo";
 import FormContact from "./FormContact";
+import { isUndefined } from "src/utils";
+import InfoCard from "components/InfoCard";
+import { timeLeftUntil } from "utils/date";
 
 const FormContainer = styled.form`
   width: 100%;
@@ -33,7 +36,13 @@ const ButtonContainer = styled.div`
 const FormContactContainer = styled.div`
   display: flex;
   flex-direction: column;
+`;
+
+const StyledInfoCard = styled(InfoCard)`
+  width: fit-content;
+  font-size: 14px;
   margin-bottom: 8px;
+  word-wrap: break-word;
 `;
 
 const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
@@ -44,6 +53,10 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
 
   const isEditingEmail = user?.email !== emailInput;
 
+  const isEmailUpdateable = user?.email
+    ? !isUndefined(user?.emailUpdateableAt) && new Date(user.emailUpdateableAt).getTime() < new Date().getTime()
+    : true;
+
   useEffect(() => {
     if (!user || !userExists) return;
 
@@ -53,11 +66,12 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!address) {
-      throw new Error("Missing address");
+      return;
     }
 
     // if user exists then update email
     if (userExists) {
+      if (!isEmailUpdateable) return;
       const data = {
         newEmail: emailInput,
       };
@@ -108,11 +122,15 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           isEditing={isEditingEmail}
         />
       </FormContactContainer>
-
+      {!isEmailUpdateable ? (
+        <StyledInfoCard msg={`You can update email again ${timeLeftUntil(user?.emailUpdateableAt!)}`} />
+      ) : null}
       <ButtonContainer>
         <Button
           text="Save"
-          disabled={!isEditingEmail || !emailIsValid || isAddingUser || isFetchingUser || isUpdatingUser}
+          disabled={
+            !isEditingEmail || !emailIsValid || isAddingUser || isFetchingUser || isUpdatingUser || !isEmailUpdateable
+          }
         />
       </ButtonContainer>
       <EmailVerificationInfo toggleIsSettingsOpen={toggleIsSettingsOpen} />
