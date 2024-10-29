@@ -124,17 +124,9 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
   const { id } = useParams();
   const { address } = useAccount();
   const { data: stakeData } = useJurorStakeDetailsQuery(address?.toLowerCase() as `0x${string}`);
-  const courtStakeData = stakeData?.jurorTokensPerCourts?.find(({ court }) => court.id === id);
-  const jurorCurrentEffectiveStake = address
-    ? !isUndefined(courtStakeData)
-      ? Number(formatEther(courtStakeData.effectiveStake))
-      : undefined
-    : 0;
-  const jurorCurrentSpecificStake = address
-    ? !isUndefined(courtStakeData)
-      ? Number(formatEther(courtStakeData.staked))
-      : undefined
-    : 0;
+  const jurorStakeData = stakeData?.jurorTokensPerCourts?.find(({ court }) => court.id === id);
+  const jurorCurrentEffectiveStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.effectiveStake)) : 0;
+  const jurorCurrentSpecificStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.staked)) : 0;
 
   const timeframedCourtData = useHomePageExtraStats(30);
   const { prices: pricesData } = useCoinPrice([CoinIds.ETH]);
