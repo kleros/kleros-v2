@@ -1,3 +1,4 @@
+import { GraphQLError } from "graphql";
 import { gql, type GraphQLClient } from "graphql-request";
 import { toast } from "react-toastify";
 
@@ -30,10 +31,12 @@ export function addUser(client: GraphQLClient, userData: AddUserData): Promise<b
         // eslint-disable-next-line no-console
         console.log("Add User error:", { errors });
 
-        const errorMessage = Array.isArray(errors?.response?.errors)
-          ? errors.response.errors[0]?.message
-          : "Unknown error";
-        throw new Error(errorMessage);
+        const error = errors?.response?.errors?.[0];
+
+        if (error) {
+          throw new GraphQLError(error?.message, { ...error });
+        }
+        throw new Error("Unknown Error");
       }),
     {
       pending: `Adding User ...`,
