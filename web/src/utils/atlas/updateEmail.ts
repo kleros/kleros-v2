@@ -1,3 +1,4 @@
+import { GraphQLError } from "graphql";
 import { gql, type GraphQLClient } from "graphql-request";
 import { toast } from "react-toastify";
 
@@ -28,10 +29,12 @@ export function updateEmail(client: GraphQLClient, userData: UpdateEmailData): P
         // eslint-disable-next-line no-console
         console.log("Update Email error:", { errors });
 
-        const errorMessage = Array.isArray(errors?.response?.errors)
-          ? errors.response.errors[0]?.message
-          : "Unknown error";
-        throw new Error(errorMessage);
+        const error = errors?.response?.errors?.[0];
+
+        if (error) {
+          throw new GraphQLError(error?.message, { ...error });
+        }
+        throw new Error("Unknown Error");
       }),
     {
       pending: `Updating Email ...`,

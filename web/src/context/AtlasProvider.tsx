@@ -22,9 +22,11 @@ import {
   type ConfirmEmailResponse,
   Roles,
   Products,
+  AuthorizationError,
 } from "utils/atlas";
 
 import { isUndefined } from "src/utils";
+import { GraphQLError } from "graphql";
 
 interface IAtlasProvider {
   isVerified: boolean;
@@ -94,16 +96,30 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
   }, [authToken, address]);
 
   useEffect(() => {
-    // initial verfiy check
-    setIsVerified(verifySession());
+    let timeoutId: ReturnType<typeof setTimeout>;
 
-    // verify session every 5 sec
-    const intervalId = setInterval(() => {
-      setIsVerified(verifySession());
-    }, 5000);
+    const verifyAndSchedule = () => {
+      // initial verify check
+      const isValid = verifySession();
+      setIsVerified(isValid);
+
+      if (isValid && authToken) {
+        try {
+          const payload = decodeJwt(authToken);
+          const expiresIn = (payload.exp as number) * 1000 - Date.now();
+
+          timeoutId = setTimeout(verifyAndSchedule, Math.max(0, expiresIn));
+        } catch (err) {
+          console.error("Error decoding JWT:", err);
+          setIsVerified(false);
+        }
+      }
+    };
+
+    verifyAndSchedule();
 
     return () => {
-      clearInterval(intervalId);
+      clearTimeout(timeoutId);
     };
   }, [authToken, verifySession, address]);
 
@@ -140,6 +156,20 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
     return !isUndefined(user.email);
   }, [user]);
 
+  async function fetchWithAuthErrorHandling<T>(request: () => Promise<T>): Promise<T> {
+    try {
+      return await request();
+    } catch (error) {
+      if (
+        error instanceof AuthorizationError ||
+        (error instanceof GraphQLError && error?.extensions?.["code"] === "UNAUTHENTICATED")
+      ) {
+        setIsVerified(false);
+      }
+      throw error;
+    }
+  }
+
   /**
    * @description authorise user and enable authorised calls
    */
@@ -173,7 +203,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
         if (!address || !isVerified) return false;
         setIsAddingUser(true);
 
-        const userAdded = await addUserToAtlas(atlasGqlClient, userSettings);
+        const userAdded = await fetchWithAuthErrorHandling(() => addUserToAtlas(atlasGqlClient, userSettings));
         refetchUser();
 
         return userAdded;
@@ -199,7 +229,7 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
         if (!address || !isVerified) return false;
         setIsUpdatingUser(true);
 
-        const emailUpdated = await updateEmailInAtlas(atlasGqlClient, userSettings);
+        const emailUpdated = await fetchWithAuthErrorHandling(() => updateEmailInAtlas(atlasGqlClient, userSettings));
         refetchUser();
 
         return emailUpdated;
@@ -227,9 +257,8 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
         if (!address || !isVerified || !atlasUri || !authToken) return null;
         setIsUploadingFile(true);
 
-        const hash = await uploadToIpfs(
-          { baseUrl: atlasUri, authToken },
-          { file, name: file.name, role, product: Products.CourtV2 }
+        const hash = await fetchWithAuthErrorHandling(() =>
+          uploadToIpfs({ baseUrl: atlasUri, authToken }, { file, name: file.name, role, product: Products.CourtV2 })
         );
         return hash ? `/ipfs/${hash}` : null;
       } catch (err: any) {
