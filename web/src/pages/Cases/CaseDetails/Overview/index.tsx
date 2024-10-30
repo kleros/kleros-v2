@@ -17,6 +17,7 @@ import { DisputeContext } from "components/DisputePreview/DisputeContext";
 import { Policies } from "components/DisputePreview/Policies";
 import DisputeInfo from "components/DisputeView/DisputeInfo";
 import Verdict from "components/Verdict/index";
+import { Divider } from "components/Divider";
 
 const Container = styled.div`
   width: 100%;
@@ -25,15 +26,6 @@ const Container = styled.div`
   flex-direction: column;
   gap: ${responsiveSize(16, 32)};
   padding: ${responsiveSize(16, 32)};
-`;
-
-const Divider = styled.hr`
-  width: 100%;
-  display: flex;
-  border: none;
-  height: 1px;
-  background-color: ${({ theme }) => theme.stroke};
-  margin: 0;
 `;
 
 interface IOverview {

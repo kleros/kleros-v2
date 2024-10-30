@@ -13,6 +13,7 @@ import ReactMarkdown from "components/ReactMarkdown";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 import AliasDisplay from "./Alias";
+import { Divider } from "../Divider";
 
 const StyledH1 = styled.h1`
   margin: 0;
@@ -60,14 +61,6 @@ const AliasesContainer = styled.div`
   gap: ${responsiveSize(8, 20)};
 `;
 
-const Divider = styled.hr`
-  width: 100%;
-  display: flex;
-  border: none;
-  height: 1px;
-  background-color: ${({ theme }) => theme.stroke};
-  margin: 0;
-`;
 interface IDisputeContext {
   disputeDetails?: DisputeDetails;
   isRpcError?: boolean;

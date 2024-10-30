@@ -1,19 +1,21 @@
 import React, { useState, useMemo, useEffect } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
 
 import { REFETCH_INTERVAL } from "consts/index";
+
 import { useReadSortitionModuleGetJurorBalance, useReadPnkBalanceOf } from "hooks/contracts/generated";
 import { useParsedAmount } from "hooks/useParsedAmount";
+
 import { commify, uncommify } from "utils/commify";
 import { formatPNK, roundNumberDown } from "utils/format";
 import { isUndefined } from "utils/index";
 
 import { NumberInputField } from "components/NumberInputField";
-
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
 
 const StyledField = styled(NumberInputField)`
@@ -23,6 +25,12 @@ const StyledField = styled(NumberInputField)`
 const LabelArea = styled.div`
   display: flex;
   justify-content: space-between;
+
+  ${landscapeStyle(
+    () => css`
+      width: 92%;
+    `
+  )}
 `;
 
 const StyledLabel = styled.label`
@@ -36,6 +44,12 @@ const InputArea = styled.div`
   align-items: center;
   gap: 12px;
   width: 100%;
+
+  ${landscapeStyle(
+    () => css`
+      width: 92%;
+    `
+  )}
 `;
 
 const InputFieldAndButton = styled.div`

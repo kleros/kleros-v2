@@ -23,6 +23,7 @@ import LightButton from "../LightButton";
 
 import AnswerDisplay from "./Answer";
 import VerdictBanner from "./VerdictBanner";
+import { Divider } from "../Divider";
 
 const Container = styled.div`
   width: 100%;
@@ -54,11 +55,7 @@ const StyledButton = styled(LightButton)`
   padding-top: 0px;
 `;
 
-const Divider = styled.hr`
-  display: flex;
-  border: none;
-  height: 1px;
-  background-color: ${({ theme }) => theme.stroke};
+const StyledDivider = styled(Divider)`
   margin: ${responsiveSize(16, 32)} 0px;
 `;
 
@@ -107,7 +104,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
           <AnswerDisplay {...{ answer, currentRuling }} />
         </JuryContainer>
       )}
-      <Divider />
+      <StyledDivider />
       {isLoading && !isDisconnected ? (
         <Skeleton width={250} height={20} />
       ) : (

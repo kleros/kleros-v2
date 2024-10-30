@@ -7,6 +7,7 @@ import PnkIcon from "svgs/tokens/pnk.svg";
 import { responsiveSize } from "styles/responsiveSize";
 
 import LightButton from "components/LightButton";
+import { Divider } from "components/Divider";
 import { Token } from "pages/GetPnk/Swap/TokenSelect";
 
 const Container = styled.div`
@@ -50,14 +51,10 @@ const StyledButton = styled(LightButton)`
   padding-top: 0px;
 `;
 
-const Divider = styled.hr`
-  width: 100%;
-  display: flex;
-  border: none;
-  height: 1px;
-  background-color: ${({ theme }) => theme.stroke};
+const StyledDivider = styled(Divider)`
   margin: ${responsiveSize(32, 64)} 0px 0px;
 `;
+
 interface ISwapSuccess {
   hash: string;
   amount: string;
@@ -83,7 +80,7 @@ const SwapSuccess: React.FC<ISwapSuccess> = ({ hash, amount, isClaim, from, to }
           Bridge from &nbsp;<small>Ethereum</small>&nbsp; to &nbsp;<small>Arbitrum</small>
         </Subtitle>
       )}
-      <Divider />
+      <StyledDivider />
       <StyledButton
         onClick={() => window.open(baseUrl, "_blank", "rel=noopener noreferrer")}
         text={"View transaction on Etherscan"}
