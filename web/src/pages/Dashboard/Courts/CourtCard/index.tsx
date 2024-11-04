@@ -18,7 +18,7 @@ const Container = styled(_Card)`
   padding: 21px 24px 25px 19px;
   border-left: 5px solid ${({ theme }) => theme.secondaryPurple};
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 24px;
 
   ${({ theme }) => (theme.name === "light" ? `box-shadow: 0px 2px 3px 0px ${theme.stroke};` : "")}
 
@@ -33,13 +33,14 @@ const Container = styled(_Card)`
 interface ICourtCard {
   name: string;
   stake: string;
+  id: string;
 }
 
-const CourtCard: React.FC<ICourtCard> = ({ name, stake }) => {
+const CourtCard: React.FC<ICourtCard> = ({ name, stake, id }) => {
   return (
     <Container>
-      <CourtName name={name} />
-      <Stake stake={stake} />
+      <CourtName {...{ name, id }} />
+      <Stake {...{ stake }} />
     </Container>
   );
 };
