@@ -486,8 +486,6 @@ async function main() {
   }
 
   let disputesWithoutJurors = await filterAsync(disputes, async (dispute) => {
-    console.log(dispute.id);
-    console.log(dispute.currentRoundIndex);
     return !(await isDisputeFullyDrawn(dispute));
   });
 
@@ -564,11 +562,11 @@ async function main() {
 
   logger.info(`Current phase: ${PHASES[getNumber(await sortition.phase())]}`);
 
-  for (var disputeDetails of disputes) {
+  for (var dispute of disputes) {
     // ----------------------------------------------- //
     //                  PASS PERIOD                    //
     // ----------------------------------------------- //
-    await passPeriod(disputeDetails);
+    await passPeriod(dispute);
   }
 
   // Get all the disputes whose ruling is not yet executed
