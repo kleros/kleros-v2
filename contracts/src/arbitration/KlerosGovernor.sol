@@ -262,10 +262,9 @@ contract KlerosGovernor is IArbitrableV2 {
         session.submittedLists[_submissionID] = session.submittedLists[session.submittedLists.length - 1];
         session.alreadySubmitted[_listHash] = false;
         session.submittedLists.pop();
-        session.sumDeposit = session.sumDeposit - submission.deposit;
+        session.sumDeposit -= submission.deposit;
+        reservedETH -= submission.deposit;
         payable(msg.sender).transfer(submission.deposit);
-
-        reservedETH = reservedETH - submission.deposit;
     }
 
     /// @dev Approves a transaction list or creates a dispute if more than one list was submitted.
@@ -288,7 +287,7 @@ contract KlerosGovernor is IArbitrableV2 {
             session.status = Status.Resolved;
             sessions.push();
 
-            reservedETH = reservedETH - sumDeposit;
+            reservedETH -= sumDeposit;
         } else {
             session.status = Status.DisputeCreated;
             uint256 arbitrationCost = arbitrator.arbitrationCost(arbitratorExtraData);
@@ -320,7 +319,7 @@ contract KlerosGovernor is IArbitrableV2 {
             submission.submitter.send(session.sumDeposit);
         }
         // If the ruling is "0" the reserved funds of this session become expendable.
-        reservedETH = reservedETH - session.sumDeposit;
+        reservedETH -= session.sumDeposit;
 
         session.sumDeposit = 0;
         lastApprovalTime = block.timestamp;
