@@ -9,12 +9,9 @@ pragma solidity 0.8.24;
 
 import {IArbitrableV2, IArbitratorV2} from "./interfaces/IArbitrableV2.sol";
 import "./interfaces/IDisputeTemplateRegistry.sol";
-import "../libraries/CappedMath.sol";
 
 /// @title KlerosGovernor for V2. Note that appeal functionality and evidence submission will be handled by the court.
 contract KlerosGovernor is IArbitrableV2 {
-    using CappedMath for uint256;
-
     // ************************************* //
     // *         Enums / Structs           * //
     // ************************************* //
@@ -74,16 +71,13 @@ contract KlerosGovernor is IArbitrableV2 {
 
     modifier duringSubmissionPeriod() {
         uint256 offset = sessions[sessions.length - 1].durationOffset;
-        require(block.timestamp - lastApprovalTime <= submissionTimeout.addCap(offset), "Submission time has ended.");
+        require(block.timestamp - lastApprovalTime <= submissionTimeout + offset, "Submission time has ended.");
         _;
     }
 
     modifier duringApprovalPeriod() {
         uint256 offset = sessions[sessions.length - 1].durationOffset;
-        require(
-            block.timestamp - lastApprovalTime > submissionTimeout.addCap(offset),
-            "Approval time not started yet."
-        );
+        require(block.timestamp - lastApprovalTime > submissionTimeout + offset, "Approval time not started yet.");
         _;
     }
 
@@ -200,7 +194,6 @@ contract KlerosGovernor is IArbitrableV2 {
     // ************************************* //
 
     /// @dev Creates transaction list based on input parameters and submits it for potential approval and execution.
-    /// Transactions must be ordered by their hash.
     /// @param _target List of addresses to call.
     /// @param _value List of values required for respective addresses.
     /// @param _data Concatenated calldata of all transactions of this list.
@@ -221,11 +214,9 @@ contract KlerosGovernor is IArbitrableV2 {
         // Do the assignment first to avoid creating a new variable and bypass a 'stack too deep' error.
         submission.deposit = submissionBaseDeposit + arbitrator.arbitrationCost(arbitratorExtraData);
         require(msg.value >= submission.deposit, "Not enough ETH to cover deposit");
-        // Using an array to get around the stack limit.
-        // 0 - List hash.
-        // 1 - Previous transaction hash.
-        // 2 - Current transaction hash.
-        bytes32[3] memory hashes;
+
+        bytes32 listHash;
+        bytes32 currentTxHash;
         uint256 readingPosition;
         for (uint256 i = 0; i < _target.length; i++) {
             bytes memory readData = new bytes(_dataSize[i]);
@@ -237,18 +228,16 @@ contract KlerosGovernor is IArbitrableV2 {
             }
             transaction.data = readData;
             readingPosition += _dataSize[i];
-            hashes[2] = keccak256(abi.encodePacked(transaction.target, transaction.value, transaction.data));
-            require(uint256(hashes[2]) >= uint256(hashes[1]), "Incorrect tx order");
-            hashes[0] = keccak256(abi.encodePacked(hashes[2], hashes[0]));
-            hashes[1] = hashes[2];
+            currentTxHash = keccak256(abi.encodePacked(transaction.target, transaction.value, transaction.data));
+            listHash = keccak256(abi.encodePacked(currentTxHash, listHash));
         }
-        require(!session.alreadySubmitted[hashes[0]], "List already submitted");
-        session.alreadySubmitted[hashes[0]] = true;
-        submission.listHash = hashes[0];
+        require(!session.alreadySubmitted[listHash], "List already submitted");
+        session.alreadySubmitted[listHash] = true;
+        submission.listHash = listHash;
         submission.submissionTime = block.timestamp;
         session.sumDeposit += submission.deposit;
         session.submittedLists.push(submissions.length - 1);
-        if (session.submittedLists.length == 1) session.durationOffset = block.timestamp.subCap(lastApprovalTime);
+        if (session.submittedLists.length == 1) session.durationOffset = block.timestamp - lastApprovalTime;
 
         emit ListSubmitted(submissions.length - 1, msg.sender, sessions.length - 1, _description);
 
@@ -273,10 +262,9 @@ contract KlerosGovernor is IArbitrableV2 {
         session.submittedLists[_submissionID] = session.submittedLists[session.submittedLists.length - 1];
         session.alreadySubmitted[_listHash] = false;
         session.submittedLists.pop();
-        session.sumDeposit = session.sumDeposit.subCap(submission.deposit);
+        session.sumDeposit -= submission.deposit;
+        reservedETH -= submission.deposit;
         payable(msg.sender).transfer(submission.deposit);
-
-        reservedETH = reservedETH.subCap(submission.deposit);
     }
 
     /// @dev Approves a transaction list or creates a dispute if more than one list was submitted.
@@ -299,7 +287,7 @@ contract KlerosGovernor is IArbitrableV2 {
             session.status = Status.Resolved;
             sessions.push();
 
-            reservedETH = reservedETH.subCap(sumDeposit);
+            reservedETH -= sumDeposit;
         } else {
             session.status = Status.DisputeCreated;
             uint256 arbitrationCost = arbitrator.arbitrationCost(arbitratorExtraData);
@@ -307,9 +295,9 @@ contract KlerosGovernor is IArbitrableV2 {
                 session.submittedLists.length,
                 arbitratorExtraData
             );
-            session.sumDeposit = session.sumDeposit.subCap(arbitrationCost);
-
-            reservedETH = reservedETH.subCap(arbitrationCost);
+            // Check in case arbitration cost increased after the submission. It's unlikely that its increase won't be covered by the base deposit, but technically possible.
+            session.sumDeposit = session.sumDeposit > arbitrationCost ? session.sumDeposit - arbitrationCost : 0;
+            reservedETH = reservedETH > arbitrationCost ? reservedETH - arbitrationCost : 0;
             emit DisputeRequest(arbitrator, session.disputeID, sessions.length - 1, templateId, "");
         }
     }
@@ -331,7 +319,7 @@ contract KlerosGovernor is IArbitrableV2 {
             submission.submitter.send(session.sumDeposit);
         }
         // If the ruling is "0" the reserved funds of this session become expendable.
-        reservedETH = reservedETH.subCap(session.sumDeposit);
+        reservedETH -= session.sumDeposit;
 
         session.sumDeposit = 0;
         lastApprovalTime = block.timestamp;
@@ -370,7 +358,7 @@ contract KlerosGovernor is IArbitrableV2 {
     /// @dev Gets the sum of contract funds that are used for the execution of transactions.
     /// @return Contract balance without reserved ETH.
     function getExpendableFunds() public view returns (uint256) {
-        return address(this).balance.subCap(reservedETH);
+        return address(this).balance - reservedETH;
     }
 
     /// @dev Gets the info of the specific transaction in the specific list.
