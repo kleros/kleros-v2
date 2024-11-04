@@ -133,7 +133,15 @@ const AtlasProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) =
     queryFn: async () => {
       try {
         if (!isVerified || isUndefined(address)) return undefined;
-        return await fetchUser(atlasGqlClient);
+        const user = await fetchUser(atlasGqlClient);
+
+        if (user?.email && window.Mava) {
+          window.Mava.initialize();
+          window.Mava.identify({ emailAddress: user.email });
+          window.Mava.identify({ customAttributes: [{ label: "Wallet Address", value: address }] });
+        }
+
+        return user;
       } catch {
         return undefined;
       }
