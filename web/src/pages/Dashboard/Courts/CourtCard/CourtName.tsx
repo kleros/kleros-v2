@@ -13,6 +13,7 @@ const Container = styled.div`
   flex-direction: row;
   gap: 16px;
   align-items: center;
+  justify-content: space-between;
 
   small {
     height: 100%;
@@ -36,6 +37,12 @@ const StyledButton = styled(LightButton)`
   > .button-text {
     color: ${({ theme }) => theme.primaryBlue};
     font-size: 14px;
+  }
+  > .button-svg {
+    margin-right: 0;
+    path {
+      fill: ${({ theme }) => theme.primaryBlue};
+    }
   }
 `;
 

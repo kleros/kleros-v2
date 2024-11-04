@@ -14,11 +14,11 @@ const Container = styled.div`
   flex-direction: row;
   gap: 16px;
   width: 100%;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  align-items: center;
 
   ${landscapeStyle(
     () => css`
-      align-items: center;
       width: auto;
     `
   )}
