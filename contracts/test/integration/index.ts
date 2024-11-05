@@ -1,7 +1,6 @@
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { deployments, ethers, getNamedAccounts, network } from "hardhat";
-import { toBigInt } from "ethers";
 import {
   PNK,
   KlerosCore,
@@ -19,10 +18,10 @@ import {
 /* eslint-disable no-unused-expressions */ // https://github.com/standard/standard/issues/690#issuecomment-278533482
 
 describe("Integration tests", async () => {
-  const ONE_TENTH_ETH = toBigInt(10) ** toBigInt(17);
-  const ONE_ETH = toBigInt(10) ** toBigInt(18);
-  const ONE_HUNDRED_PNK = toBigInt(10) ** toBigInt(20);
-  const ONE_THOUSAND_PNK = toBigInt(10) ** toBigInt(21);
+  const ONE_TENTH_ETH = 10n ** 17n;
+  const ONE_ETH = 10n ** 18n;
+  const ONE_HUNDRED_PNK = 10n ** 20n;
+  const ONE_THOUSAND_PNK = 10n ** 21n;
   const abiCoder = ethers.AbiCoder.defaultAbiCoder();
 
   const enum Period {
@@ -39,7 +38,7 @@ describe("Integration tests", async () => {
     drawing, // Jurors can be drawn.
   }
 
-  let deployer;
+  let deployer: string;
   let rng: RandomizerRNG;
   let randomizer: RandomizerMock;
   let disputeKit: DisputeKitClassic;
@@ -70,10 +69,10 @@ describe("Integration tests", async () => {
   });
 
   it("Resolves a dispute on the home chain with no appeal", async () => {
-    const arbitrationCost = ONE_TENTH_ETH * toBigInt(3);
+    const arbitrationCost = ONE_TENTH_ETH * 3n;
     const [, , relayer] = await ethers.getSigners();
 
-    await pnk.approve(core.target, ONE_THOUSAND_PNK * toBigInt(100));
+    await pnk.approve(core.target, ONE_THOUSAND_PNK * 100n);
 
     await core.setStake(1, ONE_THOUSAND_PNK);
     await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
@@ -82,9 +81,9 @@ describe("Integration tests", async () => {
       logJurorBalance(result);
     });
 
-    await core.setStake(1, ONE_HUNDRED_PNK * toBigInt(5));
+    await core.setStake(1, ONE_HUNDRED_PNK * 5n);
     await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStaked).to.equal(ONE_HUNDRED_PNK * toBigInt(5));
+      expect(result.totalStaked).to.equal(ONE_HUNDRED_PNK * 5n);
       expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
@@ -96,9 +95,9 @@ describe("Integration tests", async () => {
       logJurorBalance(result);
     });
 
-    await core.setStake(1, ONE_THOUSAND_PNK * toBigInt(4));
+    await core.setStake(1, ONE_THOUSAND_PNK * 4n);
     await sortitionModule.getJurorBalance(deployer, 1).then((result) => {
-      expect(result.totalStaked).to.equal(ONE_THOUSAND_PNK * toBigInt(4));
+      expect(result.totalStaked).to.equal(ONE_THOUSAND_PNK * 4n);
       expect(result.totalLocked).to.equal(0);
       logJurorBalance(result);
     });
@@ -117,7 +116,7 @@ describe("Integration tests", async () => {
       .withArgs(
         foreignGateway.target,
         1,
-        toBigInt("46619385602526556702049273755915206310773794210139929511467397410441395547901"),
+        46619385602526556702049273755915206310773794210139929511467397410441395547901n,
         0,
         ""
       );
@@ -174,7 +173,7 @@ describe("Integration tests", async () => {
 
     const roundInfo = await core.getRoundInfo(0, 0);
     expect(roundInfo.drawnJurors).deep.equal([deployer, deployer, deployer]);
-    expect(roundInfo.pnkAtStakePerJuror).to.equal(ONE_HUNDRED_PNK * toBigInt(2));
+    expect(roundInfo.pnkAtStakePerJuror).to.equal(ONE_HUNDRED_PNK * 2n);
     expect(roundInfo.totalFeesForJurors).to.equal(arbitrationCost);
     expect(roundInfo.feeToken).to.equal(ethers.ZeroAddress);
 

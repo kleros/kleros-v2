@@ -1,6 +1,5 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { toBigInt } from "ethers";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped } from "./utils";
 
@@ -16,9 +15,9 @@ const deployUpgradeKlerosCore: DeployFunction = async (hre: HardhatRuntimeEnviro
   try {
     const pnk = await deployments.get("PNK");
     const disputeKit = await deployments.get("DisputeKitClassic");
-    const minStake = toBigInt(10) ** toBigInt(20) * toBigInt(2);
+    const minStake = 2n * 10n ** 20n;
     const alpha = 10000;
-    const feeForJuror = toBigInt(10) * toBigInt(17);
+    const feeForJuror = 10n * 17n;
     const sortitionModule = await deployments.get("SortitionModule");
 
     console.log("upgrading the KlerosCore...");

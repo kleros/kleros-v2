@@ -1,16 +1,16 @@
 import { expect } from "chai";
 import { deployments, ethers } from "hardhat";
-import { toBigInt } from "ethers";
 import { KlerosCore, DisputeKitClassic } from "../../typechain-types";
+import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 describe("DisputeKitClassic", async () => {
   // eslint-disable-next-line no-unused-vars
-  let deployer;
+  let deployer: HardhatEthersSigner;
   let core: KlerosCore, disputeKit: DisputeKitClassic;
 
   before("Deploying", async () => {
     [deployer] = await ethers.getSigners();
-    [core, disputeKit] = await deployContracts(deployer);
+    [core, disputeKit] = await deployContracts();
   });
 
   it("Kleros Core initialization", async () => {
@@ -51,7 +51,7 @@ describe("DisputeKitClassic", async () => {
     expect(tx).to.emit(disputeKit, "DisputeCreation").withArgs(0, 2, "0x00");
 
     await disputeKit.disputes(0).then((disputes) => {
-      expect(toBigInt(disputes[0])).to.equal(2);
+      expect(disputes[0]).to.equal(2);
     });
 
     console.log(`choice 0: ${await disputeKit.getRoundInfo(0, 0, 0)}`);
@@ -60,7 +60,7 @@ describe("DisputeKitClassic", async () => {
   });
 });
 
-async function deployContracts(deployer): Promise<[KlerosCore, DisputeKitClassic]> {
+async function deployContracts(): Promise<[KlerosCore, DisputeKitClassic]> {
   await deployments.fixture(["Arbitration", "VeaMock"], {
     fallbackToGlobal: true,
     keepExistingDeployments: false,

@@ -151,7 +151,7 @@ export const waitForPeriod = async (disputeId: number, period: Period, hre) => {
   const { lastPeriodChange, courtID } = await core.disputes(disputeId);
   const periodDuration = (await core.getTimesPerPeriod(courtID))[period];
   const now = await latest(hre.network);
-  const remainingDuration = ethers.getNumber(lastPeriodChange + toBigInt(periodDuration) - toBigInt(now));
+  const remainingDuration = ethers.getNumber(lastPeriodChange + periodDuration - toBigInt(now));
   if (remainingDuration > 0) {
     await waitFor(remainingDuration, hre);
   }

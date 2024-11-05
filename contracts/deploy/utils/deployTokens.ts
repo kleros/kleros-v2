@@ -1,6 +1,5 @@
 import { Contract } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { toBigInt } from "ethers";
 import { getContractOrDeploy } from "./getContractOrDeploy";
 import { isMainnet } from ".";
 
@@ -46,7 +45,7 @@ export const deployFaucet = async (
 
   const faucetBalance = await erc20.balanceOf(faucet.target);
   const deployerBalance = await erc20.balanceOf(deployer);
-  if (deployerBalance >= faucetFundingAmount && faucetBalance < faucetFundingAmount / toBigInt(5)) {
+  if (deployerBalance >= faucetFundingAmount && faucetBalance < faucetFundingAmount / 5n) {
     // Fund the faucet if deployer has enough tokens and if the faucet has less than 20% of the faucetFundingAmount
     console.log(`funding ${ticker}Faucet with ${faucetFundingAmount}`);
     await erc20.transfer(faucet.target, faucetFundingAmount);

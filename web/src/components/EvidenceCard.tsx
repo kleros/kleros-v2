@@ -89,7 +89,7 @@ const DesktopText = styled.span`
   )}
 `;
 
-const Timestamp = styled.p`
+const Timestamp = styled.label`
   color: ${({ theme }) => theme.secondaryText};
 `;
 

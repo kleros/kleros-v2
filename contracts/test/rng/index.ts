@@ -1,6 +1,5 @@
 import { expect } from "chai";
 import { ethers, network } from "hardhat";
-import { toBigInt } from "ethers";
 import { IncrementalNG, BlockHashRNG } from "../../typechain-types";
 
 const initialNg = 424242;
@@ -20,7 +19,7 @@ describe("IncrementalNG", async () => {
     expect(await rng.receiveRandomness.staticCall(5894382)).to.equal(initialNg + 1);
     await rng.receiveRandomness(0);
     expect(await rng.receiveRandomness.staticCall(3465)).to.equal(initialNg + 2);
-    await rng.receiveRandomness(toBigInt(2) ** toBigInt(255));
+    await rng.receiveRandomness(2n ** 255n);
     expect(await rng.receiveRandomness.staticCall(0)).to.equal(initialNg + 3);
   });
 });

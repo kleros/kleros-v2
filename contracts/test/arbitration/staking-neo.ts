@@ -1,6 +1,4 @@
 import { ethers, getNamedAccounts, network, deployments } from "hardhat";
-const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
-import { toBigInt } from "ethers";
 import {
   PNK,
   RandomizerRNG,
@@ -11,6 +9,7 @@ import {
   DisputeResolver,
 } from "../../typechain-types";
 import { expect } from "chai";
+import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */
@@ -31,13 +30,14 @@ describe("Staking", async () => {
   const ETH = (amount: number) => ethers.parseUnits(amount.toString());
   const PNK = ETH;
 
-  // 2nd court, 3 jurors, 1 dispute kit
-  const extraData =
-    "0x000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000001";
+  const extraData = ethers.AbiCoder.defaultAbiCoder().encode(
+    ["uint256", "uint256", "uint256"],
+    [2, 3, 1] // courtId 2, minJurors 3, disputeKitId 1
+  );
 
-  let deployer;
-  let juror;
-  let guardian;
+  let deployer: string;
+  let juror: HardhatEthersSigner;
+  let guardian: HardhatEthersSigner;
   let pnk: PNK;
   let core: KlerosCoreNeo;
   let sortition: SortitionModuleNeo;
@@ -402,9 +402,9 @@ describe("Staking", async () => {
       await pnk.approve(core.target, PNK(4000));
       await core.setStake(1, PNK(2000));
       await core.setStake(2, PNK(2000));
-      expect(await sortition.getJurorCourtIDs(deployer)).to.be.deep.equal([toBigInt("1"), toBigInt("2")]);
+      expect(await sortition.getJurorCourtIDs(deployer)).to.be.deep.equal([1n, 2n]);
 
-      const arbitrationCost = ETH(0.1) * toBigInt(3);
+      const arbitrationCost = ETH(0.1) * 3n;
       await resolver.createDisputeForTemplate(extraData, "", "", 2, { value: arbitrationCost });
     };
 

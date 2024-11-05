@@ -1,5 +1,8 @@
 {
   "extends": "@kleros/kleros-v2-tsconfig/base18.json",
+  "compilerOptions": {
+    "resolveJsonModule": true
+  },
   "include": [
     "./src",
     "./scripts",

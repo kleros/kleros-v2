@@ -1,6 +1,4 @@
 import { ethers, getNamedAccounts, network, deployments } from "hardhat";
-const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
-import { toBigInt, BytesLike } from "ethers";
 import { PNK, KlerosCore, SortitionModule, RandomizerRNG, RandomizerMock } from "../../typechain-types";
 import { expect } from "chai";
 
@@ -11,11 +9,12 @@ describe("Staking", async () => {
   const ETH = (amount: number) => ethers.parseUnits(amount.toString());
   const PNK = ETH;
 
-  // 2nd court, 3 jurors, 1 dispute kit
-  const extraData =
-    "0x000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000001";
+  const extraData = ethers.AbiCoder.defaultAbiCoder().encode(
+    ["uint256", "uint256", "uint256"],
+    [2, 3, 1] // courtId 2, minJurors 3, disputeKitId 1
+  );
 
-  let deployer;
+  let deployer: string;
   let pnk: PNK;
   let core: KlerosCore;
   let sortition: SortitionModule;
@@ -36,18 +35,18 @@ describe("Staking", async () => {
   };
 
   describe("When outside the Staking phase", async () => {
-    let balanceBefore;
+    let balanceBefore: bigint;
 
     const reachDrawingPhase = async () => {
       expect(await sortition.phase()).to.be.equal(0); // Staking
-      const arbitrationCost = ETH(0.1) * toBigInt(3);
+      const arbitrationCost = ETH(0.1) * 3n;
       await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], ethers.toBeHex(3), [1]); // Parent - general court, Classic dispute kit
 
       await pnk.approve(core.target, PNK(4000));
       await core.setStake(1, PNK(2000));
       await core.setStake(2, PNK(2000));
 
-      expect(await sortition.getJurorCourtIDs(deployer)).to.be.deep.equal([toBigInt("1"), toBigInt("2")]);
+      expect(await sortition.getJurorCourtIDs(deployer)).to.be.deep.equal([1n, 2n]);
 
       await core["createDispute(uint256,bytes)"](2, extraData, { value: arbitrationCost });
 
@@ -94,7 +93,7 @@ describe("Staking", async () => {
         });
 
         it("Should transfer some PNK out of the juror's account", async () => {
-          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore - toBigInt(PNK(1000))); // PNK is transferred out of the juror's account
+          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore - PNK(1000)); // PNK is transferred out of the juror's account
         });
 
         it("Should store the delayed stake for later", async () => {
@@ -195,7 +194,7 @@ describe("Staking", async () => {
         });
 
         it("Should withdraw some PNK", async () => {
-          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore + toBigInt(PNK(1000))); // No PNK transfer yet
+          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore + PNK(1000)); // No PNK transfer yet
         });
       });
     });
@@ -311,7 +310,7 @@ describe("Staking", async () => {
         });
 
         it("Should transfer some PNK out of the juror's account", async () => {
-          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore - toBigInt(PNK(1000))); // PNK is transferred out of the juror's account
+          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore - PNK(1000)); // PNK is transferred out of the juror's account
         });
 
         it("Should store the delayed stake for later", async () => {
@@ -335,7 +334,7 @@ describe("Staking", async () => {
         });
 
         it("Should transfer back some PNK to the juror", async () => {
-          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore + toBigInt(PNK(1000))); // PNK is sent back to the juror
+          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore + PNK(1000)); // PNK is sent back to the juror
         });
 
         it("Should store the delayed stake for later", async () => {
@@ -386,7 +385,7 @@ describe("Staking", async () => {
     });
 
     it("Should unstake from all courts", async () => {
-      const arbitrationCost = ETH(0.1) * toBigInt(3);
+      const arbitrationCost = ETH(0.1) * 3n;
       await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], ethers.toBeHex(3), [1]); // Parent - general court, Classic dispute kit
 
       await pnk.approve(core.target, PNK(4000));

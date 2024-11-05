@@ -77,11 +77,11 @@ task("simulate:create-court", "callable by Governor only. Create a new Court")
 
     const { wallet } = await getWallet(hre, walletindex);
 
-    const parent = toBigInt(1);
-    const minStake = toBigInt(10) ** toBigInt(20) * toBigInt(2);
-    const alpha = toBigInt(10000);
-    const feeForJuror = toBigInt(10) ** toBigInt(17);
-    const jurorsForCourtJump = toBigInt(3);
+    const parent = 1n;
+    const minStake = 2n * 10n ** 20n;
+    const alpha = 10000n;
+    const feeForJuror = 10n * 17n;
+    const jurorsForCourtJump = 3n;
     const hiddenVotes = false as boolean;
     const timesPerPeriod = [300, 300, 300, 300] as [BigNumberish, BigNumberish, BigNumberish, BigNumberish];
     const sortitionSumTreeK = ethers.toBeHex(3);
@@ -338,7 +338,7 @@ task("simulate:execute-ruling", "Executes the ruling for a dispute on KlerosCore
       console.log("txID execute: %s", executeTx?.hash);
 
       executeRulingTx = await (await connectedKlerosCore.executeRuling(disputeid)).wait(); // rule
-      console.log("txID executeRuling: %s", executeRulingTx?.transactionHash);
+      console.log("txID executeRuling: %s", executeRulingTx?.hash);
     } catch (e) {
       handleError(e);
     } finally {

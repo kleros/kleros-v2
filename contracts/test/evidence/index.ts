@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { deployments, ethers } from "hardhat";
-import { toBigInt, ContractTransactionReceipt, EventLog } from "ethers";
+import { ContractTransactionReceipt, EventLog } from "ethers";
 import { DisputeTemplateRegistry, KlerosCore, ModeratedEvidenceModule } from "../../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
@@ -18,7 +18,7 @@ function getEmittedEvent(eventName: any, receipt: ContractTransactionReceipt): E
 }
 
 describe("Home Evidence contract", async () => {
-  const arbitrationFee = 1000;
+  const arbitrationFee = 1000n;
   const appealFee = arbitrationFee;
   const arbitratorExtraData = ethers.AbiCoder.defaultAbiCoder().encode(
     ["uint256", "uint256"],
@@ -26,13 +26,13 @@ describe("Home Evidence contract", async () => {
   );
   const appealTimeout = 100;
   const bondTimeout = 60 * 10;
-  const totalCostMultiplier = 15000;
-  const initialDepositMultiplier = 625;
+  const totalCostMultiplier = 15000n;
+  const initialDepositMultiplier = 625n;
   const disputeTemplate = '{ "disputeTemplate": "foo"}';
-  const MULTIPLIER_DIVISOR = toBigInt(10000);
-  const totalCost = (toBigInt(arbitrationFee) * toBigInt(toBigInt(totalCostMultiplier))) / toBigInt(MULTIPLIER_DIVISOR);
-  const minRequiredDeposit = (totalCost * toBigInt(toBigInt(initialDepositMultiplier))) / toBigInt(MULTIPLIER_DIVISOR);
-  const ZERO = toBigInt(0);
+  const MULTIPLIER_DIVISOR = 10000n;
+  const totalCost = (arbitrationFee * totalCostMultiplier) / MULTIPLIER_DIVISOR;
+  const minRequiredDeposit = (totalCost * initialDepositMultiplier) / MULTIPLIER_DIVISOR;
+  const ZERO = 0n;
 
   let deployer: HardhatEthersSigner;
   let user1: HardhatEthersSigner;
@@ -100,7 +100,7 @@ describe("Home Evidence contract", async () => {
       let receipt = await tx.wait();
       let lastArbitratorIndex = await evidenceModule.getCurrentArbitratorIndex();
       let newArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex);
-      let oldArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex - toBigInt(toBigInt(1)));
+      let oldArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex - 1n);
 
       expect(newArbitratorData.arbitratorExtraData).to.equal(oldArbitratorData.arbitratorExtraData);
       const disputeTemplateEvents = await disputeTemplateRegistry.queryFilter(
@@ -114,7 +114,7 @@ describe("Home Evidence contract", async () => {
 
       const newArbitratorExtraData = "0x86";
       await evidenceModule.changeArbitratorExtraData(newArbitratorExtraData);
-      newArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex + toBigInt(1));
+      newArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex + 1n);
       expect(newArbitratorData.arbitratorExtraData).to.equal(newArbitratorExtraData, "Wrong extraData");
     });
 
@@ -163,7 +163,7 @@ describe("Home Evidence contract", async () => {
 
       let contributions = await evidenceModule.getContributions(evidenceID, 0, user1.address);
       expect(contributions[0]).to.equal(ZERO); // it's 1am and to.deep.equal() won't work, can't be bothered
-      expect(contributions[1]).to.equal(toBigInt("93"));
+      expect(contributions[1]).to.equal(93n);
       expect(contributions[2]).to.equal(ZERO);
       expect(contributions.length).to.equal(3);
     });
@@ -184,7 +184,7 @@ describe("Home Evidence contract", async () => {
       const newEvidence = "Irrefutable evidence";
       await expect(
         evidenceModule.submitEvidence(1234, newEvidence, {
-          value: minRequiredDeposit - toBigInt(1),
+          value: minRequiredDeposit - 1n,
         })
       ).to.be.revertedWith("Insufficient funding.");
     });
@@ -223,40 +223,40 @@ describe("Home Evidence contract", async () => {
 
     it("Should create dispute after moderation escalation is complete.", async () => {
       await evidenceModule.connect(user2).moderate(evidenceID, Party.Moderator, {
-        value: minRequiredDeposit * toBigInt(2),
+        value: minRequiredDeposit * 2n,
       });
 
       let moderationInfo = await evidenceModule.getModerationInfo(evidenceID, 0);
       let paidFees = moderationInfo.paidFees;
-      let depositRequired = paidFees[Party.Moderator] * toBigInt(2) - toBigInt(paidFees[Party.Submitter]);
+      let depositRequired = paidFees[Party.Moderator] * 2n - paidFees[Party.Submitter];
       await evidenceModule.connect(user4).moderate(evidenceID, Party.Submitter, {
         value: depositRequired,
       });
 
       moderationInfo = await evidenceModule.getModerationInfo(evidenceID, 0);
       paidFees = moderationInfo.paidFees;
-      depositRequired = paidFees[Party.Submitter] * toBigInt(2) - toBigInt(paidFees[Party.Moderator]);
+      depositRequired = paidFees[Party.Submitter] * 2n - paidFees[Party.Moderator];
       await evidenceModule.connect(user2).moderate(evidenceID, Party.Moderator, {
         value: depositRequired,
       });
 
       moderationInfo = await evidenceModule.getModerationInfo(evidenceID, 0);
       paidFees = moderationInfo.paidFees;
-      depositRequired = paidFees[Party.Moderator] * toBigInt(2) - toBigInt(paidFees[Party.Submitter]);
+      depositRequired = paidFees[Party.Moderator] * 2n - paidFees[Party.Submitter];
       await evidenceModule.connect(user4).moderate(evidenceID, Party.Submitter, {
         value: depositRequired,
       });
 
       moderationInfo = await evidenceModule.getModerationInfo(evidenceID, 0);
       paidFees = moderationInfo.paidFees;
-      depositRequired = paidFees[Party.Submitter] * toBigInt(2) - toBigInt(paidFees[Party.Moderator]);
+      depositRequired = paidFees[Party.Submitter] * 2n - paidFees[Party.Moderator];
       await evidenceModule.connect(user2).moderate(evidenceID, Party.Moderator, {
         value: depositRequired,
       });
 
       moderationInfo = await evidenceModule.getModerationInfo(evidenceID, 0);
       paidFees = moderationInfo.paidFees;
-      depositRequired = paidFees[Party.Moderator] * toBigInt(2) - toBigInt(paidFees[Party.Submitter]);
+      depositRequired = paidFees[Party.Moderator] * 2n - paidFees[Party.Submitter];
       let tx = await evidenceModule.connect(user4).moderate(evidenceID, Party.Submitter, {
         value: depositRequired, // Less is actually needed. Overpaid fees are reimbursed
       });
