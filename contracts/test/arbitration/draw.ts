@@ -137,6 +137,7 @@ describe("Draw Benchmark", async () => {
     const tx = await arbitrable["createDispute(string)"]("future of france", {
       value: arbitrationCost,
     });
+    await tx.wait();
     if (tx.blockNumber === null) throw new Error("tx.blockNumber is null");
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
     const [disputeId] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
@@ -208,6 +209,7 @@ describe("Draw Benchmark", async () => {
       expect(await core.getRoundInfo(0, 0).then((round) => round.drawIterations)).to.equal(3);
 
       const tx = await (await drawTx).wait();
+      if (!tx) throw new Error("Failed to get transaction receipt");
       expect(tx)
         .to.emit(core, "Draw")
         .withArgs(anyValue, 0, 0, 0)
@@ -306,7 +308,7 @@ describe("Draw Benchmark", async () => {
       expect(await core.getRoundInfo(0, 0).then((round) => round.drawIterations)).to.equal(3);
 
       const tx = await (await drawTx).wait();
-      if (tx === null) throw new Error("tx is null");
+      if (!tx) throw new Error("Failed to get transaction receipt");
       expect(tx)
         .to.emit(core, "Draw")
         .withArgs(anyValue, 0, 0, 0)
@@ -368,7 +370,7 @@ describe("Draw Benchmark", async () => {
       expect(await core.getRoundInfo(0, 0).then((round) => round.drawIterations)).to.equal(3);
 
       const tx = await (await drawTx).wait();
-      if (tx === null) throw new Error("tx is null");
+      if (!tx) throw new Error("Failed to get transaction receipt");
       expect(tx)
         .to.emit(core, "Draw")
         .withArgs(anyValue, 0, 0, 0)

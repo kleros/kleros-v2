@@ -129,7 +129,7 @@ describe("Integration tests", async () => {
     );
     console.log("dispute hash: ", disputeHash);
     if (lastBlock.hash === null) {
-      process.exit();
+      throw new Error("Block hash is null - cannot calculate dispute hash");
     }
     // Relayer tx
     const tx2 = await homeGateway

@@ -33,16 +33,16 @@ describe("BlockHashRNG", async () => {
   });
 
   it("Should return a non-zero number for a block number in the past", async () => {
-    const tx = await rng.receiveRandomness(9876543210);
-    const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
-    const [rn] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
-    expect(rn).to.equal(0);
-  });
-
-  it("Should return zero for a block number in the future", async () => {
     const tx = await rng.receiveRandomness(5);
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
     const [rn] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
     expect(rn).to.not.equal(0);
+  });
+
+  it("Should return zero for a block number in the future", async () => {
+    const tx = await rng.receiveRandomness(9876543210);
+    const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
+    const [rn] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
+    expect(rn).to.equal(0);
   });
 });
