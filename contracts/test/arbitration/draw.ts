@@ -139,7 +139,7 @@ describe("Draw Benchmark", async () => {
     });
     if (tx.blockNumber === null) throw new Error("tx.blockNumber is null");
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
-    const [disputeId] = abiCoder.decode(["uint"], `0x${trace.returnValue}`);
+    const [disputeId] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
     const lastBlock = await ethers.provider.getBlock(tx.blockNumber - 1);
     if (lastBlock?.hash === null || lastBlock?.hash === undefined) throw new Error("lastBlock is null || undefined");
     // Relayer tx

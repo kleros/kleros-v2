@@ -192,7 +192,7 @@ const passPhase = async () => {
   }
   const before = getNumber(await sortition.phase());
   try {
-    const gas = ((await sortition.passPhase.estimateGas()) * toBigInt(150)) / toBigInt(100); // 50% extra gas
+    const gas = ((await sortition.passPhase.estimateGas()) * 150n) / 100n; // 50% extra gas
     const tx = await (await sortition.passPhase({ gasLimit: gas })).wait();
     logger.info(`passPhase txID: ${tx?.hash}`);
   } catch (e) {
@@ -221,7 +221,7 @@ const passPeriod = async (dispute: { id: string }) => {
   }
   const before = (await core.disputes(dispute.id)).period;
   try {
-    const gas = ((await core.passPeriod.estimateGas(dispute.id)) * toBigInt(150)) / toBigInt(100); // 50% extra gas
+    const gas = ((await core.passPeriod.estimateGas(dispute.id)) * 150n) / 100n; // 50% extra gas
     const tx = await (await core.passPeriod(dispute.id, { gasLimit: gas })).wait();
     logger.info(`passPeriod txID: ${tx?.hash}`);
   } catch (e) {
@@ -285,7 +285,7 @@ const executeRuling = async (dispute: { id: string }) => {
     return success;
   }
   try {
-    const gas = ((await core.executeRuling.estimateGas(dispute.id)) * toBigInt(150)) / toBigInt(100); // 50% extra gas
+    const gas = ((await core.executeRuling.estimateGas(dispute.id)) * 150n) / 100n; // 50% extra gas
     const tx = await (await core.executeRuling(dispute.id, { gasLimit: gas })).wait();
     logger.info(`ExecuteRuling txID: ${tx?.hash}`);
     success = true;
@@ -302,7 +302,7 @@ const withdrawAppealContribution = async (
 ): Promise<boolean> => {
   const { disputeKitClassic: kit } = await getContracts();
   let success = false;
-  let amountWithdrawn = toBigInt(0);
+  let amountWithdrawn = 0n;
   try {
     amountWithdrawn = await kit.withdrawFeesAndRewards.staticCall(
       disputeId,
@@ -316,7 +316,7 @@ const withdrawAppealContribution = async (
     );
     return success;
   }
-  if (amountWithdrawn === toBigInt(0)) {
+  if (amountWithdrawn === 0n) {
     logger.debug(
       `WithdrawFeesAndRewards: no fees or rewards to withdraw for dispute #${disputeId}, round #${roundId}, choice ${contribution.choice} and beneficiary ${contribution.contributor.id}, skipping`
     );
@@ -333,8 +333,8 @@ const withdrawAppealContribution = async (
         roundId,
         contribution.choice
       )) *
-        toBigInt(150)) /
-      toBigInt(100); // 50% extra gas
+        150n) /
+      100n; // 50% extra gas
     const tx = await (
       await kit.withdrawFeesAndRewards(disputeId, contribution.contributor.id, roundId, contribution.choice, {
         gasLimit: gas,
@@ -353,14 +353,14 @@ const executeDelayedStakes = async () => {
 
   // delayedStakes = 1 + delayedStakeWriteIndex - delayedStakeReadIndex
   const delayedStakesRemaining =
-    toBigInt(1) + (await sortition.delayedStakeWriteIndex()) - (await sortition.delayedStakeReadIndex());
+    1n + (await sortition.delayedStakeWriteIndex()) - (await sortition.delayedStakeReadIndex());
 
   const delayedStakes =
     delayedStakesRemaining < MAX_DELAYED_STAKES_ITERATIONS
       ? delayedStakesRemaining
       : toBigInt(MAX_DELAYED_STAKES_ITERATIONS);
 
-  if (delayedStakes === toBigInt(0)) {
+  if (delayedStakes === 0n) {
     logger.info("No delayed stakes to execute");
     return true;
   }
@@ -373,7 +373,7 @@ const executeDelayedStakes = async () => {
     return success;
   }
   try {
-    const gas = ((await sortition.executeDelayedStakes.estimateGas(delayedStakes)) * toBigInt(150)) / toBigInt(100); // 50% extra gas
+    const gas = ((await sortition.executeDelayedStakes.estimateGas(delayedStakes)) * 150n) / 100n; // 50% extra gas
     const tx = await (await sortition.executeDelayedStakes(delayedStakes, { gasLimit: gas })).wait();
     logger.info(`executeDelayedStakes txID: ${tx?.hash}`);
   } catch (e) {
@@ -389,7 +389,7 @@ const getMissingJurors = async (dispute: { id: string; currentRoundIndex: string
 };
 
 const isDisputeFullyDrawn = async (dispute: { id: string; currentRoundIndex: string }): Promise<boolean> => {
-  return (await getMissingJurors(dispute)) === toBigInt(0);
+  return (await getMissingJurors(dispute)) === 0n;
 };
 
 const getNumberOfMissingRepartitions = async (
@@ -398,7 +398,7 @@ const getNumberOfMissingRepartitions = async (
 ) => {
   const { core } = await getContracts();
   const { repartitions, drawnJurors } = await core.getRoundInfo(dispute.id, dispute.currentRoundIndex);
-  return coherentCount === toBigInt(0)
+  return coherentCount === 0n
     ? drawnJurors.length - getNumber(repartitions)
     : 2 * drawnJurors.length - getNumber(repartitions);
 };
@@ -545,7 +545,7 @@ async function main() {
           await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
           maxDrawingTimePassed = await hasMaxDrawingTimePassed();
           numberOfMissingJurors = await getMissingJurors(dispute);
-        } while (!(numberOfMissingJurors === toBigInt(0)) && !maxDrawingTimePassed);
+        } while (!(numberOfMissingJurors === 0n) && !maxDrawingTimePassed);
       }
       // At this point, either all disputes are fully drawn or max drawing time has passed
     }
@@ -589,7 +589,7 @@ async function main() {
 
   for (var dispute of unprocessedDisputesInExecution) {
     const { period } = await core.disputes(dispute.id);
-    if (period !== toBigInt(4)) {
+    if (period !== 4n) {
       logger.info(`Skipping dispute #${dispute.id} because it is not in the execution period`);
       continue;
     }
@@ -642,7 +642,7 @@ async function main() {
     contributions = [...new Set(contributions)];
     for (let contribution of contributions) {
       // Could be improved by pinpointing exactly which round requires a withdrawal, just try all of them for now.
-      for (let round = toBigInt(dispute.currentRoundIndex); round >= 0; round = round - toBigInt(1)) {
+      for (let round = toBigInt(dispute.currentRoundIndex); round >= 0; round = round - 1n) {
         await withdrawAppealContribution(dispute.id, round.toString(), contribution);
         await delay(ITERATIONS_COOLDOWN_PERIOD); // To avoid spiking the gas price
       }

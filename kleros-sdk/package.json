@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@kleros/kleros-v2-contracts": "workspace:^",
-    "@reality.eth/reality-eth-lib": "^3.2.30",
+    "@reality.eth/reality-eth-lib": "^3.2.44",
     "mustache": "^4.2.0",
     "zod": "^3.22.4"
   }
