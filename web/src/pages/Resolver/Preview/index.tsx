@@ -13,6 +13,7 @@ import { responsiveSize } from "styles/responsiveSize";
 import { DisputeContext } from "components/DisputePreview/DisputeContext";
 import { Policies } from "components/DisputePreview/Policies";
 import DisputeInfo from "components/DisputeView/DisputeInfo";
+import { Divider } from "components/Divider";
 
 import NavigationButtons from "../NavigationButtons";
 
@@ -37,15 +38,6 @@ const PreviewContainer = styled.div`
   flex-direction: column;
   gap: ${responsiveSize(16, 32)};
   padding: ${responsiveSize(16, 32)};
-`;
-
-const Divider = styled.hr`
-  width: 100%;
-  display: flex;
-  border: none;
-  height: 1px;
-  background-color: ${({ theme }) => theme.stroke};
-  margin: 0;
 `;
 
 const Header = styled.h2`

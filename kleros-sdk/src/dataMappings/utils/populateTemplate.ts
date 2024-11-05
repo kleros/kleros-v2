@@ -1,16 +1,18 @@
 import mustache from "mustache";
 import { DisputeDetails } from "./disputeDetailsTypes";
-import { validate } from "./DisputeDetailsValidator";
+import DisputeDetailsSchema from "./disputeDetailsSchema";
+import { InvalidFormatError } from "../../errors";
 
 export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDetails => {
   const render = mustache.render(mustacheTemplate, data);
-  console.log("MUSTACHE RENDER: ", render);
   const dispute = JSON.parse(render);
 
-  // TODO: the validation below is too strict, it should be fixed, disabled for now, FIXME
-  if (!validate(dispute)) {
-    //   throw new Error(`Invalid dispute details format: ${JSON.stringify(dispute)}`);
+  const validation = DisputeDetailsSchema.safeParse(dispute);
+  if (!validation.success) {
+    console.error("Validation errors:", validation.error.errors, "\n\nDispute details:", `${JSON.stringify(dispute)}`);
+    throw new InvalidFormatError("Invalid dispute details format");
   }
+  console.log(dispute);
 
   return dispute;
 };

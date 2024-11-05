@@ -3,13 +3,14 @@ import { ethers, network } from "hardhat";
 import { toBigInt } from "ethers";
 import { IncrementalNG, BlockHashRNG } from "../../typechain-types";
 
-let rng, rngFactory;
 const initialNg = 424242;
 const abiCoder = ethers.AbiCoder.defaultAbiCoder();
 
 describe("IncrementalNG", async () => {
+  let rng: IncrementalNG;
+
   beforeEach("Setup", async () => {
-    rngFactory = await ethers.getContractFactory("IncrementalNG");
+    const rngFactory = await ethers.getContractFactory("IncrementalNG");
     rng = (await rngFactory.deploy(initialNg)) as IncrementalNG;
   });
 
@@ -25,8 +26,10 @@ describe("IncrementalNG", async () => {
 });
 
 describe("BlockHashRNG", async () => {
+  let rng: BlockHashRNG;
+
   beforeEach("Setup", async () => {
-    rngFactory = await ethers.getContractFactory("BlockHashRNG");
+    const rngFactory = await ethers.getContractFactory("BlockHashRNG");
     rng = (await rngFactory.deploy()) as BlockHashRNG;
   });
 

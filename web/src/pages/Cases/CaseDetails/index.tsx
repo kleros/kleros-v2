@@ -14,6 +14,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import Appeal from "./Appeal";
 import Evidence from "./Evidence";
+import MaintenanceButtons from "./MaintenanceButtons";
 import Overview from "./Overview";
 import Tabs from "./Tabs";
 import Timeline from "./Timeline";
@@ -27,8 +28,16 @@ const StyledCard = styled(Card)`
   min-height: 100px;
 `;
 
+const HeaderContainer = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-bottom: ${responsiveSize(32, 54)};
+`;
+
 const Header = styled.h1`
-  margin-bottom: ${responsiveSize(16, 48)};
+  margin: 0;
+  flex: 1;
 `;
 
 const CaseDetails: React.FC = () => {
@@ -41,7 +50,10 @@ const CaseDetails: React.FC = () => {
   return (
     <VotingContextProvider>
       <Container>
-        <Header>Case #{id}</Header>
+        <HeaderContainer>
+          <Header>Case #{id}</Header>
+          <MaintenanceButtons />
+        </HeaderContainer>
         <Tabs />
         <Timeline {...{ currentPeriodIndex, dispute }} />
         <StyledCard>
@@ -52,7 +64,7 @@ const CaseDetails: React.FC = () => {
                 <Overview currentPeriodIndex={currentPeriodIndex} courtID={dispute?.court.id} {...{ arbitrable }} />
               }
             />
-            <Route path="evidence" element={<Evidence {...{ arbitrable }} />} />
+            <Route path="evidence" element={<Evidence />} />
             <Route path="voting" element={<Voting {...{ arbitrable, currentPeriodIndex }} />} />
             <Route path="appeal" element={<Appeal {...{ currentPeriodIndex }} />} />
             <Route path="*" element={<Navigate to="overview" replace />} />

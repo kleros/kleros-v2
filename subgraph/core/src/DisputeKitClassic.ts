@@ -107,7 +107,12 @@ export function handleChoiceFunded(event: ChoiceFunded): void {
   if (localRound.fundedChoices.length > 1) {
     const disputeKitClassic = DisputeKitClassic.bind(event.address);
     const klerosCore = KlerosCore.bind(disputeKitClassic.core());
-    const appealCost = klerosCore.appealCost(BigInt.fromString(coreDisputeID));
+
+    // cannot use core.appealCost as that will give the cost for the newly created round
+    const numberOfRounds = klerosCore.getNumberOfRounds(BigInt.fromString(coreDisputeID));
+    const roundInfo = klerosCore.getRoundInfo(BigInt.fromString(coreDisputeID), numberOfRounds.minus(ONE));
+    const appealCost = roundInfo.totalFeesForJurors;
+
     localRound.feeRewards = localRound.feeRewards.minus(appealCost);
 
     const localDispute = ClassicDispute.load(`${DISPUTEKIT_ID}-${coreDisputeID}`);
@@ -127,5 +132,21 @@ export function handleWithdrawal(event: Withdrawal): void {
   if (!contribution) return;
   contribution.rewardWithdrawn = true;
   contribution.rewardAmount = event.params._amount;
+
+  // check if all appeal fees have been withdrawn
+  const coreDisputeID = event.params._coreDisputeID.toString();
+  const coreRoundIndex = event.params._coreRoundID.toString();
+  const roundID = `${DISPUTEKIT_ID}-${coreDisputeID}-${coreRoundIndex}`;
+
+  const localRound = ClassicRound.load(roundID);
+  if (!localRound) return;
+
+  localRound.totalFeeDispersed = localRound.totalFeeDispersed.plus(event.params._amount);
+
+  if (localRound.totalFeeDispersed.equals(localRound.feeRewards)) {
+    localRound.appealFeesDispersed = true;
+  }
+
   contribution.save();
+  localRound.save();
 }

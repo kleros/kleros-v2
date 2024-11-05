@@ -15,6 +15,8 @@ import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { EnsureChain } from "components/EnsureChain";
+import { ErrorButtonMessage } from "components/ErrorButtonMessage";
+import ClosedCircleIcon from "components/StyledIcons/ClosedCircleIcon";
 
 const Container = styled.div`
   display: flex;
@@ -46,6 +48,7 @@ const StyledButton = styled(Button)`
 const StyledLabel = styled.label`
   align-self: flex-start;
 `;
+
 const useNeedFund = () => {
   const { loserSideCountdown } = useCountdownContext();
   const { fundedChoices, winningChoice } = useFundingContext();
@@ -59,20 +62,24 @@ const useNeedFund = () => {
   return needFund;
 };
 
-const useFundAppeal = (parsedAmount) => {
+const useFundAppeal = (parsedAmount, insufficientBalance) => {
   const { id } = useParams();
   const { selectedOption } = useSelectedOptionContext();
-  const { data: fundAppealConfig, isError } = useSimulateDisputeKitClassicFundAppeal({
+  const {
+    data: fundAppealConfig,
+    isLoading,
+    isError,
+  } = useSimulateDisputeKitClassicFundAppeal({
     query: {
-      enabled: !isUndefined(id) && !isUndefined(selectedOption),
+      enabled: !isUndefined(id) && !isUndefined(selectedOption) && !insufficientBalance,
     },
     args: [BigInt(id ?? 0), BigInt(selectedOption ?? 0)],
     value: parsedAmount,
   });
 
-  const { writeContractAsync } = useWriteDisputeKitClassicFundAppeal();
+  const { writeContractAsync: fundAppeal } = useWriteDisputeKitClassicFundAppeal();
 
-  return { fundAppeal: async () => await writeContractAsync(fundAppealConfig.request), isError };
+  return { fundAppeal, fundAppealConfig, isLoading, isError };
 };
 
 interface IFund {
@@ -98,12 +105,15 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
 
   const parsedAmount = useParsedAmount(debouncedAmount as `${number}`);
 
-  const { fundAppeal, isError } = useFundAppeal(parsedAmount);
+  const insufficientBalance = useMemo(() => {
+    return balance && balance.value < parsedAmount;
+  }, [balance, parsedAmount]);
+
+  const { fundAppealConfig, fundAppeal, isLoading, isError } = useFundAppeal(parsedAmount, insufficientBalance);
 
   const isFundDisabled = useMemo(
-    () =>
-      isDisconnected || isSending || !balance || parsedAmount > balance.value || Number(parsedAmount) <= 0 || isError,
-    [isDisconnected, isSending, balance, parsedAmount, isError]
+    () => isDisconnected || isSending || !balance || insufficientBalance || Number(parsedAmount) <= 0 || isError,
+    [isDisconnected, isSending, balance, insufficientBalance, parsedAmount, isError]
   );
 
   return needFund ? (
@@ -118,28 +128,33 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
         placeholder="Amount to fund"
       />
       <EnsureChain>
-        <StyledButton
-          disabled={isFundDisabled}
-          isLoading={isSending}
-          text={isDisconnected ? "Connect to Fund" : "Fund"}
-          onClick={() => {
-            if (fundAppeal) {
-              setIsSending(true);
-              wrapWithToast(async () => await fundAppeal().then((response) => response.hash), publicClient)
-                .then((res) => {
-                  res.status && setIsOpen(true);
-                })
-                .finally(() => {
-                  setIsSending(false);
-                });
-            }
-          }}
-        />
+        <div>
+          <StyledButton
+            disabled={isFundDisabled}
+            isLoading={(isSending || isLoading) && !insufficientBalance}
+            text={isDisconnected ? "Connect to Fund" : "Fund"}
+            onClick={() => {
+              if (fundAppeal && fundAppealConfig && publicClient) {
+                setIsSending(true);
+                wrapWithToast(async () => await fundAppeal(fundAppealConfig.request), publicClient)
+                  .then((res) => {
+                    res.status && setIsOpen(true);
+                  })
+                  .finally(() => {
+                    setIsSending(false);
+                  });
+              }
+            }}
+          />
+          {insufficientBalance && (
+            <ErrorButtonMessage>
+              <ClosedCircleIcon /> Insufficient balance
+            </ErrorButtonMessage>
+          )}
+        </div>
       </EnsureChain>
     </Container>
-  ) : (
-    <></>
-  );
+  ) : null;
 };
 
 export default Fund;

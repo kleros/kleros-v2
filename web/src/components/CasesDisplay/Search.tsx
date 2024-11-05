@@ -7,7 +7,7 @@ import { useDebounce } from "react-use";
 
 import { Searchbar, DropdownCascader } from "@kleros/ui-components-library";
 
-import { isUndefined } from "utils/index";
+import { isEmpty, isUndefined } from "utils/index";
 import { decodeURIFilter, encodeURIFilter, useRootPath } from "utils/uri";
 
 import { rootCourtToItems, useCourtTree } from "queries/useCourtTree";
@@ -58,7 +58,7 @@ const Search: React.FC = () => {
   const navigate = useNavigate();
   useDebounce(
     () => {
-      const newFilters = search === "" ? { ...filterObject } : { ...filterObject, id: search };
+      const newFilters = isEmpty(search) ? { ...filterObject } : { ...filterObject, id: search };
       const encodedFilter = encodeURIFilter(newFilters);
       navigate(`${location}/${page}/${order}/${encodedFilter}`);
     },

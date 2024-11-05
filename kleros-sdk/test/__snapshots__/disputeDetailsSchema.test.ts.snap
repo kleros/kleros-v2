@@ -1,0 +1,19 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Dispute Details Schema > snapshot 1`] = `
+{
+  "foo": "bar",
+}
+`;
+
+exports[`Kleros SDK schema > snapshot 1`] = `
+{
+  "foo": "bar",
+}
+`;
+
+exports[`Kleros SDK schemas > snapshot 1`] = `
+{
+  "foo": "bar",
+}
+`;

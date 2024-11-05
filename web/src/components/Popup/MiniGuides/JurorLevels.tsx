@@ -63,32 +63,32 @@ const userLevelData = [
   {
     level: 1,
     title: "Phytagoras",
-    totalCoherent: 6,
-    totalResolvedDisputes: 10,
+    totalCoherentVotes: 6,
+    totalResolvedVotes: 10,
   },
   {
     level: 2,
     title: "Socrates",
-    totalCoherent: 7,
-    totalResolvedDisputes: 10,
+    totalCoherentVotes: 7,
+    totalResolvedVotes: 10,
   },
   {
     level: 3,
     title: "Plato",
-    totalCoherent: 8,
-    totalResolvedDisputes: 10,
+    totalCoherentVotes: 8,
+    totalResolvedVotes: 10,
   },
   {
     level: 4,
     title: "Aristotle",
-    totalCoherent: 9,
-    totalResolvedDisputes: 10,
+    totalCoherentVotes: 9,
+    totalResolvedVotes: 10,
   },
   {
     level: 0,
     title: "Diogenes",
-    totalCoherent: 3,
-    totalResolvedDisputes: 10,
+    totalCoherentVotes: 3,
+    totalResolvedVotes: 10,
   },
 ];
 
@@ -100,7 +100,7 @@ const LeftContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
       <Title>{title}</Title>
       <ParagraphsContainer>
         {paragraphs.map((paragraph, index) => (
-          <label key={index}>{paragraph}</label>
+          <label key={paragraph}>{paragraph}</label>
         ))}
       </ParagraphsContainer>
     </LeftContentContainer>
@@ -114,8 +114,8 @@ const RightContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
       <PixelArt level={userData.level} width="189px" height="189px" />
       <Coherency
         userLevelData={userData}
-        totalCoherent={userData.totalCoherent}
-        totalResolvedDisputes={userData.totalResolvedDisputes}
+        totalCoherentVotes={userData.totalCoherentVotes}
+        totalResolvedVotes={userData.totalResolvedVotes}
         isMiniGuide={true}
       />
     </Card>

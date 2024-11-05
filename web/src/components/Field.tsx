@@ -21,14 +21,9 @@ const FieldContainer = styled.div<FieldContainerProps>`
     fill: ${({ theme }) => theme.secondaryPurple};
     margin-right: 8px;
     width: 14px;
+    flex-shrink: 0;
   }
 
-  .link {
-    color: ${({ theme }) => theme.primaryBlue};
-    :hover {
-      cursor: pointer;
-    }
-  }
   ${({ isList }) =>
     isList &&
     css`
@@ -60,6 +55,12 @@ const FieldContainer = styled.div<FieldContainerProps>`
         `
       )}
     `};
+`;
+
+const LinkContainer = styled.div``;
+
+const StyledLink = styled(Link)`
+  color: ${({ theme }) => theme.primaryBlue};
 `;
 
 type FieldContainerProps = {
@@ -97,15 +98,16 @@ const Field: React.FC<IField> = ({
       <Icon />
       {(!displayAsList || isOverview || isJurorBalance) && <label>{name}:</label>}
       {link ? (
-        <Link
-          className="link value"
-          to={link}
-          onClick={(event) => {
-            event.stopPropagation();
-          }}
-        >
-          {value}
-        </Link>
+        <LinkContainer className="value">
+          <StyledLink
+            to={link}
+            onClick={(event) => {
+              event.stopPropagation();
+            }}
+          >
+            {value}
+          </StyledLink>
+        </LinkContainer>
       ) : (
         <label className="value">{value}</label>
       )}

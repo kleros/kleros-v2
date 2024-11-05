@@ -33,7 +33,8 @@ const Container = styled.div`
 interface IDesktopCard {
   rank: number;
   address: string;
-  totalCoherent: number;
+  totalCoherentVotes: number;
+  totalResolvedVotes: number;
   totalResolvedDisputes: number;
   coherenceScore: number;
 }
@@ -41,7 +42,8 @@ interface IDesktopCard {
 const DesktopCard: React.FC<IDesktopCard> = ({
   rank,
   address,
-  totalCoherent,
+  totalCoherentVotes,
+  totalResolvedVotes,
   totalResolvedDisputes,
   coherenceScore,
 }) => {
@@ -50,8 +52,8 @@ const DesktopCard: React.FC<IDesktopCard> = ({
       <Rank rank={rank} />
       <JurorTitle address={address} />
       <Rewards address={address} />
-      <Coherency totalCoherent={totalCoherent} totalResolvedDisputes={totalResolvedDisputes} />
-      <JurorLevel coherenceScore={coherenceScore} />
+      <Coherency {...{ totalCoherentVotes, totalResolvedVotes }} />
+      <JurorLevel {...{ coherenceScore, totalResolvedDisputes }} />
     </Container>
   );
 };

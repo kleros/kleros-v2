@@ -22,6 +22,7 @@ import HowItWorks from "components/HowItWorks";
 import BinaryVoting from "components/Popup/MiniGuides/BinaryVoting";
 
 import PendingVotesBox from "./PendingVotesBox";
+import RulingAndRewardsIndicators from "./RulingAndRewardsIndicators";
 import VotesAccordion from "./VotesDetails";
 
 const Container = styled.div``;
@@ -29,6 +30,7 @@ const Container = styled.div``;
 const StyledTabs = styled(Tabs)`
   width: 100%;
   margin-bottom: 16px;
+  margin-top: 48px;
 `;
 
 const Header = styled.div`
@@ -43,6 +45,11 @@ const Header = styled.div`
 
 const StyledTitle = styled.h1`
   margin-bottom: 0;
+`;
+
+const StyledReactMarkDown = styled(ReactMarkdown)`
+  max-width: inherit;
+  word-wrap: break-word;
 `;
 
 const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean }> = ({ arbitrable, isQuestion }) => {
@@ -64,6 +71,8 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
     [votingHistory, currentTab]
   );
 
+  const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
+
   return (
     <Container>
       <Header>
@@ -79,12 +88,16 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
           {isQuestion && (
             <>
               {disputeDetails.question ? (
-                <ReactMarkdown>{disputeDetails.question}</ReactMarkdown>
+                <StyledReactMarkDown>{disputeDetails.question}</StyledReactMarkDown>
               ) : (
-                <ReactMarkdown>{isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR}</ReactMarkdown>
+                <StyledReactMarkDown>{isError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR}</StyledReactMarkDown>
               )}
             </>
           )}
+          <RulingAndRewardsIndicators
+            ruled={Boolean(disputeData?.dispute?.ruled)}
+            jurorRewardsDispersed={jurorRewardsDispersed}
+          />
           <StyledTabs
             currentValue={currentTab}
             items={rounds.map((_, i) => ({
@@ -103,6 +116,7 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
             period={disputeData?.dispute?.period}
             answers={answers}
             isActiveRound={localRounds?.length - 1 === currentTab}
+            hiddenVotes={Boolean(disputeData?.dispute?.court.hiddenVotes)}
           />
         </>
       ) : (

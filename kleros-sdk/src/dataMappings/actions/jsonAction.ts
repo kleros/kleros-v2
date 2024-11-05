@@ -1,7 +1,11 @@
 import { JsonMapping } from "../utils/actionTypes";
-import { createResultObject } from "src/dataMappings/utils/createResultObject";
+import { createResultObject } from "../utils/createResultObject";
 
 export const jsonAction = (mapping: JsonMapping) => {
-  const { value: source, seek, populate } = mapping;
-  return createResultObject(source, seek, populate);
+  const { value, seek, populate } = mapping;
+
+  // Parse the source if it's a JSON string
+  const parsedValue = typeof value === "string" ? JSON.parse(value) : value;
+
+  return createResultObject(parsedValue, seek, populate);
 };

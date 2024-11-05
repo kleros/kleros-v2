@@ -54,7 +54,7 @@ const Courts: React.FC = () => {
           {stakeData?.jurorTokensPerCourts
             ?.filter(({ staked }) => staked > 0)
             .map(({ court: { id, name }, staked }) => (
-              <CourtCard key={id} name={name ?? ""} stake={staked} />
+              <CourtCard key={id} name={name ?? ""} stake={staked} {...{ id }} />
             ))}
         </CourtCardsContainer>
       ) : null}

@@ -12,13 +12,13 @@ import "./IArbitratorV2.sol";
 interface IArbitrableV2 {
     /// @dev To be emitted when a dispute is created to link the correct meta-evidence to the disputeID.
     /// @param _arbitrator The arbitrator of the contract.
-    /// @param _arbitrableDisputeID The identifier of the dispute in the Arbitrable contract.
+    /// @param _arbitratorDisputeID The identifier of the dispute in the Arbitrator contract.
     /// @param _externalDisputeID An identifier created outside Kleros by the protocol requesting arbitration.
     /// @param _templateId The identifier of the dispute template. Should not be used with _templateUri.
     /// @param _templateUri The URI to the dispute template. For example on IPFS: starting with '/ipfs/'. Should not be used with _templateId.
     event DisputeRequest(
         IArbitratorV2 indexed _arbitrator,
-        uint256 indexed _arbitrableDisputeID,
+        uint256 indexed _arbitratorDisputeID,
         uint256 _externalDisputeID,
         uint256 _templateId,
         string _templateUri

@@ -11,7 +11,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 #### Arbitrum One
 
 - [DisputeKitClassicNeo: proxy](https://arbiscan.io/address/0xb7c292cD9Fd3d20De84a71AE1caF054eEB6374A9), [implementation](https://arbiscan.io/address/0x86Ac67e5550F837a650B4B0Cd4778D4293a2bDe3)
-- [DisputeResolverNeo](https://arbiscan.io/address/0x95eCE455bD817D6adB92F2383617d36eBE10D6EB)
+- [DisputeResolverNeo](https://arbiscan.io/address/0x3645F9e08D80E47c82aD9E33fCB4EA703822C831)
 - [DisputeTemplateRegistry: proxy](https://arbiscan.io/address/0x52c9f5634361eD3641016e5d9783310f9EFf9e25), [implementation](https://arbiscan.io/address/0x4Ce87329d40f15509D5F9bF4D9Ce1A081A80CeFb)
 - [EvidenceModule: proxy](https://arbiscan.io/address/0xe62B776498F48061ef9425fCEf30F3d1370DB005), [implementation](https://arbiscan.io/address/0x827411b3e98bAe8c441efBf26842A1670f8f378F)
 - [KlerosCoreNeo: proxy](https://arbiscan.io/address/0xCd415C03dfa85B02646C7e2977F22a480c4354F1), [implementation](https://arbiscan.io/address/0x4DD8B69958eF1D7d5dA9347E9d9F57ADFC3dc284)
@@ -20,6 +20,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [PolicyRegistry: proxy](https://arbiscan.io/address/0x26c1980120F1C82cF611D666CE81D2b54d018547), [implementation](https://arbiscan.io/address/0x2AC2EdFD336732bc6963f1AD03ED98B22dB949da)
 - [RandomizerRNG: proxy](https://arbiscan.io/address/0xC3dB344755b15c8Edfd834db79af4f8860029FB4), [implementation](https://arbiscan.io/address/0xA995C172d286f8F4eE137CC662e2844E59Cf4836)
 - [SortitionModuleNeo: proxy](https://arbiscan.io/address/0x614498118850184c62f82d08261109334bFB050f), [implementation](https://arbiscan.io/address/0xf327200420F21BAafce8F1C03B1EEdF926074B95)
+- [TransactionBatcher](https://arbiscan.io/address/0xBC5ef8d9ad307154447AE148c088f083d2dEa4eF)
 
 ### Official Testnet
 
@@ -65,20 +66,22 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 #### Arbitrum Sepolia
 
-- [ArbitrableExample](https://sepolia.arbiscan.io/address/0xe48488AE09022a4F32c528d7EbfF92870225AcBf)
+- [ArbitrableExample](https://sepolia.arbiscan.io/address/0x3Eae72F076c68F5c354C73abC33EAA291ef1b2Fa)
 - [BlockHashRNG](https://sepolia.arbiscan.io/address/0x56d6d65Fe202232714794B5D5e4ed9894466Ee01)
 - [DAI](https://sepolia.arbiscan.io/address/0x593e89704D285B0c3fbF157c7CF2537456CE64b5)
 - [DAIFaucet](https://sepolia.arbiscan.io/address/0xB5b39A1bcD2D7097A8824B3cC18Ebd2dFb0D9B5E)
 - [DisputeKitClassic: proxy](https://sepolia.arbiscan.io/address/0x9426F127116C3652A262AE1eA48391AC8F44D35b), [implementation](https://sepolia.arbiscan.io/address/0x692CC78F2570181FFB99297965FeAA8352ab12E8)
 - [DisputeKitClassicNeo: proxy](https://sepolia.arbiscan.io/address/0xd40aA608801a639E292e10C235B90488D04070b1), [implementation](https://sepolia.arbiscan.io/address/0xE636AB278fBfc8712E807c589A362dc2396d2d2F)
 - [DisputeKitClassicUniversity: proxy](https://sepolia.arbiscan.io/address/0xDaE66157D72Baa099cd63a833c353776206feea4), [implementation](https://sepolia.arbiscan.io/address/0xf36fa321Bb64b6E39f5DA3dbb053ccE63D077f8B)
-- [DisputeResolver](https://sepolia.arbiscan.io/address/0xB8B36CC43f852f9F0484f53Eb38CaBBA28a81bF6)
-- [DisputeResolverNeo](https://sepolia.arbiscan.io/address/0xaBC213522c01354DC0Db2B3E89bDe0FCF44Acac6)
-- [DisputeResolverUniversity](https://sepolia.arbiscan.io/address/0x102Ba9488Df13842612e777aB16144cCACD38194)
-- [DisputeTemplateRegistry: proxy](https://sepolia.arbiscan.io/address/0x596D3B09E684D62217682216e9b7a0De75933391), [implementation](https://sepolia.arbiscan.io/address/0xc53b813ed94AaEb6F5518D60bf6a8109954bE3f6)
+- [DisputeResolver](https://sepolia.arbiscan.io/address/0xCE3d5F83d9da70d60ab9cee8b644a18EF3671E61)
+- [DisputeResolverNeo](https://sepolia.arbiscan.io/address/0xB73B124f2939959676509c37Ab6a41C8Ab4aDA1C)
+- [DisputeResolverRuler](https://sepolia.arbiscan.io/address/0x199893232ECC74cC7898B24b5Ff58d613029f6B7)
+- [DisputeResolverUniversity](https://sepolia.arbiscan.io/address/0x88d793dA6e88Ebd58136A1e1483cc4cf0D915ca4)
+- [DisputeTemplateRegistry: proxy](https://sepolia.arbiscan.io/address/0x596D3B09E684D62217682216e9b7a0De75933391), [implementation](https://sepolia.arbiscan.io/address/0xE00A43d3c3321A0e210F2F8bE2F3F75eC8a4951E)
 - [EvidenceModule: proxy](https://sepolia.arbiscan.io/address/0x57fd453FB0d16f8ca174E7386102D7170E17Be09), [implementation](https://sepolia.arbiscan.io/address/0x05AD81f245209b7f91885fd96e57c9da90554824)
 - [KlerosCore: proxy](https://sepolia.arbiscan.io/address/0xA54e7A16d7460e38a8F324eF46782FB520d58CE8), [implementation](https://sepolia.arbiscan.io/address/0x91a373BBdE0532F86410682F362e2Cf685e95085)
 - [KlerosCoreNeo: proxy](https://sepolia.arbiscan.io/address/0x26bf077037550e437605F07e25EfcAd510715C3A), [implementation](https://sepolia.arbiscan.io/address/0x3bE96b7eAF6A3640DBa1f7CE58776D5b790B74CB)
+- [KlerosCoreRuler: proxy](https://sepolia.arbiscan.io/address/0x7ffcd32A0521645E6fCFd071A68F0e26957775a5), [implementation](https://sepolia.arbiscan.io/address/0x97e30A3A940856A3913437912C746f1aF6ccC76c)
 - [KlerosCoreUniversity: proxy](https://sepolia.arbiscan.io/address/0x10BaAFDe8B4d3164CA781571e2F1513317f57980), [implementation](https://sepolia.arbiscan.io/address/0x8466ab62E7c923e8F2E61d0358C495676D6F939b)
 - [KlerosV2NeoEarlyUser](https://sepolia.arbiscan.io/address/0x0d60Ff8bbCF49Bc5352328E7E28e141834d7750F)
 - [PNKFaucet](https://sepolia.arbiscan.io/address/0x7EFE468003Ad6A858b5350CDE0A67bBED58739dD)
@@ -88,6 +91,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 - [SortitionModule: proxy](https://sepolia.arbiscan.io/address/0x19cb28BAB40C3585955798f5EEabd71Eec14471C), [implementation](https://sepolia.arbiscan.io/address/0xBC82B29e5aE8a749D82b7919118Ab7C0D41fA3D3)
 - [SortitionModuleNeo: proxy](https://sepolia.arbiscan.io/address/0x809533c303c10915BB5c0585f2d8D738e2a4fB64), [implementation](https://sepolia.arbiscan.io/address/0xD9ddceb7C399518F23b69D155a67C6AFF13f9fF0)
 - [SortitionModuleUniversity: proxy](https://sepolia.arbiscan.io/address/0xBEEb15EF1DEf96c569c97A703E649B0251ceFB04), [implementation](https://sepolia.arbiscan.io/address/0xaA2833b174D4e29ae2aFc0b11dF9160EDB28BF9d)
+- [TransactionBatcher](https://sepolia.arbiscan.io/address/0x35f93986950804ac1F93519BF68C2a7Dd776db0E)
 - [WETH](https://sepolia.arbiscan.io/address/0x3829A2486d53ee984a0ca2D76552715726b77138)
 - [WETHFaucet](https://sepolia.arbiscan.io/address/0x6F8C10E0030aDf5B8030a5E282F026ADdB6525fd)
 

@@ -46,7 +46,6 @@
         "./src/assets/svgs*"
       ]
     },
-    "target": "es2020",
     "rootDir": "src",
     "outDir": "build/dist",
     "allowJs": true,
@@ -57,7 +56,22 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "removeComments": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "declaration": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": false,
+    "resolveJsonModule": true,
+    "lib": [
+      "ESNext.Array"
+    ],
+    "types": [
+      "vite/client",
+      "vite-plugin-svgr/client"
+    ]
   },
   "exclude": [
     "node_modules",

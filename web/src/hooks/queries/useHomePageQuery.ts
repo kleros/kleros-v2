@@ -19,6 +19,13 @@ const homePageQuery = graphql(`
       activeJurors
       cases
     }
+    courts(orderBy: id, orderDirection: asc) {
+      id
+      name
+      numberDisputes
+      feeForJuror
+      stake
+    }
   }
 `);
 

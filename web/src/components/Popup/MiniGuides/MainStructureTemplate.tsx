@@ -3,9 +3,10 @@ import styled, { css } from "styled-components";
 
 import { useLocation, useNavigate } from "react-router-dom";
 import { useClickAway } from "react-use";
-import BookOpenIcon from "svgs/icons/book-open.svg";
 
 import { CompactPagination } from "@kleros/ui-components-library";
+
+import BookOpenIcon from "svgs/icons/book-open.svg";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -96,30 +97,6 @@ const DesktopCompactPagination = styled(CompactPagination)`
   )}
 `;
 
-const Close = styled.label`
-  display: none;
-
-  ${landscapeStyle(
-    () => css`
-      display: flex;
-      position: absolute;
-      top: ${responsiveSize(24, 32)};
-      right: 17px;
-      display: flex;
-      align-items: flex-end;
-      justify-content: flex-end;
-      cursor: pointer;
-      z-index: 11;
-
-      &:hover {
-        text-decoration: underline;
-      }
-
-      color: ${({ theme }) => theme.primaryBlue};
-    `
-  )}
-`;
-
 const RightContainer = styled.div`
   width: 86vw;
   position: relative;
@@ -153,6 +130,17 @@ interface ITemplate {
   isVisible: boolean;
 }
 
+export const miniGuideHashes = [
+  "#jurorlevels-miniguide",
+  "#appeal-miniguide",
+  "#binaryvoting-miniguide",
+  "#disputeresolver-miniguide",
+  "#rankedvoting-miniguide",
+  "#staking-miniguide",
+  "#onboarding-miniguide",
+] as const;
+export type MiniguideHashesType = (typeof miniGuideHashes)[number];
+
 const Template: React.FC<ITemplate> = ({
   onClose,
   LeftContent,
@@ -167,31 +155,37 @@ const Template: React.FC<ITemplate> = ({
   const containerRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const removeOnboardingHashPath = useCallback(() => {
-    if (isOnboarding && location.hash.includes("#onboarding")) navigate("#", { replace: true });
-  }, [location.hash, navigate, isOnboarding]);
+  const removeMiniGuideHashPath = useCallback(() => {
+    if (miniGuideHashes.some((hash) => location.hash.includes(hash))) {
+      navigate("#", { replace: true });
+    }
+  }, [location.hash, navigate]);
+
+  const onCloseAndRemoveOnboardingHashPath = () => {
+    onClose();
+    removeMiniGuideHashPath();
+  };
 
   useClickAway(containerRef, () => {
     if (canClose) {
-      onClose();
-      removeOnboardingHashPath();
+      onCloseAndRemoveOnboardingHashPath();
     }
   });
 
   return (
-    <>
-      <Overlay />
+    <Overlay>
       <Container ref={containerRef} isVisible={isVisible}>
         <LeftContainer>
           <LeftContainerHeader>
             <HowItWorks>
               <BookOpenIcon />
-              <label> {isOnboarding ? "Onboarding" : "How it works"} </label>
+              <label>{isOnboarding ? "Onboarding" : "How it works"}</label>
             </HowItWorks>
             <MobileCompactPagination
               currentPage={currentPage}
               callback={setCurrentPage}
               numPages={numPages}
+              onCloseOnLastPage={onCloseAndRemoveOnboardingHashPath}
               label={`${currentPage}/${numPages}`}
             />
           </LeftContainerHeader>
@@ -200,22 +194,13 @@ const Template: React.FC<ITemplate> = ({
             currentPage={currentPage}
             callback={setCurrentPage}
             numPages={numPages}
+            onCloseOnLastPage={onCloseAndRemoveOnboardingHashPath}
             label={`${currentPage}/${numPages}`}
           />
         </LeftContainer>
-        <RightContainer>
-          <Close
-            onClick={() => {
-              onClose();
-              removeOnboardingHashPath();
-            }}
-          >
-            Close
-          </Close>
-          {RightContent}
-        </RightContainer>
+        <RightContainer>{RightContent}</RightContainer>
       </Container>
-    </>
+    </Overlay>
   );
 };
 

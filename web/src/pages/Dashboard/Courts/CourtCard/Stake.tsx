@@ -7,16 +7,18 @@ import { landscapeStyle } from "styles/landscapeStyle";
 
 import NumberDisplay from "components/NumberDisplay";
 
+import PnkIcon from "svgs/icons/pnk.svg";
+
 const Container = styled.div`
   display: flex;
   flex-direction: row;
   gap: 16px;
-  justify-content: space-between;
   width: 100%;
+  justify-content: flex-start;
+  align-items: center;
 
   ${landscapeStyle(
     () => css`
-      justify-content: flex-end;
       width: auto;
     `
   )}
@@ -31,6 +33,13 @@ const StyledLabel = styled.label`
   gap: 4px;
 `;
 
+const StyledPnkIcon = styled(PnkIcon)`
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  fill: ${({ theme }) => theme.secondaryPurple};
+`;
+
 interface IStake {
   stake: string;
 }
@@ -40,7 +49,7 @@ const Stake: React.FC<IStake> = ({ stake }) => {
 
   return (
     <Container>
-      <label>Stake</label>
+      <StyledPnkIcon />
       <StyledLabel>
         <NumberDisplay value={formattedStake} unit="PNK" />
       </StyledLabel>

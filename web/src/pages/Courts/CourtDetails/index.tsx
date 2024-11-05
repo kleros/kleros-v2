@@ -20,6 +20,7 @@ import HowItWorks from "components/HowItWorks";
 import LatestCases from "components/LatestCases";
 import Staking from "components/Popup/MiniGuides/Staking";
 import { StyledSkeleton } from "components/StyledSkeleton";
+import { Divider } from "components/Divider";
 
 import Description from "./Description";
 import StakePanel from "./StakePanel";
@@ -110,9 +111,8 @@ const CourtDetails: React.FC = () => {
             {!isProductionDeployment() && <ClaimPnkButton />}
           </ButtonContainer>
         </CourtHeader>
-        <hr />
         <Stats />
-        <hr />
+        <Divider />
         <StakePanel id={!isUndefined(id) ? id : ""} courtName={policy?.name} />
       </StyledCard>
       <StyledCard>

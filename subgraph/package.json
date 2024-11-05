@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-v2-subgraph",
-  "version": "0.5.1",
+  "version": "0.8.8",
   "license": "MIT",
   "scripts": {
     "update:core:arbitrum-sepolia-devnet": "./scripts/update.sh arbitrumSepoliaDevnet arbitrum-sepolia core/subgraph.yaml",
@@ -10,7 +10,7 @@
     "codegen:core": "graph codegen --output-dir core/generated/ core/subgraph.yaml",
     "build:core": "graph build --output-dir core/build/ core/subgraph.yaml",
     "test:core": "cd core && graph test",
-    "clean:core": "graph clean --codegen-dir core/generated/ --build-dir core/build/ && rm core/subgraph.yaml.bak.*",
+    "clean:core": "graph clean --codegen-dir core/generated/ --build-dir core/build/ ; rm core/subgraph.yaml.bak.*",
     "deploy:core:arbitrum-sepolia-devnet": "graph deploy --product subgraph-studio kleros-v2-core-devnet -l v$npm_package_version core/subgraph.yaml",
     "deploy:core:arbitrum-sepolia": "graph deploy --product subgraph-studio kleros-v2-core-testnet -l v$npm_package_version core/subgraph.yaml",
     "deploy:core:arbitrum": "graph deploy --product subgraph-studio kleros-v2-core-mainnet -l v$npm_package_version core/subgraph.yaml",
@@ -23,7 +23,7 @@
     "codegen:core-neo": "yarn codegen:core && graph codegen --output-dir core-neo/generated/ core-neo/subgraph.yaml",
     "build:core-neo": "graph build --output-dir core-neo/build/ core-neo/subgraph.yaml",
     "test:core-neo": "cd core-neo && graph test",
-    "clean:core-neo": "graph clean --codegen-dir core-neo/generated/ --build-dir core-neo/build/ && rm core-neo/subgraph.yaml.bak.*",
+    "clean:core-neo": "graph clean --codegen-dir core-neo/generated/ --build-dir core-neo/build/ ; rm core-neo/subgraph.yaml.bak.*",
     "deploy:core-neo:arbitrum-sepolia-devnet": "graph deploy --product subgraph-studio kleros-v2-coreneo-devnet -l v$npm_package_version core-neo/subgraph.yaml",
     "deploy:core-neo:arbitrum": "graph deploy --product subgraph-studio kleros-v2-coreneo -l v$npm_package_version core-neo/subgraph.yaml",
     "deploy:core-neo:local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 kleros/kleros-v2-coreneo-local --version-label v$(date +%s) core-neo/subgraph.yaml",
@@ -34,7 +34,7 @@
     "codegen:core-university": "yarn codegen:core && graph codegen --output-dir core-university/generated/ core-university/subgraph.yaml",
     "build:core-university": "graph build --output-dir core-university/build/ core-university/subgraph.yaml",
     "test:core-university": "cd core-university && graph test",
-    "clean:core-university": "graph clean --codegen-dir core-university/generated/ --build-dir core-university/build/ && rm core-university/subgraph.yaml.bak.*",
+    "clean:core-university": "graph clean --codegen-dir core-university/generated/ --build-dir core-university/build/ ; rm core-university/subgraph.yaml.bak.*",
     "deploy:core-university:arbitrum-sepolia-devnet": "graph deploy --product subgraph-studio kleros-v2-coreuni-devnet -l v$npm_package_version core-university/subgraph.yaml",
     "deploy:core-university:local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 kleros/kleros-v2-coreuni-local --version-label v$(date +%s) core-university/subgraph.yaml",
     "rebuild-deploy:core-university:local": "yarn update:core-university:local && yarn codegen:core-university && yarn build:core-university && yarn create:local kleros/kleros-v2-coreuni-local && yarn deploy:core-university:local",
@@ -46,7 +46,7 @@
     "codegen:drt": "graph codegen --output-dir dispute-template-registry/generated/ dispute-template-registry/subgraph.yaml",
     "build:drt": "graph build --output-dir dispute-template-registry/generated/ dispute-template-registry/subgraph.yaml",
     "test:drt": "cd dispute-template-registry && graph test ",
-    "clean:drt": "graph clean --codegen-dir dispute-template-registry/generated/ --build-dir dispute-template-registry/build/ && rm dispute-template-registry/subgraph.yaml.bak.*",
+    "clean:drt": "graph clean --codegen-dir dispute-template-registry/generated/ --build-dir dispute-template-registry/build/ ; rm dispute-template-registry/subgraph.yaml.bak.*",
     "deploy:drt:arbitrum-sepolia-devnet": "graph deploy --product subgraph-studio kleros-v2-drt-arbisep-devnet -l v$npm_package_version dispute-template-registry/subgraph.yaml",
     "deploy:drt:arbitrum-sepolia": "graph deploy --product subgraph-studio kleros-v2-drt-arbisep-testnet -l v$npm_package_version dispute-template-registry/subgraph.yaml",
     "deploy:drt:arbitrum": "graph deploy --product subgraph-studio kleros-v2-drt -l v$npm_package_version dispute-template-registry/subgraph.yaml",
@@ -78,7 +78,7 @@
     "@graphprotocol/graph-cli": "0.64.1",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
-    "gluegun": "^5.1.6",
+    "gluegun": "^5.2.0",
     "matchstick-as": "0.6.0"
   },
   "dependenciesComments": {

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { REFETCH_INTERVAL } from "consts/index";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 
 import { graphql } from "src/graphql";
@@ -11,8 +12,10 @@ const votingHistoryQuery = graphql(`
     dispute(id: $disputeID) {
       id
       createdAt
+      ruled
       rounds {
         nbVotes
+        jurorRewardsDispersed
         court {
           id
           name
@@ -24,6 +27,7 @@ const votingHistoryQuery = graphql(`
           }
           vote {
             ... on ClassicVote {
+              commited
               justification {
                 choice
                 reference
@@ -49,8 +53,9 @@ export const useVotingHistory = (disputeID?: string) => {
   const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<VotingHistoryQuery>({
-    queryKey: ["refetchOnBlock", `VotingHistory${disputeID}`],
+    queryKey: [`VotingHistory${disputeID}`],
     enabled: isEnabled,
+    refetchInterval: REFETCH_INTERVAL,
     queryFn: async () =>
       await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: votingHistoryQuery, variables: { disputeID } }),
   });

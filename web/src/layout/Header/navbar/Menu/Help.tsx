@@ -6,9 +6,12 @@ import { useClickAway, useToggle } from "react-use";
 import Book from "svgs/icons/book-open.svg";
 import Guide from "svgs/icons/book.svg";
 import Bug from "svgs/icons/bug.svg";
+import Code from "svgs/icons/code.svg";
 import ETH from "svgs/icons/eth.svg";
 import Faq from "svgs/menu-icons/help.svg";
 import Telegram from "svgs/socialmedia/telegram.svg";
+
+import { getDevToolsUrl } from "consts/index";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
@@ -101,6 +104,11 @@ const ITEMS = [
     text: "FAQ",
     Icon: Faq,
     url: "https://docs.kleros.io/kleros-faq",
+  },
+  {
+    text: "Developer Tools",
+    Icon: Code,
+    url: getDevToolsUrl(),
   },
 ];
 

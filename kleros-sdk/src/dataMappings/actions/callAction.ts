@@ -1,18 +1,23 @@
 import { parseAbiItem } from "viem";
-import { AbiCallMapping } from "src/dataMappings/utils/actionTypes";
-import { createResultObject } from "src/dataMappings/utils/createResultObject";
-import { configureSDK, getPublicClient } from "src/sdk";
+import { AbiCallMapping } from "../utils/actionTypes";
+import { createResultObject } from "../utils/createResultObject";
+import { getPublicClient } from "../../sdk";
+import { SdkNotConfiguredError } from "../../errors";
 
 export const callAction = async (mapping: AbiCallMapping) => {
-  configureSDK({ apiKey: process.env.ALCHEMY_API_KEY });
   const publicClient = getPublicClient();
 
-  const { abi: source, address, args, seek, populate } = mapping;
+  if (!publicClient) {
+    throw new SdkNotConfiguredError();
+  }
+
+  const { abi: source, address, functionName, args, seek, populate } = mapping;
   const parsedAbi = typeof source === "string" ? parseAbiItem(source) : source;
 
   const data = await publicClient.readContract({
     address,
     abi: [parsedAbi],
+    functionName,
     args,
   });
 

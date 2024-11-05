@@ -1,15 +1,17 @@
 {
   "name": "@kleros/kleros-sdk",
-  "version": "0.1.0",
+  "version": "2.1.8",
   "description": "SDK for Kleros version 2",
-  "main": "index.ts",
   "repository": "git@github.com:kleros/kleros-v2.git",
   "author": "Kleros",
   "license": "MIT",
-  "alias": {
-    "src": "./src",
-    "dataMappings": "./src/dataMappings"
-  },
+  "main": "./lib/src/index.js",
+  "types": "./lib/src/index.d.ts",
+  "module": "./lib/src/index.js",
+  "files": [
+    "lib/**/*",
+    "!lib/**/test/*"
+  ],
   "packageManager": "yarn@4.0.2+sha256.825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186",
   "engines": {
     "node": ">=16.0.0"
@@ -18,25 +20,34 @@
   "volta": {
     "node": "20.11.0"
   },
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
   "scripts": {
-    "build": "your-build-script",
+    "clean": "rimraf lib",
+    "build": "yarn clean && tsc",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "release:patch": "scripts/publish.sh patch",
+    "release:minor": "scripts/publish.sh minor",
+    "release:major": "scripts/publish.sh major"
   },
   "devDependencies": {
     "@types/mustache": "^4.2.5",
     "@vitest/ui": "^1.1.3",
-    "dotenv": "^16.3.1",
     "mocha": "^10.2.0",
+    "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
     "vitest": "^1.1.3"
   },
   "dependencies": {
-    "@kleros/kleros-v2-contracts": "workspace:^",
     "@reality.eth/reality-eth-lib": "^3.2.44",
+    "@urql/core": "^5.0.8",
     "mustache": "^4.2.0",
+    "viem": "^2.21.35",
     "zod": "^3.22.4"
   }
 }

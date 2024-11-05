@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { Log, decodeEventLog, parseAbi } from "viem";
-import { usePublicClient } from "wagmi";
+import { useAccount, useBalance, usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -20,6 +20,9 @@ import { wrapWithToast } from "utils/wrapWithToast";
 import { EnsureChain } from "components/EnsureChain";
 import Popup, { PopupType } from "components/Popup";
 
+import { ErrorButtonMessage } from "components/ErrorButtonMessage";
+import ClosedCircleIcon from "components/StyledIcons/ClosedCircleIcon";
+
 const StyledButton = styled(Button)``;
 
 const SubmitDisputeButton: React.FC = () => {
@@ -31,10 +34,18 @@ const SubmitDisputeButton: React.FC = () => {
   const { disputeTemplate, disputeData, resetDisputeData, isSubmittingCase, setIsSubmittingCase } =
     useNewDisputeContext();
 
+  const { address } = useAccount();
+  const { data: userBalance, isLoading: isBalanceLoading } = useBalance({ address });
+
+  const insufficientBalance = useMemo(() => {
+    const arbitrationCost = disputeData.arbitrationCost ? BigInt(disputeData.arbitrationCost) : BigInt(0);
+    return userBalance && userBalance.value < arbitrationCost;
+  }, [userBalance, disputeData]);
+
   // TODO: decide which dispute kit to use
   const { data: submitCaseConfig } = useSimulateDisputeResolverCreateDisputeForTemplate({
     query: {
-      enabled: isTemplateValid(disputeTemplate),
+      enabled: !insufficientBalance && isTemplateValid(disputeTemplate),
     },
     args: [
       prepareArbitratorExtradata(disputeData.courtId ?? "1", disputeData.numberOfJurors ?? "", 1),
@@ -48,37 +59,44 @@ const SubmitDisputeButton: React.FC = () => {
   const { writeContractAsync: submitCase } = useWriteDisputeResolverCreateDisputeForTemplate();
 
   const isButtonDisabled = useMemo(
-    () => isSubmittingCase || !isTemplateValid(disputeTemplate),
-    [isSubmittingCase, disputeTemplate]
+    () => isSubmittingCase || !isTemplateValid(disputeTemplate) || isBalanceLoading || insufficientBalance,
+    [isSubmittingCase, insufficientBalance, isBalanceLoading, disputeTemplate]
   );
 
   return (
     <>
       {" "}
       <EnsureChain>
-        <StyledButton
-          text="Submit the case"
-          disabled={isButtonDisabled}
-          isLoading={isSubmittingCase}
-          onClick={() => {
-            if (submitCaseConfig) {
-              setIsSubmittingCase(true);
-              wrapWithToast(async () => await submitCase(submitCaseConfig.request), publicClient)
-                .then((res) => {
-                  if (res.status && !isUndefined(res.result)) {
-                    const id = retrieveDisputeId(res.result.logs[1]);
-                    setDisputeId(Number(id));
-                    setCourtId(disputeData.courtId ?? "1");
-                    setIsPopupOpen(true);
-                    resetDisputeData();
-                  }
-                })
-                .finally(() => {
-                  setIsSubmittingCase(false);
-                });
-            }
-          }}
-        />
+        <div>
+          <StyledButton
+            text="Submit the case"
+            disabled={isButtonDisabled}
+            isLoading={(isSubmittingCase || isBalanceLoading) && !insufficientBalance}
+            onClick={() => {
+              if (submitCaseConfig) {
+                setIsSubmittingCase(true);
+                wrapWithToast(async () => await submitCase(submitCaseConfig.request), publicClient)
+                  .then((res) => {
+                    if (res.status && !isUndefined(res.result)) {
+                      const id = retrieveDisputeId(res.result.logs[1]);
+                      setDisputeId(Number(id));
+                      setCourtId(disputeData.courtId ?? "1");
+                      setIsPopupOpen(true);
+                      resetDisputeData();
+                    }
+                  })
+                  .finally(() => {
+                    setIsSubmittingCase(false);
+                  });
+              }
+            }}
+          />
+          {insufficientBalance && (
+            <ErrorButtonMessage>
+              <ClosedCircleIcon /> Insufficient balance
+            </ErrorButtonMessage>
+          )}
+        </div>
       </EnsureChain>
       {isPopupOpen && disputeId && (
         <Popup
@@ -96,7 +114,8 @@ const SubmitDisputeButton: React.FC = () => {
 
 const isTemplateValid = (disputeTemplate: IDisputeTemplate) => {
   const areVotingOptionsFilled =
-    disputeTemplate.question !== "" && disputeTemplate.answers.every((answer) => answer.title !== "");
+    disputeTemplate.question !== "" &&
+    disputeTemplate.answers.every((answer) => answer.title !== "" && answer.description !== "");
 
   return (disputeTemplate.title &&
     disputeTemplate.description &&
