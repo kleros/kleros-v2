@@ -1,6 +1,5 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { BigNumber, BigNumberish } from "ethers";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
@@ -12,7 +11,7 @@ import { getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
   const { deploy } = deployments;
-  const { AddressZero } = hre.ethers.constants;
+  const { ZeroAddress } = hre.ethers;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -26,7 +25,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassicUniversity", {
     from: deployer,
     contract: "DisputeKitClassic",
-    args: [deployer, AddressZero],
+    args: [deployer, ZeroAddress],
     log: true,
   });
 
@@ -51,8 +50,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     args: [
       deployer, // governor
       deployer, // instructor
-      pnk.address,
-      AddressZero,
+      pnk.target,
+      ZeroAddress,
       disputeKit.address,
       false,
       [minStake, alpha, feeForJuror, jurorsForCourtJump],
@@ -72,11 +71,11 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const core = (await hre.ethers.getContract("KlerosCoreUniversity")) as KlerosCoreUniversity;
   try {
-    await changeCurrencyRate(core, pnk.address, true, 12225583, 12);
-    await changeCurrencyRate(core, dai.address, true, 60327783, 11);
-    await changeCurrencyRate(core, weth.address, true, 1, 1);
+    await changeCurrencyRate(core, await pnk.getAddress(), true, 12225583, 12);
+    await changeCurrencyRate(core, await dai.getAddress(), true, 60327783, 11);
+    await changeCurrencyRate(core, await weth.getAddress(), true, 1, 1);
   } catch (e) {
-    console.error("failed to change currency rates:", e);
+    console.error("Failed to change currency rates for token, with error:", e);
   }
 
   const disputeTemplateRegistry = await getContractOrDeployUpgradable(hre, "DisputeTemplateRegistry", {
@@ -88,7 +87,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   await deploy("DisputeResolverUniversity", {
     from: deployer,
     contract: "DisputeResolver",
-    args: [core.address, disputeTemplateRegistry.address],
+    args: [core.target, disputeTemplateRegistry.target],
     log: true,
   });
 };

@@ -7,7 +7,7 @@ import { HomeChains, isSkipped } from "./utils";
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
   const { deploy, execute } = deployments;
-  const { AddressZero } = ethers.constants;
+  const { ZeroAddress } = ethers;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await ethers.getSigners())[0].address;
@@ -16,27 +16,28 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const klerosCore = (await ethers.getContract("KlerosCore")) as KlerosCore;
   const oldDisputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
+  const oldDisputeKitAddress = await oldDisputeKit.getAddress();
 
   await deploy("DisputeKitClassic", {
     from: deployer,
-    args: [deployer, AddressZero],
+    args: [deployer, ZeroAddress],
     log: true,
   });
 
   const newDisputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
-
-  await execute("DisputeKitClassic", { from: deployer, log: true }, "changeCore", klerosCore.address);
-  await execute("KlerosCore", { from: deployer, log: true }, "addNewDisputeKit", newDisputeKit.address, 0);
+  const newDisputeKitAddress = await newDisputeKit.getAddress();
+  await execute("DisputeKitClassic", { from: deployer, log: true }, "changeCore", await klerosCore.getAddress());
+  await execute("KlerosCore", { from: deployer, log: true }, "addNewDisputeKit", await newDisputeKit.getAddress(), 0);
 
   const oldDisputeKitId = 1;
   const newDisputeKitId = 2;
 
   assert(
-    await klerosCore.disputeKits(oldDisputeKitId).then((dk) => dk === oldDisputeKit.address),
+    await klerosCore.disputeKits(oldDisputeKitId).then((dk) => dk === oldDisputeKitAddress),
     `wrong dispute kit id ${oldDisputeKitId}`
   );
   assert(
-    await klerosCore.disputeKits(newDisputeKitId).then((dk) => dk === newDisputeKit.address),
+    await klerosCore.disputeKits(newDisputeKitId).then((dk) => dk === newDisputeKitAddress),
     `wrong dispute kit id ${newDisputeKitId}`
   );
 

@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { KlerosCore, KlerosCoreNeo, KlerosCoreUniversity } from "../typechain-types";
-import { BigNumber, BigNumberish } from "ethers";
+import { BigNumberish, toBigInt, toNumber } from "ethers";
 import courtsV1Mainnet from "../config/courts.v1.mainnet.json";
 import courtsV1GnosisChain from "../config/courts.v1.gnosischain.json";
 import courtsV2ArbitrumTestnet from "../config/courts.v2.testnet.json";
@@ -38,9 +38,9 @@ type Court = {
   supportedDisputeKits?: BigNumberish[];
 };
 
-const ETH_USD = BigNumber.from(4000);
-const DISPUTE_KIT_CLASSIC = BigNumber.from(1);
-const TEN_THOUSAND_GWEI = BigNumber.from(10).pow(13);
+const ETH_USD = 4000n;
+const DISPUTE_KIT_CLASSIC = 1n;
+const TEN_THOUSAND_GWEI = 10n ** 13n;
 
 task("populate:courts", "Populates the courts and their parameters")
   .addOptionalParam(
@@ -94,18 +94,18 @@ task("populate:courts", "Populates the courts and their parameters")
     }
     console.log("Using core type %s", Cores[coreType]);
 
-    const truncateWei = (x: BigNumber) => x.div(TEN_THOUSAND_GWEI).mul(TEN_THOUSAND_GWEI);
+    const truncateWei = (x: bigint) => (x / TEN_THOUSAND_GWEI) * TEN_THOUSAND_GWEI;
 
     const parametersUsdToEth = (court: Court): Court => ({
       ...court,
-      minStake: truncateWei(BigNumber.from(court.minStake).div(ETH_USD)),
-      feeForJuror: truncateWei(BigNumber.from(court.feeForJuror).div(ETH_USD)),
+      minStake: truncateWei(toBigInt(court.minStake) / ETH_USD),
+      feeForJuror: truncateWei(toBigInt(court.feeForJuror) / ETH_USD),
     });
 
     const parametersProductionToDev = (court: Court): Court => ({
       ...court,
-      minStake: truncateWei(BigNumber.from(court.minStake).div(10000)),
-      feeForJuror: truncateWei(ethers.utils.parseEther("0.00001")),
+      minStake: truncateWei(toBigInt(court.minStake) / 10000n),
+      feeForJuror: truncateWei(ethers.parseEther("0.00001")),
       timesPerPeriod: [120, 120, 120, 240],
     });
 
@@ -183,17 +183,17 @@ task("populate:courts", "Populates the courts and their parameters")
           );
         }
 
-        if (!courtPresent.minStake.eq(court.minStake)) {
+        if (courtPresent.minStake !== court.minStake) {
           change = true;
           console.log("Court %d: changing minStake from %d to %d", court.id, courtPresent.minStake, court.minStake);
         }
 
-        if (!courtPresent.alpha.eq(court.alpha)) {
+        if (courtPresent.alpha !== court.alpha) {
           change = true;
           console.log("Court %d: changing alpha from %d to %d", court.id, courtPresent.alpha, court.alpha);
         }
 
-        if (!courtPresent.feeForJuror.eq(court.feeForJuror)) {
+        if (courtPresent.feeForJuror !== court.feeForJuror) {
           change = true;
           console.log(
             "Court %d: changing feeForJuror from %d to %d",
@@ -203,7 +203,7 @@ task("populate:courts", "Populates the courts and their parameters")
           );
         }
 
-        if (!courtPresent.jurorsForCourtJump.eq(court.jurorsForCourtJump)) {
+        if (courtPresent.jurorsForCourtJump !== court.jurorsForCourtJump) {
           change = true;
           console.log(
             "Court %d: changing jurorsForCourtJump from %d to %d",
@@ -213,7 +213,7 @@ task("populate:courts", "Populates the courts and their parameters")
           );
         }
 
-        const timesPerPeriodPresent = (await core.getTimesPerPeriod(court.id)).map((bn) => bn.toNumber());
+        const timesPerPeriodPresent = (await core.getTimesPerPeriod(court.id)).map((bn) => toNumber(bn));
         if (!timesPerPeriodPresent.every((val, index) => val === court.timesPerPeriod[index])) {
           change = true;
           console.log(
@@ -228,7 +228,6 @@ task("populate:courts", "Populates the courts and their parameters")
           console.log("Court %d: no parameter change", court.id);
           continue;
         }
-
         await core.changeCourtParameters(
           court.id,
           court.hiddenVotes,
@@ -236,7 +235,7 @@ task("populate:courts", "Populates the courts and their parameters")
           court.alpha,
           court.feeForJuror,
           court.jurorsForCourtJump,
-          court.timesPerPeriod
+          [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]]
         );
       } else {
         console.log("Court %d not found, creating it with", court.id, court);
@@ -260,7 +259,7 @@ task("populate:courts", "Populates the courts and their parameters")
             court.feeForJuror,
             court.jurorsForCourtJump,
             [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]],
-            ethers.utils.hexlify(5), // Not accessible on-chain, but has always been set to the same value so far.
+            ethers.toBeHex(5), // Not accessible on-chain, but has always been set to the same value so far.
             [DISPUTE_KIT_CLASSIC]
           );
         }

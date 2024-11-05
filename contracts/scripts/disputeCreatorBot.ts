@@ -2,7 +2,7 @@ import env from "./utils/env";
 import loggerFactory from "./utils/logger";
 import hre = require("hardhat");
 import { KlerosCore, DisputeResolver } from "../typechain-types";
-import { BigNumber } from "ethers";
+
 const { ethers } = hre;
 
 const HEARTBEAT_URL = env.optionalNoDefault("HEARTBEAT_URL_DISPUTOR_BOT");
@@ -43,7 +43,7 @@ export default async function main() {
   ];
   const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
   const nbOfChoices = 2;
-  const cost = (await core.functions["arbitrationCost(bytes)"](extraData)).cost;
+  const cost = await core["arbitrationCost(bytes)"](extraData);
   const tx = await resolver.createDisputeForTemplate(
     extraData,
     randomTemplate,
@@ -55,10 +55,10 @@ export default async function main() {
   );
 
   logger.info(`Dispute creation tx: ${tx.hash}`);
-  const blockNumber = await tx.wait().then((receipt) => receipt.blockNumber);
+  const blockNumber = await tx.wait().then((receipt) => receipt?.blockNumber);
   const disputeId = await resolver
     .queryFilter(resolver.filters.DisputeRequest(), blockNumber, blockNumber)
-    .then((events) => BigNumber.from(events[0].args[1]));
+    .then((events) => ethers.toBigInt(events[0].args[1]));
   logger.info(`Dispute created with disputeId ${disputeId.toString()}`);
 
   logger.info("Shutting down");

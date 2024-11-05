@@ -1,6 +1,5 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { BigNumber, BigNumberish } from "ethers";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
@@ -12,7 +11,7 @@ import { DisputeKitClassic, KlerosCoreNeo } from "../typechain-types";
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
   const { deploy, execute } = deployments;
-  const { AddressZero } = hre.ethers.constants;
+  const { ZeroAddress } = hre.ethers;
   const RNG_LOOKAHEAD = 20;
 
   // fallback to hardhat node signers on local network
@@ -37,14 +36,14 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const rng = await deployUpgradable(deployments, "RandomizerRNG", {
     from: deployer,
-    args: [randomizerOracle.address, deployer],
+    args: [randomizerOracle.target, deployer],
     log: true,
   });
 
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassicNeo", {
     from: deployer,
     contract: "DisputeKitClassic",
-    args: [deployer, AddressZero],
+    args: [deployer, ZeroAddress],
     log: true,
   });
 
@@ -83,15 +82,15 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     args: [
       deployer,
       deployer,
-      pnk.address,
-      AddressZero,
+      pnk.target,
+      ZeroAddress,
       disputeKit.address,
       false,
       [minStake, alpha, feeForJuror, jurorsForCourtJump],
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
+      ethers.toBeHex(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
-      nft.address,
+      nft.target,
     ],
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
@@ -106,7 +105,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const core = (await hre.ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;
   try {
-    await changeCurrencyRate(core, weth.address, true, 1, 1);
+    await changeCurrencyRate(core, await weth.getAddress(), true, 1, 1);
   } catch (e) {
     console.error("failed to change currency rates:", e);
   }
@@ -120,7 +119,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const resolver = await deploy("DisputeResolverNeo", {
     from: deployer,
     contract: "DisputeResolver",
-    args: [core.address, disputeTemplateRegistry.address],
+    args: [core.target, disputeTemplateRegistry.target],
     log: true,
   });
 

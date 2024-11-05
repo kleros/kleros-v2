@@ -1,6 +1,5 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { BigNumber, BigNumberish } from "ethers";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
@@ -11,7 +10,7 @@ import { DisputeKitClassic, KlerosCore } from "../typechain-types";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
-  const { AddressZero } = hre.ethers.constants;
+  const { ZeroAddress } = hre.ethers;
   const RNG_LOOKAHEAD = 20;
 
   // fallback to hardhat node signers on local network
@@ -36,13 +35,13 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const rng = await deployUpgradable(deployments, "RandomizerRNG", {
     from: deployer,
-    args: [randomizerOracle.address, deployer],
+    args: [randomizerOracle.target, deployer],
     log: true,
   });
 
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassic", {
     from: deployer,
-    args: [deployer, AddressZero],
+    args: [deployer, ZeroAddress],
     log: true,
   });
 
@@ -70,13 +69,13 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     args: [
       deployer,
       deployer,
-      pnk.address,
-      AddressZero,
+      pnk.target,
+      ZeroAddress,
       disputeKit.address,
       false,
       [minStake, alpha, feeForJuror, jurorsForCourtJump],
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
+      ethers.toBeHex(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
     ],
     log: true,
@@ -92,9 +91,9 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const core = (await hre.ethers.getContract("KlerosCore")) as KlerosCore;
   try {
-    await changeCurrencyRate(core, pnk.address, true, 12225583, 12);
-    await changeCurrencyRate(core, dai.address, true, 60327783, 11);
-    await changeCurrencyRate(core, weth.address, true, 1, 1);
+    await changeCurrencyRate(core, await pnk.getAddress(), true, 12225583, 12);
+    await changeCurrencyRate(core, await dai.getAddress(), true, 60327783, 11);
+    await changeCurrencyRate(core, await weth.getAddress(), true, 1, 1);
   } catch (e) {
     console.error("failed to change currency rates:", e);
   }

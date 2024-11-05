@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import { deployments, ethers } from "hardhat";
-import { BigNumber } from "ethers";
-import { DisputeTemplateRegistry, KlerosCore, KlerosCoreRuler, ModeratedEvidenceModule } from "../../typechain-types";
-const hre = require("hardhat");
+import { ContractTransactionReceipt, EventLog } from "ethers";
+import { DisputeTemplateRegistry, KlerosCore, ModeratedEvidenceModule } from "../../typechain-types";
+import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 const Party = {
   None: 0,
@@ -10,34 +10,36 @@ const Party = {
   Moderator: 2,
 };
 
-function getEmittedEvent(eventName: any, receipt: any) {
-  return receipt.events.find(({ event }) => event === eventName);
+function getEmittedEvent(eventName: any, receipt: ContractTransactionReceipt): EventLog {
+  const logs = receipt.logs as Array<EventLog>;
+  const event = logs.find((log) => log.eventName === eventName);
+  if (event === undefined) throw new Error(`Event ${eventName} not found`);
+  return event;
 }
 
 describe("Home Evidence contract", async () => {
-  const arbitrationFee = 1000;
+  const arbitrationFee = 1000n;
   const appealFee = arbitrationFee;
-  const arbitratorExtraData = ethers.utils.defaultAbiCoder.encode(
+  const arbitratorExtraData = ethers.AbiCoder.defaultAbiCoder().encode(
     ["uint256", "uint256"],
     [1, 1] // courtId 1, minJurors 1
   );
   const appealTimeout = 100;
   const bondTimeout = 60 * 10;
-  const totalCostMultiplier = 15000;
-  const initialDepositMultiplier = 625;
+  const totalCostMultiplier = 15000n;
+  const initialDepositMultiplier = 625n;
   const disputeTemplate = '{ "disputeTemplate": "foo"}';
-  const MULTIPLIER_DIVISOR = BigNumber.from(10000);
-  const totalCost = BigNumber.from(arbitrationFee).mul(BigNumber.from(totalCostMultiplier)).div(MULTIPLIER_DIVISOR);
-  const minRequiredDeposit = totalCost.mul(BigNumber.from(initialDepositMultiplier)).div(MULTIPLIER_DIVISOR);
-  const ZERO = BigNumber.from(0);
+  const MULTIPLIER_DIVISOR = 10000n;
+  const totalCost = (arbitrationFee * totalCostMultiplier) / MULTIPLIER_DIVISOR;
+  const minRequiredDeposit = (totalCost * initialDepositMultiplier) / MULTIPLIER_DIVISOR;
+  const ZERO = 0n;
 
-  let deployer;
-  let user1;
-  let user2;
-  let user3;
-  let user4;
-  let evidenceID;
-
+  let deployer: HardhatEthersSigner;
+  let user1: HardhatEthersSigner;
+  let user2: HardhatEthersSigner;
+  let user3: HardhatEthersSigner;
+  let user4: HardhatEthersSigner;
+  let evidenceID: string;
   let arbitrator: KlerosCore;
   let evidenceModule: ModeratedEvidenceModule;
   let disputeTemplateRegistry: DisputeTemplateRegistry;
@@ -65,9 +67,9 @@ describe("Home Evidence contract", async () => {
 
     const EvidenceModule = await ethers.getContractFactory("ModeratedEvidenceModule");
     evidenceModule = await EvidenceModule.deploy(
-      arbitrator.address,
+      arbitrator.target,
       deployer.address, // governor
-      disputeTemplateRegistry.address,
+      disputeTemplateRegistry.target,
       totalCostMultiplier,
       initialDepositMultiplier,
       bondTimeout,
@@ -98,13 +100,13 @@ describe("Home Evidence contract", async () => {
       let receipt = await tx.wait();
       let lastArbitratorIndex = await evidenceModule.getCurrentArbitratorIndex();
       let newArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex);
-      let oldArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex.sub(BigNumber.from(1)));
+      let oldArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex - 1n);
 
       expect(newArbitratorData.arbitratorExtraData).to.equal(oldArbitratorData.arbitratorExtraData);
       const disputeTemplateEvents = await disputeTemplateRegistry.queryFilter(
         disputeTemplateRegistry.filters.DisputeTemplate(),
-        receipt.blockNumber,
-        receipt.blockNumber
+        receipt?.blockNumber,
+        receipt?.blockNumber
       );
       const [_templateId, _, _templateData] = disputeTemplateEvents[0].args;
       expect(_templateData).to.equal(newDisputeTemplate, "Wrong Template Data.");
@@ -112,7 +114,7 @@ describe("Home Evidence contract", async () => {
 
       const newArbitratorExtraData = "0x86";
       await evidenceModule.changeArbitratorExtraData(newArbitratorExtraData);
-      newArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex.add(BigNumber.from(1)));
+      newArbitratorData = await evidenceModule.arbitratorDataList(lastArbitratorIndex + 1n);
       expect(newArbitratorData.arbitratorExtraData).to.equal(newArbitratorExtraData, "Wrong extraData");
     });
 
@@ -150,17 +152,18 @@ describe("Home Evidence contract", async () => {
         value: minRequiredDeposit,
       }); // id: 0
       const receipt = await tx.wait();
-      const evidenceID = ethers.utils.solidityKeccak256(["uint", "string"], [1234, newEvidence]);
+      if (receipt === null) throw new Error("Receipt is null");
+      const evidenceID = ethers.solidityPackedKeccak256(["uint", "string"], [1234, newEvidence]);
 
       const [_arbitrator, _externalDisputeID, _party, _evidence] = getEmittedEvent("ModeratedEvidence", receipt).args;
-      expect(_arbitrator).to.equal(arbitrator.address, "Wrong arbitrator.");
+      expect(_arbitrator).to.equal(arbitrator.target, "Wrong arbitrator.");
       expect(_externalDisputeID).to.equal(1234, "Wrong external dispute ID.");
       expect(_party).to.equal(user1.address, "Wrong submitter.");
       expect(_evidence).to.equal(newEvidence, "Wrong evidence message.");
 
       let contributions = await evidenceModule.getContributions(evidenceID, 0, user1.address);
       expect(contributions[0]).to.equal(ZERO); // it's 1am and to.deep.equal() won't work, can't be bothered
-      expect(contributions[1]).to.equal(BigNumber.from("93"));
+      expect(contributions[1]).to.equal(93n);
       expect(contributions[2]).to.equal(ZERO);
       expect(contributions.length).to.equal(3);
     });
@@ -181,7 +184,7 @@ describe("Home Evidence contract", async () => {
       const newEvidence = "Irrefutable evidence";
       await expect(
         evidenceModule.submitEvidence(1234, newEvidence, {
-          value: minRequiredDeposit.sub(BigNumber.from(1)),
+          value: minRequiredDeposit - 1n,
         })
       ).to.be.revertedWith("Insufficient funding.");
     });
@@ -193,13 +196,13 @@ describe("Home Evidence contract", async () => {
       await evidenceModule.connect(user1).submitEvidence(1234, newEvidence, {
         value: minRequiredDeposit,
       });
-      evidenceID = ethers.utils.solidityKeccak256(["uint", "string"], [1234, newEvidence]);
+      evidenceID = ethers.solidityPackedKeccak256(["uint", "string"], [1234, newEvidence]);
     });
 
     it("Should not allow moderation after bond timeout passed.", async () => {
       await expect(evidenceModule.resolveModerationMarket(evidenceID)).to.be.revertedWith("Moderation still ongoing.");
 
-      await hre.ethers.provider.send("evm_increaseTime", [60 * 10]);
+      await ethers.provider.send("evm_increaseTime", [60 * 10]);
 
       // Moderate
       await expect(
@@ -220,51 +223,51 @@ describe("Home Evidence contract", async () => {
 
     it("Should create dispute after moderation escalation is complete.", async () => {
       await evidenceModule.connect(user2).moderate(evidenceID, Party.Moderator, {
-        value: minRequiredDeposit.mul(2),
+        value: minRequiredDeposit * 2n,
       });
 
       let moderationInfo = await evidenceModule.getModerationInfo(evidenceID, 0);
       let paidFees = moderationInfo.paidFees;
-      let depositRequired = paidFees[Party.Moderator].mul(2).sub(paidFees[Party.Submitter]);
+      let depositRequired = paidFees[Party.Moderator] * 2n - paidFees[Party.Submitter];
       await evidenceModule.connect(user4).moderate(evidenceID, Party.Submitter, {
         value: depositRequired,
       });
 
       moderationInfo = await evidenceModule.getModerationInfo(evidenceID, 0);
       paidFees = moderationInfo.paidFees;
-      depositRequired = paidFees[Party.Submitter].mul(2).sub(paidFees[Party.Moderator]);
+      depositRequired = paidFees[Party.Submitter] * 2n - paidFees[Party.Moderator];
       await evidenceModule.connect(user2).moderate(evidenceID, Party.Moderator, {
         value: depositRequired,
       });
 
       moderationInfo = await evidenceModule.getModerationInfo(evidenceID, 0);
       paidFees = moderationInfo.paidFees;
-      depositRequired = paidFees[Party.Moderator].mul(2).sub(paidFees[Party.Submitter]);
+      depositRequired = paidFees[Party.Moderator] * 2n - paidFees[Party.Submitter];
       await evidenceModule.connect(user4).moderate(evidenceID, Party.Submitter, {
         value: depositRequired,
       });
 
       moderationInfo = await evidenceModule.getModerationInfo(evidenceID, 0);
       paidFees = moderationInfo.paidFees;
-      depositRequired = paidFees[Party.Submitter].mul(2).sub(paidFees[Party.Moderator]);
+      depositRequired = paidFees[Party.Submitter] * 2n - paidFees[Party.Moderator];
       await evidenceModule.connect(user2).moderate(evidenceID, Party.Moderator, {
         value: depositRequired,
       });
 
       moderationInfo = await evidenceModule.getModerationInfo(evidenceID, 0);
       paidFees = moderationInfo.paidFees;
-      depositRequired = paidFees[Party.Moderator].mul(2).sub(paidFees[Party.Submitter]);
+      depositRequired = paidFees[Party.Moderator] * 2n - paidFees[Party.Submitter];
       let tx = await evidenceModule.connect(user4).moderate(evidenceID, Party.Submitter, {
         value: depositRequired, // Less is actually needed. Overpaid fees are reimbursed
       });
       let receipt = await tx.wait();
-
-      let [_arbitrator, _arbitratorDisputeID, _externalDisputeID, _templateId, _templateUri] = getEmittedEvent(
+      if (receipt === null) throw new Error("Receipt is null");
+      let [_arbitrator, _arbitrableDisputeID, _externalDisputeID, _templateId, _templateUri] = getEmittedEvent(
         "DisputeRequest",
         receipt
       ).args;
-      expect(_arbitrator).to.equal(arbitrator.address, "Wrong arbitrator.");
-      expect(_arbitratorDisputeID).to.equal(0, "Wrong dispute ID.");
+      expect(_arbitrator).to.equal(arbitrator.target, "Wrong arbitrator.");
+      expect(_arbitrableDisputeID).to.equal(0, "Wrong dispute ID.");
       expect(_templateId).to.equal(1, "Wrong template ID.");
       expect(_externalDisputeID).to.equal(evidenceID, "Wrong external dispute ID.");
 
