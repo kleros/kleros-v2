@@ -57,6 +57,9 @@ web_modules/
 # TypeScript cache
 *.tsbuildinfo
 
+# parcel cache
+.parcel-cache
+
 # Optional npm cache directory
 .npm
 
