@@ -86,7 +86,7 @@ describe("Draw Benchmark", async () => {
     // CourtId 2 = CHILD_COURT
     const minStake = 3n * 10n ** 20n; // 300 PNK
     const alpha = 10000n;
-    const feeForJuror = 10n * 17n;
+    const feeForJuror = ONE_TENTH_ETH;
     await core.createCourt(
       1,
       false,
@@ -198,7 +198,7 @@ describe("Draw Benchmark", async () => {
 
       expect(await sortitionModule.getJurorBalance(wallet.address, 1)).to.deep.equal([
         ONE_THOUSAND_PNK * 5n, // totalStaked
-        0n, // totalLocked
+        0, // totalLocked
         ONE_THOUSAND_PNK * 5n, // stakedInCourt
         PARENT_COURT, // nbOfCourts
       ]);
@@ -229,7 +229,7 @@ describe("Draw Benchmark", async () => {
         expect(await sortitionModule.getJurorBalance(address, CHILD_COURT)).to.deep.equal([
           ONE_THOUSAND_PNK * 5n, // totalStaked
           parentCourtMinStake * toBigInt(draws), // totalLocked
-          0n, // stakedInCourt
+          0, // stakedInCourt
           1, // nbOfCourts
         ]);
       }
@@ -384,7 +384,7 @@ describe("Draw Benchmark", async () => {
         expect(await sortitionModule.getJurorBalance(address, PARENT_COURT)).to.deep.equal([
           ONE_THOUSAND_PNK * 5n, // totalStaked
           childCourtMinStake * toBigInt(draws), // totalLocked
-          0n, // stakedInCourt
+          0, // stakedInCourt
           1, // nbOfCourts
         ]);
         expect(await sortitionModule.getJurorBalance(address, CHILD_COURT)).to.deep.equal([

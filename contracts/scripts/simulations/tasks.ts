@@ -80,7 +80,7 @@ task("simulate:create-court", "callable by Governor only. Create a new Court")
     const parent = 1n;
     const minStake = 2n * 10n ** 20n;
     const alpha = 10000n;
-    const feeForJuror = 10n * 17n;
+    const feeForJuror = 10n ** 17n;
     const jurorsForCourtJump = 3n;
     const hiddenVotes = false as boolean;
     const timesPerPeriod = [300, 300, 300, 300] as [BigNumberish, BigNumberish, BigNumberish, BigNumberish];

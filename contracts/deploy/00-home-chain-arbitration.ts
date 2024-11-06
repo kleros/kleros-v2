@@ -4,7 +4,7 @@ import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
-import { getContractOrDeploy } from "./utils/getContractOrDeploy";
+import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
 import { DisputeKitClassic, KlerosCore } from "../typechain-types";
 
@@ -22,16 +22,17 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const dai = await deployERC20AndFaucet(hre, deployer, "DAI");
   const weth = await deployERC20AndFaucet(hre, deployer, "WETH");
 
+  await getContractOrDeployUpgradable(hre, "PolicyRegistry", { from: deployer, args: [deployer], log: true });
+
+  await getContractOrDeployUpgradable(hre, "EvidenceModule", { from: deployer, args: [deployer], log: true });
+
+  // Randomizer.ai: https://randomizer.ai/docs#addresses
   const randomizerOracle = await getContractOrDeploy(hre, "RandomizerOracle", {
     from: deployer,
-    contract: "RandomizerMock",
+    contract: "RandomizerMock", // The mock is deployed only on the Hardhat network
     args: [],
     log: true,
   });
-
-  await deployUpgradable(deployments, "PolicyRegistry", { from: deployer, args: [deployer], log: true });
-
-  await deployUpgradable(deployments, "EvidenceModule", { from: deployer, args: [deployer], log: true });
 
   const rng = await deployUpgradable(deployments, "RandomizerRNG", {
     from: deployer,
