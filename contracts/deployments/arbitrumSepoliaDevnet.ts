@@ -3,7 +3,7 @@ export default {
   chainId: "421614",
   contracts: {
     ArbitrableExample: {
-      address: "0xe48488AE09022a4F32c528d7EbfF92870225AcBf",
+      address: "0x3Eae72F076c68F5c354C73abC33EAA291ef1b2Fa",
       abi: [
         {
           inputs: [
@@ -66,7 +66,7 @@ export default {
             {
               indexed: true,
               internalType: "uint256",
-              name: "_arbitrableDisputeID",
+              name: "_arbitratorDisputeID",
               type: "uint256",
             },
             {
@@ -307,7 +307,7 @@ export default {
           inputs: [
             {
               internalType: "uint256",
-              name: "_externalDisputeID",
+              name: "_arbitratorDisputeID",
               type: "uint256",
             },
             {
@@ -6521,7 +6521,7 @@ export default {
       ],
     },
     DisputeResolver: {
-      address: "0xB8B36CC43f852f9F0484f53Eb38CaBBA28a81bF6",
+      address: "0xCE3d5F83d9da70d60ab9cee8b644a18EF3671E61",
       abi: [
         {
           inputs: [
@@ -6551,7 +6551,7 @@ export default {
             {
               indexed: true,
               internalType: "uint256",
-              name: "_arbitrableDisputeID",
+              name: "_arbitratorDisputeID",
               type: "uint256",
             },
             {
@@ -6786,7 +6786,7 @@ export default {
           inputs: [
             {
               internalType: "uint256",
-              name: "_externalDisputeID",
+              name: "_arbitratorDisputeID",
               type: "uint256",
             },
             {
@@ -6816,7 +6816,7 @@ export default {
       ],
     },
     DisputeResolverNeo: {
-      address: "0xaBC213522c01354DC0Db2B3E89bDe0FCF44Acac6",
+      address: "0xB73B124f2939959676509c37Ab6a41C8Ab4aDA1C",
       abi: [
         {
           inputs: [
@@ -6846,7 +6846,302 @@ export default {
             {
               indexed: true,
               internalType: "uint256",
-              name: "_arbitrableDisputeID",
+              name: "_arbitratorDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_externalDisputeID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_templateId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "_templateUri",
+              type: "string",
+            },
+          ],
+          name: "DisputeRequest",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "contract IArbitratorV2",
+              name: "_arbitrator",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_ruling",
+              type: "uint256",
+            },
+          ],
+          name: "Ruling",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "arbitrator",
+          outputs: [
+            {
+              internalType: "contract IArbitratorV2",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "arbitratorDisputeIDToLocalID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IArbitratorV2",
+              name: "_arbitrator",
+              type: "address",
+            },
+          ],
+          name: "changeArbitrator",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_governor",
+              type: "address",
+            },
+          ],
+          name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IDisputeTemplateRegistry",
+              name: "_templateRegistry",
+              type: "address",
+            },
+          ],
+          name: "changeTemplateRegistry",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes",
+              name: "_arbitratorExtraData",
+              type: "bytes",
+            },
+            {
+              internalType: "string",
+              name: "_disputeTemplate",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_disputeTemplateDataMappings",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "_numberOfRulingOptions",
+              type: "uint256",
+            },
+          ],
+          name: "createDisputeForTemplate",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "disputeID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes",
+              name: "_arbitratorExtraData",
+              type: "bytes",
+            },
+            {
+              internalType: "string",
+              name: "_disputeTemplateUri",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "_numberOfRulingOptions",
+              type: "uint256",
+            },
+          ],
+          name: "createDisputeForTemplateUri",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "disputeID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "disputes",
+          outputs: [
+            {
+              internalType: "bytes",
+              name: "arbitratorExtraData",
+              type: "bytes",
+            },
+            {
+              internalType: "bool",
+              name: "isRuled",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "ruling",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "numberOfRulingOptions",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "governor",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_arbitratorDisputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_ruling",
+              type: "uint256",
+            },
+          ],
+          name: "rule",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "templateRegistry",
+          outputs: [
+            {
+              internalType: "contract IDisputeTemplateRegistry",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+    },
+    DisputeResolverRuler: {
+      address: "0x199893232ECC74cC7898B24b5Ff58d613029f6B7",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "contract IArbitratorV2",
+              name: "_arbitrator",
+              type: "address",
+            },
+            {
+              internalType: "contract IDisputeTemplateRegistry",
+              name: "_templateRegistry",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "contract IArbitratorV2",
+              name: "_arbitrator",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_arbitratorDisputeID",
               type: "uint256",
             },
             {
@@ -7111,7 +7406,7 @@ export default {
       ],
     },
     DisputeResolverUniversity: {
-      address: "0x102Ba9488Df13842612e777aB16144cCACD38194",
+      address: "0x88d793dA6e88Ebd58136A1e1483cc4cf0D915ca4",
       abi: [
         {
           inputs: [
@@ -7141,7 +7436,7 @@ export default {
             {
               indexed: true,
               internalType: "uint256",
-              name: "_arbitrableDisputeID",
+              name: "_arbitratorDisputeID",
               type: "uint256",
             },
             {
@@ -7376,7 +7671,7 @@ export default {
           inputs: [
             {
               internalType: "uint256",
-              name: "_externalDisputeID",
+              name: "_arbitratorDisputeID",
               type: "uint256",
             },
             {
@@ -7646,7 +7941,7 @@ export default {
       ],
     },
     DisputeTemplateRegistry_Implementation: {
-      address: "0xc53b813ed94AaEb6F5518D60bf6a8109954bE3f6",
+      address: "0xE00A43d3c3321A0e210F2F8bE2F3F75eC8a4951E",
       abi: [
         {
           inputs: [],
@@ -13969,6 +14264,3060 @@ export default {
     },
     KlerosCoreNeo_Proxy: {
       address: "0x26bf077037550e437605F07e25EfcAd510715C3A",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_implementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          stateMutability: "payable",
+          type: "fallback",
+        },
+        {
+          stateMutability: "payable",
+          type: "receive",
+        },
+      ],
+    },
+    KlerosCoreRuler: {
+      address: "0x7ffcd32A0521645E6fCFd071A68F0e26957775a5",
+      abi: [
+        {
+          stateMutability: "payable",
+          type: "fallback",
+        },
+        {
+          stateMutability: "payable",
+          type: "receive",
+        },
+        {
+          inputs: [],
+          name: "AlreadyInitialized",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "AppealFeesNotEnough",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ArbitrationFeesNotEnough",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DisputeNotAppealable",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "FailedDelegateCall",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "GovernorOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "GovernorOrInstructorOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidForkingCourtAsParent",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "implementation",
+              type: "address",
+            },
+          ],
+          name: "InvalidImplementation",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NoRulerSet",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotInitializing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "RulerOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "RulingAlreadyExecuted",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "RulingModeNotSet",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "TokenNotAccepted",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "TransferFailed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UUPSUnauthorizedCallContext",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "slot",
+              type: "bytes32",
+            },
+          ],
+          name: "UUPSUnsupportedProxiableUUID",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UnsuccessfulCall",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "contract IERC20",
+              name: "_token",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "bool",
+              name: "_accepted",
+              type: "bool",
+            },
+          ],
+          name: "AcceptedFeeToken",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+          ],
+          name: "AppealDecision",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+          ],
+          name: "AppealPossible",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "enum KlerosCoreRuler.RulingMode",
+              name: "mode",
+              type: "uint8",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_ruling",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "overridden",
+              type: "bool",
+            },
+          ],
+          name: "AutoRuled",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_courtID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint96",
+              name: "_parent",
+              type: "uint96",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "_hiddenVotes",
+              type: "bool",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_minStake",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_alpha",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_feeForJuror",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_jurorsForCourtJump",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[4]",
+              name: "_timesPerPeriod",
+              type: "uint256[4]",
+            },
+          ],
+          name: "CourtCreated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_roundID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint96",
+              name: "_fromCourtID",
+              type: "uint96",
+            },
+            {
+              indexed: false,
+              internalType: "uint96",
+              name: "_toCourtID",
+              type: "uint96",
+            },
+          ],
+          name: "CourtJump",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "_hiddenVotes",
+              type: "bool",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_minStake",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_alpha",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_feeForJuror",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_jurorsForCourtJump",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[4]",
+              name: "_timesPerPeriod",
+              type: "uint256[4]",
+            },
+          ],
+          name: "CourtModified",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+          ],
+          name: "DisputeCreation",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "version",
+              type: "uint64",
+            },
+          ],
+          name: "Initialized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_roundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_pnkAmount",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_feeAmount",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+          ],
+          name: "LeftoverRewardSent",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "_rateInEth",
+              type: "uint64",
+            },
+            {
+              indexed: false,
+              internalType: "uint8",
+              name: "_rateDecimals",
+              type: "uint8",
+            },
+          ],
+          name: "NewCurrencyRate",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "enum KlerosCoreRuler.Period",
+              name: "_period",
+              type: "uint8",
+            },
+          ],
+          name: "NewPeriod",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_oldRuler",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_newRuler",
+              type: "address",
+            },
+          ],
+          name: "RulerChanged",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+            {
+              components: [
+                {
+                  internalType: "enum KlerosCoreRuler.RulingMode",
+                  name: "rulingMode",
+                  type: "uint8",
+                },
+                {
+                  internalType: "uint256",
+                  name: "presetRuling",
+                  type: "uint256",
+                },
+                {
+                  internalType: "bool",
+                  name: "presetTied",
+                  type: "bool",
+                },
+                {
+                  internalType: "bool",
+                  name: "presetOverridden",
+                  type: "bool",
+                },
+              ],
+              indexed: false,
+              internalType: "struct KlerosCoreRuler.RulerSettings",
+              name: "_settings",
+              type: "tuple",
+            },
+          ],
+          name: "RulerSettingsChanged",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_ruling",
+              type: "uint256",
+            },
+          ],
+          name: "Ruling",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_roundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_degreeOfCoherency",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "int256",
+              name: "_pnkAmount",
+              type: "int256",
+            },
+            {
+              indexed: false,
+              internalType: "int256",
+              name: "_feeAmount",
+              type: "int256",
+            },
+            {
+              indexed: false,
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+          ],
+          name: "TokenAndETHShift",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+          ],
+          name: "Upgraded",
+          type: "event",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "",
+              type: "bytes",
+            },
+            {
+              internalType: "bool",
+              name: "_jump",
+              type: "bool",
+            },
+          ],
+          name: "appeal",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "_jump",
+              type: "bool",
+            },
+          ],
+          name: "appealCost",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "cost",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+            {
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+          ],
+          name: "arbitrationCost",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "cost",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+          ],
+          name: "arbitrationCost",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "cost",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+            {
+              internalType: "bool",
+              name: "_accepted",
+              type: "bool",
+            },
+          ],
+          name: "changeAcceptedFeeTokens",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+            {
+              internalType: "bool",
+              name: "_hiddenVotes",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "_minStake",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_alpha",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_feeForJuror",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_jurorsForCourtJump",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[4]",
+              name: "_timesPerPeriod",
+              type: "uint256[4]",
+            },
+          ],
+          name: "changeCourtParameters",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+            {
+              internalType: "uint64",
+              name: "_rateInEth",
+              type: "uint64",
+            },
+            {
+              internalType: "uint8",
+              name: "_rateDecimals",
+              type: "uint8",
+            },
+          ],
+          name: "changeCurrencyRates",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "_governor",
+              type: "address",
+            },
+          ],
+          name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IERC20",
+              name: "_pinakion",
+              type: "address",
+            },
+          ],
+          name: "changePinakion",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_newRuler",
+              type: "address",
+            },
+          ],
+          name: "changeRuler",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_presetRuling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "_presetTied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "_presetOverridden",
+              type: "bool",
+            },
+          ],
+          name: "changeRulingModeToAutomaticPreset",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+          ],
+          name: "changeRulingModeToAutomaticRandom",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+          ],
+          name: "changeRulingModeToManual",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IERC20",
+              name: "_toToken",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_amountInEth",
+              type: "uint256",
+            },
+          ],
+          name: "convertEthToTokenAmount",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "courts",
+          outputs: [
+            {
+              internalType: "uint96",
+              name: "parent",
+              type: "uint96",
+            },
+            {
+              internalType: "bool",
+              name: "hiddenVotes",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "minStake",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "alpha",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "feeForJuror",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "jurorsForCourtJump",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "disabled",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint96",
+              name: "_parent",
+              type: "uint96",
+            },
+            {
+              internalType: "bool",
+              name: "_hiddenVotes",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "_minStake",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_alpha",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_feeForJuror",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_jurorsForCourtJump",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[4]",
+              name: "_timesPerPeriod",
+              type: "uint256[4]",
+            },
+          ],
+          name: "createCourt",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+          ],
+          name: "createDispute",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "disputeID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+            {
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_feeAmount",
+              type: "uint256",
+            },
+          ],
+          name: "createDispute",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "disputeID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IERC20",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "currencyRates",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "feePaymentAccepted",
+              type: "bool",
+            },
+            {
+              internalType: "uint64",
+              name: "rateInEth",
+              type: "uint64",
+            },
+            {
+              internalType: "uint8",
+              name: "rateDecimals",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+          ],
+          name: "currentRuling",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "ruling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "overridden",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "disputes",
+          outputs: [
+            {
+              internalType: "uint96",
+              name: "courtID",
+              type: "uint96",
+            },
+            {
+              internalType: "contract IArbitrableV2",
+              name: "arbitrated",
+              type: "address",
+            },
+            {
+              internalType: "enum KlerosCoreRuler.Period",
+              name: "period",
+              type: "uint8",
+            },
+            {
+              internalType: "bool",
+              name: "ruled",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_round",
+              type: "uint256",
+            },
+          ],
+          name: "execute",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_destination",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          name: "executeGovernorProposal",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_ruling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "overridden",
+              type: "bool",
+            },
+          ],
+          name: "executeRuling",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getNextDisputeID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getNumberOfRounds",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getNumberOfVotes",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_round",
+              type: "uint256",
+            },
+          ],
+          name: "getRoundInfo",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "totalFeesForJurors",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "sumFeeRewardPaid",
+                  type: "uint256",
+                },
+                {
+                  internalType: "contract IERC20",
+                  name: "feeToken",
+                  type: "address",
+                },
+              ],
+              internalType: "struct KlerosCoreRuler.Round",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+          ],
+          name: "getTimesPerPeriod",
+          outputs: [
+            {
+              internalType: "uint256[4]",
+              name: "timesPerPeriod",
+              type: "uint256[4]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "governor",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_governor",
+              type: "address",
+            },
+            {
+              internalType: "contract IERC20",
+              name: "_pinakion",
+              type: "address",
+            },
+            {
+              internalType: "uint256[4]",
+              name: "_courtParameters",
+              type: "uint256[4]",
+            },
+          ],
+          name: "initialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "pinakion",
+          outputs: [
+            {
+              internalType: "contract IERC20",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "proxiableUUID",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IArbitrableV2",
+              name: "arbitrable",
+              type: "address",
+            },
+          ],
+          name: "rulers",
+          outputs: [
+            {
+              internalType: "address",
+              name: "ruler",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "disputeID",
+              type: "uint256",
+            },
+          ],
+          name: "rulingResults",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "ruling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "overridden",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IArbitrableV2",
+              name: "arbitrable",
+              type: "address",
+            },
+          ],
+          name: "settings",
+          outputs: [
+            {
+              internalType: "enum KlerosCoreRuler.RulingMode",
+              name: "rulingMode",
+              type: "uint8",
+            },
+            {
+              internalType: "uint256",
+              name: "presetRuling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "presetTied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "presetOverridden",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "upgradeToAndCall",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_implementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+      ],
+    },
+    KlerosCoreRuler_Implementation: {
+      address: "0x97e30A3A940856A3913437912C746f1aF6ccC76c",
+      abi: [
+        {
+          inputs: [],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          inputs: [],
+          name: "AlreadyInitialized",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "AppealFeesNotEnough",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ArbitrationFeesNotEnough",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "DisputeNotAppealable",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "FailedDelegateCall",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "GovernorOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "GovernorOrInstructorOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidForkingCourtAsParent",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "implementation",
+              type: "address",
+            },
+          ],
+          name: "InvalidImplementation",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NoRulerSet",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotInitializing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "RulerOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "RulingAlreadyExecuted",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "RulingModeNotSet",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "TokenNotAccepted",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "TransferFailed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UUPSUnauthorizedCallContext",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "slot",
+              type: "bytes32",
+            },
+          ],
+          name: "UUPSUnsupportedProxiableUUID",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UnsuccessfulCall",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "contract IERC20",
+              name: "_token",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "bool",
+              name: "_accepted",
+              type: "bool",
+            },
+          ],
+          name: "AcceptedFeeToken",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+          ],
+          name: "AppealDecision",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+          ],
+          name: "AppealPossible",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "enum KlerosCoreRuler.RulingMode",
+              name: "mode",
+              type: "uint8",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_ruling",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "overridden",
+              type: "bool",
+            },
+          ],
+          name: "AutoRuled",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_courtID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint96",
+              name: "_parent",
+              type: "uint96",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "_hiddenVotes",
+              type: "bool",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_minStake",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_alpha",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_feeForJuror",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_jurorsForCourtJump",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[4]",
+              name: "_timesPerPeriod",
+              type: "uint256[4]",
+            },
+          ],
+          name: "CourtCreated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_roundID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint96",
+              name: "_fromCourtID",
+              type: "uint96",
+            },
+            {
+              indexed: false,
+              internalType: "uint96",
+              name: "_toCourtID",
+              type: "uint96",
+            },
+          ],
+          name: "CourtJump",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "_hiddenVotes",
+              type: "bool",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_minStake",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_alpha",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_feeForJuror",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_jurorsForCourtJump",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256[4]",
+              name: "_timesPerPeriod",
+              type: "uint256[4]",
+            },
+          ],
+          name: "CourtModified",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+          ],
+          name: "DisputeCreation",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "version",
+              type: "uint64",
+            },
+          ],
+          name: "Initialized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_roundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_pnkAmount",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_feeAmount",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+          ],
+          name: "LeftoverRewardSent",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "_rateInEth",
+              type: "uint64",
+            },
+            {
+              indexed: false,
+              internalType: "uint8",
+              name: "_rateDecimals",
+              type: "uint8",
+            },
+          ],
+          name: "NewCurrencyRate",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "enum KlerosCoreRuler.Period",
+              name: "_period",
+              type: "uint8",
+            },
+          ],
+          name: "NewPeriod",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_oldRuler",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_newRuler",
+              type: "address",
+            },
+          ],
+          name: "RulerChanged",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+            {
+              components: [
+                {
+                  internalType: "enum KlerosCoreRuler.RulingMode",
+                  name: "rulingMode",
+                  type: "uint8",
+                },
+                {
+                  internalType: "uint256",
+                  name: "presetRuling",
+                  type: "uint256",
+                },
+                {
+                  internalType: "bool",
+                  name: "presetTied",
+                  type: "bool",
+                },
+                {
+                  internalType: "bool",
+                  name: "presetOverridden",
+                  type: "bool",
+                },
+              ],
+              indexed: false,
+              internalType: "struct KlerosCoreRuler.RulerSettings",
+              name: "_settings",
+              type: "tuple",
+            },
+          ],
+          name: "RulerSettingsChanged",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_ruling",
+              type: "uint256",
+            },
+          ],
+          name: "Ruling",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "_account",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "_roundID",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "_degreeOfCoherency",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "int256",
+              name: "_pnkAmount",
+              type: "int256",
+            },
+            {
+              indexed: false,
+              internalType: "int256",
+              name: "_feeAmount",
+              type: "int256",
+            },
+            {
+              indexed: false,
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+          ],
+          name: "TokenAndETHShift",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+          ],
+          name: "Upgraded",
+          type: "event",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "",
+              type: "bytes",
+            },
+            {
+              internalType: "bool",
+              name: "_jump",
+              type: "bool",
+            },
+          ],
+          name: "appeal",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "_jump",
+              type: "bool",
+            },
+          ],
+          name: "appealCost",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "cost",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+            {
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+          ],
+          name: "arbitrationCost",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "cost",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+          ],
+          name: "arbitrationCost",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "cost",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+            {
+              internalType: "bool",
+              name: "_accepted",
+              type: "bool",
+            },
+          ],
+          name: "changeAcceptedFeeTokens",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+            {
+              internalType: "bool",
+              name: "_hiddenVotes",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "_minStake",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_alpha",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_feeForJuror",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_jurorsForCourtJump",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[4]",
+              name: "_timesPerPeriod",
+              type: "uint256[4]",
+            },
+          ],
+          name: "changeCourtParameters",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+            {
+              internalType: "uint64",
+              name: "_rateInEth",
+              type: "uint64",
+            },
+            {
+              internalType: "uint8",
+              name: "_rateDecimals",
+              type: "uint8",
+            },
+          ],
+          name: "changeCurrencyRates",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address payable",
+              name: "_governor",
+              type: "address",
+            },
+          ],
+          name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IERC20",
+              name: "_pinakion",
+              type: "address",
+            },
+          ],
+          name: "changePinakion",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_newRuler",
+              type: "address",
+            },
+          ],
+          name: "changeRuler",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_presetRuling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "_presetTied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "_presetOverridden",
+              type: "bool",
+            },
+          ],
+          name: "changeRulingModeToAutomaticPreset",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+          ],
+          name: "changeRulingModeToAutomaticRandom",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IArbitrableV2",
+              name: "_arbitrable",
+              type: "address",
+            },
+          ],
+          name: "changeRulingModeToManual",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IERC20",
+              name: "_toToken",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_amountInEth",
+              type: "uint256",
+            },
+          ],
+          name: "convertEthToTokenAmount",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "courts",
+          outputs: [
+            {
+              internalType: "uint96",
+              name: "parent",
+              type: "uint96",
+            },
+            {
+              internalType: "bool",
+              name: "hiddenVotes",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "minStake",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "alpha",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "feeForJuror",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "jurorsForCourtJump",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "disabled",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint96",
+              name: "_parent",
+              type: "uint96",
+            },
+            {
+              internalType: "bool",
+              name: "_hiddenVotes",
+              type: "bool",
+            },
+            {
+              internalType: "uint256",
+              name: "_minStake",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_alpha",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_feeForJuror",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_jurorsForCourtJump",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[4]",
+              name: "_timesPerPeriod",
+              type: "uint256[4]",
+            },
+          ],
+          name: "createCourt",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+          ],
+          name: "createDispute",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "disputeID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_numberOfChoices",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_extraData",
+              type: "bytes",
+            },
+            {
+              internalType: "contract IERC20",
+              name: "_feeToken",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_feeAmount",
+              type: "uint256",
+            },
+          ],
+          name: "createDispute",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "disputeID",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IERC20",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "currencyRates",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "feePaymentAccepted",
+              type: "bool",
+            },
+            {
+              internalType: "uint64",
+              name: "rateInEth",
+              type: "uint64",
+            },
+            {
+              internalType: "uint8",
+              name: "rateDecimals",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+          ],
+          name: "currentRuling",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "ruling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "overridden",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "disputes",
+          outputs: [
+            {
+              internalType: "uint96",
+              name: "courtID",
+              type: "uint96",
+            },
+            {
+              internalType: "contract IArbitrableV2",
+              name: "arbitrated",
+              type: "address",
+            },
+            {
+              internalType: "enum KlerosCoreRuler.Period",
+              name: "period",
+              type: "uint8",
+            },
+            {
+              internalType: "bool",
+              name: "ruled",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_round",
+              type: "uint256",
+            },
+          ],
+          name: "execute",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_destination",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_amount",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "_data",
+              type: "bytes",
+            },
+          ],
+          name: "executeGovernorProposal",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_ruling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "overridden",
+              type: "bool",
+            },
+          ],
+          name: "executeRuling",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getNextDisputeID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getNumberOfRounds",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+          ],
+          name: "getNumberOfVotes",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_disputeID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_round",
+              type: "uint256",
+            },
+          ],
+          name: "getRoundInfo",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "totalFeesForJurors",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "sumFeeRewardPaid",
+                  type: "uint256",
+                },
+                {
+                  internalType: "contract IERC20",
+                  name: "feeToken",
+                  type: "address",
+                },
+              ],
+              internalType: "struct KlerosCoreRuler.Round",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint96",
+              name: "_courtID",
+              type: "uint96",
+            },
+          ],
+          name: "getTimesPerPeriod",
+          outputs: [
+            {
+              internalType: "uint256[4]",
+              name: "timesPerPeriod",
+              type: "uint256[4]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "governor",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_governor",
+              type: "address",
+            },
+            {
+              internalType: "contract IERC20",
+              name: "_pinakion",
+              type: "address",
+            },
+            {
+              internalType: "uint256[4]",
+              name: "_courtParameters",
+              type: "uint256[4]",
+            },
+          ],
+          name: "initialize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "pinakion",
+          outputs: [
+            {
+              internalType: "contract IERC20",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "proxiableUUID",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IArbitrableV2",
+              name: "arbitrable",
+              type: "address",
+            },
+          ],
+          name: "rulers",
+          outputs: [
+            {
+              internalType: "address",
+              name: "ruler",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "disputeID",
+              type: "uint256",
+            },
+          ],
+          name: "rulingResults",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "ruling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "tied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "overridden",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "contract IArbitrableV2",
+              name: "arbitrable",
+              type: "address",
+            },
+          ],
+          name: "settings",
+          outputs: [
+            {
+              internalType: "enum KlerosCoreRuler.RulingMode",
+              name: "rulingMode",
+              type: "uint8",
+            },
+            {
+              internalType: "uint256",
+              name: "presetRuling",
+              type: "uint256",
+            },
+            {
+              internalType: "bool",
+              name: "presetTied",
+              type: "bool",
+            },
+            {
+              internalType: "bool",
+              name: "presetOverridden",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "newImplementation",
+              type: "address",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "upgradeToAndCall",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+      ],
+    },
+    KlerosCoreRuler_Proxy: {
+      address: "0x7ffcd32A0521645E6fCFd071A68F0e26957775a5",
       abi: [
         {
           inputs: [
@@ -26789,6 +30138,57 @@ export default {
         {
           stateMutability: "payable",
           type: "receive",
+        },
+      ],
+    },
+    TransactionBatcher: {
+      address: "0x35f93986950804ac1F93519BF68C2a7Dd776db0E",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "address[]",
+              name: "targets",
+              type: "address[]",
+            },
+            {
+              internalType: "uint256[]",
+              name: "values",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes[]",
+              name: "datas",
+              type: "bytes[]",
+            },
+          ],
+          name: "batchSend",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address[]",
+              name: "targets",
+              type: "address[]",
+            },
+            {
+              internalType: "uint256[]",
+              name: "values",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes[]",
+              name: "datas",
+              type: "bytes[]",
+            },
+          ],
+          name: "batchSendUnchecked",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
         },
       ],
     },
