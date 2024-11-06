@@ -1,11 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-import { isProductionDeployment } from "consts/index";
-
 import DesktopHeader from "./DesktopHeader";
 import MobileHeader from "./MobileHeader";
-import { TestnetBanner } from "./TestnetBanner";
 
 const Container = styled.div`
   position: sticky;
@@ -20,13 +17,12 @@ const Container = styled.div`
 
 const HeaderContainer = styled.div`
   width: 100%;
-  padding: 4px 24px 8px;
+  padding: 8px 24px;
 `;
 
 const Header: React.FC = () => {
   return (
     <Container>
-      {!isProductionDeployment() ? <TestnetBanner /> : null}
       <HeaderContainer>
         <DesktopHeader />
         <MobileHeader />
