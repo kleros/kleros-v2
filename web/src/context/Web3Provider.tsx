@@ -1,55 +1,88 @@
 import React from "react";
-import { EthereumClient, w3mConnectors } from "@web3modal/ethereum";
-import { alchemyProvider } from "@wagmi/core/providers/alchemy";
-import { Web3Modal } from "@web3modal/react";
-import { configureChains, createConfig, WagmiConfig } from "wagmi";
-import { mainnet, arbitrumSepolia, gnosisChiado } from "wagmi/chains";
-import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
-import { useToggleTheme } from "hooks/useToggleThemeContext";
-import { useTheme } from "styled-components";
 
-const chains = [arbitrumSepolia, mainnet, gnosisChiado];
-const projectId = process.env.WALLETCONNECT_PROJECT_ID ?? "6efaa26765fa742153baf9281e218217";
+import { createWeb3Modal } from "@web3modal/wagmi/react";
+import { type Chain } from "viem";
+import { createConfig, fallback, http, WagmiProvider, webSocket } from "wagmi";
+import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado, gnosis, sepolia } from "wagmi/chains";
+import { walletConnect } from "wagmi/connectors";
 
-const { publicClient, webSocketPublicClient } = configureChains(chains, [
-  alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY ?? "" }),
-  jsonRpcProvider({
-    rpc: () => ({
-      http: `https://rpc.chiadochain.net`,
-      webSocket: `wss://rpc.chiadochain.net/wss`,
-    }),
-  }),
-]);
+import { configureSDK } from "@kleros/kleros-sdk/src/sdk";
 
+import { ALL_CHAINS, DEFAULT_CHAIN } from "consts/chains";
+import { isProductionDeployment } from "consts/index";
+
+import { lightTheme } from "styles/themes";
+
+const alchemyApiKey = import.meta.env.ALCHEMY_API_KEY ?? "";
+const isProduction = isProductionDeployment();
+
+// https://github.com/alchemyplatform/alchemy-sdk-js/blob/96b3f62/src/types/types.ts#L98-L119
+const alchemyToViemChain = {
+  [arbitrum.id]: "arb-mainnet",
+  [arbitrumSepolia.id]: "arb-sepolia",
+  [mainnet.id]: "eth-mainnet",
+  [sepolia.id]: "eth-sepolia",
+};
+
+type AlchemyProtocol = "https" | "wss";
+
+// https://github.com/alchemyplatform/alchemy-sdk-js/blob/96b3f62/src/util/const.ts#L16-L18
+const alchemyURL = (protocol: AlchemyProtocol, chainId: number) =>
+  `${protocol}://${alchemyToViemChain[chainId]}.g.alchemy.com/v2/${alchemyApiKey}`;
+
+export const getChainRpcUrl = (protocol: AlchemyProtocol, chainId: number) => {
+  return alchemyURL(protocol, chainId);
+};
+
+export const getDefaultChainRpcUrl = (protocol: AlchemyProtocol) => {
+  return getChainRpcUrl(protocol, DEFAULT_CHAIN);
+};
+
+export const getTransports = () => {
+  const alchemyTransport = (chain: Chain) =>
+    fallback([http(alchemyURL("https", chain.id)), webSocket(alchemyURL("wss", chain.id))]);
+  const defaultTransport = (chain: Chain) =>
+    fallback([http(chain.rpcUrls.default?.http?.[0]), webSocket(chain.rpcUrls.default?.webSocket?.[0])]);
+
+  return {
+    [isProduction ? arbitrum.id : arbitrumSepolia.id]: isProduction
+      ? alchemyTransport(arbitrum)
+      : alchemyTransport(arbitrumSepolia),
+    [isProduction ? gnosis.id : gnosisChiado.id]: isProduction
+      ? defaultTransport(gnosis)
+      : defaultTransport(gnosisChiado),
+    [mainnet.id]: alchemyTransport(mainnet), // Always enabled for ENS resolution
+  };
+};
+
+const chains = ALL_CHAINS as [Chain, ...Chain[]];
+const transports = getTransports();
+const projectId = import.meta.env.WALLETCONNECT_PROJECT_ID ?? "";
 const wagmiConfig = createConfig({
-  autoConnect: true,
-  connectors: w3mConnectors({ projectId, version: 2, chains }),
-  publicClient,
-  webSocketPublicClient,
+  chains,
+  transports,
+  connectors: [walletConnect({ projectId, showQrModal: false })],
 });
 
-const ethereumClient = new EthereumClient(wagmiConfig, chains);
+configureSDK({
+  client: {
+    chain: isProduction ? arbitrum : arbitrumSepolia,
+    transport: transports[isProduction ? arbitrum.id : arbitrumSepolia.id],
+  },
+});
+
+createWeb3Modal({
+  wagmiConfig,
+  projectId,
+  defaultChain: isProductionDeployment() ? arbitrum : arbitrumSepolia,
+  themeVariables: {
+    "--w3m-color-mix": lightTheme.primaryPurple,
+    "--w3m-color-mix-strength": 20,
+  },
+});
 
 const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [themeToggle] = useToggleTheme();
-  const theme = useTheme();
-  return (
-    <>
-      <Web3Modal
-        themeMode={themeToggle as "light" | "dark"}
-        themeVariables={{
-          "--w3m-accent-color": theme.primaryPurple,
-          "--w3m-background-color": theme.primaryPurple,
-          "--w3m-overlay-background-color": "rgba(0, 0, 0, 0.6)",
-          "--w3m-overlay-backdrop-filter": "blur(3px)",
-          "--w3m-logo-image-url": "https://github.com/kleros/kleros-v2/blob/dev/docs/kleros-logo-white.png?raw=true",
-          "--w3m-color-bg-1": theme.lightBackground,
-        }}
-        {...{ projectId, ethereumClient }}
-      />
-      <WagmiConfig config={wagmiConfig}> {children} </WagmiConfig>
-    </>
-  );
+  return <WagmiProvider config={wagmiConfig}> {children} </WagmiProvider>;
 };
 
 export default Web3Provider;

@@ -18,7 +18,7 @@ const policyRegistryByChain = new Map<number, string>([
 
 async function main() {
   const chainId = Number(await hre.getChainId());
-  const policyRegistryAddress = policyRegistryByChain.get(chainId) ?? hre.ethers.constants.AddressZero;
+  const policyRegistryAddress = policyRegistryByChain.get(chainId) ?? hre.ethers.ZeroAddress;
   const policyRegistryV1 = await ethers.getContractAt("PolicyRegistry", policyRegistryAddress);
 
   const fetchPolicy = (url: string): Promise<Policy> => {
@@ -34,7 +34,7 @@ async function main() {
     const uri = await fetchPolicyUri(court);
     if (!uri) break;
 
-    const policy = await fetchPolicy("https://ipfs.kleros.io" + uri);
+    const policy = await fetchPolicy("https://cdn.kleros.link" + uri);
     policy.court = court;
     policy.uri = uri;
     policies.push(policy);

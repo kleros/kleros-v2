@@ -1,13 +1,20 @@
 import React from "react";
 import styled from "styled-components";
-import { Button } from "@kleros/ui-components-library";
-import Bookmark from "svgs/icons/bookmark.svg";
-import { useNavigate } from "react-router-dom";
+
 import { responsiveSize } from "styles/responsiveSize";
+
+import { useNavigate } from "react-router-dom";
+
+import { Button } from "@kleros/ui-components-library";
+
+import Bookmark from "svgs/icons/bookmark.svg";
 
 const StyledHeader = styled.div`
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
+  gap: 0 12px;
+  margin-bottom: ${responsiveSize(16, 0)};
 `;
 
 const StyledH1 = styled.h1`

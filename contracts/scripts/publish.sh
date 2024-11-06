@@ -30,8 +30,13 @@ yarn export:testnet
 yarn export:mainnet
 
 mkdir dist
-cp -pr README.md deployments src/ dist/ 
+yarn tsc --project tsconfig.json --module commonjs --outDir ./dist
+cp -pr README.md src/ dist/ 
+rm -rf dist/config
+rm -rf dist/deploy
+rm -rf dist/scripts
 rm -rf dist/test
+rm -rf dist/hardhat.config*
 rm -rf dist/deployments/**/solcInputs
 rm -rf dist/deployments/localhost
 rm -rf dist/deployments/hardhat

@@ -1,11 +1,14 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { IPFS_GATEWAY } from "consts/index";
-import PolicyIcon from "svgs/icons/policy.svg";
-import { isUndefined } from "utils/index";
-import { responsiveSize } from "styles/responsiveSize";
+
 import PaperclipIcon from "svgs/icons/paperclip.svg";
+import PolicyIcon from "svgs/icons/policy.svg";
+
+import { getIpfsUrl } from "utils/getIpfsUrl";
+import { isUndefined } from "utils/index";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 const ShadeArea = styled.div`
   display: flex;
@@ -74,13 +77,13 @@ export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attac
       <StyledP>Make sure you read and understand the Policies</StyledP>
       <LinkContainer>
         {!isUndefined(attachment) && !isUndefined(attachment.uri) ? (
-          <StyledA href={`${IPFS_GATEWAY}${attachment.uri}`} target="_blank" rel="noreferrer">
+          <StyledA href={getIpfsUrl(attachment.uri)} target="_blank" rel="noreferrer">
             <StyledPaperclipIcon />
             {attachment.label ?? "Attachment"}
           </StyledA>
         ) : null}
         {isUndefined(disputePolicyURI) ? null : (
-          <StyledA href={`${IPFS_GATEWAY}${disputePolicyURI}`} target="_blank" rel="noreferrer">
+          <StyledA href={getIpfsUrl(disputePolicyURI)} target="_blank" rel="noreferrer">
             <StyledPolicyIcon />
             Dispute Policy
           </StyledA>

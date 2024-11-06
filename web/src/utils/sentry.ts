@@ -1,11 +1,13 @@
 import React from "react";
+
 import * as Sentry from "@sentry/react";
 import { Routes, createRoutesFromChildren, matchRoutes, useLocation, useNavigationType } from "react-router-dom";
+
 import { GIT_DIRTY, GIT_HASH, RELEASE_VERSION } from "consts/index";
 
 Sentry.init({
-  dsn: process.env.REACT_APP_SENTRY_ENDPOINT,
-  environment: process.env.REACT_APP_CONTEXT,
+  dsn: import.meta.env.REACT_APP_SENTRY_ENDPOINT,
+  environment: import.meta.env.REACT_APP_CONTEXT,
   release: `court-v2@${RELEASE_VERSION}-${GIT_HASH}${GIT_DIRTY}`,
   integrations: [
     new Sentry.BrowserProfilingIntegration(),

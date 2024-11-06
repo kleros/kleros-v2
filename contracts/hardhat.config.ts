@@ -14,12 +14,14 @@ import "hardhat-docgen";
 import "hardhat-contract-sizer";
 import "hardhat-tracer";
 require("./scripts/simulations/tasks");
+require("./scripts/populatePolicyRegistry");
+require("./scripts/populateCourts");
 
 dotenv.config();
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.18",
+    version: "0.8.24",
     settings: {
       optimizer: {
         enabled: true,
@@ -146,7 +148,7 @@ const config: HardhatUserConfig = {
     arbitrum: {
       chainId: 42161,
       url: "https://arb1.arbitrum.io/rpc",
-      accounts: process.env.MAINNET_PRIVATE_KEY !== undefined ? [process.env.MAINNET_PRIVATE_KEY] : [],
+      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
       live: true,
       saveDeployments: true,
       tags: ["production", "home", "layer2"],

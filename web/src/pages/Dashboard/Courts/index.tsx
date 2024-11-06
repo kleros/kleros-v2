@@ -1,12 +1,17 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { useAccount } from "wagmi";
+
 import Skeleton from "react-loading-skeleton";
+import { useAccount } from "wagmi";
+
+import { useReadSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
+
+import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import CourtCard from "./CourtCard";
 import Header from "./Header";
-import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
-import { useSortitionModuleGetJurorBalance } from "hooks/contracts/generated";
 
 const Container = styled.div`
   margin-top: 64px;
@@ -32,7 +37,7 @@ const StyledLabel = styled.label`
 const Courts: React.FC = () => {
   const { address } = useAccount();
   const { data: stakeData, isLoading } = useJurorStakeDetailsQuery(address?.toLowerCase() as `0x${string}`);
-  const { data: jurorBalance } = useSortitionModuleGetJurorBalance({
+  const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
     args: [address as `0x${string}`, BigInt(1)],
   });
   const stakedCourts = stakeData?.jurorTokensPerCourts?.filter(({ staked }) => staked > 0);
@@ -49,7 +54,7 @@ const Courts: React.FC = () => {
           {stakeData?.jurorTokensPerCourts
             ?.filter(({ staked }) => staked > 0)
             .map(({ court: { id, name }, staked }) => (
-              <CourtCard key={id} name={name ?? ""} stake={staked} />
+              <CourtCard key={id} name={name ?? ""} stake={staked} {...{ id }} />
             ))}
         </CourtCardsContainer>
       ) : null}

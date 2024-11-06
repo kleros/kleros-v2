@@ -1,19 +1,32 @@
 import React from "react";
-import Header from "pages/Resolver/Header";
 import styled, { css } from "styled-components";
-import NavigationButtons from "../NavigationButtons";
+
+import { toast } from "react-toastify";
+
+import { FileUploader } from "@kleros/ui-components-library";
+
+import { useAtlasProvider } from "context/AtlasProvider";
+import { useNewDisputeContext } from "context/NewDisputeContext";
+import { Roles } from "utils/atlas";
+import { OPTIONS as toastOptions } from "utils/wrapWithToast";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
-import { FileUploader } from "@kleros/ui-components-library";
-import { useNewDisputeContext } from "context/NewDisputeContext";
-import { uploadFormDataToIPFS } from "utils/uploadFormDataToIPFS";
-import { OPTIONS as toastOptions } from "utils/wrapWithToast";
-import { toast } from "react-toastify";
+
+import Header from "pages/Resolver/Header";
+
+import NavigationButtons from "../NavigationButtons";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  ${landscapeStyle(
+    () => css`
+      padding-bottom: 82px;
+    `
+  )}
 `;
 
 const StyledLabel = styled.label`
@@ -39,19 +52,16 @@ const StyledFileUploader = styled(FileUploader)`
 
 const Policy: React.FC = () => {
   const { disputeData, setDisputeData, setIsPolicyUploading } = useNewDisputeContext();
+  const { uploadFile } = useAtlasProvider();
 
   const handleFileUpload = (file: File) => {
     setIsPolicyUploading(true);
     toast.info("Uploading Policy to IPFS", toastOptions);
 
-    const fileFormData = new FormData();
-    fileFormData.append("data", file, file.name);
-
-    uploadFormDataToIPFS(fileFormData)
-      .then(async (res) => {
-        const response = await res.json();
-        const policyURI = response["cids"][0];
-        setDisputeData({ ...disputeData, policyURI });
+    uploadFile(file, Roles.Policy)
+      .then(async (cid) => {
+        if (!cid) return;
+        setDisputeData({ ...disputeData, policyURI: cid });
       })
       .catch((err) => console.log(err))
       .finally(() => setIsPolicyUploading(false));
@@ -71,7 +81,7 @@ const Policy: React.FC = () => {
         msg="You can attach additional information as a PDF file. Important: the above description must reference the relevant parts of the file content."
       />
 
-      <NavigationButtons prevRoute="/resolver/notablepersons" nextRoute="/resolver/preview" />
+      <NavigationButtons prevRoute="/resolver/notable-persons" nextRoute="/resolver/preview" />
     </Container>
   );
 };

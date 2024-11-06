@@ -1,12 +1,14 @@
 import React from "react";
-import { landscapeStyle } from "styles/landscapeStyle";
 import styled, { css } from "styled-components";
-import Rank from "./Rank";
-import JurorTitle from "./JurorTitle";
-import Rewards from "./Rewards";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import Coherency from "./Coherency";
 import JurorLevel from "./JurorLevel";
-import { responsiveSize } from "styles/responsiveSize";
+import JurorTitle from "./JurorTitle";
+import Rank from "./Rank";
+import Rewards from "./Rewards";
 
 const Container = styled.div`
   display: none;
@@ -31,7 +33,8 @@ const Container = styled.div`
 interface IDesktopCard {
   rank: number;
   address: string;
-  totalCoherent: number;
+  totalCoherentVotes: number;
+  totalResolvedVotes: number;
   totalResolvedDisputes: number;
   coherenceScore: number;
 }
@@ -39,7 +42,8 @@ interface IDesktopCard {
 const DesktopCard: React.FC<IDesktopCard> = ({
   rank,
   address,
-  totalCoherent,
+  totalCoherentVotes,
+  totalResolvedVotes,
   totalResolvedDisputes,
   coherenceScore,
 }) => {
@@ -48,8 +52,8 @@ const DesktopCard: React.FC<IDesktopCard> = ({
       <Rank rank={rank} />
       <JurorTitle address={address} />
       <Rewards address={address} />
-      <Coherency totalCoherent={totalCoherent} totalResolvedDisputes={totalResolvedDisputes} />
-      <JurorLevel coherenceScore={coherenceScore} />
+      <Coherency {...{ totalCoherentVotes, totalResolvedVotes }} />
+      <JurorLevel {...{ coherenceScore, totalResolvedDisputes }} />
     </Container>
   );
 };

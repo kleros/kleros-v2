@@ -1,6 +1,4 @@
 import { ethers, getNamedAccounts, network, deployments } from "hardhat";
-const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
-import { BigNumber } from "ethers";
 import { PNK, KlerosCore, SortitionModule, RandomizerRNG, RandomizerMock } from "../../typechain-types";
 import { expect } from "chai";
 
@@ -8,19 +6,20 @@ import { expect } from "chai";
 /* eslint-disable no-unused-expressions */
 
 describe("Staking", async () => {
-  const ETH = (amount: number) => ethers.utils.parseUnits(amount.toString());
+  const ETH = (amount: number) => ethers.parseUnits(amount.toString());
   const PNK = ETH;
 
-  // 2nd court, 3 jurors, 1 dispute kit
-  const extraData =
-    "0x000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000001";
+  const extraData = ethers.AbiCoder.defaultAbiCoder().encode(
+    ["uint256", "uint256", "uint256"],
+    [2, 3, 1] // courtId 2, minJurors 3, disputeKitId 1
+  );
 
-  let deployer;
-  let pnk;
-  let core;
-  let sortition;
-  let rng;
-  let randomizer;
+  let deployer: string;
+  let pnk: PNK;
+  let core: KlerosCore;
+  let sortition: SortitionModule;
+  let rng: RandomizerRNG;
+  let randomizer: RandomizerMock;
 
   const deploy = async () => {
     ({ deployer } = await getNamedAccounts());
@@ -36,21 +35,20 @@ describe("Staking", async () => {
   };
 
   describe("When outside the Staking phase", async () => {
-    let balanceBefore;
+    let balanceBefore: bigint;
 
     const reachDrawingPhase = async () => {
       expect(await sortition.phase()).to.be.equal(0); // Staking
-      const arbitrationCost = ETH(0.1).mul(3);
+      const arbitrationCost = ETH(0.1) * 3n;
+      await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], ethers.toBeHex(3), [1]); // Parent - general court, Classic dispute kit
 
-      await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], 3, [1]); // Parent - general court, Classic dispute kit
-
-      await pnk.approve(core.address, PNK(4000));
+      await pnk.approve(core.target, PNK(4000));
       await core.setStake(1, PNK(2000));
       await core.setStake(2, PNK(2000));
 
-      expect(await sortition.getJurorCourtIDs(deployer)).to.be.deep.equal([BigNumber.from("1"), BigNumber.from("2")]);
+      expect(await sortition.getJurorCourtIDs(deployer)).to.be.deep.equal([1n, 2n]);
 
-      await core.functions["createDispute(uint256,bytes)"](2, extraData, { value: arbitrationCost });
+      await core["createDispute(uint256,bytes)"](2, extraData, { value: arbitrationCost });
 
       await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
       await network.provider.send("evm_mine");
@@ -65,7 +63,7 @@ describe("Staking", async () => {
     };
 
     const reachStakingPhaseAfterDrawing = async () => {
-      await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
+      await randomizer.relay(rng.target, 0, ethers.randomBytes(32));
       await sortition.passPhase(); // Generating -> Drawing
       await core.draw(0, 5000);
       await sortition.passPhase(); // Drawing -> Staking
@@ -86,7 +84,7 @@ describe("Staking", async () => {
         it("Should transfer PNK but delay the stake increase", async () => {
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(0);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-          await pnk.approve(core.address, PNK(1000));
+          await pnk.approve(core.target, PNK(1000));
           expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0);
           await expect(core.setStake(2, PNK(3000)))
             .to.emit(sortition, "StakeDelayedAlreadyTransferred")
@@ -95,7 +93,7 @@ describe("Staking", async () => {
         });
 
         it("Should transfer some PNK out of the juror's account", async () => {
-          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore.sub(PNK(1000))); // PNK is transferred out of the juror's account
+          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore - PNK(1000)); // PNK is transferred out of the juror's account
         });
 
         it("Should store the delayed stake for later", async () => {
@@ -127,8 +125,8 @@ describe("Staking", async () => {
           ]); // stake unchanged, delayed
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(1);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(2);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 1st delayed stake got deleted
-          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 2nd delayed stake got deleted
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 1st delayed stake got deleted
+          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 2nd delayed stake got deleted
           expect(await sortition.latestDelayedStakeIndex(deployer, 1)).to.be.equal(0); // no delayed stakes left
         });
 
@@ -190,13 +188,13 @@ describe("Staking", async () => {
           ]); // stake unchanged, delayed
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(1);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(2);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 1st delayed stake got deleted
-          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 2nd delayed stake got deleted
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 1st delayed stake got deleted
+          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 2nd delayed stake got deleted
           expect(await sortition.latestDelayedStakeIndex(deployer, 1)).to.be.equal(0); // no delayed stakes left
         });
 
         it("Should withdraw some PNK", async () => {
-          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore.add(PNK(1000))); // No PNK transfer yet
+          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore + PNK(1000)); // No PNK transfer yet
         });
       });
     });
@@ -254,7 +252,7 @@ describe("Staking", async () => {
           expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(2);
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(2);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 1st delayed stake got deleted
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 1st delayed stake got deleted
           expect(await sortition.delayedStakes(2)).to.be.deep.equal([deployer, 2, PNK(2000), false]);
         });
       });
@@ -277,8 +275,8 @@ describe("Staking", async () => {
           ]); // stake unchanged, delayed
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(2);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(3);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 1st delayed stake got deleted
-          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 2nd delayed stake got deleted
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 1st delayed stake got deleted
+          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 2nd delayed stake got deleted
           expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // no delayed stakes left
         });
 
@@ -303,7 +301,7 @@ describe("Staking", async () => {
         it("Should transfer PNK but delay the stake increase", async () => {
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(0);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-          await pnk.approve(core.address, PNK(1000));
+          await pnk.approve(core.target, PNK(1000));
           expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0);
           await expect(core.setStake(2, PNK(3000)))
             .to.emit(sortition, "StakeDelayedAlreadyTransferred")
@@ -312,7 +310,7 @@ describe("Staking", async () => {
         });
 
         it("Should transfer some PNK out of the juror's account", async () => {
-          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore.sub(PNK(1000))); // PNK is transferred out of the juror's account
+          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore - PNK(1000)); // PNK is transferred out of the juror's account
         });
 
         it("Should store the delayed stake for later", async () => {
@@ -336,14 +334,14 @@ describe("Staking", async () => {
         });
 
         it("Should transfer back some PNK to the juror", async () => {
-          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore.add(PNK(1000))); // PNK is sent back to the juror
+          expect(await pnk.balanceOf(deployer)).to.be.equal(balanceBefore + PNK(1000)); // PNK is sent back to the juror
         });
 
         it("Should store the delayed stake for later", async () => {
           expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(2);
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(2);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(1);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 1st delayed stake got deleted
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 1st delayed stake got deleted
           expect(await sortition.delayedStakes(2)).to.be.deep.equal([deployer, 2, PNK(2000), false]);
         });
       });
@@ -369,8 +367,8 @@ describe("Staking", async () => {
           ]); // stake unchanged, delayed
           expect(await sortition.delayedStakeWriteIndex()).to.be.equal(2);
           expect(await sortition.delayedStakeReadIndex()).to.be.equal(3);
-          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 1st delayed stake got deleted
-          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.constants.AddressZero, 0, 0, false]); // the 2nd delayed stake got deleted
+          expect(await sortition.delayedStakes(1)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 1st delayed stake got deleted
+          expect(await sortition.delayedStakes(2)).to.be.deep.equal([ethers.ZeroAddress, 0, 0, false]); // the 2nd delayed stake got deleted
           expect(await sortition.latestDelayedStakeIndex(deployer, 2)).to.be.equal(0); // no delayed stakes left
         });
 
@@ -387,17 +385,16 @@ describe("Staking", async () => {
     });
 
     it("Should unstake from all courts", async () => {
-      const arbitrationCost = ETH(0.1).mul(3);
+      const arbitrationCost = ETH(0.1) * 3n;
+      await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], ethers.toBeHex(3), [1]); // Parent - general court, Classic dispute kit
 
-      await core.createCourt(1, false, PNK(1000), 1000, ETH(0.1), 3, [0, 0, 0, 0], 3, [1]); // Parent - general court, Classic dispute kit
-
-      await pnk.approve(core.address, PNK(4000));
+      await pnk.approve(core.target, PNK(4000));
       await core.setStake(1, PNK(2000));
       await core.setStake(2, PNK(2000));
 
       expect(await sortition.getJurorCourtIDs(deployer)).to.be.deep.equal([1, 2]);
 
-      await core.functions["createDispute(uint256,bytes)"](2, extraData, { value: arbitrationCost });
+      await core["createDispute(uint256,bytes)"](2, extraData, { value: arbitrationCost });
 
       await network.provider.send("evm_increaseTime", [2000]); // Wait for minStakingTime
       await network.provider.send("evm_mine");
@@ -407,7 +404,7 @@ describe("Staking", async () => {
       for (let index = 0; index < lookahead; index++) {
         await network.provider.send("evm_mine");
       }
-      await randomizer.relay(rng.address, 0, ethers.utils.randomBytes(32));
+      await randomizer.relay(rng.target, 0, ethers.randomBytes(32));
       await sortition.passPhase(); // Generating -> Drawing
 
       await core.draw(0, 5000);

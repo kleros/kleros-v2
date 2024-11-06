@@ -1,7 +1,10 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
 import { Card as _Card } from "@kleros/ui-components-library";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import CourtName from "./CourtName";
 import Stake from "./Stake";
 
@@ -12,17 +15,17 @@ const Container = styled(_Card)`
   justify-content: space-between;
   height: auto;
   width: 100%;
-  padding: 21px 24px 25px 19px;
+  padding: 21px 20px 25px 20px;
   border-left: 5px solid ${({ theme }) => theme.secondaryPurple};
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 20px;
 
   ${({ theme }) => (theme.name === "light" ? `box-shadow: 0px 2px 3px 0px ${theme.stroke};` : "")}
 
   ${landscapeStyle(
     () =>
       css`
-        padding: 21.5px 32px 21.5px 27px;
+        padding: 21.5px 32px;
       `
   )}
 `;
@@ -30,13 +33,14 @@ const Container = styled(_Card)`
 interface ICourtCard {
   name: string;
   stake: string;
+  id: string;
 }
 
-const CourtCard: React.FC<ICourtCard> = ({ name, stake }) => {
+const CourtCard: React.FC<ICourtCard> = ({ name, stake, id }) => {
   return (
     <Container>
-      <CourtName name={name} />
-      <Stake stake={stake} />
+      <CourtName {...{ name, id }} />
+      <Stake {...{ stake }} />
     </Container>
   );
 };

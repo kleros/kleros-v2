@@ -5,9 +5,11 @@ import {
   DisputeKitClassic,
   PNK,
   RandomizerRNG,
-  ArbitrableExampleEthFee,
-  RandomizerOracle,
+  EvidenceModule,
+  ArbitrableExample,
+  RandomizerMock,
 } from "../../typechain-types";
+import { toBigInt, ethers } from "ethers";
 
 export enum Period {
   Evidence,
@@ -24,7 +26,8 @@ export const getContracts = async (hre) => {
   const disputeKitClassic = (await hre.ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
   const pnk = (await hre.ethers.getContract("PNK")) as PNK;
   const randomizerRng = (await hre.ethers.getContract("RandomizerRNG")) as RandomizerRNG;
-  const arbitrable = (await hre.ethers.getContract("ArbitrableExampleEthFee")) as ArbitrableExampleEthFee;
+  const arbitrable = (await hre.ethers.getContract("ArbitrableExample")) as ArbitrableExample;
+  const evidenceModule = (await hre.ethers.getContract("EvidenceModule")) as EvidenceModule;
   const randomizerMock = (await hre.ethers.getContract("RandomizerOracle")) as RandomizerMock;
 
   return {
@@ -34,6 +37,7 @@ export const getContracts = async (hre) => {
     pnk,
     randomizerRng,
     arbitrable,
+    evidenceModule,
     randomizerMock,
   };
 };
@@ -54,7 +58,7 @@ export const getWallet = async (hre: any, walletIndex: number) => {
 
 export const isRngReady = async (wallet, hre) => {
   const { randomizerRng, disputeKitClassic } = await getContracts(hre);
-  const requesterID = await randomizerRng.connect(wallet).requesterToID(disputeKitClassic.address);
+  const requesterID = await randomizerRng.connect(wallet).requesterToID(disputeKitClassic.target);
   const n = await randomizerRng.connect(wallet).randomNumbers(requesterID);
   if (Number(n) === 0) {
     console.log("rng is NOT ready.");
@@ -77,7 +81,7 @@ export const isNetworkLocal = (hre: any): boolean => {
 
 export const getArbitrationFees = (hre, nbofjurors: bigint, feeforjuror: bigint) => {
   if (isNetworkLocal(hre)) {
-    return hre.ethers.utils.parseUnits("1");
+    return hre.ethers.parseEther("1");
   } else {
     return nbofjurors * feeforjuror;
   }
@@ -147,7 +151,7 @@ export const waitForPeriod = async (disputeId: number, period: Period, hre) => {
   const { lastPeriodChange, courtID } = await core.disputes(disputeId);
   const periodDuration = (await core.getTimesPerPeriod(courtID))[period];
   const now = await latest(hre.network);
-  const remainingDuration = lastPeriodChange.add(periodDuration).sub(now).toNumber();
+  const remainingDuration = ethers.getNumber(lastPeriodChange + periodDuration - toBigInt(now));
   if (remainingDuration > 0) {
     await waitFor(remainingDuration, hre);
   }

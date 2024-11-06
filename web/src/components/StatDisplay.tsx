@@ -1,6 +1,7 @@
 import React from "react";
-import { landscapeStyle } from "styles/landscapeStyle";
 import styled, { useTheme, css } from "styled-components";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
@@ -26,8 +27,6 @@ const SVGContainer = styled.div<{ iconColor: string; backgroundColor: string }>`
   justify-content: center;
   svg {
     fill: ${({ iconColor }) => iconColor};
-    height: ${({ iconColor, theme }) => (iconColor === theme.success ? "24px" : "32px")};
-    width: ${({ iconColor, theme }) => (iconColor === theme.success ? "24px" : "32px")};
   }
 `;
 
@@ -43,9 +42,9 @@ const createPair = (iconColor: string, backgroundColor: string) => ({
 });
 
 export interface IStatDisplay {
-  title: string;
+  title: string | React.ReactNode;
   text: string | React.ReactNode;
-  subtext: string | React.ReactNode;
+  subtext?: string | React.ReactNode;
   icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
   color: "red" | "orange" | "green" | "blue" | "purple";
 }

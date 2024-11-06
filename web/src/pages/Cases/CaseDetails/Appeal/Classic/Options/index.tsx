@@ -1,10 +1,13 @@
 import React from "react";
 import styled from "styled-components";
+
 import { useCountdownContext } from "hooks/useClassicAppealContext";
+import { isUndefined } from "utils/index";
+
 import { StyledSkeleton } from "components/StyledSkeleton";
+
 import StageOne from "./StageOne";
 import StageTwo from "./StageTwo";
-import { isUndefined } from "utils/index";
 
 const Container = styled.div`
   margin: 24px 0;

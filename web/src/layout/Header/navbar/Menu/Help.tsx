@@ -1,17 +1,24 @@
 import React, { useRef } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-import { useToggle } from "react-use";
-import { useFocusOutside } from "hooks/useFocusOutside";
+
+import { useClickAway, useToggle } from "react-use";
+
 import Book from "svgs/icons/book-open.svg";
 import Guide from "svgs/icons/book.svg";
 import Bug from "svgs/icons/bug.svg";
+import Code from "svgs/icons/code.svg";
 import ETH from "svgs/icons/eth.svg";
 import Faq from "svgs/menu-icons/help.svg";
 import Telegram from "svgs/socialmedia/telegram.svg";
+
+import { getDevToolsUrl } from "consts/index";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+
+import Onboarding from "components/Popup/MiniGuides/Onboarding";
+
 import { IHelp } from "..";
 import Debug from "../Debug";
-import Onboarding from "components/Popup/MiniGuides/Onboarding";
 
 const Container = styled.div`
   display: flex;
@@ -98,13 +105,18 @@ const ITEMS = [
     Icon: Faq,
     url: "https://docs.kleros.io/kleros-faq",
   },
+  {
+    text: "Developer Tools",
+    Icon: Code,
+    url: getDevToolsUrl(),
+  },
 ];
 
 const Help: React.FC<IHelp> = ({ toggleIsHelpOpen }) => {
   const [isOnboardingMiniGuidesOpen, toggleIsOnboardingMiniGuidesOpen] = useToggle(false);
 
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => {
+  useClickAway(containerRef, () => {
     if (!isOnboardingMiniGuidesOpen) toggleIsHelpOpen();
   });
 

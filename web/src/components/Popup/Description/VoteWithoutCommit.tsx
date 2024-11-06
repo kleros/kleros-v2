@@ -1,4 +1,5 @@
 import React from "react";
+
 import { VoteDescriptionEmphasizedDate } from "components/Popup";
 
 interface IVoteWithoutCommit {

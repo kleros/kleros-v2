@@ -1,15 +1,17 @@
 import React from "react";
 import styled from "styled-components";
-import StageExplainer from "../StageExplainer";
-import OptionCard from "../../OptionCard";
+
 import {
   useCountdownContext,
   useFundingContext,
   useOptionsContext,
   useSelectedOptionContext,
 } from "hooks/useClassicAppealContext";
-import { isUndefined } from "utils/index";
 import { formatUnitsWei } from "utils/format";
+import { isUndefined } from "utils/index";
+
+import OptionCard from "../../OptionCard";
+import StageExplainer from "../StageExplainer";
 
 const Container = styled.div`
   margin: 24px 0;

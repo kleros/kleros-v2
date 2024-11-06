@@ -1,7 +1,9 @@
+import { useQuery } from "@tanstack/react-query";
+
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
+
 import { graphql } from "src/graphql";
 import { HomePageQuery } from "src/graphql/graphql";
-import { useQuery } from "@tanstack/react-query";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { HomePageQuery };
 
 const homePageQuery = graphql(`
@@ -17,15 +19,30 @@ const homePageQuery = graphql(`
       activeJurors
       cases
     }
+    courts(orderBy: id, orderDirection: asc) {
+      id
+      name
+      numberDisputes
+      feeForJuror
+      stake
+    }
   }
 `);
 
 export const useHomePageQuery = (timeframe: number) => {
   const isEnabled = timeframe !== undefined;
+  const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery({
     queryKey: [`homePageQuery${timeframe}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(homePageQuery, { timeframe: timeframe.toString() }),
+    queryFn: async () => {
+      const data = await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: homePageQuery,
+        variables: { timeframe: timeframe.toString() },
+      });
+      return data;
+    },
   });
 };

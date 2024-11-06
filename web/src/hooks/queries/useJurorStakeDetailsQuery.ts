@@ -1,7 +1,10 @@
+import { useQuery } from "@tanstack/react-query";
+
+import { REFETCH_INTERVAL } from "consts/index";
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
+
 import { graphql } from "src/graphql";
 import { JurorStakeDetailsQuery } from "src/graphql/graphql";
-import { useQuery } from "@tanstack/react-query";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { JurorStakeDetailsQuery };
 
 const jurorStakeDetailsQuery = graphql(`
@@ -11,6 +14,7 @@ const jurorStakeDetailsQuery = graphql(`
         id
         name
       }
+      effectiveStake
       staked
       locked
     }
@@ -19,10 +23,13 @@ const jurorStakeDetailsQuery = graphql(`
 
 export const useJurorStakeDetailsQuery = (userId?: string) => {
   const isEnabled = userId !== undefined;
+  const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<JurorStakeDetailsQuery>({
-    queryKey: ["refetchOnBlock", `jurorStakeDetails${userId}`],
+    queryKey: [`jurorStakeDetails${userId}`],
     enabled: isEnabled,
-    queryFn: async () => await graphqlQueryFnHelper(jurorStakeDetailsQuery, { userId }),
+    refetchInterval: REFETCH_INTERVAL,
+    queryFn: async () =>
+      await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: jurorStakeDetailsQuery, variables: { userId } }),
   });
 };

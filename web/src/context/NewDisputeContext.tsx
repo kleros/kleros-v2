@@ -1,25 +1,29 @@
-import React, { createContext, useState, useContext, useMemo } from "react";
-import { isUndefined } from "utils/index";
+import React, { createContext, useState, useContext, useMemo, useCallback } from "react";
+
 import { Address } from "viem";
+
+import { DEFAULT_CHAIN } from "consts/chains";
+import { klerosCoreAddress } from "hooks/contracts/generated";
 import { useLocalStorage } from "hooks/useLocalStorage";
+import { isEmpty, isUndefined } from "utils/index";
 
 export type Answer = {
-  id?: string;
+  id: string;
   title: string;
-  description?: string;
+  description: string;
   reserved?: boolean;
 };
 
-export type Alias = {
+export type AliasArray = {
   id?: string;
   name: string;
   address: string | Address;
   isValid?: boolean;
 };
 
+export type Alias = Record<string, string>;
 export interface IDisputeTemplate {
   answers: Answer[];
-  aliases?: Alias[];
   arbitrableAddress?: string;
   arbitrableChainID?: string;
   arbitratorAddress?: string;
@@ -32,12 +36,17 @@ export interface IDisputeTemplate {
   question: string;
   specification?: string;
   title: string;
+  aliases?: Alias;
+  version: string;
+  // attachment: Attachment;
+  // type: string;
 }
 
 interface IDisputeData extends IDisputeTemplate {
   courtId?: string;
   numberOfJurors: number;
   arbitrationCost?: string;
+  aliasesArray?: AliasArray[];
 }
 
 interface INewDisputeContext {
@@ -56,29 +65,24 @@ const initialDisputeData: IDisputeData = {
   title: "",
   description: "",
   question: "",
+  category: "",
   answers: [
-    { title: "", id: "1" },
-    { title: "", id: "2" },
+    { title: "", id: "1", description: "" },
+    { title: "", id: "2", description: "" },
   ],
-  aliases: [
-    { name: "", address: "", id: "1" },
-    { name: "", address: "", id: "2" },
-  ],
+  aliasesArray: [{ name: "", address: "", id: "1" }],
+  version: "1.0",
 };
-const initialDisputeTemplate = initialDisputeData as IDisputeTemplate;
 
-const NewDisputeContext = createContext<INewDisputeContext>({
-  disputeData: initialDisputeData,
-  setDisputeData: () => {},
-  disputeTemplate: initialDisputeTemplate,
-  resetDisputeData: () => {},
-  isSubmittingCase: false,
-  setIsSubmittingCase: () => {},
-  isPolicyUploading: false,
-  setIsPolicyUploading: () => {},
-});
+const NewDisputeContext = createContext<INewDisputeContext | undefined>(undefined);
 
-export const useNewDisputeContext = () => useContext(NewDisputeContext);
+export const useNewDisputeContext = () => {
+  const context = useContext(NewDisputeContext);
+  if (!context) {
+    throw new Error("Context Provider not found.");
+  }
+  return context;
+};
 
 export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [disputeData, setDisputeData] = useLocalStorage<IDisputeData>("disputeData", initialDisputeData);
@@ -87,9 +91,9 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const disputeTemplate = useMemo(() => constructDisputeTemplate(disputeData), [disputeData]);
 
-  const resetDisputeData = () => {
+  const resetDisputeData = useCallback(() => {
     setDisputeData(initialDisputeData);
-  };
+  }, [setDisputeData]);
 
   const contextValues = useMemo(
     () => ({
@@ -102,20 +106,37 @@ export const NewDisputeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       isPolicyUploading,
       setIsPolicyUploading,
     }),
-    [disputeData, disputeTemplate, resetDisputeData, isSubmittingCase, isPolicyUploading]
+    [disputeData, disputeTemplate, resetDisputeData, isSubmittingCase, isPolicyUploading, setDisputeData]
   );
 
   return <NewDisputeContext.Provider value={contextValues}>{children}</NewDisputeContext.Provider>;
 };
 
 const constructDisputeTemplate = (disputeData: IDisputeData) => {
-  const baseTemplate = { ...disputeData } as IDisputeTemplate;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { courtId, numberOfJurors, arbitrationCost, ...baseTemplate } = disputeData;
 
-  if (!isUndefined(baseTemplate.aliases)) {
-    baseTemplate.aliases = baseTemplate.aliases.filter((item) => item.address !== "" && item.isValid);
-    if (baseTemplate.aliases.length === 0) delete baseTemplate.aliases;
+  if (!isUndefined(baseTemplate.aliasesArray)) {
+    baseTemplate.aliasesArray = baseTemplate.aliasesArray.filter((item) => item.address !== "" && item.isValid);
+    if (baseTemplate.aliasesArray.length === 0) delete baseTemplate.aliasesArray;
+    else {
+      const aliases: Alias = {};
+
+      for (const alias of baseTemplate.aliasesArray) {
+        aliases[alias.name] = alias.address;
+      }
+
+      baseTemplate.aliases = aliases;
+    }
   }
-  if (!isUndefined(baseTemplate.policyURI) && baseTemplate.policyURI === "") delete baseTemplate.policyURI;
 
-  return baseTemplate;
+  for (const answer of baseTemplate.answers) {
+    answer.id = "0x" + BigInt(answer.id).toString(16);
+  }
+  if (!isUndefined(baseTemplate.policyURI) && isEmpty(baseTemplate.policyURI)) delete baseTemplate.policyURI;
+
+  baseTemplate.arbitratorAddress = klerosCoreAddress[DEFAULT_CHAIN];
+  baseTemplate.arbitratorChainID = DEFAULT_CHAIN.toString();
+
+  return baseTemplate as IDisputeTemplate;
 };

@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.5.0
+      uses: step-security/harden-runner@v2.10.1
       with:
         disable-sudo: true
         egress-policy: block
@@ -40,14 +40,14 @@ jobs:
           54.185.253.63:443
 
     - name: Setup Node.js environment
-      uses: actions/setup-node@2a017f350dbf6c4b6bb4508cc83809719115162e
+      uses: actions/setup-node@v4
       with:
-        node-version: 16.x   
+        node-version: 18.x   
         
-    - uses: actions/checkout@7739b9ba2efcda9dde65ad1e3c2dbe65b41dfba7
+    - uses: actions/checkout@v4
     
     - name: Cache node modules
-      uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84
+      uses: actions/cache@v4
       env:
         cache-name: cache-node-modules
       with:
@@ -74,11 +74,11 @@ jobs:
       
     - name: Test with coverage
       run: |         
-        yarn hardhat coverage --solcoverjs ./.solcover.js --temp artifacts --testfiles \"./test/**/*.ts\" --show-stack-traces
+        yarn hardhat coverage --solcoverjs ./.solcover.js --temp artifacts --testfiles './test/**/*.ts' --show-stack-traces
       working-directory: contracts
 
     - name: Upload a build artifact
-      uses: actions/upload-artifact@65d862660abb392b8c4a3d1195a2108db131dd05
+      uses: actions/upload-artifact@v4
       with:    
         name: code-coverage-report    
         path: contracts/coverage

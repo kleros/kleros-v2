@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "./RNG.sol";
 
@@ -12,7 +12,7 @@ import "./RNG.sol";
 ///  This contract must be used when returning 0 is a worse failure mode than returning another blockhash.
 ///  Allows saving the random number for use in the future. It allows the contract to still access the blockhash even after 256 blocks.
 contract BlockHashRNG is RNG {
-    mapping(uint256 => uint256) public randomNumbers; // randomNumbers[block] is the random number for this block, 0 otherwise.
+    mapping(uint256 block => uint256 number) public randomNumbers; // randomNumbers[block] is the random number for this block, 0 otherwise.
 
     /// @dev Request a random number.
     /// @param _block Block the random number is linked to.

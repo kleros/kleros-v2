@@ -9,8 +9,12 @@
     "softwareTerms"
   ],
   "words": [
+    "Arbitrables",
     "arbitrum",
+    "ARBMAINNET",
+    "ARBSEPOLIA",
     "autorestart",
+    "CHAINID",
     "codegen",
     "commify",
     "commitlint",

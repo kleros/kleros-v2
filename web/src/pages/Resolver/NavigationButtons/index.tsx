@@ -1,8 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import PreviousButton from "./PreviousButton";
-import NextButton from "./NextButton";
+
 import { responsiveSize } from "styles/responsiveSize";
+
+import NextButton from "./NextButton";
+import PreviousButton from "./PreviousButton";
 import SubmitDisputeButton from "./SubmitDisputeButton";
 
 const Container = styled.div`

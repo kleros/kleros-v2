@@ -11,7 +11,7 @@ arbitrum = "https://arb1.arbitrum.io/rpc"
 sepolia = "https://sepolia.infura.io/v3/${INFURA_API_KEY}"
 goerli = "https://goerli.infura.io/v3/${INFURA_API_KEY}"
 mainnet = "https://mainnet.infura.io/v3/${INFURA_API_KEY}"
-chiado = "https://rpc.chiadochain.net"
-gnosischain = "https://xdai-rpc.gateway.pokt.network"
+chiado = "https://rpc.chiado.gnosis.gateway.fm"
+gnosischain = "https://rpc.gnosis.gateway.fm"
 
 # See more config options https://book.getfoundry.sh/reference/config.html

@@ -1,17 +1,16 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { BigNumber, BigNumberish } from "ethers";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
-import { HomeChains, isSkipped, isDevnet } from "./utils";
-import { getContractOrDeploy } from "./utils/getContractOrDeploy";
-import { deployERC20AndFaucet } from "./utils/deployERC20AndFaucet";
-import { KlerosCore } from "../typechain-types";
+import { changeCurrencyRate } from "./utils/klerosCoreHelper";
+import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
+import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
+import { deployERC20AndFaucet } from "./utils/deployTokens";
+import { DisputeKitClassic, KlerosCore } from "../typechain-types";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
-  const { deploy, execute } = deployments;
-  const { AddressZero } = hre.ethers.constants;
+  const { ZeroAddress } = hre.ethers;
   const RNG_LOOKAHEAD = 20;
 
   // fallback to hardhat node signers on local network
@@ -23,26 +22,27 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const dai = await deployERC20AndFaucet(hre, deployer, "DAI");
   const weth = await deployERC20AndFaucet(hre, deployer, "WETH");
 
+  await getContractOrDeployUpgradable(hre, "PolicyRegistry", { from: deployer, args: [deployer], log: true });
+
+  await getContractOrDeployUpgradable(hre, "EvidenceModule", { from: deployer, args: [deployer], log: true });
+
+  // Randomizer.ai: https://randomizer.ai/docs#addresses
   const randomizerOracle = await getContractOrDeploy(hre, "RandomizerOracle", {
     from: deployer,
-    contract: "RandomizerMock",
+    contract: "RandomizerMock", // The mock is deployed only on the Hardhat network
     args: [],
     log: true,
   });
 
-  await deployUpgradable(deployments, "PolicyRegistry", { from: deployer, args: [deployer], log: true });
-
-  await deployUpgradable(deployments, "EvidenceModule", { from: deployer, args: [deployer], log: true });
-
   const rng = await deployUpgradable(deployments, "RandomizerRNG", {
     from: deployer,
-    args: [randomizerOracle.address, deployer],
+    args: [randomizerOracle.target, deployer],
     log: true,
   });
 
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassic", {
     from: deployer,
-    args: [deployer, AddressZero],
+    args: [deployer, ZeroAddress],
     log: true,
   });
 
@@ -61,20 +61,22 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   }); // nonce (implementation), nonce+1 (proxy)
 
-  const minStake = BigNumber.from(10).pow(20).mul(2);
+  const minStake = PNK(200);
   const alpha = 10000;
-  const feeForJuror = BigNumber.from(10).pow(17);
+  const feeForJuror = ETH(0.1);
+  const jurorsForCourtJump = 256;
   const klerosCore = await deployUpgradable(deployments, "KlerosCore", {
     from: deployer,
     args: [
       deployer,
-      pnk.address,
-      AddressZero,
+      deployer,
+      pnk.target,
+      ZeroAddress,
       disputeKit.address,
       false,
-      [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
+      [minStake, alpha, feeForJuror, jurorsForCourtJump],
       [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-      ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
+      ethers.toBeHex(5), // Extra data for sortition module will return the default value of K
       sortitionModule.address,
     ],
     log: true,
@@ -83,31 +85,16 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   // execute DisputeKitClassic.changeCore() only if necessary
   const currentCore = await hre.ethers.getContractAt("DisputeKitClassic", disputeKit.address).then((dk) => dk.core());
   if (currentCore !== klerosCore.address) {
-    await execute("DisputeKitClassic", { from: deployer, log: true }, "changeCore", klerosCore.address);
+    const dk = (await hre.ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
+    console.log(`disputeKit.changeCore(${klerosCore.address})`);
+    dk.changeCore(klerosCore.address);
   }
 
-  const changeCurrencyRate = async (
-    erc20: string,
-    accepted: boolean,
-    rateInEth: BigNumberish,
-    rateDecimals: BigNumberish
-  ) => {
-    const core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-    const pnkRate = await core.currencyRates(erc20);
-    if (pnkRate.feePaymentAccepted !== accepted) {
-      console.log(`core.changeAcceptedFeeTokens(${erc20}, ${accepted})`);
-      await core.changeAcceptedFeeTokens(erc20, accepted);
-    }
-    if (!pnkRate.rateInEth.eq(rateInEth) || pnkRate.rateDecimals !== rateDecimals) {
-      console.log(`core.changeCurrencyRates(${erc20}, ${rateInEth}, ${rateDecimals})`);
-      await core.changeCurrencyRates(erc20, rateInEth, rateDecimals);
-    }
-  };
-
+  const core = (await hre.ethers.getContract("KlerosCore")) as KlerosCore;
   try {
-    await changeCurrencyRate(pnk.address, true, 12225583, 12);
-    await changeCurrencyRate(dai.address, true, 60327783, 11);
-    await changeCurrencyRate(weth.address, true, 1, 1);
+    await changeCurrencyRate(core, await pnk.getAddress(), true, 12225583, 12);
+    await changeCurrencyRate(core, await dai.getAddress(), true, 60327783, 11);
+    await changeCurrencyRate(core, await weth.getAddress(), true, 1, 1);
   } catch (e) {
     console.error("failed to change currency rates:", e);
   }

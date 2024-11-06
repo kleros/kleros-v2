@@ -1,12 +1,11 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { BigNumber } from "ethers";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped } from "./utils";
 
 const deployUpgradeKlerosCore: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
-  const { AddressZero } = hre.ethers.constants;
+  const { ZeroAddress } = hre.ethers;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -16,9 +15,9 @@ const deployUpgradeKlerosCore: DeployFunction = async (hre: HardhatRuntimeEnviro
   try {
     const pnk = await deployments.get("PNK");
     const disputeKit = await deployments.get("DisputeKitClassic");
-    const minStake = BigNumber.from(10).pow(20).mul(2);
+    const minStake = 2n * 10n ** 20n;
     const alpha = 10000;
-    const feeForJuror = BigNumber.from(10).pow(17);
+    const feeForJuror = 10n * 17n;
     const sortitionModule = await deployments.get("SortitionModule");
 
     console.log("upgrading the KlerosCore...");
@@ -27,12 +26,12 @@ const deployUpgradeKlerosCore: DeployFunction = async (hre: HardhatRuntimeEnviro
       args: [
         deployer,
         pnk,
-        AddressZero,
+        ZeroAddress,
         disputeKit.address,
         false,
         [minStake, alpha, feeForJuror, 256], // minStake, alpha, feeForJuror, jurorsForCourtJump
         [0, 0, 0, 10], // evidencePeriod, commitPeriod, votePeriod, appealPeriod
-        ethers.utils.hexlify(5), // Extra data for sortition module will return the default value of K
+        ethers.toBeHex(5), // Extra data for sortition module will return the default value of K
         sortitionModule.address,
       ],
     });

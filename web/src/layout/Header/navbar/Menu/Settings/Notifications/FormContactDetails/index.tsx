@@ -1,20 +1,31 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { useWalletClient, useAccount } from "wagmi";
+
+import { useAccount } from "wagmi";
+
 import { Button } from "@kleros/ui-components-library";
-import { uploadSettingsToSupabase } from "utils/uploadSettingsToSupabase";
-import FormContact from "./FormContact";
-import messages from "src/consts/eip712-messages";
-import { EMAIL_REGEX, TELEGRAM_REGEX } from "consts/index";
-import { ISettings } from "../../../../index";
+
+import { EMAIL_REGEX } from "consts/index";
+import { useAtlasProvider } from "context/AtlasProvider";
+
 import { responsiveSize } from "styles/responsiveSize";
 
+import { ISettings } from "../../../../index";
+
+import EmailVerificationInfo from "./EmailVerificationInfo";
+import FormContact from "./FormContact";
+import { isUndefined } from "src/utils";
+import InfoCard from "components/InfoCard";
+import { timeLeftUntil } from "utils/date";
+
 const FormContainer = styled.form`
+  width: 100%;
   position: relative;
   display: flex;
   flex-direction: column;
   padding: 0 ${responsiveSize(12, 32, 300)};
   padding-bottom: 16px;
+  gap: 16px;
 `;
 
 const ButtonContainer = styled.div`
@@ -25,46 +36,69 @@ const ButtonContainer = styled.div`
 const FormContactContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 24px;
+`;
+
+const StyledInfoCard = styled(InfoCard)`
+  width: fit-content;
+  font-size: 14px;
+  margin-bottom: 8px;
+  word-wrap: break-word;
 `;
 
 const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
-  const [telegramInput, setTelegramInput] = useState<string>("");
   const [emailInput, setEmailInput] = useState<string>("");
-  const [telegramIsValid, setTelegramIsValid] = useState<boolean>(false);
   const [emailIsValid, setEmailIsValid] = useState<boolean>(false);
-  const { data: walletClient } = useWalletClient();
   const { address } = useAccount();
+  const { user, isAddingUser, isFetchingUser, addUser, updateEmail, isUpdatingUser, userExists } = useAtlasProvider();
 
-  // TODO: after the user is authenticated, retrieve the current email/telegram from the database and populate the form
+  const isEditingEmail = user?.email !== emailInput;
+
+  const isEmailUpdateable = user?.email
+    ? !isUndefined(user?.emailUpdateableAt) && new Date(user.emailUpdateableAt).getTime() < new Date().getTime()
+    : true;
+
+  useEffect(() => {
+    if (!user || !userExists) return;
+
+    setEmailInput(user.email);
+  }, [user, userExists]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!address) {
-      throw new Error("Missing address");
+      return;
     }
-    const nonce = new Date().getTime().toString();
-    const signature = await walletClient?.signTypedData(
-      messages.contactDetails(address, nonce, telegramInput, emailInput)
-    );
-    if (!signature) {
-      throw new Error("Missing signature");
-    }
-    const data = {
-      email: emailInput,
-      telegram: telegramInput,
-      nonce,
-      address,
-      signature,
-    };
-    const response = await uploadSettingsToSupabase(data);
-    if (response.ok) {
-      toggleIsSettingsOpen();
+
+    // if user exists then update email
+    if (userExists) {
+      if (!isEmailUpdateable) return;
+      const data = {
+        newEmail: emailInput,
+      };
+      updateEmail(data)
+        .then(async (res) => {
+          if (res) {
+            toggleIsSettingsOpen();
+          }
+        })
+        .catch((err) => console.log(err));
+    } else {
+      const data = {
+        email: emailInput,
+      };
+      addUser(data)
+        .then(async (res) => {
+          if (res) {
+            toggleIsSettingsOpen();
+          }
+        })
+        .catch((err) => console.log(err));
     }
   };
+
   return (
     <FormContainer onSubmit={handleSubmit}>
-      <FormContactContainer>
+      {/* <FormContactContainer>
         <FormContact
           contactLabel="Telegram"
           contactPlaceholder="@my_handle"
@@ -73,8 +107,9 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           setContactInput={setTelegramInput}
           setContactIsValid={setTelegramIsValid}
           validator={TELEGRAM_REGEX}
+          isEditing={isEditingTelegram}
         />
-      </FormContactContainer>
+      </FormContactContainer> */}
       <FormContactContainer>
         <FormContact
           contactLabel="Email"
@@ -84,12 +119,21 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
           setContactInput={setEmailInput}
           setContactIsValid={setEmailIsValid}
           validator={EMAIL_REGEX}
+          isEditing={isEditingEmail}
         />
       </FormContactContainer>
-
+      {!isEmailUpdateable ? (
+        <StyledInfoCard msg={`You can update email again ${timeLeftUntil(user?.emailUpdateableAt!)}`} />
+      ) : null}
       <ButtonContainer>
-        <Button text="Save" disabled={!emailIsValid && !telegramIsValid} />
+        <Button
+          text="Save"
+          disabled={
+            !isEditingEmail || !emailIsValid || isAddingUser || isFetchingUser || isUpdatingUser || !isEmailUpdateable
+          }
+        />
       </ButtonContainer>
+      <EmailVerificationInfo toggleIsSettingsOpen={toggleIsSettingsOpen} />
     </FormContainer>
   );
 };

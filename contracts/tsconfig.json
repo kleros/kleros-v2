@@ -1,11 +1,18 @@
 {
-  "extends": "@kleros/kleros-v2-tsconfig/base.json",
+  "extends": "@kleros/kleros-v2-tsconfig/base18.json",
+  "compilerOptions": {
+    "resolveJsonModule": true
+  },
   "include": [
     "./src",
     "./scripts",
     "./test",
     "./typechain-types",
-    "./deploy"
+    "./deploy",
+    "./deployments"
+  ],
+  "exclude": [
+    "./scripts/**/console*.ts"
   ],
   "files": [
     "./hardhat.config.ts"

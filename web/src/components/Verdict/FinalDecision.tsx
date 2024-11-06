@@ -1,14 +1,29 @@
-import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useMemo } from "react";
 import styled from "styled-components";
-import Identicon from "react-identicons";
-import ArrowIcon from "assets/svgs/icons/arrow.svg";
-import { useKlerosCoreCurrentRuling } from "hooks/contracts/generated";
+
+import Skeleton from "react-loading-skeleton";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAccount } from "wagmi";
+
+import ArrowIcon from "svgs/icons/arrow.svg";
+
+import { REFETCH_INTERVAL } from "consts/index";
+import { Periods } from "consts/periods";
+import { useReadKlerosCoreCurrentRuling } from "hooks/contracts/generated";
+import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
+import { useVotingHistory } from "hooks/queries/useVotingHistory";
+import { useVotingContext } from "hooks/useVotingContext";
+import { getLocalRounds } from "utils/getLocalRounds";
+
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
-import LightButton from "../LightButton";
-import VerdictBanner from "./VerdictBanner";
+
 import { responsiveSize } from "styles/responsiveSize";
+
+import LightButton from "../LightButton";
+
+import AnswerDisplay from "./Answer";
+import VerdictBanner from "./VerdictBanner";
+import { Divider } from "../Divider";
 
 const Container = styled.div`
   width: 100%;
@@ -30,32 +45,6 @@ const JuryDecisionTag = styled.small`
   color: ${({ theme }) => theme.secondaryText};
 `;
 
-const UserContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin: 22px 0px;
-  gap: 10px;
-`;
-
-const AliasTag = styled.div`
-  display: flex;
-  flex-direction: column;
-  small {
-    font-weight: 400;
-    line-height: 19px;
-  }
-`;
-
-const StyledIdenticon = styled(Identicon)`
-  width: 24px;
-  height: 24px;
-  border-radius: 100%;
-`;
-
-const Title = styled.small`
-  color: ${({ theme }) => theme.secondaryText};
-`;
-
 const StyledButton = styled(LightButton)`
   display: flex;
   flex-direction: row-reverse;
@@ -66,15 +55,7 @@ const StyledButton = styled(LightButton)`
   padding-top: 0px;
 `;
 
-const AnswerTitle = styled.h3`
-  margin: 0;
-`;
-
-const Divider = styled.hr`
-  display: flex;
-  border: none;
-  height: 1px;
-  background-color: ${({ theme }) => theme.stroke};
+const StyledDivider = styled(Divider)`
   margin: ${responsiveSize(16, 32)} 0px;
 `;
 
@@ -84,52 +65,56 @@ interface IFinalDecision {
 
 const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const { id } = useParams();
-  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
+  const { isDisconnected } = useAccount();
+  const { data: populatedDisputeData } = usePopulatedDisputeData(id, arbitrable);
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
+  const { wasDrawn, hasVoted, isLoading, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes } = useVotingContext();
+  const { data: votingHistory } = useVotingHistory(id);
+  const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const ruled = disputeDetails?.dispute?.ruled ?? false;
+  const periodIndex = Periods[disputeDetails?.dispute?.period ?? "evidence"];
   const navigate = useNavigate();
-  const { data: currentRulingArray } = useKlerosCoreCurrentRuling({ args: [BigInt(id ?? 0)], watch: true });
+  const { data: currentRulingArray } = useReadKlerosCoreCurrentRuling({
+    query: { refetchInterval: REFETCH_INTERVAL },
+    args: [BigInt(id ?? 0)],
+  });
   const currentRuling = Number(currentRulingArray?.[0]);
-  const answer = disputeTemplate?.answers?.[currentRuling! - 1];
+  const answer = populatedDisputeData?.answers?.[currentRuling! - 1];
+  const buttonText = useMemo(() => {
+    if (!wasDrawn || isDisconnected) return "Check how the jury voted";
+    if (isCommitPeriod && !commited) return "Commit your vote";
+    if (isVotingPeriod && isHiddenVotes && commited && !hasVoted) return "Reveal your vote";
+    if (isVotingPeriod && !isHiddenVotes && !hasVoted) return "Cast your vote";
+    return "Check how the jury voted";
+  }, [wasDrawn, hasVoted, isCommitPeriod, isVotingPeriod, commited, isHiddenVotes]);
 
   return (
     <Container>
       <VerdictBanner ruled={ruled} />
 
-      <JuryContainer>
-        {ruled ? (
+      {ruled && (
+        <JuryContainer>
           <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
-        ) : (
-          <JuryDecisionTag>This option is winning:</JuryDecisionTag>
-        )}
-        {answer ? (
-          <div>
-            <AnswerTitle>{answer.title}</AnswerTitle>
-            <small>{answer.description}</small>
-          </div>
-        ) : (
-          <>{currentRuling !== 0 ? <h3>Answer 0x{currentRuling}</h3> : <h3>Refuse to Arbitrate</h3>}</>
-        )}
-      </JuryContainer>
-      <Divider />
-      {disputeTemplate?.aliases && (
-        <>
-          <UserContainer>
-            <StyledIdenticon size="24" />
-            <AliasTag>
-              {disputeTemplate?.aliases?.challenger && <small>Alice.eth</small>}
-              <Title>Claimant</Title>
-            </AliasTag>
-          </UserContainer>
-          <Divider />
-        </>
+          <AnswerDisplay {...{ answer, currentRuling }} />
+        </JuryContainer>
       )}
-      <StyledButton
-        onClick={() => navigate(`/cases/${id?.toString()}/voting`)}
-        text={"Check how the jury voted"}
-        Icon={ArrowIcon}
-        className="reverse-button"
-      />
+      {!ruled && periodIndex > 1 && localRounds?.at(localRounds.length - 1)?.totalVoted > 0 && (
+        <JuryContainer>
+          <JuryDecisionTag>This option is winning:</JuryDecisionTag>
+          <AnswerDisplay {...{ answer, currentRuling }} />
+        </JuryContainer>
+      )}
+      <StyledDivider />
+      {isLoading && !isDisconnected ? (
+        <Skeleton width={250} height={20} />
+      ) : (
+        <StyledButton
+          onClick={() => navigate(`/cases/${id?.toString()}/voting`)}
+          text={buttonText}
+          Icon={ArrowIcon}
+          className="reverse-button"
+        />
+      )}
     </Container>
   );
 };

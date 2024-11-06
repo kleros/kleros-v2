@@ -2,6 +2,7 @@ import { useLocalStorage } from "react-use";
 import { Hex, WalletClient, keccak256 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { useWalletClient } from "wagmi";
+
 import messages from "consts/eip712-messages";
 import { isUndefined } from "utils/index";
 

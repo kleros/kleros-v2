@@ -1,7 +1,10 @@
+import { useQuery } from "@tanstack/react-query";
+
+import { REFETCH_INTERVAL } from "consts/index";
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
+
 import { graphql } from "src/graphql";
 import { ClassicAppealQuery } from "src/graphql/graphql";
-import { useQuery } from "@tanstack/react-query";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
 export type { ClassicAppealQuery };
 
 const classicAppealQuery = graphql(`
@@ -24,6 +27,8 @@ const classicAppealQuery = graphql(`
             winningChoice
             paidFees
             fundedChoices
+            appealFeesDispersed
+            totalFeeDispersed
           }
         }
       }
@@ -33,16 +38,22 @@ const classicAppealQuery = graphql(`
 
 export const useClassicAppealQuery = (id?: string | number) => {
   const isEnabled = id !== undefined;
+  const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<ClassicAppealQuery>({
-    queryKey: ["refetchOnBlock", `classicAppealQuery${id}`],
+    queryKey: [`classicAppealQuery${id}`],
     enabled: isEnabled,
+    refetchInterval: REFETCH_INTERVAL,
     queryFn: async () =>
       isEnabled
-        ? await graphqlQueryFnHelper(classicAppealQuery, {
-            disputeID: id?.toString(),
-            orderBy: "timestamp",
-            orderDirection: "asc",
+        ? await graphqlBatcher.fetch({
+            id: crypto.randomUUID(),
+            document: classicAppealQuery,
+            variables: {
+              disputeID: id?.toString(),
+              orderBy: "timestamp",
+              orderDirection: "asc",
+            },
           })
         : undefined,
   });

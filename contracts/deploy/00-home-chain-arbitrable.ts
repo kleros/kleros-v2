@@ -24,35 +24,22 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  await deploy("ArbitrableExample", {
-    from: deployer,
-    args: [
-      klerosCore.address,
-      disputeTemplate,
-      "disputeTemplateMapping: TODO",
-      extraData,
-      disputeTemplateRegistry.address,
-      weth.address,
-    ],
-    log: true,
-  });
+  // await deploy("ArbitrableExample", {
+  //   from: deployer,
+  //   args: [
+  //     klerosCore.address,
+  //     disputeTemplate,
+  //     "disputeTemplateMapping: TODO",
+  //     extraData,
+  //     disputeTemplateRegistry.address,
+  //     weth.address,
+  //   ],
+  //   log: true,
+  // });
 
   await deploy("DisputeResolver", {
     from: deployer,
     args: [klerosCore.address, disputeTemplateRegistry.address],
-    log: true,
-  });
-
-  await deploy("Escrow", {
-    from: deployer,
-    args: [
-      klerosCore.address,
-      extraData,
-      disputeTemplate, // TODO: use an Escrow-specific dispute template
-      "disputeTemplateMapping: TODO",
-      disputeTemplateRegistry.address,
-      600, // feeTimeout: 10 minutes
-    ],
     log: true,
   });
 };

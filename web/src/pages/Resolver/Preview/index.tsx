@@ -1,14 +1,21 @@
 import React from "react";
 import styled, { css } from "styled-components";
+
+import { Card } from "@kleros/ui-components-library";
+
+import { useNewDisputeContext } from "context/NewDisputeContext";
+
 import { useCourtPolicy } from "queries/useCourtPolicy";
-import DisputeInfo from "components/DisputeCard/DisputeInfo";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
 import { DisputeContext } from "components/DisputePreview/DisputeContext";
 import { Policies } from "components/DisputePreview/Policies";
-import { Card } from "@kleros/ui-components-library";
-import { landscapeStyle } from "styles/landscapeStyle";
+import DisputeInfo from "components/DisputeView/DisputeInfo";
+import { Divider } from "components/Divider";
+
 import NavigationButtons from "../NavigationButtons";
-import { useNewDisputeContext } from "context/NewDisputeContext";
 
 const Container = styled.div`
   width: 100%;
@@ -33,15 +40,6 @@ const PreviewContainer = styled.div`
   padding: ${responsiveSize(16, 32)};
 `;
 
-const Divider = styled.hr`
-  width: 100%;
-  display: flex;
-  border: none;
-  height: 1px;
-  background-color: ${({ theme }) => theme.stroke};
-  margin: 0;
-`;
-
 const Header = styled.h2`
   margin-bottom: 32px;
   width: 84vw;
@@ -64,7 +62,7 @@ const Preview: React.FC = () => {
       <Header>Preview</Header>
       <StyledCard>
         <PreviewContainer>
-          <DisputeContext disputeTemplate={disputeTemplate} />
+          <DisputeContext disputeDetails={disputeTemplate} />
           <Divider />
 
           <DisputeInfo

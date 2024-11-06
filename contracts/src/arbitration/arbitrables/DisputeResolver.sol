@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-/// @custom:authors: [@ferittuncer, @unknownunknown1, @jaybuidl]
+/// @custom:authors: [@unknownunknown1, @jaybuidl]
 /// @custom:reviewers: []
 /// @custom:auditors: []
 /// @custom:bounties: []
@@ -8,7 +8,7 @@
 import {IArbitrableV2, IArbitratorV2} from "../interfaces/IArbitrableV2.sol";
 import "../interfaces/IDisputeTemplateRegistry.sol";
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 /// @title DisputeResolver
 /// DisputeResolver contract adapted for V2 from https://github.com/kleros/arbitrable-proxy-contracts/blob/master/contracts/ArbitrableProxy.sol.
@@ -109,10 +109,10 @@ contract DisputeResolver is IArbitrableV2 {
     }
 
     /// @dev To be called by the arbitrator of the dispute, to declare the winning ruling.
-    /// @param _externalDisputeID ID of the dispute in arbitrator contract.
+    /// @param _arbitratorDisputeID ID of the dispute in arbitrator contract.
     /// @param _ruling The ruling choice of the arbitration.
-    function rule(uint256 _externalDisputeID, uint256 _ruling) external override {
-        uint256 localDisputeID = arbitratorDisputeIDToLocalID[_externalDisputeID];
+    function rule(uint256 _arbitratorDisputeID, uint256 _ruling) external override {
+        uint256 localDisputeID = arbitratorDisputeIDToLocalID[_arbitratorDisputeID];
         DisputeStruct storage dispute = disputes[localDisputeID];
         require(msg.sender == address(arbitrator), "Only the arbitrator can execute this.");
         require(_ruling <= dispute.numberOfRulingOptions, "Invalid ruling.");
@@ -121,7 +121,7 @@ contract DisputeResolver is IArbitrableV2 {
         dispute.isRuled = true;
         dispute.ruling = _ruling;
 
-        emit Ruling(IArbitratorV2(msg.sender), _externalDisputeID, dispute.ruling);
+        emit Ruling(IArbitratorV2(msg.sender), _arbitratorDisputeID, dispute.ruling);
     }
 
     // ************************************* //
@@ -134,10 +134,10 @@ contract DisputeResolver is IArbitrableV2 {
         string memory _disputeTemplateDataMappings,
         string memory _disputeTemplateUri,
         uint256 _numberOfRulingOptions
-    ) internal returns (uint256 disputeID) {
+    ) internal virtual returns (uint256 arbitratorDisputeID) {
         require(_numberOfRulingOptions > 1, "Should be at least 2 ruling options.");
 
-        disputeID = arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
+        arbitratorDisputeID = arbitrator.createDispute{value: msg.value}(_numberOfRulingOptions, _arbitratorExtraData);
         uint256 localDisputeID = disputes.length;
         disputes.push(
             DisputeStruct({
@@ -147,8 +147,8 @@ contract DisputeResolver is IArbitrableV2 {
                 numberOfRulingOptions: _numberOfRulingOptions
             })
         );
-        arbitratorDisputeIDToLocalID[disputeID] = localDisputeID;
+        arbitratorDisputeIDToLocalID[arbitratorDisputeID] = localDisputeID;
         uint256 templateId = templateRegistry.setDisputeTemplate("", _disputeTemplate, _disputeTemplateDataMappings);
-        emit DisputeRequest(arbitrator, disputeID, localDisputeID, templateId, _disputeTemplateUri);
+        emit DisputeRequest(arbitrator, arbitratorDisputeID, localDisputeID, templateId, _disputeTemplateUri);
     }
 }

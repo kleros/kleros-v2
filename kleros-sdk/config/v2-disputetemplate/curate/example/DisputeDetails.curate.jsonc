@@ -32,6 +32,7 @@
   "category": "Curated Lists",
   "lang": "en_US",
   "specification": "KIP88",
+  "version": "1.0",
   "metadata": {
     "tcrTitle": "Ledger Contract Domain Name registry v2",
     "tcrDescription": "A list of contract addresses and the domain names they are meant to be used from .",

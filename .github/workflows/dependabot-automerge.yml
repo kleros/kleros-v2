@@ -3,6 +3,9 @@ on:
   merge_group:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   dependabot:
     runs-on: ubuntu-latest

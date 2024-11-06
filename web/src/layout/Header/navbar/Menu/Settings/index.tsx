@@ -1,13 +1,18 @@
 import React, { useRef, useState } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
+
+import { useLocation, useNavigate } from "react-router-dom";
+import { useClickAway } from "react-use";
+
 import { Tabs } from "@kleros/ui-components-library";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
+import { ISettings } from "../../index";
+
 import General from "./General";
 import NotificationSettings from "./Notifications";
-import { useFocusOutside } from "hooks/useFocusOutside";
-import { Overlay } from "components/Overlay";
-import { ISettings } from "../../index";
-import { responsiveSize } from "styles/responsiveSize";
 
 const Container = styled.div`
   display: flex;
@@ -20,7 +25,6 @@ const Container = styled.div`
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
-  background-color: ${({ theme }) => theme.whiteBackground};
   border: 1px solid ${({ theme }) => theme.stroke};
   border-radius: 3px;
   overflow-y: auto;
@@ -48,7 +52,7 @@ const StyledTabs = styled(Tabs)`
   padding: 0 ${responsiveSize(8, 32, 300)};
   width: 86vw;
   max-width: 660px;
-
+  align-self: center;
   ${landscapeStyle(
     () => css`
       width: ${responsiveSize(300, 424, 300)};
@@ -67,26 +71,28 @@ const TABS = [
   },
 ];
 
-const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
-  const [currentTab, setCurrentTab] = useState<number>(0);
+const Settings: React.FC<ISettings> = ({ toggleIsSettingsOpen, initialTab }) => {
+  const [currentTab, setCurrentTab] = useState<number>(initialTab || 0);
   const containerRef = useRef(null);
-  useFocusOutside(containerRef, () => toggleIsSettingsOpen());
+  const location = useLocation();
+  const navigate = useNavigate();
+  useClickAway(containerRef, () => {
+    toggleIsSettingsOpen();
+    if (location.hash.includes("#notifications")) navigate("#", { replace: true });
+  });
 
   return (
-    <>
-      <Overlay />
-      <Container ref={containerRef}>
-        <StyledSettingsText>Settings</StyledSettingsText>
-        <StyledTabs
-          currentValue={currentTab}
-          items={TABS}
-          callback={(n: number) => {
-            setCurrentTab(n);
-          }}
-        />
-        {currentTab === 0 ? <General /> : <NotificationSettings toggleIsSettingsOpen={toggleIsSettingsOpen} />}
-      </Container>
-    </>
+    <Container ref={containerRef}>
+      <StyledSettingsText>Settings</StyledSettingsText>
+      <StyledTabs
+        currentValue={currentTab}
+        items={TABS}
+        callback={(n: number) => {
+          setCurrentTab(n);
+        }}
+      />
+      {currentTab === 0 ? <General /> : <NotificationSettings {...{ toggleIsSettingsOpen }} />}
+    </Container>
   );
 };
 

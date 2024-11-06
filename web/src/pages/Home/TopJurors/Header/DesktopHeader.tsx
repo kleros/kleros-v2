@@ -1,12 +1,16 @@
 import React from "react";
-import { useToggle } from "react-use";
 import styled, { css } from "styled-components";
+
+import { useToggle } from "react-use";
+
 import { landscapeStyle } from "styles/landscapeStyle";
-import Rewards from "./Rewards";
-import Coherency from "./Coherency";
+import { responsiveSize } from "styles/responsiveSize";
+
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
-import { responsiveSize } from "styles/responsiveSize";
+
+import Coherency from "./Coherency";
+import Rewards from "./Rewards";
 
 const Container = styled.div`
   display: none;

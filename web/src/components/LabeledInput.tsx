@@ -1,6 +1,8 @@
-import { Field, FieldProps } from "@kleros/ui-components-library";
 import React from "react";
 import styled from "styled-components";
+
+import { Field, FieldProps } from "@kleros/ui-components-library";
+
 import { isUndefined } from "utils/index";
 
 const Container = styled.div`

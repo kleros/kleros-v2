@@ -1,11 +1,19 @@
 import React from "react";
 import styled, { css } from "styled-components";
+
 import { landscapeStyle } from "styles/landscapeStyle";
-import { Breadcrumb } from "@kleros/ui-components-library";
+import LightButton from "components/LightButton";
+
+import ArrowIcon from "svgs/icons/arrow.svg";
+import { useNavigateAndScrollTop } from "hooks/useNavigateAndScrollTop";
 
 const Container = styled.div`
+  display: flex;
   width: 100%;
-  justify-content: flex-start;
+  flex-direction: row;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
 
   small {
     height: 100%;
@@ -15,25 +23,46 @@ const Container = styled.div`
   ${landscapeStyle(
     () =>
       css`
+        justify-content: flex-start;
         width: auto;
       `
   )}
 `;
 
-const StyledBreadcrumb = styled(Breadcrumb)`
+const StyledButton = styled(LightButton)`
   display: flex;
-  align-items: center;
-  height: 100%;
+  flex-direction: row-reverse;
+  gap: 8px;
+  padding: 0px;
+  > .button-text {
+    color: ${({ theme }) => theme.primaryBlue};
+    font-size: 14px;
+  }
+  > .button-svg {
+    margin-right: 0;
+    path {
+      fill: ${({ theme }) => theme.primaryBlue};
+    }
+  }
 `;
 
 interface ICourtName {
   name: string;
+  id: string;
 }
 
-const CourtName: React.FC<ICourtName> = ({ name }) => {
+const CourtName: React.FC<ICourtName> = ({ name, id }) => {
+  const navigate = useNavigateAndScrollTop();
+
   return (
     <Container>
-      <StyledBreadcrumb items={[{ text: name, value: 0 }]} />
+      <small>{name}</small>
+      <StyledButton
+        onClick={() => navigate(`/courts/${id?.toString()}`)}
+        text="Open Court"
+        Icon={ArrowIcon}
+        className="reverse-button"
+      />
     </Container>
   );
 };

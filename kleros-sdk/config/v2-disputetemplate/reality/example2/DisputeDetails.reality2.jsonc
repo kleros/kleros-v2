@@ -40,6 +40,7 @@
   "category": "Oracle",
   "lang": "en_US",
   "specification": "KIP99",
+  "version": "1.0",
   "metadata": {
     "realityAddress": "0xe78996a233895be74a66f451f1019ca9734205cc",
     "realityTemplateID": "2",

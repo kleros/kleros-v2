@@ -1,9 +1,10 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
-import { graphqlUrl } from "utils/graphqlQueryFnHelper";
+
+import { getGraphqlUrl } from "utils/getGraphqlUrl";
 
 const config: CodegenConfig = {
   overwrite: true,
-  schema: [graphqlUrl(false), graphqlUrl(true)],
+  schema: [getGraphqlUrl(false), getGraphqlUrl(true)],
   documents: "./src/hooks/queries/*.ts",
   generates: {
     "./src/graphql/": {

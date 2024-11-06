@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "../proxy/UUPSProxiable.sol";
 import "../proxy/Initializable.sol";
@@ -12,8 +12,11 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     // *             Storage               * //
     // ************************************* //
 
-    address public governor; // The address that can withdraw funds.
-    uint256 public templates; // The number of templates.
+    /// @dev The governor of the contract.
+    address public governor;
+
+    /// @dev The number of templates.
+    uint256 public templates;
 
     // ************************************* //
     // *        Function Modifiers         * //
@@ -43,10 +46,8 @@ contract DisputeTemplateRegistry is IDisputeTemplateRegistry, UUPSProxiable, Ini
     // *      Governance      * //
     // ************************ //
 
-    /**
-     * @dev Access Control to perform implementation upgrades (UUPS Proxiable)
-     * @dev Only the governor can perform upgrades (`onlyByGovernor`)
-     */
+    /// @dev Access Control to perform implementation upgrades (UUPS Proxiable)
+    ///      Only the governor can perform upgrades (`onlyByGovernor`)
     function _authorizeUpgrade(address) internal view override onlyByGovernor {
         // NOP
     }

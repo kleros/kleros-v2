@@ -1,11 +1,16 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import { useParams } from "react-router-dom";
+
 import ReactMarkdown from "react-markdown";
+import { useParams } from "react-router-dom";
+
 import { Button } from "@kleros/ui-components-library";
+
+import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { isUndefined } from "utils/index";
-import { useDisputeTemplate } from "queries/useDisputeTemplate";
+
 import { EnsureChain } from "components/EnsureChain";
+
 import JustificationArea from "./JustificationArea";
 
 const MainContainer = styled.div`
@@ -43,7 +48,7 @@ interface IOptions {
 
 const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justification, setJustification }) => {
   const { id } = useParams();
-  const { data: disputeTemplate } = useDisputeTemplate(id, arbitrable);
+  const { data: disputeDetails } = usePopulatedDisputeData(id, arbitrable);
   const [chosenOption, setChosenOption] = useState(-1);
   const [isSending, setIsSending] = useState(false);
 
@@ -61,12 +66,12 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
   return id ? (
     <>
       <MainContainer>
-        <ReactMarkdown>{disputeTemplate?.question}</ReactMarkdown>
+        <ReactMarkdown>{disputeDetails?.question}</ReactMarkdown>
         {!isUndefined(justification) && !isUndefined(setJustification) ? (
           <JustificationArea {...{ justification, setJustification }} />
         ) : null}
         <OptionsContainer>
-          {disputeTemplate?.answers?.map((answer: { title: string; description: string }, i: number) => {
+          {disputeDetails?.answers?.map((answer: { title: string; description: string }, i: number) => {
             return (
               <EnsureChain key={answer.title}>
                 <Button

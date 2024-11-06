@@ -1,0 +1,27 @@
+{
+  "extends": "@kleros/kleros-v2-tsconfig/base20.json",
+  "compilerOptions": {
+    "outDir": "lib",
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "removeComments": true,
+    "isolatedModules": true,
+    "noEmit": false,
+    "declaration": true
+  },
+  "include": [
+    "src",
+    "test"
+  ],
+  "exclude": [
+    "build",
+    "dist",
+    "lib",
+    "node_modules",
+    "scripts",
+    "webpack"
+  ]
+}

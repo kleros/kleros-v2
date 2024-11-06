@@ -6,7 +6,7 @@
 /// @custom:bounties: []
 /// @custom:deployments: []
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.24;
 
 import "./IArbitratorV2.sol";
 
@@ -70,11 +70,15 @@ interface IDisputeKit {
     /// @param _coreDisputeID The ID of the dispute in Kleros Core, not in the Dispute Kit.
     /// @param _coreRoundID The ID of the round in Kleros Core, not in the Dispute Kit.
     /// @param _voteID The ID of the vote.
+    /// @param _feePerJuror The fee per juror.
+    /// @param _pnkAtStakePerJuror The PNK at stake per juror.
     /// @return The degree of coherence in basis points.
     function getDegreeOfCoherence(
         uint256 _coreDisputeID,
         uint256 _coreRoundID,
-        uint256 _voteID
+        uint256 _voteID,
+        uint256 _feePerJuror,
+        uint256 _pnkAtStakePerJuror
     ) external view returns (uint256);
 
     /// @dev Gets the number of jurors who are eligible to a reward in this round.

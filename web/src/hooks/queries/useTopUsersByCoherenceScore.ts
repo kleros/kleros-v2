@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { graphql } from "src/graphql";
-import { graphqlQueryFnHelper } from "utils/graphqlQueryFnHelper";
-import { TopUsersByCoherenceScoreQuery } from "src/graphql/graphql";
+
+import { useGraphqlBatcher } from "context/GraphqlBatcher";
 import { isUndefined } from "utils/index";
+
+import { graphql } from "src/graphql";
+import { TopUsersByCoherenceScoreQuery } from "src/graphql/graphql";
 export type { TopUsersByCoherenceScoreQuery };
 
 const topUsersByCoherenceScoreQuery = graphql(`
@@ -10,7 +12,8 @@ const topUsersByCoherenceScoreQuery = graphql(`
     users(first: $first, orderBy: $orderBy, orderDirection: $orderDirection) {
       id
       coherenceScore
-      totalCoherent
+      totalCoherentVotes
+      totalResolvedVotes
       totalResolvedDisputes
     }
   }
@@ -18,6 +21,7 @@ const topUsersByCoherenceScoreQuery = graphql(`
 
 export const useTopUsersByCoherenceScore = (first = 5) => {
   const isEnabled = !isUndefined(first);
+  const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<TopUsersByCoherenceScoreQuery>({
     queryKey: [`TopUsersByCoherenceScore${first}`],
@@ -25,10 +29,14 @@ export const useTopUsersByCoherenceScore = (first = 5) => {
     staleTime: Infinity,
     queryFn: async () =>
       isEnabled
-        ? await graphqlQueryFnHelper(topUsersByCoherenceScoreQuery, {
-            first: first,
-            orderBy: "coherenceScore",
-            orderDirection: "desc",
+        ? await graphqlBatcher.fetch({
+            id: crypto.randomUUID(),
+            document: topUsersByCoherenceScoreQuery,
+            variables: {
+              first: first,
+              orderBy: "coherenceScore",
+              orderDirection: "desc",
+            },
           })
         : undefined,
   });

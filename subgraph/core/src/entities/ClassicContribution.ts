@@ -3,9 +3,7 @@ import { Contribution as ContributionEvent, Withdrawal } from "../../generated/D
 import { DISPUTEKIT_ID } from "../DisputeKitClassic";
 
 export function ensureClassicContributionFromEvent<T>(event: T): ClassicContribution | null {
-  if (!(event instanceof ContributionEvent) && !(event instanceof Withdrawal)) {
-    return null;
-  }
+  if (!(event instanceof ContributionEvent) && !(event instanceof Withdrawal)) return null;
   const coreDisputeID = event.params._coreDisputeID.toString();
   const coreRoundIndex = event.params._coreRoundID.toString();
   const roundID = `${DISPUTEKIT_ID}-${coreDisputeID}-${coreRoundIndex}`;
@@ -25,9 +23,11 @@ export function ensureClassicContributionFromEvent<T>(event: T): ClassicContribu
     classicContribution.rewardWithdrawn = false;
   } else {
     const currentAmount = classicContribution.amount;
-    classicContribution.amount = currentAmount.plus(event.params._amount);
+    // we dont want to increase amount on withdraw event, the amount in that event is reward/reimburse amount
+    if (event instanceof ContributionEvent) {
+      classicContribution.amount = currentAmount.plus(event.params._amount);
+    }
   }
-
   classicContribution.save();
   return classicContribution;
 }
