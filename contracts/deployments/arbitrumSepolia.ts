@@ -2,374 +2,14 @@ export default {
   name: "arbitrumSepolia",
   chainId: "421614",
   contracts: {
-    ArbitrableExample: {
-      address: "0xE22500Fa27f696d06702367246bd17Bd2C8a4c5d",
-      abi: [
-        {
-          inputs: [
-            {
-              internalType: "contract IArbitratorV2",
-              name: "_arbitrator",
-              type: "address",
-            },
-            {
-              internalType: "string",
-              name: "_templateData",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "_templateDataMappings",
-              type: "string",
-            },
-            {
-              internalType: "bytes",
-              name: "_arbitratorExtraData",
-              type: "bytes",
-            },
-            {
-              internalType: "contract IDisputeTemplateRegistry",
-              name: "_templateRegistry",
-              type: "address",
-            },
-            {
-              internalType: "contract IERC20",
-              name: "_weth",
-              type: "address",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "constructor",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "string",
-              name: "_action",
-              type: "string",
-            },
-          ],
-          name: "Action",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "contract IArbitratorV2",
-              name: "_arbitrator",
-              type: "address",
-            },
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "_arbitrableDisputeID",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_externalDisputeID",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_templateId",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "_templateUri",
-              type: "string",
-            },
-          ],
-          name: "DisputeRequest",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "contract IArbitratorV2",
-              name: "_arbitrator",
-              type: "address",
-            },
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "_disputeID",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_ruling",
-              type: "uint256",
-            },
-          ],
-          name: "Ruling",
-          type: "event",
-        },
-        {
-          inputs: [],
-          name: "arbitrator",
-          outputs: [
-            {
-              internalType: "contract IArbitratorV2",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "arbitratorExtraData",
-          outputs: [
-            {
-              internalType: "bytes",
-              name: "",
-              type: "bytes",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "contract IArbitratorV2",
-              name: "_arbitrator",
-              type: "address",
-            },
-          ],
-          name: "changeArbitrator",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "bytes",
-              name: "_arbitratorExtraData",
-              type: "bytes",
-            },
-          ],
-          name: "changeArbitratorExtraData",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "_templateData",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "_templateDataMappings",
-              type: "string",
-            },
-          ],
-          name: "changeDisputeTemplate",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "contract IDisputeTemplateRegistry",
-              name: "_templateRegistry",
-              type: "address",
-            },
-          ],
-          name: "changeTemplateRegistry",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "_action",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "_feeInWeth",
-              type: "uint256",
-            },
-          ],
-          name: "createDispute",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "disputeID",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "_action",
-              type: "string",
-            },
-          ],
-          name: "createDispute",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "disputeID",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "payable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          name: "disputes",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "isRuled",
-              type: "bool",
-            },
-            {
-              internalType: "uint256",
-              name: "ruling",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "numberOfRulingOptions",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          name: "externalIDtoLocalID",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "governor",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_externalDisputeID",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "_ruling",
-              type: "uint256",
-            },
-          ],
-          name: "rule",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "templateId",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "templateRegistry",
-          outputs: [
-            {
-              internalType: "contract IDisputeTemplateRegistry",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "weth",
-          outputs: [
-            {
-              internalType: "contract IERC20",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-      ],
-    },
     BlockHashRNG: {
-      address: "0x991d2df165670b9cac3B022f4B68D65b664222ea",
+      address: "0x0298a3EFa6Faf90865725E2b48Cf0F66e5d52754",
       abi: [
         {
           inputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "block",
               type: "uint256",
             },
           ],
@@ -377,7 +17,7 @@ export default {
           outputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "number",
               type: "uint256",
             },
           ],
@@ -837,7 +477,7 @@ export default {
       ],
     },
     DisputeKitClassic: {
-      address: "0x8078C2A3bf93f6f69BDD4D38233E7e219eA1914e",
+      address: "0x10bDc76B491BFcA466AB5C74431880C086b07c67",
       abi: [
         {
           stateMutability: "payable",
@@ -1501,6 +1141,16 @@ export default {
             {
               internalType: "uint256",
               name: "_voteID",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
               type: "uint256",
             },
           ],
@@ -1776,7 +1426,7 @@ export default {
       ],
     },
     DisputeKitClassic_Implementation: {
-      address: "0x2507018D785CE92115CfebE0d92CC496C42e99b7",
+      address: "0x718a6FB3b6f8dc8205e9052E6B745Ff0c23205dD",
       abi: [
         {
           inputs: [],
@@ -2439,6 +2089,16 @@ export default {
               name: "_voteID",
               type: "uint256",
             },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
           ],
           name: "getDegreeOfCoherence",
           outputs: [
@@ -2696,7 +2356,7 @@ export default {
       ],
     },
     DisputeKitClassic_Proxy: {
-      address: "0x8078C2A3bf93f6f69BDD4D38233E7e219eA1914e",
+      address: "0x10bDc76B491BFcA466AB5C74431880C086b07c67",
       abi: [
         {
           inputs: [
@@ -2725,7 +2385,7 @@ export default {
       ],
     },
     DisputeResolver: {
-      address: "0x48e052B4A6dC4F30e90930F1CeaAFd83b3981EB3",
+      address: "0xa5A7F0F8e5f90eb8738C7Ee1be37A9794024Bc1B",
       abi: [
         {
           inputs: [
@@ -2755,7 +2415,7 @@ export default {
             {
               indexed: true,
               internalType: "uint256",
-              name: "_arbitrableDisputeID",
+              name: "_arbitratorDisputeID",
               type: "uint256",
             },
             {
@@ -2990,7 +2650,7 @@ export default {
           inputs: [
             {
               internalType: "uint256",
-              name: "_externalDisputeID",
+              name: "_arbitratorDisputeID",
               type: "uint256",
             },
             {
@@ -3020,7 +2680,7 @@ export default {
       ],
     },
     DisputeTemplateRegistry: {
-      address: "0x553dcbF6aB3aE06a1064b5200Df1B5A9fB403d3c",
+      address: "0xf2833d188269Df7c7B6951f9114DA0bD6BAE70af",
       abi: [
         {
           stateMutability: "payable",
@@ -3260,7 +2920,7 @@ export default {
       ],
     },
     DisputeTemplateRegistry_Implementation: {
-      address: "0x15E5964C7751dF8563eA4bC000301582C79BC454",
+      address: "0xa04d631e5660635D8e8f724F799A4e83Bb1EDb18",
       abi: [
         {
           inputs: [],
@@ -3481,7 +3141,7 @@ export default {
       ],
     },
     DisputeTemplateRegistry_Proxy: {
-      address: "0x553dcbF6aB3aE06a1064b5200Df1B5A9fB403d3c",
+      address: "0xf2833d188269Df7c7B6951f9114DA0bD6BAE70af",
       abi: [
         {
           inputs: [
@@ -3509,682 +3169,8 @@ export default {
         },
       ],
     },
-    Escrow: {
-      address: "0xF1a7Cd3115F5852966430f8E3877D2221F074A2e",
-      abi: [
-        {
-          inputs: [
-            {
-              internalType: "contract IArbitratorV2",
-              name: "_arbitrator",
-              type: "address",
-            },
-            {
-              internalType: "bytes",
-              name: "_arbitratorExtraData",
-              type: "bytes",
-            },
-            {
-              internalType: "string",
-              name: "_templateData",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "_templateDataMappings",
-              type: "string",
-            },
-            {
-              internalType: "contract IDisputeTemplateRegistry",
-              name: "_templateRegistry",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "_feeTimeout",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "constructor",
-        },
-        {
-          inputs: [],
-          name: "ArbitratorOnly",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "BuyerFeeNotCoverArbitrationCosts",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "BuyerOnly",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "DeadlineNotPassed",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "DisputeAlreadyCreatedOrTransactionAlreadyExecuted",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "DisputeAlreadyResolved",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "GovernorOnly",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "InvalidRuling",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "MaximumPaymentAmountExceeded",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "NotWaitingForBuyerFees",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "NotWaitingForSellerFees",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "SellerFeeNotCoverArbitrationCosts",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "SellerOnly",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "TimeoutNotPassed",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "TransactionDisputed",
-          type: "error",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "contract IArbitratorV2",
-              name: "_arbitrator",
-              type: "address",
-            },
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "_arbitrableDisputeID",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_externalDisputeID",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_templateId",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "_templateUri",
-              type: "string",
-            },
-          ],
-          name: "DisputeRequest",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "_transactionID",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "enum Escrow.Party",
-              name: "_party",
-              type: "uint8",
-            },
-          ],
-          name: "HasToPayFee",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "_transactionID",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_amount",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "address",
-              name: "_party",
-              type: "address",
-            },
-          ],
-          name: "Payment",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "contract IArbitratorV2",
-              name: "_arbitrator",
-              type: "address",
-            },
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "_disputeID",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_ruling",
-              type: "uint256",
-            },
-          ],
-          name: "Ruling",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "_transactionID",
-              type: "uint256",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "_buyer",
-              type: "address",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "_seller",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "_amount",
-              type: "uint256",
-            },
-          ],
-          name: "TransactionCreated",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "_transactionID",
-              type: "uint256",
-            },
-            {
-              indexed: true,
-              internalType: "enum Escrow.Resolution",
-              name: "_resolution",
-              type: "uint8",
-            },
-          ],
-          name: "TransactionResolved",
-          type: "event",
-        },
-        {
-          inputs: [],
-          name: "AMOUNT_OF_CHOICES",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "arbitrator",
-          outputs: [
-            {
-              internalType: "contract IArbitratorV2",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "arbitratorExtraData",
-          outputs: [
-            {
-              internalType: "bytes",
-              name: "",
-              type: "bytes",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "contract IArbitratorV2",
-              name: "_arbitrator",
-              type: "address",
-            },
-          ],
-          name: "changeArbitrator",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "bytes",
-              name: "_arbitratorExtraData",
-              type: "bytes",
-            },
-          ],
-          name: "changeArbitratorExtraData",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "_templateData",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "_templateDataMappings",
-              type: "string",
-            },
-          ],
-          name: "changeDisputeTemplate",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "contract IDisputeTemplateRegistry",
-              name: "_templateRegistry",
-              type: "address",
-            },
-          ],
-          name: "changeTemplateRegistry",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_timeoutPayment",
-              type: "uint256",
-            },
-            {
-              internalType: "address payable",
-              name: "_seller",
-              type: "address",
-            },
-            {
-              internalType: "string",
-              name: "_templateData",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "_templateDataMappings",
-              type: "string",
-            },
-          ],
-          name: "createTransaction",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "transactionID",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "payable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          name: "disputeIDtoTransactionID",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_transactionID",
-              type: "uint256",
-            },
-          ],
-          name: "executeTransaction",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "feeTimeout",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "getCountTransactions",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "governor",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_transactionID",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "_amount",
-              type: "uint256",
-            },
-          ],
-          name: "pay",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_transactionID",
-              type: "uint256",
-            },
-          ],
-          name: "payArbitrationFeeByBuyer",
-          outputs: [],
-          stateMutability: "payable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_transactionID",
-              type: "uint256",
-            },
-          ],
-          name: "payArbitrationFeeBySeller",
-          outputs: [],
-          stateMutability: "payable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_transactionID",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "_amountReimbursed",
-              type: "uint256",
-            },
-          ],
-          name: "reimburse",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_disputeID",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "_ruling",
-              type: "uint256",
-            },
-          ],
-          name: "rule",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "templateId",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "templateRegistry",
-          outputs: [
-            {
-              internalType: "contract IDisputeTemplateRegistry",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_transactionID",
-              type: "uint256",
-            },
-          ],
-          name: "timeOutByBuyer",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_transactionID",
-              type: "uint256",
-            },
-          ],
-          name: "timeOutBySeller",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          name: "transactions",
-          outputs: [
-            {
-              internalType: "address payable",
-              name: "buyer",
-              type: "address",
-            },
-            {
-              internalType: "address payable",
-              name: "seller",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "amount",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "deadline",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "disputeID",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "buyerFee",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "sellerFee",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "lastFeePaymentTime",
-              type: "uint256",
-            },
-            {
-              internalType: "string",
-              name: "templateData",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "templateDataMappings",
-              type: "string",
-            },
-            {
-              internalType: "enum Escrow.Status",
-              name: "status",
-              type: "uint8",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-      ],
-    },
     EvidenceModule: {
-      address: "0xE4066AE16685F66e30fb22e932B67E49220095c0",
+      address: "0xFA4Df75ab27525e65Db073a9aF195cd6B7707046",
       abi: [
         {
           stateMutability: "payable",
@@ -4381,7 +3367,7 @@ export default {
       ],
     },
     EvidenceModule_Implementation: {
-      address: "0xD8609345DEe222051337b3A8335581Cc630Df2E9",
+      address: "0xA1280FA86a65c4Fe6e22586066A89372C22AA03f",
       abi: [
         {
           inputs: [],
@@ -4559,7 +3545,7 @@ export default {
       ],
     },
     EvidenceModule_Proxy: {
-      address: "0xE4066AE16685F66e30fb22e932B67E49220095c0",
+      address: "0xFA4Df75ab27525e65Db073a9aF195cd6B7707046",
       abi: [
         {
           inputs: [
@@ -4588,7 +3574,7 @@ export default {
       ],
     },
     KlerosCore: {
-      address: "0x33d0b8879368acD8ca868e656Ade97bB97b90468",
+      address: "0x8ab813348fA90DE51A87131365c458D43ca03F9c",
       abi: [
         {
           stateMutability: "payable",
@@ -4680,6 +3666,11 @@ export default {
         },
         {
           inputs: [],
+          name: "GuardianOrGovernorOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "InvalidDisputKitParent",
           type: "error",
         },
@@ -4736,7 +3727,22 @@ export default {
         },
         {
           inputs: [],
-          name: "StakingFailed",
+          name: "StakingInTooManyCourts",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingLessThanCourtMinStake",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingNotPossibeInThisCourt",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingTransferFailed",
           type: "error",
         },
         {
@@ -4767,6 +3773,11 @@ export default {
         },
         {
           inputs: [],
+          name: "UnstakingTransferFailed",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "UnsuccessfulCall",
           type: "error",
         },
@@ -4778,6 +3789,16 @@ export default {
         {
           inputs: [],
           name: "VotePeriodNotPassed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "WhenNotPausedOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "WhenPausedOnly",
           type: "error",
         },
         {
@@ -5194,12 +4215,18 @@ export default {
             },
             {
               indexed: false,
-              internalType: "enum KlerosCore.Period",
+              internalType: "enum KlerosCoreBase.Period",
               name: "_period",
               type: "uint8",
             },
           ],
           name: "NewPeriod",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [],
+          name: "Paused",
           type: "event",
         },
         {
@@ -5274,6 +4301,12 @@ export default {
             },
           ],
           name: "TokenAndETHShift",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [],
+          name: "Unpaused",
           type: "event",
         },
         {
@@ -5504,6 +4537,19 @@ export default {
             },
           ],
           name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_guardian",
+              type: "address",
+            },
+          ],
+          name: "changeGuardian",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -5829,7 +4875,7 @@ export default {
               type: "address",
             },
             {
-              internalType: "enum KlerosCore.Period",
+              internalType: "enum KlerosCoreBase.Period",
               name: "period",
               type: "uint8",
             },
@@ -6071,7 +5117,7 @@ export default {
                   type: "uint256",
                 },
               ],
-              internalType: "struct KlerosCore.Round",
+              internalType: "struct KlerosCoreBase.Round",
               name: "",
               type: "tuple",
             },
@@ -6112,10 +5158,28 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "guardian",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
               name: "_governor",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_guardian",
               type: "address",
             },
             {
@@ -6235,6 +5299,26 @@ export default {
         },
         {
           inputs: [],
+          name: "pause",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "paused",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
           name: "pinakion",
           outputs: [
             {
@@ -6316,6 +5400,13 @@ export default {
             },
           ],
           stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "unpause",
+          outputs: [],
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -6355,7 +5446,7 @@ export default {
       ],
     },
     KlerosCore_Implementation: {
-      address: "0x6FDc191b55a03e840b36793e433A932EeCEa40BE",
+      address: "0xea9cc831DA99C2d9EeC82aA8d281Bb3e26572e52",
       abi: [
         {
           inputs: [],
@@ -6444,6 +5535,11 @@ export default {
         },
         {
           inputs: [],
+          name: "GuardianOrGovernorOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "InvalidDisputKitParent",
           type: "error",
         },
@@ -6500,7 +5596,22 @@ export default {
         },
         {
           inputs: [],
-          name: "StakingFailed",
+          name: "StakingInTooManyCourts",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingLessThanCourtMinStake",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingNotPossibeInThisCourt",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "StakingTransferFailed",
           type: "error",
         },
         {
@@ -6531,6 +5642,11 @@ export default {
         },
         {
           inputs: [],
+          name: "UnstakingTransferFailed",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "UnsuccessfulCall",
           type: "error",
         },
@@ -6542,6 +5658,16 @@ export default {
         {
           inputs: [],
           name: "VotePeriodNotPassed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "WhenNotPausedOnly",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "WhenPausedOnly",
           type: "error",
         },
         {
@@ -6958,12 +6084,18 @@ export default {
             },
             {
               indexed: false,
-              internalType: "enum KlerosCore.Period",
+              internalType: "enum KlerosCoreBase.Period",
               name: "_period",
               type: "uint8",
             },
           ],
           name: "NewPeriod",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [],
+          name: "Paused",
           type: "event",
         },
         {
@@ -7038,6 +6170,12 @@ export default {
             },
           ],
           name: "TokenAndETHShift",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [],
+          name: "Unpaused",
           type: "event",
         },
         {
@@ -7268,6 +6406,19 @@ export default {
             },
           ],
           name: "changeGovernor",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_guardian",
+              type: "address",
+            },
+          ],
+          name: "changeGuardian",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -7593,7 +6744,7 @@ export default {
               type: "address",
             },
             {
-              internalType: "enum KlerosCore.Period",
+              internalType: "enum KlerosCoreBase.Period",
               name: "period",
               type: "uint8",
             },
@@ -7835,7 +6986,7 @@ export default {
                   type: "uint256",
                 },
               ],
-              internalType: "struct KlerosCore.Round",
+              internalType: "struct KlerosCoreBase.Round",
               name: "",
               type: "tuple",
             },
@@ -7876,10 +7027,28 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "guardian",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
               name: "_governor",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "_guardian",
               type: "address",
             },
             {
@@ -7999,6 +7168,26 @@ export default {
         },
         {
           inputs: [],
+          name: "pause",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "paused",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
           name: "pinakion",
           outputs: [
             {
@@ -8083,6 +7272,13 @@ export default {
           type: "function",
         },
         {
+          inputs: [],
+          name: "unpause",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "address",
@@ -8103,7 +7299,7 @@ export default {
       ],
     },
     KlerosCore_Proxy: {
-      address: "0x33d0b8879368acD8ca868e656Ade97bB97b90468",
+      address: "0x8ab813348fA90DE51A87131365c458D43ca03F9c",
       abi: [
         {
           inputs: [
@@ -8412,7 +7608,7 @@ export default {
       ],
     },
     PNKFaucet: {
-      address: "0x0273512759B5E80031725332da12E91E9F8Bf667",
+      address: "0x9f6ffc13B685A68ae359fCA128dfE776458Df464",
       abi: [
         {
           inputs: [
@@ -9053,7 +8249,7 @@ export default {
       ],
     },
     PolicyRegistry_Implementation: {
-      address: "0xd543D50dcba2c3E067296210D64c8F91206Df908",
+      address: "0xC5cb504E1A88ea7De10136B2D6e33F9F7D4E9656",
       abi: [
         {
           inputs: [],
@@ -9301,7 +8497,7 @@ export default {
       abi: [],
     },
     RandomizerRNG: {
-      address: "0xaE7F3AcA5c1E40D5E51eE61e20929bbDA0CAf4DC",
+      address: "0x1E2960117f570f48c773154C0A63919c12Db0Cc2",
       abi: [
         {
           stateMutability: "payable",
@@ -9453,7 +8649,7 @@ export default {
           inputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "requestId",
               type: "uint256",
             },
           ],
@@ -9461,7 +8657,7 @@ export default {
           outputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "number",
               type: "uint256",
             },
           ],
@@ -9548,7 +8744,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "requester",
               type: "address",
             },
           ],
@@ -9556,7 +8752,7 @@ export default {
           outputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "requestId",
               type: "uint256",
             },
           ],
@@ -9626,7 +8822,7 @@ export default {
       ],
     },
     RandomizerRNG_Implementation: {
-      address: "0x121F321f8F803fb88A895b969D6E26C672121149",
+      address: "0x0974eF19c9202141D20ce50D60c5A3c522e7A9Ae",
       abi: [
         {
           inputs: [],
@@ -9775,7 +8971,7 @@ export default {
           inputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "requestId",
               type: "uint256",
             },
           ],
@@ -9783,7 +8979,7 @@ export default {
           outputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "number",
               type: "uint256",
             },
           ],
@@ -9870,7 +9066,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "requester",
               type: "address",
             },
           ],
@@ -9878,7 +9074,7 @@ export default {
           outputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "requestId",
               type: "uint256",
             },
           ],
@@ -9932,7 +9128,7 @@ export default {
       ],
     },
     RandomizerRNG_Proxy: {
-      address: "0xaE7F3AcA5c1E40D5E51eE61e20929bbDA0CAf4DC",
+      address: "0x1E2960117f570f48c773154C0A63919c12Db0Cc2",
       abi: [
         {
           inputs: [
@@ -9961,7 +9157,7 @@ export default {
       ],
     },
     SortitionModule: {
-      address: "0x3645F9e08D80E47c82aD9E33fCB4EA703822C831",
+      address: "0xa156fAC2e209126273f841E81490DA7D4381Cc03",
       abi: [
         {
           stateMutability: "payable",
@@ -10176,32 +9372,6 @@ export default {
           ],
           name: "Upgraded",
           type: "event",
-        },
-        {
-          inputs: [],
-          name: "DEFAULT_K",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "MAX_STAKE_PATHS",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
         },
         {
           inputs: [
@@ -10543,7 +9713,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "account",
               type: "address",
             },
           ],
@@ -10580,12 +9750,12 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "jurorAccount",
               type: "address",
             },
             {
               internalType: "uint96",
-              name: "",
+              name: "courtId",
               type: "uint96",
             },
           ],
@@ -10827,9 +9997,9 @@ export default {
               type: "uint256",
             },
             {
-              internalType: "bool",
-              name: "succeeded",
-              type: "bool",
+              internalType: "enum StakingResult",
+              name: "stakingResult",
+              type: "uint8",
             },
           ],
           stateMutability: "nonpayable",
@@ -10938,7 +10108,7 @@ export default {
       ],
     },
     SortitionModule_Implementation: {
-      address: "0xAf48e32f89339438572a04455b1C4B2fF1659c8f",
+      address: "0xF506eA3E25ed3BFc9aFa30c81e0254cb0E4E0A35",
       abi: [
         {
           inputs: [],
@@ -11150,32 +10320,6 @@ export default {
           ],
           name: "Upgraded",
           type: "event",
-        },
-        {
-          inputs: [],
-          name: "DEFAULT_K",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "MAX_STAKE_PATHS",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
         },
         {
           inputs: [
@@ -11517,7 +10661,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "account",
               type: "address",
             },
           ],
@@ -11554,12 +10698,12 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "jurorAccount",
               type: "address",
             },
             {
               internalType: "uint96",
-              name: "",
+              name: "courtId",
               type: "uint96",
             },
           ],
@@ -11801,9 +10945,9 @@ export default {
               type: "uint256",
             },
             {
-              internalType: "bool",
-              name: "succeeded",
-              type: "bool",
+              internalType: "enum StakingResult",
+              name: "stakingResult",
+              type: "uint8",
             },
           ],
           stateMutability: "nonpayable",
@@ -11896,7 +11040,7 @@ export default {
       ],
     },
     SortitionModule_Proxy: {
-      address: "0x3645F9e08D80E47c82aD9E33fCB4EA703822C831",
+      address: "0xa156fAC2e209126273f841E81490DA7D4381Cc03",
       abi: [
         {
           inputs: [
@@ -11921,6 +11065,57 @@ export default {
         {
           stateMutability: "payable",
           type: "receive",
+        },
+      ],
+    },
+    TransactionBatcher: {
+      address: "0x35f93986950804ac1F93519BF68C2a7Dd776db0E",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "address[]",
+              name: "targets",
+              type: "address[]",
+            },
+            {
+              internalType: "uint256[]",
+              name: "values",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes[]",
+              name: "datas",
+              type: "bytes[]",
+            },
+          ],
+          name: "batchSend",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address[]",
+              name: "targets",
+              type: "address[]",
+            },
+            {
+              internalType: "uint256[]",
+              name: "values",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes[]",
+              name: "datas",
+              type: "bytes[]",
+            },
+          ],
+          name: "batchSendUnchecked",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
         },
       ],
     },
