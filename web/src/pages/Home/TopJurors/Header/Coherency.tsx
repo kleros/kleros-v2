@@ -27,7 +27,7 @@ const Container = styled.div`
 
 const coherentVotesTooltipMsg =
   "This is the percentage of coherent votes made by a juror." +
-  " Hover to see the ratio of coherent votes : " +
+  " Hover to see the ratio of coherent votes: " +
   "the number in the left is the number of times where the juror " +
   "voted coherently and the number in the right is the total number of times " +
   "the juror voted";
