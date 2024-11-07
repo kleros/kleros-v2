@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-v2-contracts",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Smart contracts for Kleros version 2",
   "main": "typechain-types/index.ts",
   "repository": "git@github.com:kleros/kleros-v2.git",

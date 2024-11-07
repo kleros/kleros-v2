@@ -5,6 +5,7 @@ import courtsV1Mainnet from "../config/courts.v1.mainnet.json";
 import courtsV1GnosisChain from "../config/courts.v1.gnosischain.json";
 import courtsV2ArbitrumTestnet from "../config/courts.v2.testnet.json";
 import courtsV2ArbitrumDevnet from "../config/courts.v2.devnet.json";
+import courtsV2MainnetNeo from "../config/courts.v2.mainnet-neo.json";
 import { isDevnet } from "../deploy/utils";
 
 enum HomeChains {
@@ -18,6 +19,7 @@ enum Sources {
   V1_GNOSIS,
   V2_DEVNET,
   V2_TESTNET,
+  V2_MAINNET_NEO,
 }
 
 enum Cores {
@@ -45,7 +47,7 @@ const TEN_THOUSAND_GWEI = 10n ** 13n;
 task("populate:courts", "Populates the courts and their parameters")
   .addOptionalParam(
     "from",
-    "The source of the policies between v1_mainnet, v1_gnosis, v2_devnet, v2_testnet (default: auto depending on the network)",
+    "The source of the policies between v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet_neo (default: auto depending on the network)",
     undefined
   )
   .addOptionalParam(
@@ -78,7 +80,7 @@ task("populate:courts", "Populates the courts and their parameters")
     if (taskArgs.from) {
       from = Sources[taskArgs.from.toUpperCase() as keyof typeof Sources];
       if (from === undefined) {
-        console.error("Invalid source, must be one of v1_mainnet, v1_gnosis, v2_devnet, v2_testnet");
+        console.error("Invalid source, must be one of v1_mainnet, v1_gnosis, v2_devnet, v2_testnet, v2_mainnet_neo");
         return;
       }
     } else {
@@ -136,6 +138,10 @@ task("populate:courts", "Populates the courts and their parameters")
       }
       case Sources.V2_TESTNET: {
         courtsV2 = courtsV2ArbitrumTestnet;
+        break;
+      }
+      case Sources.V2_MAINNET_NEO: {
+        courtsV2 = courtsV2MainnetNeo;
         break;
       }
       default:

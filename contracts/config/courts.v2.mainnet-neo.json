@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "parent": 0,
+    "hiddenVotes": true,
+    "minStake": "150000000000000000000",
+    "alpha": "10000",
+    "feeForJuror": "5000000000000000",
+    "jurorsForCourtJump": "511",
+    "timesPerPeriod": [
+      280800,
+      583200,
+      583200,
+      388800
+    ]
+  }
+]
