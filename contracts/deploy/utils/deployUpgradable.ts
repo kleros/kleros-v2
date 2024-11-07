@@ -7,29 +7,47 @@ import {
 } from "hardhat-deploy/types";
 
 // Rationale: https://github.com/kleros/kleros-v2/pull/1214#issue-1879116629
-const PROXY_OPTIONS: ProxyOptions = {
-  proxyContract: "UUPSProxy",
-  proxyArgs: ["{implementation}", "{data}"],
-  checkProxyAdmin: false, // Not relevant for UUPSProxy
-  checkABIConflict: false, // Not relevant for UUPSProxy
-  upgradeFunction: {
-    methodName: "upgradeToAndCall",
-    upgradeArgs: ["{implementation}", "{data}"],
-  },
-};
+function proxyOptions(proxyContract: string): ProxyOptions {
+  return {
+    proxyContract,
+    proxyArgs: ["{implementation}", "{data}"],
+    checkProxyAdmin: false, // Not relevant for UUPSProxy
+    checkABIConflict: false, // Not relevant for UUPSProxy
+    upgradeFunction: {
+      methodName: "upgradeToAndCall",
+      upgradeArgs: ["{implementation}", "{data}"],
+    },
+  };
+}
 
-type DeployUpgradableOptions = {
+export type DeployUpgradableOptions = {
   newImplementation?: string;
   initializer?: string;
+  proxyAlias?: string;
 } & DeployOptionsBase;
 
+/**
+ * Deploy a contract with an upgradable proxy
+ * NOTE: This function assumes the existence of a proxy contract with the name `${proxy}Proxy`, if there is none add the option `proxyAlias: "UUPSProxy"`
+ * @param deployments - The deployments extension
+ * @param proxy - The name of the proxy contract
+ * @param options - The options for the deployment
+ * @returns The deployment result
+ */
 export const deployUpgradable = async (
   deployments: DeploymentsExtension,
   proxy: string,
   options: DeployUpgradableOptions
 ): Promise<DeployResult> => {
   const { deploy } = deployments;
-  const { newImplementation, initializer, args: initializerArgs, proxy: proxyOverrides, ...otherOptions } = options;
+  const {
+    newImplementation,
+    initializer,
+    args: initializerArgs,
+    proxy: proxyOverrides,
+    proxyAlias,
+    ...otherOptions
+  } = options;
 
   const methodName = initializer ?? "initialize";
   const args = initializerArgs ?? [];
@@ -50,7 +68,7 @@ export const deployUpgradable = async (
     ...otherOptions,
     ...contract,
     proxy: {
-      ...PROXY_OPTIONS,
+      ...proxyOptions(proxyAlias ?? `${proxy}Proxy`),
       ...implementationName,
       ...((proxyOverrides as ProxyOptions) ?? {}),
       execute: {

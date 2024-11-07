@@ -4,7 +4,12 @@
 pragma solidity 0.8.24;
 
 import "../../UUPSProxiable.sol";
+import "../../UUPSProxy.sol";
 import "../../Initializable.sol";
+
+contract UpgradedByInheritanceV1Proxy is UUPSProxy {
+    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
+}
 
 contract UpgradedByInheritanceV1 is UUPSProxiable, Initializable {
     address public governor;
