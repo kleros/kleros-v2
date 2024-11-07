@@ -1,0 +1,60 @@
+version: '3'
+services:
+  keeper-bot:
+    container_name: keeper-bot-${DEPLOYMENT:?error}
+    extends:
+      file: ../base/bot-pm2.yml
+      service: bot-pm2
+    volumes:
+      - type: bind
+        source: ./pm2.config.keeper-bot.${DEPLOYMENT}.js
+        target: /usr/src/app/contracts/ecosystem.config.js
+
+  disputor-bot:
+    container_name: disputor-bot-${DEPLOYMENT:?error}
+    extends:
+      file: ../base/bot-pm2.yml
+      service: bot-pm2
+    volumes:
+      - type: bind
+        source: ./pm2.config.disputor-bot.${DEPLOYMENT}.js
+        target: /usr/src/app/contracts/ecosystem.config.js
+
+  relayer-bot-from-chiado:
+    container_name: relayer-bot-from-chiado-${DEPLOYMENT:?error}
+    extends:
+      file: ../base/bot-pm2.yml
+      service: bot-pm2
+    volumes:
+      - type: bind
+        source: ./pm2.config.relayer-bot-from-chiado.${DEPLOYMENT}.js
+        target: /usr/src/app/contracts/ecosystem.config.js
+    profiles:
+      - chiado
+
+  relayer-bot-from-sepolia:
+    container_name: relayer-bot-from-sepolia-${DEPLOYMENT:?error}
+    extends:
+      file: ../base/bot-pm2.yml
+      service: bot-pm2
+    volumes:
+      - type: bind
+        source: ./pm2.config.relayer-bot-from-sepolia.${DEPLOYMENT}.js
+        target: /usr/src/app/contracts/ecosystem.config.js
+    profiles:
+      - sepolia
+
+  relayer-bot-from-hardhat-host:
+    container_name: relayer-bot-from-hardhat-host-${DEPLOYMENT:?error}
+    extends:
+      file: ../base/bot.yml
+      service: bot
+    command: bot:relayer-from-hardhat --network dockerhost
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - type: bind
+        source: ../../contracts/deployments/localhost
+        target: /usr/src/app/contracts/deployments/localhost
+    profiles:
+      - hardhat
