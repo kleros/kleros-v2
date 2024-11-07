@@ -1,4 +1,13 @@
-import { DisputeKitClassic, KlerosCore, PNK, RandomizerRNG, BlockHashRNG, SortitionModule } from "../typechain-types";
+import {
+  DisputeKitClassic,
+  KlerosCore,
+  PNK,
+  RandomizerRNG,
+  BlockHashRNG,
+  SortitionModule,
+  KlerosCoreNeo,
+  KlerosCoreUniversity,
+} from "../typechain-types";
 import request from "graphql-request";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
@@ -15,6 +24,7 @@ const HIGH_GAS_LIMIT = { gasLimit: 50_000_000 }; // 50M gas
 const HEARTBEAT_URL = env.optionalNoDefault("HEARTBEAT_URL_KEEPER_BOT");
 const SUBGRAPH_URL = env.require("SUBGRAPH_URL");
 const MAX_JURORS_PER_DISPUTE = 1000; // Skip disputes with more than this number of jurors
+const CORE_TYPE = env.optional("CORE_TYPE", "base");
 const DISPUTES_TO_SKIP = env
   .optional("DISPUTES_TO_SKIP", "")
   .split(",")
@@ -33,7 +43,21 @@ const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN_KEEPER_BOT")
 const logger = loggerFactory.createLogger(loggerOptions);
 
 const getContracts = async () => {
-  const core = (await ethers.getContract("KlerosCore")) as KlerosCore;
+  let core: KlerosCore | KlerosCoreNeo | KlerosCoreUniversity;
+  const coreType = Cores[CORE_TYPE.toUpperCase() as keyof typeof Cores];
+  switch (coreType) {
+    case Cores.UNIVERSITY:
+      core = (await ethers.getContract("KlerosCoreUniversity")) as KlerosCoreUniversity;
+      break;
+    case Cores.NEO:
+      core = (await ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;
+      break;
+    case Cores.BASE:
+      core = (await ethers.getContract("KlerosCore")) as KlerosCore;
+      break;
+    default:
+      throw new Error("Invalid core type, must be one of base, neo, university");
+  }
   const sortition = (await ethers.getContract("SortitionModule")) as SortitionModule;
   const randomizerRng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
   const blockHashRNG = (await ethers.getContract("BlockHashRNG")) as BlockHashRNG;
@@ -66,6 +90,12 @@ type CustomError = {
   errorName: string;
   errorSignature: string;
 };
+
+enum Cores {
+  BASE,
+  NEO,
+  UNIVERSITY,
+}
 
 enum Phase {
   STAKING = "staking",
