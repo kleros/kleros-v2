@@ -22,6 +22,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const dai = await deployERC20AndFaucet(hre, deployer, "DAI");
   const weth = await deployERC20AndFaucet(hre, deployer, "WETH");
 
+  await getContractOrDeploy(hre, "TransactionBatcher", { from: deployer, args: [], log: true });
+
   await getContractOrDeployUpgradable(hre, "PolicyRegistry", { from: deployer, args: [deployer], log: true });
 
   await getContractOrDeployUpgradable(hre, "EvidenceModule", { from: deployer, args: [deployer], log: true });

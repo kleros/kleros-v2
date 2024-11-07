@@ -1393,7 +1393,7 @@ export const disputeKitClassicNeoProxyConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x95eCE455bD817D6adB92F2383617d36eBE10D6EB)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x3645F9e08D80E47c82aD9E33fCB4EA703822C831)
  */
 export const disputeResolverNeoAbi = [
   {
@@ -1423,7 +1423,7 @@ export const disputeResolverNeoAbi = [
         indexed: true,
       },
       {
-        name: "_arbitrableDisputeID",
+        name: "_arbitratorDisputeID",
         internalType: "uint256",
         type: "uint256",
         indexed: true,
@@ -1609,14 +1609,14 @@ export const disputeResolverNeoAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x95eCE455bD817D6adB92F2383617d36eBE10D6EB)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x3645F9e08D80E47c82aD9E33fCB4EA703822C831)
  */
 export const disputeResolverNeoAddress = {
-  42161: "0x95eCE455bD817D6adB92F2383617d36eBE10D6EB",
+  42161: "0x3645F9e08D80E47c82aD9E33fCB4EA703822C831",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x95eCE455bD817D6adB92F2383617d36eBE10D6EB)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x3645F9e08D80E47c82aD9E33fCB4EA703822C831)
  */
 export const disputeResolverNeoConfig = {
   address: disputeResolverNeoAddress,
@@ -2352,7 +2352,7 @@ export const iHomeGatewayAbi = [
         indexed: true,
       },
       {
-        name: "_arbitrableDisputeID",
+        name: "_arbitratorDisputeID",
         internalType: "uint256",
         type: "uint256",
         indexed: true,
@@ -5741,7 +5741,7 @@ export const pinakionConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0x9d494768936b6bDaabc46733b8D53A937A6c6D7e)
+ * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x9d494768936b6bDaabc46733b8D53A937A6c6D7e)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x26c1980120F1C82cF611D666CE81D2b54d018547)
  */
 export const policyRegistryAbi = [
@@ -5879,7 +5879,7 @@ export const policyRegistryAbi = [
 ] as const;
 
 /**
- * - [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0x9d494768936b6bDaabc46733b8D53A937A6c6D7e)
+ * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x9d494768936b6bDaabc46733b8D53A937A6c6D7e)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x26c1980120F1C82cF611D666CE81D2b54d018547)
  */
 export const policyRegistryAddress = {
@@ -5888,7 +5888,7 @@ export const policyRegistryAddress = {
 } as const;
 
 /**
- * - [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0x9d494768936b6bDaabc46733b8D53A937A6c6D7e)
+ * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x9d494768936b6bDaabc46733b8D53A937A6c6D7e)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x26c1980120F1C82cF611D666CE81D2b54d018547)
  */
 export const policyRegistryConfig = {
@@ -7727,7 +7727,7 @@ export const sortitionModuleNeoProxyConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d)
+ * [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d)
  */
 export const tokenBridgeAbi = [
   {
@@ -7813,14 +7813,14 @@ export const tokenBridgeAbi = [
 ] as const;
 
 /**
- * [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d)
+ * [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d)
  */
 export const tokenBridgeAddress = {
   100: "0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d",
 } as const;
 
 /**
- * [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d)
+ * [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d)
  */
 export const tokenBridgeConfig = {
   address: tokenBridgeAddress,
@@ -7832,7 +7832,8 @@ export const tokenBridgeConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0x6426800F8508b15AED271337498fa5e7D0794d46)
+ * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x6426800F8508b15AED271337498fa5e7D0794d46)
+ * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xBC5ef8d9ad307154447AE148c088f083d2dEa4eF)
  */
 export const transactionBatcherAbi = [
   {
@@ -7846,17 +7847,31 @@ export const transactionBatcherAbi = [
     outputs: [],
     stateMutability: "payable",
   },
+  {
+    type: "function",
+    inputs: [
+      { name: "targets", internalType: "address[]", type: "address[]" },
+      { name: "values", internalType: "uint256[]", type: "uint256[]" },
+      { name: "datas", internalType: "bytes[]", type: "bytes[]" },
+    ],
+    name: "batchSendUnchecked",
+    outputs: [],
+    stateMutability: "payable",
+  },
 ] as const;
 
 /**
- * [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0x6426800F8508b15AED271337498fa5e7D0794d46)
+ * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x6426800F8508b15AED271337498fa5e7D0794d46)
+ * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xBC5ef8d9ad307154447AE148c088f083d2dEa4eF)
  */
 export const transactionBatcherAddress = {
   100: "0x6426800F8508b15AED271337498fa5e7D0794d46",
+  42161: "0xBC5ef8d9ad307154447AE148c088f083d2dEa4eF",
 } as const;
 
 /**
- * [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0x6426800F8508b15AED271337498fa5e7D0794d46)
+ * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x6426800F8508b15AED271337498fa5e7D0794d46)
+ * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xBC5ef8d9ad307154447AE148c088f083d2dEa4eF)
  */
 export const transactionBatcherConfig = {
   address: transactionBatcherAddress,
@@ -7868,7 +7883,7 @@ export const transactionBatcherConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1)
+ * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x82aF49447D8a07e3bd95BD0d56f35241523fBab1)
  */
 export const wethAbi = [
@@ -7956,7 +7971,7 @@ export const wethAbi = [
 ] as const;
 
 /**
- * - [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1)
+ * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x82aF49447D8a07e3bd95BD0d56f35241523fBab1)
  */
 export const wethAddress = {
@@ -7965,7 +7980,7 @@ export const wethAddress = {
 } as const;
 
 /**
- * - [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1)
+ * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x82aF49447D8a07e3bd95BD0d56f35241523fBab1)
  */
 export const wethConfig = { address: wethAddress, abi: wethAbi } as const;
@@ -7975,7 +7990,7 @@ export const wethConfig = { address: wethAddress, abi: wethAbi } as const;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0xcb3231aBA3b451343e0Fddfc45883c842f223846)
+ * [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0xcb3231aBA3b451343e0Fddfc45883c842f223846)
  */
 export const wrappedPinakionAbi = [
   {
@@ -8062,14 +8077,14 @@ export const wrappedPinakionAbi = [
 ] as const;
 
 /**
- * [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0xcb3231aBA3b451343e0Fddfc45883c842f223846)
+ * [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0xcb3231aBA3b451343e0Fddfc45883c842f223846)
  */
 export const wrappedPinakionAddress = {
   100: "0xcb3231aBA3b451343e0Fddfc45883c842f223846",
 } as const;
 
 /**
- * [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0xcb3231aBA3b451343e0Fddfc45883c842f223846)
+ * [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0xcb3231aBA3b451343e0Fddfc45883c842f223846)
  */
 export const wrappedPinakionConfig = {
   address: wrappedPinakionAddress,
@@ -8081,7 +8096,7 @@ export const wrappedPinakionConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0x9C1dA9A04925bDfDedf0f6421bC7EEa8305F9002)
+ * [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x9C1dA9A04925bDfDedf0f6421bC7EEa8305F9002)
  */
 export const xKlerosLiquidAbi = [
   {
@@ -8168,14 +8183,14 @@ export const xKlerosLiquidAbi = [
 ] as const;
 
 /**
- * [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0x9C1dA9A04925bDfDedf0f6421bC7EEa8305F9002)
+ * [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x9C1dA9A04925bDfDedf0f6421bC7EEa8305F9002)
  */
 export const xKlerosLiquidAddress = {
   100: "0x9C1dA9A04925bDfDedf0f6421bC7EEa8305F9002",
 } as const;
 
 /**
- * [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0x9C1dA9A04925bDfDedf0f6421bC7EEa8305F9002)
+ * [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x9C1dA9A04925bDfDedf0f6421bC7EEa8305F9002)
  */
 export const xKlerosLiquidConfig = {
   address: xKlerosLiquidAddress,
@@ -8187,18 +8202,18 @@ export const xKlerosLiquidConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0x37b60f4E9A31A64cCc0024dce7D0fD07eAA0F7B3)
+ * [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x37b60f4E9A31A64cCc0024dce7D0fD07eAA0F7B3)
  */
 export const xPnkAbi = [] as const;
 
 /**
- * [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0x37b60f4E9A31A64cCc0024dce7D0fD07eAA0F7B3)
+ * [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x37b60f4E9A31A64cCc0024dce7D0fD07eAA0F7B3)
  */
 export const xPnkAddress = {
   100: "0x37b60f4E9A31A64cCc0024dce7D0fD07eAA0F7B3",
 } as const;
 
 /**
- * [__View Contract on Gnosis Gnosis Chain Explorer__](https://blockscout.com/xdai/mainnet/address/0x37b60f4E9A31A64cCc0024dce7D0fD07eAA0F7B3)
+ * [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x37b60f4E9A31A64cCc0024dce7D0fD07eAA0F7B3)
  */
 export const xPnkConfig = { address: xPnkAddress, abi: xPnkAbi } as const;

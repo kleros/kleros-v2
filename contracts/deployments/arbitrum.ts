@@ -2412,7 +2412,7 @@ export default {
       ],
     },
     DisputeResolverNeo: {
-      address: "0x95eCE455bD817D6adB92F2383617d36eBE10D6EB",
+      address: "0x3645F9e08D80E47c82aD9E33fCB4EA703822C831",
       abi: [
         {
           inputs: [
@@ -2442,7 +2442,7 @@ export default {
             {
               indexed: true,
               internalType: "uint256",
-              name: "_arbitrableDisputeID",
+              name: "_arbitratorDisputeID",
               type: "uint256",
             },
             {
@@ -12141,6 +12141,57 @@ export default {
         {
           stateMutability: "payable",
           type: "receive",
+        },
+      ],
+    },
+    TransactionBatcher: {
+      address: "0xBC5ef8d9ad307154447AE148c088f083d2dEa4eF",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "address[]",
+              name: "targets",
+              type: "address[]",
+            },
+            {
+              internalType: "uint256[]",
+              name: "values",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes[]",
+              name: "datas",
+              type: "bytes[]",
+            },
+          ],
+          name: "batchSend",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address[]",
+              name: "targets",
+              type: "address[]",
+            },
+            {
+              internalType: "uint256[]",
+              name: "values",
+              type: "uint256[]",
+            },
+            {
+              internalType: "bytes[]",
+              name: "datas",
+              type: "bytes[]",
+            },
+          ],
+          name: "batchSendUnchecked",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
         },
       ],
     },

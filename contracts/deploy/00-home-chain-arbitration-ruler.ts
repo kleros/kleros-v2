@@ -3,8 +3,8 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { HomeChains, isSkipped } from "./utils";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
-import { KlerosCore, KlerosCoreRuler } from "../typechain-types";
-import { getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
+import { KlerosCoreRuler } from "../typechain-types";
+import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -19,6 +19,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const pnk = await deployERC20AndFaucet(hre, deployer, "PNK");
   const dai = await deployERC20AndFaucet(hre, deployer, "DAI");
   const weth = await deployERC20AndFaucet(hre, deployer, "WETH");
+
+  await getContractOrDeploy(hre, "TransactionBatcher", { from: deployer, args: [], log: true });
 
   const minStake = 0;
   const alpha = 10000;
