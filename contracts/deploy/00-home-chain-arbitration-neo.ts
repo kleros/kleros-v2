@@ -23,6 +23,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const weth = await deployERC20AndFaucet(hre, deployer, "WETH");
   const nft = await deployERC721(hre, deployer, "Kleros V2 Neo Early User", "KlerosV2NeoEarlyUser");
 
+  await getContractOrDeploy(hre, "TransactionBatcher", { from: deployer, args: [], log: true });
+
   const randomizerOracle = await getContractOrDeploy(hre, "RandomizerOracle", {
     from: deployer,
     contract: "RandomizerMock",

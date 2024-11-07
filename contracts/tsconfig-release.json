@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true
+  },
+  "include": [
+    "./src",
+    "./typechain-types",
+    "./deployments"
+  ],
+  "exclude": [
+    "./scripts/**/console*.ts"
+  ],
+  "files": []
+}

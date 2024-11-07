@@ -6,7 +6,7 @@ import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 import { ETH, HomeChains, PNK, isSkipped } from "./utils";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
 import { DisputeKitClassic, KlerosCore, KlerosCoreUniversity } from "../typechain-types";
-import { getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
+import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
@@ -21,6 +21,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const pnk = await deployERC20AndFaucet(hre, deployer, "PNK");
   const dai = await deployERC20AndFaucet(hre, deployer, "DAI");
   const weth = await deployERC20AndFaucet(hre, deployer, "WETH");
+
+  await getContractOrDeploy(hre, "TransactionBatcher", { from: deployer, args: [], log: true });
 
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassicUniversity", {
     from: deployer,

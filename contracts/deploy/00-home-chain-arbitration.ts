@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
-import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
+import { HomeChains, isSkipped, isDevnet, isMainnet, PNK, ETH } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
 import { DisputeKitClassic, KlerosCore } from "../typechain-types";
@@ -22,6 +22,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const dai = await deployERC20AndFaucet(hre, deployer, "DAI");
   const weth = await deployERC20AndFaucet(hre, deployer, "WETH");
 
+  await getContractOrDeploy(hre, "TransactionBatcher", { from: deployer, args: [], log: true });
+
   await getContractOrDeployUpgradable(hre, "PolicyRegistry", { from: deployer, args: [deployer], log: true });
 
   await getContractOrDeployUpgradable(hre, "EvidenceModule", { from: deployer, args: [deployer], log: true });
@@ -34,11 +36,21 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const rng = await deployUpgradable(deployments, "RandomizerRNG", {
+  const randomizerRng = await getContractOrDeployUpgradable(hre, "RandomizerRNG", {
     from: deployer,
     args: [randomizerOracle.target, deployer],
     log: true,
   });
+
+  const blockhashRng = await getContractOrDeploy(hre, "BlockHashRNG", {
+    from: deployer,
+    args: [],
+    log: true,
+  });
+
+  // RNG fallback on Arbitrum Sepolia because the Randomizer.ai oracle contract is unverified and not officially supported.
+  const rng = isMainnet(hre.network) ? randomizerRng : blockhashRng;
+  console.log(isMainnet(hre.network) ? "using RandomizerRNG on mainnet" : "using BlockHashRNG on testnet/devnet");
 
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassic", {
     from: deployer,
@@ -57,7 +69,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const maxFreezingTime = devnet ? 600 : 1800;
   const sortitionModule = await deployUpgradable(deployments, "SortitionModule", {
     from: deployer,
-    args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rng.address, RNG_LOOKAHEAD],
+    args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rng.target, RNG_LOOKAHEAD],
     log: true,
   }); // nonce (implementation), nonce+1 (proxy)
 

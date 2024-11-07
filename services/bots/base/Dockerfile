@@ -1,4 +1,4 @@
-FROM node:16-alpine@sha256:a1f9d027912b58a7c75be7716c97cfbc6d3099f3a97ed84aa490be9dee20e787
+FROM node:20-alpine
 
 WORKDIR /usr/src/app
 
@@ -11,7 +11,7 @@ COPY --chown=node:node "./tsconfig" "./tsconfig"
 COPY --chown=node:node "./.yarn" "./.yarn"
 COPY --chown=node:node [ ".yarnrc.yml", ".nvmrc", ".eslintignore", "package.json", "yarn.lock", "./" ]
 
-RUN yarn set version 3.3.1 && \
+RUN yarn set version 4.5.1 && \
     yarn --version && \
     node --version && \
     cd contracts && \

@@ -183,17 +183,17 @@ task("populate:courts", "Populates the courts and their parameters")
           );
         }
 
-        if (courtPresent.minStake !== court.minStake) {
+        if (courtPresent.minStake !== toBigInt(court.minStake)) {
           change = true;
           console.log("Court %d: changing minStake from %d to %d", court.id, courtPresent.minStake, court.minStake);
         }
 
-        if (courtPresent.alpha !== court.alpha) {
+        if (courtPresent.alpha !== toBigInt(court.alpha)) {
           change = true;
           console.log("Court %d: changing alpha from %d to %d", court.id, courtPresent.alpha, court.alpha);
         }
 
-        if (courtPresent.feeForJuror !== court.feeForJuror) {
+        if (courtPresent.feeForJuror !== toBigInt(court.feeForJuror)) {
           change = true;
           console.log(
             "Court %d: changing feeForJuror from %d to %d",
@@ -203,7 +203,7 @@ task("populate:courts", "Populates the courts and their parameters")
           );
         }
 
-        if (courtPresent.jurorsForCourtJump !== court.jurorsForCourtJump) {
+        if (courtPresent.jurorsForCourtJump !== toBigInt(court.jurorsForCourtJump)) {
           change = true;
           console.log(
             "Court %d: changing jurorsForCourtJump from %d to %d",
@@ -228,15 +228,19 @@ task("populate:courts", "Populates the courts and their parameters")
           console.log("Court %d: no parameter change", court.id);
           continue;
         }
-        await core.changeCourtParameters(
-          court.id,
-          court.hiddenVotes,
-          court.minStake,
-          court.alpha,
-          court.feeForJuror,
-          court.jurorsForCourtJump,
-          [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]]
-        );
+        try {
+          await core.changeCourtParameters(
+            court.id,
+            court.hiddenVotes,
+            court.minStake,
+            court.alpha,
+            court.feeForJuror,
+            court.jurorsForCourtJump,
+            [court.timesPerPeriod[0], court.timesPerPeriod[1], court.timesPerPeriod[2], court.timesPerPeriod[3]]
+          );
+        } catch (error) {
+          console.error("Error changing court parameters: %s", error);
+        }
       } else {
         console.log("Court %d not found, creating it with", court.id, court);
         if (coreType === Cores.UNIVERSITY) {

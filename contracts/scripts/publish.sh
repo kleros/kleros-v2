@@ -29,8 +29,10 @@ yarn export:devnet
 yarn export:testnet
 yarn export:mainnet
 
+rm -rf dist
 mkdir dist
-yarn tsc --project tsconfig.json --module commonjs --outDir ./dist
+
+yarn tsc --project tsconfig-release.json --outDir ./dist
 cp -pr README.md src/ dist/ 
 rm -rf dist/config
 rm -rf dist/deploy

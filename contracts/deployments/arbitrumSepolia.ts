@@ -477,7 +477,7 @@ export default {
       ],
     },
     DisputeKitClassic: {
-      address: "0x10bDc76B491BFcA466AB5C74431880C086b07c67",
+      address: "0x0c38f115D001d3b5bBec5e8D44f78C7B61A27D94",
       abi: [
         {
           stateMutability: "payable",
@@ -1426,7 +1426,7 @@ export default {
       ],
     },
     DisputeKitClassic_Implementation: {
-      address: "0x718a6FB3b6f8dc8205e9052E6B745Ff0c23205dD",
+      address: "0xDb0B7908C46E2Bb08459bf9b3155b9bb8F8713E1",
       abi: [
         {
           inputs: [],
@@ -2356,7 +2356,7 @@ export default {
       ],
     },
     DisputeKitClassic_Proxy: {
-      address: "0x10bDc76B491BFcA466AB5C74431880C086b07c67",
+      address: "0x0c38f115D001d3b5bBec5e8D44f78C7B61A27D94",
       abi: [
         {
           inputs: [
@@ -2385,7 +2385,7 @@ export default {
       ],
     },
     DisputeResolver: {
-      address: "0xa5A7F0F8e5f90eb8738C7Ee1be37A9794024Bc1B",
+      address: "0xed31bEE8b1F7cE89E93033C0d3B2ccF4cEb27652",
       abi: [
         {
           inputs: [
@@ -2680,7 +2680,7 @@ export default {
       ],
     },
     DisputeTemplateRegistry: {
-      address: "0xf2833d188269Df7c7B6951f9114DA0bD6BAE70af",
+      address: "0xe763d31Cb096B4bc7294012B78FC7F148324ebcb",
       abi: [
         {
           stateMutability: "payable",
@@ -2920,7 +2920,7 @@ export default {
       ],
     },
     DisputeTemplateRegistry_Implementation: {
-      address: "0xa04d631e5660635D8e8f724F799A4e83Bb1EDb18",
+      address: "0x7283c07CC5224B20f431B1fa0E6d6db3cA02de34",
       abi: [
         {
           inputs: [],
@@ -3141,7 +3141,7 @@ export default {
       ],
     },
     DisputeTemplateRegistry_Proxy: {
-      address: "0xf2833d188269Df7c7B6951f9114DA0bD6BAE70af",
+      address: "0xe763d31Cb096B4bc7294012B78FC7F148324ebcb",
       abi: [
         {
           inputs: [
@@ -3170,7 +3170,7 @@ export default {
       ],
     },
     EvidenceModule: {
-      address: "0xFA4Df75ab27525e65Db073a9aF195cd6B7707046",
+      address: "0xA88A9a25cE7f1d8b3941dA3b322Ba91D009E1397",
       abi: [
         {
           stateMutability: "payable",
@@ -3367,7 +3367,7 @@ export default {
       ],
     },
     EvidenceModule_Implementation: {
-      address: "0xA1280FA86a65c4Fe6e22586066A89372C22AA03f",
+      address: "0x63CF56e1c99E65E4a9eCDCC805F4735E016F2dc8",
       abi: [
         {
           inputs: [],
@@ -3545,7 +3545,7 @@ export default {
       ],
     },
     EvidenceModule_Proxy: {
-      address: "0xFA4Df75ab27525e65Db073a9aF195cd6B7707046",
+      address: "0xA88A9a25cE7f1d8b3941dA3b322Ba91D009E1397",
       abi: [
         {
           inputs: [
@@ -3574,7 +3574,7 @@ export default {
       ],
     },
     KlerosCore: {
-      address: "0x8ab813348fA90DE51A87131365c458D43ca03F9c",
+      address: "0xE8442307d36e9bf6aB27F1A009F95CE8E11C3479",
       abi: [
         {
           stateMutability: "payable",
@@ -5446,7 +5446,7 @@ export default {
       ],
     },
     KlerosCore_Implementation: {
-      address: "0xea9cc831DA99C2d9EeC82aA8d281Bb3e26572e52",
+      address: "0x0766e4B8c4a3aAC9371a5A9D6119E8125Adcfd55",
       abi: [
         {
           inputs: [],
@@ -7299,7 +7299,7 @@ export default {
       ],
     },
     KlerosCore_Proxy: {
-      address: "0x8ab813348fA90DE51A87131365c458D43ca03F9c",
+      address: "0xE8442307d36e9bf6aB27F1A009F95CE8E11C3479",
       abi: [
         {
           inputs: [
@@ -8015,7 +8015,7 @@ export default {
       ],
     },
     PolicyRegistry: {
-      address: "0xb177AC8827146AC74C412688c6b10676ca170096",
+      address: "0x2668c46A14af8997417138B064ca1bEB70769585",
       abi: [
         {
           stateMutability: "payable",
@@ -8249,7 +8249,7 @@ export default {
       ],
     },
     PolicyRegistry_Implementation: {
-      address: "0xC5cb504E1A88ea7De10136B2D6e33F9F7D4E9656",
+      address: "0xB958113f96950C7806d584eFBed964288d46a0B8",
       abi: [
         {
           inputs: [],
@@ -8464,7 +8464,7 @@ export default {
       ],
     },
     PolicyRegistry_Proxy: {
-      address: "0xb177AC8827146AC74C412688c6b10676ca170096",
+      address: "0x2668c46A14af8997417138B064ca1bEB70769585",
       abi: [
         {
           inputs: [
@@ -8497,7 +8497,7 @@ export default {
       abi: [],
     },
     RandomizerRNG: {
-      address: "0x1E2960117f570f48c773154C0A63919c12Db0Cc2",
+      address: "0x51a97ad9F0aA818e75819da3cA20CAc319580627",
       abi: [
         {
           stateMutability: "payable",
@@ -8822,7 +8822,7 @@ export default {
       ],
     },
     RandomizerRNG_Implementation: {
-      address: "0x0974eF19c9202141D20ce50D60c5A3c522e7A9Ae",
+      address: "0x1237F02bBeFDAEA20cE3A66aCAe458C4106Ae203",
       abi: [
         {
           inputs: [],
@@ -9128,7 +9128,7 @@ export default {
       ],
     },
     RandomizerRNG_Proxy: {
-      address: "0x1E2960117f570f48c773154C0A63919c12Db0Cc2",
+      address: "0x51a97ad9F0aA818e75819da3cA20CAc319580627",
       abi: [
         {
           inputs: [
@@ -9157,7 +9157,7 @@ export default {
       ],
     },
     SortitionModule: {
-      address: "0xa156fAC2e209126273f841E81490DA7D4381Cc03",
+      address: "0xbAA5068F0bD1417046250A3eDe2B1F27e31383BD",
       abi: [
         {
           stateMutability: "payable",
@@ -10108,7 +10108,7 @@ export default {
       ],
     },
     SortitionModule_Implementation: {
-      address: "0xF506eA3E25ed3BFc9aFa30c81e0254cb0E4E0A35",
+      address: "0xA418a7E63DC8Aa0F379487E4445f86543C16A0E9",
       abi: [
         {
           inputs: [],
@@ -11040,7 +11040,7 @@ export default {
       ],
     },
     SortitionModule_Proxy: {
-      address: "0xa156fAC2e209126273f841E81490DA7D4381Cc03",
+      address: "0xbAA5068F0bD1417046250A3eDe2B1F27e31383BD",
       abi: [
         {
           inputs: [

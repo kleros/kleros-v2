@@ -5,6 +5,11 @@ pragma solidity 0.8.24;
 
 import "../../UUPSProxiable.sol";
 import "../../Initializable.sol";
+import "../../UUPSProxy.sol";
+
+contract UpgradedByRewriteProxy is UUPSProxy {
+    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
+}
 
 contract UpgradedByRewrite is UUPSProxiable, Initializable {
     //------------------------
