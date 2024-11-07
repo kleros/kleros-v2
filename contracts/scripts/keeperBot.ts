@@ -1,12 +1,12 @@
 import {
-  DisputeKitClassic,
-  KlerosCore,
   PNK,
   RandomizerRNG,
   BlockHashRNG,
   SortitionModule,
+  KlerosCore,
   KlerosCoreNeo,
-  KlerosCoreUniversity,
+  SortitionModuleNeo,
+  DisputeKitClassic,
 } from "../typechain-types";
 import request from "graphql-request";
 import env from "./utils/env";
@@ -43,25 +43,26 @@ const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN_KEEPER_BOT")
 const logger = loggerFactory.createLogger(loggerOptions);
 
 const getContracts = async () => {
-  let core: KlerosCore | KlerosCoreNeo | KlerosCoreUniversity;
+  let core: KlerosCore | KlerosCoreNeo;
+  let sortition: SortitionModule | SortitionModuleNeo;
+  let disputeKitClassic: DisputeKitClassic;
   const coreType = Cores[CORE_TYPE.toUpperCase() as keyof typeof Cores];
   switch (coreType) {
-    case Cores.UNIVERSITY:
-      core = (await ethers.getContract("KlerosCoreUniversity")) as KlerosCoreUniversity;
-      break;
     case Cores.NEO:
       core = (await ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;
+      sortition = (await ethers.getContract("SortitionModuleNeo")) as SortitionModuleNeo;
+      disputeKitClassic = (await ethers.getContract("DisputeKitClassicNeo")) as DisputeKitClassic;
       break;
     case Cores.BASE:
       core = (await ethers.getContract("KlerosCore")) as KlerosCore;
+      sortition = (await ethers.getContract("SortitionModule")) as SortitionModule;
+      disputeKitClassic = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
       break;
     default:
-      throw new Error("Invalid core type, must be one of base, neo, university");
+      throw new Error("Invalid core type, must be one of base, neo");
   }
-  const sortition = (await ethers.getContract("SortitionModule")) as SortitionModule;
   const randomizerRng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
   const blockHashRNG = (await ethers.getContract("BlockHashRNG")) as BlockHashRNG;
-  const disputeKitClassic = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
   const pnk = (await ethers.getContract("PNK")) as PNK;
   return { core, sortition, randomizerRng, blockHashRNG, disputeKitClassic, pnk };
 };
@@ -94,7 +95,6 @@ type CustomError = {
 enum Cores {
   BASE,
   NEO,
-  UNIVERSITY,
 }
 
 enum Phase {
@@ -454,7 +454,7 @@ const filterAsync = async <T>(
   return array.filter((value, index) => filterMap[index]);
 };
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const sendHeartbeat = async () => {
   if (HEARTBEAT_URL) {
