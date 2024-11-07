@@ -504,7 +504,7 @@ export default {
       ],
     },
     DisputeKitClassicNeo: {
-      address: "0xb7c292cD9Fd3d20De84a71AE1caF054eEB6374A9",
+      address: "0x70B464be85A547144C72485eBa2577E5D3A45421",
       abi: [
         {
           stateMutability: "payable",
@@ -1453,7 +1453,7 @@ export default {
       ],
     },
     DisputeKitClassicNeo_Implementation: {
-      address: "0x86Ac67e5550F837a650B4B0Cd4778D4293a2bDe3",
+      address: "0xAF0325dbBFa812a574743Bb5A085266D31e3e03a",
       abi: [
         {
           inputs: [],
@@ -2383,7 +2383,7 @@ export default {
       ],
     },
     DisputeKitClassicNeo_Proxy: {
-      address: "0xb7c292cD9Fd3d20De84a71AE1caF054eEB6374A9",
+      address: "0x70B464be85A547144C72485eBa2577E5D3A45421",
       abi: [
         {
           inputs: [
@@ -2412,7 +2412,7 @@ export default {
       ],
     },
     DisputeResolverNeo: {
-      address: "0x3645F9e08D80E47c82aD9E33fCB4EA703822C831",
+      address: "0xb5526D022962A1fFf6eD32C93e8b714c901F4323",
       abi: [
         {
           inputs: [
@@ -2707,7 +2707,7 @@ export default {
       ],
     },
     DisputeTemplateRegistry: {
-      address: "0x52c9f5634361eD3641016e5d9783310f9EFf9e25",
+      address: "0x0cFBaCA5C72e7Ca5fFABE768E135654fB3F2a5A2",
       abi: [
         {
           stateMutability: "payable",
@@ -2947,7 +2947,7 @@ export default {
       ],
     },
     DisputeTemplateRegistry_Implementation: {
-      address: "0x4Ce87329d40f15509D5F9bF4D9Ce1A081A80CeFb",
+      address: "0x57EfD43DAfCeb6C58Df57932b2B299f46fef5c87",
       abi: [
         {
           inputs: [],
@@ -3168,7 +3168,7 @@ export default {
       ],
     },
     DisputeTemplateRegistry_Proxy: {
-      address: "0x52c9f5634361eD3641016e5d9783310f9EFf9e25",
+      address: "0x0cFBaCA5C72e7Ca5fFABE768E135654fB3F2a5A2",
       abi: [
         {
           inputs: [
@@ -3197,7 +3197,7 @@ export default {
       ],
     },
     EvidenceModule: {
-      address: "0xe62B776498F48061ef9425fCEf30F3d1370DB005",
+      address: "0x48e052B4A6dC4F30e90930F1CeaAFd83b3981EB3",
       abi: [
         {
           stateMutability: "payable",
@@ -3394,7 +3394,7 @@ export default {
       ],
     },
     EvidenceModule_Implementation: {
-      address: "0x827411b3e98bAe8c441efBf26842A1670f8f378F",
+      address: "0xE22500Fa27f696d06702367246bd17Bd2C8a4c5d",
       abi: [
         {
           inputs: [],
@@ -3572,7 +3572,7 @@ export default {
       ],
     },
     EvidenceModule_Proxy: {
-      address: "0xe62B776498F48061ef9425fCEf30F3d1370DB005",
+      address: "0x48e052B4A6dC4F30e90930F1CeaAFd83b3981EB3",
       abi: [
         {
           inputs: [
@@ -3601,7 +3601,7 @@ export default {
       ],
     },
     KlerosCoreNeo: {
-      address: "0xCd415C03dfa85B02646C7e2977F22a480c4354F1",
+      address: "0x991d2df165670b9cac3B022f4B68D65b664222ea",
       abi: [
         {
           stateMutability: "payable",
@@ -5561,7 +5561,7 @@ export default {
       ],
     },
     KlerosCoreNeo_Implementation: {
-      address: "0x4DD8B69958eF1D7d5dA9347E9d9F57ADFC3dc284",
+      address: "0x17c39AB53A7072b167A74a85D47b30385c98ae89",
       abi: [
         {
           inputs: [],
@@ -7502,7 +7502,7 @@ export default {
       ],
     },
     KlerosCoreNeo_Proxy: {
-      address: "0xCd415C03dfa85B02646C7e2977F22a480c4354F1",
+      address: "0x991d2df165670b9cac3B022f4B68D65b664222ea",
       abi: [
         {
           inputs: [
@@ -8941,7 +8941,7 @@ export default {
       ],
     },
     PolicyRegistry: {
-      address: "0x26c1980120F1C82cF611D666CE81D2b54d018547",
+      address: "0x553dcbF6aB3aE06a1064b5200Df1B5A9fB403d3c",
       abi: [
         {
           stateMutability: "payable",
@@ -9175,7 +9175,7 @@ export default {
       ],
     },
     PolicyRegistry_Implementation: {
-      address: "0x2AC2EdFD336732bc6963f1AD03ED98B22dB949da",
+      address: "0x15E5964C7751dF8563eA4bC000301582C79BC454",
       abi: [
         {
           inputs: [],
@@ -9390,7 +9390,7 @@ export default {
       ],
     },
     PolicyRegistry_Proxy: {
-      address: "0x26c1980120F1C82cF611D666CE81D2b54d018547",
+      address: "0x553dcbF6aB3aE06a1064b5200Df1B5A9fB403d3c",
       abi: [
         {
           inputs: [
@@ -9423,7 +9423,7 @@ export default {
       abi: [],
     },
     RandomizerRNG: {
-      address: "0xC3dB344755b15c8Edfd834db79af4f8860029FB4",
+      address: "0x044AfE0069C0fd641BC5f90d9A4218eF0b2Fa9d3",
       abi: [
         {
           stateMutability: "payable",
@@ -9575,7 +9575,7 @@ export default {
           inputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "requestId",
               type: "uint256",
             },
           ],
@@ -9583,7 +9583,7 @@ export default {
           outputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "number",
               type: "uint256",
             },
           ],
@@ -9670,7 +9670,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "requester",
               type: "address",
             },
           ],
@@ -9678,7 +9678,7 @@ export default {
           outputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "requestId",
               type: "uint256",
             },
           ],
@@ -9748,7 +9748,7 @@ export default {
       ],
     },
     RandomizerRNG_Implementation: {
-      address: "0xA995C172d286f8F4eE137CC662e2844E59Cf4836",
+      address: "0xF1a7Cd3115F5852966430f8E3877D2221F074A2e",
       abi: [
         {
           inputs: [],
@@ -9897,7 +9897,7 @@ export default {
           inputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "requestId",
               type: "uint256",
             },
           ],
@@ -9905,7 +9905,7 @@ export default {
           outputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "number",
               type: "uint256",
             },
           ],
@@ -9992,7 +9992,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "requester",
               type: "address",
             },
           ],
@@ -10000,7 +10000,7 @@ export default {
           outputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "requestId",
               type: "uint256",
             },
           ],
@@ -10054,7 +10054,7 @@ export default {
       ],
     },
     RandomizerRNG_Proxy: {
-      address: "0xC3dB344755b15c8Edfd834db79af4f8860029FB4",
+      address: "0x044AfE0069C0fd641BC5f90d9A4218eF0b2Fa9d3",
       abi: [
         {
           inputs: [
@@ -10083,7 +10083,7 @@ export default {
       ],
     },
     SortitionModuleNeo: {
-      address: "0x614498118850184c62f82d08261109334bFB050f",
+      address: "0x21A9402aDb818744B296e1d1BE58C804118DC03D",
       abi: [
         {
           stateMutability: "payable",
@@ -10675,7 +10675,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "account",
               type: "address",
             },
           ],
@@ -10712,12 +10712,12 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "jurorAccount",
               type: "address",
             },
             {
               internalType: "uint96",
-              name: "",
+              name: "courtId",
               type: "uint96",
             },
           ],
@@ -11109,7 +11109,7 @@ export default {
       ],
     },
     SortitionModuleNeo_Implementation: {
-      address: "0xf327200420F21BAafce8F1C03B1EEdF926074B95",
+      address: "0x7E13f295536FD6c48Ba792CFdEF691d592Fa0851",
       abi: [
         {
           inputs: [],
@@ -11698,7 +11698,7 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "account",
               type: "address",
             },
           ],
@@ -11735,12 +11735,12 @@ export default {
           inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "jurorAccount",
               type: "address",
             },
             {
               internalType: "uint96",
-              name: "",
+              name: "courtId",
               type: "uint96",
             },
           ],
@@ -12116,7 +12116,7 @@ export default {
       ],
     },
     SortitionModuleNeo_Proxy: {
-      address: "0x614498118850184c62f82d08261109334bFB050f",
+      address: "0x21A9402aDb818744B296e1d1BE58C804118DC03D",
       abi: [
         {
           inputs: [

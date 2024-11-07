@@ -265,7 +265,7 @@ export const daiConfig = { address: daiAddress, abi: daiAbi } as const;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xb7c292cD9Fd3d20De84a71AE1caF054eEB6374A9)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x70B464be85A547144C72485eBa2577E5D3A45421)
  */
 export const disputeKitClassicNeoAbi = [
   { type: "fallback", stateMutability: "payable" },
@@ -797,14 +797,14 @@ export const disputeKitClassicNeoAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xb7c292cD9Fd3d20De84a71AE1caF054eEB6374A9)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x70B464be85A547144C72485eBa2577E5D3A45421)
  */
 export const disputeKitClassicNeoAddress = {
-  42161: "0xb7c292cD9Fd3d20De84a71AE1caF054eEB6374A9",
+  42161: "0x70B464be85A547144C72485eBa2577E5D3A45421",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xb7c292cD9Fd3d20De84a71AE1caF054eEB6374A9)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x70B464be85A547144C72485eBa2577E5D3A45421)
  */
 export const disputeKitClassicNeoConfig = {
   address: disputeKitClassicNeoAddress,
@@ -816,7 +816,7 @@ export const disputeKitClassicNeoConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x86Ac67e5550F837a650B4B0Cd4778D4293a2bDe3)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xAF0325dbBFa812a574743Bb5A085266D31e3e03a)
  */
 export const disputeKitClassicNeoImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -1339,14 +1339,14 @@ export const disputeKitClassicNeoImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x86Ac67e5550F837a650B4B0Cd4778D4293a2bDe3)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xAF0325dbBFa812a574743Bb5A085266D31e3e03a)
  */
 export const disputeKitClassicNeoImplementationAddress = {
-  42161: "0x86Ac67e5550F837a650B4B0Cd4778D4293a2bDe3",
+  42161: "0xAF0325dbBFa812a574743Bb5A085266D31e3e03a",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x86Ac67e5550F837a650B4B0Cd4778D4293a2bDe3)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xAF0325dbBFa812a574743Bb5A085266D31e3e03a)
  */
 export const disputeKitClassicNeoImplementationConfig = {
   address: disputeKitClassicNeoImplementationAddress,
@@ -1358,7 +1358,7 @@ export const disputeKitClassicNeoImplementationConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xb7c292cD9Fd3d20De84a71AE1caF054eEB6374A9)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x70B464be85A547144C72485eBa2577E5D3A45421)
  */
 export const disputeKitClassicNeoProxyAbi = [
   {
@@ -1374,14 +1374,14 @@ export const disputeKitClassicNeoProxyAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xb7c292cD9Fd3d20De84a71AE1caF054eEB6374A9)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x70B464be85A547144C72485eBa2577E5D3A45421)
  */
 export const disputeKitClassicNeoProxyAddress = {
-  42161: "0xb7c292cD9Fd3d20De84a71AE1caF054eEB6374A9",
+  42161: "0x70B464be85A547144C72485eBa2577E5D3A45421",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xb7c292cD9Fd3d20De84a71AE1caF054eEB6374A9)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x70B464be85A547144C72485eBa2577E5D3A45421)
  */
 export const disputeKitClassicNeoProxyConfig = {
   address: disputeKitClassicNeoProxyAddress,
@@ -1393,7 +1393,7 @@ export const disputeKitClassicNeoProxyConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x3645F9e08D80E47c82aD9E33fCB4EA703822C831)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xb5526D022962A1fFf6eD32C93e8b714c901F4323)
  */
 export const disputeResolverNeoAbi = [
   {
@@ -1609,14 +1609,14 @@ export const disputeResolverNeoAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x3645F9e08D80E47c82aD9E33fCB4EA703822C831)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xb5526D022962A1fFf6eD32C93e8b714c901F4323)
  */
 export const disputeResolverNeoAddress = {
-  42161: "0x3645F9e08D80E47c82aD9E33fCB4EA703822C831",
+  42161: "0xb5526D022962A1fFf6eD32C93e8b714c901F4323",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x3645F9e08D80E47c82aD9E33fCB4EA703822C831)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xb5526D022962A1fFf6eD32C93e8b714c901F4323)
  */
 export const disputeResolverNeoConfig = {
   address: disputeResolverNeoAddress,
@@ -1628,7 +1628,7 @@ export const disputeResolverNeoConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x52c9f5634361eD3641016e5d9783310f9EFf9e25)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x0cFBaCA5C72e7Ca5fFABE768E135654fB3F2a5A2)
  */
 export const disputeTemplateRegistryAbi = [
   { type: "fallback", stateMutability: "payable" },
@@ -1771,14 +1771,14 @@ export const disputeTemplateRegistryAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x52c9f5634361eD3641016e5d9783310f9EFf9e25)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x0cFBaCA5C72e7Ca5fFABE768E135654fB3F2a5A2)
  */
 export const disputeTemplateRegistryAddress = {
-  42161: "0x52c9f5634361eD3641016e5d9783310f9EFf9e25",
+  42161: "0x0cFBaCA5C72e7Ca5fFABE768E135654fB3F2a5A2",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x52c9f5634361eD3641016e5d9783310f9EFf9e25)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x0cFBaCA5C72e7Ca5fFABE768E135654fB3F2a5A2)
  */
 export const disputeTemplateRegistryConfig = {
   address: disputeTemplateRegistryAddress,
@@ -1790,7 +1790,7 @@ export const disputeTemplateRegistryConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x4Ce87329d40f15509D5F9bF4D9Ce1A081A80CeFb)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x57EfD43DAfCeb6C58Df57932b2B299f46fef5c87)
  */
 export const disputeTemplateRegistryImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -1924,14 +1924,14 @@ export const disputeTemplateRegistryImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x4Ce87329d40f15509D5F9bF4D9Ce1A081A80CeFb)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x57EfD43DAfCeb6C58Df57932b2B299f46fef5c87)
  */
 export const disputeTemplateRegistryImplementationAddress = {
-  42161: "0x4Ce87329d40f15509D5F9bF4D9Ce1A081A80CeFb",
+  42161: "0x57EfD43DAfCeb6C58Df57932b2B299f46fef5c87",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x4Ce87329d40f15509D5F9bF4D9Ce1A081A80CeFb)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x57EfD43DAfCeb6C58Df57932b2B299f46fef5c87)
  */
 export const disputeTemplateRegistryImplementationConfig = {
   address: disputeTemplateRegistryImplementationAddress,
@@ -1943,7 +1943,7 @@ export const disputeTemplateRegistryImplementationConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x52c9f5634361eD3641016e5d9783310f9EFf9e25)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x0cFBaCA5C72e7Ca5fFABE768E135654fB3F2a5A2)
  */
 export const disputeTemplateRegistryProxyAbi = [
   {
@@ -1959,14 +1959,14 @@ export const disputeTemplateRegistryProxyAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x52c9f5634361eD3641016e5d9783310f9EFf9e25)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x0cFBaCA5C72e7Ca5fFABE768E135654fB3F2a5A2)
  */
 export const disputeTemplateRegistryProxyAddress = {
-  42161: "0x52c9f5634361eD3641016e5d9783310f9EFf9e25",
+  42161: "0x0cFBaCA5C72e7Ca5fFABE768E135654fB3F2a5A2",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x52c9f5634361eD3641016e5d9783310f9EFf9e25)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x0cFBaCA5C72e7Ca5fFABE768E135654fB3F2a5A2)
  */
 export const disputeTemplateRegistryProxyConfig = {
   address: disputeTemplateRegistryProxyAddress,
@@ -1978,7 +1978,7 @@ export const disputeTemplateRegistryProxyConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xe62B776498F48061ef9425fCEf30F3d1370DB005)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x48e052B4A6dC4F30e90930F1CeaAFd83b3981EB3)
  */
 export const evidenceModuleAbi = [
   { type: "fallback", stateMutability: "payable" },
@@ -2100,14 +2100,14 @@ export const evidenceModuleAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xe62B776498F48061ef9425fCEf30F3d1370DB005)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x48e052B4A6dC4F30e90930F1CeaAFd83b3981EB3)
  */
 export const evidenceModuleAddress = {
-  42161: "0xe62B776498F48061ef9425fCEf30F3d1370DB005",
+  42161: "0x48e052B4A6dC4F30e90930F1CeaAFd83b3981EB3",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xe62B776498F48061ef9425fCEf30F3d1370DB005)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x48e052B4A6dC4F30e90930F1CeaAFd83b3981EB3)
  */
 export const evidenceModuleConfig = {
   address: evidenceModuleAddress,
@@ -2119,7 +2119,7 @@ export const evidenceModuleConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x827411b3e98bAe8c441efBf26842A1670f8f378F)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xE22500Fa27f696d06702367246bd17Bd2C8a4c5d)
  */
 export const evidenceModuleImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -2232,14 +2232,14 @@ export const evidenceModuleImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x827411b3e98bAe8c441efBf26842A1670f8f378F)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xE22500Fa27f696d06702367246bd17Bd2C8a4c5d)
  */
 export const evidenceModuleImplementationAddress = {
-  42161: "0x827411b3e98bAe8c441efBf26842A1670f8f378F",
+  42161: "0xE22500Fa27f696d06702367246bd17Bd2C8a4c5d",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x827411b3e98bAe8c441efBf26842A1670f8f378F)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xE22500Fa27f696d06702367246bd17Bd2C8a4c5d)
  */
 export const evidenceModuleImplementationConfig = {
   address: evidenceModuleImplementationAddress,
@@ -2251,7 +2251,7 @@ export const evidenceModuleImplementationConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xe62B776498F48061ef9425fCEf30F3d1370DB005)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x48e052B4A6dC4F30e90930F1CeaAFd83b3981EB3)
  */
 export const evidenceModuleProxyAbi = [
   {
@@ -2267,14 +2267,14 @@ export const evidenceModuleProxyAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xe62B776498F48061ef9425fCEf30F3d1370DB005)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x48e052B4A6dC4F30e90930F1CeaAFd83b3981EB3)
  */
 export const evidenceModuleProxyAddress = {
-  42161: "0xe62B776498F48061ef9425fCEf30F3d1370DB005",
+  42161: "0x48e052B4A6dC4F30e90930F1CeaAFd83b3981EB3",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xe62B776498F48061ef9425fCEf30F3d1370DB005)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x48e052B4A6dC4F30e90930F1CeaAFd83b3981EB3)
  */
 export const evidenceModuleProxyConfig = {
   address: evidenceModuleProxyAddress,
@@ -2543,7 +2543,7 @@ export const iHomeGatewayAbi = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xCd415C03dfa85B02646C7e2977F22a480c4354F1)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x991d2df165670b9cac3B022f4B68D65b664222ea)
  */
 export const klerosCoreNeoAbi = [
   { type: "fallback", stateMutability: "payable" },
@@ -3698,14 +3698,14 @@ export const klerosCoreNeoAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xCd415C03dfa85B02646C7e2977F22a480c4354F1)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x991d2df165670b9cac3B022f4B68D65b664222ea)
  */
 export const klerosCoreNeoAddress = {
-  42161: "0xCd415C03dfa85B02646C7e2977F22a480c4354F1",
+  42161: "0x991d2df165670b9cac3B022f4B68D65b664222ea",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xCd415C03dfa85B02646C7e2977F22a480c4354F1)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x991d2df165670b9cac3B022f4B68D65b664222ea)
  */
 export const klerosCoreNeoConfig = {
   address: klerosCoreNeoAddress,
@@ -3717,7 +3717,7 @@ export const klerosCoreNeoConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x4DD8B69958eF1D7d5dA9347E9d9F57ADFC3dc284)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x17c39AB53A7072b167A74a85D47b30385c98ae89)
  */
 export const klerosCoreNeoImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -4863,14 +4863,14 @@ export const klerosCoreNeoImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x4DD8B69958eF1D7d5dA9347E9d9F57ADFC3dc284)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x17c39AB53A7072b167A74a85D47b30385c98ae89)
  */
 export const klerosCoreNeoImplementationAddress = {
-  42161: "0x4DD8B69958eF1D7d5dA9347E9d9F57ADFC3dc284",
+  42161: "0x17c39AB53A7072b167A74a85D47b30385c98ae89",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x4DD8B69958eF1D7d5dA9347E9d9F57ADFC3dc284)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x17c39AB53A7072b167A74a85D47b30385c98ae89)
  */
 export const klerosCoreNeoImplementationConfig = {
   address: klerosCoreNeoImplementationAddress,
@@ -4882,7 +4882,7 @@ export const klerosCoreNeoImplementationConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xCd415C03dfa85B02646C7e2977F22a480c4354F1)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x991d2df165670b9cac3B022f4B68D65b664222ea)
  */
 export const klerosCoreNeoProxyAbi = [
   {
@@ -4898,14 +4898,14 @@ export const klerosCoreNeoProxyAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xCd415C03dfa85B02646C7e2977F22a480c4354F1)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x991d2df165670b9cac3B022f4B68D65b664222ea)
  */
 export const klerosCoreNeoProxyAddress = {
-  42161: "0xCd415C03dfa85B02646C7e2977F22a480c4354F1",
+  42161: "0x991d2df165670b9cac3B022f4B68D65b664222ea",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xCd415C03dfa85B02646C7e2977F22a480c4354F1)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x991d2df165670b9cac3B022f4B68D65b664222ea)
  */
 export const klerosCoreNeoProxyConfig = {
   address: klerosCoreNeoProxyAddress,
@@ -5742,7 +5742,7 @@ export const pinakionConfig = {
 
 /**
  * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x9d494768936b6bDaabc46733b8D53A937A6c6D7e)
- * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x26c1980120F1C82cF611D666CE81D2b54d018547)
+ * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x553dcbF6aB3aE06a1064b5200Df1B5A9fB403d3c)
  */
 export const policyRegistryAbi = [
   { type: "fallback", stateMutability: "payable" },
@@ -5880,16 +5880,16 @@ export const policyRegistryAbi = [
 
 /**
  * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x9d494768936b6bDaabc46733b8D53A937A6c6D7e)
- * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x26c1980120F1C82cF611D666CE81D2b54d018547)
+ * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x553dcbF6aB3aE06a1064b5200Df1B5A9fB403d3c)
  */
 export const policyRegistryAddress = {
   100: "0x9d494768936b6bDaabc46733b8D53A937A6c6D7e",
-  42161: "0x26c1980120F1C82cF611D666CE81D2b54d018547",
+  42161: "0x553dcbF6aB3aE06a1064b5200Df1B5A9fB403d3c",
 } as const;
 
 /**
  * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x9d494768936b6bDaabc46733b8D53A937A6c6D7e)
- * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x26c1980120F1C82cF611D666CE81D2b54d018547)
+ * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x553dcbF6aB3aE06a1064b5200Df1B5A9fB403d3c)
  */
 export const policyRegistryConfig = {
   address: policyRegistryAddress,
@@ -5901,7 +5901,7 @@ export const policyRegistryConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x2AC2EdFD336732bc6963f1AD03ED98B22dB949da)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x15E5964C7751dF8563eA4bC000301582C79BC454)
  */
 export const policyRegistryImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -6029,14 +6029,14 @@ export const policyRegistryImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x2AC2EdFD336732bc6963f1AD03ED98B22dB949da)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x15E5964C7751dF8563eA4bC000301582C79BC454)
  */
 export const policyRegistryImplementationAddress = {
-  42161: "0x2AC2EdFD336732bc6963f1AD03ED98B22dB949da",
+  42161: "0x15E5964C7751dF8563eA4bC000301582C79BC454",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x2AC2EdFD336732bc6963f1AD03ED98B22dB949da)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x15E5964C7751dF8563eA4bC000301582C79BC454)
  */
 export const policyRegistryImplementationConfig = {
   address: policyRegistryImplementationAddress,
@@ -6048,7 +6048,7 @@ export const policyRegistryImplementationConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x26c1980120F1C82cF611D666CE81D2b54d018547)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x553dcbF6aB3aE06a1064b5200Df1B5A9fB403d3c)
  */
 export const policyRegistryProxyAbi = [
   {
@@ -6064,14 +6064,14 @@ export const policyRegistryProxyAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x26c1980120F1C82cF611D666CE81D2b54d018547)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x553dcbF6aB3aE06a1064b5200Df1B5A9fB403d3c)
  */
 export const policyRegistryProxyAddress = {
-  42161: "0x26c1980120F1C82cF611D666CE81D2b54d018547",
+  42161: "0x553dcbF6aB3aE06a1064b5200Df1B5A9fB403d3c",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x26c1980120F1C82cF611D666CE81D2b54d018547)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x553dcbF6aB3aE06a1064b5200Df1B5A9fB403d3c)
  */
 export const policyRegistryProxyConfig = {
   address: policyRegistryProxyAddress,
@@ -6107,7 +6107,7 @@ export const randomizerOracleConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xC3dB344755b15c8Edfd834db79af4f8860029FB4)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x044AfE0069C0fd641BC5f90d9A4218eF0b2Fa9d3)
  */
 export const randomizerRngAbi = [
   { type: "fallback", stateMutability: "payable" },
@@ -6196,9 +6196,9 @@ export const randomizerRngAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    inputs: [{ name: "requestId", internalType: "uint256", type: "uint256" }],
     name: "randomNumbers",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    outputs: [{ name: "number", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -6241,9 +6241,9 @@ export const randomizerRngAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "", internalType: "address", type: "address" }],
+    inputs: [{ name: "requester", internalType: "address", type: "address" }],
     name: "requesterToID",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    outputs: [{ name: "requestId", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -6281,14 +6281,14 @@ export const randomizerRngAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xC3dB344755b15c8Edfd834db79af4f8860029FB4)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x044AfE0069C0fd641BC5f90d9A4218eF0b2Fa9d3)
  */
 export const randomizerRngAddress = {
-  42161: "0xC3dB344755b15c8Edfd834db79af4f8860029FB4",
+  42161: "0x044AfE0069C0fd641BC5f90d9A4218eF0b2Fa9d3",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xC3dB344755b15c8Edfd834db79af4f8860029FB4)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x044AfE0069C0fd641BC5f90d9A4218eF0b2Fa9d3)
  */
 export const randomizerRngConfig = {
   address: randomizerRngAddress,
@@ -6300,7 +6300,7 @@ export const randomizerRngConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xA995C172d286f8F4eE137CC662e2844E59Cf4836)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xF1a7Cd3115F5852966430f8E3877D2221F074A2e)
  */
 export const randomizerRngImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -6388,9 +6388,9 @@ export const randomizerRngImplementationAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    inputs: [{ name: "requestId", internalType: "uint256", type: "uint256" }],
     name: "randomNumbers",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    outputs: [{ name: "number", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -6433,9 +6433,9 @@ export const randomizerRngImplementationAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "", internalType: "address", type: "address" }],
+    inputs: [{ name: "requester", internalType: "address", type: "address" }],
     name: "requesterToID",
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+    outputs: [{ name: "requestId", internalType: "uint256", type: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -6465,14 +6465,14 @@ export const randomizerRngImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xA995C172d286f8F4eE137CC662e2844E59Cf4836)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xF1a7Cd3115F5852966430f8E3877D2221F074A2e)
  */
 export const randomizerRngImplementationAddress = {
-  42161: "0xA995C172d286f8F4eE137CC662e2844E59Cf4836",
+  42161: "0xF1a7Cd3115F5852966430f8E3877D2221F074A2e",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xA995C172d286f8F4eE137CC662e2844E59Cf4836)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xF1a7Cd3115F5852966430f8E3877D2221F074A2e)
  */
 export const randomizerRngImplementationConfig = {
   address: randomizerRngImplementationAddress,
@@ -6484,7 +6484,7 @@ export const randomizerRngImplementationConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xC3dB344755b15c8Edfd834db79af4f8860029FB4)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x044AfE0069C0fd641BC5f90d9A4218eF0b2Fa9d3)
  */
 export const randomizerRngProxyAbi = [
   {
@@ -6500,14 +6500,14 @@ export const randomizerRngProxyAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xC3dB344755b15c8Edfd834db79af4f8860029FB4)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x044AfE0069C0fd641BC5f90d9A4218eF0b2Fa9d3)
  */
 export const randomizerRngProxyAddress = {
-  42161: "0xC3dB344755b15c8Edfd834db79af4f8860029FB4",
+  42161: "0x044AfE0069C0fd641BC5f90d9A4218eF0b2Fa9d3",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xC3dB344755b15c8Edfd834db79af4f8860029FB4)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x044AfE0069C0fd641BC5f90d9A4218eF0b2Fa9d3)
  */
 export const randomizerRngProxyConfig = {
   address: randomizerRngProxyAddress,
@@ -6519,7 +6519,7 @@ export const randomizerRngProxyConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x614498118850184c62f82d08261109334bFB050f)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x21A9402aDb818744B296e1d1BE58C804118DC03D)
  */
 export const sortitionModuleNeoAbi = [
   { type: "fallback", stateMutability: "payable" },
@@ -6867,7 +6867,7 @@ export const sortitionModuleNeoAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "", internalType: "address", type: "address" }],
+    inputs: [{ name: "account", internalType: "address", type: "address" }],
     name: "jurors",
     outputs: [
       { name: "stakedPnk", internalType: "uint256", type: "uint256" },
@@ -6885,8 +6885,8 @@ export const sortitionModuleNeoAbi = [
   {
     type: "function",
     inputs: [
-      { name: "", internalType: "address", type: "address" },
-      { name: "", internalType: "uint96", type: "uint96" },
+      { name: "jurorAccount", internalType: "address", type: "address" },
+      { name: "courtId", internalType: "uint96", type: "uint96" },
     ],
     name: "latestDelayedStakeIndex",
     outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
@@ -7091,14 +7091,14 @@ export const sortitionModuleNeoAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x614498118850184c62f82d08261109334bFB050f)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x21A9402aDb818744B296e1d1BE58C804118DC03D)
  */
 export const sortitionModuleNeoAddress = {
-  42161: "0x614498118850184c62f82d08261109334bFB050f",
+  42161: "0x21A9402aDb818744B296e1d1BE58C804118DC03D",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x614498118850184c62f82d08261109334bFB050f)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x21A9402aDb818744B296e1d1BE58C804118DC03D)
  */
 export const sortitionModuleNeoConfig = {
   address: sortitionModuleNeoAddress,
@@ -7110,7 +7110,7 @@ export const sortitionModuleNeoConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xf327200420F21BAafce8F1C03B1EEdF926074B95)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x7E13f295536FD6c48Ba792CFdEF691d592Fa0851)
  */
 export const sortitionModuleNeoImplementationAbi = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
@@ -7457,7 +7457,7 @@ export const sortitionModuleNeoImplementationAbi = [
   },
   {
     type: "function",
-    inputs: [{ name: "", internalType: "address", type: "address" }],
+    inputs: [{ name: "account", internalType: "address", type: "address" }],
     name: "jurors",
     outputs: [
       { name: "stakedPnk", internalType: "uint256", type: "uint256" },
@@ -7475,8 +7475,8 @@ export const sortitionModuleNeoImplementationAbi = [
   {
     type: "function",
     inputs: [
-      { name: "", internalType: "address", type: "address" },
-      { name: "", internalType: "uint96", type: "uint96" },
+      { name: "jurorAccount", internalType: "address", type: "address" },
+      { name: "courtId", internalType: "uint96", type: "uint96" },
     ],
     name: "latestDelayedStakeIndex",
     outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
@@ -7673,14 +7673,14 @@ export const sortitionModuleNeoImplementationAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xf327200420F21BAafce8F1C03B1EEdF926074B95)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x7E13f295536FD6c48Ba792CFdEF691d592Fa0851)
  */
 export const sortitionModuleNeoImplementationAddress = {
-  42161: "0xf327200420F21BAafce8F1C03B1EEdF926074B95",
+  42161: "0x7E13f295536FD6c48Ba792CFdEF691d592Fa0851",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xf327200420F21BAafce8F1C03B1EEdF926074B95)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x7E13f295536FD6c48Ba792CFdEF691d592Fa0851)
  */
 export const sortitionModuleNeoImplementationConfig = {
   address: sortitionModuleNeoImplementationAddress,
@@ -7692,7 +7692,7 @@ export const sortitionModuleNeoImplementationConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x614498118850184c62f82d08261109334bFB050f)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x21A9402aDb818744B296e1d1BE58C804118DC03D)
  */
 export const sortitionModuleNeoProxyAbi = [
   {
@@ -7708,14 +7708,14 @@ export const sortitionModuleNeoProxyAbi = [
 ] as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x614498118850184c62f82d08261109334bFB050f)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x21A9402aDb818744B296e1d1BE58C804118DC03D)
  */
 export const sortitionModuleNeoProxyAddress = {
-  42161: "0x614498118850184c62f82d08261109334bFB050f",
+  42161: "0x21A9402aDb818744B296e1d1BE58C804118DC03D",
 } as const;
 
 /**
- * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x614498118850184c62f82d08261109334bFB050f)
+ * [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x21A9402aDb818744B296e1d1BE58C804118DC03D)
  */
 export const sortitionModuleNeoProxyConfig = {
   address: sortitionModuleNeoProxyAddress,

@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
-import { HomeChains, isSkipped, isDevnet, PNK, ETH, isMainnet } from "./utils";
+import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet, deployERC721 } from "./utils/deployTokens";
 import { DisputeKitClassic, KlerosCoreNeo } from "../typechain-types";
@@ -25,16 +25,16 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   await getContractOrDeploy(hre, "TransactionBatcher", { from: deployer, args: [], log: true });
 
+  await deployUpgradable(deployments, "PolicyRegistry", { from: deployer, args: [deployer], log: true });
+
+  await deployUpgradable(deployments, "EvidenceModule", { from: deployer, args: [deployer], log: true });
+
   const randomizerOracle = await getContractOrDeploy(hre, "RandomizerOracle", {
     from: deployer,
     contract: "RandomizerMock",
     args: [],
     log: true,
   });
-
-  await deployUpgradable(deployments, "PolicyRegistry", { from: deployer, args: [deployer], log: true });
-
-  await deployUpgradable(deployments, "EvidenceModule", { from: deployer, args: [deployer], log: true });
 
   const rng = await deployUpgradable(deployments, "RandomizerRNG", {
     from: deployer,
