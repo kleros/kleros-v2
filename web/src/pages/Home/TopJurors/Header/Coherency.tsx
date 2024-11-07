@@ -11,7 +11,7 @@ const Container = styled.div`
   display: flex;
   font-size: 12px !important;
   &::before {
-    content: "Votes";
+    content: "Coherency";
   }
   color: ${({ theme }) => theme.secondaryText};
   align-items: center;
@@ -21,15 +21,13 @@ const Container = styled.div`
       css`
         font-size: 14px !important;
         justify-content: center;
-        &::before {
-          content: "Coherent Votes";
-        }
       `
   )}
 `;
 
 const coherentVotesTooltipMsg =
-  "This is the ratio of coherent votes made by a juror: " +
+  "This is the percentage of coherent votes made by a juror." +
+  " Hover to see the ratio of coherent votes: " +
   "the number in the left is the number of times where the juror " +
   "voted coherently and the number in the right is the total number of times " +
   "the juror voted";
