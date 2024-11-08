@@ -35,7 +35,7 @@ const CourtBadge: React.FC = () => {
   const { text, color } = useMemo<{ text?: string; color?: keyof Theme }>(() => {
     switch (getArbitratorType()) {
       case ArbitratorTypes.neo:
-        return { text: "Neo", color: "paleCyan" };
+        return { text: "Beta", color: "paleCyan" };
       case ArbitratorTypes.university:
         return { text: "Uni", color: "limeGreen" };
     }
