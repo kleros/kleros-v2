@@ -1,4 +1,4 @@
-specVersion: 0.0.4
+specVersion: 0.0.5
 schema:
   file: ./schema.graphql
 features:
@@ -8,12 +8,12 @@ dataSources:
     name: KlerosCore
     network: arbitrum-sepolia
     source:
-      address: "0x10BaAFDe8B4d3164CA781571e2F1513317f57980"
+      address: "0x5AB37F38778Bc175852fA353056591D91c744ce6"
       abi: KlerosCore
-      startBlock: 12264702
+      startBlock: 96308609
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - User
@@ -69,7 +69,7 @@ dataSources:
       startBlock: 3084568
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Court
@@ -84,12 +84,12 @@ dataSources:
     name: DisputeKitClassic
     network: arbitrum-sepolia
     source:
-      address: "0xDaE66157D72Baa099cd63a833c353776206feea4"
+      address: "0xd6E96b7c993763B5CDDa1139C7387B82A7c8B8B5"
       abi: DisputeKitClassic
-      startBlock: 12264683
+      startBlock: 96308536
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - ClassicDispute
@@ -124,7 +124,7 @@ dataSources:
       startBlock: 3638735
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - ClassicEvidenceGroup
@@ -140,12 +140,12 @@ dataSources:
     name: SortitionModule
     network: arbitrum-sepolia
     source:
-      address: "0xBEEb15EF1DEf96c569c97A703E649B0251ceFB04"
+      address: "0x4B2c2d048921f694cCE3AEa35698c6B1f5fcbb79"
       abi: SortitionModule
-      startBlock: 12264691
+      startBlock: 96308572
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - JurorTokensPerCourt
