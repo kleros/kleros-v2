@@ -38,6 +38,7 @@ dataSources:
           handler: handleAppealDecision
         - event: DisputeCreation(indexed uint256,indexed address)
           handler: handleDisputeCreation
+          receipt: true
         - event: Draw(indexed address,indexed uint256,uint256,uint256)
           handler: handleDraw
         - event: NewPeriod(indexed uint256,uint8)
