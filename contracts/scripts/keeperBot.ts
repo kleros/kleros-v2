@@ -61,8 +61,8 @@ const getContracts = async () => {
     default:
       throw new Error("Invalid core type, must be one of base, neo");
   }
-  const randomizerRng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
-  const blockHashRNG = (await ethers.getContract("BlockHashRNG")) as BlockHashRNG;
+  const randomizerRng = await ethers.getContractOrNull<RandomizerRNG>("RandomizerRNG");
+  const blockHashRNG = await ethers.getContractOrNull<BlockHashRNG>("BlockHashRNG");
   const pnk = (await ethers.getContract("PNK")) as PNK;
   return { core, sortition, randomizerRng, blockHashRNG, disputeKitClassic, pnk };
 };
@@ -183,7 +183,7 @@ const handleError = (e: any) => {
 const isRngReady = async () => {
   const { randomizerRng, blockHashRNG, sortition } = await getContracts();
   const currentRng = await sortition.rng();
-  if (currentRng === randomizerRng.target) {
+  if (currentRng === randomizerRng?.target) {
     const requesterID = await randomizerRng.requesterToID(sortition.target);
     const n = await randomizerRng.randomNumbers(requesterID);
     if (Number(n) === 0) {
@@ -193,7 +193,7 @@ const isRngReady = async () => {
       logger.info(`RandomizerRNG is ready: ${n.toString()}`);
       return true;
     }
-  } else if (currentRng === blockHashRNG.target) {
+  } else if (currentRng === blockHashRNG?.target) {
     const requestBlock = await sortition.randomNumberRequestBlock();
     const lookahead = await sortition.rngLookahead();
     const n = await blockHashRNG.receiveRandomness.staticCall(requestBlock + lookahead);

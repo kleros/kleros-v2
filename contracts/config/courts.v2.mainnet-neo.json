@@ -3,7 +3,7 @@
     "id": 1,
     "parent": 0,
     "hiddenVotes": true,
-    "minStake": "150000000000000000000",
+    "minStake": "2300000000000000000000",
     "alpha": "10000",
     "feeForJuror": "5000000000000000",
     "jurorsForCourtJump": "511",
