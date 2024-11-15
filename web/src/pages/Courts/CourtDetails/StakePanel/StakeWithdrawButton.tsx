@@ -22,12 +22,17 @@ import { isUndefined } from "utils/index";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { EnsureChain } from "components/EnsureChain";
+import styled from "styled-components";
 
 export enum ActionType {
   allowance = "allowance",
   stake = "stake",
   withdraw = "withdraw",
 }
+
+const ErrorLabel = styled.label`
+  color: ${({ theme }) => theme.error};
+`;
 
 interface IActionButton {
   isSending: boolean;
@@ -142,20 +147,23 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const { text, checkDisabled, onClick } = buttonProps[isAllowance ? ActionType.allowance : action];
   return (
     <EnsureChain>
-      <Button
-        text={text}
-        isLoading={isSending}
-        disabled={
-          isSending ||
-          parsedAmount == 0n ||
-          isUndefined(targetStake) ||
-          isUndefined(courtDetails) ||
-          checkDisabled() ||
-          (targetStake !== 0n && targetStake < BigInt(courtDetails.court?.minStake)) ||
-          (isStaking && !isAllowance && isUndefined(setStakeConfig))
-        }
-        onClick={onClick}
-      />
+      <>
+        <Button
+          text={text}
+          isLoading={isSending}
+          disabled={
+            isSending ||
+            parsedAmount == 0n ||
+            isUndefined(targetStake) ||
+            isUndefined(courtDetails) ||
+            checkDisabled() ||
+            (targetStake !== 0n && targetStake < BigInt(courtDetails.court?.minStake)) ||
+            (isStaking && !isAllowance && isUndefined(setStakeConfig))
+          }
+          onClick={onClick}
+        />
+        {setStakeError && <ErrorLabel> {setStakeError.message}</ErrorLabel>}
+      </>
     </EnsureChain>
   );
 };
