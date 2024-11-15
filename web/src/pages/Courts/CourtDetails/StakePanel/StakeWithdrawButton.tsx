@@ -30,6 +30,12 @@ export enum ActionType {
   withdraw = "withdraw",
 }
 
+const Container = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+`;
+
 const ErrorLabel = styled.label`
   color: ${({ theme }) => theme.error};
 `;
@@ -147,7 +153,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const { text, checkDisabled, onClick } = buttonProps[isAllowance ? ActionType.allowance : action];
   return (
     <EnsureChain>
-      <>
+      <Container>
         <Button
           text={text}
           isLoading={isSending}
@@ -163,7 +169,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
           onClick={onClick}
         />
         {setStakeError && <ErrorLabel> {setStakeError.message}</ErrorLabel>}
-      </>
+      </Container>
     </EnsureChain>
   );
 };
