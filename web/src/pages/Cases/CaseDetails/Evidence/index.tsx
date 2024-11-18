@@ -83,15 +83,12 @@ const Evidence: React.FC = () => {
     latestEvidence.scrollIntoView({ behavior: "smooth" });
   }, [ref]);
 
-  console.log({ data });
-
   const evidences = useMemo(() => {
     if (!data?.evidences) return;
     const spamEvidences = data.evidences.filter((evidence) => isSpam(evidence.id));
     const realEvidences = data.evidences.filter((evidence) => !isSpam(evidence.id));
     return { realEvidences, spamEvidences };
   }, [data]);
-  console.log({ evidences });
 
   return (
     <Container ref={ref}>
@@ -134,11 +131,7 @@ const Evidence: React.FC = () => {
 };
 
 const isSpam = (id: string) => {
-  for (const spamId of spamEvidencesIds) {
-    if (id == spamId) return true;
-  }
-
-  return false;
+  return spamEvidencesIds.includes(id);
 };
 
 export default Evidence;
