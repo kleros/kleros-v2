@@ -75,6 +75,7 @@
   "dependencies": {
     "@cyntler/react-doc-viewer": "^1.16.3",
     "@kleros/kleros-sdk": "workspace:^",
+    "@kleros/kleros-v2-contracts": "workspace:^",
     "@kleros/ui-components-library": "^2.15.0",
     "@lifi/wallet-management": "^3.0.3",
     "@lifi/widget": "^3.2.0",

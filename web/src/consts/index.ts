@@ -28,6 +28,7 @@ export const ETH_ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/;
 export const ETH_SIGNATURE_REGEX = /^0x[a-fA-F0-9]{130}$/;
 
 export const isProductionDeployment = () => import.meta.env.REACT_APP_DEPLOYMENT === "mainnet";
+export const isTestnetDeployment = () => import.meta.env.REACT_APP_DEPLOYMENT === "testnet";
 
 export const isKlerosUniversity = () => getArbitratorType() === ArbitratorTypes.university;
 export const isKlerosNeo = () => getArbitratorType() === ArbitratorTypes.neo;
