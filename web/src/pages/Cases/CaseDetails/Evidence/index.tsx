@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
@@ -17,6 +17,8 @@ import EvidenceCard from "components/EvidenceCard";
 import { SkeletonEvidenceCard } from "components/StyledSkeleton";
 
 import EvidenceSearch from "./EvidenceSearch";
+import { Divider } from "components/Divider";
+import { spamEvidencesIds } from "src/consts";
 
 const Container = styled.div`
   width: 100%;
@@ -54,12 +56,19 @@ const ScrollButton = styled(Button)`
   }
 `;
 
+const SpamLabel = styled.label`
+  color: ${({ theme }) => theme.primaryBlue};
+  align-self: center;
+  cursor: pointer;
+`;
+
 const Evidence: React.FC = () => {
   const { id } = useParams();
   const { data: disputeData } = useDisputeDetailsQuery(id);
   const ref = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState<string>();
   const [debouncedSearch, setDebouncedSearch] = useState<string>();
+  const [showSpam, setShowSpam] = useState(false);
 
   const { data } = useEvidences(disputeData?.dispute?.externalDisputeId?.toString(), debouncedSearch);
 
@@ -74,12 +83,19 @@ const Evidence: React.FC = () => {
     latestEvidence.scrollIntoView({ behavior: "smooth" });
   }, [ref]);
 
+  const evidences = useMemo(() => {
+    if (!data?.evidences) return;
+    const spamEvidences = data.evidences.filter((evidence) => isSpam(evidence.id));
+    const realEvidences = data.evidences.filter((evidence) => !isSpam(evidence.id));
+    return { realEvidences, spamEvidences };
+  }, [data]);
+
   return (
     <Container ref={ref}>
       <EvidenceSearch {...{ search, setSearch, evidenceGroup: disputeData?.dispute?.externalDisputeId }} />
       <ScrollButton small Icon={DownArrow} text="Scroll to latest" onClick={scrollToLatest} />
-      {data ? (
-        data.evidences.map(({ evidence, sender, timestamp, name, description, fileURI, evidenceIndex }) => (
+      {evidences?.realEvidences ? (
+        evidences?.realEvidences.map(({ evidence, sender, timestamp, name, description, fileURI, evidenceIndex }) => (
           <EvidenceCard
             key={timestamp}
             index={parseInt(evidenceIndex)}
@@ -90,9 +106,32 @@ const Evidence: React.FC = () => {
       ) : (
         <SkeletonEvidenceCard />
       )}
+      {evidences?.spamEvidences.length !== 0 ? (
+        <>
+          <Divider />
+          {showSpam ? (
+            evidences?.spamEvidences.map(
+              ({ evidence, sender, timestamp, name, description, fileURI, evidenceIndex }) => (
+                <EvidenceCard
+                  key={timestamp}
+                  index={parseInt(evidenceIndex)}
+                  sender={sender?.id}
+                  {...{ evidence, timestamp, name, description, fileURI }}
+                />
+              )
+            )
+          ) : (
+            <SpamLabel onClick={() => setShowSpam(true)}>Show likely spam</SpamLabel>
+          )}
+        </>
+      ) : null}
       {data && data.evidences.length === 0 ? <StyledLabel>There is no evidence submitted yet</StyledLabel> : null}
     </Container>
   );
+};
+
+const isSpam = (id: string) => {
+  return spamEvidencesIds.includes(id);
 };
 
 export default Evidence;
