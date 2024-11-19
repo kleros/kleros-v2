@@ -5,5 +5,227 @@
     "summary": "**Guidelines:**\n - All policies of a court also apply to all of its child subcourts.\n - Jurors should cast their vote with a suitable verification.\n - Jurors should not rule in favor of a side who have engaged in immoral activities (example: rule reject on “revenge porn” images even if they would otherwise fit into the category).\n - “Refuse to arbitrate” should be used for disputes where both sides of the dispute have engaged in activities which are immoral (ex: refuse to rule on an assassination market dispute).\n Immoral activities include: Murder, slavery, rape, violence, theft and perjury.\n - Rulings should be made based on the “state of the world” at the time a dispute was created. (Ex: in a dispute concerning membership of a smart contract on a curated list of “bug free” contracts, jurors should not take into account changes made to the contract after the dispute is raised.) In particular, jurors should base their rulings on court policies and arbitrable application primary documents as they exist at the time of the creation of the dispute, disregarding later modifications.\n - To ensure fairness to jurors who vote at different times within a voting period, jurors should disregard any evidence that is both 1) submitted after the end of the evidence period of the initial round of a dispute AND 2) cannot be reasonably considered to have been readily, publicly available to jurors. Jurors may, however, consider arguments that are submitted later that are based upon existing evidence and/or information which a juror considering the case during the evidence period of the initial round could reasonably have been expected to find themselves. (Ex: a party submits a new photo of a damaged product in an insurance case after the evidence period; this photo should not be considered by jurors. Ex: in a dispute over whether a token satisfies the criteria of a curated list of ERC20 tokens, an argument that reminds jurors of a definitional element of the ERC20 standard is submitted; this is publicly available and can be considered by jurors. Ex: in a dispute over whether a token satisfies a decentralization criterion for an exchange listing, an argument that invokes the distribution of tokens over different Ethereum addresses, as publicly available from sites such as Etherscan, can be considered by jurors.)\n - When considering an appeal of a case that has originated in a lower court, jurors should consider whether 1) evaluating the case requires specialized skills which jurors in the appellate court cannot be expected to have (ex: evaluating the quality of an English to Korean translation when knowledge of Korean is not a requirement of the appellate court) and 2) whether there is evidence that an attack was performed against this case in the lower court (ex: bribes, p+epsilon attacks, 51% attacks, etc). If there is no evidence of an attack AND appellate court jurors cannot be reasonably expected to have the required skills to independently evaluate the case, jurors should vote to uphold the lower court ruling. Evidence related to the presence of attacks on Kleros should be considered by jurors even if it would otherwise violate the above points on evidence admissibility.\n - Jurors should attempt to interpret disputes according to the “spirit of the dispute” unless the arbitrable contract or the policies of the subcourt state otherwise.\n - Jurors should interpret disputes without assuming the existence of gods, spirits or other supernatural beings unless the arbitrable contract or the policies of the subcourt state otherwise.",
     "court": 1,
     "uri": "/ipfs/QmVtRvx1WHpTcndPyUQos8osKkoFtvZYVLExyjgGxGHP6F/General-Court-Policy.json"
+  },
+  {
+    "name": "Blockchain",
+    "description": "**Court Purpose:**\n\nThis is the blockchain community subcourt. Disputes in this subcourt should be those that require that jurors have an understanding of the broad blockchain ecosystem. Cases in this court may come from varying aspects of the ecosystem and could also be from lower courts that have been appealed. For example, a case in the Token Curated Registry could arrive here on appeal.\n",
+    "summary": "",
+    "court": 2,
+    "uri": "/ipfs/QmYMdCkb7WULmiK6aQrgsayGG3VYisQwsHSLC3TLkzEHCm"
+  },
+  {
+    "name": "Non-Technical",
+    "description": "**Court Purpose:**\n\nThis subcourt is for small non-technical blockchain disputes. It is used for disputes on challenged tokens from Kleros Token² Curated Registry Dapp, Cryptoasset Transfer and Exchange Listing agreement escrow disputes. This can include:\n\n- **Token² Curated Registry**: A curated list of verified tokens submitted by users. This includes, logo, token name, contract address and ticker. \n\n- **Cryptoasset Transfer Escrow**: This escrow can be used by users to safely and securely transfer cryptoassets between two parties, even if one cryptoasset is on a chain other than Ethereum. Funds are locked in a smart contract until the other party has complied with the agreement or a dispute is brought. An example use case could be transferring ETH for BTC P2P without knowledge of the other party. You deposit ETH into the escrow, the other party sends BTC and you release ETH.\n\n- **Exchange Listing Agreement Escrow**: This escrow can be used to delegate listing of tokens to token listing agents. A reward is paid to the agent if the token is appropriately listed on the agreed upon exchange.\n\n**Example:**\n\n- Someone submits the PNK token with the address “0x87c260900c391559fd2816c9fbf078de37e2f520”. Someone challenges the listing as incorrect as the real PNK address is “0x93ed3fbe21207ec2e8f2d3c3de6e058cb73bc04d”.\n\n- Parties make a contract to exchange 1 BTC for 30 ETH. After the deadline agreed in the contract, the address of the BTC buyer still hasn’t been credited.\n\n- Contractor agreed to list clients token or coin in both USD and DAI pairings but did not deliver USD.",
+    "summary": "**Policies:** \n\n- In escrow disputes involving privacy coins where “view key’s” are needed, those should be provided as evidence before the end of the evidence period. ",
+    "requiredSkills": "Jurors do not need a deep blockchain technical knowledge or coding skills but do need the ability to read blockchain explorers, look at cryptoassets listed on exchanges, understand how to verify a transaction and cross reference on-chain data. ",
+    "court": 3,
+    "uri": "/ipfs/QmdJYHubLGQCt2GxpJch2riSYVxZzDC4cBg2mNPXuiY6rX"
+  },
+  {
+    "name": "Token Listing",
+    "description": "**Court Purpose:**\n\nThis court serves as the final validation for token listing for verified projects listing on the Ethfinex Exchange using Kleros’ Token Curated List Dapp.\nThis is a high level, high stake court requiring deep blockchain knowledge, legal experience and / or a knowledge of exchange listings in general. Jurors are required to stake a large amount of PNK and should only do so if they are confident in the above capabilities.",
+    "summary": "[Ethfinex Court Policy](https://cdn.kleros.link/ipfs/QmVzwEBpGsbFY3UgyjA3SxgGXx3r5gFGynNpaoXkp6jenu/Ethfinex%20Court%20Policy.pdf)",
+    "court": 4,
+    "uri": "/ipfs/QmeyojE13mcQtWqQQddYypafDRChVND8z6dcHLbaarmbbx"
+  },
+  {
+    "name": "Technical",
+    "description": "**Court Purpose:**\n\nThis court serves to arbitrate blockchain disputes of a technical nature. This can include:\n\n- Verifying that a smart contract meets a defined standard. \n\n- Verifying that a proposed contract call is the technical translation of a decision taken by governance.\n\n**Example:**\n\n- A dispute on whether or not a token should be given a badge indicating that it satisfies ERC20. \n\n- A dispute on whether or not a proposed Kleros governor call matches the decision which has been voted through governance.",
+    "summary": "**Policies:** \n\n- Disputes in this subcourt should only be of technical nature. ",
+    "requiredSkills": "A high understanding of blockchain technology, smart contract, solidity language and Ethereum ABI is required.",
+    "court": 5,
+    "uri": "/ipfs/QmcBjGYfmKmkpYc8HYkaiBa9ot2eoWAa2Mhfef7i7QKd5H"
+  },
+  {
+    "name": "Marketing Services",
+    "description": "**Court Purpose:**\n\nIn this court, jurors will solve disputes on quality of paid marketing services including but not exclusive to sponsored articles, social media promotion and PR writing.\n\n**Example**\n\n- Marketing company promised to publish article on Cointelegraph and subsequently list on Google news, neither of these things happened.",
+    "summary": "**Policies:** \n\n- It is the responsibility of the marketing contractor to prove that the service has been delivered. This should be done by providing evidence.",
+    "requiredSkills": "A high level of reading and writing comprehension, data corroboration and web search.",
+    "court": 6,
+    "uri": "/ipfs/QmbSwJ4acdQP9EF6DfDU6czaG8ePha3eyvcSpPgAR8tPZ4"
+  },
+  {
+    "name": "English Language",
+    "description": "**Court Purpose:**\n\nIn this subcourt, jurors will solve disputes involving quality of written content. This includes grammar and text logic.\n\n**Example:**\n\n- Contractor utilizes poor grammar in a sponsored article which doesn’t meet the standards as agreed in the contract.",
+    "summary": "**Policies:**\n\n- If the disputed content is of significant size (> 10 000 words), parties in the dispute should point out to specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.\n\n- All variations of English (UK, US, Australia, etc) are to accepted unless a target audience is specifically mentioned in the contract. ",
+    "requiredSkills": "This subcourt requires an advanced level of English. Jurors who are not native English speakers are advised to stake into this court only if they have C1+ level of English.The following tests evaluates a C1 level: Cambridge Advanced (CAE), BEC Higher, BULATS score 75+, CLB/CELPIP 8+, CAEL 70+, IELTS level 7, TOEFL 110+, TOEIC score 880+.",
+    "court": 7,
+    "uri": "/ipfs/QmSn2RJX7a4BQ8rDtfvKLjKQSC3eHWjayPTSkFo3QMbjBx"
+  },
+  {
+    "name": "Video Production",
+    "description": "**Court Purpose:**\n\nThis court is for disputes on video production created through agreements in the Kleros escrow. This included editing quality, resolution and final deliverable format.\n\n**Example:**\n\n- Freelancer did not complete video project as agreed in contract. Agreement stated video should be of 1min 30 seconds long but was only 59 seconds.",
+    "summary": "**Policies:**\n\n- If the video is longer than 1h, parties in the dispute should draw attention to certain sections of the video that do not meet the requirements of the agreement.",
+    "requiredSkills": "Knowledge of video editing programs / encoding standards and editing procedures. Ability to check resolutions, durations and visual branding on platforms such as YouTube, Vimeo etc.",
+    "court": 8,
+    "uri": "/ipfs/QmXvtokEk3qPiB2WPXXUpd4xCoAr5xeceS1n4BHHqNpP7p"
+  },
+  {
+    "name": "Onboarding",
+    "description": "**Court Purpose:**\n\n- Allow new jurors to get a feel of Kleros by solving a variety of small disputes.\n- Allow projects considering Kleros use to have some disputes solved with Kleros in order to compare Kleros results with other methods.",
+    "summary": "**Policies:** \n\n- Disputes should be relatively simple. They should require less than 1 hour to solve.",
+    "requiredSkills": "No particular skills are required.",
+    "court": 9,
+    "uri": "/ipfs/QmbC7uhDEC33V8zyp8u6xozuD3GwtMp4Eaw25EzscEJk3R/Bce1VQaKwHGhMXxqgsmzJLH79ngeP4c57hGBeQQmSCZmPJcgrq4jBj3eFuMsgXuJhfYCXbARyNDx8oNvgusd9pDLjt"
+  },
+  {
+    "name": "Curation",
+    "description": "**Court purpose:** \n\n In this court, jurors will solve micro-tasks related to curation or content moderation, such as for social media, when requirements for inclusion are relatively straightforward. Higher effort cases, requiring application of more nuanced rules should be placed in other courts but might arrive in this court upon appeal.",
+    "summary": "",
+    "requiredSkills": "No particular skills are required.",
+    "court": 10,
+    "uri": "/ipfs/QmWcf4mgnPyxUVbRMKmNjx9pzk3scQRg8bVbNjDdfgh2Nq"
+  },
+  {
+    "name": "Data Analysis",
+    "description": "",
+    "summary": "",
+    "requiredSkills": "Jurors should be comfortable dealing with data sets, particularly in being able to understand the context of the data from the structure of the data set, and in estimating what percentage of entries are unusable/would need to be cleaned.",
+    "court": 11,
+    "uri": "/ipfs/Qmb3r65GXcoWfkpb6m3mnzgCyTyz7dk59UaY4iW6eTKkqJ"
+  },
+  {
+    "name": "Statistical Modeling",
+    "description": "",
+    "summary": "",
+    "requiredSkills": "Jurors should be comfortable dealing with data sets. Furthermore, jurors should have a background in statistics equivalent to (at minimum) a university statistics course, and they should be able to analyze the assumptions taken in the creation of statistical models.",
+    "court": 12,
+    "uri": "/ipfs/QmSu7HxnTmQQz23EPTAMv7oF1NsBM752mEEytCDrgdoAUx"
+  },
+  {
+    "name": "Curation (Medium)",
+    "description": "**Court purpose:** \n\n In this court, jurors will solve tasks of “medium difficulty” related to curation or content moderation. Here requirements to be analyzed can be more complicated than those of the micro-tasks in the Curation court; however, much higher effort cases should still be placed in other courts, but might arrive in this court upon appeal.",
+    "summary": "",
+    "requiredSkills": "No particular skills are required.",
+    "court": 13,
+    "uri": "/ipfs/QmeGQ5pq7eDcS3NmKXyPsRFLEXd9pJe3MHKdDviy3buDce"
+  },
+  {
+    "name": "Spanish-English Translation",
+    "description": "**Court Purpose:**\n\nIn this subcourt, jurors will solve disputes involving quality of written content. This includes grammar and text logic.\n\n**Example:**\n\n- Contractor utilizes poor grammar in a sponsored article which doesn’t meet the standards as agreed in the contract.",
+    "summary": "**Policies:**\n\n- If the disputed content is of significant size (> 10 000 words), parties in the dispute should point out to specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.\n\n- All variations of English (UK, US, Australia, etc) are to accepted unless a target audience is specifically mentioned in the contract. ",
+    "requiredSkills": "Jurors in this court should have a strong command of both English and Spanish. While jurors do not necessarily have to have the skills of a professional translator themselves, they should be able to review texts translated between English and Spanish for the quality of their translation. Particularly, when presented with passages that are flagged by challengers as potentially erroneous or inadequate and arguments given by the translator and the challenger for why the passage should or should not be considered acceptable, jurors should be able to make a determination on the quality of the passage. Jurors should be capable of these tasks even when the text is being translated to or from regional variations of these languages, such as US/British English, or Mexican/Argentinian/European Spanish.",
+    "court": 14,
+    "uri": "/ipfs/QmY79fya7FQAzvhjzS6S5w9N8TkXZTQ5TSajqdC26VVK6L"
+  },
+  {
+    "name": "French-English Translation",
+    "description": "**Court Purpose:**\n\nIn this subcourt, jurors will solve disputes involving quality of written content. This includes grammar and text logic.\n\n**Example:**\n\n- Contractor utilizes poor grammar in a sponsored article which doesn’t meet the standards as agreed in the contract.",
+    "summary": "**Policies:**\n\n- If the disputed content is of significant size (> 10 000 words), parties in the dispute should point out to specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.\n\n- All variations of English (UK, US, Australia, etc) are to accepted unless a target audience is specifically mentioned in the contract. ",
+    "requiredSkills": "Jurors in this court should have a strong command of both English and French. While jurors do not necessarily have to have the skills of a professional translator themselves, they should be able to review texts translated between English and French for the quality of their translation. Particularly, when presented with passages that are flagged by challengers as potentially erroneous or inadequate and arguments given by the translator and the challenger for why the passage should or should not be considered acceptable, jurors should be able to make a determination on the quality of the passage. Jurors should be capable of these tasks even when the text is being translated to or from regional variations of these languages, such as US/British English, or European/Québécois French.",
+    "court": 15,
+    "uri": "/ipfs/QmQtCrG1EQzLiboYtQ15oWYstPrBUgftBUHmhUSZGk3jWc"
+  },
+  {
+    "name": "Portuguese-English Translation",
+    "description": "**Court Purpose:**\n\nIn this subcourt, jurors will solve disputes involving quality of written content. This includes grammar and text logic.\n\n**Example:**\n\n- Contractor utilizes poor grammar in a sponsored article which doesn’t meet the standards as agreed in the contract.",
+    "summary": "**Policies:**\n\n- If the disputed content is of significant size (> 10 000 words), parties in the dispute should point out to specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.\n\n- All variations of English (UK, US, Australia, etc) are to accepted unless a target audience is specifically mentioned in the contract. ",
+    "requiredSkills": "Jurors in this court should have a strong command of both English and Portuguese. While jurors do not necessarily have to have the skills of a professional translator themselves, they should be able to review texts translated between English and Portuguese for the quality of their translation. Particularly, when presented with passages that are flagged by challengers as potentially erroneous or inadequate and arguments given by the translator and the challenger for why the passage should or should not be considered acceptable, jurors should be able to make a determination on the quality of the passage. Jurors should be capable of these tasks even when the text is being translated to or from regional variations of these languages, such as US/British English, or Brazilian/European Portuguese.",
+    "court": 16,
+    "uri": "/ipfs/QmYdR9v8LzYnw9pT4ZCcWyoivFMPNyQcBFXgCW3PZRSMCF"
+  },
+  {
+    "name": "German-English Translation",
+    "description": "**Court Purpose:**\n\nIn this subcourt, jurors will solve disputes involving quality of written content. This includes grammar and text logic.\n\n**Example:**\n\n- Contractor utilizes poor grammar in a sponsored article which doesn’t meet the standards as agreed in the contract.",
+    "summary": "**Policies:**\n\n- If the disputed content is of significant size (> 10 000 words), parties in the dispute should point out to specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.\n\n- All variations of English (UK, US, Australia, etc) are to accepted unless a target audience is specifically mentioned in the contract. ",
+    "requiredSkills": "Jurors in this court should have a strong command of both English and German. While jurors do not necessarily have to have the skills of a professional translator themselves, they should be able to review texts translated between English and German for the quality of their translation. Particularly, when presented with passages that are flagged by challengers as potentially erroneous or inadequate and arguments given by the translator and the challenger for why the passage should or should not be considered acceptable, jurors should be able to make a determination on the quality of the passage. Jurors should be capable of these tasks even when the text is being translated to or from regional variations of these languages, such as US/British English.",
+    "court": 17,
+    "uri": "/ipfs/QmcqBRYin9Ug4YX7ysGf65xDjAQecuRzWp7nSucGvBcpwP"
+  },
+  {
+    "name": "Russian-English Translation",
+    "description": "**Court Purpose:**\n\nIn this subcourt, jurors will solve disputes involving quality of written content. This includes grammar and text logic.\n\n**Example:**\n\n- Contractor utilizes poor grammar in a sponsored article which doesn’t meet the standards as agreed in the contract.",
+    "summary": "**Policies:**\n\n- If the disputed content is of significant size (> 10 000 words), parties in the dispute should point out to specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.\n\n- All variations of English (UK, US, Australia, etc) are to accepted unless a target audience is specifically mentioned in the contract. ",
+    "requiredSkills": "Jurors in this court should have a strong command of both English and Russian. While jurors do not necessarily have to have the skills of a professional translator themselves, they should be able to review texts translated between English and Russian for the quality of their translation. Particularly, when presented with passages that are flagged by challengers as potentially erroneous or inadequate and arguments given by the translator and the challenger for why the passage should or should not be considered acceptable, jurors should be able to make a determination on the quality of the passage. Jurors should be capable of these tasks even when the text is being translated to or from regional variations of these languages, such as US/British English.",
+    "court": 18,
+    "uri": "/ipfs/QmXoSvQJCW4HVjB6vreL8YwXj2HHJSpwNzroMkojos7p6c"
+  },
+  {
+    "name": "Korean-English Translation",
+    "description": "**Court Purpose:**\n\nIn this subcourt, jurors will solve disputes involving quality of written content. This includes grammar and text logic.\n\n**Example:**\n\n- Contractor utilizes poor grammar in a sponsored article which doesn’t meet the standards as agreed in the contract.",
+    "summary": "**Policies:**\n\n- If the disputed content is of significant size (> 10 000 words), parties in the dispute should point out to specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.\n\n- All variations of English (UK, US, Australia, etc) are to accepted unless a target audience is specifically mentioned in the contract. ",
+    "requiredSkills": "Jurors in this court should have a strong command of both English and Korean. While jurors do not necessarily have to have the skills of a professional translator themselves, they should be able to review texts translated between English and Korean for the quality of their translation. Particularly, when presented with passages that are flagged by challengers as potentially erroneous or inadequate and arguments given by the translator and the challenger for why the passage should or should not be considered acceptable, jurors should be able to make a determination on the quality of the passage. Jurors should be capable of these tasks even when the text is being translated to or from regional variations of these languages, such as US/British English.",
+    "court": 19,
+    "uri": "/ipfs/QmUJGjgDCX9Bsn5fL6ZAZdXRLke3Pbdhwo312hJSewsKwg"
+  },
+  {
+    "name": "Japanese-English Translation",
+    "description": "**Court Purpose:**\n\nIn this subcourt, jurors will solve disputes involving quality of written content. This includes grammar and text logic.\n\n**Example:**\n\n- Contractor utilizes poor grammar in a sponsored article which doesn’t meet the standards as agreed in the contract.",
+    "summary": "**Policies:**\n\n- If the disputed content is of significant size (> 10 000 words), parties in the dispute should point out to specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.\n\n- All variations of English (UK, US, Australia, etc) are to accepted unless a target audience is specifically mentioned in the contract. ",
+    "requiredSkills": "Jurors in this court should have a strong command of both English and Japanese. While jurors do not necessarily have to have the skills of a professional translator themselves, they should be able to review texts translated between English and Japanese for the quality of their translation. Particularly, when presented with passages that are flagged by challengers as potentially erroneous or inadequate and arguments given by the translator and the challenger for why the passage should or should not be considered acceptable, jurors should be able to make a determination on the quality of the passage. Jurors should be capable of these tasks even when the text is being translated to or from regional variations of these languages, such as US/British English.",
+    "court": 20,
+    "uri": "/ipfs/QmWQ5NCSjZM8NK3quv72wcD7nbs9MfMxWajYnUgrZRAWch"
+  },
+  {
+    "name": "Turkish-English Translation",
+    "description": "**Court Purpose:**\n\nIn this subcourt, jurors will solve disputes involving quality of written content. This includes grammar and text logic.\n\n**Example:**\n\n- Contractor utilizes poor grammar in a sponsored article which doesn’t meet the standards as agreed in the contract.",
+    "summary": "**Policies:**\n\n- If the disputed content is of significant size (> 10 000 words), parties in the dispute should point out to specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.\n\n- All variations of English (UK, US, Australia, etc) are to accepted unless a target audience is specifically mentioned in the contract. ",
+    "requiredSkills": "Jurors in this court should have a strong command of both English and Turkish. While jurors do not necessarily have to have the skills of a professional translator themselves, they should be able to review texts translated between English and Turkish for the quality of their translation. Particularly, when presented with passages that are flagged by challengers as potentially erroneous or inadequate and arguments given by the translator and the challenger for why the passage should or should not be considered acceptable, jurors should be able to make a determination on the quality of the passage. Jurors should be capable of these tasks even when the text is being translated to or from regional variations of these languages, such as US/British English.",
+    "court": 21,
+    "uri": "/ipfs/QmNSpBnACohhHwSpqg5nG8ZVxED2B4pMiputfZqZdbZvuc"
+  },
+  {
+    "name": "Chinese-English Translation",
+    "description": "**Court Purpose:**\n\nIn this subcourt, jurors will solve disputes involving quality of written content. This includes grammar and text logic.\n\n**Example:**\n\n- Contractor utilizes poor grammar in a sponsored article which doesn’t meet the standards as agreed in the contract.",
+    "summary": "**Policies:**\n\n- If the disputed content is of significant size (> 10 000 words), parties in the dispute should point out to specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.\n\n- All variations of English (UK, US, Australia, etc) are to accepted unless a target audience is specifically mentioned in the contract. ",
+    "requiredSkills": "Jurors in this court should have a strong command of both English and Chinese (written in simplified characters). While jurors do not necessarily have to have the skills of a professional translator themselves, they should be able to review texts translated between English and Chinese for the quality of their translation. Particularly, when presented with passages that are flagged by challengers as potentially erroneous or inadequate and arguments given by the translator and the challenger for why the passage should or should not be considered acceptable, jurors should be able to make a determination on the quality of the passage. Jurors should be capable of these tasks even when the text is being translated to or from regional variations of these languages, such as US/British English.",
+    "court": 22,
+    "uri": "/ipfs/QmbuTx2dcWGSqGo7ykMhMDbvs6oM1AcbC8LvbfAQohup25"
+  },
+  {
+    "name": "Corte General en Español",
+    "description": "**Propósito de la Corte:**\n\nLa Corte General en Español sirve como corte de uso múltiple para todo tipo de disputas que requieran un alto nivel de conocimiento del español para ser evaluadas. Los casos resueltos por cortes más especializadas que requieran conocimientos de español además de otras habilidades pueden ser revisados en esta corte tras el proceso de apelación.",
+    "summary": "**Políticas:**\n\nAdemás del requisito de que los jurados tengan un nivel suficiente de español, esta corte debe tener la misma política que la Corte General de Kleros.",
+    "requiredSkills": "**Habilidades Requeridas:**\n\nEste tribunal requiere un nivel avanzado de español. Los miembros del jurado deben poder leer la evidencia y proporcionar una justificación adecuada en español sobre una amplia gama de temas.",
+    "court": 23,
+    "uri": "/ipfs/QmRPz626unSwc7fxo3ikoZzXmCpVm5EHfiSz2bfErCsHti"
+  },
+  {
+    "name": "Humanity Court",
+    "description": "**Court Purpose:**\n\nIn this court jurors will judge disputes related to establishing Sybil resistant lists of unique human identities, particularly for the Proof of Humanity protocol.\n\n",
+    "summary": "",
+    "requiredSkills": "Jurors should be capable of reasonably evaluating whether a proposed submission consisting of photo and video evidence corresponds to a unique human being, eventually making use of supplementary information that might be provided as evidence by relevant parties.",
+    "court": 24,
+    "uri": "/ipfs/QmQKEJbyw89Qh5AurQ4kvidCSr32ihQUdAQZ646cPkJV34"
+  },
+  {
+    "name": "xDai Development Court",
+    "description": "**Court purpose:** \n\n In this court, jurors will solve disputes involving the respect of specifications given by the client.",
+    "summary": "**Example** \n\n Developper does not respect indentation, does not name variables explicitly or has not made a clear file structure. In such cases, jurors should refuse the proposal made by the developer.",
+    "requiredSkills": "This court requires a good level of programmation. Jurors who are not intermediate developers are advised to stake into this court only if they have some basics of low-level programming languages, ​​algorithmic and knowledge of good practices of development.",
+    "court": 25,
+    "uri": "/ipfs/QmbgUL2iv9XH3jui7xdLBXp2Hqe4VqGnNkK7PnAorJ8XQa/xDai-Development-Court-Policy.json"
+  },
+  {
+    "name": "xDai Solidity Court",
+    "description": "**Court purpose:** \n\n If the disputed code is of significant size (> 500 code lines), parties in the dispute should point out specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.",
+    "summary": "",
+    "requiredSkills": "This court requires a good level of solidity. Jurors who are not solidity intermediate developers are advised to stake into this court only if they also know how to make relatively simple contracts, know the main solidity hacks and can compute the complexity of simple functions.",
+    "court": 26,
+    "uri": "/ipfs/QmQbyk1qnD4e4MQrwSr6a21w2t82YJEMxU3F7QTYKkxuNS/xDai-Solidity-Court-Policy.json"
+  },
+  {
+    "name": "xDai Javascript Court",
+    "description": "**Court purpose:** \n\n If the disputed code is of significant size (> 700 code lines), parties in the dispute should point out specific parts of the content which are being disputed. Otherwise, jurors should refuse to arbitrate.",
+    "summary": "",
+    "requiredSkills": "This court requires a good level of javascript. Jurors who are not javascript intermediate developers are advised to stake into this court only if they know the main frameworks/libraries (ExpressJs, React, EthersJs…) and be comfortable with testing, APIs or languages to interact with databases.",
+    "court": 27,
+    "uri": "/ipfs/Qme15AUfpvLX3iwEtqswe26PQHMmKnF4eWGywBPqbkdqcD/xDai-Javascript-Court-Policy.json"
+  },
+  {
+    "name": "Corte de Curación en Español",
+    "description": "**Propósito de la Corte** \n\n En esta corte, los miembros del jurado resuelven microtareas relacionadas con la curación o la moderación de contenido, como para redes sociales, cuando los requisitos son relativamente sencillos. Los casos de mayor esfuerzo, que requieren la aplicación de reglas con mayores matices, deben presentarse en otras cortes, pero pueden llegar a este tribunal en caso de apelación.",
+    "summary": "",
+    "requiredSkills": "**Habilidades Requeridas:** \n\n Este tribunal requiere un nivel avanzado de español. Los miembros del jurado deben poder leer la evidencia y proporcionar una justificación adecuada en español sobre una amplia gama de temas.",
+    "court": 28,
+    "uri": "/ipfs/QmQeHpuaL9RViwKnPNRMCAbPakdPSDefBmhPpMAi45vRLS/xDai-Spanish-Curation-Court-Policy.json"
+  },
+  {
+    "name": "Blockchain No Técnica",
+    "description": "",
+    "summary": "",
+    "requiredSkills": "**Habilidades Requeridas:** \n\n Los jurados no necesitan un conocimiento profundo de blockchain ni habilidades de programación. Pero necesitan conocimiento para leer exploradores de blockchain, buscar criptoactivos listados en exchanges, entender cómo verificar una transacción y analizar datos on-chain.",
+    "court": 29,
+    "uri": "/ipfs/QmVxh7KmFrimGz6WMvLMRXZhwQFDoj28KEYLTpYoUTGwAj/xDai-Blockchain-No-Tecnica-Policy.json"
   }
 ]
