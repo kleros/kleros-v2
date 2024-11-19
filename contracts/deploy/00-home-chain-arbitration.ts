@@ -94,12 +94,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
 
-  // execute DisputeKitClassic.changeCore() only if necessary
-  const currentCore = await hre.ethers.getContractAt("DisputeKitClassic", disputeKit.address).then((dk) => dk.core());
+  // changeCore() only if necessary
+  const disputeKitContract = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
+  const currentCore = await disputeKitContract.core();
   if (currentCore !== klerosCore.address) {
-    const dk = (await hre.ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
     console.log(`disputeKit.changeCore(${klerosCore.address})`);
-    dk.changeCore(klerosCore.address);
+    await disputeKitContract.changeCore(klerosCore.address);
   }
 
   const core = (await hre.ethers.getContract("KlerosCore")) as KlerosCore;
