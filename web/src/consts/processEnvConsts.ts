@@ -26,10 +26,6 @@ export const isKlerosNeo = () => getArbitratorType() === ArbitratorTypes.neo;
 export const getArbitratorType = (): ArbitratorTypes =>
   _getArbitratorType(process.env.REACT_APP_ARBITRATOR_TYPE?.toLowerCase());
 
-export const GENESIS_BLOCK_ARBSEPOLIA = BigInt(process.env.REACT_APP_GENESIS_BLOCK_ARBSEPOLIA ?? 0);
-export const GENESIS_BLOCK_ARBMAINNET = BigInt(process.env.REACT_APP_GENESIS_BLOCK_ARBMAINNET ?? 0);
-export const genesisBlock = () => (isProductionDeployment() ? GENESIS_BLOCK_ARBMAINNET : GENESIS_BLOCK_ARBSEPOLIA);
-
 export const INVALID_DISPUTE_DATA_ERROR = `The dispute data is not valid, please vote "Refuse to arbitrate"`;
 export const RPC_ERROR = `RPC Error: Unable to fetch dispute data. Please avoid voting.`;
 
