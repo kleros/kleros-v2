@@ -11,15 +11,11 @@ const useGenesisBlock = () => {
       import("@kleros/kleros-v2-contracts/deployments/arbitrumSepoliaDevnet/KlerosCoreUniversity.json").then((json) =>
         setGenesisBlock(json.receipt.blockNumber)
       );
-    }
-
-    if (isKlerosNeo()) {
+    } else if (isKlerosNeo()) {
       import("@kleros/kleros-v2-contracts/deployments/arbitrum/KlerosCoreNeo.json").then((json) =>
         setGenesisBlock(json.receipt.blockNumber)
       );
-    }
-
-    if (isTestnetDeployment()) {
+    } else if (isTestnetDeployment()) {
       import("@kleros/kleros-v2-contracts/deployments/arbitrumSepolia/KlerosCore.json").then((json) =>
         setGenesisBlock(json.receipt.blockNumber)
       );
