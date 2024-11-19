@@ -6553,7 +6553,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kleros/kleros-v2-contracts@workspace:contracts":
+"@kleros/kleros-v2-contracts@workspace:^, @kleros/kleros-v2-contracts@workspace:contracts":
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-v2-contracts@workspace:contracts"
   dependencies:
@@ -6707,6 +6707,7 @@ __metadata:
     "@graphql-codegen/cli": "npm:^4.0.1"
     "@graphql-codegen/client-preset": "npm:^4.2.0"
     "@kleros/kleros-sdk": "workspace:^"
+    "@kleros/kleros-v2-contracts": "workspace:^"
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"

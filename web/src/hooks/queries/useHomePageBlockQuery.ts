@@ -5,6 +5,7 @@ import { isUndefined } from "utils/index";
 
 import { graphql } from "src/graphql";
 import { HomePageBlockQuery } from "src/graphql/graphql";
+import useGenesisBlock from "../useGenesisBlock";
 export type { HomePageBlockQuery };
 
 const homePageBlockQuery = graphql(`
@@ -58,7 +59,8 @@ export type HomePageBlockStats = {
 };
 
 export const useHomePageBlockQuery = (blockNumber: number | undefined, allTime: boolean) => {
-  const isEnabled = !isUndefined(blockNumber) || allTime;
+  const genesisBlock = useGenesisBlock();
+  const isEnabled = !isUndefined(blockNumber) || allTime || !isUndefined(genesisBlock);
   const { graphqlBatcher } = useGraphqlBatcher();
 
   return useQuery<HomePageBlockStats>({
@@ -66,10 +68,11 @@ export const useHomePageBlockQuery = (blockNumber: number | undefined, allTime: 
     enabled: isEnabled,
     staleTime: Infinity,
     queryFn: async () => {
+      const targetBlock = Math.max(blockNumber!, genesisBlock!);
       const data = await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: homePageBlockQuery,
-        variables: { blockNumber },
+        variables: { blockNumber: targetBlock },
       });
 
       return processData(data, allTime);
