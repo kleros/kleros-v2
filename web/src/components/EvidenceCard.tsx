@@ -140,6 +140,7 @@ const AttachedFileText: React.FC = () => (
 interface IEvidenceCard extends Pick<Evidence, "evidence" | "timestamp" | "name" | "description" | "fileURI"> {
   sender: string;
   index: number;
+  transactionHash: string;
 }
 
 const EvidenceCard: React.FC<IEvidenceCard> = ({
