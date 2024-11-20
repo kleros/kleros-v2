@@ -125,9 +125,9 @@ const ITEMS = [
     url: "https://klerosscout.eth.limo",
   },
   {
-    text: "POH V1",
+    text: "POH V2",
     Icon: POH,
-    url: "https://app.proofofhumanity.id",
+    url: "https://v2.proofofhumanity.id",
   },
   {
     text: "Governor",
