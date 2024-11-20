@@ -176,11 +176,11 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
       <BottomShade>
         <AccountContainer>
           <Identicon size="24" string={sender} />
-          <StyledA href={addressExplorerLink} rel="noreferrer" target="_blank">
+          <StyledA href={addressExplorerLink} rel="noopener noreferrer" target="_blank">
             <p>{shortenAddress(sender)}</p>
           </StyledA>
         </AccountContainer>
-        <StyledA href={transactionExplorerLink} rel="noreferrer" target="_blank">
+        <StyledA href={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
           <Timestamp>{formatDate(Number(timestamp), true)}</Timestamp>
         </StyledA>
         {fileURI && fileURI !== "-" ? (
