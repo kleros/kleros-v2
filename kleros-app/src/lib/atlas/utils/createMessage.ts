@@ -1,8 +1,6 @@
 import { createSiweMessage } from "viem/siwe";
 
-import { DEFAULT_CHAIN } from "consts/chains";
-
-export const createMessage = (address: `0x${string}`, nonce: string, chainId: number = DEFAULT_CHAIN) => {
+export const createMessage = (address: `0x${string}`, nonce: string, chainId: number, statement?: string) => {
   const domain = window.location.host;
   const origin = window.location.origin;
 
@@ -12,7 +10,7 @@ export const createMessage = (address: `0x${string}`, nonce: string, chainId: nu
   const message = createSiweMessage({
     domain,
     address,
-    statement: "Sign In to Kleros with Ethereum.",
+    statement: statement ?? "Sign In to Kleros with Ethereum.",
     uri: origin,
     version: "1",
     chainId,

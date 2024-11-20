@@ -7,9 +7,9 @@ import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
 import { Textarea, Button, FileUploader } from "@kleros/ui-components-library";
 
-import { useAtlasProvider } from "context/AtlasProvider";
+import { Roles, useAtlasProvider } from "@kleros/kleros-app";
 import { simulateEvidenceModuleSubmitEvidence } from "hooks/contracts/generated";
-import { Roles } from "utils/atlas";
+
 import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
 
 import EnsureAuth from "components/EnsureAuth";
@@ -115,8 +115,13 @@ const constructEvidence = async (
   let fileURI: string | null = null;
   if (file) {
     toast.info("Uploading to IPFS", toastOptions);
-    fileURI = await uploadFile(file, Roles.Evidence);
+    fileURI = await uploadFile(file, Roles.Evidence).catch((err) => {
+      console.log(err);
+      toast.error(`Upload failed: ${err?.message}`, toastOptions);
+      return null;
+    });
     if (!fileURI) throw new Error("Error uploading evidence file");
+    toast.success("Uploaded successfully!", toastOptions);
   }
   return { name: "Evidence", description: msg, fileURI };
 };

@@ -6,6 +6,7 @@
       "dom.iterable",
       "esnext"
     ],
+    "rootDir": "src",
     "outDir": "dist",
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
@@ -24,6 +25,9 @@
     "noImplicitAny": false,
     "resolveJsonModule": true
   },
+  "include": [
+    "src/lib/**/*"
+  ],
   "exclude": [
     "node_modules",
     "dist"

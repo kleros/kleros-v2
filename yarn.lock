@@ -5289,7 +5289,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kleros/kleros-app@workspace:kleros-app":
+"@kleros/kleros-app@workspace:^, @kleros/kleros-app@workspace:kleros-app":
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-app@workspace:kleros-app"
   dependencies:
@@ -5298,15 +5298,23 @@ __metadata:
     "@eslint/js": "npm:^9.14.0"
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
+    "@kleros/ui-components-library": "npm:^2.15.0"
     "@types/react": "npm:^18.3.12"
     "@types/react-dom": "npm:^18.3.1"
     eslint: "npm:^9.14.0"
     eslint-config-prettier: "npm:^9.1.0"
     globals: "npm:^15.12.0"
+    jose: "npm:^5.9.6"
     parcel: "npm:^2.12.0"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
     typescript: "npm:^5.6.3"
+  peerDependencies:
+    "@tanstack/react-query": ^5.59.20
+    graphql: ^16.9.0
+    graphql-request: ^7.1.2
+    react: ^18.3.1
+    react-dom: ^18.3.1
+    viem: ^2.21.42
+    wagmi: ^2.12.27
   languageName: unknown
   linkType: soft
 
@@ -5490,6 +5498,7 @@ __metadata:
     "@cyntler/react-doc-viewer": "npm:^1.16.3"
     "@graphql-codegen/cli": "npm:^4.0.1"
     "@graphql-codegen/client-preset": "npm:^4.2.0"
+    "@kleros/kleros-app": "workspace:^"
     "@kleros/kleros-sdk": "workspace:^"
     "@kleros/kleros-v2-contracts": "workspace:^"
     "@kleros/kleros-v2-eslint-config": "workspace:^"
@@ -24997,6 +25006,13 @@ __metadata:
   version: 5.2.3
   resolution: "jose@npm:5.2.3"
   checksum: 10/33056092ed6c1539eee6c0c75bd3664a39c639e02f21ec5cb32ddd231b9345f239e7bffe3f4741c903c711e237ceafb816ed634bd9cd5e4fb61b5a1f067e2c40
+  languageName: node
+  linkType: hard
+
+"jose@npm:^5.9.6":
+  version: 5.9.6
+  resolution: "jose@npm:5.9.6"
+  checksum: 10/3ebbda9f6a96d493944f2720bf4436347884666cd87b7087a61cff12a3b540fe6fd743b5eb8defe7bc2a45aa58992ae6687da78797d91fc4e3e5e8588aa98c7d
   languageName: node
   linkType: hard
 

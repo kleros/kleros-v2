@@ -1,1 +1,1 @@
-export function placeholder() {}
+export * from "./atlas";

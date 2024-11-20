@@ -5,9 +5,8 @@ import { toast } from "react-toastify";
 
 import { FileUploader } from "@kleros/ui-components-library";
 
-import { useAtlasProvider } from "context/AtlasProvider";
+import { Roles, useAtlasProvider } from "@kleros/kleros-app";
 import { useNewDisputeContext } from "context/NewDisputeContext";
-import { Roles } from "utils/atlas";
 import { OPTIONS as toastOptions } from "utils/wrapWithToast";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -58,12 +57,16 @@ const Policy: React.FC = () => {
     setIsPolicyUploading(true);
     toast.info("Uploading Policy to IPFS", toastOptions);
 
-    uploadFile(file, Roles.Policy)
+    uploadFile(file, Roles.Evidence)
       .then(async (cid) => {
         if (!cid) return;
         setDisputeData({ ...disputeData, policyURI: cid });
+        toast.success("Uploaded successfully!", toastOptions);
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {
+        console.log(err);
+        toast.error(`Upload failed: ${err?.message}`, toastOptions);
+      })
       .finally(() => setIsPolicyUploading(false));
   };
 

@@ -5,7 +5,7 @@ const App = () => {
   return (
     <React.StrictMode>
       <div>
-        <h1>hello</h1>
+        <h1>Kleros</h1>
       </div>
     </React.StrictMode>
   );

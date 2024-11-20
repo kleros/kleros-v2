@@ -5,7 +5,9 @@ import { Button } from "@kleros/ui-components-library";
 
 import HourglassIcon from "svgs/icons/hourglass.svg";
 
-import { useAtlasProvider } from "context/AtlasProvider";
+import { useAtlasProvider } from "@kleros/kleros-app";
+import { toast } from "react-toastify";
+import { OPTIONS as toastOptions } from "utils/wrapWithToast";
 
 const InfoContainer = styled.div`
   display: flex;
@@ -68,13 +70,19 @@ const EmailVerificationInfo: React.FC<IEmailInfo> = ({ toggleIsSettingsOpen }) =
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       if (!user) return;
+      toast.info(`Updating Email ...`, toastOptions);
+
       updateEmail({ newEmail: user.email })
         .then(async (res) => {
           if (res) {
+            toast.success("Email Updated successfully!", toastOptions);
             toggleIsSettingsOpen();
           }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err);
+          toast.error(`Updating Email failed: ${err?.message}`, toastOptions);
+        });
     },
     [user, updateEmail, toggleIsSettingsOpen]
   );

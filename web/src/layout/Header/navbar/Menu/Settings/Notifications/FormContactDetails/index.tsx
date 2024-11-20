@@ -6,7 +6,7 @@ import { useAccount } from "wagmi";
 import { Button } from "@kleros/ui-components-library";
 
 import { EMAIL_REGEX } from "consts/index";
-import { useAtlasProvider } from "context/AtlasProvider";
+import { useAtlasProvider } from "@kleros/kleros-app";
 
 import { responsiveSize } from "styles/responsiveSize";
 
@@ -17,6 +17,8 @@ import FormContact from "./FormContact";
 import { isUndefined } from "src/utils";
 import InfoCard from "components/InfoCard";
 import { timeLeftUntil } from "utils/date";
+import { toast } from "react-toastify";
+import { OPTIONS as toastOptions } from "utils/wrapWithToast";
 
 const FormContainer = styled.form`
   width: 100%;
@@ -75,24 +77,36 @@ const FormContactDetails: React.FC<ISettings> = ({ toggleIsSettingsOpen }) => {
       const data = {
         newEmail: emailInput,
       };
+      toast.info(`Updating Email ...`, toastOptions);
+
       updateEmail(data)
         .then(async (res) => {
           if (res) {
+            toast.success("Email Updated successfully!", toastOptions);
             toggleIsSettingsOpen();
           }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err);
+          toast.error(`Updating Email failed: ${err?.message}`, toastOptions);
+        });
     } else {
       const data = {
         email: emailInput,
       };
+      toast.info(`Adding User ...`, toastOptions);
+
       addUser(data)
         .then(async (res) => {
           if (res) {
+            toast.success("User added successfully!", toastOptions);
             toggleIsSettingsOpen();
           }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err);
+          toast.error(`Adding User failed: ${err?.message}`, toastOptions);
+        });
     }
   };
 
