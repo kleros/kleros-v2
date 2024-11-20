@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import Identicon from "react-identicons";
@@ -9,6 +9,7 @@ import { Card } from "@kleros/ui-components-library";
 
 import AttachmentIcon from "svgs/icons/attachment.svg";
 
+import { DEFAULT_CHAIN, getChain } from "consts/chains";
 import { formatDate } from "utils/date";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import { shortenAddress } from "utils/shortenAddress";
@@ -116,6 +117,19 @@ const StyledLink = styled(Link)`
   )}
 `;
 
+const StyledA = styled.a`
+  :hover {
+    text-decoration: underline;
+    p {
+      color: ${({ theme }) => theme.primaryBlue};
+    }
+    label {
+      cursor: pointer;
+      color: ${({ theme }) => theme.primaryBlue};
+    }
+  }
+`;
+
 const AttachedFileText: React.FC = () => (
   <>
     <DesktopText>View attached file</DesktopText>
@@ -128,7 +142,24 @@ interface IEvidenceCard extends Pick<Evidence, "evidence" | "timestamp" | "name"
   index: number;
 }
 
-const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timestamp, name, description, fileURI }) => {
+const EvidenceCard: React.FC<IEvidenceCard> = ({
+  evidence,
+  sender,
+  index,
+  timestamp,
+  transactionHash,
+  name,
+  description,
+  fileURI,
+}) => {
+  const addressExplorerLink = useMemo(() => {
+    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/address/${sender}`;
+  }, [sender]);
+
+  const transactionExplorerLink = useMemo(() => {
+    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/tx/${transactionHash}`;
+  }, [transactionHash]);
+
   return (
     <StyledCard>
       <TextContainer>
@@ -145,15 +176,19 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timest
       <BottomShade>
         <AccountContainer>
           <Identicon size="24" string={sender} />
-          <p>{shortenAddress(sender)}</p>
+          <StyledA href={addressExplorerLink} rel="noreferrer" target="_blank">
+            <p>{shortenAddress(sender)}</p>
+          </StyledA>
         </AccountContainer>
-        <Timestamp>{formatDate(Number(timestamp), true)}</Timestamp>
-        {fileURI && (
+        <StyledA href={transactionExplorerLink} rel="noreferrer" target="_blank">
+          <Timestamp>{formatDate(Number(timestamp), true)}</Timestamp>
+        </StyledA>
+        {fileURI && fileURI !== "-" ? (
           <StyledLink to={`attachment/?url=${getIpfsUrl(fileURI)}`}>
             <AttachmentIcon />
             <AttachedFileText />
           </StyledLink>
-        )}
+        ) : null}
       </BottomShade>
     </StyledCard>
   );

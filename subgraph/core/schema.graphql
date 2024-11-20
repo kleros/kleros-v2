@@ -318,6 +318,7 @@ type ClassicEvidence implements Evidence @entity(immutable: true) {
   sender: User!
   senderAddress: String!
   timestamp: BigInt!
+  transactionHash: Bytes!
   name: String
   description: String
   fileURI: String

@@ -15,6 +15,7 @@ export const evidenceFragment = graphql(`
       id
     }
     timestamp
+    transactionHash
     name
     description
     fileURI
