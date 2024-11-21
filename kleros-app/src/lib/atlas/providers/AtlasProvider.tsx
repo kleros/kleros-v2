@@ -1,5 +1,5 @@
 import React, { useMemo, createContext, useContext, useState, useCallback, useEffect } from "react";
-import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { GraphQLClient } from "graphql-request";
 import { decodeJwt } from "jose";
 import { useAccount, useChainId, useSignMessage } from "wagmi";
@@ -51,13 +51,12 @@ const Context = createContext<IAtlasProvider | undefined>(undefined);
 interface AtlasConfig {
   uri: string;
   product: Products;
-  queryClient: QueryClient;
 }
 
 export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.ReactNode }> = ({ children, config }) => {
   const { address } = useAccount();
   const chainId = useChainId();
-  const queryClient = useQueryClient(config.queryClient);
+  const queryClient = useQueryClient();
 
   const [authToken, setAuthToken] = useSessionStorage<string | undefined>("authToken", undefined);
   const [isSigningIn, setIsSigningIn] = useState(false);

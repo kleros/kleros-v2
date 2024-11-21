@@ -2,16 +2,22 @@
   "name": "@kleros/kleros-app",
   "version": "1.0.0",
   "source": "src/lib/index.ts",
-  "main": "dist/main.js",
-  "module": "dist/module.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/kleros-app.umd.cjs",
+  "module": "./dist/kleros-app.js",
+  "types": "./dist/kleros-app.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/kleros-app.js",
+      "require": "./dist/kleros-app.umd.cjs"
+    }
+  },
   "scripts": {
-    "clear": "rm -r ../.parcel-cache",
     "clean": "rm -rf dist",
-    "start": "parcel src/index.html",
-    "build": "yarn clear & yarn clean & yarn parcel build",
     "check-style": "eslint 'src/**/*.{ts,tsx}'",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "start": "vite dev src/",
+    "build": "yarn clean & vite build"
   },
   "repository": {
     "type": "git",
@@ -47,11 +53,11 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.31.0",
     "globals": "^15.12.0",
-    "parcel": "^2.12.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vite-plugin-dts": "^4.3.0"
   },
   "dependencies": {
-    "@kleros/ui-components-library": "^2.15.0",
     "jose": "^5.9.6",
     "wagmi": "^2.13.0"
   },
