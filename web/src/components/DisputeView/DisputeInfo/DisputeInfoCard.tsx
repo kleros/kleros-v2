@@ -68,6 +68,7 @@ const StyledField = styled(Field)`
 `;
 
 const StyledLink = styled(Link)`
+  width: 100%;
   :hover {
     label {
       &.value {
