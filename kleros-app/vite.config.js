@@ -18,10 +18,11 @@ export default defineConfig({
       name: "kleros-app",
       fileName: "kleros-app",
     },
+    sourcemap: true,
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: ["react", "react-dom", "viem", "@tanstack/react-query", "graphql", "graphql-request"],
+      external: ["react", "react-dom", "viem", "wagmi", "@tanstack/react-query", "graphql", "graphql-request"],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps
