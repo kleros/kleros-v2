@@ -2,9 +2,15 @@
 import { resolve } from "path";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 export default defineConfig({
-  plugins: [dts({ insertTypesEntry: true })],
+  plugins: [
+    dts({ insertTypesEntry: true }),
+    nodePolyfills({
+      include: ["fs", "stream"],
+    }),
+  ],
   build: {
     lib: {
       // Could also be a dictionary or array of multiple entry points
@@ -15,7 +21,7 @@ export default defineConfig({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: ["react", "react-dom", "viem", "wagmi", "@tanstack/react-query", "graphql", "graphql-request"],
+      external: ["react", "react-dom", "viem", "@tanstack/react-query", "graphql", "graphql-request"],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps
