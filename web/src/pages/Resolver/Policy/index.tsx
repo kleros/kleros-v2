@@ -1,14 +1,10 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { toast } from "react-toastify";
-
 import { FileUploader } from "@kleros/ui-components-library";
 
-import { useAtlasProvider } from "context/AtlasProvider";
+import { useAtlasProvider, Roles } from "@kleros/kleros-app";
 import { useNewDisputeContext } from "context/NewDisputeContext";
-import { Roles } from "utils/atlas";
-import { OPTIONS as toastOptions } from "utils/wrapWithToast";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
@@ -16,6 +12,7 @@ import { responsiveSize } from "styles/responsiveSize";
 import Header from "pages/Resolver/Header";
 
 import NavigationButtons from "../NavigationButtons";
+import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
 
 const Container = styled.div`
   display: flex;
@@ -56,14 +53,18 @@ const Policy: React.FC = () => {
 
   const handleFileUpload = (file: File) => {
     setIsPolicyUploading(true);
-    toast.info("Uploading Policy to IPFS", toastOptions);
+    infoToast("Uploading Policy to IPFS");
 
     uploadFile(file, Roles.Policy)
       .then(async (cid) => {
         if (!cid) return;
+        successToast("Uploaded successfully!");
         setDisputeData({ ...disputeData, policyURI: cid });
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {
+        console.log(err);
+        errorToast(`Upload failed: ${err?.message}`);
+      })
       .finally(() => setIsPolicyUploading(false));
   };
 

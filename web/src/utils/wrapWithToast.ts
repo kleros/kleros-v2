@@ -17,6 +17,10 @@ type WrapWithToastReturnType = {
   result?: TransactionReceipt;
 };
 
+export const infoToast = (message: string) => toast.info(message, OPTIONS);
+export const successToast = (message: string) => toast.success(message, OPTIONS);
+export const errorToast = (message: string) => toast.error(message, OPTIONS);
+
 export async function wrapWithToast(
   contractWrite: () => Promise<`0x${string}`>,
   publicClient: PublicClient

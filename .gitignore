@@ -202,3 +202,6 @@ subgraph/*/contracts/*
 
 # Local Netlify folder
 .netlify
+
+#.parcel
+.parcel-cache

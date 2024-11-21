@@ -2,15 +2,13 @@ import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import Modal from "react-modal";
-import { toast } from "react-toastify";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
 import { Textarea, Button, FileUploader } from "@kleros/ui-components-library";
 
-import { useAtlasProvider } from "context/AtlasProvider";
+import { useAtlasProvider, Roles } from "@kleros/kleros-app";
 import { simulateEvidenceModuleSubmitEvidence } from "hooks/contracts/generated";
-import { Roles } from "utils/atlas";
-import { wrapWithToast, OPTIONS as toastOptions } from "utils/wrapWithToast";
+import { wrapWithToast, errorToast, infoToast, successToast } from "utils/wrapWithToast";
 
 import EnsureAuth from "components/EnsureAuth";
 import { EnsureChain } from "components/EnsureChain";
@@ -85,7 +83,7 @@ const SubmitEvidenceModal: React.FC<{
         .finally(() => setIsSending(false));
     } catch (error) {
       setIsSending(false);
-      toast.error("Failed to submit evidence.", toastOptions);
+      errorToast("Failed to submit evidence.");
       console.error("Error in submitEvidence:", error);
     }
   }, [publicClient, wagmiConfig, walletClient, close, evidenceGroup, file, message, setIsSending, uploadFile]);
@@ -114,9 +112,14 @@ const constructEvidence = async (
 ) => {
   let fileURI: string | null = null;
   if (file) {
-    toast.info("Uploading to IPFS", toastOptions);
-    fileURI = await uploadFile(file, Roles.Evidence);
+    infoToast("Uploading to IPFS");
+    fileURI = await uploadFile(file, Roles.Evidence).catch((err) => {
+      console.log(err);
+      errorToast(`Upload failed: ${err?.message}`);
+      return null;
+    });
     if (!fileURI) throw new Error("Error uploading evidence file");
+    successToast("Uploaded successfully!");
   }
   return { name: "Evidence", description: msg, fileURI };
 };
