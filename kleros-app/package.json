@@ -6,12 +6,6 @@
   "module": "./dist/kleros-app.js",
   "types": "./dist/kleros-app.d.ts",
   "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/kleros-app.js",
-      "require": "./dist/kleros-app.umd.cjs"
-    }
-  },
   "scripts": {
     "clean": "rm -rf dist",
     "check-style": "eslint 'src/**/*.{ts,tsx}'",
