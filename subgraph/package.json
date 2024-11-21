@@ -78,6 +78,7 @@
     "@graphprotocol/graph-cli": "0.64.1",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
+    "eslint": "^9.15.0",
     "gluegun": "^5.2.0",
     "matchstick-as": "0.6.0"
   },
