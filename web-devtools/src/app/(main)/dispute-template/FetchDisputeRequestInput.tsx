@@ -22,7 +22,7 @@ const InputContainer = styled.div`
   flex-wrap: wrap;
   gap: 8px;
 `;
-const StyledChainInput = styled(Field)`
+const StyledChainInput = styled(Field as any)`
   width: 120px;
 `;
 const StyledHeader = styled.h2`
@@ -115,7 +115,7 @@ const FetchDisputeRequestInput: React.FC<IFetchDisputeRequestInput> = ({ setPara
           value={chainId}
           placeholder="Enter chain Id"
           type="number"
-          onChange={(e) => setChainId(Number(e.target.value))}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setChainId(Number(e.target.value))}
         />
       </InputContainer>
       <StyledH3>Presets</StyledH3>

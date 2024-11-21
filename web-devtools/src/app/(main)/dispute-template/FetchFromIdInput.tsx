@@ -15,7 +15,7 @@ const Container = styled.div`
   margin-left: 24px;
 `;
 
-const StyledInput = styled(Field)``;
+const StyledInput = styled(Field as any)``;
 const StyledHeader = styled.h2`
   margin-top: 24px;
 `;
@@ -60,7 +60,7 @@ const FetchFromIDInput: React.FC<IFetchFromID> = ({
         value={templateId}
         placeholder="Enter template Id"
         message={isLoading ? "fetching ..." : ""}
-        onChange={(e) => setTemplateId(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTemplateId(e.target.value)}
       />
     </Container>
   );

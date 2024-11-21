@@ -8,14 +8,15 @@
     "@typescript-eslint/eslint-plugin": "^8.15.0",
     "@typescript-eslint/parser": "^8.15.0",
     "@typescript-eslint/utils": "^8.15.0",
+    "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-promise": "^6.6.0",
     "eslint-plugin-security": "^3.0.1",
-    "eslint-utils": "^3.0.0"
+    "eslint-utils": "^3.0.0",
+    "prettier": "^3.3.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
