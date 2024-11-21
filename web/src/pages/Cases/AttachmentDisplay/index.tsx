@@ -37,7 +37,7 @@ const StyledNewTabIcon = styled(NewTabIcon)`
   }
 `;
 
-const EvidenceAttachmentDisplay: React.FC = () => {
+const AttachmentDisplay: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   const url = searchParams.get("url");
@@ -64,4 +64,4 @@ const EvidenceAttachmentDisplay: React.FC = () => {
   );
 };
 
-export default EvidenceAttachmentDisplay;
+export default AttachmentDisplay;
