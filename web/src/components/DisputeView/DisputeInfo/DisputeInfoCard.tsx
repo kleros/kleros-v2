@@ -1,11 +1,8 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
-import { Link } from "react-router-dom";
-
 import LawBalanceIcon from "svgs/icons/law-balance.svg";
 
-import { useScrollTop } from "hooks/useScrollTop";
 import { useCourtTree } from "hooks/queries/useCourtTree";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -67,19 +64,6 @@ const StyledField = styled(Field)`
   }
 `;
 
-const StyledLink = styled(Link)`
-  width: 100%;
-  :hover {
-    label {
-      &.value {
-        cursor: pointer;
-        color: ${({ theme }) => theme.primaryBlue};
-        text-decoration: underline;
-      }
-    }
-  }
-`;
-
 type IDisputeInfoCard = { fieldItems: FieldItem[] } & IDisputeInfo;
 
 const DisputeInfoCard: React.FC<IDisputeInfoCard> = ({
@@ -91,7 +75,6 @@ const DisputeInfoCard: React.FC<IDisputeInfoCard> = ({
   disputeID,
   round,
 }) => {
-  const scrollTop = useScrollTop();
   const { data } = useCourtTree();
   const courtPath = getCourtsPath(data?.court, courtId);
   const items = useMemo(
@@ -104,9 +87,13 @@ const DisputeInfoCard: React.FC<IDisputeInfoCard> = ({
     <Container>
       {court && courtId && isOverview && (
         <CourtBranchFieldContainer>
-          <StyledLink to={`/courts/${courtId}`} onClick={() => scrollTop()}>
-            <StyledField icon={LawBalanceIcon} name="Court Branch" value={courtBranchValue} {...{ isOverview }} />
-          </StyledLink>
+          <StyledField
+            link={`/courts/${courtId}`}
+            icon={LawBalanceIcon}
+            name="Court Branch"
+            value={courtBranchValue}
+            {...{ isOverview }}
+          />
         </CourtBranchFieldContainer>
       )}
       <RestOfFieldsContainer {...{ isOverview }}>
