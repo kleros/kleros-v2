@@ -6710,7 +6710,6 @@ __metadata:
     vite: "npm:^5.4.11"
     vite-plugin-dts: "npm:^4.3.0"
     vite-plugin-node-polyfills: "npm:^0.22.0"
-    wagmi: "npm:^2.13.0"
   peerDependencies:
     "@tanstack/react-query": ^5.59.20
     graphql: ^16.9.0
@@ -6718,6 +6717,7 @@ __metadata:
     react: ^18.3.1
     react-dom: ^18.3.1
     viem: ^2.21.42
+    wagmi: ^2.13.0
   languageName: unknown
   linkType: soft
 
@@ -6966,7 +6966,7 @@ __metadata:
     vite-plugin-node-polyfills: "npm:^0.21.0"
     vite-plugin-svgr: "npm:^4.2.0"
     vite-tsconfig-paths: "npm:^4.3.2"
-    wagmi: "npm:^2.12.25"
+    wagmi: "npm:^2.13.0"
   languageName: unknown
   linkType: soft
 
