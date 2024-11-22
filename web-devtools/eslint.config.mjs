@@ -30,7 +30,6 @@ export default [
       "plugin:react-hooks/recommended",
       "plugin:import/recommended",
       "plugin:import/react",
-      "plugin:security/recommended",
       "plugin:@typescript-eslint/recommended",
       "plugin:prettier/recommended",
       "prettier"
@@ -41,7 +40,6 @@ export default [
       react: fixupPluginRules(react),
       "react-hooks": fixupPluginRules(reactHooks),
       security: fixupPluginRules(security),
-      import: fixupPluginRules(_import),
     },
 
     languageOptions: {

@@ -115,7 +115,7 @@ const FetchDisputeRequestInput: React.FC<IFetchDisputeRequestInput> = ({ setPara
           value={chainId}
           placeholder="Enter chain Id"
           type="number"
-          onChange={(e) => setChainId(Number(e.target.value))}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setChainId(Number(e.target.value))}
         />
       </InputContainer>
       <StyledH3>Presets</StyledH3>
