@@ -48,7 +48,7 @@ const SelectContainer = styled.div`
   position: relative;
 `;
 
-const StyledField = styled(Field as any)`
+const StyledField = styled(Field)`
   width: auto;
   ${landscapeStyle(
     () => css`

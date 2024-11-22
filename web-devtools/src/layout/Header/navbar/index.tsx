@@ -8,8 +8,8 @@ import { useOpenContext } from "../MobileHeader";
 
 import Explore from "./Explore";
 
-const Wrapper = styled.div<{ isOpen: boolean }>`
-  visibility: ${({ isOpen }) => (isOpen ? "visible" : "hidden")};
+const Wrapper = styled.div<{ $isOpen: boolean }>`
+  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
   position: absolute;
   top: 100%;
   left: 0;
@@ -17,7 +17,7 @@ const Wrapper = styled.div<{ isOpen: boolean }>`
   z-index: 30;
 `;
 
-const Container = styled.div<{ isOpen: boolean }>`
+const Container = styled.div<{ $isOpen: boolean }>`
   position: absolute;
   top: 0;
   left: 0;
@@ -29,8 +29,8 @@ const Container = styled.div<{ isOpen: boolean }>`
   border: 1px solid ${({ theme }) => theme.klerosUIComponentsStroke};
   box-shadow: 0px 2px 3px ${({ theme }) => theme.klerosUIComponentsDefaultShadow};
   transform-origin: top;
-  transform: scaleY(${({ isOpen }) => (isOpen ? "1" : "0")});
-  visibility: ${({ isOpen }) => (isOpen ? "visible" : "hidden")};
+  transform: scaleY(${({ $isOpen }) => ($isOpen ? "1" : "0")});
+  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
   transition-property: transform, visibility;
   transition-duration: ${({ theme }) => theme.klerosUIComponentsTransitionSpeed};
   transition-timing-function: ease;
@@ -47,8 +47,8 @@ const NavBar: React.FC = () => {
 
   return (
     <>
-      <Wrapper {...{ isOpen }}>
-        <Container {...{ isOpen }}>
+      <Wrapper {...{ $isOpen: isOpen }}>
+        <Container {...{ $isOpen: isOpen }}>
           <Explore />
         </Container>
       </Wrapper>

@@ -1,8 +1,8 @@
-import { css, DefaultTheme, FlattenInterpolation, ThemeProps } from "styled-components";
+import { css, RuleSet } from "styled-components";
 
 export const BREAKPOINT_LANDSCAPE = 900;
 
-export const landscapeStyle = (styleFn: () => FlattenInterpolation<ThemeProps<DefaultTheme>>) => css`
+export const landscapeStyle = (styleFn: () => RuleSet<object>) => css`
   @media (min-width: ${BREAKPOINT_LANDSCAPE}px) {
     ${() => styleFn()}
   }
