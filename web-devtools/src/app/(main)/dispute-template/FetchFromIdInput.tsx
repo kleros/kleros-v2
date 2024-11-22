@@ -15,7 +15,7 @@ const Container = styled.div`
   margin-left: 24px;
 `;
 
-const StyledInput = styled(Field as any)``;
+const StyledInput = styled(Field)``;
 const StyledHeader = styled.h2`
   margin-top: 24px;
 `;

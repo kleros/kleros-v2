@@ -57,7 +57,7 @@ const InputContainer = styled.div<{ isField?: boolean }>`
     `}
 `;
 
-const StyledField = styled(Field as any)<{ paddingLeft?: number }>`
+const StyledField = styled(Field)<{ paddingLeft?: number }>`
   width: 100%;
   > input {
     border: none;

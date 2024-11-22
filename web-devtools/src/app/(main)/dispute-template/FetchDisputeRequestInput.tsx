@@ -22,7 +22,7 @@ const InputContainer = styled.div`
   flex-wrap: wrap;
   gap: 8px;
 `;
-const StyledChainInput = styled(Field as any)`
+const StyledChainInput = styled(Field)`
   width: 120px;
 `;
 const StyledHeader = styled.h2`
