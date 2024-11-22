@@ -95,14 +95,16 @@ const Evidence: React.FC = () => {
       <EvidenceSearch {...{ search, setSearch, evidenceGroup: disputeData?.dispute?.externalDisputeId }} />
       <ScrollButton small Icon={DownArrow} text="Scroll to latest" onClick={scrollToLatest} />
       {evidences?.realEvidences ? (
-        evidences?.realEvidences.map(({ evidence, sender, timestamp, name, description, fileURI, evidenceIndex }) => (
-          <EvidenceCard
-            key={timestamp}
-            index={parseInt(evidenceIndex)}
-            sender={sender?.id}
-            {...{ evidence, timestamp, name, description, fileURI }}
-          />
-        ))
+        evidences?.realEvidences.map(
+          ({ evidence, sender, timestamp, transactionHash, name, description, fileURI, evidenceIndex }) => (
+            <EvidenceCard
+              key={timestamp}
+              index={parseInt(evidenceIndex)}
+              sender={sender?.id}
+              {...{ evidence, timestamp, transactionHash, name, description, fileURI }}
+            />
+          )
+        )
       ) : (
         <SkeletonEvidenceCard />
       )}
@@ -111,12 +113,12 @@ const Evidence: React.FC = () => {
           <Divider />
           {showSpam ? (
             evidences?.spamEvidences.map(
-              ({ evidence, sender, timestamp, name, description, fileURI, evidenceIndex }) => (
+              ({ evidence, sender, timestamp, transactionHash, name, description, fileURI, evidenceIndex }) => (
                 <EvidenceCard
                   key={timestamp}
                   index={parseInt(evidenceIndex)}
                   sender={sender?.id}
-                  {...{ evidence, timestamp, name, description, fileURI }}
+                  {...{ evidence, timestamp, transactionHash, name, description, fileURI }}
                 />
               )
             )
