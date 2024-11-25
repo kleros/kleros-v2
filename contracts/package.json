@@ -4,9 +4,9 @@
   "description": "Smart contracts for Kleros version 2",
   "main": "typechain-types/index.ts",
   "repository": "git@github.com:kleros/kleros-v2.git",
+  "homepage": "https://github.com/kleros/kleros-v2/tree/master/contracts#readme",
   "author": "Kleros",
   "license": "MIT",
-  "packageManager": "yarn@4.0.2+sha256.825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186",
   "engines": {
     "node": ">=16.0.0"
   },

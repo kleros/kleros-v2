@@ -1,36 +1,35 @@
 {
   "name": "@kleros/kleros-app",
   "version": "1.0.0",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/kleros/kleros-v2.git"
-  },
-  "keywords": [
-    "kleros",
-    "dapp",
-    "atlas"
-  ],
+  "description": "Library for Kleros DApps with reusable abstractions and components.",
+  "repository": "git@github.com:kleros/kleros-v2.git",
+  "homepage": "https://github.com/kleros/kleros-v2/tree/master/kleros-app#readme",
   "author": "Kleros",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/kleros/kleros-v2/issues"
-  },
-  "homepage": "https://github.com/kleros/kleros-v2#readme",
-  "description": "Library for Kleros DApps with reusable abstractions and components.",
   "source": "src/lib/index.ts",
-  "module": "./dist/kleros-app.js",
   "types": "./dist/kleros-app.d.ts",
-  "type": "module",
-  "scripts": {
-    "clean": "rm -rf dist",
-    "check-style": "eslint 'src/**/*.{ts,tsx}'",
-    "check-types": "tsc --noEmit",
-    "start": "vite dev src/",
-    "build": "yarn clean && vite build"
-  },
+  "module": "./dist/kleros-app.js",
   "files": [
     "dist"
   ],
+  "type": "module",
+  "volta": {
+    "node": "20.11.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "check-style": "eslint 'src/**/*.{ts,tsx}'",
+    "check-types": "tsc --noEmit",
+    "start": "vite dev src/",
+    "build": "yarn clean && vite build",
+    "release:patch": "scripts/publish.sh patch",
+    "release:minor": "scripts/publish.sh minor",
+    "release:major": "scripts/publish.sh major"
+  },
   "prettier": "@kleros/kleros-v2-prettier-config",
   "devDependencies": {
     "@eslint/compat": "^1.2.3",
@@ -46,6 +45,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.31.0",
     "globals": "^15.12.0",
+    "rimraf": "^6.0.1",
     "typescript": "^5.6.3",
     "vite": "^5.4.11",
     "vite-plugin-dts": "^4.3.0",
