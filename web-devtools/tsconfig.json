@@ -37,7 +37,8 @@
       "svgs*": [
         "assets/svgs*"
       ]
-    }
+    },
+    "target": "ES2017"
   },
   "include": [
     "svgr.d.ts",
