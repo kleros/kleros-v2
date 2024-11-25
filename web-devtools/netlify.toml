@@ -7,8 +7,5 @@ YARN_ENABLE_GLOBAL_CACHE = "true"
 # YARN_CACHE_FOLDER = "$HOME/.yarn_cache"
 # YARN_VERSION = "3.2.0"
 
-[functions]
-directory = "web-devtools/netlify/functions/"
-
 [dev]
 framework = "nextjs"
