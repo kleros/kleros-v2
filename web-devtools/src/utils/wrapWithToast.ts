@@ -1,5 +1,5 @@
 import { toast, ToastPosition, Theme } from "react-toastify";
-import { PublicClient, TransactionReceipt } from "viem";
+import { type PublicClient, type TransactionReceipt } from "viem";
 
 export const OPTIONS = {
   position: "top-center" as ToastPosition,

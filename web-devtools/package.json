@@ -65,7 +65,7 @@
     "styled-components": "^6.1.13",
     "typewriter-effect": "^2.21.0",
     "vanilla-jsoneditor": "^0.21.6",
-    "viem": "^2.21.48",
+    "viem": "^2.21.50",
     "wagmi": "^2.13.0"
   }
 }

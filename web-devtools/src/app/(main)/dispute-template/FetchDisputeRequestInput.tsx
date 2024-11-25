@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { useDebounce } from "react-use";
-import { GetEventArgs } from "viem";
+import { type GetEventArgs } from "viem";
 
 import { Field } from "@kleros/ui-components-library";
 

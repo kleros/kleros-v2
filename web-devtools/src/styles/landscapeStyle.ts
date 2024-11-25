@@ -1,4 +1,4 @@
-import { css, RuleSet } from "styled-components";
+import { css, type RuleSet } from "styled-components";
 
 export const BREAKPOINT_LANDSCAPE = 900;
 
