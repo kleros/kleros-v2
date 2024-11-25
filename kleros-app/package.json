@@ -1,17 +1,6 @@
 {
   "name": "@kleros/kleros-app",
   "version": "1.0.0",
-  "source": "src/lib/index.ts",
-  "module": "./dist/kleros-app.js",
-  "types": "./dist/kleros-app.d.ts",
-  "type": "module",
-  "scripts": {
-    "clean": "rm -rf dist",
-    "check-style": "eslint 'src/**/*.{ts,tsx}'",
-    "check-types": "tsc --noEmit",
-    "start": "vite dev src/",
-    "build": "yarn clean & vite build"
-  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/kleros/kleros-v2.git"
@@ -27,7 +16,18 @@
     "url": "https://github.com/kleros/kleros-v2/issues"
   },
   "homepage": "https://github.com/kleros/kleros-v2#readme",
-  "description": "",
+  "description": "Library for Kleros DApps with reusable abstractions and components.",
+  "source": "src/lib/index.ts",
+  "module": "./dist/kleros-app.js",
+  "types": "./dist/kleros-app.d.ts",
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "check-style": "eslint 'src/**/*.{ts,tsx}'",
+    "check-types": "tsc --noEmit",
+    "start": "vite dev src/",
+    "build": "yarn clean && vite build"
+  },
   "files": [
     "dist"
   ],

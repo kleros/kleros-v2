@@ -187,8 +187,8 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
 
         const token = await loginUser(atlasGqlClient, { message, signature });
         setAuthToken(token);
-      } catch (err: any) {
-        throw new Error(err);
+      } catch (err: unknown) {
+        throw err;
       } finally {
         setIsSigningIn(false);
       }
@@ -211,8 +211,8 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         refetchUser();
 
         return userAdded;
-      } catch (err: any) {
-        throw new Error(err);
+      } catch (err: unknown) {
+        throw err;
       } finally {
         setIsAddingUser(false);
       }
@@ -235,8 +235,8 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         refetchUser();
 
         return emailUpdated;
-      } catch (err: any) {
-        throw new Error(err);
+      } catch (err: unknown) {
+        throw err;
       } finally {
         setIsUpdatingUser(false);
       }
@@ -261,8 +261,8 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
           uploadToIpfs({ baseUrl: config.uri, authToken }, { file, name: file.name, role, product: config.product })
         );
         return hash ? `/ipfs/${hash}` : null;
-      } catch (err: any) {
-        throw new Error(err);
+      } catch (err: unknown) {
+        throw err;
       } finally {
         setIsUploadingFile(false);
       }
