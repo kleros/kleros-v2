@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-app",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Library for Kleros DApps with reusable abstractions and components.",
   "repository": "git@github.com:kleros/kleros-v2.git",
   "homepage": "https://github.com/kleros/kleros-v2/tree/master/kleros-app#readme",
