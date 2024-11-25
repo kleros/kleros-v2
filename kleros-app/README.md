@@ -1,4 +1,4 @@
-# Kelros App
+# Kleros App
 
 Library for Kleros DApps with reusable abstractions and components.
 
