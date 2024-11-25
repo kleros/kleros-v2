@@ -34850,29 +34850,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:2.x, viem@npm:^2.1.1, viem@npm:^2.21.35, viem@npm:^2.21.37, viem@npm:^2.21.43, viem@npm:^2.21.48":
-  version: 2.21.48
-  resolution: "viem@npm:2.21.48"
-  dependencies:
-    "@noble/curves": "npm:1.6.0"
-    "@noble/hashes": "npm:1.5.0"
-    "@scure/bip32": "npm:1.5.0"
-    "@scure/bip39": "npm:1.4.0"
-    abitype: "npm:1.0.6"
-    isows: "npm:1.0.6"
-    ox: "npm:0.1.2"
-    webauthn-p256: "npm:0.0.10"
-    ws: "npm:8.18.0"
-  peerDependencies:
-    typescript: ">=5.0.4"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 10/160fcd88585137426402286b35d5be3021e8a74b97199936bd4fdb3d1ac93fd624fede1141c4266896901a4eca45e796b0bc54d71dfcbb1cfc5b26764d3cc951
-  languageName: node
-  linkType: hard
-
-"viem@npm:^2.21.50":
+"viem@npm:2.x, viem@npm:^2.1.1, viem@npm:^2.21.35, viem@npm:^2.21.37, viem@npm:^2.21.43, viem@npm:^2.21.48, viem@npm:^2.21.50":
   version: 2.21.50
   resolution: "viem@npm:2.21.50"
   dependencies:
