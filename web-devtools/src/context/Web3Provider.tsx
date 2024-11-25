@@ -63,7 +63,6 @@ const wagmiConfig = createConfig({
 createWeb3Modal({
   wagmiConfig,
   projectId,
-  //@ts-expect-error mismatch types from wagmi and viem
   defaultChain: arbitrumSepolia,
   themeVariables: {
     "--w3m-color-mix": theme.klerosUIComponentsPrimaryPurple,
