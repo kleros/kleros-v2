@@ -116,7 +116,7 @@
     "react-scripts": "^5.0.1",
     "react-toastify": "^9.1.3",
     "react-use": "^17.5.1",
-    "styled-components": "^6.1.13",
+    "styled-components": "^5.3.3",
     "viem": "^2.21.48",
     "wagmi": "^2.13.0"
   }
