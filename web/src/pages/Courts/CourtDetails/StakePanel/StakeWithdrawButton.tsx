@@ -127,7 +127,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     if (setStakeConfig && publicClient) {
       setIsSending(true);
       wrapWithToast(async () => await setStake(setStakeConfig.request), publicClient)
-        .then((res) => res.status && setIsPopupOpen(true))
+        .then((res) => setIsPopupOpen(res.status))
         .finally(() => {
           setIsSending(false);
         });
