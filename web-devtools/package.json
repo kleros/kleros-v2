@@ -25,7 +25,7 @@
   "prettier": "@kleros/kleros-v2-prettier-config",
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.3",
-    "@graphql-codegen/client-preset": "^4.5.0",
+    "@graphql-codegen/client-preset": "^4.5.1",
     "@svgr/webpack": "^8.1.0",
     "@types/node": "^20.17.6",
     "@types/react": "^18.3.12",
