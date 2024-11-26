@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { Link } from "react-router-dom";
+
 import PaperclipIcon from "svgs/icons/paperclip.svg";
 import PolicyIcon from "svgs/icons/policy.svg";
 
@@ -59,6 +61,12 @@ const LinkContainer = styled.div`
   display: flex;
   gap: ${responsiveSize(16, 24)};
   flex-wrap: wrap;
+  align-items: center;
+`;
+
+const StyledLink = styled(Link)`
+  display: flex;
+  gap: 4px;
 `;
 
 type Attachment = {
@@ -83,10 +91,10 @@ export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attac
           </StyledA>
         ) : null}
         {isUndefined(disputePolicyURI) ? null : (
-          <StyledA href={getIpfsUrl(disputePolicyURI)} target="_blank" rel="noreferrer">
+          <StyledLink to={`policy/attachment/?url=${getIpfsUrl(disputePolicyURI)}`}>
             <StyledPolicyIcon />
             Dispute Policy
-          </StyledA>
+          </StyledLink>
         )}
         {isUndefined(courtId) ? null : (
           <StyledA href={`#/courts/${courtId}/purpose?section=description`}>

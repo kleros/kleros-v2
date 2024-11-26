@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import Identicon from "react-identicons";
 
 import { Answer } from "context/NewDisputeContext";
+import { DEFAULT_CHAIN, getChain } from "consts/chains";
 import { getVoteChoice } from "utils/getVoteChoice";
 import { isUndefined } from "utils/index";
 import { shortenAddress } from "utils/shortenAddress";
@@ -24,11 +25,13 @@ const TitleContainer = styled.div`
     `
   )}
 `;
+
 const AddressContainer = styled.div`
   display: flex;
   gap: 8px;
   align-items: center;
 `;
+
 const StyledLabel = styled.label<{ variant?: string }>`
   color: ${({ theme, variant }) => (variant ? theme[variant] : theme.primaryText)};
   font-size: 16px;
@@ -36,6 +39,16 @@ const StyledLabel = styled.label<{ variant?: string }>`
 
 const StyledSmall = styled.small`
   font-size: 16px;
+`;
+
+const StyledA = styled.a`
+  :hover {
+    text-decoration: underline;
+    label {
+      cursor: pointer;
+      color: ${({ theme }) => theme.primaryBlue};
+    }
+  }
 `;
 
 const VoteStatus: React.FC<{
@@ -75,11 +88,17 @@ const AccordionTitle: React.FC<{
   commited: boolean;
   hiddenVotes: boolean;
 }> = ({ juror, choice, voteCount, period, answers, isActiveRound, commited, hiddenVotes }) => {
+  const addressExplorerLink = useMemo(() => {
+    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/address/${juror}`;
+  }, [juror]);
+
   return (
     <TitleContainer>
       <AddressContainer>
         <Identicon size="20" string={juror} />
-        <StyledLabel variant="secondaryText">{shortenAddress(juror)}</StyledLabel>
+        <StyledA href={addressExplorerLink} rel="noopener noreferrer" target="_blank">
+          <StyledLabel variant="secondaryText">{shortenAddress(juror)}</StyledLabel>
+        </StyledA>
       </AddressContainer>
       <VoteStatus {...{ choice, period, answers, isActiveRound, commited, hiddenVotes }} />
       <StyledLabel variant="secondaryPurple">

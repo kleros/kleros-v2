@@ -17,6 +17,7 @@ export function handleEvidenceEvent(event: EvidenceEvent): void {
   evidence.evidenceIndex = evidenceIndex.plus(ONE).toString();
   const userId = event.params._party.toHexString();
   evidence.timestamp = event.block.timestamp;
+  evidence.transactionHash = event.transaction.hash;
   evidence.evidence = event.params._evidence;
   evidence.evidenceGroup = evidenceGroupID.toString();
   evidence.sender = userId;

@@ -12,7 +12,7 @@ import { getCourtsPath } from "pages/Courts/CourtDetails";
 
 import CardLabel from "../CardLabels";
 
-import { FieldItem, IDisputeInfo } from ".";
+import { FieldItem, IDisputeInfo } from "./index";
 
 const Container = styled.div`
   display: flex;
@@ -59,6 +59,7 @@ const StyledField = styled(Field)`
       margin-left: 8px;
       overflow: hidden;
       text-overflow: ellipsis;
+      text-wrap: auto;
     }
   }
 `;
@@ -86,7 +87,13 @@ const DisputeInfoCard: React.FC<IDisputeInfoCard> = ({
     <Container>
       {court && courtId && isOverview && (
         <CourtBranchFieldContainer>
-          <StyledField icon={LawBalanceIcon} name="Court Branch" value={courtBranchValue} {...{ isOverview }} />
+          <StyledField
+            link={`/courts/${courtId}`}
+            icon={LawBalanceIcon}
+            name="Court Branch"
+            value={courtBranchValue}
+            {...{ isOverview }}
+          />
         </CourtBranchFieldContainer>
       )}
       <RestOfFieldsContainer {...{ isOverview }}>

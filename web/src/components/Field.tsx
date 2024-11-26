@@ -1,9 +1,10 @@
 import React from "react";
 import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import { Link } from "react-router-dom";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { useScrollTop } from "hooks/useScrollTop";
 
 const FieldContainer = styled.div<FieldContainerProps>`
   display: flex;
@@ -61,6 +62,8 @@ const LinkContainer = styled.div``;
 
 const StyledLink = styled(Link)`
   color: ${({ theme }) => theme.primaryBlue};
+  text-wrap: auto;
+  justify-content: end;
 `;
 
 type FieldContainerProps = {
@@ -93,6 +96,8 @@ const Field: React.FC<IField> = ({
   isJurorBalance,
   className,
 }) => {
+  const scrollTop = useScrollTop();
+
   return (
     <FieldContainer isList={displayAsList} {...{ isOverview, isJurorBalance, width, className }}>
       <Icon />
@@ -103,6 +108,7 @@ const Field: React.FC<IField> = ({
             to={link}
             onClick={(event) => {
               event.stopPropagation();
+              scrollTop();
             }}
           >
             {value}

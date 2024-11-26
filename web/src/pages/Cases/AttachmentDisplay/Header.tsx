@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -57,16 +57,23 @@ const StyledButton = styled(Button)`
 `;
 
 const Header: React.FC = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
+  const { id } = useParams();
+  const location = useLocation();
+
+  const handleReturn = () => {
+    navigate(-1);
+  };
+
+  const title = location.pathname.includes("policy") ? `Policy File - Case #${id}` : "Attachment File";
 
   return (
     <Container>
       <TitleContainer>
         <StyledPaperClip />
-        <Title>Attachment File</Title>{" "}
+        <Title>{title}</Title>
       </TitleContainer>
-      <StyledButton text="Return" Icon={Arrow} onClick={() => navigate(`/cases/${id}/evidence`)} />
+      <StyledButton text="Return" Icon={Arrow} onClick={handleReturn} />
     </Container>
   );
 };
