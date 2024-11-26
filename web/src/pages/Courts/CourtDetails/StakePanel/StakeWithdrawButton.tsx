@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 
 import { useParams } from "react-router-dom";
 import { useAccount, usePublicClient } from "wagmi";
@@ -36,10 +36,6 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const ErrorLabel = styled.label`
-  color: ${({ theme }) => theme.error};
-`;
-
 interface IActionButton {
   isSending: boolean;
   parsedAmount: bigint;
@@ -47,6 +43,7 @@ interface IActionButton {
   setIsSending: (arg0: boolean) => void;
   setAmount: (arg0: string) => void;
   setIsPopupOpen: (arg0: boolean) => void;
+  setErrorMsg: (msg: string) => void;
 }
 
 const StakeWithdrawButton: React.FC<IActionButton> = ({
@@ -55,6 +52,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   isSending,
   setIsSending,
   setIsPopupOpen,
+  setErrorMsg,
 }) => {
   const { id } = useParams();
   const { address } = useAccount();
@@ -104,9 +102,11 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     },
     args: [klerosCoreAddress[DEFAULT_CHAIN], BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
   });
+
   const { writeContractAsync: increaseAllowance } = useWritePnkIncreaseAllowance();
+
   const handleAllowance = useCallback(() => {
-    if (increaseAllowanceConfig) {
+    if (increaseAllowanceConfig && publicClient) {
       setIsSending(true);
       wrapWithToast(async () => await increaseAllowance(increaseAllowanceConfig.request), publicClient).finally(() => {
         setIsSending(false);
@@ -116,13 +116,15 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
 
   const { data: setStakeConfig, error: setStakeError } = useSimulateKlerosCoreSetStake({
     query: {
-      enabled: !isUndefined(targetStake) && !isUndefined(id) && !isAllowance && parsedAmount !== 0n,
+      enabled:
+        !isUndefined(targetStake) && !isUndefined(id) && !isAllowance && parsedAmount !== 0n && targetStake >= 0n,
     },
     args: [BigInt(id ?? 0), targetStake],
   });
   const { writeContractAsync: setStake } = useWriteKlerosCoreSetStake();
+
   const handleStake = useCallback(() => {
-    if (setStakeConfig) {
+    if (setStakeConfig && publicClient) {
       setIsSending(true);
       wrapWithToast(async () => await setStake(setStakeConfig.request), publicClient)
         .then((res) => res.status && setIsPopupOpen(true))
@@ -135,7 +137,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const buttonProps = {
     [ActionType.allowance]: {
       text: "Allow PNK",
-      checkDisabled: () => !balance || targetStake! > balance,
+      checkDisabled: () => !balance || targetStake > balance,
       onClick: handleAllowance,
     },
     [ActionType.stake]: {
@@ -149,6 +151,12 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
       onClick: handleStake,
     },
   };
+
+  useEffect(() => {
+    if (setStakeError) {
+      setErrorMsg(setStakeError?.shortMessage ?? setStakeError.message);
+    }
+  }, [setStakeError]);
 
   const { text, checkDisabled, onClick } = buttonProps[isAllowance ? ActionType.allowance : action];
   return (
@@ -168,7 +176,6 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
           }
           onClick={onClick}
         />
-        {setStakeError && <ErrorLabel> {setStakeError.message}</ErrorLabel>}
       </Container>
     </EnsureChain>
   );
