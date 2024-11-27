@@ -137,9 +137,7 @@ const Fund: React.FC<IFund> = ({ amount, setAmount, setIsOpen }) => {
               if (fundAppeal && fundAppealConfig && publicClient) {
                 setIsSending(true);
                 wrapWithToast(async () => await fundAppeal(fundAppealConfig.request), publicClient)
-                  .then((res) => {
-                    res.status && setIsOpen(true);
-                  })
+                  .then((res) => setIsOpen(res.status))
                   .finally(() => {
                     setIsSending(false);
                   });

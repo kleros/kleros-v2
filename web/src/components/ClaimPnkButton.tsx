@@ -51,7 +51,7 @@ const ClaimPnkButton: React.FC = () => {
     const { request } = await simulatePnkFaucet(wagmiConfig, {
       functionName: "request",
     });
-    if (walletClient) {
+    if (walletClient && publicClient) {
       wrapWithToast(async () => await walletClient.writeContract(request), publicClient)
         .finally(() => {
           setIsSending(false);

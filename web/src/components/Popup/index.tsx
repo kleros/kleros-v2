@@ -236,9 +236,14 @@ const Popup: React.FC<PopupProps & IPopup> = ({
       break;
   }
 
+  const closePopup = () => {
+    setIsOpen(false);
+    resetValue();
+  };
+
   return (
-    <Overlay>
-      <Container ref={containerRef}>
+    <Overlay onClick={closePopup}>
+      <Container ref={containerRef} onClick={(e) => e.stopPropagation()}>
         {popupType === PopupType.SWAP_SUCCESS && (
           <SVGContainer>
             <CloseIcon onClick={() => setIsOpen(false)} />
@@ -259,8 +264,7 @@ const Popup: React.FC<PopupProps & IPopup> = ({
             variant="secondary"
             text={popupType === PopupType.DISPUTE_CREATED ? "Check the case" : "Close"}
             onClick={() => {
-              setIsOpen(false);
-              resetValue();
+              closePopup();
               if (popupType === PopupType.DISPUTE_CREATED) {
                 const { disputeId } = props as IDisputeCreated;
                 navigate(`/cases/${disputeId}`);

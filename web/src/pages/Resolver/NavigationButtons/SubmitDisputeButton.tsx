@@ -43,7 +43,7 @@ const SubmitDisputeButton: React.FC = () => {
   }, [userBalance, disputeData]);
 
   // TODO: decide which dispute kit to use
-  const { data: submitCaseConfig } = useSimulateDisputeResolverCreateDisputeForTemplate({
+  const { data: submitCaseConfig, error } = useSimulateDisputeResolverCreateDisputeForTemplate({
     query: {
       enabled: !insufficientBalance && isTemplateValid(disputeTemplate),
     },
@@ -62,6 +62,14 @@ const SubmitDisputeButton: React.FC = () => {
     () => isSubmittingCase || !isTemplateValid(disputeTemplate) || isBalanceLoading || insufficientBalance,
     [isSubmittingCase, insufficientBalance, isBalanceLoading, disputeTemplate]
   );
+
+  const errorMsg = useMemo(() => {
+    if (insufficientBalance) return "Insufficient balance";
+    else if (error) {
+      return error?.shortMessage ?? error.message;
+    }
+    return null;
+  }, [error, insufficientBalance]);
 
   return (
     <>
@@ -91,9 +99,9 @@ const SubmitDisputeButton: React.FC = () => {
               }
             }}
           />
-          {insufficientBalance && (
+          {errorMsg && (
             <ErrorButtonMessage>
-              <ClosedCircleIcon /> Insufficient balance
+              <ClosedCircleIcon /> {errorMsg}
             </ErrorButtonMessage>
           )}
         </div>
