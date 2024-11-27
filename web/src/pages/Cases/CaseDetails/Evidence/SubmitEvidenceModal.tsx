@@ -89,7 +89,7 @@ const SubmitEvidenceModal: React.FC<{
   }, [publicClient, wagmiConfig, walletClient, close, evidenceGroup, file, message, setIsSending, uploadFile]);
 
   return (
-    <StyledModal {...{ isOpen }}>
+    <StyledModal {...{ isOpen }} shouldCloseOnEsc shouldCloseOnOverlayClick onRequestClose={close}>
       <h1>Submit New Evidence</h1>
       <StyledTextArea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Your Arguments" />
       <StyledFileUploader callback={(file: File) => setFile(file)} />

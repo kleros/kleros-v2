@@ -104,7 +104,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
     },
     args: [address ?? "0x", BigInt(id ?? "0")],
   });
-  const parsedStake = formatPNK(jurorBalance?.[2] || 0n, 0, true);
+  const parsedStake = formatPNK(jurorBalance?.[2] ?? 0n, 0, true);
   const isStaking = useMemo(() => action === ActionType.stake, [action]);
 
   useEffect(() => {
@@ -153,6 +153,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({
                 isSending,
                 setIsSending,
                 setIsPopupOpen,
+                setErrorMsg,
               }}
             />
           </EnsureChainContainer>
