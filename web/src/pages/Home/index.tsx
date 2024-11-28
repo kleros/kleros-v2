@@ -1,14 +1,14 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import { HomePageProvider } from "hooks/useHomePageContext";
-import { useScrollTop } from "hooks/useScrollTop";
 import { getOneYearAgoTimestamp } from "utils/date";
 
 import { responsiveSize } from "styles/responsiveSize";
 
 import HeroImage from "components/HeroImage";
 import LatestCases from "components/LatestCases";
+import ScrollTop from "components/ScrollTop";
 
 import Community from "./Community";
 import CourtOverview from "./CourtOverview";
@@ -26,26 +26,19 @@ const Container = styled.div`
   margin: 0 auto;
 `;
 
-const Home: React.FC = () => {
-  const scrollTop = useScrollTop();
-
-  useEffect(() => {
-    scrollTop();
-  }, []);
-
-  return (
-    <HomePageProvider timeframe={getOneYearAgoTimestamp()}>
-      <Wrapper>
-        <HeroImage />
-        <Container>
-          <CourtOverview />
-          <LatestCases />
-          <TopJurors />
-          <Community />
-        </Container>
-      </Wrapper>
-    </HomePageProvider>
-  );
-};
+const Home: React.FC = () => (
+  <HomePageProvider timeframe={getOneYearAgoTimestamp()}>
+    <Wrapper>
+      <HeroImage />
+      <Container>
+        <CourtOverview />
+        <LatestCases />
+        <TopJurors />
+        <Community />
+      </Container>
+      <ScrollTop />
+    </Wrapper>
+  </HomePageProvider>
+);
 
 export default Home;

@@ -1,14 +1,13 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import { isProductionDeployment } from "consts/index";
 
 import { responsiveSize } from "styles/responsiveSize";
 
-import { useScrollTop } from "hooks/useScrollTop";
-
 import ClaimPnkButton from "components/ClaimPnkButton";
 import HeroImage from "components/HeroImage";
+import ScrollTop from "components/ScrollTop";
 
 import { Widget } from "./Widget";
 
@@ -29,22 +28,14 @@ const Container = styled.div`
   gap: 24px;
 `;
 
-const GetPnk: React.FC = () => {
-  const scrollTop = useScrollTop();
-
-  useEffect(() => {
-    scrollTop();
-  }, []);
-
-  return (
-    <Wrapper>
-      <HeroImage />
-      <Container>
-        {!isProductionDeployment() && <ClaimPnkButton />}
-        <Widget />
-      </Container>
-    </Wrapper>
-  );
-};
-
+const GetPnk: React.FC = () => (
+  <Wrapper>
+    <HeroImage />
+    <Container>
+      {!isProductionDeployment() && <ClaimPnkButton />}
+      <Widget />
+    </Container>
+    <ScrollTop />
+  </Wrapper>
+);
 export default GetPnk;

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled, { css } from "styled-components";
 
 import { useParams } from "react-router-dom";
@@ -8,8 +8,6 @@ import { Card, Breadcrumb } from "@kleros/ui-components-library";
 
 import { isProductionDeployment } from "consts/index";
 import { isUndefined } from "utils/index";
-
-import { useScrollTop } from "hooks/useScrollTop";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
@@ -23,6 +21,7 @@ import LatestCases from "components/LatestCases";
 import Staking from "components/Popup/MiniGuides/Staking";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import { Divider } from "components/Divider";
+import ScrollTop from "components/ScrollTop";
 
 import Description from "./Description";
 import StakePanel from "./StakePanel";
@@ -85,7 +84,6 @@ const CourtDetails: React.FC = () => {
   const { data: policy } = useCourtPolicy(id);
   const { data } = useCourtTree();
   const [isStakingMiniGuideOpen, toggleStakingMiniGuide] = useToggle(false);
-  const scrollTop = useScrollTop();
 
   const courtPath = getCourtsPath(data?.court, id);
 
@@ -96,10 +94,6 @@ const CourtDetails: React.FC = () => {
       value: node.id,
     })) ?? [])
   );
-
-  useEffect(() => {
-    scrollTop();
-  }, []);
 
   return (
     <Container>
@@ -126,6 +120,7 @@ const CourtDetails: React.FC = () => {
         <Description />
       </StyledCard>
       <LatestCases filters={{ court: id }} />
+      <ScrollTop />
     </Container>
   );
 };

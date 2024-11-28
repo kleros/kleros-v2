@@ -1,13 +1,12 @@
-import React, { lazy, Suspense, useEffect } from "react";
+import React, { lazy, Suspense } from "react";
 import styled from "styled-components";
 
 import { useSearchParams } from "react-router-dom";
 
-import { useScrollTop } from "hooks/useScrollTop";
-
 import NewTabIcon from "svgs/icons/new-tab.svg";
 
 import Loader from "components/Loader";
+import ScrollTop from "components/ScrollTop";
 
 import Header from "./Header";
 
@@ -42,11 +41,6 @@ const StyledNewTabIcon = styled(NewTabIcon)`
 const AttachmentDisplay: React.FC = () => {
   const [searchParams] = useSearchParams();
   const url = searchParams.get("url");
-  const scrollTop = useScrollTop();
-
-  useEffect(() => {
-    scrollTop();
-  }, []);
 
   return (
     <Container>
@@ -67,6 +61,7 @@ const AttachmentDisplay: React.FC = () => {
           </Suspense>
         </>
       ) : null}
+      <ScrollTop />
     </Container>
   );
 };

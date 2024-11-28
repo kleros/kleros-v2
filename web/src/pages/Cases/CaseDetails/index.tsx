@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import { Route, Routes, useParams, Navigate } from "react-router-dom";
@@ -7,7 +7,6 @@ import { Card } from "@kleros/ui-components-library";
 
 import { Periods } from "consts/periods";
 import { VotingContextProvider } from "hooks/useVotingContext";
-import { useScrollTop } from "hooks/useScrollTop";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
@@ -20,6 +19,7 @@ import Overview from "./Overview";
 import Tabs from "./Tabs";
 import Timeline from "./Timeline";
 import Voting from "./Voting";
+import ScrollTop from "components/ScrollTop";
 
 const Container = styled.div``;
 
@@ -44,14 +44,9 @@ const Header = styled.h1`
 const CaseDetails: React.FC = () => {
   const { id } = useParams();
   const { data } = useDisputeDetailsQuery(id);
-  const scrollTop = useScrollTop();
   const dispute = data?.dispute;
   const currentPeriodIndex = (dispute ? Periods[dispute.period] : 0) as number;
   const arbitrable = dispute?.arbitrated.id as `0x${string}`;
-
-  useEffect(() => {
-    scrollTop();
-  }, []);
 
   return (
     <VotingContextProvider>
@@ -76,6 +71,7 @@ const CaseDetails: React.FC = () => {
             <Route path="*" element={<Navigate to="overview" replace />} />
           </Routes>
         </StyledCard>
+        <ScrollTop />
       </Container>
     </VotingContextProvider>
   );

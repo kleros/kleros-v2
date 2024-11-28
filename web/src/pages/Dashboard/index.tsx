@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { useNavigate, useParams } from "react-router-dom";
@@ -6,8 +6,6 @@ import { useAccount } from "wagmi";
 
 import { isUndefined } from "utils/index";
 import { decodeURIFilter, useRootPath } from "utils/uri";
-
-import { useScrollTop } from "hooks/useScrollTop";
 
 import { DisputeDetailsFragment, useMyCasesQuery } from "queries/useCasesQuery";
 import { useUserQuery } from "queries/useUser";
@@ -18,6 +16,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
+import ScrollTop from "components/ScrollTop";
 
 import Courts from "./Courts";
 import JurorInfo from "./JurorInfo";
@@ -51,7 +50,6 @@ const Dashboard: React.FC = () => {
   const { page, order, filter } = useParams();
   const location = useRootPath();
   const navigate = useNavigate();
-  const scrollTop = useScrollTop();
   const casesPerPage = 3;
   const pageNumber = parseInt(page ?? "1");
   const disputeSkip = casesPerPage * (pageNumber - 1);
@@ -70,10 +68,6 @@ const Dashboard: React.FC = () => {
     () => (!isUndefined(totalCases) ? Math.ceil(totalCases / casesPerPage) : 1),
     [totalCases, casesPerPage]
   );
-
-  useEffect(() => {
-    scrollTop();
-  }, []);
 
   return (
     <Container>
@@ -99,6 +93,7 @@ const Dashboard: React.FC = () => {
           <ConnectWallet />
         </ConnectWalletContainer>
       )}
+      <ScrollTop />
     </Container>
   );
 };

@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 
 import { useParams, useNavigate } from "react-router-dom";
 
 import useIsDesktop from "hooks/useIsDesktop";
-import { useScrollTop } from "hooks/useScrollTop";
 import { isUndefined } from "utils/index";
 import { decodeURIFilter, useRootPath } from "utils/uri";
 
@@ -14,6 +13,7 @@ import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
 import { DisputeDetailsFragment, Dispute_Filter, OrderDirection } from "src/graphql/graphql";
 
 import CasesDisplay from "components/CasesDisplay";
+import ScrollTop from "components/ScrollTop";
 
 const calculateStats = (
   isCourtFilter: boolean,
@@ -48,7 +48,6 @@ const CasesFetcher: React.FC = () => {
   const location = useRootPath();
   const navigate = useNavigate();
   const isDesktop = useIsDesktop();
-  const scrollTop = useScrollTop();
   const casesPerPage = isDesktop ? 9 : 3;
   const pageNumber = parseInt(page ?? "1");
   const disputeSkip = casesPerPage * (pageNumber - 1);
@@ -71,20 +70,19 @@ const CasesFetcher: React.FC = () => {
     [totalCases, casesPerPage]
   );
 
-  useEffect(() => {
-    scrollTop();
-  }, []);
-
   return (
-    <CasesDisplay
-      disputes={data?.disputes as DisputeDetailsFragment[]}
-      numberDisputes={totalCases}
-      numberClosedDisputes={ruledCases}
-      currentPage={pageNumber}
-      setCurrentPage={(newPage: number) => navigate(`${location}/${newPage}/${order}/${filter}`)}
-      totalPages={totalPages}
-      {...{ casesPerPage }}
-    />
+    <>
+      <CasesDisplay
+        disputes={data?.disputes as DisputeDetailsFragment[]}
+        numberDisputes={totalCases}
+        numberClosedDisputes={ruledCases}
+        currentPage={pageNumber}
+        setCurrentPage={(newPage: number) => navigate(`${location}/${newPage}/${order}/${filter}`)}
+        totalPages={totalPages}
+        {...{ casesPerPage }}
+      />
+      <ScrollTop />
+    </>
   );
 };
 
