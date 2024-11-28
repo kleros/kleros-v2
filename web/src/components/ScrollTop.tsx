@@ -7,7 +7,7 @@ const ScrollTop: React.FC = () => {
 
   useEffect(() => {
     scrollTop();
-  });
+  }, []);
 
   return <></>;
 };
