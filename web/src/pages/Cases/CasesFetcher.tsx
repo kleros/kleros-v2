@@ -1,8 +1,9 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 
 import { useParams, useNavigate } from "react-router-dom";
 
 import useIsDesktop from "hooks/useIsDesktop";
+import { useScrollTop } from "hooks/useScrollTop";
 import { isUndefined } from "utils/index";
 import { decodeURIFilter, useRootPath } from "utils/uri";
 
@@ -47,6 +48,7 @@ const CasesFetcher: React.FC = () => {
   const location = useRootPath();
   const navigate = useNavigate();
   const isDesktop = useIsDesktop();
+  const scrollTop = useScrollTop();
   const casesPerPage = isDesktop ? 9 : 3;
   const pageNumber = parseInt(page ?? "1");
   const disputeSkip = casesPerPage * (pageNumber - 1);
@@ -68,6 +70,10 @@ const CasesFetcher: React.FC = () => {
     () => (!isUndefined(totalCases) ? Math.ceil(totalCases / casesPerPage) : 1),
     [totalCases, casesPerPage]
   );
+
+  useEffect(() => {
+    scrollTop();
+  }, []);
 
   return (
     <CasesDisplay

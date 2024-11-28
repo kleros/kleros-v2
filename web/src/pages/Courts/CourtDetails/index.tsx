@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import { useParams } from "react-router-dom";
@@ -8,6 +8,8 @@ import { Card, Breadcrumb } from "@kleros/ui-components-library";
 
 import { isProductionDeployment } from "consts/index";
 import { isUndefined } from "utils/index";
+
+import { useScrollTop } from "hooks/useScrollTop";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
@@ -83,6 +85,7 @@ const CourtDetails: React.FC = () => {
   const { data: policy } = useCourtPolicy(id);
   const { data } = useCourtTree();
   const [isStakingMiniGuideOpen, toggleStakingMiniGuide] = useToggle(false);
+  const scrollTop = useScrollTop();
 
   const courtPath = getCourtsPath(data?.court, id);
 
@@ -93,6 +96,10 @@ const CourtDetails: React.FC = () => {
       value: node.id,
     })) ?? [])
   );
+
+  useEffect(() => {
+    scrollTop();
+  }, []);
 
   return (
     <Container>

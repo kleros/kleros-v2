@@ -6,6 +6,8 @@ import { isAddress } from "viem";
 
 import { Button } from "@kleros/ui-components-library";
 
+import { useScrollTop } from "hooks/useScrollTop";
+
 import CheckIcon from "svgs/icons/check-circle-outline.svg";
 import WarningIcon from "svgs/icons/warning-outline.svg";
 import InvalidIcon from "svgs/label-icons/minus-circle.svg";
@@ -138,6 +140,7 @@ const EmailConfirmation: React.FC = () => {
   const [isTokenInvalid, setIsTokenInvalid] = useState(false);
   const [isError, setIsError] = useState(false);
   const [searchParams, _] = useSearchParams();
+  const scrollTop = useScrollTop();
   const address = searchParams.get("address");
   const token = searchParams.get("token");
 
@@ -154,6 +157,10 @@ const EmailConfirmation: React.FC = () => {
         .finally(() => setIsConfirming(false));
     }
   }, [address, token, confirmEmail]);
+
+  useEffect(() => {
+    scrollTop();
+  }, []);
 
   const { headerMsg, subtitleMsg, buttonMsg, buttonTo, Icon, color } = useMemo(() => {
     if (!address || !isAddress(address) || !token || isTokenInvalid) return messageConfigs.invalid;

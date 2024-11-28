@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 
 import { HomePageProvider } from "hooks/useHomePageContext";
+import { useScrollTop } from "hooks/useScrollTop";
 import { getOneYearAgoTimestamp } from "utils/date";
 
 import { responsiveSize } from "styles/responsiveSize";
@@ -26,6 +27,12 @@ const Container = styled.div`
 `;
 
 const Home: React.FC = () => {
+  const scrollTop = useScrollTop();
+
+  useEffect(() => {
+    scrollTop();
+  }, []);
+
   return (
     <HomePageProvider timeframe={getOneYearAgoTimestamp()}>
       <Wrapper>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
@@ -7,6 +7,8 @@ import { useAccount } from "wagmi";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import { useScrollTop } from "hooks/useScrollTop";
 
 import ConnectWallet from "components/ConnectWallet";
 import EnsureAuth from "components/EnsureAuth";
@@ -77,7 +79,12 @@ const DisputeResolver: React.FC = () => {
   const location = useLocation();
   const [isDisputeResolverMiniGuideOpen, toggleDisputeResolverMiniGuide] = useToggle(false);
   const { isConnected } = useAccount();
+  const scrollTop = useScrollTop();
   const isPreviewPage = location.pathname.includes("/preview");
+
+  useEffect(() => {
+    scrollTop();
+  }, []);
 
   return (
     <Wrapper>
