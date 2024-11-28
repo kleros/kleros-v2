@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
@@ -6,7 +6,6 @@ import { formatEther } from "viem";
 
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
-import { useScrollTop } from "hooks/useScrollTop";
 import { getLocalRounds } from "utils/getLocalRounds";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
@@ -41,16 +40,11 @@ const Overview: React.FC<IOverview> = ({ arbitrable, courtID, currentPeriodIndex
   const { data: dispute } = useDisputeDetailsQuery(id);
   const { data: courtPolicy } = useCourtPolicy(courtID);
   const { data: votingHistory } = useVotingHistory(id);
-  const scrollTop = useScrollTop();
   const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const courtName = courtPolicy?.name;
   const court = dispute?.dispute?.court;
   const rewards = useMemo(() => (court ? `≥ ${formatEther(court.feeForJuror)} ETH` : undefined), [court]);
   const category = disputeDetails?.category;
-
-  useEffect(() => {
-    scrollTop();
-  }, [scrollTop]);
 
   return (
     <>
