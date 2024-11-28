@@ -15,6 +15,7 @@ import { useAtlasProvider } from "@kleros/kleros-app";
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import Loader from "components/Loader";
+import ScrollTop from "components/ScrollTop";
 
 const Container = styled.div`
   display: flex;
@@ -181,6 +182,7 @@ const EmailConfirmation: React.FC = () => {
           </IconContainer>
         </>
       )}
+      <ScrollTop />
     </Container>
   );
 };

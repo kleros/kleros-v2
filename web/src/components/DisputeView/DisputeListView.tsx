@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAccount } from "wagmi";
 
 import { Card } from "@kleros/ui-components-library";
@@ -56,17 +56,18 @@ interface IDisputeListView {
 }
 const DisputeListView: React.FC<IDisputeListView> = (props) => {
   const { isDisconnected } = useAccount();
-  const navigate = useNavigate();
   return (
-    <StyledListItem hover onClick={() => navigate(`/cases/${props?.disputeID?.toString()}`)}>
-      <PeriodBanner isCard={false} id={parseInt(props?.disputeID ?? "0")} period={props.period} />
-      <ListContainer>
-        <TitleContainer isLabel={!isDisconnected}>
-          <TruncatedTitle text={props?.title} maxLength={50} />
-        </TitleContainer>
-        <DisputeInfo {...props} />
-      </ListContainer>
-    </StyledListItem>
+    <Link to={`/cases/${props?.disputeID?.toString()}`}>
+      <StyledListItem hover>
+        <PeriodBanner isCard={false} id={parseInt(props?.disputeID ?? "0")} period={props.period} />
+        <ListContainer>
+          <TitleContainer isLabel={!isDisconnected}>
+            <TruncatedTitle text={props?.title} maxLength={50} />
+          </TitleContainer>
+          <DisputeInfo {...props} />
+        </ListContainer>
+      </StyledListItem>
+    </Link>
   );
 };
 

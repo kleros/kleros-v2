@@ -19,6 +19,7 @@ import Overview from "./Overview";
 import Tabs from "./Tabs";
 import Timeline from "./Timeline";
 import Voting from "./Voting";
+import ScrollTop from "components/ScrollTop";
 
 const Container = styled.div``;
 
@@ -70,6 +71,7 @@ const CaseDetails: React.FC = () => {
             <Route path="*" element={<Navigate to="overview" replace />} />
           </Routes>
         </StyledCard>
+        <ScrollTop />
       </Container>
     </VotingContextProvider>
   );

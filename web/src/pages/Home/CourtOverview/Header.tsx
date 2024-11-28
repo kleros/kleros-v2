@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { responsiveSize } from "styles/responsiveSize";
 
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -22,11 +22,12 @@ const StyledH1 = styled.h1`
 `;
 
 const Header: React.FC = () => {
-  const navigate = useNavigate();
   return (
     <StyledHeader>
       <StyledH1>Court Overview</StyledH1>
-      <Button small Icon={Bookmark} text="Create a Case" onClick={() => navigate("/resolver")} />
+      <Link to={"/resolver"}>
+        <Button small Icon={Bookmark} text="Create a Case" />
+      </Link>
     </StyledHeader>
   );
 };

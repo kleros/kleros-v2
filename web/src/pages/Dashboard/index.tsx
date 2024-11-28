@@ -16,6 +16,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
+import ScrollTop from "components/ScrollTop";
 
 import Courts from "./Courts";
 import JurorInfo from "./JurorInfo";
@@ -92,6 +93,7 @@ const Dashboard: React.FC = () => {
           <ConnectWallet />
         </ConnectWalletContainer>
       )}
+      <ScrollTop />
     </Container>
   );
 };

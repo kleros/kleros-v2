@@ -13,6 +13,7 @@ import EnsureAuth from "components/EnsureAuth";
 import HeroImage from "components/HeroImage";
 import HowItWorks from "components/HowItWorks";
 import Resolver from "components/Popup/MiniGuides/DisputeResolver";
+import ScrollTop from "components/ScrollTop";
 
 import Description from "./Briefing/Description";
 import Title from "./Briefing/Title";
@@ -118,6 +119,7 @@ const DisputeResolver: React.FC = () => {
           </ConnectWalletContainer>
         )}
       </Container>
+      <ScrollTop />
     </Wrapper>
   );
 };

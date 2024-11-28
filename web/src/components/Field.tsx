@@ -4,8 +4,6 @@ import { landscapeStyle } from "styles/landscapeStyle";
 
 import { Link } from "react-router-dom";
 
-import { useScrollTop } from "hooks/useScrollTop";
-
 const FieldContainer = styled.div<FieldContainerProps>`
   display: flex;
   align-items: center;
@@ -96,8 +94,6 @@ const Field: React.FC<IField> = ({
   isJurorBalance,
   className,
 }) => {
-  const scrollTop = useScrollTop();
-
   return (
     <FieldContainer isList={displayAsList} {...{ isOverview, isJurorBalance, width, className }}>
       <Icon />
@@ -108,7 +104,6 @@ const Field: React.FC<IField> = ({
             to={link}
             onClick={(event) => {
               event.stopPropagation();
-              scrollTop();
             }}
           >
             {value}
