@@ -1,17 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
-import { Address, PublicClient } from "viem";
+import { type Address, type PublicClient } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { Copiable, DropdownSelect, Field } from "@kleros/ui-components-library";
 
-import { useRulerContext } from "context/RulerContext";
-import { shortenAddress } from "utils/shortenAddress";
-import { klerosCoreAddress } from "hooks/contracts/generated";
 import { DEFAULT_CHAIN } from "consts/chains";
-import { landscapeStyle } from "styles/landscapeStyle";
+import { useRulerContext } from "context/RulerContext";
+import { klerosCoreAddress } from "hooks/contracts/generated";
+import { shortenAddress } from "utils/shortenAddress";
 import { validateAddress } from "utils/validateAddressOrEns";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 
 const Container = styled.div`
   width: 100%;

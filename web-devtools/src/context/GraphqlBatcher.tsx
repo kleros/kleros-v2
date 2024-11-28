@@ -1,7 +1,7 @@
 import React, { useMemo, createContext, useContext } from "react";
 
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
-import { create, windowedFiniteBatchScheduler, Batcher } from "@yornaath/batshit";
+import { create, windowedFiniteBatchScheduler, type Batcher } from "@yornaath/batshit";
 import { request } from "graphql-request";
 
 import { debounceErrorToast } from "utils/debounceErrorToast";

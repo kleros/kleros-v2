@@ -13,7 +13,7 @@ const ReactMarkdown: React.FC<{ children: string }> = ({ children }) => {
   }
   try {
     return <StyledMarkdown>{children}</StyledMarkdown>;
-  } catch (error) {
+  } catch {
     return <div>Error rendering content</div>;
   }
 };

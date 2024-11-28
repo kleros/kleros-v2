@@ -1,4 +1,4 @@
-import { css, DefaultTheme, FlattenInterpolation, ThemeProps } from "styled-components";
+import { type DefaultTheme, type ThemeProps, type FlattenInterpolation, css } from "styled-components";
 
 export const BREAKPOINT_LANDSCAPE = 900;
 
