@@ -60,7 +60,7 @@ const FetchFromIDInput: React.FC<IFetchFromID> = ({
         value={templateId}
         placeholder="Enter template Id"
         message={isLoading ? "fetching ..." : ""}
-        onChange={(e) => setTemplateId(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTemplateId(e.target.value)}
       />
     </Container>
   );

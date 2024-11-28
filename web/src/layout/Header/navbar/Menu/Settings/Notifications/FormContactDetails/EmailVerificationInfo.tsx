@@ -5,7 +5,8 @@ import { Button } from "@kleros/ui-components-library";
 
 import HourglassIcon from "svgs/icons/hourglass.svg";
 
-import { useAtlasProvider } from "context/AtlasProvider";
+import { errorToast, infoToast, successToast } from "utils/wrapWithToast";
+import { useAtlasProvider } from "@kleros/kleros-app";
 
 const InfoContainer = styled.div`
   display: flex;
@@ -63,18 +64,22 @@ interface IEmailInfo {
 const EmailVerificationInfo: React.FC<IEmailInfo> = ({ toggleIsSettingsOpen }) => {
   const { userExists, user, updateEmail } = useAtlasProvider();
 
-  // TODO : update toast info, dont show "Updating email"
-  const resendEmail = useCallback(
+  const resendVerificationEmail = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       if (!user) return;
+      infoToast(`Sending verfication email ...`);
       updateEmail({ newEmail: user.email })
         .then(async (res) => {
           if (res) {
+            successToast("Verification email sent successfully!");
             toggleIsSettingsOpen();
           }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err);
+          errorToast(`Failed to send verification email: ${err?.message}`);
+        });
     },
     [user, updateEmail, toggleIsSettingsOpen]
   );
@@ -86,7 +91,7 @@ const EmailVerificationInfo: React.FC<IEmailInfo> = ({ toggleIsSettingsOpen }) =
         <InfoTitle>Email Verification Pending</InfoTitle>
         <InfoSubtitle>
           We sent you a verification email. Please, verify it.
-          <br /> Didn’t receive the email? <StyledButton text="Resend it" onClick={resendEmail} />
+          <br /> Didn’t receive the email? <StyledButton text="Resend it" onClick={resendVerificationEmail} />
         </InfoSubtitle>
       </InfoInnerContainer>
     </InfoContainer>

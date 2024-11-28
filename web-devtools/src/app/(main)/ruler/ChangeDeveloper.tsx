@@ -1,11 +1,12 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
-import { Address, isAddress } from "viem";
+import { type Address, isAddress } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
 
 import { Button } from "@kleros/ui-components-library";
 
+import { DEFAULT_CHAIN } from "consts/chains";
 import { useRulerContext } from "context/RulerContext";
 import { useSimulateKlerosCoreRulerChangeRuler, useWriteKlerosCoreRulerChangeRuler } from "hooks/contracts/generated";
 import { isUndefined } from "utils/isUndefined";
@@ -14,7 +15,6 @@ import { wrapWithToast } from "utils/wrapWithToast";
 import LabeledInput from "components/LabeledInput";
 
 import Header from "./Header";
-import { DEFAULT_CHAIN } from "consts/chains";
 
 const Container = styled.div`
   width: 100%;

@@ -4,9 +4,9 @@
   "description": "Smart contracts for Kleros version 2",
   "main": "typechain-types/index.ts",
   "repository": "git@github.com:kleros/kleros-v2.git",
+  "homepage": "https://github.com/kleros/kleros-v2/tree/master/contracts#readme",
   "author": "Kleros",
   "license": "MIT",
-  "packageManager": "yarn@4.0.2+sha256.825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186",
   "engines": {
     "node": ">=16.0.0"
   },
@@ -60,7 +60,7 @@
     "build:types": "tsc --project tsconfig.json --module esnext --declarationDir ./dist/types --emitDeclarationOnly --declaration --declarationMap"
   },
   "devDependencies": {
-    "@defi-wonderland/natspec-smells": "^1.0.3",
+    "@defi-wonderland/natspec-smells": "^1.1.5",
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "@kleros/kleros-v2-tsconfig": "workspace:^",
@@ -71,18 +71,19 @@
     "@openzeppelin/contracts": "^5.1.0",
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",
-    "@types/chai": "^4.3.11",
-    "@types/mocha": "^10.0.6",
-    "@types/node": "^20.17.1",
-    "@wagmi/cli": "^2.1.16",
+    "@types/chai": "^4.3.20",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^20.17.6",
+    "@wagmi/cli": "^2.1.18",
     "abitype": "^0.10.3",
-    "chai": "^4.4.1",
-    "dotenv": "^16.3.1",
+    "chai": "^4.5.0",
+    "dotenv": "^16.4.5",
+    "eslint": "^9.15.0",
     "ethereumjs-util": "^7.1.5",
     "ethers": "^6.13.4",
     "graphql": "^16.9.0",
-    "graphql-request": "^6.1.0",
-    "hardhat": "2.22.15",
+    "graphql-request": "^7.1.2",
+    "hardhat": "2.22.16",
     "hardhat-contract-sizer": "^2.10.0",
     "hardhat-deploy": "^0.14.0",
     "hardhat-deploy-ethers": "^0.4.2",
@@ -94,15 +95,17 @@
     "node-fetch": "^3.3.2",
     "pino": "^8.21.0",
     "pino-pretty": "^10.3.1",
+    "prettier": "^3.3.3",
+    "prettier-plugin-solidity": "^1.4.1",
     "shelljs": "^0.8.5",
     "solhint-plugin-prettier": "^0.1.0",
     "solidity-coverage": "^0.8.13",
     "ts-node": "^10.9.2",
     "typechain": "^8.3.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.6.3"
   },
   "dependencies": {
     "@kleros/vea-contracts": "^0.4.0",
-    "viem": "^2.21.35"
+    "viem": "^2.21.48"
   }
 }

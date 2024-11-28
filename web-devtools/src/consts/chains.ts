@@ -1,4 +1,4 @@
-import { Chain, mainnet, arbitrumSepolia, gnosisChiado } from "viem/chains";
+import { type Chain, mainnet, arbitrumSepolia, gnosisChiado } from "viem/chains";
 
 export const SUPPORTED_CHAINS: Record<number, Chain> = {
   [arbitrumSepolia.id]: arbitrumSepolia,

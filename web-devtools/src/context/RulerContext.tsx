@@ -1,7 +1,8 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
+import { type Address, isAddress } from "viem";
+
 import { RULING_MODE } from "consts";
-import { Address, isAddress } from "viem";
 
 import { useReadKlerosCoreRulerRulers, useReadKlerosCoreRulerSettings } from "hooks/contracts/generated";
 import { useLocalStorage } from "hooks/useLocalStorage";
