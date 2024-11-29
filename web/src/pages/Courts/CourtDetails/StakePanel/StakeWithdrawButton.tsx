@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from "react";
+import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
 import { useAccount, usePublicClient } from "wagmi";
@@ -19,10 +20,10 @@ import {
 } from "hooks/contracts/generated";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
 import { isUndefined } from "utils/index";
+import { parseWagmiError } from "utils/parseWagmiError";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { EnsureChain } from "components/EnsureChain";
-import styled from "styled-components";
 
 export enum ActionType {
   allowance = "allowance",
@@ -154,9 +155,9 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
 
   useEffect(() => {
     if (setStakeError) {
-      setErrorMsg(setStakeError?.shortMessage ?? setStakeError.message);
+      setErrorMsg(parseWagmiError(setStakeError));
     }
-  }, [setStakeError]);
+  }, [setStakeError, setErrorMsg]);
 
   const { text, checkDisabled, onClick } = buttonProps[isAllowance ? ActionType.allowance : action];
   return (
