@@ -95,7 +95,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
       {
         icon: CalendarIcon,
         name: getPeriodPhrase(period ?? 0),
-        value: !displayAsList ? new Date(date * 1000).toLocaleString() : formatDate(date),
+        value: !displayAsList ? new Date(date * 1000).toLocaleString() + " (Local Time)" : formatDate(date),
         display: !isUndefined(period) && !isUndefined(date),
         style: "grid-column: 2 / 4;",
       },
