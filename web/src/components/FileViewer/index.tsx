@@ -54,10 +54,9 @@ const fileNameIfIpfsUrl = (url: string) => {
   if (!url || typeof url !== "string") {
     return "document";
   }
-
   const ipfsPattern = /(?:ipfs:\/\/|https?:\/\/(?:[A-Za-z0-9.-]+)\/ipfs\/)([A-Za-z0-9]+[A-Za-z0-9\-_]*)\/?(.*)/;
 
-  const match = url.match(ipfsPattern);
+  const match = ipfsPattern.exec(url);
 
   if (match) {
     const ipfsHash = match[1];
@@ -65,7 +64,7 @@ const fileNameIfIpfsUrl = (url: string) => {
 
     const sanitizedPath = path.replace(/\//g, "_");
 
-    return `ipfs-${ipfsHash}${sanitizedPath ? `_${sanitizedPath}` : ""}`;
+    return `ipfs-${ipfsHash}${sanitizedPath ? "_" + sanitizedPath : ""}`;
   } else {
     return "document";
   }
