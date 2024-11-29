@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import styled, { css } from "styled-components";
 import HamburgerIcon from "svgs/header/hamburger.svg";
 
+import { useLockBodyScroll } from "react-use";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import LightButton from "components/LightButton";
@@ -34,17 +36,18 @@ const StyledLightButton = styled(LightButton)`
   }
 `;
 
-const Overlay = styled.div<{ isOpen: boolean }>`
-  display: ${({ isOpen }) => (isOpen ? "block" : "none")};
-  position: absolute;
+const Overlay = styled.div`
+  position: fixed;
   top: 0;
-  width: 100vw;
+  left: 0;
+  width: 100%;
   height: 64px;
   z-index: 1;
 `;
 
 const MobileHeader = () => {
   const [isOpen, setIsOpen] = useState(false);
+  useLockBodyScroll(isOpen);
 
   const handleOpenNavbar = () => {
     setIsOpen(true);
@@ -57,7 +60,6 @@ const MobileHeader = () => {
   return (
     <Container>
       {isOpen ? <Overlay {...{ isOpen }} onClick={handleCloseNavbar} /> : null}
-
       <Logo />
       <StyledLightButton text="" Icon={HamburgerIcon} onClick={handleOpenNavbar} />
       <NavBar {...{ isOpen, handleCloseNavbar }} />
