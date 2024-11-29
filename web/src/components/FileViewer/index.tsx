@@ -28,7 +28,7 @@ const StyledDocViewer = styled(DocViewer)`
  * @returns renders the file
  */
 const FileViewer: React.FC<{ url: string }> = ({ url }) => {
-  const docs = [{ uri: url }];
+  const docs = [{ uri: url, fileName: fileNameIfIpfsUrl(url) }];
   return (
     <Wrapper className="file-viewer-wrapper">
       <StyledDocViewer
@@ -48,6 +48,27 @@ const FileViewer: React.FC<{ url: string }> = ({ url }) => {
       />
     </Wrapper>
   );
+};
+
+const fileNameIfIpfsUrl = (url: string) => {
+  if (!url || typeof url !== "string") {
+    return "document";
+  }
+
+  const ipfsPattern = /(?:ipfs:\/\/|https?:\/\/(?:[A-Za-z0-9.-]+)\/ipfs\/)([A-Za-z0-9]+[A-Za-z0-9\-_]*)\/?(.*)/;
+
+  const match = url.match(ipfsPattern);
+
+  if (match) {
+    const ipfsHash = match[1];
+    const path = match[2] || "";
+
+    const sanitizedPath = path.replace(/\//g, "_");
+
+    return `ipfs-${ipfsHash}${sanitizedPath ? `_${sanitizedPath}` : ""}`;
+  } else {
+    return "document";
+  }
 };
 
 export default FileViewer;
