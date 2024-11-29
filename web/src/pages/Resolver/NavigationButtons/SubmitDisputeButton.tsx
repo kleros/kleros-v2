@@ -14,13 +14,13 @@ import {
   useSimulateDisputeResolverCreateDisputeForTemplate,
 } from "hooks/contracts/generated";
 import { isUndefined } from "utils/index";
+import { parseWagmiError } from "utils/parseWagmiError";
 import { prepareArbitratorExtradata } from "utils/prepareArbitratorExtradata";
 import { wrapWithToast } from "utils/wrapWithToast";
 
 import { EnsureChain } from "components/EnsureChain";
-import Popup, { PopupType } from "components/Popup";
-
 import { ErrorButtonMessage } from "components/ErrorButtonMessage";
+import Popup, { PopupType } from "components/Popup";
 import ClosedCircleIcon from "components/StyledIcons/ClosedCircleIcon";
 
 const StyledButton = styled(Button)``;
@@ -66,7 +66,7 @@ const SubmitDisputeButton: React.FC = () => {
   const errorMsg = useMemo(() => {
     if (insufficientBalance) return "Insufficient balance";
     else if (error) {
-      return error?.shortMessage ?? error.message;
+      return parseWagmiError(error);
     }
     return null;
   }, [error, insufficientBalance]);
