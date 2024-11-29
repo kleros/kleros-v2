@@ -1,6 +1,6 @@
 import { type SimulateContractErrorType } from "@wagmi/core";
 
-type ExtendedWagmiError = SimulateContractErrorType & { shortMessage: string; metaMessages: string[] };
+type ExtendedWagmiError = SimulateContractErrorType & { shortMessage?: string; metaMessages?: string[] };
 
 /**
  * @param error
