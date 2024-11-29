@@ -8,7 +8,6 @@ import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
-import { Overlay } from "components/Overlay";
 import DappList from "./DappList";
 import Explore from "./Explore";
 import Menu from "./Menu";
@@ -26,20 +25,15 @@ const Wrapper = styled.div<{ isOpen: boolean }>`
   z-index: 1;
 `;
 
-const StyledOverlay = styled(Overlay)`
-  top: unset;
-`;
-
 const Container = styled.div<{ isOpen: boolean }>`
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 100%;
+  height: 92%;
   overflow-y: auto;
   z-index: 1;
   background-color: ${({ theme }) => theme.whiteBackground};
-  border: 1px solid ${({ theme }) => theme.stroke};
   box-shadow: 0px 2px 3px ${({ theme }) => theme.defaultShadow};
   transform-origin: top;
   transform: scaleY(${({ isOpen }) => (isOpen ? "1" : "0")});
@@ -76,6 +70,15 @@ const PopupContainer = styled.div`
   background-color: ${({ theme }) => theme.blackLowOpacity};
 `;
 
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 64px;
+  z-index: 1;
+`;
+
 export interface ISettings {
   toggleIsSettingsOpen: () => void;
   initialTab?: number;
@@ -102,26 +105,25 @@ const NavBar: React.FC<INavBar> = ({ isOpen, handleCloseNavbar }) => {
 
   return (
     <>
+      {isOpen ? <Overlay {...{ isOpen }} onClick={handleCloseNavbar} /> : null}
       <Wrapper {...{ isOpen }}>
-        <StyledOverlay>
-          <Container {...{ isOpen }}>
-            <LightButton text="Kleros Solutions" onClick={toggleIsDappListOpen} Icon={KlerosSolutionsIcon} />
-            <hr />
-            <Explore {...{ handleCloseNavbar }} />
-            <hr />
-            <WalletContainer>
-              <ConnectWallet />
-              {isConnected && (
-                <DisconnectWalletButtonContainer>
-                  <DisconnectWalletButton />
-                </DisconnectWalletButtonContainer>
-              )}
-            </WalletContainer>
-            <hr />
-            <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
-            <br />
-          </Container>
-        </StyledOverlay>
+        <Container {...{ isOpen }}>
+          <LightButton text="Kleros Solutions" onClick={toggleIsDappListOpen} Icon={KlerosSolutionsIcon} />
+          <hr />
+          <Explore {...{ handleCloseNavbar }} />
+          <hr />
+          <WalletContainer>
+            <ConnectWallet />
+            {isConnected && (
+              <DisconnectWalletButtonContainer>
+                <DisconnectWalletButton />
+              </DisconnectWalletButtonContainer>
+            )}
+          </WalletContainer>
+          <hr />
+          <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
+          <br />
+        </Container>
       </Wrapper>
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
         <PopupContainer>

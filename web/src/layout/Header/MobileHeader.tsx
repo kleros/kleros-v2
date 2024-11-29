@@ -36,15 +36,6 @@ const StyledLightButton = styled(LightButton)`
   }
 `;
 
-const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 64px;
-  z-index: 1;
-`;
-
 const MobileHeader = () => {
   const [isOpen, setIsOpen] = useState(false);
   useLockBodyScroll(isOpen);
@@ -59,7 +50,6 @@ const MobileHeader = () => {
 
   return (
     <Container>
-      {isOpen ? <Overlay {...{ isOpen }} onClick={handleCloseNavbar} /> : null}
       <Logo />
       <StyledLightButton text="" Icon={HamburgerIcon} onClick={handleOpenNavbar} />
       <NavBar {...{ isOpen, handleCloseNavbar }} />
