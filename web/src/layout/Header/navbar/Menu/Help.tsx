@@ -17,7 +17,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 
 import Onboarding from "components/Popup/MiniGuides/Onboarding";
 
-import { IHelp } from "..";
+import { IHelp } from "../index";
 import Debug from "../Debug";
 
 const Container = styled.div`

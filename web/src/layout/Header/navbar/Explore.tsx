@@ -6,8 +6,6 @@ import { Link, useLocation } from "react-router-dom";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
-import { useOpenContext } from "../MobileHeader";
-
 const Container = styled.div`
   display: flex;
   gap: 0px;
@@ -59,9 +57,12 @@ const links = [
   { to: "/get-pnk", text: "Get PNK" },
 ];
 
-const Explore: React.FC = () => {
+interface IExplore {
+  handleCloseNavbar: () => void;
+}
+
+const Explore: React.FC<IExplore> = ({ handleCloseNavbar }) => {
   const location = useLocation();
-  const { toggleIsOpen } = useOpenContext();
 
   return (
     <Container>
@@ -70,7 +71,7 @@ const Explore: React.FC = () => {
         <LinkContainer key={text}>
           <StyledLink
             to={to}
-            onClick={toggleIsOpen}
+            onClick={handleCloseNavbar}
             isActive={to === "/" ? location.pathname === "/" : location.pathname.startsWith(to)}
           >
             {text}

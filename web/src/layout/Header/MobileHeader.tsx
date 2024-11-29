@@ -1,8 +1,5 @@
-import React, { useContext, useMemo, useRef } from "react";
+import React, { useState } from "react";
 import styled, { css } from "styled-components";
-
-import { useClickAway, useToggle } from "react-use";
-
 import HamburgerIcon from "svgs/header/hamburger.svg";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -37,30 +34,35 @@ const StyledLightButton = styled(LightButton)`
   }
 `;
 
-const OpenContext = React.createContext({
-  isOpen: false,
-  toggleIsOpen: () => {
-    // Placeholder
-  },
-});
-
-export function useOpenContext() {
-  return useContext(OpenContext);
-}
+const Overlay = styled.div<{ isOpen: boolean }>`
+  display: ${({ isOpen }) => (isOpen ? "block" : "none")};
+  position: absolute;
+  top: 0;
+  width: 100vw;
+  height: 64px;
+  z-index: 1;
+`;
 
 const MobileHeader = () => {
-  const [isOpen, toggleIsOpen] = useToggle(false);
-  const containerRef = useRef(null);
-  useClickAway(containerRef, () => toggleIsOpen(false));
-  const memoizedContext = useMemo(() => ({ isOpen, toggleIsOpen }), [isOpen, toggleIsOpen]);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleOpenNavbar = () => {
+    setIsOpen(true);
+  };
+
+  const handleCloseNavbar = () => {
+    setIsOpen(false);
+  };
+
   return (
-    <Container ref={containerRef}>
-      <OpenContext.Provider value={memoizedContext}>
-        <Logo />
-        <NavBar />
-        <StyledLightButton text="" Icon={HamburgerIcon} onClick={toggleIsOpen} />
-      </OpenContext.Provider>
+    <Container>
+      {isOpen ? <Overlay {...{ isOpen }} onClick={handleCloseNavbar} /> : null}
+
+      <Logo />
+      <StyledLightButton text="" Icon={HamburgerIcon} onClick={handleOpenNavbar} />
+      <NavBar {...{ isOpen, handleCloseNavbar }} />
     </Container>
   );
 };
+
 export default MobileHeader;

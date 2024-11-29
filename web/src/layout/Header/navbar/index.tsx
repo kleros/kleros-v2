@@ -6,14 +6,9 @@ import { useAccount } from "wagmi";
 
 import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 
-import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
-
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
 import { Overlay } from "components/Overlay";
-
-import { useOpenContext } from "../MobileHeader";
-
 import DappList from "./DappList";
 import Explore from "./Explore";
 import Menu from "./Menu";
@@ -40,7 +35,7 @@ const Container = styled.div<{ isOpen: boolean }>`
   top: 0;
   left: 0;
   right: 0;
-  max-height: calc(100vh - 160px);
+  height: 100%;
   overflow-y: auto;
   z-index: 1;
   background-color: ${({ theme }) => theme.whiteBackground};
@@ -94,28 +89,25 @@ export interface IDappList {
   toggleIsDappListOpen: () => void;
 }
 
-const NavBar: React.FC = () => {
+interface INavBar {
+  isOpen: boolean;
+  handleCloseNavbar: () => void;
+}
+
+const NavBar: React.FC<INavBar> = ({ isOpen, handleCloseNavbar }) => {
   const { isConnected } = useAccount();
   const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
   const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
   const [isSettingsOpen, toggleIsSettingsOpen] = useToggle(false);
-  const { isOpen } = useOpenContext();
-  useLockOverlayScroll(isOpen);
 
   return (
     <>
       <Wrapper {...{ isOpen }}>
         <StyledOverlay>
           <Container {...{ isOpen }}>
-            <LightButton
-              text="Kleros Solutions"
-              onClick={() => {
-                toggleIsDappListOpen();
-              }}
-              Icon={KlerosSolutionsIcon}
-            />
+            <LightButton text="Kleros Solutions" onClick={toggleIsDappListOpen} Icon={KlerosSolutionsIcon} />
             <hr />
-            <Explore />
+            <Explore {...{ handleCloseNavbar }} />
             <hr />
             <WalletContainer>
               <ConnectWallet />
