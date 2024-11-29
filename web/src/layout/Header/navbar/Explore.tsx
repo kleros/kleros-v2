@@ -58,7 +58,7 @@ const links = [
 ];
 
 interface IExplore {
-  handleCloseNavbar: () => void;
+  handleCloseNavbar?: () => void;
 }
 
 const Explore: React.FC<IExplore> = ({ handleCloseNavbar }) => {
