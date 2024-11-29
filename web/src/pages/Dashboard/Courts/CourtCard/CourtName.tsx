@@ -2,10 +2,9 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
-import LightButton from "components/LightButton";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
-import { useNavigateAndScrollTop } from "hooks/useNavigateAndScrollTop";
+import { Link } from "react-router-dom";
 
 const Container = styled.div`
   display: flex;
@@ -29,17 +28,13 @@ const Container = styled.div`
   )}
 `;
 
-const StyledButton = styled(LightButton)`
+const StyledLink = styled(Link)`
   display: flex;
-  flex-direction: row-reverse;
   gap: 8px;
-  padding: 0px;
-  > .button-text {
-    color: ${({ theme }) => theme.primaryBlue};
-    font-size: 14px;
-  }
-  > .button-svg {
-    margin-right: 0;
+  align-items: center;
+  > svg {
+    height: 15px;
+    width: 15px;
     path {
       fill: ${({ theme }) => theme.primaryBlue};
     }
@@ -52,17 +47,12 @@ interface ICourtName {
 }
 
 const CourtName: React.FC<ICourtName> = ({ name, id }) => {
-  const navigate = useNavigateAndScrollTop();
-
   return (
     <Container>
       <small>{name}</small>
-      <StyledButton
-        onClick={() => navigate(`/courts/${id?.toString()}`)}
-        text="Open Court"
-        Icon={ArrowIcon}
-        className="reverse-button"
-      />
+      <StyledLink to={`/courts/${id?.toString()}`}>
+        Open Court <ArrowIcon />
+      </StyledLink>
     </Container>
   );
 };

@@ -7,6 +7,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import ClaimPnkButton from "components/ClaimPnkButton";
 import HeroImage from "components/HeroImage";
+import ScrollTop from "components/ScrollTop";
 
 import { Widget } from "./Widget";
 
@@ -27,16 +28,14 @@ const Container = styled.div`
   gap: 24px;
 `;
 
-const GetPnk: React.FC = () => {
-  return (
-    <Wrapper>
-      <HeroImage />
-      <Container>
-        {!isProductionDeployment() && <ClaimPnkButton />}
-        <Widget />
-      </Container>
-    </Wrapper>
-  );
-};
-
+const GetPnk: React.FC = () => (
+  <Wrapper>
+    <HeroImage />
+    <Container>
+      {!isProductionDeployment() && <ClaimPnkButton />}
+      <Widget />
+    </Container>
+    <ScrollTop />
+  </Wrapper>
+);
 export default GetPnk;

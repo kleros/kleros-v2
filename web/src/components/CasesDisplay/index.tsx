@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 
@@ -53,14 +53,15 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
   className,
   totalPages,
 }) => {
-  const navigate = useNavigate();
   const location = useLocation();
   return (
     <div {...{ className }}>
       <TitleContainer className="title">
         <StyledTitle>{title}</StyledTitle>
         {location.pathname.startsWith("/cases/display/1/desc/all") ? (
-          <StyledButton onClick={() => navigate(`/resolver`)} text="Create a case" Icon={ArrowIcon} />
+          <Link to={"/resolver"}>
+            <StyledButton text="Create a case" Icon={ArrowIcon} />
+          </Link>
         ) : null}
       </TitleContainer>
       <Search />

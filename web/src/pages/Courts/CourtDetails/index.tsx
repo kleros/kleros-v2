@@ -21,6 +21,7 @@ import LatestCases from "components/LatestCases";
 import Staking from "components/Popup/MiniGuides/Staking";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import { Divider } from "components/Divider";
+import ScrollTop from "components/ScrollTop";
 
 import Description from "./Description";
 import StakePanel from "./StakePanel";
@@ -119,6 +120,7 @@ const CourtDetails: React.FC = () => {
         <Description />
       </StyledCard>
       <LatestCases filters={{ court: id }} />
+      <ScrollTop />
     </Container>
   );
 };

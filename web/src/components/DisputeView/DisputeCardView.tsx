@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import { Card } from "@kleros/ui-components-library";
 
@@ -54,15 +54,16 @@ interface IDisputeCardView {
 }
 
 const DisputeCardView: React.FC<IDisputeCardView> = ({ isLoading, ...props }) => {
-  const navigate = useNavigate();
   return (
-    <StyledCard hover onClick={() => navigate(`/cases/${props?.disputeID?.toString()}`)}>
-      <PeriodBanner id={parseInt(props?.disputeID)} period={props?.period} />
-      <CardContainer>
-        {isLoading ? <StyledCaseCardTitleSkeleton /> : <TruncatedTitle text={props?.title} maxLength={100} />}
-        <DisputeInfo {...props} />
-      </CardContainer>
-    </StyledCard>
+    <Link to={`/cases/${props?.disputeID?.toString()}`}>
+      <StyledCard hover>
+        <PeriodBanner id={parseInt(props?.disputeID)} period={props?.period} />
+        <CardContainer>
+          {isLoading ? <StyledCaseCardTitleSkeleton /> : <TruncatedTitle text={props?.title} maxLength={100} />}
+          <DisputeInfo {...props} />
+        </CardContainer>
+      </StyledCard>
+    </Link>
   );
 };
 

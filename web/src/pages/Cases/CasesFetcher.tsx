@@ -13,6 +13,7 @@ import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
 import { DisputeDetailsFragment, Dispute_Filter, OrderDirection } from "src/graphql/graphql";
 
 import CasesDisplay from "components/CasesDisplay";
+import ScrollTop from "components/ScrollTop";
 
 const calculateStats = (
   isCourtFilter: boolean,
@@ -70,15 +71,18 @@ const CasesFetcher: React.FC = () => {
   );
 
   return (
-    <CasesDisplay
-      disputes={data?.disputes as DisputeDetailsFragment[]}
-      numberDisputes={totalCases}
-      numberClosedDisputes={ruledCases}
-      currentPage={pageNumber}
-      setCurrentPage={(newPage: number) => navigate(`${location}/${newPage}/${order}/${filter}`)}
-      totalPages={totalPages}
-      {...{ casesPerPage }}
-    />
+    <>
+      <CasesDisplay
+        disputes={data?.disputes as DisputeDetailsFragment[]}
+        numberDisputes={totalCases}
+        numberClosedDisputes={ruledCases}
+        currentPage={pageNumber}
+        setCurrentPage={(newPage: number) => navigate(`${location}/${newPage}/${order}/${filter}`)}
+        totalPages={totalPages}
+        {...{ casesPerPage }}
+      />
+      <ScrollTop />
+    </>
   );
 };
 

@@ -6,6 +6,7 @@ import { useSearchParams } from "react-router-dom";
 import NewTabIcon from "svgs/icons/new-tab.svg";
 
 import Loader from "components/Loader";
+import ScrollTop from "components/ScrollTop";
 
 import Header from "./Header";
 
@@ -39,8 +40,8 @@ const StyledNewTabIcon = styled(NewTabIcon)`
 
 const AttachmentDisplay: React.FC = () => {
   const [searchParams] = useSearchParams();
-
   const url = searchParams.get("url");
+
   return (
     <Container>
       <Header />
@@ -60,6 +61,7 @@ const AttachmentDisplay: React.FC = () => {
           </Suspense>
         </>
       ) : null}
+      <ScrollTop />
     </Container>
   );
 };
