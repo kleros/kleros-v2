@@ -269,7 +269,7 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
               </StyledCurrentValue>
               <StyledArrowRightIcon {...{ isStaking }} />
               <StyledFutureValue>
-                {!amountToStake || amountToStake === 0 ? "Enter amount" : null}
+                {!amountToStake || amountToStake === 0 ? "?" : null}
                 {!isUndefined(amountToStake) &&
                   amountToStake > 0 &&
                   (!isUndefined(item.futureValue) ? item.futureValue : <Skeleton width={32} />)}
