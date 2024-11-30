@@ -7,12 +7,14 @@ import { Button } from "@kleros/ui-components-library";
 
 import { AddressOrName, ChainDisplay, IdenticonOrAvatar } from "components/ConnectWallet/AccountDisplay";
 import { EnsureChain } from "components/EnsureChain";
+import TranslateDropdown from "components/TranslateDropdown";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   margin-top: 12px;
+  align-items: center;
 `;
 
 const StyledChainContainer = styled.div`
@@ -57,6 +59,9 @@ const StyledButton = styled.div`
 
 const EnsureChainContainer = styled.div`
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
   justify-content: center;
   padding: 16px;
 `;
@@ -93,6 +98,7 @@ const General: React.FC = () => {
 
   return (
     <EnsureChainContainer>
+      <TranslateDropdown />
       <EnsureChain>
         <Container>
           {address && (

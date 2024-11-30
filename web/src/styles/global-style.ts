@@ -17,6 +17,7 @@ export const GlobalStyle = createGlobalStyle`
   body {
     font-family: "Open Sans", sans-serif;
     margin: 0px;
+    top:0px !important
   }
 
   html {
@@ -120,4 +121,10 @@ export const GlobalStyle = createGlobalStyle`
   .hiddenCanvasElement{
     display: none;
   }
+
+  //hide-default-google-translate 
+.skiptranslate{
+  display: none;
+  };
+
 `;

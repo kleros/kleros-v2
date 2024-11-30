@@ -22,6 +22,7 @@ import Web3Provider from "context/Web3Provider";
 import Loader from "components/Loader";
 import Layout from "layout/index";
 
+import TranslateProvider from "./context/TranslateProvider";
 import { SentryRoutes } from "./utils/sentry";
 
 const App: React.FC = () => {
@@ -33,67 +34,69 @@ const App: React.FC = () => {
             <AtlasProvider>
               <IsListProvider>
                 <NewDisputeProvider>
-                  <SentryRoutes>
-                    <Route path="/" element={<Layout />}>
-                      <Route
-                        index
-                        element={
-                          <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                            <Home />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="cases/*"
-                        element={
-                          <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                            <Cases />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="courts/*"
-                        element={
-                          <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                            <Courts />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="dashboard/:page/:order/:filter"
-                        element={
-                          <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                            <Dashboard />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="resolver/*"
-                        element={
-                          <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                            <DisputeResolver />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="get-pnk/*"
-                        element={
-                          <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                            <GetPnk />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path="settings/*"
-                        element={
-                          <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
-                            <Settings />
-                          </Suspense>
-                        }
-                      />
-                      <Route path="*" element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>} />
-                    </Route>
-                  </SentryRoutes>
+                  <TranslateProvider>
+                    <SentryRoutes>
+                      <Route path="/" element={<Layout />}>
+                        <Route
+                          index
+                          element={
+                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                              <Home />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="cases/*"
+                          element={
+                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                              <Cases />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="courts/*"
+                          element={
+                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                              <Courts />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="dashboard/:page/:order/:filter"
+                          element={
+                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                              <Dashboard />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="resolver/*"
+                          element={
+                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                              <DisputeResolver />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="get-pnk/*"
+                          element={
+                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                              <GetPnk />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="settings/*"
+                          element={
+                            <Suspense fallback={<Loader width={"48px"} height={"48px"} />}>
+                              <Settings />
+                            </Suspense>
+                          }
+                        />
+                        <Route path="*" element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>} />
+                      </Route>
+                    </SentryRoutes>
+                  </TranslateProvider>
                 </NewDisputeProvider>
               </IsListProvider>
             </AtlasProvider>
