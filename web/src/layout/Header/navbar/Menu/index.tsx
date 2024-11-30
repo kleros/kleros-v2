@@ -12,6 +12,7 @@ import { useToggleTheme } from "hooks/useToggleThemeContext";
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import LightButton from "components/LightButton";
+import TranslateDropdown from "components/TranslateDropdown";
 
 import { IHelp, ISettings } from "..";
 
@@ -90,6 +91,7 @@ const Menu: React.FC<ISettings & IHelp> = ({ toggleIsHelpOpen, toggleIsSettingsO
           <LightButton {...{ text, onClick, Icon }} />
         </ButtonContainer>
       ))}
+      <TranslateDropdown />
     </Container>
   );
 };

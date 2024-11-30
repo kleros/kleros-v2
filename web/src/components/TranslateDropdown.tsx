@@ -5,13 +5,13 @@ import { DropdownSelect } from "@kleros/ui-components-library";
 import { SupportedLangs, useTranslate } from "context/TranslateProvider";
 
 const Langs: { value: SupportedLangs; text: string }[] = [
-  { text: "en", value: "en" },
-  { text: "es", value: "es" },
-  { text: "hi", value: "hi" },
-  { text: "js", value: "ja" },
-  { text: "zh", value: "zh" },
-  { text: "ko", value: "ko" },
-  { text: "fr", value: "fr" },
+  { text: "English", value: "en" },
+  { text: "Spanish", value: "es" },
+  { text: "Hindi", value: "hi" },
+  { text: "Japanese", value: "ja" },
+  { text: "Chinese", value: "zh" },
+  { text: "Korean", value: "ko" },
+  { text: "French", value: "fr" },
 ];
 
 const TranslateDropdown: React.FC = () => {
@@ -26,8 +26,7 @@ const TranslateDropdown: React.FC = () => {
       }))}
       defaultValue={"en"}
       callback={(val) => {
-        //@ts-expect-error is string
-        setLang(val);
+        setLang(val as SupportedLangs);
       }}
     />
   );

@@ -10,11 +10,25 @@ declare global {
     const path: string;
     export default path;
   }
+  interface Window {
+    google: {
+      translate: {
+        TranslateElement: new (
+          config: {
+            pageLanguage: string;
+            includedLanguages: string;
+          },
+          elementId: string
+        ) => void;
+      };
+    };
+    googleTranslateElementInit: () => void;
+  }
 }
 
 declare module "styled-components" {
   type Theme = typeof lightTheme;
-  //eslint-disable-next-line @typescript-eslint/no-empty-interface
+
   export interface DefaultTheme extends Theme {}
 }
 

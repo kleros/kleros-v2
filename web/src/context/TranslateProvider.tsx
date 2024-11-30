@@ -23,20 +23,17 @@ export const TranslateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   useEffect(() => {
     try {
-      // Check if the Google Translate script is already in the document
       const existingScript = document.querySelector('script[src*="translate.google.com/translate_a/element.js"]');
       if (!existingScript) {
         const addScript = document.createElement("script");
         addScript.setAttribute("src", "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit");
         document.body.appendChild(addScript);
 
-        //@ts-expect-error will exist
         window.googleTranslateElementInit = () => {
-          //@ts-expect-error will exist
           new window.google.translate.TranslateElement(
             {
               pageLanguage: "en",
-              includedLanguages: "en,es,hi,ja,zh,fr,ko", // Include all languages you need here
+              includedLanguages: "en,es,hi,ja,zh,fr,ko",
             },
             "google_translate_element"
           );
@@ -52,7 +49,13 @@ export const TranslateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     (cValue: SupportedLangs) => {
       setCurrentLang(cValue);
       document.cookie = "googtrans" + "=" + `/en/${cValue}` + ";" + "Session" + ";path=/";
-      window.location.reload();
+      if (window.google?.translate?.TranslateElement) {
+        const select = document.querySelector(".goog-te-combo") as HTMLSelectElement;
+        if (select) {
+          select.value = cValue;
+          select.dispatchEvent(new Event("change"));
+        }
+      }
     },
     [setCurrentLang]
   );
