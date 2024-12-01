@@ -25,7 +25,7 @@ const StyledA = styled.a`
     text-decoration: underline;
     label {
       cursor: pointer;
-      color: ${({ theme }) => theme.primaryBlue};
+      color: ${({ theme }) => theme.secondaryBlue};
     }
   }
 `;

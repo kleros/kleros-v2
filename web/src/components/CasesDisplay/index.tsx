@@ -7,11 +7,10 @@ import ArrowIcon from "svgs/icons/arrow.svg";
 
 import { responsiveSize } from "styles/responsiveSize";
 
-import LightButton from "../LightButton";
-
 import CasesGrid, { ICasesGrid } from "./CasesGrid";
 import Search from "./Search";
 import StatsAndFilters from "./StatsAndFilters";
+import { StyledArrowLink } from "../StyledArrowLink";
 
 const TitleContainer = styled.div`
   display: flex;
@@ -23,16 +22,6 @@ const TitleContainer = styled.div`
 
 const StyledTitle = styled.h1`
   margin: 0px;
-`;
-
-const StyledButton = styled(LightButton)`
-  display: flex;
-  flex-direction: row-reverse;
-  gap: 8px;
-  > .button-text {
-    color: ${({ theme }) => theme.primaryBlue};
-  }
-  padding: 0px;
 `;
 
 interface ICasesDisplay extends ICasesGrid {
@@ -59,9 +48,9 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
       <TitleContainer className="title">
         <StyledTitle>{title}</StyledTitle>
         {location.pathname.startsWith("/cases/display/1/desc/all") ? (
-          <Link to={"/resolver"}>
-            <StyledButton text="Create a case" Icon={ArrowIcon} />
-          </Link>
+          <StyledArrowLink to={"/resolver"}>
+            Create a case <ArrowIcon />
+          </StyledArrowLink>
         ) : null}
       </TitleContainer>
       <Search />

@@ -62,6 +62,10 @@ const StyledLink = styled(Link)`
   color: ${({ theme }) => theme.primaryBlue};
   text-wrap: auto;
   justify-content: end;
+
+  &:hover {
+    text-decoration: underline ${({ theme }) => theme.secondaryBlue};
+  }
 `;
 
 type FieldContainerProps = {

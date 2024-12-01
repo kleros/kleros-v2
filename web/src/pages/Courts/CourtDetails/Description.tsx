@@ -95,7 +95,7 @@ const Description: React.FC = () => {
           <Route path="purpose" element={formatMarkdown(policy?.description)} />
           <Route path="skills" element={<p>{policy?.requiredSkills}</p>} />
           <Route path="policy" element={formatMarkdown(policy?.summary)} />
-          <Route path="*" element={<Navigate to="purpose" replace />} />
+          <Route path="*" element={<Navigate to={filteredTabs.length > 0 ? filteredTabs[0].path : ""} replace />} />
         </Routes>
       </TextContainer>
     </Container>
