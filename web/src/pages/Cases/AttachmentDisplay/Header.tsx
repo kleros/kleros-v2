@@ -53,6 +53,14 @@ const StyledButton = styled(Button)`
   :focus,
   :hover {
     background-color: transparent;
+    .button-svg {
+      path {
+        fill: ${({ theme }) => theme.secondaryBlue};
+      }
+    }
+    .button-text {
+      color: ${({ theme }) => theme.secondaryBlue};
+    }
   }
 `;
 

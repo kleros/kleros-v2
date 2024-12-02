@@ -30,6 +30,14 @@ const NewTabInfo = styled.a`
   display: flex;
   gap: 8px;
   align-items: center;
+
+  :hover {
+    text-decoration: underline;
+    svg path {
+      transition: fill 0.1s;
+      fill: ${({ theme }) => theme.secondaryBlue};
+    }
+  }
 `;
 
 const StyledNewTabIcon = styled(NewTabIcon)`

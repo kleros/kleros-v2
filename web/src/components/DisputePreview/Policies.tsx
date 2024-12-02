@@ -41,12 +41,6 @@ const StyledP = styled.p`
   )};
 `;
 
-const StyledA = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-`;
-
 const StyledPolicyIcon = styled(PolicyIcon)`
   width: 16px;
   fill: ${({ theme }) => theme.primaryBlue};
@@ -67,6 +61,12 @@ const LinkContainer = styled.div`
 const StyledLink = styled(Link)`
   display: flex;
   gap: 4px;
+
+  &:hover {
+    svg {
+      fill: ${({ theme }) => theme.secondaryBlue};
+    }
+  }
 `;
 
 type Attachment = {
@@ -85,10 +85,10 @@ export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attac
       <StyledP>Make sure you read and understand the Policies</StyledP>
       <LinkContainer>
         {!isUndefined(attachment) && !isUndefined(attachment.uri) ? (
-          <StyledA href={getIpfsUrl(attachment.uri)} target="_blank" rel="noreferrer">
+          <StyledLink to={getIpfsUrl(attachment.uri)} target="_blank" rel="noreferrer">
             <StyledPaperclipIcon />
             {attachment.label ?? "Attachment"}
-          </StyledA>
+          </StyledLink>
         ) : null}
         {isUndefined(disputePolicyURI) ? null : (
           <StyledLink to={`policy/attachment/?url=${getIpfsUrl(disputePolicyURI)}`}>
@@ -97,10 +97,10 @@ export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attac
           </StyledLink>
         )}
         {isUndefined(courtId) ? null : (
-          <StyledA href={`#/courts/${courtId}/purpose?section=description`}>
+          <StyledLink to={`/courts/${courtId}/purpose?section=description`}>
             <StyledPolicyIcon />
             Court Policy
-          </StyledA>
+          </StyledLink>
         )}
       </LinkContainer>
     </ShadeArea>

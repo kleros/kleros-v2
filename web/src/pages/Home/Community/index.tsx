@@ -59,7 +59,7 @@ const Community = () => (
     <StyledCard>
       <ThreeElementContainer>
         {section.slice(0, 3).map((element) => (
-          <Element key={element.Icon} {...element} />
+          <Element key={element.title} {...element} />
         ))}
       </ThreeElementContainer>
       <Element {...section[3]} />

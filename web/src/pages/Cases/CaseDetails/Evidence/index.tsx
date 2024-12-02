@@ -49,10 +49,21 @@ const ScrollButton = styled(Button)`
   }
   .button-svg {
     margin: 0;
+    path {
+      fill: ${({ theme }) => theme.primaryBlue};
+    }
   }
-  :focus,
+
   :hover {
     background-color: transparent;
+    .button-svg {
+      path {
+        fill: ${({ theme }) => theme.secondaryBlue};
+      }
+    }
+    .button-text {
+      color: ${({ theme }) => theme.secondaryBlue};
+    }
   }
 `;
 

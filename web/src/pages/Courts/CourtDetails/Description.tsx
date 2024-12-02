@@ -67,19 +67,6 @@ const Description: React.FC = () => {
 
   const filteredTabs = TABS.filter(({ isVisible }) => isVisible(policy));
 
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const scrollToSection = queryParams.get("section");
-
-  useEffect(() => {
-    if (scrollToSection === "description") {
-      const element = document.getElementById(scrollToSection);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  }, [scrollToSection]);
-
   return (
     <Container id="description">
       <StyledTabs

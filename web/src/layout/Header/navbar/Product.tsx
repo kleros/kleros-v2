@@ -13,8 +13,7 @@ const Container = styled.a`
   border-radius: 3px;
   :hover {
     transform: scale(1.05);
-    transition: 350ms;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition: 0.1s;
   }
   gap: 8px;
   width: ${responsiveSize(100, 130)};

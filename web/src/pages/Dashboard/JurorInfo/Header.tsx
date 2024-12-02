@@ -46,9 +46,9 @@ const LinksContainer = styled.div`
 `;
 
 const StyledXIcon = styled(XIcon)`
-  fill: ${({ theme }) => theme.primaryBlue};
   width: 16px;
   height: 16px;
+  fill: ${({ theme }) => theme.primaryBlue};
 `;
 
 const StyledLink = styled.a`
@@ -59,6 +59,9 @@ const StyledLink = styled.a`
 
   &:hover {
     text-decoration: underline;
+    svg {
+      fill: ${({ theme }) => theme.secondaryBlue};
+    }
   }
 `;
 
