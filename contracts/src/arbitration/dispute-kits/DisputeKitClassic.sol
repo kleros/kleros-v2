@@ -238,7 +238,6 @@ contract DisputeKitClassic is IDisputeKit, Initializable, UUPSProxiable {
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
         bytes32 key = bytes32(uint256(courtID)); // Get the ID of the tree.
 
-        // TODO: Handle the situation when no one has staked yet.
         drawnAddress = sortitionModule.draw(key, _coreDisputeID, _nonce);
 
         if (_postDrawCheck(_coreDisputeID, drawnAddress)) {
@@ -603,6 +602,10 @@ contract DisputeKitClassic is IDisputeKit, Initializable, UUPSProxiable {
     /// @param _coreDisputeID ID of the dispute in the core contract.
     /// @param _juror Chosen address.
     /// @return Whether the address can be drawn or not.
+    /// Note that we don't check the minStake requirement here because of the implicit staking in parent courts.
+    /// minStake is checked directly during staking process however it's possible for the juror to get drawn
+    /// while having < minStake if it is later increased by governance.
+    /// This issue is expected and harmless since we check for insolvency anyway.
     function _postDrawCheck(uint256 _coreDisputeID, address _juror) internal view returns (bool) {
         (uint96 courtID, , , , ) = core.disputes(_coreDisputeID);
         uint256 lockedAmountPerJuror = core

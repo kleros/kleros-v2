@@ -30,7 +30,7 @@ describe("DisputeKitClassic", async () => {
     expect(events2[0].args._feeForJuror).to.equal(ethers.parseUnits("0.1", 18));
     expect(events2[0].args._jurorsForCourtJump).to.equal(256);
     expect(events2[0].args._timesPerPeriod).to.deep.equal([0, 0, 0, 10]);
-    expect(events2[0].args._supportedDisputeKits).to.deep.equal([]);
+    expect(events2[0].args._supportedDisputeKits).to.deep.equal([1]);
 
     const events3 = await core.queryFilter(core.filters.DisputeKitEnabled());
     expect(events3.length).to.equal(1);
