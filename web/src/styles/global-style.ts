@@ -124,7 +124,12 @@ export const GlobalStyle = createGlobalStyle`
 
   //hide-default-google-translate 
 .skiptranslate{
-  display: none;
+  display: none !important  ;
+  visibility: hidden !important;
   };
 
+font{
+  background-color: transparent !important;
+  box-shadow: none !important ;
+}
 `;
