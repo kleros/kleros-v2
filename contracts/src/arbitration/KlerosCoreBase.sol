@@ -113,7 +113,7 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
     event AppealDecision(uint256 indexed _disputeID, IArbitrableV2 indexed _arbitrable);
     event Draw(address indexed _address, uint256 indexed _disputeID, uint256 _roundID, uint256 _voteID);
     event CourtCreated(
-        uint256 indexed _courtID,
+        uint96 indexed _courtID,
         uint96 indexed _parent,
         bool _hiddenVotes,
         uint256 _minStake,
@@ -237,8 +237,10 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
 
         sortitionModule.createTree(bytes32(uint256(GENERAL_COURT)), _sortitionExtraData);
 
+        uint256[] memory supportedDisputeKits = new uint256[](1);
+        supportedDisputeKits[0] = DISPUTE_KIT_CLASSIC;
         emit CourtCreated(
-            1,
+            GENERAL_COURT,
             court.parent,
             _hiddenVotes,
             _courtParameters[0],
@@ -246,7 +248,7 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
             _courtParameters[2],
             _courtParameters[3],
             _timesPerPeriod,
-            new uint256[](0)
+            supportedDisputeKits
         );
         _enableDisputeKit(GENERAL_COURT, DISPUTE_KIT_CLASSIC, true);
     }
@@ -351,7 +353,7 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
             if (_supportedDisputeKits[i] == 0 || _supportedDisputeKits[i] >= disputeKits.length) {
                 revert WrongDisputeKitIndex();
             }
-            court.supportedDisputeKits[_supportedDisputeKits[i]] = true;
+            _enableDisputeKit(uint96(courtID), _supportedDisputeKits[i], true);
         }
         // Check that Classic DK support was added.
         if (!court.supportedDisputeKits[DISPUTE_KIT_CLASSIC]) revert MustSupportDisputeKitClassic();
@@ -370,7 +372,7 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
         // Update the parent.
         courts[_parent].children.push(courtID);
         emit CourtCreated(
-            courtID,
+            uint96(courtID),
             _parent,
             _hiddenVotes,
             _minStake,
@@ -1061,7 +1063,7 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
         bool _alreadyTransferred,
         OnError _onError
     ) internal returns (bool) {
-        if (_courtID == FORKING_COURT || _courtID > courts.length) {
+        if (_courtID == FORKING_COURT || _courtID >= courts.length) {
             _stakingFailed(_onError, StakingResult.CannotStakeInThisCourt); // Staking directly into the forking court is not allowed.
             return false;
         }
@@ -1102,6 +1104,7 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
         if (_result == StakingResult.CannotStakeInMoreCourts) revert StakingInTooManyCourts();
         if (_result == StakingResult.CannotStakeInThisCourt) revert StakingNotPossibeInThisCourt();
         if (_result == StakingResult.CannotStakeLessThanMinStake) revert StakingLessThanCourtMinStake();
+        if (_result == StakingResult.CannotStakeZeroWhenNoStake) revert StakingZeroWhenNoStake();
     }
 
     /// @dev Gets a court ID, the minimum number of jurors and an ID of a dispute kit from a specified extra data bytes array.
@@ -1147,13 +1150,11 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
     error SortitionModuleOnly();
     error UnsuccessfulCall();
     error InvalidDisputKitParent();
-    error DepthLevelMax();
     error MinStakeLowerThanParentCourt();
     error UnsupportedDisputeKit();
     error InvalidForkingCourtAsParent();
     error WrongDisputeKitIndex();
     error CannotDisableClassicDK();
-    error ArraysLengthMismatch();
     error StakingInTooManyCourts();
     error StakingNotPossibeInThisCourt();
     error StakingLessThanCourtMinStake();
@@ -1177,4 +1178,5 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
     error TransferFailed();
     error WhenNotPausedOnly();
     error WhenPausedOnly();
+    error StakingZeroWhenNoStake();
 }
