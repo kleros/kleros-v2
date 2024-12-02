@@ -9,13 +9,12 @@ const Langs: { value: SupportedLangs; text: string }[] = [
   { text: "Spanish", value: "es" },
   { text: "Hindi", value: "hi" },
   { text: "Japanese", value: "ja" },
-  { text: "Chinese", value: "zh" },
   { text: "Korean", value: "ko" },
   { text: "French", value: "fr" },
 ];
 
 const TranslateDropdown: React.FC = () => {
-  const { setLang } = useTranslate();
+  const { currentLang, setLang } = useTranslate();
   return (
     <DropdownSelect
       smallButton
@@ -24,7 +23,7 @@ const TranslateDropdown: React.FC = () => {
         value: range.value,
         text: range.text,
       }))}
-      defaultValue={"en"}
+      defaultValue={currentLang}
       callback={(val) => {
         setLang(val as SupportedLangs);
       }}

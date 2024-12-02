@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo } fro
 
 import { useLocalStorage } from "hooks/useLocalStorage";
 
-export type SupportedLangs = "en" | "es" | "zh" | "fr" | "hi" | "ko" | "ja";
+export type SupportedLangs = "en" | "es" | "fr" | "hi" | "ko" | "ja";
 
 interface ITranslate {
   currentLang: SupportedLangs;
@@ -33,7 +33,7 @@ export const TranslateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           new window.google.translate.TranslateElement(
             {
               pageLanguage: "en",
-              includedLanguages: "en,es,hi,ja,zh,fr,ko",
+              includedLanguages: "en,es,hi,ja,fr,ko",
             },
             "google_translate_element"
           );
@@ -53,7 +53,9 @@ export const TranslateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         const select = document.querySelector(".goog-te-combo") as HTMLSelectElement;
         if (select) {
           select.value = cValue;
-          select.dispatchEvent(new Event("change"));
+
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+          select.click();
         }
       }
     },
