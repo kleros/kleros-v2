@@ -60,6 +60,11 @@ const ButtonContainer = styled.div`
   border-radius: 50%;
   z-index: 1;
   background-color: ${({ theme }) => theme.lightBackground};
+
+  transition: background-color 0.1s;
+  :hover {
+    background-color: ${({ theme }) => theme.lightGrey};
+  }
 `;
 
 const StyledDottedMenu = styled(DottedMenu)`

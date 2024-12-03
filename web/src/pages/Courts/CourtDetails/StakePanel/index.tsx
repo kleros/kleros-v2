@@ -18,7 +18,7 @@ import SimulatorPopup from "./SimulatorPopup";
 const Container = styled.div`
   position: relative;
   width: 100%;
-  margin-top: 32px;
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
   gap: 28px;

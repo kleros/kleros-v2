@@ -15,12 +15,12 @@ const Container = styled.div`
 
   svg path {
     fill: ${({ theme }) => theme.primaryBlue};
-    transition: fill 0.1s;
   }
 
   &:hover {
     color: ${({ theme }) => theme.secondaryBlue};
     svg path {
+      transition: fill 0.1s;
       fill: ${({ theme }) => theme.secondaryBlue};
     }
   }

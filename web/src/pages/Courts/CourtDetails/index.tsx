@@ -20,7 +20,6 @@ import HowItWorks from "components/HowItWorks";
 import LatestCases from "components/LatestCases";
 import Staking from "components/Popup/MiniGuides/Staking";
 import { StyledSkeleton } from "components/StyledSkeleton";
-import { Divider } from "components/Divider";
 import ScrollTop from "components/ScrollTop";
 
 import Description from "./Description";
@@ -35,6 +34,13 @@ const CourtHeader = styled.h1`
   justify-content: space-between;
   gap: 24px;
   flex-wrap: wrap;
+  margin-bottom: 24px;
+
+  ${landscapeStyle(
+    () => css`
+      margin-bottom: 20px;
+    `
+  )};
 `;
 
 const CourtInfo = styled.div`
@@ -44,7 +50,7 @@ const CourtInfo = styled.div`
 
   ${landscapeStyle(
     () => css`
-      gap: 32px;
+      gap: 20px;
     `
   )};
 `;
@@ -54,19 +60,19 @@ const ButtonContainer = styled.div`
   flex-wrap: wrap;
   flex-direction: column;
   align-items: flex-start;
-  gap: 16px;
+  gap: 8px;
 
   ${landscapeStyle(
     () => css`
       align-items: flex-end;
-      gap: 32px;
     `
   )};
 `;
 
 const StyledCard = styled(Card)`
   padding: ${responsiveSize(16, 32)};
-  margin-top: ${responsiveSize(16, 24)};
+  padding-bottom: 16px;
+  margin-top: 12px;
   width: 100%;
   height: auto;
   min-height: 100px;
@@ -112,9 +118,8 @@ const CourtDetails: React.FC = () => {
             {!isProductionDeployment() && <ClaimPnkButton />}
           </ButtonContainer>
         </CourtHeader>
-        <Stats />
-        <Divider />
         <StakePanel id={!isUndefined(id) ? id : ""} courtName={policy?.name} />
+        <Stats />
       </StyledCard>
       <StyledCard>
         <Description />

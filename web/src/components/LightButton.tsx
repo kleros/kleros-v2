@@ -6,14 +6,13 @@ import { Button } from "@kleros/ui-components-library";
 
 const StyledButton = styled(Button)`
   background-color: transparent;
-  padding: 8px 8px 8px 0 !important;
+  padding: 8px !important;
   border-radius: 7px;
   .button-text {
     color: ${({ theme }) => theme.primaryText};
     font-weight: 400;
   }
   .button-svg {
-    margin-right: 8px;
     fill: ${({ theme }) => theme.white}BF !important;
   }
 
