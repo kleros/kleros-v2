@@ -5021,6 +5021,8 @@ __metadata:
     viem: "npm:^2.21.48"
     vitest: "npm:^1.6.0"
     zod: "npm:^3.23.8"
+  peerDependencies:
+    viem: ^2.21.48
   languageName: unknown
   linkType: soft
 
