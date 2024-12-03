@@ -17,6 +17,7 @@ export const GlobalStyle = createGlobalStyle`
   body {
     font-family: "Open Sans", sans-serif;
     margin: 0px;
+    background-color: ${({ theme }) => theme.primaryPurple};
   }
 
   html {
@@ -91,10 +92,6 @@ export const GlobalStyle = createGlobalStyle`
     text-decoration: none;
     color: ${({ theme }) => theme.primaryBlue};
     transition: color 0.1s;
-  }
-  
-  a:hover {
-    color: ${({ theme }) => theme.secondaryBlue} !important;
   }
   
   hr {

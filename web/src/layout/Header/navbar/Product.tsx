@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
+import Skeleton from "react-loading-skeleton";
 
 import { responsiveSize } from "styles/responsiveSize";
 
@@ -8,16 +9,18 @@ const Container = styled.a`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px 8px 35px 8px;
+  padding: 16px 8px 28px 8px;
   max-width: 100px;
   border-radius: 3px;
   :hover {
-    transform: scale(1.05);
-    transition: 0.1s;
+    transition:
+      transform 0.15s,
+      background-color 0.3s;
+    transform: scale(1.02);
+    background-color: ${({ theme }) => theme.lightGrey};
   }
   gap: 8px;
   width: ${responsiveSize(100, 130)};
-
   background-color: ${({ theme }) => theme.lightBackground};
 `;
 
@@ -26,9 +29,10 @@ const StyledIcon = styled.svg`
   height: 48px;
 `;
 
-const StyledImg = styled.img`
+const StyledImg = styled.img<{ isLoaded: boolean }>`
   width: 48px;
   height: 48px;
+  display: ${({ isLoaded }) => (isLoaded ? "block" : "none")};
 `;
 
 const StyledSmall = styled.small`
@@ -45,9 +49,18 @@ interface IProduct {
 }
 
 const Product: React.FC<IProduct> = ({ text, url, Icon }) => {
+  const [isImgLoaded, setIsImgLoaded] = useState(false);
+
   return (
     <Container href={url} target="_blank">
-      {typeof Icon === "string" ? <StyledImg alt={Icon} src={Icon} /> : <StyledIcon as={Icon} />}
+      {typeof Icon === "string" ? (
+        <>
+          {!isImgLoaded ? <Skeleton width={48} height={46} circle /> : null}
+          <StyledImg alt={Icon} src={Icon} isLoaded={isImgLoaded} onLoad={() => setIsImgLoaded(true)} />
+        </>
+      ) : (
+        <StyledIcon as={Icon} />
+      )}
       <StyledSmall>{text}</StyledSmall>
     </Container>
   );

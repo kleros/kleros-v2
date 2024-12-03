@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { ExternalLink } from "components/ExternalLink";
+
 const Container = styled.div`
   display: flex;
   gap: 8px;
@@ -18,14 +20,10 @@ const StyledLabel = styled.label`
   font-weight: 600;
 `;
 
-const StyledA = styled.a`
+const StyledA = styled(ExternalLink)`
   display: flex;
   align-items: center;
   gap: 8px;
-
-  &:hover {
-    text-decoration: underline;
-  }
 `;
 
 export interface IElement {
@@ -38,7 +36,7 @@ export interface IElement {
 export const Element: React.FC<IElement> = ({ primaryText, title, link, Icon }) => (
   <Container>
     <div className="link-container">
-      <StyledA href={link} target="_blank" rel="noreferrer">
+      <StyledA to={link} target="_blank" rel="noopener noreferrer">
         {Icon && <Icon />}
         {title}
       </StyledA>

@@ -1,9 +1,11 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import Identicon from "react-identicons";
 import ReactMarkdown from "react-markdown";
-import { Link } from "react-router-dom";
 
 import { Card } from "@kleros/ui-components-library";
 
@@ -16,8 +18,8 @@ import { shortenAddress } from "utils/shortenAddress";
 
 import { type Evidence } from "src/graphql/graphql";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
+import { ExternalLink } from "./ExternalLink";
+import { InternalLink } from "./InternalLink";
 
 const StyledCard = styled(Card)`
   width: 100%;
@@ -106,7 +108,7 @@ const LeftContent = styled.div`
 const HoverStyle = css`
   :hover {
     text-decoration: underline;
-    color: ${({ theme }) => theme.secondaryBlue};
+    color: ${({ theme }) => theme.primaryBlue};
     cursor: pointer;
   }
 `;
@@ -138,7 +140,7 @@ const MobileText = styled.span`
   )}
 `;
 
-const StyledLink = styled(Link)`
+const StyledInternalLink = styled(InternalLink)`
   display: flex;
   gap: ${responsiveSize(5, 6)};
   > svg {
@@ -204,20 +206,20 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
         <LeftContent>
           <AccountContainer>
             <Identicon size="24" string={sender} />
-            <StyledLink to={addressExplorerLink} rel="noopener noreferrer" target="_blank">
+            <ExternalLink to={addressExplorerLink} rel="noopener noreferrer" target="_blank">
               <Address>{shortenAddress(sender)}</Address>
-            </StyledLink>
+            </ExternalLink>
           </AccountContainer>
-          <StyledLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
+          <ExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
             <Timestamp>{formatDate(Number(timestamp), true)}</Timestamp>
-          </StyledLink>
+          </ExternalLink>
         </LeftContent>
         {fileURI && fileURI !== "-" ? (
           <FileLinkContainer>
-            <StyledLink to={`attachment/?url=${getIpfsUrl(fileURI)}`}>
+            <StyledInternalLink to={`attachment/?url=${getIpfsUrl(fileURI)}`}>
               <AttachmentIcon />
               <AttachedFileText />
-            </StyledLink>
+            </StyledInternalLink>
           </FileLinkContainer>
         ) : null}
       </BottomShade>

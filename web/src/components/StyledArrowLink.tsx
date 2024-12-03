@@ -17,7 +17,11 @@ export const StyledArrowLink = styled(Link)`
     }
   }
 
-  &:hover svg path {
-    fill: ${({ theme }) => theme.secondaryBlue};
+  &:hover {
+    color: ${({ theme }) => theme.secondaryBlue};
+    svg path {
+      transition: fill 0.1s;
+      fill: ${({ theme }) => theme.secondaryBlue};
+    }
   }
 `;

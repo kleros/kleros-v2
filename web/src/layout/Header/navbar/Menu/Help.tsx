@@ -57,10 +57,7 @@ const ListItem = styled.a`
   padding: 0px 8px;
   cursor: pointer;
   :hover {
-    transform: scale(1.02) translateZ(0);
-    transition: 200ms;
-    transition-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
-    backface-visibility: hidden;
+    transform: scale(1.02);
   }
 
   small {

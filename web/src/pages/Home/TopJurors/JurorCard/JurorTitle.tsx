@@ -1,8 +1,10 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/AccountDisplay";
 import { DEFAULT_CHAIN, getChain } from "consts/chains";
+
+import { IdenticonOrAvatar, AddressOrName } from "components/ConnectWallet/AccountDisplay";
+import { ExternalLink } from "components/ExternalLink";
 
 const Container = styled.div`
   display: flex;
@@ -20,12 +22,11 @@ const Container = styled.div`
   }
 `;
 
-const StyledA = styled.a`
+const StyledExternalLink = styled(ExternalLink)`
   :hover {
-    text-decoration: underline;
     label {
       cursor: pointer;
-      color: ${({ theme }) => theme.secondaryBlue};
+      color: ${({ theme }) => theme.primaryBlue};
     }
   }
 `;
@@ -42,9 +43,9 @@ const JurorTitle: React.FC<IJurorTitle> = ({ address }) => {
   return (
     <Container>
       <IdenticonOrAvatar address={address} />
-      <StyledA href={addressExplorerLink} rel="noopener noreferrer" target="_blank">
+      <StyledExternalLink to={addressExplorerLink} rel="noopener noreferrer" target="_blank">
         <AddressOrName address={address} />
-      </StyledA>
+      </StyledExternalLink>
     </Container>
   );
 };

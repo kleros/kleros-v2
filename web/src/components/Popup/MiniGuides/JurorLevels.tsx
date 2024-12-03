@@ -32,7 +32,7 @@ const Card = styled(_Card)`
 
 const leftPageContents = [
   {
-    title: "Juror Level 1: Phytagoras",
+    title: "Juror Level 1: Pythagoras",
     paragraphs: [
       "Jurors are classified into distinct levels according to their performance starting from Level 1.",
       "Level 1: Jurors with 0 cases arbitrated, OR Jurors with ≥ 1 case arbitrated with 0-70% of coherent votes.",
@@ -62,7 +62,7 @@ const leftPageContents = [
 const userLevelData = [
   {
     level: 1,
-    title: "Phytagoras",
+    title: "Pythagoras",
     totalCoherentVotes: 6,
     totalResolvedVotes: 10,
   },

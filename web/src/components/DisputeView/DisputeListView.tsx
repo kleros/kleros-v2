@@ -21,7 +21,7 @@ const StyledListItem = styled(Card)`
   transition: background-color 0.1s;
 
   &:hover {
-    background-color: ${({ theme }) => theme.lightGrey};
+    background-color: ${({ theme }) => theme.lightGrey}BB;
   }
 `;
 
