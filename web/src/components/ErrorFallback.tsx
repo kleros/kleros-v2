@@ -2,7 +2,6 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import { FallbackProps } from "react-error-boundary";
-import { Link } from "react-router-dom";
 
 import { Button } from "@kleros/ui-components-library";
 
@@ -113,9 +112,9 @@ const ErrorFallback: React.FC<FallbackProps> = ({ error, resetErrorBoundary }) =
             <Subtitle>Please reload the page or contact us if the issue is not resolved.</Subtitle>
             <ButtonsContainer>
               <Button text={"Reload"} onClick={resetErrorBoundary} />
-              <Link to={"https://t.me/kleros"}>
+              <a href={"https://t.me/kleros"} target="_blank" rel="noreferrer">
                 <Button text={"Contact us"} />
-              </Link>
+              </a>
             </ButtonsContainer>
           </InfoWrapper>
           <IconContainer>
