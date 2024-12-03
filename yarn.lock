@@ -5018,11 +5018,11 @@ __metadata:
     rimraf: "npm:^6.0.1"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.6.3"
-    viem: "npm:^2.21.53"
+    viem: "npm:^2.21.48"
     vitest: "npm:^1.6.0"
     zod: "npm:^3.23.8"
   peerDependencies:
-    viem: ^2.21.53
+    viem: ^2.21.48
   languageName: unknown
   linkType: soft
 
@@ -5262,7 +5262,7 @@ __metadata:
     react-use: "npm:^17.5.1"
     styled-components: "npm:^5.3.3"
     typescript: "npm:^5.6.3"
-    viem: "npm:^2.21.53"
+    viem: "npm:^2.21.48"
     vite: "npm:^5.4.11"
     vite-plugin-node-polyfills: "npm:^0.21.0"
     vite-plugin-svgr: "npm:^4.3.0"
@@ -34856,28 +34856,6 @@ __metadata:
     typescript:
       optional: true
   checksum: 10/6525c7dfa679d48759d50a31751b1d608f055e4396506c4f48550b81655b75b53978bd2dbe39099ac200f549c7429261d3478810dbd63b36df6a0afd77f69931
-  languageName: node
-  linkType: hard
-
-"viem@npm:^2.21.53":
-  version: 2.21.53
-  resolution: "viem@npm:2.21.53"
-  dependencies:
-    "@noble/curves": "npm:1.6.0"
-    "@noble/hashes": "npm:1.5.0"
-    "@scure/bip32": "npm:1.5.0"
-    "@scure/bip39": "npm:1.4.0"
-    abitype: "npm:1.0.6"
-    isows: "npm:1.0.6"
-    ox: "npm:0.1.2"
-    webauthn-p256: "npm:0.0.10"
-    ws: "npm:8.18.0"
-  peerDependencies:
-    typescript: ">=5.0.4"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 10/fe41684a63b4d493b7cfb7f30451d5275c51dda196047c949710f05cf920bb22d5f3ff16375d1854797b0f0c8f5c31c0dd8720826f135e2b3040e2067d18b88f
   languageName: node
   linkType: hard
 
