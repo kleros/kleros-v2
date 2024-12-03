@@ -20,7 +20,7 @@ const StyledLabel = styled.label`
   font-weight: 600;
 `;
 
-const StyledA = styled(ExternalLink)`
+const StyledExternalLink = styled(ExternalLink)`
   display: flex;
   align-items: center;
   gap: 8px;
@@ -35,12 +35,10 @@ export interface IElement {
 
 export const Element: React.FC<IElement> = ({ primaryText, title, link, Icon }) => (
   <Container>
-    <div className="link-container">
-      <StyledA to={link} target="_blank" rel="noopener noreferrer">
-        {Icon && <Icon />}
-        {title}
-      </StyledA>
-    </div>
+    <StyledExternalLink to={link} target="_blank" rel="noopener noreferrer">
+      {Icon && <Icon />}
+      {title}
+    </StyledExternalLink>
     {primaryText && <StyledLabel>{primaryText}</StyledLabel>}
   </Container>
 );
