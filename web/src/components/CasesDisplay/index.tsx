@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 

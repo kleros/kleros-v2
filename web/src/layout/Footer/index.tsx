@@ -61,7 +61,7 @@ const SecuredByKleros: React.FC = () => (
 const SocialMedia = () => (
   <StyledSocialMedia>
     {Object.values(socialmedia).map((site, i) => (
-      <ExternalLink key={i} to={site.url} target="_blank" rel="noreferrer">
+      <ExternalLink key={site.url} to={site.url} target="_blank" rel="noreferrer">
         <LightButton Icon={site.icon} text="" />
       </ExternalLink>
     ))}
