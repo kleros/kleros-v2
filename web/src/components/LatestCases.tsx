@@ -24,7 +24,7 @@ const DisputeContainer = styled.div`
   --gap: 16px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, max(312px, (100% - var(--gap) * 2)/3)), 1fr));
-  align-items: center;
+  align-items: stretch;
   gap: var(--gap);
 `;
 
