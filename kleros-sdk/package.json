@@ -1,6 +1,6 @@
 {
   "name": "@kleros/kleros-sdk",
-  "version": "2.1.8",
+  "version": "2.1.9",
   "description": "SDK for Kleros version 2",
   "repository": "git@github.com:kleros/kleros-v2.git",
   "homepage": "https://github.com/kleros/kleros-v2/tree/master/kleros-sdk#readme",
@@ -39,13 +39,16 @@
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
+    "viem": "^2.21.48",
     "vitest": "^1.6.0"
   },
   "dependencies": {
     "@reality.eth/reality-eth-lib": "^3.2.44",
     "@urql/core": "^5.0.8",
     "mustache": "^4.2.0",
-    "viem": "^2.21.48",
     "zod": "^3.23.8"
+  },
+  "peerDependencies": {
+    "viem": "^2.21.48"
   }
 }
