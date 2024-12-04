@@ -5,7 +5,7 @@ import { Card as _Card } from "@kleros/ui-components-library";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
-import Coherency from "pages/Dashboard/JurorInfo/Coherency";
+import Coherence from "pages/Dashboard/JurorInfo/Coherence";
 import PixelArt from "pages/Dashboard/JurorInfo/PixelArt";
 
 import Template from "./MainStructureTemplate";
@@ -112,7 +112,7 @@ const RightContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
   return (
     <Card>
       <PixelArt level={userData.level} width="189px" height="189px" />
-      <Coherency
+      <Coherence
         userLevelData={userData}
         totalCoherentVotes={userData.totalCoherentVotes}
         totalResolvedVotes={userData.totalResolvedVotes}

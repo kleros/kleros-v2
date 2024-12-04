@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
-import Coherency from "./Coherency";
+import Coherence from "./Coherence";
 import JurorLevel from "./JurorLevel";
 import JurorTitle from "./JurorTitle";
 import Rank from "./Rank";
@@ -52,7 +52,7 @@ const DesktopCard: React.FC<IDesktopCard> = ({
       <Rank rank={rank} />
       <JurorTitle address={address} />
       <Rewards address={address} />
-      <Coherency {...{ totalCoherentVotes, totalResolvedVotes }} />
+      <Coherence {...{ totalCoherentVotes, totalResolvedVotes }} />
       <JurorLevel {...{ coherenceScore, totalResolvedDisputes }} />
     </Container>
   );

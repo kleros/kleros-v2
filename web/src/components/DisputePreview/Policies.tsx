@@ -98,7 +98,7 @@ export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attac
           </StyledInternalLink>
         )}
         {isUndefined(courtId) ? null : (
-          <StyledInternalLink to={`/courts/${courtId}/purpose?section=description`}>
+          <StyledInternalLink to={`/courts/${courtId}/policy?section=description`}>
             <StyledPolicyIcon />
             Court Policy
           </StyledInternalLink>
