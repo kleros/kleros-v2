@@ -73,7 +73,14 @@ const Header: React.FC = () => {
     navigate(-1);
   };
 
-  const title = location.pathname.includes("policy") ? `Policy File - Case #${id}` : "Attachment File";
+  let title = "";
+  if (location.pathname.includes("policy")) {
+    title = `Policy - Case #${id}`;
+  } else if (location.pathname.includes("evidence")) {
+    title = "Attached File";
+  } else if (location.pathname.includes("attachment")) {
+    title = `Attachment - Case #${id}`;
+  }
 
   return (
     <Container>

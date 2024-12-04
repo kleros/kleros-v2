@@ -86,7 +86,7 @@ export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attac
       <StyledP>Make sure you read and understand the Policies</StyledP>
       <LinkContainer>
         {!isUndefined(attachment) && !isUndefined(attachment.uri) ? (
-          <StyledInternalLink to={getIpfsUrl(attachment.uri)} target="_blank" rel="noreferrer">
+          <StyledInternalLink to={`attachment/?url=${getIpfsUrl(attachment.uri)}`}>
             <StyledPaperclipIcon />
             {attachment.label ?? "Attachment"}
           </StyledInternalLink>

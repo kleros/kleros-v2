@@ -89,7 +89,7 @@ const StyledCard = styled.div`
   height: fit-content;
   display: grid;
   gap: 32px;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(156px, 1fr));
   padding-top: ${responsiveSize(28, 32)};
   padding-bottom: ${responsiveSize(20, 0)};
 
@@ -143,7 +143,7 @@ const stats: IStat[] = [
     icon: VoteStake,
   },
   {
-    title: "Juror Reward per Coherent Vote",
+    title: "Reward per Vote",
     coinId: 1,
     getText: (data) => {
       const jurorReward = formatUnitsWei(data?.feeForJuror);
@@ -180,7 +180,7 @@ const stats: IStat[] = [
     icon: BalanceIcon,
   },
   {
-    title: "Total ETH paid to Jurors",
+    title: "Total ETH paid",
     coinId: 1,
     getText: (data) => formatETH(data?.paidETH),
     getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.paidETH)) * (coinPrice ?? 0)),
