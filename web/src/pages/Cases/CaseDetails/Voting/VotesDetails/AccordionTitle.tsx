@@ -3,8 +3,8 @@ import styled, { css } from "styled-components";
 
 import Identicon from "react-identicons";
 
-import { Answer } from "context/NewDisputeContext";
 import { DEFAULT_CHAIN, getChain } from "consts/chains";
+import { Answer } from "context/NewDisputeContext";
 import { getVoteChoice } from "utils/getVoteChoice";
 import { isUndefined } from "utils/index";
 import { shortenAddress } from "utils/shortenAddress";
@@ -94,7 +94,7 @@ const AccordionTitle: React.FC<{
 
   return (
     <TitleContainer>
-      <AddressContainer>
+      <AddressContainer className="notranslate">
         <Identicon size="20" string={juror} />
         <StyledA href={addressExplorerLink} rel="noopener noreferrer" target="_blank">
           <StyledLabel variant="secondaryText">{shortenAddress(juror)}</StyledLabel>

@@ -140,13 +140,13 @@ export const AddressOrName: React.FC<IAddressOrName> = ({ address: propAddress }
     chainId: 1,
   });
 
-  return <label>{data ?? (isAddress(address!) ? shortenAddress(address) : address)}</label>;
+  return <label className="notranslate">{data ?? (isAddress(address!) ? shortenAddress(address) : address)}</label>;
 };
 
 export const ChainDisplay: React.FC = () => {
   const chainId = useChainId();
   const chain = getChain(chainId);
-  return <label>{chain?.name}</label>;
+  return <label className="notranslate">{chain?.name}</label>;
 };
 
 const AccountDisplay: React.FC = () => {
