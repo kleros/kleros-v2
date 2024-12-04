@@ -177,7 +177,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
       <BottomShade>
         <AccountContainer>
           <Identicon size="24" string={sender} />
-          <StyledA href={addressExplorerLink} rel="noopener noreferrer" target="_blank">
+          <StyledA href={addressExplorerLink} rel="noopener noreferrer" target="_blank" className="notranslate">
             <p>{shortenAddress(sender)}</p>
           </StyledA>
         </AccountContainer>
