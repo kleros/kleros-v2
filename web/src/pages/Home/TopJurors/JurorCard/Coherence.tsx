@@ -11,12 +11,12 @@ const Container = styled.div`
   justify-content: center;
 `;
 
-interface ICoherency {
+interface ICoherence {
   totalCoherentVotes: number;
   totalResolvedVotes: number;
 }
 
-const Coherency: React.FC<ICoherency> = ({ totalCoherentVotes, totalResolvedVotes }) => {
+const Coherence: React.FC<ICoherence> = ({ totalCoherentVotes, totalResolvedVotes }) => {
   const coherenceRatio = `${totalCoherentVotes}/${totalResolvedVotes}`;
 
   return (
@@ -28,4 +28,4 @@ const Coherency: React.FC<ICoherency> = ({ totalCoherentVotes, totalResolvedVote
 
 const getPercent = (num: number, den: number): string => `${Math.floor((num * 100) / den)}%`;
 
-export default Coherency;
+export default Coherence;

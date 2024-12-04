@@ -3,10 +3,10 @@ import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
-import HeaderCoherency from "../Header/Coherency";
+import HeaderCoherence from "../Header/Coherence";
 import HeaderRewards from "../Header/Rewards";
 
-import Coherency from "./Coherency";
+import Coherence from "./Coherence";
 import JurorLevel from "./JurorLevel";
 import JurorTitle from "./JurorTitle";
 import Rank from "./Rank";
@@ -60,7 +60,7 @@ const BottomSide = styled.div`
   justify-content: space-between;
 `;
 
-const HeaderCoherencyAndCoherency = styled.div`
+const HeaderCoherenceAndCoherence = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -102,10 +102,10 @@ const MobileCard: React.FC<IMobileCard> = ({
           <HeaderRewards />
           <Rewards address={address} />
         </HeaderRewardsAndRewards>
-        <HeaderCoherencyAndCoherency>
-          <HeaderCoherency />
-          <Coherency {...{ totalCoherentVotes, totalResolvedVotes }} />
-        </HeaderCoherencyAndCoherency>
+        <HeaderCoherenceAndCoherence>
+          <HeaderCoherence />
+          <Coherence {...{ totalCoherentVotes, totalResolvedVotes }} />
+        </HeaderCoherenceAndCoherence>
       </BottomSide>
     </Container>
   );

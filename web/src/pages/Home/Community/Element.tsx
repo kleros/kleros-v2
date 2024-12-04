@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { ExternalLink } from "components/ExternalLink";
+
 const Container = styled.div`
   display: flex;
   gap: 8px;
@@ -11,11 +13,6 @@ const Container = styled.div`
     width: 16px;
     height: 16px;
   }
-
-  .link-container {
-    display: flex;
-    gap: 8px;
-  }
 `;
 
 const StyledLabel = styled.label`
@@ -23,28 +20,25 @@ const StyledLabel = styled.label`
   font-weight: 600;
 `;
 
-const StyledA = styled.a`
+const StyledExternalLink = styled(ExternalLink)`
   display: flex;
   align-items: center;
+  gap: 8px;
 `;
 
 export interface IElement {
-  primaryText?: string;
-  urls: { node: React.ReactNode; link: string }[];
   Icon?: React.FC<React.SVGAttributes<SVGElement>>;
+  title: string;
+  link: string;
+  primaryText?: string;
 }
 
-export const Element: React.FC<IElement> = ({ primaryText, urls, Icon }) => (
+export const Element: React.FC<IElement> = ({ primaryText, title, link, Icon }) => (
   <Container>
-    {Icon && <Icon />}
-
-    <div className="link-container">
-      {urls.map(({ node, link }) => (
-        <StyledA key={link} href={link} target="_blank" rel="noreferrer">
-          {node}
-        </StyledA>
-      ))}
-    </div>
+    <StyledExternalLink to={link} target="_blank" rel="noopener noreferrer">
+      {Icon && <Icon />}
+      {title}
+    </StyledExternalLink>
     {primaryText && <StyledLabel>{primaryText}</StyledLabel>}
   </Container>
 );

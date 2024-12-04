@@ -17,10 +17,10 @@ import DisputeView from "components/DisputeView";
 import { SkeletonDisputeCard, SkeletonDisputeListItem } from "../StyledSkeleton";
 
 const GridContainer = styled.div`
-  --gap: 24px;
+  --gap: 16px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, max(350px, (100% - var(--gap) * 2)/3)), 1fr));
-  align-items: center;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, max(312px, (100% - var(--gap) * 2)/3)), 1fr));
+  align-items: stretch;
   gap: var(--gap);
 `;
 

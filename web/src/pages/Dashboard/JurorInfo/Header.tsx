@@ -10,6 +10,7 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
+import { ExternalLink } from "components/ExternalLink";
 
 const Container = styled.div`
   display: flex;
@@ -46,20 +47,14 @@ const LinksContainer = styled.div`
 `;
 
 const StyledXIcon = styled(XIcon)`
-  fill: ${({ theme }) => theme.primaryBlue};
   width: 16px;
   height: 16px;
+  fill: ${({ theme }) => theme.primaryBlue};
 `;
 
-const StyledLink = styled.a`
+const StyledLink = styled(ExternalLink)`
   display: flex;
-  border: 0px;
-  align-items: center;
   gap: 8px;
-
-  &:hover {
-    text-decoration: underline;
-  }
 `;
 
 interface IHeader {
@@ -87,7 +82,7 @@ const Header: React.FC<IHeader> = ({ levelTitle, levelNumber, totalCoherentVotes
           MiniGuideComponent={JurorLevels}
         />
         {totalResolvedVotes > 0 ? (
-          <StyledLink href={xShareUrl} target="_blank" rel="noreferrer">
+          <StyledLink to={xShareUrl} target="_blank" rel="noreferrer">
             <StyledXIcon /> <span>Share your juror score</span>
           </StyledLink>
         ) : null}

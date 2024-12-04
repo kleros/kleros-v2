@@ -69,6 +69,10 @@ const HowItWorks = styled.div`
   gap: 8px;
   margin-bottom: ${responsiveSize(32, 64)};
 
+  svg path {
+    fill: ${({ theme }) => theme.secondaryPurple};
+  }
+
   label {
     color: ${({ theme }) => theme.secondaryPurple};
   }

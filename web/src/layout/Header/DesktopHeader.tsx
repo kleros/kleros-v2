@@ -48,6 +48,7 @@ const Container = styled.div`
 
 const LeftSide = styled.div`
   display: flex;
+  gap: 8px;
 `;
 
 const MiddleSide = styled.div`
@@ -56,12 +57,11 @@ const MiddleSide = styled.div`
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  color: ${({ theme }) => theme.white} !important;
 `;
 
 const RightSide = styled.div`
   display: flex;
-  gap: ${responsiveSize(8, 16, 300, 1024)};
+  gap: ${responsiveSize(4, 8)};
 
   margin-left: 8px;
   canvas {
@@ -72,9 +72,6 @@ const RightSide = styled.div`
 const LightButtonContainer = styled.div`
   display: flex;
   align-items: center;
-  width: 16px;
-  margin-left: ${responsiveSize(4, 8)};
-  margin-right: ${responsiveSize(12, 16)};
 `;
 
 const StyledKlerosSolutionsIcon = styled(KlerosSolutionsIcon)`
@@ -84,17 +81,8 @@ const StyledKlerosSolutionsIcon = styled(KlerosSolutionsIcon)`
 const ConnectWalletContainer = styled.div<{ isConnected: boolean; isDefaultChain: boolean }>`
   label {
     color: ${({ theme }) => theme.white};
+    cursor: pointer;
   }
-
-  ${({ isConnected, isDefaultChain }) =>
-    isConnected &&
-    isDefaultChain &&
-    css`
-      cursor: pointer;
-      & > * {
-        pointer-events: none;
-      }
-    `}
 `;
 
 const PopupContainer = styled.div`

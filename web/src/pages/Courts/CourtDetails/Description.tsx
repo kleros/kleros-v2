@@ -67,19 +67,6 @@ const Description: React.FC = () => {
 
   const filteredTabs = TABS.filter(({ isVisible }) => isVisible(policy));
 
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const scrollToSection = queryParams.get("section");
-
-  useEffect(() => {
-    if (scrollToSection === "description") {
-      const element = document.getElementById(scrollToSection);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  }, [scrollToSection]);
-
   return (
     <Container id="description">
       <StyledTabs
@@ -95,7 +82,7 @@ const Description: React.FC = () => {
           <Route path="purpose" element={formatMarkdown(policy?.description)} />
           <Route path="skills" element={<p>{policy?.requiredSkills}</p>} />
           <Route path="policy" element={formatMarkdown(policy?.summary)} />
-          <Route path="*" element={<Navigate to="purpose" replace />} />
+          <Route path="*" element={<Navigate to={filteredTabs.length > 0 ? filteredTabs[0].path : ""} replace />} />
         </Routes>
       </TextContainer>
     </Container>

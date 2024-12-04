@@ -36,7 +36,7 @@ import Info from "./Info";
 
 const StyledAccordion = styled(Accordion)`
   width: 100%;
-  margin-bottom: 12px;
+  margin-top: 24px;
   > * > button {
     justify-content: unset;
     background-color: ${({ theme }) => theme.whiteBackground} !important;
@@ -67,6 +67,7 @@ const AllTimeContainer = styled(TimeDisplayContainer)`
 
 const TimeSelectorContainer = styled(TimeDisplayContainer)`
   padding-top: 12px;
+  padding-bottom: 12px;
   flex-wrap: wrap;
 `;
 
@@ -88,7 +89,7 @@ const StyledCard = styled.div`
   height: fit-content;
   display: grid;
   gap: 32px;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(156px, 1fr));
   padding-top: ${responsiveSize(28, 32)};
   padding-bottom: ${responsiveSize(20, 0)};
 
@@ -142,6 +143,17 @@ const stats: IStat[] = [
     icon: VoteStake,
   },
   {
+    title: "Reward per Vote",
+    coinId: 1,
+    getText: (data) => {
+      const jurorReward = formatUnitsWei(data?.feeForJuror);
+      return jurorReward;
+    },
+    getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.feeForJuror)) * (coinPrice ?? 0)),
+    color: "purple",
+    icon: EthereumIcon,
+  },
+  {
     title: "Active Jurors",
     getText: (data) => data?.numberStakedJurors,
     color: "purple",
@@ -168,7 +180,7 @@ const stats: IStat[] = [
     icon: BalanceIcon,
   },
   {
-    title: "ETH paid to Jurors",
+    title: "Total ETH paid",
     coinId: 1,
     getText: (data) => formatETH(data?.paidETH),
     getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.paidETH)) * (coinPrice ?? 0)),
@@ -200,13 +212,9 @@ interface ITimeframedStat {
 }
 
 const timeRanges = [
-  { value: 7, text: "Last 7 days" },
   { value: 30, text: "Last 30 days" },
   { value: 90, text: "Last 90 days" },
-  /* we can uncomment as court creation time increases,
-  but it's a bit tricky because this affects every court */
-  // { value: 180, text: "Last 180 days" },
-  // { value: 365, text: "Last 365 days" },
+  { value: 180, text: "Last 180 days" },
   { value: "allTime", text: "All Time" },
 ];
 
@@ -326,8 +334,8 @@ const Stats = () => {
                   defaultValue={selectedRange}
                   callback={handleTimeRangeChange}
                 />
-                <Info />
               </TimeSelectorContainer>
+              <Info />
               <StyledCard>
                 {timeframedStats.map(({ title, getText, color, icon }) => {
                   return (

@@ -1,11 +1,14 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import SecuredByKlerosLogo from "svgs/footer/secured-by-kleros.svg";
 
 import { socialmedia } from "consts/socialmedia";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import LightButton from "components/LightButton";
+import { ExternalLink } from "components/ExternalLink";
 
 const Container = styled.div`
   height: 122px;
@@ -26,43 +29,43 @@ const Container = styled.div`
       padding-bottom: 0;
     `
   )}
+`;
 
-  .secured-by-kleros {
-    min-height: 24px;
+const StyledSecuredByKlerosLogo = styled(SecuredByKlerosLogo)`
+  min-height: 24px;
+
+  path {
+    fill: ${({ theme }) => theme.white}BF;
   }
 
-  .socialmedia {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
+  :hover path {
+    fill: ${({ theme }) => theme.white};
+    transition: fill 0.1s;
+  }
+`;
 
-    a {
-      display: inline-block;
-      svg {
-        height: 16px;
-        width: 16px;
-        max-heigth: 16px;
-        max-width: 16px;
-        fill: white;
-      }
-    }
+const StyledSocialMedia = styled.div`
+  display: flex;
+
+  .button-svg {
+    margin-right: 0;
   }
 `;
 
 const SecuredByKleros: React.FC = () => (
-  <a className="secured-by-kleros" href="https://kleros.io" target="_blank" rel="noreferrer">
-    <SecuredByKlerosLogo />
-  </a>
+  <ExternalLink to="https://kleros.io" target="_blank" rel="noreferrer">
+    <StyledSecuredByKlerosLogo />
+  </ExternalLink>
 );
 
 const SocialMedia = () => (
-  <div className="socialmedia">
+  <StyledSocialMedia>
     {Object.values(socialmedia).map((site, i) => (
-      <a key={i} href={site.url} target="_blank" rel="noreferrer">
-        {site.icon}
-      </a>
+      <ExternalLink key={site.url} to={site.url} target="_blank" rel="noreferrer">
+        <LightButton Icon={site.icon} text="" />
+      </ExternalLink>
     ))}
-  </div>
+  </StyledSocialMedia>
 );
 
 const Footer: React.FC = () => (

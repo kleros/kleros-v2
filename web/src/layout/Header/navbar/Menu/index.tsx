@@ -17,14 +17,11 @@ import { IHelp, ISettings } from "..";
 
 const Container = styled.div`
   display: flex;
-
   flex-direction: column;
-  gap: 0px;
 
   ${landscapeStyle(
     () => css`
       flex-direction: row;
-      gap: 8px;
     `
   )}
 `;
@@ -42,15 +39,8 @@ const ButtonContainer = styled.div`
     display: block;
   }
 
-  .button-svg {
-    fill: ${({ theme }) => theme.secondaryPurple};
-  }
-
   ${landscapeStyle(
     () => css`
-      .button-svg {
-        fill: ${({ theme }) => theme.white};
-      }
       .button-text {
         display: none;
       }

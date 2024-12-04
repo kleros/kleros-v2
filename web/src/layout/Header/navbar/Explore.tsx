@@ -4,31 +4,24 @@ import styled, { css } from "styled-components";
 import { Link, useLocation } from "react-router-dom";
 
 import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
 
 import { useOpenContext } from "../MobileHeader";
 
 const Container = styled.div`
   display: flex;
-  gap: 0px;
+  gap: 0;
   flex-direction: column;
 
   ${landscapeStyle(
     () => css`
       flex-direction: row;
-      gap: ${responsiveSize(4, 16)};
     `
   )};
 `;
 
-const LinkContainer = styled.div`
-  display: flex;
-  min-height: 32px;
-  align-items: center;
-`;
-
 const Title = styled.h1`
   display: block;
+  margin-bottom: 8px;
 
   ${landscapeStyle(
     () => css`
@@ -38,15 +31,22 @@ const Title = styled.h1`
 `;
 
 const StyledLink = styled(Link)<{ isActive: boolean }>`
-  color: ${({ theme }) => theme.primaryText};
+  display: flex;
+  align-items: center;
   text-decoration: none;
   font-size: 16px;
+  color: ${({ isActive, theme }) => (isActive ? theme.primaryText : `${theme.primaryText}BA`)};
+  padding: 8px 8px 8px 0;
+  border-radius: 7px;
 
-  font-weight: ${({ isActive }) => (isActive ? "600" : "normal")};
+  &:hover {
+    color: ${({ theme }) => theme.white} !important;
+  }
 
   ${landscapeStyle(
     () => css`
-      color: ${({ theme }) => theme.white};
+      color: ${({ isActive, theme }) => (isActive ? theme.white : `${theme.white}BA`)};
+      padding: 16px 8px;
     `
   )};
 `;
@@ -67,15 +67,14 @@ const Explore: React.FC = () => {
     <Container>
       <Title>Explore</Title>
       {links.map(({ to, text }) => (
-        <LinkContainer key={text}>
-          <StyledLink
-            to={to}
-            onClick={toggleIsOpen}
-            isActive={to === "/" ? location.pathname === "/" : location.pathname.startsWith(to)}
-          >
-            {text}
-          </StyledLink>
-        </LinkContainer>
+        <StyledLink
+          key={text}
+          to={to}
+          onClick={toggleIsOpen}
+          isActive={to === "/" ? location.pathname === "/" : location.pathname.split("/")[1] === to.split("/")[1]}
+        >
+          {text}
+        </StyledLink>
       ))}
     </Container>
   );

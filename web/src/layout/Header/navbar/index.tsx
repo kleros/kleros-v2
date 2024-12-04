@@ -44,7 +44,6 @@ const Container = styled.div<{ isOpen: boolean }>`
   overflow-y: auto;
   z-index: 1;
   background-color: ${({ theme }) => theme.whiteBackground};
-  border: 1px solid ${({ theme }) => theme.stroke};
   box-shadow: 0px 2px 3px ${({ theme }) => theme.defaultShadow};
   transform-origin: top;
   transform: scaleY(${({ isOpen }) => (isOpen ? "1" : "0")});

@@ -1,8 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { Link } from "react-router-dom";
-
 import PaperclipIcon from "svgs/icons/paperclip.svg";
 import PolicyIcon from "svgs/icons/policy.svg";
 
@@ -11,6 +9,8 @@ import { isUndefined } from "utils/index";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import { InternalLink } from "components/InternalLink";
 
 const ShadeArea = styled.div`
   display: flex;
@@ -41,12 +41,6 @@ const StyledP = styled.p`
   )};
 `;
 
-const StyledA = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-`;
-
 const StyledPolicyIcon = styled(PolicyIcon)`
   width: 16px;
   fill: ${({ theme }) => theme.primaryBlue};
@@ -64,9 +58,16 @@ const LinkContainer = styled.div`
   align-items: center;
 `;
 
-const StyledLink = styled(Link)`
+const StyledInternalLink = styled(InternalLink)`
   display: flex;
   gap: 4px;
+
+  &:hover {
+    svg {
+      transition: fill 0.1s;
+      fill: ${({ theme }) => theme.secondaryBlue};
+    }
+  }
 `;
 
 type Attachment = {
@@ -85,22 +86,22 @@ export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attac
       <StyledP>Make sure you read and understand the Policies</StyledP>
       <LinkContainer>
         {!isUndefined(attachment) && !isUndefined(attachment.uri) ? (
-          <StyledA href={getIpfsUrl(attachment.uri)} target="_blank" rel="noreferrer">
+          <StyledInternalLink to={`attachment/?url=${getIpfsUrl(attachment.uri)}`}>
             <StyledPaperclipIcon />
             {attachment.label ?? "Attachment"}
-          </StyledA>
+          </StyledInternalLink>
         ) : null}
         {isUndefined(disputePolicyURI) ? null : (
-          <StyledLink to={`policy/attachment/?url=${getIpfsUrl(disputePolicyURI)}`}>
+          <StyledInternalLink to={`policy/attachment/?url=${getIpfsUrl(disputePolicyURI)}`}>
             <StyledPolicyIcon />
             Dispute Policy
-          </StyledLink>
+          </StyledInternalLink>
         )}
         {isUndefined(courtId) ? null : (
-          <StyledA href={`#/courts/${courtId}/purpose?section=description`}>
+          <StyledInternalLink to={`/courts/${courtId}/policy?section=description`}>
             <StyledPolicyIcon />
             Court Policy
-          </StyledA>
+          </StyledInternalLink>
         )}
       </LinkContainer>
     </ShadeArea>

@@ -31,6 +31,15 @@ const BadgeText = styled.label`
   color: ${({ theme }) => theme.darkPurple};
 `;
 
+const StyledKlerosCourtLogo = styled(KlerosCourtLogo)`
+  &:hover {
+    path {
+      fill: ${({ theme }) => theme.white}BF;
+      transition: fill 0.1s;
+    }
+  }
+`;
+
 const CourtBadge: React.FC = () => {
   const { text, color } = useMemo<{ text?: string; color?: keyof Theme }>(() => {
     switch (getArbitratorType()) {
@@ -53,7 +62,7 @@ const Logo: React.FC = () => (
   <Container>
     {" "}
     <StyledLink to={"/"}>
-      <KlerosCourtLogo />
+      <StyledKlerosCourtLogo />
     </StyledLink>
     <CourtBadge />
   </Container>
