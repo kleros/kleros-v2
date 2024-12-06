@@ -592,7 +592,7 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
         {
             IDisputeKit disputeKit = disputeKits[round.disputeKitID];
             uint256 iteration = round.drawIterations + 1;
-            address drawnAddress = disputeKit.draw(_disputeID, iteration);
+            address drawnAddress = disputeKit.drawOne(_disputeID, iteration);
             if (drawnAddress == address(0)) {
                 revert NoJurorDrawn();
             }
@@ -605,6 +605,16 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
             round.drawIterations = iteration;
         }
         sortitionModule.setTransientJuror(address(0));
+    }
+
+    function drawOne(uint256 _disputeID, uint256 _nonce) public view returns (address drawnAddress) {
+        Dispute storage dispute = disputes[_disputeID];
+        Round storage round = dispute.rounds[dispute.rounds.length - 1];
+        if (msg.sender != address(disputeKits[round.disputeKitID])) revert DisputeKitOnly();
+
+        bytes32 key = bytes32(uint256(dispute.courtID)); // Get the ID of the tree.
+
+        drawnAddress = sortitionModule.draw(key, _disputeID, _nonce);
     }
 
     /// @dev Appeals the ruling of a specified dispute.
@@ -1021,6 +1031,14 @@ contract KlerosCoreUniversity is IArbitratorV2, UUPSProxiable, Initializable {
 
     function convertEthToTokenAmount(IERC20 _toToken, uint256 _amountInEth) public view returns (uint256) {
         return (_amountInEth * 10 ** currencyRates[_toToken].rateDecimals) / currencyRates[_toToken].rateInEth;
+    }
+
+    function isJurorSolvent(uint256 _disputeID, address _account) external view returns (bool) {
+        Dispute storage dispute = disputes[_disputeID];
+        Round storage round = dispute.rounds[dispute.rounds.length - 1];
+        uint256 lockedAmountPerJuror = round.pnkAtStakePerJuror;
+        (uint256 totalStaked, uint256 totalLocked, , ) = sortitionModule.getJurorBalance(_account, dispute.courtID);
+        return totalStaked >= totalLocked + lockedAmountPerJuror;
     }
 
     // ************************************* //
