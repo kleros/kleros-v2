@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { useParams } from "react-router-dom";
@@ -64,14 +64,11 @@ const Header: React.FC<IHeader> = ({ action, amount, isSuccess }) => {
   const jurorCurrentSpecificStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.staked)) : 0;
 
   const isWithdraw = action === ActionType.withdraw;
+  const actionText = useMemo(() => (isWithdraw ? "withdrew" : "staked"), [isWithdraw]);
   return (
     <StakingMsgContainer>
       {isSuccess ? <CheckIcon /> : null}
-      <StakingMsg>
-        {isSuccess
-          ? `You successfully ${isWithdraw ? "withdrew" : "staked"}`
-          : `You are ${isWithdraw ? "withdrawing" : "staking"}`}
-      </StakingMsg>
+      <StakingMsg>{isSuccess ? `You successfully ${actionText}` : `You are ${actionText}`}</StakingMsg>
       <StakingAmount>{amount} PNK</StakingAmount>
       {courtDetails?.court?.name ? <CourtName>on {courtDetails.court.name}</CourtName> : null}
       {isSuccess ? null : (

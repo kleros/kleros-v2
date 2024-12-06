@@ -89,7 +89,7 @@ const StakeWithdrawPopup: React.FC<IStakeWithdrawPopup> = ({ amount, closePopup,
         <InnerContainer>
           <Header {...{ amount, isSuccess, action }} />
           <Divider />
-          {steps && steps.items && <CustomTimeline items={steps.items} />}
+          {steps?.items && <CustomTimeline items={steps.items} />}
         </InnerContainer>
       </Container>
     </Overlay>

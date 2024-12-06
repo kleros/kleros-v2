@@ -145,8 +145,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
             isWithdraw ? StakeSteps.WithdrawInitiate : StakeSteps.StakeInitiate,
             amount,
             theme,
-            approvalHash,
-            undefined
+            approvalHash
           ),
           current: 1,
         });
