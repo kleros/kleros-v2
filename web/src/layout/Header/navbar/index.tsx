@@ -13,7 +13,6 @@ import LightButton from "components/LightButton";
 import { Overlay } from "components/Overlay";
 
 import { useOpenContext } from "../MobileHeader";
-
 import DappList from "./DappList";
 import Explore from "./Explore";
 import Menu from "./Menu";
@@ -107,6 +106,7 @@ const NavBar: React.FC = () => {
         <StyledOverlay>
           <Container {...{ isOpen }}>
             <LightButton
+              isMobileNavbar={true}
               text="Kleros Solutions"
               onClick={() => {
                 toggleIsDappListOpen();
@@ -114,7 +114,7 @@ const NavBar: React.FC = () => {
               Icon={KlerosSolutionsIcon}
             />
             <hr />
-            <Explore />
+            <Explore isMobileNavbar={true} />
             <hr />
             <WalletContainer>
               <ConnectWallet />
@@ -125,7 +125,7 @@ const NavBar: React.FC = () => {
               )}
             </WalletContainer>
             <hr />
-            <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
+            <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} isMobileNavbar={true} />
             <br />
           </Container>
         </StyledOverlay>

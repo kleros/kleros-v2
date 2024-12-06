@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import PaperclipIcon from "svgs/icons/paperclip.svg";
 import PolicyIcon from "svgs/icons/policy.svg";
@@ -7,38 +7,24 @@ import PolicyIcon from "svgs/icons/policy.svg";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import { isUndefined } from "utils/index";
 
-import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import { InternalLink } from "components/InternalLink";
 
-const ShadeArea = styled.div`
+const Container = styled.div`
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 100%;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${responsiveSize(16, 24)};
   padding: ${responsiveSize(16, 20)} ${responsiveSize(16, 32)};
-  margin-top: 16px;
   background-color: ${({ theme }) => theme.mediumBlue};
-
-  ${landscapeStyle(
-    () => css`
-      flex-direction: row;
-      justify-content: space-between;
-    `
-  )};
 `;
 
 const StyledP = styled.p`
   font-size: 14px;
-  margin-top: 0;
-  margin-bottom: 16px;
+  margin: 0;
   color: ${({ theme }) => theme.primaryBlue};
-  ${landscapeStyle(
-    () => css`
-      margin-bottom: 0;
-    `
-  )};
 `;
 
 const StyledPolicyIcon = styled(PolicyIcon)`
@@ -49,13 +35,6 @@ const StyledPolicyIcon = styled(PolicyIcon)`
 const StyledPaperclipIcon = styled(PaperclipIcon)`
   width: 16px;
   fill: ${({ theme }) => theme.primaryBlue};
-`;
-
-const LinkContainer = styled.div`
-  display: flex;
-  gap: ${responsiveSize(16, 24)};
-  flex-wrap: wrap;
-  align-items: center;
 `;
 
 const StyledInternalLink = styled(InternalLink)`
@@ -82,28 +61,26 @@ interface IPolicies {
 
 export const Policies: React.FC<IPolicies> = ({ disputePolicyURI, courtId, attachment }) => {
   return (
-    <ShadeArea>
-      <StyledP>Make sure you read and understand the Policies</StyledP>
-      <LinkContainer>
-        {!isUndefined(attachment) && !isUndefined(attachment.uri) ? (
-          <StyledInternalLink to={`attachment/?url=${getIpfsUrl(attachment.uri)}`}>
-            <StyledPaperclipIcon />
-            {attachment.label ?? "Attachment"}
-          </StyledInternalLink>
-        ) : null}
-        {isUndefined(disputePolicyURI) ? null : (
-          <StyledInternalLink to={`policy/attachment/?url=${getIpfsUrl(disputePolicyURI)}`}>
-            <StyledPolicyIcon />
-            Dispute Policy
-          </StyledInternalLink>
-        )}
-        {isUndefined(courtId) ? null : (
-          <StyledInternalLink to={`/courts/${courtId}/policy?section=description`}>
-            <StyledPolicyIcon />
-            Court Policy
-          </StyledInternalLink>
-        )}
-      </LinkContainer>
-    </ShadeArea>
+    <Container>
+      <StyledP>Policy documents:</StyledP>
+      {!isUndefined(attachment) && !isUndefined(attachment.uri) ? (
+        <StyledInternalLink to={`attachment/?url=${getIpfsUrl(attachment.uri)}`}>
+          <StyledPaperclipIcon />
+          {attachment.label ?? "Attachment"}
+        </StyledInternalLink>
+      ) : null}
+      {isUndefined(disputePolicyURI) ? null : (
+        <StyledInternalLink to={`policy/attachment/?url=${getIpfsUrl(disputePolicyURI)}`}>
+          <StyledPolicyIcon />
+          Dispute Policy
+        </StyledInternalLink>
+      )}
+      {isUndefined(courtId) ? null : (
+        <StyledInternalLink to={`/courts/${courtId}/policy?section=description`}>
+          <StyledPolicyIcon />
+          Court Policy
+        </StyledInternalLink>
+      )}
+    </Container>
   );
 };

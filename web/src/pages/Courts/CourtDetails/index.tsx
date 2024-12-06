@@ -38,7 +38,7 @@ const CourtHeader = styled.h1`
 
   ${landscapeStyle(
     () => css`
-      margin-bottom: 20px;
+      margin-bottom: 32px;
     `
   )};
 `;
@@ -46,13 +46,7 @@ const CourtHeader = styled.h1`
 const CourtInfo = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
-
-  ${landscapeStyle(
-    () => css`
-      gap: 20px;
-    `
-  )};
+  gap: 8px;
 `;
 
 const ButtonContainer = styled.div`
@@ -93,7 +87,7 @@ const CourtDetails: React.FC = () => {
 
   const courtPath = getCourtsPath(data?.court, id);
 
-  const items = [{ text: "🏛️", value: "0" }];
+  const items = [];
   items.push(
     ...(courtPath?.map((node) => ({
       text: node.name,
@@ -107,7 +101,7 @@ const CourtDetails: React.FC = () => {
         <CourtHeader>
           <CourtInfo>
             {policy ? policy.name : <StyledSkeleton width={200} />}
-            {items.length > 1 ? <StyledBreadcrumb items={items} /> : <StyledSkeleton width={100} />}
+            {items.length > 1 && items[0]?.value !== 1 ? <StyledBreadcrumb items={items} /> : null}
           </CourtInfo>
           <ButtonContainer>
             <HowItWorks

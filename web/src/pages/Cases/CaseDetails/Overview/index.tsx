@@ -24,7 +24,7 @@ const Container = styled.div`
   height: auto;
   display: flex;
   flex-direction: column;
-  gap: ${responsiveSize(16, 32)};
+  gap: ${responsiveSize(16, 24)};
   padding: ${responsiveSize(16, 32)};
 `;
 

@@ -20,3 +20,26 @@ export function beautifyStatNumber(value: number, invertValue: boolean = false):
 
   return commify(value.toFixed(0));
 }
+
+export function unbeautifyStatNumber(value: string): number {
+  const multiplierMap: Record<string, number> = {
+    B: 1e9,
+    M: 1e6,
+    K: 1e3,
+  };
+
+  const match = value.match(/^([\d,\.]+)([BMK]?)$/);
+
+  if (!match) {
+    throw new Error("Invalid formatted number string");
+  }
+
+  const [, numericPart, unit] = match;
+  const numericValue = parseFloat(numericPart.replace(/,/g, ""));
+
+  if (unit && multiplierMap[unit]) {
+    return numericValue * multiplierMap[unit];
+  }
+
+  return numericValue;
+}

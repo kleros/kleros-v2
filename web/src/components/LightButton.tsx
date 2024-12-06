@@ -4,7 +4,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 
 import { Button } from "@kleros/ui-components-library";
 
-const StyledButton = styled(Button)`
+const StyledButton = styled(Button)<{ isMobileNavbar?: boolean }>`
   background-color: transparent;
   padding: 8px !important;
   border-radius: 7px;
@@ -13,12 +13,12 @@ const StyledButton = styled(Button)`
     font-weight: 400;
   }
   .button-svg {
-    fill: ${({ theme }) => theme.white}BF !important;
+    fill: ${({ theme, isMobileNavbar }) => (isMobileNavbar ? theme.secondaryText : `${theme.white}BF`)} !important;
   }
 
   &:hover {
     .button-svg {
-      fill: ${({ theme }) => theme.white} !important;
+      fill: ${({ theme, isMobileNavbar }) => (isMobileNavbar ? theme.primaryText : `${theme.white}`)} !important;
     }
     transition: background-color 0.1s;
     background-color: ${({ theme }) => theme.whiteLowOpacityStrong};
@@ -40,10 +40,11 @@ interface ILightButton {
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
   className?: string;
+  isMobileNavbar?: boolean;
 }
 
-const LightButton: React.FC<ILightButton> = ({ text, Icon, onClick, disabled, className }) => (
-  <StyledButton variant="primary" small {...{ text, Icon, onClick, disabled, className }} />
+const LightButton: React.FC<ILightButton> = ({ text, Icon, onClick, disabled, className, isMobileNavbar }) => (
+  <StyledButton variant="primary" small {...{ text, Icon, onClick, disabled, className, isMobileNavbar }} />
 );
 
 export default LightButton;

@@ -30,8 +30,11 @@ const Container = styled.div`
 
 const JuryContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
+
   h3 {
     line-height: 21px;
     margin-bottom: 0px;
@@ -45,7 +48,7 @@ const JuryDecisionTag = styled.small`
 `;
 
 const StyledDivider = styled(Divider)`
-  margin: ${responsiveSize(16, 32)} 0px;
+  margin: ${responsiveSize(16, 24)} 0px;
 `;
 
 interface IFinalDecision {
