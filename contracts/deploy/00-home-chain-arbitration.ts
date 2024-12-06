@@ -6,7 +6,7 @@ import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 import { HomeChains, isSkipped, isDevnet, isMainnet, PNK, ETH } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
-import { DisputeKitClassic, KlerosCore } from "../typechain-types";
+import { DisputeKitClassic, KlerosCore, RandomizerRNG } from "../typechain-types";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
@@ -38,7 +38,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const randomizerRng = await getContractOrDeployUpgradable(hre, "RandomizerRNG", {
     from: deployer,
-    args: [randomizerOracle.target, deployer],
+    args: [deployer, ZeroAddress, randomizerOracle.target], // The SortitionModule is configured later
     log: true,
   });
 
@@ -83,7 +83,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       deployer,
       deployer,
       pnk.target,
-      ZeroAddress,
+      ZeroAddress, // KlerosCore is configured later
       disputeKit.address,
       false,
       [minStake, alpha, feeForJuror, jurorsForCourtJump],
@@ -94,12 +94,20 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
 
-  // changeCore() only if necessary
+  // disputeKit.changeCore() only if necessary
   const disputeKitContract = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
   const currentCore = await disputeKitContract.core();
   if (currentCore !== klerosCore.address) {
     console.log(`disputeKit.changeCore(${klerosCore.address})`);
     await disputeKitContract.changeCore(klerosCore.address);
+  }
+
+  // rng.changeSortitionModule() only if necessary
+  const rngContract = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
+  const currentSortitionModule = await rngContract.sortitionModule();
+  if (currentSortitionModule !== sortitionModule.address) {
+    console.log(`rng.changeSortitionModule(${sortitionModule.address})`);
+    await rngContract.changeSortitionModule(sortitionModule.address);
   }
 
   const core = (await hre.ethers.getContract("KlerosCore")) as KlerosCore;
