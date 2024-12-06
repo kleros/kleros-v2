@@ -265,8 +265,12 @@ abstract contract SortitionModuleBase is ISortitionModule {
         uint256 currentStake = stakeOf(_account, _courtID);
 
         uint256 nbCourts = juror.courtIDs.length;
-        if (_newStake == 0 && (nbCourts >= MAX_STAKE_PATHS || currentStake == 0)) {
+        if (currentStake == 0 && nbCourts >= MAX_STAKE_PATHS) {
             return (0, 0, StakingResult.CannotStakeInMoreCourts); // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
+        }
+
+        if (currentStake == 0 && _newStake == 0) {
+            return (0, 0, StakingResult.CannotStakeZeroWhenNoStake); // Forbid staking 0 amount when current stake is 0 to avoid flaky behaviour.
         }
 
         if (phase != Phase.staking) {
@@ -296,7 +300,7 @@ abstract contract SortitionModuleBase is ISortitionModule {
                 pnkDeposit = _increaseStake(juror, _courtID, _newStake, currentStake);
             }
         } else {
-            pnkWithdrawal += _decreaseStake(juror, _courtID, _newStake, currentStake);
+            pnkWithdrawal = _decreaseStake(juror, _courtID, _newStake, currentStake);
         }
 
         // Update the sortition sum tree.
