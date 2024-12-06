@@ -30,7 +30,7 @@ const AnswerDisplay: React.FC<IAnswer> = ({ answer, currentRuling }) => {
     <>
       {answer ? (
         <Container>
-          <AnswerTitle>{answer.title}</AnswerTitle>
+          <AnswerTitle>{answer.title} -</AnswerTitle>
           <AnswerDescription>{answer.description}</AnswerDescription>
         </Container>
       ) : (
