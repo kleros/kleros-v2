@@ -52,9 +52,9 @@ const CourtInfo = styled.div`
 const ButtonContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
+  flex-direction: row;
+  justify-content: center;
+  gap: 20px;
 
   ${landscapeStyle(
     () => css`
@@ -104,12 +104,12 @@ const CourtDetails: React.FC = () => {
             {items.length > 1 && items[0]?.value !== 1 ? <StyledBreadcrumb items={items} /> : null}
           </CourtInfo>
           <ButtonContainer>
+            {!isProductionDeployment() && <ClaimPnkButton />}
             <HowItWorks
               isMiniGuideOpen={isStakingMiniGuideOpen}
               toggleMiniGuide={toggleStakingMiniGuide}
               MiniGuideComponent={Staking}
             />
-            {!isProductionDeployment() && <ClaimPnkButton />}
           </ButtonContainer>
         </CourtHeader>
         <StakePanel id={!isUndefined(id) ? id : ""} courtName={policy?.name} />
