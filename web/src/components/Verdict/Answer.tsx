@@ -19,6 +19,7 @@ const AnswerDescription = styled.h4`
   margin: 0;
   font-size: 15px;
   color: ${({ theme }) => theme.primaryText};
+  padding-bottom: 0.5px;
 `;
 
 interface IAnswer {
