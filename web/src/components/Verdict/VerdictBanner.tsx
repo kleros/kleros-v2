@@ -4,12 +4,10 @@ import styled from "styled-components";
 import ClosedCaseIcon from "svgs/icons/check-circle-outline.svg";
 import HourglassIcon from "svgs/icons/hourglass.svg";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 const BannerContainer = styled.div`
   display: flex;
   gap: 8px;
-  margin-bottom: ${responsiveSize(16, 24)};
+  margin-bottom: 8px;
   svg {
     width: 16px;
     height: 16px;

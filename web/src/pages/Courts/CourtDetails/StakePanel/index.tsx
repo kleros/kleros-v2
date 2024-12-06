@@ -13,12 +13,11 @@ import { uncommify } from "utils/commify";
 
 import InputDisplay from "./InputDisplay";
 import { ActionType } from "./StakeWithdrawButton";
-import SimulatorPopup from "./SimulatorPopup";
+import Simulator from "./Simulator";
 
 const Container = styled.div`
   position: relative;
   width: 100%;
-  margin-top: 12px;
   display: flex;
   flex-direction: column;
   gap: 28px;
@@ -100,7 +99,7 @@ const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "
           />
         )}
       </LeftArea>
-      <SimulatorPopup amountToStake={amount ? Number(uncommify(amount)) : 0} {...{ isStaking }} />
+      <Simulator amountToStake={amount ? Number(uncommify(amount)) : 0} {...{ isStaking }} />
     </Container>
   );
 };

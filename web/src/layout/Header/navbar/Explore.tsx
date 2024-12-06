@@ -1,9 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import { Link, useLocation } from "react-router-dom";
-
-import { landscapeStyle } from "styles/landscapeStyle";
 
 import { useOpenContext } from "../MobileHeader";
 
@@ -30,17 +29,18 @@ const Title = styled.h1`
   )};
 `;
 
-const StyledLink = styled(Link)<{ isActive: boolean }>`
+const StyledLink = styled(Link)<{ isActive: boolean; isMobileNavbar?: boolean }>`
   display: flex;
   align-items: center;
   text-decoration: none;
   font-size: 16px;
   color: ${({ isActive, theme }) => (isActive ? theme.primaryText : `${theme.primaryText}BA`)};
+  font-weight: ${({ isActive, isMobileNavbar }) => (isMobileNavbar && isActive ? "600" : "normal")};
   padding: 8px 8px 8px 0;
   border-radius: 7px;
 
   &:hover {
-    color: ${({ theme }) => theme.white} !important;
+    color: ${({ theme, isMobileNavbar }) => (isMobileNavbar ? theme.primaryText : theme.white)} !important;
   }
 
   ${landscapeStyle(
@@ -59,7 +59,11 @@ const links = [
   { to: "/get-pnk", text: "Get PNK" },
 ];
 
-const Explore: React.FC = () => {
+interface IExplore {
+  isMobileNavbar?: boolean;
+}
+
+const Explore: React.FC<IExplore> = ({ isMobileNavbar }) => {
   const location = useLocation();
   const { toggleIsOpen } = useOpenContext();
 
@@ -69,9 +73,9 @@ const Explore: React.FC = () => {
       {links.map(({ to, text }) => (
         <StyledLink
           key={text}
-          to={to}
           onClick={toggleIsOpen}
           isActive={to === "/" ? location.pathname === "/" : location.pathname.split("/")[1] === to.split("/")[1]}
+          {...{ to, isMobileNavbar }}
         >
           {text}
         </StyledLink>

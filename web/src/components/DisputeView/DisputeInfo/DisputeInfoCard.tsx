@@ -1,14 +1,9 @@
-import React, { useMemo } from "react";
+import React from "react";
 import styled, { css } from "styled-components";
-
-import LawBalanceIcon from "svgs/icons/law-balance.svg";
-
-import { useCourtTree } from "hooks/queries/useCourtTree";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import Field, { IField } from "components/Field";
-import { getCourtsPath } from "pages/Courts/CourtDetails";
 
 import CardLabel from "../CardLabels";
 
@@ -20,12 +15,6 @@ const Container = styled.div`
   gap: 8px;
   flex-direction: column;
   justify-content: flex-end;
-`;
-
-const CourtBranchFieldContainer = styled.div`
-  display: flex;
-  margin-top: 16px;
-  flex-wrap: wrap;
 `;
 
 const RestOfFieldsContainer = styled.div<{ isOverview?: boolean }>`
@@ -42,7 +31,6 @@ const RestOfFieldsContainer = styled.div<{ isOverview?: boolean }>`
     css`
       ${landscapeStyle(
         () => css`
-          margin-top: 16px;
           gap: 32px;
           flex-direction: row;
           flex-wrap: wrap;
@@ -56,7 +44,6 @@ const StyledField = styled(Field)`
   max-width: 100%;
   label {
     &.value {
-      margin-left: 8px;
       overflow: hidden;
       text-overflow: ellipsis;
       text-wrap: auto;
@@ -66,36 +53,9 @@ const StyledField = styled(Field)`
 
 type IDisputeInfoCard = { fieldItems: FieldItem[] } & IDisputeInfo;
 
-const DisputeInfoCard: React.FC<IDisputeInfoCard> = ({
-  isOverview,
-  showLabels,
-  fieldItems,
-  court,
-  courtId,
-  disputeID,
-  round,
-}) => {
-  const { data } = useCourtTree();
-  const courtPath = getCourtsPath(data?.court, courtId);
-  const items = useMemo(
-    () => [...(courtPath?.map((node) => ({ text: node.name, value: node.id })) ?? [])],
-    [courtPath]
-  );
-
-  const courtBranchValue = items.map((item) => item.text).join(" / ");
+const DisputeInfoCard: React.FC<IDisputeInfoCard> = ({ isOverview, showLabels, fieldItems, disputeID, round }) => {
   return (
     <Container>
-      {court && courtId && isOverview && (
-        <CourtBranchFieldContainer>
-          <StyledField
-            link={`/courts/${courtId}`}
-            icon={LawBalanceIcon}
-            name="Court Branch"
-            value={courtBranchValue}
-            {...{ isOverview }}
-          />
-        </CourtBranchFieldContainer>
-      )}
       <RestOfFieldsContainer {...{ isOverview }}>
         {fieldItems.map((item) =>
           item.display ? <StyledField key={item.name} {...(item as IField)} {...{ isOverview }} /> : null
