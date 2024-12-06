@@ -59,7 +59,9 @@ const FieldContainer = styled.div<FieldContainerProps>`
     `};
 `;
 
-const LinkContainer = styled.div``;
+const LinkContainer = styled.div`
+  padding-bottom: 1px;
+`;
 
 const StyledInternalLink = styled(InternalLink)`
   text-wrap: auto;
