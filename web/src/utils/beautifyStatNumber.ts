@@ -28,7 +28,8 @@ export function unbeautifyStatNumber(value: string): number {
     K: 1e3,
   };
 
-  const match = value.match(/^([\d,\.]+)([BMK]?)$/);
+  const regex = /^([\d,.]+)([BMK]?)$/;
+  const match = regex.exec(value);
 
   if (!match) {
     throw new Error("Invalid formatted number string");
