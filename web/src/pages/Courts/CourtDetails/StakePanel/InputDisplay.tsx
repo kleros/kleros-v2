@@ -1,25 +1,28 @@
 import React, { useState, useMemo, useEffect } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
 
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 import { useAccount } from "wagmi";
 
 import { REFETCH_INTERVAL } from "consts/index";
-
 import { useReadSortitionModuleGetJurorBalance, useReadPnkBalanceOf } from "hooks/contracts/generated";
 import { useParsedAmount } from "hooks/useParsedAmount";
-
 import { commify, uncommify } from "utils/commify";
 import { formatPNK, roundNumberDown } from "utils/format";
 import { isUndefined } from "utils/index";
 
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import { NumberInputField } from "components/NumberInputField";
+
 import StakeWithdrawButton, { ActionType } from "./StakeWithdrawButton";
 
 const StyledField = styled(NumberInputField)`
   height: fit-content;
+  input {
+    border-radius: 3px 0px 0px 3px;
+  }
 `;
 
 const LabelArea = styled.div`
@@ -62,26 +65,17 @@ const EnsureChainContainer = styled.div`
   button {
     height: 45px;
     border: 1px solid ${({ theme }) => theme.stroke};
+    border-radius: 0px 3px 3px 0px;
   }
 `;
 
 interface IInputDisplay {
   action: ActionType;
-  isSending: boolean;
-  setIsSending: (arg0: boolean) => void;
-  setIsPopupOpen: (arg0: boolean) => void;
   amount: string;
   setAmount: (arg0: string) => void;
 }
 
-const InputDisplay: React.FC<IInputDisplay> = ({
-  action,
-  isSending,
-  setIsSending,
-  setIsPopupOpen,
-  amount,
-  setAmount,
-}) => {
+const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) => {
   const [debouncedAmount, setDebouncedAmount] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
@@ -147,12 +141,10 @@ const InputDisplay: React.FC<IInputDisplay> = ({
           <EnsureChainContainer>
             <StakeWithdrawButton
               {...{
+                amount,
                 parsedAmount,
                 action,
                 setAmount,
-                isSending,
-                setIsSending,
-                setIsPopupOpen,
                 setErrorMsg,
               }}
             />
