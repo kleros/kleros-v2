@@ -101,6 +101,7 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
     Court[] public courts; // The courts.
     IDisputeKit[] public disputeKits; // Array of dispute kits.
     Dispute[] public disputes; // The disputes.
+    mapping(IDisputeKit => uint256) public disputeKitIDs; // Maps dispute kit's address to its index.
     mapping(IERC20 => CurrencyRate) public currencyRates; // The price of each token in ETH.
     bool public paused; // Whether asset withdrawals are paused.
 
@@ -216,6 +217,7 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
 
         // DISPUTE_KIT_CLASSIC
         disputeKits.push(_disputeKit);
+        disputeKitIDs[_disputeKit] = DISPUTE_KIT_CLASSIC;
 
         emit DisputeKitCreated(DISPUTE_KIT_CLASSIC, _disputeKit);
 
@@ -316,6 +318,7 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
     function addNewDisputeKit(IDisputeKit _disputeKitAddress) external onlyByGovernor {
         uint256 disputeKitID = disputeKits.length;
         disputeKits.push(_disputeKitAddress);
+        disputeKitIDs[_disputeKitAddress] = disputeKitID;
         emit DisputeKitCreated(disputeKitID, _disputeKitAddress);
     }
 
@@ -468,18 +471,19 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
         _setStake(msg.sender, _courtID, _newStake, false, OnError.Revert);
     }
 
-    /// @dev Sets the stake of a specified account in a court, typically to apply a delayed stake or unstake inactive jurors.
+    /// @dev Sets the stake of a specified account in a court, typically to apply a delayed stake or unstake inactive/ineligible jurors.
     /// @param _account The account whose stake is being set.
     /// @param _courtID The ID of the court.
     /// @param _newStake The new stake.
     /// @param _alreadyTransferred Whether the PNKs have already been transferred to the contract.
-    function setStakeBySortitionModule(
+    function setStakeBySortitionModuleOrDK(
         address _account,
         uint96 _courtID,
         uint256 _newStake,
         bool _alreadyTransferred
     ) external {
-        if (msg.sender != address(sortitionModule)) revert SortitionModuleOnly();
+        if (msg.sender != address(sortitionModule) && disputeKitIDs[IDisputeKit(msg.sender)] == 0)
+            revert SortitionModuleOrDKOnly();
         _setStake(_account, _courtID, _newStake, _alreadyTransferred, OnError.Return);
     }
 
@@ -1144,7 +1148,7 @@ abstract contract KlerosCoreBase is IArbitratorV2 {
     error GovernorOnly();
     error GuardianOrGovernorOnly();
     error DisputeKitOnly();
-    error SortitionModuleOnly();
+    error SortitionModuleOrDKOnly();
     error UnsuccessfulCall();
     error InvalidDisputKitParent();
     error DepthLevelMax();

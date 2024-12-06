@@ -206,7 +206,7 @@ abstract contract SortitionModuleBase is ISortitionModule {
             DelayedStake storage delayedStake = delayedStakes[i];
             // Delayed stake could've been manually removed already. In this case simply move on to the next item.
             if (delayedStake.account != address(0)) {
-                core.setStakeBySortitionModule(
+                core.setStakeBySortitionModuleOrDK(
                     delayedStake.account,
                     delayedStake.courtID,
                     delayedStake.stake,
@@ -433,7 +433,7 @@ abstract contract SortitionModuleBase is ISortitionModule {
     function setJurorInactive(address _account) external override onlyByCore {
         uint96[] memory courtIDs = getJurorCourtIDs(_account);
         for (uint256 j = courtIDs.length; j > 0; j--) {
-            core.setStakeBySortitionModule(_account, courtIDs[j - 1], 0, false);
+            core.setStakeBySortitionModuleOrDK(_account, courtIDs[j - 1], 0, false);
         }
     }
 
