@@ -15,6 +15,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import Product from "./Product";
+import { IDappList } from "./index";
 
 const Container = styled.div`
   display: flex;
@@ -133,10 +134,6 @@ const ITEMS = [
     url: "https://governor.kleros.io",
   },
 ];
-
-interface IDappList {
-  toggleIsDappListOpen: () => void;
-}
 
 const DappList: React.FC<IDappList> = ({ toggleIsDappListOpen }) => {
   const containerRef = useRef(null);
