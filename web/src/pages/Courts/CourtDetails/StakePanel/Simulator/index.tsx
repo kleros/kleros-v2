@@ -18,7 +18,6 @@ import { useHomePageExtraStats } from "queries/useHomePageExtraStats";
 import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 
 import GavelIcon from "svgs/icons/gavel.svg";
-import LawBalanceIcon from "svgs/icons/law-balance.svg";
 import DiceIcon from "svgs/icons/dice.svg";
 import DollarIcon from "svgs/icons/dollar.svg";
 import ArrowRightIcon from "svgs/icons/arrow-right.svg";
@@ -115,12 +114,12 @@ const calculateJurorOdds = (newStake: number, totalStake: number): string => {
   return `${odds.toFixed(2)}%`;
 };
 
-interface ISimulatorPopup {
+interface ISimulator {
   amountToStake: number;
   isStaking: boolean;
 }
 
-const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking }) => {
+const Simulator: React.FC<ISimulator> = ({ amountToStake, isStaking }) => {
   const { id } = useParams();
   const { address } = useAccount();
   const { data: stakeData } = useJurorStakeDetailsQuery(address?.toLowerCase() as `0x${string}`);
@@ -155,7 +154,7 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
     };
   }, [courtCurrentEffectiveStake, currentTreeVotesPerPnk, currentTreeDisputesPerPnk, currentTreeExpectedRewardPerPnk]);
 
-  const { votes: totalVotes, cases: totalCases, rewards: totalRewards } = totals;
+  const { votes: totalVotes, rewards: totalRewards } = totals;
 
   const courtFutureEffectiveStake = !isUndefined(courtCurrentEffectiveStake)
     ? Math.max(isStaking ? courtCurrentEffectiveStake + amountToStake : courtCurrentEffectiveStake - amountToStake, 0)
@@ -165,10 +164,7 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
     !isUndefined(courtFutureEffectiveStake) && !isUndefined(totalVotes)
       ? totalVotes / courtFutureEffectiveStake
       : undefined;
-  const futureTreeDisputesPerPnk =
-    !isUndefined(courtFutureEffectiveStake) && !isUndefined(totalCases)
-      ? totalCases / courtFutureEffectiveStake
-      : undefined;
+
   const futureTreeExpectedRewardPerPnk =
     !isUndefined(courtFutureEffectiveStake) && !isUndefined(totalRewards)
       ? totalRewards / courtFutureEffectiveStake
@@ -185,15 +181,6 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
   const futureExpectedVotes =
     !isUndefined(jurorFutureEffectiveStake) && !isUndefined(futureTreeVotesPerPnk)
       ? beautifyStatNumber(jurorFutureEffectiveStake * futureTreeVotesPerPnk)
-      : undefined;
-
-  const currentExpectedCases =
-    !isUndefined(jurorCurrentEffectiveStake) && !isUndefined(currentTreeDisputesPerPnk)
-      ? beautifyStatNumber(jurorCurrentEffectiveStake * currentTreeDisputesPerPnk)
-      : undefined;
-  const futureExpectedCases =
-    !isUndefined(jurorFutureEffectiveStake) && !isUndefined(futureTreeDisputesPerPnk)
-      ? beautifyStatNumber(jurorFutureEffectiveStake * futureTreeDisputesPerPnk)
       : undefined;
 
   const currentDrawingOdds =
@@ -224,12 +211,6 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
       futureValue: futureExpectedVotes,
     },
     {
-      title: "Cases",
-      icon: <LawBalanceIcon />,
-      currentValue: currentExpectedCases,
-      futureValue: futureExpectedCases,
-    },
-    {
       title: "Drawing Odds",
       icon: <DiceIcon />,
       currentValue: currentDrawingOdds,
@@ -252,7 +233,7 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
       <QuantityToSimulate {...{ jurorCurrentEffectiveStake, jurorCurrentSpecificStake, isStaking, amountToStake }} />
       <ItemsContainer>
         {simulatorItems.map((item, index) => (
-          <SimulatorItem key={index}>
+          <SimulatorItem key={item.title}>
             <LeftContent>
               <IconWrapper>{item.icon}</IconWrapper>
               {item.tooltipMsg ? (
@@ -286,4 +267,4 @@ const SimulatorPopup: React.FC<ISimulatorPopup> = ({ amountToStake, isStaking })
   );
 };
 
-export default SimulatorPopup;
+export default Simulator;

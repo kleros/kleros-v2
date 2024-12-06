@@ -13,7 +13,7 @@ import ExtraStatsDisplay from "components/ExtraStatsDisplay";
 const StyledCard = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0 32px;
+  gap: 0 24px;
   justify-content: center;
 `;
 

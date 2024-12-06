@@ -12,7 +12,7 @@ import { useUserQuery } from "queries/useUser";
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
-import Coherency from "./Coherency";
+import Coherence from "./Coherence";
 import Header from "./Header";
 import JurorRewards from "./JurorRewards";
 import PixelArt from "./PixelArt";
@@ -59,7 +59,7 @@ const JurorInfo: React.FC = () => {
       />
       <Card>
         <PixelArt level={userLevelData.level} width="189px" height="189px" />
-        <Coherency userLevelData={userLevelData} isMiniGuide={false} {...{ totalCoherentVotes, totalResolvedVotes }} />
+        <Coherence userLevelData={userLevelData} isMiniGuide={false} {...{ totalCoherentVotes, totalResolvedVotes }} />
         <JurorRewards />
       </Card>
     </Container>

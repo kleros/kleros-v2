@@ -5,7 +5,7 @@ import { Card as _Card } from "@kleros/ui-components-library";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
-import Coherency from "pages/Dashboard/JurorInfo/Coherency";
+import Coherence from "pages/Dashboard/JurorInfo/Coherence";
 import PixelArt from "pages/Dashboard/JurorInfo/PixelArt";
 
 import Template from "./MainStructureTemplate";
@@ -32,7 +32,7 @@ const Card = styled(_Card)`
 
 const leftPageContents = [
   {
-    title: "Juror Level 1: Phytagoras",
+    title: "Juror Level 1: Pythagoras",
     paragraphs: [
       "Jurors are classified into distinct levels according to their performance starting from Level 1.",
       "Level 1: Jurors with 0 cases arbitrated, OR Jurors with ≥ 1 case arbitrated with 0-70% of coherent votes.",
@@ -62,7 +62,7 @@ const leftPageContents = [
 const userLevelData = [
   {
     level: 1,
-    title: "Phytagoras",
+    title: "Pythagoras",
     totalCoherentVotes: 6,
     totalResolvedVotes: 10,
   },
@@ -112,7 +112,7 @@ const RightContent: React.FC<{ currentPage: number }> = ({ currentPage }) => {
   return (
     <Card>
       <PixelArt level={userData.level} width="189px" height="189px" />
-      <Coherency
+      <Coherence
         userLevelData={userData}
         totalCoherentVotes={userData.totalCoherentVotes}
         totalResolvedVotes={userData.totalResolvedVotes}

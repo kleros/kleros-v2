@@ -1,9 +1,11 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import Identicon from "react-identicons";
 import ReactMarkdown from "react-markdown";
-import { Link } from "react-router-dom";
 
 import { Card } from "@kleros/ui-components-library";
 
@@ -16,8 +18,8 @@ import { shortenAddress } from "utils/shortenAddress";
 
 import { type Evidence } from "src/graphql/graphql";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
+import { ExternalLink } from "./ExternalLink";
+import { InternalLink } from "./InternalLink";
 
 const StyledCard = styled(Card)`
   width: 100%;
@@ -54,7 +56,7 @@ const BottomShade = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
   padding: 12px ${responsiveSize(8, 24)};
   > * {
     flex-basis: 1;
@@ -81,6 +83,46 @@ const AccountContainer = styled.div`
   }
 `;
 
+const LeftContent = styled.div`
+  display: block;
+
+  & > *:not(:last-child) {
+    margin-bottom: 8px;
+  }
+
+  ${landscapeStyle(
+    () => css`
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 0 12px;
+
+      & > *:not(:last-child) {
+        margin-bottom: 0;
+      }
+    `
+  )}
+`;
+
+const HoverStyle = css`
+  :hover {
+    text-decoration: underline;
+    color: ${({ theme }) => theme.primaryBlue};
+    cursor: pointer;
+  }
+`;
+
+const Address = styled.p`
+  ${HoverStyle}
+  margin: 0;
+`;
+
+const Timestamp = styled.label`
+  color: ${({ theme }) => theme.secondaryText};
+  ${HoverStyle}
+`;
+
 const DesktopText = styled.span`
   display: none;
   ${landscapeStyle(
@@ -88,10 +130,6 @@ const DesktopText = styled.span`
       display: inline;
     `
   )}
-`;
-
-const Timestamp = styled.label`
-  color: ${({ theme }) => theme.secondaryText};
 `;
 
 const MobileText = styled.span`
@@ -102,32 +140,22 @@ const MobileText = styled.span`
   )}
 `;
 
-const StyledLink = styled(Link)`
-  height: fit-content;
+const StyledInternalLink = styled(InternalLink)`
   display: flex;
-  margin-left: auto;
   gap: ${responsiveSize(5, 6)};
-  ${landscapeStyle(
-    () => css`
-      > svg {
-        width: 16px;
-        fill: ${({ theme }) => theme.primaryBlue};
-      }
-    `
-  )}
+  > svg {
+    width: 16px;
+    fill: ${({ theme }) => theme.primaryBlue};
+  }
+
+  :hover svg {
+    transition: fill 0.1s;
+    fill: ${({ theme }) => theme.secondaryBlue};
+  }
 `;
 
-const StyledA = styled.a`
-  :hover {
-    text-decoration: underline;
-    p {
-      color: ${({ theme }) => theme.primaryBlue};
-    }
-    label {
-      cursor: pointer;
-      color: ${({ theme }) => theme.primaryBlue};
-    }
-  }
+const FileLinkContainer = styled.div`
+  margin-left: auto;
 `;
 
 const AttachedFileText: React.FC = () => (
@@ -175,20 +203,24 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
         )}
       </TextContainer>
       <BottomShade>
-        <AccountContainer>
-          <Identicon size="24" string={sender} />
-          <StyledA href={addressExplorerLink} rel="noopener noreferrer" target="_blank">
-            <p>{shortenAddress(sender)}</p>
-          </StyledA>
-        </AccountContainer>
-        <StyledA href={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
-          <Timestamp>{formatDate(Number(timestamp), true)}</Timestamp>
-        </StyledA>
+        <LeftContent>
+          <AccountContainer>
+            <Identicon size="24" string={sender} />
+            <ExternalLink to={addressExplorerLink} rel="noopener noreferrer" target="_blank">
+              <Address>{shortenAddress(sender)}</Address>
+            </ExternalLink>
+          </AccountContainer>
+          <ExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
+            <Timestamp>{formatDate(Number(timestamp), true)}</Timestamp>
+          </ExternalLink>
+        </LeftContent>
         {fileURI && fileURI !== "-" ? (
-          <StyledLink to={`attachment/?url=${getIpfsUrl(fileURI)}`}>
-            <AttachmentIcon />
-            <AttachedFileText />
-          </StyledLink>
+          <FileLinkContainer>
+            <StyledInternalLink to={`attachment/?url=${getIpfsUrl(fileURI)}`}>
+              <AttachmentIcon />
+              <AttachedFileText />
+            </StyledInternalLink>
+          </FileLinkContainer>
         ) : null}
       </BottomShade>
     </StyledCard>

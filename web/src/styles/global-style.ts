@@ -17,6 +17,7 @@ export const GlobalStyle = createGlobalStyle`
   body {
     font-family: "Open Sans", sans-serif;
     margin: 0px;
+    background-color: ${({ theme }) => theme.primaryPurple};
   }
 
   html {
@@ -90,8 +91,9 @@ export const GlobalStyle = createGlobalStyle`
     font-size: 14px;
     text-decoration: none;
     color: ${({ theme }) => theme.primaryBlue};
+    transition: color 0.1s;
   }
-
+  
   hr {
     opacity: 1;
     border: 1px solid ${({ theme }) => theme.stroke};

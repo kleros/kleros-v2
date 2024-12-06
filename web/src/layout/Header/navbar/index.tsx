@@ -8,6 +8,7 @@ import KlerosSolutionsIcon from "svgs/menu-icons/kleros-solutions.svg";
 
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
+import { Overlay } from "components/Overlay";
 import DappList from "./DappList";
 import Explore from "./Explore";
 import Menu from "./Menu";
@@ -70,7 +71,7 @@ const PopupContainer = styled.div`
   background-color: ${({ theme }) => theme.blackLowOpacity};
 `;
 
-const Overlay = styled.div`
+const StyledOverlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
@@ -107,23 +108,32 @@ const NavBar: React.FC<INavBar> = ({ isOpen, handleCloseNavbar }) => {
     <>
       {isOpen ? <Overlay {...{ isOpen }} onClick={handleCloseNavbar} /> : null}
       <Wrapper {...{ isOpen }}>
-        <Container {...{ isOpen }}>
-          <LightButton text="Kleros Solutions" onClick={toggleIsDappListOpen} Icon={KlerosSolutionsIcon} />
-          <hr />
-          <Explore {...{ handleCloseNavbar }} />
-          <hr />
-          <WalletContainer>
-            <ConnectWallet />
-            {isConnected && (
-              <DisconnectWalletButtonContainer>
-                <DisconnectWalletButton />
-              </DisconnectWalletButtonContainer>
-            )}
-          </WalletContainer>
-          <hr />
-          <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
-          <br />
-        </Container>
+        <StyledOverlay>
+          <Container {...{ isOpen }}>
+            <LightButton
+              isMobileNavbar={true}
+              text="Kleros Solutions"
+              onClick={() => {
+                toggleIsDappListOpen();
+              }}
+              Icon={KlerosSolutionsIcon}
+            />
+            <hr />
+            <Explore isMobileNavbar={true} {...{ handleCloseNavbar }} />
+            <hr />
+            <WalletContainer>
+              <ConnectWallet />
+              {isConnected && (
+                <DisconnectWalletButtonContainer>
+                  <DisconnectWalletButton />
+                </DisconnectWalletButtonContainer>
+              )}
+            </WalletContainer>
+            <hr />
+            <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} isMobileNavbar={true} />
+            <br />
+          </Container>
+        </StyledOverlay>
       </Wrapper>
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
         <PopupContainer>

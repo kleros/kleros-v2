@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
@@ -19,11 +19,10 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { responsiveSize } from "styles/responsiveSize";
 
-import LightButton from "../LightButton";
-
 import AnswerDisplay from "./Answer";
 import VerdictBanner from "./VerdictBanner";
 import { Divider } from "../Divider";
+import { StyledArrowLink } from "../StyledArrowLink";
 
 const Container = styled.div`
   width: 100%;
@@ -31,8 +30,11 @@ const Container = styled.div`
 
 const JuryContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 7px;
+
   h3 {
     line-height: 21px;
     margin-bottom: 0px;
@@ -45,18 +47,8 @@ const JuryDecisionTag = styled.small`
   color: ${({ theme }) => theme.secondaryText};
 `;
 
-const StyledButton = styled(LightButton)`
-  display: flex;
-  flex-direction: row-reverse;
-  gap: 8px;
-  > .button-text {
-    color: ${({ theme }) => theme.primaryBlue};
-  }
-  padding-top: 0px;
-`;
-
 const StyledDivider = styled(Divider)`
-  margin: ${responsiveSize(16, 32)} 0px;
+  margin: ${responsiveSize(16, 24)} 0px;
 `;
 
 interface IFinalDecision {
@@ -73,7 +65,6 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const localRounds = getLocalRounds(votingHistory?.dispute?.disputeKitDispute);
   const ruled = disputeDetails?.dispute?.ruled ?? false;
   const periodIndex = Periods[disputeDetails?.dispute?.period ?? "evidence"];
-  const navigate = useNavigate();
   const { data: currentRulingArray } = useReadKlerosCoreCurrentRuling({
     query: { refetchInterval: REFETCH_INTERVAL },
     args: [BigInt(id ?? 0)],
@@ -108,12 +99,9 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
       {isLoading && !isDisconnected ? (
         <Skeleton width={250} height={20} />
       ) : (
-        <StyledButton
-          onClick={() => navigate(`/cases/${id?.toString()}/voting`)}
-          text={buttonText}
-          Icon={ArrowIcon}
-          className="reverse-button"
-        />
+        <StyledArrowLink to={`/cases/${id?.toString()}/voting`}>
+          {buttonText} <ArrowIcon />
+        </StyledArrowLink>
       )}
     </Container>
   );

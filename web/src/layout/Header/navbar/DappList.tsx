@@ -17,14 +17,6 @@ import { responsiveSize } from "styles/responsiveSize";
 import Product from "./Product";
 import { IDappList } from "./index";
 
-const Header = styled.h1`
-  padding-top: 32px;
-  padding-bottom: 20px;
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 32.68px;
-`;
-
 const Container = styled.div`
   display: flex;
   position: absolute;
@@ -38,7 +30,6 @@ const Container = styled.div`
 
   width: 86vw;
   max-width: 480px;
-  min-width: 300px;
   border-radius: 3px;
   border: 1px solid ${({ theme }) => theme.stroke};
   background-color: ${({ theme }) => theme.whiteBackground};
@@ -61,10 +52,17 @@ const Container = styled.div`
   )}
 `;
 
+const Header = styled.h1`
+  padding-top: 24px;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32.68px;
+`;
+
 const ItemsDiv = styled.div`
   display: grid;
   overflow-y: auto;
-  padding: 16px ${responsiveSize(8, 24, 480)};
+  padding: 4px ${responsiveSize(8, 24)} 16px ${responsiveSize(8, 24)};
   row-gap: 8px;
   column-gap: 2px;
   justify-items: center;

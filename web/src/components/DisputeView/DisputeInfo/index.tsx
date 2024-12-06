@@ -76,7 +76,7 @@ const DisputeInfo: React.FC<IDisputeInfo> = ({
         name: "Court",
         value: court,
         link: `/courts/${courtId}`,
-        display: !isUndefined(court) && !isUndefined(courtId) && !isOverview,
+        display: !isUndefined(court) && !isUndefined(courtId),
       },
       {
         icon: RoundIcon,

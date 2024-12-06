@@ -14,12 +14,12 @@ const levelCriteria: ILevelCriteria[] = [
   { level: 4, title: "Aristotle", minDisputes: 10, minScore: 91, maxScore: 100 },
 ];
 
-export const getUserLevelData = (coherencyScore: number, totalResolvedDisputes: number) => {
+export const getUserLevelData = (coherenceScore: number, totalResolvedDisputes: number) => {
   for (const criteria of levelCriteria) {
     if (
       totalResolvedDisputes >= criteria.minDisputes &&
-      coherencyScore >= criteria.minScore &&
-      coherencyScore <= criteria.maxScore
+      coherenceScore >= criteria.minScore &&
+      coherenceScore <= criteria.maxScore
     ) {
       return levelCriteria.find(({ level }) => level === criteria.level);
     }

@@ -4,7 +4,8 @@ import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
-import { Link } from "react-router-dom";
+
+import { StyledArrowLink } from "components/StyledArrowLink";
 
 const Container = styled.div`
   display: flex;
@@ -20,24 +21,19 @@ const Container = styled.div`
   }
 
   ${landscapeStyle(
-    () =>
-      css`
-        justify-content: flex-start;
-        width: auto;
-      `
+    () => css`
+      justify-content: flex-start;
+      width: auto;
+    `
   )}
 `;
 
-const StyledLink = styled(Link)`
-  display: flex;
-  gap: 8px;
-  align-items: center;
+const ReStyledArrowLink = styled(StyledArrowLink)`
+  font-size: 14px;
+
   > svg {
     height: 15px;
     width: 15px;
-    path {
-      fill: ${({ theme }) => theme.primaryBlue};
-    }
   }
 `;
 
@@ -50,9 +46,9 @@ const CourtName: React.FC<ICourtName> = ({ name, id }) => {
   return (
     <Container>
       <small>{name}</small>
-      <StyledLink to={`/courts/${id?.toString()}`}>
+      <ReStyledArrowLink to={`/courts/${id?.toString()}`}>
         Open Court <ArrowIcon />
-      </StyledLink>
+      </ReStyledArrowLink>
     </Container>
   );
 };

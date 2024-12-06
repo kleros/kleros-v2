@@ -23,6 +23,7 @@ const Cases: React.FC = () => (
       <Route path="/display/:page/:order/:filter" element={<CasesFetcher />} />
       <Route path="/:id/evidence/attachment/*" element={<AttachmentDisplay />} />
       <Route path="/:id/overview/policy/attachment/*" element={<AttachmentDisplay />} />
+      <Route path="/:id/overview/attachment/*" element={<AttachmentDisplay />} />
       <Route path="/:id/*" element={<CaseDetails />} />
     </Routes>
   </Container>

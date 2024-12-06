@@ -25,14 +25,10 @@ const Container = styled.div`
 `;
 
 const StyledLightButton = styled(LightButton)`
-  padding: 0;
+  padding: 0 !important;
 
   .button-svg {
     margin-right: 0px;
-    fill: white;
-  }
-  .button-text {
-    display: none;
   }
 `;
 
