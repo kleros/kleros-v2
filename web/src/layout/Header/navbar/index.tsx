@@ -31,7 +31,7 @@ const Container = styled.div<{ isOpen: boolean }>`
   top: 0;
   left: 0;
   right: 0;
-  height: 92%;
+  height: 76%;
   overflow-y: auto;
   z-index: 1;
   background-color: ${({ theme }) => theme.whiteBackground};
@@ -61,7 +61,7 @@ const DisconnectWalletButtonContainer = styled.div`
   align-items: center;
 `;
 
-const PopupContainer = styled.div`
+const PopupContainer = styled.div<{ isClosing: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
@@ -69,15 +69,21 @@ const PopupContainer = styled.div`
   height: 100%;
   z-index: 1;
   background-color: ${({ theme }) => theme.blackLowOpacity};
+  opacity: ${({ isClosing }) => (isClosing ? 0 : 1)};
+  transition: opacity 0.2s ease-in-out;
 `;
 
-const StyledOverlay = styled.div`
+const NavbarOverlay = styled.div<{ hasPopupOpen: boolean; isClosing: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 64px;
-  z-index: 1;
+  z-index: ${({ hasPopupOpen, isClosing }) => (hasPopupOpen || isClosing ? -1 : 1)};
+`;
+
+const StyledOverlay = styled(Overlay)`
+  top: unset;
 `;
 
 export interface ISettings {
@@ -103,19 +109,35 @@ const NavBar: React.FC<INavBar> = ({ isOpen, handleCloseNavbar }) => {
   const [isDappListOpen, toggleIsDappListOpen] = useToggle(false);
   const [isHelpOpen, toggleIsHelpOpen] = useToggle(false);
   const [isSettingsOpen, toggleIsSettingsOpen] = useToggle(false);
+  const [isClosing, toggleIsClosing] = useToggle(false);
+
+  const hasPopupOpen = isDappListOpen || isHelpOpen || isSettingsOpen;
+
+  const handleOpenPopup = (toggleFn: () => void) => {
+    toggleIsClosing(false);
+    toggleFn();
+  };
+
+  const handleClosePopup = () => {
+    toggleIsClosing(true);
+    setTimeout(() => {
+      if (isDappListOpen) toggleIsDappListOpen(false);
+      if (isHelpOpen) toggleIsHelpOpen(false);
+      if (isSettingsOpen) toggleIsSettingsOpen(false);
+      toggleIsClosing(false);
+    }, 200);
+  };
 
   return (
     <>
-      {isOpen ? <Overlay {...{ isOpen }} onClick={handleCloseNavbar} /> : null}
+      {isOpen && <NavbarOverlay onClick={handleCloseNavbar} {...{ hasPopupOpen, isClosing }} />}
       <Wrapper {...{ isOpen }}>
         <StyledOverlay>
           <Container {...{ isOpen }}>
             <LightButton
               isMobileNavbar={true}
               text="Kleros Solutions"
-              onClick={() => {
-                toggleIsDappListOpen();
-              }}
+              onClick={() => handleOpenPopup(toggleIsDappListOpen)}
               Icon={KlerosSolutionsIcon}
             />
             <hr />
@@ -130,16 +152,20 @@ const NavBar: React.FC<INavBar> = ({ isOpen, handleCloseNavbar }) => {
               )}
             </WalletContainer>
             <hr />
-            <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} isMobileNavbar={true} />
+            <Menu
+              toggleIsHelpOpen={() => handleOpenPopup(toggleIsHelpOpen)}
+              toggleIsSettingsOpen={() => handleOpenPopup(toggleIsSettingsOpen)}
+              isMobileNavbar={true}
+            />
             <br />
           </Container>
         </StyledOverlay>
       </Wrapper>
-      {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
-        <PopupContainer>
-          {isDappListOpen && <DappList {...{ toggleIsDappListOpen }} />}
-          {isHelpOpen && <Help {...{ toggleIsHelpOpen }} />}
-          {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen }} />}
+      {hasPopupOpen && (
+        <PopupContainer {...{ isClosing }} onTransitionEnd={() => isClosing && handleClosePopup()}>
+          {isDappListOpen && <DappList toggleIsDappListOpen={handleClosePopup} />}
+          {isHelpOpen && <Help toggleIsHelpOpen={handleClosePopup} />}
+          {isSettingsOpen && <Settings toggleIsSettingsOpen={handleClosePopup} />}
         </PopupContainer>
       )}
     </>

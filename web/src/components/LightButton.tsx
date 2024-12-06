@@ -13,12 +13,12 @@ const StyledButton = styled(Button)<{ isMobileNavbar?: boolean }>`
     font-weight: 400;
   }
   .button-svg {
-    fill: ${({ theme, isMobileNavbar }) => (isMobileNavbar ? theme.secondaryText : `${theme.white}BF`)} !important;
+    fill: ${({ theme, isMobileNavbar }) => (isMobileNavbar ? theme.secondaryPurple : `${theme.white}BF`)} !important;
   }
 
   &:hover {
     .button-svg {
-      fill: ${({ theme, isMobileNavbar }) => (isMobileNavbar ? theme.primaryText : `${theme.white}`)} !important;
+      fill: ${({ theme, isMobileNavbar }) => (isMobileNavbar ? theme.secondaryPurple : `${theme.white}`)} !important;
     }
     transition: background-color 0.1s;
     background-color: ${({ theme }) => theme.whiteLowOpacityStrong};

@@ -151,13 +151,7 @@ const DesktopHeader: React.FC = () => {
       <Container>
         <LeftSide>
           <LightButtonContainer>
-            <LightButton
-              text=""
-              onClick={() => {
-                toggleIsDappListOpen();
-              }}
-              Icon={StyledKlerosSolutionsIcon}
-            />
+            <LightButton text="" onClick={toggleIsDappListOpen} Icon={StyledKlerosSolutionsIcon} />
           </LightButtonContainer>
           <Logo />
         </LeftSide>
