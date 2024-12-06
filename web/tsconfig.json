@@ -65,6 +65,7 @@
     "noImplicitThis": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
+    "target": "ES2020",
     "lib": [
       "ESNext.Array"
     ],

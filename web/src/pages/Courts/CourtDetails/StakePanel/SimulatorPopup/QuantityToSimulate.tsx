@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+
 import Skeleton from "react-loading-skeleton";
 
 import { commify } from "utils/commify";
@@ -13,6 +14,7 @@ const Container = styled.div`
   align-items: center;
   flex-wrap: wrap;
   gap: 0 8px;
+  justify-content: center;
 `;
 
 const TextWithTooltipContainer = styled.div`
@@ -48,6 +50,7 @@ interface IQuantityToSimulate {
   jurorCurrentSpecificStake: number | undefined;
   isStaking: boolean;
   amountToStake: number;
+  className?: string;
 }
 
 const QuantityToSimulate: React.FC<IQuantityToSimulate> = ({
@@ -55,6 +58,7 @@ const QuantityToSimulate: React.FC<IQuantityToSimulate> = ({
   jurorCurrentEffectiveStake,
   jurorCurrentSpecificStake,
   amountToStake,
+  className,
 }) => {
   const effectiveStakeDisplay = !isUndefined(jurorCurrentEffectiveStake) ? (
     `${commify(jurorCurrentEffectiveStake)} PNK`
@@ -85,7 +89,7 @@ const QuantityToSimulate: React.FC<IQuantityToSimulate> = ({
   );
 
   return (
-    <Container>
+    <Container {...{ className }}>
       <Quantity>{effectiveStakeDisplay}</Quantity>
       <TextWithTooltipContainer>
         <WithHelpTooltip
