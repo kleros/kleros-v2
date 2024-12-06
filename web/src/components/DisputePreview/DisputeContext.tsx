@@ -50,7 +50,7 @@ const Answer = styled.div`
   margin: 0px;
   display: flex;
   flex-wrap: wrap;
-  gap: ${responsiveSize(2, 8)};
+  gap: 6px;
   > label {
     max-width: 100%;
   }

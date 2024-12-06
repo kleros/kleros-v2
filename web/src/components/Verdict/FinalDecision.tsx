@@ -33,7 +33,7 @@ const JuryContainer = styled.div`
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 4px 7px;
 
   h3 {
     line-height: 21px;
