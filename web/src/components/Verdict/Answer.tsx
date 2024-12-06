@@ -26,13 +26,17 @@ interface IAnswer {
   answer?: Answer;
   currentRuling: number;
 }
+
 const AnswerDisplay: React.FC<IAnswer> = ({ answer, currentRuling }) => {
   return (
     <>
       {answer ? (
         <Container>
-          <AnswerTitle>{answer.title} -</AnswerTitle>
-          <AnswerDescription>{answer.description}</AnswerDescription>
+          <AnswerTitle>
+            {answer.title}
+            {answer.description.trim() ? " -" : null}
+          </AnswerTitle>
+          <AnswerDescription>{answer.description.trim()}</AnswerDescription>
         </Container>
       ) : (
         <Container>{currentRuling !== 0 ? <h3>Answer 0x{currentRuling}</h3> : <h3>Refuse to Arbitrate</h3>}</Container>
@@ -40,4 +44,5 @@ const AnswerDisplay: React.FC<IAnswer> = ({ answer, currentRuling }) => {
     </>
   );
 };
+
 export default AnswerDisplay;

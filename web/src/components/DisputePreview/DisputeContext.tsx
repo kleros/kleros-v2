@@ -91,7 +91,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRp
               <small>Option {i + 1}:</small>
               <label>
                 {answer.title}
-                {answer.description ? ` - ${answer.description}` : null}
+                {answer.description.trim() ? ` - ${answer.description}` : null}
               </label>
             </Answer>
           ))}
