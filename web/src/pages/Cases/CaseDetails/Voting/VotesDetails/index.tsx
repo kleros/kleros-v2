@@ -29,7 +29,10 @@ const StyledAccordion = styled(CustomAccordion)`
   [class*="accordion-button"] {
     padding: 16px ${responsiveSize(8, 18)} !important;
     background-color: ${({ theme }) => theme.whiteBackground} !important;
-    border: 1px solid ${({ theme }) => theme.stroke} !important;
+    border: 0.5px solid ${({ theme }) => theme.stroke} !important;
+    border-left: 1px solid ${({ theme }) => theme.stroke} !important;
+    border-right: 1px solid ${({ theme }) => theme.stroke} !important;
+    border-radius: 0;
     > svg {
       fill: ${({ theme }) => theme.primaryText} !important;
     }
@@ -44,13 +47,16 @@ const StyledCard = styled(Card)`
   width: 100%;
   height: auto;
   padding: 16px ${responsiveSize(8, 18)};
-  border: 1px solid ${({ theme }) => theme.stroke};
+  border: 0.5px solid ${({ theme }) => theme.stroke};
+  border-left: 1px solid ${({ theme }) => theme.stroke};
+  border-right: 1px solid ${({ theme }) => theme.stroke};
+  border-radius: 0;
 `;
 
 const AccordionContentContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 `;
 
 const JustificationText = styled.div`
