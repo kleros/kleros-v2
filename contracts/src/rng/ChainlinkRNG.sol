@@ -21,7 +21,7 @@ contract ChainlinkRNG is RNG, VRFConsumerBaseV2Plus {
     uint16 public requestConfirmations; // How many confirmations the Chainlink node should wait before responding.
     // 22 bytes remaining in slot
     uint32 public callbackGasLimit; // Gas limit for the Chainlink callback.
-    uint256 lastRequestId; // The last request ID.
+    uint256 public lastRequestId; // The last request ID.
     mapping(uint256 requestId => uint256 number) public randomNumbers; // randomNumbers[requestID] is the random number for this request id, 0 otherwise.
 
     // ************************************* //
