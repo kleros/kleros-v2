@@ -31,6 +31,11 @@ const Container = styled.div`
   padding-bottom: ${responsiveSize(8, 16)};
 `;
 
+const InfoCardContainer = styled.div`
+  display: flex;
+  margin-bottom: ${responsiveSize(16, 24)};
+`;
+
 const useFinalDate = (lastPeriodChange: string, currentPeriodIndex?: number, timesPerPeriod?: string[]) =>
   useMemo(() => {
     if (!isUndefined(currentPeriodIndex) && !isUndefined(timesPerPeriod))
@@ -70,14 +75,13 @@ const Voting: React.FC<IVoting> = ({ arbitrable, currentPeriodIndex }) => {
       )}
 
       {userWasDrawn || isDisconnected ? null : (
-        <>
+        <InfoCardContainer>
           {isDrawDataLoading ? (
             <Skeleton width={300} height={20} />
           ) : (
             <InfoCard msg="You were not drawn in current round." />
           )}
-          <br />
-        </>
+        </InfoCardContainer>
       )}
 
       {isPopupOpen && (

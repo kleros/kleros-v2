@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 import DarkModeIcon from "svgs/menu-icons/dark-mode.svg";
 import HelpIcon from "svgs/menu-icons/help.svg";
 import LightModeIcon from "svgs/menu-icons/light-mode.svg";
-import NotificationsIcon from "svgs/menu-icons/notifications.svg";
+// import NotificationsIcon from "svgs/menu-icons/notifications.svg";
 import SettingsIcon from "svgs/menu-icons/settings.svg";
 
 import { useToggleTheme } from "hooks/useToggleThemeContext";
@@ -57,7 +57,7 @@ const Menu: React.FC<ISettings & IHelp & IMenu> = ({ toggleIsHelpOpen, toggleIsS
   const isLightTheme = theme === "light";
 
   const buttons = [
-    { text: "Notifications", Icon: NotificationsIcon },
+    // { text: "Notifications", Icon: NotificationsIcon },
     {
       text: "Settings",
       Icon: SettingsIcon,

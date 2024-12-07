@@ -26,16 +26,31 @@ const StyledCard = styled(Card)`
   height: auto;
 `;
 
-const TextContainer = styled.div`
+const TopContent = styled.div`
+  display: flex;
+  flex-direction: column;
   padding: ${responsiveSize(8, 24)};
+  gap: 8px;
+  overflow-wrap: break-word;
+
   > * {
     overflow-wrap: break-word;
     margin: 0;
   }
-  > h3 {
-    display: inline-block;
-    margin: 0px 4px;
+  p {
+    margin: 0;
   }
+  h3 {
+    display: inline-block;
+    margin: 0;
+  }
+`;
+
+const IndexAndName = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
 `;
 
 const Index = styled.p`
@@ -48,6 +63,9 @@ const StyledReactMarkdown = styled(ReactMarkdown)`
   }
   code {
     color: ${({ theme }) => theme.secondaryText};
+  }
+  p {
+    margin: 0;
   }
 `;
 
@@ -65,25 +83,7 @@ const BottomShade = styled.div`
   }
 `;
 
-const AccountContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  align-items: center;
-
-  canvas {
-    width: 24px;
-    height: 24px;
-  }
-
-  > * {
-    flex-basis: 1;
-    flex-shrink: 0;
-    margin: 0;
-  }
-`;
-
-const LeftContent = styled.div`
+const BottomLeftContent = styled.div`
   display: block;
 
   & > *:not(:last-child) {
@@ -105,11 +105,36 @@ const LeftContent = styled.div`
   )}
 `;
 
+const AccountContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+
+  canvas {
+    width: 24px;
+    height: 24px;
+  }
+
+  > * {
+    flex-basis: 1;
+    flex-shrink: 0;
+    margin: 0;
+  }
+`;
+
 const HoverStyle = css`
   :hover {
     text-decoration: underline;
     color: ${({ theme }) => theme.primaryBlue};
     cursor: pointer;
+  }
+  :hover {
+    label {
+      text-decoration: underline;
+      color: ${({ theme }) => theme.primaryBlue};
+      cursor: pointer;
+    }
   }
 `;
 
@@ -118,8 +143,7 @@ const Address = styled.p`
   margin: 0;
 `;
 
-const Timestamp = styled.label`
-  color: ${({ theme }) => theme.secondaryText};
+const StyledExternalLink = styled(ExternalLink)`
   ${HoverStyle}
 `;
 
@@ -191,29 +215,25 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
 
   return (
     <StyledCard>
-      <TextContainer>
-        <Index>#{index}:</Index>
-        {name && description ? (
-          <>
-            <h3>{name}</h3>
-            <StyledReactMarkdown>{description}</StyledReactMarkdown>
-          </>
-        ) : (
-          <p>{evidence}</p>
-        )}
-      </TextContainer>
+      <TopContent>
+        <IndexAndName>
+          <Index>#{index}: </Index>
+          <h3>{name}</h3>
+        </IndexAndName>
+        {name && description ? <StyledReactMarkdown>{description}</StyledReactMarkdown> : <p>{evidence}</p>}
+      </TopContent>
       <BottomShade>
-        <LeftContent>
+        <BottomLeftContent>
           <AccountContainer>
             <Identicon size="24" string={sender} />
             <ExternalLink to={addressExplorerLink} rel="noopener noreferrer" target="_blank">
               <Address>{shortenAddress(sender)}</Address>
             </ExternalLink>
           </AccountContainer>
-          <ExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
-            <Timestamp>{formatDate(Number(timestamp), true)}</Timestamp>
-          </ExternalLink>
-        </LeftContent>
+          <StyledExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
+            <label>{formatDate(Number(timestamp), true)}</label>
+          </StyledExternalLink>
+        </BottomLeftContent>
         {fileURI && fileURI !== "-" ? (
           <FileLinkContainer>
             <StyledInternalLink to={`attachment/?url=${getIpfsUrl(fileURI)}`}>

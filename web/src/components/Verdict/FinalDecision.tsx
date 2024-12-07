@@ -41,6 +41,14 @@ const JuryContainer = styled.div`
   }
 `;
 
+const VerdictContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: ${responsiveSize(6, 8)};
+`;
+
 const JuryDecisionTag = styled.small`
   font-weight: 400;
   line-height: 19px;
@@ -49,6 +57,15 @@ const JuryDecisionTag = styled.small`
 
 const StyledDivider = styled(Divider)`
   margin: ${responsiveSize(16, 24)} 0px;
+`;
+
+const ReStyledArrowLink = styled(StyledArrowLink)`
+  font-size: 14px;
+
+  > svg {
+    height: 15px;
+    width: 15px;
+  }
 `;
 
 interface IFinalDecision {
@@ -81,27 +98,28 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
 
   return (
     <Container>
-      <VerdictBanner ruled={ruled} />
-
-      {ruled && (
-        <JuryContainer>
-          <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
-          <AnswerDisplay {...{ answer, currentRuling }} />
-        </JuryContainer>
-      )}
-      {!ruled && periodIndex > 1 && localRounds?.at(localRounds.length - 1)?.totalVoted > 0 && (
-        <JuryContainer>
-          <JuryDecisionTag>This option is winning:</JuryDecisionTag>
-          <AnswerDisplay {...{ answer, currentRuling }} />
-        </JuryContainer>
-      )}
+      <VerdictContainer>
+        <VerdictBanner ruled={ruled} />
+        {ruled && (
+          <JuryContainer>
+            <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>
+            <AnswerDisplay {...{ answer, currentRuling }} />
+          </JuryContainer>
+        )}
+        {!ruled && periodIndex > 1 && localRounds?.at(localRounds.length - 1)?.totalVoted > 0 && (
+          <JuryContainer>
+            <JuryDecisionTag>This option is winning:</JuryDecisionTag>
+            <AnswerDisplay {...{ answer, currentRuling }} />
+          </JuryContainer>
+        )}
+      </VerdictContainer>
       <StyledDivider />
       {isLoading && !isDisconnected ? (
         <Skeleton width={250} height={20} />
       ) : (
-        <StyledArrowLink to={`/cases/${id?.toString()}/voting`}>
+        <ReStyledArrowLink to={`/cases/${id?.toString()}/voting`}>
           {buttonText} <ArrowIcon />
-        </StyledArrowLink>
+        </ReStyledArrowLink>
       )}
     </Container>
   );
