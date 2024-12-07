@@ -84,10 +84,12 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
 
   return (
     <Container>
-      <RulingAndRewardsIndicators
-        ruled={Boolean(disputeData?.dispute?.ruled)}
-        jurorRewardsDispersed={jurorRewardsDispersed}
-      />
+      {Boolean(disputeData?.dispute?.ruled) || jurorRewardsDispersed ? (
+        <RulingAndRewardsIndicators
+          ruled={Boolean(disputeData?.dispute?.ruled)}
+          jurorRewardsDispersed={jurorRewardsDispersed}
+        />
+      ) : null}
       <Header>
         <StyledTitle>Voting History</StyledTitle>
         <HowItWorks
