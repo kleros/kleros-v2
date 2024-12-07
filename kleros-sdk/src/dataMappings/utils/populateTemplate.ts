@@ -12,7 +12,6 @@ export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDe
     console.error("Validation errors:", validation.error.errors, "\n\nDispute details:", `${JSON.stringify(dispute)}`);
     throw new InvalidFormatError("Invalid dispute details format");
   }
-  console.log(dispute);
 
   return dispute;
 };
