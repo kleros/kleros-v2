@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { SortitionModule } from "../typechain-types";
-import { HomeChains, isSkipped } from "./utils";
+import { HomeChains, isMainnet, isSkipped } from "./utils";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { getContractOrDeploy } from "./utils/getContractOrDeploy";
 
@@ -15,6 +15,8 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const chainId = Number(await getChainId());
   console.log("deploying to %s with deployer %s", HomeChains[chainId], deployer);
 
+  const sortitionModule = (await ethers.getContract("SortitionModuleNeo")) as SortitionModule;
+
   const randomizerOracle = await getContractOrDeploy(hre, "RandomizerOracle", {
     from: deployer,
     contract: "RandomizerMock",
@@ -24,7 +26,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const rng1 = await deployUpgradable(deployments, "RandomizerRNG", {
     from: deployer,
-    args: [randomizerOracle.address, deployer],
+    args: [deployer, sortitionModule.target, randomizerOracle.address],
     log: true,
   });
 
@@ -34,13 +36,12 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const sortitionModule = (await ethers.getContract("SortitionModuleNeo")) as SortitionModule;
   await sortitionModule.changeRandomNumberGenerator(rng2.address, RNG_LOOKAHEAD);
 };
 
 deployArbitration.tags = ["RNG"];
 deployArbitration.skip = async ({ network }) => {
-  return isSkipped(network, !HomeChains[network.config.chainId ?? 0]);
+  return isSkipped(network, isMainnet(network));
 };
 
 export default deployArbitration;

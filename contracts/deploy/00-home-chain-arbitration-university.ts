@@ -5,7 +5,7 @@ import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 import { ETH, HomeChains, PNK, isSkipped } from "./utils";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
-import { DisputeKitClassic, KlerosCore, KlerosCoreUniversity } from "../typechain-types";
+import { DisputeKitClassic, KlerosCoreUniversity } from "../typechain-types";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -53,7 +53,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       deployer, // governor
       deployer, // instructor
       pnk.target,
-      ZeroAddress,
+      ZeroAddress, // KlerosCore is configured later
       disputeKit.address,
       false,
       [minStake, alpha, feeForJuror, jurorsForCourtJump],
@@ -63,7 +63,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
 
-  // changeCore() only if necessary
+  // disputeKit.changeCore() only if necessary
   const disputeKitContract = (await ethers.getContract("DisputeKitClassicUniversity")) as DisputeKitClassic;
   const currentCore = await disputeKitContract.core();
   if (currentCore !== klerosCore.address) {
