@@ -30,7 +30,7 @@ const TopContent = styled.div`
   display: flex;
   flex-direction: column;
   padding: ${responsiveSize(8, 24)};
-  gap: 8px;
+  gap: ${responsiveSize(4, 8)};
   overflow-wrap: break-word;
 
   > * {

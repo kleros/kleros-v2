@@ -9,6 +9,7 @@ import ArrowIcon from "svgs/icons/arrow.svg";
 
 import { REFETCH_INTERVAL } from "consts/index";
 import { Periods } from "consts/periods";
+import { DEFAULT_CHAIN } from "consts/chains";
 import { useReadKlerosCoreCurrentRuling } from "hooks/contracts/generated";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
@@ -85,6 +86,7 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   const { data: currentRulingArray } = useReadKlerosCoreCurrentRuling({
     query: { refetchInterval: REFETCH_INTERVAL },
     args: [BigInt(id ?? 0)],
+    chainId: DEFAULT_CHAIN,
   });
   const currentRuling = Number(currentRulingArray?.[0]);
   const answer = populatedDisputeData?.answers?.[currentRuling! - 1];
