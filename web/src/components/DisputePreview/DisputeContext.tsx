@@ -26,7 +26,7 @@ const QuestionAndDescription = styled.div`
   word-wrap: break-word;
   div:first-child p:first-of-type {
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 400;
     margin: 0;
   }
 `;
@@ -54,6 +54,16 @@ const Answer = styled.div`
   > label {
     max-width: 100%;
   }
+`;
+
+const StyledSmall = styled.small`
+  color: ${({ theme }) => theme.secondaryText};
+  font-weight: 400;
+`;
+
+const StyledLabel = styled.label`
+  color: ${({ theme }) => theme.primaryText};
+  font-weight: 600;
 `;
 
 const AliasesContainer = styled.div`
@@ -88,11 +98,11 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRp
         <AnswersContainer>
           {disputeDetails?.answers?.map((answer: IAnswer, i: number) => (
             <Answer key={answer.title}>
-              <small>Option {i + 1}:</small>
-              <label>
+              <StyledSmall>{i + 1 + `.`}</StyledSmall>
+              <StyledLabel>
                 {answer.title}
                 {answer.description.trim() ? ` - ${answer.description}` : null}
-              </label>
+              </StyledLabel>
             </Answer>
           ))}
         </AnswersContainer>
