@@ -7,7 +7,7 @@ import HourglassIcon from "svgs/icons/hourglass.svg";
 const BannerContainer = styled.div`
   display: flex;
   gap: 8px;
-  margin-bottom: 8px;
+  align-items: center;
   svg {
     width: 16px;
     height: 16px;

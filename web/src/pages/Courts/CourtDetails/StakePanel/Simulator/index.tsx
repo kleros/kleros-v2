@@ -232,7 +232,7 @@ const Simulator: React.FC<ISimulator> = ({ amountToStake, isStaking }) => {
       <StyledDivider />
       <QuantityToSimulate {...{ jurorCurrentEffectiveStake, jurorCurrentSpecificStake, isStaking, amountToStake }} />
       <ItemsContainer>
-        {simulatorItems.map((item, index) => (
+        {simulatorItems.map((item) => (
           <SimulatorItem key={item.title}>
             <LeftContent>
               <IconWrapper>{item.icon}</IconWrapper>

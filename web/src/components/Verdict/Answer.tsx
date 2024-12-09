@@ -11,17 +11,6 @@ const Container = styled.div`
   gap: 6px;
 `;
 
-const AnswerTitle = styled.h3`
-  margin: 0;
-`;
-
-const AnswerDescription = styled.h4`
-  margin: 0;
-  font-size: 15px;
-  color: ${({ theme }) => theme.primaryText};
-  padding-bottom: 0.5px;
-`;
-
 interface IAnswer {
   answer?: Answer;
   currentRuling: number;
@@ -32,14 +21,16 @@ const AnswerDisplay: React.FC<IAnswer> = ({ answer, currentRuling }) => {
     <>
       {answer ? (
         <Container>
-          <AnswerTitle>
+          <small>
             {answer.title}
             {answer.description.trim() ? " -" : null}
-          </AnswerTitle>
-          <AnswerDescription>{answer.description.trim()}</AnswerDescription>
+          </small>
+          <small>{answer.description.trim()}</small>
         </Container>
       ) : (
-        <Container>{currentRuling !== 0 ? <h3>Answer 0x{currentRuling}</h3> : <h3>Refuse to Arbitrate</h3>}</Container>
+        <Container>
+          {currentRuling !== 0 ? <small>Answer 0x{currentRuling}</small> : <small>Refuse to Arbitrate</small>}
+        </Container>
       )}
     </>
   );

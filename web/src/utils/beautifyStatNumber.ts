@@ -18,7 +18,7 @@ export function beautifyStatNumber(value: number, invertValue: boolean = false):
     }
   }
 
-  return commify(value.toFixed(0));
+  return commify(value.toFixed(2));
 }
 
 export function unbeautifyStatNumber(value: string): number {
