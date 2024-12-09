@@ -2,14 +2,14 @@
 
 pragma solidity 0.8.24;
 
-import "./RNG.sol";
+import "./IRNG.sol";
 import "./IRandomizer.sol";
 import "../proxy/UUPSProxiable.sol";
 import "../proxy/Initializable.sol";
 
 /// @title Random Number Generator that uses Randomizer.ai
 /// https://randomizer.ai/
-contract RandomizerRNG is RNG, UUPSProxiable, Initializable {
+contract RandomizerRNG is IRNG, UUPSProxiable, Initializable {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //

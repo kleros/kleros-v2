@@ -2,7 +2,8 @@
 
 pragma solidity 0.8.24;
 
-interface RNG {
+/// @title Random Number Generator interface
+interface IRNG {
     /// @dev Request a random number.
     function requestRandomness() external;
 

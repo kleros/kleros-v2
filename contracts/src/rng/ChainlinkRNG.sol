@@ -5,11 +5,11 @@ pragma solidity 0.8.24;
 import {VRFConsumerBaseV2Plus, IVRFCoordinatorV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 
-import "./RNG.sol";
+import "./IRNG.sol";
 
 /// @title Random Number Generator that uses Chainlink VRF v2.5
 /// https://blog.chain.link/introducing-vrf-v2-5/
-contract ChainlinkRNG is RNG, VRFConsumerBaseV2Plus {
+contract ChainlinkRNG is IRNG, VRFConsumerBaseV2Plus {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //

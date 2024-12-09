@@ -5,9 +5,9 @@
 /// @dev A Random Number Generator which returns a number incremented by 1 each time. Useful as a fallback method.
 
 pragma solidity 0.8.24;
-import "./RNG.sol";
+import "./IRNG.sol";
 
-contract IncrementalNG is RNG {
+contract IncrementalNG is IRNG {
     uint256 public number;
 
     constructor(uint256 _start) {

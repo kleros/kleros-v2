@@ -13,7 +13,7 @@ pragma solidity 0.8.24;
 import "./KlerosCore.sol";
 import "./interfaces/ISortitionModule.sol";
 import "./interfaces/IDisputeKit.sol";
-import "../rng/RNG.sol";
+import "../rng/IRNG.sol";
 import "../libraries/Constants.sol";
 
 /// @title SortitionModuleBase
@@ -64,7 +64,7 @@ abstract contract SortitionModuleBase is ISortitionModule {
     uint256 public maxDrawingTime; // The time after which the phase can be switched back to Staking.
     uint256 public lastPhaseChange; // The last time the phase was changed.
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
-    RNG public rng; // The random number generator.
+    IRNG public rng; // The random number generator.
     uint256 public randomNumber; // Random number returned by RNG.
     uint256 public rngLookahead; // DEPRECATED
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
@@ -93,7 +93,7 @@ abstract contract SortitionModuleBase is ISortitionModule {
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
-        RNG _rng
+        IRNG _rng
     ) internal {
         governor = _governor;
         core = _core;
@@ -136,7 +136,7 @@ abstract contract SortitionModuleBase is ISortitionModule {
 
     /// @dev Changes the `rng` storage variable.
     /// @param _rng The new random number generator.
-    function changeRandomNumberGenerator(RNG _rng) external onlyByGovernor {
+    function changeRandomNumberGenerator(IRNG _rng) external onlyByGovernor {
         rng = _rng;
         if (phase == Phase.generating) {
             rng.requestRandomness();

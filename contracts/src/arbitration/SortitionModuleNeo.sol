@@ -47,7 +47,7 @@ contract SortitionModuleNeo is SortitionModuleBase, UUPSProxiable, Initializable
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
-        RNG _rng,
+        IRNG _rng,
         uint256 _maxStakePerJuror,
         uint256 _maxTotalStaked
     ) external reinitializer(2) {

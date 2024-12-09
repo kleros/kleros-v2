@@ -37,7 +37,7 @@ contract SortitionModule is SortitionModuleBase, UUPSProxiable, Initializable {
         KlerosCore _core,
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
-        RNG _rng
+        IRNG _rng
     ) external reinitializer(1) {
         super._initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng);
     }

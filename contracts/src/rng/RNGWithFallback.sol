@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
-import "./RNG.sol";
+import "./IRNG.sol";
 
 /// @title RNG with fallback mechanism
 /// @notice Uses multiple RNG implementations with automatic fallback if default RNG does not respond passed a timeout.
-contract RNGWithFallback is RNG {
+contract RNGWithFallback is IRNG {
     uint256 public constant DEFAULT_RNG = 0;
 
     // ************************************* //
@@ -13,7 +13,7 @@ contract RNGWithFallback is RNG {
     // ************************************* //
 
     address public governor; // Governor address
-    RNG[] public rngs; // List of RNG implementations
+    IRNG[] public rngs; // List of RNG implementations
     uint256 public fallbackTimeout; // Number of blocks to wait before falling back to next RNG
     uint256 public requestBlock; // Block number of the current request
     uint256 public currentRngIndex; // Index of the current RNG
@@ -35,14 +35,14 @@ contract RNGWithFallback is RNG {
 
     /// @param _governor Governor address
     /// @param _fallbackTimeout Number of blocks to wait before falling back to next RNG
-    /// @param _initialRng The default RNG
-    constructor(address _governor, uint256 _fallbackTimeout, RNG _initialRng) {
-        require(address(_initialRng) != address(0), "Invalid default RNG");
+    /// @param _defaultRng The default RNG
+    constructor(address _governor, uint256 _fallbackTimeout, IRNG _defaultRng) {
+        require(address(_defaultRng) != address(0), "Invalid default RNG");
         require(_fallbackTimeout > 0, "Invalid fallback timeout");
 
         governor = _governor;
         fallbackTimeout = _fallbackTimeout;
-        rngs.push(_initialRng);
+        rngs.push(_defaultRng);
     }
 
     // ************************************* //
@@ -110,7 +110,7 @@ contract RNGWithFallback is RNG {
 
     /// @dev Change the default RNG
     /// @param _newDefaultRng Address of the new default RNG
-    function changeDefaultRng(RNG _newDefaultRng) external onlyByGovernor {
+    function changeDefaultRng(IRNG _newDefaultRng) external onlyByGovernor {
         require(address(_newDefaultRng) != address(0), "Invalid RNG");
         rngs[DEFAULT_RNG] = _newDefaultRng;
         emit RNGDefaultChanged(address(_newDefaultRng));
@@ -121,7 +121,7 @@ contract RNGWithFallback is RNG {
 
     /// @dev Add a new RNG fallback
     /// @param _newFallbackRng Address of the new RNG fallback
-    function addRngFallback(RNG _newFallbackRng) external onlyByGovernor {
+    function addRngFallback(IRNG _newFallbackRng) external onlyByGovernor {
         require(address(_newFallbackRng) != address(0), "Invalid RNG");
         rngs.push(_newFallbackRng);
         emit RNGFallbackAdded(address(_newFallbackRng));
@@ -136,7 +136,7 @@ contract RNGWithFallback is RNG {
             currentRngIndex = DEFAULT_RNG;
         }
 
-        RNG removedRng = rngs[rngs.length - 1];
+        IRNG removedRng = rngs[rngs.length - 1];
         rngs.pop();
         emit RNGFallbackRemoved(address(removedRng));
     }
