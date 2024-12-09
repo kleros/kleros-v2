@@ -12,7 +12,7 @@ import { uncommify } from "utils/commify";
 
 import { useJurorStakeDetailsQuery } from "queries/useJurorStakeDetailsQuery";
 
-import QuantityToSimulate from "../SimulatorPopup/QuantityToSimulate";
+import QuantityToSimulate from "../Simulator/QuantityToSimulate";
 import { ActionType } from "../StakeWithdrawButton";
 
 const StakingMsgContainer = styled.div`

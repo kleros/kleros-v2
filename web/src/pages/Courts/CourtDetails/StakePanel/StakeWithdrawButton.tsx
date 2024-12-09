@@ -215,6 +215,19 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
               if (status) {
                 await refetchAllowance();
                 const refetchData = await refetchSetStake();
+                // check for a relatively new error with react/tanstack-query:
+                // https://github.com/TanStack/query/issues/8209
+                if (!refetchData.data)
+                  setPopupStepsState(
+                    getStakeSteps(
+                      StakeSteps.ApproveFailed,
+                      amount,
+                      theme,
+                      hash,
+                      undefined,
+                      new Error("Something went wrong. Please restart the process.")
+                    )
+                  );
 
                 handleStake(refetchData.data, hash);
               } else setPopupStepsState(getStakeSteps(StakeSteps.ApproveFailed, amount, theme, hash));
@@ -277,6 +290,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
     setIsPopupOpen(false);
     setIsSuccess(false);
     setAmount("");
+    setPopupStepsState(undefined);
   };
 
   return (
