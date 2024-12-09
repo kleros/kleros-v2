@@ -53,7 +53,7 @@ const createApprovalSteps = (
   return [
     {
       title: "Approve in wallet",
-      subtitle: error ? (error?.shortMessage ?? error.message) : "PNK spending",
+      subtitle: error ? (error?.shortMessage ?? error?.message) : "PNK spending",
       rightSided: true,
       variant,
       state,
@@ -104,7 +104,7 @@ const createStakeSteps = (
         },
         {
           title: "Stake in wallet",
-          subtitle: error ? (error?.shortMessage ?? error.message) : "",
+          subtitle: error ? (error?.shortMessage ?? error?.message) : "",
           rightSided: true,
           variant,
           state,
@@ -115,7 +115,7 @@ const createStakeSteps = (
     : [
         {
           title: "Unstake in wallet",
-          subtitle: error ? (error?.shortMessage ?? error.message) : "",
+          subtitle: error ? (error?.shortMessage ?? error?.message) : "",
           rightSided: true,
           variant,
           state,

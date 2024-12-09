@@ -201,7 +201,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
 
   const handleClick = useCallback(() => {
     setIsPopupOpen(true);
-    if (ActionType.allowance && isAllowance && increaseAllowanceConfig && publicClient) {
+    if (isAllowance && increaseAllowanceConfig && publicClient) {
       setPopupStepsState(getStakeSteps(StakeSteps.ApproveInitiate, amount, theme));
 
       increaseAllowance(increaseAllowanceConfig.request)
