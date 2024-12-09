@@ -40,7 +40,6 @@ contract SortitionModuleNeo is SortitionModuleBase, UUPSProxiable, Initializable
     /// @param _minStakingTime Minimal time to stake
     /// @param _maxDrawingTime Time after which the drawing phase can be switched
     /// @param _rng The random number generator.
-    /// @param _rngLookahead Lookahead value for rng.
     /// @param _maxStakePerJuror The maximum amount of PNK a juror can stake in a court.
     /// @param _maxTotalStaked The maximum amount of PNK that can be staked in all courts.
     function initialize(
@@ -49,11 +48,10 @@ contract SortitionModuleNeo is SortitionModuleBase, UUPSProxiable, Initializable
         uint256 _minStakingTime,
         uint256 _maxDrawingTime,
         RNG _rng,
-        uint256 _rngLookahead,
         uint256 _maxStakePerJuror,
         uint256 _maxTotalStaked
     ) external reinitializer(2) {
-        super._initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng, _rngLookahead);
+        super._initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng);
         maxStakePerJuror = _maxStakePerJuror;
         maxTotalStaked = _maxTotalStaked;
     }

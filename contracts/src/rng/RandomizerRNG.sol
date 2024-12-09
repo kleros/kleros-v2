@@ -15,7 +15,7 @@ contract RandomizerRNG is RNG, UUPSProxiable, Initializable {
     // ************************************* //
 
     address public governor; // The address that can withdraw funds.
-    address public sortitionModule; // The address of the SortitionModule.
+    address public consumer; // The address that can request random numbers.
     IRandomizer public randomizer; // Randomizer address.
     uint256 public callbackGasLimit; // Gas limit for the Randomizer.ai callback.
     uint256 lastRequestId; // The last request ID.
@@ -43,8 +43,8 @@ contract RandomizerRNG is RNG, UUPSProxiable, Initializable {
         _;
     }
 
-    modifier onlyBySortitionModule() {
-        require(sortitionModule == msg.sender, "SortitionModule only");
+    modifier onlyByConsumer() {
+        require(consumer == msg.sender, "Consumer only");
         _;
     }
 
@@ -60,13 +60,9 @@ contract RandomizerRNG is RNG, UUPSProxiable, Initializable {
     /// @dev Initializer
     /// @param _randomizer Randomizer contract.
     /// @param _governor Governor of the contract.
-    function initialize(
-        address _governor,
-        address _sortitionModule,
-        IRandomizer _randomizer
-    ) external reinitializer(1) {
+    function initialize(address _governor, address _consumer, IRandomizer _randomizer) external reinitializer(1) {
         governor = _governor;
-        sortitionModule = _sortitionModule;
+        consumer = _consumer;
         randomizer = _randomizer;
         callbackGasLimit = 50000;
     }
@@ -89,10 +85,10 @@ contract RandomizerRNG is RNG, UUPSProxiable, Initializable {
         governor = _governor;
     }
 
-    /// @dev Changes the sortition module of the contract.
-    /// @param _sortitionModule The new sortition module.
-    function changeSortitionModule(address _sortitionModule) external onlyByGovernor {
-        sortitionModule = _sortitionModule;
+    /// @dev Changes the consumer of the RNG.
+    /// @param _consumer The new consumer.
+    function changeConsumer(address _consumer) external onlyByGovernor {
+        consumer = _consumer;
     }
 
     /// @dev Change the Randomizer callback gas limit.
@@ -117,8 +113,8 @@ contract RandomizerRNG is RNG, UUPSProxiable, Initializable {
     // *         State Modifiers           * //
     // ************************************* //
 
-    /// @dev Request a random number. SortitionModule only.
-    function requestRandomness(uint256 /*_block*/) external override onlyBySortitionModule {
+    /// @dev Request a random number. Consumer only.
+    function requestRandomness() external override onlyByConsumer {
         uint256 requestId = randomizer.request(callbackGasLimit);
         lastRequestId = requestId;
         emit RequestSent(requestId);
@@ -139,7 +135,7 @@ contract RandomizerRNG is RNG, UUPSProxiable, Initializable {
 
     /// @dev Return the random number.
     /// @return randomNumber The random number or 0 if it is not ready or has not been requested.
-    function receiveRandomness(uint256 /*_block*/) external view override returns (uint256 randomNumber) {
+    function receiveRandomness() external view override returns (uint256 randomNumber) {
         randomNumber = randomNumbers[lastRequestId];
     }
 }

@@ -15,15 +15,13 @@ contract IncrementalNG is RNG {
     }
 
     /// @dev Request a random number.
-    /// @param _block Block the random number is linked to.
-    function requestRandomness(uint256 _block) external override {
+    function requestRandomness() external override {
         // nop
     }
 
     /// @dev Get the "random number" (which is always the same).
-    /// @param _block Block the random number is linked to.
     /// @return randomNumber The random number or 0 if it is not ready or has not been requested.
-    function receiveRandomness(uint256 _block) external override returns (uint256 randomNumber) {
+    function receiveRandomness() external override returns (uint256 randomNumber) {
         unchecked {
             return number++;
         }
