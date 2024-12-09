@@ -5209,12 +5209,12 @@ __metadata:
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
-    "@kleros/ui-components-library": "npm:^2.15.0"
+    "@kleros/ui-components-library": "npm:^2.16.0"
     "@lifi/wallet-management": "npm:^3.4.5"
     "@lifi/widget": "npm:^3.12.2"
     "@sentry/react": "npm:^7.120.0"
     "@sentry/tracing": "npm:^7.120.0"
-    "@tanstack/react-query": "npm:^5.61.0"
+    "@tanstack/react-query": "npm:^5.56.2"
     "@types/busboy": "npm:^1.5.4"
     "@types/react": "npm:^18.3.12"
     "@types/react-dom": "npm:^18.3.1"
@@ -5291,6 +5291,29 @@ __metadata:
     react-is: ^18.0.0
     styled-components: ^5.3.3
   checksum: 10/7c97e8fe45b1cd002a0aaf7fe4670b8c668a3abbbab82fac9261ef9a8382ccaf7d4a974ee54b8f299f1e8e7b68e58dab1f3f31d7c8b3b60c58a5af8abdf4a783
+  languageName: node
+  linkType: hard
+
+"@kleros/ui-components-library@npm:^2.16.0":
+  version: 2.16.0
+  resolution: "@kleros/ui-components-library@npm:2.16.0"
+  dependencies:
+    "@datepicker-react/hooks": "npm:^2.8.4"
+    "@swc/helpers": "npm:^0.3.2"
+    rc-slider: "npm:^9.7.5"
+    react: "npm:^18.0.0"
+    react-dom: "npm:^18.0.0"
+    react-is: "npm:^18.0.0"
+    simplebar: "npm:^5.3.6"
+    simplebar-react: "npm:^2.3.6"
+    smooth-scroll-into-view-if-needed: "npm:^1.1.33"
+    usehooks-ts: "npm:^2.9.1"
+  peerDependencies:
+    react: ^18.0.0
+    react-dom: ^18.0.0
+    react-is: ^18.0.0
+    styled-components: ^5.3.3
+  checksum: 10/d17d05aa96c3df6ec8ee5a1ea31652f113d09ddeb5c8ac42aeb951c1d5346086744ede254da47fe0f6294950a64b23bf1b3cb4d44c330020b57a6c55994fdb32
   languageName: node
   linkType: hard
 
@@ -8864,6 +8887,24 @@ __metadata:
   version: 5.60.6
   resolution: "@tanstack/query-core@npm:5.60.6"
   checksum: 10/a87613d85b3a280f2fef69037dd0ad512052d49b8dc979ed289ee538452d331926a720678bbd3b4485a8b38d5baf65c42869179f2fdeefa3f7b6dda04e878e56
+  languageName: node
+  linkType: hard
+
+"@tanstack/query-core@npm:5.62.3":
+  version: 5.62.3
+  resolution: "@tanstack/query-core@npm:5.62.3"
+  checksum: 10/de7a561a69754fabfa3f40713d1b52913c5b476c519a7ff92dec2a28a8417b18cf31977bb8bf9df5adacd9370607a4561db7ad39d5ebaaeea2962a4b339d7691
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query@npm:^5.56.2":
+  version: 5.62.3
+  resolution: "@tanstack/react-query@npm:5.62.3"
+  dependencies:
+    "@tanstack/query-core": "npm:5.62.3"
+  peerDependencies:
+    react: ^18 || ^19
+  checksum: 10/ae43dbf707b9f9f1574093b13e237af06117d002f4228da22a8f8a6a59b1c4598b63d71c1d286f11d66a33c425cec4f5af072f2ac1c265518ff7fb5541eefc69
   languageName: node
   linkType: hard
 

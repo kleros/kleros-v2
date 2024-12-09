@@ -1,72 +1,21 @@
-import React, { useMemo } from "react";
-import styled, { DefaultTheme, keyframes } from "styled-components";
+import React from "react";
+import styled, { DefaultTheme } from "styled-components";
 
-import { _TimelineItem1 } from "@kleros/ui-components-library";
+import { _TimelineItem1, StateProp } from "@kleros/ui-components-library";
 
 import CheckIcon from "svgs/icons/check-circle-outline.svg";
-import NewTabIcon from "svgs/icons/new-tab.svg";
-import SpinnerIcon from "svgs/icons/spinner.svg";
 
-import { DEFAULT_CHAIN, getChain } from "consts/chains";
-import { parseWagmiError } from "utils/parseWagmiError";
-
-import { ExternalLink } from "components/ExternalLink";
+import Spinner from "components/Spinner";
+import TxnHash from "components/TxnHash";
 
 const StyledLabel = styled.label`
   color: ${({ theme }) => theme.secondaryPurple};
-`;
-
-const rotating = keyframes`
-    0%{
-      transform: rotate(0deg);
-    }
-    50%{
-      transform: rotate(180deg);
-    }
-    100%{
-      transform: rotate(360deg);
-    }
-`;
-
-const Spinner = styled(SpinnerIcon)`
-  path {
-    fill: ${({ theme }) => theme.primaryBlue};
-  }
-  width: 16px;
-  height: 16px;
-  margin-right: 4px;
-  animation: ${rotating} 2s ease-in-out infinite normal;
 `;
 
 const PartyContainer = styled.div`
   display: flex;
   gap: 8px;
 `;
-const TxnLabel = styled.label<{ variant: string }>`
-  display: flex;
-  gap: 4px;
-  color: ${({ theme, variant }) => (variant === "pending" ? theme.primaryBlue : theme[variant])};
-  cursor: pointer;
-  path {
-    fill: ${({ theme, variant }) => (variant === "pending" ? theme.primaryBlue : theme[variant])};
-  }
-`;
-
-const TxnHash: React.FC<{ hash: `0x${string}`; variant: "success" | "error" | "pending" }> = ({ hash, variant }) => {
-  const transactionExplorerLink = useMemo(() => {
-    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/tx/${hash}`;
-  }, [hash]);
-
-  return (
-    <ExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
-      <TxnLabel {...{ variant }}>
-        {" "}
-        <span>{hash.substring(0, 6) + "..." + hash.substring(hash.length - 4)}</span>
-        <NewTabIcon />
-      </TxnLabel>
-    </ExternalLink>
-  );
-};
 
 export enum StakeSteps {
   ApproveInitiate,
@@ -82,6 +31,100 @@ export enum StakeSteps {
   WithdrawFailed,
 }
 
+const createApprovalSteps = (
+  theme: DefaultTheme,
+  variant: string,
+  state: StateProp["state"],
+  amount: string,
+  hash: `0x${string}` | undefined,
+  error: any
+): [_TimelineItem1, ..._TimelineItem1[]] => {
+  const party = () => {
+    if (variant === "refused") return hash ? <TxnHash hash={hash} variant="error" /> : <></>;
+    return state === "loading" ? (
+      <></>
+    ) : (
+      <PartyContainer>
+        {hash && <TxnHash hash={hash} variant="pending" />}
+        <Spinner />
+      </PartyContainer>
+    );
+  };
+  return [
+    {
+      title: "Approve in wallet",
+      subtitle: error ? (error?.shortMessage ?? error.message) : "PNK spending",
+      rightSided: true,
+      variant,
+      state,
+      party: party(),
+    },
+    {
+      title: "Stake in wallet",
+      subtitle: "",
+      rightSided: true,
+      variant: theme.secondaryPurple,
+      party: <StyledLabel>{amount} PNK</StyledLabel>,
+      state: "disabled",
+    },
+  ];
+};
+
+const createStakeSteps = (
+  theme: DefaultTheme,
+  variant: string,
+  state: StateProp["state"],
+  amount: string,
+  approvalHash: `0x${string}` | undefined,
+  stakeHash: `0x${string}` | undefined,
+  error: any,
+  isStake: boolean
+): [_TimelineItem1, ..._TimelineItem1[]] => {
+  const party = () => {
+    if (["refused", "accepted"].includes(variant))
+      return stakeHash ? <TxnHash hash={stakeHash} variant={variant === "refused" ? "error" : "success"} /> : <></>;
+    return state === "loading" ? (
+      <StyledLabel>{amount} PNK</StyledLabel>
+    ) : (
+      <PartyContainer>
+        {stakeHash && <TxnHash hash={stakeHash} variant="pending" />}
+        <Spinner />
+      </PartyContainer>
+    );
+  };
+  return isStake
+    ? [
+        {
+          title: "Approve in wallet",
+          subtitle: "PNK spending",
+          rightSided: true,
+          variant: theme.success,
+          party: approvalHash ? <TxnHash hash={approvalHash} variant="success" /> : <></>,
+          Icon: CheckIcon,
+        },
+        {
+          title: "Stake in wallet",
+          subtitle: error ? (error?.shortMessage ?? error.message) : "",
+          rightSided: true,
+          variant,
+          state,
+          party: party(),
+          Icon: variant === "accepted" ? CheckIcon : undefined,
+        },
+      ]
+    : [
+        {
+          title: "Unstake in wallet",
+          subtitle: error ? (error?.shortMessage ?? error.message) : "",
+          rightSided: true,
+          variant,
+          state,
+          party: party(),
+          Icon: variant === "accepted" ? CheckIcon : undefined,
+        },
+      ];
+};
+
 export const getStakeSteps = (
   stepType: StakeSteps,
   amount: string,
@@ -92,185 +135,27 @@ export const getStakeSteps = (
 ): [_TimelineItem1, ..._TimelineItem1[]] => {
   switch (stepType) {
     case StakeSteps.ApproveInitiate:
-      return [
-        {
-          title: "Approve in wallet",
-          subtitle: "PNK spending",
-          rightSided: true,
-          variant: theme.secondaryPurple,
-          party: <></>,
-        },
-        {
-          title: "Stake in wallet",
-          subtitle: "",
-          rightSided: true,
-          variant: theme.secondaryPurple,
-          party: <StyledLabel>{amount} PNK</StyledLabel>,
-        },
-      ];
+      return createApprovalSteps(theme, theme.secondaryPurple, "loading", amount, approvalHash, error);
 
     case StakeSteps.ApprovePending:
-      return [
-        {
-          title: "Approve in wallet",
-          subtitle: "PNK spending",
-          rightSided: true,
-          variant: theme.secondaryPurple,
-          party: (
-            <PartyContainer>
-              {approvalHash && <TxnHash hash={approvalHash} variant="pending" />}
-              <Spinner />
-            </PartyContainer>
-          ),
-        },
-        {
-          title: "Stake in wallet",
-          subtitle: "",
-          rightSided: true,
-          variant: theme.secondaryPurple,
-          party: <StyledLabel>{amount} PNK</StyledLabel>,
-        },
-      ];
+      return createApprovalSteps(theme, theme.secondaryPurple, "active", amount, approvalHash, error);
     case StakeSteps.ApproveFailed:
-      return [
-        {
-          title: "Approve in wallet",
-          subtitle: parseWagmiError(error),
-          rightSided: true,
-          variant: "refused",
-          party: approvalHash ? <TxnHash hash={approvalHash} variant="error" /> : <></>,
-        },
-        {
-          title: "Stake in wallet",
-          subtitle: "",
-          rightSided: true,
-          variant: theme.secondaryPurple,
-          party: <StyledLabel>{amount} PNK</StyledLabel>,
-        },
-      ];
+      return createApprovalSteps(theme, "refused", "active", amount, approvalHash, error);
     case StakeSteps.StakeInitiate:
-      return [
-        {
-          title: "Approve in wallet",
-          subtitle: "PNK spending",
-          rightSided: true,
-          variant: theme.success,
-          party: approvalHash ? <TxnHash hash={approvalHash} variant="success" /> : <></>,
-          Icon: CheckIcon,
-        },
-        {
-          title: "Stake in wallet",
-          subtitle: "",
-          rightSided: true,
-          variant: theme.secondaryPurple,
-          party: <StyledLabel>{amount} PNK</StyledLabel>,
-        },
-      ];
+      return createStakeSteps(theme, theme.secondaryPurple, "loading", amount, approvalHash, stakeHash, error, true);
     case StakeSteps.StakePending:
-      return [
-        {
-          title: "Approve in wallet",
-          subtitle: "PNK spending",
-          rightSided: true,
-          variant: theme.success,
-          party: approvalHash ? <TxnHash hash={approvalHash} variant="success" /> : <></>,
-          Icon: CheckIcon,
-        },
-        {
-          title: "Stake in wallet",
-          subtitle: "",
-          rightSided: true,
-          variant: theme.secondaryPurple,
-          party: (
-            <PartyContainer>
-              {stakeHash && <TxnHash hash={stakeHash} variant="pending" />}
-              <Spinner />
-            </PartyContainer>
-          ),
-        },
-      ];
+      return createStakeSteps(theme, theme.secondaryPurple, "active", amount, approvalHash, stakeHash, error, true);
     case StakeSteps.StakeFailed:
-      return [
-        {
-          title: "Approve in wallet",
-          subtitle: "PNK spending",
-          rightSided: true,
-          variant: theme.success,
-          party: approvalHash ? <TxnHash hash={approvalHash} variant="success" /> : <></>,
-          Icon: CheckIcon,
-        },
-        {
-          title: "Stake in wallet",
-          subtitle: parseWagmiError(error),
-          rightSided: true,
-          variant: "refused",
-          party: stakeHash ? <TxnHash hash={stakeHash} variant="error" /> : <></>,
-        },
-      ];
+      return createStakeSteps(theme, "refused", "active", amount, approvalHash, stakeHash, error, true);
     case StakeSteps.StakeConfirmed:
-      return [
-        {
-          title: "Approve in wallet",
-          subtitle: "PNK spending",
-          rightSided: true,
-          variant: theme.success,
-          party: approvalHash ? <TxnHash hash={approvalHash} variant="success" /> : <></>,
-          Icon: CheckIcon,
-        },
-        {
-          title: "Stake in wallet",
-          subtitle: "",
-          rightSided: true,
-          variant: theme.success,
-          party: stakeHash ? <TxnHash hash={stakeHash} variant="success" /> : <></>,
-          Icon: CheckIcon,
-        },
-      ];
+      return createStakeSteps(theme, "accepted", "active", amount, approvalHash, stakeHash, error, true);
     case StakeSteps.WithdrawInitiate:
-      return [
-        {
-          title: "Un-Stake in wallet",
-          subtitle: "",
-          rightSided: true,
-          variant: theme.secondaryPurple,
-          party: <StyledLabel>{amount} PNK</StyledLabel>,
-        },
-      ];
+      return createStakeSteps(theme, theme.secondaryPurple, "loading", amount, approvalHash, stakeHash, error, false);
     case StakeSteps.WithdrawPending:
-      return [
-        {
-          title: "Un-Stake in wallet",
-          subtitle: "",
-          rightSided: true,
-          variant: theme.secondaryPurple,
-          party: (
-            <PartyContainer>
-              {stakeHash && <TxnHash hash={stakeHash} variant="pending" />}
-              <Spinner />
-            </PartyContainer>
-          ),
-        },
-      ];
+      return createStakeSteps(theme, theme.secondaryPurple, "active", amount, approvalHash, stakeHash, error, false);
     case StakeSteps.WithdrawConfirmed:
-      return [
-        {
-          title: "Un-Stake in wallet",
-          subtitle: "",
-          rightSided: true,
-          variant: theme.success,
-          party: stakeHash ? <TxnHash hash={stakeHash} variant="success" /> : <></>,
-          Icon: CheckIcon,
-        },
-      ];
+      return createStakeSteps(theme, "accepted", "active", amount, approvalHash, stakeHash, error, false);
     default:
-      return [
-        {
-          title: "Un-Stake in wallet",
-          subtitle: parseWagmiError(error),
-          rightSided: true,
-          variant: "refused",
-          party: stakeHash ? <TxnHash hash={stakeHash} variant="error" /> : <></>,
-        },
-      ];
+      return createStakeSteps(theme, "refused", "active", amount, approvalHash, stakeHash, error, false);
   }
 };

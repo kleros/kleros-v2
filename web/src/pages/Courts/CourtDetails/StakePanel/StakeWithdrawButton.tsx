@@ -260,12 +260,13 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
   ]);
 
   useEffect(() => {
+    if (isPopupOpen) return;
     if (setStakeError || allowanceError) {
       setErrorMsg(parseWagmiError(setStakeError || allowanceError));
     } else if (targetStake !== 0n && courtDetails && targetStake < BigInt(courtDetails.court?.minStake)) {
       setErrorMsg(`Min Stake in court is: ${formatETH(courtDetails?.court?.minStake)}`);
     }
-  }, [setStakeError, setErrorMsg, targetStake, courtDetails, allowanceError]);
+  }, [setStakeError, setErrorMsg, targetStake, courtDetails, allowanceError, isPopupOpen]);
 
   const isDisabled = useMemo(() => {
     if (

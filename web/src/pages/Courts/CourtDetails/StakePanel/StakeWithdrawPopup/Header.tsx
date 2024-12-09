@@ -64,11 +64,13 @@ const Header: React.FC<IHeader> = ({ action, amount, isSuccess }) => {
   const jurorCurrentSpecificStake = address && jurorStakeData ? Number(formatEther(jurorStakeData.staked)) : 0;
 
   const isWithdraw = action === ActionType.withdraw;
-  const actionText = useMemo(() => (isWithdraw ? "withdrew" : "staked"), [isWithdraw]);
+  const preStakeText = useMemo(() => (isWithdraw ? "withdrawing" : "staking"), [isWithdraw]);
+  const postStakeText = useMemo(() => (isWithdraw ? "withdrew" : "staked"), [isWithdraw]);
+
   return (
     <StakingMsgContainer>
       {isSuccess ? <CheckIcon /> : null}
-      <StakingMsg>{isSuccess ? `You successfully ${actionText}` : `You are ${actionText}`}</StakingMsg>
+      <StakingMsg>{isSuccess ? `You successfully ${postStakeText}` : `You are ${preStakeText}`}</StakingMsg>
       <StakingAmount>{amount} PNK</StakingAmount>
       {courtDetails?.court?.name ? <CourtName>on {courtDetails.court.name}</CourtName> : null}
       {isSuccess ? null : (
