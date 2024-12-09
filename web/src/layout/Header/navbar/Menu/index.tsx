@@ -13,7 +13,7 @@ import { landscapeStyle } from "styles/landscapeStyle";
 
 import LightButton from "components/LightButton";
 
-import { IHelp, ISettings } from "..";
+import { IHelp, ISettings } from "../index";
 
 const Container = styled.div`
   display: flex;
@@ -48,7 +48,11 @@ const ButtonContainer = styled.div`
   )}
 `;
 
-const Menu: React.FC<ISettings & IHelp> = ({ toggleIsHelpOpen, toggleIsSettingsOpen }) => {
+interface IMenu {
+  isMobileNavbar?: boolean;
+}
+
+const Menu: React.FC<ISettings & IHelp & IMenu> = ({ toggleIsHelpOpen, toggleIsSettingsOpen, isMobileNavbar }) => {
   const [theme, toggleTheme] = useToggleTheme();
   const isLightTheme = theme === "light";
 
@@ -77,7 +81,7 @@ const Menu: React.FC<ISettings & IHelp> = ({ toggleIsHelpOpen, toggleIsSettingsO
     <Container>
       {buttons.map(({ text, Icon, onClick }) => (
         <ButtonContainer key={Icon}>
-          <LightButton {...{ text, onClick, Icon }} />
+          <LightButton {...{ text, onClick, Icon, isMobileNavbar }} />
         </ButtonContainer>
       ))}
     </Container>

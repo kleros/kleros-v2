@@ -8,13 +8,12 @@ import { landscapeStyle } from "styles/landscapeStyle";
 import Tag from "components/Tag";
 
 import InputDisplay from "./InputDisplay";
-import SimulatorPopup from "./SimulatorPopup";
 import { ActionType } from "./StakeWithdrawButton";
+import Simulator from "./Simulator";
 
 const Container = styled.div`
   position: relative;
   width: 100%;
-  margin-top: 12px;
   display: flex;
   flex-direction: column;
   gap: 28px;
@@ -79,7 +78,7 @@ const StakePanel: React.FC<{ courtName: string }> = ({ courtName = "General Cour
           <InputDisplay {...{ action, amount, setAmount }} />
         </StakeArea>
       </LeftArea>
-      <SimulatorPopup amountToStake={amount ? Number(uncommify(amount)) : 0} {...{ isStaking }} />
+      <Simulator amountToStake={amount ? Number(uncommify(amount)) : 0} {...{ isStaking }} />
     </Container>
   );
 };
