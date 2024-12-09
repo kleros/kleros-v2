@@ -46,6 +46,7 @@ const StyledCard = styled(Card)`
   height: auto;
   padding: 11.5px ${responsiveSize(8, 18)};
   border: 1px solid ${({ theme }) => theme.stroke};
+  margin: 4px 0;
 `;
 
 const AccordionContentContainer = styled.div`
