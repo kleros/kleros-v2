@@ -103,7 +103,7 @@ interface IStakeWithdrawPopup {
   action: ActionType;
   amount: string;
   closePopup: () => void;
-  steps?: { items?: [_TimelineItem1, ..._TimelineItem1[]]; current: number };
+  steps?: [_TimelineItem1, ..._TimelineItem1[]];
   isSuccess: boolean;
 }
 
@@ -118,7 +118,7 @@ const StakeWithdrawPopup: React.FC<IStakeWithdrawPopup> = ({ amount, closePopup,
         <InnerContainer>
           <Header {...{ amount, isSuccess, action }} />
           <Divider />
-          {steps?.items && <CustomTimeline items={steps.items} />}
+          {steps && <CustomTimeline items={steps} />}
           {phase !== Phases.staking ? (
             <InfoContainer>
               <Divider />

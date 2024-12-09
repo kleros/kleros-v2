@@ -55,10 +55,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
   const theme = useTheme();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [popupStepsState, setPopupStepsState] = useState<{
-    items: [_TimelineItem1, ..._TimelineItem1[]];
-    current: number;
-  }>();
+  const [popupStepsState, setPopupStepsState] = useState<[_TimelineItem1, ..._TimelineItem1[]]>();
 
   const { data: courtDetails } = useCourtDetails(id);
   const { data: balance } = useReadPnkBalanceOf({
@@ -140,67 +137,62 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
       const requestData = config?.request ?? setStakeConfig?.request;
 
       if (requestData && publicClient) {
-        setPopupStepsState({
-          items: getStakeSteps(
+        setPopupStepsState(
+          getStakeSteps(
             isWithdraw ? StakeSteps.WithdrawInitiate : StakeSteps.StakeInitiate,
             amount,
             theme,
             approvalHash
-          ),
-          current: 1,
-        });
+          )
+        );
 
         setStake(requestData)
           .then(async (hash) => {
-            setPopupStepsState({
-              items: getStakeSteps(
+            setPopupStepsState(
+              getStakeSteps(
                 isWithdraw ? StakeSteps.WithdrawPending : StakeSteps.StakePending,
                 amount,
                 theme,
                 approvalHash,
                 hash
-              ),
-              current: 1,
-            });
+              )
+            );
             await publicClient.waitForTransactionReceipt({ hash, confirmations: 2 }).then((res: TransactionReceipt) => {
               const status = res.status === "success";
               if (status) {
-                setPopupStepsState({
-                  items: getStakeSteps(
+                setPopupStepsState(
+                  getStakeSteps(
                     isWithdraw ? StakeSteps.WithdrawConfirmed : StakeSteps.StakeConfirmed,
                     amount,
                     theme,
                     approvalHash,
                     hash
-                  ),
-                  current: 1,
-                });
+                  )
+                );
                 setIsSuccess(true);
               } else
-                setPopupStepsState({
-                  items: getStakeSteps(
+                setPopupStepsState(
+                  getStakeSteps(
                     isWithdraw ? StakeSteps.WithdrawFailed : StakeSteps.StakeFailed,
                     amount,
                     theme,
                     approvalHash,
                     hash
-                  ),
-                  current: 1,
-                });
+                  )
+                );
             });
           })
           .catch((err) => {
-            setPopupStepsState({
-              items: getStakeSteps(
+            setPopupStepsState(
+              getStakeSteps(
                 isWithdraw ? StakeSteps.WithdrawFailed : StakeSteps.StakeFailed,
                 amount,
                 theme,
                 approvalHash,
                 undefined,
                 err
-              ),
-              current: 1,
-            });
+              )
+            );
           });
       }
     },
@@ -210,17 +202,11 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
   const handleClick = useCallback(() => {
     setIsPopupOpen(true);
     if (ActionType.allowance && isAllowance && increaseAllowanceConfig && publicClient) {
-      setPopupStepsState({
-        items: getStakeSteps(StakeSteps.ApproveInitiate, amount, theme),
-        current: 0,
-      });
+      setPopupStepsState(getStakeSteps(StakeSteps.ApproveInitiate, amount, theme));
 
       increaseAllowance(increaseAllowanceConfig.request)
         .then(async (hash) => {
-          setPopupStepsState({
-            items: getStakeSteps(StakeSteps.ApprovePending, amount, theme, hash),
-            current: 0,
-          });
+          setPopupStepsState(getStakeSteps(StakeSteps.ApprovePending, amount, theme, hash));
 
           await publicClient
             .waitForTransactionReceipt({ hash, confirmations: 2 })
@@ -231,18 +217,11 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
                 const refetchData = await refetchSetStake();
 
                 handleStake(refetchData.data, hash);
-              } else
-                setPopupStepsState({
-                  items: getStakeSteps(StakeSteps.ApproveFailed, amount, theme, hash),
-                  current: 0,
-                });
+              } else setPopupStepsState(getStakeSteps(StakeSteps.ApproveFailed, amount, theme, hash));
             });
         })
         .catch((err) => {
-          setPopupStepsState({
-            items: getStakeSteps(StakeSteps.ApproveFailed, amount, theme, undefined, undefined, err),
-            current: 0,
-          });
+          setPopupStepsState(getStakeSteps(StakeSteps.ApproveFailed, amount, theme, undefined, undefined, err));
         });
     } else {
       handleStake();
