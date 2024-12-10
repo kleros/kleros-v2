@@ -48,6 +48,8 @@ const TimeSeriesChart: React.FC<ITimeSeriesChart> = ({ data }) => {
         grid: { display: false },
         ticks: {
           color: theme.secondaryText,
+          autoSkipPadding: 10,
+          maxRotation: 0,
         },
       },
       y: {

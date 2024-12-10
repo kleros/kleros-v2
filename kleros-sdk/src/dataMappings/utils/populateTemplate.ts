@@ -9,10 +9,8 @@ export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDe
 
   const validation = DisputeDetailsSchema.safeParse(dispute);
   if (!validation.success) {
-    console.error("Validation errors:", validation.error.errors, "\n\nDispute details:", `${JSON.stringify(dispute)}`);
-    throw new InvalidFormatError("Invalid dispute details format");
+    throw validation.error;
   }
-  console.log(dispute);
 
   return dispute;
 };
