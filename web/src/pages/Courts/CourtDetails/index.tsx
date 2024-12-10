@@ -7,7 +7,6 @@ import { useToggle } from "react-use";
 import { Card, Breadcrumb } from "@kleros/ui-components-library";
 
 import { isProductionDeployment } from "consts/index";
-import { isUndefined } from "utils/index";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
@@ -19,8 +18,8 @@ import ClaimPnkButton from "components/ClaimPnkButton";
 import HowItWorks from "components/HowItWorks";
 import LatestCases from "components/LatestCases";
 import Staking from "components/Popup/MiniGuides/Staking";
-import { StyledSkeleton } from "components/StyledSkeleton";
 import ScrollTop from "components/ScrollTop";
+import { StyledSkeleton } from "components/StyledSkeleton";
 
 import Description from "./Description";
 import StakePanel from "./StakePanel";
@@ -112,7 +111,7 @@ const CourtDetails: React.FC = () => {
             />
           </ButtonContainer>
         </CourtHeader>
-        <StakePanel id={!isUndefined(id) ? id : ""} courtName={policy?.name} />
+        <StakePanel courtName={policy?.name} />
         <Stats />
       </StyledCard>
       <StyledCard>
