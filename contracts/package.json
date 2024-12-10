@@ -11,7 +11,7 @@
     "node": ">=16.0.0"
   },
   "volta": {
-    "node": "18.19.0"
+    "node": "18.20.5"
   },
   "publishConfig": {
     "access": "public",
@@ -64,7 +64,7 @@
     "@kleros/kleros-v2-eslint-config": "workspace:^",
     "@kleros/kleros-v2-prettier-config": "workspace:^",
     "@kleros/kleros-v2-tsconfig": "workspace:^",
-    "@logtail/pino": "^0.4.22",
+    "@logtail/pino": "^0.5.0",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",
     "@nomicfoundation/hardhat-ethers": "^3.0.8",
     "@nomiclabs/hardhat-solhint": "^4.0.1",
@@ -83,7 +83,7 @@
     "ethers": "^6.13.4",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.2",
-    "hardhat": "2.22.16",
+    "hardhat": "2.22.17",
     "hardhat-contract-sizer": "^2.10.0",
     "hardhat-deploy": "^0.14.0",
     "hardhat-deploy-ethers": "^0.4.2",

@@ -8,8 +8,8 @@
   "license": "MIT",
   "type": "module",
   "volta": {
-    "node": "20.11.0",
-    "yarn": "4.5.1"
+    "node": "20.18.1",
+    "yarn": "4.5.3"
   },
   "scripts": {
     "clean": "rimraf .next src/graphql-generated src/hooks/contracts/generated.ts",
@@ -55,7 +55,7 @@
     "@web3modal/wagmi": "^5.1.11",
     "graphql": "^16.9.0",
     "graphql-request": "^7.1.2",
-    "next": "14.2.18",
+    "next": "14.2.20",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-is": "^18.3.1",
@@ -63,7 +63,7 @@
     "react-toastify": "^10.0.6",
     "styled-components": "^5.3.3",
     "typewriter-effect": "^2.21.0",
-    "vanilla-jsoneditor": "^0.21.6",
+    "vanilla-jsoneditor": "^0.23.0",
     "viem": "^2.21.50",
     "wagmi": "^2.13.0"
   }
