@@ -1,28 +1,26 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import styled, { useTheme } from "styled-components";
+import styled, { DefaultTheme, useTheme } from "styled-components";
 
 import { useParams } from "react-router-dom";
 import { type TransactionReceipt } from "viem";
-import { useAccount, usePublicClient } from "wagmi";
+import { usePublicClient } from "wagmi";
 
 import { type _TimelineItem1, Button } from "@kleros/ui-components-library";
 
 import { DEFAULT_CHAIN } from "consts/chains";
-import { REFETCH_INTERVAL } from "consts/index";
 import {
   klerosCoreAddress,
   useSimulateKlerosCoreSetStake,
   useWriteKlerosCoreSetStake,
-  useReadPnkBalanceOf,
   useSimulatePnkIncreaseAllowance,
   useWritePnkIncreaseAllowance,
-  useReadSortitionModuleGetJurorBalance,
-  useReadPnkAllowance,
 } from "hooks/contracts/generated";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
+import { usePnkData } from "hooks/usePNKData";
 import { formatETH } from "utils/format";
 import { isUndefined } from "utils/index";
 import { parseWagmiError } from "utils/parseWagmiError";
+import { refetchWithRetry } from "utils/refecthWithRetry";
 
 import { EnsureChain } from "components/EnsureChain";
 
@@ -51,35 +49,14 @@ interface IActionButton {
 
 const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, action, setErrorMsg, setAmount }) => {
   const { id } = useParams();
-  const { address } = useAccount();
   const theme = useTheme();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [popupStepsState, setPopupStepsState] = useState<[_TimelineItem1, ..._TimelineItem1[]]>();
 
   const { data: courtDetails } = useCourtDetails(id);
-  const { data: balance } = useReadPnkBalanceOf({
-    query: {
-      enabled: !isUndefined(address),
-      refetchInterval: REFETCH_INTERVAL,
-    },
-    args: [address!],
-  });
+  const { balance, jurorBalance, allowance, refetchAllowance } = usePnkData({ courtId: id });
 
-  const { data: jurorBalance } = useReadSortitionModuleGetJurorBalance({
-    query: {
-      enabled: !isUndefined(address),
-      refetchInterval: REFETCH_INTERVAL,
-    },
-    args: [address ?? "0x", BigInt(id ?? 0)],
-  });
-  const { data: allowance, refetch: refetchAllowance } = useReadPnkAllowance({
-    query: {
-      enabled: !isUndefined(address),
-      refetchInterval: REFETCH_INTERVAL,
-    },
-    args: [address ?? "0x", klerosCoreAddress[DEFAULT_CHAIN]],
-  });
   const publicClient = usePublicClient();
 
   const isStaking = action === ActionType.stake;
@@ -134,27 +111,17 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
     (config?: typeof setStakeConfig, approvalHash?: `0x${string}`) => {
       const isWithdraw = action === ActionType.withdraw;
       const requestData = config?.request ?? setStakeConfig?.request;
+      const commonArgs: [string, DefaultTheme, `0x${string}` | undefined] = [amount, theme, approvalHash];
 
       if (requestData && publicClient) {
         setPopupStepsState(
-          getStakeSteps(
-            isWithdraw ? StakeSteps.WithdrawInitiate : StakeSteps.StakeInitiate,
-            amount,
-            theme,
-            approvalHash
-          )
+          getStakeSteps(isWithdraw ? StakeSteps.WithdrawInitiate : StakeSteps.StakeInitiate, ...commonArgs)
         );
 
         setStake(requestData)
           .then(async (hash) => {
             setPopupStepsState(
-              getStakeSteps(
-                isWithdraw ? StakeSteps.WithdrawPending : StakeSteps.StakePending,
-                amount,
-                theme,
-                approvalHash,
-                hash
-              )
+              getStakeSteps(isWithdraw ? StakeSteps.WithdrawPending : StakeSteps.StakePending, ...commonArgs, hash)
             );
             await publicClient.waitForTransactionReceipt({ hash, confirmations: 2 }).then((res: TransactionReceipt) => {
               const status = res.status === "success";
@@ -162,22 +129,14 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
                 setPopupStepsState(
                   getStakeSteps(
                     isWithdraw ? StakeSteps.WithdrawConfirmed : StakeSteps.StakeConfirmed,
-                    amount,
-                    theme,
-                    approvalHash,
+                    ...commonArgs,
                     hash
                   )
                 );
                 setIsSuccess(true);
               } else
                 setPopupStepsState(
-                  getStakeSteps(
-                    isWithdraw ? StakeSteps.WithdrawFailed : StakeSteps.StakeFailed,
-                    amount,
-                    theme,
-                    approvalHash,
-                    hash
-                  )
+                  getStakeSteps(isWithdraw ? StakeSteps.WithdrawFailed : StakeSteps.StakeFailed, ...commonArgs, hash)
                 );
             });
           })
@@ -185,9 +144,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
             setPopupStepsState(
               getStakeSteps(
                 isWithdraw ? StakeSteps.WithdrawFailed : StakeSteps.StakeFailed,
-                amount,
-                theme,
-                approvalHash,
+                ...commonArgs,
                 undefined,
                 err
               )
@@ -201,11 +158,12 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
   const handleClick = useCallback(() => {
     setIsPopupOpen(true);
     if (isAllowance && increaseAllowanceConfig && publicClient) {
-      setPopupStepsState(getStakeSteps(StakeSteps.ApproveInitiate, amount, theme));
+      const commonArgs: [string, DefaultTheme] = [amount, theme];
+      setPopupStepsState(getStakeSteps(StakeSteps.ApproveInitiate, ...commonArgs));
 
       increaseAllowance(increaseAllowanceConfig.request)
         .then(async (hash) => {
-          setPopupStepsState(getStakeSteps(StakeSteps.ApprovePending, amount, theme, hash));
+          setPopupStepsState(getStakeSteps(StakeSteps.ApprovePending, ...commonArgs, hash));
 
           await publicClient
             .waitForTransactionReceipt({ hash, confirmations: 2 })
@@ -220,8 +178,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
                   setPopupStepsState(
                     getStakeSteps(
                       StakeSteps.ApproveFailed,
-                      amount,
-                      theme,
+                      ...commonArgs,
                       hash,
                       undefined,
                       new Error("Something went wrong. Please restart the process.")
@@ -230,11 +187,11 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
                 else {
                   handleStake(refetchData.data, hash);
                 }
-              } else setPopupStepsState(getStakeSteps(StakeSteps.ApproveFailed, amount, theme, hash));
+              } else setPopupStepsState(getStakeSteps(StakeSteps.ApproveFailed, ...commonArgs, hash));
             });
         })
         .catch((err) => {
-          setPopupStepsState(getStakeSteps(StakeSteps.ApproveFailed, amount, theme, undefined, undefined, err));
+          setPopupStepsState(getStakeSteps(StakeSteps.ApproveFailed, ...commonArgs, undefined, undefined, err));
         });
     } else {
       handleStake();
@@ -308,29 +265,4 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
   );
 };
 
-async function refetchWithRetry<T>(fn: () => Promise<T>, retryCount = 5, retryDelay = 2000) {
-  let attempts = 0;
-
-  while (attempts < retryCount) {
-    try {
-      const returnData = await fn();
-
-      //@ts-expect-error data does exist
-      if (returnData && returnData?.data !== undefined) {
-        return returnData;
-      }
-    } catch (error) {
-      console.error(`Attempt ${attempts + 1} failed with error:`, error);
-    }
-
-    attempts++;
-
-    if (attempts >= retryCount) {
-      return;
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, retryDelay));
-  }
-  return;
-}
 export default StakeWithdrawButton;
