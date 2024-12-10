@@ -118,6 +118,6 @@
     "react-use": "^17.5.1",
     "styled-components": "^5.3.3",
     "viem": "^2.21.54",
-    "wagmi": "^2.13.4"
+    "wagmi": "^2.13.5"
   }
 }

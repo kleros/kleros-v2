@@ -104,8 +104,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
     error: allowanceError,
   } = useSimulatePnkIncreaseAllowance({
     query: {
-      enabled:
-        isAllowance && !isUndefined(targetStake) && !isUndefined(allowance) && !isUndefined(balance) && !isPopupOpen,
+      enabled: isAllowance && !isUndefined(targetStake) && !isUndefined(allowance) && !isUndefined(balance),
     },
     args: [klerosCoreAddress[DEFAULT_CHAIN], BigInt(targetStake ?? 0) - BigInt(allowance ?? 0)],
   });
@@ -214,10 +213,10 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
               const status = res.status === "success";
               if (status) {
                 await refetchAllowance();
-                const refetchData = await refetchSetStake();
+                const refetchData = await refetchWithRetry(refetchSetStake);
                 // check for a relatively new error with react/tanstack-query:
                 // https://github.com/TanStack/query/issues/8209
-                if (!refetchData.data)
+                if (!refetchData?.data)
                   setPopupStepsState(
                     getStakeSteps(
                       StakeSteps.ApproveFailed,
@@ -228,8 +227,9 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
                       new Error("Something went wrong. Please restart the process.")
                     )
                   );
-
-                handleStake(refetchData.data, hash);
+                else {
+                  handleStake(refetchData.data, hash);
+                }
               } else setPopupStepsState(getStakeSteps(StakeSteps.ApproveFailed, amount, theme, hash));
             });
         })
@@ -308,4 +308,29 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
   );
 };
 
+async function refetchWithRetry<T>(fn: () => Promise<T>, retryCount = 5, retryDelay = 2000) {
+  let attempts = 0;
+
+  while (attempts < retryCount) {
+    try {
+      const returnData = await fn();
+
+      //@ts-expect-error data does exist
+      if (returnData && returnData?.data !== undefined) {
+        return returnData;
+      }
+    } catch (error) {
+      console.error(`Attempt ${attempts + 1} failed with error:`, error);
+    }
+
+    attempts++;
+
+    if (attempts >= retryCount) {
+      return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, retryDelay));
+  }
+  return;
+}
 export default StakeWithdrawButton;

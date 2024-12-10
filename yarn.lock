@@ -5259,7 +5259,7 @@ __metadata:
     vite-plugin-node-polyfills: "npm:^0.21.0"
     vite-plugin-svgr: "npm:^4.3.0"
     vite-tsconfig-paths: "npm:^4.3.2"
-    wagmi: "npm:^2.13.4"
+    wagmi: "npm:^2.13.5"
   languageName: unknown
   linkType: soft
 
@@ -35085,9 +35085,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wagmi@npm:^2.13.4":
-  version: 2.13.4
-  resolution: "wagmi@npm:2.13.4"
+"wagmi@npm:^2.13.5":
+  version: 2.13.5
+  resolution: "wagmi@npm:2.13.5"
   dependencies:
     "@wagmi/connectors": "npm:5.5.3"
     "@wagmi/core": "npm:2.15.2"
@@ -35100,7 +35100,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10/e2ef7d7c822d65ea8a851dc8d22a2f707c98df5d63bb401d7e018d03eab008cc9e2c2bf13e04e383abe2822097430cd20cb08be2d7394989def4ec408eda3c6c
+  checksum: 10/e37a79d8413abbebc10935956a8ec6696f02894501b235ec580e8855735fe04fd392ada964616aff0bbbc30190d5cb1f5319a70b99000f6061a05a78f458edbb
   languageName: node
   linkType: hard
 

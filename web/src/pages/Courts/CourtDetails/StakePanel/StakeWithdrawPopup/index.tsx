@@ -73,7 +73,7 @@ const InnerContainer = styled.div`
   flex-direction: column;
   align-self: center;
   gap: 24px;
-  padding: 24px;
+  padding: 0 24px 24px;
 `;
 
 const StyledButton = styled(LightButton)`
