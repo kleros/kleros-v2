@@ -8,7 +8,6 @@ import { useOpenContext } from "../MobileHeader";
 
 const Container = styled.div`
   display: flex;
-  gap: 0;
   flex-direction: column;
 
   ${landscapeStyle(
@@ -46,7 +45,7 @@ const StyledLink = styled(Link)<{ isActive: boolean; isMobileNavbar?: boolean }>
   ${landscapeStyle(
     () => css`
       color: ${({ isActive, theme }) => (isActive ? theme.white : `${theme.white}BA`)};
-      padding: 16px 8px;
+      padding: 16px 10px;
     `
   )};
 `;

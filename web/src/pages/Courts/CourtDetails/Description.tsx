@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 
 import ReactMarkdown from "react-markdown";
@@ -61,48 +61,42 @@ const Description: React.FC = () => {
   const { id } = useParams();
   const { data: policy } = useCourtPolicy(id);
   const navigate = useNavigate();
-  const currentPathName = useLocation().pathname.split("/").at(-1);
-  const [currentTab, setCurrentTab] = useState(TABS.findIndex(({ path }) => path === currentPathName));
-  useEffect(() => setCurrentTab(TABS.findIndex(({ path }) => path === currentPathName)), [currentPathName]);
+  const location = useLocation();
+  const currentPathName = location.pathname.split("/").at(-1);
 
   const filteredTabs = TABS.filter(({ isVisible }) => isVisible(policy));
+  const currentTab = TABS.findIndex(({ path }) => path === currentPathName);
+
+  const handleTabChange = (index: number) => {
+    navigate(TABS[index].path);
+  };
+
+  useEffect(() => {
+    if (currentPathName && !filteredTabs.map((t) => t.path).includes(currentPathName) && filteredTabs.length > 0) {
+      navigate(filteredTabs[0].path, { replace: true });
+    }
+  }, [policy, currentPathName, filteredTabs, navigate]);
 
   return (
-    <Container id="description">
-      <StyledTabs
-        currentValue={currentTab}
-        items={filteredTabs}
-        callback={(n: number) => {
-          setCurrentTab(n);
-          navigate(TABS[n].path);
-        }}
-      />
-      <TextContainer>
-        <Routes>
-          <Route path="purpose" element={formatMarkdown(policy?.description)} />
-          <Route path="skills" element={<p>{policy?.requiredSkills}</p>} />
-          <Route
-            path="policy"
-            element={
-              policy?.summary ? (
-                formatMarkdown(policy?.summary)
-              ) : (
-                <Navigate to={filteredTabs.length > 0 ? filteredTabs[0].path : ""} replace />
-              )
-            }
-          />
-          <Route path="*" element={<Navigate to={filteredTabs.length > 0 ? filteredTabs[0].path : ""} replace />} />
-        </Routes>
-      </TextContainer>
-    </Container>
+    <>
+      {policy ? (
+        <Container id="description">
+          <StyledTabs currentValue={currentTab} items={filteredTabs} callback={handleTabChange} />
+          <TextContainer>
+            <Routes>
+              <Route path="purpose" element={formatMarkdown(policy?.description)} />
+              <Route path="skills" element={formatMarkdown(policy?.requiredSkills)} />
+              <Route path="policy" element={formatMarkdown(policy?.summary)} />
+              <Route path="*" element={<Navigate to={filteredTabs.length > 0 ? filteredTabs[0].path : ""} replace />} />
+            </Routes>
+          </TextContainer>
+        </Container>
+      ) : null}
+    </>
   );
 };
 
 const formatMarkdown = (markdown?: string) =>
-  markdown ? (
-    <ReactMarkdown>{typeof markdown === "string" ? markdown.replace(/\n/g, "  \n") : markdown}</ReactMarkdown>
-  ) : (
-    <StyledSkeleton />
-  );
+  markdown ? <ReactMarkdown>{markdown.replace(/\n/g, "  \n")}</ReactMarkdown> : <StyledSkeleton />;
 
 export default Description;

@@ -17,6 +17,12 @@ const StyledCard = styled.div`
   justify-content: center;
 `;
 
+const StyledLabel = styled.label`
+  margin-top: 24px;
+  font-size: 14px;
+  font-weight: 600;
+`;
+
 interface IStat {
   title: string;
   getText: (data) => string;
@@ -77,9 +83,13 @@ const ExtraStats = () => {
         }
         icon={LawBalance}
       />
-      {stats.map(({ title, getText, icon }) => (
-        <ExtraStatsDisplay key={title} {...{ title, icon }} text={getText(data)} />
-      ))}
+      {data.data?.mostDisputedCourt?.numberDisputes === 0 ? (
+        <StyledLabel>No activity in this period</StyledLabel>
+      ) : (
+        stats.map(({ title, getText, icon }) => (
+          <ExtraStatsDisplay key={title} {...{ title, icon }} text={getText(data)} />
+        ))
+      )}
     </StyledCard>
   );
 };
