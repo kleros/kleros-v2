@@ -24,6 +24,10 @@ const StyledTitle = styled.h1`
   margin: 0px;
 `;
 
+const StyledLabel = styled.label`
+  font-size: 16px;
+`;
+
 interface ICasesDisplay extends ICasesGrid {
   numberDisputes?: number;
   numberClosedDisputes?: number;
@@ -54,10 +58,10 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
         ) : null}
       </TitleContainer>
       <Search />
-      <StatsAndFilters totalDisputes={numberDisputes ?? 0} closedDisputes={numberClosedDisputes ?? 0} />
+      <StatsAndFilters totalDisputes={numberDisputes || 0} closedDisputes={numberClosedDisputes || 0} />
 
       {disputes?.length === 0 ? (
-        <h1>No cases found</h1>
+        <StyledLabel>No cases found</StyledLabel>
       ) : (
         <CasesGrid
           disputes={disputes}

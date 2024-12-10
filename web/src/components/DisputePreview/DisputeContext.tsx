@@ -26,12 +26,9 @@ const QuestionAndDescription = styled.div`
   word-wrap: break-word;
   div:first-child p:first-of-type {
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 400;
+    margin: 0;
   }
-`;
-
-const StyledReactMarkDown = styled(ReactMarkdown)`
-  margin: 0px;
 `;
 
 const VotingOptions = styled(QuestionAndDescription)`
@@ -45,14 +42,28 @@ const AnswersContainer = styled.div`
   flex-direction: column;
 `;
 
+const AnswersHeader = styled.h3`
+  margin: 0;
+`;
+
 const Answer = styled.div`
   margin: 0px;
   display: flex;
   flex-wrap: wrap;
-  gap: ${responsiveSize(2, 8)};
+  gap: 6px;
   > label {
     max-width: 100%;
   }
+`;
+
+const StyledSmall = styled.small`
+  color: ${({ theme }) => theme.secondaryText};
+  font-weight: 400;
+`;
+
+const StyledLabel = styled.label`
+  color: ${({ theme }) => theme.primaryText};
+  font-weight: 600;
 `;
 
 const AliasesContainer = styled.div`
@@ -70,11 +81,11 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRp
   const errMsg = isRpcError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR;
   return (
     <>
-      <StyledH1>{isUndefined(disputeDetails) ? <StyledSkeleton /> : disputeDetails?.title ?? errMsg}</StyledH1>
+      <StyledH1>{isUndefined(disputeDetails) ? <StyledSkeleton /> : (disputeDetails?.title ?? errMsg)}</StyledH1>
       {!isUndefined(disputeDetails) && (
         <QuestionAndDescription>
-          <StyledReactMarkDown>{disputeDetails?.question}</StyledReactMarkDown>
-          <StyledReactMarkDown>{disputeDetails?.description}</StyledReactMarkDown>
+          <ReactMarkdown>{disputeDetails?.question}</ReactMarkdown>
+          <ReactMarkdown>{disputeDetails?.description}</ReactMarkdown>
         </QuestionAndDescription>
       )}
       {isUndefined(disputeDetails?.frontendUrl) ? null : (
@@ -83,15 +94,15 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRp
         </a>
       )}
       <VotingOptions>
-        {isUndefined(disputeDetails) ? null : <h3>Voting Options</h3>}
+        {isUndefined(disputeDetails) ? null : <AnswersHeader>Voting Options</AnswersHeader>}
         <AnswersContainer>
           {disputeDetails?.answers?.map((answer: IAnswer, i: number) => (
             <Answer key={answer.title}>
-              <small>Option {i + 1}:</small>
-              <label>
+              <StyledSmall>{i + 1 + `.`}</StyledSmall>
+              <StyledLabel>
                 {answer.title}
-                {answer.description ? ` - ${answer.description}` : null}
-              </label>
+                {answer.description.trim() ? ` - ${answer.description}` : null}
+              </StyledLabel>
             </Answer>
           ))}
         </AnswersContainer>

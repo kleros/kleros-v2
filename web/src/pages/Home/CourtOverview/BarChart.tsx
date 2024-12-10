@@ -1,5 +1,6 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled, { useTheme } from "styled-components";
+
 import {
   Chart as ChartJS,
   BarElement,
@@ -43,6 +44,16 @@ const BarChart: React.FC<IBarChartProps> = ({ chartData }) => {
   );
 
   const formatPNKValue = useCallback((value: number) => formatter.format(value), []);
+
+  const sortedData = useMemo(() => {
+    const sortedIndices = chartData.data.map((value, index) => ({ value, index })).sort((a, b) => b.value - a.value);
+
+    return {
+      labels: sortedIndices.map((item) => chartData.labels[item.index]),
+      data: sortedIndices.map((item) => chartData.data[item.index]),
+      total: chartData.total,
+    };
+  }, [chartData]);
 
   const tickSize = 5; // suggested, if that many labels can't fit, chart will use even labels
 
@@ -95,13 +106,14 @@ const BarChart: React.FC<IBarChartProps> = ({ chartData }) => {
     <BarContainer>
       <Bar
         data={{
-          labels: chartData.labels,
+          labels: sortedData.labels,
           datasets: [
             {
-              data: chartData.data,
+              data: sortedData.data,
               backgroundColor: theme.secondaryPurple,
               hoverBackgroundColor: theme.primaryBlue,
               maxBarThickness: 60,
+              borderRadius: 3,
             },
           ],
         }}

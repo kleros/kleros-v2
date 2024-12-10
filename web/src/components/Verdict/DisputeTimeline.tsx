@@ -24,7 +24,6 @@ import { responsiveSize } from "styles/responsiveSize";
 const Container = styled.div`
   display: flex;
   position: relative;
-  margin-left: 8px;
   flex-direction: column;
 `;
 

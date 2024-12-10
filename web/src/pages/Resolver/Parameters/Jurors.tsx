@@ -6,6 +6,7 @@ import { DisplaySmall, Field } from "@kleros/ui-components-library";
 import ETH from "svgs/icons/eth.svg";
 
 import { REFETCH_INTERVAL } from "consts/index";
+import { DEFAULT_CHAIN } from "consts/chains";
 import { useNewDisputeContext } from "context/NewDisputeContext";
 import { useReadKlerosCoreArbitrationCost } from "hooks/contracts/generated";
 import { formatETH } from "utils/format";
@@ -58,6 +59,7 @@ const Jurors: React.FC = () => {
       refetchInterval: REFETCH_INTERVAL,
     },
     args: [prepareArbitratorExtradata(disputeData.courtId ?? "", disputeData.numberOfJurors ?? "")],
+    chainId: DEFAULT_CHAIN,
   });
 
   const arbitrationFee = formatETH(data ?? BigInt(0), 5);

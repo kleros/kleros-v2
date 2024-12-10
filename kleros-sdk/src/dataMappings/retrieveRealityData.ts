@@ -50,7 +50,6 @@ export const retrieveRealityData = async (realityQuestionID: string, arbitrable?
   };
 
   const questionData = await executeAction(questionMapping);
-  console.log("questionData", questionData);
 
   const templateMapping: AbiEventMapping = {
     type: "abi/event",
@@ -66,7 +65,6 @@ export const retrieveRealityData = async (realityQuestionID: string, arbitrable?
   };
 
   const templateData = await executeAction(templateMapping);
-  console.log("templateData", templateData);
 
   if (!templateData) {
     throw new NotFoundError("Template Data", "Failed to retrieve template data");
@@ -81,8 +79,6 @@ export const retrieveRealityData = async (realityQuestionID: string, arbitrable?
     templateData.questionText,
     questionData.realityQuestion
   );
-
-  console.log("populatedTemplate", populatedTemplate);
 
   let answers: RealityAnswer[] = [];
   if (populatedTemplate.type === "bool") {

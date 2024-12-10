@@ -8,7 +8,6 @@ import { Accordion, DropdownSelect } from "@kleros/ui-components-library";
 
 import EthereumIcon from "svgs/icons/ethereum.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
-import BalanceWithPNKIcon from "svgs/icons/law-balance-with-pnk.svg";
 import MinStake from "svgs/icons/min-stake.svg";
 import VotesPerPNKIcon from "svgs/icons/votes-per-pnk.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
@@ -27,7 +26,7 @@ import { useHomePageExtraStats } from "queries/useHomePageExtraStats";
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
 import { isUndefined } from "utils/index";
-import { beautifyStatNumber } from "utils/beautifyStatNumber";
+import { beautifyStatNumber, unbeautifyStatNumber } from "utils/beautifyStatNumber";
 
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
@@ -36,7 +35,7 @@ import Info from "./Info";
 
 const StyledAccordion = styled(Accordion)`
   width: 100%;
-  margin-top: 24px;
+  margin-top: ${responsiveSize(24, 32)};
   > * > button {
     justify-content: unset;
     background-color: ${({ theme }) => theme.whiteBackground} !important;
@@ -207,6 +206,7 @@ interface ITimeframedStat {
   title: string | React.ReactNode;
   coinId?: number;
   getText: (data: ITimeframedStatData) => string;
+  getSubtext?: (data: CourtDetailsQuery["court"], coinPrice?: number) => string;
   color: IStatDisplay["color"];
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
@@ -237,16 +237,37 @@ const Stats = () => {
   const timeframedStats: ITimeframedStat[] = [
     {
       title: (
+        <WithHelpTooltip place="top" tooltipMsg="Amount of PNK you need to stake to get 1 vote.">
+          PNK for 1 Vote
+        </WithHelpTooltip>
+      ),
+      coinId: 0,
+      getText: (data) => beautifyStatNumber(data?.treeVotesPerPnk, true),
+      getSubtext: (data, coinPrice) =>
+        formatUSD(unbeautifyStatNumber(beautifyStatNumber(data?.treeVotesPerPnk, true)) * (coinPrice ?? 0)),
+      color: "orange",
+      icon: VotesPerPNKIcon,
+    },
+    {
+      title: (
         <WithHelpTooltip place="top" tooltipMsg="Amount of PNK you need to stake to earn 1 USD in rewards.">
           PNK for 1 USD
         </WithHelpTooltip>
       ),
+      coinId: 0,
       getText: (data) => {
         const treeExpectedRewardPerPnk = data?.treeExpectedRewardPerPnk;
         const ethPriceUSD = pricesData ? pricesData[CoinIds.ETH]?.price : undefined;
         if (!ethPriceUSD || !treeExpectedRewardPerPnk) return "N/A";
         const pnkNeeded = treeExpectedRewardPerPnk * ethPriceUSD;
         return beautifyStatNumber(pnkNeeded, true);
+      },
+      getSubtext: (data, coinPrice) => {
+        const treeExpectedRewardPerPnk = data?.treeExpectedRewardPerPnk;
+        const ethPriceUSD = pricesData ? pricesData[CoinIds.ETH]?.price : undefined;
+        if (!ethPriceUSD || !treeExpectedRewardPerPnk) return "N/A";
+        const pnkNeeded = treeExpectedRewardPerPnk * ethPriceUSD;
+        return formatUSD(unbeautifyStatNumber(beautifyStatNumber(pnkNeeded, true)) * (coinPrice ?? 0));
       },
       color: "purple",
       icon: PNKUSDIcon,
@@ -257,43 +278,21 @@ const Stats = () => {
           PNK for 1 ETH
         </WithHelpTooltip>
       ),
+      coinId: 0,
       getText: (data) => {
         const treeExpectedRewardPerPnk = data?.treeExpectedRewardPerPnk;
         if (!treeExpectedRewardPerPnk) return "N/A";
         const pnkNeeded = treeExpectedRewardPerPnk;
         return beautifyStatNumber(pnkNeeded, true);
       },
+      getSubtext: (data, coinPrice) => {
+        const treeExpectedRewardPerPnk = data?.treeExpectedRewardPerPnk;
+        if (!treeExpectedRewardPerPnk) return "N/A";
+        const pnkNeeded = treeExpectedRewardPerPnk;
+        return formatUSD(unbeautifyStatNumber(beautifyStatNumber(pnkNeeded, true)) * (coinPrice ?? 0));
+      },
       color: "blue",
       icon: PNKETHIcon,
-    },
-    {
-      title: (
-        <WithHelpTooltip place="top" tooltipMsg="Amount of PNK you need to stake to get 1 vote.">
-          PNK for 1 Vote
-        </WithHelpTooltip>
-      ),
-      getText: (data) => {
-        const treeVotesPerPnk = data?.treeVotesPerPnk;
-        return beautifyStatNumber(treeVotesPerPnk, true);
-      },
-      color: "orange",
-      icon: VotesPerPNKIcon,
-    },
-    {
-      title: (
-        <WithHelpTooltip
-          place="top"
-          tooltipMsg="Amount of PNK you need to stake to be drawn in 1 case (which may involve one or more votes)."
-        >
-          PNK for 1 Case
-        </WithHelpTooltip>
-      ),
-      getText: (data) => {
-        const treeDisputesPerPnk = data?.treeDisputesPerPnk;
-        return beautifyStatNumber(treeDisputesPerPnk, true);
-      },
-      color: "orange",
-      icon: BalanceWithPNKIcon,
     },
   ];
 
@@ -337,12 +336,14 @@ const Stats = () => {
               </TimeSelectorContainer>
               <Info />
               <StyledCard>
-                {timeframedStats.map(({ title, getText, color, icon }) => {
+                {timeframedStats.map(({ title, coinId, getText, getSubtext, color, icon }) => {
+                  const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
                   return (
                     <StatDisplay
                       key={title}
                       {...{ title, color, icon }}
                       text={foundCourt ? getText(foundCourt) : <StyledSkeleton />}
+                      subtext={calculateSubtextRender(foundCourt, getSubtext, coinPrice)}
                     />
                   );
                 })}

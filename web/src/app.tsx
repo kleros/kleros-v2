@@ -95,7 +95,7 @@ const App: React.FC = () => {
                             </Suspense>
                           }
                         />
-                        <Route path="*" element={<h1>Justice not found here ¯\_( ͡° ͜ʖ ͡°)_/¯</h1>} />
+                        <Route path="*" element={<h1>Page not found</h1>} />
                       </Route>
                     </SentryRoutes>
                   </NewDisputeProvider>
