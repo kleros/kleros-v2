@@ -22,7 +22,6 @@ import HowItWorks from "components/HowItWorks";
 import BinaryVoting from "components/Popup/MiniGuides/BinaryVoting";
 
 import PendingVotesBox from "./PendingVotesBox";
-import RulingAndRewardsIndicators from "./RulingAndRewardsIndicators";
 import VotesAccordion from "./VotesDetails";
 
 const Container = styled.div`
@@ -80,16 +79,8 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
     [votingHistory, currentTab]
   );
 
-  const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
-
   return (
     <Container>
-      {Boolean(disputeData?.dispute?.ruled) || jurorRewardsDispersed ? (
-        <RulingAndRewardsIndicators
-          ruled={Boolean(disputeData?.dispute?.ruled)}
-          jurorRewardsDispersed={jurorRewardsDispersed}
-        />
-      ) : null}
       <Header>
         <StyledTitle>Voting History</StyledTitle>
         <HowItWorks

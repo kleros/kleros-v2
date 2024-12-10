@@ -15,13 +15,14 @@ import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { useVotingHistory } from "hooks/queries/useVotingHistory";
 import { useVotingContext } from "hooks/useVotingContext";
 import { getLocalRounds } from "utils/getLocalRounds";
+import { isUndefined } from "utils/index";
 
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { responsiveSize } from "styles/responsiveSize";
 
+import RulingAndRewardsIndicators from "./RulingAndRewardsIndicators";
 import AnswerDisplay from "./Answer";
-import VerdictBanner from "./VerdictBanner";
 import { Divider } from "../Divider";
 import { StyledArrowLink } from "../StyledArrowLink";
 
@@ -90,6 +91,8 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   });
   const currentRuling = Number(currentRulingArray?.[0]);
   const answer = populatedDisputeData?.answers?.[currentRuling! - 1];
+  const rounds = votingHistory?.dispute?.rounds;
+  const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
   const buttonText = useMemo(() => {
     if (!wasDrawn || isDisconnected) return "Check how the jury voted";
     if (isCommitPeriod && !commited) return "Commit your vote";
@@ -101,7 +104,12 @@ const FinalDecision: React.FC<IFinalDecision> = ({ arbitrable }) => {
   return (
     <Container>
       <VerdictContainer>
-        <VerdictBanner ruled={ruled} />
+        {!isUndefined(Boolean(disputeDetails?.dispute?.ruled)) || jurorRewardsDispersed ? (
+          <RulingAndRewardsIndicators
+            ruled={Boolean(disputeDetails?.dispute?.ruled)}
+            jurorRewardsDispersed={jurorRewardsDispersed}
+          />
+        ) : null}
         {ruled && (
           <JuryContainer>
             <JuryDecisionTag>The jury decided in favor of:</JuryDecisionTag>

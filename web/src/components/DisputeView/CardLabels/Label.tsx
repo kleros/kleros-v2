@@ -17,7 +17,7 @@ const LabelContainer = styled.div<{ backgroundColor: string }>`
   width: max-content;
   padding: 4px 8px;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   border-radius: 300px;
   background-color: ${({ backgroundColor }) => backgroundColor};
 `;
