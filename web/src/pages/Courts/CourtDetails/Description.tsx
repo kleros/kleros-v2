@@ -70,28 +70,33 @@ const Description: React.FC = () => {
   const handleTabChange = (index: number) => {
     navigate(TABS[index].path);
   };
+  console.log({ policy, currentTab, currentPathName });
 
   return (
-    <Container id="description">
-      <StyledTabs currentValue={currentTab} items={filteredTabs} callback={handleTabChange} />
-      <TextContainer>
-        <Routes>
-          <Route path="purpose" element={formatMarkdown(policy?.description)} />
-          <Route path="skills" element={formatMarkdown(policy?.requiredSkills)} />
-          <Route
-            path="policy"
-            element={
-              policy?.summary ? (
-                formatMarkdown(policy?.summary)
-              ) : (
-                <Navigate to={filteredTabs.length > 0 ? filteredTabs[0].path : ""} replace />
-              )
-            }
-          />
-          <Route path="*" element={<Navigate to={filteredTabs.length > 0 ? filteredTabs[0].path : ""} replace />} />
-        </Routes>
-      </TextContainer>
-    </Container>
+    <>
+      {policy ? (
+        <Container id="description">
+          <StyledTabs currentValue={currentTab} items={filteredTabs} callback={handleTabChange} />
+          <TextContainer>
+            <Routes>
+              <Route path="purpose" element={formatMarkdown(policy?.description)} />
+              <Route path="skills" element={formatMarkdown(policy?.requiredSkills)} />
+              <Route
+                path="policy"
+                element={
+                  policy?.summary.trim() ? (
+                    formatMarkdown(policy.summary)
+                  ) : (
+                    <Navigate to={filteredTabs.length > 0 ? filteredTabs[0].path : ""} replace />
+                  )
+                }
+              />
+              <Route path="*" element={<Navigate to={filteredTabs.length > 0 ? filteredTabs[0].path : ""} replace />} />
+            </Routes>
+          </TextContainer>
+        </Container>
+      ) : null}
+    </>
   );
 };
 
