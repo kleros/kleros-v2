@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 
 import ReactMarkdown from "react-markdown";
@@ -70,7 +70,12 @@ const Description: React.FC = () => {
   const handleTabChange = (index: number) => {
     navigate(TABS[index].path);
   };
-  console.log({ policy, currentTab, currentPathName });
+
+  useEffect(() => {
+    if (currentPathName && !filteredTabs.map((t) => t.path).includes(currentPathName) && filteredTabs.length > 0) {
+      navigate(filteredTabs[0].path, { replace: true });
+    }
+  }, [policy, currentPathName, filteredTabs, navigate]);
 
   return (
     <>
@@ -81,16 +86,7 @@ const Description: React.FC = () => {
             <Routes>
               <Route path="purpose" element={formatMarkdown(policy?.description)} />
               <Route path="skills" element={formatMarkdown(policy?.requiredSkills)} />
-              <Route
-                path="policy"
-                element={
-                  policy?.summary.trim() ? (
-                    formatMarkdown(policy.summary)
-                  ) : (
-                    <Navigate to={filteredTabs.length > 0 ? filteredTabs[0].path : ""} replace />
-                  )
-                }
-              />
+              <Route path="policy" element={formatMarkdown(policy?.summary)} />
               <Route path="*" element={<Navigate to={filteredTabs.length > 0 ? filteredTabs[0].path : ""} replace />} />
             </Routes>
           </TextContainer>
