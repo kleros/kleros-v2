@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import ReactMarkdown from "react-markdown";
@@ -61,26 +61,23 @@ const Description: React.FC = () => {
   const { id } = useParams();
   const { data: policy } = useCourtPolicy(id);
   const navigate = useNavigate();
-  const currentPathName = useLocation().pathname.split("/").at(-1);
-  const [currentTab, setCurrentTab] = useState(TABS.findIndex(({ path }) => path === currentPathName));
-  useEffect(() => setCurrentTab(TABS.findIndex(({ path }) => path === currentPathName)), [currentPathName]);
+  const location = useLocation();
+  const currentPathName = location.pathname.split("/").at(-1);
 
   const filteredTabs = TABS.filter(({ isVisible }) => isVisible(policy));
+  const currentTab = TABS.findIndex(({ path }) => path === currentPathName);
+
+  const handleTabChange = (index: number) => {
+    navigate(TABS[index].path);
+  };
 
   return (
     <Container id="description">
-      <StyledTabs
-        currentValue={currentTab}
-        items={filteredTabs}
-        callback={(n: number) => {
-          setCurrentTab(n);
-          navigate(TABS[n].path);
-        }}
-      />
+      <StyledTabs currentValue={currentTab} items={filteredTabs} callback={handleTabChange} />
       <TextContainer>
         <Routes>
           <Route path="purpose" element={formatMarkdown(policy?.description)} />
-          <Route path="skills" element={<p>{policy?.requiredSkills}</p>} />
+          <Route path="skills" element={formatMarkdown(policy?.requiredSkills)} />
           <Route
             path="policy"
             element={
@@ -99,10 +96,6 @@ const Description: React.FC = () => {
 };
 
 const formatMarkdown = (markdown?: string) =>
-  markdown ? (
-    <ReactMarkdown>{typeof markdown === "string" ? markdown.replace(/\n/g, "  \n") : markdown}</ReactMarkdown>
-  ) : (
-    <StyledSkeleton />
-  );
+  markdown ? <ReactMarkdown>{markdown.replace(/\n/g, "  \n")}</ReactMarkdown> : <StyledSkeleton />;
 
 export default Description;
