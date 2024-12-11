@@ -24,7 +24,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const rng1 = await deployUpgradable(deployments, "RandomizerRNG", {
+  const rng1 = await deploy("RandomizerRNG", {
     from: deployer,
     args: [deployer, sortitionModule.target, randomizerOracle.address],
     log: true,

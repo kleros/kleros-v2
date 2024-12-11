@@ -108,55 +108,6 @@ contract ChainlinkVRFCoordinatorV2Mock is IVRFCoordinatorV2Plus {
         revert("not implemented");
     }
 
-    function getRequestConfig() external pure returns (uint16, uint32, bytes32[] memory) {
-        return (3, 2000000, new bytes32[](0));
-    }
-
-    function getConfig()
-        external
-        pure
-        returns (
-            uint16 minimumRequestConfirmations,
-            uint32 maxGasLimit,
-            uint32 stalenessSeconds,
-            uint32 gasAfterPaymentCalculation
-        )
-    {
-        return (4, 2_500_000, 2_700, 33285);
-    }
-
-    function getFeeConfig()
-        external
-        pure
-        returns (
-            uint32 fulfillmentFlatFeeLinkPPMTier1,
-            uint32 fulfillmentFlatFeeLinkPPMTier2,
-            uint32 fulfillmentFlatFeeLinkPPMTier3,
-            uint32 fulfillmentFlatFeeLinkPPMTier4,
-            uint32 fulfillmentFlatFeeLinkPPMTier5,
-            uint24 reqsForTier2,
-            uint24 reqsForTier3,
-            uint24 reqsForTier4,
-            uint24 reqsForTier5
-        )
-    {
-        return (
-            100000, // 0.1 LINK
-            100000, // 0.1 LINK
-            100000, // 0.1 LINK
-            100000, // 0.1 LINK
-            100000, // 0.1 LINK
-            0,
-            0,
-            0,
-            0
-        );
-    }
-
-    function getFallbackWeiPerUnitLink() external pure returns (int256) {
-        return 4000000000000000; // 0.004 Ether
-    }
-
     function requestSubscriptionOwnerTransfer(uint256, address) external pure {
         revert("not implemented");
     }

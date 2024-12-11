@@ -36,7 +36,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   });
 
-  const randomizerRng = await getContractOrDeployUpgradable(hre, "RandomizerRNG", {
+  const randomizerRng = await getContractOrDeploy(hre, "RandomizerRNG", {
     from: deployer,
     args: [deployer, ZeroAddress, randomizerOracle.target], // The SortitionModule is configured later
     log: true,
