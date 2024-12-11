@@ -17,12 +17,21 @@ const levelCriteria: ILevelCriteria[] = [
 export const getUserLevelData = (coherenceScore: number, totalResolvedDisputes: number) => {
   for (const criteria of levelCriteria) {
     if (
+      criteria.level > 0 &&
       totalResolvedDisputes >= criteria.minDisputes &&
       coherenceScore >= criteria.minScore &&
       coherenceScore <= criteria.maxScore
     ) {
-      return levelCriteria.find(({ level }) => level === criteria.level);
+      return criteria;
     }
+  }
+
+  if (
+    totalResolvedDisputes >= levelCriteria[0].minDisputes &&
+    coherenceScore >= levelCriteria[0].minScore &&
+    coherenceScore <= levelCriteria[0].maxScore
+  ) {
+    return levelCriteria[0];
   }
 
   return levelCriteria.find(({ level }) => level === 1);
