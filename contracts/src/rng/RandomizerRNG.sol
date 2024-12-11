@@ -16,7 +16,7 @@ contract RandomizerRNG is RNG {
     address public sortitionModule; // The address of the SortitionModule.
     IRandomizer public randomizer; // Randomizer address.
     uint256 public callbackGasLimit; // Gas limit for the Randomizer.ai callback.
-    uint256 lastRequestId; // The last request ID.
+    uint256 public lastRequestId; // The last request ID.
     mapping(uint256 requestId => uint256 number) public randomNumbers; // randomNumbers[requestID] is the random number for this request id, 0 otherwise.
 
     // ************************************* //
