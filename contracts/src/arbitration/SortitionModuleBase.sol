@@ -206,13 +206,14 @@ abstract contract SortitionModuleBase is ISortitionModule {
             DelayedStake storage delayedStake = delayedStakes[i];
             // Delayed stake could've been manually removed already. In this case simply move on to the next item.
             if (delayedStake.account != address(0)) {
+                // Nullify the index so the delayed stake won't get deleted before its own execution.
+                delete latestDelayedStakeIndex[delayedStake.account][delayedStake.courtID];
                 core.setStakeBySortitionModule(
                     delayedStake.account,
                     delayedStake.courtID,
                     delayedStake.stake,
                     delayedStake.alreadyTransferred
                 );
-                delete latestDelayedStakeIndex[delayedStake.account][delayedStake.courtID];
                 delete delayedStakes[i];
             }
         }
@@ -273,9 +274,8 @@ abstract contract SortitionModuleBase is ISortitionModule {
             return (0, 0, StakingResult.CannotStakeZeroWhenNoStake); // Forbid staking 0 amount when current stake is 0 to avoid flaky behaviour.
         }
 
+        pnkWithdrawal = _deleteDelayedStake(_courtID, _account);
         if (phase != Phase.staking) {
-            pnkWithdrawal = _deleteDelayedStake(_courtID, _account);
-
             // Store the stake change as delayed, to be applied when the phase switches back to Staking.
             DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
             delayedStake.account = _account;
@@ -300,7 +300,7 @@ abstract contract SortitionModuleBase is ISortitionModule {
                 pnkDeposit = _increaseStake(juror, _courtID, _newStake, currentStake);
             }
         } else {
-            pnkWithdrawal = _decreaseStake(juror, _courtID, _newStake, currentStake);
+            pnkWithdrawal += _decreaseStake(juror, _courtID, _newStake, currentStake);
         }
 
         // Update the sortition sum tree.

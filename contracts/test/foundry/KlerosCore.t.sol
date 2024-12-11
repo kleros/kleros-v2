@@ -1222,6 +1222,54 @@ contract KlerosCoreTest is Test {
         assertEq(pinakion.balanceOf(staker2), 999999999999990000, "Wrong token balance of staker2");
     }
 
+    function test_deleteDelayedStake() public {
+        // Check that the delayed stake gets deleted without execution if the juror changed his stake in staking phase before its execution.
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 1000);
+
+        vm.prank(disputer);
+        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
+        vm.warp(block.timestamp + minStakingTime);
+        sortitionModule.passPhase(); // Generating
+        vm.roll(block.number + rngLookahead + 1);
+        sortitionModule.passPhase(); // Drawing phase
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 1500); // Create delayed stake
+
+        (uint256 totalStaked, , uint256 stakedInCourt, ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
+        assertEq(totalStaked, 1500, "Wrong amount total staked");
+        assertEq(stakedInCourt, 1000, "Wrong amount staked in court");
+        assertEq(pinakion.balanceOf(staker1), 999999999999998500, "Wrong token balance of the staker1");
+        assertEq(pinakion.balanceOf(address(core)), 1500, "Wrong token balance of the core");
+
+        (address account, uint96 courtID, uint256 stake, bool alreadyTransferred) = sortitionModule.delayedStakes(1);
+        assertEq(account, staker1, "Wrong account");
+        assertEq(courtID, GENERAL_COURT, "Wrong court id");
+        assertEq(stake, 1500, "Wrong amount for delayed stake");
+        assertEq(alreadyTransferred, true, "Should be true");
+
+        vm.warp(block.timestamp + maxDrawingTime);
+        sortitionModule.passPhase(); // Staking phase
+
+        vm.prank(staker1);
+        core.setStake(GENERAL_COURT, 1700); // Set stake 2nd time, this time in staking phase to see that the delayed stake will be nullified.
+
+        (totalStaked, , stakedInCourt, ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
+        assertEq(totalStaked, 1700, "Wrong amount total staked");
+        assertEq(stakedInCourt, 1700, "Wrong amount staked in court");
+        assertEq(pinakion.balanceOf(staker1), 999999999999998300, "Wrong token balance of the staker1");
+        assertEq(pinakion.balanceOf(address(core)), 1700, "Wrong token balance of the core");
+
+        sortitionModule.executeDelayedStakes(1);
+        (account, courtID, stake, alreadyTransferred) = sortitionModule.delayedStakes(1);
+        // Check that delayed stake is deleted
+        assertEq(account, address(0), "Wrong staker account after delayed stake deletion");
+        assertEq(courtID, 0, "Court id should be nullified");
+        assertEq(stake, 0, "No amount to stake");
+        assertEq(alreadyTransferred, false, "Should be false");
+    }
+
     function test_setStakeBySortitionModule() public {
         // Note that functionality of this function was checked during delayed stakes execution
         vm.expectRevert(KlerosCoreBase.SortitionModuleOnly.selector);
@@ -2653,84 +2701,5 @@ contract KlerosCoreTest is Test {
         assertEq(crowdfunder1.balance, 10 ether, "Wrong balance of the crowdfunder1");
         assertEq(crowdfunder2.balance, 10 ether, "Wrong balance of the crowdfunder2");
         assertEq(address(disputeKit).balance, 0, "Wrong balance of the DK");
-    }
-
-    // ***************************** //
-    // *             Bug           * //
-    // ***************************** //
-
-    function test_delayedStakesBug() public {
-        // Executes the bug of delayed stake frontrun.
-        vm.prank(staker1);
-        core.setStake(GENERAL_COURT, 1000);
-
-        vm.prank(disputer);
-        arbitrable.createDispute{value: feeForJuror * DEFAULT_NB_OF_JURORS}("Action");
-        vm.warp(block.timestamp + minStakingTime);
-        sortitionModule.passPhase(); // Generating
-        vm.roll(block.number + rngLookahead + 1);
-        sortitionModule.passPhase(); // Drawing phase
-
-        vm.prank(staker1);
-        core.setStake(GENERAL_COURT, 1500); // Create delayed stake
-
-        (uint256 totalStaked, , uint256 stakedInCourt, ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
-        assertEq(totalStaked, 1500, "Wrong amount total staked");
-        assertEq(stakedInCourt, 1000, "Wrong amount staked in court");
-        assertEq(pinakion.balanceOf(staker1), 999999999999998500, "Wrong token balance of the staker1");
-        assertEq(pinakion.balanceOf(address(core)), 1500, "Wrong token balance of the core");
-
-        (address account, uint96 courtID, uint256 stake, bool alreadyTransferred) = sortitionModule.delayedStakes(1);
-        assertEq(account, staker1, "Wrong account");
-        assertEq(courtID, GENERAL_COURT, "Wrong court id");
-        assertEq(stake, 1500, "Wrong amount for delayed stake");
-        assertEq(alreadyTransferred, true, "Should be true");
-
-        vm.warp(block.timestamp + maxDrawingTime);
-        sortitionModule.passPhase(); // Staking phase
-
-        vm.prank(staker1);
-        core.setStake(GENERAL_COURT, 1700); // Update your stake before delayed stake execution and see them clash
-
-        // Discrepancy happens because the token transfer performed in Drawing phase is not negated in Staking phase
-        (totalStaked, , stakedInCourt, ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
-        assertEq(totalStaked, 2200, "Wrong amount total staked");
-        assertEq(stakedInCourt, 1700, "Wrong amount staked in court");
-        assertEq(pinakion.balanceOf(staker1), 999999999999997800, "Wrong token balance of the staker1");
-        assertEq(pinakion.balanceOf(address(core)), 2200, "Wrong token balance of the core");
-
-        sortitionModule.executeDelayedStakes(1);
-        (account, courtID, stake, alreadyTransferred) = sortitionModule.delayedStakes(1);
-        // Check that delayed stake is executed
-        assertEq(account, address(0), "Wrong staker account after delayed stake deletion");
-        assertEq(courtID, 0, "Court id should be nullified");
-        assertEq(stake, 0, "No amount to stake");
-        assertEq(alreadyTransferred, false, "Should be false");
-
-        // Check balance discrepancy after all the actions
-        (totalStaked, , stakedInCourt, ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
-        assertEq(totalStaked, 2000, "Wrong amount total staked");
-        assertEq(stakedInCourt, 1500, "Wrong amount staked in court");
-        assertEq(pinakion.balanceOf(staker1), 999999999999998000, "Wrong token balance of the staker1");
-        assertEq(pinakion.balanceOf(address(core)), 2000, "Wrong token balance of the core");
-
-        // Withdraw full stake and see tokens get stuck
-        vm.prank(staker1);
-        core.setStake(GENERAL_COURT, 0);
-
-        (totalStaked, , stakedInCourt, ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
-        assertEq(totalStaked, 500, "Wrong amount total staked");
-        assertEq(stakedInCourt, 0, "Wrong amount staked in court");
-        assertEq(pinakion.balanceOf(staker1), 999999999999999500, "Wrong token balance of the staker1");
-        assertEq(pinakion.balanceOf(address(core)), 500, "Wrong token balance of the core");
-
-        // Stake tokens back to see the offset. At this point it doesn't seem possible to get them back
-        vm.prank(staker1);
-        core.setStake(GENERAL_COURT, 1500);
-        (totalStaked, , stakedInCourt, ) = sortitionModule.getJurorBalance(staker1, GENERAL_COURT);
-        assertEq(totalStaked, 2000, "Wrong amount total staked");
-        assertEq(stakedInCourt, 1500, "Wrong amount staked in court");
-        assertEq(pinakion.balanceOf(staker1), 999999999999998000, "Wrong token balance of the staker1");
-        assertEq(pinakion.balanceOf(address(core)), 2000, "Wrong token balance of the core");
     }
 }
