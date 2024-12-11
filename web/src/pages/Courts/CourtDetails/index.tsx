@@ -77,14 +77,14 @@ const StakePanelAndStats = styled.div`
   flex-direction: row;
   justify-content: space-between;
   margin-top: 24px;
-  gap: 24px;
+  gap: 16px;
   flex-wrap: wrap;
 
   ${landscapeStyle(
     () => css`
       & > * {
-        flex: 1 1 calc(50% - 12px);
-        max-width: calc(50% - 12px);
+        flex: 1 1 calc(50% - 8px);
+        max-width: calc(50% - 8px);
       }
     `
   )}
