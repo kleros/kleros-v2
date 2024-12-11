@@ -40,6 +40,7 @@ const Container = styled.div`
   transform: translate(-50%, -50%);
   max-height: 80vh;
   overflow-y: auto;
+  position: relative;
 
   z-index: 10;
   flex-direction: column;
@@ -73,16 +74,19 @@ const InnerContainer = styled.div`
   flex-direction: column;
   align-self: center;
   gap: 24px;
-  padding: 0 24px 24px;
+  padding: 16px 24px 24px;
 `;
 
 const StyledButton = styled(LightButton)`
+  position: absolute;
+  top: 8px;
+  right: 8px;
   border: none !important;
-  padding: 8px !important;
+  padding: 4px !important;
   border-radius: 7px !important;
   height: fit-content !important;
-  align-self: end;
   .button-svg {
+    margin: 0;
     path {
       fill: ${({ theme }) => theme.stroke};
     }
