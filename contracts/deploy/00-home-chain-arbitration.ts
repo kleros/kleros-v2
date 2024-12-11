@@ -3,10 +3,10 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getContractAddress } from "./utils/getContractAddress";
 import { deployUpgradable } from "./utils/deployUpgradable";
 import { changeCurrencyRate } from "./utils/klerosCoreHelper";
-import { HomeChains, isSkipped, isDevnet, isMainnet, PNK, ETH } from "./utils";
+import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet } from "./utils/deployTokens";
-import { DisputeKitClassic, KlerosCore, RandomizerRNG } from "../typechain-types";
+import { ChainlinkRNG, DisputeKitClassic, KlerosCore } from "../typechain-types";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
@@ -28,30 +28,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   await getContractOrDeployUpgradable(hre, "EvidenceModule", { from: deployer, args: [deployer], log: true });
 
-  // Randomizer.ai: https://randomizer.ai/docs#addresses
-  const randomizerOracle = await getContractOrDeploy(hre, "RandomizerOracle", {
-    from: deployer,
-    contract: "RandomizerMock", // The mock is deployed only on the Hardhat network
-    args: [],
-    log: true,
-  });
-
-  const randomizerRng = await getContractOrDeploy(hre, "RandomizerRNG", {
-    from: deployer,
-    args: [deployer, ZeroAddress, randomizerOracle.target], // The SortitionModule is configured later
-    log: true,
-  });
-
-  const blockhashRng = await getContractOrDeploy(hre, "BlockHashRNG", {
-    from: deployer,
-    args: [],
-    log: true,
-  });
-
-  // RNG fallback on Arbitrum Sepolia because the Randomizer.ai oracle contract is unverified and not officially supported.
-  const rng = isMainnet(hre.network) ? randomizerRng : blockhashRng;
-  console.log(isMainnet(hre.network) ? "using RandomizerRNG on mainnet" : "using BlockHashRNG on testnet/devnet");
-
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassic", {
     from: deployer,
     args: [deployer, ZeroAddress],
@@ -67,6 +43,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const devnet = isDevnet(hre.network);
   const minStakingTime = devnet ? 180 : 1800;
   const maxFreezingTime = devnet ? 600 : 1800;
+  const rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
   const sortitionModule = await deployUpgradable(deployments, "SortitionModule", {
     from: deployer,
     args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rng.target, RNG_LOOKAHEAD],
@@ -103,11 +80,10 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   }
 
   // rng.changeSortitionModule() only if necessary
-  const rngContract = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
-  const currentSortitionModule = await rngContract.sortitionModule();
-  if (currentSortitionModule !== sortitionModule.address) {
+  const rngSortitionModule = await rng.sortitionModule();
+  if (rngSortitionModule !== sortitionModule.address) {
     console.log(`rng.changeSortitionModule(${sortitionModule.address})`);
-    await rngContract.changeSortitionModule(sortitionModule.address);
+    await rng.changeSortitionModule(sortitionModule.address);
   }
 
   const core = (await hre.ethers.getContract("KlerosCore")) as KlerosCore;
@@ -121,6 +97,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 };
 
 deployArbitration.tags = ["Arbitration"];
+deployArbitration.dependencies = ["ChainlinkRNG"];
 deployArbitration.skip = async ({ network }) => {
   return isSkipped(network, !HomeChains[network.config.chainId ?? 0]);
 };

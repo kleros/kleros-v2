@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { HomeChains, isSkipped } from "./utils";
 import { getContractOrDeploy } from "./utils/getContractOrDeploy";
 
-const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts, getChainId } = hre;
   const { deploy } = deployments;
 
@@ -57,7 +57,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     from: deployer,
     args: [
       deployer,
-      deployer, // For testing only, it should be the SortitionModule
+      deployer, // The consumer is configured as the SortitionModule later
       ChainlinkVRFCoordinator.target,
       keyHash,
       subscriptionId,
@@ -68,9 +68,9 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   });
 };
 
-deployArbitration.tags = ["ChainlinkRNG"];
-deployArbitration.skip = async ({ network }) => {
+deployRng.tags = ["ChainlinkRNG"];
+deployRng.skip = async ({ network }) => {
   return isSkipped(network, !HomeChains[network.config.chainId ?? 0]);
 };
 
-export default deployArbitration;
+export default deployRng;
