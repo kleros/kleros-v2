@@ -66,7 +66,7 @@ abstract contract SortitionModuleBase is ISortitionModule {
     uint256 public disputesWithoutJurors; // The number of disputes that have not finished drawing jurors.
     IRNG public rng; // The random number generator.
     uint256 public randomNumber; // Random number returned by RNG.
-    uint256 public rngLookahead; // DEPRECATED
+    // uint256 public rngLookahead; // Deprecated - WARNING: it breaks the storage layout of the contract, beta cannot be upgraded!
     uint256 public delayedStakeWriteIndex; // The index of the last `delayedStake` item that was written to the array. 0 index is skipped.
     uint256 public delayedStakeReadIndex; // The index of the next `delayedStake` item that should be processed. Starts at 1 because 0 index is skipped.
     mapping(bytes32 treeHash => SortitionSumTree) sortitionSumTrees; // The mapping trees by keys.
