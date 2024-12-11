@@ -31,7 +31,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const SUBSCRIPTION_ID = {
     [HomeChains.ARBITRUM_ONE]: "66240499937595191069677958665918759554657443303079118766000192000140992834352",
     [HomeChains.ARBITRUM_SEPOLIA]: "38502597312983100069991953687934627561654236680431968938019951490339399569548",
-    [HomeChains.HARDHAT]: "0x0000000000000000000000000000000000000000000000000000000000000000",
+    [HomeChains.HARDHAT]: "0x0000000000000000000000000000000000000000000000000000000000000001",
   };
 
   function getKeyHash({ gasPrice }: { gasPrice: keyof (typeof KEY_HASHES)[HomeChains.ARBITRUM_ONE] }): string {
@@ -43,7 +43,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   const ChainlinkVRFCoordinator = await getContractOrDeploy(hre, "ChainlinkVRFCoordinator", {
     from: deployer,
-    contract: "ChainlinkVRFCoordinator",
+    contract: "ChainlinkVRFCoordinatorV2Mock",
     args: [],
     log: true,
   });
@@ -57,7 +57,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     from: deployer,
     args: [
       deployer,
-      deployer,
+      deployer, // For testing only, it should be the SortitionModule
       ChainlinkVRFCoordinator.target,
       keyHash,
       subscriptionId,

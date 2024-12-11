@@ -1,6 +1,6 @@
 import { expect } from "chai";
-import { ethers, network } from "hardhat";
-import { IncrementalNG, BlockHashRNG } from "../../typechain-types";
+import { deployments, ethers, network } from "hardhat";
+import { IncrementalNG, BlockHashRNG, ChainlinkRNG, ChainlinkVRFCoordinatorV2Mock } from "../../typechain-types";
 
 const initialNg = 424242;
 const abiCoder = ethers.AbiCoder.defaultAbiCoder();
@@ -14,13 +14,13 @@ describe("IncrementalNG", async () => {
   });
 
   it("Should return a number incrementing each time", async () => {
-    expect(await rng.receiveRandomness.staticCall(689376)).to.equal(initialNg);
-    await rng.receiveRandomness(29543);
-    expect(await rng.receiveRandomness.staticCall(5894382)).to.equal(initialNg + 1);
-    await rng.receiveRandomness(0);
-    expect(await rng.receiveRandomness.staticCall(3465)).to.equal(initialNg + 2);
-    await rng.receiveRandomness(2n ** 255n);
-    expect(await rng.receiveRandomness.staticCall(0)).to.equal(initialNg + 3);
+    expect(await rng.receiveRandomness.staticCall()).to.equal(initialNg);
+    await rng.receiveRandomness();
+    expect(await rng.receiveRandomness.staticCall()).to.equal(initialNg + 1);
+    await rng.receiveRandomness();
+    expect(await rng.receiveRandomness.staticCall()).to.equal(initialNg + 2);
+    await rng.receiveRandomness();
+    expect(await rng.receiveRandomness.staticCall()).to.equal(initialNg + 3);
   });
 });
 
@@ -29,20 +29,43 @@ describe("BlockHashRNG", async () => {
 
   beforeEach("Setup", async () => {
     const rngFactory = await ethers.getContractFactory("BlockHashRNG");
-    rng = (await rngFactory.deploy()) as BlockHashRNG;
+    rng = (await rngFactory.deploy(1)) as BlockHashRNG;
   });
 
-  it("Should return a non-zero number for a block number in the past", async () => {
-    const tx = await rng.receiveRandomness(5);
+  it("Should return a non-zero number for a block number", async () => {
+    const tx = await rng.receiveRandomness();
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
     const [rn] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
     expect(rn).to.not.equal(0);
   });
+});
 
-  it("Should return zero for a block number in the future", async () => {
-    const tx = await rng.receiveRandomness(9876543210);
-    const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
-    const [rn] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
-    expect(rn).to.equal(0);
+describe("ChainlinkRNG", async () => {
+  let rng: ChainlinkRNG;
+  let vrfCoordinator: ChainlinkVRFCoordinatorV2Mock;
+
+  beforeEach("Setup", async () => {
+    await deployments.fixture(["ChainlinkRNG"], {
+      fallbackToGlobal: true,
+      keepExistingDeployments: false,
+    });
+    rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
+    vrfCoordinator = (await ethers.getContract("ChainlinkVRFCoordinator")) as ChainlinkVRFCoordinatorV2Mock;
+  });
+
+  it("Should return a non-zero random number", async () => {
+    const requestId = 1;
+    const expectedRn = BigInt(
+      ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "uint256"], [requestId, 0]))
+    );
+
+    let tx = await rng.requestRandomness();
+    await expect(tx).to.emit(rng, "RequestSent").withArgs(requestId);
+
+    tx = await vrfCoordinator.fulfillRandomWords(requestId, rng.target, []);
+    await expect(tx).to.emit(rng, "RequestFulfilled").withArgs(requestId, expectedRn);
+
+    const rn = await rng.receiveRandomness();
+    expect(rn).to.equal(expectedRn);
   });
 });

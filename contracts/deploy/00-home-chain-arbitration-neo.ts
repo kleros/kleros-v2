@@ -12,7 +12,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
   const { deploy, execute } = deployments;
   const { ZeroAddress } = hre.ethers;
-  const RNG_LOOKAHEAD = 20;
 
   // fallback to hardhat node signers on local network
   const deployer = (await getNamedAccounts()).deployer ?? (await hre.ethers.getSigners())[0].address;
@@ -62,16 +61,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const maxTotalStaked = PNK(2_000_000);
   const sortitionModule = await deployUpgradable(deployments, "SortitionModuleNeo", {
     from: deployer,
-    args: [
-      deployer,
-      klerosCoreAddress,
-      minStakingTime,
-      maxFreezingTime,
-      rng.address,
-      RNG_LOOKAHEAD,
-      maxStakePerJuror,
-      maxTotalStaked,
-    ],
+    args: [deployer, klerosCoreAddress, minStakingTime, maxFreezingTime, rng.address, maxStakePerJuror, maxTotalStaked],
     log: true,
   }); // nonce (implementation), nonce+1 (proxy)
 
@@ -107,10 +97,10 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   // rng.changeSortitionModule() only if necessary
   const rngContract = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
-  const currentSortitionModule = await rngContract.sortitionModule();
+  const currentSortitionModule = await rngContract.consumer();
   if (currentSortitionModule !== sortitionModule.address) {
     console.log(`rng.changeSortitionModule(${sortitionModule.address})`);
-    await rngContract.changeSortitionModule(sortitionModule.address);
+    await rngContract.changeConsumer(sortitionModule.address);
   }
 
   const core = (await hre.ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;
