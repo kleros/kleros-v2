@@ -31,7 +31,6 @@ import { Divider } from "components/Divider";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  max-width: 480px;
   background-color: ${({ theme }) => theme.lightBlue};
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
   padding: 20px;

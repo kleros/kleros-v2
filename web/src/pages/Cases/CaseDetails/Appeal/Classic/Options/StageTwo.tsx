@@ -20,9 +20,9 @@ const Container = styled.div`
 `;
 
 const OptionsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
   margin-top: 12px;
 `;
 

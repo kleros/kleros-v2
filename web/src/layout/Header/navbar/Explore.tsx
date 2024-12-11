@@ -8,7 +8,6 @@ import { useOpenContext } from "../MobileHeader";
 
 const Container = styled.div`
   display: flex;
-  gap: 0;
   flex-direction: column;
 
   ${landscapeStyle(

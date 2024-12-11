@@ -128,8 +128,8 @@ const processData = (data: HomePageBlockQuery, allTime: boolean) => {
 };
 
 const addTreeValues = (court: Court): CourtWithTree => {
-  const votesPerPnk = Number(court.numberVotes) / (Number(court.effectiveStake) / 1e18);
-  const disputesPerPnk = Number(court.numberDisputes) / (Number(court.effectiveStake) / 1e18);
+  const votesPerPnk = Number(court.numberVotes) / (Number(court.effectiveStake) / 1e18) || 0;
+  const disputesPerPnk = Number(court.numberDisputes) / (Number(court.effectiveStake) / 1e18) || 0;
   const expectedRewardPerPnk = votesPerPnk * (Number(court.feeForJuror) / 1e18);
   return {
     ...court,
@@ -154,8 +154,8 @@ const addTreeValuesWithDiff = (presentCourt: Court, pastCourt: Court): CourtWith
   const diffNumberVotes = presentCourtWithTree.numberVotes - pastCourtWithTree.numberVotes;
   const diffNumberDisputes = presentCourtWithTree.numberDisputes - pastCourtWithTree.numberDisputes;
   const avgEffectiveStake = (presentCourtWithTree.effectiveStake + pastCourtWithTree.effectiveStake) / 2n;
-  const votesPerPnk = diffNumberVotes / (Number(avgEffectiveStake) / 1e18);
-  const disputesPerPnk = diffNumberDisputes / (Number(avgEffectiveStake) / 1e18);
+  const votesPerPnk = diffNumberVotes / (Number(avgEffectiveStake) / 1e18) || 0;
+  const disputesPerPnk = diffNumberDisputes / (Number(avgEffectiveStake) / 1e18) || 0;
   const expectedRewardPerPnk = votesPerPnk * (Number(presentCourt.feeForJuror) / 1e18);
   return {
     ...presentCourt,
