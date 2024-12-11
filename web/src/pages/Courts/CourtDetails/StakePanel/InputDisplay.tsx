@@ -26,12 +26,6 @@ const StyledField = styled(NumberInputField)`
 const LabelArea = styled.div`
   display: flex;
   justify-content: space-between;
-
-  ${landscapeStyle(
-    () => css`
-      width: 92%;
-    `
-  )}
 `;
 
 const StyledLabel = styled.label`
@@ -45,12 +39,6 @@ const InputArea = styled.div`
   align-items: center;
   gap: 12px;
   width: 100%;
-
-  ${landscapeStyle(
-    () => css`
-      width: 92%;
-    `
-  )}
 `;
 
 const InputFieldAndButton = styled.div`

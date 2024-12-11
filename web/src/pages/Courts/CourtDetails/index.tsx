@@ -20,6 +20,7 @@ import LatestCases from "components/LatestCases";
 import Staking from "components/Popup/MiniGuides/Staking";
 import ScrollTop from "components/ScrollTop";
 import { StyledSkeleton } from "components/StyledSkeleton";
+import { Divider } from "components/Divider";
 
 import Description from "./Description";
 import StakePanel from "./StakePanel";
@@ -33,13 +34,7 @@ const CourtHeader = styled.h1`
   justify-content: space-between;
   gap: 24px;
   flex-wrap: wrap;
-  margin-bottom: 24px;
-
-  ${landscapeStyle(
-    () => css`
-      margin-bottom: 32px;
-    `
-  )};
+  margin-bottom: 16px;
 `;
 
 const CourtInfo = styled.div`
@@ -64,7 +59,6 @@ const ButtonContainer = styled.div`
 
 const StyledCard = styled(Card)`
   padding: ${responsiveSize(16, 32)};
-  padding-bottom: 16px;
   margin-top: 12px;
   width: 100%;
   height: auto;
@@ -76,6 +70,24 @@ const StyledBreadcrumb = styled(Breadcrumb)`
   button {
     font-size: 16px;
   }
+`;
+
+const StakePanelAndStats = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 24px;
+  gap: 24px;
+  flex-wrap: wrap;
+
+  ${landscapeStyle(
+    () => css`
+      & > * {
+        flex: 1 1 calc(50% - 12px);
+        max-width: calc(50% - 12px);
+      }
+    `
+  )}
 `;
 
 const CourtDetails: React.FC = () => {
@@ -111,8 +123,11 @@ const CourtDetails: React.FC = () => {
             />
           </ButtonContainer>
         </CourtHeader>
-        <StakePanel courtName={policy?.name} />
-        <Stats />
+        <Divider />
+        <StakePanelAndStats>
+          <StakePanel courtName={policy?.name} />
+          <Stats />
+        </StakePanelAndStats>
       </StyledCard>
       <StyledCard>
         <Description />

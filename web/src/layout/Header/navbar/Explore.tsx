@@ -45,7 +45,7 @@ const StyledLink = styled(Link)<{ isActive: boolean; isMobileNavbar?: boolean }>
   ${landscapeStyle(
     () => css`
       color: ${({ isActive, theme }) => (isActive ? theme.white : `${theme.white}BA`)};
-      padding: 16px 10px;
+      padding: 16px 8px;
     `
   )};
 `;

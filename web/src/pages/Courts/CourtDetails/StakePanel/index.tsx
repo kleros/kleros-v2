@@ -13,15 +13,13 @@ import Simulator from "./Simulator";
 
 const Container = styled.div`
   position: relative;
-  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 28px;
 
   ${landscapeStyle(
     () => css`
-      flex-direction: row;
-      justify-content: space-between;
+      flex-direction: column;
     `
   )};
 `;
@@ -29,12 +27,6 @@ const Container = styled.div`
 const LeftArea = styled.div`
   display: flex;
   flex-direction: column;
-
-  ${landscapeStyle(
-    () => css`
-      width: 50%;
-    `
-  )};
 `;
 
 const TagArea = styled.div`
