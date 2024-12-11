@@ -4,8 +4,6 @@ import { landscapeStyle } from "styles/landscapeStyle";
 
 import { Link, useLocation } from "react-router-dom";
 
-import { useOpenContext } from "../MobileHeader";
-
 const Container = styled.div`
   display: flex;
   gap: 0;
@@ -61,11 +59,11 @@ const links = [
 
 interface IExplore {
   isMobileNavbar?: boolean;
+  handleCloseNavbar?: () => void;
 }
 
-const Explore: React.FC<IExplore> = ({ isMobileNavbar }) => {
+const Explore: React.FC<IExplore> = ({ isMobileNavbar, handleCloseNavbar }) => {
   const location = useLocation();
-  const { toggleIsOpen } = useOpenContext();
 
   return (
     <Container>
@@ -73,7 +71,7 @@ const Explore: React.FC<IExplore> = ({ isMobileNavbar }) => {
       {links.map(({ to, text }) => (
         <StyledLink
           key={text}
-          onClick={toggleIsOpen}
+          onClick={handleCloseNavbar}
           isActive={to === "/" ? location.pathname === "/" : location.pathname.split("/")[1] === to.split("/")[1]}
           {...{ to, isMobileNavbar }}
         >
