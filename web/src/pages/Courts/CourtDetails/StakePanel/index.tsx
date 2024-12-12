@@ -28,7 +28,7 @@ const Container = styled.div`
 const StakingArea = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 `;
 
 const TagArea = styled.div`
@@ -36,12 +36,12 @@ const TagArea = styled.div`
   gap: 10px;
 `;
 
-const InputArea = styled(TagArea)`
-  flex-direction: column;
-`;
-
 const TextArea = styled.div`
   color: ${({ theme }) => theme.primaryText};
+`;
+
+const InputArea = styled(TagArea)`
+  flex-direction: column;
 `;
 
 const StakePanel: React.FC<{ courtName: string }> = ({ courtName = "General Court" }) => {
