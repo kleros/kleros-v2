@@ -48,7 +48,7 @@ const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log: true,
   });
 
-  const keyHash = getKeyHash({ gasPrice: 150 });
+  const keyHash = getKeyHash({ gasPrice: 30 });
   const subscriptionId = SUBSCRIPTION_ID[chainId];
   const requestConfirmations = 200; // between 1 and 200 L2 blocks
   const callbackGasLimit = 100000;
