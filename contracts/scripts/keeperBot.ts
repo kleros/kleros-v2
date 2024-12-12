@@ -9,12 +9,12 @@ import {
   DisputeKitClassic,
   ChainlinkRNG,
 } from "../typechain-types";
-import request from "graphql-request";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
 import { toBigInt, BigNumberish, getNumber } from "ethers";
 import hre = require("hardhat");
 
+let request: <T>(url: string, query: string) => Promise<T>; // Workaround graphql-request ESM import
 const { ethers } = hre;
 const MAX_DRAW_ITERATIONS = 30;
 const MAX_EXECUTE_ITERATIONS = 20;
@@ -478,6 +478,8 @@ const sendHeartbeat = async () => {
 };
 
 async function main() {
+  const graphqlRequest = await import("graphql-request"); // Workaround graphql-request ESM import
+  request = graphqlRequest.request;
   const { core, sortition, disputeKitClassic } = await getContracts();
 
   const getBlockTime = async () => {
