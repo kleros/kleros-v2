@@ -25,7 +25,8 @@
     "web-devtools",
     "eslint-config",
     "prettier-config",
-    "tsconfig"
+    "tsconfig",
+    "kleros-app"
   ],
   "packageManager": "yarn@4.5.1",
   "volta": {

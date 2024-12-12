@@ -25,6 +25,7 @@ import {
 import { GraphQLError } from "graphql";
 import { isUndefined } from "../../../utils";
 import { useSessionStorage } from "../hooks/useSessionStorage";
+import { fetchRestrictions, Role } from "../utils/fetchRestrictions";
 
 interface IAtlasProvider {
   isVerified: boolean;
@@ -44,6 +45,7 @@ interface IAtlasProvider {
       isError: boolean;
     }
   >;
+  roleRestrictions: Role[] | undefined;
 }
 
 const Context = createContext<IAtlasProvider | undefined>(undefined);
@@ -73,7 +75,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         }
       : undefined;
     return new GraphQLClient(`${config.uri}/graphql`, { headers });
-  }, [authToken]);
+  }, [authToken, config.uri]);
 
   /**
    * @description verifies user authorisation
@@ -134,6 +136,22 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         try {
           if (!isVerified || isUndefined(address)) return undefined;
           return await fetchUser(atlasGqlClient);
+        } catch {
+          return undefined;
+        }
+      },
+    },
+    queryClient
+  );
+
+  const { data: roleRestrictions } = useQuery(
+    {
+      queryKey: [`RoleRestrictions`],
+      enabled: Boolean(config.product),
+      staleTime: Infinity,
+      queryFn: async () => {
+        try {
+          return await fetchRestrictions(atlasGqlClient, config.product);
         } catch {
           return undefined;
         }
@@ -255,6 +273,17 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
     async (file: File, role: Roles) => {
       try {
         if (!address || !isVerified || !config.uri || !authToken) return null;
+
+        if (roleRestrictions) {
+          const restrictions = roleRestrictions.find((supportedRoles) => Roles[supportedRoles.name] === role);
+
+          if (!restrictions) throw new Error("Unsupported role.");
+          if (!restrictions.restriction.allowedMimeTypes.includes(file.type)) throw new Error("Unsupported file type.");
+          if (file.size > restrictions.restriction.maxSize)
+            throw new Error(
+              `File too big. Max allowed size : ${((restrictions.restriction.maxSize / 1024) * 1024).toFixed(2)} mb.`
+            );
+        }
         setIsUploadingFile(true);
 
         const hash = await fetchWithAuthErrorHandling(() =>
@@ -267,7 +296,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
         setIsUploadingFile(false);
       }
     },
-    [address, isVerified, setIsUploadingFile, authToken, config.uri, config.product]
+    [address, isVerified, setIsUploadingFile, authToken, config.uri, config.product, roleRestrictions]
   );
 
   /**
@@ -309,6 +338,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
           isUploadingFile,
           uploadFile,
           confirmEmail,
+          roleRestrictions,
         }),
         [
           isVerified,
@@ -324,6 +354,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
           isUploadingFile,
           uploadFile,
           confirmEmail,
+          roleRestrictions,
         ]
       )}
     >
