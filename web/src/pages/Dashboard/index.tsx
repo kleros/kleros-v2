@@ -25,7 +25,7 @@ const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
   padding: ${responsiveSize(32, 80)} ${responsiveSize(24, 136)} ${responsiveSize(76, 96)};
-  max-width: 1780px;
+  max-width: 1400px;
   margin: 0 auto;
 `;
 

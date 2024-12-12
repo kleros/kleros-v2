@@ -1,6 +1,7 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { responsiveSize } from "styles/responsiveSize";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import { useParams } from "react-router-dom";
 import { Accordion } from "@kleros/ui-components-library";
@@ -39,11 +40,19 @@ const StyledAccordion = styled(Accordion)`
   }
   //adds padding to body container
   > * > div > div {
-    padding: 0 24px;
+    padding: 0;
   }
   [class*="accordion-item"] {
     margin: 0;
   }
+
+  ${landscapeStyle(
+    () => css`
+      > * > div > div {
+        padding: 0 24px;
+      }
+    `
+  )}
 `;
 
 const TimeDisplayContainer = styled.div`

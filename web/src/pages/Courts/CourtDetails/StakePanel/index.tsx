@@ -64,7 +64,8 @@ const StakePanel: React.FC<{ courtName: string }> = ({ courtName = "General Cour
         </TagArea>
         <TextArea>
           <strong>{`${isStaking ? "Stake" : "Withdraw"} PNK`}</strong> {`${isStaking ? "to join the" : "from"}`}{" "}
-          {courtName} court
+          {courtName}
+          {courtName.toLowerCase().endsWith("court") || courtName.toLowerCase().startsWith("corte") ? null : " Court"}
         </TextArea>
         <StakeArea>
           <InputDisplay {...{ action, amount, setAmount }} />

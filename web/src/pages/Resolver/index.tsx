@@ -38,7 +38,7 @@ const Container = styled.div`
   padding: ${responsiveSize(24, 32)};
   padding-top: ${responsiveSize(24, 28)};
   padding-bottom: ${responsiveSize(76, 96)};
-  max-width: 1780px;
+  max-width: 1400px;
   margin: 0 auto;
 `;
 
