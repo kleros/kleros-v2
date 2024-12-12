@@ -13,8 +13,14 @@ import ExtraStatsDisplay from "components/ExtraStatsDisplay";
 const StyledCard = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0 32px;
+  gap: 0 24px;
   justify-content: center;
+`;
+
+const StyledLabel = styled.label`
+  margin-top: 24px;
+  font-size: 14px;
+  font-weight: 600;
 `;
 
 interface IStat {
@@ -44,15 +50,12 @@ const stats: IStat[] = [
 const timeRanges = [
   { value: 7, text: "Last 7 days" },
   { value: 30, text: "Last 30 days" },
-  { value: 90, text: "Last 90 days" },
-  // we can uncomment these as the contract deployment time increases
-  // { value: 180, text: "Last 180 days" },
-  // { value: 365, text: "Last 365 days" },
+  { value: 180, text: "Last 180 days" },
   { value: "allTime", text: "All Time" },
 ];
 
 const ExtraStats = () => {
-  const [selectedRange, setSelectedRange] = useState(timeRanges[0].value);
+  const [selectedRange, setSelectedRange] = useState(timeRanges[1].value);
   const data = useHomePageExtraStats(selectedRange);
 
   const handleTimeRangeChange = (value: string | number) => {
@@ -77,9 +80,13 @@ const ExtraStats = () => {
         }
         icon={LawBalance}
       />
-      {stats.map(({ title, getText, icon }) => (
-        <ExtraStatsDisplay key={title} {...{ title, icon }} text={getText(data)} />
-      ))}
+      {data.data?.mostDisputedCourt?.numberDisputes === 0 ? (
+        <StyledLabel>No activity in this period</StyledLabel>
+      ) : (
+        stats.map(({ title, getText, icon }) => (
+          <ExtraStatsDisplay key={title} {...{ title, icon }} text={getText(data)} />
+        ))
+      )}
     </StyledCard>
   );
 };

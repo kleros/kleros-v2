@@ -41,7 +41,6 @@ const ScrollButton = styled(Button)`
   background-color: transparent;
   padding: 0;
   flex-direction: row-reverse;
-  margin: 0 0 18px;
   gap: 8px;
   .button-text {
     color: ${({ theme }) => theme.primaryBlue};
@@ -49,10 +48,21 @@ const ScrollButton = styled(Button)`
   }
   .button-svg {
     margin: 0;
+    path {
+      fill: ${({ theme }) => theme.primaryBlue};
+    }
   }
-  :focus,
+
   :hover {
     background-color: transparent;
+    .button-svg {
+      path {
+        fill: ${({ theme }) => theme.secondaryBlue};
+      }
+    }
+    .button-text {
+      color: ${({ theme }) => theme.secondaryBlue};
+    }
   }
 `;
 

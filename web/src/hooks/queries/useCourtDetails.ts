@@ -23,6 +23,7 @@ const courtDetailsQuery = graphql(`
       paidPNK
       timesPerPeriod
       feeForJuror
+      name
     }
   }
 `);

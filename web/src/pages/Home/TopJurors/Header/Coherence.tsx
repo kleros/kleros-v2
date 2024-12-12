@@ -11,17 +11,16 @@ const Container = styled.div`
   display: flex;
   font-size: 12px !important;
   &::before {
-    content: "Coherency";
+    content: "Coherence";
   }
   color: ${({ theme }) => theme.secondaryText};
   align-items: center;
 
   ${landscapeStyle(
-    () =>
-      css`
-        font-size: 14px !important;
-        justify-content: center;
-      `
+    () => css`
+      font-size: 14px !important;
+      justify-content: center;
+    `
   )}
 `;
 
@@ -32,7 +31,7 @@ const coherentVotesTooltipMsg =
   "voted coherently and the number in the right is the total number of times " +
   "the juror voted";
 
-const Coherency: React.FC = () => {
+const Coherence: React.FC = () => {
   const { width } = useWindowSize();
   return (
     <Container>
@@ -43,4 +42,4 @@ const Coherency: React.FC = () => {
     </Container>
   );
 };
-export default Coherency;
+export default Coherence;

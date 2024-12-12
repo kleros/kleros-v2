@@ -25,7 +25,7 @@ const tooltipMsg =
   " (after all the appeal instances). If the juror vote is the same as " +
   " the majority of jurors it's considered a Coherent Vote.";
 
-interface ICoherency {
+interface ICoherence {
   userLevelData: {
     level: number;
     title: string;
@@ -35,7 +35,7 @@ interface ICoherency {
   isMiniGuide: boolean;
 }
 
-const Coherency: React.FC<ICoherency> = ({ userLevelData, totalCoherentVotes, totalResolvedVotes, isMiniGuide }) => {
+const Coherence: React.FC<ICoherence> = ({ userLevelData, totalCoherentVotes, totalResolvedVotes, isMiniGuide }) => {
   const votesContent = (
     <label>
       Coherent Votes:
@@ -64,4 +64,4 @@ const Coherency: React.FC<ICoherency> = ({ userLevelData, totalCoherentVotes, to
   );
 };
 
-export default Coherency;
+export default Coherence;

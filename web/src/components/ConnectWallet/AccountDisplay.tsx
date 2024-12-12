@@ -21,10 +21,22 @@ const Container = styled.div`
   align-items: center;
   background-color: ${({ theme }) => theme.whiteBackground};
   padding: 0px;
+  cursor: pointer;
+
+  &:hover {
+    label {
+      color: ${({ theme }) => theme.white} !important;
+      transition: color 0.2s;
+    }
+  }
 
   ${landscapeStyle(
     () => css`
-      background-color: ${({ theme }) => theme.whiteLowOpacity};
+      background-color: ${({ theme }) => theme.whiteLowOpacitySubtle};
+      &:hover {
+        transition: background-color 0.1s;
+        background-color: ${({ theme }) => theme.whiteLowOpacityStrong};
+      }
       flex-direction: row;
       align-content: center;
       border-radius: 300px;
@@ -50,13 +62,14 @@ const AccountContainer = styled.div`
     () => css`
       gap: 12px;
       > label {
-        color: ${({ theme }) => theme.primaryText};
+        color: ${({ theme }) => theme.white}CC !important;
         font-weight: 400;
         font-size: 14px;
       }
     `
   )}
 `;
+
 const ChainConnectionContainer = styled.div`
   display: flex;
   width: fit-content;

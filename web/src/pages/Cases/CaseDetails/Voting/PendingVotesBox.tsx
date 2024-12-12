@@ -14,6 +14,7 @@ const StyledBox = styled(Box)`
   display: flex;
   gap: 8px;
   align-items: center;
+  margin-bottom: -4px;
   > p {
     margin: 0;
   }

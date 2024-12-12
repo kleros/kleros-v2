@@ -4,6 +4,7 @@ export const lightTheme = {
   ...componentsLightTheme,
   name: "light",
   white: "#FFFFFF",
+  black: "#000000",
   primaryPurple: "#4D00B4",
   secondaryPurple: "#9013FE",
   darkPurple: "#220050",
@@ -25,7 +26,8 @@ export const lightTheme = {
 
   defaultShadow: "#00000002",
   hoveredShadow: "#00000002",
-  whiteLowOpacity: "#0000000d",
+  whiteLowOpacitySubtle: "#FFFFFF0D",
+  whiteLowOpacityStrong: "#FFFFFF26",
   blackLowOpacity: "#00000080",
 
   success: "#00C42B",
@@ -51,6 +53,7 @@ export const darkTheme = {
   ...componentsDarkTheme,
   name: "dark",
   white: "#FFFFFF",
+  black: "#000000",
   primaryPurple: "#7E1BD4",
   secondaryPurple: "#B45FFF",
   darkPurple: "#220050",
@@ -72,7 +75,8 @@ export const darkTheme = {
 
   defaultShadow: "#00000000",
   hoveredShadow: "#42498f80",
-  whiteLowOpacity: "#FFFFFF0F",
+  whiteLowOpacitySubtle: "#FFFFFF0F",
+  whiteLowOpacityStrong: "#FFFFFF24",
   blackLowOpacity: "#00000080",
 
   success: "#65DC7F",

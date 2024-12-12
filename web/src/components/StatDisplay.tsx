@@ -1,39 +1,63 @@
 import React from "react";
 import styled, { useTheme, css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
-const Container = styled.div`
+const Container = styled.div<{ isSmallDisplay: boolean }>`
   display: flex;
-  max-width: 196px;
   align-items: center;
   gap: 8px;
-
-  ${landscapeStyle(
-    () => css`
-      margin-bottom: ${responsiveSize(16, 30)};
-    `
-  )}
+  ${({ isSmallDisplay }) =>
+    isSmallDisplay
+      ? css`
+          width: 151px;
+        `
+      : css`
+          max-width: 196px;
+        `}
 `;
 
-const SVGContainer = styled.div<{ iconColor: string; backgroundColor: string }>`
-  height: 48px;
-  width: 48px;
+const SVGContainer = styled.div<{ iconColor: string; backgroundColor: string; isSmallDisplay: boolean }>`
   border-radius: 50%;
-  background-color: ${({ backgroundColor }) => backgroundColor};
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: ${({ backgroundColor }) => backgroundColor};
   svg {
     fill: ${({ iconColor }) => iconColor};
   }
+
+  ${({ isSmallDisplay }) =>
+    isSmallDisplay
+      ? css`
+          height: 32px;
+          width: 32px;
+          svg {
+            height: 20px;
+          }
+        `
+      : css`
+          height: 48px;
+          width: 48px;
+        `}
 `;
 
-const TextContainer = styled.div`
-  h1 {
-    margin: 0;
-  }
+const TextContainer = styled.div<{ isSmallDisplay: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ isSmallDisplay }) => (isSmallDisplay ? "3px" : "8px")};
+`;
+
+const StyledTitle = styled.label`
+  font-size: 14px;
+`;
+
+const StyledValue = styled.label<{ isSmallDisplay: boolean }>`
+  font-size: ${({ isSmallDisplay }) => (isSmallDisplay ? "16px" : "24px")};
+  font-weight: 600;
+  color: ${({ theme }) => theme.primaryText};
+`;
+
+const StyledUSDValue = styled.label<{ isSmallDisplay: boolean }>`
+  font-size: ${({ isSmallDisplay }) => (isSmallDisplay ? "12px" : "14px")};
 `;
 
 const createPair = (iconColor: string, backgroundColor: string) => ({
@@ -47,9 +71,18 @@ export interface IStatDisplay {
   subtext?: string | React.ReactNode;
   icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
   color: "red" | "orange" | "green" | "blue" | "purple";
+  isSmallDisplay?: boolean;
 }
 
-const StatDisplay: React.FC<IStatDisplay> = ({ title, text, subtext, icon: Icon, color, ...props }) => {
+const StatDisplay: React.FC<IStatDisplay> = ({
+  title,
+  text,
+  subtext,
+  icon: Icon,
+  color,
+  isSmallDisplay = false,
+  ...props
+}) => {
   const theme = useTheme();
   const COLORS = {
     red: createPair(theme.error, theme.errorLight),
@@ -60,12 +93,12 @@ const StatDisplay: React.FC<IStatDisplay> = ({ title, text, subtext, icon: Icon,
   };
 
   return (
-    <Container {...props}>
-      <SVGContainer {...{ ...COLORS[color] }}>{<Icon />}</SVGContainer>
-      <TextContainer>
-        <label>{title}</label>
-        <h1>{text}</h1>
-        <label>{subtext}</label>
+    <Container {...{ isSmallDisplay }} {...props}>
+      <SVGContainer {...{ ...COLORS[color], isSmallDisplay }}>{<Icon />}</SVGContainer>
+      <TextContainer {...{ isSmallDisplay }}>
+        <StyledTitle>{title}</StyledTitle>
+        <StyledValue {...{ isSmallDisplay }}>{text}</StyledValue>
+        <StyledUSDValue {...{ isSmallDisplay }}>{subtext}</StyledUSDValue>
       </TextContainer>
     </Container>
   );

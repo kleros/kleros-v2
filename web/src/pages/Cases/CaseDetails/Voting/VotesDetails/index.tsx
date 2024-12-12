@@ -17,22 +17,26 @@ import AccordionTitle from "./AccordionTitle";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 8px;
 `;
 
 const StyledAccordion = styled(CustomAccordion)`
   width: 100%;
-  > * > button {
-    justify-content: unset;
+
+  [class*="accordion-item"] {
+    margin: 0;
+  }
+
+  [class*="accordion-button"] {
     padding: 11.5px ${responsiveSize(8, 18)} !important;
     background-color: ${({ theme }) => theme.whiteBackground} !important;
     border: 1px solid ${({ theme }) => theme.stroke} !important;
+    margin: 4px 0;
     > svg {
       fill: ${({ theme }) => theme.primaryText} !important;
     }
   }
-  //adds padding to body container
-  > * > div > div {
+
+  [class*="Body"] {
     padding: ${responsiveSize(16, 24)} ${responsiveSize(8, 16)};
   }
 `;
@@ -41,13 +45,14 @@ const StyledCard = styled(Card)`
   width: 100%;
   height: auto;
   padding: 11.5px ${responsiveSize(8, 18)};
-  margin: 8px 0;
+  border: 1px solid ${({ theme }) => theme.stroke};
+  margin: 4px 0;
 `;
 
 const AccordionContentContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 `;
 
 const JustificationText = styled.div`

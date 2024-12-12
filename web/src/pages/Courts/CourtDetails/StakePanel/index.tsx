@@ -1,32 +1,25 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
-import { landscapeStyle } from "styles/landscapeStyle";
-
-import BalanceIcon from "svgs/icons/balance.svg";
-
-import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
-
-import Popup, { PopupType } from "components/Popup/index";
-import Tag from "components/Tag";
 
 import { uncommify } from "utils/commify";
 
+import { landscapeStyle } from "styles/landscapeStyle";
+
+import Tag from "components/Tag";
+
 import InputDisplay from "./InputDisplay";
 import { ActionType } from "./StakeWithdrawButton";
-import SimulatorPopup from "./SimulatorPopup";
+import Simulator from "./Simulator";
 
 const Container = styled.div`
   position: relative;
-  width: 100%;
-  margin-top: 32px;
   display: flex;
   flex-direction: column;
   gap: 28px;
 
   ${landscapeStyle(
     () => css`
-      flex-direction: row;
-      justify-content: space-between;
+      flex-direction: column;
     `
   )};
 `;
@@ -34,12 +27,6 @@ const Container = styled.div`
 const LeftArea = styled.div`
   display: flex;
   flex-direction: column;
-
-  ${landscapeStyle(
-    () => css`
-      width: 50%;
-    `
-  )};
 `;
 
 const TagArea = styled.div`
@@ -57,14 +44,10 @@ const TextArea = styled.div`
   color: ${({ theme }) => theme.primaryText};
 `;
 
-const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "General Court", id }) => {
+const StakePanel: React.FC<{ courtName: string }> = ({ courtName = "General Court" }) => {
   const [amount, setAmount] = useState("");
-  const [isSending, setIsSending] = useState<boolean>(false);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isActive, setIsActive] = useState<boolean>(true);
   const [action, setAction] = useState<ActionType>(ActionType.stake);
-
-  useLockOverlayScroll(isPopupOpen);
 
   const handleClick = (action: ActionType) => {
     setIsActive(action === ActionType.stake);
@@ -84,23 +67,10 @@ const StakePanel: React.FC<{ courtName: string; id: string }> = ({ courtName = "
           {courtName} court
         </TextArea>
         <StakeArea>
-          <InputDisplay {...{ action, isSending, setIsSending, setIsPopupOpen, amount, setAmount }} />
+          <InputDisplay {...{ action, amount, setAmount }} />
         </StakeArea>
-        {isPopupOpen && (
-          <Popup
-            title={isStaking ? "Stake Confirmed" : "Withdraw Confirmed"}
-            icon={BalanceIcon}
-            popupType={PopupType.STAKE_WITHDRAW}
-            isStake={isStaking}
-            pnkStaked={amount}
-            courtName={courtName}
-            courtId={id}
-            setIsOpen={setIsPopupOpen}
-            setAmount={setAmount}
-          />
-        )}
       </LeftArea>
-      <SimulatorPopup amountToStake={amount ? Number(uncommify(amount)) : 0} {...{ isStaking }} />
+      <Simulator amountToStake={amount ? Number(uncommify(amount)) : 0} {...{ isStaking }} />
     </Container>
   );
 };

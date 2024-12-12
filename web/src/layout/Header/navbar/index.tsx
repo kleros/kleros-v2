@@ -13,7 +13,6 @@ import LightButton from "components/LightButton";
 import { Overlay } from "components/Overlay";
 
 import { useOpenContext } from "../MobileHeader";
-
 import DappList from "./DappList";
 import Explore from "./Explore";
 import Menu from "./Menu";
@@ -44,7 +43,6 @@ const Container = styled.div<{ isOpen: boolean }>`
   overflow-y: auto;
   z-index: 1;
   background-color: ${({ theme }) => theme.whiteBackground};
-  border: 1px solid ${({ theme }) => theme.stroke};
   box-shadow: 0px 2px 3px ${({ theme }) => theme.defaultShadow};
   transform-origin: top;
   transform: scaleY(${({ isOpen }) => (isOpen ? "1" : "0")});
@@ -108,6 +106,7 @@ const NavBar: React.FC = () => {
         <StyledOverlay>
           <Container {...{ isOpen }}>
             <LightButton
+              isMobileNavbar={true}
               text="Kleros Solutions"
               onClick={() => {
                 toggleIsDappListOpen();
@@ -115,7 +114,7 @@ const NavBar: React.FC = () => {
               Icon={KlerosSolutionsIcon}
             />
             <hr />
-            <Explore />
+            <Explore isMobileNavbar={true} />
             <hr />
             <WalletContainer>
               <ConnectWallet />
@@ -126,7 +125,7 @@ const NavBar: React.FC = () => {
               )}
             </WalletContainer>
             <hr />
-            <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} />
+            <Menu {...{ toggleIsHelpOpen, toggleIsSettingsOpen }} isMobileNavbar={true} />
             <br />
           </Container>
         </StyledOverlay>

@@ -19,6 +19,11 @@ const StyledCard = styled(Card)`
   height: 100%;
   max-height: 335px;
   min-height: 290px;
+  transition: background-color 0.1s;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.lightGrey}BB;
+  }
 `;
 
 const CardContainer = styled.div`
@@ -56,7 +61,7 @@ interface IDisputeCardView {
 const DisputeCardView: React.FC<IDisputeCardView> = ({ isLoading, ...props }) => {
   return (
     <Link to={`/cases/${props?.disputeID?.toString()}`}>
-      <StyledCard hover>
+      <StyledCard>
         <PeriodBanner id={parseInt(props?.disputeID)} period={props?.period} />
         <CardContainer>
           {isLoading ? <StyledCaseCardTitleSkeleton /> : <TruncatedTitle text={props?.title} maxLength={100} />}

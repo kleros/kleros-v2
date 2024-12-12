@@ -7,29 +7,30 @@ import NewTabIcon from "svgs/icons/new-tab.svg";
 
 import Loader from "components/Loader";
 import ScrollTop from "components/ScrollTop";
+import { ExternalLink } from "components/ExternalLink";
 
 import Header from "./Header";
 
 const FileViewer = lazy(() => import("components/FileViewer"));
 
 const Container = styled.div`
-  width: 100%;
   display: flex;
   flex-direction: column;
+  width: 100%;
   gap: 8px;
 `;
 
 const LoaderContainer = styled.div`
-  width: 100%;
   display: flex;
   justify-content: center;
+  width: 100%;
 `;
 
-const NewTabInfo = styled.a`
-  align-self: flex-end;
+const StyledExternalLink = styled(ExternalLink)`
   display: flex;
-  gap: 8px;
   align-items: center;
+  align-self: flex-end;
+  gap: 8px;
 `;
 
 const StyledNewTabIcon = styled(NewTabIcon)`
@@ -47,9 +48,9 @@ const AttachmentDisplay: React.FC = () => {
       <Header />
       {url ? (
         <>
-          <NewTabInfo href={url} rel="noreferrer" target="_blank">
+          <StyledExternalLink to={url} rel="noopener noreferrer" target="_blank">
             Open in new tab <StyledNewTabIcon />
-          </NewTabInfo>
+          </StyledExternalLink>
           <Suspense
             fallback={
               <LoaderContainer>

@@ -18,7 +18,13 @@ const StyledListItem = styled(Card)`
   flex-grow: 1;
   width: 100%;
   height: 82px;
+  transition: background-color 0.1s;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.lightGrey}BB;
+  }
 `;
+
 const ListContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -58,7 +64,7 @@ const DisputeListView: React.FC<IDisputeListView> = (props) => {
   const { isDisconnected } = useAccount();
   return (
     <Link to={`/cases/${props?.disputeID?.toString()}`}>
-      <StyledListItem hover>
+      <StyledListItem>
         <PeriodBanner isCard={false} id={parseInt(props?.disputeID ?? "0")} period={props.period} />
         <ListContainer>
           <TitleContainer isLabel={!isDisconnected}>

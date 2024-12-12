@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import { Card } from "@kleros/ui-components-library";
 
@@ -16,7 +16,6 @@ import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
 import { isUndefined } from "utils/index";
 
-import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
@@ -25,19 +24,10 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 const StyledCard = styled(Card)`
   width: auto;
   height: fit-content;
-  gap: 32px;
-  padding: ${responsiveSize(16, 30)};
-  padding-left: ${responsiveSize(16, 35)};
-  padding-bottom: 16px;
+  gap: 32px 0;
+  padding: ${responsiveSize(16, 32)};
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-
-  ${landscapeStyle(
-    () => css`
-      padding-bottom: 0px;
-      gap: 0px;
-    `
-  )}
 `;
 
 const getLastOrZero = (src: HomePageQuery["counters"], stat: HomePageQueryDataPoints) =>
@@ -109,6 +99,7 @@ const Stats = () => {
             {...{ title, color, icon }}
             text={data ? getText(data["counters"]) : <StyledSkeleton />}
             subtext={calculateSubtextRender(data ? data["counters"] : undefined, getSubtext, coinPrice)}
+            isSmallDisplay={false}
           />
         );
       })}
