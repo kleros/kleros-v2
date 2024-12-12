@@ -281,7 +281,7 @@ export const AtlasProvider: React.FC<{ config: AtlasConfig; children?: React.Rea
           if (!restrictions.restriction.allowedMimeTypes.includes(file.type)) throw new Error("Unsupported file type.");
           if (file.size > restrictions.restriction.maxSize)
             throw new Error(
-              `File too big. Max allowed size : ${((restrictions.restriction.maxSize / 1024) * 1024).toFixed(2)} mb.`
+              `File too big. Max allowed size : ${(restrictions.restriction.maxSize / (1024 * 1024)).toFixed(2)} mb.`
             );
         }
         setIsUploadingFile(true);
