@@ -33,6 +33,7 @@ contract ChainlinkVRFCoordinatorV2Mock is IVRFCoordinatorV2Plus {
     // ************************************* //
 
     function fulfillRandomWords(uint256 _requestId, address _consumer, uint256[] memory _words) public {
+        if (_consumer == address(0)) revert("zero address consumer");
         if (requests[_requestId].subId == 0) {
             revert("nonexistent request");
         }
@@ -49,9 +50,8 @@ contract ChainlinkVRFCoordinatorV2Mock is IVRFCoordinatorV2Plus {
 
         bytes4 FULFILL_RANDOM_WORDS_SELECTOR = bytes4(keccak256("rawFulfillRandomWords(uint256,uint256[])"));
         bytes memory callReq = abi.encodeWithSelector(FULFILL_RANDOM_WORDS_SELECTOR, _requestId, _words);
-        (bool success, ) = _consumer.call{gas: req.callbackGasLimit}(callReq);
-
         delete (requests[_requestId]);
+        (bool success, ) = _consumer.call{gas: req.callbackGasLimit}(callReq);
         emit RandomWordsFulfilled(_requestId, success);
     }
 

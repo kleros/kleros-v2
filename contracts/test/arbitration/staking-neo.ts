@@ -7,6 +7,8 @@ import {
   KlerosCoreNeo,
   TestERC721,
   DisputeResolver,
+  ChainlinkRNG,
+  ChainlinkVRFCoordinatorV2Mock,
 } from "../../typechain-types";
 import { expect } from "chai";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
@@ -41,8 +43,8 @@ describe("Staking", async () => {
   let pnk: PNK;
   let core: KlerosCoreNeo;
   let sortition: SortitionModuleNeo;
-  let rng: RandomizerRNG;
-  let randomizer: RandomizerMock;
+  let rng: ChainlinkRNG;
+  let vrfCoordinator: ChainlinkVRFCoordinatorV2Mock;
   let nft: TestERC721;
   let resolver: DisputeResolver;
   let balanceBefore: bigint;
@@ -57,8 +59,8 @@ describe("Staking", async () => {
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;
     sortition = (await ethers.getContract("SortitionModuleNeo")) as SortitionModuleNeo;
-    rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
-    randomizer = (await ethers.getContract("RandomizerOracle")) as RandomizerMock;
+    rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
+    vrfCoordinator = (await ethers.getContract("ChainlinkVRFCoordinator")) as ChainlinkVRFCoordinatorV2Mock;
     resolver = (await ethers.getContract("DisputeResolverNeo")) as DisputeResolver;
     nft = (await ethers.getContract("KlerosV2NeoEarlyUser")) as TestERC721;
 
@@ -108,7 +110,7 @@ describe("Staking", async () => {
       await network.provider.send("evm_mine");
     }
 
-    await randomizer.relay(rng.target, 0, ethers.randomBytes(32));
+    await vrfCoordinator.fulfillRandomWords(1, rng.target, []);
     await sortition.passPhase(); // Generating -> Drawing
     expect(await sortition.phase()).to.be.equal(2); // Drawing
 

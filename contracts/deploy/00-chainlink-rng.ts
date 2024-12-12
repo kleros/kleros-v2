@@ -35,6 +35,10 @@ const deployRng: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   };
 
   function getKeyHash({ gasPrice }: { gasPrice: keyof (typeof KEY_HASHES)[HomeChains.ARBITRUM_ONE] }): string {
+    const validGasPrices = Object.keys(KEY_HASHES[HomeChains.ARBITRUM_ONE]).map(Number);
+    if (!validGasPrices.includes(gasPrice)) {
+      throw new Error(`Invalid gas price ${gasPrice}. Valid values are: ${validGasPrices.join(", ")}`);
+    }
     if (chainId == HomeChains.HARDHAT) return KEY_HASHES[chainId][0];
     if (chainId == HomeChains.ARBITRUM_ONE) return KEY_HASHES[chainId][gasPrice];
     if (chainId == HomeChains.ARBITRUM_SEPOLIA) return KEY_HASHES[chainId][150];
