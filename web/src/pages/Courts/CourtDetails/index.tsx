@@ -32,7 +32,7 @@ const CourtHeader = styled.h1`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  gap: 24px;
+  gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 16px;
 `;

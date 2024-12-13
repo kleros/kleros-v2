@@ -28,7 +28,7 @@ const Container = styled.div`
 const StakingArea = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 24px;
 `;
 
 const TagArea = styled.div`
