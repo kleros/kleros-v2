@@ -65,16 +65,21 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRp
   return (
     <>
       <StyledH1>{isUndefined(disputeDetails) ? <StyledSkeleton /> : (disputeDetails?.title ?? errMsg)}</StyledH1>
-      {!isUndefined(disputeDetails) && (
+      {!isUndefined(disputeDetails) ? (
         <>
-          <ReactMarkdownWrapper>
-            <ReactMarkdown>{disputeDetails?.question}</ReactMarkdown>
-          </ReactMarkdownWrapper>
-          <ReactMarkdownWrapper>
-            <ReactMarkdown>{disputeDetails?.description}</ReactMarkdown>
-          </ReactMarkdownWrapper>
+          {disputeDetails?.question?.trim() ? (
+            <ReactMarkdownWrapper>
+              <ReactMarkdown>{disputeDetails.question}</ReactMarkdown>
+            </ReactMarkdownWrapper>
+          ) : null}
+          {disputeDetails?.description?.trim() ? (
+            <ReactMarkdownWrapper>
+              <ReactMarkdown>{disputeDetails.description}</ReactMarkdown>
+            </ReactMarkdownWrapper>
+          ) : null}
         </>
-      )}
+      ) : null}
+
       {isUndefined(disputeDetails?.frontendUrl) ? null : (
         <ExternalLink href={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
           Go to arbitrable
