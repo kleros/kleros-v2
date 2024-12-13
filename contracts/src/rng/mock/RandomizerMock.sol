@@ -5,7 +5,7 @@ pragma solidity 0.8.24;
 import "../RandomizerRNG.sol";
 
 contract RandomizerMock is IRandomizer {
-    uint256 private id;
+    uint256 private id = 1;
 
     function request(uint256 callbackGasLimit) external override returns (uint256) {
         return id++;
