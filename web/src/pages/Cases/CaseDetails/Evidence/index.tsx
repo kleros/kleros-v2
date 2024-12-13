@@ -99,7 +99,8 @@ const Evidence: React.FC = () => {
     () =>
       spamEvidences?.courtv2EvidenceSpamsByDeployment.reduce<string[]>((acc, current) => {
         if (current.dispute === id) {
-          return [...acc, current.disputeEvidenceIndex];
+          acc.push(current.disputeEvidenceIndex);
+          return acc;
         }
         return acc;
       }, []),
