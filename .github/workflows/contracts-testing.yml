@@ -59,30 +59,22 @@ jobs:
         key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}
         restore-keys: |
           ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-${{ env.cache-name }}-
-             
+
     - name: Install contracts dependencies
-      run: |
-        yarn workspace @kleros/kleros-v2-contracts install
+      run: yarn workspace @kleros/kleros-v2-contracts install
 
     - name: Install Foundry
       uses: foundry-rs/foundry-toolchain@8f1998e9878d786675189ef566a2e4bf24869773 # v1.2.0
       with:
         version: nightly
 
-    - name: Run Foundry tests
-      run: forge test -vvv
-      working-directory: contracts
-      
-    - name: Compile
-      run: |
-        yarn hardhat compile
-      working-directory: contracts
-      
-    - name: Run Hardhat tests with coverage
-      run: |         
-        yarn hardhat coverage --solcoverjs ./.solcover.js --temp artifacts --testfiles './test/**/*.ts' --show-stack-traces
-      working-directory: contracts
+    - name: Install lcov
+      run: sudo apt-get install -y lcov
 
+    - name: Run Hardhat and Foundry tests with coverage
+      run: yarn coverage
+      working-directory: contracts
+                   
     - name: Upload a build artifact
       uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
       with:    
