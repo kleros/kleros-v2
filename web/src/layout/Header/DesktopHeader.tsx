@@ -34,6 +34,7 @@ import Settings from "./navbar/Menu/Settings";
 const Container = styled.div`
   display: none;
   position: absolute;
+  height: 64px;
 
   ${landscapeStyle(
     () => css`
