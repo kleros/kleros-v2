@@ -14,24 +14,20 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 
 import AliasDisplay from "./Alias";
 import { Divider } from "../Divider";
+import { ExternalLink } from "../ExternalLink";
 
 const StyledH1 = styled.h1`
   margin: 0;
   word-wrap: break-word;
 `;
 
-const QuestionAndDescription = styled.div`
-  display: flex;
-  flex-direction: column;
-  word-wrap: break-word;
-  div:first-child p:first-of-type {
-    font-size: 16px;
-    font-weight: 400;
+const ReactMarkdownWrapper = styled.div`
+  & p:first-of-type {
     margin: 0;
   }
 `;
 
-const VotingOptions = styled(QuestionAndDescription)`
+const VotingOptions = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -51,19 +47,6 @@ const Answer = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  > label {
-    max-width: 100%;
-  }
-`;
-
-const StyledSmall = styled.small`
-  color: ${({ theme }) => theme.secondaryText};
-  font-weight: 400;
-`;
-
-const StyledLabel = styled.label`
-  color: ${({ theme }) => theme.primaryText};
-  font-weight: 600;
 `;
 
 const AliasesContainer = styled.div`
@@ -83,26 +66,29 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRp
     <>
       <StyledH1>{isUndefined(disputeDetails) ? <StyledSkeleton /> : (disputeDetails?.title ?? errMsg)}</StyledH1>
       {!isUndefined(disputeDetails) && (
-        <QuestionAndDescription>
-          <ReactMarkdown>{disputeDetails?.question}</ReactMarkdown>
-          <ReactMarkdown>{disputeDetails?.description}</ReactMarkdown>
-        </QuestionAndDescription>
+        <>
+          <ReactMarkdownWrapper>
+            <ReactMarkdown>{disputeDetails?.question}</ReactMarkdown>
+          </ReactMarkdownWrapper>
+          <ReactMarkdownWrapper>
+            <ReactMarkdown>{disputeDetails?.description}</ReactMarkdown>
+          </ReactMarkdownWrapper>
+        </>
       )}
       {isUndefined(disputeDetails?.frontendUrl) ? null : (
-        <a href={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
+        <ExternalLink href={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
           Go to arbitrable
-        </a>
+        </ExternalLink>
       )}
       <VotingOptions>
         {isUndefined(disputeDetails) ? null : <AnswersHeader>Voting Options</AnswersHeader>}
         <AnswersContainer>
           {disputeDetails?.answers?.map((answer: IAnswer, i: number) => (
             <Answer key={answer.title}>
-              <StyledSmall>{i + 1 + `.`}</StyledSmall>
-              <StyledLabel>
-                {answer.title}
+              <small>
+                <label>{i + 1}.</label> {answer.title}
                 {answer.description.trim() ? ` - ${answer.description}` : null}
-              </StyledLabel>
+              </small>
             </Answer>
           ))}
         </AnswersContainer>

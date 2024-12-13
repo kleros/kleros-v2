@@ -14,7 +14,7 @@ const Container = styled.div`
 
 const PNKLogoAndTitle = styled.div`
   display: flex;
-  gap: 0 16px;
+  gap: 0 12px;
   align-items: center;
 `;
 

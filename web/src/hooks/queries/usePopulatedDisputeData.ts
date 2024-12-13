@@ -6,6 +6,7 @@ import { DisputeDetails } from "@kleros/kleros-sdk/src/dataMappings/utils/disput
 import { populateTemplate } from "@kleros/kleros-sdk/src/dataMappings/utils/populateTemplate";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { DEFAULT_CHAIN } from "consts/chains";
 import { debounceErrorToast } from "utils/debounceErrorToast";
 import { isUndefined } from "utils/index";
 
@@ -47,6 +48,7 @@ export const usePopulatedDisputeData = (disputeID?: string, arbitrableAddress?: 
             document: disputeTemplateQuery,
             variables: { id: disputeData.dispute?.templateId.toString() },
             isDisputeTemplate: true,
+            chainId: DEFAULT_CHAIN,
           });
 
           const templateData = disputeTemplate?.templateData;

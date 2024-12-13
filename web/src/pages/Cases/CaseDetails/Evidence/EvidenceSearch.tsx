@@ -48,7 +48,7 @@ const EvidenceSearch: React.FC<IEvidenceSearch> = ({ search, setSearch, evidence
 
       <SearchContainer>
         <StyledSearchBar
-          placeholder="Search evidence by number, word, or submitter."
+          placeholder="Search evidence by number, word, or submitter"
           onChange={(e) => setSearch(e.target.value)}
           value={search}
         />

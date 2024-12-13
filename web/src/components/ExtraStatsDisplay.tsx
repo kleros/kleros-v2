@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
 import { isUndefined } from "utils/index";
+import { InternalLink } from "./InternalLink";
 
 const Container = styled.div`
   display: flex;
@@ -30,10 +31,8 @@ const TextContainer = styled.div`
   justify-content: center;
 `;
 
-const StyledP = styled.p`
-  font-size: 14px;
+const StyledInternalLink = styled(InternalLink)`
   font-weight: 600;
-  margin: 0;
 `;
 
 const StyledExtraStatTitleSkeleton = styled(StyledSkeleton)`
@@ -42,18 +41,25 @@ const StyledExtraStatTitleSkeleton = styled(StyledSkeleton)`
 
 export interface IExtraStatsDisplay {
   title: string;
+  courtId?: string;
   icon: React.FunctionComponent<React.SVGAttributes<SVGElement>>;
   content?: React.ReactNode;
   text?: string;
 }
 
-const ExtraStatsDisplay: React.FC<IExtraStatsDisplay> = ({ title, text, content, icon: Icon, ...props }) => {
+const ExtraStatsDisplay: React.FC<IExtraStatsDisplay> = ({ title, courtId, text, content, icon: Icon, ...props }) => {
   return (
     <Container {...props}>
       <SVGContainer>{<Icon />}</SVGContainer>
       <TextContainer>
         <label>{title}:</label>
-        {content ? content : <StyledP>{!isUndefined(text) ? text : <StyledExtraStatTitleSkeleton />}</StyledP>}
+        {content ? (
+          content
+        ) : (
+          <StyledInternalLink to={`/courts/${courtId?.toString()}`}>
+            {!isUndefined(text) ? text : <StyledExtraStatTitleSkeleton />}
+          </StyledInternalLink>
+        )}
       </TextContainer>
     </Container>
   );
