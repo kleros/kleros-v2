@@ -16,6 +16,7 @@ import {
   useWritePnkIncreaseAllowance,
 } from "hooks/contracts/generated";
 import { useCourtDetails } from "hooks/queries/useCourtDetails";
+import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import { usePnkData } from "hooks/usePNKData";
 import { formatETH } from "utils/format";
 import { isUndefined } from "utils/index";
@@ -55,6 +56,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
   const [isSuccess, setIsSuccess] = useState(false);
   const [popupStepsState, setPopupStepsState] = useState<Steps>();
   const controllerRef = useRef<AbortController | null>(null);
+  useLockOverlayScroll(isPopupOpen);
 
   const { data: courtDetails } = useCourtDetails(id);
   const { balance, jurorBalance, allowance, refetchAllowance } = usePnkData({ courtId: id });
