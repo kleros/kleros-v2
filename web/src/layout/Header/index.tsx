@@ -17,7 +17,7 @@ const Container = styled.div`
 
 const HeaderContainer = styled.div`
   width: 100%;
-  padding: 8px 24px;
+  padding: 0 24px;
 `;
 
 const Header: React.FC = () => {

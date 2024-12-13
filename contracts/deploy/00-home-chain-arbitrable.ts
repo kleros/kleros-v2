@@ -1,6 +1,5 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import disputeTemplate from "../test/fixtures/DisputeTemplate.simple.json";
 import { HomeChains, isSkipped } from "./utils";
 import { deployUpgradable } from "./utils/deployUpgradable";
 

@@ -32,7 +32,7 @@ const CourtHeader = styled.h1`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  gap: 24px;
+  gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 16px;
 `;
@@ -77,14 +77,13 @@ const StakePanelAndStats = styled.div`
   flex-direction: row;
   justify-content: space-between;
   margin-top: 24px;
-  gap: 20px;
+  gap: 16px;
   flex-wrap: wrap;
 
   ${landscapeStyle(
     () => css`
       & > * {
-        flex: 1 1 calc(50% - 10px);
-        max-width: calc(50% - 10px);
+        flex: 1 1 calc(50% - 8px);
       }
     `
   )}

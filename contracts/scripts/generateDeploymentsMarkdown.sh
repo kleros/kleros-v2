@@ -9,6 +9,7 @@ IGNORED_ARTIFACTS=(
     "RandomizerOracle.json"
     "_Implementation.json"
     "_Proxy.json"
+    "ChainlinkVRFCoordinator.json"
 )
 
 function generate() { #deploymentDir #explorerUrl
