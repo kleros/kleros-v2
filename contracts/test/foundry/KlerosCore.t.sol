@@ -308,7 +308,7 @@ contract KlerosCoreTest is Test {
             10000,
             0.03 ether,
             511,
-            [uint256(60), uint256(120), uint256(180), uint256(240)], // Expclitly convert otherwise it throws
+            [uint256(60), uint256(120), uint256(180), uint256(240)], // Explicitly convert otherwise it throws
             supportedDK
         );
         vm.expectEmit(true, true, true, true);
@@ -570,7 +570,7 @@ contract KlerosCoreTest is Test {
             20000,
             0.04 ether,
             50,
-            [uint256(10), uint256(20), uint256(30), uint256(40)], // Expclitly convert otherwise it throws
+            [uint256(10), uint256(20), uint256(30), uint256(40)], // Explicitly convert otherwise it throws
             supportedDK
         );
         core.createCourt(
@@ -620,7 +620,7 @@ contract KlerosCoreTest is Test {
     }
 
     function test_changeCourtParameters() public {
-        // Create a 2nd court to check the minstake requirements
+        // Create a 2nd court to check the minStake requirements
         vm.prank(governor);
         uint96 newCourtID = 2;
         uint256[] memory supportedDK = new uint256[](1);
@@ -682,7 +682,7 @@ contract KlerosCoreTest is Test {
             20000,
             0.04 ether,
             50,
-            [uint256(10), uint256(20), uint256(30), uint256(40)] // Expclitly convert otherwise it throws
+            [uint256(10), uint256(20), uint256(30), uint256(40)] // Explicitly convert otherwise it throws
         );
         core.changeCourtParameters(
             GENERAL_COURT,
@@ -804,7 +804,7 @@ contract KlerosCoreTest is Test {
         assertEq(minJurors, DEFAULT_NB_OF_JURORS, "Wrong minJurors");
         assertEq(disputeKitID, DISPUTE_KIT_CLASSIC, "Wrong disputeKitID");
 
-        // Botched extradata. Values should fall into standard
+        // Botched extraData. Values should fall into standard
         extraData = "0xfa";
 
         (courtID, minJurors, disputeKitID) = core.extraDataToCourtIDMinJurorsDisputeKit(extraData);
@@ -882,7 +882,7 @@ contract KlerosCoreTest is Test {
         vm.prank(governor);
         core.setStake(GENERAL_COURT, 1000);
 
-        // Increase stake one more time to verify the correct behaviour
+        // Increase stake one more time to verify the correct behavior
         vm.prank(staker1);
         vm.expectEmit(true, true, true, true);
         emit SortitionModuleBase.StakeSet(staker1, GENERAL_COURT, 2000);
@@ -1104,7 +1104,7 @@ contract KlerosCoreTest is Test {
         assertEq(pinakion.balanceOf(staker1), 999999999999997000, "Wrong token balance of staker1");
 
         // Stake again to see that locked tokens will count when increasing the stake. We check that the court won't take the full stake
-        // but only the remaning part.
+        // but only the remaining part.
         vm.prank(staker1);
         core.setStake(GENERAL_COURT, 5000);
 
@@ -1842,7 +1842,7 @@ contract KlerosCoreTest is Test {
         (uint256 ruling, bool tied, bool overridden) = disputeKit.currentRuling(disputeID);
         assertEq(ruling, 1, "Wrong ruling");
         assertEq(tied, false, "Not tied");
-        assertEq(overridden, false, "Not overriden");
+        assertEq(overridden, false, "Not overridden");
     }
 
     function test_appeal_fundOneSide() public {
@@ -2426,7 +2426,7 @@ contract KlerosCoreTest is Test {
         assertEq(totalStaked, 0, "Should be unstaked");
         assertEq(totalLocked, 3000, "Wrong amount locked");
         assertEq(stakedInCourt, 0, "Should be unstaked");
-        assertEq(nbCourts, 0, "Shoulbe 0 courts");
+        assertEq(nbCourts, 0, "Should be 0 courts");
 
         assertEq(pinakion.balanceOf(address(core)), 3000, "Wrong token balance of the core");
         assertEq(pinakion.balanceOf(staker1), 999999999999997000, "Wrong token balance of staker1");
@@ -2639,7 +2639,7 @@ contract KlerosCoreTest is Test {
         (uint256 ruling, bool tied, bool overridden) = disputeKit.currentRuling(disputeID);
         assertEq(ruling, 1, "Wrong ruling");
         assertEq(tied, false, "Not tied");
-        assertEq(overridden, true, "Shoud be overriden");
+        assertEq(overridden, true, "Should be overridden");
     }
 
     function test_withdrawFeesAndRewards() public {
@@ -2668,7 +2668,7 @@ contract KlerosCoreTest is Test {
         core.passPeriod(disputeID); // Appeal
 
         vm.prank(crowdfunder1);
-        disputeKit.fundAppeal{value: 0.63 ether}(disputeID, 1); // Fund the losing choice. The ruling will be overriden here
+        disputeKit.fundAppeal{value: 0.63 ether}(disputeID, 1); // Fund the losing choice. The ruling will be overridden here
         vm.prank(crowdfunder2);
         disputeKit.fundAppeal{value: 0.41 ether}(disputeID, 2); // Underpay a bit to not create an appeal and withdraw the funded sum fully
 
