@@ -6,6 +6,7 @@ rm -rf coverage
 mkdir -p coverage
 
 # Generate the Forge coverage report
+forge clean
 forge coverage --report summary --report lcov --report-file coverage/lcov-forge.info
 
 # Generate the Hardhat coverage report
