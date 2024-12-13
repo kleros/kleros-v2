@@ -1,14 +1,14 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
+import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import { FallbackProps } from "react-error-boundary";
 
 import { Button } from "@kleros/ui-components-library";
 
 import ErrorIcon from "svgs/icons/warning-outline.svg";
-
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
 
 import HeroImage from "./HeroImage";
 
@@ -17,7 +17,7 @@ const Container = styled.div`
   height: 100vh;
   background-color: ${({ theme }) => theme.lightBackground};
   padding: ${responsiveSize(32, 80)} ${responsiveSize(24, 136)} ${responsiveSize(76, 96)};
-  max-width: 1400px;
+  max-width: ${MAX_WIDTH_LANDSCAPE};
   margin: 0 auto;
 `;
 

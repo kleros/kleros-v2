@@ -1,10 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 
+import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import { HomePageProvider } from "hooks/useHomePageContext";
 import { getOneYearAgoTimestamp } from "utils/date";
-
-import { responsiveSize } from "styles/responsiveSize";
 
 import HeroImage from "components/HeroImage";
 import LatestCases from "components/LatestCases";
@@ -22,7 +23,7 @@ const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
   padding: ${responsiveSize(32, 72)} ${responsiveSize(24, 132)} ${responsiveSize(76, 96)};
-  max-width: 1400px;
+  max-width: ${MAX_WIDTH_LANDSCAPE};
   margin: 0 auto;
 `;
 

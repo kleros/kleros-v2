@@ -1,9 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Route, Routes } from "react-router-dom";
-
+import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import { Route, Routes } from "react-router-dom";
 
 import EmailConfirmation from "./EmailConfirmation";
 
@@ -11,7 +12,7 @@ const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
   padding: ${responsiveSize(32, 80)} ${responsiveSize(24, 136)} ${responsiveSize(76, 96)};
-  max-width: 1400px;
+  max-width: ${MAX_WIDTH_LANDSCAPE};
   margin: 0 auto;
 `;
 
