@@ -8,17 +8,18 @@ import { Button } from "@kleros/ui-components-library";
 
 import DownArrow from "svgs/icons/arrow-down.svg";
 
+import { useSpamEvidence } from "hooks/useSpamEvidence";
+
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useEvidences } from "queries/useEvidences";
 
 import { responsiveSize } from "styles/responsiveSize";
 
+import { Divider } from "components/Divider";
 import EvidenceCard from "components/EvidenceCard";
 import { SkeletonEvidenceCard } from "components/StyledSkeleton";
 
 import EvidenceSearch from "./EvidenceSearch";
-import { Divider } from "components/Divider";
-import { spamEvidencesIds } from "src/consts";
 
 const Container = styled.div`
   width: 100%;
@@ -79,6 +80,7 @@ const Evidence: React.FC = () => {
   const [search, setSearch] = useState<string>();
   const [debouncedSearch, setDebouncedSearch] = useState<string>();
   const [showSpam, setShowSpam] = useState(false);
+  const { data: spamEvidences } = useSpamEvidence();
 
   const { data } = useEvidences(disputeData?.dispute?.externalDisputeId?.toString(), debouncedSearch);
 
@@ -93,12 +95,30 @@ const Evidence: React.FC = () => {
     latestEvidence.scrollIntoView({ behavior: "smooth" });
   }, [ref]);
 
+  const flattenedSpamEvidences = useMemo(
+    () =>
+      spamEvidences?.courtv2EvidenceSpamsByDeployment.reduce<string[]>((acc, current) => {
+        if (current.dispute === id) {
+          return [...acc, current.disputeEvidenceIndex];
+        }
+        return acc;
+      }, []),
+    [id, spamEvidences]
+  );
+
+  const isSpam = useCallback(
+    (evidenceId: string) => {
+      return Boolean(flattenedSpamEvidences?.includes(evidenceId));
+    },
+    [flattenedSpamEvidences]
+  );
+
   const evidences = useMemo(() => {
     if (!data?.evidences) return;
     const spamEvidences = data.evidences.filter((evidence) => isSpam(evidence.id));
     const realEvidences = data.evidences.filter((evidence) => !isSpam(evidence.id));
     return { realEvidences, spamEvidences };
-  }, [data]);
+  }, [data, isSpam]);
 
   return (
     <Container ref={ref}>
@@ -140,10 +160,6 @@ const Evidence: React.FC = () => {
       {data && data.evidences.length === 0 ? <StyledLabel>There is no evidence submitted yet</StyledLabel> : null}
     </Container>
   );
-};
-
-const isSpam = (id: string) => {
-  return spamEvidencesIds.includes(id);
 };
 
 export default Evidence;
