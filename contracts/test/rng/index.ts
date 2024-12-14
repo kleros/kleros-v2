@@ -44,6 +44,7 @@ describe("BlockHashRNG", async () => {
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
     const [rn] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
     expect(rn).to.not.equal(0);
+    await tx.wait();
   });
 
   it("Should return zero for a block number in the future", async () => {
@@ -51,6 +52,7 @@ describe("BlockHashRNG", async () => {
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
     const [rn] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
     expect(rn).to.equal(0);
+    await tx.wait();
   });
 });
 
@@ -81,6 +83,7 @@ describe("ChainlinkRNG", async () => {
 
     const rn = await rng.receiveRandomness(0);
     expect(rn).to.equal(expectedRn);
+    await tx.wait();
   });
 
   it("Should return only the last random number when multiple requests are made", async () => {
@@ -114,6 +117,7 @@ describe("ChainlinkRNG", async () => {
     // Should return only the last random number
     const rn = await rng.receiveRandomness(0);
     expect(rn).to.equal(expectedRn2);
+    await tx.wait();
   });
 });
 
@@ -143,6 +147,7 @@ describe("RandomizerRNG", async () => {
 
     const rn = await rng.receiveRandomness(0);
     expect(rn).to.equal(expectedRn);
+    await tx.wait();
   });
 
   it("Should return only the last random number when multiple requests are made", async () => {
@@ -175,5 +180,6 @@ describe("RandomizerRNG", async () => {
     // Should return only the last random number
     const rn = await rng.receiveRandomness(0);
     expect(rn).to.equal(expectedRn2);
+    await tx.wait();
   });
 });
