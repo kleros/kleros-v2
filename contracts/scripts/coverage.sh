@@ -26,6 +26,7 @@ sed -i -e 's/\/.*\/kleros-v2\/contracts\///g' coverage/lcov-hardhat.info
 lcov \
   --ignore-errors format \
   --ignore-errors inconsistent \
+  --ignore-errors empty \
   --rc max_message_count=3 \
   --rc derive_function_end_line=0 \
   --rc branch_coverage=1 \
@@ -35,7 +36,9 @@ lcov \
 
 # Filter out unnecessary contracts from the report
 lcov \
+  --ignore-errors format \
   --ignore-errors inconsistent \
+  --ignore-errors empty \
   --rc max_message_count=3 \
   --rc branch_coverage=1 \
   --rc derive_function_end_line=0 \
@@ -47,11 +50,12 @@ lcov \
 if [ "$CI" != "true" ]; then
   # Generate the HTML report
   genhtml coverage/filtered-lcov.info \
+    --ignore-errors format \
     --ignore-errors inconsistent \
+    --ignore-errors empty \
+    --ignore-errors category \
     --rc branch_coverage=1 \
     --rc max_message_count=3 \
-    -o coverage \
-    --ignore-errors category \
-    --ignore-errors format
+    -o coverage
   open coverage/index.html
 fi
