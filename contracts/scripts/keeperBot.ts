@@ -7,13 +7,14 @@ import {
   KlerosCoreNeo,
   SortitionModuleNeo,
   DisputeKitClassic,
+  ChainlinkRNG,
 } from "../typechain-types";
-import request from "graphql-request";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
 import { toBigInt, BigNumberish, getNumber } from "ethers";
 import hre = require("hardhat");
 
+let request: <T>(url: string, query: string) => Promise<T>; // Workaround graphql-request ESM import
 const { ethers } = hre;
 const MAX_DRAW_ITERATIONS = 30;
 const MAX_EXECUTE_ITERATIONS = 20;
@@ -61,10 +62,11 @@ const getContracts = async () => {
     default:
       throw new Error("Invalid core type, must be one of base, neo");
   }
+  const chainlinkRng = await ethers.getContractOrNull<ChainlinkRNG>("ChainlinkRNG");
   const randomizerRng = await ethers.getContractOrNull<RandomizerRNG>("RandomizerRNG");
   const blockHashRNG = await ethers.getContractOrNull<BlockHashRNG>("BlockHashRNG");
   const pnk = (await ethers.getContract("PNK")) as PNK;
-  return { core, sortition, randomizerRng, blockHashRNG, disputeKitClassic, pnk };
+  return { core, sortition, chainlinkRng, randomizerRng, blockHashRNG, disputeKitClassic, pnk };
 };
 
 type Contribution = {
@@ -181,11 +183,21 @@ const handleError = (e: any) => {
 };
 
 const isRngReady = async () => {
-  const { randomizerRng, blockHashRNG, sortition } = await getContracts();
+  const { chainlinkRng, randomizerRng, blockHashRNG, sortition } = await getContracts();
   const currentRng = await sortition.rng();
-  if (currentRng === randomizerRng?.target) {
-    const requesterID = await randomizerRng.requesterToID(sortition.target);
-    const n = await randomizerRng.randomNumbers(requesterID);
+  if (currentRng === chainlinkRng?.target) {
+    const requestID = await chainlinkRng.lastRequestId();
+    const n = await chainlinkRng.randomNumbers(requestID);
+    if (Number(n) === 0) {
+      logger.info("ChainlinkRNG is NOT ready yet");
+      return false;
+    } else {
+      logger.info(`ChainlinkRNG is ready: ${n.toString()}`);
+      return true;
+    }
+  } else if (currentRng === randomizerRng?.target) {
+    const requestID = await randomizerRng.lastRequestId();
+    const n = await randomizerRng.randomNumbers(requestID);
     if (Number(n) === 0) {
       logger.info("RandomizerRNG is NOT ready yet");
       return false;
@@ -466,6 +478,8 @@ const sendHeartbeat = async () => {
 };
 
 async function main() {
+  const graphqlRequest = await import("graphql-request"); // Workaround graphql-request ESM import
+  request = graphqlRequest.request;
   const { core, sortition, disputeKitClassic } = await getContracts();
 
   const getBlockTime = async () => {
