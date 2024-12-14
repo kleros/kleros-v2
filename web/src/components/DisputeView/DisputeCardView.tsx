@@ -8,6 +8,7 @@ import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 
 import { responsiveSize } from "styles/responsiveSize";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
 
@@ -15,11 +16,11 @@ import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 
 const StyledCard = styled(Card)`
+  ${hoverShortTransitionTiming}
   width: 100%;
   height: 100%;
   max-height: 335px;
   min-height: 290px;
-  transition: background-color 0.1s;
 
   &:hover {
     background-color: ${({ theme }) => theme.lightGrey}BB;

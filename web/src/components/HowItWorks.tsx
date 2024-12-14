@@ -1,9 +1,12 @@
 import React from "react";
 import styled from "styled-components";
 
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+
 import BookOpenIcon from "svgs/icons/book-open.svg";
 
 const Container = styled.div`
+  ${hoverShortTransitionTiming}
   display: flex;
   align-items: center;
   font-size: 14px;
@@ -11,7 +14,6 @@ const Container = styled.div`
   gap: 8px;
   cursor: pointer;
   color: ${({ theme }) => theme.primaryBlue};
-  transition: color 0.1s;
 
   svg path {
     fill: ${({ theme }) => theme.primaryBlue};
@@ -20,7 +22,6 @@ const Container = styled.div`
   &:hover {
     color: ${({ theme }) => theme.secondaryBlue};
     svg path {
-      transition: fill 0.1s;
       fill: ${({ theme }) => theme.secondaryBlue};
     }
   }

@@ -9,16 +9,17 @@ import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 
 import { responsiveSize } from "styles/responsiveSize";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 
 const StyledListItem = styled(Card)`
+  ${hoverShortTransitionTiming}
   display: flex;
   flex-grow: 1;
   width: 100%;
   height: 82px;
-  transition: background-color 0.1s;
 
   &:hover {
     background-color: ${({ theme }) => theme.lightGrey}BB;

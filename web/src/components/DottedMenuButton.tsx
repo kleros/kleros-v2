@@ -1,6 +1,8 @@
 import React from "react";
 import styled, { css, keyframes } from "styled-components";
 
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+
 import DottedMenu from "svgs/icons/dotted-menu.svg";
 
 const ripple = keyframes`
@@ -57,13 +59,16 @@ const Container = styled.div<{ displayRipple: boolean }>`
 `;
 
 const ButtonContainer = styled.div`
+  ${hoverShortTransitionTiming}
   border-radius: 50%;
   z-index: 1;
   background-color: ${({ theme }) => theme.lightBackground};
 
-  transition: background-color 0.1s;
   :hover {
     background-color: ${({ theme }) => theme.lightGrey};
+    svg {
+      fill: ${({ theme }) => theme.secondaryBlue};
+    }
   }
 `;
 
