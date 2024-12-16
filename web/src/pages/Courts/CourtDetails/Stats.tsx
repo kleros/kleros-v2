@@ -1,61 +1,52 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { responsiveSize } from "styles/responsiveSize";
-import { landscapeStyle } from "styles/landscapeStyle";
 
 import { useParams } from "react-router-dom";
-import { Accordion } from "@kleros/ui-components-library";
 
-import EthereumIcon from "svgs/icons/ethereum.svg";
+import ChartIcon from "svgs/icons/chart.svg";
 import EthereumVoteIcon from "svgs/icons/ethereum-vote.svg";
-import BalanceIcon from "svgs/icons/law-balance.svg";
+import EthereumIcon from "svgs/icons/ethereum.svg";
 import BalanceWithHourglassIcon from "svgs/icons/law-balance-hourglass.svg";
-import JurorIcon from "svgs/icons/user.svg";
+import BalanceIcon from "svgs/icons/law-balance.svg";
 import MinStake from "svgs/icons/min-stake.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
+import JurorIcon from "svgs/icons/user.svg";
 import VoteStake from "svgs/icons/vote-stake.svg";
-import ChartIcon from "svgs/icons/chart.svg";
 
 import { CoinIds } from "consts/coingecko";
-
 import { useCoinPrice } from "hooks/useCoinPrice";
-import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
-
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
 import { isUndefined } from "utils/index";
 
+import { useCourtDetails, CourtDetailsQuery } from "queries/useCourtDetails";
+
+import { responsiveSize } from "styles/responsiveSize";
+
+import { Divider } from "components/Divider";
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
-const StyledAccordion = styled(Accordion)`
-  > * > button {
-    justify-content: unset;
-    background-color: ${({ theme }) => theme.whiteBackground} !important;
-    border: 1px solid ${({ theme }) => theme.stroke} !important;
-    > svg {
-      fill: ${({ theme }) => theme.primaryText} !important;
-    }
-    > p {
-      color: ${({ theme }) => theme.primaryText};
-    }
-  }
-  //adds padding to body container
-  > * > div > div {
-    padding: 0;
-  }
-  [class*="accordion-item"] {
-    margin: 0;
-  }
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  background-color: ${({ theme }) => theme.lightBlue};
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.mediumBlue};
+  justify-content: center;
+`;
 
-  ${landscapeStyle(
-    () => css`
-      > * > div > div {
-        padding: 0 24px;
-      }
-    `
-  )}
+const Title = styled.p`
+  margin: 0;
+  font-weight: 600;
+`;
+
+const StyledDivider = styled(Divider)`
+  background-color: ${({ theme }) => theme.mediumBlue};
+  margin: 12px 0 8px 0;
 `;
 
 const TimeDisplayContainer = styled.div`
@@ -199,78 +190,74 @@ const Stats = () => {
   const { prices: pricesData } = useCoinPrice(coinIds);
 
   return (
-    <StyledAccordion
-      defaultExpanded={0}
-      items={[
-        {
-          title: "Statistics",
-          body: (
-            <AccordionContainer>
-              <div>
-                <AllTimeContainer>
-                  <StyledChartIcon />
-                  <StyledAllTimeText>Parameters</StyledAllTimeText>
-                </AllTimeContainer>
-                <StyledCard>
-                  {stats.slice(0, 3).map(({ title, coinId, getText, getSubtext, color, icon }) => {
-                    const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
-                    return (
-                      <StatDisplay
-                        key={title}
-                        {...{ title, color, icon }}
-                        text={data ? getText(data.court) : <StyledSkeleton />}
-                        subtext={calculateSubtextRender(data?.court, getSubtext, coinPrice)}
-                        isSmallDisplay={true}
-                      />
-                    );
-                  })}
-                </StyledCard>
-              </div>
-              <div>
-                <AllTimeContainer>
-                  <StyledChartIcon />
-                  <StyledAllTimeText>Activity</StyledAllTimeText>
-                </AllTimeContainer>
-                <StyledCard>
-                  {stats.slice(3, 7).map(({ title, coinId, getText, getSubtext, color, icon }) => {
-                    const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
-                    return (
-                      <StatDisplay
-                        key={title}
-                        {...{ title, color, icon }}
-                        text={data ? getText(data.court) : <StyledSkeleton />}
-                        subtext={calculateSubtextRender(data?.court, getSubtext, coinPrice)}
-                        isSmallDisplay={true}
-                      />
-                    );
-                  })}
-                </StyledCard>
-              </div>
-              <div>
-                <AllTimeContainer>
-                  <StyledChartIcon />
-                  <StyledAllTimeText>Total Rewards</StyledAllTimeText>
-                </AllTimeContainer>
-                <StyledCard>
-                  {stats.slice(7, 9).map(({ title, coinId, getText, getSubtext, color, icon }) => {
-                    const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
-                    return (
-                      <StatDisplay
-                        key={title}
-                        {...{ title, color, icon }}
-                        text={data ? getText(data.court) : <StyledSkeleton />}
-                        subtext={calculateSubtextRender(data?.court, getSubtext, coinPrice)}
-                        isSmallDisplay={true}
-                      />
-                    );
-                  })}
-                </StyledCard>
-              </div>
-            </AccordionContainer>
-          ),
-        },
-      ]}
-    ></StyledAccordion>
+    <Container>
+      {/* <Title>Statistics</Title>
+      <StyledDivider /> */}
+      <AccordionContainer>
+        <div>
+          <AllTimeContainer>
+            <StyledChartIcon />
+            <StyledAllTimeText>Parameters</StyledAllTimeText>
+          </AllTimeContainer>
+          <StyledCard>
+            {stats.slice(0, 3).map(({ title, coinId, getText, getSubtext, color, icon }) => {
+              const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
+              return (
+                <StatDisplay
+                  key={title}
+                  {...{ title, color, icon }}
+                  text={data ? getText(data.court) : <StyledSkeleton />}
+                  subtext={calculateSubtextRender(data?.court, getSubtext, coinPrice)}
+                  isSmallDisplay={true}
+                />
+              );
+            })}
+          </StyledCard>
+          <StyledDivider />
+        </div>
+        <div>
+          <AllTimeContainer>
+            <StyledChartIcon />
+            <StyledAllTimeText>Activity</StyledAllTimeText>
+          </AllTimeContainer>
+          <StyledCard>
+            {stats.slice(3, 7).map(({ title, coinId, getText, getSubtext, color, icon }) => {
+              const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
+              return (
+                <StatDisplay
+                  key={title}
+                  {...{ title, color, icon }}
+                  text={data ? getText(data.court) : <StyledSkeleton />}
+                  subtext={calculateSubtextRender(data?.court, getSubtext, coinPrice)}
+                  isSmallDisplay={true}
+                />
+              );
+            })}
+          </StyledCard>
+          <StyledDivider />
+        </div>
+        <div>
+          <AllTimeContainer>
+            <StyledChartIcon />
+            <StyledAllTimeText>Total Rewards</StyledAllTimeText>
+          </AllTimeContainer>
+          <StyledCard>
+            {stats.slice(7, 9).map(({ title, coinId, getText, getSubtext, color, icon }) => {
+              const coinPrice = !isUndefined(pricesData) ? pricesData[coinIds[coinId!]]?.price : undefined;
+              return (
+                <StatDisplay
+                  key={title}
+                  {...{ title, color, icon }}
+                  text={data ? getText(data.court) : <StyledSkeleton />}
+                  subtext={calculateSubtextRender(data?.court, getSubtext, coinPrice)}
+                  isSmallDisplay={true}
+                />
+              );
+            })}
+          </StyledCard>
+        </div>
+      </AccordionContainer>
+    </Container>
   );
 };
 
