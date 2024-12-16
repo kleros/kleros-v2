@@ -33,7 +33,8 @@ const HeaderContainer = styled.div`
   width: 100%;
   display: flex;
   align-items: center;
-  margin-bottom: ${responsiveSize(32, 54)};
+  margin-top: -2px;
+  margin-bottom: ${responsiveSize(16, 24)};
 `;
 
 const Header = styled.h1`
@@ -55,8 +56,8 @@ const CaseDetails: React.FC = () => {
           <Header>Case #{id}</Header>
           <MaintenanceButtons />
         </HeaderContainer>
-        <Tabs />
         <Timeline {...{ currentPeriodIndex, dispute }} />
+        <Tabs />
         <StyledCard>
           <Routes>
             <Route
