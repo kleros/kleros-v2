@@ -10,11 +10,12 @@ import CheckIcon from "svgs/icons/check-circle-outline.svg";
 import WarningIcon from "svgs/icons/warning-outline.svg";
 import InvalidIcon from "svgs/label-icons/minus-circle.svg";
 
-import { useAtlasProvider } from "context/AtlasProvider";
+import { useAtlasProvider } from "@kleros/kleros-app";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import Loader from "components/Loader";
+import ScrollTop from "components/ScrollTop";
 
 const Container = styled.div`
   display: flex;
@@ -59,10 +60,9 @@ const textCss = css`
 
 const Header = styled.h1<{ fontColor: string }>`
   ${textCss}
-  ${({ fontColor }) =>
-    css`
-      color: ${({ theme }) => theme[fontColor]};
-    `};
+  ${({ fontColor }) => css`
+    color: ${({ theme }) => theme[fontColor]};
+  `};
 `;
 
 const Subtitle = styled.h3`
@@ -74,12 +74,11 @@ const HeaderIconContainer = styled.div<{ iconColor: string }>`
   svg {
     width: 64px;
     height: 64px;
-    ${({ iconColor }) =>
-      css`
-        path {
-          fill: ${({ theme }) => theme[iconColor]};
-        }
-      `}
+    ${({ iconColor }) => css`
+      path {
+        fill: ${({ theme }) => theme[iconColor]};
+      }
+    `}
   }
 `;
 
@@ -183,6 +182,7 @@ const EmailConfirmation: React.FC = () => {
           </IconContainer>
         </>
       )}
+      <ScrollTop />
     </Container>
   );
 };

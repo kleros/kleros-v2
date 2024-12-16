@@ -48,7 +48,7 @@ const tooltipMsg =
   "Staking Rewards are the rewards won by staking your PNK on a court during " +
   "the Kleros' Jurors incentive program.";
 
-const Coherency: React.FC = () => {
+const Coherence: React.FC = () => {
   return (
     <Container>
       <WithHelpTooltip place="bottom" {...{ tooltipMsg }}>
@@ -62,4 +62,4 @@ const Coherency: React.FC = () => {
   );
 };
 
-export default Coherency;
+export default Coherence;

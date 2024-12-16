@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { REFETCH_INTERVAL } from "consts/index";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { transformSearch } from "utils/transformSearch";
 
 import { graphql } from "src/graphql";
 import { EvidenceDetailsFragment, EvidencesQuery } from "src/graphql/graphql";
@@ -15,6 +16,7 @@ export const evidenceFragment = graphql(`
       id
     }
     timestamp
+    transactionHash
     name
     description
     fileURI
@@ -44,6 +46,8 @@ export const useEvidences = (evidenceGroup?: string, keywords?: string) => {
   const { graphqlBatcher } = useGraphqlBatcher();
 
   const document = keywords ? evidenceSearchQuery : evidencesQuery;
+  const transformedKeywords = transformSearch(keywords);
+
   return useQuery<{ evidences: EvidenceDetailsFragment[] }>({
     queryKey: [keywords ? `evidenceSearchQuery${evidenceGroup}-${keywords}` : `evidencesQuery${evidenceGroup}`],
     enabled: isEnabled,
@@ -52,7 +56,7 @@ export const useEvidences = (evidenceGroup?: string, keywords?: string) => {
       const result = await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: document,
-        variables: { evidenceGroupID: evidenceGroup?.toString(), keywords: keywords },
+        variables: { evidenceGroupID: evidenceGroup?.toString(), keywords: transformedKeywords },
       });
 
       return keywords ? { evidences: [...result.evidenceSearch] } : result;

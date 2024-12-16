@@ -1,38 +1,56 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
+
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import Identicon from "react-identicons";
 import ReactMarkdown from "react-markdown";
-import { Link } from "react-router-dom";
 
 import { Card } from "@kleros/ui-components-library";
 
 import AttachmentIcon from "svgs/icons/attachment.svg";
 
+import { DEFAULT_CHAIN, getChain } from "consts/chains";
 import { formatDate } from "utils/date";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import { shortenAddress } from "utils/shortenAddress";
 
 import { type Evidence } from "src/graphql/graphql";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
+import { ExternalLink } from "./ExternalLink";
+import { InternalLink } from "./InternalLink";
 
 const StyledCard = styled(Card)`
   width: 100%;
   height: auto;
 `;
 
-const TextContainer = styled.div`
+const TopContent = styled.div`
+  display: flex;
+  flex-direction: column;
   padding: ${responsiveSize(8, 24)};
+  gap: ${responsiveSize(4, 8)};
+  overflow-wrap: break-word;
+
   > * {
     overflow-wrap: break-word;
     margin: 0;
   }
-  > h3 {
-    display: inline-block;
-    margin: 0px 4px;
+  p {
+    margin: 0;
   }
+  h3 {
+    display: inline-block;
+    margin: 0;
+  }
+`;
+
+const IndexAndName = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
 `;
 
 const Index = styled.p`
@@ -46,6 +64,9 @@ const StyledReactMarkdown = styled(ReactMarkdown)`
   code {
     color: ${({ theme }) => theme.secondaryText};
   }
+  p {
+    margin: 0;
+  }
 `;
 
 const BottomShade = styled.div`
@@ -53,13 +74,35 @@ const BottomShade = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
   padding: 12px ${responsiveSize(8, 24)};
   > * {
     flex-basis: 1;
     flex-shrink: 0;
     margin: 0;
   }
+`;
+
+const BottomLeftContent = styled.div`
+  display: block;
+
+  & > *:not(:last-child) {
+    margin-bottom: 8px;
+  }
+
+  ${landscapeStyle(
+    () => css`
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 0 12px;
+
+      & > *:not(:last-child) {
+        margin-bottom: 0;
+      }
+    `
+  )}
 `;
 
 const AccountContainer = styled.div`
@@ -80,6 +123,30 @@ const AccountContainer = styled.div`
   }
 `;
 
+const HoverStyle = css`
+  :hover {
+    text-decoration: underline;
+    color: ${({ theme }) => theme.primaryBlue};
+    cursor: pointer;
+  }
+  :hover {
+    label {
+      text-decoration: underline;
+      color: ${({ theme }) => theme.primaryBlue};
+      cursor: pointer;
+    }
+  }
+`;
+
+const Address = styled.p`
+  ${HoverStyle}
+  margin: 0;
+`;
+
+const StyledExternalLink = styled(ExternalLink)`
+  ${HoverStyle}
+`;
+
 const DesktopText = styled.span`
   display: none;
   ${landscapeStyle(
@@ -87,10 +154,6 @@ const DesktopText = styled.span`
       display: inline;
     `
   )}
-`;
-
-const Timestamp = styled.label`
-  color: ${({ theme }) => theme.secondaryText};
 `;
 
 const MobileText = styled.span`
@@ -101,19 +164,22 @@ const MobileText = styled.span`
   )}
 `;
 
-const StyledLink = styled(Link)`
-  height: fit-content;
+const StyledInternalLink = styled(InternalLink)`
   display: flex;
-  margin-left: auto;
   gap: ${responsiveSize(5, 6)};
-  ${landscapeStyle(
-    () => css`
-      > svg {
-        width: 16px;
-        fill: ${({ theme }) => theme.primaryBlue};
-      }
-    `
-  )}
+  > svg {
+    width: 16px;
+    fill: ${({ theme }) => theme.primaryBlue};
+  }
+
+  :hover svg {
+    transition: fill 0.1s;
+    fill: ${({ theme }) => theme.secondaryBlue};
+  }
+`;
+
+const FileLinkContainer = styled.div`
+  margin-left: auto;
 `;
 
 const AttachedFileText: React.FC = () => (
@@ -126,34 +192,56 @@ const AttachedFileText: React.FC = () => (
 interface IEvidenceCard extends Pick<Evidence, "evidence" | "timestamp" | "name" | "description" | "fileURI"> {
   sender: string;
   index: number;
+  transactionHash: string;
 }
 
-const EvidenceCard: React.FC<IEvidenceCard> = ({ evidence, sender, index, timestamp, name, description, fileURI }) => {
+const EvidenceCard: React.FC<IEvidenceCard> = ({
+  evidence,
+  sender,
+  index,
+  timestamp,
+  transactionHash,
+  name,
+  description,
+  fileURI,
+}) => {
+  const addressExplorerLink = useMemo(() => {
+    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/address/${sender}`;
+  }, [sender]);
+
+  const transactionExplorerLink = useMemo(() => {
+    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/tx/${transactionHash}`;
+  }, [transactionHash]);
+
   return (
     <StyledCard>
-      <TextContainer>
-        <Index>#{index}:</Index>
-        {name && description ? (
-          <>
-            <h3>{name}</h3>
-            <StyledReactMarkdown>{description}</StyledReactMarkdown>
-          </>
-        ) : (
-          <p>{evidence}</p>
-        )}
-      </TextContainer>
+      <TopContent>
+        <IndexAndName>
+          <Index>#{index}: </Index>
+          <h3>{name}</h3>
+        </IndexAndName>
+        {name && description ? <StyledReactMarkdown>{description}</StyledReactMarkdown> : <p>{evidence}</p>}
+      </TopContent>
       <BottomShade>
-        <AccountContainer>
-          <Identicon size="24" string={sender} />
-          <p>{shortenAddress(sender)}</p>
-        </AccountContainer>
-        <Timestamp>{formatDate(Number(timestamp), true)}</Timestamp>
-        {fileURI && (
-          <StyledLink to={`attachment/?url=${getIpfsUrl(fileURI)}`}>
-            <AttachmentIcon />
-            <AttachedFileText />
-          </StyledLink>
-        )}
+        <BottomLeftContent>
+          <AccountContainer>
+            <Identicon size="24" string={sender} />
+            <ExternalLink to={addressExplorerLink} rel="noopener noreferrer" target="_blank">
+              <Address>{shortenAddress(sender)}</Address>
+            </ExternalLink>
+          </AccountContainer>
+          <StyledExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
+            <label>{formatDate(Number(timestamp), true)}</label>
+          </StyledExternalLink>
+        </BottomLeftContent>
+        {fileURI && fileURI !== "-" ? (
+          <FileLinkContainer>
+            <StyledInternalLink to={`attachment/?url=${getIpfsUrl(fileURI)}`}>
+              <AttachmentIcon />
+              <AttachedFileText />
+            </StyledInternalLink>
+          </FileLinkContainer>
+        ) : null}
       </BottomShade>
     </StyledCard>
   );

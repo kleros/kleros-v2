@@ -12,6 +12,8 @@ import {
   RandomizerRNG,
   RandomizerMock,
   SortitionModule,
+  ChainlinkRNG,
+  ChainlinkVRFCoordinatorV2Mock,
 } from "../../typechain-types";
 
 /* eslint-disable no-unused-vars */
@@ -39,8 +41,8 @@ describe("Integration tests", async () => {
   }
 
   let deployer: string;
-  let rng: RandomizerRNG;
-  let randomizer: RandomizerMock;
+  let rng: ChainlinkRNG;
+  let vrfCoordinator: ChainlinkVRFCoordinatorV2Mock;
   let disputeKit: DisputeKitClassic;
   let pnk: PNK;
   let core: KlerosCore;
@@ -56,8 +58,8 @@ describe("Integration tests", async () => {
       fallbackToGlobal: true,
       keepExistingDeployments: false,
     });
-    rng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
-    randomizer = (await ethers.getContract("RandomizerOracle")) as RandomizerMock;
+    rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
+    vrfCoordinator = (await ethers.getContract("ChainlinkVRFCoordinator")) as ChainlinkVRFCoordinatorV2Mock;
     disputeKit = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
     pnk = (await ethers.getContract("PNK")) as PNK;
     core = (await ethers.getContract("KlerosCore")) as KlerosCore;
@@ -162,7 +164,7 @@ describe("Integration tests", async () => {
     await mineBlocks(ethers.getNumber(await sortitionModule.rngLookahead())); // Wait for finality
     expect(await sortitionModule.phase()).to.equal(Phase.generating);
     console.log("KC phase: %d", await sortitionModule.phase());
-    await randomizer.relay(rng.target, 0, ethers.randomBytes(32));
+    await vrfCoordinator.fulfillRandomWords(1, rng.target, []);
     await sortitionModule.passPhase(); // Generating -> Drawing
     expect(await sortitionModule.phase()).to.equal(Phase.drawing);
     console.log("KC phase: %d", await sortitionModule.phase());

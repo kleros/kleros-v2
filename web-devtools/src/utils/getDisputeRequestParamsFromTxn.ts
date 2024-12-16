@@ -1,5 +1,5 @@
 import { getPublicClient } from "@wagmi/core";
-import { GetTransactionReceiptReturnType, decodeEventLog, getEventSelector } from "viem";
+import { type GetTransactionReceiptReturnType, decodeEventLog, getEventSelector } from "viem";
 
 import { iArbitrableV2Abi } from "hooks/contracts/generated";
 import { isUndefined } from "utils/isUndefined";

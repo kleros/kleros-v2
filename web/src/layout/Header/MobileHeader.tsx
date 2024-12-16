@@ -17,6 +17,7 @@ const Container = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  height: 64px;
 
   ${landscapeStyle(
     () => css`
@@ -26,14 +27,10 @@ const Container = styled.div`
 `;
 
 const StyledLightButton = styled(LightButton)`
-  padding: 0;
+  padding: 0 !important;
 
   .button-svg {
     margin-right: 0px;
-    fill: white;
-  }
-  .button-text {
-    display: none;
   }
 `;
 

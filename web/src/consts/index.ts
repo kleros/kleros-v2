@@ -28,6 +28,7 @@ export const ETH_ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/;
 export const ETH_SIGNATURE_REGEX = /^0x[a-fA-F0-9]{130}$/;
 
 export const isProductionDeployment = () => import.meta.env.REACT_APP_DEPLOYMENT === "mainnet";
+export const isTestnetDeployment = () => import.meta.env.REACT_APP_DEPLOYMENT === "testnet";
 
 export const isKlerosUniversity = () => getArbitratorType() === ArbitratorTypes.university;
 export const isKlerosNeo = () => getArbitratorType() === ArbitratorTypes.neo;
@@ -36,9 +37,7 @@ export const getArbitratorType = (): ArbitratorTypes =>
 
 export const getDevToolsUrl = () => import.meta.env.REACT_APP_DEVTOOLS_URL || "https://devtools.v2.kleros.builders";
 
-export const GENESIS_BLOCK_ARBSEPOLIA = BigInt(import.meta.env.REACT_APP_GENESIS_BLOCK_ARBSEPOLIA ?? 0);
-export const GENESIS_BLOCK_ARBMAINNET = BigInt(import.meta.env.REACT_APP_GENESIS_BLOCK_ARBMAINNET ?? 0);
-export const genesisBlock = () => (isProductionDeployment() ? GENESIS_BLOCK_ARBMAINNET : GENESIS_BLOCK_ARBSEPOLIA);
-
 export const INVALID_DISPUTE_DATA_ERROR = `The dispute data is not valid, please vote "Refuse to arbitrate"`;
 export const RPC_ERROR = `RPC Error: Unable to fetch dispute data. Please avoid voting.`;
+
+export const spamEvidencesIds: string[] = (import.meta.env.REACT_APP_SPAM_EVIDENCES_IDS ?? "").split(",");

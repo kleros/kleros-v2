@@ -1,9 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
-
-import { Link } from "react-router-dom";
-
 import { landscapeStyle } from "styles/landscapeStyle";
+
+import { InternalLink } from "./InternalLink";
 
 const FieldContainer = styled.div<FieldContainerProps>`
   display: flex;
@@ -49,6 +48,9 @@ const FieldContainer = styled.div<FieldContainerProps>`
             text-align: none;
             font-weight: 600;
           }
+          a {
+            font-weight: 600;
+          }
           svg {
             margin-right: 0;
           }
@@ -57,10 +59,13 @@ const FieldContainer = styled.div<FieldContainerProps>`
     `};
 `;
 
-const LinkContainer = styled.div``;
+const LinkContainer = styled.div`
+  padding-bottom: 1px;
+`;
 
-const StyledLink = styled(Link)`
-  color: ${({ theme }) => theme.primaryBlue};
+const StyledInternalLink = styled(InternalLink)`
+  text-wrap: auto;
+  justify-content: end;
 `;
 
 type FieldContainerProps = {
@@ -99,14 +104,14 @@ const Field: React.FC<IField> = ({
       {(!displayAsList || isOverview || isJurorBalance) && <label>{name}:</label>}
       {link ? (
         <LinkContainer className="value">
-          <StyledLink
+          <StyledInternalLink
             to={link}
             onClick={(event) => {
               event.stopPropagation();
             }}
           >
             {value}
-          </StyledLink>
+          </StyledInternalLink>
         </LinkContainer>
       ) : (
         <label className="value">{value}</label>

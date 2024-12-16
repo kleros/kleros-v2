@@ -1,5 +1,7 @@
 import { toast, ToastPosition, Theme } from "react-toastify";
-import { PublicClient, TransactionReceipt } from "viem";
+import { type PublicClient, type TransactionReceipt } from "viem";
+
+import { parseWagmiError } from "./parseWagmiError";
 
 export const OPTIONS = {
   position: "top-center" as ToastPosition,
@@ -35,11 +37,11 @@ export async function wrapWithToast(
         })
     )
     .catch((error) => {
-      toast.error(error.shortMessage ?? error.message, OPTIONS);
+      toast.error(parseWagmiError(error), OPTIONS);
       return { status: false };
     });
 }
 
 export async function catchShortMessage(promise: Promise<any>) {
-  return await promise.catch((error) => toast.error(error.shortMessage ?? error.message, OPTIONS));
+  return await promise.catch((error) => toast.error(parseWagmiError(error), OPTIONS));
 }

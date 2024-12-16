@@ -22,15 +22,16 @@ import HowItWorks from "components/HowItWorks";
 import BinaryVoting from "components/Popup/MiniGuides/BinaryVoting";
 
 import PendingVotesBox from "./PendingVotesBox";
-import RulingAndRewardsIndicators from "./RulingAndRewardsIndicators";
 import VotesAccordion from "./VotesDetails";
 
-const Container = styled.div``;
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${responsiveSize(16, 24)};
+`;
 
 const StyledTabs = styled(Tabs)`
   width: 100%;
-  margin-bottom: 16px;
-  margin-top: 48px;
 `;
 
 const Header = styled.div`
@@ -40,7 +41,6 @@ const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: ${responsiveSize(16, 32)};
 `;
 
 const StyledTitle = styled.h1`
@@ -50,6 +50,14 @@ const StyledTitle = styled.h1`
 const StyledReactMarkDown = styled(ReactMarkdown)`
   max-width: inherit;
   word-wrap: break-word;
+  p {
+    margin: 0;
+  }
+`;
+
+const TabsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean }> = ({ arbitrable, isQuestion }) => {
@@ -70,8 +78,6 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
     () => getDrawnJurorsWithCount(votingHistory?.dispute?.rounds.at(currentTab)?.drawnJurors ?? []),
     [votingHistory, currentTab]
   );
-
-  const jurorRewardsDispersed = useMemo(() => Boolean(rounds?.every((round) => round.jurorRewardsDispersed)), [rounds]);
 
   return (
     <Container>
@@ -94,30 +100,28 @@ const VotingHistory: React.FC<{ arbitrable?: `0x${string}`; isQuestion: boolean 
               )}
             </>
           )}
-          <RulingAndRewardsIndicators
-            ruled={Boolean(disputeData?.dispute?.ruled)}
-            jurorRewardsDispersed={jurorRewardsDispersed}
-          />
-          <StyledTabs
-            currentValue={currentTab}
-            items={rounds.map((_, i) => ({
-              text: `Round ${i + 1}`,
-              value: i,
-            }))}
-            callback={(i: number) => setCurrentTab(i)}
-          />
-          <PendingVotesBox
-            current={localRounds.at(currentTab)?.totalVoted}
-            total={rounds.at(currentTab)?.nbVotes}
-            court={rounds.at(currentTab)?.court.name ?? ""}
-          />
-          <VotesAccordion
-            drawnJurors={drawnJurors}
-            period={disputeData?.dispute?.period}
-            answers={answers}
-            isActiveRound={localRounds?.length - 1 === currentTab}
-            hiddenVotes={Boolean(disputeData?.dispute?.court.hiddenVotes)}
-          />
+          <TabsContainer>
+            <StyledTabs
+              currentValue={currentTab}
+              items={rounds.map((_, i) => ({
+                text: `Round ${i + 1}`,
+                value: i,
+              }))}
+              callback={(i: number) => setCurrentTab(i)}
+            />
+            <PendingVotesBox
+              current={localRounds.at(currentTab)?.totalVoted}
+              total={rounds.at(currentTab)?.nbVotes}
+              court={rounds.at(currentTab)?.court.name ?? ""}
+            />
+            <VotesAccordion
+              drawnJurors={drawnJurors}
+              period={disputeData?.dispute?.period}
+              answers={answers}
+              isActiveRound={localRounds?.length - 1 === currentTab}
+              hiddenVotes={Boolean(disputeData?.dispute?.court.hiddenVotes)}
+            />
+          </TabsContainer>
         </>
       ) : (
         <Skeleton height={140} />

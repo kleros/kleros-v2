@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import { Card } from "@kleros/ui-components-library";
 
@@ -19,6 +19,11 @@ const StyledCard = styled(Card)`
   height: 100%;
   max-height: 335px;
   min-height: 290px;
+  transition: background-color 0.1s;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.lightGrey}BB;
+  }
 `;
 
 const CardContainer = styled.div`
@@ -54,15 +59,16 @@ interface IDisputeCardView {
 }
 
 const DisputeCardView: React.FC<IDisputeCardView> = ({ isLoading, ...props }) => {
-  const navigate = useNavigate();
   return (
-    <StyledCard hover onClick={() => navigate(`/cases/${props?.disputeID?.toString()}`)}>
-      <PeriodBanner id={parseInt(props?.disputeID)} period={props?.period} />
-      <CardContainer>
-        {isLoading ? <StyledCaseCardTitleSkeleton /> : <TruncatedTitle text={props?.title} maxLength={100} />}
-        <DisputeInfo {...props} />
-      </CardContainer>
-    </StyledCard>
+    <Link to={`/cases/${props?.disputeID?.toString()}`}>
+      <StyledCard>
+        <PeriodBanner id={parseInt(props?.disputeID)} period={props?.period} />
+        <CardContainer>
+          {isLoading ? <StyledCaseCardTitleSkeleton /> : <TruncatedTitle text={props?.title} maxLength={100} />}
+          <DisputeInfo {...props} />
+        </CardContainer>
+      </StyledCard>
+    </Link>
   );
 };
 

@@ -14,27 +14,20 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 
 import AliasDisplay from "./Alias";
 import { Divider } from "../Divider";
+import { ExternalLink } from "../ExternalLink";
 
 const StyledH1 = styled.h1`
   margin: 0;
   word-wrap: break-word;
 `;
 
-const QuestionAndDescription = styled.div`
-  display: flex;
-  flex-direction: column;
-  word-wrap: break-word;
-  div:first-child p:first-of-type {
-    font-size: 16px;
-    font-weight: 600;
+const ReactMarkdownWrapper = styled.div`
+  & p:first-of-type {
+    margin: 0;
   }
 `;
 
-const StyledReactMarkDown = styled(ReactMarkdown)`
-  margin: 0px;
-`;
-
-const VotingOptions = styled(QuestionAndDescription)`
+const VotingOptions = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -45,14 +38,15 @@ const AnswersContainer = styled.div`
   flex-direction: column;
 `;
 
+const AnswersHeader = styled.h3`
+  margin: 0;
+`;
+
 const Answer = styled.div`
   margin: 0px;
   display: flex;
   flex-wrap: wrap;
-  gap: ${responsiveSize(2, 8)};
-  > label {
-    max-width: 100%;
-  }
+  gap: 6px;
 `;
 
 const AliasesContainer = styled.div`
@@ -70,28 +64,36 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRp
   const errMsg = isRpcError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR;
   return (
     <>
-      <StyledH1>{isUndefined(disputeDetails) ? <StyledSkeleton /> : disputeDetails?.title ?? errMsg}</StyledH1>
-      {!isUndefined(disputeDetails) && (
-        <QuestionAndDescription>
-          <StyledReactMarkDown>{disputeDetails?.question}</StyledReactMarkDown>
-          <StyledReactMarkDown>{disputeDetails?.description}</StyledReactMarkDown>
-        </QuestionAndDescription>
-      )}
+      <StyledH1>{isUndefined(disputeDetails) ? <StyledSkeleton /> : (disputeDetails?.title ?? errMsg)}</StyledH1>
+      {!isUndefined(disputeDetails) ? (
+        <>
+          {disputeDetails?.question?.trim() ? (
+            <ReactMarkdownWrapper>
+              <ReactMarkdown>{disputeDetails.question}</ReactMarkdown>
+            </ReactMarkdownWrapper>
+          ) : null}
+          {disputeDetails?.description?.trim() ? (
+            <ReactMarkdownWrapper>
+              <ReactMarkdown>{disputeDetails.description}</ReactMarkdown>
+            </ReactMarkdownWrapper>
+          ) : null}
+        </>
+      ) : null}
+
       {isUndefined(disputeDetails?.frontendUrl) ? null : (
-        <a href={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
+        <ExternalLink href={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
           Go to arbitrable
-        </a>
+        </ExternalLink>
       )}
       <VotingOptions>
-        {isUndefined(disputeDetails) ? null : <h3>Voting Options</h3>}
+        {isUndefined(disputeDetails) ? null : <AnswersHeader>Voting Options</AnswersHeader>}
         <AnswersContainer>
           {disputeDetails?.answers?.map((answer: IAnswer, i: number) => (
             <Answer key={answer.title}>
-              <small>Option {i + 1}:</small>
-              <label>
-                {answer.title}
-                {answer.description ? ` - ${answer.description}` : null}
-              </label>
+              <small>
+                <label>{i + 1}.</label> {answer.title}
+                {answer.description.trim() ? ` - ${answer.description}` : null}
+              </small>
             </Answer>
           ))}
         </AnswersContainer>

@@ -7,7 +7,6 @@ import { useToggle } from "react-use";
 import { Card, Breadcrumb } from "@kleros/ui-components-library";
 
 import { isProductionDeployment } from "consts/index";
-import { isUndefined } from "utils/index";
 
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useCourtTree, CourtTreeQuery } from "queries/useCourtTree";
@@ -19,6 +18,7 @@ import ClaimPnkButton from "components/ClaimPnkButton";
 import HowItWorks from "components/HowItWorks";
 import LatestCases from "components/LatestCases";
 import Staking from "components/Popup/MiniGuides/Staking";
+import ScrollTop from "components/ScrollTop";
 import { StyledSkeleton } from "components/StyledSkeleton";
 import { Divider } from "components/Divider";
 
@@ -32,40 +32,34 @@ const CourtHeader = styled.h1`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  gap: 24px;
+  gap: 8px;
   flex-wrap: wrap;
+  margin-bottom: 16px;
 `;
 
 const CourtInfo = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
-
-  ${landscapeStyle(
-    () => css`
-      gap: 32px;
-    `
-  )};
+  gap: 8px;
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
+  flex-direction: row;
+  justify-content: center;
+  gap: 20px;
 
   ${landscapeStyle(
     () => css`
       align-items: flex-end;
-      gap: 32px;
     `
   )};
 `;
 
 const StyledCard = styled(Card)`
   padding: ${responsiveSize(16, 32)};
-  margin-top: ${responsiveSize(16, 24)};
+  margin-top: 12px;
   width: 100%;
   height: auto;
   min-height: 100px;
@@ -78,6 +72,23 @@ const StyledBreadcrumb = styled(Breadcrumb)`
   }
 `;
 
+const StakePanelAndStats = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  ${landscapeStyle(
+    () => css`
+      & > * {
+        flex: 1 1 calc(50% - 8px);
+      }
+    `
+  )}
+`;
+
 const CourtDetails: React.FC = () => {
   const { id } = useParams();
   const { data: policy } = useCourtPolicy(id);
@@ -86,7 +97,7 @@ const CourtDetails: React.FC = () => {
 
   const courtPath = getCourtsPath(data?.court, id);
 
-  const items = [{ text: "🏛️", value: "0" }];
+  const items = [];
   items.push(
     ...(courtPath?.map((node) => ({
       text: node.name,
@@ -100,25 +111,28 @@ const CourtDetails: React.FC = () => {
         <CourtHeader>
           <CourtInfo>
             {policy ? policy.name : <StyledSkeleton width={200} />}
-            {items.length > 1 ? <StyledBreadcrumb items={items} /> : <StyledSkeleton width={100} />}
+            {items.length > 1 && items[0]?.value !== 1 ? <StyledBreadcrumb items={items} /> : null}
           </CourtInfo>
           <ButtonContainer>
+            {!isProductionDeployment() && <ClaimPnkButton />}
             <HowItWorks
               isMiniGuideOpen={isStakingMiniGuideOpen}
               toggleMiniGuide={toggleStakingMiniGuide}
               MiniGuideComponent={Staking}
             />
-            {!isProductionDeployment() && <ClaimPnkButton />}
           </ButtonContainer>
         </CourtHeader>
-        <Stats />
         <Divider />
-        <StakePanel id={!isUndefined(id) ? id : ""} courtName={policy?.name} />
+        <StakePanelAndStats>
+          <StakePanel courtName={policy?.name} />
+          <Stats />
+        </StakePanelAndStats>
       </StyledCard>
       <StyledCard>
         <Description />
       </StyledCard>
       <LatestCases filters={{ court: id }} />
+      <ScrollTop />
     </Container>
   );
 };

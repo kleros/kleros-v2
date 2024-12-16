@@ -1,6 +1,9 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
@@ -12,10 +15,9 @@ import { useUserQuery } from "queries/useUser";
 
 import { OrderDirection } from "src/graphql/graphql";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
+import ScrollTop from "components/ScrollTop";
 
 import Courts from "./Courts";
 import JurorInfo from "./JurorInfo";
@@ -24,7 +26,7 @@ const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
   padding: ${responsiveSize(32, 80)} ${responsiveSize(24, 136)} ${responsiveSize(76, 96)};
-  max-width: 1780px;
+  max-width: ${MAX_WIDTH_LANDSCAPE};
   margin: 0 auto;
 `;
 
@@ -92,6 +94,7 @@ const Dashboard: React.FC = () => {
           <ConnectWallet />
         </ConnectWalletContainer>
       )}
+      <ScrollTop />
     </Container>
   );
 };

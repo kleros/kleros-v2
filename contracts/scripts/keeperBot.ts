@@ -1,10 +1,20 @@
-import { DisputeKitClassic, KlerosCore, PNK, RandomizerRNG, BlockHashRNG, SortitionModule } from "../typechain-types";
-import request from "graphql-request";
+import {
+  PNK,
+  RandomizerRNG,
+  BlockHashRNG,
+  SortitionModule,
+  KlerosCore,
+  KlerosCoreNeo,
+  SortitionModuleNeo,
+  DisputeKitClassic,
+  ChainlinkRNG,
+} from "../typechain-types";
 import env from "./utils/env";
 import loggerFactory from "./utils/logger";
 import { toBigInt, BigNumberish, getNumber } from "ethers";
 import hre = require("hardhat");
 
+let request: <T>(url: string, query: string) => Promise<T>; // Workaround graphql-request ESM import
 const { ethers } = hre;
 const MAX_DRAW_ITERATIONS = 30;
 const MAX_EXECUTE_ITERATIONS = 20;
@@ -15,6 +25,7 @@ const HIGH_GAS_LIMIT = { gasLimit: 50_000_000 }; // 50M gas
 const HEARTBEAT_URL = env.optionalNoDefault("HEARTBEAT_URL_KEEPER_BOT");
 const SUBGRAPH_URL = env.require("SUBGRAPH_URL");
 const MAX_JURORS_PER_DISPUTE = 1000; // Skip disputes with more than this number of jurors
+const CORE_TYPE = env.optional("CORE_TYPE", "base");
 const DISPUTES_TO_SKIP = env
   .optional("DISPUTES_TO_SKIP", "")
   .split(",")
@@ -33,13 +44,29 @@ const loggerOptions = env.optionalNoDefault("LOGTAIL_TOKEN_KEEPER_BOT")
 const logger = loggerFactory.createLogger(loggerOptions);
 
 const getContracts = async () => {
-  const core = (await ethers.getContract("KlerosCore")) as KlerosCore;
-  const sortition = (await ethers.getContract("SortitionModule")) as SortitionModule;
-  const randomizerRng = (await ethers.getContract("RandomizerRNG")) as RandomizerRNG;
-  const blockHashRNG = (await ethers.getContract("BlockHashRNG")) as BlockHashRNG;
-  const disputeKitClassic = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
+  let core: KlerosCore | KlerosCoreNeo;
+  let sortition: SortitionModule | SortitionModuleNeo;
+  let disputeKitClassic: DisputeKitClassic;
+  const coreType = Cores[CORE_TYPE.toUpperCase() as keyof typeof Cores];
+  switch (coreType) {
+    case Cores.NEO:
+      core = (await ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;
+      sortition = (await ethers.getContract("SortitionModuleNeo")) as SortitionModuleNeo;
+      disputeKitClassic = (await ethers.getContract("DisputeKitClassicNeo")) as DisputeKitClassic;
+      break;
+    case Cores.BASE:
+      core = (await ethers.getContract("KlerosCore")) as KlerosCore;
+      sortition = (await ethers.getContract("SortitionModule")) as SortitionModule;
+      disputeKitClassic = (await ethers.getContract("DisputeKitClassic")) as DisputeKitClassic;
+      break;
+    default:
+      throw new Error("Invalid core type, must be one of base, neo");
+  }
+  const chainlinkRng = await ethers.getContractOrNull<ChainlinkRNG>("ChainlinkRNG");
+  const randomizerRng = await ethers.getContractOrNull<RandomizerRNG>("RandomizerRNG");
+  const blockHashRNG = await ethers.getContractOrNull<BlockHashRNG>("BlockHashRNG");
   const pnk = (await ethers.getContract("PNK")) as PNK;
-  return { core, sortition, randomizerRng, blockHashRNG, disputeKitClassic, pnk };
+  return { core, sortition, chainlinkRng, randomizerRng, blockHashRNG, disputeKitClassic, pnk };
 };
 
 type Contribution = {
@@ -66,6 +93,11 @@ type CustomError = {
   errorName: string;
   errorSignature: string;
 };
+
+enum Cores {
+  BASE,
+  NEO,
+}
 
 enum Phase {
   STAKING = "staking",
@@ -151,11 +183,21 @@ const handleError = (e: any) => {
 };
 
 const isRngReady = async () => {
-  const { randomizerRng, blockHashRNG, sortition } = await getContracts();
+  const { chainlinkRng, randomizerRng, blockHashRNG, sortition } = await getContracts();
   const currentRng = await sortition.rng();
-  if (currentRng === randomizerRng.target) {
-    const requesterID = await randomizerRng.requesterToID(sortition.target);
-    const n = await randomizerRng.randomNumbers(requesterID);
+  if (currentRng === chainlinkRng?.target) {
+    const requestID = await chainlinkRng.lastRequestId();
+    const n = await chainlinkRng.randomNumbers(requestID);
+    if (Number(n) === 0) {
+      logger.info("ChainlinkRNG is NOT ready yet");
+      return false;
+    } else {
+      logger.info(`ChainlinkRNG is ready: ${n.toString()}`);
+      return true;
+    }
+  } else if (currentRng === randomizerRng?.target) {
+    const requestID = await randomizerRng.lastRequestId();
+    const n = await randomizerRng.randomNumbers(requestID);
     if (Number(n) === 0) {
       logger.info("RandomizerRNG is NOT ready yet");
       return false;
@@ -163,7 +205,7 @@ const isRngReady = async () => {
       logger.info(`RandomizerRNG is ready: ${n.toString()}`);
       return true;
     }
-  } else if (currentRng === blockHashRNG.target) {
+  } else if (currentRng === blockHashRNG?.target) {
     const requestBlock = await sortition.randomNumberRequestBlock();
     const lookahead = await sortition.rngLookahead();
     const n = await blockHashRNG.receiveRandomness.staticCall(requestBlock + lookahead);
@@ -424,7 +466,7 @@ const filterAsync = async <T>(
   return array.filter((value, index) => filterMap[index]);
 };
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const sendHeartbeat = async () => {
   if (HEARTBEAT_URL) {
@@ -436,6 +478,8 @@ const sendHeartbeat = async () => {
 };
 
 async function main() {
+  const graphqlRequest = await import("graphql-request"); // Workaround graphql-request ESM import
+  request = graphqlRequest.request;
   const { core, sortition, disputeKitClassic } = await getContracts();
 
   const getBlockTime = async () => {

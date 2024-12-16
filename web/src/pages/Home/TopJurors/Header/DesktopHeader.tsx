@@ -9,7 +9,7 @@ import { responsiveSize } from "styles/responsiveSize";
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
 
-import Coherency from "./Coherency";
+import Coherence from "./Coherence";
 import Rewards from "./Rewards";
 
 const Container = styled.div`
@@ -23,15 +23,14 @@ const Container = styled.div`
   padding: 18.6px 32px;
 
   ${landscapeStyle(
-    () =>
-      css`
-        display: grid;
-        grid-template-columns:
-          min-content repeat(3, ${responsiveSize(160, 180, 900)})
-          auto;
-        column-gap: ${responsiveSize(12, 28, 900)};
-        align-items: center;
-      `
+    () => css`
+      display: grid;
+      grid-template-columns:
+        min-content repeat(3, ${responsiveSize(160, 180, 900)})
+        auto;
+      column-gap: ${responsiveSize(12, 28, 900)};
+      align-items: center;
+    `
   )}
 `;
 
@@ -52,7 +51,7 @@ export const DesktopHeader: React.FC = () => {
       <StyledLabel>#</StyledLabel>
       <StyledLabel>Juror</StyledLabel>
       <Rewards />
-      <Coherency />
+      <Coherence />
       <HowItWorksContainer>
         <HowItWorks
           isMiniGuideOpen={isJurorLevelsMiniGuideOpen}

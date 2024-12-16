@@ -5,7 +5,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useToggle } from "react-use";
 import { useAccount } from "wagmi";
 
-import { landscapeStyle } from "styles/landscapeStyle";
+import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import ConnectWallet from "components/ConnectWallet";
@@ -13,6 +13,7 @@ import EnsureAuth from "components/EnsureAuth";
 import HeroImage from "components/HeroImage";
 import HowItWorks from "components/HowItWorks";
 import Resolver from "components/Popup/MiniGuides/DisputeResolver";
+import ScrollTop from "components/ScrollTop";
 
 import Description from "./Briefing/Description";
 import Title from "./Briefing/Title";
@@ -37,7 +38,7 @@ const Container = styled.div`
   padding: ${responsiveSize(24, 32)};
   padding-top: ${responsiveSize(24, 28)};
   padding-bottom: ${responsiveSize(76, 96)};
-  max-width: 1780px;
+  max-width: ${MAX_WIDTH_LANDSCAPE};
   margin: 0 auto;
 `;
 
@@ -118,6 +119,7 @@ const DisputeResolver: React.FC = () => {
           </ConnectWalletContainer>
         )}
       </Container>
+      <ScrollTop />
     </Wrapper>
   );
 };

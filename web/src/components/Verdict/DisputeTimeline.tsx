@@ -1,13 +1,14 @@
 import React, { useMemo } from "react";
 import styled, { useTheme } from "styled-components";
 
+import { responsiveSize } from "styles/responsiveSize";
+
 import { useParams } from "react-router-dom";
 
 import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
 
 import CalendarIcon from "svgs/icons/calendar.svg";
 import ClosedCaseIcon from "svgs/icons/check-circle-outline.svg";
-import AppealedCaseIcon from "svgs/icons/close-circle.svg";
 
 import { Periods } from "consts/periods";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
@@ -19,12 +20,11 @@ import { useVotingHistory } from "queries/useVotingHistory";
 
 import { ClassicRound } from "src/graphql/graphql";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { StyledClosedCircle } from "components/StyledIcons/ClosedCircleIcon";
 
 const Container = styled.div`
   display: flex;
   position: relative;
-  margin-left: 8px;
   flex-direction: column;
 `;
 
@@ -102,7 +102,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
               party: "",
               subtitle: formatDate(roundTimeline?.[Periods.appeal]),
               rightSided: true,
-              Icon: AppealedCaseIcon,
+              Icon: StyledClosedCircle,
             });
           } else if (rulingOverride && parsedDisputeFinalRuling !== parsedRoundChoice) {
             acc.push({

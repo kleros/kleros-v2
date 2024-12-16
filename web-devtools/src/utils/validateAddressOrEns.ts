@@ -1,4 +1,4 @@
-import { PublicClient, isAddress } from "viem";
+import { type PublicClient, isAddress } from "viem";
 import { normalize } from "viem/ens";
 
 export const validateAddress = async (address: string, publicClient: PublicClient): Promise<boolean> => {

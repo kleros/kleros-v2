@@ -6,7 +6,7 @@ import { changeCurrencyRate } from "./utils/klerosCoreHelper";
 import { HomeChains, isSkipped, isDevnet, PNK, ETH } from "./utils";
 import { getContractOrDeploy, getContractOrDeployUpgradable } from "./utils/getContractOrDeploy";
 import { deployERC20AndFaucet, deployERC721 } from "./utils/deployTokens";
-import { DisputeKitClassic, KlerosCoreNeo } from "../typechain-types";
+import { ChainlinkRNG, DisputeKitClassic, KlerosCoreNeo, RandomizerRNG } from "../typechain-types";
 
 const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { ethers, deployments, getNamedAccounts, getChainId } = hre;
@@ -29,19 +29,6 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 
   await deployUpgradable(deployments, "EvidenceModule", { from: deployer, args: [deployer], log: true });
 
-  const randomizerOracle = await getContractOrDeploy(hre, "RandomizerOracle", {
-    from: deployer,
-    contract: "RandomizerMock",
-    args: [],
-    log: true,
-  });
-
-  const rng = await deployUpgradable(deployments, "RandomizerRNG", {
-    from: deployer,
-    args: [randomizerOracle.target, deployer],
-    log: true,
-  });
-
   const disputeKit = await deployUpgradable(deployments, "DisputeKitClassicNeo", {
     from: deployer,
     contract: "DisputeKitClassic",
@@ -58,6 +45,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const devnet = isDevnet(hre.network);
   const minStakingTime = devnet ? 180 : 1800;
   const maxFreezingTime = devnet ? 600 : 1800;
+  const rng = (await ethers.getContract("ChainlinkRNG")) as ChainlinkRNG;
   const maxStakePerJuror = PNK(2_000);
   const maxTotalStaked = PNK(2_000_000);
   const sortitionModule = await deployUpgradable(deployments, "SortitionModuleNeo", {
@@ -67,7 +55,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       klerosCoreAddress,
       minStakingTime,
       maxFreezingTime,
-      rng.address,
+      rng.target,
       RNG_LOOKAHEAD,
       maxStakePerJuror,
       maxTotalStaked,
@@ -85,7 +73,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
       deployer,
       deployer,
       pnk.target,
-      ZeroAddress,
+      ZeroAddress, // KlerosCore is configured later
       disputeKit.address,
       false,
       [minStake, alpha, feeForJuror, jurorsForCourtJump],
@@ -97,12 +85,19 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
     log: true,
   }); // nonce+2 (implementation), nonce+3 (proxy)
 
-  // execute DisputeKitClassic.changeCore() only if necessary
+  // disputeKit.changeCore() only if necessary
   const disputeKitContract = (await hre.ethers.getContract("DisputeKitClassicNeo")) as DisputeKitClassic;
   const currentCore = await disputeKitContract.core();
   if (currentCore !== klerosCore.address) {
     console.log(`disputeKit.changeCore(${klerosCore.address})`);
     await disputeKitContract.changeCore(klerosCore.address);
+  }
+
+  // rng.changeSortitionModule() only if necessary
+  const rngSortitionModule = await rng.sortitionModule();
+  if (rngSortitionModule !== sortitionModule.address) {
+    console.log(`rng.changeSortitionModule(${sortitionModule.address})`);
+    await rng.changeSortitionModule(sortitionModule.address);
   }
 
   const core = (await hre.ethers.getContract("KlerosCoreNeo")) as KlerosCoreNeo;
@@ -130,6 +125,7 @@ const deployArbitration: DeployFunction = async (hre: HardhatRuntimeEnvironment)
 };
 
 deployArbitration.tags = ["ArbitrationNeo"];
+deployArbitration.dependencies = ["ChainlinkRNG"];
 deployArbitration.skip = async ({ network }) => {
   return isSkipped(network, !HomeChains[network.config.chainId ?? 0]);
 };

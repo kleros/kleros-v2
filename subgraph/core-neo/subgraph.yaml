@@ -1,4 +1,4 @@
-specVersion: 0.0.4
+specVersion: 0.0.5
 schema:
   file: ./schema.graphql
 features:
@@ -13,7 +13,7 @@ dataSources:
       startBlock: 190274596
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - User
@@ -38,6 +38,7 @@ dataSources:
           handler: handleAppealDecision
         - event: DisputeCreation(indexed uint256,indexed address)
           handler: handleDisputeCreation
+          receipt: true
         - event: Draw(indexed address,indexed uint256,uint256,uint256)
           handler: handleDraw
         - event: NewPeriod(indexed uint256,uint8)
@@ -68,7 +69,7 @@ dataSources:
       startBlock: 190274403
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Court
@@ -88,7 +89,7 @@ dataSources:
       startBlock: 190274518
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - ClassicDispute
@@ -123,7 +124,7 @@ dataSources:
       startBlock: 190274441
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - ClassicEvidenceGroup
@@ -144,7 +145,7 @@ dataSources:
       startBlock: 190274557
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - JurorTokensPerCourt

@@ -1,17 +1,16 @@
 import React from "react";
 import styled from "styled-components";
 
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 import ArrowIcon from "svgs/icons/arrow.svg";
 
 import { responsiveSize } from "styles/responsiveSize";
 
-import LightButton from "../LightButton";
-
 import CasesGrid, { ICasesGrid } from "./CasesGrid";
 import Search from "./Search";
 import StatsAndFilters from "./StatsAndFilters";
+import { StyledArrowLink } from "../StyledArrowLink";
 
 const TitleContainer = styled.div`
   display: flex;
@@ -25,14 +24,8 @@ const StyledTitle = styled.h1`
   margin: 0px;
 `;
 
-const StyledButton = styled(LightButton)`
-  display: flex;
-  flex-direction: row-reverse;
-  gap: 8px;
-  > .button-text {
-    color: ${({ theme }) => theme.primaryBlue};
-  }
-  padding: 0px;
+const StyledLabel = styled.label`
+  font-size: 16px;
 `;
 
 interface ICasesDisplay extends ICasesGrid {
@@ -53,21 +46,22 @@ const CasesDisplay: React.FC<ICasesDisplay> = ({
   className,
   totalPages,
 }) => {
-  const navigate = useNavigate();
   const location = useLocation();
   return (
     <div {...{ className }}>
       <TitleContainer className="title">
         <StyledTitle>{title}</StyledTitle>
         {location.pathname.startsWith("/cases/display/1/desc/all") ? (
-          <StyledButton onClick={() => navigate(`/resolver`)} text="Create a case" Icon={ArrowIcon} />
+          <StyledArrowLink to={"/resolver"}>
+            Create a case <ArrowIcon />
+          </StyledArrowLink>
         ) : null}
       </TitleContainer>
       <Search />
-      <StatsAndFilters totalDisputes={numberDisputes ?? 0} closedDisputes={numberClosedDisputes ?? 0} />
+      <StatsAndFilters totalDisputes={numberDisputes || 0} closedDisputes={numberClosedDisputes || 0} />
 
       {disputes?.length === 0 ? (
-        <h1>No cases found</h1>
+        <StyledLabel>No cases found</StyledLabel>
       ) : (
         <CasesGrid
           disputes={disputes}

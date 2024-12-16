@@ -38,12 +38,12 @@ const Title = styled.h1`
   )};
 `;
 
-const StyledLink = styled(Link)<{ isActive: boolean }>`
+const StyledLink = styled(Link)<{ $isActive: boolean }>`
   color: ${({ theme }) => theme.klerosUIComponentsPrimaryText};
   text-decoration: none;
   font-size: 16px;
 
-  font-weight: ${({ isActive }) => (isActive ? "600" : "normal")};
+  font-weight: ${({ $isActive }) => ($isActive ? "600" : "normal")};
 
   ${landscapeStyle(
     () => css`
@@ -70,7 +70,7 @@ const Explore: React.FC = () => {
           <StyledLink
             href={to}
             onClick={toggleIsOpen}
-            isActive={to === "/" ? pathname === "/" : pathname.startsWith(to)}
+            $isActive={to === "/" ? pathname === "/" : pathname.startsWith(to)}
           >
             {text}
           </StyledLink>

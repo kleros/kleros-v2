@@ -1,8 +1,11 @@
+import React, { useMemo, useState } from "react";
+import styled from "styled-components";
+
+import { useDebounce } from "react-use";
+
 import retrieveVariables from "@kleros/kleros-sdk/src/dataMappings/utils/retrieveVariables";
 import { Field } from "@kleros/ui-components-library";
-import { useMemo, useState } from "react";
-import styled from "styled-components";
-import { useDebounce } from "react-use";
+
 import WithHelpTooltip from "components/WithHelpTooltip";
 
 const Container = styled.div`

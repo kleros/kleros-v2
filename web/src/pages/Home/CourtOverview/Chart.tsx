@@ -12,8 +12,8 @@ import { responsiveSize } from "styles/responsiveSize";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
 
-import StakedPNKByCourtsChart, { StakedPNKByCourtsChartData } from "./StakedPNKByCourtsChart";
 import CasesByCourtsChart, { CasesByCourtsChartData } from "./CasesByCourtsChart";
+import StakedPNKByCourtsChart, { StakedPNKByCourtsChartData } from "./StakedPNKByCourtsChart";
 import TimeSeriesChart from "./TimeSeriesChart";
 
 const Container = styled.div`
@@ -74,22 +74,28 @@ const Chart: React.FC = () => {
 
   const processedCourtsData = courtsChartData?.reduce(
     (accData: CasesByCourtsChartData, current) => {
-      return {
-        labels: [...accData.labels, current.name ?? ""],
-        cases: [...accData.cases, current.numberDisputes],
-        totalCases: accData.totalCases + parseInt(current.numberDisputes, 10),
-      };
+      if (BigInt(current.numberDisputes) > 0) {
+        return {
+          labels: [...accData.labels, current.name ?? ""],
+          cases: [...accData.cases, current.numberDisputes],
+          totalCases: accData.totalCases + parseInt(current.numberDisputes, 10),
+        };
+      }
+      return accData;
     },
     { labels: [], cases: [], totalCases: 0 }
   );
 
   const processedStakedPNKData = courtsChartData?.reduce(
     (accData: StakedPNKByCourtsChartData, current) => {
-      return {
-        labels: [...accData.labels, current.name ?? ""],
-        stakes: [...accData.stakes, parseFloat(formatUnits(current.stake, 18))],
-        totalStake: accData.totalStake + parseFloat(formatUnits(current.stake, 18)),
-      };
+      if (BigInt(current.stake) > 0) {
+        return {
+          labels: [...accData.labels, current.name ?? ""],
+          stakes: [...accData.stakes, parseFloat(formatUnits(current.stake, 18))],
+          totalStake: accData.totalStake + parseFloat(formatUnits(current.stake, 18)),
+        };
+      }
+      return accData;
     },
     { labels: [], stakes: [], totalStake: 0 }
   );

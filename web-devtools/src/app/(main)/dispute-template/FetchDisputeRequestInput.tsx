@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { useDebounce } from "react-use";
-import { GetEventArgs } from "viem";
+import { type GetEventArgs } from "viem";
 
 import { Field } from "@kleros/ui-components-library";
 
@@ -115,7 +115,7 @@ const FetchDisputeRequestInput: React.FC<IFetchDisputeRequestInput> = ({ setPara
           value={chainId}
           placeholder="Enter chain Id"
           type="number"
-          onChange={(e) => setChainId(Number(e.target.value))}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setChainId(Number(e.target.value))}
         />
       </InputContainer>
       <StyledH3>Presets</StyledH3>
