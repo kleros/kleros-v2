@@ -18,9 +18,7 @@ const StyledCard = styled(Card)`
   padding: 24px;
 
   &:hover {
-    background-color: ${({ theme }) => theme.lightGrey}BB;
     cursor: pointer;
-    box-shadow: none;
   }
 `;
 
