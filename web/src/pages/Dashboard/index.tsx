@@ -1,9 +1,6 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import { useNavigate, useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
@@ -15,8 +12,12 @@ import { useUserQuery } from "queries/useUser";
 
 import { OrderDirection } from "src/graphql/graphql";
 
+import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
 import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
+import FavoriteCases from "components/FavoriteCases";
 import ScrollTop from "components/ScrollTop";
 
 import Courts from "./Courts";
@@ -94,6 +95,7 @@ const Dashboard: React.FC = () => {
           <ConnectWallet />
         </ConnectWalletContainer>
       )}
+      <FavoriteCases />
       <ScrollTop />
     </Container>
   );
