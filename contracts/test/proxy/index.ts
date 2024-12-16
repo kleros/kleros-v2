@@ -236,6 +236,6 @@ describe("Upgradability", async () => {
   });
 
   after("Reset", async () => {
-    deployments.run([], { resetMemory: true, deletePreviousDeployments: true });
+    await deployments.run(["NonExistentTag"], { resetMemory: true, deletePreviousDeployments: true });
   });
 });
