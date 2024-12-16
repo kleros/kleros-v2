@@ -22,11 +22,11 @@ describe("IncrementalNG", async () => {
 
   it("Should return a number incrementing each time", async () => {
     expect(await rng.receiveRandomness.staticCall(689376)).to.equal(initialNg);
-    await rng.receiveRandomness(29543);
+    await rng.receiveRandomness(29543).then((tx) => tx.wait());
     expect(await rng.receiveRandomness.staticCall(5894382)).to.equal(initialNg + 1);
-    await rng.receiveRandomness(0);
+    await rng.receiveRandomness(0).then((tx) => tx.wait());
     expect(await rng.receiveRandomness.staticCall(3465)).to.equal(initialNg + 2);
-    await rng.receiveRandomness(2n ** 255n);
+    await rng.receiveRandomness(2n ** 255n).then((tx) => tx.wait());
     expect(await rng.receiveRandomness.staticCall(0)).to.equal(initialNg + 3);
   });
 });
@@ -42,6 +42,7 @@ describe("BlockHashRNG", async () => {
   it("Should return a non-zero number for a block number in the past", async () => {
     const tx = await rng.receiveRandomness(5);
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
+    await tx.wait();
     const [rn] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
     expect(rn).to.not.equal(0);
   });
@@ -49,6 +50,7 @@ describe("BlockHashRNG", async () => {
   it("Should return zero for a block number in the future", async () => {
     const tx = await rng.receiveRandomness(9876543210);
     const trace = await network.provider.send("debug_traceTransaction", [tx.hash]);
+    await tx.wait();
     const [rn] = abiCoder.decode(["uint"], ethers.getBytes(`${trace.returnValue}`));
     expect(rn).to.equal(0);
   });

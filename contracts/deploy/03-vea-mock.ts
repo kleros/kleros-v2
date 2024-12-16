@@ -60,7 +60,13 @@ const deployHomeGateway: DeployFunction = async (hre: HardhatRuntimeEnvironment)
   const core = KlerosCore__factory.connect(klerosCore.address, signer);
   // TODO: set up the correct fees for the FORKING_COURT
   const fee = (await core.courts(Courts.GENERAL)).feeForJuror;
-  await execute("ForeignGatewayOnEthereum", { from: deployer, log: true }, "changeCourtJurorFee", Courts.GENERAL, fee);
+  await execute(
+    "ForeignGatewayOnEthereum",
+    { from: deployer, gasLimit: 4000000, log: true },
+    "changeCourtJurorFee",
+    Courts.GENERAL,
+    fee
+  );
   // TODO: set up the correct fees for the lower courts
 
   const disputeTemplateRegistry = await deployUpgradable(deployments, "DisputeTemplateRegistry", {
