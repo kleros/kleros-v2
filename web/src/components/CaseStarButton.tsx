@@ -37,12 +37,15 @@ const CaseStarButton: React.FC<{ id: string }> = ({ id }) => {
   const { starredCases, starCase } = useStarredCases();
   const isDesktop = useIsDesktop();
   const starred = useMemo(() => Boolean(starredCases.get(id)), [id, starredCases]);
+  const text = starred ? "Remove from favorite" : "Add to favorite";
   return (
-    <Tooltip text={starred ? "Add to favorite" : "Remove from favorite"} place={isDesktop ? "top" : "bottom"}>
+    <Tooltip {...{ text }} place={isDesktop ? "top" : "bottom"}>
       <StyledButton
         Icon={Star}
         text=""
         starred={starred}
+        aria-label={text}
+        aria-checked={starred}
         onClick={(e) => {
           e.stopPropagation();
           starCase(id);
