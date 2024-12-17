@@ -1,7 +1,6 @@
 import mustache from "mustache";
 import { DisputeDetails } from "./disputeDetailsTypes";
 import DisputeDetailsSchema from "./disputeDetailsSchema";
-import { InvalidFormatError } from "../../errors";
 
 export const populateTemplate = (mustacheTemplate: string, data: any): DisputeDetails => {
   const render = mustache.render(mustacheTemplate, data);
