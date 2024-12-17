@@ -53,7 +53,6 @@ const VerdictContainer = styled.div`
 
 const JuryDecisionTag = styled.small`
   font-weight: 400;
-  line-height: 19px;
   color: ${({ theme }) => theme.secondaryText};
 `;
 

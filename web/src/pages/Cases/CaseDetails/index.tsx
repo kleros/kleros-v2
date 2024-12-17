@@ -29,6 +29,7 @@ const StyledCard = styled(Card)`
   width: 100%;
   height: auto;
   min-height: 100px;
+  border-radius: 0 0 3px 3px;
 `;
 
 const HeaderContainer = styled.div`
