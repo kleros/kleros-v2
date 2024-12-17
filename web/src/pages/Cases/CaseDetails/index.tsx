@@ -34,7 +34,7 @@ const HeaderContainer = styled.div`
   display: flex;
   align-items: center;
   margin-top: -2px;
-  margin-bottom: ${responsiveSize(16, 24)};
+  margin-bottom: ${responsiveSize(16, 32)};
 `;
 
 const Header = styled.h1`

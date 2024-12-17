@@ -14,7 +14,7 @@ const StyledHeader = styled.div`
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 8px 12px;
-  margin-bottom: 12px;
+  margin-bottom: ${responsiveSize(12, 20)};
 `;
 
 const StyledH1 = styled.h1`

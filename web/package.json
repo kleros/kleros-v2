@@ -81,7 +81,7 @@
     "@kleros/kleros-app": "^2.0.1",
     "@kleros/kleros-sdk": "workspace:^",
     "@kleros/kleros-v2-contracts": "workspace:^",
-    "@kleros/ui-components-library": "^2.17.0",
+    "@kleros/ui-components-library": "^2.18.0",
     "@lifi/wallet-management": "^3.4.6",
     "@lifi/widget": "^3.12.3",
     "@sentry/react": "^7.120.0",

@@ -5572,7 +5572,7 @@ __metadata:
     "@kleros/kleros-v2-eslint-config": "workspace:^"
     "@kleros/kleros-v2-prettier-config": "workspace:^"
     "@kleros/kleros-v2-tsconfig": "workspace:^"
-    "@kleros/ui-components-library": "npm:^2.17.0"
+    "@kleros/ui-components-library": "npm:^2.18.0"
     "@lifi/wallet-management": "npm:^3.4.6"
     "@lifi/widget": "npm:^3.12.3"
     "@sentry/react": "npm:^7.120.0"
@@ -5657,9 +5657,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kleros/ui-components-library@npm:^2.17.0":
-  version: 2.17.0
-  resolution: "@kleros/ui-components-library@npm:2.17.0"
+"@kleros/ui-components-library@npm:^2.18.0":
+  version: 2.18.0
+  resolution: "@kleros/ui-components-library@npm:2.18.0"
   dependencies:
     "@datepicker-react/hooks": "npm:^2.8.4"
     "@swc/helpers": "npm:^0.3.2"
@@ -5676,7 +5676,7 @@ __metadata:
     react-dom: ^18.0.0
     react-is: ^18.0.0
     styled-components: ^5.3.3
-  checksum: 10/41c9ea2df8d08019cbe5b61e266862b4d7e78eecabf989daf429727f8b6943f5072e1d875a4e340530f90425d1703b233863597bc1a9e023a99b09d205865cf4
+  checksum: 10/ef51cd75eaf037c2b2c69a0236a3b2891c657c339c5b357e5aa8ba84d9e1626bbbd76bf954d578f1caad3bbe2bc7d62097eace475ce62a7d8bfaafef5239d0ad
   languageName: node
   linkType: hard
 
