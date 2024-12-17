@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
+
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
@@ -9,8 +11,6 @@ import { usePnkData } from "hooks/usePNKData";
 import { commify, uncommify } from "utils/commify";
 import { formatPNK, roundNumberDown } from "utils/format";
 import { isUndefined } from "utils/index";
-
-import { landscapeStyle } from "styles/landscapeStyle";
 
 import { NumberInputField } from "components/NumberInputField";
 
@@ -29,8 +29,13 @@ const LabelArea = styled.div`
 `;
 
 const StyledLabel = styled.label`
+  ${hoverShortTransitionTiming}
   color: ${({ theme }) => theme.primaryBlue};
   cursor: pointer;
+
+  :hover {
+    color: ${({ theme }) => theme.secondaryBlue};
+  }
 `;
 
 const InputArea = styled.div`

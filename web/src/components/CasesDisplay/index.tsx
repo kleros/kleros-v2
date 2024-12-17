@@ -17,7 +17,7 @@ const TitleContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  margin-bottom: ${responsiveSize(32, 48)};
+  margin-bottom: ${responsiveSize(12, 24)};
 `;
 
 const StyledTitle = styled.h1`

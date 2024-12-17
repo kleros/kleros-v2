@@ -11,10 +11,10 @@ import { responsiveSize } from "styles/responsiveSize";
 import { Element } from "./Element";
 
 const Container = styled.div`
-  margin-top: ${responsiveSize(44, 64)};
+  margin-top: ${responsiveSize(24, 48)};
 
   h1 {
-    margin-bottom: ${responsiveSize(16, 48)};
+    margin-bottom: ${responsiveSize(12, 24)};
   }
 `;
 

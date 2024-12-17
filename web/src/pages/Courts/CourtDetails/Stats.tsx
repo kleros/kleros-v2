@@ -32,14 +32,6 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 const StyledAccordion = styled(Accordion)`
   > * > button {
     justify-content: unset;
-    background-color: ${({ theme }) => theme.whiteBackground} !important;
-    border: 1px solid ${({ theme }) => theme.stroke} !important;
-    > svg {
-      fill: ${({ theme }) => theme.primaryText} !important;
-    }
-    > p {
-      color: ${({ theme }) => theme.primaryText};
-    }
   }
   //adds padding to body container
   > * > div > div {
