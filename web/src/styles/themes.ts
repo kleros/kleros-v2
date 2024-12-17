@@ -67,7 +67,7 @@ export const darkTheme = {
   lightBlue: "#2A1260",
   primaryText: "#DAF0FF",
   secondaryText: "#BECCE5",
-  stroke: "#42498F",
+  stroke: "#392C74",
   lightGrey: "#2D1865",
 
   whiteBackground: "#220050",

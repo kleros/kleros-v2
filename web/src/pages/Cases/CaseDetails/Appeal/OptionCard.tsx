@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+
 import { useMeasure } from "react-use";
 import { formatEther } from "viem";
 
@@ -11,8 +13,10 @@ import Gavel from "svgs/icons/gavel.svg";
 import { isUndefined } from "utils/index";
 
 const StyledCard = styled(Card)`
+  ${hoverShortTransitionTiming}
   width: 100%;
   padding: 24px;
+
   &:hover {
     cursor: pointer;
   }

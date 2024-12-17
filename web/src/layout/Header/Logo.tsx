@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import styled, { Theme } from "styled-components";
 
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+
 import { Link } from "react-router-dom";
 
 import { ArbitratorTypes, getArbitratorType } from "consts/index";
@@ -29,13 +31,13 @@ const BadgeText = styled.label`
 `;
 
 const StyledKlerosCourtLogo = styled(KlerosCourtLogo)`
+  ${hoverShortTransitionTiming}
   max-height: 40px;
   width: auto;
 
   &:hover {
     path {
       fill: ${({ theme }) => theme.white}BF;
-      transition: fill 0.1s;
     }
   }
 `;

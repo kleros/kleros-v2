@@ -19,7 +19,7 @@ const Wrapper = styled.div`
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
-  padding: ${responsiveSize(32, 72)} ${responsiveSize(24, 132)} ${responsiveSize(76, 96)};
+  padding: 16px ${responsiveSize(24, 132)} ${responsiveSize(40, 60)};
   max-width: ${MAX_WIDTH_LANDSCAPE};
   margin: 0 auto;
   display: flex;

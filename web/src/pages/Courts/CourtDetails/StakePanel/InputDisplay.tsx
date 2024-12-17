@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import styled from "styled-components";
 
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 
@@ -27,8 +29,13 @@ const LabelArea = styled.div`
 `;
 
 const StyledLabel = styled.label`
+  ${hoverShortTransitionTiming}
   color: ${({ theme }) => theme.primaryBlue};
   cursor: pointer;
+
+  :hover {
+    color: ${({ theme }) => theme.secondaryBlue};
+  }
 `;
 
 const InputArea = styled.div`
