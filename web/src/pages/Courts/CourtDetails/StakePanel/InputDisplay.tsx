@@ -69,6 +69,7 @@ interface IInputDisplay {
 const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) => {
   const [debouncedAmount, setDebouncedAmount] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   useDebounce(() => setDebouncedAmount(amount), 500, [amount]);
   const parsedAmount = useParsedAmount(uncommify(debouncedAmount) as `${number}`);
 
@@ -113,8 +114,8 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
               setAmount(e);
             }}
             placeholder={isStaking ? "Amount to stake" : "Amount to withdraw"}
-            message={errorMsg ?? undefined}
-            variant={!isUndefined(errorMsg) ? "error" : "info"}
+            message={isPopupOpen ? undefined : (errorMsg ?? undefined)}
+            variant={!isUndefined(errorMsg) && !isPopupOpen ? "error" : "info"}
             formatter={(number: string) => (number !== "" ? commify(roundNumberDown(Number(number))) : "")}
           />
           <EnsureChainContainer>
@@ -125,6 +126,8 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
                 action,
                 setAmount,
                 setErrorMsg,
+                isPopupOpen,
+                setIsPopupOpen,
               }}
             />
           </EnsureChainContainer>
