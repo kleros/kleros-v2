@@ -1,14 +1,14 @@
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
+import { responsiveSize } from "styles/responsiveSize";
+
 import { Tooltip } from "chart.js";
 import { formatUnits } from "viem";
 
 import { DropdownSelect } from "@kleros/ui-components-library";
 
 import { useHomePageContext } from "hooks/useHomePageContext";
-
-import { responsiveSize } from "styles/responsiveSize";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
 
@@ -17,14 +17,14 @@ import StakedPNKByCourtsChart, { StakedPNKByCourtsChartData } from "./StakedPNKB
 import TimeSeriesChart from "./TimeSeriesChart";
 
 const Container = styled.div`
-  margin-bottom: ${responsiveSize(32, 48)};
+  margin-bottom: ${responsiveSize(16, 32)};
   display: flex;
   flex-direction: column;
 `;
 
 const StyledDropdown = styled(DropdownSelect)`
   width: fit-content;
-  align-self: end;
+  align-self: start;
 `;
 
 const CHART_OPTIONS = [
@@ -40,7 +40,6 @@ const ChartOptionsDropdown: React.FC<{
   <StyledDropdown
     smallButton
     simpleButton
-    alignRight
     defaultValue={"stakedPNK"}
     items={CHART_OPTIONS}
     callback={(newValue: string | number) => {

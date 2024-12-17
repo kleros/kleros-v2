@@ -1,10 +1,12 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import { landscapeStyle } from "styles/landscapeStyle";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import { Button } from "@kleros/ui-components-library";
 
 const StyledButton = styled(Button)<{ isMobileNavbar?: boolean }>`
+  ${hoverShortTransitionTiming}
   background-color: transparent;
   padding: 8px !important;
   border-radius: 7px;
@@ -20,7 +22,6 @@ const StyledButton = styled(Button)<{ isMobileNavbar?: boolean }>`
     .button-svg {
       fill: ${({ theme, isMobileNavbar }) => (isMobileNavbar ? theme.primaryText : `${theme.white}`)} !important;
     }
-    transition: background-color 0.1s;
     background-color: ${({ theme }) => theme.whiteLowOpacityStrong};
   }
 

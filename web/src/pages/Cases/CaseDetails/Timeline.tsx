@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
+import { landscapeStyle } from "styles/landscapeStyle";
+
 import { Box, Steps } from "@kleros/ui-components-library";
 
 import { Periods } from "consts/periods";
@@ -10,34 +12,26 @@ import { secondsToDayHourMinute } from "utils/date";
 
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 const TimeLineContainer = styled(Box)`
-  display: block;
   width: 100%;
-  height: 98px;
+  height: auto;
   border-radius: 0px;
-  padding: ${responsiveSize(16, 48)} 8px 0px ${responsiveSize(12, 22)};
-  margin-top: ${responsiveSize(16, 48)};
-  margin-bottom: ${responsiveSize(12, 22)};
-  background-color: ${({ theme }) => theme.whiteBackground};
-
-  ${landscapeStyle(
-    () => css`
-      display: block;
-      padding: 28px 8px 8px 8px;
-    `
-  )}
+  background-color: transparent;
 `;
 
 const StyledSteps = styled(Steps)`
   display: flex;
   justify-content: space-between;
-  width: 85%;
+  width: 89%;
   margin: auto;
+
+  ${landscapeStyle(
+    () => css`
+      width: 98%;
+    `
+  )}
 `;
 
 const Timeline: React.FC<{

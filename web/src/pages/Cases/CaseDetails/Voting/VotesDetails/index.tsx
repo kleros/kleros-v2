@@ -28,12 +28,7 @@ const StyledAccordion = styled(CustomAccordion)`
 
   [class*="accordion-button"] {
     padding: 11.5px ${responsiveSize(8, 18)} !important;
-    background-color: ${({ theme }) => theme.whiteBackground} !important;
-    border: 1px solid ${({ theme }) => theme.stroke} !important;
     margin: 4px 0;
-    > svg {
-      fill: ${({ theme }) => theme.primaryText} !important;
-    }
   }
 
   [class*="Body"] {

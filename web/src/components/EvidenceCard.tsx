@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import Identicon from "react-identicons";
 import ReactMarkdown from "react-markdown";
@@ -165,6 +166,7 @@ const MobileText = styled.span`
 `;
 
 const StyledInternalLink = styled(InternalLink)`
+  ${hoverShortTransitionTiming}
   display: flex;
   gap: ${responsiveSize(5, 6)};
   > svg {
@@ -173,7 +175,6 @@ const StyledInternalLink = styled(InternalLink)`
   }
 
   :hover svg {
-    transition: fill 0.1s;
     fill: ${({ theme }) => theme.secondaryBlue};
   }
 `;

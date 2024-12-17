@@ -9,7 +9,6 @@ const Container = styled.div`
   display: flex;
   gap: 8px;
   align-items: center;
-  margin-top: 24px;
 `;
 
 const SVGContainer = styled.div`
