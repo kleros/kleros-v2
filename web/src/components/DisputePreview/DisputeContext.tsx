@@ -27,8 +27,6 @@ const ReactMarkdownWrapper = styled.div`
   }
 `;
 
-const QuestionAndDescriptionWrapper = styled.div``;
-
 const VotingOptions = styled.div`
   display: flex;
   flex-direction: column;
@@ -69,7 +67,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRp
     <>
       <StyledH1>{isUndefined(disputeDetails) ? <StyledSkeleton /> : (disputeDetails?.title ?? errMsg)}</StyledH1>
       {disputeDetails?.question?.trim() || disputeDetails?.description?.trim() ? (
-        <QuestionAndDescriptionWrapper>
+        <div>
           {disputeDetails?.question?.trim() ? (
             <ReactMarkdownWrapper>
               <ReactMarkdown>{disputeDetails.question}</ReactMarkdown>
@@ -80,7 +78,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRp
               <ReactMarkdown>{disputeDetails.description}</ReactMarkdown>
             </ReactMarkdownWrapper>
           ) : null}
-        </QuestionAndDescriptionWrapper>
+        </div>
       ) : null}
 
       {isUndefined(disputeDetails?.frontendUrl) ? null : (
