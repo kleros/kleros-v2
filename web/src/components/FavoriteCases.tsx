@@ -18,7 +18,7 @@ const Container = styled.div`
 `;
 
 const Title = styled.h1`
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 `;
 
 const DisputeContainer = styled.div`
@@ -33,7 +33,7 @@ const StyledLabel = styled.label`
   display: block;
   color: ${({ theme }) => theme.primaryBlue};
   cursor: pointer;
-  margin-bottom: ${responsiveSize(16, 32)};
+  margin-bottom: ${responsiveSize(12, 16)};
   :hover {
     color: ${({ theme }) => theme.secondaryBlue};
   }
