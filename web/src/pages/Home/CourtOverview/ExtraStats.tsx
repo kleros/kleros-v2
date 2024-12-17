@@ -21,7 +21,6 @@ const StyledCard = styled.div`
 `;
 
 const StyledLabel = styled.label`
-  margin-top: 24px;
   font-size: 14px;
   font-weight: 600;
 `;
