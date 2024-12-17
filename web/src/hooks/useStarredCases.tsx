@@ -3,16 +3,16 @@ import { useMemo } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 
 const useStarredCases = () => {
-  const initialValue = new Map<string, boolean>();
+  const initialValue = new Set<string>();
 
   const [localStarredCases, setLocalStarredCases] = useLocalStorage("starredCases", Array.from(initialValue));
 
-  const starredCases = useMemo(() => new Map<string, boolean>(localStarredCases), [localStarredCases]);
+  const starredCases = useMemo(() => new Set<string>(localStarredCases), [localStarredCases]);
   const starredCaseIds = Array.from(starredCases.keys());
 
   const starCase = (id: string) => {
-    if (starredCases.get(id)) starredCases.delete(id);
-    else starredCases.set(id, true);
+    if (starredCases.has(id)) starredCases.delete(id);
+    else starredCases.add(id);
 
     setLocalStarredCases(Array.from(starredCases));
   };

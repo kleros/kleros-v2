@@ -36,7 +36,7 @@ const StyledButton = styled(Button)<{ starred: boolean }>`
 const CaseStarButton: React.FC<{ id: string }> = ({ id }) => {
   const { starredCases, starCase } = useStarredCases();
   const isDesktop = useIsDesktop();
-  const starred = useMemo(() => Boolean(starredCases.get(id)), [id, starredCases]);
+  const starred = useMemo(() => Boolean(starredCases.has(id)), [id, starredCases]);
   const text = starred ? "Remove from favorite" : "Add to favorite";
   return (
     <Tooltip {...{ text }} place={isDesktop ? "top" : "bottom"}>
