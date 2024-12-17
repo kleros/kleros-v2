@@ -14,7 +14,7 @@ import DisputeView from "components/DisputeView";
 import { SkeletonDisputeCard } from "components/StyledSkeleton";
 
 const Container = styled.div`
-  margin-top: ${responsiveSize(48, 80)};
+  margin-top: ${responsiveSize(24, 48)};
 `;
 
 const Title = styled.h1`

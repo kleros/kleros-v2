@@ -9,7 +9,7 @@ const Container = styled.div`
   z-index: 10;
   top: 0;
   width: 100%;
-  background-color: ${({ theme }) => theme.primaryPurple};
+  background-color: ${({ theme }) => (theme.name === "dark" ? theme.lightBlue : theme.primaryPurple)};
 
   display: flex;
   flex-wrap: wrap;

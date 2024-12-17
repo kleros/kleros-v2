@@ -32,7 +32,7 @@ const Container = styled.div`
 `;
 
 const StyledCasesDisplay = styled(CasesDisplay)`
-  margin-top: ${responsiveSize(32, 48)};
+  margin-top: ${responsiveSize(24, 48)};
 
   .title {
     margin-bottom: ${responsiveSize(12, 24)};

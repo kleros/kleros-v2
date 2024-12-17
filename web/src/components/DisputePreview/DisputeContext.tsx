@@ -64,10 +64,11 @@ interface IDisputeContext {
 
 export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRpcError = false }) => {
   const errMsg = isRpcError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR;
+
   return (
     <>
       <StyledH1>{isUndefined(disputeDetails) ? <StyledSkeleton /> : (disputeDetails?.title ?? errMsg)}</StyledH1>
-      {!isUndefined(disputeDetails) ? (
+      {disputeDetails?.question?.trim() || disputeDetails?.description?.trim() ? (
         <QuestionAndDescriptionWrapper>
           {disputeDetails?.question?.trim() ? (
             <ReactMarkdownWrapper>
