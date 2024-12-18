@@ -22,10 +22,11 @@ import { useAppealCost } from "queries/useAppealCost";
 
 const StyledTabs = styled(TabsComponent)`
   width: 100%;
-  margin-top: ${responsiveSize(12, 24)};
+  margin-top: ${responsiveSize(10, 28)};
   > * {
     display: flex;
     flex-wrap: wrap;
+    font-size: ${responsiveSize(12, 16)};
     > svg {
       margin-right: 8px !important;
     }

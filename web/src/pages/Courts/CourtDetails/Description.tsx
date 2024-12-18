@@ -17,6 +17,10 @@ const Container = styled.div`
 const TextContainer = styled.div`
   width: 100%;
   padding: 12px 0;
+
+  p {
+    word-break: break-word;
+  }
 `;
 
 const StyledTabs = styled(Tabs)`

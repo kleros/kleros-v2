@@ -31,6 +31,7 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 
 const StyledAccordion = styled(Accordion)`
   > * > button {
+    padding: 12px ${responsiveSize(8, 24)} !important;
     justify-content: unset;
   }
   //adds padding to body container

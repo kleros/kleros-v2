@@ -29,6 +29,7 @@ const StyledCard = styled(Card)`
   width: 100%;
   height: auto;
   min-height: 100px;
+  border-radius: 0 0 3px 3px;
 `;
 
 const HeaderContainer = styled.div`
@@ -41,9 +42,10 @@ const HeaderContainer = styled.div`
 
 const Header = styled.h1`
   display: flex;
+  font-size: ${responsiveSize(20, 24)};
   align-items: center;
   flex: 1;
-  gap: 8px;
+  gap: ${responsiveSize(8, 12)};
   margin: 0;
 `;
 

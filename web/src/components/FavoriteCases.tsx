@@ -14,11 +14,12 @@ import DisputeView from "components/DisputeView";
 import { SkeletonDisputeCard } from "components/StyledSkeleton";
 
 const Container = styled.div`
-  margin-top: ${responsiveSize(48, 80)};
+  margin-top: ${responsiveSize(24, 48)};
 `;
 
 const Title = styled.h1`
   margin-bottom: 4px;
+  font-size: ${responsiveSize(20, 24)};
 `;
 
 const DisputeContainer = styled.div`

@@ -32,7 +32,7 @@ const CourtCardsContainer = styled.div`
 `;
 
 const StyledLabel = styled.label`
-  font-size: 16px;
+  font-size: ${responsiveSize(14, 16)};
 `;
 
 const Courts: React.FC = () => {

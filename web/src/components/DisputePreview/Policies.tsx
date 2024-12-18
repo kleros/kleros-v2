@@ -18,7 +18,7 @@ const Container = styled.div`
   flex-direction: row;
   flex-wrap: wrap;
   gap: 8px 16px;
-  padding: ${responsiveSize(16, 20)} ${responsiveSize(16, 32)};
+  padding: ${responsiveSize(12, 20)} ${responsiveSize(8, 32)};
   background-color: ${({ theme }) => theme.mediumBlue};
 `;
 

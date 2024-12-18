@@ -12,6 +12,7 @@ import JurorIcon from "svgs/icons/user.svg";
 import { CoinIds } from "consts/coingecko";
 import { useCoinPrice } from "hooks/useCoinPrice";
 import { useHomePageContext, HomePageQuery, HomePageQueryDataPoints } from "hooks/useHomePageContext";
+import useIsDesktop from "hooks/useIsDesktop";
 import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
 import { isUndefined } from "utils/index";
@@ -24,10 +25,10 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 const StyledCard = styled(Card)`
   width: auto;
   height: fit-content;
-  gap: 32px 0;
-  padding: ${responsiveSize(16, 32)};
+  gap: 16px 8px;
+  padding: ${responsiveSize(16, 24)} ${responsiveSize(8, 24)};
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(152px, 1fr));
 `;
 
 const getLastOrZero = (src: HomePageQuery["counters"], stat: HomePageQueryDataPoints) =>
@@ -53,7 +54,7 @@ const stats: IStat[] = [
     icon: PNKIcon,
   },
   {
-    title: "ETH Paid to jurors",
+    title: "ETH Paid",
     coinId: 1,
     getText: (counters) => formatETH(getLastOrZero(counters, "paidETH")),
     getSubtext: (counters, coinPrice) =>
@@ -88,6 +89,8 @@ const Stats = () => {
   const { data } = useHomePageContext();
   const coinIds = [CoinIds.PNK, CoinIds.ETH];
   const { prices: pricesData } = useCoinPrice(coinIds);
+  const isDesktop = useIsDesktop();
+
   return (
     <StyledCard>
       {stats.map(({ title, coinId, getText, getSubtext, color, icon }, i) => {
@@ -99,7 +102,7 @@ const Stats = () => {
             {...{ title, color, icon }}
             text={data ? getText(data["counters"]) : <StyledSkeleton />}
             subtext={calculateSubtextRender(data ? data["counters"] : undefined, getSubtext, coinPrice)}
-            isSmallDisplay={false}
+            isSmallDisplay={!isDesktop}
           />
         );
       })}

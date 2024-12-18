@@ -14,7 +14,7 @@ import { ExternalLink } from "components/ExternalLink";
 const Container = styled.div`
   height: 122px;
   width: 100%;
-  background-color: ${({ theme }) => theme.primaryPurple};
+  background-color: ${({ theme }) => (theme.name === "dark" ? theme.lightBlue : theme.primaryPurple)};
   display: flex;
   flex-direction: column;
   justify-content: center;

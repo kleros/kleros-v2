@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import { Box, Steps } from "@kleros/ui-components-library";
 
@@ -26,6 +27,14 @@ const StyledSteps = styled(Steps)`
   justify-content: space-between;
   width: 89%;
   margin: auto;
+
+  h2 {
+    font-size: ${responsiveSize(12, 14)};
+  }
+
+  [class*="horizontal-bullet__TextWrapper"] {
+    margin-top: 2px;
+  }
 
   ${landscapeStyle(
     () => css`

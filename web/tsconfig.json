@@ -67,7 +67,8 @@
     "resolveJsonModule": true,
     "target": "ES2020",
     "lib": [
-      "ESNext.Array"
+      "ESNext.Array",
+      "dom"
     ],
     "types": [
       "vite/client",
