@@ -10,13 +10,12 @@ pragma solidity 0.8.24;
 
 import "./KlerosCoreBase.sol";
 import {UUPSProxiable} from "../proxy/UUPSProxiable.sol";
-import {Initializable} from "../proxy/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /// @title KlerosCoreNeo
 /// Core arbitrator contract for Kleros v2.
 /// Note that this contract trusts the PNK token, the dispute kit and the sortition module contracts.
-contract KlerosCoreNeo is KlerosCoreBase, UUPSProxiable, Initializable {
+contract KlerosCoreNeo is KlerosCoreBase, UUPSProxiable {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -58,7 +57,7 @@ contract KlerosCoreNeo is KlerosCoreBase, UUPSProxiable, Initializable {
         ISortitionModule _sortitionModuleAddress,
         IERC721 _jurorNft
     ) external reinitializer(2) {
-        super._initialize(
+        __KlerosCoreBase_initialize(
             _governor,
             _guardian,
             _pinakion,
