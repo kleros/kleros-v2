@@ -111,7 +111,7 @@ interface IStakeWithdrawPopup {
 }
 
 const StakeWithdrawPopup: React.FC<IStakeWithdrawPopup> = ({ amount, closePopup, steps, isSuccess, action }) => {
-  const { data: phase } = useSortitionModulePhase();
+  const { data: phase, isLoading } = useSortitionModulePhase();
 
   return (
     <Overlay onClick={closePopup}>
@@ -121,7 +121,7 @@ const StakeWithdrawPopup: React.FC<IStakeWithdrawPopup> = ({ amount, closePopup,
           <Header {...{ amount, isSuccess, action }} />
           <Divider />
           {steps && <CustomTimeline items={steps} />}
-          {phase !== Phases.staking ? (
+          {phase !== Phases.staking && !isLoading ? (
             <InfoContainer>
               <Divider />
               <StyledInfoCard

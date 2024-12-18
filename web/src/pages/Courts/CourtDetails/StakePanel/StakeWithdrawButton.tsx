@@ -46,13 +46,22 @@ interface IActionButton {
   parsedAmount: bigint;
   action: ActionType;
   setAmount: (arg0: string) => void;
-  setErrorMsg: (msg: string) => void;
+  setErrorMsg: (msg?: string) => void;
+  isPopupOpen: boolean;
+  setIsPopupOpen: (arg0: boolean) => void;
 }
 
-const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, action, setErrorMsg, setAmount }) => {
+const StakeWithdrawButton: React.FC<IActionButton> = ({
+  amount,
+  parsedAmount,
+  action,
+  setErrorMsg,
+  setAmount,
+  isPopupOpen,
+  setIsPopupOpen,
+}) => {
   const { id } = useParams();
   const theme = useTheme();
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [popupStepsState, setPopupStepsState] = useState<Steps>();
   const controllerRef = useRef<AbortController | null>(null);
@@ -234,6 +243,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
     amount,
     refetchAllowance,
     refetchSetStake,
+    setIsPopupOpen,
   ]);
 
   useEffect(() => {
@@ -268,6 +278,7 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({ amount, parsedAmount, ac
   ]);
 
   const closePopup = () => {
+    setErrorMsg(undefined);
     setIsPopupOpen(false);
     setIsSuccess(false);
     setAmount("");

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
+import { responsiveSize } from "styles/responsiveSize";
+
 import { DropdownSelect } from "@kleros/ui-components-library";
 
 import LawBalance from "svgs/icons/law-balance.svg";
@@ -13,8 +15,9 @@ import ExtraStatsDisplay from "components/ExtraStatsDisplay";
 const StyledCard = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0 24px;
+  gap: 12px 24px;
   justify-content: center;
+  margin-top: ${responsiveSize(12, 16)};
 `;
 
 const StyledLabel = styled.label`

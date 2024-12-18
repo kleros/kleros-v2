@@ -18,14 +18,12 @@ import { responsiveSize } from "styles/responsiveSize";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: ${responsiveSize(8, 16)};
 
   ${landscapeStyle(
-    () =>
-      css`
-        flex-direction: row;
-        gap: ${responsiveSize(4, 22)};
-      `
+    () => css`
+      flex-direction: row;
+    `
   )}
 `;
 

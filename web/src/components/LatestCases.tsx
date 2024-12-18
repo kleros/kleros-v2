@@ -13,11 +13,11 @@ import { SkeletonDisputeCard } from "components/StyledSkeleton";
 import { Dispute_Filter } from "../graphql/graphql";
 
 const Container = styled.div`
-  margin-top: ${responsiveSize(48, 80)};
+  margin-top: ${responsiveSize(28, 48)};
 `;
 
 const Title = styled.h1`
-  margin-bottom: ${responsiveSize(16, 48)};
+  margin-bottom: ${responsiveSize(12, 24)};
 `;
 
 const DisputeContainer = styled.div`
