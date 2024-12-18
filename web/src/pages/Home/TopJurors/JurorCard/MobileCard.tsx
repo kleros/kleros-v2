@@ -19,7 +19,7 @@ const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.whiteBackground};
   padding: 8px 8px 12px;
-  border 1px solid ${({ theme }) => theme.stroke};
+  border: 1px solid ${({ theme }) => theme.stroke};
   border-top: none;
   align-items: center;
   gap: 18px;

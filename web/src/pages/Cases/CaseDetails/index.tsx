@@ -45,7 +45,7 @@ const Header = styled.h1`
   font-size: ${responsiveSize(20, 24)};
   align-items: center;
   flex: 1;
-  gap: 8px;
+  gap: ${responsiveSize(8, 12)};
   margin: 0;
 `;
 
