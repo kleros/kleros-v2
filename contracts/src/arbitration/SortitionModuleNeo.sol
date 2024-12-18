@@ -12,11 +12,10 @@ pragma solidity 0.8.24;
 
 import "./SortitionModuleBase.sol";
 import "../proxy/UUPSProxiable.sol";
-import "../proxy/Initializable.sol";
 
 /// @title SortitionModuleNeo
 /// @dev A factory of trees that keeps track of staked values for sortition.
-contract SortitionModuleNeo is SortitionModuleBase, UUPSProxiable, Initializable {
+contract SortitionModuleNeo is SortitionModuleBase, UUPSProxiable {
     // ************************************* //
     // *             Storage               * //
     // ************************************* //
@@ -53,7 +52,7 @@ contract SortitionModuleNeo is SortitionModuleBase, UUPSProxiable, Initializable
         uint256 _maxStakePerJuror,
         uint256 _maxTotalStaked
     ) external reinitializer(2) {
-        super._initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng, _rngLookahead);
+        __SortitionModuleBase_initialize(_governor, _core, _minStakingTime, _maxDrawingTime, _rng, _rngLookahead);
         maxStakePerJuror = _maxStakePerJuror;
         maxTotalStaked = _maxTotalStaked;
     }

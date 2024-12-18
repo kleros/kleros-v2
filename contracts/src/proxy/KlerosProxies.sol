@@ -19,6 +19,14 @@ contract DisputeKitClassicProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
 
+contract DisputeKitGatedProxy is UUPSProxy {
+    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
+}
+
+contract DisputeKitSybilResistantProxy is UUPSProxy {
+    constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
+}
+
 contract DisputeTemplateRegistryProxy is UUPSProxy {
     constructor(address _implementation, bytes memory _data) UUPSProxy(_implementation, _data) {}
 }
