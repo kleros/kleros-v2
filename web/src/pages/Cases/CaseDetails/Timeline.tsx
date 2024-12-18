@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import { Box, Steps } from "@kleros/ui-components-library";
 
@@ -13,7 +14,6 @@ import { secondsToDayHourMinute } from "utils/date";
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
-import { responsiveSize } from "~src/styles/responsiveSize";
 
 const TimeLineContainer = styled(Box)`
   width: 100%;

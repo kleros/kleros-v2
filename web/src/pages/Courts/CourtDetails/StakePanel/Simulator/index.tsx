@@ -35,7 +35,7 @@ const Container = styled.div`
   flex-direction: column;
   background-color: ${({ theme }) => theme.lightBlue};
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-  padding: ${responsiveSize(16, 20)}${responsiveSize(8, 20)};
+  padding: ${responsiveSize(16, 20)} ${responsiveSize(8, 20)};
   border-radius: 8px;
   border: 1px solid ${({ theme }) => theme.mediumBlue};
   justify-content: center;
