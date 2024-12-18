@@ -26,7 +26,7 @@ const StyledCard = styled(Card)`
   gap: 12px;
   flex-direction: column;
   flex-wrap: wrap;
-  padding: 24px;
+  padding: ${responsiveSize(12, 24)} ${responsiveSize(8, 24)};
   align-items: flex-start;
 
   ${landscapeStyle(

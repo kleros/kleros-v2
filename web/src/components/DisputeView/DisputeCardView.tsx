@@ -25,7 +25,7 @@ const StyledCard = styled(Card)`
 
 const CardContainer = styled.div`
   height: calc(100% - 45px);
-  padding: ${responsiveSize(20, 24)};
+  padding: ${responsiveSize(20, 24)} ${responsiveSize(8, 24)};
   display: flex;
   flex-direction: column;
   justify-content: space-between;
