@@ -27,12 +27,12 @@ const StyledAccordion = styled(CustomAccordion)`
   }
 
   [class*="accordion-button"] {
-    padding: 11.5px ${responsiveSize(8, 18)} !important;
+    padding: 12px ${responsiveSize(8, 16)} !important;
     margin: 4px 0;
   }
 
   [class*="Body"] {
-    padding: ${responsiveSize(16, 24)} ${responsiveSize(8, 16)};
+    padding: ${responsiveSize(6, 10)} ${responsiveSize(4, 16)};
   }
 `;
 

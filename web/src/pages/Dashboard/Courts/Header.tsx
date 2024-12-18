@@ -14,16 +14,16 @@ import NumberDisplay from "components/NumberDisplay";
 
 const Container = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   width: 100%;
-  gap: 4px;
-  align-items: flex-start;
-  justify-content: space-between;
+  gap: 4px 16px;
+  align-items: center;
   margin-bottom: ${responsiveSize(16, 24)};
 
   ${landscapeStyle(
     () => css`
-      flex-direction: row;
+      justify-content: space-between;
     `
   )}
 `;
@@ -43,6 +43,7 @@ const LockedPnk = styled.div`
 
 const StyledTitle = styled.h1`
   margin-bottom: 0;
+  font-size: ${responsiveSize(20, 24)};
 `;
 
 const StyledLockerIcon = styled(LockerIcon)`

@@ -10,6 +10,7 @@ import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 
 import ConnectWallet from "components/ConnectWallet";
 import LightButton from "components/LightButton";
+import OverlayPortal from "components/OverlayPortal";
 import { Overlay } from "components/Overlay";
 
 import { useOpenContext } from "../MobileHeader";
@@ -69,16 +70,6 @@ const DisconnectWalletButtonContainer = styled.div`
   align-items: center;
 `;
 
-const PopupContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  background-color: ${({ theme }) => theme.blackLowOpacity};
-`;
-
 export interface ISettings {
   toggleIsSettingsOpen: () => void;
   initialTab?: number;
@@ -131,11 +122,13 @@ const NavBar: React.FC = () => {
         </StyledOverlay>
       </Wrapper>
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
-        <PopupContainer>
-          {isDappListOpen && <DappList {...{ toggleIsDappListOpen }} />}
-          {isHelpOpen && <Help {...{ toggleIsHelpOpen }} />}
-          {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen }} />}
-        </PopupContainer>
+        <OverlayPortal>
+          <Overlay>
+            {isDappListOpen && <DappList {...{ toggleIsDappListOpen }} />}
+            {isHelpOpen && <Help {...{ toggleIsHelpOpen }} />}
+            {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen }} />}
+          </Overlay>
+        </OverlayPortal>
       )}
     </>
   );

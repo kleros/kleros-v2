@@ -27,7 +27,7 @@ const Container = styled.div`
   gap: 16px;
 
   align-items: center;
-  padding: ${responsiveSize(16, 32)};
+  padding: ${responsiveSize(16, 32)} ${responsiveSize(8, 32)};
 `;
 
 const StyledLabel = styled.label`

@@ -23,6 +23,8 @@ import { MiniguideHashesType } from "components/Popup/MiniGuides/MainStructureTe
 import Onboarding from "components/Popup/MiniGuides/Onboarding";
 import RankedVoting from "components/Popup/MiniGuides/RankedVoting";
 import Staking from "components/Popup/MiniGuides/Staking";
+import OverlayPortal from "components/OverlayPortal";
+import { Overlay } from "components/Overlay";
 
 import Logo from "./Logo";
 import DappList from "./navbar/DappList";
@@ -84,16 +86,6 @@ const ConnectWalletContainer = styled.div<{ isConnected: boolean; isDefaultChain
     color: ${({ theme }) => theme.white};
     cursor: pointer;
   }
-`;
-
-const PopupContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  background-color: ${({ theme }) => theme.blackLowOpacity};
 `;
 
 const DesktopHeader: React.FC = () => {
@@ -178,11 +170,13 @@ const DesktopHeader: React.FC = () => {
         </RightSide>
       </Container>
       {(isDappListOpen || isHelpOpen || isSettingsOpen) && (
-        <PopupContainer>
-          {isDappListOpen && <DappList {...{ toggleIsDappListOpen, isDappListOpen }} />}
-          {isHelpOpen && <Help {...{ toggleIsHelpOpen, isHelpOpen }} />}
-          {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen, initialTab }} />}
-        </PopupContainer>
+        <OverlayPortal>
+          <Overlay>
+            {isDappListOpen && <DappList {...{ toggleIsDappListOpen, isDappListOpen }} />}
+            {isHelpOpen && <Help {...{ toggleIsHelpOpen, isHelpOpen }} />}
+            {isSettingsOpen && <Settings {...{ toggleIsSettingsOpen, isSettingsOpen, initialTab }} />}
+          </Overlay>
+        </OverlayPortal>
       )}
       {isJurorLevelsMiniGuideOpen && <JurorLevels toggleMiniGuide={toggleIsJurorLevelsMiniGuideOpen} />}
       {isAppealMiniGuideOpen && <Appeal toggleMiniGuide={toggleIsAppealMiniGuideOpen} />}

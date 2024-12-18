@@ -25,7 +25,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${responsiveSize(16, 24)};
-  padding: ${responsiveSize(16, 32)};
+  padding: ${responsiveSize(16, 32)} ${responsiveSize(8, 32)};
 `;
 
 interface IOverview {

@@ -1,9 +1,10 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { useToggle } from "react-use";
-
 import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
+
+import { useToggle } from "react-use";
 
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
@@ -13,7 +14,7 @@ const Container = styled.div`
   justify-content: space-between;
   width: 100%;
   background-color: ${({ theme }) => theme.lightBlue};
-  padding: 24px;
+  padding: 16px ${responsiveSize(8, 24)};
   border 1px solid ${({ theme }) => theme.stroke};
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;

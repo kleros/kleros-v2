@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+import { responsiveSize } from "styles/responsiveSize";
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import { useMeasure } from "react-use";
@@ -15,7 +16,7 @@ import { isUndefined } from "utils/index";
 const StyledCard = styled(Card)`
   ${hoverShortTransitionTiming}
   width: 100%;
-  padding: 24px;
+  padding: ${responsiveSize(12, 24)} ${responsiveSize(8, 24)};
 
   &:hover {
     cursor: pointer;

@@ -26,13 +26,13 @@ import JurorInfo from "./JurorInfo";
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
-  padding: ${responsiveSize(32, 48)} ${responsiveSize(24, 136)} ${responsiveSize(40, 60)};
+  padding: ${responsiveSize(32, 48)} ${responsiveSize(8, 132)} ${responsiveSize(40, 60)};
   max-width: ${MAX_WIDTH_LANDSCAPE};
   margin: 0 auto;
 `;
 
 const StyledCasesDisplay = styled(CasesDisplay)`
-  margin-top: ${responsiveSize(32, 48)};
+  margin-top: ${responsiveSize(24, 48)};
 
   .title {
     margin-bottom: ${responsiveSize(12, 24)};

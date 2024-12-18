@@ -3,6 +3,8 @@ import styled from "styled-components";
 
 import { Answer } from "@kleros/kleros-sdk/src/dataMappings/utils/disputeDetailsTypes";
 
+import { AnswerDescription, AnswerTitle, AnswerTitleAndDescription } from "../DisputePreview/DisputeContext";
+
 const Container = styled.div`
   display: flex;
   flex-direction: row;
@@ -20,13 +22,10 @@ const AnswerDisplay: React.FC<IAnswer> = ({ answer, currentRuling }) => {
   return (
     <>
       {answer ? (
-        <Container>
-          <small>
-            {answer.title}
-            {answer.description.trim() ? " -" : null}
-          </small>
-          <small>{answer.description.trim()}</small>
-        </Container>
+        <AnswerTitleAndDescription>
+          <AnswerTitle>{answer.title}</AnswerTitle>
+          <AnswerDescription>{answer.description.trim() ? ` - ${answer.description}` : null}</AnswerDescription>
+        </AnswerTitleAndDescription>
       ) : (
         <Container>
           {currentRuling !== 0 ? <small>Answer 0x{currentRuling}</small> : <small>Refuse to Arbitrate</small>}

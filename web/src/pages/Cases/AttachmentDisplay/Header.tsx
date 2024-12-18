@@ -27,7 +27,7 @@ const TitleContainer = styled.div`
 
 const Title = styled.h1`
   margin: 0px;
-  font-size: ${responsiveSize(16, 24)};
+  font-size: ${responsiveSize(20, 24)};
 `;
 
 const StyledPaperClip = styled(PaperClip)`

@@ -22,10 +22,11 @@ const TitleContainer = styled.div`
 
 const StyledTitle = styled.h1`
   margin: 0px;
+  font-size: ${responsiveSize(20, 24)};
 `;
 
 const StyledLabel = styled.label`
-  font-size: 16px;
+  font-size: ${responsiveSize(14, 16)};
 `;
 
 interface ICasesDisplay extends ICasesGrid {

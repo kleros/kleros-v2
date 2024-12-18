@@ -19,6 +19,7 @@ const Container = styled.div`
 
 const Title = styled.h1`
   margin-bottom: ${responsiveSize(12, 24)};
+  font-size: ${responsiveSize(20, 24)};
 `;
 
 const ListContainer = styled.div`
