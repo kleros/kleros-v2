@@ -22,6 +22,7 @@
     "clean": "hardhat clean",
     "check": "hardhat check",
     "test": "TS_NODE_TRANSPILE_ONLY=1 hardhat test",
+    "coverage": "scripts/coverage.sh",
     "start": "hardhat node --tags nop",
     "start-local": "hardhat node --tags Arbitration,HomeArbitrable --hostname 0.0.0.0",
     "deploy": "hardhat deploy",

@@ -206,13 +206,14 @@ abstract contract SortitionModuleBase is ISortitionModule {
             DelayedStake storage delayedStake = delayedStakes[i];
             // Delayed stake could've been manually removed already. In this case simply move on to the next item.
             if (delayedStake.account != address(0)) {
+                // Nullify the index so the delayed stake won't get deleted before its own execution.
+                delete latestDelayedStakeIndex[delayedStake.account][delayedStake.courtID];
                 core.setStakeBySortitionModule(
                     delayedStake.account,
                     delayedStake.courtID,
                     delayedStake.stake,
                     delayedStake.alreadyTransferred
                 );
-                delete latestDelayedStakeIndex[delayedStake.account][delayedStake.courtID];
                 delete delayedStakes[i];
             }
         }
@@ -265,13 +266,16 @@ abstract contract SortitionModuleBase is ISortitionModule {
         uint256 currentStake = stakeOf(_account, _courtID);
 
         uint256 nbCourts = juror.courtIDs.length;
-        if (_newStake == 0 && (nbCourts >= MAX_STAKE_PATHS || currentStake == 0)) {
+        if (currentStake == 0 && nbCourts >= MAX_STAKE_PATHS) {
             return (0, 0, StakingResult.CannotStakeInMoreCourts); // Prevent staking beyond MAX_STAKE_PATHS but unstaking is always allowed.
         }
 
-        if (phase != Phase.staking) {
-            pnkWithdrawal = _deleteDelayedStake(_courtID, _account);
+        if (currentStake == 0 && _newStake == 0) {
+            return (0, 0, StakingResult.CannotStakeZeroWhenNoStake); // Forbid staking 0 amount when current stake is 0 to avoid flaky behaviour.
+        }
 
+        pnkWithdrawal = _deleteDelayedStake(_courtID, _account);
+        if (phase != Phase.staking) {
             // Store the stake change as delayed, to be applied when the phase switches back to Staking.
             DelayedStake storage delayedStake = delayedStakes[++delayedStakeWriteIndex];
             delayedStake.account = _account;
