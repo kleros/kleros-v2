@@ -39,6 +39,7 @@ lcov \
   --ignore-errors format \
   --ignore-errors inconsistent \
   --ignore-errors empty \
+  --ignore-errors unused \
   --rc max_message_count=3 \
   --rc branch_coverage=1 \
   --rc derive_function_end_line=0 \
