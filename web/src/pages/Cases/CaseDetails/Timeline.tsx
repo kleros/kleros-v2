@@ -13,6 +13,7 @@ import { secondsToDayHourMinute } from "utils/date";
 import { DisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
+import { responsiveSize } from "~src/styles/responsiveSize";
 
 const TimeLineContainer = styled(Box)`
   width: 100%;
@@ -26,6 +27,14 @@ const StyledSteps = styled(Steps)`
   justify-content: space-between;
   width: 89%;
   margin: auto;
+
+  h2 {
+    font-size: ${responsiveSize(12, 14)};
+  }
+
+  [class*="horizontal-bullet__TextWrapper"] {
+    margin-top: 2px;
+  }
 
   ${landscapeStyle(
     () => css`

@@ -18,7 +18,7 @@ const StyledHeader = styled.div`
 `;
 
 const StyledH1 = styled.h1`
-  font-size: ${responsiveSize(21, 24)};
+  font-size: ${responsiveSize(20, 24)};
   margin: 0;
 `;
 

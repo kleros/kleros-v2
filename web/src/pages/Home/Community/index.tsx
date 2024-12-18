@@ -15,6 +15,7 @@ const Container = styled.div`
 
   h1 {
     margin-bottom: ${responsiveSize(12, 24)};
+    font-size: ${responsiveSize(20, 24)};
   }
 `;
 

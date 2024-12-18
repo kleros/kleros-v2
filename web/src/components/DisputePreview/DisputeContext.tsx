@@ -19,6 +19,8 @@ import { ExternalLink } from "../ExternalLink";
 const StyledH1 = styled.h1`
   margin: 0;
   word-wrap: break-word;
+  font-size: ${responsiveSize(18, 24)};
+  line-height: 24px;
 `;
 
 const ReactMarkdownWrapper = styled.div`
@@ -36,17 +38,25 @@ const VotingOptions = styled.div`
 const AnswersContainer = styled.div`
   display: flex;
   flex-direction: column;
+  gap: ${responsiveSize(4, 2)};
 `;
 
 const AnswersHeader = styled.small`
   margin: 0;
 `;
 
-const Answer = styled.div`
-  margin: 0px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+export const AnswerTitleAndDescription = styled.div`
+  display: block;
+`;
+
+export const AnswerTitle = styled.small`
+  display: inline;
+`;
+
+export const AnswerDescription = styled.small`
+  display: inline;
+  font-weight: 400;
+  color: ${({ theme }) => theme.secondaryText};
 `;
 
 const AliasesContainer = styled.div`
@@ -90,12 +100,11 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRp
         {isUndefined(disputeDetails) ? null : <AnswersHeader>Voting Options</AnswersHeader>}
         <AnswersContainer>
           {disputeDetails?.answers?.map((answer: IAnswer, i: number) => (
-            <Answer key={answer.title}>
-              <small>
-                <label>{i + 1}.</label> {answer.title}
-                {answer.description.trim() ? ` - ${answer.description}` : null}
-              </small>
-            </Answer>
+            <AnswerTitleAndDescription key={answer.title}>
+              <label>{i + 1}. </label>
+              <AnswerTitle>{answer.title}</AnswerTitle>
+              <AnswerDescription>{answer.description.trim() ? ` - ${answer.description}` : null}</AnswerDescription>
+            </AnswerTitleAndDescription>
           ))}
         </AnswersContainer>
       </VotingOptions>

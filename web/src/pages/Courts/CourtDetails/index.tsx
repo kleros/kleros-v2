@@ -31,6 +31,7 @@ const Container = styled.div``;
 const CourtHeader = styled.h1`
   display: flex;
   flex-direction: row;
+  font-size: ${responsiveSize(20, 24)};
   justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
@@ -58,7 +59,7 @@ const ButtonContainer = styled.div`
 `;
 
 const StyledCard = styled(Card)`
-  padding: ${responsiveSize(16, 32)};
+  padding: ${responsiveSize(16, 32)} ${responsiveSize(8, 32)};
   margin-top: 12px;
   width: 100%;
   height: auto;

@@ -45,6 +45,7 @@ const Header = styled.div`
 
 const StyledTitle = styled.h1`
   margin-bottom: 0;
+  font-size: ${responsiveSize(18, 24)};
 `;
 
 const StyledReactMarkDown = styled(ReactMarkdown)`

@@ -42,6 +42,7 @@ const HeaderContainer = styled.div`
 
 const Header = styled.h1`
   display: flex;
+  font-size: ${responsiveSize(20, 24)};
   align-items: center;
   flex: 1;
   gap: 8px;

@@ -19,6 +19,7 @@ const Container = styled.div`
 
 const Title = styled.h1`
   margin-bottom: 4px;
+  font-size: ${responsiveSize(20, 24)};
 `;
 
 const DisputeContainer = styled.div`

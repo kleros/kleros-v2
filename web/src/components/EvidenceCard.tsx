@@ -30,8 +30,8 @@ const StyledCard = styled(Card)`
 const TopContent = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${responsiveSize(8, 24)};
-  gap: ${responsiveSize(4, 8)};
+  padding: ${responsiveSize(8, 20)} ${responsiveSize(8, 24)};
+  gap: 4px;
   overflow-wrap: break-word;
 
   > * {
