@@ -69,10 +69,6 @@ jobs:
     - name: Install lcov
       run: sudo apt-get install -y lcov
 
-    - name: Run Foundry tests without coverage
-      run: forge test
-      working-directory: contracts
-
     - name: Run Hardhat and Foundry tests with coverage
       run: yarn coverage
       working-directory: contracts
