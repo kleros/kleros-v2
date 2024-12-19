@@ -30,7 +30,7 @@ const Container = styled.div<{ isList: boolean }>`
   ${({ isList }) =>
     !isList &&
     css`
-      margin-top: 16px;
+      margin-top: 24px;
       width: 100%;
       flex-wrap: wrap;
       flex-direction: row;

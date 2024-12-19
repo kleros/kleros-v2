@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import { DropdownSelect } from "@kleros/ui-components-library";
 
@@ -15,9 +15,16 @@ import ExtraStatsDisplay from "components/ExtraStatsDisplay";
 const StyledCard = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 12px 24px;
+  gap: 12px 16px;
   justify-content: center;
-  margin-top: ${responsiveSize(12, 16)};
+  margin-top: 12px;
+
+  ${landscapeStyle(
+    () => css`
+      margin-top: 16px;
+      gap: 16px 24px;
+    `
+  )}
 `;
 
 const StyledLabel = styled.label`

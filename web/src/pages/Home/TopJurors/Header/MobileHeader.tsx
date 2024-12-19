@@ -2,7 +2,6 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
 
 import { useToggle } from "react-use";
 
@@ -14,7 +13,7 @@ const Container = styled.div`
   justify-content: space-between;
   width: 100%;
   background-color: ${({ theme }) => theme.lightBlue};
-  padding: 16px ${responsiveSize(8, 24)};
+  padding: 16px;
   border 1px solid ${({ theme }) => theme.stroke};
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
@@ -23,6 +22,7 @@ const Container = styled.div`
   ${landscapeStyle(
     () => css`
       display: none;
+      padding: 16px 24px;
     `
   )}
 `;

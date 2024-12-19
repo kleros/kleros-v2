@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
@@ -8,26 +8,32 @@ import { Button } from "@kleros/ui-components-library";
 
 import DownArrow from "svgs/icons/arrow-down.svg";
 
+import { spamEvidencesIds } from "consts/index";
+
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useEvidences } from "queries/useEvidences";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import EvidenceCard from "components/EvidenceCard";
 import { SkeletonEvidenceCard } from "components/StyledSkeleton";
 
 import EvidenceSearch from "./EvidenceSearch";
 import { Divider } from "components/Divider";
-import { spamEvidencesIds } from "src/consts";
 
 const Container = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 16px;
-
   align-items: center;
-  padding: ${responsiveSize(16, 32)} ${responsiveSize(8, 32)};
+  padding: 16px;
+
+  ${landscapeStyle(
+    () => css`
+      padding: 32px;
+    `
+  )}
 `;
 
 const StyledLabel = styled.label`

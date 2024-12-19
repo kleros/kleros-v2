@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { useNavigate, useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
@@ -12,7 +12,7 @@ import { useUserQuery } from "queries/useUser";
 
 import { OrderDirection } from "src/graphql/graphql";
 
-import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
+import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import CasesDisplay from "components/CasesDisplay";
@@ -26,9 +26,15 @@ import JurorInfo from "./JurorInfo";
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
-  padding: ${responsiveSize(32, 48)} ${responsiveSize(8, 132)} ${responsiveSize(40, 60)};
+  padding: 32px 16px 40px;
   max-width: ${MAX_WIDTH_LANDSCAPE};
   margin: 0 auto;
+
+  ${landscapeStyle(
+    () => css`
+      padding: 48px ${responsiveSize(0, 132)} 60px;
+    `
+  )}
 `;
 
 const StyledCasesDisplay = styled(CasesDisplay)`

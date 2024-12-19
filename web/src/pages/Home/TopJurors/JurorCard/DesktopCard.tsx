@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import Coherence from "./Coherence";
 import JurorLevel from "./JurorLevel";
@@ -11,6 +12,7 @@ import Rank from "./Rank";
 import Rewards from "./Rewards";
 
 const Container = styled.div`
+  ${hoverShortTransitionTiming}
   display: none;
   width: 100%;
   background-color: ${({ theme }) => theme.whiteBackground};
@@ -28,6 +30,10 @@ const Container = styled.div`
       column-gap: ${responsiveSize(12, 28, 900)};
     `
   )}
+
+  :hover {
+    background-color: ${({ theme }) => theme.lightGrey}BB;
+  }
 `;
 
 interface IDesktopCard {

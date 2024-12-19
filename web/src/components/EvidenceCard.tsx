@@ -30,7 +30,7 @@ const StyledCard = styled(Card)`
 const TopContent = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${responsiveSize(8, 20)} ${responsiveSize(8, 24)};
+  padding: 16px;
   gap: 4px;
   overflow-wrap: break-word;
 
@@ -45,6 +45,12 @@ const TopContent = styled.div`
     display: inline-block;
     margin: 0;
   }
+
+  ${landscapeStyle(
+    () => css`
+      padding: 20px 24px;
+    `
+  )}
 `;
 
 const IndexAndName = styled.div`
@@ -72,16 +78,23 @@ const StyledReactMarkdown = styled(ReactMarkdown)`
 
 const BottomShade = styled.div`
   background-color: ${({ theme }) => theme.lightBlue};
+  border-top: 1px solid ${({ theme }) => theme.stroke};
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  padding: 12px ${responsiveSize(8, 24)};
+  padding: 16px;
   > * {
     flex-basis: 1;
     flex-shrink: 0;
     margin: 0;
   }
+
+  ${landscapeStyle(
+    () => css`
+      padding: 16px 24px;
+    `
+  )}
 `;
 
 const BottomLeftContent = styled.div`

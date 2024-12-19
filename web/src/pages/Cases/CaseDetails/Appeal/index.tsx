@@ -13,7 +13,13 @@ import AppealHistory from "./AppealHistory";
 import Classic from "./Classic";
 
 const Container = styled.div`
-  padding: ${responsiveSize(16, 32)} ${responsiveSize(8, 32)};
+  padding: 16px;
+
+  ${landscapeStyle(
+    () => css`
+      padding: 32px;
+    `
+  )}
 `;
 
 export const AppealHeader = styled.div`

@@ -5,6 +5,7 @@ import EthIcon from "svgs/icons/eth.svg";
 import PnkIcon from "svgs/icons/kleros.svg";
 
 import { useUserQuery } from "hooks/queries/useUser";
+import useIsDesktop from "hooks/useIsDesktop";
 import { getFormattedRewards } from "utils/jurorRewardConfig";
 
 import { landscapeStyle } from "styles/landscapeStyle";
@@ -48,11 +49,17 @@ const Rewards: React.FC<IRewards> = ({ address }) => {
   const formattedRewards = getFormattedRewards(userData, {});
   const ethReward = formattedRewards.find((r) => r.token === "ETH")?.amount;
   const pnkReward = formattedRewards.find((r) => r.token === "PNK")?.amount;
+  const isDesktop = useIsDesktop();
 
   return (
     <Container>
       <StyledLabel>
-        <NumberDisplay value={ethReward ?? ""} unit="ETH" showUnitInDisplay={false} />
+        <NumberDisplay
+          value={ethReward ?? ""}
+          unit="ETH"
+          showUnitInDisplay={false}
+          place={isDesktop ? "top" : "right"}
+        />
       </StyledLabel>
       <StyledIcon as={EthIcon} />
       <StyledLabel>+</StyledLabel>

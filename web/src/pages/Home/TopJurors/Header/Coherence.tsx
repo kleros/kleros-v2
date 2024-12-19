@@ -1,9 +1,9 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { useWindowSize } from "react-use";
+import { landscapeStyle } from "styles/landscapeStyle";
 
-import { BREAKPOINT_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
+import useIsDesktop from "hooks/useIsDesktop";
 
 import WithHelpTooltip from "components/WithHelpTooltip";
 
@@ -32,13 +32,11 @@ const coherentVotesTooltipMsg =
   "the juror voted";
 
 const Coherence: React.FC = () => {
-  const { width } = useWindowSize();
+  const isDesktop = useIsDesktop();
+
   return (
     <Container>
-      <WithHelpTooltip
-        place={width > BREAKPOINT_LANDSCAPE ? "top" : "left"}
-        tooltipMsg={coherentVotesTooltipMsg}
-      ></WithHelpTooltip>
+      <WithHelpTooltip place={isDesktop ? "top" : "left"} tooltipMsg={coherentVotesTooltipMsg}></WithHelpTooltip>
     </Container>
   );
 };

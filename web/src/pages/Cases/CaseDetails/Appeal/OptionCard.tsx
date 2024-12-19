@@ -1,26 +1,32 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
-import { responsiveSize } from "styles/responsiveSize";
 import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { landscapeStyle } from "styles/landscapeStyle";
+
+import { Card, Radio, LinearProgress } from "@kleros/ui-components-library";
 
 import { useMeasure } from "react-use";
 import { formatEther } from "viem";
 
-import { Card, Radio, LinearProgress } from "@kleros/ui-components-library";
+import { isUndefined } from "utils/index";
 
 import Gavel from "svgs/icons/gavel.svg";
 
-import { isUndefined } from "utils/index";
-
-const StyledCard = styled(Card)`
+const StyledCard = styled(Card)<{ canBeSelected: boolean }>`
   ${hoverShortTransitionTiming}
   width: 100%;
-  padding: ${responsiveSize(12, 24)} ${responsiveSize(8, 24)};
+  padding: 16px;
 
-  &:hover {
-    cursor: pointer;
+  :hover {
+    cursor: ${({ canBeSelected }) => (canBeSelected ? "pointer" : "auto")};
   }
+
+  ${landscapeStyle(
+    () => css`
+      padding: 24px;
+    `
+  )}
 `;
 
 const WinnerLabel = styled.label<{ winner: boolean }>`
@@ -97,8 +103,9 @@ const OptionCard: React.FC<IOptionCard> = ({
     else if (funding > 0n) return [`Funded with ${formatEther(funding)} ETH.`, 30];
     else return ["0 ETH contributed to this option", 0];
   }, [funding, required]);
+
   return (
-    <StyledCard ref={ref} hover {...props}>
+    <StyledCard hover {...props} {...{ canBeSelected, ref }}>
       <TopContainer>
         <TextContainer>
           <BlockLabel>{text}</BlockLabel>

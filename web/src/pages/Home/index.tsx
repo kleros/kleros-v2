@@ -1,7 +1,7 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
-import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
+import { MAX_WIDTH_LANDSCAPE, landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import { HomePageProvider } from "hooks/useHomePageContext";
@@ -22,9 +22,15 @@ const Wrapper = styled.div`
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
-  padding: 16px ${responsiveSize(8, 132)} ${responsiveSize(40, 60)};
+  padding: 16px 16px 40px;
   max-width: ${MAX_WIDTH_LANDSCAPE};
   margin: 0 auto;
+
+  ${landscapeStyle(
+    () => css`
+      padding: 16px ${responsiveSize(0, 132)} 60px;
+    `
+  )}
 `;
 
 const Home: React.FC = () => (

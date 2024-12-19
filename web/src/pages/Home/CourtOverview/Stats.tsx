@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { Card } from "@kleros/ui-components-library";
 
@@ -17,18 +17,24 @@ import { calculateSubtextRender } from "utils/calculateSubtextRender";
 import { formatETH, formatPNK, formatUnitsWei, formatUSD } from "utils/format";
 import { isUndefined } from "utils/index";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 const StyledCard = styled(Card)`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   width: auto;
   height: fit-content;
   gap: 16px 8px;
-  padding: ${responsiveSize(16, 24)} ${responsiveSize(8, 24)};
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(152px, 1fr));
+  padding: 16px;
+
+  ${landscapeStyle(
+    () => css`
+      padding: 24px;
+    `
+  )}
 `;
 
 const getLastOrZero = (src: HomePageQuery["counters"], stat: HomePageQueryDataPoints) =>
@@ -45,7 +51,7 @@ interface IStat {
 
 const stats: IStat[] = [
   {
-    title: "PNK staked",
+    title: "PNK Staked",
     coinId: 0,
     getText: (counters) => formatPNK(getLastOrZero(counters, "stakedPNK")),
     getSubtext: (counters, coinPrice) =>
@@ -63,7 +69,7 @@ const stats: IStat[] = [
     icon: EthereumIcon,
   },
   {
-    title: "PNK redistributed",
+    title: "PNK Redistributed",
     coinId: 0,
     getText: (counters) => formatPNK(getLastOrZero(counters, "redistributedPNK")),
     getSubtext: (counters, coinPrice) =>
@@ -72,7 +78,7 @@ const stats: IStat[] = [
     icon: PNKRedistributedIcon,
   },
   {
-    title: "Active jurors",
+    title: "Active Jurors",
     getText: (counters) => getLastOrZero(counters, "activeJurors"),
     color: "green",
     icon: JurorIcon,

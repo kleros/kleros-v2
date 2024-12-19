@@ -12,7 +12,6 @@ import { FieldItem, IDisputeInfo } from "./index";
 const Container = styled.div`
   display: flex;
   width: 100%;
-  gap: 8px;
   flex-direction: column;
   justify-content: flex-end;
 `;

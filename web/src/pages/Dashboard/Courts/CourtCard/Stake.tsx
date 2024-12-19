@@ -12,7 +12,7 @@ import PnkIcon from "svgs/icons/pnk.svg";
 const Container = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 16px;
+  gap: 8px;
   width: 100%;
   justify-content: flex-start;
   align-items: center;
@@ -20,6 +20,7 @@ const Container = styled.div`
   ${landscapeStyle(
     () => css`
       width: auto;
+      gap: 12px;
     `
   )}
 `;

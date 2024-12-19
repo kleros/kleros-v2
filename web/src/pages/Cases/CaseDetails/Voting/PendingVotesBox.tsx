@@ -12,7 +12,7 @@ const StyledBox = styled(Box)`
   border-radius: 3px;
   padding: 16px;
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
   margin-bottom: -4px;
   > p {
