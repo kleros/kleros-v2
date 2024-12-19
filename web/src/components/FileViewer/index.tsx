@@ -20,6 +20,10 @@ const Wrapper = styled.div`
 
 const StyledDocViewer = styled(DocViewer)`
   background-color: ${({ theme }) => theme.whiteBackground} !important;
+
+  #pdf-controls {
+    z-index: 3;
+  }
 `;
 
 /**
