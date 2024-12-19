@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { Link } from "react-router-dom";
 
@@ -7,8 +7,8 @@ import { Card } from "@kleros/ui-components-library";
 
 import { Periods } from "consts/periods";
 
-import { responsiveSize } from "styles/responsiveSize";
 import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
 
@@ -19,26 +19,36 @@ const StyledCard = styled(Card)`
   ${hoverShortTransitionTiming}
   width: 100%;
   height: 100%;
-  max-height: 335px;
   min-height: 290px;
 `;
 
 const CardContainer = styled.div`
   height: calc(100% - 45px);
-  padding: ${responsiveSize(20, 24)} ${responsiveSize(8, 24)};
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+  ${landscapeStyle(
+    () => css`
+      padding: 20px 24px;
+    `
+  )}
+`;
+
+const StyledCaseCardTitle = styled.h3`
+  margin-bottom: 20px;
 `;
 
 const StyledCaseCardTitleSkeleton = styled(StyledSkeleton)`
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 `;
 
 const TruncatedTitle = ({ text, maxLength }) => {
   const truncatedText = text.length <= maxLength ? text : text.slice(0, maxLength) + "…";
-  return <h3>{truncatedText}</h3>;
+  return <StyledCaseCardTitle>{truncatedText}</StyledCaseCardTitle>;
 };
+
 interface IDisputeCardView {
   title: string;
   disputeID?: string;
