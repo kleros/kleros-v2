@@ -27,7 +27,7 @@ import Classic from "./Classic";
 import VotingHistory from "./VotingHistory";
 
 const Container = styled.div`
-  padding: ${responsiveSize(16, 32)};
+  padding: ${responsiveSize(16, 32)} ${responsiveSize(8, 32)};
   padding-bottom: ${responsiveSize(8, 16)};
 `;
 

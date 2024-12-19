@@ -14,24 +14,22 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 
 import AliasDisplay from "./Alias";
 import { Divider } from "../Divider";
+import { ExternalLink } from "../ExternalLink";
 
 const StyledH1 = styled.h1`
   margin: 0;
   word-wrap: break-word;
+  font-size: ${responsiveSize(18, 24)};
+  line-height: 24px;
 `;
 
-const QuestionAndDescription = styled.div`
-  display: flex;
-  flex-direction: column;
-  word-wrap: break-word;
-  div:first-child p:first-of-type {
-    font-size: 16px;
-    font-weight: 400;
+const ReactMarkdownWrapper = styled.div`
+  & p:first-of-type {
     margin: 0;
   }
 `;
 
-const VotingOptions = styled(QuestionAndDescription)`
+const VotingOptions = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -40,30 +38,25 @@ const VotingOptions = styled(QuestionAndDescription)`
 const AnswersContainer = styled.div`
   display: flex;
   flex-direction: column;
+  gap: ${responsiveSize(4, 2)};
 `;
 
-const AnswersHeader = styled.h3`
+const AnswersHeader = styled.small`
   margin: 0;
 `;
 
-const Answer = styled.div`
-  margin: 0px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  > label {
-    max-width: 100%;
-  }
+export const AnswerTitleAndDescription = styled.div`
+  display: block;
 `;
 
-const StyledSmall = styled.small`
-  color: ${({ theme }) => theme.secondaryText};
+export const AnswerTitle = styled.small`
+  display: inline;
+`;
+
+export const AnswerDescription = styled.small`
+  display: inline;
   font-weight: 400;
-`;
-
-const StyledLabel = styled.label`
-  color: ${({ theme }) => theme.primaryText};
-  font-weight: 600;
+  color: ${({ theme }) => theme.secondaryText};
 `;
 
 const AliasesContainer = styled.div`
@@ -79,31 +72,39 @@ interface IDisputeContext {
 
 export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRpcError = false }) => {
   const errMsg = isRpcError ? RPC_ERROR : INVALID_DISPUTE_DATA_ERROR;
+
   return (
     <>
       <StyledH1>{isUndefined(disputeDetails) ? <StyledSkeleton /> : (disputeDetails?.title ?? errMsg)}</StyledH1>
-      {!isUndefined(disputeDetails) && (
-        <QuestionAndDescription>
-          <ReactMarkdown>{disputeDetails?.question}</ReactMarkdown>
-          <ReactMarkdown>{disputeDetails?.description}</ReactMarkdown>
-        </QuestionAndDescription>
-      )}
+      {disputeDetails?.question?.trim() || disputeDetails?.description?.trim() ? (
+        <div>
+          {disputeDetails?.question?.trim() ? (
+            <ReactMarkdownWrapper>
+              <ReactMarkdown>{disputeDetails.question}</ReactMarkdown>
+            </ReactMarkdownWrapper>
+          ) : null}
+          {disputeDetails?.description?.trim() ? (
+            <ReactMarkdownWrapper>
+              <ReactMarkdown>{disputeDetails.description}</ReactMarkdown>
+            </ReactMarkdownWrapper>
+          ) : null}
+        </div>
+      ) : null}
+
       {isUndefined(disputeDetails?.frontendUrl) ? null : (
-        <a href={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
+        <ExternalLink href={disputeDetails?.frontendUrl} target="_blank" rel="noreferrer">
           Go to arbitrable
-        </a>
+        </ExternalLink>
       )}
       <VotingOptions>
         {isUndefined(disputeDetails) ? null : <AnswersHeader>Voting Options</AnswersHeader>}
         <AnswersContainer>
           {disputeDetails?.answers?.map((answer: IAnswer, i: number) => (
-            <Answer key={answer.title}>
-              <StyledSmall>{i + 1 + `.`}</StyledSmall>
-              <StyledLabel>
-                {answer.title}
-                {answer.description.trim() ? ` - ${answer.description}` : null}
-              </StyledLabel>
-            </Answer>
+            <AnswerTitleAndDescription key={answer.title}>
+              <label>{i + 1}. </label>
+              <AnswerTitle>{answer.title}</AnswerTitle>
+              <AnswerDescription>{answer.description.trim() ? ` - ${answer.description}` : null}</AnswerDescription>
+            </AnswerTitleAndDescription>
           ))}
         </AnswersContainer>
       </VotingOptions>

@@ -8,6 +8,7 @@ import { Card } from "@kleros/ui-components-library";
 import { Periods } from "consts/periods";
 
 import { responsiveSize } from "styles/responsiveSize";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
 
@@ -15,20 +16,16 @@ import DisputeInfo from "./DisputeInfo";
 import PeriodBanner from "./PeriodBanner";
 
 const StyledCard = styled(Card)`
+  ${hoverShortTransitionTiming}
   width: 100%;
   height: 100%;
   max-height: 335px;
   min-height: 290px;
-  transition: background-color 0.1s;
-
-  &:hover {
-    background-color: ${({ theme }) => theme.lightGrey}BB;
-  }
 `;
 
 const CardContainer = styled.div`
   height: calc(100% - 45px);
-  padding: ${responsiveSize(20, 24)};
+  padding: ${responsiveSize(20, 24)} ${responsiveSize(8, 24)};
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -61,7 +58,7 @@ interface IDisputeCardView {
 const DisputeCardView: React.FC<IDisputeCardView> = ({ isLoading, ...props }) => {
   return (
     <Link to={`/cases/${props?.disputeID?.toString()}`}>
-      <StyledCard>
+      <StyledCard hover>
         <PeriodBanner id={parseInt(props?.disputeID)} period={props?.period} />
         <CardContainer>
           {isLoading ? <StyledCaseCardTitleSkeleton /> : <TruncatedTitle text={props?.title} maxLength={100} />}

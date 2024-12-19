@@ -12,10 +12,12 @@ import { useUserQuery } from "queries/useUser";
 
 import { OrderDirection } from "src/graphql/graphql";
 
+import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
 
 import CasesDisplay from "components/CasesDisplay";
 import ConnectWallet from "components/ConnectWallet";
+import FavoriteCases from "components/FavoriteCases";
 import ScrollTop from "components/ScrollTop";
 
 import Courts from "./Courts";
@@ -24,16 +26,16 @@ import JurorInfo from "./JurorInfo";
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
-  padding: ${responsiveSize(32, 80)} ${responsiveSize(24, 136)} ${responsiveSize(76, 96)};
-  max-width: 1780px;
+  padding: ${responsiveSize(32, 48)} ${responsiveSize(8, 132)} ${responsiveSize(40, 60)};
+  max-width: ${MAX_WIDTH_LANDSCAPE};
   margin: 0 auto;
 `;
 
 const StyledCasesDisplay = styled(CasesDisplay)`
-  margin-top: 64px;
+  margin-top: ${responsiveSize(24, 48)};
 
   .title {
-    margin-bottom: ${responsiveSize(16, 48)};
+    margin-bottom: ${responsiveSize(12, 24)};
   }
 `;
 
@@ -93,6 +95,7 @@ const Dashboard: React.FC = () => {
           <ConnectWallet />
         </ConnectWalletContainer>
       )}
+      <FavoriteCases />
       <ScrollTop />
     </Container>
   );

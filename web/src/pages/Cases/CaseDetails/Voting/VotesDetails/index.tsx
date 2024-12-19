@@ -27,17 +27,12 @@ const StyledAccordion = styled(CustomAccordion)`
   }
 
   [class*="accordion-button"] {
-    padding: 11.5px ${responsiveSize(8, 18)} !important;
-    background-color: ${({ theme }) => theme.whiteBackground} !important;
-    border: 1px solid ${({ theme }) => theme.stroke} !important;
+    padding: 12px ${responsiveSize(8, 16)} !important;
     margin: 4px 0;
-    > svg {
-      fill: ${({ theme }) => theme.primaryText} !important;
-    }
   }
 
   [class*="Body"] {
-    padding: ${responsiveSize(16, 24)} ${responsiveSize(8, 16)};
+    padding: ${responsiveSize(6, 10)} ${responsiveSize(4, 16)};
   }
 `;
 

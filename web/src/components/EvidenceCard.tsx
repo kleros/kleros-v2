@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import Identicon from "react-identicons";
 import ReactMarkdown from "react-markdown";
@@ -29,8 +30,8 @@ const StyledCard = styled(Card)`
 const TopContent = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${responsiveSize(8, 24)};
-  gap: ${responsiveSize(4, 8)};
+  padding: ${responsiveSize(8, 20)} ${responsiveSize(8, 24)};
+  gap: 4px;
   overflow-wrap: break-word;
 
   > * {
@@ -165,6 +166,7 @@ const MobileText = styled.span`
 `;
 
 const StyledInternalLink = styled(InternalLink)`
+  ${hoverShortTransitionTiming}
   display: flex;
   gap: ${responsiveSize(5, 6)};
   > svg {
@@ -173,7 +175,6 @@ const StyledInternalLink = styled(InternalLink)`
   }
 
   :hover svg {
-    transition: fill 0.1s;
     fill: ${({ theme }) => theme.secondaryBlue};
   }
 `;

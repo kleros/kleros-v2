@@ -8,6 +8,7 @@ import { getIpfsUrl } from "utils/getIpfsUrl";
 import { isUndefined } from "utils/index";
 
 import { responsiveSize } from "styles/responsiveSize";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import { InternalLink } from "components/InternalLink";
 
@@ -17,7 +18,7 @@ const Container = styled.div`
   flex-direction: row;
   flex-wrap: wrap;
   gap: 8px 16px;
-  padding: ${responsiveSize(16, 20)} ${responsiveSize(16, 32)};
+  padding: ${responsiveSize(12, 20)} ${responsiveSize(8, 32)};
   background-color: ${({ theme }) => theme.mediumBlue};
 `;
 
@@ -38,12 +39,12 @@ const StyledPaperclipIcon = styled(PaperclipIcon)`
 `;
 
 const StyledInternalLink = styled(InternalLink)`
+  ${hoverShortTransitionTiming}
   display: flex;
   gap: 4px;
 
   &:hover {
     svg {
-      transition: fill 0.1s;
       fill: ${({ theme }) => theme.secondaryBlue};
     }
   }

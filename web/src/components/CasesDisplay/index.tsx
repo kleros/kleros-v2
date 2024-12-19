@@ -17,15 +17,16 @@ const TitleContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  margin-bottom: ${responsiveSize(32, 48)};
+  margin-bottom: ${responsiveSize(12, 24)};
 `;
 
 const StyledTitle = styled.h1`
   margin: 0px;
+  font-size: ${responsiveSize(20, 24)};
 `;
 
 const StyledLabel = styled.label`
-  font-size: 16px;
+  font-size: ${responsiveSize(14, 16)};
 `;
 
 interface ICasesDisplay extends ICasesGrid {

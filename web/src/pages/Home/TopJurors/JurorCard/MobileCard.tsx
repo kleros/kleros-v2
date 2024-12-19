@@ -18,8 +18,8 @@ const Container = styled.div`
   flex-wrap: wrap;
   width: 100%;
   background-color: ${({ theme }) => theme.whiteBackground};
-  padding: 16px 24px 24px 24px;
-  border 1px solid ${({ theme }) => theme.stroke};
+  padding: 8px 8px 12px;
+  border: 1px solid ${({ theme }) => theme.stroke};
   border-top: none;
   align-items: center;
   gap: 18px;

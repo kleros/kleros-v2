@@ -1,12 +1,16 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { responsiveSize } from "styles/responsiveSize";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import { useParams } from "react-router-dom";
 import { Accordion } from "@kleros/ui-components-library";
 
 import EthereumIcon from "svgs/icons/ethereum.svg";
+import EthereumVoteIcon from "svgs/icons/ethereum-vote.svg";
 import BalanceIcon from "svgs/icons/law-balance.svg";
+import BalanceWithHourglassIcon from "svgs/icons/law-balance-hourglass.svg";
+import JurorIcon from "svgs/icons/user.svg";
 import MinStake from "svgs/icons/min-stake.svg";
 import PNKIcon from "svgs/icons/pnk.svg";
 import PNKRedistributedIcon from "svgs/icons/redistributed-pnk.svg";
@@ -27,23 +31,24 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 
 const StyledAccordion = styled(Accordion)`
   > * > button {
+    padding: 12px ${responsiveSize(8, 24)} !important;
     justify-content: unset;
-    background-color: ${({ theme }) => theme.whiteBackground} !important;
-    border: 1px solid ${({ theme }) => theme.stroke} !important;
-    > svg {
-      fill: ${({ theme }) => theme.primaryText} !important;
-    }
-    > p {
-      color: ${({ theme }) => theme.primaryText};
-    }
   }
   //adds padding to body container
   > * > div > div {
-    padding: 0 24px;
+    padding: 0;
   }
   [class*="accordion-item"] {
     margin: 0;
   }
+
+  ${landscapeStyle(
+    () => css`
+      > * > div > div {
+        padding: 0 24px;
+      }
+    `
+  )}
 `;
 
 const TimeDisplayContainer = styled.div`
@@ -61,13 +66,24 @@ const StyledAllTimeText = styled.p`
   color: ${({ theme }) => theme.primaryText};
   margin: 0;
   font-size: 14px;
-  font-weight: 600;
 `;
 
 const StyledChartIcon = styled(ChartIcon)`
   path {
     fill: ${({ theme }) => theme.primaryText};
   }
+`;
+
+const StyledEthereumVoteIcon = styled(EthereumVoteIcon)`
+  height: 32px !important;
+`;
+
+const StyledJurorIcon = styled(JurorIcon)`
+  height: 15px !important;
+`;
+
+const StyledBalanceWithHourglassIcon = styled(BalanceWithHourglassIcon)`
+  height: 32px !important;
 `;
 
 const AccordionContainer = styled.div`
@@ -123,7 +139,7 @@ const stats: IStat[] = [
     },
     getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.feeForJuror)) * (coinPrice ?? 0)),
     color: "blue",
-    icon: EthereumIcon,
+    icon: StyledEthereumVoteIcon,
   },
   {
     title: "PNK Staked",
@@ -137,7 +153,7 @@ const stats: IStat[] = [
     title: "Active Jurors",
     getText: (data) => data?.numberStakedJurors,
     color: "green",
-    icon: PNKRedistributedIcon,
+    icon: StyledJurorIcon,
   },
   {
     title: "Cases",
@@ -149,10 +165,10 @@ const stats: IStat[] = [
     title: "In Progress",
     getText: (data) => data?.numberDisputes - data?.numberClosedDisputes,
     color: "green",
-    icon: BalanceIcon,
+    icon: StyledBalanceWithHourglassIcon,
   },
   {
-    title: "Total ETH paid",
+    title: "ETH paid",
     coinId: 1,
     getText: (data) => `${formatETH(data?.paidETH)} ETH`,
     getSubtext: (data, coinPrice) => formatUSD(Number(formatUnitsWei(data?.paidETH)) * (coinPrice ?? 0)),

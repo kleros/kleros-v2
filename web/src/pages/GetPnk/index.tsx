@@ -1,9 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 
-import { isProductionDeployment } from "consts/index";
-
+import { MAX_WIDTH_LANDSCAPE } from "styles/landscapeStyle";
 import { responsiveSize } from "styles/responsiveSize";
+
+import { isProductionDeployment } from "consts/index";
 
 import ClaimPnkButton from "components/ClaimPnkButton";
 import HeroImage from "components/HeroImage";
@@ -18,8 +19,8 @@ const Wrapper = styled.div`
 const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBackground};
-  padding: ${responsiveSize(32, 72)} ${responsiveSize(24, 132)} ${responsiveSize(76, 96)};
-  max-width: 1780px;
+  padding: 16px ${responsiveSize(8, 132)} ${responsiveSize(40, 60)};
+  max-width: ${MAX_WIDTH_LANDSCAPE};
   margin: 0 auto;
   display: flex;
   flex-direction: column;

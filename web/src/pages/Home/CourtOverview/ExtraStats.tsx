@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
+import { responsiveSize } from "styles/responsiveSize";
+
 import { DropdownSelect } from "@kleros/ui-components-library";
 
 import LawBalance from "svgs/icons/law-balance.svg";
@@ -13,12 +15,12 @@ import ExtraStatsDisplay from "components/ExtraStatsDisplay";
 const StyledCard = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0 24px;
+  gap: 12px 24px;
   justify-content: center;
+  margin-top: ${responsiveSize(12, 16)};
 `;
 
 const StyledLabel = styled.label`
-  margin-top: 24px;
   font-size: 14px;
   font-weight: 600;
 `;
@@ -26,6 +28,7 @@ const StyledLabel = styled.label`
 interface IStat {
   title: string;
   getText: (data) => string;
+  getCourtId: (data) => string;
   icon: React.FC<React.SVGAttributes<SVGElement>>;
 }
 
@@ -33,16 +36,19 @@ const stats: IStat[] = [
   {
     title: "Most Cases",
     getText: ({ data }) => data?.mostDisputedCourt?.name,
+    getCourtId: ({ data }) => data?.mostDisputedCourt?.id,
     icon: LongArrowUp,
   },
   {
     title: "Highest drawing chance",
     getText: ({ data }) => data?.bestDrawingChancesCourt?.name,
+    getCourtId: ({ data }) => data?.bestDrawingChancesCourt?.id,
     icon: LongArrowUp,
   },
   {
     title: "Highest rewards chance",
     getText: ({ data }) => data?.bestExpectedRewardCourt?.name,
+    getCourtId: ({ data }) => data?.bestExpectedRewardCourt?.id,
     icon: LongArrowUp,
   },
 ];
@@ -83,8 +89,8 @@ const ExtraStats = () => {
       {data.data?.mostDisputedCourt?.numberDisputes === 0 ? (
         <StyledLabel>No activity in this period</StyledLabel>
       ) : (
-        stats.map(({ title, getText, icon }) => (
-          <ExtraStatsDisplay key={title} {...{ title, icon }} text={getText(data)} />
+        stats.map(({ title, getCourtId, getText, icon }) => (
+          <ExtraStatsDisplay key={title} courtId={getCourtId(data)} {...{ title, icon }} text={getText(data)} />
         ))
       )}
     </StyledCard>

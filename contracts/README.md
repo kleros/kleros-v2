@@ -10,6 +10,8 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 #### Arbitrum One
 
+- [BlockHashRNG](https://arbiscan.io/address/0x39D123fc4cFD24EA5bB76195f9ecFE1f0DF35b0B)
+- [ChainlinkRNG](https://arbiscan.io/address/0x897d83a7d5F23555eFA15e1BE297d5503522cbA3)
 - [DisputeKitClassicNeo: proxy](https://arbiscan.io/address/0x70B464be85A547144C72485eBa2577E5D3A45421), [implementation](https://arbiscan.io/address/0xAF0325dbBFa812a574743Bb5A085266D31e3e03a)
 - [DisputeResolverNeo](https://arbiscan.io/address/0xb5526D022962A1fFf6eD32C93e8b714c901F4323)
 - [DisputeTemplateRegistry: proxy](https://arbiscan.io/address/0x0cFBaCA5C72e7Ca5fFABE768E135654fB3F2a5A2), [implementation](https://arbiscan.io/address/0x57EfD43DAfCeb6C58Df57932b2B299f46fef5c87)
@@ -27,6 +29,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 #### Arbitrum Sepolia
 
 - [BlockHashRNG](https://sepolia.arbiscan.io/address/0x0298a3EFa6Faf90865725E2b48Cf0F66e5d52754)
+- [ChainlinkRNG](https://sepolia.arbiscan.io/address/0xAd5cCc93429e3A977c273cEeD106Ef16A69EAf79)
 - [DAI](https://sepolia.arbiscan.io/address/0xc34aeFEa232956542C5b2f2EE55fD5c378B35c03)
 - [DAIFaucet](https://sepolia.arbiscan.io/address/0x1Fa58B52326488D62A406E71DBaD839560e810fF)
 - [DisputeKitClassic: proxy](https://sepolia.arbiscan.io/address/0x0c38f115D001d3b5bBec5e8D44f78C7B61A27D94), [implementation](https://sepolia.arbiscan.io/address/0xDb0B7908C46E2Bb08459bf9b3155b9bb8F8713E1)
@@ -67,6 +70,7 @@ Refresh the list of deployed contracts by running `./scripts/generateDeployments
 
 - [ArbitrableExample](https://sepolia.arbiscan.io/address/0x3Eae72F076c68F5c354C73abC33EAA291ef1b2Fa)
 - [BlockHashRNG](https://sepolia.arbiscan.io/address/0x56d6d65Fe202232714794B5D5e4ed9894466Ee01)
+- [ChainlinkRNG](https://sepolia.arbiscan.io/address/0x6c40D7F5d5bE3492fe9EF70e4eCb2BD773c12AF8)
 - [DAI](https://sepolia.arbiscan.io/address/0x593e89704D285B0c3fbF157c7CF2537456CE64b5)
 - [DAIFaucet](https://sepolia.arbiscan.io/address/0xB5b39A1bcD2D7097A8824B3cC18Ebd2dFb0D9B5E)
 - [DisputeKitClassic: proxy](https://sepolia.arbiscan.io/address/0x9426F127116C3652A262AE1eA48391AC8F44D35b), [implementation](https://sepolia.arbiscan.io/address/0x692CC78F2570181FFB99297965FeAA8352ab12E8)

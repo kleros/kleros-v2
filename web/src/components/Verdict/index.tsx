@@ -1,13 +1,15 @@
 import React from "react";
 import styled from "styled-components";
 
+import { responsiveSize } from "styles/responsiveSize";
+
 import DisputeTimeline from "./DisputeTimeline";
 import FinalDecision from "./FinalDecision";
 
 const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
+  gap: ${responsiveSize(16, 24)};
 `;
 
 interface IVerdict {

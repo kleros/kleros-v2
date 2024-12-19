@@ -11,10 +11,11 @@ import { responsiveSize } from "styles/responsiveSize";
 import { Element } from "./Element";
 
 const Container = styled.div`
-  margin-top: ${responsiveSize(44, 64)};
+  margin-top: ${responsiveSize(24, 48)};
 
   h1 {
-    margin-bottom: ${responsiveSize(16, 48)};
+    margin-bottom: ${responsiveSize(12, 24)};
+    font-size: ${responsiveSize(20, 24)};
   }
 `;
 
@@ -25,7 +26,7 @@ const StyledCard = styled(Card)`
   gap: 12px;
   flex-direction: column;
   flex-wrap: wrap;
-  padding: 24px;
+  padding: ${responsiveSize(12, 24)} ${responsiveSize(8, 24)};
   align-items: flex-start;
 
   ${landscapeStyle(

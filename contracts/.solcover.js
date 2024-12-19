@@ -5,7 +5,7 @@ const shell = require("shelljs");
 // The environment variables are loaded in hardhat.config.ts
 
 module.exports = {
-  istanbulReporter: ["html"],
+  istanbulReporter: ["lcov"],
   onCompileComplete: async function (_config) {
     await run("typechain");
   },
@@ -14,7 +14,7 @@ module.exports = {
     shell.rm("-rf", "./artifacts");
     shell.rm("-rf", "./typechain");
   },
-  skipFiles: ["mocks", "test"],
+  skipFiles: ["test", "token", "kleros-v1", "proxy/mock", "gateway/mock", "rng/mock"],
   mocha: {
     timeout: 20000,
     grep: "@skip-on-coverage", // Find everything with this tag

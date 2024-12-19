@@ -20,7 +20,7 @@ const Container = styled.div<IContainer>`
   align-items: center;
   gap: 8px;
   justify-content: space-between;
-  padding: 0 ${({ isCard }) => (isCard ? "24px" : responsiveSize(8, 24, 900))};
+  padding: 0 ${({ isCard }) => (isCard ? responsiveSize(8, 24) : responsiveSize(8, 24, 900))};
   flex-shrink: 0;
   ${({ frontColor, backgroundColor, isCard }) => {
     return `

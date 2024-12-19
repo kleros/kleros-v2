@@ -12,6 +12,9 @@ import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { responsiveSize } from "styles/responsiveSize";
 
+import CaseStarButton from "components/CaseStarButton";
+import ScrollTop from "components/ScrollTop";
+
 import Appeal from "./Appeal";
 import Evidence from "./Evidence";
 import MaintenanceButtons from "./MaintenanceButtons";
@@ -19,7 +22,6 @@ import Overview from "./Overview";
 import Tabs from "./Tabs";
 import Timeline from "./Timeline";
 import Voting from "./Voting";
-import ScrollTop from "components/ScrollTop";
 
 const Container = styled.div``;
 
@@ -27,18 +29,24 @@ const StyledCard = styled(Card)`
   width: 100%;
   height: auto;
   min-height: 100px;
+  border-radius: 0 0 3px 3px;
 `;
 
 const HeaderContainer = styled.div`
   width: 100%;
   display: flex;
   align-items: center;
-  margin-bottom: ${responsiveSize(32, 54)};
+  margin-top: -2px;
+  margin-bottom: ${responsiveSize(16, 32)};
 `;
 
 const Header = styled.h1`
-  margin: 0;
+  display: flex;
+  font-size: ${responsiveSize(20, 24)};
+  align-items: center;
   flex: 1;
+  gap: ${responsiveSize(8, 12)};
+  margin: 0;
 `;
 
 const CaseDetails: React.FC = () => {
@@ -52,11 +60,14 @@ const CaseDetails: React.FC = () => {
     <VotingContextProvider>
       <Container>
         <HeaderContainer>
-          <Header>Case #{id}</Header>
+          <Header>
+            Case #{id} {id ? <CaseStarButton id={id} /> : null}
+          </Header>
+
           <MaintenanceButtons />
         </HeaderContainer>
-        <Tabs />
         <Timeline {...{ currentPeriodIndex, dispute }} />
+        <Tabs />
         <StyledCard>
           <Routes>
             <Route

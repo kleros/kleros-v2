@@ -14,11 +14,12 @@ import Header from "./Header";
 import JurorCard from "./JurorCard";
 
 const Container = styled.div`
-  margin-top: ${responsiveSize(64, 80)};
+  margin-top: ${responsiveSize(24, 48)};
 `;
 
 const Title = styled.h1`
-  margin-bottom: ${responsiveSize(16, 48)};
+  margin-bottom: ${responsiveSize(12, 24)};
+  font-size: ${responsiveSize(20, 24)};
 `;
 
 const ListContainer = styled.div`
