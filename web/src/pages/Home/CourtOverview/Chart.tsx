@@ -20,6 +20,7 @@ const Container = styled.div`
   margin-bottom: ${responsiveSize(16, 32)};
   display: flex;
   flex-direction: column;
+  gap: 16px;
 `;
 
 const StyledDropdown = styled(DropdownSelect)`

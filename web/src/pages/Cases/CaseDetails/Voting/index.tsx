@@ -28,7 +28,7 @@ import Classic from "./Classic";
 import VotingHistory from "./VotingHistory";
 
 const Container = styled.div`
-  padding: 16px;
+  padding: 20px 16px 16px;
 
   ${landscapeStyle(
     () => css`

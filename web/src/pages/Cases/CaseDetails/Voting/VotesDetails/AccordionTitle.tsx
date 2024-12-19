@@ -10,18 +10,18 @@ import { isUndefined } from "utils/index";
 import { shortenAddress } from "utils/shortenAddress";
 
 import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
 
 const TitleContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: start;
-  gap: ${responsiveSize(8, 12)};
+  gap: 11px;
   flex-wrap: wrap;
   ${landscapeStyle(
     () => css`
       flex-direction: row;
       align-items: center;
+      gap: 12px;
     `
   )}
 `;

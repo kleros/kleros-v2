@@ -57,11 +57,12 @@ const IndexAndName = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 `;
 
 const Index = styled.p`
   display: inline-block;
+  color: ${({ theme }) => theme.secondaryText};
 `;
 
 const StyledReactMarkdown = styled(ReactMarkdown)`
@@ -78,7 +79,6 @@ const StyledReactMarkdown = styled(ReactMarkdown)`
 
 const BottomShade = styled.div`
   background-color: ${({ theme }) => theme.lightBlue};
-  border-top: 1px solid ${({ theme }) => theme.stroke};
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -92,7 +92,7 @@ const BottomShade = styled.div`
 
   ${landscapeStyle(
     () => css`
-      padding: 16px 24px;
+      padding: 12px 24px;
     `
   )}
 `;
@@ -231,7 +231,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
     <StyledCard>
       <TopContent>
         <IndexAndName>
-          <Index>#{index}: </Index>
+          <Index>#{index}. </Index>
           <h3>{name}</h3>
         </IndexAndName>
         {name && description ? <StyledReactMarkdown>{description}</StyledReactMarkdown> : <p>{evidence}</p>}

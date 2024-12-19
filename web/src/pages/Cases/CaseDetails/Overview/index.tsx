@@ -25,7 +25,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 16px;
+  padding: 20px 16px 16px;
 
   ${landscapeStyle(
     () => css`

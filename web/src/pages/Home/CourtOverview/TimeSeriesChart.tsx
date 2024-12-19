@@ -16,7 +16,6 @@ import "chartjs-adapter-moment";
 
 const LineContainer = styled.div`
   height: 220px;
-  margin-top: 16px;
 `;
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, TimeScale, Tooltip);

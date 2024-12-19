@@ -19,6 +19,7 @@ const Container = styled.div`
   border-top-right-radius: 3px;
   border-bottom: none;
   flex-wrap: wrap;
+
   ${landscapeStyle(
     () => css`
       display: none;
