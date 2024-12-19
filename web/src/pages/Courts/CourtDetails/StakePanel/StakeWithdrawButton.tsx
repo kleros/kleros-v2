@@ -15,13 +15,13 @@ import {
   useSimulatePnkIncreaseAllowance,
   useWritePnkIncreaseAllowance,
 } from "hooks/contracts/generated";
-import { useCourtDetails } from "hooks/queries/useCourtDetails";
 import { useLockOverlayScroll } from "hooks/useLockOverlayScroll";
 import { usePnkData } from "hooks/usePNKData";
-import { formatETH } from "utils/format";
 import { isUndefined } from "utils/index";
 import { parseWagmiError } from "utils/parseWagmiError";
 import { refetchWithRetry } from "utils/refecthWithRetry";
+
+import { useCourtDetails } from "queries/useCourtDetails";
 
 import { EnsureChain } from "components/EnsureChain";
 
@@ -67,9 +67,8 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
   const controllerRef = useRef<AbortController | null>(null);
   useLockOverlayScroll(isPopupOpen);
 
-  const { data: courtDetails } = useCourtDetails(id);
   const { balance, jurorBalance, allowance, refetchAllowance } = usePnkData({ courtId: id });
-
+  const { data: courtDetails } = useCourtDetails(id);
   const publicClient = usePublicClient();
 
   const isStaking = action === ActionType.stake;
@@ -181,6 +180,16 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
               )
             );
           });
+      } else {
+        updatePopupState(
+          signal,
+          getStakeSteps(
+            StakeSteps.StakeFailed,
+            ...commonArgs,
+            undefined,
+            new Error("Simulation Failed. Please restart the process.")
+          )
+        );
       }
     },
     [setStake, setStakeConfig, publicClient, amount, theme, action]
@@ -248,20 +257,20 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
 
   useEffect(() => {
     if (isPopupOpen) return;
-    if (
-      action === ActionType.stake &&
-      targetStake !== 0n &&
-      courtDetails &&
-      targetStake < BigInt(courtDetails.court?.minStake)
-    ) {
-      setErrorMsg(`Min Stake in court is: ${formatETH(courtDetails?.court?.minStake)}`);
-    } else if (setStakeError || allowanceError) {
+    if (setStakeError || allowanceError) {
       setErrorMsg(parseWagmiError(setStakeError || allowanceError));
     }
-  }, [setStakeError, setErrorMsg, targetStake, courtDetails, allowanceError, isPopupOpen, action]);
+  }, [setStakeError, setErrorMsg, targetStake, allowanceError, isPopupOpen]);
 
   const isDisabled = useMemo(() => {
-    if (parsedAmount == 0n) return true;
+    if (
+      parsedAmount == 0n ||
+      (action === ActionType.stake &&
+        targetStake !== 0n &&
+        courtDetails &&
+        targetStake < BigInt(courtDetails?.court?.minStake))
+    )
+      return true;
     if (isAllowance) {
       return isUndefined(increaseAllowanceConfig) || isSimulatingAllowance || !isUndefined(allowanceError);
     }
@@ -275,6 +284,9 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     setStakeError,
     allowanceError,
     isAllowance,
+    targetStake,
+    action,
+    courtDetails,
   ]);
 
   const closePopup = () => {

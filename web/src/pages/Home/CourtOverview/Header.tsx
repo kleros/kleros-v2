@@ -1,11 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 
-import { responsiveSize } from "styles/responsiveSize";
-
 import { Button } from "@kleros/ui-components-library";
 
 import Bookmark from "svgs/icons/bookmark.svg";
+
+import { responsiveSize } from "styles/responsiveSize";
 
 import { InternalLink } from "components/InternalLink";
 
