@@ -57,11 +57,12 @@ const IndexAndName = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 `;
 
 const Index = styled.p`
   display: inline-block;
+  color: ${({ theme }) => theme.secondaryText};
 `;
 
 const StyledReactMarkdown = styled(ReactMarkdown)`
@@ -230,7 +231,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
     <StyledCard>
       <TopContent>
         <IndexAndName>
-          <Index>#{index}: </Index>
+          <Index>#{index}. </Index>
           <h3>{name}</h3>
         </IndexAndName>
         {name && description ? <StyledReactMarkdown>{description}</StyledReactMarkdown> : <p>{evidence}</p>}
