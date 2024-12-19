@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@v2.10.1
+      uses: step-security/harden-runner@v2.10.2
       with:
         disable-sudo: true
         egress-policy: block
@@ -74,7 +74,7 @@ jobs:
       working-directory: contracts
                    
     - name: Upload a build artifact
-      uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+      uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
       with:    
         name: code-coverage-report    
         path: contracts/coverage
