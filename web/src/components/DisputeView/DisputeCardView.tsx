@@ -7,8 +7,8 @@ import { Card } from "@kleros/ui-components-library";
 
 import { Periods } from "consts/periods";
 
-import { responsiveSize } from "styles/responsiveSize";
 import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { responsiveSize } from "styles/responsiveSize";
 
 import { StyledSkeleton } from "components/StyledSkeleton";
 
@@ -37,7 +37,7 @@ const StyledCaseCardTitleSkeleton = styled(StyledSkeleton)`
 
 const TruncatedTitle = ({ text, maxLength }) => {
   const truncatedText = text.length <= maxLength ? text : text.slice(0, maxLength) + "…";
-  return <h3>{truncatedText}</h3>;
+  return <h3 dir="auto">{truncatedText}</h3>;
 };
 interface IDisputeCardView {
   title: string;
