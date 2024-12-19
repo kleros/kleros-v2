@@ -44,6 +44,7 @@ const Title: React.FC = () => {
     <Container>
       <Header text="Choose a title" />
       <StyledField
+        dir="auto"
         onChange={handleWrite}
         placeholder="eg. Freelance work disagreement between Alice and Bob"
         value={disputeData.title}

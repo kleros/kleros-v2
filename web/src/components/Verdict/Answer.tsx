@@ -22,7 +22,7 @@ const AnswerDisplay: React.FC<IAnswer> = ({ answer, currentRuling }) => {
   return (
     <>
       {answer ? (
-        <AnswerTitleAndDescription>
+        <AnswerTitleAndDescription dir="auto">
           <AnswerTitle>{answer.title}</AnswerTitle>
           <AnswerDescription>{answer.description.trim() ? ` - ${answer.description}` : null}</AnswerDescription>
         </AnswerTitleAndDescription>

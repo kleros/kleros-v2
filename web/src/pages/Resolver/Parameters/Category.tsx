@@ -48,6 +48,7 @@ const Category: React.FC = () => {
     <Container>
       <Header text="Choose a category" />
       <StyledField
+        dir="auto"
         onChange={handleWrite}
         value={disputeData.category}
         placeholder="eg. Freelance"

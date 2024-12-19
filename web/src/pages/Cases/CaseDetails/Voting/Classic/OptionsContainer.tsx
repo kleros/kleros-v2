@@ -65,7 +65,7 @@ const Options: React.FC<IOptions> = ({ arbitrable, handleSelection, justificatio
 
   return id ? (
     <>
-      <MainContainer>
+      <MainContainer dir="auto">
         <ReactMarkdown>{disputeDetails?.question}</ReactMarkdown>
         {!isUndefined(justification) && !isUndefined(setJustification) ? (
           <JustificationArea {...{ justification, setJustification }} />

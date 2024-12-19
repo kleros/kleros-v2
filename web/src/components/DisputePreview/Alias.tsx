@@ -46,7 +46,7 @@ const AliasDisplay: React.FC<IAlias> = ({ name, address }) => {
   const resolvedAddress = addressFromENS ?? (address as `0x${string}`);
 
   return (
-    <AliasContainer>
+    <AliasContainer dir="auto">
       {isLoading ? <Skeleton width={30} height={24} /> : <IdenticonOrAvatar address={resolvedAddress} size="24" />}
       <TextContainer>
         {isLoading ? <Skeleton width={30} height={24} /> : <AddressOrName address={resolvedAddress} />}&nbsp;

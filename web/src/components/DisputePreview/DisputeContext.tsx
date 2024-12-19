@@ -12,9 +12,10 @@ import { responsiveSize } from "styles/responsiveSize";
 import ReactMarkdown from "components/ReactMarkdown";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
-import AliasDisplay from "./Alias";
 import { Divider } from "../Divider";
 import { ExternalLink } from "../ExternalLink";
+
+import AliasDisplay from "./Alias";
 
 const StyledH1 = styled.h1`
   margin: 0;
@@ -75,16 +76,18 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRp
 
   return (
     <>
-      <StyledH1>{isUndefined(disputeDetails) ? <StyledSkeleton /> : (disputeDetails?.title ?? errMsg)}</StyledH1>
+      <StyledH1 dir="auto">
+        {isUndefined(disputeDetails) ? <StyledSkeleton /> : (disputeDetails?.title ?? errMsg)}
+      </StyledH1>
       {disputeDetails?.question?.trim() || disputeDetails?.description?.trim() ? (
         <div>
           {disputeDetails?.question?.trim() ? (
-            <ReactMarkdownWrapper>
+            <ReactMarkdownWrapper dir="auto">
               <ReactMarkdown>{disputeDetails.question}</ReactMarkdown>
             </ReactMarkdownWrapper>
           ) : null}
           {disputeDetails?.description?.trim() ? (
-            <ReactMarkdownWrapper>
+            <ReactMarkdownWrapper dir="auto">
               <ReactMarkdown>{disputeDetails.description}</ReactMarkdown>
             </ReactMarkdownWrapper>
           ) : null}
@@ -100,7 +103,7 @@ export const DisputeContext: React.FC<IDisputeContext> = ({ disputeDetails, isRp
         {isUndefined(disputeDetails) ? null : <AnswersHeader>Voting Options</AnswersHeader>}
         <AnswersContainer>
           {disputeDetails?.answers?.map((answer: IAnswer, i: number) => (
-            <AnswerTitleAndDescription key={answer.title}>
+            <AnswerTitleAndDescription dir="auto" key={answer.title}>
               <label>{i + 1}. </label>
               <AnswerTitle>{answer.title}</AnswerTitle>
               <AnswerDescription>{answer.description.trim() ? ` - ${answer.description}` : null}</AnswerDescription>

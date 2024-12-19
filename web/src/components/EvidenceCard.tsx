@@ -1,10 +1,6 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-
 import Identicon from "react-identicons";
 import ReactMarkdown from "react-markdown";
 
@@ -18,6 +14,10 @@ import { getIpfsUrl } from "utils/getIpfsUrl";
 import { shortenAddress } from "utils/shortenAddress";
 
 import { type Evidence } from "src/graphql/graphql";
+
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import { ExternalLink } from "./ExternalLink";
 import { InternalLink } from "./InternalLink";
@@ -58,6 +58,7 @@ const Index = styled.p`
   display: inline-block;
 `;
 
+const ReactMarkdownWrapper = styled.div``;
 const StyledReactMarkdown = styled(ReactMarkdown)`
   a {
     font-size: 16px;
@@ -216,12 +217,18 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
 
   return (
     <StyledCard>
-      <TopContent>
+      <TopContent dir="auto">
         <IndexAndName>
           <Index>#{index}: </Index>
           <h3>{name}</h3>
         </IndexAndName>
-        {name && description ? <StyledReactMarkdown>{description}</StyledReactMarkdown> : <p>{evidence}</p>}
+        {name && description ? (
+          <ReactMarkdownWrapper dir="auto">
+            <StyledReactMarkdown>{description}</StyledReactMarkdown>
+          </ReactMarkdownWrapper>
+        ) : (
+          <p>{evidence}</p>
+        )}
       </TopContent>
       <BottomShade>
         <BottomLeftContent>

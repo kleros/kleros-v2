@@ -4,15 +4,16 @@ import styled from "styled-components";
 import Modal from "react-modal";
 import { useWalletClient, usePublicClient, useConfig } from "wagmi";
 
+import { useAtlasProvider, Roles } from "@kleros/kleros-app";
 import { Textarea, Button, FileUploader } from "@kleros/ui-components-library";
 
-import { useAtlasProvider, Roles } from "@kleros/kleros-app";
 import { simulateEvidenceModuleSubmitEvidence } from "hooks/contracts/generated";
 import { wrapWithToast, errorToast, infoToast, successToast } from "utils/wrapWithToast";
 
+import { isEmpty } from "src/utils";
+
 import EnsureAuth from "components/EnsureAuth";
 import { EnsureChain } from "components/EnsureChain";
-import { isEmpty } from "src/utils";
 
 const StyledModal = styled(Modal)`
   position: absolute;
@@ -91,7 +92,12 @@ const SubmitEvidenceModal: React.FC<{
   return (
     <StyledModal {...{ isOpen }} shouldCloseOnEsc shouldCloseOnOverlayClick onRequestClose={close}>
       <h1>Submit New Evidence</h1>
-      <StyledTextArea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Your Arguments" />
+      <StyledTextArea
+        dir="auto"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Your Arguments"
+      />
       <StyledFileUploader callback={(file: File) => setFile(file)} />
       <ButtonArea>
         <Button variant="secondary" disabled={isSending} text="Return" onClick={close} />

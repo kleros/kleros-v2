@@ -30,7 +30,7 @@ const LabeledInput: React.FC<ILabeledInput> = (props) => {
   return (
     <Container>
       {!isUndefined(props.label) ? <StyledLabel id={props.label}>{props.label}</StyledLabel> : null}
-      <StyledField {...props} id={props?.label} />
+      <StyledField dir="auto" {...props} id={props?.label} />
     </Container>
   );
 };

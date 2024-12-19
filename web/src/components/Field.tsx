@@ -1,5 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
+
 import { landscapeStyle } from "styles/landscapeStyle";
 
 import { InternalLink } from "./InternalLink";
@@ -99,7 +100,7 @@ const Field: React.FC<IField> = ({
   className,
 }) => {
   return (
-    <FieldContainer isList={displayAsList} {...{ isOverview, isJurorBalance, width, className }}>
+    <FieldContainer dir="auto" isList={displayAsList} {...{ isOverview, isJurorBalance, width, className }}>
       <Icon />
       {(!displayAsList || isOverview || isJurorBalance) && <label>{name}:</label>}
       {link ? (
