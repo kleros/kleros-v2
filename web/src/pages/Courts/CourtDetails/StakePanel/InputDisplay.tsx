@@ -7,7 +7,7 @@ import { useDebounce } from "react-use";
 import { useParsedAmount } from "hooks/useParsedAmount";
 import { usePnkData } from "hooks/usePNKData";
 import { commify, uncommify } from "utils/commify";
-import { formatETH, formatPNK, roundNumberDown } from "utils/format";
+import { formatPNK, roundNumberDown } from "utils/format";
 import { isUndefined } from "utils/index";
 
 import { useCourtDetails } from "queries/useCourtDetails";
@@ -98,7 +98,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
       parsedAmount !== 0n &&
       jurorBalance[2] + parsedAmount < BigInt(courtDetails?.court?.minStake)
     ) {
-      setErrorMsg(`Min Stake in court is: ${formatETH(courtDetails?.court?.minStake)}`);
+      setErrorMsg(`Min Stake in court is: ${formatPNK(courtDetails?.court?.minStake)} PNK`);
     } else {
       setErrorMsg(undefined);
     }
