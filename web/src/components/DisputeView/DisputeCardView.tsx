@@ -17,16 +17,9 @@ import PeriodBanner from "./PeriodBanner";
 
 const StyledCard = styled(Card)`
   ${hoverShortTransitionTiming}
-  border-width: 0.5px;
   width: 100%;
   height: 100%;
   min-height: 290px;
-
-  ${landscapeStyle(
-    () => css`
-      border-width: 1px;
-    `
-  )}
 `;
 
 const CardContainer = styled.div`
