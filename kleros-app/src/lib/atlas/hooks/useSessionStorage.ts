@@ -7,6 +7,9 @@ export function useSessionStorage<T>(keyName: string, defaultValue: T) {
 
       return value ? JSON.parse(value) : defaultValue;
     } catch (err) {
+      // eslint-disable-next-line no-console
+      console.log("useSessionStorage:", { err });
+
       return defaultValue;
     }
   });
