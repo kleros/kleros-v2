@@ -23,6 +23,7 @@ import StatDisplay, { IStatDisplay } from "components/StatDisplay";
 import { StyledSkeleton } from "components/StyledSkeleton";
 
 const StyledCard = styled(Card)`
+  border-width: 0.5px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   width: auto;
@@ -32,6 +33,7 @@ const StyledCard = styled(Card)`
 
   ${landscapeStyle(
     () => css`
+      border-width: 1px;
       padding: 24px;
     `
   )}

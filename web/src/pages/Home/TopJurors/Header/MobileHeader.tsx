@@ -14,7 +14,7 @@ const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBlue};
   padding: 16px;
-  border 1px solid ${({ theme }) => theme.stroke};
+  border 0.5px solid ${({ theme }) => theme.stroke};
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
   border-bottom: none;

@@ -28,6 +28,7 @@ const StyledCard = styled(Card)`
   flex-wrap: wrap;
   padding: 16px;
   align-items: flex-start;
+  border-width: 0.5px;
 
   ${landscapeStyle(
     () => css`
@@ -35,6 +36,7 @@ const StyledCard = styled(Card)`
       justify-content: space-between;
       gap: 20px;
       padding: 24px 32px;
+      border-width: 1px;
     `
   )}
 `;

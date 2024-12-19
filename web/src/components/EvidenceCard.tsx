@@ -78,7 +78,6 @@ const StyledReactMarkdown = styled(ReactMarkdown)`
 
 const BottomShade = styled.div`
   background-color: ${({ theme }) => theme.lightBlue};
-  border-top: 1px solid ${({ theme }) => theme.stroke};
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -92,7 +91,7 @@ const BottomShade = styled.div`
 
   ${landscapeStyle(
     () => css`
-      padding: 16px 24px;
+      padding: 12px 24px;
     `
   )}
 `;
