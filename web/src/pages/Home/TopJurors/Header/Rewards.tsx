@@ -3,6 +3,8 @@ import styled, { css } from "styled-components";
 
 import { landscapeStyle } from "styles/landscapeStyle";
 
+import useIsDesktop from "hooks/useIsDesktop";
+
 import WithHelpTooltip from "components/WithHelpTooltip";
 
 const Container = styled.div`
@@ -16,14 +18,13 @@ const Container = styled.div`
   }
 
   ${landscapeStyle(
-    () =>
-      css`
-        font-size: 14px !important;
-        justify-content: center;
-        &::before {
-          content: "Total Rewards";
-        }
-      `
+    () => css`
+      font-size: 14px !important;
+      justify-content: center;
+      &::before {
+        content: "Total Rewards";
+      }
+    `
   )}
 `;
 
@@ -33,10 +34,14 @@ const totalRewardsTooltipMsg =
   "is coherent with the final ruling receive the Juror Rewards composed of " +
   "arbitration fees (ETH) + PNK redistribution between jurors.";
 
-const Rewards: React.FC = () => (
-  <Container>
-    <WithHelpTooltip place="top" tooltipMsg={totalRewardsTooltipMsg}></WithHelpTooltip>
-  </Container>
-);
+const Rewards: React.FC = () => {
+  const isDesktop = useIsDesktop();
+
+  return (
+    <Container>
+      <WithHelpTooltip place={isDesktop ? "top" : "right"} tooltipMsg={totalRewardsTooltipMsg}></WithHelpTooltip>
+    </Container>
+  );
+};
 
 export default Rewards;

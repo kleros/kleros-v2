@@ -59,11 +59,17 @@ const ButtonContainer = styled.div`
 `;
 
 const StyledCard = styled(Card)`
-  padding: ${responsiveSize(16, 32)} ${responsiveSize(8, 32)};
+  padding: 16px;
   margin-top: 12px;
   width: 100%;
   height: auto;
   min-height: 100px;
+
+  ${landscapeStyle(
+    () => css`
+      padding: 32px;
+    `
+  )}
 `;
 
 const StyledBreadcrumb = styled(Breadcrumb)`

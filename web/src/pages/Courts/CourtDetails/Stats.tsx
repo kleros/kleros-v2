@@ -31,12 +31,12 @@ import { StyledSkeleton } from "components/StyledSkeleton";
 
 const StyledAccordion = styled(Accordion)`
   > * > button {
-    padding: 12px ${responsiveSize(8, 24)} !important;
+    padding: 12px 16px !important;
     justify-content: unset;
   }
   //adds padding to body container
   > * > div > div {
-    padding: 0;
+    padding: 0 8px 8px;
   }
   [class*="accordion-item"] {
     margin: 0;
@@ -46,6 +46,9 @@ const StyledAccordion = styled(Accordion)`
     () => css`
       > * > div > div {
         padding: 0 24px;
+      }
+      > * > button {
+        padding: 12px 24px !important;
       }
     `
   )}

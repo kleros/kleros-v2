@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import PaperclipIcon from "svgs/icons/paperclip.svg";
 import PolicyIcon from "svgs/icons/policy.svg";
@@ -7,8 +7,8 @@ import PolicyIcon from "svgs/icons/policy.svg";
 import { getIpfsUrl } from "utils/getIpfsUrl";
 import { isUndefined } from "utils/index";
 
-import { responsiveSize } from "styles/responsiveSize";
 import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import { InternalLink } from "components/InternalLink";
 
@@ -17,9 +17,15 @@ const Container = styled.div`
   align-items: center;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 8px 16px;
-  padding: ${responsiveSize(12, 20)} ${responsiveSize(8, 32)};
+  gap: 12px 16px;
+  padding: 12px 16px 20px;
   background-color: ${({ theme }) => theme.mediumBlue};
+
+  ${landscapeStyle(
+    () => css`
+      padding: 20px 32px;
+    `
+  )}
 `;
 
 const StyledP = styled.p`
