@@ -5370,7 +5370,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kleros/kleros-app@npm:^2.0.2, @kleros/kleros-app@workspace:kleros-app":
+"@kleros/kleros-app@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@kleros/kleros-app@npm:2.0.2"
+  dependencies:
+    jose: "npm:^5.9.6"
+  peerDependencies:
+    "@tanstack/react-query": ^5.59.20
+    graphql: ^16.9.0
+    graphql-request: ^7.1.2
+    react: ^18.3.1
+    react-dom: ^18.3.1
+    viem: ^2.21.42
+    wagmi: ^2.13.0
+  checksum: 10/89cf0536fed4bbb887772daa529d7cad209cea0e5105bcd366fe5e4bc7c5c14fca21aa201ba4d848c7e8addd3fc4921ac54e237afe2a5b7224c9cd219f72e08b
+  languageName: node
+  linkType: hard
+
+"@kleros/kleros-app@workspace:kleros-app":
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-app@workspace:kleros-app"
   dependencies:
