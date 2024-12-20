@@ -135,7 +135,7 @@ const SelectArbitrable: React.FC = () => {
 
   const [[chainId, address]] = Object.entries(klerosCoreAddress);
   if (chainId !== DEFAULT_CHAIN.toString()) {
-    throw new Error(`Kleros Core is not deployed on chain ${chainId}`);
+    console.error(`Kleros Core is not deployed on chain ${chainId}`);
   }
 
   return (

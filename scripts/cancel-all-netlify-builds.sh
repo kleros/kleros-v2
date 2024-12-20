@@ -8,11 +8,10 @@ function cancelSiteDeploy() #siteId
     do
         local name=$(jq -r .name <<< $build)
         local branch=$(jq -r .branch <<< $build)
-        if ! [[ "$branch" =~ ^dependabot/ || "$branch" =~ ^renovate/ ]]; then
-            continue;
+        if [[ "$branch" =~ ^dependabot/ || "$branch" =~ ^renovate/ ]]; then
+          echo "Cancelling build for $name $branch"
+          netlify api cancelSiteDeploy -d '{ "deploy_id": "'$(jq -r .id <<< $build)'"}' > /dev/null
         fi
-        echo "Cancelling build for $name $branch"
-        netlify api cancelSiteDeploy -d '{ "deploy_id": "'$(jq -r .id <<< $build)'"}' > /dev/null
     done
 }
 

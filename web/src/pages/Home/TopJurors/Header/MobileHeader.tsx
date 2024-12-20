@@ -1,9 +1,9 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-
 import { useToggle } from "react-use";
+
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import HowItWorks from "components/HowItWorks";
 import JurorLevels from "components/Popup/MiniGuides/JurorLevels";
@@ -14,7 +14,7 @@ const Container = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.lightBlue};
   padding: 16px;
-  border 1px solid ${({ theme }) => theme.stroke};
+  border: 1px solid ${({ theme }) => theme.stroke};
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
   border-bottom: none;

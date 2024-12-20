@@ -5370,24 +5370,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kleros/kleros-app@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "@kleros/kleros-app@npm:2.0.1"
-  dependencies:
-    jose: "npm:^5.9.6"
-  peerDependencies:
-    "@tanstack/react-query": ^5.59.20
-    graphql: ^16.9.0
-    graphql-request: ^7.1.2
-    react: ^18.3.1
-    react-dom: ^18.3.1
-    viem: ^2.21.42
-    wagmi: ^2.13.0
-  checksum: 10/a193e49fe82738eaa7df3b82857fd74a5407e6ed166edeacd2352bbd149a49ea3cfde98f130fe0473f006761260cbf2475bc4fa138ad05650540eec43b9755d1
-  languageName: node
-  linkType: hard
-
-"@kleros/kleros-app@workspace:kleros-app":
+"@kleros/kleros-app@npm:^2.0.2, @kleros/kleros-app@workspace:kleros-app":
   version: 0.0.0-use.local
   resolution: "@kleros/kleros-app@workspace:kleros-app"
   dependencies:
@@ -5621,7 +5604,7 @@ __metadata:
     "@eslint/js": "npm:^9.15.0"
     "@graphql-codegen/cli": "npm:^5.0.3"
     "@graphql-codegen/client-preset": "npm:^4.5.1"
-    "@kleros/kleros-app": "npm:^2.0.1"
+    "@kleros/kleros-app": "npm:^2.0.2"
     "@kleros/kleros-sdk": "workspace:^"
     "@kleros/kleros-v2-contracts": "workspace:^"
     "@kleros/kleros-v2-eslint-config": "workspace:^"
