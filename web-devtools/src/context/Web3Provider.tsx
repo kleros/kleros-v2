@@ -6,7 +6,8 @@ import { createConfig, fallback, http, WagmiProvider, webSocket } from "wagmi";
 import { mainnet, arbitrumSepolia, arbitrum, gnosisChiado, sepolia, gnosis } from "wagmi/chains";
 import { walletConnect } from "wagmi/connectors";
 
-import { ALL_CHAINS } from "consts/chains";
+import { ALL_CHAINS, DEFAULT_CHAIN } from "consts/chains";
+import { isProductionDeployment } from "consts/index";
 
 import { theme } from "styles/Theme";
 
@@ -14,6 +15,8 @@ const alchemyApiKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
 if (!alchemyApiKey) {
   throw new Error("Alchemy API key is not set in NEXT_PUBLIC_ALCHEMY_API_KEY environment variable.");
 }
+
+const isProduction = isProductionDeployment();
 
 // https://github.com/alchemyplatform/alchemy-sdk-js/blob/c4440cb/src/types/types.ts#L98-L153
 const alchemyToViemChain: Record<number, string> = {
@@ -36,12 +39,27 @@ function alchemyURL(protocol: AlchemyProtocol, chainId: number): string {
   return `${protocol}://${network}.g.alchemy.com/v2/${alchemyApiKey}`;
 }
 
+export const getChainRpcUrl = (protocol: AlchemyProtocol, chainId: number) => {
+  return alchemyURL(protocol, chainId);
+};
+
+export const getDefaultChainRpcUrl = (protocol: AlchemyProtocol) => {
+  return getChainRpcUrl(protocol, DEFAULT_CHAIN);
+};
+
 export const getTransports = () => {
   const alchemyTransport = (chain: Chain) =>
     fallback([http(alchemyURL("https", chain.id)), webSocket(alchemyURL("wss", chain.id))]);
+  const defaultTransport = (chain: Chain) =>
+    fallback([http(chain.rpcUrls.default?.http?.[0]), webSocket(chain.rpcUrls.default?.webSocket?.[0])]);
 
   return {
-    [arbitrumSepolia.id]: alchemyTransport(arbitrumSepolia),
+    [isProduction ? arbitrum.id : arbitrumSepolia.id]: isProduction
+      ? alchemyTransport(arbitrum)
+      : alchemyTransport(arbitrumSepolia),
+    [isProduction ? gnosis.id : gnosisChiado.id]: isProduction
+      ? defaultTransport(gnosis)
+      : defaultTransport(gnosisChiado),
     [mainnet.id]: alchemyTransport(mainnet), // Always enabled for ENS resolution
   };
 };
@@ -63,7 +81,7 @@ const wagmiConfig = createConfig({
 createWeb3Modal({
   wagmiConfig,
   projectId,
-  defaultChain: arbitrumSepolia,
+  defaultChain: isProduction ? arbitrum : arbitrumSepolia,
   themeVariables: {
     "--w3m-color-mix": theme.klerosUIComponentsPrimaryPurple,
     "--w3m-color-mix-strength": 20,
