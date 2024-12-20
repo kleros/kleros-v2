@@ -21,7 +21,6 @@ const formatter = new Intl.NumberFormat("en", { notation: "compact" });
 
 const BarContainer = styled.div`
   height: 220px;
-  margin-top: 16px;
 `;
 
 ChartJS.register(BarElement);

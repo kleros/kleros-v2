@@ -133,12 +133,17 @@ const SelectArbitrable: React.FC = () => {
     [publicClient, setArbitrable]
   );
 
+  const [[chainId, address]] = Object.entries(klerosCoreAddress);
+  if (chainId !== DEFAULT_CHAIN.toString()) {
+    console.error(`Kleros Core is not deployed on chain ${chainId}`);
+  }
+
   return (
     <Container>
       <AddressContainer>
         <StyledLabel>Ruler Address:</StyledLabel>
-        <Copiable copiableContent={klerosCoreAddress[DEFAULT_CHAIN]} info="Ruler Address">
-          <StyledLabel>{shortenAddress(klerosCoreAddress[DEFAULT_CHAIN])}</StyledLabel>
+        <Copiable copiableContent={address} info="Ruler Address">
+          <StyledLabel>{shortenAddress(address)}</StyledLabel>
         </Copiable>
       </AddressContainer>
       <Arbitrables suppressHydrationWarning={true}>

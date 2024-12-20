@@ -1,8 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import styled from "styled-components";
 
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-
 import { useParams } from "react-router-dom";
 import { useDebounce } from "react-use";
 
@@ -11,6 +9,10 @@ import { usePnkData } from "hooks/usePNKData";
 import { commify, uncommify } from "utils/commify";
 import { formatPNK, roundNumberDown } from "utils/format";
 import { isUndefined } from "utils/index";
+
+import { useCourtDetails } from "queries/useCourtDetails";
+
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import { NumberInputField } from "components/NumberInputField";
 
@@ -75,6 +77,7 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
 
   const { id } = useParams();
   const { balance, jurorBalance } = usePnkData({ courtId: id });
+  const { data: courtDetails } = useCourtDetails(id);
 
   const parsedBalance = formatPNK(balance ?? 0n, 0, true);
 
@@ -88,10 +91,18 @@ const InputDisplay: React.FC<IInputDisplay> = ({ action, amount, setAmount }) =>
       setErrorMsg("Insufficient balance to stake this amount");
     } else if (!isStaking && jurorBalance && parsedAmount > jurorBalance[2]) {
       setErrorMsg("Insufficient staked amount to withdraw this amount");
+    } else if (
+      action === ActionType.stake &&
+      courtDetails &&
+      jurorBalance &&
+      parsedAmount !== 0n &&
+      jurorBalance[2] + parsedAmount < BigInt(courtDetails?.court?.minStake)
+    ) {
+      setErrorMsg(`Min Stake in court is: ${formatPNK(courtDetails?.court?.minStake)} PNK`);
     } else {
       setErrorMsg(undefined);
     }
-  }, [parsedAmount, isStaking, balance, jurorBalance]);
+  }, [parsedAmount, isStaking, balance, jurorBalance, action, courtDetails]);
 
   return (
     <>

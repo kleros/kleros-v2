@@ -78,7 +78,7 @@
   },
   "dependencies": {
     "@cyntler/react-doc-viewer": "^1.17.0",
-    "@kleros/kleros-app": "^2.0.1",
+    "@kleros/kleros-app": "^2.0.2",
     "@kleros/kleros-sdk": "workspace:^",
     "@kleros/kleros-v2-contracts": "workspace:^",
     "@kleros/ui-components-library": "^2.19.0",

@@ -30,7 +30,7 @@ const StyledCard = styled(Card)`
 const TopContent = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${responsiveSize(8, 20)} ${responsiveSize(8, 24)};
+  padding: 16px;
   gap: 4px;
   overflow-wrap: break-word;
 
@@ -45,17 +45,24 @@ const TopContent = styled.div`
     display: inline-block;
     margin: 0;
   }
+
+  ${landscapeStyle(
+    () => css`
+      padding: 20px 24px;
+    `
+  )}
 `;
 
 const IndexAndName = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 `;
 
 const Index = styled.p`
   display: inline-block;
+  color: ${({ theme }) => theme.secondaryText};
 `;
 
 const StyledReactMarkdown = styled(ReactMarkdown)`
@@ -76,12 +83,18 @@ const BottomShade = styled.div`
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  padding: 12px ${responsiveSize(8, 24)};
+  padding: 16px;
   > * {
     flex-basis: 1;
     flex-shrink: 0;
     margin: 0;
   }
+
+  ${landscapeStyle(
+    () => css`
+      padding: 12px 24px;
+    `
+  )}
 `;
 
 const BottomLeftContent = styled.div`
@@ -218,7 +231,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
     <StyledCard>
       <TopContent>
         <IndexAndName>
-          <Index>#{index}: </Index>
+          <Index>#{index}. </Index>
           <h3>{name}</h3>
         </IndexAndName>
         {name && description ? <StyledReactMarkdown>{description}</StyledReactMarkdown> : <p>{evidence}</p>}

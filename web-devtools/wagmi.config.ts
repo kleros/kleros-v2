@@ -4,13 +4,13 @@ import { parse, join } from "path";
 import { type Config, type ContractConfig, defineConfig } from "@wagmi/cli";
 import { react, actions } from "@wagmi/cli/plugins";
 import dotenv from "dotenv";
-import { Abi, Chain } from "viem";
+import { type Chain, type Abi } from "viem";
+import { arbitrum, arbitrumSepolia, gnosis, gnosisChiado, mainnet, sepolia } from "viem/chains";
 
 import IArbitrableV2 from "@kleros/kleros-v2-contracts/artifacts/src/arbitration/interfaces/IArbitrableV2.sol/IArbitrableV2.json" with { type: "json" };
 import IHomeGateway from "@kleros/kleros-v2-contracts/artifacts/src/gateway/interfaces/IHomeGateway.sol/IHomeGateway.json" with { type: "json" };
 
 import { ArbitratorTypes, getArbitratorType } from "./src/consts/arbitratorTypes";
-import { arbitrum, arbitrumSepolia, gnosis, gnosisChiado, mainnet, sepolia } from "viem/chains";
 
 dotenv.config();
 
@@ -27,7 +27,14 @@ const readArtifacts = async (type: ArbitratorTypes, viemChainName: string, hardh
     type === ArbitratorTypes.vanilla
       ? ""
       : ArbitratorTypes[type].toString().charAt(0).toUpperCase() + ArbitratorTypes[type].toString().slice(1);
-  const vanillaArtifacts = ["KlerosCore", "DisputeKitClassic", "SortitionModule", "DisputeResolver", "KlerosCoreRuler"];
+  const vanillaArtifacts = [
+    "KlerosCore",
+    "DisputeKitClassic",
+    "SortitionModule",
+    "DisputeResolver",
+    "KlerosCoreRuler",
+    "DisputeResolverRuler",
+  ];
   const typeSpecificArtifacts = vanillaArtifacts.map((artifact) => `${artifact}${artifactSuffix}`);
 
   const chainMap: Record<string, Chain> = {

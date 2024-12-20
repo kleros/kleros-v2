@@ -9,6 +9,7 @@ import { isUndefined } from "utils/index";
 import { DisputeDetailsFragment, useCasesQuery } from "queries/useCasesQuery";
 
 import { responsiveSize } from "styles/responsiveSize";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
 
 import DisputeView from "components/DisputeView";
 import { SkeletonDisputeCard } from "components/StyledSkeleton";
@@ -18,7 +19,7 @@ const Container = styled.div`
 `;
 
 const Title = styled.h1`
-  margin-bottom: 4px;
+  margin: 0;
   font-size: ${responsiveSize(20, 24)};
 `;
 
@@ -30,11 +31,20 @@ const DisputeContainer = styled.div`
   gap: var(--gap);
 `;
 
+const TitleAndClearLabel = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: ${responsiveSize(12, 24)};
+`;
+
 const StyledLabel = styled.label`
-  display: block;
+  ${hoverShortTransitionTiming}
   color: ${({ theme }) => theme.primaryBlue};
   cursor: pointer;
-  margin-bottom: ${responsiveSize(12, 16)};
+  margin-top: 6px;
+
   :hover {
     color: ${({ theme }) => theme.secondaryBlue};
   }
@@ -61,8 +71,10 @@ const FavoriteCases: React.FC = () => {
 
   return starredCaseIds.length > 0 && (isUndefined(disputes) || disputes.length > 0) ? (
     <Container>
-      <Title>Favorite Cases</Title>
-      <StyledLabel onClick={clearAll}>Clear all</StyledLabel>
+      <TitleAndClearLabel>
+        <Title>Favorite Cases</Title>
+        <StyledLabel onClick={clearAll}>Clear all</StyledLabel>
+      </TitleAndClearLabel>
       <DisputeContainer>
         {isUndefined(disputes)
           ? Array.from({ length: 3 }).map((_, index) => <SkeletonDisputeCard key={index} />)
