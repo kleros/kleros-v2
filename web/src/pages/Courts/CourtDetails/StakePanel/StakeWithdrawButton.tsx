@@ -266,9 +266,10 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     if (
       parsedAmount == 0n ||
       (action === ActionType.stake &&
-        targetStake !== 0n &&
         courtDetails &&
-        targetStake < BigInt(courtDetails?.court?.minStake))
+        jurorBalance &&
+        parsedAmount !== 0n &&
+        jurorBalance[2] + parsedAmount < BigInt(courtDetails?.court?.minStake))
     )
       return true;
     if (isAllowance) {
@@ -284,9 +285,9 @@ const StakeWithdrawButton: React.FC<IActionButton> = ({
     setStakeError,
     allowanceError,
     isAllowance,
-    targetStake,
     action,
     courtDetails,
+    jurorBalance,
   ]);
 
   const closePopup = () => {
