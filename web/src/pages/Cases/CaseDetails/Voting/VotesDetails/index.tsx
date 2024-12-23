@@ -95,10 +95,6 @@ const SecondaryTextLabel = styled.label`
   font-size: 16px;
 `;
 
-const StyledExternalLink = styled(ExternalLink)`
-  font-size: 16px;
-`;
-
 const AccordionContent: React.FC<{
   choice?: string;
   answers: Answer[];
@@ -118,18 +114,16 @@ const AccordionContent: React.FC<{
           <SecondaryTextLabel>{getVoteChoice(parseInt(choice), answers)}</SecondaryTextLabel>
         </div>
       )}
-      {!isUndefined(timestamp) && (
-        <div>
-          <StyledLabel>Date:&nbsp;</StyledLabel>
-          <StyledExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
-            {formatDate(Number(timestamp), true)}
-          </StyledExternalLink>
-        </div>
-      )}
+
       {justification ? (
         <JustificationText>{justification}</JustificationText>
       ) : (
         <SecondaryTextLabel>No justification provided</SecondaryTextLabel>
+      )}
+      {!isUndefined(timestamp) && (
+        <ExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
+          {formatDate(Number(timestamp), true)}
+        </ExternalLink>
       )}
     </AccordionContentContainer>
   );
