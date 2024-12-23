@@ -15,18 +15,21 @@ const Container = styled(_Card)`
   justify-content: space-between;
   height: auto;
   width: 100%;
-  padding: 21px 20px 25px 20px;
+  padding: 20px 16px 24px;
   border-left: 5px solid ${({ theme }) => theme.secondaryPurple};
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 16px;
+
+  :hover {
+    cursor: auto;
+  }
 
   ${({ theme }) => (theme.name === "light" ? `box-shadow: 0px 2px 3px 0px ${theme.stroke};` : "")}
 
   ${landscapeStyle(
-    () =>
-      css`
-        padding: 21.5px 32px;
-      `
+    () => css`
+      padding: 21.5px 32px;
+    `
   )}
 `;
 
@@ -38,7 +41,7 @@ interface ICourtCard {
 
 const CourtCard: React.FC<ICourtCard> = ({ name, stake, id }) => {
   return (
-    <Container>
+    <Container hover>
       <CourtName {...{ name, id }} />
       <Stake {...{ stake }} />
     </Container>

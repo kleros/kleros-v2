@@ -21,7 +21,7 @@ const Container = styled.div`
 const CourtCardsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 12px;
   z-index: 0;
 
   ${landscapeStyle(

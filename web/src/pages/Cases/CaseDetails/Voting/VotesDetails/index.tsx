@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { Card, CustomAccordion } from "@kleros/ui-components-library";
 
@@ -8,7 +8,8 @@ import { DrawnJuror } from "utils/getDrawnJurorsWithCount";
 import { getVoteChoice } from "utils/getVoteChoice";
 import { isUndefined } from "utils/index";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import InfoCard from "components/InfoCard";
 
@@ -27,21 +28,43 @@ const StyledAccordion = styled(CustomAccordion)`
   }
 
   [class*="accordion-button"] {
-    padding: 12px ${responsiveSize(8, 16)} !important;
+    padding: 16px !important;
     margin: 4px 0;
   }
 
   [class*="Body"] {
-    padding: ${responsiveSize(6, 10)} ${responsiveSize(4, 16)};
+    padding: 8px;
   }
+
+  ${landscapeStyle(
+    () => css`
+      [class*="accordion-button"] {
+        padding: 12px 16px !important;
+      }
+      [class*="Body"] {
+        padding: 12px 16px;
+      }
+    `
+  )}
 `;
 
 const StyledCard = styled(Card)`
+  ${hoverShortTransitionTiming}
   width: 100%;
   height: auto;
-  padding: 11.5px ${responsiveSize(8, 18)};
+  padding: 16px;
   border: 1px solid ${({ theme }) => theme.stroke};
   margin: 4px 0;
+
+  :hover {
+    background-color: ${({ theme }) => theme.lightGrey}BB;
+  }
+
+  ${landscapeStyle(
+    () => css`
+      padding: 12px 16px;
+    `
+  )}
 `;
 
 const AccordionContentContainer = styled.div`

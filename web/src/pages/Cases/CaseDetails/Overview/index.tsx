@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { useParams } from "react-router-dom";
 import { formatEther } from "viem";
@@ -11,7 +11,7 @@ import { getLocalRounds } from "utils/getLocalRounds";
 import { useCourtPolicy } from "queries/useCourtPolicy";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
-import { responsiveSize } from "styles/responsiveSize";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import { DisputeContext } from "components/DisputePreview/DisputeContext";
 import { Policies } from "components/DisputePreview/Policies";
@@ -24,8 +24,15 @@ const Container = styled.div`
   height: auto;
   display: flex;
   flex-direction: column;
-  gap: ${responsiveSize(16, 24)};
-  padding: ${responsiveSize(16, 32)} ${responsiveSize(8, 32)};
+  gap: 16px;
+  padding: 20px 16px 16px;
+
+  ${landscapeStyle(
+    () => css`
+      padding: 32px;
+      gap: 24px;
+    `
+  )}
 `;
 
 interface IOverview {

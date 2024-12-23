@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
@@ -18,6 +18,7 @@ import { useAppealCost } from "queries/useAppealCost";
 import { useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 
 import { responsiveSize } from "styles/responsiveSize";
+import { landscapeStyle } from "styles/landscapeStyle";
 
 import { getPeriodEndTimestamp } from "components/DisputeView";
 import InfoCard from "components/InfoCard";
@@ -27,8 +28,13 @@ import Classic from "./Classic";
 import VotingHistory from "./VotingHistory";
 
 const Container = styled.div`
-  padding: ${responsiveSize(16, 32)} ${responsiveSize(8, 32)};
-  padding-bottom: ${responsiveSize(8, 16)};
+  padding: 20px 16px 16px;
+
+  ${landscapeStyle(
+    () => css`
+      padding: 32px 32px 16px;
+    `
+  )}
 `;
 
 const InfoCardContainer = styled.div`
