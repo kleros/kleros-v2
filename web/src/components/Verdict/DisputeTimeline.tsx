@@ -8,12 +8,12 @@ import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
 
 import CalendarIcon from "svgs/icons/calendar.svg";
 import ClosedCaseIcon from "svgs/icons/check-circle-outline.svg";
+import NewTabIcon from "svgs/icons/new-tab.svg";
 
 import { Periods } from "consts/periods";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { getLocalRounds } from "utils/getLocalRounds";
 import { getVoteChoice } from "utils/getVoteChoice";
-import { shortenTxnHash } from "utils/shortenAddress";
 
 import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useVotingHistory } from "queries/useVotingHistory";
@@ -55,13 +55,15 @@ const StyledCalendarIcon = styled(CalendarIcon)`
   height: 14px;
 `;
 
-const LinkContainer = styled.div`
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  span {
-    font-size: 14px;
-    color: ${({ theme }) => theme.primaryText};
+const StyledNewTabIcon = styled(NewTabIcon)`
+  margin-bottom: 2px;
+  path {
+    fill: ${({ theme }) => theme.primaryBlue};
+  }
+  :hover {
+    path {
+      fill: ${({ theme }) => theme.secondaryBlue};
+    }
   }
 `;
 
@@ -138,16 +140,9 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
           {
             title: "Dispute created",
             party: (
-              <LinkContainer>
-                <span>at</span>
-                <ExternalLink to={txnExplorerLink} rel="noopener noreferrer" target="_blank">
-                  {votingHistory?.dispute?.transactionHash ? (
-                    shortenTxnHash(votingHistory?.dispute?.transactionHash)
-                  ) : (
-                    <Skeleton height={16} width={56} />
-                  )}
-                </ExternalLink>
-              </LinkContainer>
+              <ExternalLink to={txnExplorerLink} rel="noopener noreferrer" target="_blank">
+                <StyledNewTabIcon />
+              </ExternalLink>
             ),
             subtitle: formatDate(votingHistory?.dispute?.createdAt),
             rightSided: true,
