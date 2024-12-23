@@ -95,6 +95,10 @@ const SecondaryTextLabel = styled.label`
   font-size: 16px;
 `;
 
+const StyledInfoCard = styled(InfoCard)`
+  margin-top: 18.5px;
+`;
+
 const AccordionContent: React.FC<{
   choice?: string;
   answers: Answer[];
@@ -172,12 +176,7 @@ const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answer
 
   return (
     <>
-      {drawnJurors.length === 0 ? (
-        <>
-          <br />
-          <InfoCard msg="Jurors have not been drawn yet." />
-        </>
-      ) : null}
+      {drawnJurors.length === 0 ? <StyledInfoCard msg="Jurors have not been drawn yet." /> : null}
       <Container>
         {accordionItems.length > 0 ? <StyledAccordion items={accordionItems} /> : null}
         {drawnJurors.map(
