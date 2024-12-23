@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import NewTabIcon from "svgs/icons/new-tab.svg";
 
-import { DEFAULT_CHAIN, getChain } from "consts/chains";
+import { getTxnExplorerLink } from "src/utils";
 
 import { ExternalLink } from "./ExternalLink";
 
@@ -23,7 +23,7 @@ interface ITxnHash {
 }
 const TxnHash: React.FC<ITxnHash> = ({ hash, variant }) => {
   const transactionExplorerLink = useMemo(() => {
-    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/tx/${hash}`;
+    return getTxnExplorerLink(hash);
   }, [hash]);
 
   return (

@@ -4,13 +4,15 @@ import styled, { css } from "styled-components";
 import { Card, CustomAccordion } from "@kleros/ui-components-library";
 
 import { Answer } from "context/NewDisputeContext";
+import { formatDate } from "utils/date";
 import { DrawnJuror } from "utils/getDrawnJurorsWithCount";
 import { getVoteChoice } from "utils/getVoteChoice";
-import { isUndefined } from "utils/index";
+import { getTxnExplorerLink, isUndefined } from "utils/index";
 
 import { hoverShortTransitionTiming } from "styles/commonStyles";
 import { landscapeStyle } from "styles/landscapeStyle";
 
+import { ExternalLink } from "components/ExternalLink";
 import InfoCard from "components/InfoCard";
 
 import AccordionTitle from "./AccordionTitle";
@@ -76,7 +78,7 @@ const AccordionContentContainer = styled.div`
 const JustificationText = styled.div`
   color: ${({ theme }) => theme.secondaryText};
   font-size: 16px;
-  line-height: 1.2;
+  line-height: 1.25;
   &:before {
     content: "Justification: ";
     color: ${({ theme }) => theme.primaryText};
@@ -97,21 +99,37 @@ const AccordionContent: React.FC<{
   choice?: string;
   answers: Answer[];
   justification: string;
-}> = ({ justification, choice, answers }) => (
-  <AccordionContentContainer>
-    {!isUndefined(choice) && (
-      <div>
-        <StyledLabel>Voted:&nbsp;</StyledLabel>
-        <SecondaryTextLabel>{getVoteChoice(parseInt(choice), answers)}</SecondaryTextLabel>
-      </div>
-    )}
-    {justification ? (
-      <JustificationText>{justification}</JustificationText>
-    ) : (
-      <SecondaryTextLabel>No justification provided</SecondaryTextLabel>
-    )}
-  </AccordionContentContainer>
-);
+  timestamp?: string;
+  transactionHash?: string;
+}> = ({ justification, choice, answers, timestamp, transactionHash }) => {
+  const transactionExplorerLink = useMemo(() => {
+    return getTxnExplorerLink(transactionHash ?? "");
+  }, [transactionHash]);
+
+  return (
+    <AccordionContentContainer>
+      {!isUndefined(choice) && (
+        <div>
+          <StyledLabel>Voted:&nbsp;</StyledLabel>
+          <SecondaryTextLabel>{getVoteChoice(parseInt(choice), answers)}</SecondaryTextLabel>
+        </div>
+      )}
+      {!isUndefined(timestamp) && (
+        <div>
+          <StyledLabel>Date:&nbsp;</StyledLabel>
+          <ExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
+            {formatDate(Number(timestamp), true)}
+          </ExternalLink>
+        </div>
+      )}
+      {justification ? (
+        <JustificationText>{justification}</JustificationText>
+      ) : (
+        <SecondaryTextLabel>No justification provided</SecondaryTextLabel>
+      )}
+    </AccordionContentContainer>
+  );
+};
 
 interface IVotesAccordion {
   drawnJurors: DrawnJuror[];
@@ -144,6 +162,8 @@ const VotesAccordion: React.FC<IVotesAccordion> = ({ drawnJurors, period, answer
                   justification={drawnJuror?.vote?.justification.reference ?? ""}
                   choice={drawnJuror.vote?.justification?.choice}
                   answers={answers}
+                  transactionHash={drawnJuror.transactionHash}
+                  timestamp={drawnJuror.timestamp}
                 />
               ),
             }

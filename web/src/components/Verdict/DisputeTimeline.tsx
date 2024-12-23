@@ -1,8 +1,7 @@
 import React, { useMemo } from "react";
 import styled, { useTheme } from "styled-components";
 
-import { responsiveSize } from "styles/responsiveSize";
-
+import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router-dom";
 
 import { _TimelineItem1, CustomTimeline } from "@kleros/ui-components-library";
@@ -14,13 +13,19 @@ import { Periods } from "consts/periods";
 import { usePopulatedDisputeData } from "hooks/queries/usePopulatedDisputeData";
 import { getLocalRounds } from "utils/getLocalRounds";
 import { getVoteChoice } from "utils/getVoteChoice";
+import { shortenTxnHash } from "utils/shortenAddress";
 
 import { DisputeDetailsQuery, useDisputeDetailsQuery } from "queries/useDisputeDetailsQuery";
 import { useVotingHistory } from "queries/useVotingHistory";
 
 import { ClassicRound } from "src/graphql/graphql";
+import { getTxnExplorerLink } from "src/utils";
+
+import { responsiveSize } from "styles/responsiveSize";
 
 import { StyledClosedCircle } from "components/StyledIcons/ClosedCircleIcon";
+
+import { ExternalLink } from "../ExternalLink";
 
 const Container = styled.div`
   display: flex;
@@ -50,6 +55,16 @@ const StyledCalendarIcon = styled(CalendarIcon)`
   height: 14px;
 `;
 
+const LinkContainer = styled.div`
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  span {
+    font-size: 14px;
+    color: ${({ theme }) => theme.primaryText};
+  }
+`;
+
 const formatDate = (date: string) => {
   const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
   const startingDate = new Date(parseInt(date) * 1000);
@@ -67,6 +82,9 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
   const localRounds: ClassicRound[] = getLocalRounds(votingHistory?.dispute?.disputeKitDispute) as ClassicRound[];
   const rounds = votingHistory?.dispute?.rounds;
   const theme = useTheme();
+  const txnExplorerLink = useMemo(() => {
+    return getTxnExplorerLink(votingHistory?.dispute?.transactionHash ?? "");
+  }, [votingHistory]);
 
   return useMemo<TimelineItems | undefined>(() => {
     const dispute = disputeDetails?.dispute;
@@ -119,7 +137,18 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
         [
           {
             title: "Dispute created",
-            party: "",
+            party: (
+              <LinkContainer>
+                <span>at</span>
+                <ExternalLink to={txnExplorerLink} rel="noopener noreferrer" target="_blank">
+                  {votingHistory?.dispute?.transactionHash ? (
+                    shortenTxnHash(votingHistory?.dispute?.transactionHash)
+                  ) : (
+                    <Skeleton height={16} width={56} />
+                  )}
+                </ExternalLink>
+              </LinkContainer>
+            ),
             subtitle: formatDate(votingHistory?.dispute?.createdAt),
             rightSided: true,
             variant: theme.secondaryPurple,
@@ -128,7 +157,7 @@ const useItems = (disputeDetails?: DisputeDetailsQuery, arbitrable?: `0x${string
       );
     }
     return;
-  }, [disputeDetails, disputeData, localRounds, theme]);
+  }, [disputeDetails, disputeData, localRounds, theme, rounds, votingHistory, txnExplorerLink]);
 };
 
 interface IDisputeTimeline {
@@ -138,15 +167,30 @@ interface IDisputeTimeline {
 const DisputeTimeline: React.FC<IDisputeTimeline> = ({ arbitrable }) => {
   const { id } = useParams();
   const { data: disputeDetails } = useDisputeDetailsQuery(id);
+  const { data: votingHistory } = useVotingHistory(id);
   const items = useItems(disputeDetails, arbitrable);
+
+  const transactionExplorerLink = useMemo(() => {
+    return getTxnExplorerLink(disputeDetails?.dispute?.rulingTransactionHash ?? "");
+  }, [disputeDetails]);
 
   return (
     <Container>
       {items && <StyledTimeline {...{ items }} />}
-      {disputeDetails?.dispute?.ruled && items && (
+      {disputeDetails?.dispute?.ruled && (
         <EnforcementContainer>
           <StyledCalendarIcon />
-          <small>Enforcement: {items.at(-1)?.subtitle}</small>
+          <small>
+            Enforcement:{" "}
+            {disputeDetails.dispute.rulingTimestamp ? (
+              <ExternalLink to={transactionExplorerLink} rel="noopener noreferrer" target="_blank">
+                {formatDate(disputeDetails.dispute.rulingTimestamp)}
+              </ExternalLink>
+            ) : (
+              <Skeleton height={16} width={56} />
+            )}{" "}
+            / {votingHistory?.dispute?.rounds.at(-1)?.court.name}
+          </small>
         </EnforcementContainer>
       )}
     </Container>

@@ -1,10 +1,6 @@
 import React, { useMemo } from "react";
 import styled, { css } from "styled-components";
 
-import { landscapeStyle } from "styles/landscapeStyle";
-import { responsiveSize } from "styles/responsiveSize";
-import { hoverShortTransitionTiming } from "styles/commonStyles";
-
 import Identicon from "react-identicons";
 import ReactMarkdown from "react-markdown";
 
@@ -18,6 +14,11 @@ import { getIpfsUrl } from "utils/getIpfsUrl";
 import { shortenAddress } from "utils/shortenAddress";
 
 import { type Evidence } from "src/graphql/graphql";
+import { getTxnExplorerLink } from "src/utils";
+
+import { hoverShortTransitionTiming } from "styles/commonStyles";
+import { landscapeStyle } from "styles/landscapeStyle";
+import { responsiveSize } from "styles/responsiveSize";
 
 import { ExternalLink } from "./ExternalLink";
 import { InternalLink } from "./InternalLink";
@@ -224,7 +225,7 @@ const EvidenceCard: React.FC<IEvidenceCard> = ({
   }, [sender]);
 
   const transactionExplorerLink = useMemo(() => {
-    return `${getChain(DEFAULT_CHAIN)?.blockExplorers?.default.url}/tx/${transactionHash}`;
+    return getTxnExplorerLink(transactionHash ?? "");
   }, [transactionHash]);
 
   return (
