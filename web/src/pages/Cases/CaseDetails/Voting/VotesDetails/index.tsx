@@ -73,14 +73,16 @@ const AccordionContentContainer = styled.div`
   gap: 12px;
 `;
 
-const JustificationText = styled.div`
+const LabelWrapper = styled.div`
+  display: flex;
+  gap: 4px;
+`;
+
+const JustificationText = styled.label`
   color: ${({ theme }) => theme.secondaryText};
   font-size: 16px;
   line-height: 1.2;
-  &:before {
-    content: "Justification: ";
-    color: ${({ theme }) => theme.primaryText};
-  }
+  flex: 1;
 `;
 
 const StyledLabel = styled.label`
@@ -91,6 +93,7 @@ const StyledLabel = styled.label`
 const SecondaryTextLabel = styled.label`
   color: ${({ theme }) => theme.secondaryText};
   font-size: 16px;
+  flex: 1;
 `;
 
 const AccordionContent: React.FC<{
@@ -100,13 +103,16 @@ const AccordionContent: React.FC<{
 }> = ({ justification, choice, answers }) => (
   <AccordionContentContainer>
     {!isUndefined(choice) && (
-      <div>
+      <LabelWrapper>
         <StyledLabel>Voted:&nbsp;</StyledLabel>
-        <SecondaryTextLabel>{getVoteChoice(parseInt(choice), answers)}</SecondaryTextLabel>
-      </div>
+        <SecondaryTextLabel dir="auto">{getVoteChoice(parseInt(choice), answers)}</SecondaryTextLabel>
+      </LabelWrapper>
     )}
     {justification ? (
-      <JustificationText>{justification}</JustificationText>
+      <LabelWrapper>
+        <StyledLabel>Justification:&nbsp;</StyledLabel>
+        <JustificationText dir="auto">{justification}</JustificationText>
+      </LabelWrapper>
     ) : (
       <SecondaryTextLabel>No justification provided</SecondaryTextLabel>
     )}

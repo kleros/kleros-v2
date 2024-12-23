@@ -23,6 +23,7 @@ interface IJustificationArea {
 
 const JustificationArea: React.FC<IJustificationArea> = ({ justification, setJustification }) => (
   <StyledTextarea
+    dir="auto"
     value={justification}
     onChange={(e) => setJustification(e.target.value)}
     placeholder="Justify your vote..."
