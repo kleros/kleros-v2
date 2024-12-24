@@ -90,6 +90,7 @@ const Search: React.FC = () => {
       )}
       <SearchBarContainer>
         <StyledSearchbar
+          dir="auto"
           type="text"
           placeholder="Search By ID"
           value={search}

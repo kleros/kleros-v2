@@ -46,7 +46,7 @@ const StyledCaseCardTitleSkeleton = styled(StyledSkeleton)`
 
 const TruncatedTitle = ({ text, maxLength }) => {
   const truncatedText = text.length <= maxLength ? text : text.slice(0, maxLength) + "…";
-  return <StyledCaseCardTitle>{truncatedText}</StyledCaseCardTitle>;
+  return <StyledCaseCardTitle dir="auto">{truncatedText}</StyledCaseCardTitle>;
 };
 
 interface IDisputeCardView {
