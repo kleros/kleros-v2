@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { DEFAULT_CHAIN } from "consts/chains";
 import { isUndefined } from "utils/index";
 
 import { graphql } from "src/graphql";
@@ -32,6 +33,7 @@ export const useTopUsersByCoherenceScore = (first = 5) => {
         ? await graphqlBatcher.fetch({
             id: crypto.randomUUID(),
             document: topUsersByCoherenceScoreQuery,
+            chainId: DEFAULT_CHAIN,
             variables: {
               first: first,
               orderBy: "coherenceScore",

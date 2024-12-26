@@ -16,6 +16,7 @@ const WidgetContainer = styled.div`
     }
   }
 `;
+
 const getWidgetConfig = (theme: Theme): WidgetConfig => ({
   fromChain: 1,
   toChain: 42161,

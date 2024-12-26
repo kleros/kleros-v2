@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { DEFAULT_CHAIN } from "consts/chains";
 import { isUndefined } from "utils/index";
 
 import { graphql } from "src/graphql";
@@ -29,6 +30,7 @@ export const useDisputeTemplateFromId = (templateId?: string) => {
       await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: disputeTemplateQuery,
+        chainId: DEFAULT_CHAIN,
         variables: { id: templateId?.toString() },
         isDisputeTemplate: true,
       }),

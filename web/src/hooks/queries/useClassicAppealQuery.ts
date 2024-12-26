@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { REFETCH_INTERVAL } from "consts/index";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 import { graphql } from "src/graphql";
 import { ClassicAppealQuery } from "src/graphql/graphql";
@@ -49,6 +50,7 @@ export const useClassicAppealQuery = (id?: string | number) => {
         ? await graphqlBatcher.fetch({
             id: crypto.randomUUID(),
             document: classicAppealQuery,
+            chainId: DEFAULT_CHAIN,
             variables: {
               disputeID: id?.toString(),
               orderBy: "timestamp",

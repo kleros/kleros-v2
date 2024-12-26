@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { DEFAULT_CHAIN } from "consts/chains";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 
 import { graphql } from "src/graphql";
@@ -40,6 +41,7 @@ export const useHomePageQuery = (timeframe: number) => {
       const data = await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: homePageQuery,
+        chainId: DEFAULT_CHAIN,
         variables: { timeframe: timeframe.toString() },
       });
       return data;

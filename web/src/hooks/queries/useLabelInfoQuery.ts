@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { DEFAULT_CHAIN } from "consts/chains";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 
 import { graphql } from "src/graphql";
@@ -49,6 +50,7 @@ export const useLabelInfoQuery = (address?: string | null, disputeID?: string) =
       await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: labelQuery,
+        chainId: DEFAULT_CHAIN,
         variables: { address, disputeID },
       }),
   });

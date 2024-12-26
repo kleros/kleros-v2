@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { REFETCH_INTERVAL } from "consts/index";
+import { DEFAULT_CHAIN } from "consts/chains";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 import { transformSearch } from "utils/transformSearch";
 
@@ -56,6 +57,7 @@ export const useEvidences = (evidenceGroup?: string, keywords?: string) => {
       const result = await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: document,
+        chainId: DEFAULT_CHAIN,
         variables: { evidenceGroupID: evidenceGroup?.toString(), keywords: transformedKeywords },
       });
 

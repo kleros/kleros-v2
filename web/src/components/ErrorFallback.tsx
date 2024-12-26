@@ -28,6 +28,7 @@ const ErrorContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
   ${landscapeStyle(
     () => css`
       flex-direction: row;
@@ -42,6 +43,7 @@ const InfoWrapper = styled.div`
   gap: 32px;
   align-items: center;
   flex: 1;
+
   ${landscapeStyle(
     () => css`
       align-items: start;

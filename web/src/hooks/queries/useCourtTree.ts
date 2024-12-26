@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 import { graphql } from "src/graphql";
 import { CourtTreeQuery } from "src/graphql/graphql";
@@ -40,7 +41,12 @@ export const useCourtTree = () => {
   return useQuery<CourtTreeQuery>({
     queryKey: ["courtTreeQuery"],
     queryFn: async () =>
-      await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: courtTreeQuery, variables: {} }),
+      await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: courtTreeQuery,
+        chainId: DEFAULT_CHAIN,
+        variables: {},
+      }),
   });
 };
 

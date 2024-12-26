@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 import { graphql } from "src/graphql";
 import { CounterQuery } from "src/graphql/graphql";
@@ -28,6 +29,12 @@ export const useCounterQuery = () => {
 
   return useQuery<CounterQuery>({
     queryKey: [`useCounterQuery`],
-    queryFn: async () => await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: counterQuery, variables: {} }),
+    queryFn: async () =>
+      await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: counterQuery,
+        chainId: DEFAULT_CHAIN,
+        variables: {},
+      }),
   });
 };

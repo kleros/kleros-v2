@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 import { graphql } from "src/graphql";
 import { DisputeMaintenanceQuery } from "src/graphql/graphql";
@@ -44,6 +45,7 @@ const useDisputeMaintenanceQuery = (id?: string) => {
       await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: disputeMaintenance,
+        chainId: DEFAULT_CHAIN,
         variables: { disputeId: id?.toString(), disputeIdAsString: id?.toString() },
       }),
   });

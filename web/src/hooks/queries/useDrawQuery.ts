@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 import { graphql } from "src/graphql";
 import { DrawQuery } from "src/graphql/graphql";
@@ -31,6 +32,7 @@ export const useDrawQuery = (address?: string | null, disputeID?: string, roundI
       await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: drawQuery,
+        chainId: DEFAULT_CHAIN,
         variables: { address, disputeID, roundID },
       }),
   });

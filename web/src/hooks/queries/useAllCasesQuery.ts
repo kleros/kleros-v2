@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { DEFAULT_CHAIN } from "consts/chains";
 
 import { graphql } from "src/graphql";
 import { AllCasesQuery } from "src/graphql/graphql";
@@ -21,6 +22,11 @@ export const useAllCasesQuery = () => {
   return useQuery({
     queryKey: [`allCasesQuery`],
     queryFn: async () =>
-      await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: allCasesQuery, variables: {} }),
+      await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: allCasesQuery,
+        chainId: DEFAULT_CHAIN,
+        variables: {},
+      }),
   });
 };

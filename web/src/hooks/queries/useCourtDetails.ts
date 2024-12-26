@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { REFETCH_INTERVAL } from "consts/index";
+import { DEFAULT_CHAIN } from "consts/chains";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 
 import { graphql } from "src/graphql";
@@ -37,6 +38,11 @@ export const useCourtDetails = (id?: string) => {
     enabled: isEnabled,
     refetchInterval: REFETCH_INTERVAL,
     queryFn: async () =>
-      await graphqlBatcher.fetch({ id: crypto.randomUUID(), document: courtDetailsQuery, variables: { id } }),
+      await graphqlBatcher.fetch({
+        id: crypto.randomUUID(),
+        document: courtDetailsQuery,
+        chainId: DEFAULT_CHAIN,
+        variables: { id },
+      }),
   });
 };

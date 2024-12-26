@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Address } from "viem";
 
+import { DEFAULT_CHAIN } from "consts/chains";
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
 
 import { graphql } from "src/graphql";
@@ -62,6 +63,7 @@ export const useUserQuery = (address?: Address, where?: Dispute_Filter) => {
       await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: query,
+        chainId: DEFAULT_CHAIN,
         variables: { address: address?.toLowerCase(), where },
       }),
   });

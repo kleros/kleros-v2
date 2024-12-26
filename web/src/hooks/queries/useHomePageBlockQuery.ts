@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { DEFAULT_CHAIN } from "consts/chains";
 import { isUndefined } from "utils/index";
 
 import { graphql } from "src/graphql";
@@ -72,6 +73,7 @@ export const useHomePageBlockQuery = (blockNumber: number | undefined, allTime: 
       const data = await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: homePageBlockQuery,
+        chainId: DEFAULT_CHAIN,
         variables: { blockNumber: targetBlock },
       });
 

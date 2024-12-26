@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Address } from "viem";
 
 import { useGraphqlBatcher } from "context/GraphqlBatcher";
+import { DEFAULT_CHAIN } from "consts/chains";
 import { isUndefined } from "utils/index";
 
 import { graphql } from "src/graphql";
@@ -77,6 +78,7 @@ export const useCasesQuery = (skip = 0, first = 3, where?: Dispute_Filter, sortO
       await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: isUndefined(where) ? casesQuery : casesQueryWhere,
+        chainId: DEFAULT_CHAIN,
         variables: {
           first,
           skip,
@@ -98,6 +100,7 @@ export const useMyCasesQuery = (user?: Address, skip = 0, where?: Dispute_Filter
       await graphqlBatcher.fetch({
         id: crypto.randomUUID(),
         document: isUndefined(where) ? myCasesQuery : myCasesQueryWhere,
+        chainId: DEFAULT_CHAIN,
         variables: {
           skip,
           id: user?.toLowerCase(),

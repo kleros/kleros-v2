@@ -53,6 +53,7 @@ const StyledTabs = styled(Tabs)`
   width: 86vw;
   max-width: 660px;
   align-self: center;
+
   ${landscapeStyle(
     () => css`
       width: ${responsiveSize(300, 424, 300)};
